@@ -45,12 +45,12 @@ import { NotificationBellComponent } from './notification-bell.component';
         <!-- User profile menu -->
         <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn">
           <mat-icon>account_circle</mat-icon>
-          <span>{{ auth.username() }}</span>
-          <span>&bull;</span>
-          <span>{{ auth.centerName() }}</span>
+          <span class="user-name">{{ auth.username() }}</span>
+          <span class="separator">•</span>
+          <span class="center-name">{{ auth.centerName() }}</span>
         </button>
         <mat-menu #userMenu="matMenu">
-          @if (auth.hasRole('ROLE_ADMIN')) {
+          @if (auth.hasRole('ROLE_ADMIN') || auth.hasRole('ADMIN')) {
             <button mat-menu-item (click)="router.navigate(['/patients/pec-admin'])">
               <mat-icon>verified</mat-icon> {{ 'NAV.PEC_ADMIN' | translate }}
             </button>
@@ -98,6 +98,9 @@ import { NotificationBellComponent } from './notification-bell.component';
       color: rgba(255,255,255,0.9) !important;
       --mdc-text-button-label-text-color: rgba(255,255,255,0.9) !important;
     }
+    .user-name { margin-left: 2px; }
+    .separator { margin: 0 8px; opacity: 0.7; }
+    .center-name { margin-left: 2px; font-weight: 500; }
     .lang-btn { color: rgba(255,255,255,0.9) !important; }
     .lang-flag { margin-right: 8px; font-size: 18px; }
 

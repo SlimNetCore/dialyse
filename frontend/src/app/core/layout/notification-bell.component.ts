@@ -15,24 +15,30 @@ import { DatePipe } from '@angular/common';
     <button mat-icon-button [matMenuTriggerFor]="notifMenu" class="notif-btn"
             [matBadge]="unreadCount()" [matBadgeHidden]="unreadCount() === 0"
             matBadgeColor="warn" matBadgeSize="small">
-      <mat-icon>notifications</mat-icon>
+      <mat-icon [class.bell-pulse]="unreadCount() > 0">notifications</mat-icon>
     </button>
-    <mat-menu #notifMenu="matMenu" class="notif-menu">
+
+    <mat-menu #notifMenu="matMenu" class="notif-menu" (menuOpened)="markVisibleAsRead()">
       <div class="notif-header" (click)="$event.stopPropagation()">
         <span>{{ 'NOTIFICATION.TITLE' | translate }}</span>
         @if (unreadCount() > 0) {
           <button mat-button class="mark-read" (click)="markAllRead()">{{ 'NOTIFICATION.MARK_READ' | translate }}</button>
         }
       </div>
+
       @if (ws.events().length === 0) {
         <div class="notif-empty" (click)="$event.stopPropagation()">{{ 'NOTIFICATION.EMPTY' | translate }}</div>
       }
-      @for (evt of ws.events().slice(0, 10); track evt.timestamp) {
-        <button mat-menu-item class="notif-item">
+
+      @for (evt of ws.events().slice(0, 12); track eventId(evt)) {
+        <button mat-menu-item class="notif-item" [class.unread]="!isRead(evt)">
           <mat-icon [class]="'notif-icon ' + iconClass(evt)">{{ iconFor(evt) }}</mat-icon>
           <div class="notif-body">
             <span class="notif-text">{{ textFor(evt) }}</span>
-            <span class="notif-time">{{ evt.timestamp | date:'short' }}</span>
+            <div class="notif-meta">
+              <span class="notif-time">{{ evt.timestamp | date:'short' }}</span>
+              <span class="notif-state">{{ isRead(evt) ? 'Lu' : 'Non lu' }}</span>
+            </div>
           </div>
         </button>
       }
@@ -40,17 +46,37 @@ import { DatePipe } from '@angular/common';
   `,
   styles: [`
     .notif-btn { color: rgba(255,255,255,0.9) !important; }
+    .bell-pulse {
+      animation: bellPulse 1.2s ease-in-out infinite;
+      transform-origin: top center;
+    }
+    @keyframes bellPulse {
+      0%, 100% { transform: rotate(0deg); }
+      15% { transform: rotate(10deg); }
+      30% { transform: rotate(-8deg); }
+      45% { transform: rotate(6deg); }
+      60% { transform: rotate(-4deg); }
+      75% { transform: rotate(2deg); }
+    }
+
     .notif-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 16px; border-bottom: 1px solid #eee; font-weight: 600; font-size: 14px;
+      padding: 10px 16px; border-bottom: 1px solid #eef2f1; font-weight: 700; font-size: 14px;
+      background: linear-gradient(180deg, #f7fcf8, #ffffff);
     }
     .mark-read { font-size: 12px; color: #1b5e20; }
-    .notif-empty { padding: 16px; text-align: center; color: #999; font-size: 13px; }
-    .notif-item { display: flex !important; align-items: center; gap: 10px; }
-    .notif-body { display: flex; flex-direction: column; }
-    .notif-text { font-size: 13px; }
+    .notif-empty { padding: 18px; text-align: center; color: #999; font-size: 13px; }
+
+    .notif-item { display: flex !important; align-items: flex-start; gap: 10px; min-width: 360px; }
+    .notif-item.unread { background: #f3fbf5; border-left: 3px solid #2e7d32; }
+    .notif-body { display: flex; flex-direction: column; width: 100%; }
+    .notif-text { font-size: 13px; white-space: normal; line-height: 1.25; }
+    .notif-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
     .notif-time { font-size: 11px; color: #999; }
-    .notif-icon { font-size: 20px; width: 20px; height: 20px; }
+    .notif-state { font-size: 11px; color: #607d8b; }
+    .notif-item.unread .notif-state { color: #1b5e20; font-weight: 600; }
+
+    .notif-icon { font-size: 20px; width: 20px; height: 20px; margin-top: 2px; }
     .notif-icon.patient { color: #1b5e20; }
     .notif-icon.pec { color: #1565c0; }
     .notif-icon.warning { color: #e65100; }
@@ -58,12 +84,31 @@ import { DatePipe } from '@angular/common';
 })
 export class NotificationBellComponent {
   readonly ws = inject(WebSocketService);
-  private readonly readCount = signal(0);
+  private readonly readIds = signal<Set<string>>(new Set<string>());
 
-  readonly unreadCount = computed(() => Math.max(0, this.ws.events().length - this.readCount()));
+  readonly unreadCount = computed(() => {
+    const read = this.readIds();
+    return this.ws.events().filter(e => !read.has(this.eventId(e))).length;
+  });
+
+  eventId(evt: WsEvent): string {
+    return `${evt.type}-${evt.timestamp}-${evt.payload['pecId'] ?? evt.payload['patientCode'] ?? ''}`;
+  }
+
+  isRead(evt: WsEvent): boolean {
+    return this.readIds().has(this.eventId(evt));
+  }
+
+  markVisibleAsRead(): void {
+    const next = new Set(this.readIds());
+    this.ws.events().slice(0, 12).forEach(evt => next.add(this.eventId(evt)));
+    this.readIds.set(next);
+  }
 
   markAllRead(): void {
-    this.readCount.set(this.ws.events().length);
+    const next = new Set(this.readIds());
+    this.ws.events().forEach(evt => next.add(this.eventId(evt)));
+    this.readIds.set(next);
   }
 
   iconFor(evt: WsEvent): string {
@@ -93,4 +138,3 @@ export class NotificationBellComponent {
     }
   }
 }
-

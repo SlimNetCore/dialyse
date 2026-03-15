@@ -58,8 +58,8 @@ interface AttachedFile {
     </div>
   `,
   styles: [`
-    .step-content { padding: 16px 0; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+    .step-content { padding: 0; }
+    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .upload-zone {
       border: 2px dashed #ccc; border-radius: 12px; padding: 40px; text-align: center;
       cursor: pointer; background: #fafafa; transition: border-color 0.2s;

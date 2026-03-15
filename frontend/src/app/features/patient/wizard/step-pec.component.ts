@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
@@ -13,7 +14,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 @Component({
   selector: 'app-step-pec',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatDividerModule, TranslateModule, SearchableSelectComponent],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, TranslateModule, SearchableSelectComponent],
   template: `
     <div class="step-content">
       <!-- Demande -->
@@ -22,6 +23,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }} *</mat-label>
+            <mat-icon matPrefix>event</mat-icon>
             <input matInput [matDatepicker]="dpDeb" formControlName="pecDateDebutDemande" />
             <mat-datepicker-toggle matSuffix [for]="dpDeb" /><mat-datepicker #dpDeb />
             @if (form.get('pecDateDebutDemande')?.hasError('required') && form.get('pecDateDebutDemande')?.touched) {
@@ -30,6 +32,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'WIZARD.PEC_DATE_FIN' | translate }} *</mat-label>
+            <mat-icon matPrefix>event_busy</mat-icon>
             <input matInput [matDatepicker]="dpFin" formControlName="pecDateFinDemande" />
             <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
             @if (form.get('pecDateFinDemande')?.hasError('required') && form.get('pecDateFinDemande')?.touched) {
@@ -49,8 +52,8 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     </div>
   `,
   styles: [`
-    .step-content { padding: 16px 0; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+    .step-content { padding: 0; }
+    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }

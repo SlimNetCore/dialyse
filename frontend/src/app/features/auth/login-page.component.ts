@@ -118,7 +118,7 @@ export class LoginPageComponent {
         this.authSession.setSession(res);
         this.store.switchCenter(res.centerId);
         this.loading.set(false);
-        this.router.navigate(['/patients']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.error.set(err?.error?.detail || err?.error?.message || 'Erreur de connexion');

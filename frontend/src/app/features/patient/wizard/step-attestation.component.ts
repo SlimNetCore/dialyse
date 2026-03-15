@@ -4,12 +4,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-step-attestation',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, TranslateModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, TranslateModule],
   template: `
     <div class="step-content">
       <h3 class="section-title">{{ 'WIZARD.ATTESTATION_TITLE' | translate }}</h3>
@@ -18,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.ATTESTATION_DEBUT' | translate }} *</mat-label>
+            <mat-icon matPrefix>event</mat-icon>
             <input matInput [matDatepicker]="dpDebut" formControlName="attestationDebut" />
             <mat-datepicker-toggle matSuffix [for]="dpDebut" /><mat-datepicker #dpDebut />
             @if (form.get('attestationDebut')?.hasError('required') && form.get('attestationDebut')?.touched) {
@@ -26,6 +28,7 @@ import { TranslateModule } from '@ngx-translate/core';
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.ATTESTATION_FIN' | translate }} *</mat-label>
+            <mat-icon matPrefix>event_available</mat-icon>
             <input matInput [matDatepicker]="dpFin" formControlName="attestationFin" />
             <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
             @if (form.get('attestationFin')?.hasError('required') && form.get('attestationFin')?.touched) {
@@ -39,8 +42,8 @@ import { TranslateModule } from '@ngx-translate/core';
     </div>
   `,
   styles: [`
-    .step-content { padding: 16px 0; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .step-content { padding: 0; }
+    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 8px; }
     .info-text { color: #666; margin-bottom: 16px; font-size: 14px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }

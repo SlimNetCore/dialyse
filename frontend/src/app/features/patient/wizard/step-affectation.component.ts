@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter, inject, signal } from '@angula
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
@@ -11,7 +12,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 @Component({
   selector: 'app-step-affectation',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatCheckboxModule, TranslateModule, SearchableSelectComponent],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatCheckboxModule, TranslateModule, SearchableSelectComponent],
   template: `
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_AFFECTATION' | translate }}</h3>
@@ -28,6 +29,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             [selectedId]="form.get('positionId')?.value" (selectionChanged)="form.patchValue({positionId: $event?.id})" cssClass="flex1" />
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.ETAT_PATIENT' | translate }}</mat-label>
+            <mat-icon matPrefix>monitor_heart</mat-icon>
             <mat-select formControlName="etatPatient">
               <mat-option value="PERMANENT">{{ 'PATIENT_FORM.PERMANENT' | translate }}</mat-option>
               <mat-option value="OCCASIONNEL">{{ 'PATIENT_FORM.OCCASIONNEL' | translate }}</mat-option>
@@ -64,8 +66,8 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     </div>
   `,
   styles: [`
-    .step-content { padding: 16px 0; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+    .step-content { padding: 0; }
+    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .jours-row {

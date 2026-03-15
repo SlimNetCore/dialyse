@@ -121,7 +121,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     }
     :host ::ng-deep .wizard-stepper { background: transparent; }
     :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content {
-      background: #f4faf5; border-radius: 12px; padding: 20px; margin-top: 8px;
+      background: #f4faf5; border-radius: 12px; padding: 12px 20px 20px; margin-top: 0;
       border: 1px solid #e0ede2; min-height: 350px;
     }
     :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content[aria-expanded="false"] {
@@ -268,4 +268,3 @@ export class PatientWizardComponent {
     });
   }
 }
-

@@ -5,6 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
@@ -14,7 +15,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 @Component({
   selector: 'app-step-assurance',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatDividerModule, TranslateModule, SearchableSelectComponent],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, TranslateModule, SearchableSelectComponent],
   template: `
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_INSURANCE' | translate }}</h3>
@@ -22,6 +23,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }} *</mat-label>
+            <mat-icon matPrefix>badge</mat-icon>
             <input matInput formControlName="numeroAssurance" />
             @if (form.get('numeroAssurance')?.hasError('required') && form.get('numeroAssurance')?.touched) {
               <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
@@ -30,6 +32,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.TYPE_PATIENT' | translate }}</mat-label>
+            <mat-icon matPrefix>category</mat-icon>
             <mat-select formControlName="typePatient">
               <mat-option value="NON_VACANCIER">{{ 'PATIENT_FORM.NON_VACANCIER' | translate }}</mat-option>
               <mat-option value="VACANCIER">{{ 'PATIENT_FORM.VACANCIER' | translate }}</mat-option>
@@ -44,6 +47,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             cssClass="flex1" />
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.CODE_CENTRE_PAYEUR' | translate }}</mat-label>
+            <mat-icon matPrefix>pin</mat-icon>
             <input matInput [value]="codeCentrePayeur()" disabled />
           </mat-form-field>
         </div>
@@ -55,6 +59,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           <div class="form-row">
             <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_NOM' | translate }} *</mat-label>
+              <mat-icon matPrefix>person</mat-icon>
               <input matInput formControlName="assureNom" />
               @if (form.get('assureNom')?.hasError('required') && form.get('assureNom')?.touched) {
                 <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
@@ -62,6 +67,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             </mat-form-field>
             <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_PRENOM' | translate }} *</mat-label>
+              <mat-icon matPrefix>person_outline</mat-icon>
               <input matInput formControlName="assurePrenom" />
               @if (form.get('assurePrenom')?.hasError('required') && form.get('assurePrenom')?.touched) {
                 <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
@@ -69,6 +75,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             </mat-form-field>
             <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_SEXE' | translate }}</mat-label>
+              <mat-icon matPrefix>wc</mat-icon>
               <mat-select formControlName="assureSexe">
                 <mat-option value="M">{{ 'PATIENT_FORM.MASCULIN' | translate }}</mat-option>
                 <mat-option value="F">{{ 'PATIENT_FORM.FEMININ' | translate }}</mat-option>
@@ -78,15 +85,18 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           <div class="form-row">
             <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_DATE_NAISSANCE' | translate }}</mat-label>
+              <mat-icon matPrefix>cake</mat-icon>
               <input matInput [matDatepicker]="dpAssure" formControlName="assureDateNaissance" />
               <mat-datepicker-toggle matSuffix [for]="dpAssure" /><mat-datepicker #dpAssure />
             </mat-form-field>
             <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_PERSONNEL' | translate }}</mat-label>
+              <mat-icon matPrefix>phone</mat-icon>
               <input matInput formControlName="assureTelPersonnel" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_GROUPE_SANGUIN' | translate }}</mat-label>
+              <mat-icon matPrefix>bloodtype</mat-icon>
               <mat-select formControlName="assureGroupeSanguin">
                 <mat-option value="">—</mat-option>
                 <mat-option value="A+">A+</mat-option><mat-option value="A-">A-</mat-option>
@@ -98,6 +108,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           </div>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'PATIENT_FORM.ASSURE_ADRESSE' | translate }}</mat-label>
+            <mat-icon matPrefix>home</mat-icon>
             <input matInput formControlName="assureAdresse" />
           </mat-form-field>
         } @else {
@@ -107,8 +118,8 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     </div>
   `,
   styles: [`
-    .step-content { padding: 16px 0; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+    .step-content { padding: 0; }
+    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }

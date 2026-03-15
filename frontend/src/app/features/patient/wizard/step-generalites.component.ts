@@ -26,6 +26,10 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
         <!-- Photo + Identity row -->
         <div class="row-photo">
           <div class="photo-column">
+            <button mat-flat-button class="medical-btn" [disabled]="!isMedecin()" (click)="openMedicalRecord()">
+              <mat-icon>folder_shared</mat-icon>
+              {{ 'PATIENT_FORM.DOSSIER_MEDICAL' | translate }}
+            </button>
             <div class="photo-zone" (click)="photoInput.click()">
               @if (photoPreview()) {
                 <img [src]="photoPreview()" alt="Photo" class="photo-img" />
@@ -35,16 +39,13 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
               }
               <input #photoInput type="file" accept="image/*" hidden (change)="onPhoto($event)" />
             </div>
-            <button mat-stroked-button class="medical-btn" [disabled]="!isMedecin()" (click)="openMedicalRecord()">
-              <mat-icon>folder_shared</mat-icon>
-              {{ 'PATIENT_FORM.DOSSIER_MEDICAL' | translate }}
-            </button>
           </div>
 
           <div class="identity-grid">
             <!-- Row 1: Civilité, Nom, Prénom -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.CIVILITE' | translate }}</mat-label>
+              <mat-icon matPrefix>badge</mat-icon>
               <mat-select formControlName="civilite">
                 <mat-option value="M.">{{ 'PATIENT_FORM.MR' | translate }}</mat-option>
                 <mat-option value="Mme">{{ 'PATIENT_FORM.MRS' | translate }}</mat-option>
@@ -54,6 +55,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.NOM' | translate }} *</mat-label>
+              <mat-icon matPrefix>person</mat-icon>
               <input matInput formControlName="nom" />
               @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
                 <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
@@ -62,6 +64,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.PRENOM' | translate }} *</mat-label>
+              <mat-icon matPrefix>person_outline</mat-icon>
               <input matInput formControlName="prenom" />
               @if (form.get('prenom')?.hasError('required') && form.get('prenom')?.touched) {
                 <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
@@ -71,6 +74,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
             <!-- Row 2: Sexe, Date d'admission, Nombre d'enfants -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.SEXE' | translate }} *</mat-label>
+              <mat-icon matPrefix>wc</mat-icon>
               <mat-select formControlName="sexe">
                 <mat-option value="M">{{ 'PATIENT_FORM.MASCULIN' | translate }}</mat-option>
                 <mat-option value="F">{{ 'PATIENT_FORM.FEMININ' | translate }}</mat-option>
@@ -82,6 +86,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }} *</mat-label>
+              <mat-icon matPrefix>event</mat-icon>
               <input matInput [matDatepicker]="dpAdm" formControlName="dateAdmission" />
               <mat-datepicker-toggle matSuffix [for]="dpAdm" /><mat-datepicker #dpAdm />
               @if (form.get('dateAdmission')?.hasError('required') && form.get('dateAdmission')?.touched) {
@@ -91,12 +96,14 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.NOMBRE_ENFANTS' | translate }}</mat-label>
+              <mat-icon matPrefix>child_care</mat-icon>
               <input matInput type="number" formControlName="nombreEnfants" />
             </mat-form-field>
 
             <!-- Row 3: Groupe sanguin, Date de naissance, Age -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.GROUPE_SANGUIN' | translate }}</mat-label>
+              <mat-icon matPrefix>bloodtype</mat-icon>
               <mat-select formControlName="groupeSanguin">
                 <mat-option value="">—</mat-option>
                 <mat-option value="A+">A+</mat-option><mat-option value="A-">A-</mat-option>
@@ -108,6 +115,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }} *</mat-label>
+              <mat-icon matPrefix>cake</mat-icon>
               <input matInput [matDatepicker]="dpNais" formControlName="dateNaissance" />
               <mat-datepicker-toggle matSuffix [for]="dpNais" /><mat-datepicker #dpNais />
               @if (form.get('dateNaissance')?.hasError('required') && form.get('dateNaissance')?.touched) {
@@ -128,6 +136,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
         <!-- Lieu de naissance -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'PATIENT_FORM.LIEU_NAISSANCE' | translate }}</mat-label>
+          <mat-icon matPrefix>place</mat-icon>
           <input matInput formControlName="lieuNaissance" />
         </mat-form-field>
 
@@ -135,6 +144,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.SITUATION_FAMILIALE' | translate }}</mat-label>
+            <mat-icon matPrefix>diversity_3</mat-icon>
             <mat-select formControlName="situationFamiliale">
               <mat-option value="">—</mat-option>
               <mat-option value="CELIBATAIRE">{{ 'PATIENT_FORM.CELIBATAIRE' | translate }}</mat-option>
@@ -145,10 +155,12 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.PROFESSION1' | translate }}</mat-label>
+            <mat-icon matPrefix>work</mat-icon>
             <input matInput formControlName="profession" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.TEL_MOBILE' | translate }}</mat-label>
+            <mat-icon matPrefix>phone_iphone</mat-icon>
             <input matInput formControlName="telMobile" />
           </mat-form-field>
         </div>
@@ -156,20 +168,24 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.TEL_PERSONNEL' | translate }}</mat-label>
+            <mat-icon matPrefix>phone</mat-icon>
             <input matInput formControlName="telPersonnel" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.TEL_BUREAU' | translate }}</mat-label>
+            <mat-icon matPrefix>phone_in_talk</mat-icon>
             <input matInput formControlName="telBureau" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.EMAIL' | translate }}</mat-label>
+            <mat-icon matPrefix>mail</mat-icon>
             <input matInput type="email" formControlName="email" />
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'PATIENT_FORM.ADRESSE' | translate }}</mat-label>
+          <mat-icon matPrefix>home</mat-icon>
           <input matInput formControlName="adresse" />
         </mat-form-field>
 
@@ -208,6 +224,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
         <!-- Observation with extra spacing below -->
         <mat-form-field appearance="outline" class="full-width observation-field">
           <mat-label>{{ 'PATIENT_FORM.OBSERVATION' | translate }}</mat-label>
+          <mat-icon matPrefix>note_alt</mat-icon>
           <textarea matInput rows="3" formControlName="observation"></textarea>
         </mat-form-field>
       </form>
@@ -223,10 +240,10 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
       cursor: pointer; background: #ffffff; transition: all 0.2s; flex-shrink: 0;
     }
     .medical-btn {
-      margin-top: 10px;
+      margin-bottom: 10px;
       width: 100%;
-      color: #1b5e20;
-      border-color: #1b5e20;
+      --mdc-filled-button-container-color: #1b5e20 !important;
+      --mdc-filled-button-label-text-color: #ffffff !important;
     }
     .photo-zone:hover { border-color: #1b5e20; background: #f9fff9; box-shadow: 0 2px 12px rgba(27,94,32,0.08); }
     .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }

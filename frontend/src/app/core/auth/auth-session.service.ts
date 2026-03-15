@@ -44,7 +44,13 @@ export class AuthSessionService {
   }
 
   hasRole(role: string): boolean {
-    return this.roles().includes(role);
+    const roles = this.roles();
+    if (roles.includes(role)) return true;
+    // Accept both ADMIN and ROLE_ADMIN styles
+    if (role.startsWith('ROLE_')) {
+      return roles.includes(role.replace('ROLE_', ''));
+    }
+    return roles.includes(`ROLE_${role}`);
   }
 
   private restore(): void {
