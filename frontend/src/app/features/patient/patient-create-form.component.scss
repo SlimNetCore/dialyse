@@ -1,0 +1,238 @@
+/* ══════════════════════════════════════
+   PATIENT FORM – Screenshot-matching layout
+   ══════════════════════════════════════ */
+
+$green: #1b5e20;
+$green-light: #e8f5e9;
+$green-border: #c8e6c9;
+$border: #d4ddd6;
+$bg: #f7faf8;
+$text: #1e293b;
+$text-muted: #64748b;
+
+.patient-page {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ── Internal Tabs ── */
+.patient-tabs {
+  ::ng-deep .mdc-tab__text-label { font-size: 13px; font-weight: 600; }
+  ::ng-deep .mdc-tab--active .mdc-tab__text-label { color: $green !important; }
+  ::ng-deep .mdc-tab-indicator__content--underline { border-color: $green !important; }
+  ::ng-deep .mat-mdc-tab-body-wrapper { padding: 12px 16px; }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 5px; }
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; padding-bottom: 8px;
+  border-bottom: 1px solid $border; margin-bottom: 12px;
+}
+.lbl { font-size: 13px; font-weight: 600; color: $text; }
+.lbl.required { color: $green; }
+.code-badge {
+  font-family: 'Courier New', monospace; font-weight: 700;
+  background: $green-light; color: $green; padding: 4px 12px;
+  border-radius: 6px; border: 1px solid $green-border; font-size: 13px;
+}
+.btn-dossier {
+  font-size: 12px !important;
+  ::ng-deep .mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+.field-inline { display: flex; align-items: center; gap: 8px; }
+
+/* ── BODY GRID ── */
+.body-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── COL LEFT ── */
+.col-left {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.photo-zone {
+  width: 170px; height: 210px;
+  border: 2px dashed $green-border; border-radius: 10px;
+  cursor: pointer; position: relative; overflow: hidden;
+  background: $bg; transition: border-color 0.2s;
+  &:hover { border-color: $green; }
+}
+.photo-img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.photo-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%; color: #a5d6a7;
+  mat-icon { font-size: 56px; width: 56px; height: 56px; }
+  span { font-size: 12px; margin-top: 4px; }
+}
+.photo-del {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(239,68,68,0.9) !important; color: #fff !important;
+  width: 24px !important; height: 24px !important;
+  ::ng-deep mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+/* ── COL CENTER ── */
+.col-center {
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+/* ── COL RIGHT ── */
+.col-right {
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+/* ── FIELDSETS ── */
+.fieldset {
+  border: 1px solid $border; border-radius: 8px;
+  padding: 10px 12px 6px; margin: 0;
+  legend {
+    font-size: 13px; font-weight: 700; color: $green;
+    padding: 0 6px;
+  }
+}
+.assure-box {
+  background: #fafffe;
+}
+.assure-actions {
+  display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;
+  button { font-size: 11px; }
+}
+
+/* ── OBSERVATION ── */
+.obs-row {
+  display: flex; justify-content: flex-end; margin-top: 8px;
+}
+.obs-field { width: 360px; }
+
+/* ── QUALITE BAR (radio) ── */
+.qualite-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 0; border-top: 1px solid $border;
+  border-bottom: 1px solid $border; margin: 8px 0;
+  mat-radio-button { font-size: 13px; }
+}
+
+/* ── AFFECTATION ── */
+.affectation-box { margin-top: 4px; }
+.affect-grid { display: flex; flex-direction: column; gap: 2px; }
+
+/* ── JOURS DE DIALYSE ── */
+.jours-box { margin-top: 6px; background: $green-light; }
+.jours-label { color: #d32f2f; font-style: italic; font-weight: 400; }
+.jours-checks {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  padding: 4px 0;
+}
+
+/* ── MEDICAL ROW (KT + EPO + FER) ── */
+.medical-row {
+  display: flex; align-items: center; gap: 24px;
+  padding: 10px 0; flex-wrap: wrap;
+}
+.kt-check { font-size: 14px; }
+.check-date {
+  display: flex; align-items: center; gap: 10px;
+}
+.date-inline {
+  max-width: 160px;
+  margin-bottom: -1.25em;
+}
+
+/* ── FORM ACTIONS ── */
+.form-actions {
+  display: flex; justify-content: flex-end; gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid $border; background: $bg;
+}
+
+/* ── TAB CONTENT ── */
+.tab-content { padding: 12px 0; }
+.section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 600; color: $green;
+  margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.3px;
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+/* ── PJ ── */
+.pj-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.pj-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 8px;
+  background: $green-light; border: 1px solid $green-border;
+  font-size: 13px; color: #166534;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  button { width: 24px; height: 24px; }
+}
+
+/* ── UTILITY ── */
+.full { width: 100%; }
+.w-xs { width: 80px; flex-shrink: 0; }
+.w-sm { width: 120px; flex-shrink: 0; }
+.w-md { width: 180px; flex-shrink: 0; }
+.flex1 { flex: 1; min-width: 0; }
+.flex2 { flex: 2; min-width: 0; }
+
+.row-inline {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+}
+.check-inline {
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ── COMPACT MAT-FORM-FIELD ── */
+::ng-deep .patient-page .mat-mdc-form-field {
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+::ng-deep .patient-page .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+::ng-deep .patient-page .mdc-text-field--outlined {
+  --mdc-outlined-text-field-container-shape: 6px;
+}
+::ng-deep .patient-page .mat-mdc-text-field-wrapper {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+::ng-deep .patient-page .mat-mdc-form-field-infix {
+  padding-top: 8px !important;
+  padding-bottom: 4px !important;
+}
+::ng-deep .patient-page .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading,
+::ng-deep .patient-page .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__notch,
+::ng-deep .patient-page .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-color: $border;
+}
+::ng-deep .patient-page .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input {
+  font-size: 13px;
+}
+::ng-deep .patient-page .mat-mdc-floating-label {
+  font-size: 12px;
+}
+/* Searchable select in compact mode */
+::ng-deep .patient-page app-searchable-select .mat-mdc-form-field {
+  margin-bottom: 2px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .body-grid {
+    grid-template-columns: 170px 1fr;
+  }
+  .col-right { grid-column: 1 / -1; }
+}
+@media (max-width: 750px) {
+  .body-grid { grid-template-columns: 1fr; }
+  .top-bar { flex-direction: column; align-items: flex-start; }
+  .qualite-bar { flex-direction: column; align-items: flex-start; }
+}

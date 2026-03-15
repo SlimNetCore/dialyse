@@ -1,0 +1,252 @@
+:host {
+  --green-dark: #1b5e20;
+  --green-mid: #2e7d32;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --surface: #ffffff;
+  --bg: #f7faf8;
+}
+
+/* ─── TOOLBAR ─── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, #388e3c 100%);
+  color: #fff;
+  padding: 0 24px;
+  height: 64px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.3px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.logout-btn {
+  --mdc-filled-button-container-color: rgba(255,255,255,0.15) !important;
+  --mdc-filled-button-label-text-color: #fff !important;
+}
+
+/* ─── MAIN CONTAINER ─── */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: grid;
+  gap: 24px;
+}
+
+/* ─── WELCOME SECTION ─── */
+.welcome-card {
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+  border: none !important;
+  padding: 8px;
+}
+
+.welcome-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.welcome-text h1 {
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.welcome-text p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+.welcome-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  min-width: 80px;
+}
+
+.stat-box .value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.stat-box .label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* ─── GRID ─── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.center-select {
+  width: 100%;
+}
+
+/* ─── FEEDBACK ─── */
+.feedback-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.feedback-bar.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.feedback-bar.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.feedback-bar.info {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* ─── STATUS ROW ─── */
+.status-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.status-card {
+  position: relative;
+  overflow: hidden;
+  padding: 4px 4px 4px 0;
+}
+
+.status-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+}
+
+.status-card.cree::before { background: #f59e0b; }
+.status-card.validee::before { background: #10b981; }
+.status-card.cloturee::before { background: #ef4444; }
+
+@media (max-width: 880px) {
+  .welcome-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .welcome-stats {
+    width: 100%;
+  }
+}
+
+/* ─── LANGUAGE SWITCHER ─── */
+.lang-btn {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.lang-flag {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.active-lang {
+  background: rgba(27, 94, 32, 0.1);
+  font-weight: 700;
+}
+
+/* ─── TABS ─── */
+.main-tabs {
+  .tab-label-text {
+    margin-left: 8px;
+    font-weight: 600;
+  }
+}
+
+::ng-deep .main-tabs .mdc-tab--active .mdc-tab__text-label {
+  color: var(--green-dark) !important;
+}
+
+::ng-deep .main-tabs .mdc-tab-indicator__content--underline {
+  border-color: var(--green-dark) !important;
+}
+
+/* ─── RTL SUPPORT ─── */
+:host-context([dir="rtl"]) {
+  .topbar {
+    flex-direction: row-reverse;
+  }
+
+  .brand {
+    flex-direction: row-reverse;
+  }
+
+  .topbar-right {
+    flex-direction: row-reverse;
+  }
+
+  .user-info {
+    flex-direction: row-reverse;
+  }
+
+  .status-card::before {
+    left: auto;
+    right: 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .lang-flag {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+}
+

@@ -1,0 +1,22 @@
+# IntelliJ/WebStorm
+.idea/
+*.iml
+
+# Node
+node_modules/
+dist/
+
+# Java
+**/target/
+
+# Logs
+*.log
+
+# Env
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
