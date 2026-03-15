@@ -98,6 +98,8 @@ public class DocumentRestController {
                 Map.of("code", "ATTESTATION", "label", "Attestation d'ouverture de droit"),
                 Map.of("code", "PEC", "label", "Prise en charge"),
                 Map.of("code", "LISTE_PATIENTS", "label", "Liste des patients"),
+                Map.of("code", "LISTE_PEC", "label", "Liste des prises en charge"),
+                Map.of("code", "LISTE_ATTESTATIONS", "label", "Liste des attestations"),
                 Map.of("code", "CUSTOM", "label", "Rapport personnalisé")
         ));
     }
@@ -227,4 +229,3 @@ public class DocumentRestController {
         };
     }
 }
-

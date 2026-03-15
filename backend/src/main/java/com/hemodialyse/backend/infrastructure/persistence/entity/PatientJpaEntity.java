@@ -31,6 +31,7 @@ public class PatientJpaEntity {
     @Column(name = "numero_assurance", nullable = false) private String numeroAssurance;
     @Column(name = "type_patient", nullable = false) private String typePatient;
     @Column(name = "etat_patient") private String etatPatient;
+    @Column(name = "date_evenement_etat") private LocalDate dateEvenementEtat;
     @Column(name = "qualite_assure") private String qualiteAssure;
     @Column(name = "observation", columnDefinition = "TEXT") private String observation;
     @Column(name = "sous_kt") private Boolean sousKt;
@@ -86,6 +87,7 @@ public class PatientJpaEntity {
     public String getNumeroAssurance() { return numeroAssurance; } public void setNumeroAssurance(String v) { this.numeroAssurance = v; }
     public String getTypePatient() { return typePatient; } public void setTypePatient(String v) { this.typePatient = v; }
     public String getEtatPatient() { return etatPatient; } public void setEtatPatient(String v) { this.etatPatient = v; }
+    public LocalDate getDateEvenementEtat() { return dateEvenementEtat; } public void setDateEvenementEtat(LocalDate v) { this.dateEvenementEtat = v; }
     public String getQualiteAssure() { return qualiteAssure; } public void setQualiteAssure(String v) { this.qualiteAssure = v; }
     public String getObservation() { return observation; } public void setObservation(String v) { this.observation = v; }
     public Boolean getSousKt() { return sousKt; } public void setSousKt(Boolean v) { this.sousKt = v; }

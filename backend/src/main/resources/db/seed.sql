@@ -145,3 +145,12 @@ VALUES ('d0d00001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-1111111
         'LISTE_PATIENTS', 'Liste des patients', 'LISTE_PATIENTS',
         'reports/liste_patients.jrxml', 'PDF', 'Liste complète des patients du centre');
 
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
+VALUES ('d0d00001-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111',
+        'LISTE_PEC', 'Liste des prises en charge', 'LISTE_PEC',
+        'reports/liste_pec.jrxml', 'PDF', 'Liste de toutes les prises en charge du centre');
+
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
+VALUES ('d0d00001-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111',
+        'LISTE_ATTESTATIONS', 'Liste des attestations', 'LISTE_ATTESTATIONS',
+        'reports/liste_attestations.jrxml', 'PDF', 'Liste de toutes les attestations du centre');

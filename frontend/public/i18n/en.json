@@ -72,6 +72,7 @@
     "ASSURE_GROUPE_SANGUIN": "Blood group",
     "NOUVEAU": "New",
     "ETAT_PATIENT": "Patient status",
+    "DATE_EVENEMENT_ETAT": "Event date",
     "PERMANENT": "Permanent", "OCCASIONNEL": "Occasional", "TRANSFERE": "Transferred",
     "DECEDE": "Deceased", "GREFFE": "Transplanted", "GUERRI": "Cured",
     "VACANCIER_LOCAL": "Local vacationer", "VACANCIER_ETRANGER": "Foreign vacationer",
@@ -99,7 +100,12 @@
     "COL_CODE": "Code", "COL_NOM": "Last name", "COL_PRENOM": "First name",
     "COL_SEXE": "Gender", "COL_DATE_ADMISSION": "Admission", "COL_ASSURANCE": "Insurance #",
     "COL_ETAT": "Status", "COL_ACTIONS": "Actions",
-    "EMPTY": "No patient found", "BTN_NEW": "New patient", "TOTAL": "{{count}} patient(s)"
+    "EMPTY": "No patient found", "BTN_NEW": "New patient",
+    "BTN_VIEW": "View",
+    "BTN_PRINT": "Print",
+    "BTN_PRINT_LIST": "Print patient list",
+    "BTN_EXPORT_EXCEL": "Export Excel",
+    "TOTAL": "{{count}} patient(s)"
   },
   "PATIENT": {
     "TITLE": "Patient",
@@ -151,6 +157,9 @@
     "NEXT": "Next",
     "PREV": "Previous",
     "SAVE": "Save patient",
+    "ENABLE_EDIT": "Enable editing",
+    "READONLY_MODE": "Read-only mode",
+    "EDITING_MODE": "Editing mode",
     "ASSURE_SAME_AS_PATIENT": "The patient is the insured person — information is automatically copied.",
     "ATTESTATION_TITLE": "Rights Opening Certificate",
     "ATTESTATION_DESC": "Enter the validity period for this patient's certificate.",
@@ -208,6 +217,24 @@
     "TITLE": "Notifications",
     "EMPTY": "No notifications",
     "MARK_READ": "Mark all as read"
+  },
+  "PEC_LIST": {
+    "TITLE": "Coverage list",
+    "COL_CODE": "Patient code",
+    "COL_PATIENT": "Patient",
+    "COL_ASSURANCE": "Insurance #",
+    "COL_DEBUT": "Start date",
+    "COL_FIN": "End date",
+    "COL_STATUS": "Status",
+    "COL_ACTIONS": "Actions"
+  },
+  "ATTEST_LIST": {
+    "TITLE": "Certificates list",
+    "COL_CODE": "Patient code",
+    "COL_PATIENT": "Patient",
+    "COL_ASSURANCE": "Insurance #",
+    "COL_DEBUT": "Start date",
+    "COL_FIN": "End date",
+    "COL_ACTIONS": "Actions"
   }
 }
-

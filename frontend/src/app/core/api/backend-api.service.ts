@@ -31,6 +31,7 @@ export type CreatePatientPayload = {
   telBureau?: string;
   email?: string;
   etatPatient?: string;
+  dateEvenementEtat?: string;
   qualiteAssure?: string;
   observation?: string;
   sousKt?: boolean;
@@ -94,6 +95,10 @@ export class BackendApiService {
     return this.http.get<unknown>(`${this.baseUrl}/patients/${patientId}`, { params });
   }
 
+  updatePatient(patientId: string, payload: CreatePatientPayload): Observable<{ id: string; centerId: string; typePatient: PatientType }> {
+    return this.http.put<{ id: string; centerId: string; typePatient: PatientType }>(`${this.baseUrl}/patients/${patientId}`, payload);
+  }
+
   createPec(payload: CreatePecPayload): Observable<{ id: string; status: PecStatus }> {
     return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec`, payload);
   }
@@ -109,6 +114,26 @@ export class BackendApiService {
   listPecs(centerId: string): Observable<any[]> {
     const params = new HttpParams().set('centerId', centerId);
     return this.http.get<any[]>(`${this.baseUrl}/pec`, { params });
+  }
+
+  listPecsDetailed(centerId: string): Observable<any[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<any[]>(`${this.baseUrl}/pec/pec-center`, { params });
+  }
+
+  listPecsByPatient(centerId: string, patientId: string): Observable<any[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<any[]>(`${this.baseUrl}/pec/patient/${patientId}`, { params });
+  }
+
+  listAttestationsByPatient(centerId: string, patientId: string): Observable<any[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<any[]>(`${this.baseUrl}/pec/attestations/${patientId}`, { params });
+  }
+
+  listAttestationsByCenter(centerId: string): Observable<any[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<any[]>(`${this.baseUrl}/pec/attestations-center`, { params });
   }
 
   closePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {

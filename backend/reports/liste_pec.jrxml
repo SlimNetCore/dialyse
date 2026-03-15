@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="liste_pec" pageWidth="842" pageHeight="595" orientation="Landscape"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" columnWidth="802">
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <queryString><![CDATA[
+      SELECT pc.id, p.code_patient, p.nom, p.prenom, p.numero_assurance,
+             pc.date_debut_demande, pc.date_fin_demande, pc.statut
+      FROM prise_en_charge pc
+      JOIN patients p ON p.id = pc.patient_id AND p.center_id = pc.center_id
+      WHERE pc.center_id = CAST($P{CENTER_ID} AS UUID)
+      ORDER BY pc.date_fin_demande DESC
+    ]]></queryString>
+
+    <field name="CODE_PATIENT" class="java.lang.String"/>
+    <field name="NOM" class="java.lang.String"/>
+    <field name="PRENOM" class="java.lang.String"/>
+    <field name="NUMERO_ASSURANCE" class="java.lang.String"/>
+    <field name="DATE_DEBUT_DEMANDE" class="java.sql.Date"/>
+    <field name="DATE_FIN_DEMANDE" class="java.sql.Date"/>
+    <field name="STATUT" class="java.lang.String"/>
+
+    <title><band height="40"><staticText><reportElement x="0" y="8" width="802" height="24"/><textElement textAlignment="Center"><font size="14" isBold="true"/></textElement><text><![CDATA[LISTE DES PRISES EN CHARGE]]></text></staticText></band></title>
+    <columnHeader><band height="20">
+      <staticText><reportElement x="0" y="0" width="80" height="18" backcolor="#1B5E20" mode="Opaque" forecolor="#FFFFFF"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Code]]></text></staticText>
+      <staticText><reportElement x="80" y="0" width="120" height="18" backcolor="#1B5E20" mode="Opaque" forecolor="#FFFFFF"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Nom]]></text></staticText>
+      <staticText><reportElement x="200" y="0" width="120" height="18" backcolor="#1B5E20" mode="Opaque" forecolor="#FFFFFF"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Prénom]]></text></staticText>
+      <staticText><reportElement x="320" y="0" width="130" height="18" backcolor="#1B5E20" mode="Opaque" forecolor="#FFFFFF"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[N° Assurance]]></text></staticText>
+      <staticText><reportElement x="450" y="0" width="110" height="18" backcolor="#1B5E20" mode="Opaque" forecolor="#FFFFFF"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Début]]></text></staticText>
+      <staticText><reportElement x="560" y="0" width="110" height="18" backcolor="#1B5E20" mode="Opaque" forecolor="#FFFFFF"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Fin]]></text></staticText>
+      <staticText><reportElement x="670" y="0" width="132" height="18" backcolor="#1B5E20" mode="Opaque" forecolor="#FFFFFF"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Statut]]></text></staticText>
+    </band></columnHeader>
+    <detail><band height="16">
+      <textField><reportElement x="0" y="0" width="80" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{CODE_PATIENT}]]></textFieldExpression></textField>
+      <textField><reportElement x="80" y="0" width="120" height="14"/><textElement><font size="7"/></textElement><textFieldExpression><![CDATA[$F{NOM}]]></textFieldExpression></textField>
+      <textField><reportElement x="200" y="0" width="120" height="14"/><textElement><font size="7"/></textElement><textFieldExpression><![CDATA[$F{PRENOM}]]></textFieldExpression></textField>
+      <textField><reportElement x="320" y="0" width="130" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{NUMERO_ASSURANCE}]]></textFieldExpression></textField>
+      <textField><reportElement x="450" y="0" width="110" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{DATE_DEBUT_DEMANDE}]]></textFieldExpression></textField>
+      <textField><reportElement x="560" y="0" width="110" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{DATE_FIN_DEMANDE}]]></textFieldExpression></textField>
+      <textField><reportElement x="670" y="0" width="132" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{STATUT}]]></textFieldExpression></textField>
+    </band></detail>
+</jasperReport>
+

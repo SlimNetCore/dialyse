@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,7 @@ import { AuthSessionService } from '../auth/auth-session.service';
 import { LangService } from '../i18n/lang.service';
 import { WebSocketService } from '../ws/websocket.service';
 import { NotificationBellComponent } from './notification-bell.component';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-shell',
@@ -86,6 +87,14 @@ import { NotificationBellComponent } from './notification-bell.component';
 
       <!-- MAIN CONTENT -->
       <main class="content">
+        @if (breadcrumbs().length > 0) {
+          <div class="breadcrumb">
+            @for (b of breadcrumbs(); track $index; let i = $index) {
+              <button type="button" class="crumb-btn" [class.last]="i === breadcrumbs().length - 1" (click)="goBreadcrumb(i)">{{ b }}</button>
+              @if (i < breadcrumbs().length - 1) { <mat-icon class="sep">chevron_right</mat-icon> }
+            }
+          </div>
+        }
         <router-outlet />
       </main>
     </div>
@@ -133,6 +142,12 @@ import { NotificationBellComponent } from './notification-bell.component';
     .nav-item mat-icon { min-width: 24px; }
 
     .content { flex: 1; overflow-y: auto; padding: 24px; background: #fbfdfc; }
+    .breadcrumb { display:flex; align-items:center; gap:4px; margin-bottom:10px; color:#6b7280; font-size:12px; }
+    .crumb.last { color:#1b5e20; font-weight:600; }
+    .crumb-btn { border:0; background:transparent; cursor:pointer; color:#6b7280; font-size:12px; padding:0; }
+    .crumb-btn:hover { color:#1b5e20; text-decoration:underline; }
+    .crumb-btn.last { color:#1b5e20; font-weight:600; cursor:default; text-decoration:none; }
+    .sep { font-size:16px; width:16px; height:16px; color:#9ca3af; }
   `]
 })
 export class ShellComponent implements OnInit {
@@ -141,6 +156,8 @@ export class ShellComponent implements OnInit {
   readonly router = inject(Router);
   private readonly ws = inject(WebSocketService);
   readonly sidebarExpanded = signal(false);
+  readonly breadcrumbs = signal<string[]>([]);
+  private breadcrumbRoutes: string[] = [];
 
   readonly navItems = [
     { route: '/dashboard', icon: 'dashboard', label: 'NAV.DASHBOARD' },
@@ -152,6 +169,33 @@ export class ShellComponent implements OnInit {
 
   ngOnInit(): void {
     this.ws.connect();
+    this.computeBreadcrumb(this.router.url);
+    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(e => {
+      this.computeBreadcrumb(e.urlAfterRedirects);
+    });
+  }
+
+  private computeBreadcrumb(url: string): void {
+    const map: Record<string, string> = {
+      dashboard: 'Dashboard',
+      patients: 'Patients',
+      new: 'Nouveau',
+      'pec-admin': 'Validation PEC',
+      'pec-list': 'Liste PEC',
+      'attestations-list': 'Liste attestations',
+      admin: 'Administration',
+      users: 'Utilisateurs',
+      'modeles-document': 'Modèles documents'
+    };
+    const segs = url.split('?')[0].split('/').filter(Boolean);
+    this.breadcrumbRoutes = segs;
+    this.breadcrumbs.set(segs.map(s => map[s] ?? s));
+  }
+
+  goBreadcrumb(index: number): void {
+    if (index < 0 || index >= this.breadcrumbRoutes.length) return;
+    const target = '/' + this.breadcrumbRoutes.slice(0, index + 1).join('/');
+    this.router.navigateByUrl(target);
   }
 
   onLogout(): void {

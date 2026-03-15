@@ -98,6 +98,7 @@
     "ASSURE_GROUPE_SANGUIN": "Groupe sanguin",
     "NOUVEAU": "Nouveau",
     "ETAT_PATIENT": "État du patient",
+    "DATE_EVENEMENT_ETAT": "Date de l'événement",
     "PERMANENT": "Permanent(e)",
     "OCCASIONNEL": "Occasionnel",
     "TRANSFERE": "Transféré",
@@ -155,6 +156,10 @@
     "COL_ACTIONS": "Actions",
     "EMPTY": "Aucun patient trouvé",
     "BTN_NEW": "Nouveau patient",
+    "BTN_VIEW": "Voir",
+    "BTN_PRINT": "Imprimer",
+    "BTN_PRINT_LIST": "Imprimer la liste des patients",
+    "BTN_EXPORT_EXCEL": "Exporter Excel",
     "TOTAL": "{{count}} patient(s)"
   },
   "PATIENT": {
@@ -207,6 +212,9 @@
     "NEXT": "Suivant",
     "PREV": "Précédent",
     "SAVE": "Enregistrer le patient",
+    "ENABLE_EDIT": "Activer la modification",
+    "READONLY_MODE": "Mode consultation",
+    "EDITING_MODE": "Mode modification",
     "ASSURE_SAME_AS_PATIENT": "Le patient est l'assuré lui-même — les informations sont reprises automatiquement.",
     "ATTESTATION_TITLE": "Attestation d'ouverture de droit",
     "ATTESTATION_DESC": "Renseignez la période de validité de l'attestation pour ce patient.",
@@ -264,6 +272,24 @@
     "TITLE": "Notifications",
     "EMPTY": "Aucune notification",
     "MARK_READ": "Tout marquer comme lu"
+  },
+  "PEC_LIST": {
+    "TITLE": "Liste PEC",
+    "COL_CODE": "Code patient",
+    "COL_PATIENT": "Patient",
+    "COL_ASSURANCE": "N° assurance",
+    "COL_DEBUT": "Date début",
+    "COL_FIN": "Date fin",
+    "COL_STATUS": "Statut",
+    "COL_ACTIONS": "Actions"
+  },
+  "ATTEST_LIST": {
+    "TITLE": "Liste attestations",
+    "COL_CODE": "Code patient",
+    "COL_PATIENT": "Patient",
+    "COL_ASSURANCE": "N° assurance",
+    "COL_DEBUT": "Date début",
+    "COL_FIN": "Date fin",
+    "COL_ACTIONS": "Actions"
   }
 }
-

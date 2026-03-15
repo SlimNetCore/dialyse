@@ -1,5 +1,5 @@
-import { Component, inject, signal, computed, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, signal, computed, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatStepperModule, MatStepper } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +29,18 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     <div class="wizard-container">
       <div class="wizard-header">
         <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
-        <h2>{{ 'WIZARD.TITLE' | translate }}</h2>
+        <h2>{{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.TITLE' | translate) }}</h2>
+        @if (editMode()) {
+          <div class="mode-badge" [class.editing]="!consultationMode()">
+            {{ consultationMode() ? ('WIZARD.READONLY_MODE' | translate) : ('WIZARD.EDITING_MODE' | translate) }}
+          </div>
+          @if (consultationMode()) {
+            <button mat-stroked-button class="edit-toggle-btn" (click)="enableEditing()">
+              <mat-icon>edit</mat-icon>
+              {{ 'WIZARD.ENABLE_EDIT' | translate }}
+            </button>
+          }
+        }
         <div class="wizard-progress">
           {{ 'WIZARD.STEP' | translate }} {{ currentStep() + 1 }} / {{ totalSteps() }}
         </div>
@@ -38,7 +49,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       <mat-stepper #stepper [linear]="false" [animationDuration]="'0'" (selectionChange)="onStepChange($event)" class="wizard-stepper">
         <!-- Step 1: Généralités -->
         <mat-step [label]="'WIZARD.STEP_GENERALITES' | translate" [completed]="step1Valid()" [editable]="true">
-          <app-step-generalites #stepGen (dataChange)="updateData($event)" (validChange)="step1Valid.set($event)" />
+          <app-step-generalites #stepGen [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step1Valid.set($event)" />
           <div class="step-actions">
             <span></span>
             <button mat-flat-button class="next-btn" (click)="tryNext(0)">
@@ -49,7 +60,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 2: Assurance -->
         <mat-step [label]="'WIZARD.STEP_ASSURANCE' | translate" [completed]="step2Valid()" [editable]="true">
-          <app-step-assurance #stepAss (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
+          <app-step-assurance #stepAss [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
             <button mat-flat-button class="next-btn" (click)="tryNext(1)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -58,7 +69,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 3: Affectation -->
         <mat-step [label]="'WIZARD.STEP_AFFECTATION' | translate" [editable]="true">
-          <app-step-affectation #stepAff (dataChange)="updateData($event)" />
+          <app-step-affectation #stepAff [readonly]="consultationMode()" (dataChange)="updateData($event)" />
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
             <button mat-flat-button class="next-btn" matStepperNext>{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -68,7 +79,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         <!-- Step 4: Attestation (hidden for vacancier) -->
         @if (!isVacancier()) {
           <mat-step [label]="'WIZARD.STEP_ATTESTATION' | translate" [completed]="step4Valid()" [editable]="true">
-            <app-step-attestation #stepAtt (dataChange)="updateData($event)" (validChange)="step4Valid.set($event)" />
+            <app-step-attestation #stepAtt [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step4Valid.set($event)" />
             <div class="step-actions">
               <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
               <button mat-flat-button class="next-btn" (click)="tryNext(3)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -78,7 +89,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 5: PEC -->
         <mat-step [label]="'WIZARD.STEP_PEC' | translate" [completed]="step5Valid()" [editable]="true">
-          <app-step-pec #stepPec (dataChange)="updateData($event)" (validChange)="step5Valid.set($event)" />
+          <app-step-pec #stepPec [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined" (dataChange)="updateData($event)" (validChange)="step5Valid.set($event)" />
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
             <button mat-flat-button class="next-btn" (click)="tryNext(4)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -87,11 +98,11 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 6: Pièces jointes -->
         <mat-step [label]="'WIZARD.STEP_PJ' | translate" [editable]="true">
-          <app-step-pieces-jointes (dataChange)="updateData($event)" />
+          <app-step-pieces-jointes #stepPj [readonly]="consultationMode()" (dataChange)="updateData($event)" />
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="save-btn" (click)="submit()" [disabled]="saving() || !canSave()">
-              <mat-icon>save</mat-icon> {{ 'WIZARD.SAVE' | translate }}
+            <button mat-flat-button class="save-btn" (click)="submit()" [disabled]="saving() || !canSave() || consultationMode()">
+              <mat-icon>save</mat-icon> {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.SAVE' | translate) }}
             </button>
           </div>
         </mat-step>
@@ -108,6 +119,9 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       background: #e8f5e9; color: #1b5e20; padding: 6px 16px; border-radius: 20px;
       font-size: 13px; font-weight: 600;
     }
+    .mode-badge { background:#eef2ff; color:#4338ca; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; }
+    .mode-badge.editing { background:#dcfce7; color:#166534; }
+    .edit-toggle-btn { border-color:#1b5e20 !important; color:#1b5e20 !important; }
     .step-actions {
       display: flex; justify-content: space-between; margin-top: 16px; padding: 5px 5px 5px 5px;
       border-top: 1px solid #e0e0e0;
@@ -166,13 +180,14 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     }
   `]
 })
-export class PatientWizardComponent {
+export class PatientWizardComponent implements OnInit, AfterViewInit {
   @ViewChild('stepper') stepper!: MatStepper;
   @ViewChild('stepGen') stepGen!: StepGeneralitesComponent;
   @ViewChild('stepAss') stepAss!: StepAssuranceComponent;
   @ViewChild('stepAff') stepAff!: StepAffectationComponent;
   @ViewChild('stepAtt') stepAtt!: StepAttestationComponent;
   @ViewChild('stepPec') stepPec!: StepPecComponent;
+  @ViewChild('stepPj') stepPj!: StepPiecesJointesComponent;
 
   private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthSessionService);
@@ -180,6 +195,7 @@ export class PatientWizardComponent {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly currentStep = signal(0);
   readonly saving = signal(false);
@@ -194,9 +210,13 @@ export class PatientWizardComponent {
   wizardData: Record<string, any> = {};
 
   readonly totalSteps = computed(() => this.isVacancier() ? 5 : 6);
+  readonly editingPatientId = signal<string | null>(null);
+  readonly editMode = computed(() => !!this.editingPatientId());
+  readonly consultationMode = signal(false);
 
   readonly canSave = computed(() => {
     const base = this.step1Valid() && this.step2Valid() && this.step5Valid();
+    if (this.consultationMode()) return false;
     if (this.isVacancier()) return base;
     return base && this.step4Valid();
   });
@@ -215,6 +235,10 @@ export class PatientWizardComponent {
 
   /** Validate current step before moving to next */
   tryNext(stepIndex: number): void {
+    if (this.consultationMode()) {
+      this.stepper.next();
+      return;
+    }
     const stepComponents = [this.stepGen, this.stepAss, this.stepAff, this.stepAtt, this.stepPec];
     const step = stepComponents[stepIndex];
     if (step) {
@@ -232,6 +256,77 @@ export class PatientWizardComponent {
 
   goBack(): void { this.router.navigate(['/patients']); }
 
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
+    const centerId = this.store.currentCenterId();
+    if (!centerId) return;
+
+    this.editingPatientId.set(id);
+    this.consultationMode.set(true);
+
+    this.api.getPatient(id, centerId, this.auth.username() ?? 'demo').subscribe({
+      next: (p: any) => {
+        this.wizardData = {
+          ...this.wizardData,
+          ...p,
+          numeroAssurance: p?.numeroAssurance?.value ?? p?.numeroAssurance,
+          attestationDebut: null,
+          attestationFin: null,
+          pecDateDebutDemande: null,
+          pecDateFinDemande: null
+        };
+
+        this.api.listAttestationsByPatient(centerId, id).subscribe(a => {
+          this.wizardData = { ...this.wizardData, attestationHistory: a ?? [] };
+          const first = (a ?? [])[0];
+          if (first) {
+            this.wizardData = {
+              ...this.wizardData,
+              attestationDebut: first.dateDebut ?? first.DATE_DEBUT,
+              attestationFin: first.dateFin ?? first.DATE_FIN
+            };
+          }
+          this.patchStepsFromWizardData();
+        });
+
+        this.api.listPecsByPatient(centerId, id).subscribe(pecs => {
+          this.wizardData = { ...this.wizardData, pecHistory: pecs ?? [] };
+          const first = (pecs ?? [])[0];
+          if (first) {
+            this.wizardData = {
+              ...this.wizardData,
+              pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE,
+              pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE,
+              pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
+            };
+          }
+          this.patchStepsFromWizardData();
+        });
+
+        this.patchStepsFromWizardData();
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.patchStepsFromWizardData());
+  }
+
+  private patchStepsFromWizardData(): void {
+    if (!this.wizardData || Object.keys(this.wizardData).length === 0) return;
+    this.stepGen?.patchData?.(this.wizardData);
+    this.stepAss?.patchData?.(this.wizardData);
+    this.stepAff?.patchData?.(this.wizardData);
+    this.stepAtt?.patchData?.(this.wizardData);
+    this.stepPec?.patchData?.(this.wizardData);
+    this.stepPj?.patchData?.(this.wizardData);
+
+    const etat = (this.wizardData['etatPatient'] ?? '').toString();
+    if (etat) this.updateData({ etatPatient: etat });
+  }
+
+  /** Submit the final form */
   submit(): void {
     const centerId = this.store.currentCenterId();
     if (!centerId) return;
@@ -247,7 +342,7 @@ export class PatientWizardComponent {
       ? 'VACANCIER'
       : 'NON_VACANCIER';
 
-    this.api.createPatient({
+    const payload = {
       centerId,
       userId: this.auth.username() ?? 'demo',
       nom: d['nom'], prenom: d['prenom'], sexe: d['sexe'],
@@ -267,6 +362,7 @@ export class PatientWizardComponent {
       qualiteAssure: d['qualiteAssure'] || 'ASSURE_LUI_MEME',
       photoBase64: d['photoBase64'], enSommeil: d['enSommeil'] || false,
       etatPatient: d['etatPatient'] || 'PERMANENT',
+      dateEvenementEtat: toDate(d['dateEvenementEtat']),
       centrePayeurId: d['centrePayeurId'], medecinTraitantId: d['medecinTraitantId'],
       salleId: d['salleId'], positionId: d['positionId'],
       transporteurAllerId: d['transporteurAllerId'], transporteurRetourId: d['transporteurRetourId'],
@@ -283,7 +379,13 @@ export class PatientWizardComponent {
       pecDateDebutDemande: toDate(d['pecDateDebutDemande']),
       pecDateFinDemande: toDate(d['pecDateFinDemande']),
       pecForfaitDemandeId: d['pecForfaitDemandeId']
-    } as any).subscribe({
+    } as any;
+
+    const req$ = this.editMode() && this.editingPatientId()
+      ? this.api.updatePatient(this.editingPatientId()!, payload)
+      : this.api.createPatient(payload);
+
+    req$.subscribe({
       next: () => {
         this.saving.set(false);
         this.snackBar.open(
@@ -297,5 +399,10 @@ export class PatientWizardComponent {
         this.snackBar.open(err?.error?.detail || 'Erreur', 'OK', { duration: 5000 });
       }
     });
+  }
+
+  enableEditing(): void {
+    this.consultationMode.set(false);
+    setTimeout(() => this.patchStepsFromWizardData());
   }
 }

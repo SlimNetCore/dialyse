@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, Output, EventEmitter, signal, computed, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -26,11 +26,11 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
         <!-- Photo + Identity row -->
         <div class="row-photo">
           <div class="photo-column">
-            <button mat-flat-button class="medical-btn" [disabled]="!isMedecin()" (click)="openMedicalRecord()">
+            <button mat-flat-button class="medical-btn" [disabled]="readonly || !isMedecin()" (click)="openMedicalRecord()">
               <mat-icon>folder_shared</mat-icon>
               {{ 'PATIENT_FORM.DOSSIER_MEDICAL' | translate }}
             </button>
-            <div class="photo-zone" (click)="photoInput.click()">
+            <div class="photo-zone" [class.readonly-zone]="readonly" (click)="!readonly && photoInput.click()">
               @if (photoPreview()) {
                 <img [src]="photoPreview()" alt="Photo" class="photo-img" />
               } @else {
@@ -46,7 +46,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.CIVILITE' | translate }}</mat-label>
               <mat-icon matPrefix>badge</mat-icon>
-              <mat-select formControlName="civilite">
+              <mat-select formControlName="civilite" [disabled]="readonly">
                 <mat-option value="M.">{{ 'PATIENT_FORM.MR' | translate }}</mat-option>
                 <mat-option value="Mme">{{ 'PATIENT_FORM.MRS' | translate }}</mat-option>
                 <mat-option value="Mlle">{{ 'PATIENT_FORM.MS' | translate }}</mat-option>
@@ -75,7 +75,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.SEXE' | translate }} *</mat-label>
               <mat-icon matPrefix>wc</mat-icon>
-              <mat-select formControlName="sexe">
+              <mat-select formControlName="sexe" [disabled]="readonly">
                 <mat-option value="M">{{ 'PATIENT_FORM.MASCULIN' | translate }}</mat-option>
                 <mat-option value="F">{{ 'PATIENT_FORM.FEMININ' | translate }}</mat-option>
               </mat-select>
@@ -97,14 +97,14 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.NOMBRE_ENFANTS' | translate }}</mat-label>
               <mat-icon matPrefix>child_care</mat-icon>
-              <input matInput type="number" formControlName="nombreEnfants" />
+              <input matInput type="number" formControlName="nombreEnfants" [readonly]="readonly" />
             </mat-form-field>
 
             <!-- Row 3: Groupe sanguin, Date de naissance, Age -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.GROUPE_SANGUIN' | translate }}</mat-label>
               <mat-icon matPrefix>bloodtype</mat-icon>
-              <mat-select formControlName="groupeSanguin">
+              <mat-select formControlName="groupeSanguin" [disabled]="readonly">
                 <mat-option value="">—</mat-option>
                 <mat-option value="A+">A+</mat-option><mat-option value="A-">A-</mat-option>
                 <mat-option value="B+">B+</mat-option><mat-option value="B-">B-</mat-option>
@@ -140,7 +140,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
             <mat-form-field appearance="outline" class="span-3">
               <mat-label>{{ 'PATIENT_FORM.ETAT_PATIENT' | translate }}</mat-label>
               <mat-icon matPrefix>monitor_heart</mat-icon>
-              <mat-select formControlName="etatPatient">
+              <mat-select formControlName="etatPatient" [disabled]="readonly">
                 <mat-option value="PERMANENT">{{ 'PATIENT_FORM.PERMANENT' | translate }}</mat-option>
                 <mat-option value="OCCASIONNEL">{{ 'PATIENT_FORM.OCCASIONNEL' | translate }}</mat-option>
                 <mat-option value="TRANSFERE">{{ 'PATIENT_FORM.TRANSFERE' | translate }}</mat-option>
@@ -151,6 +151,15 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
                 <mat-option value="VACANCIER_ETRANGER">{{ 'PATIENT_FORM.VACANCIER_ETRANGER' | translate }}</mat-option>
               </mat-select>
             </mat-form-field>
+
+            @if (showDateEvenement()) {
+              <mat-form-field appearance="outline" class="span-3">
+                <mat-label>{{ 'PATIENT_FORM.DATE_EVENEMENT_ETAT' | translate }}</mat-label>
+                <mat-icon matPrefix>event_available</mat-icon>
+                <input matInput [matDatepicker]="dpEvt" formControlName="dateEvenementEtat" />
+                <mat-datepicker-toggle matSuffix [for]="dpEvt" /><mat-datepicker #dpEvt />
+              </mat-form-field>
+            }
           </div>
         </div>
 
@@ -159,7 +168,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.SITUATION_FAMILIALE' | translate }}</mat-label>
             <mat-icon matPrefix>diversity_3</mat-icon>
-            <mat-select formControlName="situationFamiliale">
+            <mat-select formControlName="situationFamiliale" [disabled]="readonly">
               <mat-option value="">—</mat-option>
               <mat-option value="CELIBATAIRE">{{ 'PATIENT_FORM.CELIBATAIRE' | translate }}</mat-option>
               <mat-option value="MARIE">{{ 'PATIENT_FORM.MARIE' | translate }}</mat-option>
@@ -226,7 +235,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
         <!-- Qualité assuré -->
         <div class="form-row" style="align-items: center;">
           <span style="font-weight: 500; margin-right: 12px;">{{ 'PATIENT_FORM.QUALITE_ASSURE' | translate }}:</span>
-          <mat-radio-group formControlName="qualiteAssure" style="display:flex;gap:16px;">
+          <mat-radio-group formControlName="qualiteAssure" style="display:flex;gap:16px;" [disabled]="readonly">
             <mat-radio-button value="ASSURE_LUI_MEME">{{ 'PATIENT_FORM.ASSURE_LUI_MEME' | translate }}</mat-radio-button>
             <mat-radio-button value="ENFANT">{{ 'PATIENT_FORM.ENFANT_ASSURE' | translate }}</mat-radio-button>
             <mat-radio-button value="CONJOINT">{{ 'PATIENT_FORM.CONJOINT_ASSURE' | translate }}</mat-radio-button>
@@ -260,6 +269,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
       --mdc-filled-button-label-text-color: #ffffff !important;
     }
     .photo-zone:hover { border-color: #1b5e20; background: #f9fff9; box-shadow: 0 2px 12px rgba(27,94,32,0.08); }
+    .photo-zone.readonly-zone { cursor: default; opacity: .88; }
     .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
     .photo-placeholder { font-size: 56px; width: 56px; height: 56px; color: #c8e6c9; }
     .photo-label { font-size: 12px; color: #81c784; margin-top: 6px; }
@@ -287,7 +297,8 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
     :host ::ng-deep textarea.mat-mdc-input-element { text-align: left; }
   `]
 })
-export class StepGeneralitesComponent implements OnInit {
+export class StepGeneralitesComponent implements OnInit, OnChanges {
+  @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
@@ -295,8 +306,13 @@ export class StepGeneralitesComponent implements OnInit {
   private readonly auth = inject(AuthSessionService);
   photoPreview = signal<string | null>(null);
   private dateNaissanceSignal = signal<Date | null>(null);
+  private etatPatientSignal = signal<string>('PERMANENT');
 
   readonly isMedecin = computed(() => this.auth.hasRole('ROLE_MEDECIN'));
+  readonly showDateEvenement = computed(() => {
+    const etat = this.etatPatientSignal();
+    return etat === 'DECEDE' || etat === 'GREFFE' || etat === 'TRANSFERE';
+  });
 
   calculatedAge = computed(() => {
     const dob = this.dateNaissanceSignal();
@@ -335,11 +351,18 @@ export class StepGeneralitesComponent implements OnInit {
       sousKt: [false],
       enSommeil: [false],
       etatPatient: ['PERMANENT'],
+      dateEvenementEtat: [null],
       qualiteAssure: ['ASSURE_LUI_MEME'],
       observation: ['']
     });
 
     this.form.valueChanges.subscribe(val => {
+      // clear event date for states that do not require it
+      if (!(val.etatPatient === 'DECEDE' || val.etatPatient === 'GREFFE' || val.etatPatient === 'TRANSFERE') && val.dateEvenementEtat) {
+        this.form.patchValue({ dateEvenementEtat: null }, { emitEvent: false });
+        val.dateEvenementEtat = null;
+      }
+      this.etatPatientSignal.set(val.etatPatient || 'PERMANENT');
       this.dataChange.emit(val);
       this.validChange.emit(this.form.valid);
     });
@@ -348,9 +371,21 @@ export class StepGeneralitesComponent implements OnInit {
     this.form.get('dateNaissance')!.valueChanges.subscribe(val => {
       this.dateNaissanceSignal.set(val instanceof Date ? val : (val ? new Date(val) : null));
     });
+
+    this.applyReadonly();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['readonly']) this.applyReadonly();
+  }
+
+  private applyReadonly(): void {
+    if (!this.form) return;
+    this.readonly ? this.form.disable({ emitEvent: false }) : this.form.enable({ emitEvent: false });
   }
 
   onPhoto(event: Event): void {
+    if (this.readonly) return;
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -369,4 +404,42 @@ export class StepGeneralitesComponent implements OnInit {
 
   markTouched(): void { this.form.markAllAsTouched(); }
   isValid(): boolean { return this.form.valid; }
+
+  patchData(data: Record<string, any>): void {
+    if (!this.form) return;
+    const patch = {
+      civilite: data['civilite'] ?? '',
+      nom: data['nom'] ?? '',
+      prenom: data['prenom'] ?? '',
+      sexe: data['sexe'] ?? '',
+      groupeSanguin: data['groupeSanguin'] ?? '',
+      nombreEnfants: data['nombreEnfants'] ?? 0,
+      dateAdmission: data['dateAdmission'] ?? null,
+      dateNaissance: data['dateNaissance'] ?? null,
+      lieuNaissance: data['lieuNaissance'] ?? '',
+      situationFamiliale: data['situationFamiliale'] ?? '',
+      profession: data['profession'] ?? '',
+      telMobile: data['telMobile'] ?? '',
+      telPersonnel: data['telPersonnel'] ?? '',
+      telBureau: data['telBureau'] ?? '',
+      email: data['email'] ?? '',
+      adresse: data['adresse'] ?? '',
+      epoEnabled: data['epoEnabled'] ?? false,
+      epoDate: data['epoDate'] ?? null,
+      ferEnabled: data['ferEnabled'] ?? false,
+      ferDate: data['ferDate'] ?? null,
+      sousKt: data['sousKt'] ?? false,
+      enSommeil: data['enSommeil'] ?? false,
+      etatPatient: data['etatPatient'] ?? 'PERMANENT',
+      dateEvenementEtat: data['dateEvenementEtat'] ?? null,
+      qualiteAssure: data['qualiteAssure'] ?? 'ASSURE_LUI_MEME',
+      observation: data['observation'] ?? ''
+    };
+    this.form.patchValue(patch, { emitEvent: false });
+    this.etatPatientSignal.set(patch.etatPatient || 'PERMANENT');
+    if (data['photoBase64']) this.photoPreview.set(data['photoBase64']);
+    this.dataChange.emit({ ...this.form.getRawValue(), photoBase64: data['photoBase64'] });
+    this.validChange.emit(this.form.valid);
+    this.applyReadonly();
+  }
 }

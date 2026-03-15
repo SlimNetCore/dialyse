@@ -33,6 +33,7 @@ public class Patient {
     private LocalDate dateAdmission;
     private boolean enSommeil;
     private String etatPatient; // PERMANENT, OCCASIONNEL, TRANSFERE, DECEDE, GREFFE, GUERRI, VACANCIER_LOCAL, VACANCIER_ETRANGER
+    private LocalDate dateEvenementEtat;
 
     // Contact
     private String profession;
@@ -121,6 +122,7 @@ public class Patient {
     public LocalDate getDateAdmission() { return dateAdmission; }
     public boolean isEnSommeil() { return enSommeil; }
     public String getEtatPatient() { return etatPatient; }
+    public LocalDate getDateEvenementEtat() { return dateEvenementEtat; }
     public String getProfession() { return profession; }
     public String getAdresse() { return adresse; }
     public String getTelPersonnel() { return telPersonnel; }
@@ -164,6 +166,7 @@ public class Patient {
     public void setDateAdmission(LocalDate v) { this.dateAdmission = v; }
     public void setEnSommeil(boolean v) { this.enSommeil = v; }
     public void setEtatPatient(String v) { this.etatPatient = v; }
+    public void setDateEvenementEtat(LocalDate v) { this.dateEvenementEtat = v; }
     public void setProfession(String v) { this.profession = v; }
     public void setAdresse(String v) { this.adresse = v; }
     public void setTelPersonnel(String v) { this.telPersonnel = v; }
@@ -191,5 +194,4 @@ public class Patient {
     public void setJoursDialyse(JoursDialyse v) { this.joursDialyse = v; }
     public void setCreatedAt(OffsetDateTime v) { this.createdAt = v; }
 }
-
 

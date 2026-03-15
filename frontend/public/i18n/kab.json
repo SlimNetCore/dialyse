@@ -102,6 +102,7 @@
     "ASSURE_GROUPE_SANGUIN": "Agraw n idammen",
     "NOUVEAU": "Amaynut",
     "ETAT_PATIENT": "Addad n umdan",
+    "DATE_EVENEMENT_ETAT": "Azemz n tedyant",
     "PERMANENT": "Amaẓlay", "OCCASIONNEL": "S tikelt", "TRANSFERE": "Yettusekcem",
     "DECEDE": "Yemmut", "GREFFE": "Yettwasɣersen", "GUERRI": "Yejja",
     "VACANCIER_LOCAL": "Amsikel adigan", "VACANCIER_ETRANGER": "Amsikel aberrani",
@@ -136,6 +137,10 @@
     "COL_ACTIONS": "Tigawin",
     "EMPTY": "Ulac amdan",
     "BTN_NEW": "Amdan amaynut",
+    "BTN_VIEW": "Wali",
+    "BTN_PRINT": "Siggez",
+    "BTN_PRINT_LIST": "Siggez tabdart n yimdanen",
+    "BTN_EXPORT_EXCEL": "Sifeḍ Excel",
     "TOTAL": "{{count}} n yimdanen"
   },
   "NAV": {
@@ -160,6 +165,9 @@
     "NEXT": "Ɣer zdat",
     "PREV": "Ɣer deffir",
     "SAVE": "Sekles amdan",
+    "ENABLE_EDIT": "Sermed asiẓreg n ubeddel",
+    "READONLY_MODE": "Askar n tmuɣli kan",
+    "EDITING_MODE": "Askar n ubeddel",
     "ASSURE_SAME_AS_PATIENT": "Amdan d netta i d amezgal — talɣut tettwanqel s wudem awurman.",
     "ATTESTATION_TITLE": "Taselkent n tulya n uzref",
     "ATTESTATION_DESC": "Sekcem tallit n useqdec n tselkent i umdan-a.",
@@ -211,6 +219,24 @@
     "TITLE": "Ilɣa",
     "EMPTY": "Ulac ilɣa",
     "MARK_READ": "Rcem akk d yettwaɣṛan"
+  },
+  "PEC_LIST": {
+    "TITLE": "Tabdart n tneḍrutin",
+    "COL_CODE": "Tangalt n umdan",
+    "COL_PATIENT": "Amdan",
+    "COL_ASSURANCE": "Uṭṭun n uzgal",
+    "COL_DEBUT": "Azemz n tazwara",
+    "COL_FIN": "Azemz n tagara",
+    "COL_STATUS": "Addad",
+    "COL_ACTIONS": "Tigawin"
+  },
+  "ATTEST_LIST": {
+    "TITLE": "Tabdart n tselkintin",
+    "COL_CODE": "Tangalt n umdan",
+    "COL_PATIENT": "Amdan",
+    "COL_ASSURANCE": "Uṭṭun n uzgal",
+    "COL_DEBUT": "Azemz n tazwara",
+    "COL_FIN": "Azemz n tagara",
+    "COL_ACTIONS": "Tigawin"
   }
 }
-

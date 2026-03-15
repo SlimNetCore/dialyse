@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface PatientUseCase {
 
     Patient createPatient(CenterId centerId, CreatePatientCommand cmd);
+    Patient updatePatient(CenterId centerId, UUID patientId, CreatePatientCommand cmd);
     Patient getPatient(CenterId centerId, UUID patientId);
     List<Patient> listPatients(CenterId centerId);
 
@@ -41,6 +42,7 @@ public interface PatientUseCase {
         UUID medecinTraitantId, UUID salleId, UUID positionId,
         UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId,
         String etatPatient,
+        LocalDate dateEvenementEtat,
         boolean jourDimanche, boolean jourLundi, boolean jourMardi,
         boolean jourMercredi, boolean jourJeudi, boolean jourVendredi, boolean jourSamedi,
 

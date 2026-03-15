@@ -39,6 +39,7 @@ public class PatientRestController {
         // Step 3
         UUID medecinTraitantId, UUID salleId, UUID positionId,
         UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId, String etatPatient,
+        LocalDate dateEvenementEtat,
         boolean jourDimanche, boolean jourLundi, boolean jourMardi,
         boolean jourMercredi, boolean jourJeudi, boolean jourVendredi, boolean jourSamedi,
         // Step 4
@@ -47,9 +48,8 @@ public class PatientRestController {
         LocalDate pecDateDebutDemande, LocalDate pecDateFinDemande, UUID pecForfaitDemandeId
     ) {}
 
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody CreatePatientRequest r) {
-        var cmd = new CreatePatientCommand(
+    private CreatePatientCommand toCommand(CreatePatientRequest r) {
+        return new CreatePatientCommand(
             r.civilite(), r.nom(), r.prenom(), r.sexe(), r.groupeSanguin(), r.nombreEnfants(),
             r.dateAdmission(), r.dateNaissance(), r.lieuNaissance(), r.situationFamiliale(),
             r.profession(), r.adresse(), r.telPersonnel(), r.telMobile(), r.telBureau(), r.email(),
@@ -61,18 +61,32 @@ public class PatientRestController {
             r.assureTelMobile(), r.assureTelBureau(),
             r.medecinTraitantId(), r.salleId(), r.positionId(),
             r.transporteurAllerId(), r.transporteurRetourId(), r.categorieTransportId(), r.etatPatient(),
+            r.dateEvenementEtat(),
             r.jourDimanche(), r.jourLundi(), r.jourMardi(),
             r.jourMercredi(), r.jourJeudi(), r.jourVendredi(), r.jourSamedi(),
             r.attestationDebut(), r.attestationFin(),
             r.pecDateDebutDemande(), r.pecDateFinDemande(), r.pecForfaitDemandeId()
         );
-        Patient p = useCase.createPatient(CenterId.of(r.centerId()), cmd);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody CreatePatientRequest r) {
+        Patient p = useCase.createPatient(CenterId.of(r.centerId()), toCommand(r));
 
         // Send real-time notification
         notificationService.notifyPatientCreated(
             r.centerId(), p.getCodePatient(), r.nom(), r.prenom()
         );
 
+        return ResponseEntity.ok(Map.of(
+            "id", p.getId().value(), "centerId", p.getCenterId().value(),
+            "typePatient", p.getTypePatient(), "codePatient", p.getCodePatient()
+        ));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody CreatePatientRequest r) {
+        Patient p = useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r));
         return ResponseEntity.ok(Map.of(
             "id", p.getId().value(), "centerId", p.getCenterId().value(),
             "typePatient", p.getTypePatient(), "codePatient", p.getCodePatient()

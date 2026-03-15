@@ -102,6 +102,7 @@
     "ASSURE_GROUPE_SANGUIN": "فصيلة الدم",
     "NOUVEAU": "جديد",
     "ETAT_PATIENT": "حالة المريض",
+    "DATE_EVENEMENT_ETAT": "تاريخ الحدث",
     "PERMANENT": "دائم", "OCCASIONNEL": "عرضي", "TRANSFERE": "محوّل",
     "DECEDE": "متوفى", "GREFFE": "مزروع", "GUERRI": "شُفي",
     "VACANCIER_LOCAL": "مصطاف محلي", "VACANCIER_ETRANGER": "مصطاف أجنبي",
@@ -136,6 +137,10 @@
     "COL_ACTIONS": "الإجراءات",
     "EMPTY": "لا يوجد مريض",
     "BTN_NEW": "مريض جديد",
+    "BTN_VIEW": "عرض",
+    "BTN_PRINT": "طباعة",
+    "BTN_PRINT_LIST": "طباعة قائمة المرضى",
+    "BTN_EXPORT_EXCEL": "تصدير Excel",
     "TOTAL": "{{count}} مريض(ة)"
   },
   "NAV": {
@@ -160,6 +165,9 @@
     "NEXT": "التالي",
     "PREV": "السابق",
     "SAVE": "حفظ المريض",
+    "ENABLE_EDIT": "تفعيل التعديل",
+    "READONLY_MODE": "وضع الاستشارة",
+    "EDITING_MODE": "وضع التعديل",
     "ASSURE_SAME_AS_PATIENT": "المريض هو المؤمّن نفسه — يتم نسخ المعلومات تلقائياً.",
     "ATTESTATION_TITLE": "شهادة فتح الحقوق",
     "ATTESTATION_DESC": "أدخل فترة صلاحية الشهادة لهذا المريض.",
@@ -211,6 +219,24 @@
     "TITLE": "الإشعارات",
     "EMPTY": "لا توجد إشعارات",
     "MARK_READ": "تحديد الكل كمقروء"
+  },
+  "PEC_LIST": {
+    "TITLE": "قائمة التكفلات",
+    "COL_CODE": "رمز المريض",
+    "COL_PATIENT": "المريض",
+    "COL_ASSURANCE": "رقم التأمين",
+    "COL_DEBUT": "تاريخ البداية",
+    "COL_FIN": "تاريخ النهاية",
+    "COL_STATUS": "الحالة",
+    "COL_ACTIONS": "الإجراءات"
+  },
+  "ATTEST_LIST": {
+    "TITLE": "قائمة الشهادات",
+    "COL_CODE": "رمز المريض",
+    "COL_PATIENT": "المريض",
+    "COL_ASSURANCE": "رقم التأمين",
+    "COL_DEBUT": "تاريخ البداية",
+    "COL_FIN": "تاريخ النهاية",
+    "COL_ACTIONS": "الإجراءات"
   }
 }
-

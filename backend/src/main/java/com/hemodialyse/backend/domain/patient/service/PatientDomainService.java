@@ -81,6 +81,7 @@ public class PatientDomainService implements PatientUseCase {
         patient.setPhotoBase64(cmd.photoBase64());
         patient.setEnSommeil(cmd.enSommeil());
         patient.setEtatPatient(etat);
+        patient.setDateEvenementEtat(cmd.dateEvenementEtat());
         patient.setCentrePayeurId(cmd.centrePayeurId());
         patient.setMedecinTraitantId(cmd.medecinTraitantId());
         patient.setSalleId(cmd.salleId());
@@ -120,6 +121,89 @@ public class PatientDomainService implements PatientUseCase {
     }
 
     @Override
+    public Patient updatePatient(CenterId centerId, UUID patientId, CreatePatientCommand cmd) {
+        Patient patient = patientRepo.findById(PatientId.of(patientId), centerId)
+            .orElseThrow(() -> new IllegalArgumentException("Patient introuvable"));
+
+        String etat = cmd.etatPatient() != null ? cmd.etatPatient() : patient.getEtatPatient();
+        boolean isVacancier = "VACANCIER_LOCAL".equals(etat) || "VACANCIER_ETRANGER".equals(etat);
+        if (!isVacancier) {
+            if (cmd.attestationDebut() == null || cmd.attestationFin() == null) {
+                // allowed for update without touching attestation if already exists
+                var existingAtt = attestationRepo.findByPatient(centerId, patientId);
+                if (existingAtt == null || existingAtt.isEmpty()) {
+                    throw new IllegalArgumentException("Attestation obligatoire pour un patient non-vacancier");
+                }
+            }
+        }
+
+        // Update core fields
+        patient.setCivilite(cmd.civilite());
+        patient.setNom(cmd.nom());
+        patient.setPrenom(cmd.prenom());
+        patient.setSexe(cmd.sexe());
+        patient.setGroupeSanguin(cmd.groupeSanguin());
+        patient.setNombreEnfants(cmd.nombreEnfants());
+        patient.setDateAdmission(cmd.dateAdmission());
+        patient.setDateNaissance(cmd.dateNaissance());
+        patient.setLieuNaissance(cmd.lieuNaissance());
+        patient.setSituationFamiliale(cmd.situationFamiliale());
+        patient.setProfession(cmd.profession());
+        patient.setAdresse(cmd.adresse());
+        patient.setTelPersonnel(cmd.telPersonnel());
+        patient.setTelMobile(cmd.telMobile());
+        patient.setTelBureau(cmd.telBureau());
+        patient.setEmail(cmd.email());
+        patient.setSousKt(cmd.sousKt());
+        patient.setEpoEnabled(cmd.epoEnabled());
+        patient.setEpoDate(cmd.epoDate());
+        patient.setFerEnabled(cmd.ferEnabled());
+        patient.setFerDate(cmd.ferDate());
+        patient.setObservation(cmd.observation());
+        patient.setQualiteAssure(cmd.qualiteAssure());
+        patient.setPhotoBase64(cmd.photoBase64());
+        patient.setEnSommeil(cmd.enSommeil());
+        patient.setEtatPatient(etat);
+        patient.setDateEvenementEtat(cmd.dateEvenementEtat());
+        patient.setCentrePayeurId(cmd.centrePayeurId());
+        patient.setMedecinTraitantId(cmd.medecinTraitantId());
+        patient.setSalleId(cmd.salleId());
+        patient.setPositionId(cmd.positionId());
+        patient.setTransporteurAllerId(cmd.transporteurAllerId());
+        patient.setTransporteurRetourId(cmd.transporteurRetourId());
+        patient.setCategorieTransportId(cmd.categorieTransportId());
+        patient.setJoursDialyse(new JoursDialyse(
+            cmd.jourDimanche(), cmd.jourLundi(), cmd.jourMardi(),
+            cmd.jourMercredi(), cmd.jourJeudi(), cmd.jourVendredi(), cmd.jourSamedi()
+        ));
+        patient.setAssureInfo(new AssureInfo(
+            cmd.assureSexe(), cmd.assureNom(), cmd.assurePrenom(),
+            cmd.assureDateNaissance(), cmd.assureTelPersonnel(), cmd.assureAdresse(),
+            cmd.assureGroupeSanguin(), cmd.assureTelMobile(), cmd.assureTelBureau()
+        ));
+
+        Patient saved = patientRepo.save(patient);
+
+        // Append new attestation if explicitly provided
+        if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
+            attestationRepo.save(new AttestationDroit(
+                UUID.randomUUID(), saved.getId().value(), centerId.value(),
+                cmd.attestationDebut(), cmd.attestationFin()
+            ));
+        }
+
+        // Append new PEC if explicitly provided
+        if (cmd.pecDateDebutDemande() != null && cmd.pecDateFinDemande() != null) {
+            pecRepo.save(new PriseEnCharge(
+                UUID.randomUUID(), saved.getId().value(), centerId.value(),
+                cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId()
+            ));
+        }
+
+        return saved;
+    }
+
+    @Override
     public Patient getPatient(CenterId centerId, UUID patientId) {
         return patientRepo.findById(PatientId.of(patientId), centerId)
             .orElseThrow(() -> new IllegalArgumentException("Patient introuvable"));
@@ -130,4 +214,3 @@ public class PatientDomainService implements PatientUseCase {
         return patientRepo.findAllByCenter(centerId);
     }
 }
-

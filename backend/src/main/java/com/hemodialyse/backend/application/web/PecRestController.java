@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
@@ -19,12 +21,14 @@ public class PecRestController {
     private final PecUseCase pecUseCase;
     private final AttestationUseCase attestationUseCase;
     private final NotificationService notificationService;
+    private final JdbcTemplate jdbc;
 
     public PecRestController(PecUseCase pecUseCase, AttestationUseCase attestationUseCase,
-                             NotificationService notificationService) {
+                             NotificationService notificationService, JdbcTemplate jdbc) {
         this.pecUseCase = pecUseCase;
         this.attestationUseCase = attestationUseCase;
         this.notificationService = notificationService;
+        this.jdbc = jdbc;
     }
 
     record CreatePecRequest(UUID patientId, UUID centerId, String userId,
@@ -83,5 +87,30 @@ public class PecRestController {
     @GetMapping("/attestations/{patientId}")
     public ResponseEntity<?> listAttestations(@PathVariable UUID patientId, @RequestParam UUID centerId) {
         return ResponseEntity.ok(attestationUseCase.listByPatient(CenterId.of(centerId), patientId));
+    }
+
+    @GetMapping("/attestations-center")
+    public ResponseEntity<?> listAttestationsByCenter(@RequestParam UUID centerId) {
+        var rows = jdbc.queryForList(
+            "SELECT a.id, a.patient_id, a.date_debut, a.date_fin, p.code_patient, p.nom, p.prenom, p.numero_assurance " +
+            "FROM attestation_droit a " +
+            "JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id " +
+            "WHERE a.center_id = ? ORDER BY a.date_fin DESC",
+            centerId
+        );
+        return ResponseEntity.ok(rows);
+    }
+
+    @GetMapping("/pec-center")
+    public ResponseEntity<?> listPecByCenterDetailed(@RequestParam UUID centerId) {
+        var rows = jdbc.queryForList(
+            "SELECT pc.id, pc.patient_id, pc.date_debut_demande, pc.date_fin_demande, pc.statut, " +
+            "pc.date_debut_effectif, pc.date_fin_effectif, p.code_patient, p.nom, p.prenom, p.numero_assurance " +
+            "FROM prise_en_charge pc " +
+            "JOIN patients p ON p.id = pc.patient_id AND p.center_id = pc.center_id " +
+            "WHERE pc.center_id = ? ORDER BY pc.date_fin_demande DESC",
+            centerId
+        );
+        return ResponseEntity.ok(rows);
     }
 }

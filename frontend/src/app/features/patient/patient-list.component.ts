@@ -48,12 +48,15 @@ export interface PatientRow {
             <mat-label>{{ 'PATIENT_LIST.SEARCH' | translate }}</mat-label>
             <input matInput (input)="onSearch($event)" />
           </mat-form-field>
-          <button mat-flat-button color="primary" (click)="newPatient.emit()">
+          <button mat-flat-button color="primary" (click)="newPatient.emit()" class="btn-new">
             <mat-icon>person_add</mat-icon>
             {{ 'PATIENT_LIST.BTN_NEW' | translate }}
           </button>
-          <button mat-stroked-button color="primary" (click)="printList()" matTooltip="Imprimer la liste des patients">
-            <mat-icon>print</mat-icon> Imprimer
+          <button mat-stroked-button color="primary" (click)="printList()" [matTooltip]="'PATIENT_LIST.BTN_PRINT_LIST' | translate">
+            <mat-icon>print</mat-icon> {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" (click)="exportListExcel()" [matTooltip]="'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate">
+            <mat-icon>table_view</mat-icon> {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}
           </button>
         </div>
 
@@ -111,10 +114,10 @@ export interface PatientRow {
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_ACTIONS' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
-                  <button mat-icon-button matTooltip="Voir" (click)="selectPatient.emit(row)">
+                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate" (click)="selectPatient.emit(row)">
                     <mat-icon>visibility</mat-icon>
                   </button>
-                  <button mat-icon-button matTooltip="Imprimer fiche" (click)="printFiche(row)" color="primary">
+                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate" (click)="printFiche(row)" color="primary">
                     <mat-icon>print</mat-icon>
                   </button>
                   <app-patient-qr-card
@@ -150,11 +153,11 @@ export interface PatientRow {
 
     .list-toolbar {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 8px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
+    .btn-new { margin-left: auto; }
 
     .search-field { flex: 1; max-width: 400px; }
 
@@ -292,6 +295,21 @@ export class PatientListComponent implements OnChanges {
     });
   }
 
+  exportListExcel(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) return;
+    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}, 'EXCEL').subscribe({
+      next: (blob: Blob) => {
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = 'liste-patients.xls';
+        a.click();
+      },
+      error: (err) => this.snack.open('Erreur export: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 })
+    });
+  }
+
   private applyFilter(): void {
     if (!this.searchTerm) {
       this.filteredPatients.set(this.patients);
@@ -307,6 +325,10 @@ export class PatientListComponent implements OnChanges {
     }
   }
 }
+
+
+
+
 
 
 

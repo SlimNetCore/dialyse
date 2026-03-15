@@ -3,6 +3,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface RefItem { id: string; nom: string; code?: string; libelle?: string; adresse?: string; prenom?: string; }
+export interface CentrePayeurDetail {
+  id: string;
+  code_centre_payeur: string;
+  libelle_centre_payeur: string;
+  adresse_centre_payeur?: string;
+  code_agence?: string;
+  libelle_agence?: string;
+  code_caisse?: string;
+  libelle_caisse?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ReferentialApiService {
@@ -16,6 +26,11 @@ export class ReferentialApiService {
   }
 
   getCentresPayeurs(centerId: string) { return this.get('centres-payeurs', centerId); }
+  getCentresPayeursDetails(centerId: string): Observable<CentrePayeurDetail[]> {
+    return this.http.get<CentrePayeurDetail[]>(`${this.base}/centres-payeurs-details`, {
+      params: new HttpParams().set('centerId', centerId)
+    });
+  }
   getMedecins(centerId: string) { return this.get('medecins', centerId); }
   getSalles(centerId: string) { return this.get('salles', centerId); }
   getPositions(centerId: string) { return this.get('positions', centerId); }
@@ -25,4 +40,3 @@ export class ReferentialApiService {
   getCategoriesTransport(centerId: string) { return this.get('categories-transport', centerId); }
   getForfaits(centerId: string) { return this.get('forfaits', centerId); }
 }
-

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, inject, signal } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, inject, signal, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -7,15 +7,16 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
-import { ReferentialApiService } from '../../../core/api/referential-api.service';
+import { ReferentialApiService, CentrePayeurDetail } from '../../../core/api/referential-api.service';
 import { AppShellStore } from '../../../core/state/app-shell.store';
 
 @Component({
   selector: 'app-step-assurance',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, TranslateModule, SearchableSelectComponent],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, MatButtonModule, TranslateModule, SearchableSelectComponent],
   template: `
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_INSURANCE' | translate }}</h3>
@@ -35,11 +36,30 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           <app-searchable-select
             [items]="centresPayeurs()" [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate" [prefixIcon]="'account_balance'"
             [selectedId]="form.get('centrePayeurId')?.value" (selectionChanged)="onCentrePayeur($event)"
+            [disabled]="readonly"
             cssClass="flex1" />
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.CODE_CENTRE_PAYEUR' | translate }}</mat-label>
             <mat-icon matPrefix>pin</mat-icon>
             <input matInput [value]="codeCentrePayeur()" disabled />
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ 'PATIENT_FORM.CODE_AGENCE' | translate }}</mat-label>
+            <mat-icon matPrefix>domain</mat-icon>
+            <input matInput [value]="codeAgence()" disabled />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ 'PATIENT_FORM.AGENCE' | translate }}</mat-label>
+            <mat-icon matPrefix>business</mat-icon>
+            <input matInput [value]="libelleAgence()" disabled />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ 'PATIENT_FORM.CAISSE' | translate }}</mat-label>
+            <mat-icon matPrefix>account_balance_wallet</mat-icon>
+            <input matInput [value]="libelleCaisse()" disabled />
           </mat-form-field>
         </div>
 
@@ -102,6 +122,21 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             <mat-icon matPrefix>home</mat-icon>
             <input matInput formControlName="assureAdresse" />
           </mat-form-field>
+
+          <div class="form-row" style="justify-content:flex-end">
+            <button mat-stroked-button type="button" (click)="addAssureToHistory()" [disabled]="readonly">
+              <mat-icon>person_add</mat-icon>
+              {{ 'PATIENT_FORM.NOUVEAU' | translate }} {{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}
+            </button>
+          </div>
+          @if (assureHistory().length > 0) {
+            <div class="history-box">
+              <div class="history-title">Historique assurés</div>
+              @for (a of assureHistory(); track $index) {
+                <div class="history-item">{{ a.nom }} {{ a.prenom }} - {{ a.sexe || '—' }} - {{ a.dateNaissance || '—' }}</div>
+              }
+            </div>
+          }
         } @else {
           <p style="color:#888; font-style:italic;">{{ 'WIZARD.ASSURE_SAME_AS_PATIENT' | translate }}</p>
         }
@@ -118,9 +153,13 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
+    .history-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; margin-top: 8px; background: #fafafa; }
+    .history-title { font-weight: 600; color: #1b5e20; margin-bottom: 6px; }
+    .history-item { font-size: 12px; color: #4b5563; margin-bottom: 2px; }
   `]
 })
-export class StepAssuranceComponent implements OnInit {
+export class StepAssuranceComponent implements OnInit, OnChanges {
+  @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
@@ -130,6 +169,11 @@ export class StepAssuranceComponent implements OnInit {
 
   centresPayeurs = signal<DropdownItem[]>([]);
   codeCentrePayeur = signal('');
+  codeAgence = signal('');
+  libelleAgence = signal('');
+  libelleCaisse = signal('');
+  private centresPayeursDetails = signal<CentrePayeurDetail[]>([]);
+  assureHistory = signal<Array<{nom: string; prenom: string; sexe: string; dateNaissance: string}>>([]);
   showAssure = signal(false);
 
   form!: FormGroup;
@@ -157,7 +201,18 @@ export class StepAssuranceComponent implements OnInit {
       this.refApi.getCentresPayeurs(cid).subscribe(list =>
         this.centresPayeurs.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.nom} (${i.code ?? ''})` })))
       );
+      this.refApi.getCentresPayeursDetails(cid).subscribe(rows => this.centresPayeursDetails.set(rows));
     }
+    this.applyReadonly();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['readonly']) this.applyReadonly();
+  }
+
+  private applyReadonly(): void {
+    if (!this.form) return;
+    this.readonly ? this.form.disable({ emitEvent: false }) : this.form.enable({ emitEvent: false });
   }
 
   /** Called externally with qualiteAssure from step 1 */
@@ -176,10 +231,62 @@ export class StepAssuranceComponent implements OnInit {
   }
 
   onCentrePayeur(item: DropdownItem | null): void {
+    if (this.readonly) return;
     this.form.patchValue({ centrePayeurId: item?.id ?? null });
+    this.applyCentrePayeurDisplay(item?.id ?? null);
+    this.dataChange.emit({
+      ...this.form.value,
+      codeAgence: this.codeAgence(),
+      libelleAgence: this.libelleAgence(),
+      libelleCaisse: this.libelleCaisse()
+    });
+  }
+
+  private applyCentrePayeurDisplay(centrePayeurId: string | null): void {
+    const item = this.centresPayeurs().find(x => x.id === centrePayeurId);
     this.codeCentrePayeur.set(item?.['code'] ?? '');
+    const details = this.centresPayeursDetails().find(d => d.id === centrePayeurId);
+    this.codeAgence.set(details?.code_agence ?? '');
+    this.libelleAgence.set(details?.libelle_agence ?? '');
+    this.libelleCaisse.set(details?.libelle_caisse ?? '');
+  }
+
+  addAssureToHistory(): void {
+    const v = this.form.value;
+    if (!v.assureNom || !v.assurePrenom) return;
+    this.assureHistory.set([
+      ...this.assureHistory(),
+      {
+        nom: v.assureNom,
+        prenom: v.assurePrenom,
+        sexe: v.assureSexe,
+        dateNaissance: v.assureDateNaissance ? new Date(v.assureDateNaissance).toISOString().slice(0, 10) : ''
+      }
+    ]);
+    this.dataChange.emit({ ...this.form.value, assureHistory: this.assureHistory() });
   }
 
   markTouched(): void { this.form.markAllAsTouched(); }
   isValid(): boolean { return this.form.valid; }
+
+  patchData(data: Record<string, any>): void {
+    if (!this.form) return;
+    const patch = {
+      numeroAssurance: data['numeroAssurance'] ?? '',
+      centrePayeurId: data['centrePayeurId'] ?? null,
+      assureNom: data['assureNom'] ?? '',
+      assurePrenom: data['assurePrenom'] ?? '',
+      assureSexe: data['assureSexe'] ?? '',
+      assureDateNaissance: data['assureDateNaissance'] ?? null,
+      assureTelPersonnel: data['assureTelPersonnel'] ?? '',
+      assureGroupeSanguin: data['assureGroupeSanguin'] ?? '',
+      assureAdresse: data['assureAdresse'] ?? ''
+    };
+    this.form.patchValue(patch, { emitEvent: false });
+    if (data['qualiteAssure']) this.setQualiteAssure(data['qualiteAssure']);
+    this.applyCentrePayeurDisplay(patch.centrePayeurId);
+    this.dataChange.emit(this.form.getRawValue());
+    this.validChange.emit(this.form.valid);
+    this.applyReadonly();
+  }
 }

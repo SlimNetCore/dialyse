@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, inject, signal } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, inject, signal, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -19,34 +19,40 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       <form [formGroup]="form">
         <div class="form-row">
           <app-searchable-select [items]="salles()" [label]="'PATIENT_FORM.SALLE' | translate" [prefixIcon]="'meeting_room'"
+            [disabled]="readonly"
             [selectedId]="form.get('salleId')?.value" (selectionChanged)="form.patchValue({salleId: $event?.id})" cssClass="flex1" />
           <app-searchable-select [items]="medecins()" [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate" [prefixIcon]="'medical_services'"
+            [disabled]="readonly"
             [selectedId]="form.get('medecinTraitantId')?.value" (selectionChanged)="form.patchValue({medecinTraitantId: $event?.id})" cssClass="flex1" />
         </div>
 
         <div class="form-row">
           <app-searchable-select [items]="positions()" [label]="'PATIENT_FORM.POSITION' | translate" [prefixIcon]="'schedule'"
+            [disabled]="readonly"
             [selectedId]="form.get('positionId')?.value" (selectionChanged)="form.patchValue({positionId: $event?.id})" cssClass="flex1" />
         </div>
 
         <div class="form-row">
           <app-searchable-select [items]="transporteurs()" [label]="'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate" [prefixIcon]="'directions_car'"
+            [disabled]="readonly"
             [selectedId]="form.get('transporteurAllerId')?.value" (selectionChanged)="form.patchValue({transporteurAllerId: $event?.id})" cssClass="flex1" />
           <app-searchable-select [items]="transporteurs()" [label]="'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate" [prefixIcon]="'local_taxi'"
+            [disabled]="readonly"
             [selectedId]="form.get('transporteurRetourId')?.value" (selectionChanged)="form.patchValue({transporteurRetourId: $event?.id})" cssClass="flex1" />
           <app-searchable-select [items]="categoriesTransport()" [label]="'PATIENT_FORM.CATEGORIE_TRANSPORT' | translate" [prefixIcon]="'commute'"
+            [disabled]="readonly"
             [selectedId]="form.get('categorieTransportId')?.value" (selectionChanged)="form.patchValue({categorieTransportId: $event?.id})" cssClass="flex1" />
         </div>
 
         <h4 style="margin: 16px 0 8px; color: #37474f;">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }} *</h4>
         <div class="jours-row">
-          <mat-checkbox formControlName="jourDimanche">{{ 'PATIENT_FORM.DIMANCHE' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="jourLundi">{{ 'PATIENT_FORM.LUNDI' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="jourMardi">{{ 'PATIENT_FORM.MARDI' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="jourMercredi">{{ 'PATIENT_FORM.MERCREDI' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="jourJeudi">{{ 'PATIENT_FORM.JEUDI' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="jourVendredi">{{ 'PATIENT_FORM.VENDREDI' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="jourSamedi">{{ 'PATIENT_FORM.SAMEDI' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="jourDimanche" [disabled]="readonly">{{ 'PATIENT_FORM.DIMANCHE' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="jourLundi" [disabled]="readonly">{{ 'PATIENT_FORM.LUNDI' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="jourMardi" [disabled]="readonly">{{ 'PATIENT_FORM.MARDI' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="jourMercredi" [disabled]="readonly">{{ 'PATIENT_FORM.MERCREDI' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="jourJeudi" [disabled]="readonly">{{ 'PATIENT_FORM.JEUDI' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="jourVendredi" [disabled]="readonly">{{ 'PATIENT_FORM.VENDREDI' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="jourSamedi" [disabled]="readonly">{{ 'PATIENT_FORM.SAMEDI' | translate }}</mat-checkbox>
         </div>
       </form>
     </div>
@@ -65,7 +71,8 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
   `]
 })
-export class StepAffectationComponent implements OnInit {
+export class StepAffectationComponent implements OnInit, OnChanges {
+  @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
@@ -103,6 +110,36 @@ export class StepAffectationComponent implements OnInit {
     this.refApi.getCategoriesTransport(cid).subscribe(list => this.categoriesTransport.set(list.map((i: any) => ({ ...i, id: i.id, label: i.libelle ?? i.nom }))));
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['readonly']) this.applyReadonly();
+  }
+
   markTouched(): void { this.form.markAllAsTouched(); }
   isValid(): boolean { return true; }
+
+  patchData(data: Record<string, any>): void {
+    if (!this.form) return;
+    this.form.patchValue({
+      salleId: data['salleId'] ?? null,
+      medecinTraitantId: data['medecinTraitantId'] ?? null,
+      positionId: data['positionId'] ?? null,
+      transporteurAllerId: data['transporteurAllerId'] ?? null,
+      transporteurRetourId: data['transporteurRetourId'] ?? null,
+      categorieTransportId: data['categorieTransportId'] ?? null,
+      jourDimanche: data['jourDimanche'] ?? false,
+      jourLundi: data['jourLundi'] ?? false,
+      jourMardi: data['jourMardi'] ?? false,
+      jourMercredi: data['jourMercredi'] ?? false,
+      jourJeudi: data['jourJeudi'] ?? false,
+      jourVendredi: data['jourVendredi'] ?? false,
+      jourSamedi: data['jourSamedi'] ?? false
+    }, { emitEvent: false });
+    this.dataChange.emit(this.form.getRawValue());
+    this.validChange.emit(true);
+  }
+
+  private applyReadonly(): void {
+    if (!this.form) return;
+    this.readonly ? this.form.disable({ emitEvent: false }) : this.form.enable({ emitEvent: false });
+  }
 }

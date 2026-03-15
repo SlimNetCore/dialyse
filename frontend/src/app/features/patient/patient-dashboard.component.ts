@@ -15,6 +15,14 @@ import { WebSocketService } from '../../core/ws/websocket.service';
   standalone: true,
   imports: [MatButtonModule, MatIconModule, MatCardModule, TranslateModule, PatientListComponent],
   template: `
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px;">
+      <button mat-stroked-button color="primary" (click)="router.navigate(['/patients/pec-list'])">
+        <mat-icon>list_alt</mat-icon> {{ 'PEC_LIST.TITLE' | translate }}
+      </button>
+      <button mat-stroked-button color="primary" (click)="router.navigate(['/patients/attestations-list'])">
+        <mat-icon>fact_check</mat-icon> {{ 'ATTEST_LIST.TITLE' | translate }}
+      </button>
+    </div>
     <app-patient-list
       [patients]="patients()"
       (newPatient)="router.navigate(['/patients/new'])"
@@ -58,6 +66,6 @@ export class PatientDashboardComponent implements OnInit {
   }
 
   onSelect(row: PatientRow): void {
-    // future: navigate to detail
+    this.router.navigate(['/patients', row.id]);
   }
 }

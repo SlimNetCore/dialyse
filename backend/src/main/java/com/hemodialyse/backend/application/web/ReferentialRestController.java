@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.referential.port.ReferentialUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.UUID;
 
 @RestController
@@ -11,8 +12,12 @@ import java.util.UUID;
 public class ReferentialRestController {
 
     private final ReferentialUseCase useCase;
+    private final JdbcTemplate jdbc;
 
-    public ReferentialRestController(ReferentialUseCase useCase) { this.useCase = useCase; }
+    public ReferentialRestController(ReferentialUseCase useCase, JdbcTemplate jdbc) {
+        this.useCase = useCase;
+        this.jdbc = jdbc;
+    }
 
     @GetMapping("/centres-payeurs")
     public ResponseEntity<?> centresPayeurs(@RequestParam UUID centerId) {
@@ -57,5 +62,19 @@ public class ReferentialRestController {
     @GetMapping("/forfaits")
     public ResponseEntity<?> forfaits(@RequestParam UUID centerId) {
         return ResponseEntity.ok(useCase.forfaits(CenterId.of(centerId)));
+    }
+
+    @GetMapping("/centres-payeurs-details")
+    public ResponseEntity<?> centresPayeursDetails(@RequestParam UUID centerId) {
+        var rows = jdbc.queryForList(
+            "SELECT cp.id, cp.code AS code_centre_payeur, cp.nom AS libelle_centre_payeur, cp.adresse AS adresse_centre_payeur, " +
+            "ag.code AS code_agence, ag.nom AS libelle_agence, ca.code AS code_caisse, ca.nom AS libelle_caisse " +
+            "FROM centre_payeur cp " +
+            "LEFT JOIN agence ag ON ag.id = cp.agence_id " +
+            "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id " +
+            "WHERE cp.center_id = ? ORDER BY cp.nom",
+            centerId
+        );
+        return ResponseEntity.ok(rows);
     }
 }

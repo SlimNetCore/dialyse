@@ -26,8 +26,10 @@ export interface DropdownItem {
              [value]="displayValue()"
              (input)="onSearch($event)"
              (focus)="onFocus()"
-             [placeholder]="placeholder" />
-      <mat-icon matSuffix class="dd-icon">arrow_drop_down</mat-icon>
+             [placeholder]="placeholder"
+             [readonly]="disabled"
+             [disabled]="disabled" />
+      <mat-icon matSuffix class="dd-icon" [class.disabled]="disabled">arrow_drop_down</mat-icon>
       <mat-autocomplete #auto="matAutocomplete"
                         (optionSelected)="onSelect($event.option.value)"
                         [displayWith]="displayFn">
@@ -39,6 +41,7 @@ export interface DropdownItem {
   `,
   styles: [`
     .dd-icon { font-size: 18px; color: #94a3b8; cursor: pointer; }
+    .dd-icon.disabled { opacity: .5; cursor: default; }
     .prefix-icon { margin-right: 6px; color: #607d8b; }
   `]
 })
@@ -51,6 +54,7 @@ export class SearchableSelectComponent implements OnChanges {
   @Input() cssClass = 'full';
   @Input() width = '100%';
   @Input() prefixIcon = '';
+  @Input() disabled = false;
   @Output() selectionChanged = new EventEmitter<DropdownItem | null>();
 
   private searchText = signal('');
@@ -76,14 +80,17 @@ export class SearchableSelectComponent implements OnChanges {
   }
 
   onSearch(event: Event): void {
+    if (this.disabled) return;
     this.searchText.set((event.target as HTMLInputElement).value);
   }
 
   onFocus(): void {
+    if (this.disabled) return;
     this.searchText.set('');
   }
 
   onSelect(item: DropdownItem): void {
+    if (this.disabled) return;
     this.selectionChanged.emit(item);
   }
 }

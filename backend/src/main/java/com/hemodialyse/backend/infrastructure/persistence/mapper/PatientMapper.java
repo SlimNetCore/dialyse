@@ -39,6 +39,7 @@ public final class PatientMapper {
         p.setNumeroAssurance(new NumeroAssurance(e.getNumeroAssurance()));
         p.setTypePatient(PatientType.valueOf(e.getTypePatient()));
         p.setEtatPatient(e.getEtatPatient());
+        p.setDateEvenementEtat(e.getDateEvenementEtat());
         p.setQualiteAssure(e.getQualiteAssure());
         p.setObservation(e.getObservation());
         p.setSousKt(Boolean.TRUE.equals(e.getSousKt()));
@@ -95,6 +96,7 @@ public final class PatientMapper {
         e.setNumeroAssurance(p.getNumeroAssurance().value());
         e.setTypePatient(p.getTypePatient().name());
         e.setEtatPatient(p.getEtatPatient());
+        e.setDateEvenementEtat(p.getDateEvenementEtat());
         e.setQualiteAssure(p.getQualiteAssure());
         e.setObservation(p.getObservation());
         e.setSousKt(p.isSousKt());

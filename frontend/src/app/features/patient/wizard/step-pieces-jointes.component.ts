@@ -20,7 +20,7 @@ interface AttachedFile {
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.PIECES_JOINTES' | translate }}</h3>
 
-      <div class="upload-zone" (click)="fileInput.click()" (dragover)="$event.preventDefault()" (drop)="onDrop($event)">
+      <div class="upload-zone" [class.disabled]="readonly" (click)="!readonly && fileInput.click()" (dragover)="!readonly && $event.preventDefault()" (drop)="onDrop($event)">
         <mat-icon class="upload-icon">cloud_upload</mat-icon>
         <p>{{ 'WIZARD.PJ_DROP' | translate }}</p>
         <p class="hint">{{ 'WIZARD.PJ_MAX_SIZE' | translate }}</p>
@@ -40,9 +40,9 @@ interface AttachedFile {
               <div matListItemLine>{{ formatSize(f.size) }} — {{ f.type }}</div>
               <div matListItemMeta>
                 @if (f.type.startsWith('image/')) {
-                  <button mat-icon-button (click)="preview(f)"><mat-icon>visibility</mat-icon></button>
+                  <button mat-icon-button (click)="preview(f)" [disabled]="readonly"><mat-icon>visibility</mat-icon></button>
                 }
-                <button mat-icon-button color="warn" (click)="remove(i)"><mat-icon>delete</mat-icon></button>
+                <button mat-icon-button color="warn" (click)="remove(i)" [disabled]="readonly"><mat-icon>delete</mat-icon></button>
               </div>
             </mat-list-item>
           }
@@ -65,6 +65,7 @@ interface AttachedFile {
       cursor: pointer; background: #fafafa; transition: border-color 0.2s;
     }
     .upload-zone:hover { border-color: #1b5e20; background: #f0fdf4; }
+    .upload-zone.disabled { opacity:.7; cursor:default; }
     .upload-icon { font-size: 48px; width: 48px; height: 48px; color: #1b5e20; }
     .hint { font-size: 12px; color: #999; }
     .error-msg { background: #fef2f2; color: #991b1b; padding: 8px 12px; border-radius: 8px; margin-top: 8px; font-size: 13px; }
@@ -79,6 +80,7 @@ interface AttachedFile {
 })
 export class StepPiecesJointesComponent {
   @Input() data: Record<string, any> = {};
+  @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
 
   files = signal<AttachedFile[]>([]);
@@ -88,12 +90,14 @@ export class StepPiecesJointesComponent {
   private readonly MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
   onFiles(event: Event): void {
+    if (this.readonly) return;
     const input = event.target as HTMLInputElement;
     if (input.files) this.addFiles(Array.from(input.files));
   }
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
+    if (this.readonly) return;
     if (event.dataTransfer?.files) this.addFiles(Array.from(event.dataTransfer.files));
   }
 
@@ -115,12 +119,13 @@ export class StepPiecesJointesComponent {
   }
 
   remove(index: number): void {
+    if (this.readonly) return;
     this.files.update(list => list.filter((_, i) => i !== index));
     this.data['piecesJointes'] = this.files();
     this.dataChange.emit(this.data);
   }
 
-  preview(f: AttachedFile): void { this.previewUrl.set(f.dataUrl); }
+  preview(f: AttachedFile): void { if (!this.readonly) this.previewUrl.set(f.dataUrl); }
 
   formatSize(bytes: number): string {
     if (bytes < 1024) return bytes + ' o';
@@ -133,5 +138,9 @@ export class StepPiecesJointesComponent {
     if (type.includes('pdf')) return 'picture_as_pdf';
     return 'insert_drive_file';
   }
-}
 
+  patchData(data: Record<string, any>): void {
+    const pieces = Array.isArray(data['piecesJointes']) ? data['piecesJointes'] : [];
+    this.files.set(pieces);
+  }
+}
