@@ -109,7 +109,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       font-size: 13px; font-weight: 600;
     }
     .step-actions {
-      display: flex; justify-content: space-between; margin-top: 16px; padding-top: 14px;
+      display: flex; justify-content: space-between; margin-top: 16px; padding: 5px 5px 5px 5px;
       border-top: 1px solid #e0e0e0;
     }
     .next-btn, .save-btn {
@@ -120,13 +120,41 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       --mdc-filled-button-container-color: #bdbdbd !important;
     }
     :host ::ng-deep .wizard-stepper { background: transparent; }
+
+    /* Remove Material horizontal content container spacing under step headers. */
+    :host ::ng-deep .wizard-stepper .mat-stepper-horizontal-content-container,
+    :host ::ng-deep .wizard-stepper .mat-horizontal-content-container {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
     :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content {
-      background: #f4faf5; border-radius: 12px; padding: 12px 20px 20px; margin-top: 0;
-      border: 1px solid #e0ede2; min-height: 350px;
+      background: #f4faf5;
+      border-radius: 12px;
+      margin-top: 0;
+      border: 1px solid #e0ede2;
+      min-height: 0;
+      box-sizing: border-box;
     }
+
+    /* Collapse only explicit inactive panels, keep active panel always visible. */
     :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content[aria-expanded="false"] {
-      min-height: 0 !important; padding: 0 !important; overflow: hidden;
+      display: none !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+      overflow: hidden !important;
     }
+
+    :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content[aria-expanded="true"] {
+      display: block !important;
+      height: auto !important;
+      visibility: visible !important;
+      overflow: visible !important;
+    }
+
     :host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-selected {
       background-color: #1b5e20 !important;
     }

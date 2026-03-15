@@ -18,6 +18,9 @@ export interface DropdownItem {
   template: `
     <mat-form-field [appearance]="appearance" [class]="cssClass" [style.width]="width">
       <mat-label>{{ label }}</mat-label>
+      @if (prefixIcon) {
+        <mat-icon matPrefix class="prefix-icon">{{ prefixIcon }}</mat-icon>
+      }
       <input matInput
              [matAutocomplete]="auto"
              [value]="displayValue()"
@@ -36,6 +39,7 @@ export interface DropdownItem {
   `,
   styles: [`
     .dd-icon { font-size: 18px; color: #94a3b8; cursor: pointer; }
+    .prefix-icon { margin-right: 6px; color: #607d8b; }
   `]
 })
 export class SearchableSelectComponent implements OnChanges {
@@ -46,6 +50,7 @@ export class SearchableSelectComponent implements OnChanges {
   @Input() appearance: 'outline' | 'fill' = 'outline';
   @Input() cssClass = 'full';
   @Input() width = '100%';
+  @Input() prefixIcon = '';
   @Output() selectionChanged = new EventEmitter<DropdownItem | null>();
 
   private searchText = signal('');
@@ -82,4 +87,3 @@ export class SearchableSelectComponent implements OnChanges {
     this.selectionChanged.emit(item);
   }
 }
-

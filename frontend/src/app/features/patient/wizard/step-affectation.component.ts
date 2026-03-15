@@ -18,14 +18,14 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_AFFECTATION' | translate }}</h3>
       <form [formGroup]="form">
         <div class="form-row">
-          <app-searchable-select [items]="salles()" [label]="'PATIENT_FORM.SALLE' | translate"
+          <app-searchable-select [items]="salles()" [label]="'PATIENT_FORM.SALLE' | translate" [prefixIcon]="'meeting_room'"
             [selectedId]="form.get('salleId')?.value" (selectionChanged)="form.patchValue({salleId: $event?.id})" cssClass="flex1" />
-          <app-searchable-select [items]="medecins()" [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate"
+          <app-searchable-select [items]="medecins()" [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate" [prefixIcon]="'medical_services'"
             [selectedId]="form.get('medecinTraitantId')?.value" (selectionChanged)="form.patchValue({medecinTraitantId: $event?.id})" cssClass="flex1" />
         </div>
 
         <div class="form-row">
-          <app-searchable-select [items]="positions()" [label]="'PATIENT_FORM.POSITION' | translate"
+          <app-searchable-select [items]="positions()" [label]="'PATIENT_FORM.POSITION' | translate" [prefixIcon]="'schedule'"
             [selectedId]="form.get('positionId')?.value" (selectionChanged)="form.patchValue({positionId: $event?.id})" cssClass="flex1" />
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.ETAT_PATIENT' | translate }}</mat-label>
@@ -44,11 +44,11 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         </div>
 
         <div class="form-row">
-          <app-searchable-select [items]="transporteurs()" [label]="'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate"
+          <app-searchable-select [items]="transporteurs()" [label]="'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate" [prefixIcon]="'directions_car'"
             [selectedId]="form.get('transporteurAllerId')?.value" (selectionChanged)="form.patchValue({transporteurAllerId: $event?.id})" cssClass="flex1" />
-          <app-searchable-select [items]="transporteurs()" [label]="'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate"
+          <app-searchable-select [items]="transporteurs()" [label]="'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate" [prefixIcon]="'local_taxi'"
             [selectedId]="form.get('transporteurRetourId')?.value" (selectionChanged)="form.patchValue({transporteurRetourId: $event?.id})" cssClass="flex1" />
-          <app-searchable-select [items]="categoriesTransport()" [label]="'PATIENT_FORM.CATEGORIE_TRANSPORT' | translate"
+          <app-searchable-select [items]="categoriesTransport()" [label]="'PATIENT_FORM.CATEGORIE_TRANSPORT' | translate" [prefixIcon]="'commute'"
             [selectedId]="form.get('categorieTransportId')?.value" (selectionChanged)="form.patchValue({categorieTransportId: $event?.id})" cssClass="flex1" />
         </div>
 
@@ -66,7 +66,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     </div>
   `,
   styles: [`
-    .step-content { padding: 0; }
+    .step-content {   padding: 12px 20px 20px; }
     .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }

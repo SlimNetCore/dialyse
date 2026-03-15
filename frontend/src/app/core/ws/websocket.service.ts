@@ -14,13 +14,22 @@ export interface WsEvent {
 export class WebSocketService implements OnDestroy {
   private readonly auth = inject(AuthSessionService);
   private client: Client | null = null;
+  private connectAttempted = false;
 
   readonly events = signal<WsEvent[]>([]);
   readonly lastEvent = signal<WsEvent | null>(null);
 
-  connect(): void {
+  async connect(): Promise<void> {
     const centerId = this.auth.centerId();
-    if (!centerId || this.client?.active) return;
+    if (!centerId || this.client?.active || this.connectAttempted) return;
+
+    this.connectAttempted = true;
+
+    const backendUp = await this.isBackendUp();
+    if (!backendUp) {
+      // Keep UI functional even if backend WS is unavailable
+      return;
+    }
 
     this.client = new Client({
       brokerURL: 'ws://localhost:8080/ws',
@@ -44,6 +53,21 @@ export class WebSocketService implements OnDestroy {
     });
 
     this.client.activate();
+  }
+
+  private async isBackendUp(): Promise<boolean> {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1500);
+      const resp = await fetch('http://localhost:8080/actuator/health', {
+        method: 'GET',
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      return resp.ok;
+    } catch {
+      return false;
+    }
   }
 
   disconnect(): void {

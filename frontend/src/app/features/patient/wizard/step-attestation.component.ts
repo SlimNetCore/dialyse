@@ -42,7 +42,7 @@ import { TranslateModule } from '@ngx-translate/core';
     </div>
   `,
   styles: [`
-    .step-content { padding: 0; }
+    .step-content {   padding: 12px 20px 20px; }
     .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 8px; }
     .info-text { color: #666; margin-bottom: 16px; font-size: 14px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }

@@ -52,7 +52,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     </div>
   `,
   styles: [`
-    .step-content { padding: 0; }
+    .step-content {   padding: 12px 20px 20px; }
     .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }

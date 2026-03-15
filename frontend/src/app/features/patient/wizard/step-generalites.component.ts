@@ -130,15 +130,14 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
                 <span class="age-unit">{{ 'PATIENT_FORM.ANS' | translate }}</span>
               }
             </div>
+
+            <mat-form-field appearance="outline" class="span-3">
+              <mat-label>{{ 'PATIENT_FORM.LIEU_NAISSANCE' | translate }}</mat-label>
+              <mat-icon matPrefix>place</mat-icon>
+              <input matInput formControlName="lieuNaissance" />
+            </mat-form-field>
           </div>
         </div>
-
-        <!-- Lieu de naissance -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'PATIENT_FORM.LIEU_NAISSANCE' | translate }}</mat-label>
-          <mat-icon matPrefix>place</mat-icon>
-          <input matInput formControlName="lieuNaissance" />
-        </mat-form-field>
 
         <!-- Contact -->
         <div class="form-row">
@@ -231,7 +230,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
     </div>
   `,
   styles: [`
-    .step-content { padding: 12px 0; }
+    .step-content {   padding: 12px 20px 20px; }
     .row-photo { display: flex; gap: 20px; margin-bottom: 12px; align-items: stretch; }
     .photo-column { display: flex; flex-direction: column; align-items: stretch; width: 180px; }
     .photo-zone {
@@ -250,6 +249,7 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
     .photo-placeholder { font-size: 56px; width: 56px; height: 56px; color: #c8e6c9; }
     .photo-label { font-size: 12px; color: #81c784; margin-top: 6px; }
     .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; align-content: start; }
+    .span-3 { grid-column: 1 / -1; }
     .form-row { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }

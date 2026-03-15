@@ -42,7 +42,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <div class="form-row">
           <app-searchable-select
-            [items]="centresPayeurs()" [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate"
+            [items]="centresPayeurs()" [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate" [prefixIcon]="'account_balance'"
             [selectedId]="form.get('centrePayeurId')?.value" (selectionChanged)="onCentrePayeur($event)"
             cssClass="flex1" />
           <mat-form-field appearance="outline" class="flex1">
@@ -118,7 +118,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     </div>
   `,
   styles: [`
-    .step-content { padding: 0; }
+    .step-content {   padding: 12px 20px 20px; }
     .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
