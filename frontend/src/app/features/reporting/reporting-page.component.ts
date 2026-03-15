@@ -11,6 +11,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BackendApiService } from '../../core/api/backend-api.service';
 import { AppShellStore } from '../../core/state/app-shell.store';
+import { ReportDesignerComponent } from './report-designer.component';
 
 @Component({
   selector: 'app-reporting-page',
@@ -18,7 +19,8 @@ import { AppShellStore } from '../../core/state/app-shell.store';
   imports: [
     CommonModule, FormsModule,
     MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatIconModule, MatListModule, MatSnackBarModule
+    MatSelectModule, MatIconModule, MatListModule, MatSnackBarModule,
+    ReportDesignerComponent
   ],
   template: `
     <div class="reporting-page">
@@ -108,7 +110,25 @@ import { AppShellStore } from '../../core/state/app-shell.store';
             @if (draft.footer_image) { <img [src]="draft.footer_image" alt="footer" class="preview-img" /> }
           </div>
 
-          <mat-form-field appearance="outline" class="full"><mat-label>Template HTML</mat-label><textarea matInput rows="14" [(ngModel)]="draft.template_html"></textarea></mat-form-field>
+          <!-- Tabs: Code / Designer WYSIWYG -->
+          <div class="editor-tabs">
+            <button class="editor-tab" [class.active]="editorMode === 'code'" (click)="editorMode = 'code'">
+              <mat-icon>code</mat-icon> Code HTML
+            </button>
+            <button class="editor-tab" [class.active]="editorMode === 'designer'" (click)="editorMode = 'designer'">
+              <mat-icon>design_services</mat-icon> Designer WYSIWYG
+            </button>
+          </div>
+
+          @if (editorMode === 'code') {
+            <mat-form-field appearance="outline" class="full"><mat-label>Template HTML</mat-label><textarea matInput rows="14" [(ngModel)]="draft.template_html"></textarea></mat-form-field>
+          } @else {
+            <app-report-designer
+              [headerImage]="draft.header_image || ''"
+              [footerImage]="draft.footer_image || ''"
+              (htmlGenerated)="onDesignerHtml($event)">
+            </app-report-designer>
+          }
 
           <div class="tips">
             <strong>Tokens disponibles:</strong>
@@ -146,6 +166,15 @@ import { AppShellStore } from '../../core/state/app-shell.store';
     .preview-img { max-height: 70px; max-width: 300px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 3px; }
     .tips { margin: 8px 0 12px; padding: 8px 10px; background: #f8fafc; border-left: 3px solid #1b5e20; font-size: 12px; }
     :host ::ng-deep .mat-mdc-list-item.active { background: #e8f5e9; border-left: 3px solid #1b5e20; }
+
+    .editor-tabs { display: flex; gap: 0; margin: 12px 0 8px; border-bottom: 2px solid #e5e7eb; }
+    .editor-tab {
+      display: flex; align-items: center; gap: 5px; padding: 8px 18px; border: none; background: transparent;
+      font-weight: 600; color: #607d8b; cursor: pointer; font-size: 13px; border-bottom: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .editor-tab.active { color: #1b5e20; border-bottom-color: #1b5e20; }
+    .editor-tab:hover { background: #f1f8e9; }
   `]
 })
 export class ReportingPageComponent implements OnInit {
@@ -160,6 +189,7 @@ export class ReportingPageComponent implements OnInit {
   selectedType = '';
   previewPatientId = '';
   draft: any = {};
+  editorMode: 'code' | 'designer' = 'designer';
 
   ngOnInit(): void {
     this.api.getReportingModels().subscribe(v => this.models.set(v));
@@ -253,6 +283,13 @@ export class ReportingPageComponent implements OnInit {
       this.draft[key] = reader.result as string;
     };
     reader.readAsDataURL(file);
+  }
+
+  onDesignerHtml(html: string): void {
+    this.draft.template_html = html;
+    this.snackbar.open('HTML généré depuis le designer', 'OK', { duration: 2000 });
+    // Switch to code view to show the result
+    this.editorMode = 'code';
   }
 
   exportPdf(): void {

@@ -11,6 +11,8 @@ export type LoginPayload = {
 export type LoginResponse = {
   token: string;
   username: string;
+  fullName: string;
+  userId: string;
   centerId: string;
   centerName: string;
   roles: string[];

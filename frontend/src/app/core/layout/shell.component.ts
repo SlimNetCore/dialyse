@@ -45,7 +45,7 @@ import { NotificationBellComponent } from './notification-bell.component';
         <!-- User profile menu -->
         <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn">
           <mat-icon>account_circle</mat-icon>
-          <span class="user-name">{{ auth.username() }}</span>
+          <span class="user-name">{{ auth.fullName() || auth.username() }}</span>
           <span class="separator">•</span>
           <span class="center-name">{{ auth.centerName() }}</span>
         </button>

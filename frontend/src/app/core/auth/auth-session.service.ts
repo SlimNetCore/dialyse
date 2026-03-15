@@ -5,6 +5,7 @@ const STORAGE_KEY = 'hemodialyse.auth.session';
 type AuthSession = {
   token: string;
   username: string;
+  fullName?: string;
   centerId: string;
   centerName: string;
   roles?: string[];
@@ -14,6 +15,7 @@ type AuthSession = {
 export class AuthSessionService {
   readonly token = signal<string | null>(null);
   readonly username = signal<string | null>(null);
+  readonly fullName = signal<string | null>(null);
   readonly centerId = signal<string | null>(null);
   readonly centerName = signal<string | null>(null);
   readonly roles = signal<string[]>([]);
@@ -26,6 +28,7 @@ export class AuthSessionService {
   setSession(session: AuthSession): void {
     this.token.set(session.token);
     this.username.set(session.username);
+    this.fullName.set(session.fullName ?? session.username);
     this.centerId.set(session.centerId);
     this.centerName.set(session.centerName);
     this.roles.set(session.roles ?? []);
@@ -36,6 +39,7 @@ export class AuthSessionService {
   clearSession(): void {
     this.token.set(null);
     this.username.set(null);
+    this.fullName.set(null);
     this.centerId.set(null);
     this.centerName.set(null);
     this.roles.set([]);
