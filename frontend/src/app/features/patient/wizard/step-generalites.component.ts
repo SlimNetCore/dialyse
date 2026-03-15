@@ -8,28 +8,41 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthSessionService } from '../../../core/auth/auth-session.service';
 
 @Component({
   selector: 'app-step-generalites',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatRadioModule, TranslateModule],
+  imports: [
+    ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatIconModule,
+    MatRadioModule, MatButtonModule, TranslateModule
+  ],
   template: `
     <div class="step-content">
       <form [formGroup]="form">
         <!-- Photo + Identity row -->
         <div class="row-photo">
-          <div class="photo-zone" (click)="photoInput.click()">
-            @if (photoPreview()) {
-              <img [src]="photoPreview()" alt="Photo" class="photo-img" />
-            } @else {
-              <mat-icon class="photo-placeholder">person</mat-icon>
-              <span class="photo-label">{{ 'PATIENT_FORM.PHOTO' | translate }}</span>
-            }
-            <input #photoInput type="file" accept="image/*" hidden (change)="onPhoto($event)" />
+          <div class="photo-column">
+            <div class="photo-zone" (click)="photoInput.click()">
+              @if (photoPreview()) {
+                <img [src]="photoPreview()" alt="Photo" class="photo-img" />
+              } @else {
+                <mat-icon class="photo-placeholder">person</mat-icon>
+                <span class="photo-label">{{ 'PATIENT_FORM.PHOTO' | translate }}</span>
+              }
+              <input #photoInput type="file" accept="image/*" hidden (change)="onPhoto($event)" />
+            </div>
+            <button mat-stroked-button class="medical-btn" [disabled]="!isMedecin()" (click)="openMedicalRecord()">
+              <mat-icon>folder_shared</mat-icon>
+              {{ 'PATIENT_FORM.DOSSIER_MEDICAL' | translate }}
+            </button>
           </div>
 
           <div class="identity-grid">
+            <!-- Row 1: Civilité, Nom, Prénom -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.CIVILITE' | translate }}</mat-label>
               <mat-select formControlName="civilite">
@@ -55,6 +68,7 @@ import { TranslateModule } from '@ngx-translate/core';
               }
             </mat-form-field>
 
+            <!-- Row 2: Sexe, Date d'admission, Nombre d'enfants -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.SEXE' | translate }} *</mat-label>
               <mat-select formControlName="sexe">
@@ -67,6 +81,21 @@ import { TranslateModule } from '@ngx-translate/core';
             </mat-form-field>
 
             <mat-form-field appearance="outline">
+              <mat-label>{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }} *</mat-label>
+              <input matInput [matDatepicker]="dpAdm" formControlName="dateAdmission" />
+              <mat-datepicker-toggle matSuffix [for]="dpAdm" /><mat-datepicker #dpAdm />
+              @if (form.get('dateAdmission')?.hasError('required') && form.get('dateAdmission')?.touched) {
+                <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'PATIENT_FORM.NOMBRE_ENFANTS' | translate }}</mat-label>
+              <input matInput type="number" formControlName="nombreEnfants" />
+            </mat-form-field>
+
+            <!-- Row 3: Groupe sanguin, Date de naissance, Age -->
+            <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.GROUPE_SANGUIN' | translate }}</mat-label>
               <mat-select formControlName="groupeSanguin">
                 <mat-option value="">—</mat-option>
@@ -78,42 +107,29 @@ import { TranslateModule } from '@ngx-translate/core';
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>{{ 'PATIENT_FORM.NOMBRE_ENFANTS' | translate }}</mat-label>
-              <input matInput type="number" formControlName="nombreEnfants" />
+              <mat-label>{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }} *</mat-label>
+              <input matInput [matDatepicker]="dpNais" formControlName="dateNaissance" />
+              <mat-datepicker-toggle matSuffix [for]="dpNais" /><mat-datepicker #dpNais />
+              @if (form.get('dateNaissance')?.hasError('required') && form.get('dateNaissance')?.touched) {
+                <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+              }
             </mat-form-field>
+
+            <div class="age-box">
+              <span class="age-label">{{ 'PATIENT_FORM.AGE' | translate }}</span>
+              <span class="age-value">{{ calculatedAge() !== null ? calculatedAge() : '—' }}</span>
+              @if (calculatedAge() !== null) {
+                <span class="age-unit">{{ 'PATIENT_FORM.ANS' | translate }}</span>
+              }
+            </div>
           </div>
         </div>
 
-        <!-- Dates + Age -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }} *</mat-label>
-            <input matInput [matDatepicker]="dpAdm" formControlName="dateAdmission" />
-            <mat-datepicker-toggle matSuffix [for]="dpAdm" /><mat-datepicker #dpAdm />
-            @if (form.get('dateAdmission')?.hasError('required') && form.get('dateAdmission')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }} *</mat-label>
-            <input matInput [matDatepicker]="dpNais" formControlName="dateNaissance" />
-            <mat-datepicker-toggle matSuffix [for]="dpNais" /><mat-datepicker #dpNais />
-            @if (form.get('dateNaissance')?.hasError('required') && form.get('dateNaissance')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
-          </mat-form-field>
-          <div class="age-box">
-            <span class="age-label">{{ 'PATIENT_FORM.AGE' | translate }}</span>
-            <span class="age-value">{{ calculatedAge() !== null ? calculatedAge() : '—' }}</span>
-            @if (calculatedAge() !== null) {
-              <span class="age-unit">{{ 'PATIENT_FORM.ANS' | translate }}</span>
-            }
-          </div>
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.LIEU_NAISSANCE' | translate }}</mat-label>
-            <input matInput formControlName="lieuNaissance" />
-          </mat-form-field>
-        </div>
+        <!-- Lieu de naissance -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'PATIENT_FORM.LIEU_NAISSANCE' | translate }}</mat-label>
+          <input matInput formControlName="lieuNaissance" />
+        </mat-form-field>
 
         <!-- Contact -->
         <div class="form-row">
@@ -189,8 +205,8 @@ import { TranslateModule } from '@ngx-translate/core';
           </mat-radio-group>
         </div>
 
-        <!-- Observation -->
-        <mat-form-field appearance="outline" class="full-width">
+        <!-- Observation with extra spacing below -->
+        <mat-form-field appearance="outline" class="full-width observation-field">
           <mat-label>{{ 'PATIENT_FORM.OBSERVATION' | translate }}</mat-label>
           <textarea matInput rows="3" formControlName="observation"></textarea>
         </mat-form-field>
@@ -200,10 +216,17 @@ import { TranslateModule } from '@ngx-translate/core';
   styles: [`
     .step-content { padding: 12px 0; }
     .row-photo { display: flex; gap: 20px; margin-bottom: 12px; align-items: stretch; }
+    .photo-column { display: flex; flex-direction: column; align-items: stretch; width: 180px; }
     .photo-zone {
-      width: 180px; min-height: 220px; border: 2px dashed #ccc; border-radius: 12px;
+      width: 100%; min-height: 220px; border: 2px dashed #ccc; border-radius: 12px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       cursor: pointer; background: #ffffff; transition: all 0.2s; flex-shrink: 0;
+    }
+    .medical-btn {
+      margin-top: 10px;
+      width: 100%;
+      color: #1b5e20;
+      border-color: #1b5e20;
     }
     .photo-zone:hover { border-color: #1b5e20; background: #f9fff9; box-shadow: 0 2px 12px rgba(27,94,32,0.08); }
     .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
@@ -215,6 +238,7 @@ import { TranslateModule } from '@ngx-translate/core';
     .full-width { width: 100%; }
     .checks-row { align-items: center; flex-wrap: wrap; gap: 12px; }
     .date-inline { width: 160px; }
+    .observation-field { margin-bottom: 24px !important; }
     /* Age display box */
     .age-box {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -236,8 +260,11 @@ export class StepGeneralitesComponent implements OnInit {
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthSessionService);
   photoPreview = signal<string | null>(null);
   private dateNaissanceSignal = signal<Date | null>(null);
+
+  readonly isMedecin = computed(() => this.auth.hasRole('ROLE_MEDECIN'));
 
   calculatedAge = computed(() => {
     const dob = this.dateNaissanceSignal();
@@ -299,6 +326,12 @@ export class StepGeneralitesComponent implements OnInit {
       this.dataChange.emit({ ...this.form.value, photoBase64: reader.result });
     };
     reader.readAsDataURL(file);
+  }
+
+  openMedicalRecord(): void {
+    if (!this.isMedecin()) return;
+    // Placeholder: this will open dedicated medical record module when available
+    console.info('Dossier medical opened for MEDECIN profile');
   }
 
   markTouched(): void { this.form.markAllAsTouched(); }

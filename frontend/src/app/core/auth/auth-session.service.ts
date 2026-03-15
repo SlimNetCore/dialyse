@@ -7,6 +7,7 @@ type AuthSession = {
   username: string;
   centerId: string;
   centerName: string;
+  roles?: string[];
 };
 
 @Injectable({ providedIn: 'root' })
@@ -15,6 +16,7 @@ export class AuthSessionService {
   readonly username = signal<string | null>(null);
   readonly centerId = signal<string | null>(null);
   readonly centerName = signal<string | null>(null);
+  readonly roles = signal<string[]>([]);
   readonly isAuthenticated = signal(false);
 
   constructor() {
@@ -26,6 +28,7 @@ export class AuthSessionService {
     this.username.set(session.username);
     this.centerId.set(session.centerId);
     this.centerName.set(session.centerName);
+    this.roles.set(session.roles ?? []);
     this.isAuthenticated.set(true);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   }
@@ -35,15 +38,18 @@ export class AuthSessionService {
     this.username.set(null);
     this.centerId.set(null);
     this.centerName.set(null);
+    this.roles.set([]);
     this.isAuthenticated.set(false);
     localStorage.removeItem(STORAGE_KEY);
   }
 
+  hasRole(role: string): boolean {
+    return this.roles().includes(role);
+  }
+
   private restore(): void {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return;
-    }
+    if (!raw) return;
 
     try {
       const parsed = JSON.parse(raw) as AuthSession;
@@ -53,4 +59,3 @@ export class AuthSessionService {
     }
   }
 }
-

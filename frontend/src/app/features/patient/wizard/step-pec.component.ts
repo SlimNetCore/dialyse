@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -21,14 +21,20 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       <form [formGroup]="form">
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }}</mat-label>
+            <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }} *</mat-label>
             <input matInput [matDatepicker]="dpDeb" formControlName="pecDateDebutDemande" />
             <mat-datepicker-toggle matSuffix [for]="dpDeb" /><mat-datepicker #dpDeb />
+            @if (form.get('pecDateDebutDemande')?.hasError('required') && form.get('pecDateDebutDemande')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'WIZARD.PEC_DATE_FIN' | translate }}</mat-label>
+            <mat-label>{{ 'WIZARD.PEC_DATE_FIN' | translate }} *</mat-label>
             <input matInput [matDatepicker]="dpFin" formControlName="pecDateFinDemande" />
             <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
+            @if (form.get('pecDateFinDemande')?.hasError('required') && form.get('pecDateFinDemande')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
           </mat-form-field>
           <app-searchable-select [items]="forfaits()" [label]="'WIZARD.PEC_FORFAIT_DEMANDE' | translate"
             [selectedId]="form.get('pecForfaitDemandeId')?.value" (selectionChanged)="form.patchValue({pecForfaitDemandeId: $event?.id})" cssClass="flex1" />
@@ -65,11 +71,13 @@ export class StepPecComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      pecDateDebutDemande: [null], pecDateFinDemande: [null], pecForfaitDemandeId: [null]
+      pecDateDebutDemande: [null, Validators.required],
+      pecDateFinDemande: [null, Validators.required],
+      pecForfaitDemandeId: [null]
     });
     this.form.valueChanges.subscribe(val => {
       this.dataChange.emit(val);
-      this.validChange.emit(true);
+      this.validChange.emit(this.form.valid);
     });
 
     const cid = this.store.currentCenterId();
@@ -80,5 +88,5 @@ export class StepPecComponent implements OnInit {
   }
 
   markTouched(): void { this.form.markAllAsTouched(); }
-  isValid(): boolean { return true; }
+  isValid(): boolean { return this.form.valid; }
 }

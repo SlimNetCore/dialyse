@@ -1,5 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthSessionService } from '../auth/auth-session.service';
 import { LangService } from '../i18n/lang.service';
+import { WebSocketService } from '../ws/websocket.service';
+import { NotificationBellComponent } from './notification-bell.component';
 
 @Component({
   selector: 'app-shell',
@@ -15,7 +17,7 @@ import { LangService } from '../i18n/lang.service';
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive,
     MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatTooltipModule,
-    TranslateModule
+    TranslateModule, NotificationBellComponent
   ],
   template: `
     <!-- TOOLBAR -->
@@ -25,6 +27,10 @@ import { LangService } from '../i18n/lang.service';
         <span>{{ 'APP.TITLE' | translate }}</span>
       </div>
       <div class="topbar-right">
+        <!-- Notification bell -->
+        <app-notification-bell />
+
+        <!-- Language switcher -->
         <button mat-icon-button [matMenuTriggerFor]="langMenu" class="lang-btn">
           <mat-icon>translate</mat-icon>
         </button>
@@ -35,15 +41,24 @@ import { LangService } from '../i18n/lang.service';
             </button>
           }
         </mat-menu>
-        <div class="user-info">
+
+        <!-- User profile menu -->
+        <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn">
           <mat-icon>account_circle</mat-icon>
           <span>{{ auth.username() }}</span>
           <span>&bull;</span>
           <span>{{ auth.centerName() }}</span>
-        </div>
-        <button mat-flat-button class="logout-btn" (click)="onLogout()">
-          <mat-icon>logout</mat-icon> {{ 'TOOLBAR.LOGOUT' | translate }}
         </button>
+        <mat-menu #userMenu="matMenu">
+          @if (auth.hasRole('ROLE_ADMIN')) {
+            <button mat-menu-item (click)="router.navigate(['/patients/pec-admin'])">
+              <mat-icon>verified</mat-icon> {{ 'NAV.PEC_ADMIN' | translate }}
+            </button>
+          }
+          <button mat-menu-item (click)="onLogout()">
+            <mat-icon>logout</mat-icon> {{ 'TOOLBAR.LOGOUT' | translate }}
+          </button>
+        </mat-menu>
       </div>
     </mat-toolbar>
 
@@ -77,11 +92,11 @@ import { LangService } from '../i18n/lang.service';
       color: #fff; padding: 0 24px; height: 56px; z-index: 100;
     }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .user-info { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: 0.9; }
-    .logout-btn {
-      --mdc-filled-button-container-color: rgba(255,255,255,0.15) !important;
-      --mdc-filled-button-label-text-color: #fff !important;
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .user-btn {
+      display: flex; align-items: center; gap: 6px; font-size: 13px;
+      color: rgba(255,255,255,0.9) !important;
+      --mdc-text-button-label-text-color: rgba(255,255,255,0.9) !important;
     }
     .lang-btn { color: rgba(255,255,255,0.9) !important; }
     .lang-flag { margin-right: 8px; font-size: 18px; }
@@ -111,22 +126,28 @@ import { LangService } from '../i18n/lang.service';
     .content { flex: 1; overflow-y: auto; padding: 24px; background: #fbfdfc; }
   `]
 })
-export class ShellComponent {
+export class ShellComponent implements OnInit {
   readonly auth = inject(AuthSessionService);
   readonly lang = inject(LangService);
+  readonly router = inject(Router);
+  private readonly ws = inject(WebSocketService);
   readonly sidebarExpanded = signal(false);
 
   readonly navItems = [
+    { route: '/dashboard', icon: 'dashboard', label: 'NAV.DASHBOARD' },
     { route: '/patients', icon: 'people', label: 'NAV.PATIENTS' },
-    { route: '/patients/pec-admin', icon: 'verified', label: 'NAV.PEC_ADMIN' },
     { route: '/seances', icon: 'event_note', label: 'NAV.SEANCES' },
     { route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION' },
     { route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT' }
   ];
 
+  ngOnInit(): void {
+    this.ws.connect();
+  }
+
   onLogout(): void {
+    this.ws.disconnect();
     this.auth.clearSession();
     window.location.href = '/';
   }
 }
-

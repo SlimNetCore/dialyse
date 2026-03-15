@@ -119,5 +119,10 @@ export class BackendApiService {
     const params = new HttpParams().set('centerId', centerId).set('userId', userId);
     return this.http.get<{ allowed: boolean }>(`${this.baseUrl}/pec/${pecId}/session-allowed`, { params });
   }
+
+  getDashboardStats(centerId: string, expirationDays: number): Observable<any> {
+    const params = new HttpParams().set('centerId', centerId).set('expirationDays', expirationDays.toString());
+    return this.http.get<any>(`${this.baseUrl}/dashboard/stats`, { params });
+  }
 }
 

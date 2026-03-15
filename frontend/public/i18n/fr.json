@@ -186,6 +186,7 @@
     "CLOTUREE_DESC": "Prise en charge expirée — séance bloquée"
   },
   "NAV": {
+    "DASHBOARD": "Tableau de bord",
     "PATIENTS": "Patients",
     "PEC_ADMIN": "Validation PEC",
     "SEANCES": "Séances",
@@ -246,6 +247,21 @@
     "EN": "English",
     "AR": "العربية",
     "KAB": "Taqbaylit"
+  },
+  "DASHBOARD": {
+    "TITLE": "Tableau de bord du centre",
+    "EXPIRATION_DAYS": "Échéance (jours)",
+    "PATIENTS": "Patients",
+    "PEC_CREE": "PEC Créées",
+    "PEC_VALIDEE": "PEC Validées",
+    "PEC_EXPIRING": "PEC expirant dans {{days}} jours",
+    "ATTESTATION_TOTAL": "Attestations",
+    "ATTESTATION_EXPIRING": "Attestations expirant dans {{days}} jours"
+  },
+  "NOTIFICATION": {
+    "TITLE": "Notifications",
+    "EMPTY": "Aucune notification",
+    "MARK_READ": "Tout marquer comme lu"
   }
 }
 

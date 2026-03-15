@@ -1,4 +1,4 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatStepperModule, MatStepper } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,11 +31,11 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
         <h2>{{ 'WIZARD.TITLE' | translate }}</h2>
         <div class="wizard-progress">
-          {{ 'WIZARD.STEP' | translate }} {{ currentStep() + 1 }} / 6
+          {{ 'WIZARD.STEP' | translate }} {{ currentStep() + 1 }} / {{ totalSteps() }}
         </div>
       </div>
 
-      <mat-stepper #stepper [linear]="false" (selectionChange)="onStepChange($event)" class="wizard-stepper">
+      <mat-stepper #stepper [linear]="false" [animationDuration]="'0'" (selectionChange)="onStepChange($event)" class="wizard-stepper">
         <!-- Step 1: Généralités -->
         <mat-step [label]="'WIZARD.STEP_GENERALITES' | translate" [completed]="step1Valid()" [editable]="true">
           <app-step-generalites #stepGen (dataChange)="updateData($event)" (validChange)="step1Valid.set($event)" />
@@ -65,21 +65,23 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           </div>
         </mat-step>
 
-        <!-- Step 4: Attestation -->
-        <mat-step [label]="'WIZARD.STEP_ATTESTATION' | translate" [editable]="true">
-          <app-step-attestation #stepAtt (dataChange)="updateData($event)" />
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="next-btn" matStepperNext>{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
-          </div>
-        </mat-step>
+        <!-- Step 4: Attestation (hidden for vacancier) -->
+        @if (!isVacancier()) {
+          <mat-step [label]="'WIZARD.STEP_ATTESTATION' | translate" [completed]="step4Valid()" [editable]="true">
+            <app-step-attestation #stepAtt (dataChange)="updateData($event)" (validChange)="step4Valid.set($event)" />
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
+              <button mat-flat-button class="next-btn" (click)="tryNext(3)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
+            </div>
+          </mat-step>
+        }
 
         <!-- Step 5: PEC -->
-        <mat-step [label]="'WIZARD.STEP_PEC' | translate" [editable]="true">
-          <app-step-pec #stepPec (dataChange)="updateData($event)" />
+        <mat-step [label]="'WIZARD.STEP_PEC' | translate" [completed]="step5Valid()" [editable]="true">
+          <app-step-pec #stepPec (dataChange)="updateData($event)" (validChange)="step5Valid.set($event)" />
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="next-btn" matStepperNext>{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
+            <button mat-flat-button class="next-btn" (click)="tryNext(4)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
           </div>
         </mat-step>
 
@@ -88,7 +90,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           <app-step-pieces-jointes (dataChange)="updateData($event)" />
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="save-btn" (click)="submit()" [disabled]="saving()">
+            <button mat-flat-button class="save-btn" (click)="submit()" [disabled]="saving() || !canSave()">
               <mat-icon>save</mat-icon> {{ 'WIZARD.SAVE' | translate }}
             </button>
           </div>
@@ -114,10 +116,16 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       --mdc-filled-button-container-color: #1b5e20 !important;
       --mdc-filled-button-label-text-color: #fff !important;
     }
+    .save-btn:disabled {
+      --mdc-filled-button-container-color: #bdbdbd !important;
+    }
     :host ::ng-deep .wizard-stepper { background: transparent; }
     :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content {
       background: #f4faf5; border-radius: 12px; padding: 20px; margin-top: 8px;
-      border: 1px solid #e0ede2;
+      border: 1px solid #e0ede2; min-height: 350px;
+    }
+    :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content[aria-expanded="false"] {
+      min-height: 0 !important; padding: 0 !important; overflow: hidden;
     }
     :host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-selected {
       background-color: #1b5e20 !important;
@@ -149,13 +157,27 @@ export class PatientWizardComponent {
   readonly saving = signal(false);
   readonly step1Valid = signal(false);
   readonly step2Valid = signal(false);
+  readonly step4Valid = signal(false);
+  readonly step5Valid = signal(false);
+  readonly isVacancier = signal(false);
   wizardData: Record<string, any> = {};
+
+  readonly totalSteps = computed(() => this.isVacancier() ? 5 : 6);
+
+  readonly canSave = computed(() => {
+    const base = this.step1Valid() && this.step2Valid() && this.step5Valid();
+    if (this.isVacancier()) return base;
+    return base && this.step4Valid();
+  });
 
   updateData(partial: Record<string, any>): void {
     this.wizardData = { ...this.wizardData, ...partial };
     // Propagate qualiteAssure to step 2 if it changed
     if (partial['qualiteAssure'] !== undefined && this.stepAss) {
       this.stepAss.setQualiteAssure(partial['qualiteAssure']);
+    }
+    if (partial['typePatient'] !== undefined) {
+      this.isVacancier.set(partial['typePatient'] === 'VACANCIER');
     }
   }
 

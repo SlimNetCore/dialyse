@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -17,14 +17,20 @@ import { TranslateModule } from '@ngx-translate/core';
       <form [formGroup]="form">
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.ATTESTATION_DEBUT' | translate }}</mat-label>
+            <mat-label>{{ 'PATIENT_FORM.ATTESTATION_DEBUT' | translate }} *</mat-label>
             <input matInput [matDatepicker]="dpDebut" formControlName="attestationDebut" />
             <mat-datepicker-toggle matSuffix [for]="dpDebut" /><mat-datepicker #dpDebut />
+            @if (form.get('attestationDebut')?.hasError('required') && form.get('attestationDebut')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.ATTESTATION_FIN' | translate }}</mat-label>
+            <mat-label>{{ 'PATIENT_FORM.ATTESTATION_FIN' | translate }} *</mat-label>
             <input matInput [matDatepicker]="dpFin" formControlName="attestationFin" />
             <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
+            @if (form.get('attestationFin')?.hasError('required') && form.get('attestationFin')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
           </mat-form-field>
         </div>
       </form>
@@ -51,13 +57,16 @@ export class StepAttestationComponent implements OnInit {
   form!: FormGroup;
 
   ngOnInit(): void {
-    this.form = this.fb.group({ attestationDebut: [null], attestationFin: [null] });
+    this.form = this.fb.group({
+      attestationDebut: [null, Validators.required],
+      attestationFin: [null, Validators.required]
+    });
     this.form.valueChanges.subscribe(val => {
       this.dataChange.emit(val);
-      this.validChange.emit(true);
+      this.validChange.emit(this.form.valid);
     });
   }
 
   markTouched(): void { this.form.markAllAsTouched(); }
-  isValid(): boolean { return true; }
+  isValid(): boolean { return this.form.valid; }
 }

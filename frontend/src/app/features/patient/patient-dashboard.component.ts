@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { PatientListComponent, PatientRow } from './patient-list.component';
 import { BackendApiService } from '../../core/api/backend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { AppShellStore } from '../../core/state/app-shell.store';
+import { WebSocketService } from '../../core/ws/websocket.service';
 
 @Component({
   selector: 'app-patient-dashboard',
@@ -25,9 +26,24 @@ export class PatientDashboardComponent implements OnInit {
   private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthSessionService);
   private readonly store = inject(AppShellStore);
+  private readonly ws = inject(WebSocketService);
   readonly patients = signal<PatientRow[]>([]);
 
+  constructor() {
+    // Auto-refresh on PATIENT_CREATED WebSocket event
+    effect(() => {
+      const evt = this.ws.lastEvent();
+      if (evt?.type === 'PATIENT_CREATED') {
+        this.loadPatients();
+      }
+    });
+  }
+
   ngOnInit(): void {
+    this.loadPatients();
+  }
+
+  loadPatients(): void {
     const centerId = this.store.currentCenterId();
     if (!centerId) return;
     this.api.listPatients(centerId, this.auth.username() ?? 'demo').subscribe({
@@ -45,4 +61,3 @@ export class PatientDashboardComponent implements OnInit {
     // future: navigate to detail
   }
 }
-

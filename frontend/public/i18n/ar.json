@@ -139,6 +139,7 @@
     "TOTAL": "{{count}} مريض(ة)"
   },
   "NAV": {
+    "DASHBOARD": "لوحة المعلومات",
     "PATIENTS": "المرضى",
     "PEC_ADMIN": "المصادقة على التكفلات",
     "SEANCES": "الحصص",
@@ -193,6 +194,21 @@
     "CONFIRM": "تأكيد المصادقة",
     "VALIDATED_OK": "تم المصادقة على التكفل بنجاح",
     "CLOSED_OK": "تم إغلاق التكفل"
+  },
+  "DASHBOARD": {
+    "TITLE": "لوحة معلومات المركز",
+    "EXPIRATION_DAYS": "الأيام المتبقية",
+    "PATIENTS": "المرضى",
+    "PEC_CREE": "تكفلات منشأة",
+    "PEC_VALIDEE": "تكفلات مصادق عليها",
+    "PEC_EXPIRING": "تكفلات تنتهي خلال {{days}} يوم",
+    "ATTESTATION_TOTAL": "الشهادات",
+    "ATTESTATION_EXPIRING": "شهادات تنتهي خلال {{days}} يوم"
+  },
+  "NOTIFICATION": {
+    "TITLE": "الإشعارات",
+    "EMPTY": "لا توجد إشعارات",
+    "MARK_READ": "تحديد الكل كمقروء"
   }
 }
 

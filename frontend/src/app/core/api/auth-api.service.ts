@@ -13,6 +13,7 @@ export type LoginResponse = {
   username: string;
   centerId: string;
   centerName: string;
+  roles: string[];
 };
 
 @Injectable({ providedIn: 'root' })

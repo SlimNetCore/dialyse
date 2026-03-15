@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.web;
 
+import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase.CreatePatientCommand;
 import com.hemodialyse.backend.domain.patient.model.Patient;
@@ -16,8 +17,12 @@ import java.util.*;
 public class PatientRestController {
 
     private final PatientUseCase useCase;
+    private final NotificationService notificationService;
 
-    public PatientRestController(PatientUseCase useCase) { this.useCase = useCase; }
+    public PatientRestController(PatientUseCase useCase, NotificationService notificationService) {
+        this.useCase = useCase;
+        this.notificationService = notificationService;
+    }
 
     record CreatePatientRequest(
         UUID centerId, String userId,
@@ -63,6 +68,12 @@ public class PatientRestController {
             r.pecDateDebutDemande(), r.pecDateFinDemande(), r.pecForfaitDemandeId()
         );
         Patient p = useCase.createPatient(CenterId.of(r.centerId()), cmd);
+
+        // Send real-time notification
+        notificationService.notifyPatientCreated(
+            r.centerId(), p.getCodePatient(), r.nom(), r.prenom()
+        );
+
         return ResponseEntity.ok(Map.of(
             "id", p.getId().value(), "centerId", p.getCenterId().value(),
             "typePatient", p.getTypePatient(), "codePatient", p.getCodePatient()
@@ -79,4 +90,3 @@ public class PatientRestController {
         return ResponseEntity.ok(useCase.getPatient(CenterId.of(centerId), id));
     }
 }
-

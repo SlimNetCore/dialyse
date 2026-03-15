@@ -130,6 +130,7 @@
     "CLOTUREE_DESC": "Coverage expired — session blocked"
   },
   "NAV": {
+    "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",
     "PEC_ADMIN": "PEC Validation",
     "SEANCES": "Sessions",
@@ -190,6 +191,21 @@
     "EN": "English",
     "AR": "العربية",
     "KAB": "Taqbaylit"
+  },
+  "DASHBOARD": {
+    "TITLE": "Center Dashboard",
+    "EXPIRATION_DAYS": "Expiration (days)",
+    "PATIENTS": "Patients",
+    "PEC_CREE": "PEC Created",
+    "PEC_VALIDEE": "PEC Validated",
+    "PEC_EXPIRING": "PEC expiring in {{days}} days",
+    "ATTESTATION_TOTAL": "Certificates",
+    "ATTESTATION_EXPIRING": "Certificates expiring in {{days}} days"
+  },
+  "NOTIFICATION": {
+    "TITLE": "Notifications",
+    "EMPTY": "No notifications",
+    "MARK_READ": "Mark all as read"
   }
 }
 

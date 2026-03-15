@@ -139,6 +139,7 @@
     "TOTAL": "{{count}} n yimdanen"
   },
   "NAV": {
+    "DASHBOARD": "Tafelwit n uselkim",
     "PATIENTS": "Imdanen",
     "PEC_ADMIN": "Asentem n tneḍrutin",
     "SEANCES": "Tamsirin",
@@ -193,6 +194,21 @@
     "CONFIRM": "Sentem asentem",
     "VALIDATED_OK": "Taneḍrut tettwasentem",
     "CLOSED_OK": "Taneḍrut temdel"
+  },
+  "DASHBOARD": {
+    "TITLE": "Tafelwit n ummas",
+    "EXPIRATION_DAYS": "Ussan (agemmaḍ)",
+    "PATIENTS": "Imdanen",
+    "PEC_CREE": "Tineḍrutin yennulfan",
+    "PEC_VALIDEE": "Tineḍrutin yettwasnetmen",
+    "PEC_EXPIRING": "Tineḍrutin ara d-yefaken deg {{days}} n wussan",
+    "ATTESTATION_TOTAL": "Tiselkentin",
+    "ATTESTATION_EXPIRING": "Tiselkentin ara d-yefaken deg {{days}} n wussan"
+  },
+  "NOTIFICATION": {
+    "TITLE": "Ilɣa",
+    "EMPTY": "Ulac ilɣa",
+    "MARK_READ": "Rcem akk d yettwaɣṛan"
   }
 }
 
