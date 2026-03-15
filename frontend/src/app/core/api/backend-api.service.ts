@@ -148,19 +148,63 @@ export class BackendApiService {
     return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/reporting/templates/${id}`, { params });
   }
 
-  renderReport(reportType: string, centerId: string, patientId: string): Observable<string> {
-    const params = new HttpParams().set('centerId', centerId).set('patientId', patientId);
+  renderReport(reportType: string, centerId: string, patientId?: string): Observable<string> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (patientId) params = params.set('patientId', patientId);
     return this.http.get(`${this.baseUrl}/reporting/render/${reportType}`, {
       params,
       responseType: 'text'
     });
   }
 
-  renderReportByTemplate(templateId: string, centerId: string, patientId: string): Observable<string> {
-    const params = new HttpParams().set('centerId', centerId).set('patientId', patientId);
+  renderReportByTemplate(templateId: string, centerId: string, patientId?: string): Observable<string> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (patientId) params = params.set('patientId', patientId);
     return this.http.get(`${this.baseUrl}/reporting/render/template/${templateId}`, {
       params,
       responseType: 'text'
     });
+  }
+
+  testReportSql(sql: string, centerId: string, patientId?: string): Observable<{ columns: string[]; sampleRows: any[]; totalRows: number; error: string | null }> {
+    return this.http.post<any>(`${this.baseUrl}/reporting/datasource/test`, { sql, centerId, patientId: patientId || null });
+  }
+
+  renderFromSql(body: { templateHtml: string; sql: string; centerId: string; headerImage?: string; footerImage?: string }): Observable<string> {
+    return this.http.post(`${this.baseUrl}/reporting/render/sql`, body, { responseType: 'text' });
+  }
+
+  getDatasourceTables(): Observable<Array<{ table: string; description: string }>> {
+    return this.http.get<any[]>(`${this.baseUrl}/reporting/datasource/tables`);
+  }
+
+  // ─── JasperReports (advanced reporting) ─────────────────────────────
+
+  jasperTestSql(sql: string, centerId: string): Observable<{ columns: string[]; sampleRows: any[]; totalRows: number; error: string | null }> {
+    return this.http.post<any>(`${this.baseUrl}/jasper/test-sql`, { sql, centerId });
+  }
+
+  jasperGenerate(payload: {
+    title: string; sql: string; centerId: string; centerName?: string;
+    columns: string[]; headers: string[];
+    format: 'PDF' | 'EXCEL' | 'HTML'; pageFormat?: string; landscape?: boolean;
+    headerImage?: string; footerImage?: string;
+  }): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/jasper/generate`, payload, { responseType: 'blob' });
+  }
+
+  jasperCompile(payload: {
+    jrxml: string; sql?: string; centerId: string;
+    parameters?: Record<string, string>; format: string;
+  }): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/jasper/compile`, payload, { responseType: 'blob' });
+  }
+
+  jasperPreviewJrxml(payload: {
+    title: string; columns: string[]; headers: string[];
+    pageFormat?: string; landscape?: boolean;
+    headerImage?: string; footerImage?: string;
+  }): Observable<string> {
+    return this.http.post(`${this.baseUrl}/jasper/preview-jrxml`, payload, { responseType: 'text' });
   }
 }

@@ -57,6 +57,9 @@ import { NotificationBellComponent } from './notification-bell.component';
             <button mat-menu-item (click)="router.navigate(['/reporting'])">
               <mat-icon>print</mat-icon> {{ 'NAV.REPORTING' | translate }}
             </button>
+            <button mat-menu-item (click)="router.navigate(['/jasper'])">
+              <mat-icon>analytics</mat-icon> Reporting avancé (Jasper)
+            </button>
             <button mat-menu-item (click)="router.navigate(['/admin/users'])">
               <mat-icon>manage_accounts</mat-icon> {{ 'NAV.ADMIN' | translate }}
             </button>

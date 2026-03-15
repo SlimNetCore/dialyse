@@ -100,7 +100,7 @@ public class ReportingRestController {
     @GetMapping(value = "/render/template/{templateId}", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> renderReportByTemplate(@PathVariable UUID templateId,
                                                          @RequestParam UUID centerId,
-                                                         @RequestParam UUID patientId) {
+                                                         @RequestParam(required = false) UUID patientId) {
         String html = buildRenderedHtml(templateId, centerId, patientId);
         return ResponseEntity.ok(html);
     }
@@ -113,6 +113,63 @@ public class ReportingRestController {
                 Map.of("code", "FICHE_SIGNALETIQUE", "label", "Fiche signaletique"),
                 Map.of("code", "CUSTOM", "label", "Rapport personnalisé")
         ));
+    }
+
+    /**
+     * Test a SQL query: returns the list of column names and up to 5 sample rows.
+     * The user writes a SQL query, the backend executes it and returns columns + sample data
+     * so the designer can propose those columns as available tokens.
+     */
+    record SqlTestRequest(String sql, UUID centerId, UUID patientId) {}
+    record SqlTestResult(List<String> columns, List<Map<String, Object>> sampleRows, int totalRows, String error) {}
+
+    @PostMapping("/datasource/test")
+    public ResponseEntity<SqlTestResult> testSql(@RequestBody SqlTestRequest req) {
+        try {
+            String sql = req.sql()
+                    .replace(":centerId", "'" + req.centerId() + "'");
+            if (req.patientId() != null) {
+                sql = sql.replace(":patientId", "'" + req.patientId() + "'");
+            }
+            // Safety: only SELECT is allowed
+            if (!sql.trim().toUpperCase().startsWith("SELECT")) {
+                return ResponseEntity.ok(new SqlTestResult(List.of(), List.of(), 0, "Seules les requêtes SELECT sont autorisées"));
+            }
+
+            List<Map<String, Object>> rows = jdbc.queryForList(sql);
+            List<String> columns = rows.isEmpty() ? List.of() : new ArrayList<>(rows.get(0).keySet());
+            List<Map<String, Object>> sample = rows.size() > 5 ? rows.subList(0, 5) : rows;
+
+            return ResponseEntity.ok(new SqlTestResult(columns, sample, rows.size(), null));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new SqlTestResult(List.of(), List.of(), 0, e.getMessage()));
+        }
+    }
+
+    /** Render a report purely from SQL data, no patientId needed */
+    @PostMapping(value = "/render/sql", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> renderFromSql(@RequestBody Map<String, String> body) {
+        String templateHtml = body.getOrDefault("templateHtml", "");
+        String sql = body.getOrDefault("sql", "");
+        String centerId = body.getOrDefault("centerId", "");
+        String headerImage = body.getOrDefault("headerImage", "");
+        String footerImage = body.getOrDefault("footerImage", "");
+
+        Map<String, String> data = new HashMap<>();
+        List<Map<String, Object>> dataRows = List.of();
+
+        if (!sql.isBlank() && !centerId.isBlank()) {
+            try {
+                var result = executeTemplateDataSourceFull(sql, UUID.fromString(centerId), null);
+                data.putAll(result.singleRow());
+                dataRows = result.rows();
+            } catch (Exception ignored) {}
+        }
+
+        data.put("generatedAt", LocalDate.now().toString());
+        String html = applyTemplate(templateHtml, data, dataRows);
+        html = wrapWithHeaderFooter(html, headerImage, footerImage);
+        return ResponseEntity.ok(html);
     }
 
     /** List available tables/views that can be used in SQL data sources */
@@ -138,7 +195,7 @@ public class ReportingRestController {
     @GetMapping(value = "/export/pdf/{templateId}", produces = "application/pdf")
     public ResponseEntity<byte[]> exportPdf(@PathVariable UUID templateId,
                                             @RequestParam UUID centerId,
-                                            @RequestParam UUID patientId) {
+                                            @RequestParam(required = false) UUID patientId) {
         String html = buildRenderedHtml(templateId, centerId, patientId);
 
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -182,34 +239,46 @@ public class ReportingRestController {
     private Map<String, String> loadData(UUID centerId, UUID patientId, String reportType) {
         Map<String, String> data = new HashMap<>();
 
-        var p = jdbc.queryForMap("SELECT nom, prenom, sexe, date_naissance, adresse, tel_mobile, numero_assurance FROM patient WHERE id = ? AND center_id = ?",
-                patientId, centerId);
-        data.put("patient.nom", Objects.toString(p.get("nom"), ""));
-        data.put("patient.prenom", Objects.toString(p.get("prenom"), ""));
-        data.put("patient.sexe", Objects.toString(p.get("sexe"), ""));
-        data.put("patient.dateNaissance", Objects.toString(p.get("date_naissance"), ""));
-        data.put("patient.adresse", Objects.toString(p.get("adresse"), ""));
-        data.put("patient.telMobile", Objects.toString(p.get("tel_mobile"), ""));
-        data.put("patient.numeroAssurance", Objects.toString(p.get("numero_assurance"), ""));
-
-        String centerName = jdbc.queryForObject("SELECT name FROM centers WHERE id = ?", String.class, centerId);
-        data.put("center.name", centerName != null ? centerName : "");
-
-        if ("ATTESTATION".equals(reportType)) {
-            List<Map<String, Object>> a = jdbc.queryForList("SELECT date_debut, date_fin FROM attestation WHERE patient_id = ? AND center_id = ? ORDER BY date_fin DESC", patientId, centerId);
-            if (!a.isEmpty()) {
-                data.put("attestation.dateDebut", Objects.toString(a.get(0).get("date_debut"), ""));
-                data.put("attestation.dateFin", Objects.toString(a.get(0).get("date_fin"), ""));
-            }
+        if (patientId != null) {
+            try {
+                var p = jdbc.queryForMap("SELECT nom, prenom, sexe, date_naissance, adresse, tel_mobile, numero_assurance FROM patients WHERE id = ? AND center_id = ?",
+                        patientId, centerId);
+                data.put("patient.nom", Objects.toString(p.get("NOM"), Objects.toString(p.get("nom"), "")));
+                data.put("patient.prenom", Objects.toString(p.get("PRENOM"), Objects.toString(p.get("prenom"), "")));
+                data.put("patient.sexe", Objects.toString(p.get("SEXE"), Objects.toString(p.get("sexe"), "")));
+                data.put("patient.dateNaissance", Objects.toString(p.get("DATE_NAISSANCE"), Objects.toString(p.get("date_naissance"), "")));
+                data.put("patient.adresse", Objects.toString(p.get("ADRESSE"), Objects.toString(p.get("adresse"), "")));
+                data.put("patient.telMobile", Objects.toString(p.get("TEL_MOBILE"), Objects.toString(p.get("tel_mobile"), "")));
+                data.put("patient.numeroAssurance", Objects.toString(p.get("NUMERO_ASSURANCE"), Objects.toString(p.get("numero_assurance"), "")));
+            } catch (Exception ignored) { /* patient not found */ }
         }
 
-        if ("PEC".equals(reportType)) {
-            List<Map<String, Object>> pec = jdbc.queryForList("SELECT date_debut_demande, date_fin_demande, statut FROM pec WHERE patient_id = ? AND center_id = ? ORDER BY date_fin_demande DESC", patientId, centerId);
-            if (!pec.isEmpty()) {
-                data.put("pec.dateDebutDemande", Objects.toString(pec.get(0).get("date_debut_demande"), ""));
-                data.put("pec.dateFinDemande", Objects.toString(pec.get(0).get("date_fin_demande"), ""));
-                data.put("pec.statut", Objects.toString(pec.get(0).get("statut"), ""));
-            }
+        try {
+            String centerName = jdbc.queryForObject("SELECT name FROM centers WHERE id = ?", String.class, centerId);
+            data.put("center.name", centerName != null ? centerName : "");
+        } catch (Exception ignored) {
+            data.put("center.name", "");
+        }
+
+        if ("ATTESTATION".equals(reportType) && patientId != null) {
+            try {
+                List<Map<String, Object>> a = jdbc.queryForList("SELECT date_debut, date_fin FROM attestation_droit WHERE patient_id = ? AND center_id = ? ORDER BY date_fin DESC", patientId, centerId);
+                if (!a.isEmpty()) {
+                    data.put("attestation.dateDebut", Objects.toString(a.get(0).get("DATE_DEBUT"), Objects.toString(a.get(0).get("date_debut"), "")));
+                    data.put("attestation.dateFin", Objects.toString(a.get(0).get("DATE_FIN"), Objects.toString(a.get(0).get("date_fin"), "")));
+                }
+            } catch (Exception ignored) {}
+        }
+
+        if ("PEC".equals(reportType) && patientId != null) {
+            try {
+                List<Map<String, Object>> pec = jdbc.queryForList("SELECT date_debut_demande, date_fin_demande, statut FROM prise_en_charge WHERE patient_id = ? AND center_id = ? ORDER BY date_fin_demande DESC", patientId, centerId);
+                if (!pec.isEmpty()) {
+                    data.put("pec.dateDebutDemande", Objects.toString(pec.get(0).get("DATE_DEBUT_DEMANDE"), Objects.toString(pec.get(0).get("date_debut_demande"), "")));
+                    data.put("pec.dateFinDemande", Objects.toString(pec.get(0).get("DATE_FIN_DEMANDE"), Objects.toString(pec.get(0).get("date_fin_demande"), "")));
+                    data.put("pec.statut", Objects.toString(pec.get(0).get("STATUT"), Objects.toString(pec.get(0).get("statut"), "")));
+                }
+            } catch (Exception ignored) {}
         }
 
         return data;
@@ -254,8 +323,10 @@ public class ReportingRestController {
 
     private DataSourceResult executeTemplateDataSourceFull(String sqlTemplate, UUID centerId, UUID patientId) {
         String sql = sqlTemplate
-                .replace(":centerId", "'" + centerId + "'")
-                .replace(":patientId", "'" + patientId + "'");
+                .replace(":centerId", "'" + centerId + "'");
+        if (patientId != null) {
+            sql = sql.replace(":patientId", "'" + patientId + "'");
+        }
 
         Map<String, String> singleRow = new HashMap<>();
         List<Map<String, Object>> rows = jdbc.queryForList(sql);

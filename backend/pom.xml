@@ -124,6 +124,28 @@
 			<artifactId>openhtmltopdf-pdfbox</artifactId>
 			<version>1.0.10</version>
 		</dependency>
+
+		<!-- JasperReports for advanced BIRT-like reporting -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>7.0.1</version>
+			<exclusions>
+				<exclusion><groupId>commons-logging</groupId><artifactId>commons-logging</artifactId></exclusion>
+			</exclusions>
+		</dependency>
+		<!-- JasperReports PDF export -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports-pdf</artifactId>
+			<version>7.0.1</version>
+		</dependency>
+		<!-- JasperReports Excel export -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports-excel-poi</artifactId>
+			<version>7.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>

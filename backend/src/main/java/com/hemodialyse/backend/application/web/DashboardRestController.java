@@ -49,7 +49,7 @@ public class DashboardRestController {
 
     private long countPec(UUID centerId, String status) {
         Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM pec WHERE center_id = ? AND statut = ?",
+                "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = ?",
                 Long.class, centerId, status
         );
         return count != null ? count : 0;
@@ -57,7 +57,7 @@ public class DashboardRestController {
 
     private long countPecExpiring(UUID centerId, LocalDate threshold) {
         Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM pec WHERE center_id = ? AND statut = 'VALIDEE' AND date_fin_demande <= ?",
+                "SELECT COUNT(1) FROM prise_en_charge WHERE center_id = ? AND statut = 'VALIDEE' AND date_fin_demande <= ?",
                 Long.class, centerId, threshold
         );
         return count != null ? count : 0;
@@ -65,7 +65,7 @@ public class DashboardRestController {
 
     private long countAttestations(UUID centerId) {
         Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM attestation WHERE center_id = ?",
+                "SELECT COUNT(1) FROM attestation_droit WHERE center_id = ?",
                 Long.class, centerId
         );
         return count != null ? count : 0;
@@ -73,7 +73,7 @@ public class DashboardRestController {
 
     private long countAttestationsExpiring(UUID centerId, LocalDate threshold) {
         Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM attestation WHERE center_id = ? AND date_fin <= ?",
+                "SELECT COUNT(1) FROM attestation_droit WHERE center_id = ? AND date_fin <= ?",
                 Long.class, centerId, threshold
         );
         return count != null ? count : 0;
@@ -81,7 +81,7 @@ public class DashboardRestController {
 
     private long countPatients(UUID centerId) {
         Long count = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM patient WHERE center_id = ?",
+                "SELECT COUNT(1) FROM patients WHERE center_id = ?",
                 Long.class, centerId
         );
         return count != null ? count : 0;
