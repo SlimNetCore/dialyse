@@ -100,23 +100,22 @@ CREATE TABLE IF NOT EXISTS app_user_center (
     PRIMARY KEY (user_id, center_id)
 );
 
--- ═══ Report Templates ═══
+-- ═══ Modèles de documents (Jasper) ═══
 
-CREATE TABLE IF NOT EXISTS report_template (
+CREATE TABLE IF NOT EXISTS modele_document (
     id UUID PRIMARY KEY,
     center_id UUID NOT NULL,
-    code VARCHAR(50),
-    name VARCHAR(255) NOT NULL,
-    report_type VARCHAR(50) NOT NULL,
-    page_format VARCHAR(20) DEFAULT 'A4',
-    orientation VARCHAR(20) DEFAULT 'PORTRAIT',
-    layout_mode VARCHAR(20) DEFAULT 'STANDARD',
-    field_schema CLOB,
-    template_html CLOB,
-    data_source_sql CLOB,
-    header_image CLOB,
-    footer_image CLOB,
+    code VARCHAR(50) NOT NULL,
+    libelle VARCHAR(255) NOT NULL,
+    type_document VARCHAR(50) NOT NULL,
+    chemin_jrxml VARCHAR(500) NOT NULL,
+    format_impression VARCHAR(20) NOT NULL DEFAULT 'PDF',
+    description VARCHAR(500),
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(center_id, code)
 );
+
+-- type_document : FICHE_PATIENT, ATTESTATION, PEC, FICHE_SIGNALETIQUE, CUSTOM
+-- format_impression : PDF, EXCEL, HTML
 

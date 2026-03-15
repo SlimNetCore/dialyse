@@ -124,3 +124,24 @@ VALUES ('b0b00001-0000-0000-0000-000000000001', '22222222-2222-2222-2222-2222222
 MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
 VALUES ('b0b00001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111');
 
+-- ═══ MODELES DE DOCUMENTS (Jasper) ═══
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
+VALUES ('d0d00001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111',
+        'FICHE_PATIENT', 'Fiche signalétique patient', 'FICHE_PATIENT',
+        'reports/fiche_patient.jrxml', 'PDF', 'Fiche complète du patient avec ses informations personnelles et médicales');
+
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
+VALUES ('d0d00001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111',
+        'ATTESTATION', 'Attestation d''ouverture de droit', 'ATTESTATION',
+        'reports/attestation.jrxml', 'PDF', 'Attestation d''ouverture de droit du patient');
+
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
+VALUES ('d0d00001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111',
+        'PEC', 'Prise en charge', 'PEC',
+        'reports/prise_en_charge.jrxml', 'PDF', 'Document de prise en charge pour la caisse d''assurance');
+
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
+VALUES ('d0d00001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111',
+        'LISTE_PATIENTS', 'Liste des patients', 'LISTE_PATIENTS',
+        'reports/liste_patients.jrxml', 'PDF', 'Liste complète des patients du centre');
+

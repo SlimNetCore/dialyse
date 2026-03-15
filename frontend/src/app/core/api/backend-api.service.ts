@@ -125,86 +125,59 @@ export class BackendApiService {
     return this.http.get<any>(`${this.baseUrl}/dashboard/stats`, { params });
   }
 
-  getReportingModels(): Observable<Array<{ code: string; label: string }>> {
-    return this.http.get<Array<{ code: string; label: string }>>(`${this.baseUrl}/reporting/models`);
-  }
+  // ─── Documents & Impression (Jasper) ──────────────────────────────
 
-  listReportTemplates(centerId: string, reportType?: string): Observable<any[]> {
+  /** Liste des modèles de documents pour un centre */
+  listModelesDocument(centerId: string, typeDocument?: string): Observable<any[]> {
     let params = new HttpParams().set('centerId', centerId);
-    if (reportType) params = params.set('reportType', reportType);
-    return this.http.get<any[]>(`${this.baseUrl}/reporting/templates`, { params });
+    if (typeDocument) params = params.set('typeDocument', typeDocument);
+    return this.http.get<any[]>(`${this.baseUrl}/documents/modeles`, { params });
   }
 
-  createReportTemplate(payload: any): Observable<{ id: string }> {
-    return this.http.post<{ id: string }>(`${this.baseUrl}/reporting/templates`, payload);
+  /** Créer un modèle de document */
+  createModeleDocument(payload: any): Observable<{ id: string }> {
+    return this.http.post<{ id: string }>(`${this.baseUrl}/documents/modeles`, payload);
   }
 
-  updateReportTemplate(id: string, payload: any): Observable<{ id: string }> {
-    return this.http.put<{ id: string }>(`${this.baseUrl}/reporting/templates/${id}`, payload);
+  /** Modifier un modèle de document */
+  updateModeleDocument(id: string, payload: any): Observable<{ id: string }> {
+    return this.http.put<{ id: string }>(`${this.baseUrl}/documents/modeles/${id}`, payload);
   }
 
-  deleteReportTemplate(id: string, centerId: string): Observable<{ deleted: boolean }> {
+  /** Supprimer un modèle de document */
+  deleteModeleDocument(id: string, centerId: string): Observable<{ deleted: boolean }> {
     const params = new HttpParams().set('centerId', centerId);
-    return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/reporting/templates/${id}`, { params });
+    return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/documents/modeles/${id}`, { params });
   }
 
-  renderReport(reportType: string, centerId: string, patientId?: string): Observable<string> {
-    let params = new HttpParams().set('centerId', centerId);
-    if (patientId) params = params.set('patientId', patientId);
-    return this.http.get(`${this.baseUrl}/reporting/render/${reportType}`, {
-      params,
-      responseType: 'text'
-    });
+  /** Types de documents disponibles */
+  getDocumentTypes(): Observable<Array<{ code: string; label: string }>> {
+    return this.http.get<any[]>(`${this.baseUrl}/documents/types`);
   }
 
-  renderReportByTemplate(templateId: string, centerId: string, patientId?: string): Observable<string> {
-    let params = new HttpParams().set('centerId', centerId);
-    if (patientId) params = params.set('patientId', patientId);
-    return this.http.get(`${this.baseUrl}/reporting/render/template/${templateId}`, {
-      params,
-      responseType: 'text'
-    });
+  /**
+   * Imprimer un document — appel principal.
+   * @param centerId ID du centre
+   * @param typeDocument FICHE_PATIENT, ATTESTATION, PEC, LISTE_PATIENTS, etc.
+   * @param params Paramètres (patientId, pecId, etc.)
+   * @param formatOverride Optionnel : surcharge le format du modèle (PDF, EXCEL, HTML)
+   */
+  printDocument(centerId: string, typeDocument: string, params: Record<string, string>, formatOverride?: string): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/documents/print`, {
+      centerId,
+      typeDocument,
+      formatOverride: formatOverride || null,
+      params
+    }, { responseType: 'blob' });
   }
 
-  testReportSql(sql: string, centerId: string, patientId?: string): Observable<{ columns: string[]; sampleRows: any[]; totalRows: number; error: string | null }> {
-    return this.http.post<any>(`${this.baseUrl}/reporting/datasource/test`, { sql, centerId, patientId: patientId || null });
-  }
-
-  renderFromSql(body: { templateHtml: string; sql: string; centerId: string; headerImage?: string; footerImage?: string }): Observable<string> {
-    return this.http.post(`${this.baseUrl}/reporting/render/sql`, body, { responseType: 'text' });
-  }
-
-  getDatasourceTables(): Observable<Array<{ table: string; description: string }>> {
-    return this.http.get<any[]>(`${this.baseUrl}/reporting/datasource/tables`);
-  }
-
-  // ─── JasperReports (advanced reporting) ─────────────────────────────
-
-  jasperTestSql(sql: string, centerId: string): Observable<{ columns: string[]; sampleRows: any[]; totalRows: number; error: string | null }> {
-    return this.http.post<any>(`${this.baseUrl}/jasper/test-sql`, { sql, centerId });
-  }
-
-  jasperGenerate(payload: {
-    title: string; sql: string; centerId: string; centerName?: string;
-    columns: string[]; headers: string[];
-    format: 'PDF' | 'EXCEL' | 'HTML'; pageFormat?: string; landscape?: boolean;
-    headerImage?: string; footerImage?: string;
-  }): Observable<Blob> {
-    return this.http.post(`${this.baseUrl}/jasper/generate`, payload, { responseType: 'blob' });
-  }
-
-  jasperCompile(payload: {
-    jrxml: string; sql?: string; centerId: string;
-    parameters?: Record<string, string>; format: string;
-  }): Observable<Blob> {
-    return this.http.post(`${this.baseUrl}/jasper/compile`, payload, { responseType: 'blob' });
-  }
-
-  jasperPreviewJrxml(payload: {
-    title: string; columns: string[]; headers: string[];
-    pageFormat?: string; landscape?: boolean;
-    headerImage?: string; footerImage?: string;
-  }): Observable<string> {
-    return this.http.post(`${this.baseUrl}/jasper/preview-jrxml`, payload, { responseType: 'text' });
+  /** Imprimer via un modèle spécifique */
+  printDocumentById(modeleId: string, centerId: string, params: Record<string, string>, formatOverride?: string): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/documents/print/${modeleId}`, {
+      centerId,
+      typeDocument: null,
+      formatOverride: formatOverride || null,
+      params
+    }, { responseType: 'blob' });
   }
 }

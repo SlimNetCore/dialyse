@@ -10,8 +10,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/center-dashboard.component').then(m => m.CenterDashboardComponent) },
-      { path: 'reporting', loadComponent: () => import('./features/reporting/reporting-page.component').then(m => m.ReportingPageComponent) },
-      { path: 'jasper', loadComponent: () => import('./features/reporting/jasper-page.component').then(m => m.JasperPageComponent) },
+      { path: 'modeles-document', loadComponent: () => import('./features/reporting/modeles-document.component').then(m => m.ModelesDocumentComponent) },
       { path: 'patients', loadChildren: () => import('./features/patient/patient.routes').then(m => m.patientRoutes) },
       { path: 'seances', loadComponent: () => import('./features/seances/seances-placeholder.component').then(m => m.SeancesPlaceholderComponent) },
       { path: 'facturation', loadComponent: () => import('./features/facturation/facturation-placeholder.component').then(m => m.FacturationPlaceholderComponent) },

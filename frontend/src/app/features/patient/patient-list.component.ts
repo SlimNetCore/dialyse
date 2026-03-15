@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, OnChanges, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,8 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { PatientQrCardComponent } from './patient-qr-card.component';
+import { BackendApiService } from '../../core/api/backend-api.service';
+import { AuthSessionService } from '../../core/auth/auth-session.service';
 
 export interface PatientRow {
   id: string;
@@ -26,7 +29,7 @@ export interface PatientRow {
   standalone: true,
   imports: [
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatChipsModule, MatTooltipModule, TranslateModule,
+    MatFormFieldModule, MatInputModule, MatChipsModule, MatTooltipModule, MatSnackBarModule, TranslateModule,
     PatientQrCardComponent
   ],
   template: `
@@ -48,6 +51,9 @@ export interface PatientRow {
           <button mat-flat-button color="primary" (click)="newPatient.emit()">
             <mat-icon>person_add</mat-icon>
             {{ 'PATIENT_LIST.BTN_NEW' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" (click)="printList()" matTooltip="Imprimer la liste des patients">
+            <mat-icon>print</mat-icon> Imprimer
           </button>
         </div>
 
@@ -107,6 +113,9 @@ export interface PatientRow {
                 <td mat-cell *matCellDef="let row">
                   <button mat-icon-button matTooltip="Voir" (click)="selectPatient.emit(row)">
                     <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Imprimer fiche" (click)="printFiche(row)" color="primary">
+                    <mat-icon>print</mat-icon>
                   </button>
                   <app-patient-qr-card
                     [patientId]="row.id"
@@ -235,6 +244,10 @@ export class PatientListComponent implements OnChanges {
   @Output() newPatient = new EventEmitter<void>();
   @Output() selectPatient = new EventEmitter<PatientRow>();
 
+  private readonly api = inject(BackendApiService);
+  private readonly auth = inject(AuthSessionService);
+  private readonly snack = inject(MatSnackBar);
+
   readonly displayedColumns = ['code', 'nom', 'prenom', 'sexe', 'dateAdmission', 'numeroAssurance', 'etatPatient', 'actions'];
   readonly filteredPatients = signal<PatientRow[]>([]);
 
@@ -247,6 +260,36 @@ export class PatientListComponent implements OnChanges {
   onSearch(event: Event): void {
     this.searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
     this.applyFilter();
+  }
+
+  /** Imprimer la fiche patient via JasperReports */
+  printFiche(patient: PatientRow): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) return;
+    this.api.printDocument(centerId, 'FICHE_PATIENT', { patientId: patient.id }).subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: (err) => {
+        this.snack.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 });
+      }
+    });
+  }
+
+  /** Imprimer la liste complète des patients via JasperReports */
+  printList(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) return;
+    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}).subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: (err) => {
+        this.snack.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 });
+      }
+    });
   }
 
   private applyFilter(): void {
