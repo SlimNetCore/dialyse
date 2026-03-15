@@ -75,7 +75,7 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
 
     @Override
     public List<RefItem> findForfaits(CenterId c) {
-        return jdbc.query("SELECT id, code, nom, null, null, null FROM forfait WHERE center_id = ?",
+        return jdbc.query("SELECT id, code, prix, null, null, null FROM forfait WHERE center_id = ?",
             (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3), null, null, null),
             c.value());
     }

@@ -29,7 +29,7 @@ public class PatientJpaEntity {
     @Column(name = "tel_bureau") private String telBureau;
     @Column(name = "email") private String email;
     @Column(name = "numero_assurance", nullable = false) private String numeroAssurance;
-    @Enumerated(EnumType.STRING) @Column(name = "type_patient", nullable = false) private String typePatient;
+    @Column(name = "type_patient", nullable = false) private String typePatient;
     @Column(name = "etat_patient") private String etatPatient;
     @Column(name = "qualite_assure") private String qualiteAssure;
     @Column(name = "observation", columnDefinition = "TEXT") private String observation;

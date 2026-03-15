@@ -39,7 +39,7 @@
     "CIVILITE": "Title", "MR": "Mr.", "MRS": "Mrs.", "MS": "Ms.",
     "NOM": "Last name", "PRENOM": "First name",
     "SEXE": "Gender", "MASCULIN": "Male", "FEMININ": "Female",
-    "DATE_NAISSANCE": "Date of birth", "AGE": "Age",
+    "DATE_NAISSANCE": "Date of birth", "AGE": "Age", "ANS": "yrs",
     "JUGEMENT": "Judgment?", "JUGEMENT_ANNEE": "Year",
     "LIEU_NAISSANCE": "Place of birth",
     "DATE_ADMISSION": "Admission date", "EN_SOMMEIL": "Dormant?",

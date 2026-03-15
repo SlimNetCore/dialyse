@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.application.web;
 
-import com.hemodialyse.backend.application.port.in.ReferentialUseCase;
+import com.hemodialyse.backend.domain.referential.port.ReferentialUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

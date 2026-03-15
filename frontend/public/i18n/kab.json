@@ -72,7 +72,7 @@
     "CIVILITE": "Azwel", "MR": "Mass", "MRS": "Massa", "MS": "Tasslit",
     "NOM": "Isem n twacult", "PRENOM": "Isem",
     "SEXE": "Tafekka", "MASCULIN": "Argaz", "FEMININ": "Tameṭṭut",
-    "DATE_NAISSANCE": "Azemz n tlalit", "AGE": "Laɛmer",
+    "DATE_NAISSANCE": "Azemz n tlalit", "AGE": "Laɛmer", "ANS": "n yiseggasen",
     "JUGEMENT": "Aḥekkem?", "JUGEMENT_ANNEE": "Aseggas",
     "LIEU_NAISSANCE": "Amkan n tlalit",
     "DATE_ADMISSION": "Azemz n unekcum", "EN_SOMMEIL": "Di tnafa?",

@@ -10,7 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
-import { SlicePipe, DatePipe } from '@angular/common';
+import { SlicePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BackendApiService } from '../../../core/api/backend-api.service';
 import { AppShellStore } from '../../../core/state/app-shell.store';
@@ -24,7 +24,7 @@ import { ReferentialApiService } from '../../../core/api/referential-api.service
   imports: [
     ReactiveFormsModule, MatTableModule, MatButtonModule, MatIconModule, MatChipsModule,
     MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule,
-    MatSnackBarModule, MatCardModule, SlicePipe, DatePipe, TranslateModule, SearchableSelectComponent
+    MatSnackBarModule, MatCardModule, SlicePipe, TranslateModule, SearchableSelectComponent
   ],
   template: `
     <div class="pec-admin">

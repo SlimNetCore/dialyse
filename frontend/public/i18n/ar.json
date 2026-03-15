@@ -72,7 +72,7 @@
     "CIVILITE": "اللقب", "MR": "السيد", "MRS": "السيدة", "MS": "الآنسة",
     "NOM": "الاسم العائلي", "PRENOM": "الاسم الشخصي",
     "SEXE": "الجنس", "MASCULIN": "ذكر", "FEMININ": "أنثى",
-    "DATE_NAISSANCE": "تاريخ الميلاد", "AGE": "العمر",
+    "DATE_NAISSANCE": "تاريخ الميلاد", "AGE": "العمر", "ANS": "سنة",
     "JUGEMENT": "حكم؟", "JUGEMENT_ANNEE": "السنة",
     "LIEU_NAISSANCE": "مكان الميلاد",
     "DATE_ADMISSION": "تاريخ القبول", "EN_SOMMEIL": "في سبات؟",

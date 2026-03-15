@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.application.web;
 
-import com.hemodialyse.backend.application.port.in.PatientUseCase;
-import com.hemodialyse.backend.application.port.in.PatientUseCase.CreatePatientCommand;
+import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
+import com.hemodialyse.backend.domain.patient.port.PatientUseCase.CreatePatientCommand;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.model.PatientType;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;

@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.application.port.in;
+package com.hemodialyse.backend.domain.patient.port;
 
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.model.PatientType;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Port In — Patient use cases.
+ * Port In — Patient use cases (domain-level).
  */
 public interface PatientUseCase {
 

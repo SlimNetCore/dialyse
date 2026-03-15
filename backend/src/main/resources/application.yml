@@ -18,6 +18,7 @@ spring:
   sql:
     init:
       mode: always
+      schema-locations: classpath:db/schema.sql
       data-locations: classpath:db/seed.sql
   h2:
     console:
@@ -41,9 +42,12 @@ springdoc:
     path: /swagger-ui.html
 
 app:
-  security:
-    jwt:
-      secret: ${JWT_SECRET:change-me-change-me-change-me-123456}
-    auth:
-      demo-user: ${APP_DEMO_USER:admin}
-      demo-password: ${APP_DEMO_PASSWORD:admin123}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
+  jwt:
+    secret: ${JWT_SECRET:change-me-change-me-change-me-123456}
+    expiration: ${JWT_EXPIRATION:28800}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
+  auth:
+    demo-user: ${APP_DEMO_USER:admin}
+    demo-password: ${APP_DEMO_PASSWORD:admin123}

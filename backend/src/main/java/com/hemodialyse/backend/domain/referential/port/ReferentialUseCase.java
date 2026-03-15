@@ -1,10 +1,13 @@
-package com.hemodialyse.backend.application.port.in;
+package com.hemodialyse.backend.domain.referential.port;
 
 import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort.RefItem;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.util.List;
 
+/**
+ * Port In — Referential use cases (domain-level).
+ */
 public interface ReferentialUseCase {
     List<RefItem> centresPayeurs(CenterId c);
     List<RefItem> agences(CenterId c);

@@ -1,6 +1,6 @@
-package com.hemodialyse.backend.application.service;
+package com.hemodialyse.backend.domain.patient.service;
 
-import com.hemodialyse.backend.application.port.in.PatientUseCase;
+import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import com.hemodialyse.backend.domain.insurance.model.AttestationDroit;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.patient.model.Patient;
@@ -13,21 +13,23 @@ import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Domain Service — Patient business rules.
+ */
 @Service
 @Transactional
-public class PatientServiceImpl implements PatientUseCase {
+public class PatientDomainService implements PatientUseCase {
 
     private final PatientRepositoryPort patientRepo;
     private final AttestationRepositoryPort attestationRepo;
     private final PecRepositoryPort pecRepo;
 
-    public PatientServiceImpl(PatientRepositoryPort patientRepo,
-                              AttestationRepositoryPort attestationRepo,
-                              PecRepositoryPort pecRepo) {
+    public PatientDomainService(PatientRepositoryPort patientRepo,
+                                AttestationRepositoryPort attestationRepo,
+                                PecRepositoryPort pecRepo) {
         this.patientRepo = patientRepo;
         this.attestationRepo = attestationRepo;
         this.pecRepo = pecRepo;
@@ -35,12 +37,12 @@ public class PatientServiceImpl implements PatientUseCase {
 
     @Override
     public Patient createPatient(CenterId centerId, CreatePatientCommand cmd) {
-        // Uniqueness check
+        // Business rule: uniqueness of insurance number within a center
         if (patientRepo.findByNumeroAssurance(centerId, cmd.numeroAssurance()).isPresent()) {
             throw new IllegalStateException("Numero assurance deja utilise pour ce centre");
         }
 
-        // Attestation rule for non-vacancier
+        // Business rule: attestation mandatory for non-vacancier
         PatientType type = cmd.typePatient() != null ? cmd.typePatient() : PatientType.NON_VACANCIER;
         if (type == PatientType.NON_VACANCIER) {
             if (cmd.attestationDebut() == null || cmd.attestationFin() == null) {
@@ -48,14 +50,14 @@ public class PatientServiceImpl implements PatientUseCase {
             }
         }
 
-        // Create aggregate
+        // Create aggregate root via factory method
         Patient patient = Patient.creer(
             centerId, cmd.nom(), cmd.prenom(), cmd.sexe(),
             cmd.dateAdmission(), cmd.dateNaissance(),
             new NumeroAssurance(cmd.numeroAssurance()), type
         );
 
-        // Set extended fields
+        // Hydrate value objects and extended fields
         patient.setCivilite(cmd.civilite());
         patient.setGroupeSanguin(cmd.groupeSanguin());
         patient.setNombreEnfants(cmd.nombreEnfants());

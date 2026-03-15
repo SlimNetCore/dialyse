@@ -16,7 +16,7 @@ public class PecJpaEntity {
     @Column(name = "date_debut_effectif") private LocalDate dateDebutEffectif;
     @Column(name = "date_fin_effectif") private LocalDate dateFinEffectif;
     @Column(name = "forfait_effectif_id") private UUID forfaitEffectifId;
-    @Enumerated(EnumType.STRING) @Column(name = "statut", nullable = false) private String statut;
+    @Column(name = "statut", nullable = false) private String statut;
     @Column(name = "created_at") private OffsetDateTime createdAt;
 
     public UUID getId() { return id; } public void setId(UUID v) { this.id = v; }

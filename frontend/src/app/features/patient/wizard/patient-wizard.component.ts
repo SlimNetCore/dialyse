@@ -107,12 +107,17 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       font-size: 13px; font-weight: 600;
     }
     .step-actions {
-      display: flex; justify-content: space-between; margin-top: 20px; padding-top: 16px;
+      display: flex; justify-content: space-between; margin-top: 16px; padding-top: 14px;
       border-top: 1px solid #e0e0e0;
     }
     .next-btn, .save-btn {
       --mdc-filled-button-container-color: #1b5e20 !important;
       --mdc-filled-button-label-text-color: #fff !important;
+    }
+    :host ::ng-deep .wizard-stepper { background: transparent; }
+    :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content {
+      background: #f4faf5; border-radius: 12px; padding: 20px; margin-top: 8px;
+      border: 1px solid #e0ede2;
     }
     :host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-selected {
       background-color: #1b5e20 !important;

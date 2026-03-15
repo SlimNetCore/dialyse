@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Output, EventEmitter, signal } from '@angular/core';
+import { Component, inject, OnInit, Output, EventEmitter, signal, computed } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -84,7 +84,7 @@ import { TranslateModule } from '@ngx-translate/core';
           </div>
         </div>
 
-        <!-- Dates -->
+        <!-- Dates + Age -->
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }} *</mat-label>
@@ -102,6 +102,13 @@ import { TranslateModule } from '@ngx-translate/core';
               <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
+          <div class="age-box">
+            <span class="age-label">{{ 'PATIENT_FORM.AGE' | translate }}</span>
+            <span class="age-value">{{ calculatedAge() !== null ? calculatedAge() : '—' }}</span>
+            @if (calculatedAge() !== null) {
+              <span class="age-unit">{{ 'PATIENT_FORM.ANS' | translate }}</span>
+            }
+          </div>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.LIEU_NAISSANCE' | translate }}</mat-label>
             <input matInput formControlName="lieuNaissance" />
@@ -191,23 +198,32 @@ import { TranslateModule } from '@ngx-translate/core';
     </div>
   `,
   styles: [`
-    .step-content { padding: 16px 0; }
-    .row-photo { display: flex; gap: 24px; margin-bottom: 16px; }
+    .step-content { padding: 12px 0; }
+    .row-photo { display: flex; gap: 20px; margin-bottom: 12px; align-items: stretch; }
     .photo-zone {
-      width: 200px; height: 240px; border: 2px dashed #c8e6c9; border-radius: 12px;
+      width: 180px; min-height: 220px; border: 2px dashed #ccc; border-radius: 12px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      cursor: pointer; background: #f0fdf4; transition: all 0.2s; flex-shrink: 0;
+      cursor: pointer; background: #ffffff; transition: all 0.2s; flex-shrink: 0;
     }
-    .photo-zone:hover { border-color: #1b5e20; background: #e8f5e9; box-shadow: 0 2px 12px rgba(27,94,32,0.1); }
+    .photo-zone:hover { border-color: #1b5e20; background: #f9fff9; box-shadow: 0 2px 12px rgba(27,94,32,0.08); }
     .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
-    .photo-placeholder { font-size: 64px; width: 64px; height: 64px; color: #a5d6a7; }
-    .photo-label { font-size: 13px; color: #66bb6a; margin-top: 8px; }
-    .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 1; }
-    .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
+    .photo-placeholder { font-size: 56px; width: 56px; height: 56px; color: #c8e6c9; }
+    .photo-label { font-size: 12px; color: #81c784; margin-top: 6px; }
+    .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; align-content: start; }
+    .form-row { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }
     .checks-row { align-items: center; flex-wrap: wrap; gap: 12px; }
     .date-inline { width: 160px; }
+    /* Age display box */
+    .age-box {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-width: 70px; padding: 8px 12px;
+      background: #e8f5e9; border-radius: 10px; border: 1px solid #c8e6c9;
+    }
+    .age-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
+    .age-value { font-size: 24px; font-weight: 700; color: #1b5e20; line-height: 1.2; }
+    .age-unit { font-size: 11px; color: #666; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
@@ -221,6 +237,17 @@ export class StepGeneralitesComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   photoPreview = signal<string | null>(null);
+  private dateNaissanceSignal = signal<Date | null>(null);
+
+  calculatedAge = computed(() => {
+    const dob = this.dateNaissanceSignal();
+    if (!dob) return null;
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age >= 0 ? age : null;
+  });
 
   form!: FormGroup;
 
@@ -256,6 +283,11 @@ export class StepGeneralitesComponent implements OnInit {
       this.dataChange.emit(val);
       this.validChange.emit(this.form.valid);
     });
+
+    // Watch dateNaissance for age calculation
+    this.form.get('dateNaissance')!.valueChanges.subscribe(val => {
+      this.dateNaissanceSignal.set(val instanceof Date ? val : (val ? new Date(val) : null));
+    });
   }
 
   onPhoto(event: Event): void {
@@ -269,7 +301,6 @@ export class StepGeneralitesComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  /** Called by wizard before stepping — marks all fields touched to show errors */
   markTouched(): void { this.form.markAllAsTouched(); }
   isValid(): boolean { return this.form.valid; }
 }
