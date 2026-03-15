@@ -17,7 +17,6 @@ export type CreatePatientPayload = {
   attestationFin?: string;
   centerId: string;
   userId: string;
-  // Extended fields
   codePatient?: string;
   civilite?: string;
   groupeSanguin?: string;
@@ -25,8 +24,7 @@ export type CreatePatientPayload = {
   enSommeil?: boolean;
   lieuNaissance?: string;
   situationFamiliale?: string;
-  profession1?: string;
-  profession2?: string;
+  profession?: string;
   adresse?: string;
   telPersonnel?: string;
   telMobile?: string;
@@ -36,6 +34,10 @@ export type CreatePatientPayload = {
   qualiteAssure?: string;
   observation?: string;
   sousKt?: boolean;
+  epoEnabled?: boolean;
+  epoDate?: string;
+  ferEnabled?: boolean;
+  ferDate?: string;
   photoBase64?: string;
   centrePayeurId?: string | null;
   medecinTraitantId?: string | null;
@@ -58,6 +60,11 @@ export type CreatePatientPayload = {
   assureTelPersonnel?: string;
   assureAdresse?: string;
   assureGroupeSanguin?: string;
+  assureTelMobile?: string;
+  assureTelBureau?: string;
+  pecDateDebutDemande?: string;
+  pecDateFinDemande?: string;
+  pecForfaitDemandeId?: string;
 };
 
 export type CreatePecPayload = {
@@ -93,6 +100,15 @@ export class BackendApiService {
 
   validatePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {
     return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec/${pecId}/validate`, { centerId, userId });
+  }
+
+  validatePecAdmin(pecId: string, payload: { centerId: string; userId: string; dateDebutEffectif: string; dateFinEffectif: string; forfaitEffectifId?: string }): Observable<{ id: string; status: PecStatus }> {
+    return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec/${pecId}/validate`, payload);
+  }
+
+  listPecs(centerId: string): Observable<any[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<any[]>(`${this.baseUrl}/pec`, { params });
   }
 
   closePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {

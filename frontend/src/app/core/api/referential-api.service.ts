@@ -22,5 +22,7 @@ export class ReferentialApiService {
   getTransporteurs(centerId: string) { return this.get('transporteurs', centerId); }
   getAgences(centerId: string) { return this.get('agences', centerId); }
   getCaisses(centerId: string) { return this.get('caisses', centerId); }
+  getCategoriesTransport(centerId: string) { return this.get('categories-transport', centerId); }
+  getForfaits(centerId: string) { return this.get('forfaits', centerId); }
 }
 
