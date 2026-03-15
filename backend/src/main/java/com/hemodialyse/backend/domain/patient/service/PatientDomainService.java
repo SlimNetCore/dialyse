@@ -42,9 +42,11 @@ public class PatientDomainService implements PatientUseCase {
             throw new IllegalStateException("Numero assurance deja utilise pour ce centre");
         }
 
-        // Business rule: attestation mandatory for non-vacancier
-        PatientType type = cmd.typePatient() != null ? cmd.typePatient() : PatientType.NON_VACANCIER;
-        if (type == PatientType.NON_VACANCIER) {
+        // Business rule: attestation mandatory unless patient is vacancier (from etatPatient)
+        String etat = cmd.etatPatient() != null ? cmd.etatPatient() : "PERMANENT";
+        boolean isVacancier = "VACANCIER_LOCAL".equals(etat) || "VACANCIER_ETRANGER".equals(etat);
+        PatientType type = isVacancier ? PatientType.VACANCIER : PatientType.NON_VACANCIER;
+        if (!isVacancier) {
             if (cmd.attestationDebut() == null || cmd.attestationFin() == null) {
                 throw new IllegalArgumentException("Attestation obligatoire pour un patient non-vacancier");
             }
@@ -78,7 +80,7 @@ public class PatientDomainService implements PatientUseCase {
         patient.setQualiteAssure(cmd.qualiteAssure());
         patient.setPhotoBase64(cmd.photoBase64());
         patient.setEnSommeil(cmd.enSommeil());
-        patient.setEtatPatient(cmd.etatPatient() != null ? cmd.etatPatient() : "PERMANENT");
+        patient.setEtatPatient(etat);
         patient.setCentrePayeurId(cmd.centrePayeurId());
         patient.setMedecinTraitantId(cmd.medecinTraitantId());
         patient.setSalleId(cmd.salleId());

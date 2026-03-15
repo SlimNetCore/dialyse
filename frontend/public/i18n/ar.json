@@ -142,6 +142,8 @@
     "DASHBOARD": "لوحة المعلومات",
     "PATIENTS": "المرضى",
     "PEC_ADMIN": "المصادقة على التكفلات",
+    "REPORTING": "التقارير",
+    "ADMIN": "الإدارة",
     "SEANCES": "الحصص",
     "FACTURATION": "الفوترة",
     "REGLEMENT": "الدفع"

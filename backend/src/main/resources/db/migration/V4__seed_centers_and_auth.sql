@@ -20,3 +20,9 @@ WHERE NOT EXISTS (
     WHERE user_id = 'admin' AND center_id = '22222222-2222-2222-2222-222222222222' AND role_code = 'ADMIN'
 );
 
+INSERT INTO user_center_assignment (id, user_id, center_id, role_code)
+SELECT 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'medecin', '11111111-1111-1111-1111-111111111111', 'MEDECIN'
+WHERE NOT EXISTS (
+    SELECT 1 FROM user_center_assignment
+    WHERE user_id = 'medecin' AND center_id = '11111111-1111-1111-1111-111111111111' AND role_code = 'MEDECIN'
+);

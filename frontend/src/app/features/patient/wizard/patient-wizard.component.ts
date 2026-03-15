@@ -187,7 +187,10 @@ export class PatientWizardComponent {
   readonly step2Valid = signal(false);
   readonly step4Valid = signal(false);
   readonly step5Valid = signal(false);
-  readonly isVacancier = signal(false);
+  readonly isVacancier = computed(() => {
+    const etat = (this.wizardData['etatPatient'] ?? '').toString();
+    return etat === 'VACANCIER_LOCAL' || etat === 'VACANCIER_ETRANGER';
+  });
   wizardData: Record<string, any> = {};
 
   readonly totalSteps = computed(() => this.isVacancier() ? 5 : 6);
@@ -203,9 +206,6 @@ export class PatientWizardComponent {
     // Propagate qualiteAssure to step 2 if it changed
     if (partial['qualiteAssure'] !== undefined && this.stepAss) {
       this.stepAss.setQualiteAssure(partial['qualiteAssure']);
-    }
-    if (partial['typePatient'] !== undefined) {
-      this.isVacancier.set(partial['typePatient'] === 'VACANCIER');
     }
   }
 
@@ -243,6 +243,9 @@ export class PatientWizardComponent {
       if (v instanceof Date) return v.toISOString().slice(0, 10);
       return String(v);
     };
+    const derivedTypePatient = (d['etatPatient'] === 'VACANCIER_LOCAL' || d['etatPatient'] === 'VACANCIER_ETRANGER')
+      ? 'VACANCIER'
+      : 'NON_VACANCIER';
 
     this.api.createPatient({
       centerId,
@@ -251,7 +254,7 @@ export class PatientWizardComponent {
       dateAdmission: toDate(d['dateAdmission']) || new Date().toISOString().slice(0, 10),
       dateNaissance: toDate(d['dateNaissance']),
       numeroAssurance: d['numeroAssurance'] || 'TEMP-' + Date.now(),
-      typePatient: d['typePatient'] || 'NON_VACANCIER',
+      typePatient: derivedTypePatient,
       civilite: d['civilite'], groupeSanguin: d['groupeSanguin'],
       nombreEnfants: d['nombreEnfants'] || 0,
       lieuNaissance: d['lieuNaissance'], situationFamiliale: d['situationFamiliale'],

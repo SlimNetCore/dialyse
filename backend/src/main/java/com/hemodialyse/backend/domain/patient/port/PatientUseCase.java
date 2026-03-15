@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.domain.patient.port;
 
 import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.model.PatientType;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.time.LocalDate;
@@ -32,7 +31,7 @@ public interface PatientUseCase {
         boolean enSommeil,
 
         // Step 2 — Assurance
-        String numeroAssurance, PatientType typePatient,
+        String numeroAssurance,
         UUID centrePayeurId,
         String assureSexe, String assureNom, String assurePrenom,
         String assureDateNaissance, String assureTelPersonnel, String assureAdresse,
@@ -52,4 +51,3 @@ public interface PatientUseCase {
         LocalDate pecDateDebutDemande, LocalDate pecDateFinDemande, UUID pecForfaitDemandeId
     ) {}
 }
-

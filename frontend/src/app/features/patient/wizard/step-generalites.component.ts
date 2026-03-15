@@ -136,6 +136,21 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
               <mat-icon matPrefix>place</mat-icon>
               <input matInput formControlName="lieuNaissance" />
             </mat-form-field>
+
+            <mat-form-field appearance="outline" class="span-3">
+              <mat-label>{{ 'PATIENT_FORM.ETAT_PATIENT' | translate }}</mat-label>
+              <mat-icon matPrefix>monitor_heart</mat-icon>
+              <mat-select formControlName="etatPatient">
+                <mat-option value="PERMANENT">{{ 'PATIENT_FORM.PERMANENT' | translate }}</mat-option>
+                <mat-option value="OCCASIONNEL">{{ 'PATIENT_FORM.OCCASIONNEL' | translate }}</mat-option>
+                <mat-option value="TRANSFERE">{{ 'PATIENT_FORM.TRANSFERE' | translate }}</mat-option>
+                <mat-option value="DECEDE">{{ 'PATIENT_FORM.DECEDE' | translate }}</mat-option>
+                <mat-option value="GREFFE">{{ 'PATIENT_FORM.GREFFE' | translate }}</mat-option>
+                <mat-option value="GUERRI">{{ 'PATIENT_FORM.GUERRI' | translate }}</mat-option>
+                <mat-option value="VACANCIER_LOCAL">{{ 'PATIENT_FORM.VACANCIER_LOCAL' | translate }}</mat-option>
+                <mat-option value="VACANCIER_ETRANGER">{{ 'PATIENT_FORM.VACANCIER_ETRANGER' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
         </div>
 
@@ -319,6 +334,7 @@ export class StepGeneralitesComponent implements OnInit {
       ferDate: [null],
       sousKt: [false],
       enSommeil: [false],
+      etatPatient: ['PERMANENT'],
       qualiteAssure: ['ASSURE_LUI_MEME'],
       observation: ['']
     });

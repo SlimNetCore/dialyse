@@ -48,6 +48,4 @@ app:
     secret: ${JWT_SECRET:change-me-change-me-change-me-123456}
     expiration: ${JWT_EXPIRATION:28800}
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
-  auth:
-    demo-user: ${APP_DEMO_USER:admin}
-    demo-password: ${APP_DEMO_PASSWORD:admin123}
+

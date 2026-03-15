@@ -133,6 +133,8 @@
     "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",
     "PEC_ADMIN": "PEC Validation",
+    "REPORTING": "Reporting",
+    "ADMIN": "Administration",
     "SEANCES": "Sessions",
     "FACTURATION": "Billing",
     "REGLEMENT": "Payments"

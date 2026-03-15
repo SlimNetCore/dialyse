@@ -27,20 +27,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         <div class="form-row">
           <app-searchable-select [items]="positions()" [label]="'PATIENT_FORM.POSITION' | translate" [prefixIcon]="'schedule'"
             [selectedId]="form.get('positionId')?.value" (selectionChanged)="form.patchValue({positionId: $event?.id})" cssClass="flex1" />
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.ETAT_PATIENT' | translate }}</mat-label>
-            <mat-icon matPrefix>monitor_heart</mat-icon>
-            <mat-select formControlName="etatPatient">
-              <mat-option value="PERMANENT">{{ 'PATIENT_FORM.PERMANENT' | translate }}</mat-option>
-              <mat-option value="OCCASIONNEL">{{ 'PATIENT_FORM.OCCASIONNEL' | translate }}</mat-option>
-              <mat-option value="TRANSFERE">{{ 'PATIENT_FORM.TRANSFERE' | translate }}</mat-option>
-              <mat-option value="DECEDE">{{ 'PATIENT_FORM.DECEDE' | translate }}</mat-option>
-              <mat-option value="GREFFE">{{ 'PATIENT_FORM.GREFFE' | translate }}</mat-option>
-              <mat-option value="GUERRI">{{ 'PATIENT_FORM.GUERRI' | translate }}</mat-option>
-              <mat-option value="VACANCIER_LOCAL">{{ 'PATIENT_FORM.VACANCIER_LOCAL' | translate }}</mat-option>
-              <mat-option value="VACANCIER_ETRANGER">{{ 'PATIENT_FORM.VACANCIER_ETRANGER' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
         </div>
 
         <div class="form-row">
@@ -98,7 +84,6 @@ export class StepAffectationComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       salleId: [null], medecinTraitantId: [null], positionId: [null],
-      etatPatient: ['PERMANENT'],
       transporteurAllerId: [null], transporteurRetourId: [null], categorieTransportId: [null],
       jourDimanche: [false], jourLundi: [false], jourMardi: [false],
       jourMercredi: [false], jourJeudi: [false], jourVendredi: [false], jourSamedi: [false]

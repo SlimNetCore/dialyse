@@ -29,15 +29,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
               <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
-
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.TYPE_PATIENT' | translate }}</mat-label>
-            <mat-icon matPrefix>category</mat-icon>
-            <mat-select formControlName="typePatient">
-              <mat-option value="NON_VACANCIER">{{ 'PATIENT_FORM.NON_VACANCIER' | translate }}</mat-option>
-              <mat-option value="VACANCIER">{{ 'PATIENT_FORM.VACANCIER' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
         </div>
 
         <div class="form-row">
@@ -146,7 +137,6 @@ export class StepAssuranceComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       numeroAssurance: ['', Validators.required],
-      typePatient: ['NON_VACANCIER'],
       centrePayeurId: [null],
       assureNom: [''],
       assurePrenom: [''],

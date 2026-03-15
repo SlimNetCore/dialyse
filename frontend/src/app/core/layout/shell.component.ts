@@ -54,6 +54,12 @@ import { NotificationBellComponent } from './notification-bell.component';
             <button mat-menu-item (click)="router.navigate(['/patients/pec-admin'])">
               <mat-icon>verified</mat-icon> {{ 'NAV.PEC_ADMIN' | translate }}
             </button>
+            <button mat-menu-item (click)="router.navigate(['/reporting'])">
+              <mat-icon>print</mat-icon> {{ 'NAV.REPORTING' | translate }}
+            </button>
+            <button mat-menu-item (click)="router.navigate(['/admin/users'])">
+              <mat-icon>manage_accounts</mat-icon> {{ 'NAV.ADMIN' | translate }}
+            </button>
           }
           <button mat-menu-item (click)="onLogout()">
             <mat-icon>logout</mat-icon> {{ 'TOOLBAR.LOGOUT' | translate }}

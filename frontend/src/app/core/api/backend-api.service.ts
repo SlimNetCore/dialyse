@@ -124,5 +124,43 @@ export class BackendApiService {
     const params = new HttpParams().set('centerId', centerId).set('expirationDays', expirationDays.toString());
     return this.http.get<any>(`${this.baseUrl}/dashboard/stats`, { params });
   }
-}
 
+  getReportingModels(): Observable<Array<{ code: string; label: string }>> {
+    return this.http.get<Array<{ code: string; label: string }>>(`${this.baseUrl}/reporting/models`);
+  }
+
+  listReportTemplates(centerId: string, reportType?: string): Observable<any[]> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (reportType) params = params.set('reportType', reportType);
+    return this.http.get<any[]>(`${this.baseUrl}/reporting/templates`, { params });
+  }
+
+  createReportTemplate(payload: any): Observable<{ id: string }> {
+    return this.http.post<{ id: string }>(`${this.baseUrl}/reporting/templates`, payload);
+  }
+
+  updateReportTemplate(id: string, payload: any): Observable<{ id: string }> {
+    return this.http.put<{ id: string }>(`${this.baseUrl}/reporting/templates/${id}`, payload);
+  }
+
+  deleteReportTemplate(id: string, centerId: string): Observable<{ deleted: boolean }> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/reporting/templates/${id}`, { params });
+  }
+
+  renderReport(reportType: string, centerId: string, patientId: string): Observable<string> {
+    const params = new HttpParams().set('centerId', centerId).set('patientId', patientId);
+    return this.http.get(`${this.baseUrl}/reporting/render/${reportType}`, {
+      params,
+      responseType: 'text'
+    });
+  }
+
+  renderReportByTemplate(templateId: string, centerId: string, patientId: string): Observable<string> {
+    const params = new HttpParams().set('centerId', centerId).set('patientId', patientId);
+    return this.http.get(`${this.baseUrl}/reporting/render/template/${templateId}`, {
+      params,
+      responseType: 'text'
+    });
+  }
+}

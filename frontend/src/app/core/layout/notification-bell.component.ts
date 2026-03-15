@@ -2,6 +2,7 @@ import { Component, inject, computed, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { WebSocketService, WsEvent } from '../ws/websocket.service';
 import { DatePipe, JsonPipe } from '@angular/common';
@@ -9,13 +10,14 @@ import { DatePipe, JsonPipe } from '@angular/common';
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, MatBadgeModule, TranslateModule, DatePipe, JsonPipe],
+  imports: [MatIconModule, MatButtonModule, MatBadgeModule, MatTooltipModule, TranslateModule, DatePipe, JsonPipe],
   template: `
     <button mat-icon-button class="notif-btn"
             [matBadge]="unreadCount()" [matBadgeHidden]="unreadCount() === 0"
             matBadgeColor="warn" matBadgeSize="small"
             (click)="togglePanel()">
       <mat-icon [class.bell-pulse]="unreadCount() > 0">notifications</mat-icon>
+      <span class="ws-dot" [style.background]="ws.statusColor()" [matTooltip]="wsTooltip()"></span>
     </button>
 
     @if (open()) {
@@ -76,7 +78,11 @@ import { DatePipe, JsonPipe } from '@angular/common';
     }
   `,
   styles: [`
-    .notif-btn { color: rgba(255,255,255,0.9) !important; }
+    .notif-btn { color: rgba(255,255,255,0.9) !important; position: relative; }
+    .ws-dot {
+      position: absolute; bottom: 6px; right: 6px; width: 9px; height: 9px;
+      border-radius: 50%; border: 1.5px solid #fff; z-index: 5;
+    }
     .bell-pulse { animation: bellPulse 1.2s ease-in-out infinite; transform-origin: top center; }
     @keyframes bellPulse {
       0%, 100% { transform: rotate(0deg); }
@@ -157,6 +163,13 @@ export class NotificationBellComponent {
     return this.ws.events().find(e => this.eventId(e) === id) ?? null;
   });
   readonly unreadCount = computed(() => this.unreadEvents().length);
+  readonly wsTooltip = computed(() => {
+    switch (this.ws.connectionStatus()) {
+      case 'stable': return 'Connexion temps réel : stable';
+      case 'interrupted': return 'Connexion temps réel : interrompue';
+      case 'impossible': return 'Connexion temps réel : impossible';
+    }
+  });
 
   togglePanel(): void {
     const next = !this.open();

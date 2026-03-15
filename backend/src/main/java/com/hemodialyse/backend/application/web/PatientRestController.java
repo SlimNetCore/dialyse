@@ -4,7 +4,6 @@ import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase.CreatePatientCommand;
 import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.patient.model.PatientType;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +32,7 @@ public class PatientRestController {
         boolean sousKt, boolean epoEnabled, LocalDate epoDate, boolean ferEnabled, LocalDate ferDate,
         String observation, String qualiteAssure, String photoBase64, boolean enSommeil,
         // Step 2
-        String numeroAssurance, PatientType typePatient, UUID centrePayeurId,
+        String numeroAssurance, UUID centrePayeurId,
         String assureSexe, String assureNom, String assurePrenom, String assureDateNaissance,
         String assureTelPersonnel, String assureAdresse, String assureGroupeSanguin,
         String assureTelMobile, String assureTelBureau,
@@ -56,7 +55,7 @@ public class PatientRestController {
             r.profession(), r.adresse(), r.telPersonnel(), r.telMobile(), r.telBureau(), r.email(),
             r.sousKt(), r.epoEnabled(), r.epoDate(), r.ferEnabled(), r.ferDate(),
             r.observation(), r.qualiteAssure(), r.photoBase64(), r.enSommeil(),
-            r.numeroAssurance(), r.typePatient(), r.centrePayeurId(),
+            r.numeroAssurance(), r.centrePayeurId(),
             r.assureSexe(), r.assureNom(), r.assurePrenom(), r.assureDateNaissance(),
             r.assureTelPersonnel(), r.assureAdresse(), r.assureGroupeSanguin(),
             r.assureTelMobile(), r.assureTelBureau(),

@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, OnDestroy } from '@angular/core';
+import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 
 import { AuthSessionService } from '../auth/auth-session.service';
@@ -10,6 +10,8 @@ export interface WsEvent {
   timestamp: string;
 }
 
+export type WsConnectionStatus = 'stable' | 'interrupted' | 'impossible';
+
 @Injectable({ providedIn: 'root' })
 export class WebSocketService implements OnDestroy {
   private readonly auth = inject(AuthSessionService);
@@ -18,6 +20,14 @@ export class WebSocketService implements OnDestroy {
 
   readonly events = signal<WsEvent[]>([]);
   readonly lastEvent = signal<WsEvent | null>(null);
+  readonly connectionStatus = signal<WsConnectionStatus>('impossible');
+  readonly statusColor = computed(() => {
+    switch (this.connectionStatus()) {
+      case 'stable': return '#2e7d32';
+      case 'interrupted': return '#ef6c00';
+      case 'impossible': return '#c62828';
+    }
+  });
 
   async connect(): Promise<void> {
     const centerId = this.auth.centerId();
@@ -27,7 +37,7 @@ export class WebSocketService implements OnDestroy {
 
     const backendUp = await this.isBackendUp();
     if (!backendUp) {
-      // Keep UI functional even if backend WS is unavailable
+      this.connectionStatus.set('impossible');
       return;
     }
 
@@ -37,6 +47,7 @@ export class WebSocketService implements OnDestroy {
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
       onConnect: () => {
+        this.connectionStatus.set('stable');
         this.client!.subscribe(`/topic/center/${centerId}/events`, (message: IMessage) => {
           try {
             const evt: WsEvent = JSON.parse(message.body);
@@ -47,8 +58,14 @@ export class WebSocketService implements OnDestroy {
           }
         });
       },
-      onStompError: (frame) => {
-        console.error('STOMP error', frame);
+      onStompError: () => {
+        this.connectionStatus.set('interrupted');
+      },
+      onWebSocketClose: () => {
+        this.connectionStatus.set('interrupted');
+      },
+      onDisconnect: () => {
+        this.connectionStatus.set('interrupted');
       }
     });
 
@@ -74,6 +91,7 @@ export class WebSocketService implements OnDestroy {
     if (this.client?.active) {
       this.client.deactivate();
     }
+    this.connectionStatus.set('impossible');
   }
 
   ngOnDestroy(): void {

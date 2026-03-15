@@ -13,6 +13,9 @@ VALUES ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', '11111111-1111-1111-111
 MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
 VALUES ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'admin', '22222222-2222-2222-2222-222222222222', 'ADMIN');
 
+MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
+VALUES ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'medecin', '11111111-1111-1111-1111-111111111111', 'MEDECIN');
+
 -- ═══ REFERENTIAL SEED DATA ═══
 
 -- Caisse d'assurance
@@ -90,3 +93,34 @@ MERGE INTO forfait (id, center_id, code, libelle, prix) KEY (id)
 VALUES ('f0000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'F02', 'Forfait Complet', 8000.00);
 MERGE INTO forfait (id, center_id, code, libelle, prix) KEY (id)
 VALUES ('f0000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'F03', 'Forfait Minimum', 3500.00);
+
+-- ═══ ROLES ═══
+MERGE INTO app_role (id, code, name, description) KEY (id)
+VALUES ('a0a00001-0000-0000-0000-000000000001', 'ADMIN', 'Administrateur', 'Accès complet');
+MERGE INTO app_role (id, code, name, description) KEY (id)
+VALUES ('a0a00001-0000-0000-0000-000000000002', 'MEDECIN', 'Médecin', 'Accès dossier médical et séances');
+MERGE INTO app_role (id, code, name, description) KEY (id)
+VALUES ('a0a00001-0000-0000-0000-000000000003', 'INFIRMIER', 'Infirmier', 'Accès aux séances et soins');
+MERGE INTO app_role (id, code, name, description) KEY (id)
+VALUES ('a0a00001-0000-0000-0000-000000000004', 'SECRETAIRE', 'Secrétaire', 'Gestion administrative');
+
+-- ═══ USERS (passwords set by SeedPasswordInitializer at runtime) ═══
+MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
+VALUES ('b0b00001-0000-0000-0000-000000000001', 'admin', 'placeholder', 'admin@hemodialyse.dz', 'Administrateur Système', TRUE);
+MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
+VALUES ('b0b00001-0000-0000-0000-000000000002', 'medecin', 'placeholder', 'medecin@hemodialyse.dz', 'Dr. Nouri Ahmed', TRUE);
+
+-- ═══ USER-ROLE ASSIGNMENTS ═══
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+VALUES ('b0b00001-0000-0000-0000-000000000001', 'a0a00001-0000-0000-0000-000000000001');
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+VALUES ('b0b00001-0000-0000-0000-000000000002', 'a0a00001-0000-0000-0000-000000000002');
+
+-- ═══ USER-CENTER ASSIGNMENTS ═══
+MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
+VALUES ('b0b00001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111');
+MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
+VALUES ('b0b00001-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222');
+MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
+VALUES ('b0b00001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111');
+

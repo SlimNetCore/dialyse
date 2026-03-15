@@ -69,3 +69,54 @@ CREATE TABLE IF NOT EXISTS forfait (
     prix DECIMAL(10,2)
 );
 
+-- ═══ User & Role Management ═══
+
+CREATE TABLE IF NOT EXISTS app_role (
+    id UUID PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS app_user (
+    id UUID PRIMARY KEY,
+    username VARCHAR(80) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    email VARCHAR(150),
+    full_name VARCHAR(150),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS app_user_role (
+    user_id UUID NOT NULL,
+    role_id UUID NOT NULL,
+    PRIMARY KEY (user_id, role_id)
+);
+
+CREATE TABLE IF NOT EXISTS app_user_center (
+    user_id UUID NOT NULL,
+    center_id UUID NOT NULL,
+    PRIMARY KEY (user_id, center_id)
+);
+
+-- ═══ Report Templates ═══
+
+CREATE TABLE IF NOT EXISTS report_template (
+    id UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    code VARCHAR(50),
+    name VARCHAR(255) NOT NULL,
+    report_type VARCHAR(50) NOT NULL,
+    page_format VARCHAR(20) DEFAULT 'A4',
+    orientation VARCHAR(20) DEFAULT 'PORTRAIT',
+    layout_mode VARCHAR(20) DEFAULT 'STANDARD',
+    field_schema CLOB,
+    template_html CLOB,
+    data_source_sql CLOB,
+    header_image CLOB,
+    footer_image CLOB,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
