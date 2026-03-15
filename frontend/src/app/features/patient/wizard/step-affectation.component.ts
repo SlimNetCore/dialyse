@@ -66,15 +66,14 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
   styles: [`
     .step-content { padding: 16px 0; }
     .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
-    .form-row { display: flex; gap: 12px; margin-bottom: 4px; }
+    .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .jours-row {
-      display: flex; flex-wrap: wrap; gap: 16px; padding: 12px; background: #f5f5f5;
-      border-radius: 8px; border: 1px solid #e0e0e0;
+      display: flex; flex-wrap: wrap; gap: 16px; padding: 14px; background: #f0fdf4;
+      border-radius: 10px; border: 1px solid #c8e6c9;
     }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
-    :host ::ng-deep .mat-mdc-form-field-infix { min-height: 40px !important; padding-top: 10px !important; padding-bottom: 6px !important; }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
   `]
 })

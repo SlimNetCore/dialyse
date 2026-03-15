@@ -131,6 +131,7 @@
   },
   "NAV": {
     "PATIENTS": "Patients",
+    "PEC_ADMIN": "PEC Validation",
     "SEANCES": "Sessions",
     "FACTURATION": "Billing",
     "REGLEMENT": "Payments"
@@ -165,6 +166,8 @@
   "PEC_ADMIN": {
     "TITLE": "Coverage management",
     "DESC": "Validate or close pending coverage requests",
+    "CENTER": "Center",
+    "EMPTY": "No pending coverage requests",
     "LOADING": "Loading…",
     "COL_PATIENT": "Patient",
     "COL_DEBUT": "Requested start",

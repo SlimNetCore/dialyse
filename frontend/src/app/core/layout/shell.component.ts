@@ -89,7 +89,7 @@ import { LangService } from '../i18n/lang.service';
     .shell-body { display: flex; flex: 1; overflow: hidden; }
 
     .sidebar {
-      width: 56px; min-height: 100%; background: #f0f7f1; border-right: 1px solid #e0e0e0;
+      width: 56px; min-height: 100%; background: #f5faf6; border-right: 1px solid #e8efe9;
       display: flex; flex-direction: column; padding-top: 8px; transition: width 0.2s ease;
       overflow: hidden; z-index: 50;
     }
@@ -108,7 +108,7 @@ import { LangService } from '../i18n/lang.service';
     }
     .nav-item mat-icon { min-width: 24px; }
 
-    .content { flex: 1; overflow-y: auto; padding: 24px; background: #f7faf8; }
+    .content { flex: 1; overflow-y: auto; padding: 24px; background: #fbfdfc; }
   `]
 })
 export class ShellComponent {
@@ -118,6 +118,7 @@ export class ShellComponent {
 
   readonly navItems = [
     { route: '/patients', icon: 'people', label: 'NAV.PATIENTS' },
+    { route: '/patients/pec-admin', icon: 'verified', label: 'NAV.PEC_ADMIN' },
     { route: '/seances', icon: 'event_note', label: 'NAV.SEANCES' },
     { route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION' },
     { route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT' }

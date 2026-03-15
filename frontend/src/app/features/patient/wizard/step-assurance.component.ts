@@ -109,12 +109,11 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
   styles: [`
     .step-content { padding: 16px 0; }
     .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
-    .form-row { display: flex; gap: 12px; margin-bottom: 4px; }
+    .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
-    :host ::ng-deep .mat-mdc-form-field-infix { min-height: 40px !important; padding-top: 10px !important; padding-bottom: 6px !important; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
   `]

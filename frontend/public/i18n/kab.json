@@ -140,6 +140,7 @@
   },
   "NAV": {
     "PATIENTS": "Imdanen",
+    "PEC_ADMIN": "Asentem n tneḍrutin",
     "SEANCES": "Tamsirin",
     "FACTURATION": "Asefru",
     "REGLEMENT": "Axelleṣ"
@@ -174,6 +175,8 @@
   "PEC_ADMIN": {
     "TITLE": "Asefrek n tneḍrutin",
     "DESC": "Sentem neɣ medel tineḍrutin i yeṛṛaǧen",
+    "CENTER": "Ammas",
+    "EMPTY": "Ulac taneḍrut i yeṛṛaǧen",
     "LOADING": "Asali…",
     "COL_PATIENT": "Amdan",
     "COL_DEBUT": "Tazwara yettutran",

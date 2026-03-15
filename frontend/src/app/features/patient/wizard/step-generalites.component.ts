@@ -194,33 +194,25 @@ import { TranslateModule } from '@ngx-translate/core';
     .step-content { padding: 16px 0; }
     .row-photo { display: flex; gap: 24px; margin-bottom: 16px; }
     .photo-zone {
-      width: 200px; height: 240px; border: 2px dashed #bbb; border-radius: 10px;
+      width: 200px; height: 240px; border: 2px dashed #c8e6c9; border-radius: 12px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      cursor: pointer; background: #fafafa; transition: border-color 0.2s; flex-shrink: 0;
+      cursor: pointer; background: #f0fdf4; transition: all 0.2s; flex-shrink: 0;
     }
-    .photo-zone:hover { border-color: #1b5e20; background: #f0fdf4; }
-    .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
-    .photo-placeholder { font-size: 64px; width: 64px; height: 64px; color: #bbb; }
-    .photo-label { font-size: 13px; color: #999; margin-top: 8px; }
-    .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; }
-    .form-row { display: flex; gap: 12px; margin-bottom: 4px; }
+    .photo-zone:hover { border-color: #1b5e20; background: #e8f5e9; box-shadow: 0 2px 12px rgba(27,94,32,0.1); }
+    .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+    .photo-placeholder { font-size: 64px; width: 64px; height: 64px; color: #a5d6a7; }
+    .photo-label { font-size: 13px; color: #66bb6a; margin-top: 8px; }
+    .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 1; }
+    .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }
-    .checks-row { align-items: center; flex-wrap: wrap; gap: 8px; }
+    .checks-row { align-items: center; flex-wrap: wrap; gap: 12px; }
     .date-inline { width: 160px; }
-    /* Centered placeholders */
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
-    :host ::ng-deep .mat-mdc-form-field-infix { min-height: 40px !important; padding-top: 10px !important; padding-bottom: 6px !important; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
     :host ::ng-deep textarea.mat-mdc-input-element { text-align: left; }
-    /* Error highlight */
-    :host ::ng-deep .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__leading,
-    :host ::ng-deep .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__notch,
-    :host ::ng-deep .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__trailing {
-      border-color: #d32f2f !important;
-    }
   `]
 })
 export class StepGeneralitesComponent implements OnInit {

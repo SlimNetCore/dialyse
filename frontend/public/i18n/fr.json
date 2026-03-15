@@ -186,6 +186,7 @@
   },
   "NAV": {
     "PATIENTS": "Patients",
+    "PEC_ADMIN": "Validation PEC",
     "SEANCES": "Séances",
     "FACTURATION": "Facturation",
     "REGLEMENT": "Règlement"
@@ -220,6 +221,8 @@
   "PEC_ADMIN": {
     "TITLE": "Gestion des prises en charge",
     "DESC": "Validez ou clôturez les prises en charge en attente",
+    "CENTER": "Centre",
+    "EMPTY": "Aucune prise en charge en attente",
     "LOADING": "Chargement…",
     "COL_PATIENT": "Patient",
     "COL_DEBUT": "Début demandé",
