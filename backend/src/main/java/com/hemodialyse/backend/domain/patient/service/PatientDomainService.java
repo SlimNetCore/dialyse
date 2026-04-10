@@ -104,7 +104,8 @@ public class PatientDomainService implements PatientUseCase {
         // Create attestation if provided
         if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
             attestationRepo.save(new AttestationDroit(
-                UUID.randomUUID(), saved.getId().value(), centerId.value(),
+                cmd.attestationId() != null ? cmd.attestationId() : UUID.randomUUID(),
+                saved.getId().value(), centerId.value(),
                 cmd.attestationDebut(), cmd.attestationFin()
             ));
         }
@@ -112,7 +113,8 @@ public class PatientDomainService implements PatientUseCase {
         // Create PEC if provided
         if (cmd.pecDateDebutDemande() != null && cmd.pecDateFinDemande() != null) {
             pecRepo.save(new PriseEnCharge(
-                UUID.randomUUID(), saved.getId().value(), centerId.value(),
+                cmd.pecId() != null ? cmd.pecId() : UUID.randomUUID(),
+                saved.getId().value(), centerId.value(),
                 cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId()
             ));
         }
@@ -184,18 +186,20 @@ public class PatientDomainService implements PatientUseCase {
 
         Patient saved = patientRepo.save(patient);
 
-        // Append new attestation if explicitly provided
+        // Upsert attestation only if explicitly provided by the UI.
         if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
+            UUID attId = cmd.attestationId() != null ? cmd.attestationId() : UUID.randomUUID();
             attestationRepo.save(new AttestationDroit(
-                UUID.randomUUID(), saved.getId().value(), centerId.value(),
+                attId, saved.getId().value(), centerId.value(),
                 cmd.attestationDebut(), cmd.attestationFin()
             ));
         }
 
-        // Append new PEC if explicitly provided
+        // Upsert PEC only if explicitly provided by the UI.
         if (cmd.pecDateDebutDemande() != null && cmd.pecDateFinDemande() != null) {
+            UUID pecId = cmd.pecId() != null ? cmd.pecId() : UUID.randomUUID();
             pecRepo.save(new PriseEnCharge(
-                UUID.randomUUID(), saved.getId().value(), centerId.value(),
+                pecId, saved.getId().value(), centerId.value(),
                 cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId()
             ));
         }

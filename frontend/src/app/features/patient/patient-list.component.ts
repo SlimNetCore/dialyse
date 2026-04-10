@@ -22,6 +22,7 @@ export interface PatientRow {
   dateAdmission: string;
   numeroAssurance: string;
   etatPatient: string;
+  nonFacturable?: boolean;
 }
 
 @Component({
@@ -77,7 +78,12 @@ export interface PatientRow {
 
               <ng-container matColumnDef="nom">
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_NOM' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.nom }}</td>
+                <td mat-cell *matCellDef="let row">
+                  {{ row.nom }}
+                  @if (row.nonFacturable) {
+                    <mat-icon color="warn" [matTooltip]="'PATIENT_LIST.NON_FACTURABLE_TOOLTIP' | translate" style="font-size:16px;width:16px;height:16px;vertical-align:middle;margin-left:4px;">warning</mat-icon>
+                  }
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="prenom">
@@ -325,6 +331,8 @@ export class PatientListComponent implements OnChanges {
     }
   }
 }
+
+
 
 
 

@@ -105,6 +105,7 @@
     "BTN_PRINT": "Print",
     "BTN_PRINT_LIST": "Print patient list",
     "BTN_EXPORT_EXCEL": "Export Excel",
+    "NON_FACTURABLE_TOOLTIP": "Non-billable patient (no valid coverage)",
     "TOTAL": "{{count}} patient(s)"
   },
   "PATIENT": {
@@ -160,6 +161,8 @@
     "ENABLE_EDIT": "Enable editing",
     "READONLY_MODE": "Read-only mode",
     "EDITING_MODE": "Editing mode",
+    "ADD_NEW_INSURED": "Add new insured",
+    "ENRICH_PEC": "Add coverage",
     "ASSURE_SAME_AS_PATIENT": "The patient is the insured person — information is automatically copied.",
     "ATTESTATION_TITLE": "Rights Opening Certificate",
     "ATTESTATION_DESC": "Enter the validity period for this patient's certificate.",
@@ -236,5 +239,9 @@
     "COL_DEBUT": "Start date",
     "COL_FIN": "End date",
     "COL_ACTIONS": "Actions"
+  },
+  "COMMON": {
+    "NEW": "New",
+    "UPDATE": "Update"
   }
 }

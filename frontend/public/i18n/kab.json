@@ -141,6 +141,7 @@
     "BTN_PRINT": "Siggez",
     "BTN_PRINT_LIST": "Siggez tabdart n yimdanen",
     "BTN_EXPORT_EXCEL": "Sifeḍ Excel",
+    "NON_FACTURABLE_TOOLTIP": "Amdan ur yettwasefruy ara (ulac PEC tameɣtut)",
     "TOTAL": "{{count}} n yimdanen"
   },
   "NAV": {
@@ -168,6 +169,8 @@
     "ENABLE_EDIT": "Sermed asiẓreg n ubeddel",
     "READONLY_MODE": "Askar n tmuɣli kan",
     "EDITING_MODE": "Askar n ubeddel",
+    "ADD_NEW_INSURED": "Rnu amezgal amaynut",
+    "ENRICH_PEC": "Rnu PEC",
     "ASSURE_SAME_AS_PATIENT": "Amdan d netta i d amezgal — talɣut tettwanqel s wudem awurman.",
     "ATTESTATION_TITLE": "Taselkent n tulya n uzref",
     "ATTESTATION_DESC": "Sekcem tallit n useqdec n tselkent i umdan-a.",
@@ -238,5 +241,9 @@
     "COL_DEBUT": "Azemz n tazwara",
     "COL_FIN": "Azemz n tagara",
     "COL_ACTIONS": "Tigawin"
+  },
+  "COMMON": {
+    "NEW": "Amaynut",
+    "UPDATE": "Leqqem"
   }
 }

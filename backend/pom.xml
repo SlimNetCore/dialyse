@@ -129,23 +129,12 @@
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
-			<version>7.0.1</version>
+			<version>6.21.3</version>
 			<exclusions>
 				<exclusion><groupId>commons-logging</groupId><artifactId>commons-logging</artifactId></exclusion>
 			</exclusions>
 		</dependency>
-		<!-- JasperReports PDF export -->
-		<dependency>
-			<groupId>net.sf.jasperreports</groupId>
-			<artifactId>jasperreports-pdf</artifactId>
-			<version>7.0.1</version>
-		</dependency>
-		<!-- JasperReports Excel export -->
-		<dependency>
-			<groupId>net.sf.jasperreports</groupId>
-			<artifactId>jasperreports-excel-poi</artifactId>
-			<version>7.0.1</version>
-		</dependency>
+		<!-- PDF/Excel export classes are available from jasperreports core in 6.x -->
 	</dependencies>
 
 	<build>

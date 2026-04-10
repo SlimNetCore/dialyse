@@ -141,6 +141,7 @@
     "BTN_PRINT": "طباعة",
     "BTN_PRINT_LIST": "طباعة قائمة المرضى",
     "BTN_EXPORT_EXCEL": "تصدير Excel",
+    "NON_FACTURABLE_TOOLTIP": "مريض غير قابل للفوترة (لا توجد تكفلات صالحة)",
     "TOTAL": "{{count}} مريض(ة)"
   },
   "NAV": {
@@ -168,6 +169,8 @@
     "ENABLE_EDIT": "تفعيل التعديل",
     "READONLY_MODE": "وضع الاستشارة",
     "EDITING_MODE": "وضع التعديل",
+    "ADD_NEW_INSURED": "إضافة مؤمّن جديد",
+    "ENRICH_PEC": "إثراء التكفل",
     "ASSURE_SAME_AS_PATIENT": "المريض هو المؤمّن نفسه — يتم نسخ المعلومات تلقائياً.",
     "ATTESTATION_TITLE": "شهادة فتح الحقوق",
     "ATTESTATION_DESC": "أدخل فترة صلاحية الشهادة لهذا المريض.",
@@ -238,5 +241,9 @@
     "COL_DEBUT": "تاريخ البداية",
     "COL_FIN": "تاريخ النهاية",
     "COL_ACTIONS": "الإجراءات"
+  },
+  "COMMON": {
+    "NEW": "جديد",
+    "UPDATE": "تحديث"
   }
 }

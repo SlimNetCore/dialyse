@@ -5,6 +5,8 @@ import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase.CreatePatientCommand;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.domain.pec.port.PecUseCase;
+import com.hemodialyse.backend.domain.pec.model.PecStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +19,12 @@ public class PatientRestController {
 
     private final PatientUseCase useCase;
     private final NotificationService notificationService;
+    private final PecUseCase pecUseCase;
 
-    public PatientRestController(PatientUseCase useCase, NotificationService notificationService) {
+    public PatientRestController(PatientUseCase useCase, NotificationService notificationService, PecUseCase pecUseCase) {
         this.useCase = useCase;
         this.notificationService = notificationService;
+        this.pecUseCase = pecUseCase;
     }
 
     record CreatePatientRequest(
@@ -43,9 +47,9 @@ public class PatientRestController {
         boolean jourDimanche, boolean jourLundi, boolean jourMardi,
         boolean jourMercredi, boolean jourJeudi, boolean jourVendredi, boolean jourSamedi,
         // Step 4
-        LocalDate attestationDebut, LocalDate attestationFin,
+        UUID attestationId, LocalDate attestationDebut, LocalDate attestationFin,
         // Step 5
-        LocalDate pecDateDebutDemande, LocalDate pecDateFinDemande, UUID pecForfaitDemandeId
+        UUID pecId, LocalDate pecDateDebutDemande, LocalDate pecDateFinDemande, UUID pecForfaitDemandeId
     ) {}
 
     private CreatePatientCommand toCommand(CreatePatientRequest r) {
@@ -64,8 +68,8 @@ public class PatientRestController {
             r.dateEvenementEtat(),
             r.jourDimanche(), r.jourLundi(), r.jourMardi(),
             r.jourMercredi(), r.jourJeudi(), r.jourVendredi(), r.jourSamedi(),
-            r.attestationDebut(), r.attestationFin(),
-            r.pecDateDebutDemande(), r.pecDateFinDemande(), r.pecForfaitDemandeId()
+            r.attestationId(), r.attestationDebut(), r.attestationFin(),
+            r.pecId(), r.pecDateDebutDemande(), r.pecDateFinDemande(), r.pecForfaitDemandeId()
         );
     }
 
@@ -95,7 +99,23 @@ public class PatientRestController {
 
     @GetMapping
     public ResponseEntity<?> list(@RequestParam UUID centerId, @RequestParam String userId) {
-        return ResponseEntity.ok(useCase.listPatients(CenterId.of(centerId)));
+        var center = CenterId.of(centerId);
+        var rows = useCase.listPatients(center).stream().map(p -> {
+            var pecs = pecUseCase.listByPatient(center, p.getId().value());
+            boolean facturable = pecs.stream().anyMatch(pc -> pc.getStatus() == PecStatus.VALIDEE);
+            return Map.of(
+                "id", p.getId().value(),
+                "codePatient", p.getCodePatient(),
+                "nom", p.getNom(),
+                "prenom", p.getPrenom(),
+                "sexe", p.getSexe(),
+                "dateAdmission", p.getDateAdmission(),
+                "numeroAssurance", p.getNumeroAssurance().value(),
+                "etatPatient", p.getEtatPatient(),
+                "nonFacturable", !facturable
+            );
+        }).toList();
+        return ResponseEntity.ok(rows);
     }
 
     @GetMapping("/{id}")

@@ -4,6 +4,7 @@
               xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
               http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
               name="prise_en_charge" pageWidth="595" pageHeight="842"
+              columnWidth="535"
               leftMargin="30" rightMargin="30" topMargin="40" bottomMargin="30">
 
     <parameter name="CENTER_ID" class="java.lang.String"/>

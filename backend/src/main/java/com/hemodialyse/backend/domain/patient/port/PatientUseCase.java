@@ -47,9 +47,11 @@ public interface PatientUseCase {
         boolean jourMercredi, boolean jourJeudi, boolean jourVendredi, boolean jourSamedi,
 
         // Step 4 — Attestation
+        UUID attestationId,
         LocalDate attestationDebut, LocalDate attestationFin,
 
         // Step 5 — PEC
+        UUID pecId,
         LocalDate pecDateDebutDemande, LocalDate pecDateFinDemande, UUID pecForfaitDemandeId
     ) {}
 }

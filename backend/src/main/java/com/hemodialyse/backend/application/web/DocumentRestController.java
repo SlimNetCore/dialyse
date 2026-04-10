@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -122,13 +123,23 @@ public class DocumentRestController {
     @PostMapping("/print")
     public ResponseEntity<byte[]> print(@RequestBody PrintRequest req) {
         try {
+            validatePrintRequest(req);
+            String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
             // 1) Récupérer le modèle actif pour ce centre et ce type
-            Map<String, Object> modele = jdbc.queryForMap(
+            var modeles = jdbc.queryForList(
                     "SELECT chemin_jrxml, format_impression FROM modele_document " +
-                            "WHERE center_id = ? AND type_document = ? AND active = TRUE " +
-                            "ORDER BY created_at DESC LIMIT 1",
-                    req.centerId(), req.typeDocument()
+                            "WHERE center_id = ? AND UPPER(type_document) = ? AND active = TRUE " +
+                            "ORDER BY created_at DESC",
+                    req.centerId(), normalizedType
             );
+            if (modeles.isEmpty()) {
+                String msg = "Aucun modèle actif trouvé pour ce centre/type: " + normalizedType + " (centre=" + req.centerId() + ")";
+                log.warn(msg);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body(msg.getBytes());
+            }
+            Map<String, Object> modele = modeles.get(0);
 
             String cheminJrxml = Objects.toString(
                     modele.get("CHEMIN_JRXML"),
@@ -147,12 +158,16 @@ public class DocumentRestController {
 
             // 3) Générer le rapport
             log.info("Impression: type={}, centre={}, jrxml={}, format={}",
-                    req.typeDocument(), req.centerId(), cheminJrxml, format);
+                    normalizedType, req.centerId(), cheminJrxml, format);
             byte[] data = jasperService.generateReport(cheminJrxml, jasperParams, format);
 
             // 4) Construire la réponse
-            return buildResponse(data, format, req.typeDocument());
+            return buildResponse(data, format, normalizedType);
 
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(e.getMessage().getBytes());
         } catch (Exception e) {
             log.error("Erreur impression: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError()
@@ -168,6 +183,7 @@ public class DocumentRestController {
     public ResponseEntity<byte[]> printById(@PathVariable UUID modeleId,
                                             @RequestBody PrintRequest req) {
         try {
+            validatePrintRequest(req);
             Map<String, Object> modele = jdbc.queryForMap(
                     "SELECT chemin_jrxml, format_impression, type_document FROM modele_document " +
                             "WHERE id = ? AND center_id = ?",
@@ -194,11 +210,37 @@ public class DocumentRestController {
             byte[] data = jasperService.generateReport(cheminJrxml, jasperParams, format);
             return buildResponse(data, format, typeDoc);
 
+        } catch (EmptyResultDataAccessException e) {
+            String msg = "Modèle introuvable pour ce centre";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(msg.getBytes());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(e.getMessage().getBytes());
         } catch (Exception e) {
             log.error("Erreur impression par ID: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError()
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(("Erreur: " + e.getMessage()).getBytes());
+        }
+    }
+
+    private void validatePrintRequest(PrintRequest req) {
+        if (req == null || req.centerId() == null) {
+            throw new IllegalArgumentException("centerId est obligatoire");
+        }
+        if (req.typeDocument() == null || req.typeDocument().isBlank()) {
+            throw new IllegalArgumentException("typeDocument est obligatoire");
+        }
+        String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
+        Set<String> requiresPatient = Set.of("FICHE_PATIENT", "ATTESTATION", "PEC");
+        if (requiresPatient.contains(normalizedType)) {
+            String pid = req.params() != null ? req.params().get("patientId") : null;
+            if (pid == null || pid.isBlank()) {
+                throw new IllegalArgumentException("patientId est obligatoire pour " + normalizedType);
+            }
         }
     }
 

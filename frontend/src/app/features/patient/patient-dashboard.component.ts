@@ -59,7 +59,8 @@ export class PatientDashboardComponent implements OnInit {
         id: p.id?.value ?? p.id, code: p.codePatient ?? p.id?.toString().substring(0, 8) ?? '',
         nom: p.nom ?? '', prenom: p.prenom ?? '', sexe: p.sexe ?? '',
         dateAdmission: p.dateAdmission ?? '', numeroAssurance: p.numeroAssurance?.value ?? p.numeroAssurance ?? '',
-        etatPatient: p.etatPatient ?? 'PERMANENT'
+        etatPatient: p.etatPatient ?? 'PERMANENT',
+        nonFacturable: !!p.nonFacturable
       }))),
       error: () => this.patients.set([])
     });

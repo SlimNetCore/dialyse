@@ -13,6 +13,7 @@ export type CreatePatientPayload = {
   dateNaissance?: string;
   numeroAssurance: string;
   typePatient: PatientType;
+  attestationId?: string;
   attestationDebut?: string;
   attestationFin?: string;
   centerId: string;
@@ -63,6 +64,7 @@ export type CreatePatientPayload = {
   assureGroupeSanguin?: string;
   assureTelMobile?: string;
   assureTelBureau?: string;
+  pecId?: string;
   pecDateDebutDemande?: string;
   pecDateFinDemande?: string;
   pecForfaitDemandeId?: string;

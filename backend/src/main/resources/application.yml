@@ -44,6 +44,8 @@ springdoc:
 app:
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
+  reports:
+    base-dir: ${REPORTS_DIR:}
   jwt:
     secret: ${JWT_SECRET:change-me-change-me-change-me-123456}
     expiration: ${JWT_EXPIRATION:28800}

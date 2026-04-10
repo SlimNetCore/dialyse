@@ -59,6 +59,8 @@ public class PatientJpaEntity {
     @Column(name = "assure_sexe") private String assureSexe;
     @Column(name = "assure_date_naissance") private LocalDate assureDateNaissance;
     @Column(name = "assure_tel_personnel") private String assureTelPersonnel;
+    @Column(name = "assure_tel_mobile") private String assureTelMobile;
+    @Column(name = "assure_tel_bureau") private String assureTelBureau;
     @Column(name = "assure_adresse") private String assureAdresse;
     @Column(name = "assure_groupe_sanguin") private String assureGroupeSanguin;
     @Column(name = "created_at") private OffsetDateTime createdAt;
@@ -115,6 +117,8 @@ public class PatientJpaEntity {
     public String getAssureSexe() { return assureSexe; } public void setAssureSexe(String v) { this.assureSexe = v; }
     public LocalDate getAssureDateNaissance() { return assureDateNaissance; } public void setAssureDateNaissance(LocalDate v) { this.assureDateNaissance = v; }
     public String getAssureTelPersonnel() { return assureTelPersonnel; } public void setAssureTelPersonnel(String v) { this.assureTelPersonnel = v; }
+    public String getAssureTelMobile() { return assureTelMobile; } public void setAssureTelMobile(String v) { this.assureTelMobile = v; }
+    public String getAssureTelBureau() { return assureTelBureau; } public void setAssureTelBureau(String v) { this.assureTelBureau = v; }
     public String getAssureAdresse() { return assureAdresse; } public void setAssureAdresse(String v) { this.assureAdresse = v; }
     public String getAssureGroupeSanguin() { return assureGroupeSanguin; } public void setAssureGroupeSanguin(String v) { this.assureGroupeSanguin = v; }
     public OffsetDateTime getCreatedAt() { return createdAt; } public void setCreatedAt(OffsetDateTime v) { this.createdAt = v; }

@@ -107,6 +107,11 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           </div>
         </mat-step>
       </mat-stepper>
+
+      <button mat-fab extended class="floating-save" (click)="submit()" [disabled]="saving() || !canSave() || consultationMode()">
+        <mat-icon>save</mat-icon>
+        {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.SAVE' | translate) }}
+      </button>
     </div>
   `,
   styles: [`
@@ -178,6 +183,14 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     :host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-state-error {
       background-color: #d32f2f !important;
     }
+    .floating-save {
+      position: fixed;
+      right: 26px;
+      bottom: 24px;
+      z-index: 250;
+      --mdc-fab-container-color: #1b5e20;
+      --mdc-fab-icon-color: #fff;
+    }
   `]
 })
 export class PatientWizardComponent implements OnInit, AfterViewInit {
@@ -213,6 +226,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   readonly editingPatientId = signal<string | null>(null);
   readonly editMode = computed(() => !!this.editingPatientId());
   readonly consultationMode = signal(false);
+  private attestationLoaded = signal(false);
+  private pecLoaded = signal(false);
 
   readonly canSave = computed(() => {
     const base = this.step1Valid() && this.step2Valid() && this.step5Valid();
@@ -231,6 +246,51 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   onStepChange(event: any): void {
     this.currentStep.set(event.selectedIndex);
+    this.loadStepDataIfNeeded(event.selectedIndex);
+  }
+
+  private loadStepDataIfNeeded(stepIndex: number): void {
+    if (!this.editMode() || !this.editingPatientId()) return;
+    const centerId = this.store.currentCenterId();
+    if (!centerId) return;
+
+    const attestationIndex = this.isVacancier() ? -1 : 3;
+    const pecIndex = this.isVacancier() ? 3 : 4;
+
+    if (stepIndex === attestationIndex && !this.attestationLoaded()) {
+      this.attestationLoaded.set(true);
+      this.api.listAttestationsByPatient(centerId, this.editingPatientId()!).subscribe(a => {
+        this.wizardData = { ...this.wizardData, attestationHistory: a ?? [] };
+        const first = (a ?? [])[0];
+        if (first) {
+          this.wizardData = {
+            ...this.wizardData,
+            attestationId: (first.id ?? first.ID ?? null),
+            attestationDebut: first.dateDebut ?? first.DATE_DEBUT,
+            attestationFin: first.dateFin ?? first.DATE_FIN
+          };
+        }
+        this.patchStepsFromWizardData();
+      });
+    }
+
+    if (stepIndex === pecIndex && !this.pecLoaded()) {
+      this.pecLoaded.set(true);
+      this.api.listPecsByPatient(centerId, this.editingPatientId()!).subscribe(pecs => {
+        this.wizardData = { ...this.wizardData, pecHistory: pecs ?? [] };
+        const first = (pecs ?? [])[0];
+        if (first) {
+          this.wizardData = {
+            ...this.wizardData,
+            pecId: (first.id ?? first.ID ?? null),
+            pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE,
+            pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE,
+            pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
+          };
+        }
+        this.patchStepsFromWizardData();
+      });
+    }
   }
 
   /** Validate current step before moving to next */
@@ -267,43 +327,27 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
     this.api.getPatient(id, centerId, this.auth.username() ?? 'demo').subscribe({
       next: (p: any) => {
+        const ai = p?.assureInfo ?? {};
         this.wizardData = {
           ...this.wizardData,
           ...p,
           numeroAssurance: p?.numeroAssurance?.value ?? p?.numeroAssurance,
+          assureNom: p?.assureNom ?? ai?.nom ?? null,
+          assurePrenom: p?.assurePrenom ?? ai?.prenom ?? null,
+          assureSexe: p?.assureSexe ?? ai?.sexe ?? null,
+          assureDateNaissance: p?.assureDateNaissance ?? ai?.dateNaissance ?? null,
+          assureTelPersonnel: p?.assureTelPersonnel ?? ai?.telPersonnel ?? null,
+          assureTelMobile: p?.assureTelMobile ?? ai?.telMobile ?? null,
+          assureTelBureau: p?.assureTelBureau ?? ai?.telBureau ?? null,
+          assureAdresse: p?.assureAdresse ?? ai?.adresse ?? null,
+          assureGroupeSanguin: p?.assureGroupeSanguin ?? ai?.groupeSanguin ?? null,
+          attestationId: null,
           attestationDebut: null,
           attestationFin: null,
+          pecId: null,
           pecDateDebutDemande: null,
           pecDateFinDemande: null
         };
-
-        this.api.listAttestationsByPatient(centerId, id).subscribe(a => {
-          this.wizardData = { ...this.wizardData, attestationHistory: a ?? [] };
-          const first = (a ?? [])[0];
-          if (first) {
-            this.wizardData = {
-              ...this.wizardData,
-              attestationDebut: first.dateDebut ?? first.DATE_DEBUT,
-              attestationFin: first.dateFin ?? first.DATE_FIN
-            };
-          }
-          this.patchStepsFromWizardData();
-        });
-
-        this.api.listPecsByPatient(centerId, id).subscribe(pecs => {
-          this.wizardData = { ...this.wizardData, pecHistory: pecs ?? [] };
-          const first = (pecs ?? [])[0];
-          if (first) {
-            this.wizardData = {
-              ...this.wizardData,
-              pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE,
-              pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE,
-              pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
-            };
-          }
-          this.patchStepsFromWizardData();
-        });
-
         this.patchStepsFromWizardData();
       }
     });
@@ -371,11 +415,15 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       jourMardi: d['jourMardi'] || false, jourMercredi: d['jourMercredi'] || false,
       jourJeudi: d['jourJeudi'] || false, jourVendredi: d['jourVendredi'] || false,
       jourSamedi: d['jourSamedi'] || false,
+      attestationId: d['attestationId'] ?? undefined,
       attestationDebut: toDate(d['attestationDebut']), attestationFin: toDate(d['attestationFin']),
       assureNom: d['assureNom'], assurePrenom: d['assurePrenom'], assureSexe: d['assureSexe'],
       assureDateNaissance: toDate(d['assureDateNaissance']),
       assureTelPersonnel: d['assureTelPersonnel'], assureAdresse: d['assureAdresse'],
       assureGroupeSanguin: d['assureGroupeSanguin'],
+      assureTelMobile: d['assureTelMobile'],
+      assureTelBureau: d['assureTelBureau'],
+      pecId: d['pecId'] ?? undefined,
       pecDateDebutDemande: toDate(d['pecDateDebutDemande']),
       pecDateFinDemande: toDate(d['pecDateFinDemande']),
       pecForfaitDemandeId: d['pecForfaitDemandeId']

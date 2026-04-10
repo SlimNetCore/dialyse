@@ -5,22 +5,31 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-step-attestation',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, TranslateModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatButtonModule, TranslateModule],
   template: `
     <div class="step-content">
       <div class="att-grid">
         <div class="history-pane">
-          <h4>{{ 'WIZARD.ATTESTATION_HISTORY' | translate }}</h4>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <h4>{{ 'WIZARD.ATTESTATION_HISTORY' | translate }}</h4>
+            <button type="button" mat-stroked-button (click)="prepareNew()" [disabled]="readonly">
+              <mat-icon>add</mat-icon> {{ 'COMMON.NEW' | translate }}
+            </button>
+          </div>
           @if (history().length === 0) {
             <p style="color: #888; font-style: italic;">{{ 'WIZARD.ATTESTATION_HISTORY_EMPTY' | translate }}</p>
           } @else {
             @for (h of history(); track $index) {
-              <div class="history-item">{{ h.dateDebut || h.DATE_DEBUT }} → {{ h.dateFin || h.DATE_FIN }}</div>
+              <div class="history-item">
+                <span>{{ h.dateDebut || h.DATE_DEBUT }} → {{ h.dateFin || h.DATE_FIN }}</span>
+                <button type="button" mat-button (click)="edit(h)" [disabled]="readonly">{{ 'COMMON.UPDATE' | translate }}</button>
+              </div>
             }
           }
         </div>
@@ -54,12 +63,22 @@ import { TranslateModule } from '@ngx-translate/core';
     </div>
   `,
   styles: [`
-    .step-content {   padding: 12px 20px 20px; }
-    .att-grid { display:grid; grid-template-columns: 280px 1fr; gap: 16px; align-items:start; }
-    .history-pane { border:1px solid #e2e8f0; border-radius:10px; padding:10px; background:#fafafa; min-height:120px; }
-    .history-item { font-size:12px; color:#4b5563; padding:4px 0; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 8px; }
-    .info-text { color: #666; margin-bottom: 16px; font-size: 14px; }
+    .step-content { padding: 14px 20px 20px; }
+    .att-grid { display:grid; grid-template-columns: 300px 1fr; gap: 18px; align-items:start; }
+    .history-pane {
+      border:1px solid #d9e7dd; border-radius:12px; padding:12px;
+      background: linear-gradient(180deg, #f7fcf8 0%, #f1f8f3 100%);
+      box-shadow: 0 6px 18px rgba(27,94,32,.06);
+      min-height:160px;
+    }
+    .history-item {
+      font-size:12px; color:#375a3f; padding:6px 0;
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px dashed #dbe8de;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .section-title { color: #1b5e20; font-size: 1.02rem; font-weight: 700; margin: 0 0 8px; }
+    .info-text { color: #6b7280; margin-bottom: 14px; font-size: 13px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
@@ -74,6 +93,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
 
   private readonly fb = inject(FormBuilder);
   history = signal<any[]>([]);
+  selectedAttestationId = signal<string | null>(null);
   form!: FormGroup;
 
   ngOnInit(): void {
@@ -82,7 +102,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
       attestationFin: [null, Validators.required]
     });
     this.form.valueChanges.subscribe(val => {
-      this.dataChange.emit(val);
+      this.dataChange.emit({ ...this.form.getRawValue(), attestationId: this.selectedAttestationId() });
       this.validChange.emit(this.form.valid);
     });
     this.applyReadonly();
@@ -105,9 +125,23 @@ export class StepAttestationComponent implements OnInit, OnChanges {
       attestationDebut: data['attestationDebut'] ?? null,
       attestationFin: data['attestationFin'] ?? null
     }, { emitEvent: false });
+    this.selectedAttestationId.set(data['attestationId'] ?? null);
     if (Array.isArray(data['attestationHistory'])) this.history.set(data['attestationHistory']);
-    this.dataChange.emit(this.form.value);
+    this.dataChange.emit({ ...this.form.getRawValue(), attestationId: this.selectedAttestationId() });
     this.validChange.emit(this.form.valid);
     this.applyReadonly();
+  }
+
+  edit(h: any): void {
+    this.selectedAttestationId.set((h.id ?? h.ID ?? '').toString());
+    this.form.patchValue({
+      attestationDebut: h.dateDebut ?? h.DATE_DEBUT ?? null,
+      attestationFin: h.dateFin ?? h.DATE_FIN ?? null
+    });
+  }
+
+  prepareNew(): void {
+    this.selectedAttestationId.set(null);
+    this.form.patchValue({ attestationDebut: null, attestationFin: null });
   }
 }

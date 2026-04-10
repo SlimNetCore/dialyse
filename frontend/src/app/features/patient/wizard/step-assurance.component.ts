@@ -106,6 +106,18 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
               <input matInput formControlName="assureTelPersonnel" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_MOBILE' | translate }}</mat-label>
+              <mat-icon matPrefix>phone_iphone</mat-icon>
+              <input matInput formControlName="assureTelMobile" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_BUREAU' | translate }}</mat-label>
+              <mat-icon matPrefix>phone_in_talk</mat-icon>
+              <input matInput formControlName="assureTelBureau" />
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_GROUPE_SANGUIN' | translate }}</mat-label>
               <mat-icon matPrefix>bloodtype</mat-icon>
               <mat-select formControlName="assureGroupeSanguin">
@@ -126,7 +138,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           <div class="form-row" style="justify-content:flex-end">
             <button mat-stroked-button type="button" (click)="addAssureToHistory()" [disabled]="readonly">
               <mat-icon>person_add</mat-icon>
-              {{ 'PATIENT_FORM.NOUVEAU' | translate }} {{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}
+              {{ 'WIZARD.ADD_NEW_INSURED' | translate }}
             </button>
           </div>
           @if (assureHistory().length > 0) {
@@ -187,21 +199,27 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureSexe: [''],
       assureDateNaissance: [null],
       assureTelPersonnel: [''],
+      assureTelMobile: [''],
+      assureTelBureau: [''],
       assureGroupeSanguin: [''],
       assureAdresse: ['']
     });
 
     this.form.valueChanges.subscribe(val => {
-      this.dataChange.emit(val);
+      this.dataChange.emit(this.form.getRawValue());
       this.validChange.emit(this.form.valid);
     });
 
     const cid = this.store.currentCenterId();
     if (cid) {
-      this.refApi.getCentresPayeurs(cid).subscribe(list =>
-        this.centresPayeurs.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.nom} (${i.code ?? ''})` })))
-      );
-      this.refApi.getCentresPayeursDetails(cid).subscribe(rows => this.centresPayeursDetails.set(rows));
+      this.refApi.getCentresPayeurs(cid).subscribe(list => {
+        this.centresPayeurs.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.nom} (${i.code ?? ''})` })));
+        this.applyCentrePayeurDisplay(this.form.get('centrePayeurId')?.value ?? null);
+      });
+      this.refApi.getCentresPayeursDetails(cid).subscribe(rows => {
+        this.centresPayeursDetails.set(rows);
+        this.applyCentrePayeurDisplay(this.form.get('centrePayeurId')?.value ?? null);
+      });
     }
     this.applyReadonly();
   }
@@ -235,7 +253,8 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.form.patchValue({ centrePayeurId: item?.id ?? null });
     this.applyCentrePayeurDisplay(item?.id ?? null);
     this.dataChange.emit({
-      ...this.form.value,
+      ...this.form.getRawValue(),
+      codeCentrePayeur: this.codeCentrePayeur(),
       codeAgence: this.codeAgence(),
       libelleAgence: this.libelleAgence(),
       libelleCaisse: this.libelleCaisse()
@@ -263,7 +282,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
         dateNaissance: v.assureDateNaissance ? new Date(v.assureDateNaissance).toISOString().slice(0, 10) : ''
       }
     ]);
-    this.dataChange.emit({ ...this.form.value, assureHistory: this.assureHistory() });
+    this.dataChange.emit({ ...this.form.getRawValue(), assureHistory: this.assureHistory() });
   }
 
   markTouched(): void { this.form.markAllAsTouched(); }
@@ -279,6 +298,8 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureSexe: data['assureSexe'] ?? '',
       assureDateNaissance: data['assureDateNaissance'] ?? null,
       assureTelPersonnel: data['assureTelPersonnel'] ?? '',
+      assureTelMobile: data['assureTelMobile'] ?? '',
+      assureTelBureau: data['assureTelBureau'] ?? '',
       assureGroupeSanguin: data['assureGroupeSanguin'] ?? '',
       assureAdresse: data['assureAdresse'] ?? ''
     };

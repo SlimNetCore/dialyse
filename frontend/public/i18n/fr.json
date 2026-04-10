@@ -160,6 +160,7 @@
     "BTN_PRINT": "Imprimer",
     "BTN_PRINT_LIST": "Imprimer la liste des patients",
     "BTN_EXPORT_EXCEL": "Exporter Excel",
+    "NON_FACTURABLE_TOOLTIP": "Patient non facturable (aucune PEC valide)",
     "TOTAL": "{{count}} patient(s)"
   },
   "PATIENT": {
@@ -215,6 +216,8 @@
     "ENABLE_EDIT": "Activer la modification",
     "READONLY_MODE": "Mode consultation",
     "EDITING_MODE": "Mode modification",
+    "ADD_NEW_INSURED": "Ajouter un nouvel assuré",
+    "ENRICH_PEC": "Enrichir PEC",
     "ASSURE_SAME_AS_PATIENT": "Le patient est l'assuré lui-même — les informations sont reprises automatiquement.",
     "ATTESTATION_TITLE": "Attestation d'ouverture de droit",
     "ATTESTATION_DESC": "Renseignez la période de validité de l'attestation pour ce patient.",
@@ -291,5 +294,9 @@
     "COL_DEBUT": "Date début",
     "COL_FIN": "Date fin",
     "COL_ACTIONS": "Actions"
+  },
+  "COMMON": {
+    "NEW": "Nouveau",
+    "UPDATE": "Mettre à jour"
   }
 }

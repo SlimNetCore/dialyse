@@ -65,7 +65,7 @@ public final class PatientMapper {
             e.getAssureSexe(), e.getAssureNom(), e.getAssurePrenom(),
             e.getAssureDateNaissance() != null ? e.getAssureDateNaissance().toString() : null,
             e.getAssureTelPersonnel(), e.getAssureAdresse(), e.getAssureGroupeSanguin(),
-            null, null
+            e.getAssureTelMobile(), e.getAssureTelBureau()
         ));
         p.setCreatedAt(e.getCreatedAt());
         return p;
@@ -129,6 +129,8 @@ public final class PatientMapper {
                 try { e.setAssureDateNaissance(LocalDate.parse(p.getAssureInfo().dateNaissance())); } catch (Exception ignored) {}
             }
             e.setAssureTelPersonnel(p.getAssureInfo().telPersonnel());
+            e.setAssureTelMobile(p.getAssureInfo().telMobile());
+            e.setAssureTelBureau(p.getAssureInfo().telBureau());
             e.setAssureAdresse(p.getAssureInfo().adresse());
             e.setAssureGroupeSanguin(p.getAssureInfo().groupeSanguin());
         }
@@ -136,4 +138,3 @@ public final class PatientMapper {
         return e;
     }
 }
-
