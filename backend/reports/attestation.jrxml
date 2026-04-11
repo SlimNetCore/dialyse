@@ -9,6 +9,7 @@
 
     <parameter name="CENTER_ID" class="java.lang.String"/>
     <parameter name="patientId" class="java.lang.String"/>
+    <parameter name="attestationId" class="java.lang.String"/>
 
     <queryString>
         <![CDATA[
@@ -19,8 +20,12 @@
         FROM attestation_droit a
         JOIN patients p ON p.id = a.patient_id AND p.center_id = a.center_id
         JOIN centers c ON c.id = a.center_id
-        WHERE a.patient_id = CAST($P{patientId} AS UUID)
-          AND a.center_id  = CAST($P{CENTER_ID} AS UUID)
+        WHERE a.center_id = CAST($P{CENTER_ID} AS UUID)
+          AND (
+                (NULLIF($P{attestationId}, '') IS NOT NULL AND a.id = CAST($P{attestationId} AS UUID))
+                OR
+                (NULLIF($P{attestationId}, '') IS NULL AND NULLIF($P{patientId}, '') IS NOT NULL AND a.patient_id = CAST($P{patientId} AS UUID))
+              )
         ORDER BY a.date_fin DESC
         LIMIT 1
         ]]>

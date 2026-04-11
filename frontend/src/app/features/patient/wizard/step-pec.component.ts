@@ -7,8 +7,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
 import { ReferentialApiService } from '../../../core/api/referential-api.service';
 import { AppShellStore } from '../../../core/state/app-shell.store';
 import { BackendApiService } from '../../../core/api/backend-api.service';
@@ -16,93 +16,167 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
 @Component({
   selector: 'app-step-pec',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, MatButtonModule, TranslateModule, SearchableSelectComponent],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, MatButtonModule, TranslateModule],
   template: `
     <div class="step-content">
       <div class="pec-grid">
         <div class="history-pane">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div class="history-head">
             <h3 class="section-title">Historique des prises en charge</h3>
-            <button type="button" mat-stroked-button (click)="prepareNew()" [disabled]="readonly">
+            <button type="button" mat-flat-button class="add-btn" (click)="prepareNew()" [disabled]="readonly">
               <mat-icon>add</mat-icon> {{ 'WIZARD.ENRICH_PEC' | translate }}
             </button>
           </div>
+
           @if (history().length === 0) {
-            <p style="color:#888;font-style:italic">Aucune prise en charge precedente</p>
+            <p class="empty">Aucune prise en charge precedente</p>
           } @else {
-            <div class="history-box">
+            <div class="history-list">
               @for (h of history(); track $index) {
-                <div class="history-item">
-                  <span>{{ h.dateDebutDemande || h.DATE_DEBUT_DEMANDE }} → {{ h.dateFinDemande || h.DATE_FIN_DEMANDE }}</span>
-                  <strong>{{ h.status || h.STATUT }}</strong>
-                  <button type="button" mat-button (click)="edit(h)" [disabled]="readonly">{{ 'COMMON.UPDATE' | translate }}</button>
-                </div>
+                <button type="button" class="history-item" [class.active]="isSelected(h)" (click)="select(h)">
+                  <div>
+                    <strong>{{ h.dateDebutDemande || h.DATE_DEBUT_DEMANDE }}</strong>
+                    <span> → {{ h.dateFinDemande || h.DATE_FIN_DEMANDE }}</span>
+                  </div>
+                  <small>{{ h.status || h.STATUT || 'CREE' }}</small>
+                </button>
               }
             </div>
           }
         </div>
 
         <div>
-      <!-- Demande -->
-      <h3 class="section-title">{{ 'WIZARD.PEC_DEMANDE' | translate }}</h3>
-      <form [formGroup]="form">
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }} *</mat-label>
-            <mat-icon matPrefix>event</mat-icon>
-            <input matInput [matDatepicker]="dpDeb" formControlName="pecDateDebutDemande" />
-            <mat-datepicker-toggle matSuffix [for]="dpDeb" /><mat-datepicker #dpDeb />
-            @if (form.get('pecDateDebutDemande')?.hasError('required') && form.get('pecDateDebutDemande')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'WIZARD.PEC_DATE_FIN' | translate }} *</mat-label>
-            <mat-icon matPrefix>event_busy</mat-icon>
-            <input matInput [matDatepicker]="dpFin" formControlName="pecDateFinDemande" />
-            <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
-            @if (form.get('pecDateFinDemande')?.hasError('required') && form.get('pecDateFinDemande')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
-          </mat-form-field>
-          <app-searchable-select [items]="forfaits()" [label]="'WIZARD.PEC_FORFAIT_DEMANDE' | translate"
-            [disabled]="readonly"
-            [selectedId]="form.get('pecForfaitDemandeId')?.value" (selectionChanged)="form.patchValue({pecForfaitDemandeId: $event?.id})" cssClass="flex1" />
-        </div>
-      </form>
+          @if (selectedPec()) {
+            <div class="detail-card">
+              <div class="detail-head">
+                <strong>Prise en charge selectionnee</strong>
+                <button type="button" mat-stroked-button (click)="printSelected()" [disabled]="!patientId">
+                  <mat-icon>print</mat-icon>
+                  {{ 'COMMON.PRINT' | translate }}
+                </button>
+              </div>
+              <div class="detail-grid">
+                <span>Periode</span><strong>{{ selectedPec()?.dateDebutDemande || selectedPec()?.DATE_DEBUT_DEMANDE }} → {{ selectedPec()?.dateFinDemande || selectedPec()?.DATE_FIN_DEMANDE }}</strong>
+                <span>Statut</span><strong>{{ selectedPec()?.status || selectedPec()?.STATUT || '—' }}</strong>
+              </div>
+            </div>
+          }
 
-      <mat-divider style="margin: 20px 0;" />
+          <h3 class="section-title">{{ 'WIZARD.PEC_DEMANDE' | translate }}</h3>
+          <form [formGroup]="form">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }} *</mat-label>
+                <mat-icon matPrefix>event</mat-icon>
+                <input matInput [matDatepicker]="dpDeb" formControlName="pecDateDebutDemande" />
+                <mat-datepicker-toggle matSuffix [for]="dpDeb" /><mat-datepicker #dpDeb />
+                @if (form.get('pecDateDebutDemande')?.hasError('required') && form.get('pecDateDebutDemande')?.touched) {
+                  <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>{{ 'WIZARD.PEC_DATE_FIN' | translate }} *</mat-label>
+                <mat-icon matPrefix>event_busy</mat-icon>
+                <input matInput [matDatepicker]="dpFin" formControlName="pecDateFinDemande" />
+                <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
+                @if (form.get('pecDateFinDemande')?.hasError('required') && form.get('pecDateFinDemande')?.touched) {
+                  <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
 
-      <!-- Accord (informational — filled by admin later) -->
-      <h3 class="section-title">{{ 'WIZARD.PEC_ACCORD' | translate }}</h3>
-      <p style="color: #888; font-style: italic;">{{ 'WIZARD.PEC_ACCORD_DESC' | translate }}</p>
+            <h4 class="forfait-title">{{ 'WIZARD.PEC_FORFAIT_DEMANDE' | translate }}</h4>
+            <div class="forfait-grid">
+              @for (f of forfaits(); track f.id) {
+                <button mat-fab extended type="button"
+                  class="forfait-fab"
+                  [class.selected]="form.get('pecForfaitDemandeId')?.value === f.id"
+                  [disabled]="readonly"
+                  (click)="selectForfait(f.id)"
+                  [style.--fab-accent]="forfaitColor(f)">
+                  <mat-icon>local_hospital</mat-icon>
+                  <span class="fab-content">
+                    <strong class="fab-label">{{ f.label || f['nom'] || f['code'] || 'Forfait' }}</strong>
+                    <small class="fab-price">{{ formatPrix(f) }}</small>
+                  </span>
+                </button>
+              }
+            </div>
+          </form>
 
-      <mat-divider style="margin: 20px 0;" />
+          <mat-divider style="margin: 20px 0;" />
+          <h3 class="section-title">{{ 'WIZARD.PEC_ACCORD' | translate }}</h3>
+          <p class="empty">{{ 'WIZARD.PEC_ACCORD_DESC' | translate }}</p>
         </div>
       </div>
     </div>
   `,
   styles: [`
     .step-content { padding: 14px 20px 20px; }
-    .pec-grid { display:grid; grid-template-columns: 300px 1fr; gap:18px; align-items:start; }
+    .pec-grid { display:grid; grid-template-columns: 320px 1fr; gap:18px; align-items:start; }
     .history-pane {
       border:1px solid #d9e7dd; border-radius:12px; padding:12px;
       background: linear-gradient(180deg, #f7fcf8 0%, #f1f8f3 100%);
       box-shadow: 0 6px 18px rgba(27,94,32,.06);
       min-height:160px;
     }
+    .history-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+    .add-btn { --mdc-filled-button-container-color:#1b5e20; --mdc-filled-button-label-text-color:#fff; }
     .section-title { color: #1b5e20; font-size: 1.02rem; font-weight: 700; margin: 0 0 12px; }
+    .empty { color:#888; font-style:italic; }
+    .history-list { display:flex; flex-direction:column; gap:6px; }
+    .history-item {
+      display:flex; justify-content:space-between; align-items:center;
+      width:100%; border:1px solid #deebdf; border-radius:10px; padding:8px 10px;
+      background:#fff; text-align:left; cursor:pointer;
+      font-size:12px;
+    }
+    .history-item.active { background:#e9f6ed; border-color:#b9ddc2; }
+    .detail-card {
+      background:#fff;
+      border:1px solid #deebdf;
+      border-radius:12px;
+      padding:10px 12px;
+      margin-bottom:12px;
+    }
+    .detail-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .detail-grid { display:grid; grid-template-columns:90px 1fr; row-gap:6px; font-size:13px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
+    .forfait-title { margin: 8px 0; color:#1f2937; }
+    .forfait-grid { display:flex; flex-wrap:wrap; gap:12px; }
+    .forfait-fab {
+      --mdc-fab-container-color: #fff !important;
+      --mdc-fab-icon-color: var(--fab-accent, #3b82f6) !important;
+      --mat-fab-foreground-color: #1f2937 !important;
+      border: 2px solid #e5e7eb !important;
+      border-radius: 16px !important;
+      padding: 0 20px !important;
+      height: auto !important;
+      min-height: 56px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06) !important;
+      transition: all .2s ease !important;
+    }
+    .forfait-fab:hover:not([disabled]) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.1) !important;
+      border-color: var(--fab-accent, #3b82f6) !important;
+    }
+    .forfait-fab.selected {
+      --mdc-fab-container-color: #eefbf0 !important;
+      border-color: #1b5e20 !important;
+      box-shadow: 0 6px 20px rgba(27,94,32,.18) !important;
+      --mdc-fab-icon-color: #1b5e20 !important;
+    }
+    .forfait-fab[disabled] { opacity: .6; }
+    .fab-content { display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; margin-left:4px; }
+    .fab-label { font-size:13px; font-weight:600; color:#1f2937; white-space:nowrap; }
+    .fab-price { font-size:12px; font-weight:700; color:#1b5e20; }
+    .forfait-fab.selected .fab-label { color:#1b5e20; }
+    .forfait-fab.selected .fab-price { color:#166534; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
-    .history-box { border:1px solid #deebdf; border-radius:10px; padding:10px; background:#ffffff; }
-    .history-item {
-      display:grid; grid-template-columns: 1fr auto auto; gap:8px; align-items:center;
-      padding:6px 0; font-size:12px; border-bottom:1px dashed #dbe8de;
-    }
-    .history-item:last-child { border-bottom:none; }
   `]
 })
 export class StepPecComponent implements OnInit, OnChanges {
@@ -114,9 +188,13 @@ export class StepPecComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
   private readonly refApi = inject(ReferentialApiService);
   private readonly store = inject(AppShellStore);
-  forfaits = signal<DropdownItem[]>([]);
+  private readonly api = inject(BackendApiService);
+  private readonly snackBar = inject(MatSnackBar);
+
+  forfaits = signal<any[]>([]);
   history = signal<any[]>([]);
   selectedPecId = signal<string | null>(null);
+  selectedPec = signal<any | null>(null);
 
   form!: FormGroup;
 
@@ -126,19 +204,19 @@ export class StepPecComponent implements OnInit, OnChanges {
       pecDateFinDemande: [null, Validators.required],
       pecForfaitDemandeId: [null]
     });
-    this.form.valueChanges.subscribe(val => {
-      const d1 = val.pecDateDebutDemande;
-      const d2 = val.pecDateFinDemande;
-      const isEmpty = !d1 && !d2;
-      const isComplete = !!d1 && !!d2;
-      this.dataChange.emit({ ...this.form.getRawValue(), pecId: this.selectedPecId() });
+
+    this.form.valueChanges.subscribe(() => {
+      const v = this.form.getRawValue();
+      const isEmpty = !v.pecDateDebutDemande && !v.pecDateFinDemande;
+      const isComplete = !!v.pecDateDebutDemande && !!v.pecDateFinDemande;
+      this.dataChange.emit({ ...v, pecId: this.selectedPecId() });
       this.validChange.emit(isEmpty || (isComplete && this.form.valid));
     });
 
     const cid = this.store.currentCenterId();
     if (!cid) return;
     this.refApi.getForfaits(cid).subscribe(list =>
-      this.forfaits.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.code ?? ''} - ${i.nom}` })))
+      this.forfaits.set(list.map((f: any) => ({ ...f, id: f.id, label: f.nom ?? f.code ?? 'Forfait' })))
     );
     this.applyReadonly();
   }
@@ -166,8 +244,13 @@ export class StepPecComponent implements OnInit, OnChanges {
       pecDateFinDemande: data['pecDateFinDemande'] ?? null,
       pecForfaitDemandeId: data['pecForfaitDemandeId'] ?? null
     }, { emitEvent: false });
+
     this.selectedPecId.set(data['pecId'] ?? null);
     if (Array.isArray(data['pecHistory'])) this.history.set(data['pecHistory']);
+
+    const selected = this.history().find(h => (h?.id ?? h?.ID ?? '').toString() === (this.selectedPecId() ?? '')) ?? null;
+    this.selectedPec.set(selected);
+
     const v = this.form.getRawValue();
     const isEmpty = !v.pecDateDebutDemande && !v.pecDateFinDemande;
     this.dataChange.emit({ ...v, pecId: this.selectedPecId() });
@@ -175,8 +258,9 @@ export class StepPecComponent implements OnInit, OnChanges {
     this.applyReadonly();
   }
 
-  edit(h: any): void {
+  select(h: any): void {
     this.selectedPecId.set((h.id ?? h.ID ?? '').toString());
+    this.selectedPec.set(h);
     this.form.patchValue({
       pecDateDebutDemande: h.dateDebutDemande ?? h.DATE_DEBUT_DEMANDE ?? null,
       pecDateFinDemande: h.dateFinDemande ?? h.DATE_FIN_DEMANDE ?? null,
@@ -184,8 +268,50 @@ export class StepPecComponent implements OnInit, OnChanges {
     });
   }
 
+  isSelected(h: any): boolean {
+    const id = (h?.id ?? h?.ID ?? '').toString();
+    return id !== '' && this.selectedPecId() === id;
+  }
+
   prepareNew(): void {
     this.selectedPecId.set(null);
+    this.selectedPec.set(null);
     this.form.patchValue({ pecDateDebutDemande: null, pecDateFinDemande: null, pecForfaitDemandeId: null });
+  }
+
+  selectForfait(id: string): void {
+    if (this.readonly) return;
+    this.form.patchValue({ pecForfaitDemandeId: id });
+  }
+
+  formatPrix(f: any): string {
+    const raw = f?.prix ?? f?.price ?? f?.montant;
+    if (raw === null || raw === undefined || raw === '') return '';
+    const n = Number(raw);
+    return Number.isNaN(n) ? String(raw) : `${n.toLocaleString('fr-FR')} DZD`;
+  }
+
+  forfaitColor(f: any): string {
+    const code = String(f?.code ?? f?.id ?? 'F').toUpperCase();
+    if (code.includes('1') || code.includes('A')) return '#3b82f6';
+    if (code.includes('2') || code.includes('B')) return '#8b5cf6';
+    if (code.includes('3') || code.includes('C')) return '#0ea5e9';
+    return '#14b8a6';
+  }
+
+  printSelected(): void {
+    const centerId = this.store.currentCenterId();
+    if (!centerId || !this.patientId) return;
+
+    this.api.printDocument(centerId, 'PEC', {
+      patientId: this.patientId,
+      pecId: this.selectedPecId() ?? ''
+    }).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: (err) => this.snackBar.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 4000 })
+    });
   }
 }

@@ -59,6 +59,7 @@ export class SearchableSelectComponent implements OnChanges {
 
   private searchText = signal('');
   private allItems = signal<DropdownItem[]>([]);
+  private selectedIdSignal = signal<string | null>(null);
 
   filtered = computed(() => {
     const txt = this.searchText().toLowerCase();
@@ -66,8 +67,9 @@ export class SearchableSelectComponent implements OnChanges {
   });
 
   displayValue = computed(() => {
-    if (this.selectedId) {
-      const found = this.allItems().find(i => i.id === this.selectedId);
+    const sid = this.selectedIdSignal();
+    if (sid) {
+      const found = this.allItems().find(i => i.id === sid);
       return found?.label ?? '';
     }
     return '';
@@ -76,7 +78,8 @@ export class SearchableSelectComponent implements OnChanges {
   displayFn = (item: DropdownItem): string => item?.label ?? '';
 
   ngOnChanges(): void {
-    this.allItems.set(this.items);
+    this.allItems.set([...this.items]);
+    this.selectedIdSignal.set(this.selectedId);
   }
 
   onSearch(event: Event): void {

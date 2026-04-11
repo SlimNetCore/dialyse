@@ -205,7 +205,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureAdresse: ['']
     });
 
-    this.form.valueChanges.subscribe(val => {
+    this.form.valueChanges.subscribe(() => {
       this.dataChange.emit(this.form.getRawValue());
       this.validChange.emit(this.form.valid);
     });
@@ -290,9 +290,18 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   patchData(data: Record<string, any>): void {
     if (!this.form) return;
+
+    const resolveCentrePayeurId = (): string | null => {
+      const direct = data['centrePayeurId'] ?? data['centerPayeurId'] ?? data['centre_payeur_id'];
+      if (direct) return String(direct);
+      const cp = data['centrePayeur'] ?? data['centerPayeur'];
+      if (cp && (cp.id ?? cp.ID)) return String(cp.id ?? cp.ID);
+      return null;
+    };
+
     const patch = {
       numeroAssurance: data['numeroAssurance'] ?? '',
-      centrePayeurId: data['centrePayeurId'] ?? null,
+      centrePayeurId: resolveCentrePayeurId(),
       assureNom: data['assureNom'] ?? '',
       assurePrenom: data['assurePrenom'] ?? '',
       assureSexe: data['assureSexe'] ?? '',
@@ -304,7 +313,26 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureAdresse: data['assureAdresse'] ?? ''
     };
     this.form.patchValue(patch, { emitEvent: false });
-    if (data['qualiteAssure']) this.setQualiteAssure(data['qualiteAssure']);
+
+    const hasAssureData = [
+      patch.assureNom,
+      patch.assurePrenom,
+      patch.assureSexe,
+      patch.assureDateNaissance,
+      patch.assureTelPersonnel,
+      patch.assureTelMobile,
+      patch.assureTelBureau,
+      patch.assureGroupeSanguin,
+      patch.assureAdresse
+    ].some(v => v !== null && v !== undefined && String(v).trim() !== '');
+
+    const qualite = data['qualiteAssure'] ?? (hasAssureData ? 'AUTRE' : 'ASSURE_LUI_MEME');
+    this.setQualiteAssure(qualite);
+
+    if (Array.isArray(data['assureHistory'])) {
+      this.assureHistory.set(data['assureHistory']);
+    }
+
     this.applyCentrePayeurDisplay(patch.centrePayeurId);
     this.dataChange.emit(this.form.getRawValue());
     this.validChange.emit(this.form.valid);

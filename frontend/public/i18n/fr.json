@@ -297,6 +297,7 @@
   },
   "COMMON": {
     "NEW": "Nouveau",
-    "UPDATE": "Mettre à jour"
+    "UPDATE": "Mettre à jour",
+    "PRINT": "Imprimer"
   }
 }

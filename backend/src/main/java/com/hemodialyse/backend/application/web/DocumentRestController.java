@@ -123,7 +123,7 @@ public class DocumentRestController {
     @PostMapping("/print")
     public ResponseEntity<byte[]> print(@RequestBody PrintRequest req) {
         try {
-            validatePrintRequest(req);
+            validatePrintRequest(req, true);
             String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
             // 1) Récupérer le modèle actif pour ce centre et ce type
             var modeles = jdbc.queryForList(
@@ -152,9 +152,7 @@ public class DocumentRestController {
             // 2) Construire les paramètres Jasper
             Map<String, Object> jasperParams = new HashMap<>();
             jasperParams.put("CENTER_ID", req.centerId().toString());
-            if (req.params() != null) {
-                req.params().forEach(jasperParams::put);
-            }
+            normalizeParams(req.params()).forEach(jasperParams::put);
 
             // 3) Générer le rapport
             log.info("Impression: type={}, centre={}, jrxml={}, format={}",
@@ -183,7 +181,7 @@ public class DocumentRestController {
     public ResponseEntity<byte[]> printById(@PathVariable UUID modeleId,
                                             @RequestBody PrintRequest req) {
         try {
-            validatePrintRequest(req);
+            validatePrintRequest(req, false);
             Map<String, Object> modele = jdbc.queryForMap(
                     "SELECT chemin_jrxml, format_impression, type_document FROM modele_document " +
                             "WHERE id = ? AND center_id = ?",
@@ -203,9 +201,7 @@ public class DocumentRestController {
 
             Map<String, Object> jasperParams = new HashMap<>();
             jasperParams.put("CENTER_ID", req.centerId().toString());
-            if (req.params() != null) {
-                req.params().forEach(jasperParams::put);
-            }
+            normalizeParams(req.params()).forEach(jasperParams::put);
 
             byte[] data = jasperService.generateReport(cheminJrxml, jasperParams, format);
             return buildResponse(data, format, typeDoc);
@@ -227,21 +223,46 @@ public class DocumentRestController {
         }
     }
 
-    private void validatePrintRequest(PrintRequest req) {
+    private void validatePrintRequest(PrintRequest req, boolean requireTypeDocument) {
         if (req == null || req.centerId() == null) {
             throw new IllegalArgumentException("centerId est obligatoire");
         }
-        if (req.typeDocument() == null || req.typeDocument().isBlank()) {
+        if (requireTypeDocument && (req.typeDocument() == null || req.typeDocument().isBlank())) {
             throw new IllegalArgumentException("typeDocument est obligatoire");
         }
+        if (!requireTypeDocument) return;
+
         String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
-        Set<String> requiresPatient = Set.of("FICHE_PATIENT", "ATTESTATION", "PEC");
-        if (requiresPatient.contains(normalizedType)) {
-            String pid = req.params() != null ? req.params().get("patientId") : null;
-            if (pid == null || pid.isBlank()) {
+        Map<String, String> params = normalizeParams(req.params());
+        String patientId = params.get("patientId");
+        String attestationId = params.get("attestationId");
+        String pecId = params.get("pecId");
+
+        if ("FICHE_PATIENT".equals(normalizedType)) {
+            if (isBlank(patientId)) {
                 throw new IllegalArgumentException("patientId est obligatoire pour " + normalizedType);
             }
+            return;
         }
+
+        if ("ATTESTATION".equals(normalizedType) && isBlank(patientId) && isBlank(attestationId)) {
+            throw new IllegalArgumentException("patientId ou attestationId est obligatoire pour ATTESTATION");
+        }
+
+        if ("PEC".equals(normalizedType) && isBlank(patientId) && isBlank(pecId)) {
+            throw new IllegalArgumentException("patientId ou pecId est obligatoire pour PEC");
+        }
+    }
+
+    private Map<String, String> normalizeParams(Map<String, String> raw) {
+        if (raw == null || raw.isEmpty()) return Map.of();
+        Map<String, String> normalized = new HashMap<>();
+        raw.forEach((k, v) -> normalized.put(k, v == null ? null : v.trim()));
+        return normalized;
+    }
+
+    private boolean isBlank(String s) {
+        return s == null || s.isBlank();
     }
 
     // ─── Helper ─────────────────────────────────────────────────────────

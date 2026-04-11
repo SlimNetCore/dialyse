@@ -6,7 +6,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
+import { BackendApiService } from '../../../core/api/backend-api.service';
+import { AppShellStore } from '../../../core/state/app-shell.store';
 
 @Component({
   selector: 'app-step-attestation',
@@ -16,26 +19,51 @@ import { TranslateModule } from '@ngx-translate/core';
     <div class="step-content">
       <div class="att-grid">
         <div class="history-pane">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div class="history-head">
             <h4>{{ 'WIZARD.ATTESTATION_HISTORY' | translate }}</h4>
-            <button type="button" mat-stroked-button (click)="prepareNew()" [disabled]="readonly">
+            <button type="button" mat-flat-button class="add-btn" (click)="prepareNew()" [disabled]="readonly">
               <mat-icon>add</mat-icon> {{ 'COMMON.NEW' | translate }}
             </button>
           </div>
+
           @if (history().length === 0) {
-            <p style="color: #888; font-style: italic;">{{ 'WIZARD.ATTESTATION_HISTORY_EMPTY' | translate }}</p>
+            <p class="empty">{{ 'WIZARD.ATTESTATION_HISTORY_EMPTY' | translate }}</p>
           } @else {
-            @for (h of history(); track $index) {
-              <div class="history-item">
-                <span>{{ h.dateDebut || h.DATE_DEBUT }} → {{ h.dateFin || h.DATE_FIN }}</span>
-                <button type="button" mat-button (click)="edit(h)" [disabled]="readonly">{{ 'COMMON.UPDATE' | translate }}</button>
-              </div>
-            }
+            <div class="history-list">
+              @for (h of history(); track $index) {
+                <button type="button" class="history-item" [class.active]="isSelected(h)" (click)="select(h)">
+                  <div>
+                    <strong>{{ h.dateDebut || h.DATE_DEBUT }}</strong>
+                    <span> → {{ h.dateFin || h.DATE_FIN }}</span>
+                  </div>
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              }
+            </div>
           }
         </div>
+
         <div>
           <h3 class="section-title">{{ 'WIZARD.ATTESTATION_TITLE' | translate }}</h3>
           <p class="info-text">{{ 'WIZARD.ATTESTATION_DESC' | translate }}</p>
+
+          @if (selectedAttestation()) {
+            <div class="detail-card">
+              <div class="detail-head">
+                <strong>Attestation selectionnee</strong>
+                <button type="button" mat-stroked-button (click)="printSelected()" [disabled]="!patientId">
+                  <mat-icon>print</mat-icon>
+                  {{ 'COMMON.PRINT' | translate }}
+                </button>
+              </div>
+              <div class="detail-grid">
+                <span>Debut</span><strong>{{ selectedAttestation()?.dateDebut || selectedAttestation()?.DATE_DEBUT || '—' }}</strong>
+                <span>Fin</span><strong>{{ selectedAttestation()?.dateFin || selectedAttestation()?.DATE_FIN || '—' }}</strong>
+                <span>Statut</span><strong>{{ selectedAttestation()?.statut || selectedAttestation()?.STATUT || '—' }}</strong>
+              </div>
+            </div>
+          }
+
           <form [formGroup]="form">
             <div class="form-row">
               <mat-form-field appearance="outline" class="flex1">
@@ -64,21 +92,38 @@ import { TranslateModule } from '@ngx-translate/core';
   `,
   styles: [`
     .step-content { padding: 14px 20px 20px; }
-    .att-grid { display:grid; grid-template-columns: 300px 1fr; gap: 18px; align-items:start; }
+    .att-grid { display:grid; grid-template-columns: 320px 1fr; gap: 18px; align-items:start; }
     .history-pane {
       border:1px solid #d9e7dd; border-radius:12px; padding:12px;
       background: linear-gradient(180deg, #f7fcf8 0%, #f1f8f3 100%);
       box-shadow: 0 6px 18px rgba(27,94,32,.06);
       min-height:160px;
     }
+    .history-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+    .empty { color:#888; font-style:italic; }
+    .history-list { display:flex; flex-direction:column; gap:6px; }
     .history-item {
-      font-size:12px; color:#375a3f; padding:6px 0;
+      font-size:12px; color:#375a3f; padding:8px 10px;
       display:flex; justify-content:space-between; align-items:center;
-      border-bottom:1px dashed #dbe8de;
+      border:1px solid #dbe8de;
+      border-radius:10px;
+      background:#fff;
+      cursor:pointer;
+      text-align:left;
     }
-    .history-item:last-child { border-bottom: none; }
+    .history-item.active { background:#e9f6ed; border-color:#b9ddc2; }
+    .add-btn { --mdc-filled-button-container-color:#1b5e20; --mdc-filled-button-label-text-color:#fff; }
     .section-title { color: #1b5e20; font-size: 1.02rem; font-weight: 700; margin: 0 0 8px; }
     .info-text { color: #6b7280; margin-bottom: 14px; font-size: 13px; }
+    .detail-card {
+      background:#fff;
+      border:1px solid #deebdf;
+      border-radius:12px;
+      padding:10px 12px;
+      margin-bottom:12px;
+    }
+    .detail-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .detail-grid { display:grid; grid-template-columns:100px 1fr; row-gap:6px; font-size:13px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
@@ -92,8 +137,14 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
+  private readonly api = inject(BackendApiService);
+  private readonly store = inject(AppShellStore);
+  private readonly snackBar = inject(MatSnackBar);
+
   history = signal<any[]>([]);
   selectedAttestationId = signal<string | null>(null);
+  selectedAttestation = signal<any | null>(null);
+  patientId: string | null = null;
   form!: FormGroup;
 
   ngOnInit(): void {
@@ -101,7 +152,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
       attestationDebut: [null, Validators.required],
       attestationFin: [null, Validators.required]
     });
-    this.form.valueChanges.subscribe(val => {
+    this.form.valueChanges.subscribe(() => {
       this.dataChange.emit({ ...this.form.getRawValue(), attestationId: this.selectedAttestationId() });
       this.validChange.emit(this.form.valid);
     });
@@ -119,29 +170,60 @@ export class StepAttestationComponent implements OnInit, OnChanges {
 
   markTouched(): void { this.form.markAllAsTouched(); }
   isValid(): boolean { return this.form.valid; }
+
   patchData(data: Record<string, any>): void {
     if (!this.form) return;
     this.form.patchValue({
       attestationDebut: data['attestationDebut'] ?? null,
       attestationFin: data['attestationFin'] ?? null
     }, { emitEvent: false });
+
     this.selectedAttestationId.set(data['attestationId'] ?? null);
+    this.patientId = (data['patientId'] ?? data['id'] ?? this.patientId ?? null)?.toString?.() ?? null;
     if (Array.isArray(data['attestationHistory'])) this.history.set(data['attestationHistory']);
+
+    const selected = this.history().find(h => (h?.id ?? h?.ID ?? '').toString() === (this.selectedAttestationId() ?? '')) ?? null;
+    this.selectedAttestation.set(selected);
+
     this.dataChange.emit({ ...this.form.getRawValue(), attestationId: this.selectedAttestationId() });
     this.validChange.emit(this.form.valid);
     this.applyReadonly();
   }
 
-  edit(h: any): void {
+  select(h: any): void {
     this.selectedAttestationId.set((h.id ?? h.ID ?? '').toString());
+    this.patientId = (h.patientId ?? h.PATIENT_ID ?? this.patientId ?? null)?.toString?.() ?? null;
+    this.selectedAttestation.set(h);
     this.form.patchValue({
       attestationDebut: h.dateDebut ?? h.DATE_DEBUT ?? null,
       attestationFin: h.dateFin ?? h.DATE_FIN ?? null
     });
   }
 
+  isSelected(h: any): boolean {
+    const id = (h?.id ?? h?.ID ?? '').toString();
+    return id !== '' && this.selectedAttestationId() === id;
+  }
+
   prepareNew(): void {
     this.selectedAttestationId.set(null);
+    this.selectedAttestation.set(null);
     this.form.patchValue({ attestationDebut: null, attestationFin: null });
+  }
+
+  printSelected(): void {
+    const centerId = this.store.currentCenterId();
+    if (!centerId || !this.patientId) return;
+
+    this.api.printDocument(centerId, 'ATTESTATION', {
+      patientId: this.patientId,
+      attestationId: this.selectedAttestationId() ?? ''
+    }).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: (err) => this.snackBar.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 4000 })
+    });
   }
 }

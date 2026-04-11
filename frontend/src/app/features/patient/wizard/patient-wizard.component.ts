@@ -49,7 +49,9 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       <mat-stepper #stepper [linear]="false" [animationDuration]="'0'" (selectionChange)="onStepChange($event)" class="wizard-stepper">
         <!-- Step 1: Généralités -->
         <mat-step [label]="'WIZARD.STEP_GENERALITES' | translate" [completed]="step1Valid()" [editable]="true">
-          <app-step-generalites #stepGen [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step1Valid.set($event)" />
+          @if (shouldRenderStep(0)) {
+            <app-step-generalites #stepGen [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step1Valid.set($event)" />
+          }
           <div class="step-actions">
             <span></span>
             <button mat-flat-button class="next-btn" (click)="tryNext(0)">
@@ -60,7 +62,9 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 2: Assurance -->
         <mat-step [label]="'WIZARD.STEP_ASSURANCE' | translate" [completed]="step2Valid()" [editable]="true">
-          <app-step-assurance #stepAss [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
+          @if (shouldRenderStep(1)) {
+            <app-step-assurance #stepAss [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
+          }
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
             <button mat-flat-button class="next-btn" (click)="tryNext(1)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -69,7 +73,9 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 3: Affectation -->
         <mat-step [label]="'WIZARD.STEP_AFFECTATION' | translate" [editable]="true">
-          <app-step-affectation #stepAff [readonly]="consultationMode()" (dataChange)="updateData($event)" />
+          @if (shouldRenderStep(2)) {
+            <app-step-affectation #stepAff [readonly]="consultationMode()" (dataChange)="updateData($event)" />
+          }
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
             <button mat-flat-button class="next-btn" matStepperNext>{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -79,7 +85,9 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         <!-- Step 4: Attestation (hidden for vacancier) -->
         @if (!isVacancier()) {
           <mat-step [label]="'WIZARD.STEP_ATTESTATION' | translate" [completed]="step4Valid()" [editable]="true">
-            <app-step-attestation #stepAtt [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step4Valid.set($event)" />
+            @if (shouldRenderStep(3)) {
+              <app-step-attestation #stepAtt [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step4Valid.set($event)" />
+            }
             <div class="step-actions">
               <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
               <button mat-flat-button class="next-btn" (click)="tryNext(3)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -89,7 +97,9 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 5: PEC -->
         <mat-step [label]="'WIZARD.STEP_PEC' | translate" [completed]="step5Valid()" [editable]="true">
-          <app-step-pec #stepPec [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined" (dataChange)="updateData($event)" (validChange)="step5Valid.set($event)" />
+          @if (shouldRenderStep(isVacancier() ? 3 : 4)) {
+            <app-step-pec #stepPec [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined" (dataChange)="updateData($event)" (validChange)="step5Valid.set($event)" />
+          }
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
             <button mat-flat-button class="next-btn" (click)="tryNext(4)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
@@ -98,7 +108,9 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <!-- Step 6: Pièces jointes -->
         <mat-step [label]="'WIZARD.STEP_PJ' | translate" [editable]="true">
-          <app-step-pieces-jointes #stepPj [readonly]="consultationMode()" (dataChange)="updateData($event)" />
+          @if (shouldRenderStep(isVacancier() ? 4 : 5)) {
+            <app-step-pieces-jointes #stepPj [readonly]="consultationMode()" (dataChange)="updateData($event)" />
+          }
           <div class="step-actions">
             <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
             <button mat-flat-button class="save-btn" (click)="submit()" [disabled]="saving() || !canSave() || consultationMode()">
@@ -107,11 +119,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           </div>
         </mat-step>
       </mat-stepper>
-
-      <button mat-fab extended class="floating-save" (click)="submit()" [disabled]="saving() || !canSave() || consultationMode()">
-        <mat-icon>save</mat-icon>
-        {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.SAVE' | translate) }}
-      </button>
     </div>
   `,
   styles: [`
@@ -184,23 +191,18 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       background-color: #d32f2f !important;
     }
     .floating-save {
-      position: fixed;
-      right: 26px;
-      bottom: 24px;
-      z-index: 250;
-      --mdc-fab-container-color: #1b5e20;
-      --mdc-fab-icon-color: #fff;
+      display: none;
     }
   `]
 })
 export class PatientWizardComponent implements OnInit, AfterViewInit {
   @ViewChild('stepper') stepper!: MatStepper;
-  @ViewChild('stepGen') stepGen!: StepGeneralitesComponent;
-  @ViewChild('stepAss') stepAss!: StepAssuranceComponent;
-  @ViewChild('stepAff') stepAff!: StepAffectationComponent;
-  @ViewChild('stepAtt') stepAtt!: StepAttestationComponent;
-  @ViewChild('stepPec') stepPec!: StepPecComponent;
-  @ViewChild('stepPj') stepPj!: StepPiecesJointesComponent;
+  @ViewChild('stepGen') stepGen?: StepGeneralitesComponent;
+  @ViewChild('stepAss') stepAss?: StepAssuranceComponent;
+  @ViewChild('stepAff') stepAff?: StepAffectationComponent;
+  @ViewChild('stepAtt') stepAtt?: StepAttestationComponent;
+  @ViewChild('stepPec') stepPec?: StepPecComponent;
+  @ViewChild('stepPj') stepPj?: StepPiecesJointesComponent;
 
   private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthSessionService);
@@ -238,15 +240,42 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   updateData(partial: Record<string, any>): void {
     this.wizardData = { ...this.wizardData, ...partial };
-    // Propagate qualiteAssure to step 2 if it changed
+    this.syncAssureWhenSelf();
     if (partial['qualiteAssure'] !== undefined && this.stepAss) {
       this.stepAss.setQualiteAssure(partial['qualiteAssure']);
     }
   }
 
+  private syncAssureWhenSelf(): void {
+    if ((this.wizardData['qualiteAssure'] ?? 'ASSURE_LUI_MEME') !== 'ASSURE_LUI_MEME') return;
+    this.wizardData = {
+      ...this.wizardData,
+      assureNom: this.wizardData['nom'] ?? this.wizardData['assureNom'] ?? null,
+      assurePrenom: this.wizardData['prenom'] ?? this.wizardData['assurePrenom'] ?? null,
+      assureSexe: this.wizardData['sexe'] ?? this.wizardData['assureSexe'] ?? null,
+      assureDateNaissance: this.wizardData['dateNaissance'] ?? this.wizardData['assureDateNaissance'] ?? null,
+      assureTelPersonnel: this.wizardData['telPersonnel'] ?? this.wizardData['assureTelPersonnel'] ?? null,
+      assureTelMobile: this.wizardData['telMobile'] ?? this.wizardData['assureTelMobile'] ?? null,
+      assureTelBureau: this.wizardData['telBureau'] ?? this.wizardData['assureTelBureau'] ?? null,
+      assureAdresse: this.wizardData['adresse'] ?? this.wizardData['assureAdresse'] ?? null,
+      assureGroupeSanguin: this.wizardData['groupeSanguin'] ?? this.wizardData['assureGroupeSanguin'] ?? null
+    };
+  }
+
+  shouldRenderStep(stepIndex: number): boolean {
+    if (!this.editMode()) return true;
+    return this.currentStep() === stepIndex;
+  }
+
   onStepChange(event: any): void {
     this.currentStep.set(event.selectedIndex);
     this.loadStepDataIfNeeded(event.selectedIndex);
+    // Double setTimeout to ensure ViewChild is resolved after @if renders the component
+    setTimeout(() => {
+      this.patchActiveStep();
+      // Retry once more after another tick for late ViewChild resolution
+      setTimeout(() => this.patchActiveStep(), 50);
+    });
   }
 
   private loadStepDataIfNeeded(stepIndex: number): void {
@@ -331,16 +360,17 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         this.wizardData = {
           ...this.wizardData,
           ...p,
+          qualiteAssure: p?.qualiteAssure ?? p?.qualite_assure ?? null,
           numeroAssurance: p?.numeroAssurance?.value ?? p?.numeroAssurance,
-          assureNom: p?.assureNom ?? ai?.nom ?? null,
-          assurePrenom: p?.assurePrenom ?? ai?.prenom ?? null,
-          assureSexe: p?.assureSexe ?? ai?.sexe ?? null,
-          assureDateNaissance: p?.assureDateNaissance ?? ai?.dateNaissance ?? null,
-          assureTelPersonnel: p?.assureTelPersonnel ?? ai?.telPersonnel ?? null,
-          assureTelMobile: p?.assureTelMobile ?? ai?.telMobile ?? null,
-          assureTelBureau: p?.assureTelBureau ?? ai?.telBureau ?? null,
-          assureAdresse: p?.assureAdresse ?? ai?.adresse ?? null,
-          assureGroupeSanguin: p?.assureGroupeSanguin ?? ai?.groupeSanguin ?? null,
+          assureNom: p?.assureNom ?? ai?.nom ?? ai?.assureNom ?? null,
+          assurePrenom: p?.assurePrenom ?? ai?.prenom ?? ai?.assurePrenom ?? null,
+          assureSexe: p?.assureSexe ?? ai?.sexe ?? ai?.assureSexe ?? null,
+          assureDateNaissance: p?.assureDateNaissance ?? ai?.dateNaissance ?? ai?.assureDateNaissance ?? null,
+          assureTelPersonnel: p?.assureTelPersonnel ?? ai?.telPersonnel ?? ai?.assureTelPersonnel ?? null,
+          assureTelMobile: p?.assureTelMobile ?? ai?.telMobile ?? ai?.assureTelMobile ?? null,
+          assureTelBureau: p?.assureTelBureau ?? ai?.telBureau ?? ai?.assureTelBureau ?? null,
+          assureAdresse: p?.assureAdresse ?? ai?.adresse ?? ai?.assureAdresse ?? null,
+          assureGroupeSanguin: p?.assureGroupeSanguin ?? ai?.groupeSanguin ?? ai?.assureGroupeSanguin ?? null,
           attestationId: null,
           attestationDebut: null,
           attestationFin: null,
@@ -348,6 +378,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
           pecDateDebutDemande: null,
           pecDateFinDemande: null
         };
+        this.syncAssureWhenSelf();
         this.patchStepsFromWizardData();
       }
     });
@@ -359,15 +390,36 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   private patchStepsFromWizardData(): void {
     if (!this.wizardData || Object.keys(this.wizardData).length === 0) return;
-    this.stepGen?.patchData?.(this.wizardData);
-    this.stepAss?.patchData?.(this.wizardData);
-    this.stepAff?.patchData?.(this.wizardData);
-    this.stepAtt?.patchData?.(this.wizardData);
-    this.stepPec?.patchData?.(this.wizardData);
-    this.stepPj?.patchData?.(this.wizardData);
+
+    if (this.editMode()) {
+      this.patchActiveStep();
+    } else {
+      this.stepGen?.patchData?.(this.wizardData);
+      this.stepAss?.patchData?.(this.wizardData);
+      this.stepAff?.patchData?.(this.wizardData);
+      this.stepAtt?.patchData?.(this.wizardData);
+      this.stepPec?.patchData?.(this.wizardData);
+      this.stepPj?.patchData?.(this.wizardData);
+    }
 
     const etat = (this.wizardData['etatPatient'] ?? '').toString();
     if (etat) this.updateData({ etatPatient: etat });
+  }
+
+  private patchActiveStep(): void {
+    if (!this.wizardData || Object.keys(this.wizardData).length === 0) return;
+    const idx = this.currentStep();
+    if (idx === 0) this.stepGen?.patchData?.(this.wizardData);
+    if (idx === 1) this.stepAss?.patchData?.(this.wizardData);
+    if (idx === 2) this.stepAff?.patchData?.(this.wizardData);
+
+    const attestationIndex = this.isVacancier() ? -1 : 3;
+    const pecIndex = this.isVacancier() ? 3 : 4;
+    const pjIndex = this.isVacancier() ? 4 : 5;
+
+    if (idx === attestationIndex) this.stepAtt?.patchData?.(this.wizardData);
+    if (idx === pecIndex) this.stepPec?.patchData?.(this.wizardData);
+    if (idx === pjIndex) this.stepPj?.patchData?.(this.wizardData);
   }
 
   /** Submit the final form */

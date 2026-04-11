@@ -242,6 +242,7 @@
   },
   "COMMON": {
     "NEW": "New",
-    "UPDATE": "Update"
+    "UPDATE": "Update",
+    "PRINT": "Print"
   }
 }

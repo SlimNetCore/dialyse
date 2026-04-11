@@ -119,20 +119,33 @@ export class StepAffectationComponent implements OnInit, OnChanges {
 
   patchData(data: Record<string, any>): void {
     if (!this.form) return;
+    const jours = data['joursDialyse'] ?? data['jours_dialyse'] ?? {};
+    const asBool = (v: any) => !!v;
+    const pick = (camel: string, snake: string, shortKey: string) =>
+      data[camel] ?? data[snake] ?? jours[camel] ?? jours[snake] ?? jours[shortKey] ?? false;
+
+    const pickId = (camel: string, snake: string, nested: string) => {
+      const direct = data[camel] ?? data[snake];
+      if (direct) return String(direct);
+      const obj = data[nested];
+      if (obj && (obj.id ?? obj.ID)) return String(obj.id ?? obj.ID);
+      return null;
+    };
+
     this.form.patchValue({
-      salleId: data['salleId'] ?? null,
-      medecinTraitantId: data['medecinTraitantId'] ?? null,
-      positionId: data['positionId'] ?? null,
-      transporteurAllerId: data['transporteurAllerId'] ?? null,
-      transporteurRetourId: data['transporteurRetourId'] ?? null,
-      categorieTransportId: data['categorieTransportId'] ?? null,
-      jourDimanche: data['jourDimanche'] ?? false,
-      jourLundi: data['jourLundi'] ?? false,
-      jourMardi: data['jourMardi'] ?? false,
-      jourMercredi: data['jourMercredi'] ?? false,
-      jourJeudi: data['jourJeudi'] ?? false,
-      jourVendredi: data['jourVendredi'] ?? false,
-      jourSamedi: data['jourSamedi'] ?? false
+      salleId: pickId('salleId', 'salle_id', 'salle'),
+      medecinTraitantId: pickId('medecinTraitantId', 'medecin_traitant_id', 'medecinTraitant'),
+      positionId: pickId('positionId', 'position_id', 'position'),
+      transporteurAllerId: pickId('transporteurAllerId', 'transporteur_aller_id', 'transporteurAller'),
+      transporteurRetourId: pickId('transporteurRetourId', 'transporteur_retour_id', 'transporteurRetour'),
+      categorieTransportId: pickId('categorieTransportId', 'categorie_transport_id', 'categorieTransport'),
+      jourDimanche: asBool(pick('jourDimanche', 'jour_dimanche', 'dimanche')),
+      jourLundi: asBool(pick('jourLundi', 'jour_lundi', 'lundi')),
+      jourMardi: asBool(pick('jourMardi', 'jour_mardi', 'mardi')),
+      jourMercredi: asBool(pick('jourMercredi', 'jour_mercredi', 'mercredi')),
+      jourJeudi: asBool(pick('jourJeudi', 'jour_jeudi', 'jeudi')),
+      jourVendredi: asBool(pick('jourVendredi', 'jour_vendredi', 'vendredi')),
+      jourSamedi: asBool(pick('jourSamedi', 'jour_samedi', 'samedi'))
     }, { emitEvent: false });
     this.dataChange.emit(this.form.getRawValue());
     this.validChange.emit(true);
