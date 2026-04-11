@@ -7,16 +7,19 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReferentialApiService } from '../../../core/api/referential-api.service';
 import { AppShellStore } from '../../../core/state/app-shell.store';
 import { BackendApiService } from '../../../core/api/backend-api.service';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component';
 
 @Component({
   selector: 'app-step-pec',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, MatButtonModule, TranslateModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule, MatButtonModule, MatChipsModule, TranslateModule],
   template: `
     <div class="step-content">
       <div class="pec-grid">
@@ -49,7 +52,7 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
           @if (selectedPec()) {
             <div class="detail-card">
               <div class="detail-head">
-                <strong>Prise en charge selectionnee</strong>
+                <strong>Prise en charge sélectionnée</strong>
                 <div class="detail-actions">
                   <button type="button" mat-stroked-button color="warn" (click)="deleteSelected()" [disabled]="readonly || !selectedPecId()">
                     <mat-icon>delete</mat-icon>
@@ -61,10 +64,32 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
                   </button>
                 </div>
               </div>
-              <div class="detail-grid">
-                <span>Periode</span><strong>{{ selectedPec()?.dateDebutDemande || selectedPec()?.DATE_DEBUT_DEMANDE }} → {{ selectedPec()?.dateFinDemande || selectedPec()?.DATE_FIN_DEMANDE }}</strong>
-                <span>Statut</span><strong>{{ selectedPec()?.status || selectedPec()?.STATUT || '—' }}</strong>
+
+              <div class="detail-section">
+                <h5 class="detail-subtitle"><mat-icon class="detail-subtitle-icon">description</mat-icon> Demande</h5>
+                <div class="detail-grid">
+                  <span>Période</span><strong>{{ selectedPec()?.dateDebutDemande || selectedPec()?.DATE_DEBUT_DEMANDE }} → {{ selectedPec()?.dateFinDemande || selectedPec()?.DATE_FIN_DEMANDE }}</strong>
+                  <span>Statut</span>
+                  <mat-chip-set>
+                    <mat-chip [class]="'status-chip status-' + (selectedPec()?.status || selectedPec()?.STATUT || 'CREE')" [disableRipple]="true">
+                      <mat-icon matChipAvatar>{{ getStatusIcon(selectedPec()?.status || selectedPec()?.STATUT) }}</mat-icon>
+                      {{ getStatusLabel(selectedPec()?.status || selectedPec()?.STATUT) }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
               </div>
+
+              @if ((selectedPec()?.status || selectedPec()?.STATUT) === 'VALIDEE' || (selectedPec()?.status || selectedPec()?.STATUT) === 'CLOTUREE') {
+                <div class="detail-section accord-section">
+                  <h5 class="detail-subtitle"><mat-icon class="detail-subtitle-icon">verified</mat-icon> Accord (validé par l'administration)</h5>
+                  <div class="detail-grid">
+                    <span>Période effective</span><strong>{{ selectedPec()?.dateDebutEffectif || selectedPec()?.DATE_DEBUT_EFFECTIF || '—' }} → {{ selectedPec()?.dateFinEffectif || selectedPec()?.DATE_FIN_EFFECTIF || '—' }}</strong>
+                    @if (selectedPec()?.forfaitEffectifId || selectedPec()?.FORFAIT_EFFECTIF_ID) {
+                      <span>Forfait effectif</span><strong>{{ getForfaitLabel(selectedPec()?.forfaitEffectifId || selectedPec()?.FORFAIT_EFFECTIF_ID) }}</strong>
+                    }
+                  </div>
+                </div>
+              }
             </div>
           }
 
@@ -147,7 +172,24 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
     }
     .detail-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
     .detail-actions { display:flex; gap:8px; align-items:center; }
-    .detail-grid { display:grid; grid-template-columns:90px 1fr; row-gap:6px; font-size:13px; }
+    .detail-section { margin-bottom: 8px; }
+    .detail-subtitle {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; color: #374151; margin: 0 0 6px;
+    }
+    .detail-subtitle-icon { font-size: 16px; width: 16px; height: 16px; color: #1b5e20; }
+    .accord-section {
+      background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 10px; margin-top: 4px;
+    }
+    .accord-section .detail-subtitle-icon { color: #15803d; }
+    .status-chip { font-size: 12px !important; font-weight: 600 !important; height: 26px !important; padding: 0 10px !important; }
+    .status-CREE { --mdc-chip-elevated-container-color: #e0f2fe !important; --mdc-chip-label-text-color: #0369a1 !important; }
+    .status-VALIDEE { --mdc-chip-elevated-container-color: #dcfce7 !important; --mdc-chip-label-text-color: #166534 !important; }
+    .status-CLOTUREE { --mdc-chip-elevated-container-color: #fef3c7 !important; --mdc-chip-label-text-color: #92400e !important; }
+    :host ::ng-deep .status-CREE .mat-mdc-chip-action-label { color: #0369a1 !important; }
+    :host ::ng-deep .status-VALIDEE .mat-mdc-chip-action-label { color: #166534 !important; }
+    :host ::ng-deep .status-CLOTUREE .mat-mdc-chip-action-label { color: #92400e !important; }
+    .detail-grid { display:grid; grid-template-columns:120px 1fr; row-gap:6px; font-size:13px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .forfait-title { margin: 8px 0; color:#1f2937; }
@@ -207,6 +249,7 @@ export class StepPecComponent implements OnInit, OnChanges {
   private readonly store = inject(AppShellStore);
   private readonly api = inject(BackendApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   forfaits = signal<any[]>([]);
   history = signal<any[]>([]);
@@ -308,6 +351,31 @@ export class StepPecComponent implements OnInit, OnChanges {
     return Number.isNaN(n) ? String(raw) : `${n.toLocaleString('fr-FR')} DZD`;
   }
 
+  getForfaitLabel(id: string | null | undefined): string {
+    if (!id) return '—';
+    const f = this.forfaits().find(x => x.id === id);
+    if (!f) return id;
+    const label = f.label || f.nom || f.code || 'Forfait';
+    const prix = this.formatPrix(f);
+    return prix ? `${label} (${prix})` : label;
+  }
+
+  getStatusIcon(status: string | undefined): string {
+    switch (status) {
+      case 'VALIDEE': return 'check_circle';
+      case 'CLOTUREE': return 'lock';
+      default: return 'pending';
+    }
+  }
+
+  getStatusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'VALIDEE': return 'Validée';
+      case 'CLOTUREE': return 'Clôturée';
+      default: return 'Créée';
+    }
+  }
+
   forfaitColor(f: any): string {
     const code = String(f?.code ?? f?.id ?? 'F').toUpperCase();
     if (code.includes('1') || code.includes('A')) return '#3b82f6';
@@ -337,16 +405,30 @@ export class StepPecComponent implements OnInit, OnChanges {
     if (!id) return;
     const centerId = this.store.currentCenterId();
     if (!centerId) return;
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette prise en charge ?')) return;
 
-    this.api.deletePec(id, centerId).subscribe({
-      next: () => {
-        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
-        this.prepareNew();
-        this.snackBar.open('Prise en charge supprimée', 'OK', { duration: 3000 });
-        this.deleteRequest.emit({ type: 'PEC', id });
-      },
-      error: (err) => this.snackBar.open('Erreur suppression: ' + (err?.error?.detail || err.message), 'OK', { duration: 4000 })
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '440px',
+      data: {
+        title: 'Supprimer la prise en charge',
+        message: 'Êtes-vous sûr de vouloir supprimer cette prise en charge ? Cette action est irréversible.',
+        confirmLabel: 'Supprimer',
+        cancelLabel: 'Annuler',
+        color: 'warn',
+        icon: 'delete'
+      }
+    });
+
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.api.deletePec(id, centerId).subscribe({
+        next: () => {
+          this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
+          this.prepareNew();
+          this.snackBar.open('Prise en charge supprimée', 'OK', { duration: 3000 });
+          this.deleteRequest.emit({ type: 'PEC', id });
+        },
+        error: (err) => this.snackBar.open('Erreur suppression: ' + (err?.error?.detail || err.message), 'OK', { duration: 4000 })
+      });
     });
   }
 }

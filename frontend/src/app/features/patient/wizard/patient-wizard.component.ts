@@ -94,6 +94,12 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
       <!-- Floating save button -->
       @if (!consultationMode()) {
+        @if (pecCoverageError()) {
+          <div class="floating-error">
+            <mat-icon>error_outline</mat-icon>
+            {{ pecCoverageError() }}
+          </div>
+        }
         <button mat-fab extended class="floating-save" (click)="submit()" [disabled]="saving() || !canSave()">
           <mat-icon>save</mat-icon>
           {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.SAVE' | translate) }}
@@ -181,6 +187,25 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       --mdc-fab-container-color: #bdbdbd !important;
       box-shadow: 0 4px 12px rgba(0,0,0,.12) !important;
     }
+    .floating-error {
+      position: fixed;
+      bottom: 80px;
+      right: 16px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff3e0;
+      color: #e65100;
+      border: 1px solid #ffcc02;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      max-width: 360px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+    .floating-error mat-icon { color: #e65100; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
   `]
 })
 export class PatientWizardComponent implements OnInit, AfterViewInit {
@@ -207,10 +232,12 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   readonly step4Valid = signal(false);
   readonly step5Valid = signal(false);
   readonly isVacancier = computed(() => {
+    this.wizardDataVersion();  // trigger re-eval on data change
     const etat = (this.wizardData['etatPatient'] ?? '').toString();
     return etat === 'VACANCIER_LOCAL' || etat === 'VACANCIER_ETRANGER';
   });
   wizardData: Record<string, any> = {};
+  private readonly wizardDataVersion = signal(0);
 
   readonly totalSteps = computed(() => this.isVacancier() ? 5 : 6);
   readonly editingPatientId = signal<string | null>(null);
@@ -220,14 +247,48 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   private pecLoaded = signal(false);
 
   readonly canSave = computed(() => {
+    this.wizardDataVersion();  // trigger re-eval on data change
     const base = this.step1Valid() && this.step2Valid() && this.step5Valid();
     if (this.consultationMode()) return false;
-    if (this.isVacancier()) return base;
-    return base && this.step4Valid();
+    const stepsOk = this.isVacancier() ? base : (base && this.step4Valid());
+    if (!stepsOk) return false;
+
+    // Check PEC coverage by attestation (non-vacancier only)
+    if (!this.isVacancier()) {
+      const pecDeb = this.wizardData['pecDateDebutDemande'];
+      const pecFin = this.wizardData['pecDateFinDemande'];
+      const attDeb = this.wizardData['attestationDebut'];
+      const attFin = this.wizardData['attestationFin'];
+      if (pecDeb && pecFin && attDeb && attFin) {
+        const toMs = (v: any) => (v instanceof Date ? v : new Date(v)).getTime();
+        if (toMs(pecDeb) < toMs(attDeb) || toMs(pecFin) > toMs(attFin)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  });
+
+  /** Error message when PEC is outside attestation range */
+  readonly pecCoverageError = computed(() => {
+    this.wizardDataVersion();  // trigger re-eval on data change
+    if (this.isVacancier()) return null;
+    const pecDeb = this.wizardData['pecDateDebutDemande'];
+    const pecFin = this.wizardData['pecDateFinDemande'];
+    const attDeb = this.wizardData['attestationDebut'];
+    const attFin = this.wizardData['attestationFin'];
+    if (pecDeb && pecFin && attDeb && attFin) {
+      const toMs = (v: any) => (v instanceof Date ? v : new Date(v)).getTime();
+      if (toMs(pecDeb) < toMs(attDeb) || toMs(pecFin) > toMs(attFin)) {
+        return 'L\'intervalle de la prise en charge dépasse la période de l\'ouverture de droit (attestation).';
+      }
+    }
+    return null;
   });
 
   updateData(partial: Record<string, any>): void {
     this.wizardData = { ...this.wizardData, ...partial };
+    this.wizardDataVersion.update(v => v + 1);
     this.syncAssureWhenSelf();
     if (partial['qualiteAssure'] !== undefined && this.stepAss) {
       this.stepAss.setQualiteAssure(partial['qualiteAssure']);
@@ -287,6 +348,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
             attestationFin: first.dateFin ?? first.DATE_FIN
           };
         }
+        this.wizardDataVersion.update(v => v + 1);
         this.patchStepsFromWizardData();
       });
     }
@@ -305,6 +367,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
             pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
           };
         }
+        this.wizardDataVersion.update(v => v + 1);
         this.patchStepsFromWizardData();
       });
     }
@@ -347,7 +410,14 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
           pecDateFinDemande: null
         };
         this.syncAssureWhenSelf();
+        this.wizardDataVersion.update(v => v + 1);
         this.patchStepsFromWizardData();
+
+        // In edit mode, existing data was previously saved — assume all steps valid
+        this.step1Valid.set(true);
+        this.step2Valid.set(true);
+        this.step4Valid.set(true);
+        this.step5Valid.set(true);
       }
     });
   }
@@ -472,6 +542,13 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   enableEditing(): void {
     this.consultationMode.set(false);
+    // Eagerly load attestation + PEC data so coverage validation works immediately
+    if (this.editingPatientId()) {
+      const attestationIndex = this.isVacancier() ? -1 : 3;
+      const pecIndex = this.isVacancier() ? 3 : 4;
+      this.loadStepDataIfNeeded(attestationIndex);
+      this.loadStepDataIfNeeded(pecIndex);
+    }
     setTimeout(() => this.patchStepsFromWizardData());
   }
 

@@ -6,7 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { AdminApiService, AppRole } from '../../core/api/admin-api.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 
 @Component({
   selector: 'app-role-list',
@@ -44,6 +46,7 @@ import { AdminApiService, AppRole } from '../../core/api/admin-api.service';
 export class RoleListComponent implements OnInit {
   private readonly api = inject(AdminApiService);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
   readonly cols = ['code', 'name', 'description', 'actions'];
   readonly roles = signal<AppRole[]>([]);
 
@@ -52,8 +55,21 @@ export class RoleListComponent implements OnInit {
   load(): void { this.api.listRoles().subscribe(r => this.roles.set(r)); }
 
   deleteRole(r: AppRole): void {
-    if (!confirm(`Supprimer le rôle ${r.CODE} ?`)) return;
-    this.api.deleteRole(r.ID).subscribe(() => { this.snackbar.open('Rôle supprimé', 'OK', { duration: 2000 }); this.load(); });
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '440px',
+      data: {
+        title: 'Supprimer le rôle',
+        message: `Êtes-vous sûr de vouloir supprimer le rôle ${r.CODE} ? Cette action est irréversible.`,
+        confirmLabel: 'Supprimer',
+        cancelLabel: 'Annuler',
+        color: 'warn',
+        icon: 'delete'
+      }
+    });
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.api.deleteRole(r.ID).subscribe(() => { this.snackbar.open('Rôle supprimé', 'OK', { duration: 2000 }); this.load(); });
+    });
   }
 }
 

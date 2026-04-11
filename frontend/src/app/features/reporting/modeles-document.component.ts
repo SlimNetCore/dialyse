@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { BackendApiService } from '../../core/api/backend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 
 @Component({
   selector: 'app-modeles-document',
@@ -219,6 +220,7 @@ export class ModelesDocumentComponent implements OnInit {
   private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthSessionService);
   private readonly snack = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly modeles = signal<any[]>([]);
   readonly documentTypes = signal<Array<{ code: string; label: string }>>([]);
@@ -290,13 +292,27 @@ export class ModelesDocumentComponent implements OnInit {
     const centerId = this.auth.centerId();
     const id = this.val(row, 'ID', 'id');
     if (!centerId || !id) return;
-    if (!confirm('Supprimer ce modèle de document ?')) return;
 
-    this.api.deleteModeleDocument(id, centerId).subscribe({
-      next: () => {
-        this.snack.open('Modèle supprimé', 'OK', { duration: 3000 });
-        this.loadModeles();
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '440px',
+      data: {
+        title: 'Supprimer le modèle',
+        message: 'Êtes-vous sûr de vouloir supprimer ce modèle de document ? Cette action est irréversible.',
+        confirmLabel: 'Supprimer',
+        cancelLabel: 'Annuler',
+        color: 'warn',
+        icon: 'delete'
       }
+    });
+
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.api.deleteModeleDocument(id, centerId).subscribe({
+        next: () => {
+          this.snack.open('Modèle supprimé', 'OK', { duration: 3000 });
+          this.loadModeles();
+        }
+      });
     });
   }
 

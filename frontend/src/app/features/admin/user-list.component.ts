@@ -10,8 +10,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminApiService, AppUser } from '../../core/api/admin-api.service';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 
 @Component({
   selector: 'app-user-list',
@@ -73,6 +75,7 @@ import { AdminApiService, AppUser } from '../../core/api/admin-api.service';
 export class UserListComponent implements OnInit {
   private readonly api = inject(AdminApiService);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
   readonly cols = ['username', 'fullName', 'email', 'roles', 'centers', 'active', 'actions'];
   readonly users = signal<AppUser[]>([]);
   readonly filtered = signal<AppUser[]>([]);
@@ -92,8 +95,21 @@ export class UserListComponent implements OnInit {
   }
 
   deleteUser(u: AppUser): void {
-    if (!confirm(`Supprimer l'utilisateur ${u.USERNAME} ?`)) return;
-    this.api.deleteUser(u.ID).subscribe(() => { this.snackbar.open('Utilisateur supprimé', 'OK', { duration: 2000 }); this.load(); });
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '440px',
+      data: {
+        title: 'Supprimer l\'utilisateur',
+        message: `Êtes-vous sûr de vouloir supprimer l'utilisateur ${u.USERNAME} ? Cette action est irréversible.`,
+        confirmLabel: 'Supprimer',
+        cancelLabel: 'Annuler',
+        color: 'warn',
+        icon: 'delete'
+      }
+    });
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.api.deleteUser(u.ID).subscribe(() => { this.snackbar.open('Utilisateur supprimé', 'OK', { duration: 2000 }); this.load(); });
+    });
   }
 }
 

@@ -7,9 +7,11 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { BackendApiService } from '../../../core/api/backend-api.service';
 import { AppShellStore } from '../../../core/state/app-shell.store';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component';
 
 @Component({
   selector: 'app-step-attestation',
@@ -148,6 +150,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   private readonly api = inject(BackendApiService);
   private readonly store = inject(AppShellStore);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   history = signal<any[]>([]);
   selectedAttestationId = signal<string | null>(null);
@@ -240,16 +243,30 @@ export class StepAttestationComponent implements OnInit, OnChanges {
     if (!id) return;
     const centerId = this.store.currentCenterId();
     if (!centerId) return;
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette attestation ?')) return;
 
-    this.api.deleteAttestation(id, centerId).subscribe({
-      next: () => {
-        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
-        this.prepareNew();
-        this.snackBar.open('Attestation supprimée', 'OK', { duration: 3000 });
-        this.deleteRequest.emit({ type: 'ATTESTATION', id });
-      },
-      error: (err) => this.snackBar.open('Erreur suppression: ' + (err?.error?.detail || err.message), 'OK', { duration: 4000 })
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '440px',
+      data: {
+        title: 'Supprimer l\'attestation',
+        message: 'Êtes-vous sûr de vouloir supprimer cette attestation ? Cette action est irréversible.',
+        confirmLabel: 'Supprimer',
+        cancelLabel: 'Annuler',
+        color: 'warn',
+        icon: 'delete'
+      }
+    });
+
+    ref.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.api.deleteAttestation(id, centerId).subscribe({
+        next: () => {
+          this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
+          this.prepareNew();
+          this.snackBar.open('Attestation supprimée', 'OK', { duration: 3000 });
+          this.deleteRequest.emit({ type: 'ATTESTATION', id });
+        },
+        error: (err) => this.snackBar.open('Erreur suppression: ' + (err?.error?.detail || err.message), 'OK', { duration: 4000 })
+      });
     });
   }
 }
