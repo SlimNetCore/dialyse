@@ -98,6 +98,7 @@ public class PatientDomainService implements PatientUseCase {
             cmd.assureDateNaissance(), cmd.assureTelPersonnel(), cmd.assureAdresse(),
             cmd.assureGroupeSanguin(), cmd.assureTelMobile(), cmd.assureTelBureau()
         ));
+        patient.setAssureHistoryJson(cmd.assureHistoryJson());
 
         Patient saved = patientRepo.save(patient);
 
@@ -183,6 +184,7 @@ public class PatientDomainService implements PatientUseCase {
             cmd.assureDateNaissance(), cmd.assureTelPersonnel(), cmd.assureAdresse(),
             cmd.assureGroupeSanguin(), cmd.assureTelMobile(), cmd.assureTelBureau()
         ));
+        patient.setAssureHistoryJson(cmd.assureHistoryJson());
 
         Patient saved = patientRepo.save(patient);
 

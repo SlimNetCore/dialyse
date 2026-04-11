@@ -88,17 +88,16 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
             <h4 class="forfait-title">{{ 'WIZARD.PEC_FORFAIT_DEMANDE' | translate }}</h4>
             <div class="forfait-grid">
               @for (f of forfaits(); track f.id) {
-                <button mat-fab extended type="button"
-                  class="forfait-fab"
+                <button type="button"
+                  class="forfait-chip"
                   [class.selected]="form.get('pecForfaitDemandeId')?.value === f.id"
                   [disabled]="readonly"
-                  (click)="selectForfait(f.id)"
-                  [style.--fab-accent]="forfaitColor(f)">
-                  <mat-icon>local_hospital</mat-icon>
-                  <span class="fab-content">
-                    <strong class="fab-label">{{ f.label || f['nom'] || f['code'] || 'Forfait' }}</strong>
-                    <small class="fab-price">{{ formatPrix(f) }}</small>
-                  </span>
+                  (click)="selectForfait(f.id)">
+                  <mat-icon class="forfait-icon">local_hospital</mat-icon>
+                  <span class="forfait-label">{{ f.label || f['nom'] || f['code'] || 'Forfait' }}</span>
+                  @if (formatPrix(f)) {
+                    <span class="forfait-prix">{{ formatPrix(f) }}</span>
+                  }
                 </button>
               }
             </div>
@@ -144,36 +143,36 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .forfait-title { margin: 8px 0; color:#1f2937; }
-    .forfait-grid { display:flex; flex-wrap:wrap; gap:12px; }
-    .forfait-fab {
-      --mdc-fab-container-color: #fff !important;
-      --mdc-fab-icon-color: var(--fab-accent, #3b82f6) !important;
-      --mat-fab-foreground-color: #1f2937 !important;
-      border: 2px solid #e5e7eb !important;
-      border-radius: 16px !important;
-      padding: 0 20px !important;
-      height: auto !important;
-      min-height: 56px !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06) !important;
-      transition: all .2s ease !important;
+    .forfait-grid { display:flex; flex-wrap:wrap; gap:10px; }
+    .forfait-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1f2937;
+      transition: all .2s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
     }
-    .forfait-fab:hover:not([disabled]) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,.1) !important;
-      border-color: var(--fab-accent, #3b82f6) !important;
+    .forfait-chip:hover:not([disabled]) {
+      border-color: #1b5e20;
+      background: #f0fdf4;
+      box-shadow: 0 3px 10px rgba(27,94,32,.1);
     }
-    .forfait-fab.selected {
-      --mdc-fab-container-color: #eefbf0 !important;
-      border-color: #1b5e20 !important;
-      box-shadow: 0 6px 20px rgba(27,94,32,.18) !important;
-      --mdc-fab-icon-color: #1b5e20 !important;
+    .forfait-chip.selected {
+      border-color: #1b5e20;
+      background: #eefbf0;
+      color: #1b5e20;
+      box-shadow: 0 3px 12px rgba(27,94,32,.15);
     }
-    .forfait-fab[disabled] { opacity: .6; }
-    .fab-content { display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; margin-left:4px; }
-    .fab-label { font-size:13px; font-weight:600; color:#1f2937; white-space:nowrap; }
-    .fab-price { font-size:12px; font-weight:700; color:#1b5e20; }
-    .forfait-fab.selected .fab-label { color:#1b5e20; }
-    .forfait-fab.selected .fab-price { color:#166534; }
+    .forfait-chip[disabled] { opacity: .5; cursor: default; }
+    .forfait-icon { font-size: 18px; width: 18px; height: 18px; color: #1b5e20; }
+    .forfait-label { white-space: nowrap; }
+    .forfait-prix { font-size: 12px; font-weight: 700; color: #1b5e20; margin-left: 2px; }
+    .forfait-chip.selected .forfait-prix { color: #166534; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }

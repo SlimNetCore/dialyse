@@ -63,6 +63,7 @@ public class PatientJpaEntity {
     @Column(name = "assure_tel_bureau") private String assureTelBureau;
     @Column(name = "assure_adresse") private String assureAdresse;
     @Column(name = "assure_groupe_sanguin") private String assureGroupeSanguin;
+    @Column(name = "assure_history_json", columnDefinition = "TEXT") private String assureHistoryJson;
     @Column(name = "created_at") private OffsetDateTime createdAt;
 
     // Standard getters/setters for JPA
@@ -121,6 +122,7 @@ public class PatientJpaEntity {
     public String getAssureTelBureau() { return assureTelBureau; } public void setAssureTelBureau(String v) { this.assureTelBureau = v; }
     public String getAssureAdresse() { return assureAdresse; } public void setAssureAdresse(String v) { this.assureAdresse = v; }
     public String getAssureGroupeSanguin() { return assureGroupeSanguin; } public void setAssureGroupeSanguin(String v) { this.assureGroupeSanguin = v; }
+    public String getAssureHistoryJson() { return assureHistoryJson; } public void setAssureHistoryJson(String v) { this.assureHistoryJson = v; }
     public OffsetDateTime getCreatedAt() { return createdAt; } public void setCreatedAt(OffsetDateTime v) { this.createdAt = v; }
 }
 

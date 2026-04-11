@@ -37,6 +37,7 @@ public interface PatientUseCase {
         String assureSexe, String assureNom, String assurePrenom,
         String assureDateNaissance, String assureTelPersonnel, String assureAdresse,
         String assureGroupeSanguin, String assureTelMobile, String assureTelBureau,
+        String assureHistoryJson,
 
         // Step 3 — Affectation
         UUID medecinTraitantId, UUID salleId, UUID positionId,

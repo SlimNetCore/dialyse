@@ -40,6 +40,7 @@ public class PatientRestController {
         String assureSexe, String assureNom, String assurePrenom, String assureDateNaissance,
         String assureTelPersonnel, String assureAdresse, String assureGroupeSanguin,
         String assureTelMobile, String assureTelBureau,
+        String assureHistoryJson,
         // Step 3
         UUID medecinTraitantId, UUID salleId, UUID positionId,
         UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId, String etatPatient,
@@ -63,6 +64,7 @@ public class PatientRestController {
             r.assureSexe(), r.assureNom(), r.assurePrenom(), r.assureDateNaissance(),
             r.assureTelPersonnel(), r.assureAdresse(), r.assureGroupeSanguin(),
             r.assureTelMobile(), r.assureTelBureau(),
+            r.assureHistoryJson(),
             r.medecinTraitantId(), r.salleId(), r.positionId(),
             r.transporteurAllerId(), r.transporteurRetourId(), r.categorieTransportId(), r.etatPatient(),
             r.dateEvenementEtat(),

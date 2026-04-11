@@ -67,6 +67,7 @@ public final class PatientMapper {
             e.getAssureTelPersonnel(), e.getAssureAdresse(), e.getAssureGroupeSanguin(),
             e.getAssureTelMobile(), e.getAssureTelBureau()
         ));
+        p.setAssureHistoryJson(e.getAssureHistoryJson());
         p.setCreatedAt(e.getCreatedAt());
         return p;
     }
@@ -134,6 +135,7 @@ public final class PatientMapper {
             e.setAssureAdresse(p.getAssureInfo().adresse());
             e.setAssureGroupeSanguin(p.getAssureInfo().groupeSanguin());
         }
+        e.setAssureHistoryJson(p.getAssureHistoryJson());
         e.setCreatedAt(p.getCreatedAt());
         return e;
     }

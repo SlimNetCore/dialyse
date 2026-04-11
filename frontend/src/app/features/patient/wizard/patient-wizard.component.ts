@@ -119,6 +119,14 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           </div>
         </mat-step>
       </mat-stepper>
+
+      <!-- Floating save button -->
+      @if (!consultationMode()) {
+        <button mat-fab extended class="floating-save" (click)="submit()" [disabled]="saving() || !canSave()">
+          <mat-icon>save</mat-icon>
+          {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.SAVE' | translate) }}
+        </button>
+      }
     </div>
   `,
   styles: [`
@@ -191,7 +199,22 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       background-color: #d32f2f !important;
     }
     .floating-save {
-      display: none;
+      position: fixed;
+      bottom: 28px;
+      right: 32px;
+      z-index: 1000;
+      --mdc-extended-fab-container-color: #1b5e20 !important;
+      --mdc-fab-container-color: #1b5e20 !important;
+      --mdc-extended-fab-label-text-color: #fff !important;
+      --mat-fab-foreground-color: #fff !important;
+      --mdc-fab-icon-color: #fff !important;
+      box-shadow: 0 6px 24px rgba(27,94,32,.35) !important;
+      border-radius: 16px !important;
+    }
+    .floating-save:disabled {
+      --mdc-extended-fab-container-color: #bdbdbd !important;
+      --mdc-fab-container-color: #bdbdbd !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12) !important;
     }
   `]
 })
@@ -371,6 +394,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
           assureTelBureau: p?.assureTelBureau ?? ai?.telBureau ?? ai?.assureTelBureau ?? null,
           assureAdresse: p?.assureAdresse ?? ai?.adresse ?? ai?.assureAdresse ?? null,
           assureGroupeSanguin: p?.assureGroupeSanguin ?? ai?.groupeSanguin ?? ai?.assureGroupeSanguin ?? null,
+          assureHistory: this.parseAssureHistory(p?.assureHistoryJson),
           attestationId: null,
           attestationDebut: null,
           attestationFin: null,
@@ -475,6 +499,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       assureGroupeSanguin: d['assureGroupeSanguin'],
       assureTelMobile: d['assureTelMobile'],
       assureTelBureau: d['assureTelBureau'],
+      assureHistoryJson: d['assureHistory'] ? JSON.stringify(d['assureHistory']) : undefined,
       pecId: d['pecId'] ?? undefined,
       pecDateDebutDemande: toDate(d['pecDateDebutDemande']),
       pecDateFinDemande: toDate(d['pecDateFinDemande']),
@@ -504,5 +529,11 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   enableEditing(): void {
     this.consultationMode.set(false);
     setTimeout(() => this.patchStepsFromWizardData());
+  }
+
+  private parseAssureHistory(json: any): any[] {
+    if (!json) return [];
+    if (Array.isArray(json)) return json;
+    try { return JSON.parse(json); } catch { return []; }
   }
 }

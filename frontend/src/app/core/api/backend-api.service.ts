@@ -64,6 +64,7 @@ export type CreatePatientPayload = {
   assureGroupeSanguin?: string;
   assureTelMobile?: string;
   assureTelBureau?: string;
+  assureHistoryJson?: string;
   pecId?: string;
   pecDateDebutDemande?: string;
   pecDateFinDemande?: string;

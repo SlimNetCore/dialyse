@@ -135,7 +135,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             <input matInput formControlName="assureAdresse" />
           </mat-form-field>
 
-          <div class="form-row" style="justify-content:flex-end">
+          <div class="form-row" style="justify-content:flex-end; margin-top: 16px;">
             <button mat-stroked-button type="button" (click)="addAssureToHistory()" [disabled]="readonly">
               <mat-icon>person_add</mat-icon>
               {{ 'WIZARD.ADD_NEW_INSURED' | translate }}
