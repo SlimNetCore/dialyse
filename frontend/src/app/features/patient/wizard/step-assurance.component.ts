@@ -69,6 +69,16 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="flex1">
+              <mat-label>N° Assurance assuré @if (requiresAssureNumero()) { * }</mat-label>
+              <mat-icon matPrefix>badge</mat-icon>
+              <input matInput formControlName="assureNumeroAssurance" />
+              @if (form.get('assureNumeroAssurance')?.hasError('required') && form.get('assureNumeroAssurance')?.touched) {
+                <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex1">
               <mat-label>{{ 'PATIENT_FORM.ASSURE_NOM' | translate }} *</mat-label>
               <mat-icon matPrefix>person</mat-icon>
               <input matInput formControlName="assureNom" />
@@ -134,23 +144,23 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             <mat-icon matPrefix>home</mat-icon>
             <input matInput formControlName="assureAdresse" />
           </mat-form-field>
-
-          <div class="form-row" style="justify-content:flex-end; margin-top: 16px;">
-            <button mat-stroked-button type="button" (click)="addAssureToHistory()" [disabled]="readonly">
-              <mat-icon>person_add</mat-icon>
-              {{ 'WIZARD.ADD_NEW_INSURED' | translate }}
-            </button>
-          </div>
-          @if (assureHistory().length > 0) {
-            <div class="history-box">
-              <div class="history-title">Historique assurés</div>
-              @for (a of assureHistory(); track $index) {
-                <div class="history-item">{{ a.nom }} {{ a.prenom }} - {{ a.sexe || '—' }} - {{ a.dateNaissance || '—' }}</div>
-              }
-            </div>
-          }
         } @else {
           <p style="color:#888; font-style:italic;">{{ 'WIZARD.ASSURE_SAME_AS_PATIENT' | translate }}</p>
+        }
+
+        <div class="form-row" style="justify-content:flex-end; margin-top: 16px;">
+          <button mat-stroked-button type="button" (click)="addAssureToHistory()" [disabled]="readonly">
+            <mat-icon>person_add</mat-icon>
+            {{ 'WIZARD.ADD_NEW_INSURED' | translate }}
+          </button>
+        </div>
+        @if (assureHistory().length > 0) {
+          <div class="history-box">
+            <div class="history-title">Historique assurés</div>
+            @for (a of assureHistory(); track $index) {
+              <div class="history-item">{{ a.nom }} {{ a.prenom }} - {{ a.numeroAssurance || '—' }} - {{ a.sexe || '—' }} - {{ a.dateNaissance || '—' }}</div>
+            }
+          </div>
         }
       </form>
     </div>
@@ -185,8 +195,10 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   libelleAgence = signal('');
   libelleCaisse = signal('');
   private centresPayeursDetails = signal<CentrePayeurDetail[]>([]);
-  assureHistory = signal<Array<{nom: string; prenom: string; sexe: string; dateNaissance: string}>>([]);
+  assureHistory = signal<Array<{nom: string; prenom: string; numeroAssurance: string; sexe: string; dateNaissance: string}>>([]);
   showAssure = signal(false);
+  private qualiteAssure = signal<string>('ASSURE_LUI_MEME');
+  requiresAssureNumero = signal(false);
 
   form!: FormGroup;
 
@@ -194,6 +206,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.form = this.fb.group({
       numeroAssurance: ['', Validators.required],
       centrePayeurId: [null],
+      assureNumeroAssurance: [''],
       assureNom: [''],
       assurePrenom: [''],
       assureSexe: [''],
@@ -235,8 +248,11 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   /** Called externally with qualiteAssure from step 1 */
   setQualiteAssure(qa: string): void {
+    this.qualiteAssure.set(qa || 'ASSURE_LUI_MEME');
     const needsAssure = !!(qa && qa !== 'ASSURE_LUI_MEME');
     this.showAssure.set(needsAssure);
+    const needsAssureNumero = ['ENFANT', 'CONJOINT', 'ASCENDANT', 'AUTRE'].includes(qa || '');
+    this.requiresAssureNumero.set(needsAssureNumero);
     if (needsAssure) {
       this.form.get('assureNom')?.setValidators(Validators.required);
       this.form.get('assurePrenom')?.setValidators(Validators.required);
@@ -244,8 +260,14 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       this.form.get('assureNom')?.clearValidators();
       this.form.get('assurePrenom')?.clearValidators();
     }
+    if (needsAssureNumero) {
+      this.form.get('assureNumeroAssurance')?.setValidators(Validators.required);
+    } else {
+      this.form.get('assureNumeroAssurance')?.clearValidators();
+    }
     this.form.get('assureNom')?.updateValueAndValidity();
     this.form.get('assurePrenom')?.updateValueAndValidity();
+    this.form.get('assureNumeroAssurance')?.updateValueAndValidity();
   }
 
   onCentrePayeur(item: DropdownItem | null): void {
@@ -271,13 +293,20 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   }
 
   addAssureToHistory(): void {
+    if (!this.showAssure()) {
+      this.showAssure.set(true);
+      this.setQualiteAssure(this.qualiteAssure() === 'ASSURE_LUI_MEME' ? 'AUTRE' : this.qualiteAssure());
+      return;
+    }
     const v = this.form.value;
     if (!v.assureNom || !v.assurePrenom) return;
+    if (this.requiresAssureNumero() && !v.assureNumeroAssurance) return;
     this.assureHistory.set([
       ...this.assureHistory(),
       {
         nom: v.assureNom,
         prenom: v.assurePrenom,
+        numeroAssurance: v.assureNumeroAssurance || '',
         sexe: v.assureSexe,
         dateNaissance: v.assureDateNaissance ? new Date(v.assureDateNaissance).toISOString().slice(0, 10) : ''
       }
@@ -302,6 +331,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     const patch = {
       numeroAssurance: data['numeroAssurance'] ?? '',
       centrePayeurId: resolveCentrePayeurId(),
+      assureNumeroAssurance: data['assureNumeroAssurance'] ?? '',
       assureNom: data['assureNom'] ?? '',
       assurePrenom: data['assurePrenom'] ?? '',
       assureSexe: data['assureSexe'] ?? '',

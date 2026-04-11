@@ -70,7 +70,7 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component
                 <div class="detail-grid">
                   <span>Période</span><strong>{{ selectedPec()?.dateDebutDemande || selectedPec()?.DATE_DEBUT_DEMANDE }} → {{ selectedPec()?.dateFinDemande || selectedPec()?.DATE_FIN_DEMANDE }}</strong>
                   <span>Statut</span>
-                  <mat-chip-set>
+                  <mat-chip-set class="status-chip-set">
                     <mat-chip [class]="'status-chip status-' + (selectedPec()?.status || selectedPec()?.STATUT || 'CREE')" [disableRipple]="true">
                       <mat-icon matChipAvatar>{{ getStatusIcon(selectedPec()?.status || selectedPec()?.STATUT) }}</mat-icon>
                       {{ getStatusLabel(selectedPec()?.status || selectedPec()?.STATUT) }}
@@ -137,7 +137,37 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component
 
           <mat-divider style="margin: 20px 0;" />
           <h3 class="section-title">{{ 'WIZARD.PEC_ACCORD' | translate }}</h3>
-          <p class="empty">{{ 'WIZARD.PEC_ACCORD_DESC' | translate }}</p>
+          @if ((selectedPec()?.status || selectedPec()?.STATUT) === 'VALIDEE' || (selectedPec()?.status || selectedPec()?.STATUT) === 'CLOTUREE') {
+            <p class="empty">{{ 'WIZARD.PEC_ACCORD_DESC' | translate }}</p>
+            <div class="accord-readonly-card">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="flex1">
+                  <mat-label>Date début accord</mat-label>
+                  <mat-icon matPrefix>event_available</mat-icon>
+                  <input matInput [value]="selectedPec()?.dateDebutEffectif || selectedPec()?.DATE_DEBUT_EFFECTIF || '—'" disabled />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="flex1">
+                  <mat-label>Date fin accord</mat-label>
+                  <mat-icon matPrefix>event_busy</mat-icon>
+                  <input matInput [value]="selectedPec()?.dateFinEffectif || selectedPec()?.DATE_FIN_EFFECTIF || '—'" disabled />
+                </mat-form-field>
+              </div>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="flex1">
+                  <mat-label>Forfait effectif</mat-label>
+                  <mat-icon matPrefix>local_hospital</mat-icon>
+                  <input matInput [value]="getForfaitLabel(selectedPec()?.forfaitEffectifId || selectedPec()?.FORFAIT_EFFECTIF_ID)" disabled />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="flex1">
+                  <mat-label>Statut</mat-label>
+                  <mat-icon matPrefix>verified</mat-icon>
+                  <input matInput [value]="getStatusLabel(selectedPec()?.status || selectedPec()?.STATUT)" disabled />
+                </mat-form-field>
+              </div>
+            </div>
+          } @else {
+            <p class="empty">{{ 'WIZARD.PEC_ACCORD_DESC' | translate }}</p>
+          }
         </div>
       </div>
     </div>
@@ -189,7 +219,15 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component
     :host ::ng-deep .status-CREE .mat-mdc-chip-action-label { color: #0369a1 !important; }
     :host ::ng-deep .status-VALIDEE .mat-mdc-chip-action-label { color: #166534 !important; }
     :host ::ng-deep .status-CLOTUREE .mat-mdc-chip-action-label { color: #92400e !important; }
-    .detail-grid { display:grid; grid-template-columns:120px 1fr; row-gap:6px; font-size:13px; }
+    .status-chip-set { margin: 0; }
+    .detail-grid { display:grid; grid-template-columns:120px 1fr; row-gap:6px; font-size:13px; align-items:center; }
+    .accord-readonly-card {
+      margin-top: 8px;
+      border: 1px solid #deebdf;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #f8fbf8;
+    }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .forfait-title { margin: 8px 0; color:#1f2937; }

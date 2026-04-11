@@ -39,9 +39,7 @@ interface AttachedFile {
               <div matListItemTitle>{{ f.name }}</div>
               <div matListItemLine>{{ formatSize(f.size) }} — {{ f.type }}</div>
               <div matListItemMeta>
-                @if (f.type.startsWith('image/')) {
-                  <button mat-icon-button (click)="preview(f)" [disabled]="readonly"><mat-icon>visibility</mat-icon></button>
-                }
+                <button mat-icon-button (click)="openAttachment(f)"><mat-icon>visibility</mat-icon></button>
                 <button mat-icon-button color="warn" (click)="remove(i)" [disabled]="readonly"><mat-icon>delete</mat-icon></button>
               </div>
             </mat-list-item>
@@ -125,7 +123,18 @@ export class StepPiecesJointesComponent {
     this.dataChange.emit(this.data);
   }
 
-  preview(f: AttachedFile): void { if (!this.readonly) this.previewUrl.set(f.dataUrl); }
+  preview(f: AttachedFile): void { this.previewUrl.set(f.dataUrl); }
+
+  openAttachment(f: AttachedFile): void {
+    if (f.type.startsWith('image/')) {
+      this.preview(f);
+      return;
+    }
+    const win = window.open(f.dataUrl, '_blank');
+    if (!win) {
+      this.error.set('Impossible d\'ouvrir la pièce jointe (popup bloquée)');
+    }
+  }
 
   formatSize(bytes: number): string {
     if (bytes < 1024) return bytes + ' o';
