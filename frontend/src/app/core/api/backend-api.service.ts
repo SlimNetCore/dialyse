@@ -143,6 +143,16 @@ export class BackendApiService {
     return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec/${pecId}/close`, { centerId, userId });
   }
 
+  deletePec(pecId: string, centerId: string): Observable<{ deleted: boolean }> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/pec/${pecId}`, { params });
+  }
+
+  deleteAttestation(attestationId: string, centerId: string): Observable<{ deleted: boolean }> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/pec/attestations/${attestationId}`, { params });
+  }
+
   sessionAllowed(pecId: string, centerId: string, userId: string): Observable<{ allowed: boolean }> {
     const params = new HttpParams().set('centerId', centerId).set('userId', userId);
     return this.http.get<{ allowed: boolean }>(`${this.baseUrl}/pec/${pecId}/session-allowed`, { params });

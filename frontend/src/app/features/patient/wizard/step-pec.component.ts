@@ -50,10 +50,16 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
             <div class="detail-card">
               <div class="detail-head">
                 <strong>Prise en charge selectionnee</strong>
-                <button type="button" mat-stroked-button (click)="printSelected()" [disabled]="!patientId">
-                  <mat-icon>print</mat-icon>
-                  {{ 'COMMON.PRINT' | translate }}
-                </button>
+                <div class="detail-actions">
+                  <button type="button" mat-stroked-button color="warn" (click)="deleteSelected()" [disabled]="readonly || !selectedPecId()">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer
+                  </button>
+                  <button type="button" mat-stroked-button (click)="printSelected()" [disabled]="!patientId">
+                    <mat-icon>print</mat-icon>
+                    {{ 'COMMON.PRINT' | translate }}
+                  </button>
+                </div>
               </div>
               <div class="detail-grid">
                 <span>Periode</span><strong>{{ selectedPec()?.dateDebutDemande || selectedPec()?.DATE_DEBUT_DEMANDE }} → {{ selectedPec()?.dateFinDemande || selectedPec()?.DATE_FIN_DEMANDE }}</strong>
@@ -96,6 +102,7 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
                   <mat-icon class="forfait-icon">local_hospital</mat-icon>
                   <span class="forfait-label">{{ f.label || f['nom'] || f['code'] || 'Forfait' }}</span>
                   @if (formatPrix(f)) {
+                    <span class="forfait-sep">•</span>
                     <span class="forfait-prix">{{ formatPrix(f) }}</span>
                   }
                 </button>
@@ -139,40 +146,50 @@ import { BackendApiService } from '../../../core/api/backend-api.service';
       margin-bottom:12px;
     }
     .detail-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .detail-actions { display:flex; gap:8px; align-items:center; }
     .detail-grid { display:grid; grid-template-columns:90px 1fr; row-gap:6px; font-size:13px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .forfait-title { margin: 8px 0; color:#1f2937; }
     .forfait-grid { display:flex; flex-wrap:wrap; gap:10px; }
     .forfait-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px;
       border: 2px solid #e5e7eb;
+      border-left: 4px solid #e5e7eb;
       border-radius: 10px;
       background: #fff;
       cursor: pointer;
       font-size: 13px;
       font-weight: 500;
       color: #1f2937;
-      transition: all .2s ease;
+      transition: all .25s cubic-bezier(.4,0,.2,1);
       box-shadow: 0 1px 4px rgba(0,0,0,.05);
     }
     .forfait-chip:hover:not([disabled]) {
-      border-color: #1b5e20;
+      transform: translateY(-2px) scale(1.02);
+      border-color: #66bb6a;
+      border-left-color: #1b5e20;
       background: #f0fdf4;
-      box-shadow: 0 3px 10px rgba(27,94,32,.1);
+      box-shadow: 0 6px 18px rgba(27,94,32,.15);
     }
+    .forfait-chip:hover:not([disabled]) .forfait-icon { color: #1b5e20; transform: scale(1.15); }
     .forfait-chip.selected {
       border-color: #1b5e20;
-      background: #eefbf0;
+      border-left-color: #1b5e20;
+      border-left-width: 5px;
+      background: linear-gradient(135deg, #eefbf0 0%, #dcfce7 100%);
       color: #1b5e20;
-      box-shadow: 0 3px 12px rgba(27,94,32,.15);
+      box-shadow: 0 4px 16px rgba(27,94,32,.2);
+      font-weight: 600;
     }
-    .forfait-chip[disabled] { opacity: .5; cursor: default; }
-    .forfait-icon { font-size: 18px; width: 18px; height: 18px; color: #1b5e20; }
+    .forfait-chip.selected .forfait-icon { color: #1b5e20; }
+    .forfait-chip[disabled] { opacity: .45; cursor: default; }
+    .forfait-icon { font-size: 20px; width: 20px; height: 20px; color: #66bb6a; transition: all .25s ease; }
     .forfait-label { white-space: nowrap; }
-    .forfait-prix { font-size: 12px; font-weight: 700; color: #1b5e20; margin-left: 2px; }
-    .forfait-chip.selected .forfait-prix { color: #166534; }
+    .forfait-sep { color: #d1d5db; margin: 0 2px; }
+    .forfait-prix { font-size: 12px; font-weight: 700; color: #1b5e20; padding: 2px 8px; background: #e8f5e9; border-radius: 6px; }
+    .forfait-chip.selected .forfait-prix { background: #c8e6c9; color: #166534; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
@@ -183,6 +200,7 @@ export class StepPecComponent implements OnInit, OnChanges {
   @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
+  @Output() deleteRequest = new EventEmitter<{ type: 'PEC'; id: string }>();
 
   private readonly fb = inject(FormBuilder);
   private readonly refApi = inject(ReferentialApiService);
@@ -215,7 +233,7 @@ export class StepPecComponent implements OnInit, OnChanges {
     const cid = this.store.currentCenterId();
     if (!cid) return;
     this.refApi.getForfaits(cid).subscribe(list =>
-      this.forfaits.set(list.map((f: any) => ({ ...f, id: f.id, label: f.nom ?? f.code ?? 'Forfait' })))
+      this.forfaits.set(list.map((f: any) => ({ ...f, id: f.id, label: f.nom ?? f.code ?? 'Forfait', prix: f.libelle ?? null })))
     );
     this.applyReadonly();
   }
@@ -311,6 +329,24 @@ export class StepPecComponent implements OnInit, OnChanges {
         window.open(url, '_blank');
       },
       error: (err) => this.snackBar.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 4000 })
+    });
+  }
+
+  deleteSelected(): void {
+    const id = this.selectedPecId();
+    if (!id) return;
+    const centerId = this.store.currentCenterId();
+    if (!centerId) return;
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette prise en charge ?')) return;
+
+    this.api.deletePec(id, centerId).subscribe({
+      next: () => {
+        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
+        this.prepareNew();
+        this.snackBar.open('Prise en charge supprimée', 'OK', { duration: 3000 });
+        this.deleteRequest.emit({ type: 'PEC', id });
+      },
+      error: (err) => this.snackBar.open('Erreur suppression: ' + (err?.error?.detail || err.message), 'OK', { duration: 4000 })
     });
   }
 }

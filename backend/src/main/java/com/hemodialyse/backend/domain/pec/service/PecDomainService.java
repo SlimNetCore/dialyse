@@ -63,6 +63,12 @@ public class PecDomainService implements PecUseCase {
     }
 
     @Override
+    public void delete(CenterId centerId, UUID pecId) {
+        pecRepo.findById(pecId, centerId).orElseThrow(() -> new IllegalArgumentException("PEC introuvable"));
+        pecRepo.deleteById(pecId);
+    }
+
+    @Override
     public boolean canCreateSession(CenterId centerId, UUID pecId) {
         PriseEnCharge pec = pecRepo.findById(pecId, centerId).orElseThrow();
         Patient patient = patientRepo.findById(PatientId.of(pec.getPatientId()), centerId).orElseThrow();

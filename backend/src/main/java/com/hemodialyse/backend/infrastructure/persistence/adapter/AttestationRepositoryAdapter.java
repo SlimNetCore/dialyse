@@ -32,6 +32,9 @@ public class AttestationRepositoryAdapter implements AttestationRepositoryPort {
     }
 
     @Override
+    public void deleteById(UUID id) { jpa.deleteById(id); }
+
+    @Override
     public boolean existsValidAt(CenterId centerId, UUID patientId, LocalDate date) {
         return jpa.existsValidAt(centerId.value(), patientId, date);
     }

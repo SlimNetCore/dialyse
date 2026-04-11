@@ -12,6 +12,7 @@ import java.util.UUID;
  */
 public interface AttestationRepositoryPort {
     AttestationDroit save(AttestationDroit a);
+    void deleteById(UUID id);
     boolean existsValidAt(CenterId centerId, UUID patientId, LocalDate date);
     List<AttestationDroit> findByPatient(CenterId centerId, UUID patientId);
 }

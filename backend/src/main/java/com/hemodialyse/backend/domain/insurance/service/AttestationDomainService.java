@@ -34,6 +34,11 @@ public class AttestationDomainService implements AttestationUseCase {
     }
 
     @Override
+    public void delete(CenterId centerId, UUID attestationId) {
+        repo.deleteById(attestationId);
+    }
+
+    @Override
     public List<AttestationDroit> listByPatient(CenterId centerId, UUID patientId) {
         return repo.findByPatient(centerId, patientId);
     }

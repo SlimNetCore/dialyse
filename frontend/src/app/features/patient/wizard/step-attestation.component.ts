@@ -51,10 +51,16 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             <div class="detail-card">
               <div class="detail-head">
                 <strong>Attestation selectionnee</strong>
-                <button type="button" mat-stroked-button (click)="printSelected()" [disabled]="!patientId">
-                  <mat-icon>print</mat-icon>
-                  {{ 'COMMON.PRINT' | translate }}
-                </button>
+                <div class="detail-actions">
+                  <button type="button" mat-stroked-button color="warn" (click)="deleteSelected()" [disabled]="readonly || !selectedAttestationId()">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer
+                  </button>
+                  <button type="button" mat-stroked-button (click)="printSelected()" [disabled]="!patientId">
+                    <mat-icon>print</mat-icon>
+                    {{ 'COMMON.PRINT' | translate }}
+                  </button>
+                </div>
               </div>
               <div class="detail-grid">
                 <span>Debut</span><strong>{{ selectedAttestation()?.dateDebut || selectedAttestation()?.DATE_DEBUT || '—' }}</strong>
@@ -123,6 +129,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       margin-bottom:12px;
     }
     .detail-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .detail-actions { display:flex; gap:8px; align-items:center; }
     .detail-grid { display:grid; grid-template-columns:100px 1fr; row-gap:6px; font-size:13px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
@@ -135,6 +142,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
+  @Output() deleteRequest = new EventEmitter<{ type: 'ATTESTATION'; id: string }>();
 
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(BackendApiService);
@@ -224,6 +232,24 @@ export class StepAttestationComponent implements OnInit, OnChanges {
         window.open(url, '_blank');
       },
       error: (err) => this.snackBar.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 4000 })
+    });
+  }
+
+  deleteSelected(): void {
+    const id = this.selectedAttestationId();
+    if (!id) return;
+    const centerId = this.store.currentCenterId();
+    if (!centerId) return;
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette attestation ?')) return;
+
+    this.api.deleteAttestation(id, centerId).subscribe({
+      next: () => {
+        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
+        this.prepareNew();
+        this.snackBar.open('Attestation supprimée', 'OK', { duration: 3000 });
+        this.deleteRequest.emit({ type: 'ATTESTATION', id });
+      },
+      error: (err) => this.snackBar.open('Erreur suppression: ' + (err?.error?.detail || err.message), 'OK', { duration: 4000 })
     });
   }
 }

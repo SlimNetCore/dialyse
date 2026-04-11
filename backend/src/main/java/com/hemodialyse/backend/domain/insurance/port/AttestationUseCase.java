@@ -12,6 +12,7 @@ import java.util.UUID;
  */
 public interface AttestationUseCase {
     AttestationDroit create(CenterId centerId, UUID patientId, LocalDate dateDebut, LocalDate dateFin);
+    void delete(CenterId centerId, UUID attestationId);
     List<AttestationDroit> listByPatient(CenterId centerId, UUID patientId);
 }
 

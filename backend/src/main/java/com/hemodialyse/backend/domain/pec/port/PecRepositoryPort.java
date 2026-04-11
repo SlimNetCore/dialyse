@@ -12,6 +12,7 @@ import java.util.UUID;
  */
 public interface PecRepositoryPort {
     PriseEnCharge save(PriseEnCharge pec);
+    void deleteById(UUID id);
     Optional<PriseEnCharge> findById(UUID id, CenterId centerId);
     List<PriseEnCharge> findByPatient(CenterId centerId, UUID patientId);
     List<PriseEnCharge> findByCenter(CenterId centerId);

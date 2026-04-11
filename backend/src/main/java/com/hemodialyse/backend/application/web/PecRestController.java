@@ -89,6 +89,18 @@ public class PecRestController {
         return ResponseEntity.ok(attestationUseCase.listByPatient(CenterId.of(centerId), patientId));
     }
 
+    @DeleteMapping("/{pecId}")
+    public ResponseEntity<?> deletePec(@PathVariable UUID pecId, @RequestParam UUID centerId) {
+        pecUseCase.delete(CenterId.of(centerId), pecId);
+        return ResponseEntity.ok(Map.of("deleted", true));
+    }
+
+    @DeleteMapping("/attestations/{attestationId}")
+    public ResponseEntity<?> deleteAttestation(@PathVariable UUID attestationId, @RequestParam UUID centerId) {
+        attestationUseCase.delete(CenterId.of(centerId), attestationId);
+        return ResponseEntity.ok(Map.of("deleted", true));
+    }
+
     @GetMapping("/attestations-center")
     public ResponseEntity<?> listAttestationsByCenter(@RequestParam UUID centerId) {
         return ResponseEntity.ok(readQueryService.listAttestationsByCenter(centerId));

@@ -27,6 +27,9 @@ public class PecRepositoryAdapter implements PecRepositoryPort {
     }
 
     @Override
+    public void deleteById(UUID id) { jpa.deleteById(id); }
+
+    @Override
     public Optional<PriseEnCharge> findById(UUID id, CenterId centerId) {
         return jpa.findByIdAndCenterId(id, centerId.value()).map(this::toDomain);
     }

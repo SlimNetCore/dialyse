@@ -52,12 +52,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           @if (shouldRenderStep(0)) {
             <app-step-generalites #stepGen [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step1Valid.set($event)" />
           }
-          <div class="step-actions">
-            <span></span>
-            <button mat-flat-button class="next-btn" (click)="tryNext(0)">
-              {{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
         </mat-step>
 
         <!-- Step 2: Assurance -->
@@ -65,10 +59,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           @if (shouldRenderStep(1)) {
             <app-step-assurance #stepAss [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
           }
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="next-btn" (click)="tryNext(1)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
-          </div>
         </mat-step>
 
         <!-- Step 3: Affectation -->
@@ -76,10 +66,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           @if (shouldRenderStep(2)) {
             <app-step-affectation #stepAff [readonly]="consultationMode()" (dataChange)="updateData($event)" />
           }
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="next-btn" matStepperNext>{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
-          </div>
         </mat-step>
 
         <!-- Step 4: Attestation (hidden for vacancier) -->
@@ -88,10 +74,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             @if (shouldRenderStep(3)) {
               <app-step-attestation #stepAtt [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step4Valid.set($event)" />
             }
-            <div class="step-actions">
-              <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-              <button mat-flat-button class="next-btn" (click)="tryNext(3)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
-            </div>
           </mat-step>
         }
 
@@ -100,10 +82,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           @if (shouldRenderStep(isVacancier() ? 3 : 4)) {
             <app-step-pec #stepPec [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined" (dataChange)="updateData($event)" (validChange)="step5Valid.set($event)" />
           }
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="next-btn" (click)="tryNext(4)">{{ 'WIZARD.NEXT' | translate }} <mat-icon>chevron_right</mat-icon></button>
-          </div>
         </mat-step>
 
         <!-- Step 6: Pièces jointes -->
@@ -111,12 +89,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
           @if (shouldRenderStep(isVacancier() ? 4 : 5)) {
             <app-step-pieces-jointes #stepPj [readonly]="consultationMode()" (dataChange)="updateData($event)" />
           }
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious><mat-icon>chevron_left</mat-icon> {{ 'WIZARD.PREV' | translate }}</button>
-            <button mat-flat-button class="save-btn" (click)="submit()" [disabled]="saving() || !canSave() || consultationMode()">
-              <mat-icon>save</mat-icon> {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.SAVE' | translate) }}
-            </button>
-          </div>
         </mat-step>
       </mat-stepper>
 
@@ -142,17 +114,6 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     .mode-badge { background:#eef2ff; color:#4338ca; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; }
     .mode-badge.editing { background:#dcfce7; color:#166534; }
     .edit-toggle-btn { border-color:#1b5e20 !important; color:#1b5e20 !important; }
-    .step-actions {
-      display: flex; justify-content: space-between; margin-top: 16px; padding: 5px 5px 5px 5px;
-      border-top: 1px solid #e0e0e0;
-    }
-    .next-btn, .save-btn {
-      --mdc-filled-button-container-color: #1b5e20 !important;
-      --mdc-filled-button-label-text-color: #fff !important;
-    }
-    .save-btn:disabled {
-      --mdc-filled-button-container-color: #bdbdbd !important;
-    }
     :host ::ng-deep .wizard-stepper { background: transparent; }
 
     /* Remove Material horizontal content container spacing under step headers. */
@@ -201,8 +162,10 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     .floating-save {
       position: fixed;
       bottom: 28px;
-      right: 32px;
+      right: 16px;
       z-index: 1000;
+      background-color: #1b5e20 !important;
+      color: #fff !important;
       --mdc-extended-fab-container-color: #1b5e20 !important;
       --mdc-fab-container-color: #1b5e20 !important;
       --mdc-extended-fab-label-text-color: #fff !important;
@@ -212,6 +175,8 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
       border-radius: 16px !important;
     }
     .floating-save:disabled {
+      background-color: #bdbdbd !important;
+      color: rgba(255,255,255,.7) !important;
       --mdc-extended-fab-container-color: #bdbdbd !important;
       --mdc-fab-container-color: #bdbdbd !important;
       box-shadow: 0 4px 12px rgba(0,0,0,.12) !important;
@@ -343,27 +308,6 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         this.patchStepsFromWizardData();
       });
     }
-  }
-
-  /** Validate current step before moving to next */
-  tryNext(stepIndex: number): void {
-    if (this.consultationMode()) {
-      this.stepper.next();
-      return;
-    }
-    const stepComponents = [this.stepGen, this.stepAss, this.stepAff, this.stepAtt, this.stepPec];
-    const step = stepComponents[stepIndex];
-    if (step) {
-      step.markTouched();
-      if (!step.isValid()) {
-        this.snackBar.open(
-          this.translate.instant('WIZARD.VALIDATION_ERROR') || 'Veuillez remplir les champs obligatoires',
-          'OK', { duration: 3000, panelClass: 'snack-error' }
-        );
-        return;
-      }
-    }
-    this.stepper.next();
   }
 
   goBack(): void { this.router.navigate(['/patients']); }
