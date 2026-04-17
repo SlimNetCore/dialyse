@@ -1,14 +1,14 @@
-import { Component, inject, OnInit, signal, effect } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslateModule } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { BackendApiService } from '../../core/api/backend-api.service';
-import { AppShellStore } from '../../core/state/app-shell.store';
-import { WebSocketService } from '../../core/ws/websocket.service';
+import {Component, effect, inject, OnInit, signal} from '@angular/core';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {TranslateModule} from '@ngx-translate/core';
+import {FormsModule} from '@angular/forms';
+import {BackendApiService} from '../../core/api/backend-api.service';
+import {AppShellStore} from '../../core/state/app-shell.store';
+import {WebSocketService} from '../../core/ws/websocket.service';
 
 @Component({
   selector: 'app-center-dashboard',
@@ -77,11 +77,12 @@ import { WebSocketService } from '../../core/ws/websocket.service';
     </div>
   `,
   styles: [`
-    .dashboard { max-width: 1100px; margin: 0 auto; }
+    .dashboard { max-width: 1160px; margin: 0 auto; }
     .dash-title {
       display: flex; align-items: center; gap: 8px; font-size: 1.3rem;
-      color: #1b5e20; margin-bottom: 16px;
+      color: var(--app-text); margin-bottom: 14px;
     }
+    .dash-title mat-icon { color: var(--app-primary); }
     .config-row { margin-bottom: 16px; }
     .days-field { width: 200px; }
     .stats-grid {
@@ -89,25 +90,27 @@ import { WebSocketService } from '../../core/ws/websocket.service';
     }
     .stat-card {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; border-radius: 14px; min-height: 140px;
-      transition: transform 0.2s; cursor: default;
+      padding: 22px; border-radius: 14px; min-height: 138px;
+      transition: transform 0.2s, box-shadow 0.2s; cursor: default;
+      border: 1px solid var(--app-border);
+      box-shadow: var(--app-shadow);
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(2, 6, 23, 0.1); }
     .stat-card mat-icon { font-size: 36px; width: 36px; height: 36px; margin-bottom: 8px; }
     .stat-value { font-size: 2.2rem; font-weight: 800; line-height: 1.1; }
-    .stat-label { font-size: 13px; color: #666; text-align: center; margin-top: 4px; }
+    .stat-label { font-size: 13px; color: var(--app-muted); text-align: center; margin-top: 4px; }
 
-    .patients { background: #e8f5e9; }
-    .patients mat-icon, .patients .stat-value { color: #1b5e20; }
-    .pec-cree { background: #fff3e0; }
+    .patients { background: var(--app-primary-soft); }
+    .patients mat-icon, .patients .stat-value { color: var(--app-primary); }
+    .pec-cree { background: #fff7ed; }
     .pec-cree mat-icon, .pec-cree .stat-value { color: #e65100; }
-    .pec-validee { background: #e3f2fd; }
+    .pec-validee { background: #e0f2fe; }
     .pec-validee mat-icon, .pec-validee .stat-value { color: #1565c0; }
-    .pec-expiring { background: #fce4ec; }
+    .pec-expiring { background: #fff1f2; }
     .pec-expiring mat-icon, .pec-expiring .stat-value { color: #c62828; }
-    .attestation { background: #f3e5f5; }
+    .attestation { background: #eef2ff; }
     .attestation mat-icon, .attestation .stat-value { color: #6a1b9a; }
-    .attestation-expiring { background: #fff8e1; }
+    .attestation-expiring { background: #fef9c3; }
     .attestation-expiring mat-icon, .attestation-expiring .stat-value { color: #f57f17; }
   `]
 })

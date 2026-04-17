@@ -1,20 +1,59 @@
-/* You can add global styles to this file, and also import other style files */
-
 @use '@angular/material' as mat;
 
-$hemo-green-dark: #1b5e20;
-$hemo-green-darker: #0d3b12;
-$hemo-bg: #fafcfb;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+$app-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$cyan-palette,
+    tertiary: mat.$blue-palette,
+  ),
+  typography: (
+    brand-family: Inter,
+    plain-family: Inter,
+  ),
+  density: (
+    scale: 0,
+  ),
+));
 
 html {
-  @include mat.theme((
-    color: (
-      primary: mat.$green-palette,
-      tertiary: mat.$cyan-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  @include mat.all-component-themes($app-theme);
+}
+
+/* Theme tokens: default = cyan clean */
+:root,
+html[data-theme='cyan'] {
+  --app-primary: #0891b2;
+  --app-primary-hover: #0e7490;
+  --app-primary-soft: #ecfeff;
+  --app-primary-outline: #67e8f9;
+  --app-bg: #f8fafc;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f3f8fb;
+  --app-border: #e5e7eb;
+  --app-text: #111827;
+  --app-muted: #6b7280;
+  --app-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+}
+
+html[data-theme='emerald'] {
+  --app-primary: #0f766e;
+  --app-primary-hover: #115e59;
+  --app-primary-soft: #ecfdf5;
+  --app-primary-outline: #5eead4;
+}
+
+html[data-theme='indigo'] {
+  --app-primary: #4f46e5;
+  --app-primary-hover: #4338ca;
+  --app-primary-soft: #eef2ff;
+  --app-primary-outline: #a5b4fc;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 html, body {
@@ -23,96 +62,142 @@ html, body {
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-  background: $hemo-bg;
-  color: #1e293b;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ─── GLOBAL OVERRIDES ─── */
+.main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 60px);
+}
 
-/* Buttons */
+/* Global Material refinements */
+.mdc-button--unelevated,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-stroked-button,
+.mat-mdc-fab,
+.mat-mdc-extended-fab {
+  border-radius: 10px !important;
+}
+
 .mat-mdc-unelevated-button.mat-primary,
 .mat-mdc-raised-button.mat-primary,
+.mat-mdc-fab.mat-primary,
+.mat-mdc-extended-fab.mat-primary,
 .mat-mdc-flat-button.mat-primary {
-  --mdc-filled-button-container-color: #{$hemo-green-dark};
-  --mdc-filled-button-label-text-color: #fff;
-  border-radius: 10px !important;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  --mdc-filled-button-container-color: var(--app-primary) !important;
+  --mdc-filled-button-label-text-color: #fff !important;
+  --mat-fab-foreground-color: #fff !important;
+  --mdc-fab-icon-color: #fff !important;
 }
+
 .mat-mdc-unelevated-button.mat-primary:hover,
 .mat-mdc-raised-button.mat-primary:hover,
-.mat-mdc-flat-button.mat-primary:hover {
-  --mdc-filled-button-container-color: #{$hemo-green-darker};
-  box-shadow: 0 4px 14px rgba(27, 94, 32, 0.25);
+.mat-mdc-flat-button.mat-primary:hover,
+.mat-mdc-fab.mat-primary:hover,
+.mat-mdc-extended-fab.mat-primary:hover {
+  --mdc-filled-button-container-color: var(--app-primary-hover) !important;
 }
 
 .mat-mdc-outlined-button,
 .mat-mdc-stroked-button {
-  border-radius: 10px !important;
-  border-color: #{$hemo-green-dark} !important;
-  color: #{$hemo-green-dark} !important;
-  font-weight: 600;
+  border-color: var(--app-primary-outline) !important;
+  color: var(--app-primary) !important;
 }
+
 .mat-mdc-outlined-button:hover,
 .mat-mdc-stroked-button:hover {
-  background: rgba(27, 94, 32, 0.06) !important;
+  background: color-mix(in srgb, var(--app-primary) 8%, white) !important;
 }
 
-/* Input focus */
-.mdc-text-field--focused .mdc-notched-outline__leading,
-.mdc-text-field--focused .mdc-notched-outline__notch,
-.mdc-text-field--focused .mdc-notched-outline__trailing {
-  border-color: #{$hemo-green-dark} !important;
-  border-width: 2px !important;
+.mdc-text-field--outlined {
+  --mdc-outlined-text-field-focus-outline-color: var(--app-primary) !important;
+  --mdc-outlined-text-field-focus-label-text-color: var(--app-primary) !important;
+  --mdc-outlined-text-field-focus-caret-color: var(--app-primary) !important;
 }
+
 .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
-  color: #{$hemo-green-dark} !important;
+  color: var(--app-primary) !important;
 }
+
 .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
-  --mat-option-selected-state-label-text-color: #{$hemo-green-dark};
+  --mat-option-selected-state-label-text-color: var(--app-primary);
 }
 
-/* Toolbar */
-.mat-toolbar.mat-primary {
-  background: linear-gradient(135deg, #{$hemo-green-dark} 0%, #2e7d32 50%, #388e3c 100%) !important;
-}
-
-/* Cards */
 .mat-mdc-card {
-  border-radius: 16px !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 2px 12px rgba(0,0,0,0.04) !important;
-  border: 1px solid #e8efe9;
+  border-radius: 14px !important;
+  box-shadow: var(--app-shadow) !important;
+  border: 1px solid var(--app-border);
 }
 
-/* Datepicker */
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 14px !important;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+.mat-mdc-menu-panel {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
 .mat-datepicker-toggle {
-  color: #{$hemo-green-dark};
-}
-.mat-datepicker-content {
-  --mat-datepicker-calendar-date-selected-state-background-color: #{$hemo-green-dark};
-  --mat-datepicker-calendar-date-today-outline-color: #{$hemo-green-dark};
+  color: var(--app-primary);
 }
 
-/* Fix: remove native date input white background that bleeds through mat-form-field */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  display: none; /* We use mat-datepicker-toggle instead */
+.mat-datepicker-content {
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--app-primary);
+  --mat-datepicker-calendar-date-today-outline-color: var(--app-primary);
 }
-input[type="date"] {
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+input[type='date'] {
   -webkit-appearance: none;
   background: transparent !important;
 }
 
-/* RTL global support */
-[dir="rtl"] {
-  body {
-    font-family: 'Segoe UI', Tahoma, 'Arial', sans-serif;
-    text-align: right;
-  }
+/* Keep form fields compact and balanced */
+.mat-mdc-form-field {
+  width: 100%;
+}
 
-  .mat-mdc-form-field {
-    text-align: right;
-  }
+.mat-mdc-form-field-infix {
+  min-height: 44px;
+}
+
+/* Optional centered placeholders where requested */
+input.mat-mdc-input-element::placeholder {
+  text-align: center;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+[dir='rtl'] body {
+  font-family: 'Segoe UI', Tahoma, 'Arabic Typesetting', sans-serif;
 }
 

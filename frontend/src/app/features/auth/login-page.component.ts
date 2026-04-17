@@ -1,19 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { FormsModule } from '@angular/forms';
-import { AuthApiService } from '../../core/api/auth-api.service';
-import { AuthSessionService } from '../../core/auth/auth-session.service';
-import { AppShellStore } from '../../core/state/app-shell.store';
-import { LangService } from '../../core/i18n/lang.service';
-import { MatMenuModule } from '@angular/material/menu';
+import {Component, inject, signal} from '@angular/core';
+import {Router} from '@angular/router';
+import {TranslateModule} from '@ngx-translate/core';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {FormsModule} from '@angular/forms';
+import {AuthApiService} from '../../core/api/auth-api.service';
+import {AuthSessionService} from '../../core/auth/auth-session.service';
+import {AppShellStore} from '../../core/state/app-shell.store';
+import {LangService} from '../../core/i18n/lang.service';
+import {ThemeService} from '../../core/theme/theme.service';
+import {MatMenuModule} from '@angular/material/menu';
 
 @Component({
   selector: 'app-login-page',
@@ -31,11 +32,20 @@ import { MatMenuModule } from '@angular/material/menu';
         <p>{{ 'LOGIN.BRANDING_DESC' | translate }}</p>
       </div>
       <div class="login-right">
-        <div class="lang-switcher">
+        <div class="top-actions">
           <button mat-icon-button [matMenuTriggerFor]="langMenu"><mat-icon>translate</mat-icon></button>
+          <button mat-icon-button [matMenuTriggerFor]="themeMenu"><mat-icon>palette</mat-icon></button>
           <mat-menu #langMenu="matMenu">
             @for (l of lang.languages; track l.code) {
               <button mat-menu-item (click)="lang.setLang(l.code)">{{ l.flag }} {{ l.label }}</button>
+            }
+          </mat-menu>
+          <mat-menu #themeMenu="matMenu">
+            @for (t of theme.themes; track t.code) {
+              <button mat-menu-item (click)="theme.setTheme(t.code)">
+                <mat-icon>{{ theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+                {{ t.i18nKey | translate }}
+              </button>
             }
           </mat-menu>
         </div>
@@ -70,9 +80,9 @@ import { MatMenuModule } from '@angular/material/menu';
     </div>
   `,
   styles: [`
-    .login-wrapper { display: flex; height: 100vh; }
+    .login-wrapper { display: flex; height: 100vh; background: var(--app-bg); }
     .login-left {
-      flex: 1; background: linear-gradient(135deg, #1b5e20, #2e7d32, #388e3c);
+      flex: 1; background: linear-gradient(145deg, color-mix(in srgb, var(--app-primary) 86%, #ffffff), var(--app-primary-hover));
       color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 40px; text-align: center;
     }
@@ -81,17 +91,17 @@ import { MatMenuModule } from '@angular/material/menu';
     .login-left p { font-size: 1.1rem; opacity: 0.85; white-space: pre-line; max-width: 400px; }
     .login-right {
       width: 480px; display: flex; align-items: center; justify-content: center;
-      background: #f7faf8; position: relative;
+      background: var(--app-bg); position: relative;
     }
-    .lang-switcher { position: absolute; top: 16px; right: 16px; }
-    .login-card { width: 380px; padding: 24px; }
+    .top-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; }
+    .login-card { width: 400px; padding: 24px; border: 1px solid var(--app-border); box-shadow: var(--app-shadow); background: var(--app-surface); }
     .full { width: 100%; }
     .login-btn {
       width: 100%; margin-top: 8px;
-      --mdc-filled-button-container-color: #1b5e20 !important;
+      --mdc-filled-button-container-color: var(--app-primary) !important;
       --mdc-filled-button-label-text-color: #fff !important;
     }
-    .hint { font-size: 12px; color: #888; text-align: center; margin-top: 12px; }
+    .hint { font-size: 12px; color: var(--app-muted); text-align: center; margin-top: 12px; }
     .error-msg { background: #fef2f2; color: #991b1b; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
     @media (max-width: 900px) { .login-left { display: none; } .login-right { width: 100%; } }
   `]
@@ -101,6 +111,7 @@ export class LoginPageComponent {
   private readonly authSession = inject(AuthSessionService);
   readonly store = inject(AppShellStore);
   readonly lang = inject(LangService);
+  readonly theme = inject(ThemeService);
   private readonly router = inject(Router);
 
   selectedCenter = '';

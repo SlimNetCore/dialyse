@@ -57,6 +57,12 @@
     "AR": "العربية",
     "KAB": "Taqbaylit"
   },
+  "THEME": {
+    "TITLE": "Asentel",
+    "CYAN": "Cyan (amezwer)",
+    "EMERALD": "Azegzaw amezrar",
+    "INDIGO": "Indigo"
+  },
   "TABS": {
     "PATIENTS": "Imdanen",
     "PEC": "Takfalit"
@@ -182,8 +188,32 @@
     "PEC_FORFAIT_DEMANDE": "Akemmus yettutran",
     "PEC_ACCORD": "Aneqbel n usenduq n uzgal",
     "PEC_ACCORD_DESC": "Aneqbel ad t-yeččar umasay seld n tmerna n umdan.",
+    "PEC_HISTORY": "Amezruy n PEC",
+    "PEC_HISTORY_EMPTY": "Ulac PEC yezrin",
+    "PEC_SELECTED": "PEC yettwafernen",
+    "PEC_REQUEST_BLOCK": "Tuttra",
+    "PEC_APPROVAL_BLOCK": "Aneqbel (yettwasentem sɣur tedbelt)",
+    "PEC_EFFECTIVE_START": "Azemz n tazwara n uneqbel",
+    "PEC_EFFECTIVE_END": "Azemz n tagara n uneqbel",
+    "FIELD_START": "Tazwara",
+    "FIELD_END": "Tagara",
+    "FIELD_STATUS": "Addad",
+    "FIELD_PERIOD": "Tallit",
+    "FIELD_EFFECTIVE_PERIOD": "Tallit taneflayt",
+    "FIELD_EFFECTIVE_FORFAIT": "Akemmus aneflayan",
+    "ATTESTATION_SELECTED": "Taselkent yettwafernen",
+    "DELETE_ATTESTATION_TITLE": "Kkes taselkent",
+    "DELETE_ATTESTATION_CONFIRM": "D tidet tebɣiḍ ad tekkseḍ taselkent-a? Tigawt-a ur tettwarru ara.",
+    "ATTESTATION_DELETED_OK": "Taselkent tettwakkes",
+    "DELETE_PEC_TITLE": "Kkes PEC",
+    "DELETE_PEC_CONFIRM": "D tidet tebɣiḍ ad tekkseḍ PEC-a? Tigawt-a ur tettwarru ara.",
+    "PEC_DELETED_OK": "PEC tettwakkes",
+    "DELETE_ERROR": "Tuccḍa deg tukksa: {{detail}}",
+    "PRINT_ERROR": "Tuccḍa deg usiggez: {{detail}}",
     "PJ_DROP": "Zuzer ifuyla da neɣ sit i usiteg",
     "PJ_MAX_SIZE": "Tiddi tafellayt: 5 Mo i yal afaylu",
+    "PJ_FILE_TOO_LARGE": "{{name}}: afaylu meqqer aṭas (afellay 5 Mo)",
+    "PJ_PREVIEW_BLOCKED": "Ur yezmir ara ad yeldi afaylu (popup yettwaḥbes)",
     "VALIDATION_ERROR": "Ttxil ččar meṛṛa urtiyen ilaqen send ad tkemmleḍ"
   },
   "PEC_ADMIN": {
@@ -221,7 +251,20 @@
   "NOTIFICATION": {
     "TITLE": "Ilɣa",
     "EMPTY": "Ulac ilɣa",
-    "MARK_READ": "Rcem akk d yettwaɣṛan"
+    "MARK_READ": "Rcem akk d yettwaɣṛan",
+    "UNREAD_TAB": "Ur yettwaɣra ara",
+    "READ_TAB": "Yettwaɣra",
+    "READ_STATUS": "Yettwaɣra",
+    "UNREAD_STATUS": "Ur yettwaɣra ara",
+    "DETAIL_TYPE": "Anaw",
+    "DETAIL_DATE": "Azemz",
+    "DETAIL_SELECT": "Fren izen akken ad twaliḍ talqayt.",
+    "WS_STABLE": "Tuqqna usrid: tebda",
+    "WS_INTERRUPTED": "Tuqqna usrid: tettwaḥbes",
+    "WS_IMPOSSIBLE": "Tuqqna usrid: ulac-itt",
+    "PATIENT_CREATED": "Amdan amaynut: {{nom}}",
+    "PEC_VALIDATED": "PEC tettwasentem: {{nom}}",
+    "PEC_CLOSED": "PEC temdel: {{nom}}"
   },
   "PEC_LIST": {
     "TITLE": "Tabdart n tneḍrutin",
@@ -245,6 +288,7 @@
   "COMMON": {
     "NEW": "Amaynut",
     "UPDATE": "Leqqem",
-    "PRINT": "Siggez"
+    "PRINT": "Siggez",
+    "DELETE": "Kkes"
   }
 }

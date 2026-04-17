@@ -1,9 +1,9 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatListModule } from '@angular/material/list';
-import { TranslateModule } from '@ngx-translate/core';
+import {Component, EventEmitter, inject, Input, Output, signal} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatListModule} from '@angular/material/list';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 
 interface AttachedFile {
   name: string;
@@ -56,24 +56,69 @@ interface AttachedFile {
     </div>
   `,
   styles: [`
-    .step-content {   padding: 12px 20px 20px; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
-    .upload-zone {
-      border: 2px dashed #ccc; border-radius: 12px; padding: 40px; text-align: center;
-      cursor: pointer; background: #fafafa; transition: border-color 0.2s;
+    .step-content {
+      padding: 14px 18px 18px;
     }
-    .upload-zone:hover { border-color: #1b5e20; background: #f0fdf4; }
+
+    .section-title {
+      color: var(--app-text);
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
+    .upload-zone {
+      border: 2px dashed var(--app-border);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--app-surface);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--app-primary);
+      background: var(--app-primary-soft);
+    }
     .upload-zone.disabled { opacity:.7; cursor:default; }
-    .upload-icon { font-size: 48px; width: 48px; height: 48px; color: #1b5e20; }
-    .hint { font-size: 12px; color: #999; }
+
+    .upload-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: var(--app-primary);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--app-muted);
+    }
     .error-msg { background: #fef2f2; color: #991b1b; padding: 8px 12px; border-radius: 8px; margin-top: 8px; font-size: 13px; }
     .file-list { margin-top: 16px; }
-    .file-item { border-bottom: 1px solid #f0f0f0; }
+
+    .file-item {
+      border-bottom: 1px solid var(--app-border);
+    }
     .preview-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8);
       display: flex; align-items: center; justify-content: center; z-index: 1000; cursor: pointer;
     }
     .preview-img { max-width: 80%; max-height: 80%; border-radius: 8px; }
+
+    @media (max-width: 900px) {
+      .upload-zone {
+        padding: 20px;
+      }
+      .upload-icon {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+      }
+      .preview-img {
+        max-width: 94%;
+        max-height: 84%;
+      }
+    }
   `]
 })
 export class StepPiecesJointesComponent {
@@ -84,6 +129,7 @@ export class StepPiecesJointesComponent {
   files = signal<AttachedFile[]>([]);
   error = signal('');
   previewUrl = signal<string | null>(null);
+  private readonly translate = inject(TranslateService);
 
   private readonly MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -99,20 +145,14 @@ export class StepPiecesJointesComponent {
     if (event.dataTransfer?.files) this.addFiles(Array.from(event.dataTransfer.files));
   }
 
-  private addFiles(fileList: File[]): void {
-    this.error.set('');
-    for (const f of fileList) {
-      if (f.size > this.MAX_SIZE) {
-        this.error.set(`${f.name}: fichier trop volumineux (max 5 Mo)`);
-        continue;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.files.update(list => [...list, { name: f.name, size: f.size, type: f.type, dataUrl: reader.result as string }]);
-        this.data['piecesJointes'] = this.files();
-        this.dataChange.emit(this.data);
-      };
-      reader.readAsDataURL(f);
+  openAttachment(f: AttachedFile): void {
+    if (f.type.startsWith('image/')) {
+      this.preview(f);
+      return;
+    }
+    const win = window.open(f.dataUrl, '_blank');
+    if (!win) {
+      this.error.set(this.translate.instant('WIZARD.PJ_PREVIEW_BLOCKED'));
     }
   }
 
@@ -125,14 +165,20 @@ export class StepPiecesJointesComponent {
 
   preview(f: AttachedFile): void { this.previewUrl.set(f.dataUrl); }
 
-  openAttachment(f: AttachedFile): void {
-    if (f.type.startsWith('image/')) {
-      this.preview(f);
-      return;
-    }
-    const win = window.open(f.dataUrl, '_blank');
-    if (!win) {
-      this.error.set('Impossible d\'ouvrir la pièce jointe (popup bloquée)');
+  private addFiles(fileList: File[]): void {
+    this.error.set('');
+    for (const f of fileList) {
+      if (f.size > this.MAX_SIZE) {
+        this.error.set(this.translate.instant('WIZARD.PJ_FILE_TOO_LARGE', {name: f.name}));
+        continue;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.files.update(list => [...list, { name: f.name, size: f.size, type: f.type, dataUrl: reader.result as string }]);
+        this.data['piecesJointes'] = this.files();
+        this.dataChange.emit(this.data);
+      };
+      reader.readAsDataURL(f);
     }
   }
 

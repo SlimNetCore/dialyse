@@ -1,16 +1,27 @@
-import { Component, inject, OnInit, Output, EventEmitter, signal, computed, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonModule } from '@angular/material/button';
-import { TranslateModule } from '@ngx-translate/core';
-import { AuthSessionService } from '../../../core/auth/auth-session.service';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  signal,
+  SimpleChanges
+} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+import {MatIconModule} from '@angular/material/icon';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatButtonModule} from '@angular/material/button';
+import {TranslateModule} from '@ngx-translate/core';
+import {AuthSessionService} from '../../../core/auth/auth-session.service';
 
 @Component({
   selector: 'app-step-generalites',
@@ -254,28 +265,28 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
     </div>
   `,
   styles: [`
-    .step-content {   padding: 12px 20px 20px; }
+    .step-content { padding: 14px 18px 18px; }
     .row-photo { display: flex; gap: 20px; margin-bottom: 12px; align-items: stretch; }
     .photo-column { display: flex; flex-direction: column; align-items: stretch; width: 180px; }
     .photo-zone {
-      width: 100%; min-height: 220px; border: 2px dashed #ccc; border-radius: 12px;
+      width: 100%; min-height: 220px; border: 2px dashed var(--app-border); border-radius: 12px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      cursor: pointer; background: #ffffff; transition: all 0.2s; flex-shrink: 0;
+      cursor: pointer; background: var(--app-surface); transition: all 0.2s; flex-shrink: 0;
     }
     .medical-btn {
       margin-bottom: 10px;
       width: 100%;
-      --mdc-filled-button-container-color: #1b5e20 !important;
+      --mdc-filled-button-container-color: var(--app-primary) !important;
       --mdc-filled-button-label-text-color: #ffffff !important;
     }
-    .photo-zone:hover { border-color: #1b5e20; background: #f9fff9; box-shadow: 0 2px 12px rgba(27,94,32,0.08); }
+    .photo-zone:hover { border-color: var(--app-primary); background: var(--app-primary-soft); box-shadow: 0 4px 16px rgba(2, 6, 23, 0.08); }
     .photo-zone.readonly-zone { cursor: default; opacity: .88; }
     .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
-    .photo-placeholder { font-size: 56px; width: 56px; height: 56px; color: #c8e6c9; }
-    .photo-label { font-size: 12px; color: #81c784; margin-top: 6px; }
+    .photo-placeholder { font-size: 56px; width: 56px; height: 56px; color: var(--app-primary-outline); }
+    .photo-label { font-size: 12px; color: var(--app-primary); margin-top: 6px; }
     .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; align-content: start; }
     .span-3 { grid-column: 1 / -1; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
+    .form-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }
     .checks-row { align-items: center; flex-wrap: wrap; gap: 12px; }
@@ -285,10 +296,10 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
     .age-box {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       min-width: 70px; padding: 8px 12px;
-      background: #e8f5e9; border-radius: 10px; border: 1px solid #c8e6c9;
+      background: var(--app-primary-soft); border-radius: 10px; border: 1px solid var(--app-primary-outline);
     }
     .age-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
-    .age-value { font-size: 24px; font-weight: 700; color: #1b5e20; line-height: 1.2; }
+    .age-value { font-size: 24px; font-weight: 700; color: var(--app-primary); line-height: 1.2; }
     .age-unit { font-size: 11px; color: #666; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }

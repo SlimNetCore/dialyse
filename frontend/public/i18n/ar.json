@@ -57,6 +57,12 @@
     "AR": "العربية",
     "KAB": "Taqbaylit"
   },
+  "THEME": {
+    "TITLE": "السمة",
+    "CYAN": "سماوي (افتراضي)",
+    "EMERALD": "زمردي",
+    "INDIGO": "نيلي"
+  },
   "TABS": {
     "PATIENTS": "المرضى",
     "PEC": "التكفل"
@@ -182,8 +188,32 @@
     "PEC_FORFAIT_DEMANDE": "الحزمة المطلوبة",
     "PEC_ACCORD": "موافقة صندوق التأمين",
     "PEC_ACCORD_DESC": "سيتم ملء الموافقة من قبل المسؤول بعد إنشاء المريض.",
+    "PEC_HISTORY": "سجل التكفلات",
+    "PEC_HISTORY_EMPTY": "لا توجد تكفلات سابقة",
+    "PEC_SELECTED": "التكفل المحدد",
+    "PEC_REQUEST_BLOCK": "الطلب",
+    "PEC_APPROVAL_BLOCK": "الموافقة (مصادق عليها من الإدارة)",
+    "PEC_EFFECTIVE_START": "تاريخ بداية الموافقة",
+    "PEC_EFFECTIVE_END": "تاريخ نهاية الموافقة",
+    "FIELD_START": "البداية",
+    "FIELD_END": "النهاية",
+    "FIELD_STATUS": "الحالة",
+    "FIELD_PERIOD": "الفترة",
+    "FIELD_EFFECTIVE_PERIOD": "الفترة الفعلية",
+    "FIELD_EFFECTIVE_FORFAIT": "الحزمة الفعلية",
+    "ATTESTATION_SELECTED": "الشهادة المحددة",
+    "DELETE_ATTESTATION_TITLE": "حذف الشهادة",
+    "DELETE_ATTESTATION_CONFIRM": "هل أنت متأكد من حذف هذه الشهادة؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "ATTESTATION_DELETED_OK": "تم حذف الشهادة",
+    "DELETE_PEC_TITLE": "حذف التكفل",
+    "DELETE_PEC_CONFIRM": "هل أنت متأكد من حذف هذا التكفل؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "PEC_DELETED_OK": "تم حذف التكفل",
+    "DELETE_ERROR": "خطأ في الحذف: {{detail}}",
+    "PRINT_ERROR": "خطأ في الطباعة: {{detail}}",
     "PJ_DROP": "اسحب الملفات هنا أو انقر للاختيار",
     "PJ_MAX_SIZE": "الحجم الأقصى: 5 ميغابايت لكل ملف",
+    "PJ_FILE_TOO_LARGE": "{{name}}: الملف كبير جدا (الحد الأقصى 5 م.ب)",
+    "PJ_PREVIEW_BLOCKED": "تعذر فتح المرفق (تم حظر النافذة المنبثقة)",
     "VALIDATION_ERROR": "يرجى ملء جميع الحقول الإلزامية قبل المتابعة"
   },
   "PEC_ADMIN": {
@@ -221,7 +251,20 @@
   "NOTIFICATION": {
     "TITLE": "الإشعارات",
     "EMPTY": "لا توجد إشعارات",
-    "MARK_READ": "تحديد الكل كمقروء"
+    "MARK_READ": "تحديد الكل كمقروء",
+    "UNREAD_TAB": "غير مقروء",
+    "READ_TAB": "مقروء",
+    "READ_STATUS": "مقروء",
+    "UNREAD_STATUS": "غير مقروء",
+    "DETAIL_TYPE": "النوع",
+    "DETAIL_DATE": "التاريخ",
+    "DETAIL_SELECT": "اختر رسالة لعرض التفاصيل.",
+    "WS_STABLE": "اتصال الوقت الحقيقي: مستقر",
+    "WS_INTERRUPTED": "اتصال الوقت الحقيقي: متقطع",
+    "WS_IMPOSSIBLE": "اتصال الوقت الحقيقي: غير متاح",
+    "PATIENT_CREATED": "مريض جديد: {{nom}}",
+    "PEC_VALIDATED": "تمت المصادقة على التكفل: {{nom}}",
+    "PEC_CLOSED": "تم إغلاق التكفل: {{nom}}"
   },
   "PEC_LIST": {
     "TITLE": "قائمة التكفلات",
@@ -245,6 +288,7 @@
   "COMMON": {
     "NEW": "جديد",
     "UPDATE": "تحديث",
-    "PRINT": "طباعة"
+    "PRINT": "طباعة",
+    "DELETE": "حذف"
   }
 }

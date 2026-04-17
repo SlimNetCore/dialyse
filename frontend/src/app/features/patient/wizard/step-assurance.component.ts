@@ -1,19 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, inject, signal, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslateModule } from '@ngx-translate/core';
-import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
-import { ReferentialApiService, CentrePayeurDetail } from '../../../core/api/referential-api.service';
-import { BackendApiService } from '../../../core/api/backend-api.service';
-import { AppShellStore } from '../../../core/state/app-shell.store';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+import {MatIconModule} from '@angular/material/icon';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatButtonModule} from '@angular/material/button';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateModule} from '@ngx-translate/core';
+import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
+import {CentrePayeurDetail, ReferentialApiService} from '../../../core/api/referential-api.service';
+import {BackendApiService} from '../../../core/api/backend-api.service';
+import {AppShellStore} from '../../../core/state/app-shell.store';
 
 @Component({
   selector: 'app-step-assurance',
@@ -210,8 +210,8 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     </div>
   `,
   styles: [`
-    .step-content {   padding: 12px 20px 20px; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
+    .step-content { padding: 14px 18px 18px; }
+    .section-title { color: var(--app-text); font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }
@@ -219,12 +219,12 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
-    .history-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; margin-top: 8px; background: #fafafa; }
-    .history-title { font-weight: 600; color: #1b5e20; margin-bottom: 6px; }
+    .history-box { border: 1px solid var(--app-border); border-radius: 10px; padding: 8px 12px; margin-top: 8px; background: var(--app-surface); }
+    .history-title { font-weight: 600; color: var(--app-primary); margin-bottom: 6px; }
     .history-item { font-size: 12px; color: #4b5563; margin-bottom: 2px; }
     .assure-row {
       display:flex; align-items:center; justify-content:space-between; gap:10px;
-      border:1px solid #e5e7eb; border-radius:8px; padding:8px 10px; margin-bottom:6px; background:#fff;
+      border:1px solid var(--app-border); border-radius:8px; padding:8px 10px; margin-bottom:6px; background:var(--app-surface);
     }
     .muted { font-size: 12px; color: #6b7280; }
   `]

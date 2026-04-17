@@ -1,17 +1,17 @@
-import { Component, EventEmitter, Input, Output, signal, OnChanges, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TranslateModule } from '@ngx-translate/core';
-import { PatientQrCardComponent } from './patient-qr-card.component';
-import { BackendApiService } from '../../core/api/backend-api.service';
-import { AuthSessionService } from '../../core/auth/auth-session.service';
+import {Component, EventEmitter, inject, Input, OnChanges, Output, signal} from '@angular/core';
+import {MatCardModule} from '@angular/material/card';
+import {MatTableModule} from '@angular/material/table';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {TranslateModule} from '@ngx-translate/core';
+import {PatientQrCardComponent} from './patient-qr-card.component';
+import {BackendApiService} from '../../core/api/backend-api.service';
+import {AuthSessionService} from '../../core/auth/auth-session.service';
 
 export interface PatientRow {
   id: string;
@@ -144,11 +144,16 @@ export interface PatientRow {
     </mat-card>
   `,
   styles: [`
-    .list-card { padding: 8px; }
+    .list-card {
+      padding: 10px;
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      box-shadow: var(--app-shadow);
+    }
 
     .header-icon {
-      background: #e8f5e9;
-      color: #1b5e20;
+      background: var(--app-primary-soft);
+      color: var(--app-primary);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -161,7 +166,8 @@ export interface PatientRow {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
     }
     .btn-new { margin-left: auto; }
 
@@ -170,7 +176,8 @@ export interface PatientRow {
     .table-container {
       overflow-x: auto;
       border-radius: 12px;
-      border: 1px solid #e8efe9;
+      border: 1px solid var(--app-border);
+      background: var(--app-surface);
     }
 
     .patient-table {
@@ -178,12 +185,12 @@ export interface PatientRow {
     }
 
     .patient-row:hover {
-      background: #f0fdf4 !important;
+      background: color-mix(in srgb, var(--app-primary-soft) 70%, white) !important;
     }
 
     th.mat-mdc-header-cell {
       font-weight: 700;
-      color: #1b5e20;
+      color: var(--app-primary);
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -193,10 +200,10 @@ export interface PatientRow {
       font-family: 'Courier New', monospace;
       font-size: 12px;
       padding: 2px 8px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
+      background: var(--app-primary-soft);
+      border: 1px solid var(--app-primary-outline);
       border-radius: 6px;
-      color: #166534;
+      color: var(--app-primary);
     }
 
     .mono {
@@ -220,8 +227,8 @@ export interface PatientRow {
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.3px;
-      background: #e8f5e9;
-      color: #1b5e20;
+      background: var(--app-primary-soft);
+      color: var(--app-primary);
     }
     .etat-badge[data-etat="DECEDE"] { background: #fee2e2; color: #991b1b; }
     .etat-badge[data-etat="TRANSFERE"] { background: #fef3c7; color: #92400e; }
@@ -232,7 +239,7 @@ export interface PatientRow {
       flex-direction: column;
       align-items: center;
       padding: 48px 24px;
-      color: #94a3b8;
+      color: var(--app-muted);
 
       mat-icon {
         font-size: 48px;
@@ -307,8 +314,7 @@ export class PatientListComponent implements OnChanges {
     this.api.printDocument(centerId, 'LISTE_PATIENTS', {}, 'EXCEL').subscribe({
       next: (blob: Blob) => {
         const a = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        a.href = url;
+        a.href = URL.createObjectURL(blob);
         a.download = 'liste-patients.xls';
         a.click();
       },

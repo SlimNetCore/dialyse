@@ -1,16 +1,17 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
-import { AuthSessionService } from '../auth/auth-session.service';
-import { LangService } from '../i18n/lang.service';
-import { WebSocketService } from '../ws/websocket.service';
-import { NotificationBellComponent } from './notification-bell.component';
-import { filter } from 'rxjs/operators';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {TranslateModule} from '@ngx-translate/core';
+import {AuthSessionService} from '../auth/auth-session.service';
+import {LangService} from '../i18n/lang.service';
+import {ThemeService} from '../theme/theme.service';
+import {WebSocketService} from '../ws/websocket.service';
+import {NotificationBellComponent} from './notification-bell.component';
+import {filter} from 'rxjs/operators';
 
 @Component({
   selector: 'app-shell',
@@ -39,6 +40,19 @@ import { filter } from 'rxjs/operators';
           @for (l of lang.languages; track l.code) {
             <button mat-menu-item (click)="lang.setLang(l.code)" [class.active-lang]="lang.currentLang() === l.code">
               <span class="lang-flag">{{ l.flag }}</span> <span>{{ l.label }}</span>
+            </button>
+          }
+        </mat-menu>
+
+        <!-- Theme switcher -->
+        <button mat-icon-button [matMenuTriggerFor]="themeMenu" class="theme-btn" [matTooltip]="'THEME.TITLE' | translate">
+          <mat-icon>palette</mat-icon>
+        </button>
+        <mat-menu #themeMenu="matMenu">
+          @for (t of theme.themes; track t.code) {
+            <button mat-menu-item (click)="theme.setTheme(t.code)" [class.active-theme]="theme.currentTheme() === t.code">
+              <mat-icon>{{ theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+              {{ t.i18nKey | translate }}
             </button>
           }
         </mat-menu>
@@ -100,29 +114,34 @@ import { filter } from 'rxjs/operators';
     </div>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; height: 100vh; --green-dark: #1b5e20; --green-mid: #2e7d32; }
+    :host { display: flex; flex-direction: column; height: 100vh; }
     .topbar {
       display: flex; justify-content: space-between; align-items: center;
-      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, #388e3c 100%);
-      color: #fff; padding: 0 24px; height: 56px; z-index: 100;
+      background: var(--app-surface);
+      border-bottom: 1px solid var(--app-border);
+      color: var(--app-text);
+      padding: 0 20px;
+      height: 60px;
+      z-index: 100;
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; color: var(--app-primary); }
     .topbar-right { display: flex; align-items: center; gap: 8px; }
     .user-btn {
       display: flex; align-items: center; gap: 6px; font-size: 13px;
-      color: rgba(255,255,255,0.9) !important;
-      --mdc-text-button-label-text-color: rgba(255,255,255,0.9) !important;
+      color: var(--app-text) !important;
+      --mdc-text-button-label-text-color: var(--app-text) !important;
     }
     .user-name { margin-left: 2px; }
-    .separator { margin: 0 8px; opacity: 0.7; }
+    .separator { margin: 0 8px; color: var(--app-muted); }
     .center-name { margin-left: 2px; font-weight: 500; }
-    .lang-btn { color: rgba(255,255,255,0.9) !important; }
+    .lang-btn, .theme-btn { color: var(--app-text) !important; }
     .lang-flag { margin-right: 8px; font-size: 18px; }
+    .active-theme { color: var(--app-primary); font-weight: 600; }
 
     .shell-body { display: flex; flex: 1; overflow: hidden; }
 
     .sidebar {
-      width: 56px; min-height: 100%; background: #f5faf6; border-right: 1px solid #e8efe9;
+      width: 56px; min-height: 100%; background: var(--app-surface); border-right: 1px solid var(--app-border);
       display: flex; flex-direction: column; padding-top: 8px; transition: width 0.2s ease;
       overflow: hidden; z-index: 50;
     }
@@ -130,29 +149,29 @@ import { filter } from 'rxjs/operators';
 
     .nav-item {
       display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-      color: #37474f; text-decoration: none; font-size: 14px; font-weight: 500;
+      color: var(--app-muted); text-decoration: none; font-size: 14px; font-weight: 500;
       border-left: 3px solid transparent; transition: all 0.15s;
       white-space: nowrap;
     }
-    .nav-item:hover { background: #e8f5e9; color: var(--green-dark); }
+    .nav-item:hover { background: var(--app-primary-soft); color: var(--app-primary); }
     .nav-item.active-nav {
-      background: #e8f5e9; color: var(--green-dark);
-      border-left-color: var(--green-dark); font-weight: 600;
+      background: var(--app-primary-soft); color: var(--app-primary);
+      border-left-color: var(--app-primary); font-weight: 600;
     }
     .nav-item mat-icon { min-width: 24px; }
 
-    .content { flex: 1; overflow-y: auto; padding: 24px; background: #fbfdfc; }
-    .breadcrumb { display:flex; align-items:center; gap:4px; margin-bottom:10px; color:#6b7280; font-size:12px; }
-    .crumb.last { color:#1b5e20; font-weight:600; }
-    .crumb-btn { border:0; background:transparent; cursor:pointer; color:#6b7280; font-size:12px; padding:0; }
-    .crumb-btn:hover { color:#1b5e20; text-decoration:underline; }
-    .crumb-btn.last { color:#1b5e20; font-weight:600; cursor:default; text-decoration:none; }
+    .content { flex: 1; overflow-y: auto; padding: 20px; background: var(--app-bg); }
+    .breadcrumb { display:flex; align-items:center; gap:4px; margin-bottom:10px; color:var(--app-muted); font-size:12px; }
+    .crumb-btn { border:0; background:transparent; cursor:pointer; color:var(--app-muted); font-size:12px; padding:0; }
+    .crumb-btn:hover { color:var(--app-primary); text-decoration:underline; }
+    .crumb-btn.last { color:var(--app-primary); font-weight:600; cursor:default; text-decoration:none; }
     .sep { font-size:16px; width:16px; height:16px; color:#9ca3af; }
   `]
 })
 export class ShellComponent implements OnInit {
   readonly auth = inject(AuthSessionService);
   readonly lang = inject(LangService);
+  readonly theme = inject(ThemeService);
   readonly router = inject(Router);
   private readonly ws = inject(WebSocketService);
   readonly sidebarExpanded = signal(false);

@@ -1,17 +1,17 @@
-import { Component, OnInit, Output, EventEmitter, inject, signal, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { TranslateModule } from '@ngx-translate/core';
-import { BackendApiService } from '../../../core/api/backend-api.service';
-import { AppShellStore } from '../../../core/state/app-shell.store';
-import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatDialog} from '@angular/material/dialog';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {BackendApiService} from '../../../core/api/backend-api.service';
+import {AppShellStore} from '../../../core/state/app-shell.store';
+import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
 
 @Component({
   selector: 'app-step-attestation',
@@ -52,11 +52,11 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component
           @if (selectedAttestation()) {
             <div class="detail-card">
               <div class="detail-head">
-                <strong>Attestation selectionnee</strong>
+                <strong>{{ 'WIZARD.ATTESTATION_SELECTED' | translate }}</strong>
                 <div class="detail-actions">
                   <button type="button" mat-stroked-button color="warn" (click)="deleteSelected()" [disabled]="readonly || !selectedAttestationId()">
                     <mat-icon>delete</mat-icon>
-                    Supprimer
+                    {{ 'COMMON.DELETE' | translate }}
                   </button>
                   <button type="button" mat-stroked-button (click)="printSelected()" [disabled]="!patientId">
                     <mat-icon>print</mat-icon>
@@ -65,9 +65,9 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component
                 </div>
               </div>
               <div class="detail-grid">
-                <span>Debut</span><strong>{{ selectedAttestation()?.dateDebut || selectedAttestation()?.DATE_DEBUT || '—' }}</strong>
-                <span>Fin</span><strong>{{ selectedAttestation()?.dateFin || selectedAttestation()?.DATE_FIN || '—' }}</strong>
-                <span>Statut</span><strong>{{ selectedAttestation()?.statut || selectedAttestation()?.STATUT || '—' }}</strong>
+                <span>{{ 'WIZARD.FIELD_START' | translate }}</span><strong>{{ selectedAttestation()?.dateDebut || selectedAttestation()?.DATE_DEBUT || '—' }}</strong>
+                <span>{{ 'WIZARD.FIELD_END' | translate }}</span><strong>{{ selectedAttestation()?.dateFin || selectedAttestation()?.DATE_FIN || '—' }}</strong>
+                <span>{{ 'WIZARD.FIELD_STATUS' | translate }}</span><strong>{{ selectedAttestation()?.statut || selectedAttestation()?.STATUT || '—' }}</strong>
               </div>
             </div>
           }
@@ -99,33 +99,33 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component
     </div>
   `,
   styles: [`
-    .step-content { padding: 14px 20px 20px; }
+    .step-content { padding: 14px 18px 18px; }
     .att-grid { display:grid; grid-template-columns: 320px 1fr; gap: 18px; align-items:start; }
     .history-pane {
-      border:1px solid #d9e7dd; border-radius:12px; padding:12px;
-      background: linear-gradient(180deg, #f7fcf8 0%, #f1f8f3 100%);
-      box-shadow: 0 6px 18px rgba(27,94,32,.06);
+      border:1px solid var(--app-border); border-radius:12px; padding:12px;
+      background: var(--app-surface);
+      box-shadow: var(--app-shadow);
       min-height:160px;
     }
     .history-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
-    .empty { color:#888; font-style:italic; }
+    .empty { color:var(--app-muted); font-style:italic; }
     .history-list { display:flex; flex-direction:column; gap:6px; }
     .history-item {
-      font-size:12px; color:#375a3f; padding:8px 10px;
+      font-size:12px; color:var(--app-text); padding:8px 10px;
       display:flex; justify-content:space-between; align-items:center;
-      border:1px solid #dbe8de;
+      border:1px solid var(--app-border);
       border-radius:10px;
-      background:#fff;
+      background:var(--app-surface);
       cursor:pointer;
       text-align:left;
     }
-    .history-item.active { background:#e9f6ed; border-color:#b9ddc2; }
-    .add-btn { --mdc-filled-button-container-color:#1b5e20; --mdc-filled-button-label-text-color:#fff; }
-    .section-title { color: #1b5e20; font-size: 1.02rem; font-weight: 700; margin: 0 0 8px; }
+    .history-item.active { background:var(--app-primary-soft); border-color:var(--app-primary-outline); }
+    .add-btn { --mdc-filled-button-container-color:var(--app-primary); --mdc-filled-button-label-text-color:#fff; }
+    .section-title { color: var(--app-text); font-size: 1.02rem; font-weight: 700; margin: 0 0 8px; }
     .info-text { color: #6b7280; margin-bottom: 14px; font-size: 13px; }
     .detail-card {
-      background:#fff;
-      border:1px solid #deebdf;
+      background:var(--app-surface);
+      border:1px solid var(--app-border);
       border-radius:12px;
       padding:10px 12px;
       margin-bottom:12px;
@@ -138,6 +138,14 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
+
+    @media (max-width: 980px) {
+      .att-grid { grid-template-columns: 1fr; }
+      .history-pane { min-height: auto; }
+      .detail-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .detail-actions { width: 100%; flex-wrap: wrap; }
+      .detail-grid { grid-template-columns: 90px 1fr; }
+    }
   `]
 })
 export class StepAttestationComponent implements OnInit, OnChanges {
@@ -151,6 +159,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   private readonly store = inject(AppShellStore);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
 
   history = signal<any[]>([]);
   selectedAttestationId = signal<string | null>(null);
@@ -234,7 +243,11 @@ export class StepAttestationComponent implements OnInit, OnChanges {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
       },
-      error: (err) => this.snackBar.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 4000 })
+      error: (err) => this.snackBar.open(
+        this.translate.instant('WIZARD.PRINT_ERROR', {detail: (err?.error?.text || err.message)}),
+        'OK',
+        {duration: 4000}
+      )
     });
   }
 
@@ -247,10 +260,10 @@ export class StepAttestationComponent implements OnInit, OnChanges {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: '440px',
       data: {
-        title: 'Supprimer l\'attestation',
-        message: 'Êtes-vous sûr de vouloir supprimer cette attestation ? Cette action est irréversible.',
-        confirmLabel: 'Supprimer',
-        cancelLabel: 'Annuler',
+        title: this.translate.instant('WIZARD.DELETE_ATTESTATION_TITLE'),
+        message: this.translate.instant('WIZARD.DELETE_ATTESTATION_CONFIRM'),
+        confirmLabel: this.translate.instant('COMMON.DELETE'),
+        cancelLabel: this.translate.instant('PEC_ADMIN.CANCEL'),
         color: 'warn',
         icon: 'delete'
       }
@@ -262,10 +275,14 @@ export class StepAttestationComponent implements OnInit, OnChanges {
         next: () => {
           this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
           this.prepareNew();
-          this.snackBar.open('Attestation supprimée', 'OK', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('WIZARD.ATTESTATION_DELETED_OK'), 'OK', {duration: 3000});
           this.deleteRequest.emit({ type: 'ATTESTATION', id });
         },
-        error: (err) => this.snackBar.open('Erreur suppression: ' + (err?.error?.detail || err.message), 'OK', { duration: 4000 })
+        error: (err) => this.snackBar.open(
+          this.translate.instant('WIZARD.DELETE_ERROR', {detail: (err?.error?.detail || err.message)}),
+          'OK',
+          {duration: 4000}
+        )
       });
     });
   }

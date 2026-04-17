@@ -1,11 +1,11 @@
-import { Component, inject, computed, signal } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
-import { WebSocketService, WsEvent } from '../ws/websocket.service';
-import { DatePipe, JsonPipe } from '@angular/common';
+import {Component, computed, inject, signal} from '@angular/core';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {WebSocketService, WsEvent} from '../ws/websocket.service';
+import {DatePipe, JsonPipe} from '@angular/common';
 
 @Component({
   selector: 'app-notification-bell',
@@ -36,10 +36,10 @@ import { DatePipe, JsonPipe } from '@angular/common';
 
         <div class="tabs">
           <button class="tab" [class.active]="activeTab() === 'unread'" (click)="activeTab.set('unread')">
-            Non lu ({{ unreadEvents().length }})
+            {{ 'NOTIFICATION.UNREAD_TAB' | translate }} ({{ unreadEvents().length }})
           </button>
           <button class="tab" [class.active]="activeTab() === 'read'" (click)="activeTab.set('read')">
-            Lu ({{ readEvents().length }})
+            {{ 'NOTIFICATION.READ_TAB' | translate }} ({{ readEvents().length }})
           </button>
         </div>
 
@@ -56,7 +56,7 @@ import { DatePipe, JsonPipe } from '@angular/common';
                   <div class="message-text">{{ textFor(evt) }}</div>
                   <div class="message-meta">
                     <span>{{ evt.timestamp | date:'short' }}</span>
-                    <span>{{ isRead(evt) ? 'Lu' : 'Non lu' }}</span>
+                    <span>{{ isRead(evt) ? ('NOTIFICATION.READ_STATUS' | translate) : ('NOTIFICATION.UNREAD_STATUS' | translate) }}</span>
                   </div>
                 </div>
               </button>
@@ -66,11 +66,11 @@ import { DatePipe, JsonPipe } from '@angular/common';
           <aside class="message-detail">
             @if (selectedEvent()) {
               <h4>{{ textFor(selectedEvent()!) }}</h4>
-              <p><strong>Type:</strong> {{ selectedEvent()!.type }}</p>
-              <p><strong>Date:</strong> {{ selectedEvent()!.timestamp | date:'full' }}</p>
+              <p><strong>{{ 'NOTIFICATION.DETAIL_TYPE' | translate }}:</strong> {{ selectedEvent()!.type }}</p>
+              <p><strong>{{ 'NOTIFICATION.DETAIL_DATE' | translate }}:</strong> {{ selectedEvent()!.timestamp | date:'full' }}</p>
               <pre>{{ selectedEvent()!.payload | json }}</pre>
             } @else {
-              <p class="empty-detail">Sélectionnez un message pour voir le détail.</p>
+              <p class="empty-detail">{{ 'NOTIFICATION.DETAIL_SELECT' | translate }}</p>
             }
           </aside>
         </div>
@@ -78,10 +78,10 @@ import { DatePipe, JsonPipe } from '@angular/common';
     }
   `,
   styles: [`
-    .notif-btn { color: rgba(255,255,255,0.9) !important; position: relative; }
+    .notif-btn { color: var(--app-text) !important; position: relative; }
     .ws-dot {
       position: absolute; bottom: 6px; right: 6px; width: 9px; height: 9px;
-      border-radius: 50%; border: 1.5px solid #fff; z-index: 5;
+      border-radius: 50%; border: 1.5px solid var(--app-surface); z-index: 5;
     }
     .bell-pulse { animation: bellPulse 1.2s ease-in-out infinite; transform-origin: top center; }
     @keyframes bellPulse {
@@ -94,60 +94,94 @@ import { DatePipe, JsonPipe } from '@angular/common';
     }
 
     .notif-overlay {
-      position: fixed; inset: 0; background: rgba(9, 30, 66, 0.28); z-index: 1100;
+      position: fixed; inset: 0; background: rgba(2, 6, 23, 0.22); z-index: 1100;
     }
     .notif-panel {
       position: fixed; top: 64px; right: 22px; width: 760px; max-width: calc(100vw - 44px);
-      height: 72vh; background: #fff; border-radius: 14px; z-index: 1110;
-      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22); display: flex; flex-direction: column;
+      height: 72vh; background: var(--app-surface); border-radius: 14px; z-index: 1110;
+      border: 1px solid var(--app-border);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18); display: flex; flex-direction: column;
       overflow: hidden;
     }
     .panel-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 14px; border-bottom: 1px solid #e7ecef;
-      background: linear-gradient(180deg, #f7fcf8, #ffffff);
+      padding: 10px 14px; border-bottom: 1px solid var(--app-border);
+      background: var(--app-surface-soft);
     }
     .title-wrap { display: flex; align-items: center; gap: 8px; }
-    .title-wrap h3 { margin: 0; font-size: 1rem; color: #134e4a; }
+    .title-wrap h3 { margin: 0; font-size: 1rem; color: var(--app-text); }
     .panel-actions { display: flex; align-items: center; gap: 8px; }
-    .mark-read { color: #1b5e20; }
+    .mark-read { color: var(--app-primary); }
 
-    .tabs { display: flex; border-bottom: 1px solid #eef2f1; }
+    .tabs { display: flex; border-bottom: 1px solid var(--app-border); }
     .tab {
       flex: 1; border: none; background: transparent; padding: 10px 14px;
-      font-weight: 600; color: #607d8b; cursor: pointer;
+      font-weight: 600; color: var(--app-muted); cursor: pointer;
     }
-    .tab.active { color: #1b5e20; border-bottom: 3px solid #1b5e20; }
+    .tab.active { color: var(--app-primary); border-bottom: 3px solid var(--app-primary); }
 
     .panel-content { display: grid; grid-template-columns: 1.1fr 0.9fr; min-height: 0; flex: 1; }
-    .message-list { overflow: auto; border-right: 1px solid #eef2f1; }
+    .message-list { overflow: auto; border-right: 1px solid var(--app-border); }
     .message-item {
-      width: 100%; border: none; background: #fff; text-align: left; cursor: pointer;
+      width: 100%; border: none; background: var(--app-surface); text-align: left; cursor: pointer;
       display: flex; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #f2f4f7;
     }
-    .message-item.unread { background: #f3fbf5; border-left: 3px solid #2e7d32; }
-    .message-item.selected { background: #e8f5e9; }
+    .message-item.unread { background: var(--app-primary-soft); border-left: 3px solid var(--app-primary); }
+    .message-item.selected { background: color-mix(in srgb, var(--app-primary-soft) 75%, white); }
     .message-main { flex: 1; min-width: 0; }
     .message-text { font-size: 13px; color: #1f2937; line-height: 1.25; }
     .message-meta { font-size: 11px; color: #6b7280; margin-top: 3px; display: flex; justify-content: space-between; }
 
     .notif-icon { font-size: 19px; width: 19px; height: 19px; margin-top: 2px; }
-    .notif-icon.patient { color: #1b5e20; }
+    .notif-icon.patient { color: var(--app-primary); }
     .notif-icon.pec { color: #1565c0; }
     .notif-icon.warning { color: #e65100; }
 
-    .message-detail { padding: 14px; overflow: auto; background: #fbfdfc; }
+    .message-detail { padding: 14px; overflow: auto; background: var(--app-surface-soft); }
     .message-detail h4 { margin: 0 0 10px; color: #0f172a; }
     .message-detail p { margin: 6px 0; font-size: 13px; }
     .message-detail pre {
-      white-space: pre-wrap; font-size: 12px; background: #f8fafc;
-      border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;
+      white-space: pre-wrap; font-size: 12px; background: var(--app-surface);
+      border: 1px solid var(--app-border); border-radius: 8px; padding: 10px;
     }
     .notif-empty, .empty-detail { color: #8a9099; padding: 14px; font-size: 13px; }
+
+    @media (max-width: 1100px) {
+      .notif-panel {
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
+        right: 10px;
+        top: 62px;
+        height: 78vh;
+      }
+      .panel-content { grid-template-columns: 1fr; }
+      .message-list { border-right: 0; border-bottom: 1px solid var(--app-border); max-height: 45%; }
+      .message-detail { min-height: 55%; }
+    }
+
+    @media (max-width: 700px) {
+      .notif-panel {
+        top: 56px;
+        right: 0;
+        width: 100vw;
+        max-width: 100vw;
+        height: calc(100vh - 56px);
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+      }
+      .panel-header { padding: 8px 10px; }
+      .tab { padding: 9px 8px; font-size: 12px; }
+      .message-item { padding: 10px; }
+      .message-text { font-size: 12px; }
+      .message-meta { font-size: 10px; }
+    }
   `]
 })
 export class NotificationBellComponent {
   readonly ws = inject(WebSocketService);
+  private readonly translate = inject(TranslateService);
 
   readonly open = signal(false);
   readonly activeTab = signal<'unread' | 'read'>('unread');
@@ -165,9 +199,12 @@ export class NotificationBellComponent {
   readonly unreadCount = computed(() => this.unreadEvents().length);
   readonly wsTooltip = computed(() => {
     switch (this.ws.connectionStatus()) {
-      case 'stable': return 'Connexion temps réel : stable';
-      case 'interrupted': return 'Connexion temps réel : interrompue';
-      case 'impossible': return 'Connexion temps réel : impossible';
+      case 'stable':
+        return this.translate.instant('NOTIFICATION.WS_STABLE');
+      case 'interrupted':
+        return this.translate.instant('NOTIFICATION.WS_INTERRUPTED');
+      case 'impossible':
+        return this.translate.instant('NOTIFICATION.WS_IMPOSSIBLE');
     }
   });
 
@@ -227,9 +264,14 @@ export class NotificationBellComponent {
 
   textFor(evt: WsEvent): string {
     switch (evt.type) {
-      case 'PATIENT_CREATED': return `Nouveau patient: ${evt.payload['nom']} ${evt.payload['prenom']}`;
-      case 'PEC_VALIDATED': return `PEC validee: ${evt.payload['patientNom']}`;
-      case 'PEC_CLOSED': return `PEC cloturee: ${evt.payload['patientNom']}`;
+      case 'PATIENT_CREATED': {
+        const nomComplet = `${evt.payload['nom'] ?? ''} ${evt.payload['prenom'] ?? ''}`.trim();
+        return this.translate.instant('NOTIFICATION.PATIENT_CREATED', {nom: nomComplet});
+      }
+      case 'PEC_VALIDATED':
+        return this.translate.instant('NOTIFICATION.PEC_VALIDATED', {nom: evt.payload['patientNom'] ?? ''});
+      case 'PEC_CLOSED':
+        return this.translate.instant('NOTIFICATION.PEC_CLOSED', {nom: evt.payload['patientNom'] ?? ''});
       default: return evt.type;
     }
   }

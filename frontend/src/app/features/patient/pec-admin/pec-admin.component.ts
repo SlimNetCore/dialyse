@@ -1,22 +1,22 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatCardModule } from '@angular/material/card';
-import { SlicePipe } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { BackendApiService } from '../../../core/api/backend-api.service';
-import { AppShellStore } from '../../../core/state/app-shell.store';
-import { AuthSessionService } from '../../../core/auth/auth-session.service';
-import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
-import { ReferentialApiService } from '../../../core/api/referential-api.service';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatTableModule} from '@angular/material/table';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatCardModule} from '@angular/material/card';
+import {SlicePipe} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {BackendApiService} from '../../../core/api/backend-api.service';
+import {AppShellStore} from '../../../core/state/app-shell.store';
+import {AuthSessionService} from '../../../core/auth/auth-session.service';
+import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
+import {ReferentialApiService} from '../../../core/api/referential-api.service';
 
 @Component({
   selector: 'app-pec-admin',
@@ -60,6 +60,7 @@ import { ReferentialApiService } from '../../../core/api/referential-api.service
       }
 
       @if (pecs().length > 0) {
+        <div class="table-wrap">
         <table mat-table [dataSource]="pecs()" class="pec-table">
           <ng-container matColumnDef="patientId">
             <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_PATIENT' | translate }}</th>
@@ -98,6 +99,7 @@ import { ReferentialApiService } from '../../../core/api/referential-api.service
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
           <tr mat-row *matRowDef="let row; columns: columns"></tr>
         </table>
+        </div>
       }
 
       <!-- Inline validation form -->
@@ -134,20 +136,33 @@ import { ReferentialApiService } from '../../../core/api/referential-api.service
     </div>
   `,
   styles: [`
-    .pec-admin { max-width: 1100px; margin: 0 auto; }
+    .pec-admin { max-width: 1160px; margin: 0 auto; }
     .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 16px; }
     .header-left { display: flex; gap: 12px; align-items: flex-start; }
-    .header-icon { font-size: 32px; width: 32px; height: 32px; color: #1b5e20; margin-top: 4px; }
-    h2 { color: #1b5e20; margin: 0 0 4px; font-size: 1.3rem; }
-    .desc { color: #666; margin: 0; font-size: 14px; }
-    .center-card { padding: 12px 20px !important; background: linear-gradient(135deg, #e8f5e9, #f1f8e9) !important; }
+    .header-icon { font-size: 32px; width: 32px; height: 32px; color: var(--app-primary); margin-top: 4px; }
+    h2 { color: var(--app-text); margin: 0 0 4px; font-size: 1.25rem; }
+    .desc { color: var(--app-muted); margin: 0; font-size: 14px; }
+    .center-card {
+      padding: 12px 20px !important;
+      background: var(--app-surface) !important;
+      border: 1px solid var(--app-border);
+      box-shadow: var(--app-shadow);
+    }
     .center-info { display: flex; align-items: center; gap: 10px; }
-    .center-info mat-icon { color: #1b5e20; font-size: 28px; width: 28px; height: 28px; }
-    .center-label { display: block; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-    .center-name { display: block; font-weight: 600; color: #1b5e20; font-size: 15px; }
-    .empty-state { text-align: center; padding: 48px 0; color: #aaa; }
+    .center-info mat-icon { color: var(--app-primary); font-size: 28px; width: 28px; height: 28px; }
+    .center-label { display: block; font-size: 11px; color: var(--app-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .center-name { display: block; font-weight: 600; color: var(--app-primary); font-size: 15px; }
+    .empty-state { text-align: center; padding: 48px 0; color: var(--app-muted); }
     .empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 8px; }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+      background: var(--app-surface);
+    }
     .pec-table { width: 100%; }
+    .pec-table .mat-mdc-header-cell { color: var(--app-primary); font-weight: 700; }
+    .pec-table .mat-mdc-row:hover { background: color-mix(in srgb, var(--app-primary-soft) 70%, white); }
     .status-badge {
       display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
     }
@@ -157,10 +172,16 @@ import { ReferentialApiService } from '../../../core/api/referential-api.service
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
     .validate-btn {
-      --mdc-filled-button-container-color: #1b5e20 !important;
+      --mdc-filled-button-container-color: var(--app-primary) !important;
       --mdc-filled-button-label-text-color: #fff !important;
     }
-    .validate-card { margin-top: 20px; padding: 16px; }
+    .validate-card {
+      margin-top: 20px;
+      padding: 16px;
+      border: 1px solid var(--app-border);
+      box-shadow: var(--app-shadow);
+      background: var(--app-surface);
+    }
   `]
 })
 export class PecAdminComponent implements OnInit {
