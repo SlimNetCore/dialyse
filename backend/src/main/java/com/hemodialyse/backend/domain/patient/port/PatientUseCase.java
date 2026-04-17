@@ -34,6 +34,7 @@ public interface PatientUseCase {
         // Step 2 — Assurance
         String numeroAssurance,
         UUID centrePayeurId,
+        String assureNumeroAssurance,
         String assureSexe, String assureNom, String assurePrenom,
         String assureDateNaissance, String assureTelPersonnel, String assureAdresse,
         String assureGroupeSanguin, String assureTelMobile, String assureTelBureau,

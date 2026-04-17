@@ -42,6 +42,7 @@ export type CreatePatientPayload = {
   ferDate?: string;
   photoBase64?: string;
   centrePayeurId?: string | null;
+  assureNumeroAssurance?: string;
   medecinTraitantId?: string | null;
   salleId?: string | null;
   positionId?: string | null;
@@ -100,6 +101,22 @@ export class BackendApiService {
 
   updatePatient(patientId: string, payload: CreatePatientPayload): Observable<{ id: string; centerId: string; typePatient: PatientType }> {
     return this.http.put<{ id: string; centerId: string; typePatient: PatientType }>(`${this.baseUrl}/patients/${patientId}`, payload);
+  }
+
+  searchAssures(centerId: string, q?: string): Observable<any[]> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (q && q.trim()) params = params.set('q', q.trim());
+    return this.http.get<any[]>(`${this.baseUrl}/patients/assures`, { params });
+  }
+
+  assignAssureToPatient(centerId: string, patientId: string, numeroAssurance: string): Observable<any> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/assures/${encodeURIComponent(numeroAssurance)}/affecter`, {}, { params });
+  }
+
+  listPatientAssureHistory(centerId: string, patientId: string): Observable<any[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<any[]>(`${this.baseUrl}/patients/${patientId}/assures/history`, { params });
   }
 
   createPec(payload: CreatePecPayload): Observable<{ id: string; status: PecStatus }> {

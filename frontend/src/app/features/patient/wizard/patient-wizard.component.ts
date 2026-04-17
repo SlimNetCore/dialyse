@@ -57,7 +57,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
         <!-- Step 2: Assurance -->
         <mat-step [label]="'WIZARD.STEP_ASSURANCE' | translate" [completed]="step2Valid()" [editable]="true">
           @if (shouldRenderStep(1)) {
-            <app-step-assurance #stepAss [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
+            <app-step-assurance #stepAss [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined" (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
           }
         </mat-step>
 
@@ -507,6 +507,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       jourSamedi: d['jourSamedi'] || false,
       attestationId: d['attestationId'] ?? undefined,
       attestationDebut: toDate(d['attestationDebut']), attestationFin: toDate(d['attestationFin']),
+      assureNumeroAssurance: d['assureNumeroAssurance'],
       assureNom: d['assureNom'], assurePrenom: d['assurePrenom'], assureSexe: d['assureSexe'],
       assureDateNaissance: toDate(d['assureDateNaissance']),
       assureTelPersonnel: d['assureTelPersonnel'], assureAdresse: d['assureAdresse'],

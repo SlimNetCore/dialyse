@@ -8,9 +8,11 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
 import { ReferentialApiService, CentrePayeurDetail } from '../../../core/api/referential-api.service';
+import { BackendApiService } from '../../../core/api/backend-api.service';
 import { AppShellStore } from '../../../core/state/app-shell.store';
 
 @Component({
@@ -65,8 +67,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
 
         <mat-divider style="margin: 16px 0;" />
 
-        @if (showAssure()) {
-          <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}</h3>
+        <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="flex1">
               <mat-label>N° Assurance assuré @if (requiresAssureNumero()) { * }</mat-label>
@@ -144,24 +145,67 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             <mat-icon matPrefix>home</mat-icon>
             <input matInput formControlName="assureAdresse" />
           </mat-form-field>
-        } @else {
-          <p style="color:#888; font-style:italic;">{{ 'WIZARD.ASSURE_SAME_AS_PATIENT' | translate }}</p>
-        }
 
+          <div class="form-row" style="justify-content:flex-end; gap:8px; margin-top: 8px;">
+            <button mat-stroked-button type="button" (click)="toggleAssureCatalog()" [disabled]="readonly || !canAssignAssure()">
+              <mat-icon>manage_search</mat-icon>
+              Consulter les assurés
+            </button>
+            <button mat-stroked-button type="button" (click)="toggleAssureHistory()" [disabled]="!patientId">
+              <mat-icon>history</mat-icon>
+              Historique des affectations
+            </button>
+          </div>
+
+          @if (showCatalog()) {
+            <div class="history-box">
+              <div class="history-title">Catalogue des assurés</div>
+              <div class="form-row" style="margin-bottom:0;">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Rechercher (N° assurance / nom / prénom)</mat-label>
+                  <mat-icon matPrefix>search</mat-icon>
+                  <input matInput [value]="assureSearch()" (input)="assureSearch.set($any($event.target).value)" />
+                </mat-form-field>
+                <button mat-flat-button type="button" (click)="searchAssures()" [disabled]="loadingAssures()">
+                  <mat-icon>search</mat-icon>
+                  Rechercher
+                </button>
+              </div>
+              @for (a of assureCatalog(); track a.numeroAssurance) {
+                <div class="assure-row">
+                  <div>
+                    <strong>{{ a.nom }} {{ a.prenom }}</strong>
+                    <div class="muted">{{ a.numeroAssurance }} • {{ a.sexe || '—' }}</div>
+                  </div>
+                  <button mat-stroked-button type="button" (click)="affectAssure(a)" [disabled]="readonly || !canAssignAssure()">
+                    <mat-icon>person_add_alt_1</mat-icon>
+                    Affecter au patient
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          @if (showHistory()) {
+            <div class="history-box">
+              <div class="history-title">Historique d'affectation</div>
+              @for (h of assureAssignments(); track h.numeroAssurance + '-' + h.dateAffectation) {
+                <div class="history-item">
+                  {{ h.nom }} {{ h.prenom }} - {{ h.numeroAssurance }} - {{ h.dateAffectation || '—' }}
+                  @if (h.isPrimary) { <strong> (primaire)</strong> }
+                </div>
+              }
+              @if (assureAssignments().length === 0) {
+                <div class="history-item">Aucun historique d'affectation</div>
+              }
+            </div>
+          }
         <div class="form-row" style="justify-content:flex-end; margin-top: 16px;">
-          <button mat-stroked-button type="button" (click)="addAssureToHistory()" [disabled]="readonly">
+          <button mat-stroked-button type="button" (click)="prepareNewAssure()" [disabled]="readonly">
             <mat-icon>person_add</mat-icon>
             {{ 'WIZARD.ADD_NEW_INSURED' | translate }}
           </button>
         </div>
-        @if (assureHistory().length > 0) {
-          <div class="history-box">
-            <div class="history-title">Historique assurés</div>
-            @for (a of assureHistory(); track $index) {
-              <div class="history-item">{{ a.nom }} {{ a.prenom }} - {{ a.numeroAssurance || '—' }} - {{ a.sexe || '—' }} - {{ a.dateNaissance || '—' }}</div>
-            }
-          </div>
-        }
       </form>
     </div>
   `,
@@ -178,16 +222,24 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
     .history-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; margin-top: 8px; background: #fafafa; }
     .history-title { font-weight: 600; color: #1b5e20; margin-bottom: 6px; }
     .history-item { font-size: 12px; color: #4b5563; margin-bottom: 2px; }
+    .assure-row {
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border:1px solid #e5e7eb; border-radius:8px; padding:8px 10px; margin-bottom:6px; background:#fff;
+    }
+    .muted { font-size: 12px; color: #6b7280; }
   `]
 })
 export class StepAssuranceComponent implements OnInit, OnChanges {
+  @Input() patientId?: string;
   @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
   private readonly refApi = inject(ReferentialApiService);
+  private readonly api = inject(BackendApiService);
   private readonly store = inject(AppShellStore);
+  private readonly snackBar = inject(MatSnackBar);
 
   centresPayeurs = signal<DropdownItem[]>([]);
   codeCentrePayeur = signal('');
@@ -195,10 +247,15 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   libelleAgence = signal('');
   libelleCaisse = signal('');
   private centresPayeursDetails = signal<CentrePayeurDetail[]>([]);
-  assureHistory = signal<Array<{nom: string; prenom: string; numeroAssurance: string; sexe: string; dateNaissance: string}>>([]);
-  showAssure = signal(false);
+  showAssure = signal(true);
   private qualiteAssure = signal<string>('ASSURE_LUI_MEME');
   requiresAssureNumero = signal(false);
+  assureSearch = signal('');
+  assureCatalog = signal<any[]>([]);
+  assureAssignments = signal<any[]>([]);
+  showCatalog = signal(false);
+  showHistory = signal(false);
+  loadingAssures = signal(false);
 
   form!: FormGroup;
 
@@ -239,6 +296,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['readonly']) this.applyReadonly();
+    if (changes['patientId'] && this.patientId) this.loadAssureHistory();
   }
 
   private applyReadonly(): void {
@@ -250,7 +308,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   setQualiteAssure(qa: string): void {
     this.qualiteAssure.set(qa || 'ASSURE_LUI_MEME');
     const needsAssure = !!(qa && qa !== 'ASSURE_LUI_MEME');
-    this.showAssure.set(needsAssure);
+    this.showAssure.set(true);
     const needsAssureNumero = ['ENFANT', 'CONJOINT', 'ASCENDANT', 'AUTRE'].includes(qa || '');
     this.requiresAssureNumero.set(needsAssureNumero);
     if (needsAssure) {
@@ -292,26 +350,78 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.libelleCaisse.set(details?.libelle_caisse ?? '');
   }
 
-  addAssureToHistory(): void {
-    if (!this.showAssure()) {
-      this.showAssure.set(true);
-      this.setQualiteAssure(this.qualiteAssure() === 'ASSURE_LUI_MEME' ? 'AUTRE' : this.qualiteAssure());
+  prepareNewAssure(): void {
+    if (!this.canAssignAssure()) {
+      this.snackBar.open('Pour ajouter/affecter un assuré, choisissez ENFANT/CONJOINT/ASCENDANT/AUTRE.', 'OK', { duration: 3500 });
       return;
     }
-    const v = this.form.value;
-    if (!v.assureNom || !v.assurePrenom) return;
-    if (this.requiresAssureNumero() && !v.assureNumeroAssurance) return;
-    this.assureHistory.set([
-      ...this.assureHistory(),
-      {
-        nom: v.assureNom,
-        prenom: v.assurePrenom,
-        numeroAssurance: v.assureNumeroAssurance || '',
-        sexe: v.assureSexe,
-        dateNaissance: v.assureDateNaissance ? new Date(v.assureDateNaissance).toISOString().slice(0, 10) : ''
-      }
-    ]);
-    this.dataChange.emit({ ...this.form.getRawValue(), assureHistory: this.assureHistory() });
+    this.form.patchValue({
+      assureNumeroAssurance: '',
+      assureNom: '',
+      assurePrenom: '',
+      assureSexe: '',
+      assureDateNaissance: null,
+      assureTelPersonnel: '',
+      assureTelMobile: '',
+      assureTelBureau: '',
+      assureAdresse: '',
+      assureGroupeSanguin: ''
+    });
+  }
+
+  canAssignAssure(): boolean {
+    return this.showAssure() && this.qualiteAssure() !== 'ASSURE_LUI_MEME';
+  }
+
+  toggleAssureCatalog(): void {
+    this.showCatalog.set(!this.showCatalog());
+    if (this.showCatalog() && this.assureCatalog().length === 0) this.searchAssures();
+  }
+
+  toggleAssureHistory(): void {
+    this.showHistory.set(!this.showHistory());
+    if (this.showHistory()) this.loadAssureHistory();
+  }
+
+  searchAssures(): void {
+    const centerId = this.store.currentCenterId();
+    if (!centerId) return;
+    this.loadingAssures.set(true);
+    this.api.searchAssures(centerId, this.assureSearch()).subscribe({
+      next: rows => { this.assureCatalog.set(rows ?? []); this.loadingAssures.set(false); },
+      error: () => { this.loadingAssures.set(false); this.snackBar.open('Erreur chargement des assurés', 'OK', { duration: 3000 }); }
+    });
+  }
+
+  private loadAssureHistory(): void {
+    const centerId = this.store.currentCenterId();
+    if (!centerId || !this.patientId) return;
+    this.api.listPatientAssureHistory(centerId, this.patientId).subscribe(rows => this.assureAssignments.set(rows ?? []));
+  }
+
+  affectAssure(a: any): void {
+    if (!this.canAssignAssure()) return;
+    const centerId = this.store.currentCenterId();
+    if (!centerId || !this.patientId) return;
+    this.api.assignAssureToPatient(centerId, this.patientId, a.numeroAssurance).subscribe({
+      next: () => {
+        this.form.patchValue({
+          assureNumeroAssurance: a.numeroAssurance,
+          assureNom: a.nom ?? '',
+          assurePrenom: a.prenom ?? '',
+          assureSexe: a.sexe ?? '',
+          assureDateNaissance: a.dateNaissance ?? null,
+          assureTelPersonnel: a.telPersonnel ?? '',
+          assureTelMobile: a.telMobile ?? '',
+          assureTelBureau: a.telBureau ?? '',
+          assureAdresse: a.adresse ?? '',
+          assureGroupeSanguin: a.groupeSanguin ?? ''
+        });
+        this.loadAssureHistory();
+        this.snackBar.open('Assuré affecté au patient', 'OK', { duration: 2500 });
+      },
+      error: (err) => this.snackBar.open(err?.error?.detail || 'Erreur affectation assuré', 'OK', { duration: 3500 })
+    });
   }
 
   markTouched(): void { this.form.markAllAsTouched(); }
@@ -328,19 +438,21 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       return null;
     };
 
+    const qualiteFromData = data['qualiteAssure'] ?? 'ASSURE_LUI_MEME';
+    const isSelf = qualiteFromData === 'ASSURE_LUI_MEME';
     const patch = {
       numeroAssurance: data['numeroAssurance'] ?? '',
       centrePayeurId: resolveCentrePayeurId(),
-      assureNumeroAssurance: data['assureNumeroAssurance'] ?? '',
-      assureNom: data['assureNom'] ?? '',
-      assurePrenom: data['assurePrenom'] ?? '',
-      assureSexe: data['assureSexe'] ?? '',
-      assureDateNaissance: data['assureDateNaissance'] ?? null,
-      assureTelPersonnel: data['assureTelPersonnel'] ?? '',
-      assureTelMobile: data['assureTelMobile'] ?? '',
-      assureTelBureau: data['assureTelBureau'] ?? '',
-      assureGroupeSanguin: data['assureGroupeSanguin'] ?? '',
-      assureAdresse: data['assureAdresse'] ?? ''
+      assureNumeroAssurance: data['assureNumeroAssurance'] ?? (isSelf ? (data['numeroAssurance'] ?? '') : ''),
+      assureNom: data['assureNom'] ?? (isSelf ? (data['nom'] ?? '') : ''),
+      assurePrenom: data['assurePrenom'] ?? (isSelf ? (data['prenom'] ?? '') : ''),
+      assureSexe: data['assureSexe'] ?? (isSelf ? (data['sexe'] ?? '') : ''),
+      assureDateNaissance: data['assureDateNaissance'] ?? (isSelf ? (data['dateNaissance'] ?? null) : null),
+      assureTelPersonnel: data['assureTelPersonnel'] ?? (isSelf ? (data['telPersonnel'] ?? '') : ''),
+      assureTelMobile: data['assureTelMobile'] ?? (isSelf ? (data['telMobile'] ?? '') : ''),
+      assureTelBureau: data['assureTelBureau'] ?? (isSelf ? (data['telBureau'] ?? '') : ''),
+      assureGroupeSanguin: data['assureGroupeSanguin'] ?? (isSelf ? (data['groupeSanguin'] ?? '') : ''),
+      assureAdresse: data['assureAdresse'] ?? (isSelf ? (data['adresse'] ?? '') : '')
     };
     this.form.patchValue(patch, { emitEvent: false });
 
@@ -359,9 +471,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     const qualite = data['qualiteAssure'] ?? (hasAssureData ? 'AUTRE' : 'ASSURE_LUI_MEME');
     this.setQualiteAssure(qualite);
 
-    if (Array.isArray(data['assureHistory'])) {
-      this.assureHistory.set(data['assureHistory']);
-    }
+    if (this.patientId) this.loadAssureHistory();
 
     this.applyCentrePayeurDisplay(patch.centrePayeurId);
     this.dataChange.emit(this.form.getRawValue());

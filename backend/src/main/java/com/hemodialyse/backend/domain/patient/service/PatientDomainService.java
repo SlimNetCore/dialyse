@@ -1,6 +1,10 @@
 package com.hemodialyse.backend.domain.patient.service;
 
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
+import com.hemodialyse.backend.domain.assure.model.Assure;
+import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
+import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
+import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.model.AttestationDroit;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.patient.model.Patient;
@@ -13,6 +17,8 @@ import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,13 +32,19 @@ public class PatientDomainService implements PatientUseCase {
     private final PatientRepositoryPort patientRepo;
     private final AttestationRepositoryPort attestationRepo;
     private final PecRepositoryPort pecRepo;
+    private final AssureRepositoryPort assureRepo;
+    private final AssurePatientRepositoryPort assurePatientRepo;
 
     public PatientDomainService(PatientRepositoryPort patientRepo,
                                 AttestationRepositoryPort attestationRepo,
-                                PecRepositoryPort pecRepo) {
+                                PecRepositoryPort pecRepo,
+                                AssureRepositoryPort assureRepo,
+                                AssurePatientRepositoryPort assurePatientRepo) {
         this.patientRepo = patientRepo;
         this.attestationRepo = attestationRepo;
         this.pecRepo = pecRepo;
+        this.assureRepo = assureRepo;
+        this.assurePatientRepo = assurePatientRepo;
     }
 
     @Override
@@ -83,6 +95,7 @@ public class PatientDomainService implements PatientUseCase {
         patient.setEtatPatient(etat);
         patient.setDateEvenementEtat(cmd.dateEvenementEtat());
         patient.setCentrePayeurId(cmd.centrePayeurId());
+        patient.setAssureNumeroAssurance(cmd.assureNumeroAssurance());
         patient.setMedecinTraitantId(cmd.medecinTraitantId());
         patient.setSalleId(cmd.salleId());
         patient.setPositionId(cmd.positionId());
@@ -101,6 +114,7 @@ public class PatientDomainService implements PatientUseCase {
         patient.setAssureHistoryJson(cmd.assureHistoryJson());
 
         Patient saved = patientRepo.save(patient);
+        syncAssureRelation(saved, cmd, centerId);
 
         // Create attestation if provided
         if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
@@ -169,6 +183,7 @@ public class PatientDomainService implements PatientUseCase {
         patient.setEtatPatient(etat);
         patient.setDateEvenementEtat(cmd.dateEvenementEtat());
         patient.setCentrePayeurId(cmd.centrePayeurId());
+        patient.setAssureNumeroAssurance(cmd.assureNumeroAssurance());
         patient.setMedecinTraitantId(cmd.medecinTraitantId());
         patient.setSalleId(cmd.salleId());
         patient.setPositionId(cmd.positionId());
@@ -187,6 +202,7 @@ public class PatientDomainService implements PatientUseCase {
         patient.setAssureHistoryJson(cmd.assureHistoryJson());
 
         Patient saved = patientRepo.save(patient);
+        syncAssureRelation(saved, cmd, centerId);
 
         // Upsert attestation only if explicitly provided by the UI.
         if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
@@ -211,12 +227,75 @@ public class PatientDomainService implements PatientUseCase {
 
     @Override
     public Patient getPatient(CenterId centerId, UUID patientId) {
-        return patientRepo.findById(PatientId.of(patientId), centerId)
+        Patient p = patientRepo.findById(PatientId.of(patientId), centerId)
             .orElseThrow(() -> new IllegalArgumentException("Patient introuvable"));
+        if (!"ASSURE_LUI_MEME".equals(p.getQualiteAssure())) {
+            assurePatientRepo.findPrimary(centerId, patientId).ifPresent(primary -> {
+                assureRepo.findByNumeroAssurance(primary.getNumeroAssurance()).ifPresent(a -> {
+                    p.setAssureNumeroAssurance(a.getNumeroAssurance());
+                    p.setAssureInfo(new AssureInfo(
+                        a.getSexe(), a.getNom(), a.getPrenom(),
+                        a.getDateNaissance() != null ? a.getDateNaissance().toString() : null,
+                        a.getTelPersonnel(), a.getAdresse(), a.getGroupeSanguin(),
+                        a.getTelMobile(), a.getTelBureau()
+                    ));
+                });
+            });
+        }
+        return p;
     }
 
     @Override
     public List<Patient> listPatients(CenterId centerId) {
         return patientRepo.findAllByCenter(centerId);
+    }
+
+    private void syncAssureRelation(Patient patient, CreatePatientCommand cmd, CenterId centerId) {
+        if ("ASSURE_LUI_MEME".equals(cmd.qualiteAssure())) {
+            assurePatientRepo.clearPrimary(centerId, patient.getId().value());
+            patient.setAssureNumeroAssurance(cmd.numeroAssurance());
+            patient.setAssureInfo(new AssureInfo(
+                cmd.sexe(), cmd.nom(), cmd.prenom(),
+                cmd.dateNaissance() != null ? cmd.dateNaissance().toString() : null,
+                cmd.telPersonnel(), cmd.adresse(), cmd.groupeSanguin(),
+                cmd.telMobile(), cmd.telBureau()
+            ));
+            patientRepo.save(patient);
+            return;
+        }
+
+        String numero = cmd.assureNumeroAssurance();
+        if (numero == null || numero.isBlank()) {
+            throw new IllegalArgumentException("N° assurance assuré obligatoire pour cette qualité d'assuré");
+        }
+
+        Assure assure = assureRepo.findByNumeroAssurance(numero).orElseGet(Assure::new);
+        assure.setNumeroAssurance(numero);
+        assure.setCenterId(centerId.value());
+        assure.setNom(cmd.assureNom());
+        assure.setPrenom(cmd.assurePrenom());
+        assure.setSexe(cmd.assureSexe());
+        if (cmd.assureDateNaissance() != null && !cmd.assureDateNaissance().isBlank()) {
+            try { assure.setDateNaissance(LocalDate.parse(cmd.assureDateNaissance())); } catch (Exception ignored) {}
+        }
+        assure.setTelPersonnel(cmd.assureTelPersonnel());
+        assure.setTelMobile(cmd.assureTelMobile());
+        assure.setTelBureau(cmd.assureTelBureau());
+        assure.setAdresse(cmd.assureAdresse());
+        assure.setGroupeSanguin(cmd.assureGroupeSanguin());
+        if (assure.getCreatedAt() == null) assure.setCreatedAt(OffsetDateTime.now());
+        assureRepo.save(assure);
+
+        assurePatientRepo.clearPrimary(centerId, patient.getId().value());
+        AssurePatientAssignment ap = new AssurePatientAssignment();
+        ap.setPatientId(patient.getId().value());
+        ap.setNumeroAssurance(numero);
+        ap.setCenterId(centerId.value());
+        ap.setPrimary(true);
+        ap.setDateAffectation(OffsetDateTime.now());
+        assurePatientRepo.save(ap);
+
+        patient.setAssureNumeroAssurance(numero);
+        patientRepo.save(patient);
     }
 }

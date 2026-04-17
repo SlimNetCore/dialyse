@@ -57,6 +57,7 @@ public class Patient {
     private PatientType typePatient;
     private String qualiteAssure; // ASSURE_LUI_MEME, ENFANT, CONJOINT, ASCENDANT, AUTRE
     private UUID centrePayeurId;
+    private String assureNumeroAssurance;
     private AssureInfo assureInfo;
     private String assureHistoryJson;
 
@@ -141,6 +142,7 @@ public class Patient {
     public PatientType getTypePatient() { return typePatient; }
     public String getQualiteAssure() { return qualiteAssure; }
     public UUID getCentrePayeurId() { return centrePayeurId; }
+    public String getAssureNumeroAssurance() { return assureNumeroAssurance; }
     public AssureInfo getAssureInfo() { return assureInfo; }
     public String getAssureHistoryJson() { return assureHistoryJson; }
     public UUID getMedecinTraitantId() { return medecinTraitantId; }
@@ -186,6 +188,7 @@ public class Patient {
     public void setTypePatient(PatientType v) { this.typePatient = v; }
     public void setQualiteAssure(String v) { this.qualiteAssure = v; }
     public void setCentrePayeurId(UUID v) { this.centrePayeurId = v; }
+    public void setAssureNumeroAssurance(String v) { this.assureNumeroAssurance = v; }
     public void setAssureInfo(AssureInfo v) { this.assureInfo = v; }
     public void setAssureHistoryJson(String v) { this.assureHistoryJson = v; }
     public void setMedecinTraitantId(UUID v) { this.medecinTraitantId = v; }

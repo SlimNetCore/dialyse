@@ -56,6 +56,7 @@ public class PatientJpaEntity {
     @Column(name = "jour_samedi") private Boolean jourSamedi;
     @Column(name = "assure_nom") private String assureNom;
     @Column(name = "assure_prenom") private String assurePrenom;
+    @Column(name = "assure_numero_assurance") private String assureNumeroAssurance;
     @Column(name = "assure_sexe") private String assureSexe;
     @Column(name = "assure_date_naissance") private LocalDate assureDateNaissance;
     @Column(name = "assure_tel_personnel") private String assureTelPersonnel;
@@ -115,6 +116,7 @@ public class PatientJpaEntity {
     public Boolean getJourSamedi() { return jourSamedi; } public void setJourSamedi(Boolean v) { this.jourSamedi = v; }
     public String getAssureNom() { return assureNom; } public void setAssureNom(String v) { this.assureNom = v; }
     public String getAssurePrenom() { return assurePrenom; } public void setAssurePrenom(String v) { this.assurePrenom = v; }
+    public String getAssureNumeroAssurance() { return assureNumeroAssurance; } public void setAssureNumeroAssurance(String v) { this.assureNumeroAssurance = v; }
     public String getAssureSexe() { return assureSexe; } public void setAssureSexe(String v) { this.assureSexe = v; }
     public LocalDate getAssureDateNaissance() { return assureDateNaissance; } public void setAssureDateNaissance(LocalDate v) { this.assureDateNaissance = v; }
     public String getAssureTelPersonnel() { return assureTelPersonnel; } public void setAssureTelPersonnel(String v) { this.assureTelPersonnel = v; }

@@ -41,6 +41,7 @@ public final class PatientMapper {
         p.setEtatPatient(e.getEtatPatient());
         p.setDateEvenementEtat(e.getDateEvenementEtat());
         p.setQualiteAssure(e.getQualiteAssure());
+        p.setAssureNumeroAssurance(e.getAssureNumeroAssurance());
         p.setObservation(e.getObservation());
         p.setSousKt(Boolean.TRUE.equals(e.getSousKt()));
         p.setEpoEnabled(Boolean.TRUE.equals(e.getEpoEnabled()));
@@ -99,6 +100,7 @@ public final class PatientMapper {
         e.setEtatPatient(p.getEtatPatient());
         e.setDateEvenementEtat(p.getDateEvenementEtat());
         e.setQualiteAssure(p.getQualiteAssure());
+        e.setAssureNumeroAssurance(p.getAssureNumeroAssurance());
         e.setObservation(p.getObservation());
         e.setSousKt(p.isSousKt());
         e.setEpoEnabled(p.isEpoEnabled());
