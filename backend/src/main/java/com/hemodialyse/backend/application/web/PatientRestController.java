@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -109,90 +110,20 @@ public class PatientRestController {
         ));
     }
 
-    @GetMapping
-    public ResponseEntity<?> list(@RequestParam UUID centerId,
-                                  @RequestParam String userId,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size,
-                                  @RequestParam(required = false) String search,
-                                  @RequestParam(required = false) String code,
-                                  @RequestParam(required = false) String nom,
-                                  @RequestParam(required = false) String prenom,
-                                  @RequestParam(required = false) String sexe,
-                                  @RequestParam(required = false) String dateAdmission,
-                                  @RequestParam(required = false) String numeroAssurance,
-                                  @RequestParam(required = false) String etatPatient) {
-        var center = CenterId.of(centerId);
-        var rows = useCase.listPatients(center).stream().map(p -> {
-            var pecs = pecUseCase.listByPatient(center, p.getId().value());
-            boolean facturable = pecs.stream().anyMatch(pc -> pc.getStatus() == PecStatus.VALIDEE);
-            return Map.of(
-                "id", p.getId().value(),
-                "codePatient", p.getCodePatient(),
-                "nom", p.getNom(),
-                "prenom", p.getPrenom(),
-                "sexe", p.getSexe(),
-                "dateAdmission", p.getDateAdmission(),
-                "numeroAssurance", p.getNumeroAssurance().value(),
-                "etatPatient", p.getEtatPatient(),
-                "nonFacturable", !facturable
-            );
-        }).toList();
-
-        LocalDate dateFilter = null;
-        if (dateAdmission != null && !dateAdmission.isBlank()) {
-            try {
-                dateFilter = LocalDate.parse(dateAdmission);
-            } catch (Exception ignored) {
-                return ResponseEntity.ok(Map.of("items", List.of(), "total", 0, "page", page, "size", size));
-            }
+    private static LocalDate parseFlexibleDate(String value) {
+        if (value == null || value.isBlank()) return null;
+        String raw = value.trim();
+        if (raw.contains("T")) raw = raw.substring(0, raw.indexOf('T'));
+        if (raw.contains(" ")) raw = raw.substring(0, raw.indexOf(' '));
+        try {
+            return LocalDate.parse(raw);
+        } catch (Exception ignored) {
         }
-
-        final String searchLc = search == null ? "" : search.toLowerCase();
-        final String codeLc = code == null ? "" : code.toLowerCase();
-        final String nomLc = nom == null ? "" : nom.toLowerCase();
-        final String prenomLc = prenom == null ? "" : prenom.toLowerCase();
-        final String sexeLc = sexe == null ? "" : sexe.toLowerCase();
-        final String assuranceLc = numeroAssurance == null ? "" : numeroAssurance.toLowerCase();
-        final String etatLc = etatPatient == null ? "" : etatPatient.toLowerCase();
-        final LocalDate dateFilterFinal = dateFilter;
-
-        var filtered = rows.stream().filter(r -> {
-            String rowCode = String.valueOf(r.get("codePatient")).toLowerCase();
-            String rowNom = String.valueOf(r.get("nom")).toLowerCase();
-            String rowPrenom = String.valueOf(r.get("prenom")).toLowerCase();
-            String rowSexe = String.valueOf(r.get("sexe")).toLowerCase();
-            String rowAssurance = String.valueOf(r.get("numeroAssurance")).toLowerCase();
-            String rowEtat = String.valueOf(r.get("etatPatient")).toLowerCase();
-
-            boolean globalMatch = searchLc.isBlank() || rowCode.contains(searchLc) || rowNom.contains(searchLc)
-                    || rowPrenom.contains(searchLc) || rowAssurance.contains(searchLc) || rowEtat.contains(searchLc);
-            if (!globalMatch) return false;
-            if (!codeLc.isBlank() && !rowCode.contains(codeLc)) return false;
-            if (!nomLc.isBlank() && !rowNom.contains(nomLc)) return false;
-            if (!prenomLc.isBlank() && !rowPrenom.contains(prenomLc)) return false;
-            if (!sexeLc.isBlank() && !rowSexe.contains(sexeLc)) return false;
-            if (!assuranceLc.isBlank() && !rowAssurance.contains(assuranceLc)) return false;
-            if (!etatLc.isBlank() && !rowEtat.contains(etatLc)) return false;
-            if (dateFilterFinal != null) {
-                Object v = r.get("dateAdmission");
-                return v instanceof LocalDate && dateFilterFinal.equals(v);
-            }
-            return true;
-        }).toList();
-
-        int safePage = Math.max(page, 0);
-        int safeSize = Math.max(size, 1);
-        int start = safePage * safeSize;
-        int end = Math.min(start + safeSize, filtered.size());
-        var items = start >= filtered.size() ? List.of() : filtered.subList(start, end);
-
-        return ResponseEntity.ok(Map.of(
-                "items", items,
-                "total", filtered.size(),
-                "page", safePage,
-                "size", safeSize
-        ));
+        try {
+            return LocalDate.parse(raw, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     @GetMapping("/{id}")
@@ -256,6 +187,105 @@ public class PatientRestController {
             "numeroAssurance", numeroAssurance,
             "nom", Optional.ofNullable(a.getNom()).orElse(""),
             "prenom", Optional.ofNullable(a.getPrenom()).orElse("")
+        ));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> list(@RequestParam UUID centerId,
+                                  @RequestParam String userId,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  @RequestParam(required = false) String search,
+                                  @RequestParam(required = false) String code,
+                                  @RequestParam(required = false) String nom,
+                                  @RequestParam(required = false) String prenom,
+                                  @RequestParam(required = false) String sexe,
+                                  @RequestParam(required = false) String dateAdmission,
+                                  @RequestParam(required = false) String numeroAssurance,
+                                  @RequestParam(required = false) String etatPatient,
+                                  @RequestParam(required = false) String nonFacturable) {
+        var center = CenterId.of(centerId);
+        var rows = useCase.listPatients(center).stream().map(p -> {
+            var pecs = pecUseCase.listByPatient(center, p.getId().value());
+            boolean facturable = pecs.stream().anyMatch(pc -> pc.getStatus() == PecStatus.VALIDEE);
+            return Map.of(
+                "id", p.getId().value(),
+                "codePatient", p.getCodePatient(),
+                "nom", p.getNom(),
+                "prenom", p.getPrenom(),
+                "sexe", p.getSexe(),
+                "dateAdmission", p.getDateAdmission(),
+                "numeroAssurance", p.getNumeroAssurance().value(),
+                "etatPatient", p.getEtatPatient(),
+                "nonFacturable", !facturable
+            );
+        }).toList();
+
+        LocalDate dateFilter = parseFlexibleDate(dateAdmission);
+        if (dateAdmission != null && !dateAdmission.isBlank() && dateFilter == null) {
+            return ResponseEntity.ok(Map.of("items", List.of(), "total", 0, "page", page, "size", size));
+        }
+
+        Boolean nonFacturableFilter = null;
+        if (nonFacturable != null && !nonFacturable.isBlank()) {
+            String normalized = nonFacturable.trim().toLowerCase();
+            if ("true".equals(normalized) || "oui".equals(normalized) || "1".equals(normalized)) {
+                nonFacturableFilter = true;
+            } else if ("false".equals(normalized) || "non".equals(normalized) || "0".equals(normalized)) {
+                nonFacturableFilter = false;
+            }
+        }
+
+        final String searchLc = search == null ? "" : search.toLowerCase();
+        final String codeLc = code == null ? "" : code.toLowerCase();
+        final String nomLc = nom == null ? "" : nom.toLowerCase();
+        final String prenomLc = prenom == null ? "" : prenom.toLowerCase();
+        final String sexeLc = sexe == null ? "" : sexe.toLowerCase();
+        final String assuranceLc = numeroAssurance == null ? "" : numeroAssurance.toLowerCase();
+        final String etatLc = etatPatient == null ? "" : etatPatient.toLowerCase();
+        final LocalDate dateFilterFinal = dateFilter;
+        final Boolean nonFacturableFilterFinal = nonFacturableFilter;
+
+        var filtered = rows.stream().filter(r -> {
+            String rowCode = String.valueOf(r.get("codePatient")).toLowerCase();
+            String rowNom = String.valueOf(r.get("nom")).toLowerCase();
+            String rowPrenom = String.valueOf(r.get("prenom")).toLowerCase();
+            String rowSexe = String.valueOf(r.get("sexe")).toLowerCase();
+            String rowAssurance = String.valueOf(r.get("numeroAssurance")).toLowerCase();
+            String rowEtat = String.valueOf(r.get("etatPatient")).toLowerCase();
+
+            boolean globalMatch = searchLc.isBlank() || rowCode.contains(searchLc) || rowNom.contains(searchLc)
+                    || rowPrenom.contains(searchLc) || rowAssurance.contains(searchLc) || rowEtat.contains(searchLc);
+            if (!globalMatch) return false;
+            if (!codeLc.isBlank() && !rowCode.contains(codeLc)) return false;
+            if (!nomLc.isBlank() && !rowNom.contains(nomLc)) return false;
+            if (!prenomLc.isBlank() && !rowPrenom.contains(prenomLc)) return false;
+            if (!sexeLc.isBlank() && !rowSexe.contains(sexeLc)) return false;
+            if (!assuranceLc.isBlank() && !rowAssurance.contains(assuranceLc)) return false;
+            if (!etatLc.isBlank() && !rowEtat.contains(etatLc)) return false;
+            if (nonFacturableFilterFinal != null) {
+                Object nf = r.get("nonFacturable");
+                boolean rowNf = Boolean.TRUE.equals(nf);
+                if (!nonFacturableFilterFinal.equals(rowNf)) return false;
+            }
+            if (dateFilterFinal != null) {
+                Object v = r.get("dateAdmission");
+                return v instanceof LocalDate && dateFilterFinal.equals(v);
+            }
+            return true;
+        }).toList();
+
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        int start = safePage * safeSize;
+        int end = Math.min(start + safeSize, filtered.size());
+        var items = start >= filtered.size() ? List.of() : filtered.subList(start, end);
+
+        return ResponseEntity.ok(Map.of(
+                "items", items,
+                "total", filtered.size(),
+                "page", safePage,
+                "size", safeSize
         ));
     }
 }

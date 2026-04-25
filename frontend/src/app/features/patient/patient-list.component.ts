@@ -17,6 +17,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
+import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 
 export interface PatientRow {
   id: string;
@@ -39,7 +40,7 @@ type FilterType = 'text' | 'date';
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatChipsModule, MatTooltipModule, MatSnackBarModule,
     MatMenuModule, MatCheckboxModule, MatPaginatorModule, TranslateModule,
-    PatientQrCardComponent
+    PatientQrCardComponent, ColumnFilterRendererComponent
   ],
   template: `
     <mat-card class="list-card">
@@ -102,13 +103,11 @@ type FilterType = 'text' | 'date';
                                 [class.active]="isColumnFiltered('code')">{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
-                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('code')"
-                                                  [value]="columnFilterValue('code')"
-                                                  (input)="onColumnFilter('code', $event)"/>@if (isColumnFiltered('code')) {
-                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('code')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    }</div>
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="text" [value]="columnFilterValue('code')"
+                                                  (valueChange)="onColumnFilterValue('code', $event)"
+                                                  (clear)="clearColumnFilter('code')"/>
+                    </div>
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row"><span class="code-chip">{{ row.code }}</span></td>
@@ -122,13 +121,11 @@ type FilterType = 'text' | 'date';
                                 [class.active]="isColumnFiltered('nom')">{{ isColumnFiltered('nom') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
-                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('nom')"
-                                                  [value]="columnFilterValue('nom')"
-                                                  (input)="onColumnFilter('nom', $event)"/>@if (isColumnFiltered('nom')) {
-                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('nom')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    }</div>
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="text" [value]="columnFilterValue('nom')"
+                                                  (valueChange)="onColumnFilterValue('nom', $event)"
+                                                  (clear)="clearColumnFilter('nom')"/>
+                    </div>
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row">{{ row.nom }} @if (row.nonFacturable) {
@@ -146,13 +143,11 @@ type FilterType = 'text' | 'date';
                                 [class.active]="isColumnFiltered('prenom')">{{ isColumnFiltered('prenom') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
-                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('prenom')"
-                                                  [value]="columnFilterValue('prenom')"
-                                                  (input)="onColumnFilter('prenom', $event)"/>@if (isColumnFiltered('prenom')) {
-                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('prenom')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    }</div>
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="text" [value]="columnFilterValue('prenom')"
+                                                  (valueChange)="onColumnFilterValue('prenom', $event)"
+                                                  (clear)="clearColumnFilter('prenom')"/>
+                    </div>
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row">{{ row.prenom }}</td>
@@ -166,13 +161,12 @@ type FilterType = 'text' | 'date';
                                 [class.active]="isColumnFiltered('sexe')">{{ isColumnFiltered('sexe') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
-                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('sexe')"
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="enum" [options]="sexeFilterOptions"
                                                   [value]="columnFilterValue('sexe')"
-                                                  (input)="onColumnFilter('sexe', $event)"/>@if (isColumnFiltered('sexe')) {
-                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('sexe')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    }</div>
+                                                  (valueChange)="onColumnFilterValue('sexe', $event)"
+                                                  (clear)="clearColumnFilter('sexe')"/>
+                    </div>
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row">
@@ -190,13 +184,11 @@ type FilterType = 'text' | 'date';
                                 [class.active]="isColumnFiltered('dateAdmission')">{{ isColumnFiltered('dateAdmission') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
-                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('dateAdmission')"
-                                                  [value]="columnFilterValue('dateAdmission')"
-                                                  (input)="onColumnFilter('dateAdmission', $event)"/>@if (isColumnFiltered('dateAdmission')) {
-                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('dateAdmission')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    }</div>
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="date" [value]="columnFilterValue('dateAdmission')"
+                                                  (valueChange)="onColumnFilterValue('dateAdmission', $event)"
+                                                  (clear)="clearColumnFilter('dateAdmission')"/>
+                    </div>
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row">{{ row.dateAdmission }}</td>
@@ -210,13 +202,11 @@ type FilterType = 'text' | 'date';
                                 [class.active]="isColumnFiltered('numeroAssurance')">{{ isColumnFiltered('numeroAssurance') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
-                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('numeroAssurance')"
-                                                  [value]="columnFilterValue('numeroAssurance')"
-                                                  (input)="onColumnFilter('numeroAssurance', $event)"/>@if (isColumnFiltered('numeroAssurance')) {
-                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('numeroAssurance')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    }</div>
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="text" [value]="columnFilterValue('numeroAssurance')"
+                                                  (valueChange)="onColumnFilterValue('numeroAssurance', $event)"
+                                                  (clear)="clearColumnFilter('numeroAssurance')"/>
+                    </div>
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row"><span class="mono">{{ row.numeroAssurance }}</span></td>
@@ -230,17 +220,39 @@ type FilterType = 'text' | 'date';
                                 [class.active]="isColumnFiltered('etatPatient')">{{ isColumnFiltered('etatPatient') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
-                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('etatPatient')"
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="enum" [options]="etatFilterOptions"
                                                   [value]="columnFilterValue('etatPatient')"
-                                                  (input)="onColumnFilter('etatPatient', $event)"/>@if (isColumnFiltered('etatPatient')) {
-                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('etatPatient')">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    }</div>
+                                                  (valueChange)="onColumnFilterValue('etatPatient', $event)"
+                                                  (clear)="clearColumnFilter('etatPatient')"/>
+                    </div>
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row"><span class="etat-badge"
                                                          [attr.data-etat]="row.etatPatient">{{ row.etatPatient }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="nonFacturable">
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>Facturation</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('nonFacturable')">{{ isColumnFiltered('nonFacturable') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter">
+                      <app-column-filter-renderer type="boolean" [value]="columnFilterValue('nonFacturable')"
+                                                  (valueChange)="onColumnFilterValue('nonFacturable', $event)"
+                                                  (clear)="clearColumnFilter('nonFacturable')"/>
+                    </div>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="etat-badge" [style.background]="row.nonFacturable ? '#fee2e2' : '#dcfce7'"
+                        [style.color]="row.nonFacturable ? '#991b1b' : '#166534'">
+                    {{ row.nonFacturable ? 'Non facturable' : 'Facturable' }}
+                  </span>
                 </td>
               </ng-container>
 
@@ -413,33 +425,7 @@ type FilterType = 'text' | 'date';
       color: var(--app-primary);
     }
 
-    .col-filter {
-      height: 30px;
-      width: 100%;
-      min-width: 96px;
-      font-size: 12px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      padding: 4px 8px;
-      background: #fff;
-      outline: none;
-    }
-
-    .col-filter:focus {
-      border-color: var(--app-primary-outline);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 14%, white);
-    }
-
-    .clear-filter {
-      width: 26px;
-      height: 26px;
-    }
-
-    .clear-filter mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-    }
+    .th-filter :where(app-column-filter-renderer) { width: 100%; }
   `]
 })
 export class PatientListComponent implements OnInit {
@@ -456,6 +442,7 @@ export class PatientListComponent implements OnInit {
     {key: 'dateAdmission', labelKey: 'PATIENT_LIST.COL_DATE_ADMISSION', type: 'date' as FilterType},
     {key: 'numeroAssurance', labelKey: 'PATIENT_LIST.COL_ASSURANCE', type: 'text' as FilterType},
     {key: 'etatPatient', labelKey: 'PATIENT_LIST.COL_ETAT', type: 'text' as FilterType},
+    {key: 'nonFacturable', labelKey: 'PATIENT_LIST.NON_FACTURABLE_TOOLTIP', type: 'text' as FilterType},
     {key: 'actions', labelKey: 'PATIENT_LIST.COL_ACTIONS', type: 'text' as FilterType}
   ] as const;
   readonly visibleColumns = signal<Record<string, boolean>>({
@@ -466,6 +453,7 @@ export class PatientListComponent implements OnInit {
     dateAdmission: true,
     numeroAssurance: true,
     etatPatient: true,
+    nonFacturable: true,
     actions: true
   });
   private readonly snack = inject(MatSnackBar);
@@ -502,6 +490,10 @@ export class PatientListComponent implements OnInit {
     this.columnFilters.update(prev => ({...prev, [column]: value}));
     this.fetchPage(0, this.pageSize());
   }
+  readonly sexeFilterOptions = [
+    {value: 'M', label: 'Masculin'},
+    {value: 'F', label: 'Féminin'}
+  ];
 
   columnFilterValue(column: string): string {
     return this.columnFilters()[column] ?? '';
@@ -528,11 +520,6 @@ export class PatientListComponent implements OnInit {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
     this.fetchPage(event.pageIndex, event.pageSize);
-  }
-
-  inputType(column: string): string {
-    const found = this.allColumnsConfig.find(c => c.key === column);
-    return found?.type === 'date' ? 'date' : 'text';
   }
 
   private fetchPage(page: number, size: number): void {
@@ -612,6 +599,20 @@ export class PatientListComponent implements OnInit {
       },
       error: (err) => this.snack.open('Erreur export: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 })
     });
+  }
+  readonly etatFilterOptions = [
+    {value: 'PERMANENT', label: 'Permanent'},
+    {value: 'OCCASIONNEL', label: 'Occasionnel'},
+    {value: 'VACANCIER_LOCAL', label: 'Vacancier local'},
+    {value: 'VACANCIER_ETRANGER', label: 'Vacancier étranger'},
+    {value: 'TRANSFERE', label: 'Transféré'},
+    {value: 'DECEDE', label: 'Décédé'},
+    {value: 'GREFFE', label: 'Greffé'}
+  ];
+
+  onColumnFilterValue(column: string, value: string): void {
+    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.fetchPage(0, this.pageSize());
   }
 }
 

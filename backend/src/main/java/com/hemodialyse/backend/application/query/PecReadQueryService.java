@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,12 +64,28 @@ public class PecReadQueryService {
 
     private static void addDateEq(StringBuilder where, List<Object> params, String field, String value) {
         if (value == null || value.isBlank()) return;
-        try {
-            LocalDate parsed = LocalDate.parse(value);
+        LocalDate parsed = parseFlexibleDate(value);
+        if (parsed != null) {
             where.append(" AND ").append(field).append(" = ? ");
             params.add(parsed);
-        } catch (Exception ignored) {
+        } else {
             where.append(" AND 1 = 0 ");
+        }
+    }
+
+    private static LocalDate parseFlexibleDate(String value) {
+        String raw = value == null ? "" : value.trim();
+        if (raw.isBlank()) return null;
+        if (raw.contains("T")) raw = raw.substring(0, raw.indexOf('T'));
+        if (raw.contains(" ")) raw = raw.substring(0, raw.indexOf(' '));
+        try {
+            return LocalDate.parse(raw);
+        } catch (Exception ignored) {
+        }
+        try {
+            return LocalDate.parse(raw, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

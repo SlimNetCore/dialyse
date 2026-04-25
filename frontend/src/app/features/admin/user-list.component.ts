@@ -17,6 +17,7 @@ import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {TranslateModule} from '@ngx-translate/core';
 import {AdminApiService, AppUser} from '../../core/api/admin-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
+import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 
 type FilterType = 'text' | 'boolean';
 
@@ -26,7 +27,7 @@ type FilterType = 'text' | 'boolean';
   imports: [
     CommonModule, RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule,
     MatChipsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSnackBarModule,
-    MatMenuModule, MatCheckboxModule, MatPaginatorModule, TranslateModule
+    MatMenuModule, MatCheckboxModule, MatPaginatorModule, TranslateModule, ColumnFilterRendererComponent
   ],
   template: `
     <mat-card>
@@ -68,12 +69,11 @@ type FilterType = 'text' | 'boolean';
                           [class.active]="isColumnFiltered('username')">{{ isColumnFiltered('username') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('username')"
-                                            (input)="onColumnFilter('username', $event)"/>@if (isColumnFiltered('username')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('username')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('username')"
+                                            (valueChange)="onColumnFilterValue('username', $event)"
+                                            (clear)="clearColumnFilter('username')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let u">{{ u.USERNAME }}</td>
@@ -87,12 +87,11 @@ type FilterType = 'text' | 'boolean';
                           [class.active]="isColumnFiltered('fullName')">{{ isColumnFiltered('fullName') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('fullName')"
-                                            (input)="onColumnFilter('fullName', $event)"/>@if (isColumnFiltered('fullName')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('fullName')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('fullName')"
+                                            (valueChange)="onColumnFilterValue('fullName', $event)"
+                                            (clear)="clearColumnFilter('fullName')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let u">{{ u.FULL_NAME }}</td>
@@ -106,12 +105,11 @@ type FilterType = 'text' | 'boolean';
                           [class.active]="isColumnFiltered('email')">{{ isColumnFiltered('email') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('email')"
-                                            (input)="onColumnFilter('email', $event)"/>@if (isColumnFiltered('email')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('email')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('email')"
+                                            (valueChange)="onColumnFilterValue('email', $event)"
+                                            (clear)="clearColumnFilter('email')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let u">{{ u.EMAIL }}</td>
@@ -125,12 +123,11 @@ type FilterType = 'text' | 'boolean';
                           [class.active]="isColumnFiltered('roles')">{{ isColumnFiltered('roles') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('roles')"
-                                            (input)="onColumnFilter('roles', $event)"/>@if (isColumnFiltered('roles')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('roles')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('roles')"
+                                            (valueChange)="onColumnFilterValue('roles', $event)"
+                                            (clear)="clearColumnFilter('roles')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let u">
@@ -148,12 +145,11 @@ type FilterType = 'text' | 'boolean';
                           [class.active]="isColumnFiltered('centers')">{{ isColumnFiltered('centers') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('centers')"
-                                            (input)="onColumnFilter('centers', $event)"/>@if (isColumnFiltered('centers')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('centers')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('centers')"
+                                            (valueChange)="onColumnFilterValue('centers', $event)"
+                                            (clear)="clearColumnFilter('centers')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let u">
@@ -172,17 +168,9 @@ type FilterType = 'text' | 'boolean';
                 </mat-icon>
               </div>
               <div class="th-filter">
-                <select class="col-filter" [value]="columnFilterValue('active')"
-                        (change)="onBooleanFilter('active', $event)">
-                  <option value="">Tous</option>
-                  <option value="true">Actif</option>
-                  <option value="false">Inactif</option>
-                </select>
-                @if (isColumnFiltered('active')) {
-                  <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('active')">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                }
+                <app-column-filter-renderer type="boolean" [value]="columnFilterValue('active')"
+                                            (valueChange)="onColumnFilterValue('active', $event)"
+                                            (clear)="clearColumnFilter('active')"/>
               </div>
             </div>
           </th>
@@ -219,10 +207,7 @@ type FilterType = 'text' | 'boolean';
     .th-filter { display: flex; align-items: center; gap: 6px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--app-primary-soft) 60%, white); border: 1px solid var(--app-border); }
     .filter-ind { font-size: 17px; width: 17px; height: 17px; color: #94a3b8; }
     .filter-ind.active { color: #0ea5e9; }
-    .col-filter { height: 30px; width: 100%; min-width: 96px; font-size: 12px; border: 1px solid transparent; border-radius: 8px; padding: 4px 8px; background: #fff; outline: none; }
-    .col-filter:focus { border-color: var(--app-primary-outline); box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 14%, white); }
-    .clear-filter { width: 26px; height: 26px; }
-    .clear-filter mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    .th-filter :where(app-column-filter-renderer) { width: 100%; }
   `]
 })
 export class UserListComponent implements OnInit {
@@ -276,6 +261,11 @@ export class UserListComponent implements OnInit {
 
   onColumnFilter(column: string, event: Event): void {
     const value = (event.target as HTMLInputElement).value;
+    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.fetchPage(0, this.pageSize());
+  }
+
+  onColumnFilterValue(column: string, value: string): void {
     this.columnFilters.update(prev => ({...prev, [column]: value}));
     this.fetchPage(0, this.pageSize());
   }
@@ -345,4 +335,3 @@ export class UserListComponent implements OnInit {
     });
   }
 }
-

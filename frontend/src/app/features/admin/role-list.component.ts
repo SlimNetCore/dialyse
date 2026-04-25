@@ -15,6 +15,7 @@ import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {AdminApiService, AppRole} from '../../core/api/admin-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
+import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 
 @Component({
   selector: 'app-role-list',
@@ -22,7 +23,7 @@ import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
   imports: [
     CommonModule, RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule,
     MatCardModule, MatFormFieldModule, MatInputModule, MatMenuModule, MatCheckboxModule,
-    MatPaginatorModule, MatSnackBarModule
+    MatPaginatorModule, MatSnackBarModule, ColumnFilterRendererComponent
   ],
   template: `
     <mat-card>
@@ -64,12 +65,11 @@ import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
                           [class.active]="isColumnFiltered('code')">{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('code')"
-                                            (input)="onColumnFilter('code', $event)"/>@if (isColumnFiltered('code')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('code')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('code')"
+                                            (valueChange)="onColumnFilterValue('code', $event)"
+                                            (clear)="clearColumnFilter('code')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{ r.CODE }}</td>
@@ -83,12 +83,11 @@ import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
                           [class.active]="isColumnFiltered('name')">{{ isColumnFiltered('name') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('name')"
-                                            (input)="onColumnFilter('name', $event)"/>@if (isColumnFiltered('name')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('name')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('name')"
+                                            (valueChange)="onColumnFilterValue('name', $event)"
+                                            (clear)="clearColumnFilter('name')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{ r.NAME }}</td>
@@ -102,12 +101,11 @@ import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
                           [class.active]="isColumnFiltered('description')">{{ isColumnFiltered('description') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('description')"
-                                            (input)="onColumnFilter('description', $event)"/>@if (isColumnFiltered('description')) {
-                <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('description')">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('description')"
+                                            (valueChange)="onColumnFilterValue('description', $event)"
+                                            (clear)="clearColumnFilter('description')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{ r.DESCRIPTION }}</td>
@@ -179,33 +177,7 @@ import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
       color: #0ea5e9;
     }
 
-    .col-filter {
-      height: 30px;
-      width: 100%;
-      min-width: 96px;
-      font-size: 12px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      padding: 4px 8px;
-      background: #fff;
-      outline: none;
-    }
-
-    .col-filter:focus {
-      border-color: var(--app-primary-outline);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 14%, white);
-    }
-
-    .clear-filter {
-      width: 26px;
-      height: 26px;
-    }
-
-    .clear-filter mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-    }
+    .th-filter :where(app-column-filter-renderer) { width: 100%; }
   `]
 })
 export class RoleListComponent implements OnInit {
@@ -248,6 +220,11 @@ export class RoleListComponent implements OnInit {
 
   onColumnFilter(column: string, event: Event): void {
     const value = (event.target as HTMLInputElement).value;
+    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.fetchPage(0, this.pageSize());
+  }
+
+  onColumnFilterValue(column: string, value: string): void {
     this.columnFilters.update(prev => ({...prev, [column]: value}));
     this.fetchPage(0, this.pageSize());
   }

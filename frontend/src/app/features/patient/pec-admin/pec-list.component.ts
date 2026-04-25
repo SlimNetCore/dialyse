@@ -13,6 +13,7 @@ import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {TranslateModule} from '@ngx-translate/core';
+import {ColumnFilterRendererComponent} from '../../../shared/column-filter-renderer.component';
 
 @Component({
   selector: 'app-pec-list',
@@ -20,7 +21,7 @@ import {TranslateModule} from '@ngx-translate/core';
   imports: [
     CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
     MatTooltipModule, MatSnackBarModule, MatInputModule, MatMenuModule, MatCheckboxModule,
-    MatPaginatorModule, TranslateModule
+    MatPaginatorModule, TranslateModule, ColumnFilterRendererComponent
   ],
   template: `
     <mat-card class="list-card">
@@ -47,7 +48,11 @@ import {TranslateModule} from '@ngx-translate/core';
           <th mat-header-cell *matHeaderCellDef>
             <div class="th-wrap">
               <div class="th-top"><span>{{ 'PEC_LIST.COL_CODE' | translate }}</span><mat-icon class="filter-ind" [class.active]="isColumnFiltered('code')">{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}</mat-icon></div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('code')" (input)="onColumnFilter('code', $event)"/>@if (isColumnFiltered('code')) {<button mat-icon-button class="clear-filter" (click)="clearColumnFilter('code')"><mat-icon>close</mat-icon></button>}</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('code')"
+                                            (valueChange)="onColumnFilterValue('code', $event)"
+                                            (clear)="clearColumnFilter('code')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{r.CODE_PATIENT || r.code_patient}}</td>
@@ -57,7 +62,11 @@ import {TranslateModule} from '@ngx-translate/core';
           <th mat-header-cell *matHeaderCellDef>
             <div class="th-wrap">
               <div class="th-top"><span>{{ 'PEC_LIST.COL_PATIENT' | translate }}</span><mat-icon class="filter-ind" [class.active]="isColumnFiltered('nom')">{{ isColumnFiltered('nom') ? 'filter_alt' : 'filter_alt_off' }}</mat-icon></div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('nom')" (input)="onColumnFilter('nom', $event)"/>@if (isColumnFiltered('nom')) {<button mat-icon-button class="clear-filter" (click)="clearColumnFilter('nom')"><mat-icon>close</mat-icon></button>}</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('nom')"
+                                            (valueChange)="onColumnFilterValue('nom', $event)"
+                                            (clear)="clearColumnFilter('nom')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{r.NOM || r.nom}} {{r.PRENOM || r.prenom}}</td>
@@ -67,7 +76,11 @@ import {TranslateModule} from '@ngx-translate/core';
           <th mat-header-cell *matHeaderCellDef>
             <div class="th-wrap">
               <div class="th-top"><span>{{ 'PEC_LIST.COL_ASSURANCE' | translate }}</span><mat-icon class="filter-ind" [class.active]="isColumnFiltered('assurance')">{{ isColumnFiltered('assurance') ? 'filter_alt' : 'filter_alt_off' }}</mat-icon></div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('assurance')" (input)="onColumnFilter('assurance', $event)"/>@if (isColumnFiltered('assurance')) {<button mat-icon-button class="clear-filter" (click)="clearColumnFilter('assurance')"><mat-icon>close</mat-icon></button>}</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="text" [value]="columnFilterValue('assurance')"
+                                            (valueChange)="onColumnFilterValue('assurance', $event)"
+                                            (clear)="clearColumnFilter('assurance')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{r.NUMERO_ASSURANCE || r.numero_assurance}}</td>
@@ -77,7 +90,11 @@ import {TranslateModule} from '@ngx-translate/core';
           <th mat-header-cell *matHeaderCellDef>
             <div class="th-wrap">
               <div class="th-top"><span>{{ 'PEC_LIST.COL_DEBUT' | translate }}</span><mat-icon class="filter-ind" [class.active]="isColumnFiltered('debut')">{{ isColumnFiltered('debut') ? 'filter_alt' : 'filter_alt_off' }}</mat-icon></div>
-              <div class="th-filter"><input class="col-filter" type="date" matInput [value]="columnFilterValue('debut')" (input)="onColumnFilter('debut', $event)"/>@if (isColumnFiltered('debut')) {<button mat-icon-button class="clear-filter" (click)="clearColumnFilter('debut')"><mat-icon>close</mat-icon></button>}</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="date" [value]="columnFilterValue('debut')"
+                                            (valueChange)="onColumnFilterValue('debut', $event)"
+                                            (clear)="clearColumnFilter('debut')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{r.DATE_DEBUT_DEMANDE || r.date_debut_demande}}</td>
@@ -87,7 +104,11 @@ import {TranslateModule} from '@ngx-translate/core';
           <th mat-header-cell *matHeaderCellDef>
             <div class="th-wrap">
               <div class="th-top"><span>{{ 'PEC_LIST.COL_FIN' | translate }}</span><mat-icon class="filter-ind" [class.active]="isColumnFiltered('fin')">{{ isColumnFiltered('fin') ? 'filter_alt' : 'filter_alt_off' }}</mat-icon></div>
-              <div class="th-filter"><input class="col-filter" type="date" matInput [value]="columnFilterValue('fin')" (input)="onColumnFilter('fin', $event)"/>@if (isColumnFiltered('fin')) {<button mat-icon-button class="clear-filter" (click)="clearColumnFilter('fin')"><mat-icon>close</mat-icon></button>}</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="date" [value]="columnFilterValue('fin')"
+                                            (valueChange)="onColumnFilterValue('fin', $event)"
+                                            (clear)="clearColumnFilter('fin')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r">{{r.DATE_FIN_DEMANDE || r.date_fin_demande}}</td>
@@ -97,7 +118,12 @@ import {TranslateModule} from '@ngx-translate/core';
           <th mat-header-cell *matHeaderCellDef>
             <div class="th-wrap">
               <div class="th-top"><span>{{ 'PEC_LIST.COL_STATUS' | translate }}</span><mat-icon class="filter-ind" [class.active]="isColumnFiltered('statut')">{{ isColumnFiltered('statut') ? 'filter_alt' : 'filter_alt_off' }}</mat-icon></div>
-              <div class="th-filter"><input class="col-filter" matInput [value]="columnFilterValue('statut')" (input)="onColumnFilter('statut', $event)"/>@if (isColumnFiltered('statut')) {<button mat-icon-button class="clear-filter" (click)="clearColumnFilter('statut')"><mat-icon>close</mat-icon></button>}</div>
+              <div class="th-filter">
+                <app-column-filter-renderer type="enum" [options]="statutFilterOptions"
+                                            [value]="columnFilterValue('statut')"
+                                            (valueChange)="onColumnFilterValue('statut', $event)"
+                                            (clear)="clearColumnFilter('statut')"/>
+              </div>
             </div>
           </th>
           <td mat-cell *matCellDef="let r"><span class="status-badge">{{r.STATUT || r.statut}}</span></td>
@@ -131,10 +157,10 @@ import {TranslateModule} from '@ngx-translate/core';
     .th-filter { display: flex; align-items: center; gap: 6px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--app-primary-soft) 60%, white); border: 1px solid var(--app-border); }
     .filter-ind { font-size: 17px; width: 17px; height: 17px; color: #94a3b8; }
     .filter-ind.active { color: var(--app-primary); }
-    .col-filter { height: 30px; width: 100%; min-width: 96px; font-size: 12px; border: 1px solid transparent; border-radius: 8px; padding: 4px 8px; background: #fff; outline: none; }
-    .col-filter:focus { border-color: var(--app-primary-outline); box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 14%, white); }
-    .clear-filter { width: 26px; height: 26px; }
-    .clear-filter mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+    .th-filter :where(app-column-filter-renderer) {
+      width: 100%;
+    }
   `]
 })
 export class PecListComponent implements OnInit {
@@ -168,6 +194,12 @@ export class PecListComponent implements OnInit {
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
   readonly columnFilters = signal<Record<string, string>>({});
 
+  readonly statutFilterOptions = [
+    {value: 'CREE', label: 'Créée'},
+    {value: 'VALIDEE', label: 'Validée'},
+    {value: 'CLOTUREE', label: 'Clôturée'}
+  ];
+
   ngOnInit(): void {
     this.fetchPage(0, this.pageSize());
   }
@@ -182,6 +214,11 @@ export class PecListComponent implements OnInit {
 
   onColumnFilter(column: string, event: Event): void {
     const value = (event.target as HTMLInputElement).value;
+    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.fetchPage(0, this.pageSize());
+  }
+
+  onColumnFilterValue(column: string, value: string): void {
     this.columnFilters.update(prev => ({...prev, [column]: value}));
     this.fetchPage(0, this.pageSize());
   }
