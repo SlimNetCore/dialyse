@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnChanges, Output, signal} from '@angular/core';
+import {Component, computed, effect, EventEmitter, inject, OnInit, Output, signal} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -12,6 +12,11 @@ import {TranslateModule} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
 import {BackendApiService} from '../../core/api/backend-api.service';
 import {AuthSessionService} from '../../core/auth/auth-session.service';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {AppShellStore} from '../../core/state/app-shell.store';
+import {WebSocketService} from '../../core/ws/websocket.service';
 
 export interface PatientRow {
   id: string;
@@ -25,12 +30,15 @@ export interface PatientRow {
   nonFacturable?: boolean;
 }
 
+type FilterType = 'text' | 'date';
+
 @Component({
   selector: 'app-patient-list',
   standalone: true,
   imports: [
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatChipsModule, MatTooltipModule, MatSnackBarModule, TranslateModule,
+    MatFormFieldModule, MatInputModule, MatChipsModule, MatTooltipModule, MatSnackBarModule,
+    MatMenuModule, MatCheckboxModule, MatPaginatorModule, TranslateModule,
     PatientQrCardComponent
   ],
   template: `
@@ -38,21 +46,38 @@ export interface PatientRow {
       <mat-card-header>
         <mat-icon mat-card-avatar class="header-icon">people</mat-icon>
         <mat-card-title>{{ 'PATIENT_LIST.TITLE' | translate }}</mat-card-title>
-        <mat-card-subtitle>{{ 'PATIENT_LIST.TOTAL' | translate:{ count: patients.length } }}</mat-card-subtitle>
+        <mat-card-subtitle>{{ 'PATIENT_LIST.TOTAL' | translate:{count: total()} }}</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
-        <!-- Toolbar -->
         <div class="list-toolbar">
           <mat-form-field appearance="outline" class="search-field">
             <mat-icon matPrefix>search</mat-icon>
             <mat-label>{{ 'PATIENT_LIST.SEARCH' | translate }}</mat-label>
-            <input matInput (input)="onSearch($event)" />
+            <input matInput [value]="searchTerm()" (input)="onSearch($event)"/>
           </mat-form-field>
+
           <button mat-flat-button color="primary" (click)="newPatient.emit()" class="btn-new">
             <mat-icon>person_add</mat-icon>
             {{ 'PATIENT_LIST.BTN_NEW' | translate }}
           </button>
+
+          <button mat-stroked-button color="primary" [matMenuTriggerFor]="colsMenu">
+            <mat-icon>view_column</mat-icon>
+            Colonnes
+          </button>
+          <mat-menu #colsMenu="matMenu">
+            @for (c of allColumnsConfig; track c.key) {
+              @if (c.key !== 'actions') {
+                <button mat-menu-item (click)="$event.stopPropagation()">
+                  <mat-checkbox [checked]="isColumnVisible(c.key)" (change)="toggleColumn(c.key, $event.checked)">
+                    {{ c.labelKey | translate }}
+                  </mat-checkbox>
+                </button>
+              }
+            }
+          </mat-menu>
+
           <button mat-stroked-button color="primary" (click)="printList()" [matTooltip]="'PATIENT_LIST.BTN_PRINT_LIST' | translate">
             <mat-icon>print</mat-icon> {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
           </button>
@@ -61,84 +86,186 @@ export interface PatientRow {
           </button>
         </div>
 
-        @if (filteredPatients().length === 0) {
+        @if (rows().length === 0) {
           <div class="empty-state">
             <mat-icon>person_off</mat-icon>
             <p>{{ 'PATIENT_LIST.EMPTY' | translate }}</p>
           </div>
         } @else {
           <div class="table-container">
-            <table mat-table [dataSource]="filteredPatients()" class="patient-table">
+            <table mat-table [dataSource]="rows()" class="patient-table">
               <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_CODE' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <span class="code-chip">{{ row.code }}</span>
-                </td>
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>{{ 'PATIENT_LIST.COL_CODE' | translate }}</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('code')">{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('code')"
+                                                  [value]="columnFilterValue('code')"
+                                                  (input)="onColumnFilter('code', $event)"/>@if (isColumnFiltered('code')) {
+                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('code')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }</div>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row"><span class="code-chip">{{ row.code }}</span></td>
               </ng-container>
 
               <ng-container matColumnDef="nom">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_NOM' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  {{ row.nom }}
-                  @if (row.nonFacturable) {
-                    <mat-icon color="warn" [matTooltip]="'PATIENT_LIST.NON_FACTURABLE_TOOLTIP' | translate" style="font-size:16px;width:16px;height:16px;vertical-align:middle;margin-left:4px;">warning</mat-icon>
-                  }
-                </td>
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>{{ 'PATIENT_LIST.COL_NOM' | translate }}</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('nom')">{{ isColumnFiltered('nom') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('nom')"
+                                                  [value]="columnFilterValue('nom')"
+                                                  (input)="onColumnFilter('nom', $event)"/>@if (isColumnFiltered('nom')) {
+                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('nom')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }</div>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.nom }} @if (row.nonFacturable) {
+                  <mat-icon color="warn" [matTooltip]="'PATIENT_LIST.NON_FACTURABLE_TOOLTIP' | translate"
+                            style="font-size:16px;width:16px;height:16px;vertical-align:middle;margin-left:4px;">warning
+                  </mat-icon>
+                }</td>
               </ng-container>
 
               <ng-container matColumnDef="prenom">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_PRENOM' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>{{ 'PATIENT_LIST.COL_PRENOM' | translate }}</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('prenom')">{{ isColumnFiltered('prenom') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('prenom')"
+                                                  [value]="columnFilterValue('prenom')"
+                                                  (input)="onColumnFilter('prenom', $event)"/>@if (isColumnFiltered('prenom')) {
+                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('prenom')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }</div>
+                  </div>
+                </th>
                 <td mat-cell *matCellDef="let row">{{ row.prenom }}</td>
               </ng-container>
 
               <ng-container matColumnDef="sexe">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_SEXE' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>{{ 'PATIENT_LIST.COL_SEXE' | translate }}</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('sexe')">{{ isColumnFiltered('sexe') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('sexe')"
+                                                  [value]="columnFilterValue('sexe')"
+                                                  (input)="onColumnFilter('sexe', $event)"/>@if (isColumnFiltered('sexe')) {
+                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('sexe')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }</div>
+                  </div>
+                </th>
                 <td mat-cell *matCellDef="let row">
-                  <mat-icon class="sexe-icon" [class.male]="row.sexe === 'M'" [class.female]="row.sexe === 'F'">
-                    {{ row.sexe === 'M' ? 'male' : 'female' }}
+                  <mat-icon class="sexe-icon" [class.male]="row.sexe === 'M'"
+                            [class.female]="row.sexe === 'F'">{{ row.sexe === 'M' ? 'male' : 'female' }}
                   </mat-icon>
                 </td>
               </ng-container>
 
               <ng-container matColumnDef="dateAdmission">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_DATE_ADMISSION' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>{{ 'PATIENT_LIST.COL_DATE_ADMISSION' | translate }}</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('dateAdmission')">{{ isColumnFiltered('dateAdmission') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('dateAdmission')"
+                                                  [value]="columnFilterValue('dateAdmission')"
+                                                  (input)="onColumnFilter('dateAdmission', $event)"/>@if (isColumnFiltered('dateAdmission')) {
+                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('dateAdmission')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }</div>
+                  </div>
+                </th>
                 <td mat-cell *matCellDef="let row">{{ row.dateAdmission }}</td>
               </ng-container>
 
               <ng-container matColumnDef="numeroAssurance">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_ASSURANCE' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>{{ 'PATIENT_LIST.COL_ASSURANCE' | translate }}</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('numeroAssurance')">{{ isColumnFiltered('numeroAssurance') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('numeroAssurance')"
+                                                  [value]="columnFilterValue('numeroAssurance')"
+                                                  (input)="onColumnFilter('numeroAssurance', $event)"/>@if (isColumnFiltered('numeroAssurance')) {
+                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('numeroAssurance')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }</div>
+                  </div>
+                </th>
                 <td mat-cell *matCellDef="let row"><span class="mono">{{ row.numeroAssurance }}</span></td>
               </ng-container>
 
               <ng-container matColumnDef="etatPatient">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_ETAT' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <span class="etat-badge" [attr.data-etat]="row.etatPatient">{{ row.etatPatient }}</span>
+                <th mat-header-cell *matHeaderCellDef>
+                  <div class="th-wrap">
+                    <div class="th-top"><span>{{ 'PATIENT_LIST.COL_ETAT' | translate }}</span>
+                      <mat-icon class="filter-ind"
+                                [class.active]="isColumnFiltered('etatPatient')">{{ isColumnFiltered('etatPatient') ? 'filter_alt' : 'filter_alt_off' }}
+                      </mat-icon>
+                    </div>
+                    <div class="th-filter"><input class="col-filter" matInput [type]="inputType('etatPatient')"
+                                                  [value]="columnFilterValue('etatPatient')"
+                                                  (input)="onColumnFilter('etatPatient', $event)"/>@if (isColumnFiltered('etatPatient')) {
+                      <button mat-icon-button class="clear-filter" (click)="clearColumnFilter('etatPatient')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    }</div>
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row"><span class="etat-badge"
+                                                         [attr.data-etat]="row.etatPatient">{{ row.etatPatient }}</span>
                 </td>
               </ng-container>
 
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_ACTIONS' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
-                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate" (click)="selectPatient.emit(row)">
+                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate"
+                          (click)="selectPatient.emit(row)">
                     <mat-icon>visibility</mat-icon>
                   </button>
-                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate" (click)="printFiche(row)" color="primary">
+                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate" (click)="printFiche(row)"
+                          color="primary">
                     <mat-icon>print</mat-icon>
                   </button>
-                  <app-patient-qr-card
-                    [patientId]="row.id"
-                    [nom]="row.nom"
-                    [prenom]="row.prenom"
-                    [numeroAssurance]="row.numeroAssurance"
-                    [dateAdmission]="row.dateAdmission" />
+                  <app-patient-qr-card [patientId]="row.id" [nom]="row.nom" [prenom]="row.prenom"
+                                       [numeroAssurance]="row.numeroAssurance" [dateAdmission]="row.dateAdmission"/>
                 </td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="patient-row"></tr>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="patient-row"></tr>
             </table>
           </div>
+          <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
+                         [pageSizeOptions]="[5,10,20,50]" (page)="onPageChange($event)"></mat-paginator>
         }
       </mat-card-content>
     </mat-card>
@@ -170,7 +297,6 @@ export interface PatientRow {
       flex-wrap: wrap;
     }
     .btn-new { margin-left: auto; }
-
     .search-field { flex: 1; max-width: 400px; }
 
     .table-container {
@@ -240,45 +366,212 @@ export interface PatientRow {
       align-items: center;
       padding: 48px 24px;
       color: var(--app-muted);
+    }
 
-      mat-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        margin-bottom: 12px;
-      }
+    .empty-state mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+    }
 
-      p {
-        font-style: italic;
-        font-size: 15px;
-      }
+    .empty-state p {
+      font-style: italic;
+      font-size: 15px;
+    }
+
+    .th-wrap {
+      display: grid;
+      gap: 6px;
+    }
+
+    .th-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .th-filter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--app-primary-soft) 60%, white);
+      border: 1px solid var(--app-border);
+    }
+
+    .filter-ind {
+      font-size: 17px;
+      width: 17px;
+      height: 17px;
+      color: #94a3b8;
+    }
+
+    .filter-ind.active {
+      color: var(--app-primary);
+    }
+
+    .col-filter {
+      height: 30px;
+      width: 100%;
+      min-width: 96px;
+      font-size: 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 4px 8px;
+      background: #fff;
+      outline: none;
+    }
+
+    .col-filter:focus {
+      border-color: var(--app-primary-outline);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 14%, white);
+    }
+
+    .clear-filter {
+      width: 26px;
+      height: 26px;
+    }
+
+    .clear-filter mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
   `]
 })
-export class PatientListComponent implements OnChanges {
-  @Input() patients: PatientRow[] = [];
+export class PatientListComponent implements OnInit {
   @Output() newPatient = new EventEmitter<void>();
   @Output() selectPatient = new EventEmitter<PatientRow>();
 
   private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthSessionService);
+  readonly allColumnsConfig = [
+    {key: 'code', labelKey: 'PATIENT_LIST.COL_CODE', type: 'text' as FilterType},
+    {key: 'nom', labelKey: 'PATIENT_LIST.COL_NOM', type: 'text' as FilterType},
+    {key: 'prenom', labelKey: 'PATIENT_LIST.COL_PRENOM', type: 'text' as FilterType},
+    {key: 'sexe', labelKey: 'PATIENT_LIST.COL_SEXE', type: 'text' as FilterType},
+    {key: 'dateAdmission', labelKey: 'PATIENT_LIST.COL_DATE_ADMISSION', type: 'date' as FilterType},
+    {key: 'numeroAssurance', labelKey: 'PATIENT_LIST.COL_ASSURANCE', type: 'text' as FilterType},
+    {key: 'etatPatient', labelKey: 'PATIENT_LIST.COL_ETAT', type: 'text' as FilterType},
+    {key: 'actions', labelKey: 'PATIENT_LIST.COL_ACTIONS', type: 'text' as FilterType}
+  ] as const;
+  readonly visibleColumns = signal<Record<string, boolean>>({
+    code: true,
+    nom: true,
+    prenom: true,
+    sexe: true,
+    dateAdmission: true,
+    numeroAssurance: true,
+    etatPatient: true,
+    actions: true
+  });
   private readonly snack = inject(MatSnackBar);
+  readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
+  readonly rows = signal<PatientRow[]>([]);
+  readonly total = signal(0);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly columnFilters = signal<Record<string, string>>({});
+  readonly searchTerm = signal('');
+  private readonly store = inject(AppShellStore);
+  private readonly ws = inject(WebSocketService);
 
-  readonly displayedColumns = ['code', 'nom', 'prenom', 'sexe', 'dateAdmission', 'numeroAssurance', 'etatPatient', 'actions'];
-  readonly filteredPatients = signal<PatientRow[]>([]);
+  constructor() {
+    effect(() => {
+      const evt = this.ws.lastEvent();
+      if (evt?.type === 'PATIENT_CREATED' || evt?.type === 'PEC_VALIDATED') {
+        this.fetchPage(this.pageIndex(), this.pageSize());
+      }
+    });
+  }
 
-  private searchTerm = '';
-
-  ngOnChanges(): void {
-    this.applyFilter();
+  ngOnInit(): void {
+    this.fetchPage(0, this.pageSize());
   }
 
   onSearch(event: Event): void {
-    this.searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    this.applyFilter();
+    this.searchTerm.set((event.target as HTMLInputElement).value);
+    this.fetchPage(0, this.pageSize());
   }
 
-  /** Imprimer la fiche patient via JasperReports */
+  onColumnFilter(column: string, event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.fetchPage(0, this.pageSize());
+  }
+
+  columnFilterValue(column: string): string {
+    return this.columnFilters()[column] ?? '';
+  }
+
+  isColumnFiltered(column: string): boolean {
+    return !!(this.columnFilters()[column] ?? '').trim();
+  }
+
+  clearColumnFilter(column: string): void {
+    this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.fetchPage(0, this.pageSize());
+  }
+
+  toggleColumn(column: string, checked: boolean): void {
+    this.visibleColumns.update(prev => ({...prev, [column]: checked}));
+  }
+
+  isColumnVisible(column: string): boolean {
+    return !!this.visibleColumns()[column];
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.fetchPage(event.pageIndex, event.pageSize);
+  }
+
+  inputType(column: string): string {
+    const found = this.allColumnsConfig.find(c => c.key === column);
+    return found?.type === 'date' ? 'date' : 'text';
+  }
+
+  private fetchPage(page: number, size: number): void {
+    const centerId = this.store.currentCenterId();
+    if (!centerId) {
+      this.rows.set([]);
+      this.total.set(0);
+      return;
+    }
+
+    this.api.listPatients(centerId, this.auth.username() ?? 'demo', {
+      page,
+      size,
+      search: this.searchTerm(),
+      filters: this.columnFilters()
+    }).subscribe({
+      next: (res) => {
+        const mapped = (res.items ?? []).map((p: any) => ({
+          id: p.id?.value ?? p.id,
+          code: p.codePatient ?? '',
+          nom: p.nom ?? '',
+          prenom: p.prenom ?? '',
+          sexe: p.sexe ?? '',
+          dateAdmission: p.dateAdmission ?? '',
+          numeroAssurance: p.numeroAssurance?.value ?? p.numeroAssurance ?? '',
+          etatPatient: p.etatPatient ?? 'PERMANENT',
+          nonFacturable: !!p.nonFacturable
+        }));
+        this.rows.set(mapped);
+        this.total.set(res.total ?? 0);
+        this.pageIndex.set(res.page ?? page);
+      },
+      error: () => {
+        this.rows.set([]);
+        this.total.set(0);
+      }
+    });
+  }
+
   printFiche(patient: PatientRow): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
@@ -293,7 +586,6 @@ export class PatientListComponent implements OnChanges {
     });
   }
 
-  /** Imprimer la liste complète des patients via JasperReports */
   printList(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
@@ -321,31 +613,5 @@ export class PatientListComponent implements OnChanges {
       error: (err) => this.snack.open('Erreur export: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 })
     });
   }
-
-  private applyFilter(): void {
-    if (!this.searchTerm) {
-      this.filteredPatients.set(this.patients);
-    } else {
-      this.filteredPatients.set(
-        this.patients.filter(p =>
-          p.nom.toLowerCase().includes(this.searchTerm) ||
-          p.prenom.toLowerCase().includes(this.searchTerm) ||
-          p.code.toLowerCase().includes(this.searchTerm) ||
-          p.numeroAssurance.toLowerCase().includes(this.searchTerm)
-        )
-      );
-    }
-  }
 }
-
-
-
-
-
-
-
-
-
-
-
 

@@ -11,4 +11,3 @@ public interface AssureRepositoryPort {
     Optional<Assure> findByNumeroAssurance(String numeroAssurance);
     List<Assure> searchByCenter(CenterId centerId, String query);
 }
-

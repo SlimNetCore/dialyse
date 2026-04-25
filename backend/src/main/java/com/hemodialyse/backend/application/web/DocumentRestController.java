@@ -3,9 +3,12 @@ package com.hemodialyse.backend.application.web;
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -171,6 +174,12 @@ public class DocumentRestController {
             return ResponseEntity.internalServerError()
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(("Erreur d'impression: " + e.getMessage()).getBytes());
+        } catch (Throwable t) {
+            // Capture errors like NoClassDefFoundError to avoid security fallback 403 on /error dispatch
+            log.error("Erreur critique impression: {}", t.getMessage(), t);
+            return ResponseEntity.internalServerError()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(("Erreur critique d'impression: " + t.getClass().getSimpleName() + " - " + t.getMessage()).getBytes());
         }
     }
 
@@ -220,6 +229,11 @@ public class DocumentRestController {
             return ResponseEntity.internalServerError()
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(("Erreur: " + e.getMessage()).getBytes());
+        } catch (Throwable t) {
+            log.error("Erreur critique impression par ID: {}", t.getMessage(), t);
+            return ResponseEntity.internalServerError()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(("Erreur critique: " + t.getClass().getSimpleName() + " - " + t.getMessage()).getBytes());
         }
     }
 

@@ -1,9 +1,23 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 export type PatientType = 'VACANCIER' | 'NON_VACANCIER';
 export type PecStatus = 'CREE' | 'VALIDEE' | 'CLOTUREE';
+
+export type PagedResponse<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  size: number;
+};
+
+export type ListQuery = {
+  page: number;
+  size: number;
+  search?: string;
+  filters?: Record<string, string>;
+};
 
 export type CreatePatientPayload = {
   nom: string;
@@ -89,9 +103,17 @@ export class BackendApiService {
     return this.http.post<{ id: string; centerId: string; typePatient: PatientType }>(`${this.baseUrl}/patients`, payload);
   }
 
-  listPatients(centerId: string, userId: string): Observable<any[]> {
-    const params = new HttpParams().set('centerId', centerId).set('userId', userId);
-    return this.http.get<any[]>(`${this.baseUrl}/patients`, { params });
+  listPatients(centerId: string, userId: string, query: ListQuery): Observable<PagedResponse<any>> {
+    let params = new HttpParams()
+      .set('centerId', centerId)
+      .set('userId', userId)
+      .set('page', query.page)
+      .set('size', query.size);
+    if (query.search?.trim()) params = params.set('search', query.search.trim());
+    for (const [k, v] of Object.entries(query.filters ?? {})) {
+      if (v?.trim()) params = params.set(k, v.trim());
+    }
+    return this.http.get<PagedResponse<any>>(`${this.baseUrl}/patients`, {params});
   }
 
   getPatient(patientId: string, centerId: string, userId: string): Observable<unknown> {
@@ -136,9 +158,16 @@ export class BackendApiService {
     return this.http.get<any[]>(`${this.baseUrl}/pec`, { params });
   }
 
-  listPecsDetailed(centerId: string): Observable<any[]> {
-    const params = new HttpParams().set('centerId', centerId);
-    return this.http.get<any[]>(`${this.baseUrl}/pec/pec-center`, { params });
+  listPecsDetailed(centerId: string, query: ListQuery): Observable<PagedResponse<any>> {
+    let params = new HttpParams()
+      .set('centerId', centerId)
+      .set('page', query.page)
+      .set('size', query.size);
+    if (query.search?.trim()) params = params.set('search', query.search.trim());
+    for (const [k, v] of Object.entries(query.filters ?? {})) {
+      if (v?.trim()) params = params.set(k, v.trim());
+    }
+    return this.http.get<PagedResponse<any>>(`${this.baseUrl}/pec/pec-center`, {params});
   }
 
   listPecsByPatient(centerId: string, patientId: string): Observable<any[]> {
@@ -151,9 +180,16 @@ export class BackendApiService {
     return this.http.get<any[]>(`${this.baseUrl}/pec/attestations/${patientId}`, { params });
   }
 
-  listAttestationsByCenter(centerId: string): Observable<any[]> {
-    const params = new HttpParams().set('centerId', centerId);
-    return this.http.get<any[]>(`${this.baseUrl}/pec/attestations-center`, { params });
+  listAttestationsByCenter(centerId: string, query: ListQuery): Observable<PagedResponse<any>> {
+    let params = new HttpParams()
+      .set('centerId', centerId)
+      .set('page', query.page)
+      .set('size', query.size);
+    if (query.search?.trim()) params = params.set('search', query.search.trim());
+    for (const [k, v] of Object.entries(query.filters ?? {})) {
+      if (v?.trim()) params = params.set(k, v.trim());
+    }
+    return this.http.get<PagedResponse<any>>(`${this.baseUrl}/pec/attestations-center`, {params});
   }
 
   closePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {

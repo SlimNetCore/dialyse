@@ -21,4 +21,3 @@ public class AssurePatientAssignment {
     public OffsetDateTime getDateAffectation() { return dateAffectation; }
     public void setDateAffectation(OffsetDateTime v) { this.dateAffectation = v; }
 }
-

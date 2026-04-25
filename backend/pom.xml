@@ -134,6 +134,16 @@
 				<exclusion><groupId>commons-logging</groupId><artifactId>commons-logging</artifactId></exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
+		</dependency>
 		<!-- PDF/Excel export classes are available from jasperreports core in 6.x -->
 	</dependencies>
 

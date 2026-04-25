@@ -13,4 +13,3 @@ public interface AssurePatientRepositoryPort {
     Optional<AssurePatientAssignment> findPrimary(CenterId centerId, UUID patientId);
     List<AssurePatientAssignment> findHistory(CenterId centerId, UUID patientId);
 }
-

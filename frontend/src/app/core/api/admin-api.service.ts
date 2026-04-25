@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 export interface AppUser {
   ID: string; USERNAME: string; EMAIL: string; FULL_NAME: string; ACTIVE: boolean; CREATED_AT: string;
@@ -10,6 +10,20 @@ export interface AppUser {
 
 export interface AppRole {
   ID: string; CODE: string; NAME: string; DESCRIPTION: string;
+}
+
+export interface PagedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+export interface ListQuery {
+  page: number;
+  size: number;
+  search?: string;
+  filters?: Record<string, string>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +36,18 @@ export class AdminApiService {
     let params = new HttpParams();
     if (centerId) params = params.set('centerId', centerId);
     return this.http.get<AppUser[]>(`${this.base}/users`, { params });
+  }
+
+  listUsersPaged(query: ListQuery, centerId?: string): Observable<PagedResponse<AppUser>> {
+    let params = new HttpParams()
+      .set('page', query.page)
+      .set('size', query.size);
+    if (centerId) params = params.set('centerId', centerId);
+    if (query.search?.trim()) params = params.set('search', query.search.trim());
+    for (const [k, v] of Object.entries(query.filters ?? {})) {
+      if (v?.trim()) params = params.set(k, v.trim());
+    }
+    return this.http.get<PagedResponse<AppUser>>(`${this.base}/users`, {params});
   }
 
   getUser(id: string): Observable<AppUser> {
@@ -43,6 +69,17 @@ export class AdminApiService {
   /* ─── Roles ─── */
   listRoles(): Observable<AppRole[]> {
     return this.http.get<AppRole[]>(`${this.base}/roles`);
+  }
+
+  listRolesPaged(query: ListQuery): Observable<PagedResponse<AppRole>> {
+    let params = new HttpParams()
+      .set('page', query.page)
+      .set('size', query.size);
+    if (query.search?.trim()) params = params.set('search', query.search.trim());
+    for (const [k, v] of Object.entries(query.filters ?? {})) {
+      if (v?.trim()) params = params.set(k, v.trim());
+    }
+    return this.http.get<PagedResponse<AppRole>>(`${this.base}/roles`, {params});
   }
 
   getRole(id: string): Observable<AppRole> {

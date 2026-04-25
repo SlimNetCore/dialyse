@@ -5,12 +5,12 @@ import com.hemodialyse.backend.domain.assure.model.Assure;
 import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
 import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
+import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase.CreatePatientCommand;
-import com.hemodialyse.backend.domain.patient.model.Patient;
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.pec.port.PecUseCase;
 import com.hemodialyse.backend.domain.pec.model.PecStatus;
+import com.hemodialyse.backend.domain.pec.port.PecUseCase;
+import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -110,7 +110,18 @@ public class PatientRestController {
     }
 
     @GetMapping
-    public ResponseEntity<?> list(@RequestParam UUID centerId, @RequestParam String userId) {
+    public ResponseEntity<?> list(@RequestParam UUID centerId,
+                                  @RequestParam String userId,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  @RequestParam(required = false) String search,
+                                  @RequestParam(required = false) String code,
+                                  @RequestParam(required = false) String nom,
+                                  @RequestParam(required = false) String prenom,
+                                  @RequestParam(required = false) String sexe,
+                                  @RequestParam(required = false) String dateAdmission,
+                                  @RequestParam(required = false) String numeroAssurance,
+                                  @RequestParam(required = false) String etatPatient) {
         var center = CenterId.of(centerId);
         var rows = useCase.listPatients(center).stream().map(p -> {
             var pecs = pecUseCase.listByPatient(center, p.getId().value());
@@ -127,7 +138,61 @@ public class PatientRestController {
                 "nonFacturable", !facturable
             );
         }).toList();
-        return ResponseEntity.ok(rows);
+
+        LocalDate dateFilter = null;
+        if (dateAdmission != null && !dateAdmission.isBlank()) {
+            try {
+                dateFilter = LocalDate.parse(dateAdmission);
+            } catch (Exception ignored) {
+                return ResponseEntity.ok(Map.of("items", List.of(), "total", 0, "page", page, "size", size));
+            }
+        }
+
+        final String searchLc = search == null ? "" : search.toLowerCase();
+        final String codeLc = code == null ? "" : code.toLowerCase();
+        final String nomLc = nom == null ? "" : nom.toLowerCase();
+        final String prenomLc = prenom == null ? "" : prenom.toLowerCase();
+        final String sexeLc = sexe == null ? "" : sexe.toLowerCase();
+        final String assuranceLc = numeroAssurance == null ? "" : numeroAssurance.toLowerCase();
+        final String etatLc = etatPatient == null ? "" : etatPatient.toLowerCase();
+        final LocalDate dateFilterFinal = dateFilter;
+
+        var filtered = rows.stream().filter(r -> {
+            String rowCode = String.valueOf(r.get("codePatient")).toLowerCase();
+            String rowNom = String.valueOf(r.get("nom")).toLowerCase();
+            String rowPrenom = String.valueOf(r.get("prenom")).toLowerCase();
+            String rowSexe = String.valueOf(r.get("sexe")).toLowerCase();
+            String rowAssurance = String.valueOf(r.get("numeroAssurance")).toLowerCase();
+            String rowEtat = String.valueOf(r.get("etatPatient")).toLowerCase();
+
+            boolean globalMatch = searchLc.isBlank() || rowCode.contains(searchLc) || rowNom.contains(searchLc)
+                    || rowPrenom.contains(searchLc) || rowAssurance.contains(searchLc) || rowEtat.contains(searchLc);
+            if (!globalMatch) return false;
+            if (!codeLc.isBlank() && !rowCode.contains(codeLc)) return false;
+            if (!nomLc.isBlank() && !rowNom.contains(nomLc)) return false;
+            if (!prenomLc.isBlank() && !rowPrenom.contains(prenomLc)) return false;
+            if (!sexeLc.isBlank() && !rowSexe.contains(sexeLc)) return false;
+            if (!assuranceLc.isBlank() && !rowAssurance.contains(assuranceLc)) return false;
+            if (!etatLc.isBlank() && !rowEtat.contains(etatLc)) return false;
+            if (dateFilterFinal != null) {
+                Object v = r.get("dateAdmission");
+                return v instanceof LocalDate && dateFilterFinal.equals(v);
+            }
+            return true;
+        }).toList();
+
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        int start = safePage * safeSize;
+        int end = Math.min(start + safeSize, filtered.size());
+        var items = start >= filtered.size() ? List.of() : filtered.subList(start, end);
+
+        return ResponseEntity.ok(Map.of(
+                "items", items,
+                "total", filtered.size(),
+                "page", safePage,
+                "size", safeSize
+        ));
     }
 
     @GetMapping("/{id}")

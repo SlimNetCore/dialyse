@@ -56,4 +56,3 @@ public class AssurePatientRepositoryAdapter implements AssurePatientRepositoryPo
         return a;
     }
 }
-

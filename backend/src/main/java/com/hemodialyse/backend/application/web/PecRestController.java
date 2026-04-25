@@ -1,14 +1,13 @@
 package com.hemodialyse.backend.application.web;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.application.query.PecReadQueryService;
 import com.hemodialyse.backend.domain.insurance.port.AttestationUseCase;
 import com.hemodialyse.backend.domain.pec.port.PecUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import com.hemodialyse.backend.application.query.PecReadQueryService;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -102,12 +101,41 @@ public class PecRestController {
     }
 
     @GetMapping("/attestations-center")
-    public ResponseEntity<?> listAttestationsByCenter(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(readQueryService.listAttestationsByCenter(centerId));
+    public ResponseEntity<?> listAttestationsByCenter(@RequestParam UUID centerId,
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size,
+                                                      @RequestParam(required = false) String search,
+                                                      @RequestParam(required = false) String code,
+                                                      @RequestParam(required = false) String nom,
+                                                      @RequestParam(required = false) String assurance,
+                                                      @RequestParam(required = false) String debut,
+                                                      @RequestParam(required = false) String fin) {
+        var result = readQueryService.listAttestationsByCenterPaged(centerId, page, size, search, code, nom, assurance, debut, fin);
+        return ResponseEntity.ok(Map.of(
+                "items", result.items(),
+                "total", result.total(),
+                "page", result.page(),
+                "size", result.size()
+        ));
     }
 
     @GetMapping("/pec-center")
-    public ResponseEntity<?> listPecByCenterDetailed(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(readQueryService.listPecByCenterDetailed(centerId));
+    public ResponseEntity<?> listPecByCenterDetailed(@RequestParam UUID centerId,
+                                                     @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "10") int size,
+                                                     @RequestParam(required = false) String search,
+                                                     @RequestParam(required = false) String code,
+                                                     @RequestParam(required = false) String nom,
+                                                     @RequestParam(required = false) String assurance,
+                                                     @RequestParam(required = false) String debut,
+                                                     @RequestParam(required = false) String fin,
+                                                     @RequestParam(required = false) String statut) {
+        var result = readQueryService.listPecByCenterDetailedPaged(centerId, page, size, search, code, nom, assurance, debut, fin, statut);
+        return ResponseEntity.ok(Map.of(
+                "items", result.items(),
+                "total", result.total(),
+                "page", result.page(),
+                "size", result.size()
+        ));
     }
 }

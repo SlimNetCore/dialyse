@@ -1,20 +1,20 @@
-import { Component, inject, signal, computed, ViewChild, OnInit, AfterViewInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { MatStepperModule, MatStepper } from '@angular/material/stepper';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { StepGeneralitesComponent } from './step-generalites.component';
-import { StepAssuranceComponent } from './step-assurance.component';
-import { StepAffectationComponent } from './step-affectation.component';
-import { StepAttestationComponent } from './step-attestation.component';
-import { StepPecComponent } from './step-pec.component';
-import { StepPiecesJointesComponent } from './step-pieces-jointes.component';
-import { BackendApiService } from '../../../core/api/backend-api.service';
-import { AuthSessionService } from '../../../core/auth/auth-session.service';
-import { AppShellStore } from '../../../core/state/app-shell.store';
+import {AfterViewInit, Component, computed, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {MatStepper, MatStepperModule} from '@angular/material/stepper';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
+import {StepGeneralitesComponent} from './step-generalites.component';
+import {StepAssuranceComponent} from './step-assurance.component';
+import {StepAffectationComponent} from './step-affectation.component';
+import {StepAttestationComponent} from './step-attestation.component';
+import {StepPecComponent} from './step-pec.component';
+import {StepPiecesJointesComponent} from './step-pieces-jointes.component';
+import {BackendApiService} from '../../../core/api/backend-api.service';
+import {AuthSessionService} from '../../../core/auth/auth-session.service';
+import {AppShellStore} from '../../../core/state/app-shell.store';
 
 @Component({
   selector: 'app-patient-wizard',
@@ -248,9 +248,14 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   readonly canSave = computed(() => {
     this.wizardDataVersion();  // trigger re-eval on data change
-    const base = this.step1Valid() && this.step2Valid() && this.step5Valid();
+    const uiBase = this.step1Valid() && this.step2Valid() && this.step5Valid();
+    const dataBase = this.isDataBaseValid();
+    const base = this.editMode() ? (uiBase || dataBase) : uiBase;
     if (this.consultationMode()) return false;
-    const stepsOk = this.isVacancier() ? base : (base && this.step4Valid());
+    const uiAtt = this.step4Valid();
+    const dataAtt = this.isAttestationDataValid();
+    const attOk = this.editMode() ? (uiAtt || dataAtt) : uiAtt;
+    const stepsOk = this.isVacancier() ? base : (base && attOk);
     if (!stepsOk) return false;
 
     // Check PEC coverage by attestation (non-vacancier only)
@@ -413,11 +418,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         this.wizardDataVersion.update(v => v + 1);
         this.patchStepsFromWizardData();
 
-        // In edit mode, existing data was previously saved — assume all steps valid
-        this.step1Valid.set(true);
-        this.step2Valid.set(true);
-        this.step4Valid.set(true);
-        this.step5Valid.set(true);
+        // Recompute validity from loaded data so Save is enabled automatically when valid.
+        this.recomputeStepValidityFromData();
       }
     });
   }
@@ -550,7 +552,33 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       this.loadStepDataIfNeeded(attestationIndex);
       this.loadStepDataIfNeeded(pecIndex);
     }
+    this.recomputeStepValidityFromData();
     setTimeout(() => this.patchStepsFromWizardData());
+  }
+
+  private isDataBaseValid(): boolean {
+    const d = this.wizardData;
+    const required = [d['nom'], d['prenom'], d['sexe'], d['dateAdmission'], d['numeroAssurance']];
+    return required.every(v => !!String(v ?? '').trim()) && this.isPecDataValid();
+  }
+
+  private isPecDataValid(): boolean {
+    const d = this.wizardData;
+    if (this.isVacancier()) return true;
+    return !!(d['pecDateDebutDemande'] && d['pecDateFinDemande']);
+  }
+
+  private isAttestationDataValid(): boolean {
+    if (this.isVacancier()) return true;
+    const d = this.wizardData;
+    return !!(d['attestationDebut'] && d['attestationFin']);
+  }
+
+  private recomputeStepValidityFromData(): void {
+    this.step1Valid.set(!!(this.wizardData['nom'] && this.wizardData['prenom'] && this.wizardData['sexe'] && this.wizardData['dateAdmission']));
+    this.step2Valid.set(!!this.wizardData['numeroAssurance']);
+    this.step4Valid.set(this.isAttestationDataValid());
+    this.step5Valid.set(this.isPecDataValid());
   }
 
   private parseAssureHistory(json: any): any[] {
