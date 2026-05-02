@@ -1,9 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import {Injectable, signal} from '@angular/core';
+import {firstValueFrom} from 'rxjs';
+import {AuthApiService, LoginResponse} from '../api/auth-api.service';
 
 const STORAGE_KEY = 'hemodialyse.auth.session';
 
 type AuthSession = {
-  token: string;
   username: string;
   fullName?: string;
   centerId: string;
@@ -13,7 +14,6 @@ type AuthSession = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
-  readonly token = signal<string | null>(null);
   readonly username = signal<string | null>(null);
   readonly fullName = signal<string | null>(null);
   readonly centerId = signal<string | null>(null);
@@ -21,12 +21,11 @@ export class AuthSessionService {
   readonly roles = signal<string[]>([]);
   readonly isAuthenticated = signal(false);
 
-  constructor() {
-    this.restore();
+  constructor(private readonly authApi: AuthApiService) {
+    this.restoreFromStorage();
   }
 
   setSession(session: AuthSession): void {
-    this.token.set(session.token);
     this.username.set(session.username);
     this.fullName.set(session.fullName ?? session.username);
     this.centerId.set(session.centerId);
@@ -37,7 +36,6 @@ export class AuthSessionService {
   }
 
   clearSession(): void {
-    this.token.set(null);
     this.username.set(null);
     this.fullName.set(null);
     this.centerId.set(null);
@@ -45,6 +43,15 @@ export class AuthSessionService {
     this.roles.set([]);
     this.isAuthenticated.set(false);
     localStorage.removeItem(STORAGE_KEY);
+  }
+
+  async initFromServer(): Promise<void> {
+    try {
+      const me = await firstValueFrom(this.authApi.me());
+      this.setSession(this.mapLoginResponse(me));
+    } catch {
+      this.clearSession();
+    }
   }
 
   hasRole(role: string): boolean {
@@ -57,7 +64,7 @@ export class AuthSessionService {
     return roles.includes(`ROLE_${role}`);
   }
 
-  private restore(): void {
+  private restoreFromStorage(): void {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
 
@@ -67,5 +74,15 @@ export class AuthSessionService {
     } catch {
       this.clearSession();
     }
+  }
+
+  private mapLoginResponse(res: LoginResponse): AuthSession {
+    return {
+      username: res.username,
+      fullName: res.fullName,
+      centerId: res.centerId,
+      centerName: res.centerName,
+      roles: res.roles ?? []
+    };
   }
 }

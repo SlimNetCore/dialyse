@@ -69,6 +69,12 @@ public class AuthService {
         return new LoginResult(token, username, fullName, userId, centerId, centerName, prefixedRoles);
     }
 
+    public LoginResult rebuildSession(UUID centerId, String username, UUID userId, List<String> roles) {
+        String centerName = jdbc.queryForObject("SELECT name FROM centers WHERE id = ?", String.class, centerId);
+        String fullName = jdbc.queryForObject("SELECT full_name FROM app_user WHERE id = ?", String.class, userId);
+        return new LoginResult("", username, fullName, userId, centerId, centerName, roles);
+    }
+
     public record LoginResult(String token, String username, String fullName, UUID userId, UUID centerId, String centerName, List<String> roles) {
     }
 }
