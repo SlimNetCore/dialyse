@@ -1,11 +1,8 @@
 package com.hemodialyse.backend.infrastructure.persistence.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -30,6 +27,12 @@ public class AssurePatientJpaEntity {
     @Column(name = "date_affectation", nullable = false)
     private OffsetDateTime dateAffectation;
 
+    @Column(name = "date_debut_affectation")
+    private LocalDate dateDebutAffectation;
+
+    @Column(name = "date_fin_affectation")
+    private LocalDate dateFinAffectation;
+
     public UUID getPatientId() { return patientId; }
     public void setPatientId(UUID v) { this.patientId = v; }
     public String getNumeroAssurance() { return numeroAssurance; }
@@ -40,5 +43,22 @@ public class AssurePatientJpaEntity {
     public void setIsPrimary(Boolean v) { this.isPrimary = v; }
     public OffsetDateTime getDateAffectation() { return dateAffectation; }
     public void setDateAffectation(OffsetDateTime v) { this.dateAffectation = v; }
+
+    public LocalDate getDateDebutAffectation() {
+        return dateDebutAffectation;
+    }
+
+    public void setDateDebutAffectation(LocalDate v) {
+        this.dateDebutAffectation = v;
+    }
+
+    public LocalDate getDateFinAffectation() {
+        return dateFinAffectation;
+    }
+
+    public void setDateFinAffectation(LocalDate v) {
+        this.dateFinAffectation = v;
+    }
 }
+
 

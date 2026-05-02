@@ -126,6 +126,20 @@ CREATE TABLE IF NOT EXISTS app_user_center (
     PRIMARY KEY (user_id, center_id)
 );
 
+CREATE TABLE IF NOT EXISTS auth_refresh_token
+(
+    id         UUID PRIMARY KEY,
+    token_hash VARCHAR(128) NOT NULL UNIQUE,
+    user_id    UUID         NOT NULL,
+    center_id  UUID         NOT NULL,
+    expires_at TIMESTAMP    NOT NULL,
+    revoked    BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at TIMESTAMP    NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_auth_refresh_token_user_id ON auth_refresh_token (user_id);
+
 -- ═══ Modèles de documents (Jasper) ═══
 
 CREATE TABLE IF NOT EXISTS modele_document (

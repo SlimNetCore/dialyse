@@ -192,11 +192,22 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
                 <div class="assure-row">
                   <div>
                     <strong>{{ a.nom }} {{ a.prenom }}</strong>
-                    <div class="muted">{{ a.numeroAssurance }} • {{ a.sexe || '—' }}</div>
+                    <div class="muted">
+                      {{ a.numeroAssurance }} • {{ a.sexe || '—' }}
+                      @if (a.isPrimary) {
+                        <span class="primary-chip">Primaire</span>
+                      }
+                    </div>
+                    @if (a.dateDebutAffectation || a.dateFinAffectation || a.isPrimary) {
+                      <div class="muted">Affectation: {{ a.dateDebutAffectation || '—' }}
+                        → {{ a.dateFinAffectation || 'en cours' }}
+                      </div>
+                    }
                   </div>
-                  <button mat-stroked-button type="button" (click)="affectAssure(a)" [disabled]="readonly || !canAssignAssure()">
+                  <button mat-stroked-button type="button" (click)="affectAssure(a)"
+                          [disabled]="readonly || !canAssignAssure() || a.isPrimary">
                     <mat-icon>person_add_alt_1</mat-icon>
-                    Affecter au patient
+                    {{ a.isPrimary ? 'Déjà primaire' : 'Affecter au patient' }}
                   </button>
                 </div>
               }
@@ -245,6 +256,17 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
     .assure-row {
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       border:1px solid var(--app-border); border-radius:8px; padding:8px 10px; margin-bottom:6px; background:var(--app-surface);
+    }
+
+    .primary-chip {
+      margin-left: 6px;
+      padding: 1px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--app-primary-outline);
+      background: var(--app-primary-soft);
+      color: var(--app-primary);
+      font-size: 11px;
+      font-weight: 600;
     }
     .muted { font-size: 12px; color: #6b7280; }
   `]
@@ -412,19 +434,18 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     if (!centerId) return;
     this.loadingAssures.set(true);
     this.api.searchAssures(centerId, this.assureSearch()).subscribe({
-      next: rows => { this.assureCatalog.set(rows ?? []); this.loadingAssures.set(false); },
+      next: rows => {
+        this.assureCatalog.set(rows ?? []);
+        this.syncCatalogWithAssignments();
+        this.loadingAssures.set(false);
+      },
       error: () => { this.loadingAssures.set(false); this.snackBar.open('Erreur chargement des assurés', 'OK', { duration: 3000 }); }
     });
   }
 
-  private loadAssureHistory(): void {
-    const centerId = this.store.currentCenterId();
-    if (!centerId || !this.patientId) return;
-    this.api.listPatientAssureHistory(centerId, this.patientId).subscribe(rows => this.assureAssignments.set(rows ?? []));
-  }
-
   affectAssure(a: any): void {
     if (!this.canAssignAssure()) return;
+    if (a?.isPrimary) return;
     const centerId = this.store.currentCenterId();
     if (!centerId) return;
 
@@ -462,6 +483,12 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       next: () => {
         patchAssure();
         this.loadAssureHistory();
+        this.assureCatalog.update(list => list.map(row => ({
+          ...row,
+          isPrimary: row.numeroAssurance === a.numeroAssurance,
+          dateDebutAffectation: row.numeroAssurance === a.numeroAssurance ? toDate(this.form.get('dateDebutAffectation')?.value) : row.dateDebutAffectation,
+          dateFinAffectation: row.numeroAssurance === a.numeroAssurance ? toDate(this.form.get('dateFinAffectation')?.value) : row.dateFinAffectation
+        })));
         this.snackBar.open('Assuré affecté au patient', 'OK', { duration: 2500 });
       },
       error: (err) => {
@@ -473,12 +500,38 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
           return;
         }
         if (err?.status === 401 || err?.status === 403) {
-          this.snackBar.open('Session expirée. Reconnectez-vous puis réessayez.', 'OK', {duration: 3500});
+          // Auth errors are handled globally by the HTTP interceptor (refresh or redirect to /login).
           return;
         }
         this.snackBar.open(detail || 'Erreur affectation assuré', 'OK', {duration: 3500});
       }
     });
+  }
+
+  private loadAssureHistory(): void {
+    const centerId = this.store.currentCenterId();
+    if (!centerId || !this.patientId) return;
+    this.api.listPatientAssureHistory(centerId, this.patientId).subscribe(rows => {
+      this.assureAssignments.set(rows ?? []);
+      this.syncCatalogWithAssignments();
+    });
+  }
+
+  private syncCatalogWithAssignments(): void {
+    const assignmentsByAssure = new Map<string, any>();
+    for (const h of this.assureAssignments()) {
+      assignmentsByAssure.set(h.numeroAssurance, h);
+    }
+    if (this.assureCatalog().length === 0) return;
+    this.assureCatalog.update(list => list.map(a => {
+      const m = assignmentsByAssure.get(a.numeroAssurance);
+      return {
+        ...a,
+        isPrimary: !!m?.isPrimary,
+        dateDebutAffectation: m?.dateDebutAffectation ?? null,
+        dateFinAffectation: m?.dateFinAffectation ?? null
+      };
+    }));
   }
 
   markTouched(): void { this.form.markAllAsTouched(); }

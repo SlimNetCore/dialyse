@@ -149,13 +149,14 @@ public class AuthService {
     public RefreshRotationResult rotateFromRefreshToken(String rawToken) {
         RefreshTokenContext context = loadValidRefreshTokenContext(rawToken);
 
-        jdbc.update(
-                "UPDATE auth_refresh_token SET revoked = ?, revoked_at = ? WHERE id = ? AND revoked = ?",
-                true,
-                Timestamp.from(Instant.now()),
-                context.tokenId(),
-                false
+        int updated = jdbc.update(
+                "UPDATE auth_refresh_token SET revoked = TRUE, revoked_at = CURRENT_TIMESTAMP WHERE id = ? AND revoked = FALSE",
+                context.tokenId()
         );
+        if (updated == 0) {
+            revokeAllUserTokens(context.userId());
+            throw new SecurityException("Refresh token reuse detected");
+        }
 
         LoginResult session = rebuildSession(context.centerId(), context.userId());
         String accessToken = generateAccessToken(session);
@@ -166,11 +167,15 @@ public class AuthService {
     public void revokeRefreshToken(String rawToken) {
         if (rawToken == null || rawToken.isBlank()) return;
         jdbc.update(
-                "UPDATE auth_refresh_token SET revoked = ?, revoked_at = ? WHERE token_hash = ? AND revoked = ?",
-                true,
-                Timestamp.from(Instant.now()),
-                sha256Hex(rawToken),
-                false
+                "UPDATE auth_refresh_token SET revoked = TRUE, revoked_at = CURRENT_TIMESTAMP WHERE token_hash = ? AND revoked = FALSE",
+                sha256Hex(rawToken)
+        );
+    }
+
+    public void revokeAllUserTokens(UUID userId) {
+        jdbc.update(
+                "UPDATE auth_refresh_token SET revoked = TRUE, revoked_at = CURRENT_TIMESTAMP WHERE user_id = ? AND revoked = FALSE",
+                userId
         );
     }
 
@@ -180,7 +185,7 @@ public class AuthService {
         }
 
         List<Map<String, Object>> rows = jdbc.queryForList(
-                "SELECT id, user_id, center_id, expires_at, revoked FROM auth_refresh_token WHERE token_hash = ?",
+                "SELECT id, user_id, center_id, expires_at, revoked FROM auth_refresh_token WHERE token_hash = ? FOR UPDATE",
                 sha256Hex(rawToken)
         );
         if (rows.isEmpty()) {
