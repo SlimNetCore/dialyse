@@ -26,7 +26,7 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
   ],
   providers: [{ provide: STEPPER_GLOBAL_OPTIONS, useValue: { showError: true } }],
   template: `
-    <div class="wizard-container">
+    <div class="wizard-container patient-form-compact">
       <div class="wizard-header">
         <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
         <h2>{{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.TITLE' | translate) }}</h2>
@@ -112,14 +112,31 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
     .wizard-header {
       display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
     }
-    .wizard-header h2 { flex: 1; margin: 0; font-size: 1.3rem; color: #1b5e20; }
+
+    .wizard-header h2 {
+      flex: 1;
+      margin: 0;
+      font-size: 1.3rem;
+      color: var(--app-primary);
+    }
     .wizard-progress {
-      background: #e8f5e9; color: #1b5e20; padding: 6px 16px; border-radius: 20px;
+      background: var(--app-primary-soft);
+      color: var(--app-primary);
+      padding: 6px 16px;
+      border-radius: 20px;
       font-size: 13px; font-weight: 600;
     }
     .mode-badge { background:#eef2ff; color:#4338ca; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; }
-    .mode-badge.editing { background:#dcfce7; color:#166534; }
-    .edit-toggle-btn { border-color:#1b5e20 !important; color:#1b5e20 !important; }
+
+    .mode-badge.editing {
+      background: var(--app-primary-soft);
+      color: var(--app-primary-hover);
+    }
+
+    .edit-toggle-btn {
+      border-color: var(--app-primary-outline) !important;
+      color: var(--app-primary) !important;
+    }
     :host ::ng-deep .wizard-stepper { background: transparent; }
 
     /* Remove Material horizontal content container spacing under step headers. */
@@ -130,10 +147,10 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
     }
 
     :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content {
-      background: #f4faf5;
+      background: var(--app-surface-soft);
       border-radius: 12px;
       margin-top: 0;
-      border: 1px solid #e0ede2;
+      border: 1px solid var(--app-border);
       min-height: 0;
       box-sizing: border-box;
     }
@@ -157,10 +174,10 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
     }
 
     :host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-selected {
-      background-color: #1b5e20 !important;
+      background-color: var(--app-primary) !important;
     }
     :host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-state-done {
-      background-color: #2e7d32 !important;
+      background-color: var(--app-primary-hover) !important;
     }
     :host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-state-error {
       background-color: #d32f2f !important;
@@ -170,14 +187,14 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
       bottom: 28px;
       right: 16px;
       z-index: 1000;
-      background-color: #1b5e20 !important;
+      background-color: var(--app-primary) !important;
       color: #fff !important;
-      --mdc-extended-fab-container-color: #1b5e20 !important;
-      --mdc-fab-container-color: #1b5e20 !important;
+      --mdc-extended-fab-container-color: var(--app-primary) !important;
+      --mdc-fab-container-color: var(--app-primary) !important;
       --mdc-extended-fab-label-text-color: #fff !important;
       --mat-fab-foreground-color: #fff !important;
       --mdc-fab-icon-color: #fff !important;
-      box-shadow: 0 6px 24px rgba(27,94,32,.35) !important;
+      box-shadow: 0 6px 24px rgba(2, 6, 23, .2) !important;
       border-radius: 16px !important;
     }
     .floating-save:disabled {

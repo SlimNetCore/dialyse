@@ -173,6 +173,55 @@ input[type='date'] {
   min-height: 44px;
 }
 
+/* Compact mode used by patient wizard/form pages */
+.patient-form-compact .mat-mdc-form-field,
+.patient-page .mat-mdc-form-field {
+  font-size: 12px;
+  /* Material tokens: keep same control height for input/date/select */
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
+}
+
+.patient-form-compact .mat-mdc-text-field-wrapper,
+.patient-page .mat-mdc-text-field-wrapper {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.patient-form-compact .mat-mdc-form-field-infix,
+.patient-page .mat-mdc-form-field-infix {
+  min-height: 40px;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.patient-form-compact .mat-mdc-form-field-subscript-wrapper {
+  height: 0;
+}
+
+/* Horizontal centering for placeholders/values inside patient form controls */
+.patient-form-compact .mat-mdc-input-element,
+.patient-page .mat-mdc-input-element,
+.patient-form-compact .mat-mdc-select-value,
+.patient-page .mat-mdc-select-value,
+.patient-form-compact .mat-mdc-select-placeholder,
+.patient-page .mat-mdc-select-placeholder,
+.patient-form-compact .mat-mdc-select-value-text,
+.patient-page .mat-mdc-select-value-text {
+  text-align: center;
+}
+
+.patient-form-compact .mat-mdc-input-element::placeholder,
+.patient-page .mat-mdc-input-element::placeholder {
+  text-align: center;
+}
+
+/* Keep textareas readable: no centered text for multi-line fields */
+.patient-form-compact textarea.mat-mdc-input-element,
+.patient-page textarea.mat-mdc-input-element {
+  text-align: left;
+}
+
 /* Optional centered placeholders where requested */
 input.mat-mdc-input-element::placeholder {
   text-align: center;

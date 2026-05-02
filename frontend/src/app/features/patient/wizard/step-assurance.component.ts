@@ -402,21 +402,32 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   affectAssure(a: any): void {
     if (!this.canAssignAssure()) return;
     const centerId = this.store.currentCenterId();
-    if (!centerId || !this.patientId) return;
+    if (!centerId) return;
+
+    const patchAssure = () => {
+      this.form.patchValue({
+        assureNumeroAssurance: a.numeroAssurance,
+        assureNom: a.nom ?? '',
+        assurePrenom: a.prenom ?? '',
+        assureSexe: a.sexe ?? '',
+        assureDateNaissance: a.dateNaissance ?? null,
+        assureTelPersonnel: a.telPersonnel ?? '',
+        assureTelMobile: a.telMobile ?? '',
+        assureTelBureau: a.telBureau ?? '',
+        assureAdresse: a.adresse ?? '',
+        assureGroupeSanguin: a.groupeSanguin ?? ''
+      });
+    };
+
+    if (!this.patientId) {
+      patchAssure();
+      this.snackBar.open('Assuré sélectionné pour ce patient', 'OK', {duration: 2500});
+      return;
+    }
+
     this.api.assignAssureToPatient(centerId, this.patientId, a.numeroAssurance).subscribe({
       next: () => {
-        this.form.patchValue({
-          assureNumeroAssurance: a.numeroAssurance,
-          assureNom: a.nom ?? '',
-          assurePrenom: a.prenom ?? '',
-          assureSexe: a.sexe ?? '',
-          assureDateNaissance: a.dateNaissance ?? null,
-          assureTelPersonnel: a.telPersonnel ?? '',
-          assureTelMobile: a.telMobile ?? '',
-          assureTelBureau: a.telBureau ?? '',
-          assureAdresse: a.adresse ?? '',
-          assureGroupeSanguin: a.groupeSanguin ?? ''
-        });
+        patchAssure();
         this.loadAssureHistory();
         this.snackBar.open('Assuré affecté au patient', 'OK', { duration: 2500 });
       },

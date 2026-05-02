@@ -1,13 +1,13 @@
-import { Component, OnInit, Output, EventEmitter, inject, signal, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { TranslateModule } from '@ngx-translate/core';
-import { SearchableSelectComponent, DropdownItem } from '../../../shared/searchable-select.component';
-import { ReferentialApiService } from '../../../core/api/referential-api.service';
-import { AppShellStore } from '../../../core/state/app-shell.store';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {TranslateModule} from '@ngx-translate/core';
+import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
+import {ReferentialApiService} from '../../../core/api/referential-api.service';
+import {AppShellStore} from '../../../core/state/app-shell.store';
 
 @Component({
   selector: 'app-step-affectation',
@@ -44,7 +44,7 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
             [selectedId]="form.get('categorieTransportId')?.value" (selectionChanged)="form.patchValue({categorieTransportId: $event?.id})" cssClass="flex1" />
         </div>
 
-        <h4 style="margin: 16px 0 8px; color: #37474f;">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }} *</h4>
+        <h4 class="dialyse-title">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }} *</h4>
         <div class="jours-row">
           <mat-checkbox formControlName="jourDimanche" [disabled]="readonly">{{ 'PATIENT_FORM.DIMANCHE' | translate }}</mat-checkbox>
           <mat-checkbox formControlName="jourLundi" [disabled]="readonly">{{ 'PATIENT_FORM.LUNDI' | translate }}</mat-checkbox>
@@ -59,12 +59,28 @@ import { AppShellStore } from '../../../core/state/app-shell.store';
   `,
   styles: [`
     .step-content {   padding: 12px 20px 20px; }
-    .section-title { color: #1b5e20; font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
+
+    .section-title {
+      color: var(--app-text);
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
+
+    .dialyse-title {
+      margin: 16px 0 8px;
+      color: var(--app-text);
+    }
     .jours-row {
-      display: flex; flex-wrap: wrap; gap: 16px; padding: 14px; background: #f0fdf4;
-      border-radius: 10px; border: 1px solid #c8e6c9;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 14px;
+      background: var(--app-primary-soft);
+      border-radius: 10px;
+      border: 1px solid var(--app-primary-outline);
     }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
