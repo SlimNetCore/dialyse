@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS assure (
 );
 
 CREATE TABLE IF NOT EXISTS assure_patient (
+                                              id UUID NOT NULL DEFAULT RANDOM_UUID(),
     patient_id UUID NOT NULL,
     numero_assurance VARCHAR(100) NOT NULL,
     center_id UUID NOT NULL,
@@ -92,8 +93,11 @@ CREATE TABLE IF NOT EXISTS assure_patient (
     date_debut_affectation DATE,
     date_fin_affectation   DATE,
     date_affectation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (patient_id, numero_assurance)
+                                              PRIMARY KEY (id)
 );
+-- Contrainte : un seul assuré actif (primaire) par patient
+CREATE UNIQUE INDEX IF NOT EXISTS uq_assure_patient_primary_active
+    ON assure_patient (patient_id, center_id) WHERE is_primary = true AND date_fin_affectation IS NULL;
 
 -- ═══ User & Role Management ═══
 

@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.infrastructure.persistence.repository;
 
-import com.hemodialyse.backend.infrastructure.persistence.entity.AssurePatientId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AssurePatientJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface AssurePatientJpaRepository extends JpaRepository<AssurePatientJpaEntity, AssurePatientId> {
+public interface AssurePatientJpaRepository extends JpaRepository<AssurePatientJpaEntity, UUID> {
     @Modifying
     @Query("update AssurePatientJpaEntity ap set ap.isPrimary = false where ap.centerId = :centerId and ap.patientId = :patientId")
     void clearPrimary(UUID centerId, UUID patientId);
@@ -24,5 +23,3 @@ public interface AssurePatientJpaRepository extends JpaRepository<AssurePatientJ
 
     List<AssurePatientJpaEntity> findByCenterIdAndPatientIdOrderByDateAffectationDesc(UUID centerId, UUID patientId);
 }
-
-

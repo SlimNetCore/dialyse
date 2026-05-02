@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public class AssurePatientAssignment {
+    private UUID id;
     private UUID patientId;
     private String numeroAssurance;
     private UUID centerId;
@@ -13,6 +14,13 @@ public class AssurePatientAssignment {
     private LocalDate dateDebutAffectation;
     private LocalDate dateFinAffectation;
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID v) {
+        this.id = v;
+    }
     public UUID getPatientId() { return patientId; }
     public void setPatientId(UUID v) { this.patientId = v; }
     public String getNumeroAssurance() { return numeroAssurance; }
@@ -38,5 +46,12 @@ public class AssurePatientAssignment {
 
     public void setDateFinAffectation(LocalDate v) {
         this.dateFinAffectation = v;
+    }
+
+    /**
+     * Un enregistrement est actif si sa date de fin n'est pas encore définie
+     */
+    public boolean isActif() {
+        return dateFinAffectation == null;
     }
 }

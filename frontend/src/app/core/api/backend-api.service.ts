@@ -131,17 +131,31 @@ export class BackendApiService {
     return this.http.get<any[]>(`${this.baseUrl}/patients/assures`, { params });
   }
 
-  assignAssureToPatient(centerId: string, patientId: string, numeroAssurance: string, payload?: {
-    dateDebutAffectation?: string | null;
-    dateFinAffectation?: string | null
+  assignAssureToPatient(centerId: string, patientId: string, numeroAssurance: string): Observable<any> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/assures/${encodeURIComponent(numeroAssurance)}/affecter`, {}, {params});
+  }
+
+  updateAssure(centerId: string, numeroAssurance: string, payload: {
+    nom?: string; prenom?: string; sexe?: string; dateNaissance?: string | null;
+    telPersonnel?: string; telMobile?: string; telBureau?: string;
+    adresse?: string; groupeSanguin?: string;
   }): Observable<any> {
     const params = new HttpParams().set('centerId', centerId);
-    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/assures/${encodeURIComponent(numeroAssurance)}/affecter`, payload ?? {}, {params});
+    return this.http.put<any>(`${this.baseUrl}/patients/assures/${encodeURIComponent(numeroAssurance)}`, payload, {params});
+  }
+
+  updateAssureAssignment(centerId: string, patientId: string, assignmentId: string, payload: {
+    dateDebutAffectation?: string | null;
+    dateFinAffectation?: string | null;
+  }): Observable<any> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.put<any>(`${this.baseUrl}/patients/${patientId}/assures/assignments/${assignmentId}`, payload, {params});
   }
 
   listPatientAssureHistory(centerId: string, patientId: string): Observable<any[]> {
     const params = new HttpParams().set('centerId', centerId);
-    return this.http.get<any[]>(`${this.baseUrl}/patients/${patientId}/assures/history`, { params });
+    return this.http.get<any[]>(`${this.baseUrl}/patients/${patientId}/assures/history`, {params});
   }
 
   createPec(payload: CreatePecPayload): Observable<{ id: string; status: PecStatus }> {
@@ -149,7 +163,10 @@ export class BackendApiService {
   }
 
   validatePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {
-    return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec/${pecId}/validate`, { centerId, userId });
+    return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec/${pecId}/validate`, {
+      centerId,
+      userId
+    });
   }
 
   validatePecAdmin(pecId: string, payload: { centerId: string; userId: string; dateDebutEffectif: string; dateFinEffectif: string; forfaitEffectifId?: string }): Observable<{ id: string; status: PecStatus }> {

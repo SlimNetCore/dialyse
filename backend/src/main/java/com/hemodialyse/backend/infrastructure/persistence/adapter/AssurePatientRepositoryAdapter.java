@@ -23,6 +23,8 @@ public class AssurePatientRepositoryAdapter implements AssurePatientRepositoryPo
     @Override
     public AssurePatientAssignment save(AssurePatientAssignment assignment) {
         AssurePatientJpaEntity e = new AssurePatientJpaEntity();
+        // Pour les mises à jour : conserver l'id existant
+        if (assignment.getId() != null) e.setId(assignment.getId());
         e.setPatientId(assignment.getPatientId());
         e.setNumeroAssurance(assignment.getNumeroAssurance());
         e.setCenterId(assignment.getCenterId());
@@ -51,11 +53,18 @@ public class AssurePatientRepositoryAdapter implements AssurePatientRepositoryPo
 
     @Override
     public List<AssurePatientAssignment> findHistory(CenterId centerId, UUID patientId) {
-        return jpa.findByCenterIdAndPatientIdOrderByDateAffectationDesc(centerId.value(), patientId).stream().map(this::toDomain).toList();
+        return jpa.findByCenterIdAndPatientIdOrderByDateAffectationDesc(centerId.value(), patientId)
+                .stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public Optional<AssurePatientAssignment> findById(UUID id) {
+        return jpa.findById(id).map(this::toDomain);
     }
 
     private AssurePatientAssignment toDomain(AssurePatientJpaEntity e) {
         AssurePatientAssignment a = new AssurePatientAssignment();
+        a.setId(e.getId());
         a.setPatientId(e.getPatientId());
         a.setNumeroAssurance(e.getNumeroAssurance());
         a.setCenterId(e.getCenterId());

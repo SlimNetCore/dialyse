@@ -8,14 +8,17 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "assure_patient")
-@IdClass(AssurePatientId.class)
 public class AssurePatientJpaEntity {
-    @Id
-    @Column(name = "patient_id")
-    private UUID patientId;
 
     @Id
-    @Column(name = "numero_assurance")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, updatable = false)
+    private UUID id;
+
+    @Column(name = "patient_id", nullable = false)
+    private UUID patientId;
+
+    @Column(name = "numero_assurance", nullable = false)
     private String numeroAssurance;
 
     @Column(name = "center_id", nullable = false)
@@ -33,6 +36,13 @@ public class AssurePatientJpaEntity {
     @Column(name = "date_fin_affectation")
     private LocalDate dateFinAffectation;
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID v) {
+        this.id = v;
+    }
     public UUID getPatientId() { return patientId; }
     public void setPatientId(UUID v) { this.patientId = v; }
     public String getNumeroAssurance() { return numeroAssurance; }
@@ -60,5 +70,3 @@ public class AssurePatientJpaEntity {
         this.dateFinAffectation = v;
     }
 }
-
-

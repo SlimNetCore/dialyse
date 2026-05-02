@@ -12,6 +12,7 @@ import com.hemodialyse.backend.domain.pec.model.PecStatus;
 import com.hemodialyse.backend.domain.pec.port.PecUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -68,14 +69,17 @@ public class PatientRestController {
         var rows = assurePatientRepo.findHistory(CenterId.of(centerId), id).stream().map(h -> {
             var a = assureRepo.findByNumeroAssurance(h.getNumeroAssurance()).orElse(null);
             Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", h.getId());
             m.put("patientId", id);
             m.put("numeroAssurance", h.getNumeroAssurance());
             m.put("isPrimary", h.isPrimary());
+            m.put("actif", h.isActif());
             m.put("dateAffectation", h.getDateAffectation());
             m.put("dateDebutAffectation", h.getDateDebutAffectation());
             m.put("dateFinAffectation", h.getDateFinAffectation());
             m.put("nom", a != null ? a.getNom() : null);
             m.put("prenom", a != null ? a.getPrenom() : null);
+            m.put("sexe", a != null ? a.getSexe() : null);
             return m;
         }).toList();
         return ResponseEntity.ok(rows);
@@ -168,23 +172,25 @@ public class PatientRestController {
         return ResponseEntity.ok(rows);
     }
 
+    @Transactional
     @PostMapping("/{id}/assures/{numeroAssurance}/affecter")
     public ResponseEntity<?> affecterAssure(@PathVariable UUID id,
                                             @PathVariable String numeroAssurance,
-                                            @RequestParam UUID centerId,
-                                            @RequestBody(required = false) AffecterAssureRequest req) {
+                                            @RequestParam UUID centerId) {
         Patient p = useCase.getPatient(CenterId.of(centerId), id);
         if ("ASSURE_LUI_MEME".equals(p.getQualiteAssure())) {
             throw new IllegalArgumentException("Impossible d'affecter un assuré si le patient est assuré lui-même");
         }
-        LocalDate dateDebut = req != null && req.dateDebutAffectation() != null ? req.dateDebutAffectation() : LocalDate.now();
-        LocalDate dateFin = req != null ? req.dateFinAffectation() : null;
-        if (dateFin != null && dateFin.isBefore(dateDebut)) {
-            throw new IllegalArgumentException("La date de fin d'affectation doit être >= à la date de début");
-        }
         Assure a = assureRepo.findByNumeroAssurance(numeroAssurance)
             .orElseThrow(() -> new IllegalArgumentException("Assuré introuvable"));
+
+        // Règle métier : la date de début est automatiquement aujourd'hui
+        LocalDate dateDebut = LocalDate.now();
+
+        // 1. Clôturer l'affectation primaire active précédente (date de fin = aujourd'hui)
         assurePatientRepo.closePrimary(CenterId.of(centerId), id, dateDebut);
+
+        // 2. Créer la nouvelle affectation primaire
         AssurePatientAssignment ap = new AssurePatientAssignment();
         ap.setPatientId(id);
         ap.setNumeroAssurance(numeroAssurance);
@@ -192,19 +198,93 @@ public class PatientRestController {
         ap.setPrimary(true);
         ap.setDateAffectation(java.time.OffsetDateTime.now());
         ap.setDateDebutAffectation(dateDebut);
-        ap.setDateFinAffectation(dateFin);
-        assurePatientRepo.save(ap);
+        ap.setDateFinAffectation(null); // actif
+        AssurePatientAssignment saved = assurePatientRepo.save(ap);
+
         return ResponseEntity.ok(Map.of(
             "assigned", true,
+                "id", saved.getId(),
             "numeroAssurance", numeroAssurance,
                 "dateDebutAffectation", dateDebut,
-                "dateFinAffectation", dateFin,
             "nom", Optional.ofNullable(a.getNom()).orElse(""),
             "prenom", Optional.ofNullable(a.getPrenom()).orElse("")
         ));
     }
 
+    @Transactional
+    @PutMapping("/{patientId}/assures/assignments/{assignmentId}")
+    public ResponseEntity<?> updateAssureAssignment(@PathVariable UUID patientId,
+                                                    @PathVariable UUID assignmentId,
+                                                    @RequestParam UUID centerId,
+                                                    @RequestBody UpdateAssignmentRequest req) {
+        AssurePatientAssignment assignment = assurePatientRepo.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Affectation introuvable: " + assignmentId));
+
+        if (!assignment.getPatientId().equals(patientId) || !assignment.getCenterId().equals(centerId)) {
+            return ResponseEntity.status(403).body(Map.of("error", "Accès refusé"));
+        }
+
+        LocalDate debut = req.dateDebutAffectation();
+        LocalDate fin = req.dateFinAffectation();
+        if (debut != null && fin != null && fin.isBefore(debut)) {
+            throw new IllegalArgumentException("La date de fin doit être >= à la date de début");
+        }
+
+        assignment.setDateDebutAffectation(debut);
+        assignment.setDateFinAffectation(fin);
+        // Si on remet fin à null → l'affectation redevient active ; s'assurer qu'il n'y a pas autre primaire actif
+        if (fin == null && assignment.isPrimary()) {
+            // Pas de contrainte de doublon : la contrainte unique DB protège
+        }
+        assurePatientRepo.save(assignment);
+
+        return ResponseEntity.ok(Map.of("updated", true, "id", assignmentId));
+    }
+
+    @PutMapping("/assures/{numeroAssurance}")
+    public ResponseEntity<?> updateAssure(@PathVariable String numeroAssurance,
+                                          @RequestParam UUID centerId,
+                                          @RequestBody UpdateAssureRequest req) {
+        Assure existing = assureRepo.findByNumeroAssurance(numeroAssurance)
+                .orElseThrow(() -> new IllegalArgumentException("Assuré introuvable: " + numeroAssurance));
+        if (!existing.getCenterId().equals(centerId)) {
+            return ResponseEntity.status(403).body(Map.of("error", "Accès refusé"));
+        }
+        existing.setNom(req.nom());
+        existing.setPrenom(req.prenom());
+        existing.setSexe(req.sexe());
+        existing.setDateNaissance(req.dateNaissance() != null && !req.dateNaissance().isBlank()
+                ? LocalDate.parse(req.dateNaissance().substring(0, 10)) : null);
+        existing.setTelPersonnel(req.telPersonnel());
+        existing.setTelMobile(req.telMobile());
+        existing.setTelBureau(req.telBureau());
+        existing.setAdresse(req.adresse());
+        existing.setGroupeSanguin(req.groupeSanguin());
+        Assure saved = assureRepo.save(existing);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("numeroAssurance", saved.getNumeroAssurance());
+        m.put("nom", saved.getNom());
+        m.put("prenom", saved.getPrenom());
+        m.put("sexe", saved.getSexe());
+        m.put("dateNaissance", saved.getDateNaissance());
+        m.put("telPersonnel", saved.getTelPersonnel());
+        m.put("telMobile", saved.getTelMobile());
+        m.put("telBureau", saved.getTelBureau());
+        m.put("adresse", saved.getAdresse());
+        m.put("groupeSanguin", saved.getGroupeSanguin());
+        return ResponseEntity.ok(m);
+    }
+
+    record UpdateAssignmentRequest(LocalDate dateDebutAffectation, LocalDate dateFinAffectation) {
+    }
+
     record AffecterAssureRequest(LocalDate dateDebutAffectation, LocalDate dateFinAffectation) {
+    }
+
+    record UpdateAssureRequest(
+            String nom, String prenom, String sexe, String dateNaissance,
+            String telPersonnel, String telMobile, String telBureau,
+            String adresse, String groupeSanguin) {
     }
 
     @GetMapping
