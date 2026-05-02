@@ -112,10 +112,27 @@ export class ColumnFilterRendererComponent {
   }
 
   onInput(event: Event): void {
-    this.valueChange.emit((event.target as HTMLInputElement).value);
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+
+    // Only emit value if date is complete (for date inputs) or always for other inputs
+    if (this.type === 'date') {
+      // Check if it's in valid ISO date format (YYYY-MM-DD)
+      if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        this.valueChange.emit(value);
+      } else if (!value) {
+        // Always emit empty values (to clear filter)
+        this.valueChange.emit('');
+      }
+      // Otherwise don't emit for partial dates - user is still typing
+    } else {
+      this.valueChange.emit(value);
+    }
   }
 
   onSelect(event: Event): void {
     this.valueChange.emit((event.target as HTMLSelectElement).value);
   }
 }
+
+

@@ -208,17 +208,31 @@ public class PatientRestController {
         var rows = useCase.listPatients(center).stream().map(p -> {
             var pecs = pecUseCase.listByPatient(center, p.getId().value());
             boolean facturable = pecs.stream().anyMatch(pc -> pc.getStatus() == PecStatus.VALIDEE);
-            return Map.of(
-                "id", p.getId().value(),
-                "codePatient", p.getCodePatient(),
-                "nom", p.getNom(),
-                "prenom", p.getPrenom(),
-                "sexe", p.getSexe(),
-                "dateAdmission", p.getDateAdmission(),
-                "numeroAssurance", p.getNumeroAssurance().value(),
-                "etatPatient", p.getEtatPatient(),
-                "nonFacturable", !facturable
-            );
+            var primaryPec = pecs.stream().filter(pc -> pc.getStatus() == PecStatus.VALIDEE).findFirst().orElse(null);
+
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", p.getId().value());
+            m.put("codePatient", p.getCodePatient());
+            m.put("nom", p.getNom());
+            m.put("prenom", p.getPrenom());
+            m.put("sexe", p.getSexe());
+            m.put("dateAdmission", p.getDateAdmission());
+            m.put("numeroAssurance", p.getNumeroAssurance().value());
+            m.put("etatPatient", p.getEtatPatient());
+            m.put("nonFacturable", !facturable);
+
+            // Additional patient assignment info
+            m.put("medecinTraitantId", p.getMedecinTraitantId());
+            m.put("positionId", p.getPositionId());
+            m.put("transporteurAllerId", p.getTransporteurAllerId());
+            m.put("transporteurRetourId", p.getTransporteurRetourId());
+            m.put("joursDialyse", p.getJoursDialyse());
+
+            // PEC info
+            m.put("pecStatus", primaryPec != null ? primaryPec.getStatus().toString() : "");
+            m.put("pecForfaitId", primaryPec != null && primaryPec.getForfaitDemandeId() != null ? primaryPec.getForfaitDemandeId().toString() : "");
+
+            return m;
         }).toList();
 
         LocalDate dateFilter = parseFlexibleDate(dateAdmission);

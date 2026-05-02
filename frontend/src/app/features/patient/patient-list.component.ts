@@ -1,4 +1,5 @@
 import {Component, computed, effect, EventEmitter, inject, OnInit, Output, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -29,6 +30,13 @@ export interface PatientRow {
   numeroAssurance: string;
   etatPatient: string;
   nonFacturable?: boolean;
+  medecinTraitantId?: string;
+  positionId?: string;
+  transporteurAllerId?: string;
+  transporteurRetourId?: string;
+  joursDialyse?: any;
+  pecStatus?: string;
+  pecForfaitId?: string;
 }
 
 type FilterType = 'text' | 'date';
@@ -37,6 +45,7 @@ type FilterType = 'text' | 'date';
   selector: 'app-patient-list',
   standalone: true,
   imports: [
+    CommonModule,
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatChipsModule, MatTooltipModule, MatSnackBarModule,
     MatMenuModule, MatCheckboxModule, MatPaginatorModule, TranslateModule,
@@ -233,30 +242,180 @@ type FilterType = 'text' | 'date';
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="nonFacturable">
-                <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
-                    <div class="th-top"><span>Facturation</span>
-                      <mat-icon class="filter-ind"
-                                [class.active]="isColumnFiltered('nonFacturable')">{{ isColumnFiltered('nonFacturable') ? 'filter_alt' : 'filter_alt_off' }}
-                      </mat-icon>
-                    </div>
-                    <div class="th-filter">
-                      <app-column-filter-renderer type="boolean" [value]="columnFilterValue('nonFacturable')"
-                                                  (valueChange)="onColumnFilterValue('nonFacturable', $event)"
-                                                  (clear)="clearColumnFilter('nonFacturable')"/>
-                    </div>
-                  </div>
-                </th>
-                <td mat-cell *matCellDef="let row">
-                  <span class="etat-badge" [style.background]="row.nonFacturable ? '#fee2e2' : '#dcfce7'"
-                        [style.color]="row.nonFacturable ? '#991b1b' : '#166534'">
-                    {{ row.nonFacturable ? 'Non facturable' : 'Facturable' }}
-                  </span>
-                </td>
-              </ng-container>
+               <ng-container matColumnDef="nonFacturable">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>Facturation</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('nonFacturable')">{{ isColumnFiltered('nonFacturable') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="boolean" [value]="columnFilterValue('nonFacturable')"
+                                                   (valueChange)="onColumnFilterValue('nonFacturable', $event)"
+                                                   (clear)="clearColumnFilter('nonFacturable')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span class="etat-badge" [style.background]="row.nonFacturable ? '#fee2e2' : '#dcfce7'"
+                         [style.color]="row.nonFacturable ? '#991b1b' : '#166534'">
+                     {{ row.nonFacturable ? 'Non facturable' : 'Facturable' }}
+                   </span>
+                 </td>
+               </ng-container>
 
-              <ng-container matColumnDef="actions">
+               <ng-container matColumnDef="pecStatus">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_PEC' | translate }}</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('pecStatus')">{{ isColumnFiltered('pecStatus') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="enum" [options]="pecFilterOptions"
+                                                   [value]="columnFilterValue('pecStatus')"
+                                                   (valueChange)="onColumnFilterValue('pecStatus', $event)"
+                                                   (clear)="clearColumnFilter('pecStatus')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span class="etat-badge" *ngIf="row.pecStatus">{{ row.pecStatus }}</span>
+                   <span *ngIf="!row.pecStatus" style="color: #999;">-</span>
+                 </td>
+               </ng-container>
+
+               <ng-container matColumnDef="medecinTraitantId">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>{{ 'PATIENT_FORM.MEDECIN_TRAITANT' | translate }}</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('medecinTraitantId')">{{ isColumnFiltered('medecinTraitantId') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="text" [value]="columnFilterValue('medecinTraitantId')"
+                                                   (valueChange)="onColumnFilterValue('medecinTraitantId', $event)"
+                                                   (clear)="clearColumnFilter('medecinTraitantId')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span *ngIf="row.medecinTraitantId">{{ row.medecinTraitantId }}</span>
+                   <span *ngIf="!row.medecinTraitantId" style="color: #999;">-</span>
+                 </td>
+               </ng-container>
+
+               <ng-container matColumnDef="positionId">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>{{ 'PATIENT_FORM.POSITION' | translate }}</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('positionId')">{{ isColumnFiltered('positionId') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="text" [value]="columnFilterValue('positionId')"
+                                                   (valueChange)="onColumnFilterValue('positionId', $event)"
+                                                   (clear)="clearColumnFilter('positionId')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span *ngIf="row.positionId">{{ row.positionId }}</span>
+                   <span *ngIf="!row.positionId" style="color: #999;">-</span>
+                 </td>
+               </ng-container>
+
+               <ng-container matColumnDef="transporteurAllerId">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>{{ 'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate }}</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('transporteurAllerId')">{{ isColumnFiltered('transporteurAllerId') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="text" [value]="columnFilterValue('transporteurAllerId')"
+                                                   (valueChange)="onColumnFilterValue('transporteurAllerId', $event)"
+                                                   (clear)="clearColumnFilter('transporteurAllerId')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span *ngIf="row.transporteurAllerId">{{ row.transporteurAllerId }}</span>
+                   <span *ngIf="!row.transporteurAllerId" style="color: #999;">-</span>
+                 </td>
+               </ng-container>
+
+               <ng-container matColumnDef="transporteurRetourId">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>{{ 'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate }}</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('transporteurRetourId')">{{ isColumnFiltered('transporteurRetourId') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="text" [value]="columnFilterValue('transporteurRetourId')"
+                                                   (valueChange)="onColumnFilterValue('transporteurRetourId', $event)"
+                                                   (clear)="clearColumnFilter('transporteurRetourId')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span *ngIf="row.transporteurRetourId">{{ row.transporteurRetourId }}</span>
+                   <span *ngIf="!row.transporteurRetourId" style="color: #999;">-</span>
+                 </td>
+               </ng-container>
+
+               <ng-container matColumnDef="joursDialyse">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }}</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('joursDialyse')">{{ isColumnFiltered('joursDialyse') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="text" [value]="columnFilterValue('joursDialyse')"
+                                                   (valueChange)="onColumnFilterValue('joursDialyse', $event)"
+                                                   (clear)="clearColumnFilter('joursDialyse')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span *ngIf="row.joursDialyse && (row.joursDialyse.dimanche || row.joursDialyse.lundi || row.joursDialyse.mardi || row.joursDialyse.mercredi || row.joursDialyse.jeudi || row.joursDialyse.vendredi || row.joursDialyse.samedi)">
+                     {{ (row.joursDialyse.dimanche ? 'Dim ' : '') + (row.joursDialyse.lundi ? 'Lun ' : '') + (row.joursDialyse.mardi ? 'Mar ' : '') + (row.joursDialyse.mercredi ? 'Mer ' : '') + (row.joursDialyse.jeudi ? 'Jeu ' : '') + (row.joursDialyse.vendredi ? 'Ven ' : '') + (row.joursDialyse.samedi ? 'Sam' : '') }}
+                   </span>
+                   <span *ngIf="!row.joursDialyse || (!row.joursDialyse.dimanche && !row.joursDialyse.lundi && !row.joursDialyse.mardi && !row.joursDialyse.mercredi && !row.joursDialyse.jeudi && !row.joursDialyse.vendredi && !row.joursDialyse.samedi)" style="color: #999;">-</span>
+                 </td>
+               </ng-container>
+
+               <ng-container matColumnDef="pecForfaitId">
+                 <th mat-header-cell *matHeaderCellDef>
+                   <div class="th-wrap">
+                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_FORFAIT' | translate }}</span>
+                       <mat-icon class="filter-ind"
+                                 [class.active]="isColumnFiltered('pecForfaitId')">{{ isColumnFiltered('pecForfaitId') ? 'filter_alt' : 'filter_alt_off' }}
+                       </mat-icon>
+                     </div>
+                     <div class="th-filter">
+                       <app-column-filter-renderer type="text" [value]="columnFilterValue('pecForfaitId')"
+                                                   (valueChange)="onColumnFilterValue('pecForfaitId', $event)"
+                                                   (clear)="clearColumnFilter('pecForfaitId')"/>
+                     </div>
+                   </div>
+                 </th>
+                 <td mat-cell *matCellDef="let row">
+                   <span *ngIf="row.pecForfaitId">{{ row.pecForfaitId }}</span>
+                   <span *ngIf="!row.pecForfaitId" style="color: #999;">-</span>
+                 </td>
+                </ng-container>
+
+               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_ACTIONS' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
                   <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate"
@@ -443,6 +602,13 @@ export class PatientListComponent implements OnInit {
     {key: 'numeroAssurance', labelKey: 'PATIENT_LIST.COL_ASSURANCE', type: 'text' as FilterType},
     {key: 'etatPatient', labelKey: 'PATIENT_LIST.COL_ETAT', type: 'text' as FilterType},
     {key: 'nonFacturable', labelKey: 'PATIENT_LIST.NON_FACTURABLE_TOOLTIP', type: 'text' as FilterType},
+    {key: 'pecStatus', labelKey: 'PATIENT_LIST.COL_PEC', type: 'text' as FilterType},
+    {key: 'medecinTraitantId', labelKey: 'PATIENT_FORM.MEDECIN_TRAITANT', type: 'text' as FilterType},
+    {key: 'positionId', labelKey: 'PATIENT_FORM.POSITION', type: 'text' as FilterType},
+    {key: 'transporteurAllerId', labelKey: 'PATIENT_FORM.TRANSPORTEUR_ALLER', type: 'text' as FilterType},
+    {key: 'transporteurRetourId', labelKey: 'PATIENT_FORM.TRANSPORTEUR_RETOUR', type: 'text' as FilterType},
+    {key: 'joursDialyse', labelKey: 'PATIENT_FORM.JOURS_DIALYSE', type: 'text' as FilterType},
+    {key: 'pecForfaitId', labelKey: 'PATIENT_LIST.COL_FORFAIT', type: 'text' as FilterType},
     {key: 'actions', labelKey: 'PATIENT_LIST.COL_ACTIONS', type: 'text' as FilterType}
   ] as const;
   readonly visibleColumns = signal<Record<string, boolean>>({
@@ -454,6 +620,13 @@ export class PatientListComponent implements OnInit {
     numeroAssurance: true,
     etatPatient: true,
     nonFacturable: true,
+    pecStatus: false,
+    medecinTraitantId: false,
+    positionId: false,
+    transporteurAllerId: false,
+    transporteurRetourId: false,
+    joursDialyse: false,
+    pecForfaitId: false,
     actions: true
   });
   private readonly snack = inject(MatSnackBar);
@@ -490,9 +663,16 @@ export class PatientListComponent implements OnInit {
     this.columnFilters.update(prev => ({...prev, [column]: value}));
     this.fetchPage(0, this.pageSize());
   }
+
   readonly sexeFilterOptions = [
     {value: 'M', label: 'Masculin'},
     {value: 'F', label: 'Féminin'}
+  ];
+
+  readonly pecFilterOptions = [
+    {value: 'CREE', label: 'Créée'},
+    {value: 'VALIDEE', label: 'Validée'},
+    {value: 'CLOTUREE', label: 'Clôturée'}
   ];
 
   columnFilterValue(column: string): string {
@@ -546,7 +726,14 @@ export class PatientListComponent implements OnInit {
           dateAdmission: p.dateAdmission ?? '',
           numeroAssurance: p.numeroAssurance?.value ?? p.numeroAssurance ?? '',
           etatPatient: p.etatPatient ?? 'PERMANENT',
-          nonFacturable: !!p.nonFacturable
+          nonFacturable: !!p.nonFacturable,
+          medecinTraitantId: p.medecinTraitantId ?? '',
+          positionId: p.positionId ?? '',
+          transporteurAllerId: p.transporteurAllerId ?? '',
+          transporteurRetourId: p.transporteurRetourId ?? '',
+          joursDialyse: p.joursDialyse ?? {},
+          pecStatus: p.pecStatus ?? '',
+          pecForfaitId: p.pecForfaitId ?? ''
         }));
         this.rows.set(mapped);
         this.total.set(res.total ?? 0);
@@ -600,6 +787,7 @@ export class PatientListComponent implements OnInit {
       error: (err) => this.snack.open('Erreur export: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 })
     });
   }
+
   readonly etatFilterOptions = [
     {value: 'PERMANENT', label: 'Permanent'},
     {value: 'OCCASIONNEL', label: 'Occasionnel'},
