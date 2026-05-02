@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 
 export type LoginPayload = {
@@ -21,6 +21,10 @@ export type LogoutResponse = {
   loggedOut: boolean;
 };
 
+export type RefreshResponse = {
+  refreshed: boolean;
+};
+
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
   private readonly http = inject(HttpClient);
@@ -36,6 +40,17 @@ export class AuthApiService {
 
   me(): Observable<LoginResponse> {
     return this.http.get<LoginResponse>(`${this.baseUrl}/auth/me`, {withCredentials: true});
+  }
+
+  refresh(): Observable<RefreshResponse> {
+    return this.http.post<RefreshResponse>(
+      `${this.baseUrl}/auth/refresh`,
+      {},
+      {
+        withCredentials: true,
+        headers: new HttpHeaders({'x-skip-auth-refresh': '1'})
+      }
+    );
   }
 }
 

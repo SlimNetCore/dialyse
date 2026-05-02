@@ -7,6 +7,7 @@ import com.hemodialyse.backend.infrastructure.persistence.entity.AssurePatientJp
 import com.hemodialyse.backend.infrastructure.persistence.repository.AssurePatientJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,12 +28,19 @@ public class AssurePatientRepositoryAdapter implements AssurePatientRepositoryPo
         e.setCenterId(assignment.getCenterId());
         e.setIsPrimary(assignment.isPrimary());
         e.setDateAffectation(assignment.getDateAffectation());
+        e.setDateDebutAffectation(assignment.getDateDebutAffectation());
+        e.setDateFinAffectation(assignment.getDateFinAffectation());
         return toDomain(jpa.save(e));
     }
 
     @Override
     public void clearPrimary(CenterId centerId, UUID patientId) {
         jpa.clearPrimary(centerId.value(), patientId);
+    }
+
+    @Override
+    public void closePrimary(CenterId centerId, UUID patientId, LocalDate endDate) {
+        jpa.closePrimary(centerId.value(), patientId, endDate);
     }
 
     @Override
@@ -53,6 +61,8 @@ public class AssurePatientRepositoryAdapter implements AssurePatientRepositoryPo
         a.setCenterId(e.getCenterId());
         a.setPrimary(Boolean.TRUE.equals(e.getIsPrimary()));
         a.setDateAffectation(e.getDateAffectation());
+        a.setDateDebutAffectation(e.getDateDebutAffectation());
+        a.setDateFinAffectation(e.getDateFinAffectation());
         return a;
     }
 }

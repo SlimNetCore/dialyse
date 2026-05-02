@@ -71,15 +71,6 @@ public class JwtTokenProvider {
             .compact();
     }
 
-    public String generateRefreshToken(String username) {
-        return Jwts.builder()
-            .subject(username)
-            .claim("type", "refresh")
-            .issuedAt(new Date())
-            .expiration(new Date(System.currentTimeMillis() + refreshExpirationSec * 1000))
-            .signWith(signingKey())
-            .compact();
-    }
 
     public String getUsernameFromToken(String token) {
         return parseClaims(token).getSubject();
@@ -116,6 +107,10 @@ public class JwtTokenProvider {
 
     public long getExpirationSec() {
         return jwtExpirationSec;
+    }
+
+    public long getRefreshExpirationSec() {
+        return refreshExpirationSec;
     }
 
     private Claims parseClaims(String token) {

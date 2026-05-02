@@ -146,7 +146,24 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
             <input matInput formControlName="assureAdresse" />
           </mat-form-field>
 
-          <div class="form-row" style="justify-content:flex-end; gap:8px; margin-top: 8px;">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Date début affectation</mat-label>
+            <mat-icon matPrefix>event</mat-icon>
+            <input matInput [matDatepicker]="dpDebAffect" formControlName="dateDebutAffectation"/>
+            <mat-datepicker-toggle matSuffix [for]="dpDebAffect"/>
+            <mat-datepicker #dpDebAffect/>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Date fin affectation</mat-label>
+            <mat-icon matPrefix>event_busy</mat-icon>
+            <input matInput [matDatepicker]="dpFinAffect" formControlName="dateFinAffectation"/>
+            <mat-datepicker-toggle matSuffix [for]="dpFinAffect"/>
+            <mat-datepicker #dpFinAffect/>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row" style="justify-content:flex-end; gap:8px; margin-top: 8px;">
             <button mat-stroked-button type="button" (click)="toggleAssureCatalog()" [disabled]="readonly || !canAssignAssure()">
               <mat-icon>manage_search</mat-icon>
               Consulter les assurés
@@ -193,6 +210,9 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
                 <div class="history-item">
                   {{ h.nom }} {{ h.prenom }} - {{ h.numeroAssurance }} - {{ h.dateAffectation || '—' }}
                   @if (h.isPrimary) { <strong> (primaire)</strong> }
+                  <div class="muted">Période: {{ h.dateDebutAffectation || '—' }}
+                    → {{ h.dateFinAffectation || 'en cours' }}
+                  </div>
                 </div>
               }
               @if (assureAssignments().length === 0) {
@@ -268,6 +288,8 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assurePrenom: [''],
       assureSexe: [''],
       assureDateNaissance: [null],
+      dateDebutAffectation: [null],
+      dateFinAffectation: [null],
       assureTelPersonnel: [''],
       assureTelMobile: [''],
       assureTelBureau: [''],
@@ -361,6 +383,8 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assurePrenom: '',
       assureSexe: '',
       assureDateNaissance: null,
+      dateDebutAffectation: null,
+      dateFinAffectation: null,
       assureTelPersonnel: '',
       assureTelMobile: '',
       assureTelBureau: '',
@@ -425,13 +449,35 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.api.assignAssureToPatient(centerId, this.patientId, a.numeroAssurance).subscribe({
+    const toDate = (v: any): string | null => {
+      if (!v) return null;
+      if (v instanceof Date) return v.toISOString().slice(0, 10);
+      return String(v).slice(0, 10);
+    };
+
+    this.api.assignAssureToPatient(centerId, this.patientId, a.numeroAssurance, {
+      dateDebutAffectation: toDate(this.form.get('dateDebutAffectation')?.value),
+      dateFinAffectation: toDate(this.form.get('dateFinAffectation')?.value)
+    }).subscribe({
       next: () => {
         patchAssure();
         this.loadAssureHistory();
         this.snackBar.open('Assuré affecté au patient', 'OK', { duration: 2500 });
       },
-      error: (err) => this.snackBar.open(err?.error?.detail || 'Erreur affectation assuré', 'OK', { duration: 3500 })
+      error: (err) => {
+        const detail = err?.error?.detail || err?.error?.message || '';
+        if (typeof detail === 'string' && detail.toLowerCase().includes('assuré lui-même')) {
+          // Patient quality may be changed locally but not persisted yet: keep UI data and ask for save.
+          patchAssure();
+          this.snackBar.open('Assuré sélectionné localement. Enregistrez le patient puis réessayez l\'affectation.', 'OK', {duration: 4500});
+          return;
+        }
+        if (err?.status === 401 || err?.status === 403) {
+          this.snackBar.open('Session expirée. Reconnectez-vous puis réessayez.', 'OK', {duration: 3500});
+          return;
+        }
+        this.snackBar.open(detail || 'Erreur affectation assuré', 'OK', {duration: 3500});
+      }
     });
   }
 
@@ -459,6 +505,8 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assurePrenom: data['assurePrenom'] ?? (isSelf ? (data['prenom'] ?? '') : ''),
       assureSexe: data['assureSexe'] ?? (isSelf ? (data['sexe'] ?? '') : ''),
       assureDateNaissance: data['assureDateNaissance'] ?? (isSelf ? (data['dateNaissance'] ?? null) : null),
+      dateDebutAffectation: data['dateDebutAffectation'] ?? null,
+      dateFinAffectation: data['dateFinAffectation'] ?? null,
       assureTelPersonnel: data['assureTelPersonnel'] ?? (isSelf ? (data['telPersonnel'] ?? '') : ''),
       assureTelMobile: data['assureTelMobile'] ?? (isSelf ? (data['telMobile'] ?? '') : ''),
       assureTelBureau: data['assureTelBureau'] ?? (isSelf ? (data['telBureau'] ?? '') : ''),

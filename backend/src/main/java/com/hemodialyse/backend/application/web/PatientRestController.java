@@ -63,6 +63,24 @@ public class PatientRestController {
         UUID pecId, LocalDate pecDateDebutDemande, LocalDate pecDateFinDemande, UUID pecForfaitDemandeId
     ) {}
 
+    @GetMapping("/{id}/assures/history")
+    public ResponseEntity<?> assureHistory(@PathVariable UUID id, @RequestParam UUID centerId) {
+        var rows = assurePatientRepo.findHistory(CenterId.of(centerId), id).stream().map(h -> {
+            var a = assureRepo.findByNumeroAssurance(h.getNumeroAssurance()).orElse(null);
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("patientId", id);
+            m.put("numeroAssurance", h.getNumeroAssurance());
+            m.put("isPrimary", h.isPrimary());
+            m.put("dateAffectation", h.getDateAffectation());
+            m.put("dateDebutAffectation", h.getDateDebutAffectation());
+            m.put("dateFinAffectation", h.getDateFinAffectation());
+            m.put("nom", a != null ? a.getNom() : null);
+            m.put("prenom", a != null ? a.getPrenom() : null);
+            return m;
+        }).toList();
+        return ResponseEntity.ok(rows);
+    }
+
     private CreatePatientCommand toCommand(CreatePatientRequest r) {
         return new CreatePatientCommand(
             r.civilite(), r.nom(), r.prenom(), r.sexe(), r.groupeSanguin(), r.nombreEnfants(),
@@ -150,44 +168,43 @@ public class PatientRestController {
         return ResponseEntity.ok(rows);
     }
 
-    @GetMapping("/{id}/assures/history")
-    public ResponseEntity<?> assureHistory(@PathVariable UUID id, @RequestParam UUID centerId) {
-        var rows = assurePatientRepo.findHistory(CenterId.of(centerId), id).stream().map(h -> {
-            var a = assureRepo.findByNumeroAssurance(h.getNumeroAssurance()).orElse(null);
-            Map<String, Object> m = new LinkedHashMap<>();
-            m.put("patientId", id);
-            m.put("numeroAssurance", h.getNumeroAssurance());
-            m.put("isPrimary", h.isPrimary());
-            m.put("dateAffectation", h.getDateAffectation());
-            m.put("nom", a != null ? a.getNom() : null);
-            m.put("prenom", a != null ? a.getPrenom() : null);
-            return m;
-        }).toList();
-        return ResponseEntity.ok(rows);
-    }
-
     @PostMapping("/{id}/assures/{numeroAssurance}/affecter")
-    public ResponseEntity<?> affecterAssure(@PathVariable UUID id, @PathVariable String numeroAssurance, @RequestParam UUID centerId) {
+    public ResponseEntity<?> affecterAssure(@PathVariable UUID id,
+                                            @PathVariable String numeroAssurance,
+                                            @RequestParam UUID centerId,
+                                            @RequestBody(required = false) AffecterAssureRequest req) {
         Patient p = useCase.getPatient(CenterId.of(centerId), id);
         if ("ASSURE_LUI_MEME".equals(p.getQualiteAssure())) {
             throw new IllegalArgumentException("Impossible d'affecter un assuré si le patient est assuré lui-même");
         }
+        LocalDate dateDebut = req != null && req.dateDebutAffectation() != null ? req.dateDebutAffectation() : LocalDate.now();
+        LocalDate dateFin = req != null ? req.dateFinAffectation() : null;
+        if (dateFin != null && dateFin.isBefore(dateDebut)) {
+            throw new IllegalArgumentException("La date de fin d'affectation doit être >= à la date de début");
+        }
         Assure a = assureRepo.findByNumeroAssurance(numeroAssurance)
             .orElseThrow(() -> new IllegalArgumentException("Assuré introuvable"));
-        assurePatientRepo.clearPrimary(CenterId.of(centerId), id);
+        assurePatientRepo.closePrimary(CenterId.of(centerId), id, dateDebut);
         AssurePatientAssignment ap = new AssurePatientAssignment();
         ap.setPatientId(id);
         ap.setNumeroAssurance(numeroAssurance);
         ap.setCenterId(centerId);
         ap.setPrimary(true);
         ap.setDateAffectation(java.time.OffsetDateTime.now());
+        ap.setDateDebutAffectation(dateDebut);
+        ap.setDateFinAffectation(dateFin);
         assurePatientRepo.save(ap);
         return ResponseEntity.ok(Map.of(
             "assigned", true,
             "numeroAssurance", numeroAssurance,
+                "dateDebutAffectation", dateDebut,
+                "dateFinAffectation", dateFin,
             "nom", Optional.ofNullable(a.getNom()).orElse(""),
             "prenom", Optional.ofNullable(a.getPrenom()).orElse("")
         ));
+    }
+
+    record AffecterAssureRequest(LocalDate dateDebutAffectation, LocalDate dateFinAffectation) {
     }
 
     @GetMapping

@@ -131,9 +131,12 @@ export class BackendApiService {
     return this.http.get<any[]>(`${this.baseUrl}/patients/assures`, { params });
   }
 
-  assignAssureToPatient(centerId: string, patientId: string, numeroAssurance: string): Observable<any> {
+  assignAssureToPatient(centerId: string, patientId: string, numeroAssurance: string, payload?: {
+    dateDebutAffectation?: string | null;
+    dateFinAffectation?: string | null
+  }): Observable<any> {
     const params = new HttpParams().set('centerId', centerId);
-    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/assures/${encodeURIComponent(numeroAssurance)}/affecter`, {}, { params });
+    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/assures/${encodeURIComponent(numeroAssurance)}/affecter`, payload ?? {}, {params});
   }
 
   listPatientAssureHistory(centerId: string, patientId: string): Observable<any[]> {

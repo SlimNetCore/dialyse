@@ -95,7 +95,7 @@ import {AuthSessionService} from '../../../core/auth/auth-session.service';
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="h-sync">
               <mat-label>{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }} *</mat-label>
               <mat-icon matPrefix>event</mat-icon>
               <input matInput [matDatepicker]="dpAdm" formControlName="dateAdmission" />
@@ -112,7 +112,7 @@ import {AuthSessionService} from '../../../core/auth/auth-session.service';
             </mat-form-field>
 
             <!-- Row 3: Groupe sanguin, Date de naissance, Age -->
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="h-sync">
               <mat-label>{{ 'PATIENT_FORM.GROUPE_SANGUIN' | translate }}</mat-label>
               <mat-icon matPrefix>bloodtype</mat-icon>
               <mat-select formControlName="groupeSanguin" [disabled]="readonly">
@@ -124,7 +124,7 @@ import {AuthSessionService} from '../../../core/auth/auth-session.service';
               </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="h-sync">
               <mat-label>{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }} *</mat-label>
               <mat-icon matPrefix>cake</mat-icon>
               <input matInput [matDatepicker]="dpNais" formControlName="dateNaissance" />
@@ -134,7 +134,7 @@ import {AuthSessionService} from '../../../core/auth/auth-session.service';
               }
             </mat-form-field>
 
-            <div class="age-box">
+            <div class="age-box h-sync">
               <span class="age-label">{{ 'PATIENT_FORM.AGE' | translate }}</span>
               <span class="age-value">{{ calculatedAge() !== null ? calculatedAge() : '—' }}</span>
               @if (calculatedAge() !== null) {
@@ -265,6 +265,9 @@ import {AuthSessionService} from '../../../core/auth/auth-session.service';
     </div>
   `,
   styles: [`
+    :host {
+      --sync-field-height: 40px;
+    }
     .step-content { padding: 14px 18px 18px; }
     .row-photo { display: flex; gap: 20px; margin-bottom: 12px; align-items: stretch; }
     .photo-column { display: flex; flex-direction: column; align-items: stretch; width: 180px; }
@@ -298,10 +301,32 @@ import {AuthSessionService} from '../../../core/auth/auth-session.service';
       min-width: 70px; padding: 8px 12px;
       background: var(--app-primary-soft); border-radius: 10px; border: 1px solid var(--app-primary-outline);
     }
+
+    .h-sync.age-box {
+      width: 100%;
+      min-width: 0;
+      min-height: var(--sync-field-height);
+      height: var(--sync-field-height);
+      padding: 0 10px;
+      box-sizing: border-box;
+      flex-direction: row;
+      gap: 6px;
+    }
     .age-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
-    .age-value { font-size: 24px; font-weight: 700; color: var(--app-primary); line-height: 1.2; }
+
+    .age-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--app-primary);
+      line-height: 1;
+    }
     .age-unit { font-size: 11px; color: #666; }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
+
+    :host ::ng-deep .mat-mdc-form-field.h-sync {
+      --mat-form-field-container-height: var(--sync-field-height);
+      --mat-form-field-container-vertical-padding: 8px;
+    }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }

@@ -11,6 +11,7 @@ import {LangService} from '../i18n/lang.service';
 import {ThemeService} from '../theme/theme.service';
 import {WebSocketService} from '../ws/websocket.service';
 import {NotificationBellComponent} from './notification-bell.component';
+import {AuthApiService} from '../api/auth-api.service';
 import {filter} from 'rxjs/operators';
 
 @Component({
@@ -174,6 +175,7 @@ export class ShellComponent implements OnInit {
   readonly theme = inject(ThemeService);
   readonly router = inject(Router);
   private readonly ws = inject(WebSocketService);
+  private readonly authApi = inject(AuthApiService);
   readonly sidebarExpanded = signal(false);
   readonly breadcrumbs = signal<string[]>([]);
   private breadcrumbRoutes: string[] = [];
@@ -218,8 +220,15 @@ export class ShellComponent implements OnInit {
   }
 
   onLogout(): void {
+    this.authApi.logout().subscribe({
+      next: () => this.finalizeLogout(),
+      error: () => this.finalizeLogout()
+    });
+  }
+
+  private finalizeLogout(): void {
     this.ws.disconnect();
     this.auth.clearSession();
-    window.location.href = '/';
+    window.location.href = '/login';
   }
 }

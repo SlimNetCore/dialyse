@@ -89,6 +89,8 @@ CREATE TABLE IF NOT EXISTS assure_patient (
     numero_assurance VARCHAR(100) NOT NULL,
     center_id UUID NOT NULL,
     is_primary BOOLEAN NOT NULL DEFAULT FALSE,
+    date_debut_affectation DATE,
+    date_fin_affectation   DATE,
     date_affectation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (patient_id, numero_assurance)
 );
