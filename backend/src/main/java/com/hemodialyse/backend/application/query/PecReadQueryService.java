@@ -62,14 +62,20 @@ public class PecReadQueryService {
         where.append(") ");
     }
 
-    private static void addDateEq(StringBuilder where, List<Object> params, String field, String value) {
+    private static void addDateFilter(StringBuilder where, List<Object> params, String field, String value) {
         if (value == null || value.isBlank()) return;
-        LocalDate parsed = parseFlexibleDate(value);
-        if (parsed != null) {
-            where.append(" AND ").append(field).append(" = ? ");
-            params.add(parsed);
-        } else {
+        DateRange parsed = parseFlexibleDateRange(value);
+        if (parsed == null) {
             where.append(" AND 1 = 0 ");
+            return;
+        }
+        if (parsed.from() != null) {
+            where.append(" AND ").append(field).append(" >= ? ");
+            params.add(parsed.from());
+        }
+        if (parsed.to() != null) {
+            where.append(" AND ").append(field).append(" <= ? ");
+            params.add(parsed.to());
         }
     }
 
@@ -89,6 +95,33 @@ public class PecReadQueryService {
         }
     }
 
+    private static DateRange parseFlexibleDateRange(String value) {
+        String raw = value == null ? "" : value.trim();
+        if (raw.isBlank()) return null;
+
+        if (!raw.contains("..")) {
+            LocalDate exact = parseFlexibleDate(raw);
+            return exact == null ? null : new DateRange(exact, exact);
+        }
+
+        String[] parts = raw.split("\\.\\.", 2);
+        String fromRaw = parts.length > 0 ? parts[0].trim() : "";
+        String toRaw = parts.length > 1 ? parts[1].trim() : "";
+
+        LocalDate from = fromRaw.isBlank() ? null : parseFlexibleDate(fromRaw);
+        LocalDate to = toRaw.isBlank() ? null : parseFlexibleDate(toRaw);
+
+        if ((!fromRaw.isBlank() && from == null) || (!toRaw.isBlank() && to == null)) {
+            return null;
+        }
+
+        if (from != null && to != null && from.isAfter(to)) {
+            return new DateRange(to, from);
+        }
+
+        return new DateRange(from, to);
+    }
+
     public PageResult listAttestationsByCenterPaged(UUID centerId, int page, int size, String search,
                                                     String code, String nom, String assurance,
                                                     String debut, String fin) {
@@ -105,8 +138,8 @@ public class PecReadQueryService {
         addLike(where, params, "p.code_patient", code);
         addLike(where, params, "CONCAT(COALESCE(p.nom,''), ' ', COALESCE(p.prenom,''))", nom);
         addLike(where, params, "p.numero_assurance", assurance);
-        addDateEq(where, params, "a.date_debut", debut);
-        addDateEq(where, params, "a.date_fin", fin);
+        addDateFilter(where, params, "a.date_debut", debut);
+        addDateFilter(where, params, "a.date_fin", fin);
 
         long total = jdbc.queryForObject("SELECT COUNT(1)" + from + where, Long.class, params.toArray());
 
@@ -139,8 +172,8 @@ public class PecReadQueryService {
         addLike(where, params, "CONCAT(COALESCE(p.nom,''), ' ', COALESCE(p.prenom,''))", nom);
         addLike(where, params, "p.numero_assurance", assurance);
         addLike(where, params, "pc.statut", statut);
-        addDateEq(where, params, "pc.date_debut_demande", debut);
-        addDateEq(where, params, "pc.date_fin_demande", fin);
+        addDateFilter(where, params, "pc.date_debut_demande", debut);
+        addDateFilter(where, params, "pc.date_fin_demande", fin);
 
         long total = jdbc.queryForObject("SELECT COUNT(1)" + from + where, Long.class, params.toArray());
 
@@ -158,6 +191,9 @@ public class PecReadQueryService {
     }
 
     public record PageResult(List<Map<String, Object>> items, long total, int page, int size) {
+    }
+
+    private record DateRange(LocalDate from, LocalDate to) {
     }
 }
 
