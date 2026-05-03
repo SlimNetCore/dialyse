@@ -1,4 +1,4 @@
-import {Component, computed, effect, EventEmitter, inject, OnInit, Output, signal} from '@angular/core';
+import {Component, computed, effect, EventEmitter, HostListener, inject, OnInit, Output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
@@ -67,6 +67,11 @@ type FilterType = 'text' | 'date';
             <input matInput [value]="searchTerm()" (input)="onSearch($event)"/>
           </mat-form-field>
 
+          <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+            Réinitialiser filtres
+          </button>
+
           <button mat-flat-button color="primary" (click)="newPatient.emit()" class="btn-new">
             <mat-icon>person_add</mat-icon>
             {{ 'PATIENT_LIST.BTN_NEW' | translate }}
@@ -106,9 +111,10 @@ type FilterType = 'text' | 'date';
             <table mat-table [dataSource]="rows()" class="patient-table">
               <ng-container matColumnDef="code">
                 <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
+                  <div class="th-wrap" [class.open]="isFilterOpen('code')">
                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_CODE' | translate }}</span>
                       <mat-icon class="filter-ind"
+                                (click)="toggleFilterPanel('code', $event)"
                                 [class.active]="isColumnFiltered('code')">{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
@@ -124,9 +130,10 @@ type FilterType = 'text' | 'date';
 
               <ng-container matColumnDef="nom">
                 <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
+                  <div class="th-wrap" [class.open]="isFilterOpen('nom')">
                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_NOM' | translate }}</span>
                       <mat-icon class="filter-ind"
+                                (click)="toggleFilterPanel('nom', $event)"
                                 [class.active]="isColumnFiltered('nom')">{{ isColumnFiltered('nom') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
@@ -146,9 +153,10 @@ type FilterType = 'text' | 'date';
 
               <ng-container matColumnDef="prenom">
                 <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
+                  <div class="th-wrap" [class.open]="isFilterOpen('prenom')">
                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_PRENOM' | translate }}</span>
                       <mat-icon class="filter-ind"
+                                (click)="toggleFilterPanel('prenom', $event)"
                                 [class.active]="isColumnFiltered('prenom')">{{ isColumnFiltered('prenom') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
@@ -164,9 +172,10 @@ type FilterType = 'text' | 'date';
 
               <ng-container matColumnDef="sexe">
                 <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
+                  <div class="th-wrap" [class.open]="isFilterOpen('sexe')">
                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_SEXE' | translate }}</span>
                       <mat-icon class="filter-ind"
+                                (click)="toggleFilterPanel('sexe', $event)"
                                 [class.active]="isColumnFiltered('sexe')">{{ isColumnFiltered('sexe') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
@@ -187,9 +196,10 @@ type FilterType = 'text' | 'date';
 
               <ng-container matColumnDef="dateAdmission">
                 <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
+                  <div class="th-wrap" [class.open]="isFilterOpen('dateAdmission')">
                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_DATE_ADMISSION' | translate }}</span>
                       <mat-icon class="filter-ind"
+                                (click)="toggleFilterPanel('dateAdmission', $event)"
                                 [class.active]="isColumnFiltered('dateAdmission')">{{ isColumnFiltered('dateAdmission') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
@@ -205,9 +215,10 @@ type FilterType = 'text' | 'date';
 
               <ng-container matColumnDef="numeroAssurance">
                 <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
+                  <div class="th-wrap" [class.open]="isFilterOpen('numeroAssurance')">
                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_ASSURANCE' | translate }}</span>
                       <mat-icon class="filter-ind"
+                                (click)="toggleFilterPanel('numeroAssurance', $event)"
                                 [class.active]="isColumnFiltered('numeroAssurance')">{{ isColumnFiltered('numeroAssurance') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
@@ -223,9 +234,10 @@ type FilterType = 'text' | 'date';
 
               <ng-container matColumnDef="etatPatient">
                 <th mat-header-cell *matHeaderCellDef>
-                  <div class="th-wrap">
+                  <div class="th-wrap" [class.open]="isFilterOpen('etatPatient')">
                     <div class="th-top"><span>{{ 'PATIENT_LIST.COL_ETAT' | translate }}</span>
                       <mat-icon class="filter-ind"
+                                (click)="toggleFilterPanel('etatPatient', $event)"
                                 [class.active]="isColumnFiltered('etatPatient')">{{ isColumnFiltered('etatPatient') ? 'filter_alt' : 'filter_alt_off' }}
                       </mat-icon>
                     </div>
@@ -244,9 +256,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="nonFacturable">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('nonFacturable')">
                      <div class="th-top"><span>Facturation</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('nonFacturable', $event)"
                                  [class.active]="isColumnFiltered('nonFacturable')">{{ isColumnFiltered('nonFacturable') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -267,9 +280,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="pecStatus">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('pecStatus')">
                      <div class="th-top"><span>{{ 'PATIENT_LIST.COL_PEC' | translate }}</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('pecStatus', $event)"
                                  [class.active]="isColumnFiltered('pecStatus')">{{ isColumnFiltered('pecStatus') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -289,9 +303,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="medecinTraitantId">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('medecinTraitantId')">
                      <div class="th-top"><span>{{ 'PATIENT_FORM.MEDECIN_TRAITANT' | translate }}</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('medecinTraitantId', $event)"
                                  [class.active]="isColumnFiltered('medecinTraitantId')">{{ isColumnFiltered('medecinTraitantId') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -310,9 +325,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="positionId">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('positionId')">
                      <div class="th-top"><span>{{ 'PATIENT_FORM.POSITION' | translate }}</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('positionId', $event)"
                                  [class.active]="isColumnFiltered('positionId')">{{ isColumnFiltered('positionId') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -331,9 +347,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="transporteurAllerId">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('transporteurAllerId')">
                      <div class="th-top"><span>{{ 'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate }}</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('transporteurAllerId', $event)"
                                  [class.active]="isColumnFiltered('transporteurAllerId')">{{ isColumnFiltered('transporteurAllerId') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -352,9 +369,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="transporteurRetourId">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('transporteurRetourId')">
                      <div class="th-top"><span>{{ 'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate }}</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('transporteurRetourId', $event)"
                                  [class.active]="isColumnFiltered('transporteurRetourId')">{{ isColumnFiltered('transporteurRetourId') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -373,9 +391,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="joursDialyse">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('joursDialyse')">
                      <div class="th-top"><span>{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }}</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('joursDialyse', $event)"
                                  [class.active]="isColumnFiltered('joursDialyse')">{{ isColumnFiltered('joursDialyse') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -396,9 +415,10 @@ type FilterType = 'text' | 'date';
 
                <ng-container matColumnDef="pecForfaitId">
                  <th mat-header-cell *matHeaderCellDef>
-                   <div class="th-wrap">
+                   <div class="th-wrap" [class.open]="isFilterOpen('pecForfaitId')">
                      <div class="th-top"><span>{{ 'PATIENT_LIST.COL_FORFAIT' | translate }}</span>
                        <mat-icon class="filter-ind"
+                                 (click)="toggleFilterPanel('pecForfaitId', $event)"
                                  [class.active]="isColumnFiltered('pecForfaitId')">{{ isColumnFiltered('pecForfaitId') ? 'filter_alt' : 'filter_alt_off' }}
                        </mat-icon>
                      </div>
@@ -491,6 +511,24 @@ type FilterType = 'text' | 'date';
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      overflow: visible !important;
+      position: relative;
+      z-index: 5;
+    }
+
+    th.mat-mdc-header-cell:has(.filter-ind:hover),
+    th.mat-mdc-header-cell:has(.th-filter:hover),
+    th.mat-mdc-header-cell:has(.filter-ind.active),
+    th.mat-mdc-header-cell:focus-within {
+      z-index: 2000;
+    }
+
+    .patient-table,
+    .patient-table .mat-mdc-header-row,
+    .patient-table .mat-mdc-row,
+    .patient-table .mat-mdc-cell,
+    .patient-table .mat-mdc-header-cell {
+      overflow: visible;
     }
 
     .code-chip {
@@ -554,6 +592,13 @@ type FilterType = 'text' | 'date';
     .th-wrap {
       display: grid;
       gap: 6px;
+      position: relative;
+      overflow: visible;
+      z-index: 6;
+    }
+
+    .th-wrap.open {
+      z-index: 2101;
     }
 
     .th-top {
@@ -564,13 +609,25 @@ type FilterType = 'text' | 'date';
     }
 
     .th-filter {
-      display: flex;
+      display: none;
       align-items: center;
       gap: 6px;
       padding: 3px;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 240px;
+      width: max-content;
+      max-width: 360px;
+      z-index: 2100;
       border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
       background: color-mix(in srgb, var(--app-primary-soft) 60%, white);
       border: 1px solid var(--app-border);
+    }
+
+    .th-wrap.open .th-filter {
+      display: flex;
     }
 
     .filter-ind {
@@ -578,10 +635,11 @@ type FilterType = 'text' | 'date';
       width: 17px;
       height: 17px;
       color: #94a3b8;
+      cursor: pointer;
     }
 
     .filter-ind.active {
-      color: var(--app-primary);
+      color: #dc2626;
     }
 
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
@@ -590,6 +648,9 @@ type FilterType = 'text' | 'date';
 export class PatientListComponent implements OnInit {
   @Output() newPatient = new EventEmitter<void>();
   @Output() selectPatient = new EventEmitter<PatientRow>();
+  readonly hasActiveFilters = computed(() =>
+    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
+  );
 
   private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthSessionService);
@@ -685,6 +746,35 @@ export class PatientListComponent implements OnInit {
 
   clearColumnFilter(column: string): void {
     this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.fetchPage(0, this.pageSize());
+  }
+  private readonly openFilterColumn = signal<string | null>(null);
+
+  toggleFilterPanel(column: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openFilterColumn.update((current) => (current === column ? null : column));
+  }
+
+  isFilterOpen(column: string): boolean {
+    return this.openFilterColumn() === column;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      this.openFilterColumn.set(null);
+      return;
+    }
+    if (target.closest('.th-wrap')) {
+      return;
+    }
+    this.openFilterColumn.set(null);
+  }
+
+  clearAllColumnFilters(): void {
+    this.openFilterColumn.set(null);
+    this.columnFilters.set({});
     this.fetchPage(0, this.pageSize());
   }
 

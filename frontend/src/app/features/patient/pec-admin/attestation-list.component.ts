@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -32,6 +32,10 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
           <mat-icon>view_column</mat-icon>
           Colonnes
         </button>
+        <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Réinitialiser filtres
+        </button>
         <mat-menu #colsMenu="matMenu">
           @for (c of allColumnsConfig; track c.key) {
             @if (c.key !== 'actions') {
@@ -51,9 +55,10 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       <table mat-table [dataSource]="rows()" class="w100">
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('code')">
               <div class="th-top"><span>{{ 'ATTEST_LIST.COL_CODE' | translate }}</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('code', $event)"
                           [class.active]="isColumnFiltered('code')">{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -68,9 +73,10 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
         </ng-container>
         <ng-container matColumnDef="nom">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('nom')">
               <div class="th-top"><span>{{ 'ATTEST_LIST.COL_PATIENT' | translate }}</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('nom', $event)"
                           [class.active]="isColumnFiltered('nom')">{{ isColumnFiltered('nom') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -85,9 +91,10 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
         </ng-container>
         <ng-container matColumnDef="assurance">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('assurance')">
               <div class="th-top"><span>{{ 'ATTEST_LIST.COL_ASSURANCE' | translate }}</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('assurance', $event)"
                           [class.active]="isColumnFiltered('assurance')">{{ isColumnFiltered('assurance') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -102,9 +109,10 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
         </ng-container>
         <ng-container matColumnDef="debut">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('debut')">
               <div class="th-top"><span>{{ 'ATTEST_LIST.COL_DEBUT' | translate }}</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('debut', $event)"
                           [class.active]="isColumnFiltered('debut')">{{ isColumnFiltered('debut') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -119,9 +127,10 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
         </ng-container>
         <ng-container matColumnDef="fin">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('fin')">
               <div class="th-top"><span>{{ 'ATTEST_LIST.COL_FIN' | translate }}</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('fin', $event)"
                           [class.active]="isColumnFiltered('fin')">{{ isColumnFiltered('fin') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -192,6 +201,24 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
     .w100 .mat-mdc-header-cell {
       color: var(--app-primary);
       font-weight: 700;
+      overflow: visible !important;
+      position: relative;
+      z-index: 5;
+    }
+
+    .w100 .mat-mdc-header-cell:has(.filter-ind:hover),
+    .w100 .mat-mdc-header-cell:has(.th-filter:hover),
+    .w100 .mat-mdc-header-cell:has(.filter-ind.active),
+    .w100 .mat-mdc-header-cell:focus-within {
+      z-index: 2000;
+    }
+
+    .w100,
+    .w100 .mat-mdc-header-row,
+    .w100 .mat-mdc-row,
+    .w100 .mat-mdc-cell,
+    .w100 .mat-mdc-header-cell {
+      overflow: visible;
     }
 
     .w100 .mat-mdc-row:hover {
@@ -201,6 +228,13 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
     .th-wrap {
       display: grid;
       gap: 6px;
+      position: relative;
+      overflow: visible;
+      z-index: 6;
+    }
+
+    .th-wrap.open {
+      z-index: 2101;
     }
 
     .th-top {
@@ -211,13 +245,25 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
     }
 
     .th-filter {
-      display: flex;
+      display: none;
       align-items: center;
       gap: 6px;
       padding: 3px;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 240px;
+      width: max-content;
+      max-width: 360px;
+      z-index: 2100;
       border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
       background: color-mix(in srgb, var(--app-primary-soft) 60%, white);
       border: 1px solid var(--app-border);
+    }
+
+    .th-wrap.open .th-filter {
+      display: flex;
     }
 
     .filter-ind {
@@ -225,10 +271,11 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       width: 17px;
       height: 17px;
       color: #94a3b8;
+      cursor: pointer;
     }
 
     .filter-ind.active {
-      color: var(--app-primary);
+      color: #dc2626;
     }
 
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
@@ -238,6 +285,9 @@ export class AttestationListComponent implements OnInit {
   private readonly api = inject(BackendApiService);
   private readonly store = inject(AppShellStore);
   private readonly snack = inject(MatSnackBar);
+  readonly hasActiveFilters = computed(() =>
+    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
+  );
 
   readonly rows = signal<any[]>([]);
   readonly total = signal(0);
@@ -296,6 +346,35 @@ export class AttestationListComponent implements OnInit {
 
   clearColumnFilter(column: string): void {
     this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.fetchPage(0, this.pageSize());
+  }
+  private readonly openFilterColumn = signal<string | null>(null);
+
+  toggleFilterPanel(column: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openFilterColumn.update((current) => (current === column ? null : column));
+  }
+
+  isFilterOpen(column: string): boolean {
+    return this.openFilterColumn() === column;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      this.openFilterColumn.set(null);
+      return;
+    }
+    if (target.closest('.th-wrap')) {
+      return;
+    }
+    this.openFilterColumn.set(null);
+  }
+
+  clearAllColumnFilters(): void {
+    this.openFilterColumn.set(null);
+    this.columnFilters.set({});
     this.fetchPage(0, this.pageSize());
   }
 

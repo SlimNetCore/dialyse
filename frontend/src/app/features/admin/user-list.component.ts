@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -47,6 +47,10 @@ type FilterType = 'text' | 'boolean';
           <mat-icon>view_column</mat-icon>
           Colonnes
         </button>
+        <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Réinitialiser filtres
+        </button>
         <mat-menu #colsMenu="matMenu">
           @for (c of allColumnsConfig; track c.key) {
             @if (c.key !== 'actions') {
@@ -63,9 +67,10 @@ type FilterType = 'text' | 'boolean';
       <table mat-table [dataSource]="rows()" class="full-width">
         <ng-container matColumnDef="username">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('username')">
               <div class="th-top"><span>Nom d'utilisateur</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('username', $event)"
                           [class.active]="isColumnFiltered('username')">{{ isColumnFiltered('username') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -81,9 +86,10 @@ type FilterType = 'text' | 'boolean';
 
         <ng-container matColumnDef="fullName">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('fullName')">
               <div class="th-top"><span>Nom complet</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('fullName', $event)"
                           [class.active]="isColumnFiltered('fullName')">{{ isColumnFiltered('fullName') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -99,9 +105,10 @@ type FilterType = 'text' | 'boolean';
 
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('email')">
               <div class="th-top"><span>Email</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('email', $event)"
                           [class.active]="isColumnFiltered('email')">{{ isColumnFiltered('email') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -117,9 +124,10 @@ type FilterType = 'text' | 'boolean';
 
         <ng-container matColumnDef="roles">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('roles')">
               <div class="th-top"><span>Rôles</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('roles', $event)"
                           [class.active]="isColumnFiltered('roles')">{{ isColumnFiltered('roles') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -139,9 +147,10 @@ type FilterType = 'text' | 'boolean';
 
         <ng-container matColumnDef="centers">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('centers')">
               <div class="th-top"><span>Centres</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('centers', $event)"
                           [class.active]="isColumnFiltered('centers')">{{ isColumnFiltered('centers') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -161,9 +170,10 @@ type FilterType = 'text' | 'boolean';
 
         <ng-container matColumnDef="active">
           <th mat-header-cell *matHeaderCellDef>
-            <div class="th-wrap">
+            <div class="th-wrap" [class.open]="isFilterOpen('active')">
               <div class="th-top"><span>Actif</span>
                 <mat-icon class="filter-ind"
+                          (click)="toggleFilterPanel('active', $event)"
                           [class.active]="isColumnFiltered('active')">{{ isColumnFiltered('active') ? 'filter_alt' : 'filter_alt_off' }}
                 </mat-icon>
               </div>
@@ -202,11 +212,74 @@ type FilterType = 'text' | 'boolean';
     .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
     .search { width: min(440px, 100%); }
     .full-width { width: 100%; }
-    .th-wrap { display: grid; gap: 6px; }
+
+    .full-width .mat-mdc-header-cell {
+      overflow: visible !important;
+      position: relative;
+      z-index: 5;
+    }
+
+    .full-width .mat-mdc-header-cell:has(.filter-ind:hover),
+    .full-width .mat-mdc-header-cell:has(.th-filter:hover),
+    .full-width .mat-mdc-header-cell:has(.filter-ind.active),
+    .full-width .mat-mdc-header-cell:focus-within {
+      z-index: 2000;
+    }
+
+    .full-width,
+    .full-width .mat-mdc-header-row,
+    .full-width .mat-mdc-row,
+    .full-width .mat-mdc-cell,
+    .full-width .mat-mdc-header-cell {
+      overflow: visible;
+    }
+
+    .th-wrap {
+      display: grid;
+      gap: 6px;
+      position: relative;
+      overflow: visible;
+      z-index: 6;
+    }
+
+    .th-wrap.open {
+      z-index: 2101;
+    }
     .th-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-    .th-filter { display: flex; align-items: center; gap: 6px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--app-primary-soft) 60%, white); border: 1px solid var(--app-border); }
-    .filter-ind { font-size: 17px; width: 17px; height: 17px; color: #94a3b8; }
-    .filter-ind.active { color: #0ea5e9; }
+
+    .th-filter {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 3px;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 240px;
+      width: max-content;
+      max-width: 360px;
+      z-index: 2100;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
+      background: color-mix(in srgb, var(--app-primary-soft) 60%, white);
+      border: 1px solid var(--app-border);
+    }
+
+    .th-wrap.open .th-filter {
+      display: flex;
+    }
+
+    .filter-ind {
+      font-size: 17px;
+      width: 17px;
+      height: 17px;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .filter-ind.active {
+      color: #dc2626;
+    }
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
   `]
 })
@@ -214,6 +287,9 @@ export class UserListComponent implements OnInit {
   private readonly api = inject(AdminApiService);
   private readonly snackbar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  readonly hasActiveFilters = computed(() =>
+    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
+  );
 
   readonly allColumnsConfig = [
     {key: 'username', label: "Nom d'utilisateur", type: 'text' as FilterType},
@@ -286,6 +362,35 @@ export class UserListComponent implements OnInit {
 
   clearColumnFilter(column: string): void {
     this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.fetchPage(0, this.pageSize());
+  }
+  private readonly openFilterColumn = signal<string | null>(null);
+
+  toggleFilterPanel(column: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openFilterColumn.update((current) => (current === column ? null : column));
+  }
+
+  isFilterOpen(column: string): boolean {
+    return this.openFilterColumn() === column;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      this.openFilterColumn.set(null);
+      return;
+    }
+    if (target.closest('.th-wrap')) {
+      return;
+    }
+    this.openFilterColumn.set(null);
+  }
+
+  clearAllColumnFilters(): void {
+    this.openFilterColumn.set(null);
+    this.columnFilters.set({});
     this.fetchPage(0, this.pageSize());
   }
 
