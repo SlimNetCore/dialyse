@@ -15,7 +15,6 @@ export type PagedResponse<T> = {
 export type ListQuery = {
   page: number;
   size: number;
-  search?: string;
   filters?: Record<string, string>;
 };
 
@@ -111,7 +110,6 @@ export class BackendApiService {
       centerId,
       page: query.page,
       size: query.size,
-      search: query.search?.trim() || null,
       code: filters['code']?.trim() || null,
       nom: filters['nom']?.trim() || null,
       prenom: filters['prenom']?.trim() || null,
@@ -195,7 +193,6 @@ export class BackendApiService {
       centerId,
       page: query.page,
       size: query.size,
-      search: query.search?.trim() || null,
       code: filters['code']?.trim() || null,
       nom: filters['nom']?.trim() || null,
       assurance: filters['assurance']?.trim() || null,
@@ -222,7 +219,6 @@ export class BackendApiService {
       centerId,
       page: query.page,
       size: query.size,
-      search: query.search?.trim() || null,
       code: filters['code']?.trim() || null,
       nom: filters['nom']?.trim() || null,
       assurance: filters['assurance']?.trim() || null,

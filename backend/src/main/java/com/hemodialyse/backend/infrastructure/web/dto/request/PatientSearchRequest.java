@@ -11,7 +11,6 @@ public record PatientSearchRequest(
         @NotNull UUID centerId,
         @Min(0) int page,
         @Min(1) @Max(200) int size,
-        String search,
         String code,
         String nom,
         String prenom,

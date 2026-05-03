@@ -3,11 +3,10 @@ package com.hemodialyse.backend.infrastructure.persistence.spec;
 import com.hemodialyse.backend.infrastructure.persistence.entity.PatientJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.entity.PecJpaEntity;
 import com.hemodialyse.backend.infrastructure.web.dto.request.PatientSearchRequest;
-import org.springframework.data.jpa.domain.Specification;
-
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,16 +45,6 @@ public final class PatientSpecifications {
                 predicates.add(cb.lessThanOrEqualTo(root.get("dateAdmission"), to));
             }
 
-            if (req.search() != null && !req.search().isBlank()) {
-                String term = likeTerm(req.search());
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("codePatient")), term),
-                        cb.like(cb.lower(root.get("nom")), term),
-                        cb.like(cb.lower(root.get("prenom")), term),
-                        cb.like(cb.lower(root.get("numeroAssurance")), term),
-                        cb.like(cb.lower(root.get("etatPatient")), term)
-                ));
-            }
 
             if (req.nonFacturable() != null) {
                 Subquery<UUID> sq = query.subquery(UUID.class);
