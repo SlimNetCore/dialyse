@@ -496,6 +496,13 @@ type FilterType = 'text' | 'date';
       border-radius: 12px;
       border: 1px solid var(--app-border);
       background: var(--app-surface);
+      position: relative;
+      isolation: isolate;
+    }
+
+    /* Prevent clipping when a filter panel is open */
+    .table-container:has(.th-wrap.open) {
+      overflow: visible;
     }
 
     .patient-table {
@@ -520,8 +527,22 @@ type FilterType = 'text' | 'date';
     th.mat-mdc-header-cell:has(.filter-ind:hover),
     th.mat-mdc-header-cell:has(.th-filter:hover),
     th.mat-mdc-header-cell:has(.filter-ind.active),
+    th.mat-mdc-header-cell:has(.th-wrap.open),
     th.mat-mdc-header-cell:focus-within {
-      z-index: 2000;
+      z-index: 2100;
+      overflow: visible !important;
+      position: relative;
+    }
+
+    /* Keep header row above data rows while interacting with filters */
+    :host ::ng-deep .patient-table .mat-mdc-header-row {
+      position: relative;
+      z-index: 20;
+    }
+
+    :host ::ng-deep .patient-table .mat-mdc-row {
+      position: relative;
+      z-index: 1;
     }
 
     .patient-table,
@@ -620,7 +641,7 @@ type FilterType = 'text' | 'date';
       min-width: 240px;
       width: max-content;
       max-width: 360px;
-      z-index: 2100;
+      z-index: 2200;
       border-radius: 10px;
       box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
       background: color-mix(in srgb, var(--app-primary-soft) 60%, white);

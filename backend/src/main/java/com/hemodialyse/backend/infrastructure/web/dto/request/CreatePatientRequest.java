@@ -17,6 +17,8 @@ public record CreatePatientRequest(
         String assureTelPersonnel, String assureAdresse, String assureGroupeSanguin,
         String assureTelMobile, String assureTelBureau,
         String assureHistoryJson,
+        // Step 6
+        String piecesJointesJson,
         // Step 3
         UUID medecinTraitantId, UUID salleId, UUID positionId,
         UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId, String etatPatient,

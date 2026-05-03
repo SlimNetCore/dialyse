@@ -40,6 +40,9 @@ public interface PatientUseCase {
         String assureGroupeSanguin, String assureTelMobile, String assureTelBureau,
         String assureHistoryJson,
 
+        // Step 6 — Pièces jointes
+        String piecesJointesJson,
+
         // Step 3 — Affectation
         UUID medecinTraitantId, UUID salleId, UUID positionId,
         UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId,

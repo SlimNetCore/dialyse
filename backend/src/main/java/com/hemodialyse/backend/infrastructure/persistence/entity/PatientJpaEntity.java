@@ -1,6 +1,10 @@
 package com.hemodialyse.backend.infrastructure.persistence.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -65,6 +69,8 @@ public class PatientJpaEntity {
     @Column(name = "assure_adresse") private String assureAdresse;
     @Column(name = "assure_groupe_sanguin") private String assureGroupeSanguin;
     @Column(name = "assure_history_json", columnDefinition = "TEXT") private String assureHistoryJson;
+    @Column(name = "pieces_jointes_json", columnDefinition = "TEXT")
+    private String piecesJointesJson;
     @Column(name = "created_at") private OffsetDateTime createdAt;
 
     // Standard getters/setters for JPA
@@ -125,6 +131,14 @@ public class PatientJpaEntity {
     public String getAssureAdresse() { return assureAdresse; } public void setAssureAdresse(String v) { this.assureAdresse = v; }
     public String getAssureGroupeSanguin() { return assureGroupeSanguin; } public void setAssureGroupeSanguin(String v) { this.assureGroupeSanguin = v; }
     public String getAssureHistoryJson() { return assureHistoryJson; } public void setAssureHistoryJson(String v) { this.assureHistoryJson = v; }
+
+    public String getPiecesJointesJson() {
+        return piecesJointesJson;
+    }
+
+    public void setPiecesJointesJson(String v) {
+        this.piecesJointesJson = v;
+    }
     public OffsetDateTime getCreatedAt() { return createdAt; } public void setCreatedAt(OffsetDateTime v) { this.createdAt = v; }
 }
 

@@ -424,6 +424,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
           assureAdresse: p?.assureAdresse ?? ai?.adresse ?? ai?.assureAdresse ?? null,
           assureGroupeSanguin: p?.assureGroupeSanguin ?? ai?.groupeSanguin ?? ai?.assureGroupeSanguin ?? null,
           assureHistory: this.parseAssureHistory(p?.assureHistoryJson),
+          piecesJointes: this.parsePiecesJointes(p?.piecesJointesJson),
           attestationId: null,
           attestationDebut: null,
           attestationFin: null,
@@ -534,6 +535,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       assureTelMobile: d['assureTelMobile'],
       assureTelBureau: d['assureTelBureau'],
       assureHistoryJson: d['assureHistory'] ? JSON.stringify(d['assureHistory']) : undefined,
+      piecesJointesJson: d['piecesJointes']?.length ? JSON.stringify(d['piecesJointes']) : undefined,
       pecId: d['pecId'] ?? undefined,
       pecDateDebutDemande: toDate(d['pecDateDebutDemande']),
       pecDateFinDemande: toDate(d['pecDateFinDemande']),
@@ -602,5 +604,15 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     if (!json) return [];
     if (Array.isArray(json)) return json;
     try { return JSON.parse(json); } catch { return []; }
+  }
+
+  private parsePiecesJointes(json: any): any[] {
+    if (!json) return [];
+    if (Array.isArray(json)) return json;
+    try {
+      return JSON.parse(json);
+    } catch {
+      return [];
+    }
   }
 }

@@ -60,6 +60,7 @@ public class Patient {
     private String assureNumeroAssurance;
     private AssureInfo assureInfo;
     private String assureHistoryJson;
+    private String piecesJointesJson;
 
     // Affectation
     private UUID medecinTraitantId;
@@ -203,6 +204,14 @@ public class Patient {
     public void setAssureNumeroAssurance(String v) { this.assureNumeroAssurance = v; }
     public void setAssureInfo(AssureInfo v) { this.assureInfo = v; }
     public void setAssureHistoryJson(String v) { this.assureHistoryJson = v; }
+
+    public String getPiecesJointesJson() {
+        return piecesJointesJson;
+    }
+
+    public void setPiecesJointesJson(String v) {
+        this.piecesJointesJson = v;
+    }
     public void setMedecinTraitantId(UUID v) { this.medecinTraitantId = v; }
     public void setSalleId(UUID v) { this.salleId = v; }
     public void setPositionId(UUID v) { this.positionId = v; }

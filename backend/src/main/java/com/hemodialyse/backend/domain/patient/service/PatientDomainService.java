@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.domain.patient.service;
 
-import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import com.hemodialyse.backend.domain.assure.model.Assure;
 import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
@@ -10,7 +9,11 @@ import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.model.PatientType;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
-import com.hemodialyse.backend.domain.patient.vo.*;
+import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
+import com.hemodialyse.backend.domain.patient.vo.AssureInfo;
+import com.hemodialyse.backend.domain.patient.vo.JoursDialyse;
+import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
+import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.pec.model.PriseEnCharge;
 import com.hemodialyse.backend.domain.pec.port.PecRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -112,6 +115,7 @@ public class PatientDomainService implements PatientUseCase {
             cmd.assureGroupeSanguin(), cmd.assureTelMobile(), cmd.assureTelBureau()
         ));
         patient.setAssureHistoryJson(cmd.assureHistoryJson());
+        patient.setPiecesJointesJson(cmd.piecesJointesJson());
 
         Patient saved = patientRepo.save(patient);
         syncAssureRelation(saved, cmd, centerId);
@@ -200,6 +204,7 @@ public class PatientDomainService implements PatientUseCase {
             cmd.assureGroupeSanguin(), cmd.assureTelMobile(), cmd.assureTelBureau()
         ));
         patient.setAssureHistoryJson(cmd.assureHistoryJson());
+        patient.setPiecesJointesJson(cmd.piecesJointesJson());
 
         Patient saved = patientRepo.save(patient);
         syncAssureRelation(saved, cmd, centerId);

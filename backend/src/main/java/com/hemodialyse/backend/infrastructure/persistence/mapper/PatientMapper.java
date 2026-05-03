@@ -2,7 +2,10 @@ package com.hemodialyse.backend.infrastructure.persistence.mapper;
 
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.model.PatientType;
-import com.hemodialyse.backend.domain.patient.vo.*;
+import com.hemodialyse.backend.domain.patient.vo.AssureInfo;
+import com.hemodialyse.backend.domain.patient.vo.JoursDialyse;
+import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
+import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.PatientJpaEntity;
 
@@ -138,6 +141,7 @@ public final class PatientMapper {
             e.setAssureGroupeSanguin(p.getAssureInfo().groupeSanguin());
         }
         e.setAssureHistoryJson(p.getAssureHistoryJson());
+        e.setPiecesJointesJson(p.getPiecesJointesJson());
         e.setCreatedAt(p.getCreatedAt());
         return e;
     }

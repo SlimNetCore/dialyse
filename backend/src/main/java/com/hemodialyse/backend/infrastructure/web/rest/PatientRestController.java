@@ -21,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/patients")
@@ -79,6 +82,7 @@ public class PatientRestController {
                 r.assureTelPersonnel(), r.assureAdresse(), r.assureGroupeSanguin(),
                 r.assureTelMobile(), r.assureTelBureau(),
                 r.assureHistoryJson(),
+                r.piecesJointesJson(),
                 r.medecinTraitantId(), r.salleId(), r.positionId(),
                 r.transporteurAllerId(), r.transporteurRetourId(), r.categorieTransportId(), r.etatPatient(),
                 r.dateEvenementEtat(),
