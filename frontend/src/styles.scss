@@ -227,6 +227,16 @@ input.mat-mdc-input-element::placeholder {
   text-align: center;
 }
 
+/* Column filter popovers */
+.th-filter {
+  justify-content: center;
+}
+
+.th-filter app-column-filter-renderer {
+  width: min(100%, 320px);
+  margin-inline: auto;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;

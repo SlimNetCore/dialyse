@@ -10,28 +10,34 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
   template: `
-    @if (isSelectType()) {
-      <select class="col-filter" [value]="value" (change)="onSelect($event)">
-        @if (type === 'boolean') {
-          <option value="">Tous</option>
-          <option value="true">Oui</option>
-          <option value="false">Non</option>
-        } @else {
-          <option value="">Tous</option>
-          @for (o of options; track o.value) {
-            <option [value]="o.value">{{ o.label }}</option>
+    <div class="field-shell" [class.active]="isActive()">
+      @if (isSelectType()) {
+        <select class="col-filter select-filter" [value]="value" (change)="onSelect($event)">
+          @if (type === 'boolean') {
+            <option value="">Tous</option>
+            <option value="true">Oui</option>
+            <option value="false">Non</option>
+          } @else {
+            <option value="">Tous</option>
+            @for (o of options; track o.value) {
+              <option [value]="o.value">{{ o.label }}</option>
+            }
           }
-        }
-      </select>
-    } @else {
-      <input
-        class="col-filter"
-        [attr.type]="inputType()"
-        [value]="value"
-        [placeholder]="placeholder"
-        (input)="onInput($event)"
-      />
-    }
+        </select>
+      } @else {
+        <input
+          class="col-filter"
+          [attr.type]="inputType()"
+          [value]="value"
+          [placeholder]="placeholder"
+          (input)="onInput($event)"
+        />
+      }
+
+      @if (showsTrailingIcon()) {
+        <mat-icon class="field-icon">{{ trailingIcon() }}</mat-icon>
+      }
+    </div>
 
     @if (isActive()) {
       <button mat-icon-button class="clear-filter" (click)="clear.emit()" type="button" aria-label="Effacer filtre">
@@ -43,36 +49,98 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     :host {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 10px;
       width: 100%;
-      margin-bottom: 4px;
+      margin: 0;
     }
 
-    .col-filter {
-      height: 30px;
+    .field-shell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex: 1 1 auto;
       width: 100%;
-      min-width: 96px;
-      font-size: 12px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      padding: 4px 8px;
+      min-width: 0;
+      min-height: 40px;
+      padding-inline: 12px;
       background: #fff;
-      outline: none;
+      border: 1px solid color-mix(in srgb, var(--app-text) 18%, white);
+      border-radius: 12px;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+      transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
     }
 
-    .col-filter:focus {
-      border-color: var(--app-primary-outline);
+    .field-shell:hover {
+      border-color: color-mix(in srgb, var(--app-primary) 28%, white);
+      background: color-mix(in srgb, var(--app-primary-soft) 20%, white);
+    }
+
+    .field-shell:focus-within {
+      border-color: var(--app-primary);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 14%, white);
     }
 
+    .field-shell.active {
+      border-color: color-mix(in srgb, var(--app-primary) 40%, white);
+    }
+
+    .col-filter {
+      flex: 1 1 auto;
+      height: 38px;
+      width: 100%;
+      min-width: 0;
+      font-size: 13px;
+      line-height: 38px;
+      text-align: center;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      outline: none;
+      color: var(--app-text);
+    }
+
+    .col-filter::placeholder {
+      text-align: center;
+      color: var(--app-muted);
+    }
+
+    .select-filter {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+      text-align-last: center;
+      padding-right: 24px;
+    }
+
+    .field-icon {
+      position: absolute;
+      right: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+      color: var(--app-muted);
+      pointer-events: none;
+    }
+
     .clear-filter {
-      width: 28px;
-      height: 28px;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      padding: 0;
       border-radius: 999px;
       background: color-mix(in srgb, var(--app-primary-soft) 70%, white);
       border: 1px solid color-mix(in srgb, var(--app-primary-outline) 55%, #ffffff);
       color: var(--app-primary);
       transition: all .18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
     }
 
     .clear-filter:hover {
@@ -85,6 +153,7 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       font-size: 15px;
       width: 15px;
       height: 15px;
+      margin: 0;
     }
   `]
 })
@@ -99,6 +168,16 @@ export class ColumnFilterRendererComponent {
 
   isSelectType(): boolean {
     return this.type === 'boolean' || this.type === 'enum';
+  }
+
+  showsTrailingIcon(): boolean {
+    return this.isSelectType() || this.type === 'date';
+  }
+
+  trailingIcon(): string {
+    if (this.isSelectType()) return 'expand_more';
+    if (this.type === 'date') return 'calendar_month';
+    return '';
   }
 
   inputType(): string {
