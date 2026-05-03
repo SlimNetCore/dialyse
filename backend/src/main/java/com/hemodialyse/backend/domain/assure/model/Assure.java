@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.domain.assure.model;
 
+import com.hemodialyse.backend.domain.patient.vo.PhoneNumber;
+
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -31,11 +33,20 @@ public class Assure {
     public LocalDate getDateNaissance() { return dateNaissance; }
     public void setDateNaissance(LocalDate v) { this.dateNaissance = v; }
     public String getTelPersonnel() { return telPersonnel; }
-    public void setTelPersonnel(String v) { this.telPersonnel = v; }
+
+    public void setTelPersonnel(String v) {
+        this.telPersonnel = (v == null || v.isBlank()) ? null : PhoneNumber.of(v).value();
+    }
     public String getTelMobile() { return telMobile; }
-    public void setTelMobile(String v) { this.telMobile = v; }
+
+    public void setTelMobile(String v) {
+        this.telMobile = (v == null || v.isBlank()) ? null : PhoneNumber.of(v).value();
+    }
     public String getTelBureau() { return telBureau; }
-    public void setTelBureau(String v) { this.telBureau = v; }
+
+    public void setTelBureau(String v) {
+        this.telBureau = (v == null || v.isBlank()) ? null : PhoneNumber.of(v).value();
+    }
     public String getAdresse() { return adresse; }
     public void setAdresse(String v) { this.adresse = v; }
     public String getGroupeSanguin() { return groupeSanguin; }

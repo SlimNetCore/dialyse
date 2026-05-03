@@ -17,7 +17,8 @@ public class PecJpaEntity {
     @Column(name = "date_fin_effectif") private LocalDate dateFinEffectif;
     @Column(name = "forfait_effectif_id") private UUID forfaitEffectifId;
     @Column(name = "statut", nullable = false) private String statut;
-    @Column(name = "created_at") private OffsetDateTime createdAt;
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     public UUID getId() { return id; } public void setId(UUID v) { this.id = v; }
     public UUID getPatientId() { return patientId; } public void setPatientId(UUID v) { this.patientId = v; }

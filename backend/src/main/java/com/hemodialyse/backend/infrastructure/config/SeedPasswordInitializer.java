@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.config;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class SeedPasswordInitializer implements CommandLineRunner {
     }
 
     private void ensurePassword(String username, String clearPassword) {
-        var users = jdbc.queryForList("SELECT id, password_hash FROM app_user WHERE username = ?", username);
+        var users = safeFindUsers(username);
         if (users.isEmpty()) return;
 
         String currentHash = (String) users.get(0).get("PASSWORD_HASH");
@@ -35,6 +36,15 @@ public class SeedPasswordInitializer implements CommandLineRunner {
         if (currentHash == null || !currentHash.startsWith("$2a$") || !encoder.matches(clearPassword, currentHash)) {
             String newHash = encoder.encode(clearPassword);
             jdbc.update("UPDATE app_user SET password_hash = ? WHERE username = ?", newHash, username);
+        }
+    }
+
+    private java.util.List<java.util.Map<String, Object>> safeFindUsers(String username) {
+        try {
+            return jdbc.queryForList("SELECT id, password_hash FROM app_user WHERE username = ?", username);
+        } catch (DataAccessException ignored) {
+            // Tests may run with partial schema where app_user is not present.
+            return java.util.List.of();
         }
     }
 }

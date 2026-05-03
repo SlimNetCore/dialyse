@@ -809,21 +809,29 @@ export class PatientListComponent implements OnInit {
       next: (res) => {
         const mapped = (res.items ?? []).map((p: any) => ({
           id: p.id?.value ?? p.id,
-          code: p.codePatient ?? '',
+          code: p.code_patient ?? p.codePatient ?? '',
           nom: p.nom ?? '',
           prenom: p.prenom ?? '',
           sexe: p.sexe ?? '',
-          dateAdmission: p.dateAdmission ?? '',
-          numeroAssurance: p.numeroAssurance?.value ?? p.numeroAssurance ?? '',
-          etatPatient: p.etatPatient ?? 'PERMANENT',
-          nonFacturable: !!p.nonFacturable,
-          medecinTraitantId: p.medecinTraitantId ?? '',
-          positionId: p.positionId ?? '',
-          transporteurAllerId: p.transporteurAllerId ?? '',
-          transporteurRetourId: p.transporteurRetourId ?? '',
-          joursDialyse: p.joursDialyse ?? {},
-          pecStatus: p.pecStatus ?? '',
-          pecForfaitId: p.pecForfaitId ?? ''
+          dateAdmission: p.date_admission ?? p.dateAdmission ?? '',
+          numeroAssurance: p.numero_assurance ?? p.numeroAssurance?.value ?? p.numeroAssurance ?? '',
+          etatPatient: p.etat_patient ?? p.etatPatient ?? 'PERMANENT',
+          nonFacturable: !!(p.non_facturable ?? p.nonFacturable),
+          medecinTraitantId: p.medecin_traitant_id ?? p.medecinTraitantId ?? '',
+          positionId: p.position_id ?? p.positionId ?? '',
+          transporteurAllerId: p.transporteur_aller_id ?? p.transporteurAllerId ?? '',
+          transporteurRetourId: p.transporteur_retour_id ?? p.transporteurRetourId ?? '',
+          joursDialyse: p.joursDialyse ?? {
+            dimanche: p.jour_dimanche ?? false,
+            lundi: p.jour_lundi ?? false,
+            mardi: p.jour_mardi ?? false,
+            mercredi: p.jour_mercredi ?? false,
+            jeudi: p.jour_jeudi ?? false,
+            vendredi: p.jour_vendredi ?? false,
+            samedi: p.jour_samedi ?? false
+          },
+          pecStatus: p.pec_status ?? p.pecStatus ?? '',
+          pecForfaitId: p.pec_forfait_id ?? p.pecForfaitId ?? ''
         }));
         this.rows.set(mapped);
         this.total.set(res.total ?? 0);

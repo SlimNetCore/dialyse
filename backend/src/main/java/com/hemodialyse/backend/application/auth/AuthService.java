@@ -10,8 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -129,8 +130,8 @@ public class AuthService {
     public String issueRefreshToken(UUID userId, UUID centerId) {
         String rawToken = generateOpaqueRefreshToken();
         String hash = sha256Hex(rawToken);
-        Instant now = Instant.now();
-        Instant expiresAt = now.plusSeconds(jwtTokenProvider.getRefreshExpirationSec());
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime expiresAt = now.plusSeconds(jwtTokenProvider.getRefreshExpirationSec());
 
         jdbc.update(
                 "INSERT INTO auth_refresh_token (id, token_hash, user_id, center_id, expires_at, revoked, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -138,9 +139,9 @@ public class AuthService {
                 hash,
                 userId,
                 centerId,
-                Timestamp.from(expiresAt),
+                expiresAt,
                 false,
-                Timestamp.from(now)
+                now
         );
         return rawToken;
     }
@@ -192,10 +193,10 @@ public class AuthService {
             throw new IllegalArgumentException("Refresh token invalide");
         }
 
-        Map<String, Object> row = rows.get(0);
+        Map<String, Object> row = rows.getFirst();
         boolean revoked = Boolean.TRUE.equals(row.get("REVOKED"));
-        Timestamp expiresAt = (Timestamp) row.get("EXPIRES_AT");
-        if (revoked || expiresAt == null || expiresAt.toInstant().isBefore(Instant.now())) {
+        Instant expiresAt = toInstant(row.get("EXPIRES_AT"));
+        if (revoked || expiresAt == null || expiresAt.isBefore(Instant.now())) {
             throw new IllegalArgumentException("Refresh token expiré");
         }
 
@@ -203,6 +204,14 @@ public class AuthService {
         UUID userId = (UUID) row.get("USER_ID");
         UUID centerId = (UUID) row.get("CENTER_ID");
         return new RefreshTokenContext(tokenId, userId, centerId);
+    }
+
+    private Instant toInstant(Object value) {
+        if (value == null) return null;
+        if (value instanceof Instant i) return i;
+        if (value instanceof OffsetDateTime odt) return odt.toInstant();
+        if (value instanceof java.sql.Timestamp ts) return ts.toInstant();
+        return null;
     }
 
     private String generateOpaqueRefreshToken() {

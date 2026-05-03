@@ -104,16 +104,27 @@ export class BackendApiService {
   }
 
   listPatients(centerId: string, userId: string, query: ListQuery): Observable<PagedResponse<any>> {
-    let params = new HttpParams()
-      .set('centerId', centerId)
-      .set('userId', userId)
-      .set('page', query.page)
-      .set('size', query.size);
-    if (query.search?.trim()) params = params.set('search', query.search.trim());
-    for (const [k, v] of Object.entries(query.filters ?? {})) {
-      if (v?.trim()) params = params.set(k, v.trim());
-    }
-    return this.http.get<PagedResponse<any>>(`${this.baseUrl}/patients`, {params});
+    const filters = query.filters ?? {};
+    const dateRange = this.parseDateRange(filters['dateAdmission']);
+
+    const payload: Record<string, unknown> = {
+      centerId,
+      page: query.page,
+      size: query.size,
+      search: query.search?.trim() || null,
+      code: filters['code']?.trim() || null,
+      nom: filters['nom']?.trim() || null,
+      prenom: filters['prenom']?.trim() || null,
+      sexe: filters['sexe']?.trim() || null,
+      dateAdmissionFrom: dateRange.from,
+      dateAdmissionTo: dateRange.to,
+      numeroAssurance: filters['numeroAssurance']?.trim() || null,
+      etatPatient: filters['etatPatient']?.trim() || null,
+      nonFacturable: this.parseBooleanNullable(filters['nonFacturable'])
+    };
+
+    void userId; // centerId seul suffit côté backend
+    return this.http.post<PagedResponse<any>>(`${this.baseUrl}/patients/search`, payload);
   }
 
   getPatient(patientId: string, centerId: string, userId: string): Observable<unknown> {
@@ -179,15 +190,20 @@ export class BackendApiService {
   }
 
   listPecsDetailed(centerId: string, query: ListQuery): Observable<PagedResponse<any>> {
-    let params = new HttpParams()
-      .set('centerId', centerId)
-      .set('page', query.page)
-      .set('size', query.size);
-    if (query.search?.trim()) params = params.set('search', query.search.trim());
-    for (const [k, v] of Object.entries(query.filters ?? {})) {
-      if (v?.trim()) params = params.set(k, v.trim());
-    }
-    return this.http.get<PagedResponse<any>>(`${this.baseUrl}/pec/pec-center`, {params});
+    const filters = query.filters ?? {};
+    const payload = {
+      centerId,
+      page: query.page,
+      size: query.size,
+      search: query.search?.trim() || null,
+      code: filters['code']?.trim() || null,
+      nom: filters['nom']?.trim() || null,
+      assurance: filters['assurance']?.trim() || null,
+      debut: filters['debut']?.trim() || null,
+      fin: filters['fin']?.trim() || null,
+      statut: filters['statut']?.trim() || null
+    };
+    return this.http.post<PagedResponse<any>>(`${this.baseUrl}/pec/pec-center/search`, payload);
   }
 
   listPecsByPatient(centerId: string, patientId: string): Observable<any[]> {
@@ -201,15 +217,19 @@ export class BackendApiService {
   }
 
   listAttestationsByCenter(centerId: string, query: ListQuery): Observable<PagedResponse<any>> {
-    let params = new HttpParams()
-      .set('centerId', centerId)
-      .set('page', query.page)
-      .set('size', query.size);
-    if (query.search?.trim()) params = params.set('search', query.search.trim());
-    for (const [k, v] of Object.entries(query.filters ?? {})) {
-      if (v?.trim()) params = params.set(k, v.trim());
-    }
-    return this.http.get<PagedResponse<any>>(`${this.baseUrl}/pec/attestations-center`, {params});
+    const filters = query.filters ?? {};
+    const payload = {
+      centerId,
+      page: query.page,
+      size: query.size,
+      search: query.search?.trim() || null,
+      code: filters['code']?.trim() || null,
+      nom: filters['nom']?.trim() || null,
+      assurance: filters['assurance']?.trim() || null,
+      debut: filters['debut']?.trim() || null,
+      fin: filters['fin']?.trim() || null
+    };
+    return this.http.post<PagedResponse<any>>(`${this.baseUrl}/pec/attestations-center/search`, payload);
   }
 
   closePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {
@@ -290,5 +310,28 @@ export class BackendApiService {
       formatOverride: formatOverride || null,
       params
     }, { responseType: 'blob' });
+  }
+
+  // ─── Utilitaires privés ───────────────────────────────────────────
+
+  private parseDateRange(rawValue?: string): { from: string | null; to: string | null } {
+    const raw = (rawValue ?? '').trim();
+    if (!raw) return {from: null, to: null};
+    const normalize = (v: string): string | null =>
+      /^\d{4}-\d{2}-\d{2}$/.test(v.trim()) ? v.trim() : null;
+    if (raw.includes('..')) {
+      const [fromRaw = '', toRaw = ''] = raw.split('..', 2);
+      return {from: normalize(fromRaw), to: normalize(toRaw)};
+    }
+    const normalized = normalize(raw);
+    return {from: normalized, to: normalized};
+  }
+
+  private parseBooleanNullable(value?: string): boolean | null {
+    const normalized = (value ?? '').trim().toLowerCase();
+    if (!normalized) return null;
+    if (['true', 'oui', '1'].includes(normalized)) return true;
+    if (['false', 'non', '0'].includes(normalized)) return false;
+    return null;
   }
 }

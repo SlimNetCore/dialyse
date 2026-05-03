@@ -173,10 +173,22 @@ public class Patient {
     public void setDateEvenementEtat(LocalDate v) { this.dateEvenementEtat = v; }
     public void setProfession(String v) { this.profession = v; }
     public void setAdresse(String v) { this.adresse = v; }
-    public void setTelPersonnel(String v) { this.telPersonnel = v; }
-    public void setTelMobile(String v) { this.telMobile = v; }
-    public void setTelBureau(String v) { this.telBureau = v; }
-    public void setEmail(String v) { this.email = v; }
+
+    public void setTelPersonnel(String v) {
+        this.telPersonnel = (v == null || v.isBlank()) ? null : PhoneNumber.of(v).value();
+    }
+
+    public void setTelMobile(String v) {
+        this.telMobile = (v == null || v.isBlank()) ? null : PhoneNumber.of(v).value();
+    }
+
+    public void setTelBureau(String v) {
+        this.telBureau = (v == null || v.isBlank()) ? null : PhoneNumber.of(v).value();
+    }
+
+    public void setEmail(String v) {
+        this.email = (v == null || v.isBlank()) ? null : Email.of(v).value();
+    }
     public void setSousKt(boolean v) { this.sousKt = v; }
     public void setEpoEnabled(boolean v) { this.epoEnabled = v; }
     public void setEpoDate(LocalDate v) { this.epoDate = v; }

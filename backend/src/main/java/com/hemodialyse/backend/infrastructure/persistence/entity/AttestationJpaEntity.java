@@ -12,7 +12,8 @@ public class AttestationJpaEntity {
     @Column(name = "center_id", nullable = false) private UUID centerId;
     @Column(name = "date_debut", nullable = false) private LocalDate dateDebut;
     @Column(name = "date_fin", nullable = false) private LocalDate dateFin;
-    @Column(name = "created_at") private OffsetDateTime createdAt;
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     public UUID getId() { return id; } public void setId(UUID v) { this.id = v; }
     public UUID getPatientId() { return patientId; } public void setPatientId(UUID v) { this.patientId = v; }

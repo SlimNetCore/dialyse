@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS assure (
     tel_bureau VARCHAR(50),
     adresse VARCHAR(500),
     groupe_sanguin VARCHAR(20),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS assure_patient (
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS assure_patient (
     is_primary BOOLEAN NOT NULL DEFAULT FALSE,
     date_debut_affectation DATE,
     date_fin_affectation   DATE,
-    date_affectation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                              date_affectation TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                               PRIMARY KEY (id)
 );
 -- Index de recherche pour les affectations actives (la contrainte d'unicité est gérée applicativement)
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS app_user (
     email VARCHAR(150),
     full_name VARCHAR(150),
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS app_user_role (
@@ -136,10 +136,10 @@ CREATE TABLE IF NOT EXISTS auth_refresh_token
     token_hash VARCHAR(128) NOT NULL UNIQUE,
     user_id    UUID         NOT NULL,
     center_id  UUID         NOT NULL,
-    expires_at TIMESTAMP    NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     revoked    BOOLEAN      NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    revoked_at TIMESTAMP    NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at TIMESTAMP WITH TIME ZONE NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_auth_refresh_token_user_id ON auth_refresh_token (user_id);
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS modele_document (
     format_impression VARCHAR(20) NOT NULL DEFAULT 'PDF',
     description VARCHAR(500),
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(center_id, code)
 );
 
