@@ -45,12 +45,19 @@ export class AuthSessionService {
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  async initFromServer(): Promise<void> {
+  async initFromServer(options: { force?: boolean } = {}): Promise<boolean> {
+    const shouldFetch = options.force === true || this.isAuthenticated();
+    if (!shouldFetch) {
+      return false;
+    }
+
     try {
       const me = await firstValueFrom(this.authApi.me());
       this.setSession(this.mapLoginResponse(me));
+      return true;
     } catch {
       this.clearSession();
+      return false;
     }
   }
 

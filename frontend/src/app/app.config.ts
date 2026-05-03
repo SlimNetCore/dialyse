@@ -19,6 +19,11 @@ function initAuthSession(auth: AuthSessionService, store: {
   switchCenter: (centerId: string) => void
 }): () => Promise<void> {
   return async () => {
+    const onLoginRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/login');
+    if (onLoginRoute || !auth.isAuthenticated()) {
+      return;
+    }
+
     await auth.initFromServer();
     const centerId = auth.centerId();
     if (centerId) {
