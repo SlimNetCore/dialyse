@@ -1,8 +1,6 @@
-import {Injectable, signal} from '@angular/core';
+import {computed, Injectable, signal} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {AuthApiService, LoginResponse} from '../api/auth-api.service';
-
-const STORAGE_KEY = 'hemodialyse.auth.session';
 
 type AuthSession = {
   username: string;
@@ -14,15 +12,20 @@ type AuthSession = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
+  private initInFlight: Promise<boolean> | null = null;
+  private lastServerSyncAt = 0;
+  private readonly serverSyncGraceMs = 10_000;
+  private readonly serverSyncPending = signal(0);
+
   readonly username = signal<string | null>(null);
   readonly fullName = signal<string | null>(null);
   readonly centerId = signal<string | null>(null);
   readonly centerName = signal<string | null>(null);
   readonly roles = signal<string[]>([]);
   readonly isAuthenticated = signal(false);
+  readonly isServerSyncing = computed(() => this.serverSyncPending() > 0);
 
   constructor(private readonly authApi: AuthApiService) {
-    this.restoreFromStorage();
   }
 
   setSession(session: AuthSession): void {
@@ -32,7 +35,6 @@ export class AuthSessionService {
     this.centerName.set(session.centerName);
     this.roles.set(session.roles ?? []);
     this.isAuthenticated.set(true);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   }
 
   clearSession(): void {
@@ -42,7 +44,7 @@ export class AuthSessionService {
     this.centerName.set(null);
     this.roles.set([]);
     this.isAuthenticated.set(false);
-    localStorage.removeItem(STORAGE_KEY);
+    this.lastServerSyncAt = 0;
   }
 
   async initFromServer(options: { force?: boolean } = {}): Promise<boolean> {
@@ -51,14 +53,32 @@ export class AuthSessionService {
       return false;
     }
 
-    try {
-      const me = await firstValueFrom(this.authApi.me());
-      this.setSession(this.mapLoginResponse(me));
+    // Avoid duplicate /me calls during app bootstrap (initializer + guard).
+    if (!options.force && (Date.now() - this.lastServerSyncAt) < this.serverSyncGraceMs) {
       return true;
-    } catch {
-      this.clearSession();
-      return false;
     }
+
+    if (this.initInFlight) {
+      return this.initInFlight;
+    }
+
+    this.initInFlight = (async () => {
+      this.serverSyncPending.update((v) => v + 1);
+      try {
+        const me = await firstValueFrom(this.authApi.me());
+        this.setSession(this.mapLoginResponse(me));
+        this.lastServerSyncAt = Date.now();
+        return true;
+      } catch {
+        this.clearSession();
+        return false;
+      } finally {
+        this.serverSyncPending.update((v) => Math.max(0, v - 1));
+        this.initInFlight = null;
+      }
+    })();
+
+    return this.initInFlight;
   }
 
   hasRole(role: string): boolean {
@@ -71,17 +91,6 @@ export class AuthSessionService {
     return roles.includes(`ROLE_${role}`);
   }
 
-  private restoreFromStorage(): void {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-
-    try {
-      const parsed = JSON.parse(raw) as AuthSession;
-      this.setSession(parsed);
-    } catch {
-      this.clearSession();
-    }
-  }
 
   private mapLoginResponse(res: LoginResponse): AuthSession {
     return {
