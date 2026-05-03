@@ -5,6 +5,9 @@ import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AssureJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.AssureJpaRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,6 +22,10 @@ public class AssureRepositoryAdapter implements AssureRepositoryPort {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "patient.assure.byNumero", key = "#assure.numeroAssurance"),
+            @CacheEvict(cacheNames = "patient.assure.searchByCenter", allEntries = true)
+    })
     public Assure save(Assure assure) {
         AssureJpaEntity e = new AssureJpaEntity();
         e.setNumeroAssurance(assure.getNumeroAssurance());
@@ -37,11 +44,13 @@ public class AssureRepositoryAdapter implements AssureRepositoryPort {
     }
 
     @Override
+    @Cacheable(cacheNames = "patient.assure.byNumero", key = "#numeroAssurance")
     public Optional<Assure> findByNumeroAssurance(String numeroAssurance) {
         return jpa.findById(numeroAssurance).map(this::toDomain);
     }
 
     @Override
+    @Cacheable(cacheNames = "patient.assure.searchByCenter", key = "#centerId.value().toString() + ':' + (#query == null ? '' : #query.toLowerCase())")
     public List<Assure> searchByCenter(CenterId centerId, String query) {
         return jpa.searchByCenter(centerId.value(), query).stream().map(this::toDomain).toList();
     }
@@ -63,4 +72,5 @@ public class AssureRepositoryAdapter implements AssureRepositoryPort {
         return a;
     }
 }
+
 

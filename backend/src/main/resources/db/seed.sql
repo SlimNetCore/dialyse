@@ -347,11 +347,13 @@ MERGE INTO assure (numero_assurance, center_id, nom, prenom, sexe, date_naissanc
     VALUES ('ASSURE-SL-2001', '22222222-2222-2222-2222-222222222222', 'FALL', 'Mariama', 'F', DATE '1970-12-30',
             '033900001', '077700001', 'Saint-Louis Ville', 'B+');
 
-MERGE INTO assure_patient (patient_id, numero_assurance, center_id, is_primary, date_affectation) KEY (patient_id, numero_assurance)
-    VALUES ('b1000001-0000-0000-0000-000000000002', 'ASSURE-ANN-1001', '11111111-1111-1111-1111-111111111111', TRUE,
+MERGE INTO assure_patient (id, patient_id, numero_assurance, center_id, is_primary, date_affectation) KEY (id)
+    VALUES ('c1000001-0000-0000-0000-000000000001', 'b1000001-0000-0000-0000-000000000002', 'ASSURE-ANN-1001',
+            '11111111-1111-1111-1111-111111111111', TRUE,
             CURRENT_TIMESTAMP);
-MERGE INTO assure_patient (patient_id, numero_assurance, center_id, is_primary, date_affectation) KEY (patient_id, numero_assurance)
-    VALUES ('b2000001-0000-0000-0000-000000000001', 'ASSURE-SL-2001', '22222222-2222-2222-2222-222222222222', TRUE,
+MERGE INTO assure_patient (id, patient_id, numero_assurance, center_id, is_primary, date_affectation) KEY (id)
+    VALUES ('c2000001-0000-0000-0000-000000000001', 'b2000001-0000-0000-0000-000000000001', 'ASSURE-SL-2001',
+            '22222222-2222-2222-2222-222222222222', TRUE,
             CURRENT_TIMESTAMP);
 
 -- ═══ ATTESTATIONS / PEC DE TEST ═══
@@ -540,4 +542,7 @@ MERGE INTO prise_en_charge (
             '22222222-2222-2222-2222-222222222222',
             DATE '2025-02-01', DATE '2025-09-30', 'f0000002-0000-0000-0000-000000000001',
             DATE '2025-02-02', DATE '2025-09-30', 'f0000002-0000-0000-0000-000000000001', 'VALIDEE');
+
+
+
 

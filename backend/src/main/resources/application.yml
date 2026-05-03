@@ -26,6 +26,8 @@ spring:
       path: /h2-console
   jackson:
     time-zone: UTC
+  cache:
+    type: caffeine
 
 jakarta.persistence.jdbc.url: ${DB_URL:jdbc:h2:mem:hemodialyse;MODE=PostgreSQL;DB_CLOSE_DELAY=-1}
 
@@ -42,6 +44,12 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  cache:
+    ttl:
+      referentials: ${CACHE_TTL_REFERENTIALS:PT6H}
+      patient-detail: ${CACHE_TTL_PATIENT_DETAIL:PT15M}
+      patient-list: ${CACHE_TTL_PATIENT_LIST:PT3M}
+      patient-count: ${CACHE_TTL_PATIENT_COUNT:PT3M}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
   auth:

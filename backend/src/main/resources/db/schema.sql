@@ -95,9 +95,9 @@ CREATE TABLE IF NOT EXISTS assure_patient (
     date_affectation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                               PRIMARY KEY (id)
 );
--- Contrainte : un seul assuré actif (primaire) par patient
-CREATE UNIQUE INDEX IF NOT EXISTS uq_assure_patient_primary_active
-    ON assure_patient (patient_id, center_id) WHERE is_primary = true AND date_fin_affectation IS NULL;
+-- Index de recherche pour les affectations actives (la contrainte d'unicité est gérée applicativement)
+CREATE INDEX IF NOT EXISTS idx_assure_patient_primary_active
+    ON assure_patient (patient_id, center_id, is_primary, date_fin_affectation);
 
 -- ═══ User & Role Management ═══
 
