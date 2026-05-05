@@ -1,19 +1,32 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
-import {TranslateModule} from '@ngx-translate/core';
+import {MatSelectModule} from '@angular/material/select';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {SelectFilterComponent} from './select-filter.component';
 
 export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
 
 @Component({
   selector: 'app-column-filter-renderer',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatIconModule, MatInputModule, MatNativeDateModule, TranslateModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    TranslateModule,
+    SelectFilterComponent
+  ],
   template: `
     @if (type === 'date') {
       <mat-form-field appearance="outline" class="date-range-field">
@@ -48,21 +61,34 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
         </mat-date-range-picker>
       </mat-form-field>
     } @else {
-      <div class="field-shell" [class.active]="isActive()">
-        @if (isSelectType()) {
-          <select class="col-filter select-filter" [value]="value" (change)="onSelect($event)">
+      @if (isSelectType()) {
+        <mat-form-field appearance="outline" class="select-filter-field" [class.active]="isActive()">
+          <mat-select [value]="selectedValues()" [multiple]="isMultiSelect()" panelClass="column-filter-select-panel"
+                      [panelWidth]="'360px'" (selectionChange)="onMatSelect($event.value)"
+                      [placeholder]="placeholder || ('COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) })">
+            <mat-option class="panel-filter-option" disabled>
+              <app-select-filter [placeholder]="'COMMON.SEARCH'" (valueChange)="onPanelFilterChange($event)"/>
+            </mat-option>
+            @if (!isMultiSelect()) {
+              <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+            }
             @if (type === 'boolean') {
-              <option value="">{{ 'COMMON.ALL' | translate }}</option>
-              <option value="true">{{ 'COMMON.YES' | translate }}</option>
-              <option value="false">{{ 'COMMON.NO' | translate }}</option>
+              @for (o of booleanOptions(); track o.value) {
+                @if (isPanelOptionVisible(o.label)) {
+                  <mat-option [value]="o.value">{{ o.label }}</mat-option>
+                }
+              }
             } @else {
-              <option value="">{{ 'COMMON.ALL' | translate }}</option>
               @for (o of options; track o.value) {
-                <option [value]="o.value">{{ o.label }}</option>
+                @if (isPanelOptionVisible(o.label)) {
+                  <mat-option [value]="o.value">{{ o.label }}</mat-option>
+                }
               }
             }
-          </select>
-        } @else {
+          </mat-select>
+        </mat-form-field>
+      } @else {
+        <div class="field-shell" [class.active]="isActive()">
           <input
             class="col-filter"
             [attr.type]="inputType()"
@@ -70,12 +96,12 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
             [placeholder]="placeholder || ('COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) })"
             (input)="onInput($event)"
           />
-        }
 
-        @if (showsTrailingIcon()) {
-          <mat-icon class="field-icon">{{ trailingIcon() }}</mat-icon>
-        }
-      </div>
+          @if (showsTrailingIcon()) {
+            <mat-icon class="field-icon">{{ trailingIcon() }}</mat-icon>
+          }
+        </div>
+      }
     }
 
     @if (isActive()) {
@@ -92,6 +118,10 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       gap: 10px;
       width: 100%;
       margin: 0;
+      text-transform: none;
+      --filter-font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+      --filter-font-size: 13px;
+      --filter-font-weight: 600;
     }
 
     .date-range-field {
@@ -137,6 +167,9 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     :host ::ng-deep .date-range-field .mat-date-range-input-separator,
     :host ::ng-deep .date-range-field input.mat-mdc-input-element,
     :host ::ng-deep .date-range-field input.mat-mdc-input-element::placeholder {
+      font-family: var(--filter-font-family);
+      font-size: var(--filter-font-size);
+      font-weight: var(--filter-font-weight);
       text-align: center;
     }
 
@@ -168,6 +201,40 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
     }
 
+    .select-filter-field {
+      width: 100%;
+      margin: 0;
+      --mat-form-field-container-height: 40px;
+      --mat-form-field-container-vertical-padding: 8px;
+    }
+
+    :host ::ng-deep .select-filter-field .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    :host ::ng-deep .select-filter-field .mat-mdc-form-field-infix {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .select-filter-field.active {
+      --mdc-outlined-text-field-outline-color: var(--app-primary-outline);
+    }
+
+    :host ::ng-deep .panel-filter-option {
+      height: auto !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      opacity: 1 !important;
+      cursor: default;
+      pointer-events: auto;
+    }
+
+    :host ::ng-deep .panel-filter-option .mdc-list-item__primary-text {
+      width: 100%;
+    }
+
     .field-shell:hover {
       border-color: var(--app-primary-outline);
       background: var(--app-field-hover-bg);
@@ -195,12 +262,29 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       background: transparent;
       outline: none;
       color: var(--app-text);
-      font-weight: 600;
+      font-family: var(--filter-font-family);
+      font-size: var(--filter-font-size);
+      font-weight: var(--filter-font-weight);
+      text-transform: none;
     }
 
     .col-filter::placeholder {
+      font-family: var(--filter-font-family);
+      font-size: var(--filter-font-size);
+      font-weight: var(--filter-font-weight);
       text-align: center;
       color: var(--app-muted);
+      text-transform: none;
+    }
+
+    :host ::ng-deep .select-filter-field .mat-mdc-select-value,
+    :host ::ng-deep .select-filter-field .mat-mdc-select-placeholder,
+    :host ::ng-deep .select-filter-field .mat-mdc-select-value-text,
+    :host ::ng-deep .select-filter-field .mat-mdc-select-min-line {
+      font-family: var(--filter-font-family) !important;
+      font-size: var(--filter-font-size) !important;
+      font-weight: var(--filter-font-weight) !important;
+      text-transform: none !important;
     }
 
     .select-filter {
@@ -262,6 +346,8 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
   `]
 })
 export class ColumnFilterRendererComponent implements OnChanges {
+  protected panelFilter = '';
+
   @Input() type: ColumnFilterType = 'text';
   @Input() value = '';
   @Input() placeholder = '';
@@ -272,10 +358,12 @@ export class ColumnFilterRendererComponent implements OnChanges {
   @Output() clear = new EventEmitter<void>();
 
   protected draftDateRange: { from: Date | null; to: Date | null } = {from: null, to: null};
+  private readonly translate = inject(TranslateService);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['value'] || changes['type']) {
       this.syncDraftDateRange();
+      if (changes['type']) this.panelFilter = '';
     }
   }
 
@@ -311,6 +399,43 @@ export class ColumnFilterRendererComponent implements OnChanges {
 
   onSelect(event: Event): void {
     this.valueChange.emit((event.target as HTMLSelectElement).value);
+  }
+
+  onMatSelect(value: string | string[]): void {
+    if (Array.isArray(value)) {
+      this.valueChange.emit(value.filter(v => !!v).join(','));
+      return;
+    }
+    this.valueChange.emit(value ?? '');
+  }
+
+  selectedValues(): string[] | string {
+    if (!this.isMultiSelect()) return this.value ?? '';
+    return (this.value ?? '')
+      .split(',')
+      .map(v => v.trim())
+      .filter(v => !!v);
+  }
+
+  isMultiSelect(): boolean {
+    return this.type === 'enum';
+  }
+
+  onPanelFilterChange(value: string): void {
+    this.panelFilter = value ?? '';
+  }
+
+  booleanOptions(): Array<{ value: string; label: string }> {
+    return [
+      {value: 'true', label: this.translate.instant('COMMON.YES')},
+      {value: 'false', label: this.translate.instant('COMMON.NO')}
+    ];
+  }
+
+  isPanelOptionVisible(label: string): boolean {
+    const query = (this.panelFilter ?? '').trim().toLowerCase();
+    if (!query) return true;
+    return (label ?? '').toLowerCase().includes(query);
   }
 
   onDraftDateRangeChange(bound: 'from' | 'to', value: Date | null): void {

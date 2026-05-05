@@ -450,6 +450,23 @@ a {
   box-shadow: var(--app-shadow-soft) !important;
 }
 
+.mat-mdc-select-panel.column-filter-select-panel {
+  min-width: 360px !important;
+  max-height: min(72vh, 460px) !important;
+  padding-top: 0 !important;
+}
+
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--app-surface-solid);
+}
+
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option.mdc-list-item--disabled {
+  opacity: 1 !important;
+}
+
 .mat-mdc-card {
   border-radius: 24px !important;
   box-shadow: var(--app-shadow) !important;

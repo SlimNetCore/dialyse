@@ -105,13 +105,7 @@ type FilterType = 'text' | 'date';
           </div>
         </div>
 
-        @if (rows().length === 0) {
-          <div class="empty-state">
-            <mat-icon>person_off</mat-icon>
-            <p>{{ 'PATIENT_LIST.EMPTY' | translate }}</p>
-          </div>
-        } @else {
-          <div class="table-container">
+        <div class="table-container">
             <table mat-table [dataSource]="rows()" class="patient-table">
               <ng-container matColumnDef="code">
                 <th mat-header-cell *matHeaderCellDef>
@@ -475,11 +469,15 @@ type FilterType = 'text' | 'date';
               <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="patient-row"
                   [attr.data-row-id]="row.id"></tr>
+              <tr class="mat-mdc-row" *matNoDataRow>
+                <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
+                  {{ 'PATIENT_LIST.EMPTY' | translate }}
+                </td>
+              </tr>
             </table>
-          </div>
-          <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
-                         [pageSizeOptions]="[5,10,20,50]" (page)="onPageChange($event)"></mat-paginator>
-        }
+        </div>
+        <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
+                       [pageSizeOptions]="[5,10,20,50]" (page)="onPageChange($event)"></mat-paginator>
       </mat-card-content>
     </mat-card>
   `,
@@ -691,6 +689,13 @@ type FilterType = 'text' | 'date';
     .th-wrap {
       display: grid;
       gap: 6px;
+
+      .no-data-cell {
+        text-align: center;
+        padding: 16px;
+        color: var(--app-muted);
+        font-weight: 600;
+      }
       position: relative;
       overflow: visible;
       z-index: 6;
