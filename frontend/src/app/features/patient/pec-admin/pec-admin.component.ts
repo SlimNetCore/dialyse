@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -15,8 +15,9 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
-import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
+import {SearchableSelectComponent} from '../../../shared/searchable-select.component';
 import {ReferentialApiService} from '../../../core/api/referential-api.service';
+import {PecAdminStore} from './state/pec-admin.store';
 
 @Component({
   selector: 'app-pec-admin',
@@ -124,7 +125,7 @@ import {ReferentialApiService} from '../../../core/api/referential-api.service';
                   (selectionChanged)="validateForm.patchValue({forfaitEffectifId: $event?.id})" cssClass="flex1" />
               </div>
               <div class="form-row" style="justify-content: flex-end; gap: 8px;">
-                <button mat-stroked-button (click)="validatingPec.set(null)">{{ 'PEC_ADMIN.CANCEL' | translate }}</button>
+                <button mat-stroked-button (click)="cancelValidate()">{{ 'PEC_ADMIN.CANCEL' | translate }}</button>
                 <button mat-flat-button class="validate-btn" (click)="confirmValidate()" [disabled]="validateForm.invalid">
                   <mat-icon>check</mat-icon> {{ 'PEC_ADMIN.CONFIRM' | translate }}
                 </button>
@@ -186,6 +187,7 @@ import {ReferentialApiService} from '../../../core/api/referential-api.service';
 })
 export class PecAdminComponent implements OnInit {
   private readonly api = inject(BackendApiService);
+  private readonly pecAdminStore = inject(PecAdminStore);
   readonly store = inject(AppShellStore);
   readonly auth = inject(AuthStore);
   private readonly snackBar = inject(MatSnackBar);
@@ -193,10 +195,10 @@ export class PecAdminComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly refApi = inject(ReferentialApiService);
 
-  pecs = signal<any[]>([]);
-  loading = signal(false);
-  validatingPec = signal<any>(null);
-  forfaits = signal<DropdownItem[]>([]);
+  readonly pecs = this.pecAdminStore.pecs;
+  readonly loading = this.pecAdminStore.loading;
+  readonly validatingPec = this.pecAdminStore.validatingPec;
+  readonly forfaits = this.pecAdminStore.forfaits;
   columns = ['patientId', 'dateDebutDemande', 'dateFinDemande', 'status', 'actions'];
 
   validateForm!: FormGroup;
@@ -212,7 +214,7 @@ export class PecAdminComponent implements OnInit {
     const cid = this.store.currentCenterId();
     if (cid) {
       this.refApi.getForfaits(cid).subscribe(list =>
-        this.forfaits.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.code ?? ''} - ${i.nom}` })))
+        this.pecAdminStore.setForfaits(list.map((i: any) => ({...i, id: i.id, label: `${i.code ?? ''} - ${i.nom}`})))
       );
     }
   }
@@ -220,16 +222,23 @@ export class PecAdminComponent implements OnInit {
   loadPecs(): void {
     const cid = this.store.currentCenterId();
     if (!cid) return;
-    this.loading.set(true);
+    this.pecAdminStore.setLoading(true);
     this.api.listPecs(cid).subscribe({
-      next: list => { this.pecs.set(list); this.loading.set(false); },
-      error: () => this.loading.set(false)
+      next: list => {
+        this.pecAdminStore.setPecs(list);
+        this.pecAdminStore.setLoading(false);
+      },
+      error: () => this.pecAdminStore.setLoading(false)
     });
   }
 
   openValidate(pec: any): void {
-    this.validatingPec.set(pec);
+    this.pecAdminStore.setValidatingPec(pec);
     this.validateForm.reset();
+  }
+
+  cancelValidate(): void {
+    this.pecAdminStore.setValidatingPec(null);
   }
 
   confirmValidate(): void {
@@ -248,7 +257,7 @@ export class PecAdminComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.snackBar.open(this.translate.instant('PEC_ADMIN.VALIDATED_OK') || 'PEC validée', 'OK', { duration: 3000 });
-        this.validatingPec.set(null);
+        this.pecAdminStore.setValidatingPec(null);
         this.loadPecs();
       },
       error: err => this.snackBar.open(err?.error?.detail || 'Erreur', 'OK', { duration: 5000 })

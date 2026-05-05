@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatCardModule} from '@angular/material/card';
@@ -16,6 +16,7 @@ import {TranslateModule} from '@ngx-translate/core';
 import {BackendApiService} from '../../core/api/backend-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
+import {ModelesDocumentStore} from './state/modeles-document.store';
 
 @Component({
   selector: 'app-modeles-document',
@@ -94,7 +95,7 @@ import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
           </div>
 
           <div class="form-actions">
-            <button mat-stroked-button (click)="showForm.set(false)">Annuler</button>
+            <button mat-stroked-button (click)="closeForm()">Annuler</button>
             <button mat-flat-button color="primary" (click)="save()" [disabled]="!isFormValid()">
               <mat-icon>save</mat-icon>
               {{ editingId() ? 'Modifier' : 'Enregistrer' }}
@@ -221,38 +222,33 @@ export class ModelesDocumentComponent implements OnInit {
   private readonly auth = inject(AuthStore);
   private readonly snack = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  private readonly modelesStore = inject(ModelesDocumentStore);
 
-  readonly modeles = signal<any[]>([]);
-  readonly documentTypes = signal<Array<{ code: string; label: string }>>([]);
-  readonly showForm = signal(false);
-  readonly editingId = signal<string | null>(null);
+  readonly modeles = this.modelesStore.modeles;
+  readonly documentTypes = this.modelesStore.documentTypes;
+  readonly showForm = this.modelesStore.showForm;
+  readonly editingId = this.modelesStore.editingId;
   readonly displayedColumns = ['code', 'libelle', 'typeDocument', 'cheminJrxml', 'format', 'active', 'actions'];
 
   form = this.emptyForm();
 
   ngOnInit(): void {
     this.loadModeles();
-    this.api.getDocumentTypes().subscribe(t => this.documentTypes.set(t));
+    this.api.getDocumentTypes().subscribe(t => this.modelesStore.setDocumentTypes(t));
   }
 
-  private loadModeles(): void {
-    const centerId = this.auth.centerId();
-    if (!centerId) return;
-    this.api.listModelesDocument(centerId).subscribe(m => this.modeles.set(m));
+  openForm(): void {
+    this.form = this.emptyForm();
+    this.modelesStore.setEditingId(null);
+    this.modelesStore.setShowForm(true);
   }
 
   val(row: any, upper: string, lower: string): any {
     return row[upper] ?? row[lower] ?? '';
   }
 
-  openForm(): void {
-    this.form = this.emptyForm();
-    this.editingId.set(null);
-    this.showForm.set(true);
-  }
-
-  isFormValid(): boolean {
-    return !!this.form.code && !!this.form.libelle && !!this.form.typeDocument && !!this.form.cheminJrxml;
+  closeForm(): void {
+    this.modelesStore.setShowForm(false);
   }
 
   save(): void {
@@ -268,15 +264,19 @@ export class ModelesDocumentComponent implements OnInit {
     obs$.subscribe({
       next: () => {
         this.snack.open(this.editingId() ? 'Modèle mis à jour' : 'Modèle créé', 'OK', { duration: 3000 });
-        this.showForm.set(false);
+        this.modelesStore.setShowForm(false);
         this.loadModeles();
       },
       error: err => this.snack.open('Erreur: ' + err.message, 'OK', { duration: 5000 })
     });
   }
 
+  isFormValid(): boolean {
+    return !!this.form.code && !!this.form.libelle && !!this.form.typeDocument && !!this.form.cheminJrxml;
+  }
+
   edit(row: any): void {
-    this.editingId.set(this.val(row, 'ID', 'id'));
+    this.modelesStore.setEditingId(this.val(row, 'ID', 'id'));
     this.form = {
       code: this.val(row, 'CODE', 'code'),
       libelle: this.val(row, 'LIBELLE', 'libelle'),
@@ -285,7 +285,13 @@ export class ModelesDocumentComponent implements OnInit {
       formatImpression: this.val(row, 'FORMAT_IMPRESSION', 'format_impression'),
       description: this.val(row, 'DESCRIPTION', 'description')
     };
-    this.showForm.set(true);
+    this.modelesStore.setShowForm(true);
+  }
+
+  private loadModeles(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) return;
+    this.api.listModelesDocument(centerId).subscribe(m => this.modelesStore.setModeles(m));
   }
 
   remove(row: any): void {

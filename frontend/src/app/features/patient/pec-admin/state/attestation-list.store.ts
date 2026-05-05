@@ -3,9 +3,23 @@ import {patchState, signalStore, withComputed, withMethods, withState} from '@ng
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {createPagedListState, PagedListState} from '../../../../core/state/paged-list-state.util';
 
-type AttestationListState = PagedListState<any>;
+type AttestationListState = PagedListState<any> & {
+  visibleColumns: Record<string, boolean>;
+  openFilterColumn: string | null;
+};
 
-const initialState: AttestationListState = createPagedListState<any>();
+const initialState: AttestationListState = {
+  ...createPagedListState<any>(),
+  visibleColumns: {
+    code: true,
+    nom: true,
+    assurance: true,
+    debut: true,
+    fin: true,
+    actions: true
+  },
+  openFilterColumn: null
+};
 
 export const AttestationListStore = signalStore(
   {providedIn: 'root'},
@@ -50,9 +64,29 @@ export const AttestationListStore = signalStore(
 
     clearAllFilters(): void {
       patchState(store, {columnFilters: {}});
+    },
+
+    setVisibleColumn(column: string, visible: boolean): void {
+      patchState(store, {
+        visibleColumns: {
+          ...store.visibleColumns(),
+          [column]: visible
+        }
+      });
+    },
+
+    toggleFilterPanel(column: string): void {
+      patchState(store, {
+        openFilterColumn: store.openFilterColumn() === column ? null : column
+      });
+    },
+
+    closeFilterPanel(): void {
+      patchState(store, {openFilterColumn: null});
     }
   }))
 );
+
 
 
 

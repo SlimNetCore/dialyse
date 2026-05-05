@@ -1,4 +1,4 @@
-import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -316,14 +316,7 @@ export class AttestationListComponent implements OnInit {
     {key: 'fin', labelKey: 'ATTEST_LIST.COL_FIN'},
     {key: 'actions', labelKey: 'ATTEST_LIST.COL_ACTIONS'}
   ] as const;
-  readonly visibleColumns = signal<Record<string, boolean>>({
-    code: true,
-    nom: true,
-    assurance: true,
-    debut: true,
-    fin: true,
-    actions: true
-  });
+  readonly visibleColumns = this.attestationListStore.visibleColumns;
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
   readonly columnFilters = this.attestationListStore.columnFilters;
 
@@ -332,7 +325,7 @@ export class AttestationListComponent implements OnInit {
   }
 
   toggleColumn(column: string, checked: boolean): void {
-    this.visibleColumns.update(prev => ({...prev, [column]: checked}));
+    this.attestationListStore.setVisibleColumn(column, checked);
   }
 
   isColumnVisible(column: string): boolean {
@@ -356,32 +349,31 @@ export class AttestationListComponent implements OnInit {
     this.attestationListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
-  private readonly openFilterColumn = signal<string | null>(null);
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
     event.stopPropagation();
-    this.openFilterColumn.update((current) => (current === column ? null : column));
+    this.attestationListStore.toggleFilterPanel(column);
   }
 
   isFilterOpen(column: string): boolean {
-    return this.openFilterColumn() === column;
+    return this.attestationListStore.openFilterColumn() === column;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
     if (!target) {
-      this.openFilterColumn.set(null);
+      this.attestationListStore.closeFilterPanel();
       return;
     }
     if (target.closest('.th-wrap')) {
       return;
     }
-    this.openFilterColumn.set(null);
+    this.attestationListStore.closeFilterPanel();
   }
 
   clearAllColumnFilters(): void {
-    this.openFilterColumn.set(null);
+    this.attestationListStore.closeFilterPanel();
     this.attestationListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }

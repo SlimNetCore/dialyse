@@ -1,4 +1,4 @@
-import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -254,7 +254,7 @@ export class RoleListComponent implements OnInit {
     {key: 'description', label: 'Description'},
     {key: 'actions', label: 'Actions'}
   ] as const;
-  readonly visibleColumns = signal<Record<string, boolean>>({code: true, name: true, description: true, actions: true});
+  readonly visibleColumns = this.roleListStore.visibleColumns;
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
 
   readonly rows = this.roleListStore.rows;
@@ -274,7 +274,7 @@ export class RoleListComponent implements OnInit {
   }
 
   toggleColumn(column: string, checked: boolean): void {
-    this.visibleColumns.update(prev => ({...prev, [column]: checked}));
+    this.roleListStore.setVisibleColumn(column, checked);
   }
 
   isColumnVisible(column: string): boolean {

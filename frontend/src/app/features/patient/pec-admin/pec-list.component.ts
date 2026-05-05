@@ -1,4 +1,4 @@
-import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -371,15 +371,7 @@ export class PecListComponent implements OnInit {
     {key: 'statut', labelKey: 'PEC_LIST.COL_STATUS'},
     {key: 'actions', labelKey: 'PEC_LIST.COL_ACTIONS'}
   ] as const;
-  readonly visibleColumns = signal<Record<string, boolean>>({
-    code: true,
-    nom: true,
-    assurance: true,
-    debut: true,
-    fin: true,
-    statut: true,
-    actions: true
-  });
+  readonly visibleColumns = this.pecListStore.visibleColumns;
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
   readonly columnFilters = this.pecListStore.columnFilters;
 
@@ -394,7 +386,7 @@ export class PecListComponent implements OnInit {
   }
 
   toggleColumn(column: string, checked: boolean): void {
-    this.visibleColumns.update(prev => ({...prev, [column]: checked}));
+    this.pecListStore.setVisibleColumn(column, checked);
   }
 
   isColumnVisible(column: string): boolean {
@@ -418,32 +410,31 @@ export class PecListComponent implements OnInit {
     this.pecListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
-  private readonly openFilterColumn = signal<string | null>(null);
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
     event.stopPropagation();
-    this.openFilterColumn.update((current) => (current === column ? null : column));
+    this.pecListStore.toggleFilterPanel(column);
   }
 
   isFilterOpen(column: string): boolean {
-    return this.openFilterColumn() === column;
+    return this.pecListStore.openFilterColumn() === column;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
     if (!target) {
-      this.openFilterColumn.set(null);
+      this.pecListStore.closeFilterPanel();
       return;
     }
     if (target.closest('.th-wrap')) {
       return;
     }
-    this.openFilterColumn.set(null);
+    this.pecListStore.closeFilterPanel();
   }
 
   clearAllColumnFilters(): void {
-    this.openFilterColumn.set(null);
+    this.pecListStore.closeFilterPanel();
     this.pecListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }

@@ -3,9 +3,24 @@ import {patchState, signalStore, withComputed, withMethods, withState} from '@ng
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {createPagedListState, PagedListState} from '../../../../core/state/paged-list-state.util';
 
-type PecListState = PagedListState<any>;
+type PecListState = PagedListState<any> & {
+  visibleColumns: Record<string, boolean>;
+  openFilterColumn: string | null;
+};
 
-const initialState: PecListState = createPagedListState<any>();
+const initialState: PecListState = {
+  ...createPagedListState<any>(),
+  visibleColumns: {
+    code: true,
+    nom: true,
+    assurance: true,
+    debut: true,
+    fin: true,
+    statut: true,
+    actions: true
+  },
+  openFilterColumn: null
+};
 
 export const PecListStore = signalStore(
   {providedIn: 'root'},
@@ -50,9 +65,29 @@ export const PecListStore = signalStore(
 
     clearAllFilters(): void {
       patchState(store, {columnFilters: {}});
+    },
+
+    setVisibleColumn(column: string, visible: boolean): void {
+      patchState(store, {
+        visibleColumns: {
+          ...store.visibleColumns(),
+          [column]: visible
+        }
+      });
+    },
+
+    toggleFilterPanel(column: string): void {
+      patchState(store, {
+        openFilterColumn: store.openFilterColumn() === column ? null : column
+      });
+    },
+
+    closeFilterPanel(): void {
+      patchState(store, {openFilterColumn: null});
     }
   }))
 );
+
 
 
 

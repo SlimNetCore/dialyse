@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, computed, effect, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, computed, effect, inject, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatStepper, MatStepperModule} from '@angular/material/stepper';
 import {MatButtonModule} from '@angular/material/button';
@@ -52,14 +52,16 @@ import {PatientFicheStore} from '../state/patient-fiche.store';
         <!-- Step 1: Généralités -->
         <mat-step [label]="'WIZARD.STEP_GENERALITES' | translate" [completed]="step1Valid()" [editable]="true">
           @if (shouldRenderStep(0)) {
-            <app-step-generalites #stepGen [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step1Valid.set($event)" />
+            <app-step-generalites #stepGen [readonly]="consultationMode()" (dataChange)="updateData($event)"
+                                  (validChange)="setStep1Valid($event)"/>
           }
         </mat-step>
 
         <!-- Step 2: Assurance -->
         <mat-step [label]="'WIZARD.STEP_ASSURANCE' | translate" [completed]="step2Valid()" [editable]="true">
           @if (shouldRenderStep(1)) {
-            <app-step-assurance #stepAss [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined" (dataChange)="updateData($event)" (validChange)="step2Valid.set($event)" />
+            <app-step-assurance #stepAss [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined"
+                                (dataChange)="updateData($event)" (validChange)="setStep2Valid($event)"/>
           }
         </mat-step>
 
@@ -74,7 +76,8 @@ import {PatientFicheStore} from '../state/patient-fiche.store';
         @if (!isVacancier()) {
           <mat-step [label]="'WIZARD.STEP_ATTESTATION' | translate" [completed]="step4Valid()" [editable]="true">
             @if (shouldRenderStep(3)) {
-              <app-step-attestation #stepAtt [readonly]="consultationMode()" (dataChange)="updateData($event)" (validChange)="step4Valid.set($event)" />
+              <app-step-attestation #stepAtt [readonly]="consultationMode()" (dataChange)="updateData($event)"
+                                    (validChange)="setStep4Valid($event)"/>
             }
           </mat-step>
         }
@@ -82,7 +85,8 @@ import {PatientFicheStore} from '../state/patient-fiche.store';
         <!-- Step 5: PEC -->
         <mat-step [label]="'WIZARD.STEP_PEC' | translate" [completed]="step5Valid()" [editable]="true">
           @if (shouldRenderStep(isVacancier() ? 3 : 4)) {
-            <app-step-pec #stepPec [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined" (dataChange)="updateData($event)" (validChange)="step5Valid.set($event)" />
+            <app-step-pec #stepPec [readonly]="consultationMode()" [patientId]="editingPatientId() || undefined"
+                          (dataChange)="updateData($event)" (validChange)="setStep5Valid($event)"/>
           }
         </mat-step>
 
@@ -246,12 +250,12 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
 
-  readonly currentStep = signal(0);
-  readonly saving = signal(false);
-  readonly step1Valid = signal(false);
-  readonly step2Valid = signal(false);
-  readonly step4Valid = signal(false);
-  readonly step5Valid = signal(false);
+  readonly currentStep = this.ficheStore.currentStep;
+  readonly saving = this.ficheStore.saving;
+  readonly step1Valid = this.ficheStore.step1Valid;
+  readonly step2Valid = this.ficheStore.step2Valid;
+  readonly step4Valid = this.ficheStore.step4Valid;
+  readonly step5Valid = this.ficheStore.step5Valid;
   readonly isVacancier = computed(() => {
     this.wizardDataVersion();  // trigger re-eval on data change
     const etat = (this.wizardData['etatPatient'] ?? '').toString();
@@ -283,8 +287,9 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   get wizardData(): Record<string, any> {
     return this.ficheStore.wizardData();
   }
-  private attestationLoaded = signal(false);
-  private pecLoaded = signal(false);
+
+  private readonly attestationLoaded = this.ficheStore.attestationLoaded;
+  private readonly pecLoaded = this.ficheStore.pecLoaded;
 
   set wizardData(value: Record<string, any>) {
     this.ficheStore.setWizardData(value);
@@ -364,8 +369,24 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     return this.currentStep() === stepIndex;
   }
 
+  setStep1Valid(value: boolean): void {
+    this.ficheStore.setStep1Valid(value);
+  }
+
+  setStep2Valid(value: boolean): void {
+    this.ficheStore.setStep2Valid(value);
+  }
+
+  setStep4Valid(value: boolean): void {
+    this.ficheStore.setStep4Valid(value);
+  }
+
+  setStep5Valid(value: boolean): void {
+    this.ficheStore.setStep5Valid(value);
+  }
+
   onStepChange(event: any): void {
-    this.currentStep.set(event.selectedIndex);
+    this.ficheStore.setCurrentStep(event.selectedIndex);
     this.loadStepDataIfNeeded(event.selectedIndex);
     // Double setTimeout to ensure ViewChild is resolved after @if renders the component
     setTimeout(() => {
@@ -376,6 +397,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.ficheStore.reset();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
     const centerId = this.store.currentCenterId();
@@ -444,85 +467,11 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     if (idx === pjIndex) this.stepPj?.patchData?.(this.wizardData);
   }
 
-  private loadStepDataIfNeeded(stepIndex: number): void {
-    if (!this.editMode() || !this.editingPatientId()) return;
-    const centerId = this.store.currentCenterId();
-    if (!centerId) return;
-
-    const attestationIndex = this.isVacancier() ? -1 : 3;
-    const pecIndex = this.isVacancier() ? 3 : 4;
-
-    if (stepIndex === attestationIndex && !this.attestationLoaded()) {
-      this.attestationLoaded.set(true);
-      this.api.listAttestationsByPatient(centerId, this.editingPatientId()!).subscribe(a => {
-        this.wizardData = { ...this.wizardData, attestationHistory: a ?? [] };
-        const first = (a ?? [])[0];
-        if (first) {
-          this.wizardData = {
-            ...this.wizardData,
-            attestationId: (first.id ?? first.ID ?? null),
-            attestationDebut: first.dateDebut ?? first.DATE_DEBUT,
-            attestationFin: first.dateFin ?? first.DATE_FIN
-          };
-        }
-        this.ficheStore.bumpVersion();
-        this.patchStepsFromWizardData();
-      });
-    }
-
-    if (stepIndex === pecIndex && !this.pecLoaded()) {
-      this.pecLoaded.set(true);
-      this.api.listPecsByPatient(centerId, this.editingPatientId()!).subscribe(pecs => {
-        this.wizardData = { ...this.wizardData, pecHistory: pecs ?? [] };
-        const first = (pecs ?? [])[0];
-        if (first) {
-          this.wizardData = {
-            ...this.wizardData,
-            pecId: (first.id ?? first.ID ?? null),
-            pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE,
-            pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE,
-            pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
-          };
-        }
-        this.ficheStore.bumpVersion();
-        this.patchStepsFromWizardData();
-      });
-    }
-  }
-
-  private shouldRefreshFromEvent(event: WsEvent): boolean {
-    return event.type === 'PATIENT_UPDATED'
-      || event.type === 'PATIENT_CREATED'
-      || event.type === 'PEC_VALIDATED'
-      || event.type === 'PEC_CLOSED'
-      || event.type === 'PEC_DELETED'
-      || event.type === 'ATTESTATION_CREATED'
-      || event.type === 'ATTESTATION_DELETED';
-  }
-
-  private extractPatientId(event: WsEvent): string | null {
-    const payload = event.payload ?? {};
-    return payload['patientId']
-      || payload['PATIENT_ID']
-      || payload['id']
-      || null;
-  }
-
-  private refreshCurrentPatientFromServer(): void {
-    const id = this.editingPatientId();
-    const centerId = this.store.currentCenterId();
-    if (!id || !centerId) return;
-
-    this.api.getPatient(id, centerId, this.auth.username() ?? 'demo').subscribe({
-      next: (p: any) => this.hydrateWizardFromPatient(p)
-    });
-  }
-
   /** Submit the final form */
   submit(): void {
     const centerId = this.store.currentCenterId();
     if (!centerId) return;
-    this.saving.set(true);
+    this.ficheStore.setSaving(true);
 
     const d = this.wizardData;
     const toDate = (v: any) => {
@@ -586,7 +535,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
     req$.subscribe({
       next: () => {
-        this.saving.set(false);
+        this.ficheStore.setSaving(false);
         this.snackBar.open(
           this.translate.instant('PATIENT_FORM.SUCCESS') || 'Patient enregistré avec succès',
           'OK', { duration: 3000 }
@@ -594,10 +543,84 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         this.router.navigate(['/patients']);
       },
       error: (err) => {
-        this.saving.set(false);
+        this.ficheStore.setSaving(false);
         this.snackBar.open(err?.error?.detail || 'Erreur', 'OK', { duration: 5000 });
       }
     });
+  }
+
+  private shouldRefreshFromEvent(event: WsEvent): boolean {
+    return event.type === 'PATIENT_UPDATED'
+      || event.type === 'PATIENT_CREATED'
+      || event.type === 'PEC_VALIDATED'
+      || event.type === 'PEC_CLOSED'
+      || event.type === 'PEC_DELETED'
+      || event.type === 'ATTESTATION_CREATED'
+      || event.type === 'ATTESTATION_DELETED';
+  }
+
+  private extractPatientId(event: WsEvent): string | null {
+    const payload = event.payload ?? {};
+    return payload['patientId']
+      || payload['PATIENT_ID']
+      || payload['id']
+      || null;
+  }
+
+  private refreshCurrentPatientFromServer(): void {
+    const id = this.editingPatientId();
+    const centerId = this.store.currentCenterId();
+    if (!id || !centerId) return;
+
+    this.api.getPatient(id, centerId, this.auth.username() ?? 'demo').subscribe({
+      next: (p: any) => this.hydrateWizardFromPatient(p)
+    });
+  }
+
+  private loadStepDataIfNeeded(stepIndex: number): void {
+    if (!this.editMode() || !this.editingPatientId()) return;
+    const centerId = this.store.currentCenterId();
+    if (!centerId) return;
+
+    const attestationIndex = this.isVacancier() ? -1 : 3;
+    const pecIndex = this.isVacancier() ? 3 : 4;
+
+    if (stepIndex === attestationIndex && !this.attestationLoaded()) {
+      this.ficheStore.setAttestationLoaded(true);
+      this.api.listAttestationsByPatient(centerId, this.editingPatientId()!).subscribe(a => {
+        this.wizardData = { ...this.wizardData, attestationHistory: a ?? [] };
+        const first = (a ?? [])[0];
+        if (first) {
+          this.wizardData = {
+            ...this.wizardData,
+            attestationId: (first.id ?? first.ID ?? null),
+            attestationDebut: first.dateDebut ?? first.DATE_DEBUT,
+            attestationFin: first.dateFin ?? first.DATE_FIN
+          };
+        }
+        this.ficheStore.bumpVersion();
+        this.patchStepsFromWizardData();
+      });
+    }
+
+    if (stepIndex === pecIndex && !this.pecLoaded()) {
+      this.ficheStore.setPecLoaded(true);
+      this.api.listPecsByPatient(centerId, this.editingPatientId()!).subscribe(pecs => {
+        this.wizardData = { ...this.wizardData, pecHistory: pecs ?? [] };
+        const first = (pecs ?? [])[0];
+        if (first) {
+          this.wizardData = {
+            ...this.wizardData,
+            pecId: (first.id ?? first.ID ?? null),
+            pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE,
+            pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE,
+            pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
+          };
+        }
+        this.ficheStore.bumpVersion();
+        this.patchStepsFromWizardData();
+      });
+    }
   }
 
   private hydrateWizardFromPatient(p: any): void {
@@ -651,10 +674,10 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   }
 
   private recomputeStepValidityFromData(): void {
-    this.step1Valid.set(!!(this.wizardData['nom'] && this.wizardData['prenom'] && this.wizardData['sexe'] && this.wizardData['dateAdmission']));
-    this.step2Valid.set(!!this.wizardData['numeroAssurance']);
-    this.step4Valid.set(this.isAttestationDataValid());
-    this.step5Valid.set(this.isPecDataValid());
+    this.ficheStore.setStep1Valid(!!(this.wizardData['nom'] && this.wizardData['prenom'] && this.wizardData['sexe'] && this.wizardData['dateAdmission']));
+    this.ficheStore.setStep2Valid(!!this.wizardData['numeroAssurance']);
+    this.ficheStore.setStep4Valid(this.isAttestationDataValid());
+    this.ficheStore.setStep5Valid(this.isPecDataValid());
   }
 
   private parseAssureHistory(json: any): any[] {

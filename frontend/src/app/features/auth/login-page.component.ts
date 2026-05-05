@@ -1,5 +1,5 @@
 import {TitleCasePipe} from '@angular/common';
-import {Component, inject, signal} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {MatCardModule} from '@angular/material/card';
@@ -16,6 +16,7 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {LangStore} from '../../core/state/lang.store';
 import {ThemeStore} from '../../core/state/theme.store';
 import {MatMenuModule} from '@angular/material/menu';
+import {LoginPageStore} from './state/login-page.store';
 
 @Component({
   selector: 'app-login-page',
@@ -361,32 +362,53 @@ import {MatMenuModule} from '@angular/material/menu';
 })
 export class LoginPageComponent {
   private readonly authApi = inject(AuthApiService);
+  private readonly loginStore = inject(LoginPageStore);
   readonly lang = inject(LangStore);
   readonly store = inject(AppShellStore);
   readonly theme = inject(ThemeStore);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
+  readonly loading = this.loginStore.loading;
+  readonly error = this.loginStore.error;
 
-  selectedCenter = '';
-  username = '';
-  password = '';
-  loading = signal(false);
-  error = signal('');
+  get selectedCenter(): string {
+    return this.loginStore.selectedCenter();
+  }
+
+  set selectedCenter(value: string) {
+    this.loginStore.setSelectedCenter(value);
+  }
+
+  get username(): string {
+    return this.loginStore.username();
+  }
+
+  set username(value: string) {
+    this.loginStore.setUsername(value);
+  }
+
+  get password(): string {
+    return this.loginStore.password();
+  }
+
+  set password(value: string) {
+    this.loginStore.setPassword(value);
+  }
 
   doLogin(): void {
     if (!this.selectedCenter || !this.username || !this.password) return;
-    this.loading.set(true);
-    this.error.set('');
+    this.loginStore.setLoading(true);
+    this.loginStore.setError('');
     this.authApi.login({centerId: this.selectedCenter, username: this.username, password: this.password}).subscribe({
       next: (res) => {
         this.authStore.setSession(res);
         this.store.switchCenter(res.centerId);
-        this.loading.set(false);
+        this.loginStore.setLoading(false);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        this.error.set(err?.error?.detail || err?.error?.message || 'Erreur de connexion');
-        this.loading.set(false);
+        this.loginStore.setError(err?.error?.detail || err?.error?.message || 'Erreur de connexion');
+        this.loginStore.setLoading(false);
       }
     });
   }

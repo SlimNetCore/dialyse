@@ -1,4 +1,4 @@
-import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -312,15 +312,7 @@ export class UserListComponent implements OnInit {
     {key: 'active', label: 'Actif', type: 'boolean' as FilterType},
     {key: 'actions', label: 'Actions', type: 'text' as FilterType}
   ] as const;
-  readonly visibleColumns = signal<Record<string, boolean>>({
-    username: true,
-    fullName: true,
-    email: true,
-    roles: true,
-    centers: true,
-    active: true,
-    actions: true
-  });
+  readonly visibleColumns = this.userListStore.visibleColumns;
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
 
   readonly rows = this.userListStore.rows;
@@ -340,7 +332,7 @@ export class UserListComponent implements OnInit {
   }
 
   toggleColumn(column: string, checked: boolean): void {
-    this.visibleColumns.update(prev => ({...prev, [column]: checked}));
+    this.userListStore.setVisibleColumn(column, checked);
   }
 
   isColumnVisible(column: string): boolean {
@@ -364,32 +356,31 @@ export class UserListComponent implements OnInit {
     this.userListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
-  private readonly openFilterColumn = signal<string | null>(null);
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
     event.stopPropagation();
-    this.openFilterColumn.update((current) => (current === column ? null : column));
+    this.userListStore.toggleFilterPanel(column);
   }
 
   isFilterOpen(column: string): boolean {
-    return this.openFilterColumn() === column;
+    return this.userListStore.openFilterColumn() === column;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
     if (!target) {
-      this.openFilterColumn.set(null);
+      this.userListStore.closeFilterPanel();
       return;
     }
     if (target.closest('.th-wrap')) {
       return;
     }
-    this.openFilterColumn.set(null);
+    this.userListStore.closeFilterPanel();
   }
 
   clearAllColumnFilters(): void {
-    this.openFilterColumn.set(null);
+    this.userListStore.closeFilterPanel();
     this.userListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }

@@ -5,11 +5,18 @@ import {AppRole} from '../../../core/api/admin-api.service';
 import {createSearchablePagedListState, SearchablePagedListState} from '../../../core/state/paged-list-state.util';
 
 type RoleListState = SearchablePagedListState<AppRole> & {
+  visibleColumns: Record<string, boolean>;
   openFilterColumn: string | null;
 };
 
 const initialState: RoleListState = {
   ...createSearchablePagedListState<AppRole>(),
+  visibleColumns: {
+    code: true,
+    name: true,
+    description: true,
+    actions: true
+  },
   openFilterColumn: null
 };
 
@@ -62,6 +69,15 @@ export const RoleListStore = signalStore(
       patchState(store, {columnFilters: {}});
     },
 
+    setVisibleColumn(column: string, visible: boolean): void {
+      patchState(store, {
+        visibleColumns: {
+          ...store.visibleColumns(),
+          [column]: visible
+        }
+      });
+    },
+
     toggleFilterPanel(column: string): void {
       patchState(store, {
         openFilterColumn: store.openFilterColumn() === column ? null : column
@@ -73,6 +89,7 @@ export const RoleListStore = signalStore(
     }
   }))
 );
+
 
 
 
