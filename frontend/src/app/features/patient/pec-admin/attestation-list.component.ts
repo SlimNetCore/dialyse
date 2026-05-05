@@ -153,7 +153,8 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns()"
+            [attr.data-row-key]="row.PATIENT_ID || row.patient_id || row.CODE_PATIENT || row.code_patient"></tr>
       </table>
       </div>
 
@@ -191,7 +192,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       overflow: auto;
       border: 1px solid var(--app-border);
       border-radius: 12px;
-      background: var(--app-surface);
+      background: var(--app-surface-solid);
     }
 
     .w100 {
@@ -222,7 +223,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
     }
 
     .w100 .mat-mdc-row:hover {
-      background: color-mix(in srgb, var(--app-primary-soft) 70%, white);
+      background: var(--app-row-hover);
     }
 
     .th-wrap {
@@ -248,7 +249,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       display: none;
       align-items: center;
       gap: 6px;
-      padding: 3px;
+      padding: 8px;
       position: absolute;
       top: calc(100% + 4px);
       left: 0;
@@ -256,10 +257,11 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       width: max-content;
       max-width: 360px;
       z-index: 2100;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
-      background: color-mix(in srgb, var(--app-primary-soft) 60%, white);
-      border: 1px solid var(--app-border);
+      border-radius: 16px;
+      box-shadow: var(--app-shadow-soft);
+      background: var(--app-filter-panel-bg);
+      border: 1px solid var(--app-border-strong);
+      backdrop-filter: blur(18px);
     }
 
     .th-wrap.open .th-filter {
@@ -322,13 +324,7 @@ export class AttestationListComponent implements OnInit {
   }
 
   isColumnVisible(column: string): boolean {
-    return !!this.visibleColumns()[column];
-  }
-
-  onColumnFilter(column: string, event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
-    this.fetchPage(0, this.pageSize());
+    return this.visibleColumns()[column] ?? false;
   }
 
   onColumnFilterValue(column: string, value: string): void {

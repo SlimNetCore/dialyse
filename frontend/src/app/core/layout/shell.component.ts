@@ -50,6 +50,14 @@ import {filter} from 'rxjs/operators';
           <mat-icon>palette</mat-icon>
         </button>
         <mat-menu #themeMenu="matMenu">
+          @for (mode of theme.modes; track mode.code) {
+            <button mat-menu-item (click)="theme.setMode(mode.code)"
+                    [class.active-theme]="theme.currentMode() === mode.code">
+              <mat-icon>{{ theme.currentMode() === mode.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+              {{ mode.i18nKey | translate }}
+            </button>
+          }
+          <div class="menu-divider"></div>
           @for (t of theme.themes; track t.code) {
             <button mat-menu-item (click)="theme.setTheme(t.code)" [class.active-theme]="theme.currentTheme() === t.code">
               <mat-icon>{{ theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
@@ -139,12 +147,32 @@ import {filter} from 'rxjs/operators';
     .lang-flag { margin-right: 8px; font-size: 18px; }
     .active-theme { color: var(--app-primary); font-weight: 600; }
 
+    .menu-divider {
+      margin: 6px 12px;
+      border-top: 1px solid var(--app-border);
+    }
+
     .shell-body { display: flex; flex: 1; overflow: hidden; }
 
     .sidebar {
-      width: 56px; min-height: 100%; background: var(--app-surface); border-right: 1px solid var(--app-border);
+      position: relative;
+      width: 56px;
+      min-height: 100%;
+      background: var(--app-surface);
+      border-right: 1px solid var(--app-primary-outline);
       display: flex; flex-direction: column; padding-top: 8px; transition: width 0.2s ease;
       overflow: hidden; z-index: 50;
+    }
+
+    .sidebar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--app-primary), color-mix(in srgb, var(--app-primary) 35%, transparent));
+      pointer-events: none;
     }
     .sidebar.expanded { width: 220px; box-shadow: 4px 0 16px rgba(0,0,0,0.08); }
 

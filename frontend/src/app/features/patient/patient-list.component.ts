@@ -55,48 +55,54 @@ type FilterType = 'text' | 'date';
     <mat-card class="list-card">
       <mat-card-header>
         <mat-icon mat-card-avatar class="header-icon">people</mat-icon>
-        <mat-card-title>{{ 'PATIENT_LIST.TITLE' | translate }}</mat-card-title>
-        <mat-card-subtitle>{{ 'PATIENT_LIST.TOTAL' | translate:{count: total()} }}</mat-card-subtitle>
+        <div class="header-copy">
+          <mat-card-title>{{ 'PATIENT_LIST.TITLE' | translate }}</mat-card-title>
+          <mat-card-subtitle>{{ 'PATIENT_LIST.TOTAL' | translate:{count: total()} }}</mat-card-subtitle>
+        </div>
       </mat-card-header>
 
       <mat-card-content>
         <div class="list-toolbar">
-          <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
-            <mat-icon>filter_alt_off</mat-icon>
-            Réinitialiser filtres
-          </button>
+          <div class="toolbar-group">
+            <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
+              <mat-icon>filter_alt_off</mat-icon>
+              Réinitialiser filtres
+            </button>
 
-          <button mat-flat-button color="primary" (click)="newPatient.emit()" class="btn-new">
-            <mat-icon>person_add</mat-icon>
-            {{ 'PATIENT_LIST.BTN_NEW' | translate }}
-          </button>
-
-          <button mat-stroked-button color="primary" [matMenuTriggerFor]="colsMenu">
-            <mat-icon>view_column</mat-icon>
-            Colonnes
-          </button>
-          <mat-menu #colsMenu="matMenu">
-            @for (c of allColumnsConfig; track c.key) {
-              @if (c.key !== 'actions') {
-                <button mat-menu-item (click)="$event.stopPropagation()">
-                  <mat-checkbox [checked]="isColumnVisible(c.key)" (change)="toggleColumn(c.key, $event.checked)">
-                    {{ c.labelKey | translate }}
-                  </mat-checkbox>
-                </button>
+            <button mat-stroked-button color="primary" [matMenuTriggerFor]="colsMenu">
+              <mat-icon>view_column</mat-icon>
+              Colonnes
+            </button>
+            <mat-menu #colsMenu="matMenu">
+              @for (c of allColumnsConfig; track c.key) {
+                @if (c.key !== 'actions') {
+                  <button mat-menu-item (click)="$event.stopPropagation()">
+                    <mat-checkbox [checked]="isColumnVisible(c.key)" (change)="toggleColumn(c.key, $event.checked)">
+                      {{ c.labelKey | translate }}
+                    </mat-checkbox>
+                  </button>
+                }
               }
-            }
-          </mat-menu>
+            </mat-menu>
 
-          <button mat-stroked-button color="primary" (click)="printList()"
-                  [matTooltip]="'PATIENT_LIST.BTN_PRINT_LIST' | translate">
-            <mat-icon>print</mat-icon>
-            {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
-          </button>
-          <button mat-stroked-button color="primary" (click)="exportListExcel()"
-                  [matTooltip]="'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate">
-            <mat-icon>table_view</mat-icon>
-            {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}
-          </button>
+            <button mat-stroked-button color="primary" (click)="printList()"
+                    [matTooltip]="'PATIENT_LIST.BTN_PRINT_LIST' | translate">
+              <mat-icon>print</mat-icon>
+              {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
+            </button>
+            <button mat-stroked-button color="primary" (click)="exportListExcel()"
+                    [matTooltip]="'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate">
+              <mat-icon>table_view</mat-icon>
+              {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}
+            </button>
+          </div>
+
+          <div class="toolbar-group toolbar-group-end">
+            <button mat-flat-button color="primary" (click)="newPatient.emit()" class="btn-new">
+              <mat-icon>person_add</mat-icon>
+              {{ 'PATIENT_LIST.BTN_NEW' | translate }}
+            </button>
+          </div>
         </div>
 
         @if (rows().length === 0) {
@@ -453,7 +459,8 @@ type FilterType = 'text' | 'date';
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="patient-row"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="patient-row"
+                  [attr.data-row-id]="row.id"></tr>
             </table>
           </div>
           <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
@@ -464,38 +471,67 @@ type FilterType = 'text' | 'date';
   `,
   styles: [`
     .list-card {
-      padding: 10px;
-      background: var(--app-surface);
-      border: 1px solid var(--app-border);
-      box-shadow: var(--app-shadow);
+      padding: 14px;
+    }
+
+    :host ::ng-deep .list-card .mat-mdc-card-header {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 8px;
+    }
+
+    :host ::ng-deep .list-card .mat-mdc-card-header-text {
+      margin: 0;
+    }
+
+    .header-copy {
+      min-width: 0;
     }
 
     .header-icon {
-      background: var(--app-primary-soft);
+      background: linear-gradient(145deg, rgba(97, 216, 223, 0.18), rgba(255, 255, 255, 0.04));
       color: var(--app-primary);
-      border-radius: 12px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--app-primary-outline);
     }
 
     .list-toolbar {
       display: flex;
-      align-items: center;
+      justify-content: space-between;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
     }
-    .btn-new { margin-left: auto; }
-    .search-field { flex: 1; max-width: 400px; }
+
+    .toolbar-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar-group-end {
+      margin-left: auto;
+    }
+
+    .btn-new {
+      min-height: 46px;
+      padding-inline: 18px;
+    }
 
     .table-container {
       overflow-x: auto;
-      border-radius: 12px;
+      border-radius: 20px;
       border: 1px solid var(--app-border);
-      background: var(--app-surface);
+      background: var(--app-surface-solid);
       position: relative;
       isolation: isolate;
     }
@@ -510,7 +546,7 @@ type FilterType = 'text' | 'date';
     }
 
     .patient-row:hover {
-      background: color-mix(in srgb, var(--app-primary-soft) 70%, white) !important;
+      background: var(--app-row-hover) !important;
     }
 
     th.mat-mdc-header-cell {
@@ -554,18 +590,20 @@ type FilterType = 'text' | 'date';
     }
 
     .code-chip {
-      font-family: 'Courier New', monospace;
+      font-family: 'Manrope', sans-serif;
       font-size: 12px;
-      padding: 2px 8px;
-      background: var(--app-primary-soft);
+      padding: 4px 10px;
+      background: rgba(97, 216, 223, 0.12);
       border: 1px solid var(--app-primary-outline);
-      border-radius: 6px;
+      border-radius: 999px;
       color: var(--app-primary);
+      font-weight: 700;
     }
 
     .mono {
-      font-family: 'Courier New', monospace;
+      font-family: 'Manrope', sans-serif;
       font-size: 12px;
+      color: color-mix(in srgb, var(--app-text) 88%, var(--app-primary));
     }
 
     .sexe-icon {
@@ -578,18 +616,34 @@ type FilterType = 'text' | 'date';
 
     .etat-badge {
       display: inline-block;
-      padding: 2px 10px;
+      padding: 4px 11px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.3px;
-      background: var(--app-primary-soft);
+      background: rgba(97, 216, 223, 0.12);
       color: var(--app-primary);
+      border: 1px solid var(--app-primary-outline);
     }
-    .etat-badge[data-etat="DECEDE"] { background: #fee2e2; color: #991b1b; }
-    .etat-badge[data-etat="TRANSFERE"] { background: #fef3c7; color: #92400e; }
-    .etat-badge[data-etat="GREFFE"] { background: #dbeafe; color: #1e40af; }
+
+    .etat-badge[data-etat="DECEDE"] {
+      background: rgba(239, 68, 68, 0.14);
+      color: #ff9b9b;
+      border-color: rgba(239, 68, 68, 0.22);
+    }
+
+    .etat-badge[data-etat="TRANSFERE"] {
+      background: rgba(245, 158, 11, 0.14);
+      color: #ffcc87;
+      border-color: rgba(245, 158, 11, 0.22);
+    }
+
+    .etat-badge[data-etat="GREFFE"] {
+      background: rgba(59, 130, 246, 0.14);
+      color: #9ec4ff;
+      border-color: rgba(59, 130, 246, 0.22);
+    }
 
     .empty-state {
       display: flex;
@@ -597,6 +651,9 @@ type FilterType = 'text' | 'date';
       align-items: center;
       padding: 48px 24px;
       color: var(--app-muted);
+      border-radius: 22px;
+      border: 1px dashed var(--app-border-strong);
+      background: var(--app-frost);
     }
 
     .empty-state mat-icon {
@@ -634,7 +691,7 @@ type FilterType = 'text' | 'date';
       display: none;
       align-items: center;
       gap: 6px;
-      padding: 3px;
+      padding: 8px;
       position: absolute;
       top: calc(100% + 4px);
       left: 0;
@@ -642,10 +699,11 @@ type FilterType = 'text' | 'date';
       width: max-content;
       max-width: 360px;
       z-index: 2200;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
-      background: color-mix(in srgb, var(--app-primary-soft) 60%, white);
-      border: 1px solid var(--app-border);
+      border-radius: 16px;
+      box-shadow: var(--app-shadow-soft);
+      background: var(--app-filter-panel-bg);
+      border: 1px solid var(--app-border-strong);
+      backdrop-filter: blur(18px);
     }
 
     .th-wrap.open .th-filter {
@@ -665,6 +723,16 @@ type FilterType = 'text' | 'date';
     }
 
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
+
+    @media (max-width: 960px) {
+      :host ::ng-deep .list-card .mat-mdc-card-header {
+        grid-template-columns: 1fr;
+      }
+      .toolbar-group-end {
+        margin-left: 0;
+        justify-content: flex-start;
+      }
+    }
   `]
 })
 export class PatientListComponent implements OnInit {
@@ -735,12 +803,6 @@ export class PatientListComponent implements OnInit {
     this.fetchPage(0, this.pageSize());
   }
 
-  onColumnFilter(column: string, event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
-    this.fetchPage(0, this.pageSize());
-  }
-
   readonly sexeFilterOptions = [
     {value: 'M', label: 'Masculin'},
     {value: 'F', label: 'Féminin'}
@@ -799,7 +861,7 @@ export class PatientListComponent implements OnInit {
   }
 
   isColumnVisible(column: string): boolean {
-    return !!this.visibleColumns()[column];
+    return this.visibleColumns()[column] ?? false;
   }
 
   onPageChange(event: PageEvent): void {

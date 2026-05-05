@@ -26,13 +26,23 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
   template: `
     <mat-card class="list-card">
       <div class="header">
-        <h2>{{ 'PEC_LIST.TITLE' | translate }}</h2>
-        <span class="spacer"></span>
-        <button mat-stroked-button color="primary" [matMenuTriggerFor]="colsMenu"><mat-icon>view_column</mat-icon> Colonnes</button>
-        <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
-          <mat-icon>filter_alt_off</mat-icon>
-          Réinitialiser filtres
-        </button>
+        <div>
+          <span class="header-kicker">Validation PEC</span>
+          <h2>{{ 'PEC_LIST.TITLE' | translate }}</h2>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button mat-stroked-button color="primary" [matMenuTriggerFor]="colsMenu">
+            <mat-icon>view_column</mat-icon>
+            Colonnes
+          </button>
+          <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+            Réinitialiser filtres
+          </button>
+        </div>
         <mat-menu #colsMenu="matMenu">
           @for (c of allColumnsConfig; track c.key) {
             @if (c.key !== 'actions') {
@@ -42,8 +52,17 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
             }
           }
         </mat-menu>
-        <button mat-stroked-button color="primary" (click)="printList()"><mat-icon>print</mat-icon> {{ 'PATIENT_LIST.BTN_PRINT' | translate }}</button>
-        <button mat-stroked-button color="primary" (click)="exportExcel()"><mat-icon>table_view</mat-icon> {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}</button>
+
+        <div class="toolbar-group toolbar-group-end">
+          <button mat-stroked-button color="primary" (click)="printList()">
+            <mat-icon>print</mat-icon>
+            {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" (click)="exportExcel()">
+            <mat-icon>table_view</mat-icon>
+            {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}
+          </button>
+        </div>
       </div>
 
       <div class="table-wrap">
@@ -163,7 +182,8 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns()"
+            [attr.data-row-key]="row.PATIENT_ID || row.patient_id || row.CODE_PATIENT || row.code_patient"></tr>
       </table>
       </div>
 
@@ -171,15 +191,75 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
     </mat-card>
   `,
   styles: [`
-    .list-card { padding: 10px; border: 1px solid var(--app-border); background: var(--app-surface); box-shadow: var(--app-shadow); }
-    .header { display: flex; align-items: center; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
-    .header h2 { margin: 0; color: var(--app-text); font-size: 1.2rem; }
-    .spacer { flex: 1; }
-    .table-wrap { overflow: auto; border: 1px solid var(--app-border); border-radius: 12px; background: var(--app-surface); }
+    .list-card {
+      padding: 14px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .header-kicker {
+      display: inline-block;
+      margin-bottom: 6px;
+      color: var(--app-primary);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .header h2 {
+      margin: 0;
+      color: var(--app-text);
+      font-size: 1.9rem;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group-end {
+      margin-left: auto;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--app-border);
+      border-radius: 20px;
+      background: var(--app-surface-solid);
+    }
     .w100 { width: 100%; }
     .w100 .mat-mdc-header-cell { color: var(--app-primary); font-weight: 700; }
-    .w100 .mat-mdc-row:hover { background: color-mix(in srgb, var(--app-primary-soft) 70%, white); }
-    .status-badge { padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; color: var(--app-primary); background: var(--app-primary-soft); border: 1px solid var(--app-primary-outline); }
+
+    .w100 .mat-mdc-row:hover {
+      background: var(--app-row-hover);
+    }
+
+    .status-badge {
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--app-primary);
+      background: var(--app-primary-soft);
+      border: 1px solid var(--app-primary-outline);
+    }
 
     .w100 .mat-mdc-header-cell {
       overflow: visible !important;
@@ -215,7 +295,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       display: none;
       align-items: center;
       gap: 6px;
-      padding: 3px;
+      padding: 8px;
       position: absolute;
       top: calc(100% + 4px);
       left: 0;
@@ -223,10 +303,11 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       width: max-content;
       max-width: 360px;
       z-index: 2100;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(2, 6, 23, 0.12);
-      background: color-mix(in srgb, var(--app-primary-soft) 60%, white);
-      border: 1px solid var(--app-border);
+      border-radius: 16px;
+      box-shadow: var(--app-shadow-soft);
+      background: var(--app-filter-panel-bg);
+      border: 1px solid var(--app-border-strong);
+      backdrop-filter: blur(18px);
     }
 
     .th-wrap.open .th-filter {
@@ -247,6 +328,12 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
 
     .th-filter :where(app-column-filter-renderer) {
       width: 100%;
+    }
+
+    @media (max-width: 900px) {
+      .toolbar-group-end {
+        margin-left: 0;
+      }
     }
   `]
 })
@@ -299,13 +386,7 @@ export class PecListComponent implements OnInit {
   }
 
   isColumnVisible(column: string): boolean {
-    return !!this.visibleColumns()[column];
-  }
-
-  onColumnFilter(column: string, event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
-    this.fetchPage(0, this.pageSize());
+    return this.visibleColumns()[column] ?? false;
   }
 
   onColumnFilterValue(column: string, value: string): void {

@@ -111,7 +111,7 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     }
 
     :host ::ng-deep .date-range-field .mat-mdc-text-field-wrapper {
-      background: #fff;
+      background: var(--app-field-bg);
       border-radius: 12px;
     }
 
@@ -160,25 +160,25 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       min-width: 0;
       min-height: 40px;
       padding-inline: 12px;
-      background: #fff;
-      border: 1px solid color-mix(in srgb, var(--app-text) 18%, white);
+      background: var(--app-field-bg);
+      border: 1px solid var(--app-border-strong);
       border-radius: 12px;
-      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
       transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
     }
 
     .field-shell:hover {
-      border-color: color-mix(in srgb, var(--app-primary) 28%, white);
-      background: color-mix(in srgb, var(--app-primary-soft) 20%, white);
+      border-color: var(--app-primary-outline);
+      background: var(--app-field-hover-bg);
     }
 
     .field-shell:focus-within {
       border-color: var(--app-primary);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 14%, white);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 16%, transparent);
     }
 
     .field-shell.active {
-      border-color: color-mix(in srgb, var(--app-primary) 40%, white);
+      border-color: var(--app-primary-outline);
     }
 
     .col-filter {
@@ -194,6 +194,7 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       background: transparent;
       outline: none;
       color: var(--app-text);
+      font-weight: 600;
     }
 
     .col-filter::placeholder {
@@ -208,6 +209,11 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       cursor: pointer;
       text-align-last: center;
       padding-right: 24px;
+    }
+
+    .select-filter option {
+      background: var(--app-surface-solid);
+      color: var(--app-text);
     }
 
     .field-icon {
@@ -229,8 +235,8 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       min-width: 40px;
       padding: 0;
       border-radius: 999px;
-      background: color-mix(in srgb, var(--app-primary-soft) 70%, white);
-      border: 1px solid color-mix(in srgb, var(--app-primary-outline) 55%, #ffffff);
+      background: var(--app-frost);
+      border: 1px solid var(--app-primary-outline);
       color: var(--app-primary);
       transition: all .18s ease;
       display: inline-flex;
@@ -241,9 +247,9 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     }
 
     .clear-filter:hover {
-      background: color-mix(in srgb, var(--app-primary-soft) 35%, white);
+      background: var(--app-hover-surface);
       transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(2, 6, 23, 0.12);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
     }
 
     .clear-filter mat-icon {

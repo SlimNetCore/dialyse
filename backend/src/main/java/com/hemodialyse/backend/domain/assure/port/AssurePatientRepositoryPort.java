@@ -14,6 +14,5 @@ public interface AssurePatientRepositoryPort {
     void closePrimary(CenterId centerId, UUID patientId, LocalDate endDate);
     Optional<AssurePatientAssignment> findPrimary(CenterId centerId, UUID patientId);
     List<AssurePatientAssignment> findHistory(CenterId centerId, UUID patientId);
-
     Optional<AssurePatientAssignment> findById(UUID id);
 }
