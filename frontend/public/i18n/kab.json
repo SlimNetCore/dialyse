@@ -288,6 +288,15 @@
     "COL_ACTIONS": "Tigawin"
   },
   "COMMON": {
+    "FILTER_BY": "Sizdeg s {{field}}",
+    "CLEAR_FILTER": "Sfeḍ asizdeg",
+    "ALL": "Akk",
+    "YES": "Ih",
+    "NO": "Ala",
+    "DATE_START": "Azemz n tazwara",
+    "DATE_END": "Azemz n tagara",
+    "DATE_RANGE_HINT": "DD/MM/YYYY – DD/MM/YYYY",
+    "OK": "IH",
     "NEW": "Amaynut",
     "UPDATE": "Leqqem",
     "PRINT": "Siggez",

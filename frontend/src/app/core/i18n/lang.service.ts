@@ -1,6 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
+import {inject, Injectable, signal} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
+import {DateAdapter} from '@angular/material/core';
+import {TranslateService} from '@ngx-translate/core';
 
 export type AppLang = 'fr' | 'en' | 'ar' | 'kab';
 
@@ -24,6 +25,7 @@ const STORAGE_KEY = 'hemodialyse.lang';
 export class LangService {
   private readonly translate = inject(TranslateService);
   private readonly doc = inject(DOCUMENT);
+  private readonly dateAdapter = inject(DateAdapter<Date>, {optional: true});
 
   readonly currentLang = signal<AppLang>('fr');
   readonly languages = LANGUAGES;
@@ -43,6 +45,16 @@ export class LangService {
     const html = this.doc.documentElement;
     html.setAttribute('lang', lang);
     html.setAttribute('dir', opt.dir);
+
+    // Keep Material datepickers in sync with selected app language.
+    this.dateAdapter?.setLocale(this.toDateLocale(lang));
+  }
+
+  private toDateLocale(lang: AppLang): string {
+    if (lang === 'fr') return 'fr-FR';
+    if (lang === 'en') return 'en-GB';
+    if (lang === 'ar') return 'ar-DZ';
+    return 'fr-DZ';
   }
 }
 

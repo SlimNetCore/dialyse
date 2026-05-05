@@ -124,7 +124,8 @@ type FilterType = 'text' | 'date';
                       </mat-icon>
                     </div>
                     <div class="th-filter">
-                      <app-column-filter-renderer type="text" [value]="columnFilterValue('code')"
+                      <app-column-filter-renderer type="text" labelKey="PATIENT_LIST.COL_CODE"
+                                                  [value]="columnFilterValue('code')"
                                                   (valueChange)="onColumnFilterValue('code', $event)"
                                                   (clear)="clearColumnFilter('code')"/>
                     </div>
@@ -143,7 +144,8 @@ type FilterType = 'text' | 'date';
                       </mat-icon>
                     </div>
                     <div class="th-filter">
-                      <app-column-filter-renderer type="text" [value]="columnFilterValue('nom')"
+                      <app-column-filter-renderer type="text" labelKey="PATIENT_LIST.COL_NOM"
+                                                  [value]="columnFilterValue('nom')"
                                                   (valueChange)="onColumnFilterValue('nom', $event)"
                                                   (clear)="clearColumnFilter('nom')"/>
                     </div>
@@ -166,7 +168,8 @@ type FilterType = 'text' | 'date';
                       </mat-icon>
                     </div>
                     <div class="th-filter">
-                      <app-column-filter-renderer type="text" [value]="columnFilterValue('prenom')"
+                      <app-column-filter-renderer type="text" labelKey="PATIENT_LIST.COL_PRENOM"
+                                                  [value]="columnFilterValue('prenom')"
                                                   (valueChange)="onColumnFilterValue('prenom', $event)"
                                                   (clear)="clearColumnFilter('prenom')"/>
                     </div>
@@ -185,7 +188,8 @@ type FilterType = 'text' | 'date';
                       </mat-icon>
                     </div>
                     <div class="th-filter">
-                      <app-column-filter-renderer type="enum" [options]="sexeFilterOptions"
+                      <app-column-filter-renderer type="enum" labelKey="PATIENT_LIST.COL_SEXE"
+                                                  [options]="sexeFilterOptions"
                                                   [value]="columnFilterValue('sexe')"
                                                   (valueChange)="onColumnFilterValue('sexe', $event)"
                                                   (clear)="clearColumnFilter('sexe')"/>
@@ -209,7 +213,8 @@ type FilterType = 'text' | 'date';
                       </mat-icon>
                     </div>
                     <div class="th-filter">
-                      <app-column-filter-renderer type="date" [value]="columnFilterValue('dateAdmission')"
+                      <app-column-filter-renderer type="date" labelKey="PATIENT_LIST.COL_DATE_ADMISSION"
+                                                  [value]="columnFilterValue('dateAdmission')"
                                                   (valueChange)="onColumnFilterValue('dateAdmission', $event)"
                                                   (clear)="clearColumnFilter('dateAdmission')"/>
                     </div>
@@ -228,7 +233,8 @@ type FilterType = 'text' | 'date';
                       </mat-icon>
                     </div>
                     <div class="th-filter">
-                      <app-column-filter-renderer type="text" [value]="columnFilterValue('numeroAssurance')"
+                      <app-column-filter-renderer type="text" labelKey="PATIENT_LIST.COL_ASSURANCE"
+                                                  [value]="columnFilterValue('numeroAssurance')"
                                                   (valueChange)="onColumnFilterValue('numeroAssurance', $event)"
                                                   (clear)="clearColumnFilter('numeroAssurance')"/>
                     </div>
@@ -247,7 +253,8 @@ type FilterType = 'text' | 'date';
                       </mat-icon>
                     </div>
                     <div class="th-filter">
-                      <app-column-filter-renderer type="enum" [options]="etatFilterOptions"
+                      <app-column-filter-renderer type="enum" labelKey="PATIENT_LIST.COL_ETAT"
+                                                  [options]="etatFilterOptions"
                                                   [value]="columnFilterValue('etatPatient')"
                                                   (valueChange)="onColumnFilterValue('etatPatient', $event)"
                                                   (clear)="clearColumnFilter('etatPatient')"/>

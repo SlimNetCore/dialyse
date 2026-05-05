@@ -341,6 +341,15 @@
     "COL_ACTIONS": "Actions"
   },
   "COMMON": {
+    "FILTER_BY": "Filtrer par {{field}}",
+    "CLEAR_FILTER": "Effacer le filtre",
+    "ALL": "Tous",
+    "YES": "Oui",
+    "NO": "Non",
+    "DATE_START": "Date début",
+    "DATE_END": "Date fin",
+    "DATE_RANGE_HINT": "JJ/MM/AAAA – JJ/MM/AAAA",
+    "OK": "OK",
     "NEW": "Nouveau",
     "UPDATE": "Mettre à jour",
     "PRINT": "Imprimer",

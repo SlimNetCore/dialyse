@@ -9,6 +9,7 @@ import {provideAnimations} from '@angular/platform-browser/animations';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {provideTranslateHttpLoader, TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {MAT_DATE_LOCALE, MatNativeDateModule} from '@angular/material/core';
 
 import {routes} from './app.routes';
 import {authInterceptor} from './core/api/auth.interceptor';
@@ -39,6 +40,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(withInterceptors([authInterceptor])),
     importProvidersFrom(
+      MatNativeDateModule,
       TranslateModule.forRoot({
         defaultLanguage: 'fr',
         loader: {
@@ -48,6 +50,7 @@ export const appConfig: ApplicationConfig = {
       })
     ),
     provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
+    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
     {
       provide: APP_INITIALIZER,
       useFactory: initAuthSession,

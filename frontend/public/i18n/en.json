@@ -286,6 +286,15 @@
     "COL_ACTIONS": "Actions"
   },
   "COMMON": {
+    "FILTER_BY": "Filter by {{field}}",
+    "CLEAR_FILTER": "Clear filter",
+    "ALL": "All",
+    "YES": "Yes",
+    "NO": "No",
+    "DATE_START": "Start date",
+    "DATE_END": "End date",
+    "DATE_RANGE_HINT": "DD/MM/YYYY – DD/MM/YYYY",
+    "OK": "OK",
     "NEW": "New",
     "UPDATE": "Update",
     "PRINT": "Print",

@@ -76,7 +76,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
                 </mat-icon>
               </div>
               <div class="th-filter">
-                <app-column-filter-renderer type="text" [value]="columnFilterValue('code')"
+                <app-column-filter-renderer type="text" labelKey="PEC_LIST.COL_CODE" [value]="columnFilterValue('code')"
                                             (valueChange)="onColumnFilterValue('code', $event)"
                                             (clear)="clearColumnFilter('code')"/>
               </div>
@@ -94,7 +94,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
                 </mat-icon>
               </div>
               <div class="th-filter">
-                <app-column-filter-renderer type="text" [value]="columnFilterValue('nom')"
+                <app-column-filter-renderer type="text" labelKey="PEC_LIST.COL_PATIENT" [value]="columnFilterValue('nom')"
                                             (valueChange)="onColumnFilterValue('nom', $event)"
                                             (clear)="clearColumnFilter('nom')"/>
               </div>
@@ -112,7 +112,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
                 </mat-icon>
               </div>
               <div class="th-filter">
-                <app-column-filter-renderer type="text" [value]="columnFilterValue('assurance')"
+                <app-column-filter-renderer type="text" labelKey="PEC_LIST.COL_ASSURANCE" [value]="columnFilterValue('assurance')"
                                             (valueChange)="onColumnFilterValue('assurance', $event)"
                                             (clear)="clearColumnFilter('assurance')"/>
               </div>
@@ -130,7 +130,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
                 </mat-icon>
               </div>
               <div class="th-filter">
-                <app-column-filter-renderer type="date" [value]="columnFilterValue('debut')"
+                <app-column-filter-renderer type="date" labelKey="PEC_LIST.COL_DEBUT" [value]="columnFilterValue('debut')"
                                             (valueChange)="onColumnFilterValue('debut', $event)"
                                             (clear)="clearColumnFilter('debut')"/>
               </div>
@@ -148,7 +148,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
                 </mat-icon>
               </div>
               <div class="th-filter">
-                <app-column-filter-renderer type="date" [value]="columnFilterValue('fin')"
+                <app-column-filter-renderer type="date" labelKey="PEC_LIST.COL_FIN" [value]="columnFilterValue('fin')"
                                             (valueChange)="onColumnFilterValue('fin', $event)"
                                             (clear)="clearColumnFilter('fin')"/>
               </div>
@@ -166,7 +166,7 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
                 </mat-icon>
               </div>
               <div class="th-filter">
-                <app-column-filter-renderer type="enum" [options]="statutFilterOptions"
+                <app-column-filter-renderer type="enum" labelKey="PEC_LIST.COL_STATUS" [options]="statutFilterOptions"
                                             [value]="columnFilterValue('statut')"
                                             (valueChange)="onColumnFilterValue('statut', $event)"
                                             (clear)="clearColumnFilter('statut')"/>

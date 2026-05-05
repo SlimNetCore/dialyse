@@ -6,22 +6,23 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
+import {TranslateModule} from '@ngx-translate/core';
 
 export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
 
 @Component({
   selector: 'app-column-filter-renderer',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatIconModule, MatInputModule, MatNativeDateModule],
+  imports: [CommonModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatIconModule, MatInputModule, MatNativeDateModule, TranslateModule],
   template: `
     @if (type === 'date') {
       <mat-form-field appearance="outline" class="date-range-field">
-        <mat-label>Entrer une période</mat-label>
+        <mat-label>{{ 'COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) } }}</mat-label>
         <mat-date-range-input [rangePicker]="picker" [separator]="'–'">
           <input
             matStartDate
             [value]="draftDateRange.from"
-            placeholder="Date début"
+            [placeholder]="'COMMON.DATE_START' | translate"
             (dateInput)="onDraftDateRangeChange('from', $event.value)"
             (dateChange)="onDraftDateRangeChange('from', $event.value)"
             (keydown.enter)="applyDateRange()"
@@ -29,19 +30,19 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
           <input
             matEndDate
             [value]="draftDateRange.to"
-            placeholder="Date fin"
+            [placeholder]="'COMMON.DATE_END' | translate"
             (dateInput)="onDraftDateRangeChange('to', $event.value)"
             (dateChange)="onDraftDateRangeChange('to', $event.value)"
             (keydown.enter)="applyDateRange()"
           />
         </mat-date-range-input>
-        <mat-hint>JJ/MM/AAAA – JJ/MM/AAAA</mat-hint>
+        <mat-hint>{{ 'COMMON.DATE_RANGE_HINT' | translate }}</mat-hint>
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-date-range-picker #picker (opened)="syncDraftDateRange()">
           <mat-date-range-picker-actions>
-            <button mat-button type="button" matDateRangePickerCancel (click)="cancelDateRange()">Annuler</button>
+            <button mat-button type="button" matDateRangePickerCancel (click)="cancelDateRange()">{{ 'PATIENT_FORM.BTN_CANCEL' | translate }}</button>
             <button mat-flat-button color="primary" type="button" matDateRangePickerApply (click)="applyDateRange()">
-              OK
+              {{ 'COMMON.OK' | translate }}
             </button>
           </mat-date-range-picker-actions>
         </mat-date-range-picker>
@@ -51,11 +52,11 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
         @if (isSelectType()) {
           <select class="col-filter select-filter" [value]="value" (change)="onSelect($event)">
             @if (type === 'boolean') {
-              <option value="">Tous</option>
-              <option value="true">Oui</option>
-              <option value="false">Non</option>
+              <option value="">{{ 'COMMON.ALL' | translate }}</option>
+              <option value="true">{{ 'COMMON.YES' | translate }}</option>
+              <option value="false">{{ 'COMMON.NO' | translate }}</option>
             } @else {
-              <option value="">Tous</option>
+              <option value="">{{ 'COMMON.ALL' | translate }}</option>
               @for (o of options; track o.value) {
                 <option [value]="o.value">{{ o.label }}</option>
               }
@@ -66,7 +67,7 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
             class="col-filter"
             [attr.type]="inputType()"
             [value]="value"
-            [placeholder]="placeholder"
+            [placeholder]="placeholder || ('COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) })"
             (input)="onInput($event)"
           />
         }
@@ -78,7 +79,7 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     }
 
     @if (isActive()) {
-      <button mat-icon-button class="clear-filter" (click)="clear.emit()" type="button" aria-label="Effacer filtre">
+      <button mat-icon-button class="clear-filter" (click)="clear.emit()" type="button" [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate">
         <mat-icon>close</mat-icon>
       </button>
     }
@@ -264,6 +265,7 @@ export class ColumnFilterRendererComponent implements OnChanges {
   @Input() type: ColumnFilterType = 'text';
   @Input() value = '';
   @Input() placeholder = '';
+  @Input() labelKey = '';
   @Input() options: Array<{ value: string; label: string }> = [];
 
   @Output() valueChange = new EventEmitter<string>();

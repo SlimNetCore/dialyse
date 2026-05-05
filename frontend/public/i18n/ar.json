@@ -288,6 +288,15 @@
     "COL_ACTIONS": "الإجراءات"
   },
   "COMMON": {
+    "FILTER_BY": "تصفية حسب {{field}}",
+    "CLEAR_FILTER": "مسح عامل التصفية",
+    "ALL": "الكل",
+    "YES": "نعم",
+    "NO": "لا",
+    "DATE_START": "تاريخ البداية",
+    "DATE_END": "تاريخ النهاية",
+    "DATE_RANGE_HINT": "DD/MM/YYYY – DD/MM/YYYY",
+    "OK": "موافق",
     "NEW": "جديد",
     "UPDATE": "تحديث",
     "PRINT": "طباعة",
