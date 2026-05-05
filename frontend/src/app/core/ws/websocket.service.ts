@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 
-import { AuthSessionService } from '../auth/auth-session.service';
+import {AuthStore} from '../state/auth.store';
 
 export interface WsEvent {
   type: string;
@@ -14,7 +14,7 @@ export type WsConnectionStatus = 'stable' | 'interrupted' | 'impossible';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService implements OnDestroy {
-  private readonly auth = inject(AuthSessionService);
+  private readonly auth = inject(AuthStore);
   private client: Client | null = null;
   private connectAttempted = false;
 

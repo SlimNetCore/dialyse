@@ -14,6 +14,7 @@ import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {TranslateModule} from '@ngx-translate/core';
 import {ColumnFilterRendererComponent} from '../../../shared/column-filter-renderer.component';
+import {AttestationListStore} from './state/attestation-list.store';
 
 @Component({
   selector: 'app-attestation-list',
@@ -155,6 +156,11 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns()"
             [attr.data-row-key]="row.PATIENT_ID || row.patient_id || row.CODE_PATIENT || row.code_patient"></tr>
+        <tr class="mat-mdc-row" *matNoDataRow>
+          <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
+            Aucune attestation trouvee
+          </td>
+        </tr>
       </table>
       </div>
 
@@ -281,20 +287,27 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
     }
 
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
+
+    .no-data-cell {
+      text-align: center;
+      padding: 14px;
+      color: var(--app-muted);
+      font-weight: 600;
+    }
   `]
 })
 export class AttestationListComponent implements OnInit {
   private readonly api = inject(BackendApiService);
   private readonly store = inject(AppShellStore);
+  private readonly attestationListStore = inject(AttestationListStore);
   private readonly snack = inject(MatSnackBar);
-  readonly hasActiveFilters = computed(() =>
-    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
-  );
+  readonly hasActiveFilters = this.attestationListStore.hasActiveFilters;
 
-  readonly rows = signal<any[]>([]);
-  readonly total = signal(0);
-  readonly pageIndex = signal(0);
-  readonly pageSize = signal(10);
+  readonly rows = this.attestationListStore.rows;
+  readonly isEmpty = this.attestationListStore.isEmpty;
+  readonly total = this.attestationListStore.total;
+  readonly pageIndex = this.attestationListStore.pageIndex;
+  readonly pageSize = this.attestationListStore.pageSize;
 
   readonly allColumnsConfig = [
     {key: 'code', labelKey: 'ATTEST_LIST.COL_CODE'},
@@ -313,7 +326,7 @@ export class AttestationListComponent implements OnInit {
     actions: true
   });
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
-  readonly columnFilters = signal<Record<string, string>>({});
+  readonly columnFilters = this.attestationListStore.columnFilters;
 
   ngOnInit(): void {
     this.fetchPage(0, this.pageSize());
@@ -328,7 +341,7 @@ export class AttestationListComponent implements OnInit {
   }
 
   onColumnFilterValue(column: string, value: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.attestationListStore.setFilter(column, value);
     this.fetchPage(0, this.pageSize());
   }
 
@@ -341,7 +354,7 @@ export class AttestationListComponent implements OnInit {
   }
 
   clearColumnFilter(column: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.attestationListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
   private readonly openFilterColumn = signal<string | null>(null);
@@ -370,33 +383,31 @@ export class AttestationListComponent implements OnInit {
 
   clearAllColumnFilters(): void {
     this.openFilterColumn.set(null);
-    this.columnFilters.set({});
+    this.attestationListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }
 
   onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+    this.attestationListStore.setPagination(event.pageIndex, event.pageSize);
     this.fetchPage(event.pageIndex, event.pageSize);
   }
 
   private fetchPage(page: number, size: number): void {
     const cid = this.store.currentCenterId();
     if (!cid) {
-      this.rows.set([]);
-      this.total.set(0);
+      this.attestationListStore.setPageData([], 0, 0);
       return;
     }
 
+    this.attestationListStore.setLoading(true);
     this.api.listAttestationsByCenter(cid, {page, size, filters: this.columnFilters()}).subscribe({
       next: (res) => {
-        this.rows.set(res.items ?? []);
-        this.total.set(res.total ?? 0);
-        this.pageIndex.set(res.page ?? page);
+        this.attestationListStore.setPageData(res.items ?? [], res.total ?? 0, res.page ?? page);
+        this.attestationListStore.setLoading(false);
       },
       error: () => {
-        this.rows.set([]);
-        this.total.set(0);
+        this.attestationListStore.setPageData([], 0, page);
+        this.attestationListStore.setLoading(false);
       }
     });
   }

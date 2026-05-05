@@ -14,6 +14,7 @@ import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {TranslateModule} from '@ngx-translate/core';
 import {ColumnFilterRendererComponent} from '../../../shared/column-filter-renderer.component';
+import {PecListStore} from './state/pec-list.store';
 
 @Component({
   selector: 'app-pec-list',
@@ -184,6 +185,11 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns()"
             [attr.data-row-key]="row.PATIENT_ID || row.patient_id || row.CODE_PATIENT || row.code_patient"></tr>
+        <tr class="mat-mdc-row" *matNoDataRow>
+          <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
+            Aucune PEC trouvee
+          </td>
+        </tr>
       </table>
       </div>
 
@@ -330,6 +336,13 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
       width: 100%;
     }
 
+    .no-data-cell {
+      text-align: center;
+      padding: 14px;
+      color: var(--app-muted);
+      font-weight: 600;
+    }
+
     @media (max-width: 900px) {
       .toolbar-group-end {
         margin-left: 0;
@@ -340,15 +353,15 @@ import {ColumnFilterRendererComponent} from '../../../shared/column-filter-rende
 export class PecListComponent implements OnInit {
   private readonly api = inject(BackendApiService);
   private readonly store = inject(AppShellStore);
+  private readonly pecListStore = inject(PecListStore);
   private readonly snack = inject(MatSnackBar);
-  readonly hasActiveFilters = computed(() =>
-    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
-  );
+  readonly hasActiveFilters = this.pecListStore.hasActiveFilters;
 
-  readonly rows = signal<any[]>([]);
-  readonly total = signal(0);
-  readonly pageIndex = signal(0);
-  readonly pageSize = signal(10);
+  readonly rows = this.pecListStore.rows;
+  readonly isEmpty = this.pecListStore.isEmpty;
+  readonly total = this.pecListStore.total;
+  readonly pageIndex = this.pecListStore.pageIndex;
+  readonly pageSize = this.pecListStore.pageSize;
 
   readonly allColumnsConfig = [
     {key: 'code', labelKey: 'PEC_LIST.COL_CODE'},
@@ -369,7 +382,7 @@ export class PecListComponent implements OnInit {
     actions: true
   });
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
-  readonly columnFilters = signal<Record<string, string>>({});
+  readonly columnFilters = this.pecListStore.columnFilters;
 
   readonly statutFilterOptions = [
     {value: 'CREE', label: 'Créée'},
@@ -390,7 +403,7 @@ export class PecListComponent implements OnInit {
   }
 
   onColumnFilterValue(column: string, value: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.pecListStore.setFilter(column, value);
     this.fetchPage(0, this.pageSize());
   }
 
@@ -403,7 +416,7 @@ export class PecListComponent implements OnInit {
   }
 
   clearColumnFilter(column: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.pecListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
   private readonly openFilterColumn = signal<string | null>(null);
@@ -432,33 +445,31 @@ export class PecListComponent implements OnInit {
 
   clearAllColumnFilters(): void {
     this.openFilterColumn.set(null);
-    this.columnFilters.set({});
+    this.pecListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }
 
   onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+    this.pecListStore.setPagination(event.pageIndex, event.pageSize);
     this.fetchPage(event.pageIndex, event.pageSize);
   }
 
   private fetchPage(page: number, size: number): void {
     const cid = this.store.currentCenterId();
     if (!cid) {
-      this.rows.set([]);
-      this.total.set(0);
+      this.pecListStore.setPageData([], 0, 0);
       return;
     }
 
+    this.pecListStore.setLoading(true);
     this.api.listPecsDetailed(cid, {page, size, filters: this.columnFilters()}).subscribe({
       next: (res) => {
-        this.rows.set(res.items ?? []);
-        this.total.set(res.total ?? 0);
-        this.pageIndex.set(res.page ?? page);
+        this.pecListStore.setPageData(res.items ?? [], res.total ?? 0, res.page ?? page);
+        this.pecListStore.setLoading(false);
       },
       error: () => {
-        this.rows.set([]);
-        this.total.set(0);
+        this.pecListStore.setPageData([], 0, page);
+        this.pecListStore.setLoading(false);
       }
     });
   }

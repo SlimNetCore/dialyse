@@ -14,7 +14,7 @@ import {SlicePipe} from '@angular/common';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {AuthSessionService} from '../../../core/auth/auth-session.service';
+import {AuthStore} from '../../../core/state/auth.store';
 import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
 import {ReferentialApiService} from '../../../core/api/referential-api.service';
 
@@ -187,7 +187,7 @@ import {ReferentialApiService} from '../../../core/api/referential-api.service';
 export class PecAdminComponent implements OnInit {
   private readonly api = inject(BackendApiService);
   readonly store = inject(AppShellStore);
-  readonly auth = inject(AuthSessionService);
+  readonly auth = inject(AuthStore);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);

@@ -13,7 +13,7 @@ import {StepAttestationComponent} from './step-attestation.component';
 import {StepPecComponent} from './step-pec.component';
 import {StepPiecesJointesComponent} from './step-pieces-jointes.component';
 import {BackendApiService} from '../../../core/api/backend-api.service';
-import {AuthSessionService} from '../../../core/auth/auth-session.service';
+import {AuthStore} from '../../../core/state/auth.store';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 
 @Component({
@@ -235,7 +235,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   @ViewChild('stepPj') stepPj?: StepPiecesJointesComponent;
 
   private readonly api = inject(BackendApiService);
-  private readonly auth = inject(AuthSessionService);
+  private readonly auth = inject(AuthStore);
   private readonly store = inject(AppShellStore);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);

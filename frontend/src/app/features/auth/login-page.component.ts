@@ -11,10 +11,10 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {FormsModule} from '@angular/forms';
 import {AuthApiService} from '../../core/api/auth-api.service';
-import {AuthSessionService} from '../../core/auth/auth-session.service';
+import {AuthStore} from '../../core/state/auth.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
-import {LangService} from '../../core/i18n/lang.service';
-import {ThemeService} from '../../core/theme/theme.service';
+import {LangStore} from '../../core/state/lang.store';
+import {ThemeStore} from '../../core/state/theme.store';
 import {MatMenuModule} from '@angular/material/menu';
 
 @Component({
@@ -60,19 +60,19 @@ import {MatMenuModule} from '@angular/material/menu';
           <button mat-icon-button [matMenuTriggerFor]="langMenu"><mat-icon>translate</mat-icon></button>
           <button mat-icon-button [matMenuTriggerFor]="themeMenu"><mat-icon>palette</mat-icon></button>
           <mat-menu #langMenu="matMenu">
-            @for (l of lang.languages; track l.code) {
+            @for (l of lang.languages(); track l.code) {
               <button mat-menu-item (click)="lang.setLang(l.code)">{{ l.flag }} {{ l.label }}</button>
             }
           </mat-menu>
           <mat-menu #themeMenu="matMenu">
-            @for (mode of theme.modes; track mode.code) {
+            @for (mode of theme.modes(); track mode.code) {
               <button mat-menu-item (click)="theme.setMode(mode.code)">
                 <mat-icon>{{ theme.currentMode() === mode.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
                 {{ mode.i18nKey | translate }}
               </button>
             }
             <div class="menu-divider"></div>
-            @for (t of theme.themes; track t.code) {
+            @for (t of theme.themes(); track t.code) {
               <button mat-menu-item (click)="theme.setTheme(t.code)">
                 <mat-icon>{{ theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
                 {{ t.i18nKey | translate }}
@@ -361,10 +361,10 @@ import {MatMenuModule} from '@angular/material/menu';
 })
 export class LoginPageComponent {
   private readonly authApi = inject(AuthApiService);
-  private readonly authSession = inject(AuthSessionService);
+  readonly lang = inject(LangStore);
   readonly store = inject(AppShellStore);
-  readonly lang = inject(LangService);
-  readonly theme = inject(ThemeService);
+  readonly theme = inject(ThemeStore);
+  private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
   selectedCenter = '';
@@ -377,9 +377,9 @@ export class LoginPageComponent {
     if (!this.selectedCenter || !this.username || !this.password) return;
     this.loading.set(true);
     this.error.set('');
-    this.authApi.login({ centerId: this.selectedCenter, username: this.username, password: this.password }).subscribe({
+    this.authApi.login({centerId: this.selectedCenter, username: this.username, password: this.password}).subscribe({
       next: (res) => {
-        this.authSession.setSession(res);
+        this.authStore.setSession(res);
         this.store.switchCenter(res.centerId);
         this.loading.set(false);
         this.router.navigate(['/dashboard']);

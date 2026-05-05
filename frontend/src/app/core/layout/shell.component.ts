@@ -6,9 +6,9 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
-import {AuthSessionService} from '../auth/auth-session.service';
-import {LangService} from '../i18n/lang.service';
-import {ThemeService} from '../theme/theme.service';
+import {AuthStore} from '../state/auth.store';
+import {LangStore} from '../state/lang.store';
+import {ThemeStore} from '../state/theme.store';
 import {WebSocketService} from '../ws/websocket.service';
 import {NotificationBellComponent} from './notification-bell.component';
 import {AuthApiService} from '../api/auth-api.service';
@@ -38,7 +38,7 @@ import {filter} from 'rxjs/operators';
           <mat-icon>translate</mat-icon>
         </button>
         <mat-menu #langMenu="matMenu">
-          @for (l of lang.languages; track l.code) {
+          @for (l of lang.languages(); track l.code) {
             <button mat-menu-item (click)="lang.setLang(l.code)" [class.active-lang]="lang.currentLang() === l.code">
               <span class="lang-flag">{{ l.flag }}</span> <span>{{ l.label }}</span>
             </button>
@@ -50,7 +50,7 @@ import {filter} from 'rxjs/operators';
           <mat-icon>palette</mat-icon>
         </button>
         <mat-menu #themeMenu="matMenu">
-          @for (mode of theme.modes; track mode.code) {
+          @for (mode of theme.modes(); track mode.code) {
             <button mat-menu-item (click)="theme.setMode(mode.code)"
                     [class.active-theme]="theme.currentMode() === mode.code">
               <mat-icon>{{ theme.currentMode() === mode.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
@@ -58,7 +58,7 @@ import {filter} from 'rxjs/operators';
             </button>
           }
           <div class="menu-divider"></div>
-          @for (t of theme.themes; track t.code) {
+          @for (t of theme.themes(); track t.code) {
             <button mat-menu-item (click)="theme.setTheme(t.code)" [class.active-theme]="theme.currentTheme() === t.code">
               <mat-icon>{{ theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
               {{ t.i18nKey | translate }}
@@ -233,9 +233,9 @@ import {filter} from 'rxjs/operators';
   `]
 })
 export class ShellComponent implements OnInit {
-  readonly auth = inject(AuthSessionService);
-  readonly lang = inject(LangService);
-  readonly theme = inject(ThemeService);
+  readonly auth = inject(AuthStore);
+  readonly lang = inject(LangStore);
+  readonly theme = inject(ThemeStore);
   readonly router = inject(Router);
   private readonly ws = inject(WebSocketService);
   private readonly authApi = inject(AuthApiService);

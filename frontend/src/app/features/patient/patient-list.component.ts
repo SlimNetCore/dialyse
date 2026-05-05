@@ -12,7 +12,7 @@ import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
 import {BackendApiService} from '../../core/api/backend-api.service';
-import {AuthSessionService} from '../../core/auth/auth-session.service';
+import {AuthStore} from '../../core/state/auth.store';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
@@ -21,6 +21,7 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
+import {PatientListStore} from './state/patient-list.store';
 import {finalize} from 'rxjs/operators';
 
 export interface PatientRow {
@@ -790,12 +791,11 @@ type FilterType = 'text' | 'date';
 export class PatientListComponent implements OnInit {
   @Output() newPatient = new EventEmitter<void>();
   @Output() selectPatient = new EventEmitter<PatientRow>();
-  readonly hasActiveFilters = computed(() =>
-    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
-  );
 
   private readonly api = inject(BackendApiService);
-  private readonly auth = inject(AuthSessionService);
+  private readonly auth = inject(AuthStore);
+  private readonly patientListStore = inject(PatientListStore);
+  readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly allColumnsConfig = [
     {key: 'code', labelKey: 'PATIENT_LIST.COL_CODE', type: 'text' as FilterType},
     {key: 'nom', labelKey: 'PATIENT_LIST.COL_NOM', type: 'text' as FilterType},
@@ -834,15 +834,15 @@ export class PatientListComponent implements OnInit {
   });
   private readonly snack = inject(MatSnackBar);
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
-  readonly rows = signal<PatientRow[]>([]);
-  readonly loading = signal(false);
-  readonly printingList = signal(false);
-  readonly exportingList = signal(false);
-  readonly printingRowId = signal<string | null>(null);
-  readonly total = signal(0);
-  readonly pageIndex = signal(0);
-  readonly pageSize = signal(10);
-  readonly columnFilters = signal<Record<string, string>>({});
+  readonly rows = this.patientListStore.rows;
+  readonly loading = this.patientListStore.loading;
+  readonly printingList = this.patientListStore.printingList;
+  readonly exportingList = this.patientListStore.exportingList;
+  readonly printingRowId = this.patientListStore.printingRowId;
+  readonly total = this.patientListStore.total;
+  readonly pageIndex = this.patientListStore.pageIndex;
+  readonly pageSize = this.patientListStore.pageSize;
+  readonly columnFilters = this.patientListStore.columnFilters;
   private readonly store = inject(AppShellStore);
   private readonly ws = inject(WebSocketService);
 
@@ -879,7 +879,7 @@ export class PatientListComponent implements OnInit {
   }
 
   clearColumnFilter(column: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.patientListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
   private readonly openFilterColumn = signal<string | null>(null);
@@ -908,7 +908,7 @@ export class PatientListComponent implements OnInit {
 
   clearAllColumnFilters(): void {
     this.openFilterColumn.set(null);
-    this.columnFilters.set({});
+    this.patientListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }
 
@@ -921,8 +921,7 @@ export class PatientListComponent implements OnInit {
   }
 
   onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+    this.patientListStore.setPagination(event.pageIndex, event.pageSize);
     this.fetchPage(event.pageIndex, event.pageSize);
   }
 
@@ -935,9 +934,9 @@ export class PatientListComponent implements OnInit {
   printFiche(patient: PatientRow): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.printingRowId.set(patient.id);
+    this.patientListStore.setPrintingRowId(patient.id);
     this.api.printDocument(centerId, 'FICHE_PATIENT', {patientId: patient.id}).pipe(
-      finalize(() => this.printingRowId.set(null))
+      finalize(() => this.patientListStore.setPrintingRowId(null))
     ).subscribe({
       next: (blob: Blob) => {
         const url = URL.createObjectURL(blob);
@@ -952,9 +951,9 @@ export class PatientListComponent implements OnInit {
   printList(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.printingList.set(true);
+    this.patientListStore.setPrintingList(true);
     this.api.printDocument(centerId, 'LISTE_PATIENTS', {}).pipe(
-      finalize(() => this.printingList.set(false))
+      finalize(() => this.patientListStore.setPrintingList(false))
     ).subscribe({
       next: (blob: Blob) => {
         const url = URL.createObjectURL(blob);
@@ -969,9 +968,9 @@ export class PatientListComponent implements OnInit {
   exportListExcel(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.exportingList.set(true);
+    this.patientListStore.setExportingList(true);
     this.api.printDocument(centerId, 'LISTE_PATIENTS', {}, 'EXCEL').pipe(
-      finalize(() => this.exportingList.set(false))
+      finalize(() => this.patientListStore.setExportingList(false))
     ).subscribe({
       next: (blob: Blob) => {
         const a = document.createElement('a');
@@ -1003,22 +1002,34 @@ export class PatientListComponent implements OnInit {
     return formattedDate ? `Événement: ${formattedDate}` : 'Événement non renseigné';
   }
 
+  onColumnFilterValue(column: string, value: string): void {
+    this.patientListStore.setFilter(column, value);
+    this.fetchPage(0, this.pageSize());
+  }
+
+  private formatEventDate(rawDate: string): string {
+    const raw = (rawDate ?? '').trim();
+    if (!raw) return '';
+    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return raw;
+    return `${match[3]}/${match[2]}/${match[1]}`;
+  }
+
   private fetchPage(page: number, size: number): void {
     const centerId = this.store.currentCenterId();
     if (!centerId) {
-      this.loading.set(false);
-      this.rows.set([]);
-      this.total.set(0);
+      this.patientListStore.setLoading(false);
+      this.patientListStore.setPageData([], 0, 0);
       return;
     }
 
-    this.loading.set(true);
+    this.patientListStore.setLoading(true);
     this.api.listPatients(centerId, this.auth.username() ?? 'demo', {
       page,
       size,
       filters: this.columnFilters()
     }).pipe(
-      finalize(() => this.loading.set(false))
+      finalize(() => this.patientListStore.setLoading(false))
     ).subscribe({
       next: (res) => {
         const mapped = (res.items ?? []).map((p: any) => ({
@@ -1048,28 +1059,12 @@ export class PatientListComponent implements OnInit {
           pecStatus: p.pecStatus ?? '',
           pecForfaitId: p.pecForfaitId ?? ''
         }));
-        this.rows.set(mapped);
-        this.total.set(res.total ?? 0);
-        this.pageIndex.set(res.page ?? page);
+        this.patientListStore.setPageData(mapped, res.total ?? 0, res.page ?? page);
       },
       error: () => {
-        this.rows.set([]);
-        this.total.set(0);
+        this.patientListStore.setPageData([], 0, page);
       }
     });
-  }
-
-  private formatEventDate(rawDate: string): string {
-    const raw = (rawDate ?? '').trim();
-    if (!raw) return '';
-    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (!match) return raw;
-    return `${match[3]}/${match[2]}/${match[1]}`;
-  }
-
-  onColumnFilterValue(column: string, value: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
-    this.fetchPage(0, this.pageSize());
   }
 }
 

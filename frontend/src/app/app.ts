@@ -1,7 +1,7 @@
 import {Component, computed, inject, OnDestroy, signal} from '@angular/core';
 import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
-import {ThemeService} from './core/theme/theme.service';
-import {AuthSessionService} from './core/auth/auth-session.service';
+import {AuthStore} from './core/state/auth.store';
+import {ThemeStore} from './core/state/theme.store';
 import {filter, Subscription} from 'rxjs';
 
 @Component({
@@ -50,7 +50,7 @@ import {filter, Subscription} from 'rxjs';
   ]
 })
 export class App implements OnDestroy {
-  private readonly auth = inject(AuthSessionService);
+  private readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly currentUrl = signal(this.router.url);
   readonly showAuthLoader = computed(() => {
@@ -60,7 +60,7 @@ export class App implements OnDestroy {
   private readonly routerSub: Subscription;
 
   constructor() {
-    inject(ThemeService);
+    inject(ThemeStore);
     this.routerSub = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => this.currentUrl.set(e.urlAfterRedirects));

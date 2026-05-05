@@ -16,6 +16,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {AdminApiService, AppRole} from '../../core/api/admin-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
+import {RoleListStore} from './state/role-list.store';
 
 @Component({
   selector: 'app-role-list',
@@ -128,6 +129,11 @@ import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns();" [attr.data-row-id]="row.ID || ''"></tr>
+        <tr class="mat-mdc-row" *matNoDataRow>
+          <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
+            Aucun role trouve
+          </td>
+        </tr>
       </table>
 
       <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
@@ -226,15 +232,21 @@ import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer
     }
 
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
+
+    .no-data-cell {
+      text-align: center;
+      padding: 14px;
+      color: var(--app-muted);
+      font-weight: 600;
+    }
   `]
 })
 export class RoleListComponent implements OnInit {
   private readonly api = inject(AdminApiService);
+  private readonly roleListStore = inject(RoleListStore);
   private readonly snackbar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
-  readonly hasActiveFilters = computed(() =>
-    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
-  );
+  readonly hasActiveFilters = this.roleListStore.hasActiveFilters;
 
   readonly allColumnsConfig = [
     {key: 'code', label: 'Code'},
@@ -245,19 +257,20 @@ export class RoleListComponent implements OnInit {
   readonly visibleColumns = signal<Record<string, boolean>>({code: true, name: true, description: true, actions: true});
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
 
-  readonly rows = signal<AppRole[]>([]);
-  readonly total = signal(0);
-  readonly pageIndex = signal(0);
-  readonly pageSize = signal(10);
-  readonly columnFilters = signal<Record<string, string>>({});
-  readonly searchTerm = signal('');
+  readonly rows = this.roleListStore.rows;
+  readonly isEmpty = this.roleListStore.isEmpty;
+  readonly total = this.roleListStore.total;
+  readonly pageIndex = this.roleListStore.pageIndex;
+  readonly pageSize = this.roleListStore.pageSize;
+  readonly columnFilters = this.roleListStore.columnFilters;
+  readonly searchTerm = this.roleListStore.searchTerm;
 
   ngOnInit(): void {
     this.fetchPage(0, this.pageSize());
   }
 
   onSearch(value: string): void {
-    this.searchTerm.set(value);
+    this.roleListStore.setSearchTerm(value);
     this.fetchPage(0, this.pageSize());
   }
 
@@ -270,7 +283,7 @@ export class RoleListComponent implements OnInit {
   }
 
   onColumnFilterValue(column: string, value: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.roleListStore.setFilter(column, value);
     this.fetchPage(0, this.pageSize());
   }
 
@@ -283,7 +296,7 @@ export class RoleListComponent implements OnInit {
   }
 
   clearColumnFilter(column: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.roleListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
   private readonly openFilterColumn = signal<string | null>(null);
@@ -312,13 +325,12 @@ export class RoleListComponent implements OnInit {
 
   clearAllColumnFilters(): void {
     this.openFilterColumn.set(null);
-    this.columnFilters.set({});
+    this.roleListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }
 
   onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+    this.roleListStore.setPagination(event.pageIndex, event.pageSize);
     this.fetchPage(event.pageIndex, event.pageSize);
   }
 
@@ -344,6 +356,7 @@ export class RoleListComponent implements OnInit {
   }
 
   private fetchPage(page: number, size: number): void {
+    this.roleListStore.setLoading(true);
     this.api.listRolesPaged({
       page,
       size,
@@ -351,13 +364,12 @@ export class RoleListComponent implements OnInit {
       filters: this.columnFilters()
     }).subscribe({
       next: (res) => {
-        this.rows.set(res.items ?? []);
-        this.total.set(res.total ?? 0);
-        this.pageIndex.set(res.page ?? page);
+        this.roleListStore.setPageData(res.items ?? [], res.total ?? 0, res.page ?? page);
+        this.roleListStore.setLoading(false);
       },
       error: () => {
-        this.rows.set([]);
-        this.total.set(0);
+        this.roleListStore.setPageData([], 0, page);
+        this.roleListStore.setLoading(false);
       }
     });
   }

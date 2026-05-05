@@ -21,7 +21,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonModule} from '@angular/material/button';
 import {TranslateModule} from '@ngx-translate/core';
-import {AuthSessionService} from '../../../core/auth/auth-session.service';
+import {AuthStore} from '../../../core/state/auth.store';
 
 @Component({
   selector: 'app-step-generalites',
@@ -339,7 +339,7 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
-  private readonly auth = inject(AuthSessionService);
+  private readonly auth = inject(AuthStore);
   photoPreview = signal<string | null>(null);
   private dateNaissanceSignal = signal<Date | null>(null);
   private etatPatientSignal = signal<string>('PERMANENT');

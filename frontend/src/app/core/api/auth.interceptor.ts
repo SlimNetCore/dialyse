@@ -2,7 +2,7 @@ import {HttpInterceptorFn} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {catchError, finalize, Observable, shareReplay, switchMap, throwError} from 'rxjs';
 import {AuthApiService} from './auth-api.service';
-import {AuthSessionService} from '../auth/auth-session.service';
+import {AuthStore} from '../state/auth.store';
 
 let refreshInFlight$: Observable<any> | null = null;
 
@@ -12,7 +12,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const authApi = inject(AuthApiService);
-  const session = inject(AuthSessionService);
+  const authStore = inject(AuthStore);
   const isRefreshCall = req.url.includes('/api/v1/auth/refresh');
   const isLoginOrLogout = req.url.includes('/api/v1/auth/login') || req.url.includes('/api/v1/auth/logout');
   const skipRefresh = req.headers.has('x-skip-auth-refresh');
@@ -37,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       return refreshInFlight$.pipe(
         switchMap(() => next(cloned)),
         catchError((refreshErr) => {
-          session.clearSession();
+          authStore.clearSession();
           window.location.href = '/login';
           return throwError(() => refreshErr);
         })

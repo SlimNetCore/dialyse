@@ -18,6 +18,7 @@ import {TranslateModule} from '@ngx-translate/core';
 import {AdminApiService, AppUser} from '../../core/api/admin-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
+import {UserListStore} from './state/user-list.store';
 
 type FilterType = 'text' | 'boolean';
 
@@ -200,6 +201,11 @@ type FilterType = 'text' | 'boolean';
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+        <tr class="mat-mdc-row" *matNoDataRow>
+          <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
+            Aucun utilisateur trouve
+          </td>
+        </tr>
       </table>
 
       <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
@@ -281,15 +287,21 @@ type FilterType = 'text' | 'boolean';
       color: #dc2626;
     }
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
+
+    .no-data-cell {
+      text-align: center;
+      padding: 14px;
+      color: var(--app-muted);
+      font-weight: 600;
+    }
   `]
 })
 export class UserListComponent implements OnInit {
   private readonly api = inject(AdminApiService);
+  private readonly userListStore = inject(UserListStore);
   private readonly snackbar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
-  readonly hasActiveFilters = computed(() =>
-    Object.values(this.columnFilters()).some(v => !!v?.toString().trim())
-  );
+  readonly hasActiveFilters = this.userListStore.hasActiveFilters;
 
   readonly allColumnsConfig = [
     {key: 'username', label: "Nom d'utilisateur", type: 'text' as FilterType},
@@ -311,19 +323,20 @@ export class UserListComponent implements OnInit {
   });
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
 
-  readonly rows = signal<AppUser[]>([]);
-  readonly total = signal(0);
-  readonly pageIndex = signal(0);
-  readonly pageSize = signal(10);
-  readonly columnFilters = signal<Record<string, string>>({});
-  readonly searchTerm = signal('');
+  readonly rows = this.userListStore.rows;
+  readonly isEmpty = this.userListStore.isEmpty;
+  readonly total = this.userListStore.total;
+  readonly pageIndex = this.userListStore.pageIndex;
+  readonly pageSize = this.userListStore.pageSize;
+  readonly columnFilters = this.userListStore.columnFilters;
+  readonly searchTerm = this.userListStore.searchTerm;
 
   ngOnInit(): void {
     this.fetchPage(0, this.pageSize());
   }
 
   onSearch(value: string): void {
-    this.searchTerm.set(value);
+    this.userListStore.setSearchTerm(value);
     this.fetchPage(0, this.pageSize());
   }
 
@@ -336,7 +349,7 @@ export class UserListComponent implements OnInit {
   }
 
   onColumnFilterValue(column: string, value: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
+    this.userListStore.setFilter(column, value);
     this.fetchPage(0, this.pageSize());
   }
 
@@ -349,7 +362,7 @@ export class UserListComponent implements OnInit {
   }
 
   clearColumnFilter(column: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: ''}));
+    this.userListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
   private readonly openFilterColumn = signal<string | null>(null);
@@ -378,13 +391,12 @@ export class UserListComponent implements OnInit {
 
   clearAllColumnFilters(): void {
     this.openFilterColumn.set(null);
-    this.columnFilters.set({});
+    this.userListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }
 
   onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+    this.userListStore.setPagination(event.pageIndex, event.pageSize);
     this.fetchPage(event.pageIndex, event.pageSize);
   }
 
@@ -410,6 +422,7 @@ export class UserListComponent implements OnInit {
   }
 
   private fetchPage(page: number, size: number): void {
+    this.userListStore.setLoading(true);
     this.api.listUsersPaged({
       page,
       size,
@@ -417,13 +430,12 @@ export class UserListComponent implements OnInit {
       filters: this.columnFilters()
     }).subscribe({
       next: (res) => {
-        this.rows.set(res.items ?? []);
-        this.total.set(res.total ?? 0);
-        this.pageIndex.set(res.page ?? page);
+        this.userListStore.setPageData(res.items ?? [], res.total ?? 0, res.page ?? page);
+        this.userListStore.setLoading(false);
       },
       error: () => {
-        this.rows.set([]);
-        this.total.set(0);
+        this.userListStore.setPageData([], 0, page);
+        this.userListStore.setLoading(false);
       }
     });
   }
