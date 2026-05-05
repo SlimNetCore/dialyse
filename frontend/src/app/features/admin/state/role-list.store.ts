@@ -4,9 +4,14 @@ import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {AppRole} from '../../../core/api/admin-api.service';
 import {createSearchablePagedListState, SearchablePagedListState} from '../../../core/state/paged-list-state.util';
 
-type RoleListState = SearchablePagedListState<AppRole>;
+type RoleListState = SearchablePagedListState<AppRole> & {
+  openFilterColumn: string | null;
+};
 
-const initialState: RoleListState = createSearchablePagedListState<AppRole>();
+const initialState: RoleListState = {
+  ...createSearchablePagedListState<AppRole>(),
+  openFilterColumn: null
+};
 
 export const RoleListStore = signalStore(
   {providedIn: 'root'},
@@ -55,9 +60,20 @@ export const RoleListStore = signalStore(
 
     clearAllFilters(): void {
       patchState(store, {columnFilters: {}});
+    },
+
+    toggleFilterPanel(column: string): void {
+      patchState(store, {
+        openFilterColumn: store.openFilterColumn() === column ? null : column
+      });
+    },
+
+    closeFilterPanel(): void {
+      patchState(store, {openFilterColumn: null});
     }
   }))
 );
+
 
 
 

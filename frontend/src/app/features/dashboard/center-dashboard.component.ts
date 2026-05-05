@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, effect, inject, OnInit} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -6,9 +6,8 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule} from '@ngx-translate/core';
 import {FormsModule} from '@angular/forms';
-import {BackendApiService} from '../../core/api/backend-api.service';
-import {AppShellStore} from '../../core/state/app-shell.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
+import {DashboardStore} from './state/dashboard.store';
 
 @Component({
   selector: 'app-center-dashboard',
@@ -23,7 +22,7 @@ import {WebSocketService} from '../../core/ws/websocket.service';
       <div class="config-row">
         <mat-form-field appearance="outline" class="days-field">
           <mat-label>{{ 'DASHBOARD.EXPIRATION_DAYS' | translate }}</mat-label>
-          <input matInput type="number" [(ngModel)]="expirationDays" (ngModelChange)="loadStats()" min="1" />
+          <input matInput type="number" [(ngModel)]="expirationDays" min="1"/>
         </mat-form-field>
       </div>
 
@@ -115,37 +114,30 @@ import {WebSocketService} from '../../core/ws/websocket.service';
   `]
 })
 export class CenterDashboardComponent implements OnInit {
-  private readonly api = inject(BackendApiService);
-  private readonly store = inject(AppShellStore);
+  private readonly dashboardStore = inject(DashboardStore);
   private readonly ws = inject(WebSocketService);
 
-  expirationDays = 30;
-  readonly loading = signal(true);
-  readonly stats = signal<any>({
-    patientCount: 0, pecCree: 0, pecValidee: 0, pecExpiring: 0,
-    attestationTotal: 0, attestationExpiring: 0
-  });
+  readonly loading = this.dashboardStore.loading;
+  readonly stats = this.dashboardStore.stats;
 
   constructor() {
-    // Auto-refresh on WS event
+    // Auto-refresh dashboard metrics on relevant WebSocket events.
     effect(() => {
       const evt = this.ws.lastEvent();
-      if (evt) this.loadStats();
+      this.dashboardStore.applyWsEvent(evt);
     });
+  }
+
+  get expirationDays(): number {
+    return this.dashboardStore.expirationDays();
+  }
+
+  set expirationDays(value: number) {
+    this.dashboardStore.setExpirationDays(value);
   }
 
   ngOnInit(): void {
-    this.loadStats();
-  }
-
-  loadStats(): void {
-    const cid = this.store.currentCenterId();
-    if (!cid) return;
-    this.loading.set(true);
-    this.api.getDashboardStats(cid, this.expirationDays).subscribe({
-      next: (data) => { this.stats.set(data); this.loading.set(false); },
-      error: () => this.loading.set(false)
-    });
+    this.dashboardStore.loadInitial();
   }
 }
 

@@ -94,6 +94,15 @@ export type CreatePecPayload = {
   dateFinDemande: string;
 };
 
+export type DashboardStats = {
+  patientCount: number;
+  pecCree: number;
+  pecValidee: number;
+  pecExpiring: number;
+  attestationTotal: number;
+  attestationExpiring: number;
+};
+
 @Injectable({ providedIn: 'root' })
 export class BackendApiService {
   private readonly http = inject(HttpClient);
@@ -250,9 +259,9 @@ export class BackendApiService {
     return this.http.get<{ allowed: boolean }>(`${this.baseUrl}/pec/${pecId}/session-allowed`, { params });
   }
 
-  getDashboardStats(centerId: string, expirationDays: number): Observable<any> {
+  getDashboardStats(centerId: string, expirationDays: number): Observable<DashboardStats> {
     const params = new HttpParams().set('centerId', centerId).set('expirationDays', expirationDays.toString());
-    return this.http.get<any>(`${this.baseUrl}/dashboard/stats`, { params });
+    return this.http.get<DashboardStats>(`${this.baseUrl}/dashboard/stats`, {params});
   }
 
   // ─── Documents & Impression (Jasper) ──────────────────────────────

@@ -13,10 +13,13 @@ import {MAT_DATE_LOCALE, MatNativeDateModule} from '@angular/material/core';
 
 import {routes} from './app.routes';
 import {authInterceptor} from './core/api/auth.interceptor';
-import {AuthSessionService} from './core/auth/auth-session.service';
+import {AuthStore} from './core/state/auth.store';
 import {AppShellStore} from './core/state/app-shell.store';
 
-function initAuthSession(auth: AuthSessionService, store: {
+function initAuthSession(auth: {
+  initFromServer: (options?: { force?: boolean }) => Promise<boolean>;
+  centerId: () => string | null;
+}, store: {
   switchCenter: (centerId: string) => void
 }): () => Promise<void> {
   return async () => {
@@ -54,7 +57,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: APP_INITIALIZER,
       useFactory: initAuthSession,
-      deps: [AuthSessionService, AppShellStore],
+      deps: [AuthStore, AppShellStore],
       multi: true
     }
   ]

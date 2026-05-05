@@ -298,32 +298,31 @@ export class RoleListComponent implements OnInit {
     this.roleListStore.clearFilter(column);
     this.fetchPage(0, this.pageSize());
   }
-  private readonly openFilterColumn = signal<string | null>(null);
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
     event.stopPropagation();
-    this.openFilterColumn.update((current) => (current === column ? null : column));
+    this.roleListStore.toggleFilterPanel(column);
   }
 
   isFilterOpen(column: string): boolean {
-    return this.openFilterColumn() === column;
+    return this.roleListStore.openFilterColumn() === column;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
     if (!target) {
-      this.openFilterColumn.set(null);
+      this.roleListStore.closeFilterPanel();
       return;
     }
     if (target.closest('.th-wrap')) {
       return;
     }
-    this.openFilterColumn.set(null);
+    this.roleListStore.closeFilterPanel();
   }
 
   clearAllColumnFilters(): void {
-    this.openFilterColumn.set(null);
+    this.roleListStore.closeFilterPanel();
     this.roleListStore.clearAllFilters();
     this.fetchPage(0, this.pageSize());
   }

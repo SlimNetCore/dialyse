@@ -1,4 +1,4 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatBadgeModule} from '@angular/material/badge';
@@ -6,6 +6,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {WebSocketService, WsEvent} from '../ws/websocket.service';
 import {DatePipe, JsonPipe} from '@angular/common';
+import {NotificationBellStore} from '../state/notification-bell.store';
 
 @Component({
   selector: 'app-notification-bell',
@@ -35,10 +36,10 @@ import {DatePipe, JsonPipe} from '@angular/common';
         </header>
 
         <div class="tabs">
-          <button class="tab" [class.active]="activeTab() === 'unread'" (click)="activeTab.set('unread')">
+          <button class="tab" [class.active]="activeTab() === 'unread'" (click)="setActiveTab('unread')">
             {{ 'NOTIFICATION.UNREAD_TAB' | translate }} ({{ unreadEvents().length }})
           </button>
-          <button class="tab" [class.active]="activeTab() === 'read'" (click)="activeTab.set('read')">
+          <button class="tab" [class.active]="activeTab() === 'read'" (click)="setActiveTab('read')">
             {{ 'NOTIFICATION.READ_TAB' | translate }} ({{ readEvents().length }})
           </button>
         </div>
@@ -181,22 +182,17 @@ import {DatePipe, JsonPipe} from '@angular/common';
 })
 export class NotificationBellComponent {
   readonly ws = inject(WebSocketService);
+  private readonly notifStore = inject(NotificationBellStore);
   private readonly translate = inject(TranslateService);
 
-  readonly open = signal(false);
-  readonly activeTab = signal<'unread' | 'read'>('unread');
-  readonly selectedEventId = signal<string | null>(null);
-  private readonly readIds = signal<Set<string>>(new Set<string>());
-
-  readonly unreadEvents = computed(() => this.ws.events().filter(e => !this.isRead(e)));
-  readonly readEvents = computed(() => this.ws.events().filter(e => this.isRead(e)));
-  readonly visibleEvents = computed(() => this.activeTab() === 'unread' ? this.unreadEvents() : this.readEvents());
-  readonly selectedEvent = computed(() => {
-    const id = this.selectedEventId();
-    if (!id) return null;
-    return this.ws.events().find(e => this.eventId(e) === id) ?? null;
-  });
-  readonly unreadCount = computed(() => this.unreadEvents().length);
+  readonly open = this.notifStore.open;
+  readonly activeTab = this.notifStore.activeTab;
+  readonly selectedEventId = this.notifStore.selectedEventId;
+  readonly unreadEvents = this.notifStore.unreadEvents;
+  readonly readEvents = this.notifStore.readEvents;
+  readonly visibleEvents = this.notifStore.visibleEvents;
+  readonly selectedEvent = this.notifStore.selectedEvent;
+  readonly unreadCount = this.notifStore.unreadCount;
   readonly wsTooltip = computed(() => {
     switch (this.ws.connectionStatus()) {
       case 'stable':
@@ -209,39 +205,31 @@ export class NotificationBellComponent {
   });
 
   togglePanel(): void {
-    const next = !this.open();
-    this.open.set(next);
-    if (!next) return;
-
-    const first = this.visibleEvents()[0] ?? this.ws.events()[0] ?? null;
-    if (first) {
-      this.selectedEventId.set(this.eventId(first));
-    }
+    this.notifStore.togglePanel();
   }
 
   closePanel(): void {
-    this.open.set(false);
+    this.notifStore.closePanel();
+  }
+
+  setActiveTab(tab: 'unread' | 'read'): void {
+    this.notifStore.setActiveTab(tab);
   }
 
   eventId(evt: WsEvent): string {
-    return `${evt.type}-${evt.timestamp}-${evt.payload['pecId'] ?? evt.payload['patientCode'] ?? ''}`;
+    return this.notifStore.eventId(evt);
   }
 
   isRead(evt: WsEvent): boolean {
-    return this.readIds().has(this.eventId(evt));
+    return this.notifStore.isRead(evt);
   }
 
   selectMessage(evt: WsEvent): void {
-    this.selectedEventId.set(this.eventId(evt));
-    const next = new Set(this.readIds());
-    next.add(this.eventId(evt));
-    this.readIds.set(next);
+    this.notifStore.selectMessage(evt);
   }
 
   markAllRead(): void {
-    const next = new Set(this.readIds());
-    this.ws.events().forEach(evt => next.add(this.eventId(evt)));
-    this.readIds.set(next);
+    this.notifStore.markAllRead();
   }
 
   iconFor(evt: WsEvent): string {
