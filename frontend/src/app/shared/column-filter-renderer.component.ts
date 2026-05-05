@@ -49,7 +49,6 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
             (keydown.enter)="applyDateRange()"
           />
         </mat-date-range-input>
-        <mat-hint>{{ 'COMMON.DATE_RANGE_HINT' | translate }}</mat-hint>
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-date-range-picker #picker (opened)="syncDraftDateRange()">
           <mat-date-range-picker-actions>
@@ -135,10 +134,7 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     }
 
     :host ::ng-deep .date-range-field .mat-mdc-form-field-subscript-wrapper {
-      height: auto;
-      min-height: 18px;
-      padding-top: 2px;
-      text-align: center;
+      display: none;
     }
 
     :host ::ng-deep .date-range-field .mat-mdc-text-field-wrapper {
@@ -171,6 +167,11 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       font-size: var(--filter-font-size);
       font-weight: var(--filter-font-weight);
       text-align: center;
+    }
+
+    :host ::ng-deep .date-range-field input.mat-mdc-input-element::placeholder {
+      color: var(--app-muted);
+      text-transform: none;
     }
 
     :host ::ng-deep .date-range-field .mat-date-range-input-separator {
