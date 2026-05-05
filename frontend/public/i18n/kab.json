@@ -59,6 +59,8 @@
   },
   "THEME": {
     "TITLE": "Asentel",
+    "LIGHT": "Afaw",
+    "DARK": "Aberkan",
     "CYAN": "Cyan (amezwer)",
     "EMERALD": "Azegzaw amezrar",
     "INDIGO": "Indigo"

@@ -317,6 +317,7 @@ a {
 
 /* Global Material refinements */
 .mdc-button--unelevated,
+.mat-mdc-button,
 .mat-mdc-unelevated-button,
 .mat-mdc-raised-button,
 .mat-mdc-outlined-button,
@@ -324,8 +325,31 @@ a {
 .mat-mdc-fab,
 .mat-mdc-extended-fab {
   border-radius: 16px !important;
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 700 !important;
+  --mdc-text-button-label-text-font: 'Manrope', sans-serif;
+  --mdc-text-button-label-text-size: 12px;
+  --mdc-filled-button-label-text-font: 'Manrope', sans-serif;
+  --mdc-filled-button-label-text-size: 12px;
+  --mdc-protected-button-label-text-font: 'Manrope', sans-serif;
+  --mdc-protected-button-label-text-size: 12px;
+  --mdc-outlined-button-label-text-font: 'Manrope', sans-serif;
+  --mdc-outlined-button-label-text-size: 12px;
   letter-spacing: 0.02em;
   transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.mat-mdc-button {
+  color: var(--app-text) !important;
+  --mdc-text-button-label-text-color: var(--app-text) !important;
+}
+
+.mat-mdc-button.mat-primary,
+.mat-mdc-outlined-button.mat-primary,
+.mat-mdc-stroked-button.mat-primary {
+  color: var(--app-primary) !important;
+  --mdc-text-button-label-text-color: var(--app-primary) !important;
+  --mdc-outlined-button-label-text-color: var(--app-primary) !important;
 }
 
 .mat-mdc-button:hover,

@@ -232,6 +232,8 @@
   },
   "THEME": {
     "TITLE": "Theme",
+    "LIGHT": "Light",
+    "DARK": "Dark",
     "CYAN": "Cyan (default)",
     "EMERALD": "Emerald",
     "INDIGO": "Indigo"
