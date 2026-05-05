@@ -94,16 +94,12 @@ import {filter} from 'rxjs/operators';
 
     <div class="shell-body">
       <!-- SIDEBAR -->
-      <nav class="sidebar" [class.expanded]="sidebarExpanded()"
-           (mouseenter)="sidebarExpanded.set(true)"
-           (mouseleave)="sidebarExpanded.set(false)">
+      <nav class="sidebar">
         @for (item of navItems; track item.route) {
           <a [routerLink]="item.route" routerLinkActive="active-nav" class="nav-item"
-             [matTooltip]="sidebarExpanded() ? '' : item.label">
+             [matTooltip]="item.label | translate">
             <mat-icon>{{ item.icon }}</mat-icon>
-            @if (sidebarExpanded()) {
-              <span class="nav-label">{{ item.label | translate }}</span>
-            }
+            <span class="nav-label">{{ item.label | translate }}</span>
           </a>
         }
       </nav>
@@ -156,42 +152,77 @@ import {filter} from 'rxjs/operators';
 
     .sidebar {
       position: relative;
-      width: 56px;
+      width: 86px;
       min-height: 100%;
+      margin-left: auto;
       background: linear-gradient(
         180deg,
         var(--app-sidebar-accent-bg),
         color-mix(in srgb, var(--app-sidebar-accent-bg) 72%, var(--app-surface))
       );
-      border-right: 1px solid var(--app-primary-outline);
-      display: flex; flex-direction: column; padding-top: 8px; transition: width 0.2s ease;
-      overflow: hidden; z-index: 50;
+      border-left: 1px solid var(--app-primary-outline);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 6px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      z-index: 50;
+      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
     }
 
     .sidebar::after {
       content: '';
       position: absolute;
       top: 0;
-      right: 0;
+      left: 0;
       width: 3px;
       height: 100%;
       background: linear-gradient(180deg, var(--app-primary), color-mix(in srgb, var(--app-primary) 35%, transparent));
       pointer-events: none;
     }
-    .sidebar.expanded { width: 220px; box-shadow: 4px 0 16px rgba(0,0,0,0.08); }
 
     .nav-item {
-      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-      color: var(--app-muted); text-decoration: none; font-size: 14px; font-weight: 500;
-      border-left: 3px solid transparent; transition: all 0.15s;
-      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      min-height: 72px;
+      padding: 8px 6px;
+      color: color-mix(in srgb, var(--app-text) 84%, white 16%);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-align: center;
     }
-    .nav-item:hover { background: var(--app-primary-soft); color: var(--app-primary); }
+
+    .nav-item:hover {
+      background: var(--app-primary-soft);
+      color: var(--app-primary);
+      border-color: var(--app-primary-outline);
+    }
     .nav-item.active-nav {
-      background: var(--app-primary-soft); color: var(--app-primary);
-      border-left-color: var(--app-primary); font-weight: 600;
+      background: color-mix(in srgb, var(--app-primary) 18%, transparent);
+      color: #ffffff;
+      border-color: color-mix(in srgb, var(--app-primary) 65%, white 35%);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent);
     }
-    .nav-item mat-icon { min-width: 24px; }
+
+    .nav-item mat-icon {
+      min-width: 24px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .nav-label {
+      line-height: 1.2;
+      white-space: normal;
+    }
 
     .content { flex: 1; overflow-y: auto; padding: 20px; background: var(--app-bg); }
     .breadcrumb { display:flex; align-items:center; gap:4px; margin-bottom:10px; color:var(--app-muted); font-size:12px; }
@@ -208,7 +239,6 @@ export class ShellComponent implements OnInit {
   readonly router = inject(Router);
   private readonly ws = inject(WebSocketService);
   private readonly authApi = inject(AuthApiService);
-  readonly sidebarExpanded = signal(false);
   readonly breadcrumbs = signal<string[]>([]);
   private breadcrumbRoutes: string[] = [];
 
