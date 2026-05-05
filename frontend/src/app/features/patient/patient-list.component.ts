@@ -986,7 +986,7 @@ export class PatientListComponent implements OnInit {
           dateAdmission: p.dateAdmission ?? '',
           numeroAssurance: p.numeroAssurance ?? '',
           etatPatient: p.etatPatient ?? 'PERMANENT',
-          dateEvenementEtat: p.dateEvenementEtat ?? '',
+          dateEvenementEtat: p.dateEvenementEtat ?? p.dateEvenement ?? '',
           nonFacturable: !!p.nonFacturable,
           medecinTraitantId: p.medecinTraitantId ?? '',
           positionId: p.positionId ?? '',

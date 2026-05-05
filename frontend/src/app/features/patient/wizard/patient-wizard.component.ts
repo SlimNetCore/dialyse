@@ -412,6 +412,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         this.wizardData = {
           ...this.wizardData,
           ...p,
+          dateEvenementEtat: p?.dateEvenementEtat ?? p?.dateEvenement ?? null,
           qualiteAssure: p?.qualiteAssure ?? p?.qualite_assure ?? null,
           numeroAssurance: p?.numeroAssurance?.value ?? p?.numeroAssurance,
           assureNom: p?.assureNom ?? ai?.nom ?? ai?.assureNom ?? null,

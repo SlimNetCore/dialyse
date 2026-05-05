@@ -467,7 +467,7 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
       sousKt: data['sousKt'] ?? false,
       enSommeil: data['enSommeil'] ?? false,
       etatPatient: data['etatPatient'] ?? 'PERMANENT',
-      dateEvenementEtat: data['dateEvenementEtat'] ?? null,
+      dateEvenementEtat: data['dateEvenementEtat'] ?? data['dateEvenement'] ?? null,
       qualiteAssure: data['qualiteAssure'] ?? 'ASSURE_LUI_MEME',
       observation: data['observation'] ?? ''
     };
