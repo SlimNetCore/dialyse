@@ -491,6 +491,15 @@ a {
   border-bottom-color: var(--app-border) !important;
 }
 
+.mat-mdc-table .mat-mdc-row {
+  cursor: pointer;
+}
+
+.mat-mdc-table .mat-mdc-header-row,
+.mat-mdc-table .mat-mdc-header-cell {
+  cursor: default;
+}
+
 .mat-mdc-row:hover {
   background: var(--app-row-hover) !important;
 }

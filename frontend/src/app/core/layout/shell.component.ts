@@ -158,7 +158,11 @@ import {filter} from 'rxjs/operators';
       position: relative;
       width: 56px;
       min-height: 100%;
-      background: var(--app-surface);
+      background: linear-gradient(
+        180deg,
+        var(--app-sidebar-accent-bg),
+        color-mix(in srgb, var(--app-sidebar-accent-bg) 72%, var(--app-surface))
+      );
       border-right: 1px solid var(--app-primary-outline);
       display: flex; flex-direction: column; padding-top: 8px; transition: width 0.2s ease;
       overflow: hidden; z-index: 50;

@@ -29,6 +29,7 @@ export interface PatientRow {
   dateAdmission: string;
   numeroAssurance: string;
   etatPatient: string;
+  dateEvenementEtat?: string;
   nonFacturable?: boolean;
   medecinTraitantId?: string;
   positionId?: string;
@@ -253,8 +254,14 @@ type FilterType = 'text' | 'date';
                     </div>
                   </div>
                 </th>
-                <td mat-cell *matCellDef="let row"><span class="etat-badge"
-                                                         [attr.data-etat]="row.etatPatient">{{ row.etatPatient }}</span>
+                <td mat-cell *matCellDef="let row">
+                  <div class="etat-cell">
+                    <span class="etat-badge"
+                          [attr.data-etat]="row.etatPatient"
+                          [class.has-event-tooltip]="hasEventTooltip(row)"
+                          [matTooltip]="eventDateTooltip(row)"
+                          [matTooltipDisabled]="!hasEventTooltip(row)">{{ row.etatPatient }}</span>
+                  </div>
                 </td>
               </ng-container>
 
@@ -627,6 +634,24 @@ type FilterType = 'text' | 'date';
       border: 1px solid var(--app-primary-outline);
     }
 
+    .etat-cell {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .etat-badge.has-event-tooltip {
+      cursor: help;
+    }
+
+    .etat-event-date {
+      font-size: 11px;
+      line-height: 1.3;
+      color: var(--app-muted);
+      white-space: nowrap;
+    }
+
     .etat-badge[data-etat="DECEDE"] {
       background: rgba(239, 68, 68, 0.14);
       color: #ff9b9b;
@@ -870,55 +895,10 @@ export class PatientListComponent implements OnInit {
     this.fetchPage(event.pageIndex, event.pageSize);
   }
 
-  private fetchPage(page: number, size: number): void {
-    const centerId = this.store.currentCenterId();
-    if (!centerId) {
-      this.rows.set([]);
-      this.total.set(0);
-      return;
-    }
-
-    this.api.listPatients(centerId, this.auth.username() ?? 'demo', {
-      page,
-      size,
-      filters: this.columnFilters()
-    }).subscribe({
-      next: (res) => {
-        const mapped = (res.items ?? []).map((p: any) => ({
-          id: p.id,
-          code: p.codePatient ?? '',
-          nom: p.nom ?? '',
-          prenom: p.prenom ?? '',
-          sexe: p.sexe ?? '',
-          dateAdmission: p.dateAdmission ?? '',
-          numeroAssurance: p.numeroAssurance ?? '',
-          etatPatient: p.etatPatient ?? 'PERMANENT',
-          nonFacturable: !!p.nonFacturable,
-          medecinTraitantId: p.medecinTraitantId ?? '',
-          positionId: p.positionId ?? '',
-          transporteurAllerId: p.transporteurAllerId ?? '',
-          transporteurRetourId: p.transporteurRetourId ?? '',
-          joursDialyse: {
-            dimanche: p.jourDimanche ?? false,
-            lundi: p.jourLundi ?? false,
-            mardi: p.jourMardi ?? false,
-            mercredi: p.jourMercredi ?? false,
-            jeudi: p.jourJeudi ?? false,
-            vendredi: p.jourVendredi ?? false,
-            samedi: p.jourSamedi ?? false
-          },
-          pecStatus: p.pecStatus ?? '',
-          pecForfaitId: p.pecForfaitId ?? ''
-        }));
-        this.rows.set(mapped);
-        this.total.set(res.total ?? 0);
-        this.pageIndex.set(res.page ?? page);
-      },
-      error: () => {
-        this.rows.set([]);
-        this.total.set(0);
-      }
-    });
+  eventDateTooltip(row: PatientRow): string {
+    if (!this.hasEventTooltip(row)) return '';
+    const formattedDate = this.formatEventDate(row.dateEvenementEtat ?? '');
+    return formattedDate ? `Date de l'evenement: ${formattedDate}` : "Date de l'evenement non renseignee";
   }
 
   printFiche(patient: PatientRow): void {
@@ -972,6 +952,76 @@ export class PatientListComponent implements OnInit {
     {value: 'DECEDE', label: 'Décédé'},
     {value: 'GREFFE', label: 'Greffé'}
   ];
+
+  hasEventTooltip(row: PatientRow): boolean {
+    const etat = (row.etatPatient ?? '').toUpperCase();
+    return etat === 'TRANSFERE' || etat === 'GREFFE' || etat === 'DECEDE';
+  }
+
+  visibleEventDate(row: PatientRow): string {
+    const formattedDate = this.formatEventDate(row.dateEvenementEtat ?? '');
+    return formattedDate ? `Événement: ${formattedDate}` : 'Événement non renseigné';
+  }
+
+  private fetchPage(page: number, size: number): void {
+    const centerId = this.store.currentCenterId();
+    if (!centerId) {
+      this.rows.set([]);
+      this.total.set(0);
+      return;
+    }
+
+    this.api.listPatients(centerId, this.auth.username() ?? 'demo', {
+      page,
+      size,
+      filters: this.columnFilters()
+    }).subscribe({
+      next: (res) => {
+        const mapped = (res.items ?? []).map((p: any) => ({
+          id: p.id,
+          code: p.codePatient ?? '',
+          nom: p.nom ?? '',
+          prenom: p.prenom ?? '',
+          sexe: p.sexe ?? '',
+          dateAdmission: p.dateAdmission ?? '',
+          numeroAssurance: p.numeroAssurance ?? '',
+          etatPatient: p.etatPatient ?? 'PERMANENT',
+          dateEvenementEtat: p.dateEvenementEtat ?? '',
+          nonFacturable: !!p.nonFacturable,
+          medecinTraitantId: p.medecinTraitantId ?? '',
+          positionId: p.positionId ?? '',
+          transporteurAllerId: p.transporteurAllerId ?? '',
+          transporteurRetourId: p.transporteurRetourId ?? '',
+          joursDialyse: {
+            dimanche: p.jourDimanche ?? false,
+            lundi: p.jourLundi ?? false,
+            mardi: p.jourMardi ?? false,
+            mercredi: p.jourMercredi ?? false,
+            jeudi: p.jourJeudi ?? false,
+            vendredi: p.jourVendredi ?? false,
+            samedi: p.jourSamedi ?? false
+          },
+          pecStatus: p.pecStatus ?? '',
+          pecForfaitId: p.pecForfaitId ?? ''
+        }));
+        this.rows.set(mapped);
+        this.total.set(res.total ?? 0);
+        this.pageIndex.set(res.page ?? page);
+      },
+      error: () => {
+        this.rows.set([]);
+        this.total.set(0);
+      }
+    });
+  }
+
+  private formatEventDate(rawDate: string): string {
+    const raw = (rawDate ?? '').trim();
+    if (!raw) return '';
+    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return raw;
+    return `${match[3]}/${match[2]}/${match[1]}`;
+  }
 
   onColumnFilterValue(column: string, value: string): void {
     this.columnFilters.update(prev => ({...prev, [column]: value}));
