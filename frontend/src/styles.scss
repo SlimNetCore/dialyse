@@ -477,6 +477,23 @@ a {
   color: var(--app-text) !important;
 }
 
+/* Themed tooltip for patient event popins */
+.mat-mdc-tooltip-panel.patient-theme-tooltip .mdc-tooltip__surface,
+.mat-mdc-tooltip.patient-theme-tooltip .mdc-tooltip__surface,
+.patient-theme-tooltip .mdc-tooltip__surface {
+  background: color-mix(in srgb, var(--app-surface-solid) 94%, #000 6%) !important;
+  color: var(--app-text) !important;
+  border: 1px solid var(--app-primary-outline);
+  border-radius: 10px !important;
+  box-shadow: var(--app-shadow-soft);
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 8px 10px;
+  white-space: pre-line;
+}
+
 .mat-datepicker-toggle {
   color: var(--app-primary);
 }

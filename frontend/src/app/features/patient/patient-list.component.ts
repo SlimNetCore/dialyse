@@ -55,7 +55,6 @@ type FilterType = 'text' | 'date';
   template: `
     <mat-card class="list-card">
       <mat-card-header>
-        <mat-icon mat-card-avatar class="header-icon">people</mat-icon>
         <div class="header-copy">
           <mat-card-title>{{ 'PATIENT_LIST.TITLE' | translate }}</mat-card-title>
           <mat-card-subtitle>{{ 'PATIENT_LIST.TOTAL' | translate:{count: total()} }}</mat-card-subtitle>
@@ -267,6 +266,7 @@ type FilterType = 'text' | 'date';
                           [attr.data-etat]="row.etatPatient"
                           [class.has-event-tooltip]="hasEventTooltip(row)"
                           [matTooltip]="eventDateTooltip(row)"
+                          matTooltipClass="patient-theme-tooltip"
                           [matTooltipDisabled]="!hasEventTooltip(row)">{{ row.etatPatient }}</span>
                   </div>
                 </td>
@@ -489,9 +489,8 @@ type FilterType = 'text' | 'date';
     }
 
     :host ::ng-deep .list-card .mat-mdc-card-header {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 16px;
+      display: flex;
+      justify-content: flex-start;
       align-items: center;
       margin-bottom: 10px;
       padding: 8px;
@@ -503,18 +502,7 @@ type FilterType = 'text' | 'date';
 
     .header-copy {
       min-width: 0;
-    }
-
-    .header-icon {
-      background: linear-gradient(145deg, rgba(97, 216, 223, 0.18), rgba(255, 255, 255, 0.04));
-      color: var(--app-primary);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      border: 1px solid var(--app-primary-outline);
+      text-align: left;
     }
 
     .list-toolbar {

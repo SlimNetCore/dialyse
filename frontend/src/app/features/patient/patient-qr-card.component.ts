@@ -1,19 +1,21 @@
-import { Component, inject, Input, signal } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule, MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { TranslateModule } from '@ngx-translate/core';
+import {Component, inject, Input, signal} from '@angular/core';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {TranslateModule} from '@ngx-translate/core';
 import * as QRCode from 'qrcode';
 
 @Component({
   selector: 'app-patient-qr-card',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDialogModule, TranslateModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDialogModule, MatTooltipModule, TranslateModule],
   template: `
-    <button mat-stroked-button (click)="openCard()" [disabled]="!patientId">
+    <button mat-icon-button color="primary" (click)="openCard()" [disabled]="!patientId"
+            [matTooltip]="'PATIENT_FORM.QR_CARD' | translate"
+            [attr.aria-label]="'PATIENT_FORM.QR_CARD' | translate">
       <mat-icon>qr_code_2</mat-icon>
-      {{ 'PATIENT_FORM.QR_CARD' | translate }}
     </button>
   `
 })
