@@ -127,7 +127,7 @@ import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();" [attr.data-row-id]="row.ID || ''"></tr>
       </table>
 
       <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
@@ -266,13 +266,7 @@ export class RoleListComponent implements OnInit {
   }
 
   isColumnVisible(column: string): boolean {
-    return !!this.visibleColumns()[column];
-  }
-
-  onColumnFilter(column: string, event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
-    this.fetchPage(0, this.pageSize());
+    return this.visibleColumns()[column] ?? false;
   }
 
   onColumnFilterValue(column: string, value: string): void {

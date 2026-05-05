@@ -332,22 +332,10 @@ export class UserListComponent implements OnInit {
   }
 
   isColumnVisible(column: string): boolean {
-    return !!this.visibleColumns()[column];
-  }
-
-  onColumnFilter(column: string, event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
-    this.fetchPage(0, this.pageSize());
+    return this.visibleColumns()[column] ?? false;
   }
 
   onColumnFilterValue(column: string, value: string): void {
-    this.columnFilters.update(prev => ({...prev, [column]: value}));
-    this.fetchPage(0, this.pageSize());
-  }
-
-  onBooleanFilter(column: string, event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
     this.columnFilters.update(prev => ({...prev, [column]: value}));
     this.fetchPage(0, this.pageSize());
   }

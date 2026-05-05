@@ -16,9 +16,12 @@ import {AuthSessionService} from '../../core/auth/auth-session.service';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
+import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
+import {finalize} from 'rxjs/operators';
 
 export interface PatientRow {
   id: string;
@@ -49,8 +52,8 @@ type FilterType = 'text' | 'date';
     CommonModule,
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatChipsModule, MatTooltipModule, MatSnackBarModule,
-    MatMenuModule, MatCheckboxModule, MatPaginatorModule, TranslateModule,
-    PatientQrCardComponent, ColumnFilterRendererComponent
+    MatMenuModule, MatCheckboxModule, MatPaginatorModule, MatProgressSpinnerModule, TranslateModule,
+    PatientQrCardComponent, ColumnFilterRendererComponent, HemodialysisLoaderComponent
   ],
   template: `
     <mat-card class="list-card">
@@ -65,7 +68,11 @@ type FilterType = 'text' | 'date';
         <div class="list-toolbar">
           <div class="toolbar-group">
             <button mat-stroked-button color="warn" (click)="clearAllColumnFilters()" [disabled]="!hasActiveFilters()">
-              <mat-icon>filter_alt_off</mat-icon>
+              @if (loading()) {
+                <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
+              } @else {
+                <mat-icon>filter_alt_off</mat-icon>
+              }
               Réinitialiser filtres
             </button>
 
@@ -86,13 +93,21 @@ type FilterType = 'text' | 'date';
             </mat-menu>
 
             <button mat-stroked-button color="primary" (click)="printList()"
-                    [matTooltip]="'PATIENT_LIST.BTN_PRINT_LIST' | translate">
-              <mat-icon>print</mat-icon>
+                    [matTooltip]="'PATIENT_LIST.BTN_PRINT_LIST' | translate" [disabled]="printingList()">
+              @if (printingList()) {
+                <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
+              } @else {
+                <mat-icon>print</mat-icon>
+              }
               {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
             </button>
             <button mat-stroked-button color="primary" (click)="exportListExcel()"
-                    [matTooltip]="'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate">
-              <mat-icon>table_view</mat-icon>
+                    [matTooltip]="'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate" [disabled]="exportingList()">
+              @if (exportingList()) {
+                <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
+              } @else {
+                <mat-icon>table_view</mat-icon>
+              }
               {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}
             </button>
           </div>
@@ -106,6 +121,9 @@ type FilterType = 'text' | 'date';
         </div>
 
         <div class="table-container">
+          @if (loading()) {
+            <app-hemodialysis-loader mode="overlay" label="COMMON.LOADING_DATA"/>
+          }
             <table mat-table [dataSource]="rows()" class="patient-table">
               <ng-container matColumnDef="code">
                 <th mat-header-cell *matHeaderCellDef>
@@ -458,8 +476,12 @@ type FilterType = 'text' | 'date';
                     <mat-icon>visibility</mat-icon>
                   </button>
                   <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate" (click)="printFiche(row)"
-                          color="primary">
-                    <mat-icon>print</mat-icon>
+                          color="primary" [disabled]="printingRowId() === row.id">
+                    @if (printingRowId() === row.id) {
+                      <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
+                    } @else {
+                      <mat-icon>print</mat-icon>
+                    }
                   </button>
                   <app-patient-qr-card [patientId]="row.id" [nom]="row.nom" [prenom]="row.prenom"
                                        [numeroAssurance]="row.numeroAssurance" [dateAdmission]="row.dateAdmission"/>
@@ -525,6 +547,11 @@ type FilterType = 'text' | 'date';
     .btn-new {
       min-height: 46px;
       padding-inline: 18px;
+    }
+
+    .btn-loader {
+      display: inline-block;
+      vertical-align: middle;
     }
 
     .table-container {
@@ -808,6 +835,10 @@ export class PatientListComponent implements OnInit {
   private readonly snack = inject(MatSnackBar);
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
   readonly rows = signal<PatientRow[]>([]);
+  readonly loading = signal(false);
+  readonly printingList = signal(false);
+  readonly exportingList = signal(false);
+  readonly printingRowId = signal<string | null>(null);
   readonly total = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
@@ -904,7 +935,10 @@ export class PatientListComponent implements OnInit {
   printFiche(patient: PatientRow): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.api.printDocument(centerId, 'FICHE_PATIENT', { patientId: patient.id }).subscribe({
+    this.printingRowId.set(patient.id);
+    this.api.printDocument(centerId, 'FICHE_PATIENT', {patientId: patient.id}).pipe(
+      finalize(() => this.printingRowId.set(null))
+    ).subscribe({
       next: (blob: Blob) => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
@@ -918,7 +952,10 @@ export class PatientListComponent implements OnInit {
   printList(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}).subscribe({
+    this.printingList.set(true);
+    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}).pipe(
+      finalize(() => this.printingList.set(false))
+    ).subscribe({
       next: (blob: Blob) => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
@@ -932,7 +969,10 @@ export class PatientListComponent implements OnInit {
   exportListExcel(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}, 'EXCEL').subscribe({
+    this.exportingList.set(true);
+    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}, 'EXCEL').pipe(
+      finalize(() => this.exportingList.set(false))
+    ).subscribe({
       next: (blob: Blob) => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -966,16 +1006,20 @@ export class PatientListComponent implements OnInit {
   private fetchPage(page: number, size: number): void {
     const centerId = this.store.currentCenterId();
     if (!centerId) {
+      this.loading.set(false);
       this.rows.set([]);
       this.total.set(0);
       return;
     }
 
+    this.loading.set(true);
     this.api.listPatients(centerId, this.auth.username() ?? 'demo', {
       page,
       size,
       filters: this.columnFilters()
-    }).subscribe({
+    }).pipe(
+      finalize(() => this.loading.set(false))
+    ).subscribe({
       next: (res) => {
         const mapped = (res.items ?? []).map((p: any) => ({
           id: p.id,

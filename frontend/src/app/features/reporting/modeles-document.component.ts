@@ -164,7 +164,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" [attr.data-row-id]="val(row, 'ID', 'id')"></tr>
         </table>
 
         @if (modeles().length === 0) {
