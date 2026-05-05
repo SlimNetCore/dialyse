@@ -1,4 +1,4 @@
-import {Component, computed, effect, EventEmitter, HostListener, inject, OnInit, Output, signal} from '@angular/core';
+import {Component, computed, effect, EventEmitter, HostListener, inject, Output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
@@ -8,21 +8,18 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
-import {BackendApiService} from '../../core/api/backend-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {AppShellStore} from '../../core/state/app-shell.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
 import {PatientListStore} from './state/patient-list.store';
-import {finalize} from 'rxjs/operators';
 
 export interface PatientRow {
   id: string;
@@ -788,11 +785,10 @@ type FilterType = 'text' | 'date';
     }
   `]
 })
-export class PatientListComponent implements OnInit {
+export class PatientListComponent {
   @Output() newPatient = new EventEmitter<void>();
   @Output() selectPatient = new EventEmitter<PatientRow>();
 
-  private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
@@ -832,7 +828,6 @@ export class PatientListComponent implements OnInit {
     pecForfaitId: false,
     actions: true
   });
-  private readonly snack = inject(MatSnackBar);
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
   readonly rows = this.patientListStore.rows;
   readonly loading = this.patientListStore.loading;
@@ -843,27 +838,9 @@ export class PatientListComponent implements OnInit {
   readonly pageIndex = this.patientListStore.pageIndex;
   readonly pageSize = this.patientListStore.pageSize;
   readonly columnFilters = this.patientListStore.columnFilters;
-  private readonly store = inject(AppShellStore);
   private readonly ws = inject(WebSocketService);
 
-  constructor() {
-    effect(() => {
-      const evt = this.ws.lastEvent();
-      if (evt?.type === 'PATIENT_CREATED'
-        || evt?.type === 'PATIENT_UPDATED'
-        || evt?.type === 'PEC_VALIDATED'
-        || evt?.type === 'PEC_CLOSED'
-        || evt?.type === 'PEC_DELETED'
-        || evt?.type === 'ATTESTATION_CREATED'
-        || evt?.type === 'ATTESTATION_DELETED') {
-        this.fetchPage(this.pageIndex(), this.pageSize());
-      }
-    });
-  }
-
-  ngOnInit(): void {
-    this.fetchPage(0, this.pageSize());
-  }
+  private readonly openFilterColumn = signal<string | null>(null);
 
   readonly sexeFilterOptions = [
     {value: 'M', label: 'Masculin'},
@@ -884,11 +861,24 @@ export class PatientListComponent implements OnInit {
     return !!(this.columnFilters()[column] ?? '').trim();
   }
 
+  constructor() {
+    effect(() => {
+      const evt = this.ws.lastEvent();
+      if (evt?.type === 'PATIENT_CREATED'
+        || evt?.type === 'PATIENT_UPDATED'
+        || evt?.type === 'PEC_VALIDATED'
+        || evt?.type === 'PEC_CLOSED'
+        || evt?.type === 'PEC_DELETED'
+        || evt?.type === 'ATTESTATION_CREATED'
+        || evt?.type === 'ATTESTATION_DELETED') {
+        this.patientListStore.refreshCurrentPage();
+      }
+    });
+  }
+
   clearColumnFilter(column: string): void {
     this.patientListStore.clearFilter(column);
-    this.fetchPage(0, this.pageSize());
   }
-  private readonly openFilterColumn = signal<string | null>(null);
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
     event.stopPropagation();
@@ -915,7 +905,6 @@ export class PatientListComponent implements OnInit {
   clearAllColumnFilters(): void {
     this.openFilterColumn.set(null);
     this.patientListStore.clearAllFilters();
-    this.fetchPage(0, this.pageSize());
   }
 
   toggleColumn(column: string, checked: boolean): void {
@@ -928,7 +917,6 @@ export class PatientListComponent implements OnInit {
 
   onPageChange(event: PageEvent): void {
     this.patientListStore.setPagination(event.pageIndex, event.pageSize);
-    this.fetchPage(event.pageIndex, event.pageSize);
   }
 
   eventDateTooltip(row: PatientRow): string {
@@ -941,51 +929,21 @@ export class PatientListComponent implements OnInit {
     const centerId = this.auth.centerId();
     if (!centerId) return;
     this.patientListStore.setPrintingRowId(patient.id);
-    this.api.printDocument(centerId, 'FICHE_PATIENT', {patientId: patient.id}).pipe(
-      finalize(() => this.patientListStore.setPrintingRowId(null))
-    ).subscribe({
-      next: (blob: Blob) => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-      },
-      error: (err) => {
-        this.snack.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 });
-      }
-    });
+    this.patientListStore.printFiche({centerId, patientId: patient.id});
+    // Auto-clear after 10s
+    setTimeout(() => this.patientListStore.setPrintingRowId(null), 10000);
   }
 
   printList(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.patientListStore.setPrintingList(true);
-    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}).pipe(
-      finalize(() => this.patientListStore.setPrintingList(false))
-    ).subscribe({
-      next: (blob: Blob) => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-      },
-      error: (err) => {
-        this.snack.open('Erreur impression: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 });
-      }
-    });
+    this.patientListStore.printList({centerId});
   }
 
   exportListExcel(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
-    this.patientListStore.setExportingList(true);
-    this.api.printDocument(centerId, 'LISTE_PATIENTS', {}, 'EXCEL').pipe(
-      finalize(() => this.patientListStore.setExportingList(false))
-    ).subscribe({
-      next: (blob: Blob) => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'liste-patients.xls';
-        a.click();
-      },
-      error: (err) => this.snack.open('Erreur export: ' + (err?.error?.text || err.message), 'OK', { duration: 5000 })
-    });
+    this.patientListStore.exportListExcel({centerId});
   }
 
   readonly etatFilterOptions = [
@@ -1010,7 +968,6 @@ export class PatientListComponent implements OnInit {
 
   onColumnFilterValue(column: string, value: string): void {
     this.patientListStore.setFilter(column, value);
-    this.fetchPage(0, this.pageSize());
   }
 
   private formatEventDate(rawDate: string): string {
@@ -1021,56 +978,5 @@ export class PatientListComponent implements OnInit {
     return `${match[3]}/${match[2]}/${match[1]}`;
   }
 
-  private fetchPage(page: number, size: number): void {
-    const centerId = this.store.currentCenterId();
-    if (!centerId) {
-      this.patientListStore.setLoading(false);
-      this.patientListStore.setPageData([], 0, 0);
-      return;
-    }
-
-    this.patientListStore.setLoading(true);
-    this.api.listPatients(centerId, this.auth.username() ?? 'demo', {
-      page,
-      size,
-      filters: this.columnFilters()
-    }).pipe(
-      finalize(() => this.patientListStore.setLoading(false))
-    ).subscribe({
-      next: (res) => {
-        const mapped = (res.items ?? []).map((p: any) => ({
-          id: p.id,
-          code: p.codePatient ?? '',
-          nom: p.nom ?? '',
-          prenom: p.prenom ?? '',
-          sexe: p.sexe ?? '',
-          dateAdmission: p.dateAdmission ?? '',
-          numeroAssurance: p.numeroAssurance ?? '',
-          etatPatient: p.etatPatient ?? 'PERMANENT',
-          dateEvenementEtat: p.dateEvenementEtat ?? p.dateEvenement ?? '',
-          nonFacturable: !!p.nonFacturable,
-          medecinTraitantId: p.medecinTraitantId ?? '',
-          positionId: p.positionId ?? '',
-          transporteurAllerId: p.transporteurAllerId ?? '',
-          transporteurRetourId: p.transporteurRetourId ?? '',
-          joursDialyse: {
-            dimanche: p.jourDimanche ?? false,
-            lundi: p.jourLundi ?? false,
-            mardi: p.jourMardi ?? false,
-            mercredi: p.jourMercredi ?? false,
-            jeudi: p.jourJeudi ?? false,
-            vendredi: p.jourVendredi ?? false,
-            samedi: p.jourSamedi ?? false
-          },
-          pecStatus: p.pecStatus ?? '',
-          pecForfaitId: p.pecForfaitId ?? ''
-        }));
-        this.patientListStore.setPageData(mapped, res.total ?? 0, res.page ?? page);
-      },
-      error: () => {
-        this.patientListStore.setPageData([], 0, page);
-      }
-    });
-  }
 }
 

@@ -12,11 +12,9 @@ import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {SlicePipe} from '@angular/common';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 import {SearchableSelectComponent} from '../../../shared/searchable-select.component';
-import {ReferentialApiService} from '../../../core/api/referential-api.service';
 import {PecAdminStore} from './state/pec-admin.store';
 
 @Component({
@@ -98,7 +96,7 @@ import {PecAdminStore} from './state/pec-admin.store';
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
-          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns" [attr.data-row-id]="row?.id"></tr>
         </table>
         </div>
       }
@@ -186,14 +184,12 @@ import {PecAdminStore} from './state/pec-admin.store';
   `]
 })
 export class PecAdminComponent implements OnInit {
-  private readonly api = inject(BackendApiService);
   private readonly pecAdminStore = inject(PecAdminStore);
   readonly store = inject(AppShellStore);
   readonly auth = inject(AuthStore);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
-  private readonly refApi = inject(ReferentialApiService);
 
   readonly pecs = this.pecAdminStore.pecs;
   readonly loading = this.pecAdminStore.loading;
@@ -209,27 +205,13 @@ export class PecAdminComponent implements OnInit {
       dateFinEffectif: [null, Validators.required],
       forfaitEffectifId: [null]
     });
-    this.loadPecs();
 
     const cid = this.store.currentCenterId();
     if (cid) {
-      this.refApi.getForfaits(cid).subscribe(list =>
-        this.pecAdminStore.setForfaits(list.map((i: any) => ({...i, id: i.id, label: `${i.code ?? ''} - ${i.nom}`})))
-      );
+      // ✅ Utiliser le store pour charger
+      this.pecAdminStore.loadPecs({centerId: cid});
+      this.pecAdminStore.loadForfaits({centerId: cid});
     }
-  }
-
-  loadPecs(): void {
-    const cid = this.store.currentCenterId();
-    if (!cid) return;
-    this.pecAdminStore.setLoading(true);
-    this.api.listPecs(cid).subscribe({
-      next: list => {
-        this.pecAdminStore.setPecs(list);
-        this.pecAdminStore.setLoading(false);
-      },
-      error: () => this.pecAdminStore.setLoading(false)
-    });
   }
 
   openValidate(pec: any): void {
@@ -248,31 +230,25 @@ export class PecAdminComponent implements OnInit {
     const v = this.validateForm.value;
     const toDate = (d: any) => d instanceof Date ? d.toISOString().slice(0, 10) : d;
 
-    this.api.validatePecAdmin(pec.id, {
+    this.pecAdminStore.validatePec({
+      pecId: pec.id,
       centerId: cid,
       userId: this.auth.username() ?? 'admin',
       dateDebutEffectif: toDate(v.dateDebutEffectif),
       dateFinEffectif: toDate(v.dateFinEffectif),
       forfaitEffectifId: v.forfaitEffectifId
-    }).subscribe({
-      next: () => {
-        this.snackBar.open(this.translate.instant('PEC_ADMIN.VALIDATED_OK') || 'PEC validée', 'OK', { duration: 3000 });
-        this.pecAdminStore.setValidatingPec(null);
-        this.loadPecs();
-      },
-      error: err => this.snackBar.open(err?.error?.detail || 'Erreur', 'OK', { duration: 5000 })
     });
+    this.snackBar.open(this.translate.instant('PEC_ADMIN.VALIDATED_OK') || 'PEC validée', 'OK', {duration: 3000});
   }
 
   closePec(pec: any): void {
     const cid = this.store.currentCenterId()!;
-    this.api.closePec(pec.id, cid, this.auth.username() ?? 'admin').subscribe({
-      next: () => {
-        this.snackBar.open(this.translate.instant('PEC_ADMIN.CLOSED_OK') || 'PEC clôturée', 'OK', { duration: 3000 });
-        this.loadPecs();
-      },
-      error: err => this.snackBar.open(err?.error?.detail || 'Erreur', 'OK', { duration: 5000 })
+    this.pecAdminStore.closePec({
+      pecId: pec.id,
+      centerId: cid,
+      userId: this.auth.username() ?? 'admin'
     });
+    this.snackBar.open(this.translate.instant('PEC_ADMIN.CLOSED_OK') || 'PEC clôturée', 'OK', {duration: 3000});
   }
 }
 

@@ -15,7 +15,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {TranslateModule} from '@ngx-translate/core';
-import {AdminApiService, AppUser} from '../../core/api/admin-api.service';
+import {AppUser} from '../../core/api/admin-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 import {UserListStore} from './state/user-list.store';
@@ -200,7 +200,7 @@ type FilterType = 'text' | 'boolean';
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();" [attr.data-row-id]="row?.ID"></tr>
         <tr class="mat-mdc-row" *matNoDataRow>
           <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
             Aucun utilisateur trouve
@@ -297,7 +297,6 @@ type FilterType = 'text' | 'boolean';
   `]
 })
 export class UserListComponent implements OnInit {
-  private readonly api = inject(AdminApiService);
   private readonly userListStore = inject(UserListStore);
   private readonly snackbar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
@@ -323,12 +322,12 @@ export class UserListComponent implements OnInit {
   readonly searchTerm = this.userListStore.searchTerm;
 
   ngOnInit(): void {
-    this.fetchPage(0, this.pageSize());
+    this.userListStore.loadPage({page: 0, size: this.pageSize()});
   }
 
   onSearch(value: string): void {
     this.userListStore.setSearchTerm(value);
-    this.fetchPage(0, this.pageSize());
+    this.userListStore.loadPage({page: 0, size: this.pageSize()});
   }
 
   toggleColumn(column: string, checked: boolean): void {
@@ -341,7 +340,7 @@ export class UserListComponent implements OnInit {
 
   onColumnFilterValue(column: string, value: string): void {
     this.userListStore.setFilter(column, value);
-    this.fetchPage(0, this.pageSize());
+    this.userListStore.loadPage({page: 0, size: this.pageSize()});
   }
 
   columnFilterValue(column: string): string {
@@ -354,7 +353,7 @@ export class UserListComponent implements OnInit {
 
   clearColumnFilter(column: string): void {
     this.userListStore.clearFilter(column);
-    this.fetchPage(0, this.pageSize());
+    this.userListStore.loadPage({page: 0, size: this.pageSize()});
   }
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
@@ -382,12 +381,12 @@ export class UserListComponent implements OnInit {
   clearAllColumnFilters(): void {
     this.userListStore.closeFilterPanel();
     this.userListStore.clearAllFilters();
-    this.fetchPage(0, this.pageSize());
+    this.userListStore.loadPage({page: 0, size: this.pageSize()});
   }
 
   onPageChange(event: PageEvent): void {
     this.userListStore.setPagination(event.pageIndex, event.pageSize);
-    this.fetchPage(event.pageIndex, event.pageSize);
+    this.userListStore.loadPage({page: event.pageIndex, size: event.pageSize});
   }
 
   deleteUser(u: AppUser): void {
@@ -404,29 +403,9 @@ export class UserListComponent implements OnInit {
     });
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      this.api.deleteUser(u.ID).subscribe(() => {
-        this.snackbar.open('Utilisateur supprimé', 'OK', {duration: 2000});
-        this.fetchPage(this.pageIndex(), this.pageSize());
-      });
-    });
-  }
-
-  private fetchPage(page: number, size: number): void {
-    this.userListStore.setLoading(true);
-    this.api.listUsersPaged({
-      page,
-      size,
-      search: this.searchTerm(),
-      filters: this.columnFilters()
-    }).subscribe({
-      next: (res) => {
-        this.userListStore.setPageData(res.items ?? [], res.total ?? 0, res.page ?? page);
-        this.userListStore.setLoading(false);
-      },
-      error: () => {
-        this.userListStore.setPageData([], 0, page);
-        this.userListStore.setLoading(false);
-      }
+      // ✅ Appel API via le store maintenant
+      this.userListStore.deleteUser(u.ID);
+      this.snackbar.open('Utilisateur supprimé', 'OK', {duration: 2000});
     });
   }
 }
