@@ -233,13 +233,15 @@ export class BackendApiService {
     return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec/${pecId}/close`, { centerId, userId });
   }
 
-  deletePec(pecId: string, centerId: string): Observable<{ deleted: boolean }> {
-    const params = new HttpParams().set('centerId', centerId);
+  deletePec(pecId: string, centerId: string, patientId?: string): Observable<{ deleted: boolean }> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (patientId) params = params.set('patientId', patientId);
     return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/pec/${pecId}`, { params });
   }
 
-  deleteAttestation(attestationId: string, centerId: string): Observable<{ deleted: boolean }> {
-    const params = new HttpParams().set('centerId', centerId);
+  deleteAttestation(attestationId: string, centerId: string, patientId?: string): Observable<{ deleted: boolean }> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (patientId) params = params.set('patientId', patientId);
     return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/pec/attestations/${attestationId}`, { params });
   }
 

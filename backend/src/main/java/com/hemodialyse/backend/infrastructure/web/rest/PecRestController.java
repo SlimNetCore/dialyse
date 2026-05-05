@@ -5,11 +5,7 @@ import com.hemodialyse.backend.application.query.PecReadQueryService;
 import com.hemodialyse.backend.domain.insurance.port.AttestationUseCase;
 import com.hemodialyse.backend.domain.pec.port.PecUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.infrastructure.web.dto.request.AttestationSearchRequest;
-import com.hemodialyse.backend.infrastructure.web.dto.request.CreateAttestationRequest;
-import com.hemodialyse.backend.infrastructure.web.dto.request.CreatePecRequest;
-import com.hemodialyse.backend.infrastructure.web.dto.request.PecSearchRequest;
-import com.hemodialyse.backend.infrastructure.web.dto.request.ValidatePecRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.request.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,7 +46,7 @@ public class PecRestController {
     @PostMapping("/{pecId}/validate")
     public ResponseEntity<?> validate(@PathVariable UUID pecId, @RequestBody @Valid ValidatePecRequest r) {
         var pec = pecUseCase.validate(CenterId.of(r.centerId()), pecId, r.dateDebutEffectif(), r.dateFinEffectif(), r.forfaitEffectifId());
-        notificationService.notifyPecValidated(r.centerId(), pecId, "Patient");
+        notificationService.notifyPecValidated(r.centerId(), pecId, pec.getPatientId(), "Patient");
         return ResponseEntity.ok(Map.of("id", pec.getId(), "status", pec.getStatus()));
     }
 
@@ -58,7 +54,7 @@ public class PecRestController {
     public ResponseEntity<?> close(@PathVariable UUID pecId, @RequestBody Map<String, String> body) {
         UUID centerId = UUID.fromString(body.get("centerId"));
         var pec = pecUseCase.close(CenterId.of(centerId), pecId);
-        notificationService.notifyPecClosed(centerId, pecId, "Patient");
+        notificationService.notifyPecClosed(centerId, pecId, pec.getPatientId(), "Patient");
         return ResponseEntity.ok(Map.of("id", pec.getId(), "status", pec.getStatus()));
     }
 
@@ -77,6 +73,7 @@ public class PecRestController {
     @PostMapping("/attestations")
     public ResponseEntity<?> createAttestation(@RequestBody @Valid CreateAttestationRequest r) {
         var a = attestationUseCase.create(CenterId.of(r.centerId()), r.patientId(), r.dateDebut(), r.dateFin());
+        notificationService.notifyAttestationCreated(r.centerId(), a.getId(), a.getPatientId());
         return ResponseEntity.ok(Map.of("id", a.getId(), "dateDebut", a.getDateDebut(), "dateFin", a.getDateFin()));
     }
 
@@ -86,14 +83,20 @@ public class PecRestController {
     }
 
     @DeleteMapping("/{pecId}")
-    public ResponseEntity<?> deletePec(@PathVariable UUID pecId, @RequestParam UUID centerId) {
+    public ResponseEntity<?> deletePec(@PathVariable UUID pecId,
+                                       @RequestParam UUID centerId,
+                                       @RequestParam(required = false) UUID patientId) {
         pecUseCase.delete(CenterId.of(centerId), pecId);
+        notificationService.notifyPecDeleted(centerId, pecId, patientId);
         return ResponseEntity.ok(Map.of("deleted", true));
     }
 
     @DeleteMapping("/attestations/{attestationId}")
-    public ResponseEntity<?> deleteAttestation(@PathVariable UUID attestationId, @RequestParam UUID centerId) {
+    public ResponseEntity<?> deleteAttestation(@PathVariable UUID attestationId,
+                                               @RequestParam UUID centerId,
+                                               @RequestParam(required = false) UUID patientId) {
         attestationUseCase.delete(CenterId.of(centerId), attestationId);
+        notificationService.notifyAttestationDeleted(centerId, attestationId, patientId);
         return ResponseEntity.ok(Map.of("deleted", true));
     }
 

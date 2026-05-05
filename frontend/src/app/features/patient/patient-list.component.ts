@@ -849,7 +849,13 @@ export class PatientListComponent implements OnInit {
   constructor() {
     effect(() => {
       const evt = this.ws.lastEvent();
-      if (evt?.type === 'PATIENT_CREATED' || evt?.type === 'PEC_VALIDATED') {
+      if (evt?.type === 'PATIENT_CREATED'
+        || evt?.type === 'PATIENT_UPDATED'
+        || evt?.type === 'PEC_VALIDATED'
+        || evt?.type === 'PEC_CLOSED'
+        || evt?.type === 'PEC_DELETED'
+        || evt?.type === 'ATTESTATION_CREATED'
+        || evt?.type === 'ATTESTATION_DELETED') {
         this.fetchPage(this.pageIndex(), this.pageSize());
       }
     });

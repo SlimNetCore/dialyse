@@ -99,7 +99,7 @@ public class PatientRestController {
 
         // Send real-time notification
         notificationService.notifyPatientCreated(
-                r.centerId(), p.getCodePatient(), r.nom(), r.prenom()
+                r.centerId(), p.getId().value(), p.getCodePatient(), r.nom(), r.prenom()
         );
 
         return ResponseEntity.ok(Map.of(
@@ -111,6 +111,12 @@ public class PatientRestController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody @Valid CreatePatientRequest r) {
         Patient p = useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r));
+
+        // Notify connected clients to refresh fiche/list in real-time.
+        notificationService.notifyPatientUpdated(
+                r.centerId(), p.getId().value(), p.getCodePatient(), r.nom(), r.prenom()
+        );
+
         return ResponseEntity.ok(Map.of(
                 "id", p.getId().value(), "centerId", p.getCenterId().value(),
                 "typePatient", p.getTypePatient(), "codePatient", p.getCodePatient()
