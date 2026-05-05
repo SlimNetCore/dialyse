@@ -358,7 +358,6 @@ export class PecListComponent implements OnInit {
   readonly hasActiveFilters = this.pecListStore.hasActiveFilters;
 
   readonly rows = this.pecListStore.rows;
-  readonly isEmpty = this.pecListStore.isEmpty;
   readonly total = this.pecListStore.total;
   readonly pageIndex = this.pecListStore.pageIndex;
   readonly pageSize = this.pecListStore.pageSize;

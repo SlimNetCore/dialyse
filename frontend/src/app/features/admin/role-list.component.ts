@@ -258,7 +258,6 @@ export class RoleListComponent implements OnInit {
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
 
   readonly rows = this.roleListStore.rows;
-  readonly isEmpty = this.roleListStore.isEmpty;
   readonly total = this.roleListStore.total;
   readonly pageIndex = this.roleListStore.pageIndex;
   readonly pageSize = this.roleListStore.pageSize;

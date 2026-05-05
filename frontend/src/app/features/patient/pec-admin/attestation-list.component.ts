@@ -304,7 +304,6 @@ export class AttestationListComponent implements OnInit {
   readonly hasActiveFilters = this.attestationListStore.hasActiveFilters;
 
   readonly rows = this.attestationListStore.rows;
-  readonly isEmpty = this.attestationListStore.isEmpty;
   readonly total = this.attestationListStore.total;
   readonly pageIndex = this.attestationListStore.pageIndex;
   readonly pageSize = this.attestationListStore.pageSize;

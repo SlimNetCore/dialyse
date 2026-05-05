@@ -324,7 +324,6 @@ export class UserListComponent implements OnInit {
   readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
 
   readonly rows = this.userListStore.rows;
-  readonly isEmpty = this.userListStore.isEmpty;
   readonly total = this.userListStore.total;
   readonly pageIndex = this.userListStore.pageIndex;
   readonly pageSize = this.userListStore.pageSize;
