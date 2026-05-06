@@ -12,7 +12,6 @@ import {StepAffectationComponent} from './step-affectation.component';
 import {StepAttestationComponent} from './step-attestation.component';
 import {StepPecComponent} from './step-pec.component';
 import {StepPiecesJointesComponent} from './step-pieces-jointes.component';
-import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AuthStore} from '../../../core/state/auth.store';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService, WsEvent} from '../../../core/ws/websocket.service';
@@ -240,9 +239,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   @ViewChild('stepPec') stepPec?: StepPecComponent;
   @ViewChild('stepPj') stepPj?: StepPiecesJointesComponent;
 
-  private readonly api = inject(BackendApiService);
   private readonly auth = inject(AuthStore);
-  private readonly store = inject(AppShellStore);
+  private readonly appShell = inject(AppShellStore);
   private readonly ficheStore = inject(PatientFicheStore);
   readonly editingPatientId = this.ficheStore.editingPatientId;
   private readonly router = inject(Router);
@@ -281,6 +279,25 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       if (eventPatientId && currentPatientId && eventPatientId !== currentPatientId) return;
 
       this.refreshCurrentPatientFromServer();
+    });
+
+    effect(() => {
+      const submitStatus = this.ficheStore.submitStatus();
+      if (submitStatus === 'idle') return;
+
+      if (submitStatus === 'success') {
+        this.snackBar.open(
+          this.translate.instant('PATIENT_FORM.SUCCESS') || 'Patient enregistré avec succès',
+          'OK',
+          {duration: 3000}
+        );
+        this.ficheStore.resetSubmitStatus();
+        void this.router.navigate(['/patients']);
+        return;
+      }
+
+      this.snackBar.open(this.ficheStore.error() || 'Erreur', 'OK', {duration: 5000});
+      this.ficheStore.resetSubmitStatus();
     });
   }
 
@@ -401,17 +418,13 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
     this.ficheStore.setEditingPatientId(id);
     this.ficheStore.setConsultationMode(true);
 
-    this.api.getPatient(id, centerId, this.auth.username() ?? 'demo').subscribe({
-      next: (p: any) => {
-        this.hydrateWizardFromPatient(p);
-      }
-    });
+    void this.loadPatientFromServer(id);
   }
 
   goBack(): void { this.router.navigate(['/patients']); }
@@ -469,9 +482,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   /** Submit the final form */
   submit(): void {
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
-    this.ficheStore.setSaving(true);
 
     const d = this.wizardData;
     const toDate = (v: any) => {
@@ -529,24 +541,10 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       pecForfaitDemandeId: d['pecForfaitDemandeId']
     } as any;
 
-    const req$ = this.editMode() && this.editingPatientId()
-      ? this.api.updatePatient(this.editingPatientId()!, payload)
-      : this.api.createPatient(payload);
-
-    req$.subscribe({
-      next: () => {
-        this.ficheStore.setSaving(false);
-        this.snackBar.open(
-          this.translate.instant('PATIENT_FORM.SUCCESS') || 'Patient enregistré avec succès',
-          'OK', { duration: 3000 }
-        );
-        this.router.navigate(['/patients']);
-      },
-      error: (err) => {
-        this.ficheStore.setSaving(false);
-        this.snackBar.open(err?.error?.detail || 'Erreur', 'OK', { duration: 5000 });
-      }
-    });
+    void this.ficheStore.submitPatient({
+      editingPatientId: this.editMode() ? this.editingPatientId() : null,
+      payload
+    }).catch(() => undefined);
   }
 
   private shouldRefreshFromEvent(event: WsEvent): boolean {
@@ -569,90 +567,46 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   private refreshCurrentPatientFromServer(): void {
     const id = this.editingPatientId();
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!id || !centerId) return;
 
-    this.api.getPatient(id, centerId, this.auth.username() ?? 'demo').subscribe({
-      next: (p: any) => this.hydrateWizardFromPatient(p)
+    void this.loadPatientFromServer(id, {
+      reloadAttestations: this.attestationLoaded(),
+      reloadPecs: this.pecLoaded()
     });
   }
 
   private loadStepDataIfNeeded(stepIndex: number): void {
     if (!this.editMode() || !this.editingPatientId()) return;
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
     const attestationIndex = this.isVacancier() ? -1 : 3;
     const pecIndex = this.isVacancier() ? 3 : 4;
 
     if (stepIndex === attestationIndex && !this.attestationLoaded()) {
-      this.ficheStore.setAttestationLoaded(true);
-      this.api.listAttestationsByPatient(centerId, this.editingPatientId()!).subscribe(a => {
-        this.wizardData = { ...this.wizardData, attestationHistory: a ?? [] };
-        const first = (a ?? [])[0];
-        if (first) {
-          this.wizardData = {
-            ...this.wizardData,
-            attestationId: (first.id ?? first.ID ?? null),
-            attestationDebut: first.dateDebut ?? first.DATE_DEBUT,
-            attestationFin: first.dateFin ?? first.DATE_FIN
-          };
-        }
-        this.ficheStore.bumpVersion();
+      void this.ficheStore.loadAttestations({
+        centerId,
+        patientId: this.editingPatientId()!
+      }).then(() => {
         this.patchStepsFromWizardData();
+        this.recomputeStepValidityFromData();
+      }).catch(() => {
+        this.snackBar.open(this.ficheStore.error() || 'Erreur chargement attestations', 'OK', {duration: 4000});
       });
     }
 
     if (stepIndex === pecIndex && !this.pecLoaded()) {
-      this.ficheStore.setPecLoaded(true);
-      this.api.listPecsByPatient(centerId, this.editingPatientId()!).subscribe(pecs => {
-        this.wizardData = { ...this.wizardData, pecHistory: pecs ?? [] };
-        const first = (pecs ?? [])[0];
-        if (first) {
-          this.wizardData = {
-            ...this.wizardData,
-            pecId: (first.id ?? first.ID ?? null),
-            pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE,
-            pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE,
-            pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
-          };
-        }
-        this.ficheStore.bumpVersion();
+      void this.ficheStore.loadPecs({
+        centerId,
+        patientId: this.editingPatientId()!
+      }).then(() => {
         this.patchStepsFromWizardData();
+        this.recomputeStepValidityFromData();
+      }).catch(() => {
+        this.snackBar.open(this.ficheStore.error() || 'Erreur chargement PEC', 'OK', {duration: 4000});
       });
     }
-  }
-
-  private hydrateWizardFromPatient(p: any): void {
-    const ai = p?.assureInfo ?? {};
-    this.wizardData = {
-      ...this.wizardData,
-      ...p,
-      dateEvenementEtat: p?.dateEvenementEtat ?? p?.dateEvenement ?? null,
-      qualiteAssure: p?.qualiteAssure ?? p?.qualite_assure ?? null,
-      numeroAssurance: p?.numeroAssurance?.value ?? p?.numeroAssurance,
-      assureNom: p?.assureNom ?? ai?.nom ?? ai?.assureNom ?? null,
-      assurePrenom: p?.assurePrenom ?? ai?.prenom ?? ai?.assurePrenom ?? null,
-      assureSexe: p?.assureSexe ?? ai?.sexe ?? ai?.assureSexe ?? null,
-      assureDateNaissance: p?.assureDateNaissance ?? ai?.dateNaissance ?? ai?.assureDateNaissance ?? null,
-      assureTelPersonnel: p?.assureTelPersonnel ?? ai?.telPersonnel ?? ai?.assureTelPersonnel ?? null,
-      assureTelMobile: p?.assureTelMobile ?? ai?.telMobile ?? ai?.assureTelMobile ?? null,
-      assureTelBureau: p?.assureTelBureau ?? ai?.telBureau ?? ai?.assureTelBureau ?? null,
-      assureAdresse: p?.assureAdresse ?? ai?.adresse ?? ai?.assureAdresse ?? null,
-      assureGroupeSanguin: p?.assureGroupeSanguin ?? ai?.groupeSanguin ?? ai?.assureGroupeSanguin ?? null,
-      assureHistory: this.parseAssureHistory(p?.assureHistoryJson),
-      piecesJointes: this.parsePiecesJointes(p?.piecesJointesJson),
-      attestationId: null,
-      attestationDebut: null,
-      attestationFin: null,
-      pecId: null,
-      pecDateDebutDemande: null,
-      pecDateFinDemande: null
-    };
-    this.syncAssureWhenSelf();
-    this.ficheStore.bumpVersion();
-    this.patchStepsFromWizardData();
-    this.recomputeStepValidityFromData();
   }
 
   private isDataBaseValid(): boolean {
@@ -680,19 +634,31 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     this.ficheStore.setStep5Valid(this.isPecDataValid());
   }
 
-  private parseAssureHistory(json: any): any[] {
-    if (!json) return [];
-    if (Array.isArray(json)) return json;
-    try { return JSON.parse(json); } catch { return []; }
-  }
+  private async loadPatientFromServer(
+    patientId: string,
+    options: { reloadAttestations?: boolean; reloadPecs?: boolean } = {}
+  ): Promise<void> {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
 
-  private parsePiecesJointes(json: any): any[] {
-    if (!json) return [];
-    if (Array.isArray(json)) return json;
     try {
-      return JSON.parse(json);
+      await this.ficheStore.loadPatient({
+        id: patientId,
+        centerId,
+        userId: this.auth.username() ?? 'demo'
+      });
+
+      if (options.reloadAttestations && !this.isVacancier()) {
+        await this.ficheStore.loadAttestations({centerId, patientId});
+      }
+      if (options.reloadPecs) {
+        await this.ficheStore.loadPecs({centerId, patientId});
+      }
+
+      this.patchStepsFromWizardData();
+      this.recomputeStepValidityFromData();
     } catch {
-      return [];
+      this.snackBar.open(this.ficheStore.error() || 'Erreur chargement patient', 'OK', {duration: 5000});
     }
   }
 }

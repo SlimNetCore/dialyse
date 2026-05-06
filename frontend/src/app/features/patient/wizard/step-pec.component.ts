@@ -11,10 +11,10 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {ReferentialApiService} from '../../../core/api/referential-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {BackendApiService} from '../../../core/api/backend-api.service';
+import {ForfaitsStore} from '../../../core/state/referentials.store';
 import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
+import {PatientFicheStore} from '../state/patient-fiche.store';
 
 @Component({
   selector: 'app-step-pec',
@@ -292,14 +292,13 @@ export class StepPecComponent implements OnInit, OnChanges {
   @Output() deleteRequest = new EventEmitter<{ type: 'PEC'; id: string }>();
 
   private readonly fb = inject(FormBuilder);
-  private readonly refApi = inject(ReferentialApiService);
-  private readonly store = inject(AppShellStore);
-  private readonly api = inject(BackendApiService);
+  private readonly appShell = inject(AppShellStore);
+  private readonly forfaitsStore = inject(ForfaitsStore);
+  readonly forfaits = this.forfaitsStore.items;
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
-
-  forfaits = signal<any[]>([]);
+  private readonly ficheStore = inject(PatientFicheStore);
   history = signal<any[]>([]);
   selectedPecId = signal<string | null>(null);
   selectedPec = signal<any | null>(null);
@@ -321,11 +320,9 @@ export class StepPecComponent implements OnInit, OnChanges {
       this.validChange.emit(isEmpty || (isComplete && this.form.valid));
     });
 
-    const cid = this.store.currentCenterId();
+    const cid = this.appShell.currentCenterId();
     if (!cid) return;
-    this.refApi.getForfaits(cid).subscribe(list =>
-      this.forfaits.set(list.map((f: any) => ({ ...f, id: f.id, label: f.nom ?? f.code ?? 'Forfait', prix: f.libelle ?? null })))
-    );
+    void this.forfaitsStore.ensureLoaded(cid);
     this.applyReadonly();
   }
 
@@ -428,29 +425,27 @@ export class StepPecComponent implements OnInit, OnChanges {
   }
 
   printSelected(): void {
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
 
-    this.api.printDocument(centerId, 'PEC', {
+    void this.ficheStore.printDocument(centerId, 'PEC', {
       patientId: this.patientId,
       pecId: this.selectedPecId() ?? ''
-    }).subscribe({
-      next: (blob) => {
+    }).then((blob) => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
-      },
-      error: (err) => this.snackBar.open(
+    })
+      .catch((err) => this.snackBar.open(
         this.translate.instant('WIZARD.PRINT_ERROR', {detail: (err?.error?.text || err.message)}),
         'OK',
         {duration: 4000}
-      )
-    });
+      ));
   }
 
   deleteSelected(): void {
     const id = this.selectedPecId();
     if (!id) return;
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
     const ref = this.dialog.open(ConfirmDialogComponent, {
@@ -467,19 +462,17 @@ export class StepPecComponent implements OnInit, OnChanges {
 
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      this.api.deletePec(id, centerId).subscribe({
-        next: () => {
+      void this.ficheStore.deletePec({pecId: id, centerId, patientId: this.patientId}).then(() => {
           this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
           this.prepareNew();
           this.snackBar.open(this.translate.instant('WIZARD.PEC_DELETED_OK'), 'OK', {duration: 3000});
           this.deleteRequest.emit({ type: 'PEC', id });
-        },
-        error: (err) => this.snackBar.open(
+      })
+        .catch((err) => this.snackBar.open(
           this.translate.instant('WIZARD.DELETE_ERROR', {detail: (err?.error?.detail || err.message)}),
           'OK',
           {duration: 4000}
-        )
-      });
+        ));
     });
   }
 }

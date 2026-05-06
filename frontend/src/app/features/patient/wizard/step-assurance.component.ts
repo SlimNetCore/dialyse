@@ -1,4 +1,15 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  signal,
+  SimpleChanges
+} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -12,9 +23,9 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {TranslateModule} from '@ngx-translate/core';
 import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
-import {CentrePayeurDetail, ReferentialApiService} from '../../../core/api/referential-api.service';
-import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
+import {CentresPayeursDetailsStore, CentresPayeursStore} from '../../../core/state/referentials.store';
+import {PatientFicheStore} from '../state/patient-fiche.store';
 
 interface AssignmentEdit {
   id: string;
@@ -623,28 +634,37 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
-  private readonly refApi = inject(ReferentialApiService);
-  private readonly api = inject(BackendApiService);
-  private readonly store = inject(AppShellStore);
+  private readonly appShell = inject(AppShellStore);
+  private readonly centresPayeursStore = inject(CentresPayeursStore);
+  readonly centresPayeurs = this.centresPayeursStore.items as unknown as () => DropdownItem[];
+  private readonly centresPayeursDetailsStore = inject(CentresPayeursDetailsStore);
   private readonly snackBar = inject(MatSnackBar);
   editingAssignment = signal<AssignmentEdit | null>(null);
-
-  centresPayeurs = signal<DropdownItem[]>([]);
-  codeCentrePayeur = signal('');
-  codeAgence = signal('');
-  libelleAgence = signal('');
-  libelleCaisse = signal('');
-  private centresPayeursDetails = signal<CentrePayeurDetail[]>([]);
+  private readonly ficheStore = inject(PatientFicheStore);
+  readonly assureCatalog = this.ficheStore.assureCatalog;
+  readonly assureAssignments = this.ficheStore.assureAssignments;
+  readonly loadingAssures = this.ficheStore.loadingAssures;
+  readonly savingEdit = this.ficheStore.savingAssureEdit;
+  private readonly selectedCentrePayeurId = signal<string | null>(null);
+  readonly codeCentrePayeur = computed(() =>
+    this.centresPayeurs().find(x => x.id === this.selectedCentrePayeurId())?.['code'] ?? ''
+  );
   showAssure = signal(true);
   private qualiteAssure = signal<string>('ASSURE_LUI_MEME');
   requiresAssureNumero = signal(false);
   assureSearch = signal('');
-  assureCatalog = signal<any[]>([]);
-  assureAssignments = signal<any[]>([]);
+  private readonly centresPayeursDetails = this.centresPayeursDetailsStore.items;
+  readonly codeAgence = computed(() =>
+    this.centresPayeursDetails().find(d => d.id === this.selectedCentrePayeurId())?.code_agence ?? ''
+  );
   showCatalog = signal(false);
   showHistory = signal(false);
-  loadingAssures = signal(false);
-  savingEdit = signal(false);
+  readonly libelleAgence = computed(() =>
+    this.centresPayeursDetails().find(d => d.id === this.selectedCentrePayeurId())?.libelle_agence ?? ''
+  );
+  readonly libelleCaisse = computed(() =>
+    this.centresPayeursDetails().find(d => d.id === this.selectedCentrePayeurId())?.libelle_caisse ?? ''
+  );
   private readonly dialog = inject(MatDialog);
 
   form!: FormGroup;
@@ -668,23 +688,21 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       this.dataChange.emit(this.form.getRawValue());
       this.validChange.emit(this.form.valid);
     });
-    const cid = this.store.currentCenterId();
+    this.form.get('centrePayeurId')?.valueChanges.subscribe((value) => {
+      this.selectedCentrePayeurId.set(value ? String(value) : null);
+    });
+
+    const cid = this.appShell.currentCenterId();
     if (cid) {
-      this.refApi.getCentresPayeurs(cid).subscribe(list => {
-        this.centresPayeurs.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.nom} (${i.code ?? ''})` })));
-        this.applyCentrePayeurDisplay(this.form.get('centrePayeurId')?.value ?? null);
-      });
-      this.refApi.getCentresPayeursDetails(cid).subscribe(rows => {
-        this.centresPayeursDetails.set(rows);
-        this.applyCentrePayeurDisplay(this.form.get('centrePayeurId')?.value ?? null);
-      });
+      void this.centresPayeursStore.ensureLoaded(cid);
+      void this.centresPayeursDetailsStore.ensureLoaded(cid);
     }
     this.applyReadonly();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['readonly']) this.applyReadonly();
-    if (changes['patientId'] && this.patientId) this.loadAssureHistory();
+    if (changes['patientId'] && this.patientId) void this.loadAssureHistory();
   }
 
   private applyReadonly(): void {
@@ -718,7 +736,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   onCentrePayeur(item: DropdownItem | null): void {
     if (this.readonly) return;
     this.form.patchValue({ centrePayeurId: item?.id ?? null });
-    this.applyCentrePayeurDisplay(item?.id ?? null);
+    this.selectedCentrePayeurId.set(item?.id ?? null);
     this.dataChange.emit({
       ...this.form.getRawValue(),
       codeCentrePayeur: this.codeCentrePayeur(),
@@ -726,15 +744,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       libelleAgence: this.libelleAgence(),
       libelleCaisse: this.libelleCaisse()
     });
-  }
-
-  private applyCentrePayeurDisplay(centrePayeurId: string | null): void {
-    const item = this.centresPayeurs().find(x => x.id === centrePayeurId);
-    this.codeCentrePayeur.set(item?.['code'] ?? '');
-    const details = this.centresPayeursDetails().find(d => d.id === centrePayeurId);
-    this.codeAgence.set(details?.code_agence ?? '');
-    this.libelleAgence.set(details?.libelle_agence ?? '');
-    this.libelleCaisse.set(details?.libelle_caisse ?? '');
   }
 
   prepareNewAssure(): void {
@@ -765,41 +774,33 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   }
 
   searchAssures(): void {
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
-    this.loadingAssures.set(true);
-    this.api.searchAssures(centerId, this.assureSearch()).subscribe({
-      next: rows => {
-        this.assureCatalog.set(rows ?? []);
-        this.syncCatalogWithAssignments();
-        this.loadingAssures.set(false);
-      },
-      error: () => {
-        this.loadingAssures.set(false);
-        this.snackBar.open('Erreur chargement des assurés', 'OK', {duration: 3000});
-      }
+    void this.ficheStore.searchAssures({centerId, q: this.assureSearch()}).catch(() => {
+      this.snackBar.open(this.ficheStore.error() || 'Erreur chargement des assurés', 'OK', {duration: 3000});
     });
   }
 
   // ── Dialog : modification d'un assuré ──────────────────
 
   openEditAssureDialog(a: any): void {
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
     const ref = this.dialog.open(AssureEditDialogComponent, {
       data: {...a},
       width: '600px',
       disableClose: false
     });
-    ref.afterClosed().subscribe(result => {
+    ref.afterClosed().subscribe(async result => {
       if (!result) return;
-      this.api.updateAssure(centerId, a.numeroAssurance, result).subscribe({
-        next: updated => {
-          // Mise à jour optimiste dans le catalogue
-          this.assureCatalog.update(list => list.map(row =>
-            row.numeroAssurance === a.numeroAssurance ? {...row, ...updated} : row
-          ));
-          // Si c'est l'assuré actif du formulaire, mettre à jour la fiche
+      try {
+        const updated = await this.ficheStore.updateAssure({
+          centerId,
+          numeroAssurance: a.numeroAssurance,
+          payload: result
+        });
+
+        // Si c'est l'assuré actif du formulaire, mettre à jour la fiche locale
           if (this.form.get('assureNumeroAssurance')?.value === a.numeroAssurance) {
             this.form.patchValue({
               assureNom: updated.nom ?? result.nom,
@@ -813,13 +814,11 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
               assureAdresse: updated.adresse ?? result.adresse
             });
           }
-          this.snackBar.open('Assuré mis à jour', 'OK', {duration: 2500});
-        },
-        error: err => {
-          const detail = err?.error?.detail || err?.error?.message || '';
-          this.snackBar.open(detail || 'Erreur mise à jour assuré', 'OK', {duration: 3500});
-        }
-      });
+        this.snackBar.open('Assuré mis à jour', 'OK', {duration: 2500});
+      } catch (err: any) {
+        const detail = err?.error?.detail || err?.error?.message || this.ficheStore.error() || '';
+        this.snackBar.open(detail || 'Erreur mise à jour assuré', 'OK', {duration: 3500});
+      }
     });
   }
 
@@ -828,7 +827,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   affectAssure(a: any): void {
     if (!this.canAssignAssure()) return;
     if (a?.isPrimary) return;
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
     const patchAssureForm = () => {
@@ -846,39 +845,23 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       });
     };
 
-    // ── Mise à jour optimiste du catalogue (tag primaire immédiat) ──
-    this.assureCatalog.update(list => list.map(row => ({
-      ...row,
-      isPrimary: row.numeroAssurance === a.numeroAssurance
-    })));
     patchAssureForm();
 
-    if (!this.patientId) {
-      this.snackBar.open('Assuré sélectionné pour ce patient', 'OK', {duration: 2500});
-      return;
-    }
-
-    this.api.assignAssureToPatient(centerId, this.patientId, a.numeroAssurance).subscribe({
-      next: () => {
-        this.loadAssureHistory();
-        this.snackBar.open('Assuré affecté au patient avec succès', 'OK', {duration: 2500});
-      },
-      error: (err) => {
-        // En cas d'erreur, revenir à l'état précédent dans le catalogue
-        this.assureCatalog.update(list => list.map(row => ({
-          ...row,
-          isPrimary: false
-        })));
-        this.syncCatalogWithAssignments();
-        const detail = err?.error?.detail || err?.error?.message || '';
-        if (typeof detail === 'string' && detail.toLowerCase().includes('assuré lui-même')) {
-          patchAssureForm();
-          this.snackBar.open('Assuré sélectionné localement. Enregistrez le patient puis réessayez.', 'OK', {duration: 4500});
-          return;
-        }
-        if (err?.status === 401 || err?.status === 403) return;
-        this.snackBar.open(detail || 'Erreur affectation assuré', 'OK', {duration: 3500});
+    void this.ficheStore.assignAssure({
+      centerId,
+      patientId: this.patientId ?? null,
+      a
+    }).then(() => {
+      this.snackBar.open(this.ficheStore.infoMessage() || 'Assuré affecté au patient avec succès', 'OK', {duration: 2500});
+    }).catch((err: any) => {
+      const detail = err?.error?.detail || err?.error?.message || this.ficheStore.error() || '';
+      if (typeof detail === 'string' && detail.toLowerCase().includes('assuré lui-même')) {
+        patchAssureForm();
+        this.snackBar.open('Assuré sélectionné localement. Enregistrez le patient puis réessayez.', 'OK', {duration: 4500});
+        return;
       }
+      if (err?.status === 401 || err?.status === 403) return;
+      this.snackBar.open(detail || 'Erreur affectation assuré', 'OK', {duration: 3500});
     });
   }
 
@@ -908,7 +891,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   saveEditAssignment(): void {
     const edit = this.editingAssignment();
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!edit || !this.patientId || !centerId) return;
     const toStr = (d: Date | null) => d ? d.toISOString().slice(0, 10) : null;
     const debut = toStr(edit.dateDebutAffectation);
@@ -917,35 +900,22 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       this.snackBar.open('La date de fin doit être >= à la date de début', 'OK', {duration: 3000});
       return;
     }
-    this.savingEdit.set(true);
-    this.api.updateAssureAssignment(centerId, this.patientId, edit.id, {
-      dateDebutAffectation: debut,
-      dateFinAffectation: fin
-    }).subscribe({
-      next: () => {
-        this.savingEdit.set(false);
-        this.editingAssignment.set(null);
-        this.loadAssureHistory();
-        this.snackBar.open('Affectation mise à jour', 'OK', {duration: 2500});
-      },
-      error: err => {
-        this.savingEdit.set(false);
-        const detail = err?.error?.detail || err?.error?.message || '';
-        this.snackBar.open(detail || 'Erreur mise à jour affectation', 'OK', {duration: 3500});
-      }
+    void this.ficheStore.updateAssureAssignment({
+      centerId,
+      patientId: this.patientId,
+      assignmentId: edit.id,
+      debut,
+      fin
+    }).then(() => {
+      this.editingAssignment.set(null);
+      this.snackBar.open('Affectation mise à jour', 'OK', {duration: 2500});
+    }).catch((err: any) => {
+      const detail = err?.error?.detail || err?.error?.message || this.ficheStore.error() || '';
+      this.snackBar.open(detail || 'Erreur mise à jour affectation', 'OK', {duration: 3500});
     });
   }
 
   // ── Chargement & synchronisation ───────────────────────
-
-  private loadAssureHistory(): void {
-    const centerId = this.store.currentCenterId();
-    if (!centerId || !this.patientId) return;
-    this.api.listPatientAssureHistory(centerId, this.patientId).subscribe(rows => {
-      this.assureAssignments.set(rows ?? []);
-      this.syncCatalogWithAssignments();
-    });
-  }
 
   patchData(data: Record<string, any>): void {
     if (!this.form) return;
@@ -985,12 +955,22 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     const qualite = data['qualiteAssure'] ?? (hasAssureData ? 'AUTRE' : 'ASSURE_LUI_MEME');
     this.setQualiteAssure(qualite);
 
-    if (this.patientId) this.loadAssureHistory();
+    if (this.patientId) void this.loadAssureHistory();
 
-    this.applyCentrePayeurDisplay(patch.centrePayeurId);
+    this.selectedCentrePayeurId.set(patch.centrePayeurId);
     this.dataChange.emit(this.form.getRawValue());
     this.validChange.emit(this.form.valid);
     this.applyReadonly();
+  }
+
+  private async loadAssureHistory(): Promise<void> {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId || !this.patientId) return;
+    try {
+      await this.ficheStore.loadAssureHistory({centerId, patientId: this.patientId});
+    } catch {
+      this.snackBar.open(this.ficheStore.error() || 'Erreur chargement historique assuré', 'OK', {duration: 3000});
+    }
   }
 
   // ── API publique ────────────────────────────────────────
@@ -998,14 +978,4 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   markTouched(): void { this.form.markAllAsTouched(); }
   isValid(): boolean { return this.form.valid; }
 
-  private syncCatalogWithAssignments(): void {
-    const activeNums = new Set(
-      this.assureAssignments().filter(h => h.actif).map(h => h.numeroAssurance)
-    );
-    if (this.assureCatalog().length === 0) return;
-    this.assureCatalog.update(list => list.map(a => ({
-      ...a,
-      isPrimary: activeNums.has(a.numeroAssurance)
-    })));
-  }
 }

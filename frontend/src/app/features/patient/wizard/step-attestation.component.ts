@@ -9,9 +9,9 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
+import {PatientFicheStore} from '../state/patient-fiche.store';
 
 @Component({
   selector: 'app-step-attestation',
@@ -155,8 +155,8 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   @Output() deleteRequest = new EventEmitter<{ type: 'ATTESTATION'; id: string }>();
 
   private readonly fb = inject(FormBuilder);
-  private readonly api = inject(BackendApiService);
-  private readonly store = inject(AppShellStore);
+  private readonly appShell = inject(AppShellStore);
+  private readonly ficheStore = inject(PatientFicheStore);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
@@ -232,29 +232,27 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   }
 
   printSelected(): void {
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
 
-    this.api.printDocument(centerId, 'ATTESTATION', {
+    void this.ficheStore.printDocument(centerId, 'ATTESTATION', {
       patientId: this.patientId,
       attestationId: this.selectedAttestationId() ?? ''
-    }).subscribe({
-      next: (blob) => {
+    }).then((blob) => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
-      },
-      error: (err) => this.snackBar.open(
+    })
+      .catch((err) => this.snackBar.open(
         this.translate.instant('WIZARD.PRINT_ERROR', {detail: (err?.error?.text || err.message)}),
         'OK',
         {duration: 4000}
-      )
-    });
+      ));
   }
 
   deleteSelected(): void {
     const id = this.selectedAttestationId();
     if (!id) return;
-    const centerId = this.store.currentCenterId();
+    const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
     const ref = this.dialog.open(ConfirmDialogComponent, {
@@ -271,19 +269,21 @@ export class StepAttestationComponent implements OnInit, OnChanges {
 
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      this.api.deleteAttestation(id, centerId).subscribe({
-        next: () => {
+      void this.ficheStore.deleteAttestation({
+        attestationId: id,
+        centerId,
+        patientId: this.patientId ?? undefined
+      }).then(() => {
           this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
           this.prepareNew();
           this.snackBar.open(this.translate.instant('WIZARD.ATTESTATION_DELETED_OK'), 'OK', {duration: 3000});
           this.deleteRequest.emit({ type: 'ATTESTATION', id });
-        },
-        error: (err) => this.snackBar.open(
+      })
+        .catch((err) => this.snackBar.open(
           this.translate.instant('WIZARD.DELETE_ERROR', {detail: (err?.error?.detail || err.message)}),
           'OK',
           {duration: 4000}
-        )
-      });
+        ));
     });
   }
 }

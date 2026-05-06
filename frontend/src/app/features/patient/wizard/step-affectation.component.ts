@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
@@ -6,8 +6,14 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {TranslateModule} from '@ngx-translate/core';
 import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
-import {ReferentialApiService} from '../../../core/api/referential-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
+import {
+  CategoriesTransportStore,
+  MedecinsStore,
+  PositionsStore,
+  SallesStore,
+  TransporteursStore
+} from '../../../core/state/referentials.store';
 
 @Component({
   selector: 'app-step-affectation',
@@ -93,14 +99,17 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
-  private readonly refApi = inject(ReferentialApiService);
-  private readonly store = inject(AppShellStore);
-
-  salles = signal<DropdownItem[]>([]);
-  medecins = signal<DropdownItem[]>([]);
-  positions = signal<DropdownItem[]>([]);
-  transporteurs = signal<DropdownItem[]>([]);
-  categoriesTransport = signal<DropdownItem[]>([]);
+  private readonly appShell = inject(AppShellStore);
+  private readonly sallesStore = inject(SallesStore);
+  readonly salles = this.sallesStore.items as unknown as () => DropdownItem[];
+  private readonly medecinsStore = inject(MedecinsStore);
+  readonly medecins = this.medecinsStore.items as unknown as () => DropdownItem[];
+  private readonly positionsStore = inject(PositionsStore);
+  readonly positions = this.positionsStore.items as unknown as () => DropdownItem[];
+  private readonly transporteursStore = inject(TransporteursStore);
+  readonly transporteurs = this.transporteursStore.items as unknown as () => DropdownItem[];
+  private readonly categoriesTransportStore = inject(CategoriesTransportStore);
+  readonly categoriesTransport = this.categoriesTransportStore.items as unknown as () => DropdownItem[];
 
   form!: FormGroup;
 
@@ -117,13 +126,13 @@ export class StepAffectationComponent implements OnInit, OnChanges {
       this.validChange.emit(true); // affectation step is optional
     });
 
-    const cid = this.store.currentCenterId();
+    const cid = this.appShell.currentCenterId();
     if (!cid) return;
-    this.refApi.getSalles(cid).subscribe(list => this.salles.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.code ?? ''} - ${i.nom}` }))));
-    this.refApi.getMedecins(cid).subscribe(list => this.medecins.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.nom} ${i.prenom ?? ''}`.trim() }))));
-    this.refApi.getPositions(cid).subscribe(list => this.positions.set(list.map((i: any) => ({ ...i, id: i.id, label: `${i.code ?? ''} - ${i.libelle ?? i.nom ?? ''}` }))));
-    this.refApi.getTransporteurs(cid).subscribe(list => this.transporteurs.set(list.map((i: any) => ({ ...i, id: i.id, label: i.nom }))));
-    this.refApi.getCategoriesTransport(cid).subscribe(list => this.categoriesTransport.set(list.map((i: any) => ({ ...i, id: i.id, label: i.libelle ?? i.nom }))));
+    void this.sallesStore.ensureLoaded(cid);
+    void this.medecinsStore.ensureLoaded(cid);
+    void this.positionsStore.ensureLoaded(cid);
+    void this.transporteursStore.ensureLoaded(cid);
+    void this.categoriesTransportStore.ensureLoaded(cid);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
