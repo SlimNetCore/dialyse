@@ -12,6 +12,7 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
 import {PatientFicheStore} from '../state/patient-fiche.store';
+import {consumeWizardActionStatus} from './wizard-action-status.util';
 
 @Component({
   selector: 'app-step-attestation',
@@ -160,12 +161,41 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private pendingPrint = false;
+  private pendingDeleteId: string | null = null;
 
   history = signal<any[]>([]);
   selectedAttestationId = signal<string | null>(null);
   selectedAttestation = signal<any | null>(null);
   patientId: string | null = null;
   form!: FormGroup;
+
+  constructor() {
+    consumeWizardActionStatus(this.ficheStore, ({action, success, error, meta}) => {
+      const effectiveError = error || this.ficheStore.error() || '';
+      const actionMeta = meta ?? {};
+
+      if (action === 'PRINT_DOCUMENT' && this.pendingPrint && actionMeta['typeDocument'] === 'ATTESTATION') {
+        this.pendingPrint = false;
+        if (!success && effectiveError) {
+          this.snackBar.open(this.translate.instant('WIZARD.PRINT_ERROR', {detail: effectiveError}), 'OK', {duration: 4000});
+        }
+      }
+
+      if (action === 'DELETE_ATTESTATION' && this.pendingDeleteId && actionMeta['attestationId'] === this.pendingDeleteId) {
+        const deletedId = this.pendingDeleteId;
+        this.pendingDeleteId = null;
+        if (!success) {
+          this.snackBar.open(this.translate.instant('WIZARD.DELETE_ERROR', {detail: effectiveError}), 'OK', {duration: 4000});
+          return;
+        }
+        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== deletedId));
+        this.prepareNew();
+        this.snackBar.open(this.translate.instant('WIZARD.ATTESTATION_DELETED_OK'), 'OK', {duration: 3000});
+        this.deleteRequest.emit({type: 'ATTESTATION', id: deletedId});
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -243,13 +273,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
         attestationId: this.selectedAttestationId() ?? ''
       }
     });
-
-    setTimeout(() => {
-      const err = this.ficheStore.error();
-      if (err) {
-        this.snackBar.open(this.translate.instant('WIZARD.PRINT_ERROR', {detail: err}), 'OK', {duration: 4000});
-      }
-    });
+    this.pendingPrint = true;
   }
 
   deleteSelected(): void {
@@ -272,22 +296,11 @@ export class StepAttestationComponent implements OnInit, OnChanges {
 
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
+      this.pendingDeleteId = id;
       this.ficheStore.deleteAttestation({
         attestationId: id,
         centerId,
         patientId: this.patientId ?? undefined
-      });
-
-      setTimeout(() => {
-        const err = this.ficheStore.error();
-        if (err) {
-          this.snackBar.open(this.translate.instant('WIZARD.DELETE_ERROR', {detail: err}), 'OK', {duration: 4000});
-          return;
-        }
-        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
-        this.prepareNew();
-        this.snackBar.open(this.translate.instant('WIZARD.ATTESTATION_DELETED_OK'), 'OK', {duration: 3000});
-        this.deleteRequest.emit({type: 'ATTESTATION', id});
       });
     });
   }

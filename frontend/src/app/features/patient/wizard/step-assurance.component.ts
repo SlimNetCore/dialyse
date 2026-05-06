@@ -26,6 +26,7 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {CentresPayeursDetailsStore, CentresPayeursStore} from '../../../core/state/referentials.store';
 import {PatientFicheStore} from '../state/patient-fiche.store';
+import {consumeWizardActionStatus} from './wizard-action-status.util';
 
 interface AssignmentEdit {
   id: string;
@@ -666,8 +667,54 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.centresPayeursDetails().find(d => d.id === this.selectedCentrePayeurId())?.libelle_caisse ?? ''
   );
   private readonly dialog = inject(MatDialog);
+  private pendingAssignAssure = false;
+  private pendingUpdateAssure = false;
+  private pendingUpdateAssignment = false;
+  private pendingLoadAssureHistory = false;
 
   form!: FormGroup;
+
+  constructor() {
+    consumeWizardActionStatus(this.ficheStore, ({action, success, error, message}) => {
+      const effectiveError = error || this.ficheStore.error() || '';
+      if (action === 'ASSIGN_ASSURE' && this.pendingAssignAssure) {
+        this.pendingAssignAssure = false;
+        if (success) {
+          this.snackBar.open(message || this.ficheStore.infoMessage() || 'Assuré affecté au patient avec succès', 'OK', {duration: 2500});
+        } else if (typeof effectiveError === 'string' && effectiveError.toLowerCase().includes('assuré lui-même')) {
+          this.snackBar.open('Assuré sélectionné localement. Enregistrez le patient puis réessayez.', 'OK', {duration: 4500});
+        } else if (effectiveError) {
+          this.snackBar.open(effectiveError, 'OK', {duration: 3500});
+        }
+      }
+
+      if (action === 'UPDATE_ASSURE' && this.pendingUpdateAssure) {
+        this.pendingUpdateAssure = false;
+        if (success) {
+          this.snackBar.open('Assuré mis à jour', 'OK', {duration: 2500});
+        } else if (effectiveError) {
+          this.snackBar.open(effectiveError, 'OK', {duration: 3500});
+        }
+      }
+
+      if (action === 'UPDATE_ASSURE_ASSIGNMENT' && this.pendingUpdateAssignment) {
+        this.pendingUpdateAssignment = false;
+        if (success) {
+          this.editingAssignment.set(null);
+          this.snackBar.open('Affectation mise à jour', 'OK', {duration: 2500});
+        } else if (effectiveError) {
+          this.snackBar.open(effectiveError, 'OK', {duration: 3500});
+        }
+      }
+
+      if (action === 'LOAD_ASSURE_HISTORY' && this.pendingLoadAssureHistory) {
+        this.pendingLoadAssureHistory = false;
+        if (!success && effectiveError) {
+          this.snackBar.open(effectiveError, 'OK', {duration: 3000});
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -792,6 +839,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     ref.afterClosed().subscribe(result => {
       if (!result) return;
       const isCurrentAssure = this.form.get('assureNumeroAssurance')?.value === a.numeroAssurance;
+      this.pendingUpdateAssure = true;
       this.ficheStore.updateAssure({
         centerId,
         numeroAssurance: a.numeroAssurance,
@@ -811,15 +859,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
           assureAdresse: result.adresse
         });
       }
-
-      setTimeout(() => {
-        const detail = this.ficheStore.error();
-        if (detail) {
-          this.snackBar.open(detail, 'OK', {duration: 3500});
-          return;
-        }
-        this.snackBar.open('Assuré mis à jour', 'OK', {duration: 2500});
-      });
     });
   }
 
@@ -853,20 +892,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       patientId: this.patientId ?? null,
       a
     });
-
-    setTimeout(() => {
-      const detail = this.ficheStore.error() || '';
-      if (typeof detail === 'string' && detail.toLowerCase().includes('assuré lui-même')) {
-        patchAssureForm();
-        this.snackBar.open('Assuré sélectionné localement. Enregistrez le patient puis réessayez.', 'OK', {duration: 4500});
-        return;
-      }
-      if (detail) {
-        this.snackBar.open(detail, 'OK', {duration: 3500});
-        return;
-      }
-      this.snackBar.open(this.ficheStore.infoMessage() || 'Assuré affecté au patient avec succès', 'OK', {duration: 2500});
-    });
+    this.pendingAssignAssure = true;
   }
 
   // ── Édition dates historique ────────────────────────────
@@ -911,16 +937,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       debut,
       fin
     });
-
-    setTimeout(() => {
-      const detail = this.ficheStore.error();
-      if (detail) {
-        this.snackBar.open(detail, 'OK', {duration: 3500});
-        return;
-      }
-      this.editingAssignment.set(null);
-      this.snackBar.open('Affectation mise à jour', 'OK', {duration: 2500});
-    });
+    this.pendingUpdateAssignment = true;
   }
 
   // ── Chargement & synchronisation ───────────────────────
@@ -974,13 +991,8 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   private loadAssureHistory(): void {
     const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
+    this.pendingLoadAssureHistory = true;
     this.ficheStore.loadAssureHistory({centerId, patientId: this.patientId});
-    setTimeout(() => {
-      const err = this.ficheStore.error();
-      if (err) {
-        this.snackBar.open(err, 'OK', {duration: 3000});
-      }
-    });
   }
 
   // ── API publique ────────────────────────────────────────

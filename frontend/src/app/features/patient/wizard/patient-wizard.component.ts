@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, computed, effect, inject, OnInit, ViewChild} from '@angular/core';
+import {
+  afterNextRender,
+  AfterViewInit,
+  Component,
+  computed,
+  effect,
+  inject,
+  Injector,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatStepper, MatStepperModule} from '@angular/material/stepper';
 import {MatButtonModule} from '@angular/material/button';
@@ -17,6 +27,7 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService, WsEvent} from '../../../core/ws/websocket.service';
 import {PatientFicheStore} from '../state/patient-fiche.store';
 import {PatientListStore} from '../state/patient-list.store';
+import {consumeWizardActionStatus} from './wizard-action-status.util';
 
 @Component({
   selector: 'app-patient-wizard',
@@ -249,6 +260,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
+  private readonly injector = inject(Injector);
 
   readonly currentStep = this.ficheStore.currentStep;
   readonly saving = this.ficheStore.saving;
@@ -267,6 +279,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   readonly totalSteps = computed(() => this.isVacancier() ? 5 : 6);
   private readonly wizardDataVersion = this.ficheStore.version;
+  private patchActiveStepScheduled = false;
+  private patchAllStepsScheduled = false;
 
   constructor() {
     effect(() => {
@@ -313,6 +327,17 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
       this.snackBar.open(this.ficheStore.error() || 'Erreur', 'OK', {duration: 5000});
       this.ficheStore.resetSubmitStatus();
+    });
+
+    consumeWizardActionStatus(this.ficheStore, ({action, success, error}) => {
+      if (action === 'LOAD_PATIENT' || action === 'LOAD_ATTESTATIONS' || action === 'LOAD_PECS') {
+        if (success) {
+          this.patchStepsFromWizardData();
+          this.recomputeStepValidityFromData();
+        } else if (error) {
+          this.snackBar.open(error, 'OK', {duration: 4000});
+        }
+      }
     });
   }
 
@@ -420,12 +445,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   onStepChange(event: any): void {
     this.ficheStore.setCurrentStep(event.selectedIndex);
     this.loadStepDataIfNeeded(event.selectedIndex);
-    // Double setTimeout to ensure ViewChild is resolved after @if renders the component
-    setTimeout(() => {
-      this.patchActiveStep();
-      // Retry once more after another tick for late ViewChild resolution
-      setTimeout(() => this.patchActiveStep(), 50);
-    });
+    this.schedulePatchActiveStep();
   }
 
   ngOnInit(): void {
@@ -454,11 +474,31 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       this.loadStepDataIfNeeded(pecIndex);
     }
     this.recomputeStepValidityFromData();
-    setTimeout(() => this.patchStepsFromWizardData());
+    this.schedulePatchAllSteps();
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.patchStepsFromWizardData());
+    this.schedulePatchAllSteps();
+  }
+
+  private schedulePatchActiveStep(): void {
+    if (this.patchActiveStepScheduled) return;
+    this.patchActiveStepScheduled = true;
+    afterNextRender(() => {
+      this.patchActiveStepScheduled = false;
+      this.patchActiveStep();
+      // Second pass for late material step content projection
+      afterNextRender(() => this.patchActiveStep(), {injector: this.injector});
+    }, {injector: this.injector});
+  }
+
+  private schedulePatchAllSteps(): void {
+    if (this.patchAllStepsScheduled) return;
+    this.patchAllStepsScheduled = true;
+    afterNextRender(() => {
+      this.patchAllStepsScheduled = false;
+      this.patchStepsFromWizardData();
+    }, {injector: this.injector});
   }
 
   private patchStepsFromWizardData(): void {
@@ -604,20 +644,12 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         centerId,
         patientId: this.editingPatientId()!
       });
-      setTimeout(() => {
-        this.patchStepsFromWizardData();
-        this.recomputeStepValidityFromData();
-      });
     }
 
     if (stepIndex === pecIndex && !this.pecLoaded()) {
       this.ficheStore.loadPecs({
         centerId,
         patientId: this.editingPatientId()!
-      });
-      setTimeout(() => {
-        this.patchStepsFromWizardData();
-        this.recomputeStepValidityFromData();
       });
     }
   }
@@ -666,10 +698,5 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     if (options.reloadPecs) {
       this.ficheStore.loadPecs({centerId, patientId});
     }
-
-    setTimeout(() => {
-      this.patchStepsFromWizardData();
-      this.recomputeStepValidityFromData();
-    });
   }
 }

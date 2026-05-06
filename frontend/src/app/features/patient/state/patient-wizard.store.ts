@@ -25,6 +25,12 @@ type PatientWizardState = {
   loadingAssures: boolean;
   savingAssureEdit: boolean;
   lastSavedPatientId: string | null;
+  lastAction: string | null;
+  lastSuccess: boolean | null;
+  lastError: string | null;
+  lastMessage: string | null;
+  lastActionMeta: Record<string, any> | null;
+  lastActionId: number;
   error: string | null;
   infoMessage: string | null;
 };
@@ -49,6 +55,12 @@ const initialState: PatientWizardState = {
   loadingAssures: false,
   savingAssureEdit: false,
   lastSavedPatientId: null,
+  lastAction: null,
+  lastSuccess: null,
+  lastError: null,
+  lastMessage: null,
+  lastActionMeta: null,
+  lastActionId: 0,
   error: null,
   infoMessage: null
 };
@@ -125,6 +137,16 @@ export const PatientWizardStore = signalStore(
       patchState(store, {lastSavedPatientId: null});
     },
 
+    clearLastAction(): void {
+      patchState(store, {
+        lastAction: null,
+        lastSuccess: null,
+        lastError: null,
+        lastMessage: null,
+        lastActionMeta: null
+      });
+    },
+
     loadPatient: rxMethod<{ id: string; centerId: string; userId: string }>(
       pipe(
         tap(() => patchState(store, {loadingPatient: true, error: null, infoMessage: null})),
@@ -143,12 +165,12 @@ export const PatientWizardStore = signalStore(
               step4Valid: !!(wizardData['attestationDebut'] && wizardData['attestationFin']),
               step5Valid: !!(wizardData['pecDateDebutDemande'] && wizardData['pecDateFinDemande'])
             });
+            publishActionSuccess(store, 'LOAD_PATIENT');
           }),
           catchError((err: any) => {
-            patchState(store, {
-              loadingPatient: false,
-              error: err?.error?.detail || err?.error?.message || 'Erreur chargement patient'
-            });
+            const message = err?.error?.detail || err?.error?.message || 'Erreur chargement patient';
+            patchState(store, {loadingPatient: false, error: message});
+            publishActionError(store, 'LOAD_PATIENT', message);
             return of(null);
           })
         ))
@@ -175,12 +197,12 @@ export const PatientWizardStore = signalStore(
               version: store.version() + 1,
               error: null
             });
+            publishActionSuccess(store, 'LOAD_ATTESTATIONS');
           }),
           catchError(() => {
-            patchState(store, {
-              attestationLoaded: false,
-              error: 'Erreur chargement attestations'
-            });
+            const message = 'Erreur chargement attestations';
+            patchState(store, {attestationLoaded: false, error: message});
+            publishActionError(store, 'LOAD_ATTESTATIONS', message);
             return of(null);
           })
         ))
@@ -208,12 +230,12 @@ export const PatientWizardStore = signalStore(
               version: store.version() + 1,
               error: null
             });
+            publishActionSuccess(store, 'LOAD_PECS');
           }),
           catchError(() => {
-            patchState(store, {
-              pecLoaded: false,
-              error: 'Erreur chargement PEC'
-            });
+            const message = 'Erreur chargement PEC';
+            patchState(store, {pecLoaded: false, error: message});
+            publishActionError(store, 'LOAD_PECS', message);
             return of(null);
           })
         ))
@@ -239,11 +261,12 @@ export const PatientWizardStore = signalStore(
               version: store.version() + 1,
               error: null
             });
+            publishActionSuccess(store, 'LOAD_ASSURE_HISTORY');
           }),
           catchError((err: any) => {
-            patchState(store, {
-              error: err?.error?.detail || err?.error?.message || 'Erreur chargement historique assuré'
-            });
+            const message = err?.error?.detail || err?.error?.message || 'Erreur chargement historique assuré';
+            patchState(store, {error: message});
+            publishActionError(store, 'LOAD_ASSURE_HISTORY', message);
             return of(null);
           })
         ))
@@ -265,12 +288,12 @@ export const PatientWizardStore = signalStore(
                 isPrimary: activeNums.has(a.numeroAssurance)
               }))
             });
+            publishActionSuccess(store, 'SEARCH_ASSURES');
           }),
           catchError((err: any) => {
-            patchState(store, {
-              loadingAssures: false,
-              error: err?.error?.detail || err?.error?.message || 'Erreur chargement des assurés'
-            });
+            const message = err?.error?.detail || err?.error?.message || 'Erreur chargement des assurés';
+            patchState(store, {loadingAssures: false, error: message});
+            publishActionError(store, 'SEARCH_ASSURES', message);
             return of(null);
           })
         ))
@@ -321,18 +344,24 @@ export const PatientWizardStore = signalStore(
                 version: store.version() + 1,
                 infoMessage: 'Assuré affecté au patient avec succès'
               });
+              publishActionSuccess(store, 'ASSIGN_ASSURE', {
+                message: 'Assuré affecté au patient avec succès',
+                meta: {numeroAssurance: params.a.numeroAssurance}
+              });
             }),
             catchError((err: any) => {
               const activeNums = new Set(
                 store.assureAssignments().filter((h: any) => h.actif).map((h: any) => h.numeroAssurance)
               );
+              const message = err?.error?.detail || err?.error?.message || 'Erreur affectation assuré';
               patchState(store, {
                 assureCatalog: store.assureCatalog().map((row: any) => ({
                   ...row,
                   isPrimary: activeNums.has(row.numeroAssurance)
                 })),
-                error: err?.error?.detail || err?.error?.message || 'Erreur affectation assuré'
+                error: message
               });
+              publishActionError(store, 'ASSIGN_ASSURE', message, {numeroAssurance: params.a.numeroAssurance});
               return of(null);
             })
           );
@@ -370,11 +399,15 @@ export const PatientWizardStore = signalStore(
             }
 
             patchState(store, nextState);
+            publishActionSuccess(store, 'UPDATE_ASSURE', {
+              message: 'Assuré mis à jour',
+              meta: {numeroAssurance: params.numeroAssurance}
+            });
           }),
           catchError((err: any) => {
-            patchState(store, {
-              error: err?.error?.detail || err?.error?.message || 'Erreur mise à jour assuré'
-            });
+            const message = err?.error?.detail || err?.error?.message || 'Erreur mise à jour assuré';
+            patchState(store, {error: message});
+            publishActionError(store, 'UPDATE_ASSURE', message, {numeroAssurance: params.numeroAssurance});
             return of(null);
           })
         ))
@@ -406,12 +439,12 @@ export const PatientWizardStore = signalStore(
               version: store.version() + 1,
               infoMessage: 'Affectation mise à jour'
             });
+            publishActionSuccess(store, 'UPDATE_ASSURE_ASSIGNMENT', {message: 'Affectation mise à jour'});
           }),
           catchError((err: any) => {
-            patchState(store, {
-              savingAssureEdit: false,
-              error: err?.error?.detail || err?.error?.message || 'Erreur mise à jour affectation'
-            });
+            const message = err?.error?.detail || err?.error?.message || 'Erreur mise à jour affectation';
+            patchState(store, {savingAssureEdit: false, error: message});
+            publishActionError(store, 'UPDATE_ASSURE_ASSIGNMENT', message);
             return of(null);
           })
         ))
@@ -438,11 +471,15 @@ export const PatientWizardStore = signalStore(
               infoMessage: 'PEC supprimée',
               error: null
             });
+            publishActionSuccess(store, 'DELETE_PEC', {
+              message: 'PEC supprimée',
+              meta: {pecId: params.pecId}
+            });
           }),
           catchError((err: any) => {
-            patchState(store, {
-              error: err?.error?.detail || err?.message || 'Erreur suppression PEC'
-            });
+            const message = err?.error?.detail || err?.message || 'Erreur suppression PEC';
+            patchState(store, {error: message});
+            publishActionError(store, 'DELETE_PEC', message, {pecId: params.pecId});
             return of(null);
           })
         ))
@@ -468,11 +505,15 @@ export const PatientWizardStore = signalStore(
               infoMessage: 'Attestation supprimée',
               error: null
             });
+            publishActionSuccess(store, 'DELETE_ATTESTATION', {
+              message: 'Attestation supprimée',
+              meta: {attestationId: params.attestationId}
+            });
           }),
           catchError((err: any) => {
-            patchState(store, {
-              error: err?.error?.detail || err?.message || 'Erreur suppression attestation'
-            });
+            const message = err?.error?.detail || err?.message || 'Erreur suppression attestation';
+            patchState(store, {error: message});
+            publishActionError(store, 'DELETE_ATTESTATION', message, {attestationId: params.attestationId});
             return of(null);
           })
         ))
@@ -496,10 +537,16 @@ export const PatientWizardStore = signalStore(
           tap((blob: Blob) => {
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank');
+            publishActionSuccess(store, 'PRINT_DOCUMENT', {
+              meta: {typeDocument: params.typeDocument, params: params.params}
+            });
           }),
           catchError((err: any) => {
-            patchState(store, {
-              error: err?.error?.text || err?.error?.detail || err?.error?.message || err?.message || 'Erreur impression'
+            const message = err?.error?.text || err?.error?.detail || err?.error?.message || err?.message || 'Erreur impression';
+            patchState(store, {error: message});
+            publishActionError(store, 'PRINT_DOCUMENT', message, {
+              typeDocument: params.typeDocument,
+              params: params.params
             });
             return of(null);
           })
@@ -523,12 +570,15 @@ export const PatientWizardStore = signalStore(
               submitStatus: 'success',
               lastSavedPatientId: result?.id ?? params.editingPatientId ?? null
             })),
+            tap(() => publishActionSuccess(store, 'SUBMIT_PATIENT')),
             catchError((err: any) => {
+              const message = err?.error?.detail || err?.error?.message || 'Erreur lors de la sauvegarde';
               patchState(store, {
                 saving: false,
                 submitStatus: 'error',
-                error: err?.error?.detail || err?.error?.message || 'Erreur lors de la sauvegarde'
+                error: message
               });
+              publishActionError(store, 'SUBMIT_PATIENT', message);
               return of(null);
             })
           );
@@ -593,6 +643,37 @@ function createAssureWizardPatch(assure: any): Record<string, any> {
     assureAdresse: assure?.adresse ?? '',
     assureGroupeSanguin: assure?.groupeSanguin ?? ''
   };
+}
+
+function publishActionSuccess(
+  store: any,
+  action: string,
+  options: { message?: string; meta?: Record<string, any> } = {}
+): void {
+  patchState(store, {
+    lastAction: action,
+    lastSuccess: true,
+    lastError: null,
+    lastMessage: options.message ?? null,
+    lastActionMeta: options.meta ?? null,
+    lastActionId: store.lastActionId() + 1
+  });
+}
+
+function publishActionError(
+  store: any,
+  action: string,
+  message: string,
+  meta: Record<string, any> | null = null
+): void {
+  patchState(store, {
+    lastAction: action,
+    lastSuccess: false,
+    lastError: message,
+    lastMessage: null,
+    lastActionMeta: meta,
+    lastActionId: store.lastActionId() + 1
+  });
 }
 
 function parseJson(json: any): any[] {

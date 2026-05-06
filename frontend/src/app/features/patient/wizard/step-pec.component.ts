@@ -15,6 +15,7 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {ForfaitsStore} from '../../../core/state/referentials.store';
 import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
 import {PatientFicheStore} from '../state/patient-fiche.store';
+import {consumeWizardActionStatus} from './wizard-action-status.util';
 
 @Component({
   selector: 'app-step-pec',
@@ -299,11 +300,39 @@ export class StepPecComponent implements OnInit, OnChanges {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private readonly ficheStore = inject(PatientFicheStore);
+  private pendingPrint = false;
+  private pendingDeleteId: string | null = null;
   history = signal<any[]>([]);
   selectedPecId = signal<string | null>(null);
   selectedPec = signal<any | null>(null);
 
   form!: FormGroup;
+
+  constructor() {
+    consumeWizardActionStatus(this.ficheStore, ({action, success, error, meta}) => {
+      const effectiveError = error || this.ficheStore.error() || '';
+      const actionMeta = meta ?? {};
+      if (action === 'PRINT_DOCUMENT' && this.pendingPrint && actionMeta['typeDocument'] === 'PEC') {
+        this.pendingPrint = false;
+        if (!success && effectiveError) {
+          this.snackBar.open(this.translate.instant('WIZARD.PRINT_ERROR', {detail: effectiveError}), 'OK', {duration: 4000});
+        }
+      }
+
+      if (action === 'DELETE_PEC' && this.pendingDeleteId && actionMeta['pecId'] === this.pendingDeleteId) {
+        const deletedId = this.pendingDeleteId;
+        this.pendingDeleteId = null;
+        if (!success) {
+          this.snackBar.open(this.translate.instant('WIZARD.DELETE_ERROR', {detail: effectiveError}), 'OK', {duration: 4000});
+          return;
+        }
+        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== deletedId));
+        this.prepareNew();
+        this.snackBar.open(this.translate.instant('WIZARD.PEC_DELETED_OK'), 'OK', {duration: 3000});
+        this.deleteRequest.emit({type: 'PEC', id: deletedId});
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -436,13 +465,7 @@ export class StepPecComponent implements OnInit, OnChanges {
         pecId: this.selectedPecId() ?? ''
       }
     });
-
-    setTimeout(() => {
-      const err = this.ficheStore.error();
-      if (err) {
-        this.snackBar.open(this.translate.instant('WIZARD.PRINT_ERROR', {detail: err}), 'OK', {duration: 4000});
-      }
-    });
+    this.pendingPrint = true;
   }
 
   deleteSelected(): void {
@@ -465,18 +488,8 @@ export class StepPecComponent implements OnInit, OnChanges {
 
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
+      this.pendingDeleteId = id;
       this.ficheStore.deletePec({pecId: id, centerId, patientId: this.patientId});
-      setTimeout(() => {
-        const err = this.ficheStore.error();
-        if (err) {
-          this.snackBar.open(this.translate.instant('WIZARD.DELETE_ERROR', {detail: err}), 'OK', {duration: 4000});
-          return;
-        }
-        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
-        this.prepareNew();
-        this.snackBar.open(this.translate.instant('WIZARD.PEC_DELETED_OK'), 'OK', {duration: 3000});
-        this.deleteRequest.emit({type: 'PEC', id});
-      });
     });
   }
 }
