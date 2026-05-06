@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
-import {MatNativeDateModule} from '@angular/material/core';
+import {MatNativeDateModule, MatOptionSelectionChange} from '@angular/material/core';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
@@ -227,19 +227,6 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       --mdc-outlined-text-field-outline-color: var(--app-primary-outline);
     }
 
-    :host ::ng-deep .panel-filter-option {
-      height: auto !important;
-      min-height: 0 !important;
-      padding: 0 !important;
-      opacity: 1 !important;
-      cursor: default;
-      pointer-events: auto;
-    }
-
-    :host ::ng-deep .panel-filter-option .mdc-list-item__primary-text {
-      width: 100%;
-    }
-
     .panel-filter-content {
       width: 100%;
     }
@@ -407,10 +394,6 @@ export class ColumnFilterRendererComponent implements OnChanges {
     this.valueChange.emit(value);
   }
 
-  onSelect(event: Event): void {
-    this.valueChange.emit((event.target as HTMLSelectElement).value);
-  }
-
   onMatSelect(value: string | string[]): void {
     if (Array.isArray(value)) {
       this.valueChange.emit(value.filter(v => !!v && v !== this.panelFilterOptionValue).join(','));
@@ -422,7 +405,7 @@ export class ColumnFilterRendererComponent implements OnChanges {
     this.valueChange.emit(value ?? '');
   }
 
-  onPanelFilterOptionSelection(event: any): void {
+  onPanelFilterOptionSelection(event: MatOptionSelectionChange): void {
     if (!event?.isUserInput) return;
     // Keep this row as a non-selectable interactive header for panel filtering.
     event.source?.deselect?.();

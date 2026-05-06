@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   EventEmitter,
   inject,
   Input,
@@ -648,33 +649,57 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   readonly savingEdit = this.ficheStore.savingAssureEdit;
   private readonly selectedCentrePayeurId = signal<string | null>(null);
   readonly codeCentrePayeur = computed(() =>
-    this.centresPayeurs().find(x => x.id === this.selectedCentrePayeurId())?.['code'] ?? ''
+    this.centresPayeurs().find((x: any) => String(x?.id ?? x?.ID ?? '') === this.selectedCentrePayeurId())?.['code']
+    ?? this.centresPayeurs().find((x: any) => String(x?.id ?? x?.ID ?? '') === this.selectedCentrePayeurId())?.['CODE']
+    ?? ''
   );
   showAssure = signal(true);
   private qualiteAssure = signal<string>('ASSURE_LUI_MEME');
   requiresAssureNumero = signal(false);
   assureSearch = signal('');
   private readonly centresPayeursDetails = this.centresPayeursDetailsStore.items;
+  private readonly selectedCentrePayeurDetail = computed<any | null>(() => {
+    const id = this.selectedCentrePayeurId();
+    if (!id) return null;
+    return this.centresPayeursDetails().find((d: any) => String(d?.id ?? d?.ID ?? '') === id) ?? null;
+  });
   readonly codeAgence = computed(() =>
-    this.centresPayeursDetails().find(d => d.id === this.selectedCentrePayeurId())?.code_agence ?? ''
+    this.selectedCentrePayeurDetail()?.code_agence
+    ?? this.selectedCentrePayeurDetail()?.CODE_AGENCE
+    ?? ''
   );
   showCatalog = signal(false);
   showHistory = signal(false);
   readonly libelleAgence = computed(() =>
-    this.centresPayeursDetails().find(d => d.id === this.selectedCentrePayeurId())?.libelle_agence ?? ''
+    this.selectedCentrePayeurDetail()?.libelle_agence
+    ?? this.selectedCentrePayeurDetail()?.LIBELLE_AGENCE
+    ?? ''
   );
   readonly libelleCaisse = computed(() =>
-    this.centresPayeursDetails().find(d => d.id === this.selectedCentrePayeurId())?.libelle_caisse ?? ''
+    this.selectedCentrePayeurDetail()?.libelle_caisse
+    ?? this.selectedCentrePayeurDetail()?.LIBELLE_CAISSE
+    ?? ''
   );
   private readonly dialog = inject(MatDialog);
   private pendingAssignAssure = false;
   private pendingUpdateAssure = false;
   private pendingUpdateAssignment = false;
   private pendingLoadAssureHistory = false;
+  private historyInFlightKey: string | null = null;
+  private lastLoadedHistoryKey: string | null = null;
 
   form!: FormGroup;
 
   constructor() {
+    effect(() => {
+      if (!this.form || !this.selectedCentrePayeurId()) return;
+      this.codeCentrePayeur();
+      this.codeAgence();
+      this.libelleAgence();
+      this.libelleCaisse();
+      this.emitAssuranceData();
+    });
+
     consumeWizardActionStatus(this.ficheStore, ({action, success, error, message}) => {
       const effectiveError = error || this.ficheStore.error() || '';
       if (action === 'ASSIGN_ASSURE' && this.pendingAssignAssure) {
@@ -709,6 +734,10 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
       if (action === 'LOAD_ASSURE_HISTORY' && this.pendingLoadAssureHistory) {
         this.pendingLoadAssureHistory = false;
+        if (success && this.historyInFlightKey) {
+          this.lastLoadedHistoryKey = this.historyInFlightKey;
+        }
+        this.historyInFlightKey = null;
         if (!success && effectiveError) {
           this.snackBar.open(effectiveError, 'OK', {duration: 3000});
         }
@@ -732,7 +761,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureAdresse: ['']
     });
     this.form.valueChanges.subscribe(() => {
-      this.dataChange.emit(this.form.getRawValue());
+      this.emitAssuranceData();
       this.validChange.emit(this.form.valid);
     });
     this.form.get('centrePayeurId')?.valueChanges.subscribe((value) => {
@@ -782,15 +811,10 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   onCentrePayeur(item: DropdownItem | null): void {
     if (this.readonly) return;
-    this.form.patchValue({ centrePayeurId: item?.id ?? null });
-    this.selectedCentrePayeurId.set(item?.id ?? null);
-    this.dataChange.emit({
-      ...this.form.getRawValue(),
-      codeCentrePayeur: this.codeCentrePayeur(),
-      codeAgence: this.codeAgence(),
-      libelleAgence: this.libelleAgence(),
-      libelleCaisse: this.libelleCaisse()
-    });
+    const selectedId = item ? String((item as any).id ?? (item as any).ID ?? '') : null;
+    this.form.patchValue({centrePayeurId: selectedId});
+    this.selectedCentrePayeurId.set(selectedId);
+    this.emitAssuranceData();
   }
 
   prepareNewAssure(): void {
@@ -817,7 +841,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   toggleAssureHistory(): void {
     this.showHistory.set(!this.showHistory());
-    if (this.showHistory()) this.loadAssureHistory();
+    if (this.showHistory()) this.loadAssureHistory(true);
   }
 
   searchAssures(): void {
@@ -980,18 +1004,35 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     const qualite = data['qualiteAssure'] ?? (hasAssureData ? 'AUTRE' : 'ASSURE_LUI_MEME');
     this.setQualiteAssure(qualite);
 
-    if (this.patientId) void this.loadAssureHistory();
+    if (this.patientId) this.loadAssureHistory();
 
     this.selectedCentrePayeurId.set(patch.centrePayeurId);
-    this.dataChange.emit(this.form.getRawValue());
+    this.emitAssuranceData();
     this.validChange.emit(this.form.valid);
     this.applyReadonly();
   }
 
-  private loadAssureHistory(): void {
+  private emitAssuranceData(): void {
+    if (!this.form) return;
+    this.dataChange.emit({
+      ...this.form.getRawValue(),
+      codeCentrePayeur: this.codeCentrePayeur(),
+      codeAgence: this.codeAgence(),
+      libelleAgence: this.libelleAgence(),
+      libelleCaisse: this.libelleCaisse()
+    });
+  }
+
+  private loadAssureHistory(force = false): void {
     const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
+
+    const key = `${centerId}|${this.patientId}`;
+    if (this.historyInFlightKey === key) return;
+    if (!force && this.lastLoadedHistoryKey === key) return;
+
     this.pendingLoadAssureHistory = true;
+    this.historyInFlightKey = key;
     this.ficheStore.loadAssureHistory({centerId, patientId: this.patientId});
   }
 
