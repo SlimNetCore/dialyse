@@ -467,6 +467,37 @@ a {
   opacity: 1 !important;
 }
 
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option .mat-pseudo-checkbox,
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option .mat-mdc-option-pseudo-checkbox,
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option .mdc-list-item__start,
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option .mdc-list-item__end {
+  display: none !important;
+}
+
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option .mdc-list-item__primary-text {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  width: 100% !important;
+  color: inherit !important;
+}
+
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option,
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option * {
+  opacity: 1 !important;
+}
+
+.mat-mdc-select-panel.column-filter-select-panel .panel-filter-option .mat-mdc-form-field {
+  --mdc-outlined-text-field-disabled-input-text-color: var(--app-text) !important;
+  --mdc-outlined-text-field-disabled-label-text-color: var(--app-muted) !important;
+  --mdc-outlined-text-field-disabled-outline-color: var(--app-border-strong) !important;
+  --mat-form-field-disabled-input-text-placeholder-color: var(--app-muted) !important;
+}
+
 .mat-mdc-card {
   border-radius: 24px !important;
   box-shadow: var(--app-shadow) !important;

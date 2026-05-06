@@ -47,11 +47,16 @@ import {TranslateModule} from '@ngx-translate/core';
     }
 
     :host ::ng-deep .select-filter-input .mat-mdc-input-element,
-    :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder,
-    :host ::ng-deep .select-filter-input .mat-icon {
+    :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
       font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
       font-size: 13px;
       font-weight: 600;
+    }
+
+    :host ::ng-deep .select-filter-input .mat-icon {
+      font-family: 'Material Icons', sans-serif;
+      font-size: 18px;
+      line-height: 1;
     }
 
     :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {

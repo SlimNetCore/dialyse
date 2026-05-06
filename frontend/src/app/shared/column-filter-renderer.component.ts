@@ -65,8 +65,12 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
           <mat-select [value]="selectedValues()" [multiple]="isMultiSelect()" panelClass="column-filter-select-panel"
                       [panelWidth]="'360px'" (selectionChange)="onMatSelect($event.value)"
                       [placeholder]="placeholder || ('COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) })">
-            <mat-option class="panel-filter-option" disabled>
-              <app-select-filter [placeholder]="'COMMON.SEARCH'" (valueChange)="onPanelFilterChange($event)"/>
+            <mat-option class="panel-filter-option" [value]="panelFilterOptionValue"
+                        (onSelectionChange)="onPanelFilterOptionSelection($event)">
+              <div class="panel-filter-content" (click)="$event.stopPropagation()"
+                   (mousedown)="$event.stopPropagation()">
+                <app-select-filter [placeholder]="'COMMON.SEARCH'" (valueChange)="onPanelFilterChange($event)"/>
+              </div>
             </mat-option>
             @if (!isMultiSelect()) {
               <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
@@ -236,6 +240,10 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       width: 100%;
     }
 
+    .panel-filter-content {
+      width: 100%;
+    }
+
     .field-shell:hover {
       border-color: var(--app-primary-outline);
       background: var(--app-field-hover-bg);
@@ -348,6 +356,7 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
 })
 export class ColumnFilterRendererComponent implements OnChanges {
   protected panelFilter = '';
+  protected readonly panelFilterOptionValue = '__PANEL_FILTER_OPTION__';
 
   @Input() type: ColumnFilterType = 'text';
   @Input() value = '';
@@ -404,10 +413,19 @@ export class ColumnFilterRendererComponent implements OnChanges {
 
   onMatSelect(value: string | string[]): void {
     if (Array.isArray(value)) {
-      this.valueChange.emit(value.filter(v => !!v).join(','));
+      this.valueChange.emit(value.filter(v => !!v && v !== this.panelFilterOptionValue).join(','));
+      return;
+    }
+    if (value === this.panelFilterOptionValue) {
       return;
     }
     this.valueChange.emit(value ?? '');
+  }
+
+  onPanelFilterOptionSelection(event: any): void {
+    if (!event?.isUserInput) return;
+    // Keep this row as a non-selectable interactive header for panel filtering.
+    event.source?.deselect?.();
   }
 
   selectedValues(): string[] | string {
@@ -415,7 +433,7 @@ export class ColumnFilterRendererComponent implements OnChanges {
     return (this.value ?? '')
       .split(',')
       .map(v => v.trim())
-      .filter(v => !!v);
+      .filter(v => !!v && v !== this.panelFilterOptionValue);
   }
 
   isMultiSelect(): boolean {
