@@ -428,18 +428,21 @@ export class StepPecComponent implements OnInit, OnChanges {
     const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
 
-    void this.ficheStore.printDocument(centerId, 'PEC', {
-      patientId: this.patientId,
-      pecId: this.selectedPecId() ?? ''
-    }).then((blob) => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-    })
-      .catch((err) => this.snackBar.open(
-        this.translate.instant('WIZARD.PRINT_ERROR', {detail: (err?.error?.text || err.message)}),
-        'OK',
-        {duration: 4000}
-      ));
+    this.ficheStore.printDocument({
+      centerId,
+      typeDocument: 'PEC',
+      params: {
+        patientId: this.patientId,
+        pecId: this.selectedPecId() ?? ''
+      }
+    });
+
+    setTimeout(() => {
+      const err = this.ficheStore.error();
+      if (err) {
+        this.snackBar.open(this.translate.instant('WIZARD.PRINT_ERROR', {detail: err}), 'OK', {duration: 4000});
+      }
+    });
   }
 
   deleteSelected(): void {
@@ -462,17 +465,18 @@ export class StepPecComponent implements OnInit, OnChanges {
 
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      void this.ficheStore.deletePec({pecId: id, centerId, patientId: this.patientId}).then(() => {
-          this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
-          this.prepareNew();
-          this.snackBar.open(this.translate.instant('WIZARD.PEC_DELETED_OK'), 'OK', {duration: 3000});
-          this.deleteRequest.emit({ type: 'PEC', id });
-      })
-        .catch((err) => this.snackBar.open(
-          this.translate.instant('WIZARD.DELETE_ERROR', {detail: (err?.error?.detail || err.message)}),
-          'OK',
-          {duration: 4000}
-        ));
+      this.ficheStore.deletePec({pecId: id, centerId, patientId: this.patientId});
+      setTimeout(() => {
+        const err = this.ficheStore.error();
+        if (err) {
+          this.snackBar.open(this.translate.instant('WIZARD.DELETE_ERROR', {detail: err}), 'OK', {duration: 4000});
+          return;
+        }
+        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
+        this.prepareNew();
+        this.snackBar.open(this.translate.instant('WIZARD.PEC_DELETED_OK'), 'OK', {duration: 3000});
+        this.deleteRequest.emit({type: 'PEC', id});
+      });
     });
   }
 }

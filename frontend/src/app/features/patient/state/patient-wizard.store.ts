@@ -1,7 +1,8 @@
 import {computed, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
+import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
-import {firstValueFrom} from 'rxjs';
+import {catchError, of, pipe, switchMap, tap} from 'rxjs';
 import {BackendApiService, CreatePatientPayload} from '../../../core/api/backend-api.service';
 
 type PatientWizardState = {
@@ -23,6 +24,7 @@ type PatientWizardState = {
   assureAssignments: any[];
   loadingAssures: boolean;
   savingAssureEdit: boolean;
+  lastSavedPatientId: string | null;
   error: string | null;
   infoMessage: string | null;
 };
@@ -46,6 +48,7 @@ const initialState: PatientWizardState = {
   assureAssignments: [],
   loadingAssures: false,
   savingAssureEdit: false,
+  lastSavedPatientId: null,
   error: null,
   infoMessage: null
 };
@@ -118,347 +121,420 @@ export const PatientWizardStore = signalStore(
       patchState(store, {submitStatus: 'idle'});
     },
 
-    async loadPatient(params: { id: string; centerId: string; userId: string }): Promise<void> {
-      patchState(store, {loadingPatient: true, error: null, infoMessage: null});
-      try {
-        const patient = await firstValueFrom(api.getPatient(params.id, params.centerId, params.userId));
-        const wizardData = mapPatientToWizardData(patient);
-        patchState(store, {
-          wizardData,
-          version: store.version() + 1,
-          loadingPatient: false,
-          attestationLoaded: false,
-          pecLoaded: false,
-          assureAssignments: wizardData['assureHistory'] ?? [],
-          step1Valid: !!(wizardData['nom'] && wizardData['prenom'] && wizardData['sexe'] && wizardData['dateAdmission']),
-          step2Valid: !!wizardData['numeroAssurance'],
-          step4Valid: !!(wizardData['attestationDebut'] && wizardData['attestationFin']),
-          step5Valid: !!(wizardData['pecDateDebutDemande'] && wizardData['pecDateFinDemande'])
-        });
-      } catch (err: any) {
-        patchState(store, {
-          loadingPatient: false,
-          error: err?.error?.detail || err?.error?.message || 'Erreur chargement patient'
-        });
-        throw err;
-      }
+    clearLastSavedPatientId(): void {
+      patchState(store, {lastSavedPatientId: null});
     },
 
-    async loadAttestations(params: { centerId: string; patientId: string }): Promise<void> {
-      try {
-        const attestations = await firstValueFrom(api.listAttestationsByPatient(params.centerId, params.patientId));
-        const history = attestations ?? [];
-        const first = history[0];
-        patchState(store, {
-          wizardData: {
-            ...store.wizardData(),
-            attestationHistory: history,
-            ...(first ? {
-              attestationId: first.id ?? first.ID ?? null,
-              attestationDebut: first.dateDebut ?? first.DATE_DEBUT ?? null,
-              attestationFin: first.dateFin ?? first.DATE_FIN ?? null
-            } : {})
-          },
-          attestationLoaded: true,
-          version: store.version() + 1
-        });
-      } catch (err) {
-        patchState(store, {
-          attestationLoaded: false,
-          error: 'Erreur chargement attestations'
-        });
-        throw err;
-      }
-    },
+    loadPatient: rxMethod<{ id: string; centerId: string; userId: string }>(
+      pipe(
+        tap(() => patchState(store, {loadingPatient: true, error: null, infoMessage: null})),
+        switchMap((params) => api.getPatient(params.id, params.centerId, params.userId).pipe(
+          tap((patient: any) => {
+            const wizardData = mapPatientToWizardData(patient);
+            patchState(store, {
+              wizardData,
+              version: store.version() + 1,
+              loadingPatient: false,
+              attestationLoaded: false,
+              pecLoaded: false,
+              assureAssignments: wizardData['assureHistory'] ?? [],
+              step1Valid: !!(wizardData['nom'] && wizardData['prenom'] && wizardData['sexe'] && wizardData['dateAdmission']),
+              step2Valid: !!wizardData['numeroAssurance'],
+              step4Valid: !!(wizardData['attestationDebut'] && wizardData['attestationFin']),
+              step5Valid: !!(wizardData['pecDateDebutDemande'] && wizardData['pecDateFinDemande'])
+            });
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              loadingPatient: false,
+              error: err?.error?.detail || err?.error?.message || 'Erreur chargement patient'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async loadPecs(params: { centerId: string; patientId: string }): Promise<void> {
-      try {
-        const pecs = await firstValueFrom(api.listPecsByPatient(params.centerId, params.patientId));
-        const history = pecs ?? [];
-        const first = history[0];
-        patchState(store, {
-          wizardData: {
-            ...store.wizardData(),
-            pecHistory: history,
-            ...(first ? {
-              pecId: first.id ?? first.ID ?? null,
-              pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE ?? null,
-              pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE ?? null,
-              pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
-            } : {})
-          },
-          pecLoaded: true,
-          version: store.version() + 1
-        });
-      } catch (err) {
-        patchState(store, {
-          pecLoaded: false,
-          error: 'Erreur chargement PEC'
-        });
-        throw err;
-      }
-    },
+    loadAttestations: rxMethod<{ centerId: string; patientId: string }>(
+      pipe(
+        switchMap((params) => api.listAttestationsByPatient(params.centerId, params.patientId).pipe(
+          tap((attestations: any[]) => {
+            const history = attestations ?? [];
+            const first = history[0];
+            patchState(store, {
+              wizardData: {
+                ...store.wizardData(),
+                attestationHistory: history,
+                ...(first ? {
+                  attestationId: first.id ?? first.ID ?? null,
+                  attestationDebut: first.dateDebut ?? first.DATE_DEBUT ?? null,
+                  attestationFin: first.dateFin ?? first.DATE_FIN ?? null
+                } : {})
+              },
+              attestationLoaded: true,
+              version: store.version() + 1,
+              error: null
+            });
+          }),
+          catchError(() => {
+            patchState(store, {
+              attestationLoaded: false,
+              error: 'Erreur chargement attestations'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async loadAssureHistory(params: { centerId: string; patientId: string }): Promise<void> {
-      try {
-        const rows = await firstValueFrom(api.listPatientAssureHistory(params.centerId, params.patientId));
-        const assignments = rows ?? [];
-        const activeNums = new Set(assignments.filter((h: any) => h.actif).map((h: any) => h.numeroAssurance));
-        patchState(store, {
-          assureAssignments: assignments,
-          assureCatalog: store.assureCatalog().map((a: any) => ({
-            ...a,
-            isPrimary: activeNums.has(a.numeroAssurance)
-          })),
-          wizardData: {
-            ...store.wizardData(),
-            assureHistory: assignments
-          },
-          version: store.version() + 1,
-          error: null
-        });
-      } catch (err: any) {
-        patchState(store, {
-          error: err?.error?.detail || err?.error?.message || 'Erreur chargement historique assuré'
-        });
-        throw err;
-      }
-    },
+    loadPecs: rxMethod<{ centerId: string; patientId: string }>(
+      pipe(
+        switchMap((params) => api.listPecsByPatient(params.centerId, params.patientId).pipe(
+          tap((pecs: any[]) => {
+            const history = pecs ?? [];
+            const first = history[0];
+            patchState(store, {
+              wizardData: {
+                ...store.wizardData(),
+                pecHistory: history,
+                ...(first ? {
+                  pecId: first.id ?? first.ID ?? null,
+                  pecDateDebutDemande: first.dateDebutDemande ?? first.DATE_DEBUT_DEMANDE ?? null,
+                  pecDateFinDemande: first.dateFinDemande ?? first.DATE_FIN_DEMANDE ?? null,
+                  pecForfaitDemandeId: first.forfaitDemandeId ?? first.FORFAIT_DEMANDE_ID ?? null
+                } : {})
+              },
+              pecLoaded: true,
+              version: store.version() + 1,
+              error: null
+            });
+          }),
+          catchError(() => {
+            patchState(store, {
+              pecLoaded: false,
+              error: 'Erreur chargement PEC'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async searchAssures(params: { centerId: string; q: string }): Promise<void> {
-      patchState(store, {loadingAssures: true, error: null, infoMessage: null});
-      try {
-        const rows = await firstValueFrom(api.searchAssures(params.centerId, params.q));
-        const activeNums = new Set(
-          store.assureAssignments().filter((h: any) => h.actif).map((h: any) => h.numeroAssurance)
-        );
-        patchState(store, {
-          loadingAssures: false,
-          assureCatalog: (rows ?? []).map((a: any) => ({
-            ...a,
-            isPrimary: activeNums.has(a.numeroAssurance)
-          }))
-        });
-      } catch (err: any) {
-        patchState(store, {
-          loadingAssures: false,
-          error: err?.error?.detail || err?.error?.message || 'Erreur chargement des assurés'
-        });
-        throw err;
-      }
-    },
+    loadAssureHistory: rxMethod<{ centerId: string; patientId: string }>(
+      pipe(
+        switchMap((params) => api.listPatientAssureHistory(params.centerId, params.patientId).pipe(
+          tap((rows: any[]) => {
+            const assignments = rows ?? [];
+            const activeNums = new Set(assignments.filter((h: any) => h.actif).map((h: any) => h.numeroAssurance));
+            patchState(store, {
+              assureAssignments: assignments,
+              assureCatalog: store.assureCatalog().map((a: any) => ({
+                ...a,
+                isPrimary: activeNums.has(a.numeroAssurance)
+              })),
+              wizardData: {
+                ...store.wizardData(),
+                assureHistory: assignments
+              },
+              version: store.version() + 1,
+              error: null
+            });
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              error: err?.error?.detail || err?.error?.message || 'Erreur chargement historique assuré'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async assignAssure(params: { centerId: string; patientId: string | null; a: any }): Promise<void> {
-      const assurePatch = createAssureWizardPatch(params.a);
-      patchState(store, {
-        error: null,
-        infoMessage: null,
-        assureCatalog: store.assureCatalog().map((row: any) => ({
-          ...row,
-          isPrimary: row.numeroAssurance === params.a.numeroAssurance
-        })),
-        wizardData: {
-          ...store.wizardData(),
-          ...assurePatch
-        },
-        version: store.version() + 1
-      });
+    searchAssures: rxMethod<{ centerId: string; q: string }>(
+      pipe(
+        tap(() => patchState(store, {loadingAssures: true, error: null, infoMessage: null})),
+        switchMap((params) => api.searchAssures(params.centerId, params.q).pipe(
+          tap((rows: any[]) => {
+            const activeNums = new Set(
+              store.assureAssignments().filter((h: any) => h.actif).map((h: any) => h.numeroAssurance)
+            );
+            patchState(store, {
+              loadingAssures: false,
+              assureCatalog: (rows ?? []).map((a: any) => ({
+                ...a,
+                isPrimary: activeNums.has(a.numeroAssurance)
+              }))
+            });
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              loadingAssures: false,
+              error: err?.error?.detail || err?.error?.message || 'Erreur chargement des assurés'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-      if (!params.patientId) {
-        patchState(store, {infoMessage: 'Assuré sélectionné pour ce patient'});
-        return;
-      }
+    assignAssure: rxMethod<{ centerId: string; patientId: string | null; a: any }>(
+      pipe(
+        tap((params) => {
+          const assurePatch = createAssureWizardPatch(params.a);
+          patchState(store, {
+            error: null,
+            infoMessage: null,
+            assureCatalog: store.assureCatalog().map((row: any) => ({
+              ...row,
+              isPrimary: row.numeroAssurance === params.a.numeroAssurance
+            })),
+            wizardData: {
+              ...store.wizardData(),
+              ...assurePatch
+            },
+            version: store.version() + 1
+          });
+        }),
+        switchMap((params) => {
+          if (!params.patientId) {
+            patchState(store, {infoMessage: 'Assuré sélectionné pour ce patient'});
+            return of(null);
+          }
 
-      try {
-        await firstValueFrom(api.assignAssureToPatient(params.centerId, params.patientId, params.a.numeroAssurance));
-        const rows = await firstValueFrom(api.listPatientAssureHistory(params.centerId, params.patientId));
-        const assignments = rows ?? [];
-        const activeNums = new Set(assignments.filter((h: any) => h.actif).map((h: any) => h.numeroAssurance));
-        patchState(store, {
-          assureAssignments: assignments,
-          assureCatalog: store.assureCatalog().map((row: any) => ({
-            ...row,
-            isPrimary: activeNums.has(row.numeroAssurance)
-          })),
-          wizardData: {
-            ...store.wizardData(),
-            ...assurePatch,
-            assureHistory: assignments
-          },
-          version: store.version() + 1,
-          infoMessage: 'Assuré affecté au patient avec succès'
-        });
-      } catch (err: any) {
-        const activeNums = new Set(
-          store.assureAssignments().filter((h: any) => h.actif).map((h: any) => h.numeroAssurance)
-        );
-        patchState(store, {
-          assureCatalog: store.assureCatalog().map((row: any) => ({
-            ...row,
-            isPrimary: activeNums.has(row.numeroAssurance)
-          })),
-          error: err?.error?.detail || err?.error?.message || 'Erreur affectation assuré'
-        });
-        throw err;
-      }
-    },
+          const assurePatch = createAssureWizardPatch(params.a);
+          return api.assignAssureToPatient(params.centerId, params.patientId, params.a.numeroAssurance).pipe(
+            switchMap(() => api.listPatientAssureHistory(params.centerId, params.patientId!)),
+            tap((rows: any[]) => {
+              const assignments = rows ?? [];
+              const activeNums = new Set(assignments.filter((h: any) => h.actif).map((h: any) => h.numeroAssurance));
+              patchState(store, {
+                assureAssignments: assignments,
+                assureCatalog: store.assureCatalog().map((row: any) => ({
+                  ...row,
+                  isPrimary: activeNums.has(row.numeroAssurance)
+                })),
+                wizardData: {
+                  ...store.wizardData(),
+                  ...assurePatch,
+                  assureHistory: assignments
+                },
+                version: store.version() + 1,
+                infoMessage: 'Assuré affecté au patient avec succès'
+              });
+            }),
+            catchError((err: any) => {
+              const activeNums = new Set(
+                store.assureAssignments().filter((h: any) => h.actif).map((h: any) => h.numeroAssurance)
+              );
+              patchState(store, {
+                assureCatalog: store.assureCatalog().map((row: any) => ({
+                  ...row,
+                  isPrimary: activeNums.has(row.numeroAssurance)
+                })),
+                error: err?.error?.detail || err?.error?.message || 'Erreur affectation assuré'
+              });
+              return of(null);
+            })
+          );
+        })
+      )
+    ),
 
-    async updateAssure(params: { centerId: string; numeroAssurance: string; payload: any }): Promise<any> {
-      try {
-        const updated = await firstValueFrom(api.updateAssure(params.centerId, params.numeroAssurance, params.payload));
-        const wizardData = store.wizardData();
-        const nextState: Partial<PatientWizardState> = {
-          assureCatalog: store.assureCatalog().map((row: any) =>
-            row.numeroAssurance === params.numeroAssurance ? {...row, ...updated} : row
-          ),
-          infoMessage: 'Assuré mis à jour',
-          error: null
-        };
+    updateAssure: rxMethod<{ centerId: string; numeroAssurance: string; payload: any }>(
+      pipe(
+        switchMap((params) => api.updateAssure(params.centerId, params.numeroAssurance, params.payload).pipe(
+          tap((updated: any) => {
+            const wizardData = store.wizardData();
+            const nextState: Partial<PatientWizardState> = {
+              assureCatalog: store.assureCatalog().map((row: any) =>
+                row.numeroAssurance === params.numeroAssurance ? {...row, ...updated} : row
+              ),
+              infoMessage: 'Assuré mis à jour',
+              error: null
+            };
 
-        if (wizardData['assureNumeroAssurance'] === params.numeroAssurance) {
-          nextState.wizardData = {
-            ...wizardData,
-            assureNom: updated.nom ?? params.payload.nom,
-            assurePrenom: updated.prenom ?? params.payload.prenom,
-            assureSexe: updated.sexe ?? params.payload.sexe,
-            assureDateNaissance: updated.dateNaissance ?? params.payload.dateNaissance ?? null,
-            assureTelPersonnel: updated.telPersonnel ?? params.payload.telPersonnel,
-            assureTelMobile: updated.telMobile ?? params.payload.telMobile,
-            assureTelBureau: updated.telBureau ?? params.payload.telBureau,
-            assureGroupeSanguin: updated.groupeSanguin ?? params.payload.groupeSanguin,
-            assureAdresse: updated.adresse ?? params.payload.adresse
-          };
-          nextState.version = store.version() + 1;
-        }
+            if (wizardData['assureNumeroAssurance'] === params.numeroAssurance) {
+              nextState.wizardData = {
+                ...wizardData,
+                assureNom: updated.nom ?? params.payload.nom,
+                assurePrenom: updated.prenom ?? params.payload.prenom,
+                assureSexe: updated.sexe ?? params.payload.sexe,
+                assureDateNaissance: updated.dateNaissance ?? params.payload.dateNaissance ?? null,
+                assureTelPersonnel: updated.telPersonnel ?? params.payload.telPersonnel,
+                assureTelMobile: updated.telMobile ?? params.payload.telMobile,
+                assureTelBureau: updated.telBureau ?? params.payload.telBureau,
+                assureGroupeSanguin: updated.groupeSanguin ?? params.payload.groupeSanguin,
+                assureAdresse: updated.adresse ?? params.payload.adresse
+              };
+              nextState.version = store.version() + 1;
+            }
 
-        patchState(store, nextState);
-        return updated;
-      } catch (err: any) {
-        patchState(store, {
-          error: err?.error?.detail || err?.error?.message || 'Erreur mise à jour assuré'
-        });
-        throw err;
-      }
-    },
+            patchState(store, nextState);
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              error: err?.error?.detail || err?.error?.message || 'Erreur mise à jour assuré'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async updateAssureAssignment(params: {
+    updateAssureAssignment: rxMethod<{
       centerId: string;
       patientId: string;
       assignmentId: string;
       debut: string | null;
       fin: string | null;
-    }): Promise<void> {
-      patchState(store, {savingAssureEdit: true, error: null, infoMessage: null});
-      try {
-        await firstValueFrom(api.updateAssureAssignment(params.centerId, params.patientId, params.assignmentId, {
+    }>(
+      pipe(
+        tap(() => patchState(store, {savingAssureEdit: true, error: null, infoMessage: null})),
+        switchMap((params) => api.updateAssureAssignment(params.centerId, params.patientId, params.assignmentId, {
           dateDebutAffectation: params.debut,
           dateFinAffectation: params.fin
-        }));
-        const rows = await firstValueFrom(api.listPatientAssureHistory(params.centerId, params.patientId));
-        patchState(store, {
-          assureAssignments: rows ?? [],
-          savingAssureEdit: false,
-          wizardData: {
-            ...store.wizardData(),
-            assureHistory: rows ?? []
-          },
-          version: store.version() + 1,
-          infoMessage: 'Affectation mise à jour'
-        });
-      } catch (err: any) {
-        patchState(store, {
-          savingAssureEdit: false,
-          error: err?.error?.detail || err?.error?.message || 'Erreur mise à jour affectation'
-        });
-        throw err;
-      }
-    },
+        }).pipe(
+          switchMap(() => api.listPatientAssureHistory(params.centerId, params.patientId)),
+          tap((rows: any[]) => {
+            patchState(store, {
+              assureAssignments: rows ?? [],
+              savingAssureEdit: false,
+              wizardData: {
+                ...store.wizardData(),
+                assureHistory: rows ?? []
+              },
+              version: store.version() + 1,
+              infoMessage: 'Affectation mise à jour'
+            });
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              savingAssureEdit: false,
+              error: err?.error?.detail || err?.error?.message || 'Erreur mise à jour affectation'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async deletePec(params: { pecId: string; centerId: string; patientId?: string }): Promise<void> {
-      try {
-        await firstValueFrom(api.deletePec(params.pecId, params.centerId, params.patientId));
-        const history = (store.wizardData()['pecHistory'] ?? []).filter(
-          (h: any) => (h.id ?? h.ID ?? '').toString() !== params.pecId
-        );
-        patchState(store, {
-          wizardData: {
-            ...store.wizardData(),
-            pecHistory: history,
-            pecId: null,
-            pecDateDebutDemande: null,
-            pecDateFinDemande: null,
-            pecForfaitDemandeId: null
-          },
-          version: store.version() + 1,
-          infoMessage: 'PEC supprimée',
-          error: null
-        });
-      } catch (err: any) {
-        patchState(store, {
-          error: err?.error?.detail || err?.message || 'Erreur suppression PEC'
-        });
-        throw err;
-      }
-    },
+    deletePec: rxMethod<{ pecId: string; centerId: string; patientId?: string }>(
+      pipe(
+        switchMap((params) => api.deletePec(params.pecId, params.centerId, params.patientId).pipe(
+          tap(() => {
+            const history = (store.wizardData()['pecHistory'] ?? []).filter(
+              (h: any) => (h.id ?? h.ID ?? '').toString() !== params.pecId
+            );
+            patchState(store, {
+              wizardData: {
+                ...store.wizardData(),
+                pecHistory: history,
+                pecId: null,
+                pecDateDebutDemande: null,
+                pecDateFinDemande: null,
+                pecForfaitDemandeId: null
+              },
+              version: store.version() + 1,
+              infoMessage: 'PEC supprimée',
+              error: null
+            });
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              error: err?.error?.detail || err?.message || 'Erreur suppression PEC'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async deleteAttestation(params: { attestationId: string; centerId: string; patientId?: string }): Promise<void> {
-      try {
-        await firstValueFrom(api.deleteAttestation(params.attestationId, params.centerId, params.patientId));
-        const history = (store.wizardData()['attestationHistory'] ?? []).filter(
-          (h: any) => (h.id ?? h.ID ?? '').toString() !== params.attestationId
-        );
-        patchState(store, {
-          wizardData: {
-            ...store.wizardData(),
-            attestationHistory: history,
-            attestationId: null,
-            attestationDebut: null,
-            attestationFin: null
-          },
-          version: store.version() + 1,
-          infoMessage: 'Attestation supprimée',
-          error: null
-        });
-      } catch (err: any) {
-        patchState(store, {
-          error: err?.error?.detail || err?.message || 'Erreur suppression attestation'
-        });
-        throw err;
-      }
-    },
+    deleteAttestation: rxMethod<{ attestationId: string; centerId: string; patientId?: string }>(
+      pipe(
+        switchMap((params) => api.deleteAttestation(params.attestationId, params.centerId, params.patientId).pipe(
+          tap(() => {
+            const history = (store.wizardData()['attestationHistory'] ?? []).filter(
+              (h: any) => (h.id ?? h.ID ?? '').toString() !== params.attestationId
+            );
+            patchState(store, {
+              wizardData: {
+                ...store.wizardData(),
+                attestationHistory: history,
+                attestationId: null,
+                attestationDebut: null,
+                attestationFin: null
+              },
+              version: store.version() + 1,
+              infoMessage: 'Attestation supprimée',
+              error: null
+            });
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              error: err?.error?.detail || err?.message || 'Erreur suppression attestation'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async printDocument(centerId: string, typeDocument: string, params: Record<string, string>, formatOverride?: string): Promise<Blob> {
-      patchState(store, {error: null});
-      try {
-        return await firstValueFrom(api.printDocument(centerId, typeDocument, params, formatOverride));
-      } catch (err: any) {
-        patchState(store, {
-          error: err?.error?.text || err?.error?.detail || err?.error?.message || err?.message || 'Erreur impression'
-        });
-        throw err;
-      }
-    },
+    printDocument: rxMethod<{
+      centerId: string;
+      typeDocument: string;
+      params: Record<string, string>;
+      formatOverride?: string;
+    }>(
+      pipe(
+        tap(() => patchState(store, {error: null})),
+        switchMap((params) => api.printDocument(
+          params.centerId,
+          params.typeDocument,
+          params.params,
+          params.formatOverride
+        ).pipe(
+          tap((blob: Blob) => {
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+          }),
+          catchError((err: any) => {
+            patchState(store, {
+              error: err?.error?.text || err?.error?.detail || err?.error?.message || err?.message || 'Erreur impression'
+            });
+            return of(null);
+          })
+        ))
+      )
+    ),
 
-    async submitPatient(params: {
+    submitPatient: rxMethod<{
       editingPatientId: string | null;
       payload: CreatePatientPayload;
-    }): Promise<void> {
-      patchState(store, {saving: true, submitStatus: 'idle', error: null, infoMessage: null});
-      try {
-        const request$ = params.editingPatientId
-          ? api.updatePatient(params.editingPatientId, params.payload)
-          : api.createPatient(params.payload);
-        await firstValueFrom(request$);
-        patchState(store, {saving: false, submitStatus: 'success'});
-      } catch (err: any) {
-        patchState(store, {
-          saving: false,
-          submitStatus: 'error',
-          error: err?.error?.detail || err?.error?.message || 'Erreur lors de la sauvegarde'
-        });
-        throw err;
-      }
-    }
+    }>(
+      pipe(
+        tap(() => patchState(store, {saving: true, submitStatus: 'idle', error: null, infoMessage: null})),
+        switchMap((params) => {
+          const request$ = params.editingPatientId
+            ? api.updatePatient(params.editingPatientId, params.payload)
+            : api.createPatient(params.payload);
+          return request$.pipe(
+            tap((result: any) => patchState(store, {
+              saving: false,
+              submitStatus: 'success',
+              lastSavedPatientId: result?.id ?? params.editingPatientId ?? null
+            })),
+            catchError((err: any) => {
+              patchState(store, {
+                saving: false,
+                submitStatus: 'error',
+                error: err?.error?.detail || err?.error?.message || 'Erreur lors de la sauvegarde'
+              });
+              return of(null);
+            })
+          );
+        })
+      )
+    )
   }))
 );
 

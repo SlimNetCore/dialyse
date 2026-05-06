@@ -16,6 +16,7 @@ import {AuthStore} from '../../../core/state/auth.store';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService, WsEvent} from '../../../core/ws/websocket.service';
 import {PatientFicheStore} from '../state/patient-fiche.store';
+import {PatientListStore} from '../state/patient-list.store';
 
 @Component({
   selector: 'app-patient-wizard',
@@ -242,6 +243,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   private readonly auth = inject(AuthStore);
   private readonly appShell = inject(AppShellStore);
   private readonly ficheStore = inject(PatientFicheStore);
+  private readonly patientListStore = inject(PatientListStore);
   readonly editingPatientId = this.ficheStore.editingPatientId;
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -286,6 +288,19 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       if (submitStatus === 'idle') return;
 
       if (submitStatus === 'success') {
+        const centerId = this.appShell.currentCenterId();
+        const userId = this.auth.username() ?? 'demo';
+        const savedPatientId = this.ficheStore.lastSavedPatientId() ?? this.editingPatientId() ?? null;
+        this.patientListStore.setRecentPatient(savedPatientId);
+        if (centerId) {
+          this.patientListStore.loadPage({
+            centerId,
+            userId,
+            page: this.patientListStore.pageIndex(),
+            size: this.patientListStore.pageSize()
+          });
+        }
+
         this.snackBar.open(
           this.translate.instant('PATIENT_FORM.SUCCESS') || 'Patient enregistré avec succès',
           'OK',
@@ -544,7 +559,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     void this.ficheStore.submitPatient({
       editingPatientId: this.editMode() ? this.editingPatientId() : null,
       payload
-    }).catch(() => undefined);
+    });
   }
 
   private shouldRefreshFromEvent(event: WsEvent): boolean {
@@ -570,7 +585,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     const centerId = this.appShell.currentCenterId();
     if (!id || !centerId) return;
 
-    void this.loadPatientFromServer(id, {
+    this.loadPatientFromServer(id, {
       reloadAttestations: this.attestationLoaded(),
       reloadPecs: this.pecLoaded()
     });
@@ -585,26 +600,24 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     const pecIndex = this.isVacancier() ? 3 : 4;
 
     if (stepIndex === attestationIndex && !this.attestationLoaded()) {
-      void this.ficheStore.loadAttestations({
+      this.ficheStore.loadAttestations({
         centerId,
         patientId: this.editingPatientId()!
-      }).then(() => {
+      });
+      setTimeout(() => {
         this.patchStepsFromWizardData();
         this.recomputeStepValidityFromData();
-      }).catch(() => {
-        this.snackBar.open(this.ficheStore.error() || 'Erreur chargement attestations', 'OK', {duration: 4000});
       });
     }
 
     if (stepIndex === pecIndex && !this.pecLoaded()) {
-      void this.ficheStore.loadPecs({
+      this.ficheStore.loadPecs({
         centerId,
         patientId: this.editingPatientId()!
-      }).then(() => {
+      });
+      setTimeout(() => {
         this.patchStepsFromWizardData();
         this.recomputeStepValidityFromData();
-      }).catch(() => {
-        this.snackBar.open(this.ficheStore.error() || 'Erreur chargement PEC', 'OK', {duration: 4000});
       });
     }
   }
@@ -634,31 +647,29 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     this.ficheStore.setStep5Valid(this.isPecDataValid());
   }
 
-  private async loadPatientFromServer(
+  private loadPatientFromServer(
     patientId: string,
     options: { reloadAttestations?: boolean; reloadPecs?: boolean } = {}
-  ): Promise<void> {
+  ): void {
     const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
-    try {
-      await this.ficheStore.loadPatient({
-        id: patientId,
-        centerId,
-        userId: this.auth.username() ?? 'demo'
-      });
+    this.ficheStore.loadPatient({
+      id: patientId,
+      centerId,
+      userId: this.auth.username() ?? 'demo'
+    });
 
-      if (options.reloadAttestations && !this.isVacancier()) {
-        await this.ficheStore.loadAttestations({centerId, patientId});
-      }
-      if (options.reloadPecs) {
-        await this.ficheStore.loadPecs({centerId, patientId});
-      }
+    if (options.reloadAttestations && !this.isVacancier()) {
+      this.ficheStore.loadAttestations({centerId, patientId});
+    }
+    if (options.reloadPecs) {
+      this.ficheStore.loadPecs({centerId, patientId});
+    }
 
+    setTimeout(() => {
       this.patchStepsFromWizardData();
       this.recomputeStepValidityFromData();
-    } catch {
-      this.snackBar.open(this.ficheStore.error() || 'Erreur chargement patient', 'OK', {duration: 5000});
-    }
+    });
   }
 }

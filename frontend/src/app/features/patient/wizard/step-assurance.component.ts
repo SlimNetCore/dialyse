@@ -776,9 +776,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   searchAssures(): void {
     const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
-    void this.ficheStore.searchAssures({centerId, q: this.assureSearch()}).catch(() => {
-      this.snackBar.open(this.ficheStore.error() || 'Erreur chargement des assurés', 'OK', {duration: 3000});
-    });
+    this.ficheStore.searchAssures({centerId, q: this.assureSearch()});
   }
 
   // ── Dialog : modification d'un assuré ──────────────────
@@ -791,34 +789,37 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       width: '600px',
       disableClose: false
     });
-    ref.afterClosed().subscribe(async result => {
+    ref.afterClosed().subscribe(result => {
       if (!result) return;
-      try {
-        const updated = await this.ficheStore.updateAssure({
-          centerId,
-          numeroAssurance: a.numeroAssurance,
-          payload: result
-        });
+      const isCurrentAssure = this.form.get('assureNumeroAssurance')?.value === a.numeroAssurance;
+      this.ficheStore.updateAssure({
+        centerId,
+        numeroAssurance: a.numeroAssurance,
+        payload: result
+      });
 
-        // Si c'est l'assuré actif du formulaire, mettre à jour la fiche locale
-          if (this.form.get('assureNumeroAssurance')?.value === a.numeroAssurance) {
-            this.form.patchValue({
-              assureNom: updated.nom ?? result.nom,
-              assurePrenom: updated.prenom ?? result.prenom,
-              assureSexe: updated.sexe ?? result.sexe,
-              assureDateNaissance: updated.dateNaissance ?? result.dateNaissance ?? null,
-              assureTelPersonnel: updated.telPersonnel ?? result.telPersonnel,
-              assureTelMobile: updated.telMobile ?? result.telMobile,
-              assureTelBureau: updated.telBureau ?? result.telBureau,
-              assureGroupeSanguin: updated.groupeSanguin ?? result.groupeSanguin,
-              assureAdresse: updated.adresse ?? result.adresse
-            });
-          }
-        this.snackBar.open('Assuré mis à jour', 'OK', {duration: 2500});
-      } catch (err: any) {
-        const detail = err?.error?.detail || err?.error?.message || this.ficheStore.error() || '';
-        this.snackBar.open(detail || 'Erreur mise à jour assuré', 'OK', {duration: 3500});
+      if (isCurrentAssure) {
+        this.form.patchValue({
+          assureNom: result.nom,
+          assurePrenom: result.prenom,
+          assureSexe: result.sexe,
+          assureDateNaissance: result.dateNaissance ?? null,
+          assureTelPersonnel: result.telPersonnel,
+          assureTelMobile: result.telMobile,
+          assureTelBureau: result.telBureau,
+          assureGroupeSanguin: result.groupeSanguin,
+          assureAdresse: result.adresse
+        });
       }
+
+      setTimeout(() => {
+        const detail = this.ficheStore.error();
+        if (detail) {
+          this.snackBar.open(detail, 'OK', {duration: 3500});
+          return;
+        }
+        this.snackBar.open('Assuré mis à jour', 'OK', {duration: 2500});
+      });
     });
   }
 
@@ -847,21 +848,24 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
     patchAssureForm();
 
-    void this.ficheStore.assignAssure({
+    this.ficheStore.assignAssure({
       centerId,
       patientId: this.patientId ?? null,
       a
-    }).then(() => {
-      this.snackBar.open(this.ficheStore.infoMessage() || 'Assuré affecté au patient avec succès', 'OK', {duration: 2500});
-    }).catch((err: any) => {
-      const detail = err?.error?.detail || err?.error?.message || this.ficheStore.error() || '';
+    });
+
+    setTimeout(() => {
+      const detail = this.ficheStore.error() || '';
       if (typeof detail === 'string' && detail.toLowerCase().includes('assuré lui-même')) {
         patchAssureForm();
         this.snackBar.open('Assuré sélectionné localement. Enregistrez le patient puis réessayez.', 'OK', {duration: 4500});
         return;
       }
-      if (err?.status === 401 || err?.status === 403) return;
-      this.snackBar.open(detail || 'Erreur affectation assuré', 'OK', {duration: 3500});
+      if (detail) {
+        this.snackBar.open(detail, 'OK', {duration: 3500});
+        return;
+      }
+      this.snackBar.open(this.ficheStore.infoMessage() || 'Assuré affecté au patient avec succès', 'OK', {duration: 2500});
     });
   }
 
@@ -900,18 +904,22 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       this.snackBar.open('La date de fin doit être >= à la date de début', 'OK', {duration: 3000});
       return;
     }
-    void this.ficheStore.updateAssureAssignment({
+    this.ficheStore.updateAssureAssignment({
       centerId,
       patientId: this.patientId,
       assignmentId: edit.id,
       debut,
       fin
-    }).then(() => {
+    });
+
+    setTimeout(() => {
+      const detail = this.ficheStore.error();
+      if (detail) {
+        this.snackBar.open(detail, 'OK', {duration: 3500});
+        return;
+      }
       this.editingAssignment.set(null);
       this.snackBar.open('Affectation mise à jour', 'OK', {duration: 2500});
-    }).catch((err: any) => {
-      const detail = err?.error?.detail || err?.error?.message || this.ficheStore.error() || '';
-      this.snackBar.open(detail || 'Erreur mise à jour affectation', 'OK', {duration: 3500});
     });
   }
 
@@ -963,14 +971,16 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.applyReadonly();
   }
 
-  private async loadAssureHistory(): Promise<void> {
+  private loadAssureHistory(): void {
     const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
-    try {
-      await this.ficheStore.loadAssureHistory({centerId, patientId: this.patientId});
-    } catch {
-      this.snackBar.open(this.ficheStore.error() || 'Erreur chargement historique assuré', 'OK', {duration: 3000});
-    }
+    this.ficheStore.loadAssureHistory({centerId, patientId: this.patientId});
+    setTimeout(() => {
+      const err = this.ficheStore.error();
+      if (err) {
+        this.snackBar.open(err, 'OK', {duration: 3000});
+      }
+    });
   }
 
   // ── API publique ────────────────────────────────────────

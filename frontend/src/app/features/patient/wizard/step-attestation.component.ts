@@ -235,18 +235,21 @@ export class StepAttestationComponent implements OnInit, OnChanges {
     const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
 
-    void this.ficheStore.printDocument(centerId, 'ATTESTATION', {
-      patientId: this.patientId,
-      attestationId: this.selectedAttestationId() ?? ''
-    }).then((blob) => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-    })
-      .catch((err) => this.snackBar.open(
-        this.translate.instant('WIZARD.PRINT_ERROR', {detail: (err?.error?.text || err.message)}),
-        'OK',
-        {duration: 4000}
-      ));
+    this.ficheStore.printDocument({
+      centerId,
+      typeDocument: 'ATTESTATION',
+      params: {
+        patientId: this.patientId,
+        attestationId: this.selectedAttestationId() ?? ''
+      }
+    });
+
+    setTimeout(() => {
+      const err = this.ficheStore.error();
+      if (err) {
+        this.snackBar.open(this.translate.instant('WIZARD.PRINT_ERROR', {detail: err}), 'OK', {duration: 4000});
+      }
+    });
   }
 
   deleteSelected(): void {
@@ -269,21 +272,23 @@ export class StepAttestationComponent implements OnInit, OnChanges {
 
     ref.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
-      void this.ficheStore.deleteAttestation({
+      this.ficheStore.deleteAttestation({
         attestationId: id,
         centerId,
         patientId: this.patientId ?? undefined
-      }).then(() => {
-          this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
-          this.prepareNew();
-          this.snackBar.open(this.translate.instant('WIZARD.ATTESTATION_DELETED_OK'), 'OK', {duration: 3000});
-          this.deleteRequest.emit({ type: 'ATTESTATION', id });
-      })
-        .catch((err) => this.snackBar.open(
-          this.translate.instant('WIZARD.DELETE_ERROR', {detail: (err?.error?.detail || err.message)}),
-          'OK',
-          {duration: 4000}
-        ));
+      });
+
+      setTimeout(() => {
+        const err = this.ficheStore.error();
+        if (err) {
+          this.snackBar.open(this.translate.instant('WIZARD.DELETE_ERROR', {detail: err}), 'OK', {duration: 4000});
+          return;
+        }
+        this.history.set(this.history().filter(h => (h.id ?? h.ID ?? '').toString() !== id));
+        this.prepareNew();
+        this.snackBar.open(this.translate.instant('WIZARD.ATTESTATION_DELETED_OK'), 'OK', {duration: 3000});
+        this.deleteRequest.emit({type: 'ATTESTATION', id});
+      });
     });
   }
 }

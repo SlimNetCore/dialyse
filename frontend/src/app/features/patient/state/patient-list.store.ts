@@ -12,6 +12,7 @@ type PatientListState = PagedListState<any> & {
   printingList: boolean;
   exportingList: boolean;
   printingRowId: string | null;
+  recentPatientId: string | null;
   activeCenterId: string | null;
   activeUserId: string | null;
   error: string | null;
@@ -22,6 +23,7 @@ const initialState: PatientListState = {
   printingList: false,
   exportingList: false,
   printingRowId: null,
+  recentPatientId: null,
   activeCenterId: null,
   activeUserId: null,
   error: null
@@ -183,6 +185,14 @@ export const PatientListStore = signalStore(
 
     setPrintingRowId(printingRowId: string | null): void {
       patchState(store, {printingRowId});
+    },
+
+    setRecentPatient(recentPatientId: string | null): void {
+      patchState(store, {recentPatientId});
+    },
+
+    clearRecentPatient(): void {
+      patchState(store, {recentPatientId: null});
     },
 
     setPageData(rows: any[], total: number, pageIndex: number): void {

@@ -488,6 +488,7 @@ type FilterType = 'text' | 'date';
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="patient-row"
+                  [class.patient-row-recent]="isRecentRow(row.id)"
                   [attr.data-row-id]="row.id"></tr>
               <tr class="mat-mdc-row" *matNoDataRow>
                 <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
@@ -572,6 +573,23 @@ type FilterType = 'text' | 'date';
 
     .patient-row:hover {
       background: var(--app-row-hover) !important;
+    }
+
+    .patient-row-recent {
+      background: color-mix(in srgb, var(--app-primary-soft) 76%, transparent) !important;
+      animation: patient-recent-pulse 1.6s ease-in-out 2;
+    }
+
+    @keyframes patient-recent-pulse {
+      0% {
+        box-shadow: inset 0 0 0 0 color-mix(in srgb, var(--app-primary) 42%, transparent);
+      }
+      50% {
+        box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--app-primary-soft) 28%, transparent);
+      }
+      100% {
+        box-shadow: inset 0 0 0 0 color-mix(in srgb, var(--app-primary) 12%, transparent);
+      }
     }
 
     th.mat-mdc-header-cell {
@@ -838,6 +856,7 @@ export class PatientListComponent {
   readonly pageIndex = this.patientListStore.pageIndex;
   readonly pageSize = this.patientListStore.pageSize;
   readonly columnFilters = this.patientListStore.columnFilters;
+  readonly recentPatientId = this.patientListStore.recentPatientId;
   private readonly ws = inject(WebSocketService);
 
   private readonly openFilterColumn = signal<string | null>(null);
@@ -874,6 +893,16 @@ export class PatientListComponent {
         this.patientListStore.refreshCurrentPage();
       }
     });
+
+    effect(() => {
+      const recentId = this.recentPatientId();
+      if (!recentId) return;
+      setTimeout(() => this.patientListStore.clearRecentPatient(), 6000);
+    });
+  }
+
+  isRecentRow(rowId: string): boolean {
+    return !!rowId && rowId === this.recentPatientId();
   }
 
   clearColumnFilter(column: string): void {
