@@ -1,6 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {environment} from '../../../environments/environment';
 
 export interface RefItem { id: string; nom: string; code?: string; libelle?: string; adresse?: string; prenom?: string; }
 export interface CentrePayeurDetail {
@@ -17,7 +18,7 @@ export interface CentrePayeurDetail {
 @Injectable({ providedIn: 'root' })
 export class ReferentialApiService {
   private readonly http = inject(HttpClient);
-  private readonly base = 'http://localhost:8080/api/v1/referentials';
+  private readonly base = `${environment.apiBaseUrl}/referentials`;
 
   private get(endpoint: string, centerId: string): Observable<RefItem[]> {
     return this.http.get<RefItem[]>(`${this.base}/${endpoint}`, {

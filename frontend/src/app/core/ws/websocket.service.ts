@@ -1,7 +1,8 @@
-import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
-import { Client, IMessage } from '@stomp/stompjs';
+import {computed, inject, Injectable, OnDestroy, signal} from '@angular/core';
+import {Client, IMessage} from '@stomp/stompjs';
 
 import {AuthStore} from '../state/auth.store';
+import {environment} from '../../../environments/environment';
 
 export interface WsEvent {
   type: string;
@@ -15,6 +16,8 @@ export type WsConnectionStatus = 'stable' | 'interrupted' | 'impossible';
 @Injectable({ providedIn: 'root' })
 export class WebSocketService implements OnDestroy {
   private readonly auth = inject(AuthStore);
+  private readonly wsBaseUrl = environment.wsBaseUrl ?? this.buildDefaultWsBaseUrl();
+  private readonly healthCheckUrl = environment.healthCheckUrl;
   private client: Client | null = null;
   private connectAttempted = false;
 
@@ -42,7 +45,7 @@ export class WebSocketService implements OnDestroy {
     }
 
     this.client = new Client({
-      brokerURL: 'ws://localhost:8080/ws',
+      brokerURL: this.wsBaseUrl,
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
@@ -76,7 +79,7 @@ export class WebSocketService implements OnDestroy {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 1500);
-      const resp = await fetch('http://localhost:8080/actuator/health', {
+      const resp = await fetch(this.healthCheckUrl, {
         method: 'GET',
         signal: controller.signal
       });
@@ -96,5 +99,10 @@ export class WebSocketService implements OnDestroy {
 
   ngOnDestroy(): void {
     this.disconnect();
+  }
+
+  private buildDefaultWsBaseUrl(): string {
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    return `${protocol}://${window.location.host}/ws`;
   }
 }
