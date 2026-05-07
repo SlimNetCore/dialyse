@@ -63,7 +63,7 @@ public class SecurityConfig {
                                         "script-src 'self'; " +
                                         "style-src 'self' 'unsafe-inline'; " +
                                         "img-src 'self' data: https:; " +
-                                        "connect-src 'self' http://localhost:4200 https://dialysis-beta.vercel.app; " +
+                                        "connect-src 'self' http://localhost:4200 https://dialyse-production.up.railway.app https://dialysis-beta.vercel.app; " +
                                         "frame-ancestors 'none'; " +
                                         "form-action 'self'"
                         ))
