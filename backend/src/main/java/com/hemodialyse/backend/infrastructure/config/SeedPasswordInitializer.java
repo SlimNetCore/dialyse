@@ -23,7 +23,7 @@ public class SeedPasswordInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        ensurePassword("admin", "admin123");
+        ensurePassword("admin", "admin$$2026dz");
         ensurePassword("medecin", "medecin123");
     }
 

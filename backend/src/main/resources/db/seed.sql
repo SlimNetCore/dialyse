@@ -1,10 +1,10 @@
 -- Seed data for local development (H2)
 -- Centers
 MERGE INTO centers (id, code, name) KEY (id)
-VALUES ('11111111-1111-1111-1111-111111111111', 'CTR-DAKAR-01', 'Centre Dakar Principal');
+    VALUES ('11111111-1111-1111-1111-111111111111', 'CTR-DAKAR-01', 'ANNABA 1');
 
 MERGE INTO centers (id, code, name) KEY (id)
-VALUES ('22222222-2222-2222-2222-222222222222', 'CTR-SAINTLOUIS-01', 'Centre Saint-Louis');
+    VALUES ('22222222-2222-2222-2222-222222222222', 'CTR-SAINTLOUIS-01', 'ROUIBA');
 
 -- Admin user assignment to both centers
 MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
