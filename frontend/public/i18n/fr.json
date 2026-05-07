@@ -10,7 +10,6 @@
     "USERNAME": "Nom d'utilisateur",
     "PASSWORD": "Mot de passe",
     "SUBMIT": "Se connecter",
-    "DEMO_HINT": "Compte démo: admin / admin123",
     "BRANDING_DESC": "Plateforme de gestion multi-centre\npour l'hémodialyse"
   },
   "TOOLBAR": {
@@ -289,8 +288,8 @@
     "TITLE": "Thème",
     "LIGHT": "Clair",
     "DARK": "Sombre",
-    "CYAN": "Cyan (défaut)",
-    "EMERALD": "Émeraude",
+    "CYAN": "Cyan",
+    "EMERALD": "Émeraude (défaut)",
     "INDIGO": "Indigo"
   },
   "DASHBOARD": {

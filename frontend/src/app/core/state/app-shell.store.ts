@@ -1,4 +1,4 @@
-import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 
 export type CenterRef = {
   id: string;
@@ -12,8 +12,8 @@ type AppShellState = {
 
 const initialState: AppShellState = {
   availableCenters: [
-    { id: '11111111-1111-1111-1111-111111111111', name: 'Centre Dakar Principal' },
-    { id: '22222222-2222-2222-2222-222222222222', name: 'Centre Saint-Louis' }
+    {id: '11111111-1111-1111-1111-111111111111', name: 'ANNABA 1'},
+    {id: '22222222-2222-2222-2222-222222222222', name: 'ROUIBA'}
   ],
   currentCenterId: '11111111-1111-1111-1111-111111111111'
 };

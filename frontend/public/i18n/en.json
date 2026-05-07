@@ -10,7 +10,6 @@
     "USERNAME": "Username",
     "PASSWORD": "Password",
     "SUBMIT": "Sign in",
-    "DEMO_HINT": "Demo account: admin / admin123",
     "BRANDING_DESC": "Multi-center management platform\nfor hemodialysis"
   },
   "TOOLBAR": {
@@ -234,8 +233,8 @@
     "TITLE": "Theme",
     "LIGHT": "Light",
     "DARK": "Dark",
-    "CYAN": "Cyan (default)",
-    "EMERALD": "Emerald",
+    "CYAN": "Cyan",
+    "EMERALD": "Emerald (default)",
     "INDIGO": "Indigo"
   },
   "DASHBOARD": {

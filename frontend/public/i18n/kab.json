@@ -10,7 +10,6 @@
     "USERNAME": "Isem n useqdac",
     "PASSWORD": "Awal uffir",
     "SUBMIT": "Qqen",
-    "DEMO_HINT": "Amiḍan n usenqed: admin / admin123",
     "BRANDING_DESC": "Aɣirim n usefrek n waṭas n tnasiwin\ni usired n idammen"
   },
   "TOOLBAR": {
@@ -61,8 +60,8 @@
     "TITLE": "Asentel",
     "LIGHT": "Afaw",
     "DARK": "Aberkan",
-    "CYAN": "Cyan (amezwer)",
-    "EMERALD": "Azegzaw amezrar",
+    "CYAN": "Cyan",
+    "EMERALD": "Azegzaw amezrar (amezwer)",
     "INDIGO": "Indigo"
   },
   "TABS": {

@@ -115,8 +115,6 @@ import {LoginPageStore} from './state/login-page.store';
             <button mat-flat-button class="login-btn" (click)="doLogin()" [disabled]="loading()">
               <mat-icon>login</mat-icon> {{ 'LOGIN.SUBMIT' | translate }}
             </button>
-
-            <p class="hint">{{ 'LOGIN.DEMO_HINT' | translate }}</p>
           </mat-card-content>
         </mat-card>
       </section>
@@ -311,13 +309,6 @@ import {LoginPageStore} from './state/login-page.store';
       min-height: 48px;
     }
 
-    .hint {
-      font-size: 12px;
-      color: var(--app-muted);
-      text-align: center;
-      margin-top: 14px;
-      line-height: 1.6;
-    }
 
     .error-msg {
       background: rgba(239, 68, 68, 0.12);

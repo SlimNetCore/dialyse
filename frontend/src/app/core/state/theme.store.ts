@@ -40,7 +40,7 @@ type ThemeState = {
 const initialState: ThemeState = {
   themes: THEMES,
   modes: MODES,
-  currentTheme: 'cyan',
+  currentTheme: 'emerald',
   currentMode: 'light'
 };
 
@@ -62,7 +62,7 @@ export const ThemeStore = signalStore(
     return {
       setTheme(theme: AppTheme): void {
         const exists = THEMES.some((t) => t.code === theme);
-        const safeTheme = exists ? theme : 'cyan';
+        const safeTheme = exists ? theme : 'emerald';
         applyTheme(safeTheme, store.currentMode());
       },
 
@@ -77,9 +77,10 @@ export const ThemeStore = signalStore(
     onInit() {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as AppTheme | null;
       const savedMode = localStorage.getItem(MODE_STORAGE_KEY) as AppMode | null;
-      store.setTheme(savedTheme ?? 'cyan');
+      store.setTheme(savedTheme ?? 'emerald');
       store.setMode(savedMode ?? 'light');
     }
   }))
 );
+
 
