@@ -89,5 +89,27 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
             (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3), null, null, rs.getString(6)),
             c.value());
     }
-}
 
+    @Override
+    @Cacheable(cacheNames = "ref.centresPayeursDetails", key = "#c.value().toString()")
+    public List<CentrePayeurDetail> findCentresPayeursDetails(CenterId c) {
+        return jdbc.query(
+                "SELECT cp.id, cp.code, cp.nom, cp.adresse, ag.code, ag.nom, ca.code, ca.nom " +
+                        "FROM centre_payeur cp " +
+                        "LEFT JOIN agence ag ON ag.id = cp.agence_id " +
+                        "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id " +
+                        "WHERE cp.center_id = ? ORDER BY cp.nom",
+                (rs, i) -> new CentrePayeurDetail(
+                        rs.getString(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getString(6),
+                        rs.getString(7),
+                        rs.getString(8)
+                ),
+                c.value()
+        );
+    }
+}

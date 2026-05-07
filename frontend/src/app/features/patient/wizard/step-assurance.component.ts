@@ -649,9 +649,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   readonly savingEdit = this.ficheStore.savingAssureEdit;
   private readonly selectedCentrePayeurId = signal<string | null>(null);
   readonly codeCentrePayeur = computed(() =>
-    this.centresPayeurs().find((x: any) => String(x?.id ?? x?.ID ?? '') === this.selectedCentrePayeurId())?.['code']
-    ?? this.centresPayeurs().find((x: any) => String(x?.id ?? x?.ID ?? '') === this.selectedCentrePayeurId())?.['CODE']
-    ?? ''
+    this.centresPayeurs().find((x: any) => String(x?.id ?? '') === this.selectedCentrePayeurId())?.['code'] ?? ''
   );
   showAssure = signal(true);
   private qualiteAssure = signal<string>('ASSURE_LUI_MEME');
@@ -661,24 +659,18 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   private readonly selectedCentrePayeurDetail = computed<any | null>(() => {
     const id = this.selectedCentrePayeurId();
     if (!id) return null;
-    return this.centresPayeursDetails().find((d: any) => String(d?.id ?? d?.ID ?? '') === id) ?? null;
+    return this.centresPayeursDetails().find((d: any) => String(d?.id ?? '') === id) ?? null;
   });
   readonly codeAgence = computed(() =>
-    this.selectedCentrePayeurDetail()?.code_agence
-    ?? this.selectedCentrePayeurDetail()?.CODE_AGENCE
-    ?? ''
+    this.selectedCentrePayeurDetail()?.codeAgence ?? ''
   );
   showCatalog = signal(false);
   showHistory = signal(false);
   readonly libelleAgence = computed(() =>
-    this.selectedCentrePayeurDetail()?.libelle_agence
-    ?? this.selectedCentrePayeurDetail()?.LIBELLE_AGENCE
-    ?? ''
+    this.selectedCentrePayeurDetail()?.libelleAgence ?? ''
   );
   readonly libelleCaisse = computed(() =>
-    this.selectedCentrePayeurDetail()?.libelle_caisse
-    ?? this.selectedCentrePayeurDetail()?.LIBELLE_CAISSE
-    ?? ''
+    this.selectedCentrePayeurDetail()?.libelleCaisse ?? ''
   );
   private readonly dialog = inject(MatDialog);
   private pendingAssignAssure = false;
@@ -811,7 +803,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   onCentrePayeur(item: DropdownItem | null): void {
     if (this.readonly) return;
-    const selectedId = item ? String((item as any).id ?? (item as any).ID ?? '') : null;
+    const selectedId = item ? String((item as any).id ?? '') : null;
     this.form.patchValue({centrePayeurId: selectedId});
     this.selectedCentrePayeurId.set(selectedId);
     this.emitAssuranceData();

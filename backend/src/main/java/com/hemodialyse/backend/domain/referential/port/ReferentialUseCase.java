@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.referential.port;
 
+import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort.CentrePayeurDetail;
 import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort.RefItem;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
@@ -18,5 +19,7 @@ public interface ReferentialUseCase {
     List<RefItem> transporteurs(CenterId c);
     List<RefItem> categoriesTransport(CenterId c);
     List<RefItem> forfaits(CenterId c);
+
+    List<CentrePayeurDetail> centresPayeursDetails(CenterId c);
 }
 

@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.domain.referential.service;
 
-import com.hemodialyse.backend.domain.referential.port.ReferentialUseCase;
 import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort;
+import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort.CentrePayeurDetail;
 import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort.RefItem;
+import com.hemodialyse.backend.domain.referential.port.ReferentialUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +28,10 @@ public class ReferentialDomainService implements ReferentialUseCase {
     @Override public List<RefItem> transporteurs(CenterId c) { return repo.findTransporteurs(c); }
     @Override public List<RefItem> categoriesTransport(CenterId c) { return repo.findCategoriesTransport(c); }
     @Override public List<RefItem> forfaits(CenterId c) { return repo.findForfaits(c); }
+
+    @Override
+    public List<CentrePayeurDetail> centresPayeursDetails(CenterId c) {
+        return repo.findCentresPayeursDetails(c);
+    }
 }
 

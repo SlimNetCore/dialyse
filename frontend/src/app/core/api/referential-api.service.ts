@@ -1,17 +1,17 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 export interface RefItem { id: string; nom: string; code?: string; libelle?: string; adresse?: string; prenom?: string; }
 export interface CentrePayeurDetail {
   id: string;
-  code_centre_payeur: string;
-  libelle_centre_payeur: string;
-  adresse_centre_payeur?: string;
-  code_agence?: string;
-  libelle_agence?: string;
-  code_caisse?: string;
-  libelle_caisse?: string;
+  codeCentrePayeur: string;
+  libelleCentrePayeur: string;
+  adresseCentrePayeur?: string;
+  codeAgence?: string;
+  libelleAgence?: string;
+  codeCaisse?: string;
+  libelleCaisse?: string;
 }
 
 @Injectable({ providedIn: 'root' })
