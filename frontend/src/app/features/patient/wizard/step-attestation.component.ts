@@ -78,7 +78,7 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
               <mat-form-field appearance="outline" class="flex1">
                 <mat-label>{{ 'PATIENT_FORM.ATTESTATION_DEBUT' | translate }} *</mat-label>
                 <mat-icon matPrefix>event</mat-icon>
-                <input matInput [matDatepicker]="dpDebut" formControlName="attestationDebut" />
+                <input matInput [matDatepicker]="dpDebut" formControlName="attestationDebut" data-autofocus-first/>
                 <mat-datepicker-toggle matSuffix [for]="dpDebut" /><mat-datepicker #dpDebut />
                 @if (form.get('attestationDebut')?.hasError('required') && form.get('attestationDebut')?.touched) {
                   <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>

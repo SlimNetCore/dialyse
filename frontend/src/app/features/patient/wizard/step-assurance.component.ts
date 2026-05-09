@@ -232,7 +232,7 @@ export class AssureEditDialogComponent {
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }} *</mat-label>
             <mat-icon matPrefix>badge</mat-icon>
-            <input matInput formControlName="numeroAssurance" />
+            <input matInput formControlName="numeroAssurance" data-autofocus-first/>
             @if (form.get('numeroAssurance')?.hasError('required') && form.get('numeroAssurance')?.touched) {
               <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
             }

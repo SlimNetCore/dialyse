@@ -20,7 +20,18 @@ interface AttachedFile {
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.PIECES_JOINTES' | translate }}</h3>
 
-      <div class="upload-zone" [class.disabled]="readonly" (click)="!readonly && fileInput.click()" (dragover)="!readonly && $event.preventDefault()" (drop)="onDrop($event)">
+      <div
+        class="upload-zone"
+        data-autofocus-first
+        tabindex="0"
+        role="button"
+        [class.disabled]="readonly"
+        [attr.aria-disabled]="readonly"
+        (click)="!readonly && fileInput.click()"
+        (keydown.enter)="!readonly && fileInput.click()"
+        (keydown.space)="$event.preventDefault(); !readonly && fileInput.click()"
+        (dragover)="!readonly && $event.preventDefault()"
+        (drop)="onDrop($event)">
         <mat-icon class="upload-icon">cloud_upload</mat-icon>
         <p>{{ 'WIZARD.PJ_DROP' | translate }}</p>
         <p class="hint">{{ 'WIZARD.PJ_MAX_SIZE' | translate }}</p>

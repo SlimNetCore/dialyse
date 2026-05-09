@@ -100,7 +100,7 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
               <mat-form-field appearance="outline" class="flex1">
                 <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }} *</mat-label>
                 <mat-icon matPrefix>event</mat-icon>
-                <input matInput [matDatepicker]="dpDeb" formControlName="pecDateDebutDemande" />
+                <input matInput [matDatepicker]="dpDeb" formControlName="pecDateDebutDemande" data-autofocus-first/>
                 <mat-datepicker-toggle matSuffix [for]="dpDeb" /><mat-datepicker #dpDeb />
                 @if (form.get('pecDateDebutDemande')?.hasError('required') && form.get('pecDateDebutDemande')?.touched) {
                   <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>

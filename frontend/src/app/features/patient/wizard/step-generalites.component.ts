@@ -58,6 +58,7 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
               [items]="civiliteOptions"
               [label]="'PATIENT_FORM.CIVILITE' | translate"
               [prefixIcon]="'badge'"
+              [autofocusFirst]="true"
               [selectedId]="form.get('civilite')?.value ?? ''"
               (selectionChanged)="form.patchValue({ civilite: $event?.id ?? '' })"
               [disabled]="readonly"

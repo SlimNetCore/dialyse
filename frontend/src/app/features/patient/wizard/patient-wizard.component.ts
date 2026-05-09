@@ -13,11 +13,11 @@ import {
 } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatStepper, MatStepperModule} from '@angular/material/stepper';
+import {STEPPER_GLOBAL_OPTIONS, StepperSelectionEvent} from '@angular/cdk/stepper';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 import {StepGeneralitesComponent} from './step-generalites.component';
 import {StepAssuranceComponent} from './step-assurance.component';
 import {StepAffectationComponent} from './step-affectation.component';
@@ -516,7 +516,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     this.ficheStore.setStep5Valid(value);
   }
 
-  onStepChange(event: any): void {
+  onStepChange(event: StepperSelectionEvent): void {
     this.ficheStore.setCurrentStep(event.selectedIndex);
     this.loadStepDataIfNeeded(event.selectedIndex);
     this.schedulePatchActiveStep();
@@ -617,34 +617,57 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   private scrollToStepAndFocus(): void {
     afterNextRender(() => {
-      // Scroll to stepper container
+      const smoothBehavior = this.prefersReducedMotion() ? 'auto' : 'smooth';
       const stepperElement = document.querySelector('.wizard-stepper');
-      if (stepperElement) {
-        stepperElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-      }
+      stepperElement?.scrollIntoView({behavior: smoothBehavior, block: 'start'});
 
-      // Find and focus the first focusable element in the active step
+      // Wait one more render pass to ensure lazy step content is mounted.
       afterNextRender(() => {
-        const activeStepContent = document.querySelector('.mat-horizontal-stepper-content[aria-expanded="true"]');
+        if (this.consultationMode()) return;
+        const activeStepContent = this.getActiveStepContent();
         if (!activeStepContent) return;
 
-        // Look for first focusable element: input, textarea, select, button, etc.
-        const focusableElements = activeStepContent.querySelectorAll(
-          'input:not([type="hidden"]):not([disabled]), ' +
-          'textarea:not([disabled]), ' +
-          'select:not([disabled]), ' +
-          'button:not([disabled]), ' +
-          '[tabindex]:not([tabindex="-1"])'
-        );
+        const preferred = this.resolvePreferredAutofocus(activeStepContent);
+        const fallback = activeStepContent.querySelector(this.focusableSelector()) as HTMLElement | null;
+        const target = preferred ?? fallback;
+        if (!target) return;
 
-        if (focusableElements.length > 0) {
-          const firstFocusable = focusableElements[0] as HTMLElement;
-          // Ensure the element is visible before focusing
-          firstFocusable.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-          setTimeout(() => firstFocusable.focus(), 100);
-        }
+        target.scrollIntoView({behavior: smoothBehavior, block: 'nearest'});
+        setTimeout(() => target.focus(), 0);
       }, {injector: this.injector});
     }, {injector: this.injector});
+  }
+
+  private getActiveStepContent(): HTMLElement | null {
+    return document.querySelector(
+      '.wizard-stepper .mat-horizontal-stepper-content[aria-expanded="true"], ' +
+      '.wizard-stepper .mat-vertical-content[aria-expanded="true"], ' +
+      '.wizard-stepper .mat-vertical-content-container[aria-expanded="true"]'
+    ) as HTMLElement | null;
+  }
+
+  private focusableSelector(): string {
+    return [
+      'input:not([type="hidden"]):not([disabled]):not([readonly])',
+      'textarea:not([disabled]):not([readonly])',
+      'select:not([disabled])',
+      'mat-select:not([disabled])',
+      '[contenteditable="true"]',
+      '[tabindex]:not([tabindex="-1"]):not([disabled])'
+    ].join(', ');
+  }
+
+  private resolvePreferredAutofocus(container: HTMLElement): HTMLElement | null {
+    const preferred = container.querySelector('[data-autofocus-first]') as HTMLElement | null;
+    if (!preferred) return null;
+    if (preferred.matches(this.focusableSelector())) return preferred;
+    return preferred.querySelector(this.focusableSelector()) as HTMLElement | null;
+  }
+
+  private prefersReducedMotion(): boolean {
+    return typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
   /** Submit the final form */

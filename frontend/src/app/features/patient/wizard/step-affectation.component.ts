@@ -24,6 +24,7 @@ import {
       <form [formGroup]="form">
         <div class="form-row">
           <app-searchable-select [items]="salles()" [label]="'PATIENT_FORM.SALLE' | translate" [prefixIcon]="'meeting_room'"
+                                 [autofocusFirst]="true"
             [disabled]="readonly"
             [selectedId]="form.get('salleId')?.value" (selectionChanged)="form.patchValue({salleId: $event?.id})" cssClass="flex1" />
           <app-searchable-select [items]="medecins()" [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate" [prefixIcon]="'medical_services'"

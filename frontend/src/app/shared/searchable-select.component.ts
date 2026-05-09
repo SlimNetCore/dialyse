@@ -20,7 +20,11 @@ export interface DropdownItem {
       @if (prefixIcon) {
         <mat-icon matPrefix class="prefix-icon">{{ prefixIcon }}</mat-icon>
       }
-      <mat-select [value]="selectedIdSignal()" [disabled]="disabled" (selectionChange)="onSelectById($event.value)">
+      <mat-select
+        [value]="selectedIdSignal()"
+        [disabled]="disabled"
+        [attr.data-autofocus-first]="autofocusFirst ? '' : null"
+        (selectionChange)="onSelectById($event.value)">
         @for (item of allItems(); track item.id) {
           <mat-option [value]="item.id">{{ itemLabel(item) }}</mat-option>
         }
@@ -42,6 +46,7 @@ export class SearchableSelectComponent implements OnChanges {
   @Input() prefixIcon = '';
   @Input() disabled = false;
   @Input() translateLabels = false;
+  @Input() autofocusFirst = false;
   @Output() selectionChanged = new EventEmitter<DropdownItem | null>();
   readonly allItems = signal<DropdownItem[]>([]);
   readonly selectedIdSignal = signal<string | null>(null);
