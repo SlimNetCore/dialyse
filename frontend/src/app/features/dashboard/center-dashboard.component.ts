@@ -111,6 +111,40 @@ import {DashboardStore} from './state/dashboard.store';
     .attestation mat-icon, .attestation .stat-value { color: #6a1b9a; }
     .attestation-expiring { background: #fef9c3; }
     .attestation-expiring mat-icon, .attestation-expiring .stat-value { color: #f57f17; }
+
+    @media (max-width: 980px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .dashboard {
+        max-width: 100%;
+      }
+
+      .dash-title {
+        font-size: 1.1rem;
+      }
+
+      .days-field {
+        width: 100%;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .stat-card {
+        min-height: 120px;
+        padding: 16px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+      }
+    }
   `]
 })
 export class CenterDashboardComponent implements OnInit {

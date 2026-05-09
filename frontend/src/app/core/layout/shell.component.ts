@@ -130,7 +130,7 @@ import {filter} from 'rxjs/operators';
       z-index: 100;
     }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; color: var(--app-primary); }
-    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .user-btn {
       display: flex; align-items: center; gap: 6px; font-size: 13px;
       color: var(--app-text) !important;
@@ -224,12 +224,92 @@ import {filter} from 'rxjs/operators';
       white-space: normal;
     }
 
-    .content { flex: 1; overflow-y: auto; padding: 20px; background: var(--app-bg); }
+    .content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; background: var(--app-bg); }
     .breadcrumb { display:flex; align-items:center; gap:4px; margin-bottom:10px; color:var(--app-muted); font-size:12px; }
     .crumb-btn { border:0; background:transparent; cursor:pointer; color:var(--app-muted); font-size:12px; padding:0; }
     .crumb-btn:hover { color:var(--app-primary); text-decoration:underline; }
     .crumb-btn.last { color:var(--app-primary); font-weight:600; cursor:default; text-decoration:none; }
     .sep { font-size:16px; width:16px; height:16px; color:#9ca3af; }
+
+    @media (max-width: 1024px) {
+      .topbar {
+        padding: 0 12px;
+      }
+
+      .user-btn {
+        padding: 0 6px;
+      }
+
+      .user-name,
+      .separator,
+      .center-name {
+        display: none;
+      }
+
+      .content {
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      :host {
+        height: 100dvh;
+      }
+
+      .topbar {
+        height: auto;
+        min-height: 56px;
+      }
+
+      .brand span {
+        font-size: 0.95rem;
+      }
+
+      .shell-body {
+        flex-direction: column;
+      }
+
+      .content {
+        order: 1;
+        padding: 12px 10px 84px;
+      }
+
+      .sidebar {
+        order: 2;
+        width: 100%;
+        min-height: auto;
+        margin-left: 0;
+        border-left: 0;
+        border-top: 1px solid var(--app-primary-outline);
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.14);
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: flex-start;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 6px;
+        gap: 6px;
+      }
+
+      .sidebar::after {
+        width: 100%;
+        height: 2px;
+        top: 0;
+        left: 0;
+      }
+
+      .nav-item {
+        min-height: 56px;
+        min-width: 72px;
+        flex: 0 0 auto;
+        gap: 4px;
+        border-radius: 12px;
+      }
+
+      .nav-label {
+        font-size: 10px;
+      }
+    }
   `]
 })
 export class ShellComponent implements OnInit {

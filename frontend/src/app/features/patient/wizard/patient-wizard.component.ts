@@ -4,9 +4,11 @@ import {
   Component,
   computed,
   effect,
+  HostListener,
   inject,
   Injector,
   OnInit,
+  signal,
   ViewChild
 } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -39,7 +41,7 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
   ],
   providers: [{ provide: STEPPER_GLOBAL_OPTIONS, useValue: { showError: true } }],
   template: `
-    <div class="wizard-container patient-form-compact">
+    <div class="wizard-container" [class.patient-form-compact]="!isMobileViewport()">
       <div class="wizard-header">
         <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
         <h2>{{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.TITLE' | translate) }}</h2>
@@ -59,7 +61,9 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
         </div>
       </div>
 
-      <mat-stepper #stepper [linear]="false" [animationDuration]="'0'" (selectionChange)="onStepChange($event)" class="wizard-stepper">
+      <mat-stepper #stepper [linear]="false" [animationDuration]="'0'"
+                   [orientation]="isMobileViewport() ? 'vertical' : 'horizontal'"
+                   (selectionChange)="onStepChange($event)" class="wizard-stepper">
         <!-- Step 1: Généralités -->
         <mat-step [label]="'WIZARD.STEP_GENERALITES' | translate" [completed]="step1Valid()" [editable]="true">
           @if (shouldRenderStep(0)) {
@@ -125,7 +129,11 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
     </div>
   `,
   styles: [`
-    .wizard-container { max-width: 1100px; margin: 0 auto; }
+    .wizard-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-bottom: 140px;
+    }
     .wizard-header {
       display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
     }
@@ -172,6 +180,14 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
       box-sizing: border-box;
     }
 
+    :host ::ng-deep .wizard-stepper .mat-vertical-content-container,
+    :host ::ng-deep .wizard-stepper .mat-vertical-content {
+      background: var(--app-surface-soft);
+      border-radius: 12px;
+      border: 1px solid var(--app-border);
+      box-sizing: border-box;
+    }
+
     /* Collapse only explicit inactive panels, keep active panel always visible. */
     :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content[aria-expanded="false"] {
       display: none !important;
@@ -201,7 +217,7 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
     }
     .floating-save {
       position: fixed;
-      bottom: 28px;
+      bottom: 96px;
       right: 16px;
       z-index: 1000;
       background-color: var(--app-primary) !important;
@@ -223,7 +239,7 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
     }
     .floating-error {
       position: fixed;
-      bottom: 80px;
+      bottom: 148px;
       right: 16px;
       z-index: 1000;
       display: flex;
@@ -240,6 +256,63 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
       box-shadow: 0 4px 16px rgba(0,0,0,.12);
     }
     .floating-error mat-icon { color: #e65100; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+
+    @media (max-width: 900px) {
+      .wizard-container {
+        max-width: 100%;
+        padding-bottom: 200px;
+      }
+
+      .wizard-header {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .wizard-header h2 {
+        order: 2;
+        flex: 1 1 100%;
+        font-size: 1.1rem;
+      }
+
+      .wizard-progress {
+        order: 3;
+        width: 100%;
+        text-align: center;
+      }
+
+      .mode-badge,
+      .edit-toggle-btn {
+        order: 4;
+      }
+
+      :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-header-container {
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+
+      :host ::ng-deep .wizard-stepper.mat-stepper-vertical .mat-step-header {
+        min-height: 52px;
+      }
+
+      :host ::ng-deep .wizard-stepper.mat-stepper-vertical .mat-vertical-content-container {
+        margin-left: 0;
+      }
+
+      .floating-save {
+        left: 12px;
+        right: 12px;
+        bottom: 82px;
+        width: auto;
+        justify-content: center;
+      }
+
+      .floating-error {
+        left: 12px;
+        right: 12px;
+        bottom: 140px;
+        max-width: none;
+      }
+    }
   `]
 })
 export class PatientWizardComponent implements OnInit, AfterViewInit {
@@ -278,6 +351,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   private readonly ws = inject(WebSocketService);
 
   readonly totalSteps = computed(() => this.isVacancier() ? 5 : 6);
+  readonly isMobileViewport = signal(typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
   private readonly wizardDataVersion = this.ficheStore.version;
   private patchActiveStepScheduled = false;
   private patchAllStepsScheduled = false;
@@ -479,6 +553,11 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.schedulePatchAllSteps();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.isMobileViewport.set(window.innerWidth <= 900);
   }
 
   private schedulePatchActiveStep(): void {

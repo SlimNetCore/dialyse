@@ -487,9 +487,36 @@ type FilterType = 'text' | 'date';
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="patient-row"
-                  [class.patient-row-recent]="isRecentRow(row.id)"
-                  [attr.data-row-id]="row.id"></tr>
+              <ng-container *matRowDef="let row; columns: displayedColumns();">
+                <tr mat-row class="patient-row"
+                    [class.patient-row-recent]="isRecentRow(row.id)"
+                    [class.patient-row-selected]="selectedRowId() === row.id && isMobileView()"
+                    (click)="onRowClick(row)"
+                    [attr.data-row-id]="row.id"></tr>
+                <tr class="floating-actions-row" *ngIf="selectedRowId() === row.id && isMobileView()">
+                  <td [attr.colspan]="displayedColumns().length">
+                    <div class="floating-actions">
+                      <button mat-stroked-button color="primary" [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate"
+                              (click)="selectPatient.emit(row); selectedRowId.set(null)">
+                        <mat-icon>visibility</mat-icon>
+                        {{ 'PATIENT_LIST.BTN_VIEW' | translate }}
+                      </button>
+                      <button mat-stroked-button color="primary" [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate"
+                              (click)="printFiche(row); selectedRowId.set(null)"
+                              [disabled]="printingRowId() === row.id">
+                        @if (printingRowId() === row.id) {
+                          <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
+                        } @else {
+                          <mat-icon>print</mat-icon>
+                        }
+                        {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
+                      </button>
+                      <app-patient-qr-card [patientId]="row.id" [nom]="row.nom" [prenom]="row.prenom"
+                                           [numeroAssurance]="row.numeroAssurance" [dateAdmission]="row.dateAdmission"/>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
               <tr class="mat-mdc-row" *matNoDataRow>
                 <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
                   {{ 'PATIENT_LIST.EMPTY' | translate }}
@@ -565,6 +592,22 @@ type FilterType = 'text' | 'date';
     /* Prevent clipping when a filter panel is open */
     .table-container:has(.th-wrap.open) {
       overflow: visible;
+    }
+
+    @media (max-width: 900px) {
+      .table-container {
+        border-radius: 12px;
+        margin: 0 -8px;
+        padding: 0 8px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .table-container {
+        border-radius: 8px;
+        margin: 0 -12px;
+        padding: 0 12px;
+      }
     }
 
     .patient-table {
@@ -778,6 +821,24 @@ type FilterType = 'text' | 'date';
       display: flex;
     }
 
+    @media (max-width: 760px) {
+      .th-filter {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        border-radius: 16px 16px 0 0;
+        z-index: 2300;
+        margin: 0;
+        padding: 12px 16px;
+        box-sizing: border-box;
+      }
+    }
+
     .filter-ind {
       font-size: 17px;
       width: 17px;
@@ -800,8 +861,106 @@ type FilterType = 'text' | 'date';
         margin-left: 0;
         justify-content: flex-start;
       }
+
+      .btn-new {
+        width: 100%;
+      }
+    }
+
+    /* Filtres responsifs */
+    .th-filter {
+      min-width: 220px;
+      max-width: 360px;
+    }
+
+    @media (max-width: 1200px) {
+      .th-filter {
+        min-width: 200px;
+        max-width: 320px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .th-filter {
+        min-width: 180px;
+        max-width: 280px;
+        font-size: 12px;
+      }
+
+      :host ::ng-deep .th-filter app-column-filter-renderer input {
+        font-size: 12px;
+        padding: 6px 8px !important;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .toolbar-group {
+        width: 100%;
+      }
+
+      .toolbar-group > button {
+        flex: 1 1 100%;
+      }
+
+      :host ::ng-deep .patient-table .mat-mdc-cell button.mat-mdc-icon-button {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+      }
+
+      /* Filtres compact sur mobile */
+      .th-filter {
+        min-width: 160px;
+        max-width: 240px;
+        padding: 6px;
+        gap: 4px;
+      }
+
+      .filter-ind {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+      }
+
+      .th-top {
+        font-size: 11px;
+      }
+
+      /* Actions flottantes mobile */
+      .floating-actions-row {
+        background: var(--app-surface-soft);
+        border-top: 1px solid var(--app-border);
+      }
+
+      .floating-actions {
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+        flex-wrap: wrap;
+      }
+
+      .floating-actions > button,
+      .floating-actions > app-patient-qr-card {
+        flex: 1 1 auto;
+        min-width: 90px;
+        font-size: 12px;
+      }
+
+      .patient-row-selected {
+        background: color-mix(in srgb, var(--app-primary-soft) 50%, transparent) !important;
+      }
+
+      /* Masquer la colonne actions du tableau sur mobile, l'afficher en flottant */
+      :host ::ng-deep .patient-table .mat-mdc-cell:last-child {
+        display: none;
+      }
+
+      :host ::ng-deep .patient-table .mat-mdc-header-cell:last-child {
+        display: none;
+      }
     }
   `]
+
 })
 export class PatientListComponent {
   @Output() newPatient = new EventEmitter<void>();
@@ -810,6 +969,8 @@ export class PatientListComponent {
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
+  readonly isMobileView = signal(typeof window !== 'undefined' ? window.innerWidth <= 760 : false);
+  readonly selectedRowId = signal<string | null>(null);
   readonly allColumnsConfig = [
     {key: 'code', labelKey: 'PATIENT_LIST.COL_CODE', type: 'text' as FilterType},
     {key: 'nom', labelKey: 'PATIENT_LIST.COL_NOM', type: 'text' as FilterType},
@@ -846,7 +1007,16 @@ export class PatientListComponent {
     pecForfaitId: false,
     actions: true
   });
-  readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
+  private readonly isCompactViewport = signal(typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
+  private readonly mobilePriorityColumns = new Set<string>(['code', 'nom', 'prenom', 'etatPatient', 'actions']);
+  readonly displayedColumns = computed(() => {
+    const visible = this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key);
+    if (!this.isCompactViewport()) return visible;
+
+    const prioritized = visible.filter((key) => this.mobilePriorityColumns.has(key));
+    if (visible.includes('actions') && !prioritized.includes('actions')) prioritized.push('actions');
+    return prioritized.length > 0 ? prioritized : visible.slice(0, 4);
+  });
   readonly rows = this.patientListStore.rows;
   readonly loading = this.patientListStore.loading;
   readonly printingList = this.patientListStore.printingList;
@@ -929,6 +1099,22 @@ export class PatientListComponent {
       return;
     }
     this.openFilterColumn.set(null);
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.isCompactViewport.set(window.innerWidth <= 900);
+    this.isMobileView.set(window.innerWidth <= 760);
+  }
+
+  onRowClick(row: PatientRow): void {
+    if (this.isMobileView()) {
+      // Mode mobile : afficher les actions flottantes
+      this.selectedRowId.set(this.selectedRowId() === row.id ? null : row.id);
+    } else {
+      // Mode desktop : naviguer immédiatement vers la fiche
+      this.selectPatient.emit(row);
+    }
   }
 
   clearAllColumnFilters(): void {

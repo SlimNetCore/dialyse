@@ -231,6 +231,10 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
     }
     .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
     .flex1 { flex: 1; }
+
+    .form-row {
+      align-items: flex-start;
+    }
     .forfait-title { margin: 8px 0; color:var(--app-text); }
     .forfait-grid { display:flex; flex-wrap:wrap; gap:10px; }
     .forfait-chip {
@@ -275,13 +279,52 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
 
     @media (max-width: 980px) {
+      .step-content {
+        padding: 12px;
+      }
       .pec-grid { grid-template-columns: 1fr; }
       .history-pane { min-height: auto; }
+      .history-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .add-btn {
+        width: 100%;
+      }
       .detail-head { flex-direction: column; align-items: flex-start; gap: 8px; }
       .detail-actions { width: 100%; flex-wrap: wrap; }
       .detail-grid { grid-template-columns: 100px 1fr; }
+      .form-row {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .flex1 {
+        flex: 1 1 100%;
+      }
       .forfait-grid { gap: 8px; }
       .forfait-chip { width: 100%; justify-content: center; }
+    }
+
+    @media (max-width: 600px) {
+      .history-pane {
+        padding: 10px;
+      }
+      .history-item {
+        padding: 10px;
+      }
+      .detail-card {
+        padding: 10px;
+      }
+      .detail-grid {
+        grid-template-columns: 1fr;
+        row-gap: 4px;
+      }
+      .detail-actions > button {
+        flex: 1 1 100%;
+      }
+      .accord-readonly-card {
+        padding: 10px;
+      }
     }
   `]
 })
@@ -475,7 +518,7 @@ export class StepPecComponent implements OnInit, OnChanges {
     if (!centerId) return;
 
     const ref = this.dialog.open(ConfirmDialogComponent, {
-      width: '440px',
+      width: 'min(96vw, 440px)',
       data: {
         title: this.translate.instant('WIZARD.DELETE_PEC_TITLE'),
         message: this.translate.instant('WIZARD.DELETE_PEC_CONFIRM'),

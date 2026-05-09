@@ -1,4 +1,4 @@
-import {Component, computed, HostListener, inject, OnInit} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -294,6 +294,22 @@ import {AttestationListStore} from './state/attestation-list.store';
       color: var(--app-muted);
       font-weight: 600;
     }
+
+    @media (max-width: 900px) {
+      .header {
+        align-items: flex-start;
+      }
+
+      .header > button {
+        flex: 1 1 100%;
+      }
+
+      .w100 .mat-mdc-cell button.mat-mdc-icon-button {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+      }
+    }
   `]
 })
 export class AttestationListComponent implements OnInit {
@@ -317,7 +333,16 @@ export class AttestationListComponent implements OnInit {
     {key: 'actions', labelKey: 'ATTEST_LIST.COL_ACTIONS'}
   ] as const;
   readonly visibleColumns = this.attestationListStore.visibleColumns;
-  readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
+  private readonly isCompactViewport = signal(typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
+  private readonly mobilePriorityColumns = new Set<string>(['code', 'nom', 'debut', 'fin', 'actions']);
+  readonly displayedColumns = computed(() => {
+    const visible = this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key);
+    if (!this.isCompactViewport()) return visible;
+
+    const prioritized = visible.filter((key) => this.mobilePriorityColumns.has(key));
+    if (visible.includes('actions') && !prioritized.includes('actions')) prioritized.push('actions');
+    return prioritized.length > 0 ? prioritized : visible.slice(0, 4);
+  });
   readonly columnFilters = this.attestationListStore.columnFilters;
 
   ngOnInit(): void {
@@ -370,6 +395,11 @@ export class AttestationListComponent implements OnInit {
       return;
     }
     this.attestationListStore.closeFilterPanel();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.isCompactViewport.set(window.innerWidth <= 900);
   }
 
   clearAllColumnFilters(): void {

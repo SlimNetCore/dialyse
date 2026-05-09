@@ -65,6 +65,7 @@ type FilterType = 'text' | 'boolean';
         </mat-menu>
       </div>
 
+      <div class="table-wrap">
       <table mat-table [dataSource]="rows()" class="full-width">
         <ng-container matColumnDef="username">
           <th mat-header-cell *matHeaderCellDef>
@@ -207,6 +208,7 @@ type FilterType = 'text' | 'boolean';
           </td>
         </tr>
       </table>
+      </div>
 
       <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
                      [pageSizeOptions]="[5,10,20,50]" (page)="onPageChange($event)"></mat-paginator>
@@ -217,6 +219,14 @@ type FilterType = 'text' | 'boolean';
     .header h2 { display: flex; align-items: center; gap: 8px; color: #1b5e20; margin: 0; }
     .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
     .search { width: min(440px, 100%); }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid var(--app-border);
+      background: var(--app-surface-solid);
+      margin-bottom: 8px;
+    }
     .full-width { width: 100%; }
 
     .full-width .mat-mdc-header-cell {
@@ -293,6 +303,20 @@ type FilterType = 'text' | 'boolean';
       padding: 14px;
       color: var(--app-muted);
       font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .header {
+        align-items: flex-start;
+      }
+
+      .header h2 {
+        font-size: 1.05rem;
+      }
+
+      .full-width {
+        min-width: 760px;
+      }
     }
   `]
 })
@@ -391,7 +415,7 @@ export class UserListComponent implements OnInit {
 
   deleteUser(u: AppUser): void {
     const ref = this.dialog.open(ConfirmDialogComponent, {
-      width: '440px',
+      width: 'min(96vw, 440px)',
       data: {
         title: 'Supprimer l\'utilisateur',
         message: `Êtes-vous sûr de vouloir supprimer l'utilisateur ${u.USERNAME} ? Cette action est irréversible.`,

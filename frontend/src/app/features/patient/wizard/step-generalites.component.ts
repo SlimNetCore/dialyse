@@ -13,7 +13,6 @@ import {
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {MatSelectModule} from '@angular/material/select';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
@@ -22,14 +21,15 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonModule} from '@angular/material/button';
 import {TranslateModule} from '@ngx-translate/core';
 import {AuthStore} from '../../../core/state/auth.store';
+import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
 
 @Component({
   selector: 'app-step-generalites',
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    ReactiveFormsModule, MatFormFieldModule, MatInputModule,
     MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatIconModule,
-    MatRadioModule, MatButtonModule, TranslateModule
+    MatRadioModule, MatButtonModule, TranslateModule, SearchableSelectComponent
   ],
   template: `
     <div class="step-content">
@@ -54,15 +54,15 @@ import {AuthStore} from '../../../core/state/auth.store';
 
           <div class="identity-grid">
             <!-- Row 1: Civilité, Nom, Prénom -->
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PATIENT_FORM.CIVILITE' | translate }}</mat-label>
-              <mat-icon matPrefix>badge</mat-icon>
-              <mat-select formControlName="civilite" [disabled]="readonly">
-                <mat-option value="M.">{{ 'PATIENT_FORM.MR' | translate }}</mat-option>
-                <mat-option value="Mme">{{ 'PATIENT_FORM.MRS' | translate }}</mat-option>
-                <mat-option value="Mlle">{{ 'PATIENT_FORM.MS' | translate }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <app-searchable-select
+              [items]="civiliteOptions"
+              [label]="'PATIENT_FORM.CIVILITE' | translate"
+              [prefixIcon]="'badge'"
+              [selectedId]="form.get('civilite')?.value ?? ''"
+              (selectionChanged)="form.patchValue({ civilite: $event?.id ?? '' })"
+              [disabled]="readonly"
+              [translateLabels]="true"
+              cssClass="generalites-select"/>
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.NOM' | translate }} *</mat-label>
@@ -83,17 +83,20 @@ import {AuthStore} from '../../../core/state/auth.store';
             </mat-form-field>
 
             <!-- Row 2: Sexe, Date d'admission, Nombre d'enfants -->
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PATIENT_FORM.SEXE' | translate }} *</mat-label>
-              <mat-icon matPrefix>wc</mat-icon>
-              <mat-select formControlName="sexe" [disabled]="readonly">
-                <mat-option value="M">{{ 'PATIENT_FORM.MASCULIN' | translate }}</mat-option>
-                <mat-option value="F">{{ 'PATIENT_FORM.FEMININ' | translate }}</mat-option>
-              </mat-select>
+            <div>
+              <app-searchable-select
+                [items]="sexeOptions"
+                [label]="'PATIENT_FORM.SEXE' | translate"
+                [prefixIcon]="'wc'"
+                [selectedId]="form.get('sexe')?.value ?? ''"
+                (selectionChanged)="form.patchValue({ sexe: $event?.id ?? '' })"
+                [disabled]="readonly"
+                [translateLabels]="true"
+                cssClass="generalites-select"/>
               @if (form.get('sexe')?.hasError('required') && form.get('sexe')?.touched) {
-                <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+                <div class="field-error">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
               }
-            </mat-form-field>
+            </div>
 
             <mat-form-field appearance="outline" class="h-sync">
               <mat-label>{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }} *</mat-label>
@@ -112,17 +115,14 @@ import {AuthStore} from '../../../core/state/auth.store';
             </mat-form-field>
 
             <!-- Row 3: Groupe sanguin, Date de naissance, Age -->
-            <mat-form-field appearance="outline" class="h-sync">
-              <mat-label>{{ 'PATIENT_FORM.GROUPE_SANGUIN' | translate }}</mat-label>
-              <mat-icon matPrefix>bloodtype</mat-icon>
-              <mat-select formControlName="groupeSanguin" [disabled]="readonly">
-                <mat-option value="">—</mat-option>
-                <mat-option value="A+">A+</mat-option><mat-option value="A-">A-</mat-option>
-                <mat-option value="B+">B+</mat-option><mat-option value="B-">B-</mat-option>
-                <mat-option value="AB+">AB+</mat-option><mat-option value="AB-">AB-</mat-option>
-                <mat-option value="O+">O+</mat-option><mat-option value="O-">O-</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <app-searchable-select
+              [items]="groupeSanguinOptions"
+              [label]="'PATIENT_FORM.GROUPE_SANGUIN' | translate"
+              [prefixIcon]="'bloodtype'"
+              [selectedId]="form.get('groupeSanguin')?.value ?? ''"
+              (selectionChanged)="form.patchValue({ groupeSanguin: $event?.id ?? '' })"
+              [disabled]="readonly"
+              cssClass="h-sync generalites-select"/>
 
             <mat-form-field appearance="outline" class="h-sync">
               <mat-label>{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }} *</mat-label>
@@ -148,20 +148,17 @@ import {AuthStore} from '../../../core/state/auth.store';
               <input matInput formControlName="lieuNaissance" />
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="span-3">
-              <mat-label>{{ 'PATIENT_FORM.ETAT_PATIENT' | translate }}</mat-label>
-              <mat-icon matPrefix>monitor_heart</mat-icon>
-              <mat-select formControlName="etatPatient" [disabled]="readonly">
-                <mat-option value="PERMANENT">{{ 'PATIENT_FORM.PERMANENT' | translate }}</mat-option>
-                <mat-option value="OCCASIONNEL">{{ 'PATIENT_FORM.OCCASIONNEL' | translate }}</mat-option>
-                <mat-option value="TRANSFERE">{{ 'PATIENT_FORM.TRANSFERE' | translate }}</mat-option>
-                <mat-option value="DECEDE">{{ 'PATIENT_FORM.DECEDE' | translate }}</mat-option>
-                <mat-option value="GREFFE">{{ 'PATIENT_FORM.GREFFE' | translate }}</mat-option>
-                <mat-option value="GUERRI">{{ 'PATIENT_FORM.GUERRI' | translate }}</mat-option>
-                <mat-option value="VACANCIER_LOCAL">{{ 'PATIENT_FORM.VACANCIER_LOCAL' | translate }}</mat-option>
-                <mat-option value="VACANCIER_ETRANGER">{{ 'PATIENT_FORM.VACANCIER_ETRANGER' | translate }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <div class="span-3">
+              <app-searchable-select
+                [items]="etatPatientOptions"
+                [label]="'PATIENT_FORM.ETAT_PATIENT' | translate"
+                [prefixIcon]="'monitor_heart'"
+                [selectedId]="form.get('etatPatient')?.value ?? 'PERMANENT'"
+                (selectionChanged)="form.patchValue({ etatPatient: $event?.id ?? 'PERMANENT' })"
+                [disabled]="readonly"
+                [translateLabels]="true"
+                cssClass="generalites-select"/>
+            </div>
 
             @if (showDateEvenement()) {
               <mat-form-field appearance="outline" class="span-3">
@@ -176,17 +173,15 @@ import {AuthStore} from '../../../core/state/auth.store';
 
         <!-- Contact -->
         <div class="form-row">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.SITUATION_FAMILIALE' | translate }}</mat-label>
-            <mat-icon matPrefix>diversity_3</mat-icon>
-            <mat-select formControlName="situationFamiliale" [disabled]="readonly">
-              <mat-option value="">—</mat-option>
-              <mat-option value="CELIBATAIRE">{{ 'PATIENT_FORM.CELIBATAIRE' | translate }}</mat-option>
-              <mat-option value="MARIE">{{ 'PATIENT_FORM.MARIE' | translate }}</mat-option>
-              <mat-option value="DIVORCE">{{ 'PATIENT_FORM.DIVORCE' | translate }}</mat-option>
-              <mat-option value="VEUF">{{ 'PATIENT_FORM.VEUF' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <app-searchable-select
+            [items]="situationFamilialeOptions"
+            [label]="'PATIENT_FORM.SITUATION_FAMILIALE' | translate"
+            [prefixIcon]="'diversity_3'"
+            [selectedId]="form.get('situationFamiliale')?.value ?? ''"
+            (selectionChanged)="form.patchValue({ situationFamiliale: $event?.id ?? '' })"
+            [disabled]="readonly"
+            [translateLabels]="true"
+            cssClass="flex1 generalites-select"/>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.PROFESSION1' | translate }}</mat-label>
             <mat-icon matPrefix>work</mat-icon>
@@ -244,9 +239,9 @@ import {AuthStore} from '../../../core/state/auth.store';
         </div>
 
         <!-- Qualité assuré -->
-        <div class="form-row" style="align-items: center;">
-          <span style="font-weight: 500; margin-right: 12px;">{{ 'PATIENT_FORM.QUALITE_ASSURE' | translate }}:</span>
-          <mat-radio-group formControlName="qualiteAssure" style="display:flex;gap:16px;" [disabled]="readonly">
+        <div class="form-row quality-row">
+          <span class="quality-label">{{ 'PATIENT_FORM.QUALITE_ASSURE' | translate }}:</span>
+          <mat-radio-group formControlName="qualiteAssure" class="quality-radio-group" [disabled]="readonly">
             <mat-radio-button value="ASSURE_LUI_MEME">{{ 'PATIENT_FORM.ASSURE_LUI_MEME' | translate }}</mat-radio-button>
             <mat-radio-button value="ENFANT">{{ 'PATIENT_FORM.ENFANT_ASSURE' | translate }}</mat-radio-button>
             <mat-radio-button value="CONJOINT">{{ 'PATIENT_FORM.CONJOINT_ASSURE' | translate }}</mat-radio-button>
@@ -290,6 +285,16 @@ import {AuthStore} from '../../../core/state/auth.store';
     .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; align-content: start; }
     .span-3 { grid-column: 1 / -1; }
     .form-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+
+    .identity-grid app-searchable-select,
+    .form-row app-searchable-select {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .form-row app-searchable-select {
+      flex: 1;
+    }
     .flex1 { flex: 1; }
     .full-width { width: 100%; }
     .checks-row { align-items: center; flex-wrap: wrap; gap: 12px; }
@@ -331,6 +336,80 @@ import {AuthStore} from '../../../core/state/auth.store';
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
     :host ::ng-deep textarea.mat-mdc-input-element { text-align: left; }
+
+    .field-error {
+      color: #b91c1c;
+      font-size: 12px;
+      margin: -2px 0 4px 2px;
+    }
+
+    .quality-row {
+      align-items: center;
+    }
+
+    .quality-label {
+      font-weight: 500;
+      margin-right: 12px;
+    }
+
+    .quality-radio-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .step-content {
+        padding: 12px;
+      }
+
+      .row-photo {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .photo-column {
+        width: 100%;
+      }
+
+      .photo-zone {
+        min-height: 170px;
+      }
+
+      .identity-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .form-row {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .flex1,
+      .date-inline {
+        flex: 1 1 100%;
+        width: 100%;
+      }
+
+      .h-sync.age-box {
+        min-height: 48px;
+        height: auto;
+      }
+
+      .quality-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .quality-label {
+        margin-right: 0;
+      }
+
+      .quality-radio-group {
+        gap: 10px;
+      }
+    }
   `]
 })
 export class StepGeneralitesComponent implements OnInit, OnChanges {
@@ -340,6 +419,43 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
 
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthStore);
+  readonly civiliteOptions: DropdownItem[] = [
+    {id: 'M.', label: 'PATIENT_FORM.MR'},
+    {id: 'Mme', label: 'PATIENT_FORM.MRS'},
+    {id: 'Mlle', label: 'PATIENT_FORM.MS'}
+  ];
+  readonly sexeOptions: DropdownItem[] = [
+    {id: 'M', label: 'PATIENT_FORM.MASCULIN'},
+    {id: 'F', label: 'PATIENT_FORM.FEMININ'}
+  ];
+  readonly groupeSanguinOptions: DropdownItem[] = [
+    {id: '', label: '—'},
+    {id: 'A+', label: 'A+'},
+    {id: 'A-', label: 'A-'},
+    {id: 'B+', label: 'B+'},
+    {id: 'B-', label: 'B-'},
+    {id: 'AB+', label: 'AB+'},
+    {id: 'AB-', label: 'AB-'},
+    {id: 'O+', label: 'O+'},
+    {id: 'O-', label: 'O-'}
+  ];
+  readonly etatPatientOptions: DropdownItem[] = [
+    {id: 'PERMANENT', label: 'PATIENT_FORM.PERMANENT'},
+    {id: 'OCCASIONNEL', label: 'PATIENT_FORM.OCCASIONNEL'},
+    {id: 'TRANSFERE', label: 'PATIENT_FORM.TRANSFERE'},
+    {id: 'DECEDE', label: 'PATIENT_FORM.DECEDE'},
+    {id: 'GREFFE', label: 'PATIENT_FORM.GREFFE'},
+    {id: 'GUERRI', label: 'PATIENT_FORM.GUERRI'},
+    {id: 'VACANCIER_LOCAL', label: 'PATIENT_FORM.VACANCIER_LOCAL'},
+    {id: 'VACANCIER_ETRANGER', label: 'PATIENT_FORM.VACANCIER_ETRANGER'}
+  ];
+  readonly situationFamilialeOptions: DropdownItem[] = [
+    {id: '', label: '—'},
+    {id: 'CELIBATAIRE', label: 'PATIENT_FORM.CELIBATAIRE'},
+    {id: 'MARIE', label: 'PATIENT_FORM.MARIE'},
+    {id: 'DIVORCE', label: 'PATIENT_FORM.DIVORCE'},
+    {id: 'VEUF', label: 'PATIENT_FORM.VEUF'}
+  ];
   photoPreview = signal<string | null>(null);
   private dateNaissanceSignal = signal<Date | null>(null);
   private etatPatientSignal = signal<string>('PERMANENT');

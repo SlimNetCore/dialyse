@@ -61,6 +61,7 @@ import {RoleListStore} from './state/role-list.store';
         </mat-menu>
       </div>
 
+      <div class="table-wrap">
       <table mat-table [dataSource]="rows()" class="full-width">
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef>
@@ -135,6 +136,7 @@ import {RoleListStore} from './state/role-list.store';
           </td>
         </tr>
       </table>
+      </div>
 
       <mat-paginator [length]="total()" [pageIndex]="pageIndex()" [pageSize]="pageSize()"
                      [pageSizeOptions]="[5,10,20,50]" (page)="onPageChange($event)"></mat-paginator>
@@ -154,6 +156,14 @@ import {RoleListStore} from './state/role-list.store';
 
     .search {
       width: min(440px, 100%);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid var(--app-border);
+      background: var(--app-surface-solid);
+      margin-bottom: 8px;
     }
     .full-width { width: 100%; }
 
@@ -238,6 +248,20 @@ import {RoleListStore} from './state/role-list.store';
       padding: 14px;
       color: var(--app-muted);
       font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .header {
+        align-items: flex-start;
+      }
+
+      .header h2 {
+        font-size: 1.05rem;
+      }
+
+      .full-width {
+        min-width: 720px;
+      }
     }
   `]
 })
@@ -334,7 +358,7 @@ export class RoleListComponent implements OnInit {
 
   deleteRole(r: AppRole): void {
     const ref = this.dialog.open(ConfirmDialogComponent, {
-      width: '440px',
+      width: 'min(96vw, 440px)',
       data: {
         title: 'Supprimer le rôle',
         message: `Êtes-vous sûr de vouloir supprimer le rôle ${r.CODE} ? Cette action est irréversible.`,

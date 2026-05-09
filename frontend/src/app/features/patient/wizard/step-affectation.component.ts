@@ -1,7 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatSelectModule} from '@angular/material/select';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {TranslateModule} from '@ngx-translate/core';
@@ -18,7 +17,7 @@ import {
 @Component({
   selector: 'app-step-affectation',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatCheckboxModule, TranslateModule, SearchableSelectComponent],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatIconModule, MatCheckboxModule, TranslateModule, SearchableSelectComponent],
   template: `
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_AFFECTATION' | translate }}</h3>
@@ -64,7 +63,9 @@ import {
     </div>
   `,
   styles: [`
-    .step-content {   padding: 12px 20px 20px; }
+    .step-content {
+      padding: 14px 18px 18px;
+    }
 
     .section-title {
       color: var(--app-text);
@@ -72,8 +73,19 @@ import {
       font-weight: 600;
       margin: 0 0 12px;
     }
-    .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+      align-items: flex-start;
+    }
     .flex1 { flex: 1; }
+
+    .form-row app-searchable-select {
+      flex: 1;
+      min-width: 0;
+    }
 
     .dialyse-title {
       margin: 16px 0 8px;
@@ -90,7 +102,67 @@ import {
     }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+
+    :host ::ng-deep input.mat-mdc-input-element {
+      text-align: center;
+    }
     :host ::ng-deep .mat-mdc-select-value { text-align: center; }
+
+    :host ::ng-deep app-searchable-select .mat-mdc-form-field {
+      width: 100%;
+    }
+
+    @media (max-width: 900px) {
+      .step-content {
+        padding: 12px;
+      }
+      .form-row {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .flex1,
+      .form-row app-searchable-select {
+        flex: 1 1 100%;
+        width: 100%;
+      }
+      .jours-row {
+        gap: 10px;
+        padding: 12px;
+      }
+      .jours-row mat-checkbox {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 140px;
+      }
+      :host ::ng-deep .jours-row .mdc-form-field {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .step-content {
+        padding: 10px;
+      }
+      .section-title {
+        margin-bottom: 10px;
+      }
+      .dialyse-title {
+        margin: 14px 0 8px;
+        font-size: .95rem;
+      }
+      .jours-row {
+        gap: 8px;
+        padding: 10px;
+      }
+      .jours-row mat-checkbox {
+        flex: 1 1 100%;
+        min-width: 0;
+        min-height: 40px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        border: 1px solid var(--app-border);
+        background: var(--app-surface);
+      }
+    }
   `]
 })
 export class StepAffectationComponent implements OnInit, OnChanges {

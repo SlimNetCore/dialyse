@@ -326,12 +326,23 @@ import {LoginPageStore} from './state/login-page.store';
       }
       .login-left {
         min-height: 42vh;
+        padding: 36px 30px;
+      }
+      .hero-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
     @media (max-width: 760px) {
       .login-left {
         padding: 28px 22px;
+      }
+      .login-left h1 {
+        font-size: clamp(2rem, 9vw, 2.8rem);
+      }
+      .login-left p {
+        font-size: 0.95rem;
+        line-height: 1.6;
       }
       .hero-grid {
         grid-template-columns: 1fr;
@@ -347,6 +358,40 @@ import {LoginPageStore} from './state/login-page.store';
       }
       .login-card {
         width: 100%;
+        padding: 18px;
+      }
+
+      :host ::ng-deep .login-card .mat-mdc-card-title {
+        font-size: 1.55rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .login-left {
+        padding: 20px 14px;
+        min-height: auto;
+        gap: 20px;
+      }
+
+      .hero-orbit {
+        width: 260px;
+        inset: auto -90px -90px auto;
+      }
+
+      .brand-icon {
+        font-size: 54px;
+        width: 54px;
+        height: 54px;
+        margin-bottom: 12px;
+      }
+
+      .hero-grid article {
+        padding: 14px;
+        border-radius: 16px;
+      }
+
+      .top-actions {
+        margin-bottom: 8px;
       }
     }
   `]

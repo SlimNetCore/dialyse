@@ -14,7 +14,6 @@ import {
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {MatSelectModule} from '@angular/material/select';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatIconModule} from '@angular/material/icon';
@@ -35,6 +34,24 @@ interface AssignmentEdit {
   dateFinAffectation: Date | null;
 }
 
+const SEXE_OPTIONS: DropdownItem[] = [
+  {id: '', label: '—'},
+  {id: 'M', label: 'Masculin'},
+  {id: 'F', label: 'Feminin'}
+];
+
+const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
+  {id: '', label: '—'},
+  {id: 'A+', label: 'A+'},
+  {id: 'A-', label: 'A-'},
+  {id: 'B+', label: 'B+'},
+  {id: 'B-', label: 'B-'},
+  {id: 'O+', label: 'O+'},
+  {id: 'O-', label: 'O-'},
+  {id: 'AB+', label: 'AB+'},
+  {id: 'AB-', label: 'AB-'}
+];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Dialog : modification des informations d'un assuré
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,15 +59,16 @@ interface AssignmentEdit {
   selector: 'app-assure-edit-dialog',
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatDatepickerModule, MatNativeDateModule, MatIconModule, MatButtonModule, MatDialogModule
+    ReactiveFormsModule, MatFormFieldModule, MatInputModule,
+    MatDatepickerModule, MatNativeDateModule, MatIconModule, MatButtonModule, MatDialogModule,
+    SearchableSelectComponent
   ],
   template: `
     <h2 mat-dialog-title style="display:flex;align-items:center;gap:8px">
       <mat-icon>edit</mat-icon>
       Modifier l'assuré
     </h2>
-    <mat-dialog-content style="min-width:520px;padding-top:8px">
+    <mat-dialog-content class="assure-edit-dialog-content">
       <form [formGroup]="form">
         <mat-form-field appearance="outline" style="width:100%;margin-bottom:4px">
           <mat-label>N° Assurance</mat-label>
@@ -74,15 +92,13 @@ interface AssignmentEdit {
               <mat-error>Obligatoire</mat-error>
             }
           </mat-form-field>
-          <mat-form-field appearance="outline" style="flex:1">
-            <mat-label>Sexe</mat-label>
-            <mat-icon matPrefix>wc</mat-icon>
-            <mat-select formControlName="sexe">
-              <mat-option value="">—</mat-option>
-              <mat-option value="M">Masculin</mat-option>
-              <mat-option value="F">Féminin</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <app-searchable-select
+            [items]="sexeOptions"
+            [label]="'Sexe'"
+            [prefixIcon]="'wc'"
+            [selectedId]="form.get('sexe')?.value ?? ''"
+            (selectionChanged)="form.patchValue({ sexe: $event?.id ?? '' })"
+            cssClass="dialog-flex"/>
         </div>
         <div style="display:flex;gap:10px;margin-bottom:4px">
           <mat-form-field appearance="outline" style="flex:1">
@@ -92,21 +108,13 @@ interface AssignmentEdit {
             <mat-datepicker-toggle matSuffix [for]="dpDN"/>
             <mat-datepicker #dpDN/>
           </mat-form-field>
-          <mat-form-field appearance="outline" style="flex:1">
-            <mat-label>Groupe sanguin</mat-label>
-            <mat-icon matPrefix>bloodtype</mat-icon>
-            <mat-select formControlName="groupeSanguin">
-              <mat-option value="">—</mat-option>
-              <mat-option value="A+">A+</mat-option>
-              <mat-option value="A-">A-</mat-option>
-              <mat-option value="B+">B+</mat-option>
-              <mat-option value="B-">B-</mat-option>
-              <mat-option value="O+">O+</mat-option>
-              <mat-option value="O-">O-</mat-option>
-              <mat-option value="AB+">AB+</mat-option>
-              <mat-option value="AB-">AB-</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <app-searchable-select
+            [items]="groupeSanguinOptions"
+            [label]="'Groupe sanguin'"
+            [prefixIcon]="'bloodtype'"
+            [selectedId]="form.get('groupeSanguin')?.value ?? ''"
+            (selectionChanged)="form.patchValue({ groupeSanguin: $event?.id ?? '' })"
+            cssClass="dialog-flex"/>
         </div>
         <div style="display:flex;gap:10px;margin-bottom:4px">
           <mat-form-field appearance="outline" style="flex:1">
@@ -142,12 +150,38 @@ interface AssignmentEdit {
         Enregistrer
       </button>
     </mat-dialog-actions>
-  `
+  `,
+  styles: [`
+    .assure-edit-dialog-content {
+      width: min(86vw, 520px);
+      max-width: 100%;
+      padding-top: 8px;
+    }
+    .assure-edit-dialog-content app-searchable-select { flex: 1; min-width: 0; }
+    :host ::ng-deep .assure-edit-dialog-content .dialog-flex { width: 100%; }
+
+    @media (max-width: 700px) {
+      .assure-edit-dialog-content {
+        width: min(92vw, 520px);
+      }
+
+      .assure-edit-dialog-content form > div[style*='display:flex'] {
+        flex-wrap: wrap;
+      }
+
+      .assure-edit-dialog-content form > div[style*='display:flex'] > mat-form-field,
+      .assure-edit-dialog-content form > div[style*='display:flex'] > app-searchable-select {
+        flex: 1 1 100% !important;
+      }
+    }
+  `]
 })
 export class AssureEditDialogComponent {
   readonly dialogRef = inject(MatDialogRef<AssureEditDialogComponent>);
   readonly data = inject<any>(MAT_DIALOG_DATA);
   private readonly fb = inject(FormBuilder);
+  readonly sexeOptions = SEXE_OPTIONS;
+  readonly groupeSanguinOptions = GROUPE_SANGUIN_OPTIONS;
 
   form: FormGroup = this.fb.group({
     nom: [this.data.nom ?? '', Validators.required],
@@ -185,7 +219,7 @@ export class AssureEditDialogComponent {
 @Component({
   selector: 'app-step-assurance',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule,
     MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule,
     MatButtonModule, MatDialogModule, TranslateModule, SearchableSelectComponent],
   template: `
@@ -268,14 +302,14 @@ export class AssureEditDialogComponent {
               <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.ASSURE_SEXE' | translate }}</mat-label>
-            <mat-icon matPrefix>wc</mat-icon>
-            <mat-select formControlName="assureSexe">
-              <mat-option value="M">{{ 'PATIENT_FORM.MASCULIN' | translate }}</mat-option>
-              <mat-option value="F">{{ 'PATIENT_FORM.FEMININ' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <app-searchable-select
+            [items]="assureSexeOptions"
+            [label]="'PATIENT_FORM.ASSURE_SEXE' | translate"
+            [prefixIcon]="'wc'"
+            [selectedId]="form.get('assureSexe')?.value ?? ''"
+            (selectionChanged)="form.patchValue({ assureSexe: $event?.id ?? '' })"
+            cssClass="flex1 assurance-select"
+            [translateLabels]="true"/>
         </div>
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
@@ -302,21 +336,13 @@ export class AssureEditDialogComponent {
           </mat-form-field>
         </div>
         <div class="form-row">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'PATIENT_FORM.ASSURE_GROUPE_SANGUIN' | translate }}</mat-label>
-            <mat-icon matPrefix>bloodtype</mat-icon>
-            <mat-select formControlName="assureGroupeSanguin">
-              <mat-option value="">—</mat-option>
-              <mat-option value="A+">A+</mat-option>
-              <mat-option value="A-">A-</mat-option>
-              <mat-option value="B+">B+</mat-option>
-              <mat-option value="B-">B-</mat-option>
-              <mat-option value="O+">O+</mat-option>
-              <mat-option value="O-">O-</mat-option>
-              <mat-option value="AB+">AB+</mat-option>
-              <mat-option value="AB-">AB-</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <app-searchable-select
+            [items]="assureGroupeSanguinOptions"
+            [label]="'PATIENT_FORM.ASSURE_GROUPE_SANGUIN' | translate"
+            [prefixIcon]="'bloodtype'"
+            [selectedId]="form.get('assureGroupeSanguin')?.value ?? ''"
+            (selectionChanged)="form.patchValue({ assureGroupeSanguin: $event?.id ?? '' })"
+            cssClass="flex1 assurance-select"/>
         </div>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'PATIENT_FORM.ASSURE_ADRESSE' | translate }}</mat-label>
@@ -325,7 +351,7 @@ export class AssureEditDialogComponent {
         </mat-form-field>
 
         <!-- Boutons d'action -->
-        <div class="form-row" style="justify-content:flex-end; gap:8px; margin-top: 8px;">
+        <div class="form-row assure-toolbar">
           <button mat-stroked-button type="button" (click)="toggleAssureCatalog()"
                   [disabled]="readonly || !canAssignAssure()">
             <mat-icon>manage_search</mat-icon>
@@ -343,9 +369,9 @@ export class AssureEditDialogComponent {
 
         <!-- ── Catalogue des assurés ── -->
         @if (showCatalog()) {
-          <div class="history-box" style="margin-top:12px;">
+          <div class="history-box panel-spacing">
             <div class="history-title">Catalogue des assurés</div>
-            <div class="form-row" style="margin-bottom:8px; align-items:center;">
+            <div class="form-row catalog-search-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Rechercher (N° assurance / nom / prénom)</mat-label>
                 <mat-icon matPrefix>search</mat-icon>
@@ -397,7 +423,7 @@ export class AssureEditDialogComponent {
 
         <!-- ── Historique des affectations ── -->
         @if (showHistory()) {
-          <div class="history-box" style="margin-top:12px;">
+          <div class="history-box panel-spacing">
             <div class="history-title">Historique des affectations</div>
             <table class="history-table">
               <thead>
@@ -483,9 +509,36 @@ export class AssureEditDialogComponent {
   styles: [`
     .step-content { padding: 14px 18px 18px; }
     .section-title { color: var(--app-text); font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
-    .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+      align-items: flex-start;
+    }
     .flex1 { flex: 1; }
+
+    .form-row > app-searchable-select {
+      flex: 1;
+      min-width: 0;
+      display: block;
+    }
     .full-width { width: 100%; }
+
+    .panel-spacing {
+      margin-top: 12px;
+    }
+
+    .assure-toolbar {
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .catalog-search-row {
+      margin-bottom: 8px;
+      align-items: center;
+    }
     :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
     :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
@@ -569,6 +622,10 @@ export class AssureEditDialogComponent {
       font-size: 13px;
     }
 
+    .history-box {
+      overflow-x: auto;
+    }
+
     .history-table thead tr {
       background: var(--app-bg, #f3f4f6);
     }
@@ -627,6 +684,53 @@ export class AssureEditDialogComponent {
       font-weight: 600;
       border: 1px solid #d1d5db;
     }
+
+    @media (max-width: 900px) {
+      .step-content {
+        padding: 12px;
+      }
+
+      .form-row {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .flex1 {
+        flex: 1 1 100%;
+        min-width: 0;
+      }
+
+      .assure-toolbar {
+        justify-content: flex-start;
+      }
+
+      .assure-toolbar > button,
+      .catalog-search-row > button {
+        flex: 1 1 100%;
+      }
+
+      .catalog-search-row {
+        align-items: flex-start;
+      }
+
+      .assure-row {
+        flex-wrap: wrap;
+      }
+
+      .assure-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .assure-actions > button {
+        flex: 1 1 100%;
+      }
+
+      .history-table {
+        min-width: 700px;
+      }
+    }
   `]
 })
 export class StepAssuranceComponent implements OnInit, OnChanges {
@@ -636,6 +740,11 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
+  readonly assureSexeOptions: DropdownItem[] = [
+    {id: 'M', label: 'PATIENT_FORM.MASCULIN'},
+    {id: 'F', label: 'PATIENT_FORM.FEMININ'}
+  ];
+  readonly assureGroupeSanguinOptions = GROUPE_SANGUIN_OPTIONS;
   private readonly appShell = inject(AppShellStore);
   private readonly centresPayeursStore = inject(CentresPayeursStore);
   readonly centresPayeurs = this.centresPayeursStore.items as unknown as () => DropdownItem[];
@@ -849,7 +958,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     if (!centerId) return;
     const ref = this.dialog.open(AssureEditDialogComponent, {
       data: {...a},
-      width: '600px',
+      width: 'min(96vw, 600px)',
       disableClose: false
     });
     ref.afterClosed().subscribe(result => {

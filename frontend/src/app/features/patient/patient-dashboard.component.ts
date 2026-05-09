@@ -35,6 +35,16 @@ import {PatientListComponent, PatientRow} from './patient-list.component';
       background: var(--app-surface);
       border-color: var(--app-primary-outline) !important;
     }
+
+    @media (max-width: 760px) {
+      .dashboard-actions {
+        justify-content: stretch;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+    }
   `]
 })
 export class PatientDashboardComponent {

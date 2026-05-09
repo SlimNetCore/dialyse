@@ -187,6 +187,7 @@ body::after {
   max-width: 1480px;
   margin: 0 auto;
   min-height: calc(100vh - 84px);
+  width: 100%;
 }
 
 h1, h2, h3, h4, h5 {
@@ -503,6 +504,10 @@ a {
   border: 1px solid var(--app-border) !important;
 }
 
+.cdk-overlay-pane.mat-mdc-dialog-panel {
+  max-width: min(96vw, 920px) !important;
+}
+
 .mat-mdc-menu-panel {
   border-radius: 18px !important;
   box-shadow: var(--app-shadow-soft) !important;
@@ -685,6 +690,57 @@ input.mat-mdc-input-element::placeholder {
   .app-hero-card {
     padding: 20px;
     border-radius: 22px;
+  }
+
+  .main-content {
+    width: 100%;
+  }
+
+  .app-page {
+    gap: 16px;
+  }
+
+  :where(.form-row) {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  :where(.form-row > .flex1),
+  :where(.form-row > .full-width) {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  :where(.table-wrap, .table-container) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :where(table.mat-mdc-table) {
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-panel,
+  .app-hero-card,
+  .app-glass-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 14px !important;
+  }
+
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    width: min(96vw, 560px) !important;
+    max-width: min(96vw, 560px) !important;
+  }
+
+  .mat-mdc-select-panel.column-filter-select-panel {
+    min-width: min(90vw, 360px) !important;
   }
 }
 

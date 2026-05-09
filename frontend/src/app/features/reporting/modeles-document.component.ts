@@ -106,6 +106,7 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
 
       <!-- Tableau des modèles -->
       <mat-card class="table-card">
+        <div class="table-wrap">
         <table mat-table [dataSource]="modeles()" class="modeles-table">
           <ng-container matColumnDef="code">
             <th mat-header-cell *matHeaderCellDef>Code</th>
@@ -167,6 +168,7 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns" [attr.data-row-id]="val(row, 'ID', 'id')"></tr>
         </table>
+        </div>
 
         @if (modeles().length === 0) {
           <div class="empty-state">
@@ -180,7 +182,13 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
   styles: [`
     .page-container { max-width: 1100px; margin: 0 auto; }
     .header-card { margin-bottom: 16px; padding: 20px 24px; }
-    .header-row { display: flex; justify-content: space-between; align-items: center; }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
     h2 { margin: 0; display: flex; align-items: center; gap: 8px; color: #1b5e20; }
     .title-icon { font-size: 28px; width: 28px; height: 28px; }
     .subtitle { margin: 4px 0 0; color: #757575; font-size: 13px; }
@@ -194,6 +202,10 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
     .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
 
     .table-card { padding: 0; overflow: hidden; }
+
+    .table-wrap {
+      overflow: auto;
+    }
     .modeles-table { width: 100%; }
     .type-chip {
       background: #e8f5e9; color: #1b5e20; padding: 2px 10px;
@@ -215,6 +227,40 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
       padding: 40px; text-align: center; color: #9e9e9e;
     }
     .empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 8px; }
+
+    @media (max-width: 900px) {
+      .page-container {
+        max-width: 100%;
+      }
+
+      .header-card,
+      .form-card {
+        padding: 14px;
+      }
+
+      .header-row {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0 10px;
+      }
+
+      .form-actions {
+        justify-content: stretch;
+        flex-wrap: wrap;
+      }
+
+      .form-actions button {
+        flex: 1 1 100%;
+      }
+
+      .modeles-table {
+        min-width: 860px;
+      }
+    }
   `]
 })
 export class ModelesDocumentComponent implements OnInit {
@@ -300,7 +346,7 @@ export class ModelesDocumentComponent implements OnInit {
     if (!centerId || !id) return;
 
     const ref = this.dialog.open(ConfirmDialogComponent, {
-      width: '440px',
+      width: 'min(96vw, 440px)',
       data: {
         title: 'Supprimer le modèle',
         message: 'Êtes-vous sûr de vouloir supprimer ce modèle de document ? Cette action est irréversible.',

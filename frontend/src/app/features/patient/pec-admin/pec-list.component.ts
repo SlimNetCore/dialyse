@@ -1,4 +1,4 @@
-import {Component, computed, HostListener, inject, OnInit} from '@angular/core';
+import {Component, computed, HostListener, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -347,6 +347,20 @@ import {PecListStore} from './state/pec-list.store';
       .toolbar-group-end {
         margin-left: 0;
       }
+
+      .toolbar-group {
+        width: 100%;
+      }
+
+      .toolbar-group > button {
+        flex: 1 1 100%;
+      }
+
+      .w100 .mat-mdc-cell button.mat-mdc-icon-button {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+      }
     }
   `]
 })
@@ -372,7 +386,16 @@ export class PecListComponent implements OnInit {
     {key: 'actions', labelKey: 'PEC_LIST.COL_ACTIONS'}
   ] as const;
   readonly visibleColumns = this.pecListStore.visibleColumns;
-  readonly displayedColumns = computed(() => this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key));
+  private readonly isCompactViewport = signal(typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
+  private readonly mobilePriorityColumns = new Set<string>(['code', 'nom', 'statut', 'actions']);
+  readonly displayedColumns = computed(() => {
+    const visible = this.allColumnsConfig.filter(c => this.visibleColumns()[c.key]).map(c => c.key);
+    if (!this.isCompactViewport()) return visible;
+
+    const prioritized = visible.filter((key) => this.mobilePriorityColumns.has(key));
+    if (visible.includes('actions') && !prioritized.includes('actions')) prioritized.push('actions');
+    return prioritized.length > 0 ? prioritized : visible.slice(0, 4);
+  });
   readonly columnFilters = this.pecListStore.columnFilters;
 
   readonly statutFilterOptions = [
@@ -431,6 +454,11 @@ export class PecListComponent implements OnInit {
       return;
     }
     this.pecListStore.closeFilterPanel();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.isCompactViewport.set(window.innerWidth <= 900);
   }
 
   clearAllColumnFilters(): void {

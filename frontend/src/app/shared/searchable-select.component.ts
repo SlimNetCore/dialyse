@@ -1,9 +1,8 @@
-import { Component, EventEmitter, Input, Output, signal, computed, OnChanges } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatIconModule } from '@angular/material/icon';
+import {Component, EventEmitter, inject, Input, OnChanges, Output, signal} from '@angular/core';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSelectModule} from '@angular/material/select';
+import {TranslateService} from '@ngx-translate/core';
 
 export interface DropdownItem {
   id: string;
@@ -14,34 +13,21 @@ export interface DropdownItem {
 @Component({
   selector: 'app-searchable-select',
   standalone: true,
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatIconModule],
+  imports: [MatFormFieldModule, MatSelectModule, MatIconModule],
   template: `
     <mat-form-field [appearance]="appearance" [class]="cssClass" [style.width]="width">
       <mat-label>{{ label }}</mat-label>
       @if (prefixIcon) {
         <mat-icon matPrefix class="prefix-icon">{{ prefixIcon }}</mat-icon>
       }
-      <input matInput
-             [matAutocomplete]="auto"
-             [value]="displayValue()"
-             (input)="onSearch($event)"
-             (focus)="onFocus()"
-             [placeholder]="placeholder"
-             [readonly]="disabled"
-             [disabled]="disabled" />
-      <mat-icon matSuffix class="dd-icon" [class.disabled]="disabled">arrow_drop_down</mat-icon>
-      <mat-autocomplete #auto="matAutocomplete"
-                        (optionSelected)="onSelect($event.option.value)"
-                        [displayWith]="displayFn">
-        @for (item of filtered(); track item.id) {
-          <mat-option [value]="item">{{ item.label }}</mat-option>
+      <mat-select [value]="selectedIdSignal()" [disabled]="disabled" (selectionChange)="onSelectById($event.value)">
+        @for (item of allItems(); track item.id) {
+          <mat-option [value]="item.id">{{ itemLabel(item) }}</mat-option>
         }
-      </mat-autocomplete>
+      </mat-select>
     </mat-form-field>
   `,
   styles: [`
-    .dd-icon { font-size: 18px; color: #94a3b8; cursor: pointer; }
-    .dd-icon.disabled { opacity: .5; cursor: default; }
     .prefix-icon { margin-right: 6px; color: #607d8b; }
   `]
 })
@@ -55,45 +41,26 @@ export class SearchableSelectComponent implements OnChanges {
   @Input() width = '100%';
   @Input() prefixIcon = '';
   @Input() disabled = false;
+  @Input() translateLabels = false;
   @Output() selectionChanged = new EventEmitter<DropdownItem | null>();
+  readonly allItems = signal<DropdownItem[]>([]);
+  readonly selectedIdSignal = signal<string | null>(null);
+  private readonly translate = inject(TranslateService);
 
-  private searchText = signal('');
-  private allItems = signal<DropdownItem[]>([]);
-  private selectedIdSignal = signal<string | null>(null);
-
-  filtered = computed(() => {
-    const txt = this.searchText().toLowerCase();
-    return this.allItems().filter(i => !txt || i.label.toLowerCase().includes(txt));
-  });
-
-  displayValue = computed(() => {
-    const sid = this.selectedIdSignal();
-    if (sid) {
-      const found = this.allItems().find(i => i.id === sid);
-      return found?.label ?? '';
-    }
-    return '';
-  });
-
-  displayFn = (item: DropdownItem): string => item?.label ?? '';
+  itemLabel(item: DropdownItem | null | undefined): string {
+    const raw = item?.label ?? '';
+    return this.translateLabels ? this.translate.instant(raw) : raw;
+  }
 
   ngOnChanges(): void {
     this.allItems.set([...this.items]);
     this.selectedIdSignal.set(this.selectedId);
   }
 
-  onSearch(event: Event): void {
+  onSelectById(id: string | null): void {
     if (this.disabled) return;
-    this.searchText.set((event.target as HTMLInputElement).value);
-  }
-
-  onFocus(): void {
-    if (this.disabled) return;
-    this.searchText.set('');
-  }
-
-  onSelect(item: DropdownItem): void {
-    if (this.disabled) return;
+    this.selectedIdSignal.set(id);
+    const item = this.allItems().find(x => x.id === id) ?? null;
     this.selectionChanged.emit(item);
   }
 }
