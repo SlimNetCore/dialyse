@@ -520,6 +520,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     this.ficheStore.setCurrentStep(event.selectedIndex);
     this.loadStepDataIfNeeded(event.selectedIndex);
     this.schedulePatchActiveStep();
+    this.scrollToStepAndFocus();
   }
 
   ngOnInit(): void {
@@ -612,6 +613,38 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     if (idx === attestationIndex) this.stepAtt?.patchData?.(this.wizardData);
     if (idx === pecIndex) this.stepPec?.patchData?.(this.wizardData);
     if (idx === pjIndex) this.stepPj?.patchData?.(this.wizardData);
+  }
+
+  private scrollToStepAndFocus(): void {
+    afterNextRender(() => {
+      // Scroll to stepper container
+      const stepperElement = document.querySelector('.wizard-stepper');
+      if (stepperElement) {
+        stepperElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+
+      // Find and focus the first focusable element in the active step
+      afterNextRender(() => {
+        const activeStepContent = document.querySelector('.mat-horizontal-stepper-content[aria-expanded="true"]');
+        if (!activeStepContent) return;
+
+        // Look for first focusable element: input, textarea, select, button, etc.
+        const focusableElements = activeStepContent.querySelectorAll(
+          'input:not([type="hidden"]):not([disabled]), ' +
+          'textarea:not([disabled]), ' +
+          'select:not([disabled]), ' +
+          'button:not([disabled]), ' +
+          '[tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length > 0) {
+          const firstFocusable = focusableElements[0] as HTMLElement;
+          // Ensure the element is visible before focusing
+          firstFocusable.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+          setTimeout(() => firstFocusable.focus(), 100);
+        }
+      }, {injector: this.injector});
+    }, {injector: this.injector});
   }
 
   /** Submit the final form */
