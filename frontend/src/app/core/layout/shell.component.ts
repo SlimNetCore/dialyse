@@ -109,7 +109,10 @@ import {filter} from 'rxjs/operators';
                   [matMenuTriggerFor]="navMenu"
                   [attr.aria-label]="'NAV.MENU' | translate"
                   [matTooltip]="'NAV.MENU' | translate">
-            <mat-icon>more_horiz</mat-icon>
+            <span class="overflow-btn-inner">
+              <mat-icon>grid_view</mat-icon>
+              <span class="overflow-badge">{{ overflowNavItems().length }}</span>
+            </span>
           </button>
         }
       </nav>
@@ -131,7 +134,10 @@ import {filter} from 'rxjs/operators';
           </div>
         }
         <button type="button" class="nav-menu-trigger" data-nav-sizer-overflow>
-          <mat-icon>more_horiz</mat-icon>
+          <span class="overflow-btn-inner">
+            <mat-icon>grid_view</mat-icon>
+            <span class="overflow-badge">9</span>
+          </span>
         </button>
       </div>
 
@@ -237,33 +243,91 @@ import {filter} from 'rxjs/operators';
     }
 
     .nav-menu-trigger {
-      width: 48px;
-      min-width: 48px;
-      height: 48px;
-      min-height: 48px;
+      position: relative;
+      width: 52px;
+      min-width: 52px;
+      height: 52px;
+      min-height: 52px;
       padding: 0;
-      border-radius: 14px;
+      border-radius: 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: var(--app-text) !important;
-      border-color: var(--app-primary-outline) !important;
-      background: color-mix(in srgb, var(--app-primary) 10%, transparent);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      color: var(--app-primary) !important;
+      border: 1.5px solid var(--app-primary-outline) !important;
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--app-primary) 12%, transparent),
+        color-mix(in srgb, var(--app-primary) 6%, transparent)
+      );
+      box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        0 0 0 1px color-mix(in srgb, var(--app-primary) 15%, transparent);
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .nav-menu-trigger mat-icon {
+    .nav-menu-trigger:hover {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--app-primary) 22%, transparent),
+        color-mix(in srgb, var(--app-primary) 12%, transparent)
+      ) !important;
+      border-color: var(--app-primary) !important;
+      box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.14),
+        0 0 0 2px color-mix(in srgb, var(--app-primary) 30%, transparent);
+      transform: scale(1.04);
+    }
+
+    .overflow-btn-inner {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .overflow-btn-inner mat-icon {
       margin: 0;
       font-size: 22px;
       width: 22px;
       height: 22px;
     }
 
+    .overflow-badge {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: var(--app-primary);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 16px;
+      text-align: center;
+      letter-spacing: 0;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+    }
+
     .active-nav-trigger {
-      background: color-mix(in srgb, var(--app-primary) 18%, transparent);
-      color: #ffffff !important;
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--app-primary) 30%, transparent),
+        color-mix(in srgb, var(--app-primary) 18%, transparent)
+      ) !important;
+      color: var(--app-primary) !important;
       border-color: color-mix(in srgb, var(--app-primary) 65%, white 35%) !important;
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent);
+      box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent),
+        0 4px 14px color-mix(in srgb, var(--app-primary) 22%, transparent);
+    }
+
+    .active-nav-trigger .overflow-badge {
+      background: #fff;
+      color: var(--app-primary);
     }
 
     .nav-item:hover {
@@ -412,7 +476,7 @@ import {filter} from 'rxjs/operators';
       }
 
       .nav-menu-trigger {
-        width: 48px;
+        width: 52px;
       }
     }
   `]
@@ -428,6 +492,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly visibleNavItems = signal(this.navItems);
   private readonly ws = inject(WebSocketService);
   private readonly authApi = inject(AuthApiService);
+
   readonly navItems = [
     { route: '/dashboard', icon: 'dashboard', label: 'NAV.DASHBOARD' },
     { route: '/patients', icon: 'people', label: 'NAV.PATIENTS' },
@@ -435,10 +500,11 @@ export class ShellComponent implements OnInit, AfterViewInit {
     { route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION' },
     { route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT' }
   ];
-  readonly overflowNavItems = signal<typeof this.navItems>([]);
   @ViewChild('sidebar') private sidebarRef?: ElementRef<HTMLElement>;
   @ViewChild('navSizer') private navSizerRef?: ElementRef<HTMLElement>;
   private readonly destroyRef = inject(DestroyRef);
+  readonly overflowNavItems = signal<typeof this.navItems>([]);
+
   private breadcrumbRoutes: string[] = [];
   private resizeObserver?: ResizeObserver;
   private resizeFrame: number | null = null;
