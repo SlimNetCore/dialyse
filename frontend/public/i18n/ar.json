@@ -159,7 +159,8 @@
     "ADMIN": "الإدارة",
     "SEANCES": "الحصص",
     "FACTURATION": "الفوترة",
-    "REGLEMENT": "الدفع"
+    "REGLEMENT": "الدفع",
+    "MENU": "القائمة"
   },
   "WIZARD": {
     "TITLE": "مريض جديد",

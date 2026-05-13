@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
@@ -94,15 +94,46 @@ import {filter} from 'rxjs/operators';
 
     <div class="shell-body">
       <!-- SIDEBAR -->
-      <nav class="sidebar">
-        @for (item of navItems; track item.route) {
+      <nav #sidebar class="sidebar" [class.compact-nav]="compactNav()">
+        @for (item of visibleNavItems(); track item.route) {
           <a [routerLink]="item.route" routerLinkActive="active-nav" class="nav-item"
              [matTooltip]="item.label | translate">
             <mat-icon>{{ item.icon }}</mat-icon>
             <span class="nav-label">{{ item.label | translate }}</span>
           </a>
         }
+
+        @if (overflowNavItems().length > 0) {
+          <button mat-stroked-button type="button" class="nav-menu-trigger"
+                  [class.active-nav-trigger]="hasOverflowActiveRoute()"
+                  [matMenuTriggerFor]="navMenu"
+                  [attr.aria-label]="'NAV.MENU' | translate"
+                  [matTooltip]="'NAV.MENU' | translate">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+        }
       </nav>
+
+      <mat-menu #navMenu="matMenu">
+        @for (item of overflowNavItems(); track item.route) {
+          <a mat-menu-item [routerLink]="item.route" [class.active-menu-item]="isRouteActive(item.route)">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label | translate }}</span>
+          </a>
+        }
+      </mat-menu>
+
+      <div #navSizer class="nav-sizer" aria-hidden="true">
+        @for (item of navItems; track item.route) {
+          <div class="nav-item" data-nav-sizer-item>
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span class="nav-label">{{ item.label | translate }}</span>
+          </div>
+        }
+        <button type="button" class="nav-menu-trigger" data-nav-sizer-overflow>
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+      </div>
 
       <!-- MAIN CONTENT -->
       <main class="content">
@@ -171,6 +202,11 @@ import {filter} from 'rxjs/operators';
       box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
     }
 
+    .sidebar.compact-nav {
+      justify-content: center;
+      align-items: center;
+    }
+
     .sidebar::after {
       content: '';
       position: absolute;
@@ -200,6 +236,36 @@ import {filter} from 'rxjs/operators';
       text-align: center;
     }
 
+    .nav-menu-trigger {
+      width: 48px;
+      min-width: 48px;
+      height: 48px;
+      min-height: 48px;
+      padding: 0;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--app-text) !important;
+      border-color: var(--app-primary-outline) !important;
+      background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-menu-trigger mat-icon {
+      margin: 0;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .active-nav-trigger {
+      background: color-mix(in srgb, var(--app-primary) 18%, transparent);
+      color: #ffffff !important;
+      border-color: color-mix(in srgb, var(--app-primary) 65%, white 35%) !important;
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent);
+    }
+
     .nav-item:hover {
       background: var(--app-primary-soft);
       color: var(--app-primary);
@@ -222,6 +288,37 @@ import {filter} from 'rxjs/operators';
     .nav-label {
       line-height: 1.2;
       white-space: normal;
+    }
+
+    .active-menu-item {
+      background: var(--app-primary-soft);
+      color: var(--app-primary);
+      font-weight: 700;
+    }
+
+    .nav-sizer {
+      position: fixed;
+      left: -9999px;
+      top: -9999px;
+      display: flex;
+      flex-direction: row;
+      gap: 6px;
+      padding: 6px;
+      width: max-content;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .nav-sizer .nav-item {
+      min-height: 56px;
+      min-width: 72px;
+      flex: 0 0 auto;
+      gap: 4px;
+      border-radius: 12px;
+    }
+
+    .nav-sizer .nav-label {
+      font-size: 10px;
     }
 
     .content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; background: var(--app-bg); }
@@ -291,6 +388,10 @@ import {filter} from 'rxjs/operators';
         gap: 6px;
       }
 
+      .sidebar.compact-nav {
+        overflow: hidden;
+      }
+
       .sidebar::after {
         width: 100%;
         height: 2px;
@@ -309,19 +410,24 @@ import {filter} from 'rxjs/operators';
       .nav-label {
         font-size: 10px;
       }
+
+      .nav-menu-trigger {
+        width: 48px;
+      }
     }
   `]
 })
-export class ShellComponent implements OnInit {
+export class ShellComponent implements OnInit, AfterViewInit {
+  readonly breadcrumbs = signal<string[]>([]);
+  readonly compactNav = signal(false);
+
   readonly auth = inject(AuthStore);
   readonly lang = inject(LangStore);
   readonly theme = inject(ThemeStore);
   readonly router = inject(Router);
+  readonly visibleNavItems = signal(this.navItems);
   private readonly ws = inject(WebSocketService);
   private readonly authApi = inject(AuthApiService);
-  readonly breadcrumbs = signal<string[]>([]);
-  private breadcrumbRoutes: string[] = [];
-
   readonly navItems = [
     { route: '/dashboard', icon: 'dashboard', label: 'NAV.DASHBOARD' },
     { route: '/patients', icon: 'people', label: 'NAV.PATIENTS' },
@@ -329,6 +435,13 @@ export class ShellComponent implements OnInit {
     { route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION' },
     { route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT' }
   ];
+  readonly overflowNavItems = signal<typeof this.navItems>([]);
+  @ViewChild('sidebar') private sidebarRef?: ElementRef<HTMLElement>;
+  @ViewChild('navSizer') private navSizerRef?: ElementRef<HTMLElement>;
+  private readonly destroyRef = inject(DestroyRef);
+  private breadcrumbRoutes: string[] = [];
+  private resizeObserver?: ResizeObserver;
+  private resizeFrame: number | null = null;
 
   ngOnInit(): void {
     this.ws.connect();
@@ -336,6 +449,11 @@ export class ShellComponent implements OnInit {
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(e => {
       this.computeBreadcrumb(e.urlAfterRedirects);
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.installNavObserver();
+    this.scheduleCompactNavCheck();
   }
 
   private computeBreadcrumb(url: string): void {
@@ -361,6 +479,15 @@ export class ShellComponent implements OnInit {
     this.router.navigateByUrl(target);
   }
 
+  isRouteActive(route: string): boolean {
+    const currentUrl = this.router.url.split('?')[0];
+    return currentUrl === route || currentUrl.startsWith(route + '/');
+  }
+
+  hasOverflowActiveRoute(): boolean {
+    return this.overflowNavItems().some(item => this.isRouteActive(item.route));
+  }
+
   onLogout(): void {
     this.authApi.logout().subscribe({
       next: () => this.finalizeLogout(),
@@ -372,5 +499,126 @@ export class ShellComponent implements OnInit {
     this.ws.disconnect();
     this.auth.clearSession();
     window.location.href = '/login';
+  }
+
+  private installNavObserver(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const sidebar = this.sidebarRef?.nativeElement;
+    const navSizer = this.navSizerRef?.nativeElement;
+
+    if (!sidebar || !navSizer) {
+      return;
+    }
+
+    window.addEventListener('resize', this.onWindowResize);
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => this.scheduleCompactNavCheck());
+      this.resizeObserver.observe(sidebar);
+      this.resizeObserver.observe(navSizer);
+    }
+
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('resize', this.onWindowResize);
+      this.resizeObserver?.disconnect();
+      if (this.resizeFrame !== null) {
+        window.cancelAnimationFrame(this.resizeFrame);
+      }
+    });
+  }
+
+  private readonly onWindowResize = (): void => {
+    this.scheduleCompactNavCheck();
+  };
+
+  private scheduleCompactNavCheck(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (this.resizeFrame !== null) {
+      window.cancelAnimationFrame(this.resizeFrame);
+    }
+
+    this.resizeFrame = window.requestAnimationFrame(() => {
+      this.resizeFrame = null;
+      this.updateCompactNav();
+    });
+  }
+
+  private updateCompactNav(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const sidebar = this.sidebarRef?.nativeElement;
+    const navSizer = this.navSizerRef?.nativeElement;
+
+    if (!sidebar || !navSizer) {
+      return;
+    }
+
+    if (window.innerWidth > 900) {
+      this.compactNav.set(false);
+      this.visibleNavItems.set(this.navItems);
+      this.overflowNavItems.set([]);
+      return;
+    }
+
+    const itemElements = Array.from(navSizer.querySelectorAll<HTMLElement>('[data-nav-sizer-item]'));
+    const overflowElement = navSizer.querySelector<HTMLElement>('[data-nav-sizer-overflow]');
+
+    if (itemElements.length !== this.navItems.length || !overflowElement) {
+      this.visibleNavItems.set(this.navItems);
+      this.overflowNavItems.set([]);
+      this.compactNav.set(false);
+      return;
+    }
+
+    const sidebarStyles = window.getComputedStyle(sidebar);
+    const paddingX = parseFloat(sidebarStyles.paddingLeft) + parseFloat(sidebarStyles.paddingRight);
+    const gap = parseFloat(sidebarStyles.columnGap || sidebarStyles.gap || '0');
+    const availableWidth = Math.max(sidebar.clientWidth - paddingX, 0);
+    const itemWidths = itemElements.map(item => Math.ceil(item.getBoundingClientRect().width));
+    const overflowWidth = Math.ceil(overflowElement.getBoundingClientRect().width);
+
+    let usedWidth = 0;
+    let visibleCount = 0;
+
+    for (let index = 0; index < itemWidths.length; index += 1) {
+      const itemWidth = itemWidths[index];
+      const gapBeforeItem = visibleCount > 0 ? gap : 0;
+      const remainingAfterCurrent = itemWidths.length - index - 1;
+      const overflowReservation = remainingAfterCurrent > 0 ? gap + overflowWidth : 0;
+      const candidateWidth = usedWidth + gapBeforeItem + itemWidth + overflowReservation;
+
+      if (candidateWidth <= availableWidth) {
+        usedWidth += gapBeforeItem + itemWidth;
+        visibleCount += 1;
+      } else {
+        break;
+      }
+    }
+
+    if (visibleCount === itemWidths.length) {
+      this.visibleNavItems.set(this.navItems);
+      this.overflowNavItems.set([]);
+      this.compactNav.set(false);
+      return;
+    }
+
+    if (visibleCount === 0) {
+      this.visibleNavItems.set([]);
+      this.overflowNavItems.set(this.navItems);
+      this.compactNav.set(true);
+      return;
+    }
+
+    this.visibleNavItems.set(this.navItems.slice(0, visibleCount));
+    this.overflowNavItems.set(this.navItems.slice(visibleCount));
+    this.compactNav.set(true);
   }
 }

@@ -198,7 +198,8 @@
     "ADMIN": "Administration",
     "SEANCES": "Séances",
     "FACTURATION": "Facturation",
-    "REGLEMENT": "Règlement"
+    "REGLEMENT": "Règlement",
+    "MENU": "Menu"
   },
   "WIZARD": {
     "TITLE": "Nouveau patient",
