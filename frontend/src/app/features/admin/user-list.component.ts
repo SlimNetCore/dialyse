@@ -285,6 +285,27 @@ type FilterType = 'text' | 'boolean';
       display: flex;
     }
 
+    @media (max-width: 760px) {
+      .th-filter {
+        position: fixed;
+        top: var(--filter-row-bottom, 200px);
+        bottom: auto;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: calc(100vw - 32px);
+        max-width: 420px;
+        min-width: 260px;
+        border-radius: 18px;
+        z-index: 2300;
+        margin: 0;
+        padding: 14px 16px;
+        box-sizing: border-box;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18),
+        0 2px 8px rgba(0, 0, 0, 0.10);
+      }
+    }
+
     .filter-ind {
       font-size: 17px;
       width: 17px;
@@ -296,6 +317,7 @@ type FilterType = 'text' | 'boolean';
     .filter-ind.active {
       color: #dc2626;
     }
+
     .th-filter :where(app-column-filter-renderer) { width: 100%; }
 
     .no-data-cell {
@@ -382,6 +404,13 @@ export class UserListComponent implements OnInit {
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
     event.stopPropagation();
+    if (typeof window !== 'undefined' && window.innerWidth <= 760) {
+      const wrap = (event.target as HTMLElement).closest('.th-wrap');
+      if (wrap) {
+        const rect = wrap.getBoundingClientRect();
+        document.documentElement.style.setProperty('--filter-row-bottom', `${Math.round(rect.bottom + 6)}px`);
+      }
+    }
     this.userListStore.toggleFilterPanel(column);
   }
 

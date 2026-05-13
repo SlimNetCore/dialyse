@@ -824,18 +824,21 @@ type FilterType = 'text' | 'date';
     @media (max-width: 760px) {
       .th-filter {
         position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-width: 100%;
-        min-width: 100%;
-        border-radius: 16px 16px 0 0;
+        top: var(--filter-row-bottom, 200px);
+        bottom: auto;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: calc(100vw - 32px);
+        max-width: 420px;
+        min-width: 260px;
+        border-radius: 18px;
         z-index: 2300;
         margin: 0;
-        padding: 12px 16px;
+        padding: 14px 16px;
         box-sizing: border-box;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18),
+        0 2px 8px rgba(0, 0, 0, 0.10);
       }
     }
 
@@ -1081,6 +1084,13 @@ export class PatientListComponent {
 
   toggleFilterPanel(column: string, event: MouseEvent): void {
     event.stopPropagation();
+    if (typeof window !== 'undefined' && window.innerWidth <= 760) {
+      const wrap = (event.target as HTMLElement).closest('.th-wrap');
+      if (wrap) {
+        const rect = wrap.getBoundingClientRect();
+        document.documentElement.style.setProperty('--filter-row-bottom', `${Math.round(rect.bottom + 6)}px`);
+      }
+    }
     this.openFilterColumn.update((current) => (current === column ? null : column));
   }
 
