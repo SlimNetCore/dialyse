@@ -883,7 +883,7 @@ type FilterType = 'text' | 'date';
       }
     }
 
-    @media (max-width: 900px) {
+    @media (min-width: 761px) and (max-width: 900px) {
       .th-filter {
         min-width: 180px;
         max-width: 280px;
@@ -893,15 +893,6 @@ type FilterType = 'text' | 'date';
       :host ::ng-deep .th-filter app-column-filter-renderer input {
         font-size: 12px;
         padding: 6px 8px !important;
-      }
-    }
-
-    /* ⚠ Doit rester APRÈS les breakpoints supérieurs pour écraser min/max-width */
-    @media (max-width: 760px) {
-      .th-filter {
-        min-width: 100vw !important;
-        max-width: 100vw !important;
-        width: 100vw !important;
       }
     }
 
