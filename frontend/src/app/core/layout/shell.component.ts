@@ -485,6 +485,14 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly breadcrumbs = signal<string[]>([]);
   readonly compactNav = signal(false);
 
+  readonly navItems = [
+    {route: '/dashboard', icon: 'dashboard', label: 'NAV.DASHBOARD'},
+    {route: '/patients', icon: 'people', label: 'NAV.PATIENTS'},
+    {route: '/seances', icon: 'event_note', label: 'NAV.SEANCES'},
+    {route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION'},
+    {route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT'}
+  ];
+
   readonly auth = inject(AuthStore);
   readonly lang = inject(LangStore);
   readonly theme = inject(ThemeStore);
@@ -492,14 +500,6 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly visibleNavItems = signal(this.navItems);
   private readonly ws = inject(WebSocketService);
   private readonly authApi = inject(AuthApiService);
-
-  readonly navItems = [
-    { route: '/dashboard', icon: 'dashboard', label: 'NAV.DASHBOARD' },
-    { route: '/patients', icon: 'people', label: 'NAV.PATIENTS' },
-    { route: '/seances', icon: 'event_note', label: 'NAV.SEANCES' },
-    { route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION' },
-    { route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT' }
-  ];
   @ViewChild('sidebar') private sidebarRef?: ElementRef<HTMLElement>;
   @ViewChild('navSizer') private navSizerRef?: ElementRef<HTMLElement>;
   private readonly destroyRef = inject(DestroyRef);
