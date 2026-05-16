@@ -826,13 +826,13 @@ type FilterType = 'text' | 'date';
         position: fixed;
         top: var(--filter-row-bottom, 200px);
         bottom: auto;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        width: calc(100vw - 32px);
-        max-width: 420px;
-        min-width: 260px;
-        border-radius: 18px;
+        left: 0;
+        right: 0;
+        transform: none;
+        width: 100vw;
+        max-width: 100vw;
+        min-width: 100vw;
+        border-radius: 0;
         z-index: 2300;
         margin: 0;
         padding: 14px 16px;
@@ -870,7 +870,7 @@ type FilterType = 'text' | 'date';
       }
     }
 
-    /* Filtres responsifs */
+    /* Filtres responsifs desktop */
     .th-filter {
       min-width: 220px;
       max-width: 360px;
@@ -896,6 +896,15 @@ type FilterType = 'text' | 'date';
       }
     }
 
+    /* ⚠ Doit rester APRÈS les breakpoints supérieurs pour écraser min/max-width */
+    @media (max-width: 760px) {
+      .th-filter {
+        min-width: 100vw !important;
+        max-width: 100vw !important;
+        width: 100vw !important;
+      }
+    }
+
     @media (max-width: 760px) {
       .toolbar-group {
         width: 100%;
@@ -913,9 +922,7 @@ type FilterType = 'text' | 'date';
 
       /* Filtres compact sur mobile */
       .th-filter {
-        min-width: 160px;
-        max-width: 240px;
-        padding: 6px;
+        padding: 12px 14px;
         gap: 4px;
       }
 
