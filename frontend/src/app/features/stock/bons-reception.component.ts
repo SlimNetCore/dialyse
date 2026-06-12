@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatCardModule} from '@angular/material/card';
@@ -12,10 +12,12 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatDialog} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {AuthStore} from '../../core/state/auth.store';
 import {BonReception, Emplacement, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
+import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
 
 @Component({
   selector: 'app-bons-reception',
@@ -67,7 +69,12 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                     <mat-label>Article</mat-label>
                     <mat-select formControlName="articleId">
                       @for (a of articles(); track a.id) {
-                        <mat-option [value]="a.id">{{ a.libelle || a.nom }}</mat-option>
+                        <mat-option [value]="a.id" [disabled]="isArticleLocked(a.id)">
+                          {{ a.libelle || a.nom }}
+                          @if (isArticleLocked(a.id)) {
+                            - recalcul en cours
+                          }
+                        </mat-option>
                       }
                     </mat-select>
                   </mat-form-field>
@@ -105,7 +112,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
               @if (editingId()) {
                 <button mat-stroked-button type="button" (click)="cancel()">Annuler</button>
               }
-              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
+              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving() || hasLockedLines()">
                 <mat-icon>save</mat-icon>
                 {{ editingId() ? 'Mettre à jour' : 'Créer (brouillon)' }}
               </button>
@@ -215,14 +222,16 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
     }
   `],
 })
-export class BonsReceptionComponent {
+export class BonsReceptionComponent implements OnDestroy {
   protected readonly cols = ['reference', 'date', 'statut', 'lignes', 'actions'];
   protected readonly bons = signal<BonReception[]>([]);
   protected readonly fournisseurs = signal<Fournisseur[]>([]);
   protected readonly emplacements = signal<Emplacement[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
+  protected readonly lockedArticleIds = signal<string[]>([]);
   protected readonly saving = signal(false);
   protected readonly editingId = signal<string | null>(null);
+  protected readonly editingStatus = signal<'BROUILLON' | 'VALIDE' | 'RECU' | 'ANNULE' | null>(null);
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
@@ -233,9 +242,18 @@ export class BonsReceptionComponent {
     lignes: this.fb.array([this.newLigne()]),
   });
   private readonly snack = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+  private lockTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     this.reload();
+    this.lockTimer = setInterval(() => this.refreshLocks(), 5000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.lockTimer) {
+      clearInterval(this.lockTimer);
+    }
   }
 
   get lignes(): FormArray {
@@ -253,6 +271,10 @@ export class BonsReceptionComponent {
   protected save(): void {
     const centerId = this.auth.centerId();
     if (!centerId || this.form.invalid) {
+      return;
+    }
+    if (this.hasLockedLines()) {
+      this.snack.open('Un ou plusieurs articles sont en recalcul. Reessayez plus tard.', 'Fermer', {duration: 4000});
       return;
     }
     this.saving.set(true);
@@ -284,8 +306,21 @@ export class BonsReceptionComponent {
       next: () => {
         const message = editingId ? 'Bon de réception mis à jour' : 'Bon de réception créé';
         this.snack.open(message, 'OK', {duration: 2500});
+
+        if (editingId && this.editingStatus() && this.editingStatus() !== 'BROUILLON') {
+          const articleIds = Array.from(new Set(lignes.map(l => l.articleId).filter(Boolean)));
+          if (articleIds.length > 0) {
+            this.dialog.open(PmpRecalcDialogComponent, {
+              width: '560px',
+              hasBackdrop: false,
+              data: {centerId, articleIds},
+            });
+          }
+        }
+
         this.form.setControl('lignes', this.fb.array([this.newLigne()]));
         this.editingId.set(null);
+        this.editingStatus.set(null);
         this.reload();
       },
       complete: () => this.saving.set(false),
@@ -298,6 +333,7 @@ export class BonsReceptionComponent {
 
   protected edit(b: BonReception): void {
     this.editingId.set(b.id);
+    this.editingStatus.set(b.statut);
     this.form.patchValue({
       fournisseurId: b.fournisseurId,
       dateReception: b.dateReception ? new Date(b.dateReception) : new Date(),
@@ -324,6 +360,7 @@ export class BonsReceptionComponent {
 
   protected cancel(): void {
     this.editingId.set(null);
+    this.editingStatus.set(null);
     this.form.reset({
       fournisseurId: null,
       dateReception: new Date(),
@@ -356,6 +393,17 @@ export class BonsReceptionComponent {
     });
   }
 
+  protected isArticleLocked(articleId?: string | null): boolean {
+    if (!articleId) {
+      return false;
+    }
+    return this.lockedArticleIds().includes(articleId);
+  }
+
+  protected hasLockedLines(): boolean {
+    return this.lignes.controls.some(c => this.isArticleLocked(c.get('articleId')?.value));
+  }
+
   private reload(): void {
     const centerId = this.auth.centerId();
     if (!centerId) {
@@ -365,6 +413,18 @@ export class BonsReceptionComponent {
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
     this.api.listEmplacements(centerId).subscribe({next: (e) => this.emplacements.set(e)});
     this.refApi.getArticles(centerId).subscribe({next: (a) => this.articles.set(a)});
+    this.refreshLocks();
+  }
+
+  private refreshLocks(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
+    this.api.listPmpRecalcLocks(centerId).subscribe({
+      next: (ids) => this.lockedArticleIds.set(ids),
+      error: () => this.lockedArticleIds.set([]),
+    });
   }
 
   private toIso(d: unknown): string | undefined {

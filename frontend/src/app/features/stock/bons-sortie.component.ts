@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatCardModule} from '@angular/material/card';
@@ -53,7 +53,12 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                     <mat-label>Article</mat-label>
                     <mat-select formControlName="articleId" (selectionChange)="onArticleChange($index)">
                       @for (a of articles(); track a.id) {
-                        <mat-option [value]="a.id">{{ a.libelle || a.nom }}</mat-option>
+                        <mat-option [value]="a.id" [disabled]="isArticleLocked(a.id)">
+                          {{ a.libelle || a.nom }}
+                          @if (isArticleLocked(a.id)) {
+                            - recalcul en cours
+                          }
+                        </mat-option>
                       }
                     </mat-select>
                   </mat-form-field>
@@ -97,7 +102,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                 <mat-icon>add</mat-icon>
                 Ajouter un article
               </button>
-              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
+              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving() || hasLockedItems()">
                 <mat-icon>logout</mat-icon>
                 Sortir du stock
               </button>
@@ -174,11 +179,12 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
     }
   `],
 })
-export class BonsSortieComponent {
+export class BonsSortieComponent implements OnDestroy {
   protected readonly cols = ['reference', 'date', 'lignes'];
   protected readonly bons = signal<BonSortie[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly lotsByRow = signal<Record<number, LotDisponible[]>>({});
+  protected readonly lockedArticleIds = signal<string[]>([]);
   protected readonly saving = signal(false);
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
@@ -189,9 +195,17 @@ export class BonsSortieComponent {
     items: this.fb.array([this.newItem()]),
   });
   private readonly snack = inject(MatSnackBar);
+  private lockTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     this.reload();
+    this.lockTimer = setInterval(() => this.refreshLocks(), 5000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.lockTimer) {
+      clearInterval(this.lockTimer);
+    }
   }
 
   get items(): FormArray {
@@ -221,6 +235,12 @@ export class BonsSortieComponent {
     const group = this.items.at(i) as FormGroup;
     const articleId = group.get('articleId')?.value as string | null;
     group.get('lotId')?.setValue(null);
+    if (this.isArticleLocked(articleId)) {
+      this.snack.open('Recalcul en cours pour cet article. Saisie temporairement bloquee.', 'Fermer', {duration: 4000});
+      group.get('articleId')?.setValue(null);
+      this.setLotsForRow(i, []);
+      return;
+    }
     if (!centerId || !articleId) {
       this.setLotsForRow(i, []);
       return;
@@ -261,6 +281,10 @@ export class BonsSortieComponent {
     if (!centerId || this.form.invalid) {
       return;
     }
+    if (this.hasLockedItems()) {
+      this.snack.open('Un ou plusieurs articles sont en recalcul. Reessayez plus tard.', 'Fermer', {duration: 4000});
+      return;
+    }
     this.saving.set(true);
     this.api.createBonSortie({
       centerId,
@@ -299,6 +323,17 @@ export class BonsSortieComponent {
     this.lotsByRow.set({...this.lotsByRow(), [i]: lots});
   }
 
+  protected isArticleLocked(articleId?: string | null): boolean {
+    if (!articleId) {
+      return false;
+    }
+    return this.lockedArticleIds().includes(articleId);
+  }
+
+  protected hasLockedItems(): boolean {
+    return this.items.controls.some(c => this.isArticleLocked(c.get('articleId')?.value));
+  }
+
   private reload(): void {
     const centerId = this.auth.centerId();
     if (!centerId) {
@@ -306,6 +341,18 @@ export class BonsSortieComponent {
     }
     this.api.listBonsSortie(centerId).subscribe({next: (b) => this.bons.set(b)});
     this.refApi.getArticles(centerId).subscribe({next: (a) => this.articles.set(a)});
+    this.refreshLocks();
+  }
+
+  private refreshLocks(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
+    this.api.listPmpRecalcLocks(centerId).subscribe({
+      next: (ids) => this.lockedArticleIds.set(ids),
+      error: () => this.lockedArticleIds.set([]),
+    });
   }
 
   private toIso(d: unknown): string | undefined {

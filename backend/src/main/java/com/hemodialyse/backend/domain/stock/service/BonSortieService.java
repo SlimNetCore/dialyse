@@ -27,19 +27,22 @@ public class BonSortieService implements BonSortieUseCase {
     private final ArticleRepositoryPort articleRepo;
     private final StockSequencePort sequence;
     private final PmpEngine pmpEngine;
+    private final PmpRecalculationCoordinator recalcCoordinator;
 
     public BonSortieService(BonSortieRepositoryPort repo,
                             LotRepositoryPort lotRepo,
                             StockMovementRepositoryPort movementRepo,
                             ArticleRepositoryPort articleRepo,
                             StockSequencePort sequence,
-                            PmpEngine pmpEngine) {
+                            PmpEngine pmpEngine,
+                            PmpRecalculationCoordinator recalcCoordinator) {
         this.repo = repo;
         this.lotRepo = lotRepo;
         this.movementRepo = movementRepo;
         this.articleRepo = articleRepo;
         this.sequence = sequence;
         this.pmpEngine = pmpEngine;
+        this.recalcCoordinator = recalcCoordinator;
     }
 
     @Override
@@ -61,6 +64,10 @@ public class BonSortieService implements BonSortieUseCase {
             }
             Article article = articleRepo.findById(item.articleId(), centerId)
                     .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + item.articleId()));
+
+            if (recalcCoordinator.isLocked(centerId, item.articleId())) {
+                throw new IllegalStateException("Recalcul en cours pour l'article " + article.getCode() + ". Saisie temporairement bloquee.");
+            }
 
             Lot lot = lotRepo.findById(item.lotId(), centerId)
                     .orElseThrow(() -> new IllegalArgumentException("Lot introuvable: " + item.lotId()));

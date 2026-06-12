@@ -21,6 +21,7 @@ public class BonReceptionService implements BonReceptionUseCase {
     private final ArticleRepositoryPort articleRepo;
     private final StockSequencePort sequence;
     private final PmpEngine pmpEngine;
+    private final PmpRecalculationCoordinator recalcCoordinator;
 
     public BonReceptionService(BonReceptionRepositoryPort repo,
                                BonCommandeRepositoryPort bonCommandeRepo,
@@ -28,7 +29,8 @@ public class BonReceptionService implements BonReceptionUseCase {
                                StockMovementRepositoryPort movementRepo,
                                ArticleRepositoryPort articleRepo,
                                StockSequencePort sequence,
-                               PmpEngine pmpEngine) {
+                               PmpEngine pmpEngine,
+                               PmpRecalculationCoordinator recalcCoordinator) {
         this.repo = repo;
         this.bonCommandeRepo = bonCommandeRepo;
         this.lotRepo = lotRepo;
@@ -36,11 +38,13 @@ public class BonReceptionService implements BonReceptionUseCase {
         this.articleRepo = articleRepo;
         this.sequence = sequence;
         this.pmpEngine = pmpEngine;
+        this.recalcCoordinator = recalcCoordinator;
     }
 
     @Override
     public BonReception create(CenterId centerId, UUID bonCommandeId, UUID fournisseurId,
                                LocalDate dateReception, List<LigneReception> lignes, String userId) {
+        assertArticlesNotLocked(centerId, lignes);
         String reference = sequence.next(centerId, "SEQ_BR");
         BonReception bon = BonReception.brouillon(centerId.value(), reference, bonCommandeId,
                 fournisseurId, dateReception, userId != null ? userId : "system");
@@ -51,6 +55,7 @@ public class BonReceptionService implements BonReceptionUseCase {
     @Override
     public BonReception update(CenterId centerId, UUID bonId, UUID fournisseurId,
                                LocalDate dateReception, List<LigneReception> lignes) {
+        assertArticlesNotLocked(centerId, lignes);
         BonReception bon = get(centerId, bonId);
         if (fournisseurId != null) {
             bon.setFournisseurId(fournisseurId);
@@ -78,6 +83,7 @@ public class BonReceptionService implements BonReceptionUseCase {
     @Override
     public BonReception valider(CenterId centerId, UUID bonId, String userId) {
         BonReception bon = get(centerId, bonId);
+        assertArticlesNotLocked(centerId, bon.getLignes());
         String by = userId != null ? userId : "system";
 
         Set<UUID> articlesTouches = new LinkedHashSet<>();
@@ -138,6 +144,20 @@ public class BonReceptionService implements BonReceptionUseCase {
     @Transactional(readOnly = true)
     public List<BonReception> list(CenterId centerId) {
         return repo.findAll(centerId);
+    }
+
+    private void assertArticlesNotLocked(CenterId centerId, List<LigneReception> lignes) {
+        if (lignes == null) {
+            return;
+        }
+        for (LigneReception ligne : lignes) {
+            if (ligne == null || ligne.articleId() == null) {
+                continue;
+            }
+            if (recalcCoordinator.isLocked(centerId, ligne.articleId())) {
+                throw new IllegalStateException("Recalcul en cours pour l'article " + ligne.articleId() + ". Saisie temporairement bloquee.");
+            }
+        }
     }
 }
 

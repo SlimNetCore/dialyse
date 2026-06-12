@@ -146,6 +146,18 @@ export interface PmpExplanation {
   pmpFinal: number;
 }
 
+export interface PmpRecalcJob {
+  jobId: string;
+  centerId: string;
+  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+  total: number;
+  processed: number;
+  message: string;
+  startedAt: string;
+  finishedAt?: string | null;
+  articleIds: string[];
+}
+
 @Injectable({providedIn: 'root'})
 export class StockApiService {
   private readonly http = inject(HttpClient);
@@ -285,6 +297,22 @@ export class StockApiService {
     return this.http.get<PmpExplanation>(`${this.base}/dashboard/pmp-explain/${articleId}`, {
       params: new HttpParams().set('centerId', centerId),
     });
+  }
+
+  startPmpRecalc(centerId: string, articleIds: string[]): Observable<{ jobId: string }> {
+    return this.http.post<{ jobId: string }>(`${this.base}/dashboard/pmp-recalc/start`, {
+      centerId,
+      articleIds,
+    });
+  }
+
+  getPmpRecalcJob(jobId: string): Observable<PmpRecalcJob> {
+    return this.http.get<PmpRecalcJob>(`${this.base}/dashboard/pmp-recalc/jobs/${jobId}`);
+  }
+
+  listPmpRecalcLocks(centerId: string): Observable<string[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<string[]>(`${this.base}/dashboard/pmp-recalc/locks`, {params});
   }
 }
 
