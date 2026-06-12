@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
 import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
@@ -19,10 +20,12 @@ public class BonSortieRestController {
 
     private final BonSortieUseCase useCase;
     private final LotRepositoryPort lotRepo;
+    private final ArticleRepositoryPort articleRepo;
 
-    public BonSortieRestController(BonSortieUseCase useCase, LotRepositoryPort lotRepo) {
+    public BonSortieRestController(BonSortieUseCase useCase, LotRepositoryPort lotRepo, ArticleRepositoryPort articleRepo) {
         this.useCase = useCase;
         this.lotRepo = lotRepo;
+        this.articleRepo = articleRepo;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
@@ -38,12 +41,16 @@ public class BonSortieRestController {
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
     @GetMapping("/lots-disponibles")
     public ResponseEntity<?> lotsDisponibles(@RequestParam UUID centerId, @RequestParam UUID articleId) {
+        var center = CenterId.of(centerId);
+        var pmpCourant = articleRepo.findById(articleId, center)
+                .map(a -> a.getPmpCourant())
+                .orElse(java.math.BigDecimal.ZERO);
         var data = lotRepo.findAvailableByArticleFefo(articleId, CenterId.of(centerId)).stream()
                 .map(l -> new LotDisponibleDto(
                         l.getId(),
                         l.getNumeroLot(),
                         l.getDatePeremption(),
-                        l.getPmp(),
+                        pmpCourant,
                         l.getQuantiteRestante()
                 ))
                 .toList();

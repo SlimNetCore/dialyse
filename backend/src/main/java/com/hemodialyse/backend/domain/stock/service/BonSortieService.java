@@ -73,7 +73,8 @@ public class BonSortieService implements BonSortieUseCase {
                 throw new IllegalStateException("Stock insuffisant sur le lot " + lot.getNumeroLot());
             }
 
-            BigDecimal pmpApplique = lot.getPmp() != null ? lot.getPmp() : BigDecimal.ZERO;
+            // Regle metier: une sortie est toujours valorisee au dernier PMP courant de l'article.
+            BigDecimal pmpApplique = article.getPmpCourant() != null ? article.getPmpCourant() : BigDecimal.ZERO;
             lot.consommer(item.quantite());
             lotRepo.save(lot);
 
