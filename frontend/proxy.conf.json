@@ -6,14 +6,14 @@
     "logLevel": "info"
   },
   "/ws": {
-    "target": "https://dialyse-production.up.railway.app",
+    "target": "http://localhost:8080",
     "secure": false,
     "changeOrigin": true,
     "ws": true,
     "logLevel": "info"
   },
   "/actuator": {
-    "target": "https://dialyse-production.up.railway.app",
+    "target": "http://localhost:8080",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"

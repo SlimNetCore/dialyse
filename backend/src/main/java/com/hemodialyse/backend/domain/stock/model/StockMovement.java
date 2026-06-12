@@ -9,8 +9,11 @@ public class StockMovement {
     private UUID centerId;
     private UUID articleId;
     private UUID seanceId;
+    private UUID lotId;
     private StockMovementType movementType;
     private BigDecimal quantite;
+    private BigDecimal prixUnitaire;
+    private BigDecimal pmpApres;
     private String createdBy;
     private OffsetDateTime createdAt;
 
@@ -24,6 +27,29 @@ public class StockMovement {
         movement.setQuantite(quantite);
         movement.setCreatedBy(createdBy);
         movement.setCreatedAt(OffsetDateTime.now());
+        return movement;
+    }
+
+    public static StockMovement entree(UUID centerId, UUID articleId, UUID lotId,
+                                       BigDecimal quantite, BigDecimal prixUnitaire, String createdBy) {
+        StockMovement movement = new StockMovement();
+        movement.setId(UUID.randomUUID());
+        movement.setCenterId(centerId);
+        movement.setArticleId(articleId);
+        movement.setLotId(lotId);
+        movement.setMovementType(StockMovementType.ENTREE);
+        movement.setQuantite(quantite);
+        movement.setPrixUnitaire(prixUnitaire);
+        movement.setCreatedBy(createdBy);
+        movement.setCreatedAt(OffsetDateTime.now());
+        return movement;
+    }
+
+    public static StockMovement sortieLot(UUID centerId, UUID articleId, UUID seanceId, UUID lotId,
+                                          BigDecimal quantite, BigDecimal pmpApplique, String createdBy) {
+        StockMovement movement = sortie(centerId, articleId, seanceId, quantite, createdBy);
+        movement.setLotId(lotId);
+        movement.setPrixUnitaire(pmpApplique);
         return movement;
     }
 
@@ -81,6 +107,30 @@ public class StockMovement {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public UUID getLotId() {
+        return lotId;
+    }
+
+    public void setLotId(UUID lotId) {
+        this.lotId = lotId;
+    }
+
+    public BigDecimal getPrixUnitaire() {
+        return prixUnitaire;
+    }
+
+    public void setPrixUnitaire(BigDecimal prixUnitaire) {
+        this.prixUnitaire = prixUnitaire;
+    }
+
+    public BigDecimal getPmpApres() {
+        return pmpApres;
+    }
+
+    public void setPmpApres(BigDecimal pmpApres) {
+        this.pmpApres = pmpApres;
     }
 
     public OffsetDateTime getCreatedAt() {

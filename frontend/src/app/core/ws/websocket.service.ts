@@ -41,6 +41,8 @@ export class WebSocketService implements OnDestroy {
     const backendUp = await this.isBackendUp();
     if (!backendUp) {
       this.connectionStatus.set('impossible');
+      // Allow a later call (navigation / retry) to attempt again once backend is up.
+      this.connectAttempted = false;
       return;
     }
 

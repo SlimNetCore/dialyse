@@ -201,6 +201,29 @@ class SeanceDomainServiceTest {
             movements.add(movement);
             return movement;
         }
+
+        @Override
+        public List<StockMovement> findByArticleOrdered(CenterId centerId, UUID articleId) {
+            return movements.stream()
+                    .filter(m -> m.getArticleId().equals(articleId))
+                    .toList();
+        }
+
+        @Override
+        public List<StockMovement> findByArticleBefore(CenterId centerId, UUID articleId, java.time.OffsetDateTime before) {
+            return movements.stream()
+                    .filter(m -> m.getArticleId().equals(articleId))
+                    .filter(m -> m.getCreatedAt() != null && m.getCreatedAt().isBefore(before))
+                    .toList();
+        }
+
+        @Override
+        public void updatePmpApres(UUID movementId, BigDecimal pmpApres) {
+            movements.stream()
+                    .filter(m -> m.getId() != null && m.getId().equals(movementId))
+                    .findFirst()
+                    .ifPresent(m -> m.setPmpApres(pmpApres));
+        }
     }
 }
 

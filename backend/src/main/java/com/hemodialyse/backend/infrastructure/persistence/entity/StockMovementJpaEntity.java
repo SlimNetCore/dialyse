@@ -1,16 +1,17 @@
 package com.hemodialyse.backend.infrastructure.persistence.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "stock_movements")
+@Table(name = "stock_movements", indexes = {
+        @Index(name = "idx_stock_mvt_article_date", columnList = "article_id, created_at"),
+        @Index(name = "idx_stock_mvt_lot", columnList = "lot_id"),
+        @Index(name = "idx_stock_mvt_seance", columnList = "seance_id")
+})
 public class StockMovementJpaEntity {
     @Id
     private UUID id;
@@ -24,11 +25,20 @@ public class StockMovementJpaEntity {
     @Column(name = "seance_id")
     private UUID seanceId;
 
+    @Column(name = "lot_id")
+    private UUID lotId;
+
     @Column(name = "mouvement_type", nullable = false)
     private String mouvementType;
 
     @Column(name = "quantite", nullable = false)
     private BigDecimal quantite;
+
+    @Column(name = "prix_unitaire")
+    private BigDecimal prixUnitaire;
+
+    @Column(name = "pmp_apres")
+    private BigDecimal pmpApres;
 
     @Column(name = "created_by")
     private String createdBy;
@@ -90,6 +100,30 @@ public class StockMovementJpaEntity {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public UUID getLotId() {
+        return lotId;
+    }
+
+    public void setLotId(UUID lotId) {
+        this.lotId = lotId;
+    }
+
+    public BigDecimal getPrixUnitaire() {
+        return prixUnitaire;
+    }
+
+    public void setPrixUnitaire(BigDecimal prixUnitaire) {
+        this.prixUnitaire = prixUnitaire;
+    }
+
+    public BigDecimal getPmpApres() {
+        return pmpApres;
+    }
+
+    public void setPmpApres(BigDecimal pmpApres) {
+        this.pmpApres = pmpApres;
     }
 
     public OffsetDateTime getCreatedAt() {

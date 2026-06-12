@@ -33,6 +33,9 @@ public class ArticleJpaEntity {
     @Column(name = "seuil_alerte", nullable = false)
     private BigDecimal seuilAlerte;
 
+    @Column(name = "pmp_courant")
+    private BigDecimal pmpCourant;
+
     @Column(name = "active", nullable = false)
     private boolean active;
 
@@ -93,6 +96,14 @@ public class ArticleJpaEntity {
 
     public void setSeuilAlerte(BigDecimal seuilAlerte) {
         this.seuilAlerte = seuilAlerte;
+    }
+
+    public BigDecimal getPmpCourant() {
+        return pmpCourant;
+    }
+
+    public void setPmpCourant(BigDecimal pmpCourant) {
+        this.pmpCourant = pmpCourant;
     }
 
     public boolean isActive() {

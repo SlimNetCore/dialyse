@@ -12,6 +12,7 @@ public class Article {
     private String unite;
     private BigDecimal stockQuantity;
     private BigDecimal seuilAlerte;
+    private BigDecimal pmpCourant;
     private boolean active;
     private OffsetDateTime createdAt;
 
@@ -80,6 +81,14 @@ public class Article {
 
     public void setSeuilAlerte(BigDecimal seuilAlerte) {
         this.seuilAlerte = seuilAlerte;
+    }
+
+    public BigDecimal getPmpCourant() {
+        return pmpCourant;
+    }
+
+    public void setPmpCourant(BigDecimal pmpCourant) {
+        this.pmpCourant = pmpCourant;
     }
 
     public boolean isActive() {
