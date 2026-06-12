@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatCardModule} from '@angular/material/card';
@@ -15,6 +15,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {AuthStore} from '../../core/state/auth.store';
+import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonReception, Emplacement, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
@@ -46,6 +47,9 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="save()">
             <div class="head-row">
+              @if (lockedArticleIds().length > 0) {
+                <mat-chip class="lock-chip">{{ lockedArticleIds().length }} article(s) en recalcul</mat-chip>
+              }
               <mat-form-field appearance="outline" class="flex2">
                 <mat-label>Fournisseur</mat-label>
                 <mat-select formControlName="fournisseurId">
@@ -220,6 +224,13 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
     .spacer {
       flex: 1;
     }
+
+    .lock-chip {
+      background: #fff3e0;
+      border: 1px solid #ffb74d;
+      color: #e65100;
+      align-self: center;
+    }
   `],
 })
 export class BonsReceptionComponent implements OnDestroy {
@@ -235,6 +246,7 @@ export class BonsReceptionComponent implements OnDestroy {
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
+  private readonly ws = inject(WebSocketService);
   private readonly fb = inject(FormBuilder);
   protected readonly form: FormGroup = this.fb.group({
     fournisseurId: [null],
@@ -248,6 +260,16 @@ export class BonsReceptionComponent implements OnDestroy {
   constructor() {
     this.reload();
     this.lockTimer = setInterval(() => this.refreshLocks(), 5000);
+    effect(() => {
+      const evt = this.ws.lastEvent();
+      const centerId = this.auth.centerId();
+      if (!evt || !centerId) {
+        return;
+      }
+      if (evt.type === 'STOCK_RECALC_LOCKS_CHANGED' && evt.centerId === centerId) {
+        this.refreshLocks();
+      }
+    });
   }
 
   ngOnDestroy(): void {

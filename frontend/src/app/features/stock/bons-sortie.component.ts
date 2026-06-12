@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatCardModule} from '@angular/material/card';
@@ -10,8 +10,10 @@ import {MatNativeDateModule} from '@angular/material/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
+import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AuthStore} from '../../core/state/auth.store';
+import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonSortie, LotDisponible, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 
@@ -21,6 +23,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule, MatTableModule,
+    MatChipsModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -38,6 +41,9 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="save()">
             <div class="head-row">
+              @if (lockedArticleIds().length > 0) {
+                <mat-chip class="lock-chip">{{ lockedArticleIds().length }} article(s) en recalcul</mat-chip>
+              }
               <mat-form-field appearance="outline" class="flex1">
                 <mat-label>Date de sortie</mat-label>
                 <input matInput [matDatepicker]="dp" formControlName="dateSortie"/>
@@ -189,6 +195,7 @@ export class BonsSortieComponent implements OnDestroy {
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
+  private readonly ws = inject(WebSocketService);
   private readonly fb = inject(FormBuilder);
   protected readonly form: FormGroup = this.fb.group({
     dateSortie: [new Date()],
@@ -200,6 +207,16 @@ export class BonsSortieComponent implements OnDestroy {
   constructor() {
     this.reload();
     this.lockTimer = setInterval(() => this.refreshLocks(), 5000);
+    effect(() => {
+      const evt = this.ws.lastEvent();
+      const centerId = this.auth.centerId();
+      if (!evt || !centerId) {
+        return;
+      }
+      if (evt.type === 'STOCK_RECALC_LOCKS_CHANGED' && evt.centerId === centerId) {
+        this.refreshLocks();
+      }
+    });
   }
 
   ngOnDestroy(): void {
