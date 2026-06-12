@@ -8,6 +8,8 @@ import java.time.OffsetDateTime;
  */
 public record PmpExplanationStep(
         OffsetDateTime date,
+        String piece,
+        String datePiece,
         String type,                 // ENTREE | SORTIE | AJUSTEMENT
         BigDecimal quantite,
         BigDecimal prixUnitaire,     // null for SORTIE

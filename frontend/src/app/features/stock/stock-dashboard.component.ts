@@ -97,7 +97,7 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let a">
                 <button mat-stroked-button color="primary" (click)="openPmpExplain(a)">
-                  Voir PMP
+                  Expliquer PMP
                 </button>
               </td>
             </ng-container>

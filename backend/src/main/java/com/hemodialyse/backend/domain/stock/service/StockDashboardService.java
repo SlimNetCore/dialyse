@@ -67,8 +67,12 @@ public class StockDashboardService implements StockDashboardUseCase {
         List<PmpExplanationStep> etapes = new ArrayList<>();
         for (PmpCalculator.DetailedStep d : detailed) {
             StockMovement m = d.movement();
+            String piece = pieceFromMovement(m);
+            String datePiece = m.getCreatedAt() != null ? m.getCreatedAt().toLocalDate().toString() : null;
             etapes.add(new PmpExplanationStep(
                     m.getCreatedAt(),
+                    piece,
+                    datePiece,
                     m.getMovementType().name(),
                     m.getQuantite(),
                     m.getPrixUnitaire(),
@@ -111,6 +115,16 @@ public class StockDashboardService implements StockDashboardUseCase {
         return String.format(
                 "SORTIE : %s unite(s) valorisee(s) au PMP courant %s ; PMP inchange = %s",
                 q.toPlainString(), d.stateBefore().pmp().toPlainString(), d.stateAfter().pmp().toPlainString());
+    }
+
+    private String pieceFromMovement(StockMovement m) {
+        if (m.getMovementType() == StockMovementType.ENTREE) {
+            return "Bon de reception";
+        }
+        if (m.getMovementType() == StockMovementType.SORTIE) {
+            return "Bon de sortie";
+        }
+        return "Ajustement";
     }
 }
 

@@ -50,6 +50,14 @@ export interface PmpExplainData {
           <p class="app-muted-note">Aucun mouvement de stock pour cet article : le PMP est à 0.</p>
         } @else {
           <table mat-table [dataSource]="ex.etapes" class="full-width">
+            <ng-container matColumnDef="piece">
+              <th mat-header-cell *matHeaderCellDef>Pièce</th>
+              <td mat-cell *matCellDef="let s">{{ s.piece || '—' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="datePiece">
+              <th mat-header-cell *matHeaderCellDef>Date pièce</th>
+              <td mat-cell *matCellDef="let s">{{ s.datePiece ? (s.datePiece | date:'dd/MM/yyyy') : '—' }}</td>
+            </ng-container>
             <ng-container matColumnDef="type">
               <th mat-header-cell *matHeaderCellDef>Type</th>
               <td mat-cell *matCellDef="let s">
@@ -159,7 +167,7 @@ export interface PmpExplainData {
 export class PmpExplainDialogComponent {
   protected readonly data = inject<PmpExplainData>(MAT_DIALOG_DATA);
   protected readonly ref = inject(MatDialogRef<PmpExplainDialogComponent>);
-  protected readonly cols = ['type', 'qte', 'pu', 'pmp', 'formule'];
+  protected readonly cols = ['piece', 'datePiece', 'type', 'qte', 'pu', 'pmp', 'formule'];
   protected readonly loading = signal(true);
   protected readonly explanation = signal<PmpExplanation | null>(null);
   private readonly api = inject(StockApiService);

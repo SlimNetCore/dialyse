@@ -123,6 +123,8 @@ export interface TracabiliteItem {
 
 export interface PmpExplanationStep {
   date?: string;
+  piece?: string;
+  datePiece?: string;
   type: 'ENTREE' | 'SORTIE' | 'AJUSTEMENT';
   quantite: number;
   prixUnitaire?: number;
