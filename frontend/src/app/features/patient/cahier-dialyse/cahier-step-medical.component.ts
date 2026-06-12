@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -20,7 +20,10 @@ import {TranslateModule} from '@ngx-translate/core';
           <div class="placeholder-message">
             <mat-icon>info</mat-icon>
             <p>{{ 'COMMON.COMING_SOON' | translate }}</p>
-            <p class="detail">Dossier médical, prescriptions, résultats d'analyses, abords vasculaires et traitements.</p>
+            <p class="detail">
+              Dossier médical, prescriptions, résultats d'analyses, abords vasculaires et
+              traitements.
+            </p>
           </div>
           <div class="actions">
             <button mat-raised-button color="primary" (click)="proceed()">
@@ -32,24 +35,44 @@ import {TranslateModule} from '@ngx-translate/core';
       </mat-card>
     </div>
   `,
-  styles: [`
-    .step-content { padding: 12px 0; }
-    .placeholder-card { margin: 0; }
-    .placeholder-message {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--app-muted);
-    }
-    .placeholder-message mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-      color: var(--app-muted);
-    }
-    .detail { font-size: 12px; margin-top: 8px; }
-    .actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
-  `]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .step-content {
+        padding: 12px 0;
+      }
+
+      .placeholder-card {
+        margin: 0;
+      }
+
+      .placeholder-message {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--app-muted);
+      }
+
+      .placeholder-message mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+        color: var(--app-muted);
+      }
+
+      .detail {
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class CahierStepMedicalComponent {
   @Input() patientId!: string;
@@ -61,4 +84,3 @@ export class CahierStepMedicalComponent {
     this.validChange.emit(true);
   }
 }
-

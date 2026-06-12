@@ -1,4 +1,4 @@
-import {Component, inject, Input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, Input, signal} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -10,14 +10,27 @@ import * as QRCode from 'qrcode';
 @Component({
   selector: 'app-patient-qr-card',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDialogModule, MatTooltipModule, TranslateModule],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatTooltipModule,
+    TranslateModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <button mat-icon-button color="primary" (click)="openCard()" [disabled]="!patientId"
-            [matTooltip]="'PATIENT_FORM.QR_CARD' | translate"
-            [attr.aria-label]="'PATIENT_FORM.QR_CARD' | translate">
+    <button
+      mat-icon-button
+      color="primary"
+      (click)="openCard()"
+      [disabled]="!patientId"
+      [matTooltip]="'PATIENT_FORM.QR_CARD' | translate"
+      [attr.aria-label]="'PATIENT_FORM.QR_CARD' | translate"
+    >
       <mat-icon>qr_code_2</mat-icon>
     </button>
-  `
+  `,
 })
 export class PatientQrCardComponent {
   private readonly dialog = inject(MatDialog);
@@ -40,8 +53,8 @@ export class PatientQrCardComponent {
         numeroAssurance: this.numeroAssurance,
         photoBase64: this.photoBase64,
         dateAdmission: this.dateAdmission,
-        groupeSanguin: this.groupeSanguin
-      }
+        groupeSanguin: this.groupeSanguin,
+      },
     });
   }
 }
@@ -87,46 +100,101 @@ export class PatientQrCardComponent {
       </button>
     </div>
   `,
-  styles: [`
-    .card-print {
-      padding: 20px;
-      border: 2px solid #1b5e20;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #f7faf8 0%, #e8f5e9 100%);
-    }
-    .card-header {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 16px; padding-bottom: 12px;
-      border-bottom: 2px solid #c8e6c9;
-    }
-    .card-logo { color: #1b5e20; font-size: 28px; width: 28px; height: 28px; }
-    .card-title { font-weight: 700; font-size: 18px; color: #1b5e20; letter-spacing: -0.3px; }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .card-print {
+        padding: 20px;
+        border: 2px solid #1b5e20;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #f7faf8 0%, #e8f5e9 100%);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #c8e6c9;
+      }
+      .card-logo {
+        color: #1b5e20;
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+      .card-title {
+        font-weight: 700;
+        font-size: 18px;
+        color: #1b5e20;
+        letter-spacing: -0.3px;
+      }
 
-    .card-body { display: flex; gap: 16px; align-items: flex-start; }
+      .card-body {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+      }
 
-    .card-photo {
-      width: 80px; height: 100px; border-radius: 8px; overflow: hidden;
-      border: 1px solid #c8e6c9; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: #f0fdf4;
-      img { width: 100%; height: 100%; object-fit: cover; }
-    }
-    .no-photo { font-size: 40px; width: 40px; height: 40px; color: #a5d6a7; }
+      .card-photo {
+        width: 80px;
+        height: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #c8e6c9;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0fdf4;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+      .no-photo {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: #a5d6a7;
+      }
 
-    .card-info { flex: 1; }
-    .card-info h2 { margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #1e293b; }
-    .info-line { font-size: 13px; color: #475569; margin-bottom: 3px; }
-    .info-line strong { color: #1b5e20; }
+      .card-info {
+        flex: 1;
+      }
+      .card-info h2 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+      }
+      .info-line {
+        font-size: 13px;
+        color: #475569;
+        margin-bottom: 3px;
+      }
+      .info-line strong {
+        color: #1b5e20;
+      }
 
-    .card-qr {
-      width: 90px; height: 90px; flex-shrink: 0;
-      img { width: 100%; height: 100%; }
-    }
+      .card-qr {
+        width: 90px;
+        height: 90px;
+        flex-shrink: 0;
+        img {
+          width: 100%;
+          height: 100%;
+        }
+      }
 
-    .dialog-actions {
-      display: flex; justify-content: center; padding: 16px 0 0;
-    }
-  `]
+      .dialog-actions {
+        display: flex;
+        justify-content: center;
+        padding: 16px 0 0;
+      }
+    `,
+  ],
 })
 export class PatientQrCardDialogComponent {
   readonly data: any = inject(MAT_DIALOG_DATA);
@@ -137,10 +205,11 @@ export class PatientQrCardDialogComponent {
       id: this.data.patientId,
       nom: this.data.nom,
       prenom: this.data.prenom,
-      assurance: this.data.numeroAssurance
+      assurance: this.data.numeroAssurance,
     });
-    QRCode.toDataURL(payload, { width: 180, margin: 1, color: { dark: '#1b5e20' } })
-      .then((url: string) => this.qrDataUrl.set(url));
+    QRCode.toDataURL(payload, {width: 180, margin: 1, color: {dark: '#1b5e20'}}).then(
+      (url: string) => this.qrDataUrl.set(url),
+    );
   }
 
   print(): void {
@@ -161,6 +230,3 @@ export class PatientQrCardDialogComponent {
     win.print();
   }
 }
-
-
-

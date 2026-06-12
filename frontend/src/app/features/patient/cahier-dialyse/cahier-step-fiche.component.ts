@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnInit, Output, signal,} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -14,8 +14,12 @@ import {AuthStore} from '../../../core/state/auth.store';
   selector: 'app-cahier-step-fiche',
   standalone: true,
   imports: [
-    CommonModule, MatCardModule,
-    MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
   ],
   template: `
     <div class="step-fiche-content">
@@ -23,7 +27,11 @@ import {AuthStore} from '../../../core/state/auth.store';
         <mat-card-header>
           <mat-card-title>{{ 'CAHIER.FICHE_PATIENT_TITLE' | translate }}</mat-card-title>
           <mat-card-subtitle>
-            {{ recapMode ? ('CAHIER.FICHE_INFO' | translate) + ' - Recapitulatif' : ('CAHIER.FICHE_INFO' | translate) }}
+            {{
+              recapMode
+                ? ('CAHIER.FICHE_INFO' | translate) + ' - Recapitulatif'
+                : ('CAHIER.FICHE_INFO' | translate)
+            }}
           </mat-card-subtitle>
         </mat-card-header>
 
@@ -57,7 +65,9 @@ import {AuthStore} from '../../../core/state/auth.store';
                     <strong>{{ displayValue(patientData().code) }}</strong>
                   </div>
                   <div class="recap-item">
-                    <span class="recap-label">{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }}</span>
+                    <span class="recap-label">{{
+                        'PATIENT_FORM.NUMERO_ASSURANCE' | translate
+                      }}</span>
                     <strong>{{ displayNumeroAssurance(patientData().numeroAssurance) }}</strong>
                   </div>
                   <div class="recap-item">
@@ -121,122 +131,173 @@ import {AuthStore} from '../../../core/state/auth.store';
       </mat-card>
     </div>
   `,
-  styles: [`
-    .step-fiche-content { padding: 8px 0; }
-    .patient-card { margin: 0; border-radius: 20px; }
-    .identity-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-      padding: 14px;
-      border: 1px solid var(--app-border);
-      border-radius: 16px;
-      background: var(--app-frost);
-    }
-    .banner-label {
-      margin: 0;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--app-muted);
-    }
-    .identity-banner h3 {
-      margin: 4px 0 0;
-      color: var(--app-text);
-      font-size: 1.1rem;
-    }
-    .banner-pills {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .age-pill {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid color-mix(in srgb, var(--app-primary-outline) 80%, #b45309 20%);
-      background: color-mix(in srgb, var(--app-primary-soft) 72%, #f59e0b 28%);
-      color: var(--app-text);
-      font-weight: 700;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .etat-pill {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--app-primary-outline);
-      background: var(--app-primary-soft);
-      color: var(--app-primary);
-      font-weight: 700;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .recap-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 12px;
-    }
-    .recap-grid-compact {
-      grid-template-columns: 1fr;
-    }
-    .recap-section {
-      border: 1px solid var(--app-border);
-      border-radius: 16px;
-      padding: 14px;
-      background: var(--app-surface-soft);
-    }
-    .recap-section-wide {
-      grid-column: 1 / -1;
-    }
-    .recap-section h4 {
-      margin: 0 0 10px;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--app-primary);
-    }
-    .recap-items {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .recap-item {
-      border: 1px solid var(--app-border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      background: var(--app-frost);
-    }
-    .recap-item-wide {
-      grid-column: 1 / -1;
-    }
-    .recap-label {
-      display: block;
-      font-size: 11px;
-      color: var(--app-muted);
-      margin-bottom: 4px;
-    }
-    .recap-item strong {
-      display: block;
-      color: var(--app-text);
-      font-size: 13px;
-      font-weight: 700;
-      word-break: break-word;
-    }
-    .loading-wrap { display: flex; justify-content: center; padding: 32px 0; }
-    .error-msg { color: var(--app-error); font-size: 13px; padding: 12px; background: rgba(239, 68, 68, 0.08); border-radius: 8px; }
-    .actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; }
-    @media (max-width: 1100px) {
-      .recap-items { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 900px) {
-      .identity-banner { flex-wrap: wrap; }
-      .recap-grid { grid-template-columns: 1fr; }
-    }
-  `]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .step-fiche-content {
+        padding: 8px 0;
+      }
+
+      .patient-card {
+        margin: 0;
+        border-radius: 20px;
+      }
+
+      .identity-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding: 14px;
+        border: 1px solid var(--app-border);
+        border-radius: 16px;
+        background: var(--app-frost);
+      }
+
+      .banner-label {
+        margin: 0;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--app-muted);
+      }
+
+      .identity-banner h3 {
+        margin: 4px 0 0;
+        color: var(--app-text);
+        font-size: 1.1rem;
+      }
+
+      .banner-pills {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .age-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--app-primary-outline) 80%, #b45309 20%);
+        background: color-mix(in srgb, var(--app-primary-soft) 72%, #f59e0b 28%);
+        color: var(--app-text);
+        font-weight: 700;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .etat-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--app-primary-outline);
+        background: var(--app-primary-soft);
+        color: var(--app-primary);
+        font-weight: 700;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .recap-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 12px;
+      }
+
+      .recap-grid-compact {
+        grid-template-columns: 1fr;
+      }
+
+      .recap-section {
+        border: 1px solid var(--app-border);
+        border-radius: 16px;
+        padding: 14px;
+        background: var(--app-surface-soft);
+      }
+
+      .recap-section-wide {
+        grid-column: 1 / -1;
+      }
+
+      .recap-section h4 {
+        margin: 0 0 10px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--app-primary);
+      }
+
+      .recap-items {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .recap-item {
+        border: 1px solid var(--app-border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: var(--app-frost);
+      }
+
+      .recap-item-wide {
+        grid-column: 1 / -1;
+      }
+
+      .recap-label {
+        display: block;
+        font-size: 11px;
+        color: var(--app-muted);
+        margin-bottom: 4px;
+      }
+
+      .recap-item strong {
+        display: block;
+        color: var(--app-text);
+        font-size: 13px;
+        font-weight: 700;
+        word-break: break-word;
+      }
+
+      .loading-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 32px 0;
+      }
+
+      .error-msg {
+        color: var(--app-error);
+        font-size: 13px;
+        padding: 12px;
+        background: rgba(239, 68, 68, 0.08);
+        border-radius: 8px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 16px;
+      }
+
+      @media (max-width: 1100px) {
+        .recap-items {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .identity-banner {
+          flex-wrap: wrap;
+        }
+        .recap-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
 })
 export class CahierStepFicheComponent implements OnInit {
   @Input() patientId!: string;
@@ -278,7 +339,10 @@ export class CahierStepFicheComponent implements OnInit {
       return String(value);
     }
     if (Array.isArray(value)) {
-      const rendered = value.map((item) => this.displayValue(item)).filter((item) => item !== '-').join(', ');
+      const rendered = value
+        .map((item) => this.displayValue(item))
+        .filter((item) => item !== '-')
+        .join(', ');
       return rendered || '-';
     }
     if (typeof value === 'object') {
@@ -298,7 +362,12 @@ export class CahierStepFicheComponent implements OnInit {
   displayNumeroAssurance(value: unknown): string {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       const entity = value as Record<string, unknown>;
-      const nssValue = entity['numeroAssurance'] ?? entity['nss'] ?? entity['numero'] ?? entity['value'] ?? entity['code'];
+      const nssValue =
+        entity['numeroAssurance'] ??
+        entity['nss'] ??
+        entity['numero'] ??
+        entity['value'] ??
+        entity['code'];
       return this.displayValue(nssValue);
     }
     return this.displayValue(value);
@@ -326,7 +395,7 @@ export class CahierStepFicheComponent implements OnInit {
       error: (err) => {
         this.error.set(err?.error?.message || this.translate.instant('COMMON.ERROR_LOAD'));
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -366,7 +435,3 @@ export class CahierStepFicheComponent implements OnInit {
     return null;
   }
 }
-
-
-
-

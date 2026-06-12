@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -21,9 +21,20 @@ import {PecAdminStore} from './state/pec-admin.store';
   selector: 'app-pec-admin',
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatTableModule, MatButtonModule, MatIconModule, MatChipsModule,
-    MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule,
-    MatSnackBarModule, MatCardModule, SlicePipe, TranslateModule, SearchableSelectComponent
+    ReactiveFormsModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSnackBarModule,
+    MatCardModule,
+    SlicePipe,
+    TranslateModule,
+    SearchableSelectComponent,
   ],
   template: `
     <div class="pec-admin">
@@ -48,7 +59,9 @@ import {PecAdminStore} from './state/pec-admin.store';
       </div>
 
       @if (loading()) {
-        <p style="color:#888; text-align: center; padding: 32px;">{{ 'PEC_ADMIN.LOADING' | translate }}</p>
+        <p style="color:#888; text-align: center; padding: 32px;">
+          {{ 'PEC_ADMIN.LOADING' | translate }}
+        </p>
       }
 
       @if (!loading() && pecs().length === 0) {
@@ -60,51 +73,62 @@ import {PecAdminStore} from './state/pec-admin.store';
 
       @if (pecs().length > 0) {
         <div class="table-wrap">
-        <table mat-table [dataSource]="pecs()" class="pec-table">
-          <ng-container matColumnDef="patientId">
-            <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_PATIENT' | translate }}</th>
-            <td mat-cell *matCellDef="let r">{{ r.patientId | slice:0:8 }}…</td>
-          </ng-container>
-          <ng-container matColumnDef="dateDebutDemande">
-            <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_DEBUT' | translate }}</th>
-            <td mat-cell *matCellDef="let r">{{ r.dateDebutDemande }}</td>
-          </ng-container>
-          <ng-container matColumnDef="dateFinDemande">
-            <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_FIN' | translate }}</th>
-            <td mat-cell *matCellDef="let r">{{ r.dateFinDemande }}</td>
-          </ng-container>
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_STATUS' | translate }}</th>
-            <td mat-cell *matCellDef="let r">
-              <span class="status-badge" [class]="'badge-' + r.status?.toLowerCase()">{{ r.status }}</span>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_ACTIONS' | translate }}</th>
-            <td mat-cell *matCellDef="let r">
-              @if (r.status === 'CREE') {
-                <button mat-flat-button class="validate-btn" (click)="openValidate(r)">
-                  <mat-icon>check_circle</mat-icon> {{ 'PEC_ADMIN.VALIDATE' | translate }}
-                </button>
-              }
-              @if (r.status === 'VALIDEE') {
-                <button mat-stroked-button color="warn" (click)="closePec(r)">
-                  <mat-icon>cancel</mat-icon> {{ 'PEC_ADMIN.CLOSE' | translate }}
-                </button>
-              }
-            </td>
-          </ng-container>
+          <table mat-table [dataSource]="pecs()" class="pec-table">
+            <ng-container matColumnDef="patientId">
+              <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_PATIENT' | translate }}</th>
+              <td mat-cell *matCellDef="let r">{{ r.patientId | slice: 0 : 8 }}…</td>
+            </ng-container>
+            <ng-container matColumnDef="dateDebutDemande">
+              <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_DEBUT' | translate }}</th>
+              <td mat-cell *matCellDef="let r">{{ r.dateDebutDemande }}</td>
+            </ng-container>
+            <ng-container matColumnDef="dateFinDemande">
+              <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_FIN' | translate }}</th>
+              <td mat-cell *matCellDef="let r">{{ r.dateFinDemande }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_STATUS' | translate }}</th>
+              <td mat-cell *matCellDef="let r">
+                <span class="status-badge" [class]="'badge-' + r.status?.toLowerCase()">{{
+                    r.status
+                  }}</span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>{{ 'PEC_ADMIN.COL_ACTIONS' | translate }}</th>
+              <td mat-cell *matCellDef="let r">
+                @if (r.status === 'CREE') {
+                  <button mat-flat-button class="validate-btn" (click)="openValidate(r)">
+                    <mat-icon>check_circle</mat-icon>
+                    {{ 'PEC_ADMIN.VALIDATE' | translate }}
+                  </button>
+                }
+                @if (r.status === 'VALIDEE') {
+                  <button mat-stroked-button color="warn" (click)="closePec(r)">
+                    <mat-icon>cancel</mat-icon>
+                    {{ 'PEC_ADMIN.CLOSE' | translate }}
+                  </button>
+                }
+              </td>
+            </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="columns"></tr>
-          <tr mat-row *matRowDef="let row; columns: columns" [attr.data-row-id]="row?.id"></tr>
-        </table>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns" [attr.data-row-id]="row?.id"></tr>
+          </table>
         </div>
       }
 
       <!-- Inline validation form -->
       @if (validatingPec()) {
         <mat-card class="validate-card">
-          <mat-card-header><mat-card-title>{{ 'PEC_ADMIN.VALIDATE_TITLE' | translate }}</mat-card-title></mat-card-header>
+          <mat-card-header
+          >
+            <mat-card-title>{{
+                'PEC_ADMIN.VALIDATE_TITLE' | translate
+              }}
+            </mat-card-title>
+          </mat-card-header
+          >
           <mat-card-content>
             <form [formGroup]="validateForm">
               <div class="form-row">
@@ -118,13 +142,30 @@ import {PecAdminStore} from './state/pec-admin.store';
                   <input matInput [matDatepicker]="dpFin" formControlName="dateFinEffectif" />
                   <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
                 </mat-form-field>
-                <app-searchable-select [items]="forfaits()" [label]="'PEC_ADMIN.FORFAIT_EFFECTIF' | translate"
-                  [selectedId]="validateForm.get('forfaitEffectifId')?.value"
-                  (selectionChanged)="validateForm.patchValue({forfaitEffectifId: $event?.id})" cssClass="flex1" />
+                <app-searchable-select
+                  [items]="forfaits()"
+                  [label]="'PEC_ADMIN.FORFAIT_EFFECTIF' | translate"
+                  [selectedId]="
+                    $safeNavigationMigration(validateForm.get('forfaitEffectifId')?.value)
+                  "
+                  (selectionChanged)="
+                    validateForm.patchValue({
+                      forfaitEffectifId: $safeNavigationMigration($event?.id),
+                    })
+                  "
+                  cssClass="flex1"
+                />
               </div>
               <div class="form-row" style="justify-content: flex-end; gap: 8px;">
-                <button mat-stroked-button (click)="cancelValidate()">{{ 'PEC_ADMIN.CANCEL' | translate }}</button>
-                <button mat-flat-button class="validate-btn" (click)="confirmValidate()" [disabled]="validateForm.invalid">
+                <button mat-stroked-button (click)="cancelValidate()">
+                  {{ 'PEC_ADMIN.CANCEL' | translate }}
+                </button>
+                <button
+                  mat-flat-button
+                  class="validate-btn"
+                  (click)="confirmValidate()"
+                  [disabled]="validateForm.invalid"
+                >
                   <mat-icon>check</mat-icon> {{ 'PEC_ADMIN.CONFIRM' | translate }}
                 </button>
               </div>
@@ -134,54 +175,163 @@ import {PecAdminStore} from './state/pec-admin.store';
       }
     </div>
   `,
-  styles: [`
-    .pec-admin { max-width: 1160px; margin: 0 auto; }
-    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 16px; }
-    .header-left { display: flex; gap: 12px; align-items: flex-start; }
-    .header-icon { font-size: 32px; width: 32px; height: 32px; color: var(--app-primary); margin-top: 4px; }
-    h2 { color: var(--app-text); margin: 0 0 4px; font-size: 1.25rem; }
-    .desc { color: var(--app-muted); margin: 0; font-size: 14px; }
-    .center-card {
-      padding: 12px 20px !important;
-      background: var(--app-surface) !important;
-      border: 1px solid var(--app-border);
-      box-shadow: var(--app-shadow);
-    }
-    .center-info { display: flex; align-items: center; gap: 10px; }
-    .center-info mat-icon { color: var(--app-primary); font-size: 28px; width: 28px; height: 28px; }
-    .center-label { display: block; font-size: 11px; color: var(--app-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .center-name { display: block; font-weight: 600; color: var(--app-primary); font-size: 15px; }
-    .empty-state { text-align: center; padding: 48px 0; color: var(--app-muted); }
-    .empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 8px; }
-    .table-wrap {
-      overflow: auto;
-      border: 1px solid var(--app-border);
-      border-radius: 12px;
-      background: var(--app-surface);
-    }
-    .pec-table { width: 100%; }
-    .pec-table .mat-mdc-header-cell { color: var(--app-primary); font-weight: 700; }
-    .pec-table .mat-mdc-row:hover { background: color-mix(in srgb, var(--app-primary-soft) 70%, white); }
-    .status-badge {
-      display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
-    }
-    .badge-cree { background: #fff3e0; color: #e65100; }
-    .badge-validee { background: #e8f5e9; color: #1b5e20; }
-    .badge-cloturee { background: #fce4ec; color: #c62828; }
-    .form-row { display: flex; gap: 12px; margin-bottom: 8px; }
-    .flex1 { flex: 1; }
-    .validate-btn {
-      --mdc-filled-button-container-color: var(--app-primary) !important;
-      --mdc-filled-button-label-text-color: #fff !important;
-    }
-    .validate-card {
-      margin-top: 20px;
-      padding: 16px;
-      border: 1px solid var(--app-border);
-      box-shadow: var(--app-shadow);
-      background: var(--app-surface);
-    }
-  `]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .pec-admin {
+        max-width: 1160px;
+        margin: 0 auto;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        gap: 16px;
+      }
+
+      .header-left {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .header-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: var(--app-primary);
+        margin-top: 4px;
+      }
+
+      h2 {
+        color: var(--app-text);
+        margin: 0 0 4px;
+        font-size: 1.25rem;
+      }
+
+      .desc {
+        color: var(--app-muted);
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .center-card {
+        padding: 12px 20px !important;
+        background: var(--app-surface) !important;
+        border: 1px solid var(--app-border);
+        box-shadow: var(--app-shadow);
+      }
+
+      .center-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .center-info mat-icon {
+        color: var(--app-primary);
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+
+      .center-label {
+        display: block;
+        font-size: 11px;
+        color: var(--app-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .center-name {
+        display: block;
+        font-weight: 600;
+        color: var(--app-primary);
+        font-size: 15px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 48px 0;
+        color: var(--app-muted);
+      }
+
+      .empty-state mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 8px;
+      }
+
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid var(--app-border);
+        border-radius: 12px;
+        background: var(--app-surface);
+      }
+
+      .pec-table {
+        width: 100%;
+      }
+
+      .pec-table .mat-mdc-header-cell {
+        color: var(--app-primary);
+        font-weight: 700;
+      }
+
+      .pec-table .mat-mdc-row:hover {
+        background: color-mix(in srgb, var(--app-primary-soft) 70%, white);
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .badge-cree {
+        background: #fff3e0;
+        color: #e65100;
+      }
+
+      .badge-validee {
+        background: #e8f5e9;
+        color: #1b5e20;
+      }
+
+      .badge-cloturee {
+        background: #fce4ec;
+        color: #c62828;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .flex1 {
+        flex: 1;
+      }
+
+      .validate-btn {
+        --mdc-filled-button-container-color: var(--app-primary) !important;
+        --mdc-filled-button-label-text-color: #fff !important;
+      }
+
+      .validate-card {
+        margin-top: 20px;
+        padding: 16px;
+        border: 1px solid var(--app-border);
+        box-shadow: var(--app-shadow);
+        background: var(--app-surface);
+      }
+    `,
+  ],
 })
 export class PecAdminComponent implements OnInit {
   private readonly pecAdminStore = inject(PecAdminStore);
@@ -203,7 +353,7 @@ export class PecAdminComponent implements OnInit {
     this.validateForm = this.fb.group({
       dateDebutEffectif: [null, Validators.required],
       dateFinEffectif: [null, Validators.required],
-      forfaitEffectifId: [null]
+      forfaitEffectifId: [null],
     });
 
     const cid = this.store.currentCenterId();
@@ -228,7 +378,7 @@ export class PecAdminComponent implements OnInit {
     if (!pec) return;
     const cid = this.store.currentCenterId()!;
     const v = this.validateForm.value;
-    const toDate = (d: any) => d instanceof Date ? d.toISOString().slice(0, 10) : d;
+    const toDate = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
 
     this.pecAdminStore.validatePec({
       pecId: pec.id,
@@ -236,9 +386,11 @@ export class PecAdminComponent implements OnInit {
       userId: this.auth.username() ?? 'admin',
       dateDebutEffectif: toDate(v.dateDebutEffectif),
       dateFinEffectif: toDate(v.dateFinEffectif),
-      forfaitEffectifId: v.forfaitEffectifId
+      forfaitEffectifId: v.forfaitEffectifId,
     });
-    this.snackBar.open(this.translate.instant('PEC_ADMIN.VALIDATED_OK') || 'PEC validée', 'OK', {duration: 3000});
+    this.snackBar.open(this.translate.instant('PEC_ADMIN.VALIDATED_OK') || 'PEC validée', 'OK', {
+      duration: 3000,
+    });
   }
 
   closePec(pec: any): void {
@@ -246,9 +398,10 @@ export class PecAdminComponent implements OnInit {
     this.pecAdminStore.closePec({
       pecId: pec.id,
       centerId: cid,
-      userId: this.auth.username() ?? 'admin'
+      userId: this.auth.username() ?? 'admin',
     });
-    this.snackBar.open(this.translate.instant('PEC_ADMIN.CLOSED_OK') || 'PEC clôturée', 'OK', {duration: 3000});
+    this.snackBar.open(this.translate.instant('PEC_ADMIN.CLOSED_OK') || 'PEC clôturée', 'OK', {
+      duration: 3000,
+    });
   }
 }
-

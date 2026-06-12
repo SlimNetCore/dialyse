@@ -1,4 +1,13 @@
-import {Component, EventEmitter, inject, Input, OnChanges, Output, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  signal,
+} from '@angular/core';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
@@ -24,16 +33,23 @@ export interface DropdownItem {
         [value]="selectedIdSignal()"
         [disabled]="disabled"
         [attr.data-autofocus-first]="autofocusFirst ? '' : null"
-        (selectionChange)="onSelectById($event.value)">
+        (selectionChange)="onSelectById($event.value)"
+      >
         @for (item of allItems(); track item.id) {
           <mat-option [value]="item.id">{{ itemLabel(item) }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
   `,
-  styles: [`
-    .prefix-icon { margin-right: 6px; color: #607d8b; }
-  `]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .prefix-icon {
+        margin-right: 6px;
+        color: #607d8b;
+      }
+    `,
+  ],
 })
 export class SearchableSelectComponent implements OnChanges {
   @Input() items: DropdownItem[] = [];
@@ -65,7 +81,7 @@ export class SearchableSelectComponent implements OnChanges {
   onSelectById(id: string | null): void {
     if (this.disabled) return;
     this.selectedIdSignal.set(id);
-    const item = this.allItems().find(x => x.id === id) ?? null;
+    const item = this.allItems().find((x) => x.id === id) ?? null;
     this.selectionChanged.emit(item);
   }
 }

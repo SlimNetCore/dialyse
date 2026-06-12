@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnDestroy, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, signal,} from '@angular/core';
 import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {AuthStore} from './core/state/auth.store';
 import {ThemeStore} from './core/state/theme.store';
@@ -17,6 +17,7 @@ import {filter, Subscription} from 'rxjs';
       <router-outlet/>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       :host {
@@ -46,8 +47,8 @@ import {filter, Subscription} from 'rxjs';
           transform: rotate(360deg);
         }
       }
-    `
-  ]
+    `,
+  ],
 })
 export class App implements OnDestroy {
   private readonly auth = inject(AuthStore);
@@ -70,5 +71,3 @@ export class App implements OnDestroy {
     this.routerSub.unsubscribe();
   }
 }
-
-

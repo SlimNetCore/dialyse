@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -9,7 +10,7 @@ import {
   OnInit,
   Output,
   signal,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -20,11 +21,11 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef,} from '@angular/material/dialog';
 import {TranslateModule} from '@ngx-translate/core';
-import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
+import {DropdownItem, SearchableSelectComponent,} from '../../../shared/searchable-select.component';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {CentresPayeursDetailsStore, CentresPayeursStore} from '../../../core/state/referentials.store';
+import {CentresPayeursDetailsStore, CentresPayeursStore,} from '../../../core/state/referentials.store';
 import {PatientFicheStore} from '../state/patient-fiche.store';
 import {consumeWizardActionStatus} from './wizard-action-status.util';
 
@@ -37,7 +38,7 @@ interface AssignmentEdit {
 const SEXE_OPTIONS: DropdownItem[] = [
   {id: '', label: '—'},
   {id: 'M', label: 'Masculin'},
-  {id: 'F', label: 'Feminin'}
+  {id: 'F', label: 'Feminin'},
 ];
 
 const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
@@ -49,7 +50,7 @@ const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
   {id: 'O+', label: 'O+'},
   {id: 'O-', label: 'O-'},
   {id: 'AB+', label: 'AB+'},
-  {id: 'AB-', label: 'AB-'}
+  {id: 'AB-', label: 'AB-'},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,9 +60,15 @@ const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
   selector: 'app-assure-edit-dialog',
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatFormFieldModule, MatInputModule,
-    MatDatepickerModule, MatNativeDateModule, MatIconModule, MatButtonModule, MatDialogModule,
-    SearchableSelectComponent
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    SearchableSelectComponent,
   ],
   template: `
     <h2 mat-dialog-title style="display:flex;align-items:center;gap:8px">
@@ -98,7 +105,8 @@ const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
             [prefixIcon]="'wc'"
             [selectedId]="form.get('sexe')?.value ?? ''"
             (selectionChanged)="form.patchValue({ sexe: $event?.id ?? '' })"
-            cssClass="dialog-flex"/>
+            cssClass="dialog-flex"
+          />
         </div>
         <div style="display:flex;gap:10px;margin-bottom:4px">
           <mat-form-field appearance="outline" style="flex:1">
@@ -114,7 +122,8 @@ const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
             [prefixIcon]="'bloodtype'"
             [selectedId]="form.get('groupeSanguin')?.value ?? ''"
             (selectionChanged)="form.patchValue({ groupeSanguin: $event?.id ?? '' })"
-            cssClass="dialog-flex"/>
+            cssClass="dialog-flex"
+          />
         </div>
         <div style="display:flex;gap:10px;margin-bottom:4px">
           <mat-form-field appearance="outline" style="flex:1">
@@ -145,36 +154,52 @@ const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
         <mat-icon>close</mat-icon>
         Annuler
       </button>
-      <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="form.invalid">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="save()"
+        [disabled]="form.invalid"
+      >
         <mat-icon>save</mat-icon>
         Enregistrer
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .assure-edit-dialog-content {
-      width: min(86vw, 520px);
-      max-width: 100%;
-      padding-top: 8px;
-    }
-    .assure-edit-dialog-content app-searchable-select { flex: 1; min-width: 0; }
-    :host ::ng-deep .assure-edit-dialog-content .dialog-flex { width: 100%; }
-
-    @media (max-width: 700px) {
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
       .assure-edit-dialog-content {
-        width: min(92vw, 520px);
+        width: min(86vw, 520px);
+        max-width: 100%;
+        padding-top: 8px;
       }
 
-      .assure-edit-dialog-content form > div[style*='display:flex'] {
-        flex-wrap: wrap;
+      .assure-edit-dialog-content app-searchable-select {
+        flex: 1;
+        min-width: 0;
       }
 
-      .assure-edit-dialog-content form > div[style*='display:flex'] > mat-form-field,
-      .assure-edit-dialog-content form > div[style*='display:flex'] > app-searchable-select {
-        flex: 1 1 100% !important;
+      :host ::ng-deep .assure-edit-dialog-content .dialog-flex {
+        width: 100%;
       }
-    }
-  `]
+
+      @media (max-width: 700px) {
+        .assure-edit-dialog-content {
+          width: min(92vw, 520px);
+        }
+
+        .assure-edit-dialog-content form > div[style*='display:flex'] {
+          flex-wrap: wrap;
+        }
+
+        .assure-edit-dialog-content form > div[style*='display:flex'] > mat-form-field,
+        .assure-edit-dialog-content form > div[style*='display:flex'] > app-searchable-select {
+          flex: 1 1 100% !important;
+        }
+      }
+    `,
+  ],
 })
 export class AssureEditDialogComponent {
   readonly dialogRef = inject(MatDialogRef<AssureEditDialogComponent>);
@@ -192,7 +217,7 @@ export class AssureEditDialogComponent {
     telPersonnel: [this.data.telPersonnel ?? ''],
     telMobile: [this.data.telMobile ?? ''],
     telBureau: [this.data.telBureau ?? ''],
-    adresse: [this.data.adresse ?? '']
+    adresse: [this.data.adresse ?? ''],
   });
 
   cancel(): void {
@@ -208,7 +233,7 @@ export class AssureEditDialogComponent {
     const dn = val.dateNaissance;
     this.dialogRef.close({
       ...val,
-      dateNaissance: dn instanceof Date ? dn.toISOString().slice(0, 10) : (dn ?? null)
+      dateNaissance: dn instanceof Date ? dn.toISOString().slice(0, 10) : (dn ?? null),
     });
   }
 }
@@ -219,21 +244,31 @@ export class AssureEditDialogComponent {
 @Component({
   selector: 'app-step-assurance',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule,
-    MatDatepickerModule, MatNativeDateModule, MatIconModule, MatDividerModule,
-    MatButtonModule, MatDialogModule, TranslateModule, SearchableSelectComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIconModule,
+    MatDividerModule,
+    MatButtonModule,
+    MatDialogModule,
+    TranslateModule,
+    SearchableSelectComponent,
+  ],
   template: `
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_INSURANCE' | translate }}</h3>
       <form [formGroup]="form">
-
         <!-- N° assurance patient -->
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }} *</mat-label>
             <mat-icon matPrefix>badge</mat-icon>
             <input matInput formControlName="numeroAssurance" data-autofocus-first/>
-            @if (form.get('numeroAssurance')?.hasError('required') && form.get('numeroAssurance')?.touched) {
+            @if (form.get('numeroAssurance')?.hasError('required') &&
+            form.get('numeroAssurance')?.touched) {
               <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
@@ -242,9 +277,14 @@ export class AssureEditDialogComponent {
         <!-- Centre payeur -->
         <div class="form-row">
           <app-searchable-select
-            [items]="centresPayeurs()" [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate" [prefixIcon]="'account_balance'"
-            [selectedId]="form.get('centrePayeurId')?.value" (selectionChanged)="onCentrePayeur($event)"
-            [disabled]="readonly" cssClass="flex1"/>
+            [items]="centresPayeurs()"
+            [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate"
+            [prefixIcon]="'account_balance'"
+            [selectedId]="$safeNavigationMigration(form.get('centrePayeurId')?.value)"
+            (selectionChanged)="onCentrePayeur($event)"
+            [disabled]="readonly"
+            cssClass="flex1"
+          />
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.CODE_CENTRE_PAYEUR' | translate }}</mat-label>
             <mat-icon matPrefix>pin</mat-icon>
@@ -275,12 +315,16 @@ export class AssureEditDialogComponent {
         <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}</h3>
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
-            <mat-label>N° Assurance assuré @if (requiresAssureNumero()) {
-              *
-            }</mat-label>
+            <mat-label
+            >N° Assurance assuré
+              @if (requiresAssureNumero()) {
+                *
+              }
+            </mat-label>
             <mat-icon matPrefix>badge</mat-icon>
             <input matInput formControlName="assureNumeroAssurance"/>
-            @if (form.get('assureNumeroAssurance')?.hasError('required') && form.get('assureNumeroAssurance')?.touched) {
+            @if (form.get('assureNumeroAssurance')?.hasError('required') &&
+            form.get('assureNumeroAssurance')?.touched) {
               <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
             }
           </mat-form-field>
@@ -309,7 +353,8 @@ export class AssureEditDialogComponent {
             [selectedId]="form.get('assureSexe')?.value ?? ''"
             (selectionChanged)="form.patchValue({ assureSexe: $event?.id ?? '' })"
             cssClass="flex1 assurance-select"
-            [translateLabels]="true"/>
+            [translateLabels]="true"
+          />
         </div>
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
@@ -342,7 +387,8 @@ export class AssureEditDialogComponent {
             [prefixIcon]="'bloodtype'"
             [selectedId]="form.get('assureGroupeSanguin')?.value ?? ''"
             (selectionChanged)="form.patchValue({ assureGroupeSanguin: $event?.id ?? '' })"
-            cssClass="flex1 assurance-select"/>
+            cssClass="flex1 assurance-select"
+          />
         </div>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'PATIENT_FORM.ASSURE_ADRESSE' | translate }}</mat-label>
@@ -352,16 +398,30 @@ export class AssureEditDialogComponent {
 
         <!-- Boutons d'action -->
         <div class="form-row assure-toolbar">
-          <button mat-stroked-button type="button" (click)="toggleAssureCatalog()"
-                  [disabled]="readonly || !canAssignAssure()">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="toggleAssureCatalog()"
+            [disabled]="readonly || !canAssignAssure()"
+          >
             <mat-icon>manage_search</mat-icon>
             Consulter les assurés
           </button>
-          <button mat-stroked-button type="button" (click)="toggleAssureHistory()" [disabled]="!patientId">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="toggleAssureHistory()"
+            [disabled]="!patientId"
+          >
             <mat-icon>history</mat-icon>
             Historique des affectations
           </button>
-          <button mat-stroked-button type="button" (click)="prepareNewAssure()" [disabled]="readonly">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="prepareNewAssure()"
+            [disabled]="readonly"
+          >
             <mat-icon>person_add</mat-icon>
             {{ 'WIZARD.ADD_NEW_INSURED' | translate }}
           </button>
@@ -375,10 +435,19 @@ export class AssureEditDialogComponent {
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Rechercher (N° assurance / nom / prénom)</mat-label>
                 <mat-icon matPrefix>search</mat-icon>
-                <input matInput [value]="assureSearch()" (input)="assureSearch.set($any($event.target).value)"
-                       (keyup.enter)="searchAssures()"/>
+                <input
+                  matInput
+                  [value]="assureSearch()"
+                  (input)="assureSearch.set($any($event.target).value)"
+                  (keyup.enter)="searchAssures()"
+                />
               </mat-form-field>
-              <button mat-flat-button type="button" (click)="searchAssures()" [disabled]="loadingAssures()">
+              <button
+                mat-flat-button
+                type="button"
+                (click)="searchAssures()"
+                [disabled]="loadingAssures()"
+              >
                 <mat-icon>search</mat-icon>
                 Rechercher
               </button>
@@ -391,22 +460,33 @@ export class AssureEditDialogComponent {
                   <div class="assure-name">
                     {{ a.nom }} {{ a.prenom }}
                     @if (a.isPrimary) {
-                      <span class="primary-chip"><mat-icon
-                        style="font-size:12px;height:12px;width:12px;margin-right:2px">star</mat-icon>Primaire</span>
+                      <span class="primary-chip"
+                      ><mat-icon style="font-size:12px;height:12px;width:12px;margin-right:2px"
+                      >star</mat-icon
+                      >Primaire</span
+                      >
                     }
                   </div>
                   <div class="muted">{{ a.numeroAssurance }} • {{ a.sexe || '—' }}</div>
                 </div>
                 <!-- Actions -->
                 <div class="assure-actions">
-                  <button mat-stroked-button type="button" (click)="openEditAssureDialog(a)"
-                          title="Modifier les informations de l'assuré">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="openEditAssureDialog(a)"
+                    title="Modifier les informations de l'assuré"
+                  >
                     <mat-icon>edit</mat-icon>
                     Modifier
                   </button>
-                  <button mat-flat-button color="primary" type="button"
-                          (click)="affectAssure(a)"
-                          [disabled]="readonly || !canAssignAssure() || a.isPrimary">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    (click)="affectAssure(a)"
+                    [disabled]="readonly || !canAssignAssure() || a.isPrimary"
+                  >
                     <mat-icon>person_add_alt_1</mat-icon>
                     {{ a.isPrimary ? 'Déjà primaire' : 'Affecter' }}
                   </button>
@@ -439,7 +519,9 @@ export class AssureEditDialogComponent {
               <tbody>
                 @for (h of assureAssignments(); track h.id) {
                   <tr [class.row-active]="h.actif">
-                    <td><strong>{{ h.nom || '—' }} {{ h.prenom || '' }}</strong></td>
+                    <td>
+                      <strong>{{ h.nom || '—' }} {{ h.prenom || '' }}</strong>
+                    </td>
                     <td>{{ h.numeroAssurance }}</td>
                     <td>{{ h.dateDebutAffectation || '—' }}</td>
                     <td>{{ h.dateFinAffectation || '—' }}</td>
@@ -451,8 +533,13 @@ export class AssureEditDialogComponent {
                       }
                     </td>
                     <td style="text-align:right">
-                      <button mat-icon-button type="button" (click)="openEditAssignment(h)"
-                              [disabled]="readonly" title="Modifier les dates">
+                      <button
+                        mat-icon-button
+                        type="button"
+                        (click)="openEditAssignment(h)"
+                        [disabled]="readonly"
+                        title="Modifier les dates"
+                      >
                         <mat-icon>edit_calendar</mat-icon>
                       </button>
                     </td>
@@ -464,23 +551,34 @@ export class AssureEditDialogComponent {
                           <mat-form-field appearance="outline" class="edit-field">
                             <mat-label>Date début</mat-label>
                             <mat-icon matPrefix>event</mat-icon>
-                            <input matInput [matDatepicker]="dpEditDebut"
-                                   [value]="editingAssignment()!.dateDebutAffectation"
-                                   (dateChange)="setEditDateDebut($event.value)"/>
+                            <input
+                              matInput
+                              [matDatepicker]="dpEditDebut"
+                              [value]="editingAssignment()!.dateDebutAffectation"
+                              (dateChange)="setEditDateDebut($event.value)"
+                            />
                             <mat-datepicker-toggle matSuffix [for]="dpEditDebut"/>
                             <mat-datepicker #dpEditDebut/>
                           </mat-form-field>
                           <mat-form-field appearance="outline" class="edit-field">
                             <mat-label>Date fin</mat-label>
                             <mat-icon matPrefix>event_busy</mat-icon>
-                            <input matInput [matDatepicker]="dpEditFin"
-                                   [value]="editingAssignment()!.dateFinAffectation"
-                                   (dateChange)="setEditDateFin($event.value)"/>
+                            <input
+                              matInput
+                              [matDatepicker]="dpEditFin"
+                              [value]="editingAssignment()!.dateFinAffectation"
+                              (dateChange)="setEditDateFin($event.value)"
+                            />
                             <mat-datepicker-toggle matSuffix [for]="dpEditFin"/>
                             <mat-datepicker #dpEditFin/>
                           </mat-form-field>
-                          <button mat-flat-button color="primary" type="button"
-                                  (click)="saveEditAssignment()" [disabled]="savingEdit()">
+                          <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            (click)="saveEditAssignment()"
+                            [disabled]="savingEdit()"
+                          >
                             <mat-icon>check</mat-icon>
                             Valider
                           </button>
@@ -495,243 +593,268 @@ export class AssureEditDialogComponent {
                 }
                 @if (assureAssignments().length === 0) {
                   <tr>
-                    <td colspan="6" style="text-align:center;color:#9ca3af;padding:12px;">Aucun historique</td>
+                    <td colspan="6" style="text-align:center;color:#9ca3af;padding:12px;">
+                      Aucun historique
+                    </td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
         }
-
       </form>
     </div>
   `,
-  styles: [`
-    .step-content { padding: 14px 18px 18px; }
-    .section-title { color: var(--app-text); font-size: 1rem; font-weight: 600; margin: 0 0 12px; }
-
-    .form-row {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 8px;
-      align-items: flex-start;
-    }
-    .flex1 { flex: 1; }
-
-    .form-row > app-searchable-select {
-      flex: 1;
-      min-width: 0;
-      display: block;
-    }
-    .full-width { width: 100%; }
-
-    .panel-spacing {
-      margin-top: 12px;
-    }
-
-    .assure-toolbar {
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .catalog-search-row {
-      margin-bottom: 8px;
-      align-items: center;
-    }
-    :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
-    :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
-    :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
-    :host ::ng-deep .mat-mdc-select-value { text-align: center; }
-
-    .history-box {
-      border: 1px solid var(--app-border);
-      border-radius: 10px;
-      padding: 8px 12px;
-      background: var(--app-surface);
-    }
-
-    .history-title {
-      font-weight: 600;
-      color: var(--app-primary);
-      margin-bottom: 8px;
-    }
-
-    /* Catalogue */
-    .assure-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border: 1px solid var(--app-border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 6px;
-      background: var(--app-surface);
-      transition: border-color 0.15s, background 0.15s;
-    }
-
-    .assure-row-primary {
-      border-color: var(--app-primary, #3b82f6) !important;
-      background: color-mix(in srgb, var(--app-primary, #3b82f6) 6%, transparent) !important;
-    }
-
-    .assure-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .assure-name {
-      font-weight: 600;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .assure-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-shrink: 0;
-    }
-
-    .primary-chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 1px 8px;
-      border-radius: 999px;
-      background: var(--app-primary-soft, #eff6ff);
-      color: var(--app-primary, #3b82f6);
-      border: 1px solid var(--app-primary-outline, #bfdbfe);
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .muted {
-      font-size: 12px;
-      color: #6b7280;
-      margin-top: 2px;
-    }
-
-    /* Historique */
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    .history-box {
-      overflow-x: auto;
-    }
-
-    .history-table thead tr {
-      background: var(--app-bg, #f3f4f6);
-    }
-
-    .history-table th {
-      padding: 6px 10px;
-      text-align: left;
-      font-weight: 600;
-      color: #374151;
-      border-bottom: 1px solid var(--app-border);
-    }
-
-    .history-table td {
-      padding: 6px 10px;
-      border-bottom: 1px solid var(--app-border, #e5e7eb);
-      color: #374151;
-    }
-
-    .history-table tr.row-active td {
-      background: rgba(59, 130, 246, 0.04);
-    }
-
-    .edit-row td {
-      background: #f9fafb;
-      padding: 8px 10px;
-    }
-
-    .edit-inline {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .edit-field {
-      min-width: 160px;
-      flex: 1;
-    }
-
-    .badge-actif {
-      padding: 2px 10px;
-      border-radius: 999px;
-      background: #d1fae5;
-      color: #065f46;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1px solid #6ee7b7;
-    }
-
-    .badge-inactif {
-      padding: 2px 10px;
-      border-radius: 999px;
-      background: #f3f4f6;
-      color: #6b7280;
-      font-size: 11px;
-      font-weight: 600;
-      border: 1px solid #d1d5db;
-    }
-
-    @media (max-width: 900px) {
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
       .step-content {
-        padding: 12px;
+        padding: 14px 18px 18px;
+      }
+      .section-title {
+        color: var(--app-text);
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 12px;
       }
 
       .form-row {
-        flex-wrap: wrap;
-        gap: 10px;
+        display: flex;
+        gap: 12px;
+        margin-bottom: 8px;
+        align-items: flex-start;
+      }
+      .flex1 {
+        flex: 1;
       }
 
-      .flex1 {
-        flex: 1 1 100%;
+      .form-row > app-searchable-select {
+        flex: 1;
         min-width: 0;
+        display: block;
+      }
+      .full-width {
+        width: 100%;
+      }
+
+      .panel-spacing {
+        margin-top: 12px;
       }
 
       .assure-toolbar {
-        justify-content: flex-start;
-      }
-
-      .assure-toolbar > button,
-      .catalog-search-row > button {
-        flex: 1 1 100%;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 8px;
       }
 
       .catalog-search-row {
-        align-items: flex-start;
+        margin-bottom: 8px;
+        align-items: center;
+      }
+      :host ::ng-deep .mat-mdc-form-field {
+        font-size: 13px;
+      }
+      :host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+      :host ::ng-deep input.mat-mdc-input-element {
+        text-align: center;
+      }
+      :host ::ng-deep .mat-mdc-select-value {
+        text-align: center;
       }
 
+      .history-box {
+        border: 1px solid var(--app-border);
+        border-radius: 10px;
+        padding: 8px 12px;
+        background: var(--app-surface);
+      }
+
+      .history-title {
+        font-weight: 600;
+        color: var(--app-primary);
+        margin-bottom: 8px;
+      }
+
+      /* Catalogue */
       .assure-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border: 1px solid var(--app-border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        background: var(--app-surface);
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+
+      .assure-row-primary {
+        border-color: var(--app-primary, #3b82f6) !important;
+        background: color-mix(in srgb, var(--app-primary, #3b82f6) 6%, transparent) !important;
+      }
+
+      .assure-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .assure-name {
+        font-weight: 600;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
         flex-wrap: wrap;
       }
 
       .assure-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .primary-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--app-primary-soft, #eff6ff);
+        color: var(--app-primary, #3b82f6);
+        border: 1px solid var(--app-primary-outline, #bfdbfe);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .muted {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 2px;
+      }
+
+      /* Historique */
+      .history-table {
         width: 100%;
-        justify-content: flex-start;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .history-box {
+        overflow-x: auto;
+      }
+
+      .history-table thead tr {
+        background: var(--app-bg, #f3f4f6);
+      }
+
+      .history-table th {
+        padding: 6px 10px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 1px solid var(--app-border);
+      }
+
+      .history-table td {
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--app-border, #e5e7eb);
+        color: #374151;
+      }
+
+      .history-table tr.row-active td {
+        background: rgba(59, 130, 246, 0.04);
+      }
+
+      .edit-row td {
+        background: #f9fafb;
+        padding: 8px 10px;
+      }
+
+      .edit-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         flex-wrap: wrap;
       }
 
-      .assure-actions > button {
-        flex: 1 1 100%;
+      .edit-field {
+        min-width: 160px;
+        flex: 1;
       }
 
-      .history-table {
-        min-width: 700px;
+      .badge-actif {
+        padding: 2px 10px;
+        border-radius: 999px;
+        background: #d1fae5;
+        color: #065f46;
+        font-size: 11px;
+        font-weight: 700;
+        border: 1px solid #6ee7b7;
       }
-    }
-  `]
+
+      .badge-inactif {
+        padding: 2px 10px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid #d1d5db;
+      }
+
+      @media (max-width: 900px) {
+        .step-content {
+          padding: 12px;
+        }
+
+        .form-row {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .flex1 {
+          flex: 1 1 100%;
+          min-width: 0;
+        }
+
+        .assure-toolbar {
+          justify-content: flex-start;
+        }
+
+        .assure-toolbar > button,
+        .catalog-search-row > button {
+          flex: 1 1 100%;
+        }
+
+        .catalog-search-row {
+          align-items: flex-start;
+        }
+
+        .assure-row {
+          flex-wrap: wrap;
+        }
+
+        .assure-actions {
+          width: 100%;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+
+        .assure-actions > button {
+          flex: 1 1 100%;
+        }
+
+        .history-table {
+          min-width: 700px;
+        }
+      }
+    `,
+  ],
 })
 export class StepAssuranceComponent implements OnInit, OnChanges {
   @Input() patientId?: string;
@@ -742,7 +865,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
   readonly assureSexeOptions: DropdownItem[] = [
     {id: 'M', label: 'PATIENT_FORM.MASCULIN'},
-    {id: 'F', label: 'PATIENT_FORM.FEMININ'}
+    {id: 'F', label: 'PATIENT_FORM.FEMININ'},
   ];
   readonly assureGroupeSanguinOptions = GROUPE_SANGUIN_OPTIONS;
   private readonly appShell = inject(AppShellStore);
@@ -757,8 +880,11 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   readonly loadingAssures = this.ficheStore.loadingAssures;
   readonly savingEdit = this.ficheStore.savingAssureEdit;
   private readonly selectedCentrePayeurId = signal<string | null>(null);
-  readonly codeCentrePayeur = computed(() =>
-    this.centresPayeurs().find((x: any) => String(x?.id ?? '') === this.selectedCentrePayeurId())?.['code'] ?? ''
+  readonly codeCentrePayeur = computed(
+    () =>
+      this.centresPayeurs().find(
+        (x: any) => String(x?.id ?? '') === this.selectedCentrePayeurId(),
+      )?.['code'] ?? '',
   );
   showAssure = signal(true);
   private qualiteAssure = signal<string>('ASSURE_LUI_MEME');
@@ -770,17 +896,11 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     if (!id) return null;
     return this.centresPayeursDetails().find((d: any) => String(d?.id ?? '') === id) ?? null;
   });
-  readonly codeAgence = computed(() =>
-    this.selectedCentrePayeurDetail()?.codeAgence ?? ''
-  );
+  readonly codeAgence = computed(() => this.selectedCentrePayeurDetail()?.codeAgence ?? '');
   showCatalog = signal(false);
   showHistory = signal(false);
-  readonly libelleAgence = computed(() =>
-    this.selectedCentrePayeurDetail()?.libelleAgence ?? ''
-  );
-  readonly libelleCaisse = computed(() =>
-    this.selectedCentrePayeurDetail()?.libelleCaisse ?? ''
-  );
+  readonly libelleAgence = computed(() => this.selectedCentrePayeurDetail()?.libelleAgence ?? '');
+  readonly libelleCaisse = computed(() => this.selectedCentrePayeurDetail()?.libelleCaisse ?? '');
   private readonly dialog = inject(MatDialog);
   private pendingAssignAssure = false;
   private pendingUpdateAssure = false;
@@ -806,9 +926,20 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       if (action === 'ASSIGN_ASSURE' && this.pendingAssignAssure) {
         this.pendingAssignAssure = false;
         if (success) {
-          this.snackBar.open(message || this.ficheStore.infoMessage() || 'Assuré affecté au patient avec succès', 'OK', {duration: 2500});
-        } else if (typeof effectiveError === 'string' && effectiveError.toLowerCase().includes('assuré lui-même')) {
-          this.snackBar.open('Assuré sélectionné localement. Enregistrez le patient puis réessayez.', 'OK', {duration: 4500});
+          this.snackBar.open(
+            message || this.ficheStore.infoMessage() || 'Assuré affecté au patient avec succès',
+            'OK',
+            {duration: 2500},
+          );
+        } else if (
+          typeof effectiveError === 'string' &&
+          effectiveError.toLowerCase().includes('assuré lui-même')
+        ) {
+          this.snackBar.open(
+            'Assuré sélectionné localement. Enregistrez le patient puis réessayez.',
+            'OK',
+            {duration: 4500},
+          );
         } else if (effectiveError) {
           this.snackBar.open(effectiveError, 'OK', {duration: 3500});
         }
@@ -859,7 +990,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureTelMobile: [''],
       assureTelBureau: [''],
       assureGroupeSanguin: [''],
-      assureAdresse: ['']
+      assureAdresse: [''],
     });
     this.form.valueChanges.subscribe(() => {
       this.emitAssuranceData();
@@ -882,9 +1013,27 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     if (changes['patientId'] && this.patientId) void this.loadAssureHistory();
   }
 
-  private applyReadonly(): void {
-    if (!this.form) return;
-    this.readonly ? this.form.disable({ emitEvent: false }) : this.form.enable({ emitEvent: false });
+  prepareNewAssure(): void {
+    if (!this.canAssignAssure()) {
+      this.snackBar.open(
+        'Pour ajouter/affecter un assuré, choisissez ENFANT/CONJOINT/ASCENDANT/AUTRE.',
+        'OK',
+        {duration: 3500},
+      );
+      return;
+    }
+    this.form.patchValue({
+      assureNumeroAssurance: '',
+      assureNom: '',
+      assurePrenom: '',
+      assureSexe: '',
+      assureDateNaissance: null,
+      assureTelPersonnel: '',
+      assureTelMobile: '',
+      assureTelBureau: '',
+      assureAdresse: '',
+      assureGroupeSanguin: '',
+    });
   }
 
   setQualiteAssure(qa: string): void {
@@ -918,16 +1067,37 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.emitAssuranceData();
   }
 
-  prepareNewAssure(): void {
-    if (!this.canAssignAssure()) {
-      this.snackBar.open('Pour ajouter/affecter un assuré, choisissez ENFANT/CONJOINT/ASCENDANT/AUTRE.', 'OK', { duration: 3500 });
-      return;
-    }
-    this.form.patchValue({
-      assureNumeroAssurance: '', assureNom: '', assurePrenom: '',
-      assureSexe: '', assureDateNaissance: null,
-      assureTelPersonnel: '', assureTelMobile: '', assureTelBureau: '',
-      assureAdresse: '', assureGroupeSanguin: ''
+  openEditAssureDialog(a: any): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
+    const ref = this.dialog.open(AssureEditDialogComponent, {
+      data: {...a},
+      width: 'min(96vw, 600px)',
+      disableClose: false,
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (!result) return;
+      const isCurrentAssure = this.form.get('assureNumeroAssurance')?.value === a.numeroAssurance;
+      this.pendingUpdateAssure = true;
+      this.ficheStore.updateAssure({
+        centerId,
+        numeroAssurance: a.numeroAssurance,
+        payload: result,
+      });
+
+      if (isCurrentAssure) {
+        this.form.patchValue({
+          assureNom: result.nom,
+          assurePrenom: result.prenom,
+          assureSexe: result.sexe,
+          assureDateNaissance: result.dateNaissance ?? null,
+          assureTelPersonnel: result.telPersonnel,
+          assureTelMobile: result.telMobile,
+          assureTelBureau: result.telBureau,
+          assureGroupeSanguin: result.groupeSanguin,
+          assureAdresse: result.adresse,
+        });
+      }
     });
   }
 
@@ -953,42 +1123,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   // ── Dialog : modification d'un assuré ──────────────────
 
-  openEditAssureDialog(a: any): void {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId) return;
-    const ref = this.dialog.open(AssureEditDialogComponent, {
-      data: {...a},
-      width: 'min(96vw, 600px)',
-      disableClose: false
-    });
-    ref.afterClosed().subscribe(result => {
-      if (!result) return;
-      const isCurrentAssure = this.form.get('assureNumeroAssurance')?.value === a.numeroAssurance;
-      this.pendingUpdateAssure = true;
-      this.ficheStore.updateAssure({
-        centerId,
-        numeroAssurance: a.numeroAssurance,
-        payload: result
-      });
-
-      if (isCurrentAssure) {
-        this.form.patchValue({
-          assureNom: result.nom,
-          assurePrenom: result.prenom,
-          assureSexe: result.sexe,
-          assureDateNaissance: result.dateNaissance ?? null,
-          assureTelPersonnel: result.telPersonnel,
-          assureTelMobile: result.telMobile,
-          assureTelBureau: result.telBureau,
-          assureGroupeSanguin: result.groupeSanguin,
-          assureAdresse: result.adresse
-        });
-      }
-    });
-  }
-
-  // ── Affecter un assuré (mise à jour en temps réel) ─────
-
   affectAssure(a: any): void {
     if (!this.canAssignAssure()) return;
     if (a?.isPrimary) return;
@@ -1006,7 +1140,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
         assureTelMobile: a.telMobile ?? '',
         assureTelBureau: a.telBureau ?? '',
         assureAdresse: a.adresse ?? '',
-        assureGroupeSanguin: a.groupeSanguin ?? ''
+        assureGroupeSanguin: a.groupeSanguin ?? '',
       });
     };
 
@@ -1015,19 +1149,44 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.ficheStore.assignAssure({
       centerId,
       patientId: this.patientId ?? null,
-      a
+      a,
     });
     this.pendingAssignAssure = true;
   }
 
-  // ── Édition dates historique ────────────────────────────
+  // ── Affecter un assuré (mise à jour en temps réel) ─────
 
   openEditAssignment(h: any): void {
     this.editingAssignment.set({
       id: h.id,
       dateDebutAffectation: h.dateDebutAffectation ? new Date(h.dateDebutAffectation) : null,
-      dateFinAffectation: h.dateFinAffectation ? new Date(h.dateFinAffectation) : null
+      dateFinAffectation: h.dateFinAffectation ? new Date(h.dateFinAffectation) : null,
     });
+  }
+
+  // ── Édition dates historique ────────────────────────────
+
+  saveEditAssignment(): void {
+    const edit = this.editingAssignment();
+    const centerId = this.appShell.currentCenterId();
+    if (!edit || !this.patientId || !centerId) return;
+    const toStr = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
+    const debut = toStr(edit.dateDebutAffectation);
+    const fin = toStr(edit.dateFinAffectation);
+    if (debut && fin && fin < debut) {
+      this.snackBar.open('La date de fin doit être >= à la date de début', 'OK', {
+        duration: 3000,
+      });
+      return;
+    }
+    this.ficheStore.updateAssureAssignment({
+      centerId,
+      patientId: this.patientId,
+      assignmentId: edit.id,
+      debut,
+      fin,
+    });
+    this.pendingUpdateAssignment = true;
   }
 
   setEditDateDebut(value: Date | null): void {
@@ -1043,29 +1202,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   cancelEdit(): void {
     this.editingAssignment.set(null);
   }
-
-  saveEditAssignment(): void {
-    const edit = this.editingAssignment();
-    const centerId = this.appShell.currentCenterId();
-    if (!edit || !this.patientId || !centerId) return;
-    const toStr = (d: Date | null) => d ? d.toISOString().slice(0, 10) : null;
-    const debut = toStr(edit.dateDebutAffectation);
-    const fin = toStr(edit.dateFinAffectation);
-    if (debut && fin && fin < debut) {
-      this.snackBar.open('La date de fin doit être >= à la date de début', 'OK', {duration: 3000});
-      return;
-    }
-    this.ficheStore.updateAssureAssignment({
-      centerId,
-      patientId: this.patientId,
-      assignmentId: edit.id,
-      debut,
-      fin
-    });
-    this.pendingUpdateAssignment = true;
-  }
-
-  // ── Chargement & synchronisation ───────────────────────
 
   patchData(data: Record<string, any>): void {
     if (!this.form) return;
@@ -1083,24 +1219,34 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     const patch = {
       numeroAssurance: data['numeroAssurance'] ?? '',
       centrePayeurId: resolveCentrePayeurId(),
-      assureNumeroAssurance: data['assureNumeroAssurance'] ?? (isSelf ? (data['numeroAssurance'] ?? '') : ''),
+      assureNumeroAssurance:
+        data['assureNumeroAssurance'] ?? (isSelf ? (data['numeroAssurance'] ?? '') : ''),
       assureNom: data['assureNom'] ?? (isSelf ? (data['nom'] ?? '') : ''),
       assurePrenom: data['assurePrenom'] ?? (isSelf ? (data['prenom'] ?? '') : ''),
       assureSexe: data['assureSexe'] ?? (isSelf ? (data['sexe'] ?? '') : ''),
-      assureDateNaissance: data['assureDateNaissance'] ?? (isSelf ? (data['dateNaissance'] ?? null) : null),
-      assureTelPersonnel: data['assureTelPersonnel'] ?? (isSelf ? (data['telPersonnel'] ?? '') : ''),
+      assureDateNaissance:
+        data['assureDateNaissance'] ?? (isSelf ? (data['dateNaissance'] ?? null) : null),
+      assureTelPersonnel:
+        data['assureTelPersonnel'] ?? (isSelf ? (data['telPersonnel'] ?? '') : ''),
       assureTelMobile: data['assureTelMobile'] ?? (isSelf ? (data['telMobile'] ?? '') : ''),
       assureTelBureau: data['assureTelBureau'] ?? (isSelf ? (data['telBureau'] ?? '') : ''),
-      assureGroupeSanguin: data['assureGroupeSanguin'] ?? (isSelf ? (data['groupeSanguin'] ?? '') : ''),
-      assureAdresse: data['assureAdresse'] ?? (isSelf ? (data['adresse'] ?? '') : '')
+      assureGroupeSanguin:
+        data['assureGroupeSanguin'] ?? (isSelf ? (data['groupeSanguin'] ?? '') : ''),
+      assureAdresse: data['assureAdresse'] ?? (isSelf ? (data['adresse'] ?? '') : ''),
     };
     this.form.patchValue(patch, { emitEvent: false });
 
     const hasAssureData = [
-      patch.assureNom, patch.assurePrenom, patch.assureSexe, patch.assureDateNaissance,
-      patch.assureTelPersonnel, patch.assureTelMobile, patch.assureTelBureau,
-      patch.assureGroupeSanguin, patch.assureAdresse
-    ].some(v => v !== null && v !== undefined && String(v).trim() !== '');
+      patch.assureNom,
+      patch.assurePrenom,
+      patch.assureSexe,
+      patch.assureDateNaissance,
+      patch.assureTelPersonnel,
+      patch.assureTelMobile,
+      patch.assureTelBureau,
+      patch.assureGroupeSanguin,
+      patch.assureAdresse,
+    ].some((v) => v !== null && v !== undefined && String(v).trim() !== '');
 
     const qualite = data['qualiteAssure'] ?? (hasAssureData ? 'AUTRE' : 'ASSURE_LUI_MEME');
     this.setQualiteAssure(qualite);
@@ -1113,15 +1259,14 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.applyReadonly();
   }
 
-  private emitAssuranceData(): void {
-    if (!this.form) return;
-    this.dataChange.emit({
-      ...this.form.getRawValue(),
-      codeCentrePayeur: this.codeCentrePayeur(),
-      codeAgence: this.codeAgence(),
-      libelleAgence: this.libelleAgence(),
-      libelleCaisse: this.libelleCaisse()
-    });
+  // ── Chargement & synchronisation ───────────────────────
+
+  markTouched(): void {
+    this.form.markAllAsTouched();
+  }
+
+  isValid(): boolean {
+    return this.form.valid;
   }
 
   private loadAssureHistory(force = false): void {
@@ -1139,7 +1284,21 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   // ── API publique ────────────────────────────────────────
 
-  markTouched(): void { this.form.markAllAsTouched(); }
-  isValid(): boolean { return this.form.valid; }
+  private applyReadonly(): void {
+    if (!this.form) return;
+    this.readonly
+      ? this.form.disable({emitEvent: false})
+      : this.form.enable({emitEvent: false});
+  }
 
+  private emitAssuranceData(): void {
+    if (!this.form) return;
+    this.dataChange.emit({
+      ...this.form.getRawValue(),
+      codeCentrePayeur: this.codeCentrePayeur(),
+      codeAgence: this.codeAgence(),
+      libelleAgence: this.libelleAgence(),
+      libelleCaisse: this.libelleCaisse(),
+    });
+  }
 }

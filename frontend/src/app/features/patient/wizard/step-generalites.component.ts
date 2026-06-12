@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   EventEmitter,
@@ -8,7 +9,7 @@ import {
   OnInit,
   Output,
   signal,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -21,15 +22,23 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonModule} from '@angular/material/button';
 import {TranslateModule} from '@ngx-translate/core';
 import {AuthStore} from '../../../core/state/auth.store';
-import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
+import {DropdownItem, SearchableSelectComponent,} from '../../../shared/searchable-select.component';
 
 @Component({
   selector: 'app-step-generalites',
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatFormFieldModule, MatInputModule,
-    MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatIconModule,
-    MatRadioModule, MatButtonModule, TranslateModule, SearchableSelectComponent
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIconModule,
+    MatRadioModule,
+    MatButtonModule,
+    TranslateModule,
+    SearchableSelectComponent,
   ],
   template: `
     <div class="step-content">
@@ -37,11 +46,20 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
         <!-- Photo + Identity row -->
         <div class="row-photo">
           <div class="photo-column">
-            <button mat-flat-button class="medical-btn" [disabled]="readonly || !isMedecin()" (click)="openMedicalRecord()">
+            <button
+              mat-flat-button
+              class="medical-btn"
+              [disabled]="readonly || !isMedecin()"
+              (click)="openMedicalRecord()"
+            >
               <mat-icon>folder_shared</mat-icon>
               {{ 'PATIENT_FORM.DOSSIER_MEDICAL' | translate }}
             </button>
-            <div class="photo-zone" [class.readonly-zone]="readonly" (click)="!readonly && photoInput.click()">
+            <div
+              class="photo-zone"
+              [class.readonly-zone]="readonly"
+              (click)="!readonly && photoInput.click()"
+            >
               @if (photoPreview()) {
                 <img [src]="photoPreview()" alt="Photo" class="photo-img" />
               } @else {
@@ -63,7 +81,8 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
               (selectionChanged)="form.patchValue({ civilite: $event?.id ?? '' })"
               [disabled]="readonly"
               [translateLabels]="true"
-              cssClass="generalites-select"/>
+              cssClass="generalites-select"
+            />
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'PATIENT_FORM.NOM' | translate }} *</mat-label>
@@ -93,7 +112,8 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
                 (selectionChanged)="form.patchValue({ sexe: $event?.id ?? '' })"
                 [disabled]="readonly"
                 [translateLabels]="true"
-                cssClass="generalites-select"/>
+                cssClass="generalites-select"
+              />
               @if (form.get('sexe')?.hasError('required') && form.get('sexe')?.touched) {
                 <div class="field-error">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
               }
@@ -104,7 +124,8 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
               <mat-icon matPrefix>event</mat-icon>
               <input matInput [matDatepicker]="dpAdm" formControlName="dateAdmission" />
               <mat-datepicker-toggle matSuffix [for]="dpAdm" /><mat-datepicker #dpAdm />
-              @if (form.get('dateAdmission')?.hasError('required') && form.get('dateAdmission')?.touched) {
+              @if (form.get('dateAdmission')?.hasError('required') &&
+              form.get('dateAdmission')?.touched) {
                 <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
               }
             </mat-form-field>
@@ -123,14 +144,16 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
               [selectedId]="form.get('groupeSanguin')?.value ?? ''"
               (selectionChanged)="form.patchValue({ groupeSanguin: $event?.id ?? '' })"
               [disabled]="readonly"
-              cssClass="h-sync generalites-select"/>
+              cssClass="h-sync generalites-select"
+            />
 
             <mat-form-field appearance="outline" class="h-sync">
               <mat-label>{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }} *</mat-label>
               <mat-icon matPrefix>cake</mat-icon>
               <input matInput [matDatepicker]="dpNais" formControlName="dateNaissance" />
               <mat-datepicker-toggle matSuffix [for]="dpNais" /><mat-datepicker #dpNais />
-              @if (form.get('dateNaissance')?.hasError('required') && form.get('dateNaissance')?.touched) {
+              @if (form.get('dateNaissance')?.hasError('required') &&
+              form.get('dateNaissance')?.touched) {
                 <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
               }
             </mat-form-field>
@@ -158,7 +181,8 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
                 (selectionChanged)="form.patchValue({ etatPatient: $event?.id ?? 'PERMANENT' })"
                 [disabled]="readonly"
                 [translateLabels]="true"
-                cssClass="generalites-select"/>
+                cssClass="generalites-select"
+              />
             </div>
 
             @if (showDateEvenement()) {
@@ -182,7 +206,8 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
             (selectionChanged)="form.patchValue({ situationFamiliale: $event?.id ?? '' })"
             [disabled]="readonly"
             [translateLabels]="true"
-            cssClass="flex1 generalites-select"/>
+            cssClass="flex1 generalites-select"
+          />
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.PROFESSION1' | translate }}</mat-label>
             <mat-icon matPrefix>work</mat-icon>
@@ -221,33 +246,64 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
 
         <!-- Medical checks -->
         <div class="form-row checks-row">
-          <mat-checkbox formControlName="epoEnabled">{{ 'PATIENT_FORM.EPO_LABEL' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="epoEnabled">{{
+              'PATIENT_FORM.EPO_LABEL' | translate
+            }}
+          </mat-checkbox>
           @if (form.get('epoEnabled')?.value) {
             <mat-form-field appearance="outline" class="date-inline">
               <input matInput [matDatepicker]="dpEpo" formControlName="epoDate" />
               <mat-datepicker-toggle matSuffix [for]="dpEpo" /><mat-datepicker #dpEpo />
             </mat-form-field>
           }
-          <mat-checkbox formControlName="ferEnabled">{{ 'PATIENT_FORM.FER_LABEL' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="ferEnabled">{{
+              'PATIENT_FORM.FER_LABEL' | translate
+            }}
+          </mat-checkbox>
           @if (form.get('ferEnabled')?.value) {
             <mat-form-field appearance="outline" class="date-inline">
               <input matInput [matDatepicker]="dpFer" formControlName="ferDate" />
               <mat-datepicker-toggle matSuffix [for]="dpFer" /><mat-datepicker #dpFer />
             </mat-form-field>
           }
-          <mat-checkbox formControlName="sousKt">{{ 'PATIENT_FORM.SOUS_KT' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="enSommeil">{{ 'PATIENT_FORM.EN_SOMMEIL' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="sousKt">{{
+              'PATIENT_FORM.SOUS_KT' | translate
+            }}
+          </mat-checkbox>
+          <mat-checkbox formControlName="enSommeil">{{
+              'PATIENT_FORM.EN_SOMMEIL' | translate
+            }}
+          </mat-checkbox>
         </div>
 
         <!-- Qualité assuré -->
         <div class="form-row quality-row">
           <span class="quality-label">{{ 'PATIENT_FORM.QUALITE_ASSURE' | translate }}:</span>
-          <mat-radio-group formControlName="qualiteAssure" class="quality-radio-group" [disabled]="readonly">
-            <mat-radio-button value="ASSURE_LUI_MEME">{{ 'PATIENT_FORM.ASSURE_LUI_MEME' | translate }}</mat-radio-button>
-            <mat-radio-button value="ENFANT">{{ 'PATIENT_FORM.ENFANT_ASSURE' | translate }}</mat-radio-button>
-            <mat-radio-button value="CONJOINT">{{ 'PATIENT_FORM.CONJOINT_ASSURE' | translate }}</mat-radio-button>
-            <mat-radio-button value="ASCENDANT">{{ 'PATIENT_FORM.ASCENDANT_ASSURE' | translate }}</mat-radio-button>
-            <mat-radio-button value="AUTRE">{{ 'PATIENT_FORM.AUTRE' | translate }}</mat-radio-button>
+          <mat-radio-group
+            formControlName="qualiteAssure"
+            class="quality-radio-group"
+            [disabled]="readonly"
+          >
+            <mat-radio-button value="ASSURE_LUI_MEME">{{
+                'PATIENT_FORM.ASSURE_LUI_MEME' | translate
+              }}
+            </mat-radio-button>
+            <mat-radio-button value="ENFANT">{{
+                'PATIENT_FORM.ENFANT_ASSURE' | translate
+              }}
+            </mat-radio-button>
+            <mat-radio-button value="CONJOINT">{{
+                'PATIENT_FORM.CONJOINT_ASSURE' | translate
+              }}
+            </mat-radio-button>
+            <mat-radio-button value="ASCENDANT">{{
+                'PATIENT_FORM.ASCENDANT_ASSURE' | translate
+              }}
+            </mat-radio-button>
+            <mat-radio-button value="AUTRE">{{
+                'PATIENT_FORM.AUTRE' | translate
+              }}
+            </mat-radio-button>
           </mat-radio-group>
         </div>
 
@@ -260,158 +316,278 @@ import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchabl
       </form>
     </div>
   `,
-  styles: [`
-    :host {
-      --sync-field-height: 40px;
-    }
-    .step-content { padding: 14px 18px 18px; }
-    .row-photo { display: flex; gap: 20px; margin-bottom: 12px; align-items: stretch; }
-    .photo-column { display: flex; flex-direction: column; align-items: stretch; width: 180px; }
-    .photo-zone {
-      width: 100%; min-height: 220px; border: 2px dashed var(--app-border); border-radius: 12px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      cursor: pointer; background: var(--app-surface); transition: all 0.2s; flex-shrink: 0;
-    }
-    .medical-btn {
-      margin-bottom: 10px;
-      width: 100%;
-      --mdc-filled-button-container-color: var(--app-primary) !important;
-      --mdc-filled-button-label-text-color: #ffffff !important;
-    }
-    .photo-zone:hover { border-color: var(--app-primary); background: var(--app-primary-soft); box-shadow: 0 4px 16px rgba(2, 6, 23, 0.08); }
-    .photo-zone.readonly-zone { cursor: default; opacity: .88; }
-    .photo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
-    .photo-placeholder { font-size: 56px; width: 56px; height: 56px; color: var(--app-primary-outline); }
-    .photo-label { font-size: 12px; color: var(--app-primary); margin-top: 6px; }
-    .identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; align-content: start; }
-    .span-3 { grid-column: 1 / -1; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        --sync-field-height: 40px;
+      }
 
-    .identity-grid app-searchable-select,
-    .form-row app-searchable-select {
-      width: 100%;
-      min-width: 0;
-    }
-
-    .form-row app-searchable-select {
-      flex: 1;
-    }
-    .flex1 { flex: 1; }
-    .full-width { width: 100%; }
-    .checks-row { align-items: center; flex-wrap: wrap; gap: 12px; }
-    .date-inline { width: 160px; }
-    .observation-field { margin-bottom: 24px !important; }
-    /* Age display box */
-    .age-box {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-width: 70px; padding: 8px 12px;
-      background: var(--app-primary-soft); border-radius: 10px; border: 1px solid var(--app-primary-outline);
-    }
-
-    .h-sync.age-box {
-      width: 100%;
-      min-width: 0;
-      min-height: var(--sync-field-height);
-      height: var(--sync-field-height);
-      padding: 0 10px;
-      box-sizing: border-box;
-      flex-direction: row;
-      gap: 6px;
-    }
-    .age-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
-
-    .age-value {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--app-primary);
-      line-height: 1;
-    }
-    .age-unit { font-size: 11px; color: #666; }
-    :host ::ng-deep .mat-mdc-form-field { font-size: 13px; }
-
-    :host ::ng-deep .mat-mdc-form-field.h-sync {
-      --mat-form-field-container-height: var(--sync-field-height);
-      --mat-form-field-container-vertical-padding: 8px;
-    }
-    :host ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
-    :host ::ng-deep input.mat-mdc-input-element { text-align: center; }
-    :host ::ng-deep .mat-mdc-select-value { text-align: center; }
-    :host ::ng-deep textarea.mat-mdc-input-element { text-align: left; }
-
-    .field-error {
-      color: #b91c1c;
-      font-size: 12px;
-      margin: -2px 0 4px 2px;
-    }
-
-    .quality-row {
-      align-items: center;
-    }
-
-    .quality-label {
-      font-weight: 500;
-      margin-right: 12px;
-    }
-
-    .quality-radio-group {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 900px) {
       .step-content {
-        padding: 12px;
+        padding: 14px 18px 18px;
       }
 
       .row-photo {
-        flex-direction: column;
-        gap: 12px;
+        display: flex;
+        gap: 20px;
+        margin-bottom: 12px;
+        align-items: stretch;
       }
 
       .photo-column {
-        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        width: 180px;
       }
 
       .photo-zone {
-        min-height: 170px;
+        width: 100%;
+        min-height: 220px;
+        border: 2px dashed var(--app-border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: var(--app-surface);
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+
+      .medical-btn {
+        margin-bottom: 10px;
+        width: 100%;
+        --mdc-filled-button-container-color: var(--app-primary) !important;
+        --mdc-filled-button-label-text-color: #ffffff !important;
+      }
+
+      .photo-zone:hover {
+        border-color: var(--app-primary);
+        background: var(--app-primary-soft);
+        box-shadow: 0 4px 16px rgba(2, 6, 23, 0.08);
+      }
+
+      .photo-zone.readonly-zone {
+        cursor: default;
+        opacity: 0.88;
+      }
+
+      .photo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+
+      .photo-placeholder {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+        color: var(--app-primary-outline);
+      }
+
+      .photo-label {
+        font-size: 12px;
+        color: var(--app-primary);
+        margin-top: 6px;
       }
 
       .identity-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        flex: 1;
+        align-content: start;
+      }
+
+      .span-3 {
+        grid-column: 1 / -1;
       }
 
       .form-row {
-        flex-wrap: wrap;
+        display: flex;
         gap: 10px;
+        margin-bottom: 8px;
+        align-items: flex-start;
       }
 
-      .flex1,
-      .date-inline {
-        flex: 1 1 100%;
+      .identity-grid app-searchable-select,
+      .form-row app-searchable-select {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .form-row app-searchable-select {
+        flex: 1;
+      }
+
+      .flex1 {
+        flex: 1;
+      }
+
+      .full-width {
         width: 100%;
       }
 
+      .checks-row {
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .date-inline {
+        width: 160px;
+      }
+
+      .observation-field {
+        margin-bottom: 24px !important;
+      }
+
+      /* Age display box */
+      .age-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 70px;
+        padding: 8px 12px;
+        background: var(--app-primary-soft);
+        border-radius: 10px;
+        border: 1px solid var(--app-primary-outline);
+      }
+
       .h-sync.age-box {
-        min-height: 48px;
-        height: auto;
+        width: 100%;
+        min-width: 0;
+        min-height: var(--sync-field-height);
+        height: var(--sync-field-height);
+        padding: 0 10px;
+        box-sizing: border-box;
+        flex-direction: row;
+        gap: 6px;
+      }
+
+      .age-label {
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .age-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--app-primary);
+        line-height: 1;
+      }
+
+      .age-unit {
+        font-size: 11px;
+        color: #666;
+      }
+
+      :host ::ng-deep .mat-mdc-form-field {
+        font-size: 13px;
+      }
+
+      :host ::ng-deep .mat-mdc-form-field.h-sync {
+        --mat-form-field-container-height: var(--sync-field-height);
+        --mat-form-field-container-vertical-padding: 8px;
+      }
+
+      :host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+
+      :host ::ng-deep input.mat-mdc-input-element {
+        text-align: center;
+      }
+
+      :host ::ng-deep .mat-mdc-select-value {
+        text-align: center;
+      }
+
+      :host ::ng-deep textarea.mat-mdc-input-element {
+        text-align: left;
+      }
+
+      .field-error {
+        color: #b91c1c;
+        font-size: 12px;
+        margin: -2px 0 4px 2px;
       }
 
       .quality-row {
-        align-items: flex-start;
-        flex-direction: column;
+        align-items: center;
       }
 
       .quality-label {
-        margin-right: 0;
+        font-weight: 500;
+        margin-right: 12px;
       }
 
       .quality-radio-group {
-        gap: 10px;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
       }
-    }
-  `]
+
+      @media (max-width: 900px) {
+        .step-content {
+          padding: 12px;
+        }
+
+        .row-photo {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .photo-column {
+          width: 100%;
+        }
+
+        .photo-zone {
+          min-height: 170px;
+        }
+
+        .identity-grid {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .form-row {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .flex1,
+        .date-inline {
+          flex: 1 1 100%;
+          width: 100%;
+        }
+
+        .h-sync.age-box {
+          min-height: 48px;
+          height: auto;
+        }
+
+        .quality-row {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .quality-label {
+          margin-right: 0;
+        }
+
+        .quality-radio-group {
+          gap: 10px;
+        }
+      }
+    `,
+  ],
 })
 export class StepGeneralitesComponent implements OnInit, OnChanges {
   @Input() readonly = false;
@@ -423,11 +599,11 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
   readonly civiliteOptions: DropdownItem[] = [
     {id: 'M.', label: 'PATIENT_FORM.MR'},
     {id: 'Mme', label: 'PATIENT_FORM.MRS'},
-    {id: 'Mlle', label: 'PATIENT_FORM.MS'}
+    {id: 'Mlle', label: 'PATIENT_FORM.MS'},
   ];
   readonly sexeOptions: DropdownItem[] = [
     {id: 'M', label: 'PATIENT_FORM.MASCULIN'},
-    {id: 'F', label: 'PATIENT_FORM.FEMININ'}
+    {id: 'F', label: 'PATIENT_FORM.FEMININ'},
   ];
   readonly groupeSanguinOptions: DropdownItem[] = [
     {id: '', label: '—'},
@@ -438,7 +614,7 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     {id: 'AB+', label: 'AB+'},
     {id: 'AB-', label: 'AB-'},
     {id: 'O+', label: 'O+'},
-    {id: 'O-', label: 'O-'}
+    {id: 'O-', label: 'O-'},
   ];
   readonly etatPatientOptions: DropdownItem[] = [
     {id: 'PERMANENT', label: 'PATIENT_FORM.PERMANENT'},
@@ -448,14 +624,14 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     {id: 'GREFFE', label: 'PATIENT_FORM.GREFFE'},
     {id: 'GUERRI', label: 'PATIENT_FORM.GUERRI'},
     {id: 'VACANCIER_LOCAL', label: 'PATIENT_FORM.VACANCIER_LOCAL'},
-    {id: 'VACANCIER_ETRANGER', label: 'PATIENT_FORM.VACANCIER_ETRANGER'}
+    {id: 'VACANCIER_ETRANGER', label: 'PATIENT_FORM.VACANCIER_ETRANGER'},
   ];
   readonly situationFamilialeOptions: DropdownItem[] = [
     {id: '', label: '—'},
     {id: 'CELIBATAIRE', label: 'PATIENT_FORM.CELIBATAIRE'},
     {id: 'MARIE', label: 'PATIENT_FORM.MARIE'},
     {id: 'DIVORCE', label: 'PATIENT_FORM.DIVORCE'},
-    {id: 'VEUF', label: 'PATIENT_FORM.VEUF'}
+    {id: 'VEUF', label: 'PATIENT_FORM.VEUF'},
   ];
   photoPreview = signal<string | null>(null);
   private dateNaissanceSignal = signal<Date | null>(null);
@@ -506,12 +682,19 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
       etatPatient: ['PERMANENT'],
       dateEvenementEtat: [null],
       qualiteAssure: ['ASSURE_LUI_MEME'],
-      observation: ['']
+      observation: [''],
     });
 
-    this.form.valueChanges.subscribe(val => {
+    this.form.valueChanges.subscribe((val) => {
       // clear event date for states that do not require it
-      if (!(val.etatPatient === 'DECEDE' || val.etatPatient === 'GREFFE' || val.etatPatient === 'TRANSFERE') && val.dateEvenementEtat) {
+      if (
+        !(
+          val.etatPatient === 'DECEDE' ||
+          val.etatPatient === 'GREFFE' ||
+          val.etatPatient === 'TRANSFERE'
+        ) &&
+        val.dateEvenementEtat
+      ) {
         this.form.patchValue({ dateEvenementEtat: null }, { emitEvent: false });
         val.dateEvenementEtat = null;
       }
@@ -521,8 +704,8 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     });
 
     // Watch dateNaissance for age calculation
-    this.form.get('dateNaissance')!.valueChanges.subscribe(val => {
-      this.dateNaissanceSignal.set(val instanceof Date ? val : (val ? new Date(val) : null));
+    this.form.get('dateNaissance')!.valueChanges.subscribe((val) => {
+      this.dateNaissanceSignal.set(val instanceof Date ? val : val ? new Date(val) : null);
     });
 
     this.applyReadonly();
@@ -532,9 +715,8 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     if (changes['readonly']) this.applyReadonly();
   }
 
-  private applyReadonly(): void {
-    if (!this.form) return;
-    this.readonly ? this.form.disable({ emitEvent: false }) : this.form.enable({ emitEvent: false });
+  markTouched(): void {
+    this.form.markAllAsTouched();
   }
 
   onPhoto(event: Event): void {
@@ -555,8 +737,9 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     console.info('Dossier medical opened for MEDECIN profile');
   }
 
-  markTouched(): void { this.form.markAllAsTouched(); }
-  isValid(): boolean { return this.form.valid; }
+  isValid(): boolean {
+    return this.form.valid;
+  }
 
   patchData(data: Record<string, any>): void {
     if (!this.form) return;
@@ -586,7 +769,7 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
       etatPatient: data['etatPatient'] ?? 'PERMANENT',
       dateEvenementEtat: data['dateEvenementEtat'] ?? data['dateEvenement'] ?? null,
       qualiteAssure: data['qualiteAssure'] ?? 'ASSURE_LUI_MEME',
-      observation: data['observation'] ?? ''
+      observation: data['observation'] ?? '',
     };
     this.form.patchValue(patch, { emitEvent: false });
     this.etatPatientSignal.set(patch.etatPatient || 'PERMANENT');
@@ -594,5 +777,12 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     this.dataChange.emit({ ...this.form.getRawValue(), photoBase64: data['photoBase64'] });
     this.validChange.emit(this.form.valid);
     this.applyReadonly();
+  }
+
+  private applyReadonly(): void {
+    if (!this.form) return;
+    this.readonly
+      ? this.form.disable({emitEvent: false})
+      : this.form.enable({emitEvent: false});
   }
 }

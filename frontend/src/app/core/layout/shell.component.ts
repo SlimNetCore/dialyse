@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
@@ -18,9 +28,16 @@ import {filter} from 'rxjs/operators';
   selector: 'app-shell',
   standalone: true,
   imports: [
-    RouterOutlet, RouterLink, RouterLinkActive,
-    MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatTooltipModule,
-    TranslateModule, NotificationBellComponent
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatTooltipModule,
+    TranslateModule,
+    NotificationBellComponent,
   ],
   template: `
     <!-- TOOLBAR -->
@@ -39,28 +56,52 @@ import {filter} from 'rxjs/operators';
         </button>
         <mat-menu #langMenu="matMenu">
           @for (l of lang.languages(); track l.code) {
-            <button mat-menu-item (click)="lang.setLang(l.code)" [class.active-lang]="lang.currentLang() === l.code">
+            <button
+              mat-menu-item
+              (click)="lang.setLang(l.code)"
+              [class.active-lang]="lang.currentLang() === l.code"
+            >
               <span class="lang-flag">{{ l.flag }}</span> <span>{{ l.label }}</span>
             </button>
           }
         </mat-menu>
 
         <!-- Theme switcher -->
-        <button mat-icon-button [matMenuTriggerFor]="themeMenu" class="theme-btn" [matTooltip]="'THEME.TITLE' | translate">
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="themeMenu"
+          class="theme-btn"
+          [matTooltip]="'THEME.TITLE' | translate"
+        >
           <mat-icon>palette</mat-icon>
         </button>
         <mat-menu #themeMenu="matMenu">
           @for (mode of theme.modes(); track mode.code) {
-            <button mat-menu-item (click)="theme.setMode(mode.code)"
-                    [class.active-theme]="theme.currentMode() === mode.code">
-              <mat-icon>{{ theme.currentMode() === mode.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+            <button
+              mat-menu-item
+              (click)="theme.setMode(mode.code)"
+              [class.active-theme]="theme.currentMode() === mode.code"
+            >
+              <mat-icon>{{
+                  theme.currentMode() === mode.code
+                    ? 'radio_button_checked'
+                    : 'radio_button_unchecked'
+                }}
+              </mat-icon>
               {{ mode.i18nKey | translate }}
             </button>
           }
           <div class="menu-divider"></div>
           @for (t of theme.themes(); track t.code) {
-            <button mat-menu-item (click)="theme.setTheme(t.code)" [class.active-theme]="theme.currentTheme() === t.code">
-              <mat-icon>{{ theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+            <button
+              mat-menu-item
+              (click)="theme.setTheme(t.code)"
+              [class.active-theme]="theme.currentTheme() === t.code"
+            >
+              <mat-icon>{{
+                  theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked'
+                }}
+              </mat-icon>
               {{ t.i18nKey | translate }}
             </button>
           }
@@ -96,19 +137,27 @@ import {filter} from 'rxjs/operators';
       <!-- SIDEBAR -->
       <nav #sidebar class="sidebar" [class.compact-nav]="compactNav()">
         @for (item of visibleNavItems(); track item.route) {
-          <a [routerLink]="item.route" routerLinkActive="active-nav" class="nav-item"
-             [matTooltip]="item.label | translate">
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active-nav"
+            class="nav-item"
+            [matTooltip]="item.label | translate"
+          >
             <mat-icon>{{ item.icon }}</mat-icon>
             <span class="nav-label">{{ item.label | translate }}</span>
           </a>
         }
 
         @if (overflowNavItems().length > 0) {
-          <button mat-stroked-button type="button" class="nav-menu-trigger"
-                  [class.active-nav-trigger]="hasOverflowActiveRoute()"
-                  [matMenuTriggerFor]="navMenu"
-                  [attr.aria-label]="'NAV.MENU' | translate"
-                  [matTooltip]="'NAV.MENU' | translate">
+          <button
+            mat-stroked-button
+            type="button"
+            class="nav-menu-trigger"
+            [class.active-nav-trigger]="hasOverflowActiveRoute()"
+            [matMenuTriggerFor]="navMenu"
+            [attr.aria-label]="'NAV.MENU' | translate"
+            [matTooltip]="'NAV.MENU' | translate"
+          >
             <span class="overflow-btn-inner">
               <mat-icon>grid_view</mat-icon>
               <span class="overflow-badge">{{ overflowNavItems().length }}</span>
@@ -119,7 +168,11 @@ import {filter} from 'rxjs/operators';
 
       <mat-menu #navMenu="matMenu">
         @for (item of overflowNavItems(); track item.route) {
-          <a mat-menu-item [routerLink]="item.route" [class.active-menu-item]="isRouteActive(item.route)">
+          <a
+            mat-menu-item
+            [routerLink]="item.route"
+            [class.active-menu-item]="isRouteActive(item.route)"
+          >
             <mat-icon>{{ item.icon }}</mat-icon>
             <span>{{ item.label | translate }}</span>
           </a>
@@ -146,8 +199,17 @@ import {filter} from 'rxjs/operators';
         @if (breadcrumbs().length > 0) {
           <div class="breadcrumb">
             @for (b of breadcrumbs(); track $index; let i = $index) {
-              <button type="button" class="crumb-btn" [class.last]="i === breadcrumbs().length - 1" (click)="goBreadcrumb(i)">{{ b }}</button>
-              @if (i < breadcrumbs().length - 1) { <mat-icon class="sep">chevron_right</mat-icon> }
+              <button
+                type="button"
+                class="crumb-btn"
+                [class.last]="i === breadcrumbs().length - 1"
+                (click)="goBreadcrumb(i)"
+              >
+                {{ b }}
+              </button>
+              @if (i < breadcrumbs().length - 1) {
+                <mat-icon class="sep">chevron_right</mat-icon>
+              }
             }
           </div>
         }
@@ -155,315 +217,281 @@ import {filter} from 'rxjs/operators';
       </main>
     </div>
   `,
-  styles: [`
-    :host { display: flex; flex-direction: column; height: 100vh; }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center;
-      background: var(--app-surface);
-      border-bottom: 1px solid var(--app-border);
-      color: var(--app-text);
-      padding: 0 20px;
-      height: 60px;
-      z-index: 100;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; color: var(--app-primary); }
-    .topbar-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .user-btn {
-      display: flex; align-items: center; gap: 6px; font-size: 13px;
-      color: var(--app-text) !important;
-      --mdc-text-button-label-text-color: var(--app-text) !important;
-    }
-    .user-name { margin-left: 2px; }
-    .separator { margin: 0 8px; color: var(--app-muted); }
-    .center-name { margin-left: 2px; font-weight: 500; }
-    .lang-btn, .theme-btn { color: var(--app-text) !important; }
-    .lang-flag { margin-right: 8px; font-size: 18px; }
-    .active-theme { color: var(--app-primary); font-weight: 600; }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
 
-    .menu-divider {
-      margin: 6px 12px;
-      border-top: 1px solid var(--app-border);
-    }
-
-    .shell-body { display: flex; flex: 1; overflow: hidden; }
-
-    .sidebar {
-      position: relative;
-      width: 86px;
-      min-height: 100%;
-      margin-left: auto;
-      background: linear-gradient(
-        180deg,
-        var(--app-sidebar-accent-bg),
-        color-mix(in srgb, var(--app-sidebar-accent-bg) 72%, var(--app-surface))
-      );
-      border-left: 1px solid var(--app-primary-outline);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 8px 6px;
-      overflow-x: hidden;
-      overflow-y: auto;
-      z-index: 50;
-      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
-    }
-
-    .sidebar.compact-nav {
-      justify-content: center;
-      align-items: center;
-    }
-
-    .sidebar::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 3px;
-      height: 100%;
-      background: linear-gradient(180deg, var(--app-primary), color-mix(in srgb, var(--app-primary) 35%, transparent));
-      pointer-events: none;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
-      min-height: 72px;
-      padding: 8px 6px;
-      color: color-mix(in srgb, var(--app-text) 84%, white 16%);
-      text-decoration: none;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      transition: all 0.15s;
-      text-align: center;
-    }
-
-    .nav-menu-trigger {
-      position: relative;
-      width: 52px;
-      min-width: 52px;
-      height: 52px;
-      min-height: 52px;
-      padding: 0;
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--app-primary) !important;
-      border: 1.5px solid var(--app-primary-outline) !important;
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--app-primary) 12%, transparent),
-        color-mix(in srgb, var(--app-primary) 6%, transparent)
-      );
-      box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.08),
-        0 0 0 1px color-mix(in srgb, var(--app-primary) 15%, transparent);
-      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .nav-menu-trigger:hover {
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--app-primary) 22%, transparent),
-        color-mix(in srgb, var(--app-primary) 12%, transparent)
-      ) !important;
-      border-color: var(--app-primary) !important;
-      box-shadow:
-        0 4px 16px rgba(0, 0, 0, 0.14),
-        0 0 0 2px color-mix(in srgb, var(--app-primary) 30%, transparent);
-      transform: scale(1.04);
-    }
-
-    .overflow-btn-inner {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .overflow-btn-inner mat-icon {
-      margin: 0;
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-    }
-
-    .overflow-badge {
-      position: absolute;
-      top: -8px;
-      right: -10px;
-      min-width: 16px;
-      height: 16px;
-      padding: 0 4px;
-      border-radius: 8px;
-      background: var(--app-primary);
-      color: #fff;
-      font-size: 9px;
-      font-weight: 700;
-      line-height: 16px;
-      text-align: center;
-      letter-spacing: 0;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
-      pointer-events: none;
-    }
-
-    .active-nav-trigger {
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--app-primary) 30%, transparent),
-        color-mix(in srgb, var(--app-primary) 18%, transparent)
-      ) !important;
-      color: var(--app-primary) !important;
-      border-color: color-mix(in srgb, var(--app-primary) 65%, white 35%) !important;
-      box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent),
-        0 4px 14px color-mix(in srgb, var(--app-primary) 22%, transparent);
-    }
-
-    .active-nav-trigger .overflow-badge {
-      background: #fff;
-      color: var(--app-primary);
-    }
-
-    .nav-item:hover {
-      background: var(--app-primary-soft);
-      color: var(--app-primary);
-      border-color: var(--app-primary-outline);
-    }
-    .nav-item.active-nav {
-      background: color-mix(in srgb, var(--app-primary) 18%, transparent);
-      color: #ffffff;
-      border-color: color-mix(in srgb, var(--app-primary) 65%, white 35%);
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent);
-    }
-
-    .nav-item mat-icon {
-      min-width: 24px;
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-    }
-
-    .nav-label {
-      line-height: 1.2;
-      white-space: normal;
-    }
-
-    .active-menu-item {
-      background: var(--app-primary-soft);
-      color: var(--app-primary);
-      font-weight: 700;
-    }
-
-    .nav-sizer {
-      position: fixed;
-      left: -9999px;
-      top: -9999px;
-      display: flex;
-      flex-direction: row;
-      gap: 6px;
-      padding: 6px;
-      width: max-content;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .nav-sizer .nav-item {
-      min-height: 56px;
-      min-width: 72px;
-      flex: 0 0 auto;
-      gap: 4px;
-      border-radius: 12px;
-    }
-
-    .nav-sizer .nav-label {
-      font-size: 10px;
-    }
-
-    .content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; background: var(--app-bg); }
-    .breadcrumb { display:flex; align-items:center; gap:4px; margin-bottom:10px; color:var(--app-muted); font-size:12px; }
-    .crumb-btn { border:0; background:transparent; cursor:pointer; color:var(--app-muted); font-size:12px; padding:0; }
-    .crumb-btn:hover { color:var(--app-primary); text-decoration:underline; }
-    .crumb-btn.last { color:var(--app-primary); font-weight:600; cursor:default; text-decoration:none; }
-    .sep { font-size:16px; width:16px; height:16px; color:#9ca3af; }
-
-    @media (max-width: 1024px) {
       .topbar {
-        padding: 0 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--app-surface);
+        border-bottom: 1px solid var(--app-border);
+        color: var(--app-text);
+        padding: 0 20px;
+        height: 60px;
+        z-index: 100;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--app-primary);
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
       }
 
       .user-btn {
-        padding: 0 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--app-text) !important;
+        --mdc-text-button-label-text-color: var(--app-text) !important;
       }
 
-      .user-name,
-      .separator,
+      .user-name {
+        margin-left: 2px;
+      }
+
+      .separator {
+        margin: 0 8px;
+        color: var(--app-muted);
+      }
+
       .center-name {
-        display: none;
+        margin-left: 2px;
+        font-weight: 500;
       }
 
-      .content {
-        padding: 14px;
-      }
-    }
-
-    @media (max-width: 900px) {
-      :host {
-        height: 100dvh;
+      .lang-btn,
+      .theme-btn {
+        color: var(--app-text) !important;
       }
 
-      .topbar {
-        height: auto;
-        min-height: 56px;
+      .lang-flag {
+        margin-right: 8px;
+        font-size: 18px;
       }
 
-      .brand span {
-        font-size: 0.95rem;
+      .active-theme {
+        color: var(--app-primary);
+        font-weight: 600;
+      }
+
+      .menu-divider {
+        margin: 6px 12px;
+        border-top: 1px solid var(--app-border);
       }
 
       .shell-body {
-        flex-direction: column;
-      }
-
-      .content {
-        order: 1;
-        padding: 12px 10px 84px;
-      }
-
-      .sidebar {
-        order: 2;
-        width: 100%;
-        min-height: auto;
-        margin-left: 0;
-        border-left: 0;
-        border-top: 1px solid var(--app-primary-outline);
-        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.14);
-        flex-direction: row;
-        align-items: stretch;
-        justify-content: flex-start;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 6px;
-        gap: 6px;
-      }
-
-      .sidebar.compact-nav {
+        display: flex;
+        flex: 1;
         overflow: hidden;
       }
 
+      .sidebar {
+        position: relative;
+        width: 86px;
+        min-height: 100%;
+        margin-left: auto;
+        background: linear-gradient(
+          180deg,
+          var(--app-sidebar-accent-bg),
+          color-mix(in srgb, var(--app-sidebar-accent-bg) 72%, var(--app-surface))
+        );
+        border-left: 1px solid var(--app-primary-outline);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 6px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        z-index: 50;
+        box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+      }
+
+      .sidebar.compact-nav {
+        justify-content: center;
+        align-items: center;
+      }
+
       .sidebar::after {
-        width: 100%;
-        height: 2px;
+        content: '';
+        position: absolute;
         top: 0;
         left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(
+          180deg,
+          var(--app-primary),
+          color-mix(in srgb, var(--app-primary) 35%, transparent)
+        );
+        pointer-events: none;
       }
 
       .nav-item {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        min-height: 72px;
+        padding: 8px 6px;
+        color: color-mix(in srgb, var(--app-text) 84%, white 16%);
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        transition: all 0.15s;
+        text-align: center;
+      }
+
+      .nav-menu-trigger {
+        position: relative;
+        width: 52px;
+        min-width: 52px;
+        height: 52px;
+        min-height: 52px;
+        padding: 0;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--app-primary) !important;
+        border: 1.5px solid var(--app-primary-outline) !important;
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--app-primary) 12%, transparent),
+          color-mix(in srgb, var(--app-primary) 6%, transparent)
+        );
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
+        0 0 0 1px color-mix(in srgb, var(--app-primary) 15%, transparent);
+        transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .nav-menu-trigger:hover {
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--app-primary) 22%, transparent),
+          color-mix(in srgb, var(--app-primary) 12%, transparent)
+        ) !important;
+        border-color: var(--app-primary) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14),
+        0 0 0 2px color-mix(in srgb, var(--app-primary) 30%, transparent);
+        transform: scale(1.04);
+      }
+
+      .overflow-btn-inner {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .overflow-btn-inner mat-icon {
+        margin: 0;
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+
+      .overflow-badge {
+        position: absolute;
+        top: -8px;
+        right: -10px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background: var(--app-primary);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        line-height: 16px;
+        text-align: center;
+        letter-spacing: 0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        pointer-events: none;
+      }
+
+      .active-nav-trigger {
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--app-primary) 30%, transparent),
+          color-mix(in srgb, var(--app-primary) 18%, transparent)
+        ) !important;
+        color: var(--app-primary) !important;
+        border-color: color-mix(in srgb, var(--app-primary) 65%, white 35%) !important;
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent),
+        0 4px 14px color-mix(in srgb, var(--app-primary) 22%, transparent);
+      }
+
+      .active-nav-trigger .overflow-badge {
+        background: #fff;
+        color: var(--app-primary);
+      }
+
+      .nav-item:hover {
+        background: var(--app-primary-soft);
+        color: var(--app-primary);
+        border-color: var(--app-primary-outline);
+      }
+
+      .nav-item.active-nav {
+        background: color-mix(in srgb, var(--app-primary) 18%, transparent);
+        color: #ffffff;
+        border-color: color-mix(in srgb, var(--app-primary) 65%, white 35%);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--app-primary) 45%, transparent);
+      }
+
+      .nav-item mat-icon {
+        min-width: 24px;
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+
+      .nav-label {
+        line-height: 1.2;
+        white-space: normal;
+      }
+
+      .active-menu-item {
+        background: var(--app-primary-soft);
+        color: var(--app-primary);
+        font-weight: 700;
+      }
+
+      .nav-sizer {
+        position: fixed;
+        left: -9999px;
+        top: -9999px;
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+        padding: 6px;
+        width: max-content;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .nav-sizer .nav-item {
         min-height: 56px;
         min-width: 72px;
         flex: 0 0 auto;
@@ -471,15 +499,144 @@ import {filter} from 'rxjs/operators';
         border-radius: 12px;
       }
 
-      .nav-label {
+      .nav-sizer .nav-label {
         font-size: 10px;
       }
 
-      .nav-menu-trigger {
-        width: 52px;
+      .content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 20px;
+        background: var(--app-bg);
       }
-    }
-  `]
+
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 10px;
+        color: var(--app-muted);
+        font-size: 12px;
+      }
+
+      .crumb-btn {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        color: var(--app-muted);
+        font-size: 12px;
+        padding: 0;
+      }
+
+      .crumb-btn:hover {
+        color: var(--app-primary);
+        text-decoration: underline;
+      }
+
+      .crumb-btn.last {
+        color: var(--app-primary);
+        font-weight: 600;
+        cursor: default;
+        text-decoration: none;
+      }
+
+      .sep {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: #9ca3af;
+      }
+
+      @media (max-width: 1024px) {
+        .topbar {
+          padding: 0 12px;
+        }
+
+        .user-btn {
+          padding: 0 6px;
+        }
+
+        .user-name,
+        .separator,
+        .center-name {
+          display: none;
+        }
+
+        .content {
+          padding: 14px;
+        }
+      }
+
+      @media (max-width: 900px) {
+        :host {
+          height: 100dvh;
+        }
+
+        .topbar {
+          height: auto;
+          min-height: 56px;
+        }
+
+        .brand span {
+          font-size: 0.95rem;
+        }
+
+        .shell-body {
+          flex-direction: column;
+        }
+
+        .content {
+          order: 1;
+          padding: 12px 10px 84px;
+        }
+
+        .sidebar {
+          order: 2;
+          width: 100%;
+          min-height: auto;
+          margin-left: 0;
+          border-left: 0;
+          border-top: 1px solid var(--app-primary-outline);
+          box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.14);
+          flex-direction: row;
+          align-items: stretch;
+          justify-content: flex-start;
+          overflow-x: auto;
+          overflow-y: hidden;
+          padding: 6px;
+          gap: 6px;
+        }
+
+        .sidebar.compact-nav {
+          overflow: hidden;
+        }
+
+        .sidebar::after {
+          width: 100%;
+          height: 2px;
+          top: 0;
+          left: 0;
+        }
+
+        .nav-item {
+          min-height: 56px;
+          min-width: 72px;
+          flex: 0 0 auto;
+          gap: 4px;
+          border-radius: 12px;
+        }
+
+        .nav-label {
+          font-size: 10px;
+        }
+
+        .nav-menu-trigger {
+          width: 52px;
+        }
+      }
+    `,
+  ],
 })
 export class ShellComponent implements OnInit, AfterViewInit {
   readonly breadcrumbs = signal<string[]>([]);
@@ -490,7 +647,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
     {route: '/patients', icon: 'people', label: 'NAV.PATIENTS'},
     {route: '/seances', icon: 'event_note', label: 'NAV.SEANCES'},
     {route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION'},
-    {route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT'}
+    {route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT'},
   ];
 
   readonly auth = inject(AuthStore);
@@ -512,9 +669,11 @@ export class ShellComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.ws.connect();
     this.computeBreadcrumb(this.router.url);
-    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(e => {
-      this.computeBreadcrumb(e.urlAfterRedirects);
-    });
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe((e) => {
+        this.computeBreadcrumb(e.urlAfterRedirects);
+      });
   }
 
   ngAfterViewInit(): void {
@@ -522,21 +681,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
     this.scheduleCompactNavCheck();
   }
 
-  private computeBreadcrumb(url: string): void {
-    const map: Record<string, string> = {
-      dashboard: 'Dashboard',
-      patients: 'Patients',
-      new: 'Nouveau',
-      'pec-admin': 'Validation PEC',
-      'pec-list': 'Liste PEC',
-      'attestations-list': 'Liste attestations',
-      admin: 'Administration',
-      users: 'Utilisateurs',
-      'modeles-document': 'Modèles documents'
-    };
-    const segs = url.split('?')[0].split('/').filter(Boolean);
-    this.breadcrumbRoutes = segs;
-    this.breadcrumbs.set(segs.map(s => map[s] ?? s));
+  hasOverflowActiveRoute(): boolean {
+    return this.overflowNavItems().some((item) => this.isRouteActive(item.route));
   }
 
   goBreadcrumb(index: number): void {
@@ -550,15 +696,28 @@ export class ShellComponent implements OnInit, AfterViewInit {
     return currentUrl === route || currentUrl.startsWith(route + '/');
   }
 
-  hasOverflowActiveRoute(): boolean {
-    return this.overflowNavItems().some(item => this.isRouteActive(item.route));
-  }
-
   onLogout(): void {
     this.authApi.logout().subscribe({
       next: () => this.finalizeLogout(),
-      error: () => this.finalizeLogout()
+      error: () => this.finalizeLogout(),
     });
+  }
+
+  private computeBreadcrumb(url: string): void {
+    const map: Record<string, string> = {
+      dashboard: 'Dashboard',
+      patients: 'Patients',
+      new: 'Nouveau',
+      'pec-admin': 'Validation PEC',
+      'pec-list': 'Liste PEC',
+      'attestations-list': 'Liste attestations',
+      admin: 'Administration',
+      users: 'Utilisateurs',
+      'modeles-document': 'Modèles documents',
+    };
+    const segs = url.split('?')[0].split('/').filter(Boolean);
+    this.breadcrumbRoutes = segs;
+    this.breadcrumbs.set(segs.map((s) => map[s] ?? s));
   }
 
   private finalizeLogout(): void {
@@ -634,7 +793,9 @@ export class ShellComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const itemElements = Array.from(navSizer.querySelectorAll<HTMLElement>('[data-nav-sizer-item]'));
+    const itemElements = Array.from(
+      navSizer.querySelectorAll<HTMLElement>('[data-nav-sizer-item]'),
+    );
     const overflowElement = navSizer.querySelector<HTMLElement>('[data-nav-sizer-overflow]');
 
     if (itemElements.length !== this.navItems.length || !overflowElement) {
@@ -648,7 +809,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
     const paddingX = parseFloat(sidebarStyles.paddingLeft) + parseFloat(sidebarStyles.paddingRight);
     const gap = parseFloat(sidebarStyles.columnGap || sidebarStyles.gap || '0');
     const availableWidth = Math.max(sidebar.clientWidth - paddingX, 0);
-    const itemWidths = itemElements.map(item => Math.ceil(item.getBoundingClientRect().width));
+    const itemWidths = itemElements.map((item) => Math.ceil(item.getBoundingClientRect().width));
     const overflowWidth = Math.ceil(overflowElement.getBoundingClientRect().width);
 
     let usedWidth = 0;

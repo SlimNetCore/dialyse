@@ -1,5 +1,14 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatNativeDateModule, MatOptionSelectionChange} from '@angular/material/core';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -25,12 +34,15 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     MatNativeDateModule,
     MatSelectModule,
     TranslateModule,
-    SelectFilterComponent
+    SelectFilterComponent,
   ],
   template: `
     @if (type === 'date') {
       <mat-form-field appearance="outline" class="date-range-field">
-        <mat-label>{{ 'COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) } }}</mat-label>
+        <mat-label>{{
+            'COMMON.FILTER_BY' | translate: {field: (labelKey | translate)}
+          }}
+        </mat-label>
         <mat-date-range-input [rangePicker]="picker" [separator]="'–'">
           <input
             matStartDate
@@ -52,8 +64,16 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-date-range-picker #picker (opened)="syncDraftDateRange()">
           <mat-date-range-picker-actions>
-            <button mat-button type="button" matDateRangePickerCancel (click)="cancelDateRange()">{{ 'PATIENT_FORM.BTN_CANCEL' | translate }}</button>
-            <button mat-flat-button color="primary" type="button" matDateRangePickerApply (click)="applyDateRange()">
+            <button mat-button type="button" matDateRangePickerCancel (click)="cancelDateRange()">
+              {{ 'PATIENT_FORM.BTN_CANCEL' | translate }}
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              matDateRangePickerApply
+              (click)="applyDateRange()"
+            >
               {{ 'COMMON.OK' | translate }}
             </button>
           </mat-date-range-picker-actions>
@@ -61,15 +81,35 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
       </mat-form-field>
     } @else {
       @if (isSelectType()) {
-        <mat-form-field appearance="outline" class="select-filter-field" [class.active]="isActive()">
-          <mat-select [value]="selectedValues()" [multiple]="isMultiSelect()" panelClass="column-filter-select-panel"
-                      [panelWidth]="'360px'" (selectionChange)="onMatSelect($event.value)"
-                      [placeholder]="placeholder || ('COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) })">
-            <mat-option class="panel-filter-option" [value]="panelFilterOptionValue"
-                        (onSelectionChange)="onPanelFilterOptionSelection($event)">
-              <div class="panel-filter-content" (click)="$event.stopPropagation()"
-                   (mousedown)="$event.stopPropagation()">
-                <app-select-filter [placeholder]="'COMMON.SEARCH'" (valueChange)="onPanelFilterChange($event)"/>
+        <mat-form-field
+          appearance="outline"
+          class="select-filter-field"
+          [class.active]="isActive()"
+        >
+          <mat-select
+            [value]="selectedValues()"
+            [multiple]="isMultiSelect()"
+            panelClass="column-filter-select-panel"
+            [panelWidth]="'360px'"
+            (selectionChange)="onMatSelect($event.value)"
+            [placeholder]="
+              placeholder || ('COMMON.FILTER_BY' | translate: { field: (labelKey | translate) })
+            "
+          >
+            <mat-option
+              class="panel-filter-option"
+              [value]="panelFilterOptionValue"
+              (onSelectionChange)="onPanelFilterOptionSelection($event)"
+            >
+              <div
+                class="panel-filter-content"
+                (click)="$event.stopPropagation()"
+                (mousedown)="$event.stopPropagation()"
+              >
+                <app-select-filter
+                  [placeholder]="'COMMON.SEARCH'"
+                  (valueChange)="onPanelFilterChange($event)"
+                />
               </div>
             </mat-option>
             @if (!isMultiSelect()) {
@@ -96,7 +136,9 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
             class="col-filter"
             [attr.type]="inputType()"
             [value]="value"
-            [placeholder]="placeholder || ('COMMON.FILTER_BY' | translate:{ field: (labelKey | translate) })"
+            [placeholder]="
+              placeholder || ('COMMON.FILTER_BY' | translate: { field: (labelKey | translate) })
+            "
             (input)="onInput($event)"
           />
 
@@ -108,238 +150,250 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
     }
 
     @if (isActive()) {
-      <button mat-icon-button class="clear-filter" (click)="clear.emit()" type="button" [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate">
+      <button
+        mat-icon-button
+        class="clear-filter"
+        (click)="clear.emit()"
+        type="button"
+        [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate"
+      >
         <mat-icon>close</mat-icon>
       </button>
     }
   `,
-  styles: [`
-    :host {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      margin: 0;
-      text-transform: none;
-      --filter-font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-      --filter-font-size: 13px;
-      --filter-font-weight: 600;
-    }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        margin: 0;
+        text-transform: none;
+        --filter-font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+        --filter-font-size: 13px;
+        --filter-font-weight: 600;
+      }
 
-    .date-range-field {
-      flex: 1 1 auto;
-      width: 100%;
-      min-width: 0;
-      margin: 0;
-      align-self: center;
-      --mat-form-field-container-height: 40px;
-      --mat-form-field-container-vertical-padding: 8px;
-    }
+      .date-range-field {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        align-self: center;
+        --mat-form-field-container-height: 40px;
+        --mat-form-field-container-vertical-padding: 8px;
+      }
 
-    :host ::ng-deep .date-range-field .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-    }
+      :host ::ng-deep .date-range-field .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
 
-    :host ::ng-deep .date-range-field .mat-mdc-text-field-wrapper {
-      background: var(--app-field-bg);
-      border-radius: 12px;
-    }
+      :host ::ng-deep .date-range-field .mat-mdc-text-field-wrapper {
+        background: var(--app-field-bg);
+        border-radius: 12px;
+      }
 
-    :host ::ng-deep .date-range-field .mat-mdc-form-field-flex,
-    :host ::ng-deep .date-range-field .mat-date-range-input-container,
-    :host ::ng-deep .date-range-field .mat-date-range-input-wrapper {
-      align-items: center;
-      justify-content: center;
-    }
+      :host ::ng-deep .date-range-field .mat-mdc-form-field-flex,
+      :host ::ng-deep .date-range-field .mat-date-range-input-container,
+      :host ::ng-deep .date-range-field .mat-date-range-input-wrapper {
+        align-items: center;
+        justify-content: center;
+      }
 
-    :host ::ng-deep .date-range-field .mat-mdc-form-field-infix {
-      min-height: 40px;
-      padding-top: 6px !important;
-      padding-bottom: 6px !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+      :host ::ng-deep .date-range-field .mat-mdc-form-field-infix {
+        min-height: 40px;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    :host ::ng-deep .date-range-field input.mat-start-date,
-    :host ::ng-deep .date-range-field input.mat-end-date,
-    :host ::ng-deep .date-range-field .mat-date-range-input-separator,
-    :host ::ng-deep .date-range-field input.mat-mdc-input-element,
-    :host ::ng-deep .date-range-field input.mat-mdc-input-element::placeholder {
-      font-family: var(--filter-font-family);
-      font-size: var(--filter-font-size);
-      font-weight: var(--filter-font-weight);
-      text-align: center;
-    }
+      :host ::ng-deep .date-range-field input.mat-start-date,
+      :host ::ng-deep .date-range-field input.mat-end-date,
+      :host ::ng-deep .date-range-field .mat-date-range-input-separator,
+      :host ::ng-deep .date-range-field input.mat-mdc-input-element,
+      :host ::ng-deep .date-range-field input.mat-mdc-input-element::placeholder {
+        font-family: var(--filter-font-family);
+        font-size: var(--filter-font-size);
+        font-weight: var(--filter-font-weight);
+        text-align: center;
+      }
 
-    :host ::ng-deep .date-range-field input.mat-mdc-input-element::placeholder {
-      color: var(--app-muted);
-      text-transform: none;
-    }
+      :host ::ng-deep .date-range-field input.mat-mdc-input-element::placeholder {
+        color: var(--app-muted);
+        text-transform: none;
+      }
 
-    :host ::ng-deep .date-range-field .mat-date-range-input-separator {
-      color: var(--app-muted);
-      min-width: 16px;
-    }
+      :host ::ng-deep .date-range-field .mat-date-range-input-separator {
+        color: var(--app-muted);
+        min-width: 16px;
+      }
 
-    :host ::ng-deep .date-range-field .mat-mdc-form-field-hint-wrapper,
-    :host ::ng-deep .date-range-field .mat-mdc-form-field-hint,
-    :host ::ng-deep .date-range-field .mat-mdc-form-field-bottom-align::before {
-      font-size: 11px;
-      color: var(--app-muted);
-    }
+      :host ::ng-deep .date-range-field .mat-mdc-form-field-hint-wrapper,
+      :host ::ng-deep .date-range-field .mat-mdc-form-field-hint,
+      :host ::ng-deep .date-range-field .mat-mdc-form-field-bottom-align::before {
+        font-size: 11px;
+        color: var(--app-muted);
+      }
 
-    .field-shell {
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex: 1 1 auto;
-      width: 100%;
-      min-width: 0;
-      min-height: 40px;
-      padding-inline: 12px;
-      background: var(--app-field-bg);
-      border: 1px solid var(--app-border-strong);
-      border-radius: 12px;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
-      transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
-    }
+      .field-shell {
+        position: relative;
+        display: flex;
+        align-items: center;
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        min-height: 40px;
+        padding-inline: 12px;
+        background: var(--app-field-bg);
+        border: 1px solid var(--app-border-strong);
+        border-radius: 12px;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+        transition:
+          border-color 0.18s ease,
+          box-shadow 0.18s ease,
+          background-color 0.18s ease;
+      }
 
-    .select-filter-field {
-      width: 100%;
-      margin: 0;
-      --mat-form-field-container-height: 40px;
-      --mat-form-field-container-vertical-padding: 8px;
-    }
+      .select-filter-field {
+        width: 100%;
+        margin: 0;
+        --mat-form-field-container-height: 40px;
+        --mat-form-field-container-vertical-padding: 8px;
+      }
 
-    :host ::ng-deep .select-filter-field .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-    }
+      :host ::ng-deep .select-filter-field .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
 
-    :host ::ng-deep .select-filter-field .mat-mdc-form-field-infix {
-      min-height: 40px;
-      display: flex;
-      align-items: center;
-    }
+      :host ::ng-deep .select-filter-field .mat-mdc-form-field-infix {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+      }
 
-    .select-filter-field.active {
-      --mdc-outlined-text-field-outline-color: var(--app-primary-outline);
-    }
+      .select-filter-field.active {
+        --mdc-outlined-text-field-outline-color: var(--app-primary-outline);
+      }
 
-    .panel-filter-content {
-      width: 100%;
-    }
+      .panel-filter-content {
+        width: 100%;
+      }
 
-    .field-shell:hover {
-      border-color: var(--app-primary-outline);
-      background: var(--app-field-hover-bg);
-    }
+      .field-shell:hover {
+        border-color: var(--app-primary-outline);
+        background: var(--app-field-hover-bg);
+      }
 
-    .field-shell:focus-within {
-      border-color: var(--app-primary);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 16%, transparent);
-    }
+      .field-shell:focus-within {
+        border-color: var(--app-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 16%, transparent);
+      }
 
-    .field-shell.active {
-      border-color: var(--app-primary-outline);
-    }
+      .field-shell.active {
+        border-color: var(--app-primary-outline);
+      }
 
-    .col-filter {
-      flex: 1 1 auto;
-      height: 38px;
-      width: 100%;
-      min-width: 0;
-      font-size: 13px;
-      line-height: 38px;
-      text-align: center;
-      border: 0;
-      padding: 0;
-      background: transparent;
-      outline: none;
-      color: var(--app-text);
-      font-family: var(--filter-font-family);
-      font-size: var(--filter-font-size);
-      font-weight: var(--filter-font-weight);
-      text-transform: none;
-    }
+      .col-filter {
+        flex: 1 1 auto;
+        height: 38px;
+        width: 100%;
+        min-width: 0;
+        font-size: 13px;
+        line-height: 38px;
+        text-align: center;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        outline: none;
+        color: var(--app-text);
+        font-family: var(--filter-font-family);
+        font-size: var(--filter-font-size);
+        font-weight: var(--filter-font-weight);
+        text-transform: none;
+      }
 
-    .col-filter::placeholder {
-      font-family: var(--filter-font-family);
-      font-size: var(--filter-font-size);
-      font-weight: var(--filter-font-weight);
-      text-align: center;
-      color: var(--app-muted);
-      text-transform: none;
-    }
+      .col-filter::placeholder {
+        font-family: var(--filter-font-family);
+        font-size: var(--filter-font-size);
+        font-weight: var(--filter-font-weight);
+        text-align: center;
+        color: var(--app-muted);
+        text-transform: none;
+      }
 
-    :host ::ng-deep .select-filter-field .mat-mdc-select-value,
-    :host ::ng-deep .select-filter-field .mat-mdc-select-placeholder,
-    :host ::ng-deep .select-filter-field .mat-mdc-select-value-text,
-    :host ::ng-deep .select-filter-field .mat-mdc-select-min-line {
-      font-family: var(--filter-font-family) !important;
-      font-size: var(--filter-font-size) !important;
-      font-weight: var(--filter-font-weight) !important;
-      text-transform: none !important;
-    }
+      :host ::ng-deep .select-filter-field .mat-mdc-select-value,
+      :host ::ng-deep .select-filter-field .mat-mdc-select-placeholder,
+      :host ::ng-deep .select-filter-field .mat-mdc-select-value-text,
+      :host ::ng-deep .select-filter-field .mat-mdc-select-min-line {
+        font-family: var(--filter-font-family) !important;
+        font-size: var(--filter-font-size) !important;
+        font-weight: var(--filter-font-weight) !important;
+        text-transform: none !important;
+      }
 
-    .select-filter {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      cursor: pointer;
-      text-align-last: center;
-      padding-right: 24px;
-    }
+      .select-filter {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        cursor: pointer;
+        text-align-last: center;
+        padding-right: 24px;
+      }
 
-    .select-filter option {
-      background: var(--app-surface-solid);
-      color: var(--app-text);
-    }
+      .select-filter option {
+        background: var(--app-surface-solid);
+        color: var(--app-text);
+      }
 
-    .field-icon {
-      position: absolute;
-      right: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
-      color: var(--app-muted);
-      pointer-events: none;
-    }
+      .field-icon {
+        position: absolute;
+        right: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        color: var(--app-muted);
+        pointer-events: none;
+      }
 
-    .clear-filter {
-      width: 40px;
-      height: 40px;
-      min-width: 40px;
-      padding: 0;
-      border-radius: 999px;
-      background: var(--app-frost);
-      border: 1px solid var(--app-primary-outline);
-      color: var(--app-primary);
-      transition: all .18s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      align-self: center;
-      flex: 0 0 auto;
-    }
+      .clear-filter {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        padding: 0;
+        border-radius: 999px;
+        background: var(--app-frost);
+        border: 1px solid var(--app-primary-outline);
+        color: var(--app-primary);
+        transition: all 0.18s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+        flex: 0 0 auto;
+      }
 
-    .clear-filter:hover {
-      background: var(--app-hover-surface);
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
-    }
+      .clear-filter:hover {
+        background: var(--app-hover-surface);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      }
 
-    .clear-filter mat-icon {
-      font-size: 15px;
-      width: 15px;
-      height: 15px;
-      margin: 0;
-    }
-  `]
+      .clear-filter mat-icon {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class ColumnFilterRendererComponent implements OnChanges {
   protected panelFilter = '';
@@ -396,7 +450,9 @@ export class ColumnFilterRendererComponent implements OnChanges {
 
   onMatSelect(value: string | string[]): void {
     if (Array.isArray(value)) {
-      this.valueChange.emit(value.filter(v => !!v && v !== this.panelFilterOptionValue).join(','));
+      this.valueChange.emit(
+        value.filter((v) => !!v && v !== this.panelFilterOptionValue).join(','),
+      );
       return;
     }
     if (value === this.panelFilterOptionValue) {
@@ -415,8 +471,8 @@ export class ColumnFilterRendererComponent implements OnChanges {
     if (!this.isMultiSelect()) return this.value ?? '';
     return (this.value ?? '')
       .split(',')
-      .map(v => v.trim())
-      .filter(v => !!v && v !== this.panelFilterOptionValue);
+      .map((v) => v.trim())
+      .filter((v) => !!v && v !== this.panelFilterOptionValue);
   }
 
   isMultiSelect(): boolean {
@@ -430,7 +486,7 @@ export class ColumnFilterRendererComponent implements OnChanges {
   booleanOptions(): Array<{ value: string; label: string }> {
     return [
       {value: 'true', label: this.translate.instant('COMMON.YES')},
-      {value: 'false', label: this.translate.instant('COMMON.NO')}
+      {value: 'false', label: this.translate.instant('COMMON.NO')},
     ];
   }
 
@@ -443,14 +499,16 @@ export class ColumnFilterRendererComponent implements OnChanges {
   onDraftDateRangeChange(bound: 'from' | 'to', value: Date | null): void {
     this.draftDateRange = {
       ...this.draftDateRange,
-      [bound]: this.normalizeDate(value)
+      [bound]: this.normalizeDate(value),
     };
   }
 
   applyDateRange(): void {
     const ordered = this.getOrderedDraftDateRange();
     this.draftDateRange = ordered;
-    this.valueChange.emit(this.serializeDateRange(this.toIsoDate(ordered.from), this.toIsoDate(ordered.to)));
+    this.valueChange.emit(
+      this.serializeDateRange(this.toIsoDate(ordered.from), this.toIsoDate(ordered.to)),
+    );
   }
 
   cancelDateRange(): void {
@@ -466,7 +524,7 @@ export class ColumnFilterRendererComponent implements OnChanges {
     const parsed = this.parseDateRange(this.value);
     this.draftDateRange = {
       from: this.isoToDate(parsed.from),
-      to: this.isoToDate(parsed.to)
+      to: this.isoToDate(parsed.to),
     };
   }
 
@@ -478,7 +536,7 @@ export class ColumnFilterRendererComponent implements OnChanges {
       const [fromRaw = '', toRaw = ''] = raw.split('..', 2);
       return {
         from: this.normalizeIsoDate(fromRaw),
-        to: this.normalizeIsoDate(toRaw)
+        to: this.normalizeIsoDate(toRaw),
       };
     }
 
@@ -537,5 +595,3 @@ export class ColumnFilterRendererComponent implements OnChanges {
     return `${year}-${month}-${day}`;
   }
 }
-
-

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
@@ -9,7 +9,14 @@ import {TranslateModule} from '@ngx-translate/core';
 @Component({
   selector: 'app-select-filter',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, TranslateModule],
+  imports: [
+    CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+    TranslateModule,
+  ],
   template: `
     <mat-form-field class="select-filter-input" appearance="outline">
       <mat-icon matPrefix>search</mat-icon>
@@ -21,49 +28,57 @@ import {TranslateModule} from '@ngx-translate/core';
         (input)="valueChange.emit(searchInput.value)"
       />
       @if (searchInput.value) {
-        <button mat-icon-button matSuffix type="button" [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate"
-                (click)="onClear(searchInput)">
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate"
+          (click)="onClear(searchInput)"
+        >
           <mat-icon>close</mat-icon>
         </button>
       }
     </mat-form-field>
   `,
-  styles: [`
-    :host {
-      display: block;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: var(--app-surface-solid);
-      padding: 8px 8px 4px;
-    }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: block;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--app-surface-solid);
+        padding: 8px 8px 4px;
+      }
 
-    .select-filter-input {
-      width: 100%;
-      --mat-form-field-container-height: 36px;
-      --mat-form-field-container-vertical-padding: 6px;
-      --mat-form-field-container-text-font: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-      --mat-form-field-container-text-size: 13px;
-    }
+      .select-filter-input {
+        width: 100%;
+        --mat-form-field-container-height: 36px;
+        --mat-form-field-container-vertical-padding: 6px;
+        --mat-form-field-container-text-font: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+        --mat-form-field-container-text-size: 13px;
+      }
 
-    :host ::ng-deep .select-filter-input .mat-mdc-input-element,
-    :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
-      font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-    }
+      :host ::ng-deep .select-filter-input .mat-mdc-input-element,
+      :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
+        font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+      }
 
-    :host ::ng-deep .select-filter-input .mat-icon {
-      font-family: 'Material Icons', sans-serif;
-      font-size: 18px;
-      line-height: 1;
-    }
+      :host ::ng-deep .select-filter-input .mat-icon {
+        font-family: 'Material Icons', sans-serif;
+        font-size: 18px;
+        line-height: 1;
+      }
 
-    :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
-      color: var(--app-muted);
-      text-transform: none;
-    }
-  `]
+      :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
+        color: var(--app-muted);
+        text-transform: none;
+      }
+    `,
+  ],
 })
 export class SelectFilterComponent {
   @Input() placeholder = 'COMMON.SEARCH';
@@ -75,5 +90,3 @@ export class SelectFilterComponent {
     input.focus();
   }
 }
-
-

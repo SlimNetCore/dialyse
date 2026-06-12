@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {TranslateModule} from '@ngx-translate/core';
 
@@ -19,113 +19,115 @@ import {TranslateModule} from '@ngx-translate/core';
       <p class="loader-text">{{ label | translate }}</p>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-      width: 100%;
-    }
-
-    .loader-shell {
-      display: grid;
-      justify-items: center;
-      gap: 12px;
-      padding: 24px 16px;
-      color: var(--app-text);
-    }
-
-    .loader-shell.overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 35;
-      align-content: center;
-      background: color-mix(in srgb, var(--app-surface-solid) 86%, transparent);
-      backdrop-filter: blur(2px);
-    }
-
-    .loader-visual {
-      position: relative;
-      width: 64px;
-      height: 64px;
-      display: grid;
-      place-items: center;
-    }
-
-    .loader-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 3px solid color-mix(in srgb, var(--app-primary) 26%, transparent);
-      border-top-color: var(--app-primary);
-      animation: loader-spin 1s linear infinite;
-    }
-
-    .loader-core {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: color-mix(in srgb, var(--app-primary-soft) 65%, var(--app-surface-solid));
-      border: 1px solid var(--app-primary-outline);
-      display: grid;
-      place-items: center;
-      box-shadow: 0 6px 16px rgba(2, 6, 23, 0.16);
-    }
-
-    .loader-core mat-icon {
-      width: 20px;
-      height: 20px;
-      font-size: 20px;
-      color: var(--app-primary);
-      animation: loader-breath 1.6s ease-in-out infinite;
-    }
-
-    .loader-pulse {
-      position: absolute;
-      inset: -6px;
-      border-radius: 50%;
-      border: 2px solid color-mix(in srgb, var(--app-primary) 35%, transparent);
-      animation: loader-ping 1.8s ease-out infinite;
-    }
-
-    .loader-text {
-      margin: 0;
-      font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      color: var(--app-muted);
-      text-align: center;
-    }
-
-    @keyframes loader-spin {
-      to {
-        transform: rotate(360deg);
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: block;
+        width: 100%;
       }
-    }
 
-    @keyframes loader-ping {
-      0% {
-        opacity: 0.75;
-        transform: scale(0.88);
+      .loader-shell {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+        padding: 24px 16px;
+        color: var(--app-text);
       }
-      100% {
-        opacity: 0;
-        transform: scale(1.18);
-      }
-    }
 
-    @keyframes loader-breath {
-      0%,
-      100% {
-        transform: scale(0.92);
+      .loader-shell.overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 35;
+        align-content: center;
+        background: color-mix(in srgb, var(--app-surface-solid) 86%, transparent);
+        backdrop-filter: blur(2px);
       }
-      50% {
-        transform: scale(1.08);
+
+      .loader-visual {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        display: grid;
+        place-items: center;
       }
-    }
-  `]
+
+      .loader-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 3px solid color-mix(in srgb, var(--app-primary) 26%, transparent);
+        border-top-color: var(--app-primary);
+        animation: loader-spin 1s linear infinite;
+      }
+
+      .loader-core {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--app-primary-soft) 65%, var(--app-surface-solid));
+        border: 1px solid var(--app-primary-outline);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 6px 16px rgba(2, 6, 23, 0.16);
+      }
+
+      .loader-core mat-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        color: var(--app-primary);
+        animation: loader-breath 1.6s ease-in-out infinite;
+      }
+
+      .loader-pulse {
+        position: absolute;
+        inset: -6px;
+        border-radius: 50%;
+        border: 2px solid color-mix(in srgb, var(--app-primary) 35%, transparent);
+        animation: loader-ping 1.8s ease-out infinite;
+      }
+
+      .loader-text {
+        margin: 0;
+        font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        color: var(--app-muted);
+        text-align: center;
+      }
+
+      @keyframes loader-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes loader-ping {
+        0% {
+          opacity: 0.75;
+          transform: scale(0.88);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.18);
+        }
+      }
+
+      @keyframes loader-breath {
+        0%,
+        100% {
+          transform: scale(0.92);
+        }
+        50% {
+          transform: scale(1.08);
+        }
+      }
+    `,
+  ],
 })
 export class HemodialysisLoaderComponent {
   @Input() label = 'COMMON.LOADING_DATA';
   @Input() mode: 'inline' | 'overlay' = 'inline';
 }
-

@@ -1,12 +1,14 @@
 import {
-  APP_INITIALIZER,
   ApplicationConfig,
   importProvidersFrom,
-  provideBrowserGlobalErrorListeners
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import {provideRouter} from '@angular/router';
 import {provideAnimations} from '@angular/platform-browser/animations';
-import {provideHttpClient, withInterceptors} from '@angular/common/http';
+import {provideHttpClient, withInterceptors, withXhr} from '@angular/common/http';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {provideTranslateHttpLoader, TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {MAT_DATE_LOCALE, MatNativeDateModule} from '@angular/material/core';
@@ -16,49 +18,42 @@ import {authInterceptor} from './core/api/auth.interceptor';
 import {AuthStore} from './core/state/auth.store';
 import {AppShellStore} from './core/state/app-shell.store';
 
-function initAuthSession(auth: {
-  initFromServer: (options?: { force?: boolean }) => Promise<boolean>;
-  centerId: () => string | null;
-}, store: {
-  switchCenter: (centerId: string) => void
-}): () => Promise<void> {
-  return async () => {
-    const onLoginRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/login');
-    if (onLoginRoute) {
-      return;
-    }
+async function initAuthSession(): Promise<void> {
+  const auth = inject(AuthStore);
+  const store = inject(AppShellStore);
 
-    await auth.initFromServer({force: true});
-    const centerId = auth.centerId();
-    if (centerId) {
-      store.switchCenter(centerId);
-    }
-  };
+  const onLoginRoute =
+    typeof window !== 'undefined' && window.location.pathname.startsWith('/login');
+  if (onLoginRoute) {
+    return;
+  }
+
+  await auth.initFromServer({force: true});
+  const centerId = auth.centerId();
+  if (centerId) {
+    store.switchCenter(centerId);
+  }
 }
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAnimations(),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([authInterceptor])),
     importProvidersFrom(
       MatNativeDateModule,
       TranslateModule.forRoot({
         defaultLanguage: 'fr',
         loader: {
           provide: TranslateLoader,
-          useClass: TranslateHttpLoader
-        }
-      })
+          useClass: TranslateHttpLoader,
+        },
+      }),
     ),
     provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
     {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initAuthSession,
-      deps: [AuthStore, AppShellStore],
-      multi: true
-    }
-  ]
+    provideAppInitializer(initAuthSession),
+  ],
 };
