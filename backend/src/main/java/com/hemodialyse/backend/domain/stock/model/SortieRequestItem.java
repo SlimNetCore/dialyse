@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * Requested article + quantity for a stock exit; the lot is resolved by FEFO.
+ * Requested article + lot + quantity for a stock exit.
  */
-public record SortieRequestItem(UUID articleId, BigDecimal quantite) {
+public record SortieRequestItem(UUID articleId, UUID lotId, BigDecimal quantite) {
 }
 

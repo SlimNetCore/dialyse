@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public record CreateBonSortieRequest(
         @NotNull UUID centerId,
-        @NotNull UUID seanceId,
+        UUID seanceId,
         UUID patientId,
         String poste,
         LocalDate dateSortie,

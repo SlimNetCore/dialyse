@@ -12,7 +12,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AuthStore} from '../../core/state/auth.store';
-import {BonSortie, StockApiService} from '../../core/api/stock-api.service';
+import {BonSortie, LotDisponible, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 
 @Component({
@@ -28,7 +28,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
       <div class="app-hero-card">
         <span class="app-eyebrow">Stock · Sortie</span>
         <h1 class="app-section-title">Bons de sortie</h1>
-        <p class="app-section-copy">Sortie FEFO (lot à péremption la plus proche), liée à une séance d'hémodialyse.</p>
+        <p class="app-section-copy">Sortie de stock par lot. Les lots sont proposes par ordre de peremption (FEFO).</p>
       </div>
 
       <mat-card>
@@ -38,20 +38,8 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="save()">
             <div class="head-row">
-              <mat-form-field appearance="outline" class="flex2">
-                <mat-label>Séance (UUID)</mat-label>
-                <input matInput formControlName="seanceId" required/>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="flex2">
-                <mat-label>Patient (UUID)</mat-label>
-                <input matInput formControlName="patientId"/>
-              </mat-form-field>
               <mat-form-field appearance="outline" class="flex1">
-                <mat-label>Poste</mat-label>
-                <input matInput formControlName="poste"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="flex1">
-                <mat-label>Date</mat-label>
+                <mat-label>Date de sortie</mat-label>
                 <input matInput [matDatepicker]="dp" formControlName="dateSortie"/>
                 <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
                 <mat-datepicker #dp></mat-datepicker>
@@ -63,15 +51,39 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                 <div [formGroupName]="$index" class="line-row">
                   <mat-form-field appearance="outline" class="flex2">
                     <mat-label>Article</mat-label>
-                    <mat-select formControlName="articleId">
+                    <mat-select formControlName="articleId" (selectionChange)="onArticleChange($index)">
                       @for (a of articles(); track a.id) {
                         <mat-option [value]="a.id">{{ a.libelle || a.nom }}</mat-option>
                       }
                     </mat-select>
                   </mat-form-field>
+                  <mat-form-field appearance="outline" class="flex2">
+                    <mat-label>Numero lot</mat-label>
+                    <mat-select formControlName="lotId" (selectionChange)="onLotChange($index)">
+                      @for (l of lotsForRow($index); track l.id) {
+                        <mat-option [value]="l.id">
+                          {{ l.numeroLot }}
+                          @if (l.datePeremption) {
+                            - exp {{ l.datePeremption | date:'dd/MM/yyyy' }}
+                          }
+                          @if (l.quantiteRestante != null) {
+                            - stock {{ l.quantiteRestante | number:'1.0-3' }}
+                          }
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Quantité</mat-label>
-                    <input matInput type="number" formControlName="quantite"/>
+                    <input matInput type="number" formControlName="quantite" (input)="onQuantiteChange($index)"/>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="flex1 pmp-field">
+                    <mat-label>PMP</mat-label>
+                    <input matInput [value]="rowPmp($index) | number:'1.0-4'" readonly tabindex="-1"/>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="flex1">
+                    <mat-label>Valeur sortie</mat-label>
+                    <input matInput [value]="rowValeur($index) | number:'1.0-4'" readonly tabindex="-1"/>
                   </mat-form-field>
                   <button mat-icon-button type="button" (click)="removeItem($index)" aria-label="Supprimer">
                     <mat-icon>delete</mat-icon>
@@ -87,7 +99,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
               </button>
               <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
                 <mat-icon>logout</mat-icon>
-                Sortir du stock (FEFO)
+                Sortir du stock
               </button>
             </div>
           </form>
@@ -108,16 +120,12 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
               <th mat-header-cell *matHeaderCellDef>Date</th>
               <td mat-cell *matCellDef="let b">{{ b.dateSortie }}</td>
             </ng-container>
-            <ng-container matColumnDef="poste">
-              <th mat-header-cell *matHeaderCellDef>Poste</th>
-              <td mat-cell *matCellDef="let b">{{ b.poste }}</td>
-            </ng-container>
             <ng-container matColumnDef="lignes">
               <th mat-header-cell *matHeaderCellDef>Lignes</th>
               <td mat-cell *matCellDef="let b">{{ b.lignes.length }}</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="cols"></tr>
-            <tr mat-row *matRowDef="let row; columns: cols"></tr>
+            <tr mat-row *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id"></tr>
           </table>
         </mat-card-content>
       </mat-card>
@@ -144,6 +152,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
       display: flex;
       gap: 8px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .flex1 {
@@ -159,21 +168,23 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
     mat-card {
       margin-top: 16px;
     }
+
+    .pmp-field {
+      opacity: 0.7;
+    }
   `],
 })
 export class BonsSortieComponent {
-  protected readonly cols = ['reference', 'date', 'poste', 'lignes'];
+  protected readonly cols = ['reference', 'date', 'lignes'];
   protected readonly bons = signal<BonSortie[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
+  protected readonly lotsByRow = signal<Record<number, LotDisponible[]>>({});
   protected readonly saving = signal(false);
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
   private readonly fb = inject(FormBuilder);
   protected readonly form: FormGroup = this.fb.group({
-    seanceId: ['', Validators.required],
-    patientId: [''],
-    poste: [''],
     dateSortie: [new Date()],
     items: this.fb.array([this.newItem()]),
   });
@@ -193,6 +204,56 @@ export class BonsSortieComponent {
 
   protected removeItem(i: number): void {
     this.items.removeAt(i);
+    const map = {...this.lotsByRow()};
+    delete map[i];
+    const reindexed: Record<number, LotDisponible[]> = {};
+    Object.keys(map)
+      .map(k => Number(k))
+      .sort((a, b) => a - b)
+      .forEach(oldIndex => {
+        reindexed[oldIndex > i ? oldIndex - 1 : oldIndex] = map[oldIndex];
+      });
+    this.lotsByRow.set(reindexed);
+  }
+
+  protected onArticleChange(i: number): void {
+    const centerId = this.auth.centerId();
+    const group = this.items.at(i) as FormGroup;
+    const articleId = group.get('articleId')?.value as string | null;
+    group.get('lotId')?.setValue(null);
+    if (!centerId || !articleId) {
+      this.setLotsForRow(i, []);
+      return;
+    }
+    this.api.listLotsDisponibles(centerId, articleId).subscribe({
+      next: lots => this.setLotsForRow(i, lots),
+      error: () => this.setLotsForRow(i, []),
+    });
+  }
+
+  protected onLotChange(_i: number): void {
+    // Le PMP/valeur sont derives automatiquement depuis le lot + quantite.
+  }
+
+  protected onQuantiteChange(_i: number): void {
+    // Le PMP/valeur sont derives automatiquement depuis le lot + quantite.
+  }
+
+  protected lotsForRow(i: number): LotDisponible[] {
+    return this.lotsByRow()[i] ?? [];
+  }
+
+  protected rowPmp(i: number): number {
+    const group = this.items.at(i) as FormGroup;
+    const lotId = group.get('lotId')?.value as string | null;
+    const lot = this.lotsForRow(i).find(l => l.id === lotId);
+    return Number(lot?.pmp ?? 0);
+  }
+
+  protected rowValeur(i: number): number {
+    const group = this.items.at(i) as FormGroup;
+    const qte = Number(group.get('quantite')?.value ?? 0);
+    return qte * this.rowPmp(i);
   }
 
   protected save(): void {
@@ -203,16 +264,18 @@ export class BonsSortieComponent {
     this.saving.set(true);
     this.api.createBonSortie({
       centerId,
-      seanceId: this.form.value.seanceId,
-      patientId: this.form.value.patientId || undefined,
-      poste: this.form.value.poste || undefined,
       dateSortie: this.toIso(this.form.value.dateSortie),
       userId: this.auth.username() ?? undefined,
-      items: this.items.value,
+      items: this.items.controls.map(c => ({
+        articleId: c.get('articleId')?.value,
+        lotId: c.get('lotId')?.value,
+        quantite: Number(c.get('quantite')?.value),
+      })),
     }).subscribe({
       next: () => {
-        this.snack.open('Sortie enregistrée (FEFO)', 'OK', {duration: 2500});
+        this.snack.open('Sortie enregistree', 'OK', {duration: 2500});
         this.form.setControl('items', this.fb.array([this.newItem()]));
+        this.lotsByRow.set({});
         this.reload();
       },
       complete: () => this.saving.set(false),
@@ -227,8 +290,13 @@ export class BonsSortieComponent {
   private newItem(): FormGroup {
     return this.fb.group({
       articleId: [null, Validators.required],
+      lotId: [null, Validators.required],
       quantite: [1, [Validators.required, Validators.min(0.0001)]],
     });
+  }
+
+  private setLotsForRow(i: number, lots: LotDisponible[]): void {
+    this.lotsByRow.set({...this.lotsByRow(), [i]: lots});
   }
 
   private reload(): void {

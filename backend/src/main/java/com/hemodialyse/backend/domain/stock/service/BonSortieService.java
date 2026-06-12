@@ -19,6 +19,8 @@ import java.util.UUID;
 @Transactional
 public class BonSortieService implements BonSortieUseCase {
 
+    private static final UUID DEFAULT_SEANCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
     private final BonSortieRepositoryPort repo;
     private final LotRepositoryPort lotRepo;
     private final StockMovementRepositoryPort movementRepo;
@@ -43,53 +45,43 @@ public class BonSortieService implements BonSortieUseCase {
     @Override
     public BonSortie create(CenterId centerId, UUID seanceId, UUID patientId, String poste,
                             LocalDate dateSortie, List<SortieRequestItem> items, String userId) {
-        if (seanceId == null) {
-            throw new IllegalArgumentException("Le lien vers la seance d'hemodialyse est obligatoire");
-        }
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("Aucun article a sortir");
         }
         String by = userId != null ? userId : "system";
+        UUID effectiveSeanceId = seanceId != null ? seanceId : DEFAULT_SEANCE_ID;
         String reference = sequence.next(centerId, "SEQ_BS");
-        BonSortie bon = BonSortie.create(centerId.value(), reference, seanceId, patientId, poste, dateSortie, by);
+        BonSortie bon = BonSortie.create(centerId.value(), reference, effectiveSeanceId, patientId, poste, dateSortie, by);
 
         Set<UUID> articlesTouches = new LinkedHashSet<>();
 
         for (SortieRequestItem item : items) {
-            if (item.articleId() == null || item.quantite() == null || item.quantite().signum() <= 0) {
+            if (item.articleId() == null || item.lotId() == null || item.quantite() == null || item.quantite().signum() <= 0) {
                 throw new IllegalArgumentException("Ligne de sortie invalide");
             }
             Article article = articleRepo.findById(item.articleId(), centerId)
                     .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + item.articleId()));
-            BigDecimal pmpCourant = article.getPmpCourant() != null ? article.getPmpCourant() : BigDecimal.ZERO;
 
-            BigDecimal restant = item.quantite();
-            List<Lot> lotsFefo = lotRepo.findAvailableByArticleFefo(item.articleId(), centerId);
-
-            for (Lot lot : lotsFefo) {
-                if (restant.signum() <= 0) {
-                    break;
-                }
-                BigDecimal dispo = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
-                if (dispo.signum() <= 0) {
-                    continue;
-                }
-                BigDecimal aPrelever = dispo.min(restant);
-
-                lot.consommer(aPrelever);
-                lotRepo.save(lot);
-
-                bon.ajouterLigne(new LigneSortie(UUID.randomUUID(), item.articleId(), lot.getId(), aPrelever, pmpCourant));
-
-                movementRepo.save(StockMovement.sortieLot(centerId.value(), item.articleId(), seanceId,
-                        lot.getId(), aPrelever, pmpCourant, by));
-
-                restant = restant.subtract(aPrelever);
+            Lot lot = lotRepo.findById(item.lotId(), centerId)
+                    .orElseThrow(() -> new IllegalArgumentException("Lot introuvable: " + item.lotId()));
+            if (!item.articleId().equals(lot.getArticleId())) {
+                throw new IllegalArgumentException("Le lot choisi n'appartient pas a l'article " + article.getCode());
             }
 
-            if (restant.signum() > 0) {
-                throw new IllegalStateException("Stock insuffisant (FEFO) pour l'article " + article.getCode());
+            BigDecimal dispo = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
+            if (dispo.compareTo(item.quantite()) < 0) {
+                throw new IllegalStateException("Stock insuffisant sur le lot " + lot.getNumeroLot());
             }
+
+            BigDecimal pmpApplique = lot.getPmp() != null ? lot.getPmp() : BigDecimal.ZERO;
+            lot.consommer(item.quantite());
+            lotRepo.save(lot);
+
+            bon.ajouterLigne(new LigneSortie(UUID.randomUUID(), item.articleId(), lot.getId(), item.quantite(), pmpApplique));
+
+            movementRepo.save(StockMovement.sortieLot(centerId.value(), item.articleId(), effectiveSeanceId,
+                    lot.getId(), item.quantite(), pmpApplique, by));
+
             articlesTouches.add(item.articleId());
         }
 

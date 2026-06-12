@@ -65,7 +65,16 @@ export interface BonReception {
 
 export interface SortieItem {
   articleId: string;
+  lotId: string;
   quantite: number;
+}
+
+export interface LotDisponible {
+  id: string;
+  numeroLot: string;
+  datePeremption?: string;
+  pmp?: number;
+  quantiteRestante?: number;
 }
 
 export interface BonSortie {
@@ -238,7 +247,7 @@ export class StockApiService {
 
   createBonSortie(payload: {
     centerId: string;
-    seanceId: string;
+    seanceId?: string;
     patientId?: string;
     poste?: string;
     dateSortie?: string;
@@ -246,6 +255,11 @@ export class StockApiService {
     items: SortieItem[];
   }) {
     return this.http.post<BonSortie>(`${this.base}/bons-sortie`, payload);
+  }
+
+  listLotsDisponibles(centerId: string, articleId: string): Observable<LotDisponible[]> {
+    const params = new HttpParams().set('centerId', centerId).set('articleId', articleId);
+    return this.http.get<LotDisponible[]>(`${this.base}/bons-sortie/lots-disponibles`, {params});
   }
 
   // --- Dashboard ---

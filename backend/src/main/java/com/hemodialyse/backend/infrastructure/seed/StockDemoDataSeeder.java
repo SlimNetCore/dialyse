@@ -43,6 +43,7 @@ public class StockDemoDataSeeder {
     ApplicationRunner stockDemoDataRunner(FournisseurRepositoryPort fournisseurRepo,
                                           EmplacementRepositoryPort emplacementRepo,
                                           ArticleRepositoryPort articleRepo,
+                                          LotRepositoryPort lotRepositoryPort,
                                           BonCommandeUseCase bonCommandeUseCase,
                                           BonReceptionUseCase bonReceptionUseCase,
                                           BonSortieUseCase bonSortieUseCase) {
@@ -105,10 +106,17 @@ public class StockDemoDataSeeder {
             bonReceptionUseCase.valider(center, br2.getId(), SEED_USER);
 
             // --- Bon de sortie (BS) FEFO lie a une seance ---
+            UUID lotDialyseur = lotRepositoryPort.findAvailableByArticleFefo(dialyseur, center).stream().findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Lot introuvable pour " + dialyseur)).getId();
+            UUID lotLigneAv = lotRepositoryPort.findAvailableByArticleFefo(ligneAv, center).stream().findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Lot introuvable pour " + ligneAv)).getId();
+            UUID lotAiguille = lotRepositoryPort.findAvailableByArticleFefo(aiguille, center).stream().findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Lot introuvable pour " + aiguille)).getId();
+
             bonSortieUseCase.create(center, UUID.randomUUID(), UUID.randomUUID(), "Poste 1", LocalDate.now(), List.of(
-                    new SortieRequestItem(dialyseur, bd("10")),
-                    new SortieRequestItem(ligneAv, bd("20")),
-                    new SortieRequestItem(aiguille, bd("30"))
+                    new SortieRequestItem(dialyseur, lotDialyseur, bd("10")),
+                    new SortieRequestItem(ligneAv, lotLigneAv, bd("20")),
+                    new SortieRequestItem(aiguille, lotAiguille, bd("30"))
             ), SEED_USER);
 
             log.info("[STOCK][SEED] Jeu de donnees de demonstration cree (3 fournisseurs, 6 articles, 2 BR, 1 BL, 1 BS).");

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record SortieItemDto(
         UUID articleId,
+        UUID lotId,
         BigDecimal quantite
 ) {
 }
