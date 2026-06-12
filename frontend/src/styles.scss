@@ -409,8 +409,42 @@ a {
   --mdc-outlined-text-field-focus-caret-color: var(--app-primary);
   --mat-select-enabled-trigger-text-color: var(--app-text);
   --mat-select-placeholder-text-color: var(--app-muted);
-  --mat-form-field-container-text-size: 13px;
+  --mat-form-field-container-text-size: 12px;
   --mat-form-field-container-text-font: 'Manrope';
+  /* Harmonized standard control height (reference: fiche patient = 40px) */
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
+}
+
+/* ===========================================================================
+   GLOBAL HARMONIZED FIELD SIZING
+   All input/select/date controls across the app share the same 40px height
+   as the patient form (fiche patient). Multi-line textareas are excluded and
+   grow naturally.
+   =========================================================================== */
+.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.mat-mdc-form-field:not(.textarea-field):not(:has(textarea)) .mat-mdc-form-field-infix {
+  min-height: 40px;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+/* Multi-line fields: keep a comfortable, consistent default height */
+.mat-mdc-form-field.textarea-field,
+.mat-mdc-form-field:has(textarea) {
+  --mat-form-field-container-height: 96px;
+  --mat-form-field-container-vertical-padding: 10px;
+}
+
+.mat-mdc-form-field.textarea-field .mat-mdc-form-field-infix,
+.mat-mdc-form-field:has(textarea) .mat-mdc-form-field-infix {
+  min-height: 96px;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
 }
 
 .mdc-text-field--outlined:not(.mdc-text-field--disabled) {
@@ -594,59 +628,13 @@ a {
   color: var(--app-text);
 }
 
-/* Compact mode used by patient wizard/form pages */
-.patient-form-compact .mat-mdc-form-field,
-.patient-page .mat-mdc-form-field {
-  font-size: 12px;
-  /* Material tokens: keep same control height for input/date/select */
-  --mat-form-field-container-height: 40px;
-  --mat-form-field-container-vertical-padding: 8px;
-}
-
-.patient-form-compact .mat-mdc-text-field-wrapper,
-.patient-page .mat-mdc-text-field-wrapper {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.patient-form-compact .mat-mdc-form-field-infix,
-.patient-page .mat-mdc-form-field-infix {
-  min-height: 40px;
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
-}
-
+/* Compact mode used by patient wizard/form pages.
+   Field sizing is now global (see GLOBAL HARMONIZED FIELD SIZING);
+   only the subscript collapse remains specific here. */
 .patient-form-compact .mat-mdc-form-field-subscript-wrapper {
   height: 0;
 }
 
-/* Standard field sizing for cahier de dialyse steps */
-.cahier-field-size .mat-mdc-form-field {
-  --mat-form-field-container-height: 40px;
-  --mat-form-field-container-vertical-padding: 8px;
-}
-
-.cahier-field-size .mat-mdc-text-field-wrapper {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.cahier-field-size .mat-mdc-form-field-infix {
-  min-height: 40px;
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
-}
-
-.cahier-field-size .textarea-field {
-  --mat-form-field-container-height: 96px;
-  --mat-form-field-container-vertical-padding: 10px;
-}
-
-.cahier-field-size .textarea-field .mat-mdc-form-field-infix {
-  min-height: 96px;
-  padding-top: 10px !important;
-  padding-bottom: 10px !important;
-}
 
 /* Horizontal centering for placeholders/values inside patient form controls */
 .patient-form-compact .mat-mdc-input-element,

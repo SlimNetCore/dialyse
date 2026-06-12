@@ -54,16 +54,16 @@ import {TranslateModule} from '@ngx-translate/core';
 
       .select-filter-input {
         width: 100%;
-        --mat-form-field-container-height: 36px;
-        --mat-form-field-container-vertical-padding: 6px;
+        --mat-form-field-container-height: 40px;
+        --mat-form-field-container-vertical-padding: 8px;
         --mat-form-field-container-text-font: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-        --mat-form-field-container-text-size: 13px;
+        --mat-form-field-container-text-size: 12px;
       }
 
       :host ::ng-deep .select-filter-input .mat-mdc-input-element,
       :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
         font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
       }
 
