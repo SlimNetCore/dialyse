@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 
@@ -95,6 +95,35 @@ export type CreatePecPayload = {
   dateFinDemande: string;
 };
 
+export type CreateSeancePayload = {
+  centerId: string;
+  patientId: string;
+  dateSeance: string;
+};
+
+export type UpsertVoletParamedicalPayload = {
+  centerId: string;
+  poidsAvantKg?: number | null;
+  poidsApresKg?: number | null;
+  taAvant?: string | null;
+  taApres?: string | null;
+  dureeMinutes?: number | null;
+  debitSangMlMin?: number | null;
+  ultrafiltrationMl?: number | null;
+  anticoagulant?: string | null;
+  typeDialysat?: string | null;
+  incidents?: string | null;
+};
+
+export type ValidateSeancePayload = {
+  centerId: string;
+  userId: string;
+  consommations: Array<{
+    articleId: string;
+    quantite: number;
+  }>;
+};
+
 export type DashboardStats = {
   patientCount: number;
   pecCree: number;
@@ -102,6 +131,23 @@ export type DashboardStats = {
   pecExpiring: number;
   attestationTotal: number;
   attestationExpiring: number;
+};
+
+export type PatientParamedicalStats = {
+  seanceCount: number;
+  avgPoidsAvantKg: number;
+  avgPoidsApresKg: number;
+  avgUfReelleMl: number;
+  poidsEvolution: Array<Record<string, unknown>>;
+  taEvolution: Array<Record<string, unknown>>;
+};
+
+export type PatientMedicalStats = {
+  avgHbGDl: number;
+  avgKtV: number;
+  avgFerritineNgMl: number;
+  hbTrend: Array<Record<string, unknown>>;
+  epoTrend: Array<Record<string, unknown>>;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -180,6 +226,34 @@ export class BackendApiService {
 
   createPec(payload: CreatePecPayload): Observable<{ id: string; status: PecStatus }> {
     return this.http.post<{ id: string; status: PecStatus }>(`${this.baseUrl}/pec`, payload);
+  }
+
+  createSeance(payload: CreateSeancePayload): Observable<{ id: string; status: string; dateSeance: string }> {
+    return this.http.post<{ id: string; status: string; dateSeance: string }>(`${this.baseUrl}/seances`, payload);
+  }
+
+  upsertVoletParamedical(seanceId: string, payload: UpsertVoletParamedicalPayload): Observable<{
+    id: string;
+    seanceId: string;
+    updatedAt: string
+  }> {
+    return this.http.put<{
+      id: string;
+      seanceId: string;
+      updatedAt: string
+    }>(`${this.baseUrl}/seances/${seanceId}/volet-paramedical`, payload);
+  }
+
+  validateSeance(seanceId: string, payload: ValidateSeancePayload): Observable<{
+    id: string;
+    status: string;
+    validatedAt: string
+  }> {
+    return this.http.post<{
+      id: string;
+      status: string;
+      validatedAt: string
+    }>(`${this.baseUrl}/seances/${seanceId}/valider`, payload);
   }
 
   validatePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {
@@ -263,6 +337,31 @@ export class BackendApiService {
   getDashboardStats(centerId: string, expirationDays: number): Observable<DashboardStats> {
     const params = new HttpParams().set('centerId', centerId).set('expirationDays', expirationDays.toString());
     return this.http.get<DashboardStats>(`${this.baseUrl}/dashboard/stats`, {params});
+  }
+
+  getPatientParamedicalStats(centerId: string, patientId: string, from?: string, to?: string): Observable<PatientParamedicalStats> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<PatientParamedicalStats>(`${this.baseUrl}/patients/${patientId}/stats/paramedical`, {params});
+  }
+
+  getPatientMedicalStats(centerId: string, patientId: string, from?: string, to?: string): Observable<PatientMedicalStats> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<PatientMedicalStats>(`${this.baseUrl}/patients/${patientId}/stats/medical`, {params});
+  }
+
+  exportPatientStats(centerId: string, patientId: string, format: 'csv' | 'pdf', from?: string, to?: string): Observable<HttpResponse<Blob>> {
+    let params = new HttpParams().set('centerId', centerId).set('format', format);
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get(`${this.baseUrl}/patients/${patientId}/stats/export`, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 
   // ─── Documents & Impression (Jasper) ──────────────────────────────

@@ -49,6 +49,14 @@ const mapCategorieTransport = (item: RefItem): ReferentialDropdownItem => ({
   label: item.libelle ?? item.nom ?? item.code ?? item.id
 });
 
+const mapArticle = (item: RefItem): ReferentialDropdownItem => ({
+  ...item,
+  id: item.id,
+  label: `${item.code ?? ''} - ${item.nom ?? ''}${item.libelle ? ` (${item.libelle})` : ''}`
+    .trim()
+    .replace(/^\s*-\s*/, '') || item.id
+});
+
 export const ForfaitsStore = createReferentialStore<RefItem, ReferentialDropdownItem>({
   storeName: 'ForfaitsStore',
   load: (api, centerId) => api.getForfaits(centerId),
@@ -106,5 +114,11 @@ export const CaissesStore = createReferentialStore<RefItem, ReferentialDropdownI
   storeName: 'CaissesStore',
   load: (api, centerId) => api.getCaisses(centerId),
   mapItem: mapCodeAndName
+});
+
+export const ArticlesStore = createReferentialStore<RefItem, ReferentialDropdownItem>({
+  storeName: 'ArticlesStore',
+  load: (api, centerId) => api.getArticles(centerId),
+  mapItem: mapArticle
 });
 

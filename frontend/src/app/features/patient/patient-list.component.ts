@@ -1,5 +1,6 @@
 import {Component, computed, effect, EventEmitter, HostListener, inject, Output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -470,10 +471,20 @@ type FilterType = 'text' | 'date';
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENT_LIST.COL_ACTIONS' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
                   <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate"
-                          (click)="selectPatient.emit(row)">
+                          (click)="$event.stopPropagation(); selectPatient.emit(row)">
                     <mat-icon>visibility</mat-icon>
                   </button>
-                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate" (click)="printFiche(row)"
+                  <button mat-icon-button color="primary" [matTooltip]="'CAHIER.TITLE' | translate"
+                          [attr.data-testid]="'open-cahier-' + row.id"
+                          (click)="$event.stopPropagation(); openCahier(row)">
+                    <mat-icon>description</mat-icon>
+                  </button>
+                  <button mat-icon-button color="primary" [matTooltip]="'PATIENT_STATS.OPEN' | translate"
+                          [attr.data-testid]="'open-stats-' + row.id"
+                          (click)="$event.stopPropagation(); viewStats.emit(row)">
+                    <mat-icon>analytics</mat-icon>
+                  </button>
+                  <button mat-icon-button [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate" (click)="$event.stopPropagation(); printFiche(row)"
                           color="primary" [disabled]="printingRowId() === row.id">
                     @if (printingRowId() === row.id) {
                       <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
@@ -490,32 +501,44 @@ type FilterType = 'text' | 'date';
               <ng-container *matRowDef="let row; columns: displayedColumns();">
                 <tr mat-row class="patient-row"
                     [class.patient-row-recent]="isRecentRow(row.id)"
-                    [class.patient-row-selected]="selectedRowId() === row.id && isMobileView()"
+                    [class.patient-row-selected]="selectedRowId() === row.id"
                     (click)="onRowClick(row)"
                     [attr.data-row-id]="row.id"></tr>
                 <tr class="floating-actions-row" *ngIf="selectedRowId() === row.id && isMobileView()">
-                  <td [attr.colspan]="displayedColumns().length">
-                    <div class="floating-actions">
-                      <button mat-stroked-button color="primary" [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate"
-                              (click)="selectPatient.emit(row); selectedRowId.set(null)">
-                        <mat-icon>visibility</mat-icon>
-                        {{ 'PATIENT_LIST.BTN_VIEW' | translate }}
-                      </button>
-                      <button mat-stroked-button color="primary" [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate"
-                              (click)="printFiche(row); selectedRowId.set(null)"
-                              [disabled]="printingRowId() === row.id">
-                        @if (printingRowId() === row.id) {
-                          <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
-                        } @else {
-                          <mat-icon>print</mat-icon>
-                        }
-                        {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
-                      </button>
-                      <app-patient-qr-card [patientId]="row.id" [nom]="row.nom" [prenom]="row.prenom"
-                                           [numeroAssurance]="row.numeroAssurance" [dateAdmission]="row.dateAdmission"/>
-                    </div>
-                  </td>
-                </tr>
+                   <td [attr.colspan]="displayedColumns().length">
+                     <div class="floating-actions">
+                       <button mat-stroked-button color="primary" [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate"
+                               (click)="selectPatient.emit(row); selectedRowId.set(null)">
+                         <mat-icon>visibility</mat-icon>
+                         {{ 'PATIENT_LIST.BTN_VIEW' | translate }}
+                       </button>
+                       <button mat-stroked-button color="primary" [matTooltip]="'CAHIER.TITLE' | translate"
+                               [attr.data-testid]="'open-cahier-mobile-' + row.id"
+                               (click)="openCahier(row); selectedRowId.set(null)">
+                         <mat-icon>description</mat-icon>
+                         {{ 'CAHIER.TITLE' | translate }}
+                       </button>
+                       <button mat-stroked-button color="primary" [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate"
+                               (click)="printFiche(row); selectedRowId.set(null)"
+                               [disabled]="printingRowId() === row.id">
+                         @if (printingRowId() === row.id) {
+                           <mat-progress-spinner class="btn-loader" mode="indeterminate" diameter="16" strokeWidth="2"/>
+                         } @else {
+                           <mat-icon>print</mat-icon>
+                         }
+                         {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
+                       </button>
+                       <button mat-stroked-button color="primary" [matTooltip]="'PATIENT_STATS.OPEN' | translate"
+                               [attr.data-testid]="'open-stats-mobile-' + row.id"
+                               (click)="viewStats.emit(row); selectedRowId.set(null)">
+                         <mat-icon>analytics</mat-icon>
+                         {{ 'PATIENT_STATS.OPEN' | translate }}
+                       </button>
+                       <app-patient-qr-card [patientId]="row.id" [nom]="row.nom" [prenom]="row.prenom"
+                                            [numeroAssurance]="row.numeroAssurance" [dateAdmission]="row.dateAdmission"/>
+                     </div>
+                   </td>
+                 </tr>
               </ng-container>
               <tr class="mat-mdc-row" *matNoDataRow>
                 <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns().length">
@@ -616,6 +639,10 @@ type FilterType = 'text' | 'date';
 
     .patient-row:hover {
       background: var(--app-row-hover) !important;
+    }
+
+    .patient-row {
+      cursor: default;
     }
 
     .patient-row-recent {
@@ -966,9 +993,11 @@ type FilterType = 'text' | 'date';
 export class PatientListComponent {
   @Output() newPatient = new EventEmitter<void>();
   @Output() selectPatient = new EventEmitter<PatientRow>();
+  @Output() viewStats = new EventEmitter<PatientRow>();
 
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
+  private readonly router = inject(Router);
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly isMobileView = signal(typeof window !== 'undefined' ? window.innerWidth <= 760 : false);
   readonly selectedRowId = signal<string | null>(null);
@@ -1116,13 +1145,8 @@ export class PatientListComponent {
   }
 
   onRowClick(row: PatientRow): void {
-    if (this.isMobileView()) {
-      // Mode mobile : afficher les actions flottantes
-      this.selectedRowId.set(this.selectedRowId() === row.id ? null : row.id);
-    } else {
-      // Mode desktop : naviguer immédiatement vers la fiche
-      this.selectPatient.emit(row);
-    }
+    // Le clic sur la ligne ne doit plus ouvrir la fiche patient.
+    this.selectedRowId.set(this.selectedRowId() === row.id ? null : row.id);
   }
 
   clearAllColumnFilters(): void {
@@ -1155,6 +1179,10 @@ export class PatientListComponent {
     this.patientListStore.printFiche({centerId, patientId: patient.id});
     // Auto-clear after 10s
     setTimeout(() => this.patientListStore.setPrintingRowId(null), 10000);
+  }
+
+  openCahier(patient: PatientRow): void {
+    this.router.navigate(['/patients', patient.id, 'cahier'], {queryParams: {mode: 'recap'}});
   }
 
   printList(): void {

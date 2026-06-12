@@ -95,7 +95,7 @@ import {LoginPageStore} from './state/login-page.store';
 
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{ 'LOGIN.CENTER' | translate }}</mat-label>
-              <mat-select [(ngModel)]="selectedCenter">
+              <mat-select data-testid="login-center-select" [(ngModel)]="selectedCenter">
                 @for (c of store.availableCenters(); track c.id) {
                   <mat-option [value]="c.id">{{ c.name }}</mat-option>
                 }
@@ -104,15 +104,15 @@ import {LoginPageStore} from './state/login-page.store';
 
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{ 'LOGIN.USERNAME' | translate }}</mat-label>
-              <input matInput [(ngModel)]="username" />
+              <input matInput data-testid="login-username" [(ngModel)]="username" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
-              <input matInput type="password" [(ngModel)]="password" (keydown.enter)="doLogin()" />
+              <input matInput data-testid="login-password" type="password" [(ngModel)]="password" (keydown.enter)="doLogin()" />
             </mat-form-field>
 
-            <button mat-flat-button class="login-btn" (click)="doLogin()" [disabled]="loading()">
+            <button mat-flat-button class="login-btn" data-testid="login-submit" (click)="doLogin()" [disabled]="loading()">
               <mat-icon>login</mat-icon> {{ 'LOGIN.SUBMIT' | translate }}
             </button>
           </mat-card-content>

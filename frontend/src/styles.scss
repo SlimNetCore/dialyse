@@ -620,6 +620,34 @@ a {
   height: 0;
 }
 
+/* Standard field sizing for cahier de dialyse steps */
+.cahier-field-size .mat-mdc-form-field {
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
+}
+
+.cahier-field-size .mat-mdc-text-field-wrapper {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.cahier-field-size .mat-mdc-form-field-infix {
+  min-height: 40px;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.cahier-field-size .textarea-field {
+  --mat-form-field-container-height: 96px;
+  --mat-form-field-container-vertical-padding: 10px;
+}
+
+.cahier-field-size .textarea-field .mat-mdc-form-field-infix {
+  min-height: 96px;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
 /* Horizontal centering for placeholders/values inside patient form controls */
 .patient-form-compact .mat-mdc-input-element,
 .patient-page .mat-mdc-input-element,

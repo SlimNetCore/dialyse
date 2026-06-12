@@ -2,7 +2,9 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
 import com.hemodialyse.backend.infrastructure.web.dto.ModeleDocumentDto;
+import com.hemodialyse.backend.infrastructure.web.dto.request.DocumentSearchRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.PrintRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -59,6 +61,29 @@ public class DocumentRestController {
         var rows = typeDocument != null
                 ? jdbc.queryForList(sql, centerId, typeDocument)
                 : jdbc.queryForList(sql, centerId);
+        return ResponseEntity.ok(rows);
+    }
+
+    /**
+     * Recherche des modèles avec critères structurés
+     */
+    @PostMapping("/modeles/search")
+    public ResponseEntity<?> searchModeles(@RequestBody @Valid DocumentSearchRequest criteria) {
+        String sql = "SELECT id, center_id, code, libelle, type_document, chemin_jrxml, " +
+                "format_impression, description, active FROM modele_document " +
+                "WHERE center_id = ? " +
+                (criteria.typeDocument() != null ? "AND type_document = ? " : "") +
+                "ORDER BY libelle " +
+                "LIMIT ? OFFSET ?";
+
+        java.util.List<?> rows;
+        if (criteria.typeDocument() != null) {
+            rows = jdbc.queryForList(sql, criteria.centerId(), criteria.typeDocument(),
+                    criteria.size(), criteria.page() * criteria.size());
+        } else {
+            rows = jdbc.queryForList(sql, criteria.centerId(),
+                    criteria.size(), criteria.page() * criteria.size());
+        }
         return ResponseEntity.ok(rows);
     }
 

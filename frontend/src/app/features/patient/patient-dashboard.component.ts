@@ -21,7 +21,8 @@ import {PatientListComponent, PatientRow} from './patient-list.component';
     </div>
     <app-patient-list
       (newPatient)="router.navigate(['/patients/new'])"
-      (selectPatient)="onSelect($event)" />
+      (selectPatient)="onSelect($event)"
+      (viewStats)="onStats($event)" />
   `,
   styles: [`
     .dashboard-actions {
@@ -52,5 +53,9 @@ export class PatientDashboardComponent {
 
   onSelect(row: PatientRow): void {
     this.router.navigate(['/patients', row.id]);
+  }
+
+  onStats(row: PatientRow): void {
+    this.router.navigate(['/patients', row.id, 'stats']);
   }
 }

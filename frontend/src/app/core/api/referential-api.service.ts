@@ -40,4 +40,8 @@ export class ReferentialApiService {
   getCaisses(centerId: string) { return this.get('caisses', centerId); }
   getCategoriesTransport(centerId: string) { return this.get('categories-transport', centerId); }
   getForfaits(centerId: string) { return this.get('forfaits', centerId); }
+
+  getArticles(centerId: string) {
+    return this.get('articles', centerId);
+  }
 }

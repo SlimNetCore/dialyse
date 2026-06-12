@@ -18,6 +18,8 @@ public interface ReferentialRepositoryPort {
     List<RefItem> findCategoriesTransport(CenterId centerId);
     List<RefItem> findForfaits(CenterId centerId);
 
+    List<RefItem> findArticles(CenterId centerId);
+
     List<CentrePayeurDetail> findCentresPayeursDetails(CenterId centerId);
 
     /** Simple read-only DTO for referential items */

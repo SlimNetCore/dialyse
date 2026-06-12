@@ -91,6 +91,16 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
     }
 
     @Override
+    @Cacheable(cacheNames = "ref.articles", key = "#c.value().toString()")
+    public List<RefItem> findArticles(CenterId c) {
+        return jdbc.query(
+                "SELECT id, code, libelle, null, null, unite FROM articles WHERE center_id = ? AND active = true ORDER BY libelle",
+                (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3), null, null, rs.getString(6)),
+                c.value()
+        );
+    }
+
+    @Override
     @Cacheable(cacheNames = "ref.centresPayeursDetails", key = "#c.value().toString()")
     public List<CentrePayeurDetail> findCentresPayeursDetails(CenterId c) {
         return jdbc.query(

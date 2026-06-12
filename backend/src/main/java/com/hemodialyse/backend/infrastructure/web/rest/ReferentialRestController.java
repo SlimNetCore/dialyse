@@ -66,6 +66,11 @@ public class ReferentialRestController {
         return ResponseEntity.ok(useCase.forfaits(CenterId.of(centerId)));
     }
 
+    @GetMapping("/articles")
+    public ResponseEntity<?> articles(@RequestParam UUID centerId) {
+        return ResponseEntity.ok(useCase.articles(CenterId.of(centerId)));
+    }
+
     @GetMapping("/centres-payeurs-details")
     @Cacheable(cacheNames = "ref.centresPayeursDetails", key = "#centerId.toString()")
     public ResponseEntity<?> centresPayeursDetails(@RequestParam UUID centerId) {

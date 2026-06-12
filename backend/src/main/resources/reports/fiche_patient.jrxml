@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              name="fiche_patient" pageWidth="595" pageHeight="842"
+              columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30">
+
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="patientId" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[
+        SELECT p.code_patient, p.civilite, p.nom, p.prenom, p.sexe, p.groupe_sanguin,
+               p.date_naissance, p.lieu_naissance, p.date_admission, p.nombre_enfants,
+               p.situation_familiale, p.profession1, p.adresse,
+               p.tel_personnel, p.tel_mobile, p.tel_bureau, p.email,
+               p.numero_assurance, p.etat_patient, p.qualite_assure, p.observation,
+               p.sous_kt, p.epo_enabled, p.epo_date, p.fer_enabled, p.fer_date,
+               p.assure_nom, p.assure_prenom, p.assure_sexe, p.assure_date_naissance,
+               p.assure_tel_personnel, p.assure_adresse, p.assure_groupe_sanguin,
+               c.name AS center_name
+        FROM patients p
+        LEFT JOIN centers c ON c.id = p.center_id
+        WHERE p.id = CAST($P{patientId} AS UUID)
+          AND p.center_id = CAST($P{CENTER_ID} AS UUID)
+        ]]>
+    </queryString>
+
+    <field name="CODE_PATIENT" class="java.lang.String"/>
+    <field name="CIVILITE" class="java.lang.String"/>
+    <field name="NOM" class="java.lang.String"/>
+    <field name="PRENOM" class="java.lang.String"/>
+    <field name="SEXE" class="java.lang.String"/>
+    <field name="GROUPE_SANGUIN" class="java.lang.String"/>
+    <field name="DATE_NAISSANCE" class="java.sql.Date"/>
+    <field name="LIEU_NAISSANCE" class="java.lang.String"/>
+    <field name="DATE_ADMISSION" class="java.sql.Date"/>
+    <field name="NOMBRE_ENFANTS" class="java.lang.Integer"/>
+    <field name="SITUATION_FAMILIALE" class="java.lang.String"/>
+    <field name="PROFESSION1" class="java.lang.String"/>
+    <field name="ADRESSE" class="java.lang.String"/>
+    <field name="TEL_PERSONNEL" class="java.lang.String"/>
+    <field name="TEL_MOBILE" class="java.lang.String"/>
+    <field name="TEL_BUREAU" class="java.lang.String"/>
+    <field name="EMAIL" class="java.lang.String"/>
+    <field name="NUMERO_ASSURANCE" class="java.lang.String"/>
+    <field name="ETAT_PATIENT" class="java.lang.String"/>
+    <field name="QUALITE_ASSURE" class="java.lang.String"/>
+    <field name="OBSERVATION" class="java.lang.String"/>
+    <field name="SOUS_KT" class="java.lang.Boolean"/>
+    <field name="ASSURE_NOM" class="java.lang.String"/>
+    <field name="ASSURE_PRENOM" class="java.lang.String"/>
+    <field name="CENTER_NAME" class="java.lang.String"/>
+
+    <title>
+        <band height="80">
+            <textField>
+                <reportElement x="0" y="0" width="535" height="30"/>
+                <textElement textAlignment="Center">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CENTER_NAME}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="35" width="535" height="24"/>
+                <textElement textAlignment="Center">
+                    <font size="14" isBold="true"/>
+                </textElement>
+                <text><![CDATA[FICHE SIGNALÉTIQUE DU PATIENT]]></text>
+            </staticText>
+            <line>
+                <reportElement x="0" y="65" width="535" height="1"/>
+            </line>
+        </band>
+    </title>
+
+    <detail>
+        <band height="600">
+            <!-- Identité -->
+            <staticText>
+                <reportElement x="0" y="10" width="535" height="20" backcolor="#E8F5E9" mode="Opaque"/>
+                <textElement>
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[  Identité du patient]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="0" y="35" width="100" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Code patient :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="105" y="35" width="160" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CODE_PATIENT}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="270" y="35" width="80" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[N° Assurance :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="355" y="35" width="180" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{NUMERO_ASSURANCE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="55" width="60" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Civilité :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="65" y="55" width="80" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CIVILITE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="150" y="55" width="40" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Nom :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="195" y="55" width="130" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{NOM}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="330" y="55" width="55" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Prénom :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="390" y="55" width="145" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{PRENOM}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="75" width="40" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Sexe :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="45" y="75" width="80" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{SEXE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="130" y="75" width="90" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Gr. sanguin :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="225" y="75" width="50" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{GROUPE_SANGUIN}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="280" y="75" width="100" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Date naissance :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="385" y="75" width="150" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{DATE_NAISSANCE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="95" width="100" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Lieu naissance :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="105" y="95" width="160" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{LIEU_NAISSANCE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="270" y="95" width="100" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Date admission :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="375" y="95" width="160" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{DATE_ADMISSION}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="115" width="100" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Sit. familiale :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="105" y="115" width="100" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{SITUATION_FAMILIALE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="210" y="115" width="70" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Profession :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="285" y="115" width="250" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{PROFESSION1}]]></textFieldExpression>
+            </textField>
+
+            <!-- Coordonnées -->
+            <staticText>
+                <reportElement x="0" y="145" width="535" height="20" backcolor="#E8F5E9" mode="Opaque"/>
+                <textElement>
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[  Coordonnées]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="0" y="170" width="55" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Adresse :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="60" y="170" width="475" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{ADRESSE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="190" width="80" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Tél personnel :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="85" y="190" width="100" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TEL_PERSONNEL}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="190" y="190" width="70" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Tél mobile :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="265" y="190" width="100" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TEL_MOBILE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="370" y="190" width="55" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[E-mail :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="430" y="190" width="105" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{EMAIL}]]></textFieldExpression>
+            </textField>
+
+            <!-- État -->
+            <staticText>
+                <reportElement x="0" y="220" width="535" height="20" backcolor="#E8F5E9" mode="Opaque"/>
+                <textElement>
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[  État et observations]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="0" y="245" width="80" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[État patient :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="85" y="245" width="160" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{ETAT_PATIENT}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="250" y="245" width="90" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Patient sous KT :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="345" y="245" width="60" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA[$F{SOUS_KT} != null && $F{SOUS_KT} ? "Oui" : "Non"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="265" width="75" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Observation :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="80" y="265" width="455" height="40"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{OBSERVATION}]]></textFieldExpression>
+            </textField>
+
+            <!-- Assuré -->
+            <staticText>
+                <reportElement x="0" y="315" width="535" height="20" backcolor="#E8F5E9" mode="Opaque"/>
+                <textElement>
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[  Informations de l'assuré]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="0" y="340" width="50" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Qualité :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="55" y="340" width="100" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{QUALITE_ASSURE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="160" y="340" width="40" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Nom :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="205" y="340" width="130" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{ASSURE_NOM}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="340" y="340" width="55" height="16"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Prénom :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="400" y="340" width="135" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{ASSURE_PRENOM}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="30">
+            <textField>
+                <reportElement x="0" y="5" width="250" height="16"/>
+                <textElement>
+                    <font size="7" isItalic="true"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["Imprimé le " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="400" y="5" width="135" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+</jasperReport>
+

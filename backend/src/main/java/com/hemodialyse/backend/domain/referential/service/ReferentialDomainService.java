@@ -30,6 +30,11 @@ public class ReferentialDomainService implements ReferentialUseCase {
     @Override public List<RefItem> forfaits(CenterId c) { return repo.findForfaits(c); }
 
     @Override
+    public List<RefItem> articles(CenterId c) {
+        return repo.findArticles(c);
+    }
+
+    @Override
     public List<CentrePayeurDetail> centresPayeursDetails(CenterId c) {
         return repo.findCentresPayeursDetails(c);
     }

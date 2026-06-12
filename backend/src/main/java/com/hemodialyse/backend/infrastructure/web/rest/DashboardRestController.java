@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.hemodialyse.backend.infrastructure.web.dto.request.DashboardSearchRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -35,6 +36,34 @@ public class DashboardRestController {
 
         // Patient count
         long patientCount = countPatients(centerId);
+
+        return ResponseEntity.ok(Map.of(
+                "pecCree", pecCree,
+                "pecValidee", pecValidee,
+                "pecExpiring", pecExpiring,
+                "attestationTotal", attestationTotal,
+                "attestationExpiring", attestationExpiring,
+                "patientCount", patientCount,
+                "expirationDays", expirationDays
+        ));
+    }
+
+    @PostMapping("/stats/search")
+    public ResponseEntity<?> searchStats(@RequestBody @Valid DashboardSearchRequest criteria) {
+        int expirationDays = criteria.expirationDays() != null ? criteria.expirationDays() : 30;
+        LocalDate threshold = LocalDate.now().plusDays(expirationDays);
+
+        // PEC counts
+        long pecCree = countPec(criteria.centerId(), "CREE");
+        long pecValidee = countPec(criteria.centerId(), "VALIDEE");
+        long pecExpiring = countPecExpiring(criteria.centerId(), threshold);
+
+        // Attestation counts
+        long attestationTotal = countAttestations(criteria.centerId());
+        long attestationExpiring = countAttestationsExpiring(criteria.centerId(), threshold);
+
+        // Patient count
+        long patientCount = countPatients(criteria.centerId());
 
         return ResponseEntity.ok(Map.of(
                 "pecCree", pecCree,
