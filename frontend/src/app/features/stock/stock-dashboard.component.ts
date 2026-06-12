@@ -7,8 +7,10 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatDialog} from '@angular/material/dialog';
 import {AuthStore} from '../../core/state/auth.store';
 import {AlerteStock, StockApiService, StockValoriseItem} from '../../core/api/stock-api.service';
+import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
 
 @Component({
   selector: 'app-stock-dashboard',
@@ -90,6 +92,14 @@ import {AlerteStock, StockApiService, StockValoriseItem} from '../../core/api/st
             <ng-container matColumnDef="valeur">
               <th mat-header-cell *matHeaderCellDef>Valeur</th>
               <td mat-cell *matCellDef="let a">{{ a.valeur | number:'1.0-2' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let a">
+                <button mat-stroked-button color="primary" (click)="openPmpExplain(a)">
+                  Voir PMP
+                </button>
+              </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="cols"></tr>
             <tr mat-row *matRowDef="let row; columns: cols"></tr>
@@ -173,7 +183,7 @@ import {AlerteStock, StockApiService, StockValoriseItem} from '../../core/api/st
   `],
 })
 export class StockDashboardComponent {
-  protected readonly cols = ['code', 'libelle', 'quantite', 'pmp', 'valeur'];
+  protected readonly cols = ['code', 'libelle', 'quantite', 'pmp', 'valeur', 'actions'];
   protected readonly loading = signal(false);
   protected readonly stock = signal<StockValoriseItem[]>([]);
   protected readonly alertes = signal<AlerteStock[]>([]);
@@ -181,6 +191,7 @@ export class StockDashboardComponent {
     this.stock().reduce((sum, a) => sum + (a.valeur ?? 0), 0));
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
+  private readonly dialog = inject(MatDialog);
 
   constructor() {
     this.reload();
@@ -198,6 +209,22 @@ export class StockDashboardComponent {
       error: () => this.loading.set(false),
     });
     this.api.alertes(centerId).subscribe({next: (a) => this.alertes.set(a)});
+  }
+
+  protected openPmpExplain(article: StockValoriseItem): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
+    this.dialog.open(PmpExplainDialogComponent, {
+      width: '1200px',
+      maxHeight: '90vh',
+      data: {
+        articleId: article.articleId,
+        centerId,
+        libelle: article.libelle,
+      },
+    });
   }
 }
 

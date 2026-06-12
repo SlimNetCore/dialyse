@@ -12,12 +12,10 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatDialog} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {AuthStore} from '../../core/state/auth.store';
 import {BonReception, Emplacement, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
-import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
 
 @Component({
   selector: 'app-bons-reception',
@@ -149,9 +147,6 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
                       <mat-icon>edit</mat-icon>
                     </button>
                   }
-                  <button mat-flat-button color="primary" (click)="showPmpExplain(b)">
-                    Voir PMP
-                  </button>
                   @if (b.statut === 'BROUILLON') {
                     <button mat-flat-button color="accent" (click)="valider(b)">
                       Valider
@@ -240,7 +235,6 @@ export class BonsReceptionComponent {
     lignes: this.fb.array([this.newLigne()]),
   });
   private readonly snack = inject(MatSnackBar);
-  private readonly dialog = inject(MatDialog);
 
   constructor() {
     this.reload();
@@ -344,28 +338,6 @@ export class BonsReceptionComponent {
     });
   }
 
-  protected showPmpExplain(b: BonReception): void {
-    const centerId = this.auth.centerId();
-    if (!centerId || b.lignes.length === 0) {
-      return;
-    }
-
-    // Pour chaque article dans le bon, afficher le PMP
-    // Ici on pourrait afficher pour tous ou choisir le premier
-    const firstArticleId = b.lignes[0].articleId;
-    const articles = this.articles();
-    const article = articles.find(a => a.id === firstArticleId);
-
-    this.dialog.open(PmpExplainDialogComponent, {
-      width: '1200px',
-      maxHeight: '90vh',
-      data: {
-        articleId: firstArticleId,
-        centerId,
-        libelle: article?.libelle || article?.nom || 'Article',
-      },
-    });
-  }
 
   protected valider(b: BonReception): void {
     const centerId = this.auth.centerId();
