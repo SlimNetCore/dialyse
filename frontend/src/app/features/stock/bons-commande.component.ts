@@ -51,7 +51,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                     <mat-label>Article</mat-label>
                     <mat-select formControlName="articleId">
                       @for (a of articles(); track a.id) {
-                        <mat-option [value]="a.id">{{ a.libelle || a.nom }}</mat-option>
+                        <mat-option [value]="a.id">{{ articleLabel(a) }}</mat-option>
                       }
                     </mat-select>
                   </mat-form-field>
@@ -267,6 +267,14 @@ export class BonsCommandeComponent {
     this.api.listBonsCommande(centerId).subscribe({next: (b) => this.bons.set(b)});
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
     this.refApi.getArticles(centerId).subscribe({next: (a) => this.articles.set(a)});
+  }
+
+  protected articleLabel(a: RefItem): string {
+    const code = (a.code ?? '').trim();
+    const libelle = (a.libelle ?? a.nom ?? '').trim();
+    const unite = (a.unite ?? '').trim();
+    const left = code ? `${code} - ${libelle}` : libelle;
+    return unite ? `${left} (${unite})` : left;
   }
 }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -46,6 +47,12 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
             e.setPmpApres(pmpApres);
             jpa.save(e);
         });
+    }
+
+    @Override
+    public Optional<StockMovement> findFirstEntreeByLot(CenterId centerId, UUID lotId) {
+        return jpa.findFirstByCenterIdAndLotIdAndMouvementTypeOrderByCreatedAtAsc(
+                centerId.value(), lotId, StockMovementType.ENTREE.name()).map(this::toDomain);
     }
 
     private StockMovementJpaEntity toJpa(StockMovement m) {

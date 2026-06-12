@@ -50,6 +50,12 @@ public class LotRepositoryAdapter implements LotRepositoryPort {
                 .stream().map(this::toDomain).toList();
     }
 
+    @Override
+    public List<Lot> findByBonReception(UUID bonReceptionId, CenterId centerId) {
+        return jpa.findByCenterIdAndBonReceptionIdOrderByCreatedAtAsc(centerId.value(), bonReceptionId)
+                .stream().map(this::toDomain).toList();
+    }
+
     private LotJpaEntity toJpa(Lot l) {
         LotJpaEntity e = new LotJpaEntity();
         e.setId(l.getId());

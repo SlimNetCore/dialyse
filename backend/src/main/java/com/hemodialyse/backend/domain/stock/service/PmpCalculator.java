@@ -74,15 +74,15 @@ public final class PmpCalculator {
             return new PmpState(newQty, newValue, newPmp);
         }
 
-        // SORTIE (or AJUSTEMENT without price): valued at the current PMP
+        // SORTIE (or AJUSTEMENT without price): valued at the current PMP,
+        // and PMP must remain exactly the previous recalculated PMP.
         BigDecimal newQty = qty.subtract(q);
         BigDecimal newValue = value.subtract(q.multiply(pmp));
         if (newQty.signum() <= 0) {
             // Stock back to zero (or below): reset value, keep last PMP as reference
             return new PmpState(BigDecimal.ZERO, BigDecimal.ZERO, pmp);
         }
-        BigDecimal newPmp = newValue.divide(newQty, SCALE, RoundingMode.HALF_UP);
-        return new PmpState(newQty, newValue, newPmp);
+        return new PmpState(newQty, newValue, pmp);
     }
 
     public record PmpState(BigDecimal quantite, BigDecimal valeur, BigDecimal pmp) {

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface StockMovementJpaRepository extends JpaRepository<StockMovementJpaEntity, UUID> {
@@ -13,6 +14,9 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovementJ
 
     List<StockMovementJpaEntity> findByCenterIdAndArticleIdAndCreatedAtBeforeOrderByCreatedAtAscIdAsc(
             UUID centerId, UUID articleId, OffsetDateTime before);
+
+    Optional<StockMovementJpaEntity> findFirstByCenterIdAndLotIdAndMouvementTypeOrderByCreatedAtAsc(
+            UUID centerId, UUID lotId, String mouvementType);
 }
 
 

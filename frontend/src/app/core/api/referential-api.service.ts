@@ -3,7 +3,15 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 
-export interface RefItem { id: string; nom: string; code?: string; libelle?: string; adresse?: string; prenom?: string; }
+export interface RefItem {
+  id: string;
+  nom: string;
+  code?: string;
+  libelle?: string;
+  unite?: string;
+  adresse?: string;
+  prenom?: string;
+}
 export interface CentrePayeurDetail {
   id: string;
   codeCentrePayeur: string;

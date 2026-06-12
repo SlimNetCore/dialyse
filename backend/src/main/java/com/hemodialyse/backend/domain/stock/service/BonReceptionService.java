@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.stock.port.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -63,6 +64,11 @@ public class BonReceptionService implements BonReceptionUseCase {
         if (dateReception != null) {
             bon.setDateReception(dateReception);
         }
+
+        if (bon.getStatut() != BonStatut.BROUILLON) {
+            updateValidatedReceptionHistory(centerId, bon, lignes);
+        }
+
         bon.remplacerLignes(lignes);
         return repo.save(bon);
     }
@@ -157,6 +163,55 @@ public class BonReceptionService implements BonReceptionUseCase {
             if (recalcCoordinator.isLocked(centerId, ligne.articleId())) {
                 throw new IllegalStateException("Recalcul en cours pour l'article " + ligne.articleId() + ". Saisie temporairement bloquee.");
             }
+        }
+    }
+
+    private void updateValidatedReceptionHistory(CenterId centerId, BonReception bon, List<LigneReception> lignes) {
+        List<LigneReception> requested = lignes != null ? lignes : List.of();
+        List<Lot> existingLots = lotRepo.findByBonReception(bon.getId(), centerId);
+
+        if (requested.size() != existingLots.size()) {
+            throw new IllegalStateException("Pour un BR deja valide, le nombre de lignes ne peut pas changer.");
+        }
+
+        Set<UUID> touchedArticles = new LinkedHashSet<>();
+        for (int i = 0; i < existingLots.size(); i++) {
+            Lot lot = existingLots.get(i);
+            LigneReception line = requested.get(i);
+            if (line == null || line.articleId() == null || line.quantite() == null || line.prixUnitaire() == null) {
+                throw new IllegalArgumentException("Ligne de reception invalide pour recalcul historique");
+            }
+            if (!lot.getArticleId().equals(line.articleId())) {
+                throw new IllegalStateException("Pour un BR deja valide, l'article d'une ligne ne peut pas etre modifie.");
+            }
+
+            BigDecimal oldInitial = lot.getQuantiteInitiale() != null ? lot.getQuantiteInitiale() : BigDecimal.ZERO;
+            BigDecimal oldRemaining = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
+            BigDecimal consumed = oldInitial.subtract(oldRemaining);
+            BigDecimal newInitial = line.quantite();
+            BigDecimal newRemaining = newInitial.subtract(consumed);
+            if (newRemaining.signum() < 0) {
+                throw new IllegalStateException("Quantite saisie inferieure a la quantite deja consommee pour le lot " + lot.getNumeroLot());
+            }
+
+            lot.setNumeroLot(line.numeroLot());
+            lot.setDatePeremption(line.datePeremption());
+            lot.setQuantiteInitiale(newInitial);
+            lot.setQuantiteRestante(newRemaining);
+            lot.setPmp(line.prixUnitaire());
+            lotRepo.save(lot);
+
+            StockMovement entree = movementRepo.findFirstEntreeByLot(centerId, lot.getId())
+                    .orElseThrow(() -> new IllegalStateException("Mouvement d'entree introuvable pour le lot " + lot.getNumeroLot()));
+            entree.setQuantite(newInitial);
+            entree.setPrixUnitaire(line.prixUnitaire());
+            movementRepo.save(entree);
+
+            touchedArticles.add(line.articleId());
+        }
+
+        for (UUID articleId : touchedArticles) {
+            pmpEngine.recalculerArticle(centerId, articleId);
         }
     }
 }

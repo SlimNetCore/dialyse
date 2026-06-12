@@ -74,7 +74,7 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
                     <mat-select formControlName="articleId">
                       @for (a of articles(); track a.id) {
                         <mat-option [value]="a.id" [disabled]="isArticleLocked(a.id)">
-                          {{ a.libelle || a.nom }}
+                          {{ articleLabel(a) }}
                           @if (isArticleLocked(a.id)) {
                             - recalcul en cours
                           }
@@ -424,6 +424,14 @@ export class BonsReceptionComponent implements OnDestroy {
 
   protected hasLockedLines(): boolean {
     return this.lignes.controls.some(c => this.isArticleLocked(c.get('articleId')?.value));
+  }
+
+  protected articleLabel(a: RefItem): string {
+    const code = (a.code ?? '').trim();
+    const libelle = (a.libelle ?? a.nom ?? '').trim();
+    const unite = (a.unite ?? '').trim();
+    const left = code ? `${code} - ${libelle}` : libelle;
+    return unite ? `${left} (${unite})` : left;
   }
 
   private reload(): void {

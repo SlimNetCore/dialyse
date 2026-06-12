@@ -24,5 +24,7 @@ public interface LotRepositoryPort {
     List<Lot> findExpiringBefore(CenterId centerId, LocalDate threshold);
 
     List<Lot> findByArticle(UUID articleId, CenterId centerId);
+
+    List<Lot> findByBonReception(UUID bonReceptionId, CenterId centerId);
 }
 

@@ -16,6 +16,8 @@ public interface LotJpaRepository extends JpaRepository<LotJpaEntity, UUID> {
 
     List<LotJpaEntity> findByCenterIdAndArticleId(UUID centerId, UUID articleId);
 
+    List<LotJpaEntity> findByCenterIdAndBonReceptionIdOrderByCreatedAtAsc(UUID centerId, UUID bonReceptionId);
+
     @Query("SELECT l FROM LotJpaEntity l WHERE l.centerId = :centerId AND l.articleId = :articleId "
             + "AND l.quantiteRestante > :zero ORDER BY l.datePeremption ASC NULLS LAST, l.createdAt ASC")
     List<LotJpaEntity> findAvailableFefo(@Param("centerId") UUID centerId,

@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.stock.model.StockMovement;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface StockMovementRepositoryPort {
@@ -27,6 +28,8 @@ public interface StockMovementRepositoryPort {
      * Persist a PMP value recomputed for an existing movement.
      */
     void updatePmpApres(UUID movementId, BigDecimal pmpApres);
+
+    Optional<StockMovement> findFirstEntreeByLot(CenterId centerId, UUID lotId);
 }
 
 
