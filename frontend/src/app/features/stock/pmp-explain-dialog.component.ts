@@ -82,7 +82,7 @@ export interface PmpExplainData {
               <td mat-cell *matCellDef="let s" class="formule">{{ s.formule }}</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="cols"></tr>
-            <tr mat-row *matRowDef="let row; columns: cols"></tr>
+            <tr mat-row *matRowDef="let row; columns: cols" [attr.data-step-date]="row?.date"></tr>
           </table>
         }
       }

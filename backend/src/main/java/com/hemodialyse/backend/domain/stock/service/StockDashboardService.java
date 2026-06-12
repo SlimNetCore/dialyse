@@ -4,16 +4,12 @@ import com.hemodialyse.backend.domain.article.model.Article;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.*;
-import com.hemodialyse.backend.domain.stock.port.StockDashboardPort;
-import com.hemodialyse.backend.domain.stock.port.StockDashboardUseCase;
-import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
+import com.hemodialyse.backend.domain.stock.port.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,13 +28,22 @@ public class StockDashboardService implements StockDashboardUseCase {
     private final StockDashboardPort dashboardPort;
     private final StockMovementRepositoryPort movementRepo;
     private final ArticleRepositoryPort articleRepo;
+    private final LotRepositoryPort lotRepo;
+    private final BonReceptionRepositoryPort bonReceptionRepo;
+    private final BonSortieRepositoryPort bonSortieRepo;
 
     public StockDashboardService(StockDashboardPort dashboardPort,
                                  StockMovementRepositoryPort movementRepo,
-                                 ArticleRepositoryPort articleRepo) {
+                                 ArticleRepositoryPort articleRepo,
+                                 LotRepositoryPort lotRepo,
+                                 BonReceptionRepositoryPort bonReceptionRepo,
+                                 BonSortieRepositoryPort bonSortieRepo) {
         this.dashboardPort = dashboardPort;
         this.movementRepo = movementRepo;
         this.articleRepo = articleRepo;
+        this.lotRepo = lotRepo;
+        this.bonReceptionRepo = bonReceptionRepo;
+        this.bonSortieRepo = bonSortieRepo;
     }
 
     @Override
@@ -63,11 +68,13 @@ public class StockDashboardService implements StockDashboardUseCase {
 
         List<StockMovement> movements = movementRepo.findByArticleOrdered(centerId, articleId);
         List<PmpCalculator.DetailedStep> detailed = PmpCalculator.explain(movements, PmpCalculator.PmpState.empty());
+        Map<UUID, String> pieceByLotCache = new HashMap<>();
+        Map<String, String> pieceBySortieKeyCache = new HashMap<>();
 
         List<PmpExplanationStep> etapes = new ArrayList<>();
         for (PmpCalculator.DetailedStep d : detailed) {
             StockMovement m = d.movement();
-            String piece = pieceFromMovement(m);
+            String piece = pieceCodeFromMovement(centerId, m, pieceByLotCache, pieceBySortieKeyCache);
             String datePiece = m.getCreatedAt() != null ? m.getCreatedAt().toLocalDate().toString() : null;
             etapes.add(new PmpExplanationStep(
                     m.getCreatedAt(),
@@ -117,14 +124,38 @@ public class StockDashboardService implements StockDashboardUseCase {
                 q.toPlainString(), d.stateBefore().pmp().toPlainString(), d.stateAfter().pmp().toPlainString());
     }
 
-    private String pieceFromMovement(StockMovement m) {
+    private String pieceCodeFromMovement(CenterId centerId,
+                                         StockMovement m,
+                                         Map<UUID, String> pieceByLotCache,
+                                         Map<String, String> pieceBySortieKeyCache) {
         if (m.getMovementType() == StockMovementType.ENTREE) {
-            return "Bon de reception";
+            UUID lotId = m.getLotId();
+            if (lotId == null) {
+                return "BR";
+            }
+            return pieceByLotCache.computeIfAbsent(lotId, id -> lotRepo.findById(id, centerId)
+                    .flatMap(l -> bonReceptionRepo.findById(l.getBonReceptionId(), centerId))
+                    .map(BonReception::getReference)
+                    .orElse("BR"));
         }
         if (m.getMovementType() == StockMovementType.SORTIE) {
-            return "Bon de sortie";
+            String key = (m.getSeanceId() != null ? m.getSeanceId().toString() : "-") + ":"
+                    + (m.getLotId() != null ? m.getLotId().toString() : "-") + ":"
+                    + (m.getArticleId() != null ? m.getArticleId().toString() : "-");
+            return pieceBySortieKeyCache.computeIfAbsent(key, k -> {
+                if (m.getSeanceId() == null) {
+                    return "BS";
+                }
+                return bonSortieRepo.findBySeance(m.getSeanceId(), centerId).stream()
+                        .filter(bs -> bs.getLignes().stream().anyMatch(l ->
+                                (l.lotId() != null && l.lotId().equals(m.getLotId()))
+                                        && l.articleId().equals(m.getArticleId())))
+                        .map(BonSortie::getReference)
+                        .findFirst()
+                        .orElse("BS");
+            });
         }
-        return "Ajustement";
+        return "AJUST";
     }
 }
 
