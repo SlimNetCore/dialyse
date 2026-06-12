@@ -10,9 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class StockMovementRepositoryAdapter implements StockMovementRepositoryPort {
@@ -53,6 +51,31 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
     public Optional<StockMovement> findFirstEntreeByLot(CenterId centerId, UUID lotId) {
         return jpa.findFirstByCenterIdAndLotIdAndMouvementTypeOrderByCreatedAtAsc(
                 centerId.value(), lotId, StockMovementType.ENTREE.name()).map(this::toDomain);
+    }
+
+    @Override
+    public void applyRecalc(List<MovementRecalc> updates) {
+        if (updates == null || updates.isEmpty()) {
+            return;
+        }
+        List<UUID> ids = updates.stream().map(MovementRecalc::movementId).toList();
+        Map<UUID, StockMovementJpaEntity> byId = new HashMap<>();
+        for (StockMovementJpaEntity e : jpa.findAllById(ids)) {
+            byId.put(e.getId(), e);
+        }
+        List<StockMovementJpaEntity> toSave = new java.util.ArrayList<>(updates.size());
+        for (MovementRecalc u : updates) {
+            StockMovementJpaEntity e = byId.get(u.movementId());
+            if (e == null) {
+                continue;
+            }
+            e.setPmpApres(u.pmpApres());
+            if (u.valorisation() != null) {
+                e.setPrixUnitaire(u.valorisation());
+            }
+            toSave.add(e);
+        }
+        jpa.saveAll(toSave);
     }
 
     private StockMovementJpaEntity toJpa(StockMovement m) {

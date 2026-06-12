@@ -30,6 +30,23 @@ public interface StockMovementRepositoryPort {
     void updatePmpApres(UUID movementId, BigDecimal pmpApres);
 
     Optional<StockMovement> findFirstEntreeByLot(CenterId centerId, UUID lotId);
+
+    /**
+     * Batch-persist a full recalculation pass: for each movement set its recomputed
+     * {@code pmp_apres} and, when {@code valorisation} is provided (stock exits),
+     * rewrite {@code prix_unitaire} with the PMP that precedes the movement.
+     */
+    void applyRecalc(List<MovementRecalc> updates);
+
+    /**
+     * Recalculation update line for a single movement.
+     *
+     * @param movementId   movement to update
+     * @param pmpApres     recomputed PMP after the movement
+     * @param valorisation if non-null, new {@code prix_unitaire} (used for exits)
+     */
+    record MovementRecalc(UUID movementId, BigDecimal pmpApres, BigDecimal valorisation) {
+    }
 }
 
 

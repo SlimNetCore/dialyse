@@ -224,6 +224,32 @@ class SeanceDomainServiceTest {
                     .findFirst()
                     .ifPresent(m -> m.setPmpApres(pmpApres));
         }
+
+        @Override
+        public void applyRecalc(List<MovementRecalc> updates) {
+            if (updates == null) {
+                return;
+            }
+            for (MovementRecalc u : updates) {
+                movements.stream()
+                        .filter(m -> m.getId() != null && m.getId().equals(u.movementId()))
+                        .findFirst()
+                        .ifPresent(m -> {
+                            m.setPmpApres(u.pmpApres());
+                            if (u.valorisation() != null) {
+                                m.setPrixUnitaire(u.valorisation());
+                            }
+                        });
+            }
+        }
+
+        @Override
+        public java.util.Optional<StockMovement> findFirstEntreeByLot(CenterId centerId, UUID lotId) {
+            return movements.stream()
+                    .filter(m -> m.getLotId() != null && m.getLotId().equals(lotId))
+                    .filter(m -> m.getMovementType() == com.hemodialyse.backend.domain.stock.model.StockMovementType.ENTREE)
+                    .findFirst();
+        }
     }
 }
 

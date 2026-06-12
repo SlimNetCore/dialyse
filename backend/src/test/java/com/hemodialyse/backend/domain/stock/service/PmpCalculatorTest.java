@@ -84,5 +84,26 @@ class PmpCalculatorTest {
 
         assertEquals(0, result.finalState().pmp().compareTo(new BigDecimal("13.0000")));
     }
+
+    @Test
+    void exit_is_valued_at_previous_recomputed_pmp() {
+        // 80 @ 90 -> PMP 90 ; then 12 @ 200 -> PMP = (7200 + 2400) / 92 = 104.3478 ;
+        // then SORTIE 4 -> must be valued at the PMP recomputed just before it (104.3478),
+        // and the PMP after the exit stays 104.3478.
+        var steps = PmpCalculator.explain(
+                List.of(entree("80", "90"), entree("12", "200"), sortie("4")),
+                PmpCalculator.PmpState.empty());
+
+        var entree2 = steps.get(1);
+        assertEquals(0, entree2.stateAfter().pmp().compareTo(new BigDecimal("104.3478")));
+
+        var sortie = steps.get(2);
+        // PMP "just before" the exit (valorisation reference)
+        assertEquals(0, sortie.stateBefore().pmp().compareTo(new BigDecimal("104.3478")));
+        // PMP after the exit is unchanged
+        assertEquals(0, sortie.stateAfter().pmp().compareTo(new BigDecimal("104.3478")));
+        // Quantity after exit: 92 - 4 = 88
+        assertEquals(0, sortie.stateAfter().quantite().compareTo(new BigDecimal("88")));
+    }
 }
 
