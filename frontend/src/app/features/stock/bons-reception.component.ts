@@ -142,11 +142,9 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let b">
                 <div class="action-buttons">
-                  @if (b.statut === 'BROUILLON') {
-                    <button mat-icon-button (click)="edit(b)" matTooltip="Éditer">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                  }
+                  <button mat-icon-button (click)="edit(b)" matTooltip="Éditer">
+                    <mat-icon>edit</mat-icon>
+                  </button>
                   @if (b.statut === 'BROUILLON') {
                     <button mat-flat-button color="accent" (click)="valider(b)">
                       Valider
@@ -299,11 +297,6 @@ export class BonsReceptionComponent {
   }
 
   protected edit(b: BonReception): void {
-    if (b.statut !== 'BROUILLON') {
-      this.snack.open('Seuls les brouillons peuvent être édités', 'OK', {duration: 2500});
-      return;
-    }
-
     this.editingId.set(b.id);
     this.form.patchValue({
       fournisseurId: b.fournisseurId,

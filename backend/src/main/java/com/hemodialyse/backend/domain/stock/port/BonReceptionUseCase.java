@@ -16,8 +16,7 @@ public interface BonReceptionUseCase {
                         LocalDate dateReception, List<LigneReception> lignes, String userId);
 
     /**
-     * Update a DRAFT (BROUILLON) bon de reception: header + lots.
-     * A validated BR cannot be edited this way (it already created lots/PMP).
+     * Update a bon de reception: header + lots.
      */
     BonReception update(CenterId centerId, UUID bonId, UUID fournisseurId,
                         LocalDate dateReception, List<LigneReception> lignes);

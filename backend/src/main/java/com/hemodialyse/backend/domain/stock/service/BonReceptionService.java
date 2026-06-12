@@ -52,9 +52,6 @@ public class BonReceptionService implements BonReceptionUseCase {
     public BonReception update(CenterId centerId, UUID bonId, UUID fournisseurId,
                                LocalDate dateReception, List<LigneReception> lignes) {
         BonReception bon = get(centerId, bonId);
-        if (bon.getStatut() != BonStatut.BROUILLON) {
-            throw new IllegalStateException("Seul un bon de reception BROUILLON peut etre modifie");
-        }
         if (fournisseurId != null) {
             bon.setFournisseurId(fournisseurId);
         }
