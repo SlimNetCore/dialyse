@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.port.StockReferentialUseCase;
+import com.hemodialyse.backend.infrastructure.web.dto.request.CreateArticleRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateEmplacementRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateFournisseurRequest;
 import jakarta.validation.Valid;
@@ -19,6 +20,19 @@ public class StockReferentialRestController {
 
     public StockReferentialRestController(StockReferentialUseCase useCase) {
         this.useCase = useCase;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN')")
+    @PostMapping("/articles")
+    public ResponseEntity<?> createArticle(@RequestBody @Valid CreateArticleRequest req) {
+        return ResponseEntity.ok(useCase.createArticle(
+                CenterId.of(req.centerId()),
+                req.code(),
+                req.libelle(),
+                req.unite(),
+                req.seuilAlerte(),
+                req.gereParLot()
+        ));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN')")

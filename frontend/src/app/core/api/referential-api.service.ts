@@ -11,6 +11,7 @@ export interface RefItem {
   unite?: string;
   adresse?: string;
   prenom?: string;
+  gereParLot?: boolean;
 }
 export interface CentrePayeurDetail {
   id: string;

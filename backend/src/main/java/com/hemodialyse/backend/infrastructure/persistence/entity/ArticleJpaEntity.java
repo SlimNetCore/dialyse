@@ -36,6 +36,9 @@ public class ArticleJpaEntity {
     @Column(name = "pmp_courant")
     private BigDecimal pmpCourant;
 
+    @Column(name = "gere_par_lot", nullable = false)
+    private boolean gereParLot;
+
     @Column(name = "active", nullable = false)
     private boolean active;
 
@@ -112,6 +115,14 @@ public class ArticleJpaEntity {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isGereParLot() {
+        return gereParLot;
+    }
+
+    public void setGereParLot(boolean gereParLot) {
+        this.gereParLot = gereParLot;
     }
 
     public OffsetDateTime getCreatedAt() {

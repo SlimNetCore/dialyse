@@ -10,6 +10,10 @@ export const stockRoutes: Routes = [
     loadComponent: () => import('./fournisseurs.component').then(m => m.FournisseursComponent),
   },
   {
+    path: 'articles',
+    loadComponent: () => import('./articles.component').then(m => m.ArticlesComponent),
+  },
+  {
     path: 'bons-commande',
     loadComponent: () => import('./bons-commande.component').then(m => m.BonsCommandeComponent),
   },

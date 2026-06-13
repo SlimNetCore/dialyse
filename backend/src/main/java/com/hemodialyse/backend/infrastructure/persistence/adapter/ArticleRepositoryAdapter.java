@@ -39,6 +39,7 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort {
         article.setStockQuantity(e.getStockQuantity());
         article.setSeuilAlerte(e.getSeuilAlerte());
         article.setPmpCourant(e.getPmpCourant());
+        article.setGereParLot(e.isGereParLot());
         article.setActive(e.isActive());
         article.setCreatedAt(e.getCreatedAt());
         return article;
@@ -54,6 +55,7 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort {
         entity.setStockQuantity(a.getStockQuantity());
         entity.setSeuilAlerte(a.getSeuilAlerte());
         entity.setPmpCourant(a.getPmpCourant());
+        entity.setGereParLot(a.isGereParLot());
         entity.setActive(a.isActive());
         entity.setCreatedAt(a.getCreatedAt());
         return entity;

@@ -94,25 +94,23 @@ public class BonReceptionService implements BonReceptionUseCase {
 
         Set<UUID> articlesTouches = new LinkedHashSet<>();
 
-        for (LigneReception ligne : bon.getLignes()) {
+        List<LigneReception> lignes = bon.getLignes();
+        for (int i = 0; i < lignes.size(); i++) {
+            LigneReception ligne = lignes.get(i);
             if (ligne.articleId() == null) {
                 throw new IllegalArgumentException("Article manquant sur une ligne de reception");
             }
             if (ligne.quantite() == null || ligne.quantite().signum() <= 0) {
                 throw new IllegalArgumentException("Quantite invalide pour l'article " + ligne.articleId());
             }
-            if (ligne.numeroLot() == null || ligne.numeroLot().isBlank()) {
-                throw new IllegalArgumentException("Numero de lot obligatoire pour l'article " + ligne.articleId());
-            }
-            if (ligne.datePeremption() == null) {
-                throw new IllegalArgumentException("Date de peremption obligatoire pour le lot " + ligne.numeroLot());
-            }
 
-            articleRepo.findById(ligne.articleId(), centerId)
+            var article = articleRepo.findById(ligne.articleId(), centerId)
                     .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + ligne.articleId()));
+            String numeroLot = normalizeNumeroLot(article.isGereParLot(), ligne.numeroLot(), bon.getReference(), i);
+            LocalDate datePeremption = normalizeDatePeremption(article.isGereParLot(), ligne.datePeremption(), numeroLot);
 
             Lot lot = Lot.create(centerId.value(), ligne.articleId(), bon.getId(), ligne.emplacementId(),
-                    ligne.numeroLot(), ligne.datePeremption(), ligne.quantite(), ligne.prixUnitaire());
+                    numeroLot, datePeremption, ligne.quantite(), ligne.prixUnitaire());
             lotRepo.save(lot);
 
             StockMovement entree = StockMovement.entree(centerId.value(), ligne.articleId(), lot.getId(),
@@ -185,6 +183,9 @@ public class BonReceptionService implements BonReceptionUseCase {
                 throw new IllegalStateException("Pour un BR deja valide, l'article d'une ligne ne peut pas etre modifie.");
             }
 
+            var article = articleRepo.findById(line.articleId(), centerId)
+                    .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + line.articleId()));
+
             BigDecimal oldInitial = lot.getQuantiteInitiale() != null ? lot.getQuantiteInitiale() : BigDecimal.ZERO;
             BigDecimal oldRemaining = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
             BigDecimal consumed = oldInitial.subtract(oldRemaining);
@@ -194,8 +195,8 @@ public class BonReceptionService implements BonReceptionUseCase {
                 throw new IllegalStateException("Quantite saisie inferieure a la quantite deja consommee pour le lot " + lot.getNumeroLot());
             }
 
-            lot.setNumeroLot(line.numeroLot());
-            lot.setDatePeremption(line.datePeremption());
+            lot.setNumeroLot(normalizeNumeroLot(article.isGereParLot(), line.numeroLot(), bon.getReference(), i));
+            lot.setDatePeremption(normalizeDatePeremption(article.isGereParLot(), line.datePeremption(), lot.getNumeroLot()));
             lot.setQuantiteInitiale(newInitial);
             lot.setQuantiteRestante(newRemaining);
             lot.setPmp(line.prixUnitaire());
@@ -213,6 +214,26 @@ public class BonReceptionService implements BonReceptionUseCase {
         for (UUID articleId : touchedArticles) {
             pmpEngine.recalculerArticle(centerId, articleId);
         }
+    }
+
+    private String normalizeNumeroLot(boolean gereParLot, String numeroLot, String bonReference, int index) {
+        if (gereParLot) {
+            if (numeroLot == null || numeroLot.isBlank()) {
+                throw new IllegalArgumentException("Numero de lot obligatoire pour un article gere par lot");
+            }
+            return numeroLot.trim();
+        }
+        if (numeroLot != null && !numeroLot.isBlank()) {
+            return numeroLot.trim();
+        }
+        return String.format("AUTO-%s-%02d", bonReference != null ? bonReference : "BR", index + 1);
+    }
+
+    private LocalDate normalizeDatePeremption(boolean gereParLot, LocalDate datePeremption, String numeroLot) {
+        if (gereParLot && datePeremption == null) {
+            throw new IllegalArgumentException("Date de peremption obligatoire pour le lot " + numeroLot);
+        }
+        return datePeremption;
     }
 }
 

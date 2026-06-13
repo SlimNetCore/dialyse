@@ -13,6 +13,7 @@ public class Article {
     private BigDecimal stockQuantity;
     private BigDecimal seuilAlerte;
     private BigDecimal pmpCourant;
+    private boolean gereParLot;
     private boolean active;
     private OffsetDateTime createdAt;
 
@@ -97,6 +98,14 @@ public class Article {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isGereParLot() {
+        return gereParLot;
+    }
+
+    public void setGereParLot(boolean gereParLot) {
+        this.gereParLot = gereParLot;
     }
 
     public OffsetDateTime getCreatedAt() {

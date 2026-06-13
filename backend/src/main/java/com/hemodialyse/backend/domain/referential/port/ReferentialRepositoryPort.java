@@ -23,7 +23,9 @@ public interface ReferentialRepositoryPort {
     List<CentrePayeurDetail> findCentresPayeursDetails(CenterId centerId);
 
     /** Simple read-only DTO for referential items */
-    record RefItem(String id, String code, String nom, String adresse, String prenom, String libelle) {}
+    record RefItem(String id, String code, String nom, String adresse, String prenom, String libelle,
+                   Boolean gereParLot) {
+    }
 
     record CentrePayeurDetail(
             String id,

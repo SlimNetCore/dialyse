@@ -60,6 +60,10 @@ Chart.register(...registerables);
             <mat-icon>local_shipping</mat-icon>
             Fournisseurs
           </a>
+          <a mat-stroked-button routerLink="/stock/articles">
+            <mat-icon>inventory_2</mat-icon>
+            Articles
+          </a>
         </div>
       </div>
 

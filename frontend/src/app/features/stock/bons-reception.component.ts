@@ -68,10 +68,10 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
 
             <div formArrayName="lignes" class="lines">
               @for (ligne of lignes.controls; track $index) {
-                <div [formGroupName]="$index" class="line-row">
+                <div [formGroupName]="$index" class="line-row" [attr.data-line-article]="ligne.get('articleId')?.value || ''">
                   <mat-form-field appearance="outline" class="flex2">
                     <mat-label>Article</mat-label>
-                    <mat-select formControlName="articleId">
+                    <mat-select formControlName="articleId" (selectionChange)="onArticleChange($index)">
                       @for (a of articles(); track a.id) {
                         <mat-option [value]="a.id" [disabled]="isArticleLocked(a.id)">
                           {{ articleLabel(a) }}
@@ -92,10 +92,20 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>N° lot</mat-label>
+                    @if (isLotManagedRow($index)) {
+                      <mat-hint>Obligatoire (article géré par lot)</mat-hint>
+                    } @else {
+                      <mat-hint>Optionnel (lot auto si vide)</mat-hint>
+                    }
                     <input matInput formControlName="numeroLot"/>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Péremption</mat-label>
+                    @if (isLotManagedRow($index)) {
+                      <mat-hint>Obligatoire (article géré par lot)</mat-hint>
+                    } @else {
+                      <mat-hint>Optionnel</mat-hint>
+                    }
                     <input matInput [matDatepicker]="dpl" formControlName="datePeremption"/>
                     <mat-datepicker-toggle matIconSuffix [for]="dpl"></mat-datepicker-toggle>
                     <mat-datepicker #dpl></mat-datepicker>
@@ -165,7 +175,7 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
               </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="cols"></tr>
-            <tr mat-row *matRowDef="let row; columns: cols"></tr>
+            <tr mat-row *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id"></tr>
           </table>
         </mat-card-content>
       </mat-card>
@@ -283,7 +293,9 @@ export class BonsReceptionComponent implements OnDestroy {
   }
 
   protected addLigne(): void {
-    this.lignes.push(this.newLigne());
+    const group = this.newLigne();
+    this.lignes.push(group);
+    this.applyLotRules(group, false);
   }
 
   protected removeLigne(i: number): void {
@@ -304,7 +316,7 @@ export class BonsReceptionComponent implements OnDestroy {
       articleId: c.get('articleId')!.value,
       quantite: Number(c.get('quantite')!.value),
       prixUnitaire: Number(c.get('prixUnitaire')!.value),
-      numeroLot: c.get('numeroLot')!.value,
+      numeroLot: this.normalizedString(c.get('numeroLot')!.value),
       datePeremption: this.toIso(c.get('datePeremption')!.value),
     }));
 
@@ -341,6 +353,7 @@ export class BonsReceptionComponent implements OnDestroy {
         }
 
         this.form.setControl('lignes', this.fb.array([this.newLigne()]));
+        this.syncLotRulesForAllLines();
         this.editingId.set(null);
         this.editingStatus.set(null);
         this.reload();
@@ -373,6 +386,7 @@ export class BonsReceptionComponent implements OnDestroy {
       )
     );
     this.form.setControl('lignes', lignesArray);
+    this.syncLotRulesForAllLines();
 
     // Scroller vers le formulaire
     setTimeout(() => {
@@ -388,6 +402,13 @@ export class BonsReceptionComponent implements OnDestroy {
       dateReception: new Date(),
       lignes: [this.newLigne()],
     });
+    this.syncLotRulesForAllLines();
+  }
+
+  protected onArticleChange(i: number): void {
+    const group = this.lignes.at(i) as FormGroup;
+    const articleId = group.get('articleId')?.value as string | null;
+    this.applyLotRules(group, this.isLotManagedArticle(articleId));
   }
 
 
@@ -405,14 +426,18 @@ export class BonsReceptionComponent implements OnDestroy {
     });
   }
 
-  private newLigne(): FormGroup {
-    return this.fb.group({
-      articleId: [null, Validators.required],
-      quantite: [1, [Validators.required, Validators.min(0.0001)]],
-      prixUnitaire: [0, [Validators.required, Validators.min(0)]],
-      numeroLot: ['', Validators.required],
-      datePeremption: [null, Validators.required],
-    });
+  protected isLotManagedRow(index: number): boolean {
+    const group = this.lignes.at(index) as FormGroup;
+    return this.isLotManagedArticle(group.get('articleId')?.value as string | null);
+  }
+
+  protected articleLabel(a: RefItem): string {
+    const code = (a.code ?? '').trim();
+    const libelle = (a.libelle ?? a.nom ?? '').trim();
+    const unite = (a.unite ?? '').trim();
+    const left = code ? `${code} - ${libelle}` : libelle;
+    const withUnit = unite ? `${left} (${unite})` : left;
+    return a.gereParLot ? `${withUnit} · lot` : `${withUnit} · sans lot`;
   }
 
   protected isArticleLocked(articleId?: string | null): boolean {
@@ -426,12 +451,14 @@ export class BonsReceptionComponent implements OnDestroy {
     return this.lignes.controls.some(c => this.isArticleLocked(c.get('articleId')?.value));
   }
 
-  protected articleLabel(a: RefItem): string {
-    const code = (a.code ?? '').trim();
-    const libelle = (a.libelle ?? a.nom ?? '').trim();
-    const unite = (a.unite ?? '').trim();
-    const left = code ? `${code} - ${libelle}` : libelle;
-    return unite ? `${left} (${unite})` : left;
+  private newLigne(): FormGroup {
+    return this.fb.group({
+      articleId: [null, Validators.required],
+      quantite: [1, [Validators.required, Validators.min(0.0001)]],
+      prixUnitaire: [0, [Validators.required, Validators.min(0)]],
+      numeroLot: [''],
+      datePeremption: [null],
+    });
   }
 
   private reload(): void {
@@ -442,8 +469,50 @@ export class BonsReceptionComponent implements OnDestroy {
     this.api.listBonsReception(centerId).subscribe({next: (b) => this.bons.set(b)});
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
     this.api.listEmplacements(centerId).subscribe({next: (e) => this.emplacements.set(e)});
-    this.refApi.getArticles(centerId).subscribe({next: (a) => this.articles.set(a)});
+    this.refApi.getArticles(centerId).subscribe({
+      next: (a) => {
+        this.articles.set(a);
+        this.syncLotRulesForAllLines();
+      },
+    });
     this.refreshLocks();
+  }
+
+  private syncLotRulesForAllLines(): void {
+    this.lignes.controls.forEach(control => {
+      const group = control as FormGroup;
+      const articleId = group.get('articleId')?.value as string | null;
+      this.applyLotRules(group, this.isLotManagedArticle(articleId));
+    });
+  }
+
+  private isLotManagedArticle(articleId?: string | null): boolean {
+    if (!articleId) {
+      return false;
+    }
+    return this.articles().some(a => a.id === articleId && !!a.gereParLot);
+  }
+
+  private applyLotRules(group: FormGroup, isManagedByLot: boolean): void {
+    const numeroLot = group.get('numeroLot');
+    const datePeremption = group.get('datePeremption');
+    if (!numeroLot || !datePeremption) {
+      return;
+    }
+    if (isManagedByLot) {
+      numeroLot.setValidators([Validators.required]);
+      datePeremption.setValidators([Validators.required]);
+    } else {
+      numeroLot.clearValidators();
+      datePeremption.clearValidators();
+    }
+    numeroLot.updateValueAndValidity({emitEvent: false});
+    datePeremption.updateValueAndValidity({emitEvent: false});
+  }
+
+  private normalizedString(value: unknown): string | undefined {
+    const raw = typeof value === 'string' ? value.trim() : '';
+    return raw ? raw : undefined;
   }
 
   private refreshLocks(): void {

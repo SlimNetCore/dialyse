@@ -22,6 +22,20 @@ export interface Emplacement {
   actif: boolean;
 }
 
+export interface ArticleStock {
+  id: string;
+  centerId: string;
+  code: string;
+  libelle: string;
+  unite: string;
+  stockQuantity: number;
+  seuilAlerte: number;
+  pmpCourant: number;
+  gereParLot: boolean;
+  active: boolean;
+  createdAt?: string;
+}
+
 export interface LigneBonCommande {
   id?: string;
   articleId: string;
@@ -216,6 +230,17 @@ export class StockApiService {
 
   createEmplacement(payload: { centerId: string; code?: string; libelle: string }): Observable<Emplacement> {
     return this.http.post<Emplacement>(`${this.base}/referentiel/emplacements`, payload);
+  }
+
+  createArticle(payload: {
+    centerId: string;
+    code: string;
+    libelle: string;
+    unite: string;
+    seuilAlerte?: number;
+    gereParLot: boolean;
+  }): Observable<ArticleStock> {
+    return this.http.post<ArticleStock>(`${this.base}/referentiel/articles`, payload);
   }
 
   // --- Bons de commande (BL) ---
