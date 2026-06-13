@@ -9,15 +9,30 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {AuthStore} from '../../core/state/auth.store';
-import {AlerteStock, StockApiService, StockValoriseItem} from '../../core/api/stock-api.service';
+import {
+  AlerteStock,
+  StockApiService,
+  StockDashboardAnalytics,
+  StockTopSort,
+  StockValoriseItem,
+} from '../../core/api/stock-api.service';
 import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
+import {BaseChartDirective} from 'ng2-charts';
+import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
+import {forkJoin} from 'rxjs';
+import {finalize} from 'rxjs/operators';
+
+const DAYS_OPTIONS = [7, 30, 90] as const;
+const TOP_N_OPTIONS = [5, 10, 20, 50] as const;
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-stock-dashboard',
   standalone: true,
   imports: [
     CommonModule, RouterLink, MatCardModule, MatButtonModule, MatIconModule,
-    MatTableModule, MatChipsModule, MatProgressBarModule,
+    MatTableModule, MatChipsModule, MatProgressBarModule, BaseChartDirective,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -52,6 +67,53 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       }
 
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Filtres analytiques</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="filters-grid">
+            <div class="filter-block">
+              <span class="filter-title">Periode</span>
+              <div class="app-button-cluster compact">
+                @for (d of daysOptions; track d) {
+                  <button mat-stroked-button [color]="selectedDays() === d ? 'primary' : undefined"
+                          (click)="onDaysChange(d)">
+                    {{ d }} jours
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="filter-block">
+              <span class="filter-title">Top N articles</span>
+              <div class="app-button-cluster compact">
+                @for (n of topNOptions; track n) {
+                  <button mat-stroked-button [color]="selectedTopN() === n ? 'primary' : undefined"
+                          (click)="onTopNChange(n)">
+                    Top {{ n }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="filter-block">
+              <span class="filter-title">Tri Top N</span>
+              <div class="app-button-cluster compact">
+                <button mat-stroked-button [color]="selectedSortBy() === 'VALUE' ? 'primary' : undefined"
+                        (click)="onSortByChange('VALUE')">
+                  Valeur
+                </button>
+                <button mat-stroked-button [color]="selectedSortBy() === 'QUANTITY' ? 'primary' : undefined"
+                        (click)="onSortByChange('QUANTITY')">
+                  Quantite
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
       <div class="kpi-grid">
         <div class="app-data-pill">
           <span>Valeur totale du stock</span>
@@ -73,50 +135,29 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
           <span>Préemptions (lots)</span>
           <strong>{{ preemptions().length }}</strong>
         </div>
+        <div class="app-data-pill">
+          <span>Flux période (valeur)</span>
+          <strong>{{ (analytics()?.trend?.length ? periodValueFlow() : 0) | number:'1.0-2' }}</strong>
+        </div>
       </div>
 
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Suivi global du stock</mat-card-title>
+          <mat-card-title>Tendance des mouvements ({{ selectedDays() }} jours)</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="global-bars">
-            <div class="bar-card">
-              <span class="bar-label">Quantité globale</span>
-              <div class="bar-track">
-                <div class="bar-fill qty" [style.width]="'100%'"></div>
-              </div>
-              <strong>{{ quantiteTotale() | number:'1.0-2' }}</strong>
-            </div>
-            <div class="bar-card">
-              <span class="bar-label">Valeur globale</span>
-              <div class="bar-track">
-                <div class="bar-fill val" [style.width]="'100%'"></div>
-              </div>
-              <strong>{{ valeurTotale() | number:'1.0-2' }}</strong>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Top articles — valeur</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @if (topValeurArticles().length === 0) {
-            <p class="app-muted-note">Aucune donnée à afficher.</p>
+          @if (analyticsLoading()) {
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          }
+          @if ((analytics()?.trend?.length ?? 0) === 0) {
+            <p class="app-muted-note">Aucune donnée de tendance sur la période.</p>
           } @else {
-            <div class="bars-list">
-              @for (a of topValeurArticles(); track a.articleId) {
-                <div class="bars-row">
-                  <span class="bars-name">{{ a.code }} - {{ a.libelle }}</span>
-                  <div class="bar-track">
-                    <div class="bar-fill val" [style.width]="widthPct(a.valeur, maxValeurArticle())"></div>
-                  </div>
-                  <span class="bars-value">{{ a.valeur | number:'1.0-2' }}</span>
-                </div>
-              }
+            <div class="chart-wrap">
+              <canvas baseChart
+                      [type]="'line'"
+                      [data]="trendChartData()"
+                      [options]="trendChartOptions">
+              </canvas>
             </div>
           }
         </mat-card-content>
@@ -124,22 +165,20 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
 
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Top articles — quantité</mat-card-title>
+          <mat-card-title>
+            Top {{ selectedTopN() }} articles — {{ selectedSortBy() === 'VALUE' ? 'tri valeur' : 'tri quantite' }}
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          @if (topQuantiteArticles().length === 0) {
-            <p class="app-muted-note">Aucune donnée à afficher.</p>
+          @if ((analytics()?.topArticles?.length ?? 0) === 0) {
+            <p class="app-muted-note">Aucun mouvement article sur la période.</p>
           } @else {
-            <div class="bars-list">
-              @for (a of topQuantiteArticles(); track a.articleId) {
-                <div class="bars-row">
-                  <span class="bars-name">{{ a.code }} - {{ a.libelle }}</span>
-                  <div class="bar-track">
-                    <div class="bar-fill qty" [style.width]="widthPct(a.quantite, maxQuantiteArticle())"></div>
-                  </div>
-                  <span class="bars-value">{{ a.quantite | number:'1.0-2' }} {{ a.unite }}</span>
-                </div>
-              }
+            <div class="chart-wrap">
+              <canvas baseChart
+                      [type]="'bar'"
+                      [data]="topChartData()"
+                      [options]="topChartOptions">
+              </canvas>
             </div>
           }
         </mat-card-content>
@@ -253,13 +292,13 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
       background: #fff8e1;
     }
 
-    .global-bars {
+    .filters-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 12px;
     }
 
-    .bar-card {
+    .filter-block {
       display: grid;
       gap: 8px;
       border: 1px solid var(--app-border);
@@ -268,57 +307,19 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
       background: color-mix(in srgb, var(--app-frost) 50%, var(--app-surface));
     }
 
-    .bar-label {
+    .filter-title {
       font-size: 12px;
       color: var(--app-muted);
       font-weight: 600;
     }
 
-    .bars-list {
-      display: grid;
-      gap: 10px;
+    .compact {
+      gap: 6px;
     }
 
-    .bars-row {
-      display: grid;
-      grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 2fr) auto;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .bars-name {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--app-text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .bars-value {
-      font-size: 12px;
-      color: var(--app-muted);
-      white-space: nowrap;
-    }
-
-    .bar-track {
-      height: 10px;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--app-border) 65%, transparent);
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      border-radius: inherit;
-    }
-
-    .bar-fill.qty {
-      background: linear-gradient(90deg, #26a69a, #00897b);
-    }
-
-    .bar-fill.val {
-      background: linear-gradient(90deg, #42a5f5, #1e88e5);
+    .chart-wrap {
+      min-height: 320px;
+      display: block;
     }
 
     .full-width {
@@ -356,19 +357,20 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
     mat-card {
       margin-top: 16px;
     }
-
-    @media (max-width: 900px) {
-      .bars-row {
-        grid-template-columns: 1fr;
-      }
-    }
   `],
 })
 export class StockDashboardComponent {
   protected readonly cols = ['code', 'libelle', 'quantite', 'pmp', 'valeur', 'actions'];
+  protected readonly daysOptions = DAYS_OPTIONS;
+  protected readonly topNOptions = TOP_N_OPTIONS;
   protected readonly loading = signal(false);
+  protected readonly analyticsLoading = signal(false);
   protected readonly stock = signal<StockValoriseItem[]>([]);
   protected readonly alertes = signal<AlerteStock[]>([]);
+  protected readonly analytics = signal<StockDashboardAnalytics | null>(null);
+  protected readonly selectedDays = signal<number>(30);
+  protected readonly selectedTopN = signal<number>(10);
+  protected readonly selectedSortBy = signal<StockTopSort>('VALUE');
   protected readonly quantiteTotale = computed(() =>
     this.stock().reduce((sum, a) => sum + (a.quantite ?? 0), 0));
   protected readonly valeurTotale = computed(() =>
@@ -377,38 +379,146 @@ export class StockDashboardComponent {
     this.alertes()
       .filter(a => a.type === 'PEREMPTION')
       .sort((a, b) => (a.datePeremption ?? '').localeCompare(b.datePeremption ?? '')));
-  protected readonly maxValeurArticle = computed(() =>
-    Math.max(1, ...this.stock().map(a => Number(a.valeur ?? 0))));
-  protected readonly maxQuantiteArticle = computed(() =>
-    Math.max(1, ...this.stock().map(a => Number(a.quantite ?? 0))));
-  protected readonly topValeurArticles = computed(() =>
-    [...this.stock()]
-      .sort((a, b) => Number(b.valeur ?? 0) - Number(a.valeur ?? 0))
-      .slice(0, 8));
-  protected readonly topQuantiteArticles = computed(() =>
-    [...this.stock()]
-      .sort((a, b) => Number(b.quantite ?? 0) - Number(a.quantite ?? 0))
-      .slice(0, 8));
+  protected readonly periodValueFlow = computed(() =>
+    (this.analytics()?.trend ?? []).reduce((sum, p) => sum + Number(p.valeur ?? 0), 0));
+  protected readonly trendChartData = computed<ChartData<'line'>>(() => {
+    const trend = this.analytics()?.trend ?? [];
+    return {
+      labels: trend.map(point => this.shortDate(point.date)),
+      datasets: [
+        {
+          label: 'Quantite nette',
+          data: trend.map(point => Number(point.quantite ?? 0)),
+          borderColor: '#26a69a',
+          backgroundColor: 'rgba(38, 166, 154, 0.22)',
+          yAxisID: 'y',
+          tension: 0.28,
+          fill: true,
+        },
+        {
+          label: 'Valeur mouvements',
+          data: trend.map(point => Number(point.valeur ?? 0)),
+          borderColor: '#1e88e5',
+          backgroundColor: 'rgba(30, 136, 229, 0.2)',
+          yAxisID: 'y1',
+          tension: 0.2,
+          fill: true,
+        },
+      ],
+    };
+  });
+  protected readonly topChartData = computed<ChartData<'bar'>>(() => {
+    const top = this.analytics()?.topArticles ?? [];
+    const isValue = this.selectedSortBy() === 'VALUE';
+    return {
+      labels: top.map(a => `${a.code ?? ''} ${a.libelle}`.trim()),
+      datasets: [
+        {
+          label: isValue ? 'Valeur' : 'Quantite',
+          data: top.map(a => isValue ? Number(a.valeur ?? 0) : Number(a.quantite ?? 0)),
+          backgroundColor: isValue ? '#42a5f5' : '#26a69a',
+          borderRadius: 8,
+          maxBarThickness: 34,
+        },
+      ],
+    };
+  });
+  protected readonly trendChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {mode: 'index', intersect: false},
+    plugins: {
+      legend: {display: true, position: 'bottom'},
+    },
+    scales: {
+      y: {
+        position: 'left',
+        title: {display: true, text: 'Quantite'},
+      },
+      y1: {
+        position: 'right',
+        grid: {drawOnChartArea: false},
+        title: {display: true, text: 'Valeur'},
+      },
+    },
+  };
+  protected readonly topChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {display: false},
+    },
+    scales: {
+      x: {
+        ticks: {
+          autoSkip: false,
+        },
+      },
+    },
+  };
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(MatDialog);
 
   constructor() {
-    this.reload();
+    this.reloadStockAndAlertes();
+    this.reloadAnalytics();
   }
 
-  private reload(): void {
+  protected onDaysChange(days: number): void {
+    if (this.selectedDays() === days) {
+      return;
+    }
+    this.selectedDays.set(days);
+    this.reloadAnalytics();
+  }
+
+  protected onTopNChange(topN: number): void {
+    if (this.selectedTopN() === topN) {
+      return;
+    }
+    this.selectedTopN.set(topN);
+    this.reloadAnalytics();
+  }
+
+  protected onSortByChange(sortBy: StockTopSort): void {
+    if (this.selectedSortBy() === sortBy) {
+      return;
+    }
+    this.selectedSortBy.set(sortBy);
+    this.reloadAnalytics();
+  }
+
+  private reloadStockAndAlertes(): void {
     const centerId = this.auth.centerId();
     if (!centerId) {
       return;
     }
     this.loading.set(true);
-    this.api.stockValorise(centerId).subscribe({
-      next: (items) => this.stock.set(items),
-      complete: () => this.loading.set(false),
-      error: () => this.loading.set(false),
-    });
-    this.api.alertes(centerId).subscribe({next: (a) => this.alertes.set(a)});
+    forkJoin({
+      stock: this.api.stockValorise(centerId),
+      alertes: this.api.alertes(centerId),
+    })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: ({stock, alertes}) => {
+          this.stock.set(stock);
+          this.alertes.set(alertes);
+        },
+      });
+  }
+
+  private reloadAnalytics(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
+    this.analyticsLoading.set(true);
+    this.api.dashboardAnalytics(centerId, this.selectedDays(), this.selectedTopN(), this.selectedSortBy())
+      .pipe(finalize(() => this.analyticsLoading.set(false)))
+      .subscribe({
+        next: (data) => this.analytics.set(data),
+      });
   }
 
   protected openPmpExplain(article: StockValoriseItem): void {
@@ -427,10 +537,15 @@ export class StockDashboardComponent {
     });
   }
 
-  protected widthPct(value: number, max: number): string {
-    const safeMax = max > 0 ? max : 1;
-    const pct = Math.max(0, Math.min(100, (value / safeMax) * 100));
-    return `${pct.toFixed(2)}%`;
+  private shortDate(raw: string): string {
+    if (!raw) {
+      return '';
+    }
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) {
+      return raw;
+    }
+    return date.toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit'});
   }
 }
 

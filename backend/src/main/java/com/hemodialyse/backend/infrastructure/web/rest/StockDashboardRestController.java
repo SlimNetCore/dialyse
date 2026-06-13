@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.domain.stock.model.StockTopSort;
 import com.hemodialyse.backend.domain.stock.port.StockDashboardUseCase;
 import com.hemodialyse.backend.domain.stock.service.PmpRecalculationCoordinator;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,20 @@ public class StockDashboardRestController {
                                         PmpRecalculationCoordinator recalcCoordinator) {
         this.useCase = useCase;
         this.recalcCoordinator = recalcCoordinator;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @GetMapping("/analytics")
+    public ResponseEntity<?> analytics(@RequestParam UUID centerId,
+                                       @RequestParam(defaultValue = "30") int days,
+                                       @RequestParam(defaultValue = "10") int topN,
+                                       @RequestParam(defaultValue = "VALUE") String sortBy) {
+        return ResponseEntity.ok(useCase.analytics(
+                CenterId.of(centerId),
+                days,
+                topN,
+                StockTopSort.from(sortBy)
+        ));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")

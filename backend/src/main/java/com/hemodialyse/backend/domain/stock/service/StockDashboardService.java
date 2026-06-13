@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -19,6 +20,10 @@ public class StockDashboardService implements StockDashboardUseCase {
      * Default expiry alert window (days).
      */
     public static final int DEFAULT_EXPIRY_WINDOW_DAYS = 30;
+    private static final int DEFAULT_ANALYTICS_DAYS = 30;
+    private static final int[] ALLOWED_ANALYTICS_DAYS = {7, 30, 90};
+    private static final int DEFAULT_TOP_N = 10;
+    private static final int MAX_TOP_N = 50;
 
     private static final String METHODE =
             "PMP (Poids Moyen Pondere). A chaque ENTREE : PMP = (valeur du stock + quantite recue x prix unitaire) "
@@ -44,6 +49,39 @@ public class StockDashboardService implements StockDashboardUseCase {
         this.lotRepo = lotRepo;
         this.bonReceptionRepo = bonReceptionRepo;
         this.bonSortieRepo = bonSortieRepo;
+    }
+
+    @Override
+    public StockDashboardAnalytics analytics(CenterId centerId, int days, int topN, StockTopSort sortBy) {
+        int safeDays = sanitizeDays(days);
+        int safeTopN = sanitizeTopN(topN);
+        StockTopSort safeSort = sortBy != null ? sortBy : StockTopSort.VALUE;
+
+        List<StockValoriseItem> stock = dashboardPort.stockValorise(centerId);
+        BigDecimal quantiteTotale = stock.stream()
+                .map(StockValoriseItem::quantite)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal valeurTotale = stock.stream()
+                .map(StockValoriseItem::valeur)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<StockTrendPoint> trend = fillMissingDays(
+                dashboardPort.mouvementTrend(centerId, safeDays),
+                safeDays
+        );
+        List<StockTopArticlePoint> topArticles = dashboardPort.topArticlesByMovement(centerId, safeDays, safeTopN, safeSort);
+
+        return new StockDashboardAnalytics(
+                safeDays,
+                safeTopN,
+                safeSort,
+                quantiteTotale,
+                valeurTotale,
+                trend,
+                topArticles
+        );
     }
 
     @Override
@@ -122,6 +160,40 @@ public class StockDashboardService implements StockDashboardUseCase {
         return String.format(
                 "SORTIE : %s unite(s) valorisee(s) au PMP courant %s ; PMP inchange = %s",
                 q.toPlainString(), d.stateBefore().pmp().toPlainString(), d.stateAfter().pmp().toPlainString());
+    }
+
+    private int sanitizeDays(int days) {
+        for (int allowed : ALLOWED_ANALYTICS_DAYS) {
+            if (allowed == days) {
+                return days;
+            }
+        }
+        return DEFAULT_ANALYTICS_DAYS;
+    }
+
+    private int sanitizeTopN(int topN) {
+        if (topN <= 0) {
+            return DEFAULT_TOP_N;
+        }
+        return Math.min(topN, MAX_TOP_N);
+    }
+
+    private List<StockTrendPoint> fillMissingDays(List<StockTrendPoint> trend, int days) {
+        LocalDate start = LocalDate.now().minusDays(days - 1L);
+        Map<LocalDate, StockTrendPoint> byDate = trend.stream()
+                .collect(HashMap::new, (map, item) -> map.put(item.date(), item), HashMap::putAll);
+
+        List<StockTrendPoint> normalized = new ArrayList<>(days);
+        for (int i = 0; i < days; i++) {
+            LocalDate date = start.plusDays(i);
+            StockTrendPoint point = byDate.get(date);
+            if (point == null) {
+                normalized.add(new StockTrendPoint(date, BigDecimal.ZERO, BigDecimal.ZERO));
+            } else {
+                normalized.add(point);
+            }
+        }
+        return normalized;
     }
 
     private String pieceCodeFromMovement(CenterId centerId,

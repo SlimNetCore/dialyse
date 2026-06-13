@@ -160,6 +160,33 @@ export interface PmpRecalcJob {
   articleIds: string[];
 }
 
+export type StockTopSort = 'VALUE' | 'QUANTITY';
+
+export interface StockTrendPoint {
+  date: string;
+  quantite: number;
+  valeur: number;
+}
+
+export interface StockTopArticlePoint {
+  articleId: string;
+  code: string;
+  libelle: string;
+  unite: string;
+  quantite: number;
+  valeur: number;
+}
+
+export interface StockDashboardAnalytics {
+  days: number;
+  topN: number;
+  sortBy: StockTopSort;
+  stockQuantiteTotale: number;
+  stockValeurTotale: number;
+  trend: StockTrendPoint[];
+  topArticles: StockTopArticlePoint[];
+}
+
 @Injectable({providedIn: 'root'})
 export class StockApiService {
   private readonly http = inject(HttpClient);
@@ -277,6 +304,15 @@ export class StockApiService {
   }
 
   // --- Dashboard ---
+  dashboardAnalytics(centerId: string, days: number, topN: number, sortBy: StockTopSort): Observable<StockDashboardAnalytics> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('days', String(days))
+      .set('topN', String(topN))
+      .set('sortBy', sortBy);
+    return this.http.get<StockDashboardAnalytics>(`${this.base}/dashboard/analytics`, {params});
+  }
+
   stockValorise(centerId: string): Observable<StockValoriseItem[]> {
     return this.http.get<StockValoriseItem[]>(`${this.base}/dashboard/stock-valorise`, {
       params: new HttpParams().set('centerId', centerId),

@@ -1,15 +1,15 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.AlerteStock;
-import com.hemodialyse.backend.domain.stock.model.StockValoriseItem;
-import com.hemodialyse.backend.domain.stock.model.TracabiliteItem;
+import com.hemodialyse.backend.domain.stock.model.*;
 import com.hemodialyse.backend.domain.stock.port.StockDashboardPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +24,56 @@ public class StockDashboardAdapter implements StockDashboardPort {
 
     public StockDashboardAdapter(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
+    }
+
+    @Override
+    public List<StockTrendPoint> mouvementTrend(CenterId centerId, int days) {
+        OffsetDateTime start = LocalDate.now().minusDays(days - 1L).atStartOfDay().atOffset(ZoneOffset.UTC);
+        return jdbc.query(
+                "SELECT CAST(sm.created_at AS DATE) AS jour, " +
+                        "COALESCE(SUM(CASE WHEN sm.mouvement_type = 'SORTIE' THEN -sm.quantite ELSE sm.quantite END), 0) AS quantite, " +
+                        "COALESCE(SUM(ABS(sm.quantite) * COALESCE(sm.prix_unitaire, art.pmp_courant, 0)), 0) AS valeur " +
+                        "FROM stock_movements sm " +
+                        "JOIN articles art ON art.id = sm.article_id " +
+                        "WHERE sm.center_id = ? AND sm.created_at >= ? " +
+                        "GROUP BY CAST(sm.created_at AS DATE) " +
+                        "ORDER BY jour ASC",
+                (rs, i) -> new StockTrendPoint(
+                        rs.getObject("jour", LocalDate.class),
+                        rs.getBigDecimal("quantite"),
+                        rs.getBigDecimal("valeur")
+                ),
+                centerId.value(), start
+        );
+    }
+
+    @Override
+    public List<StockTopArticlePoint> topArticlesByMovement(CenterId centerId, int days, int topN, StockTopSort sortBy) {
+        OffsetDateTime start = LocalDate.now().minusDays(days - 1L).atStartOfDay().atOffset(ZoneOffset.UTC);
+        String orderBy = sortBy == StockTopSort.QUANTITY
+                ? "quantite DESC, valeur DESC, art.libelle ASC"
+                : "valeur DESC, quantite DESC, art.libelle ASC";
+
+        return jdbc.query(
+                "SELECT art.id AS article_id, art.code, art.libelle, art.unite, " +
+                        "COALESCE(SUM(ABS(sm.quantite)), 0) AS quantite, " +
+                        "COALESCE(SUM(ABS(sm.quantite) * COALESCE(sm.prix_unitaire, art.pmp_courant, 0)), 0) AS valeur " +
+                        "FROM stock_movements sm " +
+                        "JOIN articles art ON art.id = sm.article_id " +
+                        "WHERE sm.center_id = ? AND sm.created_at >= ? " +
+                        "GROUP BY art.id, art.code, art.libelle, art.unite " +
+                        "ORDER BY " + orderBy + " " +
+                        "LIMIT ?",
+                (rs, i) -> new StockTopArticlePoint(
+                        UUID.fromString(rs.getString("article_id")),
+                        rs.getString("code"),
+                        rs.getString("libelle"),
+                        rs.getString("unite"),
+                        rs.getBigDecimal("quantite"),
+                        rs.getBigDecimal("valeur")
+                ),
+                centerId.value(), start, topN
+        );
     }
 
     @Override
