@@ -132,6 +132,7 @@ public class StockDemoDataSeeder {
         a.setUnite(unite);
         a.setStockQuantity(BigDecimal.ZERO);
         a.setSeuilAlerte(new BigDecimal(seuil));
+        a.setGereParLot(true);
         a.setActive(true);
         a.setCreatedAt(OffsetDateTime.now());
         return repo.save(a).getId();

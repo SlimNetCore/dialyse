@@ -4,10 +4,12 @@ import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.*;
 import com.hemodialyse.backend.domain.stock.port.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -23,6 +25,7 @@ public class BonReceptionService implements BonReceptionUseCase {
     private final StockSequencePort sequence;
     private final PmpEngine pmpEngine;
     private final PmpRecalculationCoordinator recalcCoordinator;
+    private final SimpMessagingTemplate messaging;
 
     public BonReceptionService(BonReceptionRepositoryPort repo,
                                BonCommandeRepositoryPort bonCommandeRepo,
@@ -31,7 +34,8 @@ public class BonReceptionService implements BonReceptionUseCase {
                                ArticleRepositoryPort articleRepo,
                                StockSequencePort sequence,
                                PmpEngine pmpEngine,
-                               PmpRecalculationCoordinator recalcCoordinator) {
+                               PmpRecalculationCoordinator recalcCoordinator,
+                               SimpMessagingTemplate messaging) {
         this.repo = repo;
         this.bonCommandeRepo = bonCommandeRepo;
         this.lotRepo = lotRepo;
@@ -40,6 +44,7 @@ public class BonReceptionService implements BonReceptionUseCase {
         this.sequence = sequence;
         this.pmpEngine = pmpEngine;
         this.recalcCoordinator = recalcCoordinator;
+        this.messaging = messaging;
     }
 
     @Override
@@ -134,6 +139,7 @@ public class BonReceptionService implements BonReceptionUseCase {
                 bonCommandeRepo.save(bl);
             });
         }
+        publishStockMovementChanged(centerId.value(), "ENTREE", bon.getReference(), articlesTouches.size());
         return saved;
     }
 
@@ -234,6 +240,19 @@ public class BonReceptionService implements BonReceptionUseCase {
             throw new IllegalArgumentException("Date de peremption obligatoire pour le lot " + numeroLot);
         }
         return datePeremption;
+    }
+
+    private void publishStockMovementChanged(UUID centerId, String mouvement, String reference, int articleCount) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("type", "STOCK_MOVEMENT_CHANGED");
+        event.put("centerId", centerId.toString());
+        Map<String, String> payload = new HashMap<>();
+        payload.put("mouvement", mouvement);
+        payload.put("reference", reference != null ? reference : "");
+        payload.put("articles", Integer.toString(articleCount));
+        event.put("payload", payload);
+        event.put("timestamp", Instant.now().toString());
+        messaging.convertAndSend("/topic/center/" + centerId + "/events", (Object) event);
     }
 }
 

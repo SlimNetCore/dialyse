@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
@@ -17,6 +17,7 @@ import {
   StockValoriseItem,
 } from '../../core/api/stock-api.service';
 import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
+import {WebSocketService} from '../../core/ws/websocket.service';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {forkJoin} from 'rxjs';
@@ -463,10 +464,22 @@ export class StockDashboardComponent {
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(MatDialog);
+  private readonly ws = inject(WebSocketService);
 
   constructor() {
     this.reloadStockAndAlertes();
     this.reloadAnalytics();
+    effect(() => {
+      const event = this.ws.lastEvent();
+      const centerId = this.auth.centerId();
+      if (!event || !centerId || event.centerId !== centerId) {
+        return;
+      }
+      if (event.type === 'STOCK_MOVEMENT_CHANGED' || event.type === 'STOCK_RECALC_LOCKS_CHANGED') {
+        this.reloadStockAndAlertes();
+        this.reloadAnalytics();
+      }
+    });
   }
 
   protected onDaysChange(days: number): void {
