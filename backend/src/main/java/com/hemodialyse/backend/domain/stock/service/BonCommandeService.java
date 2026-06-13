@@ -26,7 +26,7 @@ public class BonCommandeService implements BonCommandeUseCase {
 
     @Override
     public BonCommande create(CenterId centerId, UUID fournisseurId, List<LigneBonCommande> lignes, String userId) {
-        String reference = sequence.next(centerId, "SEQ_BL");
+        String reference = sequence.next(centerId, "SEQ_BC");
         BonCommande bon = BonCommande.brouillon(centerId.value(), reference, fournisseurId,
                 userId != null ? userId : "system");
         bon.remplacerLignes(lignes);

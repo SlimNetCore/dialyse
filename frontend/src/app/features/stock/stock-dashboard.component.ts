@@ -58,6 +58,10 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
           <strong>{{ valeurTotale() | number:'1.0-2' }}</strong>
         </div>
         <div class="app-data-pill">
+          <span>Quantité globale</span>
+          <strong>{{ quantiteTotale() | number:'1.0-2' }}</strong>
+        </div>
+        <div class="app-data-pill">
           <span>Articles en stock</span>
           <strong>{{ stock().length }}</strong>
         </div>
@@ -65,7 +69,106 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
           <span>Alertes actives</span>
           <strong>{{ alertes().length }}</strong>
         </div>
+        <div class="app-data-pill warning-pill">
+          <span>Préemptions (lots)</span>
+          <strong>{{ preemptions().length }}</strong>
+        </div>
       </div>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Suivi global du stock</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="global-bars">
+            <div class="bar-card">
+              <span class="bar-label">Quantité globale</span>
+              <div class="bar-track">
+                <div class="bar-fill qty" [style.width]="'100%'"></div>
+              </div>
+              <strong>{{ quantiteTotale() | number:'1.0-2' }}</strong>
+            </div>
+            <div class="bar-card">
+              <span class="bar-label">Valeur globale</span>
+              <div class="bar-track">
+                <div class="bar-fill val" [style.width]="'100%'"></div>
+              </div>
+              <strong>{{ valeurTotale() | number:'1.0-2' }}</strong>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Top articles — valeur</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (topValeurArticles().length === 0) {
+            <p class="app-muted-note">Aucune donnée à afficher.</p>
+          } @else {
+            <div class="bars-list">
+              @for (a of topValeurArticles(); track a.articleId) {
+                <div class="bars-row">
+                  <span class="bars-name">{{ a.code }} - {{ a.libelle }}</span>
+                  <div class="bar-track">
+                    <div class="bar-fill val" [style.width]="widthPct(a.valeur, maxValeurArticle())"></div>
+                  </div>
+                  <span class="bars-value">{{ a.valeur | number:'1.0-2' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Top articles — quantité</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (topQuantiteArticles().length === 0) {
+            <p class="app-muted-note">Aucune donnée à afficher.</p>
+          } @else {
+            <div class="bars-list">
+              @for (a of topQuantiteArticles(); track a.articleId) {
+                <div class="bars-row">
+                  <span class="bars-name">{{ a.code }} - {{ a.libelle }}</span>
+                  <div class="bar-track">
+                    <div class="bar-fill qty" [style.width]="widthPct(a.quantite, maxQuantiteArticle())"></div>
+                  </div>
+                  <span class="bars-value">{{ a.quantite | number:'1.0-2' }} {{ a.unite }}</span>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Détails des lots en préemption</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (preemptions().length === 0) {
+            <p class="app-muted-note">Aucun lot en préemption.</p>
+          } @else {
+            <div class="alert-list">
+              @for (al of preemptions(); track al.articleId + (al.lotId ?? '')) {
+                <div class="alert-row">
+                  <mat-chip highlighted="true">PEREMPTION</mat-chip>
+                  <span class="alert-label">{{ al.articleLibelle }}</span>
+                  <span class="alert-meta">Lot {{ al.numeroLot || '—' }}</span>
+                  <span class="alert-meta">Date: {{ al.datePeremption || '—' }}</span>
+                  @if (al.quantite != null) {
+                    <span class="alert-meta">Qté: {{ al.quantite | number:'1.0-2' }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
 
       <mat-card>
         <mat-card-header>
@@ -145,6 +248,79 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
       flex-wrap: wrap;
     }
 
+    .warning-pill {
+      border: 1px solid #ffcc80;
+      background: #fff8e1;
+    }
+
+    .global-bars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .bar-card {
+      display: grid;
+      gap: 8px;
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: color-mix(in srgb, var(--app-frost) 50%, var(--app-surface));
+    }
+
+    .bar-label {
+      font-size: 12px;
+      color: var(--app-muted);
+      font-weight: 600;
+    }
+
+    .bars-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bars-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 2fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bars-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--app-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bars-value {
+      font-size: 12px;
+      color: var(--app-muted);
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--app-border) 65%, transparent);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+    }
+
+    .bar-fill.qty {
+      background: linear-gradient(90deg, #26a69a, #00897b);
+    }
+
+    .bar-fill.val {
+      background: linear-gradient(90deg, #42a5f5, #1e88e5);
+    }
+
     .full-width {
       width: 100%;
     }
@@ -180,6 +356,12 @@ import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
     mat-card {
       margin-top: 16px;
     }
+
+    @media (max-width: 900px) {
+      .bars-row {
+        grid-template-columns: 1fr;
+      }
+    }
   `],
 })
 export class StockDashboardComponent {
@@ -187,8 +369,26 @@ export class StockDashboardComponent {
   protected readonly loading = signal(false);
   protected readonly stock = signal<StockValoriseItem[]>([]);
   protected readonly alertes = signal<AlerteStock[]>([]);
+  protected readonly quantiteTotale = computed(() =>
+    this.stock().reduce((sum, a) => sum + (a.quantite ?? 0), 0));
   protected readonly valeurTotale = computed(() =>
     this.stock().reduce((sum, a) => sum + (a.valeur ?? 0), 0));
+  protected readonly preemptions = computed(() =>
+    this.alertes()
+      .filter(a => a.type === 'PEREMPTION')
+      .sort((a, b) => (a.datePeremption ?? '').localeCompare(b.datePeremption ?? '')));
+  protected readonly maxValeurArticle = computed(() =>
+    Math.max(1, ...this.stock().map(a => Number(a.valeur ?? 0))));
+  protected readonly maxQuantiteArticle = computed(() =>
+    Math.max(1, ...this.stock().map(a => Number(a.quantite ?? 0))));
+  protected readonly topValeurArticles = computed(() =>
+    [...this.stock()]
+      .sort((a, b) => Number(b.valeur ?? 0) - Number(a.valeur ?? 0))
+      .slice(0, 8));
+  protected readonly topQuantiteArticles = computed(() =>
+    [...this.stock()]
+      .sort((a, b) => Number(b.quantite ?? 0) - Number(a.quantite ?? 0))
+      .slice(0, 8));
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(MatDialog);
@@ -225,6 +425,12 @@ export class StockDashboardComponent {
         libelle: article.libelle,
       },
     });
+  }
+
+  protected widthPct(value: number, max: number): string {
+    const safeMax = max > 0 ? max : 1;
+    const pct = Math.max(0, Math.min(100, (value / safeMax) * 100));
+    return `${pct.toFixed(2)}%`;
   }
 }
 

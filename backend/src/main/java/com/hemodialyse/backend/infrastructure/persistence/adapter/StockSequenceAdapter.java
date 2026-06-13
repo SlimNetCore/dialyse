@@ -18,6 +18,7 @@ public class StockSequenceAdapter implements StockSequencePort {
 
     private static final Map<String, String> DEFAULT_PREFIXES = Map.of(
             "SEQ_BL", "BL-",
+            "SEQ_BC", "BC-",
             "SEQ_BR", "BR-",
             "SEQ_BS", "BS-"
     );
