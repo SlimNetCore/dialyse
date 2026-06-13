@@ -133,9 +133,27 @@ import {filter} from 'rxjs/operators';
       </div>
     </mat-toolbar>
 
+    <div class="module-bar">
+      <div class="module-items">
+        @for (item of activeModuleItems(); track item.route) {
+          <button
+            mat-stroked-button
+            type="button"
+            class="module-item-btn"
+            [class.active-module-item]="isRouteActive(item.route)"
+            (click)="openModule(item.route)"
+          >
+            <mat-icon>{{ item.icon }}</mat-icon>
+            {{ item.label }}
+          </button>
+        }
+      </div>
+    </div>
+
     <div class="shell-body">
       <!-- SIDEBAR -->
       <nav #sidebar class="sidebar" [class.compact-nav]="compactNav()">
+        <div class="sidebar-title">Modules</div>
         @for (item of visibleNavItems(); track item.route) {
           <a
             [routerLink]="item.route"
@@ -238,6 +256,73 @@ import {filter} from 'rxjs/operators';
         z-index: 100;
       }
 
+      .module-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-height: 48px;
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--app-border);
+        background: color-mix(in srgb, var(--app-surface) 96%, var(--app-frost));
+        position: sticky;
+        top: 0;
+        z-index: 95;
+        backdrop-filter: blur(4px);
+      }
+
+      .module-pill {
+        display: none;
+      }
+
+      .module-items {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        overflow: visible;
+      }
+
+      .module-item-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 10px;
+        white-space: nowrap;
+        min-height: 36px;
+        padding: 0 14px;
+        font-weight: 600;
+        border-color: color-mix(in srgb, var(--app-border) 75%, var(--app-primary-outline)) !important;
+        background: color-mix(in srgb, var(--app-surface) 90%, var(--app-frost));
+        transition: background .16s ease, border-color .16s ease, color .16s ease;
+      }
+
+      .module-item-btn mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: color-mix(in srgb, var(--app-primary) 72%, var(--app-text));
+      }
+
+      .module-item-btn:hover {
+        border-color: color-mix(in srgb, var(--app-primary) 45%, var(--app-border)) !important;
+        background: color-mix(in srgb, var(--app-primary) 8%, var(--app-surface));
+      }
+
+      .module-item-btn:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--app-primary) 65%, white);
+        outline-offset: 1px;
+      }
+
+      .active-module-item {
+        background: color-mix(in srgb, var(--app-primary) 14%, var(--app-surface));
+        border-color: var(--app-primary) !important;
+        color: var(--app-primary) !important;
+        box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--app-primary) 75%, transparent);
+      }
+
       .brand {
         display: flex;
         align-items: center;
@@ -322,6 +407,15 @@ import {filter} from 'rxjs/operators';
         overflow-y: auto;
         z-index: 50;
         box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+      }
+
+      .sidebar-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--app-muted);
+        padding: 4px 6px 2px;
       }
 
       .sidebar.compact-nav {
@@ -553,6 +647,23 @@ import {filter} from 'rxjs/operators';
           padding: 0 12px;
         }
 
+        .module-bar {
+          padding: 4px 10px;
+          min-height: 48px;
+          gap: 8px;
+        }
+
+        .module-pill {
+          min-width: 140px;
+          padding: 4px 8px;
+        }
+
+        .module-item-btn {
+          min-height: 34px;
+          padding: 0 10px;
+          font-size: 12px;
+        }
+
         .user-btn {
           padding: 0 6px;
         }
@@ -571,6 +682,31 @@ import {filter} from 'rxjs/operators';
       @media (max-width: 900px) {
         :host {
           height: 100dvh;
+        }
+
+        .module-bar {
+          gap: 8px;
+          padding: 4px 8px;
+          justify-content: center;
+        }
+
+        .module-item-btn {
+          min-height: 32px;
+          padding: 0 9px;
+          font-size: 11px;
+        }
+
+        .module-items {
+          justify-content: center;
+          flex-wrap: wrap;
+          width: 100%;
+          overflow: visible;
+        }
+
+        .module-item-btn mat-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
         }
 
         .topbar {
@@ -608,6 +744,10 @@ import {filter} from 'rxjs/operators';
           gap: 6px;
         }
 
+        .sidebar-title {
+          display: none;
+        }
+
         .sidebar.compact-nav {
           overflow: hidden;
         }
@@ -639,17 +779,75 @@ import {filter} from 'rxjs/operators';
   ],
 })
 export class ShellComponent implements OnInit, AfterViewInit {
+  readonly modules = [
+    {
+      key: 'dashboard',
+      route: '/dashboard',
+      icon: 'dashboard',
+      label: 'NAV.DASHBOARD',
+      items: [
+        {route: '/dashboard', label: 'Dashboard', icon: 'space_dashboard'},
+        {route: '/modeles-document', label: 'Modèles documents', icon: 'description'},
+      ],
+    },
+    {
+      key: 'patients',
+      route: '/patients',
+      icon: 'people',
+      label: 'NAV.PATIENTS',
+      items: [
+        {route: '/patients', label: 'Dashboard patients', icon: 'space_dashboard'},
+        {route: '/patients/new', label: 'Nouveau patient', icon: 'person_add'},
+        {route: '/patients/pec-list', label: 'Liste PEC', icon: 'fact_check'},
+        {route: '/patients/attestations-list', label: 'Attestations', icon: 'badge'},
+      ],
+    },
+    {
+      key: 'seances',
+      route: '/seances',
+      icon: 'event_note',
+      label: 'NAV.SEANCES',
+      items: [
+        {route: '/seances', label: 'Dashboard séances', icon: 'space_dashboard'},
+      ],
+    },
+    {
+      key: 'stock',
+      route: '/stock',
+      icon: 'inventory_2',
+      label: 'NAV.STOCK',
+      items: [
+        {route: '/stock', label: 'Dashboard stock', icon: 'space_dashboard'},
+        {route: '/stock/bons-commande', label: 'Bons commande', icon: 'request_quote'},
+        {route: '/stock/bons-reception', label: 'Bons réception', icon: 'inventory_2'},
+        {route: '/stock/bons-sortie', label: 'Bons sortie', icon: 'logout'},
+        {route: '/stock/fournisseurs', label: 'Fournisseurs', icon: 'local_shipping'},
+      ],
+    },
+    {
+      key: 'facturation',
+      route: '/facturation',
+      icon: 'receipt',
+      label: 'NAV.FACTURATION',
+      items: [
+        {route: '/facturation', label: 'Dashboard facturation', icon: 'space_dashboard'},
+      ],
+    },
+    {
+      key: 'reglement',
+      route: '/reglement',
+      icon: 'payments',
+      label: 'NAV.REGLEMENT',
+      items: [
+        {route: '/reglement', label: 'Dashboard règlement', icon: 'space_dashboard'},
+      ],
+    },
+  ];
+
   readonly breadcrumbs = signal<string[]>([]);
   readonly compactNav = signal(false);
-
-  readonly navItems = [
-    {route: '/dashboard', icon: 'dashboard', label: 'NAV.DASHBOARD'},
-    {route: '/patients', icon: 'people', label: 'NAV.PATIENTS'},
-    {route: '/seances', icon: 'event_note', label: 'NAV.SEANCES'},
-    {route: '/stock', icon: 'inventory_2', label: 'NAV.STOCK'},
-    {route: '/facturation', icon: 'receipt', label: 'NAV.FACTURATION'},
-    {route: '/reglement', icon: 'payments', label: 'NAV.REGLEMENT'},
-  ];
+  readonly navItems = this.modules.map(m => ({route: m.route, icon: m.icon, label: m.label}));
+  readonly activeModuleItems = signal<{ route: string; label: string; icon: string }[]>([]);
 
   readonly auth = inject(AuthStore);
   readonly lang = inject(LangStore);
@@ -670,10 +868,12 @@ export class ShellComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.ws.connect();
     this.computeBreadcrumb(this.router.url);
+    this.syncActiveModule(this.router.url);
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => {
         this.computeBreadcrumb(e.urlAfterRedirects);
+        this.syncActiveModule(e.urlAfterRedirects);
       });
   }
 
@@ -719,6 +919,21 @@ export class ShellComponent implements OnInit, AfterViewInit {
     const segs = url.split('?')[0].split('/').filter(Boolean);
     this.breadcrumbRoutes = segs;
     this.breadcrumbs.set(segs.map((s) => map[s] ?? s));
+  }
+
+  protected openModule(route: string): void {
+    this.router.navigateByUrl(route);
+  }
+
+  private syncActiveModule(url: string): void {
+    const currentUrl = url.split('?')[0];
+    const moduleFound = this.modules.find(m =>
+      currentUrl === m.route
+      || currentUrl.startsWith(m.route + '/')
+      || (m.key === 'dashboard' && currentUrl === '/modeles-document'));
+
+    const active = moduleFound ?? this.modules[0];
+    this.activeModuleItems.set(active.items);
   }
 
   private finalizeLogout(): void {
