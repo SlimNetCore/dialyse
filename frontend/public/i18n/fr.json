@@ -348,7 +348,9 @@
     "WS_IMPOSSIBLE": "Connexion temps réel : impossible",
     "PATIENT_CREATED": "Nouveau patient : {{nom}}",
     "PEC_VALIDATED": "PEC validée : {{nom}}",
-    "PEC_CLOSED": "PEC clôturée : {{nom}}"
+    "PEC_CLOSED": "PEC clôturée : {{nom}}",
+    "SEANCE_CREATED": "Séance créée pour {{nom}} ({{date}})",
+    "SEANCE_VALIDATED": "Séance validée pour {{nom}} ({{date}})"
   },
   "PEC_LIST": {
     "TITLE": "Liste PEC",

@@ -80,6 +80,30 @@ public class NotificationService {
         send(centerId, "ATTESTATION_DELETED", payload);
     }
 
+    public void notifySeanceCreated(UUID centerId, UUID seanceId, UUID patientId,
+                                    String patientNom, String patientPrenom, String dateSeance) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("seanceId", seanceId.toString());
+        payload.put("patientId", patientId.toString());
+        payload.put("patientNom", patientNom == null ? "" : patientNom);
+        payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
+        payload.put("dateSeance", dateSeance == null ? "" : dateSeance);
+        payload.put("targetRoles", "INFIRMIER,MEDECIN");
+        send(centerId, "SEANCE_CREATED", payload);
+    }
+
+    public void notifySeanceValidated(UUID centerId, UUID seanceId, UUID patientId,
+                                      String patientNom, String patientPrenom, String dateSeance) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("seanceId", seanceId.toString());
+        payload.put("patientId", patientId.toString());
+        payload.put("patientNom", patientNom == null ? "" : patientNom);
+        payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
+        payload.put("dateSeance", dateSeance == null ? "" : dateSeance);
+        payload.put("targetRoles", "INFIRMIER,MEDECIN");
+        send(centerId, "SEANCE_VALIDATED", payload);
+    }
+
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
         Map<String, Object> event = new java.util.HashMap<>();
         event.put("type", eventType);

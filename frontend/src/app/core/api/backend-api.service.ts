@@ -175,6 +175,25 @@ export type SeanceSummary = {
   } | null;
 };
 
+export type SeanceJournalByDate = {
+  dateSeance: string;
+  patients: Array<{
+    seanceId: string;
+    patientId: string;
+    dateSeance: string;
+    status: string;
+    patientCode?: string | null;
+    patientNom?: string | null;
+    patientPrenom?: string | null;
+  }>;
+  sortiesArticles: Array<{
+    articleId: string;
+    articleCode?: string | null;
+    articleLibelle?: string | null;
+    quantiteTotale: number;
+  }>;
+};
+
 export type UpsertVoletParamedicalPayload = {
   centerId: string;
   poidsAvantKg?: number | null;
@@ -330,6 +349,13 @@ export class BackendApiService {
   getSeanceSummary(seanceId: string, centerId: string): Observable<SeanceSummary> {
     const params = new HttpParams().set('centerId', centerId);
     return this.http.get<SeanceSummary>(`${this.baseUrl}/seances/${seanceId}`, {params});
+  }
+
+  getSeanceJournalByDate(centerId: string, dateSeance: string): Observable<SeanceJournalByDate> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('dateSeance', dateSeance);
+    return this.http.get<SeanceJournalByDate>(`${this.baseUrl}/seances/journal`, {params});
   }
 
   upsertVoletParamedical(seanceId: string, payload: UpsertVoletParamedicalPayload): Observable<{

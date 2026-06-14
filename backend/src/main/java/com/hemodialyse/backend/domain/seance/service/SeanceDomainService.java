@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -113,6 +115,9 @@ public class SeanceDomainService implements SeanceUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
 
         seance.validerParInfirmier(userId != null ? userId : "system");
+        OffsetDateTime movementTimestamp = seance.getDateSeance()
+                .atTime(12, 0)
+                .atOffset(ZoneOffset.UTC);
 
         List<SeanceArticleConsumption> items = consommations != null ? consommations : List.of();
         for (SeanceArticleConsumption item : items) {
@@ -135,7 +140,8 @@ public class SeanceDomainService implements SeanceUseCase {
                     article.getId(),
                     seance.getId(),
                     item.quantite(),
-                    userId != null ? userId : "system"
+                    userId != null ? userId : "system",
+                    movementTimestamp
             ));
         }
 

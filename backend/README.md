@@ -23,6 +23,20 @@ Spring Boot 4 backend initialise pour demarrer le projet DDD + hexagonal.
 - `GET /actuator/health`
 - `GET /swagger-ui.html`
 
+## Comptes de demo (dev)
+
+Ces comptes sont charges via `db/seed.sql` puis hashes au demarrage par
+`SeedPasswordInitializer`.
+
+| Profil     | Username            | Mot de passe    | Centre          |
+|------------|---------------------|-----------------|-----------------|
+| Admin      | `admin`             | `admin$$2026dz` | Annaba + Rouiba |
+| Medecin    | `medecin`           | `medecin123`    | Annaba          |
+| Infirmier  | `infirmier-annaba`  | `infirmier123`  | Annaba          |
+| Infirmier  | `infirmier-rouiba`  | `infirmier123`  | Rouiba          |
+| Secretaire | `secretaire-annaba` | `secretaire123` | Annaba          |
+| Secretaire | `secretaire-rouiba` | `secretaire123` | Rouiba          |
+
 ## Modes de cache
 
 ### Mode actuel (par defaut): Caffeine local

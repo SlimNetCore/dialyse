@@ -264,7 +264,9 @@
     "WS_IMPOSSIBLE": "Real-time connection: unavailable",
     "PATIENT_CREATED": "New patient: {{nom}}",
     "PEC_VALIDATED": "Coverage validated: {{nom}}",
-    "PEC_CLOSED": "Coverage closed: {{nom}}"
+    "PEC_CLOSED": "Coverage closed: {{nom}}",
+    "SEANCE_CREATED": "Session created for {{nom}} ({{date}})",
+    "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})"
   },
   "PEC_LIST": {
     "TITLE": "Coverage list",

@@ -18,6 +18,11 @@ public class StockMovement {
     private OffsetDateTime createdAt;
 
     public static StockMovement sortie(UUID centerId, UUID articleId, UUID seanceId, BigDecimal quantite, String createdBy) {
+        return sortie(centerId, articleId, seanceId, quantite, createdBy, OffsetDateTime.now());
+    }
+
+    public static StockMovement sortie(UUID centerId, UUID articleId, UUID seanceId,
+                                       BigDecimal quantite, String createdBy, OffsetDateTime createdAt) {
         StockMovement movement = new StockMovement();
         movement.setId(UUID.randomUUID());
         movement.setCenterId(centerId);
@@ -26,7 +31,7 @@ public class StockMovement {
         movement.setMovementType(StockMovementType.SORTIE);
         movement.setQuantite(quantite);
         movement.setCreatedBy(createdBy);
-        movement.setCreatedAt(OffsetDateTime.now());
+        movement.setCreatedAt(createdAt != null ? createdAt : OffsetDateTime.now());
         return movement;
     }
 
