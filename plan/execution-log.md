@@ -50,3 +50,24 @@
 - [ ] Sprint 3: renforcer controles JWT/roles (claims + policies fines)
 - [ ] Sprint 3: finaliser schema attestation/assurance et tests de non-regression multi-centre
 - [ ] Sprint 3: remplacer les boutons demo par formulaires metier complets patient/PEC
+
+## 2026-06-14 - Reprise migration frontend Angular 22
+
+### Verification de l etat Angular
+
+- [x] Verification dependances Angular 22 (`frontend/package.json`)
+- [x] Verification configuration Angular 22 (`frontend/angular.json`)
+- [x] Verification TypeScript 6 et mode strict (`frontend/tsconfig.json`)
+
+### Verification technique executee
+
+- [x] Build frontend: `npm run build` (OK)
+- [x] Tests frontend: `npm test -- --watch=false` (4 tests OK)
+- [x] Verification migrations restantes: `npx ng update` (aucune migration restante)
+
+### Etat
+
+- [x] Migration Angular 22 confirmee operationnelle
+- [ ] Prochaine etape recommandee: traiter les avertissements de budget SCSS (
+  `frontend/src/app/core/layout/shell.component.ts`, `frontend/src/app/features/patient/patient-list.component.ts`)
+

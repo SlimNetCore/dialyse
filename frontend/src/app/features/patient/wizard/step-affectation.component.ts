@@ -1,15 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   EventEmitter,
   inject,
   Input,
-  OnChanges,
   OnInit,
   Output,
-  SimpleChanges,
+  signal,
 } from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {disabled, FormField, FormRoot} from '@angular/forms/signals';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -28,17 +29,18 @@ import {
   selector: 'app-step-affectation',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatIconModule,
     MatCheckboxModule,
     TranslateModule,
     SearchableSelectComponent,
+    FormRoot,
+    FormField,
   ],
   template: `
     <div class="step-content">
       <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_AFFECTATION' | translate }}</h3>
-      <form [formGroup]="form">
+      <form [formRoot]="form">
         <div class="form-row">
           <app-searchable-select
             [items]="salles()"
@@ -46,8 +48,8 @@ import {
             [prefixIcon]="'meeting_room'"
             [autofocusFirst]="true"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('salleId')?.value)"
-            (selectionChanged)="form.patchValue({ salleId: $safeNavigationMigration($event?.id) })"
+            [selectedId]="formModel().salleId"
+            (selectionChanged)="setField('salleId', $event?.id ?? null)"
             cssClass="flex1"
           />
           <app-searchable-select
@@ -55,10 +57,8 @@ import {
             [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate"
             [prefixIcon]="'medical_services'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('medecinTraitantId')?.value)"
-            (selectionChanged)="
-              form.patchValue({ medecinTraitantId: $safeNavigationMigration($event?.id) })
-            "
+            [selectedId]="formModel().medecinTraitantId"
+            (selectionChanged)="setField('medecinTraitantId', $event?.id ?? null)"
             cssClass="flex1"
           />
         </div>
@@ -69,10 +69,8 @@ import {
             [label]="'PATIENT_FORM.POSITION' | translate"
             [prefixIcon]="'schedule'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('positionId')?.value)"
-            (selectionChanged)="
-              form.patchValue({ positionId: $safeNavigationMigration($event?.id) })
-            "
+            [selectedId]="formModel().positionId"
+            (selectionChanged)="setField('positionId', $event?.id ?? null)"
             cssClass="flex1"
           />
         </div>
@@ -83,10 +81,8 @@ import {
             [label]="'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate"
             [prefixIcon]="'directions_car'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('transporteurAllerId')?.value)"
-            (selectionChanged)="
-              form.patchValue({ transporteurAllerId: $safeNavigationMigration($event?.id) })
-            "
+            [selectedId]="formModel().transporteurAllerId"
+            (selectionChanged)="setField('transporteurAllerId', $event?.id ?? null)"
             cssClass="flex1"
           />
           <app-searchable-select
@@ -94,10 +90,8 @@ import {
             [label]="'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate"
             [prefixIcon]="'local_taxi'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('transporteurRetourId')?.value)"
-            (selectionChanged)="
-              form.patchValue({ transporteurRetourId: $safeNavigationMigration($event?.id) })
-            "
+            [selectedId]="formModel().transporteurRetourId"
+            (selectionChanged)="setField('transporteurRetourId', $event?.id ?? null)"
             cssClass="flex1"
           />
           <app-searchable-select
@@ -105,41 +99,39 @@ import {
             [label]="'PATIENT_FORM.CATEGORIE_TRANSPORT' | translate"
             [prefixIcon]="'commute'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('categorieTransportId')?.value)"
-            (selectionChanged)="
-              form.patchValue({ categorieTransportId: $safeNavigationMigration($event?.id) })
-            "
+            [selectedId]="formModel().categorieTransportId"
+            (selectionChanged)="setField('categorieTransportId', $event?.id ?? null)"
             cssClass="flex1"
           />
         </div>
 
         <h4 class="dialyse-title">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }} *</h4>
         <div class="jours-row">
-          <mat-checkbox formControlName="jourDimanche" [disabled]="readonly">{{
+          <mat-checkbox [formField]="form.jourDimanche">{{
               'PATIENT_FORM.DIMANCHE' | translate
             }}
           </mat-checkbox>
-          <mat-checkbox formControlName="jourLundi" [disabled]="readonly">{{
+          <mat-checkbox [formField]="form.jourLundi">{{
               'PATIENT_FORM.LUNDI' | translate
             }}
           </mat-checkbox>
-          <mat-checkbox formControlName="jourMardi" [disabled]="readonly">{{
+          <mat-checkbox [formField]="form.jourMardi">{{
               'PATIENT_FORM.MARDI' | translate
             }}
           </mat-checkbox>
-          <mat-checkbox formControlName="jourMercredi" [disabled]="readonly">{{
+          <mat-checkbox [formField]="form.jourMercredi">{{
               'PATIENT_FORM.MERCREDI' | translate
             }}
           </mat-checkbox>
-          <mat-checkbox formControlName="jourJeudi" [disabled]="readonly">{{
+          <mat-checkbox [formField]="form.jourJeudi">{{
               'PATIENT_FORM.JEUDI' | translate
             }}
           </mat-checkbox>
-          <mat-checkbox formControlName="jourVendredi" [disabled]="readonly">{{
+          <mat-checkbox [formField]="form.jourVendredi">{{
               'PATIENT_FORM.VENDREDI' | translate
             }}
           </mat-checkbox>
-          <mat-checkbox formControlName="jourSamedi" [disabled]="readonly">{{
+          <mat-checkbox [formField]="form.jourSamedi">{{
               'PATIENT_FORM.SAMEDI' | translate
             }}
           </mat-checkbox>
@@ -266,12 +258,11 @@ import {
     `,
   ],
 })
-export class StepAffectationComponent implements OnInit, OnChanges {
+export class StepAffectationComponent implements OnInit {
   @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
-  private readonly fb = inject(FormBuilder);
   private readonly appShell = inject(AppShellStore);
   private readonly sallesStore = inject(SallesStore);
   readonly salles = this.sallesStore.items as unknown as () => DropdownItem[];
@@ -285,27 +276,40 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   readonly categoriesTransport = this.categoriesTransportStore
     .items as unknown as () => DropdownItem[];
 
-  form!: FormGroup;
+  readonly formModel = signal({
+    salleId: null as string | null,
+    medecinTraitantId: null as string | null,
+    positionId: null as string | null,
+    transporteurAllerId: null as string | null,
+    transporteurRetourId: null as string | null,
+    categorieTransportId: null as string | null,
+    jourDimanche: false,
+    jourLundi: false,
+    jourMardi: false,
+    jourMercredi: false,
+    jourJeudi: false,
+    jourVendredi: false,
+    jourSamedi: false,
+  });
+  readonly form = compatForm(this.formModel, (form) => {
+    disabled(form.salleId, {when: () => this.readonly});
+    disabled(form.medecinTraitantId, {when: () => this.readonly});
+    disabled(form.positionId, {when: () => this.readonly});
+    disabled(form.transporteurAllerId, {when: () => this.readonly});
+    disabled(form.transporteurRetourId, {when: () => this.readonly});
+    disabled(form.categorieTransportId, {when: () => this.readonly});
+    disabled(form.jourDimanche, {when: () => this.readonly});
+    disabled(form.jourLundi, {when: () => this.readonly});
+    disabled(form.jourMardi, {when: () => this.readonly});
+    disabled(form.jourMercredi, {when: () => this.readonly});
+    disabled(form.jourJeudi, {when: () => this.readonly});
+    disabled(form.jourVendredi, {when: () => this.readonly});
+    disabled(form.jourSamedi, {when: () => this.readonly});
+  });
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      salleId: [null],
-      medecinTraitantId: [null],
-      positionId: [null],
-      transporteurAllerId: [null],
-      transporteurRetourId: [null],
-      categorieTransportId: [null],
-      jourDimanche: [false],
-      jourLundi: [false],
-      jourMardi: [false],
-      jourMercredi: [false],
-      jourJeudi: [false],
-      jourVendredi: [false],
-      jourSamedi: [false],
-    });
-
-    this.form.valueChanges.subscribe((val) => {
-      this.dataChange.emit(val);
+    effect(() => {
+      this.dataChange.emit(this.formModel());
       this.validChange.emit(true); // affectation step is optional
     });
 
@@ -318,12 +322,8 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     void this.categoriesTransportStore.ensureLoaded(cid);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['readonly']) this.applyReadonly();
-  }
-
   markTouched(): void {
-    this.form.markAllAsTouched();
+    this.form().markAsTouched();
   }
 
   isValid(): boolean {
@@ -331,7 +331,6 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   }
 
   patchData(data: Record<string, any>): void {
-    if (!this.form) return;
     const jours = data['joursDialyse'] ?? data['jours_dialyse'] ?? {};
     const asBool = (v: any) => !!v;
     const pick = (camel: string, snake: string, shortKey: string) =>
@@ -345,44 +344,46 @@ export class StepAffectationComponent implements OnInit, OnChanges {
       return null;
     };
 
-    this.form.patchValue(
-      {
-        salleId: pickId('salleId', 'salle_id', 'salle'),
-        medecinTraitantId: pickId('medecinTraitantId', 'medecin_traitant_id', 'medecinTraitant'),
-        positionId: pickId('positionId', 'position_id', 'position'),
-        transporteurAllerId: pickId(
-          'transporteurAllerId',
-          'transporteur_aller_id',
-          'transporteurAller',
-        ),
-        transporteurRetourId: pickId(
-          'transporteurRetourId',
-          'transporteur_retour_id',
-          'transporteurRetour',
-        ),
-        categorieTransportId: pickId(
-          'categorieTransportId',
-          'categorie_transport_id',
-          'categorieTransport',
-        ),
-        jourDimanche: asBool(pick('jourDimanche', 'jour_dimanche', 'dimanche')),
-        jourLundi: asBool(pick('jourLundi', 'jour_lundi', 'lundi')),
-        jourMardi: asBool(pick('jourMardi', 'jour_mardi', 'mardi')),
-        jourMercredi: asBool(pick('jourMercredi', 'jour_mercredi', 'mercredi')),
-        jourJeudi: asBool(pick('jourJeudi', 'jour_jeudi', 'jeudi')),
-        jourVendredi: asBool(pick('jourVendredi', 'jour_vendredi', 'vendredi')),
-        jourSamedi: asBool(pick('jourSamedi', 'jour_samedi', 'samedi')),
-      },
-      {emitEvent: false},
-    );
-    this.dataChange.emit(this.form.getRawValue());
+    this.formModel.set({
+      salleId: pickId('salleId', 'salle_id', 'salle'),
+      medecinTraitantId: pickId('medecinTraitantId', 'medecin_traitant_id', 'medecinTraitant'),
+      positionId: pickId('positionId', 'position_id', 'position'),
+      transporteurAllerId: pickId(
+        'transporteurAllerId',
+        'transporteur_aller_id',
+        'transporteurAller',
+      ),
+      transporteurRetourId: pickId(
+        'transporteurRetourId',
+        'transporteur_retour_id',
+        'transporteurRetour',
+      ),
+      categorieTransportId: pickId(
+        'categorieTransportId',
+        'categorie_transport_id',
+        'categorieTransport',
+      ),
+      jourDimanche: asBool(pick('jourDimanche', 'jour_dimanche', 'dimanche')),
+      jourLundi: asBool(pick('jourLundi', 'jour_lundi', 'lundi')),
+      jourMardi: asBool(pick('jourMardi', 'jour_mardi', 'mardi')),
+      jourMercredi: asBool(pick('jourMercredi', 'jour_mercredi', 'mercredi')),
+      jourJeudi: asBool(pick('jourJeudi', 'jour_jeudi', 'jeudi')),
+      jourVendredi: asBool(pick('jourVendredi', 'jour_vendredi', 'vendredi')),
+      jourSamedi: asBool(pick('jourSamedi', 'jour_samedi', 'samedi')),
+    });
     this.validChange.emit(true);
   }
 
-  private applyReadonly(): void {
-    if (!this.form) return;
-    this.readonly
-      ? this.form.disable({emitEvent: false})
-      : this.form.enable({emitEvent: false});
+  setField(
+    key:
+      | 'salleId'
+      | 'medecinTraitantId'
+      | 'positionId'
+      | 'transporteurAllerId'
+      | 'transporteurRetourId'
+      | 'categorieTransportId',
+    value: string | null,
+  ): void {
+    this.formModel.update((model) => ({...model, [key]: value}));
   }
 }

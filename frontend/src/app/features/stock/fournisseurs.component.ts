@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -15,8 +16,9 @@ import {Fournisseur, StockApiService} from '../../core/api/stock-api.service';
   selector: 'app-fournisseurs',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule,
+    CommonModule, MatCardModule, MatFormFieldModule,
     MatInputModule, MatButtonModule, MatIconModule, MatTableModule,
+    FormRoot, FormField,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -31,29 +33,29 @@ import {Fournisseur, StockApiService} from '../../core/api/stock-api.service';
           <mat-card-title>Nouveau fournisseur</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <form [formGroup]="form" class="form-grid" (ngSubmit)="save()">
+          <form [formRoot]="supplierForm" class="form-grid" (submit)="save(); $event.preventDefault()">
             <mat-form-field appearance="outline">
               <mat-label>Code</mat-label>
-              <input matInput formControlName="code"/>
+              <input matInput [formField]="supplierForm.code"/>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Raison sociale</mat-label>
-              <input matInput formControlName="raisonSociale" required/>
+              <input matInput [formField]="supplierForm.raisonSociale"/>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Contact</mat-label>
-              <input matInput formControlName="contact"/>
+              <input matInput [formField]="supplierForm.contact"/>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Téléphone</mat-label>
-              <input matInput formControlName="telephone"/>
+              <input matInput [formField]="supplierForm.telephone"/>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Email</mat-label>
-              <input matInput formControlName="email" type="email"/>
+              <input matInput [formField]="supplierForm.email" type="email"/>
             </mat-form-field>
             <div class="form-actions">
-              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
+              <button mat-flat-button color="primary" type="submit" [disabled]="!canSave()">
                 <mat-icon>save</mat-icon>
                 Enregistrer
               </button>
@@ -85,7 +87,7 @@ import {Fournisseur, StockApiService} from '../../core/api/stock-api.service';
               <td mat-cell *matCellDef="let f">{{ f.telephone }}</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="cols"></tr>
-            <tr mat-row *matRowDef="let row; columns: cols"></tr>
+            <tr mat-row *matRowDef="let row; columns: cols" [attr.data-row-id]="row.code || ''"></tr>
           </table>
         </mat-card-content>
       </mat-card>
@@ -102,16 +104,13 @@ export class FournisseursComponent {
   protected readonly cols = ['code', 'raisonSociale', 'contact', 'telephone'];
   protected readonly items = signal<Fournisseur[]>([]);
   protected readonly saving = signal(false);
+  protected readonly formModel = signal(this.createInitialForm());
+  protected readonly supplierForm = compatForm(this.formModel, (form) => {
+    required(form.raisonSociale);
+  });
+  protected readonly canSave = computed(() => !!this.formModel().raisonSociale.trim() && !this.saving());
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
-  private readonly fb = inject(FormBuilder);
-  protected readonly form = this.fb.group({
-    code: [''],
-    raisonSociale: ['', Validators.required],
-    contact: [''],
-    telephone: [''],
-    email: [''],
-  });
   private readonly snack = inject(MatSnackBar);
 
   constructor() {
@@ -120,23 +119,23 @@ export class FournisseursComponent {
 
   protected save(): void {
     const centerId = this.auth.centerId();
-    if (!centerId || this.form.invalid) {
+    const form = this.formModel();
+    if (!centerId || !this.canSave()) {
       return;
     }
     this.saving.set(true);
-    const v = this.form.value;
     this.api.createFournisseur({
       centerId,
-      raisonSociale: v.raisonSociale!,
-      code: v.code ?? undefined,
-      contact: v.contact ?? undefined,
-      telephone: v.telephone ?? undefined,
-      email: v.email ?? undefined,
+      raisonSociale: form.raisonSociale.trim(),
+      code: form.code.trim() || undefined,
+      contact: form.contact.trim() || undefined,
+      telephone: form.telephone.trim() || undefined,
+      email: form.email.trim() || undefined,
     })
       .subscribe({
         next: () => {
           this.snack.open('Fournisseur enregistré', 'OK', {duration: 2500});
-          this.form.reset();
+          this.formModel.set(this.createInitialForm());
           this.reload();
         },
         complete: () => this.saving.set(false),
@@ -153,6 +152,16 @@ export class FournisseursComponent {
       return;
     }
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.items.set(f)});
+  }
+
+  private createInitialForm() {
+    return {
+      code: '',
+      raisonSociale: '',
+      contact: '',
+      telephone: '',
+      email: '',
+    };
   }
 }
 

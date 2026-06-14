@@ -1,4 +1,16 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnInit, Output, signal,} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  EventEmitter,
+  inject,
+  Injector,
+  Input,
+  OnInit,
+  Output,
+  signal,
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -7,7 +19,6 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
@@ -19,7 +30,6 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -36,13 +46,14 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
           <mat-card-subtitle>{{ 'CAHIER.STEP_PARAMEDICAL_DESC' | translate }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <form [formGroup]="form" class="form-grid cahier-field-size">
+          <form class="form-grid cahier-field-size">
             <section class="section-block">
               <h4>{{ 'CAHIER.PARAMEDICAL_PRESEANCE' | translate }}</h4>
               <div class="fields-grid">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ 'CAHIER.PARAMEDICAL_DATE_SEANCE' | translate }}</mat-label>
-                  <input matInput type="date" formControlName="dateSeance" [readonly]="readonly" />
+                  <input matInput type="date" [value]="formModel().dateSeance"
+                         (input)="onStringInput('dateSeance', $event)" [readonly]="readonly"/>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ 'CAHIER.PARAMEDICAL_POIDS_AVANT' | translate }}</mat-label>
@@ -51,7 +62,8 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                     type="number"
                     min="0"
                     step="0.1"
-                    formControlName="poidsAvantKg"
+                    [value]="formModel().poidsAvantKg ?? ''"
+                    (input)="onNumberInput('poidsAvantKg', $event)"
                     [readonly]="readonly"
                   />
                 </mat-form-field>
@@ -62,7 +74,8 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                     type="number"
                     min="0"
                     step="0.1"
-                    formControlName="poidsApresKg"
+                    [value]="formModel().poidsApresKg ?? ''"
+                    (input)="onNumberInput('poidsApresKg', $event)"
                     [readonly]="readonly"
                   />
                 </mat-form-field>
@@ -70,7 +83,8 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                   <mat-label>{{ 'CAHIER.PARAMEDICAL_TA_AVANT' | translate }}</mat-label>
                   <input
                     matInput
-                    formControlName="taAvant"
+                    [value]="formModel().taAvant"
+                    (input)="onStringInput('taAvant', $event)"
                     [readonly]="readonly"
                     placeholder="120/80"
                   />
@@ -79,7 +93,8 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                   <mat-label>{{ 'CAHIER.PARAMEDICAL_TA_APRES' | translate }}</mat-label>
                   <input
                     matInput
-                    formControlName="taApres"
+                    [value]="formModel().taApres"
+                    (input)="onStringInput('taApres', $event)"
                     [readonly]="readonly"
                     placeholder="120/80"
                   />
@@ -97,7 +112,8 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                     type="number"
                     min="30"
                     step="1"
-                    formControlName="dureeMinutes"
+                    [value]="formModel().dureeMinutes ?? ''"
+                    (input)="onNumberInput('dureeMinutes', $event)"
                     [readonly]="readonly"
                   />
                 </mat-form-field>
@@ -108,7 +124,8 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                     type="number"
                     min="0"
                     step="1"
-                    formControlName="debitSangMlMin"
+                    [value]="formModel().debitSangMlMin ?? ''"
+                    (input)="onNumberInput('debitSangMlMin', $event)"
                     [readonly]="readonly"
                   />
                 </mat-form-field>
@@ -119,13 +136,15 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                     type="number"
                     min="0"
                     step="1"
-                    formControlName="ultrafiltrationMl"
+                    [value]="formModel().ultrafiltrationMl ?? ''"
+                    (input)="onNumberInput('ultrafiltrationMl', $event)"
                     [readonly]="readonly"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ 'CAHIER.PARAMEDICAL_DIALYSAT' | translate }}</mat-label>
-                  <input matInput formControlName="typeDialysat" [readonly]="readonly" />
+                  <input matInput [value]="formModel().typeDialysat" (input)="onStringInput('typeDialysat', $event)"
+                         [readonly]="readonly"/>
                 </mat-form-field>
               </div>
             </section>
@@ -135,14 +154,16 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
               <div class="fields-grid">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ 'CAHIER.PARAMEDICAL_ANTICOAGULANT' | translate }}</mat-label>
-                  <input matInput formControlName="anticoagulant" [readonly]="readonly" />
+                  <input matInput [value]="formModel().anticoagulant" (input)="onStringInput('anticoagulant', $event)"
+                         [readonly]="readonly"/>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="full-width textarea-field">
                   <mat-label>{{ 'CAHIER.PARAMEDICAL_INCIDENTS' | translate }}</mat-label>
                   <textarea
                     matInput
                     rows="3"
-                    formControlName="incidents"
+                    [value]="formModel().incidents"
+                    (input)="onStringInput('incidents', $event)"
                     [readonly]="readonly"
                   ></textarea>
                 </mat-form-field>
@@ -151,17 +172,17 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
 
             <section class="section-block section-wide">
               <h4>{{ 'CAHIER.PARAMEDICAL_ARTICLES' | translate }}</h4>
-              <div class="articles-grid" formArrayName="consommations">
+              <div class="articles-grid">
                 <div
                   class="article-row"
-                  *ngFor="let _item of consommations.controls; let i = index"
-                  [attr.data-article-row]="_item.value?.articleId || ''"
-                  [formGroup]="consommationAt(i)"
+                  *ngFor="let item of formModel().consommations; let i = index"
+                  [attr.data-article-row]="item.articleId || ''"
                 >
                   <mat-form-field appearance="outline">
                     <mat-label>{{ 'CAHIER.PARAMEDICAL_ARTICLE' | translate }}</mat-label>
                     <mat-select
-                      formControlName="articleId"
+                      [value]="item.articleId"
+                      (selectionChange)="onConsommationArticleChange(i, $event.value)"
                       [disabled]="readonly || articlesLoading()"
                     >
                       <mat-option value="">{{
@@ -180,7 +201,8 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
                       type="number"
                       min="0.01"
                       step="0.01"
-                      formControlName="quantite"
+                      [value]="item.quantite"
+                      (input)="onConsommationQuantiteInput(i, $event)"
                       [readonly]="readonly"
                     />
                   </mat-form-field>
@@ -227,7 +249,7 @@ import {ArticlesStore} from '../../../core/state/referentials.store';
               color="primary"
               *ngIf="!readonly"
               (click)="save()"
-              [disabled]="!form.valid || saving()"
+              [disabled]="!formValid() || saving()"
             >
               <mat-icon>save</mat-icon>
               {{
@@ -361,20 +383,43 @@ export class CahierStepParamedicalComponent implements OnInit {
   @Output() dataChange = new EventEmitter<any>();
   @Output() validChange = new EventEmitter<boolean>();
   readonly saving = signal(false);
-  private readonly fb = inject(FormBuilder);
-  readonly form = this.fb.group({
-    dateSeance: ['', [Validators.required]],
-    poidsAvantKg: [null as number | null, [Validators.min(0)]],
-    poidsApresKg: [null as number | null, [Validators.min(0)]],
-    taAvant: ['', [Validators.maxLength(32)]],
-    taApres: ['', [Validators.maxLength(32)]],
-    dureeMinutes: [null as number | null, [Validators.min(30)]],
-    debitSangMlMin: [null as number | null, [Validators.min(0)]],
-    ultrafiltrationMl: [null as number | null, [Validators.min(0)]],
-    anticoagulant: ['', [Validators.maxLength(120)]],
-    typeDialysat: ['', [Validators.maxLength(120)]],
-    incidents: ['', [Validators.maxLength(800)]],
-    consommations: this.fb.array([]),
+  readonly formModel = signal<ParamedicalFormModel>({
+    dateSeance: '',
+    poidsAvantKg: null,
+    poidsApresKg: null,
+    taAvant: '',
+    taApres: '',
+    dureeMinutes: null,
+    debitSangMlMin: null,
+    ultrafiltrationMl: null,
+    anticoagulant: '',
+    typeDialysat: '',
+    incidents: '',
+    consommations: [],
+  });
+  readonly formValid = computed(() => {
+    const model = this.formModel();
+    if (!model.dateSeance) {
+      return false;
+    }
+    if (!this.isNumberFieldValid(model.poidsAvantKg, 0)) return false;
+    if (!this.isNumberFieldValid(model.poidsApresKg, 0)) return false;
+    if (!this.isNumberFieldValid(model.dureeMinutes, 30)) return false;
+    if (!this.isNumberFieldValid(model.debitSangMlMin, 0)) return false;
+    if (!this.isNumberFieldValid(model.ultrafiltrationMl, 0)) return false;
+    if ((model.taAvant ?? '').length > 32) return false;
+    if ((model.taApres ?? '').length > 32) return false;
+    if ((model.anticoagulant ?? '').length > 120) return false;
+    if ((model.typeDialysat ?? '').length > 120) return false;
+    if ((model.incidents ?? '').length > 800) return false;
+    if (model.consommations.length === 0) {
+      return false;
+    }
+    return model.consommations.every((item) => {
+      const articleId = (item.articleId ?? '').trim();
+      const quantite = Number(item.quantite ?? 0);
+      return articleId.length > 0 && quantite >= 0.01;
+    });
   });
   private readonly api = inject(BackendApiService);
   private readonly appShell = inject(AppShellStore);
@@ -385,34 +430,32 @@ export class CahierStepParamedicalComponent implements OnInit {
   readonly articlesError = this.articlesStore.error;
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly injector = inject(Injector);
   private seanceId: string | null = null;
   private lastSeanceDate: string | null = null;
 
-  get consommations(): FormArray {
-    return this.form.get('consommations') as FormArray;
-  }
-
   ngOnInit(): void {
-    this.form.patchValue({dateSeance: this.todayIsoDate()}, {emitEvent: false});
-    if (this.consommations.length === 0) this.addConsommation();
+    this.formModel.update((model) => ({
+      ...model,
+      dateSeance: this.todayIsoDate(),
+    }));
+    if (this.formModel().consommations.length === 0) this.addConsommation();
 
     const centerId = this.appShell.currentCenterId();
     if (centerId) {
       this.articlesStore.ensureLoaded(centerId);
     }
 
-    if (this.readonly) {
-      this.form.disable({emitEvent: false});
-    }
-    this.validChange.emit(this.form.valid);
-    this.form.valueChanges.subscribe((value) => {
+    this.validChange.emit(this.formValid());
+    effect(() => {
+      const value = this.formModel();
       this.dataChange.emit(value);
-      this.validChange.emit(this.form.valid);
-    });
+      this.validChange.emit(this.formValid());
+    }, {injector: this.injector});
   }
 
   save(): void {
-    if (this.readonly || this.form.invalid || this.saving()) return;
+    if (this.readonly || !this.formValid() || this.saving()) return;
     const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) {
       this.snackBar.open(this.translate.instant('COMMON.ERROR_MISSING_DATA'), 'OK', {
@@ -431,16 +474,16 @@ export class CahierStepParamedicalComponent implements OnInit {
         return this.api
           .upsertVoletParamedical(seanceId, {
             centerId,
-            poidsAvantKg: this.form.value.poidsAvantKg,
-            poidsApresKg: this.form.value.poidsApresKg,
-            taAvant: this.nullableText(this.form.value.taAvant),
-            taApres: this.nullableText(this.form.value.taApres),
-            dureeMinutes: this.form.value.dureeMinutes,
-            debitSangMlMin: this.form.value.debitSangMlMin,
-            ultrafiltrationMl: this.form.value.ultrafiltrationMl,
-            anticoagulant: this.nullableText(this.form.value.anticoagulant),
-            typeDialysat: this.nullableText(this.form.value.typeDialysat),
-            incidents: this.nullableText(this.form.value.incidents),
+            poidsAvantKg: this.formModel().poidsAvantKg,
+            poidsApresKg: this.formModel().poidsApresKg,
+            taAvant: this.nullableText(this.formModel().taAvant),
+            taApres: this.nullableText(this.formModel().taApres),
+            dureeMinutes: this.formModel().dureeMinutes,
+            debitSangMlMin: this.formModel().debitSangMlMin,
+            ultrafiltrationMl: this.formModel().ultrafiltrationMl,
+            anticoagulant: this.nullableText(this.formModel().anticoagulant),
+            typeDialysat: this.nullableText(this.formModel().typeDialysat),
+            incidents: this.nullableText(this.formModel().incidents),
           })
           .toPromise()
           .then((volet) => ({seanceId, userId, consommations, volet}));
@@ -457,7 +500,7 @@ export class CahierStepParamedicalComponent implements OnInit {
           .then((validation) => ({...state, validation}));
       })
       .then((response) => {
-        this.dataChange.emit({...this.form.getRawValue(), response});
+        this.dataChange.emit({...this.formModel(), response});
         this.validChange.emit(true);
         this.snackBar.open(this.translate.instant('CAHIER.PARAMEDICAL_SAVE_OK'), 'OK', {
           duration: 2500,
@@ -472,31 +515,61 @@ export class CahierStepParamedicalComponent implements OnInit {
   }
 
   proceed(): void {
-    this.validChange.emit(this.form.valid);
+    this.validChange.emit(this.formValid());
   }
 
   addConsommation(): void {
-    this.consommations.push(
-      this.fb.group({
-        articleId: ['', [Validators.required]],
-        quantite: [1, [Validators.required, Validators.min(0.01)]],
-      }),
-    );
+    this.formModel.update((model) => ({
+      ...model,
+      consommations: [...model.consommations, {articleId: '', quantite: 1}],
+    }));
   }
 
   removeConsommation(index: number): void {
-    this.consommations.removeAt(index);
-    if (this.consommations.length === 0) {
+    this.formModel.update((model) => ({
+      ...model,
+      consommations: model.consommations.filter((_, i) => i !== index),
+    }));
+    if (this.formModel().consommations.length === 0) {
       this.addConsommation();
     }
   }
 
-  consommationAt(index: number): FormGroup {
-    return this.consommations.at(index) as FormGroup;
+  onConsommationArticleChange(index: number, articleId: string | null): void {
+    this.patchConsommation(index, {articleId: articleId ?? ''});
+  }
+
+  onConsommationQuantiteInput(index: number, event: Event): void {
+    const raw = (event.target as HTMLInputElement | null)?.value;
+    const quantite = raw == null || raw === '' ? 0 : Number(raw);
+    this.patchConsommation(index, {quantite: Number.isFinite(quantite) ? quantite : 0});
+  }
+
+  onStringInput(
+    key: 'dateSeance' | 'taAvant' | 'taApres' | 'anticoagulant' | 'typeDialysat' | 'incidents',
+    event: Event,
+  ): void {
+    const value = (event.target as HTMLInputElement | HTMLTextAreaElement | null)?.value ?? '';
+    this.formModel.update((model) => ({
+      ...model,
+      [key]: value,
+    }));
+  }
+
+  onNumberInput(
+    key: 'poidsAvantKg' | 'poidsApresKg' | 'dureeMinutes' | 'debitSangMlMin' | 'ultrafiltrationMl',
+    event: Event,
+  ): void {
+    const raw = (event.target as HTMLInputElement | null)?.value;
+    const parsed = raw == null || raw === '' ? null : Number(raw);
+    this.formModel.update((model) => ({
+      ...model,
+      [key]: Number.isFinite(parsed ?? NaN) ? parsed : null,
+    }));
   }
 
   private async ensureSeanceId(centerId: string, patientId: string): Promise<string> {
-    const selectedDate = this.form.value.dateSeance || this.todayIsoDate();
+    const selectedDate = this.formModel().dateSeance || this.todayIsoDate();
     if (this.lastSeanceDate !== selectedDate) {
       this.seanceId = null;
       this.lastSeanceDate = selectedDate;
@@ -514,12 +587,26 @@ export class CahierStepParamedicalComponent implements OnInit {
   }
 
   private validConsommations(): Array<{ articleId: string; quantite: number }> {
-    return this.consommations.controls
-      .map((ctrl) => ({
-        articleId: String(ctrl.get('articleId')?.value ?? '').trim(),
-        quantite: Number(ctrl.get('quantite')?.value ?? 0),
+    return this.formModel().consommations
+      .map((item) => ({
+        articleId: String(item.articleId ?? '').trim(),
+        quantite: Number(item.quantite ?? 0),
       }))
       .filter((item) => item.articleId.length > 0 && item.quantite > 0);
+  }
+
+  private patchConsommation(index: number, patch: Partial<ConsommationModel>): void {
+    this.formModel.update((model) => ({
+      ...model,
+      consommations: model.consommations.map((item, i) => (i === index ? {...item, ...patch} : item)),
+    }));
+  }
+
+  private isNumberFieldValid(value: number | null, min: number): boolean {
+    if (value == null) {
+      return true;
+    }
+    return Number(value) >= min;
   }
 
   private todayIsoDate(): string {
@@ -531,3 +618,24 @@ export class CahierStepParamedicalComponent implements OnInit {
     return text ? text : null;
   }
 }
+
+type ConsommationModel = {
+  articleId: string;
+  quantite: number;
+};
+
+type ParamedicalFormModel = {
+  dateSeance: string;
+  poidsAvantKg: number | null;
+  poidsApresKg: number | null;
+  taAvant: string;
+  taApres: string;
+  dureeMinutes: number | null;
+  debitSangMlMin: number | null;
+  ultrafiltrationMl: number | null;
+  anticoagulant: string;
+  typeDialysat: string;
+  incidents: string;
+  consommations: ConsommationModel[];
+};
+

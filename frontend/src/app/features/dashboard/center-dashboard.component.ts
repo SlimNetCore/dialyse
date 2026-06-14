@@ -1,11 +1,12 @@
-import {ChangeDetectionStrategy, Component, effect, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, OnInit, signal} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule} from '@ngx-translate/core';
-import {FormsModule} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {DashboardStore} from './state/dashboard.store';
 
@@ -19,7 +20,8 @@ import {DashboardStore} from './state/dashboard.store';
     MatInputModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    FormsModule,
+    FormRoot,
+    FormField,
   ],
   template: `
     <div class="dashboard">
@@ -28,12 +30,12 @@ import {DashboardStore} from './state/dashboard.store';
         {{ 'DASHBOARD.TITLE' | translate }}
       </h2>
 
-      <div class="config-row">
+      <form [formRoot]="dashboardForm" class="config-row">
         <mat-form-field appearance="outline" class="days-field">
           <mat-label>{{ 'DASHBOARD.EXPIRATION_DAYS' | translate }}</mat-label>
-          <input matInput type="number" [(ngModel)]="expirationDays" min="1"/>
+          <input matInput type="number" [formField]="dashboardForm.expirationDays" />
         </mat-form-field>
-      </div>
+      </form>
 
       @if (loading()) {
         <mat-spinner diameter="40" />
@@ -65,7 +67,7 @@ import {DashboardStore} from './state/dashboard.store';
             <mat-icon>warning</mat-icon>
             <div class="stat-value">{{ stats().pecExpiring }}</div>
             <div class="stat-label">
-              {{ 'DASHBOARD.PEC_EXPIRING' | translate: {days: expirationDays} }}
+              {{ 'DASHBOARD.PEC_EXPIRING' | translate: {days: dashboardFormState().expirationDays} }}
             </div>
           </mat-card>
 
@@ -81,7 +83,7 @@ import {DashboardStore} from './state/dashboard.store';
             <mat-icon>schedule</mat-icon>
             <div class="stat-value">{{ stats().attestationExpiring }}</div>
             <div class="stat-label">
-              {{ 'DASHBOARD.ATTESTATION_EXPIRING' | translate: {days: expirationDays} }}
+              {{ 'DASHBOARD.ATTESTATION_EXPIRING' | translate: {days: dashboardFormState().expirationDays} }}
             </div>
           </mat-card>
         </div>
@@ -259,6 +261,10 @@ export class CenterDashboardComponent implements OnInit {
 
   readonly loading = this.dashboardStore.loading;
   readonly stats = this.dashboardStore.stats;
+  readonly dashboardFormState = signal({expirationDays: this.dashboardStore.expirationDays()});
+  readonly dashboardForm = compatForm(this.dashboardFormState, (form) => {
+    required(form.expirationDays);
+  });
 
   constructor() {
     // Auto-refresh dashboard metrics on relevant WebSocket events.
@@ -266,14 +272,10 @@ export class CenterDashboardComponent implements OnInit {
       const evt = this.ws.lastEvent();
       this.dashboardStore.applyWsEvent(evt);
     });
-  }
 
-  get expirationDays(): number {
-    return this.dashboardStore.expirationDays();
-  }
-
-  set expirationDays(value: number) {
-    this.dashboardStore.setExpirationDays(value);
+    effect(() => {
+      this.dashboardStore.setExpirationDays(this.dashboardFormState().expirationDays);
+    });
   }
 
   ngOnInit(): void {

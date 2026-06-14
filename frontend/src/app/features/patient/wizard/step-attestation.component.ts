@@ -1,16 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  effect,
   EventEmitter,
   inject,
   Input,
-  OnChanges,
   OnInit,
   Output,
   signal,
-  SimpleChanges,
 } from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {disabled, FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -29,7 +30,6 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
   selector: 'app-step-attestation',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
@@ -37,6 +37,8 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
     MatIconModule,
     MatButtonModule,
     TranslateModule,
+    FormRoot,
+    FormField,
   ],
   template: `
     <div class="step-content">
@@ -124,7 +126,7 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
             </div>
           }
 
-          <form [formGroup]="form">
+          <form [formRoot]="form">
             <div class="form-row">
               <mat-form-field appearance="outline" class="flex1">
                 <mat-label>{{ 'PATIENT_FORM.ATTESTATION_DEBUT' | translate }} *</mat-label>
@@ -132,24 +134,16 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
                 <input
                   matInput
                   [matDatepicker]="dpDebut"
-                  formControlName="attestationDebut"
+                  [formField]="form.attestationDebut"
                   data-autofocus-first
                 />
                 <mat-datepicker-toggle matSuffix [for]="dpDebut" /><mat-datepicker #dpDebut />
-                @if (form.get('attestationDebut')?.hasError('required') &&
-                form.get('attestationDebut')?.touched) {
-                  <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-                }
               </mat-form-field>
               <mat-form-field appearance="outline" class="flex1">
                 <mat-label>{{ 'PATIENT_FORM.ATTESTATION_FIN' | translate }} *</mat-label>
                 <mat-icon matPrefix>event_available</mat-icon>
-                <input matInput [matDatepicker]="dpFin" formControlName="attestationFin" />
+                <input matInput [matDatepicker]="dpFin" [formField]="form.attestationFin"/>
                 <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
-                @if (form.get('attestationFin')?.hasError('required') &&
-                form.get('attestationFin')?.touched) {
-                  <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-                }
               </mat-form-field>
             </div>
           </form>
@@ -349,13 +343,12 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
     `,
   ],
 })
-export class StepAttestationComponent implements OnInit, OnChanges {
+export class StepAttestationComponent implements OnInit {
   @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
   @Output() deleteRequest = new EventEmitter<{ type: 'ATTESTATION'; id: string }>();
 
-  private readonly fb = inject(FormBuilder);
   private readonly appShell = inject(AppShellStore);
   private readonly ficheStore = inject(PatientFicheStore);
   private readonly snackBar = inject(MatSnackBar);
@@ -368,7 +361,20 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   selectedAttestationId = signal<string | null>(null);
   selectedAttestation = signal<any | null>(null);
   patientId: string | null = null;
-  form!: FormGroup;
+  readonly formModel = signal({
+    attestationDebut: null as string | null,
+    attestationFin: null as string | null,
+  });
+  readonly form = compatForm(this.formModel, (form) => {
+    required(form.attestationDebut);
+    required(form.attestationFin);
+    disabled(form.attestationDebut, {when: () => this.readonly});
+    disabled(form.attestationFin, {when: () => this.readonly});
+  });
+  readonly formValid = computed(() => {
+    const value = this.formModel();
+    return !!value.attestationDebut && !!value.attestationFin;
+  });
 
   constructor() {
     consumeWizardActionStatus(this.ficheStore, ({action, success, error, meta}) => {
@@ -418,41 +424,29 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      attestationDebut: [null, Validators.required],
-      attestationFin: [null, Validators.required],
-    });
-    this.form.valueChanges.subscribe(() => {
+    effect(() => {
+      const value = this.formModel();
       this.dataChange.emit({
-        ...this.form.getRawValue(),
+        ...value,
         attestationId: this.selectedAttestationId(),
       });
-      this.validChange.emit(this.form.valid);
+      this.validChange.emit(this.formValid());
     });
-    this.applyReadonly();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['readonly']) this.applyReadonly();
   }
 
   markTouched(): void {
-    this.form.markAllAsTouched();
+    this.form().markAsTouched();
   }
 
   isValid(): boolean {
-    return this.form.valid;
+    return this.formValid();
   }
 
   patchData(data: Record<string, any>): void {
-    if (!this.form) return;
-    this.form.patchValue(
-      {
-        attestationDebut: data['attestationDebut'] ?? null,
-        attestationFin: data['attestationFin'] ?? null,
-      },
-      {emitEvent: false},
-    );
+    this.formModel.set({
+      attestationDebut: data['attestationDebut'] ?? null,
+      attestationFin: data['attestationFin'] ?? null,
+    });
 
     this.selectedAttestationId.set(data['attestationId'] ?? null);
     this.patientId =
@@ -466,21 +460,21 @@ export class StepAttestationComponent implements OnInit, OnChanges {
     this.selectedAttestation.set(selected);
 
     this.dataChange.emit({
-      ...this.form.getRawValue(),
+      ...this.formModel(),
       attestationId: this.selectedAttestationId(),
     });
-    this.validChange.emit(this.form.valid);
-    this.applyReadonly();
+    this.validChange.emit(this.formValid());
   }
 
   select(h: any): void {
     this.selectedAttestationId.set((h.id ?? h.ID ?? '').toString());
     this.patientId = (h.patientId ?? h.PATIENT_ID ?? this.patientId ?? null)?.toString?.() ?? null;
     this.selectedAttestation.set(h);
-    this.form.patchValue({
+    this.formModel.update((model) => ({
+      ...model,
       attestationDebut: h.dateDebut ?? h.DATE_DEBUT ?? null,
       attestationFin: h.dateFin ?? h.DATE_FIN ?? null,
-    });
+    }));
   }
 
   printSelected(): void {
@@ -506,7 +500,7 @@ export class StepAttestationComponent implements OnInit, OnChanges {
   prepareNew(): void {
     this.selectedAttestationId.set(null);
     this.selectedAttestation.set(null);
-    this.form.patchValue({attestationDebut: null, attestationFin: null});
+    this.formModel.update((model) => ({...model, attestationDebut: null, attestationFin: null}));
   }
 
   deleteSelected(): void {
@@ -538,10 +532,4 @@ export class StepAttestationComponent implements OnInit, OnChanges {
     });
   }
 
-  private applyReadonly(): void {
-    if (!this.form) return;
-    this.readonly
-      ? this.form.disable({emitEvent: false})
-      : this.form.enable({emitEvent: false});
-  }
 }

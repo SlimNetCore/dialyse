@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, maxLength, min, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -18,7 +19,6 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -26,6 +26,8 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
     MatIconModule,
     MatTableModule,
     MatCheckboxModule,
+    FormRoot,
+    FormField,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -41,32 +43,32 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
           <mat-card-title>Nouvel article</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="save()">
+          <form [formRoot]="articleForm" (submit)="save(); $event.preventDefault()">
             <div class="form-grid">
               <mat-form-field appearance="outline">
                 <mat-label>Code</mat-label>
-                <input matInput formControlName="code" maxlength="50"/>
+                <input matInput [formField]="articleForm.code"/>
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>Libellé</mat-label>
-                <input matInput formControlName="libelle" maxlength="150"/>
+                <input matInput [formField]="articleForm.libelle"/>
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>Unité</mat-label>
-                <input matInput formControlName="unite" maxlength="30"/>
+                <input matInput [formField]="articleForm.unite"/>
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>Seuil d'alerte</mat-label>
-                <input matInput type="number" formControlName="seuilAlerte" min="0"/>
+                <input matInput type="number" [formField]="articleForm.seuilAlerte"/>
               </mat-form-field>
             </div>
 
-            <mat-checkbox formControlName="gereParLot">
+            <mat-checkbox [formField]="articleForm.gereParLot">
               Article géré par lot (lot et péremption obligatoires en réception)
             </mat-checkbox>
 
             <div class="actions">
-              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
+              <button mat-flat-button color="primary" type="submit" [disabled]="!canSave()">
                 <mat-icon>save</mat-icon>
                 Créer l'article
               </button>
@@ -132,15 +134,21 @@ export class ArticlesComponent {
   protected readonly cols = ['code', 'libelle', 'unite', 'lot'];
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly saving = signal(false);
-
-  private readonly fb = inject(FormBuilder);
-  protected readonly form: FormGroup = this.fb.group({
-    code: ['', [Validators.required, Validators.maxLength(50)]],
-    libelle: ['', [Validators.required, Validators.maxLength(150)]],
-    unite: ['', [Validators.required, Validators.maxLength(30)]],
-    seuilAlerte: [0, [Validators.min(0)]],
-    gereParLot: [true],
+  protected readonly formModel = signal(this.createInitialForm());
+  protected readonly articleForm = compatForm(this.formModel, (form) => {
+    required(form.code);
+    maxLength(form.code, 50);
+    required(form.libelle);
+    maxLength(form.libelle, 150);
+    required(form.unite);
+    maxLength(form.unite, 30);
+    min(form.seuilAlerte, 0);
   });
+  protected readonly canSave = computed(() => {
+    const form = this.formModel();
+    return !!form.code.trim() && !!form.libelle.trim() && !!form.unite.trim() && form.seuilAlerte >= 0 && !this.saving();
+  });
+
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
@@ -152,27 +160,22 @@ export class ArticlesComponent {
 
   protected save(): void {
     const centerId = this.auth.centerId();
-    if (!centerId || this.form.invalid) {
+    const form = this.formModel();
+    if (!centerId || !this.canSave()) {
       return;
     }
     this.saving.set(true);
     this.api.createArticle({
       centerId,
-      code: String(this.form.value.code ?? '').trim(),
-      libelle: String(this.form.value.libelle ?? '').trim(),
-      unite: String(this.form.value.unite ?? '').trim(),
-      seuilAlerte: Number(this.form.value.seuilAlerte ?? 0),
-      gereParLot: !!this.form.value.gereParLot,
+      code: form.code.trim(),
+      libelle: form.libelle.trim(),
+      unite: form.unite.trim(),
+      seuilAlerte: Number(form.seuilAlerte ?? 0),
+      gereParLot: !!form.gereParLot,
     }).subscribe({
       next: () => {
         this.snack.open('Article créé', 'OK', {duration: 2500});
-        this.form.reset({
-          code: '',
-          libelle: '',
-          unite: '',
-          seuilAlerte: 0,
-          gereParLot: true,
-        });
+        this.formModel.set(this.createInitialForm());
         this.reload();
       },
       error: () => this.snack.open('Erreur lors de la création', 'Fermer', {duration: 4000}),
@@ -186,6 +189,16 @@ export class ArticlesComponent {
       return;
     }
     this.refApi.getArticles(centerId).subscribe({next: items => this.articles.set(items)});
+  }
+
+  private createInitialForm() {
+    return {
+      code: '',
+      libelle: '',
+      unite: '',
+      seuilAlerte: 0,
+      gereParLot: true,
+    };
   }
 }
 

@@ -1,6 +1,5 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
@@ -13,6 +12,8 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {BackendApiService} from '../../core/api/backend-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
@@ -23,7 +24,6 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     TranslateModule,
     MatCardModule,
     MatTableModule,
@@ -36,6 +36,8 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
     MatDialogModule,
     MatSnackBarModule,
     MatTooltipModule,
+    FormRoot,
+    FormField,
   ],
   template: `
     <div class="page-container">
@@ -59,68 +61,70 @@ import {ModelesDocumentStore} from './state/modeles-document.store';
       <!-- Formulaire d'ajout/édition -->
       @if (showForm()) {
         <mat-card class="form-card">
-          <h3>{{ editingId() ? 'Modifier le modèle' : 'Nouveau modèle de document' }}</h3>
-          <div class="form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Code</mat-label>
-              <input matInput [(ngModel)]="form.code" placeholder="Ex: FICHE_PATIENT"/>
-              <mat-icon matPrefix>code</mat-icon>
-            </mat-form-field>
+          <form [formRoot]="documentForm">
+            <h3>{{ editingId() ? 'Modifier le modèle' : 'Nouveau modèle de document' }}</h3>
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Code</mat-label>
+                <input matInput [formField]="documentForm.code" placeholder="Ex: FICHE_PATIENT"/>
+                <mat-icon matPrefix>code</mat-icon>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Libellé</mat-label>
-              <input
-                matInput
-                [(ngModel)]="form.libelle"
-                placeholder="Ex: Fiche signalétique patient"
-              />
-              <mat-icon matPrefix>label</mat-icon>
-            </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Libellé</mat-label>
+                <input
+                  matInput
+                  [formField]="documentForm.libelle"
+                  placeholder="Ex: Fiche signalétique patient"
+                />
+                <mat-icon matPrefix>label</mat-icon>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Type de document</mat-label>
-              <mat-select [(ngModel)]="form.typeDocument">
-                @for (t of documentTypes(); track t.code) {
-                  <mat-option [value]="t.code">{{ t.label }}</mat-option>
-                }
-              </mat-select>
-              <mat-icon matPrefix>category</mat-icon>
-            </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Type de document</mat-label>
+                <mat-select [formField]="documentForm.typeDocument">
+                  @for (t of documentTypes(); track t.code) {
+                    <mat-option [value]="t.code">{{ t.label }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matPrefix>category</mat-icon>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Chemin du fichier .jrxml</mat-label>
-              <input
-                matInput
-                [(ngModel)]="form.cheminJrxml"
-                placeholder="Ex: reports/fiche_patient.jrxml"
-              />
-              <mat-icon matPrefix>folder_open</mat-icon>
-            </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Chemin du fichier .jrxml</mat-label>
+                <input
+                  matInput
+                  [formField]="documentForm.cheminJrxml"
+                  placeholder="Ex: reports/fiche_patient.jrxml"
+                />
+                <mat-icon matPrefix>folder_open</mat-icon>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Format d'impression</mat-label>
-              <mat-select [(ngModel)]="form.formatImpression">
-                <mat-option value="PDF">PDF</mat-option>
-                <mat-option value="EXCEL">Excel (XLS)</mat-option>
-                <mat-option value="HTML">HTML</mat-option>
-              </mat-select>
-              <mat-icon matPrefix>print</mat-icon>
-            </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Format d'impression</mat-label>
+                <mat-select [formField]="documentForm.formatImpression">
+                  <mat-option value="PDF">PDF</mat-option>
+                  <mat-option value="EXCEL">Excel (XLS)</mat-option>
+                  <mat-option value="HTML">HTML</mat-option>
+                </mat-select>
+                <mat-icon matPrefix>print</mat-icon>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Description</mat-label>
-              <textarea matInput [(ngModel)]="form.description" rows="2"></textarea>
-              <mat-icon matPrefix>info</mat-icon>
-            </mat-form-field>
-          </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <textarea matInput [formField]="documentForm.description" rows="2"></textarea>
+                <mat-icon matPrefix>info</mat-icon>
+              </mat-form-field>
+            </div>
 
-          <div class="form-actions">
-            <button mat-stroked-button (click)="closeForm()">Annuler</button>
-            <button mat-flat-button color="primary" (click)="save()" [disabled]="!isFormValid()">
-              <mat-icon>save</mat-icon>
-              {{ editingId() ? 'Modifier' : 'Enregistrer' }}
-            </button>
-          </div>
+            <div class="form-actions">
+              <button mat-stroked-button type="button" (click)="closeForm()">Annuler</button>
+              <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="!isFormValid()">
+                <mat-icon>save</mat-icon>
+                {{ editingId() ? 'Modifier' : 'Enregistrer' }}
+              </button>
+            </div>
+          </form>
         </mat-card>
       }
 
@@ -401,7 +405,13 @@ export class ModelesDocumentComponent implements OnInit {
     'actions',
   ];
 
-  form = this.emptyForm();
+  readonly form = signal(this.emptyForm());
+  readonly documentForm = compatForm(this.form, (form) => {
+    required(form.code);
+    required(form.libelle);
+    required(form.typeDocument);
+    required(form.cheminJrxml);
+  });
 
   ngOnInit(): void {
     this.loadModeles();
@@ -409,7 +419,7 @@ export class ModelesDocumentComponent implements OnInit {
   }
 
   openForm(): void {
-    this.form = this.emptyForm();
+    this.form.set(this.emptyForm());
     this.modelesStore.setEditingId(null);
     this.modelesStore.setShowForm(true);
   }
@@ -426,7 +436,7 @@ export class ModelesDocumentComponent implements OnInit {
     const centerId = this.auth.centerId();
     if (!centerId) return;
 
-    const payload = { ...this.form, centerId, active: true };
+    const payload = {...this.form(), centerId, active: true};
 
     const obs$ = this.editingId()
       ? this.api.updateModeleDocument(this.editingId()!, payload)
@@ -445,21 +455,22 @@ export class ModelesDocumentComponent implements OnInit {
   }
 
   isFormValid(): boolean {
+    const form = this.form();
     return (
-      !!this.form.code && !!this.form.libelle && !!this.form.typeDocument && !!this.form.cheminJrxml
+      !!form.code && !!form.libelle && !!form.typeDocument && !!form.cheminJrxml
     );
   }
 
   edit(row: any): void {
     this.modelesStore.setEditingId(this.val(row, 'ID', 'id'));
-    this.form = {
+    this.form.set({
       code: this.val(row, 'CODE', 'code'),
       libelle: this.val(row, 'LIBELLE', 'libelle'),
       typeDocument: this.val(row, 'TYPE_DOCUMENT', 'type_document'),
       cheminJrxml: this.val(row, 'CHEMIN_JRXML', 'chemin_jrxml'),
       formatImpression: this.val(row, 'FORMAT_IMPRESSION', 'format_impression'),
       description: this.val(row, 'DESCRIPTION', 'description'),
-    };
+    });
     this.modelesStore.setShowForm(true);
   }
 

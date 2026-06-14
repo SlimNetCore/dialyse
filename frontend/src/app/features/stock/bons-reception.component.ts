@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, effect, inject, OnDestroy, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -24,9 +25,9 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
   selector: 'app-bons-reception',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule,
+    CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule,
-    MatTableModule, MatChipsModule, MatTooltipModule,
+    MatTableModule, MatChipsModule, MatTooltipModule, FormRoot, FormField,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -45,14 +46,14 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
           <mat-card-title>{{ editingId() ? 'Éditer' : 'Nouveau' }} bon de réception</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="save()">
+          <form [formRoot]="receptionForm" (submit)="save(); $event.preventDefault()">
             <div class="head-row">
               @if (lockedArticleIds().length > 0) {
                 <mat-chip class="lock-chip">{{ lockedArticleIds().length }} article(s) en recalcul</mat-chip>
               }
               <mat-form-field appearance="outline" class="flex2">
                 <mat-label>Fournisseur</mat-label>
-                <mat-select formControlName="fournisseurId">
+                <mat-select [formField]="receptionForm.fournisseurId">
                   @for (f of fournisseurs(); track f.id) {
                     <mat-option [value]="f.id">{{ f.raisonSociale }}</mat-option>
                   }
@@ -60,18 +61,21 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
               </mat-form-field>
               <mat-form-field appearance="outline" class="flex1">
                 <mat-label>Date de réception</mat-label>
-                <input matInput [matDatepicker]="dp" formControlName="dateReception"/>
+                <input matInput [matDatepicker]="dp" [formField]="receptionForm.dateReception"/>
                 <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
                 <mat-datepicker #dp></mat-datepicker>
+                @if (showDateError()) {
+                  <mat-error>Date obligatoire</mat-error>
+                }
               </mat-form-field>
             </div>
 
-            <div formArrayName="lignes" class="lines">
-              @for (ligne of lignes.controls; track $index) {
-                <div [formGroupName]="$index" class="line-row" [attr.data-line-article]="ligne.get('articleId')?.value || ''">
+            <div class="lines">
+              @for (ligne of formModel().lignes; track $index) {
+                <div class="line-row" [attr.data-line-article]="ligne.articleId || ''">
                   <mat-form-field appearance="outline" class="flex2">
                     <mat-label>Article</mat-label>
-                    <mat-select formControlName="articleId" (selectionChange)="onArticleChange($index)">
+                    <mat-select [value]="ligne.articleId" (selectionChange)="onArticleSelected($index, $event.value)">
                       @for (a of articles(); track a.id) {
                         <mat-option [value]="a.id" [disabled]="isArticleLocked(a.id)">
                           {{ articleLabel(a) }}
@@ -81,14 +85,25 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
                         </mat-option>
                       }
                     </mat-select>
+                    @if (showLigneError($index, 'article')) {
+                      <mat-error>Article obligatoire</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Quantité</mat-label>
-                    <input matInput type="number" formControlName="quantite"/>
+                    <input matInput type="number" [value]="ligne.quantite ?? ''"
+                           (input)="onQuantiteInput($index, $event)"/>
+                    @if (showLigneError($index, 'quantite')) {
+                      <mat-error>Quantité invalide</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Prix unitaire</mat-label>
-                    <input matInput type="number" formControlName="prixUnitaire"/>
+                    <input matInput type="number" [value]="ligne.prixUnitaire ?? ''"
+                           (input)="onPrixUnitaireInput($index, $event)"/>
+                    @if (showLigneError($index, 'prix')) {
+                      <mat-error>Prix invalide</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>N° lot</mat-label>
@@ -97,7 +112,10 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
                     } @else {
                       <mat-hint>Optionnel (lot auto si vide)</mat-hint>
                     }
-                    <input matInput formControlName="numeroLot"/>
+                    <input matInput [value]="ligne.numeroLot" (input)="onNumeroLotInput($index, $event)"/>
+                    @if (showLigneError($index, 'lot')) {
+                      <mat-error>N° lot obligatoire</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Péremption</mat-label>
@@ -106,9 +124,13 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
                     } @else {
                       <mat-hint>Optionnel</mat-hint>
                     }
-                    <input matInput [matDatepicker]="dpl" formControlName="datePeremption"/>
+                    <input matInput [matDatepicker]="dpl" [value]="ligne.datePeremption"
+                           (dateChange)="onDatePeremptionChange($index, $event.value)"/>
                     <mat-datepicker-toggle matIconSuffix [for]="dpl"></mat-datepicker-toggle>
                     <mat-datepicker #dpl></mat-datepicker>
+                    @if (showLigneError($index, 'peremption')) {
+                      <mat-error>Date de péremption obligatoire</mat-error>
+                    }
                   </mat-form-field>
                   <button mat-icon-button type="button" (click)="removeLigne($index)" aria-label="Supprimer">
                     <mat-icon>delete</mat-icon>
@@ -126,7 +148,8 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
               @if (editingId()) {
                 <button mat-stroked-button type="button" (click)="cancel()">Annuler</button>
               }
-              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving() || hasLockedLines()">
+              <button mat-flat-button color="primary" type="submit"
+                      [disabled]="!canSave() || saving() || hasLockedLines()">
                 <mat-icon>save</mat-icon>
                 {{ editingId() ? 'Mettre à jour' : 'Créer (brouillon)' }}
               </button>
@@ -251,18 +274,34 @@ export class BonsReceptionComponent implements OnDestroy {
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly lockedArticleIds = signal<string[]>([]);
   protected readonly saving = signal(false);
+  protected readonly submitAttempted = signal(false);
   protected readonly editingId = signal<string | null>(null);
   protected readonly editingStatus = signal<'BROUILLON' | 'VALIDE' | 'RECU' | 'ANNULE' | null>(null);
+  protected readonly formModel = signal<ReceptionFormModel>(this.createInitialForm());
+  protected readonly receptionForm = compatForm(this.formModel, (form) => {
+    required(form.dateReception);
+  });
+  protected readonly canSave = computed(() => {
+    const model = this.formModel();
+    if (!model.dateReception || model.lignes.length === 0) {
+      return false;
+    }
+    return model.lignes.every(ligne => {
+      const quantite = Number(ligne.quantite ?? 0);
+      const prixUnitaire = Number(ligne.prixUnitaire ?? -1);
+      if (!ligne.articleId || quantite <= 0 || prixUnitaire < 0) {
+        return false;
+      }
+      if (!this.isLotManagedArticle(ligne.articleId)) {
+        return true;
+      }
+      return !!ligne.numeroLot.trim() && !!ligne.datePeremption;
+    });
+  });
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
   private readonly ws = inject(WebSocketService);
-  private readonly fb = inject(FormBuilder);
-  protected readonly form: FormGroup = this.fb.group({
-    fournisseurId: [null],
-    dateReception: [new Date()],
-    lignes: this.fb.array([this.newLigne()]),
-  });
   private readonly snack = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private lockTimer: ReturnType<typeof setInterval> | null = null;
@@ -288,23 +327,25 @@ export class BonsReceptionComponent implements OnDestroy {
     }
   }
 
-  get lignes(): FormArray {
-    return this.form.get('lignes') as FormArray;
-  }
-
   protected addLigne(): void {
-    const group = this.newLigne();
-    this.lignes.push(group);
-    this.applyLotRules(group, false);
+    this.formModel.update(model => ({
+      ...model,
+      lignes: [...model.lignes, this.newLigne()],
+    }));
   }
 
   protected removeLigne(i: number): void {
-    this.lignes.removeAt(i);
+    this.formModel.update(model => ({
+      ...model,
+      lignes: model.lignes.filter((_, index) => index !== i),
+    }));
   }
 
   protected save(): void {
+    this.submitAttempted.set(true);
     const centerId = this.auth.centerId();
-    if (!centerId || this.form.invalid) {
+    const model = this.formModel();
+    if (!centerId || !this.canSave()) {
       return;
     }
     if (this.hasLockedLines()) {
@@ -312,26 +353,26 @@ export class BonsReceptionComponent implements OnDestroy {
       return;
     }
     this.saving.set(true);
-    const lignes = this.lignes.controls.map(c => ({
-      articleId: c.get('articleId')!.value,
-      quantite: Number(c.get('quantite')!.value),
-      prixUnitaire: Number(c.get('prixUnitaire')!.value),
-      numeroLot: this.normalizedString(c.get('numeroLot')!.value),
-      datePeremption: this.toIso(c.get('datePeremption')!.value),
+    const lignes = model.lignes.map(ligne => ({
+      articleId: ligne.articleId!,
+      quantite: Number(ligne.quantite ?? 0),
+      prixUnitaire: Number(ligne.prixUnitaire ?? 0),
+      numeroLot: this.normalizedString(ligne.numeroLot),
+      datePeremption: this.toIso(ligne.datePeremption),
     }));
 
     const editingId = this.editingId();
     const saveOp = editingId
       ? this.api.updateBonReception(editingId, {
         centerId,
-        fournisseurId: this.form.value.fournisseurId ?? undefined,
-        dateReception: this.toIso(this.form.value.dateReception),
+        fournisseurId: model.fournisseurId ?? undefined,
+        dateReception: this.toIso(model.dateReception),
         lignes,
       })
       : this.api.createBonReception({
         centerId,
-        fournisseurId: this.form.value.fournisseurId ?? undefined,
-        dateReception: this.toIso(this.form.value.dateReception),
+        fournisseurId: model.fournisseurId ?? undefined,
+        dateReception: this.toIso(model.dateReception),
         userId: this.auth.username() ?? undefined,
         lignes,
       });
@@ -352,8 +393,8 @@ export class BonsReceptionComponent implements OnDestroy {
           }
         }
 
-        this.form.setControl('lignes', this.fb.array([this.newLigne()]));
-        this.syncLotRulesForAllLines();
+        this.formModel.set(this.createInitialForm());
+        this.submitAttempted.set(false);
         this.editingId.set(null);
         this.editingStatus.set(null);
         this.reload();
@@ -367,26 +408,20 @@ export class BonsReceptionComponent implements OnDestroy {
   }
 
   protected edit(b: BonReception): void {
+    this.submitAttempted.set(false);
     this.editingId.set(b.id);
     this.editingStatus.set(b.statut);
-    this.form.patchValue({
-      fournisseurId: b.fournisseurId,
+    this.formModel.set({
+      fournisseurId: b.fournisseurId ?? null,
       dateReception: b.dateReception ? new Date(b.dateReception) : new Date(),
+      lignes: b.lignes.map(l => ({
+        articleId: l.articleId,
+        quantite: Number(l.quantite ?? 0),
+        prixUnitaire: Number(l.prixUnitaire ?? 0),
+        numeroLot: l.numeroLot ?? '',
+        datePeremption: l.datePeremption ? new Date(l.datePeremption) : null,
+      })),
     });
-
-    const lignesArray = this.fb.array(
-      b.lignes.map(l =>
-        this.fb.group({
-          articleId: [l.articleId, Validators.required],
-          quantite: [l.quantite, [Validators.required, Validators.min(0.0001)]],
-          prixUnitaire: [l.prixUnitaire, [Validators.required, Validators.min(0)]],
-          numeroLot: [l.numeroLot, Validators.required],
-          datePeremption: [l.datePeremption ? new Date(l.datePeremption) : null, Validators.required],
-        })
-      )
-    );
-    this.form.setControl('lignes', lignesArray);
-    this.syncLotRulesForAllLines();
 
     // Scroller vers le formulaire
     setTimeout(() => {
@@ -397,18 +432,38 @@ export class BonsReceptionComponent implements OnDestroy {
   protected cancel(): void {
     this.editingId.set(null);
     this.editingStatus.set(null);
-    this.form.reset({
-      fournisseurId: null,
-      dateReception: new Date(),
-      lignes: [this.newLigne()],
-    });
-    this.syncLotRulesForAllLines();
+    this.submitAttempted.set(false);
+    this.formModel.set(this.createInitialForm());
   }
 
-  protected onArticleChange(i: number): void {
-    const group = this.lignes.at(i) as FormGroup;
-    const articleId = group.get('articleId')?.value as string | null;
-    this.applyLotRules(group, this.isLotManagedArticle(articleId));
+  protected onArticleSelected(index: number, articleId: string | null): void {
+    if (this.isArticleLocked(articleId)) {
+      this.snack.open('Recalcul en cours pour cet article. Saisie temporairement bloquee.', 'Fermer', {duration: 4000});
+      this.patchLigne(index, {articleId: null, numeroLot: '', datePeremption: null});
+      return;
+    }
+    this.patchLigne(index, {articleId});
+  }
+
+  protected onQuantiteInput(index: number, event: Event): void {
+    const raw = (event.target as HTMLInputElement | null)?.value;
+    const quantite = raw == null || raw === '' ? null : Number(raw);
+    this.patchLigne(index, {quantite: Number.isFinite(quantite ?? NaN) ? quantite : null});
+  }
+
+  protected onPrixUnitaireInput(index: number, event: Event): void {
+    const raw = (event.target as HTMLInputElement | null)?.value;
+    const prixUnitaire = raw == null || raw === '' ? null : Number(raw);
+    this.patchLigne(index, {prixUnitaire: Number.isFinite(prixUnitaire ?? NaN) ? prixUnitaire : null});
+  }
+
+  protected onNumeroLotInput(index: number, event: Event): void {
+    const numeroLot = (event.target as HTMLInputElement | null)?.value ?? '';
+    this.patchLigne(index, {numeroLot});
+  }
+
+  protected onDatePeremptionChange(index: number, datePeremption: Date | null): void {
+    this.patchLigne(index, {datePeremption});
   }
 
 
@@ -427,8 +482,7 @@ export class BonsReceptionComponent implements OnDestroy {
   }
 
   protected isLotManagedRow(index: number): boolean {
-    const group = this.lignes.at(index) as FormGroup;
-    return this.isLotManagedArticle(group.get('articleId')?.value as string | null);
+    return this.isLotManagedArticle(this.formModel().lignes[index]?.articleId ?? null);
   }
 
   protected articleLabel(a: RefItem): string {
@@ -448,17 +502,45 @@ export class BonsReceptionComponent implements OnDestroy {
   }
 
   protected hasLockedLines(): boolean {
-    return this.lignes.controls.some(c => this.isArticleLocked(c.get('articleId')?.value));
+    return this.formModel().lignes.some(ligne => this.isArticleLocked(ligne.articleId));
   }
 
-  private newLigne(): FormGroup {
-    return this.fb.group({
-      articleId: [null, Validators.required],
-      quantite: [1, [Validators.required, Validators.min(0.0001)]],
-      prixUnitaire: [0, [Validators.required, Validators.min(0)]],
-      numeroLot: [''],
-      datePeremption: [null],
-    });
+  protected showDateError(): boolean {
+    return this.submitAttempted() && !this.formModel().dateReception;
+  }
+
+  protected showLigneError(index: number, field: 'article' | 'quantite' | 'prix' | 'lot' | 'peremption'): boolean {
+    if (!this.submitAttempted()) {
+      return false;
+    }
+    const ligne = this.formModel().lignes[index];
+    if (!ligne) {
+      return false;
+    }
+    if (field === 'article') {
+      return !ligne.articleId;
+    }
+    if (field === 'quantite') {
+      return Number(ligne.quantite ?? 0) <= 0;
+    }
+    if (field === 'prix') {
+      return Number(ligne.prixUnitaire ?? -1) < 0;
+    }
+    const lotManaged = this.isLotManagedArticle(ligne.articleId);
+    if (field === 'lot') {
+      return lotManaged && !ligne.numeroLot.trim();
+    }
+    return lotManaged && !ligne.datePeremption;
+  }
+
+  private newLigne(): ReceptionLigneForm {
+    return {
+      articleId: null,
+      quantite: 1,
+      prixUnitaire: 0,
+      numeroLot: '',
+      datePeremption: null,
+    };
   }
 
   private reload(): void {
@@ -470,20 +552,9 @@ export class BonsReceptionComponent implements OnDestroy {
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
     this.api.listEmplacements(centerId).subscribe({next: (e) => this.emplacements.set(e)});
     this.refApi.getArticles(centerId).subscribe({
-      next: (a) => {
-        this.articles.set(a);
-        this.syncLotRulesForAllLines();
-      },
+      next: (a) => this.articles.set(a),
     });
     this.refreshLocks();
-  }
-
-  private syncLotRulesForAllLines(): void {
-    this.lignes.controls.forEach(control => {
-      const group = control as FormGroup;
-      const articleId = group.get('articleId')?.value as string | null;
-      this.applyLotRules(group, this.isLotManagedArticle(articleId));
-    });
   }
 
   private isLotManagedArticle(articleId?: string | null): boolean {
@@ -493,21 +564,11 @@ export class BonsReceptionComponent implements OnDestroy {
     return this.articles().some(a => a.id === articleId && !!a.gereParLot);
   }
 
-  private applyLotRules(group: FormGroup, isManagedByLot: boolean): void {
-    const numeroLot = group.get('numeroLot');
-    const datePeremption = group.get('datePeremption');
-    if (!numeroLot || !datePeremption) {
-      return;
-    }
-    if (isManagedByLot) {
-      numeroLot.setValidators([Validators.required]);
-      datePeremption.setValidators([Validators.required]);
-    } else {
-      numeroLot.clearValidators();
-      datePeremption.clearValidators();
-    }
-    numeroLot.updateValueAndValidity({emitEvent: false});
-    datePeremption.updateValueAndValidity({emitEvent: false});
+  private patchLigne(index: number, patch: Partial<ReceptionLigneForm>): void {
+    this.formModel.update(model => ({
+      ...model,
+      lignes: model.lignes.map((ligne, ligneIndex) => ligneIndex === index ? {...ligne, ...patch} : ligne),
+    }));
   }
 
   private normalizedString(value: unknown): string | undefined {
@@ -533,5 +594,27 @@ export class BonsReceptionComponent implements OnDestroy {
     const date = d instanceof Date ? d : new Date(d as string);
     return date.toISOString().substring(0, 10);
   }
+
+  private createInitialForm(): ReceptionFormModel {
+    return {
+      fournisseurId: null,
+      dateReception: new Date(),
+      lignes: [this.newLigne()],
+    };
+  }
 }
+
+type ReceptionFormModel = {
+  fournisseurId: string | null;
+  dateReception: Date | string | null;
+  lignes: ReceptionLigneForm[];
+};
+
+type ReceptionLigneForm = {
+  articleId: string | null;
+  quantite: number | null;
+  prixUnitaire: number | null;
+  numeroLot: string;
+  datePeremption: Date | string | null;
+};
 

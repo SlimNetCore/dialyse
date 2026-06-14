@@ -1,7 +1,15 @@
-import {ChangeDetectionStrategy, Component, computed, HostListener, inject, OnInit,} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  HostListener,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
-import {FormsModule} from '@angular/forms';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -15,6 +23,8 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {TranslateModule} from '@ngx-translate/core';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField} from '@angular/forms/signals';
 import {AppUser} from '../../core/api/admin-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
@@ -28,7 +38,6 @@ type FilterType = 'text' | 'boolean';
   imports: [
     CommonModule,
     RouterLink,
-    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -42,6 +51,7 @@ type FilterType = 'text' | 'boolean';
     MatPaginatorModule,
     TranslateModule,
     ColumnFilterRendererComponent,
+    FormField,
   ],
   template: `
     <mat-card>
@@ -56,7 +66,7 @@ type FilterType = 'text' | 'boolean';
       <div class="toolbar">
         <mat-form-field appearance="outline" class="search">
           <mat-label>Rechercher</mat-label>
-          <input matInput [ngModel]="searchTerm()" (ngModelChange)="onSearch($event)"/>
+          <input matInput [formField]="searchForm.term"/>
           <mat-icon matPrefix>search</mat-icon>
         </mat-form-field>
 
@@ -481,6 +491,17 @@ export class UserListComponent implements OnInit {
   readonly pageSize = this.userListStore.pageSize;
   readonly columnFilters = this.userListStore.columnFilters;
   readonly searchTerm = this.userListStore.searchTerm;
+  readonly searchModel = signal({term: this.searchTerm()});
+  readonly searchForm = compatForm(this.searchModel);
+
+  constructor() {
+    effect(() => {
+      const term = this.searchModel().term;
+      if (term !== this.searchTerm()) {
+        this.onSearch(term);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.userListStore.loadPage({page: 0, size: this.pageSize()});

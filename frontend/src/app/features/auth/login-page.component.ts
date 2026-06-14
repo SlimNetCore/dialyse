@@ -1,5 +1,5 @@
 import {TitleCasePipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {MatCardModule} from '@angular/material/card';
@@ -9,7 +9,8 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {FormsModule} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {AuthApiService} from '../../core/api/auth-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
@@ -30,7 +31,8 @@ import {LoginPageStore} from './state/login-page.store';
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
-    FormsModule,
+    FormRoot,
+    FormField,
     MatMenuModule,
     TitleCasePipe,
   ],
@@ -124,40 +126,44 @@ import {LoginPageStore} from './state/login-page.store';
               <div class="error-msg">{{ error() }}</div>
             }
 
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'LOGIN.CENTER' | translate }}</mat-label>
-              <mat-select data-testid="login-center-select" [(ngModel)]="selectedCenter">
-                @for (c of store.availableCenters(); track c.id) {
-                  <mat-option [value]="c.id">{{ c.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <form [formRoot]="loginForm" class="login-form">
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ 'LOGIN.CENTER' | translate }}</mat-label>
+                <mat-select data-testid="login-center-select" [formField]="loginForm.selectedCenter">
+                  @for (c of store.availableCenters(); track c.id) {
+                    <mat-option [value]="c.id">{{ c.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'LOGIN.USERNAME' | translate }}</mat-label>
-              <input matInput data-testid="login-username" [(ngModel)]="username" />
-            </mat-form-field>
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ 'LOGIN.USERNAME' | translate }}</mat-label>
+                <input matInput data-testid="login-username" [formField]="loginForm.username"/>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline" class="full">
-              <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
-              <input
-                matInput
-                data-testid="login-password"
-                type="password"
-                [(ngModel)]="password"
-                (keydown.enter)="doLogin()"
-              />
-            </mat-form-field>
+              <mat-form-field appearance="outline" class="full">
+                <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
+                <input
+                  matInput
+                  data-testid="login-password"
+                  type="password"
+                  [formField]="loginForm.password"
+                  (keydown.enter)="doLogin()"
+                />
+              </mat-form-field>
 
-            <button
-              mat-flat-button
-              class="login-btn"
-              data-testid="login-submit"
-              (click)="doLogin()"
-              [disabled]="loading()"
-            >
-              <mat-icon>login</mat-icon> {{ 'LOGIN.SUBMIT' | translate }}
-            </button>
+              <button
+                mat-flat-button
+                class="login-btn"
+                data-testid="login-submit"
+                type="button"
+                (click)="doLogin()"
+                [disabled]="!canSubmit()"
+              >
+                <mat-icon>login</mat-icon>
+                {{ 'LOGIN.SUBMIT' | translate }}
+              </button>
+            </form>
           </mat-card-content>
         </mat-card>
       </section>
@@ -462,36 +468,30 @@ export class LoginPageComponent {
   readonly loading = this.loginStore.loading;
   readonly error = this.loginStore.error;
 
-  get selectedCenter(): string {
-    return this.loginStore.selectedCenter();
-  }
+  readonly loginModel = signal({
+    selectedCenter: '',
+    username: '',
+    password: '',
+  });
 
-  set selectedCenter(value: string) {
-    this.loginStore.setSelectedCenter(value);
-  }
+  readonly loginForm = compatForm(this.loginModel, (form) => {
+    required(form.selectedCenter);
+    required(form.username);
+    required(form.password);
+  });
 
-  get username(): string {
-    return this.loginStore.username();
-  }
-
-  set username(value: string) {
-    this.loginStore.setUsername(value);
-  }
-
-  get password(): string {
-    return this.loginStore.password();
-  }
-
-  set password(value: string) {
-    this.loginStore.setPassword(value);
-  }
+  readonly canSubmit = computed(() => {
+    const form = this.loginModel();
+    return !!form.selectedCenter && !!form.username && !!form.password && !this.loading();
+  });
 
   doLogin(): void {
-    if (!this.selectedCenter || !this.username || !this.password) return;
+    const {selectedCenter, username, password} = this.loginModel();
+    if (!selectedCenter || !username || !password || this.loading()) return;
     this.loginStore.setLoading(true);
     this.loginStore.setError('');
     this.authApi
-      .login({centerId: this.selectedCenter, username: this.username, password: this.password})
+      .login({centerId: selectedCenter, username, password})
       .subscribe({
         next: (res) => {
           this.authStore.setSession(res);

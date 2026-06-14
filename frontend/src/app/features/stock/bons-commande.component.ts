@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {applyEach, FormField, FormRoot, min, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -18,8 +19,9 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   selector: 'app-bons-commande',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule,
+    CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule,
+    FormRoot, FormField,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -34,22 +36,22 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
           <mat-card-title>Nouveau bon de commande</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="save()">
+          <form [formRoot]="form" (submit)="save(); $event.preventDefault()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Fournisseur</mat-label>
-              <mat-select formControlName="fournisseurId">
+              <mat-select [formField]="form.fournisseurId">
                 @for (f of fournisseurs(); track f.id) {
                   <mat-option [value]="f.id">{{ f.raisonSociale }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
 
-            <div formArrayName="lignes" class="lines">
-              @for (ligne of lignes.controls; track $index) {
-                <div [formGroupName]="$index" class="line-row">
+            <div class="lines">
+              @for (ligne of formModel().lignes; track $index) {
+                <div class="line-row">
                   <mat-form-field appearance="outline" class="flex2">
                     <mat-label>Article</mat-label>
-                    <mat-select formControlName="articleId">
+                    <mat-select [formField]="form.lignes[$index].articleId">
                       @for (a of articles(); track a.id) {
                         <mat-option [value]="a.id">{{ articleLabel(a) }}</mat-option>
                       }
@@ -57,11 +59,11 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Quantité</mat-label>
-                    <input matInput type="number" formControlName="quantite"/>
+                    <input matInput type="number" [formField]="form.lignes[$index].quantite"/>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Prix unitaire</mat-label>
-                    <input matInput type="number" formControlName="prixUnitaire"/>
+                    <input matInput type="number" [formField]="form.lignes[$index].prixUnitaire"/>
                   </mat-form-field>
                   <button mat-icon-button type="button" (click)="removeLigne($index)" aria-label="Supprimer">
                     <mat-icon>delete</mat-icon>
@@ -76,7 +78,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                 Ajouter une ligne
               </button>
               <span class="total">Total : {{ total() | number:'1.0-2' }}</span>
-              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
+              <button mat-flat-button color="primary" type="submit" [disabled]="!canSave()">
                 <mat-icon>save</mat-icon>
                 Créer le bon
               </button>
@@ -164,55 +166,76 @@ export class BonsCommandeComponent {
   protected readonly fournisseurs = signal<Fournisseur[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly saving = signal(false);
+  protected readonly formModel = signal({
+    fournisseurId: null as string | null,
+    lignes: [this.newLigne()],
+  });
+  protected readonly form = compatForm(this.formModel, (form) => {
+    applyEach(form.lignes, (ligne) => {
+      required(ligne.articleId);
+      required(ligne.quantite);
+      required(ligne.prixUnitaire);
+      min(ligne.quantite, 0.0001);
+      min(ligne.prixUnitaire, 0);
+    });
+  });
+  protected readonly canSave = computed(() => {
+    if (this.saving()) return false;
+    const model = this.formModel();
+    if (!model.lignes.length) return false;
+    return model.lignes.every((l) => !!l.articleId && Number(l.quantite) > 0 && Number(l.prixUnitaire) >= 0);
+  });
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
-  private readonly fb = inject(FormBuilder);
-  protected readonly form: FormGroup = this.fb.group({
-    fournisseurId: [null],
-    lignes: this.fb.array([this.newLigne()]),
-  });
   private readonly snack = inject(MatSnackBar);
 
   constructor() {
     this.reload();
   }
 
-  get lignes(): FormArray {
-    return this.form.get('lignes') as FormArray;
-  }
-
   protected addLigne(): void {
-    this.lignes.push(this.newLigne());
+    this.formModel.update((model) => ({...model, lignes: [...model.lignes, this.newLigne()]}));
   }
 
   protected removeLigne(i: number): void {
-    this.lignes.removeAt(i);
+    this.formModel.update((model) => ({
+      ...model,
+      lignes: model.lignes.filter((_, idx) => idx !== i),
+    }));
   }
 
   protected total(): number {
-    return this.lignes.controls.reduce((sum, c) => {
-      const q = Number(c.get('quantite')?.value ?? 0);
-      const p = Number(c.get('prixUnitaire')?.value ?? 0);
+    return this.formModel().lignes.reduce((sum, c) => {
+      const q = Number(c.quantite ?? 0);
+      const p = Number(c.prixUnitaire ?? 0);
       return sum + q * p;
     }, 0);
   }
 
   protected save(): void {
     const centerId = this.auth.centerId();
-    if (!centerId || this.form.invalid) {
+    const form = this.formModel();
+    if (!centerId || !this.canSave()) {
       return;
     }
+    const lignes = form.lignes
+      .filter((l) => !!l.articleId)
+      .map((l) => ({
+        articleId: String(l.articleId),
+        quantite: Number(l.quantite),
+        prixUnitaire: Number(l.prixUnitaire),
+      }));
     this.saving.set(true);
     this.api.createBonCommande({
       centerId,
-      fournisseurId: this.form.value.fournisseurId ?? undefined,
+      fournisseurId: form.fournisseurId ?? undefined,
       userId: this.auth.username() ?? undefined,
-      lignes: this.lignes.value,
+      lignes,
     }).subscribe({
       next: () => {
         this.snack.open('Bon de commande créé', 'OK', {duration: 2500});
-        this.form.setControl('lignes', this.fb.array([this.newLigne()]));
+        this.formModel.set({fournisseurId: null, lignes: [this.newLigne()]});
         this.reload();
       },
       complete: () => this.saving.set(false),
@@ -251,12 +274,12 @@ export class BonsCommandeComponent {
     });
   }
 
-  private newLigne(): FormGroup {
-    return this.fb.group({
-      articleId: [null, Validators.required],
-      quantite: [1, [Validators.required, Validators.min(0.0001)]],
-      prixUnitaire: [null, [Validators.required, Validators.min(0)]],
-    });
+  private newLigne() {
+    return {
+      articleId: null as string | null,
+      quantite: 1,
+      prixUnitaire: 0,
+    };
   }
 
   private reload(): void {

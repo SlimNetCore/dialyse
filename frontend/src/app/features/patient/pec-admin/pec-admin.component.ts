@@ -1,5 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -11,6 +10,8 @@ import {MatNativeDateModule} from '@angular/material/core';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {SlicePipe} from '@angular/common';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
@@ -21,7 +22,6 @@ import {PecAdminStore} from './state/pec-admin.store';
   selector: 'app-pec-admin',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -35,6 +35,8 @@ import {PecAdminStore} from './state/pec-admin.store';
     SlicePipe,
     TranslateModule,
     SearchableSelectComponent,
+    FormRoot,
+    FormField,
   ],
   template: `
     <div class="pec-admin">
@@ -130,29 +132,23 @@ import {PecAdminStore} from './state/pec-admin.store';
           </mat-card-header
           >
           <mat-card-content>
-            <form [formGroup]="validateForm">
+            <form [formRoot]="validateForm">
               <div class="form-row">
                 <mat-form-field appearance="outline" class="flex1">
                   <mat-label>{{ 'PEC_ADMIN.DATE_DEBUT_EFFECTIF' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="dpDeb" formControlName="dateDebutEffectif" />
+                  <input matInput [matDatepicker]="dpDeb" [formField]="validateForm.dateDebutEffectif" />
                   <mat-datepicker-toggle matSuffix [for]="dpDeb" /><mat-datepicker #dpDeb />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="flex1">
                   <mat-label>{{ 'PEC_ADMIN.DATE_FIN_EFFECTIF' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="dpFin" formControlName="dateFinEffectif" />
+                  <input matInput [matDatepicker]="dpFin" [formField]="validateForm.dateFinEffectif" />
                   <mat-datepicker-toggle matSuffix [for]="dpFin" /><mat-datepicker #dpFin />
                 </mat-form-field>
                 <app-searchable-select
                   [items]="forfaits()"
                   [label]="'PEC_ADMIN.FORFAIT_EFFECTIF' | translate"
-                  [selectedId]="
-                    $safeNavigationMigration(validateForm.get('forfaitEffectifId')?.value)
-                  "
-                  (selectionChanged)="
-                    validateForm.patchValue({
-                      forfaitEffectifId: $safeNavigationMigration($event?.id),
-                    })
-                  "
+                  [selectedId]="validateModel().forfaitEffectifId"
+                  (selectionChanged)="setForfait($event?.id ?? null)"
                   cssClass="flex1"
                 />
               </div>
@@ -163,8 +159,9 @@ import {PecAdminStore} from './state/pec-admin.store';
                 <button
                   mat-flat-button
                   class="validate-btn"
+                  type="button"
                   (click)="confirmValidate()"
-                  [disabled]="validateForm.invalid"
+                  [disabled]="validateDisabled()"
                 >
                   <mat-icon>check</mat-icon> {{ 'PEC_ADMIN.CONFIRM' | translate }}
                 </button>
@@ -339,23 +336,27 @@ export class PecAdminComponent implements OnInit {
   readonly auth = inject(AuthStore);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
-  private readonly fb = inject(FormBuilder);
 
   readonly pecs = this.pecAdminStore.pecs;
   readonly loading = this.pecAdminStore.loading;
   readonly validatingPec = this.pecAdminStore.validatingPec;
   readonly forfaits = this.pecAdminStore.forfaits;
+  readonly validateModel = signal({
+    dateDebutEffectif: null as Date | null,
+    dateFinEffectif: null as Date | null,
+    forfaitEffectifId: null as string | null,
+  });
+  readonly validateForm = compatForm(this.validateModel, (form) => {
+    required(form.dateDebutEffectif);
+    required(form.dateFinEffectif);
+  });
+  readonly validateDisabled = computed(() => {
+    const model = this.validateModel();
+    return !model.dateDebutEffectif || !model.dateFinEffectif;
+  });
   columns = ['patientId', 'dateDebutDemande', 'dateFinDemande', 'status', 'actions'];
 
-  validateForm!: FormGroup;
-
   ngOnInit(): void {
-    this.validateForm = this.fb.group({
-      dateDebutEffectif: [null, Validators.required],
-      dateFinEffectif: [null, Validators.required],
-      forfaitEffectifId: [null],
-    });
-
     const cid = this.store.currentCenterId();
     if (cid) {
       // ✅ Utiliser le store pour charger
@@ -366,7 +367,15 @@ export class PecAdminComponent implements OnInit {
 
   openValidate(pec: any): void {
     this.pecAdminStore.setValidatingPec(pec);
-    this.validateForm.reset();
+    this.validateModel.set({
+      dateDebutEffectif: null,
+      dateFinEffectif: null,
+      forfaitEffectifId: null,
+    });
+  }
+
+  setForfait(forfaitId: string | null): void {
+    this.validateModel.update((model) => ({...model, forfaitEffectifId: forfaitId}));
   }
 
   cancelValidate(): void {
@@ -375,9 +384,9 @@ export class PecAdminComponent implements OnInit {
 
   confirmValidate(): void {
     const pec = this.validatingPec();
-    if (!pec) return;
+    if (!pec || this.validateDisabled()) return;
     const cid = this.store.currentCenterId()!;
-    const v = this.validateForm.value;
+    const v = this.validateModel();
     const toDate = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
 
     this.pecAdminStore.validatePec({
@@ -386,7 +395,7 @@ export class PecAdminComponent implements OnInit {
       userId: this.auth.username() ?? 'admin',
       dateDebutEffectif: toDate(v.dateDebutEffectif),
       dateFinEffectif: toDate(v.dateFinEffectif),
-      forfaitEffectifId: v.forfaitEffectifId,
+      forfaitEffectifId: v.forfaitEffectifId ?? undefined,
     });
     this.snackBar.open(this.translate.instant('PEC_ADMIN.VALIDATED_OK') || 'PEC validée', 'OK', {
       duration: 3000,

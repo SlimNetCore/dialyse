@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, effect, inject, OnDestroy, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {compatForm} from '@angular/forms/signals/compat';
+import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -21,9 +22,9 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   selector: 'app-bons-sortie',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule,
+    CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule, MatTableModule,
-    MatChipsModule,
+    MatChipsModule, FormRoot, FormField,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -39,25 +40,28 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
           <mat-card-title>Nouvelle sortie</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="save()">
+          <form [formRoot]="sortieForm" (submit)="save(); $event.preventDefault()">
             <div class="head-row">
               @if (lockedArticleIds().length > 0) {
                 <mat-chip class="lock-chip">{{ lockedArticleIds().length }} article(s) en recalcul</mat-chip>
               }
               <mat-form-field appearance="outline" class="flex1">
                 <mat-label>Date de sortie</mat-label>
-                <input matInput [matDatepicker]="dp" formControlName="dateSortie"/>
+                <input matInput [matDatepicker]="dp" [formField]="sortieForm.dateSortie"/>
                 <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
                 <mat-datepicker #dp></mat-datepicker>
+                @if (showDateError()) {
+                  <mat-error>Date obligatoire</mat-error>
+                }
               </mat-form-field>
             </div>
 
-            <div formArrayName="items" class="lines">
-              @for (item of items.controls; track $index) {
-                <div [formGroupName]="$index" class="line-row">
+            <div class="lines">
+              @for (item of formModel().items; track $index) {
+                <div class="line-row">
                   <mat-form-field appearance="outline" class="flex2">
                     <mat-label>Article</mat-label>
-                    <mat-select formControlName="articleId" (selectionChange)="onArticleChange($index)">
+                    <mat-select [value]="item.articleId" (selectionChange)="onArticleSelected($index, $event.value)">
                       @for (a of articles(); track a.id) {
                         <mat-option [value]="a.id" [disabled]="isArticleLocked(a.id)">
                           {{ articleLabel(a) }}
@@ -67,10 +71,13 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                         </mat-option>
                       }
                     </mat-select>
+                    @if (showItemError($index, 'article')) {
+                      <mat-error>Article obligatoire</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex2">
                     <mat-label>Numero lot</mat-label>
-                    <mat-select formControlName="lotId" (selectionChange)="onLotChange($index)">
+                    <mat-select [value]="item.lotId" (selectionChange)="onLotSelected($index, $event.value)">
                       @for (l of lotsForRow($index); track l.id) {
                         <mat-option [value]="l.id">
                           {{ l.numeroLot }}
@@ -83,10 +90,17 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                         </mat-option>
                       }
                     </mat-select>
+                    @if (showItemError($index, 'lot')) {
+                      <mat-error>Lot obligatoire</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1">
                     <mat-label>Quantité</mat-label>
-                    <input matInput type="number" formControlName="quantite" (input)="onQuantiteChange($index)"/>
+                    <input matInput type="number" [value]="item.quantite ?? ''"
+                           (input)="onQuantiteInput($index, $event)"/>
+                    @if (showItemError($index, 'quantite')) {
+                      <mat-error>Quantité invalide</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="flex1 pmp-field">
                     <mat-label>PMP</mat-label>
@@ -108,7 +122,8 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
                 <mat-icon>add</mat-icon>
                 Ajouter un article
               </button>
-              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving() || hasLockedItems()">
+              <button mat-flat-button color="primary" type="submit"
+                      [disabled]="!canSave() || saving() || hasLockedItems()">
                 <mat-icon>logout</mat-icon>
                 Sortir du stock
               </button>
@@ -192,15 +207,25 @@ export class BonsSortieComponent implements OnDestroy {
   protected readonly lotsByRow = signal<Record<number, LotDisponible[]>>({});
   protected readonly lockedArticleIds = signal<string[]>([]);
   protected readonly saving = signal(false);
+  protected readonly submitAttempted = signal(false);
+  protected readonly formModel = signal<SortieFormModel>(this.createInitialForm());
+  protected readonly sortieForm = compatForm(this.formModel, (form) => {
+    required(form.dateSortie);
+  });
+  protected readonly canSave = computed(() => {
+    const model = this.formModel();
+    if (!model.dateSortie || model.items.length === 0) {
+      return false;
+    }
+    return model.items.every(item => {
+      const quantite = Number(item.quantite ?? 0);
+      return !!item.articleId && !!item.lotId && quantite > 0;
+    });
+  });
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
   private readonly ws = inject(WebSocketService);
-  private readonly fb = inject(FormBuilder);
-  protected readonly form: FormGroup = this.fb.group({
-    dateSortie: [new Date()],
-    items: this.fb.array([this.newItem()]),
-  });
   private readonly snack = inject(MatSnackBar);
   private lockTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -225,16 +250,18 @@ export class BonsSortieComponent implements OnDestroy {
     }
   }
 
-  get items(): FormArray {
-    return this.form.get('items') as FormArray;
-  }
-
   protected addItem(): void {
-    this.items.push(this.newItem());
+    this.formModel.update(model => ({
+      ...model,
+      items: [...model.items, this.newItem()],
+    }));
   }
 
   protected removeItem(i: number): void {
-    this.items.removeAt(i);
+    this.formModel.update(model => ({
+      ...model,
+      items: model.items.filter((_, index) => index !== i),
+    }));
     const map = {...this.lotsByRow()};
     delete map[i];
     const reindexed: Record<number, LotDisponible[]> = {};
@@ -247,14 +274,12 @@ export class BonsSortieComponent implements OnDestroy {
     this.lotsByRow.set(reindexed);
   }
 
-  protected onArticleChange(i: number): void {
+  protected onArticleSelected(i: number, articleId: string | null): void {
     const centerId = this.auth.centerId();
-    const group = this.items.at(i) as FormGroup;
-    const articleId = group.get('articleId')?.value as string | null;
-    group.get('lotId')?.setValue(null);
+    this.patchItem(i, {articleId, lotId: null});
     if (this.isArticleLocked(articleId)) {
       this.snack.open('Recalcul en cours pour cet article. Saisie temporairement bloquee.', 'Fermer', {duration: 4000});
-      group.get('articleId')?.setValue(null);
+      this.patchItem(i, {articleId: null});
       this.setLotsForRow(i, []);
       return;
     }
@@ -268,12 +293,14 @@ export class BonsSortieComponent implements OnDestroy {
     });
   }
 
-  protected onLotChange(_i: number): void {
-    // Le PMP/valeur sont derives automatiquement depuis le lot + quantite.
+  protected onLotSelected(i: number, lotId: string | null): void {
+    this.patchItem(i, {lotId});
   }
 
-  protected onQuantiteChange(_i: number): void {
-    // Le PMP/valeur sont derives automatiquement depuis le lot + quantite.
+  protected onQuantiteInput(i: number, event: Event): void {
+    const raw = (event.target as HTMLInputElement | null)?.value;
+    const quantite = raw == null || raw === '' ? null : Number(raw);
+    this.patchItem(i, {quantite: Number.isFinite(quantite ?? NaN) ? quantite : null});
   }
 
   protected lotsForRow(i: number): LotDisponible[] {
@@ -281,21 +308,21 @@ export class BonsSortieComponent implements OnDestroy {
   }
 
   protected rowPmp(i: number): number {
-    const group = this.items.at(i) as FormGroup;
-    const lotId = group.get('lotId')?.value as string | null;
+    const lotId = this.formModel().items[i]?.lotId ?? null;
     const lot = this.lotsForRow(i).find(l => l.id === lotId);
     return Number(lot?.pmp ?? 0);
   }
 
   protected rowValeur(i: number): number {
-    const group = this.items.at(i) as FormGroup;
-    const qte = Number(group.get('quantite')?.value ?? 0);
+    const qte = Number(this.formModel().items[i]?.quantite ?? 0);
     return qte * this.rowPmp(i);
   }
 
   protected save(): void {
+    this.submitAttempted.set(true);
     const centerId = this.auth.centerId();
-    if (!centerId || this.form.invalid) {
+    const model = this.formModel();
+    if (!centerId || !this.canSave()) {
       return;
     }
     if (this.hasLockedItems()) {
@@ -305,17 +332,18 @@ export class BonsSortieComponent implements OnDestroy {
     this.saving.set(true);
     this.api.createBonSortie({
       centerId,
-      dateSortie: this.toIso(this.form.value.dateSortie),
+      dateSortie: this.toIso(model.dateSortie),
       userId: this.auth.username() ?? undefined,
-      items: this.items.controls.map(c => ({
-        articleId: c.get('articleId')?.value,
-        lotId: c.get('lotId')?.value,
-        quantite: Number(c.get('quantite')?.value),
+      items: model.items.map(item => ({
+        articleId: item.articleId!,
+        lotId: item.lotId!,
+        quantite: Number(item.quantite ?? 0),
       })),
     }).subscribe({
       next: () => {
         this.snack.open('Sortie enregistree', 'OK', {duration: 2500});
-        this.form.setControl('items', this.fb.array([this.newItem()]));
+        this.formModel.set(this.createInitialForm());
+        this.submitAttempted.set(false);
         this.lotsByRow.set({});
         this.reload();
       },
@@ -328,12 +356,12 @@ export class BonsSortieComponent implements OnDestroy {
     });
   }
 
-  private newItem(): FormGroup {
-    return this.fb.group({
-      articleId: [null, Validators.required],
-      lotId: [null, Validators.required],
-      quantite: [1, [Validators.required, Validators.min(0.0001)]],
-    });
+  protected hasLockedItems(): boolean {
+    return this.formModel().items.some(item => this.isArticleLocked(item.articleId));
+  }
+
+  protected showDateError(): boolean {
+    return this.submitAttempted() && !this.formModel().dateSortie;
   }
 
   private setLotsForRow(i: number, lots: LotDisponible[]): void {
@@ -347,8 +375,36 @@ export class BonsSortieComponent implements OnDestroy {
     return this.lockedArticleIds().includes(articleId);
   }
 
-  protected hasLockedItems(): boolean {
-    return this.items.controls.some(c => this.isArticleLocked(c.get('articleId')?.value));
+  protected showItemError(index: number, field: 'article' | 'lot' | 'quantite'): boolean {
+    if (!this.submitAttempted()) {
+      return false;
+    }
+    const item = this.formModel().items[index];
+    if (!item) {
+      return false;
+    }
+    if (field === 'article') {
+      return !item.articleId;
+    }
+    if (field === 'lot') {
+      return !item.lotId;
+    }
+    return Number(item.quantite ?? 0) <= 0;
+  }
+
+  private newItem(): SortieItemForm {
+    return {
+      articleId: null,
+      lotId: null,
+      quantite: 1,
+    };
+  }
+
+  private patchItem(index: number, patch: Partial<SortieItemForm>): void {
+    this.formModel.update(model => ({
+      ...model,
+      items: model.items.map((item, itemIndex) => itemIndex === index ? {...item, ...patch} : item),
+    }));
   }
 
   protected articleLabel(a: RefItem): string {
@@ -387,5 +443,23 @@ export class BonsSortieComponent implements OnDestroy {
     const date = d instanceof Date ? d : new Date(d as string);
     return date.toISOString().substring(0, 10);
   }
+
+  private createInitialForm(): SortieFormModel {
+    return {
+      dateSortie: new Date(),
+      items: [this.newItem()],
+    };
+  }
 }
+
+type SortieFormModel = {
+  dateSortie: Date | string | null;
+  items: SortieItemForm[];
+};
+
+type SortieItemForm = {
+  articleId: string | null;
+  lotId: string | null;
+  quantite: number | null;
+};
 
