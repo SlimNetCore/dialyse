@@ -41,6 +41,11 @@ public class PatientRepositoryAdapter implements PatientRepositoryPort {
     }
 
     @Override
+    public Optional<Patient> findByCodePatient(CenterId centerId, String codePatient) {
+        return jpa.findByCenterIdAndCodePatient(centerId.value(), codePatient).map(PatientMapper::toDomain);
+    }
+
+    @Override
     @Cacheable(cacheNames = "patient.byNumeroAssurance", key = "#centerId.value().toString() + ':' + (#numeroAssurance == null ? '' : #numeroAssurance.toLowerCase())")
     public Optional<Patient> findByNumeroAssurance(CenterId centerId, String numeroAssurance) {
         return jpa.findByCenterIdAndNumeroAssurance(centerId.value(), numeroAssurance).map(PatientMapper::toDomain);

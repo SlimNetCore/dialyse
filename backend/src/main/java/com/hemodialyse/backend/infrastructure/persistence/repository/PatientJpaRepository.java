@@ -10,6 +10,8 @@ import java.util.UUID;
 
 public interface PatientJpaRepository extends JpaRepository<PatientJpaEntity, UUID>, JpaSpecificationExecutor<PatientJpaEntity> {
     Optional<PatientJpaEntity> findByCenterIdAndNumeroAssurance(UUID centerId, String numeroAssurance);
+
+    Optional<PatientJpaEntity> findByCenterIdAndCodePatient(UUID centerId, String codePatient);
     Optional<PatientJpaEntity> findByIdAndCenterId(UUID id, UUID centerId);
     List<PatientJpaEntity> findByCenterId(UUID centerId);
     long countByCenterId(UUID centerId);

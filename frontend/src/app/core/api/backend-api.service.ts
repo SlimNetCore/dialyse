@@ -101,6 +101,80 @@ export type CreateSeancePayload = {
   dateSeance: string;
 };
 
+export type ScanSeanceQrPayload = {
+  centerId: string;
+  qrCode: string;
+  dateSeance?: string;
+};
+
+export type UpdateSeancePayload = {
+  centerId: string;
+  dateSeance?: string;
+};
+
+export type SeanceListItem = {
+  id: string;
+  centerId: string;
+  patientId: string;
+  patientCode?: string | null;
+  patientNom?: string | null;
+  patientPrenom?: string | null;
+  dateSeance: string;
+  status: string;
+  createdAt?: string;
+  validatedAt?: string;
+  signedByInfirmierAt?: string;
+  signedByMedecinAt?: string;
+};
+
+export type SeanceSummary = {
+  seance: {
+    id: string;
+    centerId: string;
+    patientId: string;
+    dateSeance: string;
+    status: string;
+    createdAt?: string;
+    validatedAt?: string;
+    signedByInfirmierAt?: string;
+    signedByMedecinAt?: string;
+  };
+  patient: {
+    id: string;
+    codePatient?: string;
+    nom?: string;
+    prenom?: string;
+    sexe?: string;
+    dateNaissance?: string;
+    numeroAssurance?: string;
+    groupeSanguin?: string;
+    telMobile?: string;
+    medecinTraitantId?: string;
+    salleId?: string;
+    positionId?: string;
+  };
+  paramedical?: {
+    poidsAvantKg?: number;
+    poidsApresKg?: number;
+    taAvant?: string;
+    taApres?: string;
+    dureeMinutes?: number;
+    debitSangMlMin?: number;
+    ultrafiltrationMl?: number;
+    anticoagulant?: string;
+    typeDialysat?: string;
+    incidents?: string;
+  } | null;
+  medical?: {
+    prescription?: string;
+    toleranceSeance?: string;
+    examenClinique?: string;
+    resultatsBiologiques?: string;
+    ajustementsTherapeutiques?: string;
+    conclusionMedicale?: string;
+  } | null;
+};
+
 export type UpsertVoletParamedicalPayload = {
   centerId: string;
   poidsAvantKg?: number | null;
@@ -232,6 +306,32 @@ export class BackendApiService {
     return this.http.post<{ id: string; status: string; dateSeance: string }>(`${this.baseUrl}/seances`, payload);
   }
 
+  listSeances(centerId: string): Observable<SeanceListItem[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<SeanceListItem[]>(`${this.baseUrl}/seances`, {params});
+  }
+
+  scanSeanceQr(payload: ScanSeanceQrPayload): Observable<{ id: string; status: string; dateSeance: string }> {
+    return this.http.post<{ id: string; status: string; dateSeance: string }>(`${this.baseUrl}/seances/scan`, payload);
+  }
+
+  updateSeance(seanceId: string, payload: UpdateSeancePayload): Observable<{
+    id: string;
+    status: string;
+    dateSeance: string
+  }> {
+    return this.http.put<{
+      id: string;
+      status: string;
+      dateSeance: string
+    }>(`${this.baseUrl}/seances/${seanceId}`, payload);
+  }
+
+  getSeanceSummary(seanceId: string, centerId: string): Observable<SeanceSummary> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<SeanceSummary>(`${this.baseUrl}/seances/${seanceId}`, {params});
+  }
+
   upsertVoletParamedical(seanceId: string, payload: UpsertVoletParamedicalPayload): Observable<{
     id: string;
     seanceId: string;
@@ -242,6 +342,22 @@ export class BackendApiService {
       seanceId: string;
       updatedAt: string
     }>(`${this.baseUrl}/seances/${seanceId}/volet-paramedical`, payload);
+  }
+
+  upsertVoletMedical(seanceId: string, payload: {
+    centerId: string;
+    prescription?: string | null;
+    toleranceSeance?: string | null;
+    examenClinique?: string | null;
+    resultatsBiologiques?: string | null;
+    ajustementsTherapeutiques?: string | null;
+    conclusionMedicale?: string | null;
+  }): Observable<{ id: string; seanceId: string; updatedAt: string }> {
+    return this.http.put<{
+      id: string;
+      seanceId: string;
+      updatedAt: string
+    }>(`${this.baseUrl}/seances/${seanceId}/volet-medical`, payload);
   }
 
   validateSeance(seanceId: string, payload: ValidateSeancePayload): Observable<{

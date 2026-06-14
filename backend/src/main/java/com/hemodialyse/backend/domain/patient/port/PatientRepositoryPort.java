@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface PatientRepositoryPort {
     Patient save(Patient patient);
     Optional<Patient> findById(PatientId id, CenterId centerId);
+
+    Optional<Patient> findByCodePatient(CenterId centerId, String codePatient);
     Optional<Patient> findByNumeroAssurance(CenterId centerId, String numeroAssurance);
     List<Patient> findAllByCenter(CenterId centerId);
     long countByCenter(CenterId centerId);

@@ -12,7 +12,10 @@ export const routes: Routes = [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/center-dashboard.component').then(m => m.CenterDashboardComponent) },
       { path: 'modeles-document', loadComponent: () => import('./features/reporting/modeles-document.component').then(m => m.ModelesDocumentComponent) },
       { path: 'patients', loadChildren: () => import('./features/patient/patient.routes').then(m => m.patientRoutes) },
-      { path: 'seances', loadComponent: () => import('./features/seances/seances-placeholder.component').then(m => m.SeancesPlaceholderComponent) },
+      {
+        path: 'seances',
+        loadComponent: () => import('./features/seances/seances-page.component').then(m => m.SeancesPageComponent)
+      },
       {path: 'stock', loadChildren: () => import('./features/stock/stock.routes').then(m => m.stockRoutes)},
       { path: 'facturation', loadComponent: () => import('./features/facturation/facturation-placeholder.component').then(m => m.FacturationPlaceholderComponent) },
       { path: 'reglement', loadComponent: () => import('./features/reglement/reglement-placeholder.component').then(m => m.ReglementPlaceholderComponent) },

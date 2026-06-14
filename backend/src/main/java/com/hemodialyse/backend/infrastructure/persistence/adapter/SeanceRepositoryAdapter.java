@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.seance.model.Seance;
+import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -8,6 +9,8 @@ import com.hemodialyse.backend.infrastructure.persistence.entity.SeanceJpaEntity
 import com.hemodialyse.backend.infrastructure.persistence.repository.SeanceJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +31,31 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
     @Override
     public Optional<Seance> findById(UUID seanceId, CenterId centerId) {
         return jpa.findByIdAndCenterId(seanceId, centerId.value()).map(this::toDomain);
+    }
+
+    @Override
+    public Optional<Seance> findByPatientIdAndDate(CenterId centerId, UUID patientId, LocalDate dateSeance) {
+        return jpa.findByCenterIdAndPatientIdAndDateSeance(centerId.value(), patientId, dateSeance).map(this::toDomain);
+    }
+
+    @Override
+    public List<SeanceListItem> findAllByCenter(CenterId centerId) {
+        return jpa.findByCenterIdOrderByDateSeanceDescCreatedAtDesc(centerId.value()).stream()
+                .map(e -> new SeanceListItem(
+                        e.getId(),
+                        e.getCenterId(),
+                        e.getPatientId(),
+                        null,
+                        null,
+                        null,
+                        e.getDateSeance(),
+                        SeanceStatus.valueOf(e.getStatut()),
+                        e.getCreatedAt(),
+                        e.getValidatedAt(),
+                        e.getSignedInfirmierAt(),
+                        e.getSignedMedecinAt()
+                ))
+                .toList();
     }
 
     private Seance toDomain(SeanceJpaEntity e) {
@@ -62,4 +90,7 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         return e;
     }
 }
+
+
+
 
