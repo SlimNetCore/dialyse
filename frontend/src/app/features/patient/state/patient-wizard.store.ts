@@ -659,31 +659,53 @@ function mapPatientToWizardData(patient: any): Record<string, any> {
       assureInfo?.assureGroupeSanguin ??
       null,
     jourDimanche: coerceBoolean(
-      patient?.jourDimanche ?? patient?.jour_dimanche ?? joursDialyse?.jourDimanche ?? joursDialyse?.jour_dimanche,
+      patient?.jourDimanche ??
+      patient?.jour_dimanche ??
+      joursDialyse?.jourDimanche ??
+      joursDialyse?.jour_dimanche ??
+      joursDialyse?.dimanche,
     ),
     jourLundi: coerceBoolean(
-      patient?.jourLundi ?? patient?.jour_lundi ?? joursDialyse?.jourLundi ?? joursDialyse?.jour_lundi,
+      patient?.jourLundi ??
+      patient?.jour_lundi ??
+      joursDialyse?.jourLundi ??
+      joursDialyse?.jour_lundi ??
+      joursDialyse?.lundi,
     ),
     jourMardi: coerceBoolean(
-      patient?.jourMardi ?? patient?.jour_mardi ?? joursDialyse?.jourMardi ?? joursDialyse?.jour_mardi,
+      patient?.jourMardi ??
+      patient?.jour_mardi ??
+      joursDialyse?.jourMardi ??
+      joursDialyse?.jour_mardi ??
+      joursDialyse?.mardi,
     ),
     jourMercredi: coerceBoolean(
       patient?.jourMercredi ??
       patient?.jour_mercredi ??
       joursDialyse?.jourMercredi ??
-      joursDialyse?.jour_mercredi,
+      joursDialyse?.jour_mercredi ??
+      joursDialyse?.mercredi,
     ),
     jourJeudi: coerceBoolean(
-      patient?.jourJeudi ?? patient?.jour_jeudi ?? joursDialyse?.jourJeudi ?? joursDialyse?.jour_jeudi,
+      patient?.jourJeudi ??
+      patient?.jour_jeudi ??
+      joursDialyse?.jourJeudi ??
+      joursDialyse?.jour_jeudi ??
+      joursDialyse?.jeudi,
     ),
     jourVendredi: coerceBoolean(
       patient?.jourVendredi ??
       patient?.jour_vendredi ??
       joursDialyse?.jourVendredi ??
-      joursDialyse?.jour_vendredi,
+      joursDialyse?.jour_vendredi ??
+      joursDialyse?.vendredi,
     ),
     jourSamedi: coerceBoolean(
-      patient?.jourSamedi ?? patient?.jour_samedi ?? joursDialyse?.jourSamedi ?? joursDialyse?.jour_samedi,
+      patient?.jourSamedi ??
+      patient?.jour_samedi ??
+      joursDialyse?.jourSamedi ??
+      joursDialyse?.jour_samedi ??
+      joursDialyse?.samedi,
     ),
     assureHistory: parseJson(patient?.assureHistoryJson),
     piecesJointes: parseJson(patient?.piecesJointesJson),

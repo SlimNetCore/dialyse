@@ -601,7 +601,8 @@ type FilterType = 'text' | 'date';
                 </div>
               </th>
               <td mat-cell *matCellDef="let row">
-                <span
+                <div
+                  class="dialyse-days"
                   *ngIf="
                     row.joursDialyse &&
                     (row.joursDialyse.dimanche ||
@@ -613,16 +614,14 @@ type FilterType = 'text' | 'date';
                       row.joursDialyse.samedi)
                   "
                 >
-                  {{
-                    (row.joursDialyse.dimanche ? 'Dim ' : '') +
-                    (row.joursDialyse.lundi ? 'Lun ' : '') +
-                    (row.joursDialyse.mardi ? 'Mar ' : '') +
-                    (row.joursDialyse.mercredi ? 'Mer ' : '') +
-                    (row.joursDialyse.jeudi ? 'Jeu ' : '') +
-                    (row.joursDialyse.vendredi ? 'Ven ' : '') +
-                    (row.joursDialyse.samedi ? 'Sam' : '')
-                  }}
-                </span>
+                  <span class="dialyse-badge day-dim" *ngIf="row.joursDialyse.dimanche">Dim</span>
+                  <span class="dialyse-badge day-lun" *ngIf="row.joursDialyse.lundi">Lun</span>
+                  <span class="dialyse-badge day-mar" *ngIf="row.joursDialyse.mardi">Mar</span>
+                  <span class="dialyse-badge day-mer" *ngIf="row.joursDialyse.mercredi">Mer</span>
+                  <span class="dialyse-badge day-jeu" *ngIf="row.joursDialyse.jeudi">Jeu</span>
+                  <span class="dialyse-badge day-ven" *ngIf="row.joursDialyse.vendredi">Ven</span>
+                  <span class="dialyse-badge day-sam" *ngIf="row.joursDialyse.samedi">Sam</span>
+                </div>
                 <span
                   *ngIf="
                     !row.joursDialyse ||
@@ -984,6 +983,67 @@ type FilterType = 'text' | 'date';
         color: color-mix(in srgb, var(--app-text) 88%, var(--app-primary));
       }
 
+      .dialyse-days {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .dialyse-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        border: 1px solid transparent;
+      }
+
+      .day-dim {
+        background: #ffe4e6;
+        color: #9f1239;
+        border-color: #fecdd3;
+      }
+
+      .day-lun {
+        background: #dbeafe;
+        color: #1e3a8a;
+        border-color: #bfdbfe;
+      }
+
+      .day-mar {
+        background: #dcfce7;
+        color: #166534;
+        border-color: #bbf7d0;
+      }
+
+      .day-mer {
+        background: #f3e8ff;
+        color: #6b21a8;
+        border-color: #e9d5ff;
+      }
+
+      .day-jeu {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fde68a;
+      }
+
+      .day-ven {
+        background: #cffafe;
+        color: #155e75;
+        border-color: #a5f3fc;
+      }
+
+      .day-sam {
+        background: #e2e8f0;
+        color: #334155;
+        border-color: #cbd5e1;
+      }
+
       .sexe-icon {
         font-size: 20px;
         width: 20px;
@@ -1276,6 +1336,7 @@ export class PatientListComponent {
   readonly isMobileView = signal(typeof window !== 'undefined' ? window.innerWidth <= 760 : false);
   readonly selectedRowId = signal<string | null>(null);
   readonly allColumnsConfig = [
+    {key: 'numeroAssurance', labelKey: 'PATIENT_LIST.COL_ASSURANCE', type: 'text' as FilterType},
     {key: 'code', labelKey: 'PATIENT_LIST.COL_CODE', type: 'text' as FilterType},
     {key: 'nom', labelKey: 'PATIENT_LIST.COL_NOM', type: 'text' as FilterType},
     {key: 'prenom', labelKey: 'PATIENT_LIST.COL_PRENOM', type: 'text' as FilterType},
@@ -1285,7 +1346,6 @@ export class PatientListComponent {
       labelKey: 'PATIENT_LIST.COL_DATE_ADMISSION',
       type: 'date' as FilterType,
     },
-    {key: 'numeroAssurance', labelKey: 'PATIENT_LIST.COL_ASSURANCE', type: 'text' as FilterType},
     {key: 'etatPatient', labelKey: 'PATIENT_LIST.COL_ETAT', type: 'text' as FilterType},
     {
       key: 'nonFacturable',
@@ -1314,7 +1374,7 @@ export class PatientListComponent {
     {key: 'actions', labelKey: 'PATIENT_LIST.COL_ACTIONS', type: 'text' as FilterType},
   ] as const;
   readonly visibleColumns = signal<Record<string, boolean>>({
-    code: true,
+    code: false,
     nom: true,
     prenom: true,
     sexe: true,
@@ -1327,7 +1387,7 @@ export class PatientListComponent {
     positionId: false,
     transporteurAllerId: false,
     transporteurRetourId: false,
-    joursDialyse: false,
+    joursDialyse: true,
     pecForfaitId: false,
     actions: true,
   });
@@ -1366,7 +1426,7 @@ export class PatientListComponent {
     typeof window !== 'undefined' ? window.innerWidth <= 900 : false,
   );
   private readonly mobilePriorityColumns = new Set<string>([
-    'code',
+    'numeroAssurance',
     'nom',
     'prenom',
     'etatPatient',

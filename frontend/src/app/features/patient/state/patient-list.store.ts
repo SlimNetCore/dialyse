@@ -73,13 +73,26 @@ export const PatientListStore = signalStore(
                 transporteurAllerId: p.transporteurAllerId ?? '',
                 transporteurRetourId: p.transporteurRetourId ?? '',
                 joursDialyse: {
-                  dimanche: p.jourDimanche ?? false,
-                  lundi: p.jourLundi ?? false,
-                  mardi: p.jourMardi ?? false,
-                  mercredi: p.jourMercredi ?? false,
-                  jeudi: p.jourJeudi ?? false,
-                  vendredi: p.jourVendredi ?? false,
-                  samedi: p.jourSamedi ?? false
+                  dimanche:
+                    p.jourDimanche ?? p.jour_dimanche ?? (p.joursDialyse ?? p.jours_dialyse)?.dimanche ?? false,
+                  lundi:
+                    p.jourLundi ?? p.jour_lundi ?? (p.joursDialyse ?? p.jours_dialyse)?.lundi ?? false,
+                  mardi:
+                    p.jourMardi ?? p.jour_mardi ?? (p.joursDialyse ?? p.jours_dialyse)?.mardi ?? false,
+                  mercredi:
+                    p.jourMercredi ??
+                    p.jour_mercredi ??
+                    (p.joursDialyse ?? p.jours_dialyse)?.mercredi ??
+                    false,
+                  jeudi:
+                    p.jourJeudi ?? p.jour_jeudi ?? (p.joursDialyse ?? p.jours_dialyse)?.jeudi ?? false,
+                  vendredi:
+                    p.jourVendredi ??
+                    p.jour_vendredi ??
+                    (p.joursDialyse ?? p.jours_dialyse)?.vendredi ??
+                    false,
+                  samedi:
+                    p.jourSamedi ?? p.jour_samedi ?? (p.joursDialyse ?? p.jours_dialyse)?.samedi ?? false
                 },
                 pecStatus: p.pecStatus ?? '',
                 pecForfaitId: p.pecForfaitId ?? ''

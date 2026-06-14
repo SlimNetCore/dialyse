@@ -280,7 +280,7 @@ export class AssureEditDialogComponent {
             [items]="centresPayeurs()"
             [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate"
             [prefixIcon]="'account_balance'"
-            [selectedId]="$safeNavigationMigration(form.get('centrePayeurId')?.value)"
+            [selectedId]="form.get('centrePayeurId')?.value"
             (selectionChanged)="onCentrePayeur($event)"
             [disabled]="readonly"
             cssClass="flex1"
