@@ -5,17 +5,22 @@ import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.web.dto.request.*;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import jakarta.validation.Valid;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/seances")
@@ -260,6 +265,487 @@ public class SeanceRestController {
         payload.put("patients", patients);
         payload.put("sortiesArticles", articles);
         return ResponseEntity.ok(payload);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @GetMapping("/dashboard")
+    public ResponseEntity<?> dashboard(@RequestParam UUID centerId,
+                                       @RequestParam int year,
+                                       @RequestParam int month) {
+        return ResponseEntity.ok(buildSeanceDashboard(centerId, year, month));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @GetMapping("/dashboard/export")
+    public ResponseEntity<?> exportDashboard(@RequestParam UUID centerId,
+                                             @RequestParam int year,
+                                             @RequestParam int month,
+                                             @RequestParam(defaultValue = "csv") String format) {
+        Map<String, Object> dashboard = buildSeanceDashboard(centerId, year, month);
+        if ("pdf".equalsIgnoreCase(format)) {
+            byte[] pdf = exportDashboardPdf(dashboard);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=seances-dashboard-" + year + "-" + String.format("%02d", month) + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+        }
+
+        if ("xlsx".equalsIgnoreCase(format)) {
+            byte[] xlsx = exportDashboardXlsx(dashboard);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=seances-dashboard-" + year + "-" + String.format("%02d", month) + ".xlsx")
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(xlsx);
+        }
+
+        String csv = exportDashboardCsv(dashboard);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=seances-dashboard-" + year + "-" + String.format("%02d", month) + ".csv")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(csv);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @GetMapping("/calendar")
+    public ResponseEntity<?> calendar(@RequestParam UUID centerId,
+                                      @RequestParam int year,
+                                      @RequestParam int month) {
+        YearMonth ym = YearMonth.of(year, month);
+        LocalDate from = ym.atDay(1);
+        LocalDate to = ym.atEndOfMonth();
+
+        var holidays = jdbc.query(
+                "SELECT id, day_date, label FROM center_holiday WHERE center_id = ? AND day_date BETWEEN ? AND ? ORDER BY day_date ASC",
+                (rs, rowNum) -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("id", rs.getObject("id", UUID.class));
+                    row.put("dayDate", rs.getObject("day_date", Date.class).toLocalDate());
+                    row.put("label", rs.getString("label"));
+                    return row;
+                },
+                centerId,
+                Date.valueOf(from),
+                Date.valueOf(to)
+        );
+
+        var closures = jdbc.query(
+                "SELECT id, day_date, reason FROM center_closure_day WHERE center_id = ? AND day_date BETWEEN ? AND ? ORDER BY day_date ASC",
+                (rs, rowNum) -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("id", rs.getObject("id", UUID.class));
+                    row.put("dayDate", rs.getObject("day_date", Date.class).toLocalDate());
+                    row.put("reason", rs.getString("reason"));
+                    return row;
+                },
+                centerId,
+                Date.valueOf(from),
+                Date.valueOf(to)
+        );
+
+        return ResponseEntity.ok(Map.of(
+                "year", year,
+                "month", month,
+                "holidays", holidays,
+                "closures", closures
+        ));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/calendar/holiday")
+    public ResponseEntity<?> addHoliday(@RequestBody @Valid SeanceCalendarDayRequest request) {
+        UUID id = UUID.randomUUID();
+        jdbc.update(
+                "MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id) VALUES (?, ?, ?, ?)",
+                id,
+                request.centerId(),
+                Date.valueOf(request.dayDate()),
+                request.labelOrReason()
+        );
+        return ResponseEntity.ok(Map.of("id", id, "dayDate", request.dayDate()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/calendar/holiday/{id}")
+    public ResponseEntity<?> deleteHoliday(@PathVariable UUID id,
+                                           @RequestParam UUID centerId) {
+        jdbc.update("DELETE FROM center_holiday WHERE id = ? AND center_id = ?", id, centerId);
+        return ResponseEntity.ok(Map.of("deleted", true));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/calendar/closure")
+    public ResponseEntity<?> addClosure(@RequestBody @Valid SeanceCalendarDayRequest request) {
+        UUID id = UUID.randomUUID();
+        jdbc.update(
+                "MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id) VALUES (?, ?, ?, ?)",
+                id,
+                request.centerId(),
+                Date.valueOf(request.dayDate()),
+                request.labelOrReason()
+        );
+        return ResponseEntity.ok(Map.of("id", id, "dayDate", request.dayDate()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/calendar/closure/{id}")
+    public ResponseEntity<?> deleteClosure(@PathVariable UUID id,
+                                           @RequestParam UUID centerId) {
+        jdbc.update("DELETE FROM center_closure_day WHERE id = ? AND center_id = ?", id, centerId);
+        return ResponseEntity.ok(Map.of("deleted", true));
+    }
+
+    private Map<String, Object> buildSeanceDashboard(UUID centerId, int year, int month) {
+        YearMonth ym = YearMonth.of(year, month);
+        LocalDate from = ym.atDay(1);
+        LocalDate to = ym.atEndOfMonth();
+
+        // Séances effectivement créées (présences)
+        Long presenceCountRaw = jdbc.queryForObject(
+                "SELECT COUNT(1) FROM seances WHERE center_id = ? AND date_seance BETWEEN ? AND ?",
+                Long.class,
+                centerId,
+                Date.valueOf(from),
+                Date.valueOf(to)
+        );
+        long presenceCount = presenceCountRaw == null ? 0L : presenceCountRaw;
+
+        // Jours non ouvrés centre (fériés + fermetures exceptionnelles)
+        Set<LocalDate> blockedDates = new HashSet<>();
+        blockedDates.addAll(loadBlockedDates("center_holiday", centerId, from, to));
+        blockedDates.addAll(loadBlockedDates("center_closure_day", centerId, from, to));
+
+        // Programmation patients (jours dialyse)
+        List<Map<String, Object>> patients = jdbc.queryForList(
+                """
+                        SELECT id,
+                               date_admission,
+                               en_sommeil,
+                               jour_lundi,
+                               jour_mardi,
+                               jour_mercredi,
+                               jour_jeudi,
+                               jour_vendredi,
+                               jour_samedi,
+                               jour_dimanche
+                        FROM patients
+                        WHERE center_id = ?
+                        """,
+                centerId
+        );
+
+        long expectedSeances = 0L;
+        for (Map<String, Object> patient : patients) {
+            Boolean enSommeil = asBoolean(readColumn(patient, "en_sommeil"));
+            if (Boolean.TRUE.equals(enSommeil)) {
+                continue;
+            }
+            LocalDate admission = asLocalDate(readColumn(patient, "date_admission"));
+            LocalDate effectiveStart = admission == null || admission.isBefore(from) ? from : admission;
+            if (effectiveStart.isAfter(to)) {
+                continue;
+            }
+            for (LocalDate d = effectiveStart; !d.isAfter(to); d = d.plusDays(1)) {
+                if (blockedDates.contains(d)) {
+                    continue;
+                }
+                if (isPatientScheduledOn(patient, d)) {
+                    expectedSeances++;
+                }
+            }
+        }
+
+        long absences = Math.max(0L, expectedSeances - presenceCount);
+
+        // Répartition sexe + âge sur patients présents (distinct) durant le mois
+        List<Map<String, Object>> presentPatients = jdbc.queryForList(
+                """
+                        SELECT DISTINCT p.id, p.sexe, p.date_naissance
+                        FROM seances s
+                        INNER JOIN patients p ON p.id = s.patient_id
+                        WHERE s.center_id = ?
+                          AND s.date_seance BETWEEN ? AND ?
+                        """,
+                centerId,
+                Date.valueOf(from),
+                Date.valueOf(to)
+        );
+
+        Map<String, Long> bySexe = new LinkedHashMap<>();
+        bySexe.put("M", 0L);
+        bySexe.put("F", 0L);
+        bySexe.put("AUTRE", 0L);
+
+        Map<String, Long> byAgeRange = new LinkedHashMap<>();
+        byAgeRange.put("0-17", 0L);
+        byAgeRange.put("18-39", 0L);
+        byAgeRange.put("40-59", 0L);
+        byAgeRange.put("60+", 0L);
+        byAgeRange.put("INCONNU", 0L);
+
+        LocalDate refDate = to;
+        for (Map<String, Object> p : presentPatients) {
+            String sexe = normalizeSexe((String) readColumn(p, "sexe"));
+            bySexe.put(sexe, bySexe.getOrDefault(sexe, 0L) + 1L);
+
+            LocalDate naissance = asLocalDate(readColumn(p, "date_naissance"));
+            String ageRange = toAgeRange(naissance, refDate);
+            byAgeRange.put(ageRange, byAgeRange.getOrDefault(ageRange, 0L) + 1L);
+        }
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("year", year);
+        payload.put("month", month);
+        payload.put("expectedSeances", expectedSeances);
+        payload.put("presenceCount", presenceCount);
+        payload.put("absenceCount", absences);
+        payload.put("totalSeances", presenceCount);
+        payload.put("sexeDistribution", bySexe);
+        payload.put("ageDistribution", byAgeRange);
+        return payload;
+    }
+
+    private String exportDashboardCsv(Map<String, Object> dashboard) {
+        @SuppressWarnings("unchecked")
+        Map<String, Number> sexe = (Map<String, Number>) dashboard.getOrDefault("sexeDistribution", Map.of());
+        @SuppressWarnings("unchecked")
+        Map<String, Number> age = (Map<String, Number>) dashboard.getOrDefault("ageDistribution", Map.of());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("year,month,expectedSeances,presenceCount,absenceCount,totalSeances\n");
+        sb.append(dashboard.getOrDefault("year", ""))
+                .append(',').append(dashboard.getOrDefault("month", ""))
+                .append(',').append(dashboard.getOrDefault("expectedSeances", 0))
+                .append(',').append(dashboard.getOrDefault("presenceCount", 0))
+                .append(',').append(dashboard.getOrDefault("absenceCount", 0))
+                .append(',').append(dashboard.getOrDefault("totalSeances", 0)).append("\n\n");
+
+        sb.append("sexe,count\n");
+        sexe.forEach((k, v) -> sb.append(k).append(',').append(v).append("\n"));
+        sb.append("\n");
+        sb.append("ageRange,count\n");
+        age.forEach((k, v) -> sb.append(k).append(',').append(v).append("\n"));
+        return sb.toString();
+    }
+
+    private byte[] exportDashboardPdf(Map<String, Object> dashboard) {
+        String html = """
+                <html><head><meta charset='UTF-8'/>
+                <style>
+                body{font-family:Arial,sans-serif;font-size:12px;color:#111;margin:20px;}
+                h1{font-size:20px;margin:0 0 10px 0;} h2{font-size:15px;margin:16px 0 6px 0;}
+                table{width:100%%;border-collapse:collapse;margin-top:8px;}
+                th,td{border:1px solid #ddd;padding:6px;text-align:left;} th{background:#f5f7fb;}
+                </style></head><body>
+                <h1>Dashboard séances</h1>
+                <p><strong>Période:</strong> %s-%s</p>
+                <p><strong>Séances prévues:</strong> %s</p>
+                <p><strong>Présences:</strong> %s</p>
+                <p><strong>Absences:</strong> %s</p>
+                <p><strong>Séances totales:</strong> %s</p>
+                %s
+                %s
+                </body></html>
+                """.formatted(
+                dashboard.getOrDefault("year", ""),
+                String.format("%02d", dashboard.getOrDefault("month", 1)),
+                dashboard.getOrDefault("expectedSeances", 0),
+                dashboard.getOrDefault("presenceCount", 0),
+                dashboard.getOrDefault("absenceCount", 0),
+                dashboard.getOrDefault("totalSeances", 0),
+                toPdfTable("Répartition sexe", "Sexe", castMap(dashboard.get("sexeDistribution"))),
+                toPdfTable("Répartition âge", "Tranche", castMap(dashboard.get("ageDistribution")))
+        );
+
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withHtmlContent(html, null);
+            builder.toStream(out);
+            builder.run();
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new IllegalStateException("Impossible de générer le PDF dashboard séances", e);
+        }
+    }
+
+    private byte[] exportDashboardXlsx(Map<String, Object> dashboard) {
+        try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            var summary = workbook.createSheet("Synthese");
+            int row = 0;
+            row = writePair(summary, row, "Annee", String.valueOf(dashboard.getOrDefault("year", "")));
+            row = writePair(summary, row, "Mois", String.valueOf(dashboard.getOrDefault("month", "")));
+            row = writePair(summary, row, "Seances prevues", String.valueOf(dashboard.getOrDefault("expectedSeances", 0)));
+            row = writePair(summary, row, "Presences", String.valueOf(dashboard.getOrDefault("presenceCount", 0)));
+            row = writePair(summary, row, "Absences", String.valueOf(dashboard.getOrDefault("absenceCount", 0)));
+            writePair(summary, row, "Seances totales", String.valueOf(dashboard.getOrDefault("totalSeances", 0)));
+
+            var sexeSheet = workbook.createSheet("Repartition sexe");
+            writeDistribution(sexeSheet, "Sexe", castMap(dashboard.get("sexeDistribution")));
+
+            var ageSheet = workbook.createSheet("Repartition age");
+            writeDistribution(ageSheet, "Tranche age", castMap(dashboard.get("ageDistribution")));
+
+            summary.autoSizeColumn(0);
+            summary.autoSizeColumn(1);
+            sexeSheet.autoSizeColumn(0);
+            sexeSheet.autoSizeColumn(1);
+            ageSheet.autoSizeColumn(0);
+            ageSheet.autoSizeColumn(1);
+
+            workbook.write(out);
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new IllegalStateException("Impossible de générer l'export XLSX dashboard séances", e);
+        }
+    }
+
+    private int writePair(org.apache.poi.ss.usermodel.Sheet sheet, int rowIndex, String key, String value) {
+        var row = sheet.createRow(rowIndex);
+        row.createCell(0).setCellValue(key);
+        row.createCell(1).setCellValue(value);
+        return rowIndex + 1;
+    }
+
+    private void writeDistribution(org.apache.poi.ss.usermodel.Sheet sheet,
+                                   String firstColumnLabel,
+                                   Map<String, Number> data) {
+        var header = sheet.createRow(0);
+        header.createCell(0).setCellValue(firstColumnLabel);
+        header.createCell(1).setCellValue("Count");
+        int row = 1;
+        for (Map.Entry<String, Number> entry : data.entrySet()) {
+            var r = sheet.createRow(row++);
+            r.createCell(0).setCellValue(entry.getKey());
+            r.createCell(1).setCellValue(entry.getValue().doubleValue());
+        }
+    }
+
+    private Map<String, Number> castMap(Object value) {
+        if (!(value instanceof Map<?, ?> map)) {
+            return Map.of();
+        }
+        Map<String, Number> out = new LinkedHashMap<>();
+        map.forEach((k, v) -> {
+            if (k != null && v instanceof Number n) {
+                out.put(String.valueOf(k), n);
+            }
+        });
+        return out;
+    }
+
+    private String toPdfTable(String title, String firstColumnTitle, Map<String, Number> data) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<h2>").append(title).append("</h2>");
+        sb.append("<table><thead><tr><th>").append(firstColumnTitle).append("</th><th>Count</th></tr></thead><tbody>");
+        if (data.isEmpty()) {
+            sb.append("<tr><td colspan='2'>Aucune donnée</td></tr>");
+        } else {
+            data.forEach((k, v) -> sb.append("<tr><td>").append(k).append("</td><td>").append(v).append("</td></tr>"));
+        }
+        sb.append("</tbody></table>");
+        return sb.toString();
+    }
+
+    private List<LocalDate> loadBlockedDates(String tableName, UUID centerId, LocalDate from, LocalDate to) {
+        String sql = "SELECT day_date FROM " + tableName + " WHERE center_id = ? AND day_date BETWEEN ? AND ?";
+        try {
+            return jdbc.query(sql,
+                    (rs, rowNum) -> rs.getObject("day_date", Date.class).toLocalDate(),
+                    centerId,
+                    Date.valueOf(from),
+                    Date.valueOf(to));
+        } catch (Exception ignored) {
+            // Compatible avec les environnements où les tables calendrier ne sont pas encore créées.
+            return List.of();
+        }
+    }
+
+    private boolean isPatientScheduledOn(Map<String, Object> patient, LocalDate date) {
+        return switch (date.getDayOfWeek()) {
+            case MONDAY -> asBoolean(readColumn(patient, "jour_lundi"));
+            case TUESDAY -> asBoolean(readColumn(patient, "jour_mardi"));
+            case WEDNESDAY -> asBoolean(readColumn(patient, "jour_mercredi"));
+            case THURSDAY -> asBoolean(readColumn(patient, "jour_jeudi"));
+            case FRIDAY -> asBoolean(readColumn(patient, "jour_vendredi"));
+            case SATURDAY -> asBoolean(readColumn(patient, "jour_samedi"));
+            case SUNDAY -> asBoolean(readColumn(patient, "jour_dimanche"));
+        };
+    }
+
+    private Object readColumn(Map<String, Object> row, String name) {
+        if (row.containsKey(name)) {
+            return row.get(name);
+        }
+        String upper = name.toUpperCase();
+        if (row.containsKey(upper)) {
+            return row.get(upper);
+        }
+        for (Map.Entry<String, Object> entry : row.entrySet()) {
+            if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(name)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private Boolean asBoolean(Object value) {
+        if (value instanceof Boolean b) {
+            return b;
+        }
+        if (value instanceof Number n) {
+            return n.intValue() != 0;
+        }
+        return Boolean.FALSE;
+    }
+
+    private LocalDate asLocalDate(Object value) {
+        if (value instanceof LocalDate ld) {
+            return ld;
+        }
+        if (value instanceof Date d) {
+            return d.toLocalDate();
+        }
+        return null;
+    }
+
+    private String normalizeSexe(String sexe) {
+        if (sexe == null) {
+            return "AUTRE";
+        }
+        String normalized = sexe.trim().toUpperCase();
+        if (normalized.equals("M") || normalized.equals("H")) {
+            return "M";
+        }
+        if (normalized.equals("F")) {
+            return "F";
+        }
+        return "AUTRE";
+    }
+
+    private String toAgeRange(LocalDate birthDate, LocalDate refDate) {
+        if (birthDate == null) {
+            return "INCONNU";
+        }
+        long years = ChronoUnit.YEARS.between(birthDate, refDate);
+        if (years < 18) {
+            return "0-17";
+        }
+        if (years < 40) {
+            return "18-39";
+        }
+        if (years < 60) {
+            return "40-59";
+        }
+        return "60+";
+    }
+
+    public record SeanceCalendarDayRequest(UUID centerId,
+                                           LocalDate dayDate,
+                                           String labelOrReason) {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")

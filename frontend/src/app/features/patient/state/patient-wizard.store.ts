@@ -182,15 +182,15 @@ export const PatientWizardStore = signalStore(
         switchMap((params) => api.listAttestationsByPatient(params.centerId, params.patientId).pipe(
           tap((attestations: any[]) => {
             const history = attestations ?? [];
-            const first = history[0];
+            const latest = pickLatestAttestation(history);
             patchState(store, {
               wizardData: {
                 ...store.wizardData(),
                 attestationHistory: history,
-                ...(first ? {
-                  attestationId: first.id ?? first.ID ?? null,
-                  attestationDebut: first.dateDebut ?? first.DATE_DEBUT ?? null,
-                  attestationFin: first.dateFin ?? first.DATE_FIN ?? null
+                ...(latest ? {
+                  attestationId: latest.id ?? latest.ID ?? null,
+                  attestationDebut: latest.dateDebut ?? latest.DATE_DEBUT ?? null,
+                  attestationFin: latest.dateFin ?? latest.DATE_FIN ?? null
                 } : {})
               },
               attestationLoaded: true,
@@ -589,21 +589,102 @@ export const PatientWizardStore = signalStore(
 );
 
 function mapPatientToWizardData(patient: any): Record<string, any> {
-  const assureInfo = patient?.assureInfo ?? {};
+  const assureInfo = patient?.assureInfo ?? patient?.assure_info ?? {};
+  const joursDialyse = patient?.joursDialyse ?? patient?.jours_dialyse ?? {};
+  const centrePayeurId = normalizeId(patient?.centrePayeurId ?? patient?.centre_payeur_id);
+  const medecinTraitantId = normalizeId(
+    patient?.medecinTraitantId ?? patient?.medecin_traitant_id,
+  );
+  const salleId = normalizeId(patient?.salleId ?? patient?.salle_id);
+  const positionId = normalizeId(patient?.positionId ?? patient?.position_id);
+  const transporteurAllerId = normalizeId(
+    patient?.transporteurAllerId ?? patient?.transporteur_aller_id,
+  );
+  const transporteurRetourId = normalizeId(
+    patient?.transporteurRetourId ?? patient?.transporteur_retour_id,
+  );
+  const categorieTransportId = normalizeId(
+    patient?.categorieTransportId ?? patient?.categorie_transport_id,
+  );
   const wizardData = {
     ...patient,
+    centrePayeurId,
+    medecinTraitantId,
+    salleId,
+    positionId,
+    transporteurAllerId,
+    transporteurRetourId,
+    categorieTransportId,
     dateEvenementEtat: patient?.dateEvenementEtat ?? patient?.dateEvenement ?? null,
     qualiteAssure: patient?.qualiteAssure ?? patient?.qualite_assure ?? null,
     numeroAssurance: patient?.numeroAssurance?.value ?? patient?.numeroAssurance,
-    assureNom: patient?.assureNom ?? assureInfo?.nom ?? assureInfo?.assureNom ?? null,
-    assurePrenom: patient?.assurePrenom ?? assureInfo?.prenom ?? assureInfo?.assurePrenom ?? null,
-    assureSexe: patient?.assureSexe ?? assureInfo?.sexe ?? assureInfo?.assureSexe ?? null,
-    assureDateNaissance: patient?.assureDateNaissance ?? assureInfo?.dateNaissance ?? assureInfo?.assureDateNaissance ?? null,
-    assureTelPersonnel: patient?.assureTelPersonnel ?? assureInfo?.telPersonnel ?? assureInfo?.assureTelPersonnel ?? null,
-    assureTelMobile: patient?.assureTelMobile ?? assureInfo?.telMobile ?? assureInfo?.assureTelMobile ?? null,
-    assureTelBureau: patient?.assureTelBureau ?? assureInfo?.telBureau ?? assureInfo?.assureTelBureau ?? null,
-    assureAdresse: patient?.assureAdresse ?? assureInfo?.adresse ?? assureInfo?.assureAdresse ?? null,
-    assureGroupeSanguin: patient?.assureGroupeSanguin ?? assureInfo?.groupeSanguin ?? assureInfo?.assureGroupeSanguin ?? null,
+    assureNumeroAssurance:
+      patient?.assureNumeroAssurance ?? patient?.assure_numero_assurance ?? null,
+    assureNom:
+      patient?.assureNom ?? patient?.assure_nom ?? assureInfo?.nom ?? assureInfo?.assureNom ?? null,
+    assurePrenom:
+      patient?.assurePrenom ?? patient?.assure_prenom ?? assureInfo?.prenom ?? assureInfo?.assurePrenom ?? null,
+    assureSexe:
+      patient?.assureSexe ?? patient?.assure_sexe ?? assureInfo?.sexe ?? assureInfo?.assureSexe ?? null,
+    assureDateNaissance:
+      patient?.assureDateNaissance ??
+      patient?.assure_date_naissance ??
+      assureInfo?.dateNaissance ??
+      assureInfo?.assureDateNaissance ??
+      null,
+    assureTelPersonnel:
+      patient?.assureTelPersonnel ??
+      patient?.assure_tel_personnel ??
+      assureInfo?.telPersonnel ??
+      assureInfo?.assureTelPersonnel ??
+      null,
+    assureTelMobile:
+      patient?.assureTelMobile ??
+      patient?.assure_tel_mobile ??
+      assureInfo?.telMobile ??
+      assureInfo?.assureTelMobile ??
+      null,
+    assureTelBureau:
+      patient?.assureTelBureau ??
+      patient?.assure_tel_bureau ??
+      assureInfo?.telBureau ??
+      assureInfo?.assureTelBureau ??
+      null,
+    assureAdresse:
+      patient?.assureAdresse ?? patient?.assure_adresse ?? assureInfo?.adresse ?? assureInfo?.assureAdresse ?? null,
+    assureGroupeSanguin:
+      patient?.assureGroupeSanguin ??
+      patient?.assure_groupe_sanguin ??
+      assureInfo?.groupeSanguin ??
+      assureInfo?.assureGroupeSanguin ??
+      null,
+    jourDimanche: coerceBoolean(
+      patient?.jourDimanche ?? patient?.jour_dimanche ?? joursDialyse?.jourDimanche ?? joursDialyse?.jour_dimanche,
+    ),
+    jourLundi: coerceBoolean(
+      patient?.jourLundi ?? patient?.jour_lundi ?? joursDialyse?.jourLundi ?? joursDialyse?.jour_lundi,
+    ),
+    jourMardi: coerceBoolean(
+      patient?.jourMardi ?? patient?.jour_mardi ?? joursDialyse?.jourMardi ?? joursDialyse?.jour_mardi,
+    ),
+    jourMercredi: coerceBoolean(
+      patient?.jourMercredi ??
+      patient?.jour_mercredi ??
+      joursDialyse?.jourMercredi ??
+      joursDialyse?.jour_mercredi,
+    ),
+    jourJeudi: coerceBoolean(
+      patient?.jourJeudi ?? patient?.jour_jeudi ?? joursDialyse?.jourJeudi ?? joursDialyse?.jour_jeudi,
+    ),
+    jourVendredi: coerceBoolean(
+      patient?.jourVendredi ??
+      patient?.jour_vendredi ??
+      joursDialyse?.jourVendredi ??
+      joursDialyse?.jour_vendredi,
+    ),
+    jourSamedi: coerceBoolean(
+      patient?.jourSamedi ?? patient?.jour_samedi ?? joursDialyse?.jourSamedi ?? joursDialyse?.jour_samedi,
+    ),
     assureHistory: parseJson(patient?.assureHistoryJson),
     piecesJointes: parseJson(patient?.piecesJointesJson),
     attestationId: null,
@@ -685,3 +766,41 @@ function parseJson(json: any): any[] {
     return [];
   }
 }
+
+function normalizeId(value: any): string | null {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (typeof value === 'object') {
+    const nested = value['value'] ?? value['id'] ?? value['ID'];
+    if (nested !== undefined && nested !== null && nested !== '') return String(nested);
+  }
+  return String(value);
+}
+
+function coerceBoolean(value: any): boolean {
+  if (value === true || value === false) return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'yes', 'oui'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'non', ''].includes(normalized)) return false;
+  }
+  return !!value;
+}
+
+function pickLatestAttestation(history: any[]): any | null {
+  if (!Array.isArray(history) || history.length === 0) return null;
+
+  const toMs = (raw: any): number => {
+    if (!raw) return Number.NEGATIVE_INFINITY;
+    const d = raw instanceof Date ? raw : new Date(raw);
+    const ms = d.getTime();
+    return Number.isNaN(ms) ? Number.NEGATIVE_INFINITY : ms;
+  };
+
+  return [...history].sort((a, b) => {
+    const aRef = toMs(a?.dateFin ?? a?.DATE_FIN ?? a?.dateDebut ?? a?.DATE_DEBUT);
+    const bRef = toMs(b?.dateFin ?? b?.DATE_FIN ?? b?.dateDebut ?? b?.DATE_DEBUT);
+    return bRef - aRef;
+  })[0] ?? null;
+}
+

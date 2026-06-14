@@ -194,6 +194,24 @@ export type SeanceJournalByDate = {
   }>;
 };
 
+export type SeanceMonthlyDashboard = {
+  year: number;
+  month: number;
+  expectedSeances: number;
+  presenceCount: number;
+  absenceCount: number;
+  totalSeances: number;
+  sexeDistribution: Record<string, number>;
+  ageDistribution: Record<string, number>;
+};
+
+export type SeanceCalendarResponse = {
+  year: number;
+  month: number;
+  holidays: Array<{ id: string; dayDate: string; label?: string | null }>;
+  closures: Array<{ id: string; dayDate: string; reason?: string | null }>;
+};
+
 export type UpsertVoletParamedicalPayload = {
   centerId: string;
   poidsAvantKg?: number | null;
@@ -356,6 +374,57 @@ export class BackendApiService {
       .set('centerId', centerId)
       .set('dateSeance', dateSeance);
     return this.http.get<SeanceJournalByDate>(`${this.baseUrl}/seances/journal`, {params});
+  }
+
+  getSeanceMonthlyDashboard(centerId: string, year: number, month: number): Observable<SeanceMonthlyDashboard> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('year', String(year))
+      .set('month', String(month));
+    return this.http.get<SeanceMonthlyDashboard>(`${this.baseUrl}/seances/dashboard`, {params});
+  }
+
+  getSeanceCalendar(centerId: string, year: number, month: number): Observable<SeanceCalendarResponse> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('year', String(year))
+      .set('month', String(month));
+    return this.http.get<SeanceCalendarResponse>(`${this.baseUrl}/seances/calendar`, {params});
+  }
+
+  addSeanceHoliday(centerId: string, dayDate: string, label?: string): Observable<{ id: string; dayDate: string }> {
+    return this.http.post<{ id: string; dayDate: string }>(`${this.baseUrl}/seances/calendar/holiday`, {
+      centerId,
+      dayDate,
+      labelOrReason: label ?? null
+    });
+  }
+
+  deleteSeanceHoliday(centerId: string, id: string): Observable<{ deleted: boolean }> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/seances/calendar/holiday/${id}`, {params});
+  }
+
+  addSeanceClosure(centerId: string, dayDate: string, reason?: string): Observable<{ id: string; dayDate: string }> {
+    return this.http.post<{ id: string; dayDate: string }>(`${this.baseUrl}/seances/calendar/closure`, {
+      centerId,
+      dayDate,
+      labelOrReason: reason ?? null
+    });
+  }
+
+  deleteSeanceClosure(centerId: string, id: string): Observable<{ deleted: boolean }> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/seances/calendar/closure/${id}`, {params});
+  }
+
+  exportSeanceDashboard(centerId: string, year: number, month: number, format: 'csv' | 'pdf' | 'xlsx'): Observable<Blob> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('year', String(year))
+      .set('month', String(month))
+      .set('format', format);
+    return this.http.get(`${this.baseUrl}/seances/dashboard/export`, {params, responseType: 'blob'});
   }
 
   upsertVoletParamedical(seanceId: string, payload: UpsertVoletParamedicalPayload): Observable<{

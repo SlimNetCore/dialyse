@@ -5,6 +5,7 @@ import {
   effect,
   EventEmitter,
   inject,
+  Injector,
   Input,
   OnInit,
   Output,
@@ -354,6 +355,7 @@ export class StepAttestationComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly injector = inject(Injector);
   private pendingPrint = false;
   private pendingDeleteId: string | null = null;
 
@@ -431,7 +433,7 @@ export class StepAttestationComponent implements OnInit {
         attestationId: this.selectedAttestationId(),
       });
       this.validChange.emit(this.formValid());
-    });
+    }, {injector: this.injector});
   }
 
   markTouched(): void {
@@ -443,15 +445,43 @@ export class StepAttestationComponent implements OnInit {
   }
 
   patchData(data: Record<string, any>): void {
+    const pickLatest = (rows: any[]): any | null => {
+      if (!Array.isArray(rows) || rows.length === 0) return null;
+      const toMs = (raw: any): number => {
+        if (!raw) return Number.NEGATIVE_INFINITY;
+        const d = raw instanceof Date ? raw : new Date(raw);
+        const ms = d.getTime();
+        return Number.isNaN(ms) ? Number.NEGATIVE_INFINITY : ms;
+      };
+      return [...rows].sort((a, b) => {
+        const aRef = toMs(a?.dateFin ?? a?.DATE_FIN ?? a?.dateDebut ?? a?.DATE_DEBUT);
+        const bRef = toMs(b?.dateFin ?? b?.DATE_FIN ?? b?.dateDebut ?? b?.DATE_DEBUT);
+        return bRef - aRef;
+      })[0] ?? null;
+    };
+
     this.formModel.set({
       attestationDebut: data['attestationDebut'] ?? null,
       attestationFin: data['attestationFin'] ?? null,
     });
 
-    this.selectedAttestationId.set(data['attestationId'] ?? null);
+    const providedId = data['attestationId'] ?? null;
     this.patientId =
       (data['patientId'] ?? data['id'] ?? this.patientId ?? null)?.toString?.() ?? null;
     if (Array.isArray(data['attestationHistory'])) this.history.set(data['attestationHistory']);
+
+    const latest = pickLatest(this.history());
+    const selectedId =
+      providedId ?? (latest ? (latest.id ?? latest.ID ?? null)?.toString?.() ?? null : null);
+    this.selectedAttestationId.set(selectedId);
+
+    if (!providedId && latest) {
+      this.formModel.update((model) => ({
+        ...model,
+        attestationDebut: latest.dateDebut ?? latest.DATE_DEBUT ?? null,
+        attestationFin: latest.dateFin ?? latest.DATE_FIN ?? null,
+      }));
+    }
 
     const selected =
       this.history().find(

@@ -585,7 +585,9 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   shouldRenderStep(stepIndex: number): boolean {
     if (!this.editMode()) return true;
-    return this.currentStep() === stepIndex;
+    const activeIndex = this.stepper?.selectedIndex ?? this.currentStep();
+    // Keep active and adjacent steps mounted to avoid transient blank content.
+    return Math.abs(activeIndex - stepIndex) <= 1;
   }
 
   setStep1Valid(value: boolean): void {

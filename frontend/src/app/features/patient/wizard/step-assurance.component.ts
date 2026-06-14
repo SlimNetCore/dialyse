@@ -1205,34 +1205,68 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
 
   patchData(data: Record<string, any>): void {
     if (!this.form) return;
+    const assureInfo = data['assureInfo'] ?? data['assure_info'] ?? {};
+
+    const normalizeId = (value: any): string | null => {
+      if (value === null || value === undefined || value === '') return null;
+      if (typeof value === 'string' || typeof value === 'number') return String(value);
+      if (typeof value === 'object') {
+        const nested = value['value'] ?? value['id'] ?? value['ID'];
+        if (nested !== undefined && nested !== null && nested !== '') return String(nested);
+      }
+      return String(value);
+    };
+
+    const pick = (camel: string, snake: string, fallback: any = '') =>
+      data[camel] ?? data[snake] ?? fallback;
+
+    const pickAssure = (camel: string, snake: string) =>
+      data[camel] ?? data[snake] ?? assureInfo[camel] ?? assureInfo[snake] ?? '';
 
     const resolveCentrePayeurId = (): string | null => {
-      const direct = data['centrePayeurId'] ?? data['centerPayeurId'] ?? data['centre_payeur_id'];
-      if (direct) return String(direct);
+      const direct =
+        data['centrePayeurId'] ??
+        data['centerPayeurId'] ??
+        data['centre_payeur_id'] ??
+        data['center_payeur_id'];
+      const normalizedDirect = normalizeId(direct);
+      if (normalizedDirect) return normalizedDirect;
       const cp = data['centrePayeur'] ?? data['centerPayeur'];
-      if (cp && (cp.id ?? cp.ID)) return String(cp.id ?? cp.ID);
+      const normalizedNested = normalizeId(cp);
+      if (normalizedNested) return normalizedNested;
       return null;
     };
 
-    const qualiteFromData = data['qualiteAssure'] ?? 'ASSURE_LUI_MEME';
+    const qualiteFromData =
+      data['qualiteAssure'] ?? data['qualite_assure'] ?? 'ASSURE_LUI_MEME';
     const isSelf = qualiteFromData === 'ASSURE_LUI_MEME';
     const patch = {
-      numeroAssurance: data['numeroAssurance'] ?? '',
+      numeroAssurance: pick('numeroAssurance', 'numero_assurance', ''),
       centrePayeurId: resolveCentrePayeurId(),
       assureNumeroAssurance:
-        data['assureNumeroAssurance'] ?? (isSelf ? (data['numeroAssurance'] ?? '') : ''),
-      assureNom: data['assureNom'] ?? (isSelf ? (data['nom'] ?? '') : ''),
-      assurePrenom: data['assurePrenom'] ?? (isSelf ? (data['prenom'] ?? '') : ''),
-      assureSexe: data['assureSexe'] ?? (isSelf ? (data['sexe'] ?? '') : ''),
+        pick('assureNumeroAssurance', 'assure_numero_assurance', '') ||
+        (isSelf ? pick('numeroAssurance', 'numero_assurance', '') : ''),
+      assureNom: pickAssure('assureNom', 'assure_nom') || (isSelf ? pick('nom', 'nom', '') : ''),
+      assurePrenom:
+        pickAssure('assurePrenom', 'assure_prenom') || (isSelf ? pick('prenom', 'prenom', '') : ''),
+      assureSexe: pickAssure('assureSexe', 'assure_sexe') || (isSelf ? pick('sexe', 'sexe', '') : ''),
       assureDateNaissance:
-        data['assureDateNaissance'] ?? (isSelf ? (data['dateNaissance'] ?? null) : null),
+        pickAssure('assureDateNaissance', 'assure_date_naissance') ||
+        (isSelf ? pick('dateNaissance', 'date_naissance', null) : null),
       assureTelPersonnel:
-        data['assureTelPersonnel'] ?? (isSelf ? (data['telPersonnel'] ?? '') : ''),
-      assureTelMobile: data['assureTelMobile'] ?? (isSelf ? (data['telMobile'] ?? '') : ''),
-      assureTelBureau: data['assureTelBureau'] ?? (isSelf ? (data['telBureau'] ?? '') : ''),
+        pickAssure('assureTelPersonnel', 'assure_tel_personnel') ||
+        (isSelf ? pick('telPersonnel', 'tel_personnel', '') : ''),
+      assureTelMobile:
+        pickAssure('assureTelMobile', 'assure_tel_mobile') ||
+        (isSelf ? pick('telMobile', 'tel_mobile', '') : ''),
+      assureTelBureau:
+        pickAssure('assureTelBureau', 'assure_tel_bureau') ||
+        (isSelf ? pick('telBureau', 'tel_bureau', '') : ''),
       assureGroupeSanguin:
-        data['assureGroupeSanguin'] ?? (isSelf ? (data['groupeSanguin'] ?? '') : ''),
-      assureAdresse: data['assureAdresse'] ?? (isSelf ? (data['adresse'] ?? '') : ''),
+        pickAssure('assureGroupeSanguin', 'assure_groupe_sanguin') ||
+        (isSelf ? pick('groupeSanguin', 'groupe_sanguin', '') : ''),
+      assureAdresse:
+        pickAssure('assureAdresse', 'assure_adresse') || (isSelf ? pick('adresse', 'adresse', '') : ''),
     };
     this.form.patchValue(patch, { emitEvent: false });
 

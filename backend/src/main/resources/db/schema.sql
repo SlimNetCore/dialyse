@@ -144,6 +144,26 @@ CREATE TABLE IF NOT EXISTS auth_refresh_token
 
 CREATE INDEX IF NOT EXISTS idx_auth_refresh_token_user_id ON auth_refresh_token (user_id);
 
+-- ═══ Calendrier centre (jours fériés / fermetures) ═══
+
+CREATE TABLE IF NOT EXISTS center_holiday
+(
+    id        UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    day_date  DATE NOT NULL,
+    label     VARCHAR(255),
+    UNIQUE (center_id, day_date)
+);
+
+CREATE TABLE IF NOT EXISTS center_closure_day
+(
+    id        UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    day_date  DATE NOT NULL,
+    reason    VARCHAR(255),
+    UNIQUE (center_id, day_date)
+);
+
 -- ═══ Modèles de documents (Jasper) ═══
 
 CREATE TABLE IF NOT EXISTS modele_document (

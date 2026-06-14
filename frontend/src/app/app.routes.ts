@@ -16,6 +16,10 @@ export const routes: Routes = [
         path: 'seances',
         loadComponent: () => import('./features/seances/seances-page.component').then(m => m.SeancesPageComponent)
       },
+      {
+        path: 'seances/calendrier',
+        loadComponent: () => import('./features/seances/seance-calendar-center.component').then(m => m.SeanceCalendarCenterComponent)
+      },
       {path: 'stock', loadChildren: () => import('./features/stock/stock.routes').then(m => m.stockRoutes)},
       { path: 'facturation', loadComponent: () => import('./features/facturation/facturation-placeholder.component').then(m => m.FacturationPlaceholderComponent) },
       { path: 'reglement', loadComponent: () => import('./features/reglement/reglement-placeholder.component').then(m => m.ReglementPlaceholderComponent) },

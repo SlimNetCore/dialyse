@@ -307,12 +307,14 @@ export class StepAffectationComponent implements OnInit {
     disabled(form.jourSamedi, {when: () => this.readonly});
   });
 
-  ngOnInit(): void {
+  constructor() {
     effect(() => {
       this.dataChange.emit(this.formModel());
       this.validChange.emit(true); // affectation step is optional
     });
+  }
 
+  ngOnInit(): void {
     const cid = this.appShell.currentCenterId();
     if (!cid) return;
     void this.sallesStore.ensureLoaded(cid);
@@ -336,11 +338,23 @@ export class StepAffectationComponent implements OnInit {
     const pick = (camel: string, snake: string, shortKey: string) =>
       data[camel] ?? data[snake] ?? jours[camel] ?? jours[snake] ?? jours[shortKey] ?? false;
 
+    const normalizeId = (value: any): string | null => {
+      if (value === null || value === undefined || value === '') return null;
+      if (typeof value === 'string' || typeof value === 'number') return String(value);
+      if (typeof value === 'object') {
+        const nested = value['value'] ?? value['id'] ?? value['ID'];
+        if (nested !== undefined && nested !== null && nested !== '') return String(nested);
+      }
+      return String(value);
+    };
+
     const pickId = (camel: string, snake: string, nested: string) => {
       const direct = data[camel] ?? data[snake];
-      if (direct) return String(direct);
+      const normalizedDirect = normalizeId(direct);
+      if (normalizedDirect) return normalizedDirect;
       const obj = data[nested];
-      if (obj && (obj.id ?? obj.ID)) return String(obj.id ?? obj.ID);
+      const normalizedObj = normalizeId(obj);
+      if (normalizedObj) return normalizedObj;
       return null;
     };
 

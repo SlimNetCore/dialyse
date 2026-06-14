@@ -6,6 +6,21 @@ MERGE INTO centers (id, code, name) KEY (id)
 MERGE INTO centers (id, code, name) KEY (id)
     VALUES ('22222222-2222-2222-2222-222222222222', 'CTR-SAINTLOUIS-01', 'ROUIBA');
 
+-- Calendrier centre (jours fériés / fermetures exceptionnelles)
+MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id)
+    VALUES ('91000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', DATE '2026-06-05',
+            'Férié local');
+MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id)
+    VALUES ('91000001-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', DATE '2026-06-05',
+            'Férié local');
+
+MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id)
+    VALUES ('92000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', DATE '2026-06-20',
+            'Maintenance clinique');
+MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id)
+    VALUES ('92000001-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', DATE '2026-06-21',
+            'Fermeture exceptionnelle');
+
 -- Admin user assignment to both centers
 MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
 VALUES ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', '11111111-1111-1111-1111-111111111111', 'ADMIN');
