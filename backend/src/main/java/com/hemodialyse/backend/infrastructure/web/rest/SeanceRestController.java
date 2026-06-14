@@ -235,17 +235,16 @@ public class SeanceRestController {
 
         var articles = jdbc.query(
                 """
-                        SELECT sm.article_id AS article_id,
+                        SELECT bsl.article_id AS article_id,
                                a.code AS article_code,
                                a.libelle AS article_libelle,
-                               SUM(sm.quantite) AS quantite_totale
-                        FROM stock_movements sm
-                        INNER JOIN seances s ON s.id = sm.seance_id AND s.center_id = sm.center_id
-                        INNER JOIN articles a ON a.id = sm.article_id AND a.center_id = sm.center_id
-                        WHERE sm.center_id = ?
-                          AND sm.mouvement_type = 'SORTIE'
-                          AND s.date_seance = ?
-                        GROUP BY sm.article_id, a.code, a.libelle
+                               SUM(bsl.quantite) AS quantite_totale
+                        FROM bons_sortie_lignes bsl
+                        INNER JOIN bons_sortie bs ON bs.id = bsl.bon_sortie_id
+                        INNER JOIN articles a ON a.id = bsl.article_id AND a.center_id = bs.center_id
+                        WHERE bs.center_id = ?
+                          AND bs.date_sortie = ?
+                        GROUP BY bsl.article_id, a.code, a.libelle
                         ORDER BY a.code ASC
                         """,
                 (rs, rowNum) -> {
@@ -273,6 +272,15 @@ public class SeanceRestController {
                                        @RequestParam int year,
                                        @RequestParam int month) {
         return ResponseEntity.ok(buildSeanceDashboard(centerId, year, month));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @GetMapping("/dashboard/details")
+    public ResponseEntity<?> dashboardDetails(@RequestParam UUID centerId,
+                                              @RequestParam int year,
+                                              @RequestParam int month,
+                                              @RequestParam String kind) {
+        return ResponseEntity.ok(buildSeanceDashboardDetails(centerId, year, month, kind));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
@@ -437,6 +445,15 @@ public class SeanceRestController {
         );
 
         long expectedSeances = 0L;
+        long consideredPatients = 0L;
+        Map<String, Long> expectedByWeekday = new LinkedHashMap<>();
+        expectedByWeekday.put("LUNDI", 0L);
+        expectedByWeekday.put("MARDI", 0L);
+        expectedByWeekday.put("MERCREDI", 0L);
+        expectedByWeekday.put("JEUDI", 0L);
+        expectedByWeekday.put("VENDREDI", 0L);
+        expectedByWeekday.put("SAMEDI", 0L);
+        expectedByWeekday.put("DIMANCHE", 0L);
         for (Map<String, Object> patient : patients) {
             Boolean enSommeil = asBoolean(readColumn(patient, "en_sommeil"));
             if (Boolean.TRUE.equals(enSommeil)) {
@@ -447,12 +464,15 @@ public class SeanceRestController {
             if (effectiveStart.isAfter(to)) {
                 continue;
             }
+            consideredPatients++;
             for (LocalDate d = effectiveStart; !d.isAfter(to); d = d.plusDays(1)) {
                 if (blockedDates.contains(d)) {
                     continue;
                 }
                 if (isPatientScheduledOn(patient, d)) {
                     expectedSeances++;
+                    String key = d.getDayOfWeek().name();
+                    expectedByWeekday.put(key, expectedByWeekday.getOrDefault(key, 0L) + 1L);
                 }
             }
         }
@@ -502,6 +522,17 @@ public class SeanceRestController {
         payload.put("presenceCount", presenceCount);
         payload.put("absenceCount", absences);
         payload.put("totalSeances", presenceCount);
+        payload.put("absenceDetails", Map.of(
+                "formula", "absences = max(0, seancesPrevues - presences)",
+                "periodStart", from,
+                "periodEnd", to,
+                "patientsConsidered", consideredPatients,
+                "blockedDays", blockedDates.size(),
+                "expectedFromSchedule", expectedSeances,
+                "presenceCount", presenceCount,
+                "absenceCount", absences,
+                "expectedByWeekday", expectedByWeekday
+        ));
         payload.put("sexeDistribution", bySexe);
         payload.put("ageDistribution", byAgeRange);
         return payload;
@@ -528,6 +559,109 @@ public class SeanceRestController {
         sb.append("ageRange,count\n");
         age.forEach((k, v) -> sb.append(k).append(',').append(v).append("\n"));
         return sb.toString();
+    }
+
+    private Map<String, Object> buildSeanceDashboardDetails(UUID centerId, int year, int month, String kind) {
+        String normalizedKind = (kind == null ? "" : kind.trim().toLowerCase(Locale.ROOT));
+        if (!normalizedKind.equals("presence") && !normalizedKind.equals("absence")) {
+            throw new IllegalArgumentException("kind must be 'presence' or 'absence'");
+        }
+
+        YearMonth ym = YearMonth.of(year, month);
+        LocalDate from = ym.atDay(1);
+        LocalDate to = ym.atEndOfMonth();
+
+        Set<LocalDate> blockedDates = new HashSet<>();
+        blockedDates.addAll(loadBlockedDates("center_holiday", centerId, from, to));
+        blockedDates.addAll(loadBlockedDates("center_closure_day", centerId, from, to));
+
+        List<Map<String, Object>> patients = jdbc.queryForList(
+                """
+                        SELECT id,
+                               nom,
+                               prenom,
+                               date_admission,
+                               en_sommeil,
+                               jour_lundi,
+                               jour_mardi,
+                               jour_mercredi,
+                               jour_jeudi,
+                               jour_vendredi,
+                               jour_samedi,
+                               jour_dimanche
+                        FROM patients
+                        WHERE center_id = ?
+                        """,
+                centerId
+        );
+
+        Map<String, String> presenceByKey = new HashMap<>();
+        List<Map<String, Object>> presenceRows = jdbc.queryForList(
+                """
+                        SELECT s.patient_id AS patient_id,
+                               s.date_seance AS date_seance,
+                               s.statut AS statut
+                        FROM seances s
+                        WHERE s.center_id = ?
+                          AND s.date_seance BETWEEN ? AND ?
+                        """,
+                centerId,
+                Date.valueOf(from),
+                Date.valueOf(to)
+        );
+        for (Map<String, Object> row : presenceRows) {
+            UUID patientId = (UUID) readColumn(row, "patient_id");
+            LocalDate dateSeance = asLocalDate(readColumn(row, "date_seance"));
+            if (patientId == null || dateSeance == null) continue;
+            String key = patientId + "|" + dateSeance;
+            presenceByKey.putIfAbsent(key, String.valueOf(readColumn(row, "statut")));
+        }
+
+        List<Map<String, Object>> items = new ArrayList<>();
+        for (Map<String, Object> patient : patients) {
+            Boolean enSommeil = asBoolean(readColumn(patient, "en_sommeil"));
+            if (Boolean.TRUE.equals(enSommeil)) continue;
+
+            UUID patientId = (UUID) readColumn(patient, "id");
+            String nom = Objects.toString(readColumn(patient, "nom"), "");
+            String prenom = Objects.toString(readColumn(patient, "prenom"), "");
+            LocalDate admission = asLocalDate(readColumn(patient, "date_admission"));
+            LocalDate effectiveStart = admission == null || admission.isBefore(from) ? from : admission;
+            if (effectiveStart.isAfter(to)) continue;
+
+            for (LocalDate d = effectiveStart; !d.isAfter(to); d = d.plusDays(1)) {
+                if (blockedDates.contains(d)) continue;
+                if (!isPatientScheduledOn(patient, d)) continue;
+
+                String key = patientId + "|" + d;
+                boolean present = presenceByKey.containsKey(key);
+                if (normalizedKind.equals("presence") != present) continue;
+
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("patientId", patientId);
+                row.put("patientNom", nom);
+                row.put("patientPrenom", prenom);
+                row.put("dateSeance", d);
+                row.put("weekday", d.getDayOfWeek().name());
+                row.put("scheduled", true);
+                row.put("present", present);
+                row.put("status", present ? presenceByKey.get(key) : "ABSENT");
+                items.add(row);
+            }
+        }
+
+        items.sort(Comparator
+                .comparing((Map<String, Object> r) -> (LocalDate) r.get("dateSeance"))
+                .thenComparing(r -> Objects.toString(r.get("patientNom"), ""))
+                .thenComparing(r -> Objects.toString(r.get("patientPrenom"), "")));
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("year", year);
+        payload.put("month", month);
+        payload.put("kind", normalizedKind);
+        payload.put("total", items.size());
+        payload.put("items", items);
+        return payload;
     }
 
     private byte[] exportDashboardPdf(Map<String, Object> dashboard) {

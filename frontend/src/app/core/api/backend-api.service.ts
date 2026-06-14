@@ -201,8 +201,38 @@ export type SeanceMonthlyDashboard = {
   presenceCount: number;
   absenceCount: number;
   totalSeances: number;
+  absenceDetails?: {
+    formula?: string;
+    periodStart?: string;
+    periodEnd?: string;
+    patientsConsidered?: number;
+    blockedDays?: number;
+    expectedFromSchedule?: number;
+    presenceCount?: number;
+    absenceCount?: number;
+    expectedByWeekday?: Record<string, number>;
+  };
   sexeDistribution: Record<string, number>;
   ageDistribution: Record<string, number>;
+};
+
+export type SeanceDashboardDetailItem = {
+  patientId: string;
+  patientNom?: string;
+  patientPrenom?: string;
+  dateSeance: string;
+  weekday: string;
+  scheduled: boolean;
+  present: boolean;
+  status: string;
+};
+
+export type SeanceDashboardDetailsResponse = {
+  year: number;
+  month: number;
+  kind: 'presence' | 'absence';
+  total: number;
+  items: SeanceDashboardDetailItem[];
 };
 
 export type SeanceCalendarResponse = {
@@ -382,6 +412,20 @@ export class BackendApiService {
       .set('year', String(year))
       .set('month', String(month));
     return this.http.get<SeanceMonthlyDashboard>(`${this.baseUrl}/seances/dashboard`, {params});
+  }
+
+  getSeanceDashboardDetails(
+    centerId: string,
+    year: number,
+    month: number,
+    kind: 'presence' | 'absence',
+  ): Observable<SeanceDashboardDetailsResponse> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('year', String(year))
+      .set('month', String(month))
+      .set('kind', kind);
+    return this.http.get<SeanceDashboardDetailsResponse>(`${this.baseUrl}/seances/dashboard/details`, {params});
   }
 
   getSeanceCalendar(centerId: string, year: number, month: number): Observable<SeanceCalendarResponse> {
