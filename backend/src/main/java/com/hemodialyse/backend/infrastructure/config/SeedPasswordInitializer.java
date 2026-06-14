@@ -25,6 +25,10 @@ public class SeedPasswordInitializer implements CommandLineRunner {
     public void run(String... args) {
         ensurePassword("admin", "admin$$2026dz");
         ensurePassword("medecin", "medecin123");
+        ensurePassword("infirmier-annaba", "infirmier123");
+        ensurePassword("infirmier-rouiba", "infirmier123");
+        ensurePassword("secretaire-annaba", "secretaire123");
+        ensurePassword("secretaire-rouiba", "secretaire123");
     }
 
     private void ensurePassword(String username, String clearPassword) {

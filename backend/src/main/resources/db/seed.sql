@@ -16,6 +16,22 @@ VALUES ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'admin', '22222222-2222-2222-222
 MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
 VALUES ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'medecin', '11111111-1111-1111-1111-111111111111', 'MEDECIN');
 
+MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
+    VALUES ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'infirmier-annaba', '11111111-1111-1111-1111-111111111111',
+            'INFIRMIER');
+
+MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
+    VALUES ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'infirmier-rouiba', '22222222-2222-2222-2222-222222222222',
+            'INFIRMIER');
+
+MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
+    VALUES ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'secretaire-annaba', '11111111-1111-1111-1111-111111111111',
+            'SECRETAIRE');
+
+MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
+    VALUES ('12121212-1212-1212-1212-121212121212', 'secretaire-rouiba', '22222222-2222-2222-2222-222222222222',
+            'SECRETAIRE');
+
 -- ═══ REFERENTIAL SEED DATA ═══
 
 -- Caisse d'assurance
@@ -109,12 +125,32 @@ MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY 
 VALUES ('b0b00001-0000-0000-0000-000000000001', 'admin', 'placeholder', 'admin@hemodialyse.dz', 'Administrateur Système', TRUE);
 MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
 VALUES ('b0b00001-0000-0000-0000-000000000002', 'medecin', 'placeholder', 'medecin@hemodialyse.dz', 'Dr. Nouri Ahmed', TRUE);
+MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
+    VALUES ('b0b00001-0000-0000-0000-000000000003', 'infirmier-annaba', 'placeholder',
+            'infirmier.annaba@hemodialyse.dz', 'Infirmier Annaba', TRUE);
+MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
+    VALUES ('b0b00001-0000-0000-0000-000000000004', 'infirmier-rouiba', 'placeholder',
+            'infirmier.rouiba@hemodialyse.dz', 'Infirmier Rouiba', TRUE);
+MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
+    VALUES ('b0b00001-0000-0000-0000-000000000005', 'secretaire-annaba', 'placeholder',
+            'secretaire.annaba@hemodialyse.dz', 'Secretaire Annaba', TRUE);
+MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
+    VALUES ('b0b00001-0000-0000-0000-000000000006', 'secretaire-rouiba', 'placeholder',
+            'secretaire.rouiba@hemodialyse.dz', 'Secretaire Rouiba', TRUE);
 
 -- ═══ USER-ROLE ASSIGNMENTS ═══
 MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
 VALUES ('b0b00001-0000-0000-0000-000000000001', 'a0a00001-0000-0000-0000-000000000001');
 MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
 VALUES ('b0b00001-0000-0000-0000-000000000002', 'a0a00001-0000-0000-0000-000000000002');
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000003', 'a0a00001-0000-0000-0000-000000000003');
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000004', 'a0a00001-0000-0000-0000-000000000003');
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000005', 'a0a00001-0000-0000-0000-000000000004');
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000006', 'a0a00001-0000-0000-0000-000000000004');
 
 -- ═══ USER-CENTER ASSIGNMENTS ═══
 MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
@@ -123,6 +159,14 @@ MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
 VALUES ('b0b00001-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222');
 MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
 VALUES ('b0b00001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111');
+MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111');
+MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000004', '22222222-2222-2222-2222-222222222222');
+MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111');
+MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000006', '22222222-2222-2222-2222-222222222222');
 
 -- ═══ MODELES DE DOCUMENTS (Jasper) ═══
 MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
