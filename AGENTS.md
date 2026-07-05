@@ -33,11 +33,11 @@ UUID).
 
 - **Aucune donnée ne doit être créée, lue, modifiée ou supprimée sans être rattachée à un `centerId`.**
 - Cette règle s'applique à :
-    - toutes les tables et entités JPA (colonne `center_id`) ;
-    - tous les endpoints REST (filtrage systématique par centre courant) ;
-    - les souscriptions WebSocket (`/topic/center/{centerId}/events`) ;
-    - les clés de cache (le `centerId` doit toujours faire partie de la clé pour éviter les fuites de données
-      inter-centres).
+  - toutes les tables et entités JPA (colonne `center_id`) ;
+  - tous les endpoints REST (filtrage systématique par centre courant) ;
+  - les souscriptions WebSocket (`/topic/center/{centerId}/events`) ;
+  - les clés de cache (le `centerId` doit toujours faire partie de la clé pour éviter les fuites de données
+    inter-centres).
 - Côté frontend, le centre actif provient de `AppShellStore.currentCenterId()`.
 - Un agent IA qui génère du code d'accès aux données (repository, service, controller, store) doit **systématiquement**
   vérifier/propager le `centerId`, même si ce n'est pas explicitement demandé dans le prompt.
@@ -113,14 +113,12 @@ frontend/src/app/
 
 Tous les stores utilisent `@ngrx/signals` `signalStore()` + `withDevtools()` (depuis
 `@angular-architects/ngrx-toolkit`). Une factory existe pour les données référentielles :
-
 ```ts
 // core/state/referential-store.factory.ts
 createReferentialStore({storeName: 'MedecinsStore', load: (api, id) => api.getMedecins(id)})
 ```
 
 ### Flux d'authentification
-
 - JWT stocké en cookies HttpOnly (`HEMO_AUTH` / `HEMO_REFRESH`) — jamais en localStorage.
 - `authInterceptor` ajoute `withCredentials: true` sur tous les appels `/api/v1/`.
 - Les réponses 401 déclenchent un refresh silencieux via `/api/v1/auth/refresh` ; en cas d'échec → redirection `/login`.
@@ -166,41 +164,88 @@ allers-retours inutiles en base de données.
 - **Données à ne pas mettre en cache (ou avec prudence)** : données très volatiles ou temps réel (statut de séance en
   cours, événements poussés en WebSocket), données financières sensibles nécessitant une fraîcheur garantie.
 - **Implémentation** :
-    - Le cache (Caffeine) est configuré dans `infrastructure/config/CacheConfig.java` — toute nouvelle fonctionnalité
-      cacheable doit y enregistrer son nom et son TTL.
-    - Les annotations `@Cacheable` / `@CacheEvict` / `@CachePut` se placent dans la couche `infrastructure/` (services
-      applicatifs ou adaptateurs), jamais dans le `domain/` pur.
-    - **La clé de cache doit toujours inclure le `centerId`** (voir règle multi-centre, section 2) pour éviter toute
-      fuite de données entre centres.
-    - Toute opération d'écriture (create/update/delete) qui invalide une donnée cachée doit déclencher l'éviction
-      correspondante (`@CacheEvict`) de façon cohérente.
+  - Le cache (Caffeine) est configuré dans `infrastructure/config/CacheConfig.java` — toute nouvelle fonctionnalité
+    cacheable doit y enregistrer son nom et son TTL.
+  - Les annotations `@Cacheable` / `@CacheEvict` / `@CachePut` se placent dans la couche `infrastructure/` (services
+    applicatifs ou adaptateurs), jamais dans le `domain/` pur.
+  - **La clé de cache doit toujours inclure le `centerId`** (voir règle multi-centre, section 2) pour éviter toute fuite
+    de données entre centres.
+  - Toute opération d'écriture (create/update/delete) qui invalide une donnée cachée doit déclencher l'éviction
+    correspondante (`@CacheEvict`) de façon cohérente.
 - Un agent IA qui ajoute une méthode de lecture fréquente sur une donnée peu volatile doit évaluer si elle doit être
   cachée, et proposer la configuration de cache correspondante.
 
 ---
 
-## 7. Tests — couverture **OBLIGATOIRE** (unitaires + intégration)
+## 7. Tests — couverture **OBLIGATOIRE** (unitaires + intégration, **back ET front**)
 
 Tout code généré doit être accompagné de tests. Un code métier livré sans test doit être considéré comme incomplet.
 
-- **Backend** :
-    - Tests unitaires (JUnit 5 + Mockito) pour la logique de `domain/` et `application/` : services de domaine, use
-      cases, en mockant les ports.
-    - Tests d'intégration (`@SpringBootTest`, H2 en mémoire) pour les adaptateurs (`infrastructure/persistence`,
-      `web/rest`) : repository adapters, controllers REST, sécurité, scheduling.
-    - Toute règle de scoping multi-centre (section 2) doit être vérifiée par au moins un test (ex : vérifier qu'une
-      requête sans/avec mauvais `centerId` ne retourne pas de données d'un autre centre).
-- **Frontend** :
-    - Tests unitaires (Vitest) pour les stores NgRx Signals, services, pipes, et logique pure des composants.
-    - Tests d'intégration / end-to-end (Playwright) pour les parcours utilisateurs critiques (connexion, création
-      patient, séance, mouvement de stock…).
-- **Règle générale** : toute nouvelle fonctionnalité (méthode de service, endpoint REST, composant, store) générée par
-  un agent IA doit être livrée avec ses tests correspondants dans la même réponse/commit, pas comme une suite séparée à
-  faire "plus tard".
+**Les tests unitaires ET les tests d'intégration sont obligatoires à la fois côté backend et côté frontend.** Aucune des
+deux couches ne peut se limiter à un seul type de test — ce n'est pas "unitaire au back / intégration au front" ou
+l'inverse, les deux couches doivent avoir les deux types de tests :
+
+|              | Tests unitaires                                                                                                    | Tests d'intégration                                                                                                                                       |
+|--------------|--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Backend**  | JUnit 5 + Mockito — logique de `domain/` et `application/` : services de domaine, use cases, en mockant les ports. | `@SpringBootTest` (H2 en mémoire) — adaptateurs (`infrastructure/persistence`, `web/rest`) : repository adapters, controllers REST, sécurité, scheduling. |
+| **Frontend** | Vitest — stores NgRx Signals, services, pipes, logique pure des composants.                                        | Playwright — parcours utilisateurs critiques de bout en bout (connexion, création patient, séance, mouvement de stock…).                                  |
+
+Précisions complémentaires :
+
+- Toute règle de scoping multi-centre (section 2) doit être vérifiée par au moins un test **côté backend** (ex :
+  vérifier qu'une requête sans/avec mauvais `centerId` ne retourne pas de données d'un autre centre) **et**, quand c'est
+  pertinent, un test d'intégration **côté frontend** (ex : le store/composant n'affiche que les données du centre
+  actif).
+- Toute règle de cache (section 6) ajoutée ou modifiée côté backend doit être couverte par un test d'intégration
+  vérifiant le comportement du cache (hit/miss, éviction, isolation par `centerId`).
+- **Règle générale** : toute nouvelle fonctionnalité générée par un agent IA — méthode de service backend, endpoint
+  REST, composant Angular, store NgRx Signals — doit être livrée avec **son test unitaire ET son test d'intégration
+  correspondants**, dans la même réponse/commit, jamais comme une suite séparée à faire "plus tard".
 
 ---
 
-## 8. Base de données
+## 8. Interdiction des éléments dépréciés (deprecated) — vérification systématique **OBLIGATOIRE**
+
+Aucun code généré ou modifié ne doit utiliser une API, une méthode, une annotation, une bibliothèque ou une
+configuration marquée comme **dépréciée (deprecated)** — que ce soit côté backend ou côté frontend.
+
+**Backend (Java / Spring) :**
+
+- Ne jamais utiliser une classe/méthode annotée `@Deprecated`, ni une API signalée "deprecated" dans la Javadoc
+  officielle.
+- Ne jamais utiliser une configuration Spring Security dépréciée (ex. `WebSecurityConfigurerAdapter`) — utiliser le
+  style actuel à base de bean `SecurityFilterChain`.
+- Utiliser systématiquement `jakarta.*` (et non `javax.*`) pour la persistance/servlet, conformément à Spring Boot 4.
+- Avant d'ajouter une dépendance Maven, vérifier qu'elle est activement maintenue et non dépréciée ou archivée.
+
+**Frontend (Angular) :**
+
+- Ne jamais utiliser une API Angular marquée deprecated dans le changelog/documentation officielle (anciennes APIs de
+  routing, anciens décorateurs, etc.).
+- Utiliser le control flow actuel (`@if`/`@for`) et non `*ngIf`/`*ngFor` (déjà précisé en section 4).
+- Utiliser les fonctions RxJS actuelles (`firstValueFrom`, `lastValueFrom`) et non les méthodes dépréciées comme
+  `toPromise()`.
+- Avant d'ajouter un package npm, vérifier son statut (absence de mention "deprecated", dépôt non archivé).
+
+**Règle générale pour tout agent IA :**
+
+- **À chaque prompt, avant de répondre**, l'agent doit systématiquement vérifier si le code concerné (fichier modifié,
+  code environnant, dépendance utilisée) contient des éléments dépréciés — ce n'est pas une vérification ponctuelle mais
+  une étape obligatoire de **chaque** tâche de génération ou de modification de code, même si la demande initiale ne
+  mentionne pas ce sujet.
+- Si du code déprécié est détecté, l'agent doit **toujours proposer une alternative récente et actuellement recommandée
+  **, avec une brève explication du remplacement (nouvelle API/méthode à utiliser), sans attendre que l'utilisateur le
+  demande explicitement.
+- Lorsqu'un agent modifie un fichier existant contenant du code déprécié, il doit **proposer son remplacement** par
+  l'alternative actuelle recommandée plutôt que de le reproduire ou de l'étendre.
+- En cas de doute sur le statut "deprecated" d'une API ou d'une librairie (les connaissances d'un agent IA peuvent être
+  obsolètes), l'agent doit vérifier la documentation officielle à jour avant de générer du code.
+- Le code déprécié existant, repéré en dehors du périmètre de la tâche demandée, doit être signalé (commentaire ou
+  remarque) même s'il n'est pas corrigé immédiatement.
+
+---
+
+## 9. Base de données
 
 - **Dev / Démo** : H2 en mémoire (`MODE=PostgreSQL`) — démarre automatiquement, sans Docker.
 - **Production** : PostgreSQL 16.
@@ -213,10 +258,9 @@ Tout code généré doit être accompagné de tests. Un code métier livré sans
 
 ---
 
-## 9. Developer Workflows
+## 10. Developer Workflows
 
 ### Run locally (sans Docker — H2 démarre automatiquement)
-
 ```bash
 # Backend
 cd backend && ./mvnw spring-boot:run
@@ -226,7 +270,6 @@ cd frontend && npm start
 ```
 
 ### Run avec PostgreSQL réel
-
 ```bash
 docker-compose up -d          # démarre postgres:16 + redis:7
 # Puis définir les variables d'env :
@@ -235,7 +278,6 @@ docker-compose up -d          # démarre postgres:16 + redis:7
 ```
 
 ### Build & test
-
 ```bash
 cd backend  && ./mvnw verify
 cd frontend && npm run build
@@ -247,22 +289,20 @@ cd frontend && npm run e2e     # Playwright
   optionnel).
 
 ### Key URLs (dev)
-
 - Swagger UI: `http://localhost:8090/swagger-ui.html`
 - H2 Console: `http://localhost:8090/h2-console`
 - Actuator health: `http://localhost:8090/actuator/health`
 
 ---
 
-## 10. Reporting
-
+## 11. Reporting
 - Templates JasperReports dans `backend/src/main/resources/reports/*.jrxml` (compilés en `.jasper`).
 - Export PDF/HTML via `openhtmltopdf`.
 - Endpoints de reporting dans `infrastructure/reporting/` et `web/rest/DocumentRestController.java`.
 
 ---
 
-## 11. Configuration clé (variables d'environnement)
+## 12. Configuration clé (variables d'environnement)
 
 | Var                        | Défaut                  | Usage                                    |
 |----------------------------|-------------------------|------------------------------------------|
@@ -278,7 +318,7 @@ cd frontend && npm run e2e     # Playwright
 
 ---
 
-## 12. Récapitulatif des règles OBLIGATOIRES pour tout agent IA
+## 13. Récapitulatif des règles OBLIGATOIRES pour tout agent IA
 
 1. **Architecture hexagonale + DDD** côté backend — sans exception.
 2. **Angular 22** (zoneless, NgRx Signals, Material) pour tout code frontend — sans exception.
@@ -287,11 +327,15 @@ cd frontend && npm run e2e     # Playwright
 5. **Principes SOLID** respectés dans toute classe/service/composant généré.
 6. **Mise en cache obligatoire** des données fréquemment lues et peu volatiles (référentiels, détail/liste/comptage
    patient…), avec clé de cache incluant systématiquement le `centerId`.
-7. **Couverture de tests obligatoire** : tests unitaires (logique domaine/application, stores, services) **et** tests
-   d'intégration (adaptateurs, endpoints REST, parcours e2e) pour toute fonctionnalité générée.
-8. i18n obligatoire (`ngx-translate`) pour toute chaîne affichée côté UI.
-9. Toute nouvelle fonctionnalité de cache doit enregistrer son nom dans `CacheConfig.java`.
-10. Compatibilité H2 (dev) / PostgreSQL (prod) pour tout SQL généré.
+7. **Couverture de tests obligatoire côté backend ET côté frontend** : tests unitaires (logique domaine/application côté
+   back, stores/services côté front) **et** tests d'intégration (adaptateurs/endpoints REST côté back, parcours e2e côté
+   front) pour toute fonctionnalité générée — aucune des deux couches ni aucun des deux types de test ne peut être omis.
+8. **Aucun élément déprécié (deprecated)** — API, méthode, annotation, dépendance ou configuration — ne doit être
+   utilisé, ni côté backend ni côté frontend. **À chaque prompt**, l'agent doit vérifier la présence de code déprécié et
+   proposer systématiquement une alternative récente, sans attendre qu'on le lui demande.
+9. i18n obligatoire (`ngx-translate`) pour toute chaîne affichée côté UI.
+10. Toute nouvelle fonctionnalité de cache doit enregistrer son nom dans `CacheConfig.java`.
+11. Compatibilité H2 (dev) / PostgreSQL (prod) pour tout SQL généré.
 
 **Un agent (Claude, Copilot, ou autre) qui génère du code ne respectant pas ces règles doit être considéré en erreur et
 le code doit être corrigé avant d'être accepté.**

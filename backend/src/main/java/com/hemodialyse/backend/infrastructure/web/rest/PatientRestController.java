@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -257,10 +258,11 @@ public class PatientRestController {
         return listByCriteria(request);
     }
 
-    @GetMapping("/summary")
-    @Cacheable(cacheNames = "patient.list.summary", key = "#centerId.toString()")
-    public ResponseEntity<?> summary(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(patientSummaryQueryService.getSummary(centerId));
+    private static YearMonth resolveSummaryMonth(String month) {
+        if (month == null || month.isBlank()) {
+            return YearMonth.now();
+        }
+        return YearMonth.parse(month);
     }
 
     private ResponseEntity<?> listByCriteria(PatientSearchRequest request) {
@@ -271,6 +273,13 @@ public class PatientRestController {
                 "page", result.page(),
                 "size", result.size()
         ));
+    }
+
+    @GetMapping("/summary")
+    @Cacheable(cacheNames = "patient.list.summary", key = "#centerId.toString() + ':' + ((#month == null || #month.isBlank()) ? T(java.time.YearMonth).now().toString() : #month)")
+    public ResponseEntity<?> summary(@RequestParam UUID centerId,
+                                     @RequestParam(required = false) String month) {
+        return ResponseEntity.ok(patientSummaryQueryService.getSummary(centerId, resolveSummaryMonth(month)));
     }
 
 }

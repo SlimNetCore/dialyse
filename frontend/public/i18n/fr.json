@@ -98,6 +98,11 @@
     "NOUVEAU": "Nouveau",
     "ETAT_PATIENT": "État du patient",
     "DATE_EVENEMENT_ETAT": "Date de l'événement",
+    "DATE_SORTIE": "Date de sortie",
+    "DATE_GREFFE": "Date de la greffe",
+    "DATE_GUERISON": "Date de guérison",
+    "DATE_DECES": "Date du décès",
+    "DATE_TRANSFERT": "Date du transfert",
     "PERMANENT": "Permanent(e)",
     "OCCASIONNEL": "Occasionnel",
     "TRANSFERE": "Transféré",
@@ -168,7 +173,15 @@
     "SUMMARY_SEX_TITLE": "Répartition par sexe",
     "SUMMARY_AGE_TITLE": "Répartition par âge",
     "SUMMARY_KT_TITLE": "Patients sous KT",
-    "BTN_PRINT_REPORT": "Imprimer le rapport"
+    "SUMMARY_MONTH": "Mois des statistiques",
+    "BTN_PRINT_REPORT": "Imprimer le rapport",
+    "EVENT_DATE_GENERIC": "Date de l'événement",
+    "EVENT_DATE_SORTIE": "Date de sortie",
+    "EVENT_DATE_GREFFE": "Date de la greffe",
+    "EVENT_DATE_GUERISON": "Date de guérison",
+    "EVENT_DATE_DECES": "Date du décès",
+    "EVENT_DATE_TRANSFERT": "Date du transfert",
+    "EVENT_DATE_NOT_PROVIDED": "{{label}} non renseignée"
   },
   "PATIENT": {
     "TITLE": "Patient",

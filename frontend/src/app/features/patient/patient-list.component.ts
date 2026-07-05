@@ -20,7 +20,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
 import {PatientSummaryCardsComponent} from './patient-summary-cards.component';
 import {AuthStore} from '../../core/state/auth.store';
@@ -164,7 +164,9 @@ type FilterType = 'text' | 'date';
         <app-patient-summary-cards
           [summary]="summary()"
           [loading]="summaryLoading()"
+          [selectedMonth]="summaryMonth()"
           [printing]="printingList()"
+          (monthChanged)="onSummaryMonthChange($event)"
           (printReport)="printList()"
         />
 
@@ -384,7 +386,7 @@ type FilterType = 'text' | 'date';
                     [matTooltip]="eventDateTooltip(row)"
                     matTooltipClass="patient-theme-tooltip"
                     [matTooltipDisabled]="!hasEventTooltip(row)"
-                  >{{ row.etatPatient }}</span
+                  >{{ ('PATIENT_FORM.' + row.etatPatient) | translate }}</span
                   >
                 </div>
               </td>
@@ -1322,6 +1324,16 @@ export class PatientListComponent {
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
   private readonly router = inject(Router);
+  readonly etatFilterOptions = [
+    {value: 'PERMANENT', label: 'Permanent'},
+    {value: 'OCCASIONNEL', label: 'Occasionnel'},
+    {value: 'VACANCIER_LOCAL', label: 'Vacancier local'},
+    {value: 'VACANCIER_ETRANGER', label: 'Vacancier étranger'},
+    {value: 'TRANSFERE', label: 'Transféré'},
+    {value: 'DECEDE', label: 'Décédé'},
+    {value: 'GREFFE', label: 'Greffé'},
+    {value: 'GUERRI', label: 'Guéri'},
+  ];
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly isMobileView = signal(typeof window !== 'undefined' ? window.innerWidth <= 760 : false);
   readonly selectedRowId = signal<string | null>(null);
@@ -1390,15 +1402,7 @@ export class PatientListComponent {
     {value: 'VALIDEE', label: 'Validée'},
     {value: 'CLOTUREE', label: 'Clôturée'},
   ];
-  readonly etatFilterOptions = [
-    {value: 'PERMANENT', label: 'Permanent'},
-    {value: 'OCCASIONNEL', label: 'Occasionnel'},
-    {value: 'VACANCIER_LOCAL', label: 'Vacancier local'},
-    {value: 'VACANCIER_ETRANGER', label: 'Vacancier étranger'},
-    {value: 'TRANSFERE', label: 'Transféré'},
-    {value: 'DECEDE', label: 'Décédé'},
-    {value: 'GREFFE', label: 'Greffé'},
-  ];
+  readonly summaryMonth = this.patientListStore.summaryMonth;
   readonly rows = this.patientListStore.rows;
   readonly loading = this.patientListStore.loading;
   readonly printingList = this.patientListStore.printingList;
@@ -1406,6 +1410,7 @@ export class PatientListComponent {
   readonly printingRowId = this.patientListStore.printingRowId;
   readonly summary = this.patientListStore.summary;
   readonly summaryLoading = this.patientListStore.summaryLoading;
+  private readonly translate = inject(TranslateService);
   readonly total = this.patientListStore.total;
   readonly pageIndex = this.patientListStore.pageIndex;
   readonly pageSize = this.patientListStore.pageSize;
@@ -1458,6 +1463,7 @@ export class PatientListComponent {
         evt?.type === 'ATTESTATION_DELETED'
       ) {
         this.patientListStore.refreshCurrentPage();
+        this.patientListStore.refreshSummary();
       }
     });
 
@@ -1555,6 +1561,10 @@ export class PatientListComponent {
     this.patientListStore.printList({centerId});
   }
 
+  onSummaryMonthChange(month: string): void {
+    this.patientListStore.setSummaryMonth(month);
+  }
+
   exportListExcel(): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
@@ -1564,19 +1574,29 @@ export class PatientListComponent {
   eventDateTooltip(row: PatientRow): string {
     if (!this.hasEventTooltip(row)) return '';
     const formattedDate = this.formatEventDate(row.dateEvenementEtat ?? '');
+    const label = this.translate.instant(this.eventDateLabelKey(row));
     return formattedDate
-      ? `Date de l'evenement: ${formattedDate}`
-      : "Date de l'evenement non renseignee";
+      ? `${label}: ${formattedDate}`
+      : this.translate.instant('PATIENT_LIST.EVENT_DATE_NOT_PROVIDED', {label});
   }
 
   hasEventTooltip(row: PatientRow): boolean {
     const etat = (row.etatPatient ?? '').toUpperCase();
-    return etat === 'TRANSFERE' || etat === 'GREFFE' || etat === 'DECEDE';
+    return etat === 'TRANSFERE'
+      || etat === 'GREFFE'
+      || etat === 'DECEDE'
+      || etat === 'GUERRI'
+      || etat === 'OCCASIONNEL'
+      || etat === 'VACANCIER_LOCAL'
+      || etat === 'VACANCIER_ETRANGER';
   }
 
   visibleEventDate(row: PatientRow): string {
     const formattedDate = this.formatEventDate(row.dateEvenementEtat ?? '');
-    return formattedDate ? `Événement: ${formattedDate}` : 'Événement non renseigné';
+    const label = this.translate.instant(this.eventDateLabelKey(row));
+    return formattedDate
+      ? `${label}: ${formattedDate}`
+      : this.translate.instant('PATIENT_LIST.EVENT_DATE_NOT_PROVIDED', {label});
   }
 
   onColumnFilterValue(column: string, value: string): void {
@@ -1589,5 +1609,28 @@ export class PatientListComponent {
     const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (!match) return raw;
     return `${match[3]}/${match[2]}/${match[1]}`;
+  }
+
+  private eventDateLabelKey(row: PatientRow): string {
+    return this.eventDateLabelKeyFromStatus(row.etatPatient);
+  }
+
+  private eventDateLabelKeyFromStatus(etatPatient: string | undefined): string {
+    switch ((etatPatient ?? '').toUpperCase()) {
+      case 'OCCASIONNEL':
+      case 'VACANCIER_LOCAL':
+      case 'VACANCIER_ETRANGER':
+        return 'PATIENT_LIST.EVENT_DATE_SORTIE';
+      case 'GREFFE':
+        return 'PATIENT_LIST.EVENT_DATE_GREFFE';
+      case 'GUERRI':
+        return 'PATIENT_LIST.EVENT_DATE_GUERISON';
+      case 'DECEDE':
+        return 'PATIENT_LIST.EVENT_DATE_DECES';
+      case 'TRANSFERE':
+        return 'PATIENT_LIST.EVENT_DATE_TRANSFERT';
+      default:
+        return 'PATIENT_LIST.EVENT_DATE_GENERIC';
+    }
   }
 }

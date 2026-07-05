@@ -24,6 +24,16 @@ import {TranslateModule} from '@ngx-translate/core';
 import {AuthStore} from '../../../core/state/auth.store';
 import {DropdownItem, SearchableSelectComponent,} from '../../../shared/searchable-select.component';
 
+const PATIENT_STATES_WITH_EVENT_DATE = new Set([
+  'OCCASIONNEL',
+  'VACANCIER_LOCAL',
+  'VACANCIER_ETRANGER',
+  'TRANSFERE',
+  'DECEDE',
+  'GREFFE',
+  'GUERRI',
+]);
+
 @Component({
   selector: 'app-step-generalites',
   standalone: true,
@@ -187,7 +197,7 @@ import {DropdownItem, SearchableSelectComponent,} from '../../../shared/searchab
 
             @if (showDateEvenement()) {
               <mat-form-field appearance="outline" class="span-3">
-                <mat-label>{{ 'PATIENT_FORM.DATE_EVENEMENT_ETAT' | translate }}</mat-label>
+                <mat-label>{{ dateEvenementLabelKey() | translate }}</mat-label>
                 <mat-icon matPrefix>event_available</mat-icon>
                 <input matInput [matDatepicker]="dpEvt" formControlName="dateEvenementEtat" />
                 <mat-datepicker-toggle matSuffix [for]="dpEvt" /><mat-datepicker #dpEvt />
@@ -639,8 +649,25 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
 
   readonly isMedecin = computed(() => this.auth.hasRole('ROLE_MEDECIN'));
   readonly showDateEvenement = computed(() => {
-    const etat = this.etatPatientSignal();
-    return etat === 'DECEDE' || etat === 'GREFFE' || etat === 'TRANSFERE';
+    return PATIENT_STATES_WITH_EVENT_DATE.has(this.etatPatientSignal());
+  });
+  readonly dateEvenementLabelKey = computed(() => {
+    switch (this.etatPatientSignal()) {
+      case 'OCCASIONNEL':
+      case 'VACANCIER_LOCAL':
+      case 'VACANCIER_ETRANGER':
+        return 'PATIENT_FORM.DATE_SORTIE';
+      case 'GREFFE':
+        return 'PATIENT_FORM.DATE_GREFFE';
+      case 'GUERRI':
+        return 'PATIENT_FORM.DATE_GUERISON';
+      case 'DECEDE':
+        return 'PATIENT_FORM.DATE_DECES';
+      case 'TRANSFERE':
+        return 'PATIENT_FORM.DATE_TRANSFERT';
+      default:
+        return 'PATIENT_FORM.DATE_EVENEMENT_ETAT';
+    }
   });
 
   calculatedAge = computed(() => {
@@ -687,14 +714,7 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
 
     this.form.valueChanges.subscribe((val) => {
       // clear event date for states that do not require it
-      if (
-        !(
-          val.etatPatient === 'DECEDE' ||
-          val.etatPatient === 'GREFFE' ||
-          val.etatPatient === 'TRANSFERE'
-        ) &&
-        val.dateEvenementEtat
-      ) {
+      if (!PATIENT_STATES_WITH_EVENT_DATE.has(val.etatPatient ?? 'PERMANENT') && val.dateEvenementEtat) {
         this.form.patchValue({ dateEvenementEtat: null }, { emitEvent: false });
         val.dateEvenementEtat = null;
       }

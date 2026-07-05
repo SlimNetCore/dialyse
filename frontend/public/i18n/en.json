@@ -72,6 +72,11 @@
     "NOUVEAU": "New",
     "ETAT_PATIENT": "Patient status",
     "DATE_EVENEMENT_ETAT": "Event date",
+    "DATE_SORTIE": "Discharge date",
+    "DATE_GREFFE": "Transplant date",
+    "DATE_GUERISON": "Recovery date",
+    "DATE_DECES": "Date of death",
+    "DATE_TRANSFERT": "Transfer date",
     "PERMANENT": "Permanent", "OCCASIONNEL": "Occasional", "TRANSFERE": "Transferred",
     "DECEDE": "Deceased", "GREFFE": "Transplanted", "GUERRI": "Cured",
     "VACANCIER_LOCAL": "Local vacationer", "VACANCIER_ETRANGER": "Foreign vacationer",
@@ -113,7 +118,15 @@
     "SUMMARY_SEX_TITLE": "Sex distribution",
     "SUMMARY_AGE_TITLE": "Age distribution",
     "SUMMARY_KT_TITLE": "Patients on catheter (KT)",
-    "BTN_PRINT_REPORT": "Print report"
+    "SUMMARY_MONTH": "Statistics month",
+    "BTN_PRINT_REPORT": "Print report",
+    "EVENT_DATE_GENERIC": "Event date",
+    "EVENT_DATE_SORTIE": "Discharge date",
+    "EVENT_DATE_GREFFE": "Transplant date",
+    "EVENT_DATE_GUERISON": "Recovery date",
+    "EVENT_DATE_DECES": "Date of death",
+    "EVENT_DATE_TRANSFERT": "Transfer date",
+    "EVENT_DATE_NOT_PROVIDED": "{{label}} not provided"
   },
   "PATIENT": {
     "TITLE": "Patient",

@@ -8,6 +8,11 @@ import {createPagedListState, PagedListState} from '../../../core/state/paged-li
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 
+function currentYearMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
 type PatientListState = PagedListState<any> & {
   printingList: boolean;
   exportingList: boolean;
@@ -16,6 +21,7 @@ type PatientListState = PagedListState<any> & {
   summary: PatientSummary | null;
   summaryLoading: boolean;
   summaryError: string | null;
+  summaryMonth: string;
   activeCenterId: string | null;
   activeUserId: string | null;
   error: string | null;
@@ -30,6 +36,7 @@ const initialState: PatientListState = {
   summary: null,
   summaryLoading: true,
   summaryError: null,
+  summaryMonth: currentYearMonth(),
   activeCenterId: null,
   activeUserId: null,
   error: null
@@ -171,11 +178,11 @@ export const PatientListStore = signalStore(
       )
     ),
 
-    loadSummary: rxMethod<{ centerId: string }>(
+    loadSummary: rxMethod<{ centerId: string; month: string }>(
       pipe(
         tap(() => patchState(store, {summaryLoading: true, summaryError: null})),
-        switchMap(({centerId}) =>
-          api.getPatientSummary(centerId).pipe(
+        switchMap(({centerId, month}) =>
+          api.getPatientSummary(centerId, month).pipe(
             tap((summary) => patchState(store, {
               summary,
               summaryLoading: false,
@@ -233,6 +240,13 @@ export const PatientListStore = signalStore(
       patchState(store, {recentPatientId});
     },
 
+    setSummaryMonth(summaryMonth: string): void {
+      if (!/^\d{4}-\d{2}$/.test(summaryMonth)) {
+        return;
+      }
+      patchState(store, {summaryMonth});
+    },
+
     clearRecentPatient(): void {
       patchState(store, {recentPatientId: null});
     },
@@ -279,6 +293,12 @@ export const PatientListStore = signalStore(
         page: store.pageIndex(),
         size: store.pageSize()
       });
+    },
+
+    refreshSummary(): void {
+      const centerId = store.activeCenterId();
+      if (!centerId) return;
+      this.loadSummary({centerId, month: store.summaryMonth()});
     }
   })),
   withHooks((store, appShell = inject(AppShellStore), auth = inject(AuthStore)) => ({
@@ -311,6 +331,7 @@ export const PatientListStore = signalStore(
 
       effect(() => {
         const centerId = appShell.currentCenterId();
+        const month = store.summaryMonth();
         if (!centerId) {
           patchState(store, {
             summary: null,
@@ -320,7 +341,7 @@ export const PatientListStore = signalStore(
           return;
         }
 
-        store.loadSummary({centerId});
+        store.loadSummary({centerId, month});
       });
     }
   }))

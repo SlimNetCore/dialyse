@@ -607,8 +607,9 @@ export class BackendApiService {
     return this.http.get<DashboardStats>(`${this.baseUrl}/dashboard/stats`, {params});
   }
 
-  getPatientSummary(centerId: string): Observable<PatientSummary> {
-    const params = new HttpParams().set('centerId', centerId);
+  getPatientSummary(centerId: string, month?: string): Observable<PatientSummary> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (month) params = params.set('month', month);
     return this.http.get<PatientSummary>(`${this.baseUrl}/patients/summary`, {params});
   }
 
