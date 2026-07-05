@@ -449,6 +449,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   readonly editMode = this.ficheStore.editMode;
   readonly consultationMode = this.ficheStore.consultationMode;
   private readonly ws = inject(WebSocketService);
+  private loadingPatientData = signal(false);
 
   readonly totalSteps = computed(() => (this.isVacancier() ? 5 : 6));
   readonly isMobileViewport = signal(
@@ -556,8 +557,11 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         if (success) {
           this.patchStepsFromWizardData();
           this.recomputeStepValidityFromData();
+          // Done loading patient data - stop rendering all steps
+          this.loadingPatientData.set(false);
         } else if (error) {
           this.snackBar.open(error, 'OK', {duration: 4000});
+          this.loadingPatientData.set(false);
         }
       }
     });
@@ -584,6 +588,9 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   }
 
   shouldRenderStep(stepIndex: number): boolean {
+    // Always render all steps while loading data to allow patchData to be called
+    if (this.loadingPatientData()) return true;
+
     if (!this.editMode()) return true;
     const activeIndex = this.stepper?.selectedIndex ?? this.currentStep();
     // Keep active and adjacent steps mounted to avoid transient blank content.
@@ -774,11 +781,32 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   }
 
   private patchStepsFromWizardData(): void {
-    if (!this.wizardData || Object.keys(this.wizardData).length === 0) return;
+    // Ensure we have at least some data before patching
+    if (!this.wizardData || typeof this.wizardData !== 'object') {
+      console.warn('[PatientWizard] wizardData is empty or invalid', this.wizardData);
+      return;
+    }
 
+    // Log wizard data for debugging
+    console.log('[PatientWizard] Patching steps with wizardData:', {
+      keyCount: Object.keys(this.wizardData).length,
+      hasCriticalFields: !!(this.wizardData['nom'] && this.wizardData['prenom']),
+      sampleKeys: Object.keys(this.wizardData).slice(0, 10)
+    });
+
+    // Always patch all steps when in edit mode (loading existing patient)
+    // This ensures data is available even if the step is not currently active
     if (this.editMode()) {
-      this.patchActiveStep();
+      // In edit/consultation mode, patch ALL steps (not just active) to ensure data is populated
+      // The @if(shouldRenderStep) will control which ones are visible
+      this.stepGen?.patchData?.(this.wizardData);
+      this.stepAss?.patchData?.(this.wizardData);
+      this.stepAff?.patchData?.(this.wizardData);
+      this.stepAtt?.patchData?.(this.wizardData);
+      this.stepPec?.patchData?.(this.wizardData);
+      this.stepPj?.patchData?.(this.wizardData);
     } else {
+      // In creation mode, patch all steps
       this.stepGen?.patchData?.(this.wizardData);
       this.stepAss?.patchData?.(this.wizardData);
       this.stepAff?.patchData?.(this.wizardData);
@@ -973,6 +1001,9 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   ): void {
     const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
+
+    // Signal that we are loading patient data - this will render all steps temporarily
+    this.loadingPatientData.set(true);
 
     this.ficheStore.loadPatient({
       id: patientId,

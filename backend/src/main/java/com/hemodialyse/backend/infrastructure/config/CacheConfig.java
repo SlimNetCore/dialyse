@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,16 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager manager = new CaffeineCacheManager();
+        CaffeineCacheManager manager = new CaffeineCacheManager() {
+            @Override
+            protected org.springframework.cache.Cache adaptCaffeineCache(String name,
+                                                                         com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
+                if ("patient.assure.byNumero".equals(name)) {
+                    return new CaffeineCache(name, cache, true);
+                }
+                return super.adaptCaffeineCache(name, cache);
+            }
+        };
         manager.setAllowNullValues(false);
 
         // Referential caches

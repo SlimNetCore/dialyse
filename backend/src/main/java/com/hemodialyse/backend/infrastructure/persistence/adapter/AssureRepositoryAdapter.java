@@ -44,8 +44,15 @@ public class AssureRepositoryAdapter implements AssureRepositoryPort {
     }
 
     @Override
-    @Cacheable(cacheNames = "patient.assure.byNumero", key = "#numeroAssurance")
+    @Cacheable(
+            cacheNames = "patient.assure.byNumero",
+            key = "#numeroAssurance",
+            condition = "#numeroAssurance != null && !#numeroAssurance.isBlank()"
+    )
     public Optional<Assure> findByNumeroAssurance(String numeroAssurance) {
+        if (numeroAssurance == null || numeroAssurance.isBlank()) {
+            return Optional.empty();
+        }
         return jpa.findById(numeroAssurance).map(this::toDomain);
     }
 
