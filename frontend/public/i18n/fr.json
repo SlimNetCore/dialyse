@@ -160,7 +160,15 @@
     "BTN_PRINT_LIST": "Imprimer la liste des patients",
     "BTN_EXPORT_EXCEL": "Exporter Excel",
     "NON_FACTURABLE_TOOLTIP": "Patient non facturable (aucune PEC valide)",
-    "TOTAL": "{{count}} patient(s)"
+    "TOTAL": "{{count}} patient(s)",
+    "SUMMARY_EYEBROW": "Synthèse du centre",
+    "SUMMARY_TITLE": "Répartition des patients",
+    "SUMMARY_EMPTY": "Aucune donnée patient à afficher",
+    "SUMMARY_TOTAL": "{{count}} patient(s) au total",
+    "SUMMARY_SEX_TITLE": "Répartition par sexe",
+    "SUMMARY_AGE_TITLE": "Répartition par âge",
+    "SUMMARY_KT_TITLE": "Patients sous KT",
+    "BTN_PRINT_REPORT": "Imprimer le rapport"
   },
   "PATIENT": {
     "TITLE": "Patient",

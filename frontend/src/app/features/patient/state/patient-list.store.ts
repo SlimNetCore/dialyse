@@ -3,7 +3,7 @@ import {patchState, signalStore, withComputed, withHooks, withMethods, withState
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, of, pipe, switchMap, tap} from 'rxjs';
-import {BackendApiService, ListQuery} from '../../../core/api/backend-api.service';
+import {BackendApiService, ListQuery, PatientSummary} from '../../../core/api/backend-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
@@ -13,6 +13,9 @@ type PatientListState = PagedListState<any> & {
   exportingList: boolean;
   printingRowId: string | null;
   recentPatientId: string | null;
+  summary: PatientSummary | null;
+  summaryLoading: boolean;
+  summaryError: string | null;
   activeCenterId: string | null;
   activeUserId: string | null;
   error: string | null;
@@ -24,6 +27,9 @@ const initialState: PatientListState = {
   exportingList: false,
   printingRowId: null,
   recentPatientId: null,
+  summary: null,
+  summaryLoading: true,
+  summaryError: null,
   activeCenterId: null,
   activeUserId: null,
   error: null
@@ -165,6 +171,29 @@ export const PatientListStore = signalStore(
       )
     ),
 
+    loadSummary: rxMethod<{ centerId: string }>(
+      pipe(
+        tap(() => patchState(store, {summaryLoading: true, summaryError: null})),
+        switchMap(({centerId}) =>
+          api.getPatientSummary(centerId).pipe(
+            tap((summary) => patchState(store, {
+              summary,
+              summaryLoading: false,
+              summaryError: null
+            })),
+            catchError((err: any) => {
+              patchState(store, {
+                summary: null,
+                summaryLoading: false,
+                summaryError: err?.error?.message || err?.statusText || 'Erreur chargement synthèse patients'
+              });
+              return of(null);
+            })
+          )
+        )
+      )
+    ),
+
     // ✅ Exporter en Excel
     exportListExcel: rxMethod<{ centerId: string }>(
       pipe(
@@ -269,12 +298,29 @@ export const PatientListStore = signalStore(
             total: 0,
             loading: false,
             activeCenterId: null,
-            activeUserId: userId
+            activeUserId: userId,
+            summary: null,
+            summaryLoading: false,
+            summaryError: null
           });
           return;
         }
 
         store.loadPage({centerId, userId, page, size});
+      });
+
+      effect(() => {
+        const centerId = appShell.currentCenterId();
+        if (!centerId) {
+          patchState(store, {
+            summary: null,
+            summaryLoading: false,
+            summaryError: null
+          });
+          return;
+        }
+
+        store.loadSummary({centerId});
       });
     }
   }))

@@ -22,6 +22,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
+import {PatientSummaryCardsComponent} from './patient-summary-cards.component';
 import {AuthStore} from '../../core/state/auth.store';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -74,6 +75,7 @@ type FilterType = 'text' | 'date';
     MatProgressSpinnerModule,
     TranslateModule,
     PatientQrCardComponent,
+    PatientSummaryCardsComponent,
     ColumnFilterRendererComponent,
     HemodialysisLoaderComponent,
   ],
@@ -133,25 +135,6 @@ type FilterType = 'text' | 'date';
             <button
               mat-stroked-button
               color="primary"
-              (click)="printList()"
-              [matTooltip]="'PATIENT_LIST.BTN_PRINT_LIST' | translate"
-              [disabled]="printingList()"
-            >
-              @if (printingList()) {
-                <mat-progress-spinner
-                  class="btn-loader"
-                  mode="indeterminate"
-                  diameter="16"
-                  strokeWidth="2"
-                />
-              } @else {
-                <mat-icon>print</mat-icon>
-              }
-              {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
-            </button>
-            <button
-              mat-stroked-button
-              color="primary"
               (click)="exportListExcel()"
               [matTooltip]="'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate"
               [disabled]="exportingList()"
@@ -177,6 +160,13 @@ type FilterType = 'text' | 'date';
             </button>
           </div>
         </div>
+
+        <app-patient-summary-cards
+          [summary]="summary()"
+          [loading]="summaryLoading()"
+          [printing]="printingList()"
+          (printReport)="printList()"
+        />
 
         <div class="table-container">
           @if (loading()) {
@@ -1414,6 +1404,8 @@ export class PatientListComponent {
   readonly printingList = this.patientListStore.printingList;
   readonly exportingList = this.patientListStore.exportingList;
   readonly printingRowId = this.patientListStore.printingRowId;
+  readonly summary = this.patientListStore.summary;
+  readonly summaryLoading = this.patientListStore.summaryLoading;
   readonly total = this.patientListStore.total;
   readonly pageIndex = this.patientListStore.pageIndex;
   readonly pageSize = this.patientListStore.pageSize;

@@ -291,6 +291,19 @@ export type PatientMedicalStats = {
   epoTrend: Array<Record<string, unknown>>;
 };
 
+export type SummaryBucket = {
+  code: string;
+  label: string;
+  count: number;
+};
+
+export type PatientSummary = {
+  totalPatients: number;
+  sexDistribution: SummaryBucket[];
+  ageDistribution: SummaryBucket[];
+  ktDistribution: SummaryBucket[];
+};
+
 @Injectable({ providedIn: 'root' })
 export class BackendApiService {
   private readonly http = inject(HttpClient);
@@ -592,6 +605,11 @@ export class BackendApiService {
   getDashboardStats(centerId: string, expirationDays: number): Observable<DashboardStats> {
     const params = new HttpParams().set('centerId', centerId).set('expirationDays', expirationDays.toString());
     return this.http.get<DashboardStats>(`${this.baseUrl}/dashboard/stats`, {params});
+  }
+
+  getPatientSummary(centerId: string): Observable<PatientSummary> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<PatientSummary>(`${this.baseUrl}/patients/summary`, {params});
   }
 
   getPatientParamedicalStats(centerId: string, patientId: string, from?: string, to?: string): Observable<PatientParamedicalStats> {

@@ -105,7 +105,15 @@
     "BTN_PRINT_LIST": "Print patient list",
     "BTN_EXPORT_EXCEL": "Export Excel",
     "NON_FACTURABLE_TOOLTIP": "Non-billable patient (no valid coverage)",
-    "TOTAL": "{{count}} patient(s)"
+    "TOTAL": "{{count}} patient(s)",
+    "SUMMARY_EYEBROW": "Center summary",
+    "SUMMARY_TITLE": "Patient breakdown",
+    "SUMMARY_EMPTY": "No patient data to display",
+    "SUMMARY_TOTAL": "{{count}} patient(s) total",
+    "SUMMARY_SEX_TITLE": "Sex distribution",
+    "SUMMARY_AGE_TITLE": "Age distribution",
+    "SUMMARY_KT_TITLE": "Patients on catheter (KT)",
+    "BTN_PRINT_REPORT": "Print report"
   },
   "PATIENT": {
     "TITLE": "Patient",

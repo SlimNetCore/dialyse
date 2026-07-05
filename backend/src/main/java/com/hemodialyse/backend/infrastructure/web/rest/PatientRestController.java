@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.application.query.PatientListQueryService;
+import com.hemodialyse.backend.application.query.PatientSummaryQueryService;
 import com.hemodialyse.backend.domain.assure.model.Assure;
 import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
@@ -9,13 +10,14 @@ import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase.CreatePatientCommand;
-import com.hemodialyse.backend.domain.pec.port.PecUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreatePatientRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.PatientSearchRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.UpdateAssignmentRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.UpdateAssureRequest;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -32,20 +34,21 @@ public class PatientRestController {
 
     private final PatientUseCase useCase;
     private final NotificationService notificationService;
-    private final PecUseCase pecUseCase;
     private final AssureRepositoryPort assureRepo;
     private final AssurePatientRepositoryPort assurePatientRepo;
     private final PatientListQueryService patientListQueryService;
+    private final PatientSummaryQueryService patientSummaryQueryService;
 
-    public PatientRestController(PatientUseCase useCase, NotificationService notificationService, PecUseCase pecUseCase,
+    public PatientRestController(PatientUseCase useCase, NotificationService notificationService,
                                  AssureRepositoryPort assureRepo, AssurePatientRepositoryPort assurePatientRepo,
-                                 PatientListQueryService patientListQueryService) {
+                                 PatientListQueryService patientListQueryService,
+                                 PatientSummaryQueryService patientSummaryQueryService) {
         this.useCase = useCase;
         this.notificationService = notificationService;
-        this.pecUseCase = pecUseCase;
         this.assureRepo = assureRepo;
         this.assurePatientRepo = assurePatientRepo;
         this.patientListQueryService = patientListQueryService;
+        this.patientSummaryQueryService = patientSummaryQueryService;
     }
 
     @GetMapping("/{id}/assures/history")
@@ -94,6 +97,7 @@ public class PatientRestController {
     }
 
     @PostMapping
+    @CacheEvict(cacheNames = "patient.list.summary", key = "#r.centerId()")
     public ResponseEntity<?> create(@RequestBody @Valid CreatePatientRequest r) {
         Patient p = useCase.createPatient(CenterId.of(r.centerId()), toCommand(r));
 
@@ -109,6 +113,7 @@ public class PatientRestController {
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(cacheNames = "patient.list.summary", key = "#r.centerId()")
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody @Valid CreatePatientRequest r) {
         Patient p = useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r));
 
@@ -123,6 +128,7 @@ public class PatientRestController {
         ));
     }
 
+    @SuppressWarnings("unused")
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable UUID id, @RequestParam UUID centerId, @RequestParam String userId) {
         return ResponseEntity.ok(useCase.getPatient(CenterId.of(centerId), id));
@@ -207,10 +213,6 @@ public class PatientRestController {
 
         assignment.setDateDebutAffectation(debut);
         assignment.setDateFinAffectation(fin);
-        // Si on remet fin à null → l'affectation redevient active ; s'assurer qu'il n'y a pas autre primaire actif
-        if (fin == null && assignment.isPrimary()) {
-            // Pas de contrainte de doublon : la contrainte unique DB protège
-        }
         assurePatientRepo.save(assignment);
 
         return ResponseEntity.ok(Map.of("updated", true, "id", assignmentId));
@@ -255,6 +257,12 @@ public class PatientRestController {
         return listByCriteria(request);
     }
 
+    @GetMapping("/summary")
+    @Cacheable(cacheNames = "patient.list.summary", key = "#centerId.toString()")
+    public ResponseEntity<?> summary(@RequestParam UUID centerId) {
+        return ResponseEntity.ok(patientSummaryQueryService.getSummary(centerId));
+    }
+
     private ResponseEntity<?> listByCriteria(PatientSearchRequest request) {
         var result = patientListQueryService.search(request.centerId(), request);
         return ResponseEntity.ok(Map.of(
@@ -266,11 +274,6 @@ public class PatientRestController {
     }
 
 }
-
-
-
-
-
 
 
 
