@@ -33,7 +33,7 @@ public class CacheConfig {
             @Override
             protected org.springframework.cache.Cache adaptCaffeineCache(String name,
                                                                          com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
-                if ("patient.assure.byNumero".equals(name)) {
+                if ("patient.assure.byNumero".equals(name) || "patient.byNumeroAssurance".equals(name)) {
                     return new CaffeineCache(name, cache, true);
                 }
                 return super.adaptCaffeineCache(name, cache);
