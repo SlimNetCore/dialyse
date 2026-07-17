@@ -280,7 +280,7 @@ export class AssureEditDialogComponent {
             [items]="centresPayeurs()"
             [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate"
             [prefixIcon]="'account_balance'"
-            [selectedId]="form.get('centrePayeurId')?.value"
+            [selectedId]="selectedCentrePayeurId()"
             (selectionChanged)="onCentrePayeur($event)"
             [disabled]="readonly"
             cssClass="flex1"
@@ -879,7 +879,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   readonly assureAssignments = this.ficheStore.assureAssignments;
   readonly loadingAssures = this.ficheStore.loadingAssures;
   readonly savingEdit = this.ficheStore.savingAssureEdit;
-  private readonly selectedCentrePayeurId = signal<string | null>(null);
+  readonly selectedCentrePayeurId = signal<string | null>(null);
   // Signals pour les SearchableSelectComponent — nécessaire en mode zoneless (form.get()?.value n'est pas réactif)
   readonly assureSexeSignal = signal<string>('');
   readonly assureGroupeSanguinSignal = signal<string>('');

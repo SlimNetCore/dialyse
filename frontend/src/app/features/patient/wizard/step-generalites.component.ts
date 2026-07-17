@@ -811,6 +811,13 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     this.groupeSanguinSignal.set(patch.groupeSanguin);
     this.etatPatientSignal.set(patch.etatPatient || 'PERMANENT');
     this.situationFamilialeSignal.set(patch.situationFamiliale);
+    this.dateNaissanceSignal.set(
+      patch.dateNaissance instanceof Date
+        ? patch.dateNaissance
+        : patch.dateNaissance
+          ? new Date(patch.dateNaissance)
+          : null,
+    );
     if (data['photoBase64']) this.photoPreview.set(data['photoBase64']);
     // Émettre la validité AVANT de désactiver le form (sinon form.valid = false pour form disabled)
     this.validChange.emit(this.form.valid);
