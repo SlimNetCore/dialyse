@@ -93,6 +93,7 @@ import {consumeWizardActionStatus} from './wizard-action-status.util';
           @if (shouldRenderStep(0)) {
             <app-step-generalites
               #stepGen
+              [stepData]="wizardData"
               [readonly]="consultationMode()"
               (dataChange)="updateData($event)"
               (validChange)="setStep1Valid($event)"

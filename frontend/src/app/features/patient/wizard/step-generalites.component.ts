@@ -1,5 +1,7 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
   EventEmitter,
@@ -599,13 +601,15 @@ const PATIENT_STATES_WITH_EVENT_DATE = new Set([
     `,
   ],
 })
-export class StepGeneralitesComponent implements OnInit, OnChanges {
+export class StepGeneralitesComponent implements OnInit, OnChanges, AfterViewInit {
+  @Input() stepData: Record<string, any> | null = null;
   @Input() readonly = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthStore);
+  private readonly cdr = inject(ChangeDetectorRef);
   readonly civiliteOptions: DropdownItem[] = [
     {id: 'M.', label: 'PATIENT_FORM.MR'},
     {id: 'Mme', label: 'PATIENT_FORM.MRS'},
@@ -686,6 +690,8 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
   });
 
   form!: FormGroup;
+  private pendingPatchData: Record<string, any> | null = null;
+  private viewInitialized = false;
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -739,10 +745,32 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     });
 
     this.applyReadonly();
+
+    // In consultation mode, wizard can call patchData before form init.
+    // Replay buffered data now that controls exist.
+    if (this.pendingPatchData) {
+      const buffered = this.pendingPatchData;
+      this.pendingPatchData = null;
+      this.patchData(buffered);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['readonly']) this.applyReadonly();
+    const stepDataChange = changes['stepData'];
+    if (stepDataChange?.currentValue && typeof stepDataChange.currentValue === 'object') {
+      const incoming = stepDataChange.currentValue as Record<string, any>;
+      if (Object.keys(incoming).length > 0) this.patchData(incoming);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.viewInitialized = true;
+    if (this.pendingPatchData) {
+      const buffered = this.pendingPatchData;
+      this.pendingPatchData = null;
+      this.patchData(buffered);
+    }
   }
 
   markTouched(): void {
@@ -772,7 +800,13 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
   }
 
   patchData(data: Record<string, any>): void {
-    if (!this.form) return;
+    if (!this.form) {
+      this.pendingPatchData = data;
+      return;
+    }
+    if (!this.viewInitialized) {
+      this.pendingPatchData = data;
+    }
     const patch = {
       civilite: data['civilite'] ?? '',
       nom: data['nom'] ?? '',
@@ -823,6 +857,9 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
     this.validChange.emit(this.form.valid);
     // Restaurer l'état disabled / enabled selon readonly
     this.applyReadonly();
+    // In zoneless mode, patchValue with emitEvent:false may not trigger an immediate check.
+    // Force a local view refresh so consultation mode shows data on first paint.
+    this.cdr.detectChanges();
   }
 
   private applyReadonly(): void {
