@@ -87,7 +87,7 @@ const PATIENT_STATES_WITH_EVENT_DATE = new Set([
               [label]="'PATIENT_FORM.CIVILITE' | translate"
               [prefixIcon]="'badge'"
               [autofocusFirst]="true"
-              [selectedId]="form.get('civilite')?.value ?? ''"
+              [selectedId]="civiliteSignal()"
               (selectionChanged)="form.patchValue({ civilite: $event?.id ?? '' })"
               [disabled]="readonly"
               [translateLabels]="true"
@@ -118,7 +118,7 @@ const PATIENT_STATES_WITH_EVENT_DATE = new Set([
                 [items]="sexeOptions"
                 [label]="'PATIENT_FORM.SEXE' | translate"
                 [prefixIcon]="'wc'"
-                [selectedId]="form.get('sexe')?.value ?? ''"
+                [selectedId]="sexeSignal()"
                 (selectionChanged)="form.patchValue({ sexe: $event?.id ?? '' })"
                 [disabled]="readonly"
                 [translateLabels]="true"
@@ -151,7 +151,7 @@ const PATIENT_STATES_WITH_EVENT_DATE = new Set([
               [items]="groupeSanguinOptions"
               [label]="'PATIENT_FORM.GROUPE_SANGUIN' | translate"
               [prefixIcon]="'bloodtype'"
-              [selectedId]="form.get('groupeSanguin')?.value ?? ''"
+              [selectedId]="groupeSanguinSignal()"
               (selectionChanged)="form.patchValue({ groupeSanguin: $event?.id ?? '' })"
               [disabled]="readonly"
               cssClass="h-sync generalites-select"
@@ -187,7 +187,7 @@ const PATIENT_STATES_WITH_EVENT_DATE = new Set([
                 [items]="etatPatientOptions"
                 [label]="'PATIENT_FORM.ETAT_PATIENT' | translate"
                 [prefixIcon]="'monitor_heart'"
-                [selectedId]="form.get('etatPatient')?.value ?? 'PERMANENT'"
+                [selectedId]="etatPatientSignal()"
                 (selectionChanged)="form.patchValue({ etatPatient: $event?.id ?? 'PERMANENT' })"
                 [disabled]="readonly"
                 [translateLabels]="true"
@@ -212,7 +212,7 @@ const PATIENT_STATES_WITH_EVENT_DATE = new Set([
             [items]="situationFamilialeOptions"
             [label]="'PATIENT_FORM.SITUATION_FAMILIALE' | translate"
             [prefixIcon]="'diversity_3'"
-            [selectedId]="form.get('situationFamiliale')?.value ?? ''"
+            [selectedId]="situationFamilialeSignal()"
             (selectionChanged)="form.patchValue({ situationFamiliale: $event?.id ?? '' })"
             [disabled]="readonly"
             [translateLabels]="true"
@@ -645,7 +645,12 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
   ];
   photoPreview = signal<string | null>(null);
   private dateNaissanceSignal = signal<Date | null>(null);
-  private etatPatientSignal = signal<string>('PERMANENT');
+  // Signals pour les SearchableSelectComponent (nécessaire en mode zoneless : form.get()?.value n'est pas réactif)
+  readonly civiliteSignal = signal<string>('');
+  readonly sexeSignal = signal<string>('');
+  readonly groupeSanguinSignal = signal<string>('');
+  readonly etatPatientSignal = signal<string>('PERMANENT');
+  readonly situationFamilialeSignal = signal<string>('');
 
   readonly isMedecin = computed(() => this.auth.hasRole('ROLE_MEDECIN'));
   readonly showDateEvenement = computed(() => {
@@ -718,7 +723,12 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
         this.form.patchValue({ dateEvenementEtat: null }, { emitEvent: false });
         val.dateEvenementEtat = null;
       }
+      // Mettre à jour tous les signals pour forcer la réévaluation des SearchableSelectComponent
+      this.civiliteSignal.set(val.civilite ?? '');
+      this.sexeSignal.set(val.sexe ?? '');
+      this.groupeSanguinSignal.set(val.groupeSanguin ?? '');
       this.etatPatientSignal.set(val.etatPatient || 'PERMANENT');
+      this.situationFamilialeSignal.set(val.situationFamiliale ?? '');
       this.dataChange.emit(val);
       this.validChange.emit(this.form.valid);
     });
@@ -791,11 +801,20 @@ export class StepGeneralitesComponent implements OnInit, OnChanges {
       qualiteAssure: data['qualiteAssure'] ?? 'ASSURE_LUI_MEME',
       observation: data['observation'] ?? '',
     };
+    // Activer temporairement pour patcher les valeurs et calculer la validité correctement
+    const wasDisabled = this.form.disabled;
+    if (wasDisabled) this.form.enable({emitEvent: false});
     this.form.patchValue(patch, { emitEvent: false });
+    // Mettre à jour tous les signals SearchableSelectComponent — nécessaire en mode zoneless
+    this.civiliteSignal.set(patch.civilite);
+    this.sexeSignal.set(patch.sexe);
+    this.groupeSanguinSignal.set(patch.groupeSanguin);
     this.etatPatientSignal.set(patch.etatPatient || 'PERMANENT');
+    this.situationFamilialeSignal.set(patch.situationFamiliale);
     if (data['photoBase64']) this.photoPreview.set(data['photoBase64']);
-    this.dataChange.emit({ ...this.form.getRawValue(), photoBase64: data['photoBase64'] });
+    // Émettre la validité AVANT de désactiver le form (sinon form.valid = false pour form disabled)
     this.validChange.emit(this.form.valid);
+    // Restaurer l'état disabled / enabled selon readonly
     this.applyReadonly();
   }
 

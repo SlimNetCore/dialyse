@@ -350,7 +350,7 @@ export class AssureEditDialogComponent {
             [items]="assureSexeOptions"
             [label]="'PATIENT_FORM.ASSURE_SEXE' | translate"
             [prefixIcon]="'wc'"
-            [selectedId]="form.get('assureSexe')?.value ?? ''"
+            [selectedId]="assureSexeSignal()"
             (selectionChanged)="form.patchValue({ assureSexe: $event?.id ?? '' })"
             cssClass="flex1 assurance-select"
             [translateLabels]="true"
@@ -385,7 +385,7 @@ export class AssureEditDialogComponent {
             [items]="assureGroupeSanguinOptions"
             [label]="'PATIENT_FORM.ASSURE_GROUPE_SANGUIN' | translate"
             [prefixIcon]="'bloodtype'"
-            [selectedId]="form.get('assureGroupeSanguin')?.value ?? ''"
+            [selectedId]="assureGroupeSanguinSignal()"
             (selectionChanged)="form.patchValue({ assureGroupeSanguin: $event?.id ?? '' })"
             cssClass="flex1 assurance-select"
           />
@@ -880,6 +880,9 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   readonly loadingAssures = this.ficheStore.loadingAssures;
   readonly savingEdit = this.ficheStore.savingAssureEdit;
   private readonly selectedCentrePayeurId = signal<string | null>(null);
+  // Signals pour les SearchableSelectComponent — nécessaire en mode zoneless (form.get()?.value n'est pas réactif)
+  readonly assureSexeSignal = signal<string>('');
+  readonly assureGroupeSanguinSignal = signal<string>('');
   readonly codeCentrePayeur = computed(
     () =>
       this.centresPayeurs().find(
@@ -993,6 +996,10 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureAdresse: [''],
     });
     this.form.valueChanges.subscribe(() => {
+      const v = this.form.getRawValue();
+      // Mettre à jour les signals pour les SearchableSelectComponent en mode zoneless
+      this.assureSexeSignal.set(v.assureSexe ?? '');
+      this.assureGroupeSanguinSignal.set(v.assureGroupeSanguin ?? '');
       this.emitAssuranceData();
       this.validChange.emit(this.form.valid);
     });
@@ -1288,8 +1295,13 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     if (this.patientId) this.loadAssureHistory();
 
     this.selectedCentrePayeurId.set(patch.centrePayeurId);
-    this.emitAssuranceData();
-    this.validChange.emit(this.form.valid);
+    // Mettre à jour les signals pour les SearchableSelectComponent en mode zoneless
+    this.assureSexeSignal.set(patch.assureSexe ?? '');
+    this.assureGroupeSanguinSignal.set(patch.assureGroupeSanguin ?? '');
+    // NE PAS appeler emitAssuranceData() ici — wizardData contient déjà les données du patient
+    // depuis loadPatient ; la synchronisation bidirectionnelle est gérée par form.valueChanges.
+    // Émettre la validité AVANT de (re)désactiver — sinon form.valid est faux pour un form disabled.
+    this.validChange.emit(!!(patch.numeroAssurance));
     this.applyReadonly();
   }
 

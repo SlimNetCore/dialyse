@@ -449,7 +449,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   readonly editMode = this.ficheStore.editMode;
   readonly consultationMode = this.ficheStore.consultationMode;
   private readonly ws = inject(WebSocketService);
-  private loadingPatientData = signal(false);
+  // loadingPatientData removed – shouldRenderStep now always returns true
 
   readonly totalSteps = computed(() => (this.isVacancier() ? 5 : 6));
   readonly isMobileViewport = signal(
@@ -508,14 +508,10 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     effect(() => {
       const event = this.ws.lastEvent();
       if (!this.editMode() || !event || !this.editingPatientId()) return;
-
-      // Refresh fiche in real-time when patient-related events occur.
       if (!this.shouldRefreshFromEvent(event)) return;
-
       const eventPatientId = this.extractPatientId(event);
       const currentPatientId = this.editingPatientId();
       if (eventPatientId && currentPatientId && eventPatientId !== currentPatientId) return;
-
       this.refreshCurrentPatientFromServer();
     });
 
@@ -537,7 +533,6 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
             size: this.patientListStore.pageSize(),
           });
         }
-
         this.snackBar.open(
           this.translate.instant('PATIENT_FORM.SUCCESS') || 'Patient enregistré avec succès',
           'OK',
@@ -555,13 +550,14 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     consumeWizardActionStatus(this.ficheStore, ({action, success, error}) => {
       if (action === 'LOAD_PATIENT' || action === 'LOAD_ATTESTATIONS' || action === 'LOAD_PECS') {
         if (success) {
-          this.patchStepsFromWizardData();
           this.recomputeStepValidityFromData();
-          // Done loading patient data - stop rendering all steps
-          this.loadingPatientData.set(false);
+          // All steps are always rendered (shouldRenderStep always returns true),
+          // so @ViewChild instances are always available — patch immediately.
+          this.patchStepsFromWizardData();
+          // Second pass after render for Angular Material late content-projection.
+          afterNextRender(() => this.patchStepsFromWizardData(), {injector: this.injector});
         } else if (error) {
           this.snackBar.open(error, 'OK', {duration: 4000});
-          this.loadingPatientData.set(false);
         }
       }
     });
@@ -587,14 +583,10 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/patients']);
   }
 
-  shouldRenderStep(stepIndex: number): boolean {
-    // Always render all steps while loading data to allow patchData to be called
-    if (this.loadingPatientData()) return true;
-
-    if (!this.editMode()) return true;
-    const activeIndex = this.stepper?.selectedIndex ?? this.currentStep();
-    // Keep active and adjacent steps mounted to avoid transient blank content.
-    return Math.abs(activeIndex - stepIndex) <= 1;
+  shouldRenderStep(_stepIndex: number): boolean {
+    // Always render all steps: avoids @ViewChild being null when patchData() is called,
+    // and prevents form values from being lost when switching between steps.
+    return true;
   }
 
   setStep1Valid(value: boolean): void {
@@ -1002,8 +994,6 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
-    // Signal that we are loading patient data - this will render all steps temporarily
-    this.loadingPatientData.set(true);
 
     this.ficheStore.loadPatient({
       id: patientId,

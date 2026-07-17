@@ -776,7 +776,8 @@ export class StepPecComponent implements OnInit, OnChanges {
     const v = this.form.getRawValue();
     const isEmpty = !v.pecDateDebutDemande && !v.pecDateFinDemande;
     this.dataChange.emit({ ...v, pecId: this.selectedPecId() });
-    this.validChange.emit(isEmpty || this.form.valid);
+    // Émettre la validité via les données, pas form.valid (qui serait faux si form disabled)
+    this.validChange.emit(isEmpty || !!(v.pecDateDebutDemande && v.pecDateFinDemande));
     this.applyReadonly();
   }
 

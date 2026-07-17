@@ -491,7 +491,9 @@ export class StepAttestationComponent implements OnInit, OnChanges {
       ...this.form.getRawValue(),
       attestationId: this.selectedAttestationId(),
     });
-    this.validChange.emit(this.form.valid);
+    // Émettre la validité via les données, pas form.valid (qui serait faux si form disabled)
+    const rv = this.form.getRawValue();
+    this.validChange.emit(!!(rv.attestationDebut && rv.attestationFin));
     this.applyReadonly();
   }
 

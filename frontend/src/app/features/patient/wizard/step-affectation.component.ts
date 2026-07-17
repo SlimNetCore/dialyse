@@ -7,6 +7,7 @@ import {
   OnChanges,
   OnInit,
   Output,
+  signal,
   SimpleChanges,
 } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
@@ -46,8 +47,8 @@ import {
             [prefixIcon]="'meeting_room'"
             [autofocusFirst]="true"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('salleId')?.value)"
-            (selectionChanged)="form.patchValue({ salleId: $safeNavigationMigration($event?.id) })"
+            [selectedId]="salleIdSignal()"
+            (selectionChanged)="form.patchValue({ salleId: $event?.id ?? null })"
             cssClass="flex1"
           />
           <app-searchable-select
@@ -55,9 +56,9 @@ import {
             [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate"
             [prefixIcon]="'medical_services'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('medecinTraitantId')?.value)"
+            [selectedId]="medecinTraitantIdSignal()"
             (selectionChanged)="
-              form.patchValue({ medecinTraitantId: $safeNavigationMigration($event?.id) })
+              form.patchValue({ medecinTraitantId: $event?.id ?? null })
             "
             cssClass="flex1"
           />
@@ -69,9 +70,9 @@ import {
             [label]="'PATIENT_FORM.POSITION' | translate"
             [prefixIcon]="'schedule'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('positionId')?.value)"
+            [selectedId]="positionIdSignal()"
             (selectionChanged)="
-              form.patchValue({ positionId: $safeNavigationMigration($event?.id) })
+              form.patchValue({ positionId: $event?.id ?? null })
             "
             cssClass="flex1"
           />
@@ -83,9 +84,9 @@ import {
             [label]="'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate"
             [prefixIcon]="'directions_car'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('transporteurAllerId')?.value)"
+            [selectedId]="transporteurAllerIdSignal()"
             (selectionChanged)="
-              form.patchValue({ transporteurAllerId: $safeNavigationMigration($event?.id) })
+              form.patchValue({ transporteurAllerId: $event?.id ?? null })
             "
             cssClass="flex1"
           />
@@ -94,9 +95,9 @@ import {
             [label]="'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate"
             [prefixIcon]="'local_taxi'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('transporteurRetourId')?.value)"
+            [selectedId]="transporteurRetourIdSignal()"
             (selectionChanged)="
-              form.patchValue({ transporteurRetourId: $safeNavigationMigration($event?.id) })
+              form.patchValue({ transporteurRetourId: $event?.id ?? null })
             "
             cssClass="flex1"
           />
@@ -105,9 +106,9 @@ import {
             [label]="'PATIENT_FORM.CATEGORIE_TRANSPORT' | translate"
             [prefixIcon]="'commute'"
             [disabled]="readonly"
-            [selectedId]="$safeNavigationMigration(form.get('categorieTransportId')?.value)"
+            [selectedId]="categorieTransportIdSignal()"
             (selectionChanged)="
-              form.patchValue({ categorieTransportId: $safeNavigationMigration($event?.id) })
+              form.patchValue({ categorieTransportId: $event?.id ?? null })
             "
             cssClass="flex1"
           />
@@ -286,6 +287,14 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     .items as unknown as () => DropdownItem[];
   private readonly fb = inject(FormBuilder);
 
+  // Signals pour les SearchableSelectComponent — nécessaire en mode zoneless (form.get()?.value n'est pas réactif)
+  readonly salleIdSignal = signal<string | null>(null);
+  readonly medecinTraitantIdSignal = signal<string | null>(null);
+  readonly positionIdSignal = signal<string | null>(null);
+  readonly transporteurAllerIdSignal = signal<string | null>(null);
+  readonly transporteurRetourIdSignal = signal<string | null>(null);
+  readonly categorieTransportIdSignal = signal<string | null>(null);
+
   constructor() {
     this.form = this.fb.group({
       salleId: [null],
@@ -304,6 +313,13 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     });
 
     this.form.valueChanges.subscribe((val) => {
+      // Mettre à jour les signals pour forcer la réévaluation des SearchableSelectComponent en mode zoneless
+      this.salleIdSignal.set(val.salleId ?? null);
+      this.medecinTraitantIdSignal.set(val.medecinTraitantId ?? null);
+      this.positionIdSignal.set(val.positionId ?? null);
+      this.transporteurAllerIdSignal.set(val.transporteurAllerId ?? null);
+      this.transporteurRetourIdSignal.set(val.transporteurRetourId ?? null);
+      this.categorieTransportIdSignal.set(val.categorieTransportId ?? null);
       this.dataChange.emit(val);
       this.validChange.emit(true); // affectation step is optional
     });
@@ -358,26 +374,21 @@ export class StepAffectationComponent implements OnInit, OnChanges {
       return null;
     };
 
+    const salleId = pickId('salleId', 'salle_id', 'salle');
+    const medecinTraitantId = pickId('medecinTraitantId', 'medecin_traitant_id', 'medecinTraitant');
+    const positionId = pickId('positionId', 'position_id', 'position');
+    const transporteurAllerId = pickId('transporteurAllerId', 'transporteur_aller_id', 'transporteurAller');
+    const transporteurRetourId = pickId('transporteurRetourId', 'transporteur_retour_id', 'transporteurRetour');
+    const categorieTransportId = pickId('categorieTransportId', 'categorie_transport_id', 'categorieTransport');
+
     this.form.patchValue(
       {
-        salleId: pickId('salleId', 'salle_id', 'salle'),
-        medecinTraitantId: pickId('medecinTraitantId', 'medecin_traitant_id', 'medecinTraitant'),
-        positionId: pickId('positionId', 'position_id', 'position'),
-        transporteurAllerId: pickId(
-          'transporteurAllerId',
-          'transporteur_aller_id',
-          'transporteurAller',
-        ),
-        transporteurRetourId: pickId(
-          'transporteurRetourId',
-          'transporteur_retour_id',
-          'transporteurRetour',
-        ),
-        categorieTransportId: pickId(
-          'categorieTransportId',
-          'categorie_transport_id',
-          'categorieTransport',
-        ),
+        salleId,
+        medecinTraitantId,
+        positionId,
+        transporteurAllerId,
+        transporteurRetourId,
+        categorieTransportId,
         jourDimanche: asBool(pick('jourDimanche', 'jour_dimanche', 'dimanche')),
         jourLundi: asBool(pick('jourLundi', 'jour_lundi', 'lundi')),
         jourMardi: asBool(pick('jourMardi', 'jour_mardi', 'mardi')),
@@ -388,8 +399,15 @@ export class StepAffectationComponent implements OnInit, OnChanges {
       },
       {emitEvent: false},
     );
-    this.dataChange.emit(this.form.getRawValue());
+    // Mettre à jour les signals pour forcer la réévaluation des SearchableSelectComponent en mode zoneless
+    this.salleIdSignal.set(salleId);
+    this.medecinTraitantIdSignal.set(medecinTraitantId);
+    this.positionIdSignal.set(positionId);
+    this.transporteurAllerIdSignal.set(transporteurAllerId);
+    this.transporteurRetourIdSignal.set(transporteurRetourId);
+    this.categorieTransportIdSignal.set(categorieTransportId);
     this.validChange.emit(true);
+    this.applyReadonly();
   }
 
   private applyReadonly(): void {
