@@ -1,0 +1,36 @@
+<div class="card-print" id="patientCard">
+  <div class="card-header">
+    <mat-icon class="card-logo">monitor_heart</mat-icon>
+    <span class="card-title">HemoDialyse</span>
+  </div>
+  <div class="card-body">
+    <div class="card-photo">
+      @if (data.photoBase64) {
+        <img [src]="data.photoBase64" alt="Photo"/>
+      } @else {
+        <mat-icon class="no-photo">person</mat-icon>
+      }
+    </div>
+    <div class="card-info">
+      <h2>{{ data.nom }} {{ data.prenom }}</h2>
+      <div class="info-line"><strong>ID:</strong> {{ data.patientId?.substring(0, 8) }}</div>
+      <div class="info-line"><strong>N° Assurance:</strong> {{ data.numeroAssurance }}</div>
+      @if (data.groupeSanguin) {
+        <div class="info-line"><strong>Grp:</strong> {{ data.groupeSanguin }}</div>
+      }
+      @if (data.dateAdmission) {
+        <div class="info-line"><strong>Adm:</strong> {{ data.dateAdmission }}</div>
+      }
+    </div>
+    <div class="card-qr">
+      <img [src]="qrDataUrl()" alt="QR Code"/>
+    </div>
+  </div>
+</div>
+<div class="dialog-actions">
+  <button (click)="print()" color="primary" mat-flat-button>
+    <mat-icon>print</mat-icon>
+    {{ 'PATIENT_FORM.PRINT_CARD' | translate }}
+  </button>
+</div>
+

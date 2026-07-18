@@ -24,76 +24,9 @@ import {AdminApiService} from '../../core/api/admin-api.service';
     FormRoot,
     FormField,
   ],
-  template: `
-    <mat-card class="form-card">
-      <h2>
-        <mat-icon>{{ isEdit() ? 'edit' : 'add' }}</mat-icon>
-        {{ isEdit() ? 'Modifier' : 'Créer' }} un rôle
-      </h2>
-
-      <form [formRoot]="roleForm">
-        <div class="grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Code</mat-label>
-            <input matInput [formField]="roleForm.code"/>
-            <mat-icon matPrefix>code</mat-icon>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Nom</mat-label>
-            <input matInput [formField]="roleForm.name"/>
-            <mat-icon matPrefix>label</mat-icon>
-          </mat-form-field>
-        </div>
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Description</mat-label>
-          <textarea matInput rows="3" [formField]="roleForm.description"></textarea>
-        </mat-form-field>
-
-        <div class="actions">
-          <button mat-stroked-button routerLink="/admin/roles">
-            <mat-icon>arrow_back</mat-icon>
-            Retour
-          </button>
-          <button mat-flat-button color="primary" type="button" (click)="save()">
-            <mat-icon>save</mat-icon>
-            Enregistrer
-          </button>
-        </div>
-      </form>
-    </mat-card>
-  `,
+  templateUrl: './role-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [
-    `
-      .form-card {
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      h2 {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #1b5e20;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-
-      .full {
-        width: 100%;
-      }
-
-      .actions {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 16px;
-      }
-    `,
-  ],
+  styleUrl: './role-form.component.css',
 })
 export class RoleFormComponent implements OnInit {
   private readonly api = inject(AdminApiService);

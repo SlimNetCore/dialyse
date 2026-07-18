@@ -6,11 +6,7 @@ import {TranslateModule} from '@ngx-translate/core';
   standalone: true,
   imports: [MatIconModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.Eager,
-  template: `
-    <div style="text-align:center;padding:80px 0;color:#666;">
-      <mat-icon style="font-size:64px;width:64px;height:64px;color:#1b5e20;">receipt</mat-icon>
-      <h2>{{ 'NAV.FACTURATION' | translate }}</h2>
-      <p>Module en cours de développement</p>
-    </div>`,
+  templateUrl: './facturation-placeholder.component.html',
+  styleUrl: './facturation-placeholder.component.css',
 })
 export class FacturationPlaceholderComponent {}

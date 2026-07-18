@@ -1,0 +1,54 @@
+<div class="step-content">
+  <h3 class="section-title">{{ 'PATIENT_FORM.PIECES_JOINTES' | translate }}</h3>
+
+  <div
+    (click)="!readonly && fileInput.click()"
+    (dragover)="!readonly && $event.preventDefault()"
+    (drop)="onDrop($event)"
+    (keydown.enter)="!readonly && fileInput.click()"
+    (keydown.space)="$event.preventDefault(); !readonly && fileInput.click()"
+    [attr.aria-disabled]="readonly"
+    [class.disabled]="readonly"
+    class="upload-zone"
+    data-autofocus-first
+    role="button"
+    tabindex="0"
+  >
+    <mat-icon class="upload-icon">cloud_upload</mat-icon>
+    <p>{{ 'WIZARD.PJ_DROP' | translate }}</p>
+    <p class="hint">{{ 'WIZARD.PJ_MAX_SIZE' | translate }}</p>
+    <input #fileInput (change)="onFiles($event)" hidden multiple type="file"/>
+  </div>
+
+  @if (error()) {
+    <div class="error-msg">{{ error() }}</div>
+  }
+
+  @if (files().length > 0) {
+    <mat-list class="file-list">
+      @for (f of files(); track f.name; let i = $index) {
+        <mat-list-item class="file-item">
+          <mat-icon matListItemIcon>{{ getIcon(f.type) }}</mat-icon>
+          <div matListItemTitle>{{ f.name }}</div>
+          <div matListItemLine>{{ formatSize(f.size) }} — {{ f.type }}</div>
+          <div matListItemMeta>
+            <button (click)="openAttachment(f)" mat-icon-button>
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button (click)="remove(i)" [disabled]="readonly" color="warn" mat-icon-button>
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+
+  <!-- Preview dialog -->
+  @if (previewUrl()) {
+    <div (click)="previewUrl.set(null)" class="preview-overlay">
+      <img [src]="previewUrl()" alt="Preview" class="preview-img"/>
+    </div>
+  }
+</div>
+

@@ -1,0 +1,121 @@
+<div class="step-content">
+  <div class="att-grid">
+    <div class="history-pane">
+      <div class="history-head">
+        <h4>{{ 'WIZARD.ATTESTATION_HISTORY' | translate }}</h4>
+        <button
+          (click)="prepareNew()"
+          [disabled]="readonly"
+          class="add-btn"
+          mat-flat-button
+          type="button"
+        >
+          <mat-icon>add</mat-icon>
+          {{ 'COMMON.NEW' | translate }}
+        </button>
+      </div>
+
+      @if (history().length === 0) {
+        <p class="empty">{{ 'WIZARD.ATTESTATION_HISTORY_EMPTY' | translate }}</p>
+      } @else {
+        <div class="history-list">
+          @for (h of history(); track $index) {
+            <button
+              (click)="select(h)"
+              [class.active]="isSelected(h)"
+              class="history-item"
+              type="button"
+            >
+              <div>
+                <strong>{{ h.dateDebut || h.DATE_DEBUT }}</strong>
+                <span> → {{ h.dateFin || h.DATE_FIN }}</span>
+              </div>
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div>
+      <h3 class="section-title">{{ 'WIZARD.ATTESTATION_TITLE' | translate }}</h3>
+      <p class="info-text">{{ 'WIZARD.ATTESTATION_DESC' | translate }}</p>
+
+      @if (selectedAttestation()) {
+        <div class="detail-card">
+          <div class="detail-head">
+            <strong>{{ 'WIZARD.ATTESTATION_SELECTED' | translate }}</strong>
+            <div class="detail-actions">
+              <button
+                (click)="deleteSelected()"
+                [disabled]="readonly || !selectedAttestationId()"
+                color="warn"
+                mat-stroked-button
+                type="button"
+              >
+                <mat-icon>delete</mat-icon>
+                {{ 'COMMON.DELETE' | translate }}
+              </button>
+              <button
+                (click)="printSelected()"
+                [disabled]="!patientId"
+                mat-stroked-button
+                type="button"
+              >
+                <mat-icon>print</mat-icon>
+                {{ 'COMMON.PRINT' | translate }}
+              </button>
+            </div>
+          </div>
+          <div class="detail-grid">
+                <span>{{ 'WIZARD.FIELD_START' | translate }}</span
+                ><strong>{{
+              selectedAttestation()?.dateDebut || selectedAttestation()?.DATE_DEBUT || '—'
+            }}</strong>
+            <span>{{ 'WIZARD.FIELD_END' | translate }}</span
+            ><strong>{{
+              selectedAttestation()?.dateFin || selectedAttestation()?.DATE_FIN || '—'
+            }}</strong>
+            <span>{{ 'WIZARD.FIELD_STATUS' | translate }}</span
+            ><strong>{{
+              selectedAttestation()?.statut || selectedAttestation()?.STATUT || '—'
+            }}</strong>
+          </div>
+        </div>
+      }
+
+      <form [formGroup]="form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ 'PATIENT_FORM.ATTESTATION_DEBUT' | translate }} *</mat-label>
+            <mat-icon matPrefix>event</mat-icon>
+            <input
+              [matDatepicker]="dpDebut"
+              data-autofocus-first
+              formControlName="attestationDebut"
+              matInput
+            />
+            <mat-datepicker-toggle [for]="dpDebut" matSuffix/>
+            <mat-datepicker #dpDebut/>
+            @if (form.get('attestationDebut')?.hasError('required') &&
+            form.get('attestationDebut')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ 'PATIENT_FORM.ATTESTATION_FIN' | translate }} *</mat-label>
+            <mat-icon matPrefix>event_available</mat-icon>
+            <input [matDatepicker]="dpFin" formControlName="attestationFin" matInput/>
+            <mat-datepicker-toggle [for]="dpFin" matSuffix/>
+            <mat-datepicker #dpFin/>
+            @if (form.get('attestationFin')?.hasError('required') &&
+            form.get('attestationFin')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

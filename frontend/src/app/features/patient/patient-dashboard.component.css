@@ -1,0 +1,24 @@
+
+.dashboard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: var(--app-surface);
+  border-color: var(--app-primary-outline) !important;
+}
+
+@media (max-width: 760px) {
+  .dashboard-actions {
+    justify-content: stretch;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+}
+

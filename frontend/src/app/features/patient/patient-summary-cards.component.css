@@ -1,0 +1,147 @@
+
+.summary-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  background: var(--app-surface-solid);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.summary-grid-wide {
+  grid-column: span 3;
+}
+
+.summary-head-card,
+.empty-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+}
+
+.summary-eyebrow {
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--app-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+.summary-total {
+  margin-top: 6px;
+  color: var(--app-muted);
+}
+
+.summary-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.month-field {
+  min-width: 210px;
+}
+
+.summary-card:not(.summary-head-card):not(.empty-card) {
+  padding: 16px;
+}
+
+.summary-rows {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.summary-rows-compact {
+  gap: 10px;
+}
+
+.summary-row {
+  display: grid;
+  gap: 6px;
+}
+
+.summary-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.summary-row-head strong {
+  color: var(--app-primary);
+}
+
+.summary-track {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-border) 65%, transparent);
+  overflow: hidden;
+}
+
+.summary-fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.summary-fill-sex {
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+}
+
+.summary-fill-age {
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+}
+
+.summary-fill-kt {
+  background: linear-gradient(90deg, #0f766e, #14b8a6);
+}
+
+.loading-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.loading-card mat-progress-bar {
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .summary-head-card,
+  .empty-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .summary-grid-wide {
+    grid-column: auto;
+  }
+
+  .summary-head-actions,
+  .month-field {
+    width: 100%;
+  }
+}
+

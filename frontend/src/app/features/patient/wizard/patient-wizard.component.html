@@ -1,0 +1,149 @@
+<div [class.patient-form-compact]="!isMobileViewport()" class="wizard-container">
+  <div class="wizard-header">
+    <button (click)="goBack()" mat-icon-button>
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>
+      {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.TITLE' | translate) }}
+    </h2>
+    @if (editMode()) {
+      <div [class.editing]="!consultationMode()" class="mode-badge">
+        {{
+          consultationMode()
+            ? ('WIZARD.READONLY_MODE' | translate)
+            : ('WIZARD.EDITING_MODE' | translate)
+        }}
+      </div>
+      @if (consultationMode()) {
+        <button (click)="enableEditing()" class="edit-toggle-btn" mat-stroked-button>
+          <mat-icon>edit</mat-icon>
+          {{ 'WIZARD.ENABLE_EDIT' | translate }}
+        </button>
+      }
+    }
+    <div class="wizard-progress">
+      {{ 'WIZARD.STEP' | translate }} {{ currentStep() + 1 }} / {{ totalSteps() }}
+    </div>
+  </div>
+
+  <mat-stepper
+    #stepper
+    (selectionChange)="onStepChange($event)"
+    [animationDuration]="'0'"
+    [linear]="false"
+    [orientation]="isMobileViewport() ? 'vertical' : 'horizontal'"
+    class="wizard-stepper"
+  >
+    <!-- Step 1: Généralités -->
+    <mat-step
+      [completed]="step1Valid()"
+      [editable]="true"
+      [label]="'WIZARD.STEP_GENERALITES' | translate"
+    >
+      @if (shouldRenderStep(0)) {
+        <app-step-generalites
+          #stepGen
+          (dataChange)="updateData($event)"
+          (validChange)="setStep1Valid($event)"
+          [readonly]="consultationMode()"
+          [stepData]="wizardData"
+        />
+      }
+    </mat-step>
+
+    <!-- Step 2: Assurance -->
+    <mat-step
+      [completed]="step2Valid()"
+      [editable]="true"
+      [label]="'WIZARD.STEP_ASSURANCE' | translate"
+    >
+      @if (shouldRenderStep(1)) {
+        <app-step-assurance
+          #stepAss
+          (dataChange)="updateData($event)"
+          (validChange)="setStep2Valid($event)"
+          [patientId]="editingPatientId() || undefined"
+          [readonly]="consultationMode()"
+        />
+      }
+    </mat-step>
+
+    <!-- Step 3: Affectation -->
+    <mat-step [editable]="true" [label]="'WIZARD.STEP_AFFECTATION' | translate">
+      @if (shouldRenderStep(2)) {
+        <app-step-affectation
+          #stepAff
+          (dataChange)="updateData($event)"
+          [readonly]="consultationMode()"
+        />
+      }
+    </mat-step>
+
+    <!-- Step 4: Attestation (hidden for vacancier) -->
+    @if (!isVacancier()) {
+      <mat-step
+        [completed]="step4Valid()"
+        [editable]="true"
+        [label]="'WIZARD.STEP_ATTESTATION' | translate"
+      >
+        @if (shouldRenderStep(3)) {
+          <app-step-attestation
+            #stepAtt
+            (dataChange)="updateData($event)"
+            (validChange)="setStep4Valid($event)"
+            [readonly]="consultationMode()"
+          />
+        }
+      </mat-step>
+    }
+
+    <!-- Step 5: PEC -->
+    <mat-step
+      [completed]="step5Valid()"
+      [editable]="true"
+      [label]="'WIZARD.STEP_PEC' | translate"
+    >
+      @if (shouldRenderStep(isVacancier() ? 3 : 4)) {
+        <app-step-pec
+          #stepPec
+          (dataChange)="updateData($event)"
+          (validChange)="setStep5Valid($event)"
+          [patientId]="editingPatientId() || undefined"
+          [readonly]="consultationMode()"
+        />
+      }
+    </mat-step>
+
+    <!-- Step 6: Pièces jointes -->
+    <mat-step [editable]="true" [label]="'WIZARD.STEP_PJ' | translate">
+      @if (shouldRenderStep(isVacancier() ? 4 : 5)) {
+        <app-step-pieces-jointes
+          #stepPj
+          (dataChange)="updateData($event)"
+          [readonly]="consultationMode()"
+        />
+      }
+    </mat-step>
+  </mat-stepper>
+
+  <!-- Floating save button -->
+  @if (!consultationMode()) {
+    @if (pecCoverageError()) {
+      <div class="floating-error">
+        <mat-icon>error_outline</mat-icon>
+        {{ pecCoverageError() }}
+      </div>
+    }
+    <button
+      (click)="submit()"
+      [disabled]="saving() || !canSave()"
+      class="floating-save"
+      extended
+      mat-fab
+    >
+      <mat-icon>save</mat-icon>
+      {{ editMode() ? ('PATIENT_FORM.TITLE_EDIT' | translate) : ('WIZARD.SAVE' | translate) }}
+    </button>
+  }
+</div>
+

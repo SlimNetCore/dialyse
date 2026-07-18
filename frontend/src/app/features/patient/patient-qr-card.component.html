@@ -1,0 +1,11 @@
+<button
+  (click)="openCard()"
+  [attr.aria-label]="'PATIENT_FORM.QR_CARD' | translate"
+  [disabled]="!patientId"
+  [matTooltip]="'PATIENT_FORM.QR_CARD' | translate"
+  color="primary"
+  mat-icon-button
+>
+  <mat-icon>qr_code_2</mat-icon>
+</button>
+

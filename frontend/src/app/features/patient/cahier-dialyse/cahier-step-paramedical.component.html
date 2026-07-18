@@ -1,0 +1,226 @@
+<div class="step-content">
+  <mat-card class="paramedical-card" data-testid="cahier-step-paramedical">
+    <mat-card-header>
+      <mat-card-title>{{ 'CAHIER.STEP_PARAMEDICAL' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'CAHIER.STEP_PARAMEDICAL_DESC' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="form-grid cahier-field-size">
+        <section class="section-block">
+          <h4>{{ 'CAHIER.PARAMEDICAL_PRESEANCE' | translate }}</h4>
+          <div class="fields-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_DATE_SEANCE' | translate }}</mat-label>
+              <input (input)="onStringInput('dateSeance', $event)" [readonly]="readonly" [value]="formModel().dateSeance"
+                     matInput type="date"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_POIDS_AVANT' | translate }}</mat-label>
+              <input
+                (input)="onNumberInput('poidsAvantKg', $event)"
+                [readonly]="readonly"
+                [value]="formModel().poidsAvantKg ?? ''"
+                matInput
+                min="0"
+                step="0.1"
+                type="number"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_POIDS_APRES' | translate }}</mat-label>
+              <input
+                (input)="onNumberInput('poidsApresKg', $event)"
+                [readonly]="readonly"
+                [value]="formModel().poidsApresKg ?? ''"
+                matInput
+                min="0"
+                step="0.1"
+                type="number"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_TA_AVANT' | translate }}</mat-label>
+              <input
+                (input)="onStringInput('taAvant', $event)"
+                [readonly]="readonly"
+                [value]="formModel().taAvant"
+                matInput
+                placeholder="120/80"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_TA_APRES' | translate }}</mat-label>
+              <input
+                (input)="onStringInput('taApres', $event)"
+                [readonly]="readonly"
+                [value]="formModel().taApres"
+                matInput
+                placeholder="120/80"
+              />
+            </mat-form-field>
+          </div>
+        </section>
+
+        <section class="section-block">
+          <h4>{{ 'CAHIER.PARAMEDICAL_MACHINE' | translate }}</h4>
+          <div class="fields-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_DUREE' | translate }}</mat-label>
+              <input
+                (input)="onNumberInput('dureeMinutes', $event)"
+                [readonly]="readonly"
+                [value]="formModel().dureeMinutes ?? ''"
+                matInput
+                min="30"
+                step="1"
+                type="number"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_DEBIT_SANG' | translate }}</mat-label>
+              <input
+                (input)="onNumberInput('debitSangMlMin', $event)"
+                [readonly]="readonly"
+                [value]="formModel().debitSangMlMin ?? ''"
+                matInput
+                min="0"
+                step="1"
+                type="number"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_UF' | translate }}</mat-label>
+              <input
+                (input)="onNumberInput('ultrafiltrationMl', $event)"
+                [readonly]="readonly"
+                [value]="formModel().ultrafiltrationMl ?? ''"
+                matInput
+                min="0"
+                step="1"
+                type="number"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_DIALYSAT' | translate }}</mat-label>
+              <input (input)="onStringInput('typeDialysat', $event)" [readonly]="readonly" [value]="formModel().typeDialysat"
+                     matInput/>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <section class="section-block section-wide">
+          <h4>{{ 'CAHIER.PARAMEDICAL_SURVEILLANCE' | translate }}</h4>
+          <div class="fields-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_ANTICOAGULANT' | translate }}</mat-label>
+              <input (input)="onStringInput('anticoagulant', $event)" [readonly]="readonly" [value]="formModel().anticoagulant"
+                     matInput/>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width textarea-field">
+              <mat-label>{{ 'CAHIER.PARAMEDICAL_INCIDENTS' | translate }}</mat-label>
+              <textarea
+                (input)="onStringInput('incidents', $event)"
+                [readonly]="readonly"
+                [value]="formModel().incidents"
+                matInput
+                rows="3"
+              ></textarea>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <section class="section-block section-wide">
+          <h4>{{ 'CAHIER.PARAMEDICAL_ARTICLES' | translate }}</h4>
+          <div class="articles-grid">
+            <div
+              *ngFor="let item of formModel().consommations; let i = index"
+              [attr.data-article-row]="item.articleId || ''"
+              class="article-row"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'CAHIER.PARAMEDICAL_ARTICLE' | translate }}</mat-label>
+                <mat-select
+                  (selectionChange)="onConsommationArticleChange(i, $event.value)"
+                  [disabled]="readonly || articlesLoading()"
+                  [value]="item.articleId"
+                >
+                  <mat-option value="">{{
+                      'CAHIER.PARAMEDICAL_SELECT_ARTICLE' | translate
+                    }}
+                  </mat-option>
+                  <mat-option *ngFor="let article of articles()" [value]="article.id">
+                    {{ article.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'CAHIER.PARAMEDICAL_QTE' | translate }}</mat-label>
+                <input
+                  (input)="onConsommationQuantiteInput(i, $event)"
+                  [readonly]="readonly"
+                  [value]="item.quantite"
+                  matInput
+                  min="0.01"
+                  step="0.01"
+                  type="number"
+                />
+              </mat-form-field>
+              <button
+                (click)="removeConsommation(i)"
+                *ngIf="!readonly"
+                [attr.aria-label]="'Supprimer ligne article ' + (i + 1)"
+                color="warn"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div *ngIf="!readonly" class="article-actions">
+            <button
+              (click)="addConsommation()"
+              color="primary"
+              mat-stroked-button
+              type="button"
+            >
+              <mat-icon>add</mat-icon>
+              {{ 'CAHIER.PARAMEDICAL_ADD_ARTICLE' | translate }}
+            </button>
+          </div>
+          <p *ngIf="articlesLoading()" class="articles-hint">
+            {{ 'CAHIER.PARAMEDICAL_ARTICLES_LOADING' | translate }}
+          </p>
+          <p *ngIf="articlesError()" class="articles-hint articles-error">
+            {{ articlesError() }}
+          </p>
+        </section>
+      </form>
+
+      <div *ngIf="!readonly" class="helper-line">
+        <mat-icon>info</mat-icon>
+        <span>{{ 'CAHIER.PARAMEDICAL_HINT' | translate }}</span>
+      </div>
+
+      <div class="actions">
+        <button
+          (click)="save()"
+          *ngIf="!readonly"
+          [disabled]="!formValid() || saving()"
+          color="primary"
+          mat-raised-button
+        >
+          <mat-icon>save</mat-icon>
+          {{
+            saving() ? ('CAHIER.PARAMEDICAL_SAVING' | translate) : ('COMMON.SAVE' | translate)
+          }}
+        </button>
+        <button (click)="proceed()" color="primary" mat-stroked-button>
+          <mat-icon>arrow_forward</mat-icon>
+          {{ 'COMMON.NEXT_STEP' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+

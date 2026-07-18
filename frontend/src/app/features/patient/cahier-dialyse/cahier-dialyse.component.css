@@ -1,0 +1,86 @@
+
+.cahier-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.cahier-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  background: var(--app-surface);
+  border-radius: 18px;
+  border: 1px solid var(--app-border-strong);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.cahier-header h2 {
+  margin: 0;
+  color: var(--app-primary);
+  flex: 1;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+}
+
+.patient-ref {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 13px;
+  background: var(--app-frost);
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+:host ::ng-deep .cahier-stepper {
+  background: transparent;
+}
+
+:host ::ng-deep .cahier-theme .mat-step-header {
+  border-radius: 14px;
+  margin: 4px;
+  border: 1px solid transparent;
+  transition: border-color 0.18s ease,
+  background-color 0.18s ease;
+}
+
+:host ::ng-deep .cahier-theme .mat-step-header:hover {
+  background: var(--app-hover-surface);
+  border-color: var(--app-border);
+}
+
+:host ::ng-deep .cahier-theme .mat-step-header .mat-step-icon-selected {
+  background: var(--app-primary);
+  color: #041219;
+}
+
+:host ::ng-deep .cahier-theme .mat-stepper-horizontal-line {
+  border-top-color: var(--app-border-strong);
+}
+
+:host ::ng-deep .cahier-theme .mat-step-content {
+  padding-top: 12px;
+}
+
+.step-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.step-badge {
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .cahier-header {
+    flex-wrap: wrap;
+  }
+
+  .cahier-header h2 {
+    width: 100%;
+  }
+}
+

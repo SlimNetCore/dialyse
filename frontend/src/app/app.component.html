@@ -1,0 +1,8 @@
+@if (showAuthLoader()) {
+  <div class="auth-loader-backdrop">
+    <div aria-label="Authentification en cours" class="auth-loader-spinner"></div>
+  </div>
+} @else {
+  <router-outlet/>
+}
+

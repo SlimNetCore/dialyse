@@ -17,68 +17,9 @@ import {TranslateModule} from '@ngx-translate/core';
     MatButtonModule,
     TranslateModule,
   ],
-  template: `
-    <mat-form-field class="select-filter-input" appearance="outline">
-      <mat-icon matPrefix>search</mat-icon>
-      <input
-        #searchInput
-        matInput
-        [placeholder]="placeholder | translate"
-        autocomplete="off"
-        (input)="valueChange.emit(searchInput.value)"
-      />
-      @if (searchInput.value) {
-        <button
-          mat-icon-button
-          matSuffix
-          type="button"
-          [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate"
-          (click)="onClear(searchInput)"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </mat-form-field>
-  `,
+  templateUrl: './select-filter.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [
-    `
-      :host {
-        display: block;
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: var(--app-surface-solid);
-        padding: 8px 8px 4px;
-      }
-
-      .select-filter-input {
-        width: 100%;
-        --mat-form-field-container-height: 40px;
-        --mat-form-field-container-vertical-padding: 8px;
-        --mat-form-field-container-text-font: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-        --mat-form-field-container-text-size: 12px;
-      }
-
-      :host ::ng-deep .select-filter-input .mat-mdc-input-element,
-      :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
-        font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
-        font-size: 12px;
-        font-weight: 600;
-      }
-
-      :host ::ng-deep .select-filter-input .mat-icon {
-        font-family: 'Material Icons', sans-serif;
-        font-size: 18px;
-        line-height: 1;
-      }
-
-      :host ::ng-deep .select-filter-input .mat-mdc-input-element::placeholder {
-        color: var(--app-muted);
-        text-transform: none;
-      }
-    `,
-  ],
+  styleUrl: './select-filter.component.css',
 })
 export class SelectFilterComponent {
   @Input() placeholder = 'COMMON.SEARCH';

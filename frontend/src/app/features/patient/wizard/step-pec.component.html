@@ -1,0 +1,248 @@
+<div class="step-content">
+  <div class="pec-grid">
+    <div class="history-pane">
+      <div class="history-head">
+        <h3 class="section-title">{{ 'WIZARD.PEC_HISTORY' | translate }}</h3>
+        <button
+          (click)="prepareNew()"
+          [disabled]="readonly"
+          class="add-btn"
+          mat-flat-button
+          type="button"
+        >
+          <mat-icon>add</mat-icon>
+          {{ 'WIZARD.ENRICH_PEC' | translate }}
+        </button>
+      </div>
+
+      @if (history().length === 0) {
+        <p class="empty">{{ 'WIZARD.PEC_HISTORY_EMPTY' | translate }}</p>
+      } @else {
+        <div class="history-list">
+          @for (h of history(); track $index) {
+            <button
+              (click)="select(h)"
+              [class.active]="isSelected(h)"
+              class="history-item"
+              type="button"
+            >
+              <div>
+                <strong>{{ h.dateDebutDemande || h.DATE_DEBUT_DEMANDE }}</strong>
+                <span> → {{ h.dateFinDemande || h.DATE_FIN_DEMANDE }}</span>
+              </div>
+              <small>{{ h.status || h.STATUT || 'CREE' }}</small>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div>
+      @if (selectedPec()) {
+        <div class="detail-card">
+          <div class="detail-head">
+            <strong>{{ 'WIZARD.PEC_SELECTED' | translate }}</strong>
+            <div class="detail-actions">
+              <button
+                (click)="deleteSelected()"
+                [disabled]="readonly || !selectedPecId()"
+                color="warn"
+                mat-stroked-button
+                type="button"
+              >
+                <mat-icon>delete</mat-icon>
+                {{ 'COMMON.DELETE' | translate }}
+              </button>
+              <button
+                (click)="printSelected()"
+                [disabled]="!patientId"
+                mat-stroked-button
+                type="button"
+              >
+                <mat-icon>print</mat-icon>
+                {{ 'COMMON.PRINT' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h5 class="detail-subtitle">
+              <mat-icon class="detail-subtitle-icon">description</mat-icon>
+              {{ 'WIZARD.PEC_REQUEST_BLOCK' | translate }}
+            </h5>
+            <div class="detail-grid">
+                  <span>{{ 'WIZARD.FIELD_PERIOD' | translate }}</span
+                  ><strong
+            >{{ selectedPec()?.dateDebutDemande || selectedPec()?.DATE_DEBUT_DEMANDE }} →
+              {{ selectedPec()?.dateFinDemande || selectedPec()?.DATE_FIN_DEMANDE }}</strong
+            >
+              <span>{{ 'WIZARD.FIELD_STATUS' | translate }}</span>
+              <mat-chip-set class="status-chip-set">
+                <mat-chip
+                  [class]="
+                        'status-chip status-' +
+                        (selectedPec()?.status || selectedPec()?.STATUT || 'CREE')
+                      "
+                  [disableRipple]="true"
+                >
+                  <mat-icon matChipAvatar>{{
+                      getStatusIcon(selectedPec()?.status || selectedPec()?.STATUT)
+                    }}
+                  </mat-icon>
+                  {{ getStatusLabel(selectedPec()?.status || selectedPec()?.STATUT) }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+
+          @if ((selectedPec()?.status || selectedPec()?.STATUT) === 'VALIDEE' ||
+          (selectedPec()?.status || selectedPec()?.STATUT) === 'CLOTUREE') {
+            <div class="detail-section accord-section">
+              <h5 class="detail-subtitle">
+                <mat-icon class="detail-subtitle-icon">verified</mat-icon>
+                {{ 'WIZARD.PEC_APPROVAL_BLOCK' | translate }}
+              </h5>
+              <div class="detail-grid">
+                    <span>{{ 'WIZARD.FIELD_EFFECTIVE_PERIOD' | translate }}</span
+                    ><strong
+              >{{
+                  selectedPec()?.dateDebutEffectif ||
+                  selectedPec()?.DATE_DEBUT_EFFECTIF ||
+                  '—'
+                }}
+                →
+                {{
+                  selectedPec()?.dateFinEffectif || selectedPec()?.DATE_FIN_EFFECTIF || '—'
+                }}</strong
+              >
+                @if (selectedPec()?.forfaitEffectifId || selectedPec()?.FORFAIT_EFFECTIF_ID) {
+                  <span>{{ 'WIZARD.FIELD_EFFECTIVE_FORFAIT' | translate }}</span
+                  ><strong>{{
+                      getForfaitLabel(
+                        selectedPec()?.forfaitEffectifId || selectedPec()?.FORFAIT_EFFECTIF_ID
+                      )
+                    }}</strong>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <h3 class="section-title">{{ 'WIZARD.PEC_DEMANDE' | translate }}</h3>
+      <form [formGroup]="form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }} *</mat-label>
+            <mat-icon matPrefix>event</mat-icon>
+            <input
+              [matDatepicker]="dpDeb"
+              data-autofocus-first
+              formControlName="pecDateDebutDemande"
+              matInput
+            />
+            <mat-datepicker-toggle [for]="dpDeb" matSuffix/>
+            <mat-datepicker #dpDeb/>
+            @if (form.get('pecDateDebutDemande')?.hasError('required') &&
+            form.get('pecDateDebutDemande')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ 'WIZARD.PEC_DATE_FIN' | translate }} *</mat-label>
+            <mat-icon matPrefix>event_busy</mat-icon>
+            <input [matDatepicker]="dpFin" formControlName="pecDateFinDemande" matInput/>
+            <mat-datepicker-toggle [for]="dpFin" matSuffix/>
+            <mat-datepicker #dpFin/>
+            @if (form.get('pecDateFinDemande')?.hasError('required') &&
+            form.get('pecDateFinDemande')?.touched) {
+              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <h4 class="forfait-title">{{ 'WIZARD.PEC_FORFAIT_DEMANDE' | translate }}</h4>
+        <div class="forfait-grid">
+          @for (f of forfaits(); track f.id) {
+            <button
+              (click)="selectForfait(f.id)"
+              [class.selected]="form.get('pecForfaitDemandeId')?.value === f.id"
+              [disabled]="readonly"
+              class="forfait-chip"
+              type="button"
+            >
+              <mat-icon class="forfait-icon">local_hospital</mat-icon>
+              <span class="forfait-label">{{
+                  f.label || f['nom'] || f['code'] || 'Forfait'
+                }}</span>
+              @if (formatPrix(f)) {
+                <span class="forfait-sep">•</span>
+                <span class="forfait-prix">{{ formatPrix(f) }}</span>
+              }
+            </button>
+          }
+        </div>
+      </form>
+
+      <mat-divider style="margin: 20px 0;"/>
+      <h3 class="section-title">{{ 'WIZARD.PEC_ACCORD' | translate }}</h3>
+      @if ((selectedPec()?.status || selectedPec()?.STATUT) === 'VALIDEE' ||
+      (selectedPec()?.status || selectedPec()?.STATUT) === 'CLOTUREE') {
+        <p class="empty">{{ 'WIZARD.PEC_ACCORD_DESC' | translate }}</p>
+        <div class="accord-readonly-card">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'WIZARD.PEC_EFFECTIVE_START' | translate }}</mat-label>
+              <mat-icon matPrefix>event_available</mat-icon>
+              <input
+                [value]="
+                      selectedPec()?.dateDebutEffectif || selectedPec()?.DATE_DEBUT_EFFECTIF || '—'
+                    "
+                disabled
+                matInput
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'WIZARD.PEC_EFFECTIVE_END' | translate }}</mat-label>
+              <mat-icon matPrefix>event_busy</mat-icon>
+              <input
+                [value]="
+                      selectedPec()?.dateFinEffectif || selectedPec()?.DATE_FIN_EFFECTIF || '—'
+                    "
+                disabled
+                matInput
+              />
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'WIZARD.FIELD_EFFECTIVE_FORFAIT' | translate }}</mat-label>
+              <mat-icon matPrefix>local_hospital</mat-icon>
+              <input
+                [value]="
+                      getForfaitLabel(
+                        selectedPec()?.forfaitEffectifId || selectedPec()?.FORFAIT_EFFECTIF_ID
+                      )
+                    "
+                disabled
+                matInput
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'WIZARD.FIELD_STATUS' | translate }}</mat-label>
+              <mat-icon matPrefix>verified</mat-icon>
+              <input
+                [value]="getStatusLabel(selectedPec()?.status || selectedPec()?.STATUT)"
+                disabled
+                matInput
+              />
+            </mat-form-field>
+          </div>
+        </div>
+      } @else {
+        <p class="empty">{{ 'WIZARD.PEC_ACCORD_DESC' | translate }}</p>
+      }
+    </div>
+  </div>
+</div>
+

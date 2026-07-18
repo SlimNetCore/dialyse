@@ -1,0 +1,136 @@
+<div class="pec-admin">
+  <!-- Header with center info -->
+  <div class="page-header">
+    <div class="header-left">
+      <mat-icon class="header-icon">verified</mat-icon>
+      <div>
+        <h2>{{ 'PEC_ADMIN.TITLE' | translate }}</h2>
+        <p class="desc">{{ 'PEC_ADMIN.DESC' | translate }}</p>
+      </div>
+    </div>
+    <mat-card class="center-card">
+      <div class="center-info">
+        <mat-icon>business</mat-icon>
+        <div>
+          <span class="center-label">{{ 'PEC_ADMIN.CENTER' | translate }}</span>
+          <span class="center-name">{{ auth.centerName() || '—' }}</span>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  @if (loading()) {
+    <p style="color:#888; text-align: center; padding: 32px;">
+      {{ 'PEC_ADMIN.LOADING' | translate }}
+    </p>
+  }
+
+  @if (!loading() && pecs().length === 0) {
+    <div class="empty-state">
+      <mat-icon>assignment_turned_in</mat-icon>
+      <p>{{ 'PEC_ADMIN.EMPTY' | translate }}</p>
+    </div>
+  }
+
+  @if (pecs().length > 0) {
+    <div class="table-wrap">
+      <table [dataSource]="pecs()" class="pec-table" mat-table>
+        <ng-container matColumnDef="patientId">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PEC_ADMIN.COL_PATIENT' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>{{ r.patientId | slice: 0 : 8 }}…</td>
+        </ng-container>
+        <ng-container matColumnDef="dateDebutDemande">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PEC_ADMIN.COL_DEBUT' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>{{ r.dateDebutDemande }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateFinDemande">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PEC_ADMIN.COL_FIN' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>{{ r.dateFinDemande }}</td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PEC_ADMIN.COL_STATUS' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>
+                <span [class]="'badge-' + r.status?.toLowerCase()" class="status-badge">{{
+                    r.status
+                  }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PEC_ADMIN.COL_ACTIONS' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>
+            @if (r.status === 'CREE') {
+              <button (click)="openValidate(r)" class="validate-btn" mat-flat-button>
+                <mat-icon>check_circle</mat-icon>
+                {{ 'PEC_ADMIN.VALIDATE' | translate }}
+              </button>
+            }
+            @if (r.status === 'VALIDEE') {
+              <button (click)="closePec(r)" color="warn" mat-stroked-button>
+                <mat-icon>cancel</mat-icon>
+                {{ 'PEC_ADMIN.CLOSE' | translate }}
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="columns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: columns" [attr.data-row-id]="row?.id" mat-row></tr>
+      </table>
+    </div>
+  }
+
+  <!-- Inline validation form -->
+  @if (validatingPec()) {
+    <mat-card class="validate-card">
+      <mat-card-header
+      >
+        <mat-card-title>{{
+            'PEC_ADMIN.VALIDATE_TITLE' | translate
+          }}
+        </mat-card-title>
+      </mat-card-header
+      >
+      <mat-card-content>
+        <form [formRoot]="validateForm">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'PEC_ADMIN.DATE_DEBUT_EFFECTIF' | translate }}</mat-label>
+              <input [formField]="validateForm.dateDebutEffectif" [matDatepicker]="dpDeb" matInput/>
+              <mat-datepicker-toggle [for]="dpDeb" matSuffix/>
+              <mat-datepicker #dpDeb/>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="flex1">
+              <mat-label>{{ 'PEC_ADMIN.DATE_FIN_EFFECTIF' | translate }}</mat-label>
+              <input [formField]="validateForm.dateFinEffectif" [matDatepicker]="dpFin" matInput/>
+              <mat-datepicker-toggle [for]="dpFin" matSuffix/>
+              <mat-datepicker #dpFin/>
+            </mat-form-field>
+            <app-searchable-select
+              (selectionChanged)="setForfait($event?.id ?? null)"
+              [items]="forfaits()"
+              [label]="'PEC_ADMIN.FORFAIT_EFFECTIF' | translate"
+              [selectedId]="validateModel().forfaitEffectifId"
+              cssClass="flex1"
+            />
+          </div>
+          <div class="form-row" style="justify-content: flex-end; gap: 8px;">
+            <button (click)="cancelValidate()" mat-stroked-button>
+              {{ 'PEC_ADMIN.CANCEL' | translate }}
+            </button>
+            <button
+              (click)="confirmValidate()"
+              [disabled]="validateDisabled()"
+              class="validate-btn"
+              mat-flat-button
+              type="button"
+            >
+              <mat-icon>check</mat-icon>
+              {{ 'PEC_ADMIN.CONFIRM' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+

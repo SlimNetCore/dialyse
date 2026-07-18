@@ -1,0 +1,105 @@
+<section class="summary-grid">
+  <mat-card class="summary-card summary-head-card">
+    <div>
+      <p class="summary-eyebrow">{{ 'PATIENT_LIST.SUMMARY_EYEBROW' | translate }}</p>
+      <h3>{{ 'PATIENT_LIST.SUMMARY_TITLE' | translate }}</h3>
+      @if (summary() && summary()!.totalPatients > 0) {
+        <p class="summary-total">{{ 'PATIENT_LIST.SUMMARY_TOTAL' | translate: {count: summary()!.totalPatients} }}</p>
+      } @else {
+        <p class="summary-total">{{ 'PATIENT_LIST.SUMMARY_EMPTY' | translate }}</p>
+      }
+    </div>
+
+    <div class="summary-head-actions">
+      <mat-form-field appearance="outline" class="month-field">
+        <mat-label>{{ 'PATIENT_LIST.SUMMARY_MONTH' | translate }}</mat-label>
+        <mat-icon matPrefix>calendar_month</mat-icon>
+        <input
+          (change)="onSelectedMonthChange($event)"
+          [value]="selectedMonth()"
+          data-testid="patient-summary-month"
+          matInput
+          type="month"
+        />
+      </mat-form-field>
+
+      <button (click)="printReport.emit(selectedMonth())" [disabled]="printing()" color="primary" data-testid="print-patient-report" mat-flat-button
+              type="button">
+        @if (printing()) {
+          <mat-icon>hourglass_top</mat-icon>
+        } @else {
+          <mat-icon>print</mat-icon>
+        }
+        {{ 'PATIENT_LIST.BTN_PRINT_REPORT' | translate }}
+      </button>
+    </div>
+  </mat-card>
+
+  @if (loading()) {
+    <mat-card class="summary-card loading-card summary-grid-wide">
+      <mat-progress-bar mode="indeterminate"/>
+    </mat-card>
+  } @else if (summary() && summary()!.totalPatients > 0) {
+    <mat-card class="summary-card">
+      <h4>{{ 'PATIENT_LIST.SUMMARY_SEX_TITLE' | translate }}</h4>
+      <div class="summary-rows">
+        @for (bucket of summary()!.sexDistribution; track bucket.code) {
+          <div class="summary-row">
+            <div class="summary-row-head">
+              <span>{{ bucket.label }}</span>
+              <strong>{{ bucket.count }}</strong>
+            </div>
+            <div class="summary-track">
+              <div [style.width.%]="bucketWidth(bucket, summary()!.sexDistribution)"
+                   class="summary-fill summary-fill-sex"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card">
+      <h4>{{ 'PATIENT_LIST.SUMMARY_AGE_TITLE' | translate }}</h4>
+      <div class="summary-rows">
+        @for (bucket of summary()!.ageDistribution; track bucket.code) {
+          <div class="summary-row">
+            <div class="summary-row-head">
+              <span>{{ bucket.label }}</span>
+              <strong>{{ bucket.count }}</strong>
+            </div>
+            <div class="summary-track">
+              <div [style.width.%]="bucketWidth(bucket, summary()!.ageDistribution)"
+                   class="summary-fill summary-fill-age"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card">
+      <h4>{{ 'PATIENT_LIST.SUMMARY_KT_TITLE' | translate }}</h4>
+      <div class="summary-rows summary-rows-compact">
+        @for (bucket of summary()!.ktDistribution; track bucket.code) {
+          <div class="summary-row">
+            <div class="summary-row-head">
+              <span>{{ bucket.label }}</span>
+              <strong>{{ bucket.count }}</strong>
+            </div>
+            <div class="summary-track">
+              <div [style.width.%]="bucketWidth(bucket, summary()!.ktDistribution)"
+                   class="summary-fill summary-fill-kt"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </mat-card>
+  } @else {
+    <mat-card class="summary-card empty-card summary-grid-wide">
+      <div>
+        <p class="summary-eyebrow">{{ 'PATIENT_LIST.SUMMARY_EYEBROW' | translate }}</p>
+        <h3>{{ 'PATIENT_LIST.SUMMARY_EMPTY' | translate }}</h3>
+      </div>
+    </mat-card>
+  }
+</section>
+

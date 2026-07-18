@@ -1,0 +1,31 @@
+
+.assure-edit-dialog-content {
+  width: min(86vw, 520px);
+  max-width: 100%;
+  padding-top: 8px;
+}
+
+.assure-edit-dialog-content app-searchable-select {
+  flex: 1;
+  min-width: 0;
+}
+
+:host ::ng-deep .assure-edit-dialog-content .dialog-flex {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .assure-edit-dialog-content {
+    width: min(92vw, 520px);
+  }
+
+  .assure-edit-dialog-content form > div[style*='display:flex'] {
+    flex-wrap: wrap;
+  }
+
+  .assure-edit-dialog-content form > div[style*='display:flex'] > mat-form-field,
+  .assure-edit-dialog-content form > div[style*='display:flex'] > app-searchable-select {
+    flex: 1 1 100% !important;
+  }
+}
+

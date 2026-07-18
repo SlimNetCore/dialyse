@@ -1,0 +1,26 @@
+<div class="dashboard-actions">
+  <button
+    (click)="router.navigate(['/patients/pec-list'])"
+    class="action-btn"
+    color="primary"
+    mat-stroked-button
+  >
+    <mat-icon>list_alt</mat-icon>
+    {{ 'PEC_LIST.TITLE' | translate }}
+  </button>
+  <button
+    (click)="router.navigate(['/patients/attestations-list'])"
+    class="action-btn"
+    color="primary"
+    mat-stroked-button
+  >
+    <mat-icon>fact_check</mat-icon>
+    {{ 'ATTEST_LIST.TITLE' | translate }}
+  </button>
+</div>
+<app-patient-list
+  (newPatient)="router.navigate(['/patients/new'])"
+  (selectPatient)="onSelect($event)"
+  (viewStats)="onStats($event)"
+/>
+

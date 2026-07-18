@@ -21,84 +21,8 @@ import {Fournisseur, StockApiService} from '../../core/api/stock-api.service';
     FormRoot, FormField,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
-  template: `
-    <section class="app-page">
-      <div class="app-hero-card">
-        <span class="app-eyebrow">Stock · Référentiel</span>
-        <h1 class="app-section-title">Fournisseurs</h1>
-      </div>
-
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Nouveau fournisseur</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formRoot]="supplierForm" class="form-grid" (submit)="save(); $event.preventDefault()">
-            <mat-form-field appearance="outline">
-              <mat-label>Code</mat-label>
-              <input matInput [formField]="supplierForm.code"/>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Raison sociale</mat-label>
-              <input matInput [formField]="supplierForm.raisonSociale"/>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Contact</mat-label>
-              <input matInput [formField]="supplierForm.contact"/>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Téléphone</mat-label>
-              <input matInput [formField]="supplierForm.telephone"/>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Email</mat-label>
-              <input matInput [formField]="supplierForm.email" type="email"/>
-            </mat-form-field>
-            <div class="form-actions">
-              <button mat-flat-button color="primary" type="submit" [disabled]="!canSave()">
-                <mat-icon>save</mat-icon>
-                Enregistrer
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Liste</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <table mat-table [dataSource]="items()" class="full-width">
-            <ng-container matColumnDef="code">
-              <th mat-header-cell *matHeaderCellDef>Code</th>
-              <td mat-cell *matCellDef="let f">{{ f.code }}</td>
-            </ng-container>
-            <ng-container matColumnDef="raisonSociale">
-              <th mat-header-cell *matHeaderCellDef>Raison sociale</th>
-              <td mat-cell *matCellDef="let f">{{ f.raisonSociale }}</td>
-            </ng-container>
-            <ng-container matColumnDef="contact">
-              <th mat-header-cell *matHeaderCellDef>Contact</th>
-              <td mat-cell *matCellDef="let f">{{ f.contact }}</td>
-            </ng-container>
-            <ng-container matColumnDef="telephone">
-              <th mat-header-cell *matHeaderCellDef>Téléphone</th>
-              <td mat-cell *matCellDef="let f">{{ f.telephone }}</td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="cols"></tr>
-            <tr mat-row *matRowDef="let row; columns: cols" [attr.data-row-id]="row.code || ''"></tr>
-          </table>
-        </mat-card-content>
-      </mat-card>
-    </section>
-  `,
-  styles: [`
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .form-actions { display: flex; align-items: center; }
-    .full-width { width: 100%; }
-    mat-card { margin-top: 16px; }
-  `],
+  templateUrl: './fournisseurs.component.html',
+  styleUrl: './fournisseurs.component.css',
 })
 export class FournisseursComponent {
   protected readonly cols = ['code', 'raisonSociale', 'contact', 'telephone'];

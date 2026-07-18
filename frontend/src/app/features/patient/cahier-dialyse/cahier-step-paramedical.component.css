@@ -1,0 +1,110 @@
+
+.step-content {
+  padding: 12px 0;
+}
+
+.paramedical-card {
+  margin: 0;
+}
+
+.form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.section-block {
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface-soft);
+  padding: 14px;
+}
+
+.section-wide {
+  grid-column: 1 / -1;
+}
+
+.section-block h4 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--app-primary);
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.articles-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.article-row {
+  display: grid;
+  grid-template-columns: 1.7fr 0.8fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.article-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.articles-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+.articles-error {
+  color: #b91c1c;
+}
+
+.helper-line {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+.helper-line mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+@media (max-width: 960px) {
+  .form-grid,
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-row {
+    grid-template-columns: 1fr;
+  }
+
+  .section-wide,
+  .full-width {
+    grid-column: auto;
+  }
+}
+

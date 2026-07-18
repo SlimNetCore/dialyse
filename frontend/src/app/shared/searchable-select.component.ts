@@ -23,33 +23,9 @@ export interface DropdownItem {
   selector: 'app-searchable-select',
   standalone: true,
   imports: [MatFormFieldModule, MatSelectModule, MatIconModule],
-  template: `
-    <mat-form-field [appearance]="appearance" [class]="cssClass" [style.width]="width">
-      <mat-label>{{ label }}</mat-label>
-      @if (prefixIcon) {
-        <mat-icon matPrefix class="prefix-icon">{{ prefixIcon }}</mat-icon>
-      }
-      <mat-select
-        [value]="selectedIdSignal()"
-        [disabled]="disabled"
-        [attr.data-autofocus-first]="autofocusFirst ? '' : null"
-        (selectionChange)="onSelectById($event.value)"
-      >
-        @for (item of allItems(); track item.id) {
-          <mat-option [value]="item.id">{{ itemLabel(item) }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  `,
+  templateUrl: './searchable-select.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [
-    `
-      .prefix-icon {
-        margin-right: 6px;
-        color: #607d8b;
-      }
-    `,
-  ],
+  styleUrl: './searchable-select.component.css',
 })
 export class SearchableSelectComponent implements OnChanges {
   @Input() items: DropdownItem[] = [];

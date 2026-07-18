@@ -1,0 +1,347 @@
+<div class="step-content">
+  <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_INSURANCE' | translate }}</h3>
+  <form [formGroup]="form">
+    <!-- N° assurance patient -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }} *</mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input data-autofocus-first formControlName="numeroAssurance" matInput/>
+        @if (form.get('numeroAssurance')?.hasError('required') &&
+        form.get('numeroAssurance')?.touched) {
+          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <!-- Centre payeur -->
+    <div class="form-row">
+      <app-searchable-select
+        (selectionChanged)="onCentrePayeur($event)"
+        [disabled]="readonly"
+        [items]="centresPayeurs()"
+        [label]="'PATIENT_FORM.CENTRE_PAYEUR' | translate"
+        [prefixIcon]="'account_balance'"
+        [selectedId]="selectedCentrePayeurId()"
+        cssClass="flex1"
+      />
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.CODE_CENTRE_PAYEUR' | translate }}</mat-label>
+        <mat-icon matPrefix>pin</mat-icon>
+        <input [value]="codeCentrePayeur()" disabled matInput/>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.CODE_AGENCE' | translate }}</mat-label>
+        <mat-icon matPrefix>domain</mat-icon>
+        <input [value]="codeAgence()" disabled matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.AGENCE' | translate }}</mat-label>
+        <mat-icon matPrefix>business</mat-icon>
+        <input [value]="libelleAgence()" disabled matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.CAISSE' | translate }}</mat-label>
+        <mat-icon matPrefix>account_balance_wallet</mat-icon>
+        <input [value]="libelleCaisse()" disabled matInput/>
+      </mat-form-field>
+    </div>
+
+    <mat-divider style="margin: 16px 0;"/>
+
+    <!-- Section assuré principal actif -->
+    <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}</h3>
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label
+        >N° Assurance assuré
+          @if (requiresAssureNumero()) {
+            *
+          }
+        </mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input formControlName="assureNumeroAssurance" matInput/>
+        @if (form.get('assureNumeroAssurance')?.hasError('required') &&
+        form.get('assureNumeroAssurance')?.touched) {
+          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.ASSURE_NOM' | translate }} *</mat-label>
+        <mat-icon matPrefix>person</mat-icon>
+        <input formControlName="assureNom" matInput/>
+        @if (form.get('assureNom')?.hasError('required') && form.get('assureNom')?.touched) {
+          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.ASSURE_PRENOM' | translate }} *</mat-label>
+        <mat-icon matPrefix>person_outline</mat-icon>
+        <input formControlName="assurePrenom" matInput/>
+        @if (form.get('assurePrenom')?.hasError('required') && form.get('assurePrenom')?.touched) {
+          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      <app-searchable-select
+        (selectionChanged)="form.patchValue({ assureSexe: $event?.id ?? '' })"
+        [items]="assureSexeOptions"
+        [label]="'PATIENT_FORM.ASSURE_SEXE' | translate"
+        [prefixIcon]="'wc'"
+        [selectedId]="assureSexeSignal()"
+        [translateLabels]="true"
+        cssClass="flex1 assurance-select"
+      />
+    </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.ASSURE_DATE_NAISSANCE' | translate }}</mat-label>
+        <mat-icon matPrefix>cake</mat-icon>
+        <input [matDatepicker]="dpAssure" formControlName="assureDateNaissance" matInput/>
+        <mat-datepicker-toggle [for]="dpAssure" matSuffix/>
+        <mat-datepicker #dpAssure/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_PERSONNEL' | translate }}</mat-label>
+        <mat-icon matPrefix>phone</mat-icon>
+        <input formControlName="assureTelPersonnel" matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_MOBILE' | translate }}</mat-label>
+        <mat-icon matPrefix>phone_iphone</mat-icon>
+        <input formControlName="assureTelMobile" matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_BUREAU' | translate }}</mat-label>
+        <mat-icon matPrefix>phone_in_talk</mat-icon>
+        <input formControlName="assureTelBureau" matInput/>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <app-searchable-select
+        (selectionChanged)="form.patchValue({ assureGroupeSanguin: $event?.id ?? '' })"
+        [items]="assureGroupeSanguinOptions"
+        [label]="'PATIENT_FORM.ASSURE_GROUPE_SANGUIN' | translate"
+        [prefixIcon]="'bloodtype'"
+        [selectedId]="assureGroupeSanguinSignal()"
+        cssClass="flex1 assurance-select"
+      />
+    </div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'PATIENT_FORM.ASSURE_ADRESSE' | translate }}</mat-label>
+      <mat-icon matPrefix>home</mat-icon>
+      <input formControlName="assureAdresse" matInput/>
+    </mat-form-field>
+
+    <!-- Boutons d'action -->
+    <div class="form-row assure-toolbar">
+      <button
+        (click)="toggleAssureCatalog()"
+        [disabled]="readonly || !canAssignAssure()"
+        mat-stroked-button
+        type="button"
+      >
+        <mat-icon>manage_search</mat-icon>
+        Consulter les assurés
+      </button>
+      <button
+        (click)="toggleAssureHistory()"
+        [disabled]="!patientId"
+        mat-stroked-button
+        type="button"
+      >
+        <mat-icon>history</mat-icon>
+        Historique des affectations
+      </button>
+      <button
+        (click)="prepareNewAssure()"
+        [disabled]="readonly"
+        mat-stroked-button
+        type="button"
+      >
+        <mat-icon>person_add</mat-icon>
+        {{ 'WIZARD.ADD_NEW_INSURED' | translate }}
+      </button>
+    </div>
+
+    <!-- ── Catalogue des assurés ── -->
+    @if (showCatalog()) {
+      <div class="history-box panel-spacing">
+        <div class="history-title">Catalogue des assurés</div>
+        <div class="form-row catalog-search-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Rechercher (N° assurance / nom / prénom)</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              (input)="assureSearch.set($any($event.target).value)"
+              (keyup.enter)="searchAssures()"
+              [value]="assureSearch()"
+              matInput
+            />
+          </mat-form-field>
+          <button
+            (click)="searchAssures()"
+            [disabled]="loadingAssures()"
+            mat-flat-button
+            type="button"
+          >
+            <mat-icon>search</mat-icon>
+            Rechercher
+          </button>
+        </div>
+
+        @for (a of assureCatalog(); track a.numeroAssurance) {
+          <div [class.assure-row-primary]="a.isPrimary" class="assure-row">
+            <!-- Informations assuré -->
+            <div class="assure-info">
+              <div class="assure-name">
+                {{ a.nom }} {{ a.prenom }}
+                @if (a.isPrimary) {
+                  <span class="primary-chip"
+                  ><mat-icon style="font-size:12px;height:12px;width:12px;margin-right:2px"
+                  >star</mat-icon
+                  >Primaire</span
+                  >
+                }
+              </div>
+              <div class="muted">{{ a.numeroAssurance }} • {{ a.sexe || '—' }}</div>
+            </div>
+            <!-- Actions -->
+            <div class="assure-actions">
+              <button
+                (click)="openEditAssureDialog(a)"
+                mat-stroked-button
+                title="Modifier les informations de l'assuré"
+                type="button"
+              >
+                <mat-icon>edit</mat-icon>
+                Modifier
+              </button>
+              <button
+                (click)="affectAssure(a)"
+                [disabled]="readonly || !canAssignAssure() || a.isPrimary"
+                color="primary"
+                mat-flat-button
+                type="button"
+              >
+                <mat-icon>person_add_alt_1</mat-icon>
+                {{ a.isPrimary ? 'Déjà primaire' : 'Affecter' }}
+              </button>
+            </div>
+          </div>
+        }
+        @if (assureCatalog().length === 0 && !loadingAssures()) {
+          <div style="text-align:center;color:#9ca3af;padding:16px;font-size:13px;">
+            Aucun assuré trouvé. Lancez une recherche.
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Historique des affectations ── -->
+    @if (showHistory()) {
+      <div class="history-box panel-spacing">
+        <div class="history-title">Historique des affectations</div>
+        <table class="history-table">
+          <thead>
+          <tr>
+            <th>Assuré</th>
+            <th>N° Assurance</th>
+            <th>Date début</th>
+            <th>Date fin</th>
+            <th>Statut</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (h of assureAssignments(); track h.id) {
+              <tr [class.row-active]="h.actif">
+                <td>
+                  <strong>{{ h.nom || '—' }} {{ h.prenom || '' }}</strong>
+                </td>
+                <td>{{ h.numeroAssurance }}</td>
+                <td>{{ h.dateDebutAffectation || '—' }}</td>
+                <td>{{ h.dateFinAffectation || '—' }}</td>
+                <td>
+                  @if (h.actif) {
+                    <span class="badge-actif">Actif</span>
+                  } @else {
+                    <span class="badge-inactif">Inactif</span>
+                  }
+                </td>
+                <td style="text-align:right">
+                  <button
+                    (click)="openEditAssignment(h)"
+                    [disabled]="readonly"
+                    mat-icon-button
+                    title="Modifier les dates"
+                    type="button"
+                  >
+                    <mat-icon>edit_calendar</mat-icon>
+                  </button>
+                </td>
+              </tr>
+              @if (editingAssignment()?.id === h.id) {
+                <tr class="edit-row">
+                  <td colspan="6">
+                    <div class="edit-inline">
+                      <mat-form-field appearance="outline" class="edit-field">
+                        <mat-label>Date début</mat-label>
+                        <mat-icon matPrefix>event</mat-icon>
+                        <input
+                          (dateChange)="setEditDateDebut($event.value)"
+                          [matDatepicker]="dpEditDebut"
+                          [value]="editingAssignment()!.dateDebutAffectation"
+                          matInput
+                        />
+                        <mat-datepicker-toggle [for]="dpEditDebut" matSuffix/>
+                        <mat-datepicker #dpEditDebut/>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="edit-field">
+                        <mat-label>Date fin</mat-label>
+                        <mat-icon matPrefix>event_busy</mat-icon>
+                        <input
+                          (dateChange)="setEditDateFin($event.value)"
+                          [matDatepicker]="dpEditFin"
+                          [value]="editingAssignment()!.dateFinAffectation"
+                          matInput
+                        />
+                        <mat-datepicker-toggle [for]="dpEditFin" matSuffix/>
+                        <mat-datepicker #dpEditFin/>
+                      </mat-form-field>
+                      <button
+                        (click)="saveEditAssignment()"
+                        [disabled]="savingEdit()"
+                        color="primary"
+                        mat-flat-button
+                        type="button"
+                      >
+                        <mat-icon>check</mat-icon>
+                        Valider
+                      </button>
+                      <button (click)="cancelEdit()" mat-stroked-button type="button">
+                        <mat-icon>close</mat-icon>
+                        Annuler
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+            @if (assureAssignments().length === 0) {
+              <tr>
+                <td colspan="6" style="text-align:center;color:#9ca3af;padding:12px;">
+                  Aucun historique
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </form>
+</div>
+

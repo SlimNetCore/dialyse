@@ -8,47 +8,9 @@ import {filter, Subscription} from 'rxjs';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  template: `
-    @if (showAuthLoader()) {
-      <div class="auth-loader-backdrop">
-        <div class="auth-loader-spinner" aria-label="Authentification en cours"></div>
-      </div>
-    } @else {
-      <router-outlet/>
-    }
-  `,
+  templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-
-      .auth-loader-backdrop {
-        position: fixed;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        background: var(--app-bg);
-        z-index: 2000;
-      }
-
-      .auth-loader-spinner {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        border: 4px solid color-mix(in srgb, var(--app-primary) 20%, transparent);
-        border-top-color: var(--app-primary);
-        animation: spin 0.8s linear infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    `,
-  ],
+  styleUrl: './app.component.css',
 })
 export class App implements OnDestroy {
   private readonly auth = inject(AuthStore);

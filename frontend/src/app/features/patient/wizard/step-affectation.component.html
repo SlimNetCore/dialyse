@@ -1,0 +1,111 @@
+<div class="step-content">
+  <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_AFFECTATION' | translate }}</h3>
+  <form [formGroup]="form">
+    <div class="form-row">
+      <app-searchable-select
+        (selectionChanged)="form.patchValue({ salleId: $event?.id ?? null })"
+        [autofocusFirst]="true"
+        [disabled]="readonly"
+        [items]="salles()"
+        [label]="'PATIENT_FORM.SALLE' | translate"
+        [prefixIcon]="'meeting_room'"
+        [selectedId]="salleIdSignal()"
+        cssClass="flex1"
+      />
+      <app-searchable-select
+        (selectionChanged)="
+              form.patchValue({ medecinTraitantId: $event?.id ?? null })
+            "
+        [disabled]="readonly"
+        [items]="medecins()"
+        [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate"
+        [prefixIcon]="'medical_services'"
+        [selectedId]="medecinTraitantIdSignal()"
+        cssClass="flex1"
+      />
+    </div>
+
+    <div class="form-row">
+      <app-searchable-select
+        (selectionChanged)="
+              form.patchValue({ positionId: $event?.id ?? null })
+            "
+        [disabled]="readonly"
+        [items]="positions()"
+        [label]="'PATIENT_FORM.POSITION' | translate"
+        [prefixIcon]="'schedule'"
+        [selectedId]="positionIdSignal()"
+        cssClass="flex1"
+      />
+    </div>
+
+    <div class="form-row">
+      <app-searchable-select
+        (selectionChanged)="
+              form.patchValue({ transporteurAllerId: $event?.id ?? null })
+            "
+        [disabled]="readonly"
+        [items]="transporteurs()"
+        [label]="'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate"
+        [prefixIcon]="'directions_car'"
+        [selectedId]="transporteurAllerIdSignal()"
+        cssClass="flex1"
+      />
+      <app-searchable-select
+        (selectionChanged)="
+              form.patchValue({ transporteurRetourId: $event?.id ?? null })
+            "
+        [disabled]="readonly"
+        [items]="transporteurs()"
+        [label]="'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate"
+        [prefixIcon]="'local_taxi'"
+        [selectedId]="transporteurRetourIdSignal()"
+        cssClass="flex1"
+      />
+      <app-searchable-select
+        (selectionChanged)="
+              form.patchValue({ categorieTransportId: $event?.id ?? null })
+            "
+        [disabled]="readonly"
+        [items]="categoriesTransport()"
+        [label]="'PATIENT_FORM.CATEGORIE_TRANSPORT' | translate"
+        [prefixIcon]="'commute'"
+        [selectedId]="categorieTransportIdSignal()"
+        cssClass="flex1"
+      />
+    </div>
+
+    <h4 class="dialyse-title">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }} *</h4>
+    <div class="jours-row">
+      <mat-checkbox [disabled]="readonly" formControlName="jourDimanche">{{
+          'PATIENT_FORM.DIMANCHE' | translate
+        }}
+      </mat-checkbox>
+      <mat-checkbox [disabled]="readonly" formControlName="jourLundi">{{
+          'PATIENT_FORM.LUNDI' | translate
+        }}
+      </mat-checkbox>
+      <mat-checkbox [disabled]="readonly" formControlName="jourMardi">{{
+          'PATIENT_FORM.MARDI' | translate
+        }}
+      </mat-checkbox>
+      <mat-checkbox [disabled]="readonly" formControlName="jourMercredi">{{
+          'PATIENT_FORM.MERCREDI' | translate
+        }}
+      </mat-checkbox>
+      <mat-checkbox [disabled]="readonly" formControlName="jourJeudi">{{
+          'PATIENT_FORM.JEUDI' | translate
+        }}
+      </mat-checkbox>
+      <mat-checkbox [disabled]="readonly" formControlName="jourVendredi">{{
+          'PATIENT_FORM.VENDREDI' | translate
+        }}
+      </mat-checkbox>
+      <mat-checkbox [disabled]="readonly" formControlName="jourSamedi">{{
+          'PATIENT_FORM.SAMEDI' | translate
+        }}
+      </mat-checkbox>
+    </div>
+  </form>
+</div>
+

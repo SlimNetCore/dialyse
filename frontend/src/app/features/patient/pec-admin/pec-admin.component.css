@@ -1,0 +1,154 @@
+
+.pec-admin {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.header-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: var(--app-primary);
+  margin-top: 4px;
+}
+
+h2 {
+  color: var(--app-text);
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+}
+
+.desc {
+  color: var(--app-muted);
+  margin: 0;
+  font-size: 14px;
+}
+
+.center-card {
+  padding: 12px 20px !important;
+  background: var(--app-surface) !important;
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow);
+}
+
+.center-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.center-info mat-icon {
+  color: var(--app-primary);
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.center-label {
+  display: block;
+  font-size: 11px;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.center-name {
+  display: block;
+  font-weight: 600;
+  color: var(--app-primary);
+  font-size: 15px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--app-muted);
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface);
+}
+
+.pec-table {
+  width: 100%;
+}
+
+.pec-table .mat-mdc-header-cell {
+  color: var(--app-primary);
+  font-weight: 700;
+}
+
+.pec-table .mat-mdc-row:hover {
+  background: color-mix(in srgb, var(--app-primary-soft) 70%, white);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-cree {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge-validee {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.badge-cloturee {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+.validate-btn {
+  --mdc-filled-button-container-color: var(--app-primary) !important;
+  --mdc-filled-button-label-text-color: #fff !important;
+}
+
+.validate-card {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow);
+  background: var(--app-surface);
+}
+

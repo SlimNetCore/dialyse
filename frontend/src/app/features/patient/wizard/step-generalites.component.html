@@ -1,0 +1,280 @@
+<div class="step-content">
+  <form [formGroup]="form">
+    <!-- Photo + Identity row -->
+    <div class="row-photo">
+      <div class="photo-column">
+        <button
+          (click)="openMedicalRecord()"
+          [disabled]="readonly || !isMedecin()"
+          class="medical-btn"
+          mat-flat-button
+        >
+          <mat-icon>folder_shared</mat-icon>
+          {{ 'PATIENT_FORM.DOSSIER_MEDICAL' | translate }}
+        </button>
+        <div
+          (click)="!readonly && photoInput.click()"
+          [class.readonly-zone]="readonly"
+          class="photo-zone"
+        >
+          @if (photoPreview()) {
+            <img [src]="photoPreview()" alt="Photo" class="photo-img"/>
+          } @else {
+            <mat-icon class="photo-placeholder">person</mat-icon>
+            <span class="photo-label">{{ 'PATIENT_FORM.PHOTO' | translate }}</span>
+          }
+          <input #photoInput (change)="onPhoto($event)" accept="image/*" hidden type="file"/>
+        </div>
+      </div>
+
+      <div class="identity-grid">
+        <!-- Row 1: Civilité, Nom, Prénom -->
+        <app-searchable-select
+          (selectionChanged)="form.patchValue({ civilite: $event?.id ?? '' })"
+          [autofocusFirst]="true"
+          [disabled]="readonly"
+          [items]="civiliteOptions"
+          [label]="'PATIENT_FORM.CIVILITE' | translate"
+          [prefixIcon]="'badge'"
+          [selectedId]="civiliteSignal()"
+          [translateLabels]="true"
+          cssClass="generalites-select"
+        />
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PATIENT_FORM.NOM' | translate }} *</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input formControlName="nom" matInput/>
+          @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+            <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PATIENT_FORM.PRENOM' | translate }} *</mat-label>
+          <mat-icon matPrefix>person_outline</mat-icon>
+          <input formControlName="prenom" matInput/>
+          @if (form.get('prenom')?.hasError('required') && form.get('prenom')?.touched) {
+            <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Row 2: Sexe, Date d'admission, Nombre d'enfants -->
+        <div>
+          <app-searchable-select
+            (selectionChanged)="form.patchValue({ sexe: $event?.id ?? '' })"
+            [disabled]="readonly"
+            [items]="sexeOptions"
+            [label]="'PATIENT_FORM.SEXE' | translate"
+            [prefixIcon]="'wc'"
+            [selectedId]="sexeSignal()"
+            [translateLabels]="true"
+            cssClass="generalites-select"
+          />
+          @if (form.get('sexe')?.hasError('required') && form.get('sexe')?.touched) {
+            <div class="field-error">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
+          }
+        </div>
+
+        <mat-form-field appearance="outline" class="h-sync">
+          <mat-label>{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }} *</mat-label>
+          <mat-icon matPrefix>event</mat-icon>
+          <input [matDatepicker]="dpAdm" formControlName="dateAdmission" matInput/>
+          <mat-datepicker-toggle [for]="dpAdm" matSuffix/>
+          <mat-datepicker #dpAdm/>
+          @if (form.get('dateAdmission')?.hasError('required') &&
+          form.get('dateAdmission')?.touched) {
+            <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PATIENT_FORM.NOMBRE_ENFANTS' | translate }}</mat-label>
+          <mat-icon matPrefix>child_care</mat-icon>
+          <input [readonly]="readonly" formControlName="nombreEnfants" matInput type="number"/>
+        </mat-form-field>
+
+        <!-- Row 3: Groupe sanguin, Date de naissance, Age -->
+        <app-searchable-select
+          (selectionChanged)="form.patchValue({ groupeSanguin: $event?.id ?? '' })"
+          [disabled]="readonly"
+          [items]="groupeSanguinOptions"
+          [label]="'PATIENT_FORM.GROUPE_SANGUIN' | translate"
+          [prefixIcon]="'bloodtype'"
+          [selectedId]="groupeSanguinSignal()"
+          cssClass="h-sync generalites-select"
+        />
+
+        <mat-form-field appearance="outline" class="h-sync">
+          <mat-label>{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }} *</mat-label>
+          <mat-icon matPrefix>cake</mat-icon>
+          <input [matDatepicker]="dpNais" formControlName="dateNaissance" matInput/>
+          <mat-datepicker-toggle [for]="dpNais" matSuffix/>
+          <mat-datepicker #dpNais/>
+          @if (form.get('dateNaissance')?.hasError('required') &&
+          form.get('dateNaissance')?.touched) {
+            <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="age-box h-sync">
+          <span class="age-label">{{ 'PATIENT_FORM.AGE' | translate }}</span>
+          <span class="age-value">{{ calculatedAge() !== null ? calculatedAge() : '—' }}</span>
+          @if (calculatedAge() !== null) {
+            <span class="age-unit">{{ 'PATIENT_FORM.ANS' | translate }}</span>
+          }
+        </div>
+
+        <mat-form-field appearance="outline" class="span-3">
+          <mat-label>{{ 'PATIENT_FORM.LIEU_NAISSANCE' | translate }}</mat-label>
+          <mat-icon matPrefix>place</mat-icon>
+          <input formControlName="lieuNaissance" matInput/>
+        </mat-form-field>
+
+        <div class="span-3">
+          <app-searchable-select
+            (selectionChanged)="form.patchValue({ etatPatient: $event?.id ?? 'PERMANENT' })"
+            [disabled]="readonly"
+            [items]="etatPatientOptions"
+            [label]="'PATIENT_FORM.ETAT_PATIENT' | translate"
+            [prefixIcon]="'monitor_heart'"
+            [selectedId]="etatPatientSignal()"
+            [translateLabels]="true"
+            cssClass="generalites-select"
+          />
+        </div>
+
+        @if (showDateEvenement()) {
+          <mat-form-field appearance="outline" class="span-3">
+            <mat-label>{{ dateEvenementLabelKey() | translate }}</mat-label>
+            <mat-icon matPrefix>event_available</mat-icon>
+            <input [matDatepicker]="dpEvt" formControlName="dateEvenementEtat" matInput/>
+            <mat-datepicker-toggle [for]="dpEvt" matSuffix/>
+            <mat-datepicker #dpEvt/>
+          </mat-form-field>
+        }
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="form-row">
+      <app-searchable-select
+        (selectionChanged)="form.patchValue({ situationFamiliale: $event?.id ?? '' })"
+        [disabled]="readonly"
+        [items]="situationFamilialeOptions"
+        [label]="'PATIENT_FORM.SITUATION_FAMILIALE' | translate"
+        [prefixIcon]="'diversity_3'"
+        [selectedId]="situationFamilialeSignal()"
+        [translateLabels]="true"
+        cssClass="flex1 generalites-select"
+      />
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.PROFESSION1' | translate }}</mat-label>
+        <mat-icon matPrefix>work</mat-icon>
+        <input formControlName="profession" matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.TEL_MOBILE' | translate }}</mat-label>
+        <mat-icon matPrefix>phone_iphone</mat-icon>
+        <input formControlName="telMobile" matInput/>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.TEL_PERSONNEL' | translate }}</mat-label>
+        <mat-icon matPrefix>phone</mat-icon>
+        <input formControlName="telPersonnel" matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.TEL_BUREAU' | translate }}</mat-label>
+        <mat-icon matPrefix>phone_in_talk</mat-icon>
+        <input formControlName="telBureau" matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>{{ 'PATIENT_FORM.EMAIL' | translate }}</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
+        <input formControlName="email" matInput type="email"/>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'PATIENT_FORM.ADRESSE' | translate }}</mat-label>
+      <mat-icon matPrefix>home</mat-icon>
+      <input formControlName="adresse" matInput/>
+    </mat-form-field>
+
+    <!-- Medical checks -->
+    <div class="form-row checks-row">
+      <mat-checkbox formControlName="epoEnabled">{{
+          'PATIENT_FORM.EPO_LABEL' | translate
+        }}
+      </mat-checkbox>
+      @if (form.get('epoEnabled')?.value) {
+        <mat-form-field appearance="outline" class="date-inline">
+          <input [matDatepicker]="dpEpo" formControlName="epoDate" matInput/>
+          <mat-datepicker-toggle [for]="dpEpo" matSuffix/>
+          <mat-datepicker #dpEpo/>
+        </mat-form-field>
+      }
+      <mat-checkbox formControlName="ferEnabled">{{
+          'PATIENT_FORM.FER_LABEL' | translate
+        }}
+      </mat-checkbox>
+      @if (form.get('ferEnabled')?.value) {
+        <mat-form-field appearance="outline" class="date-inline">
+          <input [matDatepicker]="dpFer" formControlName="ferDate" matInput/>
+          <mat-datepicker-toggle [for]="dpFer" matSuffix/>
+          <mat-datepicker #dpFer/>
+        </mat-form-field>
+      }
+      <mat-checkbox formControlName="sousKt">{{
+          'PATIENT_FORM.SOUS_KT' | translate
+        }}
+      </mat-checkbox>
+      <mat-checkbox formControlName="enSommeil">{{
+          'PATIENT_FORM.EN_SOMMEIL' | translate
+        }}
+      </mat-checkbox>
+    </div>
+
+    <!-- Qualité assuré -->
+    <div class="form-row quality-row">
+      <span class="quality-label">{{ 'PATIENT_FORM.QUALITE_ASSURE' | translate }}:</span>
+      <mat-radio-group
+        [disabled]="readonly"
+        class="quality-radio-group"
+        formControlName="qualiteAssure"
+      >
+        <mat-radio-button value="ASSURE_LUI_MEME">{{
+            'PATIENT_FORM.ASSURE_LUI_MEME' | translate
+          }}
+        </mat-radio-button>
+        <mat-radio-button value="ENFANT">{{
+            'PATIENT_FORM.ENFANT_ASSURE' | translate
+          }}
+        </mat-radio-button>
+        <mat-radio-button value="CONJOINT">{{
+            'PATIENT_FORM.CONJOINT_ASSURE' | translate
+          }}
+        </mat-radio-button>
+        <mat-radio-button value="ASCENDANT">{{
+            'PATIENT_FORM.ASCENDANT_ASSURE' | translate
+          }}
+        </mat-radio-button>
+        <mat-radio-button value="AUTRE">{{
+            'PATIENT_FORM.AUTRE' | translate
+          }}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <!-- Observation with extra spacing below -->
+    <mat-form-field appearance="outline" class="full-width observation-field">
+      <mat-label>{{ 'PATIENT_FORM.OBSERVATION' | translate }}</mat-label>
+      <mat-icon matPrefix>note_alt</mat-icon>
+      <textarea formControlName="observation" matInput rows="3"></textarea>
+    </mat-form-field>
+  </form>
+</div>
+

@@ -1,0 +1,215 @@
+
+.wizard-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 140px;
+}
+
+.wizard-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wizard-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--app-primary);
+}
+
+.wizard-progress {
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mode-badge {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mode-badge.editing {
+  background: var(--app-primary-soft);
+  color: var(--app-primary-hover);
+}
+
+.edit-toggle-btn {
+  border-color: var(--app-primary-outline) !important;
+  color: var(--app-primary) !important;
+}
+
+:host ::ng-deep .wizard-stepper {
+  background: transparent;
+}
+
+/* Remove Material horizontal content container spacing under step headers. */
+:host ::ng-deep .wizard-stepper .mat-stepper-horizontal-content-container,
+:host ::ng-deep .wizard-stepper .mat-horizontal-content-container {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+:host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content {
+  background: var(--app-surface-soft);
+  border-radius: 12px;
+  margin-top: 0;
+  border: 1px solid var(--app-border);
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+:host ::ng-deep .wizard-stepper .mat-vertical-content-container,
+:host ::ng-deep .wizard-stepper .mat-vertical-content {
+  background: var(--app-surface-soft);
+  border-radius: 12px;
+  border: 1px solid var(--app-border);
+  box-sizing: border-box;
+}
+
+/* Collapse only explicit inactive panels, keep active panel always visible. */
+:host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content[aria-expanded='false'] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+}
+
+:host ::ng-deep .wizard-stepper .mat-horizontal-stepper-content[aria-expanded='true'] {
+  display: block !important;
+  height: auto !important;
+  visibility: visible !important;
+  overflow: visible !important;
+}
+
+:host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-selected {
+  background-color: var(--app-primary) !important;
+}
+
+:host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-state-done {
+  background-color: var(--app-primary-hover) !important;
+}
+
+:host ::ng-deep .wizard-stepper .mat-step-header .mat-step-icon-state-error {
+  background-color: #d32f2f !important;
+}
+
+.floating-save {
+  position: fixed;
+  bottom: 96px;
+  right: 16px;
+  z-index: 1000;
+  background-color: var(--app-primary) !important;
+  color: #fff !important;
+  --mdc-extended-fab-container-color: var(--app-primary) !important;
+  --mdc-fab-container-color: var(--app-primary) !important;
+  --mdc-extended-fab-label-text-color: #fff !important;
+  --mat-fab-foreground-color: #fff !important;
+  --mdc-fab-icon-color: #fff !important;
+  box-shadow: 0 6px 24px rgba(2, 6, 23, 0.2) !important;
+  border-radius: 16px !important;
+}
+
+.floating-save:disabled {
+  background-color: #bdbdbd !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  --mdc-extended-fab-container-color: #bdbdbd !important;
+  --mdc-fab-container-color: #bdbdbd !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+.floating-error {
+  position: fixed;
+  bottom: 148px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffcc02;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  max-width: 360px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.floating-error mat-icon {
+  color: #e65100;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .wizard-container {
+    max-width: 100%;
+    padding-bottom: 200px;
+  }
+
+  .wizard-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .wizard-header h2 {
+    order: 2;
+    flex: 1 1 100%;
+    font-size: 1.1rem;
+  }
+
+  .wizard-progress {
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+
+  .mode-badge,
+  .edit-toggle-btn {
+    order: 4;
+  }
+
+  :host ::ng-deep .wizard-stepper .mat-horizontal-stepper-header-container {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  :host ::ng-deep .wizard-stepper.mat-stepper-vertical .mat-step-header {
+    min-height: 52px;
+  }
+
+  :host ::ng-deep .wizard-stepper.mat-stepper-vertical .mat-vertical-content-container {
+    margin-left: 0;
+  }
+
+  .floating-save {
+    left: 12px;
+    right: 12px;
+    bottom: 82px;
+    width: auto;
+    justify-content: center;
+  }
+
+  .floating-error {
+    left: 12px;
+    right: 12px;
+    bottom: 140px;
+    max-width: none;
+  }
+}
+

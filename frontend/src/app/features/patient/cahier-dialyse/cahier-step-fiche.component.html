@@ -1,0 +1,109 @@
+<div class="step-fiche-content">
+  <mat-card class="patient-card" data-testid="cahier-fiche-card">
+    <mat-card-header>
+      <mat-card-title>{{ 'CAHIER.FICHE_PATIENT_TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>
+        {{
+          recapMode
+            ? ('CAHIER.FICHE_INFO' | translate) + ' - Recapitulatif'
+            : ('CAHIER.FICHE_INFO' | translate)
+        }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    @if (loading()) {
+      <div class="loading-wrap">
+        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+      </div>
+    } @else if (error()) {
+      <mat-card-content class="error-msg">
+        {{ error() }}
+      </mat-card-content>
+    } @else {
+      <mat-card-content>
+        <div class="identity-banner">
+          <div>
+            <p class="banner-label">Patient</p>
+            <h3>{{ patientData().nom || '-' }} {{ patientData().prenom || '' }}</h3>
+          </div>
+          <div class="banner-pills">
+            <span class="age-pill">{{ ageBadgeLabel() }}</span>
+            <span class="etat-pill">{{ displayValue(patientData().etatPatient) }}</span>
+          </div>
+        </div>
+
+        <div [class.recap-grid-compact]="!recapMode" class="recap-grid">
+          <section class="recap-section">
+            <h4>Identite</h4>
+            <div class="recap-items">
+              <div class="recap-item">
+                <span class="recap-label">{{ 'PATIENT_FORM.CODE_PATIENT' | translate }}</span>
+                <strong>{{ displayValue(patientData().code) }}</strong>
+              </div>
+              <div class="recap-item">
+                    <span class="recap-label">{{
+                        'PATIENT_FORM.NUMERO_ASSURANCE' | translate
+                      }}</span>
+                <strong>{{ displayNumeroAssurance(patientData().numeroAssurance) }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label">{{ 'PATIENT_FORM.SEXE' | translate }}</span>
+                <strong>{{ displayValue(patientData().sexe) }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label">{{ 'PATIENT_FORM.GROUPE_SANGUIN' | translate }}</span>
+                <strong>{{ displayValue(patientData().groupeSanguin) }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="recap-section">
+            <h4>Admission</h4>
+            <div class="recap-items">
+              <div class="recap-item">
+                <span class="recap-label">{{ 'PATIENT_FORM.DATE_NAISSANCE' | translate }}</span>
+                <strong>{{ displayValue(patientData().dateNaissance) }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label">{{ 'PATIENT_FORM.DATE_ADMISSION' | translate }}</span>
+                <strong>{{ displayValue(patientData().dateAdmission) }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="recap-section recap-section-wide">
+            <h4>Coordonnees</h4>
+            <div class="recap-items">
+              <div class="recap-item recap-item-wide">
+                <span class="recap-label">{{ 'PATIENT_FORM.ADRESSE' | translate }}</span>
+                <strong>{{ displayValue(patientData().adresse) }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label">{{ 'PATIENT_FORM.TELEPHONE' | translate }}</span>
+                <strong>{{ displayValue(patientData().telPersonnel) }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label">{{ 'PATIENT_FORM.EMAIL' | translate }}</span>
+                <strong>{{ displayValue(patientData().email) }}</strong>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div *ngIf="showProceed || !readonly" class="actions">
+          @if (!readonly) {
+            <button (click)="save()" [disabled]="!canSave()" color="primary" mat-raised-button>
+              <mat-icon>save</mat-icon>
+              {{ 'COMMON.SAVE' | translate }}
+            </button>
+          }
+          <button (click)="proceed()" *ngIf="showProceed" mat-stroked-button>
+            <mat-icon>arrow_forward</mat-icon>
+            {{ 'COMMON.NEXT_STEP' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    }
+  </mat-card>
+</div>
+

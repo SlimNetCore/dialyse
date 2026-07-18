@@ -15,19 +15,9 @@ import {PatientStatsComponent} from '../patient-stats.component';
     TranslateModule,
     PatientStatsComponent,
   ],
-  template: `
-    <div class="step-stats-content">
-      <app-patient-stats />
-    </div>
-  `,
+  templateUrl: './cahier-step-stats.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [
-    `
-      .step-stats-content {
-        padding: 0;
-      }
-    `,
-  ],
+  styleUrl: './cahier-step-stats.component.css',
 })
 export class CahierStepStatsComponent {
   @Input() patientId!: string;

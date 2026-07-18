@@ -1,0 +1,205 @@
+<mat-card class="list-card">
+  <div class="header">
+    <h2>{{ 'ATTEST_LIST.TITLE' | translate }}</h2>
+    <span class="spacer"></span>
+    <button [matMenuTriggerFor]="colsMenu" color="primary" mat-stroked-button>
+      <mat-icon>view_column</mat-icon>
+      Colonnes
+    </button>
+    <button
+      (click)="clearAllColumnFilters()"
+      [disabled]="!hasActiveFilters()"
+      color="warn"
+      mat-stroked-button
+    >
+      <mat-icon>filter_alt_off</mat-icon>
+      Réinitialiser filtres
+    </button>
+    <mat-menu #colsMenu="matMenu">
+      @for (c of allColumnsConfig; track c.key) {
+        @if (c.key !== 'actions') {
+          <button (click)="$event.stopPropagation()" mat-menu-item>
+            <mat-checkbox
+              (change)="toggleColumn(c.key, $event.checked)"
+              [checked]="isColumnVisible(c.key)"
+            >{{ c.labelKey | translate }}
+            </mat-checkbox>
+          </button>
+        }
+      }
+    </mat-menu>
+    <button (click)="printList()" color="primary" mat-stroked-button>
+      <mat-icon>print</mat-icon>
+      {{ 'PATIENT_LIST.BTN_PRINT' | translate }}
+    </button>
+    <button (click)="exportExcel()" color="primary" mat-stroked-button>
+      <mat-icon>table_view</mat-icon>
+      {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <table [dataSource]="rows()" class="w100" mat-table>
+      <ng-container matColumnDef="code">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('code')" class="th-wrap">
+            <div class="th-top">
+              <span>{{ 'ATTEST_LIST.COL_CODE' | translate }}</span>
+              <mat-icon
+                (click)="toggleFilterPanel('code', $event)"
+                [class.active]="isColumnFiltered('code')"
+                class="filter-ind"
+              >{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('code')"
+                (valueChange)="onColumnFilterValue('code', $event)"
+                [value]="columnFilterValue('code')"
+                labelKey="ATTEST_LIST.COL_CODE"
+                type="text"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.CODE_PATIENT || r.code_patient }}</td>
+      </ng-container>
+      <ng-container matColumnDef="nom">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('nom')" class="th-wrap">
+            <div class="th-top">
+              <span>{{ 'ATTEST_LIST.COL_PATIENT' | translate }}</span>
+              <mat-icon
+                (click)="toggleFilterPanel('nom', $event)"
+                [class.active]="isColumnFiltered('nom')"
+                class="filter-ind"
+              >{{ isColumnFiltered('nom') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('nom')"
+                (valueChange)="onColumnFilterValue('nom', $event)"
+                [value]="columnFilterValue('nom')"
+                labelKey="ATTEST_LIST.COL_PATIENT"
+                type="text"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.NOM || r.nom }} {{ r.PRENOM || r.prenom }}</td>
+      </ng-container>
+      <ng-container matColumnDef="assurance">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('assurance')" class="th-wrap">
+            <div class="th-top">
+              <span>{{ 'ATTEST_LIST.COL_ASSURANCE' | translate }}</span>
+              <mat-icon
+                (click)="toggleFilterPanel('assurance', $event)"
+                [class.active]="isColumnFiltered('assurance')"
+                class="filter-ind"
+              >{{ isColumnFiltered('assurance') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('assurance')"
+                (valueChange)="onColumnFilterValue('assurance', $event)"
+                [value]="columnFilterValue('assurance')"
+                labelKey="ATTEST_LIST.COL_ASSURANCE"
+                type="text"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.NUMERO_ASSURANCE || r.numero_assurance }}</td>
+      </ng-container>
+      <ng-container matColumnDef="debut">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('debut')" class="th-wrap">
+            <div class="th-top">
+              <span>{{ 'ATTEST_LIST.COL_DEBUT' | translate }}</span>
+              <mat-icon
+                (click)="toggleFilterPanel('debut', $event)"
+                [class.active]="isColumnFiltered('debut')"
+                class="filter-ind"
+              >{{ isColumnFiltered('debut') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('debut')"
+                (valueChange)="onColumnFilterValue('debut', $event)"
+                [value]="columnFilterValue('debut')"
+                labelKey="ATTEST_LIST.COL_DEBUT"
+                type="date"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.DATE_DEBUT || r.date_debut }}</td>
+      </ng-container>
+      <ng-container matColumnDef="fin">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('fin')" class="th-wrap">
+            <div class="th-top">
+              <span>{{ 'ATTEST_LIST.COL_FIN' | translate }}</span>
+              <mat-icon
+                (click)="toggleFilterPanel('fin', $event)"
+                [class.active]="isColumnFiltered('fin')"
+                class="filter-ind"
+              >{{ isColumnFiltered('fin') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('fin')"
+                (valueChange)="onColumnFilterValue('fin', $event)"
+                [value]="columnFilterValue('fin')"
+                labelKey="ATTEST_LIST.COL_FIN"
+                type="date"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.DATE_FIN || r.date_fin }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell>{{ 'ATTEST_LIST.COL_ACTIONS' | translate }}</th>
+        <td *matCellDef="let r" mat-cell>
+          <button
+            (click)="printRow(r)"
+            [matTooltip]="'PATIENT_LIST.BTN_PRINT' | translate"
+            color="primary"
+            mat-icon-button
+          >
+            <mat-icon>print</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      <tr *matHeaderRowDef="displayedColumns()" mat-header-row></tr>
+      <tr
+        *matRowDef="let row; columns: displayedColumns()"
+        [attr.data-row-key]="
+              row.PATIENT_ID || row.patient_id || row.CODE_PATIENT || row.code_patient
+            "
+        mat-row
+      ></tr>
+      <tr *matNoDataRow class="mat-mdc-row">
+        <td [attr.colspan]="displayedColumns().length" class="mat-mdc-cell no-data-cell">
+          Aucune attestation trouvee
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator
+    (page)="onPageChange($event)"
+    [length]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    [pageSize]="pageSize()"
+  ></mat-paginator>
+</mat-card>
+

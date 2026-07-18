@@ -1,0 +1,25 @@
+<div class="step-content">
+  <mat-card class="placeholder-card" data-testid="cahier-medical-placeholder">
+    <mat-card-header>
+      <mat-card-title>{{ 'CAHIER.STEP_MEDICAL' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'CAHIER.STEP_MEDICAL_DESC' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="placeholder-message">
+        <mat-icon>info</mat-icon>
+        <p>{{ 'COMMON.COMING_SOON' | translate }}</p>
+        <p class="detail">
+          Dossier médical, prescriptions, résultats d'analyses, abords vasculaires et
+          traitements.
+        </p>
+      </div>
+      <div class="actions">
+        <button (click)="proceed()" color="primary" mat-raised-button>
+          <mat-icon>arrow_forward</mat-icon>
+          {{ 'COMMON.NEXT_STEP' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+

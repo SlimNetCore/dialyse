@@ -16,42 +16,8 @@ export interface PmpRecalcDialogData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatProgressBarModule, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <h2 mat-dialog-title>
-      <mat-icon>sync</mat-icon>
-      Recalcul PMP en cours
-    </h2>
-
-    <mat-dialog-content>
-      <p class="note">Le recalcul se fait en arriere-plan. Vous pouvez continuer la navigation.</p>
-
-      <div class="row">
-        <span>Etat:</span>
-        <strong>{{ status() }}</strong>
-      </div>
-      <div class="row">
-        <span>Progression:</span>
-        <strong>{{ processed() }} / {{ total() }}</strong>
-      </div>
-
-      <mat-progress-bar
-        mode="determinate"
-        [value]="progressPercent()"
-      ></mat-progress-bar>
-
-      <p class="message">{{ message() }}</p>
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button (click)="close()">Fermer</button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .note { margin-bottom: 12px; color: var(--app-muted); }
-    .row { display: flex; justify-content: space-between; margin: 6px 0; }
-    .message { margin-top: 12px; font-size: 12px; color: var(--app-muted); }
-    mat-icon { vertical-align: middle; margin-right: 6px; }
-  `],
+  templateUrl: './pmp-recalc-dialog.component.html',
+  styleUrl: './pmp-recalc-dialog.component.css',
 })
 export class PmpRecalcDialogComponent implements OnInit, OnDestroy {
   protected readonly status = signal<'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED'>('PENDING');
