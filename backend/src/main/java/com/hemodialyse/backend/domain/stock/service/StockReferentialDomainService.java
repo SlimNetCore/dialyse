@@ -61,6 +61,12 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Article> listArticles(CenterId centerId) {
+        return articleRepo.findAllByCenter(centerId);
+    }
+
+    @Override
     public Fournisseur createFournisseur(CenterId centerId, String code, String raisonSociale,
                                          String contact, String telephone, String email) {
         if (raisonSociale == null || raisonSociale.isBlank()) {

@@ -280,6 +280,17 @@ export type SignSeanceMedecinPayload = {
   userId: string;
 };
 
+export type ArticleStock = {
+  id: string;
+  centerId: string;
+  code: string;
+  libelle: string;
+  unite?: string | null;
+  stockQuantity?: number | null;
+  pmpCourant?: number | null;
+  active: boolean;
+};
+
 export type DashboardStats = {
   patientCount: number;
   pecCree: number;
@@ -568,6 +579,11 @@ export class BackendApiService {
       status: string;
       signedByMedecinAt: string;
     }>(`${this.baseUrl}/seances/${seanceId}/signer-medecin`, payload);
+  }
+
+  listArticlesStock(centerId: string): Observable<ArticleStock[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<ArticleStock[]>(`${this.baseUrl}/stock/referentiel/articles`, {params});
   }
 
   validatePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {

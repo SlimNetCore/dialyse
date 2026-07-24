@@ -15,6 +15,8 @@ public interface StockReferentialUseCase {
     Article createArticle(CenterId centerId, String code, String libelle, String unite,
                           BigDecimal seuilAlerte, boolean gereParLot);
 
+    List<Article> listArticles(CenterId centerId);
+
     Fournisseur createFournisseur(CenterId centerId, String code, String raisonSociale,
                                   String contact, String telephone, String email);
 

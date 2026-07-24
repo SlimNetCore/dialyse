@@ -12,14 +12,16 @@ import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.model.StockMovement;
-import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
+import com.hemodialyse.backend.domain.stock.model.Lot;
+import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
+import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,20 +32,23 @@ public class SeanceDomainService implements SeanceUseCase {
     private final SeanceRepositoryPort seanceRepo;
     private final PatientRepositoryPort patientRepo;
     private final ArticleRepositoryPort articleRepo;
-    private final StockMovementRepositoryPort stockMovementRepo;
+    private final LotRepositoryPort lotRepo;
+    private final BonSortieUseCase bonSortieUseCase;
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
 
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
                                ArticleRepositoryPort articleRepo,
-                               StockMovementRepositoryPort stockMovementRepo,
+                               LotRepositoryPort lotRepo,
+                               BonSortieUseCase bonSortieUseCase,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo) {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
         this.articleRepo = articleRepo;
-        this.stockMovementRepo = stockMovementRepo;
+        this.lotRepo = lotRepo;
+        this.bonSortieUseCase = bonSortieUseCase;
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;
     }
@@ -115,34 +120,54 @@ public class SeanceDomainService implements SeanceUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
 
         seance.validerParInfirmier(userId != null ? userId : "system");
-        OffsetDateTime movementTimestamp = seance.getDateSeance()
-                .atTime(12, 0)
-                .atOffset(ZoneOffset.UTC);
 
         List<SeanceArticleConsumption> items = consommations != null ? consommations : List.of();
-        for (SeanceArticleConsumption item : items) {
-            if (item == null || item.articleId() == null) {
-                throw new IllegalArgumentException("Article de consommation invalide");
+
+        if (!items.isEmpty()) {
+            // Validate articles and build FEFO-based SortieRequestItem list
+            List<SortieRequestItem> sortieItems = new ArrayList<>();
+            for (SeanceArticleConsumption item : items) {
+                if (item == null || item.articleId() == null) {
+                    throw new IllegalArgumentException("Article de consommation invalide");
+                }
+
+                var article = articleRepo.findById(item.articleId(), centerId)
+                        .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + item.articleId()));
+
+                if (!article.isActive()) {
+                    throw new IllegalStateException("Article inactif: " + article.getCode());
+                }
+
+                // Auto-select lots using FEFO ordering
+                List<Lot> fefoLots = lotRepo.findAvailableByArticleFefo(item.articleId(), centerId);
+                BigDecimal remaining = item.quantite();
+
+                for (Lot lot : fefoLots) {
+                    if (remaining.signum() <= 0) break;
+                    BigDecimal dispo = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
+                    if (dispo.signum() <= 0) continue;
+                    BigDecimal take = remaining.min(dispo);
+                    sortieItems.add(new SortieRequestItem(item.articleId(), lot.getId(), take));
+                    remaining = remaining.subtract(take);
+                }
+
+                if (remaining.signum() > 0) {
+                    throw new IllegalStateException(
+                            "Stock insuffisant pour l'article " + article.getCode()
+                                    + " (manque: " + remaining + " " + article.getUnite() + ")");
+                }
             }
 
-            var article = articleRepo.findById(item.articleId(), centerId)
-                    .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + item.articleId()));
-
-            if (!article.isActive()) {
-                throw new IllegalStateException("Article inactif: " + article.getCode());
-            }
-
-            article.debiter(item.quantite());
-            articleRepo.save(article);
-
-            stockMovementRepo.save(StockMovement.sortie(
-                    centerId.value(),
-                    article.getId(),
+            // Create a BonSortie with PMP valuation via FEFO lot selection
+            bonSortieUseCase.create(
+                    centerId,
                     seance.getId(),
-                    item.quantite(),
-                    userId != null ? userId : "system",
-                    movementTimestamp
-            ));
+                    seance.getPatientId(),
+                    "SEANCE",
+                    seance.getDateSeance(),
+                    sortieItems,
+                    userId != null ? userId : "system"
+            );
         }
 
         return seanceRepo.save(seance);
@@ -224,6 +249,3 @@ public class SeanceDomainService implements SeanceUseCase {
         return value.trim().toUpperCase().replaceAll("[^A-Z0-9]", "");
     }
 }
-
-
-

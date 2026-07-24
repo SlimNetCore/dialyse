@@ -7,6 +7,7 @@ import com.hemodialyse.backend.infrastructure.persistence.entity.ArticleJpaEntit
 import com.hemodialyse.backend.infrastructure.persistence.repository.ArticleJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +28,11 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort {
     @Override
     public Article save(Article article) {
         return toDomain(jpa.save(toJpa(article)));
+    }
+
+    @Override
+    public List<Article> findAllByCenter(CenterId centerId) {
+        return jpa.findByCenterIdOrderByCode(centerId.value()).stream().map(this::toDomain).toList();
     }
 
     private Article toDomain(ArticleJpaEntity e) {

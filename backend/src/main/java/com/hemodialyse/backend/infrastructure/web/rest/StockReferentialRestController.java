@@ -35,6 +35,12 @@ public class StockReferentialRestController {
         ));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    @GetMapping("/articles")
+    public ResponseEntity<?> listArticles(@RequestParam UUID centerId) {
+        return ResponseEntity.ok(useCase.listArticles(CenterId.of(centerId)));
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN')")
     @PostMapping("/fournisseurs")
     public ResponseEntity<?> createFournisseur(@RequestBody @Valid CreateFournisseurRequest req) {
