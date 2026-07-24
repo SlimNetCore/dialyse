@@ -89,6 +89,7 @@ backend/src/main/java/com/hemodialyse/backend/
   `markForCheck()`.
 - Utiliser en priorité le control flow Angular 22 (`@if`, `@for`) pour tout nouveau code ; les écrans existants avec
   `*ngIf`/`*ngFor` sont en cours de migration et ne doivent pas servir de modèle pour du code neuf.
+- Tous les formulaires de l'application doivent être en signal forms
 
 ```
 frontend/src/app/

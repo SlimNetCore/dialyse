@@ -14,11 +14,7 @@ export const routes: Routes = [
       { path: 'patients', loadChildren: () => import('./features/patient/patient.routes').then(m => m.patientRoutes) },
       {
         path: 'seances',
-        loadComponent: () => import('./features/seances/seances-page.component').then(m => m.SeancesPageComponent)
-      },
-      {
-        path: 'seances/calendrier',
-        loadComponent: () => import('./features/seances/seance-calendar-center.component').then(m => m.SeanceCalendarCenterComponent)
+        loadChildren: () => import('./features/seances/seances.routes').then((m) => m.seancesRoutes),
       },
       {path: 'stock', loadChildren: () => import('./features/stock/stock.routes').then(m => m.stockRoutes)},
       { path: 'facturation', loadComponent: () => import('./features/facturation/facturation-placeholder.component').then(m => m.FacturationPlaceholderComponent) },

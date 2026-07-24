@@ -65,6 +65,16 @@ class VoletParamedicalDomainServiceTest {
         public Optional<Seance> findById(UUID seanceId, CenterId centerId) {
             return Optional.ofNullable(data.get(seanceId)).filter(s -> s.getCenterId().equals(centerId.value()));
         }
+
+        @Override
+        public Optional<Seance> findByPatientIdAndDate(CenterId centerId, UUID patientId, java.time.LocalDate dateSeance) {
+            return Optional.empty();
+        }
+
+        @Override
+        public java.util.List<com.hemodialyse.backend.domain.seance.model.SeanceListItem> findAllByCenter(CenterId centerId) {
+            return java.util.List.of();
+        }
     }
 
     private static final class InMemoryVoletRepository implements VoletParamedicalRepositoryPort {

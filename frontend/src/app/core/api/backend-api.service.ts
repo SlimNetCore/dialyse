@@ -265,6 +265,21 @@ export type ValidateSeancePayload = {
   }>;
 };
 
+export type UpsertVoletMedicalPayload = {
+  centerId: string;
+  prescription?: string | null;
+  toleranceSeance?: string | null;
+  examenClinique?: string | null;
+  resultatsBiologiques?: string | null;
+  ajustementsTherapeutiques?: string | null;
+  conclusionMedicale?: string | null;
+};
+
+export type SignSeanceMedecinPayload = {
+  centerId: string;
+  userId: string;
+};
+
 export type DashboardStats = {
   patientCount: number;
   pecCree: number;
@@ -541,6 +556,18 @@ export class BackendApiService {
       status: string;
       validatedAt: string
     }>(`${this.baseUrl}/seances/${seanceId}/valider`, payload);
+  }
+
+  signSeanceByMedecin(seanceId: string, payload: SignSeanceMedecinPayload): Observable<{
+    id: string;
+    status: string;
+    signedByMedecinAt: string;
+  }> {
+    return this.http.post<{
+      id: string;
+      status: string;
+      signedByMedecinAt: string;
+    }>(`${this.baseUrl}/seances/${seanceId}/signer-medecin`, payload);
   }
 
   validatePec(pecId: string, centerId: string, userId: string): Observable<{ id: string; status: PecStatus }> {
