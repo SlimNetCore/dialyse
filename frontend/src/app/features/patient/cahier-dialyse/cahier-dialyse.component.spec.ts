@@ -5,14 +5,13 @@ import {vi} from 'vitest';
 import {TranslateModule} from '@ngx-translate/core';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {AuthStore} from '../../../core/state/auth.store';
 import {CahierDialyseComponent} from './cahier-dialyse.component';
 
 describe('CahierDialyseComponent', () => {
   const apiMock = {
     listSeances: vi.fn(() =>
       of([
-        {id: 's-1', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-01', status: 'BROUILLON'},
+        {id: 's-1', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-01', status: 'SIGNEE'},
         {id: 's-2', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-14', status: 'VALIDEE'},
         {id: 's-3', centerId: 'center-1', patientId: 'patient-2', dateSeance: '2026-07-10', status: 'BROUILLON'},
         {id: 's-4', centerId: 'center-2', patientId: 'patient-1', dateSeance: '2026-07-12', status: 'BROUILLON'},
@@ -25,7 +24,7 @@ describe('CahierDialyseComponent', () => {
           centerId: 'center-1',
           patientId: 'patient-1',
           dateSeance: seanceId === 's-2' ? '2026-07-14' : '2026-07-01',
-          status: seanceId === 's-2' ? 'VALIDEE' : 'BROUILLON',
+          status: seanceId === 's-2' ? 'VALIDEE' : 'SIGNEE',
         },
         patient: {id: 'patient-1'},
         paramedical: seanceId === 's-2' ? {taAvant: '120/80'} : null,
@@ -38,10 +37,6 @@ describe('CahierDialyseComponent', () => {
     snapshot: {
       paramMap: convertToParamMap({id: 'patient-1'}),
     },
-  };
-
-  const authMock = {
-    hasRole: vi.fn(() => true),
   };
 
   const appShellMock = {
@@ -59,7 +54,6 @@ describe('CahierDialyseComponent', () => {
       providers: [
         {provide: BackendApiService, useValue: apiMock},
         {provide: ActivatedRoute, useValue: routeMock},
-        {provide: AuthStore, useValue: authMock},
         {provide: AppShellStore, useValue: appShellMock},
         {provide: Router, useValue: routerMock},
       ],
@@ -70,7 +64,7 @@ describe('CahierDialyseComponent', () => {
       .compileComponents();
   });
 
-  it('charge uniquement les seances du patient dans le centre actif', () => {
+  it('charge uniquement les seances valides du patient dans le centre actif', () => {
     const fixture = TestBed.createComponent(CahierDialyseComponent);
     fixture.detectChanges();
 

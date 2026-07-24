@@ -164,7 +164,6 @@ export type SeanceSummary = {
     anticoagulant?: string;
     typeDialysat?: string;
     incidents?: string;
-    raw?: Record<string, unknown>;
   } | null;
   medical?: {
     prescription?: string;
@@ -173,7 +172,23 @@ export type SeanceSummary = {
     resultatsBiologiques?: string;
     ajustementsTherapeutiques?: string;
     conclusionMedicale?: string;
-    raw?: Record<string, unknown>;
+  } | null;
+  consommables?: Array<{
+    articleId: string;
+    articleCode?: string | null;
+    articleLibelle?: string | null;
+    articleUnite?: string | null;
+    quantite?: number | null;
+    valeurUnitaire?: number | null;
+    totalValorise?: number | null;
+  }>;
+  consommablesTotalValorise?: number | null;
+  forfait?: {
+    id: string;
+    code?: string | null;
+    nom?: string | null;
+    prix?: number | null;
+    nombreSeances?: number | null;
   } | null;
 };
 

@@ -28,18 +28,6 @@
           }
         </div>
       </section>
-
-      <section class="section-block section-wide">
-        <h4>{{ 'CAHIER.PARAMEDICAL_RAW_TITLE' | translate }}</h4>
-        <div class="raw-grid">
-          @for (entry of entries(paramedicalData); track entry.key) {
-            <div class="raw-item">
-              <span>{{ entry.key }}</span>
-              <strong>{{ formatValue(entry.value) }}</strong>
-            </div>
-          }
-        </div>
-      </section>
     </mat-card-content>
   </mat-card>
 </div>

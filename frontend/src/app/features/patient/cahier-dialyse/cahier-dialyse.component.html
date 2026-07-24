@@ -64,6 +64,11 @@
           <div class="page-meta">
             <span class="meta-pill">{{ formatSeanceDate(selectedSeanceDate()) }}</span>
             <span [class]="'meta-pill ' + statusClass(selectedSeanceStatus())">{{ selectedSeanceStatus() }}</span>
+            @if (selectedForfait()) {
+              <span class="meta-pill forfait-pill" [matTooltip]="selectedForfait()!.nom || ''">
+                {{ selectedForfait()!.code || ('CAHIER.FORFAIT' | translate) }} - {{ formatCurrency(selectedForfait()!.prix) }}
+              </span>
+            }
           </div>
         </div>
 
@@ -86,31 +91,75 @@
         <div class="page-note">
           {{ 'CAHIER.PAGE_READONLY_NOTE' | translate }}
         </div>
-        <app-cahier-step-fiche
-          [patientId]="patientId"
-          [readonly]="true"
-          [recapMode]="true"
-          [showProceed]="false"
-        />
 
-        <app-cahier-step-paramedical
-          [patientId]="patientId"
-          [paramedicalData]="selectedSummary()?.paramedical?.raw ?? selectedSummary()?.paramedical ?? null"
-          [seanceDate]="selectedSeanceDate()"
-          [seanceStatus]="selectedSeanceStatus()"
-        />
+        <section class="writer-section writer-section-nurse">
+          <header class="writer-header">
+            <h4>{{ 'CAHIER.NURSE_WRITING_TITLE' | translate }}</h4>
+            <p>{{ 'CAHIER.NURSE_WRITING_DESC' | translate }}</p>
+          </header>
+          <app-cahier-step-paramedical
+            [paramedicalData]="selectedSummary()?.paramedical ?? null"
+            [patientId]="patientId"
+            [seanceDate]="selectedSeanceDate()"
+            [seanceStatus]="selectedSeanceStatus()"
+          />
 
-        <app-cahier-step-medical
-          [patientId]="patientId"
-          [medicalData]="selectedSummary()?.medical ?? null"
-          [readonly]="true"
-          [seanceDate]="selectedSeanceDate()"
-          [seanceStatus]="selectedSeanceStatus()"
-        />
+          <section class="consommables-section">
+            <header class="consommables-header">
+              <h5>{{ 'CAHIER.CONSOMMABLES_TITLE' | translate }}</h5>
+              <span class="total-chip">
+                {{ 'CAHIER.CONSOMMABLES_TOTAL' | translate }}: {{ formatCurrency(selectedSummary()?.consommablesTotalValorise) }}
+              </span>
+            </header>
 
-        <app-cahier-step-stats [patientId]="patientId"/>
+            @if (hasConsommables()) {
+              <div class="consommables-table-wrap">
+                <table class="consommables-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'CAHIER.CONSOMMABLES_ARTICLE' | translate }}</th>
+                      <th>{{ 'CAHIER.CONSOMMABLES_QTE' | translate }}</th>
+                      <th>{{ 'CAHIER.CONSOMMABLES_VAL_UNITAIRE' | translate }}</th>
+                      <th>{{ 'CAHIER.CONSOMMABLES_TOTAL' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of selectedConsommables(); track item.articleId + '-' + (item.valeurUnitaire ?? '0')) {
+                      <tr>
+                        <td>
+                          <strong>{{ item.articleCode || '-' }}</strong>
+                          <div class="cell-sub">{{ item.articleLibelle || '-' }}</div>
+                        </td>
+                        <td>{{ formatNumber(item.quantite) }} {{ item.articleUnite || '' }}</td>
+                        <td>{{ formatCurrency(item.valeurUnitaire) }}</td>
+                        <td class="cell-total">{{ formatCurrency(item.totalValorise) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="empty-consommables">{{ 'CAHIER.CONSOMMABLES_EMPTY' | translate }}</p>
+            }
+          </section>
+        </section>
+
+        <section class="writer-section writer-section-doctor">
+          <header class="writer-header">
+            <h4>{{ 'CAHIER.DOCTOR_WRITING_TITLE' | translate }}</h4>
+            <p>{{ 'CAHIER.DOCTOR_WRITING_DESC' | translate }}</p>
+          </header>
+          <app-cahier-step-medical
+            [medicalData]="selectedSummary()?.medical ?? null"
+            [patientId]="patientId"
+            [readonly]="true"
+            [seanceDate]="selectedSeanceDate()"
+            [seanceStatus]="selectedSeanceStatus()"
+          />
+        </section>
       </section>
     </div>
   }
 </div>
+
 

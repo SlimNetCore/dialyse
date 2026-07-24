@@ -14,16 +14,12 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {MatChipsModule} from '@angular/material/chips';
 import {TranslateModule} from '@ngx-translate/core';
 import {BackendApiService, SeanceListItem, SeanceSummary} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {CahierStepFicheComponent} from './cahier-step-fiche.component';
 import {CahierStepParamedicalComponent} from './cahier-step-paramedical.component';
 import {CahierStepMedicalComponent} from './cahier-step-medical.component';
-import {CahierStepStatsComponent} from './cahier-step-stats.component';
 
 @Component({
   selector: 'app-cahier-dialyse',
@@ -34,14 +30,10 @@ import {CahierStepStatsComponent} from './cahier-step-stats.component';
     MatIconModule,
     MatCardModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatChipsModule,
     TranslateModule,
-    CahierStepFicheComponent,
     CahierStepParamedicalComponent,
     CahierStepMedicalComponent,
-    CahierStepStatsComponent,
   ],
   templateUrl: './cahier-dialyse.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -74,6 +66,9 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
   readonly hasSeances = computed(() => this.totalPages() > 0);
   readonly selectedSeanceStatus = computed(() => this.selectedSeance()?.status ?? 'BROUILLON');
   readonly selectedSeanceDate = computed(() => this.selectedSeance()?.dateSeance ?? null);
+  readonly selectedConsommables = computed(() => this.selectedSummary()?.consommables ?? []);
+  readonly hasConsommables = computed(() => this.selectedConsommables().length > 0);
+  readonly selectedForfait = computed(() => this.selectedSummary()?.forfait ?? null);
 
   ngOnInit(): void {
     this.loadSeanceBook();
@@ -104,6 +99,24 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
     const match = source.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (!match) return source || '-';
     return `${match[3]}/${match[2]}/${match[1]}`;
+  }
+
+  formatNumber(value: number | string | null | undefined): string {
+    if (value === null || value === undefined || value === '') return '-';
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return '-';
+    return new Intl.NumberFormat('fr-FR', {maximumFractionDigits: 2}).format(parsed);
+  }
+
+  formatCurrency(value: number | string | null | undefined): string {
+    if (value === null || value === undefined || value === '') return '-';
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return '-';
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'DZD',
+      maximumFractionDigits: 2,
+    }).format(parsed);
   }
 
   goToPage(index: number): void {
@@ -138,7 +151,11 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
     this.api.listSeances(centerId).subscribe({
       next: (items) => {
         const seances = items
-          .filter((item) => item.centerId === centerId && item.patientId === this.patientId)
+          .filter((item) => {
+            if (item.centerId !== centerId || item.patientId !== this.patientId) return false;
+            const status = (item.status ?? '').toUpperCase();
+            return status === 'VALIDEE' || status === 'SIGNEE';
+          })
           .sort((a, b) => b.dateSeance.localeCompare(a.dateSeance));
 
         this.patientSeances.set(seances);

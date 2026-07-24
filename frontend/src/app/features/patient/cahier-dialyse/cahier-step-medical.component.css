@@ -49,12 +49,6 @@
   white-space: pre-wrap;
 }
 
-.actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 16px;
-}
 
 @media (max-width: 900px) {
   .medical-grid {
