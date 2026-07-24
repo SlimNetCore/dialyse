@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>
+  {{ 'PATIENT_LIST.SUMMARY_DETAILS_TITLE' | translate }} - {{ data.month }}
+</h2>
+
+<mat-dialog-content>
+  <p class="summary-details-count">
+    {{ 'PATIENT_LIST.SUMMARY_TOTAL' | translate: {count: data.total} }}
+  </p>
+
+  @if (data.items.length === 0) {
+    <p class="summary-details-empty">{{ 'PATIENT_LIST.SUMMARY_EMPTY' | translate }}</p>
+  } @else {
+    <div class="summary-details-table-wrap">
+      <table [dataSource]="data.items" class="summary-details-table" mat-table>
+        <ng-container matColumnDef="codePatient">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PATIENT_LIST.COL_CODE' | translate }}</th>
+          <td *matCellDef="let item" mat-cell>{{ item.codePatient || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nomPrenom">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PATIENT_LIST.SUMMARY_DETAILS_COL_PATIENT' | translate }}</th>
+          <td *matCellDef="let item" mat-cell>{{ fullName(item) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="sexe">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PATIENT_LIST.COL_SEXE' | translate }}</th>
+          <td *matCellDef="let item" mat-cell>{{ item.sexe }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="etatPatient">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PATIENT_LIST.COL_ETAT' | translate }}</th>
+          <td *matCellDef="let item" mat-cell>{{ item.etatPatient }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateAdmission">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PATIENT_LIST.COL_DATE_ADMISSION' | translate }}</th>
+          <td *matCellDef="let item"
+              mat-cell>{{ item.dateAdmission ? (item.dateAdmission | date: 'dd/MM/yyyy') : '-' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateEvenementEtat">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PATIENT_LIST.SUMMARY_DETAILS_COL_EVENT_DATE' | translate }}</th>
+          <td *matCellDef="let item"
+              mat-cell>{{ item.dateEvenementEtat ? (item.dateEvenementEtat | date: 'dd/MM/yyyy') : '-' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="sousKt">
+          <th *matHeaderCellDef mat-header-cell>{{ 'PATIENT_FORM.SOUS_KT' | translate }}</th>
+          <td *matCellDef="let item"
+              mat-cell>{{ item.sousKt ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="columns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: columns" mat-row></tr>
+      </table>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button (click)="close()" mat-stroked-button type="button">
+    <mat-icon>close</mat-icon>
+    {{ 'PATIENT_LIST.BTN_CLOSE' | translate }}
+  </button>
+</mat-dialog-actions>
+
+
+

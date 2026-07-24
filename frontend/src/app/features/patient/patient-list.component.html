@@ -82,6 +82,7 @@
     <app-patient-summary-cards
       (monthChanged)="onSummaryMonthChange($event)"
       (printReport)="printList()"
+      (viewDetails)="onSummaryViewDetails($event)"
       [loading]="summaryLoading()"
       [printing]="printingList()"
       [selectedMonth]="summaryMonth()"

@@ -98,7 +98,7 @@ public class PatientRestController {
     }
 
     @PostMapping
-    @CacheEvict(cacheNames = "patient.list.summary", key = "#r.centerId()")
+    @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
     public ResponseEntity<?> create(@RequestBody @Valid CreatePatientRequest r) {
         Patient p = useCase.createPatient(CenterId.of(r.centerId()), toCommand(r));
 
@@ -114,7 +114,7 @@ public class PatientRestController {
     }
 
     @PutMapping("/{id}")
-    @CacheEvict(cacheNames = "patient.list.summary", key = "#r.centerId()")
+    @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody @Valid CreatePatientRequest r) {
         Patient p = useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r));
 
@@ -280,6 +280,13 @@ public class PatientRestController {
     public ResponseEntity<?> summary(@RequestParam UUID centerId,
                                      @RequestParam(required = false) String month) {
         return ResponseEntity.ok(patientSummaryQueryService.getSummary(centerId, resolveSummaryMonth(month)));
+    }
+
+    @GetMapping("/summary/details")
+    @Cacheable(cacheNames = "patient.list.summary.details", key = "#centerId.toString() + ':' + ((#month == null || #month.isBlank()) ? T(java.time.YearMonth).now().toString() : #month)")
+    public ResponseEntity<?> summaryDetails(@RequestParam UUID centerId,
+                                            @RequestParam(required = false) String month) {
+        return ResponseEntity.ok(patientSummaryQueryService.getSummaryDetails(centerId, resolveSummaryMonth(month)));
     }
 
 }

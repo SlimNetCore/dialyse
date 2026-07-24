@@ -19,10 +19,12 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
 import {PatientSummaryCardsComponent} from './patient-summary-cards.component';
+import {PatientSummaryDetailsDialogComponent} from './patient-summary-details-dialog.component';
 import {AuthStore} from '../../core/state/auth.store';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -32,6 +34,7 @@ import {WebSocketService} from '../../core/ws/websocket.service';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
 import {PatientListStore} from './state/patient-list.store';
+import {BackendApiService} from '../../core/api/backend-api.service';
 
 export interface PatientRow {
   id: string;
@@ -178,6 +181,9 @@ export class PatientListComponent {
   readonly summary = this.patientListStore.summary;
   readonly summaryLoading = this.patientListStore.summaryLoading;
   private readonly translate = inject(TranslateService);
+  private readonly api = inject(BackendApiService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
   readonly total = this.patientListStore.total;
   readonly pageIndex = this.patientListStore.pageIndex;
   readonly pageSize = this.patientListStore.pageSize;
@@ -330,6 +336,26 @@ export class PatientListComponent {
 
   onSummaryMonthChange(month: string): void {
     this.patientListStore.setSummaryMonth(month);
+  }
+
+  onSummaryViewDetails(month: string): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) return;
+
+    this.api.getPatientSummaryDetails(centerId, month).subscribe({
+      next: (details) => {
+        this.dialog.open(PatientSummaryDetailsDialogComponent, {
+          width: 'min(96vw, 1180px)',
+          maxWidth: '96vw',
+          data: details,
+        });
+      },
+      error: () => {
+        this.snackBar.open(this.translate.instant('PATIENT_LIST.SUMMARY_DETAILS_LOAD_ERROR'), 'OK', {
+          duration: 3500,
+        });
+      },
+    });
   }
 
   exportListExcel(): void {

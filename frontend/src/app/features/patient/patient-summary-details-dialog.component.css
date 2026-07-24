@@ -1,0 +1,26 @@
+.summary-details-count {
+  margin: 0 0 12px;
+  color: var(--app-muted);
+}
+
+.summary-details-empty {
+  margin: 8px 0 4px;
+  color: var(--app-muted);
+}
+
+.summary-details-table-wrap {
+  max-height: 52vh;
+  overflow: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+}
+
+.summary-details-table {
+  width: 100%;
+}
+
+.summary-details-table th,
+.summary-details-table td {
+  white-space: nowrap;
+}
+

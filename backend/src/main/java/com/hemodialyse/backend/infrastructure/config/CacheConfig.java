@@ -57,6 +57,8 @@ public class CacheConfig {
         register(manager, "patient.byId", patientDetailTtl);
         register(manager, "patient.byNumeroAssurance", patientDetailTtl);
         register(manager, "patient.byCenter", patientListTtl);
+        register(manager, "patient.list.summary", patientListTtl);
+        register(manager, "patient.list.summary.details", patientListTtl);
         register(manager, "patient.countByCenter", patientCountTtl);
         register(manager, "patient.assure.byNumero", patientDetailTtl);
         register(manager, "patient.assure.searchByCenter", patientListTtl);

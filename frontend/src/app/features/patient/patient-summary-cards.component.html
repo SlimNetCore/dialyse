@@ -32,6 +32,17 @@
         }
         {{ 'PATIENT_LIST.BTN_PRINT_REPORT' | translate }}
       </button>
+
+      <button
+        (click)="viewDetails.emit(selectedMonth())"
+        [disabled]="loading() || !summary() || summary()!.totalPatients === 0"
+        data-testid="patient-summary-view-details"
+        mat-stroked-button
+        type="button"
+      >
+        <mat-icon>visibility</mat-icon>
+        {{ 'PATIENT_LIST.BTN_VIEW_DETAILS' | translate }}
+      </button>
     </div>
   </mat-card>
 

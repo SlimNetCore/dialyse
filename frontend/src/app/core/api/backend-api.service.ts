@@ -304,6 +304,25 @@ export type PatientSummary = {
   ktDistribution: SummaryBucket[];
 };
 
+export type PatientSummaryDetailItem = {
+  patientId: string;
+  codePatient: string;
+  nom: string;
+  prenom: string;
+  sexe: string;
+  etatPatient: string;
+  dateEvenementEtat?: string | null;
+  dateAdmission?: string | null;
+  sousKt: boolean;
+  inclusionReason: 'PERMANENT' | 'EVENT_MONTH';
+};
+
+export type PatientSummaryDetailsResponse = {
+  month: string;
+  total: number;
+  items: PatientSummaryDetailItem[];
+};
+
 @Injectable({ providedIn: 'root' })
 export class BackendApiService {
   private readonly http = inject(HttpClient);
@@ -611,6 +630,12 @@ export class BackendApiService {
     let params = new HttpParams().set('centerId', centerId);
     if (month) params = params.set('month', month);
     return this.http.get<PatientSummary>(`${this.baseUrl}/patients/summary`, {params});
+  }
+
+  getPatientSummaryDetails(centerId: string, month?: string): Observable<PatientSummaryDetailsResponse> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (month) params = params.set('month', month);
+    return this.http.get<PatientSummaryDetailsResponse>(`${this.baseUrl}/patients/summary/details`, {params});
   }
 
   getPatientParamedicalStats(centerId: string, patientId: string, from?: string, to?: string): Observable<PatientParamedicalStats> {

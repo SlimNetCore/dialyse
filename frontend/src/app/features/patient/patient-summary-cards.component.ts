@@ -33,6 +33,7 @@ function currentYearMonth(): string {
 export class PatientSummaryCardsComponent {
   @Output() printReport = new EventEmitter<string>();
   @Output() monthChanged = new EventEmitter<string>();
+  @Output() viewDetails = new EventEmitter<string>();
   private readonly summaryState = signal<PatientSummary | null>(null);
   readonly summary = this.summaryState.asReadonly();
   private readonly loadingState = signal(false);
