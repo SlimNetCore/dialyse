@@ -1,0 +1,96 @@
+<button
+  (click)="togglePanel()"
+  [matBadgeHidden]="unreadCount() === 0"
+  [matBadge]="unreadCount()"
+  class="notif-btn"
+  mat-icon-button
+  matBadgeColor="warn"
+  matBadgeSize="small"
+>
+  <mat-icon [class.bell-pulse]="unreadCount() > 0">notifications</mat-icon>
+  <span [matTooltip]="wsTooltip()" [style.background]="ws.statusColor()" class="ws-dot"></span>
+</button>
+
+@if (open()) {
+  <div (click)="closePanel()" class="notif-overlay"></div>
+  <section aria-label="Notifications" class="notif-panel" role="dialog">
+    <header class="panel-header">
+      <div class="title-wrap">
+        <mat-icon>notifications_active</mat-icon>
+        <h3>{{ 'NOTIFICATION.TITLE' | translate }}</h3>
+      </div>
+      <div class="panel-actions">
+        <button (click)="markAllRead()" class="mark-read" mat-button>
+          {{ 'NOTIFICATION.MARK_READ' | translate }}
+        </button>
+        <button (click)="closePanel()" mat-icon-button>
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button
+        (click)="setActiveTab('unread')"
+        [class.active]="activeTab() === 'unread'"
+        class="tab"
+      >
+        {{ 'NOTIFICATION.UNREAD_TAB' | translate }} ({{ unreadEvents().length }})
+      </button>
+      <button
+        (click)="setActiveTab('read')"
+        [class.active]="activeTab() === 'read'"
+        class="tab"
+      >
+        {{ 'NOTIFICATION.READ_TAB' | translate }} ({{ readEvents().length }})
+      </button>
+    </div>
+
+    <div class="panel-content">
+      <div class="message-list">
+        @if (visibleEvents().length === 0) {
+          <div class="notif-empty">{{ 'NOTIFICATION.EMPTY' | translate }}</div>
+        }
+        @for (evt of visibleEvents(); track eventId(evt)) {
+          <button
+            (click)="selectMessage(evt)"
+            [class.selected]="selectedEventId() === eventId(evt)"
+            [class.unread]="!isRead(evt)"
+            class="message-item"
+          >
+            <mat-icon [class]="'notif-icon ' + iconClass(evt)">{{ iconFor(evt) }}</mat-icon>
+            <div class="message-main">
+              <div class="message-text">{{ textFor(evt) }}</div>
+              <div class="message-meta">
+                <span>{{ evt.timestamp | date: 'short' }}</span>
+                <span>{{
+                    isRead(evt)
+                      ? ('NOTIFICATION.READ_STATUS' | translate)
+                      : ('NOTIFICATION.UNREAD_STATUS' | translate)
+                  }}</span>
+              </div>
+            </div>
+          </button>
+        }
+      </div>
+
+      <aside class="message-detail">
+        @if (selectedEvent()) {
+          <h4>{{ textFor(selectedEvent()!) }}</h4>
+          <p>
+            <strong>{{ 'NOTIFICATION.DETAIL_TYPE' | translate }}:</strong>
+            {{ selectedEvent()!.type }}
+          </p>
+          <p>
+            <strong>{{ 'NOTIFICATION.DETAIL_DATE' | translate }}:</strong>
+            {{ selectedEvent()!.timestamp | date: 'full' }}
+          </p>
+          <pre>{{ selectedEvent()!.payload | json }}</pre>
+        } @else {
+          <p class="empty-detail">{{ 'NOTIFICATION.DETAIL_SELECT' | translate }}</p>
+        }
+      </aside>
+    </div>
+  </section>
+}
+

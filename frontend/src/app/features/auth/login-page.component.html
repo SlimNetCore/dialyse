@@ -1,0 +1,132 @@
+<div class="login-wrapper">
+  <section class="login-left">
+    <span class="login-kicker">Plateforme de coordination</span>
+    <div class="hero-orbit"></div>
+    <div class="hero-copy">
+      <mat-icon class="brand-icon">monitor_heart</mat-icon>
+      <h1>{{ 'APP.TITLE' | translate }}</h1>
+      <p>{{ 'LOGIN.BRANDING_DESC' | translate }}</p>
+    </div>
+
+    <div class="hero-grid">
+      <article>
+        <span>Centres</span>
+        <strong>{{ store.availableCenters().length || '—' }}</strong>
+        <p>Connexion multi-centre sécurisée et contextualisée.</p>
+      </article>
+      <article>
+        <span>Cadence</span>
+        <strong>Temps réel</strong>
+        <p>Alertes, prises en charge et notifications synchronisées.</p>
+      </article>
+      <article>
+        <span>Design</span>
+        <strong>{{ theme.currentTheme() | titlecase }}</strong>
+        <p>Ambiance visuelle éditoriale adaptée au poste clinique.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="login-right">
+    <div class="top-actions">
+      <button [matMenuTriggerFor]="langMenu" mat-icon-button>
+        <mat-icon>translate</mat-icon>
+      </button>
+      <button [matMenuTriggerFor]="themeMenu" mat-icon-button>
+        <mat-icon>palette</mat-icon>
+      </button>
+      <mat-menu #langMenu="matMenu">
+        @for (l of lang.languages(); track l.code) {
+          <button (click)="lang.setLang(l.code)" mat-menu-item>
+            {{ l.flag }} {{ l.label }}
+          </button>
+        }
+      </mat-menu>
+      <mat-menu #themeMenu="matMenu">
+        @for (mode of theme.modes(); track mode.code) {
+          <button (click)="theme.setMode(mode.code)" mat-menu-item>
+            <mat-icon>{{
+                theme.currentMode() === mode.code
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              }}
+            </mat-icon>
+            {{ mode.i18nKey | translate }}
+          </button>
+        }
+        <div class="menu-divider"></div>
+        @for (t of theme.themes(); track t.code) {
+          <button (click)="theme.setTheme(t.code)" mat-menu-item>
+            <mat-icon>{{
+                theme.currentTheme() === t.code
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              }}
+            </mat-icon>
+            {{ t.i18nKey | translate }}
+          </button>
+        }
+      </mat-menu>
+    </div>
+
+    <mat-card class="login-card">
+      <mat-card-header>
+        <div class="card-eyebrow">Accès sécurisé</div>
+        <mat-card-title>{{ 'LOGIN.TITLE' | translate }}</mat-card-title>
+        <mat-card-subtitle
+        >Identifiez votre centre, puis ouvrez votre espace opérateur.
+        </mat-card-subtitle
+        >
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (loading()) {
+          <mat-progress-bar mode="indeterminate"/>
+        }
+        @if (error()) {
+          <div class="error-msg">{{ error() }}</div>
+        }
+
+        <form [formRoot]="loginForm" class="login-form">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'LOGIN.CENTER' | translate }}</mat-label>
+            <mat-select [formField]="loginForm.selectedCenter" data-testid="login-center-select">
+              @for (c of store.availableCenters(); track c.id) {
+                <mat-option [value]="c.id">{{ c.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'LOGIN.USERNAME' | translate }}</mat-label>
+            <input [formField]="loginForm.username" data-testid="login-username" matInput/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
+            <input
+              (keydown.enter)="doLogin()"
+              [formField]="loginForm.password"
+              data-testid="login-password"
+              matInput
+              type="password"
+            />
+          </mat-form-field>
+
+          <button
+            (click)="doLogin()"
+            [disabled]="!canSubmit()"
+            class="login-btn"
+            data-testid="login-submit"
+            mat-flat-button
+            type="button"
+          >
+            <mat-icon>login</mat-icon>
+            {{ 'LOGIN.SUBMIT' | translate }}
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</div>
+

@@ -1,0 +1,77 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">Stock · Référentiel</span>
+    <h1 class="app-section-title">Saisie des articles</h1>
+    <p class="app-section-copy">Définir si l'article est géré par lot. Ce paramètre pilote la saisie obligatoire du lot
+      en réception.</p>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Nouvel article</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="articleForm">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Code</mat-label>
+            <input [formField]="articleForm.code" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Libellé</mat-label>
+            <input [formField]="articleForm.libelle" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Unité</mat-label>
+            <input [formField]="articleForm.unite" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Seuil d'alerte</mat-label>
+            <input [formField]="articleForm.seuilAlerte" matInput type="number"/>
+          </mat-form-field>
+        </div>
+
+        <mat-checkbox [formField]="articleForm.gereParLot">
+          Article géré par lot (lot et péremption obligatoires en réception)
+        </mat-checkbox>
+
+        <div class="actions">
+          <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+            <mat-icon>save</mat-icon>
+            Créer l'article
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Articles actifs</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table [dataSource]="articles()" class="full-width" mat-table>
+        <ng-container matColumnDef="code">
+          <th *matHeaderCellDef mat-header-cell>Code</th>
+          <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
+        </ng-container>
+        <ng-container matColumnDef="libelle">
+          <th *matHeaderCellDef mat-header-cell>Libellé</th>
+          <td *matCellDef="let a" mat-cell>{{ a.libelle || a.nom }}</td>
+        </ng-container>
+        <ng-container matColumnDef="unite">
+          <th *matHeaderCellDef mat-header-cell>Unité</th>
+          <td *matCellDef="let a" mat-cell>{{ a.unite || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="lot">
+          <th *matHeaderCellDef mat-header-cell>Gestion lot</th>
+          <td *matCellDef="let a" mat-cell>{{ a.gereParLot ? 'Oui' : 'Non' }}</td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="cols" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: cols" mat-row></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</section>
+

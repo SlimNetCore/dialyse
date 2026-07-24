@@ -1,0 +1,60 @@
+[33m>[39m Building...
+[32m???[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                            [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-ELRPELPV.js[39m  [2m | [22m[2m-[22m                                [2m | [22m[36m233.64 kB[39m[2m | [22m               [36m65.37 kB[39m
+[32mchunk-POFWH6T7.js[39m  [2m | [22m[2m-[22m                                [2m | [22m[36m139.43 kB[39m[2m | [22m               [36m28.14 kB[39m
+[32mchunk-C7YKU26F.js[39m  [2m | [22m[2m-[22m                                [2m | [22m [36m75.69 kB[39m[2m | [22m               [36m18.84 kB[39m
+[32mmain-S3Q2W2XP.js[39m   [2m | [22m[2mmain[22m                             [2m | [22m [36m74.10 kB[39m[2m | [22m               [36m20.31 kB[39m
+[32mchunk-BO3VPQE2.js[39m  [2m | [22m[2m-[22m                                [2m | [22m [36m24.75 kB[39m[2m | [22m                [36m6.85 kB[39m
+[32mchunk-K6HNWZYV.js[39m  [2m | [22m[2m-[22m                                [2m | [22m [36m17.24 kB[39m[2m | [22m                [36m4.68 kB[39m
+[32mstyles-HVU7VALR.css[39m[2m | [22m[2mstyles[22m                           [2m | [22m  [36m9.89 kB[39m[2m | [22m                [36m1.83 kB[39m
+[32mchunk-C6Q5SG76.js[39m  [2m | [22m[2m-[22m                                [2m | [22m  [36m1.07 kB[39m[2m | [22m              [36m468 bytes[39m
+[32mchunk-5MAQX5RG.js[39m  [2m | [22m[2m-[22m                                [2m | [22m[36m276 bytes[39m[2m | [22m              [36m276 bytes[39m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m                    [2m | [22m[1m[93m576.09 kB[39m[22m[2m | [22m              [1m146.75 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                            [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-7BDAVM62.js[39m  [2m | [22m[2mpatient-wizard-component[22m         [2m | [22m[36m157.13 kB[39m[2m | [22m               [36m26.70 kB[39m
+[32mchunk-UDFYO4HP.js[39m  [2m | [22m[2m-[22m                                [2m | [22m[36m133.00 kB[39m[2m | [22m               [36m25.81 kB[39m
+[32mchunk-AMGDQMRL.js[39m  [2m | [22m[2m-[22m                                [2m | [22m[36m112.23 kB[39m[2m | [22m               [36m21.09 kB[39m
+[32mchunk-3YQHL4SM.js[39m  [2m | [22m[2mpatient-dashboard-component[22m      [2m | [22m [36m65.19 kB[39m[2m | [22m               [36m18.34 kB[39m
+[32mchunk-CLUYAIXN.js[39m  [2m | [22m[2m-[22m                                [2m | [22m [36m39.61 kB[39m[2m | [22m                [36m8.50 kB[39m
+[32mchunk-BSU2KNKU.js[39m  [2m | [22m[2m-[22m                                [2m | [22m [36m39.40 kB[39m[2m | [22m                [36m9.22 kB[39m
+[32mchunk-B37TPNGF.js[39m  [2m | [22m[2mlogin-page-component[22m             [2m | [22m [36m17.03 kB[39m[2m | [22m                [36m4.40 kB[39m
+[32mchunk-7C54GCEO.js[39m  [2m | [22m[2mpec-admin-component[22m              [2m | [22m [36m10.99 kB[39m[2m | [22m                [36m3.38 kB[39m
+[32mchunk-JJQGXGUZ.js[39m  [2m | [22m[2m-[22m                                [2m | [22m  [36m6.96 kB[39m[2m | [22m                [36m1.49 kB[39m
+[32mchunk-QYOIZSUP.js[39m  [2m | [22m[2m-[22m                                [2m | [22m  [36m1.59 kB[39m[2m | [22m              [36m550 bytes[39m
+[32mchunk-SDN3T663.js[39m  [2m | [22m[2mfacturation-placeholder-component[22m[2m | [22m[36m731 bytes[39m[2m | [22m              [36m731 bytes[39m
+[32mchunk-7WONVDDW.js[39m  [2m | [22m[2mreglement-placeholder-component[22m  [2m | [22m[36m728 bytes[39m[2m | [22m              [36m728 bytes[39m
+[32mchunk-RBGKPYTK.js[39m  [2m | [22m[2mseances-placeholder-component[22m    [2m | [22m[36m726 bytes[39m[2m | [22m              [36m726 bytes[39m
+[32mchunk-X2SOZEW2.js[39m  [2m | [22m[2mpatient-routes[22m                   [2m | [22m[36m350 bytes[39m[2m | [22m              [36m350 bytes[39m
+
+Application bundle generation complete. [5.813 seconds] - 2026-03-15T13:00:37.545Z
+
+node : [1m[33m[33m??? [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DatePipe is not used within the template of PecAdminComponent[0m [1m[35m[plugin angular-compiler][0m
+Au caract?re Ligne:1 : 1
++ node ./node_modules/@angular/cli/bin/ng.js build 2>&1 | Out-File -Fil ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([1m[33m[33m?...r-compiler][0m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+    src/app/features/patient/pec-admin/pec-admin.component.ts:27:49:
+[37m      27 ??? ..., MatCardModule, SlicePipe, [32mDatePipe[37m, TranslateModule, Searchab...
+         ???                                [32m~~~~~~~~[0m
+
+
+[33m??? [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 500.00 kB was not met by 76.09 kB with a total of 576.09 kB.[0m
+
+
+[33m??? [43;33m[[43;30mWARNING[43;33m][0m [1msrc/app/features/patient/patient-create-form.component.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.31 kB with a total of 5.31 kB.[0m
+
+
+[33m??? [43;33m[[43;30mWARNING[43;33m][0m [1mModule 'qrcode' used by 'src/app/features/patient/patient-qr-card.component.ts' is not ESM[0m
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: [4mhttps://angular.dev/tools/cli/build#configuring-commonjs-dependencies[0m
+
+[39m[22m
+Output location: C:\Users\TS-CONSULT\WebstormProjects\Hemodialyse\frontend\dist\hemodialyse-front
+

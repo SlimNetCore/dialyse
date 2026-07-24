@@ -164,6 +164,7 @@ export type SeanceSummary = {
     anticoagulant?: string;
     typeDialysat?: string;
     incidents?: string;
+    raw?: Record<string, unknown>;
   } | null;
   medical?: {
     prescription?: string;
@@ -172,6 +173,7 @@ export type SeanceSummary = {
     resultatsBiologiques?: string;
     ajustementsTherapeutiques?: string;
     conclusionMedicale?: string;
+    raw?: Record<string, unknown>;
   } | null;
 };
 

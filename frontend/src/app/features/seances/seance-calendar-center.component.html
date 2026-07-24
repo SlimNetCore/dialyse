@@ -1,0 +1,112 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">Séances</span>
+    <h1 class="app-section-title">Calendrier centre</h1>
+    <p class="app-section-copy">
+      Gestion des jours fériés et jours de fermeture utilisés dans le calcul des absences.
+    </p>
+    <div class="app-button-cluster">
+      <a mat-stroked-button routerLink="/seances">
+        <mat-icon>arrow_back</mat-icon>
+        Retour aux séances
+      </a>
+    </div>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Période & exports</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <mat-form-field appearance="outline" class="w240">
+          <mat-label>Mois</mat-label>
+          <input (input)="onMonthInput($event)" [value]="month()" matInput type="month"/>
+        </mat-form-field>
+        <button (click)="load()" [disabled]="loading()" color="primary" mat-stroked-button>
+          <mat-icon>refresh</mat-icon>
+          {{ loading() ? 'Chargement...' : 'Actualiser' }}
+        </button>
+        <button (click)="exportDashboard('csv')" color="primary" mat-stroked-button>
+          <mat-icon>download</mat-icon>
+          Export CSV
+        </button>
+        <button (click)="exportDashboard('pdf')" color="primary" mat-stroked-button>
+          <mat-icon>picture_as_pdf</mat-icon>
+          Export PDF
+        </button>
+        <button (click)="exportDashboard('xlsx')" color="primary" mat-stroked-button>
+          <mat-icon>table_view</mat-icon>
+          Export XLSX
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Jours fériés</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <mat-form-field appearance="outline" class="w240">
+          <mat-label>Date fériée</mat-label>
+          <input (input)="onHolidayDateInput($event)" [value]="newHolidayDate()" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex">
+          <mat-label>Libellé</mat-label>
+          <input (input)="onHolidayLabelInput($event)" [value]="newHolidayLabel()" matInput/>
+        </mat-form-field>
+        <button (click)="addHoliday()" color="primary" mat-flat-button>
+          <mat-icon>add</mat-icon>
+          Ajouter
+        </button>
+      </div>
+      @for (h of holidays(); track h.id) {
+        <div class="item-row">
+          <span>{{ h.dayDate }} - {{ h.label || 'Férié' }}</span>
+          <button (click)="deleteHoliday(h.id)" color="warn" mat-icon-button>
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+      @if (holidays().length === 0) {
+        <p class="app-muted-note">Aucun jour férié défini.</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Jours de fermeture</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <mat-form-field appearance="outline" class="w240">
+          <mat-label>Date fermeture</mat-label>
+          <input (input)="onClosureDateInput($event)" [value]="newClosureDate()" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex">
+          <mat-label>Raison</mat-label>
+          <input (input)="onClosureReasonInput($event)" [value]="newClosureReason()" matInput/>
+        </mat-form-field>
+        <button (click)="addClosure()" color="primary" mat-flat-button>
+          <mat-icon>add</mat-icon>
+          Ajouter
+        </button>
+      </div>
+      @for (c of closures(); track c.id) {
+        <div class="item-row">
+          <span>{{ c.dayDate }} - {{ c.reason || 'Fermeture' }}</span>
+          <button (click)="deleteClosure(c.id)" color="warn" mat-icon-button>
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+      @if (closures().length === 0) {
+        <p class="app-muted-note">Aucune fermeture définie.</p>
+      }
+    </mat-card-content>
+  </mat-card>
+</section>
+

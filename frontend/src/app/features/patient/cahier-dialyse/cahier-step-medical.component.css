@@ -3,27 +3,50 @@
   padding: 12px 0;
 }
 
-.placeholder-card {
+.medical-card {
   margin: 0;
 }
 
-.placeholder-message {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--app-muted);
+.seance-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.placeholder-message mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 16px;
-  color: var(--app-muted);
-}
-
-.detail {
+.seance-meta span {
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface-soft);
+  padding: 4px 10px;
   font-size: 12px;
-  margin-top: 8px;
+  color: var(--app-muted);
+}
+
+.medical-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.medical-block {
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface-soft);
+  padding: 10px;
+}
+
+.medical-block h4 {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--app-primary);
+}
+
+.medical-block p {
+  margin: 0;
+  white-space: pre-wrap;
 }
 
 .actions {
@@ -31,5 +54,11 @@
   gap: 12px;
   justify-content: center;
   margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .medical-grid {
+    grid-template-columns: 1fr;
+  }
 }
 

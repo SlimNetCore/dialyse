@@ -1,0 +1,248 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">Module stock</span>
+    <h1 class="app-section-title">Gestion des stocks</h1>
+    <p class="app-section-copy">
+      Stock valorisé en temps réel (PMP), traçabilité lot → patient → séance et centre d'alertes consolidé.
+    </p>
+    <div class="app-button-cluster">
+      <a color="primary" mat-flat-button routerLink="/stock/bons-commande">
+        <mat-icon>request_quote</mat-icon>
+        Bons de commande
+      </a>
+      <a mat-stroked-button routerLink="/stock/bons-reception">
+        <mat-icon>inventory</mat-icon>
+        Réceptions
+      </a>
+      <a mat-stroked-button routerLink="/stock/bons-sortie">
+        <mat-icon>logout</mat-icon>
+        Sorties
+      </a>
+      <a mat-stroked-button routerLink="/stock/fournisseurs">
+        <mat-icon>local_shipping</mat-icon>
+        Fournisseurs
+      </a>
+      <a mat-stroked-button routerLink="/stock/articles">
+        <mat-icon>inventory_2</mat-icon>
+        Articles
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Filtres analytiques</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="filters-grid">
+        <div class="filter-block">
+          <span class="filter-title">Periode</span>
+          <div class="app-button-cluster compact">
+            @for (d of daysOptions; track d) {
+              <button (click)="onDaysChange(d)" [color]="selectedDays() === d ? 'primary' : undefined"
+                      mat-stroked-button>
+                {{ d }} jours
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="filter-block">
+          <span class="filter-title">Top N articles</span>
+          <div class="app-button-cluster compact">
+            @for (n of topNOptions; track n) {
+              <button (click)="onTopNChange(n)" [color]="selectedTopN() === n ? 'primary' : undefined"
+                      mat-stroked-button>
+                Top {{ n }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="filter-block">
+          <span class="filter-title">Tri Top N</span>
+          <div class="app-button-cluster compact">
+            <button (click)="onSortByChange('VALUE')" [color]="selectedSortBy() === 'VALUE' ? 'primary' : undefined"
+                    mat-stroked-button>
+              Valeur
+            </button>
+            <button (click)="onSortByChange('QUANTITY')" [color]="selectedSortBy() === 'QUANTITY' ? 'primary' : undefined"
+                    mat-stroked-button>
+              Quantite
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="kpi-grid">
+    <div class="app-data-pill">
+      <span>Valeur totale du stock</span>
+      <strong>{{ valeurTotale() | number:'1.0-2' }}</strong>
+    </div>
+    <div class="app-data-pill">
+      <span>Quantité globale</span>
+      <strong>{{ quantiteTotale() | number:'1.0-2' }}</strong>
+    </div>
+    <div class="app-data-pill">
+      <span>Articles en stock</span>
+      <strong>{{ stock().length }}</strong>
+    </div>
+    <div class="app-data-pill">
+      <span>Alertes actives</span>
+      <strong>{{ alertes().length }}</strong>
+    </div>
+    <div class="app-data-pill warning-pill">
+      <span>Préemptions (lots)</span>
+      <strong>{{ preemptions().length }}</strong>
+    </div>
+    <div class="app-data-pill">
+      <span>Flux période (valeur)</span>
+      <strong>{{ (analytics()?.trend?.length ? periodValueFlow() : 0) | number:'1.0-2' }}</strong>
+    </div>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Tendance des mouvements ({{ selectedDays() }} jours)</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (analyticsLoading()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+      @if ((analytics()?.trend?.length ?? 0) === 0) {
+        <p class="app-muted-note">Aucune donnée de tendance sur la période.</p>
+      } @else {
+        <div class="chart-wrap">
+          <canvas [data]="trendChartData()"
+                  [options]="trendChartOptions"
+                  [type]="'line'"
+                  baseChart>
+          </canvas>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Top {{ selectedTopN() }} articles — {{ selectedSortBy() === 'VALUE' ? 'tri valeur' : 'tri quantite' }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if ((analytics()?.topArticles?.length ?? 0) === 0) {
+        <p class="app-muted-note">Aucun mouvement article sur la période.</p>
+      } @else {
+        <div class="chart-wrap">
+          <canvas [data]="topChartData()"
+                  [options]="topChartOptions"
+                  [type]="'bar'"
+                  baseChart>
+          </canvas>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Détails des lots en préemption</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (preemptions().length === 0) {
+        <p class="app-muted-note">Aucun lot en préemption.</p>
+      } @else {
+        <div class="alert-list">
+          @for (al of preemptions(); track al.articleId + (al.lotId ?? '')) {
+            <div class="alert-row">
+              <mat-chip highlighted="true">PEREMPTION</mat-chip>
+              <span class="alert-label">{{ al.articleLibelle }}</span>
+              <span class="alert-meta">Lot {{ al.numeroLot || '—' }}</span>
+              <span class="alert-meta">Date: {{ al.datePeremption || '—' }}</span>
+              @if (al.quantite != null) {
+                <span class="alert-meta">Qté: {{ al.quantite | number:'1.0-2' }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Stock valorisé</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table [dataSource]="stock()" class="full-width" mat-table>
+        <ng-container matColumnDef="code">
+          <th *matHeaderCellDef mat-header-cell>Code</th>
+          <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
+        </ng-container>
+        <ng-container matColumnDef="libelle">
+          <th *matHeaderCellDef mat-header-cell>Article</th>
+          <td *matCellDef="let a" mat-cell>{{ a.libelle }}</td>
+        </ng-container>
+        <ng-container matColumnDef="quantite">
+          <th *matHeaderCellDef mat-header-cell>Quantité</th>
+          <td *matCellDef="let a" mat-cell>{{ a.quantite | number:'1.0-2' }} {{ a.unite }}</td>
+        </ng-container>
+        <ng-container matColumnDef="pmp">
+          <th *matHeaderCellDef mat-header-cell>PMP</th>
+          <td *matCellDef="let a" mat-cell>{{ a.pmpCourant | number:'1.0-4' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="valeur">
+          <th *matHeaderCellDef mat-header-cell>Valeur</th>
+          <td *matCellDef="let a" mat-cell>{{ a.valeur | number:'1.0-2' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell>Actions</th>
+          <td *matCellDef="let a" mat-cell>
+            <button (click)="openPmpExplain(a)" color="primary" mat-stroked-button>
+              Expliquer PMP
+            </button>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="cols" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: cols" mat-row></tr>
+      </table>
+      @if (!loading() && stock().length === 0) {
+        <p class="app-muted-note">Aucun article en stock.</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Centre d'alertes</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (alertes().length === 0) {
+        <p class="app-muted-note">Aucune alerte. ✅</p>
+      } @else {
+        <div class="alert-list">
+          @for (al of alertes(); track al.articleId + (al.lotId ?? '')) {
+            <div [class.danger]="al.type === 'RUPTURE'" class="alert-row">
+              <mat-chip [highlighted]="true">{{ al.type }}</mat-chip>
+              <span class="alert-label">{{ al.articleLibelle }}</span>
+              @if (al.numeroLot) {
+                <span class="alert-meta">Lot {{ al.numeroLot }} · expire {{ al.datePeremption }}</span>
+              }
+              @if (al.type !== 'PEREMPTION') {
+                <span class="alert-meta">Reste {{ al.quantite | number:'1.0-2' }}
+                  (seuil {{ al.seuil | number:'1.0-2' }})</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</section>
+

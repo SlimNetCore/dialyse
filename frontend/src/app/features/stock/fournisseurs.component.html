@@ -1,0 +1,71 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">Stock · Référentiel</span>
+    <h1 class="app-section-title">Fournisseurs</h1>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Nouveau fournisseur</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="supplierForm" class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Code</mat-label>
+          <input [formField]="supplierForm.code" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Raison sociale</mat-label>
+          <input [formField]="supplierForm.raisonSociale" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Contact</mat-label>
+          <input [formField]="supplierForm.contact" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Téléphone</mat-label>
+          <input [formField]="supplierForm.telephone" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input [formField]="supplierForm.email" matInput type="email"/>
+        </mat-form-field>
+        <div class="form-actions">
+          <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+            <mat-icon>save</mat-icon>
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Liste</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table [dataSource]="items()" class="full-width" mat-table>
+        <ng-container matColumnDef="code">
+          <th *matHeaderCellDef mat-header-cell>Code</th>
+          <td *matCellDef="let f" mat-cell>{{ f.code }}</td>
+        </ng-container>
+        <ng-container matColumnDef="raisonSociale">
+          <th *matHeaderCellDef mat-header-cell>Raison sociale</th>
+          <td *matCellDef="let f" mat-cell>{{ f.raisonSociale }}</td>
+        </ng-container>
+        <ng-container matColumnDef="contact">
+          <th *matHeaderCellDef mat-header-cell>Contact</th>
+          <td *matCellDef="let f" mat-cell>{{ f.contact }}</td>
+        </ng-container>
+        <ng-container matColumnDef="telephone">
+          <th *matHeaderCellDef mat-header-cell>Téléphone</th>
+          <td *matCellDef="let f" mat-cell>{{ f.telephone }}</td>
+        </ng-container>
+        <tr *matHeaderRowDef="cols" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row.code || ''" mat-row></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</section>
+

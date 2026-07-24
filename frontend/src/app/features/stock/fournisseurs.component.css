@@ -1,0 +1,20 @@
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-card {
+  margin-top: 16px;
+}
+

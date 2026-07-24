@@ -1,0 +1,32 @@
+
+mat-card {
+  margin-top: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.w240 {
+  width: 240px;
+}
+
+.flex {
+  flex: 1;
+  min-width: 260px;
+}
+
+.item-row {
+  margin-top: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--app-surface-solid) 90%, transparent);
+}
+

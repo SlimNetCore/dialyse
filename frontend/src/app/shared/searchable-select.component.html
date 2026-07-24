@@ -1,0 +1,17 @@
+<mat-form-field [appearance]="appearance" [class]="cssClass" [style.width]="width">
+  <mat-label>{{ label }}</mat-label>
+  @if (prefixIcon) {
+    <mat-icon class="prefix-icon" matPrefix>{{ prefixIcon }}</mat-icon>
+  }
+  <mat-select
+    (selectionChange)="onSelectById($event.value)"
+    [attr.data-autofocus-first]="autofocusFirst ? '' : null"
+    [disabled]="disabled"
+    [value]="selectedIdSignal()"
+  >
+    @for (item of allItems(); track item.id) {
+      <mat-option [value]="item.id">{{ itemLabel(item) }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>
+

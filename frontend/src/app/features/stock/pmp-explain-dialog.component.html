@@ -1,0 +1,69 @@
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">calculate</mat-icon>
+  Calcul du PMP — {{ data.libelle }}
+</h2>
+
+<mat-dialog-content>
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <div class="methode">
+    <mat-icon>info</mat-icon>
+    <p>{{ explanation()?.methode }}</p>
+  </div>
+
+  @if (explanation(); as ex) {
+    <div class="summary">
+      <div class="pill"><span>Quantité en stock</span><strong>{{ ex.quantiteFinale | number:'1.0-2' }}</strong>
+      </div>
+      <div class="pill"><span>Valeur du stock</span><strong>{{ ex.valeurFinale | number:'1.0-2' }}</strong></div>
+      <div class="pill highlight"><span>PMP courant</span><strong>{{ ex.pmpFinal | number:'1.0-4' }}</strong></div>
+    </div>
+
+    @if (ex.etapes.length === 0) {
+      <p class="app-muted-note">Aucun mouvement de stock pour cet article : le PMP est à 0.</p>
+    } @else {
+      <table [dataSource]="ex.etapes" class="full-width" mat-table>
+        <ng-container matColumnDef="piece">
+          <th *matHeaderCellDef mat-header-cell>Pièce</th>
+          <td *matCellDef="let s" mat-cell>{{ s.piece || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="datePiece">
+          <th *matHeaderCellDef mat-header-cell>Date pièce</th>
+          <td *matCellDef="let s" mat-cell>{{ s.datePiece ? (s.datePiece | date:'dd/MM/yyyy') : '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="type">
+          <th *matHeaderCellDef mat-header-cell>Type</th>
+          <td *matCellDef="let s" mat-cell>
+            <mat-chip [class.entry]="s.type === 'ENTREE'" [class.exit]="s.type === 'SORTIE'">{{ s.type }}</mat-chip>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="qte">
+          <th *matHeaderCellDef mat-header-cell>Qté</th>
+          <td *matCellDef="let s" mat-cell>{{ s.quantite | number:'1.0-2' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="pu">
+          <th *matHeaderCellDef mat-header-cell>PU</th>
+          <td *matCellDef="let s" mat-cell>{{ s.prixUnitaire != null ? (s.prixUnitaire | number:'1.0-2') : '—' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="pmp">
+          <th *matHeaderCellDef mat-header-cell>PMP après</th>
+          <td *matCellDef="let s" mat-cell>{{ s.pmpApres | number:'1.0-4' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="formule">
+          <th *matHeaderCellDef mat-header-cell>Formule</th>
+          <td *matCellDef="let s" class="formule" mat-cell>{{ s.formule }}</td>
+        </ng-container>
+        <tr *matHeaderRowDef="cols" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: cols" [attr.data-step-date]="row?.date" mat-row></tr>
+      </table>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button (click)="ref.close()" color="primary" mat-flat-button>Fermer</button>
+</mat-dialog-actions>
+

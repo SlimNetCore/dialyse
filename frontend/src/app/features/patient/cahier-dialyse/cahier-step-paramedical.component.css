@@ -7,6 +7,104 @@
   margin: 0;
 }
 
+.seance-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--app-surface) 0%, var(--app-surface-soft) 100%);
+}
+
+.seance-banner-label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  color: var(--app-muted);
+}
+
+.seance-banner h4 {
+  margin: 4px 0 0;
+}
+
+.seance-status {
+  margin: 6px 0 0;
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+.seance-banner-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.banner-pill {
+  border: 1px solid var(--app-border);
+  background: var(--app-frost);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+.session-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.summary-item {
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface-soft);
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.summary-item span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--app-muted);
+}
+
+.summary-item strong {
+  font-size: 14px;
+}
+
+.raw-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.raw-item {
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface);
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.raw-item span {
+  font-size: 11px;
+  color: var(--app-muted);
+  overflow-wrap: anywhere;
+}
+
+.raw-item strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
 .form-grid {
   display: grid;
   gap: 14px;
@@ -93,8 +191,21 @@
 }
 
 @media (max-width: 960px) {
+  .seance-banner,
+  .session-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .seance-banner {
+    flex-direction: column;
+  }
+
   .form-grid,
   .fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .raw-grid {
     grid-template-columns: 1fr;
   }
 

@@ -1,0 +1,170 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">Stock · Réception</span>
+    <h1 class="app-section-title">Bons de réception</h1>
+    <p class="app-section-copy">Saisie des lots (n° + péremption). La validation calcule le PMP en cascade.</p>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ editingId() ? 'Éditer' : 'Nouveau' }} bon de réception</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="receptionForm">
+        <div class="head-row">
+          @if (lockedArticleIds().length > 0) {
+            <mat-chip class="lock-chip">{{ lockedArticleIds().length }} article(s) en recalcul</mat-chip>
+          }
+          <mat-form-field appearance="outline" class="flex2">
+            <mat-label>Fournisseur</mat-label>
+            <mat-select [formField]="receptionForm.fournisseurId">
+              @for (f of fournisseurs(); track f.id) {
+                <mat-option [value]="f.id">{{ f.raisonSociale }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Date de réception</mat-label>
+            <input [formField]="receptionForm.dateReception" [matDatepicker]="dp" matInput/>
+            <mat-datepicker-toggle [for]="dp" matIconSuffix></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+            @if (showDateError()) {
+              <mat-error>Date obligatoire</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="lines">
+          @for (ligne of formModel().lignes; track $index) {
+            <div [attr.data-line-article]="ligne.articleId || ''" class="line-row">
+              <mat-form-field appearance="outline" class="flex2">
+                <mat-label>Article</mat-label>
+                <mat-select (selectionChange)="onArticleSelected($index, $event.value)" [value]="ligne.articleId">
+                  @for (a of articles(); track a.id) {
+                    <mat-option [disabled]="isArticleLocked(a.id)" [value]="a.id">
+                      {{ articleLabel(a) }}
+                      @if (isArticleLocked(a.id)) {
+                        - recalcul en cours
+                      }
+                    </mat-option>
+                  }
+                </mat-select>
+                @if (showLigneError($index, 'article')) {
+                  <mat-error>Article obligatoire</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>Quantité</mat-label>
+                <input (input)="onQuantiteInput($index, $event)" [value]="ligne.quantite ?? ''" matInput
+                       type="number"/>
+                @if (showLigneError($index, 'quantite')) {
+                  <mat-error>Quantité invalide</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>Prix unitaire</mat-label>
+                <input (input)="onPrixUnitaireInput($index, $event)" [value]="ligne.prixUnitaire ?? ''" matInput
+                       type="number"/>
+                @if (showLigneError($index, 'prix')) {
+                  <mat-error>Prix invalide</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>N° lot</mat-label>
+                @if (isLotManagedRow($index)) {
+                  <mat-hint>Obligatoire (article géré par lot)</mat-hint>
+                } @else {
+                  <mat-hint>Optionnel (lot auto si vide)</mat-hint>
+                }
+                <input (input)="onNumeroLotInput($index, $event)" [value]="ligne.numeroLot" matInput/>
+                @if (showLigneError($index, 'lot')) {
+                  <mat-error>N° lot obligatoire</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>Péremption</mat-label>
+                @if (isLotManagedRow($index)) {
+                  <mat-hint>Obligatoire (article géré par lot)</mat-hint>
+                } @else {
+                  <mat-hint>Optionnel</mat-hint>
+                }
+                <input (dateChange)="onDatePeremptionChange($index, $event.value)" [matDatepicker]="dpl" [value]="ligne.datePeremption"
+                       matInput/>
+                <mat-datepicker-toggle [for]="dpl" matIconSuffix></mat-datepicker-toggle>
+                <mat-datepicker #dpl></mat-datepicker>
+                @if (showLigneError($index, 'peremption')) {
+                  <mat-error>Date de péremption obligatoire</mat-error>
+                }
+              </mat-form-field>
+              <button (click)="removeLigne($index)" aria-label="Supprimer" mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="app-button-cluster">
+          <button (click)="addLigne()" mat-stroked-button type="button">
+            <mat-icon>add</mat-icon>
+            Ajouter un lot
+          </button>
+          <div class="spacer"></div>
+          @if (editingId()) {
+            <button (click)="cancel()" mat-stroked-button type="button">Annuler</button>
+          }
+          <button [disabled]="!canSave() || saving() || hasLockedLines()" color="primary" mat-flat-button
+                  type="submit">
+            <mat-icon>save</mat-icon>
+            {{ editingId() ? 'Mettre à jour' : 'Créer (brouillon)' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Bons de réception</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table [dataSource]="bons()" class="full-width" mat-table>
+        <ng-container matColumnDef="reference">
+          <th *matHeaderCellDef mat-header-cell>Référence</th>
+          <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
+        </ng-container>
+        <ng-container matColumnDef="date">
+          <th *matHeaderCellDef mat-header-cell>Date</th>
+          <td *matCellDef="let b" mat-cell>{{ b.dateReception }}</td>
+        </ng-container>
+        <ng-container matColumnDef="statut">
+          <th *matHeaderCellDef mat-header-cell>Statut</th>
+          <td *matCellDef="let b" mat-cell>
+            <mat-chip>{{ b.statut }}</mat-chip>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="lignes">
+          <th *matHeaderCellDef mat-header-cell>Lots</th>
+          <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell>Actions</th>
+          <td *matCellDef="let b" mat-cell>
+            <div class="action-buttons">
+              <button (click)="edit(b)" mat-icon-button matTooltip="Éditer">
+                <mat-icon>edit</mat-icon>
+              </button>
+              @if (b.statut === 'BROUILLON') {
+                <button (click)="valider(b)" color="accent" mat-flat-button>
+                  Valider
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="cols" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</section>
+

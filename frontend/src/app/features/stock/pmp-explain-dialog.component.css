@@ -1,0 +1,71 @@
+
+.title-icon {
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.methode {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--app-frost);
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.methode p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.summary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.pill {
+  display: grid;
+  gap: 2px;
+  padding: 8px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  min-width: 140px;
+}
+
+.pill span {
+  font-size: 11px;
+  color: var(--app-muted);
+  text-transform: uppercase;
+}
+
+.pill strong {
+  font-size: 18px;
+}
+
+.pill.highlight {
+  border-color: var(--app-accent, #1565c0);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.formule {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+mat-chip.entry {
+  background: #e8f5e9;
+}
+
+mat-chip.exit {
+  background: #fff3e0;
+}
+

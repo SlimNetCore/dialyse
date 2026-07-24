@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>
+  <mat-icon>sync</mat-icon>
+  Recalcul PMP en cours
+</h2>
+
+<mat-dialog-content>
+  <p class="note">Le recalcul se fait en arriere-plan. Vous pouvez continuer la navigation.</p>
+
+  <div class="row">
+    <span>Etat:</span>
+    <strong>{{ status() }}</strong>
+  </div>
+  <div class="row">
+    <span>Progression:</span>
+    <strong>{{ processed() }} / {{ total() }}</strong>
+  </div>
+
+  <mat-progress-bar
+    [value]="progressPercent()"
+    mode="determinate"
+  ></mat-progress-bar>
+
+  <p class="message">{{ message() }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button (click)="close()" mat-stroked-button>Fermer</button>
+</mat-dialog-actions>
+

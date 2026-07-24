@@ -1,0 +1,78 @@
+
+.kpi-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.warning-pill {
+  border: 1px solid #ffcc80;
+  background: #fff8e1;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.filter-block {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--app-frost) 50%, var(--app-surface));
+}
+
+.filter-title {
+  font-size: 12px;
+  color: var(--app-muted);
+  font-weight: 600;
+}
+
+.compact {
+  gap: 6px;
+}
+
+.chart-wrap {
+  min-height: 320px;
+  display: block;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.alert-list {
+  display: grid;
+  gap: 8px;
+}
+
+.alert-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-frost);
+}
+
+.alert-row.danger {
+  border-color: #e5484d;
+}
+
+.alert-label {
+  font-weight: 700;
+}
+
+.alert-meta {
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+mat-card {
+  margin-top: 16px;
+}
+

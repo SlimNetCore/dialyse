@@ -1,0 +1,176 @@
+<div class="page-container">
+  <mat-card class="header-card">
+    <div class="header-row">
+      <div>
+        <h2>
+          <mat-icon class="title-icon">description</mat-icon>
+          Gestion des modèles de documents
+        </h2>
+        <p class="subtitle">
+          Associez un fichier .jrxml JasperReports à chaque type de document par centre
+        </p>
+      </div>
+      <button (click)="openForm()" color="primary" mat-flat-button>
+        <mat-icon>add</mat-icon>
+        Nouveau modèle
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Formulaire d'ajout/édition -->
+  @if (showForm()) {
+    <mat-card class="form-card">
+      <form [formRoot]="documentForm">
+        <h3>{{ editingId() ? 'Modifier le modèle' : 'Nouveau modèle de document' }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Code</mat-label>
+            <input [formField]="documentForm.code" matInput placeholder="Ex: FICHE_PATIENT"/>
+            <mat-icon matPrefix>code</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Libellé</mat-label>
+            <input
+              [formField]="documentForm.libelle"
+              matInput
+              placeholder="Ex: Fiche signalétique patient"
+            />
+            <mat-icon matPrefix>label</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Type de document</mat-label>
+            <mat-select [formField]="documentForm.typeDocument">
+              @for (t of documentTypes(); track t.code) {
+                <mat-option [value]="t.code">{{ t.label }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>category</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Chemin du fichier .jrxml</mat-label>
+            <input
+              [formField]="documentForm.cheminJrxml"
+              matInput
+              placeholder="Ex: reports/fiche_patient.jrxml"
+            />
+            <mat-icon matPrefix>folder_open</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Format d'impression</mat-label>
+            <mat-select [formField]="documentForm.formatImpression">
+              <mat-option value="PDF">PDF</mat-option>
+              <mat-option value="EXCEL">Excel (XLS)</mat-option>
+              <mat-option value="HTML">HTML</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>print</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea [formField]="documentForm.description" matInput rows="2"></textarea>
+            <mat-icon matPrefix>info</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button (click)="closeForm()" mat-stroked-button type="button">Annuler</button>
+          <button (click)="save()" [disabled]="!isFormValid()" color="primary" mat-flat-button type="button">
+            <mat-icon>save</mat-icon>
+            {{ editingId() ? 'Modifier' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  }
+
+  <!-- Tableau des modèles -->
+  <mat-card class="table-card">
+    <div class="table-wrap">
+      <table [dataSource]="modeles()" class="modeles-table" mat-table>
+        <ng-container matColumnDef="code">
+          <th *matHeaderCellDef mat-header-cell>Code</th>
+          <td *matCellDef="let m" mat-cell>{{ val(m, 'CODE', 'code') }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="libelle">
+          <th *matHeaderCellDef mat-header-cell>Libellé</th>
+          <td *matCellDef="let m" mat-cell>{{ val(m, 'LIBELLE', 'libelle') }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="typeDocument">
+          <th *matHeaderCellDef mat-header-cell>Type</th>
+          <td *matCellDef="let m" mat-cell>
+            <span class="type-chip">{{ val(m, 'TYPE_DOCUMENT', 'type_document') }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cheminJrxml">
+          <th *matHeaderCellDef mat-header-cell>Fichier .jrxml</th>
+          <td *matCellDef="let m" mat-cell>
+            <code class="jrxml-path">{{ val(m, 'CHEMIN_JRXML', 'chemin_jrxml') }}</code>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="format">
+          <th *matHeaderCellDef mat-header-cell>Format</th>
+          <td *matCellDef="let m" mat-cell>
+                <span
+                  [class]="val(m, 'FORMAT_IMPRESSION', 'format_impression')?.toLowerCase()"
+                  class="format-badge"
+                >
+                  {{ val(m, 'FORMAT_IMPRESSION', 'format_impression') }}
+                </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="active">
+          <th *matHeaderCellDef mat-header-cell>Actif</th>
+          <td *matCellDef="let m" mat-cell>
+            <mat-icon [style.color]="val(m, 'ACTIVE', 'active') ? '#1b5e20' : '#bdbdbd'">
+              {{ val(m, 'ACTIVE', 'active') ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell>Actions</th>
+          <td *matCellDef="let m" mat-cell>
+            <button (click)="edit(m)" mat-icon-button matTooltip="Modifier">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              (click)="testPrint(m)"
+              color="primary"
+              mat-icon-button
+              matTooltip="Tester l'impression"
+            >
+              <mat-icon>print</mat-icon>
+            </button>
+            <button (click)="remove(m)" color="warn" mat-icon-button matTooltip="Supprimer">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr
+          *matRowDef="let row; columns: displayedColumns"
+          [attr.data-row-id]="val(row, 'ID', 'id')"
+          mat-row
+        ></tr>
+      </table>
+    </div>
+
+    @if (modeles().length === 0) {
+      <div class="empty-state">
+        <mat-icon>description</mat-icon>
+        <p>Aucun modèle de document configuré pour ce centre</p>
+      </div>
+    }
+  </mat-card>
+</div>
+

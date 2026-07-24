@@ -1,0 +1,199 @@
+<!-- TOOLBAR -->
+<mat-toolbar class="topbar">
+  <div class="brand">
+    <mat-icon>monitor_heart</mat-icon>
+    <span>{{ 'APP.TITLE' | translate }}</span>
+  </div>
+  <div class="topbar-right">
+    <!-- Notification bell -->
+    <app-notification-bell/>
+
+    <!-- Language switcher -->
+    <button [matMenuTriggerFor]="langMenu" class="lang-btn" mat-icon-button>
+      <mat-icon>translate</mat-icon>
+    </button>
+    <mat-menu #langMenu="matMenu">
+      @for (l of lang.languages(); track l.code) {
+        <button
+          (click)="lang.setLang(l.code)"
+          [class.active-lang]="lang.currentLang() === l.code"
+          mat-menu-item
+        >
+          <span class="lang-flag">{{ l.flag }}</span> <span>{{ l.label }}</span>
+        </button>
+      }
+    </mat-menu>
+
+    <!-- Theme switcher -->
+    <button
+      [matMenuTriggerFor]="themeMenu"
+      [matTooltip]="'THEME.TITLE' | translate"
+      class="theme-btn"
+      mat-icon-button
+    >
+      <mat-icon>palette</mat-icon>
+    </button>
+    <mat-menu #themeMenu="matMenu">
+      @for (mode of theme.modes(); track mode.code) {
+        <button
+          (click)="theme.setMode(mode.code)"
+          [class.active-theme]="theme.currentMode() === mode.code"
+          mat-menu-item
+        >
+          <mat-icon>{{
+              theme.currentMode() === mode.code
+                ? 'radio_button_checked'
+                : 'radio_button_unchecked'
+            }}
+          </mat-icon>
+          {{ mode.i18nKey | translate }}
+        </button>
+      }
+      <div class="menu-divider"></div>
+      @for (t of theme.themes(); track t.code) {
+        <button
+          (click)="theme.setTheme(t.code)"
+          [class.active-theme]="theme.currentTheme() === t.code"
+          mat-menu-item
+        >
+          <mat-icon>{{
+              theme.currentTheme() === t.code ? 'radio_button_checked' : 'radio_button_unchecked'
+            }}
+          </mat-icon>
+          {{ t.i18nKey | translate }}
+        </button>
+      }
+    </mat-menu>
+
+    <!-- User profile menu -->
+    <button [matMenuTriggerFor]="userMenu" class="user-btn" mat-button>
+      <mat-icon>account_circle</mat-icon>
+      <span class="user-name">{{ auth.fullName() || auth.username() }}</span>
+      <span class="separator">•</span>
+      <span class="center-name">{{ auth.centerName() }}</span>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      @if (auth.hasRole('ROLE_ADMIN') || auth.hasRole('ADMIN')) {
+        <button (click)="router.navigate(['/patients/pec-admin'])" mat-menu-item>
+          <mat-icon>verified</mat-icon>
+          {{ 'NAV.PEC_ADMIN' | translate }}
+        </button>
+        <button (click)="router.navigate(['/modeles-document'])" mat-menu-item>
+          <mat-icon>description</mat-icon>
+          Modèles de documents
+        </button>
+        <button (click)="router.navigate(['/admin/users'])" mat-menu-item>
+          <mat-icon>manage_accounts</mat-icon>
+          {{ 'NAV.ADMIN' | translate }}
+        </button>
+      }
+      <button (click)="onLogout()" mat-menu-item>
+        <mat-icon>logout</mat-icon>
+        {{ 'TOOLBAR.LOGOUT' | translate }}
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>
+
+<div class="module-bar">
+  <div class="module-items">
+    @for (item of activeModuleItems(); track item.route) {
+      <button
+        (click)="openModule(item.route)"
+        [class.active-module-item]="isRouteActive(item.route)"
+        class="module-item-btn"
+        mat-stroked-button
+        type="button"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        {{ item.label }}
+      </button>
+    }
+  </div>
+</div>
+
+<div class="shell-body">
+  <!-- SIDEBAR -->
+  <nav #sidebar [class.compact-nav]="compactNav()" class="sidebar">
+    <div class="sidebar-title">Modules</div>
+    @for (item of visibleNavItems(); track item.route) {
+      <a
+        [matTooltip]="item.label | translate"
+        [routerLink]="item.route"
+        class="nav-item"
+        routerLinkActive="active-nav"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.label | translate }}</span>
+      </a>
+    }
+
+    @if (overflowNavItems().length > 0) {
+      <button
+        [attr.aria-label]="'NAV.MENU' | translate"
+        [class.active-nav-trigger]="hasOverflowActiveRoute()"
+        [matMenuTriggerFor]="navMenu"
+        [matTooltip]="'NAV.MENU' | translate"
+        class="nav-menu-trigger"
+        mat-stroked-button
+        type="button"
+      >
+            <span class="overflow-btn-inner">
+              <mat-icon>grid_view</mat-icon>
+              <span class="overflow-badge">{{ overflowNavItems().length }}</span>
+            </span>
+      </button>
+    }
+  </nav>
+
+  <mat-menu #navMenu="matMenu">
+    @for (item of overflowNavItems(); track item.route) {
+      <a
+        [class.active-menu-item]="isRouteActive(item.route)"
+        [routerLink]="item.route"
+        mat-menu-item
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label | translate }}</span>
+      </a>
+    }
+  </mat-menu>
+
+  <div #navSizer aria-hidden="true" class="nav-sizer">
+    @for (item of navItems; track item.route) {
+      <div class="nav-item" data-nav-sizer-item>
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.label | translate }}</span>
+      </div>
+    }
+    <button class="nav-menu-trigger" data-nav-sizer-overflow type="button">
+          <span class="overflow-btn-inner">
+            <mat-icon>grid_view</mat-icon>
+            <span class="overflow-badge">9</span>
+          </span>
+    </button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    @if (breadcrumbs().length > 0) {
+      <div class="breadcrumb">
+        @for (b of breadcrumbs(); track $index; let i = $index) {
+          <button
+            (click)="goBreadcrumb(i)"
+            [class.last]="i === breadcrumbs().length - 1"
+            class="crumb-btn"
+            type="button"
+          >
+            {{ b }}
+          </button>
+          @if (i < breadcrumbs().length - 1) {
+            <mat-icon class="sep">chevron_right</mat-icon>
+          }
+        }
+      </div>
+    }
+    <router-outlet/>
+  </main>
+</div>
+

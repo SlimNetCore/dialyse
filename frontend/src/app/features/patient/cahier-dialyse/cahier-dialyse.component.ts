@@ -3,157 +3,178 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
+  HostListener,
   inject,
+  OnInit,
   signal,
-  ViewChild,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
-import {MatStepper, MatStepperModule} from '@angular/material/stepper';
-import {STEPPER_GLOBAL_OPTIONS, StepperSelectionEvent} from '@angular/cdk/stepper';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatChipsModule} from '@angular/material/chips';
 import {TranslateModule} from '@ngx-translate/core';
-import {AuthStore} from '../../../core/state/auth.store';
+import {BackendApiService, SeanceListItem, SeanceSummary} from '../../../core/api/backend-api.service';
+import {AppShellStore} from '../../../core/state/app-shell.store';
 import {CahierStepFicheComponent} from './cahier-step-fiche.component';
 import {CahierStepParamedicalComponent} from './cahier-step-paramedical.component';
 import {CahierStepMedicalComponent} from './cahier-step-medical.component';
 import {CahierStepStatsComponent} from './cahier-step-stats.component';
-
-type StepStatus = 'brouillon' | 'enregistré' | 'validé' | 'signé';
 
 @Component({
   selector: 'app-cahier-dialyse',
   standalone: true,
   imports: [
     CommonModule,
-    MatStepperModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
     MatTooltipModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatChipsModule,
     TranslateModule,
     CahierStepFicheComponent,
     CahierStepParamedicalComponent,
     CahierStepMedicalComponent,
     CahierStepStatsComponent,
   ],
-  providers: [{provide: STEPPER_GLOBAL_OPTIONS, useValue: {showError: true}}],
   templateUrl: './cahier-dialyse.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cahier-dialyse.component.css',
 })
-export class CahierDialyseComponent implements AfterViewInit {
-  @ViewChild('stepper') stepper?: MatStepper;
+export class CahierDialyseComponent implements AfterViewInit, OnInit {
   readonly isMobileViewport = signal(
     typeof window !== 'undefined' ? window.innerWidth <= 900 : false,
   );
-  // Step status tracking
-  readonly step1Status = signal<StepStatus>('brouillon');
-  readonly step2Status = signal<StepStatus>('brouillon');
-  readonly step3Status = signal<StepStatus>('brouillon');
-  readonly step4Status = signal<StepStatus>('brouillon');
+
+  readonly loadingSeances = signal(false);
+  readonly loadingSummary = signal(false);
+  readonly loadError = signal<string | null>(null);
+  readonly patientSeances = signal<SeanceListItem[]>([]);
+  readonly selectedSummary = signal<SeanceSummary | null>(null);
+  readonly currentPageIndex = signal(0);
+
   private readonly route = inject(ActivatedRoute);
   readonly patientId = this.route.snapshot.paramMap.get('id') ?? '';
+
   private readonly router = inject(Router);
-  private readonly auth = inject(AuthStore);
-  readonly stepStates = computed(() => [
-    {
-      label: 'Step 1 - Fiche Patient',
-      status: this.step1Status(),
-      canRead: true,
-      canWrite: this.auth.hasRole('ADMIN') || this.auth.hasRole('SECRETAIRE'),
-    },
-    {
-      label: 'Step 2 - Paramédical',
-      status: this.step2Status(),
-      canRead: true,
-      canWrite: this.auth.hasRole('INFIRMIER') || this.auth.hasRole('ADMIN'),
-    },
-    {
-      label: 'Step 3 - Médical',
-      status: this.step3Status(),
-      canRead: true,
-      canWrite: this.auth.hasRole('MEDECIN') || this.auth.hasRole('ADMIN'),
-    },
-    {
-      label: 'Step 4 - Statistiques',
-      status: this.step4Status(),
-      canRead: true,
-      canWrite: false,
-    },
-  ]);
+  private readonly appShell = inject(AppShellStore);
+  private readonly api = inject(BackendApiService);
 
-  private readonly currentStep = signal(0);
+  readonly selectedSeance = computed(() => this.patientSeances()[this.currentPageIndex()] ?? null);
+  readonly totalPages = computed(() => this.patientSeances().length);
+  readonly pageNumber = computed(() => this.currentPageIndex() + 1);
+  readonly canGoPrev = computed(() => this.currentPageIndex() > 0);
+  readonly canGoNext = computed(() => this.currentPageIndex() < this.totalPages() - 1);
+  readonly hasSeances = computed(() => this.totalPages() > 0);
+  readonly selectedSeanceStatus = computed(() => this.selectedSeance()?.status ?? 'BROUILLON');
+  readonly selectedSeanceDate = computed(() => this.selectedSeance()?.dateSeance ?? null);
 
-  constructor() {
-    effect(() => {
-      const width = typeof window !== 'undefined' ? window.innerWidth : 900;
-      this.isMobileViewport.set(width <= 900);
-    });
+  ngOnInit(): void {
+    this.loadSeanceBook();
   }
 
   ngAfterViewInit(): void {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', () => {
-        this.isMobileViewport.set(window.innerWidth <= 900);
-      });
-    }
+    this.isMobileViewport.set(typeof window !== 'undefined' ? window.innerWidth <= 900 : false);
   }
 
-  shouldRenderStep(stepIndex: number): boolean {
-    return Math.abs(this.currentStep() - stepIndex) <= 1;
+  @HostListener('window:resize')
+  onResize(): void {
+    this.isMobileViewport.set(window.innerWidth <= 900);
   }
 
-  stepBadgeIcon(stepIndex: number): string {
-    const status = this.stepStates()[stepIndex].status;
-    return status === 'brouillon'
-      ? 'edit_note'
-      : status === 'enregistré'
-        ? 'check'
-        : status === 'validé'
-          ? 'verified'
-          : 'done_all';
+  reloadBook(): void {
+    this.loadSeanceBook();
   }
 
-  stepLabelStatus(stepIndex: number): string {
-    return `Statut: ${this.stepStates()[stepIndex].status}`;
+  statusClass(status: string): string {
+    const normalized = (status ?? '').toUpperCase();
+    if (normalized === 'VALIDEE') return 'status-validee';
+    if (normalized === 'SIGNEE') return 'status-signee';
+    return 'status-brouillon';
   }
 
-  onStepChange(event: StepperSelectionEvent): void {
-    this.currentStep.set(event.selectedIndex);
+  formatSeanceDate(rawDate: string | null): string {
+    const source = (rawDate ?? '').trim();
+    const match = source.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return source || '-';
+    return `${match[3]}/${match[2]}/${match[1]}`;
   }
 
-  onStep1DataChange(_data: any): void {
-    // Placeholder for step 1 data handling
+  goToPage(index: number): void {
+    if (index < 0 || index >= this.totalPages()) return;
+    this.currentPageIndex.set(index);
+    this.loadSelectedSeanceSummary();
   }
 
-  onStep1ValidChange(isValid: boolean): void {
-    this.step1Status.set(isValid ? 'validé' : 'enregistré');
+  goToPreviousPage(): void {
+    if (!this.canGoPrev()) return;
+    this.goToPage(this.currentPageIndex() - 1);
   }
 
-  onStep2DataChange(_data: any): void {
-    // Placeholder for step 2 data handling
-  }
-
-  onStep2ValidChange(isValid: boolean): void {
-    this.step2Status.set(isValid ? 'validé' : 'enregistré');
-  }
-
-  onStep3DataChange(_data: any): void {
-    // Placeholder for step 3 data handling
-  }
-
-  onStep3ValidChange(isValid: boolean): void {
-    this.step3Status.set(isValid ? 'validé' : 'enregistré');
+  goToNextPage(): void {
+    if (!this.canGoNext()) return;
+    this.goToPage(this.currentPageIndex() + 1);
   }
 
   goBack(): void {
     this.router.navigate(['/patients']);
+  }
+
+  private loadSeanceBook(): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId || !this.patientId) {
+      this.loadError.set('COMMON.ERROR_MISSING_DATA');
+      return;
+    }
+
+    this.loadingSeances.set(true);
+    this.loadError.set(null);
+    this.api.listSeances(centerId).subscribe({
+      next: (items) => {
+        const seances = items
+          .filter((item) => item.centerId === centerId && item.patientId === this.patientId)
+          .sort((a, b) => b.dateSeance.localeCompare(a.dateSeance));
+
+        this.patientSeances.set(seances);
+        this.currentPageIndex.set(0);
+        this.loadingSeances.set(false);
+
+        if (seances.length > 0) {
+          this.loadSelectedSeanceSummary();
+        } else {
+          this.selectedSummary.set(null);
+        }
+      },
+      error: () => {
+        this.loadingSeances.set(false);
+        this.loadError.set('COMMON.ERROR_LOAD');
+      },
+    });
+  }
+
+  private loadSelectedSeanceSummary(): void {
+    const centerId = this.appShell.currentCenterId();
+    const seance = this.selectedSeance();
+    if (!centerId || !seance?.id) {
+      this.selectedSummary.set(null);
+      return;
+    }
+
+    this.loadingSummary.set(true);
+    this.api.getSeanceSummary(seance.id, centerId).subscribe({
+      next: (summary) => {
+        this.selectedSummary.set(summary);
+        this.loadingSummary.set(false);
+      },
+      error: () => {
+        this.loadingSummary.set(false);
+      },
+    });
   }
 }

@@ -1,0 +1,159 @@
+<mat-card>
+  <div class="header">
+    <h2>
+      <mat-icon>admin_panel_settings</mat-icon>
+      Gestion des rôles
+    </h2>
+    <button color="primary" mat-flat-button routerLink="/admin/roles/new">
+      <mat-icon>add</mat-icon>
+      Nouveau rôle
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <mat-form-field appearance="outline" class="search">
+      <mat-label>Rechercher</mat-label>
+      <input [formField]="searchForm.term" matInput/>
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+
+    <button [matMenuTriggerFor]="colsMenu" color="primary" mat-stroked-button>
+      <mat-icon>view_column</mat-icon>
+      Colonnes
+    </button>
+    <button
+      (click)="clearAllColumnFilters()"
+      [disabled]="!hasActiveFilters()"
+      color="warn"
+      mat-stroked-button
+    >
+      <mat-icon>filter_alt_off</mat-icon>
+      Réinitialiser filtres
+    </button>
+    <mat-menu #colsMenu="matMenu">
+      @for (c of allColumnsConfig; track c.key) {
+        @if (c.key !== 'actions') {
+          <button (click)="$event.stopPropagation()" mat-menu-item>
+            <mat-checkbox
+              (change)="toggleColumn(c.key, $event.checked)"
+              [checked]="isColumnVisible(c.key)"
+            >{{ c.label }}
+            </mat-checkbox>
+          </button>
+        }
+      }
+    </mat-menu>
+  </div>
+
+  <div class="table-wrap">
+    <table [dataSource]="rows()" class="full-width" mat-table>
+      <ng-container matColumnDef="code">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('code')" class="th-wrap">
+            <div class="th-top">
+              <span>Code</span>
+              <mat-icon
+                (click)="toggleFilterPanel('code', $event)"
+                [class.active]="isColumnFiltered('code')"
+                class="filter-ind"
+              >{{ isColumnFiltered('code') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('code')"
+                (valueChange)="onColumnFilterValue('code', $event)"
+                [value]="columnFilterValue('code')"
+                type="text"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.CODE }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('name')" class="th-wrap">
+            <div class="th-top">
+              <span>Nom</span>
+              <mat-icon
+                (click)="toggleFilterPanel('name', $event)"
+                [class.active]="isColumnFiltered('name')"
+                class="filter-ind"
+              >{{ isColumnFiltered('name') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('name')"
+                (valueChange)="onColumnFilterValue('name', $event)"
+                [value]="columnFilterValue('name')"
+                type="text"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.NAME }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <th *matHeaderCellDef mat-header-cell>
+          <div [class.open]="isFilterOpen('description')" class="th-wrap">
+            <div class="th-top">
+              <span>Description</span>
+              <mat-icon
+                (click)="toggleFilterPanel('description', $event)"
+                [class.active]="isColumnFiltered('description')"
+                class="filter-ind"
+              >{{ isColumnFiltered('description') ? 'filter_alt' : 'filter_alt_off' }}
+              </mat-icon>
+            </div>
+            <div class="th-filter">
+              <app-column-filter-renderer
+                (clear)="clearColumnFilter('description')"
+                (valueChange)="onColumnFilterValue('description', $event)"
+                [value]="columnFilterValue('description')"
+                type="text"
+              />
+            </div>
+          </div>
+        </th>
+        <td *matCellDef="let r" mat-cell>{{ r.DESCRIPTION }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell>Actions</th>
+        <td *matCellDef="let r" mat-cell>
+          <button [routerLink]="['/admin/roles', r.ID, 'edit']" color="primary" mat-icon-button>
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button (click)="deleteRole(r)" color="warn" mat-icon-button>
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns()" mat-header-row></tr>
+      <tr
+        *matRowDef="let row; columns: displayedColumns()"
+        [attr.data-row-id]="row.ID || ''"
+        mat-row
+      ></tr>
+      <tr *matNoDataRow class="mat-mdc-row">
+        <td [attr.colspan]="displayedColumns().length" class="mat-mdc-cell no-data-cell">
+          Aucun role trouve
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator
+    (page)="onPageChange($event)"
+    [length]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    [pageSize]="pageSize()"
+  ></mat-paginator>
+</mat-card>
+

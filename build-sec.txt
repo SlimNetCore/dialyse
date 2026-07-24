@@ -1,0 +1,200 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< com.hemodialyse:backend >-----------------------
+[INFO] Building backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ backend ---
+[INFO] Deleting C:\Users\TS-CONSULT\WebstormProjects\Hemodialyse\backend\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 7 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 50 source files with javac [debug parameters release 21] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java:[4,27] package lombok.extern.slf4j does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java:[12,2] cannot find symbol
+  symbol: class Slf4j
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[4,26] package io.jsonwebtoken.io does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[5,32] package io.jsonwebtoken.security does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[6,27] package lombok.extern.slf4j does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[18,2] cannot find symbol
+  symbol: class Slf4j
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[119,13] cannot find symbol
+  symbol:   class Claims
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[3,1] package io.jsonwebtoken does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[7,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[8,27] package lombok.extern.slf4j does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[21,2] cannot find symbol
+  symbol: class Slf4j
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[23,2] cannot find symbol
+  symbol: class RequiredArgsConstructor
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/SecurityConfig.java:[3,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/SecurityConfig.java:[28,2] cannot find symbol
+  symbol: class RequiredArgsConstructor
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[3,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[4,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[13,2] cannot find symbol
+  symbol: class Getter
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[14,2] cannot find symbol
+  symbol: class AllArgsConstructor
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[32,35] package Decoders does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[35,16] cannot find symbol
+  symbol:   variable Keys
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[47,16] cannot find symbol
+  symbol:   variable Jwts
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[49,39] cannot find symbol
+  symbol:   method getId()
+  location: variable principal of type com.hemodialyse.backend.infrastructure.security.UserPrincipal
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[61,16] cannot find symbol
+  symbol:   variable Jwts
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[73,16] cannot find symbol
+  symbol:   variable Jwts
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[103,18] cannot find symbol
+  symbol:   class ExpiredJwtException
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[104,13] cannot find symbol
+  symbol:   variable log
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[105,18] cannot find symbol
+  symbol:   class UnsupportedJwtException
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[106,13] cannot find symbol
+  symbol:   variable log
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[107,18] cannot find symbol
+  symbol:   class MalformedJwtException
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[108,13] cannot find symbol
+  symbol:   variable log
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[109,18] cannot find symbol
+  symbol:   class JwtException
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[110,13] cannot find symbol
+  symbol:   variable log
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[120,16] cannot find symbol
+  symbol:   variable Jwts
+  location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[43,43] constructor UserPrincipal in class com.hemodialyse.backend.infrastructure.security.UserPrincipal cannot be applied to given types;
+  required: no arguments
+  found:    java.lang.String,java.lang.String,java.lang.String,java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority>,boolean
+  reason: actual and formal argument lists differ in length
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[51,13] cannot find symbol
+  symbol:   variable log
+  location: class com.hemodialyse.backend.infrastructure.security.JwtAuthenticationFilter
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[15,8] com.hemodialyse.backend.infrastructure.security.UserPrincipal is not abstract and does not override abstract method getUsername() in org.springframework.security.core.userdetails.UserDetails
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[28,16] constructor UserPrincipal in class com.hemodialyse.backend.infrastructure.security.UserPrincipal cannot be applied to given types;
+  required: no arguments
+  found:    java.lang.String,java.lang.String,java.lang.String,java.util.List<org.springframework.security.core.GrantedAuthority>,boolean
+  reason: actual and formal argument lists differ in length
+[INFO] 37 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.745 s
+[INFO] Finished at: 2026-03-15T14:15:50+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile (default-compile) on project backend: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java:[4,27] package lombok.extern.slf4j does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java:[12,2] cannot find symbol
+[ERROR]   symbol: class Slf4j
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[4,26] package io.jsonwebtoken.io does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[5,32] package io.jsonwebtoken.security does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[6,27] package lombok.extern.slf4j does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[18,2] cannot find symbol
+[ERROR]   symbol: class Slf4j
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[119,13] cannot find symbol
+[ERROR]   symbol:   class Claims
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[3,1] package io.jsonwebtoken does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[7,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[8,27] package lombok.extern.slf4j does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[21,2] cannot find symbol
+[ERROR]   symbol: class Slf4j
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[23,2] cannot find symbol
+[ERROR]   symbol: class RequiredArgsConstructor
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/SecurityConfig.java:[3,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/SecurityConfig.java:[28,2] cannot find symbol
+[ERROR]   symbol: class RequiredArgsConstructor
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[3,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[4,14] package lombok does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[13,2] cannot find symbol
+[ERROR]   symbol: class Getter
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[14,2] cannot find symbol
+[ERROR]   symbol: class AllArgsConstructor
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[32,35] package Decoders does not exist
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[35,16] cannot find symbol
+[ERROR]   symbol:   variable Keys
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[47,16] cannot find symbol
+[ERROR]   symbol:   variable Jwts
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[49,39] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable principal of type com.hemodialyse.backend.infrastructure.security.UserPrincipal
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[61,16] cannot find symbol
+[ERROR]   symbol:   variable Jwts
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[73,16] cannot find symbol
+[ERROR]   symbol:   variable Jwts
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[103,18] cannot find symbol
+[ERROR]   symbol:   class ExpiredJwtException
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[104,13] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[105,18] cannot find symbol
+[ERROR]   symbol:   class UnsupportedJwtException
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[106,13] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[107,18] cannot find symbol
+[ERROR]   symbol:   class MalformedJwtException
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[108,13] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[109,18] cannot find symbol
+[ERROR]   symbol:   class JwtException
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[110,13] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtTokenProvider.java:[120,16] cannot find symbol
+[ERROR]   symbol:   variable Jwts
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtTokenProvider
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[43,43] constructor UserPrincipal in class com.hemodialyse.backend.infrastructure.security.UserPrincipal cannot be applied to given types;
+[ERROR]   required: no arguments
+[ERROR]   found:    java.lang.String,java.lang.String,java.lang.String,java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority>,boolean
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/JwtAuthenticationFilter.java:[51,13] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.hemodialyse.backend.infrastructure.security.JwtAuthenticationFilter
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[15,8] com.hemodialyse.backend.infrastructure.security.UserPrincipal is not abstract and does not override abstract method getUsername() in org.springframework.security.core.userdetails.UserDetails
+[ERROR] /C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/backend/src/main/java/com/hemodialyse/backend/infrastructure/security/UserPrincipal.java:[28,16] constructor UserPrincipal in class com.hemodialyse.backend.infrastructure.security.UserPrincipal cannot be applied to given types;
+[ERROR]   required: no arguments
+[ERROR]   found:    java.lang.String,java.lang.String,java.lang.String,java.util.List<org.springframework.security.core.GrantedAuthority>,boolean
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

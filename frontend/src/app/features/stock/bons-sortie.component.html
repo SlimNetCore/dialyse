@@ -1,0 +1,129 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">Stock · Sortie</span>
+    <h1 class="app-section-title">Bons de sortie</h1>
+    <p class="app-section-copy">Sortie de stock par lot. Les lots sont proposes par ordre de peremption (FEFO).</p>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Nouvelle sortie</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="sortieForm">
+        <div class="head-row">
+          @if (lockedArticleIds().length > 0) {
+            <mat-chip class="lock-chip">{{ lockedArticleIds().length }} article(s) en recalcul</mat-chip>
+          }
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Date de sortie</mat-label>
+            <input [formField]="sortieForm.dateSortie" [matDatepicker]="dp" matInput/>
+            <mat-datepicker-toggle [for]="dp" matIconSuffix></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+            @if (showDateError()) {
+              <mat-error>Date obligatoire</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="lines">
+          @for (item of formModel().items; track $index) {
+            <div class="line-row">
+              <mat-form-field appearance="outline" class="flex2">
+                <mat-label>Article</mat-label>
+                <mat-select (selectionChange)="onArticleSelected($index, $event.value)" [value]="item.articleId">
+                  @for (a of articles(); track a.id) {
+                    <mat-option [disabled]="isArticleLocked(a.id)" [value]="a.id">
+                      {{ articleLabel(a) }}
+                      @if (isArticleLocked(a.id)) {
+                        - recalcul en cours
+                      }
+                    </mat-option>
+                  }
+                </mat-select>
+                @if (showItemError($index, 'article')) {
+                  <mat-error>Article obligatoire</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex2">
+                <mat-label>Numero lot</mat-label>
+                <mat-select (selectionChange)="onLotSelected($index, $event.value)" [value]="item.lotId">
+                  @for (l of lotsForRow($index); track l.id) {
+                    <mat-option [value]="l.id">
+                      {{ l.numeroLot }}
+                      @if (l.datePeremption) {
+                        - exp {{ l.datePeremption | date:'dd/MM/yyyy' }}
+                      }
+                      @if (l.quantiteRestante != null) {
+                        - stock {{ l.quantiteRestante | number:'1.0-3' }}
+                      }
+                    </mat-option>
+                  }
+                </mat-select>
+                @if (showItemError($index, 'lot')) {
+                  <mat-error>Lot obligatoire</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>Quantité</mat-label>
+                <input (input)="onQuantiteInput($index, $event)" [value]="item.quantite ?? ''" matInput
+                       type="number"/>
+                @if (showItemError($index, 'quantite')) {
+                  <mat-error>Quantité invalide</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1 pmp-field">
+                <mat-label>PMP</mat-label>
+                <input [value]="rowPmp($index) | number:'1.0-4'" matInput readonly tabindex="-1"/>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>Valeur sortie</mat-label>
+                <input [value]="rowValeur($index) | number:'1.0-4'" matInput readonly tabindex="-1"/>
+              </mat-form-field>
+              <button (click)="removeItem($index)" aria-label="Supprimer" mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="app-button-cluster">
+          <button (click)="addItem()" mat-stroked-button type="button">
+            <mat-icon>add</mat-icon>
+            Ajouter un article
+          </button>
+          <button [disabled]="!canSave() || saving() || hasLockedItems()" color="primary" mat-flat-button
+                  type="submit">
+            <mat-icon>logout</mat-icon>
+            Sortir du stock
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Bons de sortie</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table [dataSource]="bons()" class="full-width" mat-table>
+        <ng-container matColumnDef="reference">
+          <th *matHeaderCellDef mat-header-cell>Référence</th>
+          <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
+        </ng-container>
+        <ng-container matColumnDef="date">
+          <th *matHeaderCellDef mat-header-cell>Date</th>
+          <td *matCellDef="let b" mat-cell>{{ b.dateSortie }}</td>
+        </ng-container>
+        <ng-container matColumnDef="lignes">
+          <th *matHeaderCellDef mat-header-cell>Lignes</th>
+          <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
+        </ng-container>
+        <tr *matHeaderRowDef="cols" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</section>
+

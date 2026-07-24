@@ -1,0 +1,142 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< com.hemodialyse:backend >-----------------------
+[INFO] Building backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:4.0.0:run (default-cli) > test-compile @ backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 7 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target\test-classes
+[INFO] Annotation processing is enabled because one or more processors were found
+  on the class path. A future release of javac may disable annotation processing
+  unless at least one processor is specified by name (-processor), or a search
+  path is specified (--processor-path, --processor-module-path), or annotation
+  processing is enabled explicitly (-proc:only, -proc:full).
+  Use -Xlint:-options to suppress this message.
+  Use -proc:none to disable annotation processing.
+[INFO] 
+[INFO] <<< spring-boot:4.0.0:run (default-cli) < test-compile @ backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:4.0.0:run (default-cli) @ backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.0)
+
+2026-03-15T14:19:57.315+01:00  INFO 41080 --- [backend] [           main] c.h.backend.BackendApplication           : Starting BackendApplication using Java 21.0.6 with PID 41080 (C:\Users\TS-CONSULT\WebstormProjects\Hemodialyse\backend\target\classes started by TS-CONSULT in C:\Users\TS-CONSULT\WebstormProjects\Hemodialyse\backend)
+2026-03-15T14:19:57.319+01:00  INFO 41080 --- [backend] [           main] c.h.backend.BackendApplication           : No active profile set, falling back to 1 default profile: "default"
+2026-03-15T14:19:58.123+01:00  INFO 41080 --- [backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-15T14:19:58.194+01:00  INFO 41080 --- [backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 62 ms. Found 3 JPA repository interfaces.
+2026-03-15T14:19:58.768+01:00  INFO 41080 --- [backend] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-03-15T14:19:58.783+01:00  INFO 41080 --- [backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-15T14:19:58.783+01:00  INFO 41080 --- [backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.14]
+2026-03-15T14:19:58.846+01:00  INFO 41080 --- [backend] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1479 ms
+2026-03-15T14:19:59.086+01:00  INFO 41080 --- [backend] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-15T14:19:59.152+01:00  INFO 41080 --- [backend] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 7.1.8.Final
+2026-03-15T14:19:59.592+01:00  INFO 41080 --- [backend] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-15T14:19:59.628+01:00  INFO 41080 --- [backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-15T14:19:59.821+01:00  INFO 41080 --- [backend] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:hemodialyse user=SA
+2026-03-15T14:19:59.822+01:00  INFO 41080 --- [backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-15T14:19:59.887+01:00  INFO 41080 --- [backend] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:hemodialyse]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: HEMODIALYSE/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DatasourceConnectionProviderImpl
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-15T14:20:00.041+01:00 ERROR 41080 --- [backend] [           main] j.LocalContainerEntityManagerFactoryBean : Failed to initialize JPA EntityManagerFactory: Property 'com.hemodialyse.backend.infrastructure.persistence.entity.PatientJpaEntity.typePatient' is annotated '@Enumerated' but its type 'java.lang.String' is not an enum
+2026-03-15T14:20:00.041+01:00  WARN 41080 --- [backend] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Property 'com.hemodialyse.backend.infrastructure.persistence.entity.PatientJpaEntity.typePatient' is annotated '@Enumerated' but its type 'java.lang.String' is not an enum
+2026-03-15T14:20:00.041+01:00  INFO 41080 --- [backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-15T14:20:00.062+01:00  INFO 41080 --- [backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-15T14:20:00.065+01:00  INFO 41080 --- [backend] [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-03-15T14:20:00.075+01:00  INFO 41080 --- [backend] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-03-15T14:20:00.086+01:00 ERROR 41080 --- [backend] [           main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Property 'com.hemodialyse.backend.infrastructure.persistence.entity.PatientJpaEntity.typePatient' is annotated '@Enumerated' but its type 'java.lang.String' is not an enum
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1817) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:966) ~[spring-context-7.0.1.jar:7.0.1]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:620) ~[spring-context-7.0.1.jar:7.0.1]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.0.jar:4.0.0]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:765) ~[spring-boot-4.0.0.jar:4.0.0]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:454) ~[spring-boot-4.0.0.jar:4.0.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.0.jar:4.0.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1374) ~[spring-boot-4.0.0.jar:4.0.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363) ~[spring-boot-4.0.0.jar:4.0.0]
+	at com.hemodialyse.backend.BackendApplication.main(BackendApplication.java:10) ~[classes/:na]
+Caused by: org.hibernate.AnnotationException: Property 'com.hemodialyse.backend.infrastructure.persistence.entity.PatientJpaEntity.typePatient' is annotated '@Enumerated' but its type 'java.lang.String' is not an enum
+	at org.hibernate.boot.model.internal.BasicValueBinder.prepareBasicAttribute(BasicValueBinder.java:827) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.BasicValueBinder.setType(BasicValueBinder.java:358) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.makePropertyAndValue(PropertyBinder.java:268) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.makePropertyValueAndBind(PropertyBinder.java:331) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.basicBinder(PropertyBinder.java:1251) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.propertyBinder(PropertyBinder.java:1134) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.bindBasicOrComposite(PropertyBinder.java:1020) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.bindProperty(PropertyBinder.java:909) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.buildProperty(PropertyBinder.java:792) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.PropertyBinder.processElementAnnotations(PropertyBinder.java:719) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.EntityBinder.processIdPropertiesIfNotAlready(EntityBinder.java:1089) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.EntityBinder.handleIdentifier(EntityBinder.java:374) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.EntityBinder.bindEntityClass(EntityBinder.java:209) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.internal.AnnotationBinder.bindClass(AnnotationBinder.java:243) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.source.internal.annotations.AnnotationMetadataSourceProcessorImpl.processEntityHierarchies(AnnotationMetadataSourceProcessorImpl.java:196) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess$1.processEntityHierarchies(MetadataBuildingProcess.java:307) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.coordinateProcessors(MetadataBuildingProcess.java:341) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:215) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1395) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.populateSessionFactoryBuilder(EntityManagerFactoryBuilderImpl.java:1475) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1457) ~[hibernate-core-7.1.8.Final.jar:7.1.8.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-7.0.1.jar:7.0.1]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:433) ~[spring-orm-7.0.1.jar:7.0.1]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:416) ~[spring-orm-7.0.1.jar:7.0.1]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396) ~[spring-orm-7.0.1.jar:7.0.1]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:409) ~[spring-orm-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.1.jar:7.0.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.1.jar:7.0.1]
+	... 15 common frames omitted
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  8.225 s
+[INFO] Finished at: 2026-03-15T14:20:00+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:4.0.0:run (default-cli) on project backend: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

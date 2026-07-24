@@ -1,0 +1,147 @@
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'search' does not exist on type 'ListQuery'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/core/api/backend-api.service.ts:196:20:
+[37m      196 │       search: query.[32msearch[37m?.trim() || null,
+          ╵                     [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'search' does not exist on type 'ListQuery'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/core/api/backend-api.service.ts:223:20:
+[37m      223 │       search: query.[32msearch[37m?.trim() || null,
+          ╵                     [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: PatientQrCardComponent is not used within the template of PatientListComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:52:4:
+[37m      52 │     [32mPatientQrCardComponent[37m, ColumnFilterRendererComponent
+         ╵     [32m~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: ColumnFilterRendererComponent is not used within the template of PatientListComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:52:28:
+[37m      52 │     PatientQrCardComponent, [32mColumnFilterRendererComponent[37m
+         ╵                             [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'search' does not exist on type 'ListQuery'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/core/api/backend-api.service.ts:196:20:
+[37m      196 │       search: query.[32msearch[37m?.trim() || null,
+          ╵                     [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'search' does not exist on type 'ListQuery'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/core/api/backend-api.service.ts:223:20:
+[37m      223 │       search: query.[32msearch[37m?.trim() || null,
+          ╵                     [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Opening tag "tr" not terminated.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:14:
+[37m      456 │               [32m<tr mat-row  columns:[37m displayedColumns();" class="p...
+          ╵               [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Unexpected closing tag "tr". It may happen when the tag has already been closed by another tag. For more info see https://www.w3.org/TR/html5/syntax.html#closing-elements-that-have-implied-end-tags[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:77:
+[37m      456 │ ... mat-row  columns: displayedColumns();" class="patient-row">[32m</tr>[37m
+          ╵                                                                [32m~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'search' does not exist on type 'ListQuery'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/core/api/backend-api.service.ts:196:20:
+[37m      196 │       search: query.[32msearch[37m?.trim() || null,
+          ╵                     [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'search' does not exist on type 'ListQuery'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/core/api/backend-api.service.ts:223:20:
+[37m      223 │       search: query.[32msearch[37m?.trim() || null,
+          ╵                     [32m~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'search' does not exist on type 'ListQuery'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/core/api/backend-api.service.ts:222:20:
+[37m      222 │       search: query.[32msearch[37m?.trim() || null,
+          ╵                     [32m~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'parsePiecesJointes' does not exist on type 'PatientWizardComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/wizard/patient-wizard.component.ts:427:30:
+[37m      427 │ ...    piecesJointes: this.[32mparsePiecesJointes[37m(p?.piecesJointesJson),
+          ╵                            [32m~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Unexpected token ; at column 1 in [; columns: displayedColumns();] in C:/Users/TS-CONSULT/WebstormProjects/Hemodialyse/frontend/src/app/features/patient/patient-list.component.ts@455:26[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/patient/patient-list.component.ts:456:26:
+[37m      456 │ ...r mat-row [32m*matRowDef="; columns: displayedColumns();"[37m class="p...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m

@@ -1,18 +1,42 @@
 <div class="step-content">
-  <mat-card class="placeholder-card" data-testid="cahier-medical-placeholder">
+  <mat-card class="medical-card" data-testid="cahier-medical-panel">
     <mat-card-header>
       <mat-card-title>{{ 'CAHIER.STEP_MEDICAL' | translate }}</mat-card-title>
       <mat-card-subtitle>{{ 'CAHIER.STEP_MEDICAL_DESC' | translate }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <div class="placeholder-message">
-        <mat-icon>info</mat-icon>
-        <p>{{ 'COMMON.COMING_SOON' | translate }}</p>
-        <p class="detail">
-          Dossier médical, prescriptions, résultats d'analyses, abords vasculaires et
-          traitements.
-        </p>
+      <div class="seance-meta">
+        <span>{{ 'CAHIER.PARAMEDICAL_DATE_SEANCE' | translate }}: {{ seanceDate || '-' }}</span>
+        <span>{{ 'CAHIER.BOOK_STATUS' | translate }}: {{ seanceStatus || 'BROUILLON' }}</span>
       </div>
+
+      <div class="medical-grid">
+        <section class="medical-block">
+          <h4>{{ 'CAHIER.MEDICAL_PRESCRIPTION' | translate }}</h4>
+          <p>{{ display(medicalData?.prescription) }}</p>
+        </section>
+        <section class="medical-block">
+          <h4>{{ 'CAHIER.MEDICAL_TOLERANCE' | translate }}</h4>
+          <p>{{ display(medicalData?.toleranceSeance) }}</p>
+        </section>
+        <section class="medical-block">
+          <h4>{{ 'CAHIER.MEDICAL_EXAMEN' | translate }}</h4>
+          <p>{{ display(medicalData?.examenClinique) }}</p>
+        </section>
+        <section class="medical-block">
+          <h4>{{ 'CAHIER.MEDICAL_BIO' | translate }}</h4>
+          <p>{{ display(medicalData?.resultatsBiologiques) }}</p>
+        </section>
+        <section class="medical-block">
+          <h4>{{ 'CAHIER.MEDICAL_AJUSTEMENTS' | translate }}</h4>
+          <p>{{ display(medicalData?.ajustementsTherapeutiques) }}</p>
+        </section>
+        <section class="medical-block">
+          <h4>{{ 'CAHIER.MEDICAL_CONCLUSION' | translate }}</h4>
+          <p>{{ display(medicalData?.conclusionMedicale) }}</p>
+        </section>
+      </div>
+
       <div class="actions">
         <button (click)="proceed()" color="primary" mat-raised-button>
           <mat-icon>arrow_forward</mat-icon>

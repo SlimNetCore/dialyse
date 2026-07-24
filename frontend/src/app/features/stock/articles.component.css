@@ -1,0 +1,22 @@
+
+.form-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 8px;
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-card {
+  margin-top: 16px;
+}
+

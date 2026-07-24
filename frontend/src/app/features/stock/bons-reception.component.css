@@ -1,0 +1,61 @@
+
+.full-width {
+  width: 100%;
+}
+
+.head-row {
+  display: flex;
+  gap: 12px;
+}
+
+.lines {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.line-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.flex1 {
+  flex: 1;
+  min-width: 130px;
+}
+
+.flex2 {
+  flex: 2;
+  min-width: 200px;
+}
+
+mat-card {
+  margin-top: 16px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.app-button-cluster {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.lock-chip {
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  color: #e65100;
+  align-self: center;
+}
+

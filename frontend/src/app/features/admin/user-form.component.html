@@ -1,0 +1,64 @@
+<mat-card class="form-card">
+  <h2>
+    <mat-icon>{{ isEdit() ? 'edit' : 'person_add' }}</mat-icon>
+    {{ isEdit() ? 'Modifier' : 'Créer' }} un utilisateur
+  </h2>
+  <form [formRoot]="userForm">
+    <div class="grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Nom d'utilisateur</mat-label>
+        <input [formField]="userForm.username" matInput/>
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Mot de passe</mat-label>
+        <input [formField]="userForm.password" matInput type="password"/>
+        <mat-icon matPrefix>lock</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Nom complet</mat-label>
+        <input [formField]="userForm.fullName" matInput/>
+        <mat-icon matPrefix>badge</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input [formField]="userForm.email" matInput type="email"/>
+        <mat-icon matPrefix>email</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <mat-checkbox [formField]="userForm.active" color="primary">Actif</mat-checkbox>
+
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Rôles</mat-label>
+      <mat-select [formField]="userForm.roleIds" multiple>
+        @for (r of roles(); track r.ID) {
+          <mat-option [value]="r.ID">{{ r.NAME }} ({{ r.CODE }})</mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>admin_panel_settings</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Centres</mat-label>
+      <mat-select [formField]="userForm.centerIds" multiple>
+        @for (c of centers(); track c.id) {
+          <mat-option [value]="c.id">{{ c.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>business</mat-icon>
+    </mat-form-field>
+
+    <div class="actions">
+      <button mat-stroked-button routerLink="/admin/users">
+        <mat-icon>arrow_back</mat-icon>
+        Retour
+      </button>
+      <button (click)="save()" color="primary" mat-flat-button type="button">
+        <mat-icon>save</mat-icon>
+        Enregistrer
+      </button>
+    </div>
+  </form>
+</mat-card>
+

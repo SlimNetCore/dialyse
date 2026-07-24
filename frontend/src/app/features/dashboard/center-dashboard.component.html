@@ -1,0 +1,66 @@
+<div class="dashboard">
+  <h2 class="dash-title">
+    <mat-icon>dashboard</mat-icon>
+    {{ 'DASHBOARD.TITLE' | translate }}
+  </h2>
+
+  <form [formRoot]="dashboardForm" class="config-row">
+    <mat-form-field appearance="outline" class="days-field">
+      <mat-label>{{ 'DASHBOARD.EXPIRATION_DAYS' | translate }}</mat-label>
+      <input [formField]="dashboardForm.expirationDays" matInput type="number"/>
+    </mat-form-field>
+  </form>
+
+  @if (loading()) {
+    <mat-spinner diameter="40"/>
+  } @else {
+    <div class="stats-grid">
+      <!-- Patients -->
+      <mat-card class="stat-card patients">
+        <mat-icon>people</mat-icon>
+        <div class="stat-value">{{ stats().patientCount }}</div>
+        <div class="stat-label">{{ 'DASHBOARD.PATIENTS' | translate }}</div>
+      </mat-card>
+
+      <!-- PEC Créées -->
+      <mat-card class="stat-card pec-cree">
+        <mat-icon>pending_actions</mat-icon>
+        <div class="stat-value">{{ stats().pecCree }}</div>
+        <div class="stat-label">{{ 'DASHBOARD.PEC_CREE' | translate }}</div>
+      </mat-card>
+
+      <!-- PEC Validées -->
+      <mat-card class="stat-card pec-validee">
+        <mat-icon>verified</mat-icon>
+        <div class="stat-value">{{ stats().pecValidee }}</div>
+        <div class="stat-label">{{ 'DASHBOARD.PEC_VALIDEE' | translate }}</div>
+      </mat-card>
+
+      <!-- PEC Expiring -->
+      <mat-card class="stat-card pec-expiring">
+        <mat-icon>warning</mat-icon>
+        <div class="stat-value">{{ stats().pecExpiring }}</div>
+        <div class="stat-label">
+          {{ 'DASHBOARD.PEC_EXPIRING' | translate: {days: dashboardFormState().expirationDays} }}
+        </div>
+      </mat-card>
+
+      <!-- Attestations -->
+      <mat-card class="stat-card attestation">
+        <mat-icon>description</mat-icon>
+        <div class="stat-value">{{ stats().attestationTotal }}</div>
+        <div class="stat-label">{{ 'DASHBOARD.ATTESTATION_TOTAL' | translate }}</div>
+      </mat-card>
+
+      <!-- Attestations Expiring -->
+      <mat-card class="stat-card attestation-expiring">
+        <mat-icon>schedule</mat-icon>
+        <div class="stat-value">{{ stats().attestationExpiring }}</div>
+        <div class="stat-label">
+          {{ 'DASHBOARD.ATTESTATION_EXPIRING' | translate: {days: dashboardFormState().expirationDays} }}
+        </div>
+      </mat-card>
+    </div>
+  }
+</div>
+

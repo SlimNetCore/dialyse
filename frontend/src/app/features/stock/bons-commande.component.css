@@ -1,0 +1,34 @@
+
+.full-width {
+  width: 100%;
+}
+
+.lines {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.line-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+.flex2 {
+  flex: 2;
+}
+
+.total {
+  font-weight: 800;
+  margin-left: auto;
+}
+
+mat-card {
+  margin-top: 16px;
+}
+

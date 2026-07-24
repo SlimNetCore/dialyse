@@ -3,100 +3,114 @@
     <button (click)="goBack()" mat-icon-button>
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h2>{{ 'CAHIER.TITLE' | translate }}</h2>
-    <p class="patient-ref">
-      {{ 'CAHIER.PATIENT' | translate }}: <strong>{{ patientId }}</strong>
-    </p>
+    <div class="header-main">
+      <h2>{{ 'CAHIER.TITLE' | translate }}</h2>
+      <p class="patient-ref">
+        {{ 'CAHIER.PATIENT' | translate }}: <strong>{{ patientId }}</strong>
+      </p>
+    </div>
+    <div class="header-badges">
+      <span class="header-pill">
+        {{ 'CAHIER.BOOK_PAGE' | translate }} {{ pageNumber() }}/{{ totalPages() || 1 }}
+      </span>
+      <span class="header-pill">
+        {{ 'CAHIER.BOOK_TOTAL_SEANCES' | translate }}: {{ totalPages() }}
+      </span>
+    </div>
   </div>
 
-  <mat-stepper
-    #stepper
-    (selectionChange)="onStepChange($event)"
-    [animationDuration]="'0'"
-    [linear]="false"
-    [orientation]="isMobileViewport() ? 'vertical' : 'horizontal'"
-    class="cahier-stepper"
-  >
-    <!-- Step 1: Fiche Patient -->
-    <mat-step
-      [completed]="stepStates()[0].status === 'validé'"
-      [editable]="stepStates()[0].canRead"
-      [label]="'CAHIER.STEP_FICHE' | translate"
-    >
-      <ng-template matStepLabel>
-        <span class="step-label">{{ 'CAHIER.STEP_FICHE' | translate }}</span>
-        <mat-icon [matTooltip]="stepLabelStatus(0)" class="step-badge">
-          {{ stepBadgeIcon(0) }}
-        </mat-icon>
-      </ng-template>
-      @if (shouldRenderStep(0)) {
+  @if (loadingSeances()) {
+    <div class="book-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>{{ 'COMMON.LOADING_DATA' | translate }}</p>
+    </div>
+  } @else if (loadError()) {
+    <div class="book-state book-error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ loadError()! | translate }}</p>
+      <button (click)="reloadBook()" mat-stroked-button>{{ 'COMMON.RETRY' | translate }}</button>
+    </div>
+  } @else if (!hasSeances()) {
+    <div class="book-state">
+      <mat-icon>menu_book</mat-icon>
+      <p>{{ 'CAHIER.BOOK_EMPTY' | translate }}</p>
+    </div>
+  } @else {
+    <div class="book-layout">
+      <aside class="book-toc">
+        <h3>{{ 'CAHIER.BOOK_SEANCE_LIST' | translate }}</h3>
+        <div class="toc-pages">
+          @for (seance of patientSeances(); track seance.id; let i = $index) {
+            <button
+              (click)="goToPage(i)"
+              [class.active]="i === currentPageIndex()"
+              [class]="'toc-item ' + statusClass(seance.status)"
+              type="button"
+            >
+              <span class="toc-index">{{ i + 1 }}</span>
+              <span class="toc-date">{{ formatSeanceDate(seance.dateSeance) }}</span>
+              <span class="toc-status">{{ seance.status }}</span>
+            </button>
+          }
+        </div>
+      </aside>
+
+      <section class="notebook-page" data-testid="cahier-notebook-page">
+        <div class="page-header">
+          <div>
+            <p class="page-eyebrow">{{ 'CAHIER.BOOK_PAGE' | translate }} {{ pageNumber() }}</p>
+            <h3>{{ 'CAHIER.BOOK_SEANCE_TITLE' | translate }}</h3>
+          </div>
+          <div class="page-meta">
+            <span class="meta-pill">{{ formatSeanceDate(selectedSeanceDate()) }}</span>
+            <span [class]="'meta-pill ' + statusClass(selectedSeanceStatus())">{{ selectedSeanceStatus() }}</span>
+          </div>
+        </div>
+
+        <div class="page-nav">
+          <button (click)="goToPreviousPage()" [disabled]="!canGoPrev()" mat-stroked-button type="button">
+            <mat-icon>chevron_left</mat-icon>
+            {{ 'CAHIER.BOOK_PREVIOUS_PAGE' | translate }}
+          </button>
+          <button (click)="goToNextPage()" [disabled]="!canGoNext()" color="primary" mat-stroked-button type="button">
+            {{ 'CAHIER.BOOK_NEXT_PAGE' | translate }}
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        @if (loadingSummary()) {
+          <div class="page-loading">
+            <mat-spinner diameter="32"></mat-spinner>
+          </div>
+        }
+        <div class="page-note">
+          {{ 'CAHIER.PAGE_READONLY_NOTE' | translate }}
+        </div>
         <app-cahier-step-fiche
-          #step1
-          (dataChange)="onStep1DataChange($event)"
-          (validChange)="onStep1ValidChange($event)"
           [patientId]="patientId"
           [readonly]="true"
           [recapMode]="true"
           [showProceed]="false"
         />
-      }
-    </mat-step>
 
-    <!-- Step 2: Volet Paramédical -->
-    <mat-step
-      [completed]="stepStates()[1].status === 'validé'"
-      [editable]="stepStates()[1].canRead"
-      [label]="'CAHIER.STEP_PARAMEDICAL' | translate"
-    >
-      <ng-template matStepLabel>
-        <span class="step-label">{{ 'CAHIER.STEP_PARAMEDICAL' | translate }}</span>
-        <mat-icon [matTooltip]="stepLabelStatus(1)" class="step-badge">
-          {{ stepBadgeIcon(1) }}
-        </mat-icon>
-      </ng-template>
-      @if (shouldRenderStep(1)) {
         <app-cahier-step-paramedical
-          #step2
-          (dataChange)="onStep2DataChange($event)"
-          (validChange)="onStep2ValidChange($event)"
           [patientId]="patientId"
-          [readonly]="!stepStates()[1].canWrite"
+          [paramedicalData]="selectedSummary()?.paramedical?.raw ?? selectedSummary()?.paramedical ?? null"
+          [seanceDate]="selectedSeanceDate()"
+          [seanceStatus]="selectedSeanceStatus()"
         />
-      }
-    </mat-step>
 
-    <!-- Step 3: Volet Médical -->
-    <mat-step
-      [completed]="stepStates()[2].status === 'validé'"
-      [editable]="stepStates()[2].canRead"
-      [label]="'CAHIER.STEP_MEDICAL' | translate"
-    >
-      <ng-template matStepLabel>
-        <span class="step-label">{{ 'CAHIER.STEP_MEDICAL' | translate }}</span>
-        <mat-icon [matTooltip]="stepLabelStatus(2)" class="step-badge">
-          {{ stepBadgeIcon(2) }}
-        </mat-icon>
-      </ng-template>
-      @if (shouldRenderStep(2)) {
         <app-cahier-step-medical
-          #step3
-          (dataChange)="onStep3DataChange($event)"
-          (validChange)="onStep3ValidChange($event)"
           [patientId]="patientId"
-          [readonly]="!stepStates()[2].canWrite"
+          [medicalData]="selectedSummary()?.medical ?? null"
+          [readonly]="true"
+          [seanceDate]="selectedSeanceDate()"
+          [seanceStatus]="selectedSeanceStatus()"
         />
-      }
-    </mat-step>
 
-    <!-- Step 4: Statistiques -->
-    <mat-step [editable]="stepStates()[3].canRead" [label]="'CAHIER.STEP_STATS' | translate">
-      <ng-template matStepLabel>
-        <span class="step-label">{{ 'CAHIER.STEP_STATS' | translate }}</span>
-      </ng-template>
-      @if (shouldRenderStep(3)) {
-        <app-cahier-step-stats #step4 [patientId]="patientId"/>
-      }
-    </mat-step>
-  </mat-stepper>
+        <app-cahier-step-stats [patientId]="patientId"/>
+      </section>
+    </div>
+  }
 </div>
 

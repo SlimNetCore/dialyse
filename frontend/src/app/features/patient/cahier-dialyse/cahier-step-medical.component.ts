@@ -16,8 +16,23 @@ import {TranslateModule} from '@ngx-translate/core';
 export class CahierStepMedicalComponent {
   @Input() patientId!: string;
   @Input() readonly = false;
+  @Input() seanceDate: string | null = null;
+  @Input() seanceStatus: string | null = null;
+  @Input() medicalData: {
+    prescription?: string;
+    toleranceSeance?: string;
+    examenClinique?: string;
+    resultatsBiologiques?: string;
+    ajustementsTherapeutiques?: string;
+    conclusionMedicale?: string;
+  } | null = null;
   @Output() dataChange = new EventEmitter<any>();
   @Output() validChange = new EventEmitter<boolean>();
+
+  display(value: string | null | undefined): string {
+    const normalized = (value ?? '').trim();
+    return normalized || '-';
+  }
 
   proceed(): void {
     this.validChange.emit(true);

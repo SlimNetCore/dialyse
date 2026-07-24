@@ -1,0 +1,100 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">Stock · Approvisionnement</span>
+    <h1 class="app-section-title">Bons de commande</h1>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Nouveau bon de commande</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Fournisseur</mat-label>
+          <mat-select [formField]="form.fournisseurId">
+            @for (f of fournisseurs(); track f.id) {
+              <mat-option [value]="f.id">{{ f.raisonSociale }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="lines">
+          @for (ligne of formModel().lignes; track $index) {
+            <div class="line-row">
+              <mat-form-field appearance="outline" class="flex2">
+                <mat-label>Article</mat-label>
+                <mat-select [formField]="form.lignes[$index].articleId">
+                  @for (a of articles(); track a.id) {
+                    <mat-option [value]="a.id">{{ articleLabel(a) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>Quantité</mat-label>
+                <input [formField]="form.lignes[$index].quantite" matInput type="number"/>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex1">
+                <mat-label>Prix unitaire</mat-label>
+                <input [formField]="form.lignes[$index].prixUnitaire" matInput type="number"/>
+              </mat-form-field>
+              <button (click)="removeLigne($index)" aria-label="Supprimer" mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="app-button-cluster">
+          <button (click)="addLigne()" mat-stroked-button type="button">
+            <mat-icon>add</mat-icon>
+            Ajouter une ligne
+          </button>
+          <span class="total">Total : {{ total() | number:'1.0-2' }}</span>
+          <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+            <mat-icon>save</mat-icon>
+            Créer le bon
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Bons de commande</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table [dataSource]="bons()" class="full-width" mat-table>
+        <ng-container matColumnDef="reference">
+          <th *matHeaderCellDef mat-header-cell>Référence</th>
+          <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
+        </ng-container>
+        <ng-container matColumnDef="statut">
+          <th *matHeaderCellDef mat-header-cell>Statut</th>
+          <td *matCellDef="let b" mat-cell>
+            <mat-chip>{{ b.statut }}</mat-chip>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="lignes">
+          <th *matHeaderCellDef mat-header-cell>Lignes</th>
+          <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell>Actions</th>
+          <td *matCellDef="let b" mat-cell>
+            @if (b.statut === 'BROUILLON') {
+              <button (click)="valider(b)" mat-stroked-button>Valider</button>
+            }
+            @if (b.statut === 'VALIDE') {
+              <button (click)="transformer(b)" mat-stroked-button>→ Réception</button>
+            }
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="cols" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: cols" mat-row></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</section>
+
