@@ -75,6 +75,42 @@ class SeanceRestControllerTest {
     }
 
     @Test
+    void list_should_include_current_forfait_when_available() {
+        SeanceUseCase useCase = mock(SeanceUseCase.class);
+        NotificationService notif = mock(NotificationService.class);
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+
+        SeanceListItem item = new SeanceListItem(
+                SEANCE_ID, CENTER_ID, PATIENT_ID,
+                "PAT-001", "Dupont", "Jean",
+                LocalDate.of(2026, 7, 25), SeanceStatus.CREE,
+                null, null, null, null
+        );
+        when(useCase.list(CenterId.of(CENTER_ID))).thenReturn(List.of(item));
+        when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.RowMapper.class), any(), any(), any(), any()))
+                .thenReturn(List.of(Map.of(
+                        "id", UUID.fromString("40000000-0000-0000-0000-000000000001"),
+                        "code", "F001",
+                        "nom", "Forfait HD",
+                        "prix", new java.math.BigDecimal("3500.00"),
+                        "nombreSeances", 0
+                )));
+
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc);
+        ResponseEntity<?> response = controller.list(CENTER_ID);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertInstanceOf(List.class, response.getBody());
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) response.getBody();
+        assertEquals(1, rows.size());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> forfait = (Map<String, Object>) rows.getFirst().get("forfait");
+        assertNotNull(forfait);
+        assertEquals("Forfait HD", forfait.get("nom"));
+    }
+
+    @Test
     void list_should_only_use_centerId_from_request_param() {
         // Règle multi-centre : la liste est toujours scoped par centerId
         SeanceUseCase useCase = mock(SeanceUseCase.class);
@@ -226,5 +262,6 @@ class SeanceRestControllerTest {
         assertThrows(IllegalArgumentException.class, () -> controller.details(SEANCE_ID, wrongCenter));
     }
 }
+
 
 

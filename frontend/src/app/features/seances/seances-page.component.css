@@ -428,6 +428,28 @@ mat-card {
   background: color-mix(in srgb, var(--app-surface-solid) 84%, transparent);
 }
 
+.list-forfait-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #2563eb 28%, var(--app-border) 72%);
+  background: color-mix(in srgb, #2563eb 10%, var(--app-surface-solid) 90%);
+}
+
+.list-forfait-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--app-text, #0f172a);
+}
+
+.list-forfait-price {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
 .row-selected {
   background: color-mix(in srgb, var(--app-primary-soft) 58%, var(--app-surface-solid) 42%) !important;
 }

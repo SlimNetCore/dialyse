@@ -125,6 +125,13 @@ export type SeanceListItem = {
   validatedAt?: string;
   signedByInfirmierAt?: string;
   signedByMedecinAt?: string;
+  forfait?: {
+    id: string;
+    code?: string | null;
+    nom?: string | null;
+    prix?: number | null;
+    nombreSeances?: number | null;
+  } | null;
 };
 
 export type SeanceSummary = {

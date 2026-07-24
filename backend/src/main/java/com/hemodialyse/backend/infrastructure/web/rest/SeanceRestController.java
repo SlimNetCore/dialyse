@@ -64,7 +64,25 @@ public class SeanceRestController {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
     @GetMapping
     public ResponseEntity<?> list(@RequestParam UUID centerId) {
-        return ResponseEntity.ok(seanceUseCase.list(CenterId.of(centerId)));
+        var items = seanceUseCase.list(CenterId.of(centerId));
+        var payload = items.stream().map(item -> {
+            var row = new LinkedHashMap<String, Object>();
+            row.put("id", item.id());
+            row.put("centerId", item.centerId());
+            row.put("patientId", item.patientId());
+            row.put("patientCode", item.patientCode());
+            row.put("patientNom", item.patientNom());
+            row.put("patientPrenom", item.patientPrenom());
+            row.put("dateSeance", item.dateSeance());
+            row.put("status", item.status());
+            row.put("createdAt", item.createdAt());
+            row.put("validatedAt", item.validatedAt());
+            row.put("signedByInfirmierAt", item.signedByInfirmierAt());
+            row.put("signedByMedecinAt", item.signedByMedecinAt());
+            row.put("forfait", loadCurrentForfait(centerId, item.patientId(), item.dateSeance()));
+            return row;
+        }).toList();
+        return ResponseEntity.ok(payload);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
@@ -187,8 +205,25 @@ public class SeanceRestController {
                 .map(item -> (java.math.BigDecimal) item.getOrDefault("totalValorise", java.math.BigDecimal.ZERO))
                 .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
 
-        LocalDate dateReference = seance.getDateSeance() != null ? seance.getDateSeance() : LocalDate.now();
-        var forfaitRows = Optional.ofNullable(jdbc.query(
+        Map<String, Object> forfait = loadCurrentForfait(
+                centerId,
+                patient.getId().value(),
+                seance.getDateSeance() != null ? seance.getDateSeance() : LocalDate.now()
+        );
+
+        var payload = new LinkedHashMap<String, Object>();
+        payload.put("seance", seanceMap);
+        payload.put("patient", patientMap);
+        payload.put("paramedical", paramedicalMap);
+        payload.put("medical", medicalMap);
+        payload.put("consommables", consommables);
+        payload.put("consommablesTotalValorise", totalValoriseConsommables);
+        payload.put("forfait", forfait);
+        return ResponseEntity.ok(payload);
+    }
+
+    private Map<String, Object> loadCurrentForfait(UUID centerId, UUID patientId, LocalDate referenceDate) {
+        var activeRows = Optional.ofNullable(jdbc.query(
                 """
                         SELECT f.id AS forfait_id,
                                f.code AS forfait_code,
@@ -207,31 +242,49 @@ public class SeanceRestController {
                         ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END,
                                  p.created_at DESC
                         """,
-                (rs, rowNum) -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("id", rs.getObject("forfait_id", UUID.class));
-                    row.put("code", rs.getString("forfait_code"));
-                    row.put("nom", rs.getString("forfait_nom"));
-                    row.put("prix", rs.getBigDecimal("forfait_prix"));
-                    row.put("nombreSeances", rs.getInt("forfait_nb_seances"));
-                    return row;
-                },
+                this::mapForfaitRow,
                 centerId,
-                patient.getId().value(),
-                Date.valueOf(dateReference),
-                Date.valueOf(dateReference)
+                patientId,
+                Date.valueOf(referenceDate),
+                Date.valueOf(referenceDate)
         )).orElseGet(List::of);
-        Map<String, Object> forfait = forfaitRows.isEmpty() ? null : forfaitRows.getFirst();
 
-        var payload = new LinkedHashMap<String, Object>();
-        payload.put("seance", seanceMap);
-        payload.put("patient", patientMap);
-        payload.put("paramedical", paramedicalMap);
-        payload.put("medical", medicalMap);
-        payload.put("consommables", consommables);
-        payload.put("consommablesTotalValorise", totalValoriseConsommables);
-        payload.put("forfait", forfait);
-        return ResponseEntity.ok(payload);
+        if (!activeRows.isEmpty()) {
+            return activeRows.getFirst();
+        }
+
+        var fallbackRows = Optional.ofNullable(jdbc.query(
+                """
+                        SELECT f.id AS forfait_id,
+                               f.code AS forfait_code,
+                               f.libelle AS forfait_nom,
+                               f.prix AS forfait_prix,
+                               CAST(NULL AS INTEGER) AS forfait_nb_seances
+                        FROM prise_en_charge p
+                        INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
+                                             AND f.center_id = p.center_id
+                        WHERE p.center_id = ?
+                          AND p.patient_id = ?
+                          AND COALESCE(p.forfait_effectif_id, p.forfait_demande_id) IS NOT NULL
+                        ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END,
+                                 p.created_at DESC
+                        """,
+                this::mapForfaitRow,
+                centerId,
+                patientId
+        )).orElseGet(List::of);
+
+        return fallbackRows.isEmpty() ? null : fallbackRows.getFirst();
+    }
+
+    private Map<String, Object> mapForfaitRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("id", rs.getObject("forfait_id", UUID.class));
+        row.put("code", rs.getString("forfait_code"));
+        row.put("nom", rs.getString("forfait_nom"));
+        row.put("prix", rs.getBigDecimal("forfait_prix"));
+        row.put("nombreSeances", rs.getInt("forfait_nb_seances"));
+        return row;
     }
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -148,7 +148,28 @@ describe('SeancesPageComponent', () => {
     expect(component['currentForfaitName']()).toBe('Forfait hémodialyse');
     expect(component['currentForfaitPrice']()).toBe('3 500,00');
   });
+
+  it('should format forfait label and price in seances list helpers', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+    const row = {
+      id: 'seance-1',
+      centerId: CENTER_ID,
+      patientId: 'patient-1',
+      dateSeance: '2026-07-25',
+      status: 'CREE',
+      forfait: {
+        id: 'forfait-1',
+        code: 'F001',
+        nom: 'Forfait HD',
+        prix: 3500,
+      },
+    } as any;
+
+    expect(component['listForfaitName'](row)).toBe('Forfait HD');
+    expect(component['listForfaitPrice'](row)).toBe('3 500,00');
+  });
 });
+
 
 
 

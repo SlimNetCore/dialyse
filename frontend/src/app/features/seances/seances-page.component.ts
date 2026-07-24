@@ -10,6 +10,7 @@
   signal,
   ViewChild,
 } from '@angular/core';
+import {RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -36,7 +37,7 @@ Chart.register(...registerables);
 @Component({
   standalone: true,
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatTableModule, MatSelectModule, TranslateModule, BaseChartDirective],
+    MatButtonModule, MatTableModule, MatSelectModule, TranslateModule, BaseChartDirective, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',
@@ -92,7 +93,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly ajustementsTherapeutiques = computed(() => this.store.ajustementsTherapeutiques());
   protected readonly conclusionMedicale = computed(() => this.store.conclusionMedicale());
   protected readonly selectionLoading = computed(() => this.store.summaryLoading());
-  protected readonly seanceCols = ['dateSeance', 'patient', 'status', 'actions'];
+  protected readonly seanceCols = ['dateSeance', 'patient', 'status', 'forfait', 'actions'];
   protected readonly journalPatientCols = ['patient', 'code', 'status'];
   protected readonly dashboardDetailCols = ['date', 'patient', 'weekday', 'status'];
   protected readonly consommableCols = ['article', 'quantite', 'actions'];
@@ -106,6 +107,13 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly canEditDate = computed(() => this.hasAnyRole('ADMIN'));
   protected readonly canEditParamedical = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE'));
   protected readonly canEditMedical = computed(() => this.hasAnyRole('ADMIN', 'MEDECIN'));
+  // Calendrier clinique
+  protected readonly calendarHolidays = computed(() => this.store.calendarHolidays());
+  protected readonly calendarClosures = computed(() => this.store.calendarClosures());
+  protected readonly newHolidayDate = computed(() => this.store.newHolidayDate());
+  protected readonly newHolidayLabel = computed(() => this.store.newHolidayLabel());
+  protected readonly newClosureDate = computed(() => this.store.newClosureDate());
+  protected readonly newClosureReason = computed(() => this.store.newClosureReason());
   protected readonly chartOptions: ChartOptions<'bar' | 'doughnut'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -258,6 +266,47 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   protected onConclusionMedicaleInput(e: Event): void {
     this.store.patchMedical({conclusionMedicale: (e.target as HTMLTextAreaElement)?.value ?? ''});
+  }
+
+  // --- Calendrier clinique ---
+  protected onNewHolidayDateInput(e: Event): void {
+    this.store.setNewHolidayDate((e.target as HTMLInputElement)?.value ?? '');
+  }
+
+  protected onNewHolidayLabelInput(e: Event): void {
+    this.store.setNewHolidayLabel((e.target as HTMLInputElement)?.value ?? '');
+  }
+
+  protected addHoliday(): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
+    this.store.addHoliday({centerId, date: this.store.newHolidayDate(), label: this.store.newHolidayLabel()});
+  }
+
+  protected deleteHoliday(id: string): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
+    this.store.deleteHoliday({centerId, id});
+  }
+
+  protected onNewClosureDateInput(e: Event): void {
+    this.store.setNewClosureDate((e.target as HTMLInputElement)?.value ?? '');
+  }
+
+  protected onNewClosureReasonInput(e: Event): void {
+    this.store.setNewClosureReason((e.target as HTMLInputElement)?.value ?? '');
+  }
+
+  protected addClosure(): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
+    this.store.addClosure({centerId, date: this.store.newClosureDate(), reason: this.store.newClosureReason()});
+  }
+
+  protected deleteClosure(id: string): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
+    this.store.deleteClosure({centerId, id});
   }
 
   protected triggerImagePicker(): void {
@@ -532,6 +581,25 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     patientId: string
   }): string {
     return (`${(s.patientNom ?? '').trim()} ${(s.patientPrenom ?? '').trim()}`).trim() || s.patientCode || s.patientId;
+  }
+
+  protected listForfaitName(seance: SeanceListItem): string {
+    const forfait = seance.forfait;
+    if (!forfait) {
+      return '-';
+    }
+    return forfait.nom?.trim() || forfait.code?.trim() || '-';
+  }
+
+  protected listForfaitPrice(seance: SeanceListItem): string {
+    const prix = seance.forfait?.prix;
+    if (prix == null || Number.isNaN(Number(prix))) {
+      return '';
+    }
+    return new Intl.NumberFormat(this.translate.currentLang || 'fr', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(prix));
   }
 
   protected patientFullName(): string {
