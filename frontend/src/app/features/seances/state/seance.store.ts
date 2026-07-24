@@ -296,16 +296,48 @@ export const SeanceStore = signalStore(
         tap(() => patchState(store, {scanning: true, error: null})),
         switchMap(({centerId, qrCode, dateSeance}) =>
           api.scanSeanceQr({centerId, qrCode, dateSeance}).pipe(
-            tap((created) => {
-              patchState(store, {
-                selectedSeanceId: created.id,
-                editDateSeance: created.dateSeance || dateSeance,
-                dateSeance: created.dateSeance || dateSeance,
-                scanning: false,
-                scanState: 'success',
-                scanMessage: 'Séance créée et ajoutée à la liste',
-              });
-            }),
+            switchMap((created) =>
+              api.listSeances(centerId).pipe(
+                switchMap((items) =>
+                  api.getSeanceSummary(created.id, centerId).pipe(
+                    tap((summary) => {
+                      patchState(store, {
+                        seances: items,
+                        scanning: false,
+                        scanState: 'success',
+                        scanMessage: 'Séance créée et ajoutée à la liste',
+                        ...summaryStateFromSummary(summary),
+                      });
+                    }),
+                    catchError(() => {
+                      patchState(store, {
+                        seances: items,
+                        summary: null,
+                        selectedSeanceId: created.id,
+                        editDateSeance: created.dateSeance || dateSeance,
+                        dateSeance: created.dateSeance || dateSeance,
+                        scanning: false,
+                        scanState: 'success',
+                        scanMessage: 'Séance créée et ajoutée à la liste',
+                      });
+                      return EMPTY;
+                    })
+                  )
+                ),
+                catchError(() => {
+                  patchState(store, {
+                    summary: null,
+                    selectedSeanceId: created.id,
+                    editDateSeance: created.dateSeance || dateSeance,
+                    dateSeance: created.dateSeance || dateSeance,
+                    scanning: false,
+                    scanState: 'success',
+                    scanMessage: 'Séance créée et ajoutée à la liste',
+                  });
+                  return EMPTY;
+                })
+              )
+            ),
             catchError((err: unknown) => {
               patchState(store, {
                 scanning: false,
@@ -326,32 +358,7 @@ export const SeanceStore = signalStore(
         tap(() => patchState(store, {summaryLoading: true, error: null})),
         switchMap(({seanceId, centerId}) =>
           api.getSeanceSummary(seanceId, centerId).pipe(
-            tap((summary) => {
-              patchState(store, {
-                summary,
-                summaryLoading: false,
-                selectedSeanceId: summary.seance.id,
-                editDateSeance: summary.seance.dateSeance,
-                dateSeance: summary.seance.dateSeance,
-                taAvant: summary.paramedical?.taAvant ?? '',
-                taApres: summary.paramedical?.taApres ?? '',
-                poidsAvantKg: summary.paramedical?.poidsAvantKg ?? null,
-                poidsApresKg: summary.paramedical?.poidsApresKg ?? null,
-                dureeMinutes: summary.paramedical?.dureeMinutes ?? null,
-                debitSangMlMin: summary.paramedical?.debitSangMlMin ?? null,
-                ultrafiltrationMl: summary.paramedical?.ultrafiltrationMl ?? null,
-                anticoagulant: summary.paramedical?.anticoagulant ?? '',
-                typeDialysat: summary.paramedical?.typeDialysat ?? '',
-                incidents: summary.paramedical?.incidents ?? '',
-                prescription: summary.medical?.prescription ?? '',
-                toleranceSeance: summary.medical?.toleranceSeance ?? '',
-                examenClinique: summary.medical?.examenClinique ?? '',
-                resultatsBiologiques: summary.medical?.resultatsBiologiques ?? '',
-                ajustementsTherapeutiques: summary.medical?.ajustementsTherapeutiques ?? '',
-                conclusionMedicale: summary.medical?.conclusionMedicale ?? '',
-                consommables: [],
-              });
-            }),
+            tap((summary) => patchState(store, {summaryLoading: false, ...summaryStateFromSummary(summary)})),
             catchError((err: unknown) => {
               patchState(store, {summaryLoading: false, error: errorMessage(err)});
               return EMPTY;
@@ -371,9 +378,14 @@ export const SeanceStore = signalStore(
         switchMap(({seanceId, centerId, dateSeance}) =>
           api.updateSeance(seanceId, {centerId, dateSeance}).pipe(
             tap((updated) => {
+              const nextSeances = upsertSeanceInList(store.seances(), updated.id, updated.status, updated.dateSeance || dateSeance);
+              const nextSummary = patchSummaryStatusAndDate(store.summary(), updated.id, updated.status, updated.dateSeance || dateSeance);
               patchState(store, {
+                seances: nextSeances,
+                summary: nextSummary,
                 savingDate: false,
                 dateSeance: updated.dateSeance || dateSeance,
+                editDateSeance: updated.dateSeance || dateSeance,
                 scanState: 'success',
                 scanMessage: 'Date de séance mise à jour',
               });
@@ -444,7 +456,9 @@ export const SeanceStore = signalStore(
         tap(() => patchState(store, {validatingSeance: true, error: null})),
         switchMap(({seanceId, payload}) =>
           api.validateSeance(seanceId, payload).pipe(
-            tap(() => patchState(store, {
+            tap((updated) => patchState(store, {
+              seances: upsertSeanceInList(store.seances(), updated.id, updated.status),
+              summary: patchSummaryStatusAndDate(store.summary(), updated.id, updated.status),
               validatingSeance: false,
               scanState: 'success',
               scanMessage: 'Séance validée',
@@ -667,3 +681,66 @@ function errorMessage(err: unknown): string {
   }
   return 'Erreur inattendue';
 }
+
+function upsertSeanceInList(
+  seances: SeanceListItem[],
+  seanceId: string,
+  status: string,
+  dateSeance?: string | null,
+): SeanceListItem[] {
+  return seances.map((s) =>
+    s.id === seanceId
+      ? {
+        ...s,
+        status,
+        dateSeance: dateSeance ?? s.dateSeance,
+      }
+      : s
+  );
+}
+
+function patchSummaryStatusAndDate(
+  summary: SeanceSummary | null,
+  seanceId: string,
+  status: string,
+  dateSeance?: string | null,
+): SeanceSummary | null {
+  if (!summary || summary.seance.id !== seanceId) {
+    return summary;
+  }
+  return {
+    ...summary,
+    seance: {
+      ...summary.seance,
+      status,
+      dateSeance: dateSeance ?? summary.seance.dateSeance,
+    }
+  };
+}
+
+function summaryStateFromSummary(summary: SeanceSummary): Partial<SeanceState> {
+  return {
+    summary,
+    selectedSeanceId: summary.seance.id,
+    editDateSeance: summary.seance.dateSeance,
+    dateSeance: summary.seance.dateSeance,
+    taAvant: summary.paramedical?.taAvant ?? '',
+    taApres: summary.paramedical?.taApres ?? '',
+    poidsAvantKg: summary.paramedical?.poidsAvantKg ?? null,
+    poidsApresKg: summary.paramedical?.poidsApresKg ?? null,
+    dureeMinutes: summary.paramedical?.dureeMinutes ?? null,
+    debitSangMlMin: summary.paramedical?.debitSangMlMin ?? null,
+    ultrafiltrationMl: summary.paramedical?.ultrafiltrationMl ?? null,
+    anticoagulant: summary.paramedical?.anticoagulant ?? '',
+    typeDialysat: summary.paramedical?.typeDialysat ?? '',
+    incidents: summary.paramedical?.incidents ?? '',
+    prescription: summary.medical?.prescription ?? '',
+    toleranceSeance: summary.medical?.toleranceSeance ?? '',
+    examenClinique: summary.medical?.examenClinique ?? '',
+    resultatsBiologiques: summary.medical?.resultatsBiologiques ?? '',
+    ajustementsTherapeutiques: summary.medical?.ajustementsTherapeutiques ?? '',
+    conclusionMedicale: summary.medical?.conclusionMedicale ?? '',
+    consommables: [],
+  };
+}
+

@@ -13,6 +13,7 @@ const MOCK_SUMMARY = {
   patient: {id: 'pid', nom: 'Dupont', prenom: 'Jean'},
   paramedical: null,
   medical: null,
+  forfait: {id: 'forfait-1', code: 'F001', nom: 'Forfait hémodialyse', prix: 3500},
 };
 const MOCK_DASHBOARD = {
   year: 2026, month: 7,
@@ -186,6 +187,15 @@ describe('SeanceStore', () => {
     expect(store.selectedSeanceId()).toBe(SEANCE_ID);
     expect(store.scanState()).toBe('success');
     expect(store.scanning()).toBe(false);
+  });
+
+  it('should load seance summary after scan to expose current forfait immediately', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001', dateSeance: '2026-07-24'});
+
+    expect(mockApi.getSeanceSummary).toHaveBeenCalledWith(SEANCE_ID, CENTER_ID);
+    expect(store.summary()?.forfait?.nom).toBe('Forfait hémodialyse');
+    expect(store.summary()?.forfait?.prix).toBe(3500);
   });
   it('should set error state on scan failure', () => {
     mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({status: 400, statusText: 'Bad Request'})));

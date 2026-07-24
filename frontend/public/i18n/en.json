@@ -329,5 +329,12 @@
     "UPDATE": "Update",
     "PRINT": "Print",
     "DELETE": "Delete"
+  },
+  "CAHIER": {
+    "PATIENT": "Patient",
+    "DATE": "Date",
+    "BOOK_STATUS": "Status",
+    "FORFAIT": "Package",
+    "PARAMEDICAL_DATE_SEANCE": "Session date"
   }
 }

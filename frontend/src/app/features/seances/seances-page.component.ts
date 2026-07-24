@@ -2,6 +2,7 @@
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   OnDestroy,
@@ -9,7 +10,6 @@
   signal,
   ViewChild,
 } from '@angular/core';
-import {RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -24,6 +24,7 @@ import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {AuthStore} from '../../core/state/auth.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {BackendApiService, SeanceDashboardDetailItem, SeanceListItem} from '../../core/api/backend-api.service';
+import {WebSocketService} from '../../core/ws/websocket.service';
 import {SeanceStore} from './state/seance.store';
 
 type BarcodeDetectorInstance = {
@@ -34,7 +35,7 @@ Chart.register(...registerables);
 
 @Component({
   standalone: true,
-  imports: [RouterLink, MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
+  imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatTableModule, MatSelectModule, TranslateModule, BaseChartDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
@@ -62,12 +63,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly dashboardDetailPageSize = 10;
   protected readonly dashboardDetailPageItems = computed(() => this.store.dashboardDetailPageItems());
   protected readonly dashboardDetailTotalPages = computed(() => this.store.dashboardDetailTotalPages());
-  protected readonly calendarHolidays = computed(() => this.store.calendarHolidays());
-  protected readonly calendarClosures = computed(() => this.store.calendarClosures());
-  protected readonly newHolidayDate = computed(() => this.store.newHolidayDate());
-  protected readonly newHolidayLabel = computed(() => this.store.newHolidayLabel());
-  protected readonly newClosureDate = computed(() => this.store.newClosureDate());
-  protected readonly newClosureReason = computed(() => this.store.newClosureReason());
   protected readonly journalDate = computed(() => this.store.journalDate());
   protected readonly journalLoading = computed(() => this.store.journalLoading());
   protected readonly journalPatients = computed(() => this.store.journalPatients());
@@ -99,7 +94,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly selectionLoading = computed(() => this.store.summaryLoading());
   protected readonly seanceCols = ['dateSeance', 'patient', 'status', 'actions'];
   protected readonly journalPatientCols = ['patient', 'code', 'status'];
-  protected readonly journalArticleCols = ['article', 'code', 'quantite'];
   protected readonly dashboardDetailCols = ['date', 'patient', 'weekday', 'status'];
   protected readonly consommableCols = ['article', 'quantite', 'actions'];
   // Consommables
@@ -150,12 +144,23 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   private readonly api = inject(BackendApiService);
   private readonly appShell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
+  private readonly ws = inject(WebSocketService);
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
   private cameraStream: MediaStream | null = null;
   private cameraFrameId: number | null = null;
   private cameraDetector: BarcodeDetectorInstance | null = null;
   private cameraDetectionInFlight = false;
+
+  constructor() {
+    effect(() => {
+      const event = this.ws.lastEvent();
+      const centerId = this.appShell.currentCenterId();
+      if (!event || !centerId || event.centerId !== centerId) return;
+      if (!this.mustRefreshFromEvent(event.type)) return;
+      this.refreshRealtime(centerId);
+    });
+  }
 
   ngOnInit(): void {
     const centerId = this.appShell.currentCenterId();
@@ -189,22 +194,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   protected onDashboardMonthInput(e: Event): void {
     this.store.setDashboardMonth((e.target as HTMLInputElement)?.value ?? currentMonthIso());
-  }
-
-  protected onNewHolidayDateInput(e: Event): void {
-    this.store.setNewHolidayDate((e.target as HTMLInputElement)?.value ?? todayIso());
-  }
-
-  protected onNewHolidayLabelInput(e: Event): void {
-    this.store.setNewHolidayLabel((e.target as HTMLInputElement)?.value ?? '');
-  }
-
-  protected onNewClosureDateInput(e: Event): void {
-    this.store.setNewClosureDate((e.target as HTMLInputElement)?.value ?? todayIso());
-  }
-
-  protected onNewClosureReasonInput(e: Event): void {
-    this.store.setNewClosureReason((e.target as HTMLInputElement)?.value ?? '');
   }
 
   protected onTaAvantInput(e: Event): void {
@@ -435,9 +424,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       return;
     }
     this.store.loadDashboard({centerId, year, month});
-    if (this.canEditDate()) {
-      this.store.loadCalendar({centerId, year, month});
-    }
   }
 
   protected exportDashboard(format: 'csv' | 'pdf' | 'xlsx'): void {
@@ -530,34 +516,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     return map[(row.weekday || '').toUpperCase()] ?? '';
   }
 
-  protected addHoliday(): void {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId || !this.store.newHolidayDate()) return;
-    this.store.addHoliday({centerId, date: this.store.newHolidayDate(), label: this.store.newHolidayLabel()});
-    this.loadSeanceDashboard();
-  }
-
-  protected deleteHoliday(id: string): void {
-    const c = this.appShell.currentCenterId();
-    if (!c) return;
-    this.store.deleteHoliday({centerId: c, id});
-    this.loadSeanceDashboard();
-  }
-
-  protected addClosure(): void {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId || !this.store.newClosureDate()) return;
-    this.store.addClosure({centerId, date: this.store.newClosureDate(), reason: this.store.newClosureReason()});
-    this.loadSeanceDashboard();
-  }
-
-  protected deleteClosure(id: string): void {
-    const c = this.appShell.currentCenterId();
-    if (!c) return;
-    this.store.deleteClosure({centerId: c, id});
-    this.loadSeanceDashboard();
-  }
-
   protected formatJournalPatient(row: {
     patientNom?: string | null;
     patientPrenom?: string | null;
@@ -580,6 +538,25 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     const p = this.store.summary()?.patient;
     if (!p) return '-';
     return (`${(p.nom ?? '').trim()} ${(p.prenom ?? '').trim()}`).trim() || '-';
+  }
+
+  protected currentForfaitName(): string {
+    const forfait = this.store.summary()?.forfait;
+    if (!forfait) {
+      return '';
+    }
+    return forfait.nom?.trim() || forfait.code?.trim() || '';
+  }
+
+  protected currentForfaitPrice(): string {
+    const prix = this.store.summary()?.forfait?.prix;
+    if (prix == null || Number.isNaN(Number(prix))) {
+      return '';
+    }
+    return new Intl.NumberFormat(this.translate.currentLang || 'fr', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(prix));
   }
 
   private getBarcodeDetectorConstructor(): BarcodeDetectorConstructor | null {
@@ -701,6 +678,30 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   private hasAnyRole(...roles: string[]): boolean {
     return roles.some((role) => this.auth.hasRole(role));
+  }
+
+  private mustRefreshFromEvent(type: string): boolean {
+    return type.startsWith('SEANCE_') || type === 'PATIENT_SCANNED';
+  }
+
+  private refreshRealtime(centerId: string): void {
+    this.store.loadSeances({centerId});
+    this.store.loadJournal({centerId, date: this.store.journalDate()});
+    this.refreshDashboardSilent(centerId);
+    const selectedSeanceId = this.store.selectedSeanceId();
+    if (selectedSeanceId) {
+      this.store.loadSeanceSummary({seanceId: selectedSeanceId, centerId});
+    }
+  }
+
+  private refreshDashboardSilent(centerId: string): void {
+    const [yearText, monthText] = this.store.dashboardMonth().split('-');
+    const year = Number(yearText);
+    const month = Number(monthText);
+    if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
+      return;
+    }
+    this.store.loadDashboard({centerId, year, month});
   }
 }
 

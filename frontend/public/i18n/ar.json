@@ -302,5 +302,12 @@
     "UPDATE": "تحديث",
     "PRINT": "طباعة",
     "DELETE": "حذف"
+  },
+  "CAHIER": {
+    "PATIENT": "المريض",
+    "DATE": "التاريخ",
+    "BOOK_STATUS": "الحالة",
+    "FORFAIT": "الباقة",
+    "PARAMEDICAL_DATE_SEANCE": "تاريخ الجلسة"
   }
 }

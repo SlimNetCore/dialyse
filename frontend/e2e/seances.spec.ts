@@ -149,20 +149,14 @@ test.describe('Module Séances', () => {
     await expect(page.locator('body')).not.toContainText('undefined');
   });
 
-  // ─── Calendrier (admin only) ──────────────────────────────────────────────
+  // ─── Calendrier déplacé vers Paramétrage (admin) ──────────────────────────
 
-  test('should display calendar management for admin user', async ({page}) => {
+  test('should open center calendar from admin parametrage route', async ({page}) => {
     await login(page);
-    await page.goto(`${baseUrl}/seances`);
+    await page.goto(`${baseUrl}/admin/parametrage/calendrier-clinique`);
     await page.waitForLoadState('networkidle');
-    // Le lien calendrier est affiché si l'utilisateur est admin
-    const calendarLink = page.locator('a', {hasText: /calendrier/i});
-    const isVisible = await calendarLink.isVisible();
-    if (isVisible) {
-      await calendarLink.click();
-      await page.waitForLoadState('networkidle');
-      await expect(page).toHaveURL(/\/seances\/calendrier/);
-    }
+    await expect(page).toHaveURL(/\/admin\/parametrage\/calendrier-clinique/);
+    await expect(page.locator('h1, .app-section-title')).toContainText(/Calendrier/i);
   });
 
   // ─── Tableau des séances ───────────────────────────────────────────────────
@@ -175,6 +169,70 @@ test.describe('Module Séances', () => {
     const headers = page.locator('th[mat-header-cell], .mat-header-cell');
     const count = await headers.count();
     expect(count).toBeGreaterThanOrEqual(0); // Le tableau peut être vide (pas de séances)
+  });
+
+  test('should display current forfait pill when opening a seance', async ({page}) => {
+    const centerId = '11111111-1111-1111-1111-111111111111';
+    const seanceId = '42ac21d7-e920-48c6-a85e-1d1d33a69460';
+
+    await page.route('**/api/v1/auth/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          username: 'infirmier-annaba',
+          fullName: 'Infirmier Annaba',
+          userId: 'b0b00001-0000-0000-0000-000000000003',
+          centerId,
+          centerName: 'ANNABA 1',
+          roles: ['ROLE_INFIRMIER'],
+        }),
+      });
+    });
+
+    await page.route(`**/api/v1/seances?centerId=${centerId}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: seanceId,
+            centerId,
+            patientId: 'patient-1',
+            patientCode: 'PAT-001',
+            patientNom: 'Dupont',
+            patientPrenom: 'Jean',
+            dateSeance: '2026-07-25',
+            status: 'CREE',
+          },
+        ]),
+      });
+    });
+
+    await page.route(`**/api/v1/seances/${seanceId}?centerId=${centerId}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          seance: {id: seanceId, centerId, patientId: 'patient-1', dateSeance: '2026-07-25', status: 'CREE'},
+          patient: {id: 'patient-1', codePatient: 'PAT-001', nom: 'Dupont', prenom: 'Jean', numeroAssurance: 'ASS-001'},
+          paramedical: null,
+          medical: null,
+          consommables: [],
+          consommablesTotalValorise: 0,
+          forfait: {id: 'forfait-1', code: 'F001', nom: 'Forfait hémodialyse', prix: 3500},
+        }),
+      });
+    });
+
+    await page.goto(`${baseUrl}/seances`);
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('button', {name: /Modifier/i}).click();
+
+    const forfaitPill = page.locator('[data-testid="current-forfait-pill"]');
+    await expect(forfaitPill).toBeVisible();
+    await expect(forfaitPill).toContainText(/Forfait hémodialyse/);
+    await expect(forfaitPill).toContainText(/3500/);
   });
 
   // ─── Dashboard details popup ───────────────────────────────────────────────
@@ -199,4 +257,6 @@ test.describe('Module Séances', () => {
     }
   });
 });
+
+
 

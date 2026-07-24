@@ -302,5 +302,12 @@
     "UPDATE": "Leqqem",
     "PRINT": "Siggez",
     "DELETE": "Kkes"
+  },
+  "CAHIER": {
+    "PATIENT": "Amdan",
+    "DATE": "Azemz",
+    "BOOK_STATUS": "Addad",
+    "FORFAIT": "Akemmus",
+    "PARAMEDICAL_DATE_SEANCE": "Azemz n tɣimit"
   }
 }

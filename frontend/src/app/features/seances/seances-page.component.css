@@ -65,6 +65,52 @@ mat-card {
   gap: 8px;
 }
 
+.forfait-pill {
+  margin-top: 14px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, #2563eb 28%, var(--app-border) 72%);
+  background: linear-gradient(135deg,
+  color-mix(in srgb, #2563eb 16%, var(--app-surface-solid) 84%) 0%,
+  color-mix(in srgb, #14b8a6 14%, var(--app-surface-solid) 86%) 100%);
+  box-shadow: 0 18px 34px -28px rgba(37, 99, 235, 0.65);
+}
+
+.forfait-pill__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--app-text-muted, #64748b) 84%, white 16%);
+}
+
+.forfait-pill__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.forfait-pill__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--app-text, #0f172a);
+}
+
+.forfait-pill__price {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .form-grid {
   margin-top: 12px;
   display: grid;
@@ -141,6 +187,29 @@ mat-card {
   border: 1px solid var(--app-border);
   background: color-mix(in srgb, var(--app-surface-solid) 88%, transparent);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.seance-workspace {
+  margin-top: 16px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.seance-list-card,
+.seance-editor-column {
+  min-width: 0;
+}
+
+.seance-editor-column {
+  display: grid;
+  gap: 12px;
+}
+
+.seance-editor-card,
+.seance-editor-placeholder {
+  margin-top: 0;
 }
 
 .kpi-grid {
@@ -398,5 +467,11 @@ mat-card {
 
 .status-dot[data-status='ANNULEE'] {
   color: #dc2626;
+}
+
+@media (max-width: 1180px) {
+  .seance-workspace {
+    grid-template-columns: 1fr;
+  }
 }
 

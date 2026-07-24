@@ -401,6 +401,7 @@
   "CAHIER": {
     "TITLE": "Cahier de dialyse",
     "PATIENT": "Patient",
+    "DATE": "Date",
     "BOOK_PAGE": "Page",
     "BOOK_TOTAL_SEANCES": "Total séances",
     "BOOK_EMPTY": "Aucune séance validée par l'infirmier pour ce patient dans le centre actif.",

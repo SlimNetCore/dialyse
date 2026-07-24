@@ -215,9 +215,16 @@ class SeanceRestControllerTest {
         // Le bon centre doit fonctionner
         ResponseEntity<?> ok = controller.details(SEANCE_ID, CENTER_ID);
         assertEquals(200, ok.getStatusCode().value());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> payload = (Map<String, Object>) ok.getBody();
+        assertNotNull(payload);
+        assertTrue(payload.containsKey("consommables"));
+        assertTrue(payload.containsKey("consommablesTotalValorise"));
+        assertTrue(payload.containsKey("forfait"));
 
         // Un autre centre doit échouer (isolation multi-centre)
         assertThrows(IllegalArgumentException.class, () -> controller.details(SEANCE_ID, wrongCenter));
     }
 }
+
 

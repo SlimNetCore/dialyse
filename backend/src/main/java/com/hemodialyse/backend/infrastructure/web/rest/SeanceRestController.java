@@ -151,11 +151,86 @@ public class SeanceRestController {
             medicalMap.put("conclusionMedicale", voletMedical.getConclusionMedicale());
         }
 
+        var consommables = Optional.ofNullable(jdbc.query(
+                """
+                        SELECT sm.article_id AS article_id,
+                               a.code AS article_code,
+                               a.libelle AS article_libelle,
+                               a.unite AS article_unite,
+                               sm.prix_unitaire AS valeur_unitaire,
+                               SUM(sm.quantite) AS quantite,
+                               SUM(COALESCE(sm.quantite, 0) * COALESCE(sm.prix_unitaire, 0)) AS total_valorise
+                        FROM stock_movements sm
+                        INNER JOIN articles a ON a.id = sm.article_id AND a.center_id = sm.center_id
+                        WHERE sm.center_id = ?
+                          AND sm.seance_id = ?
+                          AND sm.mouvement_type = 'SORTIE'
+                        GROUP BY sm.article_id, a.code, a.libelle, a.unite, sm.prix_unitaire
+                        ORDER BY a.code
+                        """,
+                (rs, rowNum) -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("articleId", rs.getObject("article_id", UUID.class));
+                    row.put("articleCode", rs.getString("article_code"));
+                    row.put("articleLibelle", rs.getString("article_libelle"));
+                    row.put("articleUnite", rs.getString("article_unite"));
+                    row.put("quantite", rs.getBigDecimal("quantite"));
+                    row.put("valeurUnitaire", rs.getBigDecimal("valeur_unitaire"));
+                    row.put("totalValorise", rs.getBigDecimal("total_valorise"));
+                    return row;
+                },
+                centerId,
+                seance.getId()
+        )).orElseGet(List::of);
+
+        var totalValoriseConsommables = consommables.stream()
+                .map(item -> (java.math.BigDecimal) item.getOrDefault("totalValorise", java.math.BigDecimal.ZERO))
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+        LocalDate dateReference = seance.getDateSeance() != null ? seance.getDateSeance() : LocalDate.now();
+        var forfaitRows = Optional.ofNullable(jdbc.query(
+                """
+                        SELECT f.id AS forfait_id,
+                               f.code AS forfait_code,
+                               f.libelle AS forfait_nom,
+                               f.prix AS forfait_prix,
+                               CAST(NULL AS INTEGER) AS forfait_nb_seances
+                        FROM prise_en_charge p
+                        INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
+                                             AND f.center_id = p.center_id
+                        WHERE p.center_id = ?
+                          AND p.patient_id = ?
+                          AND (
+                                (p.date_debut_effectif IS NOT NULL AND p.date_fin_effectif IS NOT NULL AND ? BETWEEN p.date_debut_effectif AND p.date_fin_effectif)
+                             OR (p.date_debut_demande IS NOT NULL AND p.date_fin_demande IS NOT NULL AND ? BETWEEN p.date_debut_demande AND p.date_fin_demande)
+                          )
+                        ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END,
+                                 p.created_at DESC
+                        """,
+                (rs, rowNum) -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("id", rs.getObject("forfait_id", UUID.class));
+                    row.put("code", rs.getString("forfait_code"));
+                    row.put("nom", rs.getString("forfait_nom"));
+                    row.put("prix", rs.getBigDecimal("forfait_prix"));
+                    row.put("nombreSeances", rs.getInt("forfait_nb_seances"));
+                    return row;
+                },
+                centerId,
+                patient.getId().value(),
+                Date.valueOf(dateReference),
+                Date.valueOf(dateReference)
+        )).orElseGet(List::of);
+        Map<String, Object> forfait = forfaitRows.isEmpty() ? null : forfaitRows.getFirst();
+
         var payload = new LinkedHashMap<String, Object>();
         payload.put("seance", seanceMap);
         payload.put("patient", patientMap);
         payload.put("paramedical", paramedicalMap);
         payload.put("medical", medicalMap);
+        payload.put("consommables", consommables);
+        payload.put("consommablesTotalValorise", totalValoriseConsommables);
+        payload.put("forfait", forfait);
         return ResponseEntity.ok(payload);
     }
 

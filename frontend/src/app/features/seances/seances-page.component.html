@@ -3,14 +3,6 @@
     <span class="app-eyebrow">Séances</span>
     <h1 class="app-section-title">Gestion des séances</h1>
     <p class="app-section-copy">Lister, ouvrir et modifier les séances du centre actif.</p>
-    @if (canEditDate()) {
-      <div class="action-row">
-        <a color="primary" mat-stroked-button routerLink="/seances/calendrier">
-          <mat-icon>calendar_month</mat-icon>
-          Ouvrir le calendrier centre
-        </a>
-      </div>
-    }
   </div>
 
   <mat-card>
@@ -124,7 +116,7 @@
               </td>
             </ng-container>
             <tr *matHeaderRowDef="dashboardDetailCols" mat-header-row></tr>
-            <tr *matRowDef="let row; columns: dashboardDetailCols" mat-row></tr>
+            <tr *matRowDef="let _row; columns: dashboardDetailCols" mat-row></tr>
           </table>
         </div>
         <div class="popin-pagination">
@@ -142,76 +134,6 @@
         </div>
       </div>
     </div>
-  }
-
-  @if (canEditDate()) {
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Calendrier clinique (admin)</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="scan-row">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>Jour férié</mat-label>
-            <input (input)="onNewHolidayDateInput($event)" [value]="newHolidayDate()" matInput type="date"/>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="flex2">
-            <mat-label>Libellé férié</mat-label>
-            <input (input)="onNewHolidayLabelInput($event)" [value]="newHolidayLabel()" matInput/>
-          </mat-form-field>
-          <button (click)="addHoliday()" color="primary" mat-stroked-button type="button">
-            <mat-icon>add</mat-icon>
-            Ajouter férié
-          </button>
-        </div>
-
-        <div class="scan-row" style="margin-top: 8px;">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>Jour fermeture</mat-label>
-            <input (input)="onNewClosureDateInput($event)" [value]="newClosureDate()" matInput type="date"/>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="flex2">
-            <mat-label>Raison fermeture</mat-label>
-            <input (input)="onNewClosureReasonInput($event)" [value]="newClosureReason()" matInput/>
-          </mat-form-field>
-          <button (click)="addClosure()" color="primary" mat-stroked-button type="button">
-            <mat-icon>add</mat-icon>
-            Ajouter fermeture
-          </button>
-        </div>
-
-        <div class="journal-grid">
-          <div>
-            <h3 class="sub-title">Jours fériés</h3>
-            @for (h of calendarHolidays(); track h.id) {
-              <div class="calendar-row">
-                <span>{{ h.dayDate }} - {{ h.label || 'Férié' }}</span>
-                <button (click)="deleteHoliday(h.id)" color="warn" mat-icon-button>
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            }
-            @if (calendarHolidays().length === 0) {
-              <p class="app-muted-note">Aucun jour férié défini pour ce mois.</p>
-            }
-          </div>
-          <div>
-            <h3 class="sub-title">Fermetures</h3>
-            @for (c of calendarClosures(); track c.id) {
-              <div class="calendar-row">
-                <span>{{ c.dayDate }} - {{ c.reason || 'Fermeture' }}</span>
-                <button (click)="deleteClosure(c.id)" color="warn" mat-icon-button>
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            }
-            @if (calendarClosures().length === 0) {
-              <p class="app-muted-note">Aucune fermeture définie pour ce mois.</p>
-            }
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
   }
 
   <mat-card>
@@ -272,169 +194,122 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Liste des séances</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="table-wrap">
-        <table [dataSource]="seances()" class="full-width seances-table" mat-table>
-          <ng-container matColumnDef="dateSeance">
-            <th *matHeaderCellDef mat-header-cell>Date</th>
-            <td *matCellDef="let s" mat-cell>{{ s.dateSeance }}</td>
-          </ng-container>
-          <ng-container matColumnDef="patient">
-            <th *matHeaderCellDef mat-header-cell>Patient</th>
-            <td *matCellDef="let s" mat-cell>
-              <div class="patient-cell">
-                <strong>{{ formatPatientLabel(s) }}</strong>
-                <span>{{ s.patientCode || s.patientId }}</span>
-              </div>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="status">
-            <th *matHeaderCellDef mat-header-cell>Statut</th>
-            <td *matCellDef="let s" mat-cell>
-                  <span [attr.data-status]="s.status" class="status-badge">
-                    <mat-icon [attr.data-status]="s.status" class="status-dot">fiber_manual_record</mat-icon>
-                    {{ s.status }}
-                  </span>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>Actions</th>
-            <td *matCellDef="let s" mat-cell>
-              <button
-                (click)="selectSeance(s)"
-                [disabled]="!canOpenSeanceDetails()"
-                color="primary"
-                mat-stroked-button
-                type="button"
-              >
-                Modifier
-              </button>
-            </td>
-          </ng-container>
-          <tr *matHeaderRowDef="seanceCols" mat-header-row></tr>
-          <tr
-            *matRowDef="let row; columns: seanceCols"
-            [class.row-locked]="!canOpenSeanceDetails()"
-            [class.row-selected]="selectedSeanceId() === row.id"
-            mat-row
-          ></tr>
-        </table>
-      </div>
-      @if (seances().length === 0) {
-        <p class="camera-hint">Aucune séance trouvée pour le centre courant.</p>
-      }
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Journal de séance par date</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="scan-row">
-        <mat-form-field appearance="outline" class="flex1">
-          <mat-label>Date de séance</mat-label>
-          <input (input)="onJournalDateInput($event)" [value]="journalDate()" matInput type="date"/>
-        </mat-form-field>
-        <button (click)="loadJournalByDate()" [disabled]="journalLoading()" color="primary" mat-stroked-button
-                type="button">
-          <mat-icon>event_note</mat-icon>
-          {{ journalLoading() ? 'Chargement...' : 'Afficher le journal' }}
-        </button>
-      </div>
-
-      <div class="journal-grid">
-        <div>
-          <h3 class="sub-title">Patients présents ({{ journalPatients().length }})</h3>
-          <div class="table-wrap">
-            <table [dataSource]="journalPatients()" class="full-width seances-table" mat-table>
-              <ng-container matColumnDef="patient">
-                <th *matHeaderCellDef mat-header-cell>Patient</th>
-                <td *matCellDef="let row" mat-cell>{{ formatJournalPatient(row) }}</td>
-              </ng-container>
-              <ng-container matColumnDef="code">
-                <th *matHeaderCellDef mat-header-cell>Code</th>
-                <td *matCellDef="let row" mat-cell>{{ row.patientCode || '-' }}</td>
-              </ng-container>
-              <ng-container matColumnDef="status">
-                <th *matHeaderCellDef mat-header-cell>Statut</th>
-                <td *matCellDef="let row" mat-cell>{{ row.status }}</td>
-              </ng-container>
-              <tr *matHeaderRowDef="journalPatientCols" mat-header-row></tr>
-              <tr *matRowDef="let row; columns: journalPatientCols" mat-row></tr>
-            </table>
-          </div>
-        </div>
-
-        <div>
-          <h3 class="sub-title">Articles sortis ({{ journalArticles().length }})</h3>
-          <div class="table-wrap">
-            <table [dataSource]="journalArticles()" class="full-width seances-table" mat-table>
-              <ng-container matColumnDef="article">
-                <th *matHeaderCellDef mat-header-cell>Article</th>
-                <td *matCellDef="let row" mat-cell>{{ row.articleLibelle || row.articleCode || row.articleId }}</td>
-              </ng-container>
-              <ng-container matColumnDef="code">
-                <th *matHeaderCellDef mat-header-cell>Code</th>
-                <td *matCellDef="let row" mat-cell>{{ row.articleCode || '-' }}</td>
-              </ng-container>
-              <ng-container matColumnDef="quantite">
-                <th *matHeaderCellDef mat-header-cell>Quantité</th>
-                <td *matCellDef="let row" mat-cell>{{ row.quantiteTotale }}</td>
-              </ng-container>
-              <tr *matHeaderRowDef="journalArticleCols" mat-header-row></tr>
-              <tr *matRowDef="let row; columns: journalArticleCols" mat-row></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  @if (selectedPreview() && !canOpenSeanceDetails()) {
-    <mat-card class="locked-detail-card">
+  <div class="seance-workspace">
+    <mat-card class="seance-list-card">
       <mat-card-header>
-        <mat-card-title>Détail de séance verrouillé</mat-card-title>
+        <mat-card-title>Liste des séances</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="resume-grid detail-locked">
-          <div><strong>Patient :</strong> {{ formatPatientLabel(selectedPreview()!) }}</div>
-          <div><strong>Code :</strong> {{ selectedPreview()!.patientCode || '-' }}</div>
-          <div><strong>Date :</strong> {{ selectedPreview()!.dateSeance }}</div>
-          <div><strong>Statut :</strong> {{ selectedPreview()!.status }}</div>
+        <div class="table-wrap">
+          <table [dataSource]="seances()" class="full-width seances-table" mat-table>
+            <ng-container matColumnDef="dateSeance">
+              <th *matHeaderCellDef mat-header-cell>Date</th>
+              <td *matCellDef="let s" mat-cell>{{ s.dateSeance }}</td>
+            </ng-container>
+            <ng-container matColumnDef="patient">
+              <th *matHeaderCellDef mat-header-cell>Patient</th>
+              <td *matCellDef="let s" mat-cell>
+                <div class="patient-cell">
+                  <strong>{{ formatPatientLabel(s) }}</strong>
+                  <span>{{ s.patientCode || s.patientId }}</span>
+                </div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th *matHeaderCellDef mat-header-cell>Statut</th>
+              <td *matCellDef="let s" mat-cell>
+                <span [attr.data-status]="s.status" class="status-badge">
+                  <mat-icon [attr.data-status]="s.status" class="status-dot">fiber_manual_record</mat-icon>
+                  {{ s.status }}
+                </span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th *matHeaderCellDef mat-header-cell>Actions</th>
+              <td *matCellDef="let s" mat-cell>
+                <button
+                  (click)="selectSeance(s)"
+                  [disabled]="!canOpenSeanceDetails()"
+                  color="primary"
+                  mat-stroked-button
+                  type="button"
+                >
+                  Modifier
+                </button>
+              </td>
+            </ng-container>
+            <tr *matHeaderRowDef="seanceCols" mat-header-row></tr>
+            <tr
+              *matRowDef="let row; columns: seanceCols"
+              [class.row-locked]="!canOpenSeanceDetails()"
+              [class.row-selected]="selectedSeanceId() === row.id"
+              mat-row
+            ></tr>
+          </table>
         </div>
-        <p class="locked-note">
-          La séance est bien enregistrée dans la liste. Le détail complet s’ouvrira automatiquement
-          lorsqu’un infirmier ou un médecin scannera le QR du patient.
-        </p>
+        @if (seances().length === 0) {
+          <p class="camera-hint">Aucune séance trouvée pour le centre courant.</p>
+        }
       </mat-card-content>
     </mat-card>
-  }
 
-  @if (summary()) {
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Modification de la séance</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if (selectionLoading()) {
-          <p class="loading-note">Chargement des détails de la séance...</p>
-        }
+    <div class="seance-editor-column">
+      @if (selectedPreview() && !canOpenSeanceDetails()) {
+        <mat-card class="locked-detail-card">
+          <mat-card-header>
+            <mat-card-title>Détail de séance verrouillé</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="resume-grid detail-locked">
+              <div><strong>Patient :</strong> {{ formatPatientLabel(selectedPreview()!) }}</div>
+              <div><strong>Code :</strong> {{ selectedPreview()!.patientCode || '-' }}</div>
+              <div><strong>Date :</strong> {{ selectedPreview()!.dateSeance }}</div>
+              <div><strong>Statut :</strong> {{ selectedPreview()!.status }}</div>
+            </div>
+            <p class="locked-note">
+              La séance est bien enregistrée dans la liste. Le détail complet s’ouvrira automatiquement
+              lorsqu’un infirmier ou un médecin scannera le QR du patient.
+            </p>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (summary()) {
+        <mat-card class="seance-editor-card">
+          <mat-card-header>
+            <mat-card-title>Modification de la séance</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (selectionLoading()) {
+              <p class="loading-note">Chargement des détails de la séance...</p>
+            }
 
         <div class="resume-grid">
-          <div><strong>Patient :</strong> {{ patientFullName() }}</div>
-          <div><strong>Code :</strong> {{ summary()!.patient.codePatient || '-' }}</div>
-          <div><strong>Assurance :</strong> {{ summary()!.patient.numeroAssurance || '-' }}</div>
-          <div><strong>Date :</strong> {{ summary()!.seance.dateSeance }}</div>
-          <div><strong>Statut :</strong> {{ summary()!.seance.status }}</div>
+          <div><strong>{{ 'CAHIER.PATIENT' | translate }} :</strong> {{ patientFullName() }}</div>
+          <div><strong>{{ 'PATIENT_LIST.COL_CODE' | translate }} :</strong> {{ summary()!.patient.codePatient || '-' }}
+          </div>
+          <div><strong>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }}
+            :</strong> {{ summary()!.patient.numeroAssurance || '-' }}
+          </div>
+          <div><strong>{{ 'CAHIER.PARAMEDICAL_DATE_SEANCE' | translate }} :</strong> {{ summary()!.seance.dateSeance }}
+          </div>
+          <div><strong>{{ 'CAHIER.BOOK_STATUS' | translate }} :</strong> {{ summary()!.seance.status }}</div>
           <div><strong>ID :</strong> {{ summary()!.seance.id }}</div>
         </div>
 
-        <div class="form-grid" style="margin-top:16px;">
+            @if (summary()!.forfait) {
+              <div class="forfait-pill" data-testid="current-forfait-pill">
+                <div class="forfait-pill__label">{{ 'CAHIER.FORFAIT' | translate }}</div>
+                <div class="forfait-pill__content">
+                  <span class="forfait-pill__name">{{ currentForfaitName() }}</span>
+                  @if (currentForfaitPrice()) {
+                    <span class="forfait-pill__price">{{ currentForfaitPrice() }} DA</span>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="form-grid" style="margin-top:16px;">
           <mat-form-field appearance="outline">
             <mat-label>Date de séance</mat-label>
             <input (input)="onEditDateInput($event)" [disabled]="!canEditDate()" [value]="editDateSeance()" matInput
@@ -627,7 +502,83 @@
             {{ savingMedical() ? 'Enregistrement...' : 'Enregistrer médical' }}
           </button>
         </div>
-      </mat-card-content>
-    </mat-card>
-  }
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <mat-card class="seance-editor-placeholder">
+          <mat-card-content>
+            <p class="app-muted-note">Cliquez sur <strong>Modifier</strong> dans la liste pour afficher le formulaire
+              ici.</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Journal de séance par date</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="scan-row">
+        <mat-form-field appearance="outline" class="flex1">
+          <mat-label>Date de séance</mat-label>
+          <input (input)="onJournalDateInput($event)" [value]="journalDate()" matInput type="date"/>
+        </mat-form-field>
+        <button (click)="loadJournalByDate()" [disabled]="journalLoading()" color="primary" mat-stroked-button
+                type="button">
+          <mat-icon>event_note</mat-icon>
+          {{ journalLoading() ? 'Chargement...' : 'Afficher le journal' }}
+        </button>
+      </div>
+
+      <div class="journal-grid">
+        <div>
+          <h3 class="sub-title">Patients présents ({{ journalPatients().length }})</h3>
+          <div class="table-wrap">
+            <table [dataSource]="journalPatients()" class="full-width seances-table" mat-table>
+              <ng-container matColumnDef="patient">
+                <th *matHeaderCellDef mat-header-cell>Patient</th>
+                <td *matCellDef="let row" mat-cell>{{ formatJournalPatient(row) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="code">
+                <th *matHeaderCellDef mat-header-cell>Code</th>
+                <td *matCellDef="let row" mat-cell>{{ row.patientCode || '-' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th *matHeaderCellDef mat-header-cell>Statut</th>
+                <td *matCellDef="let row" mat-cell>{{ row.status }}</td>
+              </ng-container>
+              <tr *matHeaderRowDef="journalPatientCols" mat-header-row></tr>
+              <tr *matRowDef="let row; columns: journalPatientCols" mat-row></tr>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="sub-title">Articles sortis ({{ journalArticles().length }})</h3>
+          <div class="table-wrap">
+            <table class="full-width seances-table">
+              <thead>
+              <tr>
+                <th>Article</th>
+                <th>Code</th>
+                <th>Quantité</th>
+              </tr>
+              </thead>
+              <tbody>
+                @for (row of journalArticles(); track row.articleId) {
+                  <tr>
+                    <td>{{ row.articleLibelle || row.articleCode || row.articleId }}</td>
+                    <td>{{ row.articleCode || '-' }}</td>
+                    <td>{{ row.quantiteTotale }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </section>

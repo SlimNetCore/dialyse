@@ -1,10 +1,12 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {TestBed} from '@angular/core/testing';
+import {provideZonelessChangeDetection} from '@angular/core';
 import {SeancesPageComponent} from './seances-page.component';
 import {SeanceStore} from './state/seance.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {BackendApiService} from '../../core/api/backend-api.service';
+import {WebSocketService} from '../../core/ws/websocket.service';
 import {TranslateService} from '@ngx-translate/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
@@ -36,12 +38,6 @@ describe('SeancesPageComponent', () => {
       dashboardDetailPageIndex: vi.fn(() => 0),
       dashboardDetailPageItems: vi.fn(() => []),
       dashboardDetailTotalPages: vi.fn(() => 1),
-      calendarHolidays: vi.fn(() => []),
-      calendarClosures: vi.fn(() => []),
-      newHolidayDate: vi.fn(() => ''),
-      newHolidayLabel: vi.fn(() => ''),
-      newClosureDate: vi.fn(() => ''),
-      newClosureReason: vi.fn(() => ''),
       journalDate: vi.fn(() => '2026-07-24'),
       journalLoading: vi.fn(() => false),
       journalPatients: vi.fn(() => []),
@@ -90,11 +86,6 @@ describe('SeancesPageComponent', () => {
       loadDashboardDetails: vi.fn(),
       openDashboardDetails: vi.fn(),
       closeDashboardDetails: vi.fn(),
-      loadCalendar: vi.fn(),
-      addHoliday: vi.fn(),
-      deleteHoliday: vi.fn(),
-      addClosure: vi.fn(),
-      deleteClosure: vi.fn(),
       loadSeances: vi.fn(),
       clearSummary: vi.fn(),
       clearError: vi.fn(),
@@ -109,11 +100,13 @@ describe('SeancesPageComponent', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         {provide: SeanceStore, useValue: storeMock},
         {provide: AppShellStore, useValue: {currentCenterId: () => CENTER_ID}},
         {provide: AuthStore, useValue: {hasRole: (role: string) => role === 'INFIRMIER', username: () => 'inf-01'}},
         {provide: BackendApiService, useValue: {}},
-        {provide: TranslateService, useValue: {currentLang: 'fr'}},
+        {provide: WebSocketService, useValue: {lastEvent: () => null}},
+        {provide: TranslateService, useValue: {currentLang: 'fr', get: vi.fn(), instant: (key: string) => key}},
         {provide: MatSnackBar, useValue: {open: vi.fn()}},
       ],
     });
@@ -140,7 +133,31 @@ describe('SeancesPageComponent', () => {
     expect(storeMock.selectSeance).toHaveBeenCalledWith('seance-123');
     expect(storeMock.loadSeanceSummary).toHaveBeenCalledWith({seanceId: 'seance-123', centerId: CENTER_ID});
   });
+
+  it('should render current forfait pill when seance summary contains forfait', async () => {
+    storeMock['summary'] = vi.fn(() => ({
+      seance: {id: 'seance-123', centerId: CENTER_ID, patientId: 'patient-1', dateSeance: '2026-07-24', status: 'CREE'},
+      patient: {id: 'patient-1', codePatient: 'PAT-001', nom: 'Dupont', prenom: 'Jean', numeroAssurance: 'ASS-001'},
+      paramedical: null,
+      medical: null,
+      forfait: {id: 'forfait-1', code: 'F001', nom: 'Forfait hémodialyse', prix: 3500},
+    }));
+
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    expect(component['currentForfaitName']()).toBe('Forfait hémodialyse');
+    expect(component['currentForfaitPrice']()).toBe('3 500,00');
+  });
 });
+
+
+
+
+
+
+
+
+
 
 
 

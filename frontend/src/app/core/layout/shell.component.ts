@@ -107,6 +107,17 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/reglement', label: 'Dashboard règlement', icon: 'space_dashboard'},
       ],
     },
+    {
+      key: 'admin',
+      route: '/admin',
+      icon: 'tune',
+      label: 'NAV.ADMIN',
+      items: [
+        {route: '/admin/users', label: 'Utilisateurs', icon: 'manage_accounts'},
+        {route: '/admin/roles', label: 'Rôles', icon: 'admin_panel_settings'},
+        {route: '/admin/parametrage/calendrier-clinique', label: 'Calendrier clinique/centre', icon: 'calendar_month'},
+      ],
+    },
   ];
 
   readonly breadcrumbs = signal<string[]>([]);
@@ -178,6 +189,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
       'pec-list': 'Liste PEC',
       'attestations-list': 'Liste attestations',
       admin: 'Administration',
+      parametrage: 'Paramétrage',
+      'calendrier-clinique': 'Calendrier clinique/centre',
       users: 'Utilisateurs',
       'modeles-document': 'Modèles documents',
     };
