@@ -50,7 +50,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly activeTabIndex = signal(0);
   // Alias réactifs attendus par le template
   protected readonly qrCode = computed(() => this.store.qrCode());
-  protected readonly dateSeance = computed(() => this.store.dateSeance());
   protected readonly scanState = computed(() => this.store.scanState());
   protected readonly scanMessage = computed(() => this.store.scanMessage());
   protected readonly scanning = computed(() => this.store.scanning());
@@ -190,9 +189,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.setQrCode((e.target as HTMLInputElement)?.value ?? '');
   }
 
-  protected onDateInput(e: Event): void {
-    this.store.setDateSeance((e.target as HTMLInputElement)?.value ?? todayIso());
-  }
 
   protected onEditDateInput(e: Event): void {
     this.store.setEditDateSeance((e.target as HTMLInputElement)?.value ?? todayIso());

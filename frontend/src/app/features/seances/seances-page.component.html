@@ -162,10 +162,6 @@
             <mat-label>QR Code</mat-label>
             <input (input)="onQrInput($event)" [value]="qrCode()" matInput placeholder="Scannez ou entrez le QR code"/>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>Date de séance</mat-label>
-            <input (input)="onDateInput($event)" [value]="dateSeance()" matInput type="date"/>
-          </mat-form-field>
           <button (click)="scanQr()" [disabled]="scanning()" color="primary" mat-flat-button type="button">
             <mat-icon>qr_code_scanner</mat-icon>
             {{ scanning() ? 'Scan...' : 'Scanner' }}
@@ -336,27 +332,6 @@
 
             <mat-tab-group (selectedIndexChange)="activeTabIndex.set($event)" [selectedIndex]="activeTabIndex()"
                            animationDuration="200ms" class="seance-tabs">
-              <mat-tab label="Date">
-                <div class="tab-body">
-                  <div class="form-grid">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Date de séance</mat-label>
-                      <input (input)="onEditDateInput($event)" [disabled]="!canEditDate()" [value]="editDateSeance()"
-                             matInput type="date"/>
-                    </mat-form-field>
-                  </div>
-                  @if (!canEditDate()) {
-                    <p class="section-note">La modification de date est indisponible pour votre profil.</p>
-                  }
-                  <div class="action-row">
-                    <button (click)="saveSelectedDate()" [disabled]="savingDate() || !canEditDate()" color="primary"
-                            mat-flat-button type="button">
-                      <mat-icon>event</mat-icon>
-                      {{ savingDate() ? 'Sauvegarde...' : 'Modifier la date' }}
-                    </button>
-                  </div>
-                </div>
-              </mat-tab>
 
               <mat-tab label="Paramédical">
                 <div class="tab-body">

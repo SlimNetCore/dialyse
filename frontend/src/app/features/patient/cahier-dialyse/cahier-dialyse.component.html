@@ -37,23 +37,52 @@
     </div>
   } @else {
     <div class="book-layout">
-      <aside class="book-toc">
-        <h3>{{ 'CAHIER.BOOK_SEANCE_LIST' | translate }}</h3>
-        <div class="toc-pages">
-          @for (seance of patientSeances(); track seance.id; let i = $index) {
-            <button
-              (click)="goToPage(i)"
-              [class.active]="i === currentPageIndex()"
-              [class]="'toc-item ' + statusClass(seance.status)"
-              type="button"
-            >
-              <span class="toc-index">{{ i + 1 }}</span>
-              <span class="toc-date">{{ formatSeanceDate(seance.dateSeance) }}</span>
-              <span class="toc-status">{{ seance.status }}</span>
+      <!-- Mode desktop: barre latérale -->
+      @if (!isMobileViewport()) {
+        <aside class="book-toc">
+          <h3>{{ 'CAHIER.BOOK_SEANCE_LIST' | translate }}</h3>
+          <div class="toc-pages">
+            @for (seance of patientSeances(); track seance.id; let i = $index) {
+              <button
+                (click)="goToPage(i)"
+                [class.active]="i === currentPageIndex()"
+                [class]="'toc-item ' + statusClass(seance.status)"
+                type="button"
+              >
+                <span class="toc-index">{{ i + 1 }}</span>
+                <span class="toc-date">{{ formatSeanceDate(seance.dateSeance) }}</span>
+                <span class="toc-status">{{ seance.status }}</span>
+              </button>
+            }
+          </div>
+        </aside>
+      }
+
+      <!-- Mode mobile: sélecteur dropdown et navigation horizontale -->
+      @if (isMobileViewport()) {
+        <div class="mobile-seance-selector">
+          <div class="mobile-selector-header">
+            <span class="page-counter">{{ pageNumber() }}/{{ totalPages() }}</span>
+            <select (change)="onSeanceSelectChange($event)" [value]="currentPageIndex()" class="seance-select">
+              @for (seance of patientSeances(); track seance.id; let i = $index) {
+                <option [value]="i">
+                  {{ i + 1 }} - {{ formatSeanceDate(seance.dateSeance) }} ({{ seance.status }})
+                </option>
+              }
+            </select>
+          </div>
+          <div class="mobile-nav-buttons">
+            <button (click)="goToPreviousPage()" [disabled]="!canGoPrev()" class="nav-btn" mat-stroked-button
+                    type="button">
+              <mat-icon>chevron_left</mat-icon>
             </button>
-          }
+            <button (click)="goToNextPage()" [disabled]="!canGoNext()" class="nav-btn" color="primary" mat-stroked-button
+                    type="button">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
         </div>
-      </aside>
+      }
 
       <section class="notebook-page" data-testid="cahier-notebook-page">
         <div class="page-header">
@@ -72,16 +101,19 @@
           </div>
         </div>
 
-        <div class="page-nav">
-          <button (click)="goToPreviousPage()" [disabled]="!canGoPrev()" mat-stroked-button type="button">
-            <mat-icon>chevron_left</mat-icon>
-            {{ 'CAHIER.BOOK_PREVIOUS_PAGE' | translate }}
-          </button>
-          <button (click)="goToNextPage()" [disabled]="!canGoNext()" color="primary" mat-stroked-button type="button">
-            {{ 'CAHIER.BOOK_NEXT_PAGE' | translate }}
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        </div>
+        <!-- Navigation desktop seulement -->
+        @if (!isMobileViewport()) {
+          <div class="page-nav">
+            <button (click)="goToPreviousPage()" [disabled]="!canGoPrev()" mat-stroked-button type="button">
+              <mat-icon>chevron_left</mat-icon>
+              {{ 'CAHIER.BOOK_PREVIOUS_PAGE' | translate }}
+            </button>
+            <button (click)="goToNextPage()" [disabled]="!canGoNext()" color="primary" mat-stroked-button type="button">
+              {{ 'CAHIER.BOOK_NEXT_PAGE' | translate }}
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        }
 
         @if (loadingSummary()) {
           <div class="page-loading">
@@ -113,31 +145,62 @@
             </header>
 
             @if (hasConsommables()) {
-              <div class="consommables-table-wrap">
-                <table class="consommables-table">
-                  <thead>
+              <!-- Desktop: tableau classique -->
+              @if (!isMobileViewport()) {
+                <div class="consommables-table-wrap">
+                  <table class="consommables-table">
+                    <thead>
                     <tr>
                       <th>{{ 'CAHIER.CONSOMMABLES_ARTICLE' | translate }}</th>
                       <th>{{ 'CAHIER.CONSOMMABLES_QTE' | translate }}</th>
                       <th>{{ 'CAHIER.CONSOMMABLES_VAL_UNITAIRE' | translate }}</th>
                       <th>{{ 'CAHIER.CONSOMMABLES_TOTAL' | translate }}</th>
                     </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of selectedConsommables(); track item.articleId + '-' + (item.valeurUnitaire ?? '0')) {
-                      <tr>
-                        <td>
+                    </thead>
+                    <tbody>
+                      @for (item of selectedConsommables(); track item.articleId + '-' + (item.valeurUnitaire ?? '0')) {
+                        <tr>
+                          <td>
+                            <strong>{{ item.articleCode || '-' }}</strong>
+                            <div class="cell-sub">{{ item.articleLibelle || '-' }}</div>
+                          </td>
+                          <td>{{ formatNumber(item.quantite) }} {{ item.articleUnite || '' }}</td>
+                          <td>{{ formatCurrency(item.valeurUnitaire) }}</td>
+                          <td class="cell-total">{{ formatCurrency(item.totalValorise) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              <!-- Mobile: cartes empilées -->
+              @if (isMobileViewport()) {
+                <div class="consommables-mobile-list">
+                  @for (item of selectedConsommables(); track item.articleId + '-' + (item.valeurUnitaire ?? '0')) {
+                    <div class="consommable-card">
+                      <div class="card-header">
+                        <div class="article-name">
                           <strong>{{ item.articleCode || '-' }}</strong>
-                          <div class="cell-sub">{{ item.articleLibelle || '-' }}</div>
-                        </td>
-                        <td>{{ formatNumber(item.quantite) }} {{ item.articleUnite || '' }}</td>
-                        <td>{{ formatCurrency(item.valeurUnitaire) }}</td>
-                        <td class="cell-total">{{ formatCurrency(item.totalValorise) }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
+                          <div class="article-desc">{{ item.articleLibelle || '-' }}</div>
+                        </div>
+                        <div class="card-price">{{ formatCurrency(item.totalValorise) }}</div>
+                      </div>
+                      <div class="card-body">
+                        <div class="card-row">
+                          <span class="card-label">{{ 'CAHIER.CONSOMMABLES_QTE' | translate }}</span>
+                          <span
+                            class="card-value">{{ formatNumber(item.quantite) }} {{ item.articleUnite || '' }}</span>
+                        </div>
+                        <div class="card-row">
+                          <span class="card-label">{{ 'CAHIER.CONSOMMABLES_VAL_UNITAIRE' | translate }}</span>
+                          <span class="card-value">{{ formatCurrency(item.valeurUnitaire) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
             } @else {
               <p class="empty-consommables">{{ 'CAHIER.CONSOMMABLES_EMPTY' | translate }}</p>
             }

@@ -125,6 +125,11 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
     this.loadSelectedSeanceSummary();
   }
 
+  onSeanceSelectChange(event: any): void {
+    const index = parseInt(event.target.value, 10);
+    this.goToPage(index);
+  }
+
   goToPreviousPage(): void {
     if (!this.canGoPrev()) return;
     this.goToPage(this.currentPageIndex() - 1);

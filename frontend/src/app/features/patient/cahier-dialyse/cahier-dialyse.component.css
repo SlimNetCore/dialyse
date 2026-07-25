@@ -96,14 +96,18 @@
   grid-template-columns: 30px minmax(0, 1fr);
   gap: 2px 10px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 50px;
 }
 
 .toc-item:hover {
   border-color: var(--app-primary);
+  background: color-mix(in srgb, var(--app-primary) 5%, var(--app-surface));
 }
 
 .toc-item.active {
   border-color: var(--app-primary);
+  background: color-mix(in srgb, var(--app-primary) 10%, var(--app-surface));
   box-shadow: inset 0 0 0 1px var(--app-primary);
 }
 
@@ -116,15 +120,85 @@
   font-weight: 700;
   border-radius: 999px;
   background: var(--app-frost);
+  min-width: 30px;
+  min-height: 30px;
 }
 
 .toc-date {
   font-weight: 600;
+  font-size: 13px;
 }
 
 .toc-status {
   font-size: 11px;
   color: var(--app-muted);
+}
+
+/* ========== Sélecteur Mobile ========== */
+.mobile-seance-selector {
+  display: grid;
+  gap: 12px;
+  grid-column: 1 / -1;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.mobile-selector-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.page-counter {
+  min-width: 50px;
+  padding: 8px 12px;
+  background: var(--app-frost);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-muted);
+  text-align: center;
+}
+
+.seance-select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  color: var(--app-foreground);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 44px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.seance-select:focus {
+  outline: none;
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 10%, transparent);
+}
+
+.mobile-nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-btn {
+  flex: 1;
+  min-height: 44px !important;
+  font-size: 14px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
 }
 
 .notebook-page {
@@ -150,6 +224,7 @@
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .page-eyebrow {
@@ -168,6 +243,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .meta-pill {
@@ -177,6 +253,7 @@
   padding: 4px 10px;
   font-size: 12px;
   color: var(--app-muted);
+  white-space: nowrap;
 }
 
 .status-validee {
@@ -237,6 +314,7 @@
   background: var(--app-frost);
   color: var(--app-muted);
   font-size: 12px;
+  text-align: center;
 }
 
 .writer-section {
@@ -245,6 +323,7 @@
   border-radius: 14px;
   padding: 10px;
   background: color-mix(in srgb, var(--app-surface) 85%, #fff6df);
+  overflow-x: auto;
 }
 
 .writer-section-nurse {
@@ -280,6 +359,7 @@
   font-weight: 600;
 }
 
+/* ========== Section Consommables ========== */
 .consommables-section {
   margin-top: 10px;
   border: 1px solid var(--app-border);
@@ -294,6 +374,7 @@
   gap: 8px;
   align-items: center;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .consommables-header h5 {
@@ -311,22 +392,25 @@
   font-size: 12px;
   font-weight: 600;
   color: #075985;
+  white-space: nowrap;
 }
 
+/* ========== Tableau Desktop ========== */
 .consommables-table-wrap {
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .consommables-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 13px;
 }
 
 .consommables-table th,
 .consommables-table td {
   border-bottom: 1px dashed var(--app-border);
   padding: 8px;
-  font-size: 12px;
   text-align: left;
 }
 
@@ -335,6 +419,10 @@
   letter-spacing: 0.05em;
   font-size: 11px;
   color: var(--app-muted);
+  background: var(--app-frost);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .cell-sub {
@@ -351,11 +439,107 @@
   margin: 0;
   color: var(--app-muted);
   font-style: italic;
+  text-align: center;
+  padding: 20px 10px;
 }
 
+/* ========== Cartes Mobile ========== */
+.consommables-mobile-list {
+  display: grid;
+  gap: 10px;
+}
+
+.consommable-card {
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface-soft);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.consommable-card:active,
+.consommable-card:focus-within {
+  box-shadow: 0 0 0 2px var(--app-primary), 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  padding: 12px;
+  border-bottom: 1px dashed var(--app-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.article-name {
+  flex: 1;
+  display: grid;
+  gap: 4px;
+}
+
+.article-name strong {
+  font-size: 14px;
+}
+
+.article-desc {
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+.card-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--app-primary);
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: right;
+}
+
+.card-body {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--app-border);
+}
+
+.card-row:last-child {
+  border-bottom: none;
+}
+
+.card-label {
+  font-size: 12px;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-value {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ========== Media Queries ========== */
 @media (max-width: 900px) {
+  .cahier-container {
+    gap: 12px;
+    padding: 0 8px;
+  }
+
   .cahier-header {
     flex-wrap: wrap;
+    padding: 14px 12px;
+    border-radius: 14px;
+  }
+
+  .cahier-header h2 {
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
   }
 
   .header-badges {
@@ -365,16 +549,18 @@
 
   .book-layout {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .book-toc {
-    position: static;
+    display: none;
   }
 
   .notebook-page {
-    padding: 14px;
+    padding: 14px 14px 14px 42px;
     background: var(--app-surface);
     min-height: auto;
+    border-radius: 14px;
   }
 
   .page-header,
@@ -382,8 +568,195 @@
     flex-wrap: wrap;
   }
 
+  .page-meta {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .meta-pill {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
   .consommables-header {
     flex-wrap: wrap;
+  }
+
+  .total-chip {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .writer-section {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cahier-container {
+    gap: 8px;
+    padding: 0 6px;
+  }
+
+  .cahier-header {
+    gap: 10px;
+    padding: 10px 10px;
+  }
+
+  .cahier-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .patient-ref {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .header-pill {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .back-button {
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  .notebook-page {
+    padding: 10px 10px 10px 36px;
+    border-radius: 10px;
+    min-height: auto;
+  }
+
+  .page-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .page-eyebrow {
+    font-size: 10px;
+  }
+
+  .page-header,
+  .page-meta {
+    gap: 6px;
+  }
+
+  .meta-pill {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .mobile-seance-selector {
+    gap: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+
+  .seance-select {
+    font-size: 13px;
+    padding: 8px 10px 8px 10px;
+    min-height: 40px;
+  }
+
+  .page-counter {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 45px;
+  }
+
+  .mobile-nav-buttons {
+    gap: 6px;
+  }
+
+  .nav-btn {
+    min-height: 40px !important;
+    font-size: 13px !important;
+  }
+
+  .page-note {
+    padding: 8px 10px;
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .writer-section {
+    margin-top: 8px;
+    padding: 6px;
+  }
+
+  .writer-header {
+    padding: 2px 6px 6px;
+    margin-bottom: 6px;
+  }
+
+  .writer-header h4 {
+    font-size: 11px;
+  }
+
+  .writer-header p {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .consommables-section {
+    padding: 8px;
+    margin-top: 8px;
+  }
+
+  .consommables-header h5 {
+    font-size: 10px;
+  }
+
+  .total-chip {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .consommables-table {
+    font-size: 11px;
+  }
+
+  .consommables-table th,
+  .consommables-table td {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+
+  .cell-sub {
+    font-size: 10px;
+  }
+
+  .consommable-card {
+    border-radius: 10px;
+  }
+
+  .card-header {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .card-price {
+    font-size: 14px;
+    min-width: 70px;
+  }
+
+  .card-body {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .card-row {
+    padding: 6px 0;
+  }
+
+  .card-label {
+    font-size: 11px;
+  }
+
+  .card-value {
+    font-size: 13px;
   }
 }
 
