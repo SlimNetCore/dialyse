@@ -25,8 +25,8 @@ téléphone ou douchette) crée une séance à l'état `PRESENCE`.
 États confirmés :
 
 ```
-PRESENCE   (scan badge, patient présent)
-   → TERMINEE  (l'infirmier valide/clôture la séance)
+CREE   (scan badge, patient présent)
+   → VALIDEE  (l'infirmier valide/clôture la séance)
    → FACTUREE  (la séance a été intégrée à une facture)
 
 ABSENCE    (le patient ne s'est pas présenté — état parallèle, n'est pas atteint via une transition depuis PRESENCE)

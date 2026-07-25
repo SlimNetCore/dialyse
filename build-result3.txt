@@ -1,0 +1,49 @@
+﻿
+> hemodialyse-front@0.0.0 build
+> ng build
+
+> Building...
+ÔêÜ Building...
+Initial chunk files | Names                       |  Raw size | Estimated transfer size
+main-ZD55Y36K.js    | main                        | 726.99 kB |               170.87 kB
+styles-YZJJVWY4.css | styles                      | 114.29 kB |                10.27 kB
+
+                    | Initial total               | 841.28 kB |               181.14 kB
+
+Lazy chunk files    | Names                       |  Raw size | Estimated transfer size
+chunk-D6yd53la.js   | patient-wizard-component    | 234.87 kB |                41.47 kB
+chunk-CopZ5zAe.js   | -                           | 221.37 kB |                66.22 kB
+chunk-aMrsL-a2.js   | -                           | 114.76 kB |                20.21 kB
+chunk-BPA7jkCt.js   | -                           | 103.44 kB |                18.71 kB
+chunk-CK_gnp2u.js   | patient-dashboard-component |  94.18 kB |                21.97 kB
+chunk-DShFBewy.js   | seances-page-component      |  68.82 kB |                14.65 kB
+chunk-cX6gRMSm.js   | -                           |  44.26 kB |                11.85 kB
+chunk-Cpc2HBG5.js   | -                           |  41.18 kB |                 8.72 kB
+chunk-Cr078UA3.js   | -                           |  35.89 kB |                 6.25 kB
+chunk-CZbF5i3l.js   | -                           |  29.84 kB |                 7.02 kB
+chunk-C5NPi1pd.js   | -                           |  29.10 kB |                 6.85 kB
+chunk-Bbw_Nvv9.js   | -                           |  28.93 kB |                 4.88 kB
+chunk-DqcpmgYq.js   | -                           |  26.55 kB |                 7.06 kB
+chunk-DLyx3ZQx.js   | cahier-dialyse-component    |  26.26 kB |                 6.17 kB
+chunk-CQIGoawF.js   | stock-dashboard-component   |  21.18 kB |                 5.75 kB
+...and 38 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [17.531 seconds] - 2026-07-24T23:27:15.805Z
+
+node.exe : [33mÔû▓ [43;33m[[43;30mWARNING[43;33m][0m [1msrc/app/features/patient/patient-list.component.css exceeded maximum budget. Budget 6.00 kB was not met by 910 bytes with a total of 6.91 kB.[0m
+Au caractère Ligne:1 : 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33mÔû▓ [43;3...of 6.91 kB.[0m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+
+[33mÔû▓ [43;33m[[43;30mWARNING[43;33m][0m [1msrc/app/features/seances/seances-page.component.css exceeded maximum budget. Budget 6.00 kB was not met by 1.26 kB with a total of 7.26 kB.[0m
+
+
+[33mÔû▓ [43;33m[[43;30mWARNING[43;33m][0m [1msrc/app/core/layout/shell.component.css exceeded maximum budget. Budget 6.00 kB was not met by 2.12 kB with a total of 8.12 kB.[0m
+
+
+Output location: C:\Users\TS-CONSULT\WebstormProjects\Hemodialyse\frontend\dist\hemodialyse-front
+

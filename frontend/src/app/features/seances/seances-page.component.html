@@ -2,18 +2,24 @@
   <div class="app-hero-card">
     <span class="app-eyebrow">Séances</span>
     <h1 class="app-section-title">Gestion des séances</h1>
-    <p class="app-section-copy">Lister, ouvrir et modifier les séances du centre actif.</p>
-    @if (canEditDate()) {
-      <div class="action-row">
-        <a color="primary" mat-stroked-button routerLink="/seances/calendrier">
+    <p class="app-section-copy">Lister, scanner, ouvrir et modifier les séances du centre actif.</p>
+    <div class="action-row">
+      @if (canEditDate()) {
+        <a color="primary" mat-stroked-button routerLink="/admin/parametrage/calendrier-clinique">
           <mat-icon>calendar_month</mat-icon>
-          Ouvrir le calendrier centre
+          Calendrier centre
         </a>
-      </div>
-    }
+      }
+      @if (canScanSeances()) {
+        <button (click)="scrollToScanner()" color="accent" mat-stroked-button type="button">
+          <mat-icon>qr_code_scanner</mat-icon>
+          Scanner un patient
+        </button>
+      }
+    </div>
   </div>
 
-  <mat-card>
+  <mat-card class="dashboard-card">
     <mat-card-header>
       <mat-card-title>Dashboard séances</mat-card-title>
     </mat-card-header>
@@ -142,80 +148,13 @@
     </div>
   }
 
-  @if (canEditDate()) {
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Calendrier clinique (admin)</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="scan-row">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>Jour férié</mat-label>
-            <input (input)="onNewHolidayDateInput($event)" [value]="newHolidayDate()" matInput type="date"/>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="flex2">
-            <mat-label>Libellé férié</mat-label>
-            <input (input)="onNewHolidayLabelInput($event)" [value]="newHolidayLabel()" matInput/>
-          </mat-form-field>
-          <button (click)="addHoliday()" color="primary" mat-stroked-button type="button">
-            <mat-icon>add</mat-icon>
-            Ajouter férié
-          </button>
-        </div>
-
-        <div class="scan-row" style="margin-top: 8px;">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>Jour fermeture</mat-label>
-            <input (input)="onNewClosureDateInput($event)" [value]="newClosureDate()" matInput type="date"/>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="flex2">
-            <mat-label>Raison fermeture</mat-label>
-            <input (input)="onNewClosureReasonInput($event)" [value]="newClosureReason()" matInput/>
-          </mat-form-field>
-          <button (click)="addClosure()" color="primary" mat-stroked-button type="button">
-            <mat-icon>add</mat-icon>
-            Ajouter fermeture
-          </button>
-        </div>
-
-        <div class="journal-grid">
-          <div>
-            <h3 class="sub-title">Jours fériés</h3>
-            @for (h of calendarHolidays(); track h.id) {
-              <div class="calendar-row">
-                <span>{{ h.dayDate }} - {{ h.label || 'Férié' }}</span>
-                <button (click)="deleteHoliday(h.id)" color="warn" mat-icon-button>
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            }
-            @if (calendarHolidays().length === 0) {
-              <p class="app-muted-note">Aucun jour férié défini pour ce mois.</p>
-            }
-          </div>
-          <div>
-            <h3 class="sub-title">Jours de fermeture</h3>
-            @for (c of calendarClosures(); track c.id) {
-              <div class="calendar-row">
-                <span>{{ c.dayDate }} - {{ c.reason || 'Fermeture' }}</span>
-                <button (click)="deleteClosure(c.id)" color="warn" mat-icon-button>
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            }
-            @if (calendarClosures().length === 0) {
-              <p class="app-muted-note">Aucune fermeture définie pour ce mois.</p>
-            }
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
   @if (canScanSeances()) {
-    <mat-card>
+    <mat-card class="scanner-card" id="scanner-card">
       <mat-card-header>
-        <mat-card-title>Scanner QR patient</mat-card-title>
+        <mat-card-title>
+          <mat-icon>qr_code_scanner</mat-icon>
+          Scanner QR patient
+        </mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="scan-row">
@@ -365,27 +304,23 @@
       @if (summary()) {
         <mat-card class="seance-editor-card">
           <mat-card-header>
-            <mat-card-title>Modification de la séance</mat-card-title>
+            <mat-card-title>
+              <span>{{ patientFullName() }}</span>
+              <span [attr.data-status]="summary()!.seance.status" class="status-badge">
+                <mat-icon [attr.data-status]="summary()!.seance.status"
+                          class="status-dot">fiber_manual_record</mat-icon>
+                {{ summary()!.seance.status }}
+              </span>
+            </mat-card-title>
+            <mat-card-subtitle>
+              {{ summary()!.patient.codePatient || '-' }} — {{ summary()!.seance.dateSeance }}
+            </mat-card-subtitle>
           </mat-card-header>
+
           <mat-card-content>
             @if (selectionLoading()) {
               <p class="loading-note">Chargement des détails de la séance...</p>
             }
-
-            <div class="resume-grid">
-              <div><strong>{{ 'CAHIER.PATIENT' | translate }} :</strong> {{ patientFullName() }}</div>
-              <div><strong>{{ 'PATIENT_LIST.COL_CODE' | translate }}
-                :</strong> {{ summary()!.patient.codePatient || '-' }}
-              </div>
-              <div><strong>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }}
-                :</strong> {{ summary()!.patient.numeroAssurance || '-' }}
-              </div>
-              <div><strong>{{ 'CAHIER.PARAMEDICAL_DATE_SEANCE' | translate }}
-                :</strong> {{ summary()!.seance.dateSeance }}
-              </div>
-              <div><strong>{{ 'CAHIER.BOOK_STATUS' | translate }} :</strong> {{ summary()!.seance.status }}</div>
-              <div><strong>ID :</strong> {{ summary()!.seance.id }}</div>
-            </div>
 
             @if (summary()!.forfait) {
               <div class="forfait-pill" data-testid="current-forfait-pill">
@@ -399,212 +334,229 @@
               </div>
             }
 
-            <div class="form-grid" style="margin-top:16px;">
-              <mat-form-field appearance="outline">
-                <mat-label>Date de séance</mat-label>
-                <input (input)="onEditDateInput($event)" [disabled]="!canEditDate()" [value]="editDateSeance()" matInput
-                       type="date"/>
-              </mat-form-field>
-            </div>
-            @if (!canEditDate()) {
-              <p class="section-note">La modification de date est indisponible pour votre profil.</p>
-            }
-            <div class="action-row">
-              <button (click)="saveSelectedDate()" [disabled]="savingDate() || !canEditDate()" color="primary"
-                      mat-flat-button type="button">
-                <mat-icon>event</mat-icon>
-                {{ savingDate() ? 'Sauvegarde...' : 'Modifier la date' }}
-              </button>
-            </div>
-
-            <h3 class="sub-title">Volet paramédical</h3>
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>Tension avant</mat-label>
-                <input (input)="onTaAvantInput($event)" [disabled]="!canEditParamedical()" [value]="taAvant()" matInput
-                       placeholder="120/80"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Tension après</mat-label>
-                <input (input)="onTaApresInput($event)" [disabled]="!canEditParamedical()" [value]="taApres()" matInput
-                       placeholder="120/80"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Poids avant (kg)</mat-label>
-                <input (input)="onPoidsAvantInput($event)" [disabled]="!canEditParamedical()"
-                       [value]="poidsAvantKg() ?? ''" matInput type="number"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Poids après (kg)</mat-label>
-                <input (input)="onPoidsApresInput($event)" [disabled]="!canEditParamedical()"
-                       [value]="poidsApresKg() ?? ''" matInput type="number"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Durée (min)</mat-label>
-                <input (input)="onDureeInput($event)" [disabled]="!canEditParamedical()" [value]="dureeMinutes() ?? ''"
-                       matInput type="number"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Débit sang (ml/min)</mat-label>
-                <input (input)="onDebitSangInput($event)" [disabled]="!canEditParamedical()"
-                       [value]="debitSangMlMin() ?? ''" matInput type="number"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Ultrafiltration (ml)</mat-label>
-                <input (input)="onUltrafiltrationInput($event)" [disabled]="!canEditParamedical()"
-                       [value]="ultrafiltrationMl() ?? ''" matInput type="number"/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Anticoagulant</mat-label>
-                <input (input)="onAnticoagulantInput($event)" [disabled]="!canEditParamedical()"
-                       [value]="anticoagulant()" matInput/>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Dialysat</mat-label>
-                <input (input)="onTypeDialysatInput($event)" [disabled]="!canEditParamedical()" [value]="typeDialysat()"
-                       matInput/>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Incidents</mat-label>
-                <textarea (input)="onIncidentsInput($event)" [disabled]="!canEditParamedical()" [value]="incidents()"
-                          matInput rows="3"></textarea>
-              </mat-form-field>
-            </div>
-            @if (!canEditParamedical()) {
-              <p class="section-note">Le volet paramédical est en lecture seule pour votre profil.</p>
-            }
-            <div class="action-row">
-              <button (click)="saveParamedical()" [disabled]="savingParamedical() || !canEditParamedical()"
-                      color="accent" mat-flat-button type="button">
-                <mat-icon>save</mat-icon>
-                {{ savingParamedical() ? 'Enregistrement...' : 'Enregistrer paramédical' }}
-              </button>
-            </div>
-
-            <!-- ═══════════════════════════════════════════════════════════════ -->
-            <!--  CONSOMMABLES — saisie lors de la validation infirmière         -->
-            <!-- ═══════════════════════════════════════════════════════════════ -->
-            @if (canValidateSeance() && !isSeanceAlreadyValidated()) {
-              <h3 class="sub-title">Consommables de la séance</h3>
-              <p class="section-note">
-                Sélectionnez les articles consommés pendant cette séance. Ils seront sortis du stock au PMP lors de la
-                validation.
-              </p>
-
-              <div class="scan-row" style="align-items: flex-start; margin-bottom: 8px;">
-                <mat-form-field appearance="outline" class="flex2">
-                  <mat-label>Article</mat-label>
-                  <mat-select (selectionChange)="onConsommableArticleChange($event.value)"
-                              [value]="newConsommableArticleId()">
-                    @for (article of availableArticles(); track article.id) {
-                      <mat-option [value]="article.id">
-                        [{{ article.code }}] {{ article.libelle }}
-                        @if (article.stockQuantity != null) {
-                          <span
-                            class="article-stock-hint"> — stock : {{ article.stockQuantity }} {{ article.unite }}</span>
-                        }
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="flex1">
-                  <mat-label>Quantité</mat-label>
-                  <input (input)="onConsommableQuantiteInput($event)" [value]="newConsommableQuantite() ?? ''" matInput
-                         min="1" type="number"/>
-                </mat-form-field>
-                <button (click)="addConsommable()" color="primary" mat-stroked-button type="button">
-                  <mat-icon>add</mat-icon>
-                  Ajouter
-                </button>
-              </div>
-
-              @if (consommables().length > 0) {
-                <div class="table-wrap">
-                  <table [dataSource]="consommables()" class="full-width seances-table" mat-table>
-                    <ng-container matColumnDef="article">
-                      <th *matHeaderCellDef mat-header-cell>Article</th>
-                      <td *matCellDef="let row" mat-cell>{{ articleLabel(row.articleId) }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="quantite">
-                      <th *matHeaderCellDef mat-header-cell>Quantité</th>
-                      <td *matCellDef="let row" mat-cell>{{ row.quantite }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="actions">
-                      <th *matHeaderCellDef mat-header-cell></th>
-                      <td *matCellDef="let row" mat-cell>
-                        <button (click)="removeConsommable(row.articleId)" color="warn" mat-icon-button type="button">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </ng-container>
-                    <tr *matHeaderRowDef="consommableCols" mat-header-row></tr>
-                    <tr *matRowDef="let row; columns: consommableCols" mat-row></tr>
-                  </table>
+            <mat-tab-group (selectedIndexChange)="activeTabIndex.set($event)" [selectedIndex]="activeTabIndex()"
+                           animationDuration="200ms" class="seance-tabs">
+              <mat-tab label="Date">
+                <div class="tab-body">
+                  <div class="form-grid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Date de séance</mat-label>
+                      <input (input)="onEditDateInput($event)" [disabled]="!canEditDate()" [value]="editDateSeance()"
+                             matInput type="date"/>
+                    </mat-form-field>
+                  </div>
+                  @if (!canEditDate()) {
+                    <p class="section-note">La modification de date est indisponible pour votre profil.</p>
+                  }
+                  <div class="action-row">
+                    <button (click)="saveSelectedDate()" [disabled]="savingDate() || !canEditDate()" color="primary"
+                            mat-flat-button type="button">
+                      <mat-icon>event</mat-icon>
+                      {{ savingDate() ? 'Sauvegarde...' : 'Modifier la date' }}
+                    </button>
+                  </div>
                 </div>
-              }
+              </mat-tab>
 
-              <div class="action-row">
-                <button (click)="validateSeanceParamedical()"
-                        [disabled]="validatingSeance() || consommables().length === 0"
-                        color="warn" mat-flat-button type="button">
-                  <mat-icon>check_circle</mat-icon>
-                  {{ validatingSeance() ? 'Validation...' : 'Valider la séance' }}
-                </button>
-              </div>
-            }
+              <mat-tab label="Paramédical">
+                <div class="tab-body">
+                  <div class="form-grid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Tension avant</mat-label>
+                      <input (input)="onTaAvantInput($event)" [disabled]="!canEditParamedical()" [value]="taAvant()"
+                             matInput placeholder="120/80"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Tension après</mat-label>
+                      <input (input)="onTaApresInput($event)" [disabled]="!canEditParamedical()" [value]="taApres()"
+                             matInput placeholder="120/80"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Poids avant (kg)</mat-label>
+                      <input (input)="onPoidsAvantInput($event)" [disabled]="!canEditParamedical()"
+                             [value]="poidsAvantKg() ?? ''" matInput type="number"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Poids après (kg)</mat-label>
+                      <input (input)="onPoidsApresInput($event)" [disabled]="!canEditParamedical()"
+                             [value]="poidsApresKg() ?? ''" matInput type="number"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Durée (min)</mat-label>
+                      <input (input)="onDureeInput($event)" [disabled]="!canEditParamedical()"
+                             [value]="dureeMinutes() ?? ''" matInput type="number"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Débit sang (ml/min)</mat-label>
+                      <input (input)="onDebitSangInput($event)" [disabled]="!canEditParamedical()"
+                             [value]="debitSangMlMin() ?? ''" matInput type="number"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Ultrafiltration (ml)</mat-label>
+                      <input (input)="onUltrafiltrationInput($event)" [disabled]="!canEditParamedical()"
+                             [value]="ultrafiltrationMl() ?? ''" matInput type="number"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Anticoagulant</mat-label>
+                      <input (input)="onAnticoagulantInput($event)" [disabled]="!canEditParamedical()"
+                             [value]="anticoagulant()" matInput/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Dialysat</mat-label>
+                      <input (input)="onTypeDialysatInput($event)" [disabled]="!canEditParamedical()"
+                             [value]="typeDialysat()" matInput/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Incidents</mat-label>
+                      <textarea (input)="onIncidentsInput($event)" [disabled]="!canEditParamedical()"
+                                [value]="incidents()" matInput rows="3"></textarea>
+                    </mat-form-field>
+                  </div>
+                  @if (!canEditParamedical()) {
+                    <p class="section-note">Le volet paramédical est en lecture seule pour votre profil.</p>
+                  }
+                  <div class="action-row">
+                    <button (click)="saveParamedical()" [disabled]="savingParamedical() || !canEditParamedical()"
+                            color="accent" mat-flat-button type="button">
+                      <mat-icon>save</mat-icon>
+                      {{ savingParamedical() ? 'Enregistrement...' : 'Enregistrer paramédical' }}
+                    </button>
+                  </div>
+                </div>
+              </mat-tab>
 
-            @if (isSeanceAlreadyValidated()) {
-              <div class="validated-badge">
-                <mat-icon>verified</mat-icon>
-                Séance déjà validée
-              </div>
-            }
+              <mat-tab label="Consommables">
+                <div class="tab-body">
+                  @if (canValidateSeance() && !isSeanceAlreadyValidated()) {
+                    <p class="section-note">
+                      Sélectionnez les articles consommés pendant cette séance. Ils seront sortis du stock au PMP lors
+                      de la validation.
+                    </p>
 
-            <h3 class="sub-title">Volet médical</h3>
-            <div class="form-grid">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Tolérance séance</mat-label>
-                <textarea (input)="onToleranceSeanceInput($event)" [disabled]="!canEditMedical()"
-                          [value]="toleranceSeance()" matInput rows="2"></textarea>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Examen clinique</mat-label>
-                <textarea (input)="onExamenCliniqueInput($event)" [disabled]="!canEditMedical()"
-                          [value]="examenClinique()" matInput rows="3"></textarea>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Résultats biologiques</mat-label>
-                <textarea (input)="onResultatsBiologiquesInput($event)" [disabled]="!canEditMedical()"
-                          [value]="resultatsBiologiques()" matInput rows="3"></textarea>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Ajustements thérapeutiques</mat-label>
-                <textarea (input)="onAjustementsTherapeutiquesInput($event)" [disabled]="!canEditMedical()"
-                          [value]="ajustementsTherapeutiques()" matInput rows="3"></textarea>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Conclusion médicale</mat-label>
-                <textarea (input)="onConclusionMedicaleInput($event)" [disabled]="!canEditMedical()"
-                          [value]="conclusionMedicale()" matInput rows="3"></textarea>
-              </mat-form-field>
-            </div>
-            @if (!canEditMedical()) {
-              <p class="section-note">Le volet médical est en lecture seule pour votre profil.</p>
-            }
-            <div class="action-row">
-              <button (click)="saveMedical()" [disabled]="savingMedical() || !canEditMedical()" color="accent"
-                      mat-flat-button type="button">
-                <mat-icon>medical_services</mat-icon>
-                {{ savingMedical() ? 'Enregistrement...' : 'Enregistrer médical' }}
-              </button>
-            </div>
+                    <div class="scan-row" style="align-items: flex-start; margin-bottom: 8px;">
+                      <mat-form-field appearance="outline" class="flex2">
+                        <mat-label>Article</mat-label>
+                        <mat-select (selectionChange)="onConsommableArticleChange($event.value)"
+                                    [value]="newConsommableArticleId()">
+                          @for (article of availableArticles(); track article.id) {
+                            <mat-option [value]="article.id">
+                              [{{ article.code }}] {{ article.libelle }}
+                              @if (article.stockQuantity != null) {
+                                <span
+                                  class="article-stock-hint"> — stock : {{ article.stockQuantity }} {{ article.unite }}</span>
+                              }
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="flex1">
+                        <mat-label>Quantité</mat-label>
+                        <input (input)="onConsommableQuantiteInput($event)" [value]="newConsommableQuantite() ?? ''"
+                               matInput min="1" type="number"/>
+                      </mat-form-field>
+                      <button (click)="addConsommable()" color="primary" mat-stroked-button type="button">
+                        <mat-icon>add</mat-icon>
+                        Ajouter
+                      </button>
+                    </div>
+
+                    @if (consommables().length > 0) {
+                      <div class="table-wrap">
+                        <table [dataSource]="consommables()" class="full-width seances-table" mat-table>
+                          <ng-container matColumnDef="article">
+                            <th *matHeaderCellDef mat-header-cell>Article</th>
+                            <td *matCellDef="let row" mat-cell>{{ articleLabel(row.articleId) }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="quantite">
+                            <th *matHeaderCellDef mat-header-cell>Quantité</th>
+                            <td *matCellDef="let row" mat-cell>{{ row.quantite }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="actions">
+                            <th *matHeaderCellDef mat-header-cell></th>
+                            <td *matCellDef="let row" mat-cell>
+                              <button (click)="removeConsommable(row.articleId)" color="warn" mat-icon-button
+                                      type="button">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </ng-container>
+                          <tr *matHeaderRowDef="consommableCols" mat-header-row></tr>
+                          <tr *matRowDef="let row; columns: consommableCols" mat-row></tr>
+                        </table>
+                      </div>
+                    }
+
+                    <div class="action-row">
+                      <button (click)="validateSeanceParamedical()"
+                              [disabled]="validatingSeance() || consommables().length === 0" color="warn"
+                              mat-flat-button type="button">
+                        <mat-icon>check_circle</mat-icon>
+                        {{ validatingSeance() ? 'Validation...' : 'Valider la séance' }}
+                      </button>
+                    </div>
+                  }
+
+                  @if (isSeanceAlreadyValidated()) {
+                    <div class="validated-badge">
+                      <mat-icon>verified</mat-icon>
+                      Séance déjà validée
+                    </div>
+                  }
+                </div>
+              </mat-tab>
+
+              <mat-tab label="Médical">
+                <div class="tab-body">
+                  <div class="form-grid">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Tolérance séance</mat-label>
+                      <textarea (input)="onToleranceSeanceInput($event)" [disabled]="!canEditMedical()"
+                                [value]="toleranceSeance()" matInput rows="2"></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Examen clinique</mat-label>
+                      <textarea (input)="onExamenCliniqueInput($event)" [disabled]="!canEditMedical()"
+                                [value]="examenClinique()" matInput rows="3"></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Résultats biologiques</mat-label>
+                      <textarea (input)="onResultatsBiologiquesInput($event)" [disabled]="!canEditMedical()"
+                                [value]="resultatsBiologiques()" matInput rows="3"></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Ajustements thérapeutiques</mat-label>
+                      <textarea (input)="onAjustementsTherapeutiquesInput($event)" [disabled]="!canEditMedical()"
+                                [value]="ajustementsTherapeutiques()" matInput rows="3"></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Conclusion médicale</mat-label>
+                      <textarea (input)="onConclusionMedicaleInput($event)" [disabled]="!canEditMedical()"
+                                [value]="conclusionMedicale()" matInput rows="3"></textarea>
+                    </mat-form-field>
+                  </div>
+                  @if (!canEditMedical()) {
+                    <p class="section-note">Le volet médical est en lecture seule pour votre profil.</p>
+                  }
+                  <div class="action-row">
+                    <button (click)="saveMedical()" [disabled]="savingMedical() || !canEditMedical()" color="accent"
+                            mat-flat-button type="button">
+                      <mat-icon>medical_services</mat-icon>
+                      {{ savingMedical() ? 'Enregistrement...' : 'Enregistrer médical' }}
+                    </button>
+                  </div>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
           </mat-card-content>
         </mat-card>
       } @else {
         <mat-card class="seance-editor-placeholder">
           <mat-card-content>
-            <p class="app-muted-note">Cliquez sur <strong>Modifier</strong> dans la liste pour afficher le formulaire
-              ici.</p>
+            <div class="placeholder-content">
+              <mat-icon>touch_app</mat-icon>
+              <p class="app-muted-note">Cliquez sur <strong>Modifier</strong> dans la liste pour afficher le formulaire
+                ici.</p>
+            </div>
           </mat-card-content>
         </mat-card>
       }

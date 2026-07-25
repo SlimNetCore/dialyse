@@ -1,0 +1,35 @@
+﻿
+> hemodialyse-front@0.0.0 build
+> ng build
+
+> Building...
+ÔêÜ Building...
+Application bundle generation failed. [11.867 seconds] - 2026-07-24T23:24:54.006Z
+
+node.exe : [31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG1010: 'imports' must be an array of components, directives, pipes, or NgModules.
+Au caractère Ligne:1 : 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([31mX [41;31m..., or NgModules.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Value could not be determined statically.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/seances/seances-page.component.ts:39:91:
+[37m      39 Ôöé ...MatSelectModule, TranslateModule, BaseChartDirective, [32mRouterLink[37m],
+         ÔòÁ                                                          [32m~~~~~~~~~~[0m
+
+  Unknown reference.
+
+    src/app/features/seances/seances-page.component.ts:39:91:
+[37m      39 Ôöé ...MatSelectModule, TranslateModule, BaseChartDirective, [32mRouterLink[37m],
+         ÔòÁ                                                          [32m~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2304: Cannot find name 'RouterLink'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/seances/seances-page.component.ts:39:91:
+[37m      39 Ôöé ...MatSelectModule, TranslateModule, BaseChartDirective, [32mRouterLink[37m],
+         ÔòÁ                                                          [32m~~~~~~~~~~[0m
+
+

@@ -1,4 +1,3 @@
-
 :host {
   display: block;
 }
@@ -210,6 +209,21 @@ mat-card {
 .seance-editor-card,
 .seance-editor-placeholder {
   margin-top: 0;
+}
+
+.seance-editor-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.seance-tabs {
+  margin-top: 12px;
+}
+
+.seance-tabs .tab-body {
+  padding: 16px 4px 4px;
 }
 
 .kpi-grid {
@@ -491,9 +505,45 @@ mat-card {
   color: #dc2626;
 }
 
+.validated-badge {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #16a34a 28%, var(--app-border) 72%);
+  background: color-mix(in srgb, #16a34a 10%, var(--app-surface-solid) 90%);
+  color: color-mix(in srgb, #16a34a 72%, white 28%);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.placeholder-content mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: var(--app-muted);
+}
+
+.scanner-card mat-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 @media (max-width: 1180px) {
   .seance-workspace {
     grid-template-columns: 1fr;
   }
 }
-

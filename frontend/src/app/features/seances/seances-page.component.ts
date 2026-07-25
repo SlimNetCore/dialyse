@@ -19,6 +19,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatTableModule} from '@angular/material/table';
+import {MatTabsModule} from '@angular/material/tabs';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
@@ -37,7 +38,7 @@ Chart.register(...registerables);
 @Component({
   standalone: true,
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatTableModule, MatSelectModule, TranslateModule, BaseChartDirective, RouterLink],
+    MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, TranslateModule, BaseChartDirective, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',
@@ -46,6 +47,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly store = inject(SeanceStore);
   protected readonly cameraActive = signal(false);
   protected readonly cameraStarting = signal(false);
+  protected readonly activeTabIndex = signal(0);
   // Alias réactifs attendus par le template
   protected readonly qrCode = computed(() => this.store.qrCode());
   protected readonly dateSeance = computed(() => this.store.dateSeance());
@@ -107,13 +109,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly canEditDate = computed(() => this.hasAnyRole('ADMIN'));
   protected readonly canEditParamedical = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE'));
   protected readonly canEditMedical = computed(() => this.hasAnyRole('ADMIN', 'MEDECIN'));
-  // Calendrier clinique
-  protected readonly calendarHolidays = computed(() => this.store.calendarHolidays());
-  protected readonly calendarClosures = computed(() => this.store.calendarClosures());
-  protected readonly newHolidayDate = computed(() => this.store.newHolidayDate());
-  protected readonly newHolidayLabel = computed(() => this.store.newHolidayLabel());
-  protected readonly newClosureDate = computed(() => this.store.newClosureDate());
-  protected readonly newClosureReason = computed(() => this.store.newClosureReason());
   protected readonly chartOptions: ChartOptions<'bar' | 'doughnut'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -182,6 +177,13 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopCamera();
+  }
+
+  protected scrollToScanner(): void {
+    const el = document.getElementById('scanner-card');
+    if (el) {
+      el.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
   }
 
   protected onQrInput(e: Event): void {
@@ -268,47 +270,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.patchMedical({conclusionMedicale: (e.target as HTMLTextAreaElement)?.value ?? ''});
   }
 
-  // --- Calendrier clinique ---
-  protected onNewHolidayDateInput(e: Event): void {
-    this.store.setNewHolidayDate((e.target as HTMLInputElement)?.value ?? '');
-  }
-
-  protected onNewHolidayLabelInput(e: Event): void {
-    this.store.setNewHolidayLabel((e.target as HTMLInputElement)?.value ?? '');
-  }
-
-  protected addHoliday(): void {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId) return;
-    this.store.addHoliday({centerId, date: this.store.newHolidayDate(), label: this.store.newHolidayLabel()});
-  }
-
-  protected deleteHoliday(id: string): void {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId) return;
-    this.store.deleteHoliday({centerId, id});
-  }
-
-  protected onNewClosureDateInput(e: Event): void {
-    this.store.setNewClosureDate((e.target as HTMLInputElement)?.value ?? '');
-  }
-
-  protected onNewClosureReasonInput(e: Event): void {
-    this.store.setNewClosureReason((e.target as HTMLInputElement)?.value ?? '');
-  }
-
-  protected addClosure(): void {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId) return;
-    this.store.addClosure({centerId, date: this.store.newClosureDate(), reason: this.store.newClosureReason()});
-  }
-
-  protected deleteClosure(id: string): void {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId) return;
-    this.store.deleteClosure({centerId, id});
-  }
-
   protected triggerImagePicker(): void {
     if (!this.canScanSeances()) {
       this.snackBar.open('Votre profil ne peut pas scanner', 'OK', {duration: 3000});
@@ -348,6 +309,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     if (!this.canOpenSeanceDetails()) return;
     const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
+    this.activeTabIndex.set(0);
     this.store.selectSeance(seance.id);
     this.store.loadSeanceSummary({seanceId: seance.id, centerId});
   }
