@@ -330,8 +330,9 @@
               </div>
             }
 
-            <mat-tab-group (selectedIndexChange)="onTabChange($event)" [selectedIndex]="activeTabIndex()"
-                           animationDuration="200ms" class="seance-tabs">
+            <mat-tab-group (selectedIndexChange)="onTabChange($event)" [mat-stretch-tabs]="false"
+                           [selectedIndex]="activeTabIndex()" animationDuration="200ms" class="seance-tabs"
+                           mat-align-tabs="start">
 
               <mat-tab label="Paramédical">
                 <div class="tab-body">
@@ -412,7 +413,7 @@
                       de la validation.
                     </p>
 
-                    <div class="scan-row consommables-toolbar" style="margin-bottom: 8px;">
+                    <div class="scan-row consommables-toolbar">
                       <mat-form-field appearance="outline" class="flex2">
                         <mat-label>Article</mat-label>
                         <mat-select (selectionChange)="onConsommableArticleChange($event.value)"

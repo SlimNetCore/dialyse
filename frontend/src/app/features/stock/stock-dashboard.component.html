@@ -180,38 +180,40 @@
       <mat-card-title>Stock valorisé</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table [dataSource]="stock()" class="full-width" mat-table>
-        <ng-container matColumnDef="code">
-          <th *matHeaderCellDef mat-header-cell>Code</th>
-          <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
-        </ng-container>
-        <ng-container matColumnDef="libelle">
-          <th *matHeaderCellDef mat-header-cell>Article</th>
-          <td *matCellDef="let a" mat-cell>{{ a.libelle }}</td>
-        </ng-container>
-        <ng-container matColumnDef="quantite">
-          <th *matHeaderCellDef mat-header-cell>Quantité</th>
-          <td *matCellDef="let a" mat-cell>{{ a.quantite | number:'1.0-2' }} {{ a.unite }}</td>
-        </ng-container>
-        <ng-container matColumnDef="pmp">
-          <th *matHeaderCellDef mat-header-cell>PMP</th>
-          <td *matCellDef="let a" mat-cell>{{ a.pmpCourant | number:'1.0-4' }}</td>
-        </ng-container>
-        <ng-container matColumnDef="valeur">
-          <th *matHeaderCellDef mat-header-cell>Valeur</th>
-          <td *matCellDef="let a" mat-cell>{{ a.valeur | number:'1.0-2' }}</td>
-        </ng-container>
-        <ng-container matColumnDef="actions">
-          <th *matHeaderCellDef mat-header-cell>Actions</th>
-          <td *matCellDef="let a" mat-cell>
-            <button (click)="openPmpExplain(a)" color="primary" mat-stroked-button>
-              Expliquer PMP
-            </button>
-          </td>
-        </ng-container>
-        <tr *matHeaderRowDef="cols" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: cols" mat-row></tr>
-      </table>
+      <div class="stock-table-wrap table-wrap">
+        <table [dataSource]="stock()" class="full-width" mat-table>
+          <ng-container matColumnDef="code">
+            <th *matHeaderCellDef mat-header-cell>Code</th>
+            <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
+          </ng-container>
+          <ng-container matColumnDef="libelle">
+            <th *matHeaderCellDef mat-header-cell>Article</th>
+            <td *matCellDef="let a" mat-cell>{{ a.libelle }}</td>
+          </ng-container>
+          <ng-container matColumnDef="quantite">
+            <th *matHeaderCellDef mat-header-cell>Quantité</th>
+            <td *matCellDef="let a" mat-cell>{{ a.quantite | number:'1.0-2' }} {{ a.unite }}</td>
+          </ng-container>
+          <ng-container matColumnDef="pmp">
+            <th *matHeaderCellDef mat-header-cell>PMP</th>
+            <td *matCellDef="let a" mat-cell>{{ a.pmpCourant | number:'1.0-4' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="valeur">
+            <th *matHeaderCellDef mat-header-cell>Valeur</th>
+            <td *matCellDef="let a" mat-cell>{{ a.valeur | number:'1.0-2' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell>Actions</th>
+            <td *matCellDef="let a" mat-cell>
+              <button (click)="openPmpExplain(a)" color="primary" mat-stroked-button>
+                Expliquer PMP
+              </button>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="cols" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: cols" mat-row></tr>
+        </table>
+      </div>
       @if (!loading() && stock().length === 0) {
         <p class="app-muted-note">Aucun article en stock.</p>
       }

@@ -171,9 +171,10 @@ test.describe('Module Séances', () => {
     expect(count).toBeGreaterThanOrEqual(0); // Le tableau peut être vide (pas de séances)
   });
 
-  test('should display current forfait pill when opening a seance', async ({page}) => {
+  test('should display current forfait pill and keep seance tabs responsive on mobile', async ({page}) => {
     const centerId = '11111111-1111-1111-1111-111111111111';
     const seanceId = '42ac21d7-e920-48c6-a85e-1d1d33a69460';
+    await page.setViewportSize({width: 320, height: 844});
 
     await page.route('**/api/v1/auth/me', async (route) => {
       await route.fulfill({
@@ -233,6 +234,21 @@ test.describe('Module Séances', () => {
     await expect(forfaitPill).toBeVisible();
     await expect(forfaitPill).toContainText(/Forfait hémodialyse/);
     await expect(forfaitPill).toContainText(/3500/);
+
+    const editorMetrics = await page.locator('.seance-editor-column').evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+      viewportWidth: window.innerWidth,
+    }));
+    expect(editorMetrics.clientWidth).toBeLessThanOrEqual(editorMetrics.viewportWidth);
+    expect(editorMetrics.scrollWidth - editorMetrics.clientWidth).toBeLessThanOrEqual(1);
+
+    await expect(page.locator('.seance-tabs')).toBeVisible();
+    await page.getByRole('tab', {name: 'Consommables'}).click();
+    await expect(page.locator('.consommables-toolbar')).toBeVisible();
+
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 
   // ─── Dashboard details popup ───────────────────────────────────────────────

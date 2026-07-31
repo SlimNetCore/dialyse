@@ -691,3 +691,17 @@ intégration.
 
 **Un agent (Claude, Copilot, ou autre) qui génère du code ne respectant pas ces règles doit être considéré en erreur et
 le code doit être corrigé avant d'être accepté.**
+
+# 21. Responsivité obligatoire pour tout développement frontend
+
+**Tout composant ou développement côté frontend doit être responsive.** Cette exigence s'applique sans exception aux
+pages, composants Angular, formulaires, onglets, tableaux, cartes, graphiques, dialogues, menus et états vides.
+
+- Chaque interface doit être conçue, implémentée et vérifiée au minimum sur mobile (320px à 767px), tablette et desktop.
+- Aucun contenu ne doit provoquer de débordement horizontal de la page : les tableaux et données denses utilisent un
+  conteneur de défilement horizontal local lorsque nécessaire.
+- Les champs, boutons et actions doivent rester lisibles, atteignables et utilisables au tactile sur petit écran.
+- Les grilles doivent se replier de manière cohérente, les actions secondaires ne doivent pas masquer les actions
+  principales, et les dialogues doivent rester contenus dans le viewport.
+- Toute modification frontend doit inclure une vérification responsive automatisée ou manuelle avant livraison.
+

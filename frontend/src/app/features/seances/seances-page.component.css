@@ -1,5 +1,6 @@
 :host {
   display: block;
+  min-width: 0;
 }
 
 mat-card {
@@ -8,6 +9,7 @@ mat-card {
 
 .scan-row {
   display: flex;
+  min-width: 0;
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
@@ -31,6 +33,7 @@ mat-card {
   color: var(--app-muted, #64748b);
 }
 
+.camera-container,
 .camera-panel {
   position: relative;
   margin-top: 16px;
@@ -80,6 +83,7 @@ mat-card {
 .forfait-pill {
   margin-top: 14px;
   display: inline-flex;
+  max-width: 100%;
   flex-direction: column;
   gap: 8px;
   padding: 14px 18px;
@@ -126,6 +130,7 @@ mat-card {
 .form-grid {
   margin-top: 12px;
   display: grid;
+  min-width: 0;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 8px;
 }
@@ -133,6 +138,7 @@ mat-card {
 .action-row {
   margin-top: 12px;
   display: flex;
+  min-width: 0;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -141,6 +147,7 @@ mat-card {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 8px;
 }
 
 .consommables-add-button {
@@ -191,6 +198,8 @@ mat-card {
 
 .full-width {
   grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
 }
 
 .sub-title {
@@ -215,6 +224,7 @@ mat-card {
 .scan-status {
   margin-top: 10px;
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
@@ -236,7 +246,12 @@ mat-card {
 }
 
 .table-wrap {
-  overflow: auto;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
   border-radius: 22px;
   border: 1px solid var(--app-border);
   background: color-mix(in srgb, var(--app-surface-solid) 88%, transparent);
@@ -246,6 +261,7 @@ mat-card {
 .seance-workspace {
   margin-top: 16px;
   display: grid;
+  min-width: 0;
   gap: 16px;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   align-items: start;
@@ -258,7 +274,22 @@ mat-card {
 
 .seance-editor-column {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
+}
+
+.seance-editor-column > *,
+.seance-editor-card app-rich-text-editor {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.seance-editor-card app-rich-text-editor {
+  width: 100%;
+}
+
+.seance-editor-card app-rich-text-editor {
+  display: block;
 }
 
 .seance-editor-card,
@@ -275,9 +306,11 @@ mat-card {
 
 .seance-tabs {
   margin-top: 12px;
+  min-width: 0;
 }
 
 .seance-tabs .tab-body {
+  min-width: 0;
   padding: 16px 4px 4px;
 }
 
@@ -286,6 +319,10 @@ mat-card {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
+}
+
+.kpi-grid > .app-data-pill {
+  min-width: 0;
 }
 
 .kpi-clickable {
@@ -305,13 +342,13 @@ mat-card {
   z-index: 1600;
   background: rgba(2, 6, 23, 0.55);
   display: grid;
-  place-items: start center;
+  place-items: center;
   padding: 16px;
 }
 
 .popin-card {
-  width: min(980px, calc(100vw - 24px));
-  max-height: 84vh;
+  width: min(980px, 100%);
+  max-height: calc(100dvh - 32px);
   overflow: auto;
   border: 1px solid var(--app-border);
   border-radius: 14px;
@@ -325,7 +362,7 @@ mat-card {
 
 .popin-card .seances-table {
   width: 100%;
-  min-width: 100%;
+  min-width: 560px;
 }
 
 .popin-head {
@@ -427,6 +464,7 @@ mat-card {
 .dashboard-grid {
   margin-top: 14px;
   display: grid;
+  min-width: 0;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
 }
@@ -439,8 +477,8 @@ mat-card {
 }
 
 .chart-wrap {
-  height: 320px;
-  min-height: 320px;
+  height: clamp(220px, 34vw, 320px);
+  min-height: 220px;
   position: relative;
 }
 
@@ -468,6 +506,7 @@ mat-card {
 .journal-grid {
   margin-top: 14px;
   display: grid;
+  min-width: 0;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 12px;
 }
@@ -597,13 +636,28 @@ mat-card {
   gap: 10px;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1200px) {
   .seance-workspace {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 900px) {
+  .form-grid,
+  .resume-grid,
+  .dashboard-grid,
+  .journal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .seance-tabs .tab-body {
+    padding-inline: 0;
+  }
+
+  .seance-editor-card mat-card-title {
+    align-items: flex-start;
+  }
+
   .consommables-toolbar {
     align-items: stretch;
     gap: 10px;
@@ -628,10 +682,83 @@ mat-card {
   .consommables-table {
     min-width: 560px;
   }
+
+  .popin-pagination {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 600px) {
-  /* Phones: dashboard action buttons stack full-width and stay tappable */
+  .form-grid,
+  .resume-grid,
+  .dashboard-grid,
+  .journal-grid,
+  .kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .form-grid {
+    gap: 12px;
+  }
+
+  .seance-tabs .tab-body {
+    padding-top: 12px;
+  }
+
+  .seance-editor-card mat-card-title {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .seance-editor-card mat-card-subtitle,
+  .seance-editor-card .form-label {
+    overflow-wrap: anywhere;
+  }
+
+  .forfait-pill,
+  .scan-status {
+    width: 100%;
+  }
+
+  .scan-status {
+    align-items: flex-start;
+    border-radius: 14px;
+  }
+
+  .chart-wrap {
+    height: 220px;
+    min-height: 220px;
+  }
+
+  .popin-backdrop {
+    padding: 12px;
+  }
+
+  .popin-card {
+    max-height: calc(100dvh - 24px);
+    padding: 12px;
+  }
+
+  .popin-head {
+    align-items: flex-start;
+  }
+
+  .popin-head h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .popin-pagination {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .popin-pagination > button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Phones: dashboard action buttons stack full-width and stay tappable. */
   .scan-row > button:not(.consommables-add-button) {
     flex: 1 1 100%;
     justify-content: center;
@@ -645,6 +772,17 @@ mat-card {
   .action-row > button {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .chart-wrap {
+    height: 200px;
+    min-height: 200px;
+  }
+
+  .popin-card .seances-table {
+    min-width: 520px;
   }
 }
 

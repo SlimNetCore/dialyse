@@ -22,9 +22,9 @@
 }
 
 .summary {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  flex-wrap: wrap;
   margin-bottom: 16px;
 }
 
@@ -34,7 +34,7 @@
   padding: 8px 14px;
   border: 1px solid var(--app-border);
   border-radius: 14px;
-  min-width: 140px;
+  min-width: 0;
 }
 
 .pill span {
@@ -48,11 +48,23 @@
 }
 
 .pill.highlight {
-  border-color: var(--app-accent, #1565c0);
+  border-color: var(--app-accent);
 }
 
 .full-width {
   width: 100%;
+}
+
+.pmp-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+}
+
+.pmp-table-wrap .full-width {
+  min-width: 820px;
 }
 
 .formule {
@@ -62,10 +74,49 @@
 }
 
 mat-chip.entry {
-  background: #e8f5e9;
+  background: color-mix(in srgb, var(--app-primary) 16%, var(--app-surface-solid));
 }
 
 mat-chip.exit {
-  background: #fff3e0;
+  background: color-mix(in srgb, var(--app-accent) 16%, var(--app-surface-solid));
+}
+
+@media (max-width: 600px) {
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+
+  .title-icon {
+    flex: 0 0 auto;
+    margin-top: 2px;
+  }
+
+  .methode {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pill {
+    padding: 10px 12px;
+  }
+
+  mat-dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding-inline: 0;
+  }
+
+  mat-dialog-actions > button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 

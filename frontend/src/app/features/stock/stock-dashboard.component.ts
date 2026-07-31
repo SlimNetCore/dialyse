@@ -131,7 +131,9 @@ export class StockDashboardComponent {
     scales: {
       x: {
         ticks: {
-          autoSkip: false,
+          autoSkip: true,
+          maxRotation: 45,
+          minRotation: 0,
         },
       },
     },
@@ -219,8 +221,9 @@ export class StockDashboardComponent {
       return;
     }
     this.dialog.open(PmpExplainDialogComponent, {
-      width: '1200px',
-      maxHeight: '90vh',
+      width: 'min(1200px, calc(100vw - 24px))',
+      maxWidth: 'calc(100vw - 24px)',
+      maxHeight: 'calc(100dvh - 24px)',
       data: {
         articleId: article.articleId,
         centerId,
