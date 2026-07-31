@@ -8,16 +8,18 @@ import com.hemodialyse.backend.domain.stock.model.Fournisseur;
 import com.hemodialyse.backend.domain.stock.port.EmplacementRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.FournisseurRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.StockReferentialUseCase;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — stock referential business rules (articles, fournisseurs, emplacements).
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class StockReferentialDomainService implements StockReferentialUseCase {
 
     private final FournisseurRepositoryPort fournisseurRepo;
@@ -61,7 +63,6 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Article> listArticles(CenterId centerId) {
         return articleRepo.findAllByCenter(centerId);
     }
@@ -76,13 +77,11 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Fournisseur> listFournisseurs(CenterId centerId) {
         return fournisseurRepo.findAllActive(centerId);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Fournisseur> searchFournisseurs(CenterId centerId, String query) {
         if (query == null || query.isBlank()) {
             return fournisseurRepo.findAllActive(centerId);
@@ -99,7 +98,6 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Emplacement> listEmplacements(CenterId centerId) {
         return emplacementRepo.findAllActive(centerId);
     }

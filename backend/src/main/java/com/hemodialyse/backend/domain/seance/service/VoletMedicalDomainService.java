@@ -6,14 +6,16 @@ import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — Volet médical business rules.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class VoletMedicalDomainService implements VoletMedicalUseCase {
 
     private final SeanceRepositoryPort seanceRepository;
@@ -58,4 +60,5 @@ public class VoletMedicalDomainService implements VoletMedicalUseCase {
         return voletRepository.save(volet);
     }
 }
+
 

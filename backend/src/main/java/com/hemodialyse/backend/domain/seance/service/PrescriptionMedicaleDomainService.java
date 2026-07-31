@@ -4,16 +4,16 @@ import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — Prescription médicale. Pure domain class (hexagonal, AGENTS.md §3);
+ * wired in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class PrescriptionMedicaleDomainService implements PrescriptionMedicaleUseCase {
 
     private final PrescriptionMedicaleRepositoryPort repository;
@@ -23,7 +23,6 @@ public class PrescriptionMedicaleDomainService implements PrescriptionMedicaleUs
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<PrescriptionMedicale> listByPatient(CenterId centerId, UUID patientId, LocalDate from, LocalDate to) {
         if (from != null && to != null && from.isAfter(to)) {
             throw new IllegalArgumentException("La date from doit être <= à la date to");

@@ -5,14 +5,15 @@ import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort
 import com.hemodialyse.backend.domain.referential.port.ReferentialRepositoryPort.RefItem;
 import com.hemodialyse.backend.domain.referential.port.ReferentialUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Domain Service — Referential data retrieval.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}.
  */
-@Service
 public class ReferentialDomainService implements ReferentialUseCase {
 
     private final ReferentialRepositoryPort repo;

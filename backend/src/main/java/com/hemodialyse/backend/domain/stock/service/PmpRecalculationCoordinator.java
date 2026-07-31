@@ -1,25 +1,34 @@
 package com.hemodialyse.backend.domain.stock.service;
 
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
+import com.hemodialyse.backend.domain.shared.port.TransactionRunner;
+import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
 
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service
+/**
+ * Coordinates asynchronous PMP recalculation jobs and per-article locks.
+ * <p>
+ * Pure orchestration class (no Spring dependency — hexagonal architecture,
+ * AGENTS.md §3), wired as a bean in {@code infrastructure/config/DomainServiceConfig}.
+ * Each per-article recalculation runs inside its own transaction via the
+ * {@link TransactionRunner} port so the asynchronous job keeps PMP atomicity.
+ */
 public class PmpRecalculationCoordinator {
 
     private final PmpEngine pmpEngine;
-    private final SimpMessagingTemplate messaging;
+    private final StockEventPublisher events;
+    private final TransactionRunner transactionRunner;
     private final ConcurrentHashMap<UUID, JobState> jobs = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, UUID> articleLocks = new ConcurrentHashMap<>();
 
-    public PmpRecalculationCoordinator(PmpEngine pmpEngine, SimpMessagingTemplate messaging) {
+    public PmpRecalculationCoordinator(PmpEngine pmpEngine, StockEventPublisher events, TransactionRunner transactionRunner) {
         this.pmpEngine = pmpEngine;
-        this.messaging = messaging;
+        this.events = events;
+        this.transactionRunner = transactionRunner;
     }
 
     public UUID start(CenterId centerId, Collection<UUID> articleIds) {
@@ -75,7 +84,7 @@ public class PmpRecalculationCoordinator {
 
         try {
             for (UUID articleId : jobState.articleIds) {
-                pmpEngine.recalculerArticle(centerId, articleId);
+                transactionRunner.run(() -> pmpEngine.recalculerArticle(centerId, articleId));
                 jobState.processed += 1;
                 jobState.message = "Article " + jobState.processed + "/" + jobState.articleIds.size();
             }
@@ -94,16 +103,7 @@ public class PmpRecalculationCoordinator {
     }
 
     private void publishLocksChanged(UUID centerId, List<UUID> articleIds, String status) {
-        Map<String, Object> event = new HashMap<>();
-        event.put("type", "STOCK_RECALC_LOCKS_CHANGED");
-        event.put("centerId", centerId.toString());
-        Map<String, String> payload = new HashMap<>();
-        payload.put("status", status);
-        payload.put("articleIds", articleIds.stream().map(UUID::toString).reduce((a, b) -> a + "," + b).orElse(""));
-        payload.put("count", Integer.toString(articleIds.size()));
-        event.put("payload", payload);
-        event.put("timestamp", java.time.Instant.now().toString());
-        messaging.convertAndSend("/topic/center/" + centerId + "/events", (Object) event);
+        events.recalcLocksChanged(centerId, articleIds, status);
     }
 
     private String lockKey(UUID centerId, UUID articleId) {

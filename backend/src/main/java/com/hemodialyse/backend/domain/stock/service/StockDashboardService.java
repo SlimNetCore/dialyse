@@ -5,15 +5,17 @@ import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.*;
 import com.hemodialyse.backend.domain.stock.port.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
-@Service
-@Transactional(readOnly = true)
+/**
+ * Domain Service — stock dashboard analytics & PMP explanations (read-only).
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class StockDashboardService implements StockDashboardUseCase {
 
     /**

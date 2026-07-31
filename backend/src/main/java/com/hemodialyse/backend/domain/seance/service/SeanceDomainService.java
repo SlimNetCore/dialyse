@@ -16,8 +16,6 @@ import com.hemodialyse.backend.domain.stock.model.Lot;
 import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
 import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,8 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — Seance business rules (aggregate orchestration).
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Because {@code validate} performs several writes (séance state + bon de sortie
+ * FEFO), the transactional boundary is provided by
+ * {@code application.seance.SeanceApplicationService}, the Spring bean exposed for
+ * the {@link SeanceUseCase} port.
+ */
 public class SeanceDomainService implements SeanceUseCase {
 
     private final SeanceRepositoryPort seanceRepo;

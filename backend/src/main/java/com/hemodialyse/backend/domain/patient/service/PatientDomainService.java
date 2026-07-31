@@ -17,8 +17,6 @@ import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.pec.model.PriseEnCharge;
 import com.hemodialyse.backend.domain.pec.port.PecRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -26,10 +24,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Domain Service — Patient business rules.
+ * Domain Service — Patient business rules (aggregate orchestration).
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Because {@code createPatient}/{@code updatePatient} perform several writes
+ * (patient + assuré + attestation + PEC), the transactional boundary is provided
+ * by {@code application.patient.PatientApplicationService}, which is the Spring
+ * bean exposed for the {@link PatientUseCase} port.
  */
-@Service
-@Transactional
 public class PatientDomainService implements PatientUseCase {
 
     private final PatientRepositoryPort patientRepo;

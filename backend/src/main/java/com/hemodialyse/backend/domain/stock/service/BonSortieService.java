@@ -5,17 +5,19 @@ import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.*;
 import com.hemodialyse.backend.domain.stock.port.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
-@Service
-@Transactional
+/**
+ * Domain Service — bon de sortie (BS) using FEFO, linked to a hemodialysis seance.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * The transactional boundary is provided by
+ * {@code application.stock.BonSortieApplicationService}, guaranteeing atomicity of
+ * the multi-write flow (lots + movements + PMP recalculation).
+ */
 public class BonSortieService implements BonSortieUseCase {
 
     private static final UUID DEFAULT_SEANCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
@@ -27,7 +29,7 @@ public class BonSortieService implements BonSortieUseCase {
     private final StockSequencePort sequence;
     private final PmpEngine pmpEngine;
     private final PmpRecalculationCoordinator recalcCoordinator;
-    private final SimpMessagingTemplate messaging;
+    private final StockEventPublisher events;
 
     public BonSortieService(BonSortieRepositoryPort repo,
                             LotRepositoryPort lotRepo,
@@ -36,7 +38,7 @@ public class BonSortieService implements BonSortieUseCase {
                             StockSequencePort sequence,
                             PmpEngine pmpEngine,
                             PmpRecalculationCoordinator recalcCoordinator,
-                            SimpMessagingTemplate messaging) {
+                            StockEventPublisher events) {
         this.repo = repo;
         this.lotRepo = lotRepo;
         this.movementRepo = movementRepo;
@@ -44,7 +46,7 @@ public class BonSortieService implements BonSortieUseCase {
         this.sequence = sequence;
         this.pmpEngine = pmpEngine;
         this.recalcCoordinator = recalcCoordinator;
-        this.messaging = messaging;
+        this.events = events;
     }
 
     @Override
@@ -105,29 +107,18 @@ public class BonSortieService implements BonSortieUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BonSortie get(CenterId centerId, UUID bonId) {
         return repo.findById(bonId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Bon de sortie introuvable: " + bonId));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BonSortie> list(CenterId centerId) {
         return repo.findAll(centerId);
     }
 
     private void publishStockMovementChanged(UUID centerId, String mouvement, String reference, int articleCount) {
-        Map<String, Object> event = new HashMap<>();
-        event.put("type", "STOCK_MOVEMENT_CHANGED");
-        event.put("centerId", centerId.toString());
-        Map<String, String> payload = new HashMap<>();
-        payload.put("mouvement", mouvement);
-        payload.put("reference", reference != null ? reference : "");
-        payload.put("articles", Integer.toString(articleCount));
-        event.put("payload", payload);
-        event.put("timestamp", Instant.now().toString());
-        messaging.convertAndSend("/topic/center/" + centerId + "/events", (Object) event);
+        events.stockMovementChanged(centerId, mouvement, reference, articleCount);
     }
 }
 

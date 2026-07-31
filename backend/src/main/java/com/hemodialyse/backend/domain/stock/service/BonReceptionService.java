@@ -4,17 +4,19 @@ import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.*;
 import com.hemodialyse.backend.domain.stock.port.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
-@Service
-@Transactional
+/**
+ * Domain Service — bon de réception (BR) + lots + PMP.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * The transactional boundary is provided by
+ * {@code application.stock.BonReceptionApplicationService}, guaranteeing atomicity of
+ * the multi-write validation flow (lots + ENTREE movements + PMP recalculation).
+ */
 public class BonReceptionService implements BonReceptionUseCase {
 
     private final BonReceptionRepositoryPort repo;
@@ -25,7 +27,7 @@ public class BonReceptionService implements BonReceptionUseCase {
     private final StockSequencePort sequence;
     private final PmpEngine pmpEngine;
     private final PmpRecalculationCoordinator recalcCoordinator;
-    private final SimpMessagingTemplate messaging;
+    private final StockEventPublisher events;
 
     public BonReceptionService(BonReceptionRepositoryPort repo,
                                BonCommandeRepositoryPort bonCommandeRepo,
@@ -35,7 +37,7 @@ public class BonReceptionService implements BonReceptionUseCase {
                                StockSequencePort sequence,
                                PmpEngine pmpEngine,
                                PmpRecalculationCoordinator recalcCoordinator,
-                               SimpMessagingTemplate messaging) {
+                               StockEventPublisher events) {
         this.repo = repo;
         this.bonCommandeRepo = bonCommandeRepo;
         this.lotRepo = lotRepo;
@@ -44,7 +46,7 @@ public class BonReceptionService implements BonReceptionUseCase {
         this.sequence = sequence;
         this.pmpEngine = pmpEngine;
         this.recalcCoordinator = recalcCoordinator;
-        this.messaging = messaging;
+        this.events = events;
     }
 
     @Override
@@ -144,14 +146,12 @@ public class BonReceptionService implements BonReceptionUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BonReception get(CenterId centerId, UUID bonId) {
         return repo.findById(bonId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Bon de reception introuvable: " + bonId));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BonReception> list(CenterId centerId) {
         return repo.findAll(centerId);
     }
@@ -243,16 +243,7 @@ public class BonReceptionService implements BonReceptionUseCase {
     }
 
     private void publishStockMovementChanged(UUID centerId, String mouvement, String reference, int articleCount) {
-        Map<String, Object> event = new HashMap<>();
-        event.put("type", "STOCK_MOVEMENT_CHANGED");
-        event.put("centerId", centerId.toString());
-        Map<String, String> payload = new HashMap<>();
-        payload.put("mouvement", mouvement);
-        payload.put("reference", reference != null ? reference : "");
-        payload.put("articles", Integer.toString(articleCount));
-        event.put("payload", payload);
-        event.put("timestamp", Instant.now().toString());
-        messaging.convertAndSend("/topic/center/" + centerId + "/events", (Object) event);
+        events.stockMovementChanged(centerId, mouvement, reference, articleCount);
     }
 }
 

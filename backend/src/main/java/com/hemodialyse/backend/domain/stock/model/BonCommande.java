@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.domain.stock.model;
 
+import com.hemodialyse.backend.domain.shared.vo.Money;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -56,7 +58,10 @@ public class BonCommande {
     }
 
     public BigDecimal total() {
-        return lignes.stream().map(LigneBonCommande::sousTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return lignes.stream()
+                .map(ligne -> Money.of(ligne.sousTotal()))
+                .reduce(Money.zero(), Money::add)
+                .amount();
     }
 
     public UUID getId() {

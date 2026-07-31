@@ -6,8 +6,6 @@ import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.StockMovement;
 import com.hemodialyse.backend.domain.stock.model.StockMovementType;
 import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,18 +13,22 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * PMP cascade recalculation engine.
+ * PMP cascade recalculation engine (pure domain service — hexagonal, AGENTS.md §3).
  *
  * <p>On any reception (or correction of a past movement) the whole movement
- * history of the article is replayed, in chronological order, inside a single
- * transaction. Each movement's {@code pmp_apres} is rewritten and the article's
- * current PMP + stock quantity are updated.
+ * history of the article is replayed, in chronological order. Each movement's
+ * {@code pmp_apres} is rewritten and the article's current PMP + stock quantity
+ * are updated.
+ *
+ * <p>Atomicity is provided by the caller's transaction boundary: within a
+ * bon de réception/sortie validation the recalculation joins the surrounding
+ * transaction; for the asynchronous recalculation job the
+ * {@code PmpRecalculationCoordinator} wraps each call in a
+ * {@link com.hemodialyse.backend.domain.shared.port.TransactionRunner}.
  *
  * <p>The ordering relies on the composite index (article_id, created_at) declared
- * on {@code stock_movements}. For very large histories this can be delegated to an
- * asynchronous job (see {@link PmpAsyncRecalcJob}).
+ * on {@code stock_movements}.
  */
-@Service
 public class PmpEngine {
 
     private final StockMovementRepositoryPort movementRepo;
@@ -40,7 +42,6 @@ public class PmpEngine {
     /**
      * Recompute the full PMP cascade for an article and persist results.
      */
-    @Transactional
     public PmpCalculator.PmpState recalculerArticle(CenterId centerId, UUID articleId) {
         // Replay the whole history in chronological order (article_id, created_at, id).
         List<StockMovement> movements = movementRepo.findByArticleOrdered(centerId, articleId);

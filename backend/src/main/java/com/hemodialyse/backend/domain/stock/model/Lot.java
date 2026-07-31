@@ -1,5 +1,9 @@
 package com.hemodialyse.backend.domain.stock.model;
 
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+import com.hemodialyse.backend.domain.shared.vo.Money;
+import com.hemodialyse.backend.domain.shared.vo.Quantite;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -29,6 +33,11 @@ public class Lot {
     public static Lot create(UUID centerId, UUID articleId, UUID bonReceptionId, UUID emplacementId,
                              String numeroLot, LocalDate datePeremption,
                              BigDecimal quantite, BigDecimal pmp) {
+        // Aggregate invariants (Shared Kernel): valid quantity and non-negative PMP.
+        Quantite.of(quantite);
+        if (pmp != null) {
+            Money.of(pmp);
+        }
         Lot lot = new Lot();
         lot.id = UUID.randomUUID();
         lot.centerId = centerId;
@@ -48,14 +57,15 @@ public class Lot {
      * Consume a quantity from this lot (used by FEFO exits).
      */
     public void consommer(BigDecimal quantite) {
-        if (quantite == null || quantite.signum() <= 0) {
-            throw new IllegalArgumentException("La quantite a consommer doit etre strictement positive");
+        Quantite aConsommer = Quantite.of(quantite);
+        if (!aConsommer.isPositive()) {
+            throw new BusinessException("La quantite a consommer doit etre strictement positive");
         }
-        BigDecimal restante = quantiteRestante != null ? quantiteRestante : BigDecimal.ZERO;
-        if (restante.compareTo(quantite) < 0) {
-            throw new IllegalStateException("Quantite insuffisante sur le lot " + numeroLot);
+        Quantite restante = Quantite.of(quantiteRestante != null ? quantiteRestante : BigDecimal.ZERO);
+        if (restante.value().compareTo(aConsommer.value()) < 0) {
+            throw new BusinessException("Quantite insuffisante sur le lot " + numeroLot);
         }
-        this.quantiteRestante = restante.subtract(quantite);
+        this.quantiteRestante = restante.value().subtract(aConsommer.value());
     }
 
     public UUID getId() {

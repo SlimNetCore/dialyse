@@ -4,16 +4,16 @@ import com.hemodialyse.backend.domain.seance.model.DossierMedicalPatient;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.DossierMedicalPatientUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — Dossier médical patient. Pure domain class (hexagonal, AGENTS.md §3);
+ * wired in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class DossierMedicalPatientDomainService implements DossierMedicalPatientUseCase {
 
     private final DossierMedicalPatientRepositoryPort repository;
@@ -23,7 +23,6 @@ public class DossierMedicalPatientDomainService implements DossierMedicalPatient
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<DossierMedicalPatient> getByPatient(CenterId centerId, UUID patientId) {
         return repository.findByPatientId(patientId, centerId);
     }

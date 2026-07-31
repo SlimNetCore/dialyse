@@ -4,16 +4,20 @@ import com.hemodialyse.backend.domain.seance.model.VoletParamedical;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalUseCase;
+import com.hemodialyse.backend.domain.seance.vo.TensionArterielle;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.hemodialyse.backend.domain.shared.vo.Poids;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — Volet paramédical business rules.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class VoletParamedicalDomainService implements VoletParamedicalUseCase {
 
     private final SeanceRepositoryPort seanceRepository;
@@ -46,12 +50,23 @@ public class VoletParamedicalDomainService implements VoletParamedicalUseCase {
             volet.setId(UUID.randomUUID());
             volet.setCreatedAt(OffsetDateTime.now());
         }
+        // Value Object invariants (Shared Kernel / seance VO) — lenient on optional input,
+        // so loading legacy data is unaffected and only user-supplied values are validated.
+        if (poidsAvantKg != null) {
+            Poids.ofKilogrammes(poidsAvantKg);
+        }
+        if (poidsApresKg != null) {
+            Poids.ofKilogrammes(poidsApresKg);
+        }
+        String taAvantNormalise = TensionArterielle.tryParse(taAvant).map(TensionArterielle::format).orElse(taAvant);
+        String taApresNormalise = TensionArterielle.tryParse(taApres).map(TensionArterielle::format).orElse(taApres);
+
         volet.setSeanceId(seanceId);
         volet.setCenterId(centerId.value());
         volet.setPoidsAvantKg(poidsAvantKg);
         volet.setPoidsApresKg(poidsApresKg);
-        volet.setTaAvant(taAvant);
-        volet.setTaApres(taApres);
+        volet.setTaAvant(taAvantNormalise);
+        volet.setTaApres(taApresNormalise);
         volet.setDureeMinutes(dureeMinutes);
         volet.setDebitSangMlMin(debitSangMlMin);
         volet.setUltrafiltrationMl(ultrafiltrationMl);
@@ -62,4 +77,7 @@ public class VoletParamedicalDomainService implements VoletParamedicalUseCase {
         return voletRepository.save(volet);
     }
 }
+
+
+
 

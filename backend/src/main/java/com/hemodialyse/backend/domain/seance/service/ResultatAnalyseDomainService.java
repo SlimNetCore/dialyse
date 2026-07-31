@@ -4,8 +4,6 @@ import com.hemodialyse.backend.domain.seance.model.ResultatAnalyse;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,8 +11,10 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — Résultats d'analyse. Pure domain class (hexagonal, AGENTS.md §3);
+ * wired in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class ResultatAnalyseDomainService implements ResultatAnalyseUseCase {
 
     private final ResultatAnalyseRepositoryPort repository;
@@ -24,7 +24,6 @@ public class ResultatAnalyseDomainService implements ResultatAnalyseUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ResultatAnalyse> listByPatient(CenterId centerId, UUID patientId, LocalDate from, LocalDate to) {
         if (from != null && to != null && from.isAfter(to)) {
             throw new IllegalArgumentException("La date from doit être <= à la date to");

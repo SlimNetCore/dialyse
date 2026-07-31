@@ -9,8 +9,6 @@ import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.pec.model.PriseEnCharge;
 import com.hemodialyse.backend.domain.pec.port.PecRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,9 +16,11 @@ import java.util.UUID;
 
 /**
  * Domain Service — PEC business rules.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}; transaction
+ * boundaries live in the persistence adapters.
  */
-@Service
-@Transactional
 public class PecDomainService implements PecUseCase {
 
     private final PecRepositoryPort pecRepo;

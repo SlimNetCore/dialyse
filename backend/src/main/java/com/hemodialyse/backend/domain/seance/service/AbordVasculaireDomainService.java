@@ -4,16 +4,16 @@ import com.hemodialyse.backend.domain.seance.model.AbordVasculaire;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — Abord vasculaire. Pure domain class (hexagonal, AGENTS.md §3);
+ * wired in {@code infrastructure/config/DomainServiceConfig}.
+ */
 public class AbordVasculaireDomainService implements AbordVasculaireUseCase {
 
     private final AbordVasculaireRepositoryPort repository;
@@ -23,7 +23,6 @@ public class AbordVasculaireDomainService implements AbordVasculaireUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<AbordVasculaire> listByPatient(CenterId centerId, UUID patientId) {
         return repository.findByPatientId(patientId, centerId);
     }

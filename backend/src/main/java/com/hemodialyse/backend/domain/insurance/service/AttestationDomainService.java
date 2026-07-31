@@ -4,8 +4,6 @@ import com.hemodialyse.backend.domain.insurance.port.AttestationUseCase;
 import com.hemodialyse.backend.domain.insurance.model.AttestationDroit;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,9 +11,10 @@ import java.util.UUID;
 
 /**
  * Domain Service — Attestation business rules.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}.
  */
-@Service
-@Transactional
 public class AttestationDomainService implements AttestationUseCase {
 
     private final AttestationRepositoryPort repo;

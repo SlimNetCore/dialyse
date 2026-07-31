@@ -6,14 +6,17 @@ import com.hemodialyse.backend.domain.stock.model.LigneBonCommande;
 import com.hemodialyse.backend.domain.stock.port.BonCommandeRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.BonCommandeUseCase;
 import com.hemodialyse.backend.domain.stock.port.StockSequencePort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@Transactional
+/**
+ * Domain Service — BonCommande business rules.
+ * <p>
+ * Pure domain class (no Spring/JPA dependency — hexagonal architecture, AGENTS.md §3).
+ * Wired as a bean in {@code infrastructure/config/DomainServiceConfig}; write atomicity
+ * is guaranteed by the transactional persistence adapters.
+ */
 public class BonCommandeService implements BonCommandeUseCase {
 
     private final BonCommandeRepositoryPort repo;
@@ -48,14 +51,12 @@ public class BonCommandeService implements BonCommandeUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BonCommande get(CenterId centerId, UUID bonId) {
         return repo.findById(bonId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Bon de commande introuvable: " + bonId));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BonCommande> list(CenterId centerId) {
         return repo.findAll(centerId);
     }

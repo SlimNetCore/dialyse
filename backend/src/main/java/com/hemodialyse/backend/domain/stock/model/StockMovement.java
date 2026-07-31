@@ -1,5 +1,8 @@
 package com.hemodialyse.backend.domain.stock.model;
 
+import com.hemodialyse.backend.domain.shared.vo.Money;
+import com.hemodialyse.backend.domain.shared.vo.Quantite;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -23,6 +26,8 @@ public class StockMovement {
 
     public static StockMovement sortie(UUID centerId, UUID articleId, UUID seanceId,
                                        BigDecimal quantite, String createdBy, OffsetDateTime createdAt) {
+        // Aggregate invariant (Shared Kernel): a movement quantity is a valid Quantite.
+        Quantite.of(quantite);
         StockMovement movement = new StockMovement();
         movement.setId(UUID.randomUUID());
         movement.setCenterId(centerId);
@@ -37,6 +42,11 @@ public class StockMovement {
 
     public static StockMovement entree(UUID centerId, UUID articleId, UUID lotId,
                                        BigDecimal quantite, BigDecimal prixUnitaire, String createdBy) {
+        // Aggregate invariants (Shared Kernel): valid quantity and non-negative unit price.
+        Quantite.of(quantite);
+        if (prixUnitaire != null) {
+            Money.of(prixUnitaire);
+        }
         StockMovement movement = new StockMovement();
         movement.setId(UUID.randomUUID());
         movement.setCenterId(centerId);
@@ -54,6 +64,9 @@ public class StockMovement {
                                           BigDecimal quantite, BigDecimal pmpApplique, String createdBy) {
         StockMovement movement = sortie(centerId, articleId, seanceId, quantite, createdBy);
         movement.setLotId(lotId);
+        if (pmpApplique != null) {
+            Money.of(pmpApplique);
+        }
         movement.setPrixUnitaire(pmpApplique);
         return movement;
     }
