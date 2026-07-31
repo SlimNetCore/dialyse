@@ -1,4 +1,3 @@
-
 mat-card {
   margin-top: 16px;
 }
@@ -30,3 +29,18 @@ mat-card {
   background: color-mix(in srgb, var(--app-surface-solid) 90%, transparent);
 }
 
+/* Mobile: filter fields go full width so nothing overflows on small phones */
+@media (max-width: 600px) {
+  .w240 {
+    width: 100%;
+  }
+
+  .flex {
+    min-width: 0;
+  }
+
+  .item-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
