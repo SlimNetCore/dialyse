@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.domain.assure.model;
 
-import com.hemodialyse.backend.domain.patient.vo.PhoneNumber;
+import com.hemodialyse.backend.domain.shared.vo.PhoneNumber;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;

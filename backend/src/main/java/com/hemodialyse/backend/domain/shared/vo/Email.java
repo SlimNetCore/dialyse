@@ -1,10 +1,13 @@
-package com.hemodialyse.backend.domain.patient.vo;
+package com.hemodialyse.backend.domain.shared.vo;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Value Object for patient/assure email addresses.
+ * Value Object for email addresses.
+ * <p>
+ * Generic contact VO — belongs to the Shared Kernel (AGENTS.md §16) so it can be
+ * reused across bounded contexts without creating cross-context coupling.
  */
 public record Email(String value) {
     private static final Pattern EMAIL_PATTERN =

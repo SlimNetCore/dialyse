@@ -1,7 +1,11 @@
-package com.hemodialyse.backend.domain.patient.vo;
+package com.hemodialyse.backend.domain.shared.vo;
 
 /**
  * Value Object for phone numbers with light international normalization.
+ * <p>
+ * Generic contact VO — belongs to the Shared Kernel (AGENTS.md §16) so it can be
+ * reused across bounded contexts (patient, assuré…) without creating cross-context
+ * coupling.
  */
 public record PhoneNumber(String value) {
 

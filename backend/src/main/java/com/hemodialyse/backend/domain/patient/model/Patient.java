@@ -2,6 +2,8 @@ package com.hemodialyse.backend.domain.patient.model;
 
 import com.hemodialyse.backend.domain.patient.vo.*;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.domain.shared.vo.Email;
+import com.hemodialyse.backend.domain.shared.vo.PhoneNumber;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
