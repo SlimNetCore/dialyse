@@ -15,19 +15,6 @@ mat-card {
   flex-wrap: wrap;
 }
 
-/* These rows mix a mat-form-field with action buttons. The field reserves ~20px
-   below its 40px input box for the subscript (hints/errors) — none are used here,
-   so we collapse it. The field height then equals its 40px input box and the
-   buttons align perfectly with the input instead of appearing offset below it. */
-.scan-row .mat-mdc-form-field-subscript-wrapper {
-  display: none;
-}
-
-.scan-row > button {
-  min-height: 40px;
-  align-self: center;
-}
-
 .article-stock-hint {
   font-size: 0.82em;
   color: var(--app-muted, #64748b);

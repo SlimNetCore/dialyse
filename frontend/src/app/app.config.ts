@@ -12,11 +12,16 @@ import {provideHttpClient, withInterceptors, withXhr} from '@angular/common/http
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {provideTranslateHttpLoader, TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {MAT_DATE_LOCALE, MatNativeDateModule} from '@angular/material/core';
+import {MAT_FORM_FIELD_DEFAULT_OPTIONS, type MatFormFieldDefaultOptions} from '@angular/material/form-field';
 
 import {routes} from './app.routes';
 import {authInterceptor} from './core/api/auth.interceptor';
 import {AuthStore} from './core/state/auth.store';
 import {AppShellStore} from './core/state/app-shell.store';
+
+export const materialFormFieldDefaults: MatFormFieldDefaultOptions = {
+  subscriptSizing: 'dynamic',
+};
 
 async function initAuthSession(): Promise<void> {
   const auth = inject(AuthStore);
@@ -54,6 +59,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
     {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
+    {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: materialFormFieldDefaults},
     provideAppInitializer(initAuthSession),
   ],
 };

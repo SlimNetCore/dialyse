@@ -2,6 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateModule} from '@ngx-translate/core';
 import {App} from './app';
+import {materialFormFieldDefaults} from './app.config';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -37,5 +38,9 @@ describe('App', () => {
     const app = fixture.componentInstance;
 
     expect(app.ngOnDestroy).toBeDefined();
+  });
+
+  it('uses dynamic Material form field subscript sizing', () => {
+    expect(materialFormFieldDefaults.subscriptSizing).toBe('dynamic');
   });
 });

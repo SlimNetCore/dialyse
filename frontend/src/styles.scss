@@ -330,6 +330,7 @@ a {
 .mat-mdc-fab,
 .mat-mdc-extended-fab {
   border-radius: 16px !important;
+  min-height: 40px;
   font-family: 'Manrope', sans-serif !important;
   font-weight: 700 !important;
   --mdc-text-button-label-text-font: 'Manrope', sans-serif;
@@ -630,13 +631,6 @@ a {
 .mat-mdc-footer-cell,
 .mat-mdc-header-cell {
   color: var(--app-text);
-}
-
-/* Compact mode used by patient wizard/form pages.
-   Field sizing is now global (see GLOBAL HARMONIZED FIELD SIZING);
-   only the subscript collapse remains specific here. */
-.patient-form-compact .mat-mdc-form-field-subscript-wrapper {
-  height: 0;
 }
 
 
