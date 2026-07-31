@@ -64,9 +64,9 @@ public class SeanceDomainService implements SeanceUseCase {
     }
 
     @Override
-    public Seance createFromQr(CenterId centerId, String qrCode, LocalDate dateSeance) {
+    public Seance createFromQr(CenterId centerId, String qrCode) {
         UUID patientId = resolvePatientIdFromQr(centerId, qrCode);
-        LocalDate date = dateSeance != null ? dateSeance : LocalDate.now();
+        LocalDate date = LocalDate.now();
         return seanceRepo.findByPatientIdAndDate(centerId, patientId, date)
                 .orElseGet(() -> create(centerId, patientId, date));
     }

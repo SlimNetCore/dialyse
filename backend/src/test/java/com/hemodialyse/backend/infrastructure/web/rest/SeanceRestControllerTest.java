@@ -170,6 +170,34 @@ class SeanceRestControllerTest {
         );
     }
 
+    @Test
+    void scan_should_call_useCase_without_client_date() {
+        SeanceUseCase useCase = mock(SeanceUseCase.class);
+        NotificationService notif = mock(NotificationService.class);
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+
+        Seance seance = new Seance(SEANCE_ID, PATIENT_ID, CENTER_ID, LocalDate.now());
+        Patient patient = new Patient();
+        patient.setId(PatientId.of(PATIENT_ID));
+        patient.setNom("Dupont");
+        patient.setPrenom("Jean");
+
+        when(useCase.createFromQr(eq(CenterId.of(CENTER_ID)), eq("PAT-001"))).thenReturn(seance);
+        when(useCase.getDetails(eq(CenterId.of(CENTER_ID)), eq(SEANCE_ID)))
+                .thenReturn(new SeanceDetails(seance, patient, null, null));
+
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc);
+
+        var request = new com.hemodialyse.backend.infrastructure.web.dto.request.ScanSeanceQrRequest(
+                CENTER_ID,
+                "PAT-001"
+        );
+        ResponseEntity<?> response = controller.scanQr(request);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(useCase).createFromQr(CenterId.of(CENTER_ID), "PAT-001");
+    }
+
     // ─── valider ─────────────────────────────────────────────────────────────
 
     @Test
@@ -262,6 +290,7 @@ class SeanceRestControllerTest {
         assertThrows(IllegalArgumentException.class, () -> controller.details(SEANCE_ID, wrongCenter));
     }
 }
+
 
 
 

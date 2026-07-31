@@ -81,6 +81,7 @@ describe('SeancesPageComponent', () => {
       saveParamedical: vi.fn(),
       saveMedical: vi.fn(),
       validateSeance: vi.fn(),
+      removeConsommable: vi.fn(),
       loadJournal: vi.fn(),
       loadDashboard: vi.fn(),
       loadDashboardDetails: vi.fn(),
@@ -167,6 +168,77 @@ describe('SeancesPageComponent', () => {
 
     expect(component['listForfaitName'](row)).toBe('Forfait HD');
     expect(component['listForfaitPrice'](row)).toBe('3 500,00');
+  });
+
+  it('should always scan with today date', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+    const expectedToday = new Date().toISOString().slice(0, 10);
+
+    storeMock['qrCode'] = vi.fn(() => 'PAT-001');
+
+    component['scanQr']();
+
+    expect(storeMock.setDateSeance).toHaveBeenCalledWith(expectedToday);
+    expect(storeMock.scanQr).toHaveBeenCalledWith({
+      centerId: CENTER_ID,
+      qrCode: 'PAT-001',
+    });
+  });
+
+  it('should save paramedical without validating when leaving tab', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    storeMock['summary'] = vi.fn(() => ({
+      seance: {id: 'seance-123', centerId: CENTER_ID, patientId: 'patient-1', dateSeance: '2026-07-31', status: 'CREE'},
+    }));
+
+    component['onTabChange'](1);
+
+    expect(storeMock.saveParamedical).toHaveBeenCalledTimes(1);
+    expect(storeMock.validateSeance).not.toHaveBeenCalled();
+  });
+
+  it('should validate seance only when saving paramedical explicitly', async () => {
+    vi.useFakeTimers();
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    storeMock['summary'] = vi.fn(() => ({
+      seance: {id: 'seance-123', centerId: CENTER_ID, patientId: 'patient-1', dateSeance: '2026-07-31', status: 'CREE'},
+    }));
+    storeMock['consommables'] = vi.fn(() => []);
+
+    component['saveParamedical']();
+    vi.advanceTimersByTime(500);
+
+    expect(storeMock.saveParamedical).toHaveBeenCalledTimes(1);
+    expect(storeMock.validateSeance).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('should add selected consommable article', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    storeMock['newConsommableArticleId'] = vi.fn(() => 'article-1');
+    storeMock['newConsommableQuantite'] = vi.fn(() => 2);
+    storeMock['availableArticles'] = vi.fn(() => [
+      {id: 'article-1', code: 'ART-001', libelle: 'Dialyseur', unite: 'u'},
+    ]);
+    storeMock['addConsommable'] = vi.fn();
+
+    component['addConsommable']();
+
+    expect(storeMock.addConsommable).toHaveBeenCalledWith(
+      {id: 'article-1', code: 'ART-001', libelle: 'Dialyseur', unite: 'u'},
+      2,
+    );
+  });
+
+  it('should remove consommable article', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    component['removeConsommable']('article-1');
+
+    expect(storeMock.removeConsommable).toHaveBeenCalledWith('article-1');
   });
 });
 

@@ -178,11 +178,10 @@ describe('SeanceStore', () => {
   });
   it('should scan QR and update selectedSeanceId on success', () => {
     const store = TestBed.inject(SeanceStore);
-    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001', dateSeance: '2026-07-24'});
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
     expect(mockApi.scanSeanceQr).toHaveBeenCalledWith({
       centerId: CENTER_ID,
-      qrCode: 'PAT-001',
-      dateSeance: '2026-07-24'
+      qrCode: 'PAT-001'
     });
     expect(store.selectedSeanceId()).toBe(SEANCE_ID);
     expect(store.scanState()).toBe('success');
@@ -191,7 +190,7 @@ describe('SeanceStore', () => {
 
   it('should load seance summary after scan to expose current forfait immediately', () => {
     const store = TestBed.inject(SeanceStore);
-    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001', dateSeance: '2026-07-24'});
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
 
     expect(mockApi.getSeanceSummary).toHaveBeenCalledWith(SEANCE_ID, CENTER_ID);
     expect(store.summary()?.forfait?.nom).toBe('Forfait hémodialyse');
@@ -200,7 +199,7 @@ describe('SeanceStore', () => {
   it('should set error state on scan failure', () => {
     mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({status: 400, statusText: 'Bad Request'})));
     const store = TestBed.inject(SeanceStore);
-    store.scanQr({centerId: CENTER_ID, qrCode: 'INVALID', dateSeance: '2026-07-24'});
+    store.scanQr({centerId: CENTER_ID, qrCode: 'INVALID'});
     expect(store.scanState()).toBe('error');
     expect(store.scanning()).toBe(false);
   });

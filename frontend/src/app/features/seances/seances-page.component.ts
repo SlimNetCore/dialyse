@@ -28,6 +28,7 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {BackendApiService, SeanceDashboardDetailItem, SeanceListItem} from '../../core/api/backend-api.service';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {SeanceStore} from './state/seance.store';
+import {RichTextEditorComponent} from '../../shared/rich-text-editor/rich-text-editor.component';
 
 type BarcodeDetectorInstance = {
   detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
@@ -38,7 +39,7 @@ Chart.register(...registerables);
 @Component({
   standalone: true,
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, TranslateModule, BaseChartDirective, RouterLink],
+    MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',
@@ -242,6 +243,23 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.patchParamedical({incidents: (e.target as HTMLTextAreaElement)?.value ?? ''});
   }
 
+  protected onIncidentsRichChange(content: string): void {
+    // Convertir le HTML enrichi en texte plain pour le stockage/traitement
+    this.store.patchParamedical({incidents: content ?? ''});
+  }
+
+  protected onToleranceSeanceRichChange(content: string): void {
+    this.store.patchMedical({toleranceSeance: content ?? ''});
+  }
+
+  protected onAjustementsTherapeutiquesRichChange(content: string): void {
+    this.store.patchMedical({ajustementsTherapeutiques: content ?? ''});
+  }
+
+  protected onConclusionMedicaleRichChange(content: string): void {
+    this.store.patchMedical({conclusionMedicale: content ?? ''});
+  }
+
   protected onPrescriptionInput(e: Event): void {
     this.store.patchMedical({prescription: (e.target as HTMLTextAreaElement)?.value ?? ''});
   }
@@ -297,8 +315,10 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       this.snackBar.open('Centre ou QR manquant', 'OK', {duration: 3000});
       return;
     }
+    const dateSeance = todayIso();
+    this.store.setDateSeance(dateSeance);
     this.stopCamera();
-    this.store.scanQr({centerId, qrCode: qr, dateSeance: this.store.dateSeance()});
+    this.store.scanQr({centerId, qrCode: qr});
   }
 
   protected selectSeance(seance: SeanceListItem): void {
@@ -310,7 +330,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.loadSeanceSummary({seanceId: seance.id, centerId});
   }
 
-  protected saveSelectedDate(): void {
+  protected saveDate(): void {
     const centerId = this.appShell.currentCenterId();
     const seanceId = this.store.summary()?.seance.id;
     if (!centerId || !seanceId || !this.canEditDate()) return;
@@ -318,10 +338,21 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.loadSeances({centerId});
   }
 
+  protected onTabChange(newIndex: number): void {
+    const previousIndex = this.activeTabIndex();
+    this.activeTabIndex.set(newIndex);
+    // Auto-save uniquement quand on quitte l'onglet Paramédical (index 0)
+    if (previousIndex === 0 && newIndex !== 0 && this.canEditParamedical()) {
+      this.autoSaveParamedical();
+    }
+  }
+
   protected saveParamedical(): void {
     const centerId = this.appShell.currentCenterId();
     const seanceId = this.store.summary()?.seance.id;
-    if (!centerId || !seanceId || !this.canEditParamedical()) return;
+    const userId = this.auth.username();
+    if (!centerId || !seanceId || !this.canEditParamedical() || !userId) return;
+
     this.store.saveParamedical({
       seanceId,
       payload: {
@@ -336,6 +367,40 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
         anticoagulant: nullableText(this.store.anticoagulant()),
         typeDialysat: nullableText(this.store.typeDialysat()),
         incidents: nullableText(this.store.incidents())
+      }
+    });
+
+    // Auto-validate après la sauvegarde paramédical
+    setTimeout(() => {
+      if (!this.canValidateSeance() || this.store.isSeanceAlreadyValidated()) return;
+      const consommations = this.store.consommables().map((c) => ({
+        articleId: c.articleId,
+        quantite: c.quantite,
+      }));
+      this.store.validateSeance({seanceId, payload: {centerId, userId, consommations}});
+    }, 500);
+  }
+
+  private autoSaveParamedical(): void {
+    const centerId = this.appShell.currentCenterId();
+    const seanceId = this.store.summary()?.seance.id;
+    if (!centerId || !seanceId || !this.canEditParamedical()) return;
+
+    // Auto-save paramédical sans validation automatique.
+    this.store.saveParamedical({
+      seanceId,
+      payload: {
+        centerId,
+        taAvant: nullableText(this.store.taAvant()),
+        taApres: nullableText(this.store.taApres()),
+        poidsAvantKg: this.store.poidsAvantKg(),
+        poidsApresKg: this.store.poidsApresKg(),
+        dureeMinutes: this.store.dureeMinutes(),
+        debitSangMlMin: this.store.debitSangMlMin(),
+        ultrafiltrationMl: this.store.ultrafiltrationMl(),
+        anticoagulant: nullableText(this.store.anticoagulant()),
+        typeDialysat: nullableText(this.store.typeDialysat()),
+        incidents: nullableText(this.store.incidents()),
       }
     });
   }

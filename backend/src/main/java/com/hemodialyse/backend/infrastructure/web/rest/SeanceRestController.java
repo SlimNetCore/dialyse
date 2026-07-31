@@ -88,7 +88,7 @@ public class SeanceRestController {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
     @PostMapping("/scan")
     public ResponseEntity<?> scanQr(@RequestBody @Valid ScanSeanceQrRequest request) {
-        var seance = seanceUseCase.createFromQr(CenterId.of(request.centerId()), request.qrCode(), request.dateSeance());
+        var seance = seanceUseCase.createFromQr(CenterId.of(request.centerId()), request.qrCode());
 
         var details = seanceUseCase.getDetails(CenterId.of(request.centerId()), seance.getId());
         var patient = details.patient();

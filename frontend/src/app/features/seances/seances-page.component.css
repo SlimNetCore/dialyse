@@ -15,7 +15,7 @@ mat-card {
 
 .article-stock-hint {
   font-size: 0.82em;
-  color: var(--app-text-muted, #64748b);
+  color: var(--app-muted, #64748b);
 }
 
 .camera-panel {
@@ -83,7 +83,7 @@ mat-card {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--app-text-muted, #64748b) 84%, white 16%);
+  color: color-mix(in srgb, var(--app-muted, #64748b) 84%, white 16%);
 }
 
 .forfait-pill__content {
@@ -124,14 +124,56 @@ mat-card {
   flex-wrap: wrap;
 }
 
+.consommables-toolbar {
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.consommables-add-button {
+  min-height: 54px;
+  align-self: flex-end;
+  padding-inline: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.consommables-remove-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 132px;
+  justify-content: center;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .flex1 {
-  flex: 1;
-  min-width: 180px;
+  flex: 1 1 140px;
+  min-width: 150px;
 }
 
 .flex2 {
-  flex: 2;
-  min-width: 300px;
+  flex: 2 1 260px;
+  min-width: 240px;
+}
+
+.consommables-actions-cell {
+  white-space: nowrap;
+  width: 160px;
+  text-align: center;
+}
+
+.consommables-table {
+  min-width: 620px;
+}
+
+.consommables-table .consommables-actions-cell {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--app-surface-solid) 92%, transparent);
 }
 
 .full-width {
@@ -547,3 +589,31 @@ mat-card {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 900px) {
+  .consommables-toolbar {
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .flex1,
+  .flex2 {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .consommables-add-button {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  .consommables-actions-cell {
+    width: 1%;
+  }
+
+  .consommables-table {
+    min-width: 560px;
+  }
+}
+

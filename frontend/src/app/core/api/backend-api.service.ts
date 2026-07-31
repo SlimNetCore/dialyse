@@ -104,7 +104,6 @@ export type CreateSeancePayload = {
 export type ScanSeanceQrPayload = {
   centerId: string;
   qrCode: string;
-  dateSeance?: string;
 };
 
 export type UpdateSeancePayload = {

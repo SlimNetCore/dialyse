@@ -131,7 +131,35 @@ createReferentialStore({storeName: 'MedecinsStore', load: (api, id) => api.getMe
   fichiers sous `frontend/public/i18n/*.json`).
 - **Nouveau module fonctionnel** : ajouter un fichier `*.routes.ts` et le lazy-load dans `app.routes.ts`.
 
+
 ---
+
+# 4.1 Responsive Design — OBLIGATOIRE ET NON NÉGOCIABLE
+
+## Principe général
+
+Toutes les interfaces utilisateur de l'application doivent être entièrement responsive.
+
+Cette règle est obligatoire et ne souffre aucune exception.
+
+Aucune fonctionnalité, aucun écran, aucun dialogue, aucun tableau, aucun formulaire et aucun composant ne peut être
+livré si son comportement responsive n'a pas été conçu, implémenté et vérifié.
+
+Un écran fonctionnel sur desktop mais inutilisable sur tablette ou mobile doit être considéré comme non conforme et
+refusé.
+
+---
+
+## Terminaux supportés
+
+L'application doit fonctionner correctement sur :
+
+### Mobile
+
+```text
+22
+320px à 767px
+```
 
 ## 5. Principes SOLID **OBLIGATOIRE**
 
@@ -337,6 +365,329 @@ cd frontend && npm run e2e     # Playwright
 9. i18n obligatoire (`ngx-translate`) pour toute chaîne affichée côté UI.
 10. Toute nouvelle fonctionnalité de cache doit enregistrer son nom dans `CacheConfig.java`.
 11. Compatibilité H2 (dev) / PostgreSQL (prod) pour tout SQL généré.
+
+# 14. DDD Tactique et Découpage des Domaines — OBLIGATOIRE
+
+## Objectif
+
+Toute évolution ou refactoring doit viser une architecture métier explicite basée sur le Domain Driven Design (DDD).
+
+Les décisions de conception doivent partir du métier et non de la structure technique existante.
+
+## Découpage des domaines
+
+Les domaines fonctionnels du projet doivent être considérés comme des Bounded Contexts distincts :
+
+- Administratif
+- Médical
+- Stock
+- Règlements
+- Paramétrage
+
+Chaque domaine peut être subdivisé en sous-domaines disposant d'une responsabilité métier unique.
+
+Exemple :
+
+Patient
+├── Gestion administrative
+├── Admissions
+├── Affectation aux centres
+└── Historique administratif
+
+Il est interdit de mélanger plusieurs responsabilités métier dans un même module.
+
+## Structure obligatoire d'un domaine
+
+Chaque nouveau domaine ou sous-domaine doit respecter la structure suivante :
+
+domain/
+├── aggregate
+├── entity
+├── valueobject
+├── event
+├── repository
+├── service
+├── specification
+└── port
+
+## Agrégats
+
+Chaque domaine doit identifier explicitement ses agrégats.
+
+Un agrégat :
+
+- protège les invariants métier ;
+- contrôle les modifications d'état ;
+- constitue la frontière transactionnelle.
+
+Exemples :
+
+- PatientAggregate
+- SeanceDialyseAggregate
+- BonCommandeAggregate
+- FactureAggregate
+
+Aucune modification métier significative ne doit contourner l'agrégat.
+
+## Aggregate Root
+
+Chaque agrégat doit posséder une Aggregate Root.
+
+Exemples :
+
+- Patient
+- SeanceDialyse
+- Facture
+- BonCommande
+
+Toutes les opérations métier doivent passer par la racine d'agrégat.
+
+## Entités
+
+Les entités doivent :
+
+- posséder une identité métier ;
+- avoir un cycle de vie ;
+- encapsuler leur comportement.
+
+Une entité ne doit jamais être un simple conteneur de données.
+
+## Value Objects
+
+Tout concept métier immuable doit être modélisé sous forme de Value Object.
+
+Exemples :
+
+- Email
+- NumeroTelephone
+- Adresse
+- NumeroDossier
+- Montant
+- Devise
+- Poids
+- TensionArterielle
+
+Les validations doivent vivre dans le Value Object.
+
+Aucun primitive obsession n'est autorisé.
+
+## Domain Events
+
+Tout événement métier significatif doit être représenté par un Domain Event.
+
+Exemples :
+
+- PatientCreated
+- PatientTransferred
+- SeanceStarted
+- SeanceCompleted
+- StockThresholdReached
+- InvoiceGenerated
+
+Les événements doivent être exprimés dans le langage métier.
+
+## Domain Services
+
+Les Domain Services sont autorisés uniquement lorsque le comportement :
+
+- n'appartient pas naturellement à une entité ;
+- n'appartient pas à un Value Object.
+
+Les Domain Services ne doivent pas devenir des services métier génériques.
+
+## Specifications
+
+Les règles métier complexes doivent être encapsulées dans des Specifications.
+
+Exemples :
+
+- PatientCanStartSessionSpecification
+- PatientIsEligibleForDialysisSpecification
+- StockMovementAllowedSpecification
+
+## Repositories
+
+Le domaine ne contient que des interfaces.
+
+Exemples :
+
+- PatientRepositoryPort
+- SessionRepositoryPort
+- InvoiceRepositoryPort
+
+Les implémentations restent dans infrastructure/.
+
+# 15. Utilisation Obligatoire des Patterns Métier
+
+## Strategy Pattern
+
+Toute variation de comportement métier doit être implémentée via des stratégies.
+
+Interdiction de multiplier les if/else ou switch pour exprimer des comportements métier.
+
+Exemples :
+
+- PricingStrategy
+- NotificationStrategy
+- BillingStrategy
+- PrescriptionStrategy
+
+## Factory Pattern
+
+Les objets métier complexes doivent être créés via des Factories lorsque nécessaire.
+
+Exemples :
+
+- PatientFactory
+- SeanceFactory
+- InvoiceFactory
+
+## Specification Pattern
+
+Toute règle métier complexe ou combinable doit utiliser le Specification Pattern.
+
+# 16. Module Shared et Shared Kernel — OBLIGATOIRE
+
+Les éléments mutualisés entre domaines doivent être placés dans un Shared Kernel.
+
+shared/
+
+Il peut contenir :
+
+- Entity
+- AggregateRoot
+- ValueObject
+- DomainEvent
+- BusinessException
+- Identifier
+- Money
+- Address
+- Email
+- Pagination
+
+Le Shared Kernel ne doit contenir aucune logique métier spécifique à un domaine.
+
+# 17. Nettoyage de Code Obligatoire
+
+Avant chaque Pull Request, merge ou livraison :
+
+## Backend
+
+Supprimer systématiquement :
+
+- endpoints inutilisés ;
+- DTO inutilisés ;
+- use cases inutilisés ;
+- handlers inutilisés ;
+- repositories inutilisés ;
+- services inutilisés ;
+- événements inutilisés ;
+- configurations inutilisées.
+
+## Frontend
+
+Supprimer systématiquement :
+
+- composants inutilisés ;
+- services inutilisés ;
+- stores inutilisés ;
+- pipes inutilisés ;
+- directives inutilisées ;
+- routes inutilisées ;
+- assets inutilisés ;
+- styles inutilisés ;
+- modèles inutilisés.
+
+## Objectif
+
+Le projet ne doit contenir aucun code mort.
+
+Tout élément conservé doit avoir au moins un consommateur identifié.
+
+# 18. Audit Front ↔ Back Obligatoire
+
+Toute nouvelle fonctionnalité ou refactoring important doit documenter :
+
+Composant Angular
+→ Store
+→ Service
+→ Endpoint REST
+→ Use Case
+→ Domaine
+→ Repository
+
+Cette traçabilité est obligatoire afin de :
+
+- détecter les endpoints morts ;
+- détecter les fonctionnalités non utilisées ;
+- éviter la duplication ;
+- simplifier les refactorings.
+
+# 19. Internationalisation (i18n) Renforcée — OBLIGATOIRE
+
+En complément des règles ngx-translate existantes :
+
+- aucune chaîne visible par l'utilisateur ne peut être hardcodée ;
+- chaque nouvelle clé doit être présente dans toutes les langues du projet ;
+- toute clé supprimée doit être retirée de l'ensemble des fichiers de traduction ;
+- tout écran doit être intégralement traduisible.
+
+## Audit i18n obligatoire
+
+Avant livraison :
+
+Identifier :
+
+- Clés manquantes
+- Clés orphelines
+- Clés dupliquées
+- Textes hardcodés
+- Langues incomplètes
+
+## Objectif
+
+- 100 % des écrans traduits
+- 100 % des clés synchronisées
+- 0 texte hardcodé
+
+# 20. Gouvernance Architecturale
+
+Toute proposition de code par un agent IA doit vérifier les points suivants avant génération :
+
+✅ Respect DDD
+
+✅ Respect Architecture Hexagonale
+
+✅ Respect SOLID
+
+✅ Respect règle Multi-Centre (centerId)
+
+✅ Respect stratégie de cache
+
+✅ Respect Angular 22
+
+✅ Respect NgRx Signals
+
+✅ Respect i18n
+
+✅ Respect couverture de tests
+
+✅ Absence de code mort
+
+✅ Absence de dépendances dépréciées
+
+✅ Respect découpage métier
+
+✅ Respect Bounded Contexts
+
+✅ Respect Agrégats
+
+✅ Respect Value Objects
+
+✅ Respect Domain Events
+
+Toute réponse d'un agent qui ne respecte pas cette checklist doit être considérée comme invalide et corrigée avant
+intégration.
 
 **Un agent (Claude, Copilot, ou autre) qui génère du code ne respectant pas ces règles doit être considéré en erreur et
 le code doit être corrigé avant d'être accepté.**

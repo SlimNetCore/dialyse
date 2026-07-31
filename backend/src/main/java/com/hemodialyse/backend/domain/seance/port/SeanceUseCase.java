@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface SeanceUseCase {
     Seance create(CenterId centerId, UUID patientId, LocalDate dateSeance);
 
-    Seance createFromQr(CenterId centerId, String qrCode, LocalDate dateSeance);
+    Seance createFromQr(CenterId centerId, String qrCode);
 
     SeanceDetails getDetails(CenterId centerId, UUID seanceId);
 

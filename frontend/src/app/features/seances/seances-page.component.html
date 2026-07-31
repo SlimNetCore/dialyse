@@ -128,7 +128,7 @@
               </td>
             </ng-container>
             <tr *matHeaderRowDef="dashboardDetailCols" mat-header-row></tr>
-            <tr *matRowDef="let row; columns: dashboardDetailCols" mat-row></tr>
+            <tr *matRowDef="let _row; columns: dashboardDetailCols" mat-row></tr>
           </table>
         </div>
         <div class="popin-pagination">
@@ -330,7 +330,7 @@
               </div>
             }
 
-            <mat-tab-group (selectedIndexChange)="activeTabIndex.set($event)" [selectedIndex]="activeTabIndex()"
+            <mat-tab-group (selectedIndexChange)="onTabChange($event)" [selectedIndex]="activeTabIndex()"
                            animationDuration="200ms" class="seance-tabs">
 
               <mat-tab label="Paramédical">
@@ -381,11 +381,15 @@
                       <input (input)="onTypeDialysatInput($event)" [disabled]="!canEditParamedical()"
                              [value]="typeDialysat()" matInput/>
                     </mat-form-field>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Incidents</mat-label>
-                      <textarea (input)="onIncidentsInput($event)" [disabled]="!canEditParamedical()"
-                                [value]="incidents()" matInput rows="3"></textarea>
-                    </mat-form-field>
+                    <div class="full-width">
+                      <label class="form-label">Incidents</label>
+                      <app-rich-text-editor
+                        (contentChange)="onIncidentsRichChange($event)"
+                        [readOnly]="!canEditParamedical()"
+                        [value]="incidents()"
+                        height="250px"
+                      ></app-rich-text-editor>
+                    </div>
                   </div>
                   @if (!canEditParamedical()) {
                     <p class="section-note">Le volet paramédical est en lecture seule pour votre profil.</p>
@@ -408,7 +412,7 @@
                       de la validation.
                     </p>
 
-                    <div class="scan-row" style="align-items: flex-start; margin-bottom: 8px;">
+                    <div class="scan-row consommables-toolbar" style="margin-bottom: 8px;">
                       <mat-form-field appearance="outline" class="flex2">
                         <mat-label>Article</mat-label>
                         <mat-select (selectionChange)="onConsommableArticleChange($event.value)"
@@ -429,15 +433,17 @@
                         <input (input)="onConsommableQuantiteInput($event)" [value]="newConsommableQuantite() ?? ''"
                                matInput min="1" type="number"/>
                       </mat-form-field>
-                      <button (click)="addConsommable()" color="primary" mat-stroked-button type="button">
+                      <button (click)="addConsommable()" class="consommables-add-button" color="primary" mat-flat-button
+                              type="button">
                         <mat-icon>add</mat-icon>
-                        Ajouter
+                        Ajouter l'article
                       </button>
                     </div>
 
                     @if (consommables().length > 0) {
                       <div class="table-wrap">
-                        <table [dataSource]="consommables()" class="full-width seances-table" mat-table>
+                        <table [dataSource]="consommables()" class="full-width seances-table consommables-table"
+                               mat-table>
                           <ng-container matColumnDef="article">
                             <th *matHeaderCellDef mat-header-cell>Article</th>
                             <td *matCellDef="let row" mat-cell>{{ articleLabel(row.articleId) }}</td>
@@ -447,16 +453,18 @@
                             <td *matCellDef="let row" mat-cell>{{ row.quantite }}</td>
                           </ng-container>
                           <ng-container matColumnDef="actions">
-                            <th *matHeaderCellDef mat-header-cell></th>
-                            <td *matCellDef="let row" mat-cell>
-                              <button (click)="removeConsommable(row.articleId)" color="warn" mat-icon-button
+                            <th *matHeaderCellDef class="consommables-actions-cell" mat-header-cell>Actions</th>
+                            <td *matCellDef="let row" class="consommables-actions-cell" mat-cell>
+                              <button (click)="removeConsommable(row.articleId)" class="consommables-remove-button"
+                                      color="warn" mat-stroked-button
                                       type="button">
                                 <mat-icon>delete</mat-icon>
+                                Supprimer
                               </button>
                             </td>
                           </ng-container>
                           <tr *matHeaderRowDef="consommableCols" mat-header-row></tr>
-                          <tr *matRowDef="let row; columns: consommableCols" mat-row></tr>
+                          <tr *matRowDef="let _row; columns: consommableCols" mat-row></tr>
                         </table>
                       </div>
                     }
@@ -483,11 +491,15 @@
               <mat-tab label="Médical">
                 <div class="tab-body">
                   <div class="form-grid">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Tolérance séance</mat-label>
-                      <textarea (input)="onToleranceSeanceInput($event)" [disabled]="!canEditMedical()"
-                                [value]="toleranceSeance()" matInput rows="2"></textarea>
-                    </mat-form-field>
+                    <div class="full-width">
+                      <label class="form-label">Tolérance séance</label>
+                      <app-rich-text-editor
+                        (contentChange)="onToleranceSeanceRichChange($event)"
+                        [readOnly]="!canEditMedical()"
+                        [value]="toleranceSeance()"
+                        height="250px"
+                      ></app-rich-text-editor>
+                    </div>
                     <mat-form-field appearance="outline" class="full-width">
                       <mat-label>Examen clinique</mat-label>
                       <textarea (input)="onExamenCliniqueInput($event)" [disabled]="!canEditMedical()"
@@ -498,16 +510,24 @@
                       <textarea (input)="onResultatsBiologiquesInput($event)" [disabled]="!canEditMedical()"
                                 [value]="resultatsBiologiques()" matInput rows="3"></textarea>
                     </mat-form-field>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Ajustements thérapeutiques</mat-label>
-                      <textarea (input)="onAjustementsTherapeutiquesInput($event)" [disabled]="!canEditMedical()"
-                                [value]="ajustementsTherapeutiques()" matInput rows="3"></textarea>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Conclusion médicale</mat-label>
-                      <textarea (input)="onConclusionMedicaleInput($event)" [disabled]="!canEditMedical()"
-                                [value]="conclusionMedicale()" matInput rows="3"></textarea>
-                    </mat-form-field>
+                    <div class="full-width">
+                      <label class="form-label">Ajustements thérapeutiques</label>
+                      <app-rich-text-editor
+                        (contentChange)="onAjustementsTherapeutiquesRichChange($event)"
+                        [readOnly]="!canEditMedical()"
+                        [value]="ajustementsTherapeutiques()"
+                        height="250px"
+                      ></app-rich-text-editor>
+                    </div>
+                    <div class="full-width">
+                      <label class="form-label">Conclusion médicale</label>
+                      <app-rich-text-editor
+                        (contentChange)="onConclusionMedicaleRichChange($event)"
+                        [readOnly]="!canEditMedical()"
+                        [value]="conclusionMedicale()"
+                        height="250px"
+                      ></app-rich-text-editor>
+                    </div>
                   </div>
                   @if (!canEditMedical()) {
                     <p class="section-note">Le volet médical est en lecture seule pour votre profil.</p>
@@ -573,7 +593,7 @@
                 <td *matCellDef="let row" mat-cell>{{ row.status }}</td>
               </ng-container>
               <tr *matHeaderRowDef="journalPatientCols" mat-header-row></tr>
-              <tr *matRowDef="let row; columns: journalPatientCols" mat-row></tr>
+              <tr *matRowDef="let _row; columns: journalPatientCols" mat-row></tr>
             </table>
           </div>
         </div>

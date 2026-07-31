@@ -61,6 +61,12 @@
 | DevTools summary | Intégration outils dev | `DEVTOOLS_IMPLEMENTATION_SUMMARY.md` |
 | DevTools guide   | Guide d'utilisation    | `DEVTOOLS_INTEGRATION_GUIDE.md` |
 
+### API & migrations
+
+| Document               | Contenu                                                                                        | Localisation                         |
+|------------------------|------------------------------------------------------------------------------------------------|--------------------------------------|
+| Migration scan séances | Suppression de `dateSeance` côté client, date serveur imposée pour `POST /api/v1/seances/scan` | `docs/api/seances-scan-migration.md` |
+
 ---
 
 ## 📖 Guides pour développeurs

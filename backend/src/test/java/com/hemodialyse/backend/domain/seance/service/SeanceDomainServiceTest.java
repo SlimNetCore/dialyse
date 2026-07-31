@@ -183,6 +183,26 @@ class SeanceDomainServiceTest {
         assertTrue(ex.getMessage().contains("validation infirmiere"));
     }
 
+    @Test
+    void createFromQr_should_always_use_server_today_date() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase()
+        );
+
+        Seance created = service.createFromQr(centerId, patientId.toString());
+
+        assertEquals(LocalDate.now(), created.getDateSeance());
+    }
+
     // ── In-memory stubs ──────────────────────────────────────────────
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {

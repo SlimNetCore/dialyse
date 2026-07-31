@@ -291,11 +291,11 @@ export const SeanceStore = signalStore(
     ),
 
     // --- Scan QR ---
-    scanQr: rxMethod<{ centerId: string; qrCode: string; dateSeance: string }>(
+    scanQr: rxMethod<{ centerId: string; qrCode: string }>(
       pipe(
         tap(() => patchState(store, {scanning: true, error: null})),
-        switchMap(({centerId, qrCode, dateSeance}) =>
-          api.scanSeanceQr({centerId, qrCode, dateSeance}).pipe(
+        switchMap(({centerId, qrCode}) =>
+          api.scanSeanceQr({centerId, qrCode}).pipe(
             switchMap((created) =>
               api.listSeances(centerId).pipe(
                 switchMap((items) =>
@@ -314,8 +314,8 @@ export const SeanceStore = signalStore(
                         seances: items,
                         summary: null,
                         selectedSeanceId: created.id,
-                        editDateSeance: created.dateSeance || dateSeance,
-                        dateSeance: created.dateSeance || dateSeance,
+                        editDateSeance: created.dateSeance,
+                        dateSeance: created.dateSeance,
                         scanning: false,
                         scanState: 'success',
                         scanMessage: 'Séance créée et ajoutée à la liste',
@@ -328,8 +328,8 @@ export const SeanceStore = signalStore(
                   patchState(store, {
                     summary: null,
                     selectedSeanceId: created.id,
-                    editDateSeance: created.dateSeance || dateSeance,
-                    dateSeance: created.dateSeance || dateSeance,
+                    editDateSeance: created.dateSeance,
+                    dateSeance: created.dateSeance,
                     scanning: false,
                     scanState: 'success',
                     scanMessage: 'Séance créée et ajoutée à la liste',
