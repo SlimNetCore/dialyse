@@ -5,6 +5,7 @@ export type DashboardStats = {
   pecExpiring: number;
   attestationTotal: number;
   attestationExpiring: number;
+  month?: string;
 };
 
 export const EMPTY_DASHBOARD_STATS: DashboardStats = {

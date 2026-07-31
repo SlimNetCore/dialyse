@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record DashboardSearchRequest(
         @NotNull UUID centerId,
-        Integer expirationDays
+        Integer expirationDays,
+        String month
 ) {
 }
-

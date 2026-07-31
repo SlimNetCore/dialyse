@@ -49,10 +49,14 @@ class DashboardRestControllerMonthFilterTest {
     }
 
     private void seedTestData() {
-        // Insert test patient
+        UUID patientId = UUID.randomUUID();
+
+        // Insert test patient (toutes les colonnes NOT NULL renseignées)
         jdbc.update(
-                "INSERT INTO patients (id, center_id, nom, prenom, created_at) VALUES (?, ?, ?, ?, ?)",
-                UUID.randomUUID(), centerId, "Dupont", "Jean", LocalDate.now()
+                "INSERT INTO patients (id, center_id, nom, prenom, sexe, date_admission, numero_assurance, type_patient, created_at) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                patientId, centerId, "Dupont", "Jean", "M",
+                LocalDate.now(), "ASSUR-TEST-001", "STANDARD", LocalDate.now()
         );
 
         LocalDate today = LocalDate.now();
@@ -61,32 +65,32 @@ class DashboardRestControllerMonthFilterTest {
 
         // Insert PEC for current month
         jdbc.update(
-                "INSERT INTO prise_en_charge (id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?)",
-                UUID.randomUUID(), centerId, "CREE", today, today.plusDays(30)
+                "INSERT INTO prise_en_charge (id, patient_id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), patientId, centerId, "CREE", today, today.plusDays(30)
         );
 
         // Insert PEC for last month
         jdbc.update(
-                "INSERT INTO prise_en_charge (id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?)",
-                UUID.randomUUID(), centerId, "VALIDEE", lastMonth, lastMonth.plusDays(30)
+                "INSERT INTO prise_en_charge (id, patient_id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), patientId, centerId, "VALIDEE", lastMonth, lastMonth.plusDays(30)
         );
 
         // Insert PEC for two months ago
         jdbc.update(
-                "INSERT INTO prise_en_charge (id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?)",
-                UUID.randomUUID(), centerId, "VALIDEE", twoMonthsAgo, twoMonthsAgo.plusDays(5)
+                "INSERT INTO prise_en_charge (id, patient_id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), patientId, centerId, "VALIDEE", twoMonthsAgo, twoMonthsAgo.plusDays(5)
         );
 
         // Insert attestation for current month
         jdbc.update(
-                "INSERT INTO attestation_droit (id, center_id, created_at, date_fin) VALUES (?, ?, ?, ?)",
-                UUID.randomUUID(), centerId, today, today.plusMonths(3)
+                "INSERT INTO attestation_droit (id, patient_id, center_id, date_debut, date_fin, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), patientId, centerId, today, today.plusMonths(3), today
         );
 
         // Insert attestation for last month
         jdbc.update(
-                "INSERT INTO attestation_droit (id, center_id, created_at, date_fin) VALUES (?, ?, ?, ?)",
-                UUID.randomUUID(), centerId, lastMonth, lastMonth.plusMonths(3)
+                "INSERT INTO attestation_droit (id, patient_id, center_id, date_debut, date_fin, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), patientId, centerId, lastMonth, lastMonth.plusMonths(3), lastMonth
         );
     }
 
@@ -170,10 +174,10 @@ class DashboardRestControllerMonthFilterTest {
         UUID otherCenterId = UUID.randomUUID();
         LocalDate today = LocalDate.now();
 
-        // Add PEC to different center with same month
+        // Add PEC to different center with same month (patient_id not NULL — random UUID, no FK check in H2)
         jdbc.update(
-                "INSERT INTO prise_en_charge (id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?)",
-                UUID.randomUUID(), otherCenterId, "CREE", today, today.plusDays(30)
+                "INSERT INTO prise_en_charge (id, patient_id, center_id, statut, created_at, date_fin_demande) VALUES (?, ?, ?, ?, ?, ?)",
+                UUID.randomUUID(), UUID.randomUUID(), otherCenterId, "CREE", today, today.plusDays(30)
         );
 
         String currentMonth = YearMonth.now().toString();

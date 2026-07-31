@@ -33,7 +33,10 @@ export class CenterDashboardComponent implements OnInit {
 
   readonly loading = this.dashboardStore.loading;
   readonly stats = this.dashboardStore.stats;
-  readonly dashboardFormState = signal({expirationDays: this.dashboardStore.expirationDays()});
+  readonly dashboardFormState = signal({
+    expirationDays: this.dashboardStore.expirationDays(),
+    selectedMonth: this.dashboardStore.selectedMonth() as string | null
+  });
   readonly dashboardForm = compatForm(this.dashboardFormState, (form) => {
     required(form.expirationDays);
   });
@@ -47,6 +50,12 @@ export class CenterDashboardComponent implements OnInit {
 
     effect(() => {
       this.dashboardStore.setExpirationDays(this.dashboardFormState().expirationDays);
+    });
+
+    // Propagate month filter changes to the store
+    effect(() => {
+      const month = this.dashboardFormState().selectedMonth ?? null;
+      this.dashboardStore.setSelectedMonth(month);
     });
   }
 

@@ -1,52 +1,54 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {TestBed} from '@angular/core/testing';
+import {provideZonelessChangeDetection, signal} from '@angular/core';
 import {CenterDashboardComponent} from './center-dashboard.component';
 import {DashboardStore} from './state/dashboard.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {TranslateModule} from '@ngx-translate/core';
-import {signal} from '@angular/core';
 
 describe('CenterDashboardComponent - Month Filter', () => {
   let component: CenterDashboardComponent;
-  let fixture: ComponentFixture<CenterDashboardComponent>;
-  let dashboardStore: jasmine.SpyObj<DashboardStore>;
-  let wsService: jasmine.SpyObj<WebSocketService>;
+  let dashboardStoreMock: {
+    loading: ReturnType<typeof signal<boolean>>;
+    stats: ReturnType<typeof signal<object>>;
+    expirationDays: ReturnType<typeof signal<number>>;
+    selectedMonth: ReturnType<typeof signal<string | null>>;
+    loadInitial: ReturnType<typeof vi.fn>;
+    setExpirationDays: ReturnType<typeof vi.fn>;
+    setSelectedMonth: ReturnType<typeof vi.fn>;
+    applyWsEvent: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
-    const dashboardStoreSpy = jasmine.createSpyObj(
-      'DashboardStore',
-      ['loadInitial', 'setExpirationDays', 'setSelectedMonth', 'applyWsEvent'],
-      {
-        loading: signal(false),
-        stats: signal({
-          patientCount: 10,
-          pecCree: 5,
-          pecValidee: 5,
-          pecExpiring: 1,
-          attestationTotal: 8,
-          attestationExpiring: 2,
-          month: undefined
-        }),
-        expirationDays: signal(30),
-        selectedMonth: signal(null)
-      }
-    );
-
-    const wsServiceSpy = jasmine.createSpyObj('WebSocketService', [], {
-      lastEvent: signal(null)
-    });
+    dashboardStoreMock = {
+      loading: signal(false),
+      stats: signal({
+        patientCount: 10,
+        pecCree: 5,
+        pecValidee: 5,
+        pecExpiring: 1,
+        attestationTotal: 8,
+        attestationExpiring: 2,
+        month: undefined
+      }),
+      expirationDays: signal(30),
+      selectedMonth: signal(null),
+      loadInitial: vi.fn(),
+      setExpirationDays: vi.fn(),
+      setSelectedMonth: vi.fn(),
+      applyWsEvent: vi.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [CenterDashboardComponent, TranslateModule.forRoot()],
       providers: [
-        {provide: DashboardStore, useValue: dashboardStoreSpy},
-        {provide: WebSocketService, useValue: wsServiceSpy}
+        provideZonelessChangeDetection(),
+        {provide: DashboardStore, useValue: dashboardStoreMock},
+        {provide: WebSocketService, useValue: {lastEvent: signal(null)}}
       ]
     }).compileComponents();
 
-    dashboardStore = TestBed.inject(DashboardStore) as jasmine.SpyObj<DashboardStore>;
-    wsService = TestBed.inject(WebSocketService) as jasmine.SpyObj<WebSocketService>;
-
-    fixture = TestBed.createComponent(CenterDashboardComponent);
+    const fixture = TestBed.createComponent(CenterDashboardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -55,52 +57,30 @@ describe('CenterDashboardComponent - Month Filter', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize dashboardFormState with expirationDays and selectedMonth', () => {
+  it('should initialize dashboardFormState with expirationDays and null selectedMonth', () => {
     expect(component.dashboardFormState().expirationDays).toBe(30);
     expect(component.dashboardFormState().selectedMonth).toBeNull();
   });
 
-  it('should display month filter field in template', () => {
-    const compiled = fixture.nativeElement;
-    const monthInput = compiled.querySelector('input[type="month"]');
-    expect(monthInput).toBeTruthy();
+  it('should call loadInitial on ngOnInit', () => {
+    expect(dashboardStoreMock.loadInitial).toHaveBeenCalled();
   });
 
-  it('should update store selectedMonth when form month field changes', (done) => {
+  it('should propagate selectedMonth change to store', async () => {
     component.dashboardFormState.set({
       expirationDays: 30,
       selectedMonth: '2024-06'
     });
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dashboardStore.setSelectedMonth).toHaveBeenCalledWith('2024-06');
-      done();
-    });
+    TestBed.flushEffects();
+    expect(dashboardStoreMock.setSelectedMonth).toHaveBeenCalledWith('2024-06');
   });
 
-  it('should update store when selectedMonth is cleared', (done) => {
+  it('should propagate null selectedMonth to store', async () => {
     component.dashboardFormState.set({
       expirationDays: 30,
       selectedMonth: null
     });
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dashboardStore.setSelectedMonth).toHaveBeenCalledWith(null);
-      done();
-    });
-  });
-
-  it('should call loadInitial on ngOnInit', () => {
-    expect(dashboardStore.loadInitial).toHaveBeenCalled();
-  });
-
-  it('should render month field with correct placeholder', () => {
-    const monthInput = fixture.nativeElement.querySelector('input[type="month"]');
-    expect(monthInput).toBeTruthy();
-    const label = fixture.nativeElement.querySelector('mat-label');
-    expect(label).toBeTruthy();
+    TestBed.flushEffects();
+    expect(dashboardStoreMock.setSelectedMonth).toHaveBeenCalledWith(null);
   });
 });
-

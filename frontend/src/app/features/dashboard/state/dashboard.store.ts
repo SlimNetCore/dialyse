@@ -10,6 +10,7 @@ import {DashboardStats, EMPTY_DASHBOARD_STATS} from './dashboard.types';
 type DashboardState = {
   loading: boolean;
   expirationDays: number;
+  selectedMonth: string | null;
   stats: DashboardStats;
   lastRefreshReason: string;
 };
@@ -17,6 +18,7 @@ type DashboardState = {
 const initialState: DashboardState = {
   loading: true,
   expirationDays: 30,
+  selectedMonth: null,
   stats: EMPTY_DASHBOARD_STATS,
   lastRefreshReason: 'init'
 };
@@ -36,7 +38,7 @@ export const DashboardStore = signalStore(
       const centerId = appShell.currentCenterId();
       if (!centerId || !store.canLoad()) return;
       patchState(store, {loading: true, lastRefreshReason: reason});
-      api.getDashboardStats(centerId, store.expirationDays()).pipe(
+      api.getDashboardStats(centerId, store.expirationDays(), store.selectedMonth()).pipe(
         finalize(() => patchState(store, {loading: false}))
       ).subscribe({
         next: (stats) => patchState(store, {stats}),
@@ -53,6 +55,12 @@ export const DashboardStore = signalStore(
           : 1;
         patchState(store, {expirationDays: safeDays});
         loadStats('expiration-days-changed');
+      },
+
+      setSelectedMonth(month: string | null): void {
+        const normalized = month && month.trim().length > 0 ? month.trim() : null;
+        patchState(store, {selectedMonth: normalized});
+        loadStats('month-changed');
       },
 
       loadInitial(): void {
@@ -76,4 +84,3 @@ export const DashboardStore = signalStore(
     };
   })
 );
-

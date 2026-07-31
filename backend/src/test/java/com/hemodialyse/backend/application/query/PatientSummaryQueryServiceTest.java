@@ -37,20 +37,22 @@ class PatientSummaryQueryServiceTest {
         LocalDate referenceDate = referenceMonth.atEndOfMonth();
 
         when(jdbc.queryForList(anyString(), eq(centerId))).thenReturn(List.of(
-                row("M", referenceDate.minusYears(25), true, "PERMANENT", null),
-                row("F", referenceDate.minusYears(61), false, "GREFFE", LocalDate.of(2026, 6, 15)),
-                row(null, null, true, "VACANCIER_LOCAL", LocalDate.of(2026, 5, 20)),
-                row("X", referenceDate.minusYears(12), false, "OCCASIONNEL", LocalDate.of(2026, 6, 2))
+                row("M", referenceDate.minusYears(25), true, "PERMANENT", null),          // inclus — PERMANENT — 18_29
+                row("F", referenceDate.minusYears(61), false, "GREFFE", LocalDate.of(2026, 6, 15)), // inclus — GREFFE juin — 60_PLUS
+                row(null, null, true, "VACANCIER_LOCAL", LocalDate.of(2026, 5, 20)),       // EXCLU — événement mai (pas juin)
+                row("X", referenceDate.minusYears(12), false, "OCCASIONNEL", LocalDate.of(2026, 6, 2)), // inclus — OCCASIONNEL juin — 0_17
+                row(null, null, false, "PERMANENT", null)                                  // inclus — PERMANENT — INCONNU
         ));
 
         PatientSummaryQueryService service = new PatientSummaryQueryService(jdbc);
         PatientSummaryQueryService.PatientSummaryResponse summary = service.getSummary(centerId, referenceMonth);
 
-        assertEquals(3, summary.totalPatients());
+        // 4 patients inclus (le VACANCIER_LOCAL de mai est exclu)
+        assertEquals(4, summary.totalPatients());
         assertEquals(List.of(
                 new PatientSummaryQueryService.SummaryBucket("M", "Masculin", 1),
                 new PatientSummaryQueryService.SummaryBucket("F", "Féminin", 1),
-                new PatientSummaryQueryService.SummaryBucket("AUTRE", "Autre / inconnu", 1)
+                new PatientSummaryQueryService.SummaryBucket("AUTRE", "Autre / inconnu", 2)
         ), summary.sexDistribution());
         assertEquals(List.of(
                 new PatientSummaryQueryService.SummaryBucket("0_17", "0-17 ans", 1),
@@ -62,7 +64,7 @@ class PatientSummaryQueryServiceTest {
         ), summary.ageDistribution());
         assertEquals(List.of(
                 new PatientSummaryQueryService.SummaryBucket("OUI", "Sous KT", 1),
-                new PatientSummaryQueryService.SummaryBucket("NON", "Sans KT", 2)
+                new PatientSummaryQueryService.SummaryBucket("NON", "Sans KT", 3)
         ), summary.ktDistribution());
     }
 }
