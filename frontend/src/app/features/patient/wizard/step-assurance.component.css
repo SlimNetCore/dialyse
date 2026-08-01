@@ -17,6 +17,12 @@
   align-items: center;
 }
 
+.field-error {
+  color: var(--mat-sys-error, #dc2626);
+  font-size: 12px;
+  margin-top: -4px;
+}
+
 .flex1 {
   flex: 1;
 }

@@ -1,11 +1,11 @@
 import {TestBed} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {AuthStore} from '../../../core/state/auth.store';
 import {StepGeneralitesComponent} from './step-generalites.component';
 
-describe('StepGeneralitesComponent', () => {
+describe('StepGeneralitesComponent (signal forms)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [StepGeneralitesComponent, TranslateModule.forRoot(), NoopAnimationsModule],
@@ -34,43 +34,87 @@ describe('StepGeneralitesComponent', () => {
     translate.use('fr');
   });
 
-  it('affiche la date d évènement pour les statuts demandés avec le bon libellé', () => {
+  it('affiche la date d’évènement pour les statuts demandés avec le bon libellé', () => {
     const fixture = TestBed.createComponent(StepGeneralitesComponent);
     fixture.detectChanges();
-
     const component = fixture.componentInstance;
 
-    component.form.patchValue({etatPatient: 'VACANCIER_LOCAL'});
+    component.onEtatPatientChange('VACANCIER_LOCAL');
     expect(component.showDateEvenement()).toBe(true);
     expect(component.dateEvenementLabelKey()).toBe('PATIENT_FORM.DATE_SORTIE');
 
-    component.form.patchValue({etatPatient: 'GREFFE'});
+    component.onEtatPatientChange('GREFFE');
     expect(component.showDateEvenement()).toBe(true);
     expect(component.dateEvenementLabelKey()).toBe('PATIENT_FORM.DATE_GREFFE');
 
-    component.form.patchValue({etatPatient: 'GUERRI'});
+    component.onEtatPatientChange('GUERRI');
     expect(component.showDateEvenement()).toBe(true);
     expect(component.dateEvenementLabelKey()).toBe('PATIENT_FORM.DATE_GUERISON');
   });
 
-  it('vide la date d évènement quand le statut ne la requiert plus', () => {
+  it('vide la date d’évènement quand le statut ne la requiert plus', () => {
     const fixture = TestBed.createComponent(StepGeneralitesComponent);
     fixture.detectChanges();
-
     const component = fixture.componentInstance;
     const dateEvenement = new Date(2026, 5, 12);
 
-    component.form.patchValue({
-      etatPatient: 'GREFFE',
-      dateEvenementEtat: dateEvenement,
-    });
-    expect(component.form.get('dateEvenementEtat')?.value).toEqual(dateEvenement);
+    component.onEtatPatientChange('GREFFE');
+    component.onDateEvenement(dateEvenement);
+    expect(component.form.get('dateEvenementEtat')).toEqual(dateEvenement);
 
-    component.form.patchValue({etatPatient: 'PERMANENT'});
-
+    component.onEtatPatientChange('PERMANENT');
     expect(component.showDateEvenement()).toBe(false);
-    expect(component.form.get('dateEvenementEtat')?.value).toBeNull();
+    expect(component.form.get('dateEvenementEtat')).toBeNull();
+  });
+
+  it('exige nom, prénom, sexe, date d’admission et date de naissance', () => {
+    const fixture = TestBed.createComponent(StepGeneralitesComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+
+    expect(component.isValid()).toBe(false);
+
+    component.onText('nom', 'Dupont');
+    component.onText('prenom', 'Jean');
+    component.onSelect('sexe', {id: 'M', label: 'Masculin'});
+    component.onDate('dateAdmission', new Date(2026, 0, 10));
+    expect(component.isValid()).toBe(false);
+
+    component.onDate('dateNaissance', new Date(1990, 0, 1));
+    expect(component.isValid()).toBe(true);
+  });
+
+  it('calcule l’âge à partir de la date de naissance', () => {
+    const fixture = TestBed.createComponent(StepGeneralitesComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+
+    const birth = new Date();
+    birth.setFullYear(birth.getFullYear() - 30);
+    component.onDate('dateNaissance', birth);
+    expect(component.calculatedAge()).toBe(30);
+  });
+
+  it('patchData renseigne les champs et émet la validité', () => {
+    const fixture = TestBed.createComponent(StepGeneralitesComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+
+    const validSpy = vi.fn();
+    component.validChange.subscribe(validSpy);
+
+    component.patchData({
+      nom: 'Dupont',
+      prenom: 'Jean',
+      sexe: 'M',
+      dateAdmission: '2026-01-10',
+      dateNaissance: '1990-01-01',
+      etatPatient: 'PERMANENT',
+    });
+
+    expect(component.form.get('nom')).toBe('Dupont');
+    expect(component.form.get('sexe')).toBe('M');
+    expect(component.isValid()).toBe(true);
+    expect(validSpy).toHaveBeenLastCalledWith(true);
   });
 });
-
-

@@ -3,35 +3,49 @@
   Modifier l'assuré
 </h2>
 <mat-dialog-content class="assure-edit-dialog-content">
-  <form [formGroup]="form">
+  <div class="wizard-form">
     <mat-form-field appearance="outline" style="width:100%;margin-bottom:4px">
       <mat-label>N° Assurance</mat-label>
       <mat-icon matPrefix>badge</mat-icon>
       <input [value]="data.numeroAssurance" disabled matInput/>
     </mat-form-field>
     <div style="display:flex;gap:10px;margin-bottom:4px">
-      <mat-form-field appearance="outline" style="flex:1">
-        <mat-label>Nom *</mat-label>
-        <mat-icon matPrefix>person</mat-icon>
-        <input formControlName="nom" matInput/>
-        @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
-          <mat-error>Obligatoire</mat-error>
+      <div style="flex:1">
+        <mat-form-field appearance="outline" style="width:100%">
+          <mat-label>Nom *</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input
+            (blur)="form.markTouched('nom')"
+            (input)="onText('nom', $any($event.target).value)"
+            [value]="form.value().nom"
+            matInput
+          />
+        </mat-form-field>
+        @if (form.showError('nom')) {
+          <div class="field-error">Obligatoire</div>
         }
-      </mat-form-field>
-      <mat-form-field appearance="outline" style="flex:1">
-        <mat-label>Prénom *</mat-label>
-        <mat-icon matPrefix>person_outline</mat-icon>
-        <input formControlName="prenom" matInput/>
-        @if (form.get('prenom')?.hasError('required') && form.get('prenom')?.touched) {
-          <mat-error>Obligatoire</mat-error>
+      </div>
+      <div style="flex:1">
+        <mat-form-field appearance="outline" style="width:100%">
+          <mat-label>Prénom *</mat-label>
+          <mat-icon matPrefix>person_outline</mat-icon>
+          <input
+            (blur)="form.markTouched('prenom')"
+            (input)="onText('prenom', $any($event.target).value)"
+            [value]="form.value().prenom"
+            matInput
+          />
+        </mat-form-field>
+        @if (form.showError('prenom')) {
+          <div class="field-error">Obligatoire</div>
         }
-      </mat-form-field>
+      </div>
       <app-searchable-select
-        (selectionChanged)="form.patchValue({ sexe: $event?.id ?? '' })"
+        (selectionChanged)="onSelect('sexe', $event)"
         [items]="sexeOptions"
         [label]="'Sexe'"
         [prefixIcon]="'wc'"
-        [selectedId]="form.get('sexe')?.value ?? ''"
+        [selectedId]="form.value().sexe"
         cssClass="dialog-flex"
       />
     </div>
@@ -39,16 +53,21 @@
       <mat-form-field appearance="outline" style="flex:1">
         <mat-label>Date de naissance</mat-label>
         <mat-icon matPrefix>cake</mat-icon>
-        <input [matDatepicker]="dpDN" formControlName="dateNaissance" matInput/>
+        <input
+          (dateChange)="onDate($event.value)"
+          [matDatepicker]="dpDN"
+          [value]="form.value().dateNaissance"
+          matInput
+        />
         <mat-datepicker-toggle [for]="dpDN" matSuffix/>
         <mat-datepicker #dpDN/>
       </mat-form-field>
       <app-searchable-select
-        (selectionChanged)="form.patchValue({ groupeSanguin: $event?.id ?? '' })"
+        (selectionChanged)="onSelect('groupeSanguin', $event)"
         [items]="groupeSanguinOptions"
         [label]="'Groupe sanguin'"
         [prefixIcon]="'bloodtype'"
-        [selectedId]="form.get('groupeSanguin')?.value ?? ''"
+        [selectedId]="form.value().groupeSanguin"
         cssClass="dialog-flex"
       />
     </div>
@@ -56,25 +75,41 @@
       <mat-form-field appearance="outline" style="flex:1">
         <mat-label>Tél. personnel</mat-label>
         <mat-icon matPrefix>phone</mat-icon>
-        <input formControlName="telPersonnel" matInput/>
+        <input
+          (input)="onText('telPersonnel', $any($event.target).value)"
+          [value]="form.value().telPersonnel"
+          matInput
+        />
       </mat-form-field>
       <mat-form-field appearance="outline" style="flex:1">
         <mat-label>Tél. mobile</mat-label>
         <mat-icon matPrefix>phone_iphone</mat-icon>
-        <input formControlName="telMobile" matInput/>
+        <input
+          (input)="onText('telMobile', $any($event.target).value)"
+          [value]="form.value().telMobile"
+          matInput
+        />
       </mat-form-field>
       <mat-form-field appearance="outline" style="flex:1">
         <mat-label>Tél. bureau</mat-label>
         <mat-icon matPrefix>phone_in_talk</mat-icon>
-        <input formControlName="telBureau" matInput/>
+        <input
+          (input)="onText('telBureau', $any($event.target).value)"
+          [value]="form.value().telBureau"
+          matInput
+        />
       </mat-form-field>
     </div>
     <mat-form-field appearance="outline" style="width:100%">
       <mat-label>Adresse</mat-label>
       <mat-icon matPrefix>home</mat-icon>
-      <input formControlName="adresse" matInput/>
+      <input
+        (input)="onText('adresse', $any($event.target).value)"
+        [value]="form.value().adresse"
+        matInput
+      />
     </mat-form-field>
-  </form>
+  </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end" style="gap:8px;padding:12px">
   <button (click)="cancel()" mat-stroked-button type="button">
@@ -83,7 +118,7 @@
   </button>
   <button
     (click)="save()"
-    [disabled]="form.invalid"
+    [disabled]="form.invalid()"
     color="primary"
     mat-flat-button
     type="button"
@@ -92,4 +127,3 @@
     Enregistrer
   </button>
 </mat-dialog-actions>
-

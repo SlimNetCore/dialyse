@@ -1,111 +1,107 @@
 <div class="step-content">
   <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_AFFECTATION' | translate }}</h3>
-  <form [formGroup]="form">
+  <div class="wizard-form">
     <div class="form-row">
       <app-searchable-select
-        (selectionChanged)="form.patchValue({ salleId: $event?.id ?? null })"
+        (selectionChanged)="onSelect('salleId', $event)"
         [autofocusFirst]="true"
         [disabled]="readonly"
         [items]="salles()"
         [label]="'PATIENT_FORM.SALLE' | translate"
         [prefixIcon]="'meeting_room'"
-        [selectedId]="salleIdSignal()"
+        [selectedId]="form.value().salleId"
         cssClass="flex1"
       />
       <app-searchable-select
-        (selectionChanged)="
-              form.patchValue({ medecinTraitantId: $event?.id ?? null })
-            "
+        (selectionChanged)="onSelect('medecinTraitantId', $event)"
         [disabled]="readonly"
         [items]="medecins()"
         [label]="'PATIENT_FORM.MEDECIN_TRAITANT' | translate"
         [prefixIcon]="'medical_services'"
-        [selectedId]="medecinTraitantIdSignal()"
+        [selectedId]="form.value().medecinTraitantId"
         cssClass="flex1"
       />
     </div>
 
     <div class="form-row">
       <app-searchable-select
-        (selectionChanged)="
-              form.patchValue({ positionId: $event?.id ?? null })
-            "
+        (selectionChanged)="onSelect('positionId', $event)"
         [disabled]="readonly"
         [items]="positions()"
         [label]="'PATIENT_FORM.POSITION' | translate"
         [prefixIcon]="'schedule'"
-        [selectedId]="positionIdSignal()"
+        [selectedId]="form.value().positionId"
         cssClass="flex1"
       />
     </div>
 
     <div class="form-row">
       <app-searchable-select
-        (selectionChanged)="
-              form.patchValue({ transporteurAllerId: $event?.id ?? null })
-            "
+        (selectionChanged)="onSelect('transporteurAllerId', $event)"
         [disabled]="readonly"
         [items]="transporteurs()"
         [label]="'PATIENT_FORM.TRANSPORTEUR_ALLER' | translate"
         [prefixIcon]="'directions_car'"
-        [selectedId]="transporteurAllerIdSignal()"
+        [selectedId]="form.value().transporteurAllerId"
         cssClass="flex1"
       />
       <app-searchable-select
-        (selectionChanged)="
-              form.patchValue({ transporteurRetourId: $event?.id ?? null })
-            "
+        (selectionChanged)="onSelect('transporteurRetourId', $event)"
         [disabled]="readonly"
         [items]="transporteurs()"
         [label]="'PATIENT_FORM.TRANSPORTEUR_RETOUR' | translate"
         [prefixIcon]="'local_taxi'"
-        [selectedId]="transporteurRetourIdSignal()"
+        [selectedId]="form.value().transporteurRetourId"
         cssClass="flex1"
       />
       <app-searchable-select
-        (selectionChanged)="
-              form.patchValue({ categorieTransportId: $event?.id ?? null })
-            "
+        (selectionChanged)="onSelect('categorieTransportId', $event)"
         [disabled]="readonly"
         [items]="categoriesTransport()"
         [label]="'PATIENT_FORM.CATEGORIE_TRANSPORT' | translate"
         [prefixIcon]="'commute'"
-        [selectedId]="categorieTransportIdSignal()"
+        [selectedId]="form.value().categorieTransportId"
         cssClass="flex1"
       />
     </div>
 
     <h4 class="dialyse-title">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }} *</h4>
     <div class="jours-row">
-      <mat-checkbox [disabled]="readonly" formControlName="jourDimanche">{{
+      <mat-checkbox (change)="onDay('jourDimanche', $event.checked)" [checked]="form.value().jourDimanche"
+                    [disabled]="readonly">{{
           'PATIENT_FORM.DIMANCHE' | translate
         }}
       </mat-checkbox>
-      <mat-checkbox [disabled]="readonly" formControlName="jourLundi">{{
+      <mat-checkbox (change)="onDay('jourLundi', $event.checked)" [checked]="form.value().jourLundi"
+                    [disabled]="readonly">{{
           'PATIENT_FORM.LUNDI' | translate
         }}
       </mat-checkbox>
-      <mat-checkbox [disabled]="readonly" formControlName="jourMardi">{{
+      <mat-checkbox (change)="onDay('jourMardi', $event.checked)" [checked]="form.value().jourMardi"
+                    [disabled]="readonly">{{
           'PATIENT_FORM.MARDI' | translate
         }}
       </mat-checkbox>
-      <mat-checkbox [disabled]="readonly" formControlName="jourMercredi">{{
+      <mat-checkbox (change)="onDay('jourMercredi', $event.checked)" [checked]="form.value().jourMercredi"
+                    [disabled]="readonly">{{
           'PATIENT_FORM.MERCREDI' | translate
         }}
       </mat-checkbox>
-      <mat-checkbox [disabled]="readonly" formControlName="jourJeudi">{{
+      <mat-checkbox (change)="onDay('jourJeudi', $event.checked)" [checked]="form.value().jourJeudi"
+                    [disabled]="readonly">{{
           'PATIENT_FORM.JEUDI' | translate
         }}
       </mat-checkbox>
-      <mat-checkbox [disabled]="readonly" formControlName="jourVendredi">{{
+      <mat-checkbox (change)="onDay('jourVendredi', $event.checked)" [checked]="form.value().jourVendredi"
+                    [disabled]="readonly">{{
           'PATIENT_FORM.VENDREDI' | translate
         }}
       </mat-checkbox>
-      <mat-checkbox [disabled]="readonly" formControlName="jourSamedi">{{
+      <mat-checkbox (change)="onDay('jourSamedi', $event.checked)" [checked]="form.value().jourSamedi"
+                    [disabled]="readonly">{{
           'PATIENT_FORM.SAMEDI' | translate
         }}
       </mat-checkbox>
     </div>
-  </form>
+  </div>
 </div>
-

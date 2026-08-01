@@ -84,38 +84,47 @@
         </div>
       }
 
-      <form [formGroup]="form">
+      <div class="wizard-form">
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.ATTESTATION_DEBUT' | translate }} *</mat-label>
             <mat-icon matPrefix>event</mat-icon>
             <input
+              (blur)="form.markTouched('attestationDebut')"
+              (dateChange)="onDateChange('attestationDebut', $event.value)"
+              [disabled]="readonly"
               [matDatepicker]="dpDebut"
+              [value]="form.value().attestationDebut"
               data-autofocus-first
-              formControlName="attestationDebut"
               matInput
             />
             <mat-datepicker-toggle [for]="dpDebut" matSuffix/>
             <mat-datepicker #dpDebut/>
-            @if (form.get('attestationDebut')?.hasError('required') &&
-            form.get('attestationDebut')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'PATIENT_FORM.ATTESTATION_FIN' | translate }} *</mat-label>
             <mat-icon matPrefix>event_available</mat-icon>
-            <input [matDatepicker]="dpFin" formControlName="attestationFin" matInput/>
+            <input
+              (blur)="form.markTouched('attestationFin')"
+              (dateChange)="onDateChange('attestationFin', $event.value)"
+              [disabled]="readonly"
+              [matDatepicker]="dpFin"
+              [value]="form.value().attestationFin"
+              matInput
+            />
             <mat-datepicker-toggle [for]="dpFin" matSuffix/>
             <mat-datepicker #dpFin/>
-            @if (form.get('attestationFin')?.hasError('required') &&
-            form.get('attestationFin')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
           </mat-form-field>
         </div>
-      </form>
+        <div class="form-row">
+          @if (form.showError('attestationDebut')) {
+            <div class="field-error flex1">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
+          }
+          @if (form.showError('attestationFin')) {
+            <div class="field-error flex1">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
+          }
+        </div>
+      </div>
     </div>
   </div>
 </div>
-

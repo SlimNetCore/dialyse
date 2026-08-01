@@ -1,17 +1,25 @@
 <div class="step-content">
   <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_INSURANCE' | translate }}</h3>
-  <form [formGroup]="form">
+  <div class="wizard-form">
     <!-- N° assurance patient -->
     <div class="form-row">
-      <mat-form-field appearance="outline" class="flex1">
-        <mat-label>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }} *</mat-label>
-        <mat-icon matPrefix>badge</mat-icon>
-        <input data-autofocus-first formControlName="numeroAssurance" matInput/>
-        @if (form.get('numeroAssurance')?.hasError('required') &&
-        form.get('numeroAssurance')?.touched) {
-          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+      <div class="flex1">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }} *</mat-label>
+          <mat-icon matPrefix>badge</mat-icon>
+          <input
+            (blur)="form.markTouched('numeroAssurance')"
+            (input)="onNumeroAssurance($any($event.target).value)"
+            [disabled]="readonly"
+            [value]="form.value().numeroAssurance"
+            data-autofocus-first
+            matInput
+          />
+        </mat-form-field>
+        @if (form.showError('numeroAssurance')) {
+          <div class="field-error">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
         }
-      </mat-form-field>
+      </div>
     </div>
 
     <!-- Centre payeur -->
@@ -54,44 +62,68 @@
     <!-- Section assuré principal actif -->
     <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}</h3>
     <div class="form-row">
-      <mat-form-field appearance="outline" class="flex1">
-        <mat-label
-        >N° Assurance assuré
-          @if (requiresAssureNumero()) {
-            *
-          }
-        </mat-label>
-        <mat-icon matPrefix>badge</mat-icon>
-        <input formControlName="assureNumeroAssurance" matInput/>
-        @if (form.get('assureNumeroAssurance')?.hasError('required') &&
-        form.get('assureNumeroAssurance')?.touched) {
-          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+      <div class="flex1">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label
+          >N° Assurance assuré
+            @if (requiresAssureNumero()) {
+              *
+            }
+          </mat-label>
+          <mat-icon matPrefix>badge</mat-icon>
+          <input
+            (blur)="form.markTouched('assureNumeroAssurance')"
+            (input)="onAssureText('assureNumeroAssurance', $any($event.target).value)"
+            [disabled]="readonly"
+            [value]="form.value().assureNumeroAssurance"
+            matInput
+          />
+        </mat-form-field>
+        @if (form.showError('assureNumeroAssurance')) {
+          <div class="field-error">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
         }
-      </mat-form-field>
+      </div>
     </div>
     <div class="form-row">
-      <mat-form-field appearance="outline" class="flex1">
-        <mat-label>{{ 'PATIENT_FORM.ASSURE_NOM' | translate }} *</mat-label>
-        <mat-icon matPrefix>person</mat-icon>
-        <input formControlName="assureNom" matInput/>
-        @if (form.get('assureNom')?.hasError('required') && form.get('assureNom')?.touched) {
-          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+      <div class="flex1">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'PATIENT_FORM.ASSURE_NOM' | translate }} *</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input
+            (blur)="form.markTouched('assureNom')"
+            (input)="onAssureText('assureNom', $any($event.target).value)"
+            [disabled]="readonly"
+            [value]="form.value().assureNom"
+            matInput
+          />
+        </mat-form-field>
+        @if (form.showError('assureNom')) {
+          <div class="field-error">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
         }
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="flex1">
-        <mat-label>{{ 'PATIENT_FORM.ASSURE_PRENOM' | translate }} *</mat-label>
-        <mat-icon matPrefix>person_outline</mat-icon>
-        <input formControlName="assurePrenom" matInput/>
-        @if (form.get('assurePrenom')?.hasError('required') && form.get('assurePrenom')?.touched) {
-          <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
+      </div>
+      <div class="flex1">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'PATIENT_FORM.ASSURE_PRENOM' | translate }} *</mat-label>
+          <mat-icon matPrefix>person_outline</mat-icon>
+          <input
+            (blur)="form.markTouched('assurePrenom')"
+            (input)="onAssureText('assurePrenom', $any($event.target).value)"
+            [disabled]="readonly"
+            [value]="form.value().assurePrenom"
+            matInput
+          />
+        </mat-form-field>
+        @if (form.showError('assurePrenom')) {
+          <div class="field-error">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
         }
-      </mat-form-field>
+      </div>
       <app-searchable-select
-        (selectionChanged)="form.patchValue({ assureSexe: $event?.id ?? '' })"
+        (selectionChanged)="onAssureSelect('assureSexe', $event)"
+        [disabled]="readonly"
         [items]="assureSexeOptions"
         [label]="'PATIENT_FORM.ASSURE_SEXE' | translate"
         [prefixIcon]="'wc'"
-        [selectedId]="assureSexeSignal()"
+        [selectedId]="form.value().assureSexe"
         [translateLabels]="true"
         cssClass="flex1 assurance-select"
       />
@@ -100,40 +132,67 @@
       <mat-form-field appearance="outline" class="flex1">
         <mat-label>{{ 'PATIENT_FORM.ASSURE_DATE_NAISSANCE' | translate }}</mat-label>
         <mat-icon matPrefix>cake</mat-icon>
-        <input [matDatepicker]="dpAssure" formControlName="assureDateNaissance" matInput/>
+        <input
+          (dateChange)="onAssureDate($event.value)"
+          [disabled]="readonly"
+          [matDatepicker]="dpAssure"
+          [value]="form.value().assureDateNaissance"
+          matInput
+        />
         <mat-datepicker-toggle [for]="dpAssure" matSuffix/>
         <mat-datepicker #dpAssure/>
       </mat-form-field>
       <mat-form-field appearance="outline" class="flex1">
         <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_PERSONNEL' | translate }}</mat-label>
         <mat-icon matPrefix>phone</mat-icon>
-        <input formControlName="assureTelPersonnel" matInput/>
+        <input
+          (input)="onAssureText('assureTelPersonnel', $any($event.target).value)"
+          [disabled]="readonly"
+          [value]="form.value().assureTelPersonnel"
+          matInput
+        />
       </mat-form-field>
       <mat-form-field appearance="outline" class="flex1">
         <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_MOBILE' | translate }}</mat-label>
         <mat-icon matPrefix>phone_iphone</mat-icon>
-        <input formControlName="assureTelMobile" matInput/>
+        <input
+          (input)="onAssureText('assureTelMobile', $any($event.target).value)"
+          [disabled]="readonly"
+          [value]="form.value().assureTelMobile"
+          matInput
+        />
       </mat-form-field>
       <mat-form-field appearance="outline" class="flex1">
         <mat-label>{{ 'PATIENT_FORM.ASSURE_TEL_BUREAU' | translate }}</mat-label>
         <mat-icon matPrefix>phone_in_talk</mat-icon>
-        <input formControlName="assureTelBureau" matInput/>
+        <input
+          (input)="onAssureText('assureTelBureau', $any($event.target).value)"
+          [disabled]="readonly"
+          [value]="form.value().assureTelBureau"
+          matInput
+        />
       </mat-form-field>
     </div>
     <div class="form-row">
       <app-searchable-select
-        (selectionChanged)="form.patchValue({ assureGroupeSanguin: $event?.id ?? '' })"
+        (selectionChanged)="onAssureSelect('assureGroupeSanguin', $event)"
+        [disabled]="readonly"
         [items]="assureGroupeSanguinOptions"
         [label]="'PATIENT_FORM.ASSURE_GROUPE_SANGUIN' | translate"
         [prefixIcon]="'bloodtype'"
-        [selectedId]="assureGroupeSanguinSignal()"
+        [selectedId]="form.value().assureGroupeSanguin"
         cssClass="flex1 assurance-select"
       />
     </div>
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'PATIENT_FORM.ASSURE_ADRESSE' | translate }}</mat-label>
       <mat-icon matPrefix>home</mat-icon>
-      <input formControlName="assureAdresse" matInput/>
+      <input
+        (input)="onAssureText('assureAdresse', $any($event.target).value)"
+        [disabled]="readonly"
+        [value]="form.value().assureAdresse"
+        matInput
+      />
     </mat-form-field>
 
     <!-- Boutons d'action -->
@@ -342,6 +401,5 @@
         </table>
       </div>
     }
-  </form>
+  </div>
 </div>
-

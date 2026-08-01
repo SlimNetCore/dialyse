@@ -7,10 +7,8 @@ import {
   OnChanges,
   OnInit,
   Output,
-  signal,
   SimpleChanges,
 } from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -24,12 +22,45 @@ import {
   SallesStore,
   TransporteursStore,
 } from '../../../core/state/referentials.store';
+import {SignalForm} from '../../../shared/forms/signal-form';
+
+interface AffectationModel {
+  salleId: string | null;
+  medecinTraitantId: string | null;
+  positionId: string | null;
+  transporteurAllerId: string | null;
+  transporteurRetourId: string | null;
+  categorieTransportId: string | null;
+  jourDimanche: boolean;
+  jourLundi: boolean;
+  jourMardi: boolean;
+  jourMercredi: boolean;
+  jourJeudi: boolean;
+  jourVendredi: boolean;
+  jourSamedi: boolean;
+}
+
+type AffectationSelectKey =
+  | 'salleId'
+  | 'medecinTraitantId'
+  | 'positionId'
+  | 'transporteurAllerId'
+  | 'transporteurRetourId'
+  | 'categorieTransportId';
+
+type AffectationDayKey =
+  | 'jourDimanche'
+  | 'jourLundi'
+  | 'jourMardi'
+  | 'jourMercredi'
+  | 'jourJeudi'
+  | 'jourVendredi'
+  | 'jourSamedi';
 
 @Component({
   selector: 'app-step-affectation',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatIconModule,
     MatCheckboxModule,
@@ -45,7 +76,22 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
-  form!: FormGroup;
+  readonly form = new SignalForm<AffectationModel>({
+    salleId: null,
+    medecinTraitantId: null,
+    positionId: null,
+    transporteurAllerId: null,
+    transporteurRetourId: null,
+    categorieTransportId: null,
+    jourDimanche: false,
+    jourLundi: false,
+    jourMardi: false,
+    jourMercredi: false,
+    jourJeudi: false,
+    jourVendredi: false,
+    jourSamedi: false,
+  });
+
   private readonly appShell = inject(AppShellStore);
   private readonly sallesStore = inject(SallesStore);
   readonly salles = this.sallesStore.items as unknown as () => DropdownItem[];
@@ -58,45 +104,6 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   private readonly categoriesTransportStore = inject(CategoriesTransportStore);
   readonly categoriesTransport = this.categoriesTransportStore
     .items as unknown as () => DropdownItem[];
-  private readonly fb = inject(FormBuilder);
-
-  // Signals pour les SearchableSelectComponent — nécessaire en mode zoneless (form.get()?.value n'est pas réactif)
-  readonly salleIdSignal = signal<string | null>(null);
-  readonly medecinTraitantIdSignal = signal<string | null>(null);
-  readonly positionIdSignal = signal<string | null>(null);
-  readonly transporteurAllerIdSignal = signal<string | null>(null);
-  readonly transporteurRetourIdSignal = signal<string | null>(null);
-  readonly categorieTransportIdSignal = signal<string | null>(null);
-
-  constructor() {
-    this.form = this.fb.group({
-      salleId: [null],
-      medecinTraitantId: [null],
-      positionId: [null],
-      transporteurAllerId: [null],
-      transporteurRetourId: [null],
-      categorieTransportId: [null],
-      jourDimanche: [false],
-      jourLundi: [false],
-      jourMardi: [false],
-      jourMercredi: [false],
-      jourJeudi: [false],
-      jourVendredi: [false],
-      jourSamedi: [false],
-    });
-
-    this.form.valueChanges.subscribe((val) => {
-      // Mettre à jour les signals pour forcer la réévaluation des SearchableSelectComponent en mode zoneless
-      this.salleIdSignal.set(val.salleId ?? null);
-      this.medecinTraitantIdSignal.set(val.medecinTraitantId ?? null);
-      this.positionIdSignal.set(val.positionId ?? null);
-      this.transporteurAllerIdSignal.set(val.transporteurAllerId ?? null);
-      this.transporteurRetourIdSignal.set(val.transporteurRetourId ?? null);
-      this.categorieTransportIdSignal.set(val.categorieTransportId ?? null);
-      this.dataChange.emit(val);
-      this.validChange.emit(true); // affectation step is optional
-    });
-  }
 
   ngOnInit(): void {
     const cid = this.appShell.currentCenterId();
@@ -112,16 +119,28 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     if (changes['readonly']) this.applyReadonly();
   }
 
+  onSelect(key: AffectationSelectKey, item: DropdownItem | null): void {
+    if (this.readonly) return;
+    this.form.set(key, item?.id ?? null);
+    this.emit();
+  }
+
+  onDay(key: AffectationDayKey, checked: boolean): void {
+    if (this.readonly) return;
+    this.form.set(key, checked);
+    this.emit();
+  }
+
   markTouched(): void {
-    this.form.markAllAsTouched();
+    this.form.markAllTouched();
   }
 
   isValid(): boolean {
+    // L'étape affectation est facultative.
     return true;
   }
 
   patchData(data: Record<string, any>): void {
-    if (!this.form) return;
     const jours = data['joursDialyse'] ?? data['jours_dialyse'] ?? {};
     const asBool = (v: any) => !!v;
     const pick = (camel: string, snake: string, shortKey: string) =>
@@ -147,46 +166,31 @@ export class StepAffectationComponent implements OnInit, OnChanges {
       return null;
     };
 
-    const salleId = pickId('salleId', 'salle_id', 'salle');
-    const medecinTraitantId = pickId('medecinTraitantId', 'medecin_traitant_id', 'medecinTraitant');
-    const positionId = pickId('positionId', 'position_id', 'position');
-    const transporteurAllerId = pickId('transporteurAllerId', 'transporteur_aller_id', 'transporteurAller');
-    const transporteurRetourId = pickId('transporteurRetourId', 'transporteur_retour_id', 'transporteurRetour');
-    const categorieTransportId = pickId('categorieTransportId', 'categorie_transport_id', 'categorieTransport');
-
-    this.form.patchValue(
-      {
-        salleId,
-        medecinTraitantId,
-        positionId,
-        transporteurAllerId,
-        transporteurRetourId,
-        categorieTransportId,
-        jourDimanche: asBool(pick('jourDimanche', 'jour_dimanche', 'dimanche')),
-        jourLundi: asBool(pick('jourLundi', 'jour_lundi', 'lundi')),
-        jourMardi: asBool(pick('jourMardi', 'jour_mardi', 'mardi')),
-        jourMercredi: asBool(pick('jourMercredi', 'jour_mercredi', 'mercredi')),
-        jourJeudi: asBool(pick('jourJeudi', 'jour_jeudi', 'jeudi')),
-        jourVendredi: asBool(pick('jourVendredi', 'jour_vendredi', 'vendredi')),
-        jourSamedi: asBool(pick('jourSamedi', 'jour_samedi', 'samedi')),
-      },
-      {emitEvent: false},
-    );
-    // Mettre à jour les signals pour forcer la réévaluation des SearchableSelectComponent en mode zoneless
-    this.salleIdSignal.set(salleId);
-    this.medecinTraitantIdSignal.set(medecinTraitantId);
-    this.positionIdSignal.set(positionId);
-    this.transporteurAllerIdSignal.set(transporteurAllerId);
-    this.transporteurRetourIdSignal.set(transporteurRetourId);
-    this.categorieTransportIdSignal.set(categorieTransportId);
+    this.form.patch({
+      salleId: pickId('salleId', 'salle_id', 'salle'),
+      medecinTraitantId: pickId('medecinTraitantId', 'medecin_traitant_id', 'medecinTraitant'),
+      positionId: pickId('positionId', 'position_id', 'position'),
+      transporteurAllerId: pickId('transporteurAllerId', 'transporteur_aller_id', 'transporteurAller'),
+      transporteurRetourId: pickId('transporteurRetourId', 'transporteur_retour_id', 'transporteurRetour'),
+      categorieTransportId: pickId('categorieTransportId', 'categorie_transport_id', 'categorieTransport'),
+      jourDimanche: asBool(pick('jourDimanche', 'jour_dimanche', 'dimanche')),
+      jourLundi: asBool(pick('jourLundi', 'jour_lundi', 'lundi')),
+      jourMardi: asBool(pick('jourMardi', 'jour_mardi', 'mardi')),
+      jourMercredi: asBool(pick('jourMercredi', 'jour_mercredi', 'mercredi')),
+      jourJeudi: asBool(pick('jourJeudi', 'jour_jeudi', 'jeudi')),
+      jourVendredi: asBool(pick('jourVendredi', 'jour_vendredi', 'vendredi')),
+      jourSamedi: asBool(pick('jourSamedi', 'jour_samedi', 'samedi')),
+    });
     this.validChange.emit(true);
     this.applyReadonly();
   }
 
+  private emit(): void {
+    this.dataChange.emit({...this.form.value()});
+    this.validChange.emit(true);
+  }
+
   private applyReadonly(): void {
-    if (!this.form) return;
-    this.readonly
-      ? this.form.disable({emitEvent: false})
-      : this.form.enable({emitEvent: false});
+    this.form.setDisabled(this.readonly);
   }
 }

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   EventEmitter,
   inject,
   Input,
@@ -10,7 +11,6 @@ import {
   signal,
   SimpleChanges,
 } from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -27,12 +27,18 @@ import {ForfaitsStore} from '../../../core/state/referentials.store';
 import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
 import {PatientFicheStore} from '../state/patient-fiche.store';
 import {consumeWizardActionStatus} from './wizard-action-status.util';
+import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
+
+interface PecModel {
+  pecDateDebutDemande: Date | string | null;
+  pecDateFinDemande: Date | string | null;
+  pecForfaitDemandeId: string | null;
+}
 
 @Component({
   selector: 'app-step-pec',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
@@ -54,7 +60,28 @@ export class StepPecComponent implements OnInit, OnChanges {
   @Output() validChange = new EventEmitter<boolean>();
   @Output() deleteRequest = new EventEmitter<{ type: 'PEC'; id: string }>();
 
-  private readonly fb = inject(FormBuilder);
+  readonly form = new SignalForm<PecModel>(
+    {pecDateDebutDemande: null, pecDateFinDemande: null, pecForfaitDemandeId: null},
+    {
+      // Validateurs « requis » utilisés uniquement pour l'affichage des messages
+      // (l'étape reste valide si les deux dates sont vides — voir stepValid()).
+      pecDateDebutDemande: [requiredValidator()],
+      pecDateFinDemande: [requiredValidator()],
+    },
+  );
+
+  /** Validité métier : soit vide, soit les deux dates renseignées. */
+  readonly stepValid = computed(() => {
+    const v = this.form.value();
+    const isEmpty = !v.pecDateDebutDemande && !v.pecDateFinDemande;
+    const isComplete = !!v.pecDateDebutDemande && !!v.pecDateFinDemande;
+    return isEmpty || isComplete;
+  });
+
+  history = signal<any[]>([]);
+  selectedPecId = signal<string | null>(null);
+  selectedPec = signal<any | null>(null);
+
   private readonly appShell = inject(AppShellStore);
   private readonly forfaitsStore = inject(ForfaitsStore);
   readonly forfaits = this.forfaitsStore.items;
@@ -64,11 +91,6 @@ export class StepPecComponent implements OnInit, OnChanges {
   private readonly ficheStore = inject(PatientFicheStore);
   private pendingPrint = false;
   private pendingDeleteId: string | null = null;
-  history = signal<any[]>([]);
-  selectedPecId = signal<string | null>(null);
-  selectedPec = signal<any | null>(null);
-
-  form!: FormGroup;
 
   constructor() {
     consumeWizardActionStatus(this.ficheStore, ({action, success, error, meta}) => {
@@ -117,20 +139,6 @@ export class StepPecComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      pecDateDebutDemande: [null, Validators.required],
-      pecDateFinDemande: [null, Validators.required],
-      pecForfaitDemandeId: [null],
-    });
-
-    this.form.valueChanges.subscribe(() => {
-      const v = this.form.getRawValue();
-      const isEmpty = !v.pecDateDebutDemande && !v.pecDateFinDemande;
-      const isComplete = !!v.pecDateDebutDemande && !!v.pecDateFinDemande;
-      this.dataChange.emit({ ...v, pecId: this.selectedPecId() });
-      this.validChange.emit(isEmpty || (isComplete && this.form.valid));
-    });
-
     const cid = this.appShell.currentCenterId();
     if (!cid) return;
     void this.forfaitsStore.ensureLoaded(cid);
@@ -141,20 +149,23 @@ export class StepPecComponent implements OnInit, OnChanges {
     if (changes['readonly']) this.applyReadonly();
   }
 
+  onDateChange(key: 'pecDateDebutDemande' | 'pecDateFinDemande', value: Date | null): void {
+    if (this.readonly) return;
+    this.form.set(key, value);
+    this.form.markTouched(key);
+    this.emit();
+  }
+
   markTouched(): void {
-    this.form.markAllAsTouched();
+    this.form.markAllTouched();
   }
 
   patchData(data: Record<string, any>): void {
-    if (!this.form) return;
-    this.form.patchValue(
-      {
-        pecDateDebutDemande: data['pecDateDebutDemande'] ?? null,
-        pecDateFinDemande: data['pecDateFinDemande'] ?? null,
-        pecForfaitDemandeId: data['pecForfaitDemandeId'] ?? null,
-      },
-      {emitEvent: false},
-    );
+    this.form.patch({
+      pecDateDebutDemande: data['pecDateDebutDemande'] ?? null,
+      pecDateFinDemande: data['pecDateFinDemande'] ?? null,
+      pecForfaitDemandeId: data['pecForfaitDemandeId'] ?? null,
+    });
 
     this.selectedPecId.set(data['pecId'] ?? null);
     if (Array.isArray(data['pecHistory'])) this.history.set(data['pecHistory']);
@@ -165,38 +176,34 @@ export class StepPecComponent implements OnInit, OnChanges {
       ) ?? null;
     this.selectedPec.set(selected);
 
-    const v = this.form.getRawValue();
-    const isEmpty = !v.pecDateDebutDemande && !v.pecDateFinDemande;
-    this.dataChange.emit({ ...v, pecId: this.selectedPecId() });
-    // Émettre la validité via les données, pas form.valid (qui serait faux si form disabled)
-    this.validChange.emit(isEmpty || !!(v.pecDateDebutDemande && v.pecDateFinDemande));
+    this.emit();
     this.applyReadonly();
   }
 
   isValid(): boolean {
-    const v = this.form.getRawValue();
-    const isEmpty = !v.pecDateDebutDemande && !v.pecDateFinDemande;
-    return isEmpty || this.form.valid;
+    return this.stepValid();
   }
 
   select(h: any): void {
     this.selectedPecId.set((h.id ?? h.ID ?? '').toString());
     this.selectedPec.set(h);
-    this.form.patchValue({
+    this.form.patch({
       pecDateDebutDemande: h.dateDebutDemande ?? h.DATE_DEBUT_DEMANDE ?? null,
       pecDateFinDemande: h.dateFinDemande ?? h.DATE_FIN_DEMANDE ?? null,
       pecForfaitDemandeId: h.forfaitDemandeId ?? h.FORFAIT_DEMANDE_ID ?? null,
     });
+    this.emit();
   }
 
   prepareNew(): void {
     this.selectedPecId.set(null);
     this.selectedPec.set(null);
-    this.form.patchValue({
+    this.form.patch({
       pecDateDebutDemande: null,
       pecDateFinDemande: null,
       pecForfaitDemandeId: null,
     });
+    this.emit();
   }
 
   isSelected(h: any): boolean {
@@ -215,7 +222,8 @@ export class StepPecComponent implements OnInit, OnChanges {
 
   selectForfait(id: string): void {
     if (this.readonly) return;
-    this.form.patchValue({ pecForfaitDemandeId: id });
+    this.form.set('pecForfaitDemandeId', id);
+    this.emit();
   }
 
   formatPrix(f: any): string {
@@ -287,10 +295,12 @@ export class StepPecComponent implements OnInit, OnChanges {
     });
   }
 
+  private emit(): void {
+    this.dataChange.emit({...this.form.value(), pecId: this.selectedPecId()});
+    this.validChange.emit(this.stepValid());
+  }
+
   private applyReadonly(): void {
-    if (!this.form) return;
-    this.readonly
-      ? this.form.disable({emitEvent: false})
-      : this.form.enable({emitEvent: false});
+    this.form.setDisabled(this.readonly);
   }
 }

@@ -130,35 +130,45 @@
       }
 
       <h3 class="section-title">{{ 'WIZARD.PEC_DEMANDE' | translate }}</h3>
-      <form [formGroup]="form">
+      <div class="wizard-form">
         <div class="form-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'WIZARD.PEC_DATE_DEBUT' | translate }} *</mat-label>
             <mat-icon matPrefix>event</mat-icon>
             <input
+              (blur)="form.markTouched('pecDateDebutDemande')"
+              (dateChange)="onDateChange('pecDateDebutDemande', $event.value)"
+              [disabled]="readonly"
               [matDatepicker]="dpDeb"
+              [value]="form.value().pecDateDebutDemande"
               data-autofocus-first
-              formControlName="pecDateDebutDemande"
               matInput
             />
             <mat-datepicker-toggle [for]="dpDeb" matSuffix/>
             <mat-datepicker #dpDeb/>
-            @if (form.get('pecDateDebutDemande')?.hasError('required') &&
-            form.get('pecDateDebutDemande')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
           </mat-form-field>
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'WIZARD.PEC_DATE_FIN' | translate }} *</mat-label>
             <mat-icon matPrefix>event_busy</mat-icon>
-            <input [matDatepicker]="dpFin" formControlName="pecDateFinDemande" matInput/>
+            <input
+              (blur)="form.markTouched('pecDateFinDemande')"
+              (dateChange)="onDateChange('pecDateFinDemande', $event.value)"
+              [disabled]="readonly"
+              [matDatepicker]="dpFin"
+              [value]="form.value().pecDateFinDemande"
+              matInput
+            />
             <mat-datepicker-toggle [for]="dpFin" matSuffix/>
             <mat-datepicker #dpFin/>
-            @if (form.get('pecDateFinDemande')?.hasError('required') &&
-            form.get('pecDateFinDemande')?.touched) {
-              <mat-error>{{ 'PATIENT_FORM.REQUIRED' | translate }}</mat-error>
-            }
           </mat-form-field>
+        </div>
+        <div class="form-row">
+          @if (form.showError('pecDateDebutDemande')) {
+            <div class="field-error flex1">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
+          }
+          @if (form.showError('pecDateFinDemande')) {
+            <div class="field-error flex1">{{ 'PATIENT_FORM.REQUIRED' | translate }}</div>
+          }
         </div>
 
         <h4 class="forfait-title">{{ 'WIZARD.PEC_FORFAIT_DEMANDE' | translate }}</h4>
@@ -166,7 +176,7 @@
           @for (f of forfaits(); track f.id) {
             <button
               (click)="selectForfait(f.id)"
-              [class.selected]="form.get('pecForfaitDemandeId')?.value === f.id"
+              [class.selected]="form.value().pecForfaitDemandeId === f.id"
               [disabled]="readonly"
               class="forfait-chip"
               type="button"
@@ -182,7 +192,7 @@
             </button>
           }
         </div>
-      </form>
+      </div>
 
       <mat-divider style="margin: 20px 0;"/>
       <h3 class="section-title">{{ 'WIZARD.PEC_ACCORD' | translate }}</h3>
@@ -245,4 +255,3 @@
     </div>
   </div>
 </div>
-

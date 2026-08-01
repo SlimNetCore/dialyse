@@ -11,8 +11,8 @@ import {
   Output,
   signal,
   SimpleChanges,
+  untracked,
 } from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -28,11 +28,39 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {CentresPayeursDetailsStore, CentresPayeursStore,} from '../../../core/state/referentials.store';
 import {PatientFicheStore} from '../state/patient-fiche.store';
 import {consumeWizardActionStatus} from './wizard-action-status.util';
+import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
 
 interface AssignmentEdit {
   id: string;
   dateDebutAffectation: Date | null;
   dateFinAffectation: Date | null;
+}
+
+interface AssureEditModel {
+  nom: string;
+  prenom: string;
+  sexe: string;
+  dateNaissance: Date | string | null;
+  groupeSanguin: string;
+  telPersonnel: string;
+  telMobile: string;
+  telBureau: string;
+  adresse: string;
+}
+
+interface AssuranceModel {
+  numeroAssurance: string;
+  centrePayeurId: string | null;
+  assureNumeroAssurance: string;
+  assureNom: string;
+  assurePrenom: string;
+  assureSexe: string;
+  assureDateNaissance: Date | string | null;
+  assureTelPersonnel: string;
+  assureTelMobile: string;
+  assureTelBureau: string;
+  assureGroupeSanguin: string;
+  assureAdresse: string;
 }
 
 const SEXE_OPTIONS: DropdownItem[] = [
@@ -60,7 +88,6 @@ const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
   selector: 'app-assure-edit-dialog',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
@@ -77,32 +104,49 @@ const GROUPE_SANGUIN_OPTIONS: DropdownItem[] = [
 export class AssureEditDialogComponent {
   readonly dialogRef = inject(MatDialogRef<AssureEditDialogComponent>);
   readonly data = inject<any>(MAT_DIALOG_DATA);
-  private readonly fb = inject(FormBuilder);
   readonly sexeOptions = SEXE_OPTIONS;
   readonly groupeSanguinOptions = GROUPE_SANGUIN_OPTIONS;
 
-  form: FormGroup = this.fb.group({
-    nom: [this.data.nom ?? '', Validators.required],
-    prenom: [this.data.prenom ?? '', Validators.required],
-    sexe: [this.data.sexe ?? ''],
-    dateNaissance: [this.data.dateNaissance ? new Date(this.data.dateNaissance) : null],
-    groupeSanguin: [this.data.groupeSanguin ?? ''],
-    telPersonnel: [this.data.telPersonnel ?? ''],
-    telMobile: [this.data.telMobile ?? ''],
-    telBureau: [this.data.telBureau ?? ''],
-    adresse: [this.data.adresse ?? ''],
-  });
+  readonly form = new SignalForm<AssureEditModel>(
+    {
+      nom: this.data.nom ?? '',
+      prenom: this.data.prenom ?? '',
+      sexe: this.data.sexe ?? '',
+      dateNaissance: this.data.dateNaissance ? new Date(this.data.dateNaissance) : null,
+      groupeSanguin: this.data.groupeSanguin ?? '',
+      telPersonnel: this.data.telPersonnel ?? '',
+      telMobile: this.data.telMobile ?? '',
+      telBureau: this.data.telBureau ?? '',
+      adresse: this.data.adresse ?? '',
+    },
+    {
+      nom: [requiredValidator()],
+      prenom: [requiredValidator()],
+    },
+  );
+
+  onText(key: keyof AssureEditModel, value: string): void {
+    this.form.set(key, value ?? '');
+  }
+
+  onSelect(key: 'sexe' | 'groupeSanguin', item: DropdownItem | null): void {
+    this.form.set(key, item?.id ?? '');
+  }
+
+  onDate(value: Date | null): void {
+    this.form.set('dateNaissance', value);
+  }
 
   cancel(): void {
     this.dialogRef.close(null);
   }
 
   save(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (this.form.invalid()) {
+      this.form.markAllTouched();
       return;
     }
-    const val = this.form.getRawValue();
+    const val = this.form.value();
     const dn = val.dateNaissance;
     this.dialogRef.close({
       ...val,
@@ -118,7 +162,6 @@ export class AssureEditDialogComponent {
   selector: 'app-step-assurance',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
@@ -140,12 +183,32 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
-  private readonly fb = inject(FormBuilder);
+  readonly form = new SignalForm<AssuranceModel>(
+    {
+      numeroAssurance: '',
+      centrePayeurId: null,
+      assureNumeroAssurance: '',
+      assureNom: '',
+      assurePrenom: '',
+      assureSexe: '',
+      assureDateNaissance: null,
+      assureTelPersonnel: '',
+      assureTelMobile: '',
+      assureTelBureau: '',
+      assureGroupeSanguin: '',
+      assureAdresse: '',
+    },
+    {
+      numeroAssurance: [requiredValidator()],
+    },
+  );
+
   readonly assureSexeOptions: DropdownItem[] = [
     {id: 'M', label: 'PATIENT_FORM.MASCULIN'},
     {id: 'F', label: 'PATIENT_FORM.FEMININ'},
   ];
   readonly assureGroupeSanguinOptions = GROUPE_SANGUIN_OPTIONS;
+
   private readonly appShell = inject(AppShellStore);
   private readonly centresPayeursStore = inject(CentresPayeursStore);
   readonly centresPayeurs = this.centresPayeursStore.items as unknown as () => DropdownItem[];
@@ -158,9 +221,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   readonly loadingAssures = this.ficheStore.loadingAssures;
   readonly savingEdit = this.ficheStore.savingAssureEdit;
   readonly selectedCentrePayeurId = signal<string | null>(null);
-  // Signals pour les SearchableSelectComponent — nécessaire en mode zoneless (form.get()?.value n'est pas réactif)
-  readonly assureSexeSignal = signal<string>('');
-  readonly assureGroupeSanguinSignal = signal<string>('');
   readonly codeCentrePayeur = computed(
     () =>
       this.centresPayeurs().find(
@@ -190,16 +250,15 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   private historyInFlightKey: string | null = null;
   private lastLoadedHistoryKey: string | null = null;
 
-  form!: FormGroup;
-
   constructor() {
     effect(() => {
-      if (!this.form || !this.selectedCentrePayeurId()) return;
+      if (!this.selectedCentrePayeurId()) return;
+      // Suivi des codes/libellés (rechargés de façon asynchrone).
       this.codeCentrePayeur();
       this.codeAgence();
       this.libelleAgence();
       this.libelleCaisse();
-      this.emitAssuranceData();
+      untracked(() => this.emitAssuranceData());
     });
 
     consumeWizardActionStatus(this.ficheStore, ({action, success, error, message}) => {
@@ -259,32 +318,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      numeroAssurance: ['', Validators.required],
-      centrePayeurId: [null],
-      assureNumeroAssurance: [''],
-      assureNom: [''],
-      assurePrenom: [''],
-      assureSexe: [''],
-      assureDateNaissance: [null],
-      assureTelPersonnel: [''],
-      assureTelMobile: [''],
-      assureTelBureau: [''],
-      assureGroupeSanguin: [''],
-      assureAdresse: [''],
-    });
-    this.form.valueChanges.subscribe(() => {
-      const v = this.form.getRawValue();
-      // Mettre à jour les signals pour les SearchableSelectComponent en mode zoneless
-      this.assureSexeSignal.set(v.assureSexe ?? '');
-      this.assureGroupeSanguinSignal.set(v.assureGroupeSanguin ?? '');
-      this.emitAssuranceData();
-      this.validChange.emit(this.form.valid);
-    });
-    this.form.get('centrePayeurId')?.valueChanges.subscribe((value) => {
-      this.selectedCentrePayeurId.set(value ? String(value) : null);
-    });
-
     const cid = this.appShell.currentCenterId();
     if (cid) {
       void this.centresPayeursStore.ensureLoaded(cid);
@@ -298,6 +331,30 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     if (changes['patientId'] && this.patientId) void this.loadAssureHistory();
   }
 
+  onNumeroAssurance(value: string): void {
+    if (this.readonly) return;
+    this.form.set('numeroAssurance', value ?? '');
+    this.emit();
+  }
+
+  onAssureText(key: keyof AssuranceModel, value: string): void {
+    if (this.readonly) return;
+    this.form.set(key, value ?? '');
+    this.emit();
+  }
+
+  onAssureDate(value: Date | null): void {
+    if (this.readonly) return;
+    this.form.set('assureDateNaissance', value);
+    this.emit();
+  }
+
+  onAssureSelect(key: 'assureSexe' | 'assureGroupeSanguin', item: DropdownItem | null): void {
+    if (this.readonly) return;
+    this.form.set(key, item?.id ?? '');
+    this.emit();
+  }
+
   prepareNewAssure(): void {
     if (!this.canAssignAssure()) {
       this.snackBar.open(
@@ -307,7 +364,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       );
       return;
     }
-    this.form.patchValue({
+    this.form.patch({
       assureNumeroAssurance: '',
       assureNom: '',
       assurePrenom: '',
@@ -319,6 +376,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureAdresse: '',
       assureGroupeSanguin: '',
     });
+    this.emit();
   }
 
   setQualiteAssure(qa: string): void {
@@ -328,26 +386,23 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     const needsAssureNumero = ['ENFANT', 'CONJOINT', 'ASCENDANT', 'AUTRE'].includes(qa || '');
     this.requiresAssureNumero.set(needsAssureNumero);
     if (needsAssure) {
-      this.form.get('assureNom')?.setValidators(Validators.required);
-      this.form.get('assurePrenom')?.setValidators(Validators.required);
+      this.form.setValidators('assureNom', [requiredValidator()]);
+      this.form.setValidators('assurePrenom', [requiredValidator()]);
     } else {
-      this.form.get('assureNom')?.clearValidators();
-      this.form.get('assurePrenom')?.clearValidators();
+      this.form.clearValidators('assureNom');
+      this.form.clearValidators('assurePrenom');
     }
     if (needsAssureNumero) {
-      this.form.get('assureNumeroAssurance')?.setValidators(Validators.required);
+      this.form.setValidators('assureNumeroAssurance', [requiredValidator()]);
     } else {
-      this.form.get('assureNumeroAssurance')?.clearValidators();
+      this.form.clearValidators('assureNumeroAssurance');
     }
-    this.form.get('assureNom')?.updateValueAndValidity();
-    this.form.get('assurePrenom')?.updateValueAndValidity();
-    this.form.get('assureNumeroAssurance')?.updateValueAndValidity();
   }
 
   onCentrePayeur(item: DropdownItem | null): void {
     if (this.readonly) return;
     const selectedId = item ? String((item as any).id ?? '') : null;
-    this.form.patchValue({centrePayeurId: selectedId});
+    this.form.set('centrePayeurId', selectedId);
     this.selectedCentrePayeurId.set(selectedId);
     this.emitAssuranceData();
   }
@@ -362,7 +417,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     });
     ref.afterClosed().subscribe((result) => {
       if (!result) return;
-      const isCurrentAssure = this.form.get('assureNumeroAssurance')?.value === a.numeroAssurance;
+      const isCurrentAssure = this.form.get('assureNumeroAssurance') === a.numeroAssurance;
       this.pendingUpdateAssure = true;
       this.ficheStore.updateAssure({
         centerId,
@@ -371,7 +426,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       });
 
       if (isCurrentAssure) {
-        this.form.patchValue({
+        this.form.patch({
           assureNom: result.nom,
           assurePrenom: result.prenom,
           assureSexe: result.sexe,
@@ -406,30 +461,24 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.ficheStore.searchAssures({centerId, q: this.assureSearch()});
   }
 
-  // ── Dialog : modification d'un assuré ──────────────────
-
   affectAssure(a: any): void {
     if (!this.canAssignAssure()) return;
     if (a?.isPrimary) return;
     const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
 
-    const patchAssureForm = () => {
-      this.form.patchValue({
-        assureNumeroAssurance: a.numeroAssurance,
-        assureNom: a.nom ?? '',
-        assurePrenom: a.prenom ?? '',
-        assureSexe: a.sexe ?? '',
-        assureDateNaissance: a.dateNaissance ?? null,
-        assureTelPersonnel: a.telPersonnel ?? '',
-        assureTelMobile: a.telMobile ?? '',
-        assureTelBureau: a.telBureau ?? '',
-        assureAdresse: a.adresse ?? '',
-        assureGroupeSanguin: a.groupeSanguin ?? '',
-      });
-    };
-
-    patchAssureForm();
+    this.form.patch({
+      assureNumeroAssurance: a.numeroAssurance,
+      assureNom: a.nom ?? '',
+      assurePrenom: a.prenom ?? '',
+      assureSexe: a.sexe ?? '',
+      assureDateNaissance: a.dateNaissance ?? null,
+      assureTelPersonnel: a.telPersonnel ?? '',
+      assureTelMobile: a.telMobile ?? '',
+      assureTelBureau: a.telBureau ?? '',
+      assureAdresse: a.adresse ?? '',
+      assureGroupeSanguin: a.groupeSanguin ?? '',
+    });
 
     this.ficheStore.assignAssure({
       centerId,
@@ -439,8 +488,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.pendingAssignAssure = true;
   }
 
-  // ── Affecter un assuré (mise à jour en temps réel) ─────
-
   openEditAssignment(h: any): void {
     this.editingAssignment.set({
       id: h.id,
@@ -448,8 +495,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       dateFinAffectation: h.dateFinAffectation ? new Date(h.dateFinAffectation) : null,
     });
   }
-
-  // ── Édition dates historique ────────────────────────────
 
   saveEditAssignment(): void {
     const edit = this.editingAssignment();
@@ -489,7 +534,6 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
   }
 
   patchData(data: Record<string, any>): void {
-    if (!this.form) return;
     const assureInfo = data['assureInfo'] ?? data['assure_info'] ?? {};
 
     const normalizeId = (value: any): string | null => {
@@ -553,7 +597,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
       assureAdresse:
         pickAssure('assureAdresse', 'assure_adresse') || (isSelf ? pick('adresse', 'adresse', '') : ''),
     };
-    this.form.patchValue(patch, { emitEvent: false });
+    this.form.patch(patch);
 
     const hasAssureData = [
       patch.assureNom,
@@ -573,24 +617,18 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     if (this.patientId) this.loadAssureHistory();
 
     this.selectedCentrePayeurId.set(patch.centrePayeurId);
-    // Mettre à jour les signals pour les SearchableSelectComponent en mode zoneless
-    this.assureSexeSignal.set(patch.assureSexe ?? '');
-    this.assureGroupeSanguinSignal.set(patch.assureGroupeSanguin ?? '');
     // NE PAS appeler emitAssuranceData() ici — wizardData contient déjà les données du patient
-    // depuis loadPatient ; la synchronisation bidirectionnelle est gérée par form.valueChanges.
-    // Émettre la validité AVANT de (re)désactiver — sinon form.valid est faux pour un form disabled.
-    this.validChange.emit(!!(patch.numeroAssurance));
+    // depuis loadPatient ; la synchronisation bidirectionnelle est gérée par les handlers.
+    this.validChange.emit(!!patch.numeroAssurance);
     this.applyReadonly();
   }
 
-  // ── Chargement & synchronisation ───────────────────────
-
   markTouched(): void {
-    this.form.markAllAsTouched();
+    this.form.markAllTouched();
   }
 
   isValid(): boolean {
-    return this.form.valid;
+    return this.form.valid();
   }
 
   private loadAssureHistory(force = false): void {
@@ -606,19 +644,18 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     this.ficheStore.loadAssureHistory({centerId, patientId: this.patientId});
   }
 
-  // ── API publique ────────────────────────────────────────
+  private emit(): void {
+    this.emitAssuranceData();
+    this.validChange.emit(this.form.valid());
+  }
 
   private applyReadonly(): void {
-    if (!this.form) return;
-    this.readonly
-      ? this.form.disable({emitEvent: false})
-      : this.form.enable({emitEvent: false});
+    this.form.setDisabled(this.readonly);
   }
 
   private emitAssuranceData(): void {
-    if (!this.form) return;
     this.dataChange.emit({
-      ...this.form.getRawValue(),
+      ...this.form.value(),
       codeCentrePayeur: this.codeCentrePayeur(),
       codeAgence: this.codeAgence(),
       libelleAgence: this.libelleAgence(),
