@@ -12,6 +12,12 @@
   },
   "private": true,
   "packageManager": "npm@10.9.2",
+  "overrides": {
+    "@angular-architects/ngrx-toolkit": {
+      "@angular/common": "^22.0.1",
+      "@angular/core": "^22.0.1"
+    }
+  },
   "dependencies": {
     "@angular-architects/ngrx-toolkit": "^21.0.1",
     "@angular/animations": "^22.0.1",
@@ -23,7 +29,7 @@
     "@angular/material": "^22.0.1",
     "@angular/platform-browser": "^22.0.1",
     "@angular/router": "^22.0.1",
-    "@ngrx/signals": "^21.0.1",
+    "@ngrx/signals": "^21.1.1",
     "@ngrx/store-devtools": "^21.1.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
