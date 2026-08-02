@@ -41,6 +41,8 @@ describe('SeanceStore', () => {
     deleteSeanceClosure: ReturnType<typeof vi.fn>;
     exportSeanceDashboard: ReturnType<typeof vi.fn>;
     listArticlesStock: ReturnType<typeof vi.fn>;
+    removeSeanceConsommable: ReturnType<typeof vi.fn>;
+    updateSeanceConsommableQuantite: ReturnType<typeof vi.fn>;
   };
   beforeEach(() => {
     mockApi = {
@@ -105,6 +107,8 @@ describe('SeanceStore', () => {
       addSeanceClosure: vi.fn().mockReturnValue(of({id: 'c1', dayDate: '2026-07-01'})),
       deleteSeanceClosure: vi.fn().mockReturnValue(of({deleted: true})),
       exportSeanceDashboard: vi.fn().mockReturnValue(of(new Blob())),
+      removeSeanceConsommable: vi.fn().mockReturnValue(of({removed: true, articleId: 'art1'})),
+      updateSeanceConsommableQuantite: vi.fn().mockReturnValue(of({updated: true, articleId: 'art1', quantite: 5})),
       listArticlesStock: vi.fn().mockReturnValue(of([
         {
           id: 'art1',
@@ -475,5 +479,55 @@ describe('SeanceStore', () => {
     expect(store.consommables().length).toBe(1);
     expect(store.consommables()[0].articleId).toBe('art1');
     expect(store.consommables()[0].articleCode).toBe('FLT-001');
+  });
+
+  it('should remove consommable from backend and local state on removeConsommableFromSeance', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.loadArticlesStock({centerId: CENTER_ID});
+    store.addConsommable(store.availableArticles()[0], 2);
+    store.addConsommable(store.availableArticles()[1], 3);
+    expect(store.consommables().length).toBe(2);
+
+    store.removeConsommableFromSeance({
+      seanceId: SEANCE_ID, articleId: 'art1', centerId: CENTER_ID, userId: 'inf-01'
+    });
+
+    expect(mockApi.removeSeanceConsommable).toHaveBeenCalledWith(SEANCE_ID, 'art1', CENTER_ID, 'inf-01');
+    expect(store.consommables().length).toBe(1);
+    expect(store.consommables()[0].articleId).toBe('art2');
+    expect(store.savingConsommable()).toBe(false);
+  });
+
+  it('should update consommable quantity in backend and local state', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.loadArticlesStock({centerId: CENTER_ID});
+    store.addConsommable(store.availableArticles()[0], 2);
+
+    store.updateConsommableQuantiteInSeance({
+      seanceId: SEANCE_ID, articleId: 'art1', centerId: CENTER_ID, userId: 'inf-01', quantite: 5
+    });
+
+    expect(mockApi.updateSeanceConsommableQuantite).toHaveBeenCalledWith(
+      SEANCE_ID, 'art1', {centerId: CENTER_ID, userId: 'inf-01', quantite: 5}
+    );
+    expect(store.consommables()[0].quantite).toBe(5);
+    expect(store.editingConsommableArticleId()).toBeNull();
+  });
+
+  it('should manage inline edit state correctly', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.loadArticlesStock({centerId: CENTER_ID});
+    store.addConsommable(store.availableArticles()[0], 2);
+
+    store.startEditConsommable('art1');
+    expect(store.editingConsommableArticleId()).toBe('art1');
+    expect(store.editingConsommableQuantite()).toBe(2);
+
+    store.setEditingConsommableQuantite(7);
+    expect(store.editingConsommableQuantite()).toBe(7);
+
+    store.cancelEditConsommable();
+    expect(store.editingConsommableArticleId()).toBeNull();
+    expect(store.editingConsommableQuantite()).toBeNull();
   });
 });

@@ -32,6 +32,18 @@ public interface StockMovementRepositoryPort {
     Optional<StockMovement> findFirstEntreeByLot(CenterId centerId, UUID lotId);
 
     /**
+     * SORTIE movements for a specific article within a specific seance (used for consommable
+     * cancellation/correction on a validated seance).
+     */
+    List<StockMovement> findBySeanceAndArticle(CenterId centerId, UUID seanceId, UUID articleId);
+
+    /**
+     * Delete all SORTIE movements for a specific article+seance pair (used by the consommable
+     * cancellation flow — lots are already restored before this call).
+     */
+    void deleteBySeanceAndArticle(CenterId centerId, UUID seanceId, UUID articleId);
+
+    /**
      * Batch-persist a full recalculation pass: for each movement set its recomputed
      * {@code pmp_apres} and, when {@code valorisation} is provided (stock exits),
      * rewrite {@code prix_unitaire} with the PMP that precedes the movement.

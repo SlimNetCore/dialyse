@@ -128,6 +128,13 @@ public class NotificationService {
         send(centerId, "SEANCE_MEDICAL_SAVED", payload);
     }
 
+    /**
+     * Notify that a seance consommable was added, updated or removed (stock changed).
+     */
+    public void notifySeanceUpdated(UUID centerId, UUID seanceId) {
+        send(centerId, "SEANCE_CONSOMMABLE_CHANGED", Map.of("seanceId", seanceId.toString()));
+    }
+
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
         Map<String, Object> event = new java.util.HashMap<>();
         event.put("type", eventType);

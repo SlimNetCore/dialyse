@@ -47,10 +47,22 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
         });
     }
 
+
     @Override
     public Optional<StockMovement> findFirstEntreeByLot(CenterId centerId, UUID lotId) {
         return jpa.findFirstByCenterIdAndLotIdAndMouvementTypeOrderByCreatedAtAsc(
                 centerId.value(), lotId, StockMovementType.ENTREE.name()).map(this::toDomain);
+    }
+
+    @Override
+    public List<StockMovement> findBySeanceAndArticle(CenterId centerId, UUID seanceId, UUID articleId) {
+        return jpa.findByCenterIdAndSeanceIdAndArticleId(centerId.value(), seanceId, articleId)
+                .stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public void deleteBySeanceAndArticle(CenterId centerId, UUID seanceId, UUID articleId) {
+        jpa.deleteByCenterIdAndSeanceIdAndArticleId(centerId.value(), seanceId, articleId);
     }
 
     @Override

@@ -604,6 +604,28 @@ export class BackendApiService {
     }>(`${this.baseUrl}/seances/${seanceId}/signer-medecin`, payload);
   }
 
+  /** Remove a consommable from a validated seance (reverses FEFO stock exits). */
+  removeSeanceConsommable(seanceId: string, articleId: string, centerId: string, userId: string): Observable<{
+    removed: boolean;
+    articleId: string
+  }> {
+    const params = new HttpParams().set('centerId', centerId).set('userId', userId);
+    return this.http.delete<{ removed: boolean; articleId: string }>(
+      `${this.baseUrl}/seances/${seanceId}/consommables/${articleId}`, {params}
+    );
+  }
+
+  /** Update the quantity of a consommable on a validated seance (FEFO re-issue). */
+  updateSeanceConsommableQuantite(seanceId: string, articleId: string, payload: {
+    centerId: string;
+    userId: string;
+    quantite: number;
+  }): Observable<{ updated: boolean; articleId: string; quantite: number }> {
+    return this.http.put<{ updated: boolean; articleId: string; quantite: number }>(
+      `${this.baseUrl}/seances/${seanceId}/consommables/${articleId}`, payload
+    );
+  }
+
   listArticlesStock(centerId: string): Observable<ArticleStock[]> {
     const params = new HttpParams().set('centerId', centerId);
     return this.http.get<ArticleStock[]>(`${this.baseUrl}/stock/referentiel/articles`, {params});

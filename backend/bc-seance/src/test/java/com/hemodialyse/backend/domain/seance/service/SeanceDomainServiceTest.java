@@ -234,6 +234,72 @@ class SeanceDomainServiceTest {
     }
 
     @Test
+    void removeConsommableSeance_should_call_reverse_and_succeed() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.validerParInfirmier("inf-01");
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(seanceRepo, patientRepo,
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), spyBonSortie);
+        service.removeConsommableSeance(centerId, seanceId, articleId, "inf-01");
+
+        assertTrue(spyBonSortie.reverseCalled);
+        assertEquals(articleId, spyBonSortie.lastReversedArticleId);
+    }
+
+    @Test
+    void updateConsommableSeance_should_call_reverse_then_add() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.validerParInfirmier("inf-01");
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(seanceRepo, patientRepo,
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), spyBonSortie);
+        service.updateConsommableSeance(centerId, seanceId, articleId, new BigDecimal("3"), "inf-01");
+
+        assertTrue(spyBonSortie.reverseCalled);
+        assertEquals(articleId, spyBonSortie.lastReversedArticleId);
+        assertTrue(spyBonSortie.addCalled);
+        assertEquals(articleId, spyBonSortie.lastAddedArticleId);
+        assertEquals(new BigDecimal("3"), spyBonSortie.lastAddedQuantite);
+    }
+
+    @Test
+    void removeConsommableSeance_should_fail_when_facturee() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.setStatus(SeanceStatus.FACTUREE);
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(seanceRepo, patientRepo,
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
+
+        assertThrows(IllegalStateException.class,
+                () -> service.removeConsommableSeance(centerId, seanceId, UUID.randomUUID(), "inf-01"));
+    }
+
+    @Test
     void updateDate_should_allow_edit_when_seance_is_signee() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
@@ -429,13 +495,18 @@ class SeanceDomainServiceTest {
     private static final class SpyBonSortieUseCase implements BonSortieUseCase {
         boolean called = false;
         List<SortieRequestItem> lastItems = List.of();
+        boolean reverseCalled = false;
+        UUID lastReversedArticleId = null;
+        boolean addCalled = false;
+        UUID lastAddedArticleId = null;
+        BigDecimal lastAddedQuantite = null;
 
         @Override
         public BonSortie create(CenterId centerId, UUID seanceId, UUID patientId, String poste,
                                 LocalDate dateSortie, List<SortieRequestItem> items, String userId) {
             called = true;
             lastItems = items;
-            return null; // test doesn't need the return value
+            return null;
         }
 
         @Override
@@ -446,6 +517,20 @@ class SeanceDomainServiceTest {
         @Override
         public List<BonSortie> list(CenterId centerId) {
             return List.of();
+        }
+
+        @Override
+        public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
+            reverseCalled = true;
+            lastReversedArticleId = articleId;
+        }
+
+        @Override
+        public void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
+                                           LocalDate dateSeance, UUID articleId, java.math.BigDecimal quantite, String userId) {
+            addCalled = true;
+            lastAddedArticleId = articleId;
+            lastAddedQuantite = quantite;
         }
     }
 }

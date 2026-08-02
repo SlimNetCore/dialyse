@@ -1021,6 +1021,38 @@ public class SeanceRestController {
                 "signedByMedecinAt", seance.getSignedByMedecinAt()
         ));
     }
+
+    /**
+     * Remove a consommable article from a validated seance, restoring stock.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    @DeleteMapping("/{seanceId}/consommables/{articleId}")
+    public ResponseEntity<?> removeConsommable(@PathVariable UUID seanceId,
+                                               @PathVariable UUID articleId,
+                                               @RequestParam UUID centerId,
+                                               @RequestParam(defaultValue = "system") String userId) {
+        seanceUseCase.removeConsommableSeance(CenterId.of(centerId), seanceId, articleId, userId);
+        notificationService.notifySeanceUpdated(centerId, seanceId);
+        return ResponseEntity.ok(Map.of("removed", true, "articleId", articleId));
+    }
+
+    /**
+     * Update the quantity of a consommable on a validated seance (FEFO re-issue).
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    @PutMapping("/{seanceId}/consommables/{articleId}")
+    public ResponseEntity<?> updateConsommableQuantite(@PathVariable UUID seanceId,
+                                                       @PathVariable UUID articleId,
+                                                       @RequestBody @Valid UpdateConsommableRequest request) {
+        seanceUseCase.updateConsommableSeance(
+                CenterId.of(request.centerId()), seanceId, articleId,
+                request.quantite(), request.userId());
+        notificationService.notifySeanceUpdated(request.centerId(), seanceId);
+        return ResponseEntity.ok(Map.of("updated", true, "articleId", articleId, "quantite", request.quantite()));
+    }
+
+    public record UpdateConsommableRequest(UUID centerId, String userId, java.math.BigDecimal quantite) {
+    }
 }
 
 

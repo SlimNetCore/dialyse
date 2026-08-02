@@ -41,5 +41,28 @@ class LotTest {
         Lot lot = newLot("30");
         assertThrows(BusinessException.class, () -> lot.consommer(new BigDecimal("31")));
     }
+
+    @Test
+    void restituerIncrementsRemaining() {
+        Lot lot = newLot("100");
+        lot.consommer(new BigDecimal("30"));
+        assertEquals(0, new BigDecimal("70").compareTo(lot.getQuantiteRestante()));
+        lot.restituer(new BigDecimal("20"));
+        assertEquals(0, new BigDecimal("90").compareTo(lot.getQuantiteRestante()));
+    }
+
+    @Test
+    void restituerRejectsNonPositive() {
+        Lot lot = newLot("100");
+        assertThrows(BusinessException.class, () -> lot.restituer(BigDecimal.ZERO));
+    }
+
+    @Test
+    void restituerCanRestoreMoreThanInitial() {
+        // The domain allows over-restoration (edge case when correcting data manually)
+        Lot lot = newLot("10");
+        lot.restituer(new BigDecimal("5"));
+        assertEquals(0, new BigDecimal("15").compareTo(lot.getQuantiteRestante()));
+    }
 }
 

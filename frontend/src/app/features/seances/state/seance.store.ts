@@ -120,6 +120,11 @@ type SeanceState = {
   newConsommableArticleId: string;
   newConsommableQuantite: number | null;
 
+  /** Édition en ligne d'un consommable existant */
+  editingConsommableArticleId: string | null;
+  editingConsommableQuantite: number | null;
+  savingConsommable: boolean;
+
   /** Articles disponibles dans le stock du centre */
   availableArticles: ArticleStock[];
   articlesLoading: boolean;
@@ -182,6 +187,9 @@ const initialState: SeanceState = {
   consommables: [],
   newConsommableArticleId: '',
   newConsommableQuantite: null,
+  editingConsommableArticleId: null,
+  editingConsommableQuantite: null,
+  savingConsommable: false,
   availableArticles: [],
   articlesLoading: false,
 };
@@ -262,6 +270,69 @@ export const SeanceStore = signalStore(
     clearConsommables(): void {
       patchState(store, {consommables: [], newConsommableArticleId: '', newConsommableQuantite: null});
     },
+
+    // --- Édition en ligne quantité ---
+    startEditConsommable(articleId: string): void {
+      const item = store.consommables().find((c) => c.articleId === articleId);
+      patchState(store, {
+        editingConsommableArticleId: articleId,
+        editingConsommableQuantite: item?.quantite ?? null,
+      });
+    },
+    cancelEditConsommable(): void {
+      patchState(store, {editingConsommableArticleId: null, editingConsommableQuantite: null});
+    },
+    setEditingConsommableQuantite(editingConsommableQuantite: number | null): void {
+      patchState(store, {editingConsommableQuantite});
+    },
+
+    /** Remove a consommable from backend (validated seance) then from local state. */
+    removeConsommableFromSeance: rxMethod<{ seanceId: string; articleId: string; centerId: string; userId: string }>(
+      pipe(
+        tap(() => patchState(store, {savingConsommable: true, error: null})),
+        switchMap(({seanceId, articleId, centerId, userId}) =>
+          api.removeSeanceConsommable(seanceId, articleId, centerId, userId).pipe(
+            tap(() => patchState(store, {
+              savingConsommable: false,
+              consommables: store.consommables().filter((c) => c.articleId !== articleId),
+              scanState: 'success',
+              scanMessage: 'Article supprimé',
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {savingConsommable: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
+    /** Update consommable quantity in backend (validated seance) then in local state. */
+    updateConsommableQuantiteInSeance: rxMethod<{
+      seanceId: string; articleId: string; centerId: string; userId: string; quantite: number;
+    }>(
+      pipe(
+        tap(() => patchState(store, {savingConsommable: true, error: null})),
+        switchMap(({seanceId, articleId, centerId, userId, quantite}) =>
+          api.updateSeanceConsommableQuantite(seanceId, articleId, {centerId, userId, quantite}).pipe(
+            tap(() => patchState(store, {
+              savingConsommable: false,
+              editingConsommableArticleId: null,
+              editingConsommableQuantite: null,
+              consommables: store.consommables().map((c) =>
+                c.articleId === articleId ? {...c, quantite} : c
+              ),
+              scanState: 'success',
+              scanMessage: 'Quantité mise à jour',
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {savingConsommable: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
 
     // --- QR / scan ---
     setQrCode(qrCode: string): void {

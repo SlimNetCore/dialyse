@@ -17,6 +17,10 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovementJ
 
     Optional<StockMovementJpaEntity> findFirstByCenterIdAndLotIdAndMouvementTypeOrderByCreatedAtAsc(
             UUID centerId, UUID lotId, String mouvementType);
+
+    List<StockMovementJpaEntity> findByCenterIdAndSeanceIdAndArticleId(UUID centerId, UUID seanceId, UUID articleId);
+
+    void deleteByCenterIdAndSeanceIdAndArticleId(UUID centerId, UUID seanceId, UUID articleId);
 }
 
 

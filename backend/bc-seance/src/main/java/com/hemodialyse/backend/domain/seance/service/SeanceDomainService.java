@@ -188,6 +188,33 @@ public class SeanceDomainService implements SeanceUseCase {
         return seanceRepo.save(seance);
     }
 
+    @Override
+    public void removeConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
+        Seance seance = seanceRepo.findById(seanceId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
+        if (seance.getStatus() == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+        }
+        bonSortieUseCase.reverseArticleConsommation(centerId, seanceId, articleId, userId);
+    }
+
+    @Override
+    public void updateConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId,
+                                        BigDecimal newQuantite, String userId) {
+        if (newQuantite == null || newQuantite.signum() <= 0) {
+            throw new IllegalArgumentException("La nouvelle quantite doit etre strictement positive");
+        }
+        Seance seance = seanceRepo.findById(seanceId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
+        if (seance.getStatus() == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+        }
+        // Reverse existing exits, then create new ones with the updated quantity
+        bonSortieUseCase.reverseArticleConsommation(centerId, seanceId, articleId, userId);
+        bonSortieUseCase.addArticleConsommation(centerId, seanceId, seance.getPatientId(),
+                seance.getDateSeance(), articleId, newQuantite, userId);
+    }
+
     private UUID resolvePatientIdFromQr(CenterId centerId, String qrCode) {
         if (qrCode == null || qrCode.isBlank()) {
             throw new IllegalArgumentException("QR invalide");

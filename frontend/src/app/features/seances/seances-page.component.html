@@ -451,17 +451,45 @@
                           </ng-container>
                           <ng-container matColumnDef="quantite">
                             <th *matHeaderCellDef mat-header-cell>Quantité</th>
-                            <td *matCellDef="let row" mat-cell>{{ row.quantite }}</td>
+                            <td *matCellDef="let row" mat-cell>
+                              @if (editingConsommableArticleId() === row.articleId) {
+                                <mat-form-field appearance="outline" class="qte-inline-field">
+                                  <input
+                                    (input)="onEditingQuantiteInput($event)"
+                                    [value]="editingConsommableQuantite() ?? row.quantite"
+                                    matInput min="0.001" step="0.001" type="number"/>
+                                </mat-form-field>
+                              } @else {
+                                {{ row.quantite }}
+                              }
+                            </td>
                           </ng-container>
                           <ng-container matColumnDef="actions">
                             <th *matHeaderCellDef class="consommables-actions-cell" mat-header-cell>Actions</th>
                             <td *matCellDef="let row" class="consommables-actions-cell" mat-cell>
-                              <button (click)="removeConsommable(row.articleId)" class="consommables-remove-button"
-                                      color="warn" mat-stroked-button
-                                      type="button">
-                                <mat-icon>delete</mat-icon>
-                                Supprimer
-                              </button>
+                              @if (editingConsommableArticleId() === row.articleId) {
+                                <button (click)="saveEditedConsommable()"
+                                        [disabled]="savingConsommable()"
+                                        color="primary" mat-flat-button type="button">
+                                  <mat-icon>check</mat-icon>
+                                  {{ savingConsommable() ? '...' : 'OK' }}
+                                </button>
+                                <button (click)="cancelEditConsommable()" mat-stroked-button type="button">
+                                  <mat-icon>close</mat-icon>
+                                </button>
+                              } @else {
+                                <button (click)="startEditConsommable(row.articleId)"
+                                        [disabled]="savingConsommable()"
+                                        color="accent" mat-stroked-button type="button">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                                <button (click)="removeConsommable(row.articleId)"
+                                        [disabled]="savingConsommable()"
+                                        class="consommables-remove-button"
+                                        color="warn" mat-stroked-button type="button">
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                              }
                             </td>
                           </ng-container>
                           <tr *matHeaderRowDef="consommableCols" mat-header-row></tr>

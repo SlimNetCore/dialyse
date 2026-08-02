@@ -54,6 +54,19 @@ public class Lot {
     }
 
     /**
+     * Restore (cancel) a previously consumed quantity back to this lot.
+     * Used when a consommable is removed or updated on a validated seance.
+     */
+    public void restituer(BigDecimal quantite) {
+        Quantite aRestituer = Quantite.of(quantite);
+        if (!aRestituer.isPositive()) {
+            throw new BusinessException("La quantite a restituer doit etre strictement positive");
+        }
+        BigDecimal restanteActuelle = quantiteRestante != null ? quantiteRestante : BigDecimal.ZERO;
+        this.quantiteRestante = restanteActuelle.add(aRestituer.value());
+    }
+
+    /**
      * Consume a quantity from this lot (used by FEFO exits).
      */
     public void consommer(BigDecimal quantite) {

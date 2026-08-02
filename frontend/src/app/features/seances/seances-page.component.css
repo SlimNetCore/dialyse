@@ -150,10 +150,18 @@ mat-card {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-width: 132px;
   justify-content: center;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.qte-inline-field {
+  width: 90px;
+  font-size: 0.85rem;
+}
+
+.qte-inline-field .mat-mdc-form-field-infix {
+  padding-block: 4px;
 }
 
 .flex1 {
@@ -168,7 +176,7 @@ mat-card {
 
 .consommables-actions-cell {
   white-space: nowrap;
-  width: 160px;
+  width: 200px;
   text-align: center;
 }
 

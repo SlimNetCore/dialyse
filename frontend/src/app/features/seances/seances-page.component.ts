@@ -104,6 +104,9 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly availableArticles = computed(() => this.store.availableArticles());
   protected readonly newConsommableArticleId = computed(() => this.store.newConsommableArticleId());
   protected readonly newConsommableQuantite = computed(() => this.store.newConsommableQuantite());
+  protected readonly editingConsommableArticleId = computed(() => this.store.editingConsommableArticleId());
+  protected readonly editingConsommableQuantite = computed(() => this.store.editingConsommableQuantite());
+  protected readonly savingConsommable = computed(() => this.store.savingConsommable());
   protected readonly canScanSeances = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE'));
   protected readonly canOpenSeanceDetails = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'MEDECIN'));
   protected readonly isSeanceFacturee = computed(() => this.summary()?.seance.status === 'FACTUREE');
@@ -457,6 +460,39 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.setNewConsommableQuantite(n);
   }
 
+  protected onEditingQuantiteInput(e: Event): void {
+    const val = (e.target as HTMLInputElement)?.value;
+    this.store.setEditingConsommableQuantite(parseNum(val));
+  }
+
+  protected startEditConsommable(articleId: string): void {
+    this.store.startEditConsommable(articleId);
+  }
+
+  protected cancelEditConsommable(): void {
+    this.store.cancelEditConsommable();
+  }
+
+  protected saveEditedConsommable(): void {
+    const centerId = this.appShell.currentCenterId();
+    const seanceId = this.store.summary()?.seance.id;
+    const userId = this.auth.username();
+    const articleId = this.store.editingConsommableArticleId();
+    const quantite = this.store.editingConsommableQuantite();
+    if (!centerId || !seanceId || !userId || !articleId || !quantite || quantite <= 0) return;
+
+    if (this.store.isSeanceAlreadyValidated()) {
+      this.store.updateConsommableQuantiteInSeance({seanceId, articleId, centerId, userId, quantite});
+    } else {
+      // Not yet committed to backend: just update local state
+      this.store.addConsommable(
+        this.store.consommables().find((c) => c.articleId === articleId) as any,
+        quantite - (this.store.consommables().find((c) => c.articleId === articleId)?.quantite ?? 0)
+      );
+      this.store.cancelEditConsommable();
+    }
+  }
+
   protected addConsommable(): void {
     const articleId = this.store.newConsommableArticleId();
     const quantite = this.store.newConsommableQuantite();
@@ -473,7 +509,16 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   }
 
   protected removeConsommable(articleId: string): void {
-    this.store.removeConsommable(articleId);
+    const centerId = this.appShell.currentCenterId();
+    const seanceId = this.store.summary()?.seance.id;
+    const userId = this.auth.username();
+
+    if (this.store.isSeanceAlreadyValidated() && centerId && seanceId && userId) {
+      // Already committed to backend: reverse stock exits
+      this.store.removeConsommableFromSeance({seanceId, articleId, centerId, userId});
+    } else {
+      this.store.removeConsommable(articleId);
+    }
   }
 
   protected articleLabel(articleId: string): string {

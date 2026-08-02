@@ -16,6 +16,7 @@ import com.hemodialyse.backend.domain.stock.service.PmpRecalculationCoordinator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -63,6 +64,17 @@ public class BonSortieApplicationService implements BonSortieUseCase {
     @Transactional(readOnly = true)
     public List<BonSortie> list(CenterId centerId) {
         return delegate.list(centerId);
+    }
+
+    @Override
+    public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
+        delegate.reverseArticleConsommation(centerId, seanceId, articleId, userId);
+    }
+
+    @Override
+    public void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
+                                       LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId) {
+        delegate.addArticleConsommation(centerId, seanceId, patientId, dateSeance, articleId, quantite, userId);
     }
 }
 

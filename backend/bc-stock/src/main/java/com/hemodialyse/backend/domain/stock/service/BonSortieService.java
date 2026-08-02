@@ -117,6 +117,73 @@ public class BonSortieService implements BonSortieUseCase {
         return repo.findAll(centerId);
     }
 
+    @Override
+    public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
+        // Find all SORTIE movements for this article+seance
+        List<StockMovement> movements = movementRepo.findBySeanceAndArticle(centerId, seanceId, articleId);
+        if (movements.isEmpty()) {
+            return; // Nothing to reverse
+        }
+        // Restore each lot's quantity
+        for (StockMovement m : movements) {
+            if (m.getLotId() != null) {
+                lotRepo.findById(m.getLotId(), centerId).ifPresent(lot -> {
+                    lot.restituer(m.getQuantite());
+                    lotRepo.save(lot);
+                });
+            }
+        }
+        // Delete the movements
+        movementRepo.deleteBySeanceAndArticle(centerId, seanceId, articleId);
+        // Trigger PMP recalculation to restore coherency
+        pmpEngine.recalculerArticle(centerId, articleId);
+        publishStockMovementChanged(centerId.value(), "CORRECTION", "SEANCE-CORR", 1);
+    }
+
+    @Override
+    public void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
+                                       LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId) {
+        String by = userId != null ? userId : "system";
+        Article article = articleRepo.findById(articleId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
+        if (!article.isActive()) {
+            throw new IllegalStateException("Article inactif: " + article.getCode());
+        }
+        if (recalcCoordinator.isLocked(centerId, articleId)) {
+            throw new IllegalStateException("Recalcul en cours pour l'article " + article.getCode());
+        }
+
+        // FEFO selection
+        List<Lot> fefoLots = lotRepo.findAvailableByArticleFefo(articleId, centerId);
+        BigDecimal remaining = quantite;
+        List<StockMovement> newMovements = new java.util.ArrayList<>();
+
+        for (Lot lot : fefoLots) {
+            if (remaining.signum() <= 0) break;
+            BigDecimal dispo = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
+            if (dispo.signum() <= 0) continue;
+            BigDecimal take = remaining.min(dispo);
+            lot.consommer(take);
+            lotRepo.save(lot);
+            BigDecimal pmpApplique = article.getPmpCourant() != null ? article.getPmpCourant() : BigDecimal.ZERO;
+            StockMovement m = StockMovement.sortieLot(centerId.value(), articleId, seanceId, lot.getId(), take, pmpApplique, by);
+            newMovements.add(m);
+            remaining = remaining.subtract(take);
+        }
+
+        if (remaining.signum() > 0) {
+            throw new IllegalStateException(
+                    "Stock insuffisant pour l'article " + article.getCode()
+                            + " (manque: " + remaining + " " + article.getUnite() + ")");
+        }
+
+        for (StockMovement m : newMovements) {
+            movementRepo.save(m);
+        }
+        pmpEngine.recalculerArticle(centerId, articleId);
+        publishStockMovementChanged(centerId.value(), "SORTIE", "SEANCE-UPDATE", 1);
+    }
+
     private void publishStockMovementChanged(UUID centerId, String mouvement, String reference, int articleCount) {
         events.stockMovementChanged(centerId, mouvement, reference, articleCount);
     }

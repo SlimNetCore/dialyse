@@ -17,6 +17,7 @@ import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -82,6 +83,17 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Override
     public Seance signByMedecin(CenterId centerId, UUID seanceId, String userId) {
         return delegate.signByMedecin(centerId, seanceId, userId);
+    }
+
+    @Override
+    public void removeConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
+        delegate.removeConsommableSeance(centerId, seanceId, articleId, userId);
+    }
+
+    @Override
+    public void updateConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId,
+                                        BigDecimal newQuantite, String userId) {
+        delegate.updateConsommableSeance(centerId, seanceId, articleId, newQuantite, userId);
     }
 }
 
