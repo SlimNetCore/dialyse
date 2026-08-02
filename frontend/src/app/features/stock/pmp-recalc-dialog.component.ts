@@ -4,6 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/
 import {MatButtonModule} from '@angular/material/button';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatIconModule} from '@angular/material/icon';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {StockApiService} from '../../core/api/stock-api.service';
 
 export interface PmpRecalcDialogData {
@@ -14,7 +15,7 @@ export interface PmpRecalcDialogData {
 @Component({
   selector: 'app-pmp-recalc-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatProgressBarModule, MatIconModule],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatProgressBarModule, MatIconModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pmp-recalc-dialog.component.html',
   styleUrl: './pmp-recalc-dialog.component.css',
@@ -23,19 +24,24 @@ export class PmpRecalcDialogComponent implements OnInit, OnDestroy {
   protected readonly status = signal<'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED'>('PENDING');
   protected readonly processed = signal(0);
   protected readonly total = signal(0);
-  protected readonly message = signal('Demarrage du recalcul...');
+  protected readonly message = signal('');
   protected readonly progressPercent = signal(0);
   private readonly api = inject(StockApiService);
   private readonly dialogRef = inject(MatDialogRef<PmpRecalcDialogComponent>);
   private readonly data = inject<PmpRecalcDialogData>(MAT_DIALOG_DATA);
+  private readonly translate = inject(TranslateService);
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    this.message.set(this.translate.instant('STOCK.PMP_RECALC.STARTING'));
+  }
 
   ngOnInit(): void {
     this.api.startPmpRecalc(this.data.centerId, this.data.articleIds).subscribe({
       next: ({jobId}) => this.poll(jobId),
       error: () => {
         this.status.set('FAILED');
-        this.message.set('Impossible de demarrer le recalcul.');
+        this.message.set(this.translate.instant('STOCK.PMP_RECALC.START_ERROR'));
       },
     });
   }
@@ -66,7 +72,7 @@ export class PmpRecalcDialogComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.status.set('FAILED');
-        this.message.set('Erreur de suivi du recalcul.');
+        this.message.set(this.translate.instant('STOCK.PMP_RECALC.TRACKING_ERROR'));
       },
     });
   }

@@ -1,17 +1,17 @@
 <h2 mat-dialog-title>
   <mat-icon>sync</mat-icon>
-  Recalcul PMP en cours
+  {{ 'STOCK.PMP_RECALC.TITLE' | translate }}
 </h2>
 
 <mat-dialog-content>
-  <p class="note">Le recalcul se fait en arriere-plan. Vous pouvez continuer la navigation.</p>
+  <p class="note">{{ 'STOCK.PMP_RECALC.NOTE' | translate }}</p>
 
   <div class="row">
-    <span>Etat:</span>
+    <span>{{ 'STOCK.PMP_RECALC.STATUS_LABEL' | translate }}</span>
     <strong>{{ status() }}</strong>
   </div>
   <div class="row">
-    <span>Progression:</span>
+    <span>{{ 'STOCK.PMP_RECALC.PROGRESS_LABEL' | translate }}</span>
     <strong>{{ processed() }} / {{ total() }}</strong>
   </div>
 
@@ -24,6 +24,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button (click)="close()" mat-stroked-button>Fermer</button>
+  <button (click)="close()" mat-stroked-button>{{ 'STOCK.PMP_RECALC.CLOSE' | translate }}</button>
 </mat-dialog-actions>
 

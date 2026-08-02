@@ -10,7 +10,44 @@
     "USERNAME": "Username",
     "PASSWORD": "Password",
     "SUBMIT": "Sign in",
-    "BRANDING_DESC": "Multi-center management platform\nfor hemodialysis"
+    "BRANDING_DESC": "Multi-center management platform\nfor hemodialysis",
+    "KICKER": "Care coordination platform",
+    "HERO_CENTERS_LABEL": "Centers",
+    "HERO_CENTERS_DESC": "Secure and contextualized multi-center access.",
+    "HERO_RHYTHM_LABEL": "Rhythm",
+    "HERO_RHYTHM_VALUE": "Real time",
+    "HERO_RHYTHM_DESC": "Alerts, coverage and notifications synchronized.",
+    "HERO_DESIGN_LABEL": "Design",
+    "HERO_DESIGN_DESC": "Editorial visual atmosphere tailored for clinical workstations.",
+    "CARD_EYEBROW": "Secure access",
+    "CARD_SUBTITLE": "Identify your center, then open your operator workspace."
+  },
+  "STOCK": {
+    "PMP_RECALC": {
+      "TITLE": "WAP recalculation in progress",
+      "NOTE": "The recalculation runs in the background. You can continue navigating.",
+      "STATUS_LABEL": "Status:",
+      "PROGRESS_LABEL": "Progress:",
+      "CLOSE": "Close",
+      "STARTING": "Starting recalculation...",
+      "START_ERROR": "Unable to start recalculation.",
+      "TRACKING_ERROR": "Recalculation tracking error."
+    },
+    "PMP_EXPLAIN": {
+      "TITLE": "WAP calculation — {{article}}",
+      "STOCK_QTY": "Stock quantity",
+      "STOCK_VALUE": "Stock value",
+      "CURRENT_PMP": "Current WAP",
+      "EMPTY_MOVEMENTS": "No stock movement for this item: WAP is 0.",
+      "COL_PIECE": "Document",
+      "COL_DATE_PIECE": "Document date",
+      "COL_TYPE": "Type",
+      "COL_QTE": "Qty",
+      "COL_PU": "Unit price",
+      "COL_PMP_APRES": "WAP after",
+      "COL_FORMULE": "Formula",
+      "CLOSE": "Close"
+    }
   },
   "TOOLBAR": {
     "LOGOUT": "Sign out"

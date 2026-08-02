@@ -10,7 +10,44 @@
     "USERNAME": "Nom d'utilisateur",
     "PASSWORD": "Mot de passe",
     "SUBMIT": "Se connecter",
-    "BRANDING_DESC": "Plateforme de gestion multi-centre\npour l'hémodialyse"
+    "BRANDING_DESC": "Plateforme de gestion multi-centre\npour l'hémodialyse",
+    "KICKER": "Plateforme de coordination",
+    "HERO_CENTERS_LABEL": "Centres",
+    "HERO_CENTERS_DESC": "Connexion multi-centre sécurisée et contextualisée.",
+    "HERO_RHYTHM_LABEL": "Cadence",
+    "HERO_RHYTHM_VALUE": "Temps réel",
+    "HERO_RHYTHM_DESC": "Alertes, prises en charge et notifications synchronisées.",
+    "HERO_DESIGN_LABEL": "Design",
+    "HERO_DESIGN_DESC": "Ambiance visuelle éditoriale adaptée au poste clinique.",
+    "CARD_EYEBROW": "Accès sécurisé",
+    "CARD_SUBTITLE": "Identifiez votre centre, puis ouvrez votre espace opérateur."
+  },
+  "STOCK": {
+    "PMP_RECALC": {
+      "TITLE": "Recalcul PMP en cours",
+      "NOTE": "Le recalcul se fait en arrière-plan. Vous pouvez continuer la navigation.",
+      "STATUS_LABEL": "État :",
+      "PROGRESS_LABEL": "Progression :",
+      "CLOSE": "Fermer",
+      "STARTING": "Démarrage du recalcul...",
+      "START_ERROR": "Impossible de démarrer le recalcul.",
+      "TRACKING_ERROR": "Erreur de suivi du recalcul."
+    },
+    "PMP_EXPLAIN": {
+      "TITLE": "Calcul du PMP — {{article}}",
+      "STOCK_QTY": "Quantité en stock",
+      "STOCK_VALUE": "Valeur du stock",
+      "CURRENT_PMP": "PMP courant",
+      "EMPTY_MOVEMENTS": "Aucun mouvement de stock pour cet article : le PMP est à 0.",
+      "COL_PIECE": "Pièce",
+      "COL_DATE_PIECE": "Date pièce",
+      "COL_TYPE": "Type",
+      "COL_QTE": "Qté",
+      "COL_PU": "PU",
+      "COL_PMP_APRES": "PMP après",
+      "COL_FORMULE": "Formule",
+      "CLOSE": "Fermer"
+    }
   },
   "TOOLBAR": {
     "LOGOUT": "Déconnexion"

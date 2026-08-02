@@ -1,6 +1,6 @@
 <div class="login-wrapper">
   <section class="login-left">
-    <span class="login-kicker">Plateforme de coordination</span>
+    <span class="login-kicker">{{ 'LOGIN.KICKER' | translate }}</span>
     <div class="hero-orbit"></div>
     <div class="hero-copy">
       <mat-icon class="brand-icon">monitor_heart</mat-icon>
@@ -10,19 +10,19 @@
 
     <div class="hero-grid">
       <article>
-        <span>Centres</span>
+        <span>{{ 'LOGIN.HERO_CENTERS_LABEL' | translate }}</span>
         <strong>{{ store.availableCenters().length || '—' }}</strong>
-        <p>Connexion multi-centre sécurisée et contextualisée.</p>
+        <p>{{ 'LOGIN.HERO_CENTERS_DESC' | translate }}</p>
       </article>
       <article>
-        <span>Cadence</span>
-        <strong>Temps réel</strong>
-        <p>Alertes, prises en charge et notifications synchronisées.</p>
+        <span>{{ 'LOGIN.HERO_RHYTHM_LABEL' | translate }}</span>
+        <strong>{{ 'LOGIN.HERO_RHYTHM_VALUE' | translate }}</strong>
+        <p>{{ 'LOGIN.HERO_RHYTHM_DESC' | translate }}</p>
       </article>
       <article>
-        <span>Design</span>
+        <span>{{ 'LOGIN.HERO_DESIGN_LABEL' | translate }}</span>
         <strong>{{ theme.currentTheme() | titlecase }}</strong>
-        <p>Ambiance visuelle éditoriale adaptée au poste clinique.</p>
+        <p>{{ 'LOGIN.HERO_DESIGN_DESC' | translate }}</p>
       </article>
     </div>
   </section>
@@ -71,12 +71,9 @@
 
     <mat-card class="login-card">
       <mat-card-header>
-        <div class="card-eyebrow">Accès sécurisé</div>
+        <div class="card-eyebrow">{{ 'LOGIN.CARD_EYEBROW' | translate }}</div>
         <mat-card-title>{{ 'LOGIN.TITLE' | translate }}</mat-card-title>
-        <mat-card-subtitle
-        >Identifiez votre centre, puis ouvrez votre espace opérateur.
-        </mat-card-subtitle
-        >
+        <mat-card-subtitle>{{ 'LOGIN.CARD_SUBTITLE' | translate }}</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>

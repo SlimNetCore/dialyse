@@ -6,6 +6,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {TranslateModule} from '@ngx-translate/core';
 import {PmpExplanation, StockApiService} from '../../core/api/stock-api.service';
 
 export interface PmpExplainData {
@@ -19,7 +20,7 @@ export interface PmpExplainData {
   standalone: true,
   imports: [
     CommonModule, MatDialogModule, MatButtonModule, MatIconModule,
-    MatTableModule, MatChipsModule, MatProgressBarModule,
+    MatTableModule, MatChipsModule, MatProgressBarModule, TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pmp-explain-dialog.component.html',
