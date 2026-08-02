@@ -20,6 +20,9 @@ public interface BonSortieUseCase {
 
     List<BonSortie> list(CenterId centerId);
 
+    BonSortie update(CenterId centerId, UUID bonId, UUID seanceId, UUID patientId,
+                     String poste, LocalDate dateSortie, List<SortieRequestItem> items, String userId);
+
     /**
      * Cancel all stock exits already recorded for a given article+seance pair.
      * Lot quantities are restored (FEFO reversal), movements deleted, and PMP recalculated.

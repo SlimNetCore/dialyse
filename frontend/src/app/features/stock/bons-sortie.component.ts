@@ -31,13 +31,17 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   styleUrl: './bons-sortie.component.css',
 })
 export class BonsSortieComponent implements OnDestroy {
-  protected readonly cols = ['reference', 'date', 'lignes'];
+  protected readonly cols = ['reference', 'date', 'lignes', 'actions'];
   protected readonly bons = signal<BonSortie[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly lotsByRow = signal<Record<number, LotDisponible[]>>({});
   protected readonly lockedArticleIds = signal<string[]>([]);
   protected readonly saving = signal(false);
   protected readonly submitAttempted = signal(false);
+  protected readonly editingBonId = signal<string | null>(null);
+  protected readonly editingSeanceId = signal<string | null>(null);
+  protected readonly editingPatientId = signal<string | null>(null);
+  protected readonly editingPoste = signal<string | null>(null);
   protected readonly formModel = signal<SortieFormModel>(this.createInitialForm());
   protected readonly sortieForm = compatForm(this.formModel, (form) => {
     required(form.dateSortie);
@@ -160,21 +164,26 @@ export class BonsSortieComponent implements OnDestroy {
       return;
     }
     this.saving.set(true);
-    this.api.createBonSortie({
+    const payload = {
       centerId,
       dateSortie: this.toIso(model.dateSortie),
+      seanceId: this.editingSeanceId() ?? undefined,
+      patientId: this.editingPatientId() ?? undefined,
+      poste: this.editingPoste() ?? undefined,
       userId: this.auth.username() ?? undefined,
       items: model.items.map(item => ({
         articleId: item.articleId!,
         lotId: item.lotId!,
         quantite: Number(item.quantite ?? 0),
       })),
-    }).subscribe({
+    };
+    const req$ = this.editingBonId()
+      ? this.api.updateBonSortie(this.editingBonId()!, payload)
+      : this.api.createBonSortie(payload);
+    req$.subscribe({
       next: () => {
-        this.snack.open('Sortie enregistree', 'OK', {duration: 2500});
-        this.formModel.set(this.createInitialForm());
-        this.submitAttempted.set(false);
-        this.lotsByRow.set({});
+        this.snack.open(this.editingBonId() ? 'Bon de sortie modifie' : 'Sortie enregistree', 'OK', {duration: 2500});
+        this.cancelEdit();
         this.reload();
       },
       complete: () => this.saving.set(false),
@@ -184,6 +193,41 @@ export class BonsSortieComponent implements OnDestroy {
         this.snack.open(msg, 'Fermer', {duration: 5000});
       },
     });
+  }
+
+  protected editBon(bon: BonSortie): void {
+    this.editingBonId.set(bon.id);
+    this.editingSeanceId.set(bon.seanceId ?? null);
+    this.editingPatientId.set(bon.patientId ?? null);
+    this.editingPoste.set(bon.poste ?? null);
+    this.formModel.set({
+      dateSortie: bon.dateSortie ? new Date(bon.dateSortie) : new Date(),
+      items: bon.lignes.map((line) => ({
+        articleId: line.articleId,
+        lotId: line.lotId ?? null,
+        quantite: Number(line.quantite ?? 0),
+      })),
+    });
+    const centerId = this.auth.centerId();
+    if (centerId) {
+      bon.lignes.forEach((line, idx) => {
+        this.api.listLotsDisponibles(centerId, line.articleId).subscribe({
+          next: (lots) => this.setLotsForRow(idx, lots),
+          error: () => this.setLotsForRow(idx, []),
+        });
+      });
+    }
+    this.submitAttempted.set(false);
+  }
+
+  protected cancelEdit(): void {
+    this.editingBonId.set(null);
+    this.editingSeanceId.set(null);
+    this.editingPatientId.set(null);
+    this.editingPoste.set(null);
+    this.formModel.set(this.createInitialForm());
+    this.submitAttempted.set(false);
+    this.lotsByRow.set({});
   }
 
   protected hasLockedItems(): boolean {

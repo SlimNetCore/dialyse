@@ -8,5 +8,7 @@ import java.util.UUID;
 
 public interface LigneSortieJpaRepository extends JpaRepository<LigneSortieJpaEntity, UUID> {
     List<LigneSortieJpaEntity> findByBonSortieId(UUID bonSortieId);
+
+    void deleteByBonSortieId(UUID bonSortieId);
 }
 

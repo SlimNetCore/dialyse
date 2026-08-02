@@ -7,7 +7,7 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Nouvelle sortie</mat-card-title>
+      <mat-card-title>{{ editingBonId() ? 'Modifier' : 'Nouvelle' }} sortie</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form (submit)="save(); $event.preventDefault()" [formRoot]="sortieForm">
@@ -92,10 +92,13 @@
             <mat-icon>add</mat-icon>
             Ajouter un article
           </button>
+          @if (editingBonId()) {
+            <button (click)="cancelEdit()" mat-stroked-button type="button">Annuler</button>
+          }
           <button [disabled]="!canSave() || saving() || hasLockedItems()" color="primary" mat-flat-button
                   type="submit">
             <mat-icon>logout</mat-icon>
-            Sortir du stock
+            {{ editingBonId() ? 'Mettre a jour' : 'Sortir du stock' }}
           </button>
         </div>
       </form>
@@ -120,6 +123,14 @@
           <ng-container matColumnDef="lignes">
             <th *matHeaderCellDef mat-header-cell>Lignes</th>
             <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell>Actions</th>
+            <td *matCellDef="let b" mat-cell>
+              <button (click)="editBon(b)" mat-icon-button>
+                <mat-icon>edit</mat-icon>
+              </button>
+            </td>
           </ng-container>
           <tr *matHeaderRowDef="cols" mat-header-row></tr>
           <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>

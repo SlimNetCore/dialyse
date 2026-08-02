@@ -323,6 +323,18 @@ export class StockApiService {
     return this.http.post<BonSortie>(`${this.base}/bons-sortie`, payload);
   }
 
+  updateBonSortie(id: string, payload: {
+    centerId: string;
+    seanceId?: string;
+    patientId?: string;
+    poste?: string;
+    dateSortie?: string;
+    userId?: string;
+    items: SortieItem[];
+  }) {
+    return this.http.put<BonSortie>(`${this.base}/bons-sortie/${id}`, payload);
+  }
+
   listLotsDisponibles(centerId: string, articleId: string): Observable<LotDisponible[]> {
     const params = new HttpParams().set('centerId', centerId).set('articleId', articleId);
     return this.http.get<LotDisponible[]>(`${this.base}/bons-sortie/lots-disponibles`, {params});

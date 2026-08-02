@@ -14,6 +14,7 @@ describe('BonsSortieComponent', () => {
     listLotsDisponibles: vi.fn(() => of([])),
     listPmpRecalcLocks: vi.fn(() => of([])),
     createBonSortie: vi.fn(() => of({id: 'bs-1'})),
+    updateBonSortie: vi.fn(() => of({id: 'bs-1'})),
   };
 
   const refApiMock = {
@@ -95,6 +96,37 @@ describe('BonsSortieComponent', () => {
       }),
     );
     expect(snackMock.open).toHaveBeenCalled();
+  });
+
+  it('edite un bon existant via updateBonSortie', () => {
+    stockApiMock.listBonsSortie.mockReturnValueOnce(of([{
+      id: 'bs-1',
+      centerId: 'center-1',
+      reference: 'BS-001',
+      seanceId: 'seance-1',
+      patientId: 'patient-1',
+      poste: 'SEANCE',
+      dateSortie: '2026-06-14',
+      lignes: [{articleId: 'a1', lotId: 'l1', quantite: 2}],
+    }] as any));
+    stockApiMock.listLotsDisponibles.mockReturnValueOnce(of([{id: 'l1', numeroLot: 'LOT-1'}] as any));
+
+    const fixture = TestBed.createComponent(BonsSortieComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    component.editBon(component.bons()[0]);
+    component.save();
+
+    expect(stockApiMock.updateBonSortie).toHaveBeenCalledWith(
+      'bs-1',
+      expect.objectContaining({
+        centerId: 'center-1',
+        seanceId: 'seance-1',
+        patientId: 'patient-1',
+        poste: 'SEANCE',
+      }),
+    );
   });
 
   it('detecte les lignes verrouillees', () => {

@@ -30,6 +30,7 @@ public class BonSortieRepositoryAdapter implements BonSortieRepositoryPort {
     @Transactional
     public BonSortie save(BonSortie bon) {
         jpa.save(toJpa(bon));
+        ligneJpa.deleteByBonSortieId(bon.getId());
         for (LigneSortie l : bon.getLignes()) {
             ligneJpa.save(toJpa(bon.getId(), l));
         }

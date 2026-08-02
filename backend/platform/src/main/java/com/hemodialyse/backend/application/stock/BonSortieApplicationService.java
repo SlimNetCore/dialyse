@@ -67,6 +67,12 @@ public class BonSortieApplicationService implements BonSortieUseCase {
     }
 
     @Override
+    public BonSortie update(CenterId centerId, UUID bonId, UUID seanceId, UUID patientId,
+                            String poste, LocalDate dateSortie, List<SortieRequestItem> items, String userId) {
+        return delegate.update(centerId, bonId, seanceId, patientId, poste, dateSortie, items, userId);
+    }
+
+    @Override
     public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
         delegate.reverseArticleConsommation(centerId, seanceId, articleId, userId);
     }
