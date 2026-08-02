@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.seance.model.Seance;
+import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.model.VoletParamedical;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
@@ -16,6 +17,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VoletParamedicalDomainServiceTest {
 
@@ -50,6 +53,38 @@ class VoletParamedicalDomainServiceTest {
         assertEquals(seanceId, volet.getSeanceId());
         assertEquals("140/90", volet.getTaAvant());
         assertEquals(1, voletRepo.data.size());
+    }
+
+    @Test
+    void save_should_fail_when_seance_is_facturee() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryVoletRepository voletRepo = new InMemoryVoletRepository();
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.setStatus(SeanceStatus.FACTUREE);
+        seanceRepo.save(seance);
+
+        VoletParamedicalDomainService service = new VoletParamedicalDomainService(seanceRepo, voletRepo);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> service.save(
+                centerId,
+                seanceId,
+                new BigDecimal("72.5"),
+                new BigDecimal("70.1"),
+                "140/90",
+                "130/80",
+                240,
+                300,
+                new BigDecimal("2500"),
+                "Heparine",
+                "Bicarbonate",
+                "RAS"
+        ));
+
+        assertTrue(ex.getMessage().contains("facturee"));
     }
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {

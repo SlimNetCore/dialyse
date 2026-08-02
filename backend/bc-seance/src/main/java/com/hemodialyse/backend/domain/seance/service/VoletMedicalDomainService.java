@@ -42,6 +42,9 @@ public class VoletMedicalDomainService implements VoletMedicalUseCase {
         if (seance.getStatus() == SeanceStatus.CREE) {
             throw new IllegalStateException("Le volet medical n'est accessible qu'apres validation infirmiere");
         }
+        if (seance.getStatus() == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+        }
 
         VoletMedical volet = voletRepository.findBySeanceId(seanceId, centerId).orElseGet(VoletMedical::new);
         if (volet.getId() == null) {

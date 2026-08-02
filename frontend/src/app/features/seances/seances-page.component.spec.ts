@@ -316,6 +316,60 @@ describe('SeancesPageComponent', () => {
 
     expect(storeMock.removeConsommable).toHaveBeenCalledWith('article-1');
   });
+
+  it('should lock edition when seance status is FACTUREE', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    storeMock['summary'] = vi.fn(() => ({
+      seance: {
+        id: 'seance-123',
+        centerId: CENTER_ID,
+        patientId: 'patient-1',
+        dateSeance: '2026-07-31',
+        status: 'FACTUREE'
+      },
+    }));
+
+    expect(component['canEditParamedical']()).toBe(false);
+    expect(component['canEditMedical']()).toBe(false);
+    expect(component['canEditDate']()).toBe(false);
+  });
+
+  it('should allow consommables validation action when seance status is VALIDEE', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    storeMock['summary'] = vi.fn(() => ({
+      seance: {
+        id: 'seance-123',
+        centerId: CENTER_ID,
+        patientId: 'patient-1',
+        dateSeance: '2026-07-31',
+        status: 'VALIDEE'
+      },
+    }));
+    storeMock['consommables'] = vi.fn(() => [{articleId: 'article-1', quantite: 1}]);
+
+    component['validateSeanceParamedical']();
+
+    expect(storeMock.validateSeance).toHaveBeenCalledTimes(1);
+  });
+
+  it('should format article label from existing consommables when article catalog is missing', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+
+    storeMock['availableArticles'] = vi.fn(() => []);
+    storeMock['consommables'] = vi.fn(() => [
+      {
+        articleId: 'article-x',
+        articleCode: 'ART-X',
+        articleLibelle: 'Article historique',
+        articleUnite: 'u',
+        quantite: 1
+      },
+    ]);
+
+    expect(component['articleLabel']('article-x')).toBe('[ART-X] Article historique');
+  });
 });
 
 

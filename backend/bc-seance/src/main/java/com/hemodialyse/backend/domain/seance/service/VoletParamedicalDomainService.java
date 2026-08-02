@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.seance.service;
 
+import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.model.VoletParamedical;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
@@ -42,8 +43,11 @@ public class VoletParamedicalDomainService implements VoletParamedicalUseCase {
                                  String anticoagulant,
                                  String typeDialysat,
                                  String incidents) {
-        seanceRepository.findById(seanceId, centerId)
+        var seance = seanceRepository.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
+        if (seance.getStatus() == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+        }
 
         VoletParamedical volet = voletRepository.findBySeanceId(seanceId, centerId).orElseGet(VoletParamedical::new);
         if (volet.getId() == null) {

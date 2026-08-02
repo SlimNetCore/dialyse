@@ -407,7 +407,7 @@
 
               <mat-tab label="Consommables">
                 <div class="tab-body">
-                  @if (canValidateSeance() && !isSeanceAlreadyValidated()) {
+                  @if (canValidateSeance() && !isSeanceFacturee()) {
                     <p class="section-note">
                       Sélectionnez les articles consommés pendant cette séance. Ils seront sortis du stock au PMP lors
                       de la validation.

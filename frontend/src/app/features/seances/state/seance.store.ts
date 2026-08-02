@@ -197,7 +197,7 @@ export const SeanceStore = signalStore(
     }),
     isSeanceAlreadyValidated: computed(() => {
       const status = store.summary()?.seance.status;
-      return status === 'VALIDEE' || status === 'SIGNEE';
+      return status === 'VALIDEE' || status === 'SIGNEE' || status === 'FACTUREE';
     }),
     dashboardDetailPageItems: computed(() => {
       const start = store.dashboardDetailPageIndex() * DASHBOARD_PAGE_SIZE;
@@ -462,7 +462,6 @@ export const SeanceStore = signalStore(
               validatingSeance: false,
               scanState: 'success',
               scanMessage: 'Séance validée',
-              consommables: []
             })),
             catchError((err: unknown) => {
               patchState(store, {validatingSeance: false, error: errorMessage(err)});
@@ -740,7 +739,15 @@ function summaryStateFromSummary(summary: SeanceSummary): Partial<SeanceState> {
     resultatsBiologiques: summary.medical?.resultatsBiologiques ?? '',
     ajustementsTherapeutiques: summary.medical?.ajustementsTherapeutiques ?? '',
     conclusionMedicale: summary.medical?.conclusionMedicale ?? '',
-    consommables: [],
+    consommables: (summary.consommables ?? [])
+      .filter((row) => !!row.articleId && Number(row.quantite ?? 0) > 0)
+      .map((row) => ({
+        articleId: row.articleId,
+        articleCode: row.articleCode ?? '',
+        articleLibelle: row.articleLibelle ?? '',
+        articleUnite: row.articleUnite ?? '',
+        quantite: Number(row.quantite ?? 0),
+      })),
   };
 }
 

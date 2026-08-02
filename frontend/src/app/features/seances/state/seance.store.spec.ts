@@ -274,6 +274,16 @@ describe('SeanceStore', () => {
     store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});
     expect(store.isSeanceAlreadyValidated()).toBe(true);
   });
+
+  it('isSeanceAlreadyValidated should be true when summary status is FACTUREE', () => {
+    mockApi.getSeanceSummary.mockReturnValueOnce(of({
+      ...MOCK_SUMMARY,
+      seance: {...MOCK_SUMMARY.seance, status: 'FACTUREE'}
+    }));
+    const store = TestBed.inject(SeanceStore);
+    store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});
+    expect(store.isSeanceAlreadyValidated()).toBe(true);
+  });
   it('should load dashboard and compute stats', () => {
     const store = TestBed.inject(SeanceStore);
     store.loadDashboard({centerId: CENTER_ID, year: 2026, month: 7});
@@ -420,7 +430,7 @@ describe('SeanceStore', () => {
     expect(store.consommables()).toEqual([]);
   });
 
-  it('should clear consommables after successful seance validation', () => {
+  it('should keep consommables visible after successful seance validation', () => {
     const store = TestBed.inject(SeanceStore);
     store.loadArticlesStock({centerId: CENTER_ID});
     store.addConsommable(store.availableArticles()[0], 2);
@@ -429,7 +439,7 @@ describe('SeanceStore', () => {
       seanceId: SEANCE_ID,
       payload: {centerId: CENTER_ID, userId: 'inf-01', consommations: [{articleId: 'art1', quantite: 2}]}
     });
-    expect(store.consommables()).toEqual([]);
+    expect(store.consommables().length).toBe(1);
     expect(store.validatingSeance()).toBe(false);
   });
 
@@ -445,5 +455,25 @@ describe('SeanceStore', () => {
     const store = TestBed.inject(SeanceStore);
     store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});
     expect(store.isSeanceAlreadyValidated()).toBe(false);
+  });
+
+  it('should hydrate consommables from seance summary', () => {
+    mockApi.getSeanceSummary.mockReturnValueOnce(of({
+      ...MOCK_SUMMARY,
+      consommables: [
+        {
+          articleId: 'art1',
+          articleCode: 'FLT-001',
+          articleLibelle: 'Filtre dialyse',
+          articleUnite: 'pce',
+          quantite: 2,
+        }
+      ]
+    }));
+    const store = TestBed.inject(SeanceStore);
+    store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});
+    expect(store.consommables().length).toBe(1);
+    expect(store.consommables()[0].articleId).toBe('art1');
+    expect(store.consommables()[0].articleCode).toBe('FLT-001');
   });
 });

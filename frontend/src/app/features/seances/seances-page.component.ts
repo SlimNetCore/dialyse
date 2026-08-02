@@ -106,9 +106,12 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly newConsommableQuantite = computed(() => this.store.newConsommableQuantite());
   protected readonly canScanSeances = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE'));
   protected readonly canOpenSeanceDetails = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'MEDECIN'));
-  protected readonly canEditDate = computed(() => this.hasAnyRole('ADMIN'));
-  protected readonly canEditParamedical = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE'));
-  protected readonly canEditMedical = computed(() => this.hasAnyRole('ADMIN', 'MEDECIN'));
+  protected readonly isSeanceFacturee = computed(() => this.summary()?.seance.status === 'FACTUREE');
+  protected readonly canEditDate = computed(() => this.hasAnyRole('ADMIN') && !this.isSeanceFacturee());
+  protected readonly canEditParamedical = computed(() =>
+    this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE') && !this.isSeanceFacturee()
+  );
+  protected readonly canEditMedical = computed(() => this.hasAnyRole('ADMIN', 'MEDECIN') && !this.isSeanceFacturee());
   protected readonly chartOptions: ChartOptions<'bar' | 'doughnut'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -427,7 +430,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     const centerId = this.appShell.currentCenterId();
     const seanceId = this.store.summary()?.seance.id;
     const userId = this.auth.username();
-    if (!centerId || !seanceId || !userId || !this.canValidateSeance() || this.store.isSeanceAlreadyValidated()) return;
+    if (!centerId || !seanceId || !userId || !this.canValidateSeance() || this.isSeanceFacturee()) return;
     const consommations = this.store.consommables().map((c) => ({
       articleId: c.articleId,
       quantite: c.quantite,
@@ -475,7 +478,17 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   protected articleLabel(articleId: string): string {
     const a = this.store.availableArticles().find((x) => x.id === articleId);
-    if (!a) return articleId;
+    if (!a) {
+      const existing = this.store.consommables().find((x) => x.articleId === articleId);
+      if (existing) {
+        const code = existing.articleCode?.trim() ?? '';
+        const label = existing.articleLibelle?.trim() ?? '';
+        if (code && label) return `[${code}] ${label}`;
+        if (label) return label;
+        if (code) return `[${code}]`;
+      }
+      return articleId;
+    }
     return `[${a.code}] ${a.libelle ?? ''}`;
   }
 

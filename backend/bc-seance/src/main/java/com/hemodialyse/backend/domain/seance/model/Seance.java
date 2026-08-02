@@ -30,6 +30,12 @@ public class Seance {
     }
 
     public void validerParInfirmier(String userId) {
+        if (status == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+        }
+        if (status == SeanceStatus.VALIDEE || status == SeanceStatus.SIGNEE) {
+            return;
+        }
         if (status != SeanceStatus.CREE) {
             throw new IllegalStateException("La seance n'est pas en statut CREE");
         }

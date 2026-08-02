@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
+import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
@@ -112,8 +113,8 @@ public class SeanceDomainService implements SeanceUseCase {
     public Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance) {
         Seance seance = seanceRepo.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
-        if (seance.getStatus() == com.hemodialyse.backend.domain.seance.model.SeanceStatus.SIGNEE) {
-            throw new IllegalStateException("La séance signée ne peut plus être modifiée");
+        if (seance.getStatus() == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
         }
         seance.setDateSeance(dateSeance != null ? dateSeance : LocalDate.now());
         return seanceRepo.save(seance);

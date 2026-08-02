@@ -92,6 +92,36 @@ class SeanceDomainServiceTest {
     }
 
     @Test
+    void validate_should_allow_additional_consommables_when_seance_already_validated() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+        UUID lotId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        InMemoryArticleRepository articleRepo = new InMemoryArticleRepository();
+        articleRepo.addArticle(articleId, centerId.value(), "ART-01", new BigDecimal("10"));
+
+        InMemoryLotRepository lotRepo = new InMemoryLotRepository();
+        lotRepo.addLot(articleId, centerId.value(), lotId, new BigDecimal("10"), null);
+
+        SpyBonSortieUseCase spyBonSortie = new SpyBonSortieUseCase();
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.validerParInfirmier("inf-01");
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(seanceRepo, patientRepo, articleRepo, lotRepo, spyBonSortie);
+        Seance result = service.validate(centerId, seanceId, "inf-02",
+                List.of(new SeanceArticleConsumption(articleId, new BigDecimal("1"))));
+
+        assertEquals(SeanceStatus.VALIDEE, result.getStatus());
+        assertTrue(spyBonSortie.called);
+        assertEquals(new BigDecimal("1"), spyBonSortie.lastItems.getFirst().quantite());
+    }
+
+    @Test
     void validate_should_fail_when_no_fefo_lot_available() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
@@ -201,6 +231,59 @@ class SeanceDomainServiceTest {
         Seance created = service.createFromQr(centerId, patientId.toString());
 
         assertEquals(LocalDate.now(), created.getDateSeance());
+    }
+
+    @Test
+    void updateDate_should_allow_edit_when_seance_is_signee() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.validerParInfirmier("inf-01");
+        seance.signerParMedecin("med-01");
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase()
+        );
+
+        LocalDate newDate = LocalDate.now().plusDays(1);
+        Seance updated = service.updateDate(centerId, seanceId, newDate);
+        assertEquals(newDate, updated.getDateSeance());
+    }
+
+    @Test
+    void updateDate_should_fail_when_seance_is_facturee() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.setStatus(SeanceStatus.FACTUREE);
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase()
+        );
+
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> service.updateDate(centerId, seanceId, LocalDate.now().plusDays(1))
+        );
+        assertTrue(ex.getMessage().contains("facturee"));
     }
 
     // ── In-memory stubs ──────────────────────────────────────────────

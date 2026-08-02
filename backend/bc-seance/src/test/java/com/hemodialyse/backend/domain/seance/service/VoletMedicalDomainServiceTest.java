@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.seance.model.Seance;
+import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.model.VoletMedical;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
@@ -72,6 +73,34 @@ class VoletMedicalDomainServiceTest {
         ));
 
         assertTrue(ex.getMessage().contains("apres validation infirmiere"));
+    }
+
+    @Test
+    void save_should_fail_when_seance_is_facturee() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryVoletRepository voletRepo = new InMemoryVoletRepository();
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.setStatus(SeanceStatus.FACTUREE);
+        seanceRepo.save(seance);
+
+        VoletMedicalDomainService service = new VoletMedicalDomainService(seanceRepo, voletRepo);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> service.save(
+                centerId,
+                seanceId,
+                "Prescription test",
+                "Bonne tolerance",
+                "Examen normal",
+                "Hb correcte",
+                "Ajustement UF",
+                "Conclusion favorable"
+        ));
+
+        assertTrue(ex.getMessage().contains("facturee"));
     }
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {
