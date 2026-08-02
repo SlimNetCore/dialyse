@@ -281,9 +281,6 @@ mat-card {
 
 .seance-editor-card app-rich-text-editor {
   width: 100%;
-}
-
-.seance-editor-card app-rich-text-editor {
   display: block;
 }
 
@@ -774,7 +771,6 @@ mat-card {
     justify-content: center;
   }
 
-  /* Phones: dashboard action buttons stack full-width and stay tappable. */
   .scan-row > button:not(.consommables-add-button) {
     flex: 1 1 100%;
     justify-content: center;
