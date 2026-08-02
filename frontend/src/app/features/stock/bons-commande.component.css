@@ -1,34 +1,192 @@
+.app-page {
+  display: grid;
+  gap: 16px;
+}
 
+/* ── Conteneur global ──────────────────────────────── */
 .full-width {
   width: 100%;
 }
 
-.lines {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 12px;
+/* ── Champ fournisseur ─────────────────────────────── */
+.fournisseur-wrap {
+  margin-bottom: 20px;
 }
 
+mat-card,
+mat-card-content,
+form,
+.lines,
 .line-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  width: 100%;
+  max-width: 100%;
 }
 
+form {
+  display: grid;
+  gap: 16px;
+}
+
+/* ── Grille des lignes ─────────────────────────────── */
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 4px 0 16px;
+}
+
+/* Carte d'une ligne */
+.line-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)) auto;
+  column-gap: 14px;
+  row-gap: 10px;
+  align-items: start;
+  background: var(--app-surface-solid, var(--app-surface));
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 14px 16px 4px;
+  overflow-x: hidden;
+}
+
+/* Champs proportionnels */
 .flex1 {
-  flex: 1;
+  min-width: 0;
 }
 
 .flex2 {
-  flex: 2;
+  min-width: 0;
+}
+
+.line-row > mat-form-field {
+  width: 100%;
+  min-width: 0;
+}
+
+.line-row > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Bouton supprimer aligné en bas de la carte */
+.line-row > button[mat-icon-button] {
+  align-self: center;
+  justify-self: end;
+  margin: 0;
+}
+
+/* ── Barre d'actions ────────────────────────────────── */
+.btn-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--app-border);
+}
+
+.btn-bar .spacer {
+  flex: 1;
 }
 
 .total {
   font-weight: 800;
-  margin-left: auto;
+  font-size: 0.95rem;
+  color: var(--app-text);
+  white-space: nowrap;
 }
 
+/* ── Cartes ─────────────────────────────────────────── */
 mat-card {
-  margin-top: 16px;
+  margin-top: 24px;
+  overflow: hidden;
 }
 
+mat-card-content {
+  overflow: hidden;
+}
+
+/* ── Tableau ─────────────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Tablette ≤ 900px ────────────────────────────────── */
+@media (max-width: 1100px) {
+  .line-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 10px;
+  }
+
+  .line-row > .flex2 {
+    grid-column: auto;
+  }
+
+  .line-row > button[mat-icon-button] {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-page {
+    gap: 12px;
+  }
+
+  .line-row {
+    padding: 12px 12px 4px;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+  }
+
+  .flex1,
+  .flex2 {
+    width: 100%;
+  }
+
+  .line-row > button[mat-icon-button] {
+    align-self: center;
+    justify-self: end;
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 760px) {
+  .btn-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .btn-bar .spacer {
+    display: none;
+  }
+
+  .btn-bar button {
+    width: 100%;
+  }
+
+  .total {
+    text-align: center;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--app-border);
+  }
+}
+
+@media (max-width: 600px) {
+  .line-row {
+    padding: 10px 10px 2px;
+    row-gap: 8px;
+  }
+
+  mat-card-content {
+    padding-inline: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .table-wrap table {
+    min-width: 560px;
+  }
+}

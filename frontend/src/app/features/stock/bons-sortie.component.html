@@ -107,22 +107,24 @@
       <mat-card-title>Bons de sortie</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table [dataSource]="bons()" class="full-width" mat-table>
-        <ng-container matColumnDef="reference">
-          <th *matHeaderCellDef mat-header-cell>Référence</th>
-          <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
-        </ng-container>
-        <ng-container matColumnDef="date">
-          <th *matHeaderCellDef mat-header-cell>Date</th>
-          <td *matCellDef="let b" mat-cell>{{ b.dateSortie }}</td>
-        </ng-container>
-        <ng-container matColumnDef="lignes">
-          <th *matHeaderCellDef mat-header-cell>Lignes</th>
-          <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
-        </ng-container>
-        <tr *matHeaderRowDef="cols" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>
-      </table>
+      <div class="table-wrap">
+        <table [dataSource]="bons()" class="full-width" mat-table>
+          <ng-container matColumnDef="reference">
+            <th *matHeaderCellDef mat-header-cell>Référence</th>
+            <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th *matHeaderCellDef mat-header-cell>Date</th>
+            <td *matCellDef="let b" mat-cell>{{ b.dateSortie }}</td>
+          </ng-container>
+          <ng-container matColumnDef="lignes">
+            <th *matHeaderCellDef mat-header-cell>Lignes</th>
+            <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
+          </ng-container>
+          <tr *matHeaderRowDef="cols" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>
+        </table>
+      </div>
     </mat-card-content>
   </mat-card>
 </section>

@@ -127,43 +127,45 @@
       <mat-card-title>Bons de réception</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table [dataSource]="bons()" class="full-width" mat-table>
-        <ng-container matColumnDef="reference">
-          <th *matHeaderCellDef mat-header-cell>Référence</th>
-          <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
-        </ng-container>
-        <ng-container matColumnDef="date">
-          <th *matHeaderCellDef mat-header-cell>Date</th>
-          <td *matCellDef="let b" mat-cell>{{ b.dateReception }}</td>
-        </ng-container>
-        <ng-container matColumnDef="statut">
-          <th *matHeaderCellDef mat-header-cell>Statut</th>
-          <td *matCellDef="let b" mat-cell>
-            <mat-chip>{{ b.statut }}</mat-chip>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="lignes">
-          <th *matHeaderCellDef mat-header-cell>Lots</th>
-          <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
-        </ng-container>
-        <ng-container matColumnDef="actions">
-          <th *matHeaderCellDef mat-header-cell>Actions</th>
-          <td *matCellDef="let b" mat-cell>
-            <div class="action-buttons">
-              <button (click)="edit(b)" mat-icon-button matTooltip="Éditer">
-                <mat-icon>edit</mat-icon>
-              </button>
-              @if (b.statut === 'BROUILLON') {
-                <button (click)="valider(b)" color="accent" mat-flat-button>
-                  Valider
+      <div class="table-wrap">
+        <table [dataSource]="bons()" class="full-width" mat-table>
+          <ng-container matColumnDef="reference">
+            <th *matHeaderCellDef mat-header-cell>Référence</th>
+            <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th *matHeaderCellDef mat-header-cell>Date</th>
+            <td *matCellDef="let b" mat-cell>{{ b.dateReception }}</td>
+          </ng-container>
+          <ng-container matColumnDef="statut">
+            <th *matHeaderCellDef mat-header-cell>Statut</th>
+            <td *matCellDef="let b" mat-cell>
+              <mat-chip>{{ b.statut }}</mat-chip>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="lignes">
+            <th *matHeaderCellDef mat-header-cell>Lots</th>
+            <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell>Actions</th>
+            <td *matCellDef="let b" mat-cell>
+              <div class="action-buttons">
+                <button (click)="edit(b)" mat-icon-button matTooltip="Éditer">
+                  <mat-icon>edit</mat-icon>
                 </button>
-              }
-            </div>
-          </td>
-        </ng-container>
-        <tr *matHeaderRowDef="cols" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>
-      </table>
+                @if (b.statut === 'BROUILLON') {
+                  <button (click)="valider(b)" color="accent" mat-flat-button>
+                    Valider
+                  </button>
+                }
+              </div>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="cols" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>
+        </table>
+      </div>
     </mat-card-content>
   </mat-card>
 </section>
