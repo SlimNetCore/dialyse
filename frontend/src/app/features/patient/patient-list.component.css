@@ -1,4 +1,3 @@
-
 .list-card {
   padding: 14px;
 }
@@ -505,3 +504,55 @@ th.mat-mdc-header-cell:focus-within {
   }
 }
 
+/* ── Bouton copier ─────────────────────────────────────────────────────── */
+.copy-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.copy-btn {
+  --mdc-icon-button-state-layer-size: 28px;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn .copy-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  color: var(--mat-sys-outline);
+}
+
+.copy-btn:focus .copy-icon,
+.copy-btn:hover .copy-icon {
+  color: var(--mat-sys-primary);
+}
+
+/* Afficher le bouton au survol de la cellule ou de la ligne */
+td:hover .copy-btn,
+.patient-row:hover .copy-btn {
+  opacity: 1;
+}
+
+/* Toujours visible quand l'icône passe en check (confirmation) */
+.copy-btn:has(.copy-icon[data-icon="check"]) {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .copy-btn {
+    opacity: 1;
+  }
+
+  .copy-btn .copy-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}

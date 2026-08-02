@@ -118,7 +118,18 @@
             </div>
           </th>
           <td *matCellDef="let row" mat-cell>
-            <span class="code-chip">{{ row.code }}</span>
+            <div class="copy-cell">
+              <span class="code-chip">{{ row.code }}</span>
+              <button
+                (click)="copyToClipboard(row.code, 'code_' + row.id, $event)"
+                [matTooltip]="'PATIENT_LIST.COPY_TOOLTIP' | translate"
+                class="copy-btn"
+                mat-icon-button
+              >
+                <mat-icon class="copy-icon">{{ copiedField() === 'code_' + row.id ? 'check' : 'content_copy' }}
+                </mat-icon>
+              </button>
+            </div>
           </td>
         </ng-container>
 
@@ -268,7 +279,18 @@
             </div>
           </th>
           <td *matCellDef="let row" mat-cell>
-            <span class="mono">{{ row.numeroAssurance }}</span>
+            <div class="copy-cell">
+              <span class="mono">{{ row.numeroAssurance }}</span>
+              <button
+                (click)="copyToClipboard(row.numeroAssurance, 'assurance_' + row.id, $event)"
+                [matTooltip]="'PATIENT_LIST.COPY_TOOLTIP' | translate"
+                class="copy-btn"
+                mat-icon-button
+              >
+                <mat-icon class="copy-icon">{{ copiedField() === 'assurance_' + row.id ? 'check' : 'content_copy' }}
+                </mat-icon>
+              </button>
+            </div>
           </td>
         </ng-container>
 

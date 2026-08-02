@@ -191,6 +191,8 @@ export class PatientListComponent {
   readonly recentPatientId = this.patientListStore.recentPatientId;
   private readonly ws = inject(WebSocketService);
 
+  readonly copiedField = signal<string | null>(null);
+
   private readonly openFilterColumn = signal<string | null>(null);
   private readonly isCompactViewport = signal(
     typeof window !== 'undefined' ? window.innerWidth <= 900 : false,
@@ -322,6 +324,16 @@ export class PatientListComponent {
     this.patientListStore.printFiche({centerId, patientId: patient.id});
     // Auto-clear after 10s
     setTimeout(() => this.patientListStore.setPrintingRowId(null), 10000);
+  }
+
+  copyToClipboard(value: string, fieldKey: string, event: MouseEvent): void {
+    event.stopPropagation();
+    if (!value) return;
+    navigator.clipboard.writeText(value).then(() => {
+      this.copiedField.set(fieldKey);
+      this.snackBar.open(this.translate.instant('PATIENT_LIST.COPY_SUCCESS'), '', {duration: 1800});
+      setTimeout(() => this.copiedField.set(null), 2000);
+    });
   }
 
   openCahier(patient: PatientRow): void {
