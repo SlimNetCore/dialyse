@@ -9,6 +9,8 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {Fournisseur, StockApiService} from '../../core/api/stock-api.service';
 
@@ -18,7 +20,7 @@ import {Fournisseur, StockApiService} from '../../core/api/stock-api.service';
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule,
     MatInputModule, MatButtonModule, MatIconModule, MatTableModule,
-    FormRoot, FormField,
+    FormRoot, FormField, TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './fournisseurs.component.html',
@@ -36,6 +38,7 @@ export class FournisseursComponent {
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
   private readonly snack = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   constructor() {
     this.reload();
@@ -58,14 +61,22 @@ export class FournisseursComponent {
     })
       .subscribe({
         next: () => {
-          this.snack.open('Fournisseur enregistré', 'OK', {duration: 2500});
+          this.snack.open(
+            this.translate.instant('STOCK.FOURNISSEURS.SAVED_OK'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 2500},
+          );
           this.formModel.set(this.createInitialForm());
           this.reload();
         },
         complete: () => this.saving.set(false),
         error: () => {
           this.saving.set(false);
-          this.snack.open('Erreur lors de l\'enregistrement', 'Fermer', {duration: 4000});
+          this.snack.open(
+            this.translate.instant('STOCK.FOURNISSEURS.SAVE_ERROR'),
+            this.translate.instant('COMMON.RETRY'),
+            {duration: 4000},
+          );
         },
       });
   }

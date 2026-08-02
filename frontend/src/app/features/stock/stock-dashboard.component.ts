@@ -22,6 +22,7 @@ import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 
 const DAYS_OPTIONS = [7, 30, 90] as const;
 const TOP_N_OPTIONS = [5, 10, 20, 50] as const;
@@ -33,7 +34,7 @@ Chart.register(...registerables);
   standalone: true,
   imports: [
     CommonModule, RouterLink, MatCardModule, MatButtonModule, MatIconModule,
-    MatTableModule, MatChipsModule, MatProgressBarModule, BaseChartDirective,
+    MatTableModule, MatChipsModule, MatProgressBarModule, BaseChartDirective, TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './stock-dashboard.component.html',
@@ -61,13 +62,14 @@ export class StockDashboardComponent {
       .sort((a, b) => (a.datePeremption ?? '').localeCompare(b.datePeremption ?? '')));
   protected readonly periodValueFlow = computed(() =>
     (this.analytics()?.trend ?? []).reduce((sum, p) => sum + Number(p.valeur ?? 0), 0));
+  private readonly translate = inject(TranslateService);
   protected readonly trendChartData = computed<ChartData<'line'>>(() => {
     const trend = this.analytics()?.trend ?? [];
     return {
       labels: trend.map(point => this.shortDate(point.date)),
       datasets: [
         {
-          label: 'Quantite nette',
+          label: this.translate.instant('STOCK.DASHBOARD.CHART.NET_QUANTITY'),
           data: trend.map(point => Number(point.quantite ?? 0)),
           borderColor: '#26a69a',
           backgroundColor: 'rgba(38, 166, 154, 0.22)',
@@ -76,7 +78,7 @@ export class StockDashboardComponent {
           fill: true,
         },
         {
-          label: 'Valeur mouvements',
+          label: this.translate.instant('STOCK.DASHBOARD.CHART.MOVEMENT_VALUE'),
           data: trend.map(point => Number(point.valeur ?? 0)),
           borderColor: '#1e88e5',
           backgroundColor: 'rgba(30, 136, 229, 0.2)',
@@ -94,7 +96,9 @@ export class StockDashboardComponent {
       labels: top.map(a => `${a.code ?? ''} ${a.libelle}`.trim()),
       datasets: [
         {
-          label: isValue ? 'Valeur' : 'Quantite',
+          label: isValue
+            ? this.translate.instant('STOCK.DASHBOARD.CHART.VALUE')
+            : this.translate.instant('STOCK.DASHBOARD.CHART.QUANTITY'),
           data: top.map(a => isValue ? Number(a.valeur ?? 0) : Number(a.quantite ?? 0)),
           backgroundColor: isValue ? '#42a5f5' : '#26a69a',
           borderRadius: 8,
@@ -103,45 +107,51 @@ export class StockDashboardComponent {
       ],
     };
   });
-  protected readonly trendChartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {mode: 'index', intersect: false},
-    plugins: {
-      legend: {display: true, position: 'bottom'},
-    },
-    scales: {
-      y: {
-        position: 'left',
-        title: {display: true, text: 'Quantite'},
+
+  protected trendChartOptions(): ChartOptions<'line'> {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {mode: 'index', intersect: false},
+      plugins: {
+        legend: {display: true, position: 'bottom'},
       },
-      y1: {
-        position: 'right',
-        grid: {drawOnChartArea: false},
-        title: {display: true, text: 'Valeur'},
-      },
-    },
-  };
-  protected readonly topChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {display: false},
-    },
-    scales: {
-      x: {
-        ticks: {
-          autoSkip: true,
-          maxRotation: 45,
-          minRotation: 0,
+      scales: {
+        y: {
+          position: 'left',
+          title: {display: true, text: this.translate.instant('STOCK.DASHBOARD.CHART.QUANTITY')},
+        },
+        y1: {
+          position: 'right',
+          grid: {drawOnChartArea: false},
+          title: {display: true, text: this.translate.instant('STOCK.DASHBOARD.CHART.VALUE')},
         },
       },
-    },
-  };
+    };
+  }
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
   private readonly dialog = inject(MatDialog);
   private readonly ws = inject(WebSocketService);
+
+  protected topChartOptions(): ChartOptions<'bar'> {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+      },
+      scales: {
+        x: {
+          ticks: {
+            autoSkip: true,
+            maxRotation: 45,
+            minRotation: 0,
+          },
+        },
+      },
+    };
+  }
 
   constructor() {
     this.reloadStockAndAlertes();
@@ -181,6 +191,17 @@ export class StockDashboardComponent {
     }
     this.selectedSortBy.set(sortBy);
     this.reloadAnalytics();
+  }
+
+  protected trendTitle(): string {
+    return this.translate.instant('STOCK.DASHBOARD.TREND_TITLE', {days: this.selectedDays()});
+  }
+
+  protected topArticlesTitle(): string {
+    const sortLabel = this.selectedSortBy() === 'VALUE'
+      ? this.translate.instant('STOCK.DASHBOARD.TOP_SORT_VALUE')
+      : this.translate.instant('STOCK.DASHBOARD.TOP_SORT_QUANTITY');
+    return this.translate.instant('STOCK.DASHBOARD.TOP_TITLE', {topN: this.selectedTopN(), sort: sortLabel});
   }
 
   private reloadStockAndAlertes(): void {

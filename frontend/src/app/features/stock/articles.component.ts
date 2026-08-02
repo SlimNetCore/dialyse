@@ -10,6 +10,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
@@ -28,6 +30,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
     MatCheckboxModule,
     FormRoot,
     FormField,
+    TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './articles.component.html',
@@ -56,6 +59,7 @@ export class ArticlesComponent {
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
   private readonly snack = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   constructor() {
     this.reload();
@@ -77,11 +81,19 @@ export class ArticlesComponent {
       gereParLot: !!form.gereParLot,
     }).subscribe({
       next: () => {
-        this.snack.open('Article créé', 'OK', {duration: 2500});
+        this.snack.open(
+          this.translate.instant('STOCK.ARTICLES.CREATED_OK'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 2500},
+        );
         this.formModel.set(this.createInitialForm());
         this.reload();
       },
-      error: () => this.snack.open('Erreur lors de la création', 'Fermer', {duration: 4000}),
+      error: () => this.snack.open(
+        this.translate.instant('STOCK.ARTICLES.CREATE_ERROR'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      ),
       complete: () => this.saving.set(false),
     });
   }

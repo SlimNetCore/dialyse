@@ -22,7 +22,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField} from '@angular/forms/signals';
 import {AppUser} from '../../core/api/admin-api.service';
@@ -61,17 +61,17 @@ export class UserListComponent implements OnInit {
   private readonly userListStore = inject(UserListStore);
   private readonly snackbar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
-  readonly hasActiveFilters = this.userListStore.hasActiveFilters;
-
   readonly allColumnsConfig = [
-    {key: 'username', label: "Nom d'utilisateur", type: 'text' as FilterType},
-    {key: 'fullName', label: 'Nom complet', type: 'text' as FilterType},
-    {key: 'email', label: 'Email', type: 'text' as FilterType},
-    {key: 'roles', label: 'Rôles', type: 'text' as FilterType},
-    {key: 'centers', label: 'Centres', type: 'text' as FilterType},
-    {key: 'active', label: 'Actif', type: 'boolean' as FilterType},
-    {key: 'actions', label: 'Actions', type: 'text' as FilterType},
+    {key: 'username', label: 'ADMIN.USERS.COL_USERNAME', type: 'text' as FilterType},
+    {key: 'fullName', label: 'ADMIN.USERS.COL_FULLNAME', type: 'text' as FilterType},
+    {key: 'email', label: 'PATIENT_FORM.EMAIL', type: 'text' as FilterType},
+    {key: 'roles', label: 'ADMIN.USERS.COL_ROLES', type: 'text' as FilterType},
+    {key: 'centers', label: 'ADMIN.USERS.COL_CENTERS', type: 'text' as FilterType},
+    {key: 'active', label: 'ADMIN.USERS.COL_ACTIVE', type: 'boolean' as FilterType},
+    {key: 'actions', label: 'COMMON.COL_ACTIONS', type: 'text' as FilterType},
   ] as const;
+  readonly hasActiveFilters = this.userListStore.hasActiveFilters;
+  private readonly translate = inject(TranslateService);
   readonly visibleColumns = this.userListStore.visibleColumns;
   readonly displayedColumns = computed(() =>
     this.allColumnsConfig.filter((c) => this.visibleColumns()[c.key]).map((c) => c.key),
@@ -177,10 +177,10 @@ export class UserListComponent implements OnInit {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: 'min(96vw, 440px)',
       data: {
-        title: "Supprimer l'utilisateur",
-        message: `Êtes-vous sûr de vouloir supprimer l'utilisateur ${u.USERNAME} ? Cette action est irréversible.`,
-        confirmLabel: 'Supprimer',
-        cancelLabel: 'Annuler',
+        title: this.translate.instant('ADMIN.USERS.DELETE_TITLE'),
+        message: this.translate.instant('ADMIN.USERS.DELETE_CONFIRM', {username: u.USERNAME}),
+        confirmLabel: this.translate.instant('COMMON.DELETE'),
+        cancelLabel: this.translate.instant('PATIENT_FORM.BTN_CANCEL'),
         color: 'warn',
         icon: 'delete',
       },
@@ -189,7 +189,7 @@ export class UserListComponent implements OnInit {
       if (!confirmed) return;
       // ✅ Appel API via le store maintenant
       this.userListStore.deleteUser(u.ID);
-      this.snackbar.open('Utilisateur supprimé', 'OK', {duration: 2000});
+      this.snackbar.open(this.translate.instant('ADMIN.USERS.DELETED_OK'), this.translate.instant('COMMON.OK'), {duration: 2000});
     });
   }
 }

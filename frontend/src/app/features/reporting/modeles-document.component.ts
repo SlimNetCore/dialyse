@@ -11,7 +11,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {BackendApiService} from '../../core/api/backend-api.service';
@@ -49,6 +49,7 @@ export class ModelesDocumentComponent implements OnInit {
   private readonly snack = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly modelesStore = inject(ModelesDocumentStore);
+  private readonly translate = inject(TranslateService);
 
   readonly modeles = this.modelesStore.modeles;
   readonly documentTypes = this.modelesStore.documentTypes;
@@ -103,13 +104,23 @@ export class ModelesDocumentComponent implements OnInit {
 
     obs$.subscribe({
       next: () => {
-        this.snack.open(this.editingId() ? 'Modèle mis à jour' : 'Modèle créé', 'OK', {
+        this.snack.open(
+          this.editingId()
+            ? this.translate.instant('REPORTING.MODELES_DOCUMENT.UPDATED_OK')
+            : this.translate.instant('REPORTING.MODELES_DOCUMENT.CREATED_OK'),
+          this.translate.instant('COMMON.OK'),
+          {
           duration: 3000,
-        });
+          },
+        );
         this.modelesStore.setShowForm(false);
         this.loadModeles();
       },
-      error: (err) => this.snack.open('Erreur: ' + err.message, 'OK', {duration: 5000}),
+      error: (err) => this.snack.open(
+        this.translate.instant('REPORTING.MODELES_DOCUMENT.GENERIC_ERROR', {detail: err?.message ?? ''}),
+        this.translate.instant('COMMON.OK'),
+        {duration: 5000},
+      ),
     });
   }
 
@@ -141,11 +152,10 @@ export class ModelesDocumentComponent implements OnInit {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: 'min(96vw, 440px)',
       data: {
-        title: 'Supprimer le modèle',
-        message:
-          'Êtes-vous sûr de vouloir supprimer ce modèle de document ? Cette action est irréversible.',
-        confirmLabel: 'Supprimer',
-        cancelLabel: 'Annuler',
+        title: this.translate.instant('REPORTING.MODELES_DOCUMENT.DELETE_CONFIRM_TITLE'),
+        message: this.translate.instant('REPORTING.MODELES_DOCUMENT.DELETE_CONFIRM_MESSAGE'),
+        confirmLabel: this.translate.instant('COMMON.DELETE'),
+        cancelLabel: this.translate.instant('PATIENT_FORM.BTN_CANCEL'),
         color: 'warn',
         icon: 'delete',
       },
@@ -155,7 +165,11 @@ export class ModelesDocumentComponent implements OnInit {
       if (!confirmed) return;
       this.api.deleteModeleDocument(id, centerId).subscribe({
         next: () => {
-          this.snack.open('Modèle supprimé', 'OK', { duration: 3000 });
+          this.snack.open(
+            this.translate.instant('REPORTING.MODELES_DOCUMENT.DELETED_OK'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 3000},
+          );
           this.loadModeles();
         },
       });
@@ -172,8 +186,11 @@ export class ModelesDocumentComponent implements OnInit {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
       },
-      error: (err) =>
-        this.snack.open('Erreur impression: ' + err.message, 'OK', {duration: 5000}),
+      error: (err) => this.snack.open(
+        this.translate.instant('REPORTING.MODELES_DOCUMENT.PRINT_ERROR', {detail: err?.message ?? ''}),
+        this.translate.instant('COMMON.OK'),
+        {duration: 5000},
+      ),
     });
   }
 

@@ -79,13 +79,13 @@
         @if (type === 'boolean') {
           @for (o of booleanOptions(); track o.value) {
             @if (isPanelOptionVisible(o.label)) {
-              <mat-option [value]="o.value">{{ o.label }}</mat-option>
+              <mat-option [value]="o.value">{{ o.label | translate }}</mat-option>
             }
           }
         } @else {
           @for (o of options; track o.value) {
             @if (isPanelOptionVisible(o.label)) {
-              <mat-option [value]="o.value">{{ o.label }}</mat-option>
+              <mat-option [value]="o.value">{{ o.label | translate }}</mat-option>
             }
           }
         }

@@ -1,30 +1,30 @@
 <section class="app-page">
   <div class="app-hero-card">
-    <span class="app-eyebrow">Module stock</span>
-    <h1 class="app-section-title">Gestion des stocks</h1>
+    <span class="app-eyebrow">{{ 'STOCK.DASHBOARD.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'STOCK.DASHBOARD.TITLE' | translate }}</h1>
     <p class="app-section-copy">
-      Stock valorisé en temps réel (PMP), traçabilité lot → patient → séance et centre d'alertes consolidé.
+      {{ 'STOCK.DASHBOARD.DESCRIPTION' | translate }}
     </p>
     <div class="app-button-cluster">
       <a color="primary" mat-flat-button routerLink="/stock/bons-commande">
         <mat-icon>request_quote</mat-icon>
-        Bons de commande
+        {{ 'STOCK.DASHBOARD.NAV.PURCHASE_ORDERS' | translate }}
       </a>
       <a mat-stroked-button routerLink="/stock/bons-reception">
         <mat-icon>inventory</mat-icon>
-        Réceptions
+        {{ 'STOCK.DASHBOARD.NAV.RECEPTIONS' | translate }}
       </a>
       <a mat-stroked-button routerLink="/stock/bons-sortie">
         <mat-icon>logout</mat-icon>
-        Sorties
+        {{ 'STOCK.DASHBOARD.NAV.OUTPUTS' | translate }}
       </a>
       <a mat-stroked-button routerLink="/stock/fournisseurs">
         <mat-icon>local_shipping</mat-icon>
-        Fournisseurs
+        {{ 'STOCK.DASHBOARD.NAV.SUPPLIERS' | translate }}
       </a>
       <a mat-stroked-button routerLink="/stock/articles">
         <mat-icon>inventory_2</mat-icon>
-        Articles
+        {{ 'STOCK.DASHBOARD.NAV.ARTICLES' | translate }}
       </a>
     </div>
   </div>
@@ -35,44 +35,44 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Filtres analytiques</mat-card-title>
+      <mat-card-title>{{ 'STOCK.DASHBOARD.FILTERS.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <div class="filters-grid">
         <div class="filter-block">
-          <span class="filter-title">Periode</span>
+          <span class="filter-title">{{ 'STOCK.DASHBOARD.FILTERS.PERIOD' | translate }}</span>
           <div class="app-button-cluster compact">
             @for (d of daysOptions; track d) {
               <button (click)="onDaysChange(d)" [color]="selectedDays() === d ? 'primary' : undefined"
                       mat-stroked-button>
-                {{ d }} jours
+                {{ 'STOCK.DASHBOARD.FILTERS.DAYS' | translate:{days: d} }}
               </button>
             }
           </div>
         </div>
 
         <div class="filter-block">
-          <span class="filter-title">Top N articles</span>
+          <span class="filter-title">{{ 'STOCK.DASHBOARD.FILTERS.TOP_N_ARTICLES' | translate }}</span>
           <div class="app-button-cluster compact">
             @for (n of topNOptions; track n) {
               <button (click)="onTopNChange(n)" [color]="selectedTopN() === n ? 'primary' : undefined"
                       mat-stroked-button>
-                Top {{ n }}
+                {{ 'STOCK.DASHBOARD.FILTERS.TOP_N_VALUE' | translate:{topN: n} }}
               </button>
             }
           </div>
         </div>
 
         <div class="filter-block">
-          <span class="filter-title">Tri Top N</span>
+          <span class="filter-title">{{ 'STOCK.DASHBOARD.FILTERS.TOP_N_SORT' | translate }}</span>
           <div class="app-button-cluster compact">
             <button (click)="onSortByChange('VALUE')" [color]="selectedSortBy() === 'VALUE' ? 'primary' : undefined"
                     mat-stroked-button>
-              Valeur
+              {{ 'STOCK.DASHBOARD.CHART.VALUE' | translate }}
             </button>
             <button (click)="onSortByChange('QUANTITY')" [color]="selectedSortBy() === 'QUANTITY' ? 'primary' : undefined"
                     mat-stroked-button>
-              Quantite
+              {{ 'STOCK.DASHBOARD.CHART.QUANTITY' | translate }}
             </button>
           </div>
         </div>
@@ -82,45 +82,45 @@
 
   <div class="kpi-grid">
     <div class="app-data-pill">
-      <span>Valeur totale du stock</span>
+      <span>{{ 'STOCK.DASHBOARD.KPI.TOTAL_STOCK_VALUE' | translate }}</span>
       <strong>{{ valeurTotale() | number:'1.0-2' }}</strong>
     </div>
     <div class="app-data-pill">
-      <span>Quantité globale</span>
+      <span>{{ 'STOCK.DASHBOARD.KPI.TOTAL_QUANTITY' | translate }}</span>
       <strong>{{ quantiteTotale() | number:'1.0-2' }}</strong>
     </div>
     <div class="app-data-pill">
-      <span>Articles en stock</span>
+      <span>{{ 'STOCK.DASHBOARD.KPI.ARTICLES_IN_STOCK' | translate }}</span>
       <strong>{{ stock().length }}</strong>
     </div>
     <div class="app-data-pill">
-      <span>Alertes actives</span>
+      <span>{{ 'STOCK.DASHBOARD.KPI.ACTIVE_ALERTS' | translate }}</span>
       <strong>{{ alertes().length }}</strong>
     </div>
     <div class="app-data-pill warning-pill">
-      <span>Préemptions (lots)</span>
+      <span>{{ 'STOCK.DASHBOARD.KPI.PREEMPTIONS' | translate }}</span>
       <strong>{{ preemptions().length }}</strong>
     </div>
     <div class="app-data-pill">
-      <span>Flux période (valeur)</span>
+      <span>{{ 'STOCK.DASHBOARD.KPI.PERIOD_FLOW_VALUE' | translate }}</span>
       <strong>{{ (analytics()?.trend?.length ? periodValueFlow() : 0) | number:'1.0-2' }}</strong>
     </div>
   </div>
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Tendance des mouvements ({{ selectedDays() }} jours)</mat-card-title>
+      <mat-card-title>{{ trendTitle() }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (analyticsLoading()) {
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       }
       @if ((analytics()?.trend?.length ?? 0) === 0) {
-        <p class="app-muted-note">Aucune donnée de tendance sur la période.</p>
+        <p class="app-muted-note">{{ 'STOCK.DASHBOARD.EMPTY.TREND' | translate }}</p>
       } @else {
         <div class="chart-wrap">
           <canvas [data]="trendChartData()"
-                  [options]="trendChartOptions"
+                  [options]="trendChartOptions()"
                   [type]="'line'"
                   baseChart>
           </canvas>
@@ -132,16 +132,16 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        Top {{ selectedTopN() }} articles — {{ selectedSortBy() === 'VALUE' ? 'tri valeur' : 'tri quantite' }}
+        {{ topArticlesTitle() }}
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if ((analytics()?.topArticles?.length ?? 0) === 0) {
-        <p class="app-muted-note">Aucun mouvement article sur la période.</p>
+        <p class="app-muted-note">{{ 'STOCK.DASHBOARD.EMPTY.TOP_ARTICLES' | translate }}</p>
       } @else {
         <div class="chart-wrap">
           <canvas [data]="topChartData()"
-                  [options]="topChartOptions"
+                  [options]="topChartOptions()"
                   [type]="'bar'"
                   baseChart>
           </canvas>
@@ -152,21 +152,24 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Détails des lots en préemption</mat-card-title>
+      <mat-card-title>{{ 'STOCK.DASHBOARD.PREEMPTIONS.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (preemptions().length === 0) {
-        <p class="app-muted-note">Aucun lot en préemption.</p>
+        <p class="app-muted-note">{{ 'STOCK.DASHBOARD.EMPTY.PREEMPTION_LOTS' | translate }}</p>
       } @else {
         <div class="alert-list">
           @for (al of preemptions(); track al.articleId + (al.lotId ?? '')) {
             <div class="alert-row">
-              <mat-chip highlighted="true">PEREMPTION</mat-chip>
+              <mat-chip highlighted="true">{{ 'STOCK.DASHBOARD.PREEMPTIONS.CHIP' | translate }}</mat-chip>
               <span class="alert-label">{{ al.articleLibelle }}</span>
-              <span class="alert-meta">Lot {{ al.numeroLot || '—' }}</span>
-              <span class="alert-meta">Date: {{ al.datePeremption || '—' }}</span>
+              <span
+                class="alert-meta">{{ 'STOCK.DASHBOARD.ALERT.LOT_LABEL' | translate }} {{ al.numeroLot || '—' }}</span>
+              <span
+                class="alert-meta">{{ 'STOCK.DASHBOARD.ALERT.DATE_LABEL' | translate }} {{ al.datePeremption || '—' }}</span>
               @if (al.quantite != null) {
-                <span class="alert-meta">Qté: {{ al.quantite | number:'1.0-2' }}</span>
+                <span
+                  class="alert-meta">{{ 'STOCK.DASHBOARD.ALERT.QTY_LABEL' | translate }} {{ al.quantite | number:'1.0-2' }}</span>
               }
             </div>
           }
@@ -177,36 +180,36 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Stock valorisé</mat-card-title>
+      <mat-card-title>{{ 'STOCK.DASHBOARD.STOCK_TABLE.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <div class="stock-table-wrap table-wrap">
         <table [dataSource]="stock()" class="full-width" mat-table>
           <ng-container matColumnDef="code">
-            <th *matHeaderCellDef mat-header-cell>Code</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_CODE' | translate }}</th>
             <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
           </ng-container>
           <ng-container matColumnDef="libelle">
-            <th *matHeaderCellDef mat-header-cell>Article</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_ARTICLE' | translate }}</th>
             <td *matCellDef="let a" mat-cell>{{ a.libelle }}</td>
           </ng-container>
           <ng-container matColumnDef="quantite">
-            <th *matHeaderCellDef mat-header-cell>Quantité</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_QUANTITY' | translate }}</th>
             <td *matCellDef="let a" mat-cell>{{ a.quantite | number:'1.0-2' }} {{ a.unite }}</td>
           </ng-container>
           <ng-container matColumnDef="pmp">
-            <th *matHeaderCellDef mat-header-cell>PMP</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_PMP' | translate }}</th>
             <td *matCellDef="let a" mat-cell>{{ a.pmpCourant | number:'1.0-4' }}</td>
           </ng-container>
           <ng-container matColumnDef="valeur">
-            <th *matHeaderCellDef mat-header-cell>Valeur</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_VALUE' | translate }}</th>
             <td *matCellDef="let a" mat-cell>{{ a.valeur | number:'1.0-2' }}</td>
           </ng-container>
           <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>Actions</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_ACTIONS' | translate }}</th>
             <td *matCellDef="let a" mat-cell>
               <button (click)="openPmpExplain(a)" color="primary" mat-stroked-button>
-                Expliquer PMP
+                {{ 'STOCK.DASHBOARD.STOCK_TABLE.EXPLAIN_PMP' | translate }}
               </button>
             </td>
           </ng-container>
@@ -215,18 +218,18 @@
         </table>
       </div>
       @if (!loading() && stock().length === 0) {
-        <p class="app-muted-note">Aucun article en stock.</p>
+        <p class="app-muted-note">{{ 'STOCK.DASHBOARD.EMPTY.NO_STOCK' | translate }}</p>
       }
     </mat-card-content>
   </mat-card>
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Centre d'alertes</mat-card-title>
+      <mat-card-title>{{ 'STOCK.DASHBOARD.ALERT_CENTER.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (alertes().length === 0) {
-        <p class="app-muted-note">Aucune alerte. ✅</p>
+        <p class="app-muted-note">{{ 'STOCK.DASHBOARD.EMPTY.NO_ALERTS' | translate }}</p>
       } @else {
         <div class="alert-list">
           @for (al of alertes(); track al.articleId + (al.lotId ?? '')) {
@@ -234,11 +237,20 @@
               <mat-chip [highlighted]="true">{{ al.type }}</mat-chip>
               <span class="alert-label">{{ al.articleLibelle }}</span>
               @if (al.numeroLot) {
-                <span class="alert-meta">Lot {{ al.numeroLot }} · expire {{ al.datePeremption }}</span>
+                <span class="alert-meta">{{
+                    'STOCK.DASHBOARD.ALERT.LOT_EXPIRES' | translate:{
+                      lot: al.numeroLot,
+                      date: al.datePeremption
+                    }
+                  }}</span>
               }
               @if (al.type !== 'PEREMPTION') {
-                <span class="alert-meta">Reste {{ al.quantite | number:'1.0-2' }}
-                  (seuil {{ al.seuil | number:'1.0-2' }})</span>
+                <span class="alert-meta">{{
+                    'STOCK.DASHBOARD.ALERT.REMAINING_WITH_THRESHOLD' | translate:{
+                      quantity: (al.quantite | number:'1.0-2'),
+                      threshold: (al.seuil | number:'1.0-2')
+                    }
+                  }}</span>
               }
             </div>
           }

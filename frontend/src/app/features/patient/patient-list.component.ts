@@ -95,14 +95,14 @@ export class PatientListComponent {
   private readonly patientListStore = inject(PatientListStore);
   private readonly router = inject(Router);
   readonly etatFilterOptions = [
-    {value: 'PERMANENT', label: 'Permanent'},
-    {value: 'OCCASIONNEL', label: 'Occasionnel'},
-    {value: 'VACANCIER_LOCAL', label: 'Vacancier local'},
-    {value: 'VACANCIER_ETRANGER', label: 'Vacancier étranger'},
-    {value: 'TRANSFERE', label: 'Transféré'},
-    {value: 'DECEDE', label: 'Décédé'},
-    {value: 'GREFFE', label: 'Greffé'},
-    {value: 'GUERRI', label: 'Guéri'},
+    {value: 'PERMANENT', label: 'PATIENT_FORM.PERMANENT'},
+    {value: 'OCCASIONNEL', label: 'PATIENT_FORM.OCCASIONNEL'},
+    {value: 'VACANCIER_LOCAL', label: 'PATIENT_FORM.VACANCIER_LOCAL'},
+    {value: 'VACANCIER_ETRANGER', label: 'PATIENT_FORM.VACANCIER_ETRANGER'},
+    {value: 'TRANSFERE', label: 'PATIENT_FORM.TRANSFERE'},
+    {value: 'DECEDE', label: 'PATIENT_FORM.DECEDE'},
+    {value: 'GREFFE', label: 'PATIENT_FORM.GREFFE'},
+    {value: 'GUERRI', label: 'PATIENT_FORM.GUERRI'},
   ];
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly isMobileView = signal(typeof window !== 'undefined' ? window.innerWidth <= 760 : false);
@@ -164,13 +164,13 @@ export class PatientListComponent {
     actions: true,
   });
   readonly sexeFilterOptions = [
-    {value: 'M', label: 'Masculin'},
-    {value: 'F', label: 'Féminin'},
+    {value: 'M', label: 'PATIENT_FORM.MASCULIN'},
+    {value: 'F', label: 'PATIENT_FORM.FEMININ'},
   ];
   readonly pecFilterOptions = [
-    {value: 'CREE', label: 'Créée'},
-    {value: 'VALIDEE', label: 'Validée'},
-    {value: 'CLOTUREE', label: 'Clôturée'},
+    {value: 'CREE', label: 'STATUS.CREE_TITLE'},
+    {value: 'VALIDEE', label: 'STATUS.VALIDEE_TITLE'},
+    {value: 'CLOTUREE', label: 'STATUS.CLOTUREE_TITLE'},
   ];
   readonly summaryMonth = this.patientListStore.summaryMonth;
   readonly rows = this.patientListStore.rows;

@@ -7,6 +7,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {BackendApiService, SeanceCalendarResponse} from '../../core/api/backend-api.service';
 
@@ -19,7 +21,8 @@ import {BackendApiService, SeanceCalendarResponse} from '../../core/api/backend-
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seance-calendar-center.component.html',
@@ -38,6 +41,7 @@ export class SeanceCalendarCenterComponent implements OnInit {
   private readonly api = inject(BackendApiService);
   private readonly appShell = inject(AppShellStore);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.load();
@@ -82,7 +86,11 @@ export class SeanceCalendarCenterComponent implements OnInit {
         this.loading.set(false);
         this.holidays.set([]);
         this.closures.set([]);
-        this.snackBar.open('Chargement calendrier impossible', 'OK', {duration: 3000});
+        this.snackBar.open(
+          this.translate.instant('SEANCES.CALENDAR_LOAD_ERROR'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 3000},
+        );
       }
     });
   }
@@ -95,7 +103,11 @@ export class SeanceCalendarCenterComponent implements OnInit {
         this.newHolidayLabel.set('');
         this.load();
       },
-      error: () => this.snackBar.open('Ajout férié impossible', 'OK', {duration: 3000})
+      error: () => this.snackBar.open(
+        this.translate.instant('SEANCES.HOLIDAY_ADD_ERROR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      )
     });
   }
 
@@ -104,7 +116,11 @@ export class SeanceCalendarCenterComponent implements OnInit {
     if (!centerId) return;
     this.api.deleteSeanceHoliday(centerId, id).subscribe({
       next: () => this.load(),
-      error: () => this.snackBar.open('Suppression férié impossible', 'OK', {duration: 3000})
+      error: () => this.snackBar.open(
+        this.translate.instant('SEANCES.HOLIDAY_DELETE_ERROR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      )
     });
   }
 
@@ -116,7 +132,11 @@ export class SeanceCalendarCenterComponent implements OnInit {
         this.newClosureReason.set('');
         this.load();
       },
-      error: () => this.snackBar.open('Ajout fermeture impossible', 'OK', {duration: 3000})
+      error: () => this.snackBar.open(
+        this.translate.instant('SEANCES.CLOSURE_ADD_ERROR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      )
     });
   }
 
@@ -125,7 +145,11 @@ export class SeanceCalendarCenterComponent implements OnInit {
     if (!centerId) return;
     this.api.deleteSeanceClosure(centerId, id).subscribe({
       next: () => this.load(),
-      error: () => this.snackBar.open('Suppression fermeture impossible', 'OK', {duration: 3000})
+      error: () => this.snackBar.open(
+        this.translate.instant('SEANCES.CLOSURE_DELETE_ERROR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      )
     });
   }
 
@@ -144,7 +168,11 @@ export class SeanceCalendarCenterComponent implements OnInit {
         a.click();
         URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Export impossible', 'OK', {duration: 3000})
+      error: () => this.snackBar.open(
+        this.translate.instant('COMMON.EXPORT_ERROR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      )
     });
   }
 

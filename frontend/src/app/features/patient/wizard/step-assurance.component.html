@@ -65,7 +65,7 @@
       <div class="flex1">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label
-          >N° Assurance assuré
+          >{{ 'WIZARD.ASSURE_NUMERO_ASSURANCE' | translate }}
             @if (requiresAssureNumero()) {
               *
             }
@@ -204,7 +204,7 @@
         type="button"
       >
         <mat-icon>manage_search</mat-icon>
-        Consulter les assurés
+        {{ 'WIZARD.BROWSE_INSURED_CATALOG_BTN' | translate }}
       </button>
       <button
         (click)="toggleAssureHistory()"
@@ -213,7 +213,7 @@
         type="button"
       >
         <mat-icon>history</mat-icon>
-        Historique des affectations
+        {{ 'WIZARD.ASSIGNMENT_HISTORY_BTN' | translate }}
       </button>
       <button
         (click)="prepareNewAssure()"
@@ -229,10 +229,10 @@
     <!-- ── Catalogue des assurés ── -->
     @if (showCatalog()) {
       <div class="history-box panel-spacing">
-        <div class="history-title">Catalogue des assurés</div>
+        <div class="history-title">{{ 'WIZARD.INSURED_CATALOG_TITLE' | translate }}</div>
         <div class="form-row catalog-search-row">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Rechercher (N° assurance / nom / prénom)</mat-label>
+            <mat-label>{{ 'WIZARD.SEARCH_INSURED_HINT' | translate }}</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input
               (input)="assureSearch.set($any($event.target).value)"
@@ -248,7 +248,7 @@
             type="button"
           >
             <mat-icon>search</mat-icon>
-            Rechercher
+            {{ 'COMMON.SEARCH_BTN' | translate }}
           </button>
         </div>
 
@@ -262,7 +262,8 @@
                   <span class="primary-chip"
                   ><mat-icon style="font-size:12px;height:12px;width:12px;margin-right:2px"
                   >star</mat-icon
-                  >Primaire</span
+                  >
+                    {{ 'WIZARD.PRIMARY_INSURED_CHIP' | translate }}</span
                   >
                 }
               </div>
@@ -273,11 +274,11 @@
               <button
                 (click)="openEditAssureDialog(a)"
                 mat-stroked-button
-                title="Modifier les informations de l'assuré"
+                [attr.title]="'WIZARD.EDIT_INSURED_TOOLTIP' | translate"
                 type="button"
               >
                 <mat-icon>edit</mat-icon>
-                Modifier
+                {{ 'COMMON.EDIT_BTN' | translate }}
               </button>
               <button
                 (click)="affectAssure(a)"
@@ -287,14 +288,14 @@
                 type="button"
               >
                 <mat-icon>person_add_alt_1</mat-icon>
-                {{ a.isPrimary ? 'Déjà primaire' : 'Affecter' }}
+                {{ a.isPrimary ? ('WIZARD.ALREADY_PRIMARY' | translate) : ('WIZARD.ASSIGN_INSURED_BTN' | translate) }}
               </button>
             </div>
           </div>
         }
         @if (assureCatalog().length === 0 && !loadingAssures()) {
           <div style="text-align:center;color:#9ca3af;padding:16px;font-size:13px;">
-            Aucun assuré trouvé. Lancez une recherche.
+            {{ 'WIZARD.NO_INSURED_FOUND' | translate }}
           </div>
         }
       </div>
@@ -303,16 +304,16 @@
     <!-- ── Historique des affectations ── -->
     @if (showHistory()) {
       <div class="history-box panel-spacing">
-        <div class="history-title">Historique des affectations</div>
+        <div class="history-title">{{ 'WIZARD.ASSIGNMENT_HISTORY_TITLE' | translate }}</div>
         <table class="history-table">
           <thead>
           <tr>
-            <th>Assuré</th>
-            <th>N° Assurance</th>
-            <th>Date début</th>
-            <th>Date fin</th>
-            <th>Statut</th>
-            <th style="text-align:right">Actions</th>
+            <th>{{ 'PATIENT_FORM.SECTION_ASSURE' | translate }}</th>
+            <th>{{ 'PATIENT_FORM.NUMERO_ASSURANCE' | translate }}</th>
+            <th>{{ 'COMMON.DATE_START_LABEL' | translate }}</th>
+            <th>{{ 'COMMON.DATE_END_LABEL' | translate }}</th>
+            <th>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
+            <th style="text-align:right">{{ 'COMMON.COL_ACTIONS' | translate }}</th>
           </tr>
           </thead>
           <tbody>
@@ -326,9 +327,9 @@
                 <td>{{ h.dateFinAffectation || '—' }}</td>
                 <td>
                   @if (h.actif) {
-                    <span class="badge-actif">Actif</span>
+                    <span class="badge-actif">{{ 'WIZARD.ASSIGNMENT_ACTIVE_STATUS' | translate }}</span>
                   } @else {
-                    <span class="badge-inactif">Inactif</span>
+                    <span class="badge-inactif">{{ 'WIZARD.ASSIGNMENT_INACTIVE_STATUS' | translate }}</span>
                   }
                 </td>
                 <td style="text-align:right">
@@ -336,7 +337,7 @@
                     (click)="openEditAssignment(h)"
                     [disabled]="readonly"
                     mat-icon-button
-                    title="Modifier les dates"
+                    [attr.title]="'WIZARD.EDIT_ASSIGNMENT_DATES_TOOLTIP' | translate"
                     type="button"
                   >
                     <mat-icon>edit_calendar</mat-icon>
@@ -348,7 +349,7 @@
                   <td colspan="6">
                     <div class="edit-inline">
                       <mat-form-field appearance="outline" class="edit-field">
-                        <mat-label>Date début</mat-label>
+                        <mat-label>{{ 'COMMON.DATE_START_LABEL' | translate }}</mat-label>
                         <mat-icon matPrefix>event</mat-icon>
                         <input
                           (dateChange)="setEditDateDebut($event.value)"
@@ -360,7 +361,7 @@
                         <mat-datepicker #dpEditDebut/>
                       </mat-form-field>
                       <mat-form-field appearance="outline" class="edit-field">
-                        <mat-label>Date fin</mat-label>
+                        <mat-label>{{ 'COMMON.DATE_END_LABEL' | translate }}</mat-label>
                         <mat-icon matPrefix>event_busy</mat-icon>
                         <input
                           (dateChange)="setEditDateFin($event.value)"
@@ -379,11 +380,11 @@
                         type="button"
                       >
                         <mat-icon>check</mat-icon>
-                        Valider
+                        {{ 'PEC_ADMIN.CONFIRM' | translate }}
                       </button>
                       <button (click)="cancelEdit()" mat-stroked-button type="button">
                         <mat-icon>close</mat-icon>
-                        Annuler
+                        {{ 'PATIENT_FORM.BTN_CANCEL' | translate }}
                       </button>
                     </div>
                   </td>
@@ -393,7 +394,7 @@
             @if (assureAssignments().length === 0) {
               <tr>
                 <td colspan="6" style="text-align:center;color:#9ca3af;padding:12px;">
-                  Aucun historique
+                  {{ 'WIZARD.EMPTY_ASSIGNMENT_HISTORY' | translate }}
                 </td>
               </tr>
             }

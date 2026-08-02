@@ -1,39 +1,39 @@
 <section class="app-page">
   <div class="app-hero-card">
-    <span class="app-eyebrow">Stock · Référentiel</span>
-    <h1 class="app-section-title">Fournisseurs</h1>
+    <span class="app-eyebrow">{{ 'STOCK.EYEBROW_REFERENTIAL' | translate }}</span>
+    <h1 class="app-section-title">{{ 'STOCK.SUPPLIERS_TITLE' | translate }}</h1>
   </div>
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Nouveau fournisseur</mat-card-title>
+      <mat-card-title>{{ 'STOCK.NEW_SUPPLIER_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form (submit)="save(); $event.preventDefault()" [formRoot]="supplierForm" class="form-grid">
         <mat-form-field appearance="outline">
-          <mat-label>Code</mat-label>
+          <mat-label>{{ 'COMMON.CODE_LABEL' | translate }}</mat-label>
           <input [formField]="supplierForm.code" matInput/>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Raison sociale</mat-label>
+          <mat-label>{{ 'STOCK.COMPANY_NAME_LABEL' | translate }}</mat-label>
           <input [formField]="supplierForm.raisonSociale" matInput/>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Contact</mat-label>
+          <mat-label>{{ 'STOCK.CONTACT_LABEL' | translate }}</mat-label>
           <input [formField]="supplierForm.contact" matInput/>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Téléphone</mat-label>
+          <mat-label>{{ 'STOCK.PHONE_LABEL' | translate }}</mat-label>
           <input [formField]="supplierForm.telephone" matInput/>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
+          <mat-label>{{ 'PATIENT_FORM.EMAIL' | translate }}</mat-label>
           <input [formField]="supplierForm.email" matInput type="email"/>
         </mat-form-field>
         <div class="form-actions">
           <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
             <mat-icon>save</mat-icon>
-            Enregistrer
+            {{ 'COMMON.SAVE' | translate }}
           </button>
         </div>
       </form>
@@ -42,24 +42,24 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Liste</mat-card-title>
+      <mat-card-title>{{ 'STOCK.SUPPLIERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <table [dataSource]="items()" class="full-width" mat-table>
         <ng-container matColumnDef="code">
-          <th *matHeaderCellDef mat-header-cell>Code</th>
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.CODE_LABEL' | translate }}</th>
           <td *matCellDef="let f" mat-cell>{{ f.code }}</td>
         </ng-container>
         <ng-container matColumnDef="raisonSociale">
-          <th *matHeaderCellDef mat-header-cell>Raison sociale</th>
+          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.COMPANY_NAME_LABEL' | translate }}</th>
           <td *matCellDef="let f" mat-cell>{{ f.raisonSociale }}</td>
         </ng-container>
         <ng-container matColumnDef="contact">
-          <th *matHeaderCellDef mat-header-cell>Contact</th>
+          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.CONTACT_LABEL' | translate }}</th>
           <td *matCellDef="let f" mat-cell>{{ f.contact }}</td>
         </ng-container>
         <ng-container matColumnDef="telephone">
-          <th *matHeaderCellDef mat-header-cell>Téléphone</th>
+          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PHONE_LABEL' | translate }}</th>
           <td *matCellDef="let f" mat-cell>{{ f.telephone }}</td>
         </ng-container>
         <tr *matHeaderRowDef="cols" mat-header-row></tr>

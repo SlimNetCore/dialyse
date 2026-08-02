@@ -4,7 +4,7 @@
     <span class="spacer"></span>
     <button [matMenuTriggerFor]="colsMenu" color="primary" mat-stroked-button>
       <mat-icon>view_column</mat-icon>
-      Colonnes
+      {{ 'PATIENT_LIST.COLUMNS_BUTTON' | translate }}
     </button>
     <button
       (click)="clearAllColumnFilters()"
@@ -13,7 +13,7 @@
       mat-stroked-button
     >
       <mat-icon>filter_alt_off</mat-icon>
-      Réinitialiser filtres
+      {{ 'PATIENT_LIST.RESET_FILTERS_BUTTON' | translate }}
     </button>
     <mat-menu #colsMenu="matMenu">
       @for (c of allColumnsConfig; track c.key) {
@@ -188,7 +188,7 @@
       ></tr>
       <tr *matNoDataRow class="mat-mdc-row">
         <td [attr.colspan]="displayedColumns().length" class="mat-mdc-cell no-data-cell">
-          Aucune attestation trouvee
+          {{ 'ATTEST_LIST.EMPTY' | translate }}
         </td>
       </tr>
     </table>

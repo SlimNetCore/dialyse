@@ -13,6 +13,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonSortie, LotDisponible, StockApiService} from '../../core/api/stock-api.service';
@@ -24,7 +26,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule, MatTableModule,
-    MatChipsModule, FormRoot, FormField,
+    MatChipsModule, FormRoot, FormField, TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './bons-sortie.component.html',
@@ -61,6 +63,7 @@ export class BonsSortieComponent implements OnDestroy {
   private readonly auth = inject(AuthStore);
   private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private lockTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
@@ -112,7 +115,11 @@ export class BonsSortieComponent implements OnDestroy {
     const centerId = this.auth.centerId();
     this.patchItem(i, {articleId, lotId: null});
     if (this.isArticleLocked(articleId)) {
-      this.snack.open('Recalcul en cours pour cet article. Saisie temporairement bloquee.', 'Fermer', {duration: 4000});
+      this.snack.open(
+        this.translate.instant('STOCK.BON_SORTIE.LOCKED_ARTICLE_SINGLE'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      );
       this.patchItem(i, {articleId: null});
       this.setLotsForRow(i, []);
       return;
@@ -160,7 +167,11 @@ export class BonsSortieComponent implements OnDestroy {
       return;
     }
     if (this.hasLockedItems()) {
-      this.snack.open('Un ou plusieurs articles sont en recalcul. Reessayez plus tard.', 'Fermer', {duration: 4000});
+      this.snack.open(
+        this.translate.instant('STOCK.BON_SORTIE.LOCKED_ARTICLES'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      );
       return;
     }
     this.saving.set(true);
@@ -182,15 +193,24 @@ export class BonsSortieComponent implements OnDestroy {
       : this.api.createBonSortie(payload);
     req$.subscribe({
       next: () => {
-        this.snack.open(this.editingBonId() ? 'Bon de sortie modifie' : 'Sortie enregistree', 'OK', {duration: 2500});
+        this.snack.open(
+          this.editingBonId()
+            ? this.translate.instant('STOCK.BON_SORTIE.MODIFIED_OK')
+            : this.translate.instant('STOCK.BON_SORTIE.SAVED_OK'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 2500},
+        );
         this.cancelEdit();
         this.reload();
       },
       complete: () => this.saving.set(false),
       error: (e) => {
         this.saving.set(false);
-        const msg = e?.error?.message ?? 'Erreur lors de la sortie';
-        this.snack.open(msg, 'Fermer', {duration: 5000});
+        const detail = e?.error?.message;
+        const msg = detail
+          ? this.translate.instant('STOCK.BON_SORTIE.SAVE_ERROR_DETAIL', {detail})
+          : this.translate.instant('STOCK.BON_SORTIE.SAVE_ERROR');
+        this.snack.open(msg, this.translate.instant('COMMON.RETRY'), {duration: 5000});
       },
     });
   }

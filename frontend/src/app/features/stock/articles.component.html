@@ -1,44 +1,43 @@
 <section class="app-page">
   <div class="app-hero-card">
-    <span class="app-eyebrow">Stock · Référentiel</span>
-    <h1 class="app-section-title">Saisie des articles</h1>
-    <p class="app-section-copy">Définir si l'article est géré par lot. Ce paramètre pilote la saisie obligatoire du lot
-      en réception.</p>
+    <span class="app-eyebrow">{{ 'STOCK.EYEBROW_REFERENTIAL' | translate }}</span>
+    <h1 class="app-section-title">{{ 'STOCK.ARTICLES_ENTRY_TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'STOCK.ARTICLES_BATCH_MANAGEMENT_DESC' | translate }}</p>
   </div>
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Nouvel article</mat-card-title>
+      <mat-card-title>{{ 'STOCK.NEW_ARTICLE_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form (submit)="save(); $event.preventDefault()" [formRoot]="articleForm">
         <div class="form-grid">
           <mat-form-field appearance="outline">
-            <mat-label>Code</mat-label>
+            <mat-label>{{ 'COMMON.CODE_LABEL' | translate }}</mat-label>
             <input [formField]="articleForm.code" matInput/>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Libellé</mat-label>
+            <mat-label>{{ 'STOCK.ARTICLE_LIBELLE_LABEL' | translate }}</mat-label>
             <input [formField]="articleForm.libelle" matInput/>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Unité</mat-label>
+            <mat-label>{{ 'STOCK.UNIT_LABEL' | translate }}</mat-label>
             <input [formField]="articleForm.unite" matInput/>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Seuil d'alerte</mat-label>
+            <mat-label>{{ 'STOCK.ALERT_THRESHOLD_LABEL' | translate }}</mat-label>
             <input [formField]="articleForm.seuilAlerte" matInput type="number"/>
           </mat-form-field>
         </div>
 
         <mat-checkbox [formField]="articleForm.gereParLot">
-          Article géré par lot (lot et péremption obligatoires en réception)
+          {{ 'STOCK.BATCH_MANAGED_ARTICLE_CHECKBOX' | translate }}
         </mat-checkbox>
 
         <div class="actions">
           <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
             <mat-icon>save</mat-icon>
-            Créer l'article
+            {{ 'STOCK.CREATE_ARTICLE_BTN' | translate }}
           </button>
         </div>
       </form>
@@ -47,25 +46,26 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Articles actifs</mat-card-title>
+      <mat-card-title>{{ 'STOCK.ACTIVE_ARTICLES_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <table [dataSource]="articles()" class="full-width" mat-table>
         <ng-container matColumnDef="code">
-          <th *matHeaderCellDef mat-header-cell>Code</th>
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.CODE_LABEL' | translate }}</th>
           <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
         </ng-container>
         <ng-container matColumnDef="libelle">
-          <th *matHeaderCellDef mat-header-cell>Libellé</th>
+          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLE_LIBELLE_LABEL' | translate }}</th>
           <td *matCellDef="let a" mat-cell>{{ a.libelle || a.nom }}</td>
         </ng-container>
         <ng-container matColumnDef="unite">
-          <th *matHeaderCellDef mat-header-cell>Unité</th>
+          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.UNIT_LABEL' | translate }}</th>
           <td *matCellDef="let a" mat-cell>{{ a.unite || '—' }}</td>
         </ng-container>
         <ng-container matColumnDef="lot">
-          <th *matHeaderCellDef mat-header-cell>Gestion lot</th>
-          <td *matCellDef="let a" mat-cell>{{ a.gereParLot ? 'Oui' : 'Non' }}</td>
+          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.BATCH_MANAGEMENT_LABEL' | translate }}</th>
+          <td *matCellDef="let a" mat-cell>{{ a.gereParLot ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+          </td>
         </ng-container>
 
         <tr *matHeaderRowDef="cols" mat-header-row></tr>

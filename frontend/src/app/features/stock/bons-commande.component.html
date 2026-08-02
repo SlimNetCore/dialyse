@@ -1,18 +1,18 @@
 <section class="app-page">
   <div class="app-hero-card">
-    <span class="app-eyebrow">Stock · Approvisionnement</span>
-    <h1 class="app-section-title">Bons de commande</h1>
+    <span class="app-eyebrow">{{ 'STOCK.EYEBROW_SUPPLY' | translate }}</span>
+    <h1 class="app-section-title">{{ 'STOCK.PURCHASE_ORDERS_TITLE' | translate }}</h1>
   </div>
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Nouveau bon de commande</mat-card-title>
+      <mat-card-title>{{ 'STOCK.NEW_PURCHASE_ORDER_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form (submit)="save(); $event.preventDefault()" [formRoot]="form">
         <div class="fournisseur-wrap">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Fournisseur</mat-label>
+            <mat-label>{{ 'STOCK.SUPPLIER_LABEL' | translate }}</mat-label>
             <mat-select [formField]="form.fournisseurId">
               @for (f of fournisseurs(); track f.id) {
                 <mat-option [value]="f.id">{{ f.raisonSociale }}</mat-option>
@@ -25,7 +25,7 @@
           @for (_ of formModel().lignes; track $index) {
             <div class="line-row">
               <mat-form-field appearance="outline" class="flex2">
-                <mat-label>Article</mat-label>
+                <mat-label>{{ 'CAHIER.CONSOMMABLES_ARTICLE' | translate }}</mat-label>
                 <mat-select [formField]="form.lignes[$index].articleId">
                   @for (a of articles(); track a.id) {
                     <mat-option [value]="a.id">{{ articleLabel(a) }}</mat-option>
@@ -33,14 +33,15 @@
                 </mat-select>
               </mat-form-field>
               <mat-form-field appearance="outline" class="flex1">
-                <mat-label>Quantité</mat-label>
+                <mat-label>{{ 'CAHIER.CONSOMMABLES_QTE' | translate }}</mat-label>
                 <input [formField]="form.lignes[$index].quantite" matInput type="number"/>
               </mat-form-field>
               <mat-form-field appearance="outline" class="flex1">
-                <mat-label>Prix unitaire</mat-label>
+                <mat-label>{{ 'STOCK.UNIT_PRICE_LABEL' | translate }}</mat-label>
                 <input [formField]="form.lignes[$index].prixUnitaire" matInput type="number"/>
               </mat-form-field>
-              <button (click)="removeLigne($index)" aria-label="Supprimer" mat-icon-button type="button">
+              <button (click)="removeLigne($index)" [attr.aria-label]="'COMMON.DELETE' | translate" mat-icon-button
+                      type="button">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
@@ -50,13 +51,13 @@
         <div class="btn-bar">
           <button (click)="addLigne()" mat-stroked-button type="button">
             <mat-icon>add</mat-icon>
-            Ajouter une ligne
+            {{ 'STOCK.ADD_LINE_BUTTON' | translate }}
           </button>
           <span class="spacer"></span>
-          <span class="total">Total : {{ total() | number:'1.0-2' }}</span>
+          <span class="total">{{ 'COMMON.TOTAL_LABEL' | translate }} {{ total() | number:'1.0-2' }}</span>
           <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
             <mat-icon>save</mat-icon>
-            Créer le bon
+            {{ 'STOCK.CREATE_ORDER_BUTTON' | translate }}
           </button>
         </div>
       </form>
@@ -65,33 +66,34 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Bons de commande</mat-card-title>
+      <mat-card-title>{{ 'STOCK.PURCHASE_ORDERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <div class="table-wrap">
         <table [dataSource]="bons()" class="full-width" mat-table>
           <ng-container matColumnDef="reference">
-            <th *matHeaderCellDef mat-header-cell>Référence</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.REFERENCE_LABEL' | translate }}</th>
             <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
           </ng-container>
           <ng-container matColumnDef="statut">
-            <th *matHeaderCellDef mat-header-cell>Statut</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
             <td *matCellDef="let b" mat-cell>
               <mat-chip>{{ b.statut }}</mat-chip>
             </td>
           </ng-container>
           <ng-container matColumnDef="lignes">
-            <th *matHeaderCellDef mat-header-cell>Lignes</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.LINES_LABEL' | translate }}</th>
             <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
           </ng-container>
           <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>Actions</th>
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
             <td *matCellDef="let b" mat-cell>
               @if (b.statut === 'BROUILLON') {
-                <button (click)="valider(b)" mat-stroked-button>Valider</button>
+                <button (click)="valider(b)" mat-stroked-button>{{ 'PEC_ADMIN.VALIDATE' | translate }}</button>
               }
               @if (b.statut === 'VALIDE') {
-                <button (click)="transformer(b)" mat-stroked-button>→ Réception</button>
+                <button (click)="transformer(b)" mat-stroked-button>{{ 'STOCK.TO_RECEPTION_BUTTON' | translate }}
+                </button>
               }
             </td>
           </ng-container>

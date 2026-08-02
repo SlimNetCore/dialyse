@@ -1,7 +1,7 @@
 <mat-card class="list-card">
   <div class="header">
     <div>
-      <span class="header-kicker">Validation PEC</span>
+      <span class="header-kicker">{{ 'PEC_LIST.EYEBROW_VALIDATION' | translate }}</span>
       <h2>{{ 'PEC_LIST.TITLE' | translate }}</h2>
     </div>
   </div>
@@ -10,7 +10,7 @@
     <div class="toolbar-group">
       <button [matMenuTriggerFor]="colsMenu" color="primary" mat-stroked-button>
         <mat-icon>view_column</mat-icon>
-        Colonnes
+        {{ 'PATIENT_LIST.COLUMNS_BUTTON' | translate }}
       </button>
       <button
         (click)="clearAllColumnFilters()"
@@ -19,7 +19,7 @@
         mat-stroked-button
       >
         <mat-icon>filter_alt_off</mat-icon>
-        Réinitialiser filtres
+        {{ 'PATIENT_LIST.RESET_FILTERS_BUTTON' | translate }}
       </button>
     </div>
     <mat-menu #colsMenu="matMenu">
@@ -234,7 +234,7 @@
       ></tr>
       <tr *matNoDataRow class="mat-mdc-row">
         <td [attr.colspan]="displayedColumns().length" class="mat-mdc-cell no-data-cell">
-          Aucune PEC trouvee
+          {{ 'PEC_LIST.EMPTY' | translate }}
         </td>
       </tr>
     </table>

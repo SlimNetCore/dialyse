@@ -28,12 +28,12 @@
           } @else {
             <mat-icon>filter_alt_off</mat-icon>
           }
-          Réinitialiser filtres
+          {{ 'PATIENT_LIST.RESET_FILTERS_BUTTON' | translate }}
         </button>
 
         <button [matMenuTriggerFor]="colsMenu" color="primary" mat-stroked-button>
           <mat-icon>view_column</mat-icon>
-          Colonnes
+          {{ 'PATIENT_LIST.COLUMNS_BUTTON' | translate }}
         </button>
         <mat-menu #colsMenu="matMenu">
           @for (c of allColumnsConfig; track c.key) {
@@ -337,7 +337,7 @@
           <th *matHeaderCellDef mat-header-cell>
             <div [class.open]="isFilterOpen('nonFacturable')" class="th-wrap">
               <div class="th-top">
-                <span>Facturation</span>
+                <span>{{ 'PATIENT_LIST.BILLING_LABEL' | translate }}</span>
                 <mat-icon
                   (click)="toggleFilterPanel('nonFacturable', $event)"
                   [class.active]="isColumnFiltered('nonFacturable')"
@@ -361,7 +361,7 @@
                   [style.color]="row.nonFacturable ? '#991b1b' : '#166534'"
                   class="etat-badge"
                 >
-                  {{ row.nonFacturable ? 'Non facturable' : 'Facturable' }}
+                  {{ row.nonFacturable ? ('PATIENT_LIST.NON_BILLABLE_LABEL' | translate) : ('PATIENT_LIST.BILLABLE_LABEL' | translate) }}
                 </span>
           </td>
         </ng-container>
@@ -547,13 +547,20 @@
                   "
               class="dialyse-days"
             >
-              <span *ngIf="row.joursDialyse.dimanche" class="dialyse-badge day-dim">Dim</span>
-              <span *ngIf="row.joursDialyse.lundi" class="dialyse-badge day-lun">Lun</span>
-              <span *ngIf="row.joursDialyse.mardi" class="dialyse-badge day-mar">Mar</span>
-              <span *ngIf="row.joursDialyse.mercredi" class="dialyse-badge day-mer">Mer</span>
-              <span *ngIf="row.joursDialyse.jeudi" class="dialyse-badge day-jeu">Jeu</span>
-              <span *ngIf="row.joursDialyse.vendredi" class="dialyse-badge day-ven">Ven</span>
-              <span *ngIf="row.joursDialyse.samedi" class="dialyse-badge day-sam">Sam</span>
+              <span *ngIf="row.joursDialyse.dimanche"
+                    class="dialyse-badge day-dim">{{ 'PATIENT_FORM.DIMANCHE' | translate }}</span>
+              <span *ngIf="row.joursDialyse.lundi"
+                    class="dialyse-badge day-lun">{{ 'PATIENT_FORM.LUNDI' | translate }}</span>
+              <span *ngIf="row.joursDialyse.mardi"
+                    class="dialyse-badge day-mar">{{ 'PATIENT_FORM.MARDI' | translate }}</span>
+              <span *ngIf="row.joursDialyse.mercredi"
+                    class="dialyse-badge day-mer">{{ 'PATIENT_FORM.MERCREDI' | translate }}</span>
+              <span *ngIf="row.joursDialyse.jeudi"
+                    class="dialyse-badge day-jeu">{{ 'PATIENT_FORM.JEUDI' | translate }}</span>
+              <span *ngIf="row.joursDialyse.vendredi"
+                    class="dialyse-badge day-ven">{{ 'PATIENT_FORM.VENDREDI' | translate }}</span>
+              <span *ngIf="row.joursDialyse.samedi"
+                    class="dialyse-badge day-sam">{{ 'PATIENT_FORM.SAMEDI' | translate }}</span>
             </div>
             <span
               *ngIf="

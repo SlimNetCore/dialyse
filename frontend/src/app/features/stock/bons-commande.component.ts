@@ -11,6 +11,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {BonCommande, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
@@ -21,7 +23,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule,
-    FormRoot, FormField,
+    FormRoot, FormField, TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './bons-commande.component.html',
@@ -56,6 +58,7 @@ export class BonsCommandeComponent {
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
   private readonly snack = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   constructor() {
     this.reload();
@@ -101,14 +104,22 @@ export class BonsCommandeComponent {
       lignes,
     }).subscribe({
       next: () => {
-        this.snack.open('Bon de commande créé', 'OK', {duration: 2500});
+        this.snack.open(
+          this.translate.instant('STOCK.BON_COMMANDE.CREATED_OK'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 2500},
+        );
         this.formModel.set({fournisseurId: null, lignes: [this.newLigne()]});
         this.reload();
       },
       complete: () => this.saving.set(false),
       error: () => {
         this.saving.set(false);
-        this.snack.open('Erreur lors de la création', 'Fermer', {duration: 4000});
+        this.snack.open(
+          this.translate.instant('STOCK.BON_COMMANDE.CREATE_ERROR'),
+          this.translate.instant('COMMON.RETRY'),
+          {duration: 4000},
+        );
       },
     });
   }
@@ -120,10 +131,18 @@ export class BonsCommandeComponent {
     }
     this.api.validerBonCommande(b.id, centerId, this.auth.username() ?? undefined).subscribe({
       next: () => {
-        this.snack.open('Bon validé', 'OK', {duration: 2000});
+        this.snack.open(
+          this.translate.instant('STOCK.BON_COMMANDE.VALIDATED_OK'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 2000},
+        );
         this.reload();
       },
-      error: () => this.snack.open('Erreur de validation', 'Fermer', {duration: 4000}),
+      error: () => this.snack.open(
+        this.translate.instant('STOCK.BON_COMMANDE.VALIDATION_ERROR'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      ),
     });
   }
 
@@ -134,10 +153,18 @@ export class BonsCommandeComponent {
     }
     this.api.fromBonCommande({centerId, bonCommandeId: b.id, userId: this.auth.username() ?? undefined}).subscribe({
       next: () => {
-        this.snack.open('Bon de réception créé (brouillon)', 'OK', {duration: 3000});
+        this.snack.open(
+          this.translate.instant('STOCK.BON_COMMANDE.TRANSFORM_OK'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 3000},
+        );
         this.reload();
       },
-      error: () => this.snack.open('Erreur de transformation', 'Fermer', {duration: 4000}),
+      error: () => this.snack.open(
+        this.translate.instant('STOCK.BON_COMMANDE.TRANSFORM_ERROR'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      ),
     });
   }
 

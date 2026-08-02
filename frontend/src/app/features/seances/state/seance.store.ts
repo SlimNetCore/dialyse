@@ -141,7 +141,7 @@ const initialState: SeanceState = {
   qrCode: '',
   dateSeance: todayIsoDate(),
   scanState: 'idle',
-  scanMessage: 'Prêt à scanner',
+  scanMessage: 'SEANCES.SCAN_READY_MESSAGE',
   scanning: false,
   journalDate: todayIsoDate(),
   journalLoading: false,
@@ -296,7 +296,7 @@ export const SeanceStore = signalStore(
               savingConsommable: false,
               consommables: store.consommables().filter((c) => c.articleId !== articleId),
               scanState: 'success',
-              scanMessage: 'Article supprimé',
+              scanMessage: 'SEANCES.CONSUMABLE_REMOVED',
             })),
             catchError((err: unknown) => {
               patchState(store, {savingConsommable: false, error: errorMessage(err)});
@@ -323,7 +323,7 @@ export const SeanceStore = signalStore(
                 c.articleId === articleId ? {...c, quantite} : c
               ),
               scanState: 'success',
-              scanMessage: 'Quantité mise à jour',
+              scanMessage: 'SEANCES.CONSUMABLE_QTY_UPDATED',
             })),
             catchError((err: unknown) => {
               patchState(store, {savingConsommable: false, error: errorMessage(err)});
@@ -342,7 +342,7 @@ export const SeanceStore = signalStore(
       patchState(store, {dateSeance});
     },
     resetScan(): void {
-      patchState(store, {scanState: 'idle', scanMessage: 'Prêt à scanner', scanning: false, qrCode: ''});
+      patchState(store, {scanState: 'idle', scanMessage: 'SEANCES.SCAN_READY_MESSAGE', scanning: false, qrCode: ''});
     },
 
     // --- Chargement liste séances ---
@@ -376,7 +376,7 @@ export const SeanceStore = signalStore(
                         seances: items,
                         scanning: false,
                         scanState: 'success',
-                        scanMessage: 'Séance créée et ajoutée à la liste',
+                        scanMessage: 'SEANCES.SESSION_CREATED_LISTED',
                         ...summaryStateFromSummary(summary),
                       });
                     }),
@@ -389,7 +389,7 @@ export const SeanceStore = signalStore(
                         dateSeance: created.dateSeance,
                         scanning: false,
                         scanState: 'success',
-                        scanMessage: 'Séance créée et ajoutée à la liste',
+                        scanMessage: 'SEANCES.SESSION_CREATED_LISTED',
                       });
                       return EMPTY;
                     })
@@ -403,7 +403,7 @@ export const SeanceStore = signalStore(
                     dateSeance: created.dateSeance,
                     scanning: false,
                     scanState: 'success',
-                    scanMessage: 'Séance créée et ajoutée à la liste',
+                    scanMessage: 'SEANCES.SESSION_CREATED_LISTED',
                   });
                   return EMPTY;
                 })
@@ -413,7 +413,7 @@ export const SeanceStore = signalStore(
               patchState(store, {
                 scanning: false,
                 scanState: 'error',
-                scanMessage: 'Scan QR invalide ou patient introuvable',
+                scanMessage: 'SEANCES.INVALID_QR_OR_PATIENT',
                 error: errorMessage(err),
               });
               return EMPTY;
@@ -458,7 +458,7 @@ export const SeanceStore = signalStore(
                 dateSeance: updated.dateSeance || dateSeance,
                 editDateSeance: updated.dateSeance || dateSeance,
                 scanState: 'success',
-                scanMessage: 'Date de séance mise à jour',
+                scanMessage: 'SEANCES.SESSION_DATE_UPDATED',
               });
             }),
             catchError((err: unknown) => {
@@ -485,7 +485,7 @@ export const SeanceStore = signalStore(
             tap(() => patchState(store, {
               savingParamedical: false,
               scanState: 'success',
-              scanMessage: 'Volet paramédical enregistré'
+              scanMessage: 'SEANCES.PARAMEDICAL_SAVED'
             })),
             catchError((err: unknown) => {
               patchState(store, {savingParamedical: false, error: errorMessage(err)});
@@ -510,7 +510,7 @@ export const SeanceStore = signalStore(
             tap(() => patchState(store, {
               savingMedical: false,
               scanState: 'success',
-              scanMessage: 'Volet médical enregistré'
+              scanMessage: 'SEANCES.MEDICAL_SAVED'
             })),
             catchError((err: unknown) => {
               patchState(store, {savingMedical: false, error: errorMessage(err)});
@@ -532,7 +532,7 @@ export const SeanceStore = signalStore(
               summary: patchSummaryStatusAndDate(store.summary(), updated.id, updated.status),
               validatingSeance: false,
               scanState: 'success',
-              scanMessage: 'Séance validée',
+              scanMessage: 'SEANCES.SESSION_VALIDATED',
             })),
             catchError((err: unknown) => {
               patchState(store, {validatingSeance: false, error: errorMessage(err)});
@@ -548,7 +548,7 @@ export const SeanceStore = signalStore(
       pipe(
         switchMap(({seanceId, centerId, userId}) =>
           api.signSeanceByMedecin(seanceId, {centerId, userId}).pipe(
-            tap(() => patchState(store, {scanState: 'success', scanMessage: 'Séance signée par le médecin'})),
+            tap(() => patchState(store, {scanState: 'success', scanMessage: 'SEANCES.SESSION_SIGNED_BY_DOCTOR'})),
             catchError((err: unknown) => {
               patchState(store, {error: errorMessage(err)});
               return EMPTY;

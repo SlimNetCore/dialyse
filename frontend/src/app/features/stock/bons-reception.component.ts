@@ -15,6 +15,8 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonReception, Emplacement, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
@@ -27,7 +29,7 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule,
-    MatTableModule, MatChipsModule, MatTooltipModule, FormRoot, FormField,
+    MatTableModule, MatChipsModule, MatTooltipModule, FormRoot, FormField, TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -74,6 +76,7 @@ export class BonsReceptionComponent implements OnDestroy {
   private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
   private lockTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
@@ -119,7 +122,11 @@ export class BonsReceptionComponent implements OnDestroy {
       return;
     }
     if (this.hasLockedLines()) {
-      this.snack.open('Un ou plusieurs articles sont en recalcul. Reessayez plus tard.', 'Fermer', {duration: 4000});
+      this.snack.open(
+        this.translate.instant('STOCK.BON_RECEPTION.LOCKED_ARTICLES'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      );
       return;
     }
     this.saving.set(true);
@@ -149,8 +156,10 @@ export class BonsReceptionComponent implements OnDestroy {
 
     saveOp.subscribe({
       next: () => {
-        const message = editingId ? 'Bon de réception mis à jour' : 'Bon de réception créé';
-        this.snack.open(message, 'OK', {duration: 2500});
+        const message = editingId
+          ? this.translate.instant('STOCK.BON_RECEPTION.UPDATED_OK')
+          : this.translate.instant('STOCK.BON_RECEPTION.CREATED_OK');
+        this.snack.open(message, this.translate.instant('COMMON.OK'), {duration: 2500});
 
         if (editingId && this.editingStatus() && this.editingStatus() !== 'BROUILLON') {
           const articleIds = Array.from(new Set(lignes.map(l => l.articleId).filter(Boolean)));
@@ -172,7 +181,11 @@ export class BonsReceptionComponent implements OnDestroy {
       complete: () => this.saving.set(false),
       error: () => {
         this.saving.set(false);
-        this.snack.open('Erreur lors de l\'opération', 'Fermer', {duration: 4000});
+        this.snack.open(
+          this.translate.instant('STOCK.BON_RECEPTION.OPERATION_ERROR'),
+          this.translate.instant('COMMON.RETRY'),
+          {duration: 4000},
+        );
       },
     });
   }
@@ -208,7 +221,11 @@ export class BonsReceptionComponent implements OnDestroy {
 
   protected onArticleSelected(index: number, articleId: string | null): void {
     if (this.isArticleLocked(articleId)) {
-      this.snack.open('Recalcul en cours pour cet article. Saisie temporairement bloquee.', 'Fermer', {duration: 4000});
+      this.snack.open(
+        this.translate.instant('STOCK.BON_RECEPTION.LOCKED_ARTICLE_SINGLE'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      );
       this.patchLigne(index, {articleId: null, numeroLot: '', datePeremption: null});
       return;
     }
@@ -244,10 +261,18 @@ export class BonsReceptionComponent implements OnDestroy {
     }
     this.api.validerBonReception(b.id, centerId, this.auth.username() ?? undefined).subscribe({
       next: () => {
-        this.snack.open('Réception validée · PMP recalculé', 'OK', {duration: 3000});
+        this.snack.open(
+          this.translate.instant('STOCK.BON_RECEPTION.VALIDATED_OK'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 3000},
+        );
         this.reload();
       },
-      error: () => this.snack.open('Erreur de validation', 'Fermer', {duration: 4000}),
+      error: () => this.snack.open(
+        this.translate.instant('STOCK.BON_RECEPTION.VALIDATION_ERROR'),
+        this.translate.instant('COMMON.RETRY'),
+        {duration: 4000},
+      ),
     });
   }
 

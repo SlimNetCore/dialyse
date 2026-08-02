@@ -124,14 +124,17 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly presenceAbsenceChart = computed<ChartData<'bar'>>(() => {
     const d = this.store.seanceDashboard();
     return {
-      labels: ['Presences', 'Absences'],
+      labels: [
+        this.translate.instant('SEANCES.PRESENCE_KPI'),
+        this.translate.instant('SEANCES.ABSENCE_KPI'),
+      ],
       datasets: [{data: [d?.presenceCount ?? 0, d?.absenceCount ?? 0], backgroundColor: ['#16a34a', '#dc2626']}]
     };
   });
   protected readonly sexeChart = computed<ChartData<'doughnut'>>(() => {
     const dist = this.store.seanceDashboard()?.sexeDistribution ?? {};
     return {
-      labels: ['M', 'F', 'Autre'],
+      labels: ['M', 'F', this.translate.instant('SEANCES.OTHER_LABEL')],
       datasets: [{
         data: [dist['M'] ?? 0, dist['F'] ?? 0, dist['AUTRE'] ?? 0],
         backgroundColor: ['#3b82f6', '#ec4899', '#f59e0b']
@@ -141,7 +144,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly ageChart = computed<ChartData<'bar'>>(() => {
     const dist = this.store.seanceDashboard()?.ageDistribution ?? {};
     return {
-      labels: ['0-17', '18-39', '40-59', '60+', 'Inconnu'],
+      labels: ['0-17', '18-39', '40-59', '60+', this.translate.instant('SEANCES.UNKNOWN_LABEL')],
       datasets: [{
         data: [dist['0-17'] ?? 0, dist['18-39'] ?? 0, dist['40-59'] ?? 0, dist['60+'] ?? 0, dist['INCONNU'] ?? 0],
         backgroundColor: '#2563eb'
@@ -292,7 +295,11 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   protected triggerImagePicker(): void {
     if (!this.canScanSeances()) {
-      this.snackBar.open('Votre profil ne peut pas scanner', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('SEANCES.SCAN_PERMISSION_DENIED'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
       return;
     }
     this.qrImageInputRef?.nativeElement.click();
@@ -318,7 +325,11 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     const centerId = this.appShell.currentCenterId();
     const qr = this.store.qrCode().trim();
     if (!this.canScanSeances() || !centerId || !qr) {
-      this.snackBar.open('Centre ou QR manquant', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('SEANCES.MISSING_CENTER_OR_QR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
       return;
     }
     const dateSeance = todayIso();
@@ -497,12 +508,20 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     const articleId = this.store.newConsommableArticleId();
     const quantite = this.store.newConsommableQuantite();
     if (!articleId || !quantite || quantite <= 0) {
-      this.snackBar.open('Sélectionnez un article et une quantité valide', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('SEANCES.INVALID_CONSOMMABLE_SELECTION'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
       return;
     }
     const article = this.store.availableArticles().find((a) => a.id === articleId);
     if (!article) {
-      this.snackBar.open('Article introuvable', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('SEANCES.ARTICLE_NOT_FOUND'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
       return;
     }
     this.store.addConsommable(article, quantite);
@@ -550,7 +569,11 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     const year = Number(yearText);
     const month = Number(monthText);
     if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
-      this.snackBar.open('Mois invalide', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('COMMON.INVALID_MONTH'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
       return;
     }
     this.store.loadDashboard({centerId, year, month});
@@ -571,7 +594,11 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
         a.click();
         URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Export impossible', 'OK', {duration: 3000}),
+      error: () => this.snackBar.open(
+        this.translate.instant('COMMON.EXPORT_ERROR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      ),
     });
   }
 
@@ -590,11 +617,13 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   }
 
   protected dashboardDetailsTitle(): string {
-    return this.store.dashboardDetailsKind() === 'presence' ? 'Liste des presences' : 'Liste des absences';
+    return this.store.dashboardDetailsKind() === 'presence'
+      ? this.translate.instant('SEANCES.PRESENCE_LIST_TITLE')
+      : this.translate.instant('SEANCES.ABSENCE_LIST_TITLE');
   }
 
   protected dashboardDetailsSubtitle(): string {
-    return `${this.store.dashboardDetailItems().length} ligne(s)`;
+    return this.translate.instant('SEANCES.ROWS_COUNT', {count: this.store.dashboardDetailItems().length});
   }
 
   protected canPreviousDashboardDetailPage(): boolean {
@@ -738,7 +767,11 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   private async startCamera(): Promise<void> {
     if (!this.canScanSeances() || !this.supportsCameraScan()) {
-      this.snackBar.open('Scan camera non supporte', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('SEANCES.CAMERA_NOT_SUPPORTED'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
       return;
     }
     const video = this.cameraVideoRef?.nativeElement;
@@ -755,7 +788,11 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       this.scheduleCameraDetection();
     } catch {
       this.stopCamera();
-      this.snackBar.open('Impossible acces camera', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('SEANCES.CAMERA_ACCESS_DENIED'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
     } finally {
       this.cameraStarting.set(false);
     }
@@ -828,20 +865,32 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       URL.revokeObjectURL(imageUrl);
       const DetectorCtor = this.getBarcodeDetectorConstructor();
       if (!DetectorCtor) {
-        this.snackBar.open('Lecture image non supportee', 'OK', {duration: 3000});
+        this.snackBar.open(
+          this.translate.instant('SEANCES.IMAGE_READING_NOT_SUPPORTED'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 3000},
+        );
         return;
       }
       const detector = new DetectorCtor({formats: ['qr_code']});
       const barcodes = await detector.detect(image);
       const value = (barcodes[0]?.rawValue ?? '').trim();
       if (!value) {
-        this.snackBar.open('Aucun QR detecte', 'OK', {duration: 3000});
+        this.snackBar.open(
+          this.translate.instant('SEANCES.NO_QR_DETECTED'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 3000},
+        );
         return;
       }
       this.store.setQrCode(value);
       this.scanQr();
     } catch {
-      this.snackBar.open('Impossible lire image QR', 'OK', {duration: 3000});
+      this.snackBar.open(
+        this.translate.instant('SEANCES.QR_READ_ERROR'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 3000},
+      );
     }
   }
 

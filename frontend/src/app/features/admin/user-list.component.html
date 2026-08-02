@@ -2,24 +2,24 @@
   <div class="header">
     <h2>
       <mat-icon>people</mat-icon>
-      Gestion des utilisateurs
+      {{ 'ADMIN.USERS.TITLE' | translate }}
     </h2>
     <button color="primary" mat-flat-button routerLink="/admin/users/new">
       <mat-icon>person_add</mat-icon>
-      Nouvel utilisateur
+      {{ 'ADMIN.USERS.NEW_USER' | translate }}
     </button>
   </div>
 
   <div class="toolbar">
     <mat-form-field appearance="outline" class="search">
-      <mat-label>Rechercher</mat-label>
+      <mat-label>{{ 'COMMON.SEARCH_BTN' | translate }}</mat-label>
       <input [formField]="searchForm.term" matInput/>
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
     <button [matMenuTriggerFor]="colsMenu" color="primary" mat-stroked-button>
       <mat-icon>view_column</mat-icon>
-      Colonnes
+      {{ 'PATIENT_LIST.COLUMNS_BUTTON' | translate }}
     </button>
     <button
       (click)="clearAllColumnFilters()"
@@ -28,7 +28,7 @@
       mat-stroked-button
     >
       <mat-icon>filter_alt_off</mat-icon>
-      Réinitialiser filtres
+      {{ 'PATIENT_LIST.RESET_FILTERS_BUTTON' | translate }}
     </button>
     <mat-menu #colsMenu="matMenu">
       @for (c of allColumnsConfig; track c.key) {
@@ -37,7 +37,7 @@
             <mat-checkbox
               (change)="toggleColumn(c.key, $event.checked)"
               [checked]="isColumnVisible(c.key)"
-            >{{ c.label }}
+            >{{ c.label | translate }}
             </mat-checkbox>
           </button>
         }
@@ -51,7 +51,7 @@
         <th *matHeaderCellDef mat-header-cell>
           <div [class.open]="isFilterOpen('username')" class="th-wrap">
             <div class="th-top">
-              <span>Nom d'utilisateur</span>
+              <span>{{ 'ADMIN.USERS.COL_USERNAME' | translate }}</span>
               <mat-icon
                 (click)="toggleFilterPanel('username', $event)"
                 [class.active]="isColumnFiltered('username')"
@@ -76,7 +76,7 @@
         <th *matHeaderCellDef mat-header-cell>
           <div [class.open]="isFilterOpen('fullName')" class="th-wrap">
             <div class="th-top">
-              <span>Nom complet</span>
+              <span>{{ 'ADMIN.USERS.COL_FULLNAME' | translate }}</span>
               <mat-icon
                 (click)="toggleFilterPanel('fullName', $event)"
                 [class.active]="isColumnFiltered('fullName')"
@@ -101,7 +101,7 @@
         <th *matHeaderCellDef mat-header-cell>
           <div [class.open]="isFilterOpen('email')" class="th-wrap">
             <div class="th-top">
-              <span>Email</span>
+              <span>{{ 'PATIENT_FORM.EMAIL' | translate }}</span>
               <mat-icon
                 (click)="toggleFilterPanel('email', $event)"
                 [class.active]="isColumnFiltered('email')"
@@ -126,7 +126,7 @@
         <th *matHeaderCellDef mat-header-cell>
           <div [class.open]="isFilterOpen('roles')" class="th-wrap">
             <div class="th-top">
-              <span>Rôles</span>
+              <span>{{ 'ADMIN.USERS.COL_ROLES' | translate }}</span>
               <mat-icon
                 (click)="toggleFilterPanel('roles', $event)"
                 [class.active]="isColumnFiltered('roles')"
@@ -157,7 +157,7 @@
         <th *matHeaderCellDef mat-header-cell>
           <div [class.open]="isFilterOpen('centers')" class="th-wrap">
             <div class="th-top">
-              <span>Centres</span>
+              <span>{{ 'ADMIN.USERS.COL_CENTERS' | translate }}</span>
               <mat-icon
                 (click)="toggleFilterPanel('centers', $event)"
                 [class.active]="isColumnFiltered('centers')"
@@ -188,7 +188,7 @@
         <th *matHeaderCellDef mat-header-cell>
           <div [class.open]="isFilterOpen('active')" class="th-wrap">
             <div class="th-top">
-              <span>Actif</span>
+              <span>{{ 'ADMIN.USERS.COL_ACTIVE' | translate }}</span>
               <mat-icon
                 (click)="toggleFilterPanel('active', $event)"
                 [class.active]="isColumnFiltered('active')"
@@ -214,7 +214,7 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell>Actions</th>
+        <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
         <td *matCellDef="let u" mat-cell>
           <button [routerLink]="['/admin/users', u.ID, 'edit']" color="primary" mat-icon-button>
             <mat-icon>edit</mat-icon>
@@ -233,7 +233,7 @@
       ></tr>
       <tr *matNoDataRow class="mat-mdc-row">
         <td [attr.colspan]="displayedColumns().length" class="mat-mdc-cell no-data-cell">
-          Aucun utilisateur trouve
+          {{ 'ADMIN.USERS.EMPTY' | translate }}
         </td>
       </tr>
     </table>
