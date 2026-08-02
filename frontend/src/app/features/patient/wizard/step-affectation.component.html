@@ -33,6 +33,15 @@
         [selectedId]="form.value().positionId"
         cssClass="flex1"
       />
+      <app-searchable-select
+        (selectionChanged)="onSelect('generateurId', $event)"
+        [disabled]="readonly"
+        [items]="generateurs()"
+        [label]="'PATIENT_FORM.GENERATEUR' | translate"
+        [prefixIcon]="'water_pump'"
+        [selectedId]="form.value().generateurId"
+        cssClass="flex1"
+      />
     </div>
 
     <div class="form-row">
@@ -105,3 +114,4 @@
     </div>
   </div>
 </div>
+

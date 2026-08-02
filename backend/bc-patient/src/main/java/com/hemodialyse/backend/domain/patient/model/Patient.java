@@ -71,6 +71,10 @@ public class Patient {
     private UUID transporteurAllerId;
     private UUID transporteurRetourId;
     private UUID categorieTransportId;
+    /**
+     * Générateur de dialyse affecté — utilisé pour le routage automatique des données télémétriques
+     */
+    private UUID generateurId;
     private JoursDialyse joursDialyse;
 
     // Audit
@@ -153,7 +157,11 @@ public class Patient {
     public UUID getPositionId() { return positionId; }
     public UUID getTransporteurAllerId() { return transporteurAllerId; }
     public UUID getTransporteurRetourId() { return transporteurRetourId; }
-    public UUID getCategorieTransportId() { return categorieTransportId; }
+    public UUID getCategorieTransportId() { return categorieTransportId;
+    }
+
+    public void setCategorieTransportId(UUID v) { this.categorieTransportId = v;
+    }
     public JoursDialyse getJoursDialyse() { return joursDialyse; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
 
@@ -219,7 +227,12 @@ public class Patient {
     public void setPositionId(UUID v) { this.positionId = v; }
     public void setTransporteurAllerId(UUID v) { this.transporteurAllerId = v; }
     public void setTransporteurRetourId(UUID v) { this.transporteurRetourId = v; }
-    public void setCategorieTransportId(UUID v) { this.categorieTransportId = v; }
+
+    public UUID getGenerateurId() {
+        return generateurId; }
+
+    public void setGenerateurId(UUID v) {
+        this.generateurId = v; }
     public void setJoursDialyse(JoursDialyse v) { this.joursDialyse = v; }
     public void setCreatedAt(OffsetDateTime v) { this.createdAt = v; }
 }

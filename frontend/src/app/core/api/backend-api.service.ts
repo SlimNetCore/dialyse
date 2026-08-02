@@ -63,6 +63,7 @@ export type CreatePatientPayload = {
   transporteurAllerId?: string | null;
   transporteurRetourId?: string | null;
   categorieTransportId?: string | null;
+  generateurId?: string | null;
   jourDimanche?: boolean;
   jourLundi?: boolean;
   jourMardi?: boolean;

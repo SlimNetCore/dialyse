@@ -59,6 +59,7 @@ public final class PatientMapper {
         p.setTransporteurAllerId(e.getTransporteurAllerId());
         p.setTransporteurRetourId(e.getTransporteurRetourId());
         p.setCategorieTransportId(e.getCategorieTransportId());
+        p.setGenerateurId(e.getGenerateurId());
         p.setJoursDialyse(new JoursDialyse(
             Boolean.TRUE.equals(e.getJourDimanche()), Boolean.TRUE.equals(e.getJourLundi()),
             Boolean.TRUE.equals(e.getJourMardi()), Boolean.TRUE.equals(e.getJourMercredi()),
@@ -118,6 +119,7 @@ public final class PatientMapper {
         e.setTransporteurAllerId(p.getTransporteurAllerId());
         e.setTransporteurRetourId(p.getTransporteurRetourId());
         e.setCategorieTransportId(p.getCategorieTransportId());
+        e.setGenerateurId(p.getGenerateurId());
         if (p.getJoursDialyse() != null) {
             e.setJourDimanche(p.getJoursDialyse().dimanche());
             e.setJourLundi(p.getJoursDialyse().lundi());

@@ -71,6 +71,19 @@ public class ReferentialRestController {
         return ResponseEntity.ok(useCase.articles(CenterId.of(centerId)));
     }
 
+    /**
+     * Returns all dialysis generators for a centre.
+     * Optional {@code salleId} filter: restricts to generators of a specific room.
+     */
+    @GetMapping("/generateurs")
+    public ResponseEntity<?> generateurs(@RequestParam UUID centerId,
+                                         @RequestParam(required = false) UUID salleId) {
+        if (salleId != null) {
+            return ResponseEntity.ok(useCase.generateursBySalle(CenterId.of(centerId), salleId));
+        }
+        return ResponseEntity.ok(useCase.generateurs(CenterId.of(centerId)));
+    }
+
     @GetMapping("/centres-payeurs-details")
     @Cacheable(cacheNames = "ref.centresPayeursDetails", key = "#centerId.toString()")
     public ResponseEntity<?> centresPayeursDetails(@RequestParam UUID centerId) {

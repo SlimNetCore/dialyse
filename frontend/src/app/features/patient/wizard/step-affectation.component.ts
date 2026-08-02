@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   EventEmitter,
   inject,
   Input,
@@ -17,6 +18,7 @@ import {DropdownItem, SearchableSelectComponent,} from '../../../shared/searchab
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {
   CategoriesTransportStore,
+  GenerateursStore,
   MedecinsStore,
   PositionsStore,
   SallesStore,
@@ -31,6 +33,7 @@ interface AffectationModel {
   transporteurAllerId: string | null;
   transporteurRetourId: string | null;
   categorieTransportId: string | null;
+  generateurId: string | null;
   jourDimanche: boolean;
   jourLundi: boolean;
   jourMardi: boolean;
@@ -46,7 +49,8 @@ type AffectationSelectKey =
   | 'positionId'
   | 'transporteurAllerId'
   | 'transporteurRetourId'
-  | 'categorieTransportId';
+  | 'categorieTransportId'
+  | 'generateurId';
 
 type AffectationDayKey =
   | 'jourDimanche'
@@ -83,6 +87,7 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     transporteurAllerId: null,
     transporteurRetourId: null,
     categorieTransportId: null,
+    generateurId: null,
     jourDimanche: false,
     jourLundi: false,
     jourMardi: false,
@@ -104,6 +109,14 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   private readonly categoriesTransportStore = inject(CategoriesTransportStore);
   readonly categoriesTransport = this.categoriesTransportStore
     .items as unknown as () => DropdownItem[];
+  private readonly generateursStore = inject(GenerateursStore);
+
+  readonly generateurs = computed<DropdownItem[]>(() => {
+    const all = this.generateursStore.items() as unknown as Array<DropdownItem & { adresse?: string }>;
+    const salleId = this.form.value().salleId;
+    if (!salleId) return all;
+    return all.filter((item) => item.adresse === salleId);
+  });
 
   ngOnInit(): void {
     const cid = this.appShell.currentCenterId();
@@ -113,6 +126,7 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     void this.positionsStore.ensureLoaded(cid);
     void this.transporteursStore.ensureLoaded(cid);
     void this.categoriesTransportStore.ensureLoaded(cid);
+    void this.generateursStore.ensureLoaded(cid);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -122,6 +136,12 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   onSelect(key: AffectationSelectKey, item: DropdownItem | null): void {
     if (this.readonly) return;
     this.form.set(key, item?.id ?? null);
+    if (key === 'salleId') {
+      const currentGenerateurId = this.form.value().generateurId;
+      if (currentGenerateurId && !this.generateurs().some((g) => g.id === currentGenerateurId)) {
+        this.form.set('generateurId', null);
+      }
+    }
     this.emit();
   }
 
@@ -173,6 +193,7 @@ export class StepAffectationComponent implements OnInit, OnChanges {
       transporteurAllerId: pickId('transporteurAllerId', 'transporteur_aller_id', 'transporteurAller'),
       transporteurRetourId: pickId('transporteurRetourId', 'transporteur_retour_id', 'transporteurRetour'),
       categorieTransportId: pickId('categorieTransportId', 'categorie_transport_id', 'categorieTransport'),
+      generateurId: pickId('generateurId', 'generateur_id', 'generateur'),
       jourDimanche: asBool(pick('jourDimanche', 'jour_dimanche', 'dimanche')),
       jourLundi: asBool(pick('jourLundi', 'jour_lundi', 'lundi')),
       jourMardi: asBool(pick('jourMardi', 'jour_mardi', 'mardi')),

@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.referential.port.ReferentialUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Domain Service — Referential data retrieval.
@@ -33,6 +34,16 @@ public class ReferentialDomainService implements ReferentialUseCase {
     @Override
     public List<RefItem> articles(CenterId c) {
         return repo.findArticles(c);
+    }
+
+    @Override
+    public List<RefItem> generateurs(CenterId c) {
+        return repo.findGenerateurs(c);
+    }
+
+    @Override
+    public List<RefItem> generateursBySalle(CenterId c, UUID salleId) {
+        return repo.findGenerateursBySalle(c, salleId);
     }
 
     @Override

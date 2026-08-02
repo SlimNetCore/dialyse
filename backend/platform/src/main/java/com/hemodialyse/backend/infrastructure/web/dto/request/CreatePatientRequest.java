@@ -21,7 +21,9 @@ public record CreatePatientRequest(
         String piecesJointesJson,
         // Step 3
         UUID medecinTraitantId, UUID salleId, UUID positionId,
-        UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId, String etatPatient,
+        UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId,
+        UUID generateurId,
+        String etatPatient,
         LocalDate dateEvenementEtat,
         boolean jourDimanche, boolean jourLundi, boolean jourMardi,
         boolean jourMercredi, boolean jourJeudi, boolean jourVendredi, boolean jourSamedi,

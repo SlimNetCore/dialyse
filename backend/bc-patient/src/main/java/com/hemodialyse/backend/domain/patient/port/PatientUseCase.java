@@ -46,6 +46,7 @@ public interface PatientUseCase {
         // Step 3 — Affectation
         UUID medecinTraitantId, UUID salleId, UUID positionId,
         UUID transporteurAllerId, UUID transporteurRetourId, UUID categorieTransportId,
+        UUID generateurId,
         String etatPatient,
         LocalDate dateEvenementEtat,
         boolean jourDimanche, boolean jourLundi, boolean jourMardi,

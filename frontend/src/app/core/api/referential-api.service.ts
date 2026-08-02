@@ -53,4 +53,10 @@ export class ReferentialApiService {
   getArticles(centerId: string) {
     return this.get('articles', centerId);
   }
+
+  getGenerateurs(centerId: string, salleId?: string | null): Observable<RefItem[]> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (salleId) params = params.set('salleId', salleId);
+    return this.http.get<RefItem[]>(`${this.base}/generateurs`, {params});
+  }
 }

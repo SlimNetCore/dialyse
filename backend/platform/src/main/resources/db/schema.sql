@@ -41,6 +41,16 @@ CREATE TABLE IF NOT EXISTS salle (
     nom VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS generateur
+(
+    id        UUID PRIMARY KEY,
+    salle_id  UUID        NOT NULL,
+    center_id UUID        NOT NULL,
+    numero    VARCHAR(50) NOT NULL,
+    marque    VARCHAR(100),
+    modele    VARCHAR(100)
+);
+
 CREATE TABLE IF NOT EXISTS position_creneau (
     id UUID PRIMARY KEY,
     center_id UUID NOT NULL,

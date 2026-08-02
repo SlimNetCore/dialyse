@@ -319,6 +319,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       transporteurAllerId: d['transporteurAllerId'],
       transporteurRetourId: d['transporteurRetourId'],
       categorieTransportId: d['categorieTransportId'],
+      generateurId: d['generateurId'] ?? undefined,
       jourDimanche: d['jourDimanche'] || false,
       jourLundi: d['jourLundi'] || false,
       jourMardi: d['jourMardi'] || false,

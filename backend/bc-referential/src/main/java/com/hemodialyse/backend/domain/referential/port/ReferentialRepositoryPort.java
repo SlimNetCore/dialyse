@@ -20,6 +20,17 @@ public interface ReferentialRepositoryPort {
 
     List<RefItem> findArticles(CenterId centerId);
 
+    /**
+     * Returns all dialysis generators belonging to the given centre.
+     * Each item carries: id, code=numero, nom=label, libelle=marque+modele, adresse=salleId.
+     */
+    List<RefItem> findGenerateurs(CenterId centerId);
+
+    /**
+     * Returns only the generators of a specific salle (room filter for UI).
+     */
+    List<RefItem> findGenerateursBySalle(CenterId centerId, java.util.UUID salleId);
+
     List<CentrePayeurDetail> findCentresPayeursDetails(CenterId centerId);
 
     /** Simple read-only DTO for referential items */

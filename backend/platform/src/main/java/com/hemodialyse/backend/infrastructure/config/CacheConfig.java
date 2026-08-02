@@ -52,6 +52,7 @@ public class CacheConfig {
         register(manager, "ref.categoriesTransport", referentialTtl);
         register(manager, "ref.forfaits", referentialTtl);
         register(manager, "ref.centresPayeursDetails", referentialTtl);
+        register(manager, "ref.generateurs", referentialTtl);
 
         // Patient caches
         register(manager, "patient.byId", patientDetailTtl);

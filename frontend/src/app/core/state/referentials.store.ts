@@ -57,6 +57,13 @@ const mapArticle = (item: RefItem): ReferentialDropdownItem => ({
     .replace(/^\s*-\s*/, '') || item.id
 });
 
+const mapGenerateur = (item: RefItem): ReferentialDropdownItem => ({
+  ...item,
+  id: item.id,
+  // nom = "Générateur G01", libelle = "Fresenius 5008S", adresse = salleId
+  label: `${item.nom ?? item.code ?? item.id}${item.libelle ? ` — ${item.libelle.trim()}` : ''}`.trim()
+});
+
 export const ForfaitsStore = createReferentialStore<RefItem, ReferentialDropdownItem>({
   storeName: 'ForfaitsStore',
   load: (api, centerId) => api.getForfaits(centerId),
@@ -122,3 +129,8 @@ export const ArticlesStore = createReferentialStore<RefItem, ReferentialDropdown
   mapItem: mapArticle
 });
 
+export const GenerateursStore = createReferentialStore<RefItem, ReferentialDropdownItem>({
+  storeName: 'GenerateursStore',
+  load: (api, centerId) => api.getGenerateurs(centerId),
+  mapItem: mapGenerateur
+});

@@ -120,6 +120,7 @@ public class PatientDomainService implements PatientUseCase {
         patient.setTransporteurAllerId(cmd.transporteurAllerId());
         patient.setTransporteurRetourId(cmd.transporteurRetourId());
         patient.setCategorieTransportId(cmd.categorieTransportId());
+        patient.setGenerateurId(cmd.generateurId());
         patient.setJoursDialyse(new JoursDialyse(
             cmd.jourDimanche(), cmd.jourLundi(), cmd.jourMardi(),
             cmd.jourMercredi(), cmd.jourJeudi(), cmd.jourVendredi(), cmd.jourSamedi()

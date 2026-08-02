@@ -117,6 +117,7 @@
     "TRANSPORTEUR_ALLER": "Outbound transport",
     "TRANSPORTEUR_RETOUR": "Return transport",
     "CATEGORIE_TRANSPORT": "Transport type",
+    "GENERATEUR": "Dialysis generator",
     "SALLE": "Room",
     "GENERATEUR": "Generator #",
     "JOURS_DIALYSE": "Dialysis days",

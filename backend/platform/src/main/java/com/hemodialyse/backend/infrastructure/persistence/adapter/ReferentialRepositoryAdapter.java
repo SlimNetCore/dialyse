@@ -101,6 +101,32 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
     }
 
     @Override
+    @Cacheable(cacheNames = "ref.generateurs", key = "#c.value().toString()")
+    public List<RefItem> findGenerateurs(CenterId c) {
+        return jdbc.query(
+                "SELECT g.id, g.numero, CONCAT('Générateur ', g.numero) as nom, " +
+                        "CAST(g.salle_id AS VARCHAR) as adresse, null, " +
+                        "CONCAT(COALESCE(g.marque,''), CASE WHEN g.modele IS NOT NULL THEN CONCAT(' ', g.modele) ELSE '' END) as libelle " +
+                        "FROM generateur g WHERE g.center_id = ? ORDER BY g.numero",
+                (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3),
+                        rs.getString(4), null, rs.getString(6), null),
+                c.value());
+    }
+
+    @Override
+    @Cacheable(cacheNames = "ref.generateurs", key = "#c.value().toString() + ':salle:' + #salleId.toString()")
+    public List<RefItem> findGenerateursBySalle(CenterId c, java.util.UUID salleId) {
+        return jdbc.query(
+                "SELECT g.id, g.numero, CONCAT('Générateur ', g.numero) as nom, " +
+                        "CAST(g.salle_id AS VARCHAR) as adresse, null, " +
+                        "CONCAT(COALESCE(g.marque,''), CASE WHEN g.modele IS NOT NULL THEN CONCAT(' ', g.modele) ELSE '' END) as libelle " +
+                        "FROM generateur g WHERE g.center_id = ? AND g.salle_id = ? ORDER BY g.numero",
+                (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3),
+                        rs.getString(4), null, rs.getString(6), null),
+                c.value(), salleId);
+    }
+
+    @Override
     @Cacheable(cacheNames = "ref.centresPayeursDetails", key = "#c.value().toString()")
     public List<CentrePayeurDetail> findCentresPayeursDetails(CenterId c) {
         return jdbc.query(

@@ -51,6 +51,8 @@ public class PatientJpaEntity {
     @Column(name = "transporteur_aller_id") private UUID transporteurAllerId;
     @Column(name = "transporteur_retour_id") private UUID transporteurRetourId;
     @Column(name = "categorie_transport_id") private UUID categorieTransportId;
+    @Column(name = "generateur_id")
+    private UUID generateurId;
     @Column(name = "jour_dimanche") private Boolean jourDimanche;
     @Column(name = "jour_lundi") private Boolean jourLundi;
     @Column(name = "jour_mardi") private Boolean jourMardi;
@@ -113,6 +115,14 @@ public class PatientJpaEntity {
     public UUID getTransporteurAllerId() { return transporteurAllerId; } public void setTransporteurAllerId(UUID v) { this.transporteurAllerId = v; }
     public UUID getTransporteurRetourId() { return transporteurRetourId; } public void setTransporteurRetourId(UUID v) { this.transporteurRetourId = v; }
     public UUID getCategorieTransportId() { return categorieTransportId; } public void setCategorieTransportId(UUID v) { this.categorieTransportId = v; }
+
+    public UUID getGenerateurId() {
+        return generateurId;
+    }
+
+    public void setGenerateurId(UUID v) {
+        this.generateurId = v;
+    }
     public Boolean getJourDimanche() { return jourDimanche; } public void setJourDimanche(Boolean v) { this.jourDimanche = v; }
     public Boolean getJourLundi() { return jourLundi; } public void setJourLundi(Boolean v) { this.jourLundi = v; }
     public Boolean getJourMardi() { return jourMardi; } public void setJourMardi(Boolean v) { this.jourMardi = v; }
