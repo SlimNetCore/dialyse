@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,17 +40,20 @@ public class PatientRestController {
     private final AssurePatientRepositoryPort assurePatientRepo;
     private final PatientListQueryService patientListQueryService;
     private final PatientSummaryQueryService patientSummaryQueryService;
+    private final JdbcTemplate jdbc;
 
     public PatientRestController(PatientUseCase useCase, NotificationService notificationService,
                                  AssureRepositoryPort assureRepo, AssurePatientRepositoryPort assurePatientRepo,
                                  PatientListQueryService patientListQueryService,
-                                 PatientSummaryQueryService patientSummaryQueryService) {
+                                 PatientSummaryQueryService patientSummaryQueryService,
+                                 JdbcTemplate jdbc) {
         this.useCase = useCase;
         this.notificationService = notificationService;
         this.assureRepo = assureRepo;
         this.assurePatientRepo = assurePatientRepo;
         this.patientListQueryService = patientListQueryService;
         this.patientSummaryQueryService = patientSummaryQueryService;
+        this.jdbc = jdbc;
     }
 
     @GetMapping("/{id}/assures/history")
@@ -133,7 +137,9 @@ public class PatientRestController {
     @SuppressWarnings("unused")
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable UUID id, @RequestParam UUID centerId, @RequestParam String userId) {
-        return ResponseEntity.ok(useCase.getPatient(CenterId.of(centerId), id));
+        Patient patient = useCase.getPatient(CenterId.of(centerId), id);
+        enrichGenerateur(patient, centerId);
+        return ResponseEntity.ok(patient);
     }
 
     @GetMapping("/assures")
@@ -281,6 +287,26 @@ public class PatientRestController {
     public ResponseEntity<?> summary(@RequestParam UUID centerId,
                                      @RequestParam(required = false) String month) {
         return ResponseEntity.ok(patientSummaryQueryService.getSummary(centerId, resolveSummaryMonth(month)));
+    }
+
+    private void enrichGenerateur(Patient patient, UUID centerId) {
+        if (patient == null || patient.getGenerateurId() == null) {
+            return;
+        }
+        jdbc.query(
+                "SELECT id, numero, marque, etat FROM generateur WHERE center_id = ? AND id = ?",
+                rs -> {
+                    if (rs.next()) {
+                        patient.setGenerateurId(rs.getObject("id", UUID.class));
+                        patient.setGenerateurNom(rs.getString("numero"));
+                        patient.setGenerateurMarque(rs.getString("marque"));
+                        patient.setGenerateurEtat(rs.getString("etat"));
+                    }
+                    return null;
+                },
+                centerId,
+                patient.getGenerateurId()
+        );
     }
 
     @GetMapping("/summary/details")

@@ -90,15 +90,15 @@ MERGE INTO salle (id, center_id, code, nom) KEY (id)
 VALUES ('50000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'S03', 'Salle ISO');
 
 -- Generateur (démo) — centre 1
-MERGE INTO generateur (id, salle_id, center_id, numero) KEY (id)
+MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
     VALUES ('a1000001-0000-0000-0000-000000000001', '50000001-0000-0000-0000-000000000001',
-            '11111111-1111-1111-1111-111111111111', 'G01');
-MERGE INTO generateur (id, salle_id, center_id, numero) KEY (id)
+            '11111111-1111-1111-1111-111111111111', 'G01', 'Fresenius', '5008S', 'FONCTIONNEL');
+MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
     VALUES ('a1000001-0000-0000-0000-000000000002', '50000001-0000-0000-0000-000000000002',
-            '11111111-1111-1111-1111-111111111111', 'G02');
-MERGE INTO generateur (id, salle_id, center_id, numero) KEY (id)
+            '11111111-1111-1111-1111-111111111111', 'G02', 'B.Braun', 'Dialog+', 'EN_PANNE');
+MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
     VALUES ('a1000001-0000-0000-0000-000000000003', '50000001-0000-0000-0000-000000000003',
-            '11111111-1111-1111-1111-111111111111', 'G03');
+            '11111111-1111-1111-1111-111111111111', 'G03', 'Nipro', 'SURDIAL-55plus', 'EN_REPARATION');
 
 -- Position / Créneau (replaced p -> d0 for valid hex)
 MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
@@ -294,12 +294,12 @@ MERGE INTO salle (id, center_id, code, nom) KEY (id)
 MERGE INTO salle (id, center_id, code, nom) KEY (id)
     VALUES ('50000002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'SL-S2', 'Salle Vert');
 
-MERGE INTO generateur (id, salle_id, center_id, numero) KEY (id)
+MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
     VALUES ('a1000002-0000-0000-0000-000000000001', '50000002-0000-0000-0000-000000000001',
-            '22222222-2222-2222-2222-222222222222', 'G10');
-MERGE INTO generateur (id, salle_id, center_id, numero) KEY (id)
+            '22222222-2222-2222-2222-222222222222', 'G10', 'Fresenius', '5008S', 'FONCTIONNEL');
+MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
     VALUES ('a1000002-0000-0000-0000-000000000002', '50000002-0000-0000-0000-000000000002',
-            '22222222-2222-2222-2222-222222222222', 'G11');
+            '22222222-2222-2222-2222-222222222222', 'G11', 'B.Braun', 'Dialog+', 'REFORME');
 
 MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
     VALUES ('d0000002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'SL-CR1',

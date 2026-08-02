@@ -50,7 +50,10 @@ CREATE TABLE IF NOT EXISTS generateur (
     id UUID PRIMARY KEY,
     salle_id UUID NOT NULL REFERENCES salle(id),
     center_id UUID NOT NULL REFERENCES centers(id),
-    numero VARCHAR(50) NOT NULL
+    numero VARCHAR(50) NOT NULL,
+    marque VARCHAR(100),
+    modele VARCHAR(100),
+    etat   VARCHAR(30) NOT NULL DEFAULT 'FONCTIONNEL'
 );
 
 -- ═══ REFERENCE: Position/Creneau ═══

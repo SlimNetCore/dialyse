@@ -299,6 +299,27 @@ mat-card {
   flex-wrap: wrap;
 }
 
+.generator-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.generator-meta__label {
+  font-weight: 700;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.generator-meta__value {
+  font-weight: 600;
+  color: var(--app-text);
+}
+
 .seance-tabs {
   margin-top: 12px;
   min-width: 0;

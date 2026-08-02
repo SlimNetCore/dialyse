@@ -99,6 +99,25 @@ export class CahierStepFicheComponent implements OnInit {
     return this.displayValue(value);
   }
 
+  generatorStateLabel(value: unknown): string {
+    const normalized = this.displayValue(value);
+    if (normalized === '-') {
+      return '-';
+    }
+    const key = `GENERATEUR_ETATS.${normalized.toUpperCase()}`;
+    const translated = this.translate.instant(key);
+    return translated && translated !== key ? translated : normalized.replaceAll('_', ' ');
+  }
+
+  generatorSummary(): string {
+    const data = this.patientData();
+    const name = this.displayValue(data.generateurNom);
+    const brand = this.displayValue(data.generateurMarque);
+    const state = this.generatorStateLabel(data.generateurEtat);
+    const parts = [name, brand, state].filter((item) => item !== '-');
+    return parts.length ? parts.join(' — ') : '-';
+  }
+
   ageBadgeLabel(): string {
     const age = this.computeAge(this.patientData().dateNaissance);
     return age === null ? 'Age: -' : `Age: ${age} ans`;

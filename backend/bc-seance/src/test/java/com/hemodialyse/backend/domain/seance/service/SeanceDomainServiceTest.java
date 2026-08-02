@@ -5,6 +5,7 @@ import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
+import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
@@ -234,6 +235,54 @@ class SeanceDomainServiceTest {
     }
 
     @Test
+    void create_should_fail_when_patient_belongs_to_another_center() {
+        CenterId requestedCenter = CenterId.of(UUID.randomUUID());
+        CenterId patientCenter = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, patientCenter);
+
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase()
+        );
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.create(requestedCenter, patientId, LocalDate.now())
+        );
+        assertTrue(ex.getMessage().contains("Patient introuvable"));
+    }
+
+    @Test
+    void createFromQr_should_fail_when_code_matches_patient_of_other_center() {
+        CenterId activeCenter = CenterId.of(UUID.randomUUID());
+        CenterId foreignCenter = CenterId.of(UUID.randomUUID());
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(UUID.randomUUID(), activeCenter);
+        patientRepo.addPatient(UUID.randomUUID(), foreignCenter, "PAT-FOREIGN", "ASS-FOREIGN");
+
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase()
+        );
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.createFromQr(activeCenter, "PAT-FOREIGN")
+        );
+        assertTrue(ex.getMessage().contains("Patient introuvable"));
+    }
+
+    @Test
     void removeConsommableSeance_should_call_reverse_and_succeed() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
@@ -377,34 +426,60 @@ class SeanceDomainServiceTest {
         }
     }
 
-    private record InMemoryPatientRepository(UUID patientId, CenterId centerId) implements PatientRepositoryPort {
+    private static final class InMemoryPatientRepository implements PatientRepositoryPort {
+        private final Map<UUID, Patient> byId = new HashMap<>();
+
+        private InMemoryPatientRepository(UUID patientId, CenterId centerId) {
+            addPatient(patientId, centerId, "PAT-" + patientId.toString().substring(0, 6).toUpperCase(), "ASS-" + patientId.toString().substring(0, 6).toUpperCase());
+        }
+
+        void addPatient(UUID patientId, CenterId centerId, String codePatient, String numeroAssurance) {
+            Patient patient = new Patient();
+            patient.setId(PatientId.of(patientId));
+            patient.setCenterId(centerId);
+            patient.setCodePatient(codePatient);
+            patient.setNumeroAssurance(new NumeroAssurance(numeroAssurance));
+            patient.setNom("Test");
+            patient.setPrenom("Patient");
+            byId.put(patientId, patient);
+        }
+
         @Override
         public Patient save(Patient p) {
+            byId.put(p.getId().value(), p);
             return p;
         }
+
         @Override
-        public Optional<Patient> findById(PatientId id, CenterId c) {
-            return id.value().equals(patientId) && this.centerId.equals(c) ? Optional.of(new Patient()) : Optional.empty();
+        public Optional<Patient> findById(PatientId id, CenterId centerId) {
+            return Optional.ofNullable(byId.get(id.value()))
+                    .filter(p -> p.getCenterId().equals(centerId));
         }
 
         @Override
-        public Optional<Patient> findByCodePatient(CenterId c, String code) {
-            return Optional.empty();
+        public Optional<Patient> findByCodePatient(CenterId centerId, String codePatient) {
+            return byId.values().stream()
+                    .filter(p -> p.getCenterId().equals(centerId))
+                    .filter(p -> p.getCodePatient() != null && p.getCodePatient().equalsIgnoreCase(codePatient))
+                    .findFirst();
         }
 
         @Override
-        public Optional<Patient> findByNumeroAssurance(CenterId c, String n) {
-            return Optional.empty();
+        public Optional<Patient> findByNumeroAssurance(CenterId centerId, String numeroAssurance) {
+            return byId.values().stream()
+                    .filter(p -> p.getCenterId().equals(centerId))
+                    .filter(p -> p.getNumeroAssurance() != null && p.getNumeroAssurance().value().equalsIgnoreCase(numeroAssurance))
+                    .findFirst();
         }
 
         @Override
-        public List<Patient> findAllByCenter(CenterId c) {
-            return List.of();
+        public List<Patient> findAllByCenter(CenterId centerId) {
+            return byId.values().stream().filter(p -> p.getCenterId().equals(centerId)).toList();
         }
 
         @Override
-        public long countByCenter(CenterId c) {
-            return 0;
+        public long countByCenter(CenterId centerId) {
+            return byId.values().stream().filter(p -> p.getCenterId().equals(centerId)).count();
         }
     }
 
@@ -531,6 +606,12 @@ class SeanceDomainServiceTest {
             addCalled = true;
             lastAddedArticleId = articleId;
             lastAddedQuantite = quantite;
+        }
+
+        @Override
+        public BonSortie update(CenterId centerId, UUID bonSortieId, UUID seanceId, UUID patientId, String poste,
+                                LocalDate dateSortie, List<SortieRequestItem> items, String userId) {
+            return null;
         }
     }
 }

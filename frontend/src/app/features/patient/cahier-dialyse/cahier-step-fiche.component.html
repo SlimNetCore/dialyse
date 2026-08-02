@@ -72,6 +72,28 @@
           </section>
 
           <section class="recap-section recap-section-wide">
+            <h4>{{ 'CAHIER.GENERATEUR' | translate }}</h4>
+            <div class="recap-items">
+              <div class="recap-item">
+                <span class="recap-label">{{ 'CAHIER.GENERATEUR_NOM' | translate }}</span>
+                <strong>{{ displayValue(patientData().generateurNom) }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label">{{ 'CAHIER.GENERATEUR_MARQUE' | translate }}</span>
+                <strong>{{ displayValue(patientData().generateurMarque) }}</strong>
+              </div>
+              <div class="recap-item">
+                <span class="recap-label">{{ 'CAHIER.GENERATEUR_ETAT' | translate }}</span>
+                <strong>{{ generatorStateLabel(patientData().generateurEtat) }}</strong>
+              </div>
+              <div class="recap-item recap-item-wide">
+                <span class="recap-label">{{ 'CAHIER.GENERATEUR_RESUME' | translate }}</span>
+                <strong>{{ generatorSummary() }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="recap-section recap-section-wide">
             <h4>Coordonnees</h4>
             <div class="recap-items">
               <div class="recap-item recap-item-wide">

@@ -75,6 +75,10 @@ public class Patient {
      * Générateur de dialyse affecté — utilisé pour le routage automatique des données télémétriques
      */
     private UUID generateurId;
+    // Champs d'affichage enrichis par l'infrastructure
+    private String generateurNom;
+    private String generateurMarque;
+    private String generateurEtat;
     private JoursDialyse joursDialyse;
 
     // Audit
@@ -157,10 +161,25 @@ public class Patient {
     public UUID getPositionId() { return positionId; }
     public UUID getTransporteurAllerId() { return transporteurAllerId; }
     public UUID getTransporteurRetourId() { return transporteurRetourId; }
-    public UUID getCategorieTransportId() { return categorieTransportId;
+
+    public UUID getCategorieTransportId() {
+        return categorieTransportId;
     }
 
-    public void setCategorieTransportId(UUID v) { this.categorieTransportId = v;
+    public void setCategorieTransportId(UUID v) {
+        this.categorieTransportId = v;
+    }
+
+    public UUID getGenerateurId() {
+        return generateurId;
+    }
+
+    public void setGenerateurId(UUID v) {
+        this.generateurId = v;
+    }
+
+    public String getGenerateurNom() {
+        return generateurNom;
     }
     public JoursDialyse getJoursDialyse() { return joursDialyse; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
@@ -228,12 +247,25 @@ public class Patient {
     public void setTransporteurAllerId(UUID v) { this.transporteurAllerId = v; }
     public void setTransporteurRetourId(UUID v) { this.transporteurRetourId = v; }
 
-    public UUID getGenerateurId() {
-        return generateurId; }
+    public void setGenerateurNom(String v) {
+        this.generateurNom = v;
+    }
 
-    public void setGenerateurId(UUID v) {
-        this.generateurId = v; }
+    public String getGenerateurMarque() {
+        return generateurMarque;
+    }
+
+    public void setGenerateurMarque(String v) {
+        this.generateurMarque = v;
+    }
+
+    public String getGenerateurEtat() {
+        return generateurEtat;
+    }
+
+    public void setGenerateurEtat(String v) {
+        this.generateurEtat = v;
+    }
     public void setJoursDialyse(JoursDialyse v) { this.joursDialyse = v; }
     public void setCreatedAt(OffsetDateTime v) { this.createdAt = v; }
 }
-

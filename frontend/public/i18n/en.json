@@ -157,7 +157,9 @@
     "COL_SEXE": "Gender",
     "COL_DATE_ADMISSION": "Admission",
     "COL_ASSURANCE": "Insurance #",
+    "COL_FORFAIT": "Package",
     "COL_ETAT": "Status",
+    "COL_PEC": "Coverage",
     "COL_ACTIONS": "Actions",
     "EMPTY": "No patient found",
     "BTN_NEW": "New patient",
@@ -188,7 +190,9 @@
     "EVENT_DATE_GUERISON": "Recovery date",
     "EVENT_DATE_DECES": "Date of death",
     "EVENT_DATE_TRANSFERT": "Transfer date",
-    "EVENT_DATE_NOT_PROVIDED": "{{label}} not provided"
+    "EVENT_DATE_NOT_PROVIDED": "{{label}} not provided",
+    "COPY_SUCCESS": "Copied to clipboard",
+    "COPY_TOOLTIP": "Copy"
   },
   "PATIENT": {
     "TITLE": "Patient",
@@ -504,7 +508,18 @@
     "STEP_STATS": "Statistics",
     "FICHE_PATIENT_TITLE": "Patient record",
     "FICHE_INFO": "Basic identification data",
-    "FICHE_READONLY": "The patient record is read-only in the dialysis logbook."
+    "FICHE_READONLY": "The patient record is read-only in the dialysis logbook.",
+    "GENERATEUR": "Dialysis generator",
+    "GENERATEUR_NOM": "Name",
+    "GENERATEUR_MARQUE": "Brand",
+    "GENERATEUR_ETAT": "Status",
+    "GENERATEUR_RESUME": "Summary"
+  },
+  "GENERATEUR_ETATS": {
+    "FONCTIONNEL": "Functional",
+    "EN_PANNE": "Broken down",
+    "EN_REPARATION": "Under repair",
+    "REFORME": "Decommissioned"
   },
   "COMMON": {
     "FILTER_BY": "Filter by {{field}}",

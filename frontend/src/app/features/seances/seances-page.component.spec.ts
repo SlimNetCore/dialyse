@@ -214,16 +214,30 @@ describe('SeancesPageComponent', () => {
   it('should render current forfait pill when seance summary contains forfait', async () => {
     storeMock['summary'] = vi.fn(() => ({
       seance: {id: 'seance-123', centerId: CENTER_ID, patientId: 'patient-1', dateSeance: '2026-07-24', status: 'CREE'},
-      patient: {id: 'patient-1', codePatient: 'PAT-001', nom: 'Dupont', prenom: 'Jean', numeroAssurance: 'ASS-001'},
+      patient: {
+        id: 'patient-1',
+        codePatient: 'PAT-001',
+        nom: 'Dupont',
+        prenom: 'Jean',
+        numeroAssurance: 'ASS-001',
+        generateurNom: 'G10',
+        generateurMarque: 'Fresenius',
+        generateurEtat: 'FONCTIONNEL',
+      },
       paramedical: null,
       medical: null,
       forfait: {id: 'forfait-1', code: 'F001', nom: 'Forfait hémodialyse', prix: 3500},
     }));
 
     const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+    const translate = TestBed.inject(TranslateService) as any;
+    translate.instant = (key: string) => (
+      key === 'GENERATEUR_ETATS.FONCTIONNEL' ? 'Fonctionnel' : key
+    );
 
     expect(component['currentForfaitName']()).toBe('Forfait hémodialyse');
     expect(component['currentForfaitPrice']()).toBe('3 500,00');
+    expect(component['generatorSummary']()).toBe('G10 — Fresenius — Fonctionnel');
   });
 
   it('should format forfait label and price in seances list helpers', () => {

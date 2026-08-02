@@ -157,7 +157,9 @@
     "COL_SEXE": "الجنس",
     "COL_DATE_ADMISSION": "القبول",
     "COL_ASSURANCE": "رقم التأمين",
+    "COL_FORFAIT": "الباقة",
     "COL_ETAT": "الحالة",
+    "COL_PEC": "التكفل",
     "COL_ACTIONS": "الإجراءات",
     "EMPTY": "لا يوجد مريض",
     "BTN_NEW": "مريض جديد",
@@ -188,7 +190,9 @@
     "EVENT_DATE_GUERISON": "تاريخ الشفاء",
     "EVENT_DATE_DECES": "تاريخ الوفاة",
     "EVENT_DATE_TRANSFERT": "تاريخ التحويل",
-    "EVENT_DATE_NOT_PROVIDED": "{{label}} غير محدد"
+    "EVENT_DATE_NOT_PROVIDED": "{{label}} غير محدد",
+    "COPY_SUCCESS": "تم النسخ إلى الحافظة",
+    "COPY_TOOLTIP": "نسخ"
   },
   "PATIENT": {
     "TITLE": "المريض",
@@ -504,7 +508,18 @@
     "STEP_STATS": "الإحصائيات",
     "FICHE_PATIENT_TITLE": "بطاقة المريض",
     "FICHE_INFO": "البيانات التعريفية الأساسية",
-    "FICHE_READONLY": "بطاقة المريض للقراءة فقط في دفتر غسيل الكلى."
+    "FICHE_READONLY": "بطاقة المريض للقراءة فقط في دفتر غسيل الكلى.",
+    "GENERATEUR": "جهاز الغسيل الكلوي",
+    "GENERATEUR_NOM": "الاسم",
+    "GENERATEUR_MARQUE": "العلامة التجارية",
+    "GENERATEUR_ETAT": "الحالة",
+    "GENERATEUR_RESUME": "ملخص"
+  },
+  "GENERATEUR_ETATS": {
+    "FONCTIONNEL": "يعمل بشكل طبيعي",
+    "EN_PANNE": "متعطل",
+    "EN_REPARATION": "قيد الإصلاح",
+    "REFORME": "مُشطب"
   },
   "COMMON": {
     "FILTER_BY": "تصفية حسب {{field}}",

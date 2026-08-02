@@ -609,6 +609,9 @@ function mapPatientToWizardData(patient: any): Record<string, any> {
   const generateurId = normalizeId(
     patient?.generateurId ?? patient?.generateur_id,
   );
+  const generateurNom = patient?.generateurNom ?? patient?.generateur_nom ?? null;
+  const generateurMarque = patient?.generateurMarque ?? patient?.generateur_marque ?? null;
+  const generateurEtat = patient?.generateurEtat ?? patient?.generateur_etat ?? null;
   const wizardData = {
     ...patient,
     centrePayeurId,
@@ -619,6 +622,9 @@ function mapPatientToWizardData(patient: any): Record<string, any> {
     transporteurRetourId,
     categorieTransportId,
     generateurId,
+    generateurNom,
+    generateurMarque,
+    generateurEtat,
     dateEvenementEtat: patient?.dateEvenementEtat ?? patient?.dateEvenement ?? null,
     qualiteAssure: patient?.qualiteAssure ?? patient?.qualite_assure ?? null,
     numeroAssurance: patient?.numeroAssurance?.value ?? patient?.numeroAssurance,

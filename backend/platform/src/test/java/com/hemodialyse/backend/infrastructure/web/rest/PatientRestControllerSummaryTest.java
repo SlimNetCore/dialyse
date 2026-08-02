@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
 import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.YearMonth;
 import java.util.UUID;
@@ -31,7 +32,8 @@ class PatientRestControllerSummaryTest {
                 assureRepo,
                 assurePatientRepo,
                 listQueryService,
-                summaryQueryService
+                summaryQueryService,
+                mock(JdbcTemplate.class)
         );
 
         UUID centerId = UUID.randomUUID();

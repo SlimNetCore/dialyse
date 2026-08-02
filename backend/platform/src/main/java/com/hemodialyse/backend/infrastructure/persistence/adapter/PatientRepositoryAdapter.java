@@ -35,20 +35,34 @@ public class PatientRepositoryAdapter implements PatientRepositoryPort {
     }
 
     @Override
-    @Cacheable(cacheNames = "patient.byId", key = "#centerId.value().toString() + ':' + #id.value().toString()")
+    @Cacheable(
+            cacheNames = "patient.byId",
+            key = "#centerId.value().toString() + ':' + #id.value().toString()",
+            unless = "#result == null"
+    )
     public Optional<Patient> findById(PatientId id, CenterId centerId) {
-        return jpa.findByIdAndCenterId(id.value(), centerId.value()).map(PatientMapper::toDomain);
+        return Optional.ofNullable(jpa.findByIdAndCenterId(id.value(), centerId.value()))
+                .flatMap(found -> found)
+                .map(PatientMapper::toDomain);
     }
 
     @Override
     public Optional<Patient> findByCodePatient(CenterId centerId, String codePatient) {
-        return jpa.findByCenterIdAndCodePatient(centerId.value(), codePatient).map(PatientMapper::toDomain);
+        return Optional.ofNullable(jpa.findByCenterIdAndCodePatient(centerId.value(), codePatient))
+                .flatMap(found -> found)
+                .map(PatientMapper::toDomain);
     }
 
     @Override
-    @Cacheable(cacheNames = "patient.byNumeroAssurance", key = "#centerId.value().toString() + ':' + (#numeroAssurance == null ? '' : #numeroAssurance.toLowerCase())")
+    @Cacheable(
+            cacheNames = "patient.byNumeroAssurance",
+            key = "#centerId.value().toString() + ':' + (#numeroAssurance == null ? '' : #numeroAssurance.toLowerCase())",
+            unless = "#result == null"
+    )
     public Optional<Patient> findByNumeroAssurance(CenterId centerId, String numeroAssurance) {
-        return jpa.findByCenterIdAndNumeroAssurance(centerId.value(), numeroAssurance).map(PatientMapper::toDomain);
+        return Optional.ofNullable(jpa.findByCenterIdAndNumeroAssurance(centerId.value(), numeroAssurance))
+                .flatMap(found -> found)
+                .map(PatientMapper::toDomain);
     }
 
     @Override

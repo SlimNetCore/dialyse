@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS generateur
     center_id UUID        NOT NULL,
     numero    VARCHAR(50) NOT NULL,
     marque    VARCHAR(100),
-    modele    VARCHAR(100)
+    modele VARCHAR(100),
+    etat   VARCHAR(30) NOT NULL DEFAULT 'FONCTIONNEL'
 );
 
 CREATE TABLE IF NOT EXISTS position_creneau (

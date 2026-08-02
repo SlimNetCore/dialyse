@@ -159,6 +159,10 @@ export type SeanceSummary = {
     medecinTraitantId?: string;
     salleId?: string;
     positionId?: string;
+    generateurId?: string;
+    generateurNom?: string;
+    generateurMarque?: string;
+    generateurEtat?: string;
   };
   paramedical?: {
     poidsAvantKg?: number;

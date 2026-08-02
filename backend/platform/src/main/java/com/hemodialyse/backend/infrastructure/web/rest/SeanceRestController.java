@@ -45,6 +45,7 @@ public class SeanceRestController {
 
         var details = seanceUseCase.getDetails(CenterId.of(request.centerId()), seance.getId());
         var patient = details.patient();
+        enrichGenerateur(patient, request.centerId());
         notificationService.notifySeanceCreated(
                 request.centerId(),
                 seance.getId(),
@@ -57,7 +58,11 @@ public class SeanceRestController {
         return ResponseEntity.ok(Map.of(
                 "id", seance.getId(),
                 "status", seance.getStatus(),
-                "dateSeance", seance.getDateSeance()
+                "dateSeance", seance.getDateSeance(),
+                "generateurId", patient.getGenerateurId(),
+                "generateurNom", patient.getGenerateurNom(),
+                "generateurMarque", patient.getGenerateurMarque(),
+                "generateurEtat", patient.getGenerateurEtat()
         ));
     }
 
@@ -92,6 +97,7 @@ public class SeanceRestController {
 
         var details = seanceUseCase.getDetails(CenterId.of(request.centerId()), seance.getId());
         var patient = details.patient();
+        enrichGenerateur(patient, request.centerId());
         notificationService.notifySeanceCreated(
                 request.centerId(),
                 seance.getId(),
@@ -104,7 +110,11 @@ public class SeanceRestController {
         return ResponseEntity.ok(Map.of(
                 "id", seance.getId(),
                 "status", seance.getStatus(),
-                "dateSeance", seance.getDateSeance()
+                "dateSeance", seance.getDateSeance(),
+                "generateurId", patient.getGenerateurId(),
+                "generateurNom", patient.getGenerateurNom(),
+                "generateurMarque", patient.getGenerateurMarque(),
+                "generateurEtat", patient.getGenerateurEtat()
         ));
     }
 
@@ -117,6 +127,8 @@ public class SeanceRestController {
         var patient = details.patient();
         var voletParamedical = details.voletParamedical();
         var voletMedical = details.voletMedical();
+
+        enrichGenerateur(patient, centerId);
 
         var seanceMap = new LinkedHashMap<String, Object>();
         seanceMap.put("id", seance.getId());
@@ -142,6 +154,10 @@ public class SeanceRestController {
         patientMap.put("medecinTraitantId", patient.getMedecinTraitantId());
         patientMap.put("salleId", patient.getSalleId());
         patientMap.put("positionId", patient.getPositionId());
+        patientMap.put("generateurId", patient.getGenerateurId());
+        patientMap.put("generateurNom", patient.getGenerateurNom());
+        patientMap.put("generateurMarque", patient.getGenerateurMarque());
+        patientMap.put("generateurEtat", patient.getGenerateurEtat());
 
         Map<String, Object> paramedicalMap = null;
         if (voletParamedical != null) {
@@ -285,6 +301,26 @@ public class SeanceRestController {
         row.put("prix", rs.getBigDecimal("forfait_prix"));
         row.put("nombreSeances", rs.getInt("forfait_nb_seances"));
         return row;
+    }
+
+    private void enrichGenerateur(com.hemodialyse.backend.domain.patient.model.Patient patient, UUID centerId) {
+        if (patient == null || patient.getGenerateurId() == null) {
+            return;
+        }
+        jdbc.query(
+                "SELECT id, numero, marque, etat FROM generateur WHERE center_id = ? AND id = ?",
+                rs -> {
+                    if (rs.next()) {
+                        patient.setGenerateurId(rs.getObject("id", UUID.class));
+                        patient.setGenerateurNom(rs.getString("numero"));
+                        patient.setGenerateurMarque(rs.getString("marque"));
+                        patient.setGenerateurEtat(rs.getString("etat"));
+                    }
+                    return null;
+                },
+                centerId,
+                patient.getGenerateurId()
+        );
     }
 
     @PreAuthorize("hasRole('ADMIN')")

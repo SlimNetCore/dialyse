@@ -689,6 +689,26 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     return (`${(p.nom ?? '').trim()} ${(p.prenom ?? '').trim()}`).trim() || '-';
   }
 
+  protected generatorSummary(): string {
+    const p = this.store.summary()?.patient;
+    if (!p) return '-';
+    const name = (p.generateurNom ?? '').trim();
+    const brand = (p.generateurMarque ?? '').trim();
+    const state = this.generatorStateLabel(p.generateurEtat);
+    const parts = [name, brand, state].filter((value) => !!value && value !== '-');
+    return parts.length > 0 ? parts.join(' — ') : '-';
+  }
+
+  protected generatorStateLabel(state?: string | null): string {
+    const normalized = (state ?? '').trim().toUpperCase();
+    if (!normalized) {
+      return '-';
+    }
+    const key = `GENERATEUR_ETATS.${normalized}`;
+    const translated = this.translate.instant(key);
+    return translated && translated !== key ? translated : normalized.replaceAll('_', ' ');
+  }
+
   protected currentForfaitName(): string {
     const forfait = this.store.summary()?.forfait;
     if (!forfait) {

@@ -31,6 +31,7 @@ class SeanceDetailsIntegrationTest {
     private static final UUID SEANCE_ID = UUID.fromString("20000000-0000-0000-0000-000000000001");
     private static final UUID PEC_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
     private static final UUID FORFAIT_ID = UUID.fromString("40000000-0000-0000-0000-000000000001");
+    private static final UUID GENERATEUR_ID = UUID.fromString("60000000-0000-0000-0000-000000000001");
 
     @Autowired
     private WebApplicationContext context;
@@ -54,12 +55,14 @@ class SeanceDetailsIntegrationTest {
         jdbc.update("DELETE FROM seances WHERE id = ?", SEANCE_ID);
         jdbc.update("DELETE FROM patients WHERE id = ?", PATIENT_ID);
         jdbc.update("DELETE FROM forfait WHERE id = ?", FORFAIT_ID);
+        jdbc.update("DELETE FROM generateur WHERE id = ?", GENERATEUR_ID);
     }
 
     @Test
     void details_should_return_forfait_from_schema_columns_without_security_fallback_403() throws Exception {
         cleanup();
         seedPatient();
+        seedGenerateur();
         seedForfait();
         seedPec();
         seedSeance();
@@ -70,6 +73,10 @@ class SeanceDetailsIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.seance.id").value(SEANCE_ID.toString()))
                 .andExpect(jsonPath("$.patient.id").value(PATIENT_ID.toString()))
+                .andExpect(jsonPath("$.patient.generateurId").value(GENERATEUR_ID.toString()))
+                .andExpect(jsonPath("$.patient.generateurNom").value("G01"))
+                .andExpect(jsonPath("$.patient.generateurMarque").value("Fresenius"))
+                .andExpect(jsonPath("$.patient.generateurEtat").value("FONCTIONNEL"))
                 .andExpect(jsonPath("$.forfait.id").value(FORFAIT_ID.toString()))
                 .andExpect(jsonPath("$.forfait.code").value("F-SEANCE"))
                 .andExpect(jsonPath("$.forfait.nom").value("Forfait séance test"));
@@ -80,8 +87,8 @@ class SeanceDetailsIntegrationTest {
                 """
                         INSERT INTO patients (
                             id, center_id, code_patient, nom, prenom, sexe, date_admission,
-                            numero_assurance, type_patient, created_at
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            numero_assurance, type_patient, generateur_id, created_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """,
                 PATIENT_ID,
                 CENTER_ID,
@@ -92,7 +99,21 @@ class SeanceDetailsIntegrationTest {
                 LocalDate.of(2026, 7, 1),
                 "ASS-0001",
                 "NON_VACANCIER",
+                GENERATEUR_ID,
                 OffsetDateTime.now(ZoneOffset.UTC)
+        );
+    }
+
+    private void seedGenerateur() {
+        jdbc.update(
+                "INSERT INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                GENERATEUR_ID,
+                UUID.fromString("50000001-0000-0000-0000-000000000001"),
+                CENTER_ID,
+                "G01",
+                "Fresenius",
+                "5008S",
+                "FONCTIONNEL"
         );
     }
 

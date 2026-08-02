@@ -311,6 +311,10 @@
             <mat-card-subtitle>
               {{ summary()!.patient.codePatient || '-' }} — {{ summary()!.seance.dateSeance }}
             </mat-card-subtitle>
+            <div class="generator-meta">
+              <span class="generator-meta__label">{{ 'CAHIER.GENERATEUR' | translate }}</span>
+              <span class="generator-meta__value">{{ generatorSummary() }}</span>
+            </div>
           </mat-card-header>
 
           <mat-card-content>
