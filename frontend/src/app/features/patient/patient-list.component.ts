@@ -397,14 +397,17 @@ export class PatientListComponent {
   }
 
   hasEventTooltip(row: PatientRow): boolean {
-    const etat = (row.etatPatient ?? '').toUpperCase();
-    return etat === 'TRANSFERE'
-      || etat === 'GREFFE'
-      || etat === 'DECEDE'
-      || etat === 'GUERRI'
-      || etat === 'OCCASIONNEL'
-      || etat === 'VACANCIER_LOCAL'
-      || etat === 'VACANCIER_ETRANGER';
+    // Some backends can return labels with accents/case/spacing; normalize before checking.
+    const normalizedStatus = this.normalizeStatusCode(row.etatPatient);
+    const hasEventDate = !!(row.dateEvenementEtat ?? '').trim();
+    return hasEventDate
+      || normalizedStatus === 'TRANSFERE'
+      || normalizedStatus === 'GREFFE'
+      || normalizedStatus === 'DECEDE'
+      || normalizedStatus === 'GUERRI'
+      || normalizedStatus === 'OCCASIONNEL'
+      || normalizedStatus === 'VACANCIER_LOCAL'
+      || normalizedStatus === 'VACANCIER_ETRANGER';
   }
 
   visibleEventDate(row: PatientRow): string {
@@ -432,7 +435,7 @@ export class PatientListComponent {
   }
 
   private eventDateLabelKeyFromStatus(etatPatient: string | undefined): string {
-    switch ((etatPatient ?? '').toUpperCase()) {
+    switch (this.normalizeStatusCode(etatPatient)) {
       case 'OCCASIONNEL':
       case 'VACANCIER_LOCAL':
       case 'VACANCIER_ETRANGER':
@@ -448,5 +451,14 @@ export class PatientListComponent {
       default:
         return 'PATIENT_LIST.EVENT_DATE_GENERIC';
     }
+  }
+
+  private normalizeStatusCode(value: string | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '_')
+      .toUpperCase()
+      .trim();
   }
 }
