@@ -60,6 +60,17 @@ mat-card-content {
   margin-bottom: 16px;
 }
 
+.mode-toggle button {
+  border-radius: 14px;
+}
+
+.mode-toggle button:focus-visible,
+.app-button-cluster button:focus-visible,
+.app-button-cluster a:focus-visible {
+  outline: 2px solid var(--app-primary);
+  outline-offset: 2px;
+}
+
 .filters-grid,
 .settings-grid {
   display: grid;
@@ -170,6 +181,10 @@ mat-card-content {
   background: var(--app-surface-solid);
 }
 
+mat-card {
+  border-radius: 20px;
+}
+
 .distribution-card h3 {
   margin: 0 0 12px;
 }
@@ -205,7 +220,7 @@ mat-card-content {
   }
 
   .app-page {
-    gap: 14px;
+    gap: 12px;
   }
 
   .mode-toggle button {

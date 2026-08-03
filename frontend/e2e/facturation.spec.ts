@@ -39,4 +39,13 @@ test.describe('Module facturation', () => {
     expect(overflow).toBeLessThanOrEqual(1);
     await expect(page.locator('.filters-grid')).toBeVisible();
   });
+
+  test('ouvre le parametrage facturation depuis administration', async ({page}) => {
+    await login(page);
+    await page.goto(`${baseUrl}/admin/parametrage/facturation`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('h1, .app-section-title')).toContainText(/paramétrage facturation|billing settings/i);
+    await expect(page.locator('input[type="number"], input[type="text"]')).toHaveCount(2);
+  });
 });

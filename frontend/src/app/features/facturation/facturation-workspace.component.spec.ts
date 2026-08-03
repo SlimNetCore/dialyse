@@ -51,6 +51,11 @@ describe('FacturationWorkspaceComponent', () => {
       centerId: '11111111-1111-1111-1111-111111111111',
       month: '2026-09',
     });
+    expect(facturationStoreMock.loadRevenueTrend).toHaveBeenCalledWith({
+      centerId: '11111111-1111-1111-1111-111111111111',
+      endingMonth: '2026-09',
+      months: 6,
+    });
   });
 
   it('propage centerId et userId lors de la validation', () => {
