@@ -159,6 +159,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   private readonly ws = inject(WebSocketService);
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly lastAutoPastedCopiedAt = signal<number | null>(null);
   private cameraStream: MediaStream | null = null;
   private cameraFrameId: number | null = null;
   private cameraDetector: BarcodeDetectorInstance | null = null;
@@ -171,6 +172,24 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       if (!event || !centerId || event.centerId !== centerId) return;
       if (!this.mustRefreshFromEvent(event.type)) return;
       this.refreshRealtime(centerId);
+    });
+
+    effect(() => {
+      const centerId = this.appShell.currentCenterId();
+      const clipboard = this.appShell.seanceScanClipboard();
+      if (!centerId || !clipboard || clipboard.centerId !== centerId) {
+        return;
+      }
+      if (clipboard.copiedAt === this.lastAutoPastedCopiedAt()) {
+        return;
+      }
+      this.store.setQrCode(clipboard.patientCode);
+      this.lastAutoPastedCopiedAt.set(clipboard.copiedAt);
+      this.snackBar.open(
+        this.translate.instant('SEANCES.PATIENT_CODE_AUTOFILLED'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 1800},
+      );
     });
   }
 
@@ -197,6 +216,10 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   protected onQrInput(e: Event): void {
     this.store.setQrCode((e.target as HTMLInputElement)?.value ?? '');
+  }
+
+  protected pasteQrCodeManually(): void {
+    void this.readClipboardAndPasteQrCode();
   }
 
 
@@ -896,6 +919,45 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   private hasAnyRole(...roles: string[]): boolean {
     return roles.some((role) => this.auth.hasRole(role));
+  }
+
+  private async readClipboardAndPasteQrCode(): Promise<void> {
+    const centerId = this.appShell.currentCenterId();
+    const appClipboard = this.appShell.seanceScanClipboard();
+    const fallbackCode = centerId && appClipboard?.centerId === centerId ? appClipboard.patientCode : '';
+    try {
+      const browserClipboardCode = (await navigator.clipboard.readText())?.trim() ?? '';
+      const value = browserClipboardCode || fallbackCode;
+      if (!value) {
+        this.snackBar.open(
+          this.translate.instant('SEANCES.PASTE_EMPTY_CLIPBOARD'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 2400},
+        );
+        return;
+      }
+      this.store.setQrCode(value);
+      this.snackBar.open(
+        this.translate.instant('SEANCES.PATIENT_CODE_AUTOFILLED'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 1800},
+      );
+    } catch {
+      if (!fallbackCode) {
+        this.snackBar.open(
+          this.translate.instant('SEANCES.PASTE_ERROR'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 2400},
+        );
+        return;
+      }
+      this.store.setQrCode(fallbackCode);
+      this.snackBar.open(
+        this.translate.instant('SEANCES.PATIENT_CODE_AUTOFILLED'),
+        this.translate.instant('COMMON.OK'),
+        {duration: 1800},
+      );
+    }
   }
 
   private mustRefreshFromEvent(type: string): boolean {

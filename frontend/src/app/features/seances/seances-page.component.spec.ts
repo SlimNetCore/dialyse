@@ -97,6 +97,10 @@ type SeanceStoreMock = {
 
 describe('SeancesPageComponent', () => {
   let storeMock: SeanceStoreMock;
+  let appShellMock: {
+    currentCenterId: () => string;
+    seanceScanClipboard: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     storeMock = {
@@ -175,11 +179,16 @@ describe('SeancesPageComponent', () => {
       validatingSeance: vi.fn(() => false),
     };
 
+    appShellMock = {
+      currentCenterId: () => CENTER_ID,
+      seanceScanClipboard: vi.fn(() => null),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
         {provide: SeanceStore, useValue: storeMock},
-        {provide: AppShellStore, useValue: {currentCenterId: () => CENTER_ID}},
+        {provide: AppShellStore, useValue: appShellMock},
         {provide: AuthStore, useValue: {hasRole: (role: string) => role === 'INFIRMIER', username: () => 'inf-01'}},
         {provide: BackendApiService, useValue: {}},
         {provide: WebSocketService, useValue: {lastEvent: () => null}},
@@ -258,6 +267,33 @@ describe('SeancesPageComponent', () => {
 
     expect(component['listForfaitName'](row)).toBe('Forfait HD');
     expect(component['listForfaitPrice'](row)).toBe('3 500,00');
+  });
+
+  it('should auto-fill qr field when patient code clipboard matches current center', () => {
+    appShellMock.seanceScanClipboard.mockReturnValue({
+      centerId: CENTER_ID,
+      patientCode: 'PAT-777',
+      copiedAt: 1750000000000,
+    });
+
+    TestBed.runInInjectionContext(() => new SeancesPageComponent());
+    TestBed.flushEffects();
+
+    expect(storeMock.setQrCode).toHaveBeenCalledWith('PAT-777');
+  });
+
+  it('should paste qr code manually from browser clipboard', async () => {
+    vi.stubGlobal('navigator', {
+      clipboard: {
+        readText: vi.fn().mockResolvedValue('PAT-321'),
+      },
+    });
+
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+    await component['readClipboardAndPasteQrCode']();
+
+    expect(storeMock.setQrCode).toHaveBeenCalledWith('PAT-321');
+    vi.unstubAllGlobals();
   });
 
   it('should always scan with today date', () => {

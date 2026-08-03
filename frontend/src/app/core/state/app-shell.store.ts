@@ -5,9 +5,16 @@ export type CenterRef = {
   name: string;
 };
 
+export type SeanceScanClipboard = {
+  centerId: string;
+  patientCode: string;
+  copiedAt: number;
+};
+
 type AppShellState = {
   availableCenters: CenterRef[];
   currentCenterId: string | null;
+  seanceScanClipboard: SeanceScanClipboard | null;
 };
 
 const initialState: AppShellState = {
@@ -15,7 +22,8 @@ const initialState: AppShellState = {
     {id: '11111111-1111-1111-1111-111111111111', name: 'ANNABA 1'},
     {id: '22222222-2222-2222-2222-222222222222', name: 'ROUIBA'}
   ],
-  currentCenterId: '11111111-1111-1111-1111-111111111111'
+  currentCenterId: '11111111-1111-1111-1111-111111111111',
+  seanceScanClipboard: null,
 };
 
 export const AppShellStore = signalStore(
@@ -24,6 +32,22 @@ export const AppShellStore = signalStore(
   withMethods((store) => ({
     switchCenter(centerId: string): void {
       patchState(store, { currentCenterId: centerId });
-    }
+    },
+    setSeanceScanClipboard(centerId: string, patientCode: string): void {
+      const normalized = (patientCode ?? '').trim();
+      if (!centerId || !normalized) {
+        return;
+      }
+      patchState(store, {
+        seanceScanClipboard: {
+          centerId,
+          patientCode: normalized,
+          copiedAt: Date.now(),
+        },
+      });
+    },
+    clearSeanceScanClipboard(): void {
+      patchState(store, {seanceScanClipboard: null});
+    },
   }))
 );

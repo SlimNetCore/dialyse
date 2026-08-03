@@ -35,6 +35,7 @@ import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer
 import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
 import {PatientListStore} from './state/patient-list.store';
 import {BackendApiService} from '../../core/api/backend-api.service';
+import {AppShellStore} from '../../core/state/app-shell.store';
 
 export interface PatientRow {
   id: string;
@@ -190,6 +191,7 @@ export class PatientListComponent {
   readonly columnFilters = this.patientListStore.columnFilters;
   readonly recentPatientId = this.patientListStore.recentPatientId;
   private readonly ws = inject(WebSocketService);
+  private readonly appShell = inject(AppShellStore);
 
   readonly copiedField = signal<string | null>(null);
 
@@ -329,7 +331,16 @@ export class PatientListComponent {
   copyToClipboard(value: string, fieldKey: string, event: MouseEvent): void {
     event.stopPropagation();
     if (!value) return;
+    const centerId = this.appShell.currentCenterId();
+    if (centerId) {
+      this.appShell.setSeanceScanClipboard(centerId, value);
+    }
     navigator.clipboard.writeText(value).then(() => {
+      this.copiedField.set(fieldKey);
+      this.snackBar.open(this.translate.instant('PATIENT_LIST.COPY_SUCCESS'), '', {duration: 1800});
+      setTimeout(() => this.copiedField.set(null), 2000);
+    }).catch(() => {
+      // Even when browser clipboard is blocked, we keep app-level clipboard for scanner autofill.
       this.copiedField.set(fieldKey);
       this.snackBar.open(this.translate.instant('PATIENT_LIST.COPY_SUCCESS'), '', {duration: 1800});
       setTimeout(() => this.copiedField.set(null), 2000);
