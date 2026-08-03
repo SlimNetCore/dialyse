@@ -194,3 +194,61 @@ CREATE TABLE IF NOT EXISTS modele_document (
 -- type_document : FICHE_PATIENT, ATTESTATION, PEC, FICHE_SIGNALETIQUE, CUSTOM
 -- format_impression : PDF, EXCEL, HTML
 
+-- ═══ Facturation ═══
+
+CREATE TABLE IF NOT EXISTS facturation_settings (
+    center_id UUID PRIMARY KEY,
+    tva_rate DECIMAL(5,2) NOT NULL,
+    code_format VARCHAR(120) NOT NULL,
+    regroupement_multi_forfait BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP WITH TIME ZONE,
+    updated_by VARCHAR(120)
+);
+
+CREATE TABLE IF NOT EXISTS facture_sequence (
+    center_id UUID NOT NULL,
+    seq_year INTEGER NOT NULL,
+    seq_value INTEGER NOT NULL,
+    PRIMARY KEY (center_id, seq_year)
+);
+
+CREATE TABLE IF NOT EXISTS factures (
+    id UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    patient_id UUID NOT NULL,
+    numero_facture VARCHAR(120) NOT NULL,
+    patient_code VARCHAR(80),
+    patient_full_name VARCHAR(255),
+    patient_status_snapshot VARCHAR(120),
+    numero_immatriculation_snapshot VARCHAR(120),
+    centre_payeur_id_snapshot UUID,
+    agence_id_snapshot UUID,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    date_facturation DATE NOT NULL,
+    tva_rate DECIMAL(5,2) NOT NULL,
+    total_ht DECIMAL(14,2) NOT NULL,
+    total_tva DECIMAL(14,2) NOT NULL,
+    total_ttc DECIMAL(14,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (center_id, numero_facture)
+);
+
+CREATE INDEX IF NOT EXISTS idx_factures_center_period ON factures (center_id, date_facturation);
+CREATE INDEX IF NOT EXISTS idx_factures_center_patient ON factures (center_id, patient_id);
+
+CREATE TABLE IF NOT EXISTS facture_lignes (
+    id UUID PRIMARY KEY,
+    facture_id UUID NOT NULL,
+    center_id UUID NOT NULL,
+    forfait_id UUID,
+    forfait_label VARCHAR(255) NOT NULL,
+    unit_price_ht DECIMAL(14,2) NOT NULL,
+    seance_count INTEGER NOT NULL,
+    line_ht DECIMAL(14,2) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_facture_lignes_facture ON facture_lignes (facture_id, center_id);
+
+ALTER TABLE IF EXISTS seances ADD COLUMN IF NOT EXISTS facture_id UUID;
+

@@ -3,6 +3,7 @@ package com.hemodialyse.backend.infrastructure.persistence.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
@@ -10,7 +11,9 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "seances")
+@Table(name = "seances", indexes = {
+        @Index(name = "idx_seances_center_facture", columnList = "center_id, facture_id")
+})
 public class SeanceJpaEntity {
     @Id
     private UUID id;
@@ -44,6 +47,9 @@ public class SeanceJpaEntity {
 
     @Column(name = "signed_medecin_by", length = 100)
     private String signedMedecinBy;
+
+    @Column(name = "facture_id")
+    private UUID factureId;
 
     public UUID getId() {
         return id;
@@ -132,5 +138,12 @@ public class SeanceJpaEntity {
     public void setSignedMedecinBy(String signedMedecinBy) {
         this.signedMedecinBy = signedMedecinBy;
     }
-}
 
+    public UUID getFactureId() {
+        return factureId;
+    }
+
+    public void setFactureId(UUID factureId) {
+        this.factureId = factureId;
+    }
+}
