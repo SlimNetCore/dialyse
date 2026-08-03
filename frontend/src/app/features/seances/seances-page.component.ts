@@ -23,6 +23,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
+import jsQR from 'jsqr';
 import {AuthStore} from '../../core/state/auth.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {BackendApiService, SeanceDashboardDetailItem, SeanceListItem} from '../../core/api/backend-api.service';
@@ -881,23 +882,8 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     const centerId = this.appShell.currentCenterId();
     if (!centerId) return;
     try {
-      const imageUrl = URL.createObjectURL(file);
-      const image = new Image();
-      image.src = imageUrl;
-      await image.decode();
-      URL.revokeObjectURL(imageUrl);
-      const DetectorCtor = this.getBarcodeDetectorConstructor();
-      if (!DetectorCtor) {
-        this.snackBar.open(
-          this.translate.instant('SEANCES.IMAGE_READING_NOT_SUPPORTED'),
-          this.translate.instant('COMMON.OK'),
-          {duration: 3000},
-        );
-        return;
-      }
-      const detector = new DetectorCtor({formats: ['qr_code']});
-      const barcodes = await detector.detect(image);
-      const value = (barcodes[0]?.rawValue ?? '').trim();
+      const image = await this.loadImageFromFile(file);
+      const value = await this.decodeQrValueFromImage(image);
       if (!value) {
         this.snackBar.open(
           this.translate.instant('SEANCES.NO_QR_DETECTED'),
@@ -915,6 +901,66 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
         {duration: 3000},
       );
     }
+  }
+
+  private async loadImageFromFile(file: File): Promise<HTMLImageElement> {
+    return await new Promise<HTMLImageElement>((resolve, reject) => {
+      const imageUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        URL.revokeObjectURL(imageUrl);
+        resolve(image);
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(imageUrl);
+        reject(new Error('IMAGE_LOAD_FAILED'));
+      };
+      image.src = imageUrl;
+    });
+  }
+
+  private async decodeQrValueFromImage(image: HTMLImageElement): Promise<string | null> {
+    const detectorValue = await this.decodeQrValueWithBarcodeDetector(image);
+    if (detectorValue) {
+      return detectorValue;
+    }
+    return this.decodeQrValueWithJsQr(image);
+  }
+
+  private async decodeQrValueWithBarcodeDetector(image: HTMLImageElement): Promise<string | null> {
+    const DetectorCtor = this.getBarcodeDetectorConstructor();
+    if (!DetectorCtor) {
+      return null;
+    }
+    try {
+      const detector = new DetectorCtor({formats: ['qr_code']});
+      const barcodes = await detector.detect(image);
+      const value = (barcodes[0]?.rawValue ?? '').trim();
+      return value || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private decodeQrValueWithJsQr(image: HTMLImageElement): string | null {
+    const canvas = document.createElement('canvas');
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
+    if (!width || !height) {
+      return null;
+    }
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d', {willReadFrequently: true});
+    if (!context) {
+      return null;
+    }
+    context.drawImage(image, 0, 0, width, height);
+    const imageData = context.getImageData(0, 0, width, height);
+    const result = jsQR(imageData.data, width, height, {
+      inversionAttempts: 'attemptBoth',
+    });
+    return result?.data?.trim() || null;
   }
 
   private hasAnyRole(...roles: string[]): boolean {

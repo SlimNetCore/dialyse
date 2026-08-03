@@ -296,6 +296,20 @@ describe('SeancesPageComponent', () => {
     vi.unstubAllGlobals();
   });
 
+  it('should fallback to jsQR for image scanning when BarcodeDetector is unavailable', async () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent()) as any;
+    component['loadImageFromFile'] = vi.fn().mockResolvedValue({naturalWidth: 120, naturalHeight: 120});
+    component['decodeQrValueWithBarcodeDetector'] = vi.fn().mockResolvedValue(null);
+    component['decodeQrValueWithJsQr'] = vi.fn().mockReturnValue('PAT:IMG-001');
+    component['scanQr'] = vi.fn();
+
+    await component['scanQrFromImage'](new File(['qr'], 'qr.png', {type: 'image/png'}));
+
+    expect(component['decodeQrValueWithJsQr']).toHaveBeenCalled();
+    expect(storeMock.setQrCode).toHaveBeenCalledWith('PAT:IMG-001');
+    expect(component['scanQr']).toHaveBeenCalled();
+  });
+
   it('should always scan with today date', () => {
     const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
     const expectedToday = new Date().toISOString().slice(0, 10);

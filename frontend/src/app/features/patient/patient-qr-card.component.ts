@@ -49,7 +49,8 @@ export class PatientQrCardComponent {
   openCard(): void {
     if (!this.patientId) return;
     this.dialog.open(PatientQrCardDialogComponent, {
-      width: '420px',
+      width: 'min(92vw, 680px)',
+      maxWidth: '92vw',
       data: {
         patientId: this.patientId,
         codePatient: this.codePatient,

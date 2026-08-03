@@ -366,6 +366,8 @@ cd frontend && npm run e2e     # Playwright
 10. Toute nouvelle fonctionnalité de cache doit enregistrer son nom dans `CacheConfig.java`.
 11. Compatibilité H2 (dev) / PostgreSQL (prod) pour tout SQL généré.
 12. Tout fichier généré ou modifié par un agent IA doit être ajouté au versionnement Git (`git add`) dans la même tâche, sauf s'il est explicitement couvert par `.gitignore`.
+13. Un agent IA **ne doit jamais créer de commit Git automatiquement** sans demande explicite de l'utilisateur ; par
+    défaut il prépare/stage (`git add`) et laisse l'utilisateur effectuer le commit.
 
 # 14. DDD Tactique et Découpage des Domaines — OBLIGATOIRE
 
@@ -630,6 +632,8 @@ En complément des règles ngx-translate existantes :
 
 - aucune chaîne visible par l'utilisateur ne peut être hardcodée ;
 - chaque nouvelle clé doit être présente dans toutes les langues du projet ;
+- les langues obligatoires du projet sont **fr, ar, kab, en** ;
+- toute nouvelle clé i18n doit être ajoutée et traduite dans **fr + ar + kab + en** dans la même tâche ;
 - toute clé supprimée doit être retirée de l'ensemble des fichiers de traduction ;
 - tout écran doit être intégralement traduisible.
 

@@ -14,13 +14,21 @@
     <div class="card-info">
       <h2>{{ data.nom }} {{ data.prenom }}</h2>
       <div class="info-line"><strong>{{ 'PATIENT_LIST.COL_CODE' | translate }}:</strong> {{ data.codePatient || '-' }}</div>
-      <div class="info-line"><strong>ID:</strong> {{ data.patientId.substring(0, 8) }}</div>
-      <div class="info-line"><strong>N° Assurance:</strong> {{ data.numeroAssurance }}</div>
+      <div class="info-line"><strong>{{ 'PATIENT_FORM.QR_PATIENT_ID' | translate }}
+        :</strong> {{ data.patientId.substring(0, 8) }}
+      </div>
+      <div class="info-line"><strong>{{ 'PATIENT_FORM.QR_INSURANCE_NUMBER' | translate }}
+        :</strong> {{ data.numeroAssurance }}
+      </div>
       @if (data.groupeSanguin) {
-        <div class="info-line"><strong>Grp:</strong> {{ data.groupeSanguin }}</div>
+        <div class="info-line"><strong>{{ 'PATIENT_FORM.QR_BLOOD_GROUP' | translate }}
+          :</strong> {{ data.groupeSanguin }}
+        </div>
       }
       @if (data.dateAdmission) {
-        <div class="info-line"><strong>Adm:</strong> {{ data.dateAdmission }}</div>
+        <div class="info-line"><strong>{{ 'PATIENT_FORM.QR_ADMISSION_DATE' | translate }}
+          :</strong> {{ data.dateAdmission }}
+        </div>
       }
     </div>
     <div class="card-qr">
