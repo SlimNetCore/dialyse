@@ -11,7 +11,17 @@ mat-card-content {
 
 .app-page {
   display: grid;
-  gap: 16px;
+  gap: 18px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.kpi-grid .app-data-pill {
+  min-width: 0;
 }
 
 .app-hero-card {
@@ -171,14 +181,16 @@ mat-card-content {
 .dashboard-grids {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 16px;
+  margin-top: 12px;
 }
 
 .distribution-card {
   border: 1px solid var(--app-border);
   border-radius: 16px;
-  padding: 16px;
+  padding: 18px;
   background: var(--app-surface-solid);
+  min-width: 0;
 }
 
 mat-card {
@@ -193,11 +205,16 @@ mat-card {
   grid-column: 1 / -1;
 }
 
+.distribution-card .table-wrap table {
+  min-width: 360px;
+}
+
 .chart-wrap {
   position: relative;
   display: block;
   width: 100%;
-  height: clamp(220px, 34vw, 320px);
+  min-width: 0;
+  height: clamp(220px, 32vw, 320px);
 }
 
 .chart-wrap canvas {
@@ -212,6 +229,10 @@ mat-card {
   .settings-grid {
     grid-template-columns: 1fr;
   }
+
+  .distribution-card {
+    padding: 16px;
+  }
 }
 
 @media (max-width: 767px) {
@@ -220,6 +241,10 @@ mat-card {
   }
 
   .app-page {
+    gap: 12px;
+  }
+
+  .dashboard-grids {
     gap: 12px;
   }
 
@@ -233,7 +258,20 @@ mat-card {
   }
 
   .chart-wrap {
-    height: 220px;
+    height: 210px;
+  }
+
+  .distribution-card {
+    padding: 14px;
+  }
+
+  .distribution-card .table-wrap table {
+    min-width: 320px;
+  }
+
+  .table-wrap th,
+  .table-wrap td {
+    padding: 8px;
   }
 }
 

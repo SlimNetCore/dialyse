@@ -271,7 +271,8 @@
       "TITLE": "Billing dashboard",
       "EMPTY": "No billing data for this period.",
       "KPI": {
-        "REVENUE": "Revenue TTC",
+        "REVENUE_HT": "Revenue HT",
+        "REVENUE_TTC": "Revenue TTC",
         "BILLED_SESSIONS": "Billed sessions",
         "BILLED_PATIENTS": "Billed patients",
         "INVOICES": "Created invoices"

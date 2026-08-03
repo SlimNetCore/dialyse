@@ -426,6 +426,7 @@ export type FacturationDashboardResponse = {
   centerId: string;
   month: string;
   revenueTtc: number;
+  revenueHt: number;
   billedSeances: number;
   billedPatients: number;
   createdInvoices: number;

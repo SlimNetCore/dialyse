@@ -114,6 +114,14 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
                 Date.valueOf(end)
         )).orElse(BigDecimal.ZERO);
 
+        BigDecimal revenueHt = Optional.ofNullable(jdbc.queryForObject(
+                "SELECT COALESCE(SUM(total_ht), 0) FROM factures WHERE center_id = ? AND date_facturation BETWEEN ? AND ?",
+                BigDecimal.class,
+                centerId.value(),
+                Date.valueOf(start),
+                Date.valueOf(end)
+        )).orElse(BigDecimal.ZERO);
+
         Long billedSeances = Optional.ofNullable(jdbc.queryForObject(
                 "SELECT COUNT(1) FROM seances WHERE center_id = ? AND statut = 'FACTUREE' AND date_seance BETWEEN ? AND ?",
                 Long.class,
@@ -140,15 +148,17 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
 
         List<FacturationDashboardBucket> byInsurance = jdbc.query(
                 """
-                SELECT COALESCE(f.numero_immatriculation_snapshot, 'INCONNU') AS insurance_code,
-                       COALESCE(f.numero_immatriculation_snapshot, 'Inconnu') AS insurance_label,
+                SELECT COALESCE(ca.code, 'INCONNU') AS insurance_code,
+                       COALESCE(ca.nom, 'Inconnu') AS insurance_label,
                        COUNT(DISTINCT s.id) AS seances_count,
                        COUNT(DISTINCT f.patient_id) AS patients_count
                 FROM factures f
+                LEFT JOIN agence a ON a.id = f.agence_id_snapshot
+                LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id
                 LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
                 WHERE f.center_id = ?
                   AND f.date_facturation BETWEEN ? AND ?
-                GROUP BY COALESCE(f.numero_immatriculation_snapshot, 'INCONNU')
+                GROUP BY COALESCE(ca.code, 'INCONNU'), COALESCE(ca.nom, 'Inconnu')
                 ORDER BY patients_count DESC, insurance_code ASC
                 """,
                 (rs, rowNum) -> new FacturationDashboardBucket(
@@ -188,6 +198,7 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
                 centerId.value(),
                 month,
                 revenueTtc,
+                revenueHt,
                 billedSeances,
                 billedPatients,
                 createdInvoices,

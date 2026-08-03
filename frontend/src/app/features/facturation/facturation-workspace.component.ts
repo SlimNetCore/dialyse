@@ -50,7 +50,7 @@ export class FacturationWorkspaceComponent {
       datasets: [
         {
           label: this.translate.instant('FACTURATION.DASHBOARD.CHART.REVENUE'),
-          data: points.map((point) => Number(point.revenueTtc ?? 0)),
+          data: points.map((point) => Number(point.revenueHt ?? 0)),
           borderColor: this.themeColor('--app-primary', '#26a69a'),
           backgroundColor: this.themeColor('--app-primary-soft', 'rgba(38, 166, 154, 0.20)'),
           tension: 0.3,
@@ -58,6 +58,24 @@ export class FacturationWorkspaceComponent {
         },
       ],
     };
+  });
+  protected readonly byCaisseRows = computed(() => {
+    const rows = this.store.dashboard()?.byInsurance ?? [];
+    const buckets = [
+      {code: 'CNAS', label: 'CNAS', seancesCount: 0, patientsCount: 0},
+      {code: 'CASNOS', label: 'CASNOS', seancesCount: 0, patientsCount: 0},
+      {code: 'CAMSSP', label: 'CAMSSP', seancesCount: 0, patientsCount: 0},
+    ];
+    for (const row of rows) {
+      const key = `${row.code ?? ''} ${row.label ?? ''}`.toUpperCase();
+      const target = buckets.find((bucket) => key.includes(bucket.code));
+      if (!target) {
+        continue;
+      }
+      target.seancesCount += Number(row.seancesCount ?? 0);
+      target.patientsCount += Number(row.patientsCount ?? 0);
+    }
+    return buckets;
   });
 
   constructor() {
@@ -68,6 +86,16 @@ export class FacturationWorkspaceComponent {
       }
       this.store.setActiveCenterId(centerId);
       this.store.loadSettings({centerId});
+      this.store.loadDashboard({centerId, month: this.store.month()});
+      this.store.loadRevenueTrend({centerId, endingMonth: this.store.month(), months: 6});
+    });
+
+    effect(() => {
+      const centerId = this.currentCenterId();
+      const success = this.store.successMessage();
+      if (!centerId || success !== 'FACTURATION.SUCCESS.VALIDATED') {
+        return;
+      }
       this.store.loadDashboard({centerId, month: this.store.month()});
       this.store.loadRevenueTrend({centerId, endingMonth: this.store.month(), months: 6});
     });
@@ -111,7 +139,6 @@ export class FacturationWorkspaceComponent {
       centerId,
       userId: this.currentUsername(),
     });
-    this.store.loadDashboard({centerId, month: this.store.month()});
   }
 
   protected refreshDashboard(): void {

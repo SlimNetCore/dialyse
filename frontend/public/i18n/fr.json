@@ -271,7 +271,8 @@
       "TITLE": "Dashboard facturation",
       "EMPTY": "Aucune donnée de facturation pour la période.",
       "KPI": {
-        "REVENUE": "Chiffre d'affaires TTC",
+        "REVENUE_HT": "Chiffre d'affaires HT",
+        "REVENUE_TTC": "Chiffre d'affaires TTC",
         "BILLED_SESSIONS": "Séances facturées",
         "BILLED_PATIENTS": "Patients facturés",
         "INVOICES": "Factures créées"

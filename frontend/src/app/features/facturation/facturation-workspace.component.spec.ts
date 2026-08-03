@@ -9,6 +9,9 @@ import {TranslateService} from '@ngx-translate/core';
 describe('FacturationWorkspaceComponent', () => {
   const facturationStoreMock = {
     month: vi.fn(() => '2026-08'),
+    dashboard: vi.fn(() => null),
+    revenueTrend: vi.fn(() => []),
+    successMessage: vi.fn(() => null),
     setMonth: vi.fn(),
     loadDashboard: vi.fn(),
     loadRevenueTrend: vi.fn(),
@@ -60,6 +63,7 @@ describe('FacturationWorkspaceComponent', () => {
 
   it('propage centerId et userId lors de la validation', () => {
     const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+    const dashboardRefreshCallsBeforeValidation = facturationStoreMock.loadDashboard.mock.calls.length;
 
     component['onValidateFacturation']();
 
@@ -67,5 +71,6 @@ describe('FacturationWorkspaceComponent', () => {
       centerId: '11111111-1111-1111-1111-111111111111',
       userId: 'billing.user',
     });
+    expect(facturationStoreMock.loadDashboard.mock.calls.length).toBe(dashboardRefreshCallsBeforeValidation);
   });
 });

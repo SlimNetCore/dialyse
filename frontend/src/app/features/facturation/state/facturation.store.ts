@@ -15,6 +15,7 @@ export type FacturationPeriodMode = 'month' | 'custom';
 
 export type FacturationRevenuePoint = {
   month: string;
+  revenueHt: number;
   revenueTtc: number;
   billedSeances: number;
   createdInvoices: number;
@@ -172,6 +173,7 @@ export const FacturationStore = signalStore(
               api.getFacturationDashboard(centerId, month).pipe(
                 map((dashboard) => ({
                   month,
+                  revenueHt: dashboard.revenueHt,
                   revenueTtc: dashboard.revenueTtc,
                   billedSeances: dashboard.billedSeances,
                   createdInvoices: dashboard.createdInvoices,

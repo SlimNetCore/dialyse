@@ -9,6 +9,7 @@ public record FacturationDashboardResult(
         UUID centerId,
         YearMonth month,
         BigDecimal revenueTtc,
+        BigDecimal revenueHt,
         long billedSeances,
         long billedPatients,
         long createdInvoices,

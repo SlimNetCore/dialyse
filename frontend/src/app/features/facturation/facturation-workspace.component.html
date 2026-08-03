@@ -171,7 +171,8 @@
 
       @if (store.dashboard(); as dashboard) {
         <div class="kpi-grid">
-          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.REVENUE' | translate }}</span><strong>{{ dashboard.revenueTtc | number:'1.2-2' }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.REVENUE_HT' | translate }}</span><strong>{{ dashboard.revenueHt | number:'1.2-2' }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.REVENUE_TTC' | translate }}</span><strong>{{ dashboard.revenueTtc | number:'1.2-2' }}</strong></div>
           <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.BILLED_SESSIONS' | translate }}</span><strong>{{ dashboard.billedSeances }}</strong></div>
           <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.BILLED_PATIENTS' | translate }}</span><strong>{{ dashboard.billedPatients }}</strong></div>
           <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.INVOICES' | translate }}</span><strong>{{ dashboard.createdInvoices }}</strong></div>
@@ -204,7 +205,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                  @for (row of dashboard.byInsurance; track row.code) {
+                  @for (row of byCaisseRows(); track row.code) {
                     <tr>
                       <td>{{ row.label }}</td>
                       <td>{{ row.seancesCount }}</td>
