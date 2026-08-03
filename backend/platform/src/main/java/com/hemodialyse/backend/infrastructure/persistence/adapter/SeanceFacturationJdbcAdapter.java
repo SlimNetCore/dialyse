@@ -200,7 +200,7 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
         List<ForfaitSnapshot> activeRows = jdbc.query(
                 """
                 SELECT f.id AS forfait_id,
-                       COALESCE(f.libelle, f.nom) AS forfait_label,
+                       f.libelle AS forfait_label,
                        f.prix AS forfait_prix
                 FROM prise_en_charge p
                 INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
@@ -235,7 +235,7 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
         List<ForfaitSnapshot> fallbackRows = jdbc.query(
                 """
                 SELECT f.id AS forfait_id,
-                       COALESCE(f.libelle, f.nom) AS forfait_label,
+                       f.libelle AS forfait_label,
                        f.prix AS forfait_prix
                 FROM prise_en_charge p
                 INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
