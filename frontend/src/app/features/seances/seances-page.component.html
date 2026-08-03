@@ -162,11 +162,18 @@
             <mat-label>{{ 'SEANCES.QR_CODE_LABEL' | translate }}</mat-label>
             <input (input)="onQrInput($event)" [placeholder]="'SEANCES.QR_INPUT_PLACEHOLDER' | translate" [value]="qrCode()"
                    matInput/>
+            <button
+              (click)="pasteQrCodeManually()"
+              [attr.aria-label]="'SEANCES.PASTE_BTN' | translate"
+              [disabled]="scanning()"
+              [title]="'SEANCES.PASTE_BTN' | translate"
+              mat-icon-button
+              matSuffix
+              type="button"
+            >
+              <mat-icon>content_paste</mat-icon>
+            </button>
           </mat-form-field>
-          <button (click)="pasteQrCodeManually()" color="accent" mat-stroked-button type="button">
-            <mat-icon>content_paste</mat-icon>
-            {{ 'SEANCES.PASTE_BTN' | translate }}
-          </button>
           <button (click)="scanQr()" [disabled]="scanning()" color="primary" mat-flat-button type="button">
             <mat-icon>qr_code_scanner</mat-icon>
             {{ scanning() ? ('COMMON.SCANNING' | translate) : ('SEANCES.SCAN_BTN' | translate) }}
