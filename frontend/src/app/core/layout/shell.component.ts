@@ -116,6 +116,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/admin/users', label: 'Utilisateurs', icon: 'manage_accounts'},
         {route: '/admin/roles', label: 'Rôles', icon: 'admin_panel_settings'},
         {route: '/admin/parametrage/calendrier-clinique', label: 'Calendrier clinique/centre', icon: 'calendar_month'},
+        {route: '/admin/parametrage/facturation', label: 'Paramétrage facturation', icon: 'tune'},
       ],
     },
   ];
@@ -190,6 +191,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       'attestations-list': 'Liste attestations',
       admin: 'Administration',
       parametrage: 'Paramétrage',
+      facturation: 'Facturation',
       'calendrier-clinique': 'Calendrier clinique/centre',
       users: 'Utilisateurs',
       'modeles-document': 'Modèles documents',

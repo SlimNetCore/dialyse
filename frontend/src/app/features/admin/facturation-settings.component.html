@@ -1,0 +1,59 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'ADMIN.BILLING_SETTINGS.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'ADMIN.BILLING_SETTINGS.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'ADMIN.BILLING_SETTINGS.DESCRIPTION' | translate }}</p>
+    <div class="app-button-cluster">
+      <a mat-stroked-button routerLink="/facturation">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'ADMIN.BILLING_SETTINGS.BACK_TO_BILLING' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'FACTURATION.SETTINGS.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="settings-grid">
+        <mat-form-field appearance="outline" class="field-block">
+          <mat-label>{{ 'FACTURATION.SETTINGS.TVA' | translate }}</mat-label>
+          <input matInput type="number" min="0" max="100" step="0.01" [value]="store.settingsDraft()?.tvaRate ?? 19" (input)="onTvaRateChange($any($event.target).value)">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-block">
+          <mat-label>{{ 'FACTURATION.SETTINGS.CODE_FORMAT' | translate }}</mat-label>
+          <input matInput type="text" [value]="store.settingsDraft()?.codeFormat ?? ''" (input)="onCodeFormatChange($any($event.target).value)">
+        </mat-form-field>
+      </div>
+
+      <div class="toggle-wrap">
+        <mat-slide-toggle [checked]="store.settingsDraft()?.regroupementMultiForfait ?? true" (change)="onRegroupementChange($event.checked)">
+          {{ 'FACTURATION.SETTINGS.GROUPING_SWITCH' | translate }}
+        </mat-slide-toggle>
+      </div>
+
+      <div class="app-button-cluster">
+        <button mat-flat-button color="primary" [disabled]="store.savingSettings()" (click)="onSaveSettings()">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+
+      @if (store.savingSettings()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+
+      @if (store.successMessage()) {
+        <p class="feedback success">{{ store.successMessage() | translate }}</p>
+      }
+      @if (store.error()) {
+        <p class="feedback error">{{ store.error() | translate }}</p>
+      }
+
+      <p class="app-muted-note">{{ 'FACTURATION.SETTINGS.NOTE' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+</section>
+

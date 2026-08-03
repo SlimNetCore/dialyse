@@ -221,6 +221,91 @@
     "RECEPTION_ORDERS_LIST_TITLE": "Bons de réception",
     "LOTS_LABEL": "Lots"
   },
+  "FACTURATION": {
+    "EYEBROW": "Module facturation",
+    "TITLE": "Facturation des séances",
+    "DESCRIPTION": "Calculez un aperçu non persisté, vérifiez les montants HT/TVA/TTC puis validez en une étape.",
+    "FLOW": {
+      "TITLE": "Cycle de facturation",
+      "SELECT": {
+        "TITLE": "Sélection",
+        "DESC": "Choisissez un mois ou une période libre sur le centre actif."
+      },
+      "PREVIEW": {
+        "TITLE": "Aperçu",
+        "DESC": "Le clic sur Facturer calcule uniquement en mémoire."
+      },
+      "VALIDATE": {
+        "TITLE": "Validation",
+        "DESC": "Valider la facturation persiste les factures et marque les séances FACTUREE."
+      }
+    },
+    "CALCULATOR": {
+      "TITLE": "Sélection de campagne",
+      "MODE_MONTH": "Par mois",
+      "MODE_CUSTOM": "Période libre",
+      "MONTH": "Mois",
+      "CALCULATE": "Facturer (aperçu)"
+    },
+    "PREVIEW": {
+      "TITLE": "Aperçu de facturation",
+      "NOT_PERSISTED": "Aperçu non enregistré : aucune écriture en base tant que vous ne validez pas.",
+      "VALIDATE": "Valider la facturation",
+      "KPI": {
+        "INVOICES": "Factures simulées",
+        "HT": "Total HT",
+        "TVA": "Total TVA",
+        "TTC": "Total TTC"
+      },
+      "TABLE": {
+        "FORFAIT": "Forfait",
+        "UNIT_PRICE": "Prix unitaire HT",
+        "SESSIONS": "Séances",
+        "TOTAL": "Montant HT"
+      },
+      "INVOICE_HT": "HT",
+      "INVOICE_TVA": "TVA",
+      "INVOICE_TTC": "TTC"
+    },
+    "DASHBOARD": {
+      "TITLE": "Dashboard facturation",
+      "EMPTY": "Aucune donnée de facturation pour la période.",
+      "KPI": {
+        "REVENUE": "Chiffre d'affaires TTC",
+        "BILLED_SESSIONS": "Séances facturées",
+        "BILLED_PATIENTS": "Patients facturés",
+        "INVOICES": "Factures créées"
+      },
+      "CHART": {
+        "REVENUE_EVOLUTION": "Evolution du chiffre d'affaires (6 derniers mois)",
+        "REVENUE": "CA TTC",
+        "EMPTY": "Aucune donnée disponible pour tracer l'évolution."
+      },
+      "BY_INSURANCE": "Répartition par caisse",
+      "BY_PATIENT_STATUS": "Répartition par statut patient",
+      "TABLE": {
+        "LABEL": "Libellé",
+        "SESSIONS": "Séances",
+        "PATIENTS": "Patients"
+      }
+    },
+    "SETTINGS": {
+      "TITLE": "Paramètres de facturation",
+      "TVA": "Taux de TVA (%)",
+      "CODE_FORMAT": "Code de facturation",
+      "GROUPING_SWITCH": "Regrouper les multi-forfaits en une seule facture",
+      "GOTO_ADMIN": "Paramétrage facturation (Administration)",
+      "NOTE": "Les changements s'appliquent uniquement aux facturations futures."
+    },
+    "SUCCESS": {
+      "VALIDATED": "Facturation validée avec succès.",
+      "SETTINGS_SAVED": "Paramètres de facturation enregistrés."
+    },
+    "ERROR": {
+      "NO_PREVIEW": "Aucun aperçu disponible. Lancez d'abord le calcul.",
+      "GENERIC": "Erreur lors de l'opération de facturation."
+    }
+  },
   "REPORTING": {
     "MODELES_DOCUMENT_TITLE": "Gestion des modèles de documents",
     "MODELES_DOCUMENT_DESCRIPTION": "Associez un fichier .jrxml JasperReports à chaque type de document par centre",
@@ -531,6 +616,12 @@
     "BILLABLE_LABEL": "Facturable"
   },
   "ADMIN": {
+    "BILLING_SETTINGS": {
+      "EYEBROW": "Administration",
+      "TITLE": "Paramétrage facturation",
+      "DESCRIPTION": "Configurez le taux de TVA, le format des codes et la stratégie de regroupement des forfaits.",
+      "BACK_TO_BILLING": "Retour au dashboard facturation"
+    },
     "USERS": {
       "TITLE": "Gestion des utilisateurs",
       "NEW_USER": "Nouvel utilisateur",

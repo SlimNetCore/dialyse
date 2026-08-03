@@ -12,6 +12,10 @@ export const adminRoutes: Routes = [
     loadComponent: () =>
       import('../seances/seance-calendar-center.component').then((m) => m.SeanceCalendarCenterComponent),
   },
+  {
+    path: 'parametrage/facturation',
+    loadComponent: () => import('./facturation-settings.component').then((m) => m.FacturationSettingsComponent),
+  },
   { path: '', redirectTo: 'users', pathMatch: 'full' }
 ];
 

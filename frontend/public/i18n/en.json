@@ -221,6 +221,91 @@
     "RECEPTION_ORDERS_LIST_TITLE": "Goods receipts",
     "LOTS_LABEL": "Lots"
   },
+  "FACTURATION": {
+    "EYEBROW": "Billing module",
+    "TITLE": "Session billing",
+    "DESCRIPTION": "Compute a non-persisted preview, review HT/VAT/TTC amounts, then validate in one step.",
+    "FLOW": {
+      "TITLE": "Billing flow",
+      "SELECT": {
+        "TITLE": "Selection",
+        "DESC": "Pick a month or custom period for the active center."
+      },
+      "PREVIEW": {
+        "TITLE": "Preview",
+        "DESC": "Clicking Bill computes in memory only."
+      },
+      "VALIDATE": {
+        "TITLE": "Validation",
+        "DESC": "Validate billing persists invoices and marks sessions as BILLED."
+      }
+    },
+    "CALCULATOR": {
+      "TITLE": "Campaign selection",
+      "MODE_MONTH": "By month",
+      "MODE_CUSTOM": "Custom period",
+      "MONTH": "Month",
+      "CALCULATE": "Bill (preview)"
+    },
+    "PREVIEW": {
+      "TITLE": "Billing preview",
+      "NOT_PERSISTED": "Unsaved preview: no database write occurs until you validate.",
+      "VALIDATE": "Validate billing",
+      "KPI": {
+        "INVOICES": "Simulated invoices",
+        "HT": "HT total",
+        "TVA": "VAT total",
+        "TTC": "TTC total"
+      },
+      "TABLE": {
+        "FORFAIT": "Package",
+        "UNIT_PRICE": "HT unit price",
+        "SESSIONS": "Sessions",
+        "TOTAL": "HT amount"
+      },
+      "INVOICE_HT": "HT",
+      "INVOICE_TVA": "VAT",
+      "INVOICE_TTC": "TTC"
+    },
+    "DASHBOARD": {
+      "TITLE": "Billing dashboard",
+      "EMPTY": "No billing data for this period.",
+      "KPI": {
+        "REVENUE": "Revenue TTC",
+        "BILLED_SESSIONS": "Billed sessions",
+        "BILLED_PATIENTS": "Billed patients",
+        "INVOICES": "Created invoices"
+      },
+      "CHART": {
+        "REVENUE_EVOLUTION": "Revenue trend (last 6 months)",
+        "REVENUE": "Revenue TTC",
+        "EMPTY": "No available data to plot the trend."
+      },
+      "BY_INSURANCE": "Breakdown by insurance",
+      "BY_PATIENT_STATUS": "Breakdown by patient status",
+      "TABLE": {
+        "LABEL": "Label",
+        "SESSIONS": "Sessions",
+        "PATIENTS": "Patients"
+      }
+    },
+    "SETTINGS": {
+      "TITLE": "Billing settings",
+      "TVA": "VAT rate (%)",
+      "CODE_FORMAT": "Billing code",
+      "GROUPING_SWITCH": "Group multi-package lines into one invoice",
+      "GOTO_ADMIN": "Billing settings (Administration)",
+      "NOTE": "Changes apply only to future billing runs."
+    },
+    "SUCCESS": {
+      "VALIDATED": "Billing validated successfully.",
+      "SETTINGS_SAVED": "Billing settings saved."
+    },
+    "ERROR": {
+      "NO_PREVIEW": "No preview available. Run a calculation first.",
+      "GENERIC": "Billing operation failed."
+    }
+  },
   "REPORTING": {
     "MODELES_DOCUMENT_TITLE": "Document template management",
     "MODELES_DOCUMENT_DESCRIPTION": "Associate a JasperReports .jrxml file with each document type per center",
@@ -531,6 +616,12 @@
     "BILLABLE_LABEL": "Billable"
   },
   "ADMIN": {
+    "BILLING_SETTINGS": {
+      "EYEBROW": "Administration",
+      "TITLE": "Billing settings",
+      "DESCRIPTION": "Configure VAT rate, billing code format, and package grouping strategy.",
+      "BACK_TO_BILLING": "Back to billing dashboard"
+    },
     "USERS": {
       "TITLE": "User management",
       "NEW_USER": "New user",

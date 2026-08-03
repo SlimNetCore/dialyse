@@ -1,0 +1,247 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'FACTURATION.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'FACTURATION.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'FACTURATION.DESCRIPTION' | translate }}</p>
+    <div class="app-button-cluster">
+      <a mat-stroked-button routerLink="/admin/parametrage/facturation">
+        <mat-icon>tune</mat-icon>
+        {{ 'FACTURATION.SETTINGS.GOTO_ADMIN' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'FACTURATION.FLOW.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="flow-grid">
+        <div class="flow-item">
+          <span class="flow-index">1</span>
+          <h3>{{ 'FACTURATION.FLOW.SELECT.TITLE' | translate }}</h3>
+          <p>{{ 'FACTURATION.FLOW.SELECT.DESC' | translate }}</p>
+        </div>
+        <div class="flow-item">
+          <span class="flow-index">2</span>
+          <h3>{{ 'FACTURATION.FLOW.PREVIEW.TITLE' | translate }}</h3>
+          <p>{{ 'FACTURATION.FLOW.PREVIEW.DESC' | translate }}</p>
+        </div>
+        <div class="flow-item">
+          <span class="flow-index">3</span>
+          <h3>{{ 'FACTURATION.FLOW.VALIDATE.TITLE' | translate }}</h3>
+          <p>{{ 'FACTURATION.FLOW.VALIDATE.DESC' | translate }}</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'FACTURATION.CALCULATOR.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="mode-toggle">
+        <button mat-stroked-button [color]="store.periodMode() === 'month' ? 'primary' : undefined" (click)="onPeriodMode('month')">
+          {{ 'FACTURATION.CALCULATOR.MODE_MONTH' | translate }}
+        </button>
+        <button mat-stroked-button [color]="store.periodMode() === 'custom' ? 'primary' : undefined" (click)="onPeriodMode('custom')">
+          {{ 'FACTURATION.CALCULATOR.MODE_CUSTOM' | translate }}
+        </button>
+      </div>
+
+      <div class="filters-grid">
+        @if (store.periodMode() === 'month') {
+          <mat-form-field appearance="outline" class="field-block">
+            <mat-label>{{ 'FACTURATION.CALCULATOR.MONTH' | translate }}</mat-label>
+            <input matInput type="month" [value]="store.month()" (input)="onMonthChange($any($event.target).value)">
+          </mat-form-field>
+        } @else {
+          <mat-form-field appearance="outline" class="field-block">
+            <mat-label>{{ 'COMMON.DATE_START_LABEL' | translate }}</mat-label>
+            <input matInput type="date" [value]="store.startDate()" (input)="onStartDateChange($any($event.target).value)">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="field-block">
+            <mat-label>{{ 'COMMON.DATE_END_LABEL' | translate }}</mat-label>
+            <input matInput type="date" [value]="store.endDate()" (input)="onEndDateChange($any($event.target).value)">
+          </mat-form-field>
+        }
+      </div>
+
+      <div class="app-button-cluster">
+        <button mat-flat-button color="primary" [disabled]="!store.canCalculate() || store.previewLoading()" (click)="onCalculatePreview()">
+          <mat-icon>calculate</mat-icon>
+          {{ 'FACTURATION.CALCULATOR.CALCULATE' | translate }}
+        </button>
+        <button mat-stroked-button (click)="refreshDashboard()">
+          <mat-icon>refresh</mat-icon>
+          {{ 'COMMON.REFRESH_BUTTON' | translate }}
+        </button>
+      </div>
+
+      @if (store.previewLoading()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+      @if (store.error()) {
+        <p class="feedback error">{{ store.error() | translate }}</p>
+      }
+      @if (store.successMessage()) {
+        <p class="feedback success">{{ store.successMessage() | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (store.preview(); as preview) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'FACTURATION.PREVIEW.TITLE' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="preview-banner">
+          <mat-icon>warning</mat-icon>
+          {{ 'FACTURATION.PREVIEW.NOT_PERSISTED' | translate }}
+        </div>
+
+        <div class="kpi-grid">
+          <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.INVOICES' | translate }}</span><strong>{{ preview.totalFactures }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.HT' | translate }}</span><strong>{{ preview.totalHt | number:'1.2-2' }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.TVA' | translate }}</span><strong>{{ preview.totalTva | number:'1.2-2' }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.TTC' | translate }}</span><strong>{{ preview.totalTtc | number:'1.2-2' }}</strong></div>
+        </div>
+
+        <div class="invoice-list">
+          @for (invoice of preview.invoices; track invoice.previewKey) {
+            <article class="invoice-card">
+              <header>
+                <h3>{{ invoice.patientCode }} — {{ invoice.patientFullName }}</h3>
+                <span>{{ invoice.patientStatusSnapshot }}</span>
+              </header>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                  <tr>
+                    <th>{{ 'FACTURATION.PREVIEW.TABLE.FORFAIT' | translate }}</th>
+                    <th>{{ 'FACTURATION.PREVIEW.TABLE.UNIT_PRICE' | translate }}</th>
+                    <th>{{ 'FACTURATION.PREVIEW.TABLE.SESSIONS' | translate }}</th>
+                    <th>{{ 'FACTURATION.PREVIEW.TABLE.TOTAL' | translate }}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (line of invoice.lines; track line.forfaitId) {
+                      <tr>
+                        <td>{{ line.forfaitLabel }}</td>
+                        <td>{{ line.unitPriceHt | number:'1.2-2' }}</td>
+                        <td>{{ line.seanceCount }}</td>
+                        <td>{{ line.lineHt | number:'1.2-2' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <footer>
+                <span>{{ 'FACTURATION.PREVIEW.INVOICE_HT' | translate }}: {{ invoice.totalHt | number:'1.2-2' }}</span>
+                <span>{{ 'FACTURATION.PREVIEW.INVOICE_TVA' | translate }}: {{ invoice.totalTva | number:'1.2-2' }}</span>
+                <span>{{ 'FACTURATION.PREVIEW.INVOICE_TTC' | translate }}: {{ invoice.totalTtc | number:'1.2-2' }}</span>
+              </footer>
+            </article>
+          }
+        </div>
+
+        <div class="app-button-cluster">
+          <button mat-flat-button color="primary" [disabled]="store.validating()" (click)="onValidateFacturation()">
+            <mat-icon>task_alt</mat-icon>
+            {{ 'FACTURATION.PREVIEW.VALIDATE' | translate }}
+          </button>
+        </div>
+        @if (store.validating()) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'FACTURATION.DASHBOARD.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (store.dashboardLoading()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+
+      @if (store.dashboard(); as dashboard) {
+        <div class="kpi-grid">
+          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.REVENUE' | translate }}</span><strong>{{ dashboard.revenueTtc | number:'1.2-2' }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.BILLED_SESSIONS' | translate }}</span><strong>{{ dashboard.billedSeances }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.BILLED_PATIENTS' | translate }}</span><strong>{{ dashboard.billedPatients }}</strong></div>
+          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.INVOICES' | translate }}</span><strong>{{ dashboard.createdInvoices }}</strong></div>
+        </div>
+
+        <div class="dashboard-grids">
+          <article class="distribution-card distribution-card-wide">
+            <h3>{{ 'FACTURATION.DASHBOARD.CHART.REVENUE_EVOLUTION' | translate }}</h3>
+            @if (store.revenueTrendLoading()) {
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            }
+            @if (store.revenueTrend().length === 0) {
+              <p class="app-muted-note">{{ 'FACTURATION.DASHBOARD.CHART.EMPTY' | translate }}</p>
+            } @else {
+              <div class="chart-wrap">
+                <canvas [data]="revenueChartData()" [options]="revenueChartOptions()" [type]="'line'" baseChart></canvas>
+              </div>
+            }
+          </article>
+
+          <article class="distribution-card">
+            <h3>{{ 'FACTURATION.DASHBOARD.BY_INSURANCE' | translate }}</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                <tr>
+                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.LABEL' | translate }}</th>
+                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.SESSIONS' | translate }}</th>
+                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.PATIENTS' | translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (row of dashboard.byInsurance; track row.code) {
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td>{{ row.seancesCount }}</td>
+                      <td>{{ row.patientsCount }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="distribution-card">
+            <h3>{{ 'FACTURATION.DASHBOARD.BY_PATIENT_STATUS' | translate }}</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                <tr>
+                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.LABEL' | translate }}</th>
+                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.SESSIONS' | translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (row of dashboard.byPatientStatus; track row.code) {
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td>{{ row.seancesCount }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      } @else {
+        <p class="app-muted-note">{{ 'FACTURATION.DASHBOARD.EMPTY' | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+</section>
+

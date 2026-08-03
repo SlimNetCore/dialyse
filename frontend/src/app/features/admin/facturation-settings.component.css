@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.app-page,
+mat-card,
+mat-card-content {
+  min-width: 0;
+}
+
+.app-page {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.field-block {
+  width: 100%;
+}
+
+.toggle-wrap {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--app-surface) 92%, var(--app-primary-soft) 8%);
+}
+
+.feedback {
+  margin: 8px 0 0;
+  font-weight: 600;
+}
+
+.feedback.success {
+  color: #1b5e20;
+}
+
+.feedback.error {
+  color: var(--mat-sys-error, #c62828);
+}
+
+@media (max-width: 900px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
