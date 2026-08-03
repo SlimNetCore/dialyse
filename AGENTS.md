@@ -365,6 +365,7 @@ cd frontend && npm run e2e     # Playwright
 9. i18n obligatoire (`ngx-translate`) pour toute chaîne affichée côté UI.
 10. Toute nouvelle fonctionnalité de cache doit enregistrer son nom dans `CacheConfig.java`.
 11. Compatibilité H2 (dev) / PostgreSQL (prod) pour tout SQL généré.
+12. Tout fichier généré ou modifié par un agent IA doit être ajouté au versionnement Git (`git add`) dans la même tâche, sauf s'il est explicitement couvert par `.gitignore`.
 
 # 14. DDD Tactique et Découpage des Domaines — OBLIGATOIRE
 
