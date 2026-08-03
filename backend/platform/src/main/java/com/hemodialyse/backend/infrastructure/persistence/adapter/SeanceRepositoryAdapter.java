@@ -71,6 +71,12 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         s.setSignedByInfirmierUserId(e.getSignedInfirmierBy());
         s.setSignedByMedecinAt(e.getSignedMedecinAt());
         s.setSignedByMedecinUserId(e.getSignedMedecinBy());
+        s.setForfaitOverrideId(e.getForfaitOverrideId());
+        s.setForfaitOverrideCode(e.getForfaitOverrideCode());
+        s.setForfaitOverrideNom(e.getForfaitOverrideNom());
+        s.setForfaitOverridePrix(e.getForfaitOverridePrix());
+        s.setForfaitOverrideUpdatedAt(e.getForfaitOverrideUpdatedAt());
+        s.setForfaitOverrideUpdatedBy(e.getForfaitOverrideUpdatedBy());
         return s;
     }
 
@@ -87,6 +93,12 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         e.setSignedInfirmierBy(s.getSignedByInfirmierUserId());
         e.setSignedMedecinAt(s.getSignedByMedecinAt());
         e.setSignedMedecinBy(s.getSignedByMedecinUserId());
+        e.setForfaitOverrideId(s.getForfaitOverrideId());
+        e.setForfaitOverrideCode(s.getForfaitOverrideCode());
+        e.setForfaitOverrideNom(s.getForfaitOverrideNom());
+        e.setForfaitOverridePrix(s.getForfaitOverridePrix());
+        e.setForfaitOverrideUpdatedAt(s.getForfaitOverrideUpdatedAt());
+        e.setForfaitOverrideUpdatedBy(s.getForfaitOverrideUpdatedBy());
         return e;
     }
 }

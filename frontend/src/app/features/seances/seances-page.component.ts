@@ -103,15 +103,19 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   // Consommables
   protected readonly consommables = computed(() => this.store.consommables());
   protected readonly availableArticles = computed(() => this.store.availableArticles());
+  protected readonly availableForfaits = computed(() => this.store.availableForfaits());
+  protected readonly selectedForfaitId = computed(() => this.store.selectedForfaitId());
   protected readonly newConsommableArticleId = computed(() => this.store.newConsommableArticleId());
   protected readonly newConsommableQuantite = computed(() => this.store.newConsommableQuantite());
   protected readonly editingConsommableArticleId = computed(() => this.store.editingConsommableArticleId());
   protected readonly editingConsommableQuantite = computed(() => this.store.editingConsommableQuantite());
   protected readonly savingConsommable = computed(() => this.store.savingConsommable());
+  protected readonly savingForfait = computed(() => this.store.savingForfait());
   protected readonly canScanSeances = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE'));
   protected readonly canOpenSeanceDetails = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'MEDECIN'));
   protected readonly isSeanceFacturee = computed(() => this.summary()?.seance.status === 'FACTUREE');
   protected readonly canEditDate = computed(() => this.hasAnyRole('ADMIN') && !this.isSeanceFacturee());
+  protected readonly canEditForfait = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER') && !this.isSeanceFacturee());
   protected readonly canEditParamedical = computed(() =>
     this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE') && !this.isSeanceFacturee()
   );
@@ -199,6 +203,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     if (centerId) {
       this.store.loadSeances({centerId});
       this.store.loadArticlesStock({centerId});
+      this.store.loadForfaits({centerId});
       this.loadSeanceDashboard();
       this.loadJournalByDate();
     }
@@ -226,6 +231,21 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
 
   protected onEditDateInput(e: Event): void {
     this.store.setEditDateSeance((e.target as HTMLInputElement)?.value ?? todayIso());
+  }
+
+  protected onForfaitSelectionChange(forfaitId: string): void {
+    this.store.setSelectedForfaitId(forfaitId ?? '');
+  }
+
+  protected saveForfait(): void {
+    const centerId = this.appShell.currentCenterId();
+    const seanceId = this.store.summary()?.seance.id;
+    const forfaitId = this.store.selectedForfaitId();
+    const userId = this.auth.username();
+    if (!centerId || !seanceId || !forfaitId || !userId || !this.canEditForfait()) {
+      return;
+    }
+    this.store.saveForfait({seanceId, centerId, forfaitId, userId});
   }
 
   protected onJournalDateInput(e: Event): void {

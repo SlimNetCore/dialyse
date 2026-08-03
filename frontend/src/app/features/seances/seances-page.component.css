@@ -97,6 +97,18 @@ mat-card {
   flex-wrap: wrap;
 }
 
+.forfait-pill__editor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.forfait-pill__field {
+  min-width: min(100%, 320px);
+  flex: 1 1 260px;
+}
+
 .forfait-pill__name {
   font-size: 16px;
   font-weight: 700;
@@ -731,6 +743,16 @@ mat-card {
   .forfait-pill,
   .scan-status {
     width: 100%;
+  }
+
+  .forfait-pill__editor {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .forfait-pill__field {
+    min-width: 100%;
+    flex-basis: 100%;
   }
 
   .scan-status {

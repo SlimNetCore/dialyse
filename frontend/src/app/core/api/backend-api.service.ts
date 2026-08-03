@@ -112,6 +112,12 @@ export type UpdateSeancePayload = {
   dateSeance?: string;
 };
 
+export type UpdateSeanceForfaitPayload = {
+  centerId: string;
+  forfaitId: string;
+  userId: string;
+};
+
 export type SeanceListItem = {
   id: string;
   centerId: string;
@@ -568,6 +574,20 @@ export class BackendApiService {
       status: string;
       dateSeance: string
     }>(`${this.baseUrl}/seances/${seanceId}`, payload);
+  }
+
+  updateSeanceForfait(seanceId: string, payload: UpdateSeanceForfaitPayload): Observable<{
+    id: string;
+    status: string;
+    dateSeance: string;
+    forfait?: SeanceSummary['forfait'];
+  }> {
+    return this.http.put<{
+      id: string;
+      status: string;
+      dateSeance: string;
+      forfait?: SeanceSummary['forfait'];
+    }>(`${this.baseUrl}/seances/${seanceId}/forfait`, payload);
   }
 
   getSeanceSummary(seanceId: string, centerId: string): Observable<SeanceSummary> {

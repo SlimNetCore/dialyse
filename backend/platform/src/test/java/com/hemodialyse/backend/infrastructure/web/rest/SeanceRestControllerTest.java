@@ -87,7 +87,9 @@ class SeanceRestControllerTest {
                 null, null, null, null
         );
         when(useCase.list(CenterId.of(CENTER_ID))).thenReturn(List.of(item));
-        when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.RowMapper.class), any(), any(), any(), any()))
+        when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.ResultSetExtractor.class), eq(SEANCE_ID), eq(CENTER_ID)))
+                .thenReturn(null);
+        when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.RowMapper.class), any(), any(), any(), any(), any(), any()))
                 .thenReturn(List.of(Map.of(
                         "id", UUID.fromString("40000000-0000-0000-0000-000000000001"),
                         "code", "F001",
@@ -237,6 +239,47 @@ class SeanceRestControllerTest {
         @SuppressWarnings("unchecked")
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertEquals(SeanceStatus.VALIDEE, body.get("status"));
+    }
+
+    @Test
+    void updateForfait_should_return_updated_forfait_payload() {
+        SeanceUseCase useCase = mock(SeanceUseCase.class);
+        NotificationService notif = mock(NotificationService.class);
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        UUID forfaitId = UUID.fromString("40000000-0000-0000-0000-000000000001");
+
+        Seance seance = new Seance(SEANCE_ID, PATIENT_ID, CENTER_ID, LocalDate.of(2026, 7, 25));
+        seance.setForfaitOverrideId(forfaitId);
+        seance.setForfaitOverrideCode("F-HD");
+        seance.setForfaitOverrideNom("Forfait HD");
+        seance.setForfaitOverridePrix(new java.math.BigDecimal("3500.00"));
+
+        when(useCase.updateForfait(CenterId.of(CENTER_ID), SEANCE_ID, forfaitId, "inf-01")).thenReturn(seance);
+        Map<String, Object> forfaitPayload = new java.util.LinkedHashMap<>();
+        forfaitPayload.put("id", forfaitId);
+        forfaitPayload.put("code", "F-HD");
+        forfaitPayload.put("nom", "Forfait HD");
+        forfaitPayload.put("prix", new java.math.BigDecimal("3500.00"));
+        forfaitPayload.put("nombreSeances", null);
+        forfaitPayload.put("updatedBy", "inf-01");
+        when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.ResultSetExtractor.class), eq(SEANCE_ID), eq(CENTER_ID)))
+                .thenReturn(forfaitPayload);
+
+        SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc);
+        var request = new com.hemodialyse.backend.infrastructure.web.dto.request.UpdateSeanceForfaitRequest(
+                CENTER_ID, forfaitId, "inf-01"
+        );
+
+        ResponseEntity<?> response = controller.updateForfait(SEANCE_ID, request);
+
+        assertEquals(200, response.getStatusCode().value());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertNotNull(body);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> forfait = (Map<String, Object>) body.get("forfait");
+        assertEquals("Forfait HD", forfait.get("nom"));
+        assertEquals(forfaitId, forfait.get("id"));
     }
 
     // ─── signer-medecin ──────────────────────────────────────────────────────

@@ -335,18 +335,36 @@
               <p class="loading-note">{{ 'COMMON.LOADING_SESSION_DETAILS' | translate }}</p>
             }
 
-            @if (summary()!.forfait) {
-              <div class="forfait-pill" data-testid="current-forfait-pill">
-                <div class="forfait-pill__label">{{ 'CAHIER.FORFAIT' | translate }}</div>
-                <div class="forfait-pill__content">
-                  <span class="forfait-pill__name">{{ currentForfaitName() }}</span>
-                  @if (currentForfaitPrice()) {
-                    <span
-                      class="forfait-pill__price">{{ currentForfaitPrice() }} {{ 'COMMON.CURRENCY_DA' | translate }}</span>
-                  }
+            <div class="forfait-pill" data-testid="current-forfait-pill">
+              <div class="forfait-pill__label">{{ 'CAHIER.FORFAIT' | translate }}</div>
+              @if (canEditForfait()) {
+                <div class="forfait-pill__editor">
+                  <mat-form-field appearance="outline" class="forfait-pill__field">
+                    <mat-label>{{ 'SEANCES.FORFAIT_LABEL' | translate }}</mat-label>
+                    <mat-select (selectionChange)="onForfaitSelectionChange($event.value)"
+                                [value]="selectedForfaitId()">
+                      @for (forfait of availableForfaits(); track forfait.id) {
+                        <mat-option [value]="forfait.id">
+                          {{ forfait.libelle || forfait.nom || forfait.code }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <button (click)="saveForfait()" [disabled]="savingForfait() || !selectedForfaitId()" color="accent"
+                          mat-flat-button type="button">
+                    <mat-icon>save</mat-icon>
+                    {{ savingForfait() ? ('COMMON.SAVING' | translate) : ('SEANCES.SAVE_FORFAIT_BTN' | translate) }}
+                  </button>
                 </div>
+              }
+              <div class="forfait-pill__content">
+                <span class="forfait-pill__name">{{ currentForfaitName() || ('SEANCES.NO_FORFAIT' | translate) }}</span>
+                @if (currentForfaitPrice()) {
+                  <span
+                    class="forfait-pill__price">{{ currentForfaitPrice() }} {{ 'COMMON.CURRENCY_DA' | translate }}</span>
+                }
               </div>
-            }
+            </div>
 
             <mat-tab-group (selectedIndexChange)="onTabChange($event)" [mat-stretch-tabs]="false"
                            [selectedIndex]="activeTabIndex()" animationDuration="200ms" class="seance-tabs"

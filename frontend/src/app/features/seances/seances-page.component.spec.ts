@@ -57,6 +57,10 @@ type SeanceStoreMock = {
   scanning: ReturnType<typeof vi.fn>;
   qrCode?: ReturnType<typeof vi.fn>;
   setQrCode: ReturnType<typeof vi.fn>;
+  selectedForfaitId?: ReturnType<typeof vi.fn>;
+  availableForfaits?: ReturnType<typeof vi.fn>;
+  savingForfait?: ReturnType<typeof vi.fn>;
+  setSelectedForfaitId: ReturnType<typeof vi.fn>;
   setDateSeance: ReturnType<typeof vi.fn>;
   setEditDateSeance: ReturnType<typeof vi.fn>;
   setJournalDate: ReturnType<typeof vi.fn>;
@@ -80,6 +84,8 @@ type SeanceStoreMock = {
   openDashboardDetails: ReturnType<typeof vi.fn>;
   closeDashboardDetails: ReturnType<typeof vi.fn>;
   loadSeances: ReturnType<typeof vi.fn>;
+  loadForfaits: ReturnType<typeof vi.fn>;
+  saveForfait: ReturnType<typeof vi.fn>;
   clearSummary: ReturnType<typeof vi.fn>;
   clearError: ReturnType<typeof vi.fn>;
   error: ReturnType<typeof vi.fn>;
@@ -146,6 +152,10 @@ describe('SeancesPageComponent', () => {
       scanMessage: vi.fn(() => 'Prêt à scanner'),
       scanning: vi.fn(() => false),
       setQrCode: vi.fn(),
+      selectedForfaitId: vi.fn(() => 'forfait-1'),
+      availableForfaits: vi.fn(() => [{id: 'forfait-1', nom: 'Forfait HD', libelle: 'Forfait HD'}]),
+      savingForfait: vi.fn(() => false),
+      setSelectedForfaitId: vi.fn(),
       setDateSeance: vi.fn(),
       setEditDateSeance: vi.fn(),
       setJournalDate: vi.fn(),
@@ -168,6 +178,8 @@ describe('SeancesPageComponent', () => {
       openDashboardDetails: vi.fn(),
       closeDashboardDetails: vi.fn(),
       loadSeances: vi.fn(),
+      loadForfaits: vi.fn(),
+      saveForfait: vi.fn(),
       clearSummary: vi.fn(),
       clearError: vi.fn(),
       error: vi.fn(() => null),
@@ -322,6 +334,25 @@ describe('SeancesPageComponent', () => {
     expect(storeMock.scanQr).toHaveBeenCalledWith({
       centerId: CENTER_ID,
       qrCode: 'PAT-001',
+    });
+  });
+
+  it('should save forfait when seance is not facturee', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+    storeMock['summary'] = vi.fn(() => ({
+      seance: {id: 'seance-123', centerId: CENTER_ID, patientId: 'patient-1', dateSeance: '2026-07-24', status: 'CREE'},
+      patient: {id: 'patient-1', codePatient: 'PAT-001', nom: 'Dupont', prenom: 'Jean'},
+      forfait: {id: 'forfait-1', nom: 'Forfait HD', prix: 3500},
+    }));
+    storeMock['selectedForfaitId'] = vi.fn(() => 'forfait-2');
+
+    component['saveForfait']();
+
+    expect(storeMock.saveForfait).toHaveBeenCalledWith({
+      seanceId: 'seance-123',
+      centerId: CENTER_ID,
+      forfaitId: 'forfait-2',
+      userId: 'inf-01',
     });
   });
 

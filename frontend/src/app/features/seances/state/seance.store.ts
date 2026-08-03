@@ -17,6 +17,7 @@ import {
   UpsertVoletParamedicalPayload,
   ValidateSeancePayload,
 } from '../../../core/api/backend-api.service';
+import {RefItem, ReferentialApiService} from '../../../core/api/referential-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 
 function todayIsoDate(): string {
@@ -106,6 +107,12 @@ type SeanceState = {
   editDateSeance: string;
   savingDate: boolean;
 
+  /** Forfait séance éditable */
+  availableForfaits: RefItem[];
+  forfaitsLoading: boolean;
+  selectedForfaitId: string;
+  savingForfait: boolean;
+
   /** Validation séance */
   validatingSeance: boolean;
 
@@ -181,6 +188,10 @@ const initialState: SeanceState = {
   savingMedical: false,
   editDateSeance: todayIsoDate(),
   savingDate: false,
+  availableForfaits: [],
+  forfaitsLoading: false,
+  selectedForfaitId: '',
+  savingForfait: false,
   validatingSeance: false,
   error: null,
   activeCenterId: null,
@@ -215,7 +226,7 @@ export const SeanceStore = signalStore(
       Math.max(1, Math.ceil(store.dashboardDetailItems().length / DASHBOARD_PAGE_SIZE))
     ),
   })),
-  withMethods((store, api = inject(BackendApiService)) => ({
+  withMethods((store, api = inject(BackendApiService), referentialApi = inject(ReferentialApiService)) => ({
     // --- Articles stock ---
     loadArticlesStock: rxMethod<{ centerId: string }>(
       pipe(
@@ -341,9 +352,27 @@ export const SeanceStore = signalStore(
     setDateSeance(dateSeance: string): void {
       patchState(store, {dateSeance});
     },
+    setSelectedForfaitId(selectedForfaitId: string): void {
+      patchState(store, {selectedForfaitId});
+    },
     resetScan(): void {
       patchState(store, {scanState: 'idle', scanMessage: 'SEANCES.SCAN_READY_MESSAGE', scanning: false, qrCode: ''});
     },
+
+    loadForfaits: rxMethod<{ centerId: string }>(
+      pipe(
+        tap(() => patchState(store, {forfaitsLoading: true, error: null})),
+        switchMap(({centerId}) =>
+          referentialApi.getForfaits(centerId).pipe(
+            tap((forfaits) => patchState(store, {availableForfaits: forfaits, forfaitsLoading: false})),
+            catchError((err: unknown) => {
+              patchState(store, {availableForfaits: [], forfaitsLoading: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
 
     // --- Chargement liste séances ---
     loadSeances: rxMethod<{ centerId: string }>(
@@ -463,6 +492,28 @@ export const SeanceStore = signalStore(
             }),
             catchError((err: unknown) => {
               patchState(store, {savingDate: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
+    saveForfait: rxMethod<{ seanceId: string; centerId: string; forfaitId: string; userId: string }>(
+      pipe(
+        tap(() => patchState(store, {savingForfait: true, error: null})),
+        switchMap(({seanceId, centerId, forfaitId, userId}) =>
+          api.updateSeanceForfait(seanceId, {centerId, forfaitId, userId}).pipe(
+            tap((updated) => patchState(store, {
+              seances: patchSeanceForfaitInList(store.seances(), seanceId, updated.forfait ?? null),
+              summary: patchSummaryForfait(store.summary(), seanceId, updated.forfait ?? null),
+              selectedForfaitId: updated.forfait?.id ?? forfaitId,
+              savingForfait: false,
+              scanState: 'success',
+              scanMessage: 'SEANCES.FORFAIT_UPDATED',
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {savingForfait: false, error: errorMessage(err)});
               return EMPTY;
             })
           )
@@ -794,6 +845,7 @@ function summaryStateFromSummary(summary: SeanceSummary): Partial<SeanceState> {
     selectedSeanceId: summary.seance.id,
     editDateSeance: summary.seance.dateSeance,
     dateSeance: summary.seance.dateSeance,
+    selectedForfaitId: summary.forfait?.id ?? '',
     taAvant: summary.paramedical?.taAvant ?? '',
     taApres: summary.paramedical?.taApres ?? '',
     poidsAvantKg: summary.paramedical?.poidsAvantKg ?? null,
@@ -820,5 +872,34 @@ function summaryStateFromSummary(summary: SeanceSummary): Partial<SeanceState> {
         quantite: Number(row.quantite ?? 0),
       })),
   };
+}
+
+function patchSummaryForfait(
+  summary: SeanceSummary | null,
+  seanceId: string,
+  forfait: SeanceSummary['forfait'] | null,
+): SeanceSummary | null {
+  if (!summary || summary.seance.id !== seanceId) {
+    return summary;
+  }
+  return {
+    ...summary,
+    forfait,
+  };
+}
+
+function patchSeanceForfaitInList(
+  seances: SeanceListItem[],
+  seanceId: string,
+  forfait: SeanceSummary['forfait'] | null,
+): SeanceListItem[] {
+  return seances.map((seance) =>
+    seance.id === seanceId
+      ? {
+        ...seance,
+        forfait,
+      }
+      : seance
+  );
 }
 

@@ -8,6 +8,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
+import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
@@ -42,6 +43,7 @@ public class SeanceDomainService implements SeanceUseCase {
     private final BonSortieUseCase bonSortieUseCase;
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
+    private final SeanceForfaitCatalogPort forfaitCatalogPort;
 
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
@@ -49,7 +51,8 @@ public class SeanceDomainService implements SeanceUseCase {
                                LotRepositoryPort lotRepo,
                                BonSortieUseCase bonSortieUseCase,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
-                               VoletMedicalRepositoryPort voletMedicalRepo) {
+                               VoletMedicalRepositoryPort voletMedicalRepo,
+                               SeanceForfaitCatalogPort forfaitCatalogPort) {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
         this.articleRepo = articleRepo;
@@ -57,6 +60,7 @@ public class SeanceDomainService implements SeanceUseCase {
         this.bonSortieUseCase = bonSortieUseCase;
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;
+        this.forfaitCatalogPort = forfaitCatalogPort;
     }
 
     @Override
@@ -117,6 +121,16 @@ public class SeanceDomainService implements SeanceUseCase {
             throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
         }
         seance.setDateSeance(dateSeance != null ? dateSeance : LocalDate.now());
+        return seanceRepo.save(seance);
+    }
+
+    @Override
+    public Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId) {
+        Seance seance = seanceRepo.findById(seanceId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
+        var forfait = forfaitCatalogPort.findById(centerId, forfaitId)
+                .orElseThrow(() -> new IllegalArgumentException("Forfait introuvable pour le centre actif"));
+        seance.modifierForfait(forfait.id(), forfait.code(), forfait.nom(), forfait.prix(), userId);
         return seanceRepo.save(seance);
     }
 

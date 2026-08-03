@@ -31,6 +31,9 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
                        s.date_seance,
                        s.statut,
                        s.facture_id,
+                               s.forfait_override_id,
+                               s.forfait_override_nom,
+                               s.forfait_override_prix,
                        p.code_patient,
                        p.nom,
                        p.prenom,
@@ -55,7 +58,10 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
         for (Map<String, Object> row : seances) {
             UUID patientId = (UUID) row.get("patient_id");
             LocalDate date = ((Date) row.get("date_seance")).toLocalDate();
-            ForfaitSnapshot forfait = loadForfait(centerId.value(), patientId, date);
+            ForfaitSnapshot forfait = loadForfaitOverride(row);
+            if (forfait == null) {
+                forfait = loadForfait(centerId.value(), patientId, date);
+            }
             candidates.add(new SeanceFacturationCandidate(
                     (UUID) row.get("seance_id"),
                     (UUID) row.get("center_id"),
@@ -77,6 +83,18 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
             ));
         }
         return candidates;
+    }
+
+    private ForfaitSnapshot loadForfaitOverride(Map<String, Object> row) {
+        UUID forfaitId = (UUID) row.get("forfait_override_id");
+        if (forfaitId == null) {
+            return null;
+        }
+        return new ForfaitSnapshot(
+                forfaitId,
+                Objects.toString(row.get("forfait_override_nom"), null),
+                row.get("forfait_override_prix") instanceof BigDecimal price ? price : BigDecimal.ZERO
+        );
     }
 
     @Override
@@ -270,16 +288,7 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
         return fallbackRows.isEmpty() ? new ForfaitSnapshot(null, "Forfait non defini", BigDecimal.ZERO) : fallbackRows.getFirst();
     }
 
-    private static final class ForfaitSnapshot {
-        private final UUID forfaitId;
-        private final String forfaitLabel;
-        private final BigDecimal forfaitPrix;
-
-        private ForfaitSnapshot(UUID forfaitId, String forfaitLabel, BigDecimal forfaitPrix) {
-            this.forfaitId = forfaitId;
-            this.forfaitLabel = forfaitLabel;
-            this.forfaitPrix = forfaitPrix;
-        }
+    private record ForfaitSnapshot(UUID forfaitId, String forfaitLabel, BigDecimal forfaitPrix) {
     }
 }
 

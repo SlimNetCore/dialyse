@@ -22,6 +22,8 @@ public interface SeanceUseCase {
 
     Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance);
 
+    Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId);
+
     Seance validate(CenterId centerId, UUID seanceId, String userId, List<SeanceArticleConsumption> consommations);
 
     Seance signByMedecin(CenterId centerId, UUID seanceId, String userId);

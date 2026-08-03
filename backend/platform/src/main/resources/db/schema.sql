@@ -251,4 +251,16 @@ CREATE TABLE IF NOT EXISTS facture_lignes (
 CREATE INDEX IF NOT EXISTS idx_facture_lignes_facture ON facture_lignes (facture_id, center_id);
 
 ALTER TABLE IF EXISTS seances ADD COLUMN IF NOT EXISTS facture_id UUID;
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS forfait_override_id UUID;
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS forfait_override_code VARCHAR(50);
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS forfait_override_nom VARCHAR(255);
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS forfait_override_prix DECIMAL(14, 2);
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS forfait_override_updated_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS forfait_override_updated_by VARCHAR(100);
 

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.seance.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -16,6 +17,12 @@ public class Seance {
     private String signedByInfirmierUserId;
     private OffsetDateTime signedByMedecinAt;
     private String signedByMedecinUserId;
+    private UUID forfaitOverrideId;
+    private String forfaitOverrideCode;
+    private String forfaitOverrideNom;
+    private BigDecimal forfaitOverridePrix;
+    private OffsetDateTime forfaitOverrideUpdatedAt;
+    private String forfaitOverrideUpdatedBy;
 
     public Seance() {
     }
@@ -58,6 +65,21 @@ public class Seance {
         this.signedByMedecinAt = OffsetDateTime.now();
         this.signedByMedecinUserId = userId;
         this.status = SeanceStatus.SIGNEE;
+    }
+
+    public void modifierForfait(UUID forfaitId, String forfaitCode, String forfaitNom, BigDecimal forfaitPrix, String userId) {
+        if (status == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+        }
+        if (forfaitId == null) {
+            throw new IllegalArgumentException("Le forfait est obligatoire");
+        }
+        this.forfaitOverrideId = forfaitId;
+        this.forfaitOverrideCode = forfaitCode;
+        this.forfaitOverrideNom = forfaitNom;
+        this.forfaitOverridePrix = forfaitPrix;
+        this.forfaitOverrideUpdatedAt = OffsetDateTime.now();
+        this.forfaitOverrideUpdatedBy = userId == null || userId.isBlank() ? "system" : userId.trim();
     }
 
     public UUID getId() {
@@ -146,6 +168,54 @@ public class Seance {
 
     public void setSignedByMedecinUserId(String signedByMedecinUserId) {
         this.signedByMedecinUserId = signedByMedecinUserId;
+    }
+
+    public UUID getForfaitOverrideId() {
+        return forfaitOverrideId;
+    }
+
+    public void setForfaitOverrideId(UUID forfaitOverrideId) {
+        this.forfaitOverrideId = forfaitOverrideId;
+    }
+
+    public String getForfaitOverrideCode() {
+        return forfaitOverrideCode;
+    }
+
+    public void setForfaitOverrideCode(String forfaitOverrideCode) {
+        this.forfaitOverrideCode = forfaitOverrideCode;
+    }
+
+    public String getForfaitOverrideNom() {
+        return forfaitOverrideNom;
+    }
+
+    public void setForfaitOverrideNom(String forfaitOverrideNom) {
+        this.forfaitOverrideNom = forfaitOverrideNom;
+    }
+
+    public BigDecimal getForfaitOverridePrix() {
+        return forfaitOverridePrix;
+    }
+
+    public void setForfaitOverridePrix(BigDecimal forfaitOverridePrix) {
+        this.forfaitOverridePrix = forfaitOverridePrix;
+    }
+
+    public OffsetDateTime getForfaitOverrideUpdatedAt() {
+        return forfaitOverrideUpdatedAt;
+    }
+
+    public void setForfaitOverrideUpdatedAt(OffsetDateTime forfaitOverrideUpdatedAt) {
+        this.forfaitOverrideUpdatedAt = forfaitOverrideUpdatedAt;
+    }
+
+    public String getForfaitOverrideUpdatedBy() {
+        return forfaitOverrideUpdatedBy;
+    }
+
+    public void setForfaitOverrideUpdatedBy(String forfaitOverrideUpdatedBy) {
+        this.forfaitOverrideUpdatedBy = forfaitOverrideUpdatedBy;
     }
 }
 

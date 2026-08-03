@@ -10,6 +10,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
+import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
@@ -36,8 +37,18 @@ class SeanceDomainServiceTest {
             ArticleRepositoryPort articleRepo,
             LotRepositoryPort lotRepo,
             BonSortieUseCase bonSortieUseCase) {
+        return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase, new InMemoryForfaitCatalog());
+    }
+
+    private static SeanceDomainService buildService(
+            SeanceRepositoryPort seanceRepo,
+            PatientRepositoryPort patientRepo,
+            ArticleRepositoryPort articleRepo,
+            LotRepositoryPort lotRepo,
+            BonSortieUseCase bonSortieUseCase,
+            SeanceForfaitCatalogPort forfaitCatalogPort) {
         return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
-                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class));
+                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class), forfaitCatalogPort);
     }
 
     @Test
@@ -401,6 +412,67 @@ class SeanceDomainServiceTest {
         assertTrue(ex.getMessage().contains("facturee"));
     }
 
+    @Test
+    void updateForfait_should_store_override_snapshot_when_seance_not_facturee() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID forfaitId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        InMemoryForfaitCatalog forfaitCatalog = new InMemoryForfaitCatalog();
+        forfaitCatalog.add(forfaitId, centerId, "F-HD", "Forfait HD", new BigDecimal("3500.00"));
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase(),
+                forfaitCatalog
+        );
+
+        Seance updated = service.updateForfait(centerId, seanceId, forfaitId, "inf-01");
+
+        assertEquals(forfaitId, updated.getForfaitOverrideId());
+        assertEquals("F-HD", updated.getForfaitOverrideCode());
+        assertEquals("Forfait HD", updated.getForfaitOverrideNom());
+        assertEquals(new BigDecimal("3500.00"), updated.getForfaitOverridePrix());
+        assertEquals("inf-01", updated.getForfaitOverrideUpdatedBy());
+        assertNotNull(updated.getForfaitOverrideUpdatedAt());
+    }
+
+    @Test
+    void updateForfait_should_fail_when_seance_is_facturee() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID forfaitId = UUID.randomUUID();
+
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+        InMemoryForfaitCatalog forfaitCatalog = new InMemoryForfaitCatalog();
+        forfaitCatalog.add(forfaitId, centerId, "F-HD", "Forfait HD", new BigDecimal("3500.00"));
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.setStatus(SeanceStatus.FACTUREE);
+        seanceRepo.save(seance);
+
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase(),
+                forfaitCatalog
+        );
+
+        assertThrows(IllegalStateException.class,
+                () -> service.updateForfait(centerId, seanceId, forfaitId, "inf-01"));
+    }
+
     // ── In-memory stubs ──────────────────────────────────────────────
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {
@@ -564,6 +636,23 @@ class SeanceDomainServiceTest {
         @Override
         public List<Lot> findByBonReception(UUID bonReceptionId, CenterId c) {
             return List.of();
+        }
+    }
+
+    private static final class InMemoryForfaitCatalog implements SeanceForfaitCatalogPort {
+        private final Map<UUID, SeanceForfaitSnapshot> data = new HashMap<>();
+
+        void add(UUID forfaitId, CenterId centerId, String code, String nom, BigDecimal prix) {
+            data.put(composeKey(centerId, forfaitId), new SeanceForfaitSnapshot(forfaitId, code, nom, prix));
+        }
+
+        @Override
+        public Optional<SeanceForfaitSnapshot> findById(CenterId centerId, UUID forfaitId) {
+            return Optional.ofNullable(data.get(composeKey(centerId, forfaitId)));
+        }
+
+        private UUID composeKey(CenterId centerId, UUID forfaitId) {
+            return UUID.nameUUIDFromBytes((centerId.value() + ":" + forfaitId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
         }
     }
 

@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
+import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
@@ -43,9 +44,10 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     LotRepositoryPort lotRepo,
                                     BonSortieUseCase bonSortieUseCase,
                                     VoletParamedicalRepositoryPort voletParamedicalRepo,
-                                    VoletMedicalRepositoryPort voletMedicalRepo) {
+                                    VoletMedicalRepositoryPort voletMedicalRepo,
+                                    SeanceForfaitCatalogPort forfaitCatalogPort) {
         this.delegate = new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo,
-                bonSortieUseCase, voletParamedicalRepo, voletMedicalRepo);
+                bonSortieUseCase, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort);
     }
 
     @Override
@@ -73,6 +75,11 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Override
     public Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance) {
         return delegate.updateDate(centerId, seanceId, dateSeance);
+    }
+
+    @Override
+    public Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId) {
+        return delegate.updateForfait(centerId, seanceId, forfaitId, userId);
     }
 
     @Override

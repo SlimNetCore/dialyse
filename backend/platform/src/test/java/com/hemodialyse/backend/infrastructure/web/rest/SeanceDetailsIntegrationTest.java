@@ -19,6 +19,7 @@ import java.util.UUID;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +32,7 @@ class SeanceDetailsIntegrationTest {
     private static final UUID SEANCE_ID = UUID.fromString("20000000-0000-0000-0000-000000000001");
     private static final UUID PEC_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
     private static final UUID FORFAIT_ID = UUID.fromString("40000000-0000-0000-0000-000000000001");
+    private static final UUID FORFAIT_OVERRIDE_ID = UUID.fromString("40000000-0000-0000-0000-000000000002");
     private static final UUID GENERATEUR_ID = UUID.fromString("60000000-0000-0000-0000-000000000001");
 
     @Autowired
@@ -54,6 +56,7 @@ class SeanceDetailsIntegrationTest {
         jdbc.update("DELETE FROM prise_en_charge WHERE id = ?", PEC_ID);
         jdbc.update("DELETE FROM seances WHERE id = ?", SEANCE_ID);
         jdbc.update("DELETE FROM patients WHERE id = ?", PATIENT_ID);
+        jdbc.update("DELETE FROM forfait WHERE id = ?", FORFAIT_OVERRIDE_ID);
         jdbc.update("DELETE FROM forfait WHERE id = ?", FORFAIT_ID);
         jdbc.update("DELETE FROM generateur WHERE id = ?", GENERATEUR_ID);
     }
@@ -80,6 +83,39 @@ class SeanceDetailsIntegrationTest {
                 .andExpect(jsonPath("$.forfait.id").value(FORFAIT_ID.toString()))
                 .andExpect(jsonPath("$.forfait.code").value("F-SEANCE"))
                 .andExpect(jsonPath("$.forfait.nom").value("Forfait séance test"));
+    }
+
+    @Test
+    void updateForfait_should_persist_override_and_return_it_in_details() throws Exception {
+        cleanup();
+        seedPatient();
+        seedGenerateur();
+        seedForfait();
+        seedForfaitOverride();
+        seedPec();
+        seedSeance();
+
+        mockMvc.perform(put("/api/v1/seances/{seanceId}/forfait", SEANCE_ID)
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "centerId": "%s",
+                                  "forfaitId": "%s",
+                                  "userId": "inf-01"
+                                }
+                                """.formatted(CENTER_ID, FORFAIT_OVERRIDE_ID))
+                        .with(user("inf").roles("INFIRMIER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.forfait.id").value(FORFAIT_OVERRIDE_ID.toString()))
+                .andExpect(jsonPath("$.forfait.nom").value("Forfait modifié séance"));
+
+        mockMvc.perform(get("/api/v1/seances/{seanceId}", SEANCE_ID)
+                        .param("centerId", CENTER_ID.toString())
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.forfait.id").value(FORFAIT_OVERRIDE_ID.toString()))
+                .andExpect(jsonPath("$.forfait.nom").value("Forfait modifié séance"))
+                .andExpect(jsonPath("$.forfait.updatedBy").value("inf-01"));
     }
 
     private void seedPatient() {
@@ -156,6 +192,17 @@ class SeanceDetailsIntegrationTest {
                 "F-SEANCE",
                 "Forfait séance test",
                 java.math.BigDecimal.valueOf(3500)
+        );
+    }
+
+    private void seedForfaitOverride() {
+        jdbc.update(
+                "INSERT INTO forfait (id, center_id, code, libelle, prix) VALUES (?, ?, ?, ?, ?)",
+                FORFAIT_OVERRIDE_ID,
+                CENTER_ID,
+                "F-SEANCE-OVR",
+                "Forfait modifié séance",
+                java.math.BigDecimal.valueOf(4200)
         );
     }
 

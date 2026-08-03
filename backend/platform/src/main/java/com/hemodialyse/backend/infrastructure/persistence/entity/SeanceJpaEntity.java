@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -50,6 +51,24 @@ public class SeanceJpaEntity {
 
     @Column(name = "facture_id")
     private UUID factureId;
+
+    @Column(name = "forfait_override_id")
+    private UUID forfaitOverrideId;
+
+    @Column(name = "forfait_override_code", length = 50)
+    private String forfaitOverrideCode;
+
+    @Column(name = "forfait_override_nom", length = 255)
+    private String forfaitOverrideNom;
+
+    @Column(name = "forfait_override_prix", precision = 14, scale = 2)
+    private BigDecimal forfaitOverridePrix;
+
+    @Column(name = "forfait_override_updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime forfaitOverrideUpdatedAt;
+
+    @Column(name = "forfait_override_updated_by", length = 100)
+    private String forfaitOverrideUpdatedBy;
 
     public UUID getId() {
         return id;
@@ -145,5 +164,53 @@ public class SeanceJpaEntity {
 
     public void setFactureId(UUID factureId) {
         this.factureId = factureId;
+    }
+
+    public UUID getForfaitOverrideId() {
+        return forfaitOverrideId;
+    }
+
+    public void setForfaitOverrideId(UUID forfaitOverrideId) {
+        this.forfaitOverrideId = forfaitOverrideId;
+    }
+
+    public String getForfaitOverrideCode() {
+        return forfaitOverrideCode;
+    }
+
+    public void setForfaitOverrideCode(String forfaitOverrideCode) {
+        this.forfaitOverrideCode = forfaitOverrideCode;
+    }
+
+    public String getForfaitOverrideNom() {
+        return forfaitOverrideNom;
+    }
+
+    public void setForfaitOverrideNom(String forfaitOverrideNom) {
+        this.forfaitOverrideNom = forfaitOverrideNom;
+    }
+
+    public BigDecimal getForfaitOverridePrix() {
+        return forfaitOverridePrix;
+    }
+
+    public void setForfaitOverridePrix(BigDecimal forfaitOverridePrix) {
+        this.forfaitOverridePrix = forfaitOverridePrix;
+    }
+
+    public OffsetDateTime getForfaitOverrideUpdatedAt() {
+        return forfaitOverrideUpdatedAt;
+    }
+
+    public void setForfaitOverrideUpdatedAt(OffsetDateTime forfaitOverrideUpdatedAt) {
+        this.forfaitOverrideUpdatedAt = forfaitOverrideUpdatedAt;
+    }
+
+    public String getForfaitOverrideUpdatedBy() {
+        return forfaitOverrideUpdatedBy;
+    }
+
+    public void setForfaitOverrideUpdatedBy(String forfaitOverrideUpdatedBy) {
+        this.forfaitOverrideUpdatedBy = forfaitOverrideUpdatedBy;
     }
 }
