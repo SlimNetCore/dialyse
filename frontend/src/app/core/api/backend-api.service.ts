@@ -377,6 +377,95 @@ export type PatientSummaryDetailsResponse = {
   items: PatientSummaryDetailItem[];
 };
 
+export type FacturationPreviewLine = {
+  forfaitId: string;
+  forfaitLabel: string;
+  unitPriceHt: number;
+  seanceCount: number;
+  lineHt: number;
+};
+
+export type FacturationPreviewInvoice = {
+  previewKey: string;
+  patientId: string;
+  patientCode: string;
+  patientFullName: string;
+  patientStatusSnapshot: string;
+  totalHt: number;
+  totalTva: number;
+  totalTtc: number;
+  lines: FacturationPreviewLine[];
+};
+
+export type FacturationPreviewResponse = {
+  centerId: string;
+  generatedAt: string;
+  periodStart: string;
+  periodEnd: string;
+  totalFactures: number;
+  totalHt: number;
+  totalTva: number;
+  totalTtc: number;
+  invoices: FacturationPreviewInvoice[];
+};
+
+export type FacturationDashboardBucket = {
+  code: string;
+  label: string;
+  seancesCount: number;
+  patientsCount: number;
+};
+
+export type FacturationDashboardStatusBucket = {
+  code: string;
+  label: string;
+  seancesCount: number;
+};
+
+export type FacturationDashboardResponse = {
+  centerId: string;
+  month: string;
+  revenueTtc: number;
+  billedSeances: number;
+  billedPatients: number;
+  createdInvoices: number;
+  byInsurance: FacturationDashboardBucket[];
+  byPatientStatus: FacturationDashboardStatusBucket[];
+};
+
+export type FacturationSettings = {
+  tvaRate: number;
+  codeFormat: string;
+  regroupementMultiForfait: boolean;
+  updatedAt: string | null;
+};
+
+export type FacturationPreviewPayload = {
+  centerId: string;
+  month?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  regroupementMultiForfait: boolean;
+};
+
+export type FacturationValidatePayload = {
+  centerId: string;
+  userId: string;
+  month?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  regroupementMultiForfait: boolean;
+  previewGeneratedAt: string;
+};
+
+export type FacturationSettingsPayload = {
+  centerId: string;
+  userId: string;
+  tvaRate: number;
+  codeFormat: string;
+  regroupementMultiForfait: boolean;
+};
+
 @Injectable({ providedIn: 'root' })
 export class BackendApiService {
   private readonly http = inject(HttpClient);
@@ -755,6 +844,34 @@ export class BackendApiService {
       responseType: 'blob',
       observe: 'response'
     });
+  }
+
+  getFacturationDashboard(centerId: string, month: string): Observable<FacturationDashboardResponse> {
+    const params = new HttpParams().set('centerId', centerId).set('month', month);
+    return this.http.get<FacturationDashboardResponse>(`${this.baseUrl}/facturation/dashboard`, {params});
+  }
+
+  previewFacturation(payload: FacturationPreviewPayload): Observable<FacturationPreviewResponse> {
+    return this.http.post<FacturationPreviewResponse>(`${this.baseUrl}/facturation/preview`, payload);
+  }
+
+  validateFacturation(payload: FacturationValidatePayload): Observable<{
+    createdInvoices: number;
+    billedSeances: number
+  }> {
+    return this.http.post<{
+      createdInvoices: number;
+      billedSeances: number
+    }>(`${this.baseUrl}/facturation/validate`, payload);
+  }
+
+  getFacturationSettings(centerId: string): Observable<FacturationSettings> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<FacturationSettings>(`${this.baseUrl}/facturation/settings`, {params});
+  }
+
+  updateFacturationSettings(payload: FacturationSettingsPayload): Observable<FacturationSettings> {
+    return this.http.put<FacturationSettings>(`${this.baseUrl}/facturation/settings`, payload);
   }
 
   // ─── Documents & Impression (Jasper) ──────────────────────────────

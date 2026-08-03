@@ -195,6 +195,14 @@ class SeanceRestControllerTest {
         ResponseEntity<?> response = controller.scanQr(request);
 
         assertEquals(200, response.getStatusCode().value());
+        assertInstanceOf(Map.class, response.getBody());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertEquals(SEANCE_ID, body.get("id"));
+        assertNull(body.get("generateurId"));
+        assertNull(body.get("generateurNom"));
+        assertNull(body.get("generateurMarque"));
+        assertNull(body.get("generateurEtat"));
         verify(useCase).createFromQr(CenterId.of(CENTER_ID), "PAT-001");
     }
 

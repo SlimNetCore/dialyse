@@ -55,15 +55,7 @@ public class SeanceRestController {
                 seance.getDateSeance() == null ? null : seance.getDateSeance().toString()
         );
 
-        return ResponseEntity.ok(Map.of(
-                "id", seance.getId(),
-                "status", seance.getStatus(),
-                "dateSeance", seance.getDateSeance(),
-                "generateurId", patient.getGenerateurId(),
-                "generateurNom", patient.getGenerateurNom(),
-                "generateurMarque", patient.getGenerateurMarque(),
-                "generateurEtat", patient.getGenerateurEtat()
-        ));
+        return ResponseEntity.ok(buildSeanceCreationPayload(seance, patient));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
@@ -107,15 +99,20 @@ public class SeanceRestController {
                 seance.getDateSeance() == null ? null : seance.getDateSeance().toString()
         );
 
-        return ResponseEntity.ok(Map.of(
-                "id", seance.getId(),
-                "status", seance.getStatus(),
-                "dateSeance", seance.getDateSeance(),
-                "generateurId", patient.getGenerateurId(),
-                "generateurNom", patient.getGenerateurNom(),
-                "generateurMarque", patient.getGenerateurMarque(),
-                "generateurEtat", patient.getGenerateurEtat()
-        ));
+        return ResponseEntity.ok(buildSeanceCreationPayload(seance, patient));
+    }
+
+    private Map<String, Object> buildSeanceCreationPayload(com.hemodialyse.backend.domain.seance.model.Seance seance,
+                                                           com.hemodialyse.backend.domain.patient.model.Patient patient) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("id", seance.getId());
+        payload.put("status", seance.getStatus());
+        payload.put("dateSeance", seance.getDateSeance());
+        payload.put("generateurId", patient.getGenerateurId());
+        payload.put("generateurNom", patient.getGenerateurNom());
+        payload.put("generateurMarque", patient.getGenerateurMarque());
+        payload.put("generateurEtat", patient.getGenerateurEtat());
+        return payload;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")

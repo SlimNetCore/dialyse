@@ -17,7 +17,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/seances/seances.routes').then((m) => m.seancesRoutes),
       },
       {path: 'stock', loadChildren: () => import('./features/stock/stock.routes').then(m => m.stockRoutes)},
-      { path: 'facturation', loadComponent: () => import('./features/facturation/facturation-placeholder.component').then(m => m.FacturationPlaceholderComponent) },
+      {
+        path: 'facturation',
+        loadChildren: () => import('./features/facturation/facturation.routes').then(m => m.facturationRoutes)
+      },
       { path: 'reglement', loadComponent: () => import('./features/reglement/reglement-placeholder.component').then(m => m.ReglementPlaceholderComponent) },
       { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
