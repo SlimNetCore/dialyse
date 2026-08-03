@@ -6,6 +6,19 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogModule} from '@angular/material/dia
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import * as QRCode from 'qrcode';
+import html2canvas from 'html2canvas';
+import {jsPDF} from 'jspdf';
+
+type PatientQrDialogData = {
+  patientId: string;
+  codePatient: string;
+  nom: string;
+  prenom: string;
+  numeroAssurance: string;
+  photoBase64: string | null;
+  dateAdmission: string;
+  groupeSanguin: string;
+};
 
 @Component({
   selector: 'app-patient-qr-card',
@@ -25,6 +38,7 @@ import * as QRCode from 'qrcode';
 export class PatientQrCardComponent {
   private readonly dialog = inject(MatDialog);
   @Input() patientId: string | null = null;
+  @Input() codePatient = '';
   @Input() nom = '';
   @Input() prenom = '';
   @Input() numeroAssurance = '';
@@ -38,6 +52,7 @@ export class PatientQrCardComponent {
       width: '420px',
       data: {
         patientId: this.patientId,
+        codePatient: this.codePatient,
         nom: this.nom,
         prenom: this.prenom,
         numeroAssurance: this.numeroAssurance,
@@ -58,19 +73,55 @@ export class PatientQrCardComponent {
   styleUrl: './patient-qr-card-dialog.component.css',
 })
 export class PatientQrCardDialogComponent {
-  readonly data: any = inject(MAT_DIALOG_DATA);
+  readonly data: PatientQrDialogData = inject(MAT_DIALOG_DATA);
   readonly qrDataUrl = signal('');
+  readonly exporting = signal(false);
 
   constructor() {
-    const payload = JSON.stringify({
-      id: this.data.patientId,
-      nom: this.data.nom,
-      prenom: this.data.prenom,
-      assurance: this.data.numeroAssurance,
-    });
-    QRCode.toDataURL(payload, {width: 180, margin: 1, color: {dark: '#1b5e20'}}).then(
+    // Keep scanner payload simple for Seance scan parser: PAT:<patientCode>
+    const payload = this.scanToken();
+    QRCode.toDataURL(payload, {
+      width: 256,
+      margin: 1,
+      errorCorrectionLevel: 'H',
+      color: {dark: '#0f5132', light: '#ffffff'},
+    }).then(
       (url: string) => this.qrDataUrl.set(url),
     );
+  }
+
+  async downloadPng(): Promise<void> {
+    const card = this.cardElement();
+    if (!card) return;
+    this.exporting.set(true);
+    try {
+      const canvas = await html2canvas(card, {scale: 3, backgroundColor: '#ffffff', useCORS: true});
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `${this.safeFilename()}-qr.png`;
+      link.click();
+    } finally {
+      this.exporting.set(false);
+    }
+  }
+
+  async downloadPdf(): Promise<void> {
+    const card = this.cardElement();
+    if (!card) return;
+    this.exporting.set(true);
+    try {
+      const canvas = await html2canvas(card, {scale: 3, backgroundColor: '#ffffff', useCORS: true});
+      const image = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(image, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`${this.safeFilename()}-qr.pdf`);
+    } finally {
+      this.exporting.set(false);
+    }
   }
 
   print(): void {
@@ -89,5 +140,23 @@ export class PatientQrCardDialogComponent {
     win.document.close();
     win.focus();
     win.print();
+  }
+
+  private scanToken(): string {
+    const code = (this.data.codePatient ?? '').trim();
+    const assurance = (this.data.numeroAssurance ?? '').trim();
+    const fallback = (this.data.patientId ?? '').trim();
+    if (code) return `PAT:${code}`;
+    if (assurance) return `ASS:${assurance}`;
+    return fallback;
+  }
+
+  private safeFilename(): string {
+    const code = (this.data.codePatient ?? '').trim() || (this.data.patientId ?? '').slice(0, 8) || 'patient';
+    return `patient-${code.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+  }
+
+  private cardElement(): HTMLElement | null {
+    return document.getElementById('patientCard');
   }
 }

@@ -656,6 +656,7 @@
               }
             </button>
             <app-patient-qr-card
+              [codePatient]="row.code"
               [dateAdmission]="row.dateAdmission"
               [nom]="row.nom"
               [numeroAssurance]="row.numeroAssurance"
@@ -727,6 +728,7 @@
                   {{ 'PATIENT_STATS.OPEN' | translate }}
                 </button>
                 <app-patient-qr-card
+                  [codePatient]="row.code"
                   [dateAdmission]="row.dateAdmission"
                   [nom]="row.nom"
                   [numeroAssurance]="row.numeroAssurance"

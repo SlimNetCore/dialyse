@@ -13,7 +13,8 @@
     </div>
     <div class="card-info">
       <h2>{{ data.nom }} {{ data.prenom }}</h2>
-      <div class="info-line"><strong>ID:</strong> {{ data.patientId?.substring(0, 8) }}</div>
+      <div class="info-line"><strong>{{ 'PATIENT_LIST.COL_CODE' | translate }}:</strong> {{ data.codePatient || '-' }}</div>
+      <div class="info-line"><strong>ID:</strong> {{ data.patientId.substring(0, 8) }}</div>
       <div class="info-line"><strong>N° Assurance:</strong> {{ data.numeroAssurance }}</div>
       @if (data.groupeSanguin) {
         <div class="info-line"><strong>Grp:</strong> {{ data.groupeSanguin }}</div>
@@ -24,11 +25,20 @@
     </div>
     <div class="card-qr">
       <img [src]="qrDataUrl()" alt="QR Code"/>
+      <span class="qr-hint">{{ 'PATIENT_FORM.QR_SCAN_HINT' | translate }}</span>
     </div>
   </div>
 </div>
 <div class="dialog-actions">
-  <button (click)="print()" color="primary" mat-flat-button>
+  <button (click)="downloadPng()" [disabled]="exporting()" color="accent" mat-stroked-button>
+    <mat-icon>image</mat-icon>
+    {{ 'PATIENT_FORM.DOWNLOAD_IMAGE' | translate }}
+  </button>
+  <button (click)="downloadPdf()" [disabled]="exporting()" color="primary" mat-stroked-button>
+    <mat-icon>picture_as_pdf</mat-icon>
+    {{ 'PATIENT_FORM.DOWNLOAD_PDF' | translate }}
+  </button>
+  <button (click)="print()" [disabled]="exporting()" color="primary" mat-flat-button>
     <mat-icon>print</mat-icon>
     {{ 'PATIENT_FORM.PRINT_CARD' | translate }}
   </button>

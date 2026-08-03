@@ -1,9 +1,11 @@
 
 .card-print {
   padding: 20px;
+  max-width: 560px;
   border: 2px solid #1b5e20;
   border-radius: 14px;
   background: linear-gradient(135deg, #f7faf8 0%, #e8f5e9 100%);
+  box-shadow: 0 16px 38px rgba(15, 81, 50, 0.18);
 }
 
 .card-header {
@@ -30,14 +32,15 @@
 }
 
 .card-body {
-  display: flex;
+  display: grid;
+  grid-template-columns: 96px 1fr 156px;
   gap: 16px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .card-photo {
-  width: 80px;
-  height: 100px;
+  width: 96px;
+  height: 120px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #c8e6c9;
@@ -83,19 +86,68 @@
 }
 
 .card-qr {
-  width: 90px;
-  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 156px;
   flex-shrink: 0;
 
   img {
-    width: 100%;
-    height: 100%;
+    width: 148px;
+    height: 148px;
+    border-radius: 10px;
+    border: 1px solid #c8e6c9;
+    background: #fff;
+    padding: 6px;
   }
+}
+
+.qr-hint {
+  font-size: 11px;
+  line-height: 1.2;
+  color: #475569;
+  text-align: center;
 }
 
 .dialog-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 16px 0 0;
+}
+
+@media (max-width: 767px) {
+  .card-print {
+    padding: 16px;
+  }
+
+  .card-body {
+    grid-template-columns: 1fr;
+  }
+
+  .card-photo {
+    width: 88px;
+    height: 110px;
+  }
+
+  .card-qr {
+    width: 100%;
+    align-items: flex-start;
+
+    img {
+      width: 132px;
+      height: 132px;
+    }
+  }
+
+  .dialog-actions {
+    justify-content: stretch;
+  }
+
+  .dialog-actions button {
+    flex: 1 1 100%;
+  }
 }
 
