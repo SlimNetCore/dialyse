@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://dialyse-production.up.railway.app/api/v1',
-  wsBaseUrl: 'wss://dialyse-production.up.railway.app/ws',
-  healthCheckUrl: 'https://dialyse-production.up.railway.app/actuator/health',
+  apiBaseUrl: 'https://dialyse.onrender.com/api/v1',
+  wsBaseUrl: 'wss://dialyse.onrender.com/ws',
+  healthCheckUrl: 'https://dialyse.onrender.com/actuator/health',
 };
