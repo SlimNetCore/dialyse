@@ -91,6 +91,7 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
     const normalized = (status ?? '').toUpperCase();
     if (normalized === 'VALIDEE') return 'status-validee';
     if (normalized === 'SIGNEE') return 'status-signee';
+    if (normalized === 'FACTUREE') return 'status-facturee';
     return 'status-brouillon';
   }
 
@@ -159,7 +160,7 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
           .filter((item) => {
             if (item.centerId !== centerId || item.patientId !== this.patientId) return false;
             const status = (item.status ?? '').toUpperCase();
-            return status === 'VALIDEE' || status === 'SIGNEE';
+            return status === 'VALIDEE' || status === 'SIGNEE' || status === 'FACTUREE';
           })
           .sort((a, b) => b.dateSeance.localeCompare(a.dateSeance));
 

@@ -62,7 +62,7 @@ class SeanceRestControllerTest {
         SeanceListItem item = new SeanceListItem(
                 SEANCE_ID, CENTER_ID, PATIENT_ID,
                 "PAT-001", "Dupont", "Jean",
-                LocalDate.now(), SeanceStatus.CREE,
+                LocalDate.now(), SeanceStatus.FACTUREE,
                 null, null, null, null
         );
         when(useCase.list(CenterId.of(CENTER_ID))).thenReturn(List.of(item));
@@ -71,6 +71,11 @@ class SeanceRestControllerTest {
         ResponseEntity<?> response = controller.list(CENTER_ID);
 
         assertEquals(200, response.getStatusCode().value());
+        assertInstanceOf(List.class, response.getBody());
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) response.getBody();
+        assertEquals(1, rows.size());
+        assertEquals(SeanceStatus.FACTUREE, rows.getFirst().get("status"));
         verify(useCase).list(CenterId.of(CENTER_ID));
     }
 

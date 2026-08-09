@@ -2,7 +2,6 @@ import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
 import {vi} from 'vitest';
-import {TranslateModule} from '@ngx-translate/core';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {CahierDialyseComponent} from './cahier-dialyse.component';
@@ -11,6 +10,7 @@ describe('CahierDialyseComponent', () => {
   const apiMock = {
     listSeances: vi.fn(() =>
       of([
+        {id: 's-5', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-20', status: 'FACTUREE'},
         {id: 's-1', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-01', status: 'SIGNEE'},
         {id: 's-2', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-14', status: 'VALIDEE'},
         {id: 's-3', centerId: 'center-1', patientId: 'patient-2', dateSeance: '2026-07-10', status: 'BROUILLON'},
@@ -23,8 +23,8 @@ describe('CahierDialyseComponent', () => {
           id: seanceId,
           centerId: 'center-1',
           patientId: 'patient-1',
-          dateSeance: seanceId === 's-2' ? '2026-07-14' : '2026-07-01',
-          status: seanceId === 's-2' ? 'VALIDEE' : 'SIGNEE',
+          dateSeance: seanceId === 's-5' ? '2026-07-20' : seanceId === 's-2' ? '2026-07-14' : '2026-07-01',
+          status: seanceId === 's-5' ? 'FACTUREE' : seanceId === 's-2' ? 'VALIDEE' : 'SIGNEE',
         },
         patient: {id: 'patient-1'},
         paramedical: seanceId === 's-2' ? {taAvant: '120/80'} : null,
@@ -49,41 +49,46 @@ describe('CahierDialyseComponent', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    await TestBed.configureTestingModule({
-      imports: [CahierDialyseComponent, TranslateModule.forRoot()],
+    TestBed.configureTestingModule({
       providers: [
         {provide: BackendApiService, useValue: apiMock},
         {provide: ActivatedRoute, useValue: routeMock},
         {provide: AppShellStore, useValue: appShellMock},
         {provide: Router, useValue: routerMock},
       ],
-    })
-      .overrideComponent(CahierDialyseComponent, {
-        set: {template: '<div></div>'},
-      })
-      .compileComponents();
+    });
   });
 
-  it('charge uniquement les seances valides du patient dans le centre actif', () => {
-    const fixture = TestBed.createComponent(CahierDialyseComponent);
-    fixture.detectChanges();
+  function createComponent(): CahierDialyseComponent {
+    return TestBed.runInInjectionContext(() => new CahierDialyseComponent());
+  }
+
+  it('charge les seances validees, signees et facturees du patient dans le centre actif', () => {
+    const component = createComponent();
+    component.ngOnInit();
 
     expect(apiMock.listSeances).toHaveBeenCalledWith('center-1');
-    expect(fixture.componentInstance.patientSeances().map((item) => item.id)).toEqual(['s-2', 's-1']);
-    expect(fixture.componentInstance.currentPageIndex()).toBe(0);
+    expect(component.patientSeances().map((item) => item.id)).toEqual(['s-5', 's-2', 's-1']);
+    expect(component.currentPageIndex()).toBe(0);
   });
 
   it('charge le resume de la seance active puis change en navigation de page', () => {
-    const fixture = TestBed.createComponent(CahierDialyseComponent);
-    fixture.detectChanges();
+    const component = createComponent();
+    component.ngOnInit();
 
+    expect(apiMock.getSeanceSummary).toHaveBeenCalledWith('s-5', 'center-1');
+    expect(component.selectedSeance()?.id).toBe('s-5');
+
+    component.goToNextPage();
+
+    expect(component.selectedSeance()?.id).toBe('s-2');
     expect(apiMock.getSeanceSummary).toHaveBeenCalledWith('s-2', 'center-1');
-    expect(fixture.componentInstance.selectedSeance()?.id).toBe('s-2');
+  });
 
-    fixture.componentInstance.goToNextPage();
+  it('applique un style dedie aux seances facturees', () => {
+    const component = createComponent();
 
-    expect(fixture.componentInstance.selectedSeance()?.id).toBe('s-1');
-    expect(apiMock.getSeanceSummary).toHaveBeenCalledWith('s-1', 'center-1');
+    expect(component.statusClass('FACTUREE')).toBe('status-facturee');
   });
 });
 
