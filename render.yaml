@@ -10,7 +10,13 @@ services:
       - key: JAVA_OPTS
         value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
       - key: CORS_ORIGINS
-        value: "https://your-frontend-domain.example"
+        value: "https://dialysis-beta.vercel.app,https://dialyse.onrender.com,http://localhost:4200"
+      - key: CORS_ORIGIN_PATTERNS
+        value: "https://*.vercel.app"
+      - key: AUTH_COOKIE_SECURE
+        value: "true"
+      - key: AUTH_COOKIE_SAME_SITE
+        value: "None"
       - key: JWT_SECRET
         sync: false
       - key: DB_URL

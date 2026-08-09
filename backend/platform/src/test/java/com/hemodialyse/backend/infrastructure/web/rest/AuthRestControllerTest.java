@@ -67,5 +67,46 @@ class AuthRestControllerTest {
         assertTrue(refreshCookie.contains("SameSite=Lax"));
         assertFalse(refreshCookie.contains("Secure"));
     }
+
+    @Test
+    void login_should_emit_cross_site_secure_cookies_when_configured_for_https() {
+        AuthService authService = mock(AuthService.class);
+        AuthRestController controller = new AuthRestController(authService);
+        configureCookieFields(controller, true, "None");
+
+        UUID centerId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        UUID userId = UUID.randomUUID();
+        AuthService.LoginResult loginResult = new AuthService.LoginResult(
+                "access-token",
+                "admin",
+                "Admin Test",
+                userId,
+                centerId,
+                "ANNABA 1",
+                List.of("ROLE_ADMIN")
+        );
+
+        when(authService.login(eq(centerId), eq("admin"), eq("secret"))).thenReturn(loginResult);
+        when(authService.issueRefreshToken(eq(userId), eq(centerId))).thenReturn("refresh-token");
+
+        var response = controller.login(new AuthRestController.LoginRequest(centerId, "admin", "secret"));
+
+        assertEquals(200, response.getStatusCode().value());
+        List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
+        assertNotNull(cookies);
+        assertEquals(2, cookies.size());
+
+        String accessCookie = cookies.getFirst();
+        assertTrue(accessCookie.contains("HEMO_AUTH=access-token"));
+        assertTrue(accessCookie.contains("HttpOnly"));
+        assertTrue(accessCookie.contains("SameSite=None"));
+        assertTrue(accessCookie.contains("Secure"));
+
+        String refreshCookie = cookies.get(1);
+        assertTrue(refreshCookie.contains("HEMO_REFRESH=refresh-token"));
+        assertTrue(refreshCookie.contains("Path=/api/v1/auth/refresh"));
+        assertTrue(refreshCookie.contains("SameSite=None"));
+        assertTrue(refreshCookie.contains("Secure"));
+    }
 }
 
