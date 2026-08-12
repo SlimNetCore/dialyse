@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web;
 
+import com.hemodialyse.backend.domain.stock.exception.SeanceBilledStockModificationException;
+import com.hemodialyse.backend.domain.stock.exception.SeanceStockExitDateImmutableException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -9,6 +11,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    @ExceptionHandler(SeanceStockExitDateImmutableException.class)
+    ProblemDetail handleSeanceStockExitDateImmutable(SeanceStockExitDateImmutableException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        problem.setTitle("Modification interdite");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("code", "SEANCE_STOCK_EXIT_DATE_IMMUTABLE");
+        return problem;
+    }
+
+    @ExceptionHandler(SeanceBilledStockModificationException.class)
+    ProblemDetail handleSeanceBilledStockImmutable(SeanceBilledStockModificationException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        problem.setTitle("Modification interdite");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("code", "SEANCE_BILLED_STOCK_EXIT_IMMUTABLE");
+        return problem;
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     ProblemDetail handleBadRequest(IllegalArgumentException ex) {

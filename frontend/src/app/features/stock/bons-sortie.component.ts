@@ -33,6 +33,8 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   styleUrl: './bons-sortie.component.css',
 })
 export class BonsSortieComponent implements OnDestroy {
+  private static readonly DEFAULT_SEANCE_ID = '00000000-0000-0000-0000-000000000000';
+
   protected readonly cols = ['reference', 'date', 'lignes', 'actions'];
   protected readonly bons = signal<BonSortie[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
@@ -42,6 +44,7 @@ export class BonsSortieComponent implements OnDestroy {
   protected readonly submitAttempted = signal(false);
   protected readonly editingBonId = signal<string | null>(null);
   protected readonly editingSeanceId = signal<string | null>(null);
+  protected readonly editingOriginalDateSortie = signal<string | null>(null);
   protected readonly editingPatientId = signal<string | null>(null);
   protected readonly editingPoste = signal<string | null>(null);
   protected readonly formModel = signal<SortieFormModel>(this.createInitialForm());
@@ -58,6 +61,7 @@ export class BonsSortieComponent implements OnDestroy {
       return !!item.articleId && !!item.lotId && quantite > 0;
     });
   });
+  protected readonly isSeanceLinkedSortie = computed(() => this.hasRealSeanceId(this.editingSeanceId()));
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
@@ -175,9 +179,12 @@ export class BonsSortieComponent implements OnDestroy {
       return;
     }
     this.saving.set(true);
+    const payloadDateSortie = this.isSeanceLinkedSortie()
+      ? (this.editingOriginalDateSortie() ?? this.toIso(model.dateSortie))
+      : this.toIso(model.dateSortie);
     const payload = {
       centerId,
-      dateSortie: this.toIso(model.dateSortie),
+      dateSortie: payloadDateSortie,
       seanceId: this.editingSeanceId() ?? undefined,
       patientId: this.editingPatientId() ?? undefined,
       poste: this.editingPoste() ?? undefined,
@@ -218,6 +225,7 @@ export class BonsSortieComponent implements OnDestroy {
   protected editBon(bon: BonSortie): void {
     this.editingBonId.set(bon.id);
     this.editingSeanceId.set(bon.seanceId ?? null);
+    this.editingOriginalDateSortie.set(bon.dateSortie ?? null);
     this.editingPatientId.set(bon.patientId ?? null);
     this.editingPoste.set(bon.poste ?? null);
     this.formModel.set({
@@ -243,6 +251,7 @@ export class BonsSortieComponent implements OnDestroy {
   protected cancelEdit(): void {
     this.editingBonId.set(null);
     this.editingSeanceId.set(null);
+    this.editingOriginalDateSortie.set(null);
     this.editingPatientId.set(null);
     this.editingPoste.set(null);
     this.formModel.set(this.createInitialForm());
@@ -284,6 +293,10 @@ export class BonsSortieComponent implements OnDestroy {
       return !item.lotId;
     }
     return Number(item.quantite ?? 0) <= 0;
+  }
+
+  private hasRealSeanceId(seanceId: string | null): boolean {
+    return !!seanceId && seanceId !== BonsSortieComponent.DEFAULT_SEANCE_ID;
   }
 
   private newItem(): SortieItemForm {

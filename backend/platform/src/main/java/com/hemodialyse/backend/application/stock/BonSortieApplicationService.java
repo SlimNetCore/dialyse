@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
 import com.hemodialyse.backend.domain.stock.port.BonSortieRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
+import com.hemodialyse.backend.domain.stock.port.SeanceBillingStatusPort;
 import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
 import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.StockSequencePort;
@@ -43,9 +44,10 @@ public class BonSortieApplicationService implements BonSortieUseCase {
                                        StockSequencePort sequence,
                                        PmpEngine pmpEngine,
                                        PmpRecalculationCoordinator recalcCoordinator,
-                                       StockEventPublisher events) {
+                                       StockEventPublisher events,
+                                       SeanceBillingStatusPort seanceBillingStatusPort) {
         this.delegate = new BonSortieService(repo, lotRepo, movementRepo, articleRepo,
-                sequence, pmpEngine, recalcCoordinator, events);
+                sequence, pmpEngine, recalcCoordinator, events, seanceBillingStatusPort);
     }
 
     @Override

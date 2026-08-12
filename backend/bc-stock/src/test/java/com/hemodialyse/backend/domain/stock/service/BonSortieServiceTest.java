@@ -9,6 +9,7 @@ import com.hemodialyse.backend.domain.stock.model.Lot;
 import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
 import com.hemodialyse.backend.domain.stock.model.StockMovement;
 import com.hemodialyse.backend.domain.stock.port.BonSortieRepositoryPort;
+import com.hemodialyse.backend.domain.stock.port.SeanceBillingStatusPort;
 import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
 import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.StockSequencePort;
@@ -28,11 +29,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BonSortieServiceTest {
 
     @Test
-    void update_should_replace_lines_and_recalculate_stock_for_linked_seance() {
+    void update_should_keep_date_when_linked_seance_and_no_new_date_provided() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID bonId = UUID.randomUUID();
         UUID seanceId = UUID.randomUUID();
@@ -46,12 +48,13 @@ class BonSortieServiceTest {
         InMemoryArticleRepo articleRepo = new InMemoryArticleRepo();
         StockSequencePort sequence = (c, key) -> "BS-0001";
         StockEventPublisher events = new NoOpStockEventPublisher();
+        InMemorySeanceBillingStatusPort seanceBillingStatus = new InMemorySeanceBillingStatusPort();
         PmpEngine pmpEngine = new PmpEngine(movementRepo, articleRepo);
         PmpRecalculationCoordinator recalcCoordinator = new PmpRecalculationCoordinator(
                 pmpEngine, events, new ImmediateTransactionRunner());
 
         BonSortieService service = new BonSortieService(
-                repo, lotRepo, movementRepo, articleRepo, sequence, pmpEngine, recalcCoordinator, events
+                repo, lotRepo, movementRepo, articleRepo, sequence, pmpEngine, recalcCoordinator, events, seanceBillingStatus
         );
 
         BonSortie existing = new BonSortie();
@@ -90,16 +93,107 @@ class BonSortieServiceTest {
                 seanceId,
                 patientId,
                 "SEANCE",
-                LocalDate.of(2026, 8, 3),
+                null,
                 List.of(new SortieRequestItem(articleId, lotId, new BigDecimal("3"))),
                 "inf-01"
         );
 
-        assertEquals(LocalDate.of(2026, 8, 3), updated.getDateSortie());
+        assertEquals(LocalDate.of(2026, 8, 2), updated.getDateSortie());
         assertEquals(bonId, updated.getId());
         assertEquals(1, updated.getLignes().size());
         assertEquals(0, new BigDecimal("7").compareTo(lot.getQuantiteRestante()));
         assertEquals(1, movementRepo.findBySeanceAndArticle(centerId, seanceId, articleId).size());
+    }
+
+    @Test
+    void update_should_throw_when_changing_date_of_linked_seance_exit() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID bonId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID patientId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+        UUID lotId = UUID.randomUUID();
+
+        InMemoryBonSortieRepo repo = new InMemoryBonSortieRepo();
+        InMemoryLotRepo lotRepo = new InMemoryLotRepo();
+        InMemoryMovementRepo movementRepo = new InMemoryMovementRepo();
+        InMemoryArticleRepo articleRepo = new InMemoryArticleRepo();
+        StockSequencePort sequence = (c, key) -> "BS-000X";
+        StockEventPublisher events = new NoOpStockEventPublisher();
+        InMemorySeanceBillingStatusPort seanceBillingStatus = new InMemorySeanceBillingStatusPort();
+        PmpEngine pmpEngine = new PmpEngine(movementRepo, articleRepo);
+        PmpRecalculationCoordinator recalcCoordinator = new PmpRecalculationCoordinator(
+                pmpEngine, events, new ImmediateTransactionRunner());
+
+        BonSortieService service = new BonSortieService(
+                repo, lotRepo, movementRepo, articleRepo, sequence, pmpEngine, recalcCoordinator, events, seanceBillingStatus
+        );
+
+        BonSortie existing = new BonSortie();
+        existing.setId(bonId);
+        existing.setCenterId(centerId.value());
+        existing.setReference("BS-000X");
+        existing.setSeanceId(seanceId);
+        existing.setPatientId(patientId);
+        existing.setDateSortie(LocalDate.of(2026, 8, 2));
+        repo.save(existing);
+
+        assertThrows(IllegalStateException.class, () -> service.update(
+                centerId,
+                bonId,
+                seanceId,
+                patientId,
+                "SEANCE",
+                LocalDate.of(2026, 8, 3),
+                List.of(new SortieRequestItem(articleId, lotId, BigDecimal.ONE)),
+                "inf-03"
+        ));
+    }
+
+    @Test
+    void update_should_throw_when_linked_seance_is_billed() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID bonId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID patientId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+        UUID lotId = UUID.randomUUID();
+
+        InMemoryBonSortieRepo repo = new InMemoryBonSortieRepo();
+        InMemoryLotRepo lotRepo = new InMemoryLotRepo();
+        InMemoryMovementRepo movementRepo = new InMemoryMovementRepo();
+        InMemoryArticleRepo articleRepo = new InMemoryArticleRepo();
+        StockSequencePort sequence = (c, key) -> "BS-0002";
+        StockEventPublisher events = new NoOpStockEventPublisher();
+        InMemorySeanceBillingStatusPort seanceBillingStatus = new InMemorySeanceBillingStatusPort();
+        seanceBillingStatus.markBilled(centerId, seanceId);
+        PmpEngine pmpEngine = new PmpEngine(movementRepo, articleRepo);
+        PmpRecalculationCoordinator recalcCoordinator = new PmpRecalculationCoordinator(
+                pmpEngine, events, new ImmediateTransactionRunner());
+
+        BonSortieService service = new BonSortieService(
+                repo, lotRepo, movementRepo, articleRepo, sequence, pmpEngine, recalcCoordinator, events, seanceBillingStatus
+        );
+
+        BonSortie existing = new BonSortie();
+        existing.setId(bonId);
+        existing.setCenterId(centerId.value());
+        existing.setReference("BS-0002");
+        existing.setSeanceId(seanceId);
+        existing.setPatientId(patientId);
+        existing.setDateSortie(LocalDate.of(2026, 8, 2));
+        repo.save(existing);
+
+        assertThrows(IllegalStateException.class, () -> service.update(
+                centerId,
+                bonId,
+                seanceId,
+                patientId,
+                "SEANCE",
+                LocalDate.of(2026, 8, 3),
+                List.of(new SortieRequestItem(articleId, lotId, BigDecimal.ONE)),
+                "inf-02"
+        ));
     }
 
     private static final class InMemoryBonSortieRepo implements BonSortieRepositoryPort {
@@ -256,6 +350,23 @@ class BonSortieServiceTest {
 
         @Override
         public void recalcLocksChanged(UUID centerId, List<UUID> articleIds, String status) {
+        }
+    }
+
+    private static final class InMemorySeanceBillingStatusPort implements SeanceBillingStatusPort {
+        private final Map<String, Boolean> billedFlags = new HashMap<>();
+
+        @Override
+        public boolean isBilled(CenterId centerId, UUID seanceId) {
+            return billedFlags.getOrDefault(key(centerId, seanceId), false);
+        }
+
+        void markBilled(CenterId centerId, UUID seanceId) {
+            billedFlags.put(key(centerId, seanceId), true);
+        }
+
+        private String key(CenterId centerId, UUID seanceId) {
+            return centerId.value() + "::" + seanceId;
         }
     }
 

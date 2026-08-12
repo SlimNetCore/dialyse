@@ -19,9 +19,10 @@
           }
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'STOCK.OUTPUT_DATE_LABEL' | translate }}</mat-label>
-            <input [formField]="sortieForm.dateSortie" [matDatepicker]="dp" matInput/>
-            <mat-datepicker-toggle [for]="dp" matIconSuffix></mat-datepicker-toggle>
-            <mat-datepicker #dp></mat-datepicker>
+            <input [formField]="sortieForm.dateSortie" [matDatepicker]="dp" [readonly]="isSeanceLinkedSortie()"
+                   matInput/>
+            <mat-datepicker-toggle [disabled]="isSeanceLinkedSortie()" [for]="dp" matIconSuffix></mat-datepicker-toggle>
+            <mat-datepicker #dp [disabled]="isSeanceLinkedSortie()"></mat-datepicker>
             @if (showDateError()) {
               <mat-error>{{ 'COMMON.DATE_REQUIRED_ERROR' | translate }}</mat-error>
             }

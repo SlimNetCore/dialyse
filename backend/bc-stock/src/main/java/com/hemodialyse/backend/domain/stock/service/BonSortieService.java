@@ -3,8 +3,11 @@ package com.hemodialyse.backend.domain.stock.service;
 import com.hemodialyse.backend.domain.article.model.Article;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.domain.stock.exception.SeanceBilledStockModificationException;
+import com.hemodialyse.backend.domain.stock.exception.SeanceStockExitDateImmutableException;
 import com.hemodialyse.backend.domain.stock.model.*;
 import com.hemodialyse.backend.domain.stock.port.*;
+import com.hemodialyse.backend.domain.stock.port.SeanceBillingStatusPort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +33,7 @@ public class BonSortieService implements BonSortieUseCase {
     private final PmpEngine pmpEngine;
     private final PmpRecalculationCoordinator recalcCoordinator;
     private final StockEventPublisher events;
+    private final SeanceBillingStatusPort seanceBillingStatusPort;
 
     public BonSortieService(BonSortieRepositoryPort repo,
                             LotRepositoryPort lotRepo,
@@ -38,7 +42,8 @@ public class BonSortieService implements BonSortieUseCase {
                             StockSequencePort sequence,
                             PmpEngine pmpEngine,
                             PmpRecalculationCoordinator recalcCoordinator,
-                            StockEventPublisher events) {
+                            StockEventPublisher events,
+                            SeanceBillingStatusPort seanceBillingStatusPort) {
         this.repo = repo;
         this.lotRepo = lotRepo;
         this.movementRepo = movementRepo;
@@ -47,6 +52,7 @@ public class BonSortieService implements BonSortieUseCase {
         this.pmpEngine = pmpEngine;
         this.recalcCoordinator = recalcCoordinator;
         this.events = events;
+        this.seanceBillingStatusPort = seanceBillingStatusPort;
     }
 
     @Override
@@ -126,6 +132,17 @@ public class BonSortieService implements BonSortieUseCase {
         BonSortie existing = repo.findById(bonId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Bon de sortie introuvable: " + bonId));
         String by = userId != null ? userId : "system";
+        UUID effectiveSeanceId = seanceId != null ? seanceId : existing.getSeanceId();
+
+        if (isLinkedToSeance(effectiveSeanceId) && seanceBillingStatusPort.isBilled(centerId, effectiveSeanceId)) {
+            throw new SeanceBilledStockModificationException();
+        }
+        if (isLinkedToSeance(effectiveSeanceId)
+                && dateSortie != null
+                && existing.getDateSortie() != null
+                && !dateSortie.equals(existing.getDateSortie())) {
+            throw new SeanceStockExitDateImmutableException();
+        }
 
         // Restore previous lot quantities and remove corresponding stock movements.
         Set<UUID> articlesTouches = new LinkedHashSet<>();
@@ -145,10 +162,10 @@ public class BonSortieService implements BonSortieUseCase {
         updated.setId(existing.getId());
         updated.setCenterId(existing.getCenterId());
         updated.setReference(existing.getReference());
-        updated.setSeanceId(seanceId != null ? seanceId : existing.getSeanceId());
+        updated.setSeanceId(effectiveSeanceId);
         updated.setPatientId(patientId != null ? patientId : existing.getPatientId());
         updated.setPoste(poste != null ? poste : existing.getPoste());
-        updated.setDateSortie(dateSortie != null ? dateSortie : existing.getDateSortie());
+        updated.setDateSortie(isLinkedToSeance(effectiveSeanceId) ? existing.getDateSortie() : (dateSortie != null ? dateSortie : existing.getDateSortie()));
         updated.setCreatedBy(existing.getCreatedBy() != null ? existing.getCreatedBy() : by);
         updated.setCreatedAt(existing.getCreatedAt());
 
@@ -193,6 +210,9 @@ public class BonSortieService implements BonSortieUseCase {
 
     @Override
     public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
+        if (isLinkedToSeance(seanceId) && seanceBillingStatusPort.isBilled(centerId, seanceId)) {
+            throw new SeanceBilledStockModificationException();
+        }
         // Find all SORTIE movements for this article+seance
         List<StockMovement> movements = movementRepo.findBySeanceAndArticle(centerId, seanceId, articleId);
         if (movements.isEmpty()) {
@@ -217,6 +237,9 @@ public class BonSortieService implements BonSortieUseCase {
     @Override
     public void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
                                        LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId) {
+        if (isLinkedToSeance(seanceId) && seanceBillingStatusPort.isBilled(centerId, seanceId)) {
+            throw new SeanceBilledStockModificationException();
+        }
         String by = userId != null ? userId : "system";
         Article article = articleRepo.findById(articleId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
@@ -260,6 +283,10 @@ public class BonSortieService implements BonSortieUseCase {
 
     private void publishStockMovementChanged(UUID centerId, String mouvement, String reference, int articleCount) {
         events.stockMovementChanged(centerId, mouvement, reference, articleCount);
+    }
+
+    private boolean isLinkedToSeance(UUID seanceId) {
+        return seanceId != null && !DEFAULT_SEANCE_ID.equals(seanceId);
     }
 }
 
