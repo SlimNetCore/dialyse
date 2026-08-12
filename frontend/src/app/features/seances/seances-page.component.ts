@@ -138,7 +138,11 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
         this.translate.instant('SEANCES.PRESENCE_KPI'),
         this.translate.instant('SEANCES.ABSENCE_KPI'),
       ],
-      datasets: [{data: [d?.presenceCount ?? 0, d?.absenceCount ?? 0], backgroundColor: ['#16a34a', '#dc2626']}]
+      datasets: [{
+        label: this.translate.instant('SEANCES.PRESENCE_ABSENCE_CHART_TITLE'),
+        data: [d?.presenceCount ?? 0, d?.absenceCount ?? 0],
+        backgroundColor: ['#16a34a', '#dc2626']
+      }]
     };
   });
   protected readonly sexeChart = computed<ChartData<'doughnut'>>(() => {
@@ -146,6 +150,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     return {
       labels: ['M', 'F', this.translate.instant('SEANCES.OTHER_LABEL')],
       datasets: [{
+        label: this.translate.instant('SEANCES.SEX_DISTRIBUTION_CHART_TITLE'),
         data: [dist['M'] ?? 0, dist['F'] ?? 0, dist['AUTRE'] ?? 0],
         backgroundColor: ['#3b82f6', '#ec4899', '#f59e0b']
       }]
@@ -156,6 +161,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     return {
       labels: ['0-17', '18-39', '40-59', '60+', this.translate.instant('SEANCES.UNKNOWN_LABEL')],
       datasets: [{
+        label: this.translate.instant('SEANCES.AGE_DISTRIBUTION_CHART_TITLE'),
         data: [dist['0-17'] ?? 0, dist['18-39'] ?? 0, dist['40-59'] ?? 0, dist['60+'] ?? 0, dist['INCONNU'] ?? 0],
         backgroundColor: '#2563eb'
       }]

@@ -1,4 +1,4 @@
-import {expect, test} from '@playwright/test';
+﻿import {expect, test} from '@playwright/test';
 
 const centerId = process.env.E2E_CENTER_ID || '11111111-1111-1111-1111-111111111111';
 const username = process.env.E2E_USERNAME || '';
@@ -46,7 +46,22 @@ test.describe('Parcours patient -> stats -> export', () => {
             {date_seance: '2026-03-01', poids_avant_kg: 72.0, poids_apres_kg: 70.0, uf_reelle_ml: 2000},
             {date_seance: '2026-03-15', poids_avant_kg: 70.4, poids_apres_kg: 69.6, uf_reelle_ml: 800}
           ],
-          taEvolution: []
+          taEvolution: [
+            {
+              date_seance: '2026-03-01',
+              ta_systolique_avant: 150,
+              ta_diastolique_avant: 90,
+              ta_systolique_apres: 138,
+              ta_diastolique_apres: 82
+            },
+            {
+              date_seance: '2026-03-15',
+              ta_systolique_avant: 145,
+              ta_diastolique_avant: 88,
+              ta_systolique_apres: 136,
+              ta_diastolique_apres: 80
+            }
+          ]
         })
       });
     });
@@ -98,6 +113,7 @@ test.describe('Parcours patient -> stats -> export', () => {
     await expect(page).toHaveURL(new RegExp(`/patients/${rowId}/stats$`));
 
     await expect(page.getByTestId('stats-chart-poids')).toBeVisible();
+    await expect(page.getByTestId('stats-chart-ta')).toBeVisible();
     await expect(page.getByTestId('stats-chart-uf')).toBeVisible();
     await expect(page.getByTestId('stats-chart-hb')).toBeVisible();
 
@@ -107,5 +123,4 @@ test.describe('Parcours patient -> stats -> export', () => {
     expect(download.suggestedFilename()).toContain('.pdf');
   });
 });
-
 

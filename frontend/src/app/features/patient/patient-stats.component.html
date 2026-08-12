@@ -1,13 +1,14 @@
 <div class="stats-page">
-  <div class="stats-header">
-    <button (click)="goBack()" mat-icon-button>
+  <header class="stats-header">
+    <button (click)="goBack()" mat-icon-button type="button">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <div class="stats-title">
       <h2>{{ 'PATIENT_STATS.TITLE' | translate }}</h2>
-      <p>{{ patientId() }}</p>
+      <p>{{ 'PATIENT_STATS.SUBTITLE' | translate }}</p>
+      <p class="patient-id">{{ patientId() }}</p>
     </div>
-  </div>
+  </header>
 
   <mat-card class="filters-card">
     <div class="filters-row">
@@ -18,10 +19,7 @@
           <mat-option value="3m">{{ 'PATIENT_STATS.PERIOD_3M' | translate }}</mat-option>
           <mat-option value="6m">{{ 'PATIENT_STATS.PERIOD_6M' | translate }}</mat-option>
           <mat-option value="1y">{{ 'PATIENT_STATS.PERIOD_1Y' | translate }}</mat-option>
-          <mat-option value="custom">{{
-              'PATIENT_STATS.PERIOD_CUSTOM' | translate
-            }}
-          </mat-option>
+          <mat-option value="custom">{{ 'PATIENT_STATS.PERIOD_CUSTOM' | translate }}</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -46,33 +44,37 @@
         </mat-form-field>
       }
 
-      <button (click)="reload()" [disabled]="loading()" color="primary" mat-flat-button>
-        <mat-icon>refresh</mat-icon>
-        {{ 'PATIENT_STATS.REFRESH' | translate }}
-      </button>
+      <div class="actions-wrap">
+        <button (click)="reload()" [disabled]="loading()" color="primary" mat-flat-button type="button">
+          <mat-icon>refresh</mat-icon>
+          {{ 'PATIENT_STATS.REFRESH' | translate }}
+        </button>
 
-      @if (canExport()) {
-        <button
-          (click)="export('csv')"
-          [disabled]="exporting()"
-          color="primary"
-          data-testid="stats-export-csv"
-          mat-stroked-button
-        >
-          <mat-icon>download</mat-icon>
-          CSV
-        </button>
-        <button
-          (click)="export('pdf')"
-          [disabled]="exporting()"
-          color="primary"
-          data-testid="stats-export-pdf"
-          mat-stroked-button
-        >
-          <mat-icon>picture_as_pdf</mat-icon>
-          PDF
-        </button>
-      }
+        @if (canExport()) {
+          <button
+            (click)="export('csv')"
+            [disabled]="exporting()"
+            color="primary"
+            data-testid="stats-export-csv"
+            mat-stroked-button
+            type="button"
+          >
+            <mat-icon>download</mat-icon>
+            CSV
+          </button>
+          <button
+            (click)="export('pdf')"
+            [disabled]="exporting()"
+            color="primary"
+            data-testid="stats-export-pdf"
+            mat-stroked-button
+            type="button"
+          >
+            <mat-icon>picture_as_pdf</mat-icon>
+            PDF
+          </button>
+        }
+      </div>
     </div>
   </mat-card>
 
@@ -81,80 +83,84 @@
       <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
     </div>
   } @else {
-    <div class="grid">
-      <mat-card>
+    <div class="summary-grid">
+      <mat-card class="stats-card">
         <h3>{{ 'PATIENT_STATS.PARAMEDICAL' | translate }}</h3>
         <div class="kpis">
           <div class="kpi">
-                <span>{{ 'PATIENT_STATS.SEANCES' | translate }}</span
-                ><strong>{{ paramedical().seanceCount }}</strong>
+            <span>{{ 'PATIENT_STATS.SEANCES' | translate }}</span>
+            <strong>{{ paramedical().seanceCount }}</strong>
           </div>
           <div class="kpi">
-                <span>{{ 'PATIENT_STATS.AVG_POIDS_AVANT' | translate }}</span
-                ><strong>{{ paramedical().avgPoidsAvantKg | number: '1.0-2' }}</strong>
+            <span>{{ 'PATIENT_STATS.AVG_POIDS_AVANT' | translate }}</span>
+            <strong>{{ paramedical().avgPoidsAvantKg | number: '1.0-2' }}</strong>
           </div>
           <div class="kpi">
-                <span>{{ 'PATIENT_STATS.AVG_POIDS_APRES' | translate }}</span
-                ><strong>{{ paramedical().avgPoidsApresKg | number: '1.0-2' }}</strong>
+            <span>{{ 'PATIENT_STATS.AVG_POIDS_APRES' | translate }}</span>
+            <strong>{{ paramedical().avgPoidsApresKg | number: '1.0-2' }}</strong>
           </div>
           <div class="kpi">
-                <span>{{ 'PATIENT_STATS.AVG_UF' | translate }}</span
-                ><strong>{{ paramedical().avgUfReelleMl | number: '1.0-0' }}</strong>
+            <span>{{ 'PATIENT_STATS.AVG_UF' | translate }}</span>
+            <strong>{{ paramedical().avgUfReelleMl | number: '1.0-0' }}</strong>
           </div>
         </div>
       </mat-card>
 
-      <mat-card>
+      <mat-card class="stats-card">
         <h3>{{ 'PATIENT_STATS.MEDICAL' | translate }}</h3>
         <div class="kpis">
           <div class="kpi">
-                <span>{{ 'PATIENT_STATS.AVG_HB' | translate }}</span
-                ><strong>{{ medical().avgHbGDl | number: '1.0-2' }}</strong>
+            <span>{{ 'PATIENT_STATS.AVG_HB' | translate }}</span>
+            <strong>{{ medical().avgHbGDl | number: '1.0-2' }}</strong>
           </div>
           <div class="kpi">
-                <span>{{ 'PATIENT_STATS.AVG_KTV' | translate }}</span
-                ><strong>{{ medical().avgKtV | number: '1.0-2' }}</strong>
+            <span>{{ 'PATIENT_STATS.AVG_KTV' | translate }}</span>
+            <strong>{{ medical().avgKtV | number: '1.0-2' }}</strong>
           </div>
           <div class="kpi">
-                <span>{{ 'PATIENT_STATS.AVG_FERRITINE' | translate }}</span
-                ><strong>{{ medical().avgFerritineNgMl | number: '1.0-2' }}</strong>
+            <span>{{ 'PATIENT_STATS.AVG_FERRITINE' | translate }}</span>
+            <strong>{{ medical().avgFerritineNgMl | number: '1.0-2' }}</strong>
           </div>
         </div>
       </mat-card>
     </div>
 
-    <div class="grid charts-grid">
+    <div class="charts-grid">
       <mat-card class="chart-card" data-testid="stats-chart-poids">
         <h3>{{ 'PATIENT_STATS.CHART_POIDS' | translate }}</h3>
         @if (poidsChart().hasData) {
-          <svg
-            aria-label="Courbe des poids"
-            class="chart-svg"
-            preserveAspectRatio="none"
-            role="img"
-            viewBox="0 0 100 40"
-          >
-            <polyline
-              [attr.points]="poidsChart().pointsByKey['poids_avant_kg']"
-              class="line line-1"
-            />
-            <polyline
-              [attr.points]="poidsChart().pointsByKey['poids_apres_kg']"
-              class="line line-2"
-            />
+          <svg aria-label="Courbe des poids" class="chart-svg" preserveAspectRatio="none" role="img"
+               viewBox="0 0 100 40">
+            <polyline [attr.points]="poidsChart().pointsByKey['poids_avant_kg']" class="line line-1"/>
+            <polyline [attr.points]="poidsChart().pointsByKey['poids_apres_kg']" class="line line-2"/>
           </svg>
           <div class="legend">
-                <span
-                ><i class="dot dot-1"></i
-                >{{ 'PATIENT_STATS.CHART_POIDS_BEFORE' | translate }}</span
-                >
-            <span
-            ><i class="dot dot-2"></i
-            >{{ 'PATIENT_STATS.CHART_POIDS_AFTER' | translate }}</span
-            >
+            <span><i class="dot dot-1"></i>{{ 'PATIENT_STATS.CHART_POIDS_BEFORE' | translate }}</span>
+            <span><i class="dot dot-2"></i>{{ 'PATIENT_STATS.CHART_POIDS_AFTER' | translate }}</span>
           </div>
         } @else {
-          <p class="empty-chart">{{ 'COMMON.COMING_SOON' | translate }}</p>
+          <p class="empty-chart">{{ 'PATIENT_STATS.NO_DATA' | translate }}</p>
+        }
+      </mat-card>
+
+      <mat-card class="chart-card" data-testid="stats-chart-ta">
+        <h3>{{ 'PATIENT_STATS.CHART_TA' | translate }}</h3>
+        @if (taChart().hasData) {
+          <svg aria-label="Courbe tension arterielle" class="chart-svg" preserveAspectRatio="none" role="img"
+               viewBox="0 0 100 40">
+            <polyline [attr.points]="taChart().pointsByKey['ta_systolique_avant']" class="line line-1"/>
+            <polyline [attr.points]="taChart().pointsByKey['ta_diastolique_avant']" class="line line-2"/>
+            <polyline [attr.points]="taChart().pointsByKey['ta_systolique_apres']" class="line line-3"/>
+            <polyline [attr.points]="taChart().pointsByKey['ta_diastolique_apres']" class="line line-4"/>
+          </svg>
+          <div class="legend legend-2rows">
+            <span><i class="dot dot-1"></i>{{ 'PATIENT_STATS.CHART_TA_SYS_BEFORE' | translate }}</span>
+            <span><i class="dot dot-2"></i>{{ 'PATIENT_STATS.CHART_TA_DIA_BEFORE' | translate }}</span>
+            <span><i class="dot dot-3"></i>{{ 'PATIENT_STATS.CHART_TA_SYS_AFTER' | translate }}</span>
+            <span><i class="dot dot-4"></i>{{ 'PATIENT_STATS.CHART_TA_DIA_AFTER' | translate }}</span>
+          </div>
+        } @else {
+          <p class="empty-chart">{{ 'PATIENT_STATS.NO_DATA' | translate }}</p>
         }
       </mat-card>
 
@@ -170,24 +176,19 @@
             }
           </div>
         } @else {
-          <p class="empty-chart">{{ 'COMMON.COMING_SOON' | translate }}</p>
+          <p class="empty-chart">{{ 'PATIENT_STATS.NO_DATA' | translate }}</p>
         }
       </mat-card>
 
       <mat-card class="chart-card" data-testid="stats-chart-hb">
         <h3>{{ 'PATIENT_STATS.CHART_HB' | translate }}</h3>
         @if (hbChart().hasData) {
-          <svg
-            aria-label="Courbe hemoglobine"
-            class="chart-svg"
-            preserveAspectRatio="none"
-            role="img"
-            viewBox="0 0 100 40"
-          >
+          <svg aria-label="Courbe hemoglobine" class="chart-svg" preserveAspectRatio="none" role="img"
+               viewBox="0 0 100 40">
             <polyline [attr.points]="hbChart().pointsByKey['hb_g_dl']" class="line line-3"/>
           </svg>
         } @else {
-          <p class="empty-chart">{{ 'COMMON.COMING_SOON' | translate }}</p>
+          <p class="empty-chart">{{ 'PATIENT_STATS.NO_DATA' | translate }}</p>
         }
       </mat-card>
     </div>
@@ -198,10 +199,10 @@
         <table>
           <thead>
           <tr>
-            <th>Date</th>
-            <th>Hb</th>
-            <th>Kt/V</th>
-            <th>Ferritine</th>
+            <th>{{ 'PATIENT_STATS.TABLE_DATE' | translate }}</th>
+            <th>{{ 'PATIENT_STATS.TABLE_HB' | translate }}</th>
+            <th>{{ 'PATIENT_STATS.TABLE_KTV' | translate }}</th>
+            <th>{{ 'PATIENT_STATS.TABLE_FERRITINE' | translate }}</th>
           </tr>
           </thead>
           <tbody>
@@ -219,4 +220,3 @@
     </mat-card>
   }
 </div>
-

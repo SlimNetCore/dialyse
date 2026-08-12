@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
@@ -82,12 +82,24 @@ export class PatientStatsComponent {
       ['DATE_PRELEVEMENT', 'date_prelevement'],
     ),
   );
+  readonly taChart = computed(() =>
+    this.buildLineChart(
+      this.paramedical().taEvolution,
+      [
+        'ta_systolique_avant',
+        'ta_diastolique_avant',
+        'ta_systolique_apres',
+        'ta_diastolique_apres',
+      ],
+      ['DATE_SEANCE', 'date_seance'],
+    ),
+  );
   readonly ufBars = computed<BarPoint[]>(() =>
     this.paramedical()
       .poidsEvolution.map((row, idx) => {
         const value = this.readNumber(row, ['uf_reelle_ml', 'UF_REELLE_ML']);
         return {
-          label: this.readLabel(row, ['date_seance', 'DATE_SEANCE']) || `S${idx + 1}`,
+          label: this.formatDisplayDate(this.readLabel(row, ['date_seance', 'DATE_SEANCE'])) || `S${idx + 1}`,
           value,
         };
       })
@@ -98,14 +110,20 @@ export class PatientStatsComponent {
   private readonly auth = inject(AuthStore);
   readonly canExport = computed(() => this.auth.hasRole('ADMIN'));
   private readonly route = inject(ActivatedRoute);
-  readonly patientId = signal<string>(this.route.snapshot.paramMap.get('id') ?? '');
+  readonly patientIdInput = input<string | null>(null, {alias: 'patientId'});
+  readonly patientId = computed<string>(() => this.patientIdInput() || this.route.snapshot.paramMap.get('id') || '');
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
 
   constructor() {
     this.setPeriod('3m');
-    this.reload();
+    effect(() => {
+      const centerId = this.appShell.currentCenterId();
+      const patientId = this.patientId();
+      if (!centerId || !patientId) return;
+      untracked(() => this.reload());
+    });
   }
 
   setPeriod(value: '1m' | '3m' | '6m' | '1y' | 'custom'): void {
@@ -208,7 +226,7 @@ export class PatientStatsComponent {
     valueKeys: string[],
     labelKeys: string[],
   ): LineChartModel {
-    const labels = rows.map((row, index) => this.readLabel(row, labelKeys) || `P${index + 1}`);
+    const labels = rows.map((row, index) => this.formatDisplayDate(this.readLabel(row, labelKeys)) || `P${index + 1}`);
     const valuesByKey: Record<string, number[]> = {};
     valueKeys.forEach((key) => {
       const upper = key.toUpperCase();
@@ -268,5 +286,13 @@ export class PatientStatsComponent {
     const match = contentDisposition.match(/filename\*?=(?:UTF-8''|\")?([^";]+)/i);
     if (!match?.[1]) return null;
     return decodeURIComponent(match[1].replace(/\"/g, '').trim());
+  }
+
+  private formatDisplayDate(value: string): string {
+    if (!value) return '';
+    const source = value.trim();
+    const match = source.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return source;
+    return `${match[3]}/${match[2]}/${match[1]}`;
   }
 }
