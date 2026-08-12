@@ -18,6 +18,9 @@ public interface SeanceJpaRepository extends JpaRepository<SeanceJpaEntity, UUID
     List<SeanceJpaEntity> findByCenterIdOrderByDateSeanceDescCreatedAtDesc(UUID centerId);
 
     Page<SeanceJpaEntity> findByCenterIdOrderByDateSeanceDescCreatedAtDesc(UUID centerId, Pageable pageable);
+
+    Page<SeanceJpaEntity> findByCenterIdAndDateSeanceBetweenOrderByDateSeanceDescCreatedAtDesc(
+            UUID centerId, LocalDate from, LocalDate to, Pageable pageable);
 }
 
 

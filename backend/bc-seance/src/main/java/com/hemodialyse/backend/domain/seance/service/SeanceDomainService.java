@@ -22,6 +22,7 @@ import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -117,6 +118,29 @@ public class SeanceDomainService implements SeanceUseCase {
     @Override
     public PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size) {
         PagedResult<SeanceListItem> raw = seanceRepo.findPagedByCenter(centerId, page, size);
+        List<SeanceListItem> enriched = raw.items().stream().map(item -> {
+            var patient = patientRepo.findById(PatientId.of(item.patientId()), centerId).orElse(null);
+            return new SeanceListItem(
+                    item.id(),
+                    item.centerId(),
+                    item.patientId(),
+                    patient != null ? patient.getCodePatient() : null,
+                    patient != null ? patient.getNom() : null,
+                    patient != null ? patient.getPrenom() : null,
+                    item.dateSeance(),
+                    item.status(),
+                    item.createdAt(),
+                    item.validatedAt(),
+                    item.signedByInfirmierAt(),
+                    item.signedByMedecinAt()
+            );
+        }).toList();
+        return PagedResult.of(enriched, raw.total(), page, size);
+    }
+
+    @Override
+    public PagedResult<SeanceListItem> listPagedByMonth(CenterId centerId, YearMonth month, int page, int size) {
+        PagedResult<SeanceListItem> raw = seanceRepo.findPagedByCenterAndMonth(centerId, month, page, size);
         List<SeanceListItem> enriched = raw.items().stream().map(item -> {
             var patient = patientRepo.findById(PatientId.of(item.patientId()), centerId).orElse(null);
             return new SeanceListItem(

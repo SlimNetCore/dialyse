@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,6 +78,12 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Transactional(readOnly = true)
     public PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size) {
         return delegate.listPaged(centerId, page, size);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResult<SeanceListItem> listPagedByMonth(CenterId centerId, YearMonth month, int page, int size) {
+        return delegate.listPagedByMonth(centerId, month, page, size);
     }
 
     @Override

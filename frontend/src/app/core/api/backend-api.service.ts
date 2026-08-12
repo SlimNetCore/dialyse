@@ -555,11 +555,14 @@ export class BackendApiService {
     return this.http.post<{ id: string; status: string; dateSeance: string }>(`${this.baseUrl}/seances`, payload);
   }
 
-  listSeances(centerId: string, page = 0, size = 20): Observable<PagedResponse<SeanceListItem>> {
-    const params = new HttpParams()
+  listSeances(centerId: string, page = 0, size = 20, month?: string): Observable<PagedResponse<SeanceListItem>> {
+    let params = new HttpParams()
       .set('centerId', centerId)
       .set('page', page)
       .set('size', size);
+    if (month) {
+      params = params.set('month', month);
+    }
     return this.http.get<PagedResponse<SeanceListItem>>(`${this.baseUrl}/seances`, {params});
   }
 

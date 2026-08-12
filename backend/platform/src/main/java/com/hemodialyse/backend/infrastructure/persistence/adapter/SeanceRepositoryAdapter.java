@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -65,6 +66,31 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
     public PagedResult<SeanceListItem> findPagedByCenter(CenterId centerId, int page, int size) {
         Page<SeanceJpaEntity> jpaPage = jpa.findByCenterIdOrderByDateSeanceDescCreatedAtDesc(
                 centerId.value(), PageRequest.of(page, size));
+        List<SeanceListItem> items = jpaPage.getContent().stream()
+                .map(e -> new SeanceListItem(
+                        e.getId(),
+                        e.getCenterId(),
+                        e.getPatientId(),
+                        null,
+                        null,
+                        null,
+                        e.getDateSeance(),
+                        SeanceStatus.valueOf(e.getStatut()),
+                        e.getCreatedAt(),
+                        e.getValidatedAt(),
+                        e.getSignedInfirmierAt(),
+                        e.getSignedMedecinAt()
+                ))
+                .toList();
+        return PagedResult.of(items, jpaPage.getTotalElements(), page, size);
+    }
+
+    @Override
+    public PagedResult<SeanceListItem> findPagedByCenterAndMonth(CenterId centerId, YearMonth month, int page, int size) {
+        LocalDate from = month.atDay(1);
+        LocalDate to = month.atEndOfMonth();
+        Page<SeanceJpaEntity> jpaPage = jpa.findByCenterIdAndDateSeanceBetweenOrderByDateSeanceDescCreatedAtDesc(
+                centerId.value(), from, to, PageRequest.of(page, size));
         List<SeanceListItem> items = jpaPage.getContent().stream()
                 .map(e -> new SeanceListItem(
                         e.getId(),

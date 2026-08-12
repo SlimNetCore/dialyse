@@ -19,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
+import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -63,10 +65,24 @@ public class SeanceRestController {
     public ResponseEntity<?> list(
             @RequestParam UUID centerId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        var paged = seanceUseCase.listPaged(CenterId.of(centerId), page, size);
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String month) {
+
+        final com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> paged;
+        if (month != null && !month.isBlank()) {
+            YearMonth yearMonth;
+            try {
+                yearMonth = YearMonth.parse(month);
+            } catch (DateTimeParseException e) {
+                return ResponseEntity.badRequest().body("Invalid month format. Expected YYYY-MM.");
+            }
+            paged = seanceUseCase.listPagedByMonth(CenterId.of(centerId), yearMonth, page, size);
+        } else {
+            paged = seanceUseCase.listPaged(CenterId.of(centerId), page, size);
+        }
+
         var items = paged.items().stream().map(item -> {
-            var row = new LinkedHashMap<String, Object>();
+            var row = new java.util.LinkedHashMap<String, Object>();
             row.put("id", item.id());
             row.put("centerId", item.centerId());
             row.put("patientId", item.patientId());
@@ -82,7 +98,7 @@ public class SeanceRestController {
             row.put("forfait", loadCurrentForfait(item.id(), centerId, item.patientId(), item.dateSeance()));
             return row;
         }).toList();
-        var payload = new LinkedHashMap<String, Object>();
+        var payload = new java.util.LinkedHashMap<String, Object>();
         payload.put("items", items);
         payload.put("total", paged.total());
         payload.put("page", paged.page());

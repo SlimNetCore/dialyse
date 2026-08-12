@@ -258,7 +258,14 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   }
 
   protected onDashboardMonthInput(e: Event): void {
-    this.store.setDashboardMonth((e.target as HTMLInputElement)?.value ?? currentMonthIso());
+    const month = (e.target as HTMLInputElement)?.value ?? currentMonthIso();
+    this.store.setDashboardMonth(month);
+    const centerId = this.appShell.currentCenterId();
+    if (centerId) {
+      this.store.setSeancesPagination(0, this.store.seancesPageSize());
+      this.store.loadSeances({centerId, page: 0, size: this.store.seancesPageSize(), month});
+      this.loadSeanceDashboard();
+    }
   }
 
   protected onTaAvantInput(e: Event): void {

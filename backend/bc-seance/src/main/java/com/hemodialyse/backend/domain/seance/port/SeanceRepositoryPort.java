@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +23,11 @@ public interface SeanceRepositoryPort {
      * Returns a paginated list of SeanceListItem (no patient enrichment — done by domain service).
      */
     PagedResult<SeanceListItem> findPagedByCenter(CenterId centerId, int page, int size);
+
+    /**
+     * Returns a paginated list filtered to a specific month (no patient enrichment).
+     */
+    PagedResult<SeanceListItem> findPagedByCenterAndMonth(CenterId centerId, YearMonth month, int page, int size);
 }
 
 

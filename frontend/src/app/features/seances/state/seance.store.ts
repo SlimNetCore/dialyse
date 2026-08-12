@@ -381,11 +381,16 @@ export const SeanceStore = signalStore(
     ),
 
     // --- Chargement liste séances ---
-    loadSeances: rxMethod<{ centerId: string; page?: number; size?: number }>(
+    loadSeances: rxMethod<{ centerId: string; page?: number; size?: number; month?: string }>(
       pipe(
         tap(() => patchState(store, {seancesLoading: true, error: null})),
-        switchMap(({centerId, page, size}) =>
-          api.listSeances(centerId, page ?? store.seancesPageIndex(), size ?? store.seancesPageSize()).pipe(
+        switchMap(({centerId, page, size, month}) =>
+          api.listSeances(
+            centerId,
+            page ?? store.seancesPageIndex(),
+            size ?? store.seancesPageSize(),
+            month ?? store.dashboardMonth()
+          ).pipe(
             tap((res) => patchState(store, {
               seances: res.items,
               seancesTotal: res.total,

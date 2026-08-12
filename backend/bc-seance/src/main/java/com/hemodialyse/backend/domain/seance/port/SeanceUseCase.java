@@ -9,6 +9,7 @@ import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +26,11 @@ public interface SeanceUseCase {
      * Returns a paginated and patient-enriched list of séances.
      */
     PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size);
+
+    /**
+     * Returns a paginated and patient-enriched list of séances filtered to a given month.
+     */
+    PagedResult<SeanceListItem> listPagedByMonth(CenterId centerId, YearMonth month, int page, int size);
 
     Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance);
 
