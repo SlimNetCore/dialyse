@@ -84,14 +84,19 @@ describe('PatientStatsComponent', () => {
     }).compileComponents();
   });
 
-  it('should build poids and tension charts from cahier-derived stats data', () => {
+  it('should build interactive poids and tension chart datasets from cahier data', () => {
     const fixture = TestBed.createComponent(PatientStatsComponent);
     fixture.detectChanges();
 
     const component = fixture.componentInstance;
-    expect(component.poidsChart().hasData).toBe(true);
-    expect(component.taChart().hasData).toBe(true);
-    expect(component.taChart().pointsByKey['ta_systolique_avant']).toContain(',');
+    expect(component.hasPoidsData()).toBe(true);
+    expect(component.hasTaData()).toBe(true);
+
+    const poidsDataset = component.poidsChart().datasets[0].data as Array<number | null>;
+    const taDataset = component.taChart().datasets[0].data as Array<number | null>;
+
+    expect(poidsDataset[0]).toBe(72);
+    expect(taDataset[0]).toBe(150);
     expect(component.ufBars()[0]?.label).toBe('01/03/2026');
   });
 

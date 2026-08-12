@@ -11,17 +11,13 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {forkJoin} from 'rxjs';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {BaseChartDirective} from 'ng2-charts';
+import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {BackendApiService, PatientMedicalStats, PatientParamedicalStats,} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 
-type LineChartModel = {
-  hasData: boolean;
-  labels: string[];
-  min: number;
-  max: number;
-  pointsByKey: Record<string, string>;
-};
+Chart.register(...registerables);
 
 type BarPoint = {
   label: string;
@@ -42,6 +38,7 @@ type BarPoint = {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    BaseChartDirective,
   ],
   templateUrl: './patient-stats.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -68,32 +65,162 @@ export class PatientStatsComponent {
     hbTrend: [],
     epoTrend: [],
   });
-  readonly poidsChart = computed(() =>
-    this.buildLineChart(
-      this.paramedical().poidsEvolution,
-      ['poids_avant_kg', 'poids_apres_kg'],
-      ['DATE_SEANCE', 'date_seance'],
-    ),
-  );
-  readonly hbChart = computed(() =>
-    this.buildLineChart(
-      this.medical().hbTrend,
-      ['hb_g_dl'],
-      ['DATE_PRELEVEMENT', 'date_prelevement'],
-    ),
-  );
-  readonly taChart = computed(() =>
-    this.buildLineChart(
-      this.paramedical().taEvolution,
-      [
-        'ta_systolique_avant',
-        'ta_diastolique_avant',
-        'ta_systolique_apres',
-        'ta_diastolique_apres',
+
+  readonly lineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {mode: 'nearest', intersect: false},
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          boxWidth: 8,
+          color: '#64748b',
+          font: {size: 12, weight: 600},
+        },
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: '#0f172a',
+        titleColor: '#f8fafc',
+        bodyColor: '#e2e8f0',
+        displayColors: true,
+        padding: 10,
+      },
+    },
+    scales: {
+      x: {
+        ticks: {color: '#64748b', maxRotation: 0, autoSkip: true},
+        grid: {color: 'rgba(100,116,139,0.15)'},
+      },
+      y: {
+        ticks: {color: '#64748b'},
+        grid: {color: 'rgba(100,116,139,0.15)'},
+      },
+    },
+  };
+
+  readonly poidsChart = computed<ChartData<'line'>>(() => {
+    const rows = this.paramedical().poidsEvolution;
+    const labels = rows.map((row, i) => this.formatDisplayDate(this.readLabel(row, ['DATE_SEANCE', 'date_seance'])) || `S${i + 1}`);
+    return {
+      labels,
+      datasets: [
+        {
+          label: this.translate.instant('PATIENT_STATS.CHART_POIDS_BEFORE'),
+          data: this.seriesValues(rows, ['poids_avant_kg', 'POIDS_AVANT_KG']),
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.15)',
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointHitRadius: 14,
+          fill: false,
+        },
+        {
+          label: this.translate.instant('PATIENT_STATS.CHART_POIDS_AFTER'),
+          data: this.seriesValues(rows, ['poids_apres_kg', 'POIDS_APRES_KG']),
+          borderColor: '#0f766e',
+          backgroundColor: 'rgba(15, 118, 110, 0.15)',
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointHitRadius: 14,
+          fill: false,
+        },
       ],
-      ['DATE_SEANCE', 'date_seance'],
-    ),
-  );
+    };
+  });
+
+  readonly taChart = computed<ChartData<'line'>>(() => {
+    const rows = this.paramedical().taEvolution;
+    const labels = rows.map((row, i) => this.formatDisplayDate(this.readLabel(row, ['DATE_SEANCE', 'date_seance'])) || `S${i + 1}`);
+    return {
+      labels,
+      datasets: [
+        {
+          label: this.translate.instant('PATIENT_STATS.CHART_TA_SYS_BEFORE'),
+          data: this.seriesValues(rows, ['ta_systolique_avant', 'TA_SYSTOLIQUE_AVANT']),
+          borderColor: '#1d4ed8',
+          backgroundColor: 'rgba(29, 78, 216, 0.15)',
+          borderWidth: 2,
+          tension: 0.28,
+          pointRadius: 2.8,
+          pointHoverRadius: 5.8,
+          pointHitRadius: 14,
+          fill: false,
+        },
+        {
+          label: this.translate.instant('PATIENT_STATS.CHART_TA_DIA_BEFORE'),
+          data: this.seriesValues(rows, ['ta_diastolique_avant', 'TA_DIASTOLIQUE_AVANT']),
+          borderColor: '#0f766e',
+          backgroundColor: 'rgba(15, 118, 110, 0.15)',
+          borderWidth: 2,
+          tension: 0.28,
+          pointRadius: 2.8,
+          pointHoverRadius: 5.8,
+          pointHitRadius: 14,
+          fill: false,
+        },
+        {
+          label: this.translate.instant('PATIENT_STATS.CHART_TA_SYS_AFTER'),
+          data: this.seriesValues(rows, ['ta_systolique_apres', 'TA_SYSTOLIQUE_APRES']),
+          borderColor: '#7c3aed',
+          backgroundColor: 'rgba(124, 58, 237, 0.15)',
+          borderWidth: 2,
+          tension: 0.28,
+          pointRadius: 2.8,
+          pointHoverRadius: 5.8,
+          pointHitRadius: 14,
+          fill: false,
+        },
+        {
+          label: this.translate.instant('PATIENT_STATS.CHART_TA_DIA_AFTER'),
+          data: this.seriesValues(rows, ['ta_diastolique_apres', 'TA_DIASTOLIQUE_APRES']),
+          borderColor: '#ea580c',
+          backgroundColor: 'rgba(234, 88, 12, 0.15)',
+          borderWidth: 2,
+          tension: 0.28,
+          pointRadius: 2.8,
+          pointHoverRadius: 5.8,
+          pointHitRadius: 14,
+          fill: false,
+        },
+      ],
+    };
+  });
+
+  readonly hbChart = computed<ChartData<'line'>>(() => {
+    const rows = this.medical().hbTrend;
+    const labels = rows.map((row, i) => this.formatDisplayDate(this.readLabel(row, ['DATE_PRELEVEMENT', 'date_prelevement'])) || `M${i + 1}`);
+    return {
+      labels,
+      datasets: [
+        {
+          label: this.translate.instant('PATIENT_STATS.CHART_HB'),
+          data: this.seriesValues(rows, ['hb_g_dl', 'HB_G_DL']),
+          borderColor: '#7c3aed',
+          backgroundColor: 'rgba(124, 58, 237, 0.15)',
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointHitRadius: 14,
+          fill: true,
+        },
+      ],
+    };
+  });
+
+  readonly hasPoidsData = computed(() => this.hasChartValues(this.poidsChart()));
+  readonly hasTaData = computed(() => this.hasChartValues(this.taChart()));
+  readonly hasHbData = computed(() => this.hasChartValues(this.hbChart()));
+
   readonly ufBars = computed<BarPoint[]>(() =>
     this.paramedical()
       .poidsEvolution.map((row, idx) => {
@@ -105,6 +232,7 @@ export class PatientStatsComponent {
       })
       .filter((r) => r.value > 0),
   );
+
   private readonly api = inject(BackendApiService);
   private readonly appShell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
@@ -221,43 +349,14 @@ export class PatientStatsComponent {
     return Math.max(2, Math.round((value / max) * 100));
   }
 
-  private buildLineChart(
-    rows: Array<Record<string, unknown>>,
-    valueKeys: string[],
-    labelKeys: string[],
-  ): LineChartModel {
-    const labels = rows.map((row, index) => this.formatDisplayDate(this.readLabel(row, labelKeys)) || `P${index + 1}`);
-    const valuesByKey: Record<string, number[]> = {};
-    valueKeys.forEach((key) => {
-      const upper = key.toUpperCase();
-      valuesByKey[key] = rows.map((row) => this.readNumber(row, [key, upper]));
-    });
-    const allValues = valueKeys
-      .flatMap((key) => valuesByKey[key])
-      .filter((n) => Number.isFinite(n));
-    if (allValues.length === 0) {
-      return {hasData: false, labels: [], min: 0, max: 0, pointsByKey: {}};
-    }
-    const min = Math.min(...allValues);
-    const max = Math.max(...allValues);
-    const pointsByKey = valueKeys.reduce<Record<string, string>>((acc, key) => {
-      acc[key] = this.toPolyline(valuesByKey[key], min, max);
-      return acc;
-    }, {});
-    return {hasData: true, labels, min, max, pointsByKey};
+  private hasChartValues(data: ChartData<'line'>): boolean {
+    return data.datasets.some((dataset) =>
+      (dataset.data as Array<number | null>).some((v) => typeof v === 'number' && Number.isFinite(v)),
+    );
   }
 
-  private toPolyline(values: number[], min: number, max: number): string {
-    if (values.length === 0) return '';
-    const range = max - min;
-    return values
-      .map((value, index) => {
-        const x = values.length === 1 ? 50 : (index / (values.length - 1)) * 100;
-        const ratio = range <= 0 ? 0.5 : (value - min) / range;
-        const y = 36 - ratio * 30;
-        return `${x.toFixed(2)},${y.toFixed(2)}`;
-      })
-      .join(' ');
+  private seriesValues(rows: Array<Record<string, unknown>>, keys: string[]): Array<number | null> {
+    return rows.map((row) => this.readNullableNumber(row, keys));
   }
 
   private readNumber(row: Record<string, unknown>, keys: string[]): number {
@@ -270,6 +369,18 @@ export class PatientStatsComponent {
       }
     }
     return 0;
+  }
+
+  private readNullableNumber(row: Record<string, unknown>, keys: string[]): number | null {
+    for (const key of keys) {
+      const raw = row[key];
+      if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+      if (typeof raw === 'string' && raw.trim() !== '') {
+        const parsed = Number(raw);
+        if (Number.isFinite(parsed)) return parsed;
+      }
+    }
+    return null;
   }
 
   private readLabel(row: Record<string, unknown>, keys: string[]): string {

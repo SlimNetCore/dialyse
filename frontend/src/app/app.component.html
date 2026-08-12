@@ -1,8 +1,11 @@
 @if (showStartupLoader()) {
   <div class="auth-loader-backdrop">
-    <app-hemodialysis-loader [label]="startupLoaderLabel()" mode="overlay"/>
+    <app-hemodialysis-loader
+      [label]="startupLoaderLabel()"
+      [showServerUnavailableIcon]="startupServerUnavailable()"
+      mode="overlay">
+    </app-hemodialysis-loader>
   </div>
 } @else {
-  <router-outlet/>
+  <router-outlet></router-outlet>
 }
-

@@ -128,15 +128,9 @@
     <div class="charts-grid">
       <mat-card class="chart-card" data-testid="stats-chart-poids">
         <h3>{{ 'PATIENT_STATS.CHART_POIDS' | translate }}</h3>
-        @if (poidsChart().hasData) {
-          <svg aria-label="Courbe des poids" class="chart-svg" preserveAspectRatio="none" role="img"
-               viewBox="0 0 100 40">
-            <polyline [attr.points]="poidsChart().pointsByKey['poids_avant_kg']" class="line line-1"/>
-            <polyline [attr.points]="poidsChart().pointsByKey['poids_apres_kg']" class="line line-2"/>
-          </svg>
-          <div class="legend">
-            <span><i class="dot dot-1"></i>{{ 'PATIENT_STATS.CHART_POIDS_BEFORE' | translate }}</span>
-            <span><i class="dot dot-2"></i>{{ 'PATIENT_STATS.CHART_POIDS_AFTER' | translate }}</span>
+        @if (hasPoidsData()) {
+          <div class="chart-canvas-wrap">
+            <canvas [data]="poidsChart()" [options]="lineChartOptions" [type]="'line'" baseChart></canvas>
           </div>
         } @else {
           <p class="empty-chart">{{ 'PATIENT_STATS.NO_DATA' | translate }}</p>
@@ -145,19 +139,9 @@
 
       <mat-card class="chart-card" data-testid="stats-chart-ta">
         <h3>{{ 'PATIENT_STATS.CHART_TA' | translate }}</h3>
-        @if (taChart().hasData) {
-          <svg aria-label="Courbe tension arterielle" class="chart-svg" preserveAspectRatio="none" role="img"
-               viewBox="0 0 100 40">
-            <polyline [attr.points]="taChart().pointsByKey['ta_systolique_avant']" class="line line-1"/>
-            <polyline [attr.points]="taChart().pointsByKey['ta_diastolique_avant']" class="line line-2"/>
-            <polyline [attr.points]="taChart().pointsByKey['ta_systolique_apres']" class="line line-3"/>
-            <polyline [attr.points]="taChart().pointsByKey['ta_diastolique_apres']" class="line line-4"/>
-          </svg>
-          <div class="legend legend-2rows">
-            <span><i class="dot dot-1"></i>{{ 'PATIENT_STATS.CHART_TA_SYS_BEFORE' | translate }}</span>
-            <span><i class="dot dot-2"></i>{{ 'PATIENT_STATS.CHART_TA_DIA_BEFORE' | translate }}</span>
-            <span><i class="dot dot-3"></i>{{ 'PATIENT_STATS.CHART_TA_SYS_AFTER' | translate }}</span>
-            <span><i class="dot dot-4"></i>{{ 'PATIENT_STATS.CHART_TA_DIA_AFTER' | translate }}</span>
+        @if (hasTaData()) {
+          <div class="chart-canvas-wrap">
+            <canvas [data]="taChart()" [options]="lineChartOptions" [type]="'line'" baseChart></canvas>
           </div>
         } @else {
           <p class="empty-chart">{{ 'PATIENT_STATS.NO_DATA' | translate }}</p>
@@ -182,11 +166,10 @@
 
       <mat-card class="chart-card" data-testid="stats-chart-hb">
         <h3>{{ 'PATIENT_STATS.CHART_HB' | translate }}</h3>
-        @if (hbChart().hasData) {
-          <svg aria-label="Courbe hemoglobine" class="chart-svg" preserveAspectRatio="none" role="img"
-               viewBox="0 0 100 40">
-            <polyline [attr.points]="hbChart().pointsByKey['hb_g_dl']" class="line line-3"/>
-          </svg>
+        @if (hasHbData()) {
+          <div class="chart-canvas-wrap">
+            <canvas [data]="hbChart()" [options]="lineChartOptions" [type]="'line'" baseChart></canvas>
+          </div>
         } @else {
           <p class="empty-chart">{{ 'PATIENT_STATS.NO_DATA' | translate }}</p>
         }

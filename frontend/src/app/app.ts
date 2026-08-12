@@ -15,6 +15,7 @@ import {BackendInitService} from './core/startup/backend-init.service';
 export class App {
   private readonly backendInit = inject(BackendInitService);
   readonly showStartupLoader = computed(() => this.backendInit.state() !== 'ready-for-auth');
+  readonly startupServerUnavailable = computed(() => this.backendInit.state() === 'server-unavailable');
   readonly startupLoaderLabel = computed(() =>
     this.backendInit.state() === 'server-unavailable'
       ? 'COMMON.SERVER_UNAVAILABLE'

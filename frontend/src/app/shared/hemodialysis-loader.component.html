@@ -1,11 +1,38 @@
 <div [class.overlay]="mode === 'overlay'" aria-live="polite" class="loader-shell" role="status">
-  <div aria-hidden="true" class="loader-visual">
-    <span class="loader-ring"></span>
-    <span class="loader-core">
-          <mat-icon>monitor_heart</mat-icon>
-        </span>
-    <span class="loader-pulse"></span>
-  </div>
-  <p class="loader-text">{{ label | translate }}</p>
+  @if (showServerUnavailableIcon) {
+    <div aria-hidden="true" class="server-unavailable-visual">
+      <svg class="kidney-crying-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="kidneyGradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#fb7185"/>
+            <stop offset="65%" stop-color="#f43f5e"/>
+            <stop offset="100%" stop-color="#be123c"/>
+          </linearGradient>
+          <linearGradient id="tearGradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#dbeafe"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+        <path
+          d="M44 18c-14 0-25 11-25 28 0 20 11 32 25 40 4 2 7 6 7 10v4h14v-4c0-4 3-8 7-10 14-8 25-20 25-40 0-17-11-28-25-28-8 0-15 4-21 11-6-7-13-11-21-11z"
+          fill="url(#kidneyGradient)" stroke="#9f1239" stroke-width="3"/>
+        <ellipse cx="47" cy="49" fill="#ffffff" rx="4.2" ry="5"/>
+        <ellipse cx="73" cy="49" fill="#ffffff" rx="4.2" ry="5"/>
+        <circle cx="47" cy="51" fill="#1e293b" r="1.9"/>
+        <circle cx="73" cy="51" fill="#1e293b" r="1.9"/>
+        <path d="M43 67c5 5 11 5 16 0" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="3"/>
+        <path d="M78 56c6 7 7 12 0 17-5-3-7-9 0-17z" fill="url(#tearGradient)" stroke="#0ea5e9" stroke-width="2"/>
+        <path d="M70 58c4 5 5 8 0 12-4-3-4-7 0-12z" fill="url(#tearGradient)" stroke="#38bdf8" stroke-width="1.6"/>
+      </svg>
+    </div>
+  } @else {
+    <div aria-hidden="true" class="loader-visual">
+      <span class="loader-ring"></span>
+      <span class="loader-core">
+        <mat-icon>monitor_heart</mat-icon>
+      </span>
+      <span class="loader-pulse"></span>
+    </div>
+  }
+  <p [class.server-unavailable-text]="showServerUnavailableIcon" class="loader-text">{{ label | translate }}</p>
 </div>
-

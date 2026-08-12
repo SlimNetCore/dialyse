@@ -14,4 +14,6 @@ import {TranslateModule} from '@ngx-translate/core';
 export class HemodialysisLoaderComponent {
   @Input() label = 'COMMON.LOADING_DATA';
   @Input() mode: 'inline' | 'overlay' = 'inline';
+  @Input() showServerUnavailableIcon = false;
 }
+

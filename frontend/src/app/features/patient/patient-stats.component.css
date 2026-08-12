@@ -122,72 +122,12 @@
   padding: 12px;
 }
 
-.chart-svg {
-  width: 100%;
-  height: 220px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--app-surface-soft) 88%, white 12%), var(--app-surface-soft));
+.chart-canvas-wrap {
+  height: 242px;
+  padding: 8px;
   border: 1px solid var(--app-border);
   border-radius: 10px;
-}
-
-.line {
-  fill: none;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.line-1 {
-  stroke: #1d4ed8;
-}
-
-.line-2 {
-  stroke: #0f766e;
-}
-
-.line-3 {
-  stroke: #7c3aed;
-}
-
-.line-4 {
-  stroke: #ea580c;
-}
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--app-muted);
-}
-
-.legend-2rows span {
-  min-width: 180px;
-}
-
-.dot {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  margin-right: 6px;
-}
-
-.dot-1 {
-  background: #1d4ed8;
-}
-
-.dot-2 {
-  background: #0f766e;
-}
-
-.dot-3 {
-  background: #7c3aed;
-}
-
-.dot-4 {
-  background: #ea580c;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--app-surface-soft) 88%, white 12%), var(--app-surface-soft));
 }
 
 .bar-chart {
@@ -304,7 +244,7 @@ td {
     min-width: 0;
   }
 
-  .legend-2rows span {
-    min-width: 0;
+  .chart-canvas-wrap {
+    height: 220px;
   }
 }
