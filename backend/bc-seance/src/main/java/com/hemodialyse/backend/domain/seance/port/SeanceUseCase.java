@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.math.BigDecimal;
@@ -19,6 +20,11 @@ public interface SeanceUseCase {
     SeanceDetails getDetails(CenterId centerId, UUID seanceId);
 
     List<SeanceListItem> list(CenterId centerId);
+
+    /**
+     * Returns a paginated and patient-enriched list of séances.
+     */
+    PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size);
 
     Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance);
 

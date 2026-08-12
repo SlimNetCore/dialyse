@@ -4,9 +4,12 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.SeanceJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.SeanceJpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -56,6 +59,29 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
                         e.getSignedMedecinAt()
                 ))
                 .toList();
+    }
+
+    @Override
+    public PagedResult<SeanceListItem> findPagedByCenter(CenterId centerId, int page, int size) {
+        Page<SeanceJpaEntity> jpaPage = jpa.findByCenterIdOrderByDateSeanceDescCreatedAtDesc(
+                centerId.value(), PageRequest.of(page, size));
+        List<SeanceListItem> items = jpaPage.getContent().stream()
+                .map(e -> new SeanceListItem(
+                        e.getId(),
+                        e.getCenterId(),
+                        e.getPatientId(),
+                        null,
+                        null,
+                        null,
+                        e.getDateSeance(),
+                        SeanceStatus.valueOf(e.getStatut()),
+                        e.getCreatedAt(),
+                        e.getValidatedAt(),
+                        e.getSignedInfirmierAt(),
+                        e.getSignedMedecinAt()
+                ))
+                .toList();
+        return PagedResult.of(items, jpaPage.getTotalElements(), page, size);
     }
 
     private Seance toDomain(SeanceJpaEntity e) {

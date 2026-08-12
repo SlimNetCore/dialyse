@@ -555,9 +555,12 @@ export class BackendApiService {
     return this.http.post<{ id: string; status: string; dateSeance: string }>(`${this.baseUrl}/seances`, payload);
   }
 
-  listSeances(centerId: string): Observable<SeanceListItem[]> {
-    const params = new HttpParams().set('centerId', centerId);
-    return this.http.get<SeanceListItem[]>(`${this.baseUrl}/seances`, {params});
+  listSeances(centerId: string, page = 0, size = 20): Observable<PagedResponse<SeanceListItem>> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('page', page)
+      .set('size', size);
+    return this.http.get<PagedResponse<SeanceListItem>>(`${this.baseUrl}/seances`, {params});
   }
 
   scanSeanceQr(payload: ScanSeanceQrPayload): Observable<{ id: string; status: string; dateSeance: string }> {

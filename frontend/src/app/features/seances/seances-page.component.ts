@@ -16,6 +16,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatTableModule} from '@angular/material/table';
@@ -40,7 +41,8 @@ Chart.register(...registerables);
 @Component({
   standalone: true,
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent],
+    MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, MatPaginatorModule,
+    TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',
@@ -56,6 +58,9 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly scanMessage = computed(() => this.store.scanMessage());
   protected readonly scanning = computed(() => this.store.scanning());
   protected readonly seances = computed(() => this.store.seances());
+  protected readonly seancesTotal = computed(() => this.store.seancesTotal());
+  protected readonly seancesPageIndex = computed(() => this.store.seancesPageIndex());
+  protected readonly seancesPageSize = computed(() => this.store.seancesPageSize());
   protected readonly dashboardMonth = computed(() => this.store.dashboardMonth());
   protected readonly dashboardLoading = computed(() => this.store.dashboardLoading());
   protected readonly seanceDashboard = computed(() => this.store.seanceDashboard());
@@ -397,6 +402,13 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     if (!centerId || !seanceId || !this.canEditDate()) return;
     this.store.saveDate({seanceId, centerId, dateSeance: this.store.editDateSeance()});
     this.store.loadSeances({centerId});
+  }
+
+  protected onSeancesPageChange(event: PageEvent): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
+    this.store.setSeancesPagination(event.pageIndex, event.pageSize);
+    this.store.loadSeances({centerId, page: event.pageIndex, size: event.pageSize});
   }
 
   protected onTabChange(newIndex: number): void {

@@ -42,6 +42,9 @@ type SeanceState = {
   /** Liste des séances du centre courant */
   seances: SeanceListItem[];
   seancesLoading: boolean;
+  seancesTotal: number;
+  seancesPageIndex: number;
+  seancesPageSize: number;
 
   /** Séance sélectionnée */
   selectedSeanceId: string | null;
@@ -142,6 +145,9 @@ const DASHBOARD_PAGE_SIZE = 10;
 const initialState: SeanceState = {
   seances: [],
   seancesLoading: false,
+  seancesTotal: 0,
+  seancesPageIndex: 0,
+  seancesPageSize: 20,
   selectedSeanceId: null,
   summary: null,
   summaryLoading: false,
@@ -375,20 +381,28 @@ export const SeanceStore = signalStore(
     ),
 
     // --- Chargement liste séances ---
-    loadSeances: rxMethod<{ centerId: string }>(
+    loadSeances: rxMethod<{ centerId: string; page?: number; size?: number }>(
       pipe(
         tap(() => patchState(store, {seancesLoading: true, error: null})),
-        switchMap(({centerId}) =>
-          api.listSeances(centerId).pipe(
-            tap((items) => patchState(store, {seances: items, seancesLoading: false})),
+        switchMap(({centerId, page, size}) =>
+          api.listSeances(centerId, page ?? store.seancesPageIndex(), size ?? store.seancesPageSize()).pipe(
+            tap((res) => patchState(store, {
+              seances: res.items,
+              seancesTotal: res.total,
+              seancesLoading: false,
+            })),
             catchError((err: unknown) => {
-              patchState(store, {seances: [], seancesLoading: false, error: errorMessage(err)});
+              patchState(store, {seances: [], seancesTotal: 0, seancesLoading: false, error: errorMessage(err)});
               return EMPTY;
             })
           )
         )
       )
     ),
+
+    setSeancesPagination(pageIndex: number, pageSize: number): void {
+      patchState(store, {seancesPageIndex: pageIndex, seancesPageSize: pageSize});
+    },
 
     // --- Scan QR ---
     scanQr: rxMethod<{ centerId: string; qrCode: string }>(
@@ -397,12 +411,14 @@ export const SeanceStore = signalStore(
         switchMap(({centerId, qrCode}) =>
           api.scanSeanceQr({centerId, qrCode}).pipe(
             switchMap((created) =>
-              api.listSeances(centerId).pipe(
-                switchMap((items) =>
+              api.listSeances(centerId, 0, store.seancesPageSize()).pipe(
+                switchMap((res) =>
                   api.getSeanceSummary(created.id, centerId).pipe(
                     tap((summary) => {
                       patchState(store, {
-                        seances: items,
+                        seances: res.items,
+                        seancesTotal: res.total,
+                        seancesPageIndex: 0,
                         scanning: false,
                         scanState: 'success',
                         scanMessage: 'SEANCES.SESSION_CREATED_LISTED',
@@ -411,7 +427,9 @@ export const SeanceStore = signalStore(
                     }),
                     catchError(() => {
                       patchState(store, {
-                        seances: items,
+                        seances: res.items,
+                        seancesTotal: res.total,
+                        seancesPageIndex: 0,
                         summary: null,
                         selectedSeanceId: created.id,
                         editDateSeance: created.dateSeance,

@@ -60,9 +60,12 @@ public class SeanceRestController {
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
     @GetMapping
-    public ResponseEntity<?> list(@RequestParam UUID centerId) {
-        var items = seanceUseCase.list(CenterId.of(centerId));
-        var payload = items.stream().map(item -> {
+    public ResponseEntity<?> list(
+            @RequestParam UUID centerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        var paged = seanceUseCase.listPaged(CenterId.of(centerId), page, size);
+        var items = paged.items().stream().map(item -> {
             var row = new LinkedHashMap<String, Object>();
             row.put("id", item.id());
             row.put("centerId", item.centerId());
@@ -79,6 +82,11 @@ public class SeanceRestController {
             row.put("forfait", loadCurrentForfait(item.id(), centerId, item.patientId(), item.dateSeance()));
             return row;
         }).toList();
+        var payload = new LinkedHashMap<String, Object>();
+        payload.put("items", items);
+        payload.put("total", paged.total());
+        payload.put("page", paged.page());
+        payload.put("size", paged.size());
         return ResponseEntity.ok(payload);
     }
 
@@ -115,7 +123,7 @@ public class SeanceRestController {
         return payload;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
     @GetMapping("/{seanceId}")
     public ResponseEntity<?> details(@PathVariable UUID seanceId,
                                      @RequestParam UUID centerId) {

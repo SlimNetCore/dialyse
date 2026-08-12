@@ -154,15 +154,15 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
 
     this.loadingSeances.set(true);
     this.loadError.set(null);
-    this.api.listSeances(centerId).subscribe({
-      next: (items) => {
-        const seances = items
-          .filter((item) => {
+    this.api.listSeances(centerId, 0, 500).subscribe({
+      next: (response) => {
+        const seances = (response.items ?? [])
+          .filter((item: SeanceListItem) => {
             if (item.centerId !== centerId || item.patientId !== this.patientId) return false;
             const status = (item.status ?? '').toUpperCase();
             return status === 'VALIDEE' || status === 'SIGNEE' || status === 'FACTUREE';
           })
-          .sort((a, b) => b.dateSeance.localeCompare(a.dateSeance));
+          .sort((a: SeanceListItem, b: SeanceListItem) => b.dateSeance.localeCompare(a.dateSeance));
 
         this.patientSeances.set(seances);
         this.currentPageIndex.set(0);

@@ -893,6 +893,7 @@
     "ADD": "إضافة",
     "LABEL": "التسمية",
     "TOTAL_LABEL": "الإجمالي:",
-    "SAVING": "..."
+    "SAVING": "...",
+    "PAGINATOR_ARIA_LABEL": "ترقيم القائمة"
   }
 }

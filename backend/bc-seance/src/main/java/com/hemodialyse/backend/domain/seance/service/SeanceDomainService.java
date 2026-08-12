@@ -13,6 +13,7 @@ import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.Lot;
 import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
@@ -111,6 +112,29 @@ public class SeanceDomainService implements SeanceUseCase {
                     item.signedByMedecinAt()
             );
         }).toList();
+    }
+
+    @Override
+    public PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size) {
+        PagedResult<SeanceListItem> raw = seanceRepo.findPagedByCenter(centerId, page, size);
+        List<SeanceListItem> enriched = raw.items().stream().map(item -> {
+            var patient = patientRepo.findById(PatientId.of(item.patientId()), centerId).orElse(null);
+            return new SeanceListItem(
+                    item.id(),
+                    item.centerId(),
+                    item.patientId(),
+                    patient != null ? patient.getCodePatient() : null,
+                    patient != null ? patient.getNom() : null,
+                    patient != null ? patient.getPrenom() : null,
+                    item.dateSeance(),
+                    item.status(),
+                    item.createdAt(),
+                    item.validatedAt(),
+                    item.signedByInfirmierAt(),
+                    item.signedByMedecinAt()
+            );
+        }).toList();
+        return PagedResult.of(enriched, raw.total(), page, size);
     }
 
     @Override

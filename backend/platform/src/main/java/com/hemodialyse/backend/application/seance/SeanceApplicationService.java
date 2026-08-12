@@ -12,6 +12,7 @@ import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.service.SeanceDomainService;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
 import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
@@ -70,6 +71,12 @@ public class SeanceApplicationService implements SeanceUseCase {
     @Transactional(readOnly = true)
     public List<SeanceListItem> list(CenterId centerId) {
         return delegate.list(centerId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size) {
+        return delegate.listPaged(centerId, page, size);
     }
 
     @Override

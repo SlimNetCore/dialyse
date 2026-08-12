@@ -941,6 +941,7 @@
     "ADD": "Rnu",
     "LABEL": "Isem",
     "TOTAL_LABEL": "Asemday:",
-    "SAVING": "..."
+    "SAVING": "...",
+    "PAGINATOR_ARIA_LABEL": "Assebter n telist"
   }
 }

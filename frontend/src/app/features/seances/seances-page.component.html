@@ -285,6 +285,14 @@
         @if (seances().length === 0) {
           <p class="camera-hint">{{ 'SEANCES.NO_SESSIONS_FOUND' | translate }}</p>
         }
+        <mat-paginator
+          (page)="onSeancesPageChange($event)"
+          [length]="seancesTotal()"
+          [pageIndex]="seancesPageIndex()"
+          [pageSizeOptions]="[10, 20, 50, 100]"
+          [pageSize]="seancesPageSize()"
+          aria-label="{{ 'COMMON.PAGINATOR_ARIA_LABEL' | translate }}"
+        ></mat-paginator>
       </mat-card-content>
     </mat-card>
 

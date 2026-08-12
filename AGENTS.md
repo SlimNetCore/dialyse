@@ -274,7 +274,40 @@ configuration marquée comme **dépréciée (deprecated)** — que ce soit côt�
 
 ---
 
-## 9. Base de données
+## 9. Pagination obligatoire pour toutes les listes **OBLIGATOIRE**
+
+Toute liste de données dans l'application (séances, patients, PEC, attestations, utilisateurs, articles, mouvements de
+stock, bons, factures, etc.) **doit être paginée**. Cette règle est non négociable et s'applique sans exception.
+
+### Backend
+
+- L'endpoint REST de liste **doit accepter** les paramètres `page` (0-indexé, défaut `0`) et `size` (défaut `20`).
+- La réponse doit être un objet enveloppé incluant `items`, `total`, `page`, `size` (pattern `PagedResult<T>`).
+- Le port de domaine (`*RepositoryPort`) expose une méthode `findPaged*(CenterId, int page, int size)` retournant
+  `PagedResult<T>` défini dans le shared-kernel (`domain/shared/PagedResult.java`) — **jamais**
+  `org.springframework.data.domain.Page` directement dans le domaine.
+- L'implémentation de l'adaptateur (`*RepositoryAdapter`) utilise `org.springframework.data.domain.PageRequest` pour
+  déléguer à Spring Data JPA.
+- Le `centerId` doit toujours faire partie du filtre de pagination (règle multi-centre §2).
+
+### Frontend
+
+- Toute table (`mat-table`) affichant une liste doit être accompagnée d'un composant `<mat-paginator>`.
+- Le store NgRx Signals correspondant doit inclure `pageIndex`, `pageSize` et `total` dans son state (utiliser
+  `PagedListState<T>` de `core/state/paged-list-state.util.ts`).
+- Le store expose une méthode `set*Pagination(pageIndex, pageSize)` et recharge la page via l'API.
+- Les options de taille de page recommandées : `[10, 20, 50, 100]`.
+- Les listes **ne doivent jamais** charger toutes les données en une seule requête (interdiction de
+  `findAll` sans limite côté backend ou d'un tableau local non paginé côté frontend).
+
+### Règle de l'agent IA
+
+Un agent qui génère un nouvel endpoint de liste sans paramètre de pagination, ou un composant de liste sans
+`<mat-paginator>`, doit être considéré **en erreur** et le code corrigé avant intégration.
+
+---
+
+## 10. Base de données
 
 - **Dev / Démo** : H2 en mémoire (`MODE=PostgreSQL`) — démarre automatiquement, sans Docker.
 - **Production** : PostgreSQL 16.
@@ -368,6 +401,9 @@ cd frontend && npm run e2e     # Playwright
 12. Tout fichier généré ou modifié par un agent IA doit être ajouté au versionnement Git (`git add`) dans la même tâche, sauf s'il est explicitement couvert par `.gitignore`.
 13. Un agent IA **ne doit jamais créer de commit Git automatiquement** sans demande explicite de l'utilisateur ; par
     défaut il prépare/stage (`git add`) et laisse l'utilisateur effectuer le commit.
+14. **Toute liste de données doit être paginée** (backend : `page`/`size` + réponse enveloppée
+    `{items, total, page, size}` ; frontend : `<mat-paginator>` + state `pageIndex`/`pageSize`/`total` dans le store).
+    Aucune liste ne doit charger toutes les données sans limite.
 
 # 14. DDD Tactique et Découpage des Domaines — OBLIGATOIRE
 

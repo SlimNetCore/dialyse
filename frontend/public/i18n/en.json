@@ -1048,6 +1048,7 @@
     "SERVER_UNAVAILABLE": "Server unavailable. Please try again later.",
     "CODE_LABEL": "Code",
     "CURRENCY_DA": "DA",
-    "SAVING": "..."
+    "SAVING": "...",
+    "PAGINATOR_ARIA_LABEL": "List pagination"
   }
 }
