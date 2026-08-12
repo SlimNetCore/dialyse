@@ -1,6 +1,6 @@
-@if (showAuthLoader()) {
+@if (showStartupLoader()) {
   <div class="auth-loader-backdrop">
-    <div aria-label="Authentification en cours" class="auth-loader-spinner"></div>
+    <app-hemodialysis-loader [label]="startupLoaderLabel()" mode="overlay"/>
   </div>
 } @else {
   <router-outlet/>

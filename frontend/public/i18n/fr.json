@@ -1044,6 +1044,8 @@
     "INVALID_MONTH": "Mois invalide",
     "EXPORT_ERROR": "Export impossible",
     "LOADING_SESSION_DETAILS": "Chargement des détails de la séance...",
+    "SERVER_CONTACT_IN_PROGRESS": "Contact du serveur en cours...",
+    "SERVER_UNAVAILABLE": "Serveur indisponible. Veuillez réessayer plus tard.",
     "CODE_LABEL": "Code",
     "CURRENCY_DA": "DA",
     "SAVING": "..."

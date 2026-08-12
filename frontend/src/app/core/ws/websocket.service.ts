@@ -77,6 +77,67 @@ export class WebSocketService implements OnDestroy {
     this.client.activate();
   }
 
+  async waitForInitializationSocket(timeoutMs = 240_000): Promise<boolean> {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const backendUp = await this.isBackendUp();
+      if (backendUp) {
+        const connected = await this.tryInitializationSocketProbe(Math.min(10_000, Math.max(1_000, deadline - Date.now())));
+        if (connected) {
+          return true;
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 2_000));
+    }
+
+    return false;
+  }
+
+  private async tryInitializationSocketProbe(timeoutMs: number): Promise<boolean> {
+    return await new Promise<boolean>((resolve) => {
+      let settled = false;
+      let probeClient: Client;
+
+      const finish = (result: boolean) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        clearTimeout(timeout);
+        if (probeClient?.active) {
+          void probeClient.deactivate();
+        }
+        resolve(result);
+      };
+
+      probeClient = new Client({
+        brokerURL: this.wsBaseUrl,
+        reconnectDelay: 0,
+        heartbeatIncoming: 0,
+        heartbeatOutgoing: 0,
+        onConnect: () => {
+          finish(true);
+        },
+        onStompError: () => {
+          finish(false);
+        },
+        onWebSocketError: () => {
+          finish(false);
+        },
+        onWebSocketClose: () => {
+          finish(false);
+        }
+      });
+
+      const timeout = setTimeout(() => {
+        finish(false);
+      }, timeoutMs);
+
+      probeClient.activate();
+    });
+  }
+
   private async isBackendUp(): Promise<boolean> {
     try {
       const controller = new AbortController();

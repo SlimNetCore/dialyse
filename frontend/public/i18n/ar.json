@@ -885,6 +885,8 @@
     "INVALID_MONTH": "شهر غير صالح",
     "EXPORT_ERROR": "تعذّر التصدير",
     "LOADING_SESSION_DETAILS": "جارٍ تحميل تفاصيل الحصة...",
+    "SERVER_CONTACT_IN_PROGRESS": "جارٍ الاتصال بالخادم...",
+    "SERVER_UNAVAILABLE": "الخادم غير متاح. يرجى المحاولة لاحقاً.",
     "CODE_LABEL": "الرمز",
     "CURRENCY_DA": "DA",
     "REFRESH_BUTTON": "تحديث",

@@ -1,35 +1,27 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, signal,} from '@angular/core';
-import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
-import {AuthStore} from './core/state/auth.store';
+import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
 import {ThemeStore} from './core/state/theme.store';
-import {filter, Subscription} from 'rxjs';
+import {HemodialysisLoaderComponent} from './shared/hemodialysis-loader.component';
+import {BackendInitService} from './core/startup/backend-init.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, HemodialysisLoaderComponent],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.css',
 })
-export class App implements OnDestroy {
-  private readonly auth = inject(AuthStore);
-  private readonly router = inject(Router);
-  private readonly currentUrl = signal(this.router.url);
-  readonly showAuthLoader = computed(() => {
-    const onLogin = this.currentUrl().startsWith('/login');
-    return !onLogin && this.auth.isServerSyncing();
-  });
-  private readonly routerSub: Subscription;
+export class App {
+  private readonly backendInit = inject(BackendInitService);
+  readonly showStartupLoader = computed(() => this.backendInit.state() !== 'ready-for-auth');
+  readonly startupLoaderLabel = computed(() =>
+    this.backendInit.state() === 'server-unavailable'
+      ? 'COMMON.SERVER_UNAVAILABLE'
+      : 'COMMON.SERVER_CONTACT_IN_PROGRESS');
 
   constructor() {
     inject(ThemeStore);
-    this.routerSub = this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe((e) => this.currentUrl.set(e.urlAfterRedirects));
-  }
-
-  ngOnDestroy(): void {
-    this.routerSub.unsubscribe();
+    this.backendInit.start();
   }
 }

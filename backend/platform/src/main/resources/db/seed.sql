@@ -620,6 +620,625 @@ MERGE INTO prise_en_charge (
             DATE '2025-02-01', DATE '2025-09-30', 'f0000002-0000-0000-0000-000000000001',
             DATE '2025-02-02', DATE '2025-09-30', 'f0000002-0000-0000-0000-000000000001', 'VALIDEE');
 
+-- ============================================================================
+-- PERF DATASET (multi-centres, 5 ans): patients, seances, factures, stock
+-- ============================================================================
+
+MERGE INTO facturation_settings (center_id, tva_rate, code_format, regroupement_multi_forfait, updated_at, updated_by)
+    KEY (center_id)
+    VALUES ('11111111-1111-1111-1111-111111111111', 19.00, 'FACT-{YYYY}-{SEQ6}', TRUE, CURRENT_TIMESTAMP, 'seed-perf');
+
+MERGE INTO facturation_settings (center_id, tva_rate, code_format, regroupement_multi_forfait, updated_at, updated_by)
+    KEY (center_id)
+    VALUES ('22222222-2222-2222-2222-222222222222', 18.00, 'FACT-{YYYY}-{SEQ6}', TRUE, CURRENT_TIMESTAMP, 'seed-perf');
+
+-- 80 patients synthetiques par centre.
+INSERT INTO patients (id, center_id, code_patient, civilite, nom, prenom, sexe,
+                      date_admission, date_naissance, lieu_naissance, situation_familiale,
+                      profession1, adresse, tel_mobile, email, numero_assurance,
+                      type_patient, etat_patient, qualite_assure,
+                      sous_kt, epo_enabled, fer_enabled,
+                      centre_payeur_id, medecin_traitant_id, salle_id, position_id,
+                      transporteur_aller_id, transporteur_retour_id, categorie_transport_id,
+                      jour_lundi, jour_mardi, jour_mercredi, jour_jeudi, jour_vendredi, jour_samedi)
+SELECT CAST('7100' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-1000-0000-0000-' ||
+            LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID),
+       '11111111-1111-1111-1111-111111111111',
+       'P-ANN-PF-' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       CASE WHEN MOD(v, 2) = 0 THEN 'Mme' ELSE 'M' END,
+       'NOMANN' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       'PrenomAnn' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       CASE WHEN MOD(v, 2) = 0 THEN 'F' ELSE 'M' END,
+       DATEADD('DAY', MOD(v * 11, 1100), DATE '2021-01-01'),
+       DATEADD('DAY', (v * 95), DATE '1960-01-01'),
+       'Annaba',
+       CASE WHEN MOD(v, 3) = 0 THEN 'Célibataire' ELSE 'Marié' END,
+       'Profession' || MOD(v, 12),
+       'Quartier Annaba ' || v,
+       '0550' || LPAD(CAST(v AS VARCHAR), 6, '0'),
+       'perf.ann.' || LPAD(CAST(v AS VARCHAR), 4, '0') || '@hemodialyse.dz',
+       'ASS-PERF-ANN-' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       CASE WHEN MOD(v, 9) = 0 THEN 'VACANCIER' ELSE 'NON_VACANCIER' END,
+       CASE WHEN MOD(v, 5) = 0 THEN 'OCCASIONNEL' ELSE 'PERMANENT' END,
+       CASE WHEN MOD(v, 4) = 0 THEN 'CONJOINT' ELSE 'ASSURE_LUI_MEME' END,
+       MOD(v, 2) = 0,
+       MOD(v, 3) = 0,
+       MOD(v, 4) = 0,
+       CASE
+           WHEN MOD(v, 3) = 0 THEN 'c1000001-0000-0000-0000-000000000002'
+           WHEN MOD(v, 3) = 1 THEN 'c1000001-0000-0000-0000-000000000001'
+           ELSE 'c1000001-0000-0000-0000-000000000003' END,
+       CASE
+           WHEN MOD(v, 3) = 0 THEN 'e1000001-0000-0000-0000-000000000003'
+           WHEN MOD(v, 3) = 1 THEN 'e1000001-0000-0000-0000-000000000001'
+           ELSE 'e1000001-0000-0000-0000-000000000002' END,
+       CASE
+           WHEN MOD(v, 3) = 0 THEN '50000001-0000-0000-0000-000000000003'
+           WHEN MOD(v, 3) = 1 THEN '50000001-0000-0000-0000-000000000001'
+           ELSE '50000001-0000-0000-0000-000000000002' END,
+       CASE
+           WHEN MOD(v, 4) = 0 THEN 'd0000001-0000-0000-0000-000000000004'
+           WHEN MOD(v, 4) = 1 THEN 'd0000001-0000-0000-0000-000000000001'
+           WHEN MOD(v, 4) = 2 THEN 'd0000001-0000-0000-0000-000000000002'
+           ELSE 'd0000001-0000-0000-0000-000000000003' END,
+       CASE
+           WHEN MOD(v, 3) = 0 THEN 'e2000001-0000-0000-0000-000000000003'
+           WHEN MOD(v, 3) = 1 THEN 'e2000001-0000-0000-0000-000000000001'
+           ELSE 'e2000001-0000-0000-0000-000000000002' END,
+       CASE
+           WHEN MOD(v, 3) = 0 THEN 'e2000001-0000-0000-0000-000000000002'
+           WHEN MOD(v, 3) = 1 THEN 'e2000001-0000-0000-0000-000000000001'
+           ELSE 'e2000001-0000-0000-0000-000000000003' END,
+       CASE
+           WHEN MOD(v, 4) = 0 THEN 'c2000001-0000-0000-0000-000000000004'
+           WHEN MOD(v, 4) = 1 THEN 'c2000001-0000-0000-0000-000000000001'
+           WHEN MOD(v, 4) = 2 THEN 'c2000001-0000-0000-0000-000000000002'
+           ELSE 'c2000001-0000-0000-0000-000000000003' END,
+       MOD(v, 2) = 0,
+       MOD(v, 2) = 1,
+       MOD(v, 3) = 0,
+       MOD(v, 3) <> 0,
+       MOD(v, 4) <> 0,
+       MOD(v, 5) = 0
+FROM SYSTEM_RANGE(1, 80) n(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM patients p
+                  WHERE p.id = CAST('7100' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-1000-0000-0000-' ||
+                                    LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO patients (id, center_id, code_patient, civilite, nom, prenom, sexe,
+                      date_admission, date_naissance, lieu_naissance, situation_familiale,
+                      profession1, adresse, tel_mobile, email, numero_assurance,
+                      type_patient, etat_patient, qualite_assure,
+                      sous_kt, epo_enabled, fer_enabled,
+                      centre_payeur_id, medecin_traitant_id, salle_id, position_id,
+                      transporteur_aller_id, transporteur_retour_id, categorie_transport_id,
+                      jour_lundi, jour_mardi, jour_mercredi, jour_jeudi, jour_vendredi, jour_samedi)
+SELECT CAST('7200' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-2000-0000-0000-' ||
+            LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID),
+       '22222222-2222-2222-2222-222222222222',
+       'P-SL-PF-' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       CASE WHEN MOD(v, 2) = 0 THEN 'Mme' ELSE 'M' END,
+       'NOMSL' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       'PrenomSl' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       CASE WHEN MOD(v, 2) = 0 THEN 'F' ELSE 'M' END,
+       DATEADD('DAY', MOD(v * 13, 1100), DATE '2021-02-01'),
+       DATEADD('DAY', (v * 90), DATE '1962-01-01'),
+       'Saint-Louis',
+       CASE WHEN MOD(v, 3) = 0 THEN 'Célibataire' ELSE 'Marié' END,
+       'Profession' || MOD(v, 10),
+       'Quartier Saint-Louis ' || v,
+       '0777' || LPAD(CAST(v AS VARCHAR), 6, '0'),
+       'perf.sl.' || LPAD(CAST(v AS VARCHAR), 4, '0') || '@hemodialyse.dz',
+       'ASS-PERF-SL-' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       CASE WHEN MOD(v, 8) = 0 THEN 'VACANCIER' ELSE 'NON_VACANCIER' END,
+       CASE WHEN MOD(v, 5) = 0 THEN 'OCCASIONNEL' ELSE 'PERMANENT' END,
+       CASE WHEN MOD(v, 4) = 0 THEN 'ENFANT' ELSE 'ASSURE_LUI_MEME' END,
+       MOD(v, 2) = 0,
+       MOD(v, 3) = 0,
+       MOD(v, 4) = 0,
+       CASE
+           WHEN MOD(v, 3) = 0 THEN 'c1000002-0000-0000-0000-000000000003'
+           WHEN MOD(v, 3) = 1 THEN 'c1000002-0000-0000-0000-000000000001'
+           ELSE 'c1000002-0000-0000-0000-000000000002' END,
+       CASE
+           WHEN MOD(v, 2) = 0 THEN 'e1000002-0000-0000-0000-000000000002'
+           ELSE 'e1000002-0000-0000-0000-000000000001' END,
+       CASE
+           WHEN MOD(v, 2) = 0 THEN '50000002-0000-0000-0000-000000000002'
+           ELSE '50000002-0000-0000-0000-000000000001' END,
+       CASE
+           WHEN MOD(v, 2) = 0 THEN 'd0000002-0000-0000-0000-000000000002'
+           ELSE 'd0000002-0000-0000-0000-000000000001' END,
+       CASE
+           WHEN MOD(v, 2) = 0 THEN 'e2000002-0000-0000-0000-000000000002'
+           ELSE 'e2000002-0000-0000-0000-000000000001' END,
+       CASE
+           WHEN MOD(v, 2) = 0 THEN 'e2000002-0000-0000-0000-000000000001'
+           ELSE 'e2000002-0000-0000-0000-000000000002' END,
+       CASE
+           WHEN MOD(v, 2) = 0 THEN 'c2000002-0000-0000-0000-000000000002'
+           ELSE 'c2000002-0000-0000-0000-000000000001' END,
+       MOD(v, 2) = 0,
+       MOD(v, 2) = 1,
+       MOD(v, 3) = 0,
+       MOD(v, 3) <> 0,
+       MOD(v, 4) <> 0,
+       MOD(v, 5) = 0
+FROM SYSTEM_RANGE(1, 80) n(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM patients p
+                  WHERE p.id = CAST('7200' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-2000-0000-0000-' ||
+                                    LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID));
+
+-- 120 seances par patient synthetique (~19k seances sur 5 ans, 2 centres).
+INSERT INTO seances (id, patient_id, center_id, date_seance, statut, created_at)
+SELECT CAST('810' || LPAD(CAST(p.v AS VARCHAR), 2, '0') || LPAD(CAST(s.v AS VARCHAR), 3, '0') || '-1000-0000-0000-' ||
+            LPAD(CAST((p.v * 1000 + s.v) AS VARCHAR), 12, '0') AS UUID),
+       CAST('7100' || LPAD(CAST(p.v AS VARCHAR), 4, '0') || '-1000-0000-0000-' ||
+            LPAD(CAST(p.v AS VARCHAR), 12, '0') AS UUID),
+       '11111111-1111-1111-1111-111111111111',
+       DATEADD('DAY', ((s.v - 1) * 15) + MOD(p.v, 5), DATE '2022-01-01'),
+       CASE WHEN s.v <= 96 THEN 'FACTUREE' WHEN MOD(s.v, 3) = 0 THEN 'SIGNEE' ELSE 'VALIDEE' END,
+       CURRENT_TIMESTAMP
+FROM SYSTEM_RANGE(1, 80) p(v)
+         CROSS JOIN SYSTEM_RANGE(1, 120) s(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM seances sx
+                  WHERE sx.id =
+                        CAST('810' || LPAD(CAST(p.v AS VARCHAR), 2, '0') || LPAD(CAST(s.v AS VARCHAR), 3, '0') ||
+                             '-1000-0000-0000-' || LPAD(CAST((p.v * 1000 + s.v) AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO seances (id, patient_id, center_id, date_seance, statut, created_at)
+SELECT CAST('820' || LPAD(CAST(p.v AS VARCHAR), 2, '0') || LPAD(CAST(s.v AS VARCHAR), 3, '0') || '-2000-0000-0000-' ||
+            LPAD(CAST((p.v * 1000 + s.v) AS VARCHAR), 12, '0') AS UUID),
+       CAST('7200' || LPAD(CAST(p.v AS VARCHAR), 4, '0') || '-2000-0000-0000-' ||
+            LPAD(CAST(p.v AS VARCHAR), 12, '0') AS UUID),
+       '22222222-2222-2222-2222-222222222222',
+       DATEADD('DAY', ((s.v - 1) * 15) + MOD(p.v, 4), DATE '2022-01-03'),
+       CASE WHEN s.v <= 96 THEN 'FACTUREE' WHEN MOD(s.v, 4) = 0 THEN 'SIGNEE' ELSE 'VALIDEE' END,
+       CURRENT_TIMESTAMP
+FROM SYSTEM_RANGE(1, 80) p(v)
+         CROSS JOIN SYSTEM_RANGE(1, 120) s(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM seances sx
+                  WHERE sx.id =
+                        CAST('820' || LPAD(CAST(p.v AS VARCHAR), 2, '0') || LPAD(CAST(s.v AS VARCHAR), 3, '0') ||
+                             '-2000-0000-0000-' || LPAD(CAST((p.v * 1000 + s.v) AS VARCHAR), 12, '0') AS UUID));
+
+-- Articles stock: 18 par centre.
+INSERT INTO articles (id, center_id, code, libelle, unite, stock_quantity, seuil_alerte, pmp_courant, gere_par_lot,
+                      active, created_at)
+SELECT CAST('3100' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID),
+       '11111111-1111-1111-1111-111111111111',
+       'ART-ANN-' || LPAD(CAST(v AS VARCHAR), 3, '0'),
+       'Article Annaba ' || v,
+       CASE WHEN MOD(v, 3) = 0 THEN 'L' WHEN MOD(v, 3) = 1 THEN 'UNITE' ELSE 'ML' END,
+       0,
+       80 + (v * 5),
+       0,
+       TRUE,
+       TRUE,
+       CURRENT_TIMESTAMP
+FROM SYSTEM_RANGE(1, 18) n(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM articles a
+                  WHERE a.id = CAST('3100' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                    LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO articles (id, center_id, code, libelle, unite, stock_quantity, seuil_alerte, pmp_courant, gere_par_lot,
+                      active, created_at)
+SELECT CAST('3200' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID),
+       '22222222-2222-2222-2222-222222222222',
+       'ART-SL-' || LPAD(CAST(v AS VARCHAR), 3, '0'),
+       'Article Saint-Louis ' || v,
+       CASE WHEN MOD(v, 3) = 0 THEN 'L' WHEN MOD(v, 3) = 1 THEN 'UNITE' ELSE 'ML' END,
+       0,
+       90 + (v * 5),
+       0,
+       TRUE,
+       TRUE,
+       CURRENT_TIMESTAMP
+FROM SYSTEM_RANGE(1, 18) n(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM articles a
+                  WHERE a.id = CAST('3200' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                    LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID));
+
+-- Receptions mensuelles sur 5 ans et lignes associees.
+INSERT INTO bons_reception (id, center_id, reference, bon_commande_id, fournisseur_id, date_reception, statut,
+                            created_by, created_at)
+SELECT CAST('4100' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID),
+       '11111111-1111-1111-1111-111111111111',
+       'BR-ANN-PF-' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       NULL,
+       NULL,
+       DATEADD('DAY', ((v - 1) * 30), DATE '2022-01-05'),
+       'RECU',
+       'seed-perf',
+       CURRENT_TIMESTAMP
+FROM SYSTEM_RANGE(1, 60) r(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM bons_reception br
+                  WHERE br.id = CAST('4100' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                     LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO bons_reception (id, center_id, reference, bon_commande_id, fournisseur_id, date_reception, statut,
+                            created_by, created_at)
+SELECT CAST('4200' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID),
+       '22222222-2222-2222-2222-222222222222',
+       'BR-SL-PF-' || LPAD(CAST(v AS VARCHAR), 4, '0'),
+       NULL,
+       NULL,
+       DATEADD('DAY', ((v - 1) * 30), DATE '2022-01-07'),
+       'RECU',
+       'seed-perf',
+       CURRENT_TIMESTAMP
+FROM SYSTEM_RANGE(1, 60) r(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM bons_reception br
+                  WHERE br.id = CAST('4200' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                     LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO bons_reception_lignes (id, bon_reception_id, article_id, quantite, prix_unitaire, numero_lot,
+                                   date_peremption, emplacement_id, lot_id)
+SELECT CAST('5100' || LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 12, '0') AS UUID),
+       CAST('4100' || LPAD(CAST(r.v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(r.v AS VARCHAR), 12, '0') AS UUID),
+       CAST('3100' || LPAD(CAST((((r.v + l.v) % 18) + 1) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST((((r.v + l.v) % 18) + 1) AS VARCHAR), 12, '0') AS UUID),
+       120 + (l.v * 15),
+       350 + MOD(r.v, 20) + (l.v * 4),
+       'LOT-ANN-' || LPAD(CAST(r.v AS VARCHAR), 3, '0') || '-' || l.v,
+       DATEADD('DAY', (r.v * 20), DATE '2026-12-31'),
+       NULL,
+       CAST('6100' || LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 12, '0') AS UUID)
+FROM SYSTEM_RANGE(1, 60) r(v)
+         CROSS JOIN SYSTEM_RANGE(1, 3) l(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM bons_reception_lignes brl
+                  WHERE brl.id = CAST('5100' || LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                      LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO bons_reception_lignes (id, bon_reception_id, article_id, quantite, prix_unitaire, numero_lot,
+                                   date_peremption, emplacement_id, lot_id)
+SELECT CAST('5200' || LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 12, '0') AS UUID),
+       CAST('4200' || LPAD(CAST(r.v AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(r.v AS VARCHAR), 12, '0') AS UUID),
+       CAST('3200' || LPAD(CAST((((r.v + l.v) % 18) + 1) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST((((r.v + l.v) % 18) + 1) AS VARCHAR), 12, '0') AS UUID),
+       140 + (l.v * 12),
+       360 + MOD(r.v, 25) + (l.v * 5),
+       'LOT-SL-' || LPAD(CAST(r.v AS VARCHAR), 3, '0') || '-' || l.v,
+       DATEADD('DAY', (r.v * 21), DATE '2026-12-31'),
+       NULL,
+       CAST('6200' || LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 12, '0') AS UUID)
+FROM SYSTEM_RANGE(1, 60) r(v)
+         CROSS JOIN SYSTEM_RANGE(1, 3) l(v)
+WHERE NOT EXISTS (SELECT 1
+                  FROM bons_reception_lignes brl
+                  WHERE brl.id = CAST('5200' || LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                      LPAD(CAST((r.v * 10 + l.v) AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO lots (id, center_id, article_id, bon_reception_id, emplacement_id, numero_lot, date_peremption,
+                  quantite_initiale, quantite_restante, pmp, created_at)
+SELECT brl.lot_id,
+       br.center_id,
+       brl.article_id,
+       br.id,
+       NULL,
+       brl.numero_lot,
+       brl.date_peremption,
+       brl.quantite,
+       brl.quantite,
+       brl.prix_unitaire,
+       CURRENT_TIMESTAMP
+FROM bons_reception_lignes brl
+         JOIN bons_reception br ON br.id = brl.bon_reception_id
+WHERE (br.reference LIKE 'BR-ANN-PF-%' OR br.reference LIKE 'BR-SL-PF-%')
+  AND NOT EXISTS (SELECT 1 FROM lots l WHERE l.id = brl.lot_id);
+
+INSERT INTO stock_movements (id, center_id, article_id, seance_id, lot_id, mouvement_type, quantite, prix_unitaire,
+                             pmp_apres, created_by, created_at)
+SELECT CAST('7100' || SUBSTRING(CAST(brl.id AS VARCHAR), 1, 4) || '-0000-0000-0000-' ||
+            SUBSTRING(CAST(brl.id AS VARCHAR), 25, 12) AS UUID),
+       br.center_id,
+       brl.article_id,
+       NULL,
+       brl.lot_id,
+       'ENTREE',
+       brl.quantite,
+       brl.prix_unitaire,
+       brl.prix_unitaire,
+       'seed-perf',
+       CURRENT_TIMESTAMP
+FROM bons_reception_lignes brl
+         JOIN bons_reception br ON br.id = brl.bon_reception_id
+WHERE (br.reference LIKE 'BR-ANN-PF-%' OR br.reference LIKE 'BR-SL-PF-%')
+  AND NOT EXISTS (SELECT 1
+                  FROM stock_movements sm
+                  WHERE sm.id = CAST('7100' || SUBSTRING(CAST(brl.id AS VARCHAR), 1, 4) || '-0000-0000-0000-' ||
+                                     SUBSTRING(CAST(brl.id AS VARCHAR), 25, 12) AS UUID));
+
+-- Sorties liees aux seances facturees (2 500 par centre).
+INSERT INTO bons_sortie (id, center_id, reference, seance_id, patient_id, poste, date_sortie, created_by, created_at)
+SELECT CAST('8101' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID),
+       z.center_id,
+       'BS-ANN-PF-' || LPAD(CAST(z.rn AS VARCHAR), 5, '0'),
+       z.id,
+       z.patient_id,
+       'POSTE-' || MOD(z.rn, 24),
+       z.date_seance,
+       'seed-perf',
+       CURRENT_TIMESTAMP
+FROM (SELECT s.id,
+             s.center_id,
+             s.patient_id,
+             s.date_seance,
+             ROW_NUMBER() OVER (ORDER BY s.date_seance, s.id) AS rn
+      FROM seances s
+      WHERE s.center_id = '11111111-1111-1111-1111-111111111111'
+        AND s.statut = 'FACTUREE') z
+WHERE z.rn <= 2500
+  AND NOT EXISTS (SELECT 1
+                  FROM bons_sortie bs
+                  WHERE bs.id = CAST('8101' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                     LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO bons_sortie (id, center_id, reference, seance_id, patient_id, poste, date_sortie, created_by, created_at)
+SELECT CAST('8201' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID),
+       z.center_id,
+       'BS-SL-PF-' || LPAD(CAST(z.rn AS VARCHAR), 5, '0'),
+       z.id,
+       z.patient_id,
+       'POSTE-' || MOD(z.rn, 24),
+       z.date_seance,
+       'seed-perf',
+       CURRENT_TIMESTAMP
+FROM (SELECT s.id,
+             s.center_id,
+             s.patient_id,
+             s.date_seance,
+             ROW_NUMBER() OVER (ORDER BY s.date_seance, s.id) AS rn
+      FROM seances s
+      WHERE s.center_id = '22222222-2222-2222-2222-222222222222'
+        AND s.statut = 'FACTUREE') z
+WHERE z.rn <= 2500
+  AND NOT EXISTS (SELECT 1
+                  FROM bons_sortie bs
+                  WHERE bs.id = CAST('8201' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                     LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO bons_sortie_lignes (id, bon_sortie_id, article_id, lot_id, quantite, pmp_applique)
+SELECT CAST('9101' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID),
+       z.id,
+       CAST('3100' || LPAD(CAST(MOD(z.rn, 18) + 1 AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(MOD(z.rn, 18) + 1 AS VARCHAR), 12, '0') AS UUID),
+       CAST('6100' || LPAD(CAST(MOD(z.rn, 180) + 1 AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(MOD(z.rn, 180) + 1 AS VARCHAR), 12, '0') AS UUID),
+       2 + MOD(z.rn, 4),
+       380 + MOD(z.rn, 30)
+FROM (SELECT bs.id, ROW_NUMBER() OVER (ORDER BY bs.date_sortie, bs.id) AS rn
+      FROM bons_sortie bs
+      WHERE bs.reference LIKE 'BS-ANN-PF-%') z
+WHERE NOT EXISTS (SELECT 1
+                  FROM bons_sortie_lignes l
+                  WHERE l.id = CAST('9101' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                    LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO bons_sortie_lignes (id, bon_sortie_id, article_id, lot_id, quantite, pmp_applique)
+SELECT CAST('9201' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID),
+       z.id,
+       CAST('3200' || LPAD(CAST(MOD(z.rn, 18) + 1 AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(MOD(z.rn, 18) + 1 AS VARCHAR), 12, '0') AS UUID),
+       CAST('6200' || LPAD(CAST(MOD(z.rn, 180) + 1 AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(MOD(z.rn, 180) + 1 AS VARCHAR), 12, '0') AS UUID),
+       2 + MOD(z.rn, 5),
+       390 + MOD(z.rn, 35)
+FROM (SELECT bs.id, ROW_NUMBER() OVER (ORDER BY bs.date_sortie, bs.id) AS rn
+      FROM bons_sortie bs
+      WHERE bs.reference LIKE 'BS-SL-PF-%') z
+WHERE NOT EXISTS (SELECT 1
+                  FROM bons_sortie_lignes l
+                  WHERE l.id = CAST('9201' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                    LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID));
+
+INSERT INTO stock_movements (id, center_id, article_id, seance_id, lot_id, mouvement_type, quantite, prix_unitaire,
+                             pmp_apres, created_by, created_at)
+SELECT CAST('a101' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+            LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID),
+       bs.center_id,
+       z.article_id,
+       bs.seance_id,
+       z.lot_id,
+       'SORTIE',
+       z.quantite,
+       z.pmp_applique,
+       z.pmp_applique,
+       'seed-perf',
+       CURRENT_TIMESTAMP
+FROM (SELECT l.id,
+             l.bon_sortie_id,
+             l.article_id,
+             l.lot_id,
+             l.quantite,
+             l.pmp_applique,
+             ROW_NUMBER() OVER (ORDER BY l.id) AS rn
+      FROM bons_sortie_lignes l
+      WHERE l.id IN (
+          SELECT id FROM bons_sortie_lignes WHERE CAST(id AS VARCHAR) LIKE '9101%' OR CAST(id AS VARCHAR) LIKE '9201%'
+          )) z
+         JOIN bons_sortie bs ON bs.id = z.bon_sortie_id
+WHERE NOT EXISTS (SELECT 1
+                  FROM stock_movements sm
+                  WHERE sm.id = CAST('a101' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' ||
+                                     LPAD(CAST(z.rn AS VARCHAR), 12, '0') AS UUID));
+
+-- Factures mensuelles basees sur les seances facturees.
+INSERT INTO factures (id, center_id, patient_id, numero_facture,
+                      patient_code, patient_full_name, patient_status_snapshot,
+                      numero_immatriculation_snapshot, centre_payeur_id_snapshot, agence_id_snapshot,
+                      period_start, period_end, date_facturation,
+                      tva_rate, total_ht, total_tva, total_ttc, created_at)
+SELECT CAST(
+               CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 'b101' ELSE 'b201' END
+                   || LPAD(CAST(q.rn AS VARCHAR), 4, '0')
+                   || '-0000-0000-0000-'
+                   || LPAD(CAST(q.rn AS VARCHAR), 12, '0')
+           AS UUID
+       ),
+       q.center_id,
+       q.patient_id,
+       'AUTO-' || CAST(q.yyyy AS VARCHAR) || '-' || LPAD(CAST(q.mm AS VARCHAR), 2, '0') || '-'
+           || CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 'ANN-' ELSE 'SL-' END
+           || LPAD(CAST(q.rn AS VARCHAR), 6, '0'),
+       q.code_patient,
+       q.patient_full_name,
+       q.etat_patient,
+       q.numero_assurance,
+       q.centre_payeur_id,
+       NULL,
+       CAST(CAST(q.yyyy AS VARCHAR) || '-' || LPAD(CAST(q.mm AS VARCHAR), 2, '0') || '-01' AS DATE),
+       CAST(CAST(q.yyyy AS VARCHAR) || '-' || LPAD(CAST(q.mm AS VARCHAR), 2, '0') || '-28' AS DATE),
+       q.max_date,
+       CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 19.00 ELSE 18.00 END,
+       CAST(q.seance_count * CASE
+                                 WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 5000.00
+                                 ELSE 5200.00 END AS DECIMAL(14, 2)),
+       CAST((q.seance_count *
+             CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 5000.00 ELSE 5200.00 END)
+                * (CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 19.00 ELSE 18.00 END) /
+            100 AS DECIMAL(14, 2)),
+       CAST((q.seance_count *
+             CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 5000.00 ELSE 5200.00 END)
+           * (1 + (CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 19.00 ELSE 18.00 END) /
+                  100) AS DECIMAL(14, 2)),
+       CURRENT_TIMESTAMP
+FROM (
+         WITH billed AS (
+             SELECT
+                 s.center_id,
+                 s.patient_id,
+                 EXTRACT(YEAR FROM s.date_seance) AS yyyy,
+                 EXTRACT(MONTH FROM s.date_seance) AS mm,
+                 COUNT(*) AS seance_count,
+                 MIN(s.date_seance) AS min_date,
+                 MAX(s.date_seance) AS max_date
+             FROM seances s
+             WHERE s.statut = 'FACTUREE'
+               AND s.date_seance >= DATE '2022-01-01'
+             GROUP BY s.center_id, s.patient_id, EXTRACT(YEAR FROM s.date_seance), EXTRACT(MONTH FROM s.date_seance)
+         ), ranked AS (
+             SELECT
+                 b.*,
+                 ROW_NUMBER() OVER (PARTITION BY b.center_id ORDER BY b.yyyy, b.mm, b.patient_id) AS rn
+             FROM billed b
+         )
+         SELECT r.*, p.code_patient, (p.nom || ' ' || p.prenom) AS patient_full_name, p.etat_patient, p.numero_assurance, p.centre_payeur_id
+         FROM ranked r
+                  JOIN patients p ON p.id = r.patient_id AND p.center_id = r.center_id
+         ) q
+WHERE q.yyyy >= 2022
+  AND NOT EXISTS (SELECT 1
+                  FROM factures f
+                  WHERE f.center_id = q.center_id
+                    AND f.numero_facture =
+                        'AUTO-' || CAST(q.yyyy AS VARCHAR) || '-' || LPAD(CAST(q.mm AS VARCHAR), 2, '0') || '-'
+                            || CASE WHEN q.center_id = '11111111-1111-1111-1111-111111111111' THEN 'ANN-' ELSE 'SL-' END
+                            || LPAD(CAST(q.rn AS VARCHAR), 6, '0'));
+
+INSERT INTO facture_lignes (id, facture_id, center_id, forfait_id, forfait_label, unit_price_ht, seance_count, line_ht)
+SELECT CAST(
+               CASE WHEN f.center_id = '11111111-1111-1111-1111-111111111111' THEN 'c101' ELSE 'c201' END
+                   || LPAD(CAST(ROW_NUMBER() OVER (ORDER BY f.id) AS VARCHAR), 4, '0')
+                   || '-0000-0000-0000-'
+                   || LPAD(CAST(ROW_NUMBER() OVER (ORDER BY f.id) AS VARCHAR), 12, '0')
+           AS UUID
+       ),
+       f.id,
+       f.center_id,
+       CASE
+           WHEN f.center_id = '11111111-1111-1111-1111-111111111111' THEN 'f0000001-0000-0000-0000-000000000001'
+           ELSE 'f0000002-0000-0000-0000-000000000001' END,
+       CASE
+           WHEN f.center_id = '11111111-1111-1111-1111-111111111111' THEN 'Forfait Standard'
+           ELSE 'Forfait Standard SL' END,
+       CASE WHEN f.center_id = '11111111-1111-1111-1111-111111111111' THEN 5000.00 ELSE 5200.00 END,
+       CAST(ROUND(f.total_ht /
+                  (CASE WHEN f.center_id = '11111111-1111-1111-1111-111111111111' THEN 5000.00 ELSE 5200.00 END),
+                  0) AS INTEGER),
+       f.total_ht
+FROM factures f
+WHERE f.numero_facture LIKE 'AUTO-%'
+  AND NOT EXISTS (SELECT 1 FROM facture_lignes fl WHERE fl.facture_id = f.id);
+
+UPDATE seances s
+SET facture_id = (
+    SELECT f.id
+    FROM factures f
+    WHERE f.center_id = s.center_id
+      AND f.patient_id = s.patient_id
+      AND EXTRACT(YEAR FROM f.period_start) = EXTRACT(YEAR FROM s.date_seance)
+      AND EXTRACT(MONTH FROM f.period_start) = EXTRACT(MONTH FROM s.date_seance)
+      AND f.numero_facture LIKE 'AUTO-%'
+        FETCH FIRST 1 ROW ONLY
+    )
+WHERE s.statut = 'FACTUREE'
+  AND s.facture_id IS NULL;
+
+-- Recalcule un etat de stock coherent (entrees - sorties) sur 5 ans.
+UPDATE lots l
+SET quantite_restante = l.quantite_initiale
+    - COALESCE((
+                   SELECT SUM(m.quantite)
+                   FROM stock_movements m
+                   WHERE m.lot_id = l.id
+                     AND m.mouvement_type = 'SORTIE'
+                   ), 0)
+WHERE l.numero_lot LIKE 'LOT-ANN-%'
+   OR l.numero_lot LIKE 'LOT-SL-%';
+
+UPDATE articles a
+SET stock_quantity = COALESCE((
+                                  SELECT SUM(CASE WHEN m.mouvement_type = 'ENTREE' THEN m.quantite ELSE -m.quantite END)
+                                  FROM stock_movements m
+                                  WHERE m.article_id = a.id
+                                  ), 0),
+    pmp_courant    = (
+        SELECT AVG(m.prix_unitaire)
+        FROM stock_movements m
+        WHERE m.article_id = a.id
+          AND m.mouvement_type = 'ENTREE'
+        )
+WHERE a.code LIKE 'ART-ANN-%'
+   OR a.code LIKE 'ART-SL-%';
+
+-- Synchronise les compteurs sequence pour eviter collisions de references.
+MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
+    KEY (center_id, cle)
+    VALUES ('11111111-1111-1111-1111-111111111111', 'SEQ_BR', 'BR-', 6000);
+MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
+    KEY (center_id, cle)
+    VALUES ('11111111-1111-1111-1111-111111111111', 'SEQ_BS', 'BS-', 6000);
+MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
+    KEY (center_id, cle)
+    VALUES ('22222222-2222-2222-2222-222222222222', 'SEQ_BR', 'BR-', 6000);
+MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
+    KEY (center_id, cle)
+    VALUES ('22222222-2222-2222-2222-222222222222', 'SEQ_BS', 'BS-', 6000);
+
 
 
 

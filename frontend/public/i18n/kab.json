@@ -933,6 +933,8 @@
     "INVALID_MONTH": "Aggur d arameɣtu",
     "EXPORT_ERROR": "Usifeḍ d awezɣi",
     "LOADING_SESSION_DETAILS": "Asali n talqayt n tmsirt...",
+    "SERVER_CONTACT_IN_PROGRESS": "Anermis ɣer uqeddac yella tura...",
+    "SERVER_UNAVAILABLE": "Aqeddac ur yewjid ara. Ttxil-k ɛreḍ ar zdat.",
     "CODE_LABEL": "Tangalt",
     "CURRENCY_DA": "DA",
     "REFRESH_BUTTON": "Smiren",
