@@ -26,9 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class PatientGenerateurIntegrationTest {
 
-    private static final UUID CENTER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID PATIENT_ID = UUID.fromString("11000000-0000-0000-0000-000000000001");
-    private static final UUID GENERATEUR_ID = UUID.fromString("61000000-0000-0000-0000-000000000001");
+    private static final UUID CENTER_ID = UUID.fromString("99993000-0000-0000-0000-000000000001");
+    private static final UUID PATIENT_ID = UUID.fromString("99993000-0000-0000-0000-000000000002");
+    private static final UUID GENERATEUR_ID = UUID.fromString("99993000-0000-0000-0000-000000000003");
 
     @Autowired
     private WebApplicationContext context;
@@ -61,7 +61,7 @@ class PatientGenerateurIntegrationTest {
                         .param("userId", "admin")
                         .with(user("admin").roles("ADMIN")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(PATIENT_ID.toString()))
+                .andExpect(jsonPath("$.id.value").value(PATIENT_ID.toString()))
                 .andExpect(jsonPath("$.generateurId").value(GENERATEUR_ID.toString()))
                 .andExpect(jsonPath("$.generateurNom").value("G10"))
                 .andExpect(jsonPath("$.generateurMarque").value("Fresenius"))

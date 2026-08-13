@@ -61,7 +61,11 @@ public class AssurePatientRepositoryAdapter implements AssurePatientRepositoryPo
     }
 
     @Override
-    @Cacheable(cacheNames = "patient.assignment.primary", key = "#centerId.value().toString() + ':' + #patientId.toString()")
+    @Cacheable(
+            cacheNames = "patient.assignment.primary",
+            key = "#centerId.value().toString() + ':' + #patientId.toString()",
+            unless = "#result == null || #result.isEmpty()"
+    )
     public Optional<AssurePatientAssignment> findPrimary(CenterId centerId, UUID patientId) {
         return jpa.findFirstByCenterIdAndPatientIdAndIsPrimaryTrueOrderByDateAffectationDesc(centerId.value(), patientId)
             .map(this::toDomain);

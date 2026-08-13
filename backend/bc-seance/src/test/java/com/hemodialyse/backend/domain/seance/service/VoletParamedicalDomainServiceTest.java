@@ -110,6 +110,16 @@ class VoletParamedicalDomainServiceTest {
         public java.util.List<com.hemodialyse.backend.domain.seance.model.SeanceListItem> findAllByCenter(CenterId centerId) {
             return java.util.List.of();
         }
+
+        @Override
+        public com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> findPagedByCenter(CenterId centerId, int page, int size) {
+            return new com.hemodialyse.backend.domain.shared.PagedResult<>(java.util.List.of(), 0, page, size);
+        }
+
+        @Override
+        public com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> findPagedByCenterAndMonth(CenterId centerId, java.time.YearMonth month, int page, int size) {
+            return new com.hemodialyse.backend.domain.shared.PagedResult<>(java.util.List.of(), 0, page, size);
+        }
     }
 
     private static final class InMemoryVoletRepository implements VoletParamedicalRepositoryPort {

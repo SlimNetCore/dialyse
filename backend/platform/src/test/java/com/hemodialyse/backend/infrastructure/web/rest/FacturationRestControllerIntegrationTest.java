@@ -30,8 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class FacturationRestControllerIntegrationTest {
 
-    private static final UUID CENTER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID OTHER_CENTER_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final UUID CENTER_ID = UUID.fromString("99991000-0000-0000-0000-000000000001");
+    private static final UUID OTHER_CENTER_ID = UUID.fromString("99991000-0000-0000-0000-000000000002");
     private static final UUID PATIENT_ID = UUID.fromString("21000000-0000-0000-0000-000000000001");
     private static final UUID FORFAIT_ID = UUID.fromString("31000000-0000-0000-0000-000000000001");
     private static final UUID SEANCE_ID = UUID.fromString("41000000-0000-0000-0000-000000000001");
@@ -50,6 +50,7 @@ class FacturationRestControllerIntegrationTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+        cleanup();
         seedData();
     }
 

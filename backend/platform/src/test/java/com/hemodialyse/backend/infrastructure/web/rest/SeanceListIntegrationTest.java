@@ -26,13 +26,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class SeanceListIntegrationTest {
 
-    private static final UUID CENTER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID OTHER_CENTER_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID PATIENT_ID = UUID.fromString("10000000-0000-0000-0000-000000000101");
-    private static final UUID OTHER_PATIENT_ID = UUID.fromString("10000000-0000-0000-0000-000000000102");
-    private static final UUID VALIDATED_SEANCE_ID = UUID.fromString("20000000-0000-0000-0000-000000000101");
-    private static final UUID BILLED_SEANCE_ID = UUID.fromString("20000000-0000-0000-0000-000000000102");
-    private static final UUID OTHER_CENTER_SEANCE_ID = UUID.fromString("20000000-0000-0000-0000-000000000103");
+    private static final UUID CENTER_ID = UUID.fromString("99992000-0000-0000-0000-000000000001");
+    private static final UUID OTHER_CENTER_ID = UUID.fromString("99992000-0000-0000-0000-000000000002");
+    private static final UUID PATIENT_ID = UUID.fromString("99992000-0000-0000-0000-000000000101");
+    private static final UUID OTHER_PATIENT_ID = UUID.fromString("99992000-0000-0000-0000-000000000102");
+    private static final UUID VALIDATED_SEANCE_ID = UUID.fromString("99992000-0000-0000-0000-000000000201");
+    private static final UUID BILLED_SEANCE_ID = UUID.fromString("99992000-0000-0000-0000-000000000202");
+    private static final UUID OTHER_CENTER_SEANCE_ID = UUID.fromString("99992000-0000-0000-0000-000000000203");
 
     @Autowired
     private WebApplicationContext context;
@@ -69,9 +69,9 @@ class SeanceListIntegrationTest {
                         .param("centerId", CENTER_ID.toString())
                         .with(user("secretaire").roles("SECRETAIRE")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.id=='%s')]".formatted(VALIDATED_SEANCE_ID)).isNotEmpty())
-                .andExpect(jsonPath("$[?(@.id=='%s' && @.status=='FACTUREE')]".formatted(BILLED_SEANCE_ID)).isNotEmpty())
-                .andExpect(jsonPath("$[?(@.id=='%s')]".formatted(OTHER_CENTER_SEANCE_ID)).isEmpty());
+                .andExpect(jsonPath("$.items[?(@.id=='%s')]".formatted(VALIDATED_SEANCE_ID)).isNotEmpty())
+                .andExpect(jsonPath("$.items[?(@.id=='%s' && @.status=='FACTUREE')]".formatted(BILLED_SEANCE_ID)).isNotEmpty())
+                .andExpect(jsonPath("$.items[?(@.id=='%s')]".formatted(OTHER_CENTER_SEANCE_ID)).isEmpty());
     }
 
     private void seedPatient(UUID patientId, UUID centerId, String codePatient, String nom, String prenom) {

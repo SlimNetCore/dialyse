@@ -136,7 +136,7 @@ public class PatientRestController {
 
     @SuppressWarnings("unused")
     @GetMapping("/{id}")
-    public ResponseEntity<?> get(@PathVariable UUID id, @RequestParam UUID centerId, @RequestParam String userId) {
+    public ResponseEntity<?> get(@PathVariable UUID id, @RequestParam UUID centerId, @RequestParam(required = false) String userId) {
         Patient patient = useCase.getPatient(CenterId.of(centerId), id);
         enrichGenerateur(patient, centerId);
         return ResponseEntity.ok(patient);

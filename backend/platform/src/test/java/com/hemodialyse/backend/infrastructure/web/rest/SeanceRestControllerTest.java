@@ -46,14 +46,16 @@ class SeanceRestControllerTest {
     @Test
     void list_should_return_empty_list_when_no_seances() {
         SeanceUseCase useCase = mock(SeanceUseCase.class);
-        when(useCase.list(any(CenterId.class))).thenReturn(List.of());
+        com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
+                new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 0, 20);
+        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(pagedResult);
 
         SeanceRestController controller = buildController(useCase);
-        ResponseEntity<?> response = controller.list(CENTER_ID);
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        verify(useCase).list(CenterId.of(CENTER_ID));
+        verify(useCase).listPaged(CenterId.of(CENTER_ID), 0, 20);
     }
 
     @Test
@@ -65,18 +67,22 @@ class SeanceRestControllerTest {
                 LocalDate.now(), SeanceStatus.FACTUREE,
                 null, null, null, null
         );
-        when(useCase.list(CenterId.of(CENTER_ID))).thenReturn(List.of(item));
+        com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
+                new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
+        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(pagedResult);
 
         SeanceRestController controller = buildController(useCase);
-        ResponseEntity<?> response = controller.list(CENTER_ID);
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null);
 
         assertEquals(200, response.getStatusCode().value());
-        assertInstanceOf(List.class, response.getBody());
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> rows = (List<Map<String, Object>>) response.getBody();
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertNotNull(body);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) body.get("items");
         assertEquals(1, rows.size());
         assertEquals(SeanceStatus.FACTUREE, rows.getFirst().get("status"));
-        verify(useCase).list(CenterId.of(CENTER_ID));
+        verify(useCase).listPaged(CenterId.of(CENTER_ID), 0, 20);
     }
 
     @Test
@@ -91,7 +97,9 @@ class SeanceRestControllerTest {
                 LocalDate.of(2026, 7, 25), SeanceStatus.CREE,
                 null, null, null, null
         );
-        when(useCase.list(CenterId.of(CENTER_ID))).thenReturn(List.of(item));
+        com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
+                new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
+        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(pagedResult);
         when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.ResultSetExtractor.class), eq(SEANCE_ID), eq(CENTER_ID)))
                 .thenReturn(null);
         when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.RowMapper.class), any(), any(), any(), any(), any(), any()))
@@ -104,12 +112,14 @@ class SeanceRestControllerTest {
                 )));
 
         SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc);
-        ResponseEntity<?> response = controller.list(CENTER_ID);
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null);
 
         assertEquals(200, response.getStatusCode().value());
-        assertInstanceOf(List.class, response.getBody());
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> rows = (List<Map<String, Object>>) response.getBody();
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertNotNull(body);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) body.get("items");
         assertEquals(1, rows.size());
         @SuppressWarnings("unchecked")
         Map<String, Object> forfait = (Map<String, Object>) rows.getFirst().get("forfait");
@@ -122,19 +132,21 @@ class SeanceRestControllerTest {
         // Règle multi-centre : la liste est toujours scoped par centerId
         SeanceUseCase useCase = mock(SeanceUseCase.class);
         UUID otherCenter = UUID.randomUUID();
-        when(useCase.list(CenterId.of(CENTER_ID))).thenReturn(List.of());
-        when(useCase.list(CenterId.of(otherCenter))).thenReturn(List.of());
+        com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> emptyResult =
+                new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 0, 20);
+        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(emptyResult);
+        when(useCase.listPaged(eq(CenterId.of(otherCenter)), eq(0), eq(20))).thenReturn(emptyResult);
 
         SeanceRestController controller = buildController(useCase);
-        controller.list(CENTER_ID);
-        controller.list(otherCenter);
+        controller.list(CENTER_ID, 0, 20, null);
+        controller.list(otherCenter, 0, 20, null);
 
-        verify(useCase).list(CenterId.of(CENTER_ID));
-        verify(useCase).list(CenterId.of(otherCenter));
+        verify(useCase).listPaged(CenterId.of(CENTER_ID), 0, 20);
+        verify(useCase).listPaged(CenterId.of(otherCenter), 0, 20);
         // Chaque appel utilise strictement le centerId fourni
-        verify(useCase, never()).list(argThat(c ->
+        verify(useCase, never()).listPaged(argThat(c ->
                 !c.value().equals(CENTER_ID) && !c.value().equals(otherCenter)
-        ));
+        ), eq(0), eq(20));
     }
 
     // ─── create ──────────────────────────────────────────────────────────────
