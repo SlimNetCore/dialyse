@@ -73,10 +73,20 @@ public class BonReceptionService implements BonReceptionUseCase {
         }
 
         if (bon.getStatut() != BonStatut.BROUILLON) {
-            updateValidatedReceptionHistory(centerId, bon, lignes);
+            // RÈGLE MÉTIER : date du mouvement = date de la pièce, toujours.
+            // La synchronisation des dates est effectuée en premier, de façon inconditionnelle,
+            // indépendamment de la mise à jour des quantités/prix (updateValidatedReceptionHistory).
+            syncMovementDatesForBon(centerId, bon);
+            if (lignes != null && !lignes.isEmpty()) {
+                updateValidatedReceptionHistory(centerId, bon, lignes);
+                bon.remplacerLignes(lignes);
+            }
+            // Si aucune ligne fournie pour un BR validé, on conserve les lignes existantes
+            // (déjà chargées par get() via toDomainWithLines).
+        } else {
+            bon.remplacerLignes(lignes);
         }
 
-        bon.remplacerLignes(lignes);
         return repo.save(bon);
     }
 
@@ -156,6 +166,29 @@ public class BonReceptionService implements BonReceptionUseCase {
         return repo.findAll(centerId);
     }
 
+    /**
+     * Synchronise la date de tous les mouvements d'ENTRÉE associés à ce bon avec la date du bon.
+     * <p>
+     * RÈGLE MÉTIER : date du mouvement = date de la pièce, toujours.
+     * Appelée systématiquement lors de la mise à jour d'un BR validé, en amont de toute
+     * mise à jour des quantités/prix, de façon à garantir l'invariant même si la mise à
+     * jour des lignes échoue ou n'est pas demandée.
+     */
+    private void syncMovementDatesForBon(CenterId centerId, BonReception bon) {
+        if (bon.getDateReception() == null) {
+            return;
+        }
+        java.time.OffsetDateTime newDate =
+                bon.getDateReception().atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
+        List<Lot> existingLots = lotRepo.findByBonReception(bon.getId(), centerId);
+        for (Lot lot : existingLots) {
+            movementRepo.findFirstEntreeByLot(centerId, lot.getId()).ifPresent(entree -> {
+                entree.setCreatedAt(newDate);
+                movementRepo.save(entree);
+            });
+        }
+    }
+
     private void assertArticlesNotLocked(CenterId centerId, List<LigneReception> lignes) {
         if (lignes == null) {
             return;
@@ -212,6 +245,9 @@ public class BonReceptionService implements BonReceptionUseCase {
                     .orElseThrow(() -> new IllegalStateException("Mouvement d'entree introuvable pour le lot " + lot.getNumeroLot()));
             entree.setQuantite(newInitial);
             entree.setPrixUnitaire(line.prixUnitaire());
+            // Note : la date du mouvement est synchronisée par syncMovementDatesForBon() en amont.
+            // On la réapplique ici pour garantir la cohérence si updateValidatedReceptionHistory
+            // est appelée directement sans passer par update().
             entree.setCreatedAt(bon.getDateReception() != null
                     ? bon.getDateReception().atStartOfDay().atOffset(java.time.ZoneOffset.UTC)
                     : entree.getCreatedAt());
