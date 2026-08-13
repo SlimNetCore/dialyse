@@ -88,6 +88,13 @@ mat-card-content {
   align-self: center;
 }
 
+.recalc-save-hint {
+  margin: 8px 2px 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: color-mix(in srgb, #b45309 70%, var(--app-text));
+}
+
 .table-wrap {
   overflow-x: auto;
 }

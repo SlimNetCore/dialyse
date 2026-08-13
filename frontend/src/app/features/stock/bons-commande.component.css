@@ -97,6 +97,13 @@ form {
   white-space: nowrap;
 }
 
+.recalc-save-hint {
+  margin: 2px 2px 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: color-mix(in srgb, #b45309 70%, var(--app-text));
+}
+
 /* ── Cartes ─────────────────────────────────────────── */
 mat-card {
   margin-top: 24px;

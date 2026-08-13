@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {compatForm} from '@angular/forms/signals/compat';
 import {applyEach, FormField, FormRoot, min, required} from '@angular/forms/signals';
@@ -14,6 +14,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
+import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonCommande, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 
@@ -35,6 +36,7 @@ export class BonsCommandeComponent {
   protected readonly fournisseurs = signal<Fournisseur[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly saving = signal(false);
+  protected readonly recalcInProgress = signal(false);
   protected readonly formModel = signal({
     fournisseurId: null as string | null,
     lignes: [this.newLigne()],
@@ -57,11 +59,45 @@ export class BonsCommandeComponent {
   private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
+  private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
 
   constructor() {
     this.reload();
+    effect(() => {
+      const evt = this.ws.lastEvent();
+      const centerId = this.auth.centerId();
+      if (!evt || !centerId || evt.type !== 'STOCK_RECALC_LOCKS_CHANGED' || evt.centerId !== centerId) {
+        return;
+      }
+      const status = String((evt.payload as { status?: string } | undefined)?.status ?? '').toUpperCase();
+      if (status === 'STARTED') {
+        this.recalcInProgress.set(true);
+        this.snack.open(
+          this.translate.instant('STOCK.BON_COMMANDE.RECALC_STARTED_INFO'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 4200},
+        );
+      }
+      if (status === 'COMPLETED' || status === 'FINISHED') {
+        this.recalcInProgress.set(false);
+        this.refreshArticles();
+        this.snack.open(
+          this.translate.instant('STOCK.BON_COMMANDE.RECALC_COMPLETED_REFRESHED'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 5200},
+        );
+      }
+      if (status === 'FAILED') {
+        this.recalcInProgress.set(false);
+        this.snack.open(
+          this.translate.instant('STOCK.BON_COMMANDE.RECALC_FAILED_INFO'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 4200},
+        );
+      }
+    });
   }
 
   protected addLigne(): void {
@@ -86,7 +122,7 @@ export class BonsCommandeComponent {
   protected save(): void {
     const centerId = this.auth.centerId();
     const form = this.formModel();
-    if (!centerId || !this.canSave()) {
+    if (!centerId || !this.canSave() || this.recalcInProgress()) {
       return;
     }
     const lignes = form.lignes
@@ -183,6 +219,14 @@ export class BonsCommandeComponent {
     }
     this.api.listBonsCommande(centerId).subscribe({next: (b) => this.bons.set(b)});
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
+    this.refreshArticles();
+  }
+
+  private refreshArticles(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
     this.refApi.getArticles(centerId).subscribe({next: (a) => this.articles.set(a)});
   }
 

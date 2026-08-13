@@ -62,24 +62,33 @@
       "VALIDATED_OK": "Agelsu yettwaqbel",
       "VALIDATION_ERROR": "Tuccḍa deg uqbel",
       "TRANSFORM_OK": "Agelsu n usalis yettwarna (amesway)",
-      "TRANSFORM_ERROR": "Tuccḍa deg usendeg"
+      "TRANSFORM_ERROR": "Tuccḍa deg usendeg",
+      "RECALC_STARTED_INFO": "Asasifeḍ n ugdez yettnerna. Tzemreḍ ad tkemmeleḍ asekcem; kra n wazalen ad leqqmen mi yekfa.",
+      "RECALC_COMPLETED_REFRESHED": "Asasifeḍ yekfa: wazalen d tnektin i d-yettwaskanen leqqmen.",
+      "RECALC_FAILED_INFO": "Asasifeḍ n ugdez ur yeddi ara. Azalen ineggura ttwasnen qqimen d-yettwaskanen."
     },
     "BON_RECEPTION": {
       "LOCKED_ARTICLES": "Kra n yiḥricen ssasifeḍen. Ɛreḍ deffir.",
       "UPDATED_OK": "Agelsu n usalis yettwaleqqem",
       "CREATED_OK": "Agelsu n usalis yettwarna",
       "OPERATION_ERROR": "Tuccḍa deg tigawt",
-      "LOCKED_ARTICLE_SINGLE": "Asasifeḍ yettnerna i uḥric-agi. Asekcem yettwahbes.",
+      "LOCKED_ARTICLE_SINGLE": "Asasifeḍ yettnerna i uḥric-agi. Asekcem ur yettwahbes ara; wazalen ad mṣadan mi yekfa.",
       "VALIDATED_OK": "Asalis yettwaqbel · PMP yettwasasifeḍ",
-      "VALIDATION_ERROR": "Tuccḍa deg uqbel"
+      "VALIDATION_ERROR": "Tuccḍa deg uqbel",
+      "RECALC_STARTED_INFO": "Asasifeḍ n ugdez yettnerna. Tzemreḍ ad tkemmeleḍ asekcem; kra n wazalen ad leqqmen mi yekfa.",
+      "RECALC_COMPLETED_REFRESHED": "Asasifeḍ yekfa: wazalen d tnektin i d-yettwaskanen leqqmen.",
+      "RECALC_FAILED_INFO": "Asasifeḍ n ugdez ur yeddi ara. Azalen ineggura ttwasnen qqimen d-yettwaskanen."
     },
     "BON_SORTIE": {
-      "LOCKED_ARTICLE_SINGLE": "Asasifeḍ yettnerna i uḥric-agi. Asekcem yettwahbes.",
+      "LOCKED_ARTICLE_SINGLE": "Asasifeḍ yettnerna i uḥric-agi. Asekcem ur yettwahbes ara; wazalen ad mṣadan mi yekfa.",
       "LOCKED_ARTICLES": "Kra n yiḥricen ssasifeḍen. Ɛreḍ deffir.",
       "MODIFIED_OK": "Agelsu n tuffɣa yettwaleqqem",
       "SAVED_OK": "Tuffɣa tettwasekles",
       "SAVE_ERROR": "Tuccḍa deg usekles",
-      "SAVE_ERROR_DETAIL": "Tuccḍa deg usekles: {{detail}}"
+      "SAVE_ERROR_DETAIL": "Tuccḍa deg usekles: {{detail}}",
+      "RECALC_STARTED_INFO": "Asasifeḍ n ugdez yettnerna. Tzemreḍ ad tkemmeleḍ asekcem; kra n wazalen ad leqqmen mi yekfa.",
+      "RECALC_COMPLETED_REFRESHED": "Asasifeḍ yekfa: wazalen d tnektin i d-yettwaskanen leqqmen.",
+      "RECALC_FAILED_INFO": "Asasifeḍ n ugdez ur yeddi ara. Azalen ineggura ttwasnen qqimen d-yettwaskanen."
     },
     "EYEBROW_SUPPLY": "Agdez · Taẓuri",
     "PURCHASE_ORDERS_TITLE": "Igelsan n tuttra",

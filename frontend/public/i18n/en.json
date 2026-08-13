@@ -62,24 +62,33 @@
       "VALIDATED_OK": "Order validated",
       "VALIDATION_ERROR": "Validation error",
       "TRANSFORM_OK": "Goods receipt created (draft)",
-      "TRANSFORM_ERROR": "Transformation error"
+      "TRANSFORM_ERROR": "Transformation error",
+      "RECALC_STARTED_INFO": "Stock recalculation is running. You can keep entering data; some values will refresh when it finishes.",
+      "RECALC_COMPLETED_REFRESHED": "Recalculation finished: displayed prices and quantities were refreshed.",
+      "RECALC_FAILED_INFO": "Stock recalculation failed. Last known values remain displayed."
     },
     "BON_RECEPTION": {
       "LOCKED_ARTICLES": "One or more items are being recalculated. Please retry later.",
       "UPDATED_OK": "Goods receipt updated",
       "CREATED_OK": "Goods receipt created",
       "OPERATION_ERROR": "Operation error",
-      "LOCKED_ARTICLE_SINGLE": "Recalculation in progress for this item. Entry is temporarily blocked.",
+      "LOCKED_ARTICLE_SINGLE": "Recalculation is in progress for this item. Entry remains available; values will sync once recalculation ends.",
       "VALIDATED_OK": "Receipt validated · WAP recalculated",
-      "VALIDATION_ERROR": "Validation error"
+      "VALIDATION_ERROR": "Validation error",
+      "RECALC_STARTED_INFO": "Stock recalculation is running. You can keep entering data; some values will refresh when it finishes.",
+      "RECALC_COMPLETED_REFRESHED": "Recalculation finished: displayed prices and quantities were refreshed.",
+      "RECALC_FAILED_INFO": "Stock recalculation failed. Last known values remain displayed."
     },
     "BON_SORTIE": {
-      "LOCKED_ARTICLE_SINGLE": "Recalculation in progress for this item. Entry is temporarily blocked.",
+      "LOCKED_ARTICLE_SINGLE": "Recalculation is in progress for this item. Entry remains available; values will sync once recalculation ends.",
       "LOCKED_ARTICLES": "One or more items are being recalculated. Please retry later.",
       "MODIFIED_OK": "Issue note updated",
       "SAVED_OK": "Issue note saved",
       "SAVE_ERROR": "Error while saving issue note",
-      "SAVE_ERROR_DETAIL": "Error while saving issue note: {{detail}}"
+      "SAVE_ERROR_DETAIL": "Error while saving issue note: {{detail}}",
+      "RECALC_STARTED_INFO": "Stock recalculation is running. You can keep entering data; some values will refresh when it finishes.",
+      "RECALC_COMPLETED_REFRESHED": "Recalculation finished: displayed prices and quantities were refreshed.",
+      "RECALC_FAILED_INFO": "Stock recalculation failed. Last known values remain displayed."
     },
     "EYEBROW_SUPPLY": "Stock · Supply",
     "PURCHASE_ORDERS_TITLE": "Purchase orders",

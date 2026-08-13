@@ -40,6 +40,7 @@ export class BonsSortieComponent implements OnDestroy {
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly lotsByRow = signal<Record<number, LotDisponible[]>>({});
   protected readonly lockedArticleIds = signal<string[]>([]);
+  protected readonly recalcInProgress = signal(false);
   protected readonly saving = signal(false);
   protected readonly submitAttempted = signal(false);
   protected readonly editingBonId = signal<string | null>(null);
@@ -80,6 +81,32 @@ export class BonsSortieComponent implements OnDestroy {
         return;
       }
       if (evt.type === 'STOCK_RECALC_LOCKS_CHANGED' && evt.centerId === centerId) {
+        const status = String((evt.payload as { status?: string } | undefined)?.status ?? '').toUpperCase();
+        if (status === 'STARTED') {
+          this.recalcInProgress.set(true);
+          this.snack.open(
+            this.translate.instant('STOCK.BON_SORTIE.RECALC_STARTED_INFO'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 4200},
+          );
+        }
+        if (status === 'COMPLETED' || status === 'FINISHED') {
+          this.recalcInProgress.set(false);
+          this.refreshLotsForCurrentRows();
+          this.snack.open(
+            this.translate.instant('STOCK.BON_SORTIE.RECALC_COMPLETED_REFRESHED'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 5200},
+          );
+        }
+        if (status === 'FAILED') {
+          this.recalcInProgress.set(false);
+          this.snack.open(
+            this.translate.instant('STOCK.BON_SORTIE.RECALC_FAILED_INFO'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 4200},
+          );
+        }
         this.refreshLocks();
       }
     });
@@ -118,16 +145,6 @@ export class BonsSortieComponent implements OnDestroy {
   protected onArticleSelected(i: number, articleId: string | null): void {
     const centerId = this.auth.centerId();
     this.patchItem(i, {articleId, lotId: null});
-    if (this.isArticleLocked(articleId)) {
-      this.snack.open(
-        this.translate.instant('STOCK.BON_SORTIE.LOCKED_ARTICLE_SINGLE'),
-        this.translate.instant('COMMON.RETRY'),
-        {duration: 4000},
-      );
-      this.patchItem(i, {articleId: null});
-      this.setLotsForRow(i, []);
-      return;
-    }
     if (!centerId || !articleId) {
       this.setLotsForRow(i, []);
       return;
@@ -167,15 +184,7 @@ export class BonsSortieComponent implements OnDestroy {
     this.submitAttempted.set(true);
     const centerId = this.auth.centerId();
     const model = this.formModel();
-    if (!centerId || !this.canSave()) {
-      return;
-    }
-    if (this.hasLockedItems()) {
-      this.snack.open(
-        this.translate.instant('STOCK.BON_SORTIE.LOCKED_ARTICLES'),
-        this.translate.instant('COMMON.RETRY'),
-        {duration: 4000},
-      );
+    if (!centerId || !this.canSave() || this.recalcInProgress()) {
       return;
     }
     this.saving.set(true);
@@ -338,8 +347,37 @@ export class BonsSortieComponent implements OnDestroy {
       return;
     }
     this.api.listPmpRecalcLocks(centerId).subscribe({
-      next: (ids) => this.lockedArticleIds.set(ids),
-      error: () => this.lockedArticleIds.set([]),
+      next: (ids) => {
+        this.lockedArticleIds.set(ids);
+        this.recalcInProgress.set(ids.length > 0);
+      },
+      error: () => {
+        this.lockedArticleIds.set([]);
+        this.recalcInProgress.set(false);
+      },
+    });
+  }
+
+  private refreshLotsForCurrentRows(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
+    const items = this.formModel().items;
+    items.forEach((item, index) => {
+      if (!item.articleId) {
+        this.setLotsForRow(index, []);
+        return;
+      }
+      this.api.listLotsDisponibles(centerId, item.articleId).subscribe({
+        next: (lots) => {
+          this.setLotsForRow(index, lots);
+          if (item.lotId && !lots.some(lot => lot.id === item.lotId)) {
+            this.patchItem(index, {lotId: null});
+          }
+        },
+        error: () => this.setLotsForRow(index, []),
+      });
     });
   }
 

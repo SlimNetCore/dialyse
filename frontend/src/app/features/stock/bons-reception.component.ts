@@ -45,6 +45,7 @@ export class BonsReceptionComponent implements OnDestroy {
   protected readonly emplacements = signal<Emplacement[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly lockedArticleIds = signal<string[]>([]);
+  protected readonly recalcInProgress = signal(false);
   protected readonly saving = signal(false);
   protected readonly submitAttempted = signal(false);
   protected readonly editingId = signal<string | null>(null);
@@ -89,6 +90,32 @@ export class BonsReceptionComponent implements OnDestroy {
         return;
       }
       if (evt.type === 'STOCK_RECALC_LOCKS_CHANGED' && evt.centerId === centerId) {
+        const status = String((evt.payload as { status?: string } | undefined)?.status ?? '').toUpperCase();
+        if (status === 'STARTED') {
+          this.recalcInProgress.set(true);
+          this.snack.open(
+            this.translate.instant('STOCK.BON_RECEPTION.RECALC_STARTED_INFO'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 4200},
+          );
+        }
+        if (status === 'COMPLETED' || status === 'FINISHED') {
+          this.recalcInProgress.set(false);
+          this.refreshArticles();
+          this.snack.open(
+            this.translate.instant('STOCK.BON_RECEPTION.RECALC_COMPLETED_REFRESHED'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 5200},
+          );
+        }
+        if (status === 'FAILED') {
+          this.recalcInProgress.set(false);
+          this.snack.open(
+            this.translate.instant('STOCK.BON_RECEPTION.RECALC_FAILED_INFO'),
+            this.translate.instant('COMMON.OK'),
+            {duration: 4200},
+          );
+        }
         this.refreshLocks();
       }
     });
@@ -118,15 +145,7 @@ export class BonsReceptionComponent implements OnDestroy {
     this.submitAttempted.set(true);
     const centerId = this.auth.centerId();
     const model = this.formModel();
-    if (!centerId || !this.canSave()) {
-      return;
-    }
-    if (this.hasLockedLines()) {
-      this.snack.open(
-        this.translate.instant('STOCK.BON_RECEPTION.LOCKED_ARTICLES'),
-        this.translate.instant('COMMON.RETRY'),
-        {duration: 4000},
-      );
+    if (!centerId || !this.canSave() || this.recalcInProgress()) {
       return;
     }
     this.saving.set(true);
@@ -220,15 +239,6 @@ export class BonsReceptionComponent implements OnDestroy {
   }
 
   protected onArticleSelected(index: number, articleId: string | null): void {
-    if (this.isArticleLocked(articleId)) {
-      this.snack.open(
-        this.translate.instant('STOCK.BON_RECEPTION.LOCKED_ARTICLE_SINGLE'),
-        this.translate.instant('COMMON.RETRY'),
-        {duration: 4000},
-      );
-      this.patchLigne(index, {articleId: null, numeroLot: '', datePeremption: null});
-      return;
-    }
     this.patchLigne(index, {articleId});
   }
 
@@ -346,10 +356,16 @@ export class BonsReceptionComponent implements OnDestroy {
     this.api.listBonsReception(centerId).subscribe({next: (b) => this.bons.set(b)});
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
     this.api.listEmplacements(centerId).subscribe({next: (e) => this.emplacements.set(e)});
-    this.refApi.getArticles(centerId).subscribe({
-      next: (a) => this.articles.set(a),
-    });
+    this.refreshArticles();
     this.refreshLocks();
+  }
+
+  private refreshArticles(): void {
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
+    this.refApi.getArticles(centerId).subscribe({next: (a) => this.articles.set(a)});
   }
 
   private isLotManagedArticle(articleId?: string | null): boolean {
@@ -377,8 +393,14 @@ export class BonsReceptionComponent implements OnDestroy {
       return;
     }
     this.api.listPmpRecalcLocks(centerId).subscribe({
-      next: (ids) => this.lockedArticleIds.set(ids),
-      error: () => this.lockedArticleIds.set([]),
+      next: (ids) => {
+        this.lockedArticleIds.set(ids);
+        this.recalcInProgress.set(ids.length > 0);
+      },
+      error: () => {
+        this.lockedArticleIds.set([]);
+        this.recalcInProgress.set(false);
+      },
     });
   }
 

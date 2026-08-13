@@ -62,24 +62,33 @@
       "VALIDATED_OK": "Bon validé",
       "VALIDATION_ERROR": "Erreur de validation",
       "TRANSFORM_OK": "Bon de réception créé (brouillon)",
-      "TRANSFORM_ERROR": "Erreur de transformation"
+      "TRANSFORM_ERROR": "Erreur de transformation",
+      "RECALC_STARTED_INFO": "Recalcul stock en cours. Vous pouvez continuer la saisie ; certaines valeurs seront mises à jour à la fin.",
+      "RECALC_COMPLETED_REFRESHED": "Recalcul terminé : les prix et quantités affichés ont été actualisés.",
+      "RECALC_FAILED_INFO": "Le recalcul stock a échoué. Les dernières valeurs connues restent affichées."
     },
     "BON_RECEPTION": {
       "LOCKED_ARTICLES": "Un ou plusieurs articles sont en recalcul. Réessayez plus tard.",
       "UPDATED_OK": "Bon de réception mis à jour",
       "CREATED_OK": "Bon de réception créé",
       "OPERATION_ERROR": "Erreur lors de l'opération",
-      "LOCKED_ARTICLE_SINGLE": "Recalcul en cours pour cet article. Saisie temporairement bloquée.",
+      "LOCKED_ARTICLE_SINGLE": "Recalcul en cours pour cet article. La saisie reste possible ; les valeurs seront synchronisées en fin de recalcul.",
       "VALIDATED_OK": "Réception validée · PMP recalculé",
-      "VALIDATION_ERROR": "Erreur de validation"
+      "VALIDATION_ERROR": "Erreur de validation",
+      "RECALC_STARTED_INFO": "Recalcul stock en cours. Vous pouvez continuer la saisie ; certaines valeurs seront mises à jour à la fin.",
+      "RECALC_COMPLETED_REFRESHED": "Recalcul terminé : les prix et quantités affichés ont été actualisés.",
+      "RECALC_FAILED_INFO": "Le recalcul stock a échoué. Les dernières valeurs connues restent affichées."
     },
     "BON_SORTIE": {
-      "LOCKED_ARTICLE_SINGLE": "Recalcul en cours pour cet article. Saisie temporairement bloquée.",
+      "LOCKED_ARTICLE_SINGLE": "Recalcul en cours pour cet article. La saisie reste possible ; les valeurs seront synchronisées en fin de recalcul.",
       "LOCKED_ARTICLES": "Un ou plusieurs articles sont en recalcul. Réessayez plus tard.",
       "MODIFIED_OK": "Bon de sortie modifié",
       "SAVED_OK": "Sortie enregistrée",
       "SAVE_ERROR": "Erreur lors de la sortie",
-      "SAVE_ERROR_DETAIL": "Erreur lors de la sortie : {{detail}}"
+      "SAVE_ERROR_DETAIL": "Erreur lors de la sortie : {{detail}}",
+      "RECALC_STARTED_INFO": "Recalcul stock en cours. Vous pouvez continuer la saisie ; certaines valeurs seront mises à jour à la fin.",
+      "RECALC_COMPLETED_REFRESHED": "Recalcul terminé : les prix et quantités affichés ont été actualisés.",
+      "RECALC_FAILED_INFO": "Le recalcul stock a échoué. Les dernières valeurs connues restent affichées."
     },
     "EYEBROW_SUPPLY": "Stock · Approvisionnement",
     "PURCHASE_ORDERS_TITLE": "Bons de commande",

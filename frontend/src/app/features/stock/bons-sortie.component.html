@@ -101,12 +101,15 @@
                     type="button">{{ 'PATIENT_FORM.BTN_CANCEL' | translate }}
             </button>
           }
-          <button [disabled]="!canSave() || saving() || hasLockedItems()" color="primary" mat-flat-button
+          <button [disabled]="!canSave() || saving() || recalcInProgress()" color="primary" mat-flat-button
                   type="submit">
             <mat-icon>logout</mat-icon>
             {{ editingBonId() ? ('STOCK.UPDATE_OUTPUT_BTN' | translate) : ('STOCK.CREATE_OUTPUT_BTN' | translate) }}
           </button>
         </div>
+        @if (recalcInProgress()) {
+          <p class="recalc-save-hint">{{ 'STOCK.BON_SORTIE.RECALC_STARTED_INFO' | translate }}</p>
+        }
       </form>
     </mat-card-content>
   </mat-card>

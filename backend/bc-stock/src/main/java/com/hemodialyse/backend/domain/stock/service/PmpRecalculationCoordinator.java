@@ -98,7 +98,8 @@ public class PmpRecalculationCoordinator {
             for (UUID articleId : jobState.articleIds) {
                 articleLocks.remove(lockKey(jobState.centerId, articleId));
             }
-            publishLocksChanged(jobState.centerId, jobState.articleIds, "FINISHED");
+            String finalStatus = jobState.status == JobStatus.FAILED ? "FAILED" : "COMPLETED";
+            publishLocksChanged(jobState.centerId, jobState.articleIds, finalStatus);
         }
     }
 

@@ -116,12 +116,15 @@
             <button (click)="cancel()" mat-stroked-button type="button">{{ 'PATIENT_FORM.BTN_CANCEL' | translate }}
             </button>
           }
-          <button [disabled]="!canSave() || saving() || hasLockedLines()" color="primary" mat-flat-button
+          <button [disabled]="!canSave() || saving() || recalcInProgress()" color="primary" mat-flat-button
                   type="submit">
             <mat-icon>save</mat-icon>
             {{ editingId() ? ('STOCK.UPDATE_RECEPTION_BTN' | translate) : ('STOCK.CREATE_RECEPTION_DRAFT_BTN' | translate) }}
           </button>
         </div>
+        @if (recalcInProgress()) {
+          <p class="recalc-save-hint">{{ 'STOCK.BON_RECEPTION.RECALC_STARTED_INFO' | translate }}</p>
+        }
       </form>
     </mat-card-content>
   </mat-card>

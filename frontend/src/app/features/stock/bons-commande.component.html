@@ -55,11 +55,14 @@
           </button>
           <span class="spacer"></span>
           <span class="total">{{ 'COMMON.TOTAL_LABEL' | translate }} {{ total() | number:'1.0-2' }}</span>
-          <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+          <button [disabled]="!canSave() || recalcInProgress()" color="primary" mat-flat-button type="submit">
             <mat-icon>save</mat-icon>
             {{ 'STOCK.CREATE_ORDER_BUTTON' | translate }}
           </button>
         </div>
+        @if (recalcInProgress()) {
+          <p class="recalc-save-hint">{{ 'STOCK.BON_COMMANDE.RECALC_STARTED_INFO' | translate }}</p>
+        }
       </form>
     </mat-card-content>
   </mat-card>
