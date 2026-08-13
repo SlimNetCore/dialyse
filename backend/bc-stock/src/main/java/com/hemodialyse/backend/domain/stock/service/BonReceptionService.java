@@ -121,7 +121,7 @@ public class BonReceptionService implements BonReceptionUseCase {
             lotRepo.save(lot);
 
             StockMovement entree = StockMovement.entree(centerId.value(), ligne.articleId(), lot.getId(),
-                    ligne.quantite(), ligne.prixUnitaire(), by);
+                    ligne.quantite(), ligne.prixUnitaire(), by, bon.getDateReception());
             movementRepo.save(entree);
 
             articlesTouches.add(ligne.articleId());
@@ -212,6 +212,9 @@ public class BonReceptionService implements BonReceptionUseCase {
                     .orElseThrow(() -> new IllegalStateException("Mouvement d'entree introuvable pour le lot " + lot.getNumeroLot()));
             entree.setQuantite(newInitial);
             entree.setPrixUnitaire(line.prixUnitaire());
+            entree.setCreatedAt(bon.getDateReception() != null
+                    ? bon.getDateReception().atStartOfDay().atOffset(java.time.ZoneOffset.UTC)
+                    : entree.getCreatedAt());
             movementRepo.save(entree);
 
             touchedArticles.add(line.articleId());

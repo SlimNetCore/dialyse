@@ -98,7 +98,7 @@ public class BonSortieService implements BonSortieUseCase {
             bon.ajouterLigne(new LigneSortie(UUID.randomUUID(), item.articleId(), lot.getId(), item.quantite(), pmpApplique));
 
             movementRepo.save(StockMovement.sortieLot(centerId.value(), item.articleId(), effectiveSeanceId,
-                    lot.getId(), item.quantite(), pmpApplique, by));
+                    lot.getId(), item.quantite(), pmpApplique, by, bon.getDateSortie()));
 
             articlesTouches.add(item.articleId());
         }
@@ -196,7 +196,7 @@ public class BonSortieService implements BonSortieUseCase {
             lotRepo.save(lot);
             updated.ajouterLigne(new LigneSortie(UUID.randomUUID(), item.articleId(), lot.getId(), item.quantite(), pmpApplique));
             movementRepo.save(StockMovement.sortieLot(centerId.value(), item.articleId(), updated.getSeanceId(),
-                    lot.getId(), item.quantite(), pmpApplique, by));
+                    lot.getId(), item.quantite(), pmpApplique, by, updated.getDateSortie()));
             articlesTouches.add(item.articleId());
         }
 
@@ -263,7 +263,7 @@ public class BonSortieService implements BonSortieUseCase {
             lot.consommer(take);
             lotRepo.save(lot);
             BigDecimal pmpApplique = article.getPmpCourant() != null ? article.getPmpCourant() : BigDecimal.ZERO;
-            StockMovement m = StockMovement.sortieLot(centerId.value(), articleId, seanceId, lot.getId(), take, pmpApplique, by);
+            StockMovement m = StockMovement.sortieLot(centerId.value(), articleId, seanceId, lot.getId(), take, pmpApplique, by, dateSeance);
             newMovements.add(m);
             remaining = remaining.subtract(take);
         }

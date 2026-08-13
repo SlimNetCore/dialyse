@@ -4,7 +4,9 @@ import com.hemodialyse.backend.domain.shared.vo.Money;
 import com.hemodialyse.backend.domain.shared.vo.Quantite;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 public class StockMovement {
@@ -25,6 +27,11 @@ public class StockMovement {
     }
 
     public static StockMovement sortie(UUID centerId, UUID articleId, UUID seanceId,
+                                       BigDecimal quantite, String createdBy, LocalDate createdOn) {
+        return sortie(centerId, articleId, seanceId, quantite, createdBy, toCreatedAt(createdOn));
+    }
+
+    public static StockMovement sortie(UUID centerId, UUID articleId, UUID seanceId,
                                        BigDecimal quantite, String createdBy, OffsetDateTime createdAt) {
         // Aggregate invariant (Shared Kernel): a movement quantity is a valid Quantite.
         Quantite.of(quantite);
@@ -42,6 +49,18 @@ public class StockMovement {
 
     public static StockMovement entree(UUID centerId, UUID articleId, UUID lotId,
                                        BigDecimal quantite, BigDecimal prixUnitaire, String createdBy) {
+        return entree(centerId, articleId, lotId, quantite, prixUnitaire, createdBy, OffsetDateTime.now());
+    }
+
+    public static StockMovement entree(UUID centerId, UUID articleId, UUID lotId,
+                                       BigDecimal quantite, BigDecimal prixUnitaire, String createdBy,
+                                       LocalDate createdOn) {
+        return entree(centerId, articleId, lotId, quantite, prixUnitaire, createdBy, toCreatedAt(createdOn));
+    }
+
+    public static StockMovement entree(UUID centerId, UUID articleId, UUID lotId,
+                                       BigDecimal quantite, BigDecimal prixUnitaire, String createdBy,
+                                       OffsetDateTime createdAt) {
         // Aggregate invariants (Shared Kernel): valid quantity and non-negative unit price.
         Quantite.of(quantite);
         if (prixUnitaire != null) {
@@ -56,7 +75,7 @@ public class StockMovement {
         movement.setQuantite(quantite);
         movement.setPrixUnitaire(prixUnitaire);
         movement.setCreatedBy(createdBy);
-        movement.setCreatedAt(OffsetDateTime.now());
+        movement.setCreatedAt(createdAt != null ? createdAt : OffsetDateTime.now());
         return movement;
     }
 
@@ -69,6 +88,22 @@ public class StockMovement {
         }
         movement.setPrixUnitaire(pmpApplique);
         return movement;
+    }
+
+    public static StockMovement sortieLot(UUID centerId, UUID articleId, UUID seanceId, UUID lotId,
+                                          BigDecimal quantite, BigDecimal pmpApplique, String createdBy,
+                                          LocalDate createdOn) {
+        StockMovement movement = sortie(centerId, articleId, seanceId, quantite, createdBy, createdOn);
+        movement.setLotId(lotId);
+        if (pmpApplique != null) {
+            Money.of(pmpApplique);
+        }
+        movement.setPrixUnitaire(pmpApplique);
+        return movement;
+    }
+
+    private static OffsetDateTime toCreatedAt(LocalDate createdOn) {
+        return createdOn != null ? createdOn.atStartOfDay().atOffset(ZoneOffset.UTC) : OffsetDateTime.now();
     }
 
     public UUID getId() {

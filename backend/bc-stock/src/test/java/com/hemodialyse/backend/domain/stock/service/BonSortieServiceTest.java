@@ -102,7 +102,9 @@ class BonSortieServiceTest {
         assertEquals(bonId, updated.getId());
         assertEquals(1, updated.getLignes().size());
         assertEquals(0, new BigDecimal("7").compareTo(lot.getQuantiteRestante()));
-        assertEquals(1, movementRepo.findBySeanceAndArticle(centerId, seanceId, articleId).size());
+        List<StockMovement> movements = movementRepo.findBySeanceAndArticle(centerId, seanceId, articleId);
+        assertEquals(1, movements.size());
+        assertEquals(LocalDate.of(2026, 8, 2), movements.get(0).getCreatedAt().toLocalDate());
     }
 
     @Test
