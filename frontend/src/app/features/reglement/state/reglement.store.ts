@@ -2,17 +2,24 @@ import {computed, effect, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withHooks, withMethods, withState} from '@ngrx/signals';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
-import {catchError, EMPTY, forkJoin, of, pipe, switchMap, tap} from 'rxjs';
+import {catchError, EMPTY, forkJoin, map, of, pipe, switchMap, tap} from 'rxjs';
 import {
   BackendApiService,
   ReglementDashboardResponse,
+  ReglementEtat,
   ReglementInvoiceRow,
   ReglementListQuery,
+  ReglementSoldeType,
 } from '../../../core/api/backend-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 import {ReferentialApiService, RefItem} from '../../../core/api/referential-api.service';
+
+export type ReglementPreviewRow = ReglementInvoiceRow & {
+  hasDraft: boolean;
+  draftAmount: number;
+};
 
 const currentDate = new Date();
 
@@ -31,9 +38,11 @@ export type ReglementState = PagedListState<ReglementInvoiceRow> & {
   agences: RefItem[];
   centresPayeurs: RefItem[];
   savingFactureIds: string[];
+  batchSaving: boolean;
   exporting: boolean;
   error: string | null;
   successMessage: string | null;
+  paymentDrafts: Record<string, string>;
 };
 
 const initialState: ReglementState = {
@@ -52,9 +61,11 @@ const initialState: ReglementState = {
   agences: [],
   centresPayeurs: [],
   savingFactureIds: [],
+  batchSaving: false,
   exporting: false,
   error: null,
   successMessage: null,
+  paymentDrafts: {},
 };
 
 export const ReglementStore = signalStore(
@@ -94,6 +105,48 @@ export const ReglementStore = signalStore(
         tauxEncaissement: totalFacture > 0 ? totalRegle / totalFacture : 0,
       };
     }),
+    previewRows: computed((): ReglementPreviewRow[] => {
+      const rows = store.rows();
+      const drafts = store.paymentDrafts();
+      return rows.map((row) => {
+        const raw = drafts[row.factureId] ?? '';
+        const draftAmount = raw ? Number(raw) : 0;
+        const hasDraft = Number.isFinite(draftAmount) && draftAmount > 0;
+        if (!hasDraft) {
+          return {...row, hasDraft: false, draftAmount: 0};
+        }
+        const newMontantRegle = row.montantRegle + draftAmount;
+        const diff = row.montantFacture - newMontantRegle;
+        const newReste = diff > 0 ? diff : 0;
+        const newTropPercu = diff < 0 ? Math.abs(diff) : 0;
+        const newEtat: ReglementEtat = diff > 0 ? 'PARTIELLEMENT_REGLEE' : 'REGLEE';
+        const newSoldeType: ReglementSoldeType = diff < 0 ? 'TROP_PERCU' : diff === 0 ? 'REGLE' : 'RESTE';
+        return {
+          ...row,
+          montantRegle: newMontantRegle,
+          reste: newReste,
+          tropPercu: newTropPercu,
+          etat: newEtat,
+          soldeType: newSoldeType,
+          hasDraft: true,
+          draftAmount,
+        };
+      });
+    }),
+    hasDrafts: computed(() => {
+      const drafts = store.paymentDrafts();
+      return Object.values(drafts).some((v) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n > 0;
+      });
+    }),
+    draftCount: computed(() => {
+      const drafts = store.paymentDrafts();
+      return Object.values(drafts).filter((v) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n > 0;
+      }).length;
+    }),
   })),
   withMethods((store, api = inject(BackendApiService), referentials = inject(ReferentialApiService)) => ({
     setPagination(pageIndex: number, pageSize: number): void {
@@ -127,6 +180,12 @@ export const ReglementStore = signalStore(
     },
     clearMessages(): void {
       patchState(store, {error: null, successMessage: null});
+    },
+    setPaymentDraft(factureId: string, value: string): void {
+      patchState(store, {paymentDrafts: {...store.paymentDrafts(), [factureId]: value}});
+    },
+    clearAllDrafts(): void {
+      patchState(store, {paymentDrafts: {}});
     },
 
     loadReferentials: rxMethod<{ centerId: string }>(
@@ -264,6 +323,78 @@ export const ReglementStore = signalStore(
       )
     ),
 
+    batchSavePayments: rxMethod<{ centerId: string; userId: string }>(
+      pipe(
+        tap(() => patchState(store, {batchSaving: true, error: null, successMessage: null})),
+        switchMap(({centerId, userId}) => {
+          const drafts = store.paymentDrafts();
+          const entries = Object.entries(drafts)
+            .filter(([, v]) => {
+              const n = Number(v);
+              return Number.isFinite(n) && n > 0;
+            })
+            .map(([factureId, v]) => ({factureId, montant: Number(v)}));
+
+          if (entries.length === 0) {
+            patchState(store, {batchSaving: false});
+            return EMPTY;
+          }
+
+          const requests$ = entries.map(({factureId, montant}) =>
+            api.registerFacturePayment(factureId, {centerId, montant, userId}).pipe(
+              map((row) => ({ok: true, factureId, row} as const)),
+              catchError(() => of({ok: false, factureId, row: null} as const))
+            )
+          );
+
+          return forkJoin(requests$).pipe(
+            switchMap((results) => {
+              const successCount = results.filter((r) => r.ok).length;
+              const failCount = results.filter((r) => !r.ok).length;
+
+              let rows = store.rows();
+              for (const result of results) {
+                if (result.ok && result.row) {
+                  rows = rows.map((r) => r.factureId === result.factureId ? result.row! : r);
+                }
+              }
+
+              const newDrafts: Record<string, string> = {};
+              for (const [fid, v] of Object.entries(store.paymentDrafts())) {
+                const succeeded = results.find((r) => r.factureId === fid && r.ok);
+                if (!succeeded) {
+                  newDrafts[fid] = v;
+                }
+              }
+
+              patchState(store, {
+                rows,
+                paymentDrafts: newDrafts,
+                batchSaving: false,
+                successMessage: failCount === 0 ? 'REGLEMENT_MODULE.SUCCESS.BATCH_SAVED' : null,
+                error: failCount > 0 ? `REGLEMENT_MODULE.ERROR.BATCH_PARTIAL|${successCount}|${failCount}` : null,
+              });
+
+              return api.getReglementDashboard(centerId, {
+                year: store.year(),
+                month: store.month(),
+                caisseId: store.caisseId(),
+                agenceId: store.agenceId(),
+                centrePayeurId: store.centrePayeurId(),
+              }).pipe(
+                tap((dashboard) => patchState(store, {dashboard})),
+                catchError(() => of(null))
+              );
+            }),
+            catchError((err: unknown) => {
+              patchState(store, {batchSaving: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          );
+        })
+      )
+    ),
+
     exportReglements: rxMethod<{ centerId: string; format: 'excel' | 'csv' }>(
       pipe(
         tap(() => patchState(store, {exporting: true, error: null})),
@@ -353,6 +484,11 @@ function errorMessage(err: unknown): string {
   }
   return 'REGLEMENT_MODULE.ERROR.GENERIC';
 }
+
+
+
+
+
 
 
 

@@ -5,6 +5,7 @@
     <p class="app-section-copy">{{ 'REGLEMENT_MODULE.DESCRIPTION' | translate }}</p>
   </div>
 
+  <!-- ─── Filtres ──────────────────────────────────── -->
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ 'REGLEMENT_MODULE.FILTERS.TITLE' | translate }}</mat-card-title>
@@ -74,16 +75,16 @@
         <button (click)="onExport('excel')" [disabled]="store.exporting()" [matTooltip]="'REGLEMENT_MODULE.EXPORT.EXCEL_TOOLTIP' | translate"
                 mat-stroked-button>
           <mat-icon>table_view</mat-icon>
-          {{ 'REGLEMENT_MODULE.EXPORT.EXCEL' | translate }}
+          <span class="btn-label">{{ 'REGLEMENT_MODULE.EXPORT.EXCEL' | translate }}</span>
         </button>
         <button (click)="onExport('csv')" [disabled]="store.exporting()" [matTooltip]="'REGLEMENT_MODULE.EXPORT.CSV_TOOLTIP' | translate"
                 mat-stroked-button>
           <mat-icon>download</mat-icon>
-          {{ 'REGLEMENT_MODULE.EXPORT.CSV' | translate }}
+          <span class="btn-label">{{ 'REGLEMENT_MODULE.EXPORT.CSV' | translate }}</span>
         </button>
       </div>
 
-      @if (store.loading() || store.dashboardLoading() || store.referentialsLoading()) {
+      @if (store.loading() || store.dashboardLoading() || store.referentialsLoading() || store.batchSaving()) {
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       }
       @if (store.error()) {
@@ -95,6 +96,7 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- ─── Dashboard KPIs + Charts ──────────────────── -->
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ 'REGLEMENT_MODULE.DASHBOARD.TITLE' | translate }}</mat-card-title>
@@ -102,22 +104,28 @@
     <mat-card-content>
       <div class="kpi-grid">
         <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TOTAL_FACTURES' | translate }}</span><strong>{{ store.dashboardCards().totalFactures }}</strong>
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TOTAL_FACTURES' | translate }}</span>
+          <strong>{{ store.dashboardCards().totalFactures }}</strong>
         </div>
         <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.REGLEES' | translate }}</span><strong>{{ store.dashboardCards().reglees }}</strong>
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.REGLEES' | translate }}</span>
+          <strong>{{ store.dashboardCards().reglees }}</strong>
         </div>
         <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.NON_REGLEES' | translate }}</span><strong>{{ store.dashboardCards().nonReglees }}</strong>
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.NON_REGLEES' | translate }}</span>
+          <strong>{{ store.dashboardCards().nonReglees }}</strong>
         </div>
         <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.PARTIAL' | translate }}</span><strong>{{ store.dashboardCards().partiellementReglees }}</strong>
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.PARTIAL' | translate }}</span>
+          <strong>{{ store.dashboardCards().partiellementReglees }}</strong>
         </div>
         <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TROP_PERCU' | translate }}</span><strong>{{ store.dashboardCards().tropPercus }}</strong>
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TROP_PERCU' | translate }}</span>
+          <strong>{{ store.dashboardCards().tropPercus }}</strong>
         </div>
         <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.COLLECTION_RATE' | translate }}</span><strong>{{ store.dashboardCards().tauxEncaissement | percent:'1.0-0' }}</strong>
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.COLLECTION_RATE' | translate }}</span>
+          <strong>{{ store.dashboardCards().tauxEncaissement | percent:'1.0-0' }}</strong>
         </div>
       </div>
 
@@ -138,13 +146,23 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- ─── Tableau règlements ───────────────────────── -->
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ 'REGLEMENT_MODULE.TABLE.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+
+      @if (store.hasDrafts()) {
+        <div class="draft-hint" role="status">
+          <mat-icon>edit_note</mat-icon>
+          <span>{{ 'REGLEMENT_MODULE.BATCH.COUNT_HINT' | translate : {count: store.draftCount()} }}</span>
+        </div>
+      }
+
       <div class="table-wrap">
-        <table [dataSource]="store.rows()" class="data-table" mat-table>
+        <table [dataSource]="store.previewRows()" [trackBy]="trackByFactureId" class="data-table" mat-table>
+
           <ng-container matColumnDef="numeroFacture">
             <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.NUMERO_FACTURE' | translate }}</th>
             <td *matCellDef="let row" mat-cell>{{ row.numeroFacture }}</td>
@@ -182,24 +200,34 @@
 
           <ng-container matColumnDef="montantFacture">
             <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.MONTANT_FACTURE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.montantFacture | number:'1.2-2' }}</td>
+            <td *matCellDef="let row" class="num-cell" mat-cell>{{ row.montantFacture | number:'1.2-2' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="montantRegle">
             <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.MONTANT_REGLE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.montantRegle | number:'1.2-2' }}</td>
+            <td *matCellDef="let row" class="num-cell" mat-cell>
+              <span [class.preview-value]="row.hasDraft">{{ row.montantRegle | number:'1.2-2' }}</span>
+              @if (row.hasDraft) {
+                <mat-icon [matTooltip]="'REGLEMENT_MODULE.TABLE.DRAFT_TOOLTIP' | translate" class="draft-icon">pending
+                </mat-icon>
+              }
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="solde">
             <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.SOLDE' | translate }}</th>
             <td *matCellDef="let row" mat-cell>
-              <span [class]="soldeClass(row)" class="solde-chip">{{ soldeLabel(row) }}</span>
+              <span [class.chip-preview]="row.hasDraft" [class]="soldeClass(row)" class="solde-chip">
+                {{ soldeLabel(row) }}
+              </span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="etat">
             <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.ETAT' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ statusLabel(row) }}</td>
+            <td *matCellDef="let row" mat-cell>
+              <span [class.etat-preview]="row.hasDraft">{{ statusLabel(row) }}</span>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
@@ -208,16 +236,13 @@
               <div class="payment-box">
                 <mat-form-field appearance="outline" class="payment-field">
                   <mat-label>{{ 'REGLEMENT_MODULE.TABLE.PAYMENT_INPUT' | translate }}</mat-label>
-                  <input (input)="onPaymentInput(row.factureId, $any($event.target).value)" [value]="amountDraft(row.factureId)" matInput min="0.01" step="0.01"
-                         type="number">
+                  <input #payInput
+                         (input)="onPaymentInput(row.factureId, payInput.value)"
+                         [disabled]="store.batchSaving() || isSavingRow(row.factureId)"
+                         matInput min="0.01" step="0.01" type="number">
                 </mat-form-field>
-                <button (click)="savePayment(row)" [disabled]="isSavingRow(row.factureId)" color="primary"
-                        mat-flat-button>
-                  <mat-icon>payments</mat-icon>
-                  {{ 'REGLEMENT_MODULE.TABLE.SAVE_PAYMENT' | translate }}
-                </button>
-                <button (click)="openHistory(row)" [matTooltip]="'REGLEMENT_MODULE.TABLE.VIEW_HISTORY' | translate" color="accent"
-                        mat-icon-button>
+                <button (click)="openHistory(row)" [matTooltip]="'REGLEMENT_MODULE.TABLE.VIEW_HISTORY' | translate"
+                        color="accent" mat-icon-button>
                   <mat-icon>history</mat-icon>
                 </button>
               </div>
@@ -225,11 +250,14 @@
           </ng-container>
 
           <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: displayedColumns" [attr.data-facture-id]="row.factureId" mat-row></tr>
+          <tr *matRowDef="let row; columns: displayedColumns"
+              [attr.data-facture-id]="row.factureId"
+              [class.row-has-draft]="row.hasDraft"
+              mat-row></tr>
         </table>
       </div>
 
-      @if (!store.loading() && store.rows().length === 0) {
+      @if (!store.loading() && store.previewRows().length === 0) {
         <p class="app-muted-note">{{ 'REGLEMENT_MODULE.TABLE.EMPTY' | translate }}</p>
       }
 
@@ -244,7 +272,22 @@
   </mat-card>
 </section>
 
-
-
-
-
+<!-- ─── FAB Sauvegarder règlement ──────────────────── -->
+@if (store.hasDrafts()) {
+  <button
+    (click)="onBatchSave()"
+    [disabled]="store.batchSaving()"
+    [matTooltip]="'REGLEMENT_MODULE.BATCH.TOOLTIP' | translate"
+    class="floating-save"
+    color="primary"
+    extended
+    mat-fab>
+    @if (store.batchSaving()) {
+      <mat-icon class="spin">sync</mat-icon>
+    } @else {
+      <mat-icon>save</mat-icon>
+    }
+    {{ 'REGLEMENT_MODULE.BATCH.SAVE_BUTTON' | translate }}
+    <span class="fab-count">{{ store.draftCount() }}</span>
+  </button>
+}

@@ -358,7 +358,8 @@
       "EMPTY": "No invoice matches the selected filters.",
       "SOLDE_SETTLED": "Settled",
       "SOLDE_REMAINING": "Remaining: {{amount}}",
-      "SOLDE_OVERPAID": "Overpaid: {{amount}}"
+      "SOLDE_OVERPAID": "Overpaid: {{amount}}",
+      "DRAFT_TOOLTIP": "Preview before saving"
     },
     "DASHBOARD": {
       "TITLE": "Payments dashboard",
@@ -388,10 +389,17 @@
       }
     },
     "SUCCESS": {
-      "PAYMENT_SAVED": "Payment saved successfully."
+      "PAYMENT_SAVED": "Payment saved successfully.",
+      "BATCH_SAVED": "All payments have been saved successfully."
     },
     "ERROR": {
-      "GENERIC": "An error occurred while processing the payment."
+      "GENERIC": "An error occurred while processing the payment.",
+      "BATCH_PARTIAL": "Payments partially saved (some failed)."
+    },
+    "BATCH": {
+      "SAVE_BUTTON": "Save payments",
+      "TOOLTIP": "Save all entered amounts",
+      "COUNT_HINT": "{{count}} invoice(s) pending payment"
     },
     "EXPORT": {
       "EXCEL": "Export Excel",

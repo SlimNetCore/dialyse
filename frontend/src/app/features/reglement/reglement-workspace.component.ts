@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
 import {DecimalPipe, PercentPipe} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -10,11 +10,12 @@ import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatBadgeModule} from '@angular/material/badge';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
-import {ReglementStore} from './state/reglement.store';
+import {ReglementPreviewRow, ReglementStore} from './state/reglement.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {ReglementInvoiceRow} from '../../core/api/backend-api.service';
@@ -41,6 +42,7 @@ Chart.register(...registerables);
     MatPaginatorModule,
     MatProgressBarModule,
     MatTooltipModule,
+    MatBadgeModule,
     TranslateModule,
     BaseChartDirective,
   ],
@@ -64,7 +66,6 @@ export class ReglementWorkspaceComponent {
     'etat',
     'actions',
   ];
-  protected readonly paymentDrafts = signal<Record<string, string>>({});
   protected readonly years = Array.from({length: 6}, (_, index) => new Date().getFullYear() - index);
   protected readonly months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   private readonly appShell = inject(AppShellStore);
@@ -150,27 +151,17 @@ export class ReglementWorkspaceComponent {
   }
 
   protected onPaymentInput(factureId: string, value: string): void {
-    this.paymentDrafts.update((drafts) => ({...drafts, [factureId]: value}));
+    this.store.setPaymentDraft(factureId, value);
   }
 
-  protected savePayment(row: ReglementInvoiceRow): void {
+  protected onBatchSave(): void {
     const centerId = this.centerId();
-    if (!centerId) {
-      return;
-    }
-    const rawValue = this.paymentDrafts()[row.factureId] ?? '';
-    const montant = Number(rawValue);
-    if (!Number.isFinite(montant) || montant <= 0) {
-      this.store.clearMessages();
-      return;
-    }
-    this.store.savePayment({
-      centerId,
-      factureId: row.factureId,
-      montant,
-      userId: this.userId(),
-    });
-    this.paymentDrafts.update((drafts) => ({...drafts, [row.factureId]: ''}));
+    if (!centerId) return;
+    this.store.batchSavePayments({centerId, userId: this.userId()});
+  }
+
+  protected trackByFactureId(_index: number, row: ReglementPreviewRow): string {
+    return row.factureId;
   }
 
   protected openHistory(row: ReglementInvoiceRow): void {
@@ -190,19 +181,15 @@ export class ReglementWorkspaceComponent {
     this.store.exportReglements({centerId, format});
   }
 
-  protected amountDraft(factureId: string): string {
-    return this.paymentDrafts()[factureId] ?? '';
-  }
-
   protected isSavingRow(factureId: string): boolean {
     return this.store.savingFactureIds().includes(factureId);
   }
 
-  protected statusLabel(row: ReglementInvoiceRow): string {
+  protected statusLabel(row: ReglementPreviewRow): string {
     return this.translate.instant(`REGLEMENT_MODULE.STATUS.${row.etat}`);
   }
 
-  protected soldeLabel(row: ReglementInvoiceRow): string {
+  protected soldeLabel(row: ReglementPreviewRow): string {
     if (row.soldeType === 'TROP_PERCU') {
       return this.translate.instant('REGLEMENT_MODULE.TABLE.SOLDE_OVERPAID', {amount: row.tropPercu});
     }
@@ -212,7 +199,7 @@ export class ReglementWorkspaceComponent {
     return this.translate.instant('REGLEMENT_MODULE.TABLE.SOLDE_REMAINING', {amount: row.reste});
   }
 
-  protected soldeClass(row: ReglementInvoiceRow): string {
+  protected soldeClass(row: ReglementPreviewRow): string {
     if (row.soldeType === 'TROP_PERCU') {
       return 'solde-overpaid';
     }
@@ -236,4 +223,5 @@ export class ReglementWorkspaceComponent {
     };
   }
 }
+
 

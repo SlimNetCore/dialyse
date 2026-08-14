@@ -6,6 +6,8 @@
 .app-page {
   display: grid;
   gap: 18px;
+  /* bottom padding so FAB never overlaps last card */
+  padding-bottom: 80px;
 }
 
 .app-hero-card {
@@ -13,6 +15,7 @@
   gap: 12px;
 }
 
+/* ─── Filtres ──────────────────────────────────────── */
 .filters-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -20,13 +23,13 @@
   margin-bottom: 16px;
 }
 
+/* ─── KPI pills ────────────────────────────────────── */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
-/* KPI pills améliorées */
 .app-data-pill {
   background: var(--app-surface-solid, #fff);
   border: 1px solid var(--app-border, #e5e8ec);
@@ -56,6 +59,7 @@
   color: var(--mat-sys-primary, #006a6a);
 }
 
+/* ─── Dashboard charts ─────────────────────────────── */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -87,16 +91,76 @@
   height: clamp(220px, 28vw, 320px);
 }
 
+/* ─── Tableau ──────────────────────────────────────── */
 .table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
   width: 100%;
-  min-width: 1560px;
+  min-width: 1400px;
 }
 
-/* Export + buttons */
+.num-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ligne avec brouillon */
+.row-has-draft {
+  background: color-mix(in srgb, var(--app-primary, #006a6a) 5%, transparent) !important;
+  border-left: 3px solid var(--app-primary, #006a6a);
+}
+
+/* Valeur en mode aperçu */
+.preview-value {
+  font-weight: 700;
+  color: var(--app-primary, #006a6a);
+}
+
+.draft-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  margin-left: 4px;
+  color: var(--app-primary, #006a6a);
+  opacity: .8;
+}
+
+.etat-preview {
+  font-weight: 700;
+  color: var(--app-primary, #006a6a);
+}
+
+.chip-preview {
+  outline: 1.5px dashed currentColor;
+}
+
+/* ─── Draft hint banner ────────────────────────────── */
+.draft-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: var(--app-primary-soft, rgba(0, 106, 106, .12));
+  border: 1px solid var(--app-primary-outline, rgba(0, 106, 106, .28));
+  color: var(--app-primary, #006a6a);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.draft-hint mat-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* ─── Export + buttons ─────────────────────────────── */
 .app-button-cluster {
   display: flex;
   flex-wrap: wrap;
@@ -110,20 +174,21 @@
   min-width: 8px;
 }
 
+/* ─── Payment cell ─────────────────────────────────── */
 .payment-box {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 4px;
   align-items: flex-start;
-  min-width: 260px;
+  min-width: 200px;
 }
 
 .payment-field {
   flex: 1 1 140px;
-  min-width: 120px;
+  min-width: 110px;
 }
 
-/* Solde chips */
+/* ─── Solde chips ──────────────────────────────────── */
 .solde-chip {
   display: inline-flex;
   align-items: center;
@@ -154,6 +219,7 @@
   border-color: color-mix(in srgb, var(--mat-sys-error, #c62828) 24%, var(--app-border));
 }
 
+/* ─── Feedback messages ────────────────────────────── */
 .feedback {
   margin-top: 10px;
   font-weight: 600;
@@ -172,7 +238,56 @@ mat-card {
   box-shadow: 0 2px 12px rgba(0, 0, 0, .05) !important;
 }
 
-/* ─── Responsive ──────────────────────────────────────── */
+/* ─── FAB flottant — identique fiche patient ──────── */
+.floating-save {
+  position: fixed;
+  bottom: 96px;
+  right: 16px;
+  z-index: 1000;
+  background-color: var(--app-primary) !important;
+  color: #fff !important;
+  --mdc-extended-fab-container-color: var(--app-primary) !important;
+  --mdc-fab-container-color: var(--app-primary) !important;
+  --mdc-extended-fab-label-text-color: #fff !important;
+  --mat-fab-foreground-color: #fff !important;
+  --mdc-fab-icon-color: #fff !important;
+  box-shadow: 0 6px 24px rgba(2, 6, 23, 0.2) !important;
+  border-radius: 16px !important;
+}
+
+.floating-save:disabled {
+  background-color: #bdbdbd !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  --mdc-extended-fab-container-color: #bdbdbd !important;
+  --mdc-fab-container-color: #bdbdbd !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Badge de comptage intégré dans le FAB */
+.fab-count {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-left: 8px;
+  letter-spacing: 0.02em;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Responsive ───────────────────────────────────── */
 
 @media (max-width: 1200px) {
   .filters-grid {
@@ -180,9 +295,14 @@ mat-card {
   }
 }
 
-@media (max-width: 900px) {
-  .dashboard-grid,
+@media (max-width: 980px) {
   .filters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
     grid-template-columns: 1fr;
   }
 
@@ -193,19 +313,21 @@ mat-card {
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .floating-save {
+    bottom: 72px;
+    right: 12px;
+  }
 }
 
 @media (max-width: 760px) {
   .app-page {
     gap: 12px;
+    padding-bottom: 100px;
   }
 
   .filters-grid {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .payment-box {
-    min-width: 180px;
   }
 
   .chart-wrap {
@@ -220,6 +342,14 @@ mat-card {
   .spacer {
     display: none;
   }
+
+  .data-table {
+    min-width: 1100px;
+  }
+
+  .payment-box {
+    min-width: 180px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -232,12 +362,33 @@ mat-card {
   }
 
   .data-table {
-    min-width: 1200px;
+    min-width: 960px;
   }
 
   .payment-field {
-    flex: 1 1 100%;
+    flex: 1 1 100px;
+    min-width: 100px;
+  }
+
+  .btn-label {
+    display: none;
+  }
+
+  .draft-hint {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+
+  .floating-save {
+    bottom: 60px;
+    right: 10px;
+  }
+
+  .fab-count {
+    font-size: 0.7rem;
+    padding: 1px 7px;
   }
 }
+
 
 

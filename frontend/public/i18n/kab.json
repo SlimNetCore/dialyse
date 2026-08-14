@@ -400,7 +400,8 @@
       "EMPTY": "Ulac tafatura i d-ttunefkent s ifiltaren i yettwafernen.",
       "SOLDE_SETTLED": "Tettwaxelleṣ",
       "SOLDE_REMAINING": "Ayeffus: {{amount}}",
-      "SOLDE_OVERPAID": "Tamerna: {{amount}}"
+      "SOLDE_OVERPAID": "Tamerna: {{amount}}",
+      "DRAFT_TOOLTIP": "Askan send taskelt"
     },
     "DASHBOARD": {
       "TITLE": "Tafelwit n uxelleṣ",
@@ -430,10 +431,17 @@
       }
     },
     "SUCCESS": {
-      "PAYMENT_SAVED": "Axelleṣ yettwasekles akken iwata."
+      "PAYMENT_SAVED": "Axelleṣ yettwasekles akken iwata.",
+      "BATCH_SAVED": "Ixelleṣen agi meṛṛa ttwaseklen akken iwata."
     },
     "ERROR": {
-      "GENERIC": "Tella tuccḍa deg wesefrek n uxelleṣ."
+      "GENERIC": "Tella tuccḍa deg wesefrek n uxelleṣ.",
+      "BATCH_PARTIAL": "Kra n ixelleṣen ttwaseklen (kra yufrar)."
+    },
+    "BATCH": {
+      "SAVE_BUTTON": "Sekles axelleṣ",
+      "TOOLTIP": "Sekles izalen i yettwasekmen meṛṛa",
+      "COUNT_HINT": "{{count}} tafatura(t) deg ɣur n uxelleṣ"
     },
     "EXPORT": {
       "EXCEL": "Sifirew Excel",

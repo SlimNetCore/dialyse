@@ -341,7 +341,8 @@
       "EMPTY": "لا توجد فواتير مطابقة للفلاتر المحددة.",
       "SOLDE_SETTLED": "مسددة",
       "SOLDE_REMAINING": "الباقي: {{amount}}",
-      "SOLDE_OVERPAID": "زيادة: {{amount}}"
+      "SOLDE_OVERPAID": "زيادة: {{amount}}",
+      "DRAFT_TOOLTIP": "معاينة قبل الحفظ"
     },
     "DASHBOARD": {
       "TITLE": "لوحة التسديدات",
@@ -371,10 +372,17 @@
       }
     },
     "SUCCESS": {
-      "PAYMENT_SAVED": "تم حفظ التسديد بنجاح."
+      "PAYMENT_SAVED": "تم حفظ التسديد بنجاح.",
+      "BATCH_SAVED": "تم تسجيل جميع التسديدات بنجاح."
     },
     "ERROR": {
-      "GENERIC": "حدث خطأ أثناء معالجة التسديد."
+      "GENERIC": "حدث خطأ أثناء معالجة التسديد.",
+      "BATCH_PARTIAL": "تم تسجيل بعض التسديدات جزئياً (فشل بعضها)."
+    },
+    "BATCH": {
+      "SAVE_BUTTON": "حفظ التسديد",
+      "TOOLTIP": "تسجيل جميع المبالغ المدخلة",
+      "COUNT_HINT": "{{count}} فاتورة/فواتير في انتظار التسديد"
     },
     "EXPORT": {
       "EXCEL": "تصدير Excel",

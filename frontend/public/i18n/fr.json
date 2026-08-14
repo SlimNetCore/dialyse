@@ -358,7 +358,8 @@
       "EMPTY": "Aucune facture trouvée pour les filtres sélectionnés.",
       "SOLDE_SETTLED": "Réglée",
       "SOLDE_REMAINING": "Reste : {{amount}}",
-      "SOLDE_OVERPAID": "Trop-perçu : {{amount}}"
+      "SOLDE_OVERPAID": "Trop-perçu : {{amount}}",
+      "DRAFT_TOOLTIP": "Aperçu avant sauvegarde"
     },
     "DASHBOARD": {
       "TITLE": "Dashboard règlements",
@@ -388,10 +389,17 @@
       }
     },
     "SUCCESS": {
-      "PAYMENT_SAVED": "Règlement enregistré avec succès."
+      "PAYMENT_SAVED": "Règlement enregistré avec succès.",
+      "BATCH_SAVED": "Tous les règlements ont été enregistrés avec succès."
     },
     "ERROR": {
-      "GENERIC": "Erreur lors du traitement du règlement."
+      "GENERIC": "Erreur lors du traitement du règlement.",
+      "BATCH_PARTIAL": "Règlements partiellement enregistrés (certains ont échoué)."
+    },
+    "BATCH": {
+      "SAVE_BUTTON": "Sauvegarder le règlement",
+      "TOOLTIP": "Enregistrer tous les montants saisis",
+      "COUNT_HINT": "{{count}} facture(s) en attente de règlement"
     },
     "EXPORT": {
       "EXCEL": "Export Excel",
