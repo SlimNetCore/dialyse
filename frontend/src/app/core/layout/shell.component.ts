@@ -77,19 +77,6 @@ export class ShellComponent implements OnInit, AfterViewInit {
       ],
     },
     {
-      key: 'stock',
-      route: '/stock',
-      icon: 'inventory_2',
-      label: 'NAV.STOCK',
-      items: [
-        {route: '/stock', label: 'Dashboard stock', icon: 'space_dashboard'},
-        {route: '/stock/bons-commande', label: 'Bons commande', icon: 'request_quote'},
-        {route: '/stock/bons-reception', label: 'Bons réception', icon: 'inventory_2'},
-        {route: '/stock/bons-sortie', label: 'Bons sortie', icon: 'logout'},
-        {route: '/stock/fournisseurs', label: 'Fournisseurs', icon: 'local_shipping'},
-      ],
-    },
-    {
       key: 'facturation',
       route: '/facturation',
       icon: 'receipt',
@@ -105,6 +92,19 @@ export class ShellComponent implements OnInit, AfterViewInit {
       label: 'NAV.REGLEMENT',
       items: [
         {route: '/reglement', label: 'Dashboard règlement', icon: 'space_dashboard'},
+      ],
+    },
+    {
+      key: 'stock',
+      route: '/stock',
+      icon: 'inventory_2',
+      label: 'NAV.STOCK',
+      items: [
+        {route: '/stock', label: 'Dashboard stock', icon: 'space_dashboard'},
+        {route: '/stock/bons-commande', label: 'Bons commande', icon: 'request_quote'},
+        {route: '/stock/bons-reception', label: 'Bons réception', icon: 'inventory_2'},
+        {route: '/stock/bons-sortie', label: 'Bons sortie', icon: 'logout'},
+        {route: '/stock/fournisseurs', label: 'Fournisseurs', icon: 'local_shipping'},
       ],
     },
     {
