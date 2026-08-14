@@ -8,6 +8,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
+import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
@@ -46,6 +47,7 @@ public class SeanceDomainService implements SeanceUseCase {
     private final VoletParamedicalRepositoryPort voletParamedicalRepo;
     private final VoletMedicalRepositoryPort voletMedicalRepo;
     private final SeanceForfaitCatalogPort forfaitCatalogPort;
+    private final SeanceBillingEligibilityPort billingEligibilityPort;
 
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
@@ -54,7 +56,8 @@ public class SeanceDomainService implements SeanceUseCase {
                                BonSortieUseCase bonSortieUseCase,
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo,
-                               SeanceForfaitCatalogPort forfaitCatalogPort) {
+                               SeanceForfaitCatalogPort forfaitCatalogPort,
+                               SeanceBillingEligibilityPort billingEligibilityPort) {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
         this.articleRepo = articleRepo;
@@ -63,6 +66,7 @@ public class SeanceDomainService implements SeanceUseCase {
         this.voletParamedicalRepo = voletParamedicalRepo;
         this.voletMedicalRepo = voletMedicalRepo;
         this.forfaitCatalogPort = forfaitCatalogPort;
+        this.billingEligibilityPort = billingEligibilityPort;
     }
 
     @Override
@@ -70,8 +74,12 @@ public class SeanceDomainService implements SeanceUseCase {
         patientRepo.findById(PatientId.of(patientId), centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient introuvable"));
 
-        Seance seance = new Seance(UUID.randomUUID(), patientId, centerId.value(),
-                dateSeance != null ? dateSeance : LocalDate.now());
+        LocalDate effectiveDate = dateSeance != null ? dateSeance : LocalDate.now();
+        if (!billingEligibilityPort.isPatientBillableAt(centerId, patientId, effectiveDate)) {
+            throw new IllegalStateException("Le patient doit avoir une prise en charge valide pour être facturé");
+        }
+
+        Seance seance = new Seance(UUID.randomUUID(), patientId, centerId.value(), effectiveDate);
         return seanceRepo.save(seance);
     }
 

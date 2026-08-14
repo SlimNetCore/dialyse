@@ -818,6 +818,7 @@ function errorMessage(err: unknown): string {
     const e = err as Record<string, unknown>;
     if (e['error'] && typeof e['error'] === 'object') {
       const inner = e['error'] as Record<string, unknown>;
+      if (typeof inner['detail'] === 'string') return inner['detail'];
       if (typeof inner['message'] === 'string') return inner['message'];
     }
     if (typeof e['statusText'] === 'string') return e['statusText'];

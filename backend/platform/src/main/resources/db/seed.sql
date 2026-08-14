@@ -1167,6 +1167,43 @@ WHERE NOT EXISTS (SELECT 1
                   WHERE p.id = CAST('7200' || LPAD(CAST(v AS VARCHAR), 4, '0') || '-2000-0000-0000-' ||
                                     LPAD(CAST(v AS VARCHAR), 12, '0') AS UUID));
 
+-- Conformite metier: tout patient doit avoir une attestation et une PEC valide (forfait inclus).
+INSERT INTO attestation_droit (id, patient_id, center_id, date_debut, date_fin)
+SELECT RANDOM_UUID(), p.id, p.center_id, DATE '2024-01-01', DATE '2030-12-31'
+FROM patients p
+WHERE NOT EXISTS (SELECT 1
+                  FROM attestation_droit a
+                  WHERE a.patient_id = p.id
+                    AND a.center_id = p.center_id);
+
+INSERT INTO prise_en_charge (id, patient_id, center_id,
+                             date_debut_demande, date_fin_demande, forfait_demande_id,
+                             date_debut_effectif, date_fin_effectif, forfait_effectif_id,
+                             statut)
+SELECT RANDOM_UUID(),
+       p.id,
+       p.center_id,
+       DATE '2024-01-01',
+       DATE '2030-12-31',
+       CASE
+           WHEN p.center_id = '11111111-1111-1111-1111-111111111111' THEN 'f0000001-0000-0000-0000-000000000001'
+           ELSE 'f0000002-0000-0000-0000-000000000001'
+           END,
+       DATE '2024-01-01',
+       DATE '2030-12-31',
+       CASE
+           WHEN p.center_id = '11111111-1111-1111-1111-111111111111' THEN 'f0000001-0000-0000-0000-000000000001'
+           ELSE 'f0000002-0000-0000-0000-000000000001'
+           END,
+       'VALIDEE'
+FROM patients p
+WHERE NOT EXISTS (SELECT 1
+                  FROM prise_en_charge pec
+                  WHERE pec.patient_id = p.id
+                    AND pec.center_id = p.center_id
+                    AND pec.statut = 'VALIDEE'
+                    AND COALESCE(pec.forfait_effectif_id, pec.forfait_demande_id) IS NOT NULL);
+
 -- 120 seances par patient synthetique (~19k seances sur 5 ans, 2 centres).
 INSERT INTO seances (id, patient_id, center_id, date_seance, statut, created_at)
 SELECT CAST('810' || LPAD(CAST(p.v AS VARCHAR), 2, '0') || LPAD(CAST(s.v AS VARCHAR), 3, '0') || '-1000-0000-0000-' ||
@@ -1222,6 +1259,34 @@ WHERE NOT EXISTS (SELECT 1
                   WHERE
                       sx.id = CAST('83' || LPAD(CAST(pw.rn AS VARCHAR), 4, '0') || LPAD(CAST(n.v AS VARCHAR), 2, '0') ||
                                    '-3000-0000-0000-' || LPAD(CAST((pw.rn * 100 + n.v) AS VARCHAR), 12, '0') AS UUID));
+
+-- Regle stricte: aucune seance sans attestation valide + PEC valide (patient non facturable => zero seance).
+DELETE
+FROM seances s
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM attestation_droit a
+    WHERE a.patient_id = s.patient_id
+  AND a.center_id = s.center_id
+  AND s.date_seance >= a.date_debut
+  AND (s.date_seance <= a.date_fin
+   OR a.date_fin IS NULL)
+    )
+   OR NOT EXISTS (
+    SELECT 1
+    FROM prise_en_charge p
+    WHERE p.patient_id = s.patient_id
+  AND p.center_id = s.center_id
+  AND p.statut = 'VALIDEE'
+  AND COALESCE(p.forfait_effectif_id
+    , p.forfait_demande_id) IS NOT NULL
+  AND s.date_seance >= COALESCE(p.date_debut_effectif
+    , p.date_debut_demande)
+  AND (s.date_seance <= COALESCE(p.date_fin_effectif
+    , p.date_fin_demande)
+   OR COALESCE(p.date_fin_effectif
+    , p.date_fin_demande) IS NULL)
+    );
 
 -- Donnees paramedicales completes par seance: poids, tension, UF et parametres associes.
 ALTER TABLE volet_paramedical

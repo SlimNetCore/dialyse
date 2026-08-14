@@ -10,6 +10,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
+import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
@@ -38,7 +39,8 @@ class SeanceDomainServiceTest {
             ArticleRepositoryPort articleRepo,
             LotRepositoryPort lotRepo,
             BonSortieUseCase bonSortieUseCase) {
-        return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase, new InMemoryForfaitCatalog());
+        return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
+                new InMemoryForfaitCatalog(), new AlwaysBillableEligibility());
     }
 
     private static SeanceDomainService buildService(
@@ -48,8 +50,42 @@ class SeanceDomainServiceTest {
             LotRepositoryPort lotRepo,
             BonSortieUseCase bonSortieUseCase,
             SeanceForfaitCatalogPort forfaitCatalogPort) {
+        return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
+                forfaitCatalogPort, new AlwaysBillableEligibility());
+    }
+
+    private static SeanceDomainService buildService(
+            SeanceRepositoryPort seanceRepo,
+            PatientRepositoryPort patientRepo,
+            ArticleRepositoryPort articleRepo,
+            LotRepositoryPort lotRepo,
+            BonSortieUseCase bonSortieUseCase,
+            SeanceForfaitCatalogPort forfaitCatalogPort,
+            SeanceBillingEligibilityPort billingEligibilityPort) {
         return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
-                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class), forfaitCatalogPort);
+                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
+                forfaitCatalogPort, billingEligibilityPort);
+    }
+
+    @Test
+    void create_should_fail_when_patient_is_not_billable() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryPatientRepository patientRepo = new InMemoryPatientRepository(patientId, centerId);
+
+        SeanceDomainService service = buildService(
+                seanceRepo,
+                patientRepo,
+                new InMemoryArticleRepository(),
+                new InMemoryLotRepository(),
+                new SpyBonSortieUseCase(),
+                new InMemoryForfaitCatalog(),
+                new NeverBillableEligibility());
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.create(centerId, patientId, LocalDate.of(2026, 8, 14)));
+        assertEquals("Le patient doit avoir une prise en charge valide pour être facturé", ex.getMessage());
     }
 
     @Test
@@ -664,6 +700,20 @@ class SeanceDomainServiceTest {
 
         private UUID composeKey(CenterId centerId, UUID forfaitId) {
             return UUID.nameUUIDFromBytes((centerId.value() + ":" + forfaitId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+    }
+
+    private static final class AlwaysBillableEligibility implements SeanceBillingEligibilityPort {
+        @Override
+        public boolean isPatientBillableAt(CenterId centerId, UUID patientId, LocalDate dateSeance) {
+            return true;
+        }
+    }
+
+    private static final class NeverBillableEligibility implements SeanceBillingEligibilityPort {
+        @Override
+        public boolean isPatientBillableAt(CenterId centerId, UUID patientId, LocalDate dateSeance) {
+            return false;
         }
     }
 

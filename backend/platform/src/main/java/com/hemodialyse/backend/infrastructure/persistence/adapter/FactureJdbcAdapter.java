@@ -3,6 +3,7 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter;
 import com.hemodialyse.backend.domain.facturation.aggregate.FactureAggregate;
 import com.hemodialyse.backend.domain.facturation.entity.LigneFacture;
 import com.hemodialyse.backend.domain.facturation.port.FactureRepositoryPort;
+import com.hemodialyse.backend.domain.facturation.valueobject.FactureNumberTemplate;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -97,11 +98,7 @@ public class FactureJdbcAdapter implements FactureRepositoryPort {
                     year
             );
         }
-        String formattedSeq = String.format("%04d", next);
-        return codeFormat
-                .replace("{YEAR}", String.valueOf(year))
-                .replace("{SEQ}", formattedSeq)
-                .replace("{CENTER}", centerId.value().toString().substring(0, 8).toUpperCase());
+        return new FactureNumberTemplate(codeFormat).format(centerId, billingDate, next);
     }
 }
 
