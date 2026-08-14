@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -14,14 +15,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Test CORS preflight sur l'endpoint d'authentification.
+ * <p>
+ * Ce test utilise une base H2 isolée (hemodialyse_cors) et @DirtiesContext pour éviter
+ * tout conflit de verrous H2 lors d'une exécution parallèle avec les autres @SpringBootTest
+ * qui partagent la base commune "hemodialyse".
+ */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         properties = {
                 "app.cors.allowed-origins=https://dialysis-beta.vercel.app,http://localhost:4200",
-                "app.cors.allowed-origin-patterns=https://*.vercel.app"
+                "app.cors.allowed-origin-patterns=https://*.vercel.app",
+                // Base H2 isolée pour éviter les conflits lors d'exécutions parallèles
+                "spring.datasource.url=jdbc:h2:mem:hemodialyse_cors;MODE=PostgreSQL;DB_CLOSE_DELAY=-1"
         }
 )
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class AuthCorsIntegrationTest {
 
     @Autowired
@@ -58,4 +69,5 @@ class AuthCorsIntegrationTest {
                 .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
     }
 }
+
 
