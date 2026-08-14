@@ -20,6 +20,7 @@ COPY bc-stock/pom.xml ./bc-stock/pom.xml
 COPY bc-pec/pom.xml ./bc-pec/pom.xml
 COPY bc-seance/pom.xml ./bc-seance/pom.xml
 COPY bc-facturation/pom.xml ./bc-facturation/pom.xml
+COPY bc-facturation/pom.xml ./bc-reglement/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
 RUN mvn -B -q -DskipTests dependency:go-offline
