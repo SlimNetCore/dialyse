@@ -250,6 +250,20 @@ CREATE TABLE IF NOT EXISTS facture_lignes (
 
 CREATE INDEX IF NOT EXISTS idx_facture_lignes_facture ON facture_lignes (facture_id, center_id);
 
+CREATE TABLE IF NOT EXISTS facture_reglements
+(
+    id             UUID PRIMARY KEY,
+    facture_id     UUID                     NOT NULL,
+    center_id      UUID                     NOT NULL,
+    montant        DECIMAL(14, 2)           NOT NULL,
+    date_reglement DATE                     NOT NULL,
+    saisi_par      VARCHAR(120),
+    created_at     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_facture_reglements_facture ON facture_reglements (facture_id, center_id);
+CREATE INDEX IF NOT EXISTS idx_facture_reglements_period ON facture_reglements (center_id, date_reglement);
+
 ALTER TABLE IF EXISTS seances ADD COLUMN IF NOT EXISTS facture_id UUID;
 ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS forfait_override_id UUID;

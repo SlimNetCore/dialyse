@@ -299,6 +299,117 @@
       "PRINT_ERROR": "خطأ الطباعة: {{detail}}"
     }
   },
+  "REGLEMENT_MODULE": {
+    "EYEBROW": "وحدة التسديدات",
+    "TITLE": "تسديد الفواتير",
+    "DESCRIPTION": "تابع الفواتير غير المسددة أو المسددة جزئياً أو المسددة بالكامل أو ذات الزيادة مع فلاتر حسب الفترة والصندوق والوكالة والمركز الدافع.",
+    "FILTERS": {
+      "TITLE": "فلاتر البحث",
+      "YEAR": "السنة",
+      "MONTH": "الشهر",
+      "ALL_MONTHS": "كل الأشهر",
+      "CAISSE": "الصندوق",
+      "ALL_CAISSES": "كل الصناديق",
+      "AGENCE": "الوكالة",
+      "ALL_AGENCES": "كل الوكالات",
+      "CENTRE_PAYEUR": "المركز الدافع",
+      "ALL_CENTRES_PAYEURS": "كل المراكز الدافعة",
+      "RESET": "إعادة التعيين"
+    },
+    "STATUS": {
+      "NON_REGLEE": "غير مسددة",
+      "PARTIELLEMENT_REGLEE": "مسددة جزئياً",
+      "REGLEE": "مسددة"
+    },
+    "TABLE": {
+      "TITLE": "قائمة التسديدات",
+      "NUMERO_FACTURE": "رقم الفاتورة",
+      "NUMERO_ASSURANCE": "رقم التأمين",
+      "PATIENT_NOM": "لقب المريض",
+      "PATIENT_PRENOM": "اسم المريض",
+      "CAISSE": "الصندوق",
+      "AGENCE": "الوكالة",
+      "CENTRE_PAYEUR": "المركز الدافع",
+      "MONTANT_FACTURE": "مبلغ الفاتورة",
+      "MONTANT_REGLE": "المبلغ المسدد",
+      "SOLDE": "الباقي / الزيادة",
+      "ETAT": "الحالة",
+      "ACTIONS": "الإجراءات",
+      "PAYMENT_INPUT": "المبلغ المدخل",
+      "SAVE_PAYMENT": "حفظ",
+      "VIEW_HISTORY": "سجل المدفوعات",
+      "EMPTY": "لا توجد فواتير مطابقة للفلاتر المحددة.",
+      "SOLDE_SETTLED": "مسددة",
+      "SOLDE_REMAINING": "الباقي: {{amount}}",
+      "SOLDE_OVERPAID": "زيادة: {{amount}}"
+    },
+    "DASHBOARD": {
+      "TITLE": "لوحة التسديدات",
+      "KPI": {
+        "TOTAL_FACTURES": "إجمالي الفواتير",
+        "REGLEES": "الفواتير المسددة",
+        "NON_REGLEES": "الفواتير غير المسددة",
+        "PARTIAL": "الفواتير الجزئية",
+        "TROP_PERCU": "الفواتير ذات الزيادة",
+        "COLLECTION_RATE": "نسبة التحصيل"
+      },
+      "CHART": {
+        "STATUS": "توزيع الحالات"
+      },
+      "AMOUNTS": {
+        "TITLE": "المبالغ المتابعة",
+        "TOTAL_FACTURE": "المفوتر",
+        "TOTAL_REGLE": "المسدد",
+        "TOTAL_RESTE": "الباقي",
+        "TOTAL_TROP_PERCU": "الزيادة"
+      },
+      "BUCKETS": {
+        "NON_REGLEE": "غير مسددة",
+        "PARTIELLEMENT_REGLEE": "مسددة جزئياً",
+        "REGLE": "مسددة",
+        "TROP_PERCU": "زيادة"
+      }
+    },
+    "SUCCESS": {
+      "PAYMENT_SAVED": "تم حفظ التسديد بنجاح."
+    },
+    "ERROR": {
+      "GENERIC": "حدث خطأ أثناء معالجة التسديد."
+    },
+    "EXPORT": {
+      "EXCEL": "تصدير Excel",
+      "CSV": "تصدير CSV",
+      "EXCEL_TOOLTIP": "تحميل القائمة بصيغة Excel (.xlsx)",
+      "CSV_TOOLTIP": "تحميل القائمة بصيغة CSV"
+    },
+    "HISTORY": {
+      "TITLE": "سجل المدفوعات",
+      "PATIENT": "المريض",
+      "MONTANT_FACTURE": "مبلغ الفاتورة",
+      "MONTANT_REGLE": "المبلغ المسدد",
+      "RESTE": "الرصيد المتبقي",
+      "DATE": "التاريخ",
+      "MONTANT": "المبلغ",
+      "SAISI_PAR": "أدخله",
+      "TOTAL": "إجمالي المسدد",
+      "EMPTY": "لا توجد مدفوعات مسجلة لهذه الفاتورة.",
+      "ERROR": "تعذر تحميل سجل المدفوعات."
+    },
+    "MONTHS": {
+      "1": "جانفي",
+      "2": "فيفري",
+      "3": "مارس",
+      "4": "أفريل",
+      "5": "ماي",
+      "6": "جوان",
+      "7": "جويلية",
+      "8": "أوت",
+      "9": "سبتمبر",
+      "10": "أكتوبر",
+      "11": "نوفمبر",
+      "12": "ديسمبر"
+    }
+  },
   "TOOLBAR": {
     "LOGOUT": "تسجيل الخروج"
   },

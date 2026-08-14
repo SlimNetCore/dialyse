@@ -316,6 +316,117 @@
       "GENERIC": "Erreur lors de l'opération de facturation."
     }
   },
+  "REGLEMENT_MODULE": {
+    "EYEBROW": "Module règlements",
+    "TITLE": "Règlement des factures",
+    "DESCRIPTION": "Suivez les factures non réglées, partielles, réglées ou en trop-perçu avec filtres par période, caisse, agence et centre payeur.",
+    "FILTERS": {
+      "TITLE": "Filtres de recherche",
+      "YEAR": "Année",
+      "MONTH": "Mois",
+      "ALL_MONTHS": "Tous les mois",
+      "CAISSE": "Caisse",
+      "ALL_CAISSES": "Toutes les caisses",
+      "AGENCE": "Agence",
+      "ALL_AGENCES": "Toutes les agences",
+      "CENTRE_PAYEUR": "Centre payeur",
+      "ALL_CENTRES_PAYEURS": "Tous les centres payeurs",
+      "RESET": "Réinitialiser"
+    },
+    "STATUS": {
+      "NON_REGLEE": "Non réglée",
+      "PARTIELLEMENT_REGLEE": "Partiellement réglée",
+      "REGLEE": "Réglée"
+    },
+    "TABLE": {
+      "TITLE": "Liste des règlements",
+      "NUMERO_FACTURE": "N° facture",
+      "NUMERO_ASSURANCE": "N° assurance",
+      "PATIENT_NOM": "Nom patient",
+      "PATIENT_PRENOM": "Prénom patient",
+      "CAISSE": "Caisse",
+      "AGENCE": "Agence",
+      "CENTRE_PAYEUR": "Centre payeur",
+      "MONTANT_FACTURE": "Montant facture",
+      "MONTANT_REGLE": "Montant réglé",
+      "SOLDE": "Reste / trop-perçu",
+      "ETAT": "État",
+      "ACTIONS": "Actions",
+      "PAYMENT_INPUT": "Montant saisi",
+      "SAVE_PAYMENT": "Enregistrer",
+      "VIEW_HISTORY": "Historique des paiements",
+      "EMPTY": "Aucune facture trouvée pour les filtres sélectionnés.",
+      "SOLDE_SETTLED": "Réglée",
+      "SOLDE_REMAINING": "Reste : {{amount}}",
+      "SOLDE_OVERPAID": "Trop-perçu : {{amount}}"
+    },
+    "DASHBOARD": {
+      "TITLE": "Dashboard règlements",
+      "KPI": {
+        "TOTAL_FACTURES": "Total factures",
+        "REGLEES": "Factures réglées",
+        "NON_REGLEES": "Factures non réglées",
+        "PARTIAL": "Factures partielles",
+        "TROP_PERCU": "Trop-perçus",
+        "COLLECTION_RATE": "Taux d'encaissement"
+      },
+      "CHART": {
+        "STATUS": "Répartition des statuts"
+      },
+      "AMOUNTS": {
+        "TITLE": "Montants suivis",
+        "TOTAL_FACTURE": "Facturé",
+        "TOTAL_REGLE": "Réglé",
+        "TOTAL_RESTE": "Reste",
+        "TOTAL_TROP_PERCU": "Trop-perçu"
+      },
+      "BUCKETS": {
+        "NON_REGLEE": "Non réglées",
+        "PARTIELLEMENT_REGLEE": "Partiellement réglées",
+        "REGLE": "Réglées",
+        "TROP_PERCU": "Trop-perçu"
+      }
+    },
+    "SUCCESS": {
+      "PAYMENT_SAVED": "Règlement enregistré avec succès."
+    },
+    "ERROR": {
+      "GENERIC": "Erreur lors du traitement du règlement."
+    },
+    "EXPORT": {
+      "EXCEL": "Export Excel",
+      "CSV": "Export CSV",
+      "EXCEL_TOOLTIP": "Télécharger la liste au format Excel (.xlsx)",
+      "CSV_TOOLTIP": "Télécharger la liste au format CSV"
+    },
+    "HISTORY": {
+      "TITLE": "Historique des paiements",
+      "PATIENT": "Patient",
+      "MONTANT_FACTURE": "Montant facturé",
+      "MONTANT_REGLE": "Montant réglé",
+      "RESTE": "Solde restant",
+      "DATE": "Date",
+      "MONTANT": "Montant",
+      "SAISI_PAR": "Saisi par",
+      "TOTAL": "Total réglé",
+      "EMPTY": "Aucun paiement enregistré pour cette facture.",
+      "ERROR": "Impossible de charger l'historique des paiements."
+    },
+    "MONTHS": {
+      "1": "Janvier",
+      "2": "Février",
+      "3": "Mars",
+      "4": "Avril",
+      "5": "Mai",
+      "6": "Juin",
+      "7": "Juillet",
+      "8": "Août",
+      "9": "Septembre",
+      "10": "Octobre",
+      "11": "Novembre",
+      "12": "Décembre"
+    }
+  },
   "REPORTING": {
     "MODELES_DOCUMENT_TITLE": "Gestion des modèles de documents",
     "MODELES_DOCUMENT_DESCRIPTION": "Associez un fichier .jrxml JasperReports à chaque type de document par centre",

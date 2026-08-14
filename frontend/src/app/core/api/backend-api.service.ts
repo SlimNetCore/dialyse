@@ -473,6 +473,86 @@ export type FacturationSettingsPayload = {
   regroupementMultiForfait: boolean;
 };
 
+export type ReglementEtat = 'NON_REGLEE' | 'PARTIELLEMENT_REGLEE' | 'REGLEE';
+export type ReglementSoldeType = 'RESTE' | 'REGLE' | 'TROP_PERCU';
+
+export type ReglementInvoiceRow = {
+  factureId: string;
+  numeroFacture: string;
+  numeroAssurance: string;
+  patientNom: string;
+  patientPrenom: string;
+  caisseId?: string | null;
+  caisse: string;
+  agenceId?: string | null;
+  agence: string;
+  centrePayeurId?: string | null;
+  centrePayeur: string;
+  dateFacturation: string;
+  montantFacture: number;
+  montantRegle: number;
+  reste: number;
+  tropPercu: number;
+  etat: ReglementEtat;
+  soldeType: ReglementSoldeType;
+};
+
+export type ReglementDashboardBucket = {
+  code: string;
+  label: string;
+  count: number;
+  amount: number;
+};
+
+export type ReglementDashboardResponse = {
+  centerId: string;
+  year: number;
+  month?: number | null;
+  totalFactures: number;
+  nonReglees: number;
+  partiellementReglees: number;
+  reglees: number;
+  tropPercus: number;
+  totalFacture: number;
+  totalRegle: number;
+  totalReste: number;
+  totalTropPercu: number;
+  statusBreakdown: ReglementDashboardBucket[];
+};
+
+export type ReglementListQuery = {
+  year: number;
+  month?: number | null;
+  caisseId?: string | null;
+  agenceId?: string | null;
+  centrePayeurId?: string | null;
+  page: number;
+  size: number;
+};
+
+export type ReglementDashboardQuery = {
+  year: number;
+  month?: number | null;
+  caisseId?: string | null;
+  agenceId?: string | null;
+  centrePayeurId?: string | null;
+};
+
+export type RegisterFacturePaymentPayload = {
+  centerId: string;
+  montant: number;
+  dateReglement?: string;
+  userId?: string;
+};
+
+export type FacturePaymentItem = {
+  id: string;
+  factureId: string;
+  montant: number;
+  dateReglement: string;
+  saisiPar: string;
+};
+
 @Injectable({ providedIn: 'root' })
 export class BackendApiService {
   private readonly http = inject(HttpClient);
@@ -899,6 +979,51 @@ export class BackendApiService {
 
   updateFacturationSettings(payload: FacturationSettingsPayload): Observable<FacturationSettings> {
     return this.http.put<FacturationSettings>(`${this.baseUrl}/facturation/settings`, payload);
+  }
+
+  listReglements(centerId: string, query: ReglementListQuery): Observable<PagedResponse<ReglementInvoiceRow>> {
+    let params = new HttpParams()
+      .set('centerId', centerId)
+      .set('year', String(query.year))
+      .set('page', String(query.page))
+      .set('size', String(query.size));
+    if (query.month != null) params = params.set('month', String(query.month));
+    if (query.caisseId) params = params.set('caisseId', query.caisseId);
+    if (query.agenceId) params = params.set('agenceId', query.agenceId);
+    if (query.centrePayeurId) params = params.set('centrePayeurId', query.centrePayeurId);
+    return this.http.get<PagedResponse<ReglementInvoiceRow>>(`${this.baseUrl}/reglements`, {params});
+  }
+
+  getReglementDashboard(centerId: string, query: ReglementDashboardQuery): Observable<ReglementDashboardResponse> {
+    let params = new HttpParams()
+      .set('centerId', centerId)
+      .set('year', String(query.year));
+    if (query.month != null) params = params.set('month', String(query.month));
+    if (query.caisseId) params = params.set('caisseId', query.caisseId);
+    if (query.agenceId) params = params.set('agenceId', query.agenceId);
+    if (query.centrePayeurId) params = params.set('centrePayeurId', query.centrePayeurId);
+    return this.http.get<ReglementDashboardResponse>(`${this.baseUrl}/reglements/dashboard`, {params});
+  }
+
+  registerFacturePayment(factureId: string, payload: RegisterFacturePaymentPayload): Observable<ReglementInvoiceRow> {
+    return this.http.post<ReglementInvoiceRow>(`${this.baseUrl}/reglements/${factureId}/paiements`, payload);
+  }
+
+  getFacturePayments(factureId: string, centerId: string): Observable<FacturePaymentItem[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<FacturePaymentItem[]>(`${this.baseUrl}/reglements/${factureId}/paiements`, {params});
+  }
+
+  exportReglements(centerId: string, query: ReglementListQuery, format: 'excel' | 'csv'): Observable<Blob> {
+    let params = new HttpParams()
+      .set('centerId', centerId)
+      .set('year', String(query.year))
+      .set('format', format);
+    if (query.month != null) params = params.set('month', String(query.month));
+    if (query.caisseId) params = params.set('caisseId', query.caisseId);
+    if (query.agenceId) params = params.set('agenceId', query.agenceId);
+    if (query.centrePayeurId) params = params.set('centrePayeurId', query.centrePayeurId);
+    return this.http.get(`${this.baseUrl}/reglements/export`, {params, responseType: 'blob'});
   }
 
   // ─── Documents & Impression (Jasper) ──────────────────────────────

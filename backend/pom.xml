@@ -27,6 +27,7 @@
         <module>bc-pec</module>
         <module>bc-seance</module>
         <module>bc-facturation</module>
+        <module>bc-reglement</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>
@@ -79,6 +80,11 @@
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>bc-facturation</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hemodialyse</groupId>
+                <artifactId>bc-reglement</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
         </dependencies>

@@ -1,0 +1,250 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'REGLEMENT_MODULE.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'REGLEMENT_MODULE.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'REGLEMENT_MODULE.DESCRIPTION' | translate }}</p>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'REGLEMENT_MODULE.FILTERS.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="filters-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'REGLEMENT_MODULE.FILTERS.YEAR' | translate }}</mat-label>
+          <mat-select (valueChange)="onYearChange($event)" [value]="store.year()">
+            @for (year of years; track year) {
+              <mat-option [value]="year">{{ year }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'REGLEMENT_MODULE.FILTERS.MONTH' | translate }}</mat-label>
+          <mat-select (valueChange)="onMonthChange($event)" [value]="store.month() ?? ''">
+            <mat-option value="">{{ 'REGLEMENT_MODULE.FILTERS.ALL_MONTHS' | translate }}</mat-option>
+            @for (month of months; track month) {
+              <mat-option [value]="month">{{ monthLabel(month) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'REGLEMENT_MODULE.FILTERS.CAISSE' | translate }}</mat-label>
+          <mat-select (valueChange)="onCaisseChange($event)" [value]="store.caisseId() ?? ''">
+            <mat-option value="">{{ 'REGLEMENT_MODULE.FILTERS.ALL_CAISSES' | translate }}</mat-option>
+            @for (item of store.caisses(); track item.id) {
+              <mat-option [value]="item.id">{{ item.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'REGLEMENT_MODULE.FILTERS.AGENCE' | translate }}</mat-label>
+          <mat-select (valueChange)="onAgenceChange($event)" [value]="store.agenceId() ?? ''">
+            <mat-option value="">{{ 'REGLEMENT_MODULE.FILTERS.ALL_AGENCES' | translate }}</mat-option>
+            @for (item of store.agences(); track item.id) {
+              <mat-option [value]="item.id">{{ item.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'REGLEMENT_MODULE.FILTERS.CENTRE_PAYEUR' | translate }}</mat-label>
+          <mat-select (valueChange)="onCentrePayeurChange($event)" [value]="store.centrePayeurId() ?? ''">
+            <mat-option value="">{{ 'REGLEMENT_MODULE.FILTERS.ALL_CENTRES_PAYEURS' | translate }}</mat-option>
+            @for (item of store.centresPayeurs(); track item.id) {
+              <mat-option [value]="item.id">{{ item.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="app-button-cluster">
+        <button (click)="onRefresh()" color="primary" mat-flat-button>
+          <mat-icon>refresh</mat-icon>
+          {{ 'COMMON.REFRESH_BUTTON' | translate }}
+        </button>
+        <button (click)="onResetFilters()" mat-stroked-button>
+          <mat-icon>filter_alt_off</mat-icon>
+          {{ 'REGLEMENT_MODULE.FILTERS.RESET' | translate }}
+        </button>
+        <span class="spacer"></span>
+        <button (click)="onExport('excel')" [disabled]="store.exporting()" [matTooltip]="'REGLEMENT_MODULE.EXPORT.EXCEL_TOOLTIP' | translate"
+                mat-stroked-button>
+          <mat-icon>table_view</mat-icon>
+          {{ 'REGLEMENT_MODULE.EXPORT.EXCEL' | translate }}
+        </button>
+        <button (click)="onExport('csv')" [disabled]="store.exporting()" [matTooltip]="'REGLEMENT_MODULE.EXPORT.CSV_TOOLTIP' | translate"
+                mat-stroked-button>
+          <mat-icon>download</mat-icon>
+          {{ 'REGLEMENT_MODULE.EXPORT.CSV' | translate }}
+        </button>
+      </div>
+
+      @if (store.loading() || store.dashboardLoading() || store.referentialsLoading()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+      @if (store.error()) {
+        <p class="feedback error">{{ store.error()! | translate }}</p>
+      }
+      @if (store.successMessage()) {
+        <p class="feedback success">{{ store.successMessage()! | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'REGLEMENT_MODULE.DASHBOARD.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="kpi-grid">
+        <div class="app-data-pill">
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TOTAL_FACTURES' | translate }}</span><strong>{{ store.dashboardCards().totalFactures }}</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.REGLEES' | translate }}</span><strong>{{ store.dashboardCards().reglees }}</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.NON_REGLEES' | translate }}</span><strong>{{ store.dashboardCards().nonReglees }}</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.PARTIAL' | translate }}</span><strong>{{ store.dashboardCards().partiellementReglees }}</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TROP_PERCU' | translate }}</span><strong>{{ store.dashboardCards().tropPercus }}</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.COLLECTION_RATE' | translate }}</span><strong>{{ store.dashboardCards().tauxEncaissement | percent:'1.0-0' }}</strong>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="dashboard-card">
+          <h3>{{ 'REGLEMENT_MODULE.DASHBOARD.CHART.STATUS' | translate }}</h3>
+          <div class="chart-wrap">
+            <canvas [data]="statusChartData()" [options]="chartOptions()" [type]="'doughnut'" baseChart></canvas>
+          </div>
+        </article>
+        <article class="dashboard-card">
+          <h3>{{ 'REGLEMENT_MODULE.DASHBOARD.AMOUNTS.TITLE' | translate }}</h3>
+          <div class="chart-wrap">
+            <canvas [data]="amountChartData()" [options]="chartOptions()" [type]="'bar'" baseChart></canvas>
+          </div>
+        </article>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'REGLEMENT_MODULE.TABLE.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table [dataSource]="store.rows()" class="data-table" mat-table>
+          <ng-container matColumnDef="numeroFacture">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.NUMERO_FACTURE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.numeroFacture }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="numeroAssurance">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.NUMERO_ASSURANCE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.numeroAssurance }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="patientNom">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.PATIENT_NOM' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.patientNom }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="patientPrenom">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.PATIENT_PRENOM' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.patientPrenom }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="caisse">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.CAISSE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.caisse }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="agence">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.AGENCE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.agence }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="centrePayeur">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.CENTRE_PAYEUR' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.centrePayeur }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="montantFacture">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.MONTANT_FACTURE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.montantFacture | number:'1.2-2' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="montantRegle">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.MONTANT_REGLE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.montantRegle | number:'1.2-2' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="solde">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.SOLDE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span [class]="soldeClass(row)" class="solde-chip">{{ soldeLabel(row) }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="etat">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.ETAT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ statusLabel(row) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.ACTIONS' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <div class="payment-box">
+                <mat-form-field appearance="outline" class="payment-field">
+                  <mat-label>{{ 'REGLEMENT_MODULE.TABLE.PAYMENT_INPUT' | translate }}</mat-label>
+                  <input (input)="onPaymentInput(row.factureId, $any($event.target).value)" [value]="amountDraft(row.factureId)" matInput min="0.01" step="0.01"
+                         type="number">
+                </mat-form-field>
+                <button (click)="savePayment(row)" [disabled]="isSavingRow(row.factureId)" color="primary"
+                        mat-flat-button>
+                  <mat-icon>payments</mat-icon>
+                  {{ 'REGLEMENT_MODULE.TABLE.SAVE_PAYMENT' | translate }}
+                </button>
+                <button (click)="openHistory(row)" [matTooltip]="'REGLEMENT_MODULE.TABLE.VIEW_HISTORY' | translate" color="accent"
+                        mat-icon-button>
+                  <mat-icon>history</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: displayedColumns" [attr.data-facture-id]="row.factureId" mat-row></tr>
+        </table>
+      </div>
+
+      @if (!store.loading() && store.rows().length === 0) {
+        <p class="app-muted-note">{{ 'REGLEMENT_MODULE.TABLE.EMPTY' | translate }}</p>
+      }
+
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [length]="store.total()"
+        [pageIndex]="store.pageIndex()"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        [pageSize]="store.pageSize()">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</section>
+
+
+
+
+

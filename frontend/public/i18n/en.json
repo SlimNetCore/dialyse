@@ -316,6 +316,117 @@
       "GENERIC": "Billing operation failed."
     }
   },
+  "REGLEMENT_MODULE": {
+    "EYEBROW": "Payments module",
+    "TITLE": "Invoice payments",
+    "DESCRIPTION": "Track unpaid, partial, settled and overpaid invoices with period, insurance, agency and payer center filters.",
+    "FILTERS": {
+      "TITLE": "Search filters",
+      "YEAR": "Year",
+      "MONTH": "Month",
+      "ALL_MONTHS": "All months",
+      "CAISSE": "Insurance",
+      "ALL_CAISSES": "All insurances",
+      "AGENCE": "Agency",
+      "ALL_AGENCES": "All agencies",
+      "CENTRE_PAYEUR": "Payer center",
+      "ALL_CENTRES_PAYEURS": "All payer centers",
+      "RESET": "Reset"
+    },
+    "STATUS": {
+      "NON_REGLEE": "Unpaid",
+      "PARTIELLEMENT_REGLEE": "Partially paid",
+      "REGLEE": "Paid"
+    },
+    "TABLE": {
+      "TITLE": "Payments list",
+      "NUMERO_FACTURE": "Invoice #",
+      "NUMERO_ASSURANCE": "Insurance #",
+      "PATIENT_NOM": "Patient last name",
+      "PATIENT_PRENOM": "Patient first name",
+      "CAISSE": "Insurance",
+      "AGENCE": "Agency",
+      "CENTRE_PAYEUR": "Payer center",
+      "MONTANT_FACTURE": "Invoice amount",
+      "MONTANT_REGLE": "Paid amount",
+      "SOLDE": "Remaining / overpaid",
+      "ETAT": "Status",
+      "ACTIONS": "Actions",
+      "PAYMENT_INPUT": "Entered amount",
+      "SAVE_PAYMENT": "Save",
+      "VIEW_HISTORY": "Payment history",
+      "EMPTY": "No invoice matches the selected filters.",
+      "SOLDE_SETTLED": "Settled",
+      "SOLDE_REMAINING": "Remaining: {{amount}}",
+      "SOLDE_OVERPAID": "Overpaid: {{amount}}"
+    },
+    "DASHBOARD": {
+      "TITLE": "Payments dashboard",
+      "KPI": {
+        "TOTAL_FACTURES": "Total invoices",
+        "REGLEES": "Paid invoices",
+        "NON_REGLEES": "Unpaid invoices",
+        "PARTIAL": "Partial invoices",
+        "TROP_PERCU": "Overpaid invoices",
+        "COLLECTION_RATE": "Collection rate"
+      },
+      "CHART": {
+        "STATUS": "Status distribution"
+      },
+      "AMOUNTS": {
+        "TITLE": "Tracked amounts",
+        "TOTAL_FACTURE": "Invoiced",
+        "TOTAL_REGLE": "Paid",
+        "TOTAL_RESTE": "Remaining",
+        "TOTAL_TROP_PERCU": "Overpaid"
+      },
+      "BUCKETS": {
+        "NON_REGLEE": "Unpaid",
+        "PARTIELLEMENT_REGLEE": "Partially paid",
+        "REGLE": "Paid",
+        "TROP_PERCU": "Overpaid"
+      }
+    },
+    "SUCCESS": {
+      "PAYMENT_SAVED": "Payment saved successfully."
+    },
+    "ERROR": {
+      "GENERIC": "An error occurred while processing the payment."
+    },
+    "EXPORT": {
+      "EXCEL": "Export Excel",
+      "CSV": "Export CSV",
+      "EXCEL_TOOLTIP": "Download list as Excel (.xlsx)",
+      "CSV_TOOLTIP": "Download list as CSV"
+    },
+    "HISTORY": {
+      "TITLE": "Payment history",
+      "PATIENT": "Patient",
+      "MONTANT_FACTURE": "Invoiced amount",
+      "MONTANT_REGLE": "Paid amount",
+      "RESTE": "Remaining balance",
+      "DATE": "Date",
+      "MONTANT": "Amount",
+      "SAISI_PAR": "Entered by",
+      "TOTAL": "Total paid",
+      "EMPTY": "No payment recorded for this invoice.",
+      "ERROR": "Could not load payment history."
+    },
+    "MONTHS": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    }
+  },
   "REPORTING": {
     "MODELES_DOCUMENT_TITLE": "Document template management",
     "MODELES_DOCUMENT_DESCRIPTION": "Associate a JasperReports .jrxml file with each document type per center",

@@ -1,0 +1,75 @@
+<h2 mat-dialog-title>
+  <mat-icon>receipt_long</mat-icon>
+  {{ 'REGLEMENT_MODULE.HISTORY.TITLE' | translate }}
+  — {{ data.row.numeroFacture }}
+</h2>
+
+<mat-dialog-content>
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+  @if (error()) {
+    <p class="dialog-error">{{ error()! | translate }}</p>
+  }
+
+  <div class="invoice-summary">
+    <div class="summary-pill">
+      <span>{{ 'REGLEMENT_MODULE.HISTORY.PATIENT' | translate }}</span>
+      <strong>{{ data.row.patientNom }} {{ data.row.patientPrenom }}</strong>
+    </div>
+    <div class="summary-pill">
+      <span>{{ 'REGLEMENT_MODULE.HISTORY.MONTANT_FACTURE' | translate }}</span>
+      <strong>{{ data.row.montantFacture | number:'1.2-2' }}</strong>
+    </div>
+    <div class="summary-pill">
+      <span>{{ 'REGLEMENT_MODULE.HISTORY.MONTANT_REGLE' | translate }}</span>
+      <strong class="amount-settled">{{ data.row.montantRegle | number:'1.2-2' }}</strong>
+    </div>
+    <div class="summary-pill">
+      <span>{{ 'REGLEMENT_MODULE.HISTORY.RESTE' | translate }}</span>
+      <strong class="amount-pending">{{ data.row.reste | number:'1.2-2' }}</strong>
+    </div>
+  </div>
+
+  @if (!loading() && payments().length === 0) {
+    <p class="empty-note">{{ 'REGLEMENT_MODULE.HISTORY.EMPTY' | translate }}</p>
+  }
+
+  @if (payments().length > 0) {
+    <div class="table-wrap">
+      <table [dataSource]="payments()" class="history-table" mat-table>
+        <ng-container matColumnDef="dateReglement">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.DATE' | translate }}</th>
+          <td *matCellDef="let p" mat-cell>{{ p.dateReglement }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="montant">
+          <th *matHeaderCellDef class="col-right" mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.MONTANT' | translate }}
+          </th>
+          <td *matCellDef="let p" class="col-right amount-settled" mat-cell>{{ p.montant | number:'1.2-2' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="saisiPar">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.SAISI_PAR' | translate }}</th>
+          <td *matCellDef="let p" mat-cell>{{ p.saisiPar }}</td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+      </table>
+    </div>
+
+    <div class="total-row">
+      <span>{{ 'REGLEMENT_MODULE.HISTORY.TOTAL' | translate }}</span>
+      <strong class="amount-settled">{{ totalPaid() | number:'1.2-2' }}</strong>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button (click)="close()" mat-stroked-button>
+    <mat-icon>close</mat-icon>
+    {{ 'COMMON.CLOSE' | translate }}
+  </button>
+</mat-dialog-actions>
+

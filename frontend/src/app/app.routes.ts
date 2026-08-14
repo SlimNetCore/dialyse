@@ -21,7 +21,10 @@ export const routes: Routes = [
         path: 'facturation',
         loadChildren: () => import('./features/facturation/facturation.routes').then(m => m.facturationRoutes)
       },
-      { path: 'reglement', loadComponent: () => import('./features/reglement/reglement-placeholder.component').then(m => m.ReglementPlaceholderComponent) },
+      {
+        path: 'reglement',
+        loadChildren: () => import('./features/reglement/reglement.routes').then(m => m.reglementRoutes)
+      },
       { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

@@ -358,6 +358,117 @@
       "PRINT_ERROR": "Tuccḍa deg usegzez: {{detail}}"
     }
   },
+  "REGLEMENT_MODULE": {
+    "EYEBROW": "Azegrir n uxelleṣ",
+    "TITLE": "Axelleṣ n tfaturin",
+    "DESCRIPTION": "Ḍfer tifaturin ur nettwaxeḍṣ ara, yettwaxeḍṣen s kra, yettwaxeḍṣen meṛṛa neɣ s ukat n tmerna s yifilten n tallit, صندوق/caisse, tamsuka d ummas axellas.",
+    "FILTERS": {
+      "TITLE": "Ifiltaren n unadi",
+      "YEAR": "Aseggas",
+      "MONTH": "Aggur",
+      "ALL_MONTHS": "Akk aguren",
+      "CAISSE": "Caisse",
+      "ALL_CAISSES": "Akk les caisses",
+      "AGENCE": "Tamsuka",
+      "ALL_AGENCES": "Akk tamsukin",
+      "CENTRE_PAYEUR": "Ammas axellas",
+      "ALL_CENTRES_PAYEURS": "Akk imassan ixellasen",
+      "RESET": "Ales awennez"
+    },
+    "STATUS": {
+      "NON_REGLEE": "Ur tettwaxelleṣ ara",
+      "PARTIELLEMENT_REGLEE": "Tettwaxelleṣ s kra",
+      "REGLEE": "Tettwaxelleṣ"
+    },
+    "TABLE": {
+      "TITLE": "Tabdart n uxelleṣ",
+      "NUMERO_FACTURE": "Uṭṭun n tfatura",
+      "NUMERO_ASSURANCE": "Uṭṭun n uzgal",
+      "PATIENT_NOM": "Isem n twacult",
+      "PATIENT_PRENOM": "Isem",
+      "CAISSE": "Caisse",
+      "AGENCE": "Tamsuka",
+      "CENTRE_PAYEUR": "Ammas axellas",
+      "MONTANT_FACTURE": "Azal n tfatura",
+      "MONTANT_REGLE": "Azal yettwaxelleṣ",
+      "SOLDE": "Ayeffus / tmerna",
+      "ETAT": "Addad",
+      "ACTIONS": "Tigawin",
+      "PAYMENT_INPUT": "Azal yettwasekcmen",
+      "SAVE_PAYMENT": "Sekles",
+      "VIEW_HISTORY": "Amiṭal n uxelleṣ",
+      "EMPTY": "Ulac tafatura i d-ttunefkent s ifiltaren i yettwafernen.",
+      "SOLDE_SETTLED": "Tettwaxelleṣ",
+      "SOLDE_REMAINING": "Ayeffus: {{amount}}",
+      "SOLDE_OVERPAID": "Tamerna: {{amount}}"
+    },
+    "DASHBOARD": {
+      "TITLE": "Tafelwit n uxelleṣ",
+      "KPI": {
+        "TOTAL_FACTURES": "Asemday n tfaturin",
+        "REGLEES": "Tifaturin yettwaxelleṣen",
+        "NON_REGLEES": "Tifaturin ur nettwaxelleṣ ara",
+        "PARTIAL": "Tifaturin s kra",
+        "TROP_PERCU": "Tamerna n uxelleṣ",
+        "COLLECTION_RATE": "Afmiḍi n lejmaɛ"
+      },
+      "CHART": {
+        "STATUS": "Abḍu n waddaden"
+      },
+      "AMOUNTS": {
+        "TITLE": "Izalen yettwaḍefren",
+        "TOTAL_FACTURE": "Yettwafeter",
+        "TOTAL_REGLE": "Yettwaxelleṣ",
+        "TOTAL_RESTE": "Ayeffus",
+        "TOTAL_TROP_PERCU": "Tamerna"
+      },
+      "BUCKETS": {
+        "NON_REGLEE": "Ur nettwaxelleṣ ara",
+        "PARTIELLEMENT_REGLEE": "S kra",
+        "REGLE": "Yettwaxelleṣ",
+        "TROP_PERCU": "Tamerna"
+      }
+    },
+    "SUCCESS": {
+      "PAYMENT_SAVED": "Axelleṣ yettwasekles akken iwata."
+    },
+    "ERROR": {
+      "GENERIC": "Tella tuccḍa deg wesefrek n uxelleṣ."
+    },
+    "EXPORT": {
+      "EXCEL": "Sifirew Excel",
+      "CSV": "Sifirew CSV",
+      "EXCEL_TOOLTIP": "Aẓreg tabdart deg uṣeggem Excel (.xlsx)",
+      "CSV_TOOLTIP": "Aẓreg tabdart deg uṣeggem CSV"
+    },
+    "HISTORY": {
+      "TITLE": "Amiṭal n uxelleṣ",
+      "PATIENT": "Amguren",
+      "MONTANT_FACTURE": "Azal n tfatura",
+      "MONTANT_REGLE": "Azal yettwaxelleṣ",
+      "RESTE": "Azal iyeffusen",
+      "DATE": "Azemz",
+      "MONTANT": "Azal",
+      "SAISI_PAR": "Yesekcem",
+      "TOTAL": "Azal asemday",
+      "EMPTY": "Ulac axelleṣ i yettwasekles i tfatura-a.",
+      "ERROR": "Ur izmir ara ad isifeṛ amiṭal n uxelleṣ."
+    },
+    "MONTHS": {
+      "1": "Yennayer",
+      "2": "Furar",
+      "3": "Meɣres",
+      "4": "Yebrir",
+      "5": "Mayyu",
+      "6": "Yunyu",
+      "7": "Yulyu",
+      "8": "Ɣuct",
+      "9": "Ctember",
+      "10": "Tuber",
+      "11": "Nwanbir",
+      "12": "Dujanbir"
+    }
+  },
   "TOOLBAR": {
     "LOGOUT": "Ffeɣ"
   },
