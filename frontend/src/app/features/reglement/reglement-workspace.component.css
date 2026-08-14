@@ -207,6 +207,11 @@ mat-card {
   min-width: 100px;
 }
 
+.payment-lock-icon {
+  color: var(--mat-sys-outline, #7a7a7a);
+  opacity: 0.9;
+}
+
 /* ─── Code réglement ───────────────────────────────── */
 .code-chip {
   display: inline-block;
@@ -535,6 +540,7 @@ mat-card {
     font-size: 1rem;
   }
 }
+
 
 
 

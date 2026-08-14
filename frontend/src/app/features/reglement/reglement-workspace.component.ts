@@ -193,6 +193,10 @@ export class ReglementWorkspaceComponent {
     return (row.paymentCount ?? 0) > 1;
   }
 
+  protected isPaymentLocked(row: ReglementPreviewRow): boolean {
+    return row.soldeType === 'REGLE';
+  }
+
   protected openHistory(row: ReglementInvoiceRow): void {
     const centerId = this.centerId();
     if (!centerId) return;
@@ -266,6 +270,7 @@ export class ReglementWorkspaceComponent {
     };
   }
 }
+
 
 
 

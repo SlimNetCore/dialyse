@@ -361,7 +361,8 @@
       "SOLDE_OVERPAID": "Overpaid: {{amount}}",
       "DRAFT_TOOLTIP": "Preview before saving",
       "CODE_REGLEMENT": "Payment ref.",
-      "MULTIPLE_BADGE_TOOLTIP": "Multiple payment: {{count}} payments"
+      "MULTIPLE_BADGE_TOOLTIP": "Multiple payment: {{count}} payments",
+      "PAYMENT_LOCKED_TOOLTIP": "Settled invoice: input locked"
     },
     "DASHBOARD": {
       "TITLE": "Payments dashboard",

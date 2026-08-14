@@ -261,8 +261,13 @@
                   <input #payInput
                          (input)="onPaymentInput(row.factureId, payInput.value)"
                          (keydown.enter)="onPaymentEnter($event)"
-                         [disabled]="store.batchSaving() || isSavingRow(row.factureId)"
+                         [disabled]="store.batchSaving() || isSavingRow(row.factureId) || isPaymentLocked(row)"
                          matInput step="0.01" type="number">
+                  @if (isPaymentLocked(row)) {
+                    <mat-icon [matTooltip]="'REGLEMENT_MODULE.TABLE.PAYMENT_LOCKED_TOOLTIP' | translate"
+                              class="payment-lock-icon" matSuffix>lock
+                    </mat-icon>
+                  }
                 </mat-form-field>
                 <button (click)="openHistory(row)" [matTooltip]="'REGLEMENT_MODULE.TABLE.VIEW_HISTORY' | translate"
                         color="accent" mat-icon-button>

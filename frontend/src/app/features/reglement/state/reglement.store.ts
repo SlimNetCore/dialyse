@@ -176,10 +176,7 @@ export const ReglementStore = signalStore(
           draftAmount,
         };
       });
-      return all.filter((row: ReglementPreviewRow) => {
-        if (row.hasDraft) return true; // always show rows being edited
-        return row.soldeType !== 'REGLE' && row.soldeType !== 'TROP_PERCU';
-      });
+      return all;
     }),
   })),
   withMethods((store, api = inject(BackendApiService), referentials = inject(ReferentialApiService)) => ({
@@ -519,6 +516,7 @@ function errorMessage(err: unknown): string {
   }
   return 'REGLEMENT_MODULE.ERROR.GENERIC';
 }
+
 
 
 

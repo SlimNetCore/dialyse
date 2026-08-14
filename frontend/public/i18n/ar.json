@@ -344,7 +344,8 @@
       "SOLDE_OVERPAID": "زيادة: {{amount}}",
       "DRAFT_TOOLTIP": "معاينة قبل الحفظ",
       "CODE_REGLEMENT": "رمز التسديد",
-      "MULTIPLE_BADGE_TOOLTIP": "تسديدات متعددة: {{count}} دفعات"
+      "MULTIPLE_BADGE_TOOLTIP": "تسديدات متعددة: {{count}} دفعات",
+      "PAYMENT_LOCKED_TOOLTIP": "فاتورة مسددة بالكامل: الإدخال مقفل"
     },
     "DASHBOARD": {
       "TITLE": "لوحة التسديدات",

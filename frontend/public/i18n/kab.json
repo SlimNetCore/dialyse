@@ -403,7 +403,8 @@
       "SOLDE_OVERPAID": "Tamerna: {{amount}}",
       "DRAFT_TOOLTIP": "Askan send taskelt",
       "CODE_REGLEMENT": "Acode n uxelleṣ",
-      "MULTIPLE_BADGE_TOOLTIP": "Axeḍṣ agettu: {{count}} ixelleṣen"
+      "MULTIPLE_BADGE_TOOLTIP": "Axeḍṣ agettu: {{count}} ixelleṣen",
+      "PAYMENT_LOCKED_TOOLTIP": "Tafatura tettwaxelleṣ: asekcem yewḥel"
     },
     "DASHBOARD": {
       "TITLE": "Tafelwit n uxelleṣ",

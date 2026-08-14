@@ -361,7 +361,8 @@
       "SOLDE_OVERPAID": "Trop-perçu : {{amount}}",
       "DRAFT_TOOLTIP": "Aperçu avant sauvegarde",
       "CODE_REGLEMENT": "Code règlement",
-      "MULTIPLE_BADGE_TOOLTIP": "Règlement multiple : {{count}} paiements"
+      "MULTIPLE_BADGE_TOOLTIP": "Règlement multiple : {{count}} paiements",
+      "PAYMENT_LOCKED_TOOLTIP": "Facture soldée : saisie verrouillée"
     },
     "DASHBOARD": {
       "TITLE": "Dashboard règlements",
