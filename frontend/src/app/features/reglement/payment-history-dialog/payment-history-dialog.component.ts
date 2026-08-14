@@ -39,7 +39,7 @@ export class PaymentHistoryDialogComponent {
   protected readonly totalPaid = computed(() =>
     this.payments().reduce((acc, p) => acc + Number(p.montant ?? 0), 0)
   );
-  protected readonly displayedColumns = ['dateReglement', 'montant', 'saisiPar'];
+  protected readonly displayedColumns = ['codeReglement', 'dateReglement', 'montant', 'saisiPar'];
   private readonly api = inject(BackendApiService);
   private readonly dialogRef = inject(MatDialogRef<PaymentHistoryDialogComponent>);
   private readonly loadHistory = rxMethod<{ factureId: string; centerId: string }>(
@@ -72,4 +72,5 @@ export class PaymentHistoryDialogComponent {
     this.dialogRef.close();
   }
 }
+
 

@@ -43,6 +43,7 @@ export type ReglementState = PagedListState<ReglementInvoiceRow> & {
   error: string | null;
   successMessage: string | null;
   paymentDrafts: Record<string, string>;
+  saveCycleKey: number;
 };
 
 const initialState: ReglementState = {
@@ -66,6 +67,7 @@ const initialState: ReglementState = {
   error: null,
   successMessage: null,
   paymentDrafts: {},
+  saveCycleKey: 0,
 };
 
 export const ReglementStore = signalStore(
@@ -111,7 +113,7 @@ export const ReglementStore = signalStore(
       return rows.map((row) => {
         const raw = drafts[row.factureId] ?? '';
         const draftAmount = raw ? Number(raw) : 0;
-        const hasDraft = Number.isFinite(draftAmount) && draftAmount > 0;
+        const hasDraft = Number.isFinite(draftAmount) && draftAmount !== 0;
         if (!hasDraft) {
           return {...row, hasDraft: false, draftAmount: 0};
         }
@@ -137,15 +139,47 @@ export const ReglementStore = signalStore(
       const drafts = store.paymentDrafts();
       return Object.values(drafts).some((v) => {
         const n = Number(v);
-        return Number.isFinite(n) && n > 0;
+        return Number.isFinite(n) && n !== 0;
       });
     }),
     draftCount: computed(() => {
       const drafts = store.paymentDrafts();
       return Object.values(drafts).filter((v) => {
         const n = Number(v);
-        return Number.isFinite(n) && n > 0;
+        return Number.isFinite(n) && n !== 0;
       }).length;
+    }),
+    visibleRows: computed((): ReglementPreviewRow[] => {
+      const rows = store.rows();
+      const drafts = store.paymentDrafts();
+      const all = rows.map((row): ReglementPreviewRow => {
+        const raw = drafts[row.factureId] ?? '';
+        const draftAmount = raw ? Number(raw) : 0;
+        const hasDraft = Number.isFinite(draftAmount) && draftAmount !== 0;
+        if (!hasDraft) {
+          return {...row, hasDraft: false, draftAmount: 0};
+        }
+        const newMontantRegle = row.montantRegle + draftAmount;
+        const diff = row.montantFacture - newMontantRegle;
+        const newReste = diff > 0 ? diff : 0;
+        const newTropPercu = diff < 0 ? Math.abs(diff) : 0;
+        const newEtat: ReglementEtat = diff > 0 ? 'PARTIELLEMENT_REGLEE' : 'REGLEE';
+        const newSoldeType: ReglementSoldeType = diff < 0 ? 'TROP_PERCU' : diff === 0 ? 'REGLE' : 'RESTE';
+        return {
+          ...row,
+          montantRegle: newMontantRegle,
+          reste: newReste,
+          tropPercu: newTropPercu,
+          etat: newEtat,
+          soldeType: newSoldeType,
+          hasDraft: true,
+          draftAmount,
+        };
+      });
+      return all.filter((row: ReglementPreviewRow) => {
+        if (row.hasDraft) return true; // always show rows being edited
+        return row.soldeType !== 'REGLE' && row.soldeType !== 'TROP_PERCU';
+      });
     }),
   })),
   withMethods((store, api = inject(BackendApiService), referentials = inject(ReferentialApiService)) => ({
@@ -331,7 +365,7 @@ export const ReglementStore = signalStore(
           const entries = Object.entries(drafts)
             .filter(([, v]) => {
               const n = Number(v);
-              return Number.isFinite(n) && n > 0;
+              return Number.isFinite(n) && n !== 0;
             })
             .map(([factureId, v]) => ({factureId, montant: Number(v)}));
 
@@ -371,6 +405,7 @@ export const ReglementStore = signalStore(
                 rows,
                 paymentDrafts: newDrafts,
                 batchSaving: false,
+                saveCycleKey: store.saveCycleKey() + 1,
                 successMessage: failCount === 0 ? 'REGLEMENT_MODULE.SUCCESS.BATCH_SAVED' : null,
                 error: failCount > 0 ? `REGLEMENT_MODULE.ERROR.BATCH_PARTIAL|${successCount}|${failCount}` : null,
               });
@@ -484,6 +519,13 @@ function errorMessage(err: unknown): string {
   }
   return 'REGLEMENT_MODULE.ERROR.GENERIC';
 }
+
+
+
+
+
+
+
 
 
 

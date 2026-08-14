@@ -359,7 +359,9 @@
       "SOLDE_SETTLED": "Réglée",
       "SOLDE_REMAINING": "Reste : {{amount}}",
       "SOLDE_OVERPAID": "Trop-perçu : {{amount}}",
-      "DRAFT_TOOLTIP": "Aperçu avant sauvegarde"
+      "DRAFT_TOOLTIP": "Aperçu avant sauvegarde",
+      "CODE_REGLEMENT": "Code règlement",
+      "MULTIPLE_BADGE_TOOLTIP": "Règlement multiple : {{count}} paiements"
     },
     "DASHBOARD": {
       "TITLE": "Dashboard règlements",
@@ -417,6 +419,7 @@
       "MONTANT": "Montant",
       "SAISI_PAR": "Saisi par",
       "TOTAL": "Total réglé",
+      "CODE": "Code réglement",
       "EMPTY": "Aucun paiement enregistré pour cette facture.",
       "ERROR": "Impossible de charger l'historique des paiements."
     },

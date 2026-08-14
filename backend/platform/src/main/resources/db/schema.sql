@@ -265,6 +265,8 @@ CREATE INDEX IF NOT EXISTS idx_facture_reglements_facture ON facture_reglements 
 CREATE INDEX IF NOT EXISTS idx_facture_reglements_period ON facture_reglements (center_id, date_reglement);
 
 ALTER TABLE IF EXISTS seances ADD COLUMN IF NOT EXISTS facture_id UUID;
+ALTER TABLE IF EXISTS facture_reglements
+    ADD COLUMN IF NOT EXISTS code_reglement VARCHAR(30);
 ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS forfait_override_id UUID;
 ALTER TABLE IF EXISTS seances

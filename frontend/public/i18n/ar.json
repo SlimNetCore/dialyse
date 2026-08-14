@@ -342,7 +342,9 @@
       "SOLDE_SETTLED": "مسددة",
       "SOLDE_REMAINING": "الباقي: {{amount}}",
       "SOLDE_OVERPAID": "زيادة: {{amount}}",
-      "DRAFT_TOOLTIP": "معاينة قبل الحفظ"
+      "DRAFT_TOOLTIP": "معاينة قبل الحفظ",
+      "CODE_REGLEMENT": "رمز التسديد",
+      "MULTIPLE_BADGE_TOOLTIP": "تسديدات متعددة: {{count}} دفعات"
     },
     "DASHBOARD": {
       "TITLE": "لوحة التسديدات",
@@ -400,6 +402,7 @@
       "MONTANT": "المبلغ",
       "SAISI_PAR": "أدخله",
       "TOTAL": "إجمالي المسدد",
+      "CODE": "رمز التسديد",
       "EMPTY": "لا توجد مدفوعات مسجلة لهذه الفاتورة.",
       "ERROR": "تعذر تحميل سجل المدفوعات."
     },

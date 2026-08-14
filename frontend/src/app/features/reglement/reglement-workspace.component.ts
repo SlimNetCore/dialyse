@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
 import {DecimalPipe, PercentPipe} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -64,6 +64,7 @@ export class ReglementWorkspaceComponent {
     'montantRegle',
     'solde',
     'etat',
+    'codeReglement',
     'actions',
   ];
   protected readonly years = Array.from({length: 6}, (_, index) => new Date().getFullYear() - index);
@@ -111,6 +112,16 @@ export class ReglementWorkspaceComponent {
     };
   });
   private readonly dialog = inject(MatDialog);
+
+  constructor() {
+    // Vider les champs de saisie après chaque sauvegarde réussie
+    effect(() => {
+      const key = this.store.saveCycleKey();
+      if (key > 0) {
+        this.clearPaymentInputs();
+      }
+    });
+  }
 
   protected onYearChange(value: string): void {
     this.store.setYear(Number(value));
@@ -178,6 +189,10 @@ export class ReglementWorkspaceComponent {
     return row.factureId;
   }
 
+  protected hasMultiplePayments(row: ReglementPreviewRow): boolean {
+    return (row.paymentCount ?? 0) > 1;
+  }
+
   protected openHistory(row: ReglementInvoiceRow): void {
     const centerId = this.centerId();
     if (!centerId) return;
@@ -223,6 +238,20 @@ export class ReglementWorkspaceComponent {
     return 'solde-pending';
   }
 
+  protected multiplePaymentsTooltip(row: ReglementPreviewRow): string {
+    return this.translate.instant('REGLEMENT_MODULE.TABLE.MULTIPLE_BADGE_TOOLTIP', {
+      count: row.paymentCount ?? 0,
+    });
+  }
+
+  private clearPaymentInputs(): void {
+    document.querySelectorAll<HTMLInputElement>(
+      '.data-table .payment-field input[type="number"]'
+    ).forEach((input) => {
+      input.value = '';
+    });
+  }
+
   protected monthLabel(month: number): string {
     return this.translate.instant(`REGLEMENT_MODULE.MONTHS.${month}`);
   }
@@ -237,6 +266,11 @@ export class ReglementWorkspaceComponent {
     };
   }
 }
+
+
+
+
+
 
 
 

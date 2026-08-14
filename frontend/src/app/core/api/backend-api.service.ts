@@ -495,6 +495,8 @@ export type ReglementInvoiceRow = {
   tropPercu: number;
   etat: ReglementEtat;
   soldeType: ReglementSoldeType;
+  latestCodeReglement?: string | null;
+  paymentCount?: number;
 };
 
 export type ReglementDashboardBucket = {
@@ -551,6 +553,7 @@ export type FacturePaymentItem = {
   montant: number;
   dateReglement: string;
   saisiPar: string;
+  codeReglement?: string | null;
 };
 
 @Injectable({ providedIn: 'root' })

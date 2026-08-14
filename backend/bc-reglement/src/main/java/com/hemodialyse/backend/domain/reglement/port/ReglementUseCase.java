@@ -83,8 +83,8 @@ public interface ReglementUseCase {
             if (centerId == null || factureId == null) {
                 throw new IllegalArgumentException("Le centerId et l'identifiant facture sont obligatoires");
             }
-            if (montant == null || montant.signum() <= 0) {
-                throw new IllegalArgumentException("Le montant du reglement doit etre strictement positif");
+            if (montant == null || montant.compareTo(java.math.BigDecimal.ZERO) == 0) {
+                throw new IllegalArgumentException("Le montant du reglement ne peut pas etre nul");
             }
         }
 
@@ -145,7 +145,9 @@ public interface ReglementUseCase {
             BigDecimal reste,
             BigDecimal tropPercu,
             FactureReglementEtat etat,
-            FactureSoldeType soldeType
+            FactureSoldeType soldeType,
+            String latestCodeReglement,
+            long paymentCount
     ) {
     }
 
@@ -190,10 +192,15 @@ public interface ReglementUseCase {
             UUID factureId,
             BigDecimal montant,
             LocalDate dateReglement,
-            String saisiPar
+            String saisiPar,
+            String codeReglement
     ) {
     }
 }
+
+
+
+
 
 
 

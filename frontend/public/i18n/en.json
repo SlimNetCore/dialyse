@@ -359,7 +359,9 @@
       "SOLDE_SETTLED": "Settled",
       "SOLDE_REMAINING": "Remaining: {{amount}}",
       "SOLDE_OVERPAID": "Overpaid: {{amount}}",
-      "DRAFT_TOOLTIP": "Preview before saving"
+      "DRAFT_TOOLTIP": "Preview before saving",
+      "CODE_REGLEMENT": "Payment ref.",
+      "MULTIPLE_BADGE_TOOLTIP": "Multiple payment: {{count}} payments"
     },
     "DASHBOARD": {
       "TITLE": "Payments dashboard",
@@ -417,6 +419,7 @@
       "MONTANT": "Amount",
       "SAISI_PAR": "Entered by",
       "TOTAL": "Total paid",
+      "CODE": "Ref.",
       "EMPTY": "No payment recorded for this invoice.",
       "ERROR": "Could not load payment history."
     },

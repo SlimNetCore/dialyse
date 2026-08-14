@@ -26,13 +26,16 @@ public record FactureReglementAggregate(UUID factureId, UUID centerId, BigDecima
     }
 
     public FacturePayment enregistrerPaiement(BigDecimal montant, LocalDate dateReglement, String userId) {
+        UUID id = UUID.randomUUID();
+        String code = "REG-" + id.toString().substring(0, 8).toUpperCase();
         return new FacturePayment(
-                UUID.randomUUID(),
+                id,
                 factureId,
                 centerId,
                 montant.setScale(2, RoundingMode.HALF_UP),
                 dateReglement,
-                userId
+                userId,
+                code
         );
     }
 
@@ -47,4 +50,5 @@ public record FactureReglementAggregate(UUID factureId, UUID centerId, BigDecima
         return FactureReglementStatusSpecification.evaluate(montantFacture, montantRegle());
     }
 }
+
 

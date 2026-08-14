@@ -50,6 +50,28 @@ class ReglementServiceTest {
         assertEquals("user-c", repository.lastSavedPayment.saisiPar());
     }
 
+    @Test
+    void registerPayment_should_allow_negative_to_correct_trop_percu() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID factureId = UUID.randomUUID();
+        InMemoryRepository repository = new InMemoryRepository(centerId.value(), factureId, new BigDecimal("1000.00"));
+        ReglementService service = new ReglementService(repository);
+
+        // Payer en trop
+        service.registerPayment(new ReglementUseCase.RegisterFacturePaymentCommand(
+                centerId, factureId, new BigDecimal("1200.00"), LocalDate.of(2026, 8, 14), "user-a"));
+
+        // Corriger le trop-perçu avec un montant négatif
+        ReglementUseCase.ReglementFactureListItem corrected = service.registerPayment(
+                new ReglementUseCase.RegisterFacturePaymentCommand(
+                        centerId, factureId, new BigDecimal("-200.00"), LocalDate.of(2026, 8, 15), "user-b"));
+
+        assertEquals(ReglementUseCase.FactureReglementEtat.REGLEE, corrected.etat());
+        assertEquals(ReglementUseCase.FactureSoldeType.REGLE, corrected.soldeType());
+        assertEquals(new BigDecimal("0.00"), corrected.tropPercu());
+        assertEquals(new BigDecimal("0.00"), corrected.reste());
+    }
+
     private static final class InMemoryRepository implements ReglementRepository {
         private final UUID centerId;
         private final UUID factureId;
@@ -126,7 +148,9 @@ class ReglementServiceTest {
                     reste.setScale(2),
                     tropPercu.setScale(2),
                     etat,
-                    soldeType
+                    soldeType,
+                    null,
+                    payments.size()
             );
         }
 
@@ -138,7 +162,8 @@ class ReglementServiceTest {
                             payment.factureId(),
                             payment.montant(),
                             payment.dateReglement(),
-                            payment.saisiPar()
+                            payment.saisiPar(),
+                            payment.codeReglement()
                     ))
                     .toList();
         }
@@ -149,3 +174,7 @@ class ReglementServiceTest {
         }
     }
 }
+
+
+
+

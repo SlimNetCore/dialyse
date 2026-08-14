@@ -401,7 +401,9 @@
       "SOLDE_SETTLED": "Tettwaxelleṣ",
       "SOLDE_REMAINING": "Ayeffus: {{amount}}",
       "SOLDE_OVERPAID": "Tamerna: {{amount}}",
-      "DRAFT_TOOLTIP": "Askan send taskelt"
+      "DRAFT_TOOLTIP": "Askan send taskelt",
+      "CODE_REGLEMENT": "Acode n uxelleṣ",
+      "MULTIPLE_BADGE_TOOLTIP": "Axeḍṣ agettu: {{count}} ixelleṣen"
     },
     "DASHBOARD": {
       "TITLE": "Tafelwit n uxelleṣ",
@@ -459,6 +461,7 @@
       "MONTANT": "Azal",
       "SAISI_PAR": "Yesekcem",
       "TOTAL": "Azal asemday",
+      "CODE": "Acode",
       "EMPTY": "Ulac axelleṣ i yettwasekles i tfatura-a.",
       "ERROR": "Ur izmir ara ad isifeṛ amiṭal n uxelleṣ."
     },

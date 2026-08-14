@@ -38,6 +38,15 @@
   @if (payments().length > 0) {
     <div class="table-wrap">
       <table [dataSource]="payments()" class="history-table" mat-table>
+        <ng-container matColumnDef="codeReglement">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.CODE' | translate }}</th>
+          <td *matCellDef="let p" mat-cell>
+            @if (p.codeReglement) {
+              <span class="code-chip">{{ p.codeReglement }}</span>
+            }
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="dateReglement">
           <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.HISTORY.DATE' | translate }}</th>
           <td *matCellDef="let p" mat-cell>{{ p.dateReglement }}</td>
@@ -72,4 +81,5 @@
     {{ 'COMMON.CLOSE' | translate }}
   </button>
 </mat-dialog-actions>
+
 
