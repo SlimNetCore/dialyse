@@ -194,7 +194,7 @@ export class ReglementWorkspaceComponent {
   }
 
   protected isPaymentLocked(row: ReglementPreviewRow): boolean {
-    return row.soldeType === 'REGLE';
+    return row.soldeType === 'REGLE' && !row.hasDraft;
   }
 
   protected openHistory(row: ReglementInvoiceRow): void {
