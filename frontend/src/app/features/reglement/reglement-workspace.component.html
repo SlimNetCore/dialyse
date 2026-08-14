@@ -238,6 +238,7 @@
                   <mat-label>{{ 'REGLEMENT_MODULE.TABLE.PAYMENT_INPUT' | translate }}</mat-label>
                   <input #payInput
                          (input)="onPaymentInput(row.factureId, payInput.value)"
+                         (keydown.enter)="onPaymentEnter($event)"
                          [disabled]="store.batchSaving() || isSavingRow(row.factureId)"
                          matInput min="0.01" step="0.01" type="number">
                 </mat-form-field>

@@ -154,6 +154,20 @@ export class ReglementWorkspaceComponent {
     this.store.setPaymentDraft(factureId, value);
   }
 
+  protected onPaymentEnter(event: Event): void {
+    event.preventDefault();
+    const currentInput = event.target as HTMLInputElement;
+    const allInputs = Array.from(
+      document.querySelectorAll<HTMLInputElement>('.data-table .payment-field input[type="number"]')
+    );
+    const currentIndex = allInputs.indexOf(currentInput);
+    if (currentIndex >= 0 && currentIndex < allInputs.length - 1) {
+      const next = allInputs[currentIndex + 1];
+      next.focus();
+      next.select();
+    }
+  }
+
   protected onBatchSave(): void {
     const centerId = this.centerId();
     if (!centerId) return;
@@ -223,5 +237,7 @@ export class ReglementWorkspaceComponent {
     };
   }
 }
+
+
 
 

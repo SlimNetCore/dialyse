@@ -1,18 +1,31 @@
 :host {
   display: block;
   min-width: 0;
+  /* contenir tout débordement horizontal dans le composant */
+  overflow-x: hidden;
 }
 
 .app-page {
   display: grid;
   gap: 18px;
-  /* bottom padding so FAB never overlaps last card */
-  padding-bottom: 80px;
+  min-width: 0;
+  /* espace pour le FAB */
+  padding-bottom: 88px;
 }
 
 .app-hero-card {
   display: grid;
   gap: 12px;
+}
+
+/* ─── mat-card ─────────────────────────────────────── */
+mat-card {
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .05) !important;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ─── Filtres ──────────────────────────────────────── */
@@ -26,7 +39,7 @@
 /* ─── KPI pills ────────────────────────────────────── */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 
@@ -34,12 +47,13 @@
   background: var(--app-surface-solid, #fff);
   border: 1px solid var(--app-border, #e5e8ec);
   border-radius: 14px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
   transition: box-shadow 0.18s;
+  min-width: 0;
 }
 
 .app-data-pill:hover {
@@ -47,14 +61,17 @@
 }
 
 .app-data-pill span {
-  font-size: 0.72rem;
+  font-size: 0.70rem;
   color: var(--mat-sys-on-surface-variant, #666);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-data-pill strong {
-  font-size: 1.25rem;
+  font-size: 1.18rem;
   font-weight: 700;
   color: var(--mat-sys-primary, #006a6a);
 }
@@ -70,15 +87,15 @@
 .dashboard-card {
   min-width: 0;
   border: 1px solid var(--app-border, #e5e8ec);
-  border-radius: 20px;
+  border-radius: 18px;
   background: var(--app-surface-solid, #fff);
   box-shadow: 0 2px 12px rgba(0, 0, 0, .05);
-  padding: 20px;
+  padding: 18px;
 }
 
 .dashboard-card h3 {
   margin: 0 0 12px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--mat-sys-on-surface, #1a1a1a);
   text-transform: uppercase;
@@ -88,18 +105,20 @@
 .chart-wrap {
   position: relative;
   min-width: 0;
-  height: clamp(220px, 28vw, 320px);
+  height: clamp(200px, 25vw, 300px);
 }
 
 /* ─── Tableau ──────────────────────────────────────── */
 .table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  /* Important: empêche le débordement vers la droite */
+  max-width: 100%;
 }
 
 .data-table {
   width: 100%;
-  min-width: 1400px;
+  min-width: 1360px;
 }
 
 .num-cell {
@@ -180,12 +199,12 @@
   flex-wrap: nowrap;
   gap: 4px;
   align-items: flex-start;
-  min-width: 200px;
+  min-width: 190px;
 }
 
 .payment-field {
-  flex: 1 1 140px;
-  min-width: 110px;
+  flex: 1 1 130px;
+  min-width: 100px;
 }
 
 /* ─── Solde chips ──────────────────────────────────── */
@@ -233,11 +252,6 @@
   color: #1b5e20;
 }
 
-mat-card {
-  border-radius: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, .05) !important;
-}
-
 /* ─── FAB flottant — identique fiche patient ──────── */
 .floating-save {
   position: fixed;
@@ -263,7 +277,6 @@ mat-card {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
 }
 
-/* Badge de comptage intégré dans le FAB */
 .fab-count {
   background: rgba(255, 255, 255, 0.22);
   border-radius: 999px;
@@ -287,51 +300,69 @@ mat-card {
   }
 }
 
-/* ─── Responsive ───────────────────────────────────── */
+/* ═══════════════════════════════════════════════════ */
+/*  Responsive                                          */
+/* ═══════════════════════════════════════════════════ */
 
+/* ── ≤1200px  (petits desktops) ─────────────────── */
 @media (max-width: 1200px) {
   .filters-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
+/* ── ≤980px  (tablette paysage) ─────────────────── */
 @media (max-width: 980px) {
   .filters-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
+/* ── ≤900px  (tablette portrait) ────────────────── */
 @media (max-width: 900px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
 
   .dashboard-card {
-    padding: 16px;
+    padding: 14px;
+  }
+
+  .chart-wrap {
+    height: 240px;
   }
 
   .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .floating-save {
-    bottom: 72px;
+    bottom: 80px;
     right: 12px;
   }
 }
 
+/* ── ≤760px  (grand mobile paysage) ─────────────── */
 @media (max-width: 760px) {
   .app-page {
     gap: 12px;
-    padding-bottom: 100px;
+    padding-bottom: 108px;
   }
 
   .filters-grid {
     grid-template-columns: 1fr 1fr;
   }
 
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .chart-wrap {
-    height: 220px;
+    height: 200px;
   }
 
   .app-button-cluster {
@@ -344,15 +375,120 @@ mat-card {
   }
 
   .data-table {
-    min-width: 1100px;
+    min-width: 1060px;
   }
 
   .payment-box {
-    min-width: 180px;
+    min-width: 160px;
+  }
+
+  .dashboard-card {
+    padding: 12px;
+  }
+
+  mat-card {
+    border-radius: 16px;
   }
 }
 
+/* ── ≤640px  (mobile large) ──────────────────────── */
+@media (max-width: 640px) {
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* Masquer le texte des boutons export, garder l'icône */
+  .btn-label {
+    display: none;
+  }
+
+  .app-button-cluster {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .app-data-pill {
+    padding: 10px 12px;
+  }
+
+  .app-data-pill strong {
+    font-size: 1.05rem;
+  }
+
+  .floating-save {
+    bottom: 72px;
+    right: 10px;
+  }
+}
+
+/* ── ≤480px  (mobile portrait standard) ─────────── */
 @media (max-width: 480px) {
+  .app-page {
+    gap: 10px;
+    padding-bottom: 120px;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .app-data-pill {
+    padding: 9px 10px;
+  }
+
+  .data-table {
+    min-width: 920px;
+  }
+
+  .payment-field {
+    flex: 1 1 90px;
+    min-width: 88px;
+  }
+
+  .draft-hint {
+    font-size: 0.78rem;
+    padding: 7px 10px;
+  }
+
+  .chart-wrap {
+    height: 180px;
+  }
+
+  mat-card {
+    border-radius: 14px;
+  }
+
+  .floating-save {
+    bottom: 60px;
+    right: 8px;
+  }
+
+  .fab-count {
+    font-size: 0.7rem;
+    padding: 1px 6px;
+  }
+}
+
+/* ── ≤360px  (petits mobiles — ex Galaxy A) ──────── */
+@media (max-width: 360px) {
   .filters-grid {
     grid-template-columns: 1fr;
   }
@@ -361,34 +497,8 @@ mat-card {
     grid-template-columns: 1fr;
   }
 
-  .data-table {
-    min-width: 960px;
-  }
-
-  .payment-field {
-    flex: 1 1 100px;
-    min-width: 100px;
-  }
-
-  .btn-label {
-    display: none;
-  }
-
-  .draft-hint {
-    font-size: 0.8rem;
-    padding: 8px 12px;
-  }
-
-  .floating-save {
-    bottom: 60px;
-    right: 10px;
-  }
-
-  .fab-count {
-    font-size: 0.7rem;
-    padding: 1px 7px;
+  .app-data-pill strong {
+    font-size: 1rem;
   }
 }
-
-
 
