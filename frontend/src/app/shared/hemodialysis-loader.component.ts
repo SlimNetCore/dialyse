@@ -64,14 +64,11 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
     return this.showReconnectingKidney ? Math.max(this.size, 148) : this.size;
   }
 
-  protected dots(): Array<{ id: string; color: string; begin: string }> {
-    const duration = Math.max(this.speed, 0.6);
-    const offset = duration / 3;
-
+  protected dots(): Array<{ id: string; color: string; angle: number; kind: 'arterial' | 'venous'; radius: number }> {
     return [
-      {id: 'a1', color: 'var(--hemo-loader-arteriel)', begin: '0s'},
-      {id: 'a2', color: 'var(--hemo-loader-arteriel)', begin: `-${offset}s`},
-      {id: 'v1', color: 'var(--hemo-loader-veineux)', begin: `-${offset * 2}s`},
+      {id: 'a1', color: 'var(--hemo-loader-arteriel)', angle: 0, kind: 'arterial', radius: 5.6},
+      {id: 'a2', color: 'var(--hemo-loader-arteriel)', angle: 120, kind: 'arterial', radius: 5.6},
+      {id: 'v1', color: 'var(--hemo-loader-veineux)', angle: 240, kind: 'venous', radius: 5.4},
     ];
   }
 

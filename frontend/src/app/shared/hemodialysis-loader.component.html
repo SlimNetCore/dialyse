@@ -50,13 +50,13 @@
     <div [class.is-reconnecting]="showReconnectingKidney" [class.is-reduced-motion]="reducedMotion()" aria-hidden="true"
          class="circuit-visual">
       <svg
+        class="circuit-svg"
+        viewBox="0 0 120 120"
+        xmlns="http://www.w3.org/2000/svg"
         [attr.aria-label]="label | translate"
         [attr.height]="visualSize()"
         [attr.width]="visualSize()"
-        class="circuit-svg"
         role="img"
-        viewBox="0 0 120 120"
-        xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
           <linearGradient [attr.id]="circuitGradientId" x1="0" x2="1" y1="0" y2="1">
@@ -72,10 +72,13 @@
         <circle class="circuit-halo" cx="60" cy="60" r="54"/>
         <circle class="circuit-track" cx="60" cy="60" r="50"/>
         <circle class="circuit-track-soft" cx="60" cy="60" r="42"/>
+        <circle class="circuit-flow circuit-flow--arterial" cx="60" cy="60" r="50"/>
+        <circle class="circuit-flow circuit-flow--venous" cx="60" cy="60" r="50"/>
 
         <g [attr.filter]="'url(#' + circuitGlowId + ')'" class="dialyzer-assembly">
           <rect class="dialyzer-body" height="16" rx="4" width="26" x="47" y="3"/>
           <rect class="dialyzer-core" height="9" rx="2.5" width="14" x="53" y="6.5"/>
+          <path class="dialyzer-channel" d="M49.5 11 H70.5"/>
           <path class="dialyzer-line" d="M54 22 V30"/>
           <path class="dialyzer-line" d="M66 22 V30"/>
         </g>
@@ -84,19 +87,27 @@
         <circle class="circuit-core-pulse" cx="60" cy="60" r="21"/>
 
         @if (reducedMotion()) {
-          <circle class="circuit-dot circuit-dot--static" cx="60" cy="10" fill="var(--hemo-loader-arteriel)" r="4"/>
-          <circle class="circuit-dot circuit-dot--static" cx="105" cy="85" fill="var(--hemo-loader-arteriel)" r="4"/>
-          <circle class="circuit-dot circuit-dot--static" cx="15" cy="85" fill="var(--hemo-loader-veineux)" r="4"/>
+          <circle class="circuit-dot circuit-dot--static circuit-dot--arterial" cx="60" cy="10" r="5.4"/>
+          <circle class="circuit-dot circuit-dot--static circuit-dot--arterial" cx="105" cy="85" r="5.4"/>
+          <circle class="circuit-dot circuit-dot--static circuit-dot--venous" cx="15" cy="85" r="5.4"/>
         } @else {
           @for (dot of dots(); track dot.id) {
-            <circle [attr.fill]="dot.color" class="circuit-dot" r="4">
-              <animateMotion
-                [attr.begin]="dot.begin"
-                [attr.dur]="speed + 's'"
-                path="M60,10 A50,50 0 1,1 60,110 A50,50 0 1,1 60,10"
-                repeatCount="indefinite"
-              />
-            </circle>
+            <g [attr.transform]="'rotate(' + dot.angle + ' 60 60)'">
+              <g [class.circuit-dot-orbit--arterial]="dot.kind === 'arterial'" [class.circuit-dot-orbit--venous]="dot.kind === 'venous'"
+                 class="circuit-dot-orbit">
+                <animateTransform
+                  [attr.dur]="speed + 's'"
+                  attributeName="transform"
+                  from="0 60 60"
+                  repeatCount="indefinite"
+                  to="360 60 60"
+                  type="rotate"
+                />
+                <circle [attr.cx]="60" [attr.cy]="10" [attr.fill]="dot.color" [attr.r]="dot.radius"
+                        class="circuit-dot"/>
+                <circle [attr.cx]="58.3" [attr.cy]="8.2" [attr.r]="dot.radius * 0.34" class="circuit-dot-highlight"/>
+              </g>
+            </g>
           }
         }
       </svg>

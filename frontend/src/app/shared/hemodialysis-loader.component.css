@@ -6,9 +6,10 @@
   --hemo-loader-halo: color-mix(in srgb, var(--app-primary) 18%, transparent);
   --hemo-loader-core: color-mix(in srgb, var(--app-primary-soft) 78%, var(--app-surface) 22%);
   --hemo-loader-core-ring: color-mix(in srgb, var(--app-primary-outline) 76%, var(--app-border) 24%);
-  --hemo-loader-arteriel: var(--app-accent);
-  --hemo-loader-veineux: var(--app-primary);
-  --hemo-loader-veineux-soft: var(--app-primary-hover);
+  --hemo-loader-arteriel: color-mix(in srgb, #c62846 84%, var(--app-accent) 16%);
+  --hemo-loader-arteriel-soft: color-mix(in srgb, #ff8aa0 74%, var(--app-accent) 26%);
+  --hemo-loader-veineux: color-mix(in srgb, #1f78d1 78%, var(--app-primary) 22%);
+  --hemo-loader-veineux-soft: color-mix(in srgb, #7bbcff 68%, var(--app-primary-hover) 32%);
   --hemo-loader-dialyseur: color-mix(in srgb, var(--app-primary) 22%, var(--app-surface-solid) 78%);
   --hemo-loader-dialyseur-core: color-mix(in srgb, var(--app-primary-hover) 42%, var(--app-surface) 58%);
   --hemo-loader-shadow: color-mix(in srgb, var(--app-primary) 30%, var(--app-text) 70%);
@@ -46,6 +47,10 @@
 .circuit-visual {
   min-width: 120px;
   min-height: 120px;
+}
+
+.circuit-visual.is-reconnecting {
+  padding-bottom: 18px;
 }
 
 .server-unavailable-visual {
@@ -90,6 +95,27 @@
   opacity: 0.9;
 }
 
+.circuit-flow {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 4.2;
+  opacity: 0.95;
+}
+
+.circuit-flow--arterial {
+  stroke: var(--hemo-loader-arteriel);
+  stroke-dasharray: 92 222;
+  stroke-dashoffset: 14;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--hemo-loader-arteriel) 42%, transparent));
+}
+
+.circuit-flow--venous {
+  stroke: var(--hemo-loader-veineux);
+  stroke-dasharray: 92 222;
+  stroke-dashoffset: -142;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--hemo-loader-veineux) 42%, transparent));
+}
+
 .dialyzer-assembly {
   transform-origin: 60px 12px;
   animation: dialyzerPulse 2.4s ease-in-out infinite;
@@ -103,6 +129,14 @@
 
 .dialyzer-core {
   fill: var(--hemo-loader-dialyseur-core);
+}
+
+.dialyzer-channel {
+  fill: none;
+  stroke: color-mix(in srgb, var(--app-surface) 84%, var(--app-primary-soft) 16%);
+  stroke-linecap: round;
+  stroke-width: 2.2;
+  opacity: 0.9;
 }
 
 .dialyzer-line {
@@ -127,8 +161,40 @@
   animation: coreRingPulse 2.2s ease-out infinite;
 }
 
+.circuit-dot-orbit {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--app-primary) 28%, transparent));
+}
+
+.circuit-dot-orbit--arterial {
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--hemo-loader-arteriel) 58%, transparent));
+}
+
+.circuit-dot-orbit--venous {
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--hemo-loader-veineux) 58%, transparent));
+}
+
 .circuit-dot {
-  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--app-primary) 34%, transparent));
+  stroke: color-mix(in srgb, white 76%, var(--app-border) 24%);
+  stroke-width: 1.2;
+}
+
+.circuit-dot-highlight {
+  fill: rgba(255, 255, 255, 0.9);
+  opacity: 0.88;
+}
+
+.circuit-dot--arterial {
+  fill: var(--hemo-loader-arteriel);
+  stroke: color-mix(in srgb, white 70%, var(--hemo-loader-arteriel) 30%);
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--hemo-loader-arteriel) 60%, transparent));
+}
+
+.circuit-dot--venous {
+  fill: var(--hemo-loader-veineux);
+  stroke: color-mix(in srgb, white 70%, var(--hemo-loader-veineux) 30%);
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--hemo-loader-veineux) 60%, transparent));
 }
 
 .circuit-dot--static {
@@ -137,17 +203,18 @@
 
 .reconnect-counter {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
-  min-width: 46px;
-  padding: 5px 10px;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  min-width: 56px;
+  padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--app-primary-outline) 78%, var(--app-border) 22%);
   background: linear-gradient(135deg,
   color-mix(in srgb, var(--app-surface) 76%, var(--app-primary-soft) 24%) 0%,
   color-mix(in srgb, var(--app-surface-soft) 74%, var(--app-primary-soft) 26%) 100%);
   color: var(--app-primary);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
   text-align: center;
   box-shadow: var(--app-shadow-soft);
@@ -332,8 +399,7 @@
   }
 
   .reconnect-counter {
-    right: 6px;
-    bottom: 6px;
+    bottom: -8px;
   }
 }
 
