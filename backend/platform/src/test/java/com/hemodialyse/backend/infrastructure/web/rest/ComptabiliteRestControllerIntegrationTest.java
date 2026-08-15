@@ -24,6 +24,7 @@ import java.util.UUID;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -105,6 +106,26 @@ class ComptabiliteRestControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total").value(0))
                 .andExpect(jsonPath("$.items.length()").value(0));
+    }
+
+    @Test
+    void exporter_should_mark_ecriture_as_exported_without_null_created_at() throws Exception {
+        mockMvc.perform(get("/api/v1/comptabilite/ecritures/export")
+                        .param("centerId", CENTER_ID.toString())
+                        .param("from", "2026-08-01")
+                        .param("to", "2026-08-31")
+                        .param("journalCode", "VE")
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("journal-VE-2026-08-01.csv")));
+
+        Integer exportedCount = jdbc.queryForObject(
+                "SELECT COUNT(1) FROM ecritures_comptables WHERE center_id = ? AND statut = 'EXPORTEE' AND created_at IS NOT NULL",
+                Integer.class,
+                CENTER_ID
+        );
+
+        org.junit.jupiter.api.Assertions.assertEquals(1, exportedCount);
     }
 
     private void seedEcriture() {

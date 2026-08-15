@@ -101,7 +101,8 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
     // ─── Mapping ─────────────────────────────────────────────────────────────
 
     private EcritureComptableJpaEntity toEntity(EcritureComptable domain) {
-        EcritureComptableJpaEntity entity = new EcritureComptableJpaEntity();
+        EcritureComptableJpaEntity entity = repo.findById(domain.getId())
+                .orElseGet(EcritureComptableJpaEntity::new);
         entity.setId(domain.getId());
         entity.setCenterId(domain.getCenterId());
         entity.setJournalCode(domain.getJournalCode().name());
@@ -124,7 +125,9 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
             le.setAxesAnalytiques(serializeAxes(l.getAxes()));
             return le;
         }).collect(Collectors.toList());
-        entity.setLignes(lignes);
+
+        entity.getLignes().clear();
+        entity.getLignes().addAll(lignes);
         return entity;
     }
 
