@@ -25,6 +25,10 @@ export const routes: Routes = [
         path: 'reglement',
         loadChildren: () => import('./features/reglement/reglement.routes').then(m => m.reglementRoutes)
       },
+      {
+        path: 'comptabilite',
+        loadChildren: () => import('./features/comptabilite/comptabilite.routes').then(m => m.comptabiliteRoutes)
+      },
       { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

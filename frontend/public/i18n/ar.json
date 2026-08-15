@@ -668,7 +668,60 @@
     "STOCK": "المخزون",
     "FACTURATION": "الفوترة",
     "REGLEMENT": "الدفع",
+    "COMPTABILITE": "المحاسبة",
     "MENU": "القائمة"
+  },
+  "COMPTABILITE": {
+    "EYEBROW": "وحدة المحاسبة",
+    "TITLE": "دفتر اليومية المحاسبي SCF",
+    "DESCRIPTION": "قيود محاسبية تُنشأ تلقائياً من الفواتير والمدفوعات وفق النظام المحاسبي المالي (SCF).",
+    "FILTERS": {
+      "TITLE": "الفلاتر",
+      "YEAR": "السنة",
+      "MONTH": "الشهر",
+      "ALL_MONTHS": "كل الأشهر",
+      "JOURNAL": "اليومية",
+      "ALL_JOURNALS": "كل اليوميات"
+    },
+    "JOURNAL": {
+      "VE": "المبيعات (VE)",
+      "BQ": "البنك (BQ)",
+      "CA": "الصندوق (CA)"
+    },
+    "KPI": {
+      "TOTAL_ECRITURES": "القيود",
+      "TOTAL_DEBIT": "إجمالي المدين (دج)"
+    },
+    "TABLE": {
+      "TITLE": "قائمة القيود",
+      "NUMERO_PIECE": "رقم القطعة",
+      "JOURNAL": "اليومية",
+      "DATE": "التاريخ",
+      "LIBELLE": "البيان",
+      "TOTAL": "المبلغ",
+      "STATUT": "الحالة",
+      "ACTIONS": "التفاصيل",
+      "LIGNES": "سطر",
+      "LIGNES_TOOLTIP": "{{count}} سطر (أسطر) تفصيلية",
+      "EMPTY": "لا توجد قيود للفترة المحددة."
+    },
+    "STATUT": {
+      "BROUILLON": "مسودة",
+      "VALIDEE": "مُعتمد",
+      "EXPORTEE": "مُصدَّر"
+    },
+    "EXPORT": {
+      "VE": "تصدير يومية المبيعات",
+      "BQ": "تصدير يومية البنك",
+      "VE_TOOLTIP": "تنزيل يومية المبيعات بصيغة Sage 100",
+      "BQ_TOOLTIP": "تنزيل يومية البنك بصيغة Sage 100"
+    },
+    "SUCCESS": {
+      "PERIODE_CLOTUREE": "تم إقفال الفترة بنجاح."
+    },
+    "ERROR": {
+      "GENERIC": "خطأ في تحميل القيود المحاسبية."
+    }
   },
   "WIZARD": {
     "TITLE": "مريض جديد",

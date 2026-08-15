@@ -823,7 +823,60 @@
     "STOCK": "Stock",
     "FACTURATION": "Facturation",
     "REGLEMENT": "Règlement",
+    "COMPTABILITE": "Comptabilité",
     "MENU": "Menu"
+  },
+  "COMPTABILITE": {
+    "EYEBROW": "Module comptabilité",
+    "TITLE": "Journal comptable SCF",
+    "DESCRIPTION": "Écritures comptables générées automatiquement depuis les factures et les règlements, conformément au Système Comptable Financier (SCF).",
+    "FILTERS": {
+      "TITLE": "Filtres",
+      "YEAR": "Année",
+      "MONTH": "Mois",
+      "ALL_MONTHS": "Tous les mois",
+      "JOURNAL": "Journal",
+      "ALL_JOURNALS": "Tous les journaux"
+    },
+    "JOURNAL": {
+      "VE": "Ventes (VE)",
+      "BQ": "Banque (BQ)",
+      "CA": "Caisse (CA)"
+    },
+    "KPI": {
+      "TOTAL_ECRITURES": "Écritures",
+      "TOTAL_DEBIT": "Total débit (DA)"
+    },
+    "TABLE": {
+      "TITLE": "Liste des écritures",
+      "NUMERO_PIECE": "N° pièce",
+      "JOURNAL": "Journal",
+      "DATE": "Date",
+      "LIBELLE": "Libellé",
+      "TOTAL": "Montant",
+      "STATUT": "Statut",
+      "ACTIONS": "Détails",
+      "LIGNES": "lignes",
+      "LIGNES_TOOLTIP": "{{count}} ligne(s) de détail",
+      "EMPTY": "Aucune écriture pour la période sélectionnée."
+    },
+    "STATUT": {
+      "BROUILLON": "Brouillon",
+      "VALIDEE": "Validée",
+      "EXPORTEE": "Exportée"
+    },
+    "EXPORT": {
+      "VE": "Export journal ventes",
+      "BQ": "Export journal banque",
+      "VE_TOOLTIP": "Télécharger le journal des ventes au format Sage 100",
+      "BQ_TOOLTIP": "Télécharger le journal de banque au format Sage 100"
+    },
+    "SUCCESS": {
+      "PERIODE_CLOTUREE": "Période clôturée avec succès."
+    },
+    "ERROR": {
+      "GENERIC": "Erreur lors du chargement des écritures comptables."
+    }
   },
   "WIZARD": {
     "TITLE": "Nouveau patient",

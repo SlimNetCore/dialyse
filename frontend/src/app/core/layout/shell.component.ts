@@ -108,6 +108,15 @@ export class ShellComponent implements OnInit, AfterViewInit {
       ],
     },
     {
+      key: 'comptabilite',
+      route: '/comptabilite',
+      icon: 'calculate',
+      label: 'NAV.COMPTABILITE',
+      items: [
+        {route: '/comptabilite', label: 'Journal comptable', icon: 'menu_book'},
+      ],
+    },
+    {
       key: 'admin',
       route: '/admin',
       icon: 'tune',

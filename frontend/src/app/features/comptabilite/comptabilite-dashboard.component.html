@@ -1,0 +1,161 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'COMPTABILITE.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'COMPTABILITE.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'COMPTABILITE.DESCRIPTION' | translate }}</p>
+  </div>
+
+  <!-- ─── KPIs ──────────────────────────────────────────────────── -->
+  <mat-card>
+    <mat-card-content>
+      <div class="kpi-grid">
+        <div class="app-data-pill">
+          <span>{{ 'COMPTABILITE.KPI.TOTAL_ECRITURES' | translate }}</span>
+          <strong>{{ store.totalEcritures() }}</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'COMPTABILITE.KPI.TOTAL_DEBIT' | translate }}</span>
+          <strong>{{ store.totalDebitPeriode() | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ─── Filtres ───────────────────────────────────────────────── -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'COMPTABILITE.FILTERS.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="filters-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.FILTERS.YEAR' | translate }}</mat-label>
+          <mat-select (valueChange)="store.setYear($event)" [value]="store.year()">
+            @for (year of years; track year) {
+              <mat-option [value]="year">{{ year }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.FILTERS.MONTH' | translate }}</mat-label>
+          <mat-select (valueChange)="store.setMonth($event || null)" [value]="store.month() ?? ''">
+            <mat-option value="">{{ 'COMPTABILITE.FILTERS.ALL_MONTHS' | translate }}</mat-option>
+            @for (month of months; track month) {
+              <mat-option [value]="month">{{ monthLabel(month) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.FILTERS.JOURNAL' | translate }}</mat-label>
+          <mat-select (valueChange)="store.setJournalCode($event)" [value]="store.journalCode()">
+            @for (j of journaux; track j.code) {
+              <mat-option [value]="j.code">{{ j.label | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="app-button-cluster">
+        <button (click)="onExport('VE')" [disabled]="store.exporting()"
+                [matTooltip]="'COMPTABILITE.EXPORT.VE_TOOLTIP' | translate" mat-stroked-button>
+          <mat-icon>download</mat-icon>
+          <span class="btn-label">{{ 'COMPTABILITE.EXPORT.VE' | translate }}</span>
+        </button>
+        <button (click)="onExport('BQ')" [disabled]="store.exporting()"
+                [matTooltip]="'COMPTABILITE.EXPORT.BQ_TOOLTIP' | translate" mat-stroked-button>
+          <mat-icon>account_balance</mat-icon>
+          <span class="btn-label">{{ 'COMPTABILITE.EXPORT.BQ' | translate }}</span>
+        </button>
+      </div>
+
+      @if (store.loading() || store.exporting() || store.cloturant()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+      @if (store.error()) {
+        <p class="feedback error">{{ store.error()! }}</p>
+      }
+      @if (store.successMessage()) {
+        <p class="feedback success">{{ store.successMessage()! | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ─── Tableau écritures ─────────────────────────────────────── -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'COMPTABILITE.TABLE.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table [dataSource]="store.rows()" [trackBy]="trackByEcritureId" class="data-table" mat-table>
+
+          <ng-container matColumnDef="numeroPiece">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.NUMERO_PIECE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span class="piece-chip">{{ row.numeroPiece }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="journalCode">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.JOURNAL' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <mat-chip [class]="'journal-' + row.journalCode">{{ row.journalCode }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="dateEcriture">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.DATE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.dateEcriture }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="libelle">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.LIBELLE' | translate }}</th>
+            <td *matCellDef="let row" class="libelle-cell" mat-cell>{{ row.libelle }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="totalDebit">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.TOTAL' | translate }}</th>
+            <td *matCellDef="let row" class="num-cell" mat-cell>{{ row.totalDebit | number:'1.2-2' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="statut">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.STATUT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span [class]="'statut-chip ' + statutClass(row.statut)">
+                {{ 'COMPTABILITE.STATUT.' + row.statut | translate }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.ACTIONS' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span [matTooltip]="'COMPTABILITE.TABLE.LIGNES_TOOLTIP' | translate: {count: row.lignes?.length ?? 0}"
+                    class="lignes-count">
+                {{ row.lignes?.length ?? 0 }} {{ 'COMPTABILITE.TABLE.LIGNES' | translate }}
+              </span>
+            </td>
+          </ng-container>
+
+          <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+        </table>
+      </div>
+
+      @if (!store.loading() && store.rows().length === 0) {
+        <p class="app-muted-note">{{ 'COMPTABILITE.TABLE.EMPTY' | translate }}</p>
+      }
+
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [length]="store.total()"
+        [pageIndex]="store.pageIndex()"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        [pageSize]="store.pageSize()">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</section>
+

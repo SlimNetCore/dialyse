@@ -727,7 +727,60 @@
     "STOCK": "Agdez",
     "FACTURATION": "Asefru",
     "REGLEMENT": "Axelleṣ",
+    "COMPTABILITE": "Taselɣut",
     "MENU": "Umuɣ"
+  },
+  "COMPTABILITE": {
+    "EYEBROW": "Azegrir n tselɣut",
+    "TITLE": "Amawal n tselɣut SCF",
+    "DESCRIPTION": "Tiktiwin n tselɣut yettunefken s wudem awurman seg tifaturin d ixelleṣen, yesɛeddal s SCF.",
+    "FILTERS": {
+      "TITLE": "Ifiltaren",
+      "YEAR": "Aseggas",
+      "MONTH": "Aggur",
+      "ALL_MONTHS": "Akk aguren",
+      "JOURNAL": "Amawal",
+      "ALL_JOURNALS": "Akk imawalen"
+    },
+    "JOURNAL": {
+      "VE": "Ibawen (VE)",
+      "BQ": "Aẓraf (BQ)",
+      "CA": "Akufar (CA)"
+    },
+    "KPI": {
+      "TOTAL_ECRITURES": "Tiktiwin",
+      "TOTAL_DEBIT": "Asemday n udebbez (DA)"
+    },
+    "TABLE": {
+      "TITLE": "Tabdart n tiktiwin",
+      "NUMERO_PIECE": "Uṭṭun n tɣawsa",
+      "JOURNAL": "Amawal",
+      "DATE": "Azemz",
+      "LIBELLE": "Aɣbalu",
+      "TOTAL": "Azal",
+      "STATUT": "Addad",
+      "ACTIONS": "Taɣult",
+      "LIGNES": "isṭaren",
+      "LIGNES_TOOLTIP": "{{count}} isṭar n taɣult",
+      "EMPTY": "Ulac tiktiwin i tallit i yettwafernen."
+    },
+    "STATUT": {
+      "BROUILLON": "Amussu",
+      "VALIDEE": "Yettwasekmed",
+      "EXPORTEE": "Yettwasifirew"
+    },
+    "EXPORT": {
+      "VE": "Sifirew amawal n ibawen",
+      "BQ": "Sifirew amawal n uẓraf",
+      "VE_TOOLTIP": "Aẓreg amawal n ibawen deg uṣeggem Sage 100",
+      "BQ_TOOLTIP": "Aẓreg amawal n uẓraf deg uṣeggem Sage 100"
+    },
+    "SUCCESS": {
+      "PERIODE_CLOTUREE": "Tallit tewqef akken iwata."
+    },
+    "ERROR": {
+      "GENERIC": "Tella tuccḍa deg usifeṛ n tiktiwin n tselɣut."
+    }
   },
   "WIZARD": {
     "TITLE": "Amdan amaynut",

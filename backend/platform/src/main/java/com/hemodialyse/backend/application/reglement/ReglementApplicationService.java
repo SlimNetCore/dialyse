@@ -1,9 +1,11 @@
 package com.hemodialyse.backend.application.reglement;
 
+import com.hemodialyse.backend.domain.reglement.event.FactureReglementRecordedEvent;
 import com.hemodialyse.backend.domain.reglement.port.ReglementUseCase;
 import com.hemodialyse.backend.domain.reglement.repository.ReglementRepository;
 import com.hemodialyse.backend.domain.reglement.service.ReglementService;
 import com.hemodialyse.backend.domain.shared.PagedResult;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +16,12 @@ import java.util.List;
 public class ReglementApplicationService implements ReglementUseCase {
 
     private final ReglementService delegate;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ReglementApplicationService(ReglementRepository repository) {
+    public ReglementApplicationService(ReglementRepository repository,
+                                       ApplicationEventPublisher eventPublisher) {
         this.delegate = new ReglementService(repository);
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -33,7 +38,16 @@ public class ReglementApplicationService implements ReglementUseCase {
 
     @Override
     public ReglementFactureListItem registerPayment(RegisterFacturePaymentCommand command) {
-        return delegate.registerPayment(command);
+        ReglementFactureListItem result = delegate.registerPayment(command);
+        // Publie l'événement pour génération écriture comptable
+        eventPublisher.publishEvent(new FactureReglementRecordedEvent(
+                command.factureId(),
+                command.centerId().value(),
+                command.montant(),
+                command.effectiveDate(),
+                command.effectiveUserId()
+        ));
+        return result;
     }
 
     @Override

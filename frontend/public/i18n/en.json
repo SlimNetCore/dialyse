@@ -823,7 +823,60 @@
     "STOCK": "Stock",
     "FACTURATION": "Billing",
     "REGLEMENT": "Payments",
+    "COMPTABILITE": "Accounting",
     "MENU": "Menu"
+  },
+  "COMPTABILITE": {
+    "EYEBROW": "Accounting module",
+    "TITLE": "SCF accounting journal",
+    "DESCRIPTION": "Accounting entries automatically generated from invoices and payments, compliant with the Financial Accounting System (SCF).",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "YEAR": "Year",
+      "MONTH": "Month",
+      "ALL_MONTHS": "All months",
+      "JOURNAL": "Journal",
+      "ALL_JOURNALS": "All journals"
+    },
+    "JOURNAL": {
+      "VE": "Sales (VE)",
+      "BQ": "Bank (BQ)",
+      "CA": "Cash (CA)"
+    },
+    "KPI": {
+      "TOTAL_ECRITURES": "Entries",
+      "TOTAL_DEBIT": "Total debit (DZD)"
+    },
+    "TABLE": {
+      "TITLE": "Journal entries",
+      "NUMERO_PIECE": "Piece #",
+      "JOURNAL": "Journal",
+      "DATE": "Date",
+      "LIBELLE": "Description",
+      "TOTAL": "Amount",
+      "STATUT": "Status",
+      "ACTIONS": "Details",
+      "LIGNES": "lines",
+      "LIGNES_TOOLTIP": "{{count}} detail line(s)",
+      "EMPTY": "No entries for the selected period."
+    },
+    "STATUT": {
+      "BROUILLON": "Draft",
+      "VALIDEE": "Validated",
+      "EXPORTEE": "Exported"
+    },
+    "EXPORT": {
+      "VE": "Export sales journal",
+      "BQ": "Export bank journal",
+      "VE_TOOLTIP": "Download sales journal in Sage 100 format",
+      "BQ_TOOLTIP": "Download bank journal in Sage 100 format"
+    },
+    "SUCCESS": {
+      "PERIODE_CLOTUREE": "Period closed successfully."
+    },
+    "ERROR": {
+      "GENERIC": "Error loading accounting entries."
+    }
   },
   "WIZARD": {
     "TITLE": "New patient",
