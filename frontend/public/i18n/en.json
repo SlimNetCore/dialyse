@@ -853,6 +853,10 @@
       "ACTIONS": "Details",
       "LIGNES": "lines",
       "LIGNES_TOOLTIP": "{{count}} detail line(s)",
+      "COMPTE": "Account",
+      "LIBELLE_LIGNE": "Description",
+      "DEBIT": "Debit",
+      "CREDIT": "Credit",
       "EMPTY": "No entries for the selected period."
     },
     "STATUT": {

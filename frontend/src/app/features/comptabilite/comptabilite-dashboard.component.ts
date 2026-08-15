@@ -1,10 +1,10 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
-import {MatTableModule} from '@angular/material/table';
+import {MatTableModule, MatTableDataSource} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -15,6 +15,7 @@ import {ComptabiliteStore} from './state/comptabilite.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {JournalCode} from '../../core/api/comptabilite-api.service';
+import {EcritureComptableItem} from '../../core/api/comptabilite-api.service';
 
 @Component({
   selector: 'app-comptabilite-dashboard',
@@ -49,12 +50,34 @@ export class ComptabiliteDashboardComponent {
   ];
 
   protected readonly displayedColumns = [
-    'numeroPiece', 'journalCode', 'dateEcriture', 'libelle', 'totalDebit', 'statut', 'actions'
+    'expand', 'numeroPiece', 'journalCode', 'dateEcriture', 'libelle', 'totalDebit', 'statut'
   ];
+  protected readonly detailRowColumns = ['detailRow'];
+
+  protected readonly dataSource = new MatTableDataSource<EcritureComptableItem>([]);
+
+  constructor() {
+    effect(() => {
+      const rows = this.store.rows();
+      this.dataSource.data = rows;
+    });
+  }
 
   protected onPageChange(event: PageEvent): void {
     this.store.setPagination(event.pageIndex, event.pageSize);
   }
+
+  protected toggleRowExpansion(row: EcritureComptableItem, event?: Event): void {
+    event?.stopPropagation();
+    this.store.toggleExpandedRow(row.id);
+  }
+
+  protected isRowExpanded(ecritureId: string): boolean {
+    return this.store.expandedEcritureId() === ecritureId;
+  }
+
+  protected readonly isDetailRowExpanded = (_index: number, row: EcritureComptableItem): boolean =>
+    this.isRowExpanded(row.id) && (row.lignes?.length ?? 0) > 0;
 
   protected onExport(journalCode: JournalCode): void {
     const centerId = this.centerId();
@@ -86,4 +109,12 @@ export class ComptabiliteDashboardComponent {
     return row.id;
   }
 }
+
+
+
+
+
+
+
+
 

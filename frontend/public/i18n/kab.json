@@ -758,6 +758,10 @@
       "ACTIONS": "Taɣult",
       "LIGNES": "isṭaren",
       "LIGNES_TOOLTIP": "{{count}} isṭar n taɣult",
+      "COMPTE": "Amiḍan",
+      "LIBELLE_LIGNE": "Aɣbalu",
+      "DEBIT": "Aɣrad",
+      "CREDIT": "Asuddim",
       "EMPTY": "Ulac tiktiwin i tallit i yettwafernen."
     },
     "STATUT": {

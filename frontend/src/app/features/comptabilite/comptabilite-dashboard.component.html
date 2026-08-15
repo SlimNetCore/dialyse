@@ -89,7 +89,21 @@
     </mat-card-header>
     <mat-card-content>
       <div class="table-wrap">
-        <table [dataSource]="store.rows()" [trackBy]="trackByEcritureId" class="data-table" mat-table>
+        <table [dataSource]="dataSource" class="data-table expandable-table" mat-table multiTemplateDataRows>
+
+          <ng-container matColumnDef="expand">
+            <th *matHeaderCellDef class="expand-cell" mat-header-cell></th>
+            <td *matCellDef="let row" class="expand-cell" mat-cell>
+              @if ((row.lignes?.length ?? 0) > 0) {
+                <button (click)="toggleRowExpansion(row, $event)" [attr.aria-expanded]="isRowExpanded(row.id)"
+                        class="expand-btn" mat-icon-button>
+                  <mat-icon [class.expanded]="isRowExpanded(row.id)" class="expand-icon">
+                    expand_more
+                  </mat-icon>
+                </button>
+              }
+            </td>
+          </ng-container>
 
           <ng-container matColumnDef="numeroPiece">
             <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.NUMERO_PIECE' | translate }}</th>
@@ -129,18 +143,39 @@
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.ACTIONS' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <span [matTooltip]="'COMPTABILITE.TABLE.LIGNES_TOOLTIP' | translate: {count: row.lignes?.length ?? 0}"
-                    class="lignes-count">
-                {{ row.lignes?.length ?? 0 }} {{ 'COMPTABILITE.TABLE.LIGNES' | translate }}
-              </span>
+          <!-- Detail ligne row -->
+          <ng-container matColumnDef="detailRow">
+            <td *matCellDef="let row" [attr.colspan]="displayedColumns.length" class="detail-row" mat-cell>
+              <div class="lignes-detail-container">
+                <table class="lignes-detail-table">
+                  <thead>
+                  <tr>
+                    <th>{{ 'COMPTABILITE.TABLE.COMPTE' | translate }}</th>
+                    <th>{{ 'COMPTABILITE.TABLE.LIBELLE_LIGNE' | translate }}</th>
+                    <th class="num-col">{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</th>
+                    <th class="num-col">{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (ligne of row.lignes ?? []; track ligne.id) {
+                      <tr class="lignes-row">
+                        <td class="compte-cell">{{ ligne.compteSCF }}</td>
+                        <td class="libelle-ligne-cell">{{ ligne.libelleLigne }}</td>
+                        <td class="num-cell">{{ ligne.montantDebit | number:'1.2-2' }}</td>
+                        <td class="num-cell">{{ ligne.montantCredit | number:'1.2-2' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </td>
           </ng-container>
 
           <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+          <tr (click)="toggleRowExpansion(row)" *matRowDef="let row; columns: displayedColumns" [class.expanded]="isRowExpanded(row.id)"
+              class="ecriture-row" mat-row></tr>
+          <tr *matRowDef="let row; columns: detailRowColumns; when: isDetailRowExpanded"
+              class="detail-row-container" mat-row></tr>
         </table>
       </div>
 
@@ -158,4 +193,17 @@
     </mat-card-content>
   </mat-card>
 </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
 

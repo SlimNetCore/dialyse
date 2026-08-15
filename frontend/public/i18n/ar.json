@@ -703,6 +703,10 @@
       "ACTIONS": "التفاصيل",
       "LIGNES": "سطر",
       "LIGNES_TOOLTIP": "{{count}} سطر (أسطر) تفصيلية",
+      "COMPTE": "الحساب",
+      "LIBELLE_LIGNE": "البيان",
+      "DEBIT": "المدين",
+      "CREDIT": "الدائن",
       "EMPTY": "لا توجد قيود للفترة المحددة."
     },
     "STATUT": {

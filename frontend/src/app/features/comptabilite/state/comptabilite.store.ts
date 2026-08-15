@@ -27,6 +27,7 @@ export type ComptabiliteState = PagedListState<EcritureComptableItem> & {
   reglesLoading: boolean;
   exporting: boolean;
   cloturant: boolean;
+  expandedEcritureId: string | null;
   error: string | null;
   successMessage: string | null;
 };
@@ -46,6 +47,7 @@ const initialState: ComptabiliteState = {
   reglesLoading: false,
   exporting: false,
   cloturant: false,
+  expandedEcritureId: null,
   error: null,
   successMessage: null,
 };
@@ -76,6 +78,12 @@ export const ComptabiliteStore = signalStore(
     },
     setPagination(pageIndex: number, pageSize: number): void {
       patchState(store, {pageIndex, pageSize});
+    },
+    toggleExpandedRow(ecritureId: string | null): void {
+      const currentExpanded = store.expandedEcritureId();
+      patchState(store, {
+        expandedEcritureId: currentExpanded === ecritureId ? null : ecritureId
+      });
     },
     clearMessages(): void {
       patchState(store, {error: null, successMessage: null});
@@ -230,6 +238,9 @@ function errorMessage(err: unknown): string {
   }
   return 'COMPTABILITE.ERROR.GENERIC';
 }
+
+
+
 
 
 
