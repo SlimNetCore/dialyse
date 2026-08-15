@@ -447,6 +447,33 @@ export type FacturationSettings = {
   updatedAt: string | null;
 };
 
+export type TvaType = {
+  id: string;
+  centerId: string;
+  libelle: string;
+  taux: number;
+  typePrestation: string;
+  exonere: boolean;
+  dateDebutValidite: string;
+  dateFinValidite: string | null;
+  texteReference: string | null;
+  actif: boolean;
+  createdAt: string | null;
+  createdBy: string | null;
+};
+
+export type TvaTypePayload = {
+  centerId: string;
+  libelle: string;
+  taux: number;
+  typePrestation: string;
+  exonere: boolean;
+  dateDebutValidite: string;
+  dateFinValidite?: string | null;
+  texteReference?: string | null;
+  userId: string;
+};
+
 export type FacturationPreviewPayload = {
   centerId: string;
   month?: string;
@@ -982,6 +1009,27 @@ export class BackendApiService {
 
   updateFacturationSettings(payload: FacturationSettingsPayload): Observable<FacturationSettings> {
     return this.http.put<FacturationSettings>(`${this.baseUrl}/facturation/settings`, payload);
+  }
+
+  listTvaTypes(centerId: string, page: number, size: number): Observable<PagedResponse<TvaType>> {
+    const params = new HttpParams()
+      .set('centerId', centerId)
+      .set('page', String(page))
+      .set('size', String(size));
+    return this.http.get<PagedResponse<TvaType>>(`${this.baseUrl}/tva-types`, {params});
+  }
+
+  createTvaType(payload: TvaTypePayload): Observable<TvaType> {
+    return this.http.post<TvaType>(`${this.baseUrl}/tva-types`, payload);
+  }
+
+  updateTvaType(id: string, payload: TvaTypePayload): Observable<TvaType> {
+    return this.http.put<TvaType>(`${this.baseUrl}/tva-types/${id}`, payload);
+  }
+
+  deleteTvaType(id: string, centerId: string): Observable<void> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.delete<void>(`${this.baseUrl}/tva-types/${id}`, {params});
   }
 
   listReglements(centerId: string, query: ReglementListQuery): Observable<PagedResponse<ReglementInvoiceRow>> {

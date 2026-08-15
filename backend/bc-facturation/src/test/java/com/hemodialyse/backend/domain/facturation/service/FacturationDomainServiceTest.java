@@ -24,7 +24,8 @@ class FacturationDomainServiceTest {
         SeanceFacturationPort seancePort = mock(SeanceFacturationPort.class);
         FactureRepositoryPort factureRepository = mock(FactureRepositoryPort.class);
         FacturationSettingsRepositoryPort settingsRepository = mock(FacturationSettingsRepositoryPort.class);
-        FacturationDomainService service = new FacturationDomainService(seancePort, factureRepository, settingsRepository);
+        TypeTvaRepositoryPort typeTvaRepository = mock(TypeTvaRepositoryPort.class);
+        FacturationDomainService service = new FacturationDomainService(seancePort, factureRepository, settingsRepository, typeTvaRepository);
 
         CenterId centerId = CenterId.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         when(settingsRepository.findByCenterId(centerId)).thenReturn(ParametresFacturation.defaults());
@@ -44,7 +45,8 @@ class FacturationDomainServiceTest {
         SeanceFacturationPort seancePort = mock(SeanceFacturationPort.class);
         FactureRepositoryPort factureRepository = mock(FactureRepositoryPort.class);
         FacturationSettingsRepositoryPort settingsRepository = mock(FacturationSettingsRepositoryPort.class);
-        FacturationDomainService service = new FacturationDomainService(seancePort, factureRepository, settingsRepository);
+        TypeTvaRepositoryPort typeTvaRepository = mock(TypeTvaRepositoryPort.class);
+        FacturationDomainService service = new FacturationDomainService(seancePort, factureRepository, settingsRepository, typeTvaRepository);
 
         CenterId centerId = CenterId.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         when(settingsRepository.findByCenterId(centerId)).thenReturn(ParametresFacturation.defaults());

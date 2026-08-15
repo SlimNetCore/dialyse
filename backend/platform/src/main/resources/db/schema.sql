@@ -196,6 +196,26 @@ CREATE TABLE IF NOT EXISTS modele_document (
 
 -- ═══ Facturation ═══
 
+-- Types TVA versionnés dans le temps (partagés entre facturation et comptabilité)
+CREATE TABLE IF NOT EXISTS tva_types
+(
+    id                  UUID PRIMARY KEY,
+    center_id           UUID                     NOT NULL,
+    libelle             VARCHAR(255)             NOT NULL,
+    taux                DECIMAL(5, 2)            NOT NULL,
+    type_prestation     VARCHAR(120)             NOT NULL DEFAULT 'HEMODIALYSE',
+    exonere             BOOLEAN                  NOT NULL DEFAULT FALSE,
+    date_debut_validite DATE                     NOT NULL,
+    date_fin_validite   DATE,
+    texte_reference     VARCHAR(500),
+    actif               BOOLEAN                  NOT NULL DEFAULT TRUE,
+    created_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by          VARCHAR(120)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tva_types_center_prestation ON tva_types (center_id, type_prestation, date_debut_validite);
+CREATE INDEX IF NOT EXISTS idx_tva_types_center_actif ON tva_types (center_id, actif);
+
 CREATE TABLE IF NOT EXISTS facturation_settings (
     center_id UUID PRIMARY KEY,
     tva_rate DECIMAL(5,2) NOT NULL,
@@ -279,4 +299,5 @@ ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS forfait_override_updated_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS forfait_override_updated_by VARCHAR(100);
+
 

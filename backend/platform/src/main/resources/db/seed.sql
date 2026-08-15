@@ -1028,6 +1028,21 @@ MERGE INTO facturation_settings (center_id, tva_rate, code_format, regroupement_
     KEY (center_id)
     VALUES ('22222222-2222-2222-2222-222222222222', 18.00, 'FACT-{YYYY}-{SEQ6}', TRUE, CURRENT_TIMESTAMP, 'seed-perf');
 
+-- Types TVA versionnés (source de vérité partagée facturation + comptabilité)
+MERGE INTO tva_types (id, center_id, libelle, taux, type_prestation, exonere, date_debut_validite, date_fin_validite,
+                      texte_reference, actif, created_by)
+    KEY (id)
+    VALUES ('aa000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111',
+            'TVA Hémodialyse 19%', 19.00, 'HEMODIALYSE', FALSE,
+            '2020-01-01', NULL, 'Article 138 du CGI', TRUE, 'seed');
+
+MERGE INTO tva_types (id, center_id, libelle, taux, type_prestation, exonere, date_debut_validite, date_fin_validite,
+                      texte_reference, actif, created_by)
+    KEY (id)
+    VALUES ('aa000002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222',
+            'TVA Hémodialyse 18%', 18.00, 'HEMODIALYSE', FALSE,
+            '2020-01-01', NULL, 'Article 138 du CGI', TRUE, 'seed');
+
 -- 80 patients synthetiques par centre.
 INSERT INTO patients (id, center_id, code_patient, civilite, nom, prenom, sexe,
                       date_admission, date_naissance, lieu_naissance, situation_familiale,

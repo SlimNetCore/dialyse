@@ -71,6 +71,10 @@ public class CacheConfig {
         register(manager, "patient.pec.byPatient", patientDetailTtl);
         register(manager, "patient.pec.byCenter", patientListTtl);
 
+        // TVA caches (référentiels fiscaux, peu volatiles — TTL référentiels)
+        register(manager, "tva-types-list", referentialTtl);
+        register(manager, "tva-active", referentialTtl);
+
         return manager;
     }
 
@@ -82,6 +86,3 @@ public class CacheConfig {
                         .build());
     }
 }
-
-
-

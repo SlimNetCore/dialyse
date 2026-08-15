@@ -126,6 +126,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/admin/roles', label: 'Rôles', icon: 'admin_panel_settings'},
         {route: '/admin/parametrage/calendrier-clinique', label: 'Calendrier clinique/centre', icon: 'calendar_month'},
         {route: '/admin/parametrage/facturation', label: 'Paramétrage facturation', icon: 'tune'},
+        {route: '/admin/parametrage/tva', label: 'Types de TVA', icon: 'percent'},
       ],
     },
   ];
@@ -204,6 +205,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       'calendrier-clinique': 'Calendrier clinique/centre',
       users: 'Utilisateurs',
       'modeles-document': 'Modèles documents',
+      tva: 'Types de TVA',
     };
     const segs = url.split('?')[0].split('/').filter(Boolean);
     this.breadcrumbRoutes = segs;

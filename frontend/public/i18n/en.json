@@ -206,16 +206,12 @@
     "UPDATE_OUTPUT_BTN": "Update",
     "CREATE_OUTPUT_BTN": "Issue stock",
     "OUTPUT_ORDERS_LIST_TITLE": "Issue notes",
-    "REFERENCE_LABEL": "Reference",
-    "LINES_LABEL": "Lines",
     "EYEBROW_RECEPTION": "Stock · Receipt",
     "RECEPTION_ORDERS_TITLE": "Goods receipts",
     "RECEPTION_ORDERS_DESC": "Lot entry (number + expiry). Validation recalculates WAP in cascade.",
     "EDIT_RECEPTION_TITLE": "Edit receipt",
     "NEW_RECEPTION_TITLE": "New receipt",
-    "SUPPLIER_LABEL": "Supplier",
     "RECEPTION_DATE_LABEL": "Receipt date",
-    "UNIT_PRICE_LABEL": "Unit price",
     "INVALID_PRICE_ERROR": "Invalid price",
     "LOT_REQUIRED_HINT": "Required (batch-managed item)",
     "LOT_OPTIONAL_HINT": "Optional (auto lot if empty)",
@@ -1246,5 +1242,49 @@
     "CURRENCY_DA": "DA",
     "SAVING": "...",
     "PAGINATOR_ARIA_LABEL": "List pagination"
+  },
+  "TVA_TYPES": {
+    "TITLE": "VAT Types",
+    "DESC": "Manage applicable VAT rates by service type and validity period. These settings are shared between billing and accounting.",
+    "BACK": "Back to billing settings",
+    "ADD": "New VAT type",
+    "EMPTY": "No VAT type configured for this center. Create your first VAT type.",
+    "ACTIF": "Active",
+    "INACTIF": "Inactive",
+    "OPEN_ENDED": "Ongoing",
+    "DEACTIVATE": "Deactivate",
+    "COL": {
+      "LIBELLE": "Label",
+      "TAUX": "Rate",
+      "TYPE_PRESTATION": "Service type",
+      "PERIODE": "Validity period",
+      "EXONERE": "Exempt",
+      "STATUT": "Status"
+    },
+    "FORM": {
+      "CREATE_TITLE": "New VAT type",
+      "EDIT_TITLE": "Edit VAT type",
+      "LIBELLE": "Label",
+      "LIBELLE_PLACEHOLDER": "E.g. Hemodialysis VAT 19%",
+      "TAUX": "Rate (%)",
+      "TYPE_PRESTATION": "Service type",
+      "DATE_DEBUT": "Valid from",
+      "DATE_FIN": "Valid to",
+      "DATE_FIN_HINT": "Leave empty if the rate is in effect indefinitely",
+      "TEXTE_REFERENCE": "Legal reference",
+      "TEXTE_REFERENCE_PLACEHOLDER": "E.g. Article 138 of the Tax Code",
+      "EXONERE": "VAT exempt"
+    },
+    "SUCCESS": {
+      "CREATED": "VAT type created successfully.",
+      "UPDATED": "VAT type updated successfully.",
+      "DELETED": "VAT type deactivated successfully."
+    },
+    "ERRORS": {
+      "LOAD_FAILED": "Failed to load VAT types.",
+      "CREATE_FAILED": "Error creating VAT type.",
+      "UPDATE_FAILED": "Error updating VAT type.",
+      "DELETE_FAILED": "Error deactivating VAT type."
+    }
   }
 }

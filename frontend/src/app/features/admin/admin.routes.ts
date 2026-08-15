@@ -16,6 +16,10 @@ export const adminRoutes: Routes = [
     path: 'parametrage/facturation',
     loadComponent: () => import('./facturation-settings.component').then((m) => m.FacturationSettingsComponent),
   },
+  {
+    path: 'parametrage/tva',
+    loadComponent: () => import('./tva-types.component').then((m) => m.TvaTypesComponent),
+  },
   { path: '', redirectTo: 'users', pathMatch: 'full' }
 ];
 

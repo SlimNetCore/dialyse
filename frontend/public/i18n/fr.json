@@ -206,16 +206,12 @@
     "UPDATE_OUTPUT_BTN": "Mettre à jour",
     "CREATE_OUTPUT_BTN": "Sortir du stock",
     "OUTPUT_ORDERS_LIST_TITLE": "Bons de sortie",
-    "REFERENCE_LABEL": "Référence",
-    "LINES_LABEL": "Lignes",
     "EYEBROW_RECEPTION": "Stock · Réception",
     "RECEPTION_ORDERS_TITLE": "Bons de réception",
     "RECEPTION_ORDERS_DESC": "Saisie des lots (n° + péremption). La validation calcule le PMP en cascade.",
     "EDIT_RECEPTION_TITLE": "Éditer bon de réception",
     "NEW_RECEPTION_TITLE": "Nouveau bon de réception",
-    "SUPPLIER_LABEL": "Fournisseur",
     "RECEPTION_DATE_LABEL": "Date de réception",
-    "UNIT_PRICE_LABEL": "Prix unitaire",
     "INVALID_PRICE_ERROR": "Prix invalide",
     "LOT_REQUIRED_HINT": "Obligatoire (article géré par lot)",
     "LOT_OPTIONAL_HINT": "Optionnel (lot auto si vide)",
@@ -1246,5 +1242,49 @@
     "CURRENCY_DA": "DA",
     "SAVING": "...",
     "PAGINATOR_ARIA_LABEL": "Pagination de la liste"
+  },
+  "TVA_TYPES": {
+    "TITLE": "Types de TVA",
+    "DESC": "Gérez les taux de TVA applicables par type de prestation et par période. Ces paramètres sont partagés entre la facturation et la comptabilité.",
+    "BACK": "Retour au paramétrage facturation",
+    "ADD": "Nouveau type TVA",
+    "EMPTY": "Aucun type TVA configuré pour ce centre. Créez votre premier type TVA.",
+    "ACTIF": "Actif",
+    "INACTIF": "Inactif",
+    "OPEN_ENDED": "En cours",
+    "DEACTIVATE": "Désactiver",
+    "COL": {
+      "LIBELLE": "Libellé",
+      "TAUX": "Taux",
+      "TYPE_PRESTATION": "Type prestation",
+      "PERIODE": "Période de validité",
+      "EXONERE": "Exonéré",
+      "STATUT": "Statut"
+    },
+    "FORM": {
+      "CREATE_TITLE": "Nouveau type TVA",
+      "EDIT_TITLE": "Modifier le type TVA",
+      "LIBELLE": "Libellé",
+      "LIBELLE_PLACEHOLDER": "Ex : TVA Hémodialyse 19%",
+      "TAUX": "Taux (%)",
+      "TYPE_PRESTATION": "Type de prestation",
+      "DATE_DEBUT": "Date de début de validité",
+      "DATE_FIN": "Date de fin de validité",
+      "DATE_FIN_HINT": "Laisser vide si le taux est en vigueur indéfiniment",
+      "TEXTE_REFERENCE": "Référence légale",
+      "TEXTE_REFERENCE_PLACEHOLDER": "Ex : Article 138 du CGI",
+      "EXONERE": "Exonéré de TVA"
+    },
+    "SUCCESS": {
+      "CREATED": "Type TVA créé avec succès.",
+      "UPDATED": "Type TVA mis à jour avec succès.",
+      "DELETED": "Type TVA désactivé avec succès."
+    },
+    "ERRORS": {
+      "LOAD_FAILED": "Impossible de charger les types TVA.",
+      "CREATE_FAILED": "Erreur lors de la création du type TVA.",
+      "UPDATE_FAILED": "Erreur lors de la mise à jour du type TVA.",
+      "DELETE_FAILED": "Erreur lors de la désactivation du type TVA."
+    }
   }
 }

@@ -21,8 +21,9 @@ public class FacturationApplicationService implements FacturationUseCase {
     public FacturationApplicationService(SeanceFacturationPort seancePort,
                                          FactureRepositoryPort factureRepository,
                                          FacturationSettingsRepositoryPort settingsRepository,
+                                         TypeTvaRepositoryPort typeTvaRepository,
                                          ApplicationEventPublisher eventPublisher) {
-        this.delegate = new FacturationDomainService(seancePort, factureRepository, settingsRepository);
+        this.delegate = new FacturationDomainService(seancePort, factureRepository, settingsRepository, typeTvaRepository);
         this.eventPublisher = eventPublisher;
     }
 
@@ -71,4 +72,3 @@ public class FacturationApplicationService implements FacturationUseCase {
         return delegate.updateSettings(command);
     }
 }
-

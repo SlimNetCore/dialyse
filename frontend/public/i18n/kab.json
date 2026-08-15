@@ -206,16 +206,12 @@
     "UPDATE_OUTPUT_BTN": "Leqqem",
     "CREATE_OUTPUT_BTN": "Affeɣ si ugdez",
     "OUTPUT_ORDERS_LIST_TITLE": "Igelsan n tuffɣa",
-    "REFERENCE_LABEL": "Areẓru",
-    "LINES_LABEL": "Isiren",
     "EYEBROW_RECEPTION": "Agdez · Asalis",
     "RECEPTION_ORDERS_TITLE": "Igelsan n usalis",
     "RECEPTION_ORDERS_DESC": "Asekcem n yizerbuten (uṭṭun + afak). Asesfer isfeḍ PMP s uɣebbaz.",
     "EDIT_RECEPTION_TITLE": "Beddel agelsu n usalis",
     "NEW_RECEPTION_TITLE": "Agelsu n usalis amaynut",
-    "SUPPLIER_LABEL": "Ameddel",
     "RECEPTION_DATE_LABEL": "Azemz n usalis",
-    "UNIT_PRICE_LABEL": "Tiqiṛt n tayunt",
     "INVALID_PRICE_ERROR": "Tiqiṛt d tarameɣtut",
     "LOT_REQUIRED_HINT": "Ilaq (aḥric yettusefarar s uzerbut)",
     "LOT_OPTIONAL_HINT": "Ur ilaq ara (azerbut awurman ma yella d ilem)",
@@ -1139,5 +1135,49 @@
     "TOTAL_LABEL": "Asemday:",
     "SAVING": "...",
     "PAGINATOR_ARIA_LABEL": "Assebter n telist"
+  },
+  "TVA_TYPES": {
+    "TITLE": "Tismenyafin n TVA",
+    "DESC": "Sefrek isental n TVA i kra n tallalt d wakat-ines.",
+    "BACK": "Ughal ar ughbalu n ufatru",
+    "ADD": "Tasmenyift tamaynut n TVA",
+    "EMPTY": "Ulac tasmenyift n TVA i lqac-a. Snulfu tis-tamezwarut.",
+    "ACTIF": "Yesskan",
+    "INACTIF": "Ur yesskan ara",
+    "OPEN_ENDED": "Yetteddu",
+    "DEACTIVATE": "Sentedh",
+    "COL": {
+      "LIBELLE": "Isem",
+      "TAUX": "Aghlif",
+      "TYPE_PRESTATION": "Anaw n tallalt",
+      "PERIODE": "Tizilt n usna",
+      "EXONERE": "Ifat",
+      "STATUT": "Addad"
+    },
+    "FORM": {
+      "CREATE_TITLE": "Tasmenyift tamaynut n TVA",
+      "EDIT_TITLE": "Beddel tasmenyift n TVA",
+      "LIBELLE": "Isem",
+      "LIBELLE_PLACEHOLDER": "Amedya: TVA n tghiliwt 19%",
+      "TAUX": "Aghlif (%)",
+      "TYPE_PRESTATION": "Anaw n tallalt",
+      "DATE_DEBUT": "Azemz n tazwara n usna",
+      "DATE_FIN": "Azemz n taggara n usna",
+      "DATE_FIN_HINT": "Hbes asurif akken aghlif yetteddu ger taggara",
+      "TEXTE_REFERENCE": "Aghlif n tuqqna",
+      "TEXTE_REFERENCE_PLACEHOLDER": "Amedya: Tafyirt 138 n tesnawit n yizerman",
+      "EXONERE": "Ifat seg TVA"
+    },
+    "SUCCESS": {
+      "CREATED": "Tasmenyift n TVA ttwarna akken iwata.",
+      "UPDATED": "Tasmenyift n TVA tettwacemmed akken iwata.",
+      "DELETED": "Tasmenyift n TVA tessentedh akken iwata."
+    },
+    "ERRORS": {
+      "LOAD_FAILED": "Ur d-ttwammekta ara tismenyafin n TVA.",
+      "CREATE_FAILED": "Tuccadh deg usnulfu.",
+      "UPDATE_FAILED": "Tuccadh deg ucemmedh.",
+      "DELETE_FAILED": "Tuccadh deg ussentadh."
+    }
   }
 }
