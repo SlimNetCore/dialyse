@@ -1,26 +1,21 @@
 <div [class.overlay]="mode === 'overlay'" aria-live="polite" class="loader-shell" role="status">
   @if (showServerUnavailableIcon) {
-    <!-- Rein cartoon qui pleure : contours épais, sourcils froncés, larme animée -->
     <div aria-hidden="true" class="server-unavailable-visual">
       <svg class="kidney-crying-svg" viewBox="0 0 130 140" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="kgA" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#fda4af"/>
-            <stop offset="50%" stop-color="#f43f5e"/>
-            <stop offset="100%" stop-color="#9f1239"/>
+          <linearGradient [attr.id]="alertGradientId" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="var(--hemo-loader-alert-top)"/>
+            <stop offset="52%" stop-color="var(--hemo-loader-alert-mid)"/>
+            <stop offset="100%" stop-color="var(--hemo-loader-alert-bottom)"/>
           </linearGradient>
-          <linearGradient id="kgB" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#e0f2fe"/>
-            <stop offset="100%" stop-color="#0ea5e9"/>
+          <linearGradient [attr.id]="tearGradientId" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="var(--hemo-loader-tear-top)"/>
+            <stop offset="100%" stop-color="var(--hemo-loader-tear-bottom)"/>
           </linearGradient>
-          <!-- Ombre douce sous le rein -->
-          <filter height="140%" id="softShadow" width="140%" x="-20%" y="-10%">
-            <feDropShadow dx="0" dy="4" flood-color="#9f1239" flood-opacity="0.22" stdDeviation="5"/>
-          </filter>
         </defs>
 
-        <!-- Corps du rein (forme anatomo-cartoon) -->
         <path
+          [attr.fill]="'url(#' + alertGradientId + ')'"
           d="M38 22
              C20 22 10 36 10 54
              C10 78 22 92 36 100
@@ -31,49 +26,89 @@
              C120 36 110 22 92 22
              C82 22 73 27 65 35
              C57 27 48 22 38 22 Z"
-          fill="url(#kgA)"
-          filter="url(#softShadow)"
-          stroke="#7f1d1d"
-          stroke-linejoin="round"
-          stroke-width="4"/>
+          class="kidney-crying-body"/>
 
-        <!-- Highlight interne doux -->
-        <ellipse cx="60" cy="52" fill="rgba(255,255,255,0.18)" rx="28" ry="18"/>
+        <ellipse class="kidney-crying-highlight" cx="60" cy="52" rx="28" ry="18"/>
 
-        <!-- Œil gauche (blanc + pupille) -->
-        <ellipse cx="48" cy="62" fill="#ffffff" rx="8" ry="9" stroke="#7f1d1d" stroke-width="2.5"/>
-        <circle cx="49.5" cy="64" fill="#1e293b" r="4.2"/>
-        <circle cx="51" cy="62" fill="white" r="1.4"/>
+        <ellipse class="kidney-eye" cx="48" cy="62" rx="8" ry="9"/>
+        <circle class="kidney-pupil" cx="49.5" cy="64" r="4.2"/>
+        <circle class="kidney-eye-gloss" cx="51" cy="62" r="1.4"/>
 
-        <!-- Œil droit -->
-        <ellipse cx="82" cy="62" fill="#ffffff" rx="8" ry="9" stroke="#7f1d1d" stroke-width="2.5"/>
-        <circle cx="83.5" cy="64" fill="#1e293b" r="4.2"/>
-        <circle cx="85" cy="62" fill="white" r="1.4"/>
+        <ellipse class="kidney-eye" cx="82" cy="62" rx="8" ry="9"/>
+        <circle class="kidney-pupil" cx="83.5" cy="64" r="4.2"/>
+        <circle class="kidney-eye-gloss" cx="85" cy="62" r="1.4"/>
 
-        <!-- Sourcil gauche (froncé, épais) -->
-        <path d="M39 50 Q48 44 56 48" fill="none" stroke="#7f1d1d" stroke-linecap="round" stroke-width="3.5"/>
-        <!-- Sourcil droit (froncé, épais) -->
-        <path d="M74 48 Q82 44 91 50" fill="none" stroke="#7f1d1d" stroke-linecap="round" stroke-width="3.5"/>
+        <path class="kidney-brow" d="M39 50 Q48 44 56 48"/>
+        <path class="kidney-brow" d="M74 48 Q82 44 91 50"/>
+        <path class="kidney-mouth" d="M50 84 Q65 78 80 84"/>
 
-        <!-- Bouche triste (arc vers le bas) -->
-        <path d="M50 84 Q65 78 80 84" fill="none" stroke="#7f1d1d" stroke-linecap="round" stroke-width="3"/>
-
-        <!-- Larme gauche animée -->
-        <path class="tear-l" d="M46 72 Q44 81 47 88 Q50 81 48 72 Z" fill="url(#kgB)" stroke="#38bdf8"
-              stroke-width="1.5"/>
-        <!-- Larme droite animée (décalée) -->
-        <path class="tear-r" d="M80 72 Q78 81 81 88 Q84 81 82 72 Z" fill="url(#kgB)" stroke="#38bdf8"
-              stroke-width="1.5"/>
+        <path [attr.fill]="'url(#' + tearGradientId + ')'" class="tear-l" d="M46 72 Q44 81 47 88 Q50 81 48 72 Z"/>
+        <path [attr.fill]="'url(#' + tearGradientId + ')'" class="tear-r" d="M80 72 Q78 81 81 88 Q84 81 82 72 Z"/>
       </svg>
     </div>
   } @else {
-    <div aria-hidden="true" class="loader-visual">
-      <span class="loader-ring"></span>
-      <span class="loader-core">
-        <mat-icon>monitor_heart</mat-icon>
-      </span>
-      <span class="loader-pulse"></span>
+    <div [class.is-reconnecting]="showReconnectingKidney" [class.is-reduced-motion]="reducedMotion()" aria-hidden="true"
+         class="circuit-visual">
+      <svg
+        [attr.aria-label]="label | translate"
+        [attr.height]="visualSize()"
+        [attr.width]="visualSize()"
+        class="circuit-svg"
+        role="img"
+        viewBox="0 0 120 120"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient [attr.id]="circuitGradientId" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stop-color="var(--hemo-loader-veineux)"/>
+            <stop offset="55%" stop-color="var(--hemo-loader-arteriel)"/>
+            <stop offset="100%" stop-color="var(--hemo-loader-veineux-soft)"/>
+          </linearGradient>
+          <filter [attr.id]="circuitGlowId" height="170%" width="170%" x="-35%" y="-35%">
+            <feDropShadow dx="0" dy="10" flood-color="var(--hemo-loader-shadow)" flood-opacity="0.28" stdDeviation="8"/>
+          </filter>
+        </defs>
+
+        <circle class="circuit-halo" cx="60" cy="60" r="54"/>
+        <circle class="circuit-track" cx="60" cy="60" r="50"/>
+        <circle class="circuit-track-soft" cx="60" cy="60" r="42"/>
+
+        <g [attr.filter]="'url(#' + circuitGlowId + ')'" class="dialyzer-assembly">
+          <rect class="dialyzer-body" height="16" rx="4" width="26" x="47" y="3"/>
+          <rect class="dialyzer-core" height="9" rx="2.5" width="14" x="53" y="6.5"/>
+          <path class="dialyzer-line" d="M54 22 V30"/>
+          <path class="dialyzer-line" d="M66 22 V30"/>
+        </g>
+
+        <circle class="circuit-core" cx="60" cy="60" r="16"/>
+        <circle class="circuit-core-pulse" cx="60" cy="60" r="21"/>
+
+        @if (reducedMotion()) {
+          <circle class="circuit-dot circuit-dot--static" cx="60" cy="10" fill="var(--hemo-loader-arteriel)" r="4"/>
+          <circle class="circuit-dot circuit-dot--static" cx="105" cy="85" fill="var(--hemo-loader-arteriel)" r="4"/>
+          <circle class="circuit-dot circuit-dot--static" cx="15" cy="85" fill="var(--hemo-loader-veineux)" r="4"/>
+        } @else {
+          @for (dot of dots(); track dot.id) {
+            <circle [attr.fill]="dot.color" class="circuit-dot" r="4">
+              <animateMotion
+                [attr.begin]="dot.begin"
+                [attr.dur]="speed + 's'"
+                path="M60,10 A50,50 0 1,1 60,110 A50,50 0 1,1 60,10"
+                repeatCount="indefinite"
+              />
+            </circle>
+          }
+        }
+      </svg>
+
+      @if (showReconnectingKidney) {
+        <span class="reconnect-counter">{{ reconnectSeconds() }}s</span>
+      }
     </div>
   }
+
   <p [class.server-unavailable-text]="showServerUnavailableIcon" class="loader-text">{{ label | translate }}</p>
+  @if (showReconnectingKidney) {
+    <p class="loader-reconnect-meta">{{ 'COMMON.RECONNECTING_SINCE' | translate:{seconds: reconnectSeconds()} }}</p>
+  }
 </div>

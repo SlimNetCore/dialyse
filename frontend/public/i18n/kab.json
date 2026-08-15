@@ -1141,6 +1141,7 @@
     "LOADING_SESSION_DETAILS": "Asali n talqayt n tmsirt...",
     "SERVER_CONTACT_IN_PROGRESS": "Anermis ɣer uqeddac yella tura...",
     "SERVER_CONNECTION_INTERRUPTED": "Tuqna ɣer uqeddac teggzem. Ales tuqna tetteddu...",
+    "RECONNECTING_SINCE": "Ales tuqna seg {{seconds}} s",
     "SERVER_UNAVAILABLE": "Aqeddac ur yewjid ara. Ttxil-k ɛreḍ ar zdat.",
     "CODE_LABEL": "Tangalt",
     "CURRENCY_DA": "DA",

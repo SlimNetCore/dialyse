@@ -17,7 +17,7 @@ import {filter} from 'rxjs/operators';
 })
 export class App {
   private readonly backendInit = inject(BackendInitService);
-  readonly showStartupLoader = computed(() => this.backendInit.state() === 'server-unavailable');
+  readonly showStartupLoader = computed(() => this.backendInit.state() !== 'ready-for-auth');
   readonly startupLoaderLabel = computed(() => {
     if (this.backendInit.state() === 'server-unavailable') {
       return 'COMMON.SERVER_UNAVAILABLE';
