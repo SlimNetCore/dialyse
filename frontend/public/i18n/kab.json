@@ -764,6 +764,16 @@
       "CREDIT": "Asuddim",
       "EMPTY": "Ulac tiktiwin i tallit i yettwafernen."
     },
+    "DETAIL": {
+      "OPENED": "Talqayt yeldin",
+      "OPENED_COUNT": "{{count}} n tira i yettwaṛẓen",
+      "COLLAPSE_ALL": "Mdel akk",
+      "TOGGLE": "Sken talqayt n tira {{numeroPiece}}",
+      "HEADER": "Talqayt n tira",
+      "BALANCE_OK": "Yemṣada",
+      "BALANCE_WARNING": "Llan umgired gar debit d credit",
+      "LINES_COUNT": "{{count}} n izirig amseḍfar"
+    },
     "STATUT": {
       "BROUILLON": "Amussu",
       "VALIDEE": "Yettwasekmed",

@@ -27,7 +27,7 @@ export type ComptabiliteState = PagedListState<EcritureComptableItem> & {
   reglesLoading: boolean;
   exporting: boolean;
   cloturant: boolean;
-  expandedEcritureId: string | null;
+  expandedEcritureIds: string[];
   error: string | null;
   successMessage: string | null;
 };
@@ -47,7 +47,7 @@ const initialState: ComptabiliteState = {
   reglesLoading: false,
   exporting: false,
   cloturant: false,
-  expandedEcritureId: null,
+  expandedEcritureIds: [],
   error: null,
   successMessage: null,
 };
@@ -80,10 +80,21 @@ export const ComptabiliteStore = signalStore(
       patchState(store, {pageIndex, pageSize});
     },
     toggleExpandedRow(ecritureId: string | null): void {
-      const currentExpanded = store.expandedEcritureId();
+      if (!ecritureId) {
+        return;
+      }
+
+      const currentExpanded = store.expandedEcritureIds();
+      const isExpanded = currentExpanded.includes(ecritureId);
+
       patchState(store, {
-        expandedEcritureId: currentExpanded === ecritureId ? null : ecritureId
+        expandedEcritureIds: isExpanded
+          ? currentExpanded.filter((id) => id !== ecritureId)
+          : [...currentExpanded, ecritureId]
       });
+    },
+    collapseAllExpandedRows(): void {
+      patchState(store, {expandedEcritureIds: []});
     },
     clearMessages(): void {
       patchState(store, {error: null, successMessage: null});
@@ -113,13 +124,19 @@ export const ComptabiliteStore = signalStore(
             size: store.pageSize(),
           };
           return api.searchEcritures(query).pipe(
-            tap((response) => patchState(store, {
-              rows: response.items ?? [],
-              total: response.total ?? 0,
-              pageIndex: response.page ?? store.pageIndex(),
-              pageSize: response.size ?? store.pageSize(),
-              loading: false,
-            })),
+            tap((response) => {
+              const rows = response.items ?? [];
+              const availableIds = new Set(rows.map((row) => row.id));
+
+              patchState(store, {
+                rows,
+                total: response.total ?? 0,
+                pageIndex: response.page ?? store.pageIndex(),
+                pageSize: response.size ?? store.pageSize(),
+                expandedEcritureIds: store.expandedEcritureIds().filter((id) => availableIds.has(id)),
+                loading: false,
+              });
+            }),
             catchError((err: unknown) => {
               patchState(store, {rows: [], total: 0, loading: false, error: errorMessage(err)});
               return of(null);
@@ -238,6 +255,7 @@ function errorMessage(err: unknown): string {
   }
   return 'COMPTABILITE.ERROR.GENERIC';
 }
+
 
 
 

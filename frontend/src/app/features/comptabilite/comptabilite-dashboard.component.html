@@ -88,6 +88,20 @@
       <mat-card-title>{{ 'COMPTABILITE.TABLE.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      @if (expandedCount() > 0) {
+        <div class="detail-toolbar">
+          <div class="detail-toolbar__info">
+            <span class="detail-toolbar__eyebrow">{{ 'COMPTABILITE.DETAIL.OPENED' | translate }}</span>
+            <strong>{{ 'COMPTABILITE.DETAIL.OPENED_COUNT' | translate:{count: expandedCount()} }}</strong>
+          </div>
+
+          <button (click)="closeAllExpandedRows()" mat-stroked-button type="button">
+            <mat-icon>unfold_less</mat-icon>
+            <span>{{ 'COMPTABILITE.DETAIL.COLLAPSE_ALL' | translate }}</span>
+          </button>
+        </div>
+      }
+
       <div class="table-wrap">
         <table [dataSource]="dataSource" class="data-table expandable-table" mat-table multiTemplateDataRows>
 
@@ -95,7 +109,9 @@
             <th *matHeaderCellDef class="expand-cell" mat-header-cell></th>
             <td *matCellDef="let row" class="expand-cell" mat-cell>
               @if ((row.lignes?.length ?? 0) > 0) {
-                <button (click)="toggleRowExpansion(row, $event)" [attr.aria-expanded]="isRowExpanded(row.id)"
+                <button (click)="toggleRowExpansion(row, $event)"
+                        [attr.aria-expanded]="isRowExpanded(row.id)"
+                        [attr.aria-label]="'COMPTABILITE.DETAIL.TOGGLE' | translate:{ numeroPiece: row.numeroPiece }"
                         class="expand-btn" mat-icon-button>
                   <mat-icon [class.expanded]="isRowExpanded(row.id)" class="expand-icon">
                     expand_more
@@ -147,32 +163,74 @@
           <ng-container matColumnDef="detailRow">
             <td *matCellDef="let row" [attr.colspan]="displayedColumns.length" class="detail-row" mat-cell>
               <div class="lignes-detail-container">
-                <table class="lignes-detail-table">
-                  <thead>
-                  <tr>
-                    <th>{{ 'COMPTABILITE.TABLE.COMPTE' | translate }}</th>
-                    <th>{{ 'COMPTABILITE.TABLE.LIBELLE_LIGNE' | translate }}</th>
-                    <th class="num-col">{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</th>
-                    <th class="num-col">{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    @for (ligne of row.lignes ?? []; track ligne.id) {
-                      <tr class="lignes-row">
-                        <td class="compte-cell">{{ ligne.compteSCF }}</td>
-                        <td class="libelle-ligne-cell">{{ ligne.libelleLigne }}</td>
-                        <td class="num-cell">{{ ligne.montantDebit | number:'1.2-2' }}</td>
-                        <td class="num-cell">{{ ligne.montantCredit | number:'1.2-2' }}</td>
+                <div class="detail-card">
+                  <div class="detail-card__header">
+                    <div class="detail-card__title-wrap">
+                      <span class="detail-card__eyebrow">{{ 'COMPTABILITE.DETAIL.HEADER' | translate }}</span>
+                      <h3 class="detail-card__title">{{ row.numeroPiece }}</h3>
+                      <p class="detail-card__subtitle">{{ row.libelle }}</p>
+                    </div>
+
+                    <div class="detail-card__summary">
+                      <div class="detail-metric">
+                        <span>{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</span>
+                        <strong>{{ row.totalDebit | number:'1.2-2' }}</strong>
+                      </div>
+                      <div class="detail-metric">
+                        <span>{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</span>
+                        <strong>{{ totalCredit(row) | number:'1.2-2' }}</strong>
+                      </div>
+                      <div [class]="'detail-balance ' + detailBalanceClass(row)">
+                        <mat-icon>{{ detailBalanceClass(row) === 'detail-balance-ok' ? 'task_alt' : 'warning_amber' }}</mat-icon>
+                        <span>{{ detailBalanceLabel(row) | translate }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="detail-card__chips">
+                    <span class="detail-chip">
+                      <mat-icon>receipt_long</mat-icon>
+                      {{ 'COMPTABILITE.DETAIL.LINES_COUNT' | translate:{count: row.lignes?.length ?? 0} }}
+                    </span>
+                    <span class="detail-chip">
+                      <mat-icon>calendar_month</mat-icon>
+                      {{ row.dateEcriture }}
+                    </span>
+                    <span class="detail-chip">
+                      <mat-icon>book_2</mat-icon>
+                      {{ 'COMPTABILITE.JOURNAL.' + row.journalCode | translate }}
+                    </span>
+                  </div>
+
+                  <div class="detail-table-shell">
+                    <table class="lignes-detail-table">
+                      <thead>
+                      <tr>
+                        <th>{{ 'COMPTABILITE.TABLE.COMPTE' | translate }}</th>
+                        <th>{{ 'COMPTABILITE.TABLE.LIBELLE_LIGNE' | translate }}</th>
+                        <th class="num-col">{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</th>
+                        <th class="num-col">{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</th>
                       </tr>
-                    }
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        @for (ligne of row.lignes ?? []; track ligne.id) {
+                          <tr class="lignes-row">
+                            <td class="compte-cell">{{ ligne.compteSCF }}</td>
+                            <td class="libelle-ligne-cell">{{ ligne.libelleLigne }}</td>
+                            <td class="num-cell">{{ ligne.montantDebit | number:'1.2-2' }}</td>
+                            <td class="num-cell">{{ ligne.montantCredit | number:'1.2-2' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </td>
           </ng-container>
 
           <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-          <tr (click)="toggleRowExpansion(row)" *matRowDef="let row; columns: displayedColumns" [class.expanded]="isRowExpanded(row.id)"
+          <tr *matRowDef="let row; columns: displayedColumns" [class.expanded]="isRowExpanded(row.id)"
               class="ecriture-row" mat-row></tr>
           <tr *matRowDef="let row; columns: detailRowColumns; when: isDetailRowExpanded"
               class="detail-row-container" mat-row></tr>
@@ -193,6 +251,8 @@
     </mat-card-content>
   </mat-card>
 </section>
+
+
 
 
 

@@ -859,6 +859,16 @@
       "CREDIT": "Crédit",
       "EMPTY": "Aucune écriture pour la période sélectionnée."
     },
+    "DETAIL": {
+      "OPENED": "Détails ouverts",
+      "OPENED_COUNT": "{{count}} écriture(s) déployée(s)",
+      "COLLAPSE_ALL": "Tout replier",
+      "TOGGLE": "Afficher le détail de l'écriture {{numeroPiece}}",
+      "HEADER": "Détail de l'écriture",
+      "BALANCE_OK": "Équilibrée",
+      "BALANCE_WARNING": "Écart débit / crédit",
+      "LINES_COUNT": "{{count}} ligne(s) comptable(s)"
+    },
     "STATUT": {
       "BROUILLON": "Brouillon",
       "VALIDEE": "Validée",

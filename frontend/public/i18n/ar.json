@@ -709,6 +709,16 @@
       "CREDIT": "الدائن",
       "EMPTY": "لا توجد قيود للفترة المحددة."
     },
+    "DETAIL": {
+      "OPENED": "التفاصيل المفتوحة",
+      "OPENED_COUNT": "{{count}} قيد/قيود مفتوحة",
+      "COLLAPSE_ALL": "طيّ الكل",
+      "TOGGLE": "عرض تفاصيل القيد {{numeroPiece}}",
+      "HEADER": "تفاصيل القيد",
+      "BALANCE_OK": "متوازن",
+      "BALANCE_WARNING": "فرق بين المدين والدائن",
+      "LINES_COUNT": "{{count}} سطر/أسطر محاسبية"
+    },
     "STATUT": {
       "BROUILLON": "مسودة",
       "VALIDEE": "مُعتمد",

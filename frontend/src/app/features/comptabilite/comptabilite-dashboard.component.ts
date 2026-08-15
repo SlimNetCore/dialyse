@@ -68,16 +68,41 @@ export class ComptabiliteDashboardComponent {
   }
 
   protected toggleRowExpansion(row: EcritureComptableItem, event?: Event): void {
+    event?.preventDefault();
     event?.stopPropagation();
     this.store.toggleExpandedRow(row.id);
   }
 
   protected isRowExpanded(ecritureId: string): boolean {
-    return this.store.expandedEcritureId() === ecritureId;
+    return this.store.expandedEcritureIds().includes(ecritureId);
   }
 
   protected readonly isDetailRowExpanded = (_index: number, row: EcritureComptableItem): boolean =>
     this.isRowExpanded(row.id) && (row.lignes?.length ?? 0) > 0;
+
+  protected expandedCount(): number {
+    return this.store.expandedEcritureIds().length;
+  }
+
+  protected closeAllExpandedRows(): void {
+    this.store.collapseAllExpandedRows();
+  }
+
+  protected totalCredit(row: EcritureComptableItem): number {
+    return (row.lignes ?? []).reduce((sum, ligne) => sum + Number(ligne.montantCredit ?? 0), 0);
+  }
+
+  protected detailBalanceClass(row: EcritureComptableItem): string {
+    const debit = Number(row.totalDebit ?? 0);
+    const credit = this.totalCredit(row);
+    return Math.abs(debit - credit) < 0.0001 ? 'detail-balance-ok' : 'detail-balance-warning';
+  }
+
+  protected detailBalanceLabel(row: EcritureComptableItem): string {
+    return this.detailBalanceClass(row) === 'detail-balance-ok'
+      ? 'COMPTABILITE.DETAIL.BALANCE_OK'
+      : 'COMPTABILITE.DETAIL.BALANCE_WARNING';
+  }
 
   protected onExport(journalCode: JournalCode): void {
     const centerId = this.centerId();
@@ -109,6 +134,8 @@ export class ComptabiliteDashboardComponent {
     return row.id;
   }
 }
+
+
 
 
 

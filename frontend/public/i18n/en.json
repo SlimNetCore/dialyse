@@ -859,6 +859,16 @@
       "CREDIT": "Credit",
       "EMPTY": "No entries for the selected period."
     },
+    "DETAIL": {
+      "OPENED": "Expanded details",
+      "OPENED_COUNT": "{{count}} expanded entr(y/ies)",
+      "COLLAPSE_ALL": "Collapse all",
+      "TOGGLE": "Show details for entry {{numeroPiece}}",
+      "HEADER": "Entry details",
+      "BALANCE_OK": "Balanced",
+      "BALANCE_WARNING": "Debit / credit gap",
+      "LINES_COUNT": "{{count}} accounting line(s)"
+    },
     "STATUT": {
       "BROUILLON": "Draft",
       "VALIDEE": "Validated",
