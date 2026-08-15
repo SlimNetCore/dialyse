@@ -15,9 +15,9 @@ export interface LangOption {
 }
 
 export const LANGUAGES: LangOption[] = [
-  {code: 'fr', label: 'Français', dir: 'ltr', flag: '🇫🇷'},
-  {code: 'en', label: 'English', dir: 'ltr', flag: '🇬🇧'},
-  {code: 'ar', label: 'العربية', dir: 'rtl', flag: '🇩🇿'},
+  {code: 'fr', label: 'Français', dir: 'ltr', flag: ''},
+  {code: 'en', label: 'English', dir: 'ltr', flag: ''},
+  {code: 'ar', label: 'العربية', dir: 'rtl', flag: ''},
   {code: 'kab', label: 'Taqbaylit', dir: 'ltr', flag: 'ⵣ'}
 ];
 
@@ -78,6 +78,5 @@ function toDateLocale(lang: AppLang): string {
   if (lang === 'ar') return 'ar-DZ';
   return 'fr-DZ';
 }
-
 
 

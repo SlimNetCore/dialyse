@@ -149,4 +149,3 @@ function formatPropertyName(key: string): string {
 
 export default enableDevtools;
 
-
