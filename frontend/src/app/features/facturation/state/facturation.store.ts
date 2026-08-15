@@ -248,7 +248,6 @@ export const FacturationStore = signalStore(
           return api.updateFacturationSettings({
             centerId,
             userId,
-            tvaRate: draft.tvaRate,
             codeFormat: draft.codeFormat,
             regroupementMultiForfait: draft.regroupementMultiForfait,
           }).pipe(
@@ -299,7 +298,6 @@ function currentMonthIso(): string {
 
 function defaultSettings(): FacturationSettings {
   return {
-    tvaRate: 19,
     codeFormat: 'FAC-{YEAR}-{SEQ}',
     regroupementMultiForfait: true,
     updatedAt: null,

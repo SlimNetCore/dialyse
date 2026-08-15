@@ -50,7 +50,7 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         }
 
         MappingComptable mapping = mappingPort.findByCenterId(cmd.centerId());
-        var regleTVA = fiscalPort.findActiveAt(cmd.centerId(), "DIALYSE", cmd.dateFacture()).orElse(null);
+        var regleTVA = fiscalPort.findActiveAt(cmd.centerId(), "HEMODIALYSE", cmd.dateFacture()).orElse(null);
         String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(), JournalCode.VE, cmd.dateFacture().getYear());
 
         EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping, numeroPiece, regleTVA);
@@ -82,7 +82,8 @@ public class ComptabiliteService implements ComptabiliteUseCase {
     @Override
     public PagedResult<EcritureComptable> search(SearchEcrituresQuery query) {
         return ecritureRepository.findByCenterAndPeriod(
-                query.centerId(), query.from(), query.to(), query.journalCode(), query.page(), query.size());
+                query.centerId(), query.from(), query.to(),
+                query.journalCode(), query.statut(), query.page(), query.size());
     }
 
     @Override
@@ -139,4 +140,6 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         fiscalPort.save(centerId, regle);
     }
 }
+
+
 

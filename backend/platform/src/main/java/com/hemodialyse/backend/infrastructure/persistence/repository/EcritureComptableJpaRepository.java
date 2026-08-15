@@ -21,6 +21,14 @@ public interface EcritureComptableJpaRepository extends JpaRepository<EcritureCo
     Page<EcritureComptableJpaEntity> findByCenterIdAndDateEcritureBetween(
             UUID centerId, LocalDate from, LocalDate to, Pageable pageable);
 
+    // ─── Avec filtre statut ──────────────────────────────────────────────────
+
+    Page<EcritureComptableJpaEntity> findByCenterIdAndJournalCodeAndStatutAndDateEcritureBetween(
+            UUID centerId, String journalCode, String statut, LocalDate from, LocalDate to, Pageable pageable);
+
+    Page<EcritureComptableJpaEntity> findByCenterIdAndStatutAndDateEcritureBetween(
+            UUID centerId, String statut, LocalDate from, LocalDate to, Pageable pageable);
+
     List<EcritureComptableJpaEntity> findByCenterIdAndJournalCodeAndDateEcritureBetween(
             UUID centerId, String journalCode, LocalDate from, LocalDate to);
 
@@ -30,4 +38,5 @@ public interface EcritureComptableJpaRepository extends JpaRepository<EcritureCo
     Optional<EcritureComptableJpaEntity> findTopByCenterIdAndJournalCodeAndNumeroPieceLikeOrderByNumeroPieceDesc(
             UUID centerId, String journalCode, String prefix);
 }
+
 

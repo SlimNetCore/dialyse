@@ -51,12 +51,21 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
 
     @Override
     public PagedResult<EcritureComptable> findByCenterAndPeriod(UUID centerId, LocalDate from, LocalDate to,
-                                                                JournalCode journalCode, int page, int size) {
+                                                                JournalCode journalCode, StatutEcriture statut,
+                                                                int page, int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("dateEcriture").descending().and(Sort.by("numeroPiece").descending()));
         Page<EcritureComptableJpaEntity> pageResult;
-        if (journalCode != null) {
+        String statutStr = statut != null ? statut.name() : null;
+
+        if (journalCode != null && statutStr != null) {
+            pageResult = repo.findByCenterIdAndJournalCodeAndStatutAndDateEcritureBetween(
+                    centerId, journalCode.name(), statutStr, from, to, pageable);
+        } else if (journalCode != null) {
             pageResult = repo.findByCenterIdAndJournalCodeAndDateEcritureBetween(
                     centerId, journalCode.name(), from, to, pageable);
+        } else if (statutStr != null) {
+            pageResult = repo.findByCenterIdAndStatutAndDateEcritureBetween(
+                    centerId, statutStr, from, to, pageable);
         } else {
             pageResult = repo.findByCenterIdAndDateEcritureBetween(centerId, from, to, pageable);
         }
@@ -152,4 +161,5 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
                 }).toList();
     }
 }
+
 

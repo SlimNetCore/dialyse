@@ -2,6 +2,7 @@ package com.hemodialyse.backend.domain.comptabilite.port;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.StatutEcriture;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 
 import java.time.LocalDate;
@@ -25,8 +26,12 @@ public interface EcritureComptableRepositoryPort {
      */
     Optional<EcritureComptable> findBySourceId(UUID sourceId, UUID centerId, JournalCode journalCode);
 
+    /**
+     * Recherche paginée — {@code journalCode} et {@code statut} sont optionnels (null = pas de filtre).
+     */
     PagedResult<EcritureComptable> findByCenterAndPeriod(UUID centerId, LocalDate from, LocalDate to,
-                                                         JournalCode journalCode, int page, int size);
+                                                         JournalCode journalCode, StatutEcriture statut,
+                                                         int page, int size);
 
     List<EcritureComptable> findForExport(UUID centerId, LocalDate from, LocalDate to, JournalCode journalCode);
 
@@ -35,4 +40,5 @@ public interface EcritureComptableRepositoryPort {
      */
     String nextNumeroPiece(UUID centerId, JournalCode journalCode, int year);
 }
+
 

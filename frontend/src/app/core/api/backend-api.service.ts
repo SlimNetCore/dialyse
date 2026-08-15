@@ -441,7 +441,6 @@ export type FacturationDashboardResponse = {
 };
 
 export type FacturationSettings = {
-  tvaRate: number;
   codeFormat: string;
   regroupementMultiForfait: boolean;
   updatedAt: string | null;
@@ -495,7 +494,6 @@ export type FacturationValidatePayload = {
 export type FacturationSettingsPayload = {
   centerId: string;
   userId: string;
-  tvaRate: number;
   codeFormat: string;
   regroupementMultiForfait: boolean;
 };

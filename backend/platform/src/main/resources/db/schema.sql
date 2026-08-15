@@ -218,7 +218,7 @@ CREATE INDEX IF NOT EXISTS idx_tva_types_center_actif ON tva_types (center_id, a
 
 CREATE TABLE IF NOT EXISTS facturation_settings (
     center_id UUID PRIMARY KEY,
-    tva_rate DECIMAL(5,2) NOT NULL,
+    tva_rate DECIMAL(5, 2) DEFAULT 0.00, -- Décommissionné : TVA gérée via tva_types (TypeTVA)
     code_format VARCHAR(120) NOT NULL,
     regroupement_multi_forfait BOOLEAN NOT NULL DEFAULT TRUE,
     updated_at TIMESTAMP WITH TIME ZONE,

@@ -41,12 +41,11 @@ public class FacturationDomainService implements FacturationUseCase {
     @Override
     public FacturationPreviewResult preview(FacturationPreviewQuery query) {
         FacturationPeriod period = toPeriod(query.month(), query.periodStart(), query.periodEnd());
-        ParametresFacturation settings = settingsRepository.findByCenterId(query.centerId());
         List<SeanceFacturationCandidate> candidates = seancePort.findEligibleSeances(query.centerId(), period).stream()
                 .filter(eligibleSpec::isSatisfiedBy)
                 .toList();
 
-        List<FacturationPreviewInvoice> invoices = buildPreviewInvoices(candidates, settings,
+        List<FacturationPreviewInvoice> invoices = buildPreviewInvoices(candidates,
                 query.centerId().value(), LocalDate.now(), query.regroupementMultiForfait());
         BigDecimal totalHt = invoices.stream().map(FacturationPreviewInvoice::totalHt)
                 .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
@@ -82,7 +81,7 @@ public class FacturationDomainService implements FacturationUseCase {
         }
 
         ParametresFacturation settings = settingsRepository.findByCenterId(command.centerId());
-        BigDecimal tvaRateForInvoice = resoudreTauxTva(command.centerId().value(), LocalDate.now(), settings);
+        BigDecimal tvaRateForInvoice = resoudreTauxTva(command.centerId().value(), LocalDate.now());
         List<FactureAggregate> factures = new ArrayList<>();
         Map<UUID, UUID> seanceToFactureId = new LinkedHashMap<>();
 
@@ -138,7 +137,6 @@ public class FacturationDomainService implements FacturationUseCase {
     @Override
     public ParametresFacturation updateSettings(FacturationSettingsCommand command) {
         ParametresFacturation updated = new ParametresFacturation(
-                command.tvaRate(),
                 command.codeFormat(),
                 command.regroupementMultiForfait(),
                 OffsetDateTime.now()
@@ -148,17 +146,16 @@ public class FacturationDomainService implements FacturationUseCase {
 
     /**
      * Résout le taux TVA à appliquer à la date donnée pour un centre.
-     * Priorité : TypeTva actif en base → fallback sur ParametresFacturation.tvaRate.
+     * Source unique : TypeTva actif en base. Retourne 0 si aucun TypeTva actif configuré.
      */
-    private BigDecimal resoudreTauxTva(UUID centerId, LocalDate date, ParametresFacturation fallback) {
+    private BigDecimal resoudreTauxTva(UUID centerId, LocalDate date) {
         return typeTvaRepository
                 .findActiveAt(centerId, TYPE_PRESTATION_HEMODIALYSE, date)
                 .map(TypeTVA::taux)
-                .orElse(fallback.tvaRate());
+                .orElse(BigDecimal.ZERO);
     }
 
     private List<FacturationPreviewInvoice> buildPreviewInvoices(List<SeanceFacturationCandidate> candidates,
-                                                                 ParametresFacturation settings,
                                                                  UUID centerId,
                                                                  LocalDate dateFacturation,
                                                                  boolean regroupementMultiForfait) {
@@ -167,7 +164,7 @@ public class FacturationDomainService implements FacturationUseCase {
         }
 
         // Résoudre le taux TVA actif une seule fois pour toute la campagne
-        BigDecimal tvaRate = resoudreTauxTva(centerId, dateFacturation, settings);
+        BigDecimal tvaRate = resoudreTauxTva(centerId, dateFacturation);
         BigDecimal tvaRatio = tvaRate.movePointLeft(2).setScale(6, RoundingMode.HALF_UP);
 
         Map<String, List<SeanceFacturationCandidate>> grouped = new LinkedHashMap<>();

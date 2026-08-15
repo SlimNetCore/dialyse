@@ -21,9 +21,8 @@ public class FacturationSettingsJdbcAdapter implements FacturationSettingsReposi
     @Override
     public ParametresFacturation findByCenterId(CenterId centerId) {
         var rows = jdbc.query(
-                "SELECT tva_rate, code_format, regroupement_multi_forfait, updated_at FROM facturation_settings WHERE center_id = ?",
+                "SELECT code_format, regroupement_multi_forfait, updated_at FROM facturation_settings WHERE center_id = ?",
                 (rs, rowNum) -> new ParametresFacturation(
-                        rs.getBigDecimal("tva_rate"),
                         rs.getString("code_format"),
                         rs.getBoolean("regroupement_multi_forfait"),
                         rs.getObject("updated_at", OffsetDateTime.class)
@@ -41,12 +40,11 @@ public class FacturationSettingsJdbcAdapter implements FacturationSettingsReposi
     public ParametresFacturation save(CenterId centerId, String userId, ParametresFacturation settings) {
         jdbc.update(
                 """
-                        MERGE INTO facturation_settings (center_id, tva_rate, code_format, regroupement_multi_forfait, updated_at, updated_by)
+                        MERGE INTO facturation_settings (center_id, code_format, regroupement_multi_forfait, updated_at, updated_by)
                         KEY (center_id)
-                        VALUES (?, ?, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?)
                         """,
                 centerId.value(),
-                settings.tvaRate(),
                 settings.codeFormat(),
                 settings.regroupementMultiForfait(),
                 Timestamp.from(OffsetDateTime.now().toInstant()),
@@ -55,4 +53,3 @@ public class FacturationSettingsJdbcAdapter implements FacturationSettingsReposi
         return findByCenterId(centerId);
     }
 }
-

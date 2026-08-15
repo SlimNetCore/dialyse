@@ -51,7 +51,6 @@ class FacturationRestControllerTest {
         UUID centerId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         when(useCase.updateSettings(any())).thenReturn(new ParametresFacturation(
-                new BigDecimal("9.00"),
                 "FAC-{YEAR}-{SEQ}",
                 false,
                 OffsetDateTime.now()
@@ -60,7 +59,6 @@ class FacturationRestControllerTest {
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.FacturationSettingsUpdateRequest(
                 centerId,
                 "admin",
-                new BigDecimal("9.00"),
                 "FAC-{YEAR}-{SEQ}",
                 false
         );
@@ -72,4 +70,3 @@ class FacturationRestControllerTest {
         assertEquals(false, body.get("regroupementMultiForfait"));
     }
 }
-

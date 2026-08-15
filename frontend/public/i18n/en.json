@@ -297,7 +297,6 @@
     },
     "SETTINGS": {
       "TITLE": "Billing settings",
-      "TVA": "VAT rate (%)",
       "CODE_FORMAT": "Billing code",
       "GROUPING_SWITCH": "Group multi-package lines into one invoice",
       "GOTO_ADMIN": "Billing settings (Administration)",
@@ -764,7 +763,7 @@
     "BILLING_SETTINGS": {
       "EYEBROW": "Administration",
       "TITLE": "Billing settings",
-      "DESCRIPTION": "Configure VAT rate, billing code format, and package grouping strategy.",
+      "DESCRIPTION": "Configure the invoice code format and the multi-package grouping strategy. VAT rates are managed via Settings → VAT Types.",
       "BACK_TO_BILLING": "Back to billing dashboard"
     },
     "USERS": {

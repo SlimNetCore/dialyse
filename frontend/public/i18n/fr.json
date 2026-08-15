@@ -297,7 +297,6 @@
     },
     "SETTINGS": {
       "TITLE": "Paramètres de facturation",
-      "TVA": "Taux de TVA (%)",
       "CODE_FORMAT": "Code de facturation",
       "GROUPING_SWITCH": "Regrouper les multi-forfaits en une seule facture",
       "GOTO_ADMIN": "Paramétrage facturation (Administration)",
@@ -764,7 +763,7 @@
     "BILLING_SETTINGS": {
       "EYEBROW": "Administration",
       "TITLE": "Paramétrage facturation",
-      "DESCRIPTION": "Configurez le taux de TVA, le format des codes et la stratégie de regroupement des forfaits.",
+      "DESCRIPTION": "Configurez le format des codes de facturation et la stratégie de regroupement des forfaits. Le taux de TVA est géré via Paramétrage → Types de TVA.",
       "BACK_TO_BILLING": "Retour au dashboard facturation"
     },
     "USERS": {

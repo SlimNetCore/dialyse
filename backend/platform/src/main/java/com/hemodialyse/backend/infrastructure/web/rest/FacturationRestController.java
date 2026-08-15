@@ -82,12 +82,10 @@ public class FacturationRestController {
         var updated = useCase.updateSettings(new FacturationSettingsCommand(
                 CenterId.of(request.centerId()),
                 request.userId(),
-                request.tvaRate(),
                 request.codeFormat(),
                 request.regroupementMultiForfait()
         ));
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("tvaRate", updated.tvaRate());
         body.put("codeFormat", updated.codeFormat());
         body.put("regroupementMultiForfait", updated.regroupementMultiForfait());
         body.put("updatedAt", updated.updatedAt());
