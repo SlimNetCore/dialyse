@@ -1,8 +1,8 @@
-@if (showStartupLoader()) {
+@if (showStartupLoader() || showConnectionLoader()) {
   <div class="auth-loader-backdrop">
     <app-hemodialysis-loader
       [label]="startupLoaderLabel()"
-      [showServerUnavailableIcon]="startupServerUnavailable()"
+      [showServerUnavailableIcon]="startupServerUnavailable() || showConnectionLoader()"
       mode="overlay">
     </app-hemodialysis-loader>
   </div>

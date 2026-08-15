@@ -103,9 +103,19 @@ export const AuthStore = signalStore(
             this.setSession(session);
             lastServerSyncAt = Date.now();
             return true;
-          } catch {
-            this.clearSession();
-            return false;
+          } catch (error: unknown) {
+            const status = typeof error === 'object' && error !== null
+              ? (error as { status?: number }).status
+              : undefined;
+
+            // Session expirée/invalide côté serveur.
+            if (status === 401 || status === 403) {
+              this.clearSession();
+              return false;
+            }
+
+            // Coupure réseau / backend indisponible : conserver la session locale.
+            return store.isAuthenticated();
           } finally {
             patchState(store, {serverSyncPending: Math.max(0, store.serverSyncPending() - 1)});
             initInFlight = null;

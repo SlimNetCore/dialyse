@@ -20,10 +20,12 @@ export class WebSocketService implements OnDestroy {
   private readonly healthCheckUrl = environment.healthCheckUrl;
   private client: Client | null = null;
   private connectAttempted = false;
+  readonly healthStatus = signal<'up' | 'down'>('up');
 
   readonly events = signal<WsEvent[]>([]);
   readonly lastEvent = signal<WsEvent | null>(null);
   readonly connectionStatus = signal<WsConnectionStatus>('impossible');
+  private healthMonitorId: ReturnType<typeof setInterval> | null = null;
   readonly statusColor = computed(() => {
     switch (this.connectionStatus()) {
       case 'stable': return '#2e7d32';
@@ -31,6 +33,10 @@ export class WebSocketService implements OnDestroy {
       case 'impossible': return '#c62828';
     }
   });
+
+  constructor() {
+    this.startHealthMonitor();
+  }
 
   async connect(): Promise<void> {
     const centerId = this.auth.centerId();
@@ -138,19 +144,35 @@ export class WebSocketService implements OnDestroy {
     });
   }
 
+  ngOnDestroy(): void {
+    if (this.healthMonitorId) {
+      clearInterval(this.healthMonitorId);
+      this.healthMonitorId = null;
+    }
+    this.disconnect();
+  }
+
   private async isBackendUp(): Promise<boolean> {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 1500);
+      const timeout = setTimeout(() => controller.abort(), 3000);
       const resp = await fetch(this.healthCheckUrl, {
         method: 'GET',
         signal: controller.signal
       });
       clearTimeout(timeout);
-      return resp.ok;
+      // Même protégé (401/403), le backend est joignable.
+      return resp.ok || resp.status === 401 || resp.status === 403;
     } catch {
       return false;
     }
+  }
+
+  private startHealthMonitor(): void {
+    void this.refreshHealthStatus();
+    this.healthMonitorId = setInterval(() => {
+      void this.refreshHealthStatus();
+    }, 5_000);
   }
 
   disconnect(): void {
@@ -160,8 +182,9 @@ export class WebSocketService implements OnDestroy {
     this.connectionStatus.set('impossible');
   }
 
-  ngOnDestroy(): void {
-    this.disconnect();
+  private async refreshHealthStatus(): Promise<void> {
+    const backendUp = await this.isBackendUp();
+    this.healthStatus.set(backendUp ? 'up' : 'down');
   }
 
   private buildDefaultWsBaseUrl(): string {

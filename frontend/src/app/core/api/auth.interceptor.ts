@@ -37,8 +37,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       return refreshInFlight$.pipe(
         switchMap(() => next(cloned)),
         catchError((refreshErr) => {
+          if (refreshErr?.status === 0 || refreshErr?.status >= 500) {
+            return throwError(() => refreshErr);
+          }
+
+          if (refreshErr?.status === 403) {
+            authStore.clearSession();
+            window.location.assign('/login');
+            return throwError(() => refreshErr);
+          }
+
           authStore.clearSession();
-          window.location.href = '/login';
+          window.location.assign('/login');
           return throwError(() => refreshErr);
         })
       );

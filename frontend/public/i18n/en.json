@@ -1250,6 +1250,7 @@
     "EXPORT_ERROR": "Export unavailable",
     "LOADING_SESSION_DETAILS": "Loading session details...",
     "SERVER_CONTACT_IN_PROGRESS": "Contacting server...",
+    "SERVER_CONNECTION_INTERRUPTED": "Server connection interrupted. Reconnecting...",
     "SERVER_UNAVAILABLE": "Server unavailable. Please try again later.",
     "CODE_LABEL": "Code",
     "CURRENCY_DA": "DA",

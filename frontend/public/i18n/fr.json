@@ -1250,6 +1250,7 @@
     "EXPORT_ERROR": "Export impossible",
     "LOADING_SESSION_DETAILS": "Chargement des détails de la séance...",
     "SERVER_CONTACT_IN_PROGRESS": "Contact du serveur en cours...",
+    "SERVER_CONNECTION_INTERRUPTED": "Connexion au serveur interrompue. Reconnexion en cours...",
     "SERVER_UNAVAILABLE": "Serveur indisponible. Veuillez réessayer plus tard.",
     "CODE_LABEL": "Code",
     "CURRENCY_DA": "DA",

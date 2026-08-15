@@ -1067,6 +1067,7 @@
     "EXPORT_ERROR": "تعذّر التصدير",
     "LOADING_SESSION_DETAILS": "جارٍ تحميل تفاصيل الحصة...",
     "SERVER_CONTACT_IN_PROGRESS": "جارٍ الاتصال بالخادم...",
+    "SERVER_CONNECTION_INTERRUPTED": "انقطع الاتصال بالخادم. جارٍ إعادة الاتصال...",
     "SERVER_UNAVAILABLE": "الخادم غير متاح. يرجى المحاولة لاحقاً.",
     "CODE_LABEL": "الرمز",
     "CURRENCY_DA": "DA",
