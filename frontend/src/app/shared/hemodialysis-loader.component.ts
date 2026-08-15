@@ -14,6 +14,7 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
   @Input() mode: 'inline' | 'overlay' = 'inline';
   @Input() showServerUnavailableIcon = false;
   @Input() showReconnectingKidney = false;
+  @Input() showElapsedSeconds = false;
   @Input() size = 120;
   @Input() speed = 3;
 
@@ -43,8 +44,8 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['showReconnectingKidney']) {
-      if (this.showReconnectingKidney) {
+    if (changes['showReconnectingKidney'] || changes['showElapsedSeconds']) {
+      if (this.shouldRunTimer()) {
         this.startReconnectTimer();
       } else {
         this.stopReconnectTimer(true);
@@ -62,6 +63,10 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
 
   protected visualSize(): number {
     return this.showReconnectingKidney ? Math.max(this.size, 148) : this.size;
+  }
+
+  protected shouldShowCounter(): boolean {
+    return this.showReconnectingKidney || this.showElapsedSeconds;
   }
 
   protected dots(): Array<{ id: string; color: string; angle: number; kind: 'arterial' | 'venous'; radius: number }> {
@@ -90,6 +95,10 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
     if (reset) {
       this.reconnectSeconds.set(0);
     }
+  }
+
+  private shouldRunTimer(): boolean {
+    return this.showReconnectingKidney || this.showElapsedSeconds;
   }
 }
 

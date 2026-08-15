@@ -2,6 +2,7 @@
   <div class="auth-loader-backdrop">
     <app-hemodialysis-loader
       [label]="startupLoaderLabel()"
+      [showElapsedSeconds]="showStartupLoader() && !startupServerUnavailable()"
       [showReconnectingKidney]="showConnectionLoader()"
       [showServerUnavailableIcon]="startupServerUnavailable()"
       mode="overlay">

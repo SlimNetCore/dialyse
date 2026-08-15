@@ -47,7 +47,8 @@
       </svg>
     </div>
   } @else {
-    <div [class.is-reconnecting]="showReconnectingKidney" [class.is-reduced-motion]="reducedMotion()" aria-hidden="true"
+    <div [class.has-counter]="shouldShowCounter()" [class.is-reconnecting]="showReconnectingKidney"
+         [class.is-reduced-motion]="reducedMotion()" aria-hidden="true"
          class="circuit-visual">
       <svg
         class="circuit-svg"
@@ -112,7 +113,7 @@
         }
       </svg>
 
-      @if (showReconnectingKidney) {
+      @if (shouldShowCounter()) {
         <span class="reconnect-counter">{{ reconnectSeconds() }}s</span>
       }
     </div>

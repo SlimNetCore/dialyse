@@ -49,7 +49,7 @@
   min-height: 120px;
 }
 
-.circuit-visual.is-reconnecting {
+.circuit-visual.has-counter {
   padding-bottom: 18px;
 }
 
