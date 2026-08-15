@@ -114,7 +114,7 @@
       </svg>
 
       @if (shouldShowCounter()) {
-        <span class="reconnect-counter">{{ reconnectSeconds() }}s</span>
+        <span class="reconnect-counter">{{ formattedElapsedTime() }}</span>
       }
     </div>
   }

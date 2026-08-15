@@ -69,6 +69,19 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
     return this.showReconnectingKidney || this.showElapsedSeconds;
   }
 
+  protected formattedElapsedTime(): string {
+    const totalSeconds = Math.max(0, this.reconnectSeconds());
+
+    if (totalSeconds < 60) {
+      return `${totalSeconds}s`;
+    }
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
   protected dots(): Array<{ id: string; color: string; angle: number; kind: 'arterial' | 'venous'; radius: number }> {
     return [
       {id: 'a1', color: 'var(--hemo-loader-arteriel)', angle: 0, kind: 'arterial', radius: 5.6},
