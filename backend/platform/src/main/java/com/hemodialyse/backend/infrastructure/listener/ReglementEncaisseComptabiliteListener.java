@@ -5,10 +5,9 @@ import com.hemodialyse.backend.domain.reglement.event.FactureReglementRecordedEv
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.UUID;
 
@@ -18,8 +17,8 @@ import java.util.UUID;
  * Idempotence : si l'écriture existe déjà (paiementId déjà traité), le service de domaine
  * retourne l'existante sans créer de doublon (voir ComptabiliteService).
  * <p>
- * Ce listener est déclenché après le commit de la transaction de règlement (@TransactionalEventListener
- * serait plus robuste en prod, mais @EventListener avec @Transactional est suffisant en dev/H2).
+ * Ce listener est déclenché de manière synchrone afin que l'écriture soit visible
+ * immédiatement après l'enregistrement du règlement.
  */
 @Component
 public class ReglementEncaisseComptabiliteListener {
@@ -35,7 +34,7 @@ public class ReglementEncaisseComptabiliteListener {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void onReglementEncaisse(FactureReglementRecordedEvent event) {
         try {
             UUID paiementId = resolvePaiementId(event);
@@ -62,7 +61,7 @@ public class ReglementEncaisseComptabiliteListener {
     }
 
     private UUID resolvePaiementId(FactureReglementRecordedEvent event) {
-        UUID found = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 """
                         SELECT fr.id
                         FROM facture_reglements fr
@@ -76,12 +75,13 @@ public class ReglementEncaisseComptabiliteListener {
                         """,
                 (rs, rowNum) -> rs.getObject("id", UUID.class),
                 event.factureId(), event.centerId(), event.dateReglement(), event.montant(), event.userId()
-        ).stream().findFirst().orElse(null);
-        return found != null ? found : UUID.nameUUIDFromBytes(
+        ).stream().findFirst().orElseGet(() -> UUID.nameUUIDFromBytes(
                 (event.centerId() + "|" + event.factureId() + "|" + event.dateReglement() + "|" + event.montant() + "|" + event.userId()).getBytes()
-        );
+        ));
     }
 }
+
+
 
 
 

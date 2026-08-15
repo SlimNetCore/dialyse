@@ -5,10 +5,9 @@ import com.hemodialyse.backend.domain.facturation.event.FacturationValideeEvent;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,6 +19,10 @@ import java.util.UUID;
  * <p>
  * L'événement métier actuel est global (pas par facture), donc ce listener recharge
  * les factures de la période concernée et laisse l'idempotence domaine éviter les doublons.
+ * <p>
+ * Le déclenchement est synchrone afin de garantir que les écritures sont visibles
+ * immédiatement après la validation de facturation, y compris dans les scénarios
+ * d'intégration/test et lors du retour direct vers l'écran comptabilité.
  */
 @Component
 public class FacturationValideeComptabiliteListener {
@@ -35,7 +38,7 @@ public class FacturationValideeComptabiliteListener {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void onFacturationValidee(FacturationValideeEvent event) {
         try {
             LocalDate start = event.periodStart();
@@ -101,6 +104,7 @@ public class FacturationValideeComptabiliteListener {
     ) {
     }
 }
+
 
 
 

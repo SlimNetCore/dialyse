@@ -21,6 +21,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,6 +59,8 @@ class FacturationRestControllerIntegrationTest {
 
     @AfterEach
     void cleanup() {
+        jdbc.update("DELETE FROM lignes_ecriture WHERE ecriture_id IN (SELECT id FROM ecritures_comptables WHERE center_id IN (?, ?))", CENTER_ID, OTHER_CENTER_ID);
+        jdbc.update("DELETE FROM ecritures_comptables WHERE center_id IN (?, ?)", CENTER_ID, OTHER_CENTER_ID);
         jdbc.update("DELETE FROM facturation_settings WHERE center_id IN (?, ?)", CENTER_ID, OTHER_CENTER_ID);
         jdbc.update("DELETE FROM facture_sequence WHERE center_id IN (?, ?)", CENTER_ID, OTHER_CENTER_ID);
         jdbc.update("DELETE FROM facture_lignes WHERE center_id IN (?, ?)", CENTER_ID, OTHER_CENTER_ID);
@@ -201,6 +204,52 @@ class FacturationRestControllerIntegrationTest {
                         CENTER_ID
                 )
         );
+    }
+
+    @Test
+    void validate_should_generate_and_expose_comptabilite_ecriture_for_same_center_and_period() throws Exception {
+        String payload = """
+                {
+                  "centerId": "%s",
+                  "userId": "admin",
+                  "month": "2026-08",
+                  "regroupementMultiForfait": true,
+                  "previewGeneratedAt": "2026-08-03T00:00:00Z"
+                }
+                """.formatted(CENTER_ID);
+
+        mockMvc.perform(post("/api/v1/facturation/validate")
+                        .contentType("application/json")
+                        .content(payload)
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.createdInvoices").value(1))
+                .andExpect(jsonPath("$.billedSeances").value(1));
+
+        assertEquals(1, jdbc.queryForObject(
+                "SELECT COUNT(1) FROM factures WHERE center_id = ?",
+                Integer.class,
+                CENTER_ID
+        ));
+        assertEquals(1, jdbc.queryForObject(
+                "SELECT COUNT(1) FROM ecritures_comptables WHERE center_id = ?",
+                Integer.class,
+                CENTER_ID
+        ));
+
+        mockMvc.perform(get("/api/v1/comptabilite/ecritures")
+                        .param("centerId", CENTER_ID.toString())
+                        .param("from", "2026-08-01")
+                        .param("to", "2026-08-31")
+                        .param("page", "0")
+                        .param("size", "20")
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].centerId").value(CENTER_ID.toString()))
+                .andExpect(jsonPath("$.items[0].journalCode").value("VE"))
+                .andExpect(jsonPath("$.items[0].statut").value("VALIDEE"));
     }
 
     private void seedData() {
