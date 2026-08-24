@@ -15,6 +15,9 @@
     <name>backend-parent</name>
 	<properties>
 		<java.version>21</java.version>
+        <org-springframework-security.spring-security-core.version>7.0.5</org-springframework-security.spring-security-core.version>
+        <org-springframework-security.spring-security-config.version>7.0.5</org-springframework-security.spring-security-config.version>
+        <org-springframework-security.spring-security-web.version>7.0.5</org-springframework-security.spring-security-web.version>
 	</properties>
     <modules>
         <module>shared-kernel</module>
@@ -92,6 +95,21 @@
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>bc-comptabilite</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${org-springframework-security.spring-security-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${org-springframework-security.spring-security-config.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${org-springframework-security.spring-security-web.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
