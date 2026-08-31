@@ -143,30 +143,8 @@ mat-card-content {
   box-shadow: var(--app-shadow-soft);
 }
 
-.invoice-card header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.invoice-card header h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.invoice-card header span {
-  color: var(--app-muted);
-  font-size: 0.9rem;
-}
-
 .invoice-card footer {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-  font-weight: 600;
+  margin-top: 10px;
 }
 
 .invoice-seances-panel {
@@ -193,27 +171,53 @@ mat-card-content {
   display: none;
 }
 
-.invoice-seances-meta {
+.invoice-seances-summary {
+  min-height: 52px;
+}
+
+.invoice-seances-main {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--app-border);
-  background: color-mix(in srgb, var(--app-surface) 96%, var(--app-primary-soft) 4%);
+  min-width: 0;
+}
+
+.invoice-seances-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .invoice-seances-count {
-  min-width: 28px;
-  height: 24px;
-  display: inline-flex;
+  min-width: 44px;
+  height: 28px;
+  display: inline-grid;
+  grid-auto-flow: column;
   align-items: center;
+  gap: 6px;
   justify-content: center;
   border-radius: 999px;
   border: 1px solid var(--app-primary-outline);
   background: var(--app-primary-soft);
   color: var(--app-text);
   font-size: 0.85rem;
+  padding: 0 10px;
+}
+
+.invoice-seances-count mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.invoice-seances-panel[open] .toggle-icon {
+  transform: rotate(180deg);
 }
 
 .code-chip {
@@ -228,6 +232,23 @@ mat-card-content {
   letter-spacing: 0.04em;
   white-space: nowrap;
   font-family: monospace;
+}
+
+.invoice-code-chip {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.patient-code-chip {
+  color: #1b5e20;
+  background: rgba(27, 94, 32, 0.10);
+  border-color: rgba(27, 94, 32, 0.22);
+}
+
+.invoice-patient-name {
+  font-weight: 700;
+  color: var(--app-text);
 }
 
 .seance-code {
@@ -270,9 +291,9 @@ mat-card-content {
 }
 
 .status-info {
-  color: var(--app-primary);
-  background: var(--app-primary-soft);
-  border-color: var(--app-primary-outline);
+  color: #1b5e20;
+  background: rgba(27, 94, 32, 0.10);
+  border-color: rgba(27, 94, 32, 0.22);
 }
 
 .amount-chip {
@@ -294,6 +315,44 @@ mat-card-content {
 
 .actions-cell {
   white-space: nowrap;
+}
+
+.invoice-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.total-badge {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 124px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+.total-badge small {
+  color: var(--app-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.total-badge strong {
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.total-badge-primary {
+  border-color: var(--app-primary-outline);
+  background: color-mix(in srgb, var(--app-primary-soft) 60%, var(--app-surface));
+}
+
+.total-badge-primary strong {
+  color: var(--app-primary);
 }
 
 .seances-table {
@@ -400,9 +459,14 @@ mat-card {
     flex: 1 1 140px;
   }
 
-  .invoice-card header {
-    flex-direction: column;
+  .invoice-seances-summary {
     align-items: flex-start;
+    gap: 12px;
+  }
+
+  .invoice-seances-side {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .chart-wrap {
@@ -430,9 +494,12 @@ mat-card {
     min-width: 760px;
   }
 
-  .invoice-seances-meta {
-    align-items: flex-start;
-    flex-direction: column;
+  .invoice-code-chip {
+    max-width: 130px;
+  }
+
+  .total-badge {
+    flex: 1 1 120px;
   }
 }
 

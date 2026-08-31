@@ -127,43 +127,22 @@
         <div class="invoice-list">
           @for (invoice of preview.invoices; track invoice.previewKey) {
             <article class="invoice-card">
-              <header>
-                <h3>{{ invoice.patientCode }} — {{ invoice.patientFullName }}</h3>
-                <span>{{ invoice.patientStatusSnapshot }}</span>
-              </header>
-              <div class="table-wrap">
-                <table>
-                  <thead>
-                  <tr>
-                    <th>{{ 'FACTURATION.PREVIEW.TABLE.FORFAIT' | translate }}</th>
-                    <th>{{ 'FACTURATION.PREVIEW.TABLE.UNIT_PRICE' | translate }}</th>
-                    <th>{{ 'FACTURATION.PREVIEW.TABLE.SESSIONS' | translate }}</th>
-                    <th>{{ 'FACTURATION.PREVIEW.TABLE.TOTAL' | translate }}</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    @for (line of invoice.lines; track line.forfaitId) {
-                      <tr>
-                        <td>{{ line.forfaitLabel }}</td>
-                        <td>{{ line.unitPriceHt | number:'1.2-2' }}</td>
-                        <td>{{ line.seanceCount }}</td>
-                        <td>{{ line.lineHt | number:'1.2-2' }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-
               <details class="invoice-seances-panel">
-                <summary>
-                  <span>{{ 'FACTURATION.PREVIEW.SESSION_DETAILS' | translate }}</span>
-                  <span class="invoice-seances-count">{{ invoice.seances.length }}</span>
+                <summary class="invoice-seances-summary">
+                  <span class="invoice-seances-main">
+                    <span class="code-chip invoice-code-chip">{{ invoice.previewKey }}</span>
+                    <span class="code-chip patient-code-chip">{{ invoice.patientCode }}</span>
+                    <span class="invoice-patient-name">{{ invoice.patientFullName }}</span>
+                    <span class="seance-status-chip status-info">{{ invoice.patientStatusSnapshot }}</span>
+                  </span>
+                  <span class="invoice-seances-side">
+                    <span class="invoice-seances-count">
+                      <mat-icon>event</mat-icon>
+                      {{ invoice.seances.length }}
+                    </span>
+                    <mat-icon class="toggle-icon">expand_more</mat-icon>
+                  </span>
                 </summary>
-                <div class="invoice-seances-meta">
-                  <span class="code-chip">{{ invoice.patientCode }}</span>
-                  <span class="app-muted-note">{{ invoice.patientFullName }}</span>
-                  <span class="seance-status-chip status-info">{{ invoice.patientStatusSnapshot }}</span>
-                </div>
                 <div class="table-wrap">
                   <table class="seances-table">
                     <thead>
@@ -217,10 +196,19 @@
                 </div>
               </details>
 
-              <footer>
-                <span>{{ 'FACTURATION.PREVIEW.INVOICE_HT' | translate }}: {{ invoice.totalHt | number:'1.2-2' }}</span>
-                <span>{{ 'FACTURATION.PREVIEW.INVOICE_TVA' | translate }}: {{ invoice.totalTva | number:'1.2-2' }}</span>
-                <span>{{ 'FACTURATION.PREVIEW.INVOICE_TTC' | translate }}: {{ invoice.totalTtc | number:'1.2-2' }}</span>
+              <footer class="invoice-totals">
+                <span class="total-badge">
+                  <small>{{ 'FACTURATION.PREVIEW.INVOICE_HT' | translate }}</small>
+                  <strong>{{ invoice.totalHt | number:'1.2-2' }}</strong>
+                </span>
+                <span class="total-badge">
+                  <small>{{ 'FACTURATION.PREVIEW.INVOICE_TVA' | translate }}</small>
+                  <strong>{{ invoice.totalTva | number:'1.2-2' }}</strong>
+                </span>
+                <span class="total-badge total-badge-primary">
+                  <small>{{ 'FACTURATION.PREVIEW.INVOICE_TTC' | translate }}</small>
+                  <strong>{{ invoice.totalTtc | number:'1.2-2' }}</strong>
+                </span>
               </footer>
             </article>
           }
