@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,10 +36,15 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
     private static final UUID OTHER_CENTER_ID = UUID.fromString("99993000-0000-0000-0000-000000000002");
     private static final UUID CAISSE_ID = UUID.fromString("99993000-0000-0000-0000-000000000010");
     private static final UUID AGENCE_ID = UUID.fromString("99993000-0000-0000-0000-000000000011");
+    private static final UUID PATIENT_ID = UUID.fromString("99993000-0000-0000-0000-000000000101");
+    private static final UUID OTHER_PATIENT_ID = UUID.fromString("99993000-0000-0000-0000-000000000102");
     private static final UUID FACTURE_ID = UUID.fromString("99993000-0000-0000-0000-000000000012");
     private static final UUID FACTURE_LINE_ID = UUID.fromString("99993000-0000-0000-0000-000000000013");
     private static final UUID OTHER_FACTURE_ID = UUID.fromString("99993000-0000-0000-0000-000000000014");
     private static final UUID OTHER_FACTURE_LINE_ID = UUID.fromString("99993000-0000-0000-0000-000000000015");
+    private static final UUID SEANCE_ID = UUID.fromString("99993000-0000-0000-0000-000000000016");
+    private static final UUID SEANCE2_ID = UUID.fromString("99993000-0000-0000-0000-000000000017");
+    private static final UUID OTHER_SEANCE_ID = UUID.fromString("99993000-0000-0000-0000-000000000018");
 
     @Autowired
     private WebApplicationContext context;
@@ -100,12 +106,35 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void print_should_include_distribution_by_caisse_and_status_in_html() throws Exception {
+        String payload = """
+                {
+                  "centerId": "%s",
+                  "periodStart": "2026-08-01",
+                  "periodEnd": "2026-08-31",
+                  "format": "HTML"
+                }
+                """.formatted(CENTER_ID);
+
+        mockMvc.perform(post("/api/v1/facturation/synthese/print")
+                        .with(user("secretary").roles("SECRETAIRE"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString(MediaType.TEXT_HTML_VALUE)))
+                .andExpect(content().string(containsString("data:application/pdf;base64,")));
+    }
+
     private void seedData() {
         jdbc.update("INSERT INTO caisse_assurance (id, center_id, code, nom, type_caisse) VALUES (?, ?, ?, ?, ?)",
                 CAISSE_ID, CENTER_ID, "CNAS-AN", "CNAS Annaba", "STANDARD");
 
         jdbc.update("INSERT INTO agence (id, center_id, caisse_id, code, nom) VALUES (?, ?, ?, ?, ?)",
                 AGENCE_ID, CENTER_ID, CAISSE_ID, "AN-01", "Agence Annaba 01");
+
+        seedPatient(PATIENT_ID, CENTER_ID, "Patient A", "PERMANENT", "PAT-010", "ASS-010");
+        seedPatient(OTHER_PATIENT_ID, OTHER_CENTER_ID, "Patient Other", "DECEDE", "PAT-OTH", "ASS-OTH");
 
         jdbc.update("""
                         INSERT INTO factures (
@@ -116,7 +145,7 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                         """,
                 FACTURE_ID,
                 CENTER_ID,
-                UUID.randomUUID(),
+                PATIENT_ID,
                 "FAC-2026-000010",
                 "PAT-010",
                 "Patient A",
@@ -133,6 +162,9 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                 new BigDecimal("5950.00"),
                 OffsetDateTime.now(ZoneOffset.UTC)
         );
+
+        seedSeance(SEANCE_ID, PATIENT_ID, CENTER_ID, FACTURE_ID, LocalDate.of(2026, 8, 13));
+        seedSeance(SEANCE2_ID, PATIENT_ID, CENTER_ID, FACTURE_ID, LocalDate.of(2026, 8, 14));
 
         jdbc.update("""
                         INSERT INTO facture_lignes (id, facture_id, center_id, forfait_id, forfait_label, unit_price_ht, seance_count, line_ht)
@@ -158,7 +190,7 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                         """,
                 OTHER_FACTURE_ID,
                 OTHER_CENTER_ID,
-                UUID.randomUUID(),
+                OTHER_PATIENT_ID,
                 "FAC-OTHER-001",
                 "PAT-OTH",
                 "Patient Other",
@@ -176,6 +208,8 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                 OffsetDateTime.now(ZoneOffset.UTC)
         );
 
+        seedSeance(OTHER_SEANCE_ID, OTHER_PATIENT_ID, OTHER_CENTER_ID, OTHER_FACTURE_ID, LocalDate.of(2026, 8, 10));
+
         jdbc.update("""
                         INSERT INTO facture_lignes (id, facture_id, center_id, forfait_id, forfait_label, unit_price_ht, seance_count, line_ht)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -192,12 +226,60 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
     }
 
     private void cleanup() {
+        jdbc.update("DELETE FROM seances WHERE id IN (?, ?, ?)", SEANCE_ID, SEANCE2_ID, OTHER_SEANCE_ID);
         jdbc.update("DELETE FROM facture_lignes WHERE id IN (?, ?)", FACTURE_LINE_ID, OTHER_FACTURE_LINE_ID);
         jdbc.update("DELETE FROM factures WHERE id IN (?, ?)", FACTURE_ID, OTHER_FACTURE_ID);
+        jdbc.update("DELETE FROM patients WHERE id IN (?, ?)", PATIENT_ID, OTHER_PATIENT_ID);
         jdbc.update("DELETE FROM agence WHERE id = ?", AGENCE_ID);
         jdbc.update("DELETE FROM caisse_assurance WHERE id = ?", CAISSE_ID);
     }
+
+    private void seedPatient(UUID patientId, UUID centerId, String fullName, String etat, String codePatient, String numeroAssurance) {
+        String[] name = fullName.split(" ", 2);
+        String nom = name.length > 1 ? name[1] : fullName;
+        String prenom = name[0];
+        jdbc.update(
+                """
+                        INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, type_patient, etat_patient, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                patientId,
+                centerId,
+                codePatient,
+                nom,
+                prenom,
+                "F",
+                Date.valueOf(LocalDate.of(2026, 1, 1)),
+                numeroAssurance,
+                "NON_VACANCIER",
+                etat,
+                OffsetDateTime.now(ZoneOffset.UTC)
+        );
+    }
+
+    private void seedSeance(UUID seanceId, UUID patientId, UUID centerId, UUID factureId, LocalDate dateSeance) {
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        jdbc.update(
+                """
+                        INSERT INTO seances (id, patient_id, center_id, date_seance, statut, facture_id, created_at, validated_at, signed_infirmier_at, signed_medecin_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                seanceId,
+                patientId,
+                centerId,
+                Date.valueOf(dateSeance),
+                "FACTUREE",
+                factureId,
+                now,
+                now,
+                now,
+                now
+        );
+    }
 }
+
+
+
 
 
 

@@ -43,6 +43,11 @@ public class FacturationSyntheseMensuelleReportService {
 
         String normalizedFormat = normalizeFormat(format);
         List<CaisseColumn> caisses = loadCaisses(centerId, periodStart, periodEnd);
+        List<DistributionRow> byInsuranceRows = loadByInsuranceDistributionRows(centerId, periodStart, periodEnd);
+        List<DistributionRow> byStatusRows = loadByPatientStatusDistributionRows(centerId, periodStart, periodEnd);
+        String byInsuranceGraph = buildDistributionGraphText(byInsuranceRows);
+        String byStatusGraph = buildDistributionGraphText(byStatusRows);
+        SyntheseKpi kpi = loadKpi(centerId, periodStart, periodEnd);
         String jrxml = buildDynamicTemplate(caisses);
 
         Path tempJrxml = Files.createTempFile("synthese-facturation-", ".jrxml");
@@ -54,6 +59,11 @@ public class FacturationSyntheseMensuelleReportService {
                 params.put("CENTER_ID", centerId.toString());
                 params.put("PERIOD_START", periodStart.toString());
                 params.put("PERIOD_END", periodEnd.toString());
+                params.put("DISTRIBUTION_BY_CAISSE_TEXT", byInsuranceGraph);
+                params.put("DISTRIBUTION_BY_STATUS_TEXT", byStatusGraph);
+                params.put("TOTAL_PATIENTS", kpi.totalPatients());
+                params.put("TOTAL_SEANCES", kpi.totalSeances());
+                params.put("TOTAL_FACTURES", kpi.totalFactures());
                 return jasperReportService.generateReport(
                         tempJrxml.toString(),
                         params,
@@ -166,7 +176,12 @@ public class FacturationSyntheseMensuelleReportService {
                 .append("              leftMargin=\"").append(left).append("\" rightMargin=\"").append(right).append("\" topMargin=\"20\" bottomMargin=\"20\" columnWidth=\"").append(columnWidth).append("\">\n\n")
                 .append("    <parameter name=\"CENTER_ID\" class=\"java.lang.String\"/>\n")
                 .append("    <parameter name=\"PERIOD_START\" class=\"java.lang.String\"/>\n")
-                .append("    <parameter name=\"PERIOD_END\" class=\"java.lang.String\"/>\n\n")
+                .append("    <parameter name=\"PERIOD_END\" class=\"java.lang.String\"/>\n")
+                .append("    <parameter name=\"DISTRIBUTION_BY_CAISSE_TEXT\" class=\"java.lang.String\"/>\n")
+                .append("    <parameter name=\"DISTRIBUTION_BY_STATUS_TEXT\" class=\"java.lang.String\"/>\n")
+                .append("    <parameter name=\"TOTAL_PATIENTS\" class=\"java.lang.Long\"/>\n")
+                .append("    <parameter name=\"TOTAL_SEANCES\" class=\"java.lang.Long\"/>\n")
+                .append("    <parameter name=\"TOTAL_FACTURES\" class=\"java.lang.Long\"/>\n\n")
                 .append("    <queryString>\n")
                 .append("        <![CDATA[\n")
                 .append(queryBuilder)
@@ -244,40 +259,100 @@ public class FacturationSyntheseMensuelleReportService {
         xml.append("        </band>\n")
                 .append("    </detail>\n\n")
                 .append("    <summary>\n")
-                .append("        <band height=\"250\">\n")
+                .append("        <band height=\"360\">\n")
                 .append("            <staticText>\n")
-                .append("                <reportElement x=\"0\" y=\"0\" width=\"280\" height=\"16\"/>\n")
-                .append("                <textElement><font size=\"10\" isBold=\"true\"/></textElement>\n")
-                .append("                <text><![CDATA[Totaux globaux]]></text>\n")
+                .append("                <reportElement x=\"0\" y=\"0\" width=\"").append(columnWidth).append("\" height=\"20\"/>\n")
+                .append("                <textElement textAlignment=\"Left\" verticalAlignment=\"Middle\"><font size=\"11\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Vue d'ensemble mensuelle]]></text>\n")
+                .append("            </staticText>\n")
+                .append("            <rectangle>\n")
+                .append("                <reportElement x=\"0\" y=\"24\" width=\"140\" height=\"44\" backcolor=\"#E8F5E9\" mode=\"Opaque\"/>\n")
+                .append("            </rectangle>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"6\" y=\"28\" width=\"128\" height=\"12\"/>\n")
+                .append("                <textElement><font size=\"8\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Montant HT]]></text>\n")
                 .append("            </staticText>\n")
                 .append("            <textField pattern=\"#,##0.00\">\n")
-                .append("                <reportElement x=\"0\" y=\"20\" width=\"280\" height=\"16\"/>\n")
-                .append("                <textElement><font size=\"9\"/></textElement>\n")
-                .append("                <textFieldExpression><![CDATA[\"Montant HT: \" + $V{GLOBAL_TOTAL_HT}]]></textFieldExpression>\n")
+                .append("                <reportElement x=\"6\" y=\"42\" width=\"128\" height=\"20\"/>\n")
+                .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$V{GLOBAL_TOTAL_HT}]]></textFieldExpression>\n")
                 .append("            </textField>\n")
+                .append("            <rectangle>\n")
+                .append("                <reportElement x=\"150\" y=\"24\" width=\"140\" height=\"44\" backcolor=\"#E3F2FD\" mode=\"Opaque\"/>\n")
+                .append("            </rectangle>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"156\" y=\"28\" width=\"128\" height=\"12\"/>\n")
+                .append("                <textElement><font size=\"8\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Montant TTC]]></text>\n")
+                .append("            </staticText>\n")
                 .append("            <textField pattern=\"#,##0.00\">\n")
-                .append("                <reportElement x=\"0\" y=\"40\" width=\"280\" height=\"16\"/>\n")
-                .append("                <textElement><font size=\"9\"/></textElement>\n")
-                .append("                <textFieldExpression><![CDATA[\"Montant TTC: \" + $V{GLOBAL_TOTAL_TTC}]]></textFieldExpression>\n")
+                .append("                <reportElement x=\"156\" y=\"42\" width=\"128\" height=\"20\"/>\n")
+                .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$V{GLOBAL_TOTAL_TTC}]]></textFieldExpression>\n")
                 .append("            </textField>\n")
-                .append("            <barChart>\n")
-                .append("                <chart>\n")
-                .append("                    <reportElement x=\"290\" y=\"0\" width=\"").append(columnWidth - 290).append("\" height=\"240\"/>\n")
-                .append("                    <chartTitle/>\n")
-                .append("                </chart>\n")
-                .append("                <categoryDataset>\n");
-
-        for (CaisseColumn column : caisses) {
-            xml.append("                    <categorySeries>\n")
-                    .append("                        <seriesExpression><![CDATA[\"").append(cdataSafe(column.label())).append(" TTC\"]]></seriesExpression>\n")
-                    .append("                        <categoryExpression><![CDATA[$F{FORFAIT_LABEL}]]></categoryExpression>\n")
-                    .append("                        <valueExpression><![CDATA[$F{").append(column.ttcField()).append("}]]></valueExpression>\n")
-                    .append("                    </categorySeries>\n");
-        }
-
-        xml.append("                </categoryDataset>\n")
-                .append("                <barPlot><plot/></barPlot>\n")
-                .append("            </barChart>\n")
+                .append("            <rectangle>\n")
+                .append("                <reportElement x=\"300\" y=\"24\" width=\"120\" height=\"44\" backcolor=\"#FFF8E1\" mode=\"Opaque\"/>\n")
+                .append("            </rectangle>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"306\" y=\"28\" width=\"108\" height=\"12\"/>\n")
+                .append("                <textElement><font size=\"8\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Patients]]></text>\n")
+                .append("            </staticText>\n")
+                .append("            <textField>\n")
+                .append("                <reportElement x=\"306\" y=\"42\" width=\"108\" height=\"20\"/>\n")
+                .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$P{TOTAL_PATIENTS}]]></textFieldExpression>\n")
+                .append("            </textField>\n")
+                .append("            <rectangle>\n")
+                .append("                <reportElement x=\"430\" y=\"24\" width=\"120\" height=\"44\" backcolor=\"#F3E5F5\" mode=\"Opaque\"/>\n")
+                .append("            </rectangle>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"436\" y=\"28\" width=\"108\" height=\"12\"/>\n")
+                .append("                <textElement><font size=\"8\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Seances]]></text>\n")
+                .append("            </staticText>\n")
+                .append("            <textField>\n")
+                .append("                <reportElement x=\"436\" y=\"42\" width=\"108\" height=\"20\"/>\n")
+                .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$P{TOTAL_SEANCES}]]></textFieldExpression>\n")
+                .append("            </textField>\n")
+                .append("            <rectangle>\n")
+                .append("                <reportElement x=\"560\" y=\"24\" width=\"120\" height=\"44\" backcolor=\"#ECEFF1\" mode=\"Opaque\"/>\n")
+                .append("            </rectangle>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"566\" y=\"28\" width=\"108\" height=\"12\"/>\n")
+                .append("                <textElement><font size=\"8\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Factures]]></text>\n")
+                .append("            </staticText>\n")
+                .append("            <textField>\n")
+                .append("                <reportElement x=\"566\" y=\"42\" width=\"108\" height=\"20\"/>\n")
+                .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$P{TOTAL_FACTURES}]]></textFieldExpression>\n")
+                .append("            </textField>\n")
+                .append("            <line>\n")
+                .append("                <reportElement x=\"0\" y=\"78\" width=\"").append(columnWidth).append("\" height=\"1\" forecolor=\"#B0BEC5\"/>\n")
+                .append("            </line>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"0\" y=\"84\" width=\"").append(columnWidth / 2).append("\" height=\"16\"/>\n")
+                .append("                <textElement><font size=\"9\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Repartition patients/seances par caisse]]></text>\n")
+                .append("            </staticText>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"").append(columnWidth / 2).append("\" y=\"84\" width=\"").append(columnWidth - (columnWidth / 2)).append("\" height=\"16\"/>\n")
+                .append("                <textElement textAlignment=\"Left\"><font size=\"9\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Repartition patients/seances par situation patient]]></text>\n")
+                .append("            </staticText>\n")
+                .append("            <textField isBlankWhenNull=\"true\" textAdjust=\"StretchHeight\">\n")
+                .append("                <reportElement x=\"0\" y=\"104\" width=\"").append(columnWidth / 2 - 8).append("\" height=\"244\"/>\n")
+                .append("                <textElement><font size=\"8\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$P{DISTRIBUTION_BY_CAISSE_TEXT}]]></textFieldExpression>\n")
+                .append("            </textField>\n")
+                .append("            <textField isBlankWhenNull=\"true\" textAdjust=\"StretchHeight\">\n")
+                .append("                <reportElement x=\"").append(columnWidth / 2 + 8).append("\" y=\"104\" width=\"").append(columnWidth / 2 - 8).append("\" height=\"244\"/>\n")
+                .append("                <textElement><font size=\"8\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$P{DISTRIBUTION_BY_STATUS_TEXT}]]></textFieldExpression>\n")
+                .append("            </textField>\n")
                 .append("        </band>\n")
                 .append("    </summary>\n")
                 .append("</jasperReport>\n");
@@ -319,9 +394,133 @@ public class FacturationSyntheseMensuelleReportService {
         return value == null ? "" : value.replace("]]>", "] ]>");
     }
 
+    private List<DistributionRow> loadByInsuranceDistributionRows(UUID centerId, LocalDate periodStart, LocalDate periodEnd) {
+        return jdbc.query(
+                """
+                        SELECT COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU') AS bucket_code,
+                               COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu') AS bucket_label,
+                               COUNT(DISTINCT f.patient_id) AS patients_count,
+                               COUNT(DISTINCT s.id) AS seances_count
+                        FROM factures f
+                        LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id
+                        LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id AND ca.center_id = f.center_id
+                        LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
+                        WHERE f.center_id = ?
+                          AND f.date_facturation BETWEEN ? AND ?
+                        GROUP BY COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU'),
+                                 COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu')
+                        ORDER BY patients_count DESC, seances_count DESC, bucket_code ASC
+                        """,
+                (rs, rowNum) -> new DistributionRow(
+                        rs.getString("bucket_code"),
+                        rs.getString("bucket_label"),
+                        rs.getLong("patients_count"),
+                        rs.getLong("seances_count")
+                ),
+                centerId,
+                Date.valueOf(periodStart),
+                Date.valueOf(periodEnd)
+        );
+    }
+
+    private List<DistributionRow> loadByPatientStatusDistributionRows(UUID centerId, LocalDate periodStart, LocalDate periodEnd) {
+        return jdbc.query(
+                """
+                        SELECT COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'INCONNU') AS bucket_code,
+                               COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'Inconnu') AS bucket_label,
+                               COUNT(DISTINCT f.patient_id) AS patients_count,
+                               COUNT(DISTINCT s.id) AS seances_count
+                        FROM factures f
+                        LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
+                        WHERE f.center_id = ?
+                          AND f.date_facturation BETWEEN ? AND ?
+                        GROUP BY COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'INCONNU'),
+                                 COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'Inconnu')
+                        ORDER BY patients_count DESC, seances_count DESC, bucket_code ASC
+                        """,
+                (rs, rowNum) -> new DistributionRow(
+                        rs.getString("bucket_code"),
+                        rs.getString("bucket_label"),
+                        rs.getLong("patients_count"),
+                        rs.getLong("seances_count")
+                ),
+                centerId,
+                Date.valueOf(periodStart),
+                Date.valueOf(periodEnd)
+        );
+    }
+
+    private SyntheseKpi loadKpi(UUID centerId, LocalDate periodStart, LocalDate periodEnd) {
+        return jdbc.queryForObject(
+                """
+                        SELECT COUNT(DISTINCT f.id) AS total_factures,
+                               COUNT(DISTINCT f.patient_id) AS total_patients,
+                               COUNT(DISTINCT s.id) AS total_seances
+                        FROM factures f
+                        LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
+                        WHERE f.center_id = ?
+                          AND f.date_facturation BETWEEN ? AND ?
+                        """,
+                (rs, rowNum) -> new SyntheseKpi(
+                        rs.getLong("total_factures"),
+                        rs.getLong("total_patients"),
+                        rs.getLong("total_seances")
+                ),
+                centerId,
+                Date.valueOf(periodStart),
+                Date.valueOf(periodEnd)
+        );
+    }
+
+    private String buildDistributionGraphText(List<DistributionRow> rows) {
+        if (rows.isEmpty()) {
+            return "Aucune donnee pour la periode.";
+        }
+        long maxPatients = rows.stream().mapToLong(DistributionRow::patientsCount).max().orElse(1L);
+        long maxSeances = rows.stream().mapToLong(DistributionRow::seancesCount).max().orElse(1L);
+        StringBuilder builder = new StringBuilder();
+        for (DistributionRow row : rows) {
+            if (!builder.isEmpty()) {
+                builder.append("\n");
+            }
+            String patientsBar = bar(row.patientsCount(), maxPatients, 10);
+            String seancesBar = bar(row.seancesCount(), maxSeances, 10);
+            builder.append(row.label())
+                    .append("\nP ")
+                    .append(patientsBar)
+                    .append(" ")
+                    .append(row.patientsCount())
+                    .append(" | S ")
+                    .append(seancesBar)
+                    .append(" ")
+                    .append(row.seancesCount());
+        }
+        return builder.toString();
+    }
+
+    private String bar(long value, long max, int width) {
+        if (max <= 0) {
+            return "-".repeat(width);
+        }
+        int fill = (int) Math.round((double) value * width / (double) max);
+        fill = Math.max(0, Math.min(width, fill));
+        return "#".repeat(fill) + "-".repeat(width - fill);
+    }
+
     private record CaisseColumn(String code, String label, String htField, String ttcField) {
     }
+
+    private record SyntheseKpi(long totalFactures, long totalPatients, long totalSeances) {
+    }
+
+    private record DistributionRow(String code, String label, long patientsCount, long seancesCount) {
+    }
 }
+
+
+
+
+
 
 
 
