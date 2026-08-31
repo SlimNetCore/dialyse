@@ -50,7 +50,8 @@ public class FacturationValideeComptabiliteListener {
                                    f.date_facturation, COALESCE(f.patient_full_name, 'Facture') AS libelle
                             FROM factures f
                             WHERE f.center_id = ?
-                              AND f.date_facturation BETWEEN ? AND ?
+                              AND f.period_start >= ?
+                              AND f.period_end <= ?
                             ORDER BY f.date_facturation, f.numero_facture
                             """,
                     (rs, rowNum) -> new FactureRow(
@@ -69,6 +70,11 @@ public class FacturationValideeComptabiliteListener {
             );
 
             for (FactureRow f : factures) {
+                // La date de l'écriture VE correspond à la fin de la période facturée
+                // (date de réalisation des prestations), pas à la date d'émission de la facture.
+                // Cela garantit que les écritures sont toujours dans la période comptable correspondante
+                // et évite toute dérive quand la facturation est émise un mois après les séances.
+                LocalDate dateEcriture = end;
                 comptabiliteUseCase.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(
                         f.centerId,
                         f.factureId,
@@ -79,7 +85,7 @@ public class FacturationValideeComptabiliteListener {
                         f.totalHt != null ? f.totalHt : BigDecimal.ZERO,
                         f.totalTva != null ? f.totalTva : BigDecimal.ZERO,
                         f.totalTtc != null ? f.totalTtc : BigDecimal.ZERO,
-                        f.dateFacturation,
+                        dateEcriture,
                         f.libelle
                 ));
             }
