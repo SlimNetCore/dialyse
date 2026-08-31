@@ -48,4 +48,12 @@ test.describe('Module facturation', () => {
     await expect(page.locator('h1, .app-section-title')).toContainText(/paramétrage facturation|billing settings/i);
     await expect(page.locator('input[type="number"], input[type="text"]')).toHaveCount(2);
   });
+
+  test('affiche l action impression de la synthese mensuelle', async ({page}) => {
+    await login(page);
+    await page.goto(`${baseUrl}/facturation`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.getByRole('button', {name: /imprimer la synthese mensuelle|print monthly summary/i})).toBeVisible();
+  });
 });

@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.domain.facturation.port.*;
 import com.hemodialyse.backend.domain.facturation.valueobject.ParametresFacturation;
+import com.hemodialyse.backend.infrastructure.reporting.FacturationSyntheseMensuelleReportService;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationPreviewRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ class FacturationRestControllerTest {
     @Test
     void preview_should_delegate_with_center_scope() {
         FacturationUseCase useCase = mock(FacturationUseCase.class);
-        FacturationRestController controller = new FacturationRestController(useCase);
+        FacturationRestController controller = new FacturationRestController(useCase, mock(FacturationSyntheseMensuelleReportService.class));
         UUID centerId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         when(useCase.preview(any())).thenReturn(new FacturationPreviewResult(
@@ -47,7 +48,7 @@ class FacturationRestControllerTest {
     @Test
     void settings_should_return_saved_payload() {
         FacturationUseCase useCase = mock(FacturationUseCase.class);
-        FacturationRestController controller = new FacturationRestController(useCase);
+        FacturationRestController controller = new FacturationRestController(useCase, mock(FacturationSyntheseMensuelleReportService.class));
         UUID centerId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         when(useCase.updateSettings(any())).thenReturn(new ParametresFacturation(

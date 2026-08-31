@@ -135,6 +135,7 @@ public class DocumentRestController {
                 Map.of("code", "LISTE_PATIENTS", "label", "Liste des patients"),
                 Map.of("code", "LISTE_PEC", "label", "Liste des prises en charge"),
                 Map.of("code", "LISTE_ATTESTATIONS", "label", "Liste des attestations"),
+                Map.of("code", "SYNTHESE_FACTURATION_MENSUELLE", "label", "Synthèse mensuelle facturation"),
                 Map.of("code", "CUSTOM", "label", "Rapport personnalisé")
         ));
     }
@@ -289,6 +290,14 @@ public class DocumentRestController {
 
         if ("PEC".equals(normalizedType) && isBlank(patientId) && isBlank(pecId)) {
             throw new IllegalArgumentException("patientId ou pecId est obligatoire pour PEC");
+        }
+
+        if ("SYNTHESE_FACTURATION_MENSUELLE".equals(normalizedType)) {
+            String periodStart = params.get("PERIOD_START");
+            String periodEnd = params.get("PERIOD_END");
+            if (isBlank(periodStart) || isBlank(periodEnd)) {
+                throw new IllegalArgumentException("PERIOD_START et PERIOD_END sont obligatoires pour SYNTHESE_FACTURATION_MENSUELLE");
+            }
         }
     }
 

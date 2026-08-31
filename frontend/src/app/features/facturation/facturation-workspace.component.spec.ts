@@ -5,10 +5,16 @@ import {FacturationStore} from './state/facturation.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {TranslateService} from '@ngx-translate/core';
+import {BackendApiService} from '../../core/api/backend-api.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {of} from 'rxjs';
 
 describe('FacturationWorkspaceComponent', () => {
   const facturationStoreMock = {
     month: vi.fn(() => '2026-08'),
+    periodMode: vi.fn(() => 'month'),
+    startDate: vi.fn(() => '2026-08-01'),
+    endDate: vi.fn(() => '2026-08-31'),
     dashboard: vi.fn(() => null),
     revenueTrend: vi.fn(() => []),
     successMessage: vi.fn(() => null),
@@ -32,6 +38,14 @@ describe('FacturationWorkspaceComponent', () => {
     instant: vi.fn((key: string) => key),
   };
 
+  const apiMock = {
+    printFacturationSynthese: vi.fn(() => of(new Blob(['%PDF'], {type: 'application/pdf'}))),
+  };
+
+  const snackBarMock = {
+    open: vi.fn(),
+  };
+
   beforeEach(async () => {
     vi.clearAllMocks();
     await TestBed.configureTestingModule({
@@ -40,6 +54,8 @@ describe('FacturationWorkspaceComponent', () => {
         {provide: AppShellStore, useValue: appShellMock},
         {provide: AuthStore, useValue: authMock},
         {provide: TranslateService, useValue: translateMock},
+        {provide: BackendApiService, useValue: apiMock},
+        {provide: MatSnackBar, useValue: snackBarMock},
       ],
     });
   });
@@ -72,5 +88,18 @@ describe('FacturationWorkspaceComponent', () => {
       userId: 'billing.user',
     });
     expect(facturationStoreMock.loadDashboard.mock.calls.length).toBe(dashboardRefreshCallsBeforeValidation);
+  });
+
+  it('imprime la synthese mensuelle avec centerId et periode du mois actif', () => {
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    component['onPrintMonthlySummary']();
+
+    expect(apiMock.printFacturationSynthese).toHaveBeenCalledWith({
+      centerId: '11111111-1111-1111-1111-111111111111',
+      periodStart: '2026-08-01',
+      periodEnd: '2026-08-31',
+      format: 'PDF',
+    });
   });
 });

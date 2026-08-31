@@ -498,6 +498,13 @@ export type FacturationSettingsPayload = {
   regroupementMultiForfait: boolean;
 };
 
+export type FacturationSynthesePrintPayload = {
+  centerId: string;
+  periodStart: string;
+  periodEnd: string;
+  format?: 'PDF' | 'XLSX' | 'HTML';
+};
+
 export type ReglementEtat = 'NON_REGLEE' | 'PARTIELLEMENT_REGLEE' | 'REGLEE';
 export type ReglementSoldeType = 'RESTE' | 'REGLE' | 'TROP_PERCU';
 
@@ -1007,6 +1014,10 @@ export class BackendApiService {
 
   updateFacturationSettings(payload: FacturationSettingsPayload): Observable<FacturationSettings> {
     return this.http.put<FacturationSettings>(`${this.baseUrl}/facturation/settings`, payload);
+  }
+
+  printFacturationSynthese(payload: FacturationSynthesePrintPayload): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/facturation/synthese/print`, payload, {responseType: 'blob'});
   }
 
   listTvaTypes(centerId: string, page: number, size: number): Observable<PagedResponse<TvaType>> {

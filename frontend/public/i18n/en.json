@@ -1217,6 +1217,7 @@
     "NEW": "New",
     "UPDATE": "Update",
     "PRINT": "Print",
+    "PRINT_MONTHLY_SUMMARY": "Print monthly summary",
     "DELETE": "Delete",
     "SAVE": "Save",
     "READONLY": "Read-only",

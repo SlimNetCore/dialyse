@@ -73,6 +73,10 @@
           <mat-icon>calculate</mat-icon>
           {{ 'FACTURATION.CALCULATOR.CALCULATE' | translate }}
         </button>
+        <button (click)="onPrintMonthlySummary()" [disabled]="!store.canCalculate()" mat-stroked-button>
+          <mat-icon>print</mat-icon>
+          {{ 'COMMON.PRINT_MONTHLY_SUMMARY' | translate }}
+        </button>
         <button mat-stroked-button (click)="refreshDashboard()">
           <mat-icon>refresh</mat-icon>
           {{ 'COMMON.REFRESH_BUTTON' | translate }}

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="synthese_mensuelle_facturation" pageWidth="842" pageHeight="595" orientation="Landscape"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" columnWidth="802">
+
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="PERIOD_START" class="java.lang.String"/>
+    <parameter name="PERIOD_END" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[
+        SELECT fl.forfait_label AS forfait_label,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CNAS%' THEN fl.line_ht ELSE 0 END) AS cnas_ht,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CNAS%' THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS cnas_ttc,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CASNOS%' THEN fl.line_ht ELSE 0 END) AS casnos_ht,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CASNOS%' THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS casnos_ttc,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CAMSSP%' THEN fl.line_ht ELSE 0 END) AS camssp_ht,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CAMSSP%' THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS camssp_ttc,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) NOT LIKE 'CNAS%'
+                         AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CASNOS%'
+                         AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CAMSSP%'
+                    THEN fl.line_ht ELSE 0 END) AS autres_ht,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) NOT LIKE 'CNAS%'
+                         AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CASNOS%'
+                         AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CAMSSP%'
+                    THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS autres_ttc,
+               SUM(fl.line_ht) AS total_ht,
+               SUM(fl.line_ht * (1 + (f.tva_rate / 100))) AS total_ttc
+        FROM facture_lignes fl
+        INNER JOIN factures f ON f.id = fl.facture_id AND f.center_id = fl.center_id
+        LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id
+        LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id AND ca.center_id = f.center_id
+        WHERE f.center_id = CAST($P{CENTER_ID} AS UUID)
+          AND f.date_facturation BETWEEN CAST($P{PERIOD_START} AS DATE) AND CAST($P{PERIOD_END} AS DATE)
+        GROUP BY fl.forfait_label
+        ORDER BY fl.forfait_label
+        ]]>
+    </queryString>
+
+    <field name="FORFAIT_LABEL" class="java.lang.String"/>
+    <field name="CNAS_HT" class="java.math.BigDecimal"/>
+    <field name="CNAS_TTC" class="java.math.BigDecimal"/>
+    <field name="CASNOS_HT" class="java.math.BigDecimal"/>
+    <field name="CASNOS_TTC" class="java.math.BigDecimal"/>
+    <field name="CAMSSP_HT" class="java.math.BigDecimal"/>
+    <field name="CAMSSP_TTC" class="java.math.BigDecimal"/>
+    <field name="AUTRES_HT" class="java.math.BigDecimal"/>
+    <field name="AUTRES_TTC" class="java.math.BigDecimal"/>
+    <field name="TOTAL_HT" class="java.math.BigDecimal"/>
+    <field name="TOTAL_TTC" class="java.math.BigDecimal"/>
+
+    <variable name="GLOBAL_TOTAL_HT" class="java.math.BigDecimal" calculation="Sum">
+        <variableExpression><![CDATA[$F{TOTAL_HT}]]></variableExpression>
+    </variable>
+    <variable name="GLOBAL_TOTAL_TTC" class="java.math.BigDecimal" calculation="Sum">
+        <variableExpression><![CDATA[$F{TOTAL_TTC}]]></variableExpression>
+    </variable>
+
+    <title>
+        <band height="70">
+            <staticText>
+                <reportElement x="0" y="0" width="802" height="28"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <text><![CDATA[SYNTHESE MENSUELLE FACTURATION]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="34" width="410" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Centre: " + $P{CENTER_ID}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="420" y="34" width="382" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["Periode: " + $P{PERIOD_START} + " au " + $P{PERIOD_END}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="58" width="802" height="1"/>
+            </line>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="34">
+            <staticText>
+                <reportElement x="0" y="0" width="110" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Forfait]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="110" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CNAS HT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="182" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CNAS TTC]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="254" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CASNOS HT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="326" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CASNOS TTC]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="398" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CAMSSP HT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="470" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CAMSSP TTC]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="542" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Autres HT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="614" y="0" width="72" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Autres TTC]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="686" y="0" width="58" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Total HT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="744" y="0" width="58" height="34" backcolor="#1B5E20" forecolor="#FFFFFF"
+                               mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Total TTC]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="18">
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="0" width="110" height="16"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{FORFAIT_LABEL}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="110" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CNAS_HT}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="182" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CNAS_TTC}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="254" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CASNOS_HT}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="326" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CASNOS_TTC}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="398" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CAMSSP_HT}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="470" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CAMSSP_TTC}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="542" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{AUTRES_HT}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="614" y="0" width="72" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{AUTRES_TTC}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="686" y="0" width="58" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TOTAL_HT}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="744" y="0" width="58" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TOTAL_TTC}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <summary>
+        <band height="230">
+            <staticText>
+                <reportElement x="0" y="0" width="250" height="16"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Totaux globaux]]></text>
+            </staticText>
+            <textField pattern="#,##0.00">
+                <reportElement x="0" y="20" width="250" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Montant HT: " + $V{GLOBAL_TOTAL_HT}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="0" y="40" width="250" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Montant TTC: " + $V{GLOBAL_TOTAL_TTC}]]></textFieldExpression>
+            </textField>
+
+            <barChart>
+                <chart>
+                    <reportElement x="280" y="0" width="520" height="220"/>
+                    <chartTitle/>
+                </chart>
+                <categoryDataset>
+                    <categorySeries>
+                        <seriesExpression><![CDATA["CNAS TTC"]]></seriesExpression>
+                        <categoryExpression><![CDATA[$F{FORFAIT_LABEL}]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{CNAS_TTC}]]></valueExpression>
+                    </categorySeries>
+                    <categorySeries>
+                        <seriesExpression><![CDATA["CASNOS TTC"]]></seriesExpression>
+                        <categoryExpression><![CDATA[$F{FORFAIT_LABEL}]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{CASNOS_TTC}]]></valueExpression>
+                    </categorySeries>
+                    <categorySeries>
+                        <seriesExpression><![CDATA["CAMSSP TTC"]]></seriesExpression>
+                        <categoryExpression><![CDATA[$F{FORFAIT_LABEL}]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{CAMSSP_TTC}]]></valueExpression>
+                    </categorySeries>
+                    <categorySeries>
+                        <seriesExpression><![CDATA["AUTRES TTC"]]></seriesExpression>
+                        <categoryExpression><![CDATA[$F{FORFAIT_LABEL}]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{AUTRES_TTC}]]></valueExpression>
+                    </categorySeries>
+                </categoryDataset>
+                <barPlot>
+                    <plot/>
+                </barPlot>
+            </barChart>
+        </band>
+    </summary>
+
+</jasperReport>
+
+
+
+

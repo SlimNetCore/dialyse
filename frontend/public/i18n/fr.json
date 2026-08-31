@@ -1217,6 +1217,7 @@
     "NEW": "Nouveau",
     "UPDATE": "Mettre à jour",
     "PRINT": "Imprimer",
+    "PRINT_MONTHLY_SUMMARY": "Imprimer la synthese mensuelle",
     "DELETE": "Supprimer",
     "SAVE": "Enregistrer",
     "READONLY": "Lecture seule",

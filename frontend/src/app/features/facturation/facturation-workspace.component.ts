@@ -7,12 +7,14 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {FacturationStore} from './state/facturation.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
+import {BackendApiService} from '../../core/api/backend-api.service';
 
 Chart.register(...registerables);
 
@@ -40,6 +42,8 @@ export class FacturationWorkspaceComponent {
   private readonly appShell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
   private readonly translate = inject(TranslateService);
+  private readonly api = inject(BackendApiService);
+  private readonly snackBar = inject(MatSnackBar);
 
   protected readonly currentCenterId = computed(() => this.appShell.currentCenterId());
   protected readonly currentUsername = computed(() => this.auth.username() ?? 'system');
@@ -150,6 +154,33 @@ export class FacturationWorkspaceComponent {
     this.store.loadRevenueTrend({centerId, endingMonth: this.store.month(), months: 6});
   }
 
+  protected onPrintMonthlySummary(): void {
+    const centerId = this.currentCenterId();
+    if (!centerId) {
+      return;
+    }
+    const period = this.resolveSummaryPeriod();
+    this.api.printFacturationSynthese({
+      centerId,
+      periodStart: period.start,
+      periodEnd: period.end,
+      format: 'PDF',
+    }).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener');
+        setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      },
+      error: () => {
+        this.snackBar.open(
+          this.translate.instant('COMMON.PRINT_ERROR'),
+          this.translate.instant('COMMON.OK'),
+          {duration: 4000}
+        );
+      },
+    });
+  }
+
   protected revenueChartOptions(): ChartOptions<'line'> {
     return {
       responsive: true,
@@ -186,5 +217,28 @@ export class FacturationWorkspaceComponent {
     }
     const raw = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
     return raw || fallback;
+  }
+
+  private resolveSummaryPeriod(): { start: string; end: string } {
+    if (this.store.periodMode() === 'custom') {
+      return {
+        start: this.store.startDate(),
+        end: this.store.endDate(),
+      };
+    }
+    const month = this.store.month();
+    const [yearRaw, monthRaw] = month.split('-');
+    const year = Number(yearRaw);
+    const monthValue = Number(monthRaw);
+    if (!year || !monthValue) {
+      const now = new Date();
+      const fallbackMonth = `${now.getUTCMonth() + 1}`.padStart(2, '0');
+      const start = `${now.getUTCFullYear()}-${fallbackMonth}-01`;
+      const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)).toISOString().slice(0, 10);
+      return {start, end};
+    }
+    const start = `${year}-${`${monthValue}`.padStart(2, '0')}-01`;
+    const end = new Date(Date.UTC(year, monthValue, 0)).toISOString().slice(0, 10);
+    return {start, end};
   }
 }
