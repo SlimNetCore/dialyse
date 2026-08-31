@@ -173,6 +173,17 @@ export class FacturationWorkspaceComponent {
     });
   }
 
+  protected seanceStatusClass(status: string | null | undefined): string {
+    const normalized = (status ?? '').toUpperCase();
+    if (normalized.includes('TERMINE') || normalized.includes('FACTUREE')) {
+      return 'status-done';
+    }
+    if (normalized.includes('EN_COURS')) {
+      return 'status-in-progress';
+    }
+    return 'status-pending';
+  }
+
   protected forfaitOptions(): Array<{ id: string; label: string; price: number | null }> {
     return this.store.forfaits().map((item) => ({
       id: item.id,

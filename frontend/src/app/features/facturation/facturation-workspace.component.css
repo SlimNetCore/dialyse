@@ -193,6 +193,16 @@ mat-card-content {
   display: none;
 }
 
+.invoice-seances-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-surface) 96%, var(--app-primary-soft) 4%);
+}
+
 .invoice-seances-count {
   min-width: 28px;
   height: 24px;
@@ -204,6 +214,86 @@ mat-card-content {
   background: var(--app-primary-soft);
   color: var(--app-text);
   font-size: 0.85rem;
+}
+
+.code-chip {
+  display: inline-block;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  border: 1px solid var(--app-primary-outline);
+  border-radius: 8px;
+  padding: 3px 9px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+.seance-code {
+  min-width: 94px;
+  text-align: center;
+}
+
+.seance-row {
+  background: color-mix(in srgb, var(--app-surface) 98%, var(--app-primary-soft) 2%);
+}
+
+.seance-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.status-done {
+  color: #1b5e20;
+  background: rgba(27, 94, 32, 0.10);
+  border-color: rgba(27, 94, 32, 0.20);
+}
+
+.status-in-progress {
+  color: #01579b;
+  background: rgba(1, 87, 155, 0.10);
+  border-color: rgba(1, 87, 155, 0.20);
+}
+
+.status-pending {
+  color: #bf360c;
+  background: rgba(191, 54, 12, 0.10);
+  border-color: rgba(191, 54, 12, 0.22);
+}
+
+.status-info {
+  color: var(--app-primary);
+  background: var(--app-primary-soft);
+  border-color: var(--app-primary-outline);
+}
+
+.amount-chip {
+  display: inline-block;
+  min-width: 84px;
+  text-align: right;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--app-primary) 24%, var(--app-border));
+  background: color-mix(in srgb, var(--app-primary-soft) 70%, var(--app-surface));
+  color: var(--app-primary);
+  font-weight: 700;
+  padding: 4px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.num-cell {
+  text-align: right;
+}
+
+.actions-cell {
+  white-space: nowrap;
 }
 
 .seances-table {
@@ -338,6 +428,11 @@ mat-card {
 
   .seances-table {
     min-width: 760px;
+  }
+
+  .invoice-seances-meta {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

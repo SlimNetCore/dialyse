@@ -73,6 +73,14 @@
           <mat-icon>calculate</mat-icon>
           {{ 'FACTURATION.CALCULATOR.CALCULATE' | translate }}
         </button>
+        <button
+          (click)="onValidateFacturation()"
+          [disabled]="!store.preview() || store.validating() || store.previewLoading()"
+          color="primary"
+          mat-flat-button>
+          <mat-icon>task_alt</mat-icon>
+          {{ 'FACTURATION.PREVIEW.VALIDATE' | translate }}
+        </button>
         <button (click)="onPrintMonthlySummary()" [disabled]="!store.canCalculate()" mat-stroked-button>
           <mat-icon>print</mat-icon>
           {{ 'COMMON.PRINT_MONTHLY_SUMMARY' | translate }}
@@ -151,6 +159,11 @@
                   <span>{{ 'FACTURATION.PREVIEW.SESSION_DETAILS' | translate }}</span>
                   <span class="invoice-seances-count">{{ invoice.seances.length }}</span>
                 </summary>
+                <div class="invoice-seances-meta">
+                  <span class="code-chip">{{ invoice.patientCode }}</span>
+                  <span class="app-muted-note">{{ invoice.patientFullName }}</span>
+                  <span class="seance-status-chip status-info">{{ invoice.patientStatusSnapshot }}</span>
+                </div>
                 <div class="table-wrap">
                   <table class="seances-table">
                     <thead>
@@ -164,13 +177,19 @@
                     </thead>
                     <tbody>
                       @for (seance of invoice.seances; track seance.seanceId) {
-                        <tr>
-                          <td>{{ seance.seanceDate }}</td>
-                          <td>{{ seance.seanceStatus }}</td>
+                        <tr class="seance-row">
+                          <td>
+                            <span class="code-chip seance-code">{{ seance.seanceDate }}</span>
+                          </td>
+                          <td>
+                            <span
+                              [class]="'seance-status-chip ' + seanceStatusClass(seance.seanceStatus)">{{ seance.seanceStatus }}</span>
+                          </td>
                           <td>
                             <mat-form-field appearance="outline" class="forfait-select-field">
                               <mat-label>{{ 'SEANCES.FORFAIT_LABEL' | translate }}</mat-label>
-                              <mat-select (valueChange)="onPreviewSeanceForfaitChange(seance.seanceId, $event)"
+                              <mat-select
+                                (selectionChange)="onPreviewSeanceForfaitChange(seance.seanceId, $event.value)"
                                           [value]="seance.forfaitId">
                                 @for (option of forfaitOptions(); track option.id) {
                                   <mat-option [value]="option.id">{{ option.label }}</mat-option>
@@ -178,8 +197,10 @@
                               </mat-select>
                             </mat-form-field>
                           </td>
-                          <td>{{ seance.forfaitPrixHt | number:'1.2-2' }}</td>
-                          <td>
+                          <td class="num-cell">
+                            <span class="amount-chip">{{ seance.forfaitPrixHt | number:'1.2-2' }}</span>
+                          </td>
+                          <td class="actions-cell">
                             <button
                               (click)="onRemoveSeanceFromPreview(seance.seanceId)"
                               [disabled]="store.previewLoading() || store.seanceActionLoadingId() === seance.seanceId"
@@ -203,13 +224,6 @@
               </footer>
             </article>
           }
-        </div>
-
-        <div class="app-button-cluster">
-          <button mat-flat-button color="primary" [disabled]="store.validating()" (click)="onValidateFacturation()">
-            <mat-icon>task_alt</mat-icon>
-            {{ 'FACTURATION.PREVIEW.VALIDATE' | translate }}
-          </button>
         </div>
         @if (store.validating()) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
