@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.*;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import java.util.Map;
  * Service Jasper simplifié :
  *   1. Compile un fichier .jrxml (depuis un chemin disque ou classpath)
  *   2. Remplit le rapport via une connexion JDBC + paramètres
- *   3. Exporte en PDF, Excel (XLS) ou HTML (PDF embarqué)
+ *   3. Exporte en PDF, Excel (XLSX) ou HTML (PDF embarqué)
  *
  *  Résolution du chemin (par ordre de priorité) :
  *   1. Chemin absolu  (si fourni en absolu et le fichier existe)
@@ -81,6 +81,14 @@ public class JasperReportService {
             return report;
         }
 
+        ClassPathResource compiledClasspath = resolveCompiledClasspathResource(jrxmlPath);
+        if (compiledClasspath != null && compiledClasspath.exists()) {
+            log.info("Chargement du rapport compilé (classpath) : {}", compiledClasspath.getPath());
+            try (InputStream is = compiledClasspath.getInputStream()) {
+                return (JasperReport) JRLoader.loadObject(is);
+            }
+        }
+
         // Fallback classpath (compatible jar/boot fat-jar): compile via InputStream
         ClassPathResource cpr = resolveClasspathResource(jrxmlPath);
         if (cpr != null && cpr.exists()) {
@@ -113,10 +121,10 @@ public class JasperReportService {
 
     public byte[] exportToExcel(JasperPrint print) throws JRException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JRXlsExporter exporter = new JRXlsExporter();
+        JRXlsxExporter exporter = new JRXlsxExporter();
         exporter.setExporterInput(new SimpleExporterInput(print));
         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(baos));
-        SimpleXlsReportConfiguration config = new SimpleXlsReportConfiguration();
+        SimpleXlsxReportConfiguration config = new SimpleXlsxReportConfiguration();
         config.setOnePagePerSheet(false);
         config.setDetectCellType(true);
         config.setWhitePageBackground(false);
@@ -204,6 +212,20 @@ public class JasperReportService {
         Path p5 = Path.of(userDir, "backend", jrxmlPath).normalize();
         if (Files.exists(p5)) { log.debug("jrxml found (user.dir/backend): {}", p5); return p5; }
 
+        // 6) user.dir/../reports/<filename> (backend/reports depuis le module platform)
+        Path p6 = Path.of(userDir, "..", "reports", filename).normalize();
+        if (Files.exists(p6)) {
+            log.debug("jrxml found (parent/reports): {}", p6);
+            return p6;
+        }
+
+        // 7) user.dir/../<path> (backend/reports/<path>)
+        Path p7 = Path.of(userDir, "..", jrxmlPath).normalize();
+        if (Files.exists(p7)) {
+            log.debug("jrxml found (parent/path): {}", p7);
+            return p7;
+        }
+
         log.warn("jrxml NOT found anywhere for path='{}', filename='{}', user.dir='{}'",
                 jrxmlPath, filename, userDir);
         return null;
@@ -217,6 +239,22 @@ public class JasperReportService {
         String filename = Path.of(cleaned).getFileName().toString();
 
         ClassPathResource direct = new ClassPathResource(cleaned);
+        if (direct.exists()) return direct;
+
+        ClassPathResource underReports = new ClassPathResource("reports/" + filename);
+        if (underReports.exists()) return underReports;
+
+        return null;
+    }
+
+    private ClassPathResource resolveCompiledClasspathResource(String jrxmlPath) {
+        if (jrxmlPath == null || jrxmlPath.isBlank()) return null;
+
+        String cleaned = jrxmlPath.replace("\\", "/");
+        if (cleaned.startsWith("/")) cleaned = cleaned.substring(1);
+        String filename = Path.of(cleaned).getFileName().toString().replaceFirst("\\.jrxml$", ".jasper");
+
+        ClassPathResource direct = new ClassPathResource(cleaned.replaceFirst("\\.jrxml$", ".jasper"));
         if (direct.exists()) return direct;
 
         ClassPathResource underReports = new ClassPathResource("reports/" + filename);

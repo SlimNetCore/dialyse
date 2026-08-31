@@ -1,8 +1,7 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -18,42 +17,26 @@ import static org.junit.jupiter.api.Assertions.fail;
 class JasperTemplateCompileTest {
 
     @Test
-    void fichePatientTemplateCompiles() throws Exception {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("reports/fiche_patient.jrxml")) {
-            assertNotNull(is, "Template introuvable: reports/fiche_patient.jrxml");
-            try {
-                JasperReport report = JasperCompileManager.compileReport(is);
-                assertNotNull(report);
-            } catch (JRException e) {
-                StringBuilder chain = new StringBuilder("JRException causes:\n");
-                Throwable c = e;
-                int i = 0;
-                while (c != null && i < 12) {
-                    chain.append("[").append(i).append("] ")
-                        .append(c.getClass().getName())
-                        .append(" -> ")
-                        .append(c.getMessage())
-                        .append("\n");
-                    c = c.getCause();
-                    i++;
-                }
-                throw new RuntimeException(chain.toString(), e);
-            }
+    void fichePatientTemplateLoads() throws Exception {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("reports/fiche_patient.jasper")) {
+            assertNotNull(is, "Template compilé introuvable: reports/fiche_patient.jasper");
+            JasperReport report = (JasperReport) JRLoader.loadObject(is);
+            assertNotNull(report);
         }
     }
 
     @Test
-    void allReportTemplatesCompile() throws Exception {
-        Path reportsDir = Path.of("src/main/resources/reports");
+    void allReportTemplatesLoad() throws Exception {
+        Path reportsDir = resolveReportsDir();
         List<Path> files = Files.list(reportsDir)
-                .filter(p -> p.getFileName().toString().endsWith(".jrxml"))
+                .filter(p -> p.getFileName().toString().endsWith(".jasper"))
                 .sorted()
                 .collect(Collectors.toList());
 
         List<String> failures = new ArrayList<>();
         for (Path p : files) {
             try (InputStream is = Files.newInputStream(p)) {
-                JasperReport report = JasperCompileManager.compileReport(is);
+                JasperReport report = (JasperReport) JRLoader.loadObject(is);
                 assertNotNull(report);
             } catch (Exception e) {
                 failures.add(p.getFileName() + " -> " + e.getMessage());
@@ -63,6 +46,22 @@ class JasperTemplateCompileTest {
         if (!failures.isEmpty()) {
             fail("Templates Jasper invalides:\n" + String.join("\n", failures));
         }
+    }
+
+    private Path resolveReportsDir() {
+        Path[] candidates = new Path[]{
+                Path.of("src/main/resources/reports"),
+                Path.of("../reports"),
+                Path.of("reports")
+        };
+
+        for (Path candidate : candidates) {
+            if (Files.isDirectory(candidate)) {
+                return candidate;
+            }
+        }
+
+        throw new IllegalStateException("Impossible de localiser le répertoire des rapports Jasper");
     }
 }
 

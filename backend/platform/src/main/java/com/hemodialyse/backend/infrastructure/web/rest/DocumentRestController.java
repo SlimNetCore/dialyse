@@ -312,9 +312,9 @@ public class DocumentRestController {
         return switch (format.toUpperCase()) {
             case "EXCEL", "XLS", "XLSX" -> {
                 headers.setContentType(MediaType.parseMediaType(
-                        "application/vnd.ms-excel"));
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
                 headers.add("Content-Disposition",
-                        "attachment; filename=" + filename + ".xls");
+                        "attachment; filename=" + filename + ".xlsx");
                 yield ResponseEntity.ok().headers(headers).body(data);
             }
             case "HTML" -> {
