@@ -90,6 +90,7 @@ class FacturationRestControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.centerId").value(CENTER_ID.toString()))
                 .andExpect(jsonPath("$.totalFactures").value(1))
+                .andExpect(jsonPath("$.invoices[0].numeroFacture").isNotEmpty())
                 .andExpect(jsonPath("$.invoices[0].lines[0].seanceCount").value(1));
     }
 

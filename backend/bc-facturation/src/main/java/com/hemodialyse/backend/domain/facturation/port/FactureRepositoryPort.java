@@ -9,6 +9,8 @@ import java.util.List;
 public interface FactureRepositoryPort {
     void saveAll(List<FactureAggregate> factures);
 
+    int currentInvoiceSequence(CenterId centerId, LocalDate billingDate);
+
     String nextInvoiceNumber(CenterId centerId, String codeFormat, LocalDate billingDate);
 }
 

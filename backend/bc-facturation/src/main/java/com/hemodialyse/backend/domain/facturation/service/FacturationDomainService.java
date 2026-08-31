@@ -5,8 +5,10 @@ import com.hemodialyse.backend.domain.facturation.aggregate.TypeTVA;
 import com.hemodialyse.backend.domain.facturation.entity.LigneFacture;
 import com.hemodialyse.backend.domain.facturation.port.*;
 import com.hemodialyse.backend.domain.facturation.specification.SeanceEligibleForFacturationSpecification;
+import com.hemodialyse.backend.domain.facturation.valueobject.FactureNumberTemplate;
 import com.hemodialyse.backend.domain.facturation.valueobject.FacturationPeriod;
 import com.hemodialyse.backend.domain.facturation.valueobject.ParametresFacturation;
+import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -45,8 +47,12 @@ public class FacturationDomainService implements FacturationUseCase {
                 .filter(eligibleSpec::isSatisfiedBy)
                 .toList();
 
+        ParametresFacturation settings = settingsRepository.findByCenterId(query.centerId());
+        LocalDate billingDate = LocalDate.now();
+        int currentSequence = factureRepository.currentInvoiceSequence(query.centerId(), billingDate);
+
         List<FacturationPreviewInvoice> invoices = buildPreviewInvoices(candidates,
-                query.centerId().value(), LocalDate.now(), query.regroupementMultiForfait());
+                query.centerId(), billingDate, query.regroupementMultiForfait(), settings.codeFormat(), currentSequence);
         BigDecimal totalHt = invoices.stream().map(FacturationPreviewInvoice::totalHt)
                 .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
         BigDecimal totalTva = invoices.stream().map(FacturationPreviewInvoice::totalTva)
@@ -180,16 +186,20 @@ public class FacturationDomainService implements FacturationUseCase {
     }
 
     private List<FacturationPreviewInvoice> buildPreviewInvoices(List<SeanceFacturationCandidate> candidates,
-                                                                 UUID centerId,
+                                                                 CenterId centerId,
                                                                  LocalDate dateFacturation,
-                                                                 boolean regroupementMultiForfait) {
+                                                                 boolean regroupementMultiForfait,
+                                                                 String codeFormat,
+                                                                 int currentSequence) {
         if (candidates.isEmpty()) {
             return List.of();
         }
 
         // Résoudre le taux TVA actif une seule fois pour toute la campagne
-        BigDecimal tvaRate = resoudreTauxTva(centerId, dateFacturation);
+        BigDecimal tvaRate = resoudreTauxTva(centerId.value(), dateFacturation);
         BigDecimal tvaRatio = tvaRate.movePointLeft(2).setScale(6, RoundingMode.HALF_UP);
+        FactureNumberTemplate factureNumberTemplate = new FactureNumberTemplate(codeFormat);
+        int simulatedSequence = currentSequence;
 
         Map<String, List<SeanceFacturationCandidate>> grouped = new LinkedHashMap<>();
         for (SeanceFacturationCandidate c : candidates) {
@@ -223,9 +233,12 @@ public class FacturationDomainService implements FacturationUseCase {
                     .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
             BigDecimal totalTva = totalHt.multiply(tvaRatio).setScale(2, RoundingMode.HALF_UP);
             BigDecimal totalTtc = totalHt.add(totalTva).setScale(2, RoundingMode.HALF_UP);
+            simulatedSequence++;
+            String numeroFacture = factureNumberTemplate.format(centerId, dateFacturation, simulatedSequence);
 
             invoices.add(new FacturationPreviewInvoice(
                     entry.getKey(),
+                    numeroFacture,
                     head.patientId(),
                     nullToDash(head.patientCode()),
                     (nullToEmpty(head.patientNom()) + " " + nullToEmpty(head.patientPrenom())).trim(),

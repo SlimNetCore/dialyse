@@ -25,6 +25,7 @@ function previewFixture(forfaitId: string): FacturationPreviewResponse {
     invoices: [
       {
         previewKey: 'preview-1',
+        numeroFacture: 'FAC-2026-000001',
         patientId: 'patient-1',
         patientCode: 'PAT-001',
         patientFullName: 'Patient Test',
@@ -162,5 +163,6 @@ describe('FacturationStore', () => {
     expect(store.successMessage()).toBe('FACTURATION.SUCCESS.SEANCE_FORFAIT_UPDATED');
   });
 });
+
 
 

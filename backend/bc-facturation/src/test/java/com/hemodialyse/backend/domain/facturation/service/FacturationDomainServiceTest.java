@@ -29,6 +29,7 @@ class FacturationDomainServiceTest {
 
         CenterId centerId = CenterId.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         when(settingsRepository.findByCenterId(centerId)).thenReturn(ParametresFacturation.defaults());
+        when(factureRepository.currentInvoiceSequence(any(), any())).thenReturn(41);
         when(seancePort.findEligibleSeances(any(), any())).thenReturn(List.of(
                 candidate(centerId.value(), UUID.fromString("30000000-0000-0000-0000-000000000001"), UUID.fromString("40000000-0000-0000-0000-000000000001"), "F1", new BigDecimal("3500")),
                 candidate(centerId.value(), UUID.fromString("30000000-0000-0000-0000-000000000002"), UUID.fromString("40000000-0000-0000-0000-000000000001"), "F2", new BigDecimal("4200"))
@@ -38,6 +39,7 @@ class FacturationDomainServiceTest {
 
         assertEquals(1, result.totalFactures());
         assertEquals(new BigDecimal("7700.00"), result.totalHt());
+        assertEquals("FAC-" + LocalDate.now().getYear() + "-0042", result.invoices().getFirst().numeroFacture());
     }
 
     @Test

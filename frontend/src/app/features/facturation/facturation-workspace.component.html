@@ -130,10 +130,12 @@
               <details class="invoice-seances-panel">
                 <summary class="invoice-seances-summary">
                   <span class="invoice-seances-main">
-                    <span class="code-chip invoice-code-chip">{{ invoice.previewKey }}</span>
+                    <span [matTooltip]="invoice.numeroFacture"
+                          class="code-chip invoice-code-chip">{{ invoice.numeroFacture }}</span>
                     <span class="code-chip patient-code-chip">{{ invoice.patientCode }}</span>
                     <span class="invoice-patient-name">{{ invoice.patientFullName }}</span>
-                    <span class="seance-status-chip status-info">{{ invoice.patientStatusSnapshot }}</span>
+                    <span
+                      [class]="'seance-status-chip ' + patientStatusClass(invoice.patientStatusSnapshot)">{{ invoice.patientStatusSnapshot }}</span>
                   </span>
                   <span class="invoice-seances-side">
                     <span class="invoice-seances-count">

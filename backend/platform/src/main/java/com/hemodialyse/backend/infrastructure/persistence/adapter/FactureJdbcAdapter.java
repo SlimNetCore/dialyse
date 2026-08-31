@@ -74,6 +74,18 @@ public class FactureJdbcAdapter implements FactureRepositoryPort {
     }
 
     @Override
+    public int currentInvoiceSequence(CenterId centerId, LocalDate billingDate) {
+        int year = billingDate.getYear();
+        var rows = jdbc.queryForList(
+                "SELECT seq_value FROM facture_sequence WHERE center_id = ? AND seq_year = ?",
+                Integer.class,
+                centerId.value(),
+                year
+        );
+        return rows.isEmpty() ? 0 : rows.getFirst();
+    }
+
+    @Override
     public String nextInvoiceNumber(CenterId centerId, String codeFormat, LocalDate billingDate) {
         int year = billingDate.getYear();
         var rows = jdbc.queryForList(

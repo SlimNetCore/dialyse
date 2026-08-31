@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record FacturationPreviewInvoice(
         String previewKey,
+        String numeroFacture,
         UUID patientId,
         String patientCode,
         String patientFullName,

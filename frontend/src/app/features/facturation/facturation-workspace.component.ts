@@ -8,6 +8,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
@@ -31,6 +32,7 @@ Chart.register(...registerables);
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatTooltipModule,
     BaseChartDirective,
     TranslateModule,
     DecimalPipe,
@@ -182,6 +184,16 @@ export class FacturationWorkspaceComponent {
       return 'status-in-progress';
     }
     return 'status-pending';
+  }
+
+  protected patientStatusClass(status: string | null | undefined): string {
+    const s = (status ?? '').toUpperCase();
+    if (s === 'PERMANENT') return 'pat-status-permanent';
+    if (s.includes('TRANSFER')) return 'pat-status-transferred';
+    if (s === 'VACANCIER') return 'pat-status-vacancier';
+    if (s === 'DÉCÉDÉ' || s === 'DECEDE') return 'pat-status-deceased';
+    if (s === 'GREFFÉ' || s === 'GREFFE') return 'pat-status-greffe';
+    return 'pat-status-default';
   }
 
   protected forfaitOptions(): Array<{ id: string; label: string; price: number | null }> {

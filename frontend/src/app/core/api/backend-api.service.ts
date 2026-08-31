@@ -402,6 +402,7 @@ export type FacturationPreviewSeance = {
 
 export type FacturationPreviewInvoice = {
   previewKey: string;
+  numeroFacture: string;
   patientId: string;
   patientCode: string;
   patientFullName: string;

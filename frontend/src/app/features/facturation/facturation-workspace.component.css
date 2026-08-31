@@ -235,9 +235,10 @@ mat-card-content {
 }
 
 .invoice-code-chip {
-  max-width: 190px;
+  max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: default;
 }
 
 .patient-code-chip {
@@ -294,6 +295,43 @@ mat-card-content {
   color: #1b5e20;
   background: rgba(27, 94, 32, 0.10);
   border-color: rgba(27, 94, 32, 0.22);
+}
+
+/* ── Statuts patient ────────────────────────────────── */
+.pat-status-permanent {
+  color: #1b5e20;
+  background: rgba(27, 94, 32, 0.10);
+  border-color: rgba(27, 94, 32, 0.22);
+}
+
+.pat-status-transferred {
+  color: #01579b;
+  background: rgba(1, 87, 155, 0.10);
+  border-color: rgba(1, 87, 155, 0.22);
+}
+
+.pat-status-vacancier {
+  color: #e65100;
+  background: rgba(230, 81, 0, 0.10);
+  border-color: rgba(230, 81, 0, 0.22);
+}
+
+.pat-status-deceased {
+  color: #424242;
+  background: rgba(66, 66, 66, 0.10);
+  border-color: rgba(66, 66, 66, 0.22);
+}
+
+.pat-status-greffe {
+  color: #6a1b9a;
+  background: rgba(106, 27, 154, 0.10);
+  border-color: rgba(106, 27, 154, 0.22);
+}
+
+.pat-status-default {
+  color: var(--app-muted);
+  background: color-mix(in srgb, var(--app-surface) 80%, var(--app-border) 20%);
+  border-color: var(--app-border);
 }
 
 .amount-chip {
