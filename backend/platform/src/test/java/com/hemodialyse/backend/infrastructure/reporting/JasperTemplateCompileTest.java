@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class JasperTemplateCompileTest {
@@ -27,7 +28,9 @@ class JasperTemplateCompileTest {
 
     @Test
     void allReportTemplatesLoad() throws Exception {
-        Path reportsDir = resolveReportsDir();
+        Path reportsDir = Path.of("src/main/resources/reports");
+        assertTrue(Files.isDirectory(reportsDir), "Répertoire canonique introuvable: src/main/resources/reports");
+
         List<Path> files = Files.list(reportsDir)
                 .filter(p -> p.getFileName().toString().endsWith(".jasper"))
                 .sorted()
@@ -48,20 +51,24 @@ class JasperTemplateCompileTest {
         }
     }
 
-    private Path resolveReportsDir() {
-        Path[] candidates = new Path[]{
-                Path.of("src/main/resources/reports"),
-                Path.of("../reports"),
-                Path.of("reports")
-        };
-
-        for (Path candidate : candidates) {
-            if (Files.isDirectory(candidate)) {
-                return candidate;
-            }
+    @Test
+    void legacyBackendReportsDirectoryMustStayEmpty() throws Exception {
+        Path legacyDir = Path.of("..", "reports");
+        if (!Files.isDirectory(legacyDir)) {
+            return;
         }
 
-        throw new IllegalStateException("Impossible de localiser le répertoire des rapports Jasper");
+        try (var paths = Files.list(legacyDir)) {
+            List<Path> legacyReports = paths
+                    .filter(p -> {
+                        String name = p.getFileName().toString();
+                        return name.endsWith(".jrxml") || name.endsWith(".jasper");
+                    })
+                    .collect(Collectors.toList());
+
+            assertTrue(legacyReports.isEmpty(),
+                    "Le répertoire legacy backend/reports ne doit plus contenir de rapports Jasper: " + legacyReports);
+        }
     }
 }
 

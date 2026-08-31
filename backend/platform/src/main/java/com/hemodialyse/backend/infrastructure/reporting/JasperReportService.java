@@ -25,11 +25,9 @@ import java.util.Map;
  *   3. Exporte en PDF, Excel (XLSX) ou HTML (PDF embarqué)
  *
  *  Résolution du chemin (par ordre de priorité) :
- *   1. Chemin absolu  (si fourni en absolu et le fichier existe)
- *   2. app.reports.base-dir + chemin  (propriété configurable)
- *   3. user.dir/reports/ + nom du fichier
- *   4. user.dir/backend/reports/ + nom du fichier
- *   5. classpath:/reports/ + nom du fichier
+ *   1. Chemin absolu (si fourni en absolu et le fichier existe)
+ *   2. app.reports.base-dir + chemin (propriété configurable)
+ *   3. classpath:/reports/ + nom du fichier
  */
 @Service
 public class JasperReportService {
@@ -170,15 +168,12 @@ public class JasperReportService {
     }
 
     /**
-     * Resolve a jrxml path from multiple locations:
+     * Resolve a jrxml path from supported locations:
      * 1) absolute path
      * 2) reportsBaseDir (app.reports.base-dir) + relative path
-     * 3) user.dir/reports/<filename>
-     * 4) user.dir/<path>
-     * 5) user.dir/backend/<path>
-     * 6) classpath (géré séparément via InputStream)
+     * 3) classpath (géré séparément via InputStream)
      */
-    private Path resolveTemplatePath(String jrxmlPath) throws IOException {
+    private Path resolveTemplatePath(String jrxmlPath) {
         if (jrxmlPath == null || jrxmlPath.isBlank()) return null;
 
         String filename = Path.of(jrxmlPath).getFileName().toString();
@@ -198,36 +193,7 @@ public class JasperReportService {
             if (Files.exists(p2)) { log.debug("jrxml found (base-dir+filename): {}", p2); return p2; }
         }
 
-        String userDir = System.getProperty("user.dir");
-
-        // 3) user.dir/reports/<filename>
-        Path p3 = Path.of(userDir, "reports", filename).normalize();
-        if (Files.exists(p3)) { log.debug("jrxml found (user.dir/reports): {}", p3); return p3; }
-
-        // 4) user.dir/<path>
-        Path p4 = Path.of(userDir, jrxmlPath).normalize();
-        if (Files.exists(p4)) { log.debug("jrxml found (user.dir/path): {}", p4); return p4; }
-
-        // 5) user.dir/backend/<path>
-        Path p5 = Path.of(userDir, "backend", jrxmlPath).normalize();
-        if (Files.exists(p5)) { log.debug("jrxml found (user.dir/backend): {}", p5); return p5; }
-
-        // 6) user.dir/../reports/<filename> (backend/reports depuis le module platform)
-        Path p6 = Path.of(userDir, "..", "reports", filename).normalize();
-        if (Files.exists(p6)) {
-            log.debug("jrxml found (parent/reports): {}", p6);
-            return p6;
-        }
-
-        // 7) user.dir/../<path> (backend/reports/<path>)
-        Path p7 = Path.of(userDir, "..", jrxmlPath).normalize();
-        if (Files.exists(p7)) {
-            log.debug("jrxml found (parent/path): {}", p7);
-            return p7;
-        }
-
-        log.warn("jrxml NOT found anywhere for path='{}', filename='{}', user.dir='{}'",
-                jrxmlPath, filename, userDir);
+        log.warn("jrxml NOT found anywhere for path='{}', filename='{}'", jrxmlPath, filename);
         return null;
     }
 
