@@ -7,6 +7,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
@@ -29,6 +30,7 @@ Chart.register(...registerables);
     MatProgressBarModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     BaseChartDirective,
     TranslateModule,
     DecimalPipe,
@@ -90,6 +92,7 @@ export class FacturationWorkspaceComponent {
       }
       this.store.setActiveCenterId(centerId);
       this.store.loadSettings({centerId});
+      this.store.loadForfaits({centerId});
       this.store.loadDashboard({centerId, month: this.store.month()});
       this.store.loadRevenueTrend({centerId, endingMonth: this.store.month(), months: 6});
     });
@@ -143,6 +146,39 @@ export class FacturationWorkspaceComponent {
       centerId,
       userId: this.currentUsername(),
     });
+  }
+
+  protected onRemoveSeanceFromPreview(seanceId: string): void {
+    const centerId = this.currentCenterId();
+    if (!centerId) {
+      return;
+    }
+    this.store.removeSeanceFromPreview({
+      centerId,
+      userId: this.currentUsername(),
+      seanceId,
+    });
+  }
+
+  protected onPreviewSeanceForfaitChange(seanceId: string, forfaitId: string | null): void {
+    const centerId = this.currentCenterId();
+    if (!centerId || !forfaitId) {
+      return;
+    }
+    this.store.updateSeanceForfaitInPreview({
+      centerId,
+      userId: this.currentUsername(),
+      seanceId,
+      forfaitId,
+    });
+  }
+
+  protected forfaitOptions(): Array<{ id: string; label: string; price: number | null }> {
+    return this.store.forfaits().map((item) => ({
+      id: item.id,
+      label: this.resolveForfaitLabel(item),
+      price: this.resolveForfaitPrice(item),
+    }));
   }
 
   protected refreshDashboard(): void {
@@ -217,6 +253,31 @@ export class FacturationWorkspaceComponent {
     }
     const raw = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
     return raw || fallback;
+  }
+
+  private resolveForfaitLabel(item: {
+    code?: string | null;
+    nom?: string | null;
+    label?: string | null;
+    libelle?: string | null
+  }): string {
+    const code = item.code ?? '';
+    const label = item.label ?? item.nom ?? '';
+    if (code && label) {
+      return `${code} - ${label}`;
+    }
+    return label || code || 'Forfait';
+  }
+
+  private resolveForfaitPrice(item: { libelle?: string | null; prix?: number | null }): number | null {
+    if (typeof item.prix === 'number') {
+      return item.prix;
+    }
+    if (item.libelle == null) {
+      return null;
+    }
+    const parsed = Number(item.libelle);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   private resolveSummaryPeriod(): { start: string; end: string } {

@@ -391,6 +391,15 @@ export type FacturationPreviewLine = {
   lineHt: number;
 };
 
+export type FacturationPreviewSeance = {
+  seanceId: string;
+  seanceDate: string;
+  seanceStatus: string;
+  forfaitId: string | null;
+  forfaitLabel: string;
+  forfaitPrixHt: number;
+};
+
 export type FacturationPreviewInvoice = {
   previewKey: string;
   patientId: string;
@@ -401,6 +410,7 @@ export type FacturationPreviewInvoice = {
   totalTva: number;
   totalTtc: number;
   lines: FacturationPreviewLine[];
+  seances: FacturationPreviewSeance[];
 };
 
 export type FacturationPreviewResponse = {
@@ -491,6 +501,25 @@ export type FacturationValidatePayload = {
   previewGeneratedAt: string;
 };
 
+export type FacturationPreviewExcludeSeancePayload = {
+  centerId: string;
+  userId: string;
+  month?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  regroupementMultiForfait: boolean;
+};
+
+export type FacturationPreviewUpdateForfaitPayload = {
+  centerId: string;
+  userId: string;
+  forfaitId: string;
+  month?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  regroupementMultiForfait: boolean;
+};
+
 export type FacturationSettingsPayload = {
   centerId: string;
   userId: string;
@@ -503,6 +532,13 @@ export type FacturationSynthesePrintPayload = {
   periodStart: string;
   periodEnd: string;
   format?: 'PDF' | 'XLSX' | 'HTML';
+};
+
+export type ReferentialForfait = {
+  id: string;
+  nom: string;
+  code?: string;
+  libelle?: string;
 };
 
 export type ReglementEtat = 'NON_REGLEE' | 'PARTIELLEMENT_REGLEE' | 'REGLEE';
@@ -997,6 +1033,14 @@ export class BackendApiService {
     return this.http.post<FacturationPreviewResponse>(`${this.baseUrl}/facturation/preview`, payload);
   }
 
+  excludeSeanceFromPreview(seanceId: string, payload: FacturationPreviewExcludeSeancePayload): Observable<FacturationPreviewResponse> {
+    return this.http.post<FacturationPreviewResponse>(`${this.baseUrl}/facturation/preview/seances/${seanceId}/exclude`, payload);
+  }
+
+  updatePreviewSeanceForfait(seanceId: string, payload: FacturationPreviewUpdateForfaitPayload): Observable<FacturationPreviewResponse> {
+    return this.http.post<FacturationPreviewResponse>(`${this.baseUrl}/facturation/preview/seances/${seanceId}/forfait`, payload);
+  }
+
   validateFacturation(payload: FacturationValidatePayload): Observable<{
     createdInvoices: number;
     billedSeances: number
@@ -1018,6 +1062,11 @@ export class BackendApiService {
 
   printFacturationSynthese(payload: FacturationSynthesePrintPayload): Observable<Blob> {
     return this.http.post(`${this.baseUrl}/facturation/synthese/print`, payload, {responseType: 'blob'});
+  }
+
+  listForfaitsReferential(centerId: string): Observable<ReferentialForfait[]> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<ReferentialForfait[]>(`${this.baseUrl}/referentials/forfaits`, {params});
   }
 
   listTvaTypes(centerId: string, page: number, size: number): Observable<PagedResponse<TvaType>> {

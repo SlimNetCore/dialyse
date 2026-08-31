@@ -5,6 +5,10 @@ import com.hemodialyse.backend.domain.facturation.valueobject.ParametresFacturat
 public interface FacturationUseCase {
     FacturationPreviewResult preview(FacturationPreviewQuery query);
 
+    FacturationPreviewResult excludeSeance(FacturationExcludeSeanceCommand command);
+
+    FacturationPreviewResult updateSeanceForfait(FacturationUpdateSeanceForfaitCommand command);
+
     FacturationValidationResult validate(FacturationValidateCommand command);
 
     FacturationDashboardResult dashboard(FacturationDashboardQuery query);

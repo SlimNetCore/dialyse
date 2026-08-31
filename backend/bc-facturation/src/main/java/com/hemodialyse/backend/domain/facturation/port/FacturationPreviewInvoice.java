@@ -14,7 +14,8 @@ public record FacturationPreviewInvoice(
         BigDecimal totalTva,
         BigDecimal totalTtc,
         List<FacturationPreviewLine> lines,
-        List<UUID> seanceIds
+        List<UUID> seanceIds,
+        List<FacturationPreviewSeance> seances
 ) {
 }
 

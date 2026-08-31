@@ -4,6 +4,8 @@ import com.hemodialyse.backend.domain.facturation.port.*;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.reporting.FacturationSyntheseMensuelleReportService;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationPreviewRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationPreviewExcludeSeanceRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationPreviewUpdateForfaitRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationSynthesePrintRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationSettingsUpdateRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationValidateRequest;
@@ -41,6 +43,39 @@ public class FacturationRestController {
     public ResponseEntity<?> preview(@RequestBody @Valid FacturationPreviewRequest request) {
         FacturationPreviewResult result = useCase.preview(new FacturationPreviewQuery(
                 CenterId.of(request.centerId()),
+                parseMonth(request.month()),
+                request.periodStart(),
+                request.periodEnd(),
+                request.regroupementMultiForfait()
+        ));
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PostMapping("/preview/seances/{seanceId}/exclude")
+    public ResponseEntity<?> excludeSeanceFromPreview(@PathVariable UUID seanceId,
+                                                      @RequestBody @Valid FacturationPreviewExcludeSeanceRequest request) {
+        FacturationPreviewResult result = useCase.excludeSeance(new FacturationExcludeSeanceCommand(
+                CenterId.of(request.centerId()),
+                request.userId(),
+                seanceId,
+                parseMonth(request.month()),
+                request.periodStart(),
+                request.periodEnd(),
+                request.regroupementMultiForfait()
+        ));
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PostMapping("/preview/seances/{seanceId}/forfait")
+    public ResponseEntity<?> updatePreviewSeanceForfait(@PathVariable UUID seanceId,
+                                                        @RequestBody @Valid FacturationPreviewUpdateForfaitRequest request) {
+        FacturationPreviewResult result = useCase.updateSeanceForfait(new FacturationUpdateSeanceForfaitCommand(
+                CenterId.of(request.centerId()),
+                request.userId(),
+                seanceId,
+                request.forfaitId(),
                 parseMonth(request.month()),
                 request.periodStart(),
                 request.periodEnd(),

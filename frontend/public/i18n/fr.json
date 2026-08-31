@@ -255,6 +255,9 @@
     "PREVIEW": {
       "TITLE": "Aperçu de facturation",
       "NOT_PERSISTED": "Aperçu non enregistré : aucune écriture en base tant que vous ne validez pas.",
+      "EDIT_NOTE": "Vous pouvez affiner cette simulation : retirer une séance (elle passera ABSENT) ou ajuster son forfait avant validation.",
+      "SESSION_DETAILS": "Détail des séances de la facture",
+      "EXCLUDE_SESSION": "Retirer de la facturation",
       "VALIDATE": "Valider la facturation",
       "KPI": {
         "INVOICES": "Factures simulées",
@@ -304,7 +307,9 @@
     },
     "SUCCESS": {
       "VALIDATED": "Facturation validée avec succès.",
-      "SETTINGS_SAVED": "Paramètres de facturation enregistrés."
+      "SETTINGS_SAVED": "Paramètres de facturation enregistrés.",
+      "SEANCE_EXCLUDED": "La séance a été retirée de la facturation et marquée absente.",
+      "SEANCE_FORFAIT_UPDATED": "Le forfait de la séance a été mis à jour et la simulation recalculée."
     },
     "ERROR": {
       "NO_PREVIEW": "Aucun aperçu disponible. Lancez d'abord le calcul.",
@@ -1218,6 +1223,7 @@
     "UPDATE": "Mettre à jour",
     "PRINT": "Imprimer",
     "PRINT_MONTHLY_SUMMARY": "Imprimer la synthese mensuelle",
+    "PRINT_ERROR": "Erreur lors de l'impression",
     "DELETE": "Supprimer",
     "SAVE": "Enregistrer",
     "READONLY": "Lecture seule",

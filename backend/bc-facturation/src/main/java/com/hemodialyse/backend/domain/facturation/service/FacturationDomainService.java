@@ -68,6 +68,30 @@ public class FacturationDomainService implements FacturationUseCase {
     }
 
     @Override
+    public FacturationPreviewResult excludeSeance(FacturationExcludeSeanceCommand command) {
+        seancePort.markAsAbsent(command.centerId(), command.seanceId(), command.userId());
+        return preview(new FacturationPreviewQuery(
+                command.centerId(),
+                command.month(),
+                command.periodStart(),
+                command.periodEnd(),
+                command.regroupementMultiForfait()
+        ));
+    }
+
+    @Override
+    public FacturationPreviewResult updateSeanceForfait(FacturationUpdateSeanceForfaitCommand command) {
+        seancePort.overrideForfait(command.centerId(), command.seanceId(), command.forfaitId(), command.userId());
+        return preview(new FacturationPreviewQuery(
+                command.centerId(),
+                command.month(),
+                command.periodStart(),
+                command.periodEnd(),
+                command.regroupementMultiForfait()
+        ));
+    }
+
+    @Override
     public FacturationValidationResult validate(FacturationValidateCommand command) {
         FacturationPreviewResult preview = preview(new FacturationPreviewQuery(
                 command.centerId(),
@@ -210,7 +234,17 @@ public class FacturationDomainService implements FacturationUseCase {
                     totalTva,
                     totalTtc,
                     lines,
-                    rows.stream().map(SeanceFacturationCandidate::seanceId).toList()
+                    rows.stream().map(SeanceFacturationCandidate::seanceId).toList(),
+                    rows.stream()
+                            .map(row -> new FacturationPreviewSeance(
+                                    row.seanceId(),
+                                    row.seanceDate(),
+                                    nullToDash(row.seanceStatus()),
+                                    row.forfaitId(),
+                                    nullToDash(row.forfaitLabel()),
+                                    row.forfaitPrixHt() == null ? BigDecimal.ZERO : row.forfaitPrixHt().setScale(2, RoundingMode.HALF_UP)
+                            ))
+                            .toList()
             ));
         }
 

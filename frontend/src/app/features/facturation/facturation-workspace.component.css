@@ -118,6 +118,18 @@ mat-card-content {
   margin-bottom: 16px;
 }
 
+.preview-hero {
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--app-surface) 92%, var(--app-primary-soft) 8%);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.preview-kpis {
+  margin-bottom: 14px;
+}
+
 .invoice-list {
   display: grid;
   gap: 12px;
@@ -128,6 +140,7 @@ mat-card-content {
   border-radius: 16px;
   padding: 14px;
   background: var(--app-surface-solid);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .invoice-card header {
@@ -154,6 +167,51 @@ mat-card-content {
   flex-wrap: wrap;
   margin-top: 8px;
   font-weight: 600;
+}
+
+.invoice-seances-panel {
+  margin-top: 10px;
+  border: 1px dashed var(--app-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.invoice-seances-panel summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--app-hover-surface);
+  color: var(--app-text);
+  font-weight: 700;
+}
+
+.invoice-seances-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.invoice-seances-count {
+  min-width: 28px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--app-primary-outline);
+  background: var(--app-primary-soft);
+  color: var(--app-text);
+  font-size: 0.85rem;
+}
+
+.seances-table {
+  min-width: 860px;
+}
+
+.forfait-select-field {
+  width: min(280px, 100%);
 }
 
 .table-wrap {
@@ -272,6 +330,14 @@ mat-card {
   .table-wrap th,
   .table-wrap td {
     padding: 8px;
+  }
+
+  .preview-hero {
+    padding: 12px;
+  }
+
+  .seances-table {
+    min-width: 760px;
   }
 }
 

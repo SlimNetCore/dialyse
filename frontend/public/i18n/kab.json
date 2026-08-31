@@ -226,6 +226,96 @@
     "RECEPTION_ORDERS_LIST_TITLE": "Igelsan n usalis",
     "LOTS_LABEL": "Izerbuten"
   },
+  "FACTURATION": {
+    "EYEBROW": "Azamul n tfaturin",
+    "TITLE": "Afeter n tmsirin",
+    "DESCRIPTION": "Ssiḍen preview ur yettwaḥraz ara, wali azal HT/TVA/TTC, sakin senteḍ s yiwet n tikkelt.",
+    "FLOW": {
+      "TITLE": "Amecwar n ufeter",
+      "SELECT": {
+        "TITLE": "Afran",
+        "DESC": "Fren aggur neɣ tallit tmawalt i wammas urmid."
+      },
+      "PREVIEW": {
+        "TITLE": "Preview",
+        "DESC": "Tiqiṭ n ufeter tesɛeddi asmi kan deg tkatut."
+      },
+      "VALIDATE": {
+        "TITLE": "Asentem",
+        "DESC": "Asentem n tfaturin iḥrez ifaturen yerna yegga tmsirin d FACTUREE."
+      }
+    },
+    "CALCULATOR": {
+      "TITLE": "Afran n twennut",
+      "MODE_MONTH": "S waggur",
+      "MODE_CUSTOM": "Tallit tmawalt",
+      "MONTH": "Aggur",
+      "CALCULATE": "Ssiḍ preview"
+    },
+    "PREVIEW": {
+      "TITLE": "Preview n tfaturin",
+      "NOT_PERSISTED": "Preview ur yettwaḥraz ara: ulac tira deg uzadur alamma tsentmeḍ.",
+      "EDIT_NOTE": "Tzemreḍ ad tesseɣtiḍ asemsel-agi: kkes tamsirt (ad tuɣal ABSENT) neɣ beddel afurki-ines send asentem.",
+      "SESSION_DETAILS": "Talqayt n tmsirin n tfaturt",
+      "EXCLUDE_SESSION": "Kkes seg ufeter",
+      "VALIDATE": "Sentem afeter",
+      "KPI": {
+        "INVOICES": "Ifaturen i yettwasemslen",
+        "HT": "Asemday HT",
+        "TVA": "Asemday TVA",
+        "TTC": "Asemday TTC"
+      },
+      "TABLE": {
+        "FORFAIT": "Afurki",
+        "UNIT_PRICE": "Azal n yiwet HT",
+        "SESSIONS": "Timsirin",
+        "TOTAL": "Azal HT"
+      },
+      "INVOICE_HT": "HT",
+      "INVOICE_TVA": "TVA",
+      "INVOICE_TTC": "TTC"
+    },
+    "DASHBOARD": {
+      "TITLE": "Tafelwit n tfaturin",
+      "EMPTY": "Ulac isefka n tfaturin deg tallit-agi.",
+      "KPI": {
+        "REVENUE_HT": "Aɣelmis HT",
+        "REVENUE_TTC": "Aɣelmis TTC",
+        "BILLED_SESSIONS": "Timsirin i yettufetren",
+        "BILLED_PATIENTS": "Imḍanen i yettufetren",
+        "INVOICES": "Ifaturen i d-yettwarnan"
+      },
+      "CHART": {
+        "REVENUE_EVOLUTION": "Tigmi n uɣelmis (6 iyyirn ineggura)",
+        "REVENUE": "Aɣelmis TTC",
+        "EMPTY": "Ulac isefka i usuneɣ n tigmi."
+      },
+      "BY_INSURANCE": "Abḍu s usensur",
+      "BY_PATIENT_STATUS": "Abḍu s waddad n umḍan",
+      "TABLE": {
+        "LABEL": "Tabzimt",
+        "SESSIONS": "Timsirin",
+        "PATIENTS": "Imḍanen"
+      }
+    },
+    "SETTINGS": {
+      "TITLE": "Iɣewwaren n ufeter",
+      "CODE_FORMAT": "Tangalt n tfaturt",
+      "GROUPING_SWITCH": "Sdukel izirigen n wafurki deg yiwet n tfaturt",
+      "GOTO_ADMIN": "Iɣewwaren n ufeter (Asefrak)",
+      "NOTE": "Iseɣtiyen-a ad ssenfalin kan deg twennutin i d-iteddun."
+    },
+    "SUCCESS": {
+      "VALIDATED": "Afeter yettusentem akken ilaq.",
+      "SETTINGS_SAVED": "Iɣewwaren n ufeter ttwasekelsen.",
+      "SEANCE_EXCLUDED": "Tamsirt tettwakkes seg ufeter yerna tettwamerked d ABSENT.",
+      "SEANCE_FORFAIT_UPDATED": "Afurki n tmsirt yettwaleqqem yerna asemsel yettwasiḍen tikkelt-nniḍen."
+    },
+    "ERROR": {
+      "NO_PREVIEW": "Ulac preview. Ma ulac aḥsab, bdu s usiḍen.",
+      "GENERIC": "Ameskar n ufeter ur yeddi ara."
+    }
+  },
   "SEANCES": {
     "EYEBROW": "Tamsirin",
     "TITLE": "Asefrek n tmsirin",

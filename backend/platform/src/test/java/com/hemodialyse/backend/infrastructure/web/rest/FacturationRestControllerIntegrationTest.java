@@ -36,6 +36,7 @@ class FacturationRestControllerIntegrationTest {
     private static final UUID PATIENT_ID = UUID.fromString("21000000-0000-0000-0000-000000000001");
     private static final UUID SECOND_PATIENT_ID = UUID.fromString("21000000-0000-0000-0000-000000000002");
     private static final UUID FORFAIT_ID = UUID.fromString("31000000-0000-0000-0000-000000000001");
+    private static final UUID FORFAIT_ALT_ID = UUID.fromString("31000000-0000-0000-0000-000000000009");
     private static final UUID SEANCE_ID = UUID.fromString("41000000-0000-0000-0000-000000000001");
     private static final UUID SECOND_SEANCE_ID = UUID.fromString("41000000-0000-0000-0000-000000000003");
     private static final UUID SEANCE_OTHER_CENTER_ID = UUID.fromString("41000000-0000-0000-0000-000000000002");
@@ -68,6 +69,7 @@ class FacturationRestControllerIntegrationTest {
         jdbc.update("DELETE FROM seances WHERE id IN (?, ?, ?)", SEANCE_ID, SECOND_SEANCE_ID, SEANCE_OTHER_CENTER_ID);
         jdbc.update("DELETE FROM prise_en_charge WHERE patient_id IN (?, ?)", PATIENT_ID, SECOND_PATIENT_ID);
         jdbc.update("DELETE FROM forfait WHERE id = ?", FORFAIT_ID);
+        jdbc.update("DELETE FROM forfait WHERE id = ?", FORFAIT_ALT_ID);
         jdbc.update("DELETE FROM patients WHERE id IN (?, ?)", PATIENT_ID, SECOND_PATIENT_ID);
     }
 
@@ -252,6 +254,63 @@ class FacturationRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.items[0].statut").value("VALIDEE"));
     }
 
+    @Test
+    void preview_exclude_seance_should_mark_seance_absent_and_recalculate() throws Exception {
+        String payload = """
+                {
+                  "centerId": "%s",
+                  "userId": "admin",
+                  "month": "2026-08",
+                  "regroupementMultiForfait": true
+                }
+                """.formatted(CENTER_ID);
+
+        mockMvc.perform(post("/api/v1/facturation/preview/seances/{seanceId}/exclude", SEANCE_ID)
+                        .contentType("application/json")
+                        .content(payload)
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalFactures").value(0));
+
+        String statut = jdbc.queryForObject(
+                "SELECT statut FROM seances WHERE id = ? AND center_id = ?",
+                String.class,
+                SEANCE_ID,
+                CENTER_ID
+        );
+        assertEquals("ABSENT", statut);
+    }
+
+    @Test
+    void preview_update_forfait_should_recalculate_invoice_line_amount() throws Exception {
+        jdbc.update(
+                "MERGE INTO forfait (id, center_id, code, libelle, prix) KEY (id) VALUES (?, ?, ?, ?, ?)",
+                FORFAIT_ALT_ID,
+                CENTER_ID,
+                "F-HD-ALT",
+                "Forfait HD Premium",
+                new BigDecimal("5200.00")
+        );
+
+        String payload = """
+                {
+                  "centerId": "%s",
+                  "userId": "admin",
+                  "forfaitId": "%s",
+                  "month": "2026-08",
+                  "regroupementMultiForfait": true
+                }
+                """.formatted(CENTER_ID, FORFAIT_ALT_ID);
+
+        mockMvc.perform(post("/api/v1/facturation/preview/seances/{seanceId}/forfait", SEANCE_ID)
+                        .contentType("application/json")
+                        .content(payload)
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.invoices[0].lines[0].forfaitId").value(FORFAIT_ALT_ID.toString()))
+                .andExpect(jsonPath("$.invoices[0].lines[0].lineHt").value(5200.00));
+    }
+
     private void seedData() {
         seedBillablePatient(
                 PATIENT_ID,
@@ -294,6 +353,15 @@ class FacturationRestControllerIntegrationTest {
                 "F-HD",
                 "Forfait HD",
                 new BigDecimal("3500.00")
+        );
+
+        jdbc.update(
+                "MERGE INTO forfait (id, center_id, code, libelle, prix) KEY (id) VALUES (?, ?, ?, ?, ?)",
+                FORFAIT_ALT_ID,
+                CENTER_ID,
+                "F-HD-ALT",
+                "Forfait HD Premium",
+                new BigDecimal("5200.00")
         );
 
         jdbc.update(

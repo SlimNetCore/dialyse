@@ -10,6 +10,10 @@ import java.util.UUID;
 public interface SeanceFacturationPort {
     List<SeanceFacturationCandidate> findEligibleSeances(CenterId centerId, FacturationPeriod period);
 
+    void markAsAbsent(CenterId centerId, UUID seanceId, String userId);
+
+    void overrideForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId);
+
     void markAsBilled(CenterId centerId, Map<UUID, UUID> seanceToFactureId);
 
     FacturationDashboardResult loadDashboard(CenterId centerId, java.time.YearMonth month);

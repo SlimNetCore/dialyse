@@ -101,12 +101,15 @@
         <mat-card-title>{{ 'FACTURATION.PREVIEW.TITLE' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="preview-banner">
-          <mat-icon>warning</mat-icon>
-          {{ 'FACTURATION.PREVIEW.NOT_PERSISTED' | translate }}
+        <div class="preview-hero">
+          <div class="preview-banner">
+            <mat-icon>warning</mat-icon>
+            {{ 'FACTURATION.PREVIEW.NOT_PERSISTED' | translate }}
+          </div>
+          <p class="app-muted-note">{{ 'FACTURATION.PREVIEW.EDIT_NOTE' | translate }}</p>
         </div>
 
-        <div class="kpi-grid">
+        <div class="kpi-grid preview-kpis">
           <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.INVOICES' | translate }}</span><strong>{{ preview.totalFactures }}</strong></div>
           <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.HT' | translate }}</span><strong>{{ preview.totalHt | number:'1.2-2' }}</strong></div>
           <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.TVA' | translate }}</span><strong>{{ preview.totalTva | number:'1.2-2' }}</strong></div>
@@ -142,6 +145,57 @@
                   </tbody>
                 </table>
               </div>
+
+              <details class="invoice-seances-panel">
+                <summary>
+                  <span>{{ 'FACTURATION.PREVIEW.SESSION_DETAILS' | translate }}</span>
+                  <span class="invoice-seances-count">{{ invoice.seances.length }}</span>
+                </summary>
+                <div class="table-wrap">
+                  <table class="seances-table">
+                    <thead>
+                    <tr>
+                      <th>{{ 'COMMON.DATE' | translate }}</th>
+                      <th>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
+                      <th>{{ 'FACTURATION.PREVIEW.TABLE.FORFAIT' | translate }}</th>
+                      <th>{{ 'FACTURATION.PREVIEW.TABLE.UNIT_PRICE' | translate }}</th>
+                      <th>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      @for (seance of invoice.seances; track seance.seanceId) {
+                        <tr>
+                          <td>{{ seance.seanceDate }}</td>
+                          <td>{{ seance.seanceStatus }}</td>
+                          <td>
+                            <mat-form-field appearance="outline" class="forfait-select-field">
+                              <mat-label>{{ 'SEANCES.FORFAIT_LABEL' | translate }}</mat-label>
+                              <mat-select (valueChange)="onPreviewSeanceForfaitChange(seance.seanceId, $event)"
+                                          [value]="seance.forfaitId">
+                                @for (option of forfaitOptions(); track option.id) {
+                                  <mat-option [value]="option.id">{{ option.label }}</mat-option>
+                                }
+                              </mat-select>
+                            </mat-form-field>
+                          </td>
+                          <td>{{ seance.forfaitPrixHt | number:'1.2-2' }}</td>
+                          <td>
+                            <button
+                              (click)="onRemoveSeanceFromPreview(seance.seanceId)"
+                              [disabled]="store.previewLoading() || store.seanceActionLoadingId() === seance.seanceId"
+                              color="warn"
+                              mat-stroked-button>
+                              <mat-icon>delete</mat-icon>
+                              {{ 'FACTURATION.PREVIEW.EXCLUDE_SESSION' | translate }}
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+
               <footer>
                 <span>{{ 'FACTURATION.PREVIEW.INVOICE_HT' | translate }}: {{ invoice.totalHt | number:'1.2-2' }}</span>
                 <span>{{ 'FACTURATION.PREVIEW.INVOICE_TVA' | translate }}: {{ invoice.totalTva | number:'1.2-2' }}</span>

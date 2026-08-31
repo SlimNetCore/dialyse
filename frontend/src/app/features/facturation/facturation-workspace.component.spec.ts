@@ -22,8 +22,14 @@ describe('FacturationWorkspaceComponent', () => {
     loadDashboard: vi.fn(),
     loadRevenueTrend: vi.fn(),
     validateFacturation: vi.fn(),
+    removeSeanceFromPreview: vi.fn(),
+    updateSeanceForfaitInPreview: vi.fn(),
     setActiveCenterId: vi.fn(),
     loadSettings: vi.fn(),
+    loadForfaits: vi.fn(),
+    forfaits: vi.fn(() => []),
+    previewLoading: vi.fn(() => false),
+    seanceActionLoadingId: vi.fn(() => null),
   };
 
   const appShellMock = {

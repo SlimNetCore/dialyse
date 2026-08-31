@@ -255,6 +255,9 @@
     "PREVIEW": {
       "TITLE": "Billing preview",
       "NOT_PERSISTED": "Unsaved preview: no database write occurs until you validate.",
+      "EDIT_NOTE": "You can refine this simulation: remove a session (it becomes ABSENT) or change its package before validation.",
+      "SESSION_DETAILS": "Invoice session details",
+      "EXCLUDE_SESSION": "Remove from billing",
       "VALIDATE": "Validate billing",
       "KPI": {
         "INVOICES": "Simulated invoices",
@@ -304,7 +307,9 @@
     },
     "SUCCESS": {
       "VALIDATED": "Billing validated successfully.",
-      "SETTINGS_SAVED": "Billing settings saved."
+      "SETTINGS_SAVED": "Billing settings saved.",
+      "SEANCE_EXCLUDED": "The session was removed from billing and marked absent.",
+      "SEANCE_FORFAIT_UPDATED": "Session package updated and simulation recalculated."
     },
     "ERROR": {
       "NO_PREVIEW": "No preview available. Run a calculation first.",
@@ -1218,6 +1223,7 @@
     "UPDATE": "Update",
     "PRINT": "Print",
     "PRINT_MONTHLY_SUMMARY": "Print monthly summary",
+    "PRINT_ERROR": "Printing failed",
     "DELETE": "Delete",
     "SAVE": "Save",
     "READONLY": "Read-only",

@@ -85,6 +85,72 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
         return candidates;
     }
 
+    @Override
+    public void markAsAbsent(CenterId centerId, UUID seanceId, String userId) {
+        int updated = jdbc.update(
+                """
+                        UPDATE seances
+                        SET statut = 'ABSENT',
+                            facture_id = NULL,
+                            forfait_override_updated_at = CURRENT_TIMESTAMP,
+                            forfait_override_updated_by = ?
+                        WHERE id = ?
+                          AND center_id = ?
+                          AND facture_id IS NULL
+                          AND statut IN ('VALIDEE','SIGNEE')
+                        """,
+                userId,
+                seanceId,
+                centerId.value()
+        );
+        if (updated != 1) {
+            throw new IllegalStateException("Seance introuvable ou non modifiable pour exclusion");
+        }
+    }
+
+    @Override
+    public void overrideForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId) {
+        ForfaitSnapshot forfait = jdbc.query(
+                """
+                        SELECT id AS forfait_id, libelle AS forfait_label, prix AS forfait_prix
+                        FROM forfait
+                        WHERE center_id = ?
+                          AND id = ?
+                        """,
+                (rs, rowNum) -> new ForfaitSnapshot(
+                        rs.getObject("forfait_id", UUID.class),
+                        rs.getString("forfait_label"),
+                        rs.getBigDecimal("forfait_prix") == null ? BigDecimal.ZERO : rs.getBigDecimal("forfait_prix")
+                ),
+                centerId.value(),
+                forfaitId
+        ).stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Forfait introuvable pour ce centre"));
+
+        int updated = jdbc.update(
+                """
+                        UPDATE seances
+                        SET forfait_override_id = ?,
+                            forfait_override_nom = ?,
+                            forfait_override_prix = ?,
+                            forfait_override_updated_at = CURRENT_TIMESTAMP,
+                            forfait_override_updated_by = ?
+                        WHERE id = ?
+                          AND center_id = ?
+                          AND facture_id IS NULL
+                          AND statut IN ('VALIDEE','SIGNEE')
+                        """,
+                forfait.forfaitId(),
+                forfait.forfaitLabel(),
+                forfait.forfaitPrix(),
+                userId,
+                seanceId,
+                centerId.value()
+        );
+        if (updated != 1) {
+            throw new IllegalStateException("Seance introuvable ou non modifiable pour changement forfait");
+        }
+    }
+
     private ForfaitSnapshot loadForfaitOverride(Map<String, Object> row) {
         UUID forfaitId = (UUID) row.get("forfait_override_id");
         if (forfaitId == null) {

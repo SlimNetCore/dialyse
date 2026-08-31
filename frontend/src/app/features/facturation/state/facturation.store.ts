@@ -8,6 +8,7 @@ import {
   FacturationDashboardResponse,
   FacturationPreviewResponse,
   FacturationSettings,
+  ReferentialForfait,
 } from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 
@@ -38,6 +39,8 @@ type FacturationState = {
   revenueTrend: FacturationRevenuePoint[];
   settings: FacturationSettings | null;
   settingsDraft: FacturationSettings | null;
+  forfaits: ReferentialForfait[];
+  seanceActionLoadingId: string | null;
   error: string | null;
   successMessage: string | null;
 };
@@ -59,6 +62,8 @@ const initialState: FacturationState = {
   revenueTrend: [],
   settings: null,
   settingsDraft: null,
+  forfaits: [],
+  seanceActionLoadingId: null,
   error: null,
   successMessage: null,
 };
@@ -108,6 +113,9 @@ export const FacturationStore = signalStore(
     setEndDate(endDate: string): void {
       patchState(store, {endDate, preview: null});
     },
+    resetPreviewActions(): void {
+      patchState(store, {seanceActionLoadingId: null});
+    },
     clearError(): void {
       patchState(store, {error: null});
     },
@@ -141,6 +149,20 @@ export const FacturationStore = signalStore(
                 settings: defaultSettings(),
                 settingsDraft: defaultSettings(),
               });
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
+    loadForfaits: rxMethod<{ centerId: string }>(
+      pipe(
+        switchMap(({centerId}) =>
+          api.listForfaitsReferential(centerId).pipe(
+            tap((forfaits) => patchState(store, {forfaits})),
+            catchError(() => {
+              patchState(store, {forfaits: []});
               return EMPTY;
             })
           )
@@ -203,6 +225,67 @@ export const FacturationStore = signalStore(
             tap((preview) => patchState(store, {preview, previewLoading: false})),
             catchError((err: unknown) => {
               patchState(store, {previewLoading: false, preview: null, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
+    removeSeanceFromPreview: rxMethod<{ centerId: string; userId: string; seanceId: string }>(
+      pipe(
+        tap(({seanceId}) => patchState(store, {
+          previewLoading: true,
+          error: null,
+          successMessage: null,
+          seanceActionLoadingId: seanceId
+        })),
+        switchMap(({centerId, userId, seanceId}) =>
+          api.excludeSeanceFromPreview(seanceId, {
+            centerId,
+            userId,
+            ...periodPayload(store.periodMode(), store.month(), store.startDate(), store.endDate()),
+            regroupementMultiForfait: store.settingsDraft()?.regroupementMultiForfait ?? true,
+          }).pipe(
+            tap((preview) => patchState(store, {
+              preview,
+              previewLoading: false,
+              seanceActionLoadingId: null,
+              successMessage: 'FACTURATION.SUCCESS.SEANCE_EXCLUDED',
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {previewLoading: false, seanceActionLoadingId: null, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
+    updateSeanceForfaitInPreview: rxMethod<{ centerId: string; userId: string; seanceId: string; forfaitId: string }>(
+      pipe(
+        tap(({seanceId}) => patchState(store, {
+          previewLoading: true,
+          error: null,
+          successMessage: null,
+          seanceActionLoadingId: seanceId
+        })),
+        switchMap(({centerId, userId, seanceId, forfaitId}) =>
+          api.updatePreviewSeanceForfait(seanceId, {
+            centerId,
+            userId,
+            forfaitId,
+            ...periodPayload(store.periodMode(), store.month(), store.startDate(), store.endDate()),
+            regroupementMultiForfait: store.settingsDraft()?.regroupementMultiForfait ?? true,
+          }).pipe(
+            tap((preview) => patchState(store, {
+              preview,
+              previewLoading: false,
+              seanceActionLoadingId: null,
+              successMessage: 'FACTURATION.SUCCESS.SEANCE_FORFAIT_UPDATED',
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {previewLoading: false, seanceActionLoadingId: null, error: errorMessage(err)});
               return EMPTY;
             })
           )
