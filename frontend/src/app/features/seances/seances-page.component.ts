@@ -31,6 +31,7 @@ import {BackendApiService, SeanceDashboardDetailItem, SeanceListItem} from '../.
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {SeanceStore} from './state/seance.store';
 import {RichTextEditorComponent} from '../../shared/rich-text-editor/rich-text-editor.component';
+import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
 
 type BarcodeDetectorInstance = {
   detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
@@ -42,7 +43,7 @@ Chart.register(...registerables);
   standalone: true,
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, MatPaginatorModule,
-    TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent],
+    TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent, HemodialysisLoaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',

@@ -91,7 +91,7 @@
 
     <div class="table-container">
       @if (loading()) {
-        <app-hemodialysis-loader label="COMMON.LOADING_DATA" mode="overlay"/>
+        <app-hemodialysis-loader label="COMMON.LOADING_DATA" mode="overlay" sizePreset="small"/>
       }
       <table [dataSource]="rows()" class="patient-table" mat-table>
         <ng-container matColumnDef="code">

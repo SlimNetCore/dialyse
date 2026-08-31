@@ -17,6 +17,7 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
   @Input() showElapsedSeconds = false;
   @Input() size = 120;
   @Input() speed = 3;
+  @Input() sizePreset: 'small' | 'medium' | 'large' = 'medium';
 
   readonly reconnectSeconds = signal(0);
   readonly reducedMotion = signal(false);
@@ -40,6 +41,27 @@ export class HemodialysisLoaderComponent implements OnChanges, OnDestroy {
         this.reducedMotion.set(event.matches);
       };
       this.motionQuery.addEventListener('change', this.motionQueryListener);
+    }
+
+    // Apply size preset
+    this.applyPreset();
+  }
+
+  private applyPreset(): void {
+    switch (this.sizePreset) {
+      case 'small':
+        this.size = 80;
+        this.speed = 2.5;
+        break;
+      case 'large':
+        this.size = 160;
+        this.speed = 3.5;
+        break;
+      case 'medium':
+      default:
+        this.size = 120;
+        this.speed = 3;
+        break;
     }
   }
 
