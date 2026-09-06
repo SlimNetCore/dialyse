@@ -259,6 +259,7 @@
       "SESSION_DETAILS": "Talqayt n tmsirin n tfaturt",
       "EXCLUDE_SESSION": "Kkes seg ufeter",
       "VALIDATE": "Sentem afeter",
+      "COLLAPSE_ALL": "Fneẓ akk",
       "KPI": {
         "INVOICES": "Ifaturen i yettwasemslen",
         "HT": "Asemday HT",
@@ -266,6 +267,10 @@
         "TTC": "Asemday TTC"
       },
       "TABLE": {
+        "NUMERO": "Uṭṭun n tfaturt",
+        "PATIENT": "Amuḍin",
+        "PATIENT_STATUS": "Addad n umuḍin",
+        "EMPTY": "Ulac tafaturt deg preview.",
         "FORFAIT": "Afurki",
         "UNIT_PRICE": "Azal n yiwet HT",
         "SESSIONS": "Timsirin",

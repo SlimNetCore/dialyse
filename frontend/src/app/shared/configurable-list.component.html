@@ -50,6 +50,13 @@
                     (keydown.enter)="closeFilterMenuOnEnter($event, filterTrigger)"
                     class="menu-body"
                   >
+                    @if (filterMenuTitle(column); as menuTitle) {
+                      <div class="filter-menu-title">
+                        <mat-icon>filter_alt</mat-icon>
+                        <span>{{ menuTitle | translate }}</span>
+                      </div>
+                    }
+
                     @if (isFilterOptionsLoading(column.id)) {
                       <div class="filter-loading-inline">
                         <hemo-circuit-loader [size]="34" [speed]="2" mode="inline"/>

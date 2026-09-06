@@ -153,6 +153,26 @@
   min-height: 86px;
 }
 
+.filter-menu-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--app-border, #e0e0e0);
+  color: var(--app-primary, #006a6a);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.filter-menu-title mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
 .filter-loading-inline {
   display: inline-flex;
   align-items: center;

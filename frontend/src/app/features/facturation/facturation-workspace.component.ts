@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, TemplateRef, viewChild} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
@@ -16,7 +16,8 @@ import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {FacturationStore} from './state/facturation.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
-import {BackendApiService} from '../../core/api/backend-api.service';
+import {BackendApiService, FacturationPreviewInvoice} from '../../core/api/backend-api.service';
+import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 
 Chart.register(...registerables);
 
@@ -36,6 +37,7 @@ Chart.register(...registerables);
     BaseChartDirective,
     TranslateModule,
     DecimalPipe,
+    ConfigurableListComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './facturation-workspace.component.html',
@@ -51,6 +53,108 @@ export class FacturationWorkspaceComponent {
 
   protected readonly currentCenterId = computed(() => this.appShell.currentCenterId());
   protected readonly currentUsername = computed(() => this.auth.username() ?? 'system');
+
+  protected readonly invoiceExpandCellTemplate = viewChild<TemplateRef<any>>('invoiceExpandCell');
+  protected readonly invoiceNumeroCellTemplate = viewChild<TemplateRef<any>>('invoiceNumeroCell');
+  protected readonly invoicePatientCellTemplate = viewChild<TemplateRef<any>>('invoicePatientCell');
+  protected readonly invoiceStatusCellTemplate = viewChild<TemplateRef<any>>('invoiceStatusCell');
+  protected readonly invoiceSeancesCellTemplate = viewChild<TemplateRef<any>>('invoiceSeancesCell');
+  protected readonly invoiceAmountCellTemplate = viewChild<TemplateRef<any>>('invoiceAmountCell');
+  protected readonly invoiceDetailTemplateRef = viewChild<TemplateRef<any>>('invoiceDetailRow');
+
+  protected readonly invoiceColumns = computed<SharedListColumn<FacturationPreviewInvoice>[]>(() => [
+    {
+      id: 'expand',
+      headerKey: '',
+      valueAccessor: () => '',
+      sortable: false,
+      resizable: false,
+      widthPx: 64,
+      minWidthPx: 56,
+      maxWidthPx: 76,
+      cellTemplate: this.invoiceExpandCellTemplate() ?? undefined,
+    },
+    {
+      id: 'numeroFacture',
+      headerKey: 'FACTURATION.PREVIEW.TABLE.NUMERO',
+      valueAccessor: (row) => row.numeroFacture ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 170,
+      filter: {type: 'text'},
+      cellTemplate: this.invoiceNumeroCellTemplate() ?? undefined,
+      copy: true,
+    },
+    {
+      id: 'patient',
+      headerKey: 'FACTURATION.PREVIEW.TABLE.PATIENT',
+      valueAccessor: (row) => `${row.patientCode ?? ''} ${row.patientFullName ?? ''}`.trim(),
+      sortValueAccessor: (row) => row.patientFullName ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 220,
+      filter: {type: 'text'},
+      cellTemplate: this.invoicePatientCellTemplate() ?? undefined,
+    },
+    {
+      id: 'patientStatusSnapshot',
+      headerKey: 'FACTURATION.PREVIEW.TABLE.PATIENT_STATUS',
+      valueAccessor: (row) => row.patientStatusSnapshot ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 140,
+      filter: {type: 'text'},
+      cellTemplate: this.invoiceStatusCellTemplate() ?? undefined,
+    },
+    {
+      id: 'seancesCount',
+      headerKey: 'FACTURATION.PREVIEW.TABLE.SESSIONS',
+      valueAccessor: (row) => row.seances?.length ?? 0,
+      sortValueAccessor: (row) => row.seances?.length ?? 0,
+      sortable: true,
+      resizable: true,
+      minWidthPx: 110,
+      cellTemplate: this.invoiceSeancesCellTemplate() ?? undefined,
+    },
+    {
+      id: 'totalHt',
+      headerKey: 'FACTURATION.PREVIEW.INVOICE_HT',
+      valueAccessor: (row) => Number(row.totalHt ?? 0),
+      sortValueAccessor: (row) => Number(row.totalHt ?? 0),
+      sortable: true,
+      resizable: true,
+      minWidthPx: 120,
+      cellTemplate: this.invoiceAmountCellTemplate() ?? undefined,
+    },
+    {
+      id: 'totalTva',
+      headerKey: 'FACTURATION.PREVIEW.INVOICE_TVA',
+      valueAccessor: (row) => Number(row.totalTva ?? 0),
+      sortValueAccessor: (row) => Number(row.totalTva ?? 0),
+      sortable: true,
+      resizable: true,
+      minWidthPx: 120,
+      cellTemplate: this.invoiceAmountCellTemplate() ?? undefined,
+    },
+    {
+      id: 'totalTtc',
+      headerKey: 'FACTURATION.PREVIEW.INVOICE_TTC',
+      valueAccessor: (row) => Number(row.totalTtc ?? 0),
+      sortValueAccessor: (row) => Number(row.totalTtc ?? 0),
+      sortable: true,
+      resizable: true,
+      minWidthPx: 130,
+      cellTemplate: this.invoiceAmountCellTemplate() ?? undefined,
+    },
+  ]);
+
+  protected readonly invoiceRowKey = (row: FacturationPreviewInvoice): string => row.previewKey;
+
+  protected readonly canExpandInvoice = (row: FacturationPreviewInvoice): boolean =>
+    (row.seances?.length ?? 0) > 0;
+
+  protected readonly invoiceRowClassFn = () => ({'invoice-row': true});
+
   protected readonly revenueChartData = computed<ChartData<'line'>>(() => {
     const points = this.store.revenueTrend();
     return {

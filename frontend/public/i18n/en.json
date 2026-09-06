@@ -259,6 +259,7 @@
       "SESSION_DETAILS": "Invoice session details",
       "EXCLUDE_SESSION": "Remove from billing",
       "VALIDATE": "Validate billing",
+      "COLLAPSE_ALL": "Collapse all",
       "KPI": {
         "INVOICES": "Simulated invoices",
         "HT": "HT total",
@@ -266,6 +267,10 @@
         "TTC": "TTC total"
       },
       "TABLE": {
+        "NUMERO": "Invoice no.",
+        "PATIENT": "Patient",
+        "PATIENT_STATUS": "Patient status",
+        "EMPTY": "No invoice in the preview.",
         "FORFAIT": "Package",
         "UNIT_PRICE": "HT unit price",
         "SESSIONS": "Sessions",

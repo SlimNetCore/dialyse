@@ -547,3 +547,64 @@ mat-card {
   }
 }
 
+/* --- Liste des factures (configurable-list + detail depliable) ----- */
+.detail-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.expand-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.expand-icon {
+  transition: transform 0.2s ease;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.invoice-config-list tr.row-expanded {
+  background: color-mix(in srgb, var(--app-primary) 6%, transparent) !important;
+}
+
+.invoice-config-list .data-row {
+  cursor: pointer;
+}
+
+.invoice-patient-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.invoice-detail {
+  padding: 14px 16px 16px;
+  border-left: 3px solid var(--app-primary, #006a6a);
+  background: color-mix(in srgb, var(--app-surface, #fff) 94%, var(--app-primary-soft, rgba(0, 106, 106, 0.12)) 6%);
+  border-radius: 0 0 14px 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.invoice-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--app-primary, #006a6a);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.invoice-detail-title mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}

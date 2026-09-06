@@ -259,6 +259,7 @@
       "SESSION_DETAILS": "Détail des séances de la facture",
       "EXCLUDE_SESSION": "Retirer de la facturation",
       "VALIDATE": "Valider la facturation",
+      "COLLAPSE_ALL": "Tout replier",
       "KPI": {
         "INVOICES": "Factures simulées",
         "HT": "Total HT",
@@ -266,6 +267,10 @@
         "TTC": "Total TTC"
       },
       "TABLE": {
+        "NUMERO": "N° facture",
+        "PATIENT": "Patient",
+        "PATIENT_STATUS": "Statut patient",
+        "EMPTY": "Aucune facture dans l'aperçu.",
         "FORFAIT": "Forfait",
         "UNIT_PRICE": "Prix unitaire HT",
         "SESSIONS": "Séances",

@@ -317,6 +317,11 @@ export class ConfigurableListComponent implements OnDestroy {
     return this.columnFilters()[columnId] ?? '';
   }
 
+  /** i18n key displayed as title of the filter menu (column label). */
+  filterMenuTitle(column: SharedListColumn<any>): string {
+    return column.filter?.labelKey ?? column.headerKey ?? '';
+  }
+
   onResizeStart(event: MouseEvent, column: SharedListColumn<any>): void {
     if (!column.resizable) {
       return;

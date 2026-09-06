@@ -124,97 +124,139 @@
           <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.TTC' | translate }}</span><strong>{{ preview.totalTtc | number:'1.2-2' }}</strong></div>
         </div>
 
-        <div class="invoice-list">
-          @for (invoice of preview.invoices; track invoice.previewKey) {
-            <article class="invoice-card">
-              <details class="invoice-seances-panel">
-                <summary class="invoice-seances-summary">
-                  <span class="invoice-seances-main">
-                    <span [matTooltip]="invoice.numeroFacture"
-                          class="code-chip invoice-code-chip">{{ invoice.numeroFacture }}</span>
-                    <span class="code-chip patient-code-chip">{{ invoice.patientCode }}</span>
-                    <span class="invoice-patient-name">{{ invoice.patientFullName }}</span>
-                    <span
-                      [class]="'seance-status-chip ' + patientStatusClass(invoice.patientStatusSnapshot)">{{ invoice.patientStatusSnapshot }}</span>
-                  </span>
-                  <span class="invoice-seances-side">
-                    <span class="invoice-seances-count">
-                      <mat-icon>event</mat-icon>
-                      {{ invoice.seances.length }}
-                    </span>
-                    <mat-icon class="toggle-icon">expand_more</mat-icon>
-                  </span>
-                </summary>
-                <div class="table-wrap">
-                  <table class="seances-table">
-                    <thead>
-                    <tr>
-                      <th>{{ 'COMMON.DATE' | translate }}</th>
-                      <th>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
-                      <th>{{ 'FACTURATION.PREVIEW.TABLE.FORFAIT' | translate }}</th>
-                      <th>{{ 'FACTURATION.PREVIEW.TABLE.UNIT_PRICE' | translate }}</th>
-                      <th>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                      @for (seance of invoice.seances; track seance.seanceId) {
-                        <tr class="seance-row">
-                          <td>
-                            <span class="code-chip seance-code">{{ seance.seanceDate }}</span>
-                          </td>
-                          <td>
-                            <span
-                              [class]="'seance-status-chip ' + seanceStatusClass(seance.seanceStatus)">{{ seance.seanceStatus }}</span>
-                          </td>
-                          <td>
-                            <mat-form-field appearance="outline" class="forfait-select-field">
-                              <mat-label>{{ 'SEANCES.FORFAIT_LABEL' | translate }}</mat-label>
-                              <mat-select
-                                (selectionChange)="onPreviewSeanceForfaitChange(seance.seanceId, $event.value)"
-                                          [value]="seance.forfaitId">
-                                @for (option of forfaitOptions(); track option.id) {
-                                  <mat-option [value]="option.id">{{ option.label }}</mat-option>
-                                }
-                              </mat-select>
-                            </mat-form-field>
-                          </td>
-                          <td class="num-cell">
-                            <span class="amount-chip">{{ seance.forfaitPrixHt | number:'1.2-2' }}</span>
-                          </td>
-                          <td class="actions-cell">
-                            <button
-                              (click)="onRemoveSeanceFromPreview(seance.seanceId)"
-                              [disabled]="store.previewLoading() || store.seanceActionLoadingId() === seance.seanceId"
-                              color="warn"
-                              mat-stroked-button>
-                              <mat-icon>delete</mat-icon>
-                              {{ 'FACTURATION.PREVIEW.EXCLUDE_SESSION' | translate }}
-                            </button>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </details>
+        @if (invoiceList.expandedDetailCount() > 0) {
+          <div class="detail-toolbar">
+            <button (click)="invoiceList.collapseAllDetails()" mat-stroked-button type="button">
+              <mat-icon>unfold_less</mat-icon>
+              <span>{{ 'FACTURATION.PREVIEW.COLLAPSE_ALL' | translate }}</span>
+            </button>
+          </div>
+        }
 
-              <footer class="invoice-totals">
+        <app-configurable-list
+          #invoiceList
+          [columns]="invoiceColumns()"
+          [detailRowCanExpand]="canExpandInvoice"
+          [detailRowTemplate]="invoiceDetailTemplateRef() ?? null"
+          [emptyLabelKey]="'FACTURATION.PREVIEW.TABLE.EMPTY'"
+          [rowClassFn]="invoiceRowClassFn"
+          [rowKeyAccessor]="invoiceRowKey"
+          [rows]="preview.invoices"
+          class="data-table invoice-config-list"
+        />
+
+        <ng-template #invoiceExpandCell let-row>
+          @if ((row.seances?.length ?? 0) > 0) {
+            <button (click)="$event.stopPropagation(); invoiceList.toggleDetail(row)"
+                    [attr.aria-expanded]="invoiceList.isRowExpanded(row)"
+                    [attr.aria-label]="'FACTURATION.PREVIEW.SESSION_DETAILS' | translate"
+                    class="expand-btn" mat-icon-button>
+              <mat-icon [class.expanded]="invoiceList.isRowExpanded(row)" class="expand-icon">expand_more</mat-icon>
+            </button>
+          }
+        </ng-template>
+
+        <ng-template #invoiceNumeroCell let-row>
+          <span [matTooltip]="row.numeroFacture" class="code-chip invoice-code-chip">{{ row.numeroFacture }}</span>
+        </ng-template>
+
+        <ng-template #invoicePatientCell let-row>
+          <span class="invoice-patient-cell">
+            <span class="code-chip patient-code-chip">{{ row.patientCode }}</span>
+            <span class="invoice-patient-name">{{ row.patientFullName }}</span>
+          </span>
+        </ng-template>
+
+        <ng-template #invoiceStatusCell let-row>
+          <span
+            [class]="'seance-status-chip ' + patientStatusClass(row.patientStatusSnapshot)">{{ row.patientStatusSnapshot }}</span>
+        </ng-template>
+
+        <ng-template #invoiceSeancesCell let-row>
+          <span class="invoice-seances-count">
+            <mat-icon>event</mat-icon>
+            {{ row.seances.length }}
+          </span>
+        </ng-template>
+
+        <ng-template #invoiceAmountCell let-value="value">
+          <span class="amount-chip">{{ value | number:'1.2-2' }}</span>
+        </ng-template>
+
+        <ng-template #invoiceDetailRow let-row>
+          <div class="invoice-detail">
+            <h4 class="invoice-detail-title">
+              <mat-icon>receipt_long</mat-icon>
+              {{ 'FACTURATION.PREVIEW.SESSION_DETAILS' | translate }} — {{ row.numeroFacture }}
+            </h4>
+            <div class="table-wrap">
+              <table class="seances-table">
+                <thead>
+                <tr>
+                  <th>{{ 'COMMON.DATE' | translate }}</th>
+                  <th>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
+                  <th>{{ 'FACTURATION.PREVIEW.TABLE.FORFAIT' | translate }}</th>
+                  <th>{{ 'FACTURATION.PREVIEW.TABLE.UNIT_PRICE' | translate }}</th>
+                  <th>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (seance of row.seances; track seance.seanceId) {
+                    <tr class="seance-row">
+                      <td>
+                        <span class="code-chip seance-code">{{ seance.seanceDate }}</span>
+                      </td>
+                      <td>
+                        <span
+                          [class]="'seance-status-chip ' + seanceStatusClass(seance.seanceStatus)">{{ seance.seanceStatus }}</span>
+                      </td>
+                      <td>
+                        <mat-form-field appearance="outline" class="forfait-select-field">
+                          <mat-label>{{ 'SEANCES.FORFAIT_LABEL' | translate }}</mat-label>
+                          <mat-select
+                            (selectionChange)="onPreviewSeanceForfaitChange(seance.seanceId, $event.value)"
+                            [value]="seance.forfaitId">
+                            @for (option of forfaitOptions(); track option.id) {
+                              <mat-option [value]="option.id">{{ option.label }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </td>
+                      <td class="num-cell">
+                        <span class="amount-chip">{{ seance.forfaitPrixHt | number:'1.2-2' }}</span>
+                      </td>
+                      <td class="actions-cell">
+                        <button
+                          (click)="onRemoveSeanceFromPreview(seance.seanceId)"
+                          [disabled]="store.previewLoading() || store.seanceActionLoadingId() === seance.seanceId"
+                          color="warn"
+                          mat-stroked-button>
+                          <mat-icon>delete</mat-icon>
+                          {{ 'FACTURATION.PREVIEW.EXCLUDE_SESSION' | translate }}
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <footer class="invoice-totals">
                 <span class="total-badge">
                   <small>{{ 'FACTURATION.PREVIEW.INVOICE_HT' | translate }}</small>
-                  <strong>{{ invoice.totalHt | number:'1.2-2' }}</strong>
+                  <strong>{{ row.totalHt | number:'1.2-2' }}</strong>
                 </span>
-                <span class="total-badge">
+              <span class="total-badge">
                   <small>{{ 'FACTURATION.PREVIEW.INVOICE_TVA' | translate }}</small>
-                  <strong>{{ invoice.totalTva | number:'1.2-2' }}</strong>
+                  <strong>{{ row.totalTva | number:'1.2-2' }}</strong>
                 </span>
-                <span class="total-badge total-badge-primary">
+              <span class="total-badge total-badge-primary">
                   <small>{{ 'FACTURATION.PREVIEW.INVOICE_TTC' | translate }}</small>
-                  <strong>{{ invoice.totalTtc | number:'1.2-2' }}</strong>
+                  <strong>{{ row.totalTtc | number:'1.2-2' }}</strong>
                 </span>
-              </footer>
-            </article>
-          }
-        </div>
+            </footer>
+          </div>
+        </ng-template>
         @if (store.validating()) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         }
