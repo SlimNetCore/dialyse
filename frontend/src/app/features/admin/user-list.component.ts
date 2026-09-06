@@ -3,10 +3,11 @@ import {
   Component,
   computed,
   effect,
-  HostListener,
   inject,
   OnInit,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
@@ -28,6 +29,10 @@ import {FormField} from '@angular/forms/signals';
 import {AppUser} from '../../core/api/admin-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
+import {
+  ConfigurableListComponent,
+  SharedListColumn,
+} from '../../shared/configurable-list.component';
 import {UserListStore} from './state/user-list.store';
 
 type FilterType = 'text' | 'boolean';
@@ -50,7 +55,7 @@ type FilterType = 'text' | 'boolean';
     MatCheckboxModule,
     MatPaginatorModule,
     TranslateModule,
-    ColumnFilterRendererComponent,
+    ConfigurableListComponent,
     FormField,
   ],
   templateUrl: './user-list.component.html',
@@ -76,6 +81,17 @@ export class UserListComponent implements OnInit {
   readonly displayedColumns = computed(() =>
     this.allColumnsConfig.filter((c) => this.visibleColumns()[c.key]).map((c) => c.key),
   );
+  readonly roleOptions = computed(() => {
+    const map = new Map<string, { value: string; label: string }>();
+    for (const user of this.rows()) {
+      for (const role of user.roles ?? []) {
+        if (!map.has(role.NAME)) {
+          map.set(role.NAME, {value: role.NAME, label: role.NAME});
+        }
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label, 'fr'));
+  });
 
   readonly rows = this.userListStore.rows;
   readonly total = this.userListStore.total;
@@ -85,6 +101,87 @@ export class UserListComponent implements OnInit {
   readonly searchTerm = this.userListStore.searchTerm;
   readonly searchModel = signal({term: this.searchTerm()});
   readonly searchForm = compatForm(this.searchModel);
+  protected readonly rolesCellTemplate = viewChild<TemplateRef<any>>('rolesCell');
+  protected readonly centersCellTemplate = viewChild<TemplateRef<any>>('centersCell');
+  protected readonly activeCellTemplate = viewChild<TemplateRef<any>>('activeCell');
+  protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
+  readonly displayedColumnDefs = computed<SharedListColumn<AppUser>[]>(() => {
+    const columns = this.allColumnsConfig.filter((c) => this.visibleColumns()[c.key]);
+    const roleOptions = this.roleOptions();
+
+    return columns.map((column) => {
+      if (column.key === 'actions') {
+        return {
+          id: column.key,
+          headerKey: column.label,
+          valueAccessor: () => '',
+          sortable: false,
+          resizable: false,
+          widthPx: 112,
+          minWidthPx: 96,
+          maxWidthPx: 160,
+          cellTemplate: this.actionsCellTemplate() ?? undefined,
+        } satisfies SharedListColumn<AppUser>;
+      }
+
+      if (column.key === 'roles') {
+        return {
+          id: column.key,
+          headerKey: column.label,
+          valueAccessor: (row) => (row.roles ?? []).map((r) => r.NAME).join(', '),
+          sortable: true,
+          resizable: true,
+          minWidthPx: 160,
+          filter: {
+            component: ColumnFilterRendererComponent,
+            componentInputs: {
+              type: 'enum',
+              options: roleOptions,
+              labelKey: column.label,
+            },
+          },
+          cellTemplate: this.rolesCellTemplate() ?? undefined,
+        } satisfies SharedListColumn<AppUser>;
+      }
+
+      if (column.key === 'centers') {
+        return {
+          id: column.key,
+          headerKey: column.label,
+          valueAccessor: (row) => (row.centers ?? []).map((c) => c.NAME).join(', '),
+          sortable: true,
+          resizable: true,
+          minWidthPx: 180,
+          filter: {type: 'text', labelKey: column.label},
+          cellTemplate: this.centersCellTemplate() ?? undefined,
+        } satisfies SharedListColumn<AppUser>;
+      }
+
+      if (column.key === 'active') {
+        return {
+          id: column.key,
+          headerKey: column.label,
+          valueAccessor: (row) => !!row.ACTIVE,
+          sortable: true,
+          resizable: true,
+          minWidthPx: 120,
+          maxWidthPx: 150,
+          filter: {type: 'boolean', labelKey: column.label},
+          cellTemplate: this.activeCellTemplate() ?? undefined,
+        } satisfies SharedListColumn<AppUser>;
+      }
+
+      return {
+        id: column.key,
+        headerKey: column.label,
+        valueAccessor: (row) => this.defaultColumnValue(row, column.key),
+        sortable: true,
+        resizable: true,
+        minWidthPx: 160,
+        filter: {type: 'text', labelKey: column.label},
+      } satisfies SharedListColumn<AppUser>;
+    });
+  });
 
   constructor() {
     effect(() => {
@@ -112,60 +209,27 @@ export class UserListComponent implements OnInit {
     return this.visibleColumns()[column] ?? false;
   }
 
-  onColumnFilterValue(column: string, value: string): void {
-    this.userListStore.setFilter(column, value);
-    this.userListStore.loadPage({page: 0, size: this.pageSize()});
-  }
-
-  columnFilterValue(column: string): string {
-    return this.columnFilters()[column] ?? '';
-  }
-
-  isColumnFiltered(column: string): boolean {
-    return !!(this.columnFilters()[column] ?? '').trim();
-  }
-
-  clearColumnFilter(column: string): void {
-    this.userListStore.clearFilter(column);
-    this.userListStore.loadPage({page: 0, size: this.pageSize()});
-  }
-
-  toggleFilterPanel(column: string, event: MouseEvent): void {
-    event.stopPropagation();
-    if (typeof window !== 'undefined' && window.innerWidth <= 760) {
-      const wrap = (event.target as HTMLElement).closest('.th-wrap');
-      if (wrap) {
-        const rect = wrap.getBoundingClientRect();
-        document.documentElement.style.setProperty(
-          '--filter-row-bottom',
-          `${Math.round(rect.bottom + 6)}px`,
-        );
+  onListFiltersChange(filters: Record<string, string>): void {
+    for (const column of this.allColumnsConfig) {
+      if (column.key === 'actions') {
+        continue;
       }
+      const nextValue = filters[column.key] ?? '';
+      this.userListStore.setFilter(column.key, nextValue);
     }
-    this.userListStore.toggleFilterPanel(column);
-  }
-
-  isFilterOpen(column: string): boolean {
-    return this.userListStore.openFilterColumn() === column;
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (!target) {
-      this.userListStore.closeFilterPanel();
-      return;
-    }
-    if (target.closest('.th-wrap')) {
-      return;
-    }
-    this.userListStore.closeFilterPanel();
+    this.userListStore.loadPage({page: 0, size: this.pageSize()});
   }
 
   clearAllColumnFilters(): void {
-    this.userListStore.closeFilterPanel();
     this.userListStore.clearAllFilters();
     this.userListStore.loadPage({page: 0, size: this.pageSize()});
+  }
+
+  private defaultColumnValue(row: AppUser, key: string): string {
+    const upperKey = key.toUpperCase() as keyof AppUser;
+    const value = row[upperKey];
+    if (value === null || value === undefined) return '';
+    return `${value}`;
   }
 
   onPageChange(event: PageEvent): void {

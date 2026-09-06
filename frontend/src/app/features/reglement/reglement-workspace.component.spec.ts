@@ -50,7 +50,8 @@ describe('ReglementWorkspaceComponent', () => {
     clearMessages: vi.fn(),
     loadPage: vi.fn(),
     loadDashboard: vi.fn(),
-    savePayment: vi.fn(),
+    setPaymentDraft: vi.fn(),
+    batchSavePayments: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -77,34 +78,14 @@ describe('ReglementWorkspaceComponent', () => {
     expect(storeMock.setMonth).toHaveBeenCalledWith(7);
   });
 
-  it('enregistre un paiement avec centerId et userId', () => {
+  it('enregistre les brouillons de paiement puis déclenche la sauvegarde batch avec centerId et userId', () => {
     const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
     component['onPaymentInput']('fac-1', '1000');
-    component['savePayment']({
-      factureId: 'fac-1',
-      numeroFacture: 'FAC-1',
-      numeroAssurance: 'ASS-1',
-      patientNom: 'Dupont',
-      patientPrenom: 'Jean',
-      caisseId: 'c1',
-      caisse: 'CNAS',
-      agenceId: 'a1',
-      agence: 'Agence',
-      centrePayeurId: 'cp1',
-      centrePayeur: 'Centre Payeur',
-      dateFacturation: '2026-08-01',
-      montantFacture: 1000,
-      montantRegle: 0,
-      reste: 1000,
-      tropPercu: 0,
-      etat: 'NON_REGLEE',
-      soldeType: 'RESTE',
-    });
+    component['onBatchSave']();
 
-    expect(storeMock.savePayment).toHaveBeenCalledWith({
+    expect(storeMock.setPaymentDraft).toHaveBeenCalledWith('fac-1', '1000');
+    expect(storeMock.batchSavePayments).toHaveBeenCalledWith({
       centerId: '11111111-1111-1111-1111-111111111111',
-      factureId: 'fac-1',
-      montant: 1000,
       userId: 'sec-user',
     });
   });

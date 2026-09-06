@@ -45,199 +45,43 @@
     </mat-menu>
   </div>
 
-  <div class="table-wrap">
-    <table [dataSource]="rows()" class="full-width" mat-table>
-      <ng-container matColumnDef="username">
-        <th *matHeaderCellDef mat-header-cell>
-          <div [class.open]="isFilterOpen('username')" class="th-wrap">
-            <div class="th-top">
-              <span>{{ 'ADMIN.USERS.COL_USERNAME' | translate }}</span>
-              <mat-icon
-                (click)="toggleFilterPanel('username', $event)"
-                [class.active]="isColumnFiltered('username')"
-                class="filter-ind"
-              >{{ isColumnFiltered('username') ? 'filter_alt' : 'filter_alt_off' }}
-              </mat-icon>
-            </div>
-            <div class="th-filter">
-              <app-column-filter-renderer
-                (clear)="clearColumnFilter('username')"
-                (valueChange)="onColumnFilterValue('username', $event)"
-                [value]="columnFilterValue('username')"
-                type="text"
-              />
-            </div>
-          </div>
-        </th>
-        <td *matCellDef="let u" mat-cell>{{ u.USERNAME }}</td>
-      </ng-container>
+  <app-configurable-list
+    (filtersChange)="onListFiltersChange($event)"
+    [columns]="displayedColumnDefs()"
+    [emptyLabelKey]="'ADMIN.USERS.EMPTY'"
+    [rows]="rows()"
+  />
 
-      <ng-container matColumnDef="fullName">
-        <th *matHeaderCellDef mat-header-cell>
-          <div [class.open]="isFilterOpen('fullName')" class="th-wrap">
-            <div class="th-top">
-              <span>{{ 'ADMIN.USERS.COL_FULLNAME' | translate }}</span>
-              <mat-icon
-                (click)="toggleFilterPanel('fullName', $event)"
-                [class.active]="isColumnFiltered('fullName')"
-                class="filter-ind"
-              >{{ isColumnFiltered('fullName') ? 'filter_alt' : 'filter_alt_off' }}
-              </mat-icon>
-            </div>
-            <div class="th-filter">
-              <app-column-filter-renderer
-                (clear)="clearColumnFilter('fullName')"
-                (valueChange)="onColumnFilterValue('fullName', $event)"
-                [value]="columnFilterValue('fullName')"
-                type="text"
-              />
-            </div>
-          </div>
-        </th>
-        <td *matCellDef="let u" mat-cell>{{ u.FULL_NAME }}</td>
-      </ng-container>
+  <ng-template #rolesCell let-row>
+    <mat-chip-set>
+      @for (r of row.roles; track r.ID) {
+        <mat-chip>{{ r.NAME }}</mat-chip>
+      }
+    </mat-chip-set>
+  </ng-template>
 
-      <ng-container matColumnDef="email">
-        <th *matHeaderCellDef mat-header-cell>
-          <div [class.open]="isFilterOpen('email')" class="th-wrap">
-            <div class="th-top">
-              <span>{{ 'PATIENT_FORM.EMAIL' | translate }}</span>
-              <mat-icon
-                (click)="toggleFilterPanel('email', $event)"
-                [class.active]="isColumnFiltered('email')"
-                class="filter-ind"
-              >{{ isColumnFiltered('email') ? 'filter_alt' : 'filter_alt_off' }}
-              </mat-icon>
-            </div>
-            <div class="th-filter">
-              <app-column-filter-renderer
-                (clear)="clearColumnFilter('email')"
-                (valueChange)="onColumnFilterValue('email', $event)"
-                [value]="columnFilterValue('email')"
-                type="text"
-              />
-            </div>
-          </div>
-        </th>
-        <td *matCellDef="let u" mat-cell>{{ u.EMAIL }}</td>
-      </ng-container>
+  <ng-template #centersCell let-row>
+    <mat-chip-set>
+      @for (c of row.centers; track c.ID) {
+        <mat-chip>{{ c.NAME }}</mat-chip>
+      }
+    </mat-chip-set>
+  </ng-template>
 
-      <ng-container matColumnDef="roles">
-        <th *matHeaderCellDef mat-header-cell>
-          <div [class.open]="isFilterOpen('roles')" class="th-wrap">
-            <div class="th-top">
-              <span>{{ 'ADMIN.USERS.COL_ROLES' | translate }}</span>
-              <mat-icon
-                (click)="toggleFilterPanel('roles', $event)"
-                [class.active]="isColumnFiltered('roles')"
-                class="filter-ind"
-              >{{ isColumnFiltered('roles') ? 'filter_alt' : 'filter_alt_off' }}
-              </mat-icon>
-            </div>
-            <div class="th-filter">
-              <app-column-filter-renderer
-                (clear)="clearColumnFilter('roles')"
-                (valueChange)="onColumnFilterValue('roles', $event)"
-                [value]="columnFilterValue('roles')"
-                type="text"
-              />
-            </div>
-          </div>
-        </th>
-        <td *matCellDef="let u" mat-cell>
-          <mat-chip-set>
-            @for (r of u.roles; track r.ID) {
-              <mat-chip>{{ r.NAME }}</mat-chip>
-            }
-          </mat-chip-set>
-        </td>
-      </ng-container>
+  <ng-template #activeCell let-row>
+    <mat-icon [class.active-false]="!row.ACTIVE" [class.active-true]="row.ACTIVE">
+      {{ row.ACTIVE ? 'check_circle' : 'cancel' }}
+    </mat-icon>
+  </ng-template>
 
-      <ng-container matColumnDef="centers">
-        <th *matHeaderCellDef mat-header-cell>
-          <div [class.open]="isFilterOpen('centers')" class="th-wrap">
-            <div class="th-top">
-              <span>{{ 'ADMIN.USERS.COL_CENTERS' | translate }}</span>
-              <mat-icon
-                (click)="toggleFilterPanel('centers', $event)"
-                [class.active]="isColumnFiltered('centers')"
-                class="filter-ind"
-              >{{ isColumnFiltered('centers') ? 'filter_alt' : 'filter_alt_off' }}
-              </mat-icon>
-            </div>
-            <div class="th-filter">
-              <app-column-filter-renderer
-                (clear)="clearColumnFilter('centers')"
-                (valueChange)="onColumnFilterValue('centers', $event)"
-                [value]="columnFilterValue('centers')"
-                type="text"
-              />
-            </div>
-          </div>
-        </th>
-        <td *matCellDef="let u" mat-cell>
-          <mat-chip-set>
-            @for (c of u.centers; track c.ID) {
-              <mat-chip>{{ c.NAME }}</mat-chip>
-            }
-          </mat-chip-set>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="active">
-        <th *matHeaderCellDef mat-header-cell>
-          <div [class.open]="isFilterOpen('active')" class="th-wrap">
-            <div class="th-top">
-              <span>{{ 'ADMIN.USERS.COL_ACTIVE' | translate }}</span>
-              <mat-icon
-                (click)="toggleFilterPanel('active', $event)"
-                [class.active]="isColumnFiltered('active')"
-                class="filter-ind"
-              >{{ isColumnFiltered('active') ? 'filter_alt' : 'filter_alt_off' }}
-              </mat-icon>
-            </div>
-            <div class="th-filter">
-              <app-column-filter-renderer
-                (clear)="clearColumnFilter('active')"
-                (valueChange)="onColumnFilterValue('active', $event)"
-                [value]="columnFilterValue('active')"
-                type="boolean"
-              />
-            </div>
-          </div>
-        </th>
-        <td *matCellDef="let u" mat-cell>
-          <mat-icon [style.color]="u.ACTIVE ? '#1b5e20' : '#c62828'"
-          >{{ u.ACTIVE ? 'check_circle' : 'cancel' }}
-          </mat-icon>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-        <td *matCellDef="let u" mat-cell>
-          <button [routerLink]="['/admin/users', u.ID, 'edit']" color="primary" mat-icon-button>
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button (click)="deleteUser(u)" color="warn" mat-icon-button>
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <tr *matHeaderRowDef="displayedColumns()" mat-header-row></tr>
-      <tr
-        *matRowDef="let row; columns: displayedColumns()"
-        [attr.data-row-id]="row?.ID"
-        mat-row
-      ></tr>
-      <tr *matNoDataRow class="mat-mdc-row">
-        <td [attr.colspan]="displayedColumns().length" class="mat-mdc-cell no-data-cell">
-          {{ 'ADMIN.USERS.EMPTY' | translate }}
-        </td>
-      </tr>
-    </table>
-  </div>
+  <ng-template #actionsCell let-row>
+    <button [routerLink]="['/admin/users', row.ID, 'edit']" color="primary" mat-icon-button>
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button (click)="deleteUser(row)" color="warn" mat-icon-button>
+      <mat-icon>delete</mat-icon>
+    </button>
+  </ng-template>
 
   <mat-paginator
     (page)="onPageChange($event)"

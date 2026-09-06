@@ -2,9 +2,11 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  HostListener,
   OnDestroy,
   TemplateRef,
   Type,
+  ViewEncapsulation,
   computed,
   effect,
   input,
@@ -13,8 +15,9 @@ import {
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatMenuModule} from '@angular/material/menu';
+import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
 import {MatTableModule} from '@angular/material/table';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import {ColumnFilterRendererComponent, ColumnFilterType} from './column-filter-renderer.component';
 import {DynamicFilterHostComponent} from './dynamic-filter-host.component';
@@ -45,11 +48,23 @@ export interface SharedListColumn<T> {
   sortValueAccessor?: (row: T) => string | number | boolean | Date | null | undefined;
   filter?: SharedListFilterConfig;
   filterPredicate?: (row: T, filterValue: string) => boolean;
+  copy?:
+    | boolean
+    | {
+    valueAccessor?: (row: T) => string;
+    tooltipKey?: string;
+  };
 }
 
 export interface SharedListSortChange {
   columnId: string;
   direction: SortDirection;
+}
+
+export interface SharedListCopyEvent<T = any> {
+  columnId: string;
+  value: string;
+  row: T;
 }
 
 @Component({
@@ -61,6 +76,7 @@ export interface SharedListSortChange {
     MatMenuModule,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
     TranslateModule,
     ColumnFilterRendererComponent,
     DynamicFilterHostComponent,
@@ -68,21 +84,26 @@ export interface SharedListSortChange {
   templateUrl: './configurable-list.component.html',
   styleUrl: './configurable-list.component.css',
   changeDetection: ChangeDetectionStrategy.Eager,
+  encapsulation: ViewEncapsulation.None,
 })
-export class ConfigurableListComponent<T extends Record<string, unknown>> implements OnDestroy {
-  readonly rows = input<T[]>([]);
-  readonly columns = input<SharedListColumn<T>[]>([]);
+export class ConfigurableListComponent implements OnDestroy {
+  readonly rows = input<any[]>([]);
+  readonly columns = input<SharedListColumn<any>[]>([]);
+  readonly filters = input<Record<string, string> | null>(null);
   readonly emptyLabelKey = input('COMMON.NO_DATA');
   readonly minTableWidthPx = input(760);
+  readonly rowClassFn = input<((row: any) => string | string[] | Record<string, boolean> | null) | null>(null);
 
-  readonly rowClick = output<T>();
+  readonly rowClick = output<any>();
   readonly filtersChange = output<Record<string, string>>();
   readonly sortChange = output<SharedListSortChange>();
+  readonly cellCopied = output<SharedListCopyEvent>();
 
   readonly displayedColumnIds = computed(() => this.columns().map((column) => column.id));
   readonly hasColumns = computed(() => this.displayedColumnIds().length > 0);
   protected readonly columnFilters = signal<Record<string, string>>({});
   protected readonly sortState = signal<SharedListSortChange>({columnId: '', direction: ''});
+  protected readonly copiedCellKey = signal<string | null>(null);
   readonly displayedRows = computed(() => {
     const sourceRows = this.rows();
     const activeColumns = this.columns();
@@ -109,11 +130,22 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     return nextRows;
   });
   protected readonly columnWidths = signal<Record<string, number>>({});
+  private readonly activeFilterColumnId = signal<string | null>(null);
+  private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
 
   private readonly collator = new Intl.Collator('fr', {numeric: true, sensitivity: 'base'});
   private resizingState: { columnId: string; startX: number; startWidth: number } | null = null;
 
   constructor() {
+    effect(() => {
+      const externalFilters = this.filters();
+      if (!externalFilters) {
+        return;
+      }
+      this.columnFilters.set({...externalFilters});
+      this.requestFilterPositionUpdate();
+    });
+
     effect(() => {
       const nextColumns = this.columns();
       this.columnWidths.update((current) => {
@@ -137,6 +169,13 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
 
         return next;
       });
+
+      this.requestFilterPositionUpdate();
+    });
+
+    effect(() => {
+      this.displayedRows().length;
+      this.requestFilterPositionUpdate();
     });
   }
 
@@ -144,7 +183,7 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     this.stopResize();
   }
 
-  onHeaderSort(column: SharedListColumn<T>): void {
+  onHeaderSort(column: SharedListColumn<any>): void {
     if (!column.sortable) {
       return;
     }
@@ -193,8 +232,13 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     return this.columnFilters()[columnId] ?? '';
   }
 
-  onResizeStart(event: MouseEvent, column: SharedListColumn<T>): void {
+  onResizeStart(event: MouseEvent, column: SharedListColumn<any>): void {
     if (!column.resizable) {
+      return;
+    }
+
+    // Let dblclick trigger auto-fit without initiating a drag cycle.
+    if (event.detail > 1) {
       return;
     }
 
@@ -213,12 +257,57 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     document.addEventListener('mouseup', this.onMouseUpBound);
   }
 
-  columnWidthPx(column: SharedListColumn<T>): number | null {
+  onResizeAutoFit(event: MouseEvent, column: SharedListColumn<any>): void {
+    if (!column.resizable) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const handle = event.target as HTMLElement | null;
+    const table = handle?.closest('table.shared-table') as HTMLElement | null;
+    if (!table) {
+      return;
+    }
+
+    const selector = `.mat-column-${this.escapeCssToken(column.id)}`;
+    const cells = Array.from(table.querySelectorAll<HTMLElement>(selector));
+    if (cells.length === 0) {
+      return;
+    }
+
+    let measured = 0;
+    for (const cell of cells) {
+      const preferredNode =
+        (cell.querySelector('.header-button') as HTMLElement | null)
+        ?? (cell.querySelector('.th-wrap') as HTMLElement | null)
+        ?? (cell.querySelector('.cell-content') as HTMLElement | null)
+        ?? cell;
+
+      const computed = window.getComputedStyle(cell);
+      const padding = (parseFloat(computed.paddingLeft) || 0) + (parseFloat(computed.paddingRight) || 0);
+      measured = Math.max(measured, Math.ceil(preferredNode.scrollWidth + padding + 14));
+    }
+
+    const minWidth = column.minWidthPx ?? 120;
+    const maxWidth = column.maxWidthPx ?? 620;
+    const nextWidth = Math.max(minWidth, Math.min(maxWidth, measured));
+
+    this.columnWidths.update((current) => ({
+      ...current,
+      [column.id]: nextWidth,
+    }));
+
+    this.requestFilterPositionUpdate();
+  }
+
+  columnWidthPx(column: SharedListColumn<any>): number | null {
     const width = this.columnWidths()[column.id] ?? column.widthPx;
     return width && width > 0 ? width : null;
   }
 
-  currentSortIcon(column: SharedListColumn<T>): string {
+  currentSortIcon(column: SharedListColumn<any>): string {
     const sort = this.sortState();
     if (sort.columnId !== column.id || !sort.direction) {
       return 'swap_vert';
@@ -226,7 +315,7 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     return sort.direction === 'asc' ? 'north' : 'south';
   }
 
-  currentSortAriaLabel(column: SharedListColumn<T>): string {
+  currentSortAriaLabel(column: SharedListColumn<any>): string {
     const sort = this.sortState();
     if (sort.columnId !== column.id || !sort.direction) {
       return 'COMMON.SORT';
@@ -234,15 +323,89 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     return sort.direction === 'asc' ? 'COMMON.SORT_ASC' : 'COMMON.SORT_DESC';
   }
 
-  cellValue(row: T, column: SharedListColumn<T>): unknown {
+  cellValue(row: any, column: SharedListColumn<any>): unknown {
     return column.valueAccessor(row);
   }
 
-  onRowClick(row: T): void {
+  onRowClick(row: any): void {
     this.rowClick.emit(row);
   }
 
-  trackByColumn = (_: number, column: SharedListColumn<T>): string => column.id;
+  rowClasses(row: any): string | string[] | Record<string, boolean> {
+    return this.rowClassFn()?.(row) ?? '';
+  }
+
+  hasCopyAction(column: SharedListColumn<any>, row: any): boolean {
+    return !!this.resolveCopyValue(column, row);
+  }
+
+  copyTooltipKey(column: SharedListColumn<any>): string {
+    if (typeof column.copy === 'object' && column.copy.tooltipKey) {
+      return column.copy.tooltipKey;
+    }
+    return 'COMMON.COPY';
+  }
+
+  copyIconName(column: SharedListColumn<any>, row: any, rowIndex: number): string {
+    const key = this.copyCellKey(column, row, rowIndex);
+    return this.copiedCellKey() === key ? 'check' : 'content_copy';
+  }
+
+  onCopyCellValue(event: MouseEvent, column: SharedListColumn<any>, row: any, rowIndex: number): void {
+    event.stopPropagation();
+    const value = this.resolveCopyValue(column, row);
+    if (!value) {
+      return;
+    }
+
+    const key = this.copyCellKey(column, row, rowIndex);
+    navigator.clipboard.writeText(value)
+      .catch(() => undefined)
+      .finally(() => {
+        this.copiedCellKey.set(key);
+        setTimeout(() => {
+          if (this.copiedCellKey() === key) {
+            this.copiedCellKey.set(null);
+          }
+        }, 1400);
+      });
+
+    this.cellCopied.emit({columnId: column.id, value, row});
+  }
+
+  closeFilterMenuOnEnter(event: Event, trigger: MatMenuTrigger): void {
+    event.stopPropagation();
+    queueMicrotask(() => trigger.closeMenu());
+  }
+
+  onFilterMenuOpened(columnId: string, trigger: MatMenuTrigger): void {
+    this.activeFilterColumnId.set(columnId);
+    this.activeFilterTrigger.set(trigger);
+    this.requestFilterPositionUpdate();
+  }
+
+  onFilterMenuClosed(columnId: string): void {
+    if (this.activeFilterColumnId() === columnId) {
+      this.activeFilterColumnId.set(null);
+      this.activeFilterTrigger.set(null);
+    }
+  }
+
+  onTableWrapScroll(): void {
+    this.requestFilterPositionUpdate();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.requestFilterPositionUpdate();
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.requestFilterPositionUpdate();
+  }
+
+  trackByColumn = (_: number, column: SharedListColumn<any>): string => column.id;
 
   private readonly onMouseMoveBound = (event: MouseEvent) => this.onResizeMove(event);
 
@@ -279,9 +442,42 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     document.removeEventListener('mouseup', this.onMouseUpBound);
   }
 
+  private requestFilterPositionUpdate(): void {
+    const trigger = this.activeFilterTrigger();
+    if (!trigger?.menuOpen) {
+      return;
+    }
+    requestAnimationFrame(() => {
+      if (trigger.menuOpen) {
+        trigger.updatePosition();
+      }
+    });
+  }
+
+  private resolveCopyValue(column: SharedListColumn<any>, row: any): string {
+    if (!column.copy) {
+      return '';
+    }
+
+    if (typeof column.copy === 'object' && column.copy.valueAccessor) {
+      return `${column.copy.valueAccessor(row) ?? ''}`.trim();
+    }
+
+    return `${column.valueAccessor(row) ?? ''}`.trim();
+  }
+
+  private copyCellKey(column: SharedListColumn<any>, row: any, rowIndex: number): string {
+    const rowId = row?.id ?? row?.ID ?? rowIndex;
+    return `${column.id}:${rowId}`;
+  }
+
+  private escapeCssToken(value: string): string {
+    return (value ?? '').replace(/[^a-zA-Z0-9_-]/g, (match) => `\\${match}`);
+  }
+
   private matchesAllFilters(
-    row: T,
-    columns: SharedListColumn<T>[],
+    row: any,
+    columns: SharedListColumn<any>[],
     activeFilters: Record<string, string>,
   ): boolean {
     for (const column of columns) {
@@ -297,7 +493,7 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     return true;
   }
 
-  private matchesColumnFilter(row: T, column: SharedListColumn<T>, filterValue: string): boolean {
+  private matchesColumnFilter(row: any, column: SharedListColumn<any>, filterValue: string): boolean {
     if (column.filterPredicate) {
       return column.filterPredicate(row, filterValue);
     }
@@ -325,7 +521,7 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     return `${raw}`.toLowerCase().includes(lowerFilter);
   }
 
-  private getSortValue(row: T, column: SharedListColumn<T>): string | number | Date | boolean | null {
+  private getSortValue(row: any, column: SharedListColumn<any>): string | number | Date | boolean | null {
     if (column.sortValueAccessor) {
       return column.sortValueAccessor(row) ?? null;
     }
@@ -394,5 +590,13 @@ export class ConfigurableListComponent<T extends Record<string, unknown>> implem
     return Number.NaN;
   }
 }
+
+
+
+
+
+
+
+
 
 

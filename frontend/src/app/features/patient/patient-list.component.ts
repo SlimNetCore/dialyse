@@ -3,16 +3,16 @@ import {
   Component,
   computed,
   effect,
-  EventEmitter,
   HostListener,
   inject,
-  Output,
+  output,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
-import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -31,11 +31,15 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {WebSocketService} from '../../core/ws/websocket.service';
-import {ColumnFilterRendererComponent} from '../../shared/column-filter-renderer.component';
 import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
 import {PatientListStore} from './state/patient-list.store';
 import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {
+  ConfigurableListComponent,
+  SharedListColumn,
+  SharedListCopyEvent,
+} from '../../shared/configurable-list.component';
 
 export interface PatientRow {
   id: string;
@@ -65,7 +69,6 @@ type FilterType = 'text' | 'date';
   imports: [
     CommonModule,
     MatCardModule,
-    MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
@@ -80,17 +83,17 @@ type FilterType = 'text' | 'date';
     TranslateModule,
     PatientQrCardComponent,
     PatientSummaryCardsComponent,
-    ColumnFilterRendererComponent,
     HemodialysisLoaderComponent,
+    ConfigurableListComponent,
   ],
   templateUrl: './patient-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './patient-list.component.css',
 })
 export class PatientListComponent {
-  @Output() newPatient = new EventEmitter<void>();
-  @Output() selectPatient = new EventEmitter<PatientRow>();
-  @Output() viewStats = new EventEmitter<PatientRow>();
+  readonly newPatient = output<void>();
+  readonly selectPatient = output<PatientRow>();
+  readonly viewStats = output<PatientRow>();
 
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
@@ -195,7 +198,17 @@ export class PatientListComponent {
 
   readonly copiedField = signal<string | null>(null);
 
-  private readonly openFilterColumn = signal<string | null>(null);
+  protected readonly codeCellTemplate = viewChild<TemplateRef<any>>('codeCell');
+  protected readonly nomCellTemplate = viewChild<TemplateRef<any>>('nomCell');
+  protected readonly sexeCellTemplate = viewChild<TemplateRef<any>>('sexeCell');
+  protected readonly assuranceCellTemplate = viewChild<TemplateRef<any>>('assuranceCell');
+  protected readonly etatCellTemplate = viewChild<TemplateRef<any>>('etatCell');
+  protected readonly facturationCellTemplate = viewChild<TemplateRef<any>>('facturationCell');
+  protected readonly pecStatusCellTemplate = viewChild<TemplateRef<any>>('pecStatusCell');
+  protected readonly joursDialyseCellTemplate = viewChild<TemplateRef<any>>('joursDialyseCell');
+  protected readonly nullableTextCellTemplate = viewChild<TemplateRef<any>>('nullableTextCell');
+  protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
+
   private readonly isCompactViewport = signal(
     typeof window !== 'undefined' ? window.innerWidth <= 900 : false,
   );
@@ -207,14 +220,6 @@ export class PatientListComponent {
     'actions',
   ]);
 
-  columnFilterValue(column: string): string {
-    return this.columnFilters()[column] ?? '';
-  }
-
-  isColumnFiltered(column: string): boolean {
-    return !!(this.columnFilters()[column] ?? '').trim();
-  }
-
   readonly displayedColumns = computed(() => {
     const visible = this.allColumnsConfig
       .filter((c) => this.visibleColumns()[c.key])
@@ -225,6 +230,183 @@ export class PatientListComponent {
     if (visible.includes('actions') && !prioritized.includes('actions'))
       prioritized.push('actions');
     return prioritized.length > 0 ? prioritized : visible.slice(0, 4);
+  });
+  private readonly allColumnDefsById = computed<Record<string, SharedListColumn<PatientRow>>>(() => ({
+    numeroAssurance: {
+      id: 'numeroAssurance',
+      headerKey: 'PATIENT_LIST.COL_ASSURANCE',
+      valueAccessor: (row) => row.numeroAssurance ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 170,
+      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_ASSURANCE'},
+      copy: {valueAccessor: (row) => row.numeroAssurance ?? '', tooltipKey: 'PATIENT_LIST.COPY_TOOLTIP'},
+      cellTemplate: this.assuranceCellTemplate() ?? undefined,
+    },
+    code: {
+      id: 'code',
+      headerKey: 'PATIENT_LIST.COL_CODE',
+      valueAccessor: (row) => row.code ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 140,
+      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_CODE'},
+      copy: {valueAccessor: (row) => row.code ?? '', tooltipKey: 'PATIENT_LIST.COPY_TOOLTIP'},
+      cellTemplate: this.codeCellTemplate() ?? undefined,
+    },
+    nom: {
+      id: 'nom',
+      headerKey: 'PATIENT_LIST.COL_NOM',
+      valueAccessor: (row) => row.nom ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 180,
+      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_NOM'},
+      cellTemplate: this.nomCellTemplate() ?? undefined,
+    },
+    prenom: {
+      id: 'prenom',
+      headerKey: 'PATIENT_LIST.COL_PRENOM',
+      valueAccessor: (row) => row.prenom ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 170,
+      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_PRENOM'},
+    },
+    sexe: {
+      id: 'sexe',
+      headerKey: 'PATIENT_LIST.COL_SEXE',
+      valueAccessor: (row) => row.sexe ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 120,
+      maxWidthPx: 140,
+      filter: {type: 'enum', options: this.sexeFilterOptions, labelKey: 'PATIENT_LIST.COL_SEXE'},
+      cellTemplate: this.sexeCellTemplate() ?? undefined,
+    },
+    dateAdmission: {
+      id: 'dateAdmission',
+      headerKey: 'PATIENT_LIST.COL_DATE_ADMISSION',
+      valueAccessor: (row) => row.dateAdmission ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 170,
+      filter: {type: 'date', labelKey: 'PATIENT_LIST.COL_DATE_ADMISSION'},
+    },
+    etatPatient: {
+      id: 'etatPatient',
+      headerKey: 'PATIENT_LIST.COL_ETAT',
+      valueAccessor: (row) => row.etatPatient ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 170,
+      filter: {type: 'enum', options: this.etatFilterOptions, labelKey: 'PATIENT_LIST.COL_ETAT'},
+      cellTemplate: this.etatCellTemplate() ?? undefined,
+    },
+    nonFacturable: {
+      id: 'nonFacturable',
+      headerKey: 'PATIENT_LIST.BILLING_LABEL',
+      valueAccessor: (row) => !!row.nonFacturable,
+      sortable: true,
+      resizable: true,
+      minWidthPx: 170,
+      filter: {type: 'boolean', labelKey: 'PATIENT_LIST.BILLING_LABEL'},
+      cellTemplate: this.facturationCellTemplate() ?? undefined,
+    },
+    pecStatus: {
+      id: 'pecStatus',
+      headerKey: 'PATIENT_LIST.COL_PEC',
+      valueAccessor: (row) => row.pecStatus ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 145,
+      filter: {type: 'enum', options: this.pecFilterOptions, labelKey: 'PATIENT_LIST.COL_PEC'},
+      cellTemplate: this.pecStatusCellTemplate() ?? undefined,
+    },
+    medecinTraitantId: {
+      id: 'medecinTraitantId',
+      headerKey: 'PATIENT_FORM.MEDECIN_TRAITANT',
+      valueAccessor: (row) => row.medecinTraitantId ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 175,
+      filter: {type: 'text', labelKey: 'PATIENT_FORM.MEDECIN_TRAITANT'},
+      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+    },
+    positionId: {
+      id: 'positionId',
+      headerKey: 'PATIENT_FORM.POSITION',
+      valueAccessor: (row) => row.positionId ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 150,
+      filter: {type: 'text', labelKey: 'PATIENT_FORM.POSITION'},
+      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+    },
+    transporteurAllerId: {
+      id: 'transporteurAllerId',
+      headerKey: 'PATIENT_FORM.TRANSPORTEUR_ALLER',
+      valueAccessor: (row) => row.transporteurAllerId ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 185,
+      filter: {type: 'text', labelKey: 'PATIENT_FORM.TRANSPORTEUR_ALLER'},
+      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+    },
+    transporteurRetourId: {
+      id: 'transporteurRetourId',
+      headerKey: 'PATIENT_FORM.TRANSPORTEUR_RETOUR',
+      valueAccessor: (row) => row.transporteurRetourId ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 190,
+      filter: {type: 'text', labelKey: 'PATIENT_FORM.TRANSPORTEUR_RETOUR'},
+      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+    },
+    joursDialyse: {
+      id: 'joursDialyse',
+      headerKey: 'PATIENT_FORM.JOURS_DIALYSE',
+      valueAccessor: (row) => this.dialyseDaysAsFilterText(row),
+      sortable: false,
+      resizable: true,
+      minWidthPx: 190,
+      filter: {type: 'text', labelKey: 'PATIENT_FORM.JOURS_DIALYSE'},
+      cellTemplate: this.joursDialyseCellTemplate() ?? undefined,
+    },
+    pecForfaitId: {
+      id: 'pecForfaitId',
+      headerKey: 'PATIENT_LIST.COL_FORFAIT',
+      valueAccessor: (row) => row.pecForfaitId ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 160,
+      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_FORFAIT'},
+      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+    },
+    actions: {
+      id: 'actions',
+      headerKey: 'PATIENT_LIST.COL_ACTIONS',
+      valueAccessor: () => '',
+      sortable: false,
+      resizable: false,
+      widthPx: 240,
+      minWidthPx: 210,
+      maxWidthPx: 300,
+      cellTemplate: this.actionsCellTemplate() ?? undefined,
+    },
+  }));
+  readonly displayedColumnDefs = computed<SharedListColumn<PatientRow>[]>(() => {
+    const visibleKeys = this.displayedColumns();
+    const columnDefs = this.allColumnDefsById();
+    return visibleKeys
+      .map((key) => columnDefs[key])
+      .filter((column): column is SharedListColumn<PatientRow> => !!column);
+  });
+
+  readonly rowClassResolver = (row: PatientRow) => ({
+    'patient-row': true,
+    'patient-row-recent': this.isRecentRow(row.id),
+    'patient-row-selected': this.selectedRowId() === row.id,
   });
 
   constructor() {
@@ -255,27 +437,6 @@ export class PatientListComponent {
     return !!rowId && rowId === this.recentPatientId();
   }
 
-  clearColumnFilter(column: string): void {
-    this.patientListStore.clearFilter(column);
-  }
-
-  isFilterOpen(column: string): boolean {
-    return this.openFilterColumn() === column;
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (!target) {
-      this.openFilterColumn.set(null);
-      return;
-    }
-    if (target.closest('.th-wrap')) {
-      return;
-    }
-    this.openFilterColumn.set(null);
-  }
-
   @HostListener('window:resize')
   onWindowResize(): void {
     this.isCompactViewport.set(window.innerWidth <= 900);
@@ -288,23 +449,7 @@ export class PatientListComponent {
   }
 
   clearAllColumnFilters(): void {
-    this.openFilterColumn.set(null);
     this.patientListStore.clearAllFilters();
-  }
-
-  toggleFilterPanel(column: string, event: MouseEvent): void {
-    event.stopPropagation();
-    if (typeof window !== 'undefined' && window.innerWidth <= 760) {
-      const wrap = (event.target as HTMLElement).closest('.th-wrap');
-      if (wrap) {
-        const rect = wrap.getBoundingClientRect();
-        document.documentElement.style.setProperty(
-          '--filter-row-bottom',
-          `${Math.round(rect.bottom + 6)}px`,
-        );
-      }
-    }
-    this.openFilterColumn.update((current) => (current === column ? null : column));
   }
 
   isColumnVisible(column: string): boolean {
@@ -319,6 +464,13 @@ export class PatientListComponent {
     this.visibleColumns.update((prev) => ({...prev, [column]: checked}));
   }
 
+  onListFiltersChange(filters: Record<string, string>): void {
+    for (const column of this.allColumnsConfig) {
+      if (column.key === 'actions') continue;
+      this.patientListStore.setFilter(column.key, filters[column.key] ?? '');
+    }
+  }
+
   printFiche(patient: PatientRow): void {
     const centerId = this.auth.centerId();
     if (!centerId) return;
@@ -328,23 +480,17 @@ export class PatientListComponent {
     setTimeout(() => this.patientListStore.setPrintingRowId(null), 10000);
   }
 
-  copyToClipboard(value: string, fieldKey: string, event: MouseEvent): void {
-    event.stopPropagation();
+  onListCellCopied(event: SharedListCopyEvent<PatientRow>): void {
+    const value = event?.value ?? '';
+    const fieldKey = `${event.columnId}_${event.row?.id ?? ''}`;
     if (!value) return;
     const centerId = this.appShell.currentCenterId();
     if (centerId) {
       this.appShell.setSeanceScanClipboard(centerId, value);
     }
-    navigator.clipboard.writeText(value).then(() => {
-      this.copiedField.set(fieldKey);
-      this.snackBar.open(this.translate.instant('PATIENT_LIST.COPY_SUCCESS'), '', {duration: 1800});
-      setTimeout(() => this.copiedField.set(null), 2000);
-    }).catch(() => {
-      // Even when browser clipboard is blocked, we keep app-level clipboard for scanner autofill.
-      this.copiedField.set(fieldKey);
-      this.snackBar.open(this.translate.instant('PATIENT_LIST.COPY_SUCCESS'), '', {duration: 1800});
-      setTimeout(() => this.copiedField.set(null), 2000);
-    });
+    this.copiedField.set(fieldKey);
+    this.snackBar.open(this.translate.instant('PATIENT_LIST.COPY_SUCCESS'), '', {duration: 1800});
+    setTimeout(() => this.copiedField.set(null), 2000);
   }
 
   openCahier(patient: PatientRow): void {
@@ -410,16 +556,40 @@ export class PatientListComponent {
       || normalizedStatus === 'VACANCIER_ETRANGER';
   }
 
-  visibleEventDate(row: PatientRow): string {
-    const formattedDate = this.formatEventDate(row.dateEvenementEtat ?? '');
-    const label = this.translate.instant(this.eventDateLabelKey(row));
-    return formattedDate
-      ? `${label}: ${formattedDate}`
-      : this.translate.instant('PATIENT_LIST.EVENT_DATE_NOT_PROVIDED', {label});
+  onListRowClick(row: PatientRow): void {
+    this.onRowClick(row);
   }
 
-  onColumnFilterValue(column: string, value: string): void {
-    this.patientListStore.setFilter(column, value);
+  hasDialyseDay(row: PatientRow): boolean {
+    const days = row.joursDialyse;
+    return !!(
+      days &&
+      (days.dimanche ||
+        days.lundi ||
+        days.mardi ||
+        days.mercredi ||
+        days.jeudi ||
+        days.vendredi ||
+        days.samedi)
+    );
+  }
+
+  textOrDash(value: string | undefined | null): string {
+    return (value ?? '').trim() || '-';
+  }
+
+  private dialyseDaysAsFilterText(row: PatientRow): string {
+    const days = row.joursDialyse;
+    if (!days) return '';
+    const labels: string[] = [];
+    if (days.dimanche) labels.push('dimanche');
+    if (days.lundi) labels.push('lundi');
+    if (days.mardi) labels.push('mardi');
+    if (days.mercredi) labels.push('mercredi');
+    if (days.jeudi) labels.push('jeudi');
+    if (days.vendredi) labels.push('vendredi');
+    if (days.samedi) labels.push('samedi');
+    return labels.join(' ');
   }
 
   private formatEventDate(rawDate: string): string {

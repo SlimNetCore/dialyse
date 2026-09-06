@@ -6,7 +6,7 @@
     </button>
   </div>
 
-  <div class="table-wrap">
+  <div (scroll)="onTableWrapScroll()" class="table-wrap">
     <table [dataSource]="displayedRows()" [style.min-width.px]="minTableWidthPx()" class="shared-table" mat-table>
       @for (column of columns(); track trackByColumn($index, column)) {
         <ng-container [matColumnDef]="column.id">
@@ -31,6 +31,9 @@
                   [attr.aria-label]="'COMMON.FILTER_BY' | translate: { field: (column.headerKey | translate) }"
                   [class.filter-active]="isFilterActive(column.id)"
                   [matMenuTriggerFor]="menu"
+                  #filterTrigger="matMenuTrigger"
+                  (menuClosed)="onFilterMenuClosed(column.id)"
+                  (menuOpened)="onFilterMenuOpened(column.id, filterTrigger)"
                   class="filter-button"
                   mat-icon-button
                   type="button"
@@ -38,8 +41,12 @@
                   <mat-icon>{{ isFilterActive(column.id) ? 'filter_alt' : 'filter_alt_off' }}</mat-icon>
                 </button>
 
-                <mat-menu #menu="matMenu" class="th-filter">
-                  <div (click)="$event.stopPropagation()" class="menu-body">
+                <mat-menu #menu="matMenu" class="cfg-filter-menu-panel">
+                  <div
+                    (click)="$event.stopPropagation()"
+                    (keydown.enter)="closeFilterMenuOnEnter($event, filterTrigger)"
+                    class="menu-body"
+                  >
                     @if (filter.component) {
                       <app-dynamic-filter-host
                         (clear)="clearFilter(column.id)"
@@ -64,23 +71,41 @@
               }
 
               @if (column.resizable) {
-                <span (mousedown)="onResizeStart($event, column)" class="resize-handle"></span>
+                <span
+                  (dblclick)="onResizeAutoFit($event, column)"
+                  (mousedown)="onResizeStart($event, column)"
+                  class="resize-handle"
+                ></span>
               }
             </div>
           </th>
 
-          <td *matCellDef="let row" [style.max-width.px]="column.maxWidthPx ?? null"
+          <td *matCellDef="let row; let rowIndex = index" [style.max-width.px]="column.maxWidthPx ?? null"
               [style.min-width.px]="column.minWidthPx ?? null" [style.width.px]="columnWidthPx(column)" mat-cell>
-            @if (column.cellTemplate) {
-              <ng-container
-                *ngTemplateOutlet="
-                  column.cellTemplate;
-                  context: { $implicit: row, row: row, value: cellValue(row, column), column: column }
-                "
-              />
-            } @else {
-              {{ cellValue(row, column) }}
-            }
+            <div class="cell-content">
+              @if (column.cellTemplate) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    column.cellTemplate;
+                    context: { $implicit: row, row: row, value: cellValue(row, column), column: column }
+                  "
+                />
+              } @else {
+                {{ cellValue(row, column) }}
+              }
+
+              @if (hasCopyAction(column, row)) {
+                <button
+                  (click)="onCopyCellValue($event, column, row, rowIndex)"
+                  [matTooltip]="copyTooltipKey(column) | translate"
+                  class="copy-action-btn"
+                  mat-icon-button
+                  type="button"
+                >
+                  <mat-icon>{{ copyIconName(column, row, rowIndex) }}</mat-icon>
+                </button>
+              }
+            </div>
           </td>
         </ng-container>
       }
@@ -89,6 +114,7 @@
       <tr
         (click)="onRowClick(row)"
         *matRowDef="let row; columns: displayedColumnIds()"
+        [ngClass]="rowClasses(row)"
         class="data-row"
         mat-row
       ></tr>

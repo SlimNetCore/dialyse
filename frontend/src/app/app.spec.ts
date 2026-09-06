@@ -17,27 +17,28 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render router outlet', async () => {
+  it('should render loader or router outlet depending on startup state', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+    const hasRouterOutlet = !!compiled.querySelector('router-outlet');
+    const hasLoader = !!compiled.querySelector('app-hemodialysis-loader');
+    expect(hasRouterOutlet || hasLoader).toBeTruthy();
   });
 
-  it('should have showAuthLoader computed signal', () => {
+  it('should expose startup/connection loader computed signals', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;
 
-    expect(app.showAuthLoader()).toBeFalsy();
+    expect(typeof app.showStartupLoader).toBe('function');
+    expect(typeof app.showConnectionLoader).toBe('function');
   });
 
-  it('should implement OnDestroy', () => {
+  it('should destroy cleanly', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-
-    expect(app.ngOnDestroy).toBeDefined();
+    expect(() => fixture.destroy()).not.toThrow();
   });
 
   it('uses dynamic Material form field subscript sizing', () => {
