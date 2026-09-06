@@ -19,8 +19,10 @@ import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
 import {MatTableModule} from '@angular/material/table';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
+import {firstValueFrom, Observable} from 'rxjs';
 import {ColumnFilterRendererComponent, ColumnFilterType} from './column-filter-renderer.component';
 import {DynamicFilterHostComponent} from './dynamic-filter-host.component';
+import {HemodialysisLoaderComponent} from './hemodialysis-loader.component';
 
 export type SortDirection = 'asc' | 'desc' | '';
 
@@ -29,6 +31,7 @@ export type SharedListFilterOption = { value: string; label: string };
 export interface SharedListFilterConfig {
   type?: ColumnFilterType;
   options?: SharedListFilterOption[];
+  optionsLoader?: () => Observable<SharedListFilterOption[]> | Promise<SharedListFilterOption[]>;
   placeholder?: string;
   labelKey?: string;
   component?: Type<unknown>;
@@ -82,6 +85,7 @@ export interface SharedListCopyEvent<T = any> {
     TranslateModule,
     ColumnFilterRendererComponent,
     DynamicFilterHostComponent,
+    HemodialysisLoaderComponent,
   ],
   templateUrl: './configurable-list.component.html',
   styleUrl: './configurable-list.component.css',
@@ -163,6 +167,8 @@ export class ConfigurableListComponent implements OnDestroy {
   protected readonly columnFilters = signal<Record<string, string>>({});
   protected readonly sortState = signal<SharedListSortChange>({columnId: '', direction: ''});
   protected readonly copiedCellKey = signal<string | null>(null);
+  protected readonly lazyFilterOptions = signal<Record<string, SharedListFilterOption[]>>({});
+  protected readonly lazyFilterLoading = signal<Record<string, boolean>>({});
   readonly mobileActionRowColumns = computed(() => {
     if (!this.isMobileView()) {
       return [] as string[];
@@ -418,9 +424,10 @@ export class ConfigurableListComponent implements OnDestroy {
     queueMicrotask(() => trigger.closeMenu());
   }
 
-  onFilterMenuOpened(columnId: string, trigger: MatMenuTrigger): void {
+  onFilterMenuOpened(columnId: string, trigger: MatMenuTrigger, filter: SharedListFilterConfig): void {
     this.activeFilterColumnId.set(columnId);
     this.activeFilterTrigger.set(trigger);
+    void this.ensureLazyFilterOptions(columnId, filter);
     this.requestFilterPositionUpdate();
   }
 
@@ -433,6 +440,18 @@ export class ConfigurableListComponent implements OnDestroy {
 
   onTableWrapScroll(): void {
     this.requestFilterPositionUpdate();
+  }
+
+  isFilterOptionsLoading(columnId: string): boolean {
+    return !!this.lazyFilterLoading()[columnId];
+  }
+
+  resolvedFilterOptions(columnId: string, filter: SharedListFilterConfig): SharedListFilterOption[] {
+    const lazyOptions = this.lazyFilterOptions()[columnId];
+    if (lazyOptions) {
+      return lazyOptions;
+    }
+    return filter.options ?? [];
   }
 
   @HostListener('window:resize')
@@ -535,6 +554,52 @@ export class ConfigurableListComponent implements OnDestroy {
   private copyCellKey(column: SharedListColumn<any>, row: any, rowIndex: number): string {
     const rowId = row?.id ?? row?.ID ?? rowIndex;
     return `${column.id}:${rowId}`;
+  }
+
+  private async ensureLazyFilterOptions(columnId: string, filter: SharedListFilterConfig): Promise<void> {
+    if (!filter.optionsLoader) {
+      return;
+    }
+
+    const loaded = this.lazyFilterOptions()[columnId];
+    const loading = this.lazyFilterLoading()[columnId];
+    if (loaded || loading) {
+      return;
+    }
+
+    this.lazyFilterLoading.update((current) => ({
+      ...current,
+      [columnId]: true,
+    }));
+
+    try {
+      const source = filter.optionsLoader();
+      const options = this.isObservableSource(source)
+        ? await firstValueFrom(source)
+        : await source;
+
+      this.lazyFilterOptions.update((current) => ({
+        ...current,
+        [columnId]: options ?? [],
+      }));
+    } catch {
+      this.lazyFilterOptions.update((current) => ({
+        ...current,
+        [columnId]: filter.options ?? [],
+      }));
+    } finally {
+      this.lazyFilterLoading.update((current) => ({
+        ...current,
+        [columnId]: false,
+      }));
+      this.requestFilterPositionUpdate();
+    }
+  }
+
+  private isObservableSource(
+    value: Observable<SharedListFilterOption[]> | Promise<SharedListFilterOption[]>,
+  ): value is Observable<SharedListFilterOption[]> {
+    return typeof (value as Observable<SharedListFilterOption[]>)?.subscribe === 'function';
   }
 
   private escapeCssToken(value: string): string {

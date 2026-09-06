@@ -34,11 +34,13 @@ import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.comp
 import {PatientListStore} from './state/patient-list.store';
 import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {RefItem, ReferentialApiService} from '../../core/api/referential-api.service';
 import {
   ConfigurableListComponent,
   SharedListColumn,
   SharedListCopyEvent,
 } from '../../shared/configurable-list.component';
+import {catchError, map, Observable, of} from 'rxjs';
 
 export interface PatientRow {
   id: string;
@@ -95,7 +97,7 @@ export class PatientListComponent {
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
   private readonly router = inject(Router);
-  readonly etatFilterOptions = [
+  readonly etatFilterFallbackOptions = [
     {value: 'PERMANENT', label: 'PATIENT_FORM.PERMANENT'},
     {value: 'OCCASIONNEL', label: 'PATIENT_FORM.OCCASIONNEL'},
     {value: 'VACANCIER_LOCAL', label: 'PATIENT_FORM.VACANCIER_LOCAL'},
@@ -147,6 +149,7 @@ export class PatientListComponent {
   readonly summaryLoading = this.patientListStore.summaryLoading;
   private readonly translate = inject(TranslateService);
   private readonly api = inject(BackendApiService);
+  private readonly referentialApi = inject(ReferentialApiService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   readonly total = this.patientListStore.total;
@@ -239,7 +242,12 @@ export class PatientListComponent {
       sortable: true,
       resizable: true,
       minWidthPx: 170,
-      filter: {type: 'enum', options: this.etatFilterOptions, labelKey: 'PATIENT_LIST.COL_ETAT'},
+      filter: {
+        type: 'enum',
+        optionsLoader: () => this.loadEtatFilterOptionsFromReferential(),
+        options: this.etatFilterFallbackOptions,
+        labelKey: 'PATIENT_LIST.COL_ETAT',
+      },
       cellTemplate: this.etatCellTemplate() ?? undefined,
     },
     nonFacturable: {
@@ -529,6 +537,29 @@ export class PatientListComponent {
 
   textOrDash(value: string | undefined | null): string {
     return (value ?? '').trim() || '-';
+  }
+
+  private loadEtatFilterOptionsFromReferential(): Observable<Array<{ value: string; label: string }>> {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) {
+      return of(this.etatFilterFallbackOptions);
+    }
+
+    return this.referentialApi.getEtatsPatients(centerId).pipe(
+      map((items) => this.mapEtatRefItemsToFilterOptions(items)),
+      map((options) => options.length > 0 ? options : this.etatFilterFallbackOptions),
+      catchError(() => of(this.etatFilterFallbackOptions)),
+    );
+  }
+
+  private mapEtatRefItemsToFilterOptions(items: RefItem[]): Array<{ value: string; label: string }> {
+    return items
+      .map((item) => (item.code ?? item.nom ?? item.id ?? '').trim().toUpperCase())
+      .filter((value, index, values) => !!value && values.indexOf(value) === index)
+      .map((value) => ({
+        value,
+        label: `PATIENT_FORM.${value}`,
+      }));
   }
 
   private dialyseDaysAsFilterText(row: PatientRow): string {

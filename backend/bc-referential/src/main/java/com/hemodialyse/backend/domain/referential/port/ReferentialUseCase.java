@@ -20,6 +20,8 @@ public interface ReferentialUseCase {
     List<RefItem> transporteurs(CenterId c);
     List<RefItem> categoriesTransport(CenterId c);
     List<RefItem> forfaits(CenterId c);
+
+    List<RefItem> etatsPatients(CenterId c);
     List<RefItem> articles(CenterId c);
 
     List<RefItem> generateurs(CenterId c);

@@ -33,7 +33,7 @@
                   [matMenuTriggerFor]="menu"
                   #filterTrigger="matMenuTrigger"
                   (menuClosed)="onFilterMenuClosed(column.id)"
-                  (menuOpened)="onFilterMenuOpened(column.id, filterTrigger)"
+                  (menuOpened)="onFilterMenuOpened(column.id, filterTrigger, filter)"
                   class="filter-button"
                   mat-icon-button
                   type="button"
@@ -47,7 +47,9 @@
                     (keydown.enter)="closeFilterMenuOnEnter($event, filterTrigger)"
                     class="menu-body"
                   >
-                    @if (filter.component) {
+                    @if (isFilterOptionsLoading(column.id)) {
+                      <hemo-circuit-loader label="COMMON.LOADING_DATA" mode="inline" sizePreset="small"/>
+                    } @else if (filter.component) {
                       <app-dynamic-filter-host
                         (clear)="clearFilter(column.id)"
                         (valueChange)="onFilterValue(column.id, $event)"
@@ -60,7 +62,7 @@
                         (clear)="clearFilter(column.id)"
                         (valueChange)="onFilterValue(column.id, $event)"
                         [labelKey]="filter.labelKey ?? column.headerKey"
-                        [options]="filter.options ?? []"
+                        [options]="resolvedFilterOptions(column.id, filter)"
                         [placeholder]="filter.placeholder ?? ''"
                         [type]="filter.type ?? 'text'"
                         [value]="currentFilterValue(column.id)"
@@ -109,6 +111,14 @@
           </td>
         </ng-container>
       }
+
+      <ng-container matColumnDef="__mobile_actions__">
+        <td *matCellDef="let row" [attr.colspan]="mobileActionsColspan()" class="mobile-actions-cell" mat-cell>
+          @if (actionColumn()?.cellTemplate && mobileActionsCellContext(row); as context) {
+            <ng-container *ngTemplateOutlet="actionColumn()!.cellTemplate; context: context"/>
+          }
+        </td>
+      </ng-container>
 
       <tr *matHeaderRowDef="displayedColumnIds()" mat-header-row></tr>
       <tr

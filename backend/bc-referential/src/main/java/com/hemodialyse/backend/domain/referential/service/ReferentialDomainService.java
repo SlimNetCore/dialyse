@@ -32,6 +32,20 @@ public class ReferentialDomainService implements ReferentialUseCase {
     @Override public List<RefItem> forfaits(CenterId c) { return repo.findForfaits(c); }
 
     @Override
+    public List<RefItem> etatsPatients(CenterId c) {
+        return List.of(
+                new RefItem("PERMANENT", "PERMANENT", "PERMANENT", null, null, null, null),
+                new RefItem("OCCASIONNEL", "OCCASIONNEL", "OCCASIONNEL", null, null, null, null),
+                new RefItem("VACANCIER_LOCAL", "VACANCIER_LOCAL", "VACANCIER_LOCAL", null, null, null, null),
+                new RefItem("VACANCIER_ETRANGER", "VACANCIER_ETRANGER", "VACANCIER_ETRANGER", null, null, null, null),
+                new RefItem("TRANSFERE", "TRANSFERE", "TRANSFERE", null, null, null, null),
+                new RefItem("DECEDE", "DECEDE", "DECEDE", null, null, null, null),
+                new RefItem("GREFFE", "GREFFE", "GREFFE", null, null, null, null),
+                new RefItem("GUERRI", "GUERRI", "GUERRI", null, null, null, null)
+        );
+    }
+
+    @Override
     public List<RefItem> articles(CenterId c) {
         return repo.findArticles(c);
     }

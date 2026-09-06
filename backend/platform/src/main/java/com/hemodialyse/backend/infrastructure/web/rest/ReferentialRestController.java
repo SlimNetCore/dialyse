@@ -66,6 +66,11 @@ public class ReferentialRestController {
         return ResponseEntity.ok(useCase.forfaits(CenterId.of(centerId)));
     }
 
+    @GetMapping("/etats-patients")
+    public ResponseEntity<?> etatsPatients(@RequestParam UUID centerId) {
+        return ResponseEntity.ok(useCase.etatsPatients(CenterId.of(centerId)));
+    }
+
     @GetMapping("/articles")
     public ResponseEntity<?> articles(@RequestParam UUID centerId) {
         return ResponseEntity.ok(useCase.articles(CenterId.of(centerId)));

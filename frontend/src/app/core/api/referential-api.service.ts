@@ -50,6 +50,10 @@ export class ReferentialApiService {
   getCategoriesTransport(centerId: string) { return this.get('categories-transport', centerId); }
   getForfaits(centerId: string) { return this.get('forfaits', centerId); }
 
+  getEtatsPatients(centerId: string) {
+    return this.get('etats-patients', centerId);
+  }
+
   getArticles(centerId: string) {
     return this.get('articles', centerId);
   }
