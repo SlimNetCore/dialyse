@@ -93,6 +93,9 @@ export interface SharedListCopyEvent<T = any> {
   encapsulation: ViewEncapsulation.None,
 })
 export class ConfigurableListComponent implements OnDestroy {
+  private static readonly FILTER_OPTIONS_EMPTY_ERROR_KEY = 'COMMON.REF_OPTIONS_EMPTY';
+  private static readonly FILTER_OPTIONS_LOAD_ERROR_KEY = 'COMMON.REF_OPTIONS_LOAD_ERROR';
+
   readonly rows = input<any[]>([]);
   readonly columns = input<SharedListColumn<any>[]>([]);
   readonly columnVisibility = input<Record<string, boolean> | null>(null);
@@ -169,6 +172,7 @@ export class ConfigurableListComponent implements OnDestroy {
   protected readonly copiedCellKey = signal<string | null>(null);
   protected readonly lazyFilterOptions = signal<Record<string, SharedListFilterOption[]>>({});
   protected readonly lazyFilterLoading = signal<Record<string, boolean>>({});
+  protected readonly lazyFilterErrors = signal<Record<string, string>>({});
   readonly mobileActionRowColumns = computed(() => {
     if (!this.isMobileView()) {
       return [] as string[];
@@ -443,7 +447,11 @@ export class ConfigurableListComponent implements OnDestroy {
   }
 
   isFilterOptionsLoading(columnId: string): boolean {
-    return !!this.lazyFilterLoading()[columnId];
+    return this.lazyFilterLoading()[columnId];
+  }
+
+  filterOptionsError(columnId: string): string {
+    return this.lazyFilterErrors()[columnId] ?? '';
   }
 
   resolvedFilterOptions(columnId: string, filter: SharedListFilterConfig): SharedListFilterOption[] {
@@ -571,6 +579,10 @@ export class ConfigurableListComponent implements OnDestroy {
       ...current,
       [columnId]: true,
     }));
+    this.lazyFilterErrors.update((current) => ({
+      ...current,
+      [columnId]: '',
+    }));
 
     try {
       const source = filter.optionsLoader();
@@ -578,14 +590,30 @@ export class ConfigurableListComponent implements OnDestroy {
         ? await firstValueFrom(source)
         : await source;
 
+      if (!options || options.length === 0) {
+        this.lazyFilterOptions.update((current) => ({
+          ...current,
+          [columnId]: [],
+        }));
+        this.lazyFilterErrors.update((current) => ({
+          ...current,
+          [columnId]: ConfigurableListComponent.FILTER_OPTIONS_EMPTY_ERROR_KEY,
+        }));
+        return;
+      }
+
       this.lazyFilterOptions.update((current) => ({
         ...current,
-        [columnId]: options ?? [],
+        [columnId]: options,
       }));
     } catch {
       this.lazyFilterOptions.update((current) => ({
         ...current,
-        [columnId]: filter.options ?? [],
+        [columnId]: [],
+      }));
+      this.lazyFilterErrors.update((current) => ({
+        ...current,
+        [columnId]: ConfigurableListComponent.FILTER_OPTIONS_LOAD_ERROR_KEY,
       }));
     } finally {
       this.lazyFilterLoading.update((current) => ({

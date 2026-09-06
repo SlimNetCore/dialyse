@@ -97,16 +97,6 @@ export class PatientListComponent {
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
   private readonly router = inject(Router);
-  readonly etatFilterFallbackOptions = [
-    {value: 'PERMANENT', label: 'PATIENT_FORM.PERMANENT'},
-    {value: 'OCCASIONNEL', label: 'PATIENT_FORM.OCCASIONNEL'},
-    {value: 'VACANCIER_LOCAL', label: 'PATIENT_FORM.VACANCIER_LOCAL'},
-    {value: 'VACANCIER_ETRANGER', label: 'PATIENT_FORM.VACANCIER_ETRANGER'},
-    {value: 'TRANSFERE', label: 'PATIENT_FORM.TRANSFERE'},
-    {value: 'DECEDE', label: 'PATIENT_FORM.DECEDE'},
-    {value: 'GREFFE', label: 'PATIENT_FORM.GREFFE'},
-    {value: 'GUERRI', label: 'PATIENT_FORM.GUERRI'},
-  ];
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly selectedRowId = signal<string | null>(null);
   readonly columnsMenuItems = computed(() =>
@@ -245,7 +235,6 @@ export class PatientListComponent {
       filter: {
         type: 'enum',
         optionsLoader: () => this.loadEtatFilterOptionsFromReferential(),
-        options: this.etatFilterFallbackOptions,
         labelKey: 'PATIENT_LIST.COL_ETAT',
       },
       cellTemplate: this.etatCellTemplate() ?? undefined,
@@ -542,13 +531,12 @@ export class PatientListComponent {
   private loadEtatFilterOptionsFromReferential(): Observable<Array<{ value: string; label: string }>> {
     const centerId = this.appShell.currentCenterId();
     if (!centerId) {
-      return of(this.etatFilterFallbackOptions);
+      return of([]);
     }
 
     return this.referentialApi.getEtatsPatients(centerId).pipe(
       map((items) => this.mapEtatRefItemsToFilterOptions(items)),
-      map((options) => options.length > 0 ? options : this.etatFilterFallbackOptions),
-      catchError(() => of(this.etatFilterFallbackOptions)),
+      catchError(() => of([])),
     );
   }
 

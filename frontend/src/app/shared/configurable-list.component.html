@@ -48,8 +48,17 @@
                     class="menu-body"
                   >
                     @if (isFilterOptionsLoading(column.id)) {
-                      <hemo-circuit-loader label="COMMON.LOADING_DATA" mode="inline" sizePreset="small"/>
-                    } @else if (filter.component) {
+                      <div class="filter-loading-inline">
+                        <hemo-circuit-loader [size]="34" [speed]="2" mode="inline"/>
+                        <span class="filter-loading-label">{{ 'COMMON.REF_OPTIONS_LOADING' | translate }}</span>
+                      </div>
+                    }
+
+                    @if (filterOptionsError(column.id)) {
+                      <div class="filter-loading-error">{{ filterOptionsError(column.id) | translate }}</div>
+                    }
+
+                    @if (filter.component) {
                       <app-dynamic-filter-host
                         (clear)="clearFilter(column.id)"
                         (valueChange)="onFilterValue(column.id, $event)"
