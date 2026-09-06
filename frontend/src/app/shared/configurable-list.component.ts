@@ -134,6 +134,12 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly showResetFilters = input(true);
   /** i18n key of the reset filters button (overridable per project). */
   readonly resetFiltersLabelKey = input('PATIENT_LIST.RESET_FILTERS_BUTTON');
+  /** Render column filters inline inside the header cell (no filter icon/menu). */
+  readonly inlineFilters = input(false);
+  /** Optional list of column ids allowed to render inline filters (when inlineFilters=true). */
+  readonly inlineFilterColumnIds = input<ReadonlyArray<string> | null>(null);
+  /** Show a summary bar of the active filters below the list. */
+  readonly showActiveFiltersBar = input(false);
 
   readonly rowClick = output<any>();
   readonly filtersChange = output<Record<string, string>>();
@@ -200,6 +206,23 @@ export class ConfigurableListComponent implements OnDestroy {
 
   readonly hasColumns = computed(() => this.displayedColumnIds().length > 0);
   protected readonly columnFilters = signal<Record<string, string>>({});
+  /** Summary of currently active filters (for the bottom bar). */
+  readonly activeFilterSummaries = computed<Array<{ columnId: string; labelKey: string; value: string }>>(() => {
+    const filters = this.columnFilters();
+    const summaries: Array<{ columnId: string; labelKey: string; value: string }> = [];
+    for (const column of this.columns()) {
+      const rawValue = (filters[column.id] ?? '').trim();
+      if (!rawValue) {
+        continue;
+      }
+      summaries.push({
+        columnId: column.id,
+        labelKey: column.filter?.labelKey ?? column.headerKey,
+        value: this.formatFilterValueForDisplay(column, rawValue),
+      });
+    }
+    return summaries;
+  });
   protected readonly sortState = signal<SharedListSortChange>({columnId: '', direction: ''});
   protected readonly copiedCellKey = signal<string | null>(null);
   protected readonly lazyFilterOptions = signal<Record<string, SharedListFilterOption[]>>({});
@@ -261,6 +284,18 @@ export class ConfigurableListComponent implements OnDestroy {
     effect(() => {
       this.displayedRows().length;
       this.requestFilterPositionUpdate();
+    });
+
+    // Inline mode: lazy filter options must be loaded eagerly since there is no menu-open event.
+    effect(() => {
+      if (!this.inlineFilters()) {
+        return;
+      }
+      for (const column of this.visibleColumns()) {
+        if (column.filter?.optionsLoader) {
+          void this.ensureLazyFilterOptions(column.id, column.filter);
+        }
+      }
     });
   }
 
@@ -468,6 +503,17 @@ export class ConfigurableListComponent implements OnDestroy {
 
   isRowExpanded(row: any): boolean {
     return this.isDetailExpanded(0, row);
+  }
+
+  shouldRenderInlineFilter(column: SharedListColumn<any>): boolean {
+    if (!this.inlineFilters() || !column.filter) {
+      return false;
+    }
+    const allowedColumns = this.inlineFilterColumnIds();
+    if (!allowedColumns || allowedColumns.length === 0) {
+      return true;
+    }
+    return allowedColumns.includes(column.id);
   }
 
   rowClasses(row: any): string | string[] | Record<string, boolean> {
@@ -704,6 +750,34 @@ export class ConfigurableListComponent implements OnDestroy {
         trigger.updatePosition();
       }
     });
+  }
+
+  /** Human readable value for the active filters bar (resolves enum option labels). */
+  private formatFilterValueForDisplay(column: SharedListColumn<any>, rawValue: string): string {
+    const filter = column.filter;
+    if (!filter) {
+      return rawValue;
+    }
+
+    if (filter.type === 'date' && rawValue.includes('..')) {
+      const [from = '', to = ''] = rawValue.split('..', 2);
+      if (from && to) {
+        return `${from} → ${to}`;
+      }
+      return from || to;
+    }
+
+    const options = this.resolvedFilterOptions(column.id, filter);
+    if (options.length === 0) {
+      return rawValue;
+    }
+
+    return rawValue
+      .split(',')
+      .map((part) => part.trim())
+      .filter((part) => !!part)
+      .map((part) => options.find((option) => option.value === part)?.label ?? part)
+      .join(', ');
   }
 
   private resolveCopyValue(column: SharedListColumn<any>, row: any): string {

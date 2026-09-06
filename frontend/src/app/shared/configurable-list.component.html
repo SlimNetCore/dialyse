@@ -30,75 +30,112 @@
               </button>
 
               @if (column.filter; as filter) {
-                <button
-                  [attr.aria-label]="'COMMON.FILTER_BY' | translate: { field: (column.headerKey | translate) }"
-                  [class.filter-active]="isFilterActive(column.id)"
-                  [matMenuTriggerFor]="menu"
-                  #filterTrigger="matMenuTrigger"
-                  (menuClosed)="onFilterMenuClosed(column.id)"
-                  (menuOpened)="onFilterMenuOpened(column.id, filterTrigger, filter)"
-                  class="filter-button"
-                  mat-icon-button
-                  type="button"
-                >
-                  <mat-icon>{{ isFilterActive(column.id) ? 'filter_alt' : 'filter_alt_off' }}</mat-icon>
-                </button>
-
-                <mat-menu #menu="matMenu" class="cfg-filter-menu-panel">
-                  <div
-                    (click)="$event.stopPropagation()"
-                    (keydown.enter)="closeFilterMenuOnEnter($event, filterTrigger)"
-                    class="menu-body"
+                @if (!shouldRenderInlineFilter(column)) {
+                  <button
+                    #filterTrigger="matMenuTrigger"
+                    (menuClosed)="onFilterMenuClosed(column.id)"
+                    (menuOpened)="onFilterMenuOpened(column.id, filterTrigger, filter)"
+                    [attr.aria-label]="'COMMON.FILTER_BY' | translate: { field: (column.headerKey | translate) }"
+                    [class.filter-active]="isFilterActive(column.id)"
+                    [matMenuTriggerFor]="menu"
+                    class="filter-button"
+                    mat-icon-button
+                    type="button"
                   >
-                    @if (filterMenuTitle(column); as menuTitle) {
-                      <div class="filter-menu-title">
-                        <mat-icon>filter_alt</mat-icon>
-                        <span>{{ menuTitle | translate }}</span>
-                      </div>
-                    }
+                    <mat-icon>{{ isFilterActive(column.id) ? 'filter_alt' : 'filter_alt_off' }}</mat-icon>
+                  </button>
 
-                    @if (isFilterOptionsLoading(column.id)) {
-                      <div class="filter-loading-inline">
-                        <hemo-circuit-loader [size]="34" [speed]="2" mode="inline"/>
-                        <span class="filter-loading-label">{{ 'COMMON.REF_OPTIONS_LOADING' | translate }}</span>
-                      </div>
-                    }
+                  <mat-menu #menu="matMenu" class="cfg-filter-menu-panel">
+                    <div
+                      (click)="$event.stopPropagation()"
+                      (keydown.enter)="closeFilterMenuOnEnter($event, filterTrigger)"
+                      class="menu-body"
+                    >
+                      @if (filterMenuTitle(column); as menuTitle) {
+                        <div class="filter-menu-title">
+                          <mat-icon>filter_alt</mat-icon>
+                          <span>{{ menuTitle | translate }}</span>
+                        </div>
+                      }
 
-                    @if (filterOptionsError(column.id)) {
-                      <div class="filter-loading-error">{{ filterOptionsError(column.id) | translate }}</div>
-                    }
+                      @if (isFilterOptionsLoading(column.id)) {
+                        <div class="filter-loading-inline">
+                          <hemo-circuit-loader [size]="34" [speed]="2" mode="inline"/>
+                          <span class="filter-loading-label">{{ 'COMMON.REF_OPTIONS_LOADING' | translate }}</span>
+                        </div>
+                      }
 
-                    @if (filter.component) {
-                      <app-dynamic-filter-host
-                        (clear)="clearFilter(column.id)"
-                        (valueChange)="onFilterValue(column.id, $event)"
-                        [componentInputs]="filter.componentInputs ?? {}"
-                        [component]="filter.component"
-                        [value]="currentFilterValue(column.id)"
-                      />
-                    } @else {
-                      <app-column-filter-renderer
-                        (clear)="clearFilter(column.id)"
-                        (valueChange)="onFilterValue(column.id, $event)"
-                        [labelKey]="filter.labelKey ?? column.headerKey"
-                        [options]="resolvedFilterOptions(column.id, filter)"
-                        [placeholder]="filter.placeholder ?? ''"
-                        [type]="filter.type ?? 'text'"
-                        [value]="currentFilterValue(column.id)"
-                      />
-                    }
-                  </div>
-                </mat-menu>
+                      @if (filterOptionsError(column.id)) {
+                        <div class="filter-loading-error">{{ filterOptionsError(column.id) | translate }}</div>
+                      }
+
+                      @if (filter.component) {
+                        <app-dynamic-filter-host
+                          (clear)="clearFilter(column.id)"
+                          (valueChange)="onFilterValue(column.id, $event)"
+                          [componentInputs]="filter.componentInputs ?? {}"
+                          [component]="filter.component"
+                          [value]="currentFilterValue(column.id)"
+                        />
+                      } @else {
+                        <app-column-filter-renderer
+                          (clear)="clearFilter(column.id)"
+                          (valueChange)="onFilterValue(column.id, $event)"
+                          [labelKey]="filter.labelKey ?? column.headerKey"
+                          [options]="resolvedFilterOptions(column.id, filter)"
+                          [placeholder]="filter.placeholder ?? ''"
+                          [type]="filter.type ?? 'text'"
+                          [value]="currentFilterValue(column.id)"
+                        />
+                      }
+                    </div>
+                  </mat-menu>
+                }
               }
 
-              @if (column.resizable) {
-                <span
-                  (dblclick)="onResizeAutoFit($event, column)"
-                  (mousedown)="onResizeStart($event, column)"
-                  class="resize-handle"
-                ></span>
-              }
             </div>
+
+            @if (shouldRenderInlineFilter(column) && column.filter; as filter) {
+              <div (click)="$event.stopPropagation()" class="inline-filter">
+                @if (isFilterOptionsLoading(column.id)) {
+                  <div class="filter-loading-inline">
+                    <hemo-circuit-loader [size]="24" [speed]="2" mode="inline"/>
+                  </div>
+                }
+
+                @if (filterOptionsError(column.id)) {
+                  <div class="filter-loading-error">{{ filterOptionsError(column.id) | translate }}</div>
+                }
+
+                @if (filter.component) {
+                  <app-dynamic-filter-host
+                    (clear)="clearFilter(column.id)"
+                    (valueChange)="onFilterValue(column.id, $event)"
+                    [componentInputs]="filter.componentInputs ?? {}"
+                    [component]="filter.component"
+                    [value]="currentFilterValue(column.id)"
+                  />
+                } @else {
+                  <app-column-filter-renderer
+                    (clear)="clearFilter(column.id)"
+                    (valueChange)="onFilterValue(column.id, $event)"
+                    [labelKey]="filter.labelKey ?? column.headerKey"
+                    [options]="resolvedFilterOptions(column.id, filter)"
+                    [placeholder]="filter.placeholder ?? ''"
+                    [type]="filter.type ?? 'text'"
+                    [value]="currentFilterValue(column.id)"
+                  />
+                }
+              </div>
+            }
+
+            @if (column.resizable) {
+              <span
+                (dblclick)="onResizeAutoFit($event, column)"
+                (mousedown)="onResizeStart($event, column)"
+                class="resize-handle"
+              ></span>
+            }
           </th>
 
           <td *matCellDef="let row; let rowIndex = index" [style.max-width.px]="column.maxWidthPx ?? null"
@@ -166,6 +203,7 @@
       ></tr>
       <tr
         *matRowDef="let row; columns: mobileActionRowColumns(); when: mobileActionsRowWhen"
+        [attr.data-mobile-row-key]="row?.id ?? row?.ID ?? ''"
         class="mobile-actions-row"
         mat-row
       ></tr>
@@ -176,6 +214,38 @@
       </tr>
     </table>
   </div>
+
+  @if (showActiveFiltersBar() && activeFilterSummaries().length > 0) {
+    <div class="active-filters-bar">
+      <span class="active-filters-bar__label">
+        <mat-icon>filter_alt</mat-icon>
+        {{ 'COMMON.ACTIVE_FILTERS' | translate }}
+      </span>
+
+      <div class="active-filters-bar__chips">
+        @for (summary of activeFilterSummaries(); track summary.columnId) {
+          <span class="active-filter-chip">
+            <span class="active-filter-chip__field">{{ summary.labelKey | translate }}</span>
+            <span class="active-filter-chip__value">{{ summary.value }}</span>
+            <button
+              (click)="clearFilter(summary.columnId)"
+              [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate"
+              class="active-filter-chip__clear"
+              mat-icon-button
+              type="button"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        }
+      </div>
+
+      <button (click)="clearAllFilters()" class="active-filters-bar__reset" mat-stroked-button type="button">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ resetFiltersLabelKey() | translate }}
+      </button>
+    </div>
+  }
 </section>
 
 

@@ -1049,6 +1049,7 @@
   "COMMON": {
     "FILTER_BY": "تصفية حسب {{field}}",
     "CLEAR_FILTER": "مسح عامل التصفية",
+    "ACTIVE_FILTERS": "عوامل التصفية النشطة",
     "ALL": "الكل",
     "YES": "نعم",
     "NO": "لا",

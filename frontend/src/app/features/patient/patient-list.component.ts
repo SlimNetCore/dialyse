@@ -151,6 +151,13 @@ export class PatientListComponent {
   private readonly appShell = inject(AppShellStore);
 
   readonly copiedField = signal<string | null>(null);
+  readonly patientInlineFilterColumnIds: ReadonlyArray<string> = [
+    'numeroAssurance',
+    'code',
+    'nom',
+    'prenom',
+    'etatPatient',
+  ];
 
   protected readonly codeCellTemplate = viewChild<TemplateRef<any>>('codeCell');
   protected readonly nomCellTemplate = viewChild<TemplateRef<any>>('nomCell');

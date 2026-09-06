@@ -99,8 +99,11 @@
         [columnVisibility]="visibleColumns()"
         [emptyLabelKey]="'PATIENT_LIST.EMPTY'"
         [filters]="columnFilters()"
+        [inlineFilterColumnIds]="patientInlineFilterColumnIds"
+        [inlineFilters]="true"
         [rowClassFn]="rowClassResolver"
         [rows]="rows()"
+        [showActiveFiltersBar]="true"
       />
     </div>
 
