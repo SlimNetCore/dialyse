@@ -90,6 +90,10 @@ backend/src/main/java/com/hemodialyse/backend/
 - Utiliser en priorité le control flow Angular 22 (`@if`, `@for`) pour tout nouveau code ; les écrans existants avec
   `*ngIf`/`*ngFor` sont en cours de migration et ne doivent pas servir de modèle pour du code neuf.
 - Tous les formulaires de l'application doivent être en signal forms
+- **RÈGLE INVIOLABLE — Signal Inputs/Outputs uniquement pour les composants frontend** : pour tout composant Angular
+  nouveau ou refactoré, utiliser `input()`, `output()` (et `model()` si pertinent) avec `computed()`/`effect()` pour la
+  synchronisation d'état dérivé. L'usage de `ngOnChanges` pour synchroniser des `@Input` est interdit et doit être
+  remplacé par une approche signal-native Angular 22.
 
 ```
 frontend/src/app/
@@ -404,6 +408,9 @@ cd frontend && npm run e2e     # Playwright
 14. **Toute liste de données doit être paginée** (backend : `page`/`size` + réponse enveloppée
     `{items, total, page, size}` ; frontend : `<mat-paginator>` + state `pageIndex`/`pageSize`/`total` dans le store).
     Aucune liste ne doit charger toutes les données sans limite.
+15. **RÈGLE INVIOLABLE FRONTEND** : synchronisation des entrées/sorties de composants en Angular 22 via
+    `input()` / `output()` / `model()` + `computed()` / `effect()` ; `ngOnChanges` ne doit pas être utilisé pour la
+    synchronisation de `@Input`.
 
 # 14. DDD Tactique et Découpage des Domaines — OBLIGATOIRE
 

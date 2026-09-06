@@ -1,7 +1,7 @@
-@if (type === 'date') {
+@if (type() === 'date') {
   <mat-form-field appearance="outline" class="date-range-field">
     <mat-label>{{
-        'COMMON.FILTER_BY' | translate: {field: (labelKey | translate)}
+        'COMMON.FILTER_BY' | translate: {field: (labelKey() | translate)}
       }}
     </mat-label>
     <mat-date-range-input [rangePicker]="picker" [separator]="'–'">
@@ -10,7 +10,7 @@
         (dateInput)="onDraftDateRangeChange('from', $event.value)"
         (keydown.enter)="applyDateRange()"
         [placeholder]="'COMMON.DATE_START' | translate"
-        [value]="draftDateRange.from"
+        [value]="draftDateRange().from"
         matStartDate
       />
       <input
@@ -18,7 +18,7 @@
         (dateInput)="onDraftDateRangeChange('to', $event.value)"
         (keydown.enter)="applyDateRange()"
         [placeholder]="'COMMON.DATE_END' | translate"
-        [value]="draftDateRange.to"
+        [value]="draftDateRange().to"
         matEndDate
       />
     </mat-date-range-input>
@@ -52,7 +52,7 @@
         [multiple]="isMultiSelect()"
         [panelWidth]="'360px'"
         [placeholder]="
-              placeholder || ('COMMON.FILTER_BY' | translate: { field: (labelKey | translate) })
+              placeholder() || ('COMMON.FILTER_BY' | translate: { field: (labelKey() | translate) })
             "
         [value]="selectedValues()"
         panelClass="column-filter-select-panel"
@@ -76,14 +76,14 @@
         @if (!isMultiSelect()) {
           <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
         }
-        @if (type === 'boolean') {
+        @if (type() === 'boolean') {
           @for (o of booleanOptions(); track o.value) {
             @if (isPanelOptionVisible(o.label)) {
               <mat-option [value]="o.value">{{ o.label | translate }}</mat-option>
             }
           }
         } @else {
-          @for (o of options; track o.value) {
+          @for (o of options(); track o.value) {
             @if (isPanelOptionVisible(o.label)) {
               <mat-option [value]="o.value">{{ o.label | translate }}</mat-option>
             }
@@ -97,9 +97,9 @@
         (input)="onInput($event)"
         [attr.type]="inputType()"
         [placeholder]="
-              placeholder || ('COMMON.FILTER_BY' | translate: { field: (labelKey | translate) })
+              placeholder() || ('COMMON.FILTER_BY' | translate: { field: (labelKey() | translate) })
             "
-        [value]="value"
+        [value]="value()"
         class="col-filter"
       />
 

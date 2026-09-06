@@ -2,12 +2,11 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
+  effect,
   inject,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
+  input,
+  output,
+  signal,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatNativeDateModule, MatOptionSelectionChange} from '@angular/material/core';
@@ -19,7 +18,21 @@ import {MatSelectModule} from '@angular/material/select';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {SelectFilterComponent} from './select-filter.component';
 
-export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
+export type ColumnFilterType =
+  | 'text'
+  | 'search'
+  | 'email'
+  | 'password'
+  | 'tel'
+  | 'url'
+  | 'number'
+  | 'date'
+  | 'datetime-local'
+  | 'time'
+  | 'month'
+  | 'week'
+  | 'boolean'
+  | 'enum';
 
 @Component({
   selector: 'app-column-filter-renderer',
@@ -40,31 +53,53 @@ export type ColumnFilterType = 'text' | 'date' | 'number' | 'boolean' | 'enum';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './column-filter-renderer.component.css',
 })
-export class ColumnFilterRendererComponent implements OnChanges {
-  protected panelFilter = '';
+export class ColumnFilterRendererComponent {
+  readonly type = input<ColumnFilterType>('text');
   protected readonly panelFilterOptionValue = '__PANEL_FILTER_OPTION__';
-
-  @Input() type: ColumnFilterType = 'text';
-  @Input() value = '';
-  @Input() placeholder = '';
-  @Input() labelKey = '';
-  @Input() options: Array<{ value: string; label: string }> = [];
-
-  @Output() valueChange = new EventEmitter<string>();
-  @Output() clear = new EventEmitter<void>();
-
-  protected draftDateRange: { from: Date | null; to: Date | null } = {from: null, to: null};
+  readonly value = input('');
+  readonly placeholder = input('');
+  readonly labelKey = input('');
+  readonly options = input<Array<{ value: string; label: string }>>([]);
+  readonly valueChange = output<string>();
+  readonly clear = output<void>();
+  protected readonly panelFilter = signal('');
+  protected readonly draftDateRange = signal<{ from: Date | null; to: Date | null }>({
+    from: null,
+    to: null,
+  });
   private readonly translate = inject(TranslateService);
+  private previousType: ColumnFilterType | null = null;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['value'] || changes['type']) {
-      this.syncDraftDateRange();
-      if (changes['type']) this.panelFilter = '';
-    }
+  constructor() {
+    effect(() => {
+      const currentType = this.type();
+      const currentValue = this.value();
+      this.syncDraftDateRange(currentType, currentValue);
+
+      if (this.previousType !== null && this.previousType !== currentType) {
+        this.panelFilter.set('');
+      }
+
+      this.previousType = currentType;
+    });
   }
 
   isSelectType(): boolean {
-    return this.type === 'boolean' || this.type === 'enum';
+    const type = this.type();
+    return type === 'boolean' || type === 'enum';
+  }
+
+  inputType(): string {
+    const type = this.type();
+    if (this.isNativeInputType(type)) {
+      return type;
+    }
+
+    return 'text';
+  }
+
+  isActive(): boolean {
+    return !!this.value()?.toString().trim();
   }
 
   showsTrailingIcon(): boolean {
@@ -76,14 +111,23 @@ export class ColumnFilterRendererComponent implements OnChanges {
     return '';
   }
 
-  inputType(): string {
-    if (this.type === 'date') return 'date';
-    if (this.type === 'number') return 'number';
-    return 'text';
+  onMatSelect(value: string | string[]): void {
+    if (Array.isArray(value)) {
+      this.valueChange.emit(value.filter((v) => !!v && v !== this.panelFilterOptionValue).join(','));
+      return;
+    }
+    if (value === this.panelFilterOptionValue) {
+      return;
+    }
+    this.valueChange.emit(value ?? '');
   }
 
-  isActive(): boolean {
-    return !!this.value?.toString().trim();
+  selectedValues(): string[] | string {
+    if (!this.isMultiSelect()) return this.value() ?? '';
+    return (this.value() ?? '')
+      .split(',')
+      .map((v) => v.trim())
+      .filter((v) => !!v && v !== this.panelFilterOptionValue);
   }
 
   onInput(event: Event): void {
@@ -93,17 +137,8 @@ export class ColumnFilterRendererComponent implements OnChanges {
     this.valueChange.emit(value);
   }
 
-  onMatSelect(value: string | string[]): void {
-    if (Array.isArray(value)) {
-      this.valueChange.emit(
-        value.filter((v) => !!v && v !== this.panelFilterOptionValue).join(','),
-      );
-      return;
-    }
-    if (value === this.panelFilterOptionValue) {
-      return;
-    }
-    this.valueChange.emit(value ?? '');
+  isMultiSelect(): boolean {
+    return this.type() === 'enum';
   }
 
   onPanelFilterOptionSelection(event: MatOptionSelectionChange): void {
@@ -112,20 +147,21 @@ export class ColumnFilterRendererComponent implements OnChanges {
     event.source?.deselect?.();
   }
 
-  selectedValues(): string[] | string {
-    if (!this.isMultiSelect()) return this.value ?? '';
-    return (this.value ?? '')
-      .split(',')
-      .map((v) => v.trim())
-      .filter((v) => !!v && v !== this.panelFilterOptionValue);
-  }
-
-  isMultiSelect(): boolean {
-    return this.type === 'enum';
-  }
-
   onPanelFilterChange(value: string): void {
-    this.panelFilter = value ?? '';
+    this.panelFilter.set(value ?? '');
+  }
+
+  isPanelOptionVisible(label: string): boolean {
+    const query = (this.panelFilter() ?? '').trim().toLowerCase();
+    if (!query) return true;
+    return (label ?? '').toLowerCase().includes(query);
+  }
+
+  onDraftDateRangeChange(bound: 'from' | 'to', value: Date | null): void {
+    this.draftDateRange.set({
+      ...this.draftDateRange(),
+      [bound]: this.normalizeDate(value),
+    });
   }
 
   booleanOptions(): Array<{ value: string; label: string }> {
@@ -135,42 +171,37 @@ export class ColumnFilterRendererComponent implements OnChanges {
     ];
   }
 
-  isPanelOptionVisible(label: string): boolean {
-    const query = (this.panelFilter ?? '').trim().toLowerCase();
-    if (!query) return true;
-    return (label ?? '').toLowerCase().includes(query);
-  }
-
-  onDraftDateRangeChange(bound: 'from' | 'to', value: Date | null): void {
-    this.draftDateRange = {
-      ...this.draftDateRange,
-      [bound]: this.normalizeDate(value),
-    };
-  }
-
   applyDateRange(): void {
     const ordered = this.getOrderedDraftDateRange();
-    this.draftDateRange = ordered;
+    this.draftDateRange.set(ordered);
     this.valueChange.emit(
       this.serializeDateRange(this.toIsoDate(ordered.from), this.toIsoDate(ordered.to)),
     );
   }
 
   cancelDateRange(): void {
-    this.syncDraftDateRange();
+    this.syncDraftDateRange(this.type(), this.value());
   }
 
-  syncDraftDateRange(): void {
-    if (this.type !== 'date') {
-      this.draftDateRange = {from: null, to: null};
+  syncDraftDateRange(type: ColumnFilterType = this.type(), value: string = this.value()): void {
+    if (!this.isDateRangeType(type)) {
+      this.draftDateRange.set({from: null, to: null});
       return;
     }
 
-    const parsed = this.parseDateRange(this.value);
-    this.draftDateRange = {
+    const parsed = this.parseDateRange(value);
+    this.draftDateRange.set({
       from: this.isoToDate(parsed.from),
       to: this.isoToDate(parsed.to),
-    };
+    });
+  }
+
+  private isDateRangeType(type: ColumnFilterType = this.type()): boolean {
+    return type === 'date';
+  }
+
+  private isNativeInputType(type: ColumnFilterType = this.type()): boolean {
+    return !this.isDateRangeType(type) && type !== 'boolean' && type !== 'enum';
   }
 
   private parseDateRange(value: string): { from: string; to: string } {
@@ -195,8 +226,8 @@ export class ColumnFilterRendererComponent implements OnChanges {
   }
 
   private getOrderedDraftDateRange(): { from: Date | null; to: Date | null } {
-    const from = this.normalizeDate(this.draftDateRange.from);
-    const to = this.normalizeDate(this.draftDateRange.to);
+    const from = this.normalizeDate(this.draftDateRange().from);
+    const to = this.normalizeDate(this.draftDateRange().to);
 
     if (from && to && from.getTime() > to.getTime()) {
       return {from: to, to: from};
