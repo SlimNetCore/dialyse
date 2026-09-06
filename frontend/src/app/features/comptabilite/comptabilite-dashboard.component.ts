@@ -132,42 +132,19 @@ export class ComptabiliteDashboardComponent {
       cellTemplate: this.statutCellTemplate() ?? undefined,
     },
   ]);
-  protected readonly rowClassFn = (row: EcritureComptableItem) => ({
-    expanded: this.isRowExpanded(row.id),
+  protected readonly rowClassFn = () => ({
     'ecriture-row': true,
   });
+
+  protected readonly canExpandRow = (row: EcritureComptableItem): boolean =>
+    (row.lignes?.length ?? 0) > 0;
+
+  protected readonly rowKey = (row: EcritureComptableItem): string => row.id;
 
   protected onPageChange(event: PageEvent): void {
     this.store.setPagination(event.pageIndex, event.pageSize);
   }
 
-  protected toggleRowExpansion(row: EcritureComptableItem, event?: Event): void {
-    event?.preventDefault();
-    event?.stopPropagation();
-    this.store.toggleExpandedRow(row.id);
-  }
-
-  protected onRowClicked(row: EcritureComptableItem): void {
-    if ((row.lignes?.length ?? 0) > 0) {
-      this.store.toggleExpandedRow(row.id);
-    }
-  }
-
-  protected isRowExpanded(ecritureId: string): boolean {
-    return this.store.expandedEcritureIds().includes(ecritureId);
-  }
-
-  protected readonly isDetailRowExpanded = (_index: number, row: EcritureComptableItem): boolean =>
-    this.isRowExpanded(row.id) && (row.lignes?.length ?? 0) > 0;
-
-
-  protected expandedCount(): number {
-    return this.store.expandedEcritureIds().length;
-  }
-
-  protected closeAllExpandedRows(): void {
-    this.store.collapseAllExpandedRows();
-  }
 
   protected totalCredit(row: EcritureComptableItem): number {
     return (row.lignes ?? []).reduce((sum, ligne) => sum + Number(ligne.montantCredit ?? 0), 0);

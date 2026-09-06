@@ -1,10 +1,12 @@
 <section class="list-panel">
-  <div class="list-actions">
-    <button (click)="clearAllFilters()" [disabled]="!hasColumns()" mat-stroked-button type="button">
-      <mat-icon>filter_alt_off</mat-icon>
-      {{ 'PATIENT_LIST.RESET_FILTERS_BUTTON' | translate }}
-    </button>
-  </div>
+  @if (showResetFilters()) {
+    <div class="list-actions">
+      <button (click)="clearAllFilters()" [disabled]="!hasColumns()" mat-stroked-button type="button">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ resetFiltersLabelKey() | translate }}
+      </button>
+    </div>
+  }
 
   <div (scroll)="onTableWrapScroll()" class="table-wrap">
     <table [dataSource]="displayedRows()" [style.min-width.px]="minTableWidthPx()" [trackBy]="resolvedTrackBy"
@@ -142,7 +144,9 @@
       <tr *matHeaderRowDef="displayedColumnIds()" mat-header-row></tr>
       <tr
         (click)="onRowClick(row)"
-        *matRowDef="let row; columns: displayedColumnIds(); when: dataRowWhen"
+        *matRowDef="let row; let rowIndex = index; columns: displayedColumnIds(); when: dataRowWhen"
+        [attr.aria-expanded]="detailRowTemplate() ? isDetailExpanded(rowIndex, row) : null"
+        [class.row-expanded]="detailRowTemplate() && isDetailExpanded(rowIndex, row)"
         [ngClass]="rowClasses(row)"
         class="data-row"
         mat-row

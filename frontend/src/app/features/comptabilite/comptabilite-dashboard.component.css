@@ -422,7 +422,7 @@ mat-card {
 }
 
 /* Expanded row styling */
-.data-table tr.expanded {
+.data-table tr.row-expanded {
   background: var(--app-primary-soft, rgba(0, 106, 106, .1));
 }
 

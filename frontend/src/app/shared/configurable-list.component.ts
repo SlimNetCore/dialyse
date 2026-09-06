@@ -73,6 +73,12 @@ export interface SharedListCopyEvent<T = any> {
   row: T;
 }
 
+export interface SharedListDetailToggleEvent<T = any> {
+  row: T;
+  expanded: boolean;
+  expandedKeys: unknown[];
+}
+
 @Component({
   selector: 'app-configurable-list',
   standalone: true,
@@ -106,12 +112,34 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly rowClassFn = input<((row: any) => string | string[] | Record<string, boolean> | null) | null>(null);
   readonly rowTrackBy = input<TrackByFunction<any> | null>(null);
   readonly detailRowTemplate = input<TemplateRef<{ $implicit: any; row: any }> | null>(null);
+  /**
+   * Controlled mode: external predicate deciding whether the detail is expanded.
+   * When provided, internal expansion state is bypassed entirely.
+   */
   readonly detailRowWhen = input<((index: number, row: any) => boolean) | null>(null);
+  /**
+   * Controlled mode (key based): externally managed list of expanded row keys.
+   * Keys are resolved with `rowKeyAccessor` / `rowTrackBy` / `row.id`.
+   */
+  readonly expandedRowKeys = input<ReadonlyArray<unknown> | null>(null);
+  /** Uncontrolled mode: toggle the detail row when the data row is clicked. */
+  readonly detailRowToggleOnRowClick = input(true);
+  /** Uncontrolled mode: only one detail row expanded at a time. */
+  readonly detailRowAccordion = input(false);
+  /** Optional guard: rows for which a detail can be expanded (e.g. has children). */
+  readonly detailRowCanExpand = input<((row: any) => boolean) | null>(null);
+  /** Stable business key for a row (expansion state, copy feedback, trackBy fallback). */
+  readonly rowKeyAccessor = input<((row: any) => unknown) | null>(null);
+  /** Show/hide the built-in "reset all filters" button. */
+  readonly showResetFilters = input(true);
+  /** i18n key of the reset filters button (overridable per project). */
+  readonly resetFiltersLabelKey = input('PATIENT_LIST.RESET_FILTERS_BUTTON');
 
   readonly rowClick = output<any>();
   readonly filtersChange = output<Record<string, string>>();
   readonly sortChange = output<SharedListSortChange>();
   readonly cellCopied = output<SharedListCopyEvent>();
+  readonly detailToggle = output<SharedListDetailToggleEvent>();
 
   readonly visibleColumns = computed(() => {
     const columns = this.columns();
@@ -184,6 +212,8 @@ export class ConfigurableListComponent implements OnDestroy {
     return this.actionColumn() ? [this.mobileActionsColumnId] : [];
   });
   readonly detailRowColumns = ['__detail_row__'];
+  /** Uncontrolled expansion state (row keys currently expanded). */
+  protected readonly internalExpandedKeys = signal<ReadonlySet<unknown>>(new Set());
   protected readonly columnWidths = signal<Record<string, number>>({});
   private readonly activeFilterColumnId = signal<string | null>(null);
   private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
@@ -384,6 +414,55 @@ export class ConfigurableListComponent implements OnDestroy {
 
   onRowClick(row: any): void {
     this.rowClick.emit(row);
+    if (this.isUncontrolledDetailMode() && this.detailRowToggleOnRowClick()) {
+      this.toggleDetail(row);
+    }
+  }
+
+  /** Programmatic toggle of a row detail (uncontrolled mode only). */
+  toggleDetail(row: any): void {
+    if (!this.detailRowTemplate() || !this.rowCanExpand(row)) {
+      return;
+    }
+
+    const key = this.rowKey(row);
+    const current = new Set(this.internalExpandedKeys());
+    const expanded = !current.has(key);
+
+    if (expanded) {
+      if (this.detailRowAccordion()) {
+        current.clear();
+      }
+      current.add(key);
+    } else {
+      current.delete(key);
+    }
+
+    this.internalExpandedKeys.set(current);
+    this.detailToggle.emit({row, expanded, expandedKeys: [...current]});
+  }
+
+  /** Collapse every expanded detail row (uncontrolled mode). */
+  collapseAllDetails(): void {
+    if (this.internalExpandedKeys().size === 0) {
+      return;
+    }
+    this.internalExpandedKeys.set(new Set());
+    this.detailToggle.emit({row: null, expanded: false, expandedKeys: []});
+  }
+
+  /** Number of currently expanded detail rows (uncontrolled mode). */
+  expandedDetailCount(): number {
+    return this.internalExpandedKeys().size;
+  }
+
+  rowCanExpand(row: any): boolean {
+    const guard = this.detailRowCanExpand();
+    return guard ? guard(row) : true;
+  }
+
+  isRowExpanded(row: any): boolean {
+    return this.isDetailExpanded(0, row);
   }
 
   rowClasses(row: any): string | string[] | Record<string, boolean> {
@@ -481,11 +560,15 @@ export class ConfigurableListComponent implements OnDestroy {
   trackByColumn = (_: number, column: SharedListColumn<any>): string => column.id;
 
   trackByRow = (index: number, row: any): any => {
+    const keyAccessor = this.rowKeyAccessor();
+    if (keyAccessor) {
+      return keyAccessor(row);
+    }
     const externalTrackBy = this.rowTrackBy();
     if (externalTrackBy) {
       return externalTrackBy(index, row);
     }
-    return row?.id ?? row?.ID ?? row?.factureId ?? row?.numeroPiece ?? index;
+    return row?.id ?? row?.ID ?? index;
   };
 
   resolvedTrackBy: TrackByFunction<any> = (index: number, row: any): any =>
@@ -505,8 +588,43 @@ export class ConfigurableListComponent implements OnDestroy {
   detailRowRenderWhen = (_index: number, _row: any): boolean => !!this.detailRowTemplate();
 
   isDetailExpanded(index: number, row: any): boolean {
+    if (!this.detailRowTemplate()) {
+      return false;
+    }
+
     const when = this.detailRowWhen();
-    return !!this.detailRowTemplate() && !!when?.(index, row);
+    if (when) {
+      return !!when(index, row);
+    }
+
+    if (!this.rowCanExpand(row)) {
+      return false;
+    }
+
+    const key = this.rowKey(row);
+    const externalKeys = this.expandedRowKeys();
+    if (externalKeys) {
+      return externalKeys.includes(key);
+    }
+
+    return this.internalExpandedKeys().has(key);
+  }
+
+  /** Uncontrolled mode = no external predicate nor external keys provided. */
+  private isUncontrolledDetailMode(): boolean {
+    return !!this.detailRowTemplate() && !this.detailRowWhen() && !this.expandedRowKeys();
+  }
+
+  private rowKey(row: any): unknown {
+    const accessor = this.rowKeyAccessor();
+    if (accessor) {
+      return accessor(row);
+    }
+    const externalTrackBy = this.rowTrackBy();
+    if (externalTrackBy) {
+      return externalTrackBy(0, row);
+    }
+    return row?.id ?? row?.ID ?? row;
   }
 
   mobileActionsCellContext(row: any): {

@@ -88,14 +88,14 @@
       <mat-card-title>{{ 'COMPTABILITE.TABLE.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      @if (expandedCount() > 0) {
+      @if (ecritureList.expandedDetailCount() > 0) {
         <div class="detail-toolbar">
           <div class="detail-toolbar__info">
             <span class="detail-toolbar__eyebrow">{{ 'COMPTABILITE.DETAIL.OPENED' | translate }}</span>
-            <strong>{{ 'COMPTABILITE.DETAIL.OPENED_COUNT' | translate:{count: expandedCount()} }}</strong>
+            <strong>{{ 'COMPTABILITE.DETAIL.OPENED_COUNT' | translate:{count: ecritureList.expandedDetailCount()} }}</strong>
           </div>
 
-          <button (click)="closeAllExpandedRows()" mat-stroked-button type="button">
+          <button (click)="ecritureList.collapseAllDetails()" mat-stroked-button type="button">
             <mat-icon>unfold_less</mat-icon>
             <span>{{ 'COMPTABILITE.DETAIL.COLLAPSE_ALL' | translate }}</span>
           </button>
@@ -103,23 +103,24 @@
       }
 
       <app-configurable-list
-        (rowClick)="onRowClicked($event)"
+        #ecritureList
         [columns]="ecritureColumns()"
+        [detailRowCanExpand]="canExpandRow"
         [detailRowTemplate]="detailRowTemplateRef() ?? null"
-        [detailRowWhen]="isDetailRowExpanded"
         [emptyLabelKey]="'COMPTABILITE.TABLE.EMPTY'"
         [rowClassFn]="rowClassFn"
+        [rowKeyAccessor]="rowKey"
         [rows]="store.rows()"
         class="data-table expandable-table compta-config-list"
       />
 
       <ng-template #expandCell let-row>
         @if ((row.lignes?.length ?? 0) > 0) {
-          <button (click)="toggleRowExpansion(row, $event)"
-                  [attr.aria-expanded]="isRowExpanded(row.id)"
+          <button (click)="$event.stopPropagation(); ecritureList.toggleDetail(row)"
+                  [attr.aria-expanded]="ecritureList.isRowExpanded(row)"
                   [attr.aria-label]="'COMPTABILITE.DETAIL.TOGGLE' | translate:{ numeroPiece: row.numeroPiece }"
                   class="expand-btn" mat-icon-button>
-            <mat-icon [class.expanded]="isRowExpanded(row.id)" class="expand-icon">expand_more</mat-icon>
+            <mat-icon [class.expanded]="ecritureList.isRowExpanded(row)" class="expand-icon">expand_more</mat-icon>
           </button>
         }
       </ng-template>
