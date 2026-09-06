@@ -550,17 +550,44 @@ mat-card {
 /* --- Liste des factures (configurable-list + detail depliable) ----- */
 .detail-toolbar {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  background: var(--app-surface-soft, #f7fbfe);
+}
+
+.detail-toolbar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-toolbar__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-muted, #4f6573);
 }
 
 .expand-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border-radius: 14px;
+}
+
+.expand-btn:hover {
+  background: var(--app-primary-soft, rgba(0, 106, 106, 0.14));
 }
 
 .expand-icon {
-  transition: transform 0.2s ease;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
 }
 
 .expand-icon.expanded {
@@ -568,7 +595,7 @@ mat-card {
 }
 
 .invoice-config-list tr.row-expanded {
-  background: color-mix(in srgb, var(--app-primary) 6%, transparent) !important;
+  background: var(--app-primary-soft, rgba(0, 106, 106, 0.1)) !important;
 }
 
 .invoice-config-list .data-row {
@@ -583,12 +610,13 @@ mat-card {
 }
 
 .invoice-detail {
-  padding: 14px 16px 16px;
-  border-left: 3px solid var(--app-primary, #006a6a);
-  background: color-mix(in srgb, var(--app-surface, #fff) 94%, var(--app-primary-soft, rgba(0, 106, 106, 0.12)) 6%);
-  border-radius: 0 0 14px 14px;
+  padding: 18px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface, #ffffff);
+  border-radius: 20px;
+  box-shadow: var(--app-shadow-soft, 0 10px 30px rgba(15, 23, 42, 0.06));
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .invoice-detail-title {
@@ -596,11 +624,11 @@ mat-card {
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: var(--app-primary, #006a6a);
+  color: var(--app-text, #0d1d26);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.08em;
 }
 
 .invoice-detail-title mat-icon {

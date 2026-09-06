@@ -126,6 +126,11 @@
 
         @if (invoiceList.expandedDetailCount() > 0) {
           <div class="detail-toolbar">
+            <div class="detail-toolbar__info">
+              <span class="detail-toolbar__eyebrow">{{ 'FACTURATION.PREVIEW.SESSION_DETAILS' | translate }}</span>
+              <strong>{{ invoiceList.expandedDetailCount() }}</strong>
+            </div>
+
             <button (click)="invoiceList.collapseAllDetails()" mat-stroked-button type="button">
               <mat-icon>unfold_less</mat-icon>
               <span>{{ 'FACTURATION.PREVIEW.COLLAPSE_ALL' | translate }}</span>
@@ -136,6 +141,7 @@
         <app-configurable-list
           #invoiceList
           [columns]="invoiceColumns()"
+          [detailRowAccordion]="true"
           [detailRowCanExpand]="canExpandInvoice"
           [detailRowTemplate]="invoiceDetailTemplateRef() ?? null"
           [emptyLabelKey]="'FACTURATION.PREVIEW.TABLE.EMPTY'"
