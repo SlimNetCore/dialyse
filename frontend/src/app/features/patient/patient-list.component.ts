@@ -60,8 +60,6 @@ export interface PatientRow {
   pecForfaitId?: string;
 }
 
-type FilterType = 'text' | 'date';
-
 @Component({
   selector: 'app-patient-list',
   standalone: true,
@@ -109,44 +107,9 @@ export class PatientListComponent {
   ];
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly selectedRowId = signal<string | null>(null);
-  readonly allColumnsConfig = [
-    {key: 'numeroAssurance', labelKey: 'PATIENT_LIST.COL_ASSURANCE', type: 'text' as FilterType},
-    {key: 'code', labelKey: 'PATIENT_LIST.COL_CODE', type: 'text' as FilterType},
-    {key: 'nom', labelKey: 'PATIENT_LIST.COL_NOM', type: 'text' as FilterType},
-    {key: 'prenom', labelKey: 'PATIENT_LIST.COL_PRENOM', type: 'text' as FilterType},
-    {key: 'sexe', labelKey: 'PATIENT_LIST.COL_SEXE', type: 'text' as FilterType},
-    {
-      key: 'dateAdmission',
-      labelKey: 'PATIENT_LIST.COL_DATE_ADMISSION',
-      type: 'date' as FilterType,
-    },
-    {key: 'etatPatient', labelKey: 'PATIENT_LIST.COL_ETAT', type: 'text' as FilterType},
-    {
-      key: 'nonFacturable',
-      labelKey: 'PATIENT_LIST.NON_FACTURABLE_TOOLTIP',
-      type: 'text' as FilterType,
-    },
-    {key: 'pecStatus', labelKey: 'PATIENT_LIST.COL_PEC', type: 'text' as FilterType},
-    {
-      key: 'medecinTraitantId',
-      labelKey: 'PATIENT_FORM.MEDECIN_TRAITANT',
-      type: 'text' as FilterType,
-    },
-    {key: 'positionId', labelKey: 'PATIENT_FORM.POSITION', type: 'text' as FilterType},
-    {
-      key: 'transporteurAllerId',
-      labelKey: 'PATIENT_FORM.TRANSPORTEUR_ALLER',
-      type: 'text' as FilterType,
-    },
-    {
-      key: 'transporteurRetourId',
-      labelKey: 'PATIENT_FORM.TRANSPORTEUR_RETOUR',
-      type: 'text' as FilterType,
-    },
-    {key: 'joursDialyse', labelKey: 'PATIENT_FORM.JOURS_DIALYSE', type: 'text' as FilterType},
-    {key: 'pecForfaitId', labelKey: 'PATIENT_LIST.COL_FORFAIT', type: 'text' as FilterType},
-    {key: 'actions', labelKey: 'PATIENT_LIST.COL_ACTIONS', type: 'text' as FilterType},
-  ] as const;
+  readonly columnsMenuItems = computed(() =>
+    this.allColumnDefs().filter((column) => column.id !== 'actions'),
+  );
   readonly visibleColumns = signal<Record<string, boolean>>({
     code: false,
     nom: true,
@@ -372,24 +335,30 @@ export class PatientListComponent {
       cellTemplate: this.actionsCellTemplate() ?? undefined,
     },
   }));
+  private readonly orderedColumnKeys = [
+    'numeroAssurance',
+    'code',
+    'nom',
+    'prenom',
+    'sexe',
+    'dateAdmission',
+    'etatPatient',
+    'nonFacturable',
+    'pecStatus',
+    'medecinTraitantId',
+    'positionId',
+    'transporteurAllerId',
+    'transporteurRetourId',
+    'joursDialyse',
+    'pecForfaitId',
+    'actions',
+  ] as const;
   readonly allColumnDefs = computed<SharedListColumn<PatientRow>[]>(() => {
-    const orderedKeys = this.allColumnsConfig.map((c) => c.key);
-    const columnDefs = this.allColumnDefsById();
-    const visibility = this.visibleColumns();
-
-    const next: SharedListColumn<PatientRow>[] = [];
-    for (const key of orderedKeys) {
-      const column = columnDefs[key];
-      if (!column) {
-        continue;
-      }
-      next.push({
-        ...column,
-        visible: visibility[key] ?? false,
-      });
-    }
-
-    return next;
+    const defsById = this.allColumnDefsById();
+    return this.orderedColumnKeys.flatMap((key) => {
+      const column = defsById[key];
+      return column ? [column] : [];
+    });
   });
 
   readonly rowClassResolver = (row: PatientRow) => ({
@@ -449,9 +418,9 @@ export class PatientListComponent {
   }
 
   onListFiltersChange(filters: Record<string, string>): void {
-    for (const column of this.allColumnsConfig) {
-      if (column.key === 'actions') continue;
-      this.patientListStore.setFilter(column.key, filters[column.key] ?? '');
+    for (const column of this.allColumnDefs()) {
+      if (column.id === 'actions') continue;
+      this.patientListStore.setFilter(column.id, filters[column.id] ?? '');
     }
   }
 

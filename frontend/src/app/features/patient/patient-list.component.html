@@ -36,17 +36,15 @@
           {{ 'PATIENT_LIST.COLUMNS_BUTTON' | translate }}
         </button>
         <mat-menu #colsMenu="matMenu">
-          @for (c of allColumnsConfig; track c.key) {
-            @if (c.key !== 'actions') {
-              <button (click)="$event.stopPropagation()" mat-menu-item>
-                <mat-checkbox
-                  (change)="toggleColumn(c.key, $event.checked)"
-                  [checked]="isColumnVisible(c.key)"
-                >
-                  {{ c.labelKey | translate }}
-                </mat-checkbox>
-              </button>
-            }
+          @for (c of columnsMenuItems(); track c.id) {
+            <button (click)="$event.stopPropagation()" mat-menu-item>
+              <mat-checkbox
+                (change)="toggleColumn(c.id, $event.checked)"
+                [checked]="isColumnVisible(c.id)"
+              >
+                {{ c.headerKey | translate }}
+              </mat-checkbox>
+            </button>
           }
         </mat-menu>
 
@@ -98,6 +96,7 @@
         (filtersChange)="onListFiltersChange($event)"
         (rowClick)="onListRowClick($event)"
         [columns]="allColumnDefs()"
+        [columnVisibility]="visibleColumns()"
         [emptyLabelKey]="'PATIENT_LIST.EMPTY'"
         [filters]="columnFilters()"
         [rowClassFn]="rowClassResolver"

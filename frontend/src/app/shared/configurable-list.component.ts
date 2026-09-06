@@ -91,6 +91,7 @@ export interface SharedListCopyEvent<T = any> {
 export class ConfigurableListComponent implements OnDestroy {
   readonly rows = input<any[]>([]);
   readonly columns = input<SharedListColumn<any>[]>([]);
+  readonly columnVisibility = input<Record<string, boolean> | null>(null);
   readonly filters = input<Record<string, string> | null>(null);
   readonly emptyLabelKey = input('COMMON.NO_DATA');
   readonly minTableWidthPx = input(760);
@@ -101,7 +102,16 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly sortChange = output<SharedListSortChange>();
   readonly cellCopied = output<SharedListCopyEvent>();
 
-  readonly visibleColumns = computed(() => this.columns().filter((column) => column.visible !== false));
+  readonly visibleColumns = computed(() => {
+    const columns = this.columns();
+    const visibility = this.columnVisibility();
+
+    if (!visibility) {
+      return columns.filter((column) => column.visible !== false);
+    }
+
+    return columns.filter((column) => visibility[column.id] ?? true);
+  });
   readonly actionColumn = computed(() =>
     this.visibleColumns().find((column) => column.mobileRowActions) ?? null,
   );
