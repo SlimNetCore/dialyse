@@ -15,6 +15,7 @@ import {
   signal,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
 import {MatTableModule} from '@angular/material/table';
@@ -87,6 +88,7 @@ export interface SharedListDetailToggleEvent<T = any> {
     MatTableModule,
     MatMenuModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatIconModule,
     MatTooltipModule,
     TranslateModule,
@@ -146,10 +148,15 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly sortChange = output<SharedListSortChange>();
   readonly cellCopied = output<SharedListCopyEvent>();
   readonly detailToggle = output<SharedListDetailToggleEvent>();
+  readonly columnVisibilityChange = output<Record<string, boolean>>();
+
+  readonly columnsMenuItems = computed(() =>
+    this.columns().filter((column) => column.id !== '__detail_row__' && column.id !== '__mobile_actions__'),
+  );
 
   readonly visibleColumns = computed(() => {
     const columns = this.columns();
-    const visibility = this.columnVisibility();
+    const visibility = this.effectiveColumnVisibility();
 
     if (!visibility) {
       return columns.filter((column) => column.visible !== false);
@@ -238,6 +245,7 @@ export class ConfigurableListComponent implements OnDestroy {
   /** Uncontrolled expansion state (row keys currently expanded). */
   protected readonly internalExpandedKeys = signal<ReadonlySet<unknown>>(new Set());
   protected readonly columnWidths = signal<Record<string, number>>({});
+  private readonly internalColumnVisibility = signal<Record<string, boolean>>({});
   private readonly activeFilterColumnId = signal<string | null>(null);
   private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
 
@@ -252,6 +260,33 @@ export class ConfigurableListComponent implements OnDestroy {
       }
       this.columnFilters.set({...externalFilters});
       this.requestFilterPositionUpdate();
+    });
+
+    effect(() => {
+      const externalVisibility = this.columnVisibility();
+      if (!externalVisibility) {
+        return;
+      }
+      this.internalColumnVisibility.set({...externalVisibility});
+    });
+
+    effect(() => {
+      const columns = this.columns();
+      this.internalColumnVisibility.update((current) => {
+        const next = {...current};
+        const ids = new Set(columns.map((column) => column.id));
+        for (const key of Object.keys(next)) {
+          if (!ids.has(key)) {
+            delete next[key];
+          }
+        }
+        for (const column of columns) {
+          if (next[column.id] === undefined) {
+            next[column.id] = column.visible !== false;
+          }
+        }
+        return next;
+      });
     });
 
     effect(() => {
@@ -505,6 +540,19 @@ export class ConfigurableListComponent implements OnDestroy {
     return this.isDetailExpanded(0, row);
   }
 
+  isColumnVisible(columnId: string): boolean {
+    return this.effectiveColumnVisibility()[columnId] ?? true;
+  }
+
+  onToggleColumnVisibility(columnId: string, checked: boolean): void {
+    const next = {
+      ...this.effectiveColumnVisibility(),
+      [columnId]: checked,
+    };
+    this.internalColumnVisibility.set(next);
+    this.columnVisibilityChange.emit(next);
+  }
+
   shouldRenderInlineFilter(column: SharedListColumn<any>): boolean {
     if (!this.inlineFilters() || !column.filter) {
       return false;
@@ -664,6 +712,10 @@ export class ConfigurableListComponent implements OnDestroy {
   /** Uncontrolled mode = no external predicate nor external keys provided. */
   private isUncontrolledDetailMode(): boolean {
     return !!this.detailRowTemplate() && !this.detailRowWhen() && !this.expandedRowKeys();
+  }
+
+  private effectiveColumnVisibility(): Record<string, boolean> {
+    return this.columnVisibility() ?? this.internalColumnVisibility();
   }
 
   private rowKey(row: any): unknown {

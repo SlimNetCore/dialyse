@@ -25,8 +25,6 @@ import {PatientQrCardComponent} from './patient-qr-card.component';
 import {PatientSummaryCardsComponent} from './patient-summary-cards.component';
 import {PatientSummaryDetailsDialogComponent} from './patient-summary-details-dialog.component';
 import {AuthStore} from '../../core/state/auth.store';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {WebSocketService} from '../../core/ws/websocket.service';
@@ -75,8 +73,6 @@ export interface PatientRow {
     MatChipsModule,
     MatTooltipModule,
     MatSnackBarModule,
-    MatMenuModule,
-    MatCheckboxModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
     TranslateModule,
@@ -99,9 +95,6 @@ export class PatientListComponent {
   private readonly router = inject(Router);
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly selectedRowId = signal<string | null>(null);
-  readonly columnsMenuItems = computed(() =>
-    this.allColumnDefs().filter((column) => column.id !== 'actions'),
-  );
   readonly visibleColumns = signal<Record<string, boolean>>({
     code: false,
     nom: true,
@@ -409,16 +402,12 @@ export class PatientListComponent {
     this.patientListStore.clearAllFilters();
   }
 
-  isColumnVisible(column: string): boolean {
-    return this.visibleColumns()[column] ?? false;
-  }
-
   onPageChange(event: PageEvent): void {
     this.patientListStore.setPagination(event.pageIndex, event.pageSize);
   }
 
-  toggleColumn(column: string, checked: boolean): void {
-    this.visibleColumns.update((prev) => ({...prev, [column]: checked}));
+  onColumnVisibilityChange(visibility: Record<string, boolean>): void {
+    this.visibleColumns.set({...visibility});
   }
 
   onListFiltersChange(filters: Record<string, string>): void {

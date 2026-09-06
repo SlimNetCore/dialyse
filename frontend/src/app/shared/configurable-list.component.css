@@ -364,9 +364,9 @@
   flex-wrap: wrap;
   gap: 10px;
   padding: 12px 16px;
-  border-top: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
   background: var(--app-surface-soft, #f7fbfe);
-  border-radius: 0 0 20px 20px;
+  border-radius: 20px 20px 0 0;
 }
 
 .active-filters-bar__label {

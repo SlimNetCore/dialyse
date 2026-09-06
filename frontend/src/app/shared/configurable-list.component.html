@@ -1,7 +1,50 @@
 <section class="list-panel">
-  @if (showResetFilters()) {
-    <div class="list-actions">
-      <button (click)="clearAllFilters()" [disabled]="!hasColumns()" mat-stroked-button type="button">
+  <div class="list-actions">
+    <button [disabled]="!hasColumns()" [matMenuTriggerFor]="columnsMenu" mat-stroked-button type="button">
+      <mat-icon>view_column</mat-icon>
+      {{ 'COMMON.COLUMNS_BUTTON' | translate }}
+    </button>
+
+    <mat-menu #columnsMenu="matMenu">
+      @for (column of columnsMenuItems(); track column.id) {
+        <button (click)="$event.stopPropagation()" mat-menu-item>
+          <mat-checkbox
+            (change)="onToggleColumnVisibility(column.id, $event.checked)"
+            [checked]="isColumnVisible(column.id)"
+          >
+            {{ column.headerKey | translate }}
+          </mat-checkbox>
+        </button>
+      }
+    </mat-menu>
+  </div>
+
+  @if (showActiveFiltersBar() && activeFilterSummaries().length > 0) {
+    <div class="active-filters-bar">
+      <span class="active-filters-bar__label">
+        <mat-icon>filter_alt</mat-icon>
+        {{ 'COMMON.ACTIVE_FILTERS' | translate }}
+      </span>
+
+      <div class="active-filters-bar__chips">
+        @for (summary of activeFilterSummaries(); track summary.columnId) {
+          <span class="active-filter-chip">
+            <span class="active-filter-chip__field">{{ summary.labelKey | translate }}</span>
+            <span class="active-filter-chip__value">{{ summary.value | translate }}</span>
+            <button
+              (click)="clearFilter(summary.columnId)"
+              [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate"
+              class="active-filter-chip__clear"
+              mat-icon-button
+              type="button"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        }
+      </div>
+
+      <button (click)="clearAllFilters()" class="active-filters-bar__reset" mat-stroked-button type="button">
         <mat-icon>filter_alt_off</mat-icon>
         {{ resetFiltersLabelKey() | translate }}
       </button>
@@ -215,37 +258,6 @@
     </table>
   </div>
 
-  @if (showActiveFiltersBar() && activeFilterSummaries().length > 0) {
-    <div class="active-filters-bar">
-      <span class="active-filters-bar__label">
-        <mat-icon>filter_alt</mat-icon>
-        {{ 'COMMON.ACTIVE_FILTERS' | translate }}
-      </span>
-
-      <div class="active-filters-bar__chips">
-        @for (summary of activeFilterSummaries(); track summary.columnId) {
-          <span class="active-filter-chip">
-            <span class="active-filter-chip__field">{{ summary.labelKey | translate }}</span>
-            <span class="active-filter-chip__value">{{ summary.value }}</span>
-            <button
-              (click)="clearFilter(summary.columnId)"
-              [attr.aria-label]="'COMMON.CLEAR_FILTER' | translate"
-              class="active-filter-chip__clear"
-              mat-icon-button
-              type="button"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
-          </span>
-        }
-      </div>
-
-      <button (click)="clearAllFilters()" class="active-filters-bar__reset" mat-stroked-button type="button">
-        <mat-icon>filter_alt_off</mat-icon>
-        {{ resetFiltersLabelKey() | translate }}
-      </button>
-    </div>
-  }
 </section>
 
 
