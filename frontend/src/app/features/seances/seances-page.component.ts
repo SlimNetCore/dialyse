@@ -8,7 +8,9 @@
   OnDestroy,
   OnInit,
   signal,
+  TemplateRef,
   ViewChild,
+  viewChild,
 } from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
@@ -32,6 +34,7 @@ import {WebSocketService} from '../../core/ws/websocket.service';
 import {SeanceStore} from './state/seance.store';
 import {RichTextEditorComponent} from '../../shared/rich-text-editor/rich-text-editor.component';
 import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
+import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 
 type BarcodeDetectorInstance = {
   detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
@@ -43,7 +46,8 @@ Chart.register(...registerables);
   standalone: true,
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, MatPaginatorModule,
-    TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent, HemodialysisLoaderComponent],
+    TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent, HemodialysisLoaderComponent,
+    ConfigurableListComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',
@@ -102,7 +106,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly ajustementsTherapeutiques = computed(() => this.store.ajustementsTherapeutiques());
   protected readonly conclusionMedicale = computed(() => this.store.conclusionMedicale());
   protected readonly selectionLoading = computed(() => this.store.summaryLoading());
-  protected readonly seanceCols = ['dateSeance', 'patient', 'status', 'forfait', 'actions'];
   protected readonly journalPatientCols = ['patient', 'code', 'status'];
   protected readonly dashboardDetailCols = ['date', 'patient', 'weekday', 'status'];
   protected readonly consommableCols = ['article', 'quantite', 'actions'];
@@ -126,6 +129,67 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE') && !this.isSeanceFacturee()
   );
   protected readonly canEditMedical = computed(() => this.hasAnyRole('ADMIN', 'MEDECIN') && !this.isSeanceFacturee());
+  protected readonly patientCellTemplate = viewChild<TemplateRef<any>>('patientCell');
+  protected readonly statusCellTemplate = viewChild<TemplateRef<any>>('statusCell');
+  protected readonly forfaitCellTemplate = viewChild<TemplateRef<any>>('forfaitCell');
+  protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
+  protected readonly seanceListColumns = computed<SharedListColumn<SeanceListItem>[]>(() => [
+    {
+      id: 'dateSeance',
+      headerKey: 'COMMON.DATE',
+      valueAccessor: (row) => row.dateSeance,
+      sortable: true,
+      resizable: true,
+      minWidthPx: 140,
+      filter: {type: 'date', labelKey: 'COMMON.DATE'},
+    },
+    {
+      id: 'patient',
+      headerKey: 'CAHIER.PATIENT',
+      valueAccessor: (row) => this.formatPatientLabel(row),
+      sortable: true,
+      resizable: true,
+      minWidthPx: 220,
+      filter: {type: 'text', labelKey: 'CAHIER.PATIENT'},
+      cellTemplate: this.patientCellTemplate() ?? undefined,
+    },
+    {
+      id: 'status',
+      headerKey: 'COMMON.STATUS_LABEL',
+      valueAccessor: (row) => row.status,
+      sortable: true,
+      resizable: true,
+      minWidthPx: 160,
+      filter: {type: 'text', labelKey: 'COMMON.STATUS_LABEL'},
+      cellTemplate: this.statusCellTemplate() ?? undefined,
+    },
+    {
+      id: 'forfait',
+      headerKey: 'CAHIER.FORFAIT',
+      valueAccessor: (row) => this.listForfaitName(row),
+      sortable: true,
+      resizable: true,
+      minWidthPx: 180,
+      filter: {type: 'text', labelKey: 'CAHIER.FORFAIT'},
+      cellTemplate: this.forfaitCellTemplate() ?? undefined,
+    },
+    {
+      id: 'actions',
+      headerKey: 'COMMON.COL_ACTIONS',
+      valueAccessor: () => '',
+      sortable: false,
+      resizable: false,
+      mobileRowActions: true,
+      widthPx: 136,
+      minWidthPx: 120,
+      maxWidthPx: 180,
+      cellTemplate: this.actionsCellTemplate() ?? undefined,
+    },
+  ]);
+  protected readonly seanceRowClassFn = (row: SeanceListItem) => ({
+    'row-locked': !this.canOpenSeanceDetails(),
+    'row-selected': this.selectedSeanceId() === row.id,
+  });
   protected readonly chartOptions: ChartOptions<'bar' | 'doughnut'> = {
     responsive: true,
     maintainAspectRatio: false,

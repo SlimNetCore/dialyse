@@ -259,6 +259,16 @@
   width: 100%;
 }
 
+.detail-row-container .mat-mdc-cell {
+  padding: 0;
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.detail-row {
+  padding: 0 !important;
+}
+
 .mobile-actions-row .row-actions {
   display: flex;
   gap: 8px;

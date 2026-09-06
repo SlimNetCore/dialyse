@@ -219,72 +219,52 @@
         <mat-card-title>{{ 'SEANCES.SESSIONS_LIST_TITLE' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="table-wrap">
-          <table [dataSource]="seances()" class="full-width seances-table" mat-table>
-            <ng-container matColumnDef="dateSeance">
-              <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.DATE' | translate }}</th>
-              <td *matCellDef="let s" mat-cell>{{ s.dateSeance }}</td>
-            </ng-container>
-            <ng-container matColumnDef="patient">
-              <th *matHeaderCellDef mat-header-cell>{{ 'CAHIER.PATIENT' | translate }}</th>
-              <td *matCellDef="let s" mat-cell>
-                <div class="patient-cell">
-                  <strong>{{ formatPatientLabel(s) }}</strong>
-                  <span>{{ s.patientCode || s.patientId }}</span>
-                </div>
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="status">
-              <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
-              <td *matCellDef="let s" mat-cell>
-                <span [attr.data-status]="s.status" class="status-badge">
-                  <mat-icon [attr.data-status]="s.status" class="status-dot">fiber_manual_record</mat-icon>
-                  {{ s.status }}
-                </span>
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="forfait">
-              <th *matHeaderCellDef mat-header-cell>{{ 'CAHIER.FORFAIT' | translate }}</th>
-              <td *matCellDef="let s" mat-cell>
-                @if (listForfaitName(s) !== '-') {
-                  <span class="forfait-badge">
-                    {{ listForfaitName(s) }}
-                    @if (listForfaitPrice(s)) {
-                      <span
-                        class="forfait-price"> — {{ listForfaitPrice(s) }} {{ 'COMMON.CURRENCY_DA' | translate }}</span>
-                    }
-                  </span>
-                } @else {
-                  <span class="app-muted-note">-</span>
-                }
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="actions">
-              <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-              <td *matCellDef="let s" mat-cell>
-                <button
-                  (click)="selectSeance(s)"
-                  [disabled]="!canOpenSeanceDetails()"
-                  color="primary"
-                  mat-stroked-button
-                  type="button"
-                >
-                  {{ 'COMMON.EDIT_BTN' | translate }}
-                </button>
-              </td>
-            </ng-container>
-            <tr *matHeaderRowDef="seanceCols" mat-header-row></tr>
-            <tr
-              *matRowDef="let row; columns: seanceCols"
-              [class.row-locked]="!canOpenSeanceDetails()"
-              [class.row-selected]="selectedSeanceId() === row.id"
-              mat-row
-            ></tr>
-          </table>
-        </div>
-        @if (seances().length === 0) {
-          <p class="camera-hint">{{ 'SEANCES.NO_SESSIONS_FOUND' | translate }}</p>
-        }
+        <app-configurable-list
+          [columns]="seanceListColumns()"
+          [emptyLabelKey]="'SEANCES.NO_SESSIONS_FOUND'"
+          [rowClassFn]="seanceRowClassFn"
+          [rows]="seances()"
+        />
+
+        <ng-template #patientCell let-row>
+          <div class="patient-cell">
+            <strong>{{ formatPatientLabel(row) }}</strong>
+            <span>{{ row.patientCode || row.patientId }}</span>
+          </div>
+        </ng-template>
+
+        <ng-template #statusCell let-row>
+          <span [attr.data-status]="row.status" class="status-badge">
+            <mat-icon [attr.data-status]="row.status" class="status-dot">fiber_manual_record</mat-icon>
+            {{ row.status }}
+          </span>
+        </ng-template>
+
+        <ng-template #forfaitCell let-row>
+          @if (listForfaitName(row) !== '-') {
+            <span class="forfait-badge">
+              {{ listForfaitName(row) }}
+              @if (listForfaitPrice(row)) {
+                <span class="forfait-price"> — {{ listForfaitPrice(row) }} {{ 'COMMON.CURRENCY_DA' | translate }}</span>
+              }
+            </span>
+          } @else {
+            <span class="app-muted-note">-</span>
+          }
+        </ng-template>
+
+        <ng-template #actionsCell let-row>
+          <button
+            (click)="selectSeance(row)"
+            [disabled]="!canOpenSeanceDetails()"
+            color="primary"
+            mat-stroked-button
+            type="button"
+          >
+            {{ 'COMMON.EDIT_BTN' | translate }}
+          </button>
+        </ng-template>
+
         <mat-paginator
           (page)="onSeancesPageChange($event)"
           [length]="seancesTotal()"

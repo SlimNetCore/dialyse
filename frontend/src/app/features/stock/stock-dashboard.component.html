@@ -183,43 +183,29 @@
       <mat-card-title>{{ 'STOCK.DASHBOARD.STOCK_TABLE.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="stock-table-wrap table-wrap">
-        <table [dataSource]="stock()" class="full-width" mat-table>
-          <ng-container matColumnDef="code">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_CODE' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
-          </ng-container>
-          <ng-container matColumnDef="libelle">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_ARTICLE' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.libelle }}</td>
-          </ng-container>
-          <ng-container matColumnDef="quantite">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_QUANTITY' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.quantite | number:'1.0-2' }} {{ a.unite }}</td>
-          </ng-container>
-          <ng-container matColumnDef="pmp">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_PMP' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.pmpCourant | number:'1.0-4' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="valeur">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_VALUE' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.valeur | number:'1.0-2' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.DASHBOARD.STOCK_TABLE.COL_ACTIONS' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>
-              <button (click)="openPmpExplain(a)" color="primary" mat-stroked-button>
-                {{ 'STOCK.DASHBOARD.STOCK_TABLE.EXPLAIN_PMP' | translate }}
-              </button>
-            </td>
-          </ng-container>
-          <tr *matHeaderRowDef="cols" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: cols" mat-row></tr>
-        </table>
-      </div>
-      @if (!loading() && stock().length === 0) {
-        <p class="app-muted-note">{{ 'STOCK.DASHBOARD.EMPTY.NO_STOCK' | translate }}</p>
-      }
+      <app-configurable-list
+        [columns]="stockColumns()"
+        [emptyLabelKey]="'STOCK.DASHBOARD.EMPTY.NO_STOCK'"
+        [rows]="stock()"
+      />
+
+      <ng-template #quantiteCell let-row>
+        {{ row.quantite | number:'1.0-2' }} {{ row.unite }}
+      </ng-template>
+
+      <ng-template #pmpCell let-row>
+        {{ row.pmpCourant | number:'1.0-4' }}
+      </ng-template>
+
+      <ng-template #valeurCell let-row>
+        {{ row.valeur | number:'1.0-2' }}
+      </ng-template>
+
+      <ng-template #actionsCell let-row>
+        <button (click)="openPmpExplain(row)" color="primary" mat-stroked-button>
+          {{ 'STOCK.DASHBOARD.STOCK_TABLE.EXPLAIN_PMP' | translate }}
+        </button>
+      </ng-template>
     </mat-card-content>
   </mat-card>
 

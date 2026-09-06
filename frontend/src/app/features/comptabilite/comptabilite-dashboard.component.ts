@@ -80,6 +80,7 @@ export class ComptabiliteDashboardComponent {
   protected readonly isDetailRowExpanded = (_index: number, row: EcritureComptableItem): boolean =>
     this.isRowExpanded(row.id) && (row.lignes?.length ?? 0) > 0;
 
+
   protected expandedCount(): number {
     return this.store.expandedEcritureIds().length;
   }

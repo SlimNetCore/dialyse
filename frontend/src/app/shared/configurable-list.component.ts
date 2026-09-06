@@ -5,6 +5,7 @@ import {
   HostListener,
   OnDestroy,
   TemplateRef,
+  TrackByFunction,
   Type,
   ViewEncapsulation,
   computed,
@@ -103,6 +104,9 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly emptyLabelKey = input('COMMON.NO_DATA');
   readonly minTableWidthPx = input(760);
   readonly rowClassFn = input<((row: any) => string | string[] | Record<string, boolean> | null) | null>(null);
+  readonly rowTrackBy = input<TrackByFunction<any> | null>(null);
+  readonly detailRowTemplate = input<TemplateRef<{ $implicit: any; row: any }> | null>(null);
+  readonly detailRowWhen = input<((index: number, row: any) => boolean) | null>(null);
 
   readonly rowClick = output<any>();
   readonly filtersChange = output<Record<string, string>>();
@@ -179,6 +183,7 @@ export class ConfigurableListComponent implements OnDestroy {
     }
     return this.actionColumn() ? [this.mobileActionsColumnId] : [];
   });
+  readonly detailRowColumns = ['__detail_row__'];
   protected readonly columnWidths = signal<Record<string, number>>({});
   private readonly activeFilterColumnId = signal<string | null>(null);
   private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
@@ -475,7 +480,30 @@ export class ConfigurableListComponent implements OnDestroy {
 
   trackByColumn = (_: number, column: SharedListColumn<any>): string => column.id;
 
+  trackByRow = (index: number, row: any): any => {
+    const externalTrackBy = this.rowTrackBy();
+    if (externalTrackBy) {
+      return externalTrackBy(index, row);
+    }
+    return row?.id ?? row?.ID ?? row?.factureId ?? row?.numeroPiece ?? index;
+  };
+
+  resolvedTrackBy: TrackByFunction<any> = (index: number, row: any): any => {
+    // In detail mode, use render index to avoid main/detail key collisions for the same data item.
+    if (this.detailRowTemplate()) {
+      return index;
+    }
+    return this.trackByRow(index, row);
+  };
+
   mobileActionsRowWhen = (_: number, _row: any): boolean => this.mobileActionRowColumns().length > 0;
+
+  dataRowWhen = (_: number, _row: any): boolean => true;
+
+  detailRowVisibleWhen = (index: number, row: any): boolean => {
+    const when = this.detailRowWhen();
+    return !!this.detailRowTemplate() && !!when?.(index, row);
+  };
 
   mobileActionsCellContext(row: any): {
     $implicit: any;
@@ -497,6 +525,10 @@ export class ConfigurableListComponent implements OnDestroy {
   }
 
   mobileActionsColspan(): number {
+    return Math.max(1, this.displayedColumnIds().length || 1);
+  }
+
+  detailRowColspan(): number {
     return Math.max(1, this.displayedColumnIds().length || 1);
   }
 

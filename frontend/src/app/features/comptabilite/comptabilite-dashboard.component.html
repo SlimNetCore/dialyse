@@ -159,7 +159,6 @@
             </td>
           </ng-container>
 
-          <!-- Detail ligne row -->
           <ng-container matColumnDef="detailRow">
             <td *matCellDef="let row" [attr.colspan]="displayedColumns.length" class="detail-row" mat-cell>
               <div class="lignes-detail-container">
@@ -236,10 +235,6 @@
               class="detail-row-container" mat-row></tr>
         </table>
       </div>
-
-      @if (!store.loading() && store.rows().length === 0) {
-        <p class="app-muted-note">{{ 'COMPTABILITE.TABLE.EMPTY' | translate }}</p>
-      }
 
       <mat-paginator
         (page)="onPageChange($event)"

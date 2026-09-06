@@ -7,7 +7,8 @@
   </div>
 
   <div (scroll)="onTableWrapScroll()" class="table-wrap">
-    <table [dataSource]="displayedRows()" [style.min-width.px]="minTableWidthPx()" class="shared-table" mat-table>
+    <table [dataSource]="displayedRows()" [style.min-width.px]="minTableWidthPx()" [trackBy]="resolvedTrackBy"
+           class="shared-table" mat-table multiTemplateDataRows>
       @for (column of columns(); track trackByColumn($index, column)) {
         <ng-container [matColumnDef]="column.id">
           <th *matHeaderCellDef [style.max-width.px]="column.maxWidthPx ?? null"
@@ -129,12 +130,25 @@
         </td>
       </ng-container>
 
+      <ng-container matColumnDef="__detail_row__">
+        <td *matCellDef="let row" [attr.colspan]="detailRowColspan()" class="detail-row" mat-cell>
+          @if (detailRowTemplate()) {
+            <ng-container *ngTemplateOutlet="detailRowTemplate()!; context: { $implicit: row, row: row }"/>
+          }
+        </td>
+      </ng-container>
+
       <tr *matHeaderRowDef="displayedColumnIds()" mat-header-row></tr>
       <tr
         (click)="onRowClick(row)"
-        *matRowDef="let row; columns: displayedColumnIds()"
+        *matRowDef="let row; columns: displayedColumnIds(); when: dataRowWhen"
         [ngClass]="rowClasses(row)"
         class="data-row"
+        mat-row
+      ></tr>
+      <tr
+        *matRowDef="let row; columns: detailRowColumns; when: detailRowVisibleWhen"
+        class="detail-row-container"
         mat-row
       ></tr>
       <tr

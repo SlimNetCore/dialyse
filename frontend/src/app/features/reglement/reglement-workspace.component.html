@@ -71,6 +71,22 @@
           <mat-icon>filter_alt_off</mat-icon>
           {{ 'REGLEMENT_MODULE.FILTERS.RESET' | translate }}
         </button>
+        <button [matMenuTriggerFor]="columnsMenu" color="primary" mat-stroked-button>
+          <mat-icon>view_column</mat-icon>
+          {{ 'PATIENT_LIST.COLUMNS_BUTTON' | translate }}
+        </button>
+        <mat-menu #columnsMenu="matMenu">
+          @for (column of columnMenuItems(); track column.id) {
+            <button (click)="$event.stopPropagation()" mat-menu-item>
+              <mat-checkbox
+                (change)="toggleColumn(column.id, $event.checked)"
+                [checked]="isColumnVisible(column.id)"
+              >
+                {{ column.headerKey | translate }}
+              </mat-checkbox>
+            </button>
+          }
+        </mat-menu>
         <span class="spacer"></span>
         <button (click)="onExport('excel')" [disabled]="store.exporting()" [matTooltip]="'REGLEMENT_MODULE.EXPORT.EXCEL_TOOLTIP' | translate"
                 mat-stroked-button>
@@ -160,134 +176,80 @@
         </div>
       }
 
-      <div class="table-wrap">
-        <table [dataSource]="store.visibleRows()" [trackBy]="trackByFactureId" class="data-table" mat-table>
+      <app-configurable-list
+        [columnVisibility]="visibleColumns()"
+        [columns]="reglementColumns()"
+        [emptyLabelKey]="'REGLEMENT_MODULE.TABLE.EMPTY'"
+        [rowClassFn]="rowClassFn"
+        [rowTrackBy]="trackByFactureId"
+        [rows]="store.visibleRows()"
+        class="data-table reglement-data-list"
+      />
 
-          <ng-container matColumnDef="numeroFacture">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.NUMERO_FACTURE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.numeroFacture }}</td>
-          </ng-container>
+      <ng-template #montantFactureCell let-row>
+        <span class="num-cell">{{ row.montantFacture | number:'1.2-2' }}</span>
+      </ng-template>
 
-          <ng-container matColumnDef="numeroAssurance">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.NUMERO_ASSURANCE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.numeroAssurance }}</td>
-          </ng-container>
+      <ng-template #montantRegleCell let-row>
+        <span class="num-cell">
+          <span [class.preview-value]="row.hasDraft">{{ row.montantRegle | number:'1.2-2' }}</span>
+          @if (row.hasDraft) {
+            <mat-icon [matTooltip]="'REGLEMENT_MODULE.TABLE.DRAFT_TOOLTIP' | translate"
+                      class="draft-icon">pending</mat-icon>
+          }
+        </span>
+      </ng-template>
 
-          <ng-container matColumnDef="patientNom">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.PATIENT_NOM' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.patientNom }}</td>
-          </ng-container>
+      <ng-template #soldeCell let-row>
+        <span [class.chip-preview]="row.hasDraft" [class]="soldeClass(row)" class="solde-chip">
+          {{ soldeLabel(row) }}
+        </span>
+      </ng-template>
 
-          <ng-container matColumnDef="patientPrenom">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.PATIENT_PRENOM' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.patientPrenom }}</td>
-          </ng-container>
+      <ng-template #etatCell let-row>
+        <span [class.etat-preview]="row.hasDraft">{{ statusLabel(row) }}</span>
+      </ng-template>
 
-          <ng-container matColumnDef="caisse">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.CAISSE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.caisse }}</td>
-          </ng-container>
+      <ng-template #codeReglementCell let-row>
+        <div class="code-cell">
+          @if (row.latestCodeReglement) {
+            <span class="code-chip">{{ row.latestCodeReglement }}</span>
+          }
+          @if (hasMultiplePayments(row)) {
+            <span
+              [matBadge]="row.paymentCount"
+              [matTooltip]="multiplePaymentsTooltip(row)"
+              class="multi-payment-badge"
+              matBadgeColor="accent"
+              matBadgeOverlap="false"
+              matBadgeSize="small">
+              <mat-icon>payments</mat-icon>
+            </span>
+          }
+        </div>
+      </ng-template>
 
-          <ng-container matColumnDef="agence">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.AGENCE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.agence }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="centrePayeur">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.CENTRE_PAYEUR' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.centrePayeur }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="montantFacture">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.MONTANT_FACTURE' | translate }}</th>
-            <td *matCellDef="let row" class="num-cell" mat-cell>{{ row.montantFacture | number:'1.2-2' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="montantRegle">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.MONTANT_REGLE' | translate }}</th>
-            <td *matCellDef="let row" class="num-cell" mat-cell>
-              <span [class.preview-value]="row.hasDraft">{{ row.montantRegle | number:'1.2-2' }}</span>
-              @if (row.hasDraft) {
-                <mat-icon [matTooltip]="'REGLEMENT_MODULE.TABLE.DRAFT_TOOLTIP' | translate" class="draft-icon">pending
-                </mat-icon>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="solde">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.SOLDE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <span [class.chip-preview]="row.hasDraft" [class]="soldeClass(row)" class="solde-chip">
-                {{ soldeLabel(row) }}
-              </span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="etat">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.ETAT' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <span [class.etat-preview]="row.hasDraft">{{ statusLabel(row) }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="codeReglement">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.CODE_REGLEMENT' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <div class="code-cell">
-                @if (row.latestCodeReglement) {
-                  <span class="code-chip">{{ row.latestCodeReglement }}</span>
-                }
-                @if (hasMultiplePayments(row)) {
-                  <span
-                    [matBadge]="row.paymentCount"
-                    [matTooltip]="multiplePaymentsTooltip(row)"
-                    class="multi-payment-badge"
-                    matBadgeColor="accent"
-                    matBadgeOverlap="false"
-                    matBadgeSize="small">
-                    <mat-icon>payments</mat-icon>
-                  </span>
-                }
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>{{ 'REGLEMENT_MODULE.TABLE.ACTIONS' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <div class="payment-box">
-                <mat-form-field appearance="outline" class="payment-field">
-                  <mat-label>{{ 'REGLEMENT_MODULE.TABLE.PAYMENT_INPUT' | translate }}</mat-label>
-                  <input #payInput
-                         (input)="onPaymentInput(row.factureId, payInput.value)"
-                         (keydown.enter)="onPaymentEnter($event)"
-                         [disabled]="store.batchSaving() || isSavingRow(row.factureId) || isPaymentLocked(row)"
-                         matInput step="0.01" type="number">
-                  @if (isPaymentLocked(row)) {
-                    <mat-icon [matTooltip]="'REGLEMENT_MODULE.TABLE.PAYMENT_LOCKED_TOOLTIP' | translate"
-                              class="payment-lock-icon" matSuffix>lock
-                    </mat-icon>
-                  }
-                </mat-form-field>
-                <button (click)="openHistory(row)" [matTooltip]="'REGLEMENT_MODULE.TABLE.VIEW_HISTORY' | translate"
-                        color="accent" mat-icon-button>
-                  <mat-icon>history</mat-icon>
-                </button>
-              </div>
-            </td>
-          </ng-container>
-
-          <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: displayedColumns"
-              [attr.data-facture-id]="row.factureId"
-              [class.row-has-draft]="row.hasDraft"
-              mat-row></tr>
-        </table>
-      </div>
-
-      @if (!store.loading() && store.visibleRows().length === 0) {
-        <p class="app-muted-note">{{ 'REGLEMENT_MODULE.TABLE.EMPTY' | translate }}</p>
-      }
+      <ng-template #actionsCell let-row>
+        <div class="payment-box">
+          <mat-form-field appearance="outline" class="payment-field">
+            <mat-label>{{ 'REGLEMENT_MODULE.TABLE.PAYMENT_INPUT' | translate }}</mat-label>
+            <input #payInput
+                   (input)="onPaymentInput(row.factureId, payInput.value)"
+                   (keydown.enter)="onPaymentEnter($event)"
+                   [disabled]="store.batchSaving() || isSavingRow(row.factureId) || isPaymentLocked(row)"
+                   matInput step="0.01" type="number">
+            @if (isPaymentLocked(row)) {
+              <mat-icon [matTooltip]="'REGLEMENT_MODULE.TABLE.PAYMENT_LOCKED_TOOLTIP' | translate"
+                        class="payment-lock-icon" matSuffix>lock
+              </mat-icon>
+            }
+          </mat-form-field>
+          <button (click)="openHistory(row)" [matTooltip]="'REGLEMENT_MODULE.TABLE.VIEW_HISTORY' | translate"
+                  color="accent" mat-icon-button>
+            <mat-icon>history</mat-icon>
+          </button>
+        </div>
+      </ng-template>
 
       <mat-paginator
         (page)="onPageChange($event)"
