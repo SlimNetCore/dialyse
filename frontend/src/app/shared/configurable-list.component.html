@@ -131,8 +131,9 @@
       </ng-container>
 
       <ng-container matColumnDef="__detail_row__">
-        <td *matCellDef="let row" [attr.colspan]="detailRowColspan()" class="detail-row" mat-cell>
-          @if (detailRowTemplate()) {
+        <td *matCellDef="let row; let rowIndex = dataIndex" [attr.colspan]="detailRowColspan()" class="detail-row"
+            mat-cell>
+          @if (detailRowTemplate() && isDetailExpanded(rowIndex, row)) {
             <ng-container *ngTemplateOutlet="detailRowTemplate()!; context: { $implicit: row, row: row }"/>
           }
         </td>
@@ -147,7 +148,8 @@
         mat-row
       ></tr>
       <tr
-        *matRowDef="let row; columns: detailRowColumns; when: detailRowVisibleWhen"
+        *matRowDef="let row; let rowIndex = index; columns: detailRowColumns; when: detailRowRenderWhen"
+        [class.detail-row-collapsed]="!isDetailExpanded(rowIndex, row)"
         class="detail-row-container"
         mat-row
       ></tr>

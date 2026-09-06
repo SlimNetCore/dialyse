@@ -488,22 +488,26 @@ export class ConfigurableListComponent implements OnDestroy {
     return row?.id ?? row?.ID ?? row?.factureId ?? row?.numeroPiece ?? index;
   };
 
-  resolvedTrackBy: TrackByFunction<any> = (index: number, row: any): any => {
-    // In detail mode, use render index to avoid main/detail key collisions for the same data item.
-    if (this.detailRowTemplate()) {
-      return index;
-    }
-    return this.trackByRow(index, row);
-  };
+  resolvedTrackBy: TrackByFunction<any> = (index: number, row: any): any =>
+    this.trackByRow(index, row);
 
   mobileActionsRowWhen = (_: number, _row: any): boolean => this.mobileActionRowColumns().length > 0;
 
   dataRowWhen = (_: number, _row: any): boolean => true;
 
-  detailRowVisibleWhen = (index: number, row: any): boolean => {
+  /**
+   * The detail row is ALWAYS rendered when a template is provided.
+   * Material only re-evaluates `when:` predicates on data re-render, so
+   * expansion state must NOT be part of the predicate. Visibility is
+   * driven by `isDetailExpanded()` bindings instead, which are re-evaluated
+   * on every change detection cycle.
+   */
+  detailRowRenderWhen = (_index: number, _row: any): boolean => !!this.detailRowTemplate();
+
+  isDetailExpanded(index: number, row: any): boolean {
     const when = this.detailRowWhen();
     return !!this.detailRowTemplate() && !!when?.(index, row);
-  };
+  }
 
   mobileActionsCellContext(row: any): {
     $implicit: any;

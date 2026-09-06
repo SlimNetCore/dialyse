@@ -1,10 +1,9 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, TemplateRef, viewChild} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
-import {MatTableModule, MatTableDataSource} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -16,6 +15,7 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {JournalCode} from '../../core/api/comptabilite-api.service';
 import {EcritureComptableItem} from '../../core/api/comptabilite-api.service';
+import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 
 @Component({
   selector: 'app-comptabilite-dashboard',
@@ -23,9 +23,9 @@ import {EcritureComptableItem} from '../../core/api/comptabilite-api.service';
   imports: [
     DecimalPipe,
     MatCardModule, MatButtonModule, MatIconModule,
-    MatSelectModule, MatTableModule, MatPaginatorModule,
+    MatSelectModule, MatPaginatorModule,
     MatProgressBarModule, MatTooltipModule, MatBadgeModule,
-    MatChipsModule, TranslateModule,
+    MatChipsModule, TranslateModule, ConfigurableListComponent,
   ],
   templateUrl: './comptabilite-dashboard.component.html',
   styleUrl: './comptabilite-dashboard.component.css',
@@ -52,16 +52,90 @@ export class ComptabiliteDashboardComponent {
   protected readonly displayedColumns = [
     'expand', 'numeroPiece', 'journalCode', 'dateEcriture', 'libelle', 'totalDebit', 'statut'
   ];
-  protected readonly detailRowColumns = ['detailRow'];
-
-  protected readonly dataSource = new MatTableDataSource<EcritureComptableItem>([]);
-
-  constructor() {
-    effect(() => {
-      const rows = this.store.rows();
-      this.dataSource.data = rows;
-    });
-  }
+  protected readonly expandCellTemplate = viewChild<TemplateRef<any>>('expandCell');
+  protected readonly numeroPieceCellTemplate = viewChild<TemplateRef<any>>('numeroPieceCell');
+  protected readonly journalCodeCellTemplate = viewChild<TemplateRef<any>>('journalCodeCell');
+  protected readonly libelleCellTemplate = viewChild<TemplateRef<any>>('libelleCell');
+  protected readonly totalDebitCellTemplate = viewChild<TemplateRef<any>>('totalDebitCell');
+  protected readonly statutCellTemplate = viewChild<TemplateRef<any>>('statutCell');
+  protected readonly detailRowTemplateRef = viewChild<TemplateRef<any>>('detailRowTemplate');
+  protected readonly ecritureColumns = computed<SharedListColumn<EcritureComptableItem>[]>(() => [
+    {
+      id: 'expand',
+      headerKey: '',
+      valueAccessor: () => '',
+      sortable: false,
+      resizable: false,
+      widthPx: 72,
+      minWidthPx: 64,
+      maxWidthPx: 84,
+      cellTemplate: this.expandCellTemplate() ?? undefined,
+    },
+    {
+      id: 'numeroPiece',
+      headerKey: 'COMPTABILITE.TABLE.NUMERO_PIECE',
+      valueAccessor: (row) => row.numeroPiece ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 170,
+      filter: {type: 'text', labelKey: 'COMPTABILITE.TABLE.NUMERO_PIECE'},
+      cellTemplate: this.numeroPieceCellTemplate() ?? undefined,
+    },
+    {
+      id: 'journalCode',
+      headerKey: 'COMPTABILITE.TABLE.JOURNAL',
+      valueAccessor: (row) => row.journalCode ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 130,
+      filter: {type: 'text', labelKey: 'COMPTABILITE.TABLE.JOURNAL'},
+      cellTemplate: this.journalCodeCellTemplate() ?? undefined,
+    },
+    {
+      id: 'dateEcriture',
+      headerKey: 'COMPTABILITE.TABLE.DATE',
+      valueAccessor: (row) => row.dateEcriture ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 140,
+      filter: {type: 'date', labelKey: 'COMPTABILITE.TABLE.DATE'},
+    },
+    {
+      id: 'libelle',
+      headerKey: 'COMPTABILITE.TABLE.LIBELLE',
+      valueAccessor: (row) => row.libelle ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 260,
+      filter: {type: 'text', labelKey: 'COMPTABILITE.TABLE.LIBELLE'},
+      cellTemplate: this.libelleCellTemplate() ?? undefined,
+    },
+    {
+      id: 'totalDebit',
+      headerKey: 'COMPTABILITE.TABLE.TOTAL',
+      valueAccessor: (row) => Number(row.totalDebit ?? 0),
+      sortValueAccessor: (row) => Number(row.totalDebit ?? 0),
+      sortable: true,
+      resizable: true,
+      minWidthPx: 140,
+      filter: {type: 'text', labelKey: 'COMPTABILITE.TABLE.TOTAL'},
+      cellTemplate: this.totalDebitCellTemplate() ?? undefined,
+    },
+    {
+      id: 'statut',
+      headerKey: 'COMPTABILITE.TABLE.STATUT',
+      valueAccessor: (row) => row.statut ?? '',
+      sortable: true,
+      resizable: true,
+      minWidthPx: 130,
+      filter: {type: 'text', labelKey: 'COMPTABILITE.TABLE.STATUT'},
+      cellTemplate: this.statutCellTemplate() ?? undefined,
+    },
+  ]);
+  protected readonly rowClassFn = (row: EcritureComptableItem) => ({
+    expanded: this.isRowExpanded(row.id),
+    'ecriture-row': true,
+  });
 
   protected onPageChange(event: PageEvent): void {
     this.store.setPagination(event.pageIndex, event.pageSize);
@@ -71,6 +145,12 @@ export class ComptabiliteDashboardComponent {
     event?.preventDefault();
     event?.stopPropagation();
     this.store.toggleExpandedRow(row.id);
+  }
+
+  protected onRowClicked(row: EcritureComptableItem): void {
+    if ((row.lignes?.length ?? 0) > 0) {
+      this.store.toggleExpandedRow(row.id);
+    }
   }
 
   protected isRowExpanded(ecritureId: string): boolean {
@@ -130,19 +210,4 @@ export class ComptabiliteDashboardComponent {
   protected monthLabel(month: number): string {
     return this.translate.instant(`REGLEMENT_MODULE.MONTHS.${month}`);
   }
-
-  protected trackByEcritureId(_index: number, row: { id: string }): string {
-    return row.id;
-  }
 }
-
-
-
-
-
-
-
-
-
-
-

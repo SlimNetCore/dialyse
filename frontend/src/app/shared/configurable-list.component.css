@@ -265,6 +265,10 @@
   border-bottom: 0;
 }
 
+.detail-row-container.detail-row-collapsed {
+  display: none;
+}
+
 .detail-row {
   padding: 0 !important;
 }

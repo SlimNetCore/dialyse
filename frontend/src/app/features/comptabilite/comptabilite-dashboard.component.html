@@ -1,11 +1,11 @@
-<section class="app-page">
+﻿<section class="app-page">
   <div class="app-hero-card">
     <span class="app-eyebrow">{{ 'COMPTABILITE.EYEBROW' | translate }}</span>
     <h1 class="app-section-title">{{ 'COMPTABILITE.TITLE' | translate }}</h1>
     <p class="app-section-copy">{{ 'COMPTABILITE.DESCRIPTION' | translate }}</p>
   </div>
 
-  <!-- ─── KPIs ──────────────────────────────────────────────────── -->
+  <!-- â”€â”€â”€ KPIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <mat-card>
     <mat-card-content>
       <div class="kpi-grid">
@@ -21,7 +21,7 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- ─── Filtres ───────────────────────────────────────────────── -->
+  <!-- â”€â”€â”€ Filtres â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ 'COMPTABILITE.FILTERS.TITLE' | translate }}</mat-card-title>
@@ -82,7 +82,7 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- ─── Tableau écritures ─────────────────────────────────────── -->
+  <!-- â”€â”€â”€ Tableau Ã©critures â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ 'COMPTABILITE.TABLE.TITLE' | translate }}</mat-card-title>
@@ -102,139 +102,116 @@
         </div>
       }
 
-      <div class="table-wrap">
-        <table [dataSource]="dataSource" class="data-table expandable-table" mat-table multiTemplateDataRows>
+      <app-configurable-list
+        (rowClick)="onRowClicked($event)"
+        [columns]="ecritureColumns()"
+        [detailRowTemplate]="detailRowTemplateRef() ?? null"
+        [detailRowWhen]="isDetailRowExpanded"
+        [emptyLabelKey]="'COMPTABILITE.TABLE.EMPTY'"
+        [rowClassFn]="rowClassFn"
+        [rows]="store.rows()"
+        class="data-table expandable-table compta-config-list"
+      />
 
-          <ng-container matColumnDef="expand">
-            <th *matHeaderCellDef class="expand-cell" mat-header-cell></th>
-            <td *matCellDef="let row" class="expand-cell" mat-cell>
-              @if ((row.lignes?.length ?? 0) > 0) {
-                <button (click)="toggleRowExpansion(row, $event)"
-                        [attr.aria-expanded]="isRowExpanded(row.id)"
-                        [attr.aria-label]="'COMPTABILITE.DETAIL.TOGGLE' | translate:{ numeroPiece: row.numeroPiece }"
-                        class="expand-btn" mat-icon-button>
-                  <mat-icon [class.expanded]="isRowExpanded(row.id)" class="expand-icon">
-                    expand_more
-                  </mat-icon>
-                </button>
-              }
-            </td>
-          </ng-container>
+      <ng-template #expandCell let-row>
+        @if ((row.lignes?.length ?? 0) > 0) {
+          <button (click)="toggleRowExpansion(row, $event)"
+                  [attr.aria-expanded]="isRowExpanded(row.id)"
+                  [attr.aria-label]="'COMPTABILITE.DETAIL.TOGGLE' | translate:{ numeroPiece: row.numeroPiece }"
+                  class="expand-btn" mat-icon-button>
+            <mat-icon [class.expanded]="isRowExpanded(row.id)" class="expand-icon">expand_more</mat-icon>
+          </button>
+        }
+      </ng-template>
 
-          <ng-container matColumnDef="numeroPiece">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.NUMERO_PIECE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <span class="piece-chip">{{ row.numeroPiece }}</span>
-            </td>
-          </ng-container>
+      <ng-template #numeroPieceCell let-row>
+        <span class="piece-chip">{{ row.numeroPiece }}</span>
+      </ng-template>
 
-          <ng-container matColumnDef="journalCode">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.JOURNAL' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <mat-chip [class]="'journal-' + row.journalCode">{{ row.journalCode }}</mat-chip>
-            </td>
-          </ng-container>
+      <ng-template #journalCodeCell let-row>
+        <mat-chip [class]="'journal-' + row.journalCode">{{ row.journalCode }}</mat-chip>
+      </ng-template>
 
-          <ng-container matColumnDef="dateEcriture">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.DATE' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>{{ row.dateEcriture }}</td>
-          </ng-container>
+      <ng-template #libelleCell let-row>
+        <span class="libelle-cell">{{ row.libelle }}</span>
+      </ng-template>
 
-          <ng-container matColumnDef="libelle">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.LIBELLE' | translate }}</th>
-            <td *matCellDef="let row" class="libelle-cell" mat-cell>{{ row.libelle }}</td>
-          </ng-container>
+      <ng-template #totalDebitCell let-row>
+        <span class="num-cell">{{ row.totalDebit | number:'1.2-2' }}</span>
+      </ng-template>
 
-          <ng-container matColumnDef="totalDebit">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.TOTAL' | translate }}</th>
-            <td *matCellDef="let row" class="num-cell" mat-cell>{{ row.totalDebit | number:'1.2-2' }}</td>
-          </ng-container>
+      <ng-template #statutCell let-row>
+          <span [class]="'statut-chip ' + statutClass(row.statut)">
+            {{ 'COMPTABILITE.STATUT.' + row.statut | translate }}
+          </span>
+      </ng-template>
 
-          <ng-container matColumnDef="statut">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.TABLE.STATUT' | translate }}</th>
-            <td *matCellDef="let row" mat-cell>
-              <span [class]="'statut-chip ' + statutClass(row.statut)">
-                {{ 'COMPTABILITE.STATUT.' + row.statut | translate }}
-              </span>
-            </td>
-          </ng-container>
+      <ng-template #detailRowTemplate let-row>
+        <div class="lignes-detail-container">
+          <div class="detail-card">
+            <div class="detail-card__header">
+              <div class="detail-card__title-wrap">
+                <span class="detail-card__eyebrow">{{ 'COMPTABILITE.DETAIL.HEADER' | translate }}</span>
+                <h3 class="detail-card__title">{{ row.numeroPiece }}</h3>
+                <p class="detail-card__subtitle">{{ row.libelle }}</p>
+              </div>
 
-          <ng-container matColumnDef="detailRow">
-            <td *matCellDef="let row" [attr.colspan]="displayedColumns.length" class="detail-row" mat-cell>
-              <div class="lignes-detail-container">
-                <div class="detail-card">
-                  <div class="detail-card__header">
-                    <div class="detail-card__title-wrap">
-                      <span class="detail-card__eyebrow">{{ 'COMPTABILITE.DETAIL.HEADER' | translate }}</span>
-                      <h3 class="detail-card__title">{{ row.numeroPiece }}</h3>
-                      <p class="detail-card__subtitle">{{ row.libelle }}</p>
-                    </div>
-
-                    <div class="detail-card__summary">
-                      <div class="detail-metric">
-                        <span>{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</span>
-                        <strong>{{ row.totalDebit | number:'1.2-2' }}</strong>
-                      </div>
-                      <div class="detail-metric">
-                        <span>{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</span>
-                        <strong>{{ totalCredit(row) | number:'1.2-2' }}</strong>
-                      </div>
-                      <div [class]="'detail-balance ' + detailBalanceClass(row)">
-                        <mat-icon>{{ detailBalanceClass(row) === 'detail-balance-ok' ? 'task_alt' : 'warning_amber' }}</mat-icon>
-                        <span>{{ detailBalanceLabel(row) | translate }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="detail-card__chips">
-                    <span class="detail-chip">
-                      <mat-icon>receipt_long</mat-icon>
-                      {{ 'COMPTABILITE.DETAIL.LINES_COUNT' | translate:{count: row.lignes?.length ?? 0} }}
-                    </span>
-                    <span class="detail-chip">
-                      <mat-icon>calendar_month</mat-icon>
-                      {{ row.dateEcriture }}
-                    </span>
-                    <span class="detail-chip">
-                      <mat-icon>book_2</mat-icon>
-                      {{ 'COMPTABILITE.JOURNAL.' + row.journalCode | translate }}
-                    </span>
-                  </div>
-
-                  <div class="detail-table-shell">
-                    <table class="lignes-detail-table">
-                      <thead>
-                      <tr>
-                        <th>{{ 'COMPTABILITE.TABLE.COMPTE' | translate }}</th>
-                        <th>{{ 'COMPTABILITE.TABLE.LIBELLE_LIGNE' | translate }}</th>
-                        <th class="num-col">{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</th>
-                        <th class="num-col">{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                        @for (ligne of row.lignes ?? []; track ligne.id) {
-                          <tr class="lignes-row">
-                            <td class="compte-cell">{{ ligne.compteSCF }}</td>
-                            <td class="libelle-ligne-cell">{{ ligne.libelleLigne }}</td>
-                            <td class="num-cell">{{ ligne.montantDebit | number:'1.2-2' }}</td>
-                            <td class="num-cell">{{ ligne.montantCredit | number:'1.2-2' }}</td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
+              <div class="detail-card__summary">
+                <div class="detail-metric">
+                  <span>{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</span>
+                  <strong>{{ row.totalDebit | number:'1.2-2' }}</strong>
+                </div>
+                <div class="detail-metric">
+                  <span>{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</span>
+                  <strong>{{ totalCredit(row) | number:'1.2-2' }}</strong>
+                </div>
+                <div [class]="'detail-balance ' + detailBalanceClass(row)">
+                  <mat-icon>{{ detailBalanceClass(row) === 'detail-balance-ok' ? 'task_alt' : 'warning_amber' }}</mat-icon>
+                  <span>{{ detailBalanceLabel(row) | translate }}</span>
                 </div>
               </div>
-            </td>
-          </ng-container>
+            </div>
 
-          <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: displayedColumns" [class.expanded]="isRowExpanded(row.id)"
-              class="ecriture-row" mat-row></tr>
-          <tr *matRowDef="let row; columns: detailRowColumns; when: isDetailRowExpanded"
-              class="detail-row-container" mat-row></tr>
-        </table>
-      </div>
+            <div class="detail-card__chips">
+                <span class="detail-chip">
+                  <mat-icon>receipt_long</mat-icon>
+                  {{ 'COMPTABILITE.DETAIL.LINES_COUNT' | translate:{count: row.lignes?.length ?? 0} }}
+                </span>
+              <span class="detail-chip">
+                  <mat-icon>calendar_month</mat-icon>
+                {{ row.dateEcriture }}
+                </span>
+              <span class="detail-chip">
+                  <mat-icon>book_2</mat-icon>
+                {{ 'COMPTABILITE.JOURNAL.' + row.journalCode | translate }}
+                </span>
+            </div>
+
+            <div class="detail-table-shell">
+              <table class="lignes-detail-table">
+                <thead>
+                <tr>
+                  <th>{{ 'COMPTABILITE.TABLE.COMPTE' | translate }}</th>
+                  <th>{{ 'COMPTABILITE.TABLE.LIBELLE_LIGNE' | translate }}</th>
+                  <th class="num-col">{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</th>
+                  <th class="num-col">{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (ligne of row.lignes ?? []; track ligne.id) {
+                    <tr class="lignes-row">
+                      <td class="compte-cell">{{ ligne.compteSCF }}</td>
+                      <td class="libelle-ligne-cell">{{ ligne.libelleLigne }}</td>
+                      <td class="num-cell">{{ ligne.montantDebit | number:'1.2-2' }}</td>
+                      <td class="num-cell">{{ ligne.montantCredit | number:'1.2-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </ng-template>
 
       <mat-paginator
         (page)="onPageChange($event)"
@@ -246,19 +223,3 @@
     </mat-card-content>
   </mat-card>
 </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
