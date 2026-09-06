@@ -97,7 +97,7 @@
         (cellCopied)="onListCellCopied($event)"
         (filtersChange)="onListFiltersChange($event)"
         (rowClick)="onListRowClick($event)"
-        [columns]="displayedColumnDefs()"
+        [columns]="allColumnDefs()"
         [emptyLabelKey]="'PATIENT_LIST.EMPTY'"
         [filters]="columnFilters()"
         [rowClassFn]="rowClassResolver"

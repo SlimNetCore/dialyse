@@ -39,6 +39,7 @@ export interface SharedListColumn<T> {
   id: string;
   headerKey: string;
   valueAccessor: (row: T) => unknown;
+  visible?: boolean;
   sortable?: boolean;
   resizable?: boolean;
   widthPx?: number;
@@ -48,6 +49,7 @@ export interface SharedListColumn<T> {
   sortValueAccessor?: (row: T) => string | number | boolean | Date | null | undefined;
   filter?: SharedListFilterConfig;
   filterPredicate?: (row: T, filterValue: string) => boolean;
+  mobileRowActions?: boolean;
   copy?:
     | boolean
     | {
@@ -99,14 +101,13 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly sortChange = output<SharedListSortChange>();
   readonly cellCopied = output<SharedListCopyEvent>();
 
-  readonly displayedColumnIds = computed(() => this.columns().map((column) => column.id));
-  readonly hasColumns = computed(() => this.displayedColumnIds().length > 0);
-  protected readonly columnFilters = signal<Record<string, string>>({});
-  protected readonly sortState = signal<SharedListSortChange>({columnId: '', direction: ''});
-  protected readonly copiedCellKey = signal<string | null>(null);
+  readonly visibleColumns = computed(() => this.columns().filter((column) => column.visible !== false));
+  readonly actionColumn = computed(() =>
+    this.visibleColumns().find((column) => column.mobileRowActions) ?? null,
+  );
   readonly displayedRows = computed(() => {
     const sourceRows = this.rows();
-    const activeColumns = this.columns();
+    const activeColumns = this.visibleColumns();
     const filters = this.columnFilters();
     const sort = this.sortState();
 
@@ -129,6 +130,35 @@ export class ConfigurableListComponent implements OnDestroy {
 
     return nextRows;
   });
+  protected readonly isMobileView = signal(
+    typeof window !== 'undefined' ? window.innerWidth <= 760 : false,
+  );
+  readonly displayedColumnIds = computed(() => {
+    const ids = this.visibleColumns().map((column) => column.id);
+    if (!this.isMobileView()) {
+      return ids;
+    }
+
+    const actionColumn = this.actionColumn();
+    if (!actionColumn) {
+      return ids;
+    }
+
+    const withoutActions = ids.filter((id) => id !== actionColumn.id);
+    return withoutActions.length > 0 ? withoutActions : ids;
+  });
+  private readonly mobileActionsColumnId = '__mobile_actions__';
+
+  readonly hasColumns = computed(() => this.displayedColumnIds().length > 0);
+  protected readonly columnFilters = signal<Record<string, string>>({});
+  protected readonly sortState = signal<SharedListSortChange>({columnId: '', direction: ''});
+  protected readonly copiedCellKey = signal<string | null>(null);
+  readonly mobileActionRowColumns = computed(() => {
+    if (!this.isMobileView()) {
+      return [] as string[];
+    }
+    return this.actionColumn() ? [this.mobileActionsColumnId] : [];
+  });
   protected readonly columnWidths = signal<Record<string, number>>({});
   private readonly activeFilterColumnId = signal<string | null>(null);
   private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
@@ -147,7 +177,7 @@ export class ConfigurableListComponent implements OnDestroy {
     });
 
     effect(() => {
-      const nextColumns = this.columns();
+      const nextColumns = this.visibleColumns();
       this.columnWidths.update((current) => {
         const existing = new Set(nextColumns.map((column) => column.id));
         const next: Record<string, number> = {};
@@ -397,6 +427,7 @@ export class ConfigurableListComponent implements OnDestroy {
 
   @HostListener('window:resize')
   onWindowResize(): void {
+    this.isMobileView.set(window.innerWidth <= 760);
     this.requestFilterPositionUpdate();
   }
 
@@ -406,6 +437,31 @@ export class ConfigurableListComponent implements OnDestroy {
   }
 
   trackByColumn = (_: number, column: SharedListColumn<any>): string => column.id;
+
+  mobileActionsRowWhen = (_: number, _row: any): boolean => this.mobileActionRowColumns().length > 0;
+
+  mobileActionsCellContext(row: any): {
+    $implicit: any;
+    row: any;
+    value: unknown;
+    column: SharedListColumn<any>
+  } | null {
+    const actionColumn = this.actionColumn();
+    if (!actionColumn) {
+      return null;
+    }
+
+    return {
+      $implicit: row,
+      row,
+      value: this.cellValue(row, actionColumn),
+      column: actionColumn,
+    };
+  }
+
+  mobileActionsColspan(): number {
+    return Math.max(1, this.displayedColumnIds().length || 1);
+  }
 
   private readonly onMouseMoveBound = (event: MouseEvent) => this.onResizeMove(event);
 

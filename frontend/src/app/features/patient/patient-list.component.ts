@@ -3,7 +3,6 @@ import {
   Component,
   computed,
   effect,
-  HostListener,
   inject,
   output,
   signal,
@@ -109,7 +108,6 @@ export class PatientListComponent {
     {value: 'GUERRI', label: 'PATIENT_FORM.GUERRI'},
   ];
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
-  readonly isMobileView = signal(typeof window !== 'undefined' ? window.innerWidth <= 760 : false);
   readonly selectedRowId = signal<string | null>(null);
   readonly allColumnsConfig = [
     {key: 'numeroAssurance', labelKey: 'PATIENT_LIST.COL_ASSURANCE', type: 'text' as FilterType},
@@ -209,28 +207,6 @@ export class PatientListComponent {
   protected readonly nullableTextCellTemplate = viewChild<TemplateRef<any>>('nullableTextCell');
   protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
 
-  private readonly isCompactViewport = signal(
-    typeof window !== 'undefined' ? window.innerWidth <= 900 : false,
-  );
-  private readonly mobilePriorityColumns = new Set<string>([
-    'numeroAssurance',
-    'nom',
-    'prenom',
-    'etatPatient',
-    'actions',
-  ]);
-
-  readonly displayedColumns = computed(() => {
-    const visible = this.allColumnsConfig
-      .filter((c) => this.visibleColumns()[c.key])
-      .map((c) => c.key);
-    if (!this.isCompactViewport()) return visible;
-
-    const prioritized = visible.filter((key) => this.mobilePriorityColumns.has(key));
-    if (visible.includes('actions') && !prioritized.includes('actions'))
-      prioritized.push('actions');
-    return prioritized.length > 0 ? prioritized : visible.slice(0, 4);
-  });
   private readonly allColumnDefsById = computed<Record<string, SharedListColumn<PatientRow>>>(() => ({
     numeroAssurance: {
       id: 'numeroAssurance',
@@ -389,18 +365,31 @@ export class PatientListComponent {
       valueAccessor: () => '',
       sortable: false,
       resizable: false,
+      mobileRowActions: true,
       widthPx: 240,
       minWidthPx: 210,
       maxWidthPx: 300,
       cellTemplate: this.actionsCellTemplate() ?? undefined,
     },
   }));
-  readonly displayedColumnDefs = computed<SharedListColumn<PatientRow>[]>(() => {
-    const visibleKeys = this.displayedColumns();
+  readonly allColumnDefs = computed<SharedListColumn<PatientRow>[]>(() => {
+    const orderedKeys = this.allColumnsConfig.map((c) => c.key);
     const columnDefs = this.allColumnDefsById();
-    return visibleKeys
-      .map((key) => columnDefs[key])
-      .filter((column): column is SharedListColumn<PatientRow> => !!column);
+    const visibility = this.visibleColumns();
+
+    const next: SharedListColumn<PatientRow>[] = [];
+    for (const key of orderedKeys) {
+      const column = columnDefs[key];
+      if (!column) {
+        continue;
+      }
+      next.push({
+        ...column,
+        visible: visibility[key] ?? false,
+      });
+    }
+
+    return next;
   });
 
   readonly rowClassResolver = (row: PatientRow) => ({
@@ -437,11 +426,6 @@ export class PatientListComponent {
     return !!rowId && rowId === this.recentPatientId();
   }
 
-  @HostListener('window:resize')
-  onWindowResize(): void {
-    this.isCompactViewport.set(window.innerWidth <= 900);
-    this.isMobileView.set(window.innerWidth <= 760);
-  }
 
   onRowClick(row: PatientRow): void {
     // Le clic sur la ligne ne doit plus ouvrir la fiche patient.

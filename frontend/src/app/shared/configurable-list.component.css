@@ -224,6 +224,23 @@
   padding: 16px;
 }
 
+.mobile-actions-row .mat-mdc-cell {
+  padding-top: 8px;
+  padding-bottom: 10px;
+  border-top: 0;
+  background: var(--app-surface-soft);
+}
+
+.mobile-actions-cell {
+  width: 100%;
+}
+
+.mobile-actions-row .row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 900px) {
   .list-panel {
     border-radius: 16px;
@@ -240,6 +257,14 @@
 
   .shared-table {
     min-width: 720px;
+  }
+}
+
+@media (max-width: 760px) {
+  .mobile-actions-row .row-actions > button,
+  .mobile-actions-row .row-actions > app-patient-qr-card {
+    flex: 1 1 auto;
+    min-width: 90px;
   }
 }
 

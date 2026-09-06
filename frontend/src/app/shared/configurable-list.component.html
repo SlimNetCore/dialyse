@@ -118,6 +118,11 @@
         class="data-row"
         mat-row
       ></tr>
+      <tr
+        *matRowDef="let row; columns: mobileActionRowColumns(); when: mobileActionsRowWhen"
+        class="mobile-actions-row"
+        mat-row
+      ></tr>
       <tr *matNoDataRow class="mat-mdc-row">
         <td [attr.colspan]="displayedColumnIds().length || 1" class="mat-mdc-cell no-data-cell">
           {{ emptyLabelKey() | translate }}
