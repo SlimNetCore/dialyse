@@ -3,7 +3,13 @@ import {inject} from '@angular/core';
 import {patchState, signalStore, withHooks, withMethods, withState} from '@ngrx/signals';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 
-export type AppTheme = 'cyan' | 'emerald' | 'indigo';
+export type AppTheme =
+  | 'cyan'
+  | 'emerald'
+  | 'indigo'
+  | 'clinical-mist'
+  | 'sterile-slate'
+  | 'healing-green';
 export type AppMode = 'light' | 'dark';
 
 export interface ThemeOption {
@@ -22,7 +28,10 @@ const MODE_STORAGE_KEY = 'hemodialyse.mode';
 const THEMES: ThemeOption[] = [
   {code: 'cyan', i18nKey: 'THEME.CYAN'},
   {code: 'emerald', i18nKey: 'THEME.EMERALD'},
-  {code: 'indigo', i18nKey: 'THEME.INDIGO'}
+  {code: 'indigo', i18nKey: 'THEME.INDIGO'},
+  {code: 'clinical-mist', i18nKey: 'THEME.CLINICAL_MIST'},
+  {code: 'sterile-slate', i18nKey: 'THEME.STERILE_SLATE'},
+  {code: 'healing-green', i18nKey: 'THEME.HEALING_GREEN'}
 ];
 
 const MODES: ThemeModeOption[] = [

@@ -997,7 +997,10 @@
     "DARK": "Dark",
     "CYAN": "Cyan",
     "EMERALD": "Emerald (default)",
-    "INDIGO": "Indigo"
+    "INDIGO": "Indigo",
+    "CLINICAL_MIST": "Clinical Mist",
+    "STERILE_SLATE": "Sterile Slate",
+    "HEALING_GREEN": "Healing Green"
   },
   "DASHBOARD": {
     "TITLE": "Center Dashboard",

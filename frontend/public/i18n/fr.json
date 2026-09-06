@@ -997,7 +997,10 @@
     "DARK": "Sombre",
     "CYAN": "Cyan",
     "EMERALD": "Émeraude (défaut)",
-    "INDIGO": "Indigo"
+    "INDIGO": "Indigo",
+    "CLINICAL_MIST": "Brume clinique",
+    "STERILE_SLATE": "Ardoise stérile",
+    "HEALING_GREEN": "Vert apaisant"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord du centre",

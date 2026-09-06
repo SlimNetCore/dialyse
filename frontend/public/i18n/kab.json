@@ -987,7 +987,10 @@
     "DARK": "Aberkan",
     "CYAN": "Cyan",
     "EMERALD": "Azegzaw amezrar (amezwer)",
-    "INDIGO": "Indigo"
+    "INDIGO": "Indigo",
+    "CLINICAL_MIST": "Talmist tasnajyant",
+    "STERILE_SLATE": "Azelmat usnajyan",
+    "HEALING_GREEN": "Azegzaw isehhan"
   },
   "DASHBOARD": {
     "TITLE": "Tafelwit n ummas",

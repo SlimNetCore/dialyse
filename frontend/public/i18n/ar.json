@@ -853,7 +853,10 @@
     "DARK": "داكن",
     "CYAN": "سماوي",
     "EMERALD": "زمردي (افتراضي)",
-    "INDIGO": "نيلي"
+    "INDIGO": "نيلي",
+    "CLINICAL_MIST": "ضباب سريري",
+    "STERILE_SLATE": "رمادي طبي",
+    "HEALING_GREEN": "أخضر مهدئ"
   },
   "DASHBOARD": {
     "TITLE": "لوحة معلومات المركز",

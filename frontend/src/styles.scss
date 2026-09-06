@@ -134,6 +134,39 @@ html[data-theme='indigo'] {
   --app-accent: #f6bf92;
 }
 
+html[data-theme='clinical-mist'] {
+  --app-primary: #3a7ca5;
+  --app-primary-hover: #4f91ba;
+  --app-primary-soft: rgba(58, 124, 165, 0.16);
+  --app-primary-outline: rgba(58, 124, 165, 0.34);
+  --app-accent: #6fa7c9;
+  --app-glow-primary: rgba(58, 124, 165, 0.10);
+  --app-glow-accent: rgba(111, 167, 201, 0.08);
+  --app-glow-tertiary: rgba(189, 211, 224, 0.10);
+}
+
+html[data-theme='sterile-slate'] {
+  --app-primary: #4b6b88;
+  --app-primary-hover: #5e7d9a;
+  --app-primary-soft: rgba(75, 107, 136, 0.16);
+  --app-primary-outline: rgba(75, 107, 136, 0.34);
+  --app-accent: #8aa4bf;
+  --app-glow-primary: rgba(75, 107, 136, 0.09);
+  --app-glow-accent: rgba(138, 164, 191, 0.08);
+  --app-glow-tertiary: rgba(189, 199, 209, 0.10);
+}
+
+html[data-theme='healing-green'] {
+  --app-primary: #2f7d5d;
+  --app-primary-hover: #409373;
+  --app-primary-soft: rgba(47, 125, 93, 0.16);
+  --app-primary-outline: rgba(47, 125, 93, 0.34);
+  --app-accent: #67b08a;
+  --app-glow-primary: rgba(47, 125, 93, 0.10);
+  --app-glow-accent: rgba(103, 176, 138, 0.08);
+  --app-glow-tertiary: rgba(189, 224, 204, 0.10);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
