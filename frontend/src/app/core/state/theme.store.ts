@@ -49,7 +49,7 @@ type ThemeState = {
 const initialState: ThemeState = {
   themes: THEMES,
   modes: MODES,
-  currentTheme: 'emerald',
+  currentTheme: 'clinical-mist',
   currentMode: 'light'
 };
 
@@ -71,7 +71,7 @@ export const ThemeStore = signalStore(
     return {
       setTheme(theme: AppTheme): void {
         const exists = THEMES.some((t) => t.code === theme);
-        const safeTheme = exists ? theme : 'emerald';
+        const safeTheme = exists ? theme : 'clinical-mist';
         applyTheme(safeTheme, store.currentMode());
       },
 
@@ -86,7 +86,10 @@ export const ThemeStore = signalStore(
     onInit() {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as AppTheme | null;
       const savedMode = localStorage.getItem(MODE_STORAGE_KEY) as AppMode | null;
-      store.setTheme(savedTheme ?? 'emerald');
+      // 'emerald' was the old default; treat a leftover value from before this change
+      // as unset so existing browsers pick up the new 'clinical-mist' default too.
+      const effectiveTheme = savedTheme && savedTheme !== 'emerald' ? savedTheme : 'clinical-mist';
+      store.setTheme(effectiveTheme);
       store.setMode(savedMode ?? 'light');
     }
   }))

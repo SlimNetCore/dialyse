@@ -8,6 +8,7 @@ import {TranslateModule} from '@ngx-translate/core';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {WebSocketService} from '../../core/ws/websocket.service';
+import {AuthStore} from '../../core/state/auth.store';
 import {DashboardStore} from './state/dashboard.store';
 
 @Component({
@@ -30,9 +31,11 @@ import {DashboardStore} from './state/dashboard.store';
 export class CenterDashboardComponent implements OnInit {
   private readonly dashboardStore = inject(DashboardStore);
   private readonly ws = inject(WebSocketService);
+  private readonly auth = inject(AuthStore);
 
   readonly loading = this.dashboardStore.loading;
   readonly stats = this.dashboardStore.stats;
+  readonly displayName = () => this.auth.fullName() || this.auth.username() || '';
   readonly dashboardFormState = signal({
     expirationDays: this.dashboardStore.expirationDays(),
     selectedMonth: this.dashboardStore.selectedMonth() as string | null

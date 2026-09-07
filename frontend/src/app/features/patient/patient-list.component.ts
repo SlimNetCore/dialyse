@@ -20,6 +20,7 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
+import {MatMenuModule} from '@angular/material/menu';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
 import {PatientSummaryCardsComponent} from './patient-summary-cards.component';
@@ -70,6 +71,7 @@ export interface PatientRow {
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatMenuModule,
     MatChipsModule,
     MatTooltipModule,
     MatSnackBarModule,

@@ -87,9 +87,30 @@
         [inlineFilters]="true"
         [rowSelectionEnabled]="true"
         [rowClassFn]="rowClassResolver"
+        [rowContextMenuEnabled]="true"
+        [rowContextMenuTemplate]="patientRowContextMenu"
         [rows]="rows()"
         [showActiveFiltersBar]="true"
       />
+
+      <ng-template #patientRowContextMenu let-row>
+        <button (click)="selectPatient.emit(row)" mat-menu-item type="button">
+          <mat-icon>visibility</mat-icon>
+          <span>{{ 'PATIENT_LIST.BTN_VIEW' | translate }}</span>
+        </button>
+        <button (click)="openCahier(row)" mat-menu-item type="button">
+          <mat-icon>description</mat-icon>
+          <span>{{ 'CAHIER.TITLE' | translate }}</span>
+        </button>
+        <button (click)="viewStats.emit(row)" mat-menu-item type="button">
+          <mat-icon>analytics</mat-icon>
+          <span>{{ 'PATIENT_STATS.OPEN' | translate }}</span>
+        </button>
+        <button (click)="printFiche(row)" [disabled]="printingRowId() === row.id" mat-menu-item type="button">
+          <mat-icon>print</mat-icon>
+          <span>{{ 'PATIENT_LIST.BTN_PRINT' | translate }}</span>
+        </button>
+      </ng-template>
     </div>
 
     <ng-template #nullableTextCell let-value="value">

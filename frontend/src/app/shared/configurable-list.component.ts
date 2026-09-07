@@ -572,7 +572,8 @@ export class ConfigurableListComponent implements OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     this.contextMenuRow.set(row);
-    this.contextMenuPosition.set({x: event.clientX, y: event.clientY});
+    // Small offset keeps the pointer visible and makes the menu feel anchored to the click.
+    this.contextMenuPosition.set({x: event.clientX + 2, y: event.clientY + 2});
     this.rowContextMenu.emit({
       row,
       position: {x: event.clientX, y: event.clientY},
@@ -586,7 +587,8 @@ export class ConfigurableListComponent implements OnDestroy {
     if (trigger.menuOpen) {
       trigger.closeMenu();
     }
-    queueMicrotask(() => trigger.openMenu());
+    // Wait one frame so overlay origin position is fully updated before opening.
+    requestAnimationFrame(() => trigger.openMenu());
   }
 
   onRowContextMenuClosed(): void {
