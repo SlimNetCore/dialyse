@@ -13,9 +13,10 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
-import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatCheckboxChange, MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
 import {MatTableModule} from '@angular/material/table';
@@ -30,6 +31,16 @@ export type SortDirection = 'asc' | 'desc' | '';
 
 export type SharedListFilterOption = { value: string; label: string };
 
+/**
+ * Configuration de filtrage d'une colonne.
+ *
+ * - `type`, `options` et `placeholder` alimentent le rendu standard via
+ *   `ColumnFilterRendererComponent`.
+ * - `optionsLoader` permet de charger des options a la demande (menu) ou en eager
+ *   quand `inlineFilters=true`.
+ * - `component`/`componentInputs` permettent de brancher un renderer de filtre custom
+ *   via `DynamicFilterHostComponent`.
+ */
 export interface SharedListFilterConfig {
   type?: ColumnFilterType;
   options?: SharedListFilterOption[];
@@ -80,6 +91,18 @@ export interface SharedListDetailToggleEvent<T = any> {
   expandedKeys: unknown[];
 }
 
+export interface SharedListSelectionChangeEvent<T = any> {
+  row: T | null;
+  selected: boolean;
+  selectedKeys: unknown[];
+  selectedRows: T[];
+}
+
+export interface SharedListContextMenuEvent<T = any> {
+  row: T;
+  position: { x: number; y: number };
+}
+
 @Component({
   selector: 'app-configurable-list',
   standalone: true,
@@ -102,17 +125,40 @@ export interface SharedListDetailToggleEvent<T = any> {
   encapsulation: ViewEncapsulation.None,
 })
 export class ConfigurableListComponent implements OnDestroy {
+  /**
+   * Composant de liste partagee, basee sur Angular Material Table.
+   *
+   * Fonctionnalites majeures:
+   * - colonnes configurables (ordre defini par le parent, visibilite, resize)
+   * - tri local
+   * - filtrage local par colonne (renderer standard ou custom)
+   * - copie rapide d'une cellule
+   * - ligne detail expandable (mode interne ou controle)
+   * - selection de lignes (checkbox, interne ou controle)
+   * - support responsive (ligne d'actions mobile)
+   *
+   * Lien avec `ColumnFilterRendererComponent`:
+   * - `configurable-list` decide QUAND/OÙ afficher le filtre (menu vs inline)
+   * - `ColumnFilterRendererComponent` decide COMMENT capturer la valeur de filtre
+   * - la valeur remonte via `(valueChange)` puis est stockee ici dans `columnFilters`
+   * - le filtrage final s'applique dans `displayedRows()` via `matchesAllFilters()`
+   */
   private static readonly FILTER_OPTIONS_EMPTY_ERROR_KEY = 'COMMON.REF_OPTIONS_EMPTY';
   private static readonly FILTER_OPTIONS_LOAD_ERROR_KEY = 'COMMON.REF_OPTIONS_LOAD_ERROR';
 
+  /** Source des donnees (non filtrees/non triees), fournie par le parent. */
   readonly rows = input<any[]>([]);
+  /** Definition des colonnes (valeur, tri, filtre, templates, largeur...). */
   readonly columns = input<SharedListColumn<any>[]>([]);
+  /** Mode controle: visibilite des colonnes pilotee par le parent. */
   readonly columnVisibility = input<Record<string, boolean> | null>(null);
+  /** Mode controle: filtres pilotes par le parent. */
   readonly filters = input<Record<string, string> | null>(null);
   readonly emptyLabelKey = input('COMMON.NO_DATA');
   readonly minTableWidthPx = input(760);
   readonly rowClassFn = input<((row: any) => string | string[] | Record<string, boolean> | null) | null>(null);
   readonly rowTrackBy = input<TrackByFunction<any> | null>(null);
+  /** Template de detail (master/detail). Quand null, pas de detail row. */
   readonly detailRowTemplate = input<TemplateRef<{ $implicit: any; row: any }> | null>(null);
   /**
    * Controlled mode: external predicate deciding whether the detail is expanded.
@@ -136,19 +182,33 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly showResetFilters = input(true);
   /** i18n key of the reset filters button (overridable per project). */
   readonly resetFiltersLabelKey = input('PATIENT_LIST.RESET_FILTERS_BUTTON');
+  /** Show a leading checkbox column to select one or many rows. */
+  readonly rowSelectionEnabled = input(false);
+  /** Controlled mode (key based): externally managed selected row keys. */
+  readonly selectedRowKeys = input<ReadonlyArray<unknown> | null>(null);
   /** Render column filters inline inside the header cell (no filter icon/menu). */
   readonly inlineFilters = input(false);
   /** Optional list of column ids allowed to render inline filters (when inlineFilters=true). */
   readonly inlineFilterColumnIds = input<ReadonlyArray<string> | null>(null);
   /** Show a summary bar of the active filters below the list. */
   readonly showActiveFiltersBar = input(false);
+  /** Enable right-click contextual menu on data rows. */
+  readonly rowContextMenuEnabled = input(false);
+  /** Context menu content provided by parent component. */
+  readonly rowContextMenuTemplate = input<TemplateRef<{ $implicit: any; row: any }> | null>(null);
 
   readonly rowClick = output<any>();
+  /** Emitted whenever any filter value changes. */
   readonly filtersChange = output<Record<string, string>>();
   readonly sortChange = output<SharedListSortChange>();
   readonly cellCopied = output<SharedListCopyEvent>();
   readonly detailToggle = output<SharedListDetailToggleEvent>();
+  /** Emitted when the internal column picker toggles a column visibility. */
   readonly columnVisibilityChange = output<Record<string, boolean>>();
+  /** Emitted on row selection/unselection and select-all operations. */
+  readonly selectionChange = output<SharedListSelectionChangeEvent>();
+  /** Emitted when the contextual menu is requested on a row. */
+  readonly rowContextMenu = output<SharedListContextMenuEvent>();
 
   readonly columnsMenuItems = computed(() =>
     this.columns().filter((column) => column.id !== '__detail_row__' && column.id !== '__mobile_actions__'),
@@ -168,6 +228,7 @@ export class ConfigurableListComponent implements OnDestroy {
     this.visibleColumns().find((column) => column.mobileRowActions) ?? null,
   );
   readonly displayedRows = computed(() => {
+    // Pipeline local: rows source -> filtres -> tri.
     const sourceRows = this.rows();
     const activeColumns = this.visibleColumns();
     const filters = this.columnFilters();
@@ -195,21 +256,10 @@ export class ConfigurableListComponent implements OnDestroy {
   protected readonly isMobileView = signal(
     typeof window !== 'undefined' ? window.innerWidth <= 760 : false,
   );
-  readonly displayedColumnIds = computed(() => {
-    const ids = this.visibleColumns().map((column) => column.id);
-    if (!this.isMobileView()) {
-      return ids;
-    }
-
-    const actionColumn = this.actionColumn();
-    if (!actionColumn) {
-      return ids;
-    }
-
-    const withoutActions = ids.filter((id) => id !== actionColumn.id);
-    return withoutActions.length > 0 ? withoutActions : ids;
-  });
+  /** Etat interne de selection quand `selectedRowKeys` n'est pas fourni. */
+  protected readonly internalSelectedKeys = signal<ReadonlySet<unknown>>(new Set());
   private readonly mobileActionsColumnId = '__mobile_actions__';
+  protected readonly contextMenuRow = signal<any | null>(null);
 
   readonly hasColumns = computed(() => this.displayedColumnIds().length > 0);
   protected readonly columnFilters = signal<Record<string, string>>({});
@@ -245,6 +295,25 @@ export class ConfigurableListComponent implements OnDestroy {
   /** Uncontrolled expansion state (row keys currently expanded). */
   protected readonly internalExpandedKeys = signal<ReadonlySet<unknown>>(new Set());
   protected readonly columnWidths = signal<Record<string, number>>({});
+  protected readonly contextMenuPosition = signal<{ x: number; y: number }>({x: 0, y: 0});
+  protected readonly contextMenuTriggerRef = viewChild<MatMenuTrigger>('rowContextMenuTrigger');
+  private readonly selectionColumnId = '__row_selection__';
+  readonly displayedColumnIds = computed(() => {
+    // Colonne technique de selection injectee en tete quand activee.
+    const ids = this.visibleColumns().map((column) => column.id);
+    if (!this.isMobileView()) {
+      return this.rowSelectionEnabled() ? [this.selectionColumnId, ...ids] : ids;
+    }
+
+    const actionColumn = this.actionColumn();
+    if (!actionColumn) {
+      return ids;
+    }
+
+    const withoutActions = ids.filter((id) => id !== actionColumn.id);
+    const mobileIds = withoutActions.length > 0 ? withoutActions : ids;
+    return this.rowSelectionEnabled() ? [this.selectionColumnId, ...mobileIds] : mobileIds;
+  });
   private readonly internalColumnVisibility = signal<Record<string, boolean>>({});
   private readonly activeFilterColumnId = signal<string | null>(null);
   private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
@@ -271,6 +340,7 @@ export class ConfigurableListComponent implements OnDestroy {
     });
 
     effect(() => {
+      // Defensive sync: suit la liste des colonnes courantes.
       const columns = this.columns();
       this.internalColumnVisibility.update((current) => {
         const next = {...current};
@@ -494,6 +564,35 @@ export class ConfigurableListComponent implements OnDestroy {
     }
   }
 
+  onRowContextMenu(event: MouseEvent, row: any): void {
+    if (!this.rowContextMenuEnabled() || !this.rowContextMenuTemplate()) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuRow.set(row);
+    this.contextMenuPosition.set({x: event.clientX, y: event.clientY});
+    this.rowContextMenu.emit({
+      row,
+      position: {x: event.clientX, y: event.clientY},
+    });
+
+    const trigger = this.contextMenuTriggerRef();
+    if (!trigger) {
+      return;
+    }
+
+    if (trigger.menuOpen) {
+      trigger.closeMenu();
+    }
+    queueMicrotask(() => trigger.openMenu());
+  }
+
+  onRowContextMenuClosed(): void {
+    this.contextMenuRow.set(null);
+  }
+
   /** Programmatic toggle of a row detail (uncontrolled mode only). */
   toggleDetail(row: any): void {
     if (!this.detailRowTemplate() || !this.rowCanExpand(row)) {
@@ -538,6 +637,74 @@ export class ConfigurableListComponent implements OnDestroy {
 
   isRowExpanded(row: any): boolean {
     return this.isDetailExpanded(0, row);
+  }
+
+  isRowSelected(row: any): boolean {
+    if (!this.rowSelectionEnabled()) {
+      return false;
+    }
+    const key = this.rowKey(row);
+    const external = this.selectedRowKeys();
+    if (external) {
+      return external.includes(key);
+    }
+    return this.internalSelectedKeys().has(key);
+  }
+
+  selectedRowsCount(): number {
+    return this.resolveSelectedKeysSet().size;
+  }
+
+  areAllDisplayedRowsSelected(): boolean {
+    if (!this.rowSelectionEnabled()) {
+      return false;
+    }
+    const rows = this.displayedRows();
+    if (rows.length === 0) {
+      return false;
+    }
+    const selected = this.resolveSelectedKeysSet();
+    return rows.every((row) => selected.has(this.rowKey(row)));
+  }
+
+  hasPartiallySelectedDisplayedRows(): boolean {
+    if (!this.rowSelectionEnabled()) {
+      return false;
+    }
+    const rows = this.displayedRows();
+    if (rows.length === 0) {
+      return false;
+    }
+    const selected = this.resolveSelectedKeysSet();
+    const selectedCount = rows.reduce((count, row) => count + (selected.has(this.rowKey(row)) ? 1 : 0), 0);
+    return selectedCount > 0 && selectedCount < rows.length;
+  }
+
+  onToggleRowSelection(event: MatCheckboxChange, row: any): void {
+    const checked = !!event.checked;
+    const key = this.rowKey(row);
+    const selected = new Set(this.resolveSelectedKeysSet());
+    if (checked) {
+      selected.add(key);
+    } else {
+      selected.delete(key);
+    }
+    this.commitSelection(selected, row, checked);
+  }
+
+  onToggleAllDisplayedRows(event: MatCheckboxChange): void {
+    const checked = !!event.checked;
+    const selected = new Set(this.resolveSelectedKeysSet());
+    const rows = this.displayedRows();
+    for (const row of rows) {
+      const key = this.rowKey(row);
+      if (checked) {
+        selected.add(key);
+      } else {
+        selected.delete(key);
+      }
+    }
+    this.commitSelection(selected, null, checked);
   }
 
   isColumnVisible(columnId: string): boolean {
@@ -715,10 +882,36 @@ export class ConfigurableListComponent implements OnDestroy {
   }
 
   private effectiveColumnVisibility(): Record<string, boolean> {
+    // Priorite au mode controle, fallback sur l'etat interne.
     return this.columnVisibility() ?? this.internalColumnVisibility();
   }
 
+  private resolveSelectedKeysSet(): Set<unknown> {
+    // Priorite au mode controle, fallback sur l'etat interne.
+    const external = this.selectedRowKeys();
+    if (external) {
+      return new Set(external);
+    }
+    return new Set(this.internalSelectedKeys());
+  }
+
+  private commitSelection(next: Set<unknown>, row: any | null, selected: boolean): void {
+    const external = this.selectedRowKeys();
+    if (!external) {
+      this.internalSelectedKeys.set(next);
+    }
+
+    const selectedRows = this.rows().filter((item) => next.has(this.rowKey(item)));
+    this.selectionChange.emit({
+      row,
+      selected,
+      selectedKeys: [...next],
+      selectedRows,
+    });
+  }
+
   private rowKey(row: any): unknown {
+    // Cle metier stable: rowKeyAccessor > rowTrackBy > heuristique id.
     const accessor = this.rowKeyAccessor();
     if (accessor) {
       return accessor(row);
@@ -850,6 +1043,7 @@ export class ConfigurableListComponent implements OnDestroy {
   }
 
   private async ensureLazyFilterOptions(columnId: string, filter: SharedListFilterConfig): Promise<void> {
+    // Evite les doubles chargements; memoization par colonne.
     if (!filter.optionsLoader) {
       return;
     }

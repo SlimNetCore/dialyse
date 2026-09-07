@@ -34,6 +34,19 @@ export type ColumnFilterType =
   | 'boolean'
   | 'enum';
 
+/**
+ * Renderer standard de filtre de colonne.
+ *
+ * Ce composant est volontairement "presentational":
+ * - il recoit la valeur courante (`value`) depuis le parent
+ * - il emet la nouvelle valeur via `valueChange`
+ * - il ne filtre pas lui-meme les lignes
+ *
+ * Relation avec `ConfigurableListComponent`:
+ * - configurable-list l'instancie quand une colonne declare `filter` sans composant custom
+ * - configurable-list ecoute `valueChange` et met a jour `columnFilters`
+ * - configurable-list applique ensuite le filtrage local dans son pipeline `displayedRows`
+ */
 @Component({
   selector: 'app-column-filter-renderer',
   standalone: true,
@@ -54,13 +67,18 @@ export type ColumnFilterType =
   styleUrl: './column-filter-renderer.component.css',
 })
 export class ColumnFilterRendererComponent {
+  /** Type d'UI de filtre a rendre. */
   readonly type = input<ColumnFilterType>('text');
   protected readonly panelFilterOptionValue = '__PANEL_FILTER_OPTION__';
+  /** Valeur serialisee courante du filtre (source de verite: parent). */
   readonly value = input('');
   readonly placeholder = input('');
   readonly labelKey = input('');
+  /** Options pour les types enum/boolean. */
   readonly options = input<Array<{ value: string; label: string }>>([]);
+  /** Emet la nouvelle valeur serialisee vers le parent. */
   readonly valueChange = output<string>();
+  /** Demande au parent d'effacer le filtre. */
   readonly clear = output<void>();
   protected readonly panelFilter = signal('');
   protected readonly draftDateRange = signal<{ from: Date | null; to: Date | null }>({
@@ -112,6 +130,7 @@ export class ColumnFilterRendererComponent {
   }
 
   onMatSelect(value: string | string[]): void {
+    // Enum multi-select => serialisation CSV pour rester compatible avec le moteur de filtre parent.
     if (Array.isArray(value)) {
       this.valueChange.emit(value.filter((v) => !!v && v !== this.panelFilterOptionValue).join(','));
       return;
@@ -123,6 +142,7 @@ export class ColumnFilterRendererComponent {
   }
 
   selectedValues(): string[] | string {
+    // Deserialise CSV -> tableau pour le multi-select Angular Material.
     if (!this.isMultiSelect()) return this.value() ?? '';
     return (this.value() ?? '')
       .split(',')
@@ -172,6 +192,7 @@ export class ColumnFilterRendererComponent {
   }
 
   applyDateRange(): void {
+    // Format canonique attendu par configurable-list: "YYYY-MM-DD..YYYY-MM-DD".
     const ordered = this.getOrderedDraftDateRange();
     this.draftDateRange.set(ordered);
     this.valueChange.emit(
@@ -184,6 +205,7 @@ export class ColumnFilterRendererComponent {
   }
 
   syncDraftDateRange(type: ColumnFilterType = this.type(), value: string = this.value()): void {
+    // Restaure l'etat de brouillon depuis la valeur serialisee remontee par le parent.
     if (!this.isDateRangeType(type)) {
       this.draftDateRange.set({from: null, to: null});
       return;

@@ -1,4 +1,20 @@
 <section class="list-panel">
+  @if (rowContextMenuEnabled() && rowContextMenuTemplate()) {
+    <div
+      #rowContextMenuTrigger="matMenuTrigger"
+      [matMenuTriggerFor]="contextMenu"
+      [style.left.px]="contextMenuPosition().x"
+      [style.top.px]="contextMenuPosition().y"
+      class="context-menu-anchor"
+    ></div>
+
+    <mat-menu #contextMenu="matMenu" (closed)="onRowContextMenuClosed()">
+      @if (contextMenuRow(); as row) {
+        <ng-container *ngTemplateOutlet="rowContextMenuTemplate()!; context: { $implicit: row, row: row }"/>
+      }
+    </mat-menu>
+  }
+
   <div class="list-actions">
     <button [disabled]="!hasColumns()" [matMenuTriggerFor]="columnsMenu" mat-stroked-button type="button">
       <mat-icon>view_column</mat-icon>
@@ -54,6 +70,25 @@
   <div (scroll)="onTableWrapScroll()" class="table-wrap">
     <table [dataSource]="displayedRows()" [style.min-width.px]="minTableWidthPx()" [trackBy]="resolvedTrackBy"
            class="shared-table" mat-table multiTemplateDataRows>
+      @if (rowSelectionEnabled()) {
+        <ng-container matColumnDef="__row_selection__">
+          <th *matHeaderCellDef class="selection-header-cell" mat-header-cell>
+            <mat-checkbox
+              (change)="onToggleAllDisplayedRows($event)"
+              [checked]="areAllDisplayedRowsSelected()"
+              [indeterminate]="hasPartiallySelectedDisplayedRows()"
+            />
+          </th>
+          <td *matCellDef="let row" class="selection-cell" mat-cell>
+            <mat-checkbox
+              (change)="onToggleRowSelection($event, row)"
+              (click)="$event.stopPropagation()"
+              [checked]="isRowSelected(row)"
+            />
+          </td>
+        </ng-container>
+      }
+
       @for (column of columns(); track trackByColumn($index, column)) {
         <ng-container [matColumnDef]="column.id">
           <th *matHeaderCellDef [style.max-width.px]="column.maxWidthPx ?? null"
@@ -230,6 +265,7 @@
 
       <tr *matHeaderRowDef="displayedColumnIds()" mat-header-row></tr>
       <tr
+        (contextmenu)="onRowContextMenu($event, row)"
         (click)="onRowClick(row)"
         *matRowDef="let row; let rowIndex = index; columns: displayedColumnIds(); when: dataRowWhen"
         [attr.aria-expanded]="detailRowTemplate() ? isDetailExpanded(rowIndex, row) : null"

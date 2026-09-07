@@ -2,6 +2,15 @@
   display: block;
 }
 
+.context-menu-anchor {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3000;
+}
+
 .list-panel {
   border: 1px solid var(--app-border);
   border-radius: 20px;
@@ -36,6 +45,20 @@
 .shared-table .mat-mdc-header-cell {
   position: relative;
   overflow: visible;
+}
+
+.selection-header-cell,
+.selection-cell {
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  padding-inline: 8px !important;
+  text-align: center;
+}
+
+.selection-header-cell .mdc-checkbox,
+.selection-cell .mdc-checkbox {
+  margin: 0 auto;
 }
 
 .th-wrap {
