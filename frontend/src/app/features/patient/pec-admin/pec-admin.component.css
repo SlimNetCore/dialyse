@@ -152,3 +152,41 @@ h2 {
   background: var(--app-surface);
 }
 
+@media (max-width: 760px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .center-card {
+    align-self: stretch;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-row .flex1 {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  .center-card {
+    padding: 10px 14px !important;
+  }
+}
+

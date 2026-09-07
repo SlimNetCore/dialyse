@@ -2,6 +2,7 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
   OnDestroy,
   TemplateRef,
@@ -297,6 +298,7 @@ export class ConfigurableListComponent implements OnDestroy {
   protected readonly columnWidths = signal<Record<string, number>>({});
   protected readonly contextMenuPosition = signal<{ x: number; y: number }>({x: 0, y: 0});
   protected readonly contextMenuTriggerRef = viewChild<MatMenuTrigger>('rowContextMenuTrigger');
+  protected readonly contextMenuAnchorRef = viewChild<ElementRef<HTMLElement>>('rowContextMenuAnchor');
   private readonly selectionColumnId = '__row_selection__';
   readonly displayedColumnIds = computed(() => {
     // Colonne technique de selection injectee en tete quand activee.
@@ -406,6 +408,10 @@ export class ConfigurableListComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopResize();
+    const anchorEl = this.contextMenuAnchorRef()?.nativeElement;
+    if (anchorEl?.parentElement === document.body) {
+      document.body.removeChild(anchorEl);
+    }
   }
 
   onHeaderSort(column: SharedListColumn<any>): void {
@@ -572,6 +578,17 @@ export class ConfigurableListComponent implements OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     this.contextMenuRow.set(row);
+
+    // The anchor uses `position: fixed` with viewport coordinates, but any ancestor
+    // with a `backdrop-filter`/`filter`/`transform` (e.g. mat-card) turns itself into
+    // the containing block for fixed descendants, which throws the menu off the click
+    // point. Re-parenting the anchor to <body> once guarantees it stays relative to the
+    // real viewport.
+    const anchorEl = this.contextMenuAnchorRef()?.nativeElement;
+    if (anchorEl && anchorEl.parentElement !== document.body) {
+      document.body.appendChild(anchorEl);
+    }
+
     // Small offset keeps the pointer visible and makes the menu feel anchored to the click.
     this.contextMenuPosition.set({x: event.clientX + 2, y: event.clientY + 2});
     this.rowContextMenu.emit({

@@ -45,6 +45,7 @@
       <mat-card-title>{{ 'STOCK.SUPPLIERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      <div class="table-wrap">
       <table [dataSource]="items()" class="full-width" mat-table>
         <ng-container matColumnDef="code">
           <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.CODE_LABEL' | translate }}</th>
@@ -65,6 +66,7 @@
         <tr *matHeaderRowDef="cols" mat-header-row></tr>
         <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row.code || ''" mat-row></tr>
       </table>
+      </div>
     </mat-card-content>
   </mat-card>
 </section>
