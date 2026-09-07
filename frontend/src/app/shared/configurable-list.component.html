@@ -1,7 +1,6 @@
 <section class="list-panel">
   @if (rowContextMenuEnabled() && rowContextMenuTemplate()) {
     <div
-      #rowContextMenuAnchor
       #rowContextMenuTrigger="matMenuTrigger"
       [matMenuTriggerFor]="contextMenu"
       [style.left.px]="contextMenuPosition().x"
