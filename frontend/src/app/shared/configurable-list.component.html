@@ -91,9 +91,24 @@
 
       @for (column of columns(); track trackByColumn($index, column)) {
         <ng-container [matColumnDef]="column.id">
-          <th *matHeaderCellDef [style.max-width.px]="column.maxWidthPx ?? null"
-              [style.min-width.px]="column.minWidthPx ?? null" [style.width.px]="columnWidthPx(column)" mat-header-cell>
+          <th (dragleave)="onColumnDragLeave(column)"
+              (dragover)="onColumnDragOver($event, column)"
+              (drop)="onColumnDrop($event, column)"
+              *matHeaderCellDef
+              [class.column-drag-over]="dragOverColumnId() === column.id"
+              [class.column-dragging]="draggingColumnId() === column.id"
+              [style.max-width.px]="column.maxWidthPx ?? null" [style.min-width.px]="column.minWidthPx ?? null"
+              [style.width.px]="columnWidthPx(column)" mat-header-cell>
             <div class="th-wrap">
+              <span
+                (dragend)="onColumnDragEnd()"
+                (dragstart)="onColumnDragStart($event, column)"
+                [attr.draggable]="!isMobileView()"
+                class="drag-handle"
+                title="Glisser pour réordonner"
+              >
+                <mat-icon>drag_indicator</mat-icon>
+              </span>
               <button
                 (click)="onHeaderSort(column)"
                 [attr.aria-label]="currentSortAriaLabel(column) | translate"

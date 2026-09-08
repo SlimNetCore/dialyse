@@ -70,6 +70,56 @@
   min-height: 40px;
 }
 
+.drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-left: -4px;
+  color: var(--app-muted);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.drag-handle mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.shared-table .mat-mdc-header-cell:hover .drag-handle {
+  opacity: 1;
+}
+
+.drag-handle:hover {
+  color: var(--app-primary);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Native HTML5 drag-and-drop: header cell being dragged / hovered as a drop target.
+   No live sibling reflow is attempted (that's what broke the table layout with CDK's
+   transform-based approach) — columns simply swap once, on drop. */
+.shared-table .mat-mdc-header-cell.column-dragging {
+  opacity: 0.4;
+}
+
+.shared-table .mat-mdc-header-cell.column-drag-over {
+  box-shadow: inset 2px 0 0 var(--app-primary, #006a6a);
+  background: var(--app-primary-soft, rgba(0, 106, 106, 0.08));
+}
+
+@media (max-width: 760px) {
+  .drag-handle {
+    display: none;
+  }
+}
+
 .header-button {
   display: inline-flex;
   align-items: center;

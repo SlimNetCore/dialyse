@@ -152,6 +152,8 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly columns = input<SharedListColumn<any>[]>([]);
   /** Mode controle: visibilite des colonnes pilotee par le parent. */
   readonly columnVisibility = input<Record<string, boolean> | null>(null);
+  /** Mode controle: ordre des colonnes (ids) pilote par le parent. */
+  readonly columnOrder = input<ReadonlyArray<string> | null>(null);
   /** Mode controle: filtres pilotes par le parent. */
   readonly filters = input<Record<string, string> | null>(null);
   readonly emptyLabelKey = input('COMMON.NO_DATA');
@@ -205,6 +207,8 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly detailToggle = output<SharedListDetailToggleEvent>();
   /** Emitted when the internal column picker toggles a column visibility. */
   readonly columnVisibilityChange = output<Record<string, boolean>>();
+  /** Emitted whenever the user drags a column header to a new position. */
+  readonly columnOrderChange = output<string[]>();
   /** Emitted on row selection/unselection and select-all operations. */
   readonly selectionChange = output<SharedListSelectionChangeEvent>();
   /** Emitted when the contextual menu is requested on a row. */
@@ -218,11 +222,21 @@ export class ConfigurableListComponent implements OnDestroy {
     const columns = this.columns();
     const visibility = this.effectiveColumnVisibility();
 
-    if (!visibility) {
-      return columns.filter((column) => column.visible !== false);
+    const filtered = !visibility
+      ? columns.filter((column) => column.visible !== false)
+      : columns.filter((column) => visibility[column.id] ?? true);
+
+    const order = this.effectiveColumnOrder();
+    if (order.length === 0) {
+      return filtered;
     }
 
-    return columns.filter((column) => visibility[column.id] ?? true);
+    const orderIndex = new Map(order.map((id, index) => [id, index]));
+    return [...filtered].sort((a, b) => {
+      const indexA = orderIndex.has(a.id) ? orderIndex.get(a.id)! : Number.MAX_SAFE_INTEGER;
+      const indexB = orderIndex.has(b.id) ? orderIndex.get(b.id)! : Number.MAX_SAFE_INTEGER;
+      return indexA - indexB;
+    });
   });
   readonly actionColumn = computed(() =>
     this.visibleColumns().find((column) => column.mobileRowActions) ?? null,
@@ -281,6 +295,9 @@ export class ConfigurableListComponent implements OnDestroy {
     return summaries;
   });
   protected readonly sortState = signal<SharedListSortChange>({columnId: '', direction: ''});
+  /** Native HTML5 drag-and-drop state for column reordering (id of the column being dragged / hovered). */
+  protected readonly draggingColumnId = signal<string | null>(null);
+  protected readonly dragOverColumnId = signal<string | null>(null);
   protected readonly copiedCellKey = signal<string | null>(null);
   protected readonly lazyFilterOptions = signal<Record<string, SharedListFilterOption[]>>({});
   protected readonly lazyFilterLoading = signal<Record<string, boolean>>({});
@@ -315,6 +332,7 @@ export class ConfigurableListComponent implements OnDestroy {
     return this.rowSelectionEnabled() ? [this.selectionColumnId, ...mobileIds] : mobileIds;
   });
   private readonly internalColumnVisibility = signal<Record<string, boolean>>({});
+  private readonly internalColumnOrder = signal<string[]>([]);
   private readonly activeFilterColumnId = signal<string | null>(null);
   private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
 
@@ -340,6 +358,14 @@ export class ConfigurableListComponent implements OnDestroy {
     });
 
     effect(() => {
+      const externalOrder = this.columnOrder();
+      if (!externalOrder) {
+        return;
+      }
+      this.internalColumnOrder.set([...externalOrder]);
+    });
+
+    effect(() => {
       // Defensive sync: suit la liste des colonnes courantes.
       const columns = this.columns();
       this.internalColumnVisibility.update((current) => {
@@ -356,6 +382,18 @@ export class ConfigurableListComponent implements OnDestroy {
           }
         }
         return next;
+      });
+
+      // Drop stale ids from the drag order (removed/renamed columns) without
+      // resetting the whole order — newly seen columns simply fall back to
+      // their natural position via visibleColumns()'s MAX_SAFE_INTEGER fallback.
+      this.internalColumnOrder.update((current) => {
+        if (current.length === 0) {
+          return current;
+        }
+        const ids = new Set(columns.map((column) => column.id));
+        const pruned = current.filter((id) => ids.has(id));
+        return pruned.length === current.length ? current : pruned;
       });
     });
 
@@ -722,6 +760,71 @@ export class ConfigurableListComponent implements OnDestroy {
     this.columnVisibilityChange.emit(next);
   }
 
+  /** Reorders columns after a header drag-and-drop. Disabled on mobile (columns are already collapsed there). */
+  onColumnDragStart(event: DragEvent, column: SharedListColumn<any>): void {
+    if (this.isMobileView()) {
+      return;
+    }
+    this.draggingColumnId.set(column.id);
+    event.dataTransfer?.setData('text/plain', column.id);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+    }
+  }
+
+  onColumnDragOver(event: DragEvent, column: SharedListColumn<any>): void {
+    const draggingId = this.draggingColumnId();
+    if (!draggingId || draggingId === column.id) {
+      return;
+    }
+    // Must call preventDefault() for the browser to allow a drop on this element.
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+    this.dragOverColumnId.set(column.id);
+  }
+
+  onColumnDragLeave(column: SharedListColumn<any>): void {
+    if (this.dragOverColumnId() === column.id) {
+      this.dragOverColumnId.set(null);
+    }
+  }
+
+  onColumnDrop(event: DragEvent, column: SharedListColumn<any>): void {
+    event.preventDefault();
+    const sourceId = this.draggingColumnId();
+    this.draggingColumnId.set(null);
+    this.dragOverColumnId.set(null);
+    if (!sourceId || sourceId === column.id) {
+      return;
+    }
+
+    const reorderable = this.visibleColumns().map((c) => c.id);
+    const fromIndex = reorderable.indexOf(sourceId);
+    const toIndex = reorderable.indexOf(column.id);
+    if (fromIndex === -1 || toIndex === -1) {
+      return;
+    }
+    reorderable.splice(fromIndex, 1);
+    reorderable.splice(toIndex, 0, sourceId);
+
+    // Columns currently hidden by the picker keep their place at the end so
+    // toggling them visible later doesn't jump them to an unexpected spot.
+    const hiddenIds = this.columns()
+      .map((c) => c.id)
+      .filter((id) => !reorderable.includes(id));
+
+    const next = [...reorderable, ...hiddenIds];
+    this.internalColumnOrder.set(next);
+    this.columnOrderChange.emit(next);
+  }
+
+  onColumnDragEnd(): void {
+    this.draggingColumnId.set(null);
+    this.dragOverColumnId.set(null);
+  }
+
   shouldRenderInlineFilter(column: SharedListColumn<any>): boolean {
     if (!this.inlineFilters() || !column.filter) {
       return false;
@@ -886,6 +989,11 @@ export class ConfigurableListComponent implements OnDestroy {
   private effectiveColumnVisibility(): Record<string, boolean> {
     // Priorite au mode controle, fallback sur l'etat interne.
     return this.columnVisibility() ?? this.internalColumnVisibility();
+  }
+
+  private effectiveColumnOrder(): string[] {
+    const external = this.columnOrder();
+    return external ? [...external] : this.internalColumnOrder();
   }
 
   private resolveSelectedKeysSet(): Set<unknown> {
