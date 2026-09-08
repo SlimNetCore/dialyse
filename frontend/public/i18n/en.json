@@ -1220,6 +1220,7 @@
     "FILTER_BY": "Filter by {{field}}",
     "COLUMNS_BUTTON": "Columns",
     "VIEWS_BUTTON": "Views",
+    "RESET_FILTERS_BUTTON": "Reset filters",
     "CLEAR_FILTER": "Clear filter",
     "ACTIVE_FILTERS": "Active filters",
     "ALL": "All",

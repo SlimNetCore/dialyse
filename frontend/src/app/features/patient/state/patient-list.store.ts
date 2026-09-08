@@ -2,11 +2,42 @@ import {computed, effect, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withHooks, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
-import {catchError, of, pipe, switchMap, tap} from 'rxjs';
+import {catchError, EMPTY, expand, of, pipe, reduce, switchMap, tap} from 'rxjs';
 import {BackendApiService, ListQuery, PatientSummary} from '../../../core/api/backend-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
+
+/** Shared row mapping between `loadPage` (remote) and `loadAllPatients` (local test mode). */
+function mapPatientRow(p: any): any {
+  return {
+    id: p.id,
+    code: p.codePatient ?? '',
+    nom: p.nom ?? '',
+    prenom: p.prenom ?? '',
+    sexe: p.sexe ?? '',
+    dateAdmission: p.dateAdmission ?? '',
+    numeroAssurance: p.numeroAssurance ?? '',
+    etatPatient: p.etatPatient ?? 'PERMANENT',
+    dateEvenementEtat: p.dateEvenementEtat ?? p.dateEvenement ?? '',
+    nonFacturable: !!p.nonFacturable,
+    medecinTraitantId: p.medecinTraitantId ?? '',
+    positionId: p.positionId ?? '',
+    transporteurAllerId: p.transporteurAllerId ?? '',
+    transporteurRetourId: p.transporteurRetourId ?? '',
+    joursDialyse: {
+      dimanche: p.jourDimanche ?? p.jour_dimanche ?? (p.joursDialyse ?? p.jours_dialyse)?.dimanche ?? false,
+      lundi: p.jourLundi ?? p.jour_lundi ?? (p.joursDialyse ?? p.jours_dialyse)?.lundi ?? false,
+      mardi: p.jourMardi ?? p.jour_mardi ?? (p.joursDialyse ?? p.jours_dialyse)?.mardi ?? false,
+      mercredi: p.jourMercredi ?? p.jour_mercredi ?? (p.joursDialyse ?? p.jours_dialyse)?.mercredi ?? false,
+      jeudi: p.jourJeudi ?? p.jour_jeudi ?? (p.joursDialyse ?? p.jours_dialyse)?.jeudi ?? false,
+      vendredi: p.jourVendredi ?? p.jour_vendredi ?? (p.joursDialyse ?? p.jours_dialyse)?.vendredi ?? false,
+      samedi: p.jourSamedi ?? p.jour_samedi ?? (p.joursDialyse ?? p.jours_dialyse)?.samedi ?? false
+    },
+    pecStatus: p.pecStatus ?? '',
+    pecForfaitId: p.pecForfaitId ?? ''
+  };
+}
 
 function currentYearMonth(): string {
   const now = new Date();
@@ -25,6 +56,15 @@ type PatientListState = PagedListState<any> & {
   activeCenterId: string | null;
   activeUserId: string | null;
   error: string | null;
+  sortColumnId: string;
+  sortDirection: '' | 'asc' | 'desc';
+  /**
+   * Which fetch strategy `app-configurable-list` expects: `local` loads everything
+   * once (`loadAllPatients`) and never refetches on filter/sort/page; `remote` fetches
+   * per-page with server-side filter/sort (`loadPage`). Set once by the component via
+   * `setDataMode` to match its own `[dataMode]` binding.
+   */
+  dataMode: 'local' | 'remote';
 };
 
 const initialState: PatientListState = {
@@ -39,7 +79,10 @@ const initialState: PatientListState = {
   summaryMonth: currentYearMonth(),
   activeCenterId: null,
   activeUserId: null,
-  error: null
+  error: null,
+  sortColumnId: '',
+  sortDirection: '',
+  dataMode: 'local'
 };
 
 export const PatientListStore = signalStore(
@@ -66,52 +109,14 @@ export const PatientListStore = signalStore(
           const query: ListQuery = {
             page,
             size,
-            filters: store.columnFilters()
+            filters: store.columnFilters(),
+            sortColumnId: store.sortColumnId() || undefined,
+            sortDirection: store.sortDirection() || undefined
           };
           return api.listPatients(centerId, userId, query).pipe(
             tap((res: any) => {
-              const mapped = (res.items ?? []).map((p: any) => ({
-                id: p.id,
-                code: p.codePatient ?? '',
-                nom: p.nom ?? '',
-                prenom: p.prenom ?? '',
-                sexe: p.sexe ?? '',
-                dateAdmission: p.dateAdmission ?? '',
-                numeroAssurance: p.numeroAssurance ?? '',
-                etatPatient: p.etatPatient ?? 'PERMANENT',
-                dateEvenementEtat: p.dateEvenementEtat ?? p.dateEvenement ?? '',
-                nonFacturable: !!p.nonFacturable,
-                medecinTraitantId: p.medecinTraitantId ?? '',
-                positionId: p.positionId ?? '',
-                transporteurAllerId: p.transporteurAllerId ?? '',
-                transporteurRetourId: p.transporteurRetourId ?? '',
-                joursDialyse: {
-                  dimanche:
-                    p.jourDimanche ?? p.jour_dimanche ?? (p.joursDialyse ?? p.jours_dialyse)?.dimanche ?? false,
-                  lundi:
-                    p.jourLundi ?? p.jour_lundi ?? (p.joursDialyse ?? p.jours_dialyse)?.lundi ?? false,
-                  mardi:
-                    p.jourMardi ?? p.jour_mardi ?? (p.joursDialyse ?? p.jours_dialyse)?.mardi ?? false,
-                  mercredi:
-                    p.jourMercredi ??
-                    p.jour_mercredi ??
-                    (p.joursDialyse ?? p.jours_dialyse)?.mercredi ??
-                    false,
-                  jeudi:
-                    p.jourJeudi ?? p.jour_jeudi ?? (p.joursDialyse ?? p.jours_dialyse)?.jeudi ?? false,
-                  vendredi:
-                    p.jourVendredi ??
-                    p.jour_vendredi ??
-                    (p.joursDialyse ?? p.jours_dialyse)?.vendredi ??
-                    false,
-                  samedi:
-                    p.jourSamedi ?? p.jour_samedi ?? (p.joursDialyse ?? p.jours_dialyse)?.samedi ?? false
-                },
-                pecStatus: p.pecStatus ?? '',
-                pecForfaitId: p.pecForfaitId ?? ''
-              }));
               patchState(store, {
-                rows: mapped,
+                rows: (res.items ?? []).map(mapPatientRow),
                 total: res.total ?? 0,
                 pageIndex: res.page ?? page,
                 loading: false
@@ -122,6 +127,53 @@ export const PatientListStore = signalStore(
                 rows: [],
                 total: 0,
                 pageIndex: page,
+                loading: false,
+                error: err?.error?.message || err?.statusText || 'Erreur chargement patients'
+              });
+              return of(null);
+            })
+          );
+        })
+      )
+    ),
+
+    /**
+     * Mode LOCAL (test) : charge la totalité des patients du centre en paginant en
+     * interne (taille de page max autorisée côté backend = 200), sans filtre/tri
+     * serveur — tout le filtrage/tri/pagination se fait ensuite côté client dans
+     * app-configurable-list (`dataMode="local"`).
+     */
+    loadAllPatients: rxMethod<{ centerId: string; userId: string }>(
+      pipe(
+        tap(({centerId, userId}) => patchState(store, {
+          loading: true,
+          error: null,
+          activeCenterId: centerId,
+          activeUserId: userId
+        })),
+        switchMap(({centerId, userId}) => {
+          const pageSize = 200;
+          const fetchPage = (page: number) => api.listPatients(centerId, userId, {page, size: pageSize});
+
+          return fetchPage(0).pipe(
+            expand((res: any) => {
+              const loadedSoFar = ((res.page ?? 0) + 1) * pageSize;
+              return loadedSoFar < (res.total ?? 0) ? fetchPage((res.page ?? 0) + 1) : EMPTY;
+            }),
+            reduce((acc: any[], res: any) => [...acc, ...(res.items ?? [])], [] as any[]),
+            tap((allItems: any[]) => {
+              patchState(store, {
+                rows: allItems.map(mapPatientRow),
+                total: allItems.length,
+                pageIndex: 0,
+                loading: false
+              });
+            }),
+            catchError((err: any) => {
+              patchState(store, {
+                rows: [],
+                total: 0,
+                pageIndex: 0,
                 loading: false,
                 error: err?.error?.message || err?.statusText || 'Erreur chargement patients'
               });
@@ -255,8 +307,31 @@ export const PatientListStore = signalStore(
       patchState(store, {rows, total, pageIndex});
     },
 
+    /**
+     * Combined mode `remote` entry point: patches filters + sort + page in a single
+     * state transition (one `patchState` = one reactive fetch, not three).
+     */
+    applyRemoteQuery(query: {
+      sort: { columnId: string; direction: '' | 'asc' | 'desc' };
+      filters: Record<string, string>;
+      page: { index: number; size: number };
+    }): void {
+      patchState(store, {
+        columnFilters: query.filters,
+        sortColumnId: query.sort.columnId,
+        sortDirection: query.sort.direction,
+        pageIndex: query.page.index,
+        pageSize: query.page.size > 0 ? query.page.size : store.pageSize()
+      });
+    },
+
     setPagination(pageIndex: number, pageSize: number): void {
       patchState(store, {pageIndex, pageSize});
+    },
+
+    /** Set once by the component at startup to match its `[dataMode]` binding. */
+    setDataMode(mode: 'local' | 'remote'): void {
+      patchState(store, {dataMode: mode});
     },
 
     setFilter(column: string, value: string): void {
@@ -287,6 +362,10 @@ export const PatientListStore = signalStore(
       const centerId = store.activeCenterId();
       const userId = store.activeUserId();
       if (!centerId || !userId) return;
+      if (store.dataMode() === 'local') {
+        this.loadAllPatients({centerId, userId});
+        return;
+      }
       this.loadPage({
         centerId,
         userId,
@@ -304,13 +383,16 @@ export const PatientListStore = signalStore(
   withHooks((store, appShell = inject(AppShellStore), auth = inject(AuthStore)) => ({
     onInit() {
       effect(() => {
+        // Chargement automatique — la stratégie dépend de `dataMode` (fixé une fois
+        // par le composant via `setDataMode`, cf. son constructeur) :
+        // - `local` : ne dépend QUE du centre/utilisateur ; tout le reste (filtres,
+        //   tri, pagination) est géré côté client par app-configurable-list et ne
+        //   déclenche plus aucun rechargement — `loadAllPatients` charge tout une fois.
+        // - `remote` : dépend aussi de la pagination/du tri/des filtres, chacun de ces
+        //   changements déclenche un `loadPage` (filtrage/tri/pagination serveur).
         const centerId = appShell.currentCenterId();
         const userId = auth.username() ?? 'demo';
-        const page = store.pageIndex();
-        const size = store.pageSize();
-
-        // Dependances reactives du chargement automatique
-        store.columnFilters();
+        const mode = store.dataMode();
 
         if (!centerId) {
           patchState(store, {
@@ -326,6 +408,16 @@ export const PatientListStore = signalStore(
           return;
         }
 
+        if (mode === 'local') {
+          store.loadAllPatients({centerId, userId});
+          return;
+        }
+
+        const page = store.pageIndex();
+        const size = store.pageSize();
+        store.columnFilters();
+        store.sortColumnId();
+        store.sortDirection();
         store.loadPage({centerId, userId, page, size});
       });
 

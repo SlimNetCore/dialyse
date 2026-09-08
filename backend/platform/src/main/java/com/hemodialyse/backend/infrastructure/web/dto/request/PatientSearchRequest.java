@@ -19,7 +19,13 @@ public record PatientSearchRequest(
         LocalDate dateAdmissionTo,
         String numeroAssurance,
         String etatPatient,
-        Boolean nonFacturable
+        Boolean nonFacturable,
+        String medecinTraitantId,
+        String positionId,
+        String transporteurAllerId,
+        String transporteurRetourId,
+        String sortBy,
+        String sortDirection
 ) {
 }
 

@@ -30,6 +30,10 @@ public final class PatientSpecifications {
             addLike(predicates, root, cb, "sexe", req.sexe());
             addLike(predicates, root, cb, "numeroAssurance", req.numeroAssurance());
             addLike(predicates, root, cb, "etatPatient", req.etatPatient());
+            addUuidLike(predicates, root, cb, "medecinTraitantId", req.medecinTraitantId());
+            addUuidLike(predicates, root, cb, "positionId", req.positionId());
+            addUuidLike(predicates, root, cb, "transporteurAllerId", req.transporteurAllerId());
+            addUuidLike(predicates, root, cb, "transporteurRetourId", req.transporteurRetourId());
 
             LocalDate from = req.dateAdmissionFrom();
             LocalDate to = req.dateAdmissionTo();
@@ -67,6 +71,16 @@ public final class PatientSpecifications {
                                 String field, String value) {
         if (value == null || value.isBlank()) return;
         predicates.add(cb.like(cb.lower(root.get(field)), likeTerm(value)));
+    }
+
+    /**
+     * Same as {@link #addLike} but for UUID columns, cast to text for the LIKE match.
+     */
+    private static void addUuidLike(List<Predicate> predicates, Root<PatientJpaEntity> root,
+                                    jakarta.persistence.criteria.CriteriaBuilder cb,
+                                    String field, String value) {
+        if (value == null || value.isBlank()) return;
+        predicates.add(cb.like(cb.lower(root.get(field).as(String.class)), likeTerm(value)));
     }
 
     private static String likeTerm(String value) {

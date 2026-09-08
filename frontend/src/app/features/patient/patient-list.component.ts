@@ -38,6 +38,7 @@ import {
   ConfigurableListComponent,
   SharedListColumn,
   SharedListCopyEvent,
+  SharedListRemoteQuery,
   SharedListView,
 } from '../../shared/configurable-list.component';
 import {catchError, map, Observable, of} from 'rxjs';
@@ -96,6 +97,13 @@ export class PatientListComponent {
   private readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
   private readonly router = inject(Router);
+  /**
+   * Mode LOCAL (test) : total post-filtre calculé côté client par app-configurable-list
+   * (`filteredCountChange`) — à utiliser pour `[length]` du paginator plutôt que
+   * `total()` (qui, avec `loadAllPatients`, vaut le nombre total de patients chargés,
+   * pas le nombre après filtrage).
+   */
+  readonly filteredTotal = signal(0);
   readonly hasActiveFilters = this.patientListStore.hasActiveFilters;
   readonly selectedRowId = signal<string | null>(null);
   readonly visibleColumns = signal<Record<string, boolean>>({
@@ -147,6 +155,17 @@ export class PatientListComponent {
   private readonly appShell = inject(AppShellStore);
 
   readonly copiedField = signal<string | null>(null);
+  /**
+   * Bascule facile entre les deux modes de `app-configurable-list` pour tester —
+   * changez cette seule valeur et rechargez. Synchronisé vers le store dans le
+   * constructeur (`setDataMode`), qui adapte sa stratégie de chargement en conséquence
+   * (`loadAllPatients` en local, `loadPage` par page en remote).
+   */
+  protected readonly dataMode: 'local' | 'remote' = 'remote';
+  /** `[length]` du paginator : total post-filtre en local, total serveur en remote. */
+  readonly displayedTotal = computed(() =>
+    this.dataMode === 'local' ? this.filteredTotal() : this.total(),
+  );
   readonly patientInlineFilterColumnIds: ReadonlyArray<string> = [
     'numeroAssurance',
     'code',
@@ -368,6 +387,8 @@ export class PatientListComponent {
   });
 
   constructor() {
+    this.patientListStore.setDataMode(this.dataMode);
+
     effect(() => {
       const evt = this.ws.lastEvent();
       if (
@@ -406,6 +427,16 @@ export class PatientListComponent {
   }
 
   onPageChange(event: PageEvent): void {
+    if (this.dataMode === 'remote') {
+      this.patientListStore.applyRemoteQuery({
+        sort: {columnId: this.patientListStore.sortColumnId(), direction: this.patientListStore.sortDirection()},
+        filters: this.patientListStore.columnFilters(),
+        page: {index: event.pageIndex, size: event.pageSize},
+      });
+      return;
+    }
+    // Local : pas de requête, on ne fait que déplacer le curseur de page —
+    // app-configurable-list tranche déjà les lignes côté client.
     this.patientListStore.setPagination(event.pageIndex, event.pageSize);
   }
 
@@ -426,14 +457,34 @@ export class PatientListComponent {
   }
 
   onViewPaginationRestore(event: { pageIndex: number; pageSize: number }): void {
+    if (this.dataMode === 'remote') {
+      this.patientListStore.applyRemoteQuery({
+        sort: {columnId: this.patientListStore.sortColumnId(), direction: this.patientListStore.sortDirection()},
+        filters: this.patientListStore.columnFilters(),
+        page: {index: event.pageIndex, size: event.pageSize},
+      });
+      return;
+    }
     this.patientListStore.setPagination(event.pageIndex, event.pageSize);
   }
 
-  onListFiltersChange(filters: Record<string, string>): void {
-    for (const column of this.allColumnDefs()) {
-      if (column.id === 'actions') continue;
-      this.patientListStore.setFilter(column.id, filters[column.id] ?? '');
-    }
+  /**
+   * Single entry point for the shared list's `remote` data mode: any filter/sort
+   * change reports the full current query here in one shot. No-op in `local` mode
+   * (the component never emits this there).
+   */
+  onRemoteQueryChange(query: SharedListRemoteQuery): void {
+    this.patientListStore.applyRemoteQuery(query);
+  }
+
+  /** `local` mode only: total post-filtre rapporté par app-configurable-list, pour `[length]` du paginator. */
+  onFilteredCountChange(count: number): void {
+    this.filteredTotal.set(count);
+  }
+
+  /** `local` mode only: un changement de filtre/tri doit ramener à la première page. */
+  onPageIndexReset(pageIndex: number): void {
+    this.patientListStore.setPagination(pageIndex, this.pageSize());
   }
 
   printFiche(patient: PatientRow): void {

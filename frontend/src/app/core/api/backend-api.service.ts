@@ -17,6 +17,8 @@ export type ListQuery = {
   page: number;
   size: number;
   filters?: Record<string, string>;
+  sortColumnId?: string;
+  sortDirection?: 'asc' | 'desc';
 };
 
 export type CreatePatientPayload = {
@@ -642,16 +644,26 @@ export class BackendApiService {
       centerId,
       page: query.page,
       size: query.size,
-      code: filters['code']?.trim() || null,
-      nom: filters['nom']?.trim() || null,
-      prenom: filters['prenom']?.trim() || null,
-      sexe: filters['sexe']?.trim() || null,
       dateAdmissionFrom: dateRange.from,
       dateAdmissionTo: dateRange.to,
-      numeroAssurance: filters['numeroAssurance']?.trim() || null,
-      etatPatient: filters['etatPatient']?.trim() || null,
-      nonFacturable: this.parseBooleanNullable(filters['nonFacturable'])
+      nonFacturable: this.parseBooleanNullable(filters['nonFacturable']),
+      sortBy: query.sortColumnId || null,
+      sortDirection: query.sortDirection || null
     };
+
+    // Passthrough générique : app-configurable-list construit `filters` à partir de
+    // ses colonnes ([columns]) — chaque entrée y arrive déjà clé par id de colonne.
+    // Tant qu'un id de colonne correspond au nom d'un champ de PatientSearchRequest
+    // côté backend, il est transmis automatiquement, sans plomberie à ajouter ici à
+    // chaque nouvelle colonne filtrable. `dateAdmission`/`nonFacturable` sont
+    // spéciaux (plage de dates / booléen) et déjà traités ci-dessus.
+    for (const [columnId, value] of Object.entries(filters)) {
+      if (columnId === 'dateAdmission' || columnId === 'nonFacturable') continue;
+      const trimmed = value?.trim();
+      if (trimmed) {
+        payload[columnId] = trimmed;
+      }
+    }
 
     void userId; // centerId seul suffit côté backend
     return this.http.post<PagedResponse<any>>(`${this.baseUrl}/patients/search`, payload);

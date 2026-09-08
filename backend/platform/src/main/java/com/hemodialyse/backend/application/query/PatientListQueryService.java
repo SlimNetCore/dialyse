@@ -21,6 +21,27 @@ public class PatientListQueryService {
     private final PatientJpaRepository patientRepository;
     private final PecJpaRepository pecRepository;
 
+    /**
+     * Whitelist mapping a frontend column id (as sent by app-configurable-list) to
+     * the actual sortable JPA entity property. Columns absent here (nonFacturable,
+     * pecStatus, pecForfaitId, joursDialyse...) are derived/looked up AFTER this
+     * query runs, so they can't be pushed down to SQL — sorting by them silently
+     * falls back to the default order.
+     */
+    private static final Map<String, String> SORTABLE_COLUMNS = Map.ofEntries(
+            Map.entry("code", "codePatient"),
+            Map.entry("nom", "nom"),
+            Map.entry("prenom", "prenom"),
+            Map.entry("sexe", "sexe"),
+            Map.entry("dateAdmission", "dateAdmission"),
+            Map.entry("numeroAssurance", "numeroAssurance"),
+            Map.entry("etatPatient", "etatPatient"),
+            Map.entry("medecinTraitantId", "medecinTraitantId"),
+            Map.entry("positionId", "positionId"),
+            Map.entry("transporteurAllerId", "transporteurAllerId"),
+            Map.entry("transporteurRetourId", "transporteurRetourId")
+    );
+
     public PatientListQueryService(PatientJpaRepository patientRepository, PecJpaRepository pecRepository) {
         this.patientRepository = patientRepository;
         this.pecRepository = pecRepository;
@@ -30,7 +51,7 @@ public class PatientListQueryService {
         int page = req.page();
         int size = req.size();
 
-        var pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("nom"), Sort.Order.asc("prenom")));
+        var pageable = PageRequest.of(page, size, resolveSort(req.sortBy(), req.sortDirection()));
         var pageResult = patientRepository.findAll(PatientSpecifications.from(centerId, req), pageable);
 
         List<PatientJpaEntity> patients = pageResult.getContent();
@@ -71,6 +92,15 @@ public class PatientListQueryService {
         }
 
         return new PageResult(items, pageResult.getTotalElements(), page, size);
+    }
+
+    private Sort resolveSort(String sortBy, String sortDirection) {
+        String property = sortBy != null ? SORTABLE_COLUMNS.get(sortBy) : null;
+        if (property == null) {
+            return Sort.by(Sort.Order.asc("nom"), Sort.Order.asc("prenom"));
+        }
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return Sort.by(new Sort.Order(direction, property));
     }
 
     private Map<UUID, PecJpaEntity> loadLatestValidatedPecByPatient(UUID centerId, List<PatientJpaEntity> patients) {

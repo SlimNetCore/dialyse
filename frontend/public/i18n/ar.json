@@ -1050,6 +1050,7 @@
     "FILTER_BY": "تصفية حسب {{field}}",
     "COLUMNS_BUTTON": "الأعمدة",
     "VIEWS_BUTTON": "طرق العرض",
+    "RESET_FILTERS_BUTTON": "إعادة تعيين المرشحات",
     "CLEAR_FILTER": "مسح عامل التصفية",
     "ACTIVE_FILTERS": "عوامل التصفية النشطة",
     "ALL": "الكل",

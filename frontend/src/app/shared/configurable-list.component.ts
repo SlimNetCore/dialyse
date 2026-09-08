@@ -22,12 +22,29 @@ import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
 import {MatTableModule} from '@angular/material/table';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
-import {firstValueFrom, Observable} from 'rxjs';
+import {firstValueFrom, Observable, Subject, Subscription} from 'rxjs';
+import {debounceTime, groupBy, mergeMap} from 'rxjs/operators';
 import {ColumnFilterRendererComponent, ColumnFilterType} from './column-filter-renderer.component';
 import {DynamicFilterHostComponent} from './dynamic-filter-host.component';
 import {HemodialysisLoaderComponent} from './hemodialysis-loader.component';
 
 export type SortDirection = 'asc' | 'desc' | '';
+
+/**
+ * `local`: tri/filtrage appliqués côté client sur `rows()` (défaut, adapté aux
+ * petites listes qui ne changent pas souvent).
+ * `remote`: `rows()` est considéré déjà trié/filtré/paginé par le serveur — le
+ * composant se contente d'afficher tel quel et notifie chaque changement de tri/filtre
+ * via `(remoteQueryChange)` pour que le parent puisse relancer la requête.
+ */
+export type SharedListDataMode = 'local' | 'remote';
+
+/** Etat complet à envoyer au serveur en mode `remote` (tri courant, tous les filtres, et la page). */
+export interface SharedListRemoteQuery {
+  sort: SharedListSortChange;
+  filters: Record<string, string>;
+  page: { index: number; size: number };
+}
 
 export type SharedListFilterOption = { value: string; label: string };
 
@@ -109,7 +126,7 @@ export interface SharedListViewState {
   columnOrder: string[];
   sort: SharedListSortChange;
   filters: Record<string, string>;
-  /** Only populated when the parent wires up `[viewPageIndex]`/`[viewPageSize]` (pagination lives outside this component). */
+  /** Only populated when `paginationEnabled=true` (reuses `[pageIndex]`/`[pageSize]`). */
   pageIndex?: number;
   pageSize?: number;
 }
@@ -213,7 +230,7 @@ export class ConfigurableListComponent implements OnDestroy {
   /** Show/hide the built-in "reset all filters" button. */
   readonly showResetFilters = input(true);
   /** i18n key of the reset filters button (overridable per project). */
-  readonly resetFiltersLabelKey = input('PATIENT_LIST.RESET_FILTERS_BUTTON');
+  readonly resetFiltersLabelKey = input('COMMON.RESET_FILTERS_BUTTON');
   /** Show a leading checkbox column to select one or many rows. */
   readonly rowSelectionEnabled = input(false);
   /** Controlled mode (key based): externally managed selected row keys. */
@@ -229,6 +246,31 @@ export class ConfigurableListComponent implements OnDestroy {
   /** Context menu content provided by parent component. */
   readonly rowContextMenuTemplate = input<TemplateRef<{ $implicit: any; row: any }> | null>(null);
 
+  /**
+   * `local` (défaut): tri/filtres appliqués sur `rows()` côté client.
+   * `remote`: `rows()` est affiché tel quel (déjà trié/filtré/paginé côté serveur) ;
+   * tout changement de tri ou de filtre émet `(remoteQueryChange)` au lieu d'être
+   * appliqué localement.
+   */
+  readonly dataMode = input<SharedListDataMode>('local');
+
+  /**
+   * Enables page-aware behavior. Off by default (back-compat: `displayedRows()` is
+   * never sliced, exactly like before this feature existed).
+   * - `local` mode: `displayedRows()` is sliced to `[pageIndex*pageSize, +pageSize)`
+   *   after filter/sort, and `(filteredCountChange)` reports the post-filter total so
+   *   your own paginator's `[length]` stays correct.
+   * - `remote` mode: page is embedded (reset to `0`) in every `(remoteQueryChange)`
+   *   triggered by a filter/sort change. Direct page navigation (your own paginator's
+   *   `(page)` event) is NOT routed through this component — call your fetch method
+   *   directly with the new page, same as before.
+   */
+  readonly paginationEnabled = input(false);
+  /** Current page index (0-based). Only used when `paginationEnabled=true`. */
+  readonly pageIndex = input(0);
+  /** Current page size. Only used when `paginationEnabled=true`. */
+  readonly pageSize = input(10);
+
   /** Show/hide the whole "views" toolbar (save/switch/delete). Off by default. */
   readonly viewsEnabled = input(false);
   /**
@@ -239,10 +281,6 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly viewsStorageKey = input<string | null>(null);
   /** Controlled mode: parent owns the views store entirely (backend, file, etc.). */
   readonly viewsStore = input<SharedListViewsStore | null>(null);
-  /** Parent's current page index, captured into a saved view if provided. */
-  readonly viewPageIndex = input<number | null>(null);
-  /** Parent's current page size, captured into a saved view if provided. */
-  readonly viewPageSize = input<number | null>(null);
 
   readonly rowClick = output<any>();
   /** Emitted whenever any filter value changes. */
@@ -269,6 +307,16 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly viewActivated = output<SharedListView | null>();
   /** Emitted when an activated view carries pagination — apply it to your own paginator. */
   readonly viewPaginationRestore = output<{ pageIndex: number; pageSize: number }>();
+  /**
+   * `dataMode='remote'` only: emitted with the full current sort + filters whenever
+   * either changes (sort toggle, filter value, reset, or a saved view activating with
+   * new sort/filters). Build your server request from this payload.
+   */
+  readonly remoteQueryChange = output<SharedListRemoteQuery>();
+  /** `dataMode='local'` + `paginationEnabled=true` only: post-filter row count — bind to your paginator's `[length]`. */
+  readonly filteredCountChange = output<number>();
+  /** `dataMode='local'` + `paginationEnabled=true` only: emitted with `0` when a filter/sort change should reset the current page. */
+  readonly pageIndexChange = output<number>();
 
   readonly columnsMenuItems = computed(() =>
     this.columns().filter((column) => column.id !== '__detail_row__' && column.id !== '__mobile_actions__'),
@@ -301,8 +349,8 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly actionColumn = computed(() =>
     this.visibleColumns().find((column) => column.mobileRowActions) ?? null,
   );
-  readonly displayedRows = computed(() => {
-    // Pipeline local: rows source -> filtres -> tri.
+  /** Local mode pipeline: rows source -> filtres -> tri (sans pagination). */
+  private readonly filteredSortedRows = computed(() => {
     const sourceRows = this.rows();
     const activeColumns = this.visibleColumns();
     const filters = this.columnFilters();
@@ -326,6 +374,26 @@ export class ConfigurableListComponent implements OnDestroy {
     });
 
     return nextRows;
+  });
+
+  readonly displayedRows = computed(() => {
+    if (this.dataMode() === 'remote') {
+      // Le serveur a déjà filtré/trié/paginé — on affiche tel quel.
+      return this.rows();
+    }
+
+    const filteredSorted = this.filteredSortedRows();
+    if (!this.paginationEnabled()) {
+      return filteredSorted;
+    }
+
+    const size = this.pageSize();
+    if (!size || size <= 0) {
+      return filteredSorted;
+    }
+
+    const start = this.pageIndex() * size;
+    return filteredSorted.slice(start, start + size);
   });
   protected readonly isMobileView = signal(
     typeof window !== 'undefined' ? window.innerWidth <= 760 : false,
@@ -391,6 +459,16 @@ export class ConfigurableListComponent implements OnDestroy {
     const mobileIds = withoutActions.length > 0 ? withoutActions : ids;
     return this.rowSelectionEnabled() ? [this.selectionColumnId, ...mobileIds] : mobileIds;
   });
+  /**
+   * Free-typed filter keystrokes flow through here instead of committing straight to
+   * `columnFilters`. Grouped by column so typing in one field never resets another
+   * field's debounce timer (`groupBy` + `mergeMap` keeps each column's debounce
+   * independent), then `debounceTime` collapses rapid keystrokes into one commit —
+   * which in `remote` mode means one request instead of one per character.
+   */
+  private readonly filterInputSubject = new Subject<{ columnId: string; value: string; epoch: number }>();
+  private filterInputSubscription: Subscription | null = null;
+  private readonly filterEpochByColumn = new Map<string, number>();
   private readonly internalColumnVisibility = signal<Record<string, boolean>>({});
   private readonly internalColumnOrder = signal<string[]>([]);
   protected readonly newViewName = signal('');
@@ -403,12 +481,24 @@ export class ConfigurableListComponent implements OnDestroy {
   private resizingState: { columnId: string; startX: number; startWidth: number } | null = null;
 
   constructor() {
+    this.filterInputSubscription = this.filterInputSubject
+      .pipe(
+        groupBy((entry) => entry.columnId),
+        mergeMap((group) => group.pipe(debounceTime(350))),
+      )
+      .subscribe((entry) => {
+        if (entry.epoch !== this.filterEpoch(entry.columnId)) {
+          return; // superseded by a clear/reset that happened while this keystroke was debouncing
+        }
+        this.commitFilterValue(entry.columnId, entry.value);
+      });
+
     effect(() => {
       const externalFilters = this.filters();
       if (!externalFilters) {
         return;
       }
-      this.columnFilters.set({...externalFilters});
+      this.columnFilters.set(this.withDefaultFilterKeys(externalFilters));
       this.requestFilterPositionUpdate();
     });
 
@@ -458,6 +548,15 @@ export class ConfigurableListComponent implements OnDestroy {
         const pruned = current.filter((id) => ids.has(id));
         return pruned.length === current.length ? current : pruned;
       });
+
+      // Le composant construit lui-même le jeu de filtres à partir de `columns()` —
+      // indépendamment de ce que le parent branche (ou non) sur [filters]. Chaque
+      // colonne filtrable obtient une entrée (défaut '') dans `columnFilters`, et les
+      // colonnes retirées/renommées voient la leur nettoyée. Ainsi `filtersChange` /
+      // `remoteQueryChange` exposent toujours un jeu complet, prévisible, et
+      // directement exploitable par n'importe quel consommateur sans qu'il ait à
+      // connaître/répéter la liste des colonnes filtrables lui-même.
+      this.columnFilters.update((current) => this.withDefaultFilterKeys(current));
     });
 
     effect(() => {
@@ -490,6 +589,13 @@ export class ConfigurableListComponent implements OnDestroy {
     effect(() => {
       this.displayedRows().length;
       this.requestFilterPositionUpdate();
+    });
+
+    effect(() => {
+      if (this.dataMode() !== 'local' || !this.paginationEnabled()) {
+        return;
+      }
+      this.filteredCountChange.emit(this.filteredSortedRows().length);
     });
 
     // Inline mode: lazy filter options must be loaded eagerly since there is no menu-open event.
@@ -537,6 +643,7 @@ export class ConfigurableListComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopResize();
+    this.filterInputSubscription?.unsubscribe();
   }
 
   onHeaderSort(column: SharedListColumn<any>): void {
@@ -560,24 +667,97 @@ export class ConfigurableListComponent implements OnDestroy {
     };
     this.sortState.set(nextState);
     this.sortChange.emit(nextState);
+    this.onQueryStateChanged();
   }
 
+  /**
+   * `text` filters are free-typed — every keystroke would otherwise re-run local
+   * filtering and, in `remote` mode, fire a request per character. Those are
+   * debounced (see `filterInputSubject`); discrete selections (select/enum/boolean/
+   * date pickers) commit immediately since they're single deliberate actions.
+   */
   onFilterValue(columnId: string, value: string): void {
+    if (!this.isFreeTypedFilter(columnId)) {
+      this.commitFilterValue(columnId, value);
+      return;
+    }
+    this.filterInputSubject.next({columnId, value, epoch: this.filterEpoch(columnId)});
+  }
+
+  clearFilter(columnId: string): void {
+    this.bumpFilterEpoch(columnId); // supersede any debounced keystroke still in flight for this column
+    this.commitFilterValue(columnId, '');
+  }
+
+  clearAllFilters(): void {
+    for (const column of this.columns()) {
+      this.bumpFilterEpoch(column.id);
+    }
+    const next: Record<string, string> = {};
+    this.columnFilters.set(next);
+    this.filtersChange.emit(next);
+    this.onQueryStateChanged();
+  }
+
+  /**
+   * Saves the list's current presentation (columns, order, sort, filters, and
+   * pagination when `paginationEnabled=true`) as a view. If a view with the same name
+   * already exists, it is overwritten in place; otherwise a new view is created.
+   * Either way the saved view becomes the active one.
+   */
+  saveCurrentAsView(name: string): void {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    const state: SharedListViewState = {
+      columnVisibility: {...this.effectiveColumnVisibility()},
+      columnOrder: [...this.effectiveColumnOrder()],
+      sort: {...this.sortState()},
+      filters: {...this.columnFilters()},
+      ...(this.paginationEnabled() ? {pageIndex: this.pageIndex(), pageSize: this.pageSize()} : {}),
+    };
+
+    const store = this.effectiveViewsStore();
+    const now = new Date().toISOString();
+    const existing = store.views.find((v) => v.name === trimmed);
+
+    let nextViews: SharedListView[];
+    let activeViewId: string;
+    if (existing) {
+      activeViewId = existing.id;
+      nextViews = store.views.map((v) => (v.id === existing.id ? {...v, state, updatedAt: now} : v));
+    } else {
+      const created: SharedListView = {id: this.generateViewId(), name: trimmed, createdAt: now, updatedAt: now, state};
+      activeViewId = created.id;
+      nextViews = [...store.views, created];
+    }
+
+    this.commitViewsStore({views: nextViews, activeViewId});
+    this.newViewName.set('');
+  }
+
+  private isFreeTypedFilter(columnId: string): boolean {
+    const column = this.columns().find((c) => c.id === columnId);
+    return (column?.filter?.type ?? 'text') === 'text';
+  }
+
+  private filterEpoch(columnId: string): number {
+    return this.filterEpochByColumn.get(columnId) ?? 0;
+  }
+
+  private bumpFilterEpoch(columnId: string): void {
+    this.filterEpochByColumn.set(columnId, this.filterEpoch(columnId) + 1);
+  }
+
+  private commitFilterValue(columnId: string, value: string): void {
     this.columnFilters.update((current) => {
       const next = {...current, [columnId]: value ?? ''};
       this.filtersChange.emit(next);
       return next;
     });
-  }
-
-  clearFilter(columnId: string): void {
-    this.onFilterValue(columnId, '');
-  }
-
-  clearAllFilters(): void {
-    const next: Record<string, string> = {};
-    this.columnFilters.set(next);
-    this.filtersChange.emit(next);
+    this.onQueryStateChanged();
   }
 
   isFilterActive(columnId: string): boolean {
@@ -854,45 +1034,21 @@ export class ConfigurableListComponent implements OnDestroy {
   }
 
   /**
-   * Saves the list's current presentation (columns, order, sort, filters, and
-   * pagination if wired up) as a view. If a view with the same name already exists,
-   * it is overwritten in place; otherwise a new view is created. Either way the saved
-   * view becomes the active one.
+   * Reports a sort/filter change: emits the full combined query in `remote` mode
+   * (page reset to `0`), or requests a page reset in paginated `local` mode.
    */
-  saveCurrentAsView(name: string): void {
-    const trimmed = name.trim();
-    if (!trimmed) {
+  private onQueryStateChanged(): void {
+    if (this.dataMode() === 'remote') {
+      this.remoteQueryChange.emit({
+        sort: this.sortState(),
+        filters: this.columnFilters(),
+        page: {index: 0, size: this.paginationEnabled() ? this.pageSize() : 0},
+      });
       return;
     }
-
-    const pageIndex = this.viewPageIndex();
-    const pageSize = this.viewPageSize();
-    const state: SharedListViewState = {
-      columnVisibility: {...this.effectiveColumnVisibility()},
-      columnOrder: [...this.effectiveColumnOrder()],
-      sort: {...this.sortState()},
-      filters: {...this.columnFilters()},
-      ...(pageIndex != null ? {pageIndex} : {}),
-      ...(pageSize != null ? {pageSize} : {}),
-    };
-
-    const store = this.effectiveViewsStore();
-    const now = new Date().toISOString();
-    const existing = store.views.find((v) => v.name === trimmed);
-
-    let nextViews: SharedListView[];
-    let activeViewId: string;
-    if (existing) {
-      activeViewId = existing.id;
-      nextViews = store.views.map((v) => (v.id === existing.id ? {...v, state, updatedAt: now} : v));
-    } else {
-      const created: SharedListView = {id: this.generateViewId(), name: trimmed, createdAt: now, updatedAt: now, state};
-      activeViewId = created.id;
-      nextViews = [...store.views, created];
+    if (this.paginationEnabled() && this.pageIndex() !== 0) {
+      this.pageIndexChange.emit(0);
     }
-
-    this.commitViewsStore({views: nextViews, activeViewId});
-    this.newViewName.set('');
   }
 
   /** Switches to a saved view, applying its presentation immediately. */
@@ -1136,6 +1292,33 @@ export class ConfigurableListComponent implements OnDestroy {
     return !!this.detailRowTemplate() && !this.detailRowWhen() && !this.expandedRowKeys();
   }
 
+  /**
+   * Completes a filters map with a `''` entry for every column of `columns()` that
+   * has a `filter`/`filterPredicate`, and drops entries for columns no longer present.
+   * Used both when mirroring the controlled `[filters]` input and when `columns()`
+   * itself changes, so the component's filters set is always self-built from its own
+   * column definitions — no consumer needs to know/repeat the filterable column list.
+   */
+  private withDefaultFilterKeys(source: Record<string, string>): Record<string, string> {
+    const filterableIds = new Set(
+      this.columns().filter((column) => !!column.filter || !!column.filterPredicate).map((column) => column.id),
+    );
+    let changed = false;
+    const next: Record<string, string> = {};
+    for (const id of filterableIds) {
+      next[id] = source[id] ?? '';
+      if (source[id] === undefined) {
+        changed = true;
+      }
+    }
+    for (const key of Object.keys(source)) {
+      if (!filterableIds.has(key)) {
+        changed = true;
+      }
+    }
+    return changed ? next : source;
+  }
+
   private effectiveColumnVisibility(): Record<string, boolean> {
     // Priorite au mode controle, fallback sur l'etat interne.
     return this.columnVisibility() ?? this.internalColumnVisibility();
@@ -1164,6 +1347,7 @@ export class ConfigurableListComponent implements OnDestroy {
     this.sortState.set({...state.sort});
     this.columnFilters.set({...state.filters});
     this.filtersChange.emit(this.columnFilters());
+    this.onQueryStateChanged();
     if (state.pageIndex !== undefined && state.pageSize !== undefined) {
       this.viewPaginationRestore.emit({pageIndex: state.pageIndex, pageSize: state.pageSize});
     }
