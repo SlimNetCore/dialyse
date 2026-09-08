@@ -79,6 +79,8 @@
         (columnVisibilityChange)="onColumnVisibilityChange($event)"
         (filtersChange)="onListFiltersChange($event)"
         (rowClick)="onListRowClick($event)"
+        (viewActivated)="onViewActivated($event)"
+        (viewPaginationRestore)="onViewPaginationRestore($event)"
         [columns]="allColumnDefs()"
         [columnVisibility]="visibleColumns()"
         [emptyLabelKey]="'PATIENT_LIST.EMPTY'"
@@ -91,6 +93,10 @@
         [rowContextMenuTemplate]="patientRowContextMenu"
         [rows]="rows()"
         [showActiveFiltersBar]="true"
+        [viewPageIndex]="pageIndex()"
+        [viewPageSize]="pageSize()"
+        [viewsEnabled]="true"
+        [viewsStorageKey]="'patient-list'"
       />
 
       <ng-template #patientRowContextMenu let-row>

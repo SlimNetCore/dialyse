@@ -33,6 +33,59 @@
         </button>
       }
     </mat-menu>
+
+    @if (viewsEnabled()) {
+      <button [matMenuTriggerFor]="viewsMenu" mat-stroked-button type="button">
+        <mat-icon>bookmark</mat-icon>
+        {{ 'COMMON.VIEWS_BUTTON' | translate }}
+        @if (activeView(); as av) {
+          <span class="active-view-chip">{{ av.name }}</span>
+        }
+      </button>
+
+      <mat-menu #viewsMenu="matMenu" class="cfg-views-menu-panel">
+        <div (click)="$event.stopPropagation()" class="views-menu-body">
+          <div class="views-save-row">
+            <input
+              (input)="newViewName.set($any($event.target).value)"
+              (keydown.enter)="saveCurrentAsView(newViewName())"
+              [value]="newViewName()"
+              class="views-name-input"
+              placeholder="Nom de la vue"
+              type="text"
+            />
+            <button
+              (click)="saveCurrentAsView(newViewName())"
+              [disabled]="!newViewName().trim()"
+              class="views-save-btn"
+              mat-icon-button
+              title="Enregistrer la vue actuelle"
+              type="button"
+            >
+              <mat-icon>save</mat-icon>
+            </button>
+          </div>
+
+          @if (viewsList().length > 0) {
+            <div class="views-divider"></div>
+            @for (view of viewsList(); track view.id) {
+              <div [class.active]="view.id === activeViewId()" class="view-row">
+                <button (click)="activateView(view)" class="view-row-label" type="button">
+                  <mat-icon>{{ view.id === activeViewId() ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+                  <span>{{ view.name }}</span>
+                </button>
+                <button (click)="deleteView(view)" class="view-row-delete" mat-icon-button title="Supprimer la vue"
+                        type="button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+          } @else {
+            <p class="views-empty-note">Aucune vue enregistrée</p>
+          }
+        </div>
+      </mat-menu>
+    }
   </div>
 
   @if (showActiveFiltersBar() && activeFilterSummaries().length > 0) {

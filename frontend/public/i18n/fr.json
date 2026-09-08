@@ -1219,6 +1219,7 @@
   "COMMON": {
     "FILTER_BY": "Filtrer par {{field}}",
     "COLUMNS_BUTTON": "Colonnes",
+    "VIEWS_BUTTON": "Vues",
     "CLEAR_FILTER": "Effacer le filtre",
     "ACTIVE_FILTERS": "Filtres actifs",
     "ALL": "Tous",

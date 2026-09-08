@@ -38,6 +38,7 @@ import {
   ConfigurableListComponent,
   SharedListColumn,
   SharedListCopyEvent,
+  SharedListView,
 } from '../../shared/configurable-list.component';
 import {catchError, map, Observable, of} from 'rxjs';
 
@@ -410,6 +411,22 @@ export class PatientListComponent {
 
   onColumnVisibilityChange(visibility: Record<string, boolean>): void {
     this.visibleColumns.set({...visibility});
+  }
+
+  /**
+   * Column visibility is controlled by this component (see [columnVisibility] above),
+   * so re-applying a saved view's visibility must go through our own signal — the
+   * shared list's internal state alone wouldn't have any visible effect otherwise.
+   * Sort, column order and filters are either uncontrolled or already wired through
+   * (filtersChange), so they don't need extra handling here.
+   */
+  onViewActivated(view: SharedListView | null): void {
+    if (!view) return;
+    this.visibleColumns.set({...view.state.columnVisibility});
+  }
+
+  onViewPaginationRestore(event: { pageIndex: number; pageSize: number }): void {
+    this.patientListStore.setPagination(event.pageIndex, event.pageSize);
   }
 
   onListFiltersChange(filters: Record<string, string>): void {

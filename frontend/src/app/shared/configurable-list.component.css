@@ -291,6 +291,132 @@
   margin-inline: auto;
 }
 
+/* --- Saved views ----------------------------------------------------- */
+.active-view-chip {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--app-primary-soft, rgba(0, 106, 106, 0.12));
+  color: var(--app-primary, #006a6a);
+  font-size: 0.72rem;
+  font-weight: 700;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfg-views-menu-panel.mat-mdc-menu-panel {
+  min-width: min(92vw, 320px) !important;
+  max-width: min(92vw, 320px) !important;
+  border-radius: 20px;
+  border: 1px solid var(--app-border-strong);
+  box-shadow: var(--app-shadow-soft);
+  background: var(--app-filter-panel-bg);
+}
+
+.views-menu-body {
+  box-sizing: border-box;
+  padding: 10px;
+  max-height: min(70vh, 420px);
+  overflow-y: auto;
+}
+
+.views-save-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.views-name-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border-strong, #c9c9c9);
+  border-radius: 10px;
+  background: var(--app-field-bg, #fff);
+  color: inherit;
+  font: inherit;
+}
+
+.views-name-input:focus {
+  outline: none;
+  border-color: var(--app-primary, #006a6a);
+}
+
+.views-save-btn {
+  flex: 0 0 auto;
+  color: var(--app-primary, #006a6a);
+}
+
+.views-divider {
+  margin: 10px 0 6px;
+  border-top: 1px solid var(--app-border, #e0e0e0);
+}
+
+.views-empty-note {
+  margin: 10px 2px 2px;
+  color: var(--app-muted, #78909c);
+  font-size: 0.8rem;
+}
+
+.view-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 10px;
+}
+
+.view-row:hover {
+  background: var(--app-hover-surface, rgba(0, 0, 0, 0.04));
+}
+
+.view-row.active .view-row-label {
+  color: var(--app-primary, #006a6a);
+  font-weight: 700;
+}
+
+.view-row-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.view-row-label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.view-row-label mat-icon {
+  flex: 0 0 auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--app-primary, #006a6a);
+}
+
+.view-row-delete {
+  flex: 0 0 auto;
+  color: var(--app-muted, #78909c);
+}
+
+.view-row-delete:hover {
+  color: #c62828;
+}
+
 .data-row {
   cursor: pointer;
 }

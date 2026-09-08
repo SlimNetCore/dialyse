@@ -1198,6 +1198,7 @@
   "COMMON": {
     "FILTER_BY": "Sizdeg s {{field}}",
     "COLUMNS_BUTTON": "Tiggura",
+    "VIEWS_BUTTON": "Tamuɣliwin",
     "CLEAR_FILTER": "Sfeḍ asizdeg",
     "ACTIVE_FILTERS": "Imsizdigen urmiden",
     "ALL": "Akk",

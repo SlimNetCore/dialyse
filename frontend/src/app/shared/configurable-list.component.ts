@@ -103,6 +103,36 @@ export interface SharedListContextMenuEvent<T = any> {
   position: { x: number; y: number };
 }
 
+/** Everything a saved "view" captures about the list's presentation. */
+export interface SharedListViewState {
+  columnVisibility: Record<string, boolean>;
+  columnOrder: string[];
+  sort: SharedListSortChange;
+  filters: Record<string, string>;
+  /** Only populated when the parent wires up `[viewPageIndex]`/`[viewPageSize]` (pagination lives outside this component). */
+  pageIndex?: number;
+  pageSize?: number;
+}
+
+export interface SharedListView {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  state: SharedListViewState;
+}
+
+/**
+ * The whole "views" store for a list: every saved view plus which one is active.
+ * By default the component persists this itself (localStorage, keyed by
+ * `viewsStorageKey`). A parent that wants to persist it elsewhere (backend, file...)
+ * can instead pass `[viewsStore]` (controlled mode) and listen to `(viewsStoreChange)`.
+ */
+export interface SharedListViewsStore {
+  views: SharedListView[];
+  activeViewId: string | null;
+}
+
 @Component({
   selector: 'app-configurable-list',
   standalone: true,
@@ -199,6 +229,21 @@ export class ConfigurableListComponent implements OnDestroy {
   /** Context menu content provided by parent component. */
   readonly rowContextMenuTemplate = input<TemplateRef<{ $implicit: any; row: any }> | null>(null);
 
+  /** Show/hide the whole "views" toolbar (save/switch/delete). Off by default. */
+  readonly viewsEnabled = input(false);
+  /**
+   * Uncontrolled mode: storage key used to persist the views store in `localStorage`
+   * (namespaced automatically). Required for built-in persistence to do anything —
+   * without it, views still work but only for the current page session.
+   */
+  readonly viewsStorageKey = input<string | null>(null);
+  /** Controlled mode: parent owns the views store entirely (backend, file, etc.). */
+  readonly viewsStore = input<SharedListViewsStore | null>(null);
+  /** Parent's current page index, captured into a saved view if provided. */
+  readonly viewPageIndex = input<number | null>(null);
+  /** Parent's current page size, captured into a saved view if provided. */
+  readonly viewPageSize = input<number | null>(null);
+
   readonly rowClick = output<any>();
   /** Emitted whenever any filter value changes. */
   readonly filtersChange = output<Record<string, string>>();
@@ -213,10 +258,25 @@ export class ConfigurableListComponent implements OnDestroy {
   readonly selectionChange = output<SharedListSelectionChangeEvent>();
   /** Emitted when the contextual menu is requested on a row. */
   readonly rowContextMenu = output<SharedListContextMenuEvent>();
+  /**
+   * Emitted whenever the views store changes (saved, activated, deleted) — in
+   * uncontrolled mode this mirrors what was just written to `localStorage`; in
+   * controlled mode this is the ONLY place the change is reported, since the
+   * component does not persist anything itself. Wire this to save wherever you want.
+   */
+  readonly viewsStoreChange = output<SharedListViewsStore>();
+  /** Emitted whenever a view becomes active (user switch, or auto-activation on load). */
+  readonly viewActivated = output<SharedListView | null>();
+  /** Emitted when an activated view carries pagination — apply it to your own paginator. */
+  readonly viewPaginationRestore = output<{ pageIndex: number; pageSize: number }>();
 
   readonly columnsMenuItems = computed(() =>
     this.columns().filter((column) => column.id !== '__detail_row__' && column.id !== '__mobile_actions__'),
   );
+
+  readonly viewsList = computed(() => this.effectiveViewsStore().views);
+  readonly activeViewId = computed(() => this.effectiveViewsStore().activeViewId);
+  readonly activeView = computed(() => this.viewsList().find((v) => v.id === this.activeViewId()) ?? null);
 
   readonly visibleColumns = computed(() => {
     const columns = this.columns();
@@ -333,6 +393,9 @@ export class ConfigurableListComponent implements OnDestroy {
   });
   private readonly internalColumnVisibility = signal<Record<string, boolean>>({});
   private readonly internalColumnOrder = signal<string[]>([]);
+  protected readonly newViewName = signal('');
+  private readonly internalViewsStore = signal<SharedListViewsStore>({views: [], activeViewId: null});
+  private hasLoadedInitialViewsStore = false;
   private readonly activeFilterColumnId = signal<string | null>(null);
   private readonly activeFilterTrigger = signal<MatMenuTrigger | null>(null);
 
@@ -439,6 +502,36 @@ export class ConfigurableListComponent implements OnDestroy {
           void this.ensureLazyFilterOptions(column.id, column.filter);
         }
       }
+    });
+
+    // Views: the active view is auto-applied exactly once, on the first time a store
+    // becomes available (controlled: parent-supplied input; uncontrolled: localStorage
+    // read) — never again afterwards, so the user's later edits are never silently
+    // reverted by a stale re-read or an echoed store update from the parent.
+    effect(() => {
+      if (!this.viewsEnabled()) {
+        return;
+      }
+      const external = this.viewsStore();
+      if (external) {
+        this.internalViewsStore.set(external);
+        if (!this.hasLoadedInitialViewsStore) {
+          this.hasLoadedInitialViewsStore = true;
+          this.applyActiveView(external);
+        }
+        return;
+      }
+      if (this.hasLoadedInitialViewsStore) {
+        return;
+      }
+      const key = this.viewsStorageKey();
+      if (!key) {
+        return;
+      }
+      this.hasLoadedInitialViewsStore = true;
+      const loaded = this.loadViewsStoreFromLocalStorage(key);
+      this.internalViewsStore.set(loaded);
+      this.applyActiveView(loaded);
     });
   }
 
@@ -760,6 +853,63 @@ export class ConfigurableListComponent implements OnDestroy {
     this.columnVisibilityChange.emit(next);
   }
 
+  /**
+   * Saves the list's current presentation (columns, order, sort, filters, and
+   * pagination if wired up) as a view. If a view with the same name already exists,
+   * it is overwritten in place; otherwise a new view is created. Either way the saved
+   * view becomes the active one.
+   */
+  saveCurrentAsView(name: string): void {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    const pageIndex = this.viewPageIndex();
+    const pageSize = this.viewPageSize();
+    const state: SharedListViewState = {
+      columnVisibility: {...this.effectiveColumnVisibility()},
+      columnOrder: [...this.effectiveColumnOrder()],
+      sort: {...this.sortState()},
+      filters: {...this.columnFilters()},
+      ...(pageIndex != null ? {pageIndex} : {}),
+      ...(pageSize != null ? {pageSize} : {}),
+    };
+
+    const store = this.effectiveViewsStore();
+    const now = new Date().toISOString();
+    const existing = store.views.find((v) => v.name === trimmed);
+
+    let nextViews: SharedListView[];
+    let activeViewId: string;
+    if (existing) {
+      activeViewId = existing.id;
+      nextViews = store.views.map((v) => (v.id === existing.id ? {...v, state, updatedAt: now} : v));
+    } else {
+      const created: SharedListView = {id: this.generateViewId(), name: trimmed, createdAt: now, updatedAt: now, state};
+      activeViewId = created.id;
+      nextViews = [...store.views, created];
+    }
+
+    this.commitViewsStore({views: nextViews, activeViewId});
+    this.newViewName.set('');
+  }
+
+  /** Switches to a saved view, applying its presentation immediately. */
+  activateView(view: SharedListView): void {
+    const store = this.effectiveViewsStore();
+    this.commitViewsStore({...store, activeViewId: view.id});
+    this.applyViewState(view);
+  }
+
+  /** Deletes a saved view. If it was the active one, the first remaining view (if any) becomes active. */
+  deleteView(view: SharedListView): void {
+    const store = this.effectiveViewsStore();
+    const nextViews = store.views.filter((v) => v.id !== view.id);
+    const nextActiveId = store.activeViewId === view.id ? (nextViews[0]?.id ?? null) : store.activeViewId;
+    this.commitViewsStore({views: nextViews, activeViewId: nextActiveId});
+  }
+
   /** Reorders columns after a header drag-and-drop. Disabled on mobile (columns are already collapsed there). */
   onColumnDragStart(event: DragEvent, column: SharedListColumn<any>): void {
     if (this.isMobileView()) {
@@ -994,6 +1144,75 @@ export class ConfigurableListComponent implements OnDestroy {
   private effectiveColumnOrder(): string[] {
     const external = this.columnOrder();
     return external ? [...external] : this.internalColumnOrder();
+  }
+
+  private effectiveViewsStore(): SharedListViewsStore {
+    return this.viewsStore() ?? this.internalViewsStore();
+  }
+
+  private applyActiveView(store: SharedListViewsStore): void {
+    const active = store.views.find((v) => v.id === store.activeViewId);
+    if (active) {
+      this.applyViewState(active);
+    }
+  }
+
+  private applyViewState(view: SharedListView): void {
+    const state = view.state;
+    this.internalColumnVisibility.set({...state.columnVisibility});
+    this.internalColumnOrder.set([...state.columnOrder]);
+    this.sortState.set({...state.sort});
+    this.columnFilters.set({...state.filters});
+    this.filtersChange.emit(this.columnFilters());
+    if (state.pageIndex !== undefined && state.pageSize !== undefined) {
+      this.viewPaginationRestore.emit({pageIndex: state.pageIndex, pageSize: state.pageSize});
+    }
+    this.viewActivated.emit(view);
+  }
+
+  /** Central write path: updates in-memory state, persists to localStorage in uncontrolled mode, and always reports out. */
+  private commitViewsStore(next: SharedListViewsStore): void {
+    this.internalViewsStore.set(next);
+    const key = this.viewsStorageKey();
+    if (key && !this.viewsStore()) {
+      this.saveViewsStoreToLocalStorage(key, next);
+    }
+    this.viewsStoreChange.emit(next);
+  }
+
+  private loadViewsStoreFromLocalStorage(key: string): SharedListViewsStore {
+    try {
+      const raw = localStorage.getItem(this.viewsStorageNamespacedKey(key));
+      if (!raw) {
+        return {views: [], activeViewId: null};
+      }
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.views)) {
+        return {views: parsed.views, activeViewId: parsed.activeViewId ?? null};
+      }
+    } catch {
+      // Corrupt/unavailable storage — fall through to an empty store.
+    }
+    return {views: [], activeViewId: null};
+  }
+
+  private saveViewsStoreToLocalStorage(key: string, store: SharedListViewsStore): void {
+    try {
+      localStorage.setItem(this.viewsStorageNamespacedKey(key), JSON.stringify(store));
+    } catch {
+      // Storage full/unavailable (e.g. private browsing) — the view still works for this session.
+    }
+  }
+
+  private viewsStorageNamespacedKey(key: string): string {
+    return `configurable-list.views.${key}`;
+  }
+
+  private generateViewId(): string {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return `view-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   }
 
   private resolveSelectedKeysSet(): Set<unknown> {
