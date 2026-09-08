@@ -4,13 +4,21 @@ import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 
 export interface AppUser {
-  ID: string; USERNAME: string; EMAIL: string; FULL_NAME: string; ACTIVE: boolean; CREATED_AT: string;
-  roles: Array<{ ID: string; CODE: string; NAME: string }>;
-  centers: Array<{ ID: string; NAME: string }>;
+  id: string;
+  username: string;
+  email: string;
+  full_name: string;
+  active: boolean;
+  created_at: string;
+  roles: Array<{ id: string; code: string; name: string }>;
+  centers: Array<{ id: string; name: string }>;
 }
 
 export interface AppRole {
-  ID: string; CODE: string; NAME: string; DESCRIPTION: string;
+  id: string;
+  code: string;
+  name: string;
+  description: string;
 }
 
 export interface PagedResponse<T> {
@@ -40,15 +48,21 @@ export class AdminApiService {
   }
 
   listUsersPaged(query: ListQuery, centerId?: string): Observable<PagedResponse<AppUser>> {
-    let params = new HttpParams()
-      .set('page', query.page)
-      .set('size', query.size);
-    if (centerId) params = params.set('centerId', centerId);
-    if (query.search?.trim()) params = params.set('search', query.search.trim());
-    for (const [k, v] of Object.entries(query.filters ?? {})) {
-      if (v?.trim()) params = params.set(k, v.trim());
-    }
-    return this.http.get<PagedResponse<AppUser>>(`${this.base}/users`, {params});
+    const filters = query.filters ?? {};
+    const active = filters['active'];
+    const body = {
+      centerId: centerId || null,
+      page: query.page,
+      size: query.size,
+      search: query.search?.trim() || null,
+      username: filters['username']?.trim() || null,
+      fullName: filters['fullName']?.trim() || null,
+      email: filters['email']?.trim() || null,
+      roles: filters['roles']?.trim() || null,
+      centers: filters['centers']?.trim() || null,
+      active: active === 'true' ? true : active === 'false' ? false : null,
+    };
+    return this.http.post<PagedResponse<AppUser>>(`${this.base}/users/search`, body);
   }
 
   getUser(id: string): Observable<AppUser> {
@@ -73,14 +87,16 @@ export class AdminApiService {
   }
 
   listRolesPaged(query: ListQuery): Observable<PagedResponse<AppRole>> {
-    let params = new HttpParams()
-      .set('page', query.page)
-      .set('size', query.size);
-    if (query.search?.trim()) params = params.set('search', query.search.trim());
-    for (const [k, v] of Object.entries(query.filters ?? {})) {
-      if (v?.trim()) params = params.set(k, v.trim());
-    }
-    return this.http.get<PagedResponse<AppRole>>(`${this.base}/roles`, {params});
+    const filters = query.filters ?? {};
+    const body = {
+      page: query.page,
+      size: query.size,
+      search: query.search?.trim() || null,
+      code: filters['code']?.trim() || null,
+      name: filters['name']?.trim() || null,
+      description: filters['description']?.trim() || null,
+    };
+    return this.http.post<PagedResponse<AppRole>>(`${this.base}/roles/search`, body);
   }
 
   getRole(id: string): Observable<AppRole> {
@@ -97,11 +113,6 @@ export class AdminApiService {
 
   deleteRole(id: string): Observable<{ deleted: boolean }> {
     return this.http.delete<{ deleted: boolean }>(`${this.base}/roles/${id}`);
-  }
-
-  /* ─── Centers (for assignment) ─── */
-  listCenters(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.base}/auth/centers`);
   }
 }
 

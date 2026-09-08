@@ -49,7 +49,7 @@ export class RoleFormComponent implements OnInit {
       this.isEdit.set(true);
       this.editId = id;
       this.api.getRole(id).subscribe((r) => {
-        this.form.set({code: r.CODE, name: r.NAME, description: r.DESCRIPTION});
+        this.form.set({code: r.code, name: r.name, description: r.description});
       });
     }
   }

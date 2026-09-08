@@ -85,8 +85,8 @@ export class UserListComponent implements OnInit {
     const map = new Map<string, { value: string; label: string }>();
     for (const user of this.rows()) {
       for (const role of user.roles ?? []) {
-        if (!map.has(role.NAME)) {
-          map.set(role.NAME, {value: role.NAME, label: role.NAME});
+        if (!map.has(role.name)) {
+          map.set(role.name, {value: role.name, label: role.name});
         }
       }
     }
@@ -128,7 +128,7 @@ export class UserListComponent implements OnInit {
         return {
           id: column.key,
           headerKey: column.label,
-          valueAccessor: (row) => (row.roles ?? []).map((r) => r.NAME).join(', '),
+          valueAccessor: (row) => (row.roles ?? []).map((r) => r.name).join(', '),
           sortable: true,
           resizable: true,
           minWidthPx: 160,
@@ -148,7 +148,7 @@ export class UserListComponent implements OnInit {
         return {
           id: column.key,
           headerKey: column.label,
-          valueAccessor: (row) => (row.centers ?? []).map((c) => c.NAME).join(', '),
+          valueAccessor: (row) => (row.centers ?? []).map((c) => c.name).join(', '),
           sortable: true,
           resizable: true,
           minWidthPx: 180,
@@ -161,7 +161,7 @@ export class UserListComponent implements OnInit {
         return {
           id: column.key,
           headerKey: column.label,
-          valueAccessor: (row) => !!row.ACTIVE,
+          valueAccessor: (row) => !!row.active,
           sortable: true,
           resizable: true,
           minWidthPx: 120,
@@ -225,24 +225,12 @@ export class UserListComponent implements OnInit {
     this.userListStore.loadPage({page: 0, size: this.pageSize()});
   }
 
-  private defaultColumnValue(row: AppUser, key: string): string {
-    const upperKey = key.toUpperCase() as keyof AppUser;
-    const value = row[upperKey];
-    if (value === null || value === undefined) return '';
-    return `${value}`;
-  }
-
-  onPageChange(event: PageEvent): void {
-    this.userListStore.setPagination(event.pageIndex, event.pageSize);
-    this.userListStore.loadPage({page: event.pageIndex, size: event.pageSize});
-  }
-
   deleteUser(u: AppUser): void {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: 'min(96vw, 440px)',
       data: {
         title: this.translate.instant('ADMIN.USERS.DELETE_TITLE'),
-        message: this.translate.instant('ADMIN.USERS.DELETE_CONFIRM', {username: u.USERNAME}),
+        message: this.translate.instant('ADMIN.USERS.DELETE_CONFIRM', {username: u.username}),
         confirmLabel: this.translate.instant('COMMON.DELETE'),
         cancelLabel: this.translate.instant('PATIENT_FORM.BTN_CANCEL'),
         color: 'warn',
@@ -252,8 +240,20 @@ export class UserListComponent implements OnInit {
     ref.afterClosed().subscribe((confirmed) => {
       if (!confirmed) return;
       // ✅ Appel API via le store maintenant
-      this.userListStore.deleteUser(u.ID);
+      this.userListStore.deleteUser(u.id);
       this.snackbar.open(this.translate.instant('ADMIN.USERS.DELETED_OK'), this.translate.instant('COMMON.OK'), {duration: 2000});
     });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.userListStore.setPagination(event.pageIndex, event.pageSize);
+    this.userListStore.loadPage({page: event.pageIndex, size: event.pageSize});
+  }
+
+  private defaultColumnValue(row: AppUser, key: string): string {
+    const fieldKey = (key === 'fullName' ? 'full_name' : key) as keyof AppUser;
+    const value = row[fieldKey];
+    if (value === null || value === undefined) return '';
+    return `${value}`;
   }
 }

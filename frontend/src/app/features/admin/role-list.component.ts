@@ -170,7 +170,7 @@ export class RoleListComponent implements OnInit {
       width: 'min(96vw, 440px)',
       data: {
         title: 'Supprimer le rôle',
-        message: `Êtes-vous sûr de vouloir supprimer le rôle ${r.CODE} ? Cette action est irréversible.`,
+        message: `Êtes-vous sûr de vouloir supprimer le rôle ${r.code} ? Cette action est irréversible.`,
         confirmLabel: 'Supprimer',
         cancelLabel: 'Annuler',
         color: 'warn',
@@ -179,7 +179,7 @@ export class RoleListComponent implements OnInit {
     });
     ref.afterClosed().subscribe((confirmed) => {
       if (!confirmed) return;
-      this.api.deleteRole(r.ID).subscribe(() => {
+      this.api.deleteRole(r.id).subscribe(() => {
         this.snackbar.open('Rôle supprimé', 'OK', {duration: 2000});
         this.fetchPage(this.pageIndex(), this.pageSize());
       });

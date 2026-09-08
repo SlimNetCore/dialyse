@@ -54,28 +54,28 @@
 
   <ng-template #rolesCell let-row>
     <mat-chip-set>
-      @for (r of row.roles; track r.ID) {
-        <mat-chip>{{ r.NAME }}</mat-chip>
+      @for (r of row.roles; track r.id) {
+        <mat-chip>{{ r.name }}</mat-chip>
       }
     </mat-chip-set>
   </ng-template>
 
   <ng-template #centersCell let-row>
     <mat-chip-set>
-      @for (c of row.centers; track c.ID) {
-        <mat-chip>{{ c.NAME }}</mat-chip>
+      @for (c of row.centers; track c.id) {
+        <mat-chip>{{ c.name }}</mat-chip>
       }
     </mat-chip-set>
   </ng-template>
 
   <ng-template #activeCell let-row>
-    <mat-icon [class.active-false]="!row.ACTIVE" [class.active-true]="row.ACTIVE">
-      {{ row.ACTIVE ? 'check_circle' : 'cancel' }}
+    <mat-icon [class.active-false]="!row.active" [class.active-true]="row.active">
+      {{ row.active ? 'check_circle' : 'cancel' }}
     </mat-icon>
   </ng-template>
 
   <ng-template #actionsCell let-row>
-    <button [routerLink]="['/admin/users', row.ID, 'edit']" color="primary" mat-icon-button>
+    <button [routerLink]="['/admin/users', row.id, 'edit']" color="primary" mat-icon-button>
       <mat-icon>edit</mat-icon>
     </button>
     <button (click)="deleteUser(row)" color="warn" mat-icon-button>

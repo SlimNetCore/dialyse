@@ -1,64 +1,174 @@
-<mat-card class="form-card">
-  <h2>
-    <mat-icon>{{ isEdit() ? 'edit' : 'person_add' }}</mat-icon>
-    {{ isEdit() ? 'Modifier' : 'Créer' }} un utilisateur
-  </h2>
-  <form [formRoot]="userForm">
-    <div class="grid">
-      <mat-form-field appearance="outline">
-        <mat-label>Nom d'utilisateur</mat-label>
-        <input [formField]="userForm.username" matInput/>
-        <mat-icon matPrefix>person</mat-icon>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Mot de passe</mat-label>
-        <input [formField]="userForm.password" matInput type="password"/>
-        <mat-icon matPrefix>lock</mat-icon>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Nom complet</mat-label>
-        <input [formField]="userForm.fullName" matInput/>
-        <mat-icon matPrefix>badge</mat-icon>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input [formField]="userForm.email" matInput type="email"/>
-        <mat-icon matPrefix>email</mat-icon>
-      </mat-form-field>
+<div class="user-form-page">
+  <section class="app-hero-card form-hero">
+    <button class="hero-back" mat-icon-button routerLink="/admin/users">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="hero-avatar">
+      <mat-icon>{{ isEdit() ? 'manage_accounts' : 'person_add' }}</mat-icon>
+    </span>
+    <div class="hero-copy">
+      <span class="app-eyebrow">{{ isEdit() ? 'Compte existant' : 'Nouveau compte' }}</span>
+      <h1 class="app-section-title">
+        {{ isEdit() ? ('Modifier ' + (form().username || "l'utilisateur")) : 'Créer un utilisateur' }}
+      </h1>
+      <p class="app-section-copy">
+        {{
+          isEdit()
+            ? "Mettez à jour les informations, le mot de passe et les accès de ce compte."
+            : "Renseignez les identifiants et les accès du nouveau compte."
+        }}
+      </p>
     </div>
+  </section>
 
-    <mat-checkbox [formField]="userForm.active" color="primary">Actif</mat-checkbox>
-
-    <mat-form-field appearance="outline" class="full">
-      <mat-label>Rôles</mat-label>
-      <mat-select [formField]="userForm.roleIds" multiple>
-        @for (r of roles(); track r.ID) {
-          <mat-option [value]="r.ID">{{ r.NAME }} ({{ r.CODE }})</mat-option>
-        }
-      </mat-select>
-      <mat-icon matPrefix>admin_panel_settings</mat-icon>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full">
-      <mat-label>Centres</mat-label>
-      <mat-select [formField]="userForm.centerIds" multiple>
-        @for (c of centers(); track c.id) {
-          <mat-option [value]="c.id">{{ c.name }}</mat-option>
-        }
-      </mat-select>
-      <mat-icon matPrefix>business</mat-icon>
-    </mat-form-field>
-
-    <div class="actions">
-      <button mat-stroked-button routerLink="/admin/users">
-        <mat-icon>arrow_back</mat-icon>
-        Retour
-      </button>
-      <button (click)="save()" color="primary" mat-flat-button type="button">
-        <mat-icon>save</mat-icon>
-        Enregistrer
-      </button>
+  @if (loadingUser()) {
+    <div class="loading-wrap">
+      <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
     </div>
-  </form>
-</mat-card>
+  } @else {
+    <form [formRoot]="userForm" class="form-panels">
+      <section class="app-panel form-section">
+        <h3 class="section-title">
+          <mat-icon>lock</mat-icon>
+          Identifiants
+        </h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Nom d'utilisateur</mat-label>
+            <input [formField]="userForm.username" matInput/>
+            <mat-icon matPrefix>person</mat-icon>
+            @if (isEdit()) {
+              <mat-hint>Ne peut pas être modifié</mat-hint>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>{{ isEdit() ? 'Nouveau mot de passe' : 'Mot de passe' }}</mat-label>
+            <input
+              [formField]="userForm.password"
+              [type]="showPassword() ? 'text' : 'password'"
+              matInput
+            />
+            <mat-icon matPrefix>vpn_key</mat-icon>
+            <button
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              mat-icon-button
+              matSuffix
+              type="button"
+            >
+              <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-hint>{{ isEdit() ? 'Laisser vide pour conserver le mot de passe actuel' : 'Minimum 6 caractères' }}</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <label class="status-row">
+          <mat-checkbox [formField]="userForm.active" color="primary"/>
+          <span class="status-copy">
+            <strong>Compte actif</strong>
+            <small>Un compte désactivé ne peut plus se connecter à l'application.</small>
+          </span>
+          <span [class.badge-actif]="form().active" [class.badge-inactif]="!form().active" class="status-badge">
+            {{ form().active ? 'Actif' : 'Désactivé' }}
+          </span>
+        </label>
+      </section>
+
+      <section class="app-panel form-section">
+        <h3 class="section-title">
+          <mat-icon>badge</mat-icon>
+          Informations personnelles
+        </h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Nom complet</mat-label>
+            <input [formField]="userForm.fullName" matInput/>
+            <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Email</mat-label>
+            <input [formField]="userForm.email" matInput type="email"/>
+            <mat-icon matPrefix>email</mat-icon>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="app-panel form-section">
+        <h3 class="section-title">
+          <mat-icon>admin_panel_settings</mat-icon>
+          Accès
+        </h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Rôles</mat-label>
+            <mat-select [formField]="userForm.roleIds" multiple>
+              @for (r of roles(); track r.id) {
+                <mat-option [value]="r.id">{{ r.name }} ({{ r.code }})</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>shield</mat-icon>
+            @if (roles().length === 0) {
+              <mat-hint>Aucun rôle disponible — créez-en un dans « Rôles »</mat-hint>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex1">
+            <mat-label>Centres</mat-label>
+            <mat-select [formField]="userForm.centerIds" multiple>
+              @for (c of centers(); track c.id) {
+                <mat-option [value]="c.id">{{ c.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>business</mat-icon>
+          </mat-form-field>
+        </div>
+
+        @if (selectedRoles().length > 0 || selectedCenters().length > 0) {
+          <div class="chip-preview">
+            @if (selectedRoles().length > 0) {
+              <mat-chip-set aria-label="Rôles sélectionnés">
+                @for (r of selectedRoles(); track r.id) {
+                  <mat-chip (removed)="removeRole(r.id)">
+                    <mat-icon matChipAvatar>shield</mat-icon>
+                    {{ r.name }}
+                    <button matChipRemove type="button">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            }
+            @if (selectedCenters().length > 0) {
+              <mat-chip-set aria-label="Centres sélectionnés">
+                @for (c of selectedCenters(); track c.id) {
+                  <mat-chip (removed)="removeCenter(c.id)">
+                    <mat-icon matChipAvatar>business</mat-icon>
+                    {{ c.name }}
+                    <button matChipRemove type="button">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            }
+          </div>
+        }
+      </section>
+
+      <div class="actions">
+        <button [disabled]="saving()" mat-stroked-button routerLink="/admin/users">
+          <mat-icon>arrow_back</mat-icon>
+          Retour
+        </button>
+        <button (click)="save()" [disabled]="saving()" color="primary" mat-flat-button type="button">
+          @if (saving()) {
+            <mat-progress-spinner class="btn-spinner" diameter="18" mode="indeterminate"></mat-progress-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Enregistrer
+        </button>
+      </div>
+    </form>
+  }
+</div>
 

@@ -507,6 +507,19 @@ a {
   color: color-mix(in srgb, var(--app-muted) 90%, white 10%) !important;
 }
 
+/* Neutralize the browser's native autofill styling (forced font metrics + yellow/blue
+   fill) which otherwise inflates the field's rendered height and breaks alignment with
+   neighboring, non-autofilled fields. */
+.mat-mdc-input-element:-webkit-autofill,
+.mat-mdc-input-element:-webkit-autofill:hover,
+.mat-mdc-input-element:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--app-text) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--app-field-bg) inset !important;
+  box-shadow: 0 0 0 1000px var(--app-field-bg) inset !important;
+  caret-color: var(--app-text);
+  transition: background-color 9999s ease-in-out 0s, color 9999s ease-in-out 0s;
+}
+
 .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
   --mat-option-selected-state-label-text-color: var(--app-primary);
 }
