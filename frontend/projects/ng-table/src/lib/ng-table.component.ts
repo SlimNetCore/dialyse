@@ -2,6 +2,7 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
   OnDestroy,
   TemplateRef,
@@ -10,22 +11,30 @@ import {
   ViewEncapsulation,
   computed,
   effect,
+  inject,
   input,
   output,
   signal,
   viewChild,
 } from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxChange, MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
 import {MatTableModule} from '@angular/material/table';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {firstValueFrom, Observable, Subject, Subscription} from 'rxjs';
-import {debounceTime, groupBy, mergeMap} from 'rxjs/operators';
+import {firstValueFrom, Observable, Subject, timer} from 'rxjs';
+import {debounce, groupBy, mergeMap} from 'rxjs/operators';
 import {ColumnFilterRendererComponent, ColumnFilterType} from './column-filter-renderer.component';
 import {DynamicFilterHostComponent} from './dynamic-filter-host.component';
-import {NG_TABLE_DEFAULT_LABELS, NgTableLabels} from './ng-table-labels';
+import {
+  NG_TABLE_DEFAULT_LABELS,
+  NG_TABLE_LABELS,
+  NgTableLabels,
+  ngTableLabelsEqual,
+  resolveNgTableLabelsSource,
+} from './ng-table-labels';
 
 export type SortDirection = 'asc' | 'desc' | '';
 
@@ -167,7 +176,9 @@ export interface NgTableViewsStore {
   ],
   templateUrl: './ng-table.component.html',
   styleUrl: './ng-table.component.css',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // Tout l'état interne passe par des signals : `OnPush` suffit et évite de re-vérifier
+  // la vue (et ses centaines de cellules) à chaque cycle de détection global.
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 })
 export class NgTableComponent implements OnDestroy {
@@ -201,7 +212,11 @@ export class NgTableComponent implements OnDestroy {
   readonly columnOrder = input<ReadonlyArray<string> | null>(null);
   /** Mode controle: filtres pilotes par le parent. */
   readonly filters = input<Record<string, string> | null>(null);
-  /** Textes affichés par le composant — ne fournissez que ce que vous voulez surcharger. */
+  /**
+   * Textes affichés par cette table — ne fournissez que ce que vous voulez surcharger.
+   * Pour configurer toute l'application d'un coup (et rendre les textes réactifs au
+   * changement de langue), préférez `provideNgTableLabels()`.
+   */
   readonly labels = input<Partial<NgTableLabels>>({});
   /** Message affiché quand `rows()` est vide (ou vide après filtrage en mode local). */
   readonly emptyLabel = input<string | null>(null);
@@ -230,6 +245,13 @@ export class NgTableComponent implements OnDestroy {
   readonly rowKeyAccessor = input<((row: any) => unknown) | null>(null);
   /** Show/hide the built-in "reset all filters" button. */
   readonly showResetFilters = input(true);
+  /**
+   * Délai (ms) avant qu'une saisie dans un filtre texte ne soit prise en compte.
+   * Evite de refiltrer (mode `local`) ou de lancer une requête (mode `remote`) à chaque
+   * caractère. Mettre `0` pour un filtrage immédiat. Les filtres à choix fixe
+   * (select/enum/booléen/date) ne sont jamais debouncés.
+   */
+  readonly filterDebounceMs = input(350);
   /** Show a leading checkbox column to select one or many rows. */
   readonly rowSelectionEnabled = input(false);
   /** Controlled mode (key based): externally managed selected row keys. */
@@ -325,8 +347,27 @@ export class NgTableComponent implements OnDestroy {
   readonly filteredCountChange = output<number>();
   /** `dataMode='local'` + `pageTrackingEnabled=true` only: emitted with `0` when a filter/sort change should reset the current page. */
   readonly pageIndexChange = output<number>();
+  readonly displayedColumnIds = computed(
+    () => {
+      // Colonne technique de selection injectee en tete quand activee.
+      const ids = this.visibleColumns().map((column) => column.id);
+      if (!this.isMobileView()) {
+        return this.rowSelectionEnabled() ? [this.selectionColumnId, ...ids] : ids;
+      }
 
-  readonly effectiveLabels = computed<NgTableLabels>(() => ({...NG_TABLE_DEFAULT_LABELS, ...this.labels()}));
+      const actionColumn = this.actionColumn();
+      if (!actionColumn) {
+        return ids;
+      }
+
+      const withoutActions = ids.filter((id) => id !== actionColumn.id);
+      const mobileIds = withoutActions.length > 0 ? withoutActions : ids;
+      return this.rowSelectionEnabled() ? [this.selectionColumnId, ...mobileIds] : mobileIds;
+    },
+    // La liste est passée à `matHeaderRowDef`/`matRowDef` : garder la même référence
+    // quand les ids n'ont pas changé évite à mat-table de reconstruire ses colonnes.
+    {equal: (a, b) => a.length === b.length && a.every((id, index) => id === b[index])},
+  );
 
   readonly columnsMenuItems = computed(() =>
     this.columns().filter((column) => column.id !== '__detail_row__' && column.id !== '__mobile_actions__'),
@@ -453,32 +494,17 @@ export class NgTableComponent implements OnDestroy {
     return this.actionColumn() ? [this.mobileActionsColumnId] : [];
   });
   private readonly selectionColumnId = '__row_selection__';
-  readonly displayedColumnIds = computed(() => {
-    // Colonne technique de selection injectee en tete quand activee.
-    const ids = this.visibleColumns().map((column) => column.id);
-    if (!this.isMobileView()) {
-      return this.rowSelectionEnabled() ? [this.selectionColumnId, ...ids] : ids;
-    }
-
-    const actionColumn = this.actionColumn();
-    if (!actionColumn) {
-      return ids;
-    }
-
-    const withoutActions = ids.filter((id) => id !== actionColumn.id);
-    const mobileIds = withoutActions.length > 0 ? withoutActions : ids;
-    return this.rowSelectionEnabled() ? [this.selectionColumnId, ...mobileIds] : mobileIds;
-  });
-  readonly hasColumns = computed(() => this.displayedColumnIds().length > 0);
   /**
    * Free-typed filter keystrokes flow through here instead of committing straight to
    * `columnFilters`. Grouped by column so typing in one field never resets another
    * field's debounce timer (`groupBy` + `mergeMap` keeps each column's debounce
-   * independent), then `debounceTime` collapses rapid keystrokes into one commit —
+   * independent), then `debounce` collapses rapid keystrokes into one commit —
    * which in `remote` mode means one request instead of one per character.
    */
   private readonly filterInputSubject = new Subject<{ columnId: string; value: string; epoch: number }>();
-  private filterInputSubscription: Subscription | null = null;
+  readonly hasColumns = computed(() => this.displayedColumnIds().length > 0);
+  /** Labels applicatifs fournis via `provideNgTableLabels()` (optionnels). */
+  private readonly injectedLabels = inject(NG_TABLE_LABELS, {optional: true});
   private readonly filterEpochByColumn = new Map<string, number>();
   private readonly internalColumnVisibility = signal<Record<string, boolean>>({});
   private readonly internalColumnOrder = signal<string[]>([]);
@@ -489,12 +515,43 @@ export class NgTableComponent implements OnDestroy {
 
   private readonly collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   private resizingState: { columnId: string; startX: number; startWidth: number } | null = null;
+  /**
+   * Labels effectifs : défauts de la librairie < labels injectés pour toute
+   * l'application (`provideNgTableLabels`) < `[labels]` de cette instance.
+   *
+   * `equal` est essentiel ici : un consommateur peut écrire
+   * `[labels]="{columnsButton: 'X' | translate}"`, ce qui recrée l'objet à chaque
+   * cycle de détection. La comparaison par valeur garde alors la référence
+   * précédente, donc les composants enfants (`OnPush`) ne sont pas invalidés
+   * inutilement.
+   */
+  readonly effectiveLabels = computed<NgTableLabels>(
+    () => ({
+      ...NG_TABLE_DEFAULT_LABELS,
+      ...resolveNgTableLabelsSource(this.injectedLabels),
+      ...this.labels(),
+    }),
+    {equal: ngTableLabelsEqual},
+  );
+  private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** Ancre du menu contextuel, une fois déplacée dans `document.body` (voir `onRowContextMenu`). */
+  private contextMenuAnchor: HTMLElement | null = null;
+  /**
+   * Ecouteur de scroll installé uniquement pendant qu'un menu de filtre est ouvert.
+   * Enregistré hors binding Angular (`addEventListener` direct, `passive`) pour ne pas
+   * déclencher un cycle de détection à chaque pixel scrollé de la page.
+   */
+  private scrollListener: (() => void) | null = null;
 
   constructor() {
-    this.filterInputSubscription = this.filterInputSubject
+    this.filterInputSubject
       .pipe(
         groupBy((entry) => entry.columnId),
-        mergeMap((group) => group.pipe(debounceTime(350))),
+        // `debounce(() => timer(...))` plutôt que `debounceTime(...)` : le délai est relu
+        // à chaque frappe, donc `[filterDebounceMs]` reste modifiable à chaud (et peut
+        // être mis à 0 dans les tests).
+        mergeMap((group) => group.pipe(debounce(() => timer(this.filterDebounceMs())))),
+        takeUntilDestroyed(),
       )
       .subscribe((entry) => {
         if (entry.epoch !== this.filterEpoch(entry.columnId)) {
@@ -653,7 +710,10 @@ export class NgTableComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopResize();
-    this.filterInputSubscription?.unsubscribe();
+    this.stopScrollTracking();
+    // L'ancre a été déplacée dans `document.body` : elle n'est plus détruite avec la vue.
+    this.contextMenuAnchor?.remove();
+    this.contextMenuAnchor = null;
   }
 
   onHeaderSort(column: NgTableColumn<any>): void {
@@ -779,6 +839,13 @@ export class NgTableComponent implements OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
+    // `table-layout: fixed` ignore `min-width`/`max-width` sur les cellules : sans
+    // largeur explicite, les colonnes voisines absorbent la place et s'écrasent sous
+    // leur `minWidthPx` (leur contenu débordant alors sur la colonne suivante). On fige
+    // donc la largeur rendue de toutes les colonnes avant de commencer le drag : chacune
+    // garde sa taille, et le tableau déborde en scroll horizontal comme attendu.
+    this.freezeRenderedColumnWidths(event.target as HTMLElement | null);
+
     const widthMap = this.columnWidths();
     const startWidth = widthMap[column.id] ?? column.widthPx ?? 180;
     this.resizingState = {
@@ -799,8 +866,7 @@ export class NgTableComponent implements OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
-    const handle = event.target as HTMLElement | null;
-    const table = handle?.closest('table.ng-table') as HTMLElement | null;
+    const table = this.resolveTableElement(event.target as HTMLElement | null);
     if (!table) {
       return;
     }
@@ -821,12 +887,16 @@ export class NgTableComponent implements OnDestroy {
 
       const computed = window.getComputedStyle(cell);
       const padding = (parseFloat(computed.paddingLeft) || 0) + (parseFloat(computed.paddingRight) || 0);
-      measured = Math.max(measured, Math.ceil(preferredNode.scrollWidth + padding + 14));
+      measured = Math.max(measured, Math.ceil(this.measureNaturalWidth(preferredNode) + padding + 14));
     }
 
     const minWidth = column.minWidthPx ?? 120;
     const maxWidth = column.maxWidthPx ?? 620;
     const nextWidth = Math.max(minWidth, Math.min(maxWidth, measured));
+
+    // Les colonnes voisines doivent aussi être figées, sinon l'auto-fit d'une colonne
+    // écrase les autres exactement comme un drag (cf. `freezeRenderedColumnWidths`).
+    this.freezeRenderedColumnWidths(table);
 
     this.columnWidths.update((current) => ({
       ...current,
@@ -834,6 +904,50 @@ export class NgTableComponent implements OnDestroy {
     }));
 
     this.requestFilterPositionUpdate();
+  }
+
+  onRowContextMenu(event: MouseEvent, row: any): void {
+    if (!this.rowContextMenuEnabled() || !this.rowContextMenuTemplate()) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuRow.set(row);
+    // Small offset keeps the pointer visible and makes the menu feel anchored to the click.
+    this.contextMenuPosition.set({x: event.clientX + 2, y: event.clientY + 2});
+    this.detachContextMenuAnchorFromHost();
+    this.rowContextMenu.emit({
+      row,
+      position: {x: event.clientX, y: event.clientY},
+    });
+
+    const trigger = this.contextMenuTriggerRef();
+    if (!trigger) {
+      return;
+    }
+
+    if (trigger.menuOpen) {
+      trigger.closeMenu();
+    }
+    // Wait one frame so overlay origin position is fully updated before opening.
+    requestAnimationFrame(() => trigger.openMenu());
+  }
+
+  onFilterMenuOpened(columnId: string, trigger: MatMenuTrigger, filter: NgTableFilterConfig): void {
+    this.activeFilterColumnId.set(columnId);
+    this.activeFilterTrigger.set(trigger);
+    this.startScrollTracking();
+    void this.ensureLazyFilterOptions(columnId, filter);
+    this.requestFilterPositionUpdate();
+  }
+
+  onFilterMenuClosed(columnId: string): void {
+    if (this.activeFilterColumnId() === columnId) {
+      this.activeFilterColumnId.set(null);
+      this.activeFilterTrigger.set(null);
+      this.stopScrollTracking();
+    }
   }
 
   columnWidthPx(column: NgTableColumn<any>): number | null {
@@ -869,35 +983,42 @@ export class NgTableComponent implements OnDestroy {
     }
   }
 
-  onRowContextMenu(event: MouseEvent, row: any): void {
-    if (!this.rowContextMenuEnabled() || !this.rowContextMenuTemplate()) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    this.contextMenuRow.set(row);
-    // Small offset keeps the pointer visible and makes the menu feel anchored to the click.
-    this.contextMenuPosition.set({x: event.clientX + 2, y: event.clientY + 2});
-    this.rowContextMenu.emit({
-      row,
-      position: {x: event.clientX, y: event.clientY},
-    });
-
-    const trigger = this.contextMenuTriggerRef();
-    if (!trigger) {
-      return;
-    }
-
-    if (trigger.menuOpen) {
-      trigger.closeMenu();
-    }
-    // Wait one frame so overlay origin position is fully updated before opening.
-    requestAnimationFrame(() => trigger.openMenu());
+  isFilterOptionsLoading(columnId: string): boolean {
+    return this.lazyFilterLoading()[columnId] ?? false;
   }
 
   onRowContextMenuClosed(): void {
     this.contextMenuRow.set(null);
+  }
+
+  /**
+   * Donne une largeur explicite à chaque colonne visible qui n'en a pas encore, à
+   * partir de sa largeur réellement rendue — condition pour qu'un redimensionnement
+   * n'écrase pas les colonnes voisines (cf. `table-layout: fixed`).
+   */
+  private freezeRenderedColumnWidths(fromElement: HTMLElement | null): void {
+    const table = this.resolveTableElement(fromElement);
+    if (!table) {
+      return;
+    }
+
+    const measured: Record<string, number> = {};
+    for (const candidate of this.visibleColumns()) {
+      if (this.columnWidths()[candidate.id] !== undefined) {
+        continue;
+      }
+      const headerCell = table.querySelector<HTMLElement>(
+        `th.mat-column-${this.escapeCssToken(candidate.id)}`,
+      );
+      const width = headerCell?.getBoundingClientRect().width ?? 0;
+      if (width > 0) {
+        measured[candidate.id] = Math.round(width);
+      }
+    }
+
+    if (Object.keys(measured).length > 0) {
+      this.columnWidths.update((current) => ({...measured, ...current}));
+    }
   }
 
   /** Programmatic toggle of a row detail (uncontrolled mode only). */
@@ -1165,26 +1286,79 @@ export class NgTableComponent implements OnDestroy {
     queueMicrotask(() => trigger.closeMenu());
   }
 
-  onFilterMenuOpened(columnId: string, trigger: MatMenuTrigger, filter: NgTableFilterConfig): void {
-    this.activeFilterColumnId.set(columnId);
-    this.activeFilterTrigger.set(trigger);
-    void this.ensureLazyFilterOptions(columnId, filter);
-    this.requestFilterPositionUpdate();
+  private resolveTableElement(fromElement: HTMLElement | null): HTMLElement | null {
+    return (
+      (fromElement?.closest('table.ng-table') as HTMLElement | null)
+      ?? this.hostElement.nativeElement.querySelector<HTMLElement>('table.ng-table')
+    );
   }
 
-  onFilterMenuClosed(columnId: string): void {
-    if (this.activeFilterColumnId() === columnId) {
-      this.activeFilterColumnId.set(null);
-      this.activeFilterTrigger.set(null);
+  /**
+   * Largeur naturelle du contenu d'un nœud, indépendamment de la largeur imposée à sa
+   * colonne. On ne peut pas se contenter de `scrollWidth` : le nœud est déjà contraint,
+   * et comme les cellules sont en `overflow: visible`, `scrollWidth` renvoie ~la largeur
+   * de la boîte, pas celle du contenu — d'où un auto-fit systématiquement trop étroit.
+   * On dé-contraint donc le nœud le temps d'une mesure, puis on restaure ses styles.
+   */
+  private measureNaturalWidth(node: HTMLElement): number {
+    const previousWidth = node.style.width;
+    const previousMaxWidth = node.style.maxWidth;
+    const previousWhiteSpace = node.style.whiteSpace;
+
+    node.style.width = 'max-content';
+    node.style.maxWidth = 'none';
+    node.style.whiteSpace = 'nowrap';
+
+    const natural = Math.max(node.scrollWidth, node.getBoundingClientRect().width);
+
+    node.style.width = previousWidth;
+    node.style.maxWidth = previousMaxWidth;
+    node.style.whiteSpace = previousWhiteSpace;
+
+    return natural;
+  }
+
+  /**
+   * L'ancre du menu contextuel est en `position: fixed` : si un ancêtre du composant
+   * porte `backdrop-filter`, `transform`, `filter` ou `perspective`, cet ancêtre devient
+   * le bloc conteneur des éléments `fixed` et le menu s'ouvre au mauvais endroit.
+   * On déplace donc l'ancre dans `document.body` au premier clic droit — le composant
+   * reste ainsi correct quel que soit le contexte de mise en page du consommateur.
+   */
+  private detachContextMenuAnchorFromHost(): void {
+    if (this.contextMenuAnchor || typeof document === 'undefined') {
+      return;
     }
+    const anchor = this.hostElement.nativeElement.querySelector<HTMLElement>('.context-menu-anchor');
+    if (!anchor || anchor.parentElement === document.body) {
+      return;
+    }
+    document.body.appendChild(anchor);
+    this.contextMenuAnchor = anchor;
+  }
+
+  /**
+   * Le menu de filtre est en overlay : il doit se repositionner quand la page défile.
+   * L'écouteur est posé hors Angular (pas de `@HostListener`) et seulement tant qu'un
+   * menu est ouvert — un `window:scroll` bindé en permanence déclencherait un cycle de
+   * détection à chaque événement de scroll de l'application entière.
+   */
+  private startScrollTracking(): void {
+    if (this.scrollListener || typeof window === 'undefined') {
+      return;
+    }
+    const listener = () => this.requestFilterPositionUpdate();
+    window.addEventListener('scroll', listener, {passive: true, capture: true});
+    this.scrollListener = () => window.removeEventListener('scroll', listener, {capture: true});
   }
 
   onTableWrapScroll(): void {
     this.requestFilterPositionUpdate();
   }
 
-  isFilterOptionsLoading(columnId: string): boolean {
-    return this.lazyFilterLoading()[columnId];
+  private stopScrollTracking(): void {
+    this.scrollListener?.();
+    this.scrollListener = null;
   }
 
   /** Message d'erreur à afficher pour les options de filtre de cette colonne (vide = pas d'erreur). */
@@ -1210,11 +1384,6 @@ export class NgTableComponent implements OnDestroy {
   @HostListener('window:resize')
   onWindowResize(): void {
     this.isMobileView.set(window.innerWidth <= 760);
-    this.requestFilterPositionUpdate();
-  }
-
-  @HostListener('window:scroll')
-  onWindowScroll(): void {
     this.requestFilterPositionUpdate();
   }
 
@@ -1644,7 +1813,13 @@ export class NgTableComponent implements OnDestroy {
   }
 
   private escapeCssToken(value: string): string {
-    return (value ?? '').replace(/[^a-zA-Z0-9_-]/g, (match) => `\\${match}`);
+    const raw = value ?? '';
+    // `CSS.escape` gère correctement tous les cas (chiffre en tête, unicode...) ;
+    // repli manuel pour les environnements qui ne l'exposent pas (certains jsdom).
+    if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+      return CSS.escape(raw);
+    }
+    return raw.replace(/[^a-zA-Z0-9_-]/g, (match) => `\\${match}`);
   }
 
   private matchesAllFilters(

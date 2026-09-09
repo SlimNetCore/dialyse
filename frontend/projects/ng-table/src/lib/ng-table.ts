@@ -1,10 +1,6 @@
-import {Component} from '@angular/core';
-
-@Component({
-  selector: 'lib-ng-table',
-  imports: [],
-  template: ` <p>ng-table works!</p> `,
-  styles: ``,
-})
-export class NgTable {
-}
+/**
+ * Point d'entrée historique généré par `ng generate library` — conservé pour ne casser
+ * aucun import `./ng-table`. Le composant réel vit dans `ng-table.component.ts`.
+ */
+export * from './ng-table.component';
+export * from './ng-table-labels';

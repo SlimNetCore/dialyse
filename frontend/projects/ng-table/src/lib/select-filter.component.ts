@@ -17,7 +17,7 @@ import {MatInputModule} from '@angular/material/input';
     MatButtonModule,
   ],
   templateUrl: './select-filter.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './select-filter.component.css',
 })
 export class SelectFilterComponent {

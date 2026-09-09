@@ -63,7 +63,7 @@ export type ColumnFilterType =
     SelectFilterComponent,
   ],
   templateUrl: './column-filter-renderer.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './column-filter-renderer.component.css',
 })
 export class ColumnFilterRendererComponent {

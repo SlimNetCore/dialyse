@@ -36,7 +36,6 @@
 }
 
 .ng-table .mat-mdc-header-cell,
-.ng-table .mat-mdc-cell,
 .ng-table .mat-mdc-header-row,
 .ng-table .mat-mdc-row {
   overflow: visible;
@@ -45,6 +44,21 @@
 .ng-table .mat-mdc-header-cell {
   position: relative;
   overflow: visible;
+}
+
+/* Les cellules de données, elles, doivent couper leur contenu : en `table-layout:
+   fixed`, une colonne peut devenir plus étroite que son contenu (redimensionnement
+   d'une voisine), et sans découpe le contenu se superposerait à la colonne suivante.
+   Exclut la ligne de détail et la ligne d'actions mobile, qui occupent toute la
+   largeur et doivent rester libres. */
+.ng-table td.mat-mdc-cell:not(.detail-row):not(.mobile-actions-cell) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ng-table td.mat-mdc-cell:not(.detail-row):not(.mobile-actions-cell) .cell-content {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .selection-header-cell,
@@ -312,6 +326,13 @@
 .ngt-filter-menu-panel ng-table-column-filter {
   width: min(100%, 320px);
   margin-inline: auto;
+}
+
+/* Le filtre "plage de dates" utilise toute la largeur disponible du panneau (au lieu
+   d'être bridé à 320px) — sans élargir le panneau lui-même, qui garde sa taille
+   standard pour tous les types de filtres. */
+.ngt-filter-menu-panel ng-table-column-filter:has(.date-range-field) {
+  width: 100%;
 }
 
 /* --- Saved views ----------------------------------------------------- */

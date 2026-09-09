@@ -51,7 +51,7 @@
               (keydown.enter)="saveCurrentAsView(newViewName())"
               [value]="newViewName()"
               class="views-name-input"
-              placeholder="Nom de la vue"
+              [placeholder]="effectiveLabels().viewNamePlaceholder"
               type="text"
             />
             <button
@@ -59,7 +59,7 @@
               [disabled]="!newViewName().trim()"
               class="views-save-btn"
               mat-icon-button
-              title="Enregistrer la vue actuelle"
+              [title]="effectiveLabels().saveView"
               type="button"
             >
               <mat-icon>save</mat-icon>
@@ -74,14 +74,15 @@
                   <mat-icon>{{ view.id === activeViewId() ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
                   <span>{{ view.name }}</span>
                 </button>
-                <button (click)="deleteView(view)" class="view-row-delete" mat-icon-button title="Supprimer la vue"
+                <button (click)="deleteView(view)" [title]="effectiveLabels().deleteView" class="view-row-delete"
+                        mat-icon-button
                         type="button">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
             }
           } @else {
-            <p class="views-empty-note">Aucune vue enregistrée</p>
+            <p class="views-empty-note">{{ effectiveLabels().noSavedViews }}</p>
           }
         </div>
       </mat-menu>
@@ -158,7 +159,7 @@
                 (dragstart)="onColumnDragStart($event, column)"
                 [attr.draggable]="!isMobileView()"
                 class="drag-handle"
-                title="Glisser pour réordonner"
+                [title]="effectiveLabels().dragToReorder"
               >
                 <mat-icon>drag_indicator</mat-icon>
               </span>

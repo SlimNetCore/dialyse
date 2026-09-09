@@ -22,7 +22,7 @@ type SubscribableOutput<T> = {
   selector: 'ng-table-dynamic-filter-host',
   standalone: true,
   template: '<ng-container #host></ng-container>',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicFilterHostComponent {
   readonly component = input<Type<unknown> | null>(null);
