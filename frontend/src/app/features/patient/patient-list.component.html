@@ -74,7 +74,7 @@
       @if (loading()) {
         <app-hemodialysis-loader label="COMMON.LOADING_DATA" mode="overlay" sizePreset="small"/>
       }
-      <app-configurable-list
+      <ng-table
         (cellCopied)="onListCellCopied($event)"
         (columnVisibilityChange)="onColumnVisibilityChange($event)"
         (filteredCountChange)="onFilteredCountChange($event)"
@@ -86,13 +86,14 @@
         [columns]="allColumnDefs()"
         [columnVisibility]="visibleColumns()"
         [dataMode]="dataMode"
-        [emptyLabelKey]="'PATIENT_LIST.EMPTY'"
+        [emptyLabel]="ngTableEmptyLabel()"
+        [labels]="ngTableLabels()"
         [filters]="columnFilters()"
         [inlineFilterColumnIds]="patientInlineFilterColumnIds"
         [inlineFilters]="true"
         [pageIndex]="pageIndex()"
         [pageSize]="pageSize()"
-        [paginationEnabled]="true"
+        [pageTrackingEnabled]="true"
         [rowSelectionEnabled]="true"
         [rowClassFn]="rowClassResolver"
         [rowContextMenuEnabled]="true"

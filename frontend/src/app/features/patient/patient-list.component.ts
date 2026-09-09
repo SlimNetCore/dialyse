@@ -35,12 +35,13 @@ import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {RefItem, ReferentialApiService} from '../../core/api/referential-api.service';
 import {
-  ConfigurableListComponent,
-  SharedListColumn,
-  SharedListCopyEvent,
-  SharedListRemoteQuery,
-  SharedListView,
-} from '../../shared/configurable-list.component';
+  NgTableColumn,
+  NgTableComponent,
+  NgTableCopyEvent,
+  NgTableLabels,
+  NgTableRemoteQuery,
+  NgTableView,
+} from 'ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
 
 export interface PatientRow {
@@ -83,7 +84,7 @@ export interface PatientRow {
     PatientQrCardComponent,
     PatientSummaryCardsComponent,
     HemodialysisLoaderComponent,
-    ConfigurableListComponent,
+    NgTableComponent,
   ],
   templateUrl: './patient-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -124,15 +125,62 @@ export class PatientListComponent {
     pecForfaitId: false,
     actions: true,
   });
-  readonly sexeFilterOptions = [
-    {value: 'M', label: 'PATIENT_FORM.MASCULIN'},
-    {value: 'F', label: 'PATIENT_FORM.FEMININ'},
-  ];
-  readonly pecFilterOptions = [
-    {value: 'CREE', label: 'STATUS.CREE_TITLE'},
-    {value: 'VALIDEE', label: 'STATUS.VALIDEE_TITLE'},
-    {value: 'CLOTUREE', label: 'STATUS.CLOTUREE_TITLE'},
-  ];
+  /** Incrémenté à chaque changement de langue — dépendance pour recalculer tout ce qui est traduit "à la main" pour ng-table. */
+  private readonly langVersion = signal(0);
+  /**
+   * ng-table n'a plus de pipe `translate` interne (voir `NgTableColumn.filter.options`,
+   * qui attend désormais du texte déjà résolu) — ces options sont donc traduites ici,
+   * et recalculées à chaque changement de langue via `langVersion`.
+   */
+  readonly sexeFilterOptions = computed(() => {
+    this.langVersion();
+    return [
+      {value: 'M', label: this.translate.instant('PATIENT_FORM.MASCULIN')},
+      {value: 'F', label: this.translate.instant('PATIENT_FORM.FEMININ')},
+    ];
+  });
+  readonly pecFilterOptions = computed(() => {
+    this.langVersion();
+    return [
+      {value: 'CREE', label: this.translate.instant('STATUS.CREE_TITLE')},
+      {value: 'VALIDEE', label: this.translate.instant('STATUS.VALIDEE_TITLE')},
+      {value: 'CLOTUREE', label: this.translate.instant('STATUS.CLOTUREE_TITLE')},
+    ];
+  });
+  /** Textes de l'UI ng-table (boutons, aria-labels...), résolus via ngx-translate et recalculés à chaque changement de langue. */
+  readonly ngTableLabels = computed<Partial<NgTableLabels>>(() => {
+    this.langVersion();
+    return {
+      columnsButton: this.translate.instant('COMMON.COLUMNS_BUTTON'),
+      viewsButton: this.translate.instant('COMMON.VIEWS_BUTTON'),
+      resetFiltersButton: this.translate.instant('COMMON.RESET_FILTERS_BUTTON'),
+      clearFilter: this.translate.instant('COMMON.CLEAR_FILTER'),
+      activeFilters: this.translate.instant('COMMON.ACTIVE_FILTERS'),
+      // ngx-translate interpole {{field}} ; ng-table interpole son propre jeton {field} —
+      // on demande à ngx-translate de remplacer {{field}} par le jeton littéral '{field}'.
+      filterBy: this.translate.instant('COMMON.FILTER_BY', {field: '{field}'}),
+      refOptionsLoading: this.translate.instant('COMMON.REF_OPTIONS_LOADING'),
+      refOptionsEmpty: this.translate.instant('COMMON.REF_OPTIONS_EMPTY'),
+      refOptionsLoadError: this.translate.instant('COMMON.REF_OPTIONS_LOAD_ERROR'),
+      dateStart: this.translate.instant('COMMON.DATE_START'),
+      dateEnd: this.translate.instant('COMMON.DATE_END'),
+      ok: this.translate.instant('COMMON.OK'),
+      cancel: this.translate.instant('PATIENT_FORM.BTN_CANCEL'),
+      all: this.translate.instant('COMMON.ALL'),
+      search: this.translate.instant('COMMON.SEARCH'),
+      yes: this.translate.instant('COMMON.YES'),
+      no: this.translate.instant('COMMON.NO'),
+      // sort/sortAsc/sortDesc/copy : pas de clé COMMON.SORT*/COMMON.COPY dans ce projet
+      // (bug latent préexistant — ces aria-labels/tooltips affichaient la clé brute avec
+      // l'ancien composant). Laissés aux défauts français de ng-table, une amélioration
+      // dans tous les cas par rapport à l'affichage d'une clé non traduite.
+    };
+  });
+  /** `[emptyLabel]` de ng-table, résolu et recalculé à chaque changement de langue. */
+  readonly ngTableEmptyLabel = computed(() => {
+    this.langVersion();
+    return this.translate.instant('PATIENT_LIST.EMPTY');
+  });
   readonly summaryMonth = this.patientListStore.summaryMonth;
   readonly rows = this.patientListStore.rows;
   readonly loading = this.patientListStore.loading;
@@ -185,71 +233,74 @@ export class PatientListComponent {
   protected readonly nullableTextCellTemplate = viewChild<TemplateRef<any>>('nullableTextCell');
   protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
 
-  private readonly allColumnDefsById = computed<Record<string, SharedListColumn<PatientRow>>>(() => ({
+  private readonly allColumnDefsById = computed<Record<string, NgTableColumn<PatientRow>>>(() => {
+    this.langVersion(); // ng-table.header/filter.label sont du texte résolu — recalculer à chaque changement de langue
+    const t = (key: string) => this.translate.instant(key);
+    return {
     numeroAssurance: {
       id: 'numeroAssurance',
-      headerKey: 'PATIENT_LIST.COL_ASSURANCE',
+      header: t('PATIENT_LIST.COL_ASSURANCE'),
       valueAccessor: (row) => row.numeroAssurance ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 170,
-      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_ASSURANCE'},
-      copy: {valueAccessor: (row) => row.numeroAssurance ?? '', tooltipKey: 'PATIENT_LIST.COPY_TOOLTIP'},
+      filter: {type: 'text', label: t('PATIENT_LIST.COL_ASSURANCE')},
+      copy: {valueAccessor: (row) => row.numeroAssurance ?? '', tooltip: t('PATIENT_LIST.COPY_TOOLTIP')},
       cellTemplate: this.assuranceCellTemplate() ?? undefined,
     },
     code: {
       id: 'code',
-      headerKey: 'PATIENT_LIST.COL_CODE',
+      header: t('PATIENT_LIST.COL_CODE'),
       valueAccessor: (row) => row.code ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 140,
-      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_CODE'},
-      copy: {valueAccessor: (row) => row.code ?? '', tooltipKey: 'PATIENT_LIST.COPY_TOOLTIP'},
+      filter: {type: 'text', label: t('PATIENT_LIST.COL_CODE')},
+      copy: {valueAccessor: (row) => row.code ?? '', tooltip: t('PATIENT_LIST.COPY_TOOLTIP')},
       cellTemplate: this.codeCellTemplate() ?? undefined,
     },
     nom: {
       id: 'nom',
-      headerKey: 'PATIENT_LIST.COL_NOM',
+      header: t('PATIENT_LIST.COL_NOM'),
       valueAccessor: (row) => row.nom ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 180,
-      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_NOM'},
+      filter: {type: 'text', label: t('PATIENT_LIST.COL_NOM')},
       cellTemplate: this.nomCellTemplate() ?? undefined,
     },
     prenom: {
       id: 'prenom',
-      headerKey: 'PATIENT_LIST.COL_PRENOM',
+      header: t('PATIENT_LIST.COL_PRENOM'),
       valueAccessor: (row) => row.prenom ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 170,
-      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_PRENOM'},
+      filter: {type: 'text', label: t('PATIENT_LIST.COL_PRENOM')},
     },
     sexe: {
       id: 'sexe',
-      headerKey: 'PATIENT_LIST.COL_SEXE',
+      header: t('PATIENT_LIST.COL_SEXE'),
       valueAccessor: (row) => row.sexe ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 120,
       maxWidthPx: 140,
-      filter: {type: 'enum', options: this.sexeFilterOptions, labelKey: 'PATIENT_LIST.COL_SEXE'},
+      filter: {type: 'enum', options: this.sexeFilterOptions(), label: t('PATIENT_LIST.COL_SEXE')},
       cellTemplate: this.sexeCellTemplate() ?? undefined,
     },
     dateAdmission: {
       id: 'dateAdmission',
-      headerKey: 'PATIENT_LIST.COL_DATE_ADMISSION',
+      header: t('PATIENT_LIST.COL_DATE_ADMISSION'),
       valueAccessor: (row) => row.dateAdmission ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 170,
-      filter: {type: 'date', labelKey: 'PATIENT_LIST.COL_DATE_ADMISSION'},
+      filter: {type: 'date', label: t('PATIENT_LIST.COL_DATE_ADMISSION')},
     },
     etatPatient: {
       id: 'etatPatient',
-      headerKey: 'PATIENT_LIST.COL_ETAT',
+      header: t('PATIENT_LIST.COL_ETAT'),
       valueAccessor: (row) => row.etatPatient ?? '',
       sortable: true,
       resizable: true,
@@ -257,93 +308,93 @@ export class PatientListComponent {
       filter: {
         type: 'enum',
         optionsLoader: () => this.loadEtatFilterOptionsFromReferential(),
-        labelKey: 'PATIENT_LIST.COL_ETAT',
+        label: t('PATIENT_LIST.COL_ETAT'),
       },
       cellTemplate: this.etatCellTemplate() ?? undefined,
     },
     nonFacturable: {
       id: 'nonFacturable',
-      headerKey: 'PATIENT_LIST.BILLING_LABEL',
+      header: t('PATIENT_LIST.BILLING_LABEL'),
       valueAccessor: (row) => !!row.nonFacturable,
       sortable: true,
       resizable: true,
       minWidthPx: 170,
-      filter: {type: 'boolean', labelKey: 'PATIENT_LIST.BILLING_LABEL'},
+      filter: {type: 'boolean', label: t('PATIENT_LIST.BILLING_LABEL')},
       cellTemplate: this.facturationCellTemplate() ?? undefined,
     },
     pecStatus: {
       id: 'pecStatus',
-      headerKey: 'PATIENT_LIST.COL_PEC',
+      header: t('PATIENT_LIST.COL_PEC'),
       valueAccessor: (row) => row.pecStatus ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 145,
-      filter: {type: 'enum', options: this.pecFilterOptions, labelKey: 'PATIENT_LIST.COL_PEC'},
+      filter: {type: 'enum', options: this.pecFilterOptions(), label: t('PATIENT_LIST.COL_PEC')},
       cellTemplate: this.pecStatusCellTemplate() ?? undefined,
     },
     medecinTraitantId: {
       id: 'medecinTraitantId',
-      headerKey: 'PATIENT_FORM.MEDECIN_TRAITANT',
+      header: t('PATIENT_FORM.MEDECIN_TRAITANT'),
       valueAccessor: (row) => row.medecinTraitantId ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 175,
-      filter: {type: 'text', labelKey: 'PATIENT_FORM.MEDECIN_TRAITANT'},
+      filter: {type: 'text', label: t('PATIENT_FORM.MEDECIN_TRAITANT')},
       cellTemplate: this.nullableTextCellTemplate() ?? undefined,
     },
     positionId: {
       id: 'positionId',
-      headerKey: 'PATIENT_FORM.POSITION',
+      header: t('PATIENT_FORM.POSITION'),
       valueAccessor: (row) => row.positionId ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'PATIENT_FORM.POSITION'},
+      filter: {type: 'text', label: t('PATIENT_FORM.POSITION')},
       cellTemplate: this.nullableTextCellTemplate() ?? undefined,
     },
     transporteurAllerId: {
       id: 'transporteurAllerId',
-      headerKey: 'PATIENT_FORM.TRANSPORTEUR_ALLER',
+      header: t('PATIENT_FORM.TRANSPORTEUR_ALLER'),
       valueAccessor: (row) => row.transporteurAllerId ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 185,
-      filter: {type: 'text', labelKey: 'PATIENT_FORM.TRANSPORTEUR_ALLER'},
+      filter: {type: 'text', label: t('PATIENT_FORM.TRANSPORTEUR_ALLER')},
       cellTemplate: this.nullableTextCellTemplate() ?? undefined,
     },
     transporteurRetourId: {
       id: 'transporteurRetourId',
-      headerKey: 'PATIENT_FORM.TRANSPORTEUR_RETOUR',
+      header: t('PATIENT_FORM.TRANSPORTEUR_RETOUR'),
       valueAccessor: (row) => row.transporteurRetourId ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 190,
-      filter: {type: 'text', labelKey: 'PATIENT_FORM.TRANSPORTEUR_RETOUR'},
+      filter: {type: 'text', label: t('PATIENT_FORM.TRANSPORTEUR_RETOUR')},
       cellTemplate: this.nullableTextCellTemplate() ?? undefined,
     },
     joursDialyse: {
       id: 'joursDialyse',
-      headerKey: 'PATIENT_FORM.JOURS_DIALYSE',
+      header: t('PATIENT_FORM.JOURS_DIALYSE'),
       valueAccessor: (row) => this.dialyseDaysAsFilterText(row),
       sortable: false,
       resizable: true,
       minWidthPx: 190,
-      filter: {type: 'text', labelKey: 'PATIENT_FORM.JOURS_DIALYSE'},
+      filter: {type: 'text', label: t('PATIENT_FORM.JOURS_DIALYSE')},
       cellTemplate: this.joursDialyseCellTemplate() ?? undefined,
     },
     pecForfaitId: {
       id: 'pecForfaitId',
-      headerKey: 'PATIENT_LIST.COL_FORFAIT',
+      header: t('PATIENT_LIST.COL_FORFAIT'),
       valueAccessor: (row) => row.pecForfaitId ?? '',
       sortable: true,
       resizable: true,
       minWidthPx: 160,
-      filter: {type: 'text', labelKey: 'PATIENT_LIST.COL_FORFAIT'},
+      filter: {type: 'text', label: t('PATIENT_LIST.COL_FORFAIT')},
       cellTemplate: this.nullableTextCellTemplate() ?? undefined,
     },
     actions: {
       id: 'actions',
-      headerKey: 'PATIENT_LIST.COL_ACTIONS',
+      header: t('PATIENT_LIST.COL_ACTIONS'),
       valueAccessor: () => '',
       sortable: false,
       resizable: false,
@@ -353,7 +404,8 @@ export class PatientListComponent {
       maxWidthPx: 300,
       cellTemplate: this.actionsCellTemplate() ?? undefined,
     },
-  }));
+    };
+  });
   private readonly orderedColumnKeys = [
     'numeroAssurance',
     'code',
@@ -372,7 +424,7 @@ export class PatientListComponent {
     'pecForfaitId',
     'actions',
   ] as const;
-  readonly allColumnDefs = computed<SharedListColumn<PatientRow>[]>(() => {
+  readonly allColumnDefs = computed<NgTableColumn<PatientRow>[]>(() => {
     const defsById = this.allColumnDefsById();
     return this.orderedColumnKeys.flatMap((key) => {
       const column = defsById[key];
@@ -388,6 +440,7 @@ export class PatientListComponent {
 
   constructor() {
     this.patientListStore.setDataMode(this.dataMode);
+    this.translate.onLangChange.subscribe(() => this.langVersion.update((v) => v + 1));
 
     effect(() => {
       const evt = this.ws.lastEvent();
@@ -451,7 +504,7 @@ export class PatientListComponent {
    * Sort, column order and filters are either uncontrolled or already wired through
    * (filtersChange), so they don't need extra handling here.
    */
-  onViewActivated(view: SharedListView | null): void {
+  onViewActivated(view: NgTableView | null): void {
     if (!view) return;
     this.visibleColumns.set({...view.state.columnVisibility});
   }
@@ -473,7 +526,7 @@ export class PatientListComponent {
    * change reports the full current query here in one shot. No-op in `local` mode
    * (the component never emits this there).
    */
-  onRemoteQueryChange(query: SharedListRemoteQuery): void {
+  onRemoteQueryChange(query: NgTableRemoteQuery): void {
     this.patientListStore.applyRemoteQuery(query);
   }
 
@@ -496,7 +549,7 @@ export class PatientListComponent {
     setTimeout(() => this.patientListStore.setPrintingRowId(null), 10000);
   }
 
-  onListCellCopied(event: SharedListCopyEvent<PatientRow>): void {
+  onListCellCopied(event: NgTableCopyEvent<PatientRow>): void {
     const value = event?.value ?? '';
     const fieldKey = `${event.columnId}_${event.row?.id ?? ''}`;
     if (!value) return;
@@ -612,7 +665,7 @@ export class PatientListComponent {
       .filter((value, index, values) => !!value && values.indexOf(value) === index)
       .map((value) => ({
         value,
-        label: `PATIENT_FORM.${value}`,
+        label: this.translate.instant(`PATIENT_FORM.${value}`),
       }));
   }
 

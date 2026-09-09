@@ -84,6 +84,32 @@
           "builder": "@angular/build:unit-test"
         }
       }
+    },
+    "ng-table": {
+      "projectType": "library",
+      "root": "projects/ng-table",
+      "sourceRoot": "projects/ng-table/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ng-table/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ng-table/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/ng-table/tsconfig.spec.json"
+          }
+        }
+      }
     }
   }
 }
