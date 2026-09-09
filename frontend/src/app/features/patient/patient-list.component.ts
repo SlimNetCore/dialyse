@@ -41,7 +41,7 @@ import {
   NgTableLabels,
   NgTableRemoteQuery,
   NgTableView,
-} from 'ng-table';
+} from '@sbourahla/ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
 
 export interface PatientRow {

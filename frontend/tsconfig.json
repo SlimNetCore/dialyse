@@ -7,11 +7,6 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
-    "paths": {
-      "ng-table": [
-        "./dist/ng-table"
-      ]
-    },
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -35,12 +30,6 @@
     },
     {
       "path": "./tsconfig.spec.json"
-    },
-    {
-      "path": "./projects/ng-table/tsconfig.lib.json"
-    },
-    {
-      "path": "./projects/ng-table/tsconfig.spec.json"
     }
   ]
 }
