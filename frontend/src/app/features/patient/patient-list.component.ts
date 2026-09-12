@@ -36,13 +36,13 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {RefItem, ReferentialApiService} from '../../core/api/referential-api.service';
 import {
   NgTableColumn,
-  NgTableComponent,
   NgTableCopyEvent,
   NgTableLabels,
   NgTableRemoteQuery,
   NgTableView,
 } from '@sbourahla/ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
+import {NgTableComponent} from '../../../../../../ngTable/dist/ng-table';
 
 export interface PatientRow {
   id: string;
@@ -84,6 +84,7 @@ export interface PatientRow {
     PatientQrCardComponent,
     PatientSummaryCardsComponent,
     HemodialysisLoaderComponent,
+    NgTableComponent,
     NgTableComponent,
   ],
   templateUrl: './patient-list.component.html',
@@ -275,6 +276,7 @@ export class PatientListComponent {
       valueAccessor: (row) => row.prenom ?? '',
       sortable: true,
       resizable: true,
+      textOverflow: 'truncate',
       minWidthPx: 170,
       filter: {type: 'text', label: t('PATIENT_LIST.COL_PRENOM')},
     },
@@ -721,5 +723,10 @@ export class PatientListComponent {
       .replace(/\s+/g, '_')
       .toUpperCase()
       .trim();
+  }
+
+  onExportRequested(event: any) {
+    // Handle the remote export request here
+    console.log(event);
   }
 }

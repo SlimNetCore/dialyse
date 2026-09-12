@@ -18,6 +18,7 @@ import {MAT_FORM_FIELD_DEFAULT_OPTIONS, type MatFormFieldDefaultOptions} from '@
 import {routes} from './app.routes';
 import {authInterceptor} from './core/api/auth.interceptor';
 import {BackendInitService} from './core/startup/backend-init.service';
+import {provideNgTablePaginatorIntl} from '@sbourahla/ng-table';
 
 export const materialFormFieldDefaults: MatFormFieldDefaultOptions = {
   subscriptSizing: 'dynamic',
@@ -56,5 +57,6 @@ export const appConfig: ApplicationConfig = {
     {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: materialFormFieldDefaults},
     provideAppInitializer(initTranslations),
     provideAppInitializer(initBackendFlow),
+    provideNgTablePaginatorIntl(),
   ],
 };

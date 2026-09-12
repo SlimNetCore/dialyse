@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.license.LicenseService;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AppUserJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.AppUserJpaRepository;
 import com.hemodialyse.backend.infrastructure.persistence.spec.UserSpecifications;
@@ -31,14 +30,13 @@ public class UserRestController {
     private final JdbcTemplate jdbc;
     private final PasswordEncoder passwordEncoder;
     private final AppUserJpaRepository userRepository;
-    private final LicenseService licenseService;
+    //private final LicenseService licenseService;
 
-    public UserRestController(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, AppUserJpaRepository userRepository,
-                              LicenseService licenseService) {
+    public UserRestController(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, AppUserJpaRepository userRepository) {
         this.jdbc = jdbc;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.licenseService = licenseService;
+        //this.licenseService = licenseService;
     }
 
     @GetMapping
@@ -108,11 +106,11 @@ public class UserRestController {
             return ResponseEntity.badRequest().body(Map.of("error", "Nom d'utilisateur déjà existant"));
         }
 
-        if (req.active() && req.centerIds() != null) {
+        /*if (req.active() && req.centerIds() != null) {
             for (UUID centerId : req.centerIds()) {
                 licenseService.assertSeatAvailable(centerId);
             }
-        }
+        }*/
 
         List<UUID> assignableRoleIds = filterAssignableRoleIds(req.roleIds(), authentication);
 

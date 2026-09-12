@@ -71,10 +71,10 @@
     />
 
     <div class="table-container">
-      @if (loading()) {
-        <app-hemodialysis-loader label="COMMON.LOADING_DATA" mode="overlay" sizePreset="small"/>
-      }
       <ng-table
+        (remoteExportRequested)="onExportRequested($event)"
+        [exportEnabled]="true"
+        [exportMode]="'remote'"
         (cellCopied)="onListCellCopied($event)"
         (columnVisibilityChange)="onColumnVisibilityChange($event)"
         (filteredCountChange)="onFilteredCountChange($event)"
@@ -102,7 +102,13 @@
         [showActiveFiltersBar]="true"
         [viewsEnabled]="true"
         [viewsStorageKey]="'patient-list'"
+        [loadingTemplate]="patientLoadingTemplate"
+        [loading]="loading()"
       />
+
+      <ng-template #patientLoadingTemplate>
+        <app-hemodialysis-loader label="COMMON.LOADING_DATA" mode="overlay" sizePreset="small"/>
+      </ng-template>
 
       <ng-template #patientRowContextMenu let-row>
         <button (click)="selectPatient.emit(row)" mat-menu-item type="button">
