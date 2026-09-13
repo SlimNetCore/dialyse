@@ -34,7 +34,8 @@ public class DossierMedicalPatientDomainService implements DossierMedicalPatient
                                         LocalDate dateMiseEnDialyse,
                                         String hepatiteBStatut,
                                         String hepatiteCStatut,
-                                        String observationGlobale) {
+                                        String observationGlobale,
+                                        String conclusionMedicale) {
         DossierMedicalPatient dossier = repository.findByPatientId(patientId, centerId)
                 .orElseGet(DossierMedicalPatient::new);
 
@@ -51,6 +52,7 @@ public class DossierMedicalPatientDomainService implements DossierMedicalPatient
         dossier.setHepatiteBStatut(hepatiteBStatut);
         dossier.setHepatiteCStatut(hepatiteCStatut);
         dossier.setObservationGlobale(observationGlobale);
+        dossier.setConclusionMedicale(conclusionMedicale);
         dossier.setUpdatedAt(now);
 
         return repository.save(dossier);

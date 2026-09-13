@@ -426,6 +426,16 @@
                       {{ savingParamedical() ? ('COMMON.SAVING' | translate) : ('SEANCES.SAVE_PARAMEDICAL_BTN' | translate) }}
                     </button>
                   </div>
+
+                  @if (summary(); as s) {
+                    <app-administration-anemie-seance
+                      [canEdit]="canAdministerAnemie()"
+                      [centerId]="currentCenterId()"
+                      [patientId]="s.seance.patientId"
+                      [seanceDate]="s.seance.dateSeance"
+                      [seanceId]="s.seance.id"
+                    ></app-administration-anemie-seance>
+                  }
                 </div>
               </mat-tab>
 
@@ -545,60 +555,6 @@
                       {{ 'SEANCES.SESSION_ALREADY_VALIDATED' | translate }}
                     </div>
                   }
-                </div>
-              </mat-tab>
-
-              <mat-tab [label]="'SEANCES.TAB_MEDICAL' | translate">
-                <div class="tab-body">
-                  <div class="form-grid">
-                    <div class="full-width">
-                      <label class="form-label">{{ 'CAHIER.MEDICAL_TOLERANCE' | translate }}</label>
-                      <app-rich-text-editor
-                        (contentChange)="onToleranceSeanceRichChange($event)"
-                        [readOnly]="!canEditMedical()"
-                        [value]="toleranceSeance()"
-                        height="250px"
-                      ></app-rich-text-editor>
-                    </div>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'CAHIER.MEDICAL_EXAMEN' | translate }}</mat-label>
-                      <textarea (input)="onExamenCliniqueInput($event)" [disabled]="!canEditMedical()"
-                                [value]="examenClinique()" matInput rows="3"></textarea>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'CAHIER.MEDICAL_BIO' | translate }}</mat-label>
-                      <textarea (input)="onResultatsBiologiquesInput($event)" [disabled]="!canEditMedical()"
-                                [value]="resultatsBiologiques()" matInput rows="3"></textarea>
-                    </mat-form-field>
-                    <div class="full-width">
-                      <label class="form-label">{{ 'CAHIER.MEDICAL_AJUSTEMENTS' | translate }}</label>
-                      <app-rich-text-editor
-                        (contentChange)="onAjustementsTherapeutiquesRichChange($event)"
-                        [readOnly]="!canEditMedical()"
-                        [value]="ajustementsTherapeutiques()"
-                        height="250px"
-                      ></app-rich-text-editor>
-                    </div>
-                    <div class="full-width">
-                      <label class="form-label">{{ 'CAHIER.MEDICAL_CONCLUSION' | translate }}</label>
-                      <app-rich-text-editor
-                        (contentChange)="onConclusionMedicaleRichChange($event)"
-                        [readOnly]="!canEditMedical()"
-                        [value]="conclusionMedicale()"
-                        height="250px"
-                      ></app-rich-text-editor>
-                    </div>
-                  </div>
-                  @if (!canEditMedical()) {
-                    <p class="section-note">{{ 'SEANCES.MEDICAL_READONLY_NOTE' | translate }}</p>
-                  }
-                  <div class="action-row">
-                    <button (click)="saveMedical()" [disabled]="savingMedical() || !canEditMedical()" color="accent"
-                            mat-flat-button type="button">
-                      <mat-icon>medical_services</mat-icon>
-                      {{ savingMedical() ? ('COMMON.SAVING' | translate) : ('SEANCES.SAVE_MEDICAL_BTN' | translate) }}
-                    </button>
-                  </div>
                 </div>
               </mat-tab>
             </mat-tab-group>

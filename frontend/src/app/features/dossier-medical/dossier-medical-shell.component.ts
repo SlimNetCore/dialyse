@@ -52,6 +52,7 @@ export class DossierMedicalShellComponent implements OnInit {
     {path: 'biologie', label: 'DOSSIER_MEDICAL.TAB_BIOLOGIE', icon: 'biotech'},
     {path: 'anemie', label: 'DOSSIER_MEDICAL.TAB_ANEMIE', icon: 'bloodtype'},
     {path: 'constantes', label: 'DOSSIER_MEDICAL.TAB_CONSTANTES', icon: 'monitor_heart'},
+    {path: 'ordonnances', label: 'DOSSIER_MEDICAL.TAB_ORDONNANCES', icon: 'medication'},
   ];
   private readonly route = inject(ActivatedRoute);
   protected readonly patientId = resolvePatientIdFromRoute(this.route);

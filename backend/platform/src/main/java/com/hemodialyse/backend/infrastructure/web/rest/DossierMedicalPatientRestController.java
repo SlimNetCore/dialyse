@@ -76,7 +76,8 @@ public class DossierMedicalPatientRestController {
                 request.dateMiseEnDialyse(),
                 request.hepatiteBStatut(),
                 request.hepatiteCStatut(),
-                request.observationGlobale()
+                request.observationGlobale(),
+                request.conclusionMedicale()
         );
         return new EntityWriteResponse(dossier.getId(), dossier.getPatientId(), dossier.getUpdatedAt());
     }

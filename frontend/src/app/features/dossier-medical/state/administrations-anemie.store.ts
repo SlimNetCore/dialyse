@@ -3,11 +3,7 @@ import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, of, pipe, switchMap, tap} from 'rxjs';
-import {
-  AdministrationTraitement,
-  CreateAdministrationTraitementPayload,
-  DossierMedicalApiService,
-} from '../../../core/api/dossier-medical-api.service';
+import {AdministrationTraitement, DossierMedicalApiService} from '../../../core/api/dossier-medical-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 
 type AdministrationsAnemieState = PagedListState<AdministrationTraitement> & {
@@ -23,7 +19,10 @@ const initialState: AdministrationsAnemieState = {
   activePatientId: null,
 };
 
-/** Historique des administrations réelles du traitement de l'anémie (EPO, fer injectable). */
+/**
+ * Historique en lecture seule des administrations réelles du traitement de l'anémie (EPO, fer
+ * injectable) — la saisie se fait pendant la séance (responsabilité de l'infirmier), pas ici.
+ */
 export const AdministrationsAnemieStore = signalStore(
   {providedIn: 'root'},
   withState(initialState),
@@ -65,24 +64,8 @@ export const AdministrationsAnemieStore = signalStore(
       load({centerId, patientId, page: store.pageIndex(), size: store.pageSize()});
     };
 
-    const create = rxMethod<{ patientId: string; payload: CreateAdministrationTraitementPayload }>(
-      pipe(
-        tap(() => patchState(store, {error: null})),
-        switchMap(({patientId, payload}) =>
-          api.createAdministrationAnemie(patientId, payload).pipe(
-            tap(() => refresh()),
-            catchError((err: any) => {
-              patchState(store, {error: err?.error?.detail || err?.statusText || 'Erreur enregistrement'});
-              return of(null);
-            }),
-          ),
-        ),
-      ),
-    );
-
     return {
       load,
-      create,
       setPagination(pageIndex: number, pageSize: number): void {
         patchState(store, {pageIndex, pageSize});
         refresh();

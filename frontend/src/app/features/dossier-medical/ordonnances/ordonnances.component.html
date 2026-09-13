@@ -1,0 +1,165 @@
+<div class="ordonnances-container">
+  @if (store.error()) {
+    <div class="ordonnances-error">{{ store.error() }}</div>
+  }
+
+  <div class="ordonnances-toolbar">
+    @if (access.canEdit()) {
+      <button (click)="openCreateForm()" color="primary" mat-flat-button type="button">
+        <mat-icon>add</mat-icon>
+        {{ 'DOSSIER_MEDICAL.ADD_ORDONNANCE' | translate }}
+      </button>
+      <button (click)="exportFhir()" [disabled]="exporting()" mat-stroked-button type="button">
+        <mat-icon>download</mat-icon>
+        {{ 'DOSSIER_MEDICAL.EXPORT_FHIR' | translate }}
+      </button>
+    }
+  </div>
+
+  @if (formOpen()) {
+    <mat-card class="ordonnance-form">
+      <div class="ordonnance-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DATE_PRESCRIPTION' | translate }} *</mat-label>
+          <input (dateChange)="onValue('datePrescription', $event.value)" [matDatepicker]="dpPicker"
+                 [value]="form.value().datePrescription" matInput/>
+          <mat-datepicker-toggle [for]="dpPicker" matSuffix/>
+          <mat-datepicker #dpPicker/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.PRESCRIPTEUR' | translate }}</mat-label>
+          <input (input)="onValue('medecinId', $any($event.target).value)" [value]="form.value().medecinId" matInput/>
+        </mat-form-field>
+      </div>
+
+      <div class="ordonnance-lignes">
+        <div class="ordonnance-lignes-header">{{ 'DOSSIER_MEDICAL.MEDICAMENTS' | translate }}</div>
+        @for (ligne of form.value().lignes; track $index) {
+          <div class="ordonnance-ligne-card">
+            <div class="ordonnance-ligne-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DOSSIER_MEDICAL.CODE_ATC' | translate }}</mat-label>
+                <input (input)="onLigneValue($index, 'code', $any($event.target).value)" [value]="ligne.code"
+                       matInput placeholder="B03XA02"/>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }} *</mat-label>
+                <input (input)="onLigneValue($index, 'codeDisplay', $any($event.target).value)"
+                       [value]="ligne.codeDisplay" matInput/>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="ordonnance-ligne-full">
+                <mat-label>{{ 'DOSSIER_MEDICAL.POSOLOGIE' | translate }} *</mat-label>
+                <input (input)="onLigneValue($index, 'posologie', $any($event.target).value)"
+                       [value]="ligne.posologie" matInput placeholder="1 comprimé matin et soir"/>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
+                <input (input)="onLigneValue($index, 'voie', $any($event.target).value)" [value]="ligne.voie"
+                       matInput/>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DOSSIER_MEDICAL.DUREE_JOURS' | translate }}</mat-label>
+                <input (input)="onLigneNumber($index, 'dureeJours', $any($event.target).value)"
+                       [value]="ligne.dureeJours" matInput type="number"/>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DOSSIER_MEDICAL.QUANTITE' | translate }}</mat-label>
+                <input (input)="onLigneNumber($index, 'quantite', $any($event.target).value)"
+                       [value]="ligne.quantite" matInput type="number"/>
+              </mat-form-field>
+            </div>
+            <button (click)="removeLigne($index)" mat-icon-button type="button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+        <button (click)="addLigne()" mat-stroked-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'DOSSIER_MEDICAL.ADD_LIGNE' | translate }}
+        </button>
+      </div>
+
+      <div class="ordonnance-form-actions">
+        <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" color="primary" mat-flat-button type="button">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </mat-card>
+  }
+
+  @if (store.loading()) {
+    <div class="ordonnances-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <div class="ordonnances-list">
+      @for (ordonnance of store.rows(); track ordonnance.id) {
+        <mat-card class="ordonnance-card">
+          <div class="ordonnance-card-header">
+            <div class="ordonnance-card-title">
+              <mat-icon>medication</mat-icon>
+              <span class="ordonnance-date">{{ ordonnance.datePrescription }}</span>
+              @if (ordonnance.numero) {
+                <span class="ordonnance-numero">N° {{ ordonnance.numero }}</span>
+              }
+              <span [class]="'statut-' + ordonnance.statut" class="ordonnance-statut-badge">
+                {{ ('STATUT_ORDONNANCE.' + ordonnance.statut) | translate }}
+              </span>
+            </div>
+          </div>
+
+          <div class="ordonnance-lignes-list">
+            @for (ligne of ordonnance.lignes; track ligne.id) {
+              <div class="ordonnance-ligne-row">
+                <span class="ligne-medicament">{{ ligne.codeDisplay || ligne.libelle }}</span>
+                <span class="ligne-posologie">{{ ligne.posologie }}</span>
+                @if (ligne.dureeJours) {
+                  <span class="ligne-duree">{{ ligne.dureeJours }} j</span>
+                }
+              </div>
+            }
+          </div>
+
+          @if (access.canEdit()) {
+            <div class="ordonnance-actions">
+              @if (ordonnance.statut === 'BROUILLON') {
+                <button (click)="signer(ordonnance)" color="primary" mat-flat-button type="button">
+                  <mat-icon>draw</mat-icon>
+                  {{ 'DOSSIER_MEDICAL.SIGNER' | translate }}
+                </button>
+                <button (click)="annuler(ordonnance)" mat-stroked-button type="button">
+                  {{ 'DOSSIER_MEDICAL.ANNULER' | translate }}
+                </button>
+              }
+              @if (ordonnance.statut === 'SIGNEE' || ordonnance.statut === 'IMPRIMEE') {
+                <button (click)="imprimer(ordonnance)" mat-stroked-button type="button">
+                  <mat-icon>print</mat-icon>
+                  {{ (ordonnance.statut === 'SIGNEE' ? 'DOSSIER_MEDICAL.IMPRIMER' : 'DOSSIER_MEDICAL.REIMPRIMER') | translate }}
+                </button>
+              }
+              @if (ordonnance.statut !== 'ANNULEE') {
+                <button (click)="annuler(ordonnance)" [matTooltip]="'DOSSIER_MEDICAL.ANNULER' | translate"
+                        mat-icon-button type="button">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        </mat-card>
+      }
+      @if (store.rows().length === 0) {
+        <div class="ordonnances-empty">{{ 'DOSSIER_MEDICAL.NO_ORDONNANCES' | translate }}</div>
+      }
+    </div>
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  }
+</div>

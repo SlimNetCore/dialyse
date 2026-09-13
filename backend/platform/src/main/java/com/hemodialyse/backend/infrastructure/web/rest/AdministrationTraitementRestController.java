@@ -25,7 +25,10 @@ import java.util.UUID;
  * Administrations réelles du traitement de l'anémie (EPO, fer injectable) — distinctes de la
  * prescription : ce qui a effectivement été donné au patient, pas seulement ce qui était prévu.
  * <p>
- * Accès réservé au corps médical : le MEDECIN écrit, l'ADMIN consulte.
+ * L'administration est la responsabilité de l'INFIRMIER, effectuée pendant la séance en suivant
+ * la prescription du MEDECIN en vigueur à sa date (voir {@code /prescriptions/active}). Le
+ * MEDECIN garde la capacité d'enregistrer une administration lui-même (cas exceptionnel) et
+ * consulte l'historique complet ; l'ADMIN consulte seulement.
  */
 @RestController
 @RequestMapping("/api/v1/patients")
@@ -40,7 +43,7 @@ public class AdministrationTraitementRestController {
         this.centerAccessGuard = centerAccessGuard;
     }
 
-    @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")
+    @PreAuthorize("hasAnyRole('MEDECIN','ADMIN','INFIRMIER')")
     @GetMapping("/{patientId}/administrations-anemie")
     public ResponseEntity<PagedResponse<AdministrationTraitementResponse>> list(
             @PathVariable UUID patientId,
@@ -52,7 +55,7 @@ public class AdministrationTraitementRestController {
         return ResponseEntity.ok(PagedResponse.from(paged, AdministrationTraitementResponse::from));
     }
 
-    @PreAuthorize("hasRole('MEDECIN')")
+    @PreAuthorize("hasAnyRole('INFIRMIER','MEDECIN')")
     @PostMapping("/{patientId}/administrations-anemie")
     public ResponseEntity<AdministrationTraitementResponse> create(
             @PathVariable UUID patientId, @RequestBody @Valid CreateAdministrationTraitementRequest request) {

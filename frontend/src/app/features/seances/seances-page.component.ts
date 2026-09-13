@@ -34,6 +34,7 @@ import {WebSocketService} from '../../core/ws/websocket.service';
 import {SeanceStore} from './state/seance.store';
 import {RichTextEditorComponent} from '../../shared/rich-text-editor/rich-text-editor.component';
 import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
+import {AdministrationAnemieSeanceComponent} from './administration-anemie/administration-anemie-seance.component';
 
 type BarcodeDetectorInstance = {
   detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
@@ -45,7 +46,8 @@ Chart.register(...registerables);
   standalone: true,
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, MatPaginatorModule,
-    TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent, ConfigurableListComponent],
+    TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent, ConfigurableListComponent,
+    AdministrationAnemieSeanceComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',
@@ -84,7 +86,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly editDateSeance = computed(() => this.store.editDateSeance());
   protected readonly savingDate = computed(() => this.store.savingDate());
   protected readonly savingParamedical = computed(() => this.store.savingParamedical());
-  protected readonly savingMedical = computed(() => this.store.savingMedical());
   protected readonly validatingSeance = computed(() => this.store.validatingSeance());
   protected readonly summary = computed(() => this.store.summary());
   protected readonly taAvant = computed(() => this.store.taAvant());
@@ -97,12 +98,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly anticoagulant = computed(() => this.store.anticoagulant());
   protected readonly typeDialysat = computed(() => this.store.typeDialysat());
   protected readonly incidents = computed(() => this.store.incidents());
-  protected readonly prescription = computed(() => this.store.prescription());
-  protected readonly toleranceSeance = computed(() => this.store.toleranceSeance());
-  protected readonly examenClinique = computed(() => this.store.examenClinique());
-  protected readonly resultatsBiologiques = computed(() => this.store.resultatsBiologiques());
-  protected readonly ajustementsTherapeutiques = computed(() => this.store.ajustementsTherapeutiques());
-  protected readonly conclusionMedicale = computed(() => this.store.conclusionMedicale());
   protected readonly selectionLoading = computed(() => this.store.summaryLoading());
   protected readonly journalPatientCols = ['patient', 'code', 'status'];
   protected readonly dashboardDetailCols = ['date', 'patient', 'weekday', 'status'];
@@ -126,7 +121,10 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly canEditParamedical = computed(() =>
     this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE') && !this.isSeanceFacturee()
   );
-  protected readonly canEditMedical = computed(() => this.hasAnyRole('ADMIN', 'MEDECIN') && !this.isSeanceFacturee());
+  protected readonly canAdministerAnemie = computed(() =>
+    this.hasAnyRole('INFIRMIER', 'MEDECIN') && !this.isSeanceFacturee()
+  );
+  protected readonly currentCenterId = computed(() => this.appShell.currentCenterId());
   protected readonly patientCellTemplate = viewChild<TemplateRef<any>>('patientCell');
   protected readonly statusCellTemplate = viewChild<TemplateRef<any>>('statusCell');
   protected readonly forfaitCellTemplate = viewChild<TemplateRef<any>>('forfaitCell');
@@ -382,42 +380,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.patchParamedical({incidents: content ?? ''});
   }
 
-  protected onToleranceSeanceRichChange(content: string): void {
-    this.store.patchMedical({toleranceSeance: content ?? ''});
-  }
-
-  protected onAjustementsTherapeutiquesRichChange(content: string): void {
-    this.store.patchMedical({ajustementsTherapeutiques: content ?? ''});
-  }
-
-  protected onConclusionMedicaleRichChange(content: string): void {
-    this.store.patchMedical({conclusionMedicale: content ?? ''});
-  }
-
-  protected onPrescriptionInput(e: Event): void {
-    this.store.patchMedical({prescription: (e.target as HTMLTextAreaElement)?.value ?? ''});
-  }
-
-  protected onToleranceSeanceInput(e: Event): void {
-    this.store.patchMedical({toleranceSeance: (e.target as HTMLTextAreaElement)?.value ?? ''});
-  }
-
-  protected onExamenCliniqueInput(e: Event): void {
-    this.store.patchMedical({examenClinique: (e.target as HTMLTextAreaElement)?.value ?? ''});
-  }
-
-  protected onResultatsBiologiquesInput(e: Event): void {
-    this.store.patchMedical({resultatsBiologiques: (e.target as HTMLTextAreaElement)?.value ?? ''});
-  }
-
-  protected onAjustementsTherapeutiquesInput(e: Event): void {
-    this.store.patchMedical({ajustementsTherapeutiques: (e.target as HTMLTextAreaElement)?.value ?? ''});
-  }
-
-  protected onConclusionMedicaleInput(e: Event): void {
-    this.store.patchMedical({conclusionMedicale: (e.target as HTMLTextAreaElement)?.value ?? ''});
-  }
-
   protected triggerImagePicker(): void {
     if (!this.canScanSeances()) {
       this.snackBar.open(
@@ -550,24 +512,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
         anticoagulant: nullableText(this.store.anticoagulant()),
         typeDialysat: nullableText(this.store.typeDialysat()),
         incidents: nullableText(this.store.incidents()),
-      }
-    });
-  }
-
-  protected saveMedical(): void {
-    const centerId = this.appShell.currentCenterId();
-    const seanceId = this.store.summary()?.seance.id;
-    if (!centerId || !seanceId || !this.canEditMedical()) return;
-    this.store.saveMedical({
-      seanceId,
-      payload: {
-        centerId,
-        prescription: nullableText(this.store.prescription()),
-        toleranceSeance: nullableText(this.store.toleranceSeance()),
-        examenClinique: nullableText(this.store.examenClinique()),
-        resultatsBiologiques: nullableText(this.store.resultatsBiologiques()),
-        ajustementsTherapeutiques: nullableText(this.store.ajustementsTherapeutiques()),
-        conclusionMedicale: nullableText(this.store.conclusionMedicale())
       }
     });
   }

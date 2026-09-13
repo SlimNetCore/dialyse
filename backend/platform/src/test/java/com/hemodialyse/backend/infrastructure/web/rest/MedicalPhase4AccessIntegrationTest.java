@@ -100,10 +100,26 @@ class MedicalPhase4AccessIntegrationTest {
     }
 
     @Test
-    void infirmier_should_not_access_administrations() throws Exception {
+    void infirmier_should_read_and_create_administrations() throws Exception {
         mockMvc.perform(get("/api/v1/patients/{id}/administrations-anemie", PATIENT_ID)
                         .param("centerId", CENTER_ID.toString())
                         .with(user(principal("infirmier", CENTER_ID, "INFIRMIER"))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/v1/patients/{id}/administrations-anemie", PATIENT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(administrationBody(CENTER_ID, true, null))
+                        .with(user(principal("infirmier", CENTER_ID, "INFIRMIER"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.administree").value(true));
+    }
+
+    @Test
+    void infirmier_of_other_center_should_not_create_administrations() throws Exception {
+        mockMvc.perform(post("/api/v1/patients/{id}/administrations-anemie", PATIENT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(administrationBody(CENTER_ID, true, null))
+                        .with(user(principal("infirmier", OTHER_CENTER_ID, "INFIRMIER"))))
                 .andExpect(status().isForbidden());
     }
 
@@ -175,6 +191,30 @@ class MedicalPhase4AccessIntegrationTest {
         mockMvc.perform(get("/api/v1/patients/{id}/constantes", PATIENT_ID)
                         .param("centerId", CENTER_ID.toString())
                         .with(user(principal("infirmier", CENTER_ID, "INFIRMIER"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void infirmier_should_read_active_prescription_for_seance() throws Exception {
+        mockMvc.perform(get("/api/v1/patients/{id}/prescriptions/active", PATIENT_ID)
+                        .param("centerId", CENTER_ID.toString())
+                        .with(user(principal("infirmier", CENTER_ID, "INFIRMIER"))))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void secretaire_should_not_read_active_prescription() throws Exception {
+        mockMvc.perform(get("/api/v1/patients/{id}/prescriptions/active", PATIENT_ID)
+                        .param("centerId", CENTER_ID.toString())
+                        .with(user(principal("secretaire", CENTER_ID, "SECRETAIRE"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void infirmier_of_other_center_should_not_read_active_prescription() throws Exception {
+        mockMvc.perform(get("/api/v1/patients/{id}/prescriptions/active", PATIENT_ID)
+                        .param("centerId", CENTER_ID.toString())
+                        .with(user(principal("infirmier", OTHER_CENTER_ID, "INFIRMIER"))))
                 .andExpect(status().isForbidden());
     }
 

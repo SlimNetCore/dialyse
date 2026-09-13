@@ -13,6 +13,9 @@ import com.hemodialyse.backend.domain.medical.examen.port.DemandeExamenRepositor
 import com.hemodialyse.backend.domain.medical.examen.service.DemandeExamenDomainService;
 import com.hemodialyse.backend.domain.medical.observation.port.ObservationBiologiqueRepositoryPort;
 import com.hemodialyse.backend.domain.medical.observation.service.ObservationBiologiqueDomainService;
+import com.hemodialyse.backend.domain.medical.ordonnance.port.OrdonnanceNumeroGeneratorPort;
+import com.hemodialyse.backend.domain.medical.ordonnance.port.OrdonnanceRepositoryPort;
+import com.hemodialyse.backend.domain.medical.ordonnance.service.OrdonnanceDomainService;
 import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
@@ -142,6 +145,12 @@ public class DomainServiceConfig {
     public AdministrationTraitementDomainService administrationTraitementDomainService(
             AdministrationTraitementRepositoryPort repo) {
         return new AdministrationTraitementDomainService(repo);
+    }
+
+    @Bean
+    public OrdonnanceDomainService ordonnanceDomainService(OrdonnanceRepositoryPort repo,
+                                                           OrdonnanceNumeroGeneratorPort numeroGenerator) {
+        return new OrdonnanceDomainService(repo, numeroGenerator);
     }
 
     @Bean

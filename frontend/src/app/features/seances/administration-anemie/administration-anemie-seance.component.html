@@ -1,0 +1,126 @@
+<mat-card class="admin-anemie-card">
+  <h3 class="admin-anemie-title">
+    <mat-icon>vaccines</mat-icon>
+    {{ 'SEANCES.ADMINISTRATION_ANEMIE_TITLE' | translate }}
+  </h3>
+
+  @if (error()) {
+    <div class="admin-anemie-error">{{ error() }}</div>
+  }
+
+  @if (loadingPrescription()) {
+    <div class="admin-anemie-loading">
+      <mat-progress-spinner diameter="24" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else if (!prescription()) {
+    <p class="admin-anemie-note">{{ 'SEANCES.NO_ACTIVE_PRESCRIPTION' | translate }}</p>
+  } @else {
+    <div class="prescription-cards">
+      <div class="prescription-card">
+        <span class="prescription-label">EPO</span>
+        @if (prescription()!.epoMolecule) {
+          <span class="prescription-detail">
+            {{ prescription()!.epoMolecule }}
+            @if (prescription()!.epoDoseUi) {
+              — {{ prescription()!.epoDoseUi }} UI {{ prescription()!.epoVoie }} {{ prescription()!.epoFrequence }}
+            }
+          </span>
+          @if (canEdit()) {
+            <button (click)="openCreateForm('EPO')" [disabled]="alreadyAdministered('EPO')" color="primary"
+                    mat-stroked-button type="button">
+              <mat-icon>{{ alreadyAdministered('EPO') ? 'check_circle' : 'add' }}</mat-icon>
+              {{ (alreadyAdministered('EPO') ? 'SEANCES.ADMINISTERED_TODAY' : 'SEANCES.ADMINISTER') | translate }}
+            </button>
+          }
+        } @else {
+          <span class="prescription-detail prescription-none">{{ 'DOSSIER_MEDICAL.NO_PRESCRIPTION' | translate }}</span>
+        }
+      </div>
+
+      <div class="prescription-card">
+        <span class="prescription-label">{{ 'DOSSIER_MEDICAL.FER' | translate }}</span>
+        @if (prescription()!.ferMolecule) {
+          <span class="prescription-detail">
+            {{ prescription()!.ferMolecule }}
+            @if (prescription()!.ferDoseMg) {
+              — {{ prescription()!.ferDoseMg }} mg {{ prescription()!.ferVoie }} {{ prescription()!.ferFrequence }}
+            }
+          </span>
+          @if (canEdit()) {
+            <button (click)="openCreateForm('FER_INJECTABLE')" [disabled]="alreadyAdministered('FER_INJECTABLE')"
+                    color="primary" mat-stroked-button type="button">
+              <mat-icon>{{ alreadyAdministered('FER_INJECTABLE') ? 'check_circle' : 'add' }}</mat-icon>
+              {{ (alreadyAdministered('FER_INJECTABLE') ? 'SEANCES.ADMINISTERED_TODAY' : 'SEANCES.ADMINISTER') | translate }}
+            </button>
+          }
+        } @else {
+          <span class="prescription-detail prescription-none">{{ 'DOSSIER_MEDICAL.NO_PRESCRIPTION' | translate }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  @if (formOpen()) {
+    <div class="admin-form">
+      <div class="admin-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }} *</mat-label>
+          <input (input)="onValue('molecule', $any($event.target).value)" [value]="form.value().molecule" matInput/>
+        </mat-form-field>
+
+        <div class="admin-checkbox">
+          <mat-checkbox (change)="onValue('administree', $event.checked)" [checked]="form.value().administree">
+            {{ 'DOSSIER_MEDICAL.ADMINISTREE' | translate }}
+          </mat-checkbox>
+        </div>
+
+        @if (form.value().administree) {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.DOSE' | translate }}</mat-label>
+            <input (input)="onNumber('dose', $any($event.target).value)" [value]="form.value().dose" matInput
+                   step="0.1" type="number"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.UNITE_DOSE' | translate }}</mat-label>
+            <input (input)="onValue('uniteDose', $any($event.target).value)" [value]="form.value().uniteDose" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
+            <input (input)="onValue('voie', $any($event.target).value)" [value]="form.value().voie" matInput/>
+          </mat-form-field>
+        } @else {
+          <mat-form-field appearance="outline" class="admin-form-full">
+            <mat-label>{{ 'DOSSIER_MEDICAL.MOTIF_NON_ADMINISTRATION' | translate }} *</mat-label>
+            <input (input)="onValue('motifNonAdministration', $any($event.target).value)"
+                   [value]="form.value().motifNonAdministration" matInput/>
+          </mat-form-field>
+        }
+      </div>
+
+      <div class="admin-form-actions">
+        <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" [disabled]="saving()" color="primary" mat-flat-button type="button">
+          <mat-icon>save</mat-icon>
+          {{ (saving() ? 'COMMON.SAVING' : 'COMMON.SAVE') | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (!loadingAdministrations() && administrationsSeance().length > 0) {
+    <div class="admin-history">
+      <div class="admin-history-title">{{ 'SEANCES.ADMINISTERED_THIS_SESSION' | translate }}</div>
+      @for (admin of administrationsSeance(); track admin.id) {
+        <div class="admin-history-row">
+          <mat-icon [class.icon-ko]="!admin.administree" [class.icon-ok]="admin.administree">
+            {{ admin.administree ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+          <span>{{ ('ANEMIE_TYPE.' + admin.typeTraitement) | translate }}</span>
+          <span class="admin-history-detail">
+            {{ admin.administree ? (admin.molecule + ' ' + (admin.dose ?? '') + ' ' + (admin.uniteDose ?? '')) : admin.motifNonAdministration }}
+          </span>
+        </div>
+      }
+    </div>
+  }
+</mat-card>

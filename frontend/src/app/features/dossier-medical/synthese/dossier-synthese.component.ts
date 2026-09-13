@@ -21,6 +21,7 @@ interface SyntheseModel {
   hepatiteBStatut: string;
   hepatiteCStatut: string;
   observationGlobale: string;
+  conclusionMedicale: string;
 }
 
 const HEPATITE_B_STATUTS = ['NEGATIF', 'PORTEUR', 'VACCINE', 'IMMUNE', 'INCONNU'] as const;
@@ -65,6 +66,7 @@ export class DossierSyntheseComponent implements OnInit {
     hepatiteBStatut: '',
     hepatiteCStatut: '',
     observationGlobale: '',
+    conclusionMedicale: '',
   });
   private readonly route = inject(ActivatedRoute);
   protected readonly patientId = resolvePatientIdFromRoute(this.route);
@@ -82,6 +84,7 @@ export class DossierSyntheseComponent implements OnInit {
         hepatiteBStatut: dossier.hepatiteBStatut ?? '',
         hepatiteCStatut: dossier.hepatiteCStatut ?? '',
         observationGlobale: dossier.observationGlobale ?? '',
+        conclusionMedicale: dossier.conclusionMedicale ?? '',
       });
     });
 
@@ -117,6 +120,7 @@ export class DossierSyntheseComponent implements OnInit {
         hepatiteBStatut: value.hepatiteBStatut || null,
         hepatiteCStatut: value.hepatiteCStatut || null,
         observationGlobale: value.observationGlobale || null,
+        conclusionMedicale: value.conclusionMedicale || null,
       },
     });
   }

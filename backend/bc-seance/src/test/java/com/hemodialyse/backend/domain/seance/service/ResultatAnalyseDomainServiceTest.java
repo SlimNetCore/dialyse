@@ -2,6 +2,7 @@ package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.seance.model.ResultatAnalyse;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.Test;
 
@@ -95,6 +96,13 @@ class ResultatAnalyseDomainServiceTest {
                     .filter(r -> to == null || !r.getDatePrelevement().isAfter(to))
                     .sorted(Comparator.comparing(ResultatAnalyse::getDatePrelevement).reversed())
                     .toList();
+        }
+
+        @Override
+        public PagedResult<ResultatAnalyse> findPagedByPatientId(UUID patientId, CenterId centerId,
+                                                                 LocalDate from, LocalDate to, int page, int size) {
+            List<ResultatAnalyse> items = findByPatientId(patientId, centerId, from, to);
+            return PagedResult.of(items, items.size(), page, size);
         }
 
         @Override

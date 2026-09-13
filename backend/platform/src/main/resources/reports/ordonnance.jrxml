@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+              http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="ordonnance" pageWidth="595" pageHeight="842"
+              columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="40" bottomMargin="30">
+
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="ordonnanceId" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[
+        SELECT p.nom, p.prenom, p.date_naissance, p.numero_assurance,
+               c.name AS center_name,
+               o.numero, o.date_prescription, o.medecin_id,
+               COALESCE(l.medicament_code_display, l.libelle) AS medicament_libelle,
+               l.posologie, l.voie, l.duree_jours, l.quantite, l.instructions
+        FROM ordonnances o
+        JOIN patients p ON p.id = o.patient_id AND p.center_id = o.center_id
+        JOIN centers c ON c.id = o.center_id
+        JOIN lignes_ordonnance l ON l.ordonnance_id = o.id
+        WHERE o.center_id = CAST($P{CENTER_ID} AS UUID)
+          AND o.id = CAST($P{ordonnanceId} AS UUID)
+        ORDER BY p.nom
+        ]]>
+    </queryString>
+
+    <field name="NOM" class="java.lang.String"/>
+    <field name="PRENOM" class="java.lang.String"/>
+    <field name="DATE_NAISSANCE" class="java.sql.Date"/>
+    <field name="NUMERO_ASSURANCE" class="java.lang.String"/>
+    <field name="CENTER_NAME" class="java.lang.String"/>
+    <field name="NUMERO" class="java.lang.String"/>
+    <field name="DATE_PRESCRIPTION" class="java.sql.Date"/>
+    <field name="MEDECIN_ID" class="java.lang.String"/>
+    <field name="MEDICAMENT_LIBELLE" class="java.lang.String"/>
+    <field name="POSOLOGIE" class="java.lang.String"/>
+    <field name="VOIE" class="java.lang.String"/>
+    <field name="DUREE_JOURS" class="java.lang.Integer"/>
+    <field name="QUANTITE" class="java.lang.Integer"/>
+    <field name="INSTRUCTIONS" class="java.lang.String"/>
+
+    <title>
+        <band height="160">
+            <textField>
+                <reportElement x="0" y="0" width="535" height="26"/>
+                <textElement textAlignment="Center">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CENTER_NAME}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="32" width="535" height="24"/>
+                <textElement textAlignment="Center">
+                    <font size="14" isBold="true"/>
+                </textElement>
+                <text><![CDATA[ORDONNANCE]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="58" width="535" height="16"/>
+                <textElement textAlignment="Center">
+                    <font size="9" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["N° " + $F{NUMERO}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="80" width="535" height="1"/>
+            </line>
+
+            <staticText>
+                <reportElement x="0" y="90" width="50" height="18"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Patient :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="55" y="90" width="280" height="18"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{NOM} + " " + $F{PRENOM}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="350" y="90" width="90" height="18"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Né(e) le :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="440" y="90" width="95" height="18"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{DATE_NAISSANCE}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="112" width="100" height="18"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[N° Assurance :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="105" y="112" width="200" height="18"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{NUMERO_ASSURANCE}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="350" y="112" width="60" height="18"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Date :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="410" y="112" width="125" height="18"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{DATE_PRESCRIPTION}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="134" width="535" height="18" backcolor="#E8F5E9" mode="Opaque"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[  Médicament]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <detail>
+        <band height="60">
+            <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                <reportElement x="0" y="4" width="535" height="16"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{MEDICAMENT_LIBELLE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="20" width="535" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{POSOLOGIE}
+                    + ($F{VOIE} != null ? " — " + $F{VOIE} : "")
+                    + ($F{DUREE_JOURS} != null ? " — " + $F{DUREE_JOURS} + " jours" : "")
+                    + ($F{QUANTITE} != null ? " — Qté : " + $F{QUANTITE} : "")]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                <reportElement x="0" y="36" width="535" height="16"/>
+                <textElement>
+                    <font size="9" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{INSTRUCTIONS}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="56" width="535" height="1" forecolor="#CCCCCC"/>
+            </line>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="30">
+            <textField>
+                <reportElement x="0" y="5" width="250" height="16"/>
+                <textElement>
+                    <font size="7" isItalic="true"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["Imprimé le " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="350" y="5" width="185" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Prescripteur : " + $F{MEDECIN_ID}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+</jasperReport>

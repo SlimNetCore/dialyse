@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 
 export type DossierMedicalPatient = {
@@ -12,6 +12,7 @@ export type DossierMedicalPatient = {
   hepatiteBStatut: string | null;
   hepatiteCStatut: string | null;
   observationGlobale: string | null;
+  conclusionMedicale: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -23,6 +24,7 @@ export type UpsertDossierMedicalPatientPayload = {
   hepatiteBStatut: string | null;
   hepatiteCStatut: string | null;
   observationGlobale: string | null;
+  conclusionMedicale: string | null;
 };
 
 export type AbordVasculaire = {
@@ -383,6 +385,52 @@ export type ConstanteSeance = {
   dureeMinutes: number | null;
 };
 
+export type LigneOrdonnance = {
+  id: string;
+  codeSystem: string | null;
+  code: string | null;
+  codeDisplay: string | null;
+  libelle: string | null;
+  posologie: string;
+  voie: string | null;
+  dureeJours: number | null;
+  quantite: number | null;
+  instructions: string | null;
+};
+
+export type Ordonnance = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  medecinId: string | null;
+  datePrescription: string;
+  statut: string;
+  numero: string | null;
+  lignes: LigneOrdonnance[];
+  createdAt: string;
+  updatedAt: string;
+  signedAt: string | null;
+};
+
+export type LigneOrdonnancePayload = {
+  codeSystem: string | null;
+  code: string | null;
+  codeDisplay: string | null;
+  libelle: string | null;
+  posologie: string;
+  voie: string | null;
+  dureeJours: number | null;
+  quantite: number | null;
+  instructions: string | null;
+};
+
+export type CreateOrdonnancePayload = {
+  centerId: string;
+  medecinId: string | null;
+  datePrescription: string | null;
+  lignes: LigneOrdonnancePayload[];
+};
+
 /**
  * Client HTTP du dossier médical patient : dossier de base, abords vasculaires,
  * prescriptions (dont EPO/fer), résultats d'analyses, antécédents, allergies, sérologies,
@@ -605,6 +653,15 @@ export class DossierMedicalApiService {
     return this.http.post<AdministrationTraitement>(`${this.base}/${patientId}/administrations-anemie`, payload);
   }
 
+  getActivePrescription(centerId: string, patientId: string, date: string | null): Observable<PrescriptionMedicale | null> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (date) params = params.set('date', date);
+    return this.http.get<PrescriptionMedicale>(`${this.base}/${patientId}/prescriptions/active`, {
+      params,
+      observe: 'response',
+    }).pipe(map((res) => res.status === 204 ? null : res.body));
+  }
+
   getSuiviAnemie(centerId: string, patientId: string): Observable<SuiviAnemie> {
     return this.http.get<SuiviAnemie>(`${this.base}/${patientId}/suivi-anemie`, {
       params: new HttpParams().set('centerId', centerId),
@@ -615,6 +672,35 @@ export class DossierMedicalApiService {
     Observable<PagedResponse<ConstanteSeance>> {
     return this.http.get<PagedResponse<ConstanteSeance>>(`${this.base}/${patientId}/constantes`, {
       params: new HttpParams().set('centerId', centerId).set('page', page).set('size', size),
+    });
+  }
+
+  listOrdonnances(centerId: string, patientId: string, page: number, size: number):
+    Observable<PagedResponse<Ordonnance>> {
+    return this.http.get<PagedResponse<Ordonnance>>(`${this.base}/${patientId}/ordonnances`, {
+      params: new HttpParams().set('centerId', centerId).set('page', page).set('size', size),
+    });
+  }
+
+  createOrdonnance(patientId: string, payload: CreateOrdonnancePayload): Observable<Ordonnance> {
+    return this.http.post<Ordonnance>(`${this.base}/${patientId}/ordonnances`, payload);
+  }
+
+  signerOrdonnance(patientId: string, ordonnanceId: string, centerId: string): Observable<Ordonnance> {
+    return this.http.put<Ordonnance>(`${this.base}/${patientId}/ordonnances/${ordonnanceId}/signer`, {centerId});
+  }
+
+  marquerOrdonnanceImprimee(patientId: string, ordonnanceId: string, centerId: string): Observable<Ordonnance> {
+    return this.http.put<Ordonnance>(`${this.base}/${patientId}/ordonnances/${ordonnanceId}/imprimer`, {centerId});
+  }
+
+  annulerOrdonnance(patientId: string, ordonnanceId: string, centerId: string): Observable<Ordonnance> {
+    return this.http.put<Ordonnance>(`${this.base}/${patientId}/ordonnances/${ordonnanceId}/annuler`, {centerId});
+  }
+
+  exportFhir(centerId: string, patientId: string): Observable<Record<string, unknown>> {
+    return this.http.get<Record<string, unknown>>(`${this.base}/${patientId}/dossier-medical/export-fhir`, {
+      params: new HttpParams().set('centerId', centerId),
     });
   }
 }

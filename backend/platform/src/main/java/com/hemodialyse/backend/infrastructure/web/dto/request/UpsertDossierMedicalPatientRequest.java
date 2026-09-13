@@ -9,7 +9,8 @@ public record UpsertDossierMedicalPatientRequest(
         LocalDate dateMiseEnDialyse,
         String hepatiteBStatut,
         String hepatiteCStatut,
-        String observationGlobale
+        String observationGlobale,
+        String conclusionMedicale
 ) {
 }
 

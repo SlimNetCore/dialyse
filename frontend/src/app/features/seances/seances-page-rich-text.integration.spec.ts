@@ -13,8 +13,10 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 const CENTER_ID = '11111111-1111-1111-1111-111111111111';
 
 /**
- * Tests d'intégration pour le RichTextEditor dans le composant SeancesPage
- * Vérifie que le contenu enrichi est correctement propagé au store
+ * Tests d'intégration pour le RichTextEditor dans le composant SeancesPage.
+ * Le volet paramédical (incidents) reste éditable ici ; le volet médical (tolérance, ajustements,
+ * conclusion) se renseigne désormais depuis le dossier médical du patient — cet écran de séance
+ * n'en affiche qu'une vue en lecture seule, sans handler de saisie à tester.
  */
 describe('SeancesPageComponent - RichTextEditor Integration', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,9 +29,7 @@ describe('SeancesPageComponent - RichTextEditor Integration', () => {
       summaryLoading: vi.fn(() => false),
       isSeanceAlreadyValidated: vi.fn(() => false),
       patchParamedical: vi.fn(),
-      patchMedical: vi.fn(),
       saveParamedical: vi.fn(),
-      saveMedical: vi.fn(),
       validateSeance: vi.fn(),
       seances: vi.fn(() => []),
       selectedSeanceId: vi.fn(() => null),
@@ -73,7 +73,6 @@ describe('SeancesPageComponent - RichTextEditor Integration', () => {
       scanMessage: vi.fn(() => ''),
       scanning: vi.fn(() => false),
       savingParamedical: vi.fn(() => false),
-      savingMedical: vi.fn(() => false),
       validatingSeance: vi.fn(() => false),
       cameraActive: vi.fn(() => false),
       error: vi.fn(() => null),
@@ -109,39 +108,6 @@ describe('SeancesPageComponent - RichTextEditor Integration', () => {
     });
   });
 
-  it('should update tolerance seance medical field when rich text content changes', () => {
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
-
-    const richHtmlContent = '<p>Patient a toléré <em>correctement</em> la séance</p>';
-    component['onToleranceSeanceRichChange'](richHtmlContent);
-
-    expect(storeMock.patchMedical).toHaveBeenCalledWith({
-      toleranceSeance: richHtmlContent
-    });
-  });
-
-  it('should update ajustements therapeutiques medical field when rich text content changes', () => {
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
-
-    const richHtmlContent = '<table><tr><td>Paramètre</td><td>Valeur</td></tr></table>';
-    component['onAjustementsTherapeutiquesRichChange'](richHtmlContent);
-
-    expect(storeMock.patchMedical).toHaveBeenCalledWith({
-      ajustementsTherapeutiques: richHtmlContent
-    });
-  });
-
-  it('should update conclusion medicale medical field when rich text content changes', () => {
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
-
-    const richHtmlContent = '<ul><li>Point 1</li><li>Point 2</li></ul>';
-    component['onConclusionMedicaleRichChange'](richHtmlContent);
-
-    expect(storeMock.patchMedical).toHaveBeenCalledWith({
-      conclusionMedicale: richHtmlContent
-    });
-  });
-
   it('should handle empty rich text content', () => {
     const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
 
@@ -149,26 +115,6 @@ describe('SeancesPageComponent - RichTextEditor Integration', () => {
 
     expect(storeMock.patchParamedical).toHaveBeenCalledWith({
       incidents: ''
-    });
-  });
-
-  it('should handle HTML with special characters and formatting', () => {
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
-
-    const complexHtml = `
-      <h2>Synthèse</h2>
-      <p>Patient: <strong>Jean Dupont</strong></p>
-      <p>Observations:</p>
-      <ul>
-        <li>Pression: <span style="color: red;">145/95</span></li>
-        <li>Poids: <em>72.5 kg</em></li>
-      </ul>
-    `;
-
-    component['onConclusionMedicaleRichChange'](complexHtml);
-
-    expect(storeMock.patchMedical).toHaveBeenCalledWith({
-      conclusionMedicale: complexHtml
     });
   });
 
@@ -194,40 +140,6 @@ describe('SeancesPageComponent - RichTextEditor Integration', () => {
     expect(call.payload.incidents).toBeDefined();
   });
 
-  it('should handle table content in rich text editor', () => {
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
-
-    const tableHtml = `
-      <table>
-        <thead>
-          <tr>
-            <th>Paramètre</th>
-            <th>Avant</th>
-            <th>Après</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Poids (kg)</td>
-            <td>72.5</td>
-            <td>71.2</td>
-          </tr>
-          <tr>
-            <td>TA</td>
-            <td>145/95</td>
-            <td>138/90</td>
-          </tr>
-        </tbody>
-      </table>
-    `;
-
-    component['onAjustementsTherapeutiquesRichChange'](tableHtml);
-
-    expect(storeMock.patchMedical).toHaveBeenCalledWith({
-      ajustementsTherapeutiques: tableHtml
-    });
-  });
-
   it('should handle colored text and background colors', () => {
     const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
 
@@ -245,4 +157,3 @@ describe('SeancesPageComponent - RichTextEditor Integration', () => {
     });
   });
 });
-

@@ -16,6 +16,7 @@ public interface DossierMedicalPatientUseCase {
                                  LocalDate dateMiseEnDialyse,
                                  String hepatiteBStatut,
                                  String hepatiteCStatut,
-                                 String observationGlobale);
+                                 String observationGlobale,
+                                 String conclusionMedicale);
 }
 

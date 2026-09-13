@@ -68,6 +68,17 @@
           rows="4"
         ></textarea>
       </mat-form-field>
+
+      <mat-form-field appearance="outline" class="synthese-observation synthese-conclusion">
+        <mat-label>{{ 'DOSSIER_MEDICAL.CONCLUSION_MEDICALE' | translate }}</mat-label>
+        <textarea
+          (input)="onText('conclusionMedicale', $any($event.target).value)"
+          [disabled]="!access.canEdit()"
+          [value]="form.value().conclusionMedicale"
+          matInput
+          rows="4"
+        ></textarea>
+      </mat-form-field>
     </div>
 
     @if (access.canEdit()) {

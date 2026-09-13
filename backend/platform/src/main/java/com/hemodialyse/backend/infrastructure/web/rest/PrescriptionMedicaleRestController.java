@@ -27,7 +27,9 @@ import java.util.UUID;
 /**
  * Prescriptions médicales du patient : cibles de dialyse et traitement de l'anémie (EPO, fer injectable).
  * <p>
- * Accès réservé au corps médical : le MEDECIN écrit, l'ADMIN consulte.
+ * Accès réservé au corps médical : le MEDECIN écrit, l'ADMIN consulte. L'INFIRMIER consulte
+ * uniquement la prescription en vigueur ({@code /prescriptions/active}) — c'est elle qu'il doit
+ * suivre pour administrer l'EPO/le fer pendant la séance.
  */
 @RestController
 @RequestMapping("/api/v1/patients")
@@ -54,6 +56,25 @@ public class PrescriptionMedicaleRestController {
         CenterId center = centerAccessGuard.requireCenter(centerId);
         var paged = useCase.listPagedByPatient(center, patientId, from, to, page, size);
         return ResponseEntity.ok(PagedResponse.from(paged, PrescriptionMedicaleResponse::from));
+    }
+
+    /**
+     * Prescription en vigueur à une date donnée (par défaut aujourd'hui) — la plus récente dont
+     * la date de prescription est antérieure ou égale à {@code date}. Utilisé par l'infirmier
+     * pendant la séance pour savoir quoi administrer.
+     */
+    @PreAuthorize("hasAnyRole('MEDECIN','ADMIN','INFIRMIER')")
+    @GetMapping("/{patientId}/prescriptions/active")
+    public ResponseEntity<PrescriptionMedicaleResponse> active(
+            @PathVariable UUID patientId,
+            @RequestParam(required = false) UUID centerId,
+            @RequestParam(required = false) LocalDate date) {
+        CenterId center = centerAccessGuard.requireCenter(centerId);
+        LocalDate at = date != null ? date : LocalDate.now();
+        var prescriptions = useCase.listByPatient(center, patientId, null, at);
+        return prescriptions.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(PrescriptionMedicaleResponse.from(prescriptions.get(0)));
     }
 
     @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")

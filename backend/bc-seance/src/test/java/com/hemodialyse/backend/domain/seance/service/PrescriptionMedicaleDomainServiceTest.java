@@ -2,6 +2,7 @@ package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.Test;
 
@@ -112,6 +113,13 @@ class PrescriptionMedicaleDomainServiceTest {
                     .filter(p -> to == null || !p.getDatePrescription().isAfter(to))
                     .sorted(Comparator.comparing(PrescriptionMedicale::getDatePrescription).reversed())
                     .toList();
+        }
+
+        @Override
+        public PagedResult<PrescriptionMedicale> findPagedByPatientId(UUID patientId, CenterId centerId,
+                                                                      LocalDate from, LocalDate to, int page, int size) {
+            List<PrescriptionMedicale> items = findByPatientId(patientId, centerId, from, to);
+            return PagedResult.of(items, items.size(), page, size);
         }
 
         @Override

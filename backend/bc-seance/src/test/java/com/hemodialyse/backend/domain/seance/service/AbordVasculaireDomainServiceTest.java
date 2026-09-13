@@ -2,6 +2,7 @@ package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.seance.model.AbordVasculaire;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.Test;
 
@@ -73,10 +74,22 @@ class AbordVasculaireDomainServiceTest {
         }
 
         @Override
+        public PagedResult<AbordVasculaire> findPagedByPatientId(UUID patientId, CenterId centerId, int page, int size) {
+            List<AbordVasculaire> items = findByPatientId(patientId, centerId);
+            return PagedResult.of(items, items.size(), page, size);
+        }
+
+        @Override
         public AbordVasculaire save(AbordVasculaire abord) {
             data.removeIf(a -> a.getId().equals(abord.getId()));
             data.add(abord);
             return abord;
+        }
+
+        @Override
+        public void deleteById(UUID abordId, UUID patientId, CenterId centerId) {
+            data.removeIf(a -> a.getId().equals(abordId) && patientId.equals(a.getPatientId())
+                    && centerId.value().equals(a.getCenterId()));
         }
     }
 }

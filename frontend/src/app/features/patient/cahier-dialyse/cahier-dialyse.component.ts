@@ -69,6 +69,7 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
   readonly selectedConsommables = computed(() => this.selectedSummary()?.consommables ?? []);
   readonly hasConsommables = computed(() => this.selectedConsommables().length > 0);
   readonly selectedForfait = computed(() => this.selectedSummary()?.forfait ?? null);
+  readonly currentCenterId = computed(() => this.appShell.currentCenterId());
 
   ngOnInit(): void {
     this.loadSeanceBook();

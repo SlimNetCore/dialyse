@@ -1,0 +1,249 @@
+.ordonnances-container {
+  padding: 28px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ordonnances-error {
+  color: #c62828;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.ordonnances-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ordonnances-toolbar button {
+  min-height: 44px;
+}
+
+.ordonnance-form {
+  margin-bottom: 24px;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: var(--app-shadow-soft);
+}
+
+.ordonnance-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 24px;
+  align-items: center;
+}
+
+.ordonnance-lignes {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.ordonnance-lignes-header {
+  font-weight: 600;
+  margin-bottom: 12px;
+  opacity: 0.85;
+}
+
+.ordonnance-ligne-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--app-surface-soft);
+}
+
+.ordonnance-ligne-grid {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px 16px;
+}
+
+.ordonnance-ligne-full {
+  grid-column: 1 / -1;
+}
+
+.ordonnance-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.ordonnance-form-actions button {
+  min-height: 44px;
+  padding: 0 20px;
+}
+
+.ordonnances-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.ordonnances-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ordonnance-card {
+  padding: 18px 22px;
+  border-left: 4px solid var(--app-border);
+  border-radius: 8px;
+  box-shadow: var(--app-shadow-soft);
+}
+
+.ordonnance-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ordonnance-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ordonnance-date {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.ordonnance-numero {
+  opacity: 0.75;
+  font-size: 0.85rem;
+}
+
+.ordonnance-statut-badge {
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+}
+
+.statut-SIGNEE {
+  color: #1976d2;
+  border-color: #1976d2;
+}
+
+.statut-IMPRIMEE {
+  color: #1b5e20;
+  border-color: #1b5e20;
+}
+
+.statut-ANNULEE {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.ordonnance-lignes-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ordonnance-ligne-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.ligne-medicament {
+  font-weight: 600;
+  flex: 1 1 200px;
+}
+
+.ligne-posologie {
+  flex: 2 1 260px;
+  opacity: 0.85;
+}
+
+.ligne-duree {
+  opacity: 0.7;
+}
+
+.ordonnance-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ordonnances-empty {
+  text-align: center;
+  padding: 24px;
+  opacity: 0.7;
+}
+
+/* Tablette (768-1024px). */
+@media (max-width: 1024px) {
+  .ordonnances-container {
+    padding: 24px;
+  }
+
+  .ordonnance-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ordonnance-ligne-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px). */
+@media (max-width: 767px) {
+  .ordonnances-container {
+    padding: 16px;
+  }
+
+  .ordonnance-form,
+  .ordonnance-card {
+    padding: 16px;
+  }
+
+  .ordonnance-ligne-card {
+    flex-direction: column;
+  }
+
+  .ordonnance-ligne-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .ordonnance-form-actions,
+  .ordonnances-toolbar {
+    flex-direction: column-reverse;
+  }
+
+  .ordonnance-form-actions button,
+  .ordonnances-toolbar button {
+    width: 100%;
+  }
+
+  .ordonnance-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

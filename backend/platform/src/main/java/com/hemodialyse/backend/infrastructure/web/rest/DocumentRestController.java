@@ -136,6 +136,7 @@ public class DocumentRestController {
                 Map.of("code", "LISTE_PEC", "label", "Liste des prises en charge"),
                 Map.of("code", "LISTE_ATTESTATIONS", "label", "Liste des attestations"),
                 Map.of("code", "SYNTHESE_FACTURATION_MENSUELLE", "label", "Synthèse mensuelle facturation"),
+                Map.of("code", "ORDONNANCE", "label", "Ordonnance médicamenteuse"),
                 Map.of("code", "CUSTOM", "label", "Rapport personnalisé")
         ));
     }
@@ -276,6 +277,7 @@ public class DocumentRestController {
         String patientId = params.get("patientId");
         String attestationId = params.get("attestationId");
         String pecId = params.get("pecId");
+        String ordonnanceId = params.get("ordonnanceId");
 
         if ("FICHE_PATIENT".equals(normalizedType)) {
             if (isBlank(patientId)) {
@@ -290,6 +292,10 @@ public class DocumentRestController {
 
         if ("PEC".equals(normalizedType) && isBlank(patientId) && isBlank(pecId)) {
             throw new IllegalArgumentException("patientId ou pecId est obligatoire pour PEC");
+        }
+
+        if ("ORDONNANCE".equals(normalizedType) && isBlank(ordonnanceId)) {
+            throw new IllegalArgumentException("ordonnanceId est obligatoire pour ORDONNANCE");
         }
 
         if ("SYNTHESE_FACTURATION_MENSUELLE".equals(normalizedType)) {

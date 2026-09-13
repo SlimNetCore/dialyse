@@ -36,6 +36,9 @@ public class DossierMedicalPatientJpaEntity {
     @Column(name = "observation_globale", columnDefinition = "TEXT")
     private String observationGlobale;
 
+    @Column(name = "conclusion_medicale", columnDefinition = "TEXT")
+    private String conclusionMedicale;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
@@ -104,6 +107,14 @@ public class DossierMedicalPatientJpaEntity {
 
     public void setObservationGlobale(String observationGlobale) {
         this.observationGlobale = observationGlobale;
+    }
+
+    public String getConclusionMedicale() {
+        return conclusionMedicale;
+    }
+
+    public void setConclusionMedicale(String conclusionMedicale) {
+        this.conclusionMedicale = conclusionMedicale;
     }
 
     public OffsetDateTime getCreatedAt() {

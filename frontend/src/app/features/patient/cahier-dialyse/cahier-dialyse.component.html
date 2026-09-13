@@ -213,9 +213,8 @@
             <p>{{ 'CAHIER.DOCTOR_WRITING_DESC' | translate }}</p>
           </header>
           <app-cahier-step-medical
-            [medicalData]="selectedSummary()?.medical ?? null"
+            [centerId]="currentCenterId()"
             [patientId]="patientId"
-            [readonly]="true"
             [seanceDate]="selectedSeanceDate()"
             [seanceStatus]="selectedSeanceStatus()"
           />

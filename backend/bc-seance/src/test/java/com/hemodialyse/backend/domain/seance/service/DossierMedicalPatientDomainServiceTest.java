@@ -30,13 +30,15 @@ class DossierMedicalPatientDomainServiceTest {
                 LocalDate.of(2020, 1, 15),
                 "NEGATIF",
                 "INCONNU",
-                "RAS"
+                "RAS",
+                "Patient stable, poursuite du protocole"
         );
 
         assertNotNull(dossier.getId());
         assertEquals(centerId.value(), dossier.getCenterId());
         assertEquals(patientId, dossier.getPatientId());
         assertEquals("GNMP", dossier.getNephropathieInitiale());
+        assertEquals("Patient stable, poursuite du protocole", dossier.getConclusionMedicale());
         assertNotNull(dossier.getCreatedAt());
         assertNotNull(dossier.getUpdatedAt());
     }

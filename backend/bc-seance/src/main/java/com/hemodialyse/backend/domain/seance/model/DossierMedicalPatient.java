@@ -13,6 +13,7 @@ public class DossierMedicalPatient {
     private String hepatiteBStatut;
     private String hepatiteCStatut;
     private String observationGlobale;
+    private String conclusionMedicale;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -78,6 +79,14 @@ public class DossierMedicalPatient {
 
     public void setObservationGlobale(String v) {
         this.observationGlobale = v;
+    }
+
+    public String getConclusionMedicale() {
+        return conclusionMedicale;
+    }
+
+    public void setConclusionMedicale(String v) {
+        this.conclusionMedicale = v;
     }
 
     public OffsetDateTime getCreatedAt() {

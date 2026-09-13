@@ -232,6 +232,12 @@ MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_
             'reports/synthese_mensuelle_facturation.jrxml', 'PDF',
             'Tableau croise facturation par forfait/caisse avec repartition graphique');
 
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression,
+                            description) KEY (id)
+    VALUES ('d0d00001-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111',
+            'ORDONNANCE', 'Ordonnance médicamenteuse', 'ORDONNANCE',
+            'reports/ordonnance.jrxml', 'PDF', 'Ordonnance signée par le médecin, imprimable pour le patient');
+
 -- Modèles par défaut pour le centre 2 (multi-centre)
 MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
 VALUES ('d0d00002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222',
@@ -269,6 +275,12 @@ MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_
             'SYNTHESE_FACTURATION_MENSUELLE', 'Synthese mensuelle facturation', 'SYNTHESE_FACTURATION_MENSUELLE',
             'reports/synthese_mensuelle_facturation.jrxml', 'PDF',
             'Tableau croise facturation par forfait/caisse avec repartition graphique');
+
+MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression,
+                            description) KEY (id)
+    VALUES ('d0d00002-0000-0000-0000-000000000008', '22222222-2222-2222-2222-222222222222',
+            'ORDONNANCE', 'Ordonnance médicamenteuse', 'ORDONNANCE',
+            'reports/ordonnance.jrxml', 'PDF', 'Ordonnance signée par le médecin, imprimable pour le patient');
 
 -- ═══ REFERENTIELS - CENTRE 2 ═══
 

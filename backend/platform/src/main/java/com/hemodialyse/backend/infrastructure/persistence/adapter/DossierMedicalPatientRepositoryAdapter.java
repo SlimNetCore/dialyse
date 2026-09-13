@@ -39,6 +39,7 @@ public class DossierMedicalPatientRepositoryAdapter implements DossierMedicalPat
         d.setHepatiteBStatut(e.getHepatiteBStatut());
         d.setHepatiteCStatut(e.getHepatiteCStatut());
         d.setObservationGlobale(e.getObservationGlobale());
+        d.setConclusionMedicale(e.getConclusionMedicale());
         d.setCreatedAt(e.getCreatedAt());
         d.setUpdatedAt(e.getUpdatedAt());
         return d;
@@ -54,6 +55,7 @@ public class DossierMedicalPatientRepositoryAdapter implements DossierMedicalPat
         e.setHepatiteBStatut(d.getHepatiteBStatut());
         e.setHepatiteCStatut(d.getHepatiteCStatut());
         e.setObservationGlobale(d.getObservationGlobale());
+        e.setConclusionMedicale(d.getConclusionMedicale());
         e.setCreatedAt(d.getCreatedAt());
         e.setUpdatedAt(d.getUpdatedAt());
         return e;

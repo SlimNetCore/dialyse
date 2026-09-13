@@ -6,37 +6,72 @@
     </mat-card-header>
     <mat-card-content>
       <div class="seance-meta">
-        <span>{{ 'CAHIER.PARAMEDICAL_DATE_SEANCE' | translate }}: {{ seanceDate || '-' }}</span>
-        <span>{{ 'CAHIER.BOOK_STATUS' | translate }}: {{ seanceStatus || 'BROUILLON' }}</span>
+        <span>{{ 'CAHIER.PARAMEDICAL_DATE_SEANCE' | translate }}: {{ seanceDate() || '-' }}</span>
+        <span>{{ 'CAHIER.BOOK_STATUS' | translate }}: {{ seanceStatus() || 'BROUILLON' }}</span>
       </div>
 
-      <div class="medical-grid">
-        <section class="medical-block">
-          <h4>{{ 'CAHIER.MEDICAL_PRESCRIPTION' | translate }}</h4>
-          <p>{{ display(medicalData?.prescription) }}</p>
-        </section>
-        <section class="medical-block">
-          <h4>{{ 'CAHIER.MEDICAL_TOLERANCE' | translate }}</h4>
-          <p>{{ display(medicalData?.toleranceSeance) }}</p>
-        </section>
-        <section class="medical-block">
-          <h4>{{ 'CAHIER.MEDICAL_EXAMEN' | translate }}</h4>
-          <p>{{ display(medicalData?.examenClinique) }}</p>
-        </section>
-        <section class="medical-block">
-          <h4>{{ 'CAHIER.MEDICAL_BIO' | translate }}</h4>
-          <p>{{ display(medicalData?.resultatsBiologiques) }}</p>
-        </section>
-        <section class="medical-block">
-          <h4>{{ 'CAHIER.MEDICAL_AJUSTEMENTS' | translate }}</h4>
-          <p>{{ display(medicalData?.ajustementsTherapeutiques) }}</p>
-        </section>
-        <section class="medical-block">
-          <h4>{{ 'CAHIER.MEDICAL_CONCLUSION' | translate }}</h4>
-          <p>{{ display(medicalData?.conclusionMedicale) }}</p>
-        </section>
-      </div>
+      @if (loading()) {
+        <div class="medical-loading">
+          <mat-progress-spinner diameter="24" mode="indeterminate" strokeWidth="3"/>
+        </div>
+      } @else {
+        <div class="medical-grid">
+          <section class="medical-block">
+            <h4>{{ 'CAHIER.MEDICAL_NEPHROPATHIE' | translate }}</h4>
+            <p>{{ display(dossier()?.nephropathieInitiale) }}</p>
+          </section>
+          <section class="medical-block">
+            <h4>{{ 'CAHIER.MEDICAL_DATE_MISE_EN_DIALYSE' | translate }}</h4>
+            <p>{{ display(dossier()?.dateMiseEnDialyse) }}</p>
+          </section>
+          <section class="medical-block">
+            <h4>{{ 'CAHIER.MEDICAL_HEPATITE_B' | translate }}</h4>
+            <p>{{ display(dossier()?.hepatiteBStatut) }}</p>
+          </section>
+          <section class="medical-block">
+            <h4>{{ 'CAHIER.MEDICAL_HEPATITE_C' | translate }}</h4>
+            <p>{{ display(dossier()?.hepatiteCStatut) }}</p>
+          </section>
+          <section class="medical-block medical-block-full">
+            <h4>{{ 'CAHIER.MEDICAL_OBSERVATION_GLOBALE' | translate }}</h4>
+            <p>{{ display(dossier()?.observationGlobale) }}</p>
+          </section>
+
+          <section class="medical-block medical-block-full medical-block-conclusion">
+            <h4>{{ 'DOSSIER_MEDICAL.CONCLUSION_MEDICALE' | translate }}</h4>
+            <p>{{ display(dossier()?.conclusionMedicale) }}</p>
+          </section>
+
+          <section class="medical-block medical-block-full">
+            <h4>{{ 'CAHIER.MEDICAL_PRESCRIPTION_ACTIVE' | translate }}</h4>
+            @if (prescription(); as p) {
+              <div class="prescription-lines">
+                <p><strong>EPO</strong> {{ p.epoMolecule || '-' }}
+                  @if (p.epoDoseUi) {
+                    — {{ p.epoDoseUi }} UI {{ p.epoVoie }} {{ p.epoFrequence }}
+                  }
+                </p>
+                <p><strong>{{ 'DOSSIER_MEDICAL.FER' | translate }}</strong> {{ p.ferMolecule || '-' }}
+                  @if (p.ferDoseMg) {
+                    — {{ p.ferDoseMg }} mg {{ p.ferVoie }} {{ p.ferFrequence }}
+                  }
+                </p>
+              </div>
+            } @else {
+              <p>-</p>
+            }
+          </section>
+        </div>
+      }
+
+      @if (canOpenDossierMedical()) {
+        <div class="medical-actions">
+          <a [routerLink]="['/patients', patientId(), 'dossier-medical']" color="primary" mat-stroked-button>
+            <mat-icon>folder_shared</mat-icon>
+            {{ 'CAHIER.OPEN_DOSSIER_MEDICAL' | translate }}
+          </a>
+        </div>
+      }
     </mat-card-content>
   </mat-card>
 </div>
-

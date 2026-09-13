@@ -52,7 +52,7 @@ class DossierMedicalPatientRestControllerTest {
 
         UUID patientId = UUID.randomUUID();
         UpsertDossierMedicalPatientRequest request = new UpsertDossierMedicalPatientRequest(
-                centerId, "GNMP", LocalDate.of(2020, 1, 1), "NEGATIF", "INCONNU", "RAS");
+                centerId, "GNMP", LocalDate.of(2020, 1, 1), "NEGATIF", "INCONNU", "RAS", "Poursuite du protocole");
 
         ResponseEntity<EntityWriteResponse> response = controller.create(patientId, request);
 
@@ -102,7 +102,7 @@ class DossierMedicalPatientRestControllerTest {
         var controller = new DossierMedicalPatientRestController(useCase, centerAccessGuard);
 
         UpsertDossierMedicalPatientRequest request = new UpsertDossierMedicalPatientRequest(
-                UUID.randomUUID(), "GNMP", LocalDate.of(2020, 1, 1), "NEGATIF", "INCONNU", "RAS");
+                UUID.randomUUID(), "GNMP", LocalDate.of(2020, 1, 1), "NEGATIF", "INCONNU", "RAS", "Poursuite du protocole");
 
         assertThrows(AccessDeniedException.class, () -> controller.create(UUID.randomUUID(), request));
     }
@@ -145,7 +145,8 @@ class DossierMedicalPatientRestControllerTest {
         @Override
         public DossierMedicalPatient upsert(CenterId centerId, UUID patientId, String nephropathieInitiale,
                                             LocalDate dateMiseEnDialyse, String hepatiteBStatut,
-                                            String hepatiteCStatut, String observationGlobale) {
+                                            String hepatiteCStatut, String observationGlobale,
+                                            String conclusionMedicale) {
             this.lastCenterId = centerId;
             this.lastPatientId = patientId;
             DossierMedicalPatient d = new DossierMedicalPatient();

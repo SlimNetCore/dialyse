@@ -139,7 +139,7 @@ public class SeanceRestController {
         return payload;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE','MEDECIN')")
     @GetMapping("/{seanceId}")
     public ResponseEntity<?> details(@PathVariable UUID seanceId,
                                      @RequestParam UUID centerId) {

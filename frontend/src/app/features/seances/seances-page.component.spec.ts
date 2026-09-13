@@ -426,7 +426,6 @@ describe('SeancesPageComponent', () => {
     }));
 
     expect(component['canEditParamedical']()).toBe(false);
-    expect(component['canEditMedical']()).toBe(false);
     expect(component['canEditDate']()).toBe(false);
   });
 

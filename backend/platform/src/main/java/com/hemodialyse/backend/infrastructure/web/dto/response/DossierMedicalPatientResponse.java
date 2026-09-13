@@ -21,6 +21,7 @@ public record DossierMedicalPatientResponse(
         String hepatiteBStatut,
         String hepatiteCStatut,
         String observationGlobale,
+        String conclusionMedicale,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt
 ) {
@@ -35,6 +36,7 @@ public record DossierMedicalPatientResponse(
                 d.getHepatiteBStatut(),
                 d.getHepatiteCStatut(),
                 d.getObservationGlobale(),
+                d.getConclusionMedicale(),
                 d.getCreatedAt(),
                 d.getUpdatedAt()
         );

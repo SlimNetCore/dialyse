@@ -49,6 +49,35 @@
   white-space: pre-wrap;
 }
 
+.medical-block-full {
+  grid-column: 1 / -1;
+}
+
+.medical-block-conclusion h4 {
+  color: #1d4ed8;
+}
+
+.medical-loading {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.prescription-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prescription-lines p {
+  margin: 0;
+}
+
+.medical-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
 
 @media (max-width: 900px) {
   .medical-grid {
