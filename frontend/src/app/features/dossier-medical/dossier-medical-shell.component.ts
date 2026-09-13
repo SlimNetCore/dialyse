@@ -46,6 +46,7 @@ export class DossierMedicalShellComponent implements OnInit {
     {path: 'synthese', label: 'DOSSIER_MEDICAL.TAB_SYNTHESE', icon: 'summarize'},
     {path: 'antecedents', label: 'DOSSIER_MEDICAL.TAB_ANTECEDENTS', icon: 'history_edu'},
     {path: 'serologies', label: 'DOSSIER_MEDICAL.TAB_SEROLOGIES', icon: 'coronavirus'},
+    {path: 'examens', label: 'DOSSIER_MEDICAL.TAB_EXAMENS', icon: 'biotech'},
     {path: 'abords', label: 'DOSSIER_MEDICAL.TAB_ABORDS', icon: 'vaccines'},
     {path: 'prescriptions', label: 'DOSSIER_MEDICAL.TAB_PRESCRIPTIONS', icon: 'medication'},
     {path: 'biologie', label: 'DOSSIER_MEDICAL.TAB_BIOLOGIE', icon: 'biotech'},

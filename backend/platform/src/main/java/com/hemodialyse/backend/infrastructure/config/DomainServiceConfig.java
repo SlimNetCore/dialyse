@@ -7,6 +7,10 @@ import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPo
 import com.hemodialyse.backend.domain.medical.allergie.service.AllergieDomainService;
 import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort;
 import com.hemodialyse.backend.domain.medical.antecedent.service.AntecedentDomainService;
+import com.hemodialyse.backend.domain.medical.examen.port.DemandeExamenRepositoryPort;
+import com.hemodialyse.backend.domain.medical.examen.service.DemandeExamenDomainService;
+import com.hemodialyse.backend.domain.medical.observation.port.ObservationBiologiqueRepositoryPort;
+import com.hemodialyse.backend.domain.medical.observation.service.ObservationBiologiqueDomainService;
 import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
@@ -120,6 +124,16 @@ public class DomainServiceConfig {
     @Bean
     public SerologieDomainService serologieDomainService(SerologieRepositoryPort repo) {
         return new SerologieDomainService(repo);
+    }
+
+    @Bean
+    public DemandeExamenDomainService demandeExamenDomainService(DemandeExamenRepositoryPort repo) {
+        return new DemandeExamenDomainService(repo);
+    }
+
+    @Bean
+    public ObservationBiologiqueDomainService observationBiologiqueDomainService(ObservationBiologiqueRepositoryPort repo) {
+        return new ObservationBiologiqueDomainService(repo);
     }
 
     @Bean

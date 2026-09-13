@@ -1,0 +1,231 @@
+<div class="examens-container">
+  @if (store.error()) {
+    <div class="examens-error">{{ store.error() }}</div>
+  }
+
+  @if (access.canEdit()) {
+    <div class="examens-toolbar">
+      <button (click)="openCreateForm()" color="primary" mat-flat-button type="button">
+        <mat-icon>add</mat-icon>
+        {{ 'DOSSIER_MEDICAL.ADD_DEMANDE_EXAMEN' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (formOpen()) {
+    <mat-card class="demande-form">
+      <div class="demande-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.CATEGORIE_EXAMEN' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('categorie', $event.value)" [value]="form.value().categorie">
+            @for (categorie of categories; track categorie) {
+              <mat-option [value]="categorie">{{ ('CATEGORIE_EXAMEN.' + categorie) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DATE_DEMANDE' | translate }} *</mat-label>
+          <input (dateChange)="onValue('dateDemande', $event.value)" [matDatepicker]="ddPicker"
+                 [value]="form.value().dateDemande" matInput/>
+          <mat-datepicker-toggle [for]="ddPicker" matSuffix/>
+          <mat-datepicker #ddPicker/>
+        </mat-form-field>
+
+        <mat-slide-toggle (change)="onValue('urgent', $event.checked)" [checked]="form.value().urgent">
+          {{ 'DOSSIER_MEDICAL.URGENT' | translate }}
+        </mat-slide-toggle>
+
+        <mat-form-field appearance="outline" class="demande-form-motif">
+          <mat-label>{{ 'DOSSIER_MEDICAL.MOTIF' | translate }}</mat-label>
+          <input (input)="onValue('motif', $any($event.target).value)" [value]="form.value().motif" matInput/>
+        </mat-form-field>
+      </div>
+
+      <div class="demande-lignes">
+        <div class="demande-lignes-header">{{ 'DOSSIER_MEDICAL.LIGNES_DEMANDEES' | translate }}</div>
+        @for (ligne of form.value().lignes; track $index) {
+          <div class="demande-ligne-row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DOSSIER_MEDICAL.CODE_LOINC' | translate }}</mat-label>
+              <input (input)="onLigneValue($index, 'code', $any($event.target).value)" [value]="ligne.code"
+                     matInput placeholder="718-7"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DOSSIER_MEDICAL.LIBELLE_ANALYTE' | translate }}</mat-label>
+              <input (input)="onLigneValue($index, 'codeDisplay', $any($event.target).value)"
+                     [value]="ligne.codeDisplay"
+                     matInput placeholder="Hémoglobine"/>
+            </mat-form-field>
+            <button (click)="removeLigne($index)" mat-icon-button type="button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+        <button (click)="addLigne()" mat-stroked-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'DOSSIER_MEDICAL.ADD_LIGNE' | translate }}
+        </button>
+      </div>
+
+      <div class="demande-form-actions">
+        <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" color="primary" mat-flat-button type="button">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </mat-card>
+  }
+
+  @if (store.loading()) {
+    <div class="examens-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <div class="demandes-list">
+      @for (demande of store.rows(); track demande.id) {
+        <mat-card [class.demande-urgente]="demande.urgent" class="demande-card">
+          <div (click)="toggleExpand(demande)" class="demande-card-header">
+            <div class="demande-card-title">
+              <mat-icon>{{ demande.urgent ? 'priority_high' : 'science' }}</mat-icon>
+              <span class="demande-date">{{ demande.dateDemande }}</span>
+              <span class="demande-categorie">{{ ('CATEGORIE_EXAMEN.' + demande.categorie) | translate }}</span>
+              <span [class]="'statut-' + demande.statut" class="demande-statut-badge">
+                {{ ('STATUT_DEMANDE_EXAMEN.' + demande.statut) | translate }}
+              </span>
+            </div>
+            <mat-icon>{{ expandedDemandeId() === demande.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </div>
+
+          <div class="demande-lignes-chips">
+            @for (ligne of demande.lignes; track ligne.id) {
+              <mat-chip>{{ ligne.codeDisplay || ligne.code || ligne.libelle }}</mat-chip>
+            }
+          </div>
+
+          @if (demande.motif) {
+            <div class="demande-motif">{{ demande.motif }}</div>
+          }
+
+          @if (access.canEdit()) {
+            <div class="demande-actions">
+              @if (demande.statut === 'DEMANDE') {
+                <button (click)="transition(demande, 'preleve')" mat-stroked-button type="button">
+                  {{ 'DOSSIER_MEDICAL.MARQUER_PRELEVE' | translate }}
+                </button>
+                <button (click)="transition(demande, 'annuler')" mat-stroked-button type="button">
+                  {{ 'DOSSIER_MEDICAL.ANNULER' | translate }}
+                </button>
+              }
+              @if (demande.statut === 'PRELEVE') {
+                <button (click)="transition(demande, 'annuler')" mat-stroked-button type="button">
+                  {{ 'DOSSIER_MEDICAL.ANNULER' | translate }}
+                </button>
+              }
+              @if (demande.statut === 'RESULTAT_DISPONIBLE') {
+                <button (click)="transition(demande, 'valider')" color="primary" mat-flat-button type="button">
+                  <mat-icon>check_circle</mat-icon>
+                  {{ 'DOSSIER_MEDICAL.VALIDER' | translate }}
+                </button>
+              }
+            </div>
+          }
+
+          @if (demande.statut === 'VALIDE' && demande.conclusion) {
+            <div class="demande-conclusion">
+              <strong>{{ 'DOSSIER_MEDICAL.CONCLUSION' | translate }} :</strong> {{ demande.conclusion }}
+            </div>
+          }
+
+          @if (expandedDemandeId() === demande.id) {
+            <div class="demande-observations">
+              <div class="demande-observations-header">
+                <span>{{ 'DOSSIER_MEDICAL.RESULTATS' | translate }}</span>
+                @if (access.canEdit() && (demande.statut === 'PRELEVE' || demande.statut === 'RESULTAT_DISPONIBLE')) {
+                  <button (click)="openObservationForm()" mat-stroked-button type="button">
+                    <mat-icon>add</mat-icon>
+                    {{ 'DOSSIER_MEDICAL.ADD_RESULTAT' | translate }}
+                  </button>
+                }
+              </div>
+
+              @if (observationFormOpen()) {
+                <div class="observation-form">
+                  <div class="observation-form-grid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'DOSSIER_MEDICAL.CODE_LOINC' | translate }} *</mat-label>
+                      <input (input)="onObservationValue('code', $any($event.target).value)"
+                             [value]="observationForm.value().code" matInput placeholder="718-7"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'DOSSIER_MEDICAL.LIBELLE_ANALYTE' | translate }}</mat-label>
+                      <input (input)="onObservationValue('codeDisplay', $any($event.target).value)"
+                             [value]="observationForm.value().codeDisplay" matInput/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'DOSSIER_MEDICAL.VALEUR_NUM' | translate }}</mat-label>
+                      <input
+                        (input)="onObservationValue('valeurNum', $any($event.target).value === '' ? null : +$any($event.target).value)"
+                        matInput type="number"/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'DOSSIER_MEDICAL.UNITE' | translate }}</mat-label>
+                      <input (input)="onObservationValue('unite', $any($event.target).value)"
+                             [value]="observationForm.value().unite" matInput/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'DOSSIER_MEDICAL.VALEUR_TEXTE' | translate }}</mat-label>
+                      <input (input)="onObservationValue('valeurTexte', $any($event.target).value)"
+                             [value]="observationForm.value().valeurTexte" matInput/>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'DOSSIER_MEDICAL.DATE_PRELEVEMENT' | translate }} *</mat-label>
+                      <input (dateChange)="onObservationValue('datePrelevement', $event.value)"
+                             [matDatepicker]="opPicker"
+                             [value]="observationForm.value().datePrelevement" matInput/>
+                      <mat-datepicker-toggle [for]="opPicker" matSuffix/>
+                      <mat-datepicker #opPicker/>
+                    </mat-form-field>
+                  </div>
+                  <div class="observation-form-actions">
+                    <button (click)="cancelObservationForm()" mat-stroked-button
+                            type="button">{{ 'COMMON.CANCEL' | translate }}
+                    </button>
+                    <button (click)="saveObservation(demande)" color="primary" mat-flat-button type="button">
+                      <mat-icon>save</mat-icon>
+                      {{ 'COMMON.SAVE' | translate }}
+                    </button>
+                  </div>
+                </div>
+              }
+
+              @for (observation of observationsFor(demande.id); track observation.id) {
+                <div class="observation-row">
+                  <span class="observation-code">{{ observation.codeDisplay || observation.code }}</span>
+                  <span class="observation-valeur">
+                    {{ observation.valeurNum !== null ? (observation.valeurNum + ' ' + (observation.unite ?? '')) : observation.valeurTexte }}
+                  </span>
+                  <span class="observation-date">{{ observation.datePrelevement }}</span>
+                </div>
+              }
+              @if (observationsFor(demande.id).length === 0 && !observationFormOpen()) {
+                <div class="observation-empty">{{ 'DOSSIER_MEDICAL.NO_RESULTATS' | translate }}</div>
+              }
+            </div>
+          }
+        </mat-card>
+      }
+      @if (store.rows().length === 0) {
+        <div class="examens-empty">{{ 'DOSSIER_MEDICAL.NO_DEMANDES_EXAMEN' | translate }}</div>
+      }
+    </div>
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  }
+</div>

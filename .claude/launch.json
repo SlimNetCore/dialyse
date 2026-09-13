@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "start",
+        "--prefix",
+        "frontend"
+      ],
+      "port": 4200,
+      "autoPort": true
+    },
+    {
+      "name": "backend-dev",
+      "runtimeExecutable": "C:\\Users\\TS-CONSULT\\WebstormProjects\\Hemodialyse\\backend\\mvnw.cmd",
+      "runtimeArgs": [
+        "-f",
+        "C:\\Users\\TS-CONSULT\\WebstormProjects\\Hemodialyse\\backend\\platform\\pom.xml",
+        "-o",
+        "spring-boot:run"
+      ],
+      "port": 8080,
+      "autoPort": false
+    }
+  ]
+}

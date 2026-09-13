@@ -238,9 +238,84 @@ export type UpdateSerologiePayload = {
   conduiteATenir: string | null;
 };
 
+export type LigneDemandeExamen = {
+  id: string;
+  codeSystem: string | null;
+  code: string | null;
+  codeDisplay: string | null;
+  libelle: string | null;
+  commentaire: string | null;
+};
+
+export type DemandeExamen = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  prescripteurId: string | null;
+  dateDemande: string;
+  categorie: string;
+  urgent: boolean;
+  motif: string | null;
+  statut: string;
+  conclusion: string | null;
+  lignes: LigneDemandeExamen[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LigneDemandeExamenPayload = {
+  codeSystem: string | null;
+  code: string | null;
+  codeDisplay: string | null;
+  libelle: string | null;
+  commentaire: string | null;
+};
+
+export type CreateDemandeExamenPayload = {
+  centerId: string;
+  prescripteurId: string | null;
+  dateDemande: string | null;
+  categorie: string;
+  urgent: boolean;
+  motif: string | null;
+  lignes: LigneDemandeExamenPayload[];
+};
+
+export type ObservationBiologique = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  demandeExamenId: string | null;
+  codeSystem: string;
+  code: string;
+  codeDisplay: string | null;
+  valeurNum: number | null;
+  unite: string | null;
+  valeurTexte: string | null;
+  datePrelevement: string;
+  statut: string;
+  source: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateObservationPayload = {
+  centerId: string;
+  demandeExamenId: string | null;
+  codeSystem: string;
+  code: string;
+  codeDisplay: string | null;
+  valeurNum: number | null;
+  unite: string | null;
+  valeurTexte: string | null;
+  datePrelevement: string | null;
+  statut: string | null;
+};
+
 /**
  * Client HTTP du dossier médical patient : dossier de base, abords vasculaires,
- * prescriptions (dont EPO/fer), résultats d'analyses, antécédents, allergies et sérologies.
+ * prescriptions (dont EPO/fer), résultats d'analyses, antécédents, allergies, sérologies,
+ * demandes d'examen et observations biologiques (LOINC).
  * <p>
  * Aucune gestion d'erreur ici : `catchError` vit dans les stores (convention du projet).
  */
@@ -405,5 +480,45 @@ export class DossierMedicalApiService {
     return this.http.delete<void>(`${this.base}/${patientId}/serologies/${serologieId}`, {
       params: new HttpParams().set('centerId', centerId),
     });
+  }
+
+  listDemandesExamen(centerId: string, patientId: string, page: number, size: number):
+    Observable<PagedResponse<DemandeExamen>> {
+    return this.http.get<PagedResponse<DemandeExamen>>(`${this.base}/${patientId}/demandes-examen`, {
+      params: new HttpParams().set('centerId', centerId).set('page', page).set('size', size),
+    });
+  }
+
+  createDemandeExamen(patientId: string, payload: CreateDemandeExamenPayload): Observable<DemandeExamen> {
+    return this.http.post<DemandeExamen>(`${this.base}/${patientId}/demandes-examen`, payload);
+  }
+
+  demandeExamenPreleve(patientId: string, demandeId: string, centerId: string): Observable<DemandeExamen> {
+    return this.http.put<DemandeExamen>(`${this.base}/${patientId}/demandes-examen/${demandeId}/preleve`, {centerId});
+  }
+
+  demandeExamenResultatDisponible(patientId: string, demandeId: string, centerId: string): Observable<DemandeExamen> {
+    return this.http.put<DemandeExamen>(
+      `${this.base}/${patientId}/demandes-examen/${demandeId}/resultat-disponible`, {centerId});
+  }
+
+  demandeExamenValider(patientId: string, demandeId: string, centerId: string, conclusion: string | null):
+    Observable<DemandeExamen> {
+    return this.http.put<DemandeExamen>(
+      `${this.base}/${patientId}/demandes-examen/${demandeId}/valider`, {centerId, conclusion});
+  }
+
+  demandeExamenAnnuler(patientId: string, demandeId: string, centerId: string): Observable<DemandeExamen> {
+    return this.http.put<DemandeExamen>(`${this.base}/${patientId}/demandes-examen/${demandeId}/annuler`, {centerId});
+  }
+
+  listObservationsByDemande(centerId: string, patientId: string, demandeId: string): Observable<ObservationBiologique[]> {
+    return this.http.get<ObservationBiologique[]>(
+      `${this.base}/${patientId}/demandes-examen/${demandeId}/observations`,
+      {params: new HttpParams().set('centerId', centerId)});
+  }
+
+  createObservation(patientId: string, payload: CreateObservationPayload): Observable<ObservationBiologique> {
+    return this.http.post<ObservationBiologique>(`${this.base}/${patientId}/observations`, payload);
   }
 }

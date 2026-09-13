@@ -19,6 +19,10 @@ export const dossierMedicalRoutes: Routes = [
         loadComponent: () => import('./serologies/serologies.component').then(m => m.SerologiesComponent),
       },
       {
+        path: 'examens',
+        loadComponent: () => import('./examens/examens.component').then(m => m.ExamensComponent),
+      },
+      {
         path: 'abords',
         loadComponent: () => import('./abords/abords-vasculaires.component').then(m => m.AbordsVasculairesComponent),
       },
