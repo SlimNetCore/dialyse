@@ -21,6 +21,11 @@ public interface ResultatAnalyseJpaRepository extends JpaRepository<ResultatAnal
     List<ResultatAnalyseJpaEntity> findByPatientIdAndCenterIdAndDatePrelevementBetweenOrderByDatePrelevementDesc(
             UUID patientId, UUID centerId, LocalDate from, LocalDate to);
 
+    /**
+     * Alimente le suivi de l'anémie (Phase 4) : dernières valeurs Hb/ferritine/CST/albumine connues.
+     */
+    List<ResultatAnalyseJpaEntity> findTop10ByPatientIdAndCenterIdOrderByDatePrelevementDesc(UUID patientId, UUID centerId);
+
     void deleteByIdAndPatientIdAndCenterId(UUID id, UUID patientId, UUID centerId);
 }
 

@@ -1,0 +1,93 @@
+<div class="constantes-container">
+  @if (store.error()) {
+    <div class="constantes-error">{{ store.error() }}</div>
+  }
+
+  <p class="constantes-note">{{ 'DOSSIER_MEDICAL.CONSTANTES_NOTE' | translate }}</p>
+
+  <mat-card class="courbe-card">
+    <h3 class="courbe-title">{{ 'DOSSIER_MEDICAL.CONSTANTES_COURBE' | translate }}</h3>
+
+    <div class="metric-picker">
+      @for (metric of metrics; track metric.key) {
+        <mat-checkbox
+          (change)="toggleMetric(metric.key, $event.checked)"
+          [checked]="isSelected(metric.key)"
+          [style.--metric-color]="metric.color"
+          class="metric-checkbox"
+        >
+          {{ metric.label | translate }}
+        </mat-checkbox>
+      }
+    </div>
+
+    @if (store.chartLoading()) {
+      <div class="constantes-loading">
+        <mat-progress-spinner diameter="28" mode="indeterminate" strokeWidth="3"/>
+      </div>
+    } @else if (!hasSelection()) {
+      <div class="constantes-empty">{{ 'DOSSIER_MEDICAL.SELECT_CONSTANTE' | translate }}</div>
+    } @else if (!hasChartData()) {
+      <div class="constantes-empty">{{ 'DOSSIER_MEDICAL.NO_DATA' | translate }}</div>
+    } @else {
+      <div class="courbe-chart-wrapper">
+        <canvas [data]="courbeChart()" [options]="lineChartOptions" baseChart type="line"></canvas>
+      </div>
+    }
+  </mat-card>
+
+  @if (store.loading()) {
+    <div class="constantes-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <div class="constantes-table-scroll">
+      <table [dataSource]="store.rows()" class="full-width" mat-table>
+        <ng-container matColumnDef="dateSeance">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_SEANCE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.dateSeance }}</td>
+        </ng-container>
+        <ng-container matColumnDef="poidsAvantKg">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.POIDS_AVANT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.poidsAvantKg ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="poidsApresKg">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.POIDS_APRES' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.poidsApresKg ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="taAvant">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.TA_AVANT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.taAvant ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="taApres">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.TA_APRES' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.taApres ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="debitSangMlMin">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DEBIT_SANG' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.debitSangMlMin ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="ultrafiltrationMl">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.ULTRAFILTRATION' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.ultrafiltrationMl ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dureeMinutes">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DUREE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.dureeMinutes ?? '-' }}</td>
+        </ng-container>
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+      </table>
+    </div>
+    @if (store.rows().length === 0) {
+      <div class="constantes-empty">{{ 'DOSSIER_MEDICAL.NO_CONSTANTES' | translate }}</div>
+    }
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  }
+</div>

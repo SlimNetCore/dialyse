@@ -1,0 +1,227 @@
+.anemie-container {
+  padding: 28px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.anemie-error {
+  color: #c62828;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.anemie-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.anemie-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.anemie-card {
+  padding: 20px 24px;
+  border-radius: 12px;
+}
+
+.anemie-card-chart {
+  grid-row: span 2;
+}
+
+.anemie-card-title {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--app-text-secondary, #475569);
+}
+
+.anemie-chart-wrapper {
+  position: relative;
+  height: 260px;
+}
+
+.anemie-empty {
+  text-align: center;
+  padding: 24px;
+  opacity: 0.7;
+}
+
+.kdigo-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.kdigo-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  min-width: 120px;
+}
+
+.kdigo-code {
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.kdigo-valeur {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.kdigo-statut {
+  font-size: 11px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.badge-ok {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+}
+
+.badge-warn {
+  background: rgba(234, 88, 12, 0.12);
+  color: #c2410c;
+}
+
+.badge-muted {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+}
+
+.prescription-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.anemie-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.anemie-toolbar button {
+  min-height: 44px;
+}
+
+.administration-form {
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  background: var(--app-surface-soft);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.administration-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 24px;
+  align-items: center;
+}
+
+.administration-form-full {
+  grid-column: span 2;
+}
+
+.administration-checkbox {
+  display: flex;
+  align-items: center;
+  height: 56px;
+}
+
+.administration-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.administration-form-actions button {
+  min-height: 44px;
+  padding: 0 20px;
+}
+
+.administrations-table-scroll {
+  overflow-x: auto;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-width th.mat-mdc-header-cell,
+.full-width td.mat-mdc-cell {
+  padding: 14px 16px;
+}
+
+.icon-ok {
+  color: #15803d;
+}
+
+.icon-non-administree {
+  color: #c62828;
+  cursor: help;
+}
+
+/* Tablette (768-1024px). */
+@media (max-width: 1024px) {
+  .anemie-container {
+    padding: 24px;
+  }
+
+  .anemie-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .anemie-card-chart {
+    grid-row: auto;
+  }
+
+  .administration-form-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px). */
+@media (max-width: 767px) {
+  .anemie-container {
+    padding: 16px;
+  }
+
+  .administration-form {
+    padding: 16px;
+  }
+
+  .administration-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 16px;
+  }
+
+  .administration-form-full {
+    grid-column: span 2;
+  }
+
+  .administration-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .administration-form-actions button,
+  .anemie-toolbar button {
+    width: 100%;
+  }
+}

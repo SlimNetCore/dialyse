@@ -312,6 +312,77 @@ export type CreateObservationPayload = {
   statut: string | null;
 };
 
+export type AdministrationTraitement = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  prescriptionMedicaleId: string | null;
+  typeTraitement: string;
+  molecule: string | null;
+  dose: number | null;
+  uniteDose: string | null;
+  voie: string | null;
+  dateAdministration: string;
+  seanceId: string | null;
+  administrePar: string | null;
+  administree: boolean;
+  motifNonAdministration: string | null;
+  createdAt: string;
+};
+
+export type CreateAdministrationTraitementPayload = {
+  centerId: string;
+  prescriptionMedicaleId: string | null;
+  typeTraitement: string;
+  molecule: string | null;
+  dose: number | null;
+  uniteDose: string | null;
+  voie: string | null;
+  dateAdministration: string | null;
+  seanceId: string | null;
+  administrePar: string | null;
+  administree: boolean;
+  motifNonAdministration: string | null;
+};
+
+export type EvaluationCible = {
+  code: string;
+  valeur: number | null;
+  unite: string;
+  statut: string;
+  borneMin: number | null;
+  borneMax: number | null;
+  referenceKdigo: string;
+};
+
+export type PointBiologique = {
+  date: string;
+  hbGDl: number | null;
+  ferritineNgMl: number | null;
+  cstfPct: number | null;
+  albumineGDl: number | null;
+};
+
+export type SuiviAnemie = {
+  dateDernierBilan: string | null;
+  evaluations: EvaluationCible[];
+  courbe: PointBiologique[];
+  prescriptionActive: PrescriptionMedicale | null;
+  administrationsRecentes: AdministrationTraitement[];
+};
+
+export type ConstanteSeance = {
+  seanceId: string;
+  dateSeance: string;
+  poidsAvantKg: number | null;
+  poidsApresKg: number | null;
+  taAvant: string | null;
+  taApres: string | null;
+  debitSangMlMin: number | null;
+  ultrafiltrationMl: number | null;
+  dureeMinutes: number | null;
+};
+
 /**
  * Client HTTP du dossier médical patient : dossier de base, abords vasculaires,
  * prescriptions (dont EPO/fer), résultats d'analyses, antécédents, allergies, sérologies,
@@ -520,5 +591,30 @@ export class DossierMedicalApiService {
 
   createObservation(patientId: string, payload: CreateObservationPayload): Observable<ObservationBiologique> {
     return this.http.post<ObservationBiologique>(`${this.base}/${patientId}/observations`, payload);
+  }
+
+  listAdministrationsAnemie(centerId: string, patientId: string, page: number, size: number):
+    Observable<PagedResponse<AdministrationTraitement>> {
+    return this.http.get<PagedResponse<AdministrationTraitement>>(`${this.base}/${patientId}/administrations-anemie`, {
+      params: new HttpParams().set('centerId', centerId).set('page', page).set('size', size),
+    });
+  }
+
+  createAdministrationAnemie(patientId: string, payload: CreateAdministrationTraitementPayload):
+    Observable<AdministrationTraitement> {
+    return this.http.post<AdministrationTraitement>(`${this.base}/${patientId}/administrations-anemie`, payload);
+  }
+
+  getSuiviAnemie(centerId: string, patientId: string): Observable<SuiviAnemie> {
+    return this.http.get<SuiviAnemie>(`${this.base}/${patientId}/suivi-anemie`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  listConstantes(centerId: string, patientId: string, page: number, size: number):
+    Observable<PagedResponse<ConstanteSeance>> {
+    return this.http.get<PagedResponse<ConstanteSeance>>(`${this.base}/${patientId}/constantes`, {
+      params: new HttpParams().set('centerId', centerId).set('page', page).set('size', size),
+    });
   }
 }

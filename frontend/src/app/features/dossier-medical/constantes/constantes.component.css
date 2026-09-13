@@ -1,0 +1,109 @@
+.constantes-container {
+  padding: 28px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.constantes-error {
+  color: #c62828;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.constantes-note {
+  margin: 0 0 20px;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.constantes-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.courbe-card {
+  padding: 20px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.courbe-title {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--app-text-secondary, #475569);
+}
+
+.metric-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 20px;
+}
+
+.metric-checkbox {
+  --mdc-checkbox-selected-checkmark-color: #fff;
+}
+
+.metric-checkbox.mat-mdc-checkbox ::ng-deep .mdc-checkbox__background {
+  border-color: var(--metric-color, #64748b) !important;
+}
+
+.metric-checkbox.mat-mdc-checkbox ::ng-deep .mdc-checkbox--selected .mdc-checkbox__background {
+  background-color: var(--metric-color, #64748b) !important;
+  border-color: var(--metric-color, #64748b) !important;
+}
+
+.courbe-chart-wrapper {
+  position: relative;
+  height: 280px;
+}
+
+.constantes-table-scroll {
+  overflow-x: auto;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-width th.mat-mdc-header-cell,
+.full-width td.mat-mdc-cell {
+  padding: 14px 16px;
+}
+
+.constantes-empty {
+  text-align: center;
+  padding: 24px;
+  opacity: 0.7;
+}
+
+/* Tablette (768-1024px). */
+@media (max-width: 1024px) {
+  .constantes-container {
+    padding: 24px;
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px). */
+@media (max-width: 767px) {
+  .constantes-container {
+    padding: 16px;
+  }
+
+  .courbe-card {
+    padding: 16px;
+  }
+
+  .metric-picker {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .courbe-chart-wrapper {
+    height: 220px;
+  }
+}

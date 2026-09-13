@@ -1,0 +1,190 @@
+<div class="anemie-container">
+  @if (suiviStore.error()) {
+    <div class="anemie-error">{{ suiviStore.error() }}</div>
+  }
+
+  @if (suiviStore.loading()) {
+    <div class="anemie-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <div class="anemie-grid">
+      <mat-card class="anemie-card anemie-card-chart">
+        <h3 class="anemie-card-title">{{ 'DOSSIER_MEDICAL.ANEMIE_COURBE' | translate }}</h3>
+        @if (hasCourbeData()) {
+          <div class="anemie-chart-wrapper">
+            <canvas [data]="courbeChart()" [options]="lineChartOptions" baseChart type="line"></canvas>
+          </div>
+        } @else {
+          <div class="anemie-empty">{{ 'DOSSIER_MEDICAL.NO_DATA' | translate }}</div>
+        }
+      </mat-card>
+
+      <mat-card class="anemie-card">
+        <h3 class="anemie-card-title">{{ 'DOSSIER_MEDICAL.ANEMIE_CIBLES_KDIGO' | translate }}</h3>
+        <div class="kdigo-badges">
+          @for (evaluation of suiviStore.suivi()?.evaluations ?? []; track evaluation.code) {
+            <div [class]="'kdigo-badge ' + badgeClass(evaluation.statut)">
+              <span class="kdigo-code">{{ evaluation.code }}</span>
+              <span class="kdigo-valeur">{{ evaluation.valeur ?? '-' }} {{ evaluation.unite }}</span>
+              <span class="kdigo-statut">{{ ('KDIGO_STATUT.' + evaluation.statut) | translate }}</span>
+            </div>
+          }
+        </div>
+      </mat-card>
+
+      <mat-card class="anemie-card">
+        <h3 class="anemie-card-title">{{ 'DOSSIER_MEDICAL.ANEMIE_PRESCRIPTION_ACTIVE' | translate }}</h3>
+        @if (suiviStore.suivi()?.prescriptionActive; as prescription) {
+          <div class="prescription-summary">
+            <div><strong>EPO</strong> {{ prescription.epoMolecule ?? '-' }}
+              @if (prescription.epoDoseUi) {
+                — {{ prescription.epoDoseUi }} UI {{ prescription.epoVoie }} {{ prescription.epoFrequence }}
+              }
+            </div>
+            <div><strong>{{ 'DOSSIER_MEDICAL.FER' | translate }}</strong> {{ prescription.ferMolecule ?? '-' }}
+              @if (prescription.ferDoseMg) {
+                — {{ prescription.ferDoseMg }} mg {{ prescription.ferVoie }} {{ prescription.ferFrequence }}
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="anemie-empty">{{ 'DOSSIER_MEDICAL.NO_PRESCRIPTION' | translate }}</div>
+        }
+      </mat-card>
+    </div>
+
+    @if (access.canEdit()) {
+      <div class="anemie-toolbar">
+        <button (click)="openCreateForm()" color="primary" mat-flat-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'DOSSIER_MEDICAL.ADD_ADMINISTRATION' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (formOpen()) {
+      <div class="administration-form">
+        <div class="administration-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.TYPE_TRAITEMENT' | translate }}</mat-label>
+            <mat-select (selectionChange)="onValue('typeTraitement', $event.value)"
+                        [value]="form.value().typeTraitement">
+              <mat-option value="EPO">{{ 'ANEMIE_TYPE.EPO' | translate }}</mat-option>
+              <mat-option value="FER_INJECTABLE">{{ 'ANEMIE_TYPE.FER_INJECTABLE' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }}</mat-label>
+            <input (input)="onValue('molecule', $any($event.target).value)" [value]="form.value().molecule" matInput/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.DATE_ADMINISTRATION' | translate }} *</mat-label>
+            <input
+              (dateChange)="onValue('dateAdministration', $event.value)"
+              [matDatepicker]="dpAdmin"
+              [value]="form.value().dateAdministration"
+              matInput
+            />
+            <mat-datepicker-toggle [for]="dpAdmin" matSuffix/>
+            <mat-datepicker #dpAdmin/>
+          </mat-form-field>
+
+          <div class="administration-checkbox">
+            <mat-checkbox (change)="onValue('administree', $event.checked)" [checked]="form.value().administree">
+              {{ 'DOSSIER_MEDICAL.ADMINISTREE' | translate }}
+            </mat-checkbox>
+          </div>
+
+          @if (form.value().administree) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DOSSIER_MEDICAL.DOSE' | translate }}</mat-label>
+              <input (input)="onNumber('dose', $any($event.target).value)" [value]="form.value().dose" matInput
+                     step="0.1" type="number"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DOSSIER_MEDICAL.UNITE_DOSE' | translate }}</mat-label>
+              <input (input)="onValue('uniteDose', $any($event.target).value)" [value]="form.value().uniteDose"
+                     matInput/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
+              <input (input)="onValue('voie', $any($event.target).value)" [value]="form.value().voie" matInput/>
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline" class="administration-form-full">
+              <mat-label>{{ 'DOSSIER_MEDICAL.MOTIF_NON_ADMINISTRATION' | translate }} *</mat-label>
+              <input (input)="onValue('motifNonAdministration', $any($event.target).value)"
+                     [value]="form.value().motifNonAdministration" matInput/>
+            </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.ADMINISTRE_PAR' | translate }}</mat-label>
+            <input (input)="onValue('administrePar', $any($event.target).value)" [value]="form.value().administrePar"
+                   matInput/>
+          </mat-form-field>
+        </div>
+
+        <div class="administration-form-actions">
+          <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button (click)="save()" color="primary" mat-flat-button type="button">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="administrations-table-scroll">
+      <table [dataSource]="administrationsStore.rows()" class="full-width" mat-table>
+        <ng-container matColumnDef="dateAdministration">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_ADMINISTRATION' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.dateAdministration }}</td>
+        </ng-container>
+        <ng-container matColumnDef="typeTraitement">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.TYPE_TRAITEMENT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ ('ANEMIE_TYPE.' + row.typeTraitement) | translate }}</td>
+        </ng-container>
+        <ng-container matColumnDef="molecule">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.molecule ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dose">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DOSE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.dose ? (row.dose + ' ' + (row.uniteDose ?? '')) : '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="administree">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.ADMINISTREE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            @if (row.administree) {
+              <mat-icon class="icon-ok">check_circle</mat-icon>
+            } @else {
+              <span [matTooltip]="row.motifNonAdministration" class="icon-non-administree">
+                <mat-icon>cancel</mat-icon>
+              </span>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="administrePar">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.ADMINISTRE_PAR' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.administrePar ?? '-' }}</td>
+        </ng-container>
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+      </table>
+    </div>
+    @if (administrationsStore.rows().length === 0) {
+      <div class="anemie-empty">{{ 'DOSSIER_MEDICAL.NO_ADMINISTRATIONS' | translate }}</div>
+    }
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="administrationsStore.total()"
+      [pageIndex]="administrationsStore.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="administrationsStore.pageSize()"
+    ></mat-paginator>
+  }
+</div>

@@ -34,6 +34,14 @@ export const dossierMedicalRoutes: Routes = [
         path: 'biologie',
         loadComponent: () => import('./biologie/bilans-list.component').then(m => m.BilansListComponent),
       },
+      {
+        path: 'anemie',
+        loadComponent: () => import('./anemie/anemie.component').then(m => m.AnemieComponent),
+      },
+      {
+        path: 'constantes',
+        loadComponent: () => import('./constantes/constantes.component').then(m => m.ConstantesComponent),
+      },
     ],
   },
 ];

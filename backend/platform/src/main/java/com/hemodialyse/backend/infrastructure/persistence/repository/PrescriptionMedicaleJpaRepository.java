@@ -22,4 +22,10 @@ public interface PrescriptionMedicaleJpaRepository extends JpaRepository<Prescri
             UUID patientId, UUID centerId, LocalDate from, LocalDate to);
 
     void deleteByIdAndPatientIdAndCenterId(UUID id, UUID patientId, UUID centerId);
+
+    /**
+     * Alimente le suivi de l'anémie (Phase 4) : dernière prescription connue (EPO/fer).
+     */
+    java.util.Optional<PrescriptionMedicaleJpaEntity> findTopByPatientIdAndCenterIdOrderByDatePrescriptionDesc(
+            UUID patientId, UUID centerId);
 }
