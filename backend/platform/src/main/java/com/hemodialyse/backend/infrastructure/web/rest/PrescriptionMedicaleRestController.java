@@ -1,99 +1,105 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.PrescriptionMedicaleSearchRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.UpsertPrescriptionMedicaleRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.response.EntityWriteResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.response.PagedResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.response.PrescriptionMedicaleResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Prescriptions médicales du patient : cibles de dialyse et traitement de l'anémie (EPO, fer injectable).
+ * <p>
+ * Accès réservé au corps médical : le MEDECIN écrit, l'ADMIN consulte.
+ */
 @RestController
 @RequestMapping("/api/v1/patients")
 public class PrescriptionMedicaleRestController {
 
     private final PrescriptionMedicaleUseCase useCase;
+    private final CenterAccessGuard centerAccessGuard;
 
-    public PrescriptionMedicaleRestController(PrescriptionMedicaleUseCase useCase) {
+    public PrescriptionMedicaleRestController(PrescriptionMedicaleUseCase useCase,
+                                              CenterAccessGuard centerAccessGuard) {
         this.useCase = useCase;
+        this.centerAccessGuard = centerAccessGuard;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")
     @GetMapping("/{patientId}/prescriptions")
-    public ResponseEntity<?> list(@PathVariable UUID patientId,
-                                  @RequestParam UUID centerId,
-                                  @RequestParam(required = false) LocalDate from,
-                                  @RequestParam(required = false) LocalDate to) {
-        var items = useCase.listByPatient(CenterId.of(centerId), patientId, from, to).stream()
-                .map(this::toResponse)
-                .toList();
-        return ResponseEntity.ok(items);
+    public ResponseEntity<PagedResponse<PrescriptionMedicaleResponse>> list(
+            @PathVariable UUID patientId,
+            @RequestParam(required = false) UUID centerId,
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        CenterId center = centerAccessGuard.requireCenter(centerId);
+        var paged = useCase.listPagedByPatient(center, patientId, from, to, page, size);
+        return ResponseEntity.ok(PagedResponse.from(paged, PrescriptionMedicaleResponse::from));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")
     @PostMapping("/prescriptions/search")
-    public ResponseEntity<?> searchPrescriptions(@RequestBody @Valid PrescriptionMedicaleSearchRequest criteria) {
-        var items = listPrescriptionsByCriteria(criteria);
-        return ResponseEntity.ok(items);
+    public ResponseEntity<PagedResponse<PrescriptionMedicaleResponse>> searchPrescriptions(
+            @RequestBody @Valid PrescriptionMedicaleSearchRequest criteria) {
+        CenterId center = centerAccessGuard.requireCenter(criteria.centerId());
+        var paged = useCase.listPagedByPatient(
+                center,
+                criteria.patientId(),
+                criteria.dateFrom(),
+                criteria.dateTo(),
+                criteria.page(),
+                criteria.size());
+        return ResponseEntity.ok(PagedResponse.from(paged, PrescriptionMedicaleResponse::from));
     }
 
-    private java.util.List<?> listPrescriptionsByCriteria(PrescriptionMedicaleSearchRequest criteria) {
-        return useCase.listByPatient(
-                        CenterId.of(criteria.centerId()),
-                        criteria.patientId(),
-                        criteria.dateFrom(),
-                        criteria.dateTo()
-                ).stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PreAuthorize("hasRole('MEDECIN')")
     @PostMapping("/{patientId}/prescriptions")
-    public ResponseEntity<?> create(@PathVariable UUID patientId,
-                                    @RequestBody @Valid UpsertPrescriptionMedicaleRequest request) {
-        var prescription = useCase.save(
-                CenterId.of(request.centerId()),
-                patientId,
-                null,
-                request.datePrescription(),
-                request.medecinId(),
-                request.qbCible(),
-                request.qdCible(),
-                request.ufMaxMl(),
-                request.dureeCibleMin(),
-                request.typeDialyseurPrescrit(),
-                request.anticoagTypePrescrit(),
-                request.epoMolecule(),
-                request.epoDoseUi(),
-                request.epoVoie(),
-                request.epoFrequence(),
-                request.ferMolecule(),
-                request.ferDoseMg(),
-                request.ferVoie(),
-                request.ferFrequence()
-        );
-        return ResponseEntity.ok(Map.of(
-                "id", prescription.getId(),
-                "patientId", prescription.getPatientId(),
-                "updatedAt", prescription.getUpdatedAt()
-        ));
+    public ResponseEntity<EntityWriteResponse> create(@PathVariable UUID patientId,
+                                                      @RequestBody @Valid UpsertPrescriptionMedicaleRequest request) {
+        return ResponseEntity.ok(save(patientId, null, request));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PreAuthorize("hasRole('MEDECIN')")
     @PutMapping("/{patientId}/prescriptions/{prescriptionId}")
-    public ResponseEntity<?> update(@PathVariable UUID patientId,
-                                    @PathVariable UUID prescriptionId,
-                                    @RequestBody @Valid UpsertPrescriptionMedicaleRequest request) {
+    public ResponseEntity<EntityWriteResponse> update(@PathVariable UUID patientId,
+                                                      @PathVariable UUID prescriptionId,
+                                                      @RequestBody @Valid UpsertPrescriptionMedicaleRequest request) {
+        return ResponseEntity.ok(save(patientId, prescriptionId, request));
+    }
+
+    @PreAuthorize("hasRole('MEDECIN')")
+    @DeleteMapping("/{patientId}/prescriptions/{prescriptionId}")
+    public ResponseEntity<Void> delete(@PathVariable UUID patientId,
+                                       @PathVariable UUID prescriptionId,
+                                       @RequestParam(required = false) UUID centerId) {
+        CenterId center = centerAccessGuard.requireCenter(centerId);
+        useCase.delete(center, patientId, prescriptionId);
+        return ResponseEntity.noContent().build();
+    }
+
+    private EntityWriteResponse save(UUID patientId, UUID prescriptionId, UpsertPrescriptionMedicaleRequest request) {
+        CenterId center = centerAccessGuard.requireCenter(request.centerId());
         var prescription = useCase.save(
-                CenterId.of(request.centerId()),
+                center,
                 patientId,
                 prescriptionId,
                 request.datePrescription(),
@@ -113,47 +119,6 @@ public class PrescriptionMedicaleRestController {
                 request.ferVoie(),
                 request.ferFrequence()
         );
-        return ResponseEntity.ok(Map.of(
-                "id", prescription.getId(),
-                "patientId", prescription.getPatientId(),
-                "updatedAt", prescription.getUpdatedAt()
-        ));
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
-    @DeleteMapping("/{patientId}/prescriptions/{prescriptionId}")
-    public ResponseEntity<?> delete(@PathVariable UUID patientId,
-                                    @PathVariable UUID prescriptionId,
-                                    @RequestParam UUID centerId) {
-        useCase.delete(CenterId.of(centerId), patientId, prescriptionId);
-        return ResponseEntity.noContent().build();
-    }
-
-    private Map<String, Object> toResponse(PrescriptionMedicale p) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", p.getId());
-        m.put("patientId", p.getPatientId());
-        m.put("centerId", p.getCenterId());
-        m.put("datePrescription", p.getDatePrescription());
-        m.put("medecinId", p.getMedecinId());
-        m.put("qbCible", p.getQbCible());
-        m.put("qdCible", p.getQdCible());
-        m.put("ufMaxMl", p.getUfMaxMl());
-        m.put("dureeCibleMin", p.getDureeCibleMin());
-        m.put("typeDialyseurPrescrit", p.getTypeDialyseurPrescrit());
-        m.put("anticoagTypePrescrit", p.getAnticoagTypePrescrit());
-        m.put("epoMolecule", p.getEpoMolecule());
-        m.put("epoDoseUi", p.getEpoDoseUi());
-        m.put("epoVoie", p.getEpoVoie());
-        m.put("epoFrequence", p.getEpoFrequence());
-        m.put("ferMolecule", p.getFerMolecule());
-        m.put("ferDoseMg", p.getFerDoseMg());
-        m.put("ferVoie", p.getFerVoie());
-        m.put("ferFrequence", p.getFerFrequence());
-        m.put("createdAt", p.getCreatedAt());
-        m.put("updatedAt", p.getUpdatedAt());
-        return m;
+        return new EntityWriteResponse(prescription.getId(), prescription.getPatientId(), prescription.getUpdatedAt());
     }
 }
-
-

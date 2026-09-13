@@ -1,0 +1,53 @@
+.blocked-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--app-bg);
+}
+
+.blocked-card {
+  max-width: 480px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 40px 32px;
+}
+
+.icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(185, 28, 28, 0.12);
+  color: #b91c1c;
+  margin-bottom: 8px;
+}
+
+.icon-wrap mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.blocked-card .app-eyebrow {
+  margin-top: 4px;
+}
+
+.blocked-card .app-section-title {
+  margin-top: 10px;
+}
+
+.blocked-card .app-section-copy {
+  margin-top: 8px;
+  max-width: 100%;
+}
+
+.blocked-card button {
+  margin-top: 22px;
+}

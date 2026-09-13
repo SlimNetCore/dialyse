@@ -1256,7 +1256,9 @@
     "LABEL": "Isem",
     "TOTAL_LABEL": "Asemday:",
     "SAVING": "...",
-    "PAGINATOR_ARIA_LABEL": "Assebter n telist"
+    "PAGINATOR_ARIA_LABEL": "Assebter n telist",
+    "CANCEL": "Sefsex",
+    "EDIT": "Ẓreg"
   },
   "TVA_TYPES": {
     "TITLE": "Tismenyafin n TVA",
@@ -1301,5 +1303,150 @@
       "UPDATE_FAILED": "Tuccadh deg ucemmedh.",
       "DELETE_FAILED": "Tuccadh deg ussentadh."
     }
+  },
+  "DOSSIER_MEDICAL": {
+    "OPEN_BUTTON": "Aɣbalu adawsan",
+    "TITLE": "Aɣbalu adawsan",
+    "TAB_SYNTHESE": "Agzul",
+    "TAB_ANTECEDENTS": "Antécédents",
+    "TAB_SEROLOGIES": "Sérologies",
+    "TAB_ABORDS": "Iberdan n dialyse (abord vasculaire)",
+    "TAB_PRESCRIPTIONS": "Tira n ubbedwal (prescriptions)",
+    "TAB_BIOLOGIE": "Tisleḍin (biologie)",
+    "READONLY_MODE": "I tɣuri kan",
+    "NEPHROPATHIE_INITIALE": "Nephropathie tamezwarut",
+    "DATE_MISE_EN_DIALYSE": "Azemz n tazwara n dialyse",
+    "HEPATITE_B_STATUT": "Addad n hepatite B",
+    "HEPATITE_C_STATUT": "Addad n hepatite C",
+    "OBSERVATION_GLOBALE": "Amatu n taẓrigt",
+    "ADD_ABORD": "Rnu abord vasculaire",
+    "TYPE_ABORD": "Anaw n abord",
+    "COTE": "Idis",
+    "LOCALISATION": "Adig",
+    "DATE_CREATION": "Azemz n usnulfu",
+    "DATE_FIN": "Azemz n tagara",
+    "ACTIF": "Urmid",
+    "COMPLICATIONS": "Uguren (complications)",
+    "NO_ABORDS": "Ulac abord vasculaire yettwajerden",
+    "ADD_PRESCRIPTION": "Prescription tamaynut",
+    "DATE_PRESCRIPTION": "Azemz n prescription",
+    "QB_CIBLE": "Qb yettwarǧan (mL/min)",
+    "QD_CIBLE": "Qd yettwarǧan (mL/min)",
+    "UF_MAX": "UF afellay (mL)",
+    "DUREE_CIBLE": "Tanzagt yettwarǧan (min)",
+    "TYPE_DIALYSEUR": "Anaw n dialyseur",
+    "ANTICOAG_TYPE": "Anticoagulation",
+    "SECTION_EPO": "Amudew n EPO",
+    "SECTION_FER": "Uzzal s tallalt n tissi (fer injectable)",
+    "MOLECULE": "Amuran (molécule)",
+    "DOSE_UI": "Tanzagt (UI)",
+    "DOSE_MG": "Tanzagt (mg)",
+    "VOIE": "Abrid",
+    "FREQUENCE": "Tikkelt-nnsen",
+    "NO_PRESCRIPTIONS": "Ulac prescription yettwajerden",
+    "ADD_ANALYSE": "Sekcem igmaḍ",
+    "DATE_PRELEVEMENT": "Azemz n usmizzel",
+    "PLAQUETTES": "Plaquettes",
+    "FERRITINE": "Ferritine",
+    "UREE_PRE": "Urée uqbel dialyse",
+    "UREE_POST": "Urée deffir dialyse",
+    "CREATININE": "Créatinine",
+    "PHOSPHORE": "Phosphore",
+    "CALCIUM": "Calcium",
+    "ALBUMINE": "Albumine",
+    "NO_ANALYSES": "Ulac igmaḍ n tisleḍt yettwajerden",
+    "TITLE_ANTECEDENTS": "Antécédents akked twuriwin yemgaraden",
+    "ADD_ANTECEDENT": "Rnu antécédent",
+    "TYPE_ANTECEDENT": "Anaw",
+    "CODE_CIM10": "Tangalt CIM-10",
+    "LIBELLE": "Isem (ma ulac tangalt)",
+    "DATE_DEBUT": "Azemz n tazwara",
+    "SEVERITE": "Tuzert",
+    "NOTE": "Tazmilt",
+    "DIAGNOSTIC": "Diagnostic",
+    "STATUT": "Addad",
+    "RESOUDRE": "Creḍ am ifukk",
+    "NO_ANTECEDENTS": "Ulac antécédent yettwajerden",
+    "TITLE_ALLERGIES": "Allergies",
+    "ADD_ALLERGIE": "Sekcem allergie",
+    "ALLERGIES_CRITIQUES_BANDEAU": "Allergies s tuzert tameqqrant",
+    "SUBSTANCE": "Asalu (substance)",
+    "CATEGORIE_ALLERGIE": "Taggayt",
+    "CRITICITE": "Tuzert",
+    "TYPE_REACTION": "Anaw n tiɣawsa",
+    "MANIFESTATIONS": "Ilugan",
+    "NO_ALLERGIES": "Ulac allergie yettwajerden",
+    "ADD_SEROLOGIE": "Rnu agmuḍ",
+    "MARQUEUR": "Acraḍ (marqueur)",
+    "RESULTAT": "Agmuḍ",
+    "LABORATOIRE": "Laboratoire",
+    "CONDUITE_A_TENIR": "Tigawt ara yettwaxdmen",
+    "NO_SEROLOGIES": "Ulac sérologie yettwajerden"
+  },
+  "TYPE_ANTECEDENT": {
+    "MEDICAL": "Adawsan",
+    "CHIRURGICAL": "Anmegdal (chirurgical)",
+    "FAMILIAL": "N twacult",
+    "OBSTETRICAL": "Obstétrical",
+    "COMORBIDITE": "Comorbidité"
+  },
+  "STATUT_CLINIQUE": {
+    "ACTIF": "Urmid",
+    "RESOLU": "Yefra",
+    "INACTIF": "Ur urmid ara"
+  },
+  "CATEGORIE_ALLERGIE": {
+    "MEDICAMENT": "Adwa",
+    "ALIMENT": "Lqut",
+    "ENVIRONNEMENT": "Twennaḍt",
+    "BIOLOGIQUE": "Biologique"
+  },
+  "CRITICITE_ALLERGIE": {
+    "BASSE": "Wezzilet",
+    "HAUTE": "Meqqret"
+  },
+  "TYPE_REACTION": {
+    "ALLERGIE": "Allergie",
+    "INTOLERANCE": "Intolérance"
+  },
+  "MARQUEURS_SEROLOGIQUES": {
+    "VIH_AC": "Ac anti-VIH",
+    "AG_HBS": "Ag HBs",
+    "AC_HBS": "Ac anti-HBs",
+    "AC_HBC": "Ac anti-HBc",
+    "AC_VHC": "Ac anti-VHC",
+    "ARN_VHC": "ARN VHC",
+    "TPHA": "TPHA"
+  },
+  "SEROLOGIE_RESULTATS": {
+    "NEGATIF": "Uggar",
+    "POSITIF": "Amellal (positif)",
+    "DOUTEUX": "Yettwasser",
+    "EN_COURS": "Deg tikkelt"
+  },
+  "ABORD_TYPES": {
+    "FAV": "FAV",
+    "PTFE": "PTFE",
+    "KT_TUNNELISE": "Cathéter tunnelisé",
+    "KT_AIGU": "Cathéter uzrib"
+  },
+  "COTES": {
+    "GAUCHE": "Azelmaḍ",
+    "DROIT": "Ayeffus"
+  },
+  "SEROLOGIE_STATUTS": {
+    "NEGATIF": "Uggar",
+    "PORTEUR": "Yeṭṭfen",
+    "VACCINE": "Yettwaḥeṭṭen (vacciné)",
+    "IMMUNE": "Yesɛa timmunit",
+    "INCONNU": "Ur yettwassen ara",
+    "POSITIF": "Amellal (positif)",
+    "TRAITE": "Yettwadawa"
+  },
+  "ANTICOAG_TYPES": {
+    "HNF": "HNF",
+    "HBPM": "HBPM",
+    "CITRATE": "Citrate",
+    "AUCUN": "Ulac"
   }
 }

@@ -2,10 +2,16 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.seance.model.ResultatAnalyse;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.ResultatAnalyseJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.ResultatAnalyseJpaRepository;
+import com.hemodialyse.backend.infrastructure.persistence.spec.ResultatAnalyseSpecifications;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,12 +45,32 @@ public class ResultatAnalyseRepositoryAdapter implements ResultatAnalyseReposito
     }
 
     @Override
+    public PagedResult<ResultatAnalyse> findPagedByPatientId(UUID patientId,
+                                                             CenterId centerId,
+                                                             LocalDate from,
+                                                             LocalDate to,
+                                                             int page,
+                                                             int size) {
+        Page<ResultatAnalyseJpaEntity> result = jpa.findAll(
+                ResultatAnalyseSpecifications.from(patientId, centerId.value(), from, to),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "datePrelevement")));
+        return PagedResult.of(
+                result.getContent().stream().map(this::toDomain).toList(),
+                result.getTotalElements(),
+                page,
+                size);
+    }
+
+    @Override
     public ResultatAnalyse save(ResultatAnalyse resultat) {
         return toDomain(jpa.save(toJpa(resultat)));
     }
 
     @Override
+    @Transactional
     public void deleteById(UUID analyseId, UUID patientId, CenterId centerId) {
+        // Une requête de suppression dérivée exige une transaction active, sans quoi Spring Data
+        // lève TransactionRequiredException à l'exécution.
         jpa.deleteByIdAndPatientIdAndCenterId(analyseId, patientId, centerId.value());
     }
 

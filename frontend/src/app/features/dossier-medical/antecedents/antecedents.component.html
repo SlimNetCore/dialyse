@@ -1,0 +1,267 @@
+<div class="antecedents-container">
+  @if (allergiesStore.critiques().length > 0) {
+    <div class="allergies-bandeau">
+      <mat-icon>warning</mat-icon>
+      <span>{{ 'DOSSIER_MEDICAL.ALLERGIES_CRITIQUES_BANDEAU' | translate }} :</span>
+      @for (allergie of allergiesStore.critiques(); track allergie.id) {
+        <mat-chip color="warn" highlighted>{{ allergie.codeDisplay || allergie.code }}</mat-chip>
+      }
+    </div>
+  }
+
+  <section class="antecedents-section">
+    <div class="section-header">
+      <h3>{{ 'DOSSIER_MEDICAL.TITLE_ANTECEDENTS' | translate }}</h3>
+      @if (access.canEdit()) {
+        <button (click)="openCreateAntecedentForm()" color="primary" mat-flat-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'DOSSIER_MEDICAL.ADD_ANTECEDENT' | translate }}
+        </button>
+      }
+    </div>
+
+    @if (antecedentsStore.error()) {
+      <div class="section-error">{{ antecedentsStore.error() }}</div>
+    }
+
+    @if (antecedentFormOpen()) {
+      <div class="inline-form">
+        <div class="inline-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.TYPE_ANTECEDENT' | translate }}</mat-label>
+            <mat-select (selectionChange)="onAntecedentValue('type', $event.value)"
+                        [value]="antecedentForm.value().type">
+              @for (type of typesAntecedent; track type) {
+                <mat-option [value]="type">{{ ('TYPE_ANTECEDENT.' + type) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.CODE_CIM10' | translate }}</mat-label>
+            <input (input)="onAntecedentValue('code', $any($event.target).value)" [value]="antecedentForm.value().code"
+                   matInput placeholder="N18.5"/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.LIBELLE' | translate }}</mat-label>
+            <input (input)="onAntecedentValue('libelleLibre', $any($event.target).value)"
+                   [disabled]="!!antecedentForm.value().code" [value]="antecedentForm.value().libelleLibre" matInput/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.DATE_DEBUT' | translate }} *</mat-label>
+            <input (dateChange)="onAntecedentValue('dateDebut', $event.value)" [matDatepicker]="ddPicker"
+                   [value]="antecedentForm.value().dateDebut" matInput/>
+            <mat-datepicker-toggle [for]="ddPicker" matSuffix/>
+            <mat-datepicker #ddPicker/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.SEVERITE' | translate }}</mat-label>
+            <input (input)="onAntecedentValue('severite', $any($event.target).value)"
+                   [value]="antecedentForm.value().severite" matInput/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="inline-form-note">
+            <mat-label>{{ 'DOSSIER_MEDICAL.NOTE' | translate }}</mat-label>
+            <textarea (input)="onAntecedentValue('note', $any($event.target).value)"
+                      [value]="antecedentForm.value().note" matInput rows="2"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="inline-form-actions">
+          <button (click)="cancelAntecedentForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button (click)="saveAntecedent()" color="primary" mat-flat-button type="button">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (antecedentsStore.loading()) {
+      <div class="section-loading">
+        <mat-progress-spinner diameter="28" mode="indeterminate" strokeWidth="3"/>
+      </div>
+    } @else {
+      <table [dataSource]="antecedentsStore.rows()" class="full-width" mat-table>
+        <ng-container matColumnDef="type">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.TYPE_ANTECEDENT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ ('TYPE_ANTECEDENT.' + row.type) | translate }}</td>
+        </ng-container>
+        <ng-container matColumnDef="diagnostic">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DIAGNOSTIC' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.codeDisplay || row.code || row.libelleLibre }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateDebut">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_DEBUT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.dateDebut }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateFin">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_FIN' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.dateFin || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="statutClinique">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.STATUT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ ('STATUT_CLINIQUE.' + row.statutClinique) | translate }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell></th>
+          <td *matCellDef="let row" mat-cell>
+            @if (access.canEdit()) {
+              <button (click)="openEditAntecedentForm(row)" [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button
+                      type="button">
+                <mat-icon>edit</mat-icon>
+              </button>
+              @if (row.statutClinique === 'ACTIF') {
+                <button (click)="resoudreAntecedent(row)" [matTooltip]="'DOSSIER_MEDICAL.RESOUDRE' | translate"
+                        mat-icon-button type="button">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+              }
+              <button (click)="removeAntecedent(row)" [matTooltip]="'COMMON.DELETE' | translate" mat-icon-button
+                      type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="antecedentColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: antecedentColumns;" mat-row></tr>
+      </table>
+      @if (antecedentsStore.rows().length === 0) {
+        <div class="section-empty">{{ 'DOSSIER_MEDICAL.NO_ANTECEDENTS' | translate }}</div>
+      }
+      <mat-paginator
+        (page)="onAntecedentPageChange($event)"
+        [length]="antecedentsStore.total()"
+        [pageIndex]="antecedentsStore.pageIndex()"
+        [pageSizeOptions]="[10, 20, 50]"
+        [pageSize]="antecedentsStore.pageSize()"
+      ></mat-paginator>
+    }
+  </section>
+
+  <section class="antecedents-section">
+    <div class="section-header">
+      <h3>{{ 'DOSSIER_MEDICAL.TITLE_ALLERGIES' | translate }}</h3>
+      @if (access.canEdit()) {
+        <button (click)="openCreateAllergieForm()" color="primary" mat-flat-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'DOSSIER_MEDICAL.ADD_ALLERGIE' | translate }}
+        </button>
+      }
+    </div>
+
+    @if (allergiesStore.error()) {
+      <div class="section-error">{{ allergiesStore.error() }}</div>
+    }
+
+    @if (allergieFormOpen()) {
+      <div class="inline-form">
+        <div class="inline-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.SUBSTANCE' | translate }} *</mat-label>
+            <input (input)="onAllergieValue('code', $any($event.target).value)" [value]="allergieForm.value().code"
+                   matInput/>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.CATEGORIE_ALLERGIE' | translate }}</mat-label>
+            <mat-select (selectionChange)="onAllergieValue('categorie', $event.value)"
+                        [value]="allergieForm.value().categorie">
+              @for (categorie of categoriesAllergie; track categorie) {
+                <mat-option [value]="categorie">{{ ('CATEGORIE_ALLERGIE.' + categorie) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.CRITICITE' | translate }}</mat-label>
+            <mat-select (selectionChange)="onAllergieValue('criticite', $event.value)"
+                        [value]="allergieForm.value().criticite">
+              @for (criticite of criticites; track criticite) {
+                <mat-option [value]="criticite">{{ ('CRITICITE_ALLERGIE.' + criticite) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOSSIER_MEDICAL.TYPE_REACTION' | translate }}</mat-label>
+            <mat-select (selectionChange)="onAllergieValue('typeReaction', $event.value)"
+                        [value]="allergieForm.value().typeReaction">
+              @for (type of typesReaction; track type) {
+                <mat-option [value]="type">{{ ('TYPE_REACTION.' + type) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="inline-form-note">
+            <mat-label>{{ 'DOSSIER_MEDICAL.MANIFESTATIONS' | translate }}</mat-label>
+            <textarea (input)="onAllergieValue('manifestations', $any($event.target).value)"
+                      [value]="allergieForm.value().manifestations" matInput rows="2"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="inline-form-actions">
+          <button (click)="cancelAllergieForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button (click)="saveAllergie()" color="primary" mat-flat-button type="button">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (allergiesStore.loading()) {
+      <div class="section-loading">
+        <mat-progress-spinner diameter="28" mode="indeterminate" strokeWidth="3"/>
+      </div>
+    } @else {
+      <table [dataSource]="allergiesStore.rows()" class="full-width" mat-table>
+        <ng-container matColumnDef="substance">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.SUBSTANCE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.codeDisplay || row.code }}</td>
+        </ng-container>
+        <ng-container matColumnDef="categorie">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.CATEGORIE_ALLERGIE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ ('CATEGORIE_ALLERGIE.' + row.categorie) | translate }}</td>
+        </ng-container>
+        <ng-container matColumnDef="criticite">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.CRITICITE' | translate }}</th>
+          <td *matCellDef="let row" [class.criticite-haute]="row.criticite === 'HAUTE'" mat-cell>
+            {{ ('CRITICITE_ALLERGIE.' + row.criticite) | translate }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="manifestations">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.MANIFESTATIONS' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.manifestations || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell></th>
+          <td *matCellDef="let row" mat-cell>
+            @if (access.canEdit()) {
+              <button (click)="removeAllergie(row)" [matTooltip]="'COMMON.DELETE' | translate" mat-icon-button
+                      type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="allergieColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: allergieColumns;" mat-row></tr>
+      </table>
+      @if (allergiesStore.rows().length === 0) {
+        <div class="section-empty">{{ 'DOSSIER_MEDICAL.NO_ALLERGIES' | translate }}</div>
+      }
+      <mat-paginator
+        (page)="onAllergiePageChange($event)"
+        [length]="allergiesStore.total()"
+        [pageIndex]="allergiesStore.pageIndex()"
+        [pageSizeOptions]="[10, 20, 50]"
+        [pageSize]="allergiesStore.pageSize()"
+      ></mat-paginator>
+    }
+  </section>
+</div>

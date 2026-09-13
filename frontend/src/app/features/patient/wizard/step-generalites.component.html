@@ -5,7 +5,7 @@
       <div class="photo-column">
         <button
           (click)="openMedicalRecord()"
-          [disabled]="readonly || !isMedecin()"
+          [disabled]="!canAccessMedicalRecord() || !hasPatientId"
           class="medical-btn"
           mat-flat-button
         >

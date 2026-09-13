@@ -1,0 +1,153 @@
+<div class="abords-container">
+  @if (store.error()) {
+    <div class="abords-error">{{ store.error() }}</div>
+  }
+
+  @if (access.canEdit()) {
+    <div class="abords-toolbar">
+      <button (click)="openCreateForm()" color="primary" mat-flat-button type="button">
+        <mat-icon>add</mat-icon>
+        {{ 'DOSSIER_MEDICAL.ADD_ABORD' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (formOpen()) {
+    <div class="abord-form">
+      <div class="abord-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.TYPE_ABORD' | translate }} *</mat-label>
+          <mat-select (selectionChange)="onText('typeAbord', $event.value)" [value]="form.value().typeAbord">
+            @for (type of typesAbord; track type) {
+              <mat-option [value]="type">{{ ('ABORD_TYPES.' + type) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.COTE' | translate }}</mat-label>
+          <mat-select (selectionChange)="onText('cote', $event.value)" [value]="form.value().cote">
+            @for (cote of cotes; track cote) {
+              <mat-option [value]="cote">{{ ('COTES.' + cote) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.LOCALISATION' | translate }}</mat-label>
+          <input
+            (input)="onText('localisation', $any($event.target).value)"
+            [value]="form.value().localisation"
+            matInput
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DATE_CREATION' | translate }}</mat-label>
+          <input
+            (dateChange)="onText('dateCreation', $event.value)"
+            [matDatepicker]="dcPicker"
+            [value]="form.value().dateCreation"
+            matInput
+          />
+          <mat-datepicker-toggle [for]="dcPicker" matSuffix/>
+          <mat-datepicker #dcPicker/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DATE_FIN' | translate }}</mat-label>
+          <input
+            (dateChange)="onText('dateFin', $event.value)"
+            [matDatepicker]="dfPicker"
+            [value]="form.value().dateFin"
+            matInput
+          />
+          <mat-datepicker-toggle [for]="dfPicker" matSuffix/>
+          <mat-datepicker #dfPicker/>
+        </mat-form-field>
+
+        <mat-slide-toggle (change)="onText('actif', $event.checked)" [checked]="form.value().actif">
+          {{ 'DOSSIER_MEDICAL.ACTIF' | translate }}
+        </mat-slide-toggle>
+
+        <mat-form-field appearance="outline" class="abord-complications">
+          <mat-label>{{ 'DOSSIER_MEDICAL.COMPLICATIONS' | translate }}</mat-label>
+          <textarea
+            (input)="onText('complications', $any($event.target).value)"
+            [value]="form.value().complications"
+            matInput
+            rows="2"
+          ></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="abord-form-actions">
+        <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" color="primary" mat-flat-button type="button">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (store.loading()) {
+    <div class="abords-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <table [dataSource]="store.rows()" class="full-width" mat-table>
+      <ng-container matColumnDef="typeAbord">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.TYPE_ABORD' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ ('ABORD_TYPES.' + row.typeAbord) | translate }}</td>
+      </ng-container>
+      <ng-container matColumnDef="cote">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.COTE' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ row.cote ? ('COTES.' + row.cote | translate) : '-' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="localisation">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.LOCALISATION' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ row.localisation || '-' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="dateCreation">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_CREATION' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ row.dateCreation || '-' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="dateFin">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_FIN' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ row.dateFin || '-' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actif">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.ACTIF' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>
+          <mat-icon [class.abord-inactive]="!row.actif">{{ row.actif ? 'check_circle' : 'cancel' }}</mat-icon>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell></th>
+        <td *matCellDef="let row" mat-cell>
+          @if (access.canEdit()) {
+            <button (click)="openEditForm(row)" [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button type="button">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button (click)="remove(row)" [matTooltip]="'COMMON.DELETE' | translate" mat-icon-button type="button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+    </table>
+    @if (store.rows().length === 0) {
+      <div class="abords-empty">{{ 'DOSSIER_MEDICAL.NO_ABORDS' | translate }}</div>
+    }
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  }
+</div>

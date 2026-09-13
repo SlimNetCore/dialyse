@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.seance.port;
 
 import com.hemodialyse.backend.domain.seance.model.ResultatAnalyse;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.time.LocalDate;
@@ -9,6 +10,16 @@ import java.util.UUID;
 
 public interface ResultatAnalyseRepositoryPort {
     List<ResultatAnalyse> findByPatientId(UUID patientId, CenterId centerId, LocalDate from, LocalDate to);
+
+    /**
+     * Variante paginée, triée par date de prélèvement décroissante (AGENTS.md §9).
+     */
+    PagedResult<ResultatAnalyse> findPagedByPatientId(UUID patientId,
+                                                      CenterId centerId,
+                                                      LocalDate from,
+                                                      LocalDate to,
+                                                      int page,
+                                                      int size);
 
     ResultatAnalyse save(ResultatAnalyse resultat);
 

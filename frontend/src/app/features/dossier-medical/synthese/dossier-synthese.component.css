@@ -1,0 +1,46 @@
+.synthese-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.synthese-form {
+  padding: 16px;
+  max-width: 900px;
+}
+
+.synthese-error {
+  color: #c62828;
+  margin-bottom: 12px;
+}
+
+.synthese-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+
+.synthese-observation {
+  grid-column: 1 / -1;
+}
+
+.synthese-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-loader {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+@media (max-width: 767px) {
+  .synthese-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .synthese-form {
+    padding: 12px;
+  }
+}

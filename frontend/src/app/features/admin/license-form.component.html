@@ -1,0 +1,104 @@
+<div class="license-form-page">
+  <section class="app-hero-card form-hero">
+    <button class="hero-back" mat-icon-button routerLink="/admin/licenses">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="hero-avatar">
+      <mat-icon>add_moderator</mat-icon>
+    </span>
+    <div class="hero-copy">
+      <span class="app-eyebrow">Nouvelle licence</span>
+      <h1 class="app-section-title">Émettre une licence</h1>
+      <p class="app-section-copy">
+        La licence est signée et ne peut être ni forgée ni prolongée par le centre lui-même.
+      </p>
+    </div>
+  </section>
+
+  @if (issuedKey(); as key) {
+    <section class="app-panel form-section issued-panel">
+      <h3 class="section-title">
+        <mat-icon>check_circle</mat-icon>
+        Licence émise
+      </h3>
+      <p class="app-section-copy">
+        Copiez cette clé et transmettez-la au centre — il l'activera dans « Licence du centre » sur son instance.
+      </p>
+      <div class="key-box">
+        <code>{{ key }}</code>
+        <button (click)="copyIssuedKey()" color="primary" mat-icon-button matTooltip="Copier la clé">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="actions">
+        <button (click)="goToList()" color="primary" mat-flat-button type="button">
+          <mat-icon>list</mat-icon>
+          Retour à la liste des licences
+        </button>
+      </div>
+    </section>
+  } @else {
+    <form [formRoot]="licenseForm" class="app-panel form-section">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="flex1">
+          <mat-label>Centre</mat-label>
+          <mat-select [formField]="licenseForm.centerId">
+            @for (c of appShell.availableCenters(); track c.id) {
+              <mat-option [value]="c.id">{{ c.name }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>business</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="type-toggle">
+        <button (click)="applyStandardDefaults()" [class.active]="form().type === 'STANDARD'" mat-stroked-button
+                type="button">
+          <mat-icon>verified</mat-icon>
+          Licence standard
+        </button>
+        <button (click)="applyTrialDefaults()" [class.active]="form().type === 'TRIAL'" mat-stroked-button
+                type="button">
+          <mat-icon>schedule</mat-icon>
+          Période d'essai
+        </button>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="flex1">
+          <mat-label>Postes autorisés (utilisateurs)</mat-label>
+          <input [formField]="licenseForm.maxUsers" matInput type="number"/>
+          <mat-icon matPrefix>groups</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="flex1">
+          <mat-label>Valide à partir du</mat-label>
+          <input [formField]="licenseForm.validFrom" matInput type="date"/>
+          <mat-icon matPrefix>event</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex1">
+          <mat-label>Valide jusqu'au</mat-label>
+          <input [formField]="licenseForm.validUntil" matInput type="date"/>
+          <mat-icon matPrefix>event_busy</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="actions">
+        <button [disabled]="saving()" mat-stroked-button routerLink="/admin/licenses">
+          <mat-icon>arrow_back</mat-icon>
+          Retour
+        </button>
+        <button (click)="save()" [disabled]="saving()" color="primary" mat-flat-button type="button">
+          @if (saving()) {
+            <mat-progress-spinner class="btn-spinner" diameter="18" mode="indeterminate"></mat-progress-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Émettre la licence
+        </button>
+      </div>
+    </form>
+  }
+</div>

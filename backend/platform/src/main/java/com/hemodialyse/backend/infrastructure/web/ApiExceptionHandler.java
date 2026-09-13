@@ -1,16 +1,40 @@
 package com.hemodialyse.backend.infrastructure.web;
 
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.stock.exception.SeanceBilledStockModificationException;
 import com.hemodialyse.backend.domain.stock.exception.SeanceStockExitDateImmutableException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    /**
+     * Sans ce handler, le {@code @ExceptionHandler(Exception.class)} ci-dessous capterait les refus
+     * d'accès levés depuis un contrôleur (ex. {@code CenterAccessGuard}) et les transformerait en 500.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problem.setTitle("Acces refuse");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("code", "ACCESS_DENIED");
+        return problem;
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    ProblemDetail handleBusinessException(BusinessException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        problem.setTitle("Regle metier violee");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("code", ex.getCode());
+        return problem;
+    }
 
     @ExceptionHandler(SeanceStockExitDateImmutableException.class)
     ProblemDetail handleSeanceStockExitDateImmutable(SeanceStockExitDateImmutableException ex) {

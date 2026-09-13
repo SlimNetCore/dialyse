@@ -1278,7 +1278,9 @@
     "CODE_LABEL": "Code",
     "CURRENCY_DA": "DA",
     "SAVING": "...",
-    "PAGINATOR_ARIA_LABEL": "Pagination de la liste"
+    "PAGINATOR_ARIA_LABEL": "Pagination de la liste",
+    "CANCEL": "Annuler",
+    "EDIT": "Modifier"
   },
   "TVA_TYPES": {
     "TITLE": "Types de TVA",
@@ -1323,5 +1325,150 @@
       "UPDATE_FAILED": "Erreur lors de la mise à jour du type TVA.",
       "DELETE_FAILED": "Erreur lors de la désactivation du type TVA."
     }
+  },
+  "DOSSIER_MEDICAL": {
+    "OPEN_BUTTON": "Dossier médical",
+    "TITLE": "Dossier médical",
+    "TAB_SYNTHESE": "Synthèse",
+    "TAB_ANTECEDENTS": "Antécédents",
+    "TAB_SEROLOGIES": "Sérologies",
+    "TAB_ABORDS": "Abords vasculaires",
+    "TAB_PRESCRIPTIONS": "Prescriptions",
+    "TAB_BIOLOGIE": "Biologie",
+    "READONLY_MODE": "Lecture seule",
+    "NEPHROPATHIE_INITIALE": "Néphropathie initiale",
+    "DATE_MISE_EN_DIALYSE": "Date de mise en dialyse",
+    "HEPATITE_B_STATUT": "Statut hépatite B",
+    "HEPATITE_C_STATUT": "Statut hépatite C",
+    "OBSERVATION_GLOBALE": "Observation globale",
+    "ADD_ABORD": "Ajouter un abord",
+    "TYPE_ABORD": "Type d'abord",
+    "COTE": "Côté",
+    "LOCALISATION": "Localisation",
+    "DATE_CREATION": "Date de création",
+    "DATE_FIN": "Date de fin",
+    "ACTIF": "Actif",
+    "COMPLICATIONS": "Complications",
+    "NO_ABORDS": "Aucun abord vasculaire enregistré",
+    "ADD_PRESCRIPTION": "Nouvelle prescription",
+    "DATE_PRESCRIPTION": "Date de prescription",
+    "QB_CIBLE": "Qb cible (mL/min)",
+    "QD_CIBLE": "Qd cible (mL/min)",
+    "UF_MAX": "UF max (mL)",
+    "DUREE_CIBLE": "Durée cible (min)",
+    "TYPE_DIALYSEUR": "Type de dialyseur",
+    "ANTICOAG_TYPE": "Anticoagulation",
+    "SECTION_EPO": "Traitement EPO",
+    "SECTION_FER": "Fer injectable",
+    "MOLECULE": "Molécule",
+    "DOSE_UI": "Dose (UI)",
+    "DOSE_MG": "Dose (mg)",
+    "VOIE": "Voie",
+    "FREQUENCE": "Fréquence",
+    "NO_PRESCRIPTIONS": "Aucune prescription enregistrée",
+    "ADD_ANALYSE": "Saisir des résultats",
+    "DATE_PRELEVEMENT": "Date de prélèvement",
+    "PLAQUETTES": "Plaquettes",
+    "FERRITINE": "Ferritine",
+    "UREE_PRE": "Urée pré",
+    "UREE_POST": "Urée post",
+    "CREATININE": "Créatinine",
+    "PHOSPHORE": "Phosphore",
+    "CALCIUM": "Calcium",
+    "ALBUMINE": "Albumine",
+    "NO_ANALYSES": "Aucun résultat d'analyse enregistré",
+    "TITLE_ANTECEDENTS": "Antécédents et comorbidités",
+    "ADD_ANTECEDENT": "Ajouter un antécédent",
+    "TYPE_ANTECEDENT": "Type",
+    "CODE_CIM10": "Code CIM-10",
+    "LIBELLE": "Libellé (si aucun code)",
+    "DATE_DEBUT": "Date de début",
+    "SEVERITE": "Sévérité",
+    "NOTE": "Note",
+    "DIAGNOSTIC": "Diagnostic",
+    "STATUT": "Statut",
+    "RESOUDRE": "Marquer comme résolu",
+    "NO_ANTECEDENTS": "Aucun antécédent enregistré",
+    "TITLE_ALLERGIES": "Allergies et intolérances",
+    "ADD_ALLERGIE": "Déclarer une allergie",
+    "ALLERGIES_CRITIQUES_BANDEAU": "Allergies à criticité haute",
+    "SUBSTANCE": "Substance",
+    "CATEGORIE_ALLERGIE": "Catégorie",
+    "CRITICITE": "Criticité",
+    "TYPE_REACTION": "Type de réaction",
+    "MANIFESTATIONS": "Manifestations",
+    "NO_ALLERGIES": "Aucune allergie enregistrée",
+    "ADD_SEROLOGIE": "Ajouter un résultat",
+    "MARQUEUR": "Marqueur",
+    "RESULTAT": "Résultat",
+    "LABORATOIRE": "Laboratoire",
+    "CONDUITE_A_TENIR": "Conduite à tenir",
+    "NO_SEROLOGIES": "Aucune sérologie enregistrée"
+  },
+  "TYPE_ANTECEDENT": {
+    "MEDICAL": "Médical",
+    "CHIRURGICAL": "Chirurgical",
+    "FAMILIAL": "Familial",
+    "OBSTETRICAL": "Obstétrical",
+    "COMORBIDITE": "Comorbidité"
+  },
+  "STATUT_CLINIQUE": {
+    "ACTIF": "Actif",
+    "RESOLU": "Résolu",
+    "INACTIF": "Inactif"
+  },
+  "CATEGORIE_ALLERGIE": {
+    "MEDICAMENT": "Médicament",
+    "ALIMENT": "Aliment",
+    "ENVIRONNEMENT": "Environnement",
+    "BIOLOGIQUE": "Biologique"
+  },
+  "CRITICITE_ALLERGIE": {
+    "BASSE": "Basse",
+    "HAUTE": "Haute"
+  },
+  "TYPE_REACTION": {
+    "ALLERGIE": "Allergie",
+    "INTOLERANCE": "Intolérance"
+  },
+  "MARQUEURS_SEROLOGIQUES": {
+    "VIH_AC": "Ac anti-VIH",
+    "AG_HBS": "Ag HBs",
+    "AC_HBS": "Ac anti-HBs",
+    "AC_HBC": "Ac anti-HBc",
+    "AC_VHC": "Ac anti-VHC",
+    "ARN_VHC": "ARN VHC",
+    "TPHA": "TPHA"
+  },
+  "SEROLOGIE_RESULTATS": {
+    "NEGATIF": "Négatif",
+    "POSITIF": "Positif",
+    "DOUTEUX": "Douteux",
+    "EN_COURS": "En cours"
+  },
+  "ABORD_TYPES": {
+    "FAV": "FAV",
+    "PTFE": "PTFE",
+    "KT_TUNNELISE": "Cathéter tunnelisé",
+    "KT_AIGU": "Cathéter aigu"
+  },
+  "COTES": {
+    "GAUCHE": "Gauche",
+    "DROIT": "Droit"
+  },
+  "SEROLOGIE_STATUTS": {
+    "NEGATIF": "Négatif",
+    "PORTEUR": "Porteur",
+    "VACCINE": "Vacciné",
+    "IMMUNE": "Immunisé",
+    "INCONNU": "Inconnu",
+    "POSITIF": "Positif",
+    "TRAITE": "Traité"
+  },
+  "ANTICOAG_TYPES": {
+    "HNF": "HNF",
+    "HBPM": "HBPM",
+    "CITRATE": "Citrate",
+    "AUCUN": "Aucun"
   }
 }

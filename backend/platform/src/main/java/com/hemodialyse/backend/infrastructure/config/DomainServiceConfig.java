@@ -3,6 +3,12 @@ package com.hemodialyse.backend.infrastructure.config;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.service.AttestationDomainService;
+import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPort;
+import com.hemodialyse.backend.domain.medical.allergie.service.AllergieDomainService;
+import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort;
+import com.hemodialyse.backend.domain.medical.antecedent.service.AntecedentDomainService;
+import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
+import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.pec.port.PecRepositoryPort;
 import com.hemodialyse.backend.domain.pec.service.PecDomainService;
@@ -99,6 +105,21 @@ public class DomainServiceConfig {
     @Bean
     public DossierMedicalPatientDomainService dossierMedicalPatientDomainService(DossierMedicalPatientRepositoryPort repo) {
         return new DossierMedicalPatientDomainService(repo);
+    }
+
+    @Bean
+    public AntecedentDomainService antecedentDomainService(AntecedentRepositoryPort repo) {
+        return new AntecedentDomainService(repo);
+    }
+
+    @Bean
+    public AllergieDomainService allergieDomainService(AllergieRepositoryPort repo) {
+        return new AllergieDomainService(repo);
+    }
+
+    @Bean
+    public SerologieDomainService serologieDomainService(SerologieRepositoryPort repo) {
+        return new SerologieDomainService(repo);
     }
 
     @Bean

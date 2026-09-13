@@ -1,0 +1,78 @@
+.serologies-container {
+  padding: 16px;
+}
+
+.synthese-bandeau {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.section-error {
+  color: #c62828;
+  margin-bottom: 12px;
+}
+
+.serologies-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.inline-form {
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--app-surface-soft);
+}
+
+.inline-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 16px;
+}
+
+.inline-form-note {
+  grid-column: 1 / -1;
+}
+
+.inline-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.section-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.resultat-positif {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.section-empty {
+  text-align: center;
+  padding: 24px;
+  opacity: 0.7;
+}
+
+@media (max-width: 767px) {
+  .inline-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  table.full-width {
+    display: block;
+    overflow-x: auto;
+  }
+}

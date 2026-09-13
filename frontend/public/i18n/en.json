@@ -1278,7 +1278,9 @@
     "CODE_LABEL": "Code",
     "CURRENCY_DA": "DA",
     "SAVING": "...",
-    "PAGINATOR_ARIA_LABEL": "List pagination"
+    "PAGINATOR_ARIA_LABEL": "List pagination",
+    "CANCEL": "Cancel",
+    "EDIT": "Edit"
   },
   "TVA_TYPES": {
     "TITLE": "VAT Types",
@@ -1323,5 +1325,150 @@
       "UPDATE_FAILED": "Error updating VAT type.",
       "DELETE_FAILED": "Error deactivating VAT type."
     }
+  },
+  "DOSSIER_MEDICAL": {
+    "OPEN_BUTTON": "Medical record",
+    "TITLE": "Medical record",
+    "TAB_SYNTHESE": "Summary",
+    "TAB_ANTECEDENTS": "History",
+    "TAB_SEROLOGIES": "Serologies",
+    "TAB_ABORDS": "Vascular accesses",
+    "TAB_PRESCRIPTIONS": "Prescriptions",
+    "TAB_BIOLOGIE": "Lab results",
+    "READONLY_MODE": "Read-only",
+    "NEPHROPATHIE_INITIALE": "Initial nephropathy",
+    "DATE_MISE_EN_DIALYSE": "Dialysis start date",
+    "HEPATITE_B_STATUT": "Hepatitis B status",
+    "HEPATITE_C_STATUT": "Hepatitis C status",
+    "OBSERVATION_GLOBALE": "General observation",
+    "ADD_ABORD": "Add a vascular access",
+    "TYPE_ABORD": "Access type",
+    "COTE": "Side",
+    "LOCALISATION": "Location",
+    "DATE_CREATION": "Creation date",
+    "DATE_FIN": "End date",
+    "ACTIF": "Active",
+    "COMPLICATIONS": "Complications",
+    "NO_ABORDS": "No vascular access recorded",
+    "ADD_PRESCRIPTION": "New prescription",
+    "DATE_PRESCRIPTION": "Prescription date",
+    "QB_CIBLE": "Target Qb (mL/min)",
+    "QD_CIBLE": "Target Qd (mL/min)",
+    "UF_MAX": "Max UF (mL)",
+    "DUREE_CIBLE": "Target duration (min)",
+    "TYPE_DIALYSEUR": "Dialyzer type",
+    "ANTICOAG_TYPE": "Anticoagulation",
+    "SECTION_EPO": "EPO treatment",
+    "SECTION_FER": "Injectable iron",
+    "MOLECULE": "Molecule",
+    "DOSE_UI": "Dose (IU)",
+    "DOSE_MG": "Dose (mg)",
+    "VOIE": "Route",
+    "FREQUENCE": "Frequency",
+    "NO_PRESCRIPTIONS": "No prescription recorded",
+    "ADD_ANALYSE": "Enter results",
+    "DATE_PRELEVEMENT": "Sample date",
+    "PLAQUETTES": "Platelets",
+    "FERRITINE": "Ferritin",
+    "UREE_PRE": "Pre-dialysis urea",
+    "UREE_POST": "Post-dialysis urea",
+    "CREATININE": "Creatinine",
+    "PHOSPHORE": "Phosphate",
+    "CALCIUM": "Calcium",
+    "ALBUMINE": "Albumin",
+    "NO_ANALYSES": "No lab result recorded",
+    "TITLE_ANTECEDENTS": "History and comorbidities",
+    "ADD_ANTECEDENT": "Add a history item",
+    "TYPE_ANTECEDENT": "Type",
+    "CODE_CIM10": "ICD-10 code",
+    "LIBELLE": "Label (if no code)",
+    "DATE_DEBUT": "Start date",
+    "SEVERITE": "Severity",
+    "NOTE": "Note",
+    "DIAGNOSTIC": "Diagnosis",
+    "STATUT": "Status",
+    "RESOUDRE": "Mark as resolved",
+    "NO_ANTECEDENTS": "No history item recorded",
+    "TITLE_ALLERGIES": "Allergies and intolerances",
+    "ADD_ALLERGIE": "Report an allergy",
+    "ALLERGIES_CRITIQUES_BANDEAU": "High-severity allergies",
+    "SUBSTANCE": "Substance",
+    "CATEGORIE_ALLERGIE": "Category",
+    "CRITICITE": "Severity",
+    "TYPE_REACTION": "Reaction type",
+    "MANIFESTATIONS": "Symptoms",
+    "NO_ALLERGIES": "No allergy recorded",
+    "ADD_SEROLOGIE": "Add a result",
+    "MARQUEUR": "Marker",
+    "RESULTAT": "Result",
+    "LABORATOIRE": "Laboratory",
+    "CONDUITE_A_TENIR": "Action plan",
+    "NO_SEROLOGIES": "No serology recorded"
+  },
+  "TYPE_ANTECEDENT": {
+    "MEDICAL": "Medical",
+    "CHIRURGICAL": "Surgical",
+    "FAMILIAL": "Family",
+    "OBSTETRICAL": "Obstetric",
+    "COMORBIDITE": "Comorbidity"
+  },
+  "STATUT_CLINIQUE": {
+    "ACTIF": "Active",
+    "RESOLU": "Resolved",
+    "INACTIF": "Inactive"
+  },
+  "CATEGORIE_ALLERGIE": {
+    "MEDICAMENT": "Medication",
+    "ALIMENT": "Food",
+    "ENVIRONNEMENT": "Environment",
+    "BIOLOGIQUE": "Biological"
+  },
+  "CRITICITE_ALLERGIE": {
+    "BASSE": "Low",
+    "HAUTE": "High"
+  },
+  "TYPE_REACTION": {
+    "ALLERGIE": "Allergy",
+    "INTOLERANCE": "Intolerance"
+  },
+  "MARQUEURS_SEROLOGIQUES": {
+    "VIH_AC": "HIV Ab",
+    "AG_HBS": "HBsAg",
+    "AC_HBS": "Anti-HBs",
+    "AC_HBC": "Anti-HBc",
+    "AC_VHC": "Anti-HCV",
+    "ARN_VHC": "HCV RNA",
+    "TPHA": "TPHA"
+  },
+  "SEROLOGIE_RESULTATS": {
+    "NEGATIF": "Negative",
+    "POSITIF": "Positive",
+    "DOUTEUX": "Indeterminate",
+    "EN_COURS": "Pending"
+  },
+  "ABORD_TYPES": {
+    "FAV": "AVF",
+    "PTFE": "PTFE graft",
+    "KT_TUNNELISE": "Tunneled catheter",
+    "KT_AIGU": "Acute catheter"
+  },
+  "COTES": {
+    "GAUCHE": "Left",
+    "DROIT": "Right"
+  },
+  "SEROLOGIE_STATUTS": {
+    "NEGATIF": "Negative",
+    "PORTEUR": "Carrier",
+    "VACCINE": "Vaccinated",
+    "IMMUNE": "Immune",
+    "INCONNU": "Unknown",
+    "POSITIF": "Positive",
+    "TRAITE": "Treated"
+  },
+  "ANTICOAG_TYPES": {
+    "HNF": "UFH",
+    "HBPM": "LMWH",
+    "CITRATE": "Citrate",
+    "AUCUN": "None"
   }
 }

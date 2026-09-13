@@ -1,4 +1,5 @@
 import {Routes} from '@angular/router';
+import {medecinGuard} from '../../core/auth/medecin.guard';
 
 export const patientRoutes: Routes = [
   { path: '', loadComponent: () => import('./patient-dashboard.component').then(m => m.PatientDashboardComponent) },
@@ -6,6 +7,11 @@ export const patientRoutes: Routes = [
   {
     path: ':id/cahier',
     loadComponent: () => import('./cahier-dialyse/cahier-dialyse.component').then(m => m.CahierDialyseComponent)
+  },
+  {
+    path: ':id/dossier-medical',
+    canActivate: [medecinGuard],
+    loadChildren: () => import('../dossier-medical/dossier-medical.routes').then(m => m.dossierMedicalRoutes),
   },
   { path: 'pec-admin', loadComponent: () => import('./pec-admin/pec-admin.component').then(m => m.PecAdminComponent) },
   { path: 'pec-list', loadComponent: () => import('./pec-admin/pec-list.component').then(m => m.PecListComponent) },

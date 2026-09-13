@@ -1,0 +1,136 @@
+.license-form-page {
+  max-width: 700px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.form-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.hero-back {
+  flex: 0 0 auto;
+  margin-top: -4px;
+}
+
+.hero-avatar {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+}
+
+.hero-avatar mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+.hero-copy .app-section-title {
+  font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+  margin-top: 6px;
+}
+
+.hero-copy .app-section-copy {
+  margin-top: 6px;
+  font-size: 13.5px;
+}
+
+.form-section {
+  padding: 18px 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.issued-panel .section-title mat-icon {
+  color: #15803d;
+}
+
+.key-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+}
+
+.key-box code {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--app-text);
+}
+
+.flex1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.type-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.type-toggle button {
+  flex: 1;
+}
+
+.type-toggle button.active {
+  border-color: var(--app-primary) !important;
+  color: var(--app-primary) !important;
+  background: var(--app-primary-soft);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.btn-spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .type-toggle {
+    flex-direction: column;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .actions > * {
+    flex: 1 1 auto;
+  }
+}

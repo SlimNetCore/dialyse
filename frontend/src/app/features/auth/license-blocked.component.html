@@ -1,0 +1,19 @@
+<div class="blocked-page">
+  <div class="app-hero-card blocked-card">
+    <span class="icon-wrap">
+      <mat-icon>lock_clock</mat-icon>
+    </span>
+    <span class="app-eyebrow">Accès suspendu</span>
+    <h1 class="app-section-title">Licence expirée ou invalide</h1>
+    <p class="app-section-copy">
+      {{
+        licenseBlock.reason() ||
+        "Ce centre n'a plus de licence valide pour utiliser l'application. Contactez votre fournisseur pour la renouveler."
+      }}
+    </p>
+    <button (click)="logout()" color="primary" mat-flat-button>
+      <mat-icon>logout</mat-icon>
+      Se déconnecter
+    </button>
+  </div>
+</div>

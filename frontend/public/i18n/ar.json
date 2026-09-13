@@ -1108,7 +1108,9 @@
     "LABEL": "التسمية",
     "TOTAL_LABEL": "الإجمالي:",
     "SAVING": "...",
-    "PAGINATOR_ARIA_LABEL": "ترقيم القائمة"
+    "PAGINATOR_ARIA_LABEL": "ترقيم القائمة",
+    "CANCEL": "إلغاء",
+    "EDIT": "تعديل"
   },
   "TVA_TYPES": {
     "TITLE": "أنواع الضريبة على القيمة المضافة",
@@ -1153,5 +1155,150 @@
       "UPDATE_FAILED": "خطأ أثناء تحديث نوع الضريبة.",
       "DELETE_FAILED": "خطأ أثناء تعطيل نوع الضريبة."
     }
+  },
+  "DOSSIER_MEDICAL": {
+    "OPEN_BUTTON": "الملف الطبي",
+    "TITLE": "الملف الطبي",
+    "TAB_SYNTHESE": "ملخص",
+    "TAB_ANTECEDENTS": "السوابق المرضية",
+    "TAB_SEROLOGIES": "التحاليل المصلية",
+    "TAB_ABORDS": "مسالك الغسيل الوعائية",
+    "TAB_PRESCRIPTIONS": "الوصفات الطبية",
+    "TAB_BIOLOGIE": "التحاليل البيولوجية",
+    "READONLY_MODE": "للقراءة فقط",
+    "NEPHROPATHIE_INITIALE": "الاعتلال الكلوي الأولي",
+    "DATE_MISE_EN_DIALYSE": "تاريخ بدء غسيل الكلى",
+    "HEPATITE_B_STATUT": "حالة التهاب الكبد B",
+    "HEPATITE_C_STATUT": "حالة التهاب الكبد C",
+    "OBSERVATION_GLOBALE": "ملاحظة عامة",
+    "ADD_ABORD": "إضافة مسلك وعائي",
+    "TYPE_ABORD": "نوع المسلك",
+    "COTE": "الجانب",
+    "LOCALISATION": "الموضع",
+    "DATE_CREATION": "تاريخ الإنشاء",
+    "DATE_FIN": "تاريخ الانتهاء",
+    "ACTIF": "نشط",
+    "COMPLICATIONS": "المضاعفات",
+    "NO_ABORDS": "لا يوجد مسلك وعائي مسجل",
+    "ADD_PRESCRIPTION": "وصفة جديدة",
+    "DATE_PRESCRIPTION": "تاريخ الوصفة",
+    "QB_CIBLE": "التدفق الدموي المستهدف Qb (مل/د)",
+    "QD_CIBLE": "تدفق سائل الغسيل المستهدف Qd (مل/د)",
+    "UF_MAX": "الترشيح الفائق الأقصى (مل)",
+    "DUREE_CIBLE": "المدة المستهدفة (دقيقة)",
+    "TYPE_DIALYSEUR": "نوع المرشّح",
+    "ANTICOAG_TYPE": "مضاد التخثر",
+    "SECTION_EPO": "علاج الإريثروبويتين",
+    "SECTION_FER": "الحديد الوريدي",
+    "MOLECULE": "الجزيء",
+    "DOSE_UI": "الجرعة (وحدة دولية)",
+    "DOSE_MG": "الجرعة (ملغ)",
+    "VOIE": "طريقة الإعطاء",
+    "FREQUENCE": "التواتر",
+    "NO_PRESCRIPTIONS": "لا توجد وصفة مسجلة",
+    "ADD_ANALYSE": "إدخال نتائج",
+    "DATE_PRELEVEMENT": "تاريخ أخذ العينة",
+    "PLAQUETTES": "الصفائح الدموية",
+    "FERRITINE": "الفيريتين",
+    "UREE_PRE": "اليوريا قبل الجلسة",
+    "UREE_POST": "اليوريا بعد الجلسة",
+    "CREATININE": "الكرياتينين",
+    "PHOSPHORE": "الفوسفور",
+    "CALCIUM": "الكالسيوم",
+    "ALBUMINE": "الألبومين",
+    "NO_ANALYSES": "لا توجد نتيجة تحليل مسجلة",
+    "TITLE_ANTECEDENTS": "السوابق المرضية والأمراض المصاحبة",
+    "ADD_ANTECEDENT": "إضافة سابقة مرضية",
+    "TYPE_ANTECEDENT": "النوع",
+    "CODE_CIM10": "رمز ICD-10",
+    "LIBELLE": "التسمية (إن لم يوجد رمز)",
+    "DATE_DEBUT": "تاريخ البداية",
+    "SEVERITE": "الشدة",
+    "NOTE": "ملاحظة",
+    "DIAGNOSTIC": "التشخيص",
+    "STATUT": "الحالة",
+    "RESOUDRE": "وضع علامة كمُعالَج",
+    "NO_ANTECEDENTS": "لا توجد سوابق مرضية مسجلة",
+    "TITLE_ALLERGIES": "الحساسية وعدم التحمل",
+    "ADD_ALLERGIE": "تسجيل حساسية",
+    "ALLERGIES_CRITIQUES_BANDEAU": "حساسيات شديدة الخطورة",
+    "SUBSTANCE": "المادة",
+    "CATEGORIE_ALLERGIE": "الفئة",
+    "CRITICITE": "درجة الخطورة",
+    "TYPE_REACTION": "نوع التفاعل",
+    "MANIFESTATIONS": "الأعراض",
+    "NO_ALLERGIES": "لا توجد حساسية مسجلة",
+    "ADD_SEROLOGIE": "إضافة نتيجة",
+    "MARQUEUR": "العلامة",
+    "RESULTAT": "النتيجة",
+    "LABORATOIRE": "المخبر",
+    "CONDUITE_A_TENIR": "الإجراء الواجب اتخاذه",
+    "NO_SEROLOGIES": "لا توجد نتيجة مصلية مسجلة"
+  },
+  "TYPE_ANTECEDENT": {
+    "MEDICAL": "طبي",
+    "CHIRURGICAL": "جراحي",
+    "FAMILIAL": "عائلي",
+    "OBSTETRICAL": "توليدي",
+    "COMORBIDITE": "مرض مصاحب"
+  },
+  "STATUT_CLINIQUE": {
+    "ACTIF": "نشط",
+    "RESOLU": "مُعالَج",
+    "INACTIF": "غير نشط"
+  },
+  "CATEGORIE_ALLERGIE": {
+    "MEDICAMENT": "دواء",
+    "ALIMENT": "غذاء",
+    "ENVIRONNEMENT": "بيئي",
+    "BIOLOGIQUE": "بيولوجي"
+  },
+  "CRITICITE_ALLERGIE": {
+    "BASSE": "منخفضة",
+    "HAUTE": "عالية"
+  },
+  "TYPE_REACTION": {
+    "ALLERGIE": "حساسية",
+    "INTOLERANCE": "عدم تحمل"
+  },
+  "MARQUEURS_SEROLOGIQUES": {
+    "VIH_AC": "أضداد فيروس نقص المناعة",
+    "AG_HBS": "المستضد السطحي لالتهاب الكبد B",
+    "AC_HBS": "أضداد HBs",
+    "AC_HBC": "أضداد HBc",
+    "AC_VHC": "أضداد التهاب الكبد C",
+    "ARN_VHC": "الحمض النووي الريبي لفيروس C",
+    "TPHA": "TPHA"
+  },
+  "SEROLOGIE_RESULTATS": {
+    "NEGATIF": "سلبي",
+    "POSITIF": "إيجابي",
+    "DOUTEUX": "مشكوك فيه",
+    "EN_COURS": "قيد الإنجاز"
+  },
+  "ABORD_TYPES": {
+    "FAV": "ناسور شرياني وريدي",
+    "PTFE": "طعم PTFE",
+    "KT_TUNNELISE": "قسطرة نفقية",
+    "KT_AIGU": "قسطرة حادة"
+  },
+  "COTES": {
+    "GAUCHE": "أيسر",
+    "DROIT": "أيمن"
+  },
+  "SEROLOGIE_STATUTS": {
+    "NEGATIF": "سلبي",
+    "PORTEUR": "حامل",
+    "VACCINE": "محصّن",
+    "IMMUNE": "مناعي",
+    "INCONNU": "غير معروف",
+    "POSITIF": "إيجابي",
+    "TRAITE": "معالَج"
+  },
+  "ANTICOAG_TYPES": {
+    "HNF": "هيبارين غير مجزأ",
+    "HBPM": "هيبارين منخفض الوزن الجزيئي",
+    "CITRATE": "سيترات",
+    "AUCUN": "لا شيء"
   }
 }

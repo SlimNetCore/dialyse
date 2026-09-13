@@ -1,0 +1,90 @@
+.dossier-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dossier-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--app-border);
+  flex-wrap: wrap;
+}
+
+.dossier-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dossier-identity h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.dossier-patient-name {
+  color: var(--app-text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dossier-patient-code {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.dossier-readonly-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.dossier-readonly-badge mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.dossier-tab-nav {
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
+}
+
+.dossier-tab-nav a mat-icon {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+mat-tab-nav-panel {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .dossier-header {
+    padding: 8px 12px;
+  }
+
+  .dossier-identity h2 {
+    font-size: 1rem;
+  }
+
+  .dossier-tab-nav {
+    /* Onglets défilants horizontalement plutôt qu'empilés : garde l'en-tête compact sur mobile. */
+    scrollbar-width: thin;
+  }
+}

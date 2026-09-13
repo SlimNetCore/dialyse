@@ -1,0 +1,46 @@
+<div class="dossier-shell">
+  <div class="dossier-header">
+    <button (click)="goBackToPatient()" mat-icon-button type="button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="dossier-identity">
+      <h2>{{ 'DOSSIER_MEDICAL.TITLE' | translate }}</h2>
+      @if (loadingIdentity()) {
+        <mat-progress-spinner diameter="18" mode="indeterminate" strokeWidth="2"/>
+      } @else if (patientIdentity(); as identity) {
+        <span class="dossier-patient-name">
+          {{ identity.prenom }} {{ identity.nom }}
+          @if (identity.code) {
+            <span class="dossier-patient-code">({{ identity.code }})</span>
+          }
+        </span>
+      }
+    </div>
+
+    @if (access.isReadonly()) {
+      <div class="dossier-readonly-badge">
+        <mat-icon>visibility</mat-icon>
+        {{ 'DOSSIER_MEDICAL.READONLY_MODE' | translate }}
+      </div>
+    }
+  </div>
+
+  <nav [tabPanel]="tabPanel" class="dossier-tab-nav" mat-tab-nav-bar>
+    @for (tab of tabs; track tab.path) {
+      <a
+        #rla="routerLinkActive"
+        [active]="rla.isActive"
+        [routerLink]="tab.path"
+        mat-tab-link
+        routerLinkActive
+      >
+        <mat-icon>{{ tab.icon }}</mat-icon>
+        {{ tab.label | translate }}
+      </a>
+    }
+  </nav>
+  <mat-tab-nav-panel #tabPanel>
+    <router-outlet/>
+  </mat-tab-nav-panel>
+</div>

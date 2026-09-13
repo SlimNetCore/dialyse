@@ -235,6 +235,17 @@
         >
           <mat-icon>analytics</mat-icon>
         </button>
+        @if (auth.hasRole('MEDECIN') || auth.hasRole('ADMIN')) {
+          <button
+            (click)="$event.stopPropagation(); openDossierMedical(row)"
+            [attr.data-testid]="'open-dossier-medical-' + row.id"
+            [matTooltip]="'DOSSIER_MEDICAL.OPEN_BUTTON' | translate"
+            color="primary"
+            mat-icon-button
+          >
+            <mat-icon>medical_information</mat-icon>
+          </button>
+        }
         <button
           (click)="$event.stopPropagation(); printFiche(row)"
           [disabled]="printingRowId() === row.id"

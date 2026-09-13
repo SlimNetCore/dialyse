@@ -50,6 +50,10 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
+            <artifactId>bc-medical</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
             <artifactId>bc-facturation</artifactId>
         </dependency>
         <dependency>

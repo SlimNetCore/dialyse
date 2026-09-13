@@ -3,87 +3,105 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.domain.seance.model.ResultatAnalyse;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.ResultatAnalyseSearchRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.UpsertResultatAnalyseRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.response.EntityWriteResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.response.PagedResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.response.ResultatAnalyseResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Résultats d'analyses biologiques du patient : NFS, bilan martial, adéquation de dialyse,
+ * bilan phospho-calcique, nutrition et inflammation.
+ * <p>
+ * Accès réservé au corps médical : le MEDECIN écrit, l'ADMIN consulte.
+ */
 @RestController
 @RequestMapping("/api/v1/patients")
 public class ResultatAnalyseRestController {
 
     private final ResultatAnalyseUseCase useCase;
+    private final CenterAccessGuard centerAccessGuard;
 
-    public ResultatAnalyseRestController(ResultatAnalyseUseCase useCase) {
+    public ResultatAnalyseRestController(ResultatAnalyseUseCase useCase,
+                                         CenterAccessGuard centerAccessGuard) {
         this.useCase = useCase;
+        this.centerAccessGuard = centerAccessGuard;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")
     @GetMapping("/{patientId}/analyses")
-    public ResponseEntity<?> list(@PathVariable UUID patientId,
-                                  @RequestParam UUID centerId,
-                                  @RequestParam(required = false) LocalDate from,
-                                  @RequestParam(required = false) LocalDate to) {
-        var items = useCase.listByPatient(CenterId.of(centerId), patientId, from, to).stream()
-                .map(this::toResponse)
-                .toList();
-        return ResponseEntity.ok(items);
+    public ResponseEntity<PagedResponse<ResultatAnalyseResponse>> list(
+            @PathVariable UUID patientId,
+            @RequestParam(required = false) UUID centerId,
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        CenterId center = centerAccessGuard.requireCenter(centerId);
+        var paged = useCase.listPagedByPatient(center, patientId, from, to, page, size);
+        return ResponseEntity.ok(PagedResponse.from(paged, ResultatAnalyseResponse::from));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
+    @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")
     @PostMapping("/analyses/search")
-    public ResponseEntity<?> searchAnalyses(@RequestBody @Valid ResultatAnalyseSearchRequest criteria) {
-        var items = listAnalysesByCriteria(criteria);
-        return ResponseEntity.ok(items);
+    public ResponseEntity<PagedResponse<ResultatAnalyseResponse>> searchAnalyses(
+            @RequestBody @Valid ResultatAnalyseSearchRequest criteria) {
+        CenterId center = centerAccessGuard.requireCenter(criteria.centerId());
+        var paged = useCase.listPagedByPatient(
+                center,
+                criteria.patientId(),
+                criteria.dateFrom(),
+                criteria.dateTo(),
+                criteria.page(),
+                criteria.size());
+        return ResponseEntity.ok(PagedResponse.from(paged, ResultatAnalyseResponse::from));
     }
 
-    private java.util.List<?> listAnalysesByCriteria(ResultatAnalyseSearchRequest criteria) {
-        return useCase.listByPatient(
-                        CenterId.of(criteria.centerId()),
-                        criteria.patientId(),
-                        criteria.dateFrom(),
-                        criteria.dateTo()
-                ).stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PreAuthorize("hasRole('MEDECIN')")
     @PostMapping("/{patientId}/analyses")
-    public ResponseEntity<?> create(@PathVariable UUID patientId,
-                                    @RequestBody @Valid UpsertResultatAnalyseRequest request) {
-        var analyse = saveInternal(patientId, null, request);
-        return ResponseEntity.ok(toWriteResponse(analyse));
+    public ResponseEntity<EntityWriteResponse> create(@PathVariable UUID patientId,
+                                                      @RequestBody @Valid UpsertResultatAnalyseRequest request) {
+        return ResponseEntity.ok(toWriteResponse(saveInternal(patientId, null, request)));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PreAuthorize("hasRole('MEDECIN')")
     @PutMapping("/{patientId}/analyses/{analyseId}")
-    public ResponseEntity<?> update(@PathVariable UUID patientId,
-                                    @PathVariable UUID analyseId,
-                                    @RequestBody @Valid UpsertResultatAnalyseRequest request) {
-        var analyse = saveInternal(patientId, analyseId, request);
-        return ResponseEntity.ok(toWriteResponse(analyse));
+    public ResponseEntity<EntityWriteResponse> update(@PathVariable UUID patientId,
+                                                      @PathVariable UUID analyseId,
+                                                      @RequestBody @Valid UpsertResultatAnalyseRequest request) {
+        return ResponseEntity.ok(toWriteResponse(saveInternal(patientId, analyseId, request)));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
+    @PreAuthorize("hasRole('MEDECIN')")
     @DeleteMapping("/{patientId}/analyses/{analyseId}")
-    public ResponseEntity<?> delete(@PathVariable UUID patientId,
-                                    @PathVariable UUID analyseId,
-                                    @RequestParam UUID centerId) {
-        useCase.delete(CenterId.of(centerId), patientId, analyseId);
+    public ResponseEntity<Void> delete(@PathVariable UUID patientId,
+                                       @PathVariable UUID analyseId,
+                                       @RequestParam(required = false) UUID centerId) {
+        CenterId center = centerAccessGuard.requireCenter(centerId);
+        useCase.delete(center, patientId, analyseId);
         return ResponseEntity.noContent().build();
     }
 
     private ResultatAnalyse saveInternal(UUID patientId, UUID analyseId, UpsertResultatAnalyseRequest request) {
+        CenterId center = centerAccessGuard.requireCenter(request.centerId());
         return useCase.save(
-                CenterId.of(request.centerId()),
+                center,
                 patientId,
                 analyseId,
                 request.datePrelevement(),
@@ -106,41 +124,7 @@ public class ResultatAnalyseRestController {
         );
     }
 
-    private Map<String, Object> toResponse(ResultatAnalyse a) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", a.getId());
-        m.put("patientId", a.getPatientId());
-        m.put("centerId", a.getCenterId());
-        m.put("datePrelevement", a.getDatePrelevement());
-        m.put("hbGDl", a.getHbGDl());
-        m.put("htPct", a.getHtPct());
-        m.put("plaquettes", a.getPlaquettes());
-        m.put("ferritineNgMl", a.getFerritineNgMl());
-        m.put("cstfPct", a.getCstfPct());
-        m.put("epoEndogeneMuiMl", a.getEpoEndogeneMuiMl());
-        m.put("ureePreMgDl", a.getUreePreMgDl());
-        m.put("ureePostMgDl", a.getUreePostMgDl());
-        m.put("creatinineMgDl", a.getCreatinineMgDl());
-        m.put("ktVMensuel", a.getKtVMensuel());
-        m.put("phosphoreMgDl", a.getPhosphoreMgDl());
-        m.put("calciumMgDl", a.getCalciumMgDl());
-        m.put("pthPgMl", a.getPthPgMl());
-        m.put("albumineGDl", a.getAlbumineGDl());
-        m.put("proteinesGDl", a.getProteinesGDl());
-        m.put("crpMgL", a.getCrpMgL());
-        m.put("createdAt", a.getCreatedAt());
-        m.put("updatedAt", a.getUpdatedAt());
-        return m;
-    }
-
-    private Map<String, Object> toWriteResponse(ResultatAnalyse a) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", a.getId());
-        m.put("patientId", a.getPatientId());
-        m.put("updatedAt", a.getUpdatedAt());
-        return m;
+    private EntityWriteResponse toWriteResponse(ResultatAnalyse a) {
+        return new EntityWriteResponse(a.getId(), a.getPatientId(), a.getUpdatedAt());
     }
 }
-
-
-

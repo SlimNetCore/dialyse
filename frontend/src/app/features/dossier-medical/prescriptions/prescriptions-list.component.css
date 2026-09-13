@@ -1,0 +1,100 @@
+.prescriptions-container {
+  padding: 16px;
+}
+
+.prescriptions-error {
+  color: #c62828;
+  margin-bottom: 12px;
+}
+
+.prescriptions-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.prescription-form {
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.prescription-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 16px;
+  align-items: center;
+}
+
+.prescription-section-title {
+  grid-column: 1 / -1;
+  font-weight: 600;
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+.prescription-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.prescriptions-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.prescriptions-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prescription-card {
+  border-left: 4px solid var(--app-border);
+  padding: 12px 16px;
+}
+
+.prescription-card-recent {
+  border-left-color: #1976d2;
+}
+
+.prescription-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prescription-date {
+  font-weight: 600;
+}
+
+.prescription-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 0.9rem;
+}
+
+.prescription-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  width: fit-content;
+}
+
+.prescriptions-empty {
+  text-align: center;
+  padding: 24px;
+  opacity: 0.7;
+}
+
+@media (max-width: 767px) {
+  .prescription-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

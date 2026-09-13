@@ -1,0 +1,75 @@
+<div class="license-activate-page">
+  <section class="app-hero-card">
+    <span class="app-eyebrow">Licence du centre</span>
+    <h1 class="app-section-title">Statut de la licence</h1>
+    <p class="app-section-copy">
+      Consultez l'état de la licence de votre centre et activez une nouvelle clé reçue de votre fournisseur.
+    </p>
+  </section>
+
+  <section class="app-panel">
+    <h3 class="section-title">
+      <mat-icon>fact_check</mat-icon>
+      État actuel
+    </h3>
+
+    @if (loading()) {
+      <p class="muted-note">Chargement…</p>
+    } @else if (status(); as s) {
+      @if (!s.applicable) {
+        <p class="muted-note">Aucune licence n'est requise pour ce compte.</p>
+      } @else {
+        <div class="status-row">
+          <span [class.ko]="!s.valid" [class.ok]="s.valid" class="status-badge">
+            {{ s.valid ? 'Licence valide' : 'Licence invalide' }}
+          </span>
+          @if (!s.valid && s.reason) {
+            <span class="reason">{{ s.reason }}</span>
+          }
+        </div>
+
+        @if (s.valid) {
+          <div class="app-data-strip">
+            <div class="app-data-pill">
+              <span>Type</span>
+              <strong>{{ s.type === 'TRIAL' ? "Essai" : 'Standard' }}</strong>
+            </div>
+            <div class="app-data-pill">
+              <span>Postes</span>
+              <strong>{{ s.usedSeats }} / {{ s.maxUsers }}</strong>
+            </div>
+            <div class="app-data-pill">
+              <span>Expire le</span>
+              <strong>{{ s.expiresAt | date: 'dd/MM/yyyy' }}</strong>
+            </div>
+          </div>
+        }
+      }
+    }
+  </section>
+
+  <section class="app-panel">
+    <h3 class="section-title">
+      <mat-icon>key</mat-icon>
+      Activer une nouvelle licence
+    </h3>
+    <p class="muted-note">
+      Collez ici la clé de licence transmise par votre fournisseur pour l'activer ou la renouveler.
+    </p>
+    <form [formRoot]="activateForm" class="activate-row">
+      <mat-form-field appearance="outline" class="flex1">
+        <mat-label>Clé de licence</mat-label>
+        <input [formField]="activateForm.licenseKey" matInput placeholder="Coller la clé reçue…"/>
+        <mat-icon matPrefix>vpn_key</mat-icon>
+      </mat-form-field>
+      <button (click)="activate()" [disabled]="activating()" color="primary" mat-flat-button type="button">
+        @if (activating()) {
+          <mat-progress-spinner class="btn-spinner" diameter="18" mode="indeterminate"></mat-progress-spinner>
+        } @else {
+          <mat-icon>check_circle</mat-icon>
+        }
+        Activer
+      </button>
+    </form>
+  </section>
+</div>

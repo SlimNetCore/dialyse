@@ -1,0 +1,119 @@
+<div class="serologies-container">
+  @if (store.synthese().length > 0) {
+    <div class="synthese-bandeau">
+      @for (s of store.synthese(); track s.id) {
+        <mat-chip [color]="isPositif(s) ? 'warn' : undefined" [highlighted]="isPositif(s)">
+          {{ ('MARQUEURS_SEROLOGIQUES.' + s.marqueur) | translate }}
+          : {{ ('SEROLOGIE_RESULTATS.' + s.resultat) | translate }}
+        </mat-chip>
+      }
+    </div>
+  }
+
+  @if (store.error()) {
+    <div class="section-error">{{ store.error() }}</div>
+  }
+
+  @if (access.canEdit()) {
+    <div class="serologies-toolbar">
+      <button (click)="openCreateForm()" color="primary" mat-flat-button type="button">
+        <mat-icon>add</mat-icon>
+        {{ 'DOSSIER_MEDICAL.ADD_SEROLOGIE' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (formOpen()) {
+    <div class="inline-form">
+      <div class="inline-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.MARQUEUR' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('marqueur', $event.value)" [value]="form.value().marqueur">
+            @for (marqueur of marqueurs; track marqueur) {
+              <mat-option [value]="marqueur">{{ ('MARQUEURS_SEROLOGIQUES.' + marqueur) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.RESULTAT' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('resultat', $event.value)" [value]="form.value().resultat">
+            @for (resultat of resultats; track resultat) {
+              <mat-option [value]="resultat">{{ ('SEROLOGIE_RESULTATS.' + resultat) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DATE_PRELEVEMENT' | translate }} *</mat-label>
+          <input (dateChange)="onValue('datePrelevement', $event.value)" [matDatepicker]="dpPicker"
+                 [value]="form.value().datePrelevement" matInput/>
+          <mat-datepicker-toggle [for]="dpPicker" matSuffix/>
+          <mat-datepicker #dpPicker/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.LABORATOIRE' | translate }}</mat-label>
+          <input (input)="onValue('laboratoire', $any($event.target).value)" [value]="form.value().laboratoire"
+                 matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="inline-form-note">
+          <mat-label>{{ 'DOSSIER_MEDICAL.CONDUITE_A_TENIR' | translate }}</mat-label>
+          <textarea (input)="onValue('conduiteATenir', $any($event.target).value)"
+                    [value]="form.value().conduiteATenir" matInput rows="2"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="inline-form-actions">
+        <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" color="primary" mat-flat-button type="button">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (store.loading()) {
+    <div class="section-loading">
+      <mat-progress-spinner diameter="28" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <table [dataSource]="store.rows()" class="full-width" mat-table>
+      <ng-container matColumnDef="marqueur">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.MARQUEUR' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ ('MARQUEURS_SEROLOGIQUES.' + row.marqueur) | translate }}</td>
+      </ng-container>
+      <ng-container matColumnDef="resultat">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.RESULTAT' | translate }}</th>
+        <td *matCellDef="let row" [class.resultat-positif]="isPositif(row)" mat-cell>
+          {{ ('SEROLOGIE_RESULTATS.' + row.resultat) | translate }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="datePrelevement">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_PRELEVEMENT' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ row.datePrelevement }}</td>
+      </ng-container>
+      <ng-container matColumnDef="laboratoire">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.LABORATOIRE' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ row.laboratoire || '-' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="conduiteATenir">
+        <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.CONDUITE_A_TENIR' | translate }}</th>
+        <td *matCellDef="let row" mat-cell>{{ row.conduiteATenir || '-' }}</td>
+      </ng-container>
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+    </table>
+    @if (store.rows().length === 0) {
+      <div class="section-empty">{{ 'DOSSIER_MEDICAL.NO_SEROLOGIES' | translate }}</div>
+    }
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  }
+</div>

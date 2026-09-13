@@ -2,10 +2,15 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.seance.model.AbordVasculaire;
 import com.hemodialyse.backend.domain.seance.port.AbordVasculaireRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AbordVasculaireJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.AbordVasculaireJpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,8 +33,27 @@ public class AbordVasculaireRepositoryAdapter implements AbordVasculaireReposito
     }
 
     @Override
+    public PagedResult<AbordVasculaire> findPagedByPatientId(UUID patientId, CenterId centerId, int page, int size) {
+        Page<AbordVasculaireJpaEntity> result = jpa.findByPatientIdAndCenterId(
+                patientId,
+                centerId.value(),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateCreation")));
+        return PagedResult.of(
+                result.getContent().stream().map(this::toDomain).toList(),
+                result.getTotalElements(),
+                page,
+                size);
+    }
+
+    @Override
     public AbordVasculaire save(AbordVasculaire abord) {
         return toDomain(jpa.save(toJpa(abord)));
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID abordId, UUID patientId, CenterId centerId) {
+        jpa.deleteByIdAndPatientIdAndCenterId(abordId, patientId, centerId.value());
     }
 
     private AbordVasculaire toDomain(AbordVasculaireJpaEntity e) {

@@ -3,6 +3,7 @@ package com.hemodialyse.backend.domain.seance.service;
 import com.hemodialyse.backend.domain.seance.model.ResultatAnalyse;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.ResultatAnalyseUseCase;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.math.BigDecimal;
@@ -17,6 +18,15 @@ import java.util.UUID;
  */
 public class ResultatAnalyseDomainService implements ResultatAnalyseUseCase {
 
+    /**
+     * Taille de page par défaut lorsque l'appelant n'en fournit pas (AGENTS.md §9).
+     */
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    /**
+     * Garde-fou : empêche un client de contourner la pagination en réclamant une page géante.
+     */
+    private static final int MAX_PAGE_SIZE = 200;
+
     private final ResultatAnalyseRepositoryPort repository;
 
     public ResultatAnalyseDomainService(ResultatAnalyseRepositoryPort repository) {
@@ -29,6 +39,30 @@ public class ResultatAnalyseDomainService implements ResultatAnalyseUseCase {
             throw new IllegalArgumentException("La date from doit être <= à la date to");
         }
         return repository.findByPatientId(patientId, centerId, from, to);
+    }
+
+    @Override
+    public PagedResult<ResultatAnalyse> listPagedByPatient(CenterId centerId,
+                                                           UUID patientId,
+                                                           LocalDate from,
+                                                           LocalDate to,
+                                                           int page,
+                                                           int size) {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new IllegalArgumentException("La date from doit être <= à la date to");
+        }
+        return repository.findPagedByPatientId(patientId, centerId, from, to, normalizePage(page), normalizeSize(size));
+    }
+
+    private int normalizePage(int page) {
+        return Math.max(page, 0);
+    }
+
+    private int normalizeSize(int size) {
+        if (size <= 0) {
+            return DEFAULT_PAGE_SIZE;
+        }
+        return Math.min(size, MAX_PAGE_SIZE);
     }
 
     @Override

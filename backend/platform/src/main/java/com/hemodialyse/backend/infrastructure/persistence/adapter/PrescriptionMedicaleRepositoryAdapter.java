@@ -2,10 +2,16 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.PrescriptionMedicaleJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.PrescriptionMedicaleJpaRepository;
+import com.hemodialyse.backend.infrastructure.persistence.spec.PrescriptionMedicaleSpecifications;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,6 +42,23 @@ public class PrescriptionMedicaleRepositoryAdapter implements PrescriptionMedica
             rows = jpa.findByPatientIdAndCenterIdOrderByDatePrescriptionDesc(patientId, centerId.value());
         }
         return rows.stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public PagedResult<PrescriptionMedicale> findPagedByPatientId(UUID patientId,
+                                                                  CenterId centerId,
+                                                                  LocalDate from,
+                                                                  LocalDate to,
+                                                                  int page,
+                                                                  int size) {
+        Page<PrescriptionMedicaleJpaEntity> result = jpa.findAll(
+                PrescriptionMedicaleSpecifications.from(patientId, centerId.value(), from, to),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "datePrescription")));
+        return PagedResult.of(
+                result.getContent().stream().map(this::toDomain).toList(),
+                result.getTotalElements(),
+                page,
+                size);
     }
 
     @Override
@@ -96,7 +119,10 @@ public class PrescriptionMedicaleRepositoryAdapter implements PrescriptionMedica
     }
 
     @Override
+    @Transactional
     public void deleteById(UUID prescriptionId, UUID patientId, CenterId centerId) {
+        // Une requête de suppression dérivée exige une transaction active, sans quoi Spring Data
+        // lève TransactionRequiredException à l'exécution.
         jpa.deleteByIdAndPatientIdAndCenterId(prescriptionId, patientId, centerId.value());
     }
 }

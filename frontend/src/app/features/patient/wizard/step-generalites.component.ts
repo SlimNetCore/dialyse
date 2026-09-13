@@ -102,8 +102,11 @@ type GeneralitesDateKey = 'dateAdmission' | 'dateNaissance' | 'epoDate' | 'ferDa
 export class StepGeneralitesComponent implements OnChanges {
   @Input() stepData: Record<string, any> | null = null;
   @Input() readonly = false;
+  /** Le dossier médical n'existe qu'une fois le patient créé — pas pendant l'assistant de création. */
+  @Input() hasPatientId = false;
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
+  @Output() openMedicalRecordRequested = new EventEmitter<void>();
 
   readonly form = new SignalForm<GeneralitesModel>(
     {
@@ -183,7 +186,9 @@ export class StepGeneralitesComponent implements OnChanges {
   ];
   photoPreview = signal<string | null>(null);
 
-  readonly isMedecin = computed(() => this.auth.hasRole('ROLE_MEDECIN'));
+  /** MEDECIN (lecture + écriture) ou ADMIN (lecture seule) — cf. `DossierMedicalAccessService`. */
+  readonly canAccessMedicalRecord = computed(() =>
+    this.auth.hasRole('ROLE_MEDECIN') || this.auth.hasRole('ROLE_ADMIN'));
   readonly showDateEvenement = computed(() =>
     PATIENT_STATES_WITH_EVENT_DATE.has(this.form.value().etatPatient),
   );
@@ -296,8 +301,8 @@ export class StepGeneralitesComponent implements OnChanges {
   }
 
   openMedicalRecord(): void {
-    if (!this.isMedecin()) return;
-    console.info('Dossier medical opened for MEDECIN profile');
+    if (!this.canAccessMedicalRecord() || !this.hasPatientId) return;
+    this.openMedicalRecordRequested.emit();
   }
 
   isValid(): boolean {

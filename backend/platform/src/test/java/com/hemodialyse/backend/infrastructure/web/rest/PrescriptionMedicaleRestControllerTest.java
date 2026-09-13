@@ -2,76 +2,97 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
+import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
+import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
+import com.hemodialyse.backend.infrastructure.web.dto.request.PrescriptionMedicaleSearchRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.UpsertPrescriptionMedicaleRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.response.EntityWriteResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.response.PagedResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.response.PrescriptionMedicaleResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PrescriptionMedicaleRestControllerTest {
 
+    private final CenterAccessGuard centerAccessGuard = new CenterAccessGuard();
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
-    void list_should_return_items_from_use_case() {
+    void list_should_return_paged_items_from_use_case() {
+        UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        PrescriptionMedicaleRestController controller = new PrescriptionMedicaleRestController(useCase);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
 
-        UUID centerId = UUID.randomUUID();
         UUID patientId = UUID.randomUUID();
+        PrescriptionMedicale p = prescription(centerId, patientId);
+        useCase.paged = PagedResult.of(List.of(p), 1, 0, 20);
 
-        PrescriptionMedicale p = new PrescriptionMedicale();
-        p.setId(UUID.randomUUID());
-        p.setCenterId(centerId);
-        p.setPatientId(patientId);
-        p.setDatePrescription(LocalDate.of(2026, 5, 1));
-        useCase.list = List.of(p);
-
-        ResponseEntity<?> response = controller.list(patientId, centerId, null, null);
+        ResponseEntity<PagedResponse<PrescriptionMedicaleResponse>> response =
+                controller.list(patientId, centerId, null, null, 0, 20);
 
         assertEquals(200, response.getStatusCode().value());
-        assertInstanceOf(List.class, response.getBody());
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> body = (List<Map<String, Object>>) response.getBody();
-        assertEquals(1, body.size());
-        assertEquals(p.getId(), body.get(0).get("id"));
+        PagedResponse<PrescriptionMedicaleResponse> body = response.getBody();
+        assertNotNull(body);
+        assertEquals(1, body.items().size());
+        assertEquals(p.getId(), body.items().get(0).id());
+    }
+
+    @Test
+    void search_should_honour_pagination_criteria() {
+        UUID centerId = authenticateMedecin();
+        FakeUseCase useCase = new FakeUseCase();
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
+
+        UUID patientId = UUID.randomUUID();
+        useCase.paged = PagedResult.of(List.of(prescription(centerId, patientId)), 42, 2, 10);
+
+        var criteria = new PrescriptionMedicaleSearchRequest(centerId, patientId, 2, 10, null, null);
+        ResponseEntity<PagedResponse<PrescriptionMedicaleResponse>> response =
+                controller.searchPrescriptions(criteria);
+
+        assertEquals(200, response.getStatusCode().value());
+        PagedResponse<PrescriptionMedicaleResponse> body = response.getBody();
+        assertNotNull(body);
+        // La pagination était auparavant ignorée : on vérifie qu'elle est bien transmise et restituée.
+        assertEquals(42, body.total());
+        assertEquals(2, body.page());
+        assertEquals(10, body.size());
+        assertEquals(2, useCase.lastPage);
+        assertEquals(10, useCase.lastSize);
     }
 
     @Test
     void create_should_delegate_to_use_case() {
+        UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        PrescriptionMedicaleRestController controller = new PrescriptionMedicaleRestController(useCase);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
 
-        UUID centerId = UUID.randomUUID();
         UUID patientId = UUID.randomUUID();
         UUID medecinId = UUID.randomUUID();
 
         UpsertPrescriptionMedicaleRequest request = new UpsertPrescriptionMedicaleRequest(
-                centerId,
-                LocalDate.of(2026, 5, 1),
-                medecinId,
-                300,
-                500,
-                2500,
-                240,
-                "FX-80",
-                "HNF",
-                "Darbepoetine",
-                60,
-                "SC",
-                "1x/sem",
-                "Fer saccharose",
-                100,
-                "IV",
-                "1x/sem"
-        );
+                centerId, LocalDate.of(2026, 5, 1), medecinId, 300, 500, 2500, 240, "FX-80", "HNF",
+                "Darbepoetine", 60, "SC", "1x/sem", "Fer saccharose", 100, "IV", "1x/sem");
 
-        ResponseEntity<?> response = controller.create(patientId, request);
+        ResponseEntity<EntityWriteResponse> response = controller.create(patientId, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(centerId, useCase.lastCenterId.value());
@@ -80,40 +101,15 @@ class PrescriptionMedicaleRestControllerTest {
     }
 
     @Test
-    void list_should_return_items_from_use_case_with_filters() {
-        FakeUseCase useCase = new FakeUseCase();
-        PrescriptionMedicaleRestController controller = new PrescriptionMedicaleRestController(useCase);
-
-        UUID centerId = UUID.randomUUID();
-        UUID patientId = UUID.randomUUID();
-
-        PrescriptionMedicale p = new PrescriptionMedicale();
-        p.setId(UUID.randomUUID());
-        p.setCenterId(centerId);
-        p.setPatientId(patientId);
-        p.setDatePrescription(LocalDate.of(2026, 5, 1));
-        useCase.list = List.of(p);
-
-        ResponseEntity<?> response = controller.list(patientId, centerId, null, null);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertInstanceOf(List.class, response.getBody());
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> body = (List<Map<String, Object>>) response.getBody();
-        assertEquals(1, body.size());
-        assertEquals(p.getId(), body.get(0).get("id"));
-    }
-
-    @Test
     void delete_should_delegate_to_use_case() {
+        UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        PrescriptionMedicaleRestController controller = new PrescriptionMedicaleRestController(useCase);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
 
-        UUID centerId = UUID.randomUUID();
         UUID patientId = UUID.randomUUID();
         UUID prescriptionId = UUID.randomUUID();
 
-        ResponseEntity<?> response = controller.delete(patientId, prescriptionId, centerId);
+        ResponseEntity<Void> response = controller.delete(patientId, prescriptionId, centerId);
 
         assertEquals(204, response.getStatusCode().value());
         assertEquals(centerId, useCase.lastCenterId.value());
@@ -121,18 +117,61 @@ class PrescriptionMedicaleRestControllerTest {
         assertEquals(prescriptionId, useCase.lastDeletedId);
     }
 
+    @Test
+    void search_should_be_forbidden_when_criteria_target_another_center() {
+        authenticateMedecin();
+        FakeUseCase useCase = new FakeUseCase();
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
+
+        var criteria = new PrescriptionMedicaleSearchRequest(
+                UUID.randomUUID(), UUID.randomUUID(), 0, 20, null, null);
+
+        assertThrows(AccessDeniedException.class, () -> controller.searchPrescriptions(criteria));
+    }
+
+    private PrescriptionMedicale prescription(UUID centerId, UUID patientId) {
+        PrescriptionMedicale p = new PrescriptionMedicale();
+        p.setId(UUID.randomUUID());
+        p.setCenterId(centerId);
+        p.setPatientId(patientId);
+        p.setDatePrescription(LocalDate.of(2026, 5, 1));
+        return p;
+    }
+
+    private UUID authenticateMedecin() {
+        UUID centerId = UUID.randomUUID();
+        UserPrincipal principal = UserPrincipal.create(
+                UUID.randomUUID().toString(), centerId.toString(), "medecin", "", List.of("MEDECIN"), true);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
+        return centerId;
+    }
+
     private static final class FakeUseCase implements PrescriptionMedicaleUseCase {
-        private List<PrescriptionMedicale> list = List.of();
+        private PagedResult<PrescriptionMedicale> paged = PagedResult.of(List.of(), 0, 0, 20);
         private CenterId lastCenterId;
         private UUID lastPatientId;
         private UUID lastMedecinId;
         private UUID lastDeletedId;
+        private int lastPage = -1;
+        private int lastSize = -1;
 
         @Override
         public List<PrescriptionMedicale> listByPatient(CenterId centerId, UUID patientId, LocalDate from, LocalDate to) {
             this.lastCenterId = centerId;
             this.lastPatientId = patientId;
-            return list;
+            return paged.items();
+        }
+
+        @Override
+        public PagedResult<PrescriptionMedicale> listPagedByPatient(CenterId centerId, UUID patientId,
+                                                                    LocalDate from, LocalDate to,
+                                                                    int page, int size) {
+            this.lastCenterId = centerId;
+            this.lastPatientId = patientId;
+            this.lastPage = page;
+            this.lastSize = size;
+            return paged;
         }
 
         @Override
@@ -162,4 +201,3 @@ class PrescriptionMedicaleRestControllerTest {
         }
     }
 }
-

@@ -1,0 +1,204 @@
+<div class="bilans-container">
+  @if (store.error()) {
+    <div class="bilans-error">{{ store.error() }}</div>
+  }
+
+  @if (access.canEdit()) {
+    <div class="bilans-toolbar">
+      <button (click)="openCreateForm()" color="primary" mat-flat-button type="button">
+        <mat-icon>add</mat-icon>
+        {{ 'DOSSIER_MEDICAL.ADD_ANALYSE' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (formOpen()) {
+    <div class="analyse-form">
+      <div class="analyse-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DATE_PRELEVEMENT' | translate }} *</mat-label>
+          <input
+            (dateChange)="onValue('datePrelevement', $event.value)"
+            [matDatepicker]="dpPicker"
+            [value]="form.value().datePrelevement"
+            matInput
+          />
+          <mat-datepicker-toggle [for]="dpPicker" matSuffix/>
+          <mat-datepicker #dpPicker/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Hb (g/dL)</mat-label>
+          <input (input)="onNumber('hbGDl', $any($event.target).value)" [value]="form.value().hbGDl" matInput step="0.1"
+                 type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Ht (%)</mat-label>
+          <input (input)="onNumber('htPct', $any($event.target).value)" [value]="form.value().htPct" matInput step="0.1"
+                 type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.PLAQUETTES' | translate }} (G/L)</mat-label>
+          <input (input)="onNumber('plaquettes', $any($event.target).value)" [value]="form.value().plaquettes" matInput
+                 type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.FERRITINE' | translate }} (ng/mL)</mat-label>
+          <input (input)="onNumber('ferritineNgMl', $any($event.target).value)" [value]="form.value().ferritineNgMl"
+                 matInput step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>CSTf (%)</mat-label>
+          <input (input)="onNumber('cstfPct', $any($event.target).value)" [value]="form.value().cstfPct" matInput
+                 step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.UREE_PRE' | translate }} (mg/dL)</mat-label>
+          <input (input)="onNumber('ureePreMgDl', $any($event.target).value)" [value]="form.value().ureePreMgDl"
+                 matInput step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.UREE_POST' | translate }} (mg/dL)</mat-label>
+          <input (input)="onNumber('ureePostMgDl', $any($event.target).value)" [value]="form.value().ureePostMgDl"
+                 matInput step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.CREATININE' | translate }} (mg/dL)</mat-label>
+          <input (input)="onNumber('creatinineMgDl', $any($event.target).value)" [value]="form.value().creatinineMgDl"
+                 matInput step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Kt/V</mat-label>
+          <input (input)="onNumber('ktVMensuel', $any($event.target).value)" [value]="form.value().ktVMensuel" matInput
+                 step="0.01" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.PHOSPHORE' | translate }} (mg/dL)</mat-label>
+          <input (input)="onNumber('phosphoreMgDl', $any($event.target).value)" [value]="form.value().phosphoreMgDl"
+                 matInput step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.CALCIUM' | translate }} (mg/dL)</mat-label>
+          <input (input)="onNumber('calciumMgDl', $any($event.target).value)" [value]="form.value().calciumMgDl"
+                 matInput step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>PTH (pg/mL)</mat-label>
+          <input (input)="onNumber('pthPgMl', $any($event.target).value)" [value]="form.value().pthPgMl" matInput
+                 step="1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.ALBUMINE' | translate }} (g/dL)</mat-label>
+          <input (input)="onNumber('albumineGDl', $any($event.target).value)" [value]="form.value().albumineGDl"
+                 matInput step="0.1" type="number"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>CRP (mg/L)</mat-label>
+          <input (input)="onNumber('crpMgL', $any($event.target).value)" [value]="form.value().crpMgL" matInput
+                 step="0.1" type="number"/>
+        </mat-form-field>
+      </div>
+
+      <div class="analyse-form-actions">
+        <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" color="primary" mat-flat-button type="button">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (store.loading()) {
+    <div class="bilans-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <div class="bilans-table-scroll">
+      <table [dataSource]="store.rows()" class="full-width" mat-table>
+        <ng-container matColumnDef="datePrelevement">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DATE_PRELEVEMENT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.datePrelevement }}</td>
+        </ng-container>
+        <ng-container matColumnDef="hbGDl">
+          <th *matHeaderCellDef mat-header-cell>Hb</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'hbGDl')"
+              mat-cell>{{ row.hbGDl ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="htPct">
+          <th *matHeaderCellDef mat-header-cell>Ht</th>
+          <td *matCellDef="let row" mat-cell>{{ row.htPct ?? '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="ferritineNgMl">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.FERRITINE' | translate }}</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'ferritineNgMl')"
+              mat-cell>{{ row.ferritineNgMl ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="ktVMensuel">
+          <th *matHeaderCellDef mat-header-cell>Kt/V</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'ktVMensuel')"
+              mat-cell>{{ row.ktVMensuel ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="phosphoreMgDl">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.PHOSPHORE' | translate }}</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'phosphoreMgDl')"
+              mat-cell>{{ row.phosphoreMgDl ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="calciumMgDl">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.CALCIUM' | translate }}</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'calciumMgDl')"
+              mat-cell>{{ row.calciumMgDl ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="pthPgMl">
+          <th *matHeaderCellDef mat-header-cell>PTH</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'pthPgMl')"
+              mat-cell>{{ row.pthPgMl ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="albumineGDl">
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.ALBUMINE' | translate }}</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'albumineGDl')"
+              mat-cell>{{ row.albumineGDl ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="crpMgL">
+          <th *matHeaderCellDef mat-header-cell>CRP</th>
+          <td *matCellDef="let row" [class.value-out-of-range]="isOutOfRange(row, 'crpMgL')"
+              mat-cell>{{ row.crpMgL ?? '-' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell></th>
+          <td *matCellDef="let row" mat-cell>
+            @if (access.canEdit()) {
+              <button (click)="openEditForm(row)" [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button
+                      type="button">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button (click)="remove(row)" [matTooltip]="'COMMON.DELETE' | translate" mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+      </table>
+    </div>
+    @if (store.rows().length === 0) {
+      <div class="bilans-empty">{{ 'DOSSIER_MEDICAL.NO_ANALYSES' | translate }}</div>
+    }
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  }
+</div>

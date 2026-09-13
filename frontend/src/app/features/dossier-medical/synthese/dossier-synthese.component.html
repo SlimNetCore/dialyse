@@ -1,0 +1,86 @@
+@if (store.loading()) {
+  <div class="synthese-loading">
+    <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+  </div>
+} @else {
+  <div class="synthese-form">
+    @if (store.error()) {
+      <div class="synthese-error">{{ store.error() }}</div>
+    }
+
+    <div class="synthese-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'DOSSIER_MEDICAL.NEPHROPATHIE_INITIALE' | translate }}</mat-label>
+        <input
+          (input)="onText('nephropathieInitiale', $any($event.target).value)"
+          [disabled]="!access.canEdit()"
+          [value]="form.value().nephropathieInitiale"
+          matInput
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'DOSSIER_MEDICAL.DATE_MISE_EN_DIALYSE' | translate }}</mat-label>
+        <input
+          (dateChange)="onDate('dateMiseEnDialyse', $event.value)"
+          [disabled]="!access.canEdit()"
+          [matDatepicker]="dmdPicker"
+          [value]="form.value().dateMiseEnDialyse"
+          matInput
+        />
+        <mat-datepicker-toggle [for]="dmdPicker" matSuffix/>
+        <mat-datepicker #dmdPicker/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'DOSSIER_MEDICAL.HEPATITE_B_STATUT' | translate }}</mat-label>
+        <mat-select
+          (selectionChange)="onText('hepatiteBStatut', $event.value)"
+          [disabled]="!access.canEdit()"
+          [value]="form.value().hepatiteBStatut"
+        >
+          @for (statut of hepatiteBStatuts; track statut) {
+            <mat-option [value]="statut">{{ ('SEROLOGIE_STATUTS.' + statut) | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'DOSSIER_MEDICAL.HEPATITE_C_STATUT' | translate }}</mat-label>
+        <mat-select
+          (selectionChange)="onText('hepatiteCStatut', $event.value)"
+          [disabled]="!access.canEdit()"
+          [value]="form.value().hepatiteCStatut"
+        >
+          @for (statut of hepatiteCStatuts; track statut) {
+            <mat-option [value]="statut">{{ ('SEROLOGIE_STATUTS.' + statut) | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="synthese-observation">
+        <mat-label>{{ 'DOSSIER_MEDICAL.OBSERVATION_GLOBALE' | translate }}</mat-label>
+        <textarea
+          (input)="onText('observationGlobale', $any($event.target).value)"
+          [disabled]="!access.canEdit()"
+          [value]="form.value().observationGlobale"
+          matInput
+          rows="4"
+        ></textarea>
+      </mat-form-field>
+    </div>
+
+    @if (access.canEdit()) {
+      <div class="synthese-actions">
+        <button (click)="save()" [disabled]="store.saving()" color="primary" mat-flat-button type="button">
+          @if (store.saving()) {
+            <mat-progress-spinner class="btn-loader" diameter="16" mode="indeterminate" strokeWidth="2"/>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    }
+  </div>
+}

@@ -36,13 +36,13 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {RefItem, ReferentialApiService} from '../../core/api/referential-api.service';
 import {
   NgTableColumn,
+  NgTableComponent,
   NgTableCopyEvent,
   NgTableLabels,
   NgTableRemoteQuery,
   NgTableView,
 } from '@sbourahla/ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
-import {NgTableComponent} from '../../../../../../ngTable/dist/ng-table';
 
 export interface PatientRow {
   id: string;
@@ -85,7 +85,6 @@ export interface PatientRow {
     PatientSummaryCardsComponent,
     HemodialysisLoaderComponent,
     NgTableComponent,
-    NgTableComponent,
   ],
   templateUrl: './patient-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -96,7 +95,7 @@ export class PatientListComponent {
   readonly selectPatient = output<PatientRow>();
   readonly viewStats = output<PatientRow>();
 
-  private readonly auth = inject(AuthStore);
+  protected readonly auth = inject(AuthStore);
   private readonly patientListStore = inject(PatientListStore);
   private readonly router = inject(Router);
   /**
@@ -566,6 +565,10 @@ export class PatientListComponent {
 
   openCahier(patient: PatientRow): void {
     this.router.navigate(['/patients', patient.id, 'cahier'], {queryParams: {mode: 'recap'}});
+  }
+
+  openDossierMedical(patient: PatientRow): void {
+    this.router.navigate(['/patients', patient.id, 'dossier-medical']);
   }
 
   printList(): void {

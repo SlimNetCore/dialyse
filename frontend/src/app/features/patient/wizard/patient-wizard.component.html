@@ -44,7 +44,9 @@
         <app-step-generalites
           #stepGen
           (dataChange)="updateData($event)"
+          (openMedicalRecordRequested)="openDossierMedical()"
           (validChange)="setStep1Valid($event)"
+          [hasPatientId]="!!editingPatientId()"
           [readonly]="consultationMode()"
           [stepData]="wizardData"
         />

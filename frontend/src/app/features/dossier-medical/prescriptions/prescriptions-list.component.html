@@ -1,0 +1,188 @@
+<div class="prescriptions-container">
+  @if (store.error()) {
+    <div class="prescriptions-error">{{ store.error() }}</div>
+  }
+
+  @if (access.canEdit()) {
+    <div class="prescriptions-toolbar">
+      <button (click)="openCreateForm()" color="primary" mat-flat-button type="button">
+        <mat-icon>add</mat-icon>
+        {{ 'DOSSIER_MEDICAL.ADD_PRESCRIPTION' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (formOpen()) {
+    <mat-card class="prescription-form">
+      <div class="prescription-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DATE_PRESCRIPTION' | translate }} *</mat-label>
+          <input
+            (dateChange)="onValue('datePrescription', $event.value)"
+            [matDatepicker]="dpPicker"
+            [value]="form.value().datePrescription"
+            matInput
+          />
+          <mat-datepicker-toggle [for]="dpPicker" matSuffix/>
+          <mat-datepicker #dpPicker/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.QB_CIBLE' | translate }}</mat-label>
+          <input (input)="onNumber('qbCible', $any($event.target).value)" [value]="form.value().qbCible" matInput
+                 type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.QD_CIBLE' | translate }}</mat-label>
+          <input (input)="onNumber('qdCible', $any($event.target).value)" [value]="form.value().qdCible" matInput
+                 type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.UF_MAX' | translate }}</mat-label>
+          <input (input)="onNumber('ufMaxMl', $any($event.target).value)" [value]="form.value().ufMaxMl" matInput
+                 type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DUREE_CIBLE' | translate }}</mat-label>
+          <input (input)="onNumber('dureeCibleMin', $any($event.target).value)" [value]="form.value().dureeCibleMin"
+                 matInput type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.TYPE_DIALYSEUR' | translate }}</mat-label>
+          <input (input)="onValue('typeDialyseurPrescrit', $any($event.target).value)"
+                 [value]="form.value().typeDialyseurPrescrit" matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.ANTICOAG_TYPE' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('anticoagTypePrescrit', $event.value)"
+                      [value]="form.value().anticoagTypePrescrit">
+            @for (type of anticoagTypes; track type) {
+              <mat-option [value]="type">{{ ('ANTICOAG_TYPES.' + type) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="prescription-section-title">{{ 'DOSSIER_MEDICAL.SECTION_EPO' | translate }}</div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }}</mat-label>
+          <input (input)="onValue('epoMolecule', $any($event.target).value)" [value]="form.value().epoMolecule"
+                 matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DOSE_UI' | translate }}</mat-label>
+          <input (input)="onNumber('epoDoseUi', $any($event.target).value)" [value]="form.value().epoDoseUi" matInput
+                 type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('epoVoie', $event.value)" [value]="form.value().epoVoie">
+            @for (voie of epoVoies; track voie) {
+              <mat-option [value]="voie">{{ voie }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.FREQUENCE' | translate }}</mat-label>
+          <input (input)="onValue('epoFrequence', $any($event.target).value)" [value]="form.value().epoFrequence"
+                 matInput/>
+        </mat-form-field>
+
+        <div class="prescription-section-title">{{ 'DOSSIER_MEDICAL.SECTION_FER' | translate }}</div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }}</mat-label>
+          <input (input)="onValue('ferMolecule', $any($event.target).value)" [value]="form.value().ferMolecule"
+                 matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.DOSE_MG' | translate }}</mat-label>
+          <input (input)="onNumber('ferDoseMg', $any($event.target).value)" [value]="form.value().ferDoseMg" matInput
+                 type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('ferVoie', $event.value)" [value]="form.value().ferVoie">
+            @for (voie of ferVoies; track voie) {
+              <mat-option [value]="voie">{{ voie }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.FREQUENCE' | translate }}</mat-label>
+          <input (input)="onValue('ferFrequence', $any($event.target).value)" [value]="form.value().ferFrequence"
+                 matInput/>
+        </mat-form-field>
+      </div>
+
+      <div class="prescription-form-actions">
+        <button (click)="cancelForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" color="primary" mat-flat-button type="button">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </mat-card>
+  }
+
+  @if (store.loading()) {
+    <div class="prescriptions-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else {
+    <div class="prescriptions-timeline">
+      @for (prescription of store.rows(); track prescription.id) {
+        <mat-card [class.prescription-card-recent]="canEditRow(prescription)" class="prescription-card">
+          <div class="prescription-card-header">
+            <span class="prescription-date">{{ prescription.datePrescription }}</span>
+            @if (canEditRow(prescription)) {
+              <div class="prescription-card-actions">
+                <button (click)="openEditForm(prescription)" [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button
+                        type="button">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button (click)="remove(prescription)" [matTooltip]="'COMMON.DELETE' | translate" mat-icon-button
+                        type="button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+          <div class="prescription-card-body">
+            <span>Qb {{ prescription.qbCible ?? '-' }} · Qd {{ prescription.qdCible ?? '-' }}
+              · UF max {{ prescription.ufMaxMl ?? '-' }} · {{ prescription.dureeCibleMin ?? '-' }} min</span>
+            @if (prescription.epoMolecule) {
+              <span class="prescription-tag">EPO {{ prescription.epoMolecule }} {{ prescription.epoDoseUi }}
+                UI {{ prescription.epoVoie }} {{ prescription.epoFrequence }}</span>
+            }
+            @if (prescription.ferMolecule) {
+              <span class="prescription-tag">Fer {{ prescription.ferMolecule }} {{ prescription.ferDoseMg }}
+                mg {{ prescription.ferVoie }} {{ prescription.ferFrequence }}</span>
+            }
+          </div>
+        </mat-card>
+      }
+      @if (store.rows().length === 0) {
+        <div class="prescriptions-empty">{{ 'DOSSIER_MEDICAL.NO_PRESCRIPTIONS' | translate }}</div>
+      }
+    </div>
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  }
+</div>

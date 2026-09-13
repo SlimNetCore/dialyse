@@ -30,6 +30,7 @@
         <module>bc-stock</module>
         <module>bc-pec</module>
         <module>bc-seance</module>
+        <module>bc-medical</module>
         <module>bc-facturation</module>
         <module>bc-reglement</module>
         <module>bc-comptabilite</module>
@@ -80,6 +81,11 @@
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>bc-seance</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hemodialyse</groupId>
+                <artifactId>bc-medical</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>

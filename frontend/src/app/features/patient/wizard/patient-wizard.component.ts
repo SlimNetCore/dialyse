@@ -62,7 +62,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   @ViewChild('stepPec') stepPec?: StepPecComponent;
   @ViewChild('stepPj') stepPj?: StepPiecesJointesComponent;
 
-  private readonly auth = inject(AuthStore);
+  protected readonly auth = inject(AuthStore);
   private readonly appShell = inject(AppShellStore);
   private readonly ficheStore = inject(PatientFicheStore);
   private readonly patientListStore = inject(PatientListStore);
@@ -219,6 +219,12 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
 
   goBack(): void {
     this.router.navigate(['/patients']);
+  }
+
+  openDossierMedical(): void {
+    const patientId = this.editingPatientId();
+    if (!patientId) return;
+    this.router.navigate(['/patients', patientId, 'dossier-medical']);
   }
 
   shouldRenderStep(_stepIndex: number): boolean {

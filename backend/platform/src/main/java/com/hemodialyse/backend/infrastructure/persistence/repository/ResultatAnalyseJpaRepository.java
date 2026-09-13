@@ -2,12 +2,14 @@ package com.hemodialyse.backend.infrastructure.persistence.repository;
 
 import com.hemodialyse.backend.infrastructure.persistence.entity.ResultatAnalyseJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public interface ResultatAnalyseJpaRepository extends JpaRepository<ResultatAnalyseJpaEntity, UUID> {
+public interface ResultatAnalyseJpaRepository extends JpaRepository<ResultatAnalyseJpaEntity, UUID>,
+        JpaSpecificationExecutor<ResultatAnalyseJpaEntity> {
     List<ResultatAnalyseJpaEntity> findByPatientIdAndCenterIdOrderByDatePrelevementDesc(UUID patientId, UUID centerId);
 
     List<ResultatAnalyseJpaEntity> findByPatientIdAndCenterIdAndDatePrelevementGreaterThanEqualOrderByDatePrelevementDesc(
