@@ -1,50 +1,70 @@
 .antecedents-container {
-  padding: 16px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 36px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .allergies-bandeau {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 14px 18px;
+  border-radius: 10px;
   background: rgba(198, 40, 40, 0.08);
   border: 1px solid rgba(198, 40, 40, 0.3);
   color: #c62828;
+}
+
+.antecedents-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .section-header h3 {
   margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.section-header button {
+  min-height: 44px;
 }
 
 .section-error {
   color: #c62828;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.08);
 }
 
 .inline-form {
   border: 1px solid var(--app-border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
   background: var(--app-surface-soft);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .inline-form-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0 16px;
+  gap: 8px 24px;
 }
 
 .inline-form-note {
@@ -54,19 +74,26 @@
 .inline-form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.inline-form-actions button {
+  min-height: 44px;
+  padding: 0 20px;
 }
 
 .section-loading {
   display: flex;
   justify-content: center;
-  padding: 32px;
+  padding: 40px;
 }
 
 .section-empty {
   text-align: center;
-  padding: 16px;
+  padding: 24px;
   opacity: 0.7;
 }
 
@@ -74,18 +101,64 @@
   width: 100%;
 }
 
+.full-width th.mat-mdc-header-cell,
+.full-width td.mat-mdc-cell {
+  padding: 14px 16px;
+}
+
 .criticite-haute {
   color: #c62828;
   font-weight: 600;
 }
 
+/* Tablette (768-1024px) : deux colonnes plutôt que trois, formulaire toujours confortable. */
+@media (max-width: 1024px) {
+  .antecedents-container {
+    padding: 24px;
+    gap: 28px;
+  }
+
+  .inline-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px) : une colonne, tableaux en scroll horizontal. */
 @media (max-width: 767px) {
+  .antecedents-container {
+    padding: 16px;
+    gap: 24px;
+  }
+
+  .inline-form {
+    padding: 16px;
+  }
+
   .inline-form-grid {
     grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .inline-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .inline-form-actions button {
+    width: 100%;
+  }
+
+  .section-header {
+    align-items: stretch;
+  }
+
+  .section-header button {
+    width: 100%;
+    justify-content: center;
   }
 
   table.full-width {
     display: block;
     overflow-x: auto;
+    white-space: nowrap;
   }
 }

@@ -1,42 +1,66 @@
 .prescriptions-container {
-  padding: 16px;
+  padding: 28px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .prescriptions-error {
   color: #c62828;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.08);
 }
 
 .prescriptions-toolbar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.prescriptions-toolbar button {
+  min-height: 44px;
 }
 
 .prescription-form {
-  margin-bottom: 16px;
-  padding: 16px;
+  margin-bottom: 24px;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: var(--app-shadow-soft);
 }
 
+/* Trois colonnes plutôt que quatre : le formulaire cumule cibles de dialyse + EPO + fer,
+   quatre colonnes serrait trop les libellés longs (ex. "Type dialyseur prescrit"). */
 .prescription-form-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 24px;
   align-items: center;
 }
 
 .prescription-section-title {
   grid-column: 1 / -1;
   font-weight: 600;
-  margin-top: 8px;
-  opacity: 0.8;
+  font-size: 0.95rem;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text);
+  opacity: 0.85;
 }
 
 .prescription-form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.prescription-form-actions button {
+  min-height: 44px;
+  padding: 0 20px;
 }
 
 .prescriptions-loading {
@@ -48,12 +72,14 @@
 .prescriptions-timeline {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .prescription-card {
   border-left: 4px solid var(--app-border);
-  padding: 12px 16px;
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: var(--app-shadow-soft);
 }
 
 .prescription-card-recent {
@@ -64,23 +90,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .prescription-date {
   font-weight: 600;
+  font-size: 1.05rem;
 }
 
 .prescription-card-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 6px;
+  gap: 8px;
+  margin-top: 10px;
   font-size: 0.9rem;
 }
 
 .prescription-tag {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: 999px;
   background: var(--app-surface-soft);
   border: 1px solid var(--app-border);
@@ -93,8 +122,42 @@
   opacity: 0.7;
 }
 
+/* Tablette (768-1024px). */
+@media (max-width: 1024px) {
+  .prescriptions-container {
+    padding: 24px;
+  }
+
+  .prescription-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px). */
 @media (max-width: 767px) {
+  .prescriptions-container {
+    padding: 16px;
+  }
+
+  .prescription-form {
+    padding: 16px;
+  }
+
   .prescription-form-grid {
     grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .prescription-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .prescription-form-actions button,
+  .prescriptions-toolbar button {
+    width: 100%;
+  }
+
+  .prescription-card {
+    padding: 14px 16px;
   }
 }

@@ -1,37 +1,54 @@
 .bilans-container {
-  padding: 16px;
+  padding: 28px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .bilans-error {
   color: #c62828;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.08);
 }
 
 .bilans-toolbar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.bilans-toolbar button {
+  min-height: 44px;
 }
 
 .analyse-form {
   border: 1px solid var(--app-border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
   background: var(--app-surface-soft);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .analyse-form-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0 16px;
+  gap: 8px 24px;
 }
 
 .analyse-form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.analyse-form-actions button {
+  min-height: 44px;
+  padding: 0 20px;
 }
 
 .bilans-loading {
@@ -48,6 +65,11 @@
   width: 100%;
 }
 
+.full-width th.mat-mdc-header-cell,
+.full-width td.mat-mdc-cell {
+  padding: 14px 16px;
+}
+
 .value-out-of-range {
   color: #c62828;
   font-weight: 600;
@@ -59,8 +81,38 @@
   opacity: 0.7;
 }
 
-@media (max-width: 767px) {
+/* Tablette (768-1024px) : trois colonnes, les champs numériques restent lisibles. */
+@media (max-width: 1024px) {
+  .bilans-container {
+    padding: 24px;
+  }
+
   .analyse-form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px). */
+@media (max-width: 767px) {
+  .bilans-container {
+    padding: 16px;
+  }
+
+  .analyse-form {
+    padding: 16px;
+  }
+
+  .analyse-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 16px;
+  }
+
+  .analyse-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .analyse-form-actions button,
+  .bilans-toolbar button {
+    width: 100%;
   }
 }

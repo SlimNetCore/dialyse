@@ -2,13 +2,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: var(--app-surface);
 }
 
 .dossier-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 16px;
+  padding: 20px 28px;
   border-bottom: 1px solid var(--app-border);
   flex-wrap: wrap;
 }
@@ -16,14 +17,15 @@
 .dossier-identity {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex: 1 1 auto;
   min-width: 0;
 }
 
 .dossier-identity h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -43,12 +45,12 @@
 .dossier-readonly-badge {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: 6px;
+  padding: 6px 14px;
   border-radius: 999px;
   background: var(--app-surface-soft);
   border: 1px solid var(--app-border);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   white-space: nowrap;
 }
 
@@ -62,29 +64,50 @@
   overflow-x: auto;
   overflow-y: hidden;
   flex-shrink: 0;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .dossier-tab-nav a mat-icon {
-  margin-right: 6px;
+  margin-right: 8px;
   vertical-align: middle;
 }
 
 mat-tab-nav-panel {
   flex: 1 1 auto;
   overflow-y: auto;
+  background: var(--app-surface-soft);
 }
 
+/* Tablette : identité et badge restent sur une ligne, mais l'espacement se resserre. */
+@media (max-width: 1024px) {
+  .dossier-header {
+    padding: 16px 20px;
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px) : en-tête compact, onglets défilants horizontalement. */
 @media (max-width: 767px) {
   .dossier-header {
-    padding: 8px 12px;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .dossier-identity {
+    gap: 10px;
   }
 
   .dossier-identity h2 {
-    font-size: 1rem;
+    font-size: 1.05rem;
+  }
+
+  .dossier-readonly-badge {
+    padding: 4px 10px;
+    font-size: 0.75rem;
   }
 
   .dossier-tab-nav {
-    /* Onglets défilants horizontalement plutôt qu'empilés : garde l'en-tête compact sur mobile. */
+    padding: 0 4px;
     scrollbar-width: thin;
   }
 }
