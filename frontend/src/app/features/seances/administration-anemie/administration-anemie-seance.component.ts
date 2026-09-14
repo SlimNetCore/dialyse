@@ -14,6 +14,7 @@ import {AuthStore} from '../../../core/state/auth.store';
 import {
   AdministrationTraitement,
   DossierMedicalApiService,
+  ObservanceAnemie,
   PrescriptionMedicale,
 } from '../../../core/api/dossier-medical-api.service';
 
@@ -77,6 +78,7 @@ export class AdministrationAnemieSeanceComponent {
 
   protected readonly prescription = signal<PrescriptionMedicale | null>(null);
   protected readonly loadingPrescription = signal(false);
+  protected readonly observance = signal<ObservanceAnemie | null>(null);
   protected readonly administrationsSeance = signal<AdministrationTraitement[]>([]);
   protected readonly loadingAdministrations = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -173,6 +175,7 @@ export class AdministrationAnemieSeanceComponent {
         this.saving.set(false);
         this.formOpen.set(false);
         this.loadAdministrations();
+        this.loadObservance();
       },
       error: (err) => {
         this.saving.set(false);
@@ -185,9 +188,26 @@ export class AdministrationAnemieSeanceComponent {
     return this.administrationsSeance().some((a) => a.typeTraitement === type);
   }
 
+  observanceFor(type: 'EPO' | 'FER_INJECTABLE'): ObservanceAnemie['epo'] {
+    const observance = this.observance();
+    if (!observance) return null;
+    return type === 'EPO' ? observance.epo : observance.fer;
+  }
+
   private refresh(): void {
     this.loadPrescription();
     this.loadAdministrations();
+    this.loadObservance();
+  }
+
+  private loadObservance(): void {
+    const patientId = this.patientId();
+    const centerId = this.centerId();
+    if (!patientId || !centerId) return;
+    this.api.getObservanceAnemie(centerId, patientId).subscribe({
+      next: (observance) => this.observance.set(observance),
+      error: () => this.observance.set(null),
+    });
   }
 
   private loadPrescription(): void {

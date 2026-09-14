@@ -11,8 +11,8 @@ public interface AlerteObservanceJpaRepository extends JpaRepository<AlerteObser
 
     List<AlerteObservanceJpaEntity> findByPatientIdAndCenterIdOrderByCreatedAtDesc(UUID patientId, UUID centerId);
 
-    Optional<AlerteObservanceJpaEntity> findByPatientIdAndCenterIdAndTypeTraitementAndResolvedAtIsNull(
-            UUID patientId, UUID centerId, String typeTraitement);
+    Optional<AlerteObservanceJpaEntity> findByPatientIdAndCenterIdAndTypeTraitementAndTypeAlerteAndResolvedAtIsNull(
+            UUID patientId, UUID centerId, String typeTraitement, String typeAlerte);
 
     Optional<AlerteObservanceJpaEntity> findByIdAndPatientIdAndCenterId(UUID id, UUID patientId, UUID centerId);
 }

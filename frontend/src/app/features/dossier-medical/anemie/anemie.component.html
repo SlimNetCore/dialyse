@@ -7,8 +7,13 @@
     <div class="anemie-alertes-observance">
       @for (alerte of alertesStore.alertes(); track alerte.id) {
         @if (!alerte.resolvedAt) {
-          <div class="anemie-alerte-observance-row">
-            <mat-icon class="anemie-alerte-icon">warning</mat-icon>
+          <div [class.anemie-alerte-rappel]="alerte.type === 'RAPPEL_ECHEANCE'" class="anemie-alerte-observance-row">
+            <mat-icon class="anemie-alerte-icon">{{ alerte.type === 'RAPPEL_ECHEANCE' ? 'schedule' : 'warning' }}
+            </mat-icon>
+            <span
+              [class]="'anemie-alerte-type-badge ' + (alerte.type === 'RAPPEL_ECHEANCE' ? 'badge-rappel' : 'badge-retard')">
+              {{ ('DOSSIER_MEDICAL.ALERTE_OBSERVANCE_TYPE.' + alerte.type) | translate }}
+            </span>
             <span class="anemie-alerte-message">{{ alerte.message }}</span>
             <button (click)="resoudreAlerte(alerte.id)" mat-stroked-button type="button">
               {{ 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_RESOUDRE' | translate }}

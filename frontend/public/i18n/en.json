@@ -536,6 +536,8 @@
     "ADMINISTERED_TODAY": "Administered",
     "ADMINISTERED_THIS_SESSION": "Administrations for this session",
     "QUANTITE_ADMINISTREE": "Quantity administered",
+    "RESTE_A_ADMINISTRER": "{{count}} dose(s) remaining to administer",
+    "AVANT_LE": "before",
     "TAB_CONSOMMABLES": "Consumables",
     "CONSOMMABLES_NOTE": "Select consumables used during this session. They will be issued from stock at WAP upon validation.",
     "ADD_ARTICLE_BTN": "Add item",
@@ -1388,6 +1390,10 @@
     "FREQUENCE": "Frequency",
     "FREQUENCE_UNITE": "Frequency unit",
     "ALERTE_OBSERVANCE_RESOUDRE": "Mark as resolved",
+    "ALERTE_OBSERVANCE_TYPE": {
+      "RETARD_CONSTATE": "Delay confirmed",
+      "RAPPEL_ECHEANCE": "Reminder before deadline"
+    },
     "NO_PRESCRIPTIONS": "No prescription recorded",
     "ADD_ANALYSE": "Enter results",
     "DATE_PRELEVEMENT": "Sample date",

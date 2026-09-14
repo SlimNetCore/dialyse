@@ -381,6 +381,8 @@
     "ADMINISTERED_TODAY": "Yettwasezdeg",
     "ADMINISTERED_THIS_SESSION": "Isezdiyen n tiɣimit-a",
     "QUANTITE_ADMINISTREE": "Ttantant yettwasezdeg",
+    "RESTE_A_ADMINISTRER": "Iqqim-d {{count}} n tanezzayin ara yettwasezdgen",
+    "AVANT_LE": "send",
     "TAB_CONSOMMABLES": "Timseɣsanin",
     "CONSOMMABLES_NOTE": "Fren iḥricen yettuseqdacen deg tmsirt-a. Ad d-ffɣen si ugdez s PMP seg uqbel.",
     "ADD_ARTICLE_BTN": "Rnu aḥric",
@@ -1366,6 +1368,10 @@
     "FREQUENCE": "Tikkelt-nnsen",
     "FREQUENCE_UNITE": "Tanagit n tikkelt",
     "ALERTE_OBSERVANCE_RESOUDRE": "Creḍ tettwafra",
+    "ALERTE_OBSERVANCE_TYPE": {
+      "RETARD_CONSTATE": "Alwexer yettwabaner",
+      "RAPPEL_ECHEANCE": "Asmekti send lawan"
+    },
     "NO_PRESCRIPTIONS": "Ulac prescription yettwajerden",
     "ADD_ANALYSE": "Sekcem igmaḍ",
     "DATE_PRELEVEMENT": "Azemz n usmizzel",

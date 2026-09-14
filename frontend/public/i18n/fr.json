@@ -536,6 +536,8 @@
     "ADMINISTERED_TODAY": "Administré",
     "ADMINISTERED_THIS_SESSION": "Administrations de cette séance",
     "QUANTITE_ADMINISTREE": "Quantité administrée",
+    "RESTE_A_ADMINISTRER": "Reste {{count}} dose(s) à administrer",
+    "AVANT_LE": "avant le",
     "TAB_CONSOMMABLES": "Consommables",
     "CONSOMMABLES_NOTE": "Sélectionnez les articles consommés pendant cette séance. Ils seront sortis du stock au PMP lors de la validation.",
     "ADD_ARTICLE_BTN": "Ajouter un article",
@@ -1388,6 +1390,10 @@
     "FREQUENCE": "Fréquence",
     "FREQUENCE_UNITE": "Unité de fréquence",
     "ALERTE_OBSERVANCE_RESOUDRE": "Marquer comme résolue",
+    "ALERTE_OBSERVANCE_TYPE": {
+      "RETARD_CONSTATE": "Retard constaté",
+      "RAPPEL_ECHEANCE": "Rappel avant échéance"
+    },
     "NO_PRESCRIPTIONS": "Aucune prescription enregistrée",
     "ADD_ANALYSE": "Saisir des résultats",
     "DATE_PRELEVEMENT": "Date de prélèvement",

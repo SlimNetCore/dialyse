@@ -25,6 +25,9 @@ public class AlerteObservanceJpaEntity {
     @Column(name = "type_traitement", nullable = false, length = 20)
     private String typeTraitement;
 
+    @Column(name = "type_alerte", nullable = false, length = 20)
+    private String typeAlerte;
+
     @Column(name = "periode_debut", nullable = false)
     private LocalDate periodeDebut;
 
@@ -76,6 +79,14 @@ public class AlerteObservanceJpaEntity {
 
     public void setTypeTraitement(String typeTraitement) {
         this.typeTraitement = typeTraitement;
+    }
+
+    public String getTypeAlerte() {
+        return typeAlerte;
+    }
+
+    public void setTypeAlerte(String typeAlerte) {
+        this.typeAlerte = typeAlerte;
     }
 
     public LocalDate getPeriodeDebut() {

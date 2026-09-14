@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.medical.anemie.aggregate.AlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.port.AlerteObservanceRepositoryPort;
+import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeAlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AlerteObservanceJpaEntity;
@@ -29,9 +30,10 @@ public class AlerteObservanceRepositoryAdapter implements AlerteObservanceReposi
 
     @Override
     public Optional<AlerteObservance> findActiveByPatientAndType(UUID patientId, CenterId centerId,
-                                                                 TypeTraitementAnemie typeTraitement) {
-        return jpa.findByPatientIdAndCenterIdAndTypeTraitementAndResolvedAtIsNull(
-                patientId, centerId.value(), typeTraitement.name()).map(this::toDomain);
+                                                                 TypeTraitementAnemie typeTraitement,
+                                                                 TypeAlerteObservance type) {
+        return jpa.findByPatientIdAndCenterIdAndTypeTraitementAndTypeAlerteAndResolvedAtIsNull(
+                patientId, centerId.value(), typeTraitement.name(), type.name()).map(this::toDomain);
     }
 
     @Override
@@ -46,7 +48,8 @@ public class AlerteObservanceRepositoryAdapter implements AlerteObservanceReposi
 
     private AlerteObservance toDomain(AlerteObservanceJpaEntity e) {
         return AlerteObservance.reconstituer(e.getId(), e.getPatientId(), e.getCenterId(),
-                TypeTraitementAnemie.valueOf(e.getTypeTraitement()), e.getPeriodeDebut(), e.getPeriodeFin(),
+                TypeTraitementAnemie.valueOf(e.getTypeTraitement()), TypeAlerteObservance.valueOf(e.getTypeAlerte()),
+                e.getPeriodeDebut(), e.getPeriodeFin(),
                 e.getDosesAttendues(), e.getDosesAdministrees(), e.getMessage(), e.getCreatedAt(), e.getResolvedAt());
     }
 
@@ -56,6 +59,7 @@ public class AlerteObservanceRepositoryAdapter implements AlerteObservanceReposi
         e.setPatientId(a.getPatientId());
         e.setCenterId(a.getCenterId());
         e.setTypeTraitement(a.getTypeTraitement().name());
+        e.setTypeAlerte(a.getType().name());
         e.setPeriodeDebut(a.getPeriodeDebut());
         e.setPeriodeFin(a.getPeriodeFin());
         e.setDosesAttendues(a.getDosesAttendues());

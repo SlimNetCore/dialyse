@@ -11,6 +11,7 @@ public record AlerteObservanceResponse(
         UUID patientId,
         UUID centerId,
         String typeTraitement,
+        String type,
         LocalDate periodeDebut,
         LocalDate periodeFin,
         int dosesAttendues,
@@ -22,7 +23,7 @@ public record AlerteObservanceResponse(
 
     public static AlerteObservanceResponse from(AlerteObservance a) {
         return new AlerteObservanceResponse(
-                a.getId(), a.getPatientId(), a.getCenterId(), a.getTypeTraitement().name(),
+                a.getId(), a.getPatientId(), a.getCenterId(), a.getTypeTraitement().name(), a.getType().name(),
                 a.getPeriodeDebut(), a.getPeriodeFin(), a.getDosesAttendues(), a.getDosesAdministrees(),
                 a.getMessage(), a.getCreatedAt(), a.getResolvedAt().orElse(null));
     }

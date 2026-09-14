@@ -63,6 +63,21 @@
   font-style: italic;
 }
 
+.prescription-observance {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(21, 128, 61, 0.1);
+  color: #15803d;
+  width: fit-content;
+}
+
+.prescription-observance.observance-warn {
+  background: rgba(237, 108, 2, 0.12);
+  color: #ed6c02;
+}
+
 .admin-form {
   margin-top: 16px;
   padding: 16px;

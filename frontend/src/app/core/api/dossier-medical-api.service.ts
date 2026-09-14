@@ -392,6 +392,7 @@ export type AlerteObservance = {
   patientId: string;
   centerId: string;
   typeTraitement: string;
+  type: string;
   periodeDebut: string;
   periodeFin: string;
   dosesAttendues: number;
@@ -399,6 +400,20 @@ export type AlerteObservance = {
   message: string | null;
   createdAt: string;
   resolvedAt: string | null;
+};
+
+export type ObservanceTraitement = {
+  periodeDebut: string;
+  periodeFin: string;
+  dosesAttendues: number;
+  dosesAdministrees: number;
+  dosesRestantes: number;
+  joursRestants: number;
+};
+
+export type ObservanceAnemie = {
+  epo: ObservanceTraitement | null;
+  fer: ObservanceTraitement | null;
 };
 
 export type ConstanteSeance = {
@@ -781,6 +796,12 @@ export class DossierMedicalApiService {
       params,
       observe: 'response',
     }).pipe(map((res) => res.status === 204 ? null : res.body));
+  }
+
+  getObservanceAnemie(centerId: string, patientId: string): Observable<ObservanceAnemie> {
+    return this.http.get<ObservanceAnemie>(`${this.base}/${patientId}/observance-anemie`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
   }
 
   getSuiviAnemie(centerId: string, patientId: string): Observable<SuiviAnemie> {
