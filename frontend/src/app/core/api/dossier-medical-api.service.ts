@@ -459,6 +459,99 @@ export type CreateOrdonnancePayload = {
   lignes: LigneOrdonnancePayload[];
 };
 
+export type DecisionRcp = {
+  id: string;
+  dateReunion: string;
+  avis: string;
+  compteRendu: string | null;
+  prochaineDateRevue: string | null;
+};
+
+export type BilanPreGreffe = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  statut: string;
+  dateDebutBilan: string | null;
+  dateInscriptionListeAttente: string | null;
+  dateGreffe: string | null;
+  groupeSanguinConfirme: string | null;
+  typageHla: string | null;
+  praClasseI: number | null;
+  praClasseII: number | null;
+  contreIndications: string | null;
+  conclusionNephrologue: string | null;
+  decisionsRcp: DecisionRcp[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type EtapeBilanGreffe = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  categorie: string;
+  libelle: string;
+  statut: string;
+  dateRealisation: string | null;
+  resultat: string | null;
+  dateExpiration: string | null;
+  demandeExamenId: string | null;
+  serologieId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpdateEtapeBilanGreffePayload = {
+  centerId: string;
+  statut: string;
+  dateRealisation: string | null;
+  resultat: string | null;
+  dateExpiration: string | null;
+  demandeExamenId: string | null;
+  serologieId: string | null;
+};
+
+export type DonneurVivant = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  nom: string;
+  prenom: string | null;
+  dateNaissance: string | null;
+  lienParente: string;
+  telephone: string | null;
+  groupeSanguin: string | null;
+  typageHla: string | null;
+  statutBilan: string;
+  crossmatchResultat: string;
+  dateCrossmatch: string | null;
+  bilanRealise: string | null;
+  contreIndications: string | null;
+  decisionFinale: string | null;
+  dateDecision: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpsertDonneurVivantPayload = {
+  centerId: string;
+  nom: string;
+  prenom: string | null;
+  dateNaissance: string | null;
+  lienParente: string;
+  telephone: string | null;
+  groupeSanguin: string | null;
+  typageHla: string | null;
+  statutBilan?: string;
+  crossmatchResultat?: string;
+  dateCrossmatch?: string | null;
+  bilanRealise?: string | null;
+  contreIndications?: string | null;
+  decisionFinale?: string | null;
+  dateDecision?: string | null;
+};
+
 /**
  * Client HTTP du dossier médical patient : dossier de base, abords vasculaires,
  * prescriptions (dont EPO/fer), résultats d'analyses, antécédents, allergies, sérologies,
@@ -741,6 +834,93 @@ export class DossierMedicalApiService {
   exportFhir(centerId: string, patientId: string): Observable<Record<string, unknown>> {
     return this.http.get<Record<string, unknown>>(`${this.base}/${patientId}/dossier-medical/export-fhir`, {
       params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  // --- Greffe rénale ---
+
+  getBilanPreGreffe(centerId: string, patientId: string): Observable<BilanPreGreffe> {
+    return this.http.get<BilanPreGreffe>(`${this.base}/${patientId}/greffe/bilan`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  changerStatutBilanGreffe(patientId: string, centerId: string, statut: string): Observable<BilanPreGreffe> {
+    return this.http.put<BilanPreGreffe>(`${this.base}/${patientId}/greffe/bilan/statut`, {centerId, statut});
+  }
+
+  mettreAJourBilanImmunologique(patientId: string, centerId: string, groupeSanguinConfirme: string | null,
+                                typageHla: string | null, praClasseI: number | null, praClasseII: number | null):
+    Observable<BilanPreGreffe> {
+    return this.http.put<BilanPreGreffe>(`${this.base}/${patientId}/greffe/bilan/immunologique`,
+      {centerId, groupeSanguinConfirme, typageHla, praClasseI, praClasseII});
+  }
+
+  mettreAJourNotesGreffe(patientId: string, centerId: string, contreIndications: string | null,
+                         conclusionNephrologue: string | null): Observable<BilanPreGreffe> {
+    return this.http.put<BilanPreGreffe>(`${this.base}/${patientId}/greffe/bilan/notes`,
+      {centerId, contreIndications, conclusionNephrologue});
+  }
+
+  ajouterDecisionRcp(patientId: string, centerId: string, dateReunion: string, avis: string,
+                     compteRendu: string | null, prochaineDateRevue: string | null): Observable<BilanPreGreffe> {
+    return this.http.post<BilanPreGreffe>(`${this.base}/${patientId}/greffe/bilan/decisions-rcp`,
+      {centerId, dateReunion, avis, compteRendu, prochaineDateRevue});
+  }
+
+  listEtapesBilanGreffe(centerId: string, patientId: string): Observable<EtapeBilanGreffe[]> {
+    return this.http.get<EtapeBilanGreffe[]>(`${this.base}/${patientId}/greffe/etapes`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  genererEtapesStandard(patientId: string, centerId: string): Observable<EtapeBilanGreffe[]> {
+    return this.http.post<EtapeBilanGreffe[]>(`${this.base}/${patientId}/greffe/etapes/generer-standard`, {}, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  createEtapeBilanGreffe(patientId: string, centerId: string, categorie: string, libelle: string):
+    Observable<EtapeBilanGreffe> {
+    return this.http.post<EtapeBilanGreffe>(`${this.base}/${patientId}/greffe/etapes`, {centerId, categorie, libelle});
+  }
+
+  updateEtapeBilanGreffe(patientId: string, etapeId: string, payload: UpdateEtapeBilanGreffePayload):
+    Observable<EtapeBilanGreffe> {
+    return this.http.put<EtapeBilanGreffe>(`${this.base}/${patientId}/greffe/etapes/${etapeId}`, payload);
+  }
+
+  deleteEtapeBilanGreffe(patientId: string, etapeId: string, centerId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${patientId}/greffe/etapes/${etapeId}`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  listDonneursVivants(centerId: string, patientId: string): Observable<DonneurVivant[]> {
+    return this.http.get<DonneurVivant[]>(`${this.base}/${patientId}/greffe/donneurs`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  createDonneurVivant(patientId: string, payload: UpsertDonneurVivantPayload): Observable<DonneurVivant> {
+    return this.http.post<DonneurVivant>(`${this.base}/${patientId}/greffe/donneurs`, payload);
+  }
+
+  updateDonneurVivant(patientId: string, donneurId: string, payload: UpsertDonneurVivantPayload):
+    Observable<DonneurVivant> {
+    return this.http.put<DonneurVivant>(`${this.base}/${patientId}/greffe/donneurs/${donneurId}`, payload);
+  }
+
+  deleteDonneurVivant(patientId: string, donneurId: string, centerId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${patientId}/greffe/donneurs/${donneurId}`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  exportGreffePdf(centerId: string, patientId: string): Observable<Blob> {
+    return this.http.get(`${this.base}/${patientId}/greffe/export-pdf`, {
+      params: new HttpParams().set('centerId', centerId),
+      responseType: 'blob',
     });
   }
 }

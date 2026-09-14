@@ -1,0 +1,251 @@
+.greffe-container {
+  padding: 28px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.greffe-error {
+  color: #c62828;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.greffe-loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.greffe-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.greffe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.greffe-card {
+  padding: 20px 24px;
+  border-radius: 12px;
+}
+
+.greffe-card-full {
+  grid-column: span 2;
+}
+
+.greffe-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.greffe-statut-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.greffe-statut-select {
+  min-width: 260px;
+}
+
+.greffe-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.greffe-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-ok {
+  background: rgba(21, 128, 61, 0.12);
+  color: #15803d;
+}
+
+.badge-warn {
+  background: rgba(237, 108, 2, 0.12);
+  color: #ed6c02;
+}
+
+.badge-muted {
+  background: rgba(100, 116, 139, 0.12);
+  color: #64748b;
+}
+
+.greffe-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.greffe-form-full {
+  grid-column: span 2;
+}
+
+.greffe-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.greffe-inline-form {
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+}
+
+.greffe-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 28px 0 12px;
+}
+
+.greffe-empty {
+  opacity: 0.6;
+  font-style: italic;
+  padding: 12px 0;
+}
+
+.greffe-etape-groupe {
+  margin-bottom: 16px;
+}
+
+.greffe-etape-groupe-title {
+  font-weight: 700;
+  font-size: 13px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.greffe-etape-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.greffe-etape-libelle {
+  flex: 1;
+  font-size: 13px;
+}
+
+.greffe-etape-statut {
+  width: 180px;
+}
+
+.greffe-etape-resultat {
+  flex: 1;
+  max-width: 260px;
+  padding: 6px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.greffe-decision-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.greffe-decision-date {
+  font-weight: 600;
+  font-size: 13px;
+  min-width: 90px;
+}
+
+.greffe-decision-cr {
+  flex: 1;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.greffe-donneurs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.greffe-donneur-card {
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.greffe-donneur-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.greffe-donneur-nom {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.greffe-donneur-detail {
+  font-size: 13px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.greffe-donneur-crossmatch {
+  opacity: 0.75;
+}
+
+/* Tablette (768-1024px). */
+@media (max-width: 1024px) {
+  .greffe-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .greffe-card-full {
+    grid-column: 1;
+  }
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px). */
+@media (max-width: 767px) {
+  .greffe-container {
+    padding: 16px;
+  }
+
+  .greffe-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .greffe-form-full {
+    grid-column: 1;
+  }
+
+  .greffe-etape-row {
+    flex-wrap: wrap;
+  }
+}

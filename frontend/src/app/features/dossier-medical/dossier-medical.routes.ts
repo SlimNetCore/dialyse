@@ -46,6 +46,10 @@ export const dossierMedicalRoutes: Routes = [
         path: 'ordonnances',
         loadComponent: () => import('./ordonnances/ordonnances.component').then(m => m.OrdonnancesComponent),
       },
+      {
+        path: 'greffe',
+        loadComponent: () => import('./greffe/greffe.component').then(m => m.GreffeComponent),
+      },
     ],
   },
 ];

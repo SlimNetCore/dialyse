@@ -1,0 +1,386 @@
+<div class="greffe-container">
+  @if (bilanStore.error()) {
+    <div class="greffe-error">{{ bilanStore.error() }}</div>
+  }
+  @if (etapesStore.error()) {
+    <div class="greffe-error">{{ etapesStore.error() }}</div>
+  }
+  @if (donneursStore.error()) {
+    <div class="greffe-error">{{ donneursStore.error() }}</div>
+  }
+
+  <div class="greffe-toolbar">
+    <button (click)="exportPdf()" color="primary" mat-flat-button type="button">
+      <mat-icon>picture_as_pdf</mat-icon>
+      {{ 'GREFFE.EXPORT_PDF' | translate }}
+    </button>
+  </div>
+
+  @if (bilanStore.loading()) {
+    <div class="greffe-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
+    </div>
+  } @else if (bilanStore.bilan(); as bilan) {
+    <div class="greffe-grid">
+      <mat-card class="greffe-card">
+        <h3 class="greffe-card-title">{{ 'GREFFE.ELIGIBILITE' | translate }}</h3>
+        <div class="greffe-statut-row">
+          <span [class]="'greffe-badge ' + badgeClassStatut(bilan.statut)">
+            {{ ('GREFFE.STATUTS.' + bilan.statut) | translate }}
+          </span>
+          @if (access.canEdit()) {
+            <mat-form-field appearance="outline" class="greffe-statut-select">
+              <mat-label>{{ 'GREFFE.CHANGER_STATUT' | translate }}</mat-label>
+              <mat-select (selectionChange)="changerStatut($event.value)" [value]="bilan.statut">
+                @for (statut of statutsBilan; track statut) {
+                  <mat-option [value]="statut">{{ ('GREFFE.STATUTS.' + statut) | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        </div>
+        <div class="greffe-dates">
+          <span>{{ 'GREFFE.DATE_DEBUT_BILAN' | translate }} : {{ bilan.dateDebutBilan ?? '-' }}</span>
+          <span>{{ 'GREFFE.DATE_INSCRIPTION' | translate }} : {{ bilan.dateInscriptionListeAttente ?? '-' }}</span>
+          <span>{{ 'GREFFE.DATE_GREFFE' | translate }} : {{ bilan.dateGreffe ?? '-' }}</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="greffe-card">
+        <h3 class="greffe-card-title">{{ 'GREFFE.BILAN_IMMUNOLOGIQUE' | translate }}</h3>
+        <div class="greffe-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.GROUPE_SANGUIN_CONFIRME' | translate }}</mat-label>
+            <input (input)="groupeSanguinConfirme.set($any($event.target).value)" [disabled]="!access.canEdit()"
+                   [value]="groupeSanguinConfirme()" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.TYPAGE_HLA' | translate }}</mat-label>
+            <input (input)="typageHla.set($any($event.target).value)" [disabled]="!access.canEdit()"
+                   [value]="typageHla()" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.PRA_CLASSE_I' | translate }}</mat-label>
+            <input (input)="onPraInput('praClasseI', $any($event.target).value)"
+                   [disabled]="!access.canEdit()" [value]="praClasseI()" matInput type="number"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.PRA_CLASSE_II' | translate }}</mat-label>
+            <input (input)="onPraInput('praClasseII', $any($event.target).value)"
+                   [disabled]="!access.canEdit()" [value]="praClasseII()" matInput type="number"/>
+          </mat-form-field>
+        </div>
+        @if (access.canEdit()) {
+          <button (click)="saveBilanImmunologique()" [disabled]="bilanStore.saving()" color="primary" mat-stroked-button
+                  type="button">
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        }
+      </mat-card>
+
+      <mat-card class="greffe-card greffe-card-full">
+        <h3 class="greffe-card-title">{{ 'GREFFE.NOTES' | translate }}</h3>
+        <div class="greffe-form-grid">
+          <mat-form-field appearance="outline" class="greffe-form-full">
+            <mat-label>{{ 'GREFFE.CONTRE_INDICATIONS' | translate }}</mat-label>
+            <textarea (input)="contreIndications.set($any($event.target).value)" [disabled]="!access.canEdit()"
+                      [value]="contreIndications()" matInput rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="greffe-form-full">
+            <mat-label>{{ 'GREFFE.CONCLUSION_NEPHROLOGUE' | translate }}</mat-label>
+            <textarea (input)="conclusionNephrologue.set($any($event.target).value)" [disabled]="!access.canEdit()"
+                      [value]="conclusionNephrologue()" matInput rows="2"></textarea>
+          </mat-form-field>
+        </div>
+        @if (access.canEdit()) {
+          <button (click)="saveNotes()" [disabled]="bilanStore.saving()" color="primary" mat-stroked-button
+                  type="button">
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        }
+      </mat-card>
+    </div>
+
+    <h3 class="greffe-section-title">{{ 'GREFFE.CHECKLIST' | translate }}</h3>
+    @if (access.canEdit()) {
+      <div class="greffe-toolbar">
+        <button (click)="genererEtapesStandard()" [disabled]="etapesStore.saving()" mat-stroked-button type="button">
+          <mat-icon>playlist_add_check</mat-icon>
+          {{ 'GREFFE.GENERER_CHECKLIST_STANDARD' | translate }}
+        </button>
+        <button (click)="openEtapeForm()" mat-stroked-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'GREFFE.AJOUTER_ETAPE' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (etapeFormOpen()) {
+      <mat-card class="greffe-inline-form">
+        <div class="greffe-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.CATEGORIE' | translate }}</mat-label>
+            <mat-select (selectionChange)="onEtapeValue('categorie', $event.value)" [value]="etapeForm().categorie">
+              @for (cat of categoriesEtape; track cat) {
+                <mat-option [value]="cat">{{ ('GREFFE.CATEGORIES.' + cat) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.LIBELLE' | translate }} *</mat-label>
+            <input (input)="onEtapeValue('libelle', $any($event.target).value)" [value]="etapeForm().libelle" matInput/>
+          </mat-form-field>
+        </div>
+        <div class="greffe-form-actions">
+          <button (click)="cancelEtapeForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button (click)="saveEtape()" color="primary" mat-flat-button type="button">{{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </mat-card>
+    }
+
+    @if (etapesStore.loading()) {
+      <div class="greffe-loading">
+        <mat-progress-spinner diameter="28" mode="indeterminate" strokeWidth="3"/>
+      </div>
+    } @else {
+      @for (groupe of etapesParCategorie(); track groupe.categorie) {
+        <div class="greffe-etape-groupe">
+          <div class="greffe-etape-groupe-title">{{ ('GREFFE.CATEGORIES.' + groupe.categorie) | translate }}</div>
+          @for (etape of groupe.etapes; track etape.id) {
+            <div class="greffe-etape-row">
+              <span class="greffe-etape-libelle">{{ etape.libelle }}</span>
+              <mat-form-field appearance="outline" class="greffe-etape-statut">
+                <mat-select (selectionChange)="updateEtapeStatut(etape, $event.value)" [disabled]="!access.canEdit()"
+                            [value]="etape.statut">
+                  @for (statut of statutsEtape; track statut) {
+                    <mat-option [value]="statut">{{ ('GREFFE.ETAPE_STATUTS.' + statut) | translate }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <input (change)="updateEtapeResultat(etape, $any($event.target).value)" [disabled]="!access.canEdit()"
+                     [placeholder]="'GREFFE.RESULTAT' | translate" [value]="etape.resultat ?? ''"
+                     class="greffe-etape-resultat"/>
+              @if (access.canEdit()) {
+                <button (click)="removeEtape(etape)" [matTooltip]="'COMMON.DELETE' | translate" mat-icon-button
+                        type="button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+      @if (etapesParCategorie().length === 0) {
+        <div class="greffe-empty">{{ 'GREFFE.AUCUNE_ETAPE' | translate }}</div>
+      }
+    }
+
+    <h3 class="greffe-section-title">{{ 'GREFFE.DECISIONS_RCP' | translate }}</h3>
+    @if (access.canEdit()) {
+      <div class="greffe-toolbar">
+        <button (click)="openDecisionForm()" mat-stroked-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'GREFFE.AJOUTER_DECISION' | translate }}
+        </button>
+      </div>
+    }
+    @if (decisionFormOpen()) {
+      <mat-card class="greffe-inline-form">
+        <div class="greffe-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.DATE_REUNION' | translate }} *</mat-label>
+            <input (dateChange)="onDecisionValue('dateReunion', $event.value)" [matDatepicker]="dpRcp"
+                   [value]="decisionForm().dateReunion" matInput/>
+            <mat-datepicker-toggle [for]="dpRcp" matSuffix/>
+            <mat-datepicker #dpRcp/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.AVIS' | translate }}</mat-label>
+            <mat-select (selectionChange)="onDecisionValue('avis', $event.value)" [value]="decisionForm().avis">
+              @for (avis of avisRcp; track avis) {
+                <mat-option [value]="avis">{{ ('GREFFE.AVIS_RCP.' + avis) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.PROCHAINE_DATE_REVUE' | translate }}</mat-label>
+            <input (dateChange)="onDecisionValue('prochaineDateRevue', $event.value)" [matDatepicker]="dpNext"
+                   [value]="decisionForm().prochaineDateRevue" matInput/>
+            <mat-datepicker-toggle [for]="dpNext" matSuffix/>
+            <mat-datepicker #dpNext/>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="greffe-form-full">
+            <mat-label>{{ 'GREFFE.COMPTE_RENDU' | translate }}</mat-label>
+            <textarea (input)="onDecisionValue('compteRendu', $any($event.target).value)"
+                      [value]="decisionForm().compteRendu" matInput rows="2"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="greffe-form-actions">
+          <button (click)="cancelDecisionForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button (click)="saveDecisionRcp()" color="primary" mat-flat-button
+                  type="button">{{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </mat-card>
+    }
+    @if (bilan.decisionsRcp.length === 0) {
+      <div class="greffe-empty">{{ 'GREFFE.AUCUNE_DECISION' | translate }}</div>
+    } @else {
+      @for (decision of bilan.decisionsRcp; track decision.id) {
+        <div class="greffe-decision-row">
+          <span class="greffe-decision-date">{{ decision.dateReunion }}</span>
+          <span
+            [class]="'greffe-badge ' + (decision.avis === 'FAVORABLE' ? 'badge-ok' : (decision.avis === 'DEFAVORABLE' ? 'badge-warn' : 'badge-muted'))">
+            {{ ('GREFFE.AVIS_RCP.' + decision.avis) | translate }}
+          </span>
+          <span class="greffe-decision-cr">{{ decision.compteRendu ?? '-' }}</span>
+        </div>
+      }
+    }
+
+    <h3 class="greffe-section-title">{{ 'GREFFE.DONNEURS_VIVANTS' | translate }}</h3>
+    @if (access.canEdit()) {
+      <div class="greffe-toolbar">
+        <button (click)="openCreateDonneurForm()" mat-stroked-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'GREFFE.AJOUTER_DONNEUR' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (donneurFormOpen()) {
+      <mat-card class="greffe-inline-form">
+        <div class="greffe-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.NOM' | translate }} *</mat-label>
+            <input (input)="onDonneurValue('nom', $any($event.target).value)" [value]="donneurForm().nom" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.PRENOM' | translate }}</mat-label>
+            <input (input)="onDonneurValue('prenom', $any($event.target).value)" [value]="donneurForm().prenom"
+                   matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.DATE_NAISSANCE' | translate }}</mat-label>
+            <input (dateChange)="onDonneurValue('dateNaissance', $event.value)" [matDatepicker]="dpNaissance"
+                   [value]="donneurForm().dateNaissance" matInput/>
+            <mat-datepicker-toggle [for]="dpNaissance" matSuffix/>
+            <mat-datepicker #dpNaissance/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.LIEN_PARENTE' | translate }}</mat-label>
+            <mat-select (selectionChange)="onDonneurValue('lienParente', $event.value)"
+                        [value]="donneurForm().lienParente">
+              @for (lien of liensParente; track lien) {
+                <mat-option [value]="lien">{{ ('GREFFE.LIENS_PARENTE.' + lien) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.TELEPHONE' | translate }}</mat-label>
+            <input (input)="onDonneurValue('telephone', $any($event.target).value)" [value]="donneurForm().telephone"
+                   matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.GROUPE_SANGUIN' | translate }}</mat-label>
+            <input (input)="onDonneurValue('groupeSanguin', $any($event.target).value)"
+                   [value]="donneurForm().groupeSanguin" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.TYPAGE_HLA' | translate }}</mat-label>
+            <input (input)="onDonneurValue('typageHla', $any($event.target).value)" [value]="donneurForm().typageHla"
+                   matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.STATUT_BILAN' | translate }}</mat-label>
+            <mat-select (selectionChange)="onDonneurValue('statutBilan', $event.value)"
+                        [value]="donneurForm().statutBilan">
+              @for (statut of statutsDonneur; track statut) {
+                <mat-option [value]="statut">{{ ('GREFFE.STATUTS_DONNEUR.' + statut) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.CROSSMATCH' | translate }}</mat-label>
+            <mat-select (selectionChange)="onDonneurValue('crossmatchResultat', $event.value)"
+                        [value]="donneurForm().crossmatchResultat">
+              @for (resultat of resultatsCrossmatch; track resultat) {
+                <mat-option [value]="resultat">{{ ('GREFFE.CROSSMATCH_RESULTATS.' + resultat) | translate }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'GREFFE.DATE_CROSSMATCH' | translate }}</mat-label>
+            <input (dateChange)="onDonneurValue('dateCrossmatch', $event.value)" [matDatepicker]="dpCrossmatch"
+                   [value]="donneurForm().dateCrossmatch" matInput/>
+            <mat-datepicker-toggle [for]="dpCrossmatch" matSuffix/>
+            <mat-datepicker #dpCrossmatch/>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="greffe-form-full">
+            <mat-label>{{ 'GREFFE.BILAN_REALISE' | translate }}</mat-label>
+            <textarea (input)="onDonneurValue('bilanRealise', $any($event.target).value)"
+                      [value]="donneurForm().bilanRealise" matInput rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="greffe-form-full">
+            <mat-label>{{ 'GREFFE.CONTRE_INDICATIONS' | translate }}</mat-label>
+            <textarea (input)="onDonneurValue('contreIndications', $any($event.target).value)"
+                      [value]="donneurForm().contreIndications" matInput rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="greffe-form-full">
+            <mat-label>{{ 'GREFFE.DECISION_FINALE' | translate }}</mat-label>
+            <textarea (input)="onDonneurValue('decisionFinale', $any($event.target).value)"
+                      [value]="donneurForm().decisionFinale" matInput rows="2"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="greffe-form-actions">
+          <button (click)="cancelDonneurForm()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button (click)="saveDonneur()" color="primary" mat-flat-button
+                  type="button">{{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </mat-card>
+    }
+
+    @if (donneursStore.donneurs().length === 0) {
+      <div class="greffe-empty">{{ 'GREFFE.AUCUN_DONNEUR' | translate }}</div>
+    } @else {
+      <div class="greffe-donneurs-grid">
+        @for (donneur of donneursStore.donneurs(); track donneur.id) {
+          <mat-card class="greffe-donneur-card">
+            <div class="greffe-donneur-header">
+              <span class="greffe-donneur-nom">{{ donneur.nom }} {{ donneur.prenom }}</span>
+              @if (access.canEdit()) {
+                <div>
+                  <button (click)="openEditDonneurForm(donneur)" mat-icon-button type="button">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button (click)="removeDonneur(donneur)" mat-icon-button type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+            <div class="greffe-donneur-detail">{{ ('GREFFE.LIENS_PARENTE.' + donneur.lienParente) | translate }}
+              · {{ donneur.groupeSanguin ?? '-' }}
+            </div>
+            <div class="greffe-donneur-detail">
+              <span
+                [class]="'greffe-badge ' + (donneur.statutBilan === 'COMPATIBLE' || donneur.statutBilan === 'RETENU' ? 'badge-ok' : 'badge-muted')">
+                {{ ('GREFFE.STATUTS_DONNEUR.' + donneur.statutBilan) | translate }}
+              </span>
+              <span class="greffe-donneur-crossmatch">
+                {{ 'GREFFE.CROSSMATCH' | translate }}
+                : {{ ('GREFFE.CROSSMATCH_RESULTATS.' + donneur.crossmatchResultat) | translate }}
+              </span>
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

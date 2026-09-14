@@ -7,5 +7,11 @@ public enum MarqueurSerologique {
     AC_HBC,
     AC_VHC,
     ARN_VHC,
-    TPHA
+    TPHA,
+    CMV_IGG,
+    CMV_IGM,
+    TOXO_IGG,
+    TOXO_IGM,
+    EBV_IGG,
+    EBV_IGM
 }

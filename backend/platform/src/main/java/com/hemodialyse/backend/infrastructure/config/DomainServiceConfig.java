@@ -13,6 +13,12 @@ import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentReposito
 import com.hemodialyse.backend.domain.medical.antecedent.service.AntecedentDomainService;
 import com.hemodialyse.backend.domain.medical.examen.port.DemandeExamenRepositoryPort;
 import com.hemodialyse.backend.domain.medical.examen.service.DemandeExamenDomainService;
+import com.hemodialyse.backend.domain.medical.greffe.port.BilanPreGreffeRepositoryPort;
+import com.hemodialyse.backend.domain.medical.greffe.port.DonneurVivantRepositoryPort;
+import com.hemodialyse.backend.domain.medical.greffe.port.EtapeBilanPreGreffeRepositoryPort;
+import com.hemodialyse.backend.domain.medical.greffe.service.BilanPreGreffeDomainService;
+import com.hemodialyse.backend.domain.medical.greffe.service.DonneurVivantDomainService;
+import com.hemodialyse.backend.domain.medical.greffe.service.EtapeBilanPreGreffeDomainService;
 import com.hemodialyse.backend.domain.medical.observation.port.ObservationBiologiqueRepositoryPort;
 import com.hemodialyse.backend.domain.medical.observation.service.ObservationBiologiqueDomainService;
 import com.hemodialyse.backend.domain.medical.ordonnance.port.OrdonnanceNumeroGeneratorPort;
@@ -152,6 +158,21 @@ public class DomainServiceConfig {
     @Bean
     public AlerteObservanceDomainService alerteObservanceDomainService(AlerteObservanceRepositoryPort repo) {
         return new AlerteObservanceDomainService(repo);
+    }
+
+    @Bean
+    public BilanPreGreffeDomainService bilanPreGreffeDomainService(BilanPreGreffeRepositoryPort repo) {
+        return new BilanPreGreffeDomainService(repo);
+    }
+
+    @Bean
+    public EtapeBilanPreGreffeDomainService etapeBilanPreGreffeDomainService(EtapeBilanPreGreffeRepositoryPort repo) {
+        return new EtapeBilanPreGreffeDomainService(repo);
+    }
+
+    @Bean
+    public DonneurVivantDomainService donneurVivantDomainService(DonneurVivantRepositoryPort repo) {
+        return new DonneurVivantDomainService(repo);
     }
 
     @Bean

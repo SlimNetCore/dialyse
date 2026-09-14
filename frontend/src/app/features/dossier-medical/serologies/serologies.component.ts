@@ -28,7 +28,10 @@ interface SerologieFormModel {
   conduiteATenir: string;
 }
 
-const MARQUEURS = ['VIH_AC', 'AG_HBS', 'AC_HBS', 'AC_HBC', 'AC_VHC', 'ARN_VHC', 'TPHA'] as const;
+const MARQUEURS = [
+  'VIH_AC', 'AG_HBS', 'AC_HBS', 'AC_HBC', 'AC_VHC', 'ARN_VHC', 'TPHA',
+  'CMV_IGG', 'CMV_IGM', 'TOXO_IGG', 'TOXO_IGM', 'EBV_IGG', 'EBV_IGM',
+] as const;
 const RESULTATS = ['NEGATIF', 'POSITIF', 'DOUTEUX', 'EN_COURS'] as const;
 
 function toIsoDate(value: Date | string | null): string | null {
