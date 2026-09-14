@@ -184,6 +184,8 @@
     "UNIT_LABEL": "Unit",
     "ALERT_THRESHOLD_LABEL": "Alert threshold",
     "BATCH_MANAGED_ARTICLE_CHECKBOX": "Batch-managed item (lot and expiration required on receipt)",
+    "ANEMIA_TREATMENT_ARTICLE_CHECKBOX": "Anemia treatment item",
+    "ANEMIA_TREATMENT_TYPE_LABEL": "Treatment type",
     "CREATE_ARTICLE_BTN": "Create item",
     "ACTIVE_ARTICLES_TITLE": "Active items",
     "BATCH_MANAGEMENT_LABEL": "Batch management",
@@ -533,6 +535,7 @@
     "ADMINISTER": "Administer",
     "ADMINISTERED_TODAY": "Administered",
     "ADMINISTERED_THIS_SESSION": "Administrations for this session",
+    "QUANTITE_ADMINISTREE": "Quantity administered",
     "TAB_CONSOMMABLES": "Consumables",
     "CONSOMMABLES_NOTE": "Select consumables used during this session. They will be issued from stock at WAP upon validation.",
     "ADD_ARTICLE_BTN": "Add item",
@@ -1382,6 +1385,8 @@
     "DOSE_MG": "Dose (mg)",
     "VOIE": "Route",
     "FREQUENCE": "Frequency",
+    "FREQUENCE_UNITE": "Frequency unit",
+    "ALERTE_OBSERVANCE_RESOUDRE": "Mark as resolved",
     "NO_PRESCRIPTIONS": "No prescription recorded",
     "ADD_ANALYSE": "Enter results",
     "DATE_PRELEVEMENT": "Sample date",
@@ -1454,6 +1459,7 @@
     "DATE_ADMINISTRATION": "Administration date",
     "ADMINISTREE": "Administered",
     "DOSE": "Dose",
+    "DOSE_ADMINISTREE": "Administered dose",
     "UNITE_DOSE": "Unit",
     "MOTIF_NON_ADMINISTRATION": "Reason not administered",
     "ADMINISTRE_PAR": "Administered by",
@@ -1582,5 +1588,12 @@
     "HBPM": "LMWH",
     "CITRATE": "Citrate",
     "AUCUN": "None"
+  },
+  "FREQUENCE_UNITES": {
+    "HEURE": "hour",
+    "JOUR": "day",
+    "SEMAINE": "week",
+    "MOIS": "month",
+    "ANNEE": "year"
   }
 }

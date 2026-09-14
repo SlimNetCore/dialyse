@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
+import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
 import com.hemodialyse.backend.domain.shared.PagedResult;
@@ -76,14 +77,16 @@ public class PrescriptionMedicaleDomainService implements PrescriptionMedicaleUs
                                      Integer dureeCibleMin,
                                      String typeDialyseurPrescrit,
                                      String anticoagTypePrescrit,
-                                     String epoMolecule,
+                                     UUID epoArticleId,
                                      Integer epoDoseUi,
                                      String epoVoie,
-                                     String epoFrequence,
-                                     String ferMolecule,
+                                     Integer epoFrequenceValeur,
+                                     UniteFrequence epoFrequenceUnite,
+                                     UUID ferArticleId,
                                      Integer ferDoseMg,
                                      String ferVoie,
-                                     String ferFrequence) {
+                                     Integer ferFrequenceValeur,
+                                     UniteFrequence ferFrequenceUnite) {
         PrescriptionMedicale prescription = new PrescriptionMedicale();
         prescription.setId(prescriptionId != null ? prescriptionId : UUID.randomUUID());
         prescription.setPatientId(patientId);
@@ -96,14 +99,16 @@ public class PrescriptionMedicaleDomainService implements PrescriptionMedicaleUs
         prescription.setDureeCibleMin(dureeCibleMin);
         prescription.setTypeDialyseurPrescrit(typeDialyseurPrescrit);
         prescription.setAnticoagTypePrescrit(anticoagTypePrescrit);
-        prescription.setEpoMolecule(epoMolecule);
+        prescription.setEpoArticleId(epoArticleId);
         prescription.setEpoDoseUi(epoDoseUi);
         prescription.setEpoVoie(epoVoie);
-        prescription.setEpoFrequence(epoFrequence);
-        prescription.setFerMolecule(ferMolecule);
+        prescription.setEpoFrequenceValeur(epoFrequenceValeur);
+        prescription.setEpoFrequenceUnite(epoFrequenceUnite);
+        prescription.setFerArticleId(ferArticleId);
         prescription.setFerDoseMg(ferDoseMg);
         prescription.setFerVoie(ferVoie);
-        prescription.setFerFrequence(ferFrequence);
+        prescription.setFerFrequenceValeur(ferFrequenceValeur);
+        prescription.setFerFrequenceUnite(ferFrequenceUnite);
         OffsetDateTime now = OffsetDateTime.now();
         prescription.setCreatedAt(now);
         prescription.setUpdatedAt(now);

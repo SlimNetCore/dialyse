@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.stock.port;
 
 import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.Emplacement;
 import com.hemodialyse.backend.domain.stock.model.Fournisseur;
@@ -13,9 +14,15 @@ import java.util.List;
  */
 public interface StockReferentialUseCase {
     Article createArticle(CenterId centerId, String code, String libelle, String unite,
-                          BigDecimal seuilAlerte, boolean gereParLot);
+                          BigDecimal seuilAlerte, boolean gereParLot, TypeTraitementAnemie typeTraitementAnemie);
 
     List<Article> listArticles(CenterId centerId);
+
+    /**
+     * Liste des articles marqués pour le traitement de l'anémie — alimente les listes déroulantes
+     * EPO / fer injectable de la prescription médicale.
+     */
+    List<Article> listArticlesByTypeTraitementAnemie(CenterId centerId, TypeTraitementAnemie typeTraitementAnemie);
 
     Fournisseur createFournisseur(CenterId centerId, String code, String raisonSociale,
                                   String contact, String telephone, String email);

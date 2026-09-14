@@ -52,6 +52,8 @@ export type UpsertAbordVasculairePayload = {
   complications: string | null;
 };
 
+export type UniteFrequence = 'HEURE' | 'JOUR' | 'SEMAINE' | 'MOIS' | 'ANNEE';
+
 export type PrescriptionMedicale = {
   id: string;
   patientId: string;
@@ -64,14 +66,20 @@ export type PrescriptionMedicale = {
   dureeCibleMin: number | null;
   typeDialyseurPrescrit: string | null;
   anticoagTypePrescrit: string | null;
-  epoMolecule: string | null;
+  epoArticleId: string | null;
+  epoArticleCode: string | null;
+  epoArticleLibelle: string | null;
   epoDoseUi: number | null;
   epoVoie: string | null;
-  epoFrequence: string | null;
-  ferMolecule: string | null;
+  epoFrequenceValeur: number | null;
+  epoFrequenceUnite: UniteFrequence | null;
+  ferArticleId: string | null;
+  ferArticleCode: string | null;
+  ferArticleLibelle: string | null;
   ferDoseMg: number | null;
   ferVoie: string | null;
-  ferFrequence: string | null;
+  ferFrequenceValeur: number | null;
+  ferFrequenceUnite: UniteFrequence | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -86,14 +94,16 @@ export type UpsertPrescriptionMedicalePayload = {
   dureeCibleMin: number | null;
   typeDialyseurPrescrit: string | null;
   anticoagTypePrescrit: string | null;
-  epoMolecule: string | null;
+  epoArticleId: string | null;
   epoDoseUi: number | null;
   epoVoie: string | null;
-  epoFrequence: string | null;
-  ferMolecule: string | null;
+  epoFrequenceValeur: number | null;
+  epoFrequenceUnite: UniteFrequence | null;
+  ferArticleId: string | null;
   ferDoseMg: number | null;
   ferVoie: string | null;
-  ferFrequence: string | null;
+  ferFrequenceValeur: number | null;
+  ferFrequenceUnite: UniteFrequence | null;
 };
 
 export type ResultatAnalyse = {
@@ -329,6 +339,8 @@ export type AdministrationTraitement = {
   administrePar: string | null;
   administree: boolean;
   motifNonAdministration: string | null;
+  articleId: string | null;
+  quantiteArticle: number | null;
   createdAt: string;
 };
 
@@ -345,6 +357,8 @@ export type CreateAdministrationTraitementPayload = {
   administrePar: string | null;
   administree: boolean;
   motifNonAdministration: string | null;
+  articleId: string | null;
+  quantiteArticle: number | null;
 };
 
 export type EvaluationCible = {
@@ -371,6 +385,20 @@ export type SuiviAnemie = {
   courbe: PointBiologique[];
   prescriptionActive: PrescriptionMedicale | null;
   administrationsRecentes: AdministrationTraitement[];
+};
+
+export type AlerteObservance = {
+  id: string;
+  patientId: string;
+  centerId: string;
+  typeTraitement: string;
+  periodeDebut: string;
+  periodeFin: string;
+  dosesAttendues: number;
+  dosesAdministrees: number;
+  message: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
 };
 
 export type ConstanteSeance = {
@@ -664,6 +692,18 @@ export class DossierMedicalApiService {
 
   getSuiviAnemie(centerId: string, patientId: string): Observable<SuiviAnemie> {
     return this.http.get<SuiviAnemie>(`${this.base}/${patientId}/suivi-anemie`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  listAlertesObservance(centerId: string, patientId: string): Observable<AlerteObservance[]> {
+    return this.http.get<AlerteObservance[]>(`${this.base}/${patientId}/alertes-observance`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  resoudreAlerteObservance(centerId: string, patientId: string, alerteId: string): Observable<AlerteObservance> {
+    return this.http.put<AlerteObservance>(`${this.base}/${patientId}/alertes-observance/${alerteId}/resoudre`, {}, {
       params: new HttpParams().set('centerId', centerId),
     });
   }

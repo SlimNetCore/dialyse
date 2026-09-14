@@ -1,5 +1,8 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
@@ -37,11 +40,36 @@ public class PrescriptionMedicaleRestController {
 
     private final PrescriptionMedicaleUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
+    private final ArticleRepositoryPort articleRepository;
 
     public PrescriptionMedicaleRestController(PrescriptionMedicaleUseCase useCase,
-                                              CenterAccessGuard centerAccessGuard) {
+                                              CenterAccessGuard centerAccessGuard,
+                                              ArticleRepositoryPort articleRepository) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
+        this.articleRepository = articleRepository;
+    }
+
+    private PrescriptionMedicaleResponse toResponse(PrescriptionMedicale p, CenterId center) {
+        String epoCode = null;
+        String epoLibelle = null;
+        if (p.getEpoArticleId() != null) {
+            Article article = articleRepository.findById(p.getEpoArticleId(), center).orElse(null);
+            if (article != null) {
+                epoCode = article.getCode();
+                epoLibelle = article.getLibelle();
+            }
+        }
+        String ferCode = null;
+        String ferLibelle = null;
+        if (p.getFerArticleId() != null) {
+            Article article = articleRepository.findById(p.getFerArticleId(), center).orElse(null);
+            if (article != null) {
+                ferCode = article.getCode();
+                ferLibelle = article.getLibelle();
+            }
+        }
+        return PrescriptionMedicaleResponse.from(p, epoCode, epoLibelle, ferCode, ferLibelle);
     }
 
     @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")
@@ -55,7 +83,7 @@ public class PrescriptionMedicaleRestController {
             @RequestParam(defaultValue = "20") int size) {
         CenterId center = centerAccessGuard.requireCenter(centerId);
         var paged = useCase.listPagedByPatient(center, patientId, from, to, page, size);
-        return ResponseEntity.ok(PagedResponse.from(paged, PrescriptionMedicaleResponse::from));
+        return ResponseEntity.ok(PagedResponse.from(paged, p -> toResponse(p, center)));
     }
 
     /**
@@ -74,7 +102,7 @@ public class PrescriptionMedicaleRestController {
         var prescriptions = useCase.listByPatient(center, patientId, null, at);
         return prescriptions.isEmpty()
                 ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(PrescriptionMedicaleResponse.from(prescriptions.get(0)));
+                : ResponseEntity.ok(toResponse(prescriptions.get(0), center));
     }
 
     @PreAuthorize("hasAnyRole('MEDECIN','ADMIN')")
@@ -89,7 +117,7 @@ public class PrescriptionMedicaleRestController {
                 criteria.dateTo(),
                 criteria.page(),
                 criteria.size());
-        return ResponseEntity.ok(PagedResponse.from(paged, PrescriptionMedicaleResponse::from));
+        return ResponseEntity.ok(PagedResponse.from(paged, p -> toResponse(p, center)));
     }
 
     @PreAuthorize("hasRole('MEDECIN')")
@@ -131,14 +159,16 @@ public class PrescriptionMedicaleRestController {
                 request.dureeCibleMin(),
                 request.typeDialyseurPrescrit(),
                 request.anticoagTypePrescrit(),
-                request.epoMolecule(),
+                request.epoArticleId(),
                 request.epoDoseUi(),
                 request.epoVoie(),
-                request.epoFrequence(),
-                request.ferMolecule(),
+                request.epoFrequenceValeur(),
+                request.epoFrequenceUnite(),
+                request.ferArticleId(),
                 request.ferDoseMg(),
                 request.ferVoie(),
-                request.ferFrequence()
+                request.ferFrequenceValeur(),
+                request.ferFrequenceUnite()
         );
         return new EntityWriteResponse(prescription.getId(), prescription.getPatientId(), prescription.getUpdatedAt());
     }

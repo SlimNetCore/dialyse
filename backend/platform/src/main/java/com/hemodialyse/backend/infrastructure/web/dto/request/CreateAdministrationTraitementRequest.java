@@ -16,6 +16,8 @@ public record CreateAdministrationTraitementRequest(
         UUID seanceId,
         String administrePar,
         boolean administree,
-        String motifNonAdministration
+        String motifNonAdministration,
+        UUID articleId,
+        BigDecimal quantiteArticle
 ) {
 }

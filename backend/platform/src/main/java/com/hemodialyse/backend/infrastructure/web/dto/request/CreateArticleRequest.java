@@ -12,7 +12,8 @@ public record CreateArticleRequest(
         @NotBlank String libelle,
         @NotBlank String unite,
         BigDecimal seuilAlerte,
-        boolean gereParLot
+        boolean gereParLot,
+        String typeTraitementAnemie
 ) {
 }
 

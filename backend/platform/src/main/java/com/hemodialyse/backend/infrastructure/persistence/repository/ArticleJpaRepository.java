@@ -11,4 +11,6 @@ public interface ArticleJpaRepository extends JpaRepository<ArticleJpaEntity, UU
     Optional<ArticleJpaEntity> findByIdAndCenterId(UUID id, UUID centerId);
 
     List<ArticleJpaEntity> findByCenterIdOrderByCode(UUID centerId);
+
+    List<ArticleJpaEntity> findByCenterIdAndTypeTraitementAnemieOrderByCode(UUID centerId, String typeTraitementAnemie);
 }

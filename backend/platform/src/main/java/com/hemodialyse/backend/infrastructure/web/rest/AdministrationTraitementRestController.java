@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.medical.anemie.port.AdministrationTraiteme
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.DoseAdministree;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateAdministrationTraitementRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.AdministrationTraitementResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -36,11 +38,14 @@ public class AdministrationTraitementRestController {
 
     private final AdministrationTraitementUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
+    private final BonSortieUseCase bonSortieUseCase;
 
     public AdministrationTraitementRestController(AdministrationTraitementUseCase useCase,
-                                                  CenterAccessGuard centerAccessGuard) {
+                                                  CenterAccessGuard centerAccessGuard,
+                                                  BonSortieUseCase bonSortieUseCase) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
+        this.bonSortieUseCase = bonSortieUseCase;
     }
 
     @PreAuthorize("hasAnyRole('MEDECIN','ADMIN','INFIRMIER')")
@@ -60,11 +65,27 @@ public class AdministrationTraitementRestController {
     public ResponseEntity<AdministrationTraitementResponse> create(
             @PathVariable UUID patientId, @RequestBody @Valid CreateAdministrationTraitementRequest request) {
         CenterId center = centerAccessGuard.requireCenter(request.centerId());
+
+        boolean sortieStockRequise = request.administree()
+                && request.articleId() != null
+                && request.seanceId() != null
+                && request.quantiteArticle() != null;
+        if (sortieStockRequise) {
+            // Lève IllegalStateException (-> 422, cf. ApiExceptionHandler) si le stock est insuffisant ;
+            // dans ce cas l'administration n'est pas créée, pour éviter une trace sans sortie de stock réelle.
+            // Sortie datée du jour réel de l'administration (pas de la date de la séance, qui peut être
+            // planifiée dans le futur) : le stock quitte physiquement le magasin au moment du clic, et
+            // createViaFefo() génère un bon de sortie numéroté (contrairement à addArticleConsommation,
+            // qui ne fait que des mouvements bruts sans pièce associée).
+            bonSortieUseCase.createViaFefo(center, request.seanceId(), patientId, "ADMINISTRATION",
+                    LocalDate.now(), request.articleId(), request.quantiteArticle(), request.administrePar());
+        }
+
         DoseAdministree dose = request.dose() == null ? null : new DoseAdministree(request.dose(), request.uniteDose());
         var administration = useCase.create(center, patientId, request.prescriptionMedicaleId(),
                 TypeTraitementAnemie.valueOf(request.typeTraitement()), request.molecule(), dose, request.voie(),
                 request.dateAdministration(), request.seanceId(), request.administrePar(), request.administree(),
-                request.motifNonAdministration());
+                request.motifNonAdministration(), request.articleId(), request.quantiteArticle());
         return ResponseEntity.ok(AdministrationTraitementResponse.from(administration));
     }
 }

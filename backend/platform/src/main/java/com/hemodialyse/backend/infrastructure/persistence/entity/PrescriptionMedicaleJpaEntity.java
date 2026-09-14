@@ -45,8 +45,8 @@ public class PrescriptionMedicaleJpaEntity {
     @Column(name = "anticoag_type_prescrit", length = 20)
     private String anticoagTypePrescrit;
 
-    @Column(name = "epo_molecule", length = 100)
-    private String epoMolecule;
+    @Column(name = "epo_article_id")
+    private UUID epoArticleId;
 
     @Column(name = "epo_dose_ui")
     private Integer epoDoseUi;
@@ -54,11 +54,14 @@ public class PrescriptionMedicaleJpaEntity {
     @Column(name = "epo_voie", length = 10)
     private String epoVoie;
 
-    @Column(name = "epo_frequence", length = 50)
-    private String epoFrequence;
+    @Column(name = "epo_frequence_valeur")
+    private Integer epoFrequenceValeur;
 
-    @Column(name = "fer_molecule", length = 100)
-    private String ferMolecule;
+    @Column(name = "epo_frequence_unite", length = 10)
+    private String epoFrequenceUnite;
+
+    @Column(name = "fer_article_id")
+    private UUID ferArticleId;
 
     @Column(name = "fer_dose_mg")
     private Integer ferDoseMg;
@@ -66,8 +69,11 @@ public class PrescriptionMedicaleJpaEntity {
     @Column(name = "fer_voie", length = 10)
     private String ferVoie;
 
-    @Column(name = "fer_frequence", length = 50)
-    private String ferFrequence;
+    @Column(name = "fer_frequence_valeur")
+    private Integer ferFrequenceValeur;
+
+    @Column(name = "fer_frequence_unite", length = 10)
+    private String ferFrequenceUnite;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
@@ -163,12 +169,12 @@ public class PrescriptionMedicaleJpaEntity {
         this.anticoagTypePrescrit = anticoagTypePrescrit;
     }
 
-    public String getEpoMolecule() {
-        return epoMolecule;
+    public UUID getEpoArticleId() {
+        return epoArticleId;
     }
 
-    public void setEpoMolecule(String epoMolecule) {
-        this.epoMolecule = epoMolecule;
+    public void setEpoArticleId(UUID epoArticleId) {
+        this.epoArticleId = epoArticleId;
     }
 
     public Integer getEpoDoseUi() {
@@ -187,20 +193,28 @@ public class PrescriptionMedicaleJpaEntity {
         this.epoVoie = epoVoie;
     }
 
-    public String getEpoFrequence() {
-        return epoFrequence;
+    public Integer getEpoFrequenceValeur() {
+        return epoFrequenceValeur;
     }
 
-    public void setEpoFrequence(String epoFrequence) {
-        this.epoFrequence = epoFrequence;
+    public void setEpoFrequenceValeur(Integer epoFrequenceValeur) {
+        this.epoFrequenceValeur = epoFrequenceValeur;
     }
 
-    public String getFerMolecule() {
-        return ferMolecule;
+    public String getEpoFrequenceUnite() {
+        return epoFrequenceUnite;
     }
 
-    public void setFerMolecule(String ferMolecule) {
-        this.ferMolecule = ferMolecule;
+    public void setEpoFrequenceUnite(String epoFrequenceUnite) {
+        this.epoFrequenceUnite = epoFrequenceUnite;
+    }
+
+    public UUID getFerArticleId() {
+        return ferArticleId;
+    }
+
+    public void setFerArticleId(UUID ferArticleId) {
+        this.ferArticleId = ferArticleId;
     }
 
     public Integer getFerDoseMg() {
@@ -219,12 +233,20 @@ public class PrescriptionMedicaleJpaEntity {
         this.ferVoie = ferVoie;
     }
 
-    public String getFerFrequence() {
-        return ferFrequence;
+    public Integer getFerFrequenceValeur() {
+        return ferFrequenceValeur;
     }
 
-    public void setFerFrequence(String ferFrequence) {
-        this.ferFrequence = ferFrequence;
+    public void setFerFrequenceValeur(Integer ferFrequenceValeur) {
+        this.ferFrequenceValeur = ferFrequenceValeur;
+    }
+
+    public String getFerFrequenceUnite() {
+        return ferFrequenceUnite;
+    }
+
+    public void setFerFrequenceUnite(String ferFrequenceUnite) {
+        this.ferFrequenceUnite = ferFrequenceUnite;
     }
 
     public OffsetDateTime getCreatedAt() {

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.ArticleJpaEntity;
@@ -35,6 +36,12 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort {
         return jpa.findByCenterIdOrderByCode(centerId.value()).stream().map(this::toDomain).toList();
     }
 
+    @Override
+    public List<Article> findAllByCenterAndTypeTraitementAnemie(CenterId centerId, TypeTraitementAnemie type) {
+        return jpa.findByCenterIdAndTypeTraitementAnemieOrderByCode(centerId.value(), type.name()).stream()
+                .map(this::toDomain).toList();
+    }
+
     private Article toDomain(ArticleJpaEntity e) {
         Article article = new Article();
         article.setId(e.getId());
@@ -47,6 +54,8 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort {
         article.setPmpCourant(e.getPmpCourant());
         article.setGereParLot(e.isGereParLot());
         article.setActive(e.isActive());
+        article.setTypeTraitementAnemie(
+                e.getTypeTraitementAnemie() == null ? null : TypeTraitementAnemie.valueOf(e.getTypeTraitementAnemie()));
         article.setCreatedAt(e.getCreatedAt());
         return article;
     }
@@ -63,6 +72,7 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort {
         entity.setPmpCourant(a.getPmpCourant());
         entity.setGereParLot(a.isGereParLot());
         entity.setActive(a.isActive());
+        entity.setTypeTraitementAnemie(a.getTypeTraitementAnemie() == null ? null : a.getTypeTraitementAnemie().name());
         entity.setCreatedAt(a.getCreatedAt());
         return entity;
     }

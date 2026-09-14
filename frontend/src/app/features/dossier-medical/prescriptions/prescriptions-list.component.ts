@@ -14,7 +14,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {PrescriptionMedicale} from '../../../core/api/dossier-medical-api.service';
+import {PrescriptionMedicale, UniteFrequence} from '../../../core/api/dossier-medical-api.service';
+import {ArticleStock, StockApiService} from '../../../core/api/stock-api.service';
 import {DossierMedicalAccessService} from '../dossier-medical-access.service';
 import {PrescriptionsStore} from '../state/prescriptions.store';
 import {resolvePatientIdFromRoute} from '../dossier-medical-route.util';
@@ -27,19 +28,22 @@ interface PrescriptionFormModel {
   dureeCibleMin: number | null;
   typeDialyseurPrescrit: string;
   anticoagTypePrescrit: string;
-  epoMolecule: string;
+  epoArticleId: string;
   epoDoseUi: number | null;
   epoVoie: string;
-  epoFrequence: string;
-  ferMolecule: string;
+  epoFrequenceValeur: number | null;
+  epoFrequenceUnite: UniteFrequence | '';
+  ferArticleId: string;
   ferDoseMg: number | null;
   ferVoie: string;
-  ferFrequence: string;
+  ferFrequenceValeur: number | null;
+  ferFrequenceUnite: UniteFrequence | '';
 }
 
 const ANTICOAG_TYPES = ['HNF', 'HBPM', 'CITRATE', 'AUCUN'] as const;
 const EPO_VOIES = ['SC', 'IV'] as const;
 const FER_VOIES = ['IV'] as const;
+const UNITES_FREQUENCE: readonly UniteFrequence[] = ['HEURE', 'JOUR', 'SEMAINE', 'MOIS', 'ANNEE'];
 
 function toIsoDate(value: Date | string | null): string | null {
   if (!value) return null;
@@ -59,14 +63,16 @@ function emptyForm(): PrescriptionFormModel {
     dureeCibleMin: null,
     typeDialyseurPrescrit: '',
     anticoagTypePrescrit: '',
-    epoMolecule: '',
+    epoArticleId: '',
     epoDoseUi: null,
     epoVoie: '',
-    epoFrequence: '',
-    ferMolecule: '',
+    epoFrequenceValeur: null,
+    epoFrequenceUnite: '',
+    ferArticleId: '',
     ferDoseMg: null,
     ferVoie: '',
-    ferFrequence: '',
+    ferFrequenceValeur: null,
+    ferFrequenceUnite: '',
   };
 }
 
@@ -102,6 +108,9 @@ export class PrescriptionsListComponent implements OnInit {
   protected readonly anticoagTypes = ANTICOAG_TYPES;
   protected readonly epoVoies = EPO_VOIES;
   protected readonly ferVoies = FER_VOIES;
+  protected readonly unitesFrequence = UNITES_FREQUENCE;
+  protected readonly epoArticles = signal<ArticleStock[]>([]);
+  protected readonly ferArticles = signal<ArticleStock[]>([]);
   /** Seule la prescription la plus récente (page 0, première ligne) peut être modifiée. */
   protected readonly mostRecentId = computed(() =>
     this.store.pageIndex() === 0 ? (this.store.rows()[0]?.id ?? null) : null);
@@ -113,9 +122,35 @@ export class PrescriptionsListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   protected readonly patientId = resolvePatientIdFromRoute(this.route);
   private readonly appShell = inject(AppShellStore);
+  private readonly stockApi = inject(StockApiService);
 
   ngOnInit(): void {
     this.refresh();
+    this.loadArticles();
+  }
+
+  openEditForm(prescription: PrescriptionMedicale): void {
+    this.editingId.set(prescription.id);
+    this.form.reset({
+      datePrescription: prescription.datePrescription,
+      qbCible: prescription.qbCible,
+      qdCible: prescription.qdCible,
+      ufMaxMl: prescription.ufMaxMl,
+      dureeCibleMin: prescription.dureeCibleMin,
+      typeDialyseurPrescrit: prescription.typeDialyseurPrescrit ?? '',
+      anticoagTypePrescrit: prescription.anticoagTypePrescrit ?? '',
+      epoArticleId: prescription.epoArticleId ?? '',
+      epoDoseUi: prescription.epoDoseUi,
+      epoVoie: prescription.epoVoie ?? '',
+      epoFrequenceValeur: prescription.epoFrequenceValeur,
+      epoFrequenceUnite: prescription.epoFrequenceUnite ?? '',
+      ferArticleId: prescription.ferArticleId ?? '',
+      ferDoseMg: prescription.ferDoseMg,
+      ferVoie: prescription.ferVoie ?? '',
+      ferFrequenceValeur: prescription.ferFrequenceValeur,
+      ferFrequenceUnite: prescription.ferFrequenceUnite ?? '',
+    });
+    this.formOpen.set(true);
   }
 
   onPageChange(event: PageEvent): void {
@@ -130,42 +165,6 @@ export class PrescriptionsListComponent implements OnInit {
     this.editingId.set(null);
     this.form.reset(emptyForm());
     this.formOpen.set(true);
-  }
-
-  openEditForm(prescription: PrescriptionMedicale): void {
-    this.editingId.set(prescription.id);
-    this.form.reset({
-      datePrescription: prescription.datePrescription,
-      qbCible: prescription.qbCible,
-      qdCible: prescription.qdCible,
-      ufMaxMl: prescription.ufMaxMl,
-      dureeCibleMin: prescription.dureeCibleMin,
-      typeDialyseurPrescrit: prescription.typeDialyseurPrescrit ?? '',
-      anticoagTypePrescrit: prescription.anticoagTypePrescrit ?? '',
-      epoMolecule: prescription.epoMolecule ?? '',
-      epoDoseUi: prescription.epoDoseUi,
-      epoVoie: prescription.epoVoie ?? '',
-      epoFrequence: prescription.epoFrequence ?? '',
-      ferMolecule: prescription.ferMolecule ?? '',
-      ferDoseMg: prescription.ferDoseMg,
-      ferVoie: prescription.ferVoie ?? '',
-      ferFrequence: prescription.ferFrequence ?? '',
-    });
-    this.formOpen.set(true);
-  }
-
-  cancelForm(): void {
-    this.formOpen.set(false);
-    this.editingId.set(null);
-  }
-
-  onValue<K extends keyof PrescriptionFormModel>(key: K, value: PrescriptionFormModel[K]): void {
-    this.form.set(key, value);
-  }
-
-  onNumber<K extends keyof PrescriptionFormModel>(key: K, raw: string): void {
-    const value = raw === '' ? null : Number(raw);
-    this.form.set(key, (Number.isNaN(value) ? null : value) as PrescriptionFormModel[K]);
   }
 
   save(): void {
@@ -187,18 +186,41 @@ export class PrescriptionsListComponent implements OnInit {
         dureeCibleMin: value.dureeCibleMin,
         typeDialyseurPrescrit: value.typeDialyseurPrescrit || null,
         anticoagTypePrescrit: value.anticoagTypePrescrit || null,
-        epoMolecule: value.epoMolecule || null,
+        epoArticleId: value.epoArticleId || null,
         epoDoseUi: value.epoDoseUi,
         epoVoie: value.epoVoie || null,
-        epoFrequence: value.epoFrequence || null,
-        ferMolecule: value.ferMolecule || null,
+        epoFrequenceValeur: value.epoFrequenceValeur,
+        epoFrequenceUnite: value.epoFrequenceUnite || null,
+        ferArticleId: value.ferArticleId || null,
         ferDoseMg: value.ferDoseMg,
         ferVoie: value.ferVoie || null,
-        ferFrequence: value.ferFrequence || null,
+        ferFrequenceValeur: value.ferFrequenceValeur,
+        ferFrequenceUnite: value.ferFrequenceUnite || null,
       },
     });
     this.formOpen.set(false);
     this.editingId.set(null);
+  }
+
+  cancelForm(): void {
+    this.formOpen.set(false);
+    this.editingId.set(null);
+  }
+
+  onValue<K extends keyof PrescriptionFormModel>(key: K, value: PrescriptionFormModel[K]): void {
+    this.form.set(key, value);
+  }
+
+  onNumber<K extends keyof PrescriptionFormModel>(key: K, raw: string): void {
+    const value = raw === '' ? null : Number(raw);
+    this.form.set(key, (Number.isNaN(value) ? null : value) as PrescriptionFormModel[K]);
+  }
+
+  private loadArticles(): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return;
+    this.stockApi.listArticles(centerId, 'EPO').subscribe((articles) => this.epoArticles.set(articles));
+    this.stockApi.listArticles(centerId, 'FER_INJECTABLE').subscribe((articles) => this.ferArticles.set(articles));
   }
 
   remove(prescription: PrescriptionMedicale): void {

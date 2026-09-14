@@ -6,6 +6,18 @@
   margin-bottom: 8px;
 }
 
+.anemie-treatment-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.anemie-type-field {
+  min-width: 220px;
+}
+
 .actions {
   margin-top: 16px;
   display: flex;

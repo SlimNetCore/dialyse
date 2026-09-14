@@ -38,6 +38,8 @@ public final class AdministrationTraitement {
     private final String administrePar;
     private final boolean administree;
     private final String motifNonAdministration;
+    private final UUID articleId;
+    private final java.math.BigDecimal quantiteArticle;
     private final OffsetDateTime createdAt;
 
     private final List<AdministrationTraitementEvent> events = new ArrayList<>();
@@ -45,7 +47,8 @@ public final class AdministrationTraitement {
     private AdministrationTraitement(UUID id, UUID patientId, UUID centerId, UUID prescriptionMedicaleId,
                                      TypeTraitementAnemie typeTraitement, String molecule, DoseAdministree dose,
                                      String voie, LocalDate dateAdministration, UUID seanceId, String administrePar,
-                                     boolean administree, String motifNonAdministration, OffsetDateTime createdAt) {
+                                     boolean administree, String motifNonAdministration, UUID articleId,
+                                     java.math.BigDecimal quantiteArticle, OffsetDateTime createdAt) {
         this.id = id;
         this.patientId = patientId;
         this.centerId = centerId;
@@ -59,6 +62,8 @@ public final class AdministrationTraitement {
         this.administrePar = administrePar;
         this.administree = administree;
         this.motifNonAdministration = motifNonAdministration;
+        this.articleId = articleId;
+        this.quantiteArticle = quantiteArticle;
         this.createdAt = createdAt;
     }
 
@@ -66,13 +71,11 @@ public final class AdministrationTraitement {
                                                        TypeTraitementAnemie typeTraitement, String molecule,
                                                        DoseAdministree dose, String voie, LocalDate dateAdministration,
                                                        UUID seanceId, String administrePar, boolean administree,
-                                                       String motifNonAdministration) {
+                                                       String motifNonAdministration, UUID articleId,
+                                                       java.math.BigDecimal quantiteArticle) {
         if (patientId == null || centerId == null || typeTraitement == null || dateAdministration == null) {
             throw new BusinessException("ADMINISTRATION_CHAMPS_REQUIS",
                     "Patient, centre, type de traitement et date d'administration sont obligatoires");
-        }
-        if (dateAdministration.isAfter(LocalDate.now())) {
-            throw new BusinessException("ADMINISTRATION_DATE_FUTURE", "La date d'administration ne peut pas être dans le futur");
         }
         if (administree && dose == null) {
             throw new BusinessException("ADMINISTRATION_DOSE_REQUISE",
@@ -85,7 +88,8 @@ public final class AdministrationTraitement {
         OffsetDateTime now = OffsetDateTime.now();
         AdministrationTraitement administration = new AdministrationTraitement(UUID.randomUUID(), patientId,
                 centerId, prescriptionMedicaleId, typeTraitement, molecule, administree ? dose : null, voie,
-                dateAdministration, seanceId, administrePar, administree, motifNonAdministration, now);
+                dateAdministration, seanceId, administrePar, administree, motifNonAdministration,
+                administree ? articleId : null, administree ? quantiteArticle : null, now);
         if (administree) {
             administration.events.add(new AdministrationTraitementEvent.TraitementAnemieAdministre(
                     administration.id, patientId, now));
@@ -101,9 +105,11 @@ public final class AdministrationTraitement {
                                                         String molecule, DoseAdministree dose, String voie,
                                                         LocalDate dateAdministration, UUID seanceId,
                                                         String administrePar, boolean administree,
-                                                        String motifNonAdministration, OffsetDateTime createdAt) {
+                                                        String motifNonAdministration, UUID articleId,
+                                                        java.math.BigDecimal quantiteArticle, OffsetDateTime createdAt) {
         return new AdministrationTraitement(id, patientId, centerId, prescriptionMedicaleId, typeTraitement, molecule,
-                dose, voie, dateAdministration, seanceId, administrePar, administree, motifNonAdministration, createdAt);
+                dose, voie, dateAdministration, seanceId, administrePar, administree, motifNonAdministration,
+                articleId, quantiteArticle, createdAt);
     }
 
     public List<AdministrationTraitementEvent> pullEvents() {
@@ -162,6 +168,14 @@ public final class AdministrationTraitement {
 
     public String getMotifNonAdministration() {
         return motifNonAdministration;
+    }
+
+    public Optional<UUID> getArticleId() {
+        return Optional.ofNullable(articleId);
+    }
+
+    public Optional<java.math.BigDecimal> getQuantiteArticle() {
+        return Optional.ofNullable(quantiteArticle);
     }
 
     public OffsetDateTime getCreatedAt() {

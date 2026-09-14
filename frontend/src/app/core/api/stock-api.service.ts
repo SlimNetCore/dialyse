@@ -22,6 +22,8 @@ export interface Emplacement {
   actif: boolean;
 }
 
+export type TypeTraitementAnemie = 'EPO' | 'FER_INJECTABLE';
+
 export interface ArticleStock {
   id: string;
   centerId: string;
@@ -33,6 +35,7 @@ export interface ArticleStock {
   pmpCourant: number;
   gereParLot: boolean;
   active: boolean;
+  typeTraitementAnemie: TypeTraitementAnemie | null;
   createdAt?: string;
 }
 
@@ -232,6 +235,12 @@ export class StockApiService {
     return this.http.post<Emplacement>(`${this.base}/referentiel/emplacements`, payload);
   }
 
+  listArticles(centerId: string, typeTraitementAnemie?: TypeTraitementAnemie): Observable<ArticleStock[]> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (typeTraitementAnemie) params = params.set('typeTraitementAnemie', typeTraitementAnemie);
+    return this.http.get<ArticleStock[]>(`${this.base}/referentiel/articles`, {params});
+  }
+
   createArticle(payload: {
     centerId: string;
     code: string;
@@ -239,6 +248,7 @@ export class StockApiService {
     unite: string;
     seuilAlerte?: number;
     gereParLot: boolean;
+    typeTraitementAnemie?: TypeTraitementAnemie | null;
   }): Observable<ArticleStock> {
     return this.http.post<ArticleStock>(`${this.base}/referentiel/articles`, payload);
   }

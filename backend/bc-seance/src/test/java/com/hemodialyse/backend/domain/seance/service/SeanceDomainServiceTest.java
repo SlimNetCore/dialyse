@@ -763,5 +763,11 @@ class SeanceDomainServiceTest {
                                 LocalDate dateSortie, List<SortieRequestItem> items, String userId) {
             return null;
         }
+
+        @Override
+        public BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
+                                       LocalDate dateSortie, UUID articleId, java.math.BigDecimal quantite, String userId) {
+            return null;
+        }
     }
 }

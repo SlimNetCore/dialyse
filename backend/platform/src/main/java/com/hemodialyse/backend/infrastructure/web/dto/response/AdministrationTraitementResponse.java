@@ -22,6 +22,8 @@ public record AdministrationTraitementResponse(
         String administrePar,
         boolean administree,
         String motifNonAdministration,
+        UUID articleId,
+        BigDecimal quantiteArticle,
         OffsetDateTime createdAt
 ) {
 
@@ -32,6 +34,7 @@ public record AdministrationTraitementResponse(
                 a.getTypeTraitement().name(), a.getMolecule(), dose == null ? null : dose.valeur(),
                 dose == null ? null : dose.unite(), a.getVoie(), a.getDateAdministration(),
                 a.getSeanceId().orElse(null), a.getAdministrePar(), a.isAdministree(),
-                a.getMotifNonAdministration(), a.getCreatedAt());
+                a.getMotifNonAdministration(), a.getArticleId().orElse(null),
+                a.getQuantiteArticle().orElse(null), a.getCreatedAt());
     }
 }

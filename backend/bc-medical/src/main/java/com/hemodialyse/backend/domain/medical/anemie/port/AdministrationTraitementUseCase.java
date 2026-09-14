@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementA
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -19,5 +20,6 @@ public interface AdministrationTraitementUseCase {
     AdministrationTraitement create(CenterId centerId, UUID patientId, UUID prescriptionMedicaleId,
                                     TypeTraitementAnemie typeTraitement, String molecule, DoseAdministree dose,
                                     String voie, LocalDate dateAdministration, UUID seanceId, String administrePar,
-                                    boolean administree, String motifNonAdministration);
+                                    boolean administree, String motifNonAdministration, UUID articleId,
+                                    BigDecimal quantiteArticle);
 }

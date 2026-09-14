@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
+import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -20,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class PrescriptionMedicaleRestControllerTest {
 
     private final CenterAccessGuard centerAccessGuard = new CenterAccessGuard();
+    private final ArticleRepositoryPort articleRepository = new FakeArticleRepositoryPort();
 
     @AfterEach
     void clearSecurityContext() {
@@ -39,7 +44,7 @@ class PrescriptionMedicaleRestControllerTest {
     void list_should_return_paged_items_from_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
 
         UUID patientId = UUID.randomUUID();
         PrescriptionMedicale p = prescription(centerId, patientId);
@@ -59,7 +64,7 @@ class PrescriptionMedicaleRestControllerTest {
     void search_should_honour_pagination_criteria() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
 
         UUID patientId = UUID.randomUUID();
         useCase.paged = PagedResult.of(List.of(prescription(centerId, patientId)), 42, 2, 10);
@@ -83,14 +88,15 @@ class PrescriptionMedicaleRestControllerTest {
     void create_should_delegate_to_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
 
         UUID patientId = UUID.randomUUID();
         UUID medecinId = UUID.randomUUID();
 
         UpsertPrescriptionMedicaleRequest request = new UpsertPrescriptionMedicaleRequest(
                 centerId, LocalDate.of(2026, 5, 1), medecinId, 300, 500, 2500, 240, "FX-80", "HNF",
-                "Darbepoetine", 60, "SC", "1x/sem", "Fer saccharose", 100, "IV", "1x/sem");
+                UUID.randomUUID(), 60, "SC", 1, UniteFrequence.SEMAINE,
+                UUID.randomUUID(), 100, "IV", 1, UniteFrequence.SEMAINE);
 
         ResponseEntity<EntityWriteResponse> response = controller.create(patientId, request);
 
@@ -104,7 +110,7 @@ class PrescriptionMedicaleRestControllerTest {
     void delete_should_delegate_to_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
 
         UUID patientId = UUID.randomUUID();
         UUID prescriptionId = UUID.randomUUID();
@@ -121,7 +127,7 @@ class PrescriptionMedicaleRestControllerTest {
     void search_should_be_forbidden_when_criteria_target_another_center() {
         authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
 
         var criteria = new PrescriptionMedicaleSearchRequest(
                 UUID.randomUUID(), UUID.randomUUID(), 0, 20, null, null);
@@ -179,9 +185,10 @@ class PrescriptionMedicaleRestControllerTest {
                                          LocalDate datePrescription, UUID medecinId, Integer qbCible,
                                          Integer qdCible, Integer ufMaxMl, Integer dureeCibleMin,
                                          String typeDialyseurPrescrit, String anticoagTypePrescrit,
-                                         String epoMolecule, Integer epoDoseUi, String epoVoie,
-                                         String epoFrequence, String ferMolecule, Integer ferDoseMg,
-                                         String ferVoie, String ferFrequence) {
+                                         UUID epoArticleId, Integer epoDoseUi, String epoVoie,
+                                         Integer epoFrequenceValeur, UniteFrequence epoFrequenceUnite,
+                                         UUID ferArticleId, Integer ferDoseMg, String ferVoie,
+                                         Integer ferFrequenceValeur, UniteFrequence ferFrequenceUnite) {
             this.lastCenterId = centerId;
             this.lastPatientId = patientId;
             this.lastMedecinId = medecinId;
@@ -198,6 +205,29 @@ class PrescriptionMedicaleRestControllerTest {
             this.lastCenterId = centerId;
             this.lastPatientId = patientId;
             this.lastDeletedId = prescriptionId;
+        }
+    }
+
+    private static final class FakeArticleRepositoryPort implements ArticleRepositoryPort {
+        @Override
+        public Optional<Article> findById(UUID articleId, CenterId centerId) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Article save(Article article) {
+            return article;
+        }
+
+        @Override
+        public List<Article> findAllByCenter(CenterId centerId) {
+            return List.of();
+        }
+
+        @Override
+        public List<Article> findAllByCenterAndTypeTraitementAnemie(
+                CenterId centerId, com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie type) {
+            return List.of();
         }
     }
 }

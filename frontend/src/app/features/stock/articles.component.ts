@@ -10,11 +10,11 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatSelectModule} from '@angular/material/select';
 import {TranslateModule} from '@ngx-translate/core';
 import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
-import {StockApiService} from '../../core/api/stock-api.service';
-import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
+import {ArticleStock, StockApiService, TypeTraitementAnemie} from '../../core/api/stock-api.service';
 
 @Component({
   selector: 'app-stock-articles',
@@ -28,6 +28,7 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
     MatIconModule,
     MatTableModule,
     MatCheckboxModule,
+    MatSelectModule,
     FormRoot,
     FormField,
     TranslateModule,
@@ -37,8 +38,8 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   styleUrl: './articles.component.css',
 })
 export class ArticlesComponent {
-  protected readonly cols = ['code', 'libelle', 'unite', 'lot'];
-  protected readonly articles = signal<RefItem[]>([]);
+  protected readonly cols = ['code', 'libelle', 'unite', 'lot', 'typeTraitementAnemie'];
+  protected readonly articles = signal<ArticleStock[]>([]);
   protected readonly saving = signal(false);
   protected readonly formModel = signal(this.createInitialForm());
   protected readonly articleForm = compatForm(this.formModel, (form) => {
@@ -52,11 +53,11 @@ export class ArticlesComponent {
   });
   protected readonly canSave = computed(() => {
     const form = this.formModel();
-    return !!form.code.trim() && !!form.libelle.trim() && !!form.unite.trim() && form.seuilAlerte >= 0 && !this.saving();
+    return !!form.code.trim() && !!form.libelle.trim() && !!form.unite.trim() && form.seuilAlerte >= 0
+      && (!form.estTraitementAnemie || !!form.typeTraitementAnemie) && !this.saving();
   });
 
   private readonly api = inject(StockApiService);
-  private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -79,6 +80,8 @@ export class ArticlesComponent {
       unite: form.unite.trim(),
       seuilAlerte: Number(form.seuilAlerte ?? 0),
       gereParLot: !!form.gereParLot,
+      typeTraitementAnemie: form.estTraitementAnemie && form.typeTraitementAnemie
+        ? form.typeTraitementAnemie : null,
     }).subscribe({
       next: () => {
         this.snack.open(
@@ -103,7 +106,7 @@ export class ArticlesComponent {
     if (!centerId) {
       return;
     }
-    this.refApi.getArticles(centerId).subscribe({next: items => this.articles.set(items)});
+    this.api.listArticles(centerId).subscribe({next: items => this.articles.set(items)});
   }
 
   private createInitialForm() {
@@ -113,6 +116,8 @@ export class ArticlesComponent {
       unite: '',
       seuilAlerte: 0,
       gereParLot: true,
+      estTraitementAnemie: false,
+      typeTraitementAnemie: '' as TypeTraitementAnemie | '',
     };
   }
 }

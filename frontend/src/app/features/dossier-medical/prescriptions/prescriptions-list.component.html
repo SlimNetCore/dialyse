@@ -71,8 +71,11 @@
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }}</mat-label>
-          <input (input)="onValue('epoMolecule', $any($event.target).value)" [value]="form.value().epoMolecule"
-                 matInput/>
+          <mat-select (selectionChange)="onValue('epoArticleId', $event.value)" [value]="form.value().epoArticleId">
+            @for (article of epoArticles(); track article.id) {
+              <mat-option [value]="article.id">{{ article.code }} - {{ article.libelle }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -92,16 +95,29 @@
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.FREQUENCE' | translate }}</mat-label>
-          <input (input)="onValue('epoFrequence', $any($event.target).value)" [value]="form.value().epoFrequence"
-                 matInput/>
+          <input (input)="onNumber('epoFrequenceValeur', $any($event.target).value)"
+                 [value]="form.value().epoFrequenceValeur" matInput type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.FREQUENCE_UNITE' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('epoFrequenceUnite', $event.value)"
+                      [value]="form.value().epoFrequenceUnite">
+            @for (unite of unitesFrequence; track unite) {
+              <mat-option [value]="unite">{{ ('FREQUENCE_UNITES.' + unite) | translate }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
 
         <div class="prescription-section-title">{{ 'DOSSIER_MEDICAL.SECTION_FER' | translate }}</div>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }}</mat-label>
-          <input (input)="onValue('ferMolecule', $any($event.target).value)" [value]="form.value().ferMolecule"
-                 matInput/>
+          <mat-select (selectionChange)="onValue('ferArticleId', $event.value)" [value]="form.value().ferArticleId">
+            @for (article of ferArticles(); track article.id) {
+              <mat-option [value]="article.id">{{ article.code }} - {{ article.libelle }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -121,8 +137,18 @@
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.FREQUENCE' | translate }}</mat-label>
-          <input (input)="onValue('ferFrequence', $any($event.target).value)" [value]="form.value().ferFrequence"
-                 matInput/>
+          <input (input)="onNumber('ferFrequenceValeur', $any($event.target).value)"
+                 [value]="form.value().ferFrequenceValeur" matInput type="number"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.FREQUENCE_UNITE' | translate }}</mat-label>
+          <mat-select (selectionChange)="onValue('ferFrequenceUnite', $event.value)"
+                      [value]="form.value().ferFrequenceUnite">
+            @for (unite of unitesFrequence; track unite) {
+              <mat-option [value]="unite">{{ ('FREQUENCE_UNITES.' + unite) | translate }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
       </div>
 
@@ -162,13 +188,17 @@
           <div class="prescription-card-body">
             <span>Qb {{ prescription.qbCible ?? '-' }} · Qd {{ prescription.qdCible ?? '-' }}
               · UF max {{ prescription.ufMaxMl ?? '-' }} · {{ prescription.dureeCibleMin ?? '-' }} min</span>
-            @if (prescription.epoMolecule) {
-              <span class="prescription-tag">EPO {{ prescription.epoMolecule }} {{ prescription.epoDoseUi }}
-                UI {{ prescription.epoVoie }} {{ prescription.epoFrequence }}</span>
+            @if (prescription.epoArticleId) {
+              <span class="prescription-tag">EPO {{ prescription.epoArticleLibelle ?? prescription.epoArticleCode }}
+                {{ prescription.epoDoseUi }}
+                UI {{ prescription.epoVoie }} {{ prescription.epoFrequenceValeur }}
+                /{{ ('FREQUENCE_UNITES.' + prescription.epoFrequenceUnite) | translate }}</span>
             }
-            @if (prescription.ferMolecule) {
-              <span class="prescription-tag">Fer {{ prescription.ferMolecule }} {{ prescription.ferDoseMg }}
-                mg {{ prescription.ferVoie }} {{ prescription.ferFrequence }}</span>
+            @if (prescription.ferArticleId) {
+              <span class="prescription-tag">Fer {{ prescription.ferArticleLibelle ?? prescription.ferArticleCode }}
+                {{ prescription.ferDoseMg }}
+                mg {{ prescription.ferVoie }} {{ prescription.ferFrequenceValeur }}
+                /{{ ('FREQUENCE_UNITES.' + prescription.ferFrequenceUnite) | translate }}</span>
             }
           </div>
         </mat-card>

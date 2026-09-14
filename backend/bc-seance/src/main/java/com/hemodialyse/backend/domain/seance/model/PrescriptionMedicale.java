@@ -16,14 +16,16 @@ public class PrescriptionMedicale {
     private Integer dureeCibleMin;
     private String typeDialyseurPrescrit;
     private String anticoagTypePrescrit;
-    private String epoMolecule;
+    private UUID epoArticleId;
     private Integer epoDoseUi;
     private String epoVoie;
-    private String epoFrequence;
-    private String ferMolecule;
+    private Integer epoFrequenceValeur;
+    private UniteFrequence epoFrequenceUnite;
+    private UUID ferArticleId;
     private Integer ferDoseMg;
     private String ferVoie;
-    private String ferFrequence;
+    private Integer ferFrequenceValeur;
+    private UniteFrequence ferFrequenceUnite;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -115,12 +117,12 @@ public class PrescriptionMedicale {
         this.anticoagTypePrescrit = anticoagTypePrescrit;
     }
 
-    public String getEpoMolecule() {
-        return epoMolecule;
+    public UUID getEpoArticleId() {
+        return epoArticleId;
     }
 
-    public void setEpoMolecule(String epoMolecule) {
-        this.epoMolecule = epoMolecule;
+    public void setEpoArticleId(UUID epoArticleId) {
+        this.epoArticleId = epoArticleId;
     }
 
     public Integer getEpoDoseUi() {
@@ -139,20 +141,28 @@ public class PrescriptionMedicale {
         this.epoVoie = epoVoie;
     }
 
-    public String getEpoFrequence() {
-        return epoFrequence;
+    public Integer getEpoFrequenceValeur() {
+        return epoFrequenceValeur;
     }
 
-    public void setEpoFrequence(String epoFrequence) {
-        this.epoFrequence = epoFrequence;
+    public void setEpoFrequenceValeur(Integer epoFrequenceValeur) {
+        this.epoFrequenceValeur = epoFrequenceValeur;
     }
 
-    public String getFerMolecule() {
-        return ferMolecule;
+    public UniteFrequence getEpoFrequenceUnite() {
+        return epoFrequenceUnite;
     }
 
-    public void setFerMolecule(String ferMolecule) {
-        this.ferMolecule = ferMolecule;
+    public void setEpoFrequenceUnite(UniteFrequence epoFrequenceUnite) {
+        this.epoFrequenceUnite = epoFrequenceUnite;
+    }
+
+    public UUID getFerArticleId() {
+        return ferArticleId;
+    }
+
+    public void setFerArticleId(UUID ferArticleId) {
+        this.ferArticleId = ferArticleId;
     }
 
     public Integer getFerDoseMg() {
@@ -171,12 +181,20 @@ public class PrescriptionMedicale {
         this.ferVoie = ferVoie;
     }
 
-    public String getFerFrequence() {
-        return ferFrequence;
+    public Integer getFerFrequenceValeur() {
+        return ferFrequenceValeur;
     }
 
-    public void setFerFrequence(String ferFrequence) {
-        this.ferFrequence = ferFrequence;
+    public void setFerFrequenceValeur(Integer ferFrequenceValeur) {
+        this.ferFrequenceValeur = ferFrequenceValeur;
+    }
+
+    public UniteFrequence getFerFrequenceUnite() {
+        return ferFrequenceUnite;
+    }
+
+    public void setFerFrequenceUnite(UniteFrequence ferFrequenceUnite) {
+        this.ferFrequenceUnite = ferFrequenceUnite;
     }
 
     public OffsetDateTime getCreatedAt() {
@@ -195,4 +213,3 @@ public class PrescriptionMedicale {
         this.updatedAt = updatedAt;
     }
 }
-

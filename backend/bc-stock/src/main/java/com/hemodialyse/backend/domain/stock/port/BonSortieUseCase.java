@@ -38,5 +38,15 @@ public interface BonSortieUseCase {
      */
     void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
                                 LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId);
+
+    /**
+     * Sortie de stock FEFO à part entière (numéro de pièce dédié, contrairement à
+     * {@link #addArticleConsommation}) : sélectionne automatiquement les lots par FEFO puis crée
+     * un {@link BonSortie} complet via {@link #create}. Utilisé par l'administration EPO/fer
+     * pendant la séance, où chaque administration doit être traçable comme une sortie numérotée
+     * distincte (pas une simple correction de mouvement).
+     */
+    BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
+                            LocalDate dateSortie, UUID articleId, BigDecimal quantite, String userId);
 }
 

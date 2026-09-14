@@ -325,6 +325,7 @@ export type ArticleStock = {
   stockQuantity?: number | null;
   pmpCourant?: number | null;
   active: boolean;
+  typeTraitementAnemie?: 'EPO' | 'FER_INJECTABLE' | null;
 };
 
 export type DashboardStats = {
@@ -911,8 +912,9 @@ export class BackendApiService {
     );
   }
 
-  listArticlesStock(centerId: string): Observable<ArticleStock[]> {
-    const params = new HttpParams().set('centerId', centerId);
+  listArticlesStock(centerId: string, typeTraitementAnemie?: 'EPO' | 'FER_INJECTABLE'): Observable<ArticleStock[]> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (typeTraitementAnemie) params = params.set('typeTraitementAnemie', typeTraitementAnemie);
     return this.http.get<ArticleStock[]>(`${this.baseUrl}/stock/referentiel/articles`, {params});
   }
 

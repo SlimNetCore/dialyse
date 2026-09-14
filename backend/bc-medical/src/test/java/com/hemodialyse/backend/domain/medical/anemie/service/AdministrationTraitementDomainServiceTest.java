@@ -36,7 +36,7 @@ class AdministrationTraitementDomainServiceTest {
     void create_should_persist_administered_treatment() {
         AdministrationTraitement administration = service.create(centerId, patientId, null,
                 TypeTraitementAnemie.EPO, "Darbepoetine", new DoseAdministree(new BigDecimal("60"), "UI"),
-                "SC", LocalDate.now(), null, "infirmier-1", true, null);
+                "SC", LocalDate.now(), null, "infirmier-1", true, null, null, null);
 
         assertThat(administration.isAdministree()).isTrue();
         assertThat(administration.getDose()).isPresent();
@@ -45,14 +45,14 @@ class AdministrationTraitementDomainServiceTest {
     @Test
     void create_should_reject_administered_treatment_without_dose() {
         assertThatThrownBy(() -> service.create(centerId, patientId, null, TypeTraitementAnemie.EPO, "Darbepoetine",
-                null, "SC", LocalDate.now(), null, "infirmier-1", true, null))
+                null, "SC", LocalDate.now(), null, "infirmier-1", true, null, null, null))
                 .isInstanceOf(BusinessException.class);
     }
 
     @Test
     void create_should_require_motif_when_not_administered() {
         assertThatThrownBy(() -> service.create(centerId, patientId, null, TypeTraitementAnemie.FER_INJECTABLE,
-                "Fer saccharose", null, "IV", LocalDate.now(), null, "infirmier-1", false, null))
+                "Fer saccharose", null, "IV", LocalDate.now(), null, "infirmier-1", false, null, null, null))
                 .isInstanceOf(BusinessException.class);
     }
 
@@ -60,7 +60,7 @@ class AdministrationTraitementDomainServiceTest {
     void create_should_persist_non_administered_treatment_with_motif() {
         AdministrationTraitement administration = service.create(centerId, patientId, null,
                 TypeTraitementAnemie.FER_INJECTABLE, "Fer saccharose", null, "IV", LocalDate.now(), null,
-                "infirmier-1", false, "Patient absent");
+                "infirmier-1", false, "Patient absent", null, null);
 
         assertThat(administration.isAdministree()).isFalse();
         assertThat(administration.getDose()).isEmpty();

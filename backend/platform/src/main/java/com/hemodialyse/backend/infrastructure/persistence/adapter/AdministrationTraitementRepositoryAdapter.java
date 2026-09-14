@@ -49,7 +49,8 @@ public class AdministrationTraitementRepositoryAdapter implements Administration
         return AdministrationTraitement.reconstituer(e.getId(), e.getPatientId(), e.getCenterId(),
                 e.getPrescriptionMedicaleId(), TypeTraitementAnemie.valueOf(e.getTypeTraitement()), e.getMolecule(),
                 dose, e.getVoie(), e.getDateAdministration(), e.getSeanceId(), e.getAdministrePar(),
-                e.isAdministree(), e.getMotifNonAdministration(), e.getCreatedAt());
+                e.isAdministree(), e.getMotifNonAdministration(), e.getArticleId(), e.getQuantiteArticle(),
+                e.getCreatedAt());
     }
 
     private AdministrationTraitementJpaEntity toJpa(AdministrationTraitement a) {
@@ -73,6 +74,8 @@ public class AdministrationTraitementRepositoryAdapter implements Administration
         e.setAdministrePar(a.getAdministrePar());
         e.setAdministree(a.isAdministree());
         e.setMotifNonAdministration(a.getMotifNonAdministration());
+        e.setArticleId(a.getArticleId().orElse(null));
+        e.setQuantiteArticle(a.getQuantiteArticle().orElse(null));
         e.setCreatedAt(a.getCreatedAt());
         return e;
     }

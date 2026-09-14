@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.seance.port;
 
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
+import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
@@ -32,14 +33,16 @@ public interface PrescriptionMedicaleUseCase {
                               Integer dureeCibleMin,
                               String typeDialyseurPrescrit,
                               String anticoagTypePrescrit,
-                              String epoMolecule,
+                              UUID epoArticleId,
                               Integer epoDoseUi,
                               String epoVoie,
-                              String epoFrequence,
-                              String ferMolecule,
+                              Integer epoFrequenceValeur,
+                              UniteFrequence epoFrequenceUnite,
+                              UUID ferArticleId,
                               Integer ferDoseMg,
                               String ferVoie,
-                              String ferFrequence);
+                              Integer ferFrequenceValeur,
+                              UniteFrequence ferFrequenceUnite);
 
     void delete(CenterId centerId, UUID patientId, UUID prescriptionId);
 }

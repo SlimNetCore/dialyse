@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.article.port;
 
 import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.util.List;
@@ -13,4 +14,6 @@ public interface ArticleRepositoryPort {
     Article save(Article article);
 
     List<Article> findAllByCenter(CenterId centerId);
+
+    List<Article> findAllByCenterAndTypeTraitementAnemie(CenterId centerId, TypeTraitementAnemie type);
 }

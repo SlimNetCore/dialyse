@@ -15,6 +15,7 @@ public class Article {
     private BigDecimal pmpCourant;
     private boolean gereParLot;
     private boolean active;
+    private TypeTraitementAnemie typeTraitementAnemie;
     private OffsetDateTime createdAt;
 
     public void debiter(BigDecimal quantite) {
@@ -114,6 +115,14 @@ public class Article {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public TypeTraitementAnemie getTypeTraitementAnemie() {
+        return typeTraitementAnemie;
+    }
+
+    public void setTypeTraitementAnemie(TypeTraitementAnemie typeTraitementAnemie) {
+        this.typeTraitementAnemie = typeTraitementAnemie;
     }
 }
 

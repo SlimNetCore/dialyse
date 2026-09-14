@@ -184,6 +184,8 @@
     "UNIT_LABEL": "Unité",
     "ALERT_THRESHOLD_LABEL": "Seuil d'alerte",
     "BATCH_MANAGED_ARTICLE_CHECKBOX": "Article géré par lot (lot et péremption obligatoires en réception)",
+    "ANEMIA_TREATMENT_ARTICLE_CHECKBOX": "Article de traitement de l'anémie",
+    "ANEMIA_TREATMENT_TYPE_LABEL": "Type de traitement",
     "CREATE_ARTICLE_BTN": "Créer l'article",
     "ACTIVE_ARTICLES_TITLE": "Articles actifs",
     "BATCH_MANAGEMENT_LABEL": "Gestion lot",
@@ -533,6 +535,7 @@
     "ADMINISTER": "Administrer",
     "ADMINISTERED_TODAY": "Administré",
     "ADMINISTERED_THIS_SESSION": "Administrations de cette séance",
+    "QUANTITE_ADMINISTREE": "Quantité administrée",
     "TAB_CONSOMMABLES": "Consommables",
     "CONSOMMABLES_NOTE": "Sélectionnez les articles consommés pendant cette séance. Ils seront sortis du stock au PMP lors de la validation.",
     "ADD_ARTICLE_BTN": "Ajouter un article",
@@ -1382,6 +1385,8 @@
     "DOSE_MG": "Dose (mg)",
     "VOIE": "Voie",
     "FREQUENCE": "Fréquence",
+    "FREQUENCE_UNITE": "Unité de fréquence",
+    "ALERTE_OBSERVANCE_RESOUDRE": "Marquer comme résolue",
     "NO_PRESCRIPTIONS": "Aucune prescription enregistrée",
     "ADD_ANALYSE": "Saisir des résultats",
     "DATE_PRELEVEMENT": "Date de prélèvement",
@@ -1454,6 +1459,7 @@
     "DATE_ADMINISTRATION": "Date d'administration",
     "ADMINISTREE": "Administrée",
     "DOSE": "Dose",
+    "DOSE_ADMINISTREE": "Dose administrée",
     "UNITE_DOSE": "Unité",
     "MOTIF_NON_ADMINISTRATION": "Motif de non-administration",
     "ADMINISTRE_PAR": "Administré par",
@@ -1582,5 +1588,12 @@
     "HBPM": "HBPM",
     "CITRATE": "Citrate",
     "AUCUN": "Aucun"
+  },
+  "FREQUENCE_UNITES": {
+    "HEURE": "heure",
+    "JOUR": "jour",
+    "SEMAINE": "semaine",
+    "MOIS": "mois",
+    "ANNEE": "année"
   }
 }

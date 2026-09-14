@@ -42,6 +42,9 @@ public class ArticleJpaEntity {
     @Column(name = "active", nullable = false)
     private boolean active;
 
+    @Column(name = "type_traitement_anemie", length = 20)
+    private String typeTraitementAnemie;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
@@ -131,6 +134,14 @@ public class ArticleJpaEntity {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getTypeTraitementAnemie() {
+        return typeTraitementAnemie;
+    }
+
+    public void setTypeTraitementAnemie(String typeTraitementAnemie) {
+        this.typeTraitementAnemie = typeTraitementAnemie;
     }
 }
 

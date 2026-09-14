@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
+import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -37,14 +38,16 @@ class PrescriptionMedicaleDomainServiceTest {
                 240,
                 "FX-80",
                 "HNF",
-                "Darbepoetine",
+                UUID.randomUUID(),
                 60,
                 "SC",
-                "1x/sem",
-                "Fer saccharose",
+                1,
+                UniteFrequence.SEMAINE,
+                UUID.randomUUID(),
                 100,
                 "IV",
-                "1x/sem"
+                1,
+                UniteFrequence.SEMAINE
         );
 
         assertNotNull(p.getId());

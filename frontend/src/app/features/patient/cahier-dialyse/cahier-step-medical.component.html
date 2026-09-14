@@ -46,14 +46,17 @@
             <h4>{{ 'CAHIER.MEDICAL_PRESCRIPTION_ACTIVE' | translate }}</h4>
             @if (prescription(); as p) {
               <div class="prescription-lines">
-                <p><strong>EPO</strong> {{ p.epoMolecule || '-' }}
+                <p><strong>EPO</strong> {{ p.epoArticleLibelle || p.epoArticleCode || '-' }}
                   @if (p.epoDoseUi) {
-                    — {{ p.epoDoseUi }} UI {{ p.epoVoie }} {{ p.epoFrequence }}
+                    — {{ p.epoDoseUi }} UI {{ p.epoVoie }} {{ p.epoFrequenceValeur }}
+                    /{{ ('FREQUENCE_UNITES.' + p.epoFrequenceUnite) | translate }}
                   }
                 </p>
-                <p><strong>{{ 'DOSSIER_MEDICAL.FER' | translate }}</strong> {{ p.ferMolecule || '-' }}
+                <p>
+                  <strong>{{ 'DOSSIER_MEDICAL.FER' | translate }}</strong> {{ p.ferArticleLibelle || p.ferArticleCode || '-' }}
                   @if (p.ferDoseMg) {
-                    — {{ p.ferDoseMg }} mg {{ p.ferVoie }} {{ p.ferFrequence }}
+                    — {{ p.ferDoseMg }} mg {{ p.ferVoie }} {{ p.ferFrequenceValeur }}
+                    /{{ ('FREQUENCE_UNITES.' + p.ferFrequenceUnite) | translate }}
                   }
                 </p>
               </div>

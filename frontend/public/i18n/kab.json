@@ -184,6 +184,8 @@
     "UNIT_LABEL": "Tayunt",
     "ALERT_THRESHOLD_LABEL": "Asebter n ylɣa",
     "BATCH_MANAGED_ARTICLE_CHECKBOX": "Aḥric yettusefarar s uzerbut (azerbut d ufak d ilaqen deg usalis)",
+    "ANEMIA_TREATMENT_ARTICLE_CHECKBOX": "Aḥric n ubbedwal n uɛeggu",
+    "ANEMIA_TREATMENT_TYPE_LABEL": "Anaw n ubbedwal",
     "CREATE_ARTICLE_BTN": "Rnu aḥric",
     "ACTIVE_ARTICLES_TITLE": "Iḥricen irumiden",
     "BATCH_MANAGEMENT_LABEL": "Asefrek n uzerbut",
@@ -378,6 +380,7 @@
     "ADMINISTER": "Sezdeg",
     "ADMINISTERED_TODAY": "Yettwasezdeg",
     "ADMINISTERED_THIS_SESSION": "Isezdiyen n tiɣimit-a",
+    "QUANTITE_ADMINISTREE": "Ttantant yettwasezdeg",
     "TAB_CONSOMMABLES": "Timseɣsanin",
     "CONSOMMABLES_NOTE": "Fren iḥricen yettuseqdacen deg tmsirt-a. Ad d-ffɣen si ugdez s PMP seg uqbel.",
     "ADD_ARTICLE_BTN": "Rnu aḥric",
@@ -1360,6 +1363,8 @@
     "DOSE_MG": "Tanzagt (mg)",
     "VOIE": "Abrid",
     "FREQUENCE": "Tikkelt-nnsen",
+    "FREQUENCE_UNITE": "Tanagit n tikkelt",
+    "ALERTE_OBSERVANCE_RESOUDRE": "Creḍ tettwafra",
     "NO_PRESCRIPTIONS": "Ulac prescription yettwajerden",
     "ADD_ANALYSE": "Sekcem igmaḍ",
     "DATE_PRELEVEMENT": "Azemz n usmizzel",
@@ -1432,6 +1437,7 @@
     "DATE_ADMINISTRATION": "Azemz n usezdeg",
     "ADMINISTREE": "Yettwasezdeg",
     "DOSE": "Tanezzayt (dose)",
+    "DOSE_ADMINISTREE": "Tanezzayt yettwasezdeg",
     "UNITE_DOSE": "Tamehla (unité)",
     "MOTIF_NON_ADMINISTRATION": "Ssebba n wulac usezdeg",
     "ADMINISTRE_PAR": "Yettwasezdeg sɣur",
@@ -1560,5 +1566,12 @@
     "HBPM": "HBPM",
     "CITRATE": "Citrate",
     "AUCUN": "Ulac"
+  },
+  "FREQUENCE_UNITES": {
+    "HEURE": "asrag",
+    "JOUR": "ass",
+    "SEMAINE": "dduṛt",
+    "MOIS": "aggur",
+    "ANNEE": "aseggas"
   }
 }

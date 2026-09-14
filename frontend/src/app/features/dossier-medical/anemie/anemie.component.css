@@ -18,6 +18,32 @@
   padding: 48px;
 }
 
+.anemie-alertes-observance {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.anemie-alerte-observance-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(237, 108, 2, 0.1);
+  border: 1px solid rgba(237, 108, 2, 0.3);
+}
+
+.anemie-alerte-icon {
+  color: #ed6c02;
+}
+
+.anemie-alerte-message {
+  flex: 1;
+  color: #7a3e00;
+}
+
 .anemie-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;

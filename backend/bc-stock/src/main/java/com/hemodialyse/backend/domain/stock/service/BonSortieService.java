@@ -281,6 +281,41 @@ public class BonSortieService implements BonSortieUseCase {
         publishStockMovementChanged(centerId.value(), "SORTIE", "SEANCE-UPDATE", 1);
     }
 
+    @Override
+    public BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
+                                   LocalDate dateSortie, UUID articleId, BigDecimal quantite, String userId) {
+        if (isLinkedToSeance(seanceId) && seanceBillingStatusPort.isBilled(centerId, seanceId)) {
+            throw new SeanceBilledStockModificationException();
+        }
+        Article article = articleRepo.findById(articleId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
+        if (!article.isActive()) {
+            throw new IllegalStateException("Article inactif: " + article.getCode());
+        }
+        if (recalcCoordinator.isLocked(centerId, articleId)) {
+            throw new IllegalStateException("Recalcul en cours pour l'article " + article.getCode());
+        }
+
+        List<Lot> fefoLots = lotRepo.findAvailableByArticleFefo(articleId, centerId);
+        BigDecimal remaining = quantite;
+        List<SortieRequestItem> items = new ArrayList<>();
+        for (Lot lot : fefoLots) {
+            if (remaining.signum() <= 0) break;
+            BigDecimal dispo = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
+            if (dispo.signum() <= 0) continue;
+            BigDecimal take = remaining.min(dispo);
+            items.add(new SortieRequestItem(articleId, lot.getId(), take));
+            remaining = remaining.subtract(take);
+        }
+        if (remaining.signum() > 0) {
+            throw new IllegalStateException(
+                    "Stock insuffisant pour l'article " + article.getCode()
+                            + " (manque: " + remaining + " " + article.getUnite() + ")");
+        }
+
+        return create(centerId, seanceId, patientId, poste, dateSortie, items, userId);
+    }
+
     private void publishStockMovementChanged(UUID centerId, String mouvement, String reference, int articleCount) {
         events.stockMovementChanged(centerId, mouvement, reference, articleCount);
     }

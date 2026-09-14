@@ -84,5 +84,11 @@ public class BonSortieApplicationService implements BonSortieUseCase {
                                        LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId) {
         delegate.addArticleConsommation(centerId, seanceId, patientId, dateSeance, articleId, quantite, userId);
     }
+
+    @Override
+    public BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
+                                   LocalDate dateSortie, UUID articleId, BigDecimal quantite, String userId) {
+        return delegate.createViaFefo(centerId, seanceId, patientId, poste, dateSortie, articleId, quantite, userId);
+    }
 }
 

@@ -10,9 +10,11 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
+import {MatButtonModule} from '@angular/material/button';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {SuiviAnemieStore} from '../state/suivi-anemie.store';
 import {AdministrationsAnemieStore} from '../state/administrations-anemie.store';
+import {AlertesObservanceStore} from '../state/alertes-observance.store';
 import {resolvePatientIdFromRoute} from '../dossier-medical-route.util';
 
 Chart.register(...registerables);
@@ -41,6 +43,7 @@ const STATUT_CLASS: Record<string, string> = {
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatButtonModule,
     TranslateModule,
     BaseChartDirective,
   ],
@@ -51,6 +54,7 @@ const STATUT_CLASS: Record<string, string> = {
 export class AnemieComponent implements OnInit {
   protected readonly suiviStore = inject(SuiviAnemieStore);
   protected readonly administrationsStore = inject(AdministrationsAnemieStore);
+  protected readonly alertesStore = inject(AlertesObservanceStore);
   protected readonly displayedColumns = [
     'dateAdministration', 'typeTraitement', 'molecule', 'dose', 'administree', 'administrePar',
   ];
@@ -126,6 +130,10 @@ export class AnemieComponent implements OnInit {
     this.administrationsStore.setPagination(event.pageIndex, event.pageSize);
   }
 
+  resoudreAlerte(alerteId: string): void {
+    this.alertesStore.resoudre({alerteId});
+  }
+
   private refresh(): void {
     const centerId = this.appShell.currentCenterId();
     if (!centerId || !this.patientId) return;
@@ -134,5 +142,6 @@ export class AnemieComponent implements OnInit {
       centerId, patientId: this.patientId,
       page: this.administrationsStore.pageIndex(), size: this.administrationsStore.pageSize(),
     });
+    this.alertesStore.load({centerId, patientId: this.patientId});
   }
 }

@@ -73,7 +73,8 @@ public class PatientStatsQueryService {
         );
 
         List<Map<String, Object>> epoTrend = jdbc.queryForList(
-                "SELECT p.date_prescription, p.epo_dose_ui, p.epo_molecule, p.epo_voie, p.epo_frequence "
+                "SELECT p.date_prescription, p.epo_dose_ui, p.epo_article_id, p.epo_voie, "
+                        + "p.epo_frequence_valeur, p.epo_frequence_unite "
                         + "FROM prescriptions_medicales p "
                         + "WHERE p.center_id = ? AND p.patient_id = ? " + buildPrescriptionDateFilter(from, to)
                         + " ORDER BY p.date_prescription ASC",

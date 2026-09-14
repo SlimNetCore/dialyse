@@ -135,6 +135,14 @@ public class NotificationService {
         send(centerId, "SEANCE_CONSOMMABLE_CHANGED", Map.of("seanceId", seanceId.toString()));
     }
 
+    public void notifyObservanceNonRespectee(UUID centerId, UUID patientId, String message) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("patientId", patientId.toString());
+        payload.put("message", message);
+        payload.put("targetRoles", "MEDECIN");
+        send(centerId, "OBSERVANCE_NON_RESPECTEE", payload);
+    }
+
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
         Map<String, Object> event = new java.util.HashMap<>();
         event.put("type", eventType);

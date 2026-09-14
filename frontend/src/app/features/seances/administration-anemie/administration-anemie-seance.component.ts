@@ -25,6 +25,8 @@ interface AdministrationFormModel {
   voie: string | null;
   administree: boolean;
   motifNonAdministration: string | null;
+  articleId: string | null;
+  quantiteAdministree: number | null;
 }
 
 function emptyForm(): AdministrationFormModel {
@@ -36,6 +38,8 @@ function emptyForm(): AdministrationFormModel {
     voie: 'SC',
     administree: true,
     motifNonAdministration: null,
+    articleId: null,
+    quantiteAdministree: null,
   };
 }
 
@@ -104,16 +108,19 @@ export class AdministrationAnemieSeanceComponent {
     model.typeTraitement = type;
     if (prescription) {
       if (type === 'EPO') {
-        model.molecule = prescription.epoMolecule;
+        model.molecule = prescription.epoArticleLibelle ?? prescription.epoArticleCode;
         model.dose = prescription.epoDoseUi;
         model.voie = prescription.epoVoie ?? 'SC';
         model.uniteDose = 'UI';
+        model.articleId = prescription.epoArticleId;
       } else {
-        model.molecule = prescription.ferMolecule;
+        model.molecule = prescription.ferArticleLibelle ?? prescription.ferArticleCode;
         model.dose = prescription.ferDoseMg;
         model.voie = prescription.ferVoie ?? 'IV';
         model.uniteDose = 'mg';
+        model.articleId = prescription.ferArticleId;
       }
+      model.quantiteAdministree = model.dose;
     }
     this.form.reset(model);
     this.formOpen.set(true);
@@ -127,7 +134,7 @@ export class AdministrationAnemieSeanceComponent {
     this.form.set(key, value);
   }
 
-  onNumber(key: 'dose', raw: string): void {
+  onNumber(key: 'dose' | 'quantiteAdministree', raw: string): void {
     const value = raw === '' ? null : Number(raw);
     this.form.set(key, Number.isNaN(value) ? null : value);
   }
@@ -159,6 +166,8 @@ export class AdministrationAnemieSeanceComponent {
       administrePar: this.auth.username(),
       administree: value.administree,
       motifNonAdministration: value.administree ? null : value.motifNonAdministration,
+      articleId: value.administree ? value.articleId : null,
+      quantiteArticle: value.administree ? value.quantiteAdministree : null,
     }).subscribe({
       next: () => {
         this.saving.set(false);

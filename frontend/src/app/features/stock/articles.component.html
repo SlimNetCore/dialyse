@@ -34,6 +34,21 @@
           {{ 'STOCK.BATCH_MANAGED_ARTICLE_CHECKBOX' | translate }}
         </mat-checkbox>
 
+        <div class="anemie-treatment-row">
+          <mat-checkbox [formField]="articleForm.estTraitementAnemie">
+            {{ 'STOCK.ANEMIA_TREATMENT_ARTICLE_CHECKBOX' | translate }}
+          </mat-checkbox>
+          @if (formModel().estTraitementAnemie) {
+            <mat-form-field appearance="outline" class="anemie-type-field">
+              <mat-label>{{ 'STOCK.ANEMIA_TREATMENT_TYPE_LABEL' | translate }}</mat-label>
+              <mat-select [formField]="articleForm.typeTraitementAnemie">
+                <mat-option value="EPO">{{ 'ANEMIE_TYPE.EPO' | translate }}</mat-option>
+                <mat-option value="FER_INJECTABLE">{{ 'ANEMIE_TYPE.FER_INJECTABLE' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          }
+        </div>
+
         <div class="actions">
           <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
             <mat-icon>save</mat-icon>
@@ -66,6 +81,12 @@
         <ng-container matColumnDef="lot">
           <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.BATCH_MANAGEMENT_LABEL' | translate }}</th>
           <td *matCellDef="let a" mat-cell>{{ a.gereParLot ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="typeTraitementAnemie">
+          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ANEMIA_TREATMENT_TYPE_LABEL' | translate }}</th>
+          <td *matCellDef="let a" mat-cell>
+            {{ a.typeTraitementAnemie ? ('ANEMIE_TYPE.' + a.typeTraitementAnemie | translate) : '—' }}
           </td>
         </ng-container>
 

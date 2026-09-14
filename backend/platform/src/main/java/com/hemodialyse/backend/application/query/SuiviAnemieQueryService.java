@@ -1,10 +1,14 @@
 package com.hemodialyse.backend.application.query;
 
+import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.medical.anemie.aggregate.AdministrationTraitement;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.DoseAdministree;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.medical.kdigo.service.KdigoEvaluationPolicy;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
+import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
+import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AdministrationTraitementJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.entity.PrescriptionMedicaleJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.entity.ResultatAnalyseJpaEntity;
@@ -37,13 +41,16 @@ public class SuiviAnemieQueryService {
     private final ResultatAnalyseJpaRepository resultatAnalyseRepository;
     private final PrescriptionMedicaleJpaRepository prescriptionRepository;
     private final AdministrationTraitementJpaRepository administrationRepository;
+    private final ArticleRepositoryPort articleRepository;
 
     public SuiviAnemieQueryService(ResultatAnalyseJpaRepository resultatAnalyseRepository,
                                    PrescriptionMedicaleJpaRepository prescriptionRepository,
-                                   AdministrationTraitementJpaRepository administrationRepository) {
+                                   AdministrationTraitementJpaRepository administrationRepository,
+                                   ArticleRepositoryPort articleRepository) {
         this.resultatAnalyseRepository = resultatAnalyseRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.administrationRepository = administrationRepository;
+        this.articleRepository = articleRepository;
     }
 
     public SuiviAnemieResponse getSuiviAnemie(UUID centerId, UUID patientId) {
@@ -68,7 +75,7 @@ public class SuiviAnemieQueryService {
 
         PrescriptionMedicaleResponse prescriptionActive = prescriptionRepository
                 .findTopByPatientIdAndCenterIdOrderByDatePrescriptionDesc(patientId, centerId)
-                .map(this::toPrescriptionResponse)
+                .map(e -> toPrescriptionResponse(e, centerId))
                 .orElse(null);
 
         List<AdministrationTraitementResponse> administrationsRecentes = administrationRepository
@@ -88,11 +95,11 @@ public class SuiviAnemieQueryService {
                 e.getId(), e.getPatientId(), e.getCenterId(), e.getPrescriptionMedicaleId(),
                 TypeTraitementAnemie.valueOf(e.getTypeTraitement()), e.getMolecule(), dose, e.getVoie(),
                 e.getDateAdministration(), e.getSeanceId(), e.getAdministrePar(), e.isAdministree(),
-                e.getMotifNonAdministration(), e.getCreatedAt());
+                e.getMotifNonAdministration(), e.getArticleId(), e.getQuantiteArticle(), e.getCreatedAt());
         return AdministrationTraitementResponse.from(administration);
     }
 
-    private PrescriptionMedicaleResponse toPrescriptionResponse(PrescriptionMedicaleJpaEntity e) {
+    private PrescriptionMedicaleResponse toPrescriptionResponse(PrescriptionMedicaleJpaEntity e, UUID centerId) {
         PrescriptionMedicale p = new PrescriptionMedicale();
         p.setId(e.getId());
         p.setPatientId(e.getPatientId());
@@ -105,16 +112,38 @@ public class SuiviAnemieQueryService {
         p.setDureeCibleMin(e.getDureeCibleMin());
         p.setTypeDialyseurPrescrit(e.getTypeDialyseurPrescrit());
         p.setAnticoagTypePrescrit(e.getAnticoagTypePrescrit());
-        p.setEpoMolecule(e.getEpoMolecule());
+        p.setEpoArticleId(e.getEpoArticleId());
         p.setEpoDoseUi(e.getEpoDoseUi());
         p.setEpoVoie(e.getEpoVoie());
-        p.setEpoFrequence(e.getEpoFrequence());
-        p.setFerMolecule(e.getFerMolecule());
+        p.setEpoFrequenceValeur(e.getEpoFrequenceValeur());
+        p.setEpoFrequenceUnite(e.getEpoFrequenceUnite() != null ? UniteFrequence.valueOf(e.getEpoFrequenceUnite()) : null);
+        p.setFerArticleId(e.getFerArticleId());
         p.setFerDoseMg(e.getFerDoseMg());
         p.setFerVoie(e.getFerVoie());
-        p.setFerFrequence(e.getFerFrequence());
+        p.setFerFrequenceValeur(e.getFerFrequenceValeur());
+        p.setFerFrequenceUnite(e.getFerFrequenceUnite() != null ? UniteFrequence.valueOf(e.getFerFrequenceUnite()) : null);
         p.setCreatedAt(e.getCreatedAt());
         p.setUpdatedAt(e.getUpdatedAt());
-        return PrescriptionMedicaleResponse.from(p);
+
+        CenterId center = new CenterId(centerId);
+        String epoCode = null;
+        String epoLibelle = null;
+        if (p.getEpoArticleId() != null) {
+            Article article = articleRepository.findById(p.getEpoArticleId(), center).orElse(null);
+            if (article != null) {
+                epoCode = article.getCode();
+                epoLibelle = article.getLibelle();
+            }
+        }
+        String ferCode = null;
+        String ferLibelle = null;
+        if (p.getFerArticleId() != null) {
+            Article article = articleRepository.findById(p.getFerArticleId(), center).orElse(null);
+            if (article != null) {
+                ferCode = article.getCode();
+                ferLibelle = article.getLibelle();
+            }
+        }
+        return PrescriptionMedicaleResponse.from(p, epoCode, epoLibelle, ferCode, ferLibelle);
     }
 }

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.stock.service;
 
 import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.Emplacement;
@@ -36,7 +37,7 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
 
     @Override
     public Article createArticle(CenterId centerId, String code, String libelle, String unite,
-                                 BigDecimal seuilAlerte, boolean gereParLot) {
+                                 BigDecimal seuilAlerte, boolean gereParLot, TypeTraitementAnemie typeTraitementAnemie) {
         if (code == null || code.isBlank()) {
             throw new IllegalArgumentException("Le code article est obligatoire");
         }
@@ -58,6 +59,7 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
         article.setSeuilAlerte(seuilAlerte != null ? seuilAlerte : BigDecimal.ZERO);
         article.setGereParLot(gereParLot);
         article.setActive(true);
+        article.setTypeTraitementAnemie(typeTraitementAnemie);
         article.setCreatedAt(OffsetDateTime.now());
         return articleRepo.save(article);
     }
@@ -65,6 +67,11 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
     @Override
     public List<Article> listArticles(CenterId centerId) {
         return articleRepo.findAllByCenter(centerId);
+    }
+
+    @Override
+    public List<Article> listArticlesByTypeTraitementAnemie(CenterId centerId, TypeTraitementAnemie typeTraitementAnemie) {
+        return articleRepo.findAllByCenterAndTypeTraitementAnemie(centerId, typeTraitementAnemie);
     }
 
     @Override

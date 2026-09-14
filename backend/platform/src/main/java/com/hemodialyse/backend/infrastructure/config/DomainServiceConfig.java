@@ -6,7 +6,9 @@ import com.hemodialyse.backend.domain.insurance.service.AttestationDomainService
 import com.hemodialyse.backend.domain.medical.allergie.port.AllergieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.allergie.service.AllergieDomainService;
 import com.hemodialyse.backend.domain.medical.anemie.port.AdministrationTraitementRepositoryPort;
+import com.hemodialyse.backend.domain.medical.anemie.port.AlerteObservanceRepositoryPort;
 import com.hemodialyse.backend.domain.medical.anemie.service.AdministrationTraitementDomainService;
+import com.hemodialyse.backend.domain.medical.anemie.service.AlerteObservanceDomainService;
 import com.hemodialyse.backend.domain.medical.antecedent.port.AntecedentRepositoryPort;
 import com.hemodialyse.backend.domain.medical.antecedent.service.AntecedentDomainService;
 import com.hemodialyse.backend.domain.medical.examen.port.DemandeExamenRepositoryPort;
@@ -145,6 +147,11 @@ public class DomainServiceConfig {
     public AdministrationTraitementDomainService administrationTraitementDomainService(
             AdministrationTraitementRepositoryPort repo) {
         return new AdministrationTraitementDomainService(repo);
+    }
+
+    @Bean
+    public AlerteObservanceDomainService alerteObservanceDomainService(AlerteObservanceRepositoryPort repo) {
+        return new AlerteObservanceDomainService(repo);
     }
 
     @Bean

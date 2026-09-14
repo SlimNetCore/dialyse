@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.dto.response;
 
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
+import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -8,6 +9,9 @@ import java.util.UUID;
 
 /**
  * Réponse « prescription médicale » : cibles de dialyse + traitement de l'anémie (EPO et fer injectable).
+ * Les libellés d'article ({@code epoArticleCode}/{@code epoArticleLibelle} et équivalents fer) sont
+ * résolus par le contrôleur à partir de {@code ArticleRepositoryPort} (bc-article), pour éviter que
+ * bc-seance ne dépende du contexte article.
  */
 public record PrescriptionMedicaleResponse(
         UUID id,
@@ -21,19 +25,33 @@ public record PrescriptionMedicaleResponse(
         Integer dureeCibleMin,
         String typeDialyseurPrescrit,
         String anticoagTypePrescrit,
-        String epoMolecule,
+        UUID epoArticleId,
+        String epoArticleCode,
+        String epoArticleLibelle,
         Integer epoDoseUi,
         String epoVoie,
-        String epoFrequence,
-        String ferMolecule,
+        Integer epoFrequenceValeur,
+        UniteFrequence epoFrequenceUnite,
+        UUID ferArticleId,
+        String ferArticleCode,
+        String ferArticleLibelle,
         Integer ferDoseMg,
         String ferVoie,
-        String ferFrequence,
+        Integer ferFrequenceValeur,
+        UniteFrequence ferFrequenceUnite,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt
 ) {
 
     public static PrescriptionMedicaleResponse from(PrescriptionMedicale p) {
+        return from(p, null, null, null, null);
+    }
+
+    public static PrescriptionMedicaleResponse from(PrescriptionMedicale p,
+                                                    String epoArticleCode,
+                                                    String epoArticleLibelle,
+                                                    String ferArticleCode,
+                                                    String ferArticleLibelle) {
         return new PrescriptionMedicaleResponse(
                 p.getId(),
                 p.getPatientId(),
@@ -46,14 +64,20 @@ public record PrescriptionMedicaleResponse(
                 p.getDureeCibleMin(),
                 p.getTypeDialyseurPrescrit(),
                 p.getAnticoagTypePrescrit(),
-                p.getEpoMolecule(),
+                p.getEpoArticleId(),
+                epoArticleCode,
+                epoArticleLibelle,
                 p.getEpoDoseUi(),
                 p.getEpoVoie(),
-                p.getEpoFrequence(),
-                p.getFerMolecule(),
+                p.getEpoFrequenceValeur(),
+                p.getEpoFrequenceUnite(),
+                p.getFerArticleId(),
+                ferArticleCode,
+                ferArticleLibelle,
                 p.getFerDoseMg(),
                 p.getFerVoie(),
-                p.getFerFrequence(),
+                p.getFerFrequenceValeur(),
+                p.getFerFrequenceUnite(),
                 p.getCreatedAt(),
                 p.getUpdatedAt()
         );

@@ -56,6 +56,12 @@ public class AdministrationTraitementJpaEntity {
     @Column(name = "motif_non_administration", length = 500)
     private String motifNonAdministration;
 
+    @Column(name = "article_id")
+    private UUID articleId;
+
+    @Column(name = "quantite_article", precision = 10, scale = 3)
+    private BigDecimal quantiteArticle;
+
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
@@ -169,6 +175,22 @@ public class AdministrationTraitementJpaEntity {
 
     public void setMotifNonAdministration(String motifNonAdministration) {
         this.motifNonAdministration = motifNonAdministration;
+    }
+
+    public UUID getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(UUID articleId) {
+        this.articleId = articleId;
+    }
+
+    public BigDecimal getQuantiteArticle() {
+        return quantiteArticle;
+    }
+
+    public void setQuantiteArticle(BigDecimal quantiteArticle) {
+        this.quantiteArticle = quantiteArticle;
     }
 
     public OffsetDateTime getCreatedAt() {

@@ -3,6 +3,22 @@
     <div class="anemie-error">{{ suiviStore.error() }}</div>
   }
 
+  @if (alertesStore.alertes().length > 0) {
+    <div class="anemie-alertes-observance">
+      @for (alerte of alertesStore.alertes(); track alerte.id) {
+        @if (!alerte.resolvedAt) {
+          <div class="anemie-alerte-observance-row">
+            <mat-icon class="anemie-alerte-icon">warning</mat-icon>
+            <span class="anemie-alerte-message">{{ alerte.message }}</span>
+            <button (click)="resoudreAlerte(alerte.id)" mat-stroked-button type="button">
+              {{ 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_RESOUDRE' | translate }}
+            </button>
+          </div>
+        }
+      }
+    </div>
+  }
+
   @if (suiviStore.loading()) {
     <div class="anemie-loading">
       <mat-progress-spinner diameter="32" mode="indeterminate" strokeWidth="3"/>
@@ -37,14 +53,17 @@
         <h3 class="anemie-card-title">{{ 'DOSSIER_MEDICAL.ANEMIE_PRESCRIPTION_ACTIVE' | translate }}</h3>
         @if (suiviStore.suivi()?.prescriptionActive; as prescription) {
           <div class="prescription-summary">
-            <div><strong>EPO</strong> {{ prescription.epoMolecule ?? '-' }}
+            <div><strong>EPO</strong> {{ prescription.epoArticleLibelle ?? prescription.epoArticleCode ?? '-' }}
               @if (prescription.epoDoseUi) {
-                — {{ prescription.epoDoseUi }} UI {{ prescription.epoVoie }} {{ prescription.epoFrequence }}
+                — {{ prescription.epoDoseUi }} UI {{ prescription.epoVoie }} {{ prescription.epoFrequenceValeur }}
+                /{{ ('FREQUENCE_UNITES.' + prescription.epoFrequenceUnite) | translate }}
               }
             </div>
-            <div><strong>{{ 'DOSSIER_MEDICAL.FER' | translate }}</strong> {{ prescription.ferMolecule ?? '-' }}
+            <div><strong>{{ 'DOSSIER_MEDICAL.FER' | translate }}</strong>
+              {{ prescription.ferArticleLibelle ?? prescription.ferArticleCode ?? '-' }}
               @if (prescription.ferDoseMg) {
-                — {{ prescription.ferDoseMg }} mg {{ prescription.ferVoie }} {{ prescription.ferFrequence }}
+                — {{ prescription.ferDoseMg }} mg {{ prescription.ferVoie }} {{ prescription.ferFrequenceValeur }}
+                /{{ ('FREQUENCE_UNITES.' + prescription.ferFrequenceUnite) | translate }}
               }
             </div>
           </div>
@@ -72,8 +91,10 @@
           <td *matCellDef="let row" mat-cell>{{ row.molecule ?? '-' }}</td>
         </ng-container>
         <ng-container matColumnDef="dose">
-          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DOSE' | translate }}</th>
-          <td *matCellDef="let row" mat-cell>{{ row.dose ? (row.dose + ' ' + (row.uniteDose ?? '')) : '-' }}</td>
+          <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.DOSE_ADMINISTREE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ (row.quantiteArticle ?? row.dose) ? ((row.quantiteArticle ?? row.dose) + ' ' + (row.uniteDose ?? '')) : '-' }}
+          </td>
         </ng-container>
         <ng-container matColumnDef="administree">
           <th *matHeaderCellDef mat-header-cell>{{ 'DOSSIER_MEDICAL.ADMINISTREE' | translate }}</th>

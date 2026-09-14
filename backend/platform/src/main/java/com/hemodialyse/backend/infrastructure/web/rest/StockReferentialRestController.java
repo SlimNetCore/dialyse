@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.port.StockReferentialUseCase;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateArticleRequest;
@@ -25,19 +26,32 @@ public class StockReferentialRestController {
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN')")
     @PostMapping("/articles")
     public ResponseEntity<?> createArticle(@RequestBody @Valid CreateArticleRequest req) {
+        TypeTraitementAnemie type = req.typeTraitementAnemie() == null || req.typeTraitementAnemie().isBlank()
+                ? null : TypeTraitementAnemie.valueOf(req.typeTraitementAnemie());
         return ResponseEntity.ok(useCase.createArticle(
                 CenterId.of(req.centerId()),
                 req.code(),
                 req.libelle(),
                 req.unite(),
                 req.seuilAlerte(),
-                req.gereParLot()
+                req.gereParLot(),
+                type
         ));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')")
+    /**
+     * Liste des articles du centre — {@code typeTraitementAnemie} filtre sur EPO/FER_INJECTABLE
+     * pour alimenter les listes déroulantes de la prescription médicale (accès MEDECIN inclus,
+     * seul cas d'usage nécessitant ce rôle sur le référentiel stock).
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER','MEDECIN')")
     @GetMapping("/articles")
-    public ResponseEntity<?> listArticles(@RequestParam UUID centerId) {
+    public ResponseEntity<?> listArticles(@RequestParam UUID centerId,
+                                          @RequestParam(required = false) String typeTraitementAnemie) {
+        if (typeTraitementAnemie != null && !typeTraitementAnemie.isBlank()) {
+            return ResponseEntity.ok(useCase.listArticlesByTypeTraitementAnemie(
+                    CenterId.of(centerId), TypeTraitementAnemie.valueOf(typeTraitementAnemie)));
+        }
         return ResponseEntity.ok(useCase.listArticles(CenterId.of(centerId)));
     }
 

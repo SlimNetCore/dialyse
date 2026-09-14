@@ -18,11 +18,12 @@
     <div class="prescription-cards">
       <div class="prescription-card">
         <span class="prescription-label">EPO</span>
-        @if (prescription()!.epoMolecule) {
+        @if (prescription()!.epoArticleId) {
           <span class="prescription-detail">
-            {{ prescription()!.epoMolecule }}
+            {{ prescription()!.epoArticleLibelle ?? prescription()!.epoArticleCode }}
             @if (prescription()!.epoDoseUi) {
-              — {{ prescription()!.epoDoseUi }} UI {{ prescription()!.epoVoie }} {{ prescription()!.epoFrequence }}
+              — {{ prescription()!.epoDoseUi }} UI {{ prescription()!.epoVoie }} {{ prescription()!.epoFrequenceValeur }}
+              /{{ ('FREQUENCE_UNITES.' + prescription()!.epoFrequenceUnite) | translate }}
             }
           </span>
           @if (canEdit()) {
@@ -39,11 +40,12 @@
 
       <div class="prescription-card">
         <span class="prescription-label">{{ 'DOSSIER_MEDICAL.FER' | translate }}</span>
-        @if (prescription()!.ferMolecule) {
+        @if (prescription()!.ferArticleId) {
           <span class="prescription-detail">
-            {{ prescription()!.ferMolecule }}
+            {{ prescription()!.ferArticleLibelle ?? prescription()!.ferArticleCode }}
             @if (prescription()!.ferDoseMg) {
-              — {{ prescription()!.ferDoseMg }} mg {{ prescription()!.ferVoie }} {{ prescription()!.ferFrequence }}
+              — {{ prescription()!.ferDoseMg }} mg {{ prescription()!.ferVoie }} {{ prescription()!.ferFrequenceValeur }}
+              /{{ ('FREQUENCE_UNITES.' + prescription()!.ferFrequenceUnite) | translate }}
             }
           </span>
           @if (canEdit()) {
@@ -65,7 +67,7 @@
       <div class="admin-form-grid">
         <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.MOLECULE' | translate }} *</mat-label>
-          <input (input)="onValue('molecule', $any($event.target).value)" [value]="form.value().molecule" matInput/>
+          <input [value]="form.value().molecule" disabled matInput/>
         </mat-form-field>
 
         <div class="admin-checkbox">
@@ -77,16 +79,20 @@
         @if (form.value().administree) {
           <mat-form-field appearance="outline">
             <mat-label>{{ 'DOSSIER_MEDICAL.DOSE' | translate }}</mat-label>
-            <input (input)="onNumber('dose', $any($event.target).value)" [value]="form.value().dose" matInput
-                   step="0.1" type="number"/>
+            <input [value]="form.value().dose" disabled matInput type="number"/>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>{{ 'DOSSIER_MEDICAL.UNITE_DOSE' | translate }}</mat-label>
-            <input (input)="onValue('uniteDose', $any($event.target).value)" [value]="form.value().uniteDose" matInput/>
+            <input [value]="form.value().uniteDose" disabled matInput/>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
-            <input (input)="onValue('voie', $any($event.target).value)" [value]="form.value().voie" matInput/>
+            <input [value]="form.value().voie" disabled matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SEANCES.QUANTITE_ADMINISTREE' | translate }} *</mat-label>
+            <input (input)="onNumber('quantiteAdministree', $any($event.target).value)"
+                   [value]="form.value().quantiteAdministree" matInput min="0" step="0.001" type="number"/>
           </mat-form-field>
         } @else {
           <mat-form-field appearance="outline" class="admin-form-full">
@@ -117,7 +123,7 @@
           </mat-icon>
           <span>{{ ('ANEMIE_TYPE.' + admin.typeTraitement) | translate }}</span>
           <span class="admin-history-detail">
-            {{ admin.administree ? (admin.molecule + ' ' + (admin.dose ?? '') + ' ' + (admin.uniteDose ?? '')) : admin.motifNonAdministration }}
+            {{ admin.administree ? (admin.molecule + ' ' + (admin.quantiteArticle ?? admin.dose ?? '') + ' ' + (admin.uniteDose ?? '')) : admin.motifNonAdministration }}
           </span>
         </div>
       }
