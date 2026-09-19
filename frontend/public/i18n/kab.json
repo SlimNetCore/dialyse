@@ -1600,6 +1600,27 @@
     "TYPAGE_HLA": "Typage HLA",
     "PRA_CLASSE_I": "PRA taggayt I (%)",
     "PRA_CLASSE_II": "PRA taggayt II (%)",
+    "KDIGO_TITLE": "Aslaḍ KDIGO",
+    "KDIGO_NOTE": "Tallalt i uɣtas, i d-ihesben s wudem awurman seg ukaram — ur itbeddil ara tiɣtisin n tejmaɛt.",
+    "KDIGO_RISQUE_IMMUNOLOGIQUE": "Aɣellif amasudam (PRA)",
+    "KDIGO_FONCTION_RENALE": "Tawuri n teɣṛit i yeqqimen (aqadar)",
+    "KDIGO_ALERTES_SEROLOGIQUES": "Tinqiḍin ɣef tsertit",
+    "KDIGO_NON_EVALUABLE": "Ur yezmir ara ad yettwabeqqeḍ (creatinine, ass, neɣ asagen ulac)",
+    "KDIGO_NIVEAU_RISQUE": {
+      "FAIBLE": "Ndel",
+      "INTERMEDIAIRE": "Alemmas",
+      "ELEVE": "Meqqer",
+      "NON_EVALUABLE": "Ur yezmir ara"
+    },
+    "KDIGO_STADE_CKD": {
+      "G1": "Adar G1",
+      "G2": "Adar G2",
+      "G3A": "Adar G3a",
+      "G3B": "Adar G3b",
+      "G4": "Adar G4",
+      "G5": "Adar G5",
+      "NON_EVALUABLE": "Ur yezmir ara"
+    },
     "NOTES": "Tizmilin",
     "CONTRE_INDICATIONS": "Iɣellifen",
     "CONCLUSION_NEPHROLOGUE": "Tagerra n umuḍar n teɣṛit",

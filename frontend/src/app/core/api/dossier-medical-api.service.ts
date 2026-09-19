@@ -567,6 +567,33 @@ export type UpsertDonneurVivantPayload = {
   dateDecision?: string | null;
 };
 
+export type EvaluationRisqueKdigo = {
+  code: string;
+  valeur: number | null;
+  unite: string;
+  niveau: string;
+  referenceKdigo: string;
+};
+
+export type EvaluationEgfr = {
+  egfrMlMin173m2: number | null;
+  stade: string;
+  referenceKdigo: string;
+};
+
+export type AlerteSerologieKdigo = {
+  marqueur: string;
+  resultat: string;
+  message: string;
+  referenceKdigo: string;
+};
+
+export type KdigoGreffe = {
+  risqueImmunologique: EvaluationRisqueKdigo;
+  fonctionRenale: EvaluationEgfr;
+  alertesSerologiques: AlerteSerologieKdigo[];
+};
+
 /**
  * Client HTTP du dossier médical patient : dossier de base, abords vasculaires,
  * prescriptions (dont EPO/fer), résultats d'analyses, antécédents, allergies, sérologies,
@@ -942,6 +969,12 @@ export class DossierMedicalApiService {
     return this.http.get(`${this.base}/${patientId}/greffe/export-pdf`, {
       params: new HttpParams().set('centerId', centerId),
       responseType: 'blob',
+    });
+  }
+
+  getKdigoGreffe(centerId: string, patientId: string): Observable<KdigoGreffe> {
+    return this.http.get<KdigoGreffe>(`${this.base}/${patientId}/greffe/kdigo`, {
+      params: new HttpParams().set('centerId', centerId),
     });
   }
 }

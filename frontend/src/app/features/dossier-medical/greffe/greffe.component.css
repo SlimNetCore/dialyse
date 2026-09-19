@@ -89,6 +89,54 @@
   color: #64748b;
 }
 
+.greffe-kdigo-note {
+  font-size: 12px;
+  opacity: 0.65;
+  font-style: italic;
+  margin: 0 0 12px;
+}
+
+.greffe-kdigo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.greffe-kdigo-label {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.8;
+  min-width: 140px;
+}
+
+.greffe-empty-inline {
+  font-size: 13px;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.greffe-kdigo-serologies {
+  margin-top: 8px;
+}
+
+.greffe-kdigo-alerte-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+  color: #ed6c02;
+}
+
+.greffe-kdigo-alerte-icon {
+  color: #ed6c02;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
 .greffe-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

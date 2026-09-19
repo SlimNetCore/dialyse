@@ -18,7 +18,12 @@ import {BilanPreGreffeStore} from '../state/bilan-pre-greffe.store';
 import {EtapesBilanGreffeStore} from '../state/etapes-bilan-greffe.store';
 import {DonneursVivantsStore} from '../state/donneurs-vivants.store';
 import {resolvePatientIdFromRoute} from '../dossier-medical-route.util';
-import {DossierMedicalApiService, DonneurVivant, EtapeBilanGreffe} from '../../../core/api/dossier-medical-api.service';
+import {
+  DossierMedicalApiService,
+  DonneurVivant,
+  EtapeBilanGreffe,
+  KdigoGreffe,
+} from '../../../core/api/dossier-medical-api.service';
 
 const STATUTS_BILAN = [
   'NON_DEBUTE', 'BILAN_EN_COURS', 'ELIGIBLE', 'INSCRIT_LISTE_ATTENTE',
@@ -141,6 +146,9 @@ export class GreffeComponent implements OnInit {
   protected readonly editingDonneurId = signal<string | null>(null);
   protected readonly donneurForm = signal<DonneurForm>(emptyDonneurForm());
 
+  protected readonly kdigo = signal<KdigoGreffe | null>(null);
+  protected readonly loadingKdigo = signal(false);
+
   protected readonly etapesParCategorie = computed(() => {
     const groupes = new Map<string, EtapeBilanGreffe[]>();
     for (const etape of this.etapesStore.etapes()) {
@@ -156,6 +164,7 @@ export class GreffeComponent implements OnInit {
   private readonly appShell = inject(AppShellStore);
   private readonly api = inject(DossierMedicalApiService);
   private hasSyncedForm = false;
+  private lastKdigoRefreshKey: string | null = null;
 
   constructor() {
     effect(() => {
@@ -168,6 +177,18 @@ export class GreffeComponent implements OnInit {
       this.contreIndications.set(bilan.contreIndications ?? '');
       this.conclusionNephrologue.set(bilan.conclusionNephrologue ?? '');
       this.hasSyncedForm = true;
+    });
+
+    // Le risque immunologique KDIGO depend du PRA du bilan : recalcule des que le bilan est
+    // (re)charge ou modifie (ex. apres enregistrement du bilan immunologique).
+    effect(() => {
+      const bilan = this.bilanStore.bilan();
+      const centerId = this.appShell.currentCenterId();
+      if (!bilan || !centerId) return;
+      const key = `${bilan.updatedAt}`;
+      if (key === this.lastKdigoRefreshKey) return;
+      this.lastKdigoRefreshKey = key;
+      this.loadKdigo(centerId, bilan.patientId);
     });
   }
 
@@ -366,5 +387,16 @@ export class GreffeComponent implements OnInit {
     this.bilanStore.load({centerId, patientId: this.patientId});
     this.etapesStore.load({centerId, patientId: this.patientId});
     this.donneursStore.load({centerId, patientId: this.patientId});
+  }
+
+  private loadKdigo(centerId: string, patientId: string): void {
+    this.loadingKdigo.set(true);
+    this.api.getKdigoGreffe(centerId, patientId).subscribe({
+      next: (kdigo) => {
+        this.kdigo.set(kdigo);
+        this.loadingKdigo.set(false);
+      },
+      error: () => this.loadingKdigo.set(false),
+    });
   }
 }

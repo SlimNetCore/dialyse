@@ -78,6 +78,49 @@
         }
       </mat-card>
 
+      <mat-card class="greffe-card">
+        <h3 class="greffe-card-title">{{ 'GREFFE.KDIGO_TITLE' | translate }}</h3>
+        <p class="greffe-kdigo-note">{{ 'GREFFE.KDIGO_NOTE' | translate }}</p>
+        @if (loadingKdigo()) {
+          <div class="greffe-loading">
+            <mat-progress-spinner diameter="24" mode="indeterminate" strokeWidth="3"/>
+          </div>
+        } @else if (kdigo(); as k) {
+          <div class="greffe-kdigo-row">
+            <span class="greffe-kdigo-label">{{ 'GREFFE.KDIGO_RISQUE_IMMUNOLOGIQUE' | translate }}</span>
+            <span
+              [class]="'greffe-badge ' + (k.risqueImmunologique.niveau === 'FAIBLE' ? 'badge-ok' : (k.risqueImmunologique.niveau === 'ELEVE' ? 'badge-warn' : 'badge-muted'))">
+              {{ ('GREFFE.KDIGO_NIVEAU_RISQUE.' + k.risqueImmunologique.niveau) | translate }}
+              @if (k.risqueImmunologique.valeur !== null) {
+                ({{ k.risqueImmunologique.valeur }}%)
+              }
+            </span>
+          </div>
+          <div class="greffe-kdigo-row">
+            <span class="greffe-kdigo-label">{{ 'GREFFE.KDIGO_FONCTION_RENALE' | translate }}</span>
+            @if (k.fonctionRenale.egfrMlMin173m2 !== null) {
+              <span class="greffe-badge badge-muted">
+                DFGe {{ k.fonctionRenale.egfrMlMin173m2 }}
+                mL/min/1,73m² — {{ ('GREFFE.KDIGO_STADE_CKD.' + k.fonctionRenale.stade) | translate }}
+              </span>
+            } @else {
+              <span class="greffe-empty-inline">{{ 'GREFFE.KDIGO_NON_EVALUABLE' | translate }}</span>
+            }
+          </div>
+          @if (k.alertesSerologiques.length > 0) {
+            <div class="greffe-kdigo-serologies">
+              <span class="greffe-kdigo-label">{{ 'GREFFE.KDIGO_ALERTES_SEROLOGIQUES' | translate }}</span>
+              @for (alerte of k.alertesSerologiques; track alerte.marqueur) {
+                <div class="greffe-kdigo-alerte-row">
+                  <mat-icon class="greffe-kdigo-alerte-icon">warning</mat-icon>
+                  <span>{{ alerte.message }}</span>
+                </div>
+              }
+            </div>
+          }
+        }
+      </mat-card>
+
       <mat-card class="greffe-card greffe-card-full">
         <h3 class="greffe-card-title">{{ 'GREFFE.NOTES' | translate }}</h3>
         <div class="greffe-form-grid">

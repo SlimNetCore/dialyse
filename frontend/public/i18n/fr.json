@@ -1622,6 +1622,27 @@
     "TYPAGE_HLA": "Typage HLA",
     "PRA_CLASSE_I": "PRA classe I (%)",
     "PRA_CLASSE_II": "PRA classe II (%)",
+    "KDIGO_TITLE": "Évaluation KDIGO",
+    "KDIGO_NOTE": "Aide à la décision recalculée automatiquement à partir du dossier — ne remplace pas la décision de la RCP.",
+    "KDIGO_RISQUE_IMMUNOLOGIQUE": "Risque immunologique (PRA)",
+    "KDIGO_FONCTION_RENALE": "Fonction rénale résiduelle estimée",
+    "KDIGO_ALERTES_SEROLOGIQUES": "Points d'attention sérologiques",
+    "KDIGO_NON_EVALUABLE": "Non évaluable (créatinine, âge ou sexe manquant)",
+    "KDIGO_NIVEAU_RISQUE": {
+      "FAIBLE": "Faible",
+      "INTERMEDIAIRE": "Intermédiaire",
+      "ELEVE": "Élevé",
+      "NON_EVALUABLE": "Non évaluable"
+    },
+    "KDIGO_STADE_CKD": {
+      "G1": "Stade G1",
+      "G2": "Stade G2",
+      "G3A": "Stade G3a",
+      "G3B": "Stade G3b",
+      "G4": "Stade G4",
+      "G5": "Stade G5",
+      "NON_EVALUABLE": "Non évaluable"
+    },
     "NOTES": "Notes",
     "CONTRE_INDICATIONS": "Contre-indications",
     "CONCLUSION_NEPHROLOGUE": "Conclusion du néphrologue",
