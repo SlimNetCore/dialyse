@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.auth;
 
+import com.hemodialyse.backend.application.auth.mfa.MfaService;
 import com.hemodialyse.backend.infrastructure.security.JwtTokenProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,11 +27,14 @@ public class AuthService {
     private final JdbcTemplate jdbc;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final MfaService mfaService;
 
-    public AuthService(JdbcTemplate jdbc, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder) {
+    public AuthService(JdbcTemplate jdbc, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder,
+                       MfaService mfaService) {
         this.jdbc = jdbc;
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
+        this.mfaService = mfaService;
     }
 
     /**
@@ -45,6 +49,14 @@ public class AuthService {
      * tous les cas, le centre et sa société doivent être actifs.
      */
     public LoginResult login(UUID societeId, UUID centerId, String username, String password) {
+        return login(societeId, centerId, username, password, null);
+    }
+
+    /**
+     * Connexion à un centre avec code de double authentification ({@code otp}, requis seulement si l'utilisateur
+     * l'a activée ; vérifié après le mot de passe).
+     */
+    public LoginResult login(UUID societeId, UUID centerId, String username, String password, String otp) {
         // 1. Load user from app_user table
         var users = jdbc.queryForList(
             "SELECT id, username, password_hash, full_name, active FROM app_user WHERE username = ?", username
@@ -65,6 +77,9 @@ public class AuthService {
         }
 
         UUID userId = (UUID) user.get("ID");
+
+        // 2b. Double authentification (si activée par l'utilisateur), après le mot de passe
+        mfaService.requireSecondFactor(userId, otp);
 
         // 3. Verify user has access to the requested center
         Integer centerAccess = jdbc.queryForObject(
@@ -167,6 +182,13 @@ public class AuthService {
      * Le mot de passe est vérifié avant tout contrôle de rôle, pour ne rien révéler à un tiers.
      */
     public LoginResult loginScoped(UUID societeId, String username, String password) {
+        return loginScoped(societeId, username, password, null);
+    }
+
+    /**
+     * Connexion sans centre avec code de double authentification ({@code otp}, requis seulement si activée).
+     */
+    public LoginResult loginScoped(UUID societeId, String username, String password, String otp) {
         var users = jdbc.queryForList(
                 "SELECT id, username, password_hash, full_name, active FROM app_user WHERE username = ?", username);
         if (users.isEmpty()) {
@@ -180,6 +202,7 @@ public class AuthService {
             throw new IllegalStateException("Compte utilisateur désactivé");
         }
         UUID userId = (UUID) user.get("ID");
+        mfaService.requireSecondFactor(userId, otp);
         LoginResult session = buildScopedSession(societeId, userId, username, (String) user.get("FULL_NAME"));
         return new LoginResult(generateAccessToken(session), session.username(), session.fullName(), session.userId(),
                 null, null, session.roles(), session.societeId(), session.societeName(), session.scope());

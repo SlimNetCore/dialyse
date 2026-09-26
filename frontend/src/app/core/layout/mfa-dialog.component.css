@@ -1,0 +1,64 @@
+.mfa-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.full {
+  width: 100%;
+}
+
+.muted {
+  opacity: 0.7;
+}
+
+.mfa-error {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-error, #b3261e) 12%, transparent);
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.steps {
+  padding-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.secret {
+  display: block;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.uri {
+  display: block;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.recovery {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 6px 12px;
+}
+
+.recovery code {
+  font-size: 0.95rem;
+}
+
+.mfa-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}

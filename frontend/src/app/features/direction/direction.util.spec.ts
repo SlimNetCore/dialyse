@@ -1,6 +1,14 @@
 import {describe, expect, it} from 'vitest';
 import {CentreStats, DirectionAlert, MonthlyPoint} from '../../core/api/direction-api.service';
-import {collectionLevel, formatHeadcount, formatPct, monthlyTotals, rankByRevenue, sortAlerts} from './direction.util';
+import {
+  collectionLevel,
+  formatHeadcount,
+  formatPct,
+  lastCompleteMonths,
+  monthlyTotals,
+  rankByRevenue,
+  sortAlerts
+} from './direction.util';
 
 const centre = (nom: string, caTtc: number): CentreStats => ({
   centerId: nom, nom, actif: true, patients: 10, patientsSousKt: 5, seances: 1, factures: 1,
@@ -41,6 +49,11 @@ describe('direction.util', () => {
   it('masque un taux non publiable', () => {
     expect(formatPct(null)).toBe('—');
     expect(formatPct(66.7)).toBe('66.7 %');
+  });
+
+  it('liste les derniers mois écoulés, année précédente comprise', () => {
+    expect(lastCompleteMonths(new Date(2026, 1, 15), 3)).toEqual(['2026-01', '2025-12', '2025-11']);
+    expect(lastCompleteMonths(new Date(2026, 9, 1), 1)).toEqual(['2026-09']);
   });
 
   it('trie les alertes critiques en premier', () => {

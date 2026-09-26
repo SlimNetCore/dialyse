@@ -21,6 +21,8 @@ import {LangStore} from '../state/lang.store';
 import {ThemeStore} from '../state/theme.store';
 import {WebSocketService} from '../ws/websocket.service';
 import {NotificationBellComponent} from './notification-bell.component';
+import {MatDialog} from '@angular/material/dialog';
+import {MfaDialogComponent} from './mfa-dialog.component';
 import {AuthApiService} from '../api/auth-api.service';
 import {filter} from 'rxjs/operators';
 
@@ -174,6 +176,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly visibleNavItems = signal(this.navItems);
   private readonly ws = inject(WebSocketService);
   private readonly authApi = inject(AuthApiService);
+  private readonly dialog = inject(MatDialog);
   @ViewChild('sidebar') private sidebarRef?: ElementRef<HTMLElement>;
   @ViewChild('navSizer') private navSizerRef?: ElementRef<HTMLElement>;
   private readonly destroyRef = inject(DestroyRef);
@@ -215,6 +218,10 @@ export class ShellComponent implements OnInit, AfterViewInit {
   isRouteActive(route: string): boolean {
     const currentUrl = this.router.url.split('?')[0];
     return currentUrl === route || currentUrl.startsWith(route + '/');
+  }
+
+  openSecurity(): void {
+    this.dialog.open(MfaDialogComponent, {width: '480px', maxWidth: '95vw'});
   }
 
   onLogout(): void {

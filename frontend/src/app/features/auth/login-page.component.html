@@ -146,6 +146,21 @@
             />
           </mat-form-field>
 
+          @if (otpRequired()) {
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'LOGIN.OTP' | translate }}</mat-label>
+              <input
+                (keydown.enter)="doLogin()"
+                [formField]="loginForm.otp"
+                autocomplete="one-time-code"
+                data-testid="login-otp"
+                inputmode="numeric"
+                matInput
+              />
+              <mat-hint>{{ 'LOGIN.OTP_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          }
+
           <button
             (click)="doLogin()"
             [disabled]="!canSubmit()"

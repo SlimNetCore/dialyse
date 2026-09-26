@@ -97,6 +97,12 @@ export type DirectionIndicators = {
   alertes: DirectionAlert[];
 };
 
+/** Mois figé (instantané mensuel des tableaux de bord). */
+export type SnapshotInfo = {
+  mois: string;
+  generatedAt: string;
+};
+
 export type DirectionAccount = {
   userId: string;
   username: string;
@@ -130,6 +136,20 @@ export class DirectionApiService {
     if (from) params = params.set('from', from);
     if (to) params = params.set('to', to);
     return this.http.get<DirectionIndicators>(`${this.baseUrl}/direction/indicators`, {params, withCredentials: true});
+  }
+
+  listSnapshots(): Observable<SnapshotInfo[]> {
+    return this.http.get<SnapshotInfo[]>(`${this.baseUrl}/direction/snapshots`, {withCredentials: true});
+  }
+
+  /** Fige le mois écoulé s'il ne l'est pas encore (idempotent). */
+  ensureSnapshot(mois: string): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/direction/snapshots/${mois}`, {}, {withCredentials: true});
+  }
+
+  downloadReport(mois: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/direction/snapshots/${mois}/report`,
+      {responseType: 'blob', withCredentials: true});
   }
 
   listAccounts(societeId: string): Observable<DirectionAccount[]> {

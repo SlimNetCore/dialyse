@@ -87,6 +87,8 @@ async function mockBackend(page: Page): Promise<{ loginBodies: unknown[] }> {
   });
   await page.route('**/api/v1/direction/overview*', (r) => r.fulfill({json: OVERVIEW}));
   await page.route('**/api/v1/direction/indicators*', (r) => r.fulfill({json: INDICATORS}));
+  await page.route('**/api/v1/direction/snapshots', (r) => r.fulfill({json: []}));
+  await page.route('**/api/v1/auth/setup/status', (r) => r.fulfill({json: {required: false, tokenRequired: false}}));
   return {loginBodies};
 }
 

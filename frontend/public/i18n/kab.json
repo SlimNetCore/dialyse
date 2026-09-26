@@ -121,7 +121,45 @@
     "ACTIVATED_OK": "Amiḍan yettwarmed",
     "DEACTIVATED_OK": "Amiḍan yettwasens"
   },
+  "MFA": {
+    "MENU": "Taɣellist (asesteb s snat n tarrayin)",
+    "TITLE": "Asesteb s snat n tarrayin",
+    "INTRO": "Ḥrez amiḍan-ik s tengalt n useqdec asuf i d-yettwarnan s usnas n usesteb.",
+    "STATE_OFF": "Asesteb s snat n tarrayin yensa.",
+    "STATE_ON": "Asesteb s snat n tarrayin yermed deg umiḍan-ik.",
+    "STEP_APP": "Ldi asnas n usesteb syen rnu amiḍan s ufus.",
+    "STEP_SECRET": "Sekcem tasarut-a tuffirt (anaw : ɣer wakud) :",
+    "STEP_CODE": "Sekcem tangalt n 6 n wuṭṭunen i d-yettwaskanen i usentem.",
+    "CODE": "Tangalt n 6 n wuṭṭunen",
+    "CODE_OR_RECOVERY": "Tangalt n 6 n wuṭṭunen neɣ tangalt n tallelt",
+    "DISABLE_HINT": "Sekcem tangalt tameɣtut i wakken ad tsenseḍ.",
+    "ENABLE": "Rmed",
+    "CONFIRM": "Sentem",
+    "DISABLE": "Sens",
+    "CLOSE": "Mdel",
+    "ENABLED_OK": "Asesteb s snat n tarrayin yermed.",
+    "RECOVERY_INTRO": "Ḥrez tingalin-a n tallelt : yal yiwet tettwaseqdac yiwet n tikkelt kan.",
+    "COPY": "Nɣel tingalin",
+    "COPIED": "Tingalin ttwanɣlent",
+    "ERR": {
+      "GENERIC": "Ur yezmir ara ad yettwaskar. Ɛreḍ tikelt-nniḍen.",
+      "MFA_INVALID": "Tangalt ur tṣeḥḥa ara",
+      "MFA_LOCKED": "Aṭas n leɣlaḍ : ɛreḍ tikelt-nniḍen deg kra n tesdatin",
+      "MFA_ALREADY_ENABLED": "Asesteb yermed yakan",
+      "MFA_NOT_ENROLLED": "Ulac asekles i iteddun"
+    }
+  },
   "DIRECTION": {
+    "REPORTS": {
+      "TITLE": "Ineqqisen n yal aggur",
+      "HINT": "Yal aggur yefat yettwaḥbes yiwet n tikkelt (tanɣelt ur nettbeddil ara) syen yettwasufeɣ s PDF. Isefka imezdayen kan.",
+      "MONTH": "Aggur",
+      "STATUS": "Tanɣelt",
+      "FROZEN_ON": "Yettwaḥbes deg",
+      "NOT_FROZEN": "Ad yettwaḥbes ɣer usuter amezwaru",
+      "DOWNLOAD": "Anaqqis PDF",
+      "ERROR": "Ur izmir ara ad yettwaggar unaqqis."
+    },
     "TOTAL": "Amatu n tkebbanit",
     "ALERTS": {
       "TITLE": "Ineɣmisen",
@@ -279,6 +317,10 @@
     "ACTION_ERROR": "Tigawt ur tezmir ara"
   },
   "LOGIN": {
+    "OTP": "Tangalt n usenqed",
+    "OTP_HINT": "Tangalt n 6 n wuṭṭunen seg usnas-ik, neɣ tangalt n tallelt",
+    "MFA_INVALID": "Tangalt n usenqed ur tṣeḥḥa ara",
+    "MFA_LOCKED": "Aṭas n leɣlaḍ : ɛreḍ tikelt-nniḍen deg kra n tesdatin",
     "MODE_LABEL": "Anaw n unekcum",
     "MODE_CENTRE": "Aseɣwen",
     "MODE_DIRECTION": "Tegdurt / Bab n usnas",

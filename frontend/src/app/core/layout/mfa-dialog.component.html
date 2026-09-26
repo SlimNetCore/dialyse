@@ -1,0 +1,84 @@
+<h2 mat-dialog-title>{{ 'MFA.TITLE' | translate }}</h2>
+
+<mat-dialog-content class="mfa-content" data-testid="mfa-dialog">
+  @if (step() === 'loading' || busy()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (error()) {
+    <div class="mfa-error" data-testid="mfa-error">{{ error()! | translate }}</div>
+  }
+
+  @switch (step()) {
+    @case ('disabled') {
+      <p>{{ 'MFA.INTRO' | translate }}</p>
+      <p class="muted">{{ 'MFA.STATE_OFF' | translate }}</p>
+    }
+    @case ('enrolling') {
+      <ol class="steps">
+        <li>{{ 'MFA.STEP_APP' | translate }}</li>
+        <li>
+          {{ 'MFA.STEP_SECRET' | translate }}
+          <code class="secret" data-testid="mfa-secret">{{ enrollment()?.secret }}</code>
+          <small class="muted uri">{{ enrollment()?.otpauthUri }}</small>
+        </li>
+        <li>{{ 'MFA.STEP_CODE' | translate }}</li>
+      </ol>
+      <form [formRoot]="form">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'MFA.CODE' | translate }}</mat-label>
+          <input (keydown.enter)="confirm()" [formField]="form.code" autocomplete="one-time-code"
+                 data-testid="mfa-code" inputmode="numeric" matInput/>
+        </mat-form-field>
+      </form>
+    }
+    @case ('codes') {
+      <p><strong>{{ 'MFA.ENABLED_OK' | translate }}</strong></p>
+      <p>{{ 'MFA.RECOVERY_INTRO' | translate }}</p>
+      <ul class="recovery" data-testid="mfa-recovery">
+        @for (c of recoveryCodes(); track c) {
+          <li><code>{{ c }}</code></li>
+        }
+      </ul>
+      <button (click)="copyCodes()" mat-stroked-button type="button">
+        <mat-icon>content_copy</mat-icon>
+        {{ (copied() ? 'MFA.COPIED' : 'MFA.COPY') | translate }}
+      </button>
+    }
+    @case ('enabled') {
+      <p>{{ 'MFA.STATE_ON' | translate }}</p>
+      <p class="muted">{{ 'MFA.DISABLE_HINT' | translate }}</p>
+      <form [formRoot]="form">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'MFA.CODE_OR_RECOVERY' | translate }}</mat-label>
+          <input (keydown.enter)="disable()" [formField]="form.code" autocomplete="one-time-code"
+                 data-testid="mfa-code" matInput/>
+        </mat-form-field>
+      </form>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="mfa-actions">
+  <button mat-button mat-dialog-close type="button">{{ 'MFA.CLOSE' | translate }}</button>
+  @switch (step()) {
+    @case ('disabled') {
+      <button (click)="startEnrollment()" [disabled]="busy()" color="primary" data-testid="mfa-enable" mat-flat-button
+              type="button">
+        <mat-icon>shield</mat-icon>
+        {{ 'MFA.ENABLE' | translate }}
+      </button>
+    }
+    @case ('enrolling') {
+      <button (click)="confirm()" [disabled]="!canSubmit()" color="primary" data-testid="mfa-confirm" mat-flat-button
+              type="button">
+        {{ 'MFA.CONFIRM' | translate }}
+      </button>
+    }
+    @case ('enabled') {
+      <button (click)="disable()" [disabled]="!canSubmit()" color="warn" data-testid="mfa-disable" mat-flat-button
+              type="button">
+        {{ 'MFA.DISABLE' | translate }}
+      </button>
+    }
+  }
+</mat-dialog-actions>

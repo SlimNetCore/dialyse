@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -60,8 +61,9 @@ public class AuthRestController {
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         // Avec un centre : session de centre. Sans centre : session direction (société) ou propriétaire (plateforme).
         LoginResult result = request.centerId() != null
-                ? authService.login(request.societeId(), request.centerId(), request.username(), request.password())
-                : authService.loginScoped(request.societeId(), request.username(), request.password());
+                ? authService.login(request.societeId(), request.centerId(), request.username(), request.password(),
+                request.otp())
+                : authService.loginScoped(request.societeId(), request.username(), request.password(), request.otp());
         String accessToken = result.token();
         String refreshToken = authService.issueRefreshToken(result.userId(), result.centerId(), result.societeId());
 
@@ -206,8 +208,14 @@ public class AuthRestController {
     /**
      * {@code societeId} est facultatif (compatibilité) mais, s'il est fourni, le centre doit lui appartenir.
      */
+    /**
+     * {@code otp} : code de double authentification (TOTP ou code de secours), requis seulement si le compte l'a activée.
+     */
     public record LoginRequest(UUID societeId, UUID centerId, @NotBlank String username,
-                               @NotBlank String password) {
+                               @NotBlank String password, @Size(max = 20) String otp) {
+        public LoginRequest(UUID societeId, UUID centerId, String username, String password) {
+            this(societeId, centerId, username, password, null);
+        }
     }
 
     public record LoginResponse(String username, String fullName, UUID userId, UUID centerId, String centerName,

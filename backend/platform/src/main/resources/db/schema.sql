@@ -175,6 +175,66 @@ CREATE TABLE IF NOT EXISTS app_user_societe
 )
     );
 
+-- Double authentification TOTP (facultative, par utilisateur). Le secret est chiffré (AES-GCM) ; les codes de
+-- secours sont stockés hachés (BCrypt) et à usage unique.
+CREATE TABLE IF NOT EXISTS app_user_mfa
+(
+    user_id
+    UUID
+    PRIMARY
+    KEY,
+    secret_cipher
+    VARCHAR
+(
+    255
+) NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    last_step BIGINT NOT NULL DEFAULT 0,
+    failed_attempts INT NOT NULL DEFAULT 0,
+    locked_until TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                             );
+
+CREATE TABLE IF NOT EXISTS app_user_mfa_recovery
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    user_id
+    UUID
+    NOT
+    NULL,
+    code_hash
+    VARCHAR
+(
+    100
+) NOT NULL,
+    used BOOLEAN NOT NULL DEFAULT FALSE
+    );
+CREATE INDEX IF NOT EXISTS idx_mfa_recovery_user ON app_user_mfa_recovery (user_id);
+
+-- Instantanés mensuels des tableaux de bord de la direction (immuables une fois créés).
+CREATE TABLE IF NOT EXISTS direction_snapshot
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    societe_id
+    UUID
+    NOT
+    NULL,
+    mois
+    VARCHAR
+(
+    7
+) NOT NULL,
+    payload TEXT NOT NULL,
+    generated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                               CONSTRAINT uq_direction_snapshot UNIQUE (societe_id, mois)
+    );
+
 -- ═══ Calendrier centre (jours fériés / fermetures) ═══
 
 CREATE TABLE IF NOT EXISTS center_holiday

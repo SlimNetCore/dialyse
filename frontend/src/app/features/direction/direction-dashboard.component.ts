@@ -13,7 +13,7 @@ import {FormField, FormRoot} from '@angular/forms/signals';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {DirectionStore} from './state/direction.store';
-import {collectionLevel, formatHeadcount, formatPct} from './direction.util';
+import {collectionLevel, formatHeadcount, formatPct, lastCompleteMonths} from './direction.util';
 
 Chart.register(...registerables);
 
@@ -37,6 +37,11 @@ export class DirectionDashboardComponent implements OnInit {
   protected readonly period = signal({from: '', to: ''});
   protected readonly periodForm = compatForm(this.period);
   protected readonly canApply = computed(() => !!this.period().from && !!this.period().to && !this.store.loading());
+  /** Douze derniers mois écoulés, avec leur instantané s'il est déjà figé. */
+  protected readonly reportRows = computed(() => {
+    const frozen = new Map(this.store.snapshots().map((s) => [s.mois, s.generatedAt]));
+    return lastCompleteMonths(new Date(), 12).map((mois) => ({mois, generatedAt: frozen.get(mois) ?? null}));
+  });
   protected readonly threshold = computed(() => this.store.overview()?.seuilAnonymat ?? 5);
   protected readonly errorKey = computed(() => {
     const code = this.store.error();
@@ -89,6 +94,19 @@ export class DirectionDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     void this.store.load('', '');
+    void this.store.loadSnapshots();
+  }
+
+  /** Fige le mois au besoin, puis enregistre le rapport PDF sur le poste. */
+  protected async downloadReport(mois: string): Promise<void> {
+    const blob = await this.store.report(mois);
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rapport-direction-${mois}.pdf`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   protected apply(): void {

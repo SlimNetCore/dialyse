@@ -206,4 +206,44 @@
       </div>
     </mat-card>
   }
+
+  <mat-card class="block" data-testid="direction-reports">
+    <h2>{{ 'DIRECTION.REPORTS.TITLE' | translate }}</h2>
+    <p class="muted">{{ 'DIRECTION.REPORTS.HINT' | translate }}</p>
+    @if (store.reportError()) {
+      <div class="error-msg" data-testid="direction-report-error">{{ 'DIRECTION.REPORTS.ERROR' | translate }}</div>
+    }
+    <div class="table-scroll">
+      <table class="centres">
+        <thead>
+        <tr>
+          <th>{{ 'DIRECTION.REPORTS.MONTH' | translate }}</th>
+          <th>{{ 'DIRECTION.REPORTS.STATUS' | translate }}</th>
+          <th class="num">{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (row of reportRows(); track row.mois) {
+            <tr>
+              <td>{{ row.mois }}</td>
+              <td>
+                @if (row.generatedAt) {
+                  {{ 'DIRECTION.REPORTS.FROZEN_ON' | translate }} {{ row.generatedAt | date: 'dd/MM/yyyy HH:mm' }}
+                } @else {
+                  <span class="muted">{{ 'DIRECTION.REPORTS.NOT_FROZEN' | translate }}</span>
+                }
+              </td>
+              <td class="num">
+                <button (click)="downloadReport(row.mois)" [attr.data-testid]="'report-' + row.mois"
+                        [disabled]="store.reportBusy() !== null" mat-stroked-button type="button">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  {{ 'DIRECTION.REPORTS.DOWNLOAD' | translate }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </mat-card>
 </section>

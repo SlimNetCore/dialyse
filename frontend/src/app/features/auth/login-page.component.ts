@@ -1,7 +1,7 @@
 import {TitleCasePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -51,6 +51,13 @@ export class LoginPageComponent {
   readonly theme = inject(ThemeStore);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
+  readonly loginModel = signal({
+    selectedSociete: '',
+    selectedCenter: '',
+    username: '',
+    password: '',
+    otp: '',
+  });
   /** Affiché après la création du compte propriétaire par l'installation initiale. */
   readonly setupDone = inject(ActivatedRoute).snapshot.queryParamMap.get('setup') === 'done';
   readonly loading = this.loginStore.loading;
@@ -66,12 +73,13 @@ export class LoginPageComponent {
    * propriétaire de l'application (aucune société) et la direction d'une société se connectent ici.
    */
   readonly mode = signal<'centre' | 'direction'>('centre');
-
-  readonly loginModel = signal({
-    selectedSociete: '',
-    selectedCenter: '',
-    username: '',
-    password: '',
+  /** Devient vrai quand le serveur demande le code de double authentification du compte. */
+  readonly otpRequired = signal(false);
+  readonly canSubmit = computed(() => {
+    const form = this.loginModel();
+    const identified = !!form.username && !!form.password && (!this.otpRequired() || !!form.otp.trim())
+      && !this.loading();
+    return this.mode() === 'direction' ? identified : identified && !!form.selectedSociete && !!form.selectedCenter;
   });
 
   readonly loginForm = compatForm(this.loginModel, (form) => {
@@ -80,11 +88,7 @@ export class LoginPageComponent {
     required(form.username);
     required(form.password);
   });
-  readonly canSubmit = computed(() => {
-    const form = this.loginModel();
-    const identified = !!form.username && !!form.password && !this.loading();
-    return this.mode() === 'direction' ? identified : identified && !!form.selectedSociete && !!form.selectedCenter;
-  });
+  private readonly translate = inject(TranslateService);
   private readonly selectedSocieteId = computed(() => this.loginModel().selectedSociete);
 
   constructor() {
@@ -116,7 +120,7 @@ export class LoginPageComponent {
 
   doLogin(): void {
     if (!this.canSubmit()) return;
-    const {selectedSociete, selectedCenter, username, password} = this.loginModel();
+    const {selectedSociete, selectedCenter, username, password, otp} = this.loginModel();
     const direction = this.mode() === 'direction';
     this.loginStore.setLoading(true);
     this.loginStore.setError('');
@@ -126,6 +130,7 @@ export class LoginPageComponent {
         centerId: direction ? undefined : selectedCenter,
         username,
         password,
+        otp: this.otpRequired() ? otp.trim() : undefined,
       })
       .subscribe({
         next: (res) => {
@@ -141,9 +146,19 @@ export class LoginPageComponent {
           this.router.navigate([homeRouteFor(res.roles ?? [])]);
         },
         error: (err) => {
-          this.loginStore.setError(
-            err?.error?.detail || err?.error?.message || 'Erreur de connexion',
-          );
+          const code: string | undefined = err?.error?.code;
+          if (code === 'MFA_REQUIRED') {
+            // Mot de passe correct : on demande maintenant le code de vérification (pas d'erreur affichée).
+            this.otpRequired.set(true);
+            this.loginModel.update((m) => ({...m, otp: ''}));
+          } else if (code === 'MFA_INVALID' || code === 'MFA_LOCKED') {
+            this.loginModel.update((m) => ({...m, otp: ''}));
+            this.loginStore.setError(this.translate.instant(`LOGIN.${code}`));
+          } else {
+            this.loginStore.setError(
+              err?.error?.detail || err?.error?.message || 'Erreur de connexion',
+            );
+          }
           this.loginStore.setLoading(false);
         },
       });

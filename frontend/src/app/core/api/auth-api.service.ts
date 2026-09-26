@@ -18,6 +18,13 @@ export type LoginPayload = {
   centerId?: string;
   username: string;
   password: string;
+  /** Code de double authentification (TOTP ou code de secours), requis si le compte l'a activée. */
+  otp?: string;
+};
+
+export type MfaEnrollment = {
+  secret: string;
+  otpauthUri: string;
 };
 
 export type LoginResponse = {
@@ -62,6 +69,25 @@ export class AuthApiService {
 
   login(payload: LoginPayload): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, payload, {withCredentials: true});
+  }
+
+  /** Double authentification de l'utilisateur connecté. */
+  mfaStatus(): Observable<{ enabled: boolean }> {
+    return this.http.get<{ enabled: boolean }>(`${this.baseUrl}/auth/mfa/status`, {withCredentials: true});
+  }
+
+  mfaEnroll(): Observable<MfaEnrollment> {
+    return this.http.post<MfaEnrollment>(`${this.baseUrl}/auth/mfa/enroll`, {}, {withCredentials: true});
+  }
+
+  /** Confirme l'inscription avec un premier code ; renvoie les codes de secours (montrés une seule fois). */
+  mfaConfirm(code: string): Observable<{ recoveryCodes: string[] }> {
+    return this.http.post<{ recoveryCodes: string[] }>(`${this.baseUrl}/auth/mfa/confirm`, {code},
+      {withCredentials: true});
+  }
+
+  mfaDisable(code: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/mfa/disable`, {code}, {withCredentials: true});
   }
 
   /** Étape 1 de la connexion : sociétés actives (endpoint public, id et nom seulement). */

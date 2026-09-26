@@ -42,3 +42,13 @@ export function sortAlerts(alerts: readonly DirectionAlert[]): DirectionAlert[] 
   const rank = (a: DirectionAlert): number => (a.severity === 'CRITICAL' ? 0 : 1);
   return [...alerts].sort((a, b) => rank(a) - rank(b) || a.centre.localeCompare(b.centre) || a.code.localeCompare(b.code));
 }
+
+/** Les `count` derniers mois écoulés (le mois courant est exclu), du plus récent au plus ancien, au format AAAA-MM. */
+export function lastCompleteMonths(now: Date, count: number): string[] {
+  const months: string[] = [];
+  for (let i = 1; i <= count; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return months;
+}

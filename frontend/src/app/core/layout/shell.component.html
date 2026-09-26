@@ -89,6 +89,10 @@
           {{ 'NAV.ADMIN' | translate }}
         </button>
       }
+      <button (click)="openSecurity()" data-testid="menu-security" mat-menu-item>
+        <mat-icon>shield</mat-icon>
+        {{ 'MFA.MENU' | translate }}
+      </button>
       <button (click)="onLogout()" mat-menu-item>
         <mat-icon>logout</mat-icon>
         {{ 'TOOLBAR.LOGOUT' | translate }}

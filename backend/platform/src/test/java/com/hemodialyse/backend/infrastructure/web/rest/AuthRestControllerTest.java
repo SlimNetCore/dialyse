@@ -46,7 +46,7 @@ class AuthRestControllerTest {
                 List.of("ROLE_ADMIN")
         );
 
-        when(authService.login(isNull(), eq(centerId), eq("admin"), eq("secret"))).thenReturn(loginResult);
+        when(authService.login(isNull(), eq(centerId), eq("admin"), eq("secret"), isNull())).thenReturn(loginResult);
         when(authService.issueRefreshToken(eq(userId), eq(centerId), isNull())).thenReturn("refresh-token");
 
         var response = controller.login(new AuthRestController.LoginRequest(null, centerId, "admin", "secret"));
@@ -87,7 +87,7 @@ class AuthRestControllerTest {
                 List.of("ROLE_ADMIN")
         );
 
-        when(authService.login(isNull(), eq(centerId), eq("admin"), eq("secret"))).thenReturn(loginResult);
+        when(authService.login(isNull(), eq(centerId), eq("admin"), eq("secret"), isNull())).thenReturn(loginResult);
         when(authService.issueRefreshToken(eq(userId), eq(centerId), isNull())).thenReturn("refresh-token");
 
         var response = controller.login(new AuthRestController.LoginRequest(null, centerId, "admin", "secret"));

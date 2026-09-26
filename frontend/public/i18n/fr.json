@@ -121,7 +121,45 @@
     "ACTIVATED_OK": "Compte activé",
     "DEACTIVATED_OK": "Compte désactivé"
   },
+  "MFA": {
+    "MENU": "Sécurité (double authentification)",
+    "TITLE": "Double authentification",
+    "INTRO": "Protégez votre compte avec un code à usage unique généré par une application d'authentification (Google Authenticator, Microsoft Authenticator, Aegis, etc.).",
+    "STATE_OFF": "La double authentification est désactivée.",
+    "STATE_ON": "La double authentification est activée sur votre compte.",
+    "STEP_APP": "Ouvrez votre application d'authentification et ajoutez un compte manuellement.",
+    "STEP_SECRET": "Saisissez cette clé secrète (type : basé sur le temps) :",
+    "STEP_CODE": "Saisissez le code à 6 chiffres affiché pour confirmer.",
+    "CODE": "Code à 6 chiffres",
+    "CODE_OR_RECOVERY": "Code à 6 chiffres ou code de secours",
+    "DISABLE_HINT": "Saisissez un code valide pour la désactiver.",
+    "ENABLE": "Activer",
+    "CONFIRM": "Confirmer",
+    "DISABLE": "Désactiver",
+    "CLOSE": "Fermer",
+    "ENABLED_OK": "Double authentification activée.",
+    "RECOVERY_INTRO": "Conservez ces codes de secours en lieu sûr : chacun ne sert qu'une fois et ils ne seront plus affichés.",
+    "COPY": "Copier les codes",
+    "COPIED": "Codes copiés",
+    "ERR": {
+      "GENERIC": "Action impossible. Réessayez.",
+      "MFA_INVALID": "Code invalide",
+      "MFA_LOCKED": "Trop d'échecs : réessayez dans quelques minutes",
+      "MFA_ALREADY_ENABLED": "La double authentification est déjà activée",
+      "MFA_NOT_ENROLLED": "Aucune inscription en cours"
+    }
+  },
   "DIRECTION": {
+    "REPORTS": {
+      "TITLE": "Rapports mensuels",
+      "HINT": "Chaque mois écoulé est figé une fois (instantané non modifiable) puis exporté en PDF. Agrégats anonymes uniquement.",
+      "MONTH": "Mois",
+      "STATUS": "Instantané",
+      "FROZEN_ON": "Figé le",
+      "NOT_FROZEN": "Sera figé à la première demande",
+      "DOWNLOAD": "Rapport PDF",
+      "ERROR": "Impossible de produire le rapport."
+    },
     "TOTAL": "Total société",
     "ALERTS": {
       "TITLE": "Alertes",
@@ -279,6 +317,10 @@
     "ACTION_ERROR": "Action impossible"
   },
   "LOGIN": {
+    "OTP": "Code de vérification",
+    "OTP_HINT": "Code à 6 chiffres de votre application, ou code de secours",
+    "MFA_INVALID": "Code de vérification invalide",
+    "MFA_LOCKED": "Trop d'échecs : réessayez dans quelques minutes",
     "MODE_LABEL": "Type de connexion",
     "MODE_CENTRE": "Centre",
     "MODE_DIRECTION": "Direction / Propriétaire",
