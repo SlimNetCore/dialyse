@@ -29,6 +29,40 @@ const OVERVIEW = {
   ],
 };
 
+const marker = (pct: number | null) => ({
+  evalues: pct === null ? null : 12,
+  pctDansCible: pct,
+  pctSousCible: pct === null ? null : 100 - pct,
+  pctAuDessus: pct === null ? null : 0,
+});
+const indicators = (nom: string | null, id: string | null, pct: number | null, sousSeuil: number) => ({
+  centerId: id, nom, actif: true,
+  clinique: {
+    ktV: marker(pct), hemoglobine: marker(pct), phosphore: marker(pct), pth: marker(pct), albumine: marker(pct),
+    vhbPositifs: pct === null ? null : 6, vhcPositifs: null, vihPositifs: null, patientsObservanceEnRetard: null,
+    greffeListeAttente: null, greffeBilanEnCours: null, greffesPeriode: null,
+  },
+  stock: {
+    articlesActifs: 40,
+    articlesSousSeuil: sousSeuil,
+    lotsPerimes: 0,
+    lotsPeremptionProche: 1,
+    valeurStock: 250000
+  },
+});
+const INDICATORS = {
+  societeId: SOCIETE.id, from: '2026-01-01', to: '2026-09-26', generatedAt: '2026-09-26T10:00:00Z', seuilAnonymat: 5,
+  centres: [indicators('Centre Alpha', 'Centre Alpha', 62.5, 3), indicators('Centre Beta', 'Centre Beta', null, 0)],
+  totaux: indicators(null, null, 62.5, 3),
+  alertes: [{
+    centerId: 'Centre Alpha',
+    centre: 'Centre Alpha',
+    code: 'STOCK_SOUS_SEUIL',
+    severity: 'CRITICAL',
+    valeur: 3
+  }],
+};
+
 async function mockBackend(page: Page): Promise<{ loginBodies: unknown[] }> {
   const loginBodies: unknown[] = [];
   let signedIn = false;
@@ -52,6 +86,7 @@ async function mockBackend(page: Page): Promise<{ loginBodies: unknown[] }> {
     await r.fulfill({json: SESSION});
   });
   await page.route('**/api/v1/direction/overview*', (r) => r.fulfill({json: OVERVIEW}));
+  await page.route('**/api/v1/direction/indicators*', (r) => r.fulfill({json: INDICATORS}));
   return {loginBodies};
 }
 
@@ -77,6 +112,12 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await expect(table).toContainText('Centre Alpha');
     await expect(table.locator('tr', {hasText: 'Centre Beta'})).toContainText('< 5');
     await expect(page.getByTestId('direction-kpis')).toContainText('44');
+
+    await expect(page.getByTestId('direction-alerts')).toContainText('Centre Alpha');
+    const clinical = page.getByTestId('direction-clinical');
+    await expect(clinical.locator('tr', {hasText: 'Centre Alpha'})).toContainText('62.5 %');
+    await expect(clinical.locator('tr', {hasText: 'Centre Beta'})).not.toContainText('%');
+    await expect(page.getByTestId('direction-stock').locator('tr', {hasText: 'Centre Alpha'})).toContainText('3');
   });
 
   test('cantonne la direction à /direction', async ({page}) => {

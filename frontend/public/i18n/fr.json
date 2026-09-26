@@ -122,6 +122,39 @@
     "DEACTIVATED_OK": "Compte désactivé"
   },
   "DIRECTION": {
+    "TOTAL": "Total société",
+    "ALERTS": {
+      "TITLE": "Alertes",
+      "KTV_CONFORMITE_BASSE": "Kt/V dans la cible pour seulement {{value}} % des patients évalués",
+      "HB_HORS_CIBLE": "Hémoglobine dans la cible pour seulement {{value}} % des patients évalués",
+      "OBSERVANCE_EN_RETARD": "Des patients ont un traitement de l'anémie en retard d'administration",
+      "STOCK_SOUS_SEUIL": "{{value}} article(s) sous le seuil d'alerte",
+      "LOTS_PERIMES": "{{value}} lot(s) périmé(s) encore en stock",
+      "LOTS_PEREMPTION_PROCHE": "{{value}} lot(s) à péremption sous 90 jours"
+    },
+    "CLINICAL": {
+      "TITLE": "Qualité des soins (cibles KDIGO)",
+      "HINT": "Part des patients évalués dont le dernier résultat de la période est dans la cible. « — » : moins de patients évalués que le seuil d'anonymat.",
+      "KTV": "Kt/V ≥ 1,2",
+      "HB": "Hb 10–11,5 g/dL",
+      "PHOSPHORE": "Phosphore",
+      "PTH": "PTH",
+      "ALBUMINE": "Albumine ≥ 4",
+      "VHB": "AgHBs +",
+      "VHC": "Anti-VHC +",
+      "VIH": "VIH +",
+      "OBSERVANCE": "Traitement en retard",
+      "GREFFE_ATTENTE": "Liste d'attente greffe",
+      "GREFFES": "Greffes (période)"
+    },
+    "STOCK": {
+      "TITLE": "Stock",
+      "ARTICLES": "Articles actifs",
+      "SOUS_SEUIL": "Sous le seuil",
+      "PERIMES": "Lots périmés",
+      "PEREMPTION_PROCHE": "Péremption < 90 j",
+      "VALEUR": "Valeur du stock"
+    },
     "TITLE": "Tableau de bord de la direction",
     "PERIOD_FROM": "Du",
     "PERIOD_TO": "Au",

@@ -122,6 +122,39 @@
     "DEACTIVATED_OK": "Amiḍan yettwasens"
   },
   "DIRECTION": {
+    "TOTAL": "Amatu n tkebbanit",
+    "ALERTS": {
+      "TITLE": "Ineɣmisen",
+      "KTV_CONFORMITE_BASSE": "Kt/V deg uɣawas i {{value}} % kan n yinelmaden yettwaskanen",
+      "HB_HORS_CIBLE": "Hémoglobine deg uɣawas i {{value}} % kan n yinelmaden yettwaskanen",
+      "OBSERVANCE_EN_RETARD": "Kra n yinelmaden ɛeṭṭlen deg uwelleh n ukeččum n tmaziɣt",
+      "STOCK_SOUS_SEUIL": "{{value}} n yiferdisen ddaw n useqdac n yineɣmisen",
+      "LOTS_PERIMES": "{{value}} n tfelwiyin ifuten ur zeddigent ara",
+      "LOTS_PEREMPTION_PROCHE": "{{value}} n tfelwiyin ara ifat deg 90 n wussan"
+    },
+    "CLINICAL": {
+      "TITLE": "Tazmert n yiɣdaren (iɣawasen KDIGO)",
+      "HINT": "Aṭas n yinelmaden yettwaskanen d wid umuɣ-nsen aneggaru deg tallit yella deg uɣawas. « — » : drus n yinelmaden ddaw n useqdac n tuffra.",
+      "KTV": "Kt/V ≥ 1,2",
+      "HB": "Hb 10–11,5 g/dL",
+      "PHOSPHORE": "Fusfur",
+      "PTH": "PTH",
+      "ALBUMINE": "Albumine ≥ 4",
+      "VHB": "AgHBs +",
+      "VHC": "Anti-VHC +",
+      "VIH": "VIH +",
+      "OBSERVANCE": "Tikci tettwaɛeṭṭel",
+      "GREFFE_ATTENTE": "Tabdart n uḥraz n uɣerdas",
+      "GREFFES": "Iɣerdasen (tallit)"
+    },
+    "STOCK": {
+      "TITLE": "Amsedrar",
+      "ARTICLES": "Iferdisen urmiden",
+      "SOUS_SEUIL": "Ddaw n useqdac",
+      "PERIMES": "Tifelwiyin ifuten",
+      "PEREMPTION_PROCHE": "Ifat < 90 n wussan",
+      "VALEUR": "Azal n umsedrar"
+    },
     "TITLE": "Tafelwit n tegdurt",
     "PERIOD_FROM": "Seg",
     "PERIOD_TO": "Ɣer",

@@ -184,6 +184,18 @@ MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY 
     VALUES ('b0b00001-0000-0000-0000-000000000006', 'secretaire-rouiba', 'placeholder',
             'secretaire.rouiba@hemodialyse.dz', 'Secretaire Rouiba', TRUE);
 
+-- Propriétaire de l'application (jeu de démonstration uniquement) : sans centre ni société, il gère sociétés,
+-- centres et licences. Mot de passe posé par SeedPasswordInitializer. En production, ne pas utiliser ce jeu de
+-- démonstration : le propriétaire est créé par l'installation initiale (écran /setup).
+MERGE INTO app_role (id, code, name, description) KEY (id)
+    VALUES ('a0a00001-0000-0000-0000-000000000005', 'SUPERADMIN', 'Propriétaire de l''application',
+    'Éditeur : sociétés, centres, licences');
+MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)
+    VALUES ('b0b00001-0000-0000-0000-000000000009', 'superadmin', 'placeholder',
+    'superadmin@hemodialyse.dz', 'Propriétaire de l''application', TRUE);
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000009', 'a0a00001-0000-0000-0000-000000000005');
+
 -- ═══ USER-ROLE ASSIGNMENTS ═══
 MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
 VALUES ('b0b00001-0000-0000-0000-000000000001', 'a0a00001-0000-0000-0000-000000000001');

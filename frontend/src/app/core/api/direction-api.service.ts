@@ -39,6 +39,64 @@ export type DirectionOverview = {
   mensuel: MonthlyPoint[];
 };
 
+/** Patients évalués et répartition face à la cible KDIGO ; `null` sous le seuil d'anonymat. */
+export type IndicatorMarker = {
+  evalues: number | null;
+  pctDansCible: number | null;
+  pctSousCible: number | null;
+  pctAuDessus: number | null;
+};
+
+export type ClinicalIndicators = {
+  ktV: IndicatorMarker;
+  hemoglobine: IndicatorMarker;
+  phosphore: IndicatorMarker;
+  pth: IndicatorMarker;
+  albumine: IndicatorMarker;
+  vhbPositifs: number | null;
+  vhcPositifs: number | null;
+  vihPositifs: number | null;
+  patientsObservanceEnRetard: number | null;
+  greffeListeAttente: number | null;
+  greffeBilanEnCours: number | null;
+  greffesPeriode: number | null;
+};
+
+export type StockIndicators = {
+  articlesActifs: number;
+  articlesSousSeuil: number;
+  lotsPerimes: number;
+  lotsPeremptionProche: number;
+  valeurStock: number;
+};
+
+export type CentreIndicators = {
+  centerId: string | null;
+  nom: string | null;
+  actif: boolean;
+  clinique: ClinicalIndicators;
+  stock: StockIndicators;
+};
+
+export type DirectionAlert = {
+  centerId: string;
+  centre: string;
+  code: string;
+  severity: 'WARNING' | 'CRITICAL';
+  valeur: number | null;
+};
+
+export type DirectionIndicators = {
+  societeId: string;
+  from: string;
+  to: string;
+  generatedAt: string;
+  seuilAnonymat: number;
+  centres: CentreIndicators[];
+  totaux: CentreIndicators;
+  alertes: DirectionAlert[];
+};
+
 export type DirectionAccount = {
   userId: string;
   username: string;
@@ -65,6 +123,13 @@ export class DirectionApiService {
     if (from) params = params.set('from', from);
     if (to) params = params.set('to', to);
     return this.http.get<DirectionOverview>(`${this.baseUrl}/direction/overview`, {params, withCredentials: true});
+  }
+
+  indicators(from?: string, to?: string): Observable<DirectionIndicators> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<DirectionIndicators>(`${this.baseUrl}/direction/indicators`, {params, withCredentials: true});
   }
 
   listAccounts(societeId: string): Observable<DirectionAccount[]> {

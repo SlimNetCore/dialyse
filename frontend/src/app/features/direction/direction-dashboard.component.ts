@@ -13,7 +13,7 @@ import {FormField, FormRoot} from '@angular/forms/signals';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {DirectionStore} from './state/direction.store';
-import {collectionLevel, formatHeadcount} from './direction.util';
+import {collectionLevel, formatHeadcount, formatPct} from './direction.util';
 
 Chart.register(...registerables);
 
@@ -95,6 +95,21 @@ export class DirectionDashboardComponent implements OnInit {
     if (this.canApply()) {
       void this.store.load(this.period().from, this.period().to);
     }
+  }
+
+  /** Lignes des tableaux cliniques et de stock : un centre par ligne, puis le total de la société. */
+  protected readonly indicatorRows = computed(() => {
+    const ind = this.store.indicators();
+    if (!ind) return [];
+    return [...ind.centres.map((c) => ({c, total: false})), {c: ind.totaux, total: true}];
+  });
+
+  protected pct(value: number | null): string {
+    return formatPct(value);
+  }
+
+  protected alertKey(code: string): string {
+    return `DIRECTION.ALERTS.${code}`;
   }
 
   protected headcount(value: number | null): string {

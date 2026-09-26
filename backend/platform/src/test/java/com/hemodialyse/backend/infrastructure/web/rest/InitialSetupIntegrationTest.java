@@ -47,6 +47,7 @@ class InitialSetupIntegrationTest {
     @Autowired
     private RoleScopeFilter roleScopeFilter;
     private MockMvc mockMvc;
+    private final List<UUID> detachedOwners = new java.util.ArrayList<>();
 
     private static String body(String username, String password) {
         return "{\"username\":\"" + username + "\",\"fullName\":\"Propriétaire\",\"password\":\"" + password + "\"}";
@@ -89,11 +90,16 @@ class InitialSetupIntegrationTest {
         jdbc.update("DELETE FROM app_user WHERE username LIKE 'zt-%'");
         jdbc.update("DELETE FROM centers WHERE code LIKE 'ZT-SU%'");
         jdbc.update("DELETE FROM societes WHERE code LIKE 'ZT-SU%'");
+        for (UUID userId : detachedOwners) {
+            jdbc.update("INSERT INTO app_user_role (user_id, role_id) SELECT ?, id FROM app_role WHERE code = 'SUPERADMIN'",
+                    userId);
+        }
+        detachedOwners.clear();
     }
 
     @Test
     void the_first_owner_is_created_with_a_demanding_password_and_only_once() throws Exception {
-        assertNoOwnerYet();
+        detachSeededOwners();
         mockMvc.perform(get("/api/v1/auth/setup/status"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.required").value(true));
@@ -164,6 +170,21 @@ class InitialSetupIntegrationTest {
     }
 
     // ───────────────────────────── Utilitaires ─────────────────────────────
+
+    @Test
+    void the_demo_dataset_provides_an_owner_without_centre_nor_societe() throws Exception {
+        mockMvc.perform(get("/api/v1/auth/setup/status")).andExpect(jsonPath("$.required").value(false));
+        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"superadmin\",\"password\":\"super$$properietaire$$2026$$france\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.scope").value("PLATEFORME"))
+                .andExpect(jsonPath("$.centerId").doesNotExist());
+    }
+
+    @Test
+    void every_centre_of_the_demo_dataset_belongs_to_a_societe() {
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(1) FROM centers WHERE societe_id IS NULL", Integer.class));
+    }
 
     @Test
     void an_admin_can_never_hand_out_the_owner_role() throws Exception {
@@ -244,8 +265,16 @@ class InitialSetupIntegrationTest {
                 .andExpect(status().isNoContent());
     }
 
-    private void assertNoOwnerYet() {
-        assertEquals(0, ownerCount(), "ce test suppose une installation vierge (aucun propriétaire)");
+    /**
+     * Simule une installation vierge : le jeu de démonstration fournit un propriétaire, qu'on détache le temps du
+     * test (il est rattaché de nouveau à son rôle dans {@link #cleanup()}).
+     */
+    private void detachSeededOwners() {
+        detachedOwners.addAll(jdbc.queryForList(
+                "SELECT ur.user_id FROM app_user_role ur INNER JOIN app_role r ON r.id = ur.role_id "
+                        + "WHERE r.code = 'SUPERADMIN'", UUID.class));
+        jdbc.update("DELETE FROM app_user_role WHERE role_id IN (SELECT id FROM app_role WHERE code = 'SUPERADMIN')");
+        assertEquals(0, ownerCount(), "installation vierge : aucun propriétaire");
     }
 
     private int ownerCount() {

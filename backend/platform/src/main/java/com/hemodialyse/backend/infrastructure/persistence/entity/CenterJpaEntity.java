@@ -8,9 +8,9 @@ import jakarta.persistence.Table;
 import java.util.UUID;
 
 /**
- * Centre d'hémodialyse. Les colonnes de rattachement à la société ({@code societe_id}) et de coordonnées sont
- * nullables au niveau du schéma généré (ajout sur une base existante) ; l'obligation d'appartenir à une société
- * est portée par le domaine ({@code Societe}) et par la migration V33 en production.
+ * Centre d'hémodialyse. Le rattachement à une société ({@code societe_id}) est obligatoire : sur un schéma généré
+ * la colonne est {@code NOT NULL} ; sur une base existante, la migration V33 rattache d'abord les centres à une
+ * « Société par défaut » puis pose la contrainte. Les coordonnées restent facultatives.
  */
 @Entity
 @Table(name = "centers")
@@ -25,7 +25,7 @@ public class CenterJpaEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "societe_id")
+    @Column(name = "societe_id", nullable = false)
     private UUID societeId;
 
     @Column(name = "adresse", length = 250)

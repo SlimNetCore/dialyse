@@ -122,6 +122,39 @@
     "DEACTIVATED_OK": "Account deactivated"
   },
   "DIRECTION": {
+    "TOTAL": "Company total",
+    "ALERTS": {
+      "TITLE": "Alerts",
+      "KTV_CONFORMITE_BASSE": "Kt/V on target for only {{value}}% of evaluated patients",
+      "HB_HORS_CIBLE": "Haemoglobin on target for only {{value}}% of evaluated patients",
+      "OBSERVANCE_EN_RETARD": "Some patients have an overdue anaemia treatment administration",
+      "STOCK_SOUS_SEUIL": "{{value}} article(s) below the alert threshold",
+      "LOTS_PERIMES": "{{value}} expired lot(s) still in stock",
+      "LOTS_PEREMPTION_PROCHE": "{{value}} lot(s) expiring within 90 days"
+    },
+    "CLINICAL": {
+      "TITLE": "Quality of care (KDIGO targets)",
+      "HINT": "Share of evaluated patients whose latest result in the period is on target. \"—\": fewer evaluated patients than the anonymity threshold.",
+      "KTV": "Kt/V ≥ 1.2",
+      "HB": "Hb 10–11.5 g/dL",
+      "PHOSPHORE": "Phosphorus",
+      "PTH": "PTH",
+      "ALBUMINE": "Albumin ≥ 4",
+      "VHB": "HBsAg +",
+      "VHC": "Anti-HCV +",
+      "VIH": "HIV +",
+      "OBSERVANCE": "Overdue treatment",
+      "GREFFE_ATTENTE": "Transplant waiting list",
+      "GREFFES": "Transplants (period)"
+    },
+    "STOCK": {
+      "TITLE": "Stock",
+      "ARTICLES": "Active articles",
+      "SOUS_SEUIL": "Below threshold",
+      "PERIMES": "Expired lots",
+      "PEREMPTION_PROCHE": "Expiry < 90 d",
+      "VALEUR": "Stock value"
+    },
     "TITLE": "Management dashboard",
     "PERIOD_FROM": "From",
     "PERIOD_TO": "To",

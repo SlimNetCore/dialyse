@@ -1,4 +1,4 @@
-import {CentreStats, MonthlyPoint} from '../../core/api/direction-api.service';
+import {CentreStats, DirectionAlert, MonthlyPoint} from '../../core/api/direction-api.service';
 
 /** Effectif masqué par le seuil d'anonymat : le serveur renvoie `null`, l'écran affiche « < seuil ». */
 export function formatHeadcount(value: number | null, threshold: number): string {
@@ -30,4 +30,15 @@ export function collectionLevel(rate: number | null): 'good' | 'warn' | 'bad' | 
   if (rate >= 80) return 'good';
   if (rate >= 50) return 'warn';
   return 'bad';
+}
+
+/** Affichage d'un taux : « — » lorsqu'il est masqué par le seuil d'anonymat. */
+export function formatPct(value: number | null): string {
+  return value === null ? '—' : `${value} %`;
+}
+
+/** Alertes critiques d'abord, puis par centre et par code (ordre stable et lisible). */
+export function sortAlerts(alerts: readonly DirectionAlert[]): DirectionAlert[] {
+  const rank = (a: DirectionAlert): number => (a.severity === 'CRITICAL' ? 0 : 1);
+  return [...alerts].sort((a, b) => rank(a) - rank(b) || a.centre.localeCompare(b.centre) || a.code.localeCompare(b.code));
 }

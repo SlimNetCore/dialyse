@@ -37,6 +37,23 @@
         class="fresh">{{ 'DIRECTION.GENERATED_AT' | translate }} {{ o.generatedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
     </p>
 
+    @if (store.alerts().length > 0) {
+      <mat-card class="block alerts" data-testid="direction-alerts">
+        <h2>
+          <mat-icon>notifications_active</mat-icon>
+          {{ 'DIRECTION.ALERTS.TITLE' | translate }}
+        </h2>
+        <ul>
+          @for (a of store.alerts(); track a.centerId + a.code) {
+            <li [class]="'alert ' + a.severity.toLowerCase()">
+              <strong>{{ a.centre }}</strong>
+              <span>{{ alertKey(a.code) | translate: {value: a.valeur} }}</span>
+            </li>
+          }
+        </ul>
+      </mat-card>
+    }
+
     <div class="kpis" data-testid="direction-kpis">
       <mat-card class="kpi">
         <span>{{ 'DIRECTION.KPI.PATIENTS' | translate }}</span><strong>{{ headcount(o.totaux.patients) }}</strong>
@@ -113,5 +130,80 @@
         }
       </mat-card>
     </div>
+
+    <mat-card class="block">
+      <h2>{{ 'DIRECTION.CLINICAL.TITLE' | translate }}</h2>
+      <p class="muted">{{ 'DIRECTION.CLINICAL.HINT' | translate }}</p>
+      <div class="table-scroll">
+        <table class="centres" data-testid="direction-clinical">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.KTV' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.HB' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.PHOSPHORE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.PTH' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.ALBUMINE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.VHB' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.VHC' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.VIH' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.OBSERVANCE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.GREFFE_ATTENTE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CLINICAL.GREFFES' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (row of indicatorRows(); track row.c.centerId) {
+              <tr [class.total]="row.total">
+                <td>{{ row.total ? ('DIRECTION.TOTAL' | translate) : row.c.nom }}</td>
+                <td class="num">{{ pct(row.c.clinique.ktV.pctDansCible) }}</td>
+                <td class="num">{{ pct(row.c.clinique.hemoglobine.pctDansCible) }}</td>
+                <td class="num">{{ pct(row.c.clinique.phosphore.pctDansCible) }}</td>
+                <td class="num">{{ pct(row.c.clinique.pth.pctDansCible) }}</td>
+                <td class="num">{{ pct(row.c.clinique.albumine.pctDansCible) }}</td>
+                <td class="num">{{ headcount(row.c.clinique.vhbPositifs) }}</td>
+                <td class="num">{{ headcount(row.c.clinique.vhcPositifs) }}</td>
+                <td class="num">{{ headcount(row.c.clinique.vihPositifs) }}</td>
+                <td class="num">{{ headcount(row.c.clinique.patientsObservanceEnRetard) }}</td>
+                <td class="num">{{ headcount(row.c.clinique.greffeListeAttente) }}</td>
+                <td class="num">{{ headcount(row.c.clinique.greffesPeriode) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
+
+    <mat-card class="block">
+      <h2>{{ 'DIRECTION.STOCK.TITLE' | translate }}</h2>
+      <div class="table-scroll">
+        <table class="centres" data-testid="direction-stock">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.STOCK.ARTICLES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.STOCK.SOUS_SEUIL' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.STOCK.PERIMES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.STOCK.PEREMPTION_PROCHE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.STOCK.VALEUR' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (row of indicatorRows(); track row.c.centerId) {
+              <tr [class.total]="row.total">
+                <td>{{ row.total ? ('DIRECTION.TOTAL' | translate) : row.c.nom }}</td>
+                <td class="num">{{ row.c.stock.articlesActifs }}</td>
+                <td [class.bad]="row.c.stock.articlesSousSeuil > 0" class="num">{{ row.c.stock.articlesSousSeuil }}</td>
+                <td [class.bad]="row.c.stock.lotsPerimes > 0" class="num">{{ row.c.stock.lotsPerimes }}</td>
+                <td [class.warn]="row.c.stock.lotsPeremptionProche > 0"
+                    class="num">{{ row.c.stock.lotsPeremptionProche }}
+                </td>
+                <td class="num">{{ row.c.stock.valeurStock | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
   }
 </section>

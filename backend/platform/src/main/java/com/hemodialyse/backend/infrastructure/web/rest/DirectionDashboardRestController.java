@@ -3,6 +3,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.Overview;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
+import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
+import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
 import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
@@ -29,10 +31,13 @@ public class DirectionDashboardRestController {
 
     private final DirectionAccessGuard guard;
     private final DirectionDashboardQueryService queries;
+    private final DirectionIndicatorsQueryService indicators;
 
-    public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries) {
+    public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
+                                            DirectionIndicatorsQueryService indicators) {
         this.guard = guard;
         this.queries = queries;
+        this.indicators = indicators;
     }
 
     /**
@@ -53,5 +58,16 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(queries.overview(societeId, from, to));
+    }
+
+    /**
+     * Indicateurs médicaux (cibles KDIGO), de stock et alertes : agrégats anonymes par centre et consolidés.
+     */
+    @GetMapping("/indicators")
+    public ResponseEntity<Indicators> indicators(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UUID societeId = guard.requireSociete();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(indicators.indicators(societeId, from, to));
     }
 }

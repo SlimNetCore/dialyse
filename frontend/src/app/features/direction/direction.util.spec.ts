@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
-import {CentreStats, MonthlyPoint} from '../../core/api/direction-api.service';
-import {collectionLevel, formatHeadcount, monthlyTotals, rankByRevenue} from './direction.util';
+import {CentreStats, DirectionAlert, MonthlyPoint} from '../../core/api/direction-api.service';
+import {collectionLevel, formatHeadcount, formatPct, monthlyTotals, rankByRevenue, sortAlerts} from './direction.util';
 
 const centre = (nom: string, caTtc: number): CentreStats => ({
   centerId: nom, nom, actif: true, patients: 10, patientsSousKt: 5, seances: 1, factures: 1,
@@ -36,5 +36,17 @@ describe('direction.util', () => {
     expect(collectionLevel(95)).toBe('good');
     expect(collectionLevel(60)).toBe('warn');
     expect(collectionLevel(10)).toBe('bad');
+  });
+
+  it('masque un taux non publiable', () => {
+    expect(formatPct(null)).toBe('—');
+    expect(formatPct(66.7)).toBe('66.7 %');
+  });
+
+  it('trie les alertes critiques en premier', () => {
+    const a = (centre: string, code: string, severity: 'WARNING' | 'CRITICAL'): DirectionAlert =>
+      ({centerId: centre, centre, code, severity, valeur: null});
+    const sorted = sortAlerts([a('B', 'X', 'WARNING'), a('C', 'Y', 'CRITICAL'), a('A', 'Z', 'WARNING')]);
+    expect(sorted.map((x) => x.centre)).toEqual(['C', 'A', 'B']);
   });
 });

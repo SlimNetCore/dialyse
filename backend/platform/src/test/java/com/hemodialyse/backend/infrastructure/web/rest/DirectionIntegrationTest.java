@@ -103,6 +103,9 @@ class DirectionIntegrationTest {
         jdbc.update("DELETE FROM app_user_societe WHERE societe_id IN (?, ?)", SOC_A, SOC_B);
         jdbc.update("DELETE FROM app_user_role WHERE user_id IN (SELECT id FROM app_user WHERE username LIKE 'zt-%')");
         jdbc.update("DELETE FROM app_user WHERE username LIKE 'zt-%'");
+        for (String table : List.of("resultats_analyses", "serologies_patient", "alertes_observance", "bilans_pre_greffe", "lots", "articles")) {
+            jdbc.update("DELETE FROM " + table + " WHERE center_id IN (?, ?, ?)", A1, A2, B1);
+        }
         jdbc.update("DELETE FROM facture_reglements WHERE center_id IN (?, ?, ?)", A1, A2, B1);
         jdbc.update("DELETE FROM factures WHERE center_id IN (?, ?, ?)", A1, A2, B1);
         jdbc.update("DELETE FROM seances WHERE center_id IN (?, ?, ?)", A1, A2, B1);
@@ -221,6 +224,105 @@ class DirectionIntegrationTest {
         String raw2 = mockMvc.perform(get("/api/v1/direction/overview").param("societeId", SOC_A.toString()).cookie(b))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         assertFalse(raw2.contains("Centre A1"));
+    }
+
+    @Test
+    void indicators_are_scoped_kdigo_evaluated_anonymised_and_raise_alerts() throws Exception {
+        List<UUID> a1 = jdbc.queryForList("SELECT id FROM patients WHERE center_id = ? ORDER BY code_patient", UUID.class, A1);
+        List<UUID> a2 = jdbc.queryForList("SELECT id FROM patients WHERE center_id = ? ORDER BY code_patient", UUID.class, A2);
+        List<UUID> b1 = jdbc.queryForList("SELECT id FROM patients WHERE center_id = ? ORDER BY code_patient", UUID.class, B1);
+        // A1 : 6 patients évalués — Kt/V conforme pour 4 sur 6 (66,7 %), Hb dans la cible pour 5 sur 6 (83,3 %)
+        for (int i = 0; i < 6; i++) {
+            bilan(A1, a1.get(i), i < 4 ? "1.30" : "1.00", i < 5 ? "10.8" : "9.0");
+        }
+        bilan(A2, a2.get(0), "1.00", "9.0"); // 2 patients seulement : masqué
+        bilan(A2, a2.get(1), "1.00", "9.0");
+        for (UUID p : b1) {
+            bilan(B1, p, "0.50", "5.0");      // autre société : jamais visible
+        }
+        for (int i = 0; i < 5; i++) {
+            serologie(A1, a1.get(i), "AG_HBS", "POSITIF");
+        }
+        serologie(A2, a2.get(0), "AG_HBS", "POSITIF");
+        UUID article = article(A1, "ZT-ART-1", "10", "50");   // sous le seuil
+        article(A1, "ZT-ART-2", "100", "50");
+        lot(A1, article, java.time.LocalDate.now().minusDays(2));   // périmé
+        lot(A1, article, java.time.LocalDate.now().plusDays(30));   // péremption proche
+
+        createAccount("zt-dir-a", SOC_A);
+        Cookie session = login(SOC_A, "zt-dir-a", PASSWORD, 200).getResponse().getCookie("HEMO_AUTH");
+        MvcResult result = mockMvc.perform(get("/api/v1/direction/indicators").param("from", "2000-01-01")
+                        .param("to", "2100-01-01").cookie(session))
+                .andExpect(status().is(422)).andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("PERIODE_TROP_LONGUE"));
+
+        String from = java.time.LocalDate.now().minusYears(1).toString();
+        String to = java.time.LocalDate.now().toString();
+        result = mockMvc.perform(get("/api/v1/direction/indicators").param("from", from).param("to", to).cookie(session))
+                .andExpect(status().isOk()).andReturn();
+        String raw = result.getResponse().getContentAsString();
+        assertFalse(raw.contains("Centre B1"), "aucune donnée de la société B");
+        JsonNode body = mapper.readTree(raw);
+
+        JsonNode c1 = null, c2 = null;
+        for (JsonNode c : body.get("centres")) {
+            if (A1.toString().equals(c.get("centerId").asText())) c1 = c;
+            if (A2.toString().equals(c.get("centerId").asText())) c2 = c;
+        }
+        assertNotNull(c1);
+        assertNotNull(c2);
+        JsonNode ktv = c1.get("clinique").get("ktV");
+        assertEquals(6, ktv.get("evalues").asInt());
+        assertEquals(66.7, ktv.get("pctDansCible").asDouble(), 0.05);
+        assertEquals(33.3, ktv.get("pctSousCible").asDouble(), 0.05);
+        assertEquals(83.3, c1.get("clinique").get("hemoglobine").get("pctDansCible").asDouble(), 0.05);
+        assertEquals(5, c1.get("clinique").get("vhbPositifs").asInt());
+        assertEquals(1, c1.get("stock").get("articlesSousSeuil").asInt());
+        assertEquals(1, c1.get("stock").get("lotsPerimes").asInt());
+        assertEquals(1, c1.get("stock").get("lotsPeremptionProche").asInt());
+
+        // effectifs faibles : tout est masqué
+        assertTrue(c2.get("clinique").get("ktV").get("evalues").isNull());
+        assertTrue(c2.get("clinique").get("ktV").get("pctDansCible").isNull());
+        assertTrue(c2.get("clinique").get("vhbPositifs").isNull());
+        assertEquals(6, body.get("totaux").get("clinique").get("vhbPositifs").asInt(), "total consolidé publiable");
+
+        List<String> codes = new java.util.ArrayList<>();
+        for (JsonNode a : body.get("alertes")) {
+            if (A1.toString().equals(a.get("centerId").asText())) codes.add(a.get("code").asText());
+        }
+        assertTrue(codes.containsAll(List.of("KTV_CONFORMITE_BASSE", "STOCK_SOUS_SEUIL", "LOTS_PERIMES", "LOTS_PEREMPTION_PROCHE")), codes.toString());
+
+        for (String role : List.of("ADMIN", "MEDECIN", "SUPERADMIN")) {
+            mockMvc.perform(get("/api/v1/direction/indicators").with(user(principal(role)))).andExpect(status().isForbidden());
+        }
+    }
+
+    private void bilan(UUID centre, UUID patient, String ktv, String hb) {
+        jdbc.update("INSERT INTO resultats_analyses (id, patient_id, center_id, date_prelevement, kt_v_mensuel, hb_g_dl) VALUES (?,?,?,?,?,?)",
+                UUID.randomUUID(), patient, centre, Date.valueOf(java.time.LocalDate.now().minusDays(10)),
+                new java.math.BigDecimal(ktv), new java.math.BigDecimal(hb));
+    }
+
+    private void serologie(UUID centre, UUID patient, String marqueur, String resultat) {
+        jdbc.update("INSERT INTO serologies_patient (id, patient_id, center_id, marqueur, resultat, date_prelevement, created_at, updated_at) "
+                        + "VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)",
+                UUID.randomUUID(), patient, centre, marqueur, resultat, Date.valueOf(java.time.LocalDate.now().minusDays(20)));
+    }
+
+    private UUID article(UUID centre, String code, String stock, String seuil) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("INSERT INTO articles (id, center_id, code, libelle, unite, stock_quantity, seuil_alerte, gere_par_lot, active) "
+                        + "VALUES (?,?,?,?,?,?,?,TRUE,TRUE)",
+                id, centre, code, "Article " + code, "U", new java.math.BigDecimal(stock), new java.math.BigDecimal(seuil));
+        return id;
+    }
+
+    private void lot(UUID centre, UUID article, java.time.LocalDate peremption) {
+        jdbc.update("INSERT INTO lots (id, center_id, article_id, numero_lot, date_peremption, quantite_initiale, quantite_restante) "
+                        + "VALUES (?,?,?,?,?,?,?)",
+                UUID.randomUUID(), centre, article, "L-" + UUID.randomUUID().toString().substring(0, 6),
+                Date.valueOf(peremption), new java.math.BigDecimal("10"), new java.math.BigDecimal("5"));
     }
 
     // ───────────────────────────── Données de test ─────────────────────────────
