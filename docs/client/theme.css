@@ -1,0 +1,368 @@
+:root {
+    --teal: #14766e;
+    --teal-dark: #0d5750;
+    --blue: #2b6f9e;
+    --ink: #12222b;
+    --muted: #5b6b75;
+    --line: #d9e3e8;
+    --soft: #eef4f6;
+    --warn: #c2620a;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.55;
+    font-size: 11pt;
+}
+
+h1, h2, h3 {
+    font-family: var(--serif);
+    color: var(--ink);
+    line-height: 1.2;
+}
+
+a {
+    color: var(--blue);
+    text-decoration: none;
+}
+
+.page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 28px;
+}
+
+/* ---------- Couverture ---------- */
+.cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 64px 56px;
+    color: #fff;
+    page-break-after: always;
+    background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 55%, var(--blue) 100%);
+}
+
+.cover .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.cover .brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .18);
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+}
+
+.cover h1 {
+    color: #fff;
+    font-size: 46px;
+    margin: 0 0 14px;
+}
+
+.cover .subtitle {
+    font-size: 19px;
+    max-width: 640px;
+    opacity: .92;
+}
+
+.cover .meta {
+    font-size: 13px;
+    opacity: .85;
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.cover .cover-shot {
+    margin-top: 40px;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+    width: 100%;
+    max-width: 780px;
+}
+
+/* ---------- Sommaire ---------- */
+.toc {
+    page-break-after: always;
+    padding-top: 56px;
+}
+
+.toc h2 {
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.toc ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: c;
+}
+
+.toc li {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 12.5pt;
+}
+
+.toc li::before {
+    counter-increment: c;
+    content: counter(c);
+    color: var(--teal);
+    font-weight: 700;
+    min-width: 24px;
+}
+
+.toc small {
+    color: var(--muted);
+    margin-left: auto;
+    font-size: 10pt;
+}
+
+/* ---------- Sections ---------- */
+section.chapter {
+    padding-top: 40px;
+    page-break-before: always;
+}
+
+section.chapter:first-of-type {
+    page-break-before: auto;
+}
+
+.chapter-head {
+    border-left: 6px solid var(--teal);
+    padding-left: 16px;
+    margin-bottom: 20px;
+}
+
+.chapter-head .kicker {
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    font-size: 9.5pt;
+    color: var(--teal);
+    font-weight: 700;
+}
+
+.chapter-head h2 {
+    font-size: 30px;
+    margin: 4px 0 6px;
+}
+
+.chapter-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12pt;
+}
+
+h3 {
+    font-size: 17pt;
+    margin: 30px 0 8px;
+    color: var(--teal-dark);
+}
+
+p {
+    margin: 8px 0;
+}
+
+ul {
+    margin: 8px 0 8px 0;
+    padding-left: 20px;
+}
+
+li {
+    margin: 3px 0;
+}
+
+figure {
+    margin: 18px 0 22px;
+    page-break-inside: avoid;
+}
+
+figure img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 6px 22px rgba(18, 34, 43, .12);
+}
+
+figure.narrow img {
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+figcaption {
+    font-size: 9.5pt;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 8px;
+}
+
+figcaption b {
+    color: var(--teal-dark);
+}
+
+.fig-note {
+    font-style: italic;
+}
+
+.callout {
+    background: var(--soft);
+    border-left: 4px solid var(--teal);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin: 16px 0;
+    page-break-inside: avoid;
+}
+
+.callout.warn {
+    border-color: var(--warn);
+    background: #fdf3e8;
+}
+
+.callout strong {
+    color: var(--teal-dark);
+}
+
+.callout.warn strong {
+    color: var(--warn);
+}
+
+.grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    page-break-inside: avoid;
+}
+
+.card h4 {
+    margin: 0 0 6px;
+    font-family: var(--serif);
+    color: var(--teal-dark);
+    font-size: 13pt;
+}
+
+.card p, .card ul {
+    font-size: 10.5pt;
+    margin: 4px 0;
+}
+
+table.tbl {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+}
+
+table.tbl th {
+    text-align: left;
+    background: var(--teal);
+    color: #fff;
+    padding: 8px 10px;
+}
+
+table.tbl td {
+    border-bottom: 1px solid var(--line);
+    padding: 7px 10px;
+    vertical-align: top;
+}
+
+table.tbl tr:nth-child(even) td {
+    background: var(--soft);
+}
+
+.pill {
+    display: inline-block;
+    padding: 1px 9px;
+    border-radius: 99px;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    font-size: 9pt;
+    color: var(--teal-dark);
+    font-weight: 600;
+}
+
+footer.doc-foot {
+    margin-top: 60px;
+    padding: 20px 0 40px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 9.5pt;
+}
+
+@media (max-width: 720px) {
+    .grid2 {
+        grid-template-columns: 1fr;
+    }
+
+    .cover {
+        padding: 36px 24px;
+    }
+
+    .cover h1 {
+        font-size: 32px;
+    }
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 16mm 14mm;
+    }
+
+    body {
+        font-size: 10pt;
+    }
+
+    .page {
+        max-width: none;
+        padding: 0;
+    }
+
+    .cover {
+        min-height: 260mm;
+        padding: 30mm 20mm;
+    }
+
+    h3 {
+        page-break-after: avoid;
+    }
+
+    figure img {
+        box-shadow: none;
+    }
+}

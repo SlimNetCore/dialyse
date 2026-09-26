@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>HemoDialyse – Documentation fonctionnelle</title>
+    <link href="theme.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============================ COUVERTURE ============================ -->
+<header class="cover">
+    <div class="brand"><span class="brand-mark">♥</span> HemoDialyse</div>
+    <div>
+        <h1>Documentation fonctionnelle</h1>
+        <p class="subtitle">Plateforme de gestion multi-centres pour l'hémodialyse : patients, dossier médical, séances,
+            stock, facturation et préparation à la greffe rénale.</p>
+        <img alt="Tableau de bord HemoDialyse" class="cover-shot" src="img/01-dashboard.png">
+    </div>
+    <div class="meta"><span>Version du document : 1.0</span><span>Septembre 2026</span><span>Destinataires : direction, médecins, équipes soignantes et administratives</span>
+    </div>
+</header>
+
+<main class="page">
+
+    <!-- ============================ SOMMAIRE ============================ -->
+    <nav class="toc">
+        <h2>Sommaire</h2>
+        <ol>
+            <li><a href="#intro">Présentation générale</a><small>objectifs, rôles, principes</small></li>
+            <li><a href="#acces">Connexion et navigation</a><small>centre, menus, langues, thèmes</small></li>
+            <li><a href="#dashboard">Tableau de bord du centre</a></li>
+            <li><a href="#patients">Gestion des patients</a><small>dossier administratif, PEC, attestations</small></li>
+            <li><a href="#dossier">Dossier médical</a><small>11 onglets cliniques</small></li>
+            <li><a href="#anemie">Suivi de l'anémie (EPO / Fer)</a><small>cibles KDIGO, observance</small></li>
+            <li><a href="#greffe">Préparation à la greffe rénale</a><small>bilan, RCP, donneur vivant, KDIGO</small>
+            </li>
+            <li><a href="#seances">Séances de dialyse</a><small>planning, saisie, traçabilité</small></li>
+            <li><a href="#stock">Gestion du stock</a><small>lots, FEFO, PMP, bons</small></li>
+            <li><a href="#finance">Facturation, règlements, comptabilité</a></li>
+            <li><a href="#admin">Administration et paramétrage</a></li>
+            <li><a href="#transverse">Fonctions transverses</a><small>sécurité, mobile, multilingue</small></li>
+            <li><a href="#annexes">Annexes</a><small>glossaire, périmètre du document</small></li>
+        </ol>
+    </nav>
+
+    <!-- ============================ 1. INTRODUCTION ============================ -->
+    <section class="chapter" id="intro">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 1</div>
+            <h2>Présentation générale</h2>
+            <p>Une seule plateforme pour piloter l'activité de dialyse de plusieurs centres.</p></div>
+
+        <p>HemoDialyse couvre le parcours complet d'un patient hémodialysé, de son admission administrative au suivi
+            médical de chaque séance, jusqu'à la facturation et à la préparation d'une éventuelle greffe rénale. Elle
+            s'adresse à plusieurs centres d'hémodialyse : chaque donnée appartient à un centre, et un utilisateur ne
+            voit que les données du centre sur lequel il est connecté.</p>
+
+        <h3>Les modules</h3>
+        <div class="grid2">
+            <div class="card"><h4>Patients</h4>
+                <p>Dossier administratif, admissions, prises en charge (PEC), attestations, cartes QR, statistiques
+                    individuelles.</p></div>
+            <div class="card"><h4>Dossier médical</h4>
+                <p>Antécédents, sérologies, examens, abords vasculaires, prescriptions, biologie, anémie, constantes,
+                    ordonnances, greffe.</p></div>
+            <div class="card"><h4>Séances</h4>
+                <p>Tableau de bord d'activité, calendrier du centre, saisie paramédicale, consommables, administrations
+                    EPO / Fer.</p></div>
+            <div class="card"><h4>Stock</h4>
+                <p>Articles gérés par lots, bons de commande / réception / sortie, valorisation au PMP, traçabilité lot
+                    → patient → séance.</p></div>
+            <div class="card"><h4>Facturation &amp; règlements</h4>
+                <p>Facturation mensuelle des séances (HT / TVA / TTC), suivi des règlements, journal comptable SCF.</p>
+            </div>
+            <div class="card"><h4>Administration</h4>
+                <p>Utilisateurs, rôles et permissions, calendrier clinique, paramétrage de la facturation et de la TVA,
+                    modèles de documents.</p></div>
+        </div>
+
+        <h3>Profils utilisateurs</h3>
+        <table class="tbl">
+            <tr>
+                <th>Profil</th>
+                <th>Usage principal</th>
+            </tr>
+            <tr>
+                <td><b>Médecin</b></td>
+                <td>Consulte et renseigne le dossier médical, prescrit (dont EPO / Fer), suit l'anémie et prépare la
+                    greffe.
+                </td>
+            </tr>
+            <tr>
+                <td><b>Infirmier</b></td>
+                <td>Saisit les paramètres de séance, les consommables et administre les traitements prescrits.</td>
+            </tr>
+            <tr>
+                <td><b>Secrétariat</b></td>
+                <td>Admissions, prises en charge, attestations, gestion administrative du patient.</td>
+            </tr>
+            <tr>
+                <td><b>Administrateur</b></td>
+                <td>Utilisateurs, rôles, paramétrage, stock, facturation et supervision du centre.</td>
+            </tr>
+        </table>
+        <p>Les droits sont paramétrables : un même écran peut être en <em>lecture seule</em> pour un profil (badge «
+            Lecture seule ») et modifiable pour un autre.</p>
+
+        <div class="callout warn"><strong>À propos des captures d'écran.</strong> Les images de ce document proviennent
+            d'un environnement de démonstration. Les noms des patients sont fictifs. Les écrans cliniques d'exemple
+            (antécédents, sérologies, examens, abords, ordonnances, anémie, greffe rénale) sont illustrés avec des
+            données de démonstration fictives afin de présenter les fonctionnalités dans un état représentatif d'un
+            usage réel.
+        </div>
+    </section>
+
+    <!-- ============================ 2. ACCES ============================ -->
+    <section class="chapter" id="acces">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 2</div>
+            <h2>Connexion et navigation</h2>
+            <p>Un accès sécurisé, un centre actif, une navigation identique sur tous les écrans.</p></div>
+
+        <h3>Structure de l'interface</h3>
+        <ul>
+            <li><b>Barre supérieure</b> : notifications en temps réel, choix de la langue, choix du thème visuel,
+                utilisateur connecté et centre actif.
+            </li>
+            <li><b>Barre de modules (à gauche)</b> : Tableau de bord, Patients, Séances, Facturation, Règlement, Stock,
+                Comptabilité, Administration.
+            </li>
+            <li><b>Barre de sous-menus (en haut)</b> : les écrans du module sélectionné.</li>
+            <li><b>Fil d'Ariane</b> : rappel du chemin et retour rapide.</li>
+        </ul>
+        <figure><img alt="Interface médecin" src="img/01-dashboard-medecin.png">
+            <figcaption><b>Figure 1.</b> Interface après connexion (profil médecin) : modules à gauche, sous-menus en
+                haut.
+            </figcaption>
+        </figure>
+
+        <h3>Langues et thèmes</h3>
+        <p>L'application est disponible en <b>français, arabe (affichage de droite à gauche), kabyle et anglais</b>. Le
+            changement de langue est immédiat, sans rechargement. Plusieurs thèmes visuels sont proposés depuis l'icône
+            palette.</p>
+        <div class="grid2">
+            <figure><img alt="Interface en arabe" src="img/82-langue-ar.png">
+                <figcaption><b>Figure 2.</b> Suivi de l'anémie en arabe, mise en page inversée (RTL).</figcaption>
+            </figure>
+            <figure><img alt="Choix du thème" src="img/83-themes-menu.png">
+                <figcaption><b>Figure 3.</b> Sélecteur de thèmes visuels.</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- ============================ 3. DASHBOARD ============================ -->
+    <section class="chapter" id="dashboard">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 3</div>
+            <h2>Tableau de bord du centre</h2>
+            <p>L'essentiel de l'activité, dès la connexion.</p></div>
+        <p>Le tableau de bord présente en un coup d'œil le nombre de patients et de prises en charge du centre, ainsi
+            que les échéances à surveiller : <b>PEC créées / validées</b>, <b>PEC arrivant à expiration</b>, <b>attestations</b>
+            et attestations expirant dans la fenêtre choisie (30 jours par défaut, modifiable).</p>
+        <figure><img alt="Tableau de bord" src="img/01-dashboard.png">
+            <figcaption><b>Figure 4.</b> Tableau de bord : indicateurs administratifs et échéances.</figcaption>
+        </figure>
+        <ul>
+            <li>Le champ « Échéance (jours) » ajuste la fenêtre d'alerte des PEC et attestations.</li>
+            <li>Les notifications (cloche) remontent en temps réel les événements importants du centre.</li>
+        </ul>
+    </section>
+
+    <!-- ============================ 4. PATIENTS ============================ -->
+    <section class="chapter" id="patients">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 4</div>
+            <h2>Gestion des patients</h2>
+            <p>Du premier accueil au suivi administratif, sans ressaisie.</p></div>
+
+        <h3>Liste des patients</h3>
+        <p>La liste affiche tous les patients du centre avec une synthèse : répartition par sexe, par tranche d'âge et
+            nombre de patients sous KT. Elle est <b>paginée</b>, triable et filtrable colonne par colonne (n°
+            d'assurance, nom, prénom, sexe, admission, état, facturation, jours de dialyse).</p>
+        <figure><img alt="Liste des patients" src="img/10-patients.png">
+            <figcaption><b>Figure 5.</b> Liste des patients avec synthèse du centre.</figcaption>
+        </figure>
+        <ul>
+            <li><b>Colonnes</b> et <b>Vues</b> : chaque utilisateur choisit et enregistre l'affichage qui lui convient.
+            </li>
+            <li><b>Export Excel</b> et <b>rapport imprimable</b> mensuel de la population du centre.</li>
+            <li>Actions par ligne : aperçu, cahier de dialyse, statistiques, dossier médical, impression, <b>carte
+                QR</b> du patient.
+            </li>
+        </ul>
+
+        <h3>Création d'un patient : assistant en 6 étapes</h3>
+        <p>L'ouverture d'un dossier suit un assistant guidé : <span class="pill">1 Généralités</span> <span
+                class="pill">2 Assurance</span> <span class="pill">3 Affectation</span> <span
+                class="pill">4 Attestation</span> <span class="pill">5 Prise en charge</span> <span class="pill">6 Pièces jointes</span>
+        </p>
+        <figure><img alt="Assistant de création patient – étape 1" src="img/11-patient-nouveau.png">
+            <figcaption><b>Figure 6.</b> Étape 1 – Généralités : identité, état civil, coordonnées, groupe sanguin,
+                photo, indicateurs de démarrage (1ère séance EPO / Fer, patient sous KT).
+            </figcaption>
+        </figure>
+        <div class="grid2">
+            <figure><img alt="Étape affectation" src="img/11-wizard-3.png">
+                <figcaption><b>Figure 7.</b> Étape 3 – Affectation : salle, médecin traitant, position, générateur,
+                    transporteurs, jours de dialyse.
+                </figcaption>
+            </figure>
+            <figure><img alt="Étape prise en charge" src="img/11-wizard-5.png">
+                <figcaption><b>Figure 8.</b> Étape 5 – Prise en charge.</figcaption>
+            </figure>
+        </div>
+
+        <h3>Prises en charge (PEC) et attestations</h3>
+        <p>Chaque patient dispose de prises en charge datées et d'attestations d'ouverture de droit. Le centre suit leur
+            validité et clôture ou valide les PEC en attente.</p>
+        <figure><img alt="Gestion des PEC" src="img/15-pec-admin.png">
+            <figcaption><b>Figure 9.</b> Validation et clôture des prises en charge.</figcaption>
+        </figure>
+        <div class="grid2">
+            <figure><img alt="Liste PEC" src="img/13-pec-list.png">
+                <figcaption><b>Figure 10.</b> Liste des PEC (impression, export Excel).</figcaption>
+            </figure>
+            <figure><img alt="Liste attestations" src="img/14-attestations.png">
+                <figcaption><b>Figure 11.</b> Liste des attestations, impression unitaire.</figcaption>
+            </figure>
+        </div>
+
+        <h3>Statistiques du patient</h3>
+        <p>À partir du cahier de dialyse, l'écran calcule sur la période choisie les statistiques <b>paramédicales</b>
+            (nombre de séances, poids moyen avant / après, ultrafiltration réelle) et <b>médicales</b> (hémoglobine,
+            Kt/V, ferritine), avec courbes de poids et de tension artérielle. Export CSV et PDF.</p>
+        <figure><img alt="Statistiques du patient" src="img/12-patient-stats.png">
+            <figcaption><b>Figure 12.</b> Statistiques individuelles : indicateurs et courbes d'évolution.</figcaption>
+        </figure>
+
+        <h3>Cahier de dialyse</h3>
+        <p>Le cahier rassemble, séance par séance, les données saisies par l'infirmier (volet paramédical) et les
+            éléments médicaux validés. Un sommaire permet de naviguer entre les séances, chacune avec son statut
+            (signée, validée).</p>
+        <figure><img alt="Cahier de dialyse" src="img/17-cahier-dialyse.png">
+            <figcaption><b>Figure 13.</b> Cahier de dialyse : sommaire des séances et résumé paramédical.</figcaption>
+        </figure>
+    </section>
+
+    <!-- ============================ 5. DOSSIER MEDICAL ============================ -->
+    <section class="chapter" id="dossier">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 5</div>
+            <h2>Dossier médical</h2>
+            <p>Onze onglets pour un dossier clinique complet et structuré.</p></div>
+        <p>Le dossier médical est accessible depuis la liste des patients. Il est en <b>lecture seule</b> pour les
+            profils non cliniciens et modifiable pour le médecin. Chaque onglet est chargé à la demande et les listes
+            sont paginées.</p>
+
+        <h3>Synthèse</h3>
+        <p>Néphropathie initiale, date de mise en dialyse, statut des hépatites B et C, observation globale et
+            conclusion du médecin.</p>
+        <figure><img alt="Synthèse" src="img/20-dm-synthese.png">
+            <figcaption><b>Figure 14.</b> Onglet Synthèse.</figcaption>
+        </figure>
+
+        <h3>Antécédents et allergies</h3>
+        <p>Antécédents médicaux, chirurgicaux, familiaux et obstétricaux, avec statut (actif / résolu), dates et notes ;
+            allergies et intolérances avec leur sévérité. Un antécédent actif peut être marqué « résolu » en un
+            clic.</p>
+        <figure><img alt="Antécédents" src="img/21-dm-antecedents.png">
+            <figcaption><b>Figure 15.</b> Antécédents et comorbidités.</figcaption>
+        </figure>
+
+        <h3>Sérologies</h3>
+        <p>Marqueurs infectieux (VIH, hépatites B et C, TPHA, CMV, EBV, toxoplasmose), résultat, date de prélèvement,
+            laboratoire, prochain contrôle. Les résultats positifs sont mis en évidence ; une synthèse par marqueur est
+            affichée en tête.</p>
+        <figure><img alt="Sérologies" src="img/22-dm-serologies.png">
+            <figcaption><b>Figure 16.</b> Suivi sérologique.</figcaption>
+        </figure>
+
+        <h3>Examens</h3>
+        <p>Demandes d'examens biologiques, d'imagerie et fonctionnels, avec suivi du statut (demandé → prélevé →
+            résultat disponible → validé), conclusion du médecin et marquage d'urgence.</p>
+        <figure><img alt="Examens" src="img/23-dm-examens.png">
+            <figcaption><b>Figure 17.</b> Demandes d'examens et leur avancement.</figcaption>
+        </figure>
+
+        <h3>Abords vasculaires</h3>
+        <p>Historique des accès de dialyse : fistule artério-veineuse, pontage PTFE, cathéter tunnelisé ou aigu, côté,
+            localisation, dates de création et de fin, complications éventuelles.</p>
+        <figure><img alt="Abords vasculaires" src="img/24-dm-abords.png">
+            <figcaption><b>Figure 18.</b> Abords vasculaires actifs et historiques.</figcaption>
+        </figure>
+
+        <h3>Prescriptions et biologie</h3>
+        <p>Les <b>prescriptions de dialyse</b> (débits, ultrafiltration maximale, durée, type de dialyseur,
+            anticoagulation, traitements EPO / Fer) sont versionnées par date. L'onglet <b>Biologie</b> présente les
+            résultats d'analyses en tableau, avec mise en évidence des valeurs hors cible.</p>
+        <div class="grid2">
+            <figure><img alt="Prescriptions" src="img/25-dm-prescriptions.png">
+                <figcaption><b>Figure 19.</b> Historique des prescriptions.</figcaption>
+            </figure>
+            <figure><img alt="Biologie" src="img/26-dm-biologie.png">
+                <figcaption><b>Figure 20.</b> Résultats biologiques.</figcaption>
+            </figure>
+        </div>
+
+        <h3>Constantes et ordonnances</h3>
+        <p><b>Constantes</b> : poids avant / après, tension artérielle, débit sanguin, ultrafiltration et durée, en
+            courbes et en tableau. <b>Ordonnances</b> : rédaction, signature, impression et export (FHIR) des
+            prescriptions médicamenteuses, avec numérotation automatique.</p>
+        <div class="grid2">
+            <figure><img alt="Constantes" src="img/28-dm-constantes.png">
+                <figcaption><b>Figure 21.</b> Évolution des constantes de séance.</figcaption>
+            </figure>
+            <figure><img alt="Ordonnances" src="img/29-dm-ordonnances.png">
+                <figcaption><b>Figure 22.</b> Ordonnances signées.</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- ============================ 6. ANEMIE ============================ -->
+    <section class="chapter" id="anemie">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 6</div>
+            <h2>Suivi de l'anémie (EPO / Fer)</h2>
+            <p>Une prescription respectée, prouvée et sans oubli.</p></div>
+        <p>L'anémie est une complication majeure de l'insuffisance rénale : le traitement par EPO et fer injectable doit
+            être suivi avec rigueur. HemoDialyse relie la prescription du médecin, l'administration par l'infirmier et
+            le stock pour garantir que ce qui est prescrit est réellement administré.</p>
+
+        <h3>Cibles cliniques KDIGO</h3>
+        <p>Les derniers résultats sont comparés aux cibles des recommandations KDIGO : hémoglobine, ferritine, CST,
+            albumine, Kt/V. Chaque indicateur est marqué <span class="pill">dans la cible</span> ou <span class="pill">sous la cible</span>
+            et la courbe Hb / ferritine visualise la tendance.</p>
+        <figure><img alt="Suivi anémie" src="img/27-dm-anemie.png">
+            <figcaption><b>Figure 23.</b> Onglet Anémie : alertes d'observance, courbe Hb / ferritine, cibles KDIGO,
+                prescription active.
+            </figcaption>
+        </figure>
+
+        <h3>Prescription structurée</h3>
+        <p>Le médecin prescrit l'EPO et le fer en choisissant l'<b>article du stock</b>, la dose, la voie et une <b>fréquence
+            structurée</b> (par exemple « 2 fois par semaine » ou « 2 fois par mois »). Cette structure permet au
+            système de calculer précisément les doses attendues.</p>
+
+        <h3>Administration en séance</h3>
+        <p>Pendant la séance, l'infirmier voit la prescription en vigueur et <b>la quantité restante à administrer</b>
+            sur la période en cours. Les champs issus de la prescription (molécule, dose, unité, voie) sont verrouillés
+            ; l'infirmier saisit la <b>quantité administrée</b> et confirme l'administration. Elle génère
+            automatiquement la <b>sortie de stock</b> du bon lot, selon la règle du premier périmé, premier sorti
+            (FEFO).</p>
+        <figure><img alt="Administration EPO Fer en séance" src="img/44-seance-anemie.png">
+            <figcaption><b>Figure 24.</b> Bloc « Administration EPO / Fer injectable » dans la séance : reste à
+                administrer avant la fin de la période.
+            </figcaption>
+        </figure>
+
+        <h3>Alertes d'observance pour le médecin</h3>
+        <table class="tbl">
+            <tr>
+                <th>Alerte</th>
+                <th>Quand ?</th>
+                <th>Contenu</th>
+            </tr>
+            <tr>
+                <td><span class="pill">Rappel avant échéance</span></td>
+                <td>Avant la fin de la semaine / du mois / de la période de prescription</td>
+                <td>Nombre de doses restant à administrer et date limite. Disparaît automatiquement dès que les doses
+                    sont administrées.
+                </td>
+            </tr>
+            <tr>
+                <td><span class="pill">Retard constaté</span></td>
+                <td>Après la clôture d'une période</td>
+                <td>Doses attendues vs doses administrées. Reste affichée jusqu'à ce que le médecin la marque comme
+                    résolue.
+                </td>
+            </tr>
+        </table>
+        <p>Les périodes sont calculées à partir de la <b>date de prescription</b> et de la fréquence prescrite. Un
+            contrôle quotidien automatique alimente ces alertes, visibles dans l'onglet Anémie et sous forme de
+            notification.</p>
+        <figure class="narrow"><img alt="Anémie sur mobile" src="img/81-mobile-anemie.png">
+            <figcaption><b>Figure 25.</b> Les alertes d'observance sur smartphone.</figcaption>
+        </figure>
+    </section>
+
+    <!-- ============================ 7. GREFFE ============================ -->
+    <section class="chapter" id="greffe">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 7</div>
+            <h2>Préparation à la greffe rénale</h2>
+            <p>Transformer les données du dialysé en dossier de transplantation.</p></div>
+        <p>La greffe est le traitement de référence de l'insuffisance rénale terminale. L'onglet <b>Greffe rénale</b> du
+            dossier médical suit l'éligibilité du patient, organise son bilan pré-greffe et réunit, pour le médecin, les
+            éléments nécessaires à la décision de l'équipe de transplantation. Un <b>dossier PDF de synthèse</b> peut
+            être exporté pour le centre de greffe.</p>
+
+        <h3>Éligibilité et bilan immunologique</h3>
+        <p>Le statut du patient évolue selon un parcours contrôlé : <span class="pill">Non débuté</span> → <span
+                class="pill">Bilan en cours</span> → <span class="pill">Éligible</span> → <span class="pill">Inscrit sur liste d'attente</span>
+            → <span class="pill">Greffe réalisée</span>, ainsi que les contre-indications temporaires ou définitives. Le
+            système empêche les transitions incohérentes (par exemple, une inscription sur liste d'attente sans
+            éligibilité préalable). Groupe sanguin confirmé, typage HLA et PRA (classes I et II) sont renseignés dans la
+            carte « Bilan immunologique ».</p>
+        <figure><img alt="Greffe – éligibilité" src="img/30-greffe-haut.png">
+            <figcaption><b>Figure 26.</b> Éligibilité, bilan immunologique et évaluation KDIGO.</figcaption>
+        </figure>
+
+        <h3>Évaluation KDIGO automatique</h3>
+        <ul>
+            <li><b>Risque immunologique</b> : classé faible (PRA &lt; 20 %), intermédiaire (20 à 80 %) ou élevé (&gt; 80
+                %).
+            </li>
+            <li><b>Fonction rénale résiduelle</b> : débit de filtration glomérulaire estimé (formule CKD-EPI 2021) à
+                partir de la dernière créatininémie, de l'âge et du sexe, avec le stade de maladie rénale chronique.
+            </li>
+            <li><b>Alertes sérologiques</b> : mise en avant des sérologies positives à risque (VIH, hépatite B, hépatite
+                C, syphilis).
+            </li>
+        </ul>
+        <div class="callout"><strong>Aide à la décision.</strong> L'évaluation KDIGO est recalculée automatiquement à
+            partir du dossier. Elle assiste le médecin sans jamais remplacer la décision de la réunion de concertation
+            pluridisciplinaire (RCP).
+        </div>
+
+        <h3>Checklist du bilan pré-greffe</h3>
+        <p>Une <b>liste standard d'examens</b> (cardiologie, pneumologie, dentaire, ORL, digestif, psychiatrie,
+            virologie, immunologie, vaccinations…) peut être générée en un clic ; le médecin ajoute ou retire librement
+            des étapes pour chaque patient. Chaque étape a un statut (à faire, planifié, fait, non applicable), une date
+            et un résultat.</p>
+        <figure><img alt="Checklist du bilan" src="img/31-greffe-checklist.png">
+            <figcaption><b>Figure 27.</b> Checklist du bilan, regroupée par catégorie.</figcaption>
+        </figure>
+
+        <h3>Décisions de RCP et donneurs vivants</h3>
+        <p>Les avis de la RCP (favorable, défavorable, ajourné) sont historisés avec leur compte rendu et la prochaine
+            date de revue. Les <b>donneurs vivants candidats</b> (lien de parenté, groupe sanguin, HLA, crossmatch,
+            statut du bilan, décision finale) sont suivis individuellement.</p>
+        <div class="grid2">
+            <figure><img alt="Décisions RCP" src="img/32-greffe-rcp.png">
+                <figcaption><b>Figure 28.</b> Décisions de RCP et début de la liste des donneurs.</figcaption>
+            </figure>
+            <figure><img alt="Donneurs vivants" src="img/33-greffe-donneurs.png">
+                <figcaption><b>Figure 29.</b> Donneurs vivants candidats.</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- ============================ 8. SEANCES ============================ -->
+    <section class="chapter" id="seances">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 8</div>
+            <h2>Séances de dialyse</h2>
+            <p>Planifier, identifier le patient, saisir, tracer.</p></div>
+
+        <h3>Tableau de bord des séances</h3>
+        <p>Indicateurs du mois : séances prévues, présences, absences, séances totales ; répartition présence / absence,
+            par sexe et par âge. Exports <b>CSV, PDF et XLSX</b>.</p>
+        <figure><img alt="Tableau de bord des séances" src="img/40-seances.png">
+            <figcaption><b>Figure 30.</b> Tableau de bord des séances du mois.</figcaption>
+        </figure>
+
+        <h3>Identification du patient par QR code</h3>
+        <p>Chaque patient dispose d'une carte QR. En début de séance, l'infirmier <b>scanne le code</b> (saisie, image
+            ou caméra du poste) pour ouvrir immédiatement la séance du patient.</p>
+
+        <h3>Saisie de la séance</h3>
+        <p>La liste des séances est filtrable par patient, statut et forfait. En cliquant sur <b>Modifier</b>, le volet
+            de saisie s'ouvre à côté de la liste :</p>
+        <ul>
+            <li><b>Forfait de séance</b> et son tarif ;</li>
+            <li><b>Volet paramédical</b> : tension avant / après, poids avant / après, durée, débit sanguin,
+                ultrafiltration, anticoagulant, type de dialysat, incidents et remarques (éditeur de texte enrichi) ;
+            </li>
+            <li><b>Consommables</b> utilisés pendant la séance, décomptés du stock ;</li>
+            <li><b>Administration EPO / Fer</b> (voir chapitre 6).</li>
+        </ul>
+        <figure><img alt="Saisie de la séance" src="img/41-seance-detail.png">
+            <figcaption><b>Figure 31.</b> Volet de saisie d'une séance : forfait, paramètres paramédicaux, incidents.
+            </figcaption>
+        </figure>
+        <figure><img alt="Consommables de séance" src="img/42-seance-consommables.png">
+            <figcaption><b>Figure 32.</b> Onglet Consommables.</figcaption>
+        </figure>
+
+        <h3>Calendrier du centre</h3>
+        <p>Le calendrier clinique du centre gère les <b>jours fériés</b> et <b>jours de fermeture</b> utilisés dans le
+            calcul des absences, avec exports CSV, PDF et XLSX du mois.</p>
+        <figure><img alt="Calendrier du centre" src="img/43-calendrier.png">
+            <figcaption><b>Figure 33.</b> Calendrier clinique du centre.</figcaption>
+        </figure>
+    </section>
+
+    <!-- ============================ 9. STOCK ============================ -->
+    <section class="chapter" id="stock">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 9</div>
+            <h2>Gestion du stock</h2>
+            <p>Valorisation en temps réel et traçabilité du lot jusqu'au patient.</p></div>
+        <p>Le stock est valorisé au <b>prix moyen pondéré (PMP)</b>, recalculé à chaque réception. Les articles gérés
+            par lot imposent la saisie du numéro de lot et de la date de péremption ; les sorties suivent la règle <b>FEFO</b>
+            (le lot qui périme en premier sort en premier). La traçabilité est complète : <b>lot → patient → séance</b>.
+        </p>
+        <figure><img alt="Tableau de bord du stock" src="img/60-stock.png">
+            <figcaption><b>Figure 34.</b> Tableau de bord du stock : valeur, quantités, alertes, préemptions, tendance
+                des mouvements.
+            </figcaption>
+        </figure>
+
+        <h3>Circuit d'approvisionnement</h3>
+        <table class="tbl">
+            <tr>
+                <th>Étape</th>
+                <th>Écran</th>
+                <th>Fonction</th>
+            </tr>
+            <tr>
+                <td>1. Référentiel</td>
+                <td>Articles, Fournisseurs</td>
+                <td>Création des articles (code, libellé, unité, seuil d'alerte, gestion par lot, article de traitement
+                    de l'anémie) et des fournisseurs.
+                </td>
+            </tr>
+            <tr>
+                <td>2. Commande</td>
+                <td>Bons de commande</td>
+                <td>Commande auprès d'un fournisseur, lignes article / quantité / prix.</td>
+            </tr>
+            <tr>
+                <td>3. Réception</td>
+                <td>Bons de réception</td>
+                <td>Saisie des lots (n° de lot, péremption) ; la validation calcule le PMP.</td>
+            </tr>
+            <tr>
+                <td>4. Consommation</td>
+                <td>Bons de sortie</td>
+                <td>Sorties de stock numérotées, avec lots proposés par ordre de péremption (FEFO) ; les sorties issues
+                    d'une séance sont rattachées au patient et à la séance.
+                </td>
+            </tr>
+        </table>
+        <div class="grid2">
+            <figure><img alt="Articles" src="img/61-articles.png">
+                <figcaption><b>Figure 35.</b> Référentiel des articles.</figcaption>
+            </figure>
+            <figure><img alt="Bons de commande" src="img/62-bons-commande.png">
+                <figcaption><b>Figure 36.</b> Bons de commande.</figcaption>
+            </figure>
+            <figure><img alt="Bons de réception" src="img/63-bons-reception.png">
+                <figcaption><b>Figure 37.</b> Bons de réception.</figcaption>
+            </figure>
+            <figure><img alt="Bons de sortie" src="img/64-bons-sortie.png">
+                <figcaption><b>Figure 38.</b> Bons de sortie.</figcaption>
+            </figure>
+        </div>
+        <figure><img alt="Fournisseurs" src="img/65-fournisseurs.png">
+            <figcaption><b>Figure 39.</b> Fournisseurs.</figcaption>
+        </figure>
+    </section>
+
+    <!-- ============================ 10. FINANCE ============================ -->
+    <section class="chapter" id="finance">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 10</div>
+            <h2>Facturation, règlements, comptabilité</h2>
+            <p>De la séance réalisée à l'écriture comptable.</p></div>
+
+        <h3>Facturation des séances</h3>
+        <p>La facturation suit un cycle en trois étapes : <b>1. Sélection</b> d'un mois (ou d'une période libre), <b>2.
+            Aperçu</b> calculé en mémoire avec montants HT / TVA / TTC pour vérification, <b>3. Validation</b> qui
+            enregistre les factures et marque les séances comme facturées. Une synthèse mensuelle est imprimable.</p>
+        <figure><img alt="Facturation" src="img/50-facturation.png">
+            <figcaption><b>Figure 40.</b> Cycle de facturation et tableau de bord (chiffre d'affaires HT / TTC, séances
+                et patients facturés).
+            </figcaption>
+        </figure>
+
+        <h3>Règlement des factures</h3>
+        <p>Suivi des factures non réglées, partiellement réglées, réglées ou en trop-perçu, avec filtres par période,
+            caisse, agence et centre payeur, taux d'encaissement et exports Excel / CSV.</p>
+        <figure><img alt="Règlements" src="img/51-reglement.png">
+            <figcaption><b>Figure 41.</b> Suivi des règlements.</figcaption>
+        </figure>
+
+        <h3>Comptabilité</h3>
+        <p>Le <b>journal comptable SCF</b> (Système Comptable Financier) est alimenté automatiquement par les factures
+            et règlements, avec export du journal des ventes et du journal de banque.</p>
+        <figure><img alt="Comptabilité" src="img/52-comptabilite.png">
+            <figcaption><b>Figure 42.</b> Journal comptable.</figcaption>
+        </figure>
+        <div class="callout"><strong>Note.</strong> Les tableaux de bord financiers de ce document sont volontairement à
+            zéro : la base de démonstration ne contient pas encore de factures validées pour la période affichée.
+        </div>
+    </section>
+
+    <!-- ============================ 11. ADMIN ============================ -->
+    <section class="chapter" id="admin">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 11</div>
+            <h2>Administration et paramétrage</h2>
+            <p>Chaque centre configure l'application selon ses règles.</p></div>
+        <div class="grid2">
+            <figure><img alt="Utilisateurs" src="img/70-users.png">
+                <figcaption><b>Figure 43.</b> Gestion des utilisateurs.</figcaption>
+            </figure>
+            <figure><img alt="Rôles" src="img/71-roles.png">
+                <figcaption><b>Figure 44.</b> Rôles et permissions.</figcaption>
+            </figure>
+            <figure><img alt="Paramétrage facturation" src="img/72-param-facturation.png">
+                <figcaption><b>Figure 45.</b> Paramétrage de la facturation.</figcaption>
+            </figure>
+            <figure><img alt="Types de TVA" src="img/73-tva.png">
+                <figcaption><b>Figure 46.</b> Types de TVA.</figcaption>
+            </figure>
+        </div>
+        <ul>
+            <li><b>Utilisateurs</b> : création, modification, activation, affectation à un ou plusieurs centres et à un
+                rôle ; recherche, tri et filtres.
+            </li>
+            <li><b>Rôles</b> : ensembles de permissions (médecin, infirmier, secrétariat, administrateur…) modifiables.
+            </li>
+            <li><b>Paramétrage</b> : calendrier clinique (jours fériés et fermetures), format du code de facturation et
+                regroupement des multi-forfaits en une seule facture, types de TVA.
+            </li>
+        </ul>
+
+        <h3>Modèles de documents</h3>
+        <p>Les documents imprimables (attestation d'ouverture de droit, fiche patient, listes de patients / PEC /
+            attestations, ordonnance médicamenteuse…) reposent sur des <b>modèles associés à chaque type de document et
+                à chaque centre</b>, ce qui permet à chaque centre d'utiliser sa propre mise en page.</p>
+        <figure><img alt="Modèles de documents" src="img/02-modeles-document.png">
+            <figcaption><b>Figure 47.</b> Gestion des modèles de documents.</figcaption>
+        </figure>
+    </section>
+
+    <!-- ============================ 12. TRANSVERSE ============================ -->
+    <section class="chapter" id="transverse">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 12</div>
+            <h2>Fonctions transverses</h2>
+            <p>Ce qui vaut pour tous les écrans.</p></div>
+        <div class="grid2">
+            <div class="card"><h4>Multi-centres</h4>
+                <p>Chaque donnée est rattachée à un centre. Un utilisateur travaille sur un centre à la fois et ne voit
+                    jamais les données d'un autre centre.</p></div>
+            <div class="card"><h4>Sécurité</h4>
+                <p>Authentification par session sécurisée, renouvellement automatique, droits par rôle appliqués sur
+                    chaque écran et chaque action.</p></div>
+            <div class="card"><h4>Temps réel</h4>
+                <p>Notifications instantanées (alertes d'observance, échéances, événements du centre) sans rafraîchir la
+                    page.</p></div>
+            <div class="card"><h4>Multilingue</h4>
+                <p>Français, arabe (droite à gauche), kabyle, anglais.</p></div>
+            <div class="card"><h4>Toujours utilisable</h4>
+                <p>Listes paginées, tableaux avec tri, filtres, choix des colonnes, vues mémorisées, exports.</p></div>
+            <div class="card"><h4>Documents</h4>
+                <p>Impressions et exports PDF, Excel et CSV sur les principaux écrans.</p></div>
+        </div>
+        <h3>Utilisable sur poste, tablette et smartphone</h3>
+        <p>L'interface s'adapte à la taille de l'écran : la navigation passe en barre inférieure sur mobile et les
+            tableaux défilent localement sans faire déborder la page.</p>
+        <figure class="narrow"><img alt="Tableau de bord mobile" src="img/80-mobile-dashboard.png">
+            <figcaption><b>Figure 48.</b> Tableau de bord sur smartphone.</figcaption>
+        </figure>
+    </section>
+
+    <!-- ============================ ANNEXES ============================ -->
+    <section class="chapter" id="annexes">
+        <div class="chapter-head">
+            <div class="kicker">Annexes</div>
+            <h2>Glossaire et périmètre</h2></div>
+        <table class="tbl">
+            <tr>
+                <th>Terme</th>
+                <th>Signification</th>
+            </tr>
+            <tr>
+                <td>PEC</td>
+                <td>Prise en charge du patient par un organisme payeur.</td>
+            </tr>
+            <tr>
+                <td>KT</td>
+                <td>Cathéter (patient « sous KT »).</td>
+            </tr>
+            <tr>
+                <td>FAV</td>
+                <td>Fistule artério-veineuse, accès vasculaire de dialyse.</td>
+            </tr>
+            <tr>
+                <td>EPO</td>
+                <td>Érythropoïétine, traitement de l'anémie.</td>
+            </tr>
+            <tr>
+                <td>KDIGO</td>
+                <td>Organisme publiant les recommandations internationales sur les maladies rénales.</td>
+            </tr>
+            <tr>
+                <td>Kt/V</td>
+                <td>Indicateur d'adéquation de la dialyse.</td>
+            </tr>
+            <tr>
+                <td>CST</td>
+                <td>Coefficient de saturation de la transferrine.</td>
+            </tr>
+            <tr>
+                <td>PRA</td>
+                <td>Panel Reactive Antibodies : pourcentage d'anticorps anti-HLA, mesure du risque immunologique.</td>
+            </tr>
+            <tr>
+                <td>HLA</td>
+                <td>Système d'antigènes de compatibilité tissulaire.</td>
+            </tr>
+            <tr>
+                <td>RCP</td>
+                <td>Réunion de concertation pluridisciplinaire.</td>
+            </tr>
+            <tr>
+                <td>DFGe / CKD-EPI</td>
+                <td>Débit de filtration glomérulaire estimé, formule CKD-EPI 2021.</td>
+            </tr>
+            <tr>
+                <td>PMP</td>
+                <td>Prix moyen pondéré, méthode de valorisation du stock.</td>
+            </tr>
+            <tr>
+                <td>FEFO</td>
+                <td>First Expired, First Out : le lot qui périme en premier est consommé en premier.</td>
+            </tr>
+            <tr>
+                <td>SCF</td>
+                <td>Système comptable financier (norme comptable algérienne).</td>
+            </tr>
+        </table>
+        <div class="callout warn"><strong>Périmètre du document.</strong> Ce document décrit les fonctionnalités
+            disponibles à sa date de rédaction. Les captures proviennent d'un environnement de démonstration ; certaines
+            utilisent des données fictives à titre d'illustration. L'aide à la décision KDIGO ne se substitue pas au
+            jugement clinique du médecin.
+        </div>
+        <footer class="doc-foot">HemoDialyse – Documentation fonctionnelle – Version 1.0</footer>
+    </section>
+
+</main>
+</body>
+</html>

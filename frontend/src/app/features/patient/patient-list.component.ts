@@ -36,13 +36,13 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {RefItem, ReferentialApiService} from '../../core/api/referential-api.service';
 import {
   NgTableColumn,
+  NgTableComponent,
   NgTableCopyEvent,
   NgTableLabels,
   NgTableRemoteQuery,
   NgTableView,
 } from '@sbourahla/ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
-import {NgTableComponent} from '../../../../../../ngTable/dist/ng-table';
 
 export interface PatientRow {
   id: string;
@@ -84,7 +84,6 @@ export interface PatientRow {
     PatientQrCardComponent,
     PatientSummaryCardsComponent,
     HemodialysisLoaderComponent,
-    NgTableComponent,
     NgTableComponent,
   ],
   templateUrl: './patient-list.component.html',
@@ -247,7 +246,7 @@ export class PatientListComponent {
       minWidthPx: 170,
       filter: {type: 'text', label: t('PATIENT_LIST.COL_ASSURANCE')},
       copy: {valueAccessor: (row) => row.numeroAssurance ?? '', tooltip: t('PATIENT_LIST.COPY_TOOLTIP')},
-      cellTemplate: this.assuranceCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.assuranceCellTemplate() ?? undefined),
     },
     code: {
       id: 'code',
@@ -258,7 +257,7 @@ export class PatientListComponent {
       minWidthPx: 140,
       filter: {type: 'text', label: t('PATIENT_LIST.COL_CODE')},
       copy: {valueAccessor: (row) => row.code ?? '', tooltip: t('PATIENT_LIST.COPY_TOOLTIP')},
-      cellTemplate: this.codeCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.codeCellTemplate() ?? undefined),
     },
     nom: {
       id: 'nom',
@@ -268,7 +267,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 180,
       filter: {type: 'text', label: t('PATIENT_LIST.COL_NOM')},
-      cellTemplate: this.nomCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.nomCellTemplate() ?? undefined),
     },
     prenom: {
       id: 'prenom',
@@ -289,7 +288,7 @@ export class PatientListComponent {
       minWidthPx: 120,
       maxWidthPx: 140,
       filter: {type: 'enum', options: this.sexeFilterOptions(), label: t('PATIENT_LIST.COL_SEXE')},
-      cellTemplate: this.sexeCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.sexeCellTemplate() ?? undefined),
     },
     dateAdmission: {
       id: 'dateAdmission',
@@ -312,7 +311,7 @@ export class PatientListComponent {
         optionsLoader: () => this.loadEtatFilterOptionsFromReferential(),
         label: t('PATIENT_LIST.COL_ETAT'),
       },
-      cellTemplate: this.etatCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.etatCellTemplate() ?? undefined),
     },
     nonFacturable: {
       id: 'nonFacturable',
@@ -322,7 +321,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 170,
       filter: {type: 'boolean', label: t('PATIENT_LIST.BILLING_LABEL')},
-      cellTemplate: this.facturationCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.facturationCellTemplate() ?? undefined),
     },
     pecStatus: {
       id: 'pecStatus',
@@ -332,7 +331,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 145,
       filter: {type: 'enum', options: this.pecFilterOptions(), label: t('PATIENT_LIST.COL_PEC')},
-      cellTemplate: this.pecStatusCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.pecStatusCellTemplate() ?? undefined),
     },
     medecinTraitantId: {
       id: 'medecinTraitantId',
@@ -342,7 +341,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 175,
       filter: {type: 'text', label: t('PATIENT_FORM.MEDECIN_TRAITANT')},
-      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.nullableTextCellTemplate() ?? undefined),
     },
     positionId: {
       id: 'positionId',
@@ -352,7 +351,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 150,
       filter: {type: 'text', label: t('PATIENT_FORM.POSITION')},
-      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.nullableTextCellTemplate() ?? undefined),
     },
     transporteurAllerId: {
       id: 'transporteurAllerId',
@@ -362,7 +361,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 185,
       filter: {type: 'text', label: t('PATIENT_FORM.TRANSPORTEUR_ALLER')},
-      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.nullableTextCellTemplate() ?? undefined),
     },
     transporteurRetourId: {
       id: 'transporteurRetourId',
@@ -372,7 +371,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 190,
       filter: {type: 'text', label: t('PATIENT_FORM.TRANSPORTEUR_RETOUR')},
-      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.nullableTextCellTemplate() ?? undefined),
     },
     joursDialyse: {
       id: 'joursDialyse',
@@ -382,7 +381,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 190,
       filter: {type: 'text', label: t('PATIENT_FORM.JOURS_DIALYSE')},
-      cellTemplate: this.joursDialyseCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.joursDialyseCellTemplate() ?? undefined),
     },
     pecForfaitId: {
       id: 'pecForfaitId',
@@ -392,7 +391,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 160,
       filter: {type: 'text', label: t('PATIENT_LIST.COL_FORFAIT')},
-      cellTemplate: this.nullableTextCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.nullableTextCellTemplate() ?? undefined),
     },
     actions: {
       id: 'actions',
@@ -404,10 +403,15 @@ export class PatientListComponent {
       widthPx: 240,
       minWidthPx: 210,
       maxWidthPx: 300,
-      cellTemplate: this.actionsCellTemplate() ?? undefined,
+      cellTemplate: this.asNgTableTemplate(this.actionsCellTemplate() ?? undefined),
     },
     };
   });
+
+  private asNgTableTemplate(template: TemplateRef<any> | undefined): NgTableColumn<PatientRow>['cellTemplate'] {
+    // ng-table et l'app peuvent embarquer des définitions nominales différentes de TemplateRef.
+    return template as unknown as NgTableColumn<PatientRow>['cellTemplate'];
+  }
   private readonly orderedColumnKeys = [
     'numeroAssurance',
     'code',
