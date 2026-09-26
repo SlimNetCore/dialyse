@@ -9,13 +9,16 @@ import {CahierDialyseComponent} from './cahier-dialyse.component';
 describe('CahierDialyseComponent', () => {
   const apiMock = {
     listSeances: vi.fn(() =>
-      of([
-        {id: 's-5', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-20', status: 'FACTUREE'},
-        {id: 's-1', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-01', status: 'SIGNEE'},
-        {id: 's-2', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-14', status: 'VALIDEE'},
-        {id: 's-3', centerId: 'center-1', patientId: 'patient-2', dateSeance: '2026-07-10', status: 'BROUILLON'},
-        {id: 's-4', centerId: 'center-2', patientId: 'patient-1', dateSeance: '2026-07-12', status: 'BROUILLON'},
-      ])
+      of({
+        items: [
+          {id: 's-5', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-20', status: 'FACTUREE'},
+          {id: 's-1', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-01', status: 'SIGNEE'},
+          {id: 's-2', centerId: 'center-1', patientId: 'patient-1', dateSeance: '2026-07-14', status: 'VALIDEE'},
+          {id: 's-3', centerId: 'center-1', patientId: 'patient-2', dateSeance: '2026-07-10', status: 'BROUILLON'},
+          {id: 's-4', centerId: 'center-2', patientId: 'patient-1', dateSeance: '2026-07-12', status: 'BROUILLON'},
+        ],
+        total: 5,
+      })
     ),
     getSeanceSummary: vi.fn((seanceId: string) =>
       of({
@@ -67,7 +70,7 @@ describe('CahierDialyseComponent', () => {
     const component = createComponent();
     component.ngOnInit();
 
-    expect(apiMock.listSeances).toHaveBeenCalledWith('center-1');
+    expect(apiMock.listSeances).toHaveBeenCalledWith('center-1', 0, 500);
     expect(component.patientSeances().map((item) => item.id)).toEqual(['s-5', 's-2', 's-1']);
     expect(component.currentPageIndex()).toBe(0);
   });

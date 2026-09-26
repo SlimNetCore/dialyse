@@ -20,7 +20,7 @@ describe('HemodialysisLoaderComponent integration', () => {
     });
   });
 
-  it('should increase reconnect size floor and preserve faster dot offsets', () => {
+  it('should increase reconnect size floor and expose geometric dot metadata', () => {
     const component = new HemodialysisLoaderComponent();
     component.size = 96;
     component.speed = 2.4;
@@ -28,9 +28,9 @@ describe('HemodialysisLoaderComponent integration', () => {
     const dots = (component as any).dots();
 
     expect((component as any).visualSize()).toBe(148);
-    expect(dots[0]).toEqual({id: 'a1', color: 'var(--hemo-loader-arteriel)', begin: '0s'});
-    expect(Number.parseFloat(dots[1].begin)).toBeCloseTo(-0.8, 5);
-    expect(Number.parseFloat(dots[2].begin)).toBeCloseTo(-1.6, 5);
+    expect(dots[0]).toEqual({id: 'a1', color: 'var(--hemo-loader-arteriel)', angle: 0, kind: 'arterial', radius: 5.6});
+    expect(dots[1].angle).toBe(120);
+    expect(dots[2].kind).toBe('venous');
   });
 
   it('should reset the reconnect counter when reconnection stops', () => {

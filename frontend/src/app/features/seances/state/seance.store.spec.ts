@@ -46,7 +46,7 @@ describe('SeanceStore', () => {
   };
   beforeEach(() => {
     mockApi = {
-      listSeances: vi.fn().mockReturnValue(of([])),
+      listSeances: vi.fn().mockReturnValue(of({items: [], total: 0})),
       scanSeanceQr: vi.fn().mockReturnValue(of({id: SEANCE_ID, status: 'CREE', dateSeance: '2026-07-24'})),
       getSeanceSummary: vi.fn().mockReturnValue(of(MOCK_SUMMARY)),
       updateSeance: vi.fn().mockReturnValue(of({id: SEANCE_ID, status: 'CREE', dateSeance: '2026-07-25'})),
@@ -168,7 +168,7 @@ describe('SeanceStore', () => {
   it('should load seances for center', () => {
     const store = TestBed.inject(SeanceStore);
     store.loadSeances({centerId: CENTER_ID});
-    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID);
+    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID, 0, 20, expect.any(String));
     expect(store.seances()).toEqual([]);
     expect(store.seancesLoading()).toBe(false);
   });
@@ -351,8 +351,8 @@ describe('SeanceStore', () => {
     const otherCenter = '22222222-2222-2222-2222-222222222222';
     store.loadSeances({centerId: CENTER_ID});
     store.loadSeances({centerId: otherCenter});
-    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID);
-    expect(mockApi.listSeances).toHaveBeenCalledWith(otherCenter);
+    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID, 0, 20, expect.any(String));
+    expect(mockApi.listSeances).toHaveBeenCalledWith(otherCenter, 0, 20, expect.any(String));
   });
   it('selectSeance should update selectedSeanceId', () => {
     const store = TestBed.inject(SeanceStore);

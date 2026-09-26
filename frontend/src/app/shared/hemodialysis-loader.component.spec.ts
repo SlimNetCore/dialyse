@@ -34,9 +34,9 @@ describe('HemodialysisLoaderComponent', () => {
 
     expect(component).toBeTruthy();
     expect((component as any).dots()).toEqual([
-      {id: 'a1', color: 'var(--hemo-loader-arteriel)', begin: '0s'},
-      {id: 'a2', color: 'var(--hemo-loader-arteriel)', begin: '-1s'},
-      {id: 'v1', color: 'var(--hemo-loader-veineux)', begin: '-2s'},
+      {id: 'a1', color: 'var(--hemo-loader-arteriel)', angle: 0, kind: 'arterial', radius: 5.6},
+      {id: 'a2', color: 'var(--hemo-loader-arteriel)', angle: 120, kind: 'arterial', radius: 5.6},
+      {id: 'v1', color: 'var(--hemo-loader-veineux)', angle: 240, kind: 'venous', radius: 5.4},
     ]);
   });
 

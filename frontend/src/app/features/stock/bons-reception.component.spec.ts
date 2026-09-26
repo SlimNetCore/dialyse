@@ -3,6 +3,7 @@ import {of} from 'rxjs';
 import {vi} from 'vitest';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
+import {TranslateModule} from '@ngx-translate/core';
 import {BonsReceptionComponent} from './bons-reception.component';
 import {StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService} from '../../core/api/referential-api.service';
@@ -47,7 +48,7 @@ describe('BonsReceptionComponent', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     await TestBed.configureTestingModule({
-      imports: [BonsReceptionComponent],
+      imports: [BonsReceptionComponent, TranslateModule.forRoot()],
       providers: [
         {provide: StockApiService, useValue: stockApiMock},
         {provide: ReferentialApiService, useValue: refApiMock},

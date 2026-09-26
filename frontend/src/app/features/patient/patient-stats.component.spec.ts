@@ -1,4 +1,4 @@
-import {signal} from '@angular/core';
+import {Directive, Input, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
@@ -9,6 +9,17 @@ import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {PatientStatsComponent} from './patient-stats.component';
+import {BaseChartDirective} from 'ng2-charts';
+
+@Directive({
+  selector: 'canvas[baseChart]',
+  standalone: true,
+})
+class FakeBaseChartDirective {
+  @Input() data: unknown;
+  @Input() options: unknown;
+  @Input() type: unknown;
+}
 
 describe('PatientStatsComponent', () => {
   const getPatientParamedicalStats = vi.fn((_centerId: string, _patientId: string, _from: string, _to: string) => of({
@@ -67,7 +78,7 @@ describe('PatientStatsComponent', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [PatientStatsComponent, TranslateModule.forRoot()],
       providers: [
         {provide: BackendApiService, useValue: apiMock},
@@ -81,7 +92,14 @@ describe('PatientStatsComponent', () => {
           },
         },
       ],
-    }).compileComponents();
+    });
+
+    TestBed.overrideComponent(PatientStatsComponent, {
+      remove: {imports: [BaseChartDirective]},
+      add: {imports: [FakeBaseChartDirective]},
+    });
+
+    await TestBed.compileComponents();
   });
 
   it('should build interactive poids and tension chart datasets from cahier data', () => {

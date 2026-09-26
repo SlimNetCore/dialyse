@@ -72,6 +72,7 @@
 
     <div class="table-container">
       <ng-table
+        [referenceColumnSelectable]="true"
         (remoteExportRequested)="onExportRequested($event)"
         [exportEnabled]="true"
         [exportMode]="'remote'"

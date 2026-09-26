@@ -36,13 +36,13 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {RefItem, ReferentialApiService} from '../../core/api/referential-api.service';
 import {
   NgTableColumn,
-  NgTableComponent,
   NgTableCopyEvent,
   NgTableLabels,
   NgTableRemoteQuery,
   NgTableView,
 } from '@sbourahla/ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
+import {NgTableComponent} from '../../../../../../ngTable/dist/ng-table';
 
 export interface PatientRow {
   id: string;
@@ -84,6 +84,7 @@ export interface PatientRow {
     PatientQrCardComponent,
     PatientSummaryCardsComponent,
     HemodialysisLoaderComponent,
+    NgTableComponent,
     NgTableComponent,
   ],
   templateUrl: './patient-list.component.html',

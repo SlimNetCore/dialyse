@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.stock.service;
 
 import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.port.TransactionRunner;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -230,6 +231,14 @@ class BonReceptionServiceTest {
         @Override
         public List<Article> findAllByCenter(CenterId centerId) {
             return data.values().stream().filter(a -> centerId.value().equals(a.getCenterId())).toList();
+        }
+
+        @Override
+        public List<Article> findAllByCenterAndTypeTraitementAnemie(CenterId centerId, TypeTraitementAnemie type) {
+            return data.values().stream()
+                    .filter(a -> centerId.value().equals(a.getCenterId()))
+                    .filter(a -> a.getTypeTraitementAnemie() == type)
+                    .toList();
         }
     }
 

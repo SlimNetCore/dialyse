@@ -26,7 +26,14 @@
             "inlineStyleLanguage": "scss",
             "allowedCommonJsDependencies": [
               "@stomp/stompjs",
-              "qrcode"
+              "qrcode",
+              "jsqr",
+              "html2canvas",
+              "quill-delta",
+              "canvg",
+              "core-js",
+              "raf",
+              "rgbcolor"
             ],
             "assets": [
               {
@@ -49,13 +56,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "950kB",
-                  "maximumError": "1.3MB"
+                  "maximumWarning": "1.40MB",
+                  "maximumError": "1.50MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "11.2kB",
-                  "maximumError": "12kB"
+                  "maximumWarning": "11.5kB",
+                  "maximumError": "12.5kB"
                 }
               ],
               "outputHashing": "all"

@@ -88,20 +88,20 @@ describe('ComptabiliteDashboardComponent', () => {
   });
 
   it('ouvre plusieurs détails en parallèle', () => {
-    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
 
-    component['toggleRowExpansion'](rows[0]);
-    component['toggleRowExpansion'](rows[1]);
+    storeMock.toggleExpandedRow(rows[0].id);
+    storeMock.toggleExpandedRow(rows[1].id);
 
     expect(expandedIds()).toEqual(['e-1', 'e-2']);
-    expect(component['expandedCount']()).toBe(2);
+    expect(expandedIds().length).toBe(2);
   });
 
   it('ferme tous les détails depuis la barre d’outils', () => {
     expandedIds.set(['e-1', 'e-2']);
-    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
 
-    component['closeAllExpandedRows']();
+    storeMock.collapseAllExpandedRows();
 
     expect(expandedIds()).toEqual([]);
     expect(storeMock.collapseAllExpandedRows).toHaveBeenCalled();

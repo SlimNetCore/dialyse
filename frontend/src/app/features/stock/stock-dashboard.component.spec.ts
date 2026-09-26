@@ -2,6 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
 import {vi} from 'vitest';
 import {MatDialog} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
 import {StockDashboardComponent} from './stock-dashboard.component';
 import {StockApiService} from '../../core/api/stock-api.service';
 import {AuthStore} from '../../core/state/auth.store';
@@ -35,6 +36,7 @@ describe('StockDashboardComponent', () => {
         {provide: AuthStore, useValue: authMock},
         {provide: WebSocketService, useValue: wsMock},
         {provide: MatDialog, useValue: dialogMock},
+        {provide: TranslateService, useValue: {instant: (key: string) => key}},
       ],
     });
   });

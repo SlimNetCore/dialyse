@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.seance.service;
 
 import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
@@ -631,6 +632,14 @@ class SeanceDomainServiceTest {
         @Override
         public List<Article> findAllByCenter(CenterId c) {
             return data.values().stream().filter(a -> a.getCenterId().equals(c.value())).toList();
+        }
+
+        @Override
+        public List<Article> findAllByCenterAndTypeTraitementAnemie(CenterId c, TypeTraitementAnemie type) {
+            return data.values().stream()
+                    .filter(a -> a.getCenterId().equals(c.value()))
+                    .filter(a -> a.getTypeTraitementAnemie() == type)
+                    .toList();
         }
     }
 
