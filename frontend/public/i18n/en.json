@@ -72,6 +72,60 @@
     "ISSUE_ERROR": "License issuance failed",
     "SOCIETES_LOAD_ERROR": "Unable to load companies"
   },
+  "DIRECTION": {
+    "TITLE": "Management dashboard",
+    "PERIOD_FROM": "From",
+    "PERIOD_TO": "To",
+    "APPLY": "Refresh",
+    "ANONYMITY_NOTICE": "Anonymous aggregates only: headcounts below {{threshold}} are hidden.",
+    "GENERATED_AT": "Data as of",
+    "CENTRES_TITLE": "Centre comparison",
+    "CHART_REVENUE": "Revenue and collections by centre",
+    "CHART_TREND": "Monthly revenue trend",
+    "EMPTY_TREND": "No data for the period.",
+    "KPI": {
+      "PATIENTS": "Patients",
+      "SEANCES": "Sessions",
+      "CA_TTC": "Revenue (incl. tax)",
+      "ENCAISSE": "Collected",
+      "RESTE": "Outstanding",
+      "TAUX": "Collection rate"
+    },
+    "COL": {
+      "CENTRE": "Centre",
+      "SOUS_KT": "Patients on catheter",
+      "FACTURES": "Invoices"
+    },
+    "ERROR": {
+      "LOAD_ERROR": "Unable to load the dashboard.",
+      "PERIODE_INVALIDE": "The period is invalid (start date must precede end date).",
+      "PERIODE_TROP_LONGUE": "The period cannot exceed 5 years."
+    },
+    "ACCOUNTS": {
+      "TITLE": "Management accounts",
+      "ADD": "Add an account",
+      "HINT": "Accounts restricted to viewing the company dashboards (anonymous aggregates, no centre).",
+      "CREATE_TITLE": "New management account",
+      "RESET_TITLE": "Reset password",
+      "USERNAME": "Username",
+      "FULL_NAME": "Full name",
+      "EMAIL": "Email",
+      "PASSWORD": "Password",
+      "PASSWORD_HINT": "At least 12 characters, with letters and digits",
+      "EMPTY": "No management account for this company.",
+      "CREATED_OK": "Management account created",
+      "PASSWORD_RESET_OK": "Password reset",
+      "ACTIVATED_OK": "Account activated",
+      "DEACTIVATED_OK": "Account deactivated",
+      "ERR": {
+        "GENERIC": "Action failed (username already used or company inactive?)",
+        "PASSWORD_TOO_SHORT": "Password too short (12 characters minimum)",
+        "PASSWORD_TOO_LONG": "Password too long",
+        "PASSWORD_WEAK": "The password must contain letters and digits",
+        "PASSWORD_CONTAINS_USERNAME": "The password must not contain the username"
+      }
+    }
+  },
   "SOCIETES": {
     "PIED_PAGE": "Document footer",
     "PIED_PAGE_HINT": "Text printed at the bottom of every document (legal form, capital, approval…). 500 characters maximum.",
@@ -143,6 +197,12 @@
     "ACTION_ERROR": "Action not possible"
   },
   "LOGIN": {
+    "MODE_LABEL": "Sign-in type",
+    "MODE_CENTRE": "Centre",
+    "MODE_DIRECTION": "Management / Owner",
+    "SOCIETE_OPTIONAL": "Company (optional)",
+    "NO_SOCIETE": "None (application owner)",
+    "DIRECTION_HINT": "Management: choose your company. Owner: leave empty.",
     "TITLE": "Sign in",
     "SUBTITLE": "Identify yourself to access your center",
     "CENTER": "Hemodialysis center",
@@ -1036,6 +1096,7 @@
     "CLOTUREE_DESC": "Coverage expired — session blocked"
   },
   "NAV": {
+    "DIRECTION": "Management",
     "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",
     "PEC_ADMIN": "PEC Validation",

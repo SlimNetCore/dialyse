@@ -50,11 +50,24 @@ export class ShellComponent implements OnInit, AfterViewInit {
    * jamais ces entrées. Le serveur applique la même séparation sur l'API.
    */
   readonly ownerMode = this.roleAuth.hasRole('SUPERADMIN');
+  /** La direction d'une société ne voit que son tableau de bord consolidé. */
+  readonly directionMode = this.roleAuth.hasRole('DIRECTION');
+  /** Sessions sans centre : ni cloche de notifications ni WebSocket de centre. */
+  readonly centreless = this.ownerMode || this.directionMode;
 
   readonly breadcrumbs = signal<string[]>([]);
   readonly compactNav = signal(false);
   /** Tous les modules ; {@link modules} n'en garde que ceux du profil connecté. */
   private readonly allModules = [
+    {
+      key: 'direction',
+      route: '/direction',
+      icon: 'insights',
+      label: 'NAV.DIRECTION',
+      items: [
+        {route: '/direction', label: 'Tableau de bord', icon: 'space_dashboard', direction: true},
+      ],
+    },
     {
       key: 'dashboard',
       route: '/dashboard',
@@ -143,11 +156,12 @@ export class ShellComponent implements OnInit, AfterViewInit {
     },
   ];
   readonly modules = this.allModules
+    .filter((m) => (this.directionMode ? m.key === 'direction' : m.key !== 'direction'))
     .filter((m) => !this.ownerMode || m.key === 'admin')
     .map((m) => ({
       ...m,
       items: (m.items as ReadonlyArray<{ route: string; label: string; icon: string; owner?: boolean }>)
-        .filter((item) => !!item.owner === this.ownerMode),
+        .filter((item) => this.directionMode || !!item.owner === this.ownerMode),
     }));
 
   readonly navItems = this.modules.map(m => ({route: m.route, icon: m.icon, label: m.label}));
@@ -170,7 +184,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
   private resizeFrame: number | null = null;
 
   ngOnInit(): void {
-    if (!this.ownerMode) {
+    if (!this.centreless) {
       this.ws.connect();
     }
     this.computeBreadcrumb(this.router.url);

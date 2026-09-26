@@ -101,6 +101,9 @@
       </form>
     </mat-card>
 
+    <!-- Comptes de la direction de la société (tableau de bord consolidé) -->
+    <app-direction-accounts [societeId]="societe()!.id"/>
+
     <!-- Logo imprimé dans l'en-tête des documents -->
     <mat-card class="soc-form-card">
       <h3>{{ 'SOCIETES.LOGO_TITLE' | translate }}</h3>

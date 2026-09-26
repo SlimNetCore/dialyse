@@ -155,6 +155,79 @@ public class AuthService {
         }
     }
 
+    // ───────────────────── Sessions sans centre (direction, propriétaire) ─────────────────────
+
+    /**
+     * Connexion sans centre :
+     * <ul>
+     *   <li>{@code societeId} absent → session <b>PLATEFORME</b> du propriétaire (rôle SUPERADMIN requis) ;</li>
+     *   <li>{@code societeId} présent → session <b>SOCIETE</b> de la direction (rôle DIRECTION requis, compte rattaché
+     *       à cette société, société active).</li>
+     * </ul>
+     * Le mot de passe est vérifié avant tout contrôle de rôle, pour ne rien révéler à un tiers.
+     */
+    public LoginResult loginScoped(UUID societeId, String username, String password) {
+        var users = jdbc.queryForList(
+                "SELECT id, username, password_hash, full_name, active FROM app_user WHERE username = ?", username);
+        if (users.isEmpty()) {
+            throw new IllegalArgumentException("Identifiants invalides");
+        }
+        var user = users.get(0);
+        if (!passwordEncoder.matches(password, (String) user.get("PASSWORD_HASH"))) {
+            throw new IllegalArgumentException("Identifiants invalides");
+        }
+        if (!Boolean.TRUE.equals(user.get("ACTIVE"))) {
+            throw new IllegalStateException("Compte utilisateur désactivé");
+        }
+        UUID userId = (UUID) user.get("ID");
+        LoginResult session = buildScopedSession(societeId, userId, username, (String) user.get("FULL_NAME"));
+        return new LoginResult(generateAccessToken(session), session.username(), session.fullName(), session.userId(),
+                null, null, session.roles(), session.societeId(), session.societeName(), session.scope());
+    }
+
+    /**
+     * Reconstitue une session sans centre (rafraîchissement, {@code /auth/me}) en revérifiant droits et état.
+     */
+    public LoginResult rebuildScopedSession(UUID societeId, UUID userId) {
+        var users = jdbc.queryForList("SELECT username, full_name, active FROM app_user WHERE id = ?", userId);
+        if (users.isEmpty()) {
+            throw new IllegalArgumentException("Session invalide");
+        }
+        var user = users.get(0);
+        if (!Boolean.TRUE.equals(user.get("ACTIVE"))) {
+            throw new IllegalStateException("Compte utilisateur désactivé");
+        }
+        return buildScopedSession(societeId, userId, (String) user.get("USERNAME"), (String) user.get("FULL_NAME"));
+    }
+
+    private LoginResult buildScopedSession(UUID societeId, UUID userId, String username, String fullName) {
+        List<String> roles = jdbc.queryForList(
+                "SELECT r.code FROM app_role r INNER JOIN app_user_role ur ON ur.role_id = r.id WHERE ur.user_id = ?",
+                String.class, userId);
+        List<String> prefixed = roles.stream().map(r -> "ROLE_" + r).toList();
+        if (societeId == null) {
+            if (!roles.contains("SUPERADMIN")) {
+                throw new IllegalStateException("Sélectionnez votre société pour accéder à l'espace direction");
+            }
+            return new LoginResult("", username, fullName, userId, null, null, prefixed, null, null, "PLATEFORME");
+        }
+        if (!roles.contains("DIRECTION")) {
+            throw new IllegalStateException("Ce compte n'a pas accès à l'espace direction");
+        }
+        Integer assigned = jdbc.queryForObject(
+                "SELECT COUNT(1) FROM app_user_societe WHERE user_id = ? AND societe_id = ?", Integer.class, userId,
+                societeId);
+        if (assigned == null || assigned == 0) {
+            throw new IllegalStateException("Ce compte n'est pas rattaché à cette société");
+        }
+        var societe = jdbc.queryForList("SELECT raison_sociale, actif FROM societes WHERE id = ?", societeId);
+        if (societe.isEmpty() || !Boolean.TRUE.equals(societe.get(0).get("ACTIF"))) {
+            throw new IllegalStateException("Cette société est désactivée");
+        }
+        return new LoginResult("", username, fullName, userId, null, null, prefixed, societeId,
+                (String) societe.get(0).get("RAISON_SOCIALE"), "SOCIETE");
+    }
+
     public LoginResult rebuildSession(UUID centerId, UUID userId) {
         var users = jdbc.queryForList(
                 "SELECT username, full_name, active FROM app_user WHERE id = ?",
@@ -205,22 +278,28 @@ public class AuthService {
                 session.username(),
                 session.userId().toString(),
                 session.roles(),
-                session.centerId().toString()
+                session.centerId() == null ? null : session.centerId().toString(),
+                session.societeId() == null ? null : session.societeId().toString()
         );
     }
 
     public String issueRefreshToken(UUID userId, UUID centerId) {
+        return issueRefreshToken(userId, centerId, null);
+    }
+
+    public String issueRefreshToken(UUID userId, UUID centerId, UUID societeId) {
         String rawToken = generateOpaqueRefreshToken();
         String hash = sha256Hex(rawToken);
         OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime expiresAt = now.plusSeconds(jwtTokenProvider.getRefreshExpirationSec());
 
         jdbc.update(
-                "INSERT INTO auth_refresh_token (id, token_hash, user_id, center_id, expires_at, revoked, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO auth_refresh_token (id, token_hash, user_id, center_id, societe_id, expires_at, revoked, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 UUID.randomUUID(),
                 hash,
                 userId,
                 centerId,
+                societeId,
                 expiresAt,
                 false,
                 now
@@ -241,9 +320,11 @@ public class AuthService {
             throw new SecurityException("Refresh token reuse detected");
         }
 
-        LoginResult session = rebuildSession(context.centerId(), context.userId());
+        LoginResult session = context.centerId() != null
+                ? rebuildSession(context.centerId(), context.userId())
+                : rebuildScopedSession(context.societeId(), context.userId());
         String accessToken = generateAccessToken(session);
-        String nextRefreshToken = issueRefreshToken(context.userId(), context.centerId());
+        String nextRefreshToken = issueRefreshToken(context.userId(), context.centerId(), context.societeId());
         return new RefreshRotationResult(session, accessToken, nextRefreshToken);
     }
 
@@ -268,7 +349,7 @@ public class AuthService {
         }
 
         List<Map<String, Object>> rows = jdbc.queryForList(
-                "SELECT id, user_id, center_id, expires_at, revoked FROM auth_refresh_token WHERE token_hash = ? FOR UPDATE",
+                "SELECT id, user_id, center_id, societe_id, expires_at, revoked FROM auth_refresh_token WHERE token_hash = ? FOR UPDATE",
                 sha256Hex(rawToken)
         );
         if (rows.isEmpty()) {
@@ -285,7 +366,7 @@ public class AuthService {
         UUID tokenId = (UUID) row.get("ID");
         UUID userId = (UUID) row.get("USER_ID");
         UUID centerId = (UUID) row.get("CENTER_ID");
-        return new RefreshTokenContext(tokenId, userId, centerId);
+        return new RefreshTokenContext(tokenId, userId, centerId, (UUID) row.get("SOCIETE_ID"));
     }
 
     private Instant toInstant(Object value) {
@@ -316,10 +397,22 @@ public class AuthService {
         }
     }
 
-    public record LoginResult(String token, String username, String fullName, UUID userId, UUID centerId, String centerName, List<String> roles) {
+    /**
+     * Résultat d'une connexion. {@code scope} vaut CENTRE (session d'un centre), SOCIETE (direction, sans centre) ou
+     * PLATEFORME (propriétaire, sans centre ni société).
+     */
+    public record LoginResult(String token, String username, String fullName, UUID userId, UUID centerId,
+                              String centerName, List<String> roles, UUID societeId, String societeName, String scope) {
+        public LoginResult(String token, String username, String fullName, UUID userId, UUID centerId,
+                           String centerName, List<String> roles) {
+            this(token, username, fullName, userId, centerId, centerName, roles, null, null, "CENTRE");
+        }
     }
 
-    public record RefreshTokenContext(UUID tokenId, UUID userId, UUID centerId) {
+    public record RefreshTokenContext(UUID tokenId, UUID userId, UUID centerId, UUID societeId) {
+        public RefreshTokenContext(UUID tokenId, UUID userId, UUID centerId) {
+            this(tokenId, userId, centerId, null);
+        }
     }
 
     public record RefreshRotationResult(LoginResult session, String accessToken, String refreshToken) {

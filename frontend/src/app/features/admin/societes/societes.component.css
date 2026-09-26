@@ -24,6 +24,19 @@
 }
 
 .soc-subtitle,
+.soc-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.soc-card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .soc-hint {
   margin: 0;
   opacity: 0.75;

@@ -1,0 +1,100 @@
+<mat-card class="soc-form-card" data-testid="direction-accounts">
+  <div class="soc-card-head">
+    <h2>{{ 'DIRECTION.ACCOUNTS.TITLE' | translate }}</h2>
+    <button (click)="openCreate()" color="primary" data-testid="direction-account-add" mat-flat-button type="button">
+      <mat-icon>person_add</mat-icon>
+      {{ 'DIRECTION.ACCOUNTS.ADD' | translate }}
+    </button>
+  </div>
+  <p class="soc-hint">{{ 'DIRECTION.ACCOUNTS.HINT' | translate }}</p>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  @if (formOpen()) {
+    <form [formRoot]="form" class="soc-form" data-testid="direction-account-form">
+      <h3>
+        {{ (resetTarget() ? 'DIRECTION.ACCOUNTS.RESET_TITLE' : 'DIRECTION.ACCOUNTS.CREATE_TITLE') | translate }}
+      </h3>
+      @if (error()) {
+        <div class="soc-error" data-testid="direction-account-error">{{ error()! | translate }}</div>
+      }
+      <div class="soc-grid">
+        @if (resetTarget(); as target) {
+          <p class="soc-hint"><code>{{ target.username }}</code></p>
+        } @else {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DIRECTION.ACCOUNTS.USERNAME' | translate }}</mat-label>
+            <input [formField]="form.username" autocomplete="off" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DIRECTION.ACCOUNTS.FULL_NAME' | translate }}</mat-label>
+            <input [formField]="form.fullName" autocomplete="off" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DIRECTION.ACCOUNTS.EMAIL' | translate }}</mat-label>
+            <input [formField]="form.email" autocomplete="off" matInput type="email"/>
+          </mat-form-field>
+        }
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DIRECTION.ACCOUNTS.PASSWORD' | translate }}</mat-label>
+          <input [formField]="form.password" autocomplete="new-password" data-testid="direction-account-password" matInput
+                 type="password"/>
+          <mat-hint>{{ 'DIRECTION.ACCOUNTS.PASSWORD_HINT' | translate }}</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="soc-actions">
+        <button (click)="close()" mat-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button (click)="save()" [disabled]="!canSave()" color="primary" data-testid="direction-account-save" mat-flat-button
+                type="button">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (accounts().length === 0 && !loading()) {
+    <p class="soc-hint">{{ 'DIRECTION.ACCOUNTS.EMPTY' | translate }}</p>
+  } @else {
+    <div class="soc-table-wrap">
+      <table class="soc-table" data-testid="direction-accounts-table">
+        <thead>
+        <tr>
+          <th>{{ 'DIRECTION.ACCOUNTS.USERNAME' | translate }}</th>
+          <th>{{ 'DIRECTION.ACCOUNTS.FULL_NAME' | translate }}</th>
+          <th>{{ 'DIRECTION.ACCOUNTS.EMAIL' | translate }}</th>
+          <th>{{ 'SOCIETES.STATUT' | translate }}</th>
+          <th>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (a of accounts(); track a.userId) {
+            <tr>
+              <td><code>{{ a.username }}</code></td>
+              <td>{{ a.fullName || '—' }}</td>
+              <td>{{ a.email || '—' }}</td>
+              <td>
+                <span [class.soc-badge-off]="!a.active" class="soc-badge">
+                  {{ (a.active ? 'SOCIETES.ACTIVE' : 'SOCIETES.INACTIVE') | translate }}
+                </span>
+              </td>
+              <td>
+                <button (click)="openReset(a)" [matTooltip]="'DIRECTION.ACCOUNTS.RESET_TITLE' | translate"
+                        mat-icon-button type="button">
+                  <mat-icon>lock_reset</mat-icon>
+                </button>
+                <button (click)="toggle(a)"
+                        [matTooltip]="(a.active ? 'SOCIETES.DEACTIVATE_BTN' : 'SOCIETES.ACTIVATE_BTN') | translate"
+                        mat-icon-button type="button">
+                  <mat-icon>{{ a.active ? 'block' : 'check_circle' }}</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</mat-card>

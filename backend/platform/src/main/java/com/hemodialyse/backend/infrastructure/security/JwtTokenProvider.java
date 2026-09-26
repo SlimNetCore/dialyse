@@ -60,11 +60,22 @@ public class JwtTokenProvider {
      * Generate a JWT from explicit claims (used by AuthService during login).
      */
     public String generateToken(String username, String userId, List<String> roles, String centerId) {
-        return Jwts.builder()
+        return generateToken(username, userId, roles, centerId, null);
+    }
+
+    /**
+     * Génère un JWT de session. {@code centerId} est absent pour les sessions sans centre (direction de société,
+     * propriétaire) ; {@code societeId} n'est renseigné que pour la direction.
+     */
+    public String generateToken(String username, String userId, List<String> roles, String centerId,
+                                String societeId) {
+        var builder = Jwts.builder()
             .subject(username)
             .claim("userId", userId)
-            .claim("roles", roles)
-            .claim("center_id", centerId)
+                .claim("roles", roles);
+        if (centerId != null) builder.claim("center_id", centerId);
+        if (societeId != null) builder.claim("societe_id", societeId);
+        return builder
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + jwtExpirationSec * 1000))
             .signWith(signingKey())
@@ -87,6 +98,10 @@ public class JwtTokenProvider {
 
     public String getCenterIdFromToken(String token) {
         return parseClaims(token).get("center_id", String.class);
+    }
+
+    public String getSocieteIdFromToken(String token) {
+        return parseClaims(token).get("societe_id", String.class);
     }
 
     public boolean validateToken(String token) {

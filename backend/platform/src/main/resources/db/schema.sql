@@ -146,7 +146,8 @@ CREATE TABLE IF NOT EXISTS auth_refresh_token
     id         UUID PRIMARY KEY,
     token_hash VARCHAR(128) NOT NULL UNIQUE,
     user_id    UUID         NOT NULL,
-    center_id  UUID         NOT NULL,
+    center_id UUID,
+    societe_id UUID,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     revoked    BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -154,6 +155,25 @@ CREATE TABLE IF NOT EXISTS auth_refresh_token
 );
 
 CREATE INDEX IF NOT EXISTS idx_auth_refresh_token_user_id ON auth_refresh_token (user_id);
+
+-- Comptes « direction » : un utilisateur portant le rôle DIRECTION est rattaché à une société (sans centre).
+CREATE TABLE IF NOT EXISTS app_user_societe
+(
+    user_id
+    UUID
+    NOT
+    NULL,
+    societe_id
+    UUID
+    NOT
+    NULL,
+    PRIMARY
+    KEY
+(
+    user_id,
+    societe_id
+)
+    );
 
 -- ═══ Calendrier centre (jours fériés / fermetures) ═══
 

@@ -16,6 +16,10 @@ public class UserPrincipal implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean actif;
+    /**
+     * Société de rattachement d'une session « direction » (sans centre) ; {@code null} sinon.
+     */
+    private final String societeId;
 
     public UserPrincipal(String id,
                          String centerId,
@@ -23,6 +27,17 @@ public class UserPrincipal implements UserDetails {
                          String password,
                          Collection<? extends GrantedAuthority> authorities,
                          boolean actif) {
+        this(id, centerId, username, password, authorities, actif, null);
+    }
+
+    public UserPrincipal(String id,
+                         String centerId,
+                         String username,
+                         String password,
+                         Collection<? extends GrantedAuthority> authorities,
+                         boolean actif,
+                         String societeId) {
+        this.societeId = societeId;
         this.id = id;
         this.centerId = centerId;
         this.username = username;
@@ -45,6 +60,10 @@ public class UserPrincipal implements UserDetails {
 
     public String getCenterId() {
         return centerId;
+    }
+
+    public String getSocieteId() {
+        return societeId;
     }
 
     @Override

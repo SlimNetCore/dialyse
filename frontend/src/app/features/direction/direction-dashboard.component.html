@@ -1,0 +1,117 @@
+<section class="direction" data-testid="direction-dashboard">
+  <header class="direction-head">
+    <div>
+      <h1>{{ 'DIRECTION.TITLE' | translate }}</h1>
+      @if (store.overview(); as o) {
+        <p class="subtitle">{{ o.societeNom }}</p>
+      }
+    </div>
+    <form (submit)="$event.preventDefault(); apply()" [formRoot]="periodForm" class="period">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'DIRECTION.PERIOD_FROM' | translate }}</mat-label>
+        <input [formField]="periodForm.from" data-testid="direction-from" matInput type="date"/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'DIRECTION.PERIOD_TO' | translate }}</mat-label>
+        <input [formField]="periodForm.to" data-testid="direction-to" matInput type="date"/>
+      </mat-form-field>
+      <button (click)="apply()" [disabled]="!canApply()" data-testid="direction-apply" mat-flat-button type="button">
+        <mat-icon>refresh</mat-icon>
+        {{ 'DIRECTION.APPLY' | translate }}
+      </button>
+    </form>
+  </header>
+
+  @if (store.loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error()) {
+    <div class="error-msg" data-testid="direction-error">{{ errorKey() | translate }}</div>
+  }
+
+  @if (store.overview(); as o) {
+    <p class="notice">
+      <mat-icon>shield</mat-icon>
+      {{ 'DIRECTION.ANONYMITY_NOTICE' | translate: {threshold: o.seuilAnonymat} }}
+      <span
+        class="fresh">{{ 'DIRECTION.GENERATED_AT' | translate }} {{ o.generatedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+    </p>
+
+    <div class="kpis" data-testid="direction-kpis">
+      <mat-card class="kpi">
+        <span>{{ 'DIRECTION.KPI.PATIENTS' | translate }}</span><strong>{{ headcount(o.totaux.patients) }}</strong>
+      </mat-card>
+      <mat-card class="kpi">
+        <span>{{ 'DIRECTION.KPI.SEANCES' | translate }}</span><strong>{{ o.totaux.seances }}</strong></mat-card>
+      <mat-card class="kpi">
+        <span>{{ 'DIRECTION.KPI.CA_TTC' | translate }}</span><strong>{{ o.totaux.caTtc | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+      </mat-card>
+      <mat-card class="kpi">
+        <span>{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</span><strong>{{ o.totaux.encaisse | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+      </mat-card>
+      <mat-card class="kpi">
+        <span>{{ 'DIRECTION.KPI.RESTE' | translate }}</span><strong>{{ o.totaux.resteARecouvrer | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+      </mat-card>
+      <mat-card class="kpi">
+        <span>{{ 'DIRECTION.KPI.TAUX' | translate }}</span><strong>{{ o.totaux.tauxEncaissement === null ? '—' : o.totaux.tauxEncaissement + ' %' }}</strong>
+      </mat-card>
+    </div>
+
+    <mat-card class="block">
+      <h2>{{ 'DIRECTION.CENTRES_TITLE' | translate }}</h2>
+      <div class="table-scroll">
+        <table class="centres" data-testid="direction-centres">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.KPI.PATIENTS' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.COL.SOUS_KT' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.KPI.SEANCES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.COL.FACTURES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.KPI.CA_TTC' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.KPI.RESTE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.KPI.TAUX' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (c of store.rankedCentres(); track c.centerId) {
+              <tr [class.inactive]="!c.actif">
+                <td>{{ c.nom }}</td>
+                <td class="num">{{ headcount(c.patients) }}</td>
+                <td class="num">{{ headcount(c.patientsSousKt) }}</td>
+                <td class="num">{{ c.seances }}</td>
+                <td class="num">{{ c.factures }}</td>
+                <td class="num">{{ c.caTtc | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td class="num">{{ c.encaisse | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td class="num">{{ c.resteARecouvrer | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td [class]="'rate ' + level(c.tauxEncaissement)" class="num rate">
+                  {{ c.tauxEncaissement === null ? '—' : c.tauxEncaissement + ' %' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
+
+    <div class="charts">
+      <mat-card class="block">
+        <h2>{{ 'DIRECTION.CHART_REVENUE' | translate }}</h2>
+        <div class="chart-wrap">
+          <canvas [data]="revenueChart()" [options]="barOptions" [type]="'bar'" baseChart></canvas>
+        </div>
+      </mat-card>
+      <mat-card class="block">
+        <h2>{{ 'DIRECTION.CHART_TREND' | translate }}</h2>
+        @if (store.months().length === 0) {
+          <p class="muted">{{ 'DIRECTION.EMPTY_TREND' | translate }}</p>
+        } @else {
+          <div class="chart-wrap">
+            <canvas [data]="trendChart()" [options]="lineOptions" [type]="'line'" baseChart></canvas>
+          </div>
+        }
+      </mat-card>
+    </div>
+  }
+</section>

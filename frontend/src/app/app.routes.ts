@@ -1,7 +1,7 @@
 import {Routes} from '@angular/router';
 import {ShellComponent} from './core/layout/shell.component';
 import {authGuard} from './core/auth/auth.guard';
-import {ownerScopeGuard} from './core/auth/owner-scope.guard';
+import {directionGuard, roleScopeGuard} from './core/auth/role-scope.guard';
 
 export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./features/auth/login-page.component').then(m => m.LoginPageComponent) },
@@ -9,7 +9,7 @@ export const routes: Routes = [
     path: '',
     component: ShellComponent,
     canActivate: [authGuard],
-    canActivateChild: [ownerScopeGuard],
+    canActivateChild: [roleScopeGuard],
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/center-dashboard.component').then(m => m.CenterDashboardComponent) },
       { path: 'modeles-document', loadComponent: () => import('./features/reporting/modeles-document.component').then(m => m.ModelesDocumentComponent) },
@@ -30,6 +30,11 @@ export const routes: Routes = [
       {
         path: 'comptabilite',
         loadChildren: () => import('./features/comptabilite/comptabilite.routes').then(m => m.comptabiliteRoutes)
+      },
+      {
+        path: 'direction',
+        canActivate: [directionGuard],
+        loadComponent: () => import('./features/direction/direction-dashboard.component').then(m => m.DirectionDashboardComponent)
       },
       { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

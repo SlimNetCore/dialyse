@@ -9,10 +9,13 @@ export type DirectoryItem = {
   name: string;
 };
 
+export type SessionScope = 'CENTRE' | 'SOCIETE' | 'PLATEFORME';
+
 export type LoginPayload = {
   /** Société choisie à l'étape 1 ; le serveur vérifie que le centre lui appartient. */
   societeId?: string;
-  centerId: string;
+  /** Absent pour une connexion sans centre (direction, propriétaire). */
+  centerId?: string;
   username: string;
   password: string;
 };
@@ -21,9 +24,13 @@ export type LoginResponse = {
   username: string;
   fullName: string;
   userId: string;
-  centerId: string;
-  centerName: string;
+  centerId: string | null;
+  centerName: string | null;
   roles: string[];
+  societeId?: string | null;
+  societeName?: string | null;
+  /** CENTRE, SOCIETE (direction) ou PLATEFORME (propriétaire). */
+  scope?: SessionScope;
 };
 
 export type LogoutResponse = {

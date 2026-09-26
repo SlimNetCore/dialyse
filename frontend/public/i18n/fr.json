@@ -72,6 +72,60 @@
     "ISSUE_ERROR": "Échec de l'émission des licences",
     "SOCIETES_LOAD_ERROR": "Impossible de charger les sociétés"
   },
+  "DIRECTION": {
+    "TITLE": "Tableau de bord de la direction",
+    "PERIOD_FROM": "Du",
+    "PERIOD_TO": "Au",
+    "APPLY": "Actualiser",
+    "ANONYMITY_NOTICE": "Agrégats anonymes uniquement : les effectifs inférieurs à {{threshold}} sont masqués.",
+    "GENERATED_AT": "Données au",
+    "CENTRES_TITLE": "Comparatif des centres",
+    "CHART_REVENUE": "Chiffre d'affaires et encaissements par centre",
+    "CHART_TREND": "Évolution mensuelle du chiffre d'affaires",
+    "EMPTY_TREND": "Aucune donnée sur la période.",
+    "KPI": {
+      "PATIENTS": "Patients",
+      "SEANCES": "Séances",
+      "CA_TTC": "CA TTC",
+      "ENCAISSE": "Encaissé",
+      "RESTE": "Reste à recouvrer",
+      "TAUX": "Taux d'encaissement"
+    },
+    "COL": {
+      "CENTRE": "Centre",
+      "SOUS_KT": "Patients sous KT",
+      "FACTURES": "Factures"
+    },
+    "ERROR": {
+      "LOAD_ERROR": "Impossible de charger le tableau de bord.",
+      "PERIODE_INVALIDE": "La période est invalide (la date de début doit précéder la date de fin).",
+      "PERIODE_TROP_LONGUE": "La période ne peut pas dépasser 5 ans."
+    },
+    "ACCOUNTS": {
+      "TITLE": "Comptes direction",
+      "ADD": "Ajouter un compte",
+      "HINT": "Comptes réservés à la consultation des tableaux de bord de la société (agrégats anonymes, sans centre).",
+      "CREATE_TITLE": "Nouveau compte direction",
+      "RESET_TITLE": "Réinitialiser le mot de passe",
+      "USERNAME": "Identifiant",
+      "FULL_NAME": "Nom complet",
+      "EMAIL": "E-mail",
+      "PASSWORD": "Mot de passe",
+      "PASSWORD_HINT": "12 caractères minimum, avec lettres et chiffres",
+      "EMPTY": "Aucun compte direction pour cette société.",
+      "CREATED_OK": "Compte direction créé",
+      "PASSWORD_RESET_OK": "Mot de passe réinitialisé",
+      "ACTIVATED_OK": "Compte activé",
+      "DEACTIVATED_OK": "Compte désactivé",
+      "ERR": {
+        "GENERIC": "Action impossible (identifiant déjà utilisé ou société inactive ?)",
+        "PASSWORD_TOO_SHORT": "Mot de passe trop court (12 caractères minimum)",
+        "PASSWORD_TOO_LONG": "Mot de passe trop long",
+        "PASSWORD_WEAK": "Le mot de passe doit contenir des lettres et des chiffres",
+        "PASSWORD_CONTAINS_USERNAME": "Le mot de passe ne doit pas contenir l'identifiant"
+      }
+    }
+  },
   "SOCIETES": {
     "PIED_PAGE": "Pied de page des documents",
     "PIED_PAGE_HINT": "Mention imprimée en bas de tous les documents (forme juridique, capital, agrément…). 500 caractères maximum.",
@@ -143,6 +197,12 @@
     "ACTION_ERROR": "Action impossible"
   },
   "LOGIN": {
+    "MODE_LABEL": "Type de connexion",
+    "MODE_CENTRE": "Centre",
+    "MODE_DIRECTION": "Direction / Propriétaire",
+    "SOCIETE_OPTIONAL": "Société (facultatif)",
+    "NO_SOCIETE": "Aucune (propriétaire de l'application)",
+    "DIRECTION_HINT": "Direction : choisissez votre société. Propriétaire : laissez vide.",
     "TITLE": "Connexion",
     "SUBTITLE": "Identifiez-vous pour accéder à votre centre",
     "CENTER": "Centre d'hémodialyse",
@@ -1036,6 +1096,7 @@
     "CLOTUREE_DESC": "Prise en charge expirée — séance bloquée"
   },
   "NAV": {
+    "DIRECTION": "Direction",
     "DASHBOARD": "Tableau de bord",
     "PATIENTS": "Patients",
     "PEC_ADMIN": "Validation PEC",

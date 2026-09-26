@@ -44,13 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String username = tokenProvider.getUsernameFromToken(token);
                 String userId = tokenProvider.getUserIdFromToken(token);
                 String centerId = tokenProvider.getCenterIdFromToken(token);
+                String societeId = tokenProvider.getSocieteIdFromToken(token);
                 List<String> roles = tokenProvider.getRolesFromToken(token);
 
                 List<SimpleGrantedAuthority> authorities = roles.stream()
                     .map(r -> new SimpleGrantedAuthority(r.startsWith("ROLE_") ? r : "ROLE_" + r))
                     .collect(Collectors.toList());
 
-                UserPrincipal principal = new UserPrincipal(userId, centerId, username, "", authorities, true);
+                UserPrincipal principal = new UserPrincipal(userId, centerId, username, "", authorities, true, societeId);
 
                 UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(principal, null, authorities);

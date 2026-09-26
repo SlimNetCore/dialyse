@@ -72,6 +72,60 @@
     "ISSUE_ERROR": "Arnu n turagin ur yeddi ara",
     "SOCIETES_LOAD_ERROR": "Ur yezmir ara usali n tuddsiwin"
   },
+  "DIRECTION": {
+    "TITLE": "Tafelwit n tegdurt",
+    "PERIOD_FROM": "Seg",
+    "PERIOD_TO": "Ɣer",
+    "APPLY": "Smiren",
+    "ANONYMITY_NOTICE": "Isefka imezdayen kan: uṭṭunen ddaw {{threshold}} ttuffren.",
+    "GENERATED_AT": "Isefka n",
+    "CENTRES_TITLE": "Asemyizwer n yiɣwen",
+    "CHART_REVENUE": "Asebter n tuffɣa d tuṭṭfa s uɣwen",
+    "CHART_TREND": "Asnimel unebdu n tuffɣa",
+    "EMPTY_TREND": "Ulac isefka deg tallit.",
+    "KPI": {
+      "PATIENTS": "Inelmaden",
+      "SEANCES": "Iɣimen",
+      "CA_TTC": "Tuffɣa TTC",
+      "ENCAISSE": "Yettwaḥṣel",
+      "RESTE": "Ayen d-yeqqimen",
+      "TAUX": "Ameskar n uḥṣal"
+    },
+    "COL": {
+      "CENTRE": "Aseɣwen",
+      "SOUS_KT": "Inelmaden s KT",
+      "FACTURES": "Isfuyla"
+    },
+    "ERROR": {
+      "LOAD_ERROR": "Ur izmir ara ad d-yali ukemmus.",
+      "PERIODE_INVALIDE": "Tallit ur tṣeḥḥa ara.",
+      "PERIODE_TROP_LONGUE": "Tallit ur tezmir ara ad tɛeddi 5 n yiseggasen."
+    },
+    "ACCOUNTS": {
+      "TITLE": "Imiḍanen n tegdurt",
+      "ADD": "Rnu amiḍan",
+      "HINT": "Imiḍanen i wakken ad ttwalin kan tifelwiyin n tkebbanit (isefka imezdayen, war aseɣwen).",
+      "CREATE_TITLE": "Amiḍan amaynut n tegdurt",
+      "RESET_TITLE": "Wennez awal uffir",
+      "USERNAME": "Isem n useqdac",
+      "FULL_NAME": "Isem ummid",
+      "EMAIL": "Imayl",
+      "PASSWORD": "Awal uffir",
+      "PASSWORD_HINT": "12 n yisekkilen ad-drus, s isekkilen d wuṭṭunen",
+      "EMPTY": "Ulac amiḍan n tegdurt i tkebbanit-a.",
+      "CREATED_OK": "Amiḍan n tegdurt yettwarna",
+      "PASSWORD_RESET_OK": "Awal uffir yettwabeddel",
+      "ACTIVATED_OK": "Amiḍan yettwarmed",
+      "DEACTIVATED_OK": "Amiḍan yettwasens",
+      "ERR": {
+        "GENERIC": "Ur yezmir ara ad yettwaskar (isem n useqdac yettwaseqdac yakan ?)",
+        "PASSWORD_TOO_SHORT": "Awal uffir mecṭuḥ aṭas (12 n yisekkilen ad-drus)",
+        "PASSWORD_TOO_LONG": "Awal uffir ɣezzif aṭas",
+        "PASSWORD_WEAK": "Awal uffir ilaq ad yesɛu isekkilen d wuṭṭunen",
+        "PASSWORD_CONTAINS_USERNAME": "Awal uffir ur ilaq ara ad yesɛu isem n useqdac"
+      }
+    }
+  },
   "SOCIETES": {
     "PIED_PAGE": "Aduddu n yisemliyen",
     "PIED_PAGE_HINT": "Aḍris yettwaseggem deg ududdu n yal isemli (tawsit tasertit, ugur, ameɣnas…). 500 n isekkilen ugar.",
@@ -143,6 +197,12 @@
     "ACTION_ERROR": "Tigawt ur tezmir ara"
   },
   "LOGIN": {
+    "MODE_LABEL": "Anaw n unekcum",
+    "MODE_CENTRE": "Aseɣwen",
+    "MODE_DIRECTION": "Tegdurt / Bab n usnas",
+    "SOCIETE_OPTIONAL": "Takebbanit (afrayan)",
+    "NO_SOCIETE": "Ulac (bab n usnas)",
+    "DIRECTION_HINT": "Tegdurt: fren takebbanit-ik. Bab n usnas: eǧǧ-it d ilem.",
     "TITLE": "Qqen",
     "SUBTITLE": "Issin iman-ik akken ad tkecmeḍ ɣer tnasiw-ik",
     "CENTER": "Tanasiwt n usired n idammen",
@@ -1026,6 +1086,7 @@
     "CLOTUREE_DESC": "Takfalit tfuk — taɣimit tettwaḥbes"
   },
   "NAV": {
+    "DIRECTION": "Tegdurt",
     "DASHBOARD": "Tafelwit n uselkim",
     "PATIENTS": "Imdanen",
     "PEC_ADMIN": "Asentem n tneḍrutin",

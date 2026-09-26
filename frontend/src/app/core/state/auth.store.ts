@@ -1,15 +1,18 @@
 import {computed, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
 import {firstValueFrom} from 'rxjs';
-import {AuthApiService, LoginResponse} from '../api/auth-api.service';
+import {AuthApiService, LoginResponse, SessionScope} from '../api/auth-api.service';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 
 export type AuthSession = {
   username: string;
   fullName?: string;
-  centerId: string;
-  centerName: string;
+  centerId: string | null;
+  centerName: string | null;
   roles?: string[];
+  societeId?: string | null;
+  societeName?: string | null;
+  scope?: SessionScope;
 };
 
 type AuthState = {
@@ -18,6 +21,9 @@ type AuthState = {
   centerId: string | null;
   centerName: string | null;
   roles: string[];
+  societeId: string | null;
+  societeName: string | null;
+  scope: SessionScope;
   isAuthenticated: boolean;
   serverSyncPending: number;
 };
@@ -28,6 +34,9 @@ const INITIAL_STATE: AuthState = {
   centerId: null,
   centerName: null,
   roles: [],
+  societeId: null,
+  societeName: null,
+  scope: 'CENTRE',
   isAuthenticated: false,
   serverSyncPending: 0
 };
@@ -56,6 +65,9 @@ export const AuthStore = signalStore(
           centerId: session.centerId,
           centerName: session.centerName,
           roles: session.roles ?? [],
+          societeId: session.societeId ?? null,
+          societeName: session.societeName ?? null,
+          scope: session.scope ?? 'CENTRE',
           isAuthenticated: true
         });
       },
@@ -70,6 +82,9 @@ export const AuthStore = signalStore(
           centerId: null,
           centerName: null,
           roles: [],
+          societeId: null,
+          societeName: null,
+          scope: 'CENTRE',
           isAuthenticated: false,
           serverSyncPending: 0
         });
@@ -150,7 +165,10 @@ function mapLoginResponseToSession(res: LoginResponse): AuthSession {
     fullName: res.fullName,
     centerId: res.centerId,
     centerName: res.centerName,
-    roles: res.roles ?? []
+    roles: res.roles ?? [],
+    societeId: res.societeId ?? null,
+    societeName: res.societeName ?? null,
+    scope: res.scope ?? 'CENTRE'
   };
 }
 

@@ -58,9 +58,12 @@ public class AuthRestController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
-        LoginResult result = authService.login(request.societeId(), request.centerId(), request.username(), request.password());
+        // Avec un centre : session de centre. Sans centre : session direction (société) ou propriétaire (plateforme).
+        LoginResult result = request.centerId() != null
+                ? authService.login(request.societeId(), request.centerId(), request.username(), request.password())
+                : authService.loginScoped(request.societeId(), request.username(), request.password());
         String accessToken = result.token();
-        String refreshToken = authService.issueRefreshToken(result.userId(), result.centerId());
+        String refreshToken = authService.issueRefreshToken(result.userId(), result.centerId(), result.societeId());
 
         ResponseCookie accessCookie = buildCookie(authCookieName, accessToken, authCookieMaxAgeSec, authCookiePath);
         ResponseCookie refreshCookie = buildCookie(refreshCookieName, refreshToken, refreshCookieMaxAgeSec, refreshCookiePath);
@@ -73,7 +76,10 @@ public class AuthRestController {
                         result.userId(),
                         result.centerId(),
                         result.centerName(),
-                        result.roles()
+                        result.roles(),
+                        result.societeId(),
+                        result.societeName(),
+                        result.scope()
                 ));
     }
 
@@ -148,13 +154,15 @@ public class AuthRestController {
         if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
             return ResponseEntity.status(401).build();
         }
-        if (principal.getCenterId() == null || principal.getCenterId().isBlank()) {
-            return ResponseEntity.status(401).build();
-        }
-
-        UUID centerId = UUID.fromString(principal.getCenterId());
         UUID userId = UUID.fromString(principal.getId());
-        LoginResult result = authService.rebuildSession(centerId, userId);
+        boolean withoutCenter = principal.getCenterId() == null || principal.getCenterId().isBlank();
+        LoginResult result;
+        if (withoutCenter) {
+            boolean platform = principal.getSocieteId() == null || principal.getSocieteId().isBlank();
+            result = authService.rebuildScopedSession(platform ? null : UUID.fromString(principal.getSocieteId()), userId);
+        } else {
+            result = authService.rebuildSession(UUID.fromString(principal.getCenterId()), userId);
+        }
 
         return ResponseEntity.ok(new LoginResponse(
                 result.username(),
@@ -162,7 +170,10 @@ public class AuthRestController {
                 result.userId(),
                 result.centerId(),
                 result.centerName(),
-                result.roles()
+                result.roles(),
+                result.societeId(),
+                result.societeName(),
+                result.scope()
         ));
     }
 
@@ -195,12 +206,12 @@ public class AuthRestController {
     /**
      * {@code societeId} est facultatif (compatibilité) mais, s'il est fourni, le centre doit lui appartenir.
      */
-    public record LoginRequest(UUID societeId, @NotNull UUID centerId, @NotBlank String username,
+    public record LoginRequest(UUID societeId, UUID centerId, @NotBlank String username,
                                @NotBlank String password) {
     }
 
     public record LoginResponse(String username, String fullName, UUID userId, UUID centerId, String centerName,
-                                List<String> roles) {
+                                List<String> roles, UUID societeId, String societeName, String scope) {
     }
 
     public record LogoutResponse(boolean loggedOut) {

@@ -17,6 +17,8 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {LangStore} from '../../core/state/lang.store';
 import {ThemeStore} from '../../core/state/theme.store';
 import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {homeRouteFor} from '../../core/auth/role-scope.guard';
 import {LoginPageStore} from './state/login-page.store';
 
 @Component({
@@ -34,6 +36,7 @@ import {LoginPageStore} from './state/login-page.store';
     FormRoot,
     FormField,
     MatMenuModule,
+    MatButtonToggleModule,
     TitleCasePipe,
   ],
   templateUrl: './login-page.component.html',
@@ -56,6 +59,12 @@ export class LoginPageComponent {
   readonly centres = signal<DirectoryItem[]>([]);
   readonly loadingCentres = signal(false);
 
+  /**
+   * « centre » : société puis centre (personnel). « direction » : société facultative, sans centre — le
+   * propriétaire de l'application (aucune société) et la direction d'une société se connectent ici.
+   */
+  readonly mode = signal<'centre' | 'direction'>('centre');
+
   readonly loginModel = signal({
     selectedSociete: '',
     selectedCenter: '',
@@ -71,7 +80,8 @@ export class LoginPageComponent {
   });
   readonly canSubmit = computed(() => {
     const form = this.loginModel();
-    return !!form.selectedSociete && !!form.selectedCenter && !!form.username && !!form.password && !this.loading();
+    const identified = !!form.username && !!form.password && !this.loading();
+    return this.mode() === 'direction' ? identified : identified && !!form.selectedSociete && !!form.selectedCenter;
   });
   private readonly selectedSocieteId = computed(() => this.loginModel().selectedSociete);
 
@@ -95,23 +105,30 @@ export class LoginPageComponent {
   }
 
   doLogin(): void {
+    if (!this.canSubmit()) return;
     const {selectedSociete, selectedCenter, username, password} = this.loginModel();
-    if (!selectedSociete || !selectedCenter || !username || !password || this.loading()) return;
+    const direction = this.mode() === 'direction';
     this.loginStore.setLoading(true);
     this.loginStore.setError('');
     this.authApi
-      .login({societeId: selectedSociete, centerId: selectedCenter, username, password})
+      .login({
+        societeId: selectedSociete || undefined,
+        centerId: direction ? undefined : selectedCenter,
+        username,
+        password,
+      })
       .subscribe({
         next: (res) => {
           this.authStore.setSession(res);
-          this.store.switchCenter(res.centerId);
-          this.authApi.getAccessibleCenters().subscribe({
-            next: (centers) => this.store.setAvailableCenters(centers),
-            error: () => undefined,
-          });
+          if (res.centerId) {
+            this.store.switchCenter(res.centerId);
+            this.authApi.getAccessibleCenters().subscribe({
+              next: (centers) => this.store.setAvailableCenters(centers),
+              error: () => undefined,
+            });
+          }
           this.loginStore.setLoading(false);
-          const owner = (res.roles ?? []).some((r) => r === 'SUPERADMIN' || r === 'ROLE_SUPERADMIN');
-          this.router.navigate([owner ? '/admin/societes' : '/dashboard']);
+          this.router.navigate([homeRouteFor(res.roles ?? [])]);
         },
         error: (err) => {
           this.loginStore.setError(
@@ -120,6 +137,11 @@ export class LoginPageComponent {
           this.loginStore.setLoading(false);
         },
       });
+  }
+
+  setMode(mode: 'centre' | 'direction'): void {
+    this.mode.set(mode);
+    this.loginStore.setError('');
   }
 
   private loadCentres(societeId: string): void {

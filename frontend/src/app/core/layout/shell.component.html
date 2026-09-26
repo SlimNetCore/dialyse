@@ -6,7 +6,7 @@
   </div>
   <div class="topbar-right">
     <!-- Notification bell -->
-    @if (!ownerMode) {
+    @if (!centreless) {
       <app-notification-bell/>
     }
 
@@ -72,7 +72,7 @@
       <mat-icon>account_circle</mat-icon>
       <span class="user-name">{{ auth.fullName() || auth.username() }}</span>
       <span class="separator">•</span>
-      <span class="center-name">{{ auth.centerName() }}</span>
+      <span class="center-name">{{ auth.centerName() || auth.societeName() }}</span>
     </button>
     <mat-menu #userMenu="matMenu">
       @if (auth.hasRole('ROLE_ADMIN') || auth.hasRole('ADMIN')) {
