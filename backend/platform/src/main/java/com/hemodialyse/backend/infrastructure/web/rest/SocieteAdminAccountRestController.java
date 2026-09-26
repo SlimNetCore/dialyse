@@ -5,6 +5,7 @@ import com.hemodialyse.backend.application.direction.SocieteAdminAccountService.
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
@@ -58,6 +59,13 @@ public class SocieteAdminAccountRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PutMapping("/{userId}")
+    public ResponseEntity<Account> update(@PathVariable UUID societeId, @PathVariable UUID userId,
+                                          @RequestBody @Valid UpdateAdminRequest request) {
+        return ResponseEntity.ok(service.update(societeId, userId, request.fullName(), request.email(),
+                request.centerIds()));
+    }
+
     @PostMapping("/{userId}/activer")
     public ResponseEntity<Void> activate(@PathVariable UUID societeId, @PathVariable UUID userId) {
         service.setActive(societeId, userId, true);
@@ -82,6 +90,11 @@ public class SocieteAdminAccountRestController {
                                      @Size(max = 150) String fullName,
                                      @Size(max = 150) String email,
                                      @NotBlank @Size(max = 100) String password) {
+    }
+
+    public record UpdateAdminRequest(@Size(max = 150) String fullName,
+                                     @Size(max = 150) String email,
+                                     @NotEmpty List<UUID> centerIds) {
     }
 
     public record ResetPasswordRequest(@NotBlank @Size(max = 100) String password) {

@@ -83,7 +83,8 @@ class InitialSetupIntegrationTest {
 
     @AfterEach
     void cleanup() {
-        jdbc.update("DELETE FROM app_user_center WHERE center_id IN (?, ?)", CENTRE, CENTRE_OTHER);
+        jdbc.update("DELETE FROM app_user_center WHERE center_id IN (?, ?, ?) OR user_id IN (SELECT id FROM app_user WHERE username LIKE 'zt-%')",
+                CENTRE, CENTRE_OTHER, UUID.fromString("99998000-0000-0000-0000-0000000000a2"));
         jdbc.update("DELETE FROM app_user_role WHERE user_id IN (SELECT id FROM app_user WHERE username LIKE 'zt-%')");
         jdbc.update("DELETE FROM app_user WHERE username LIKE 'zt-%'");
         jdbc.update("DELETE FROM centers WHERE code LIKE 'ZT-SU%'");
@@ -124,6 +125,44 @@ class InitialSetupIntegrationTest {
                 .andExpect(jsonPath("$.scope").value("PLATEFORME"));
     }
 
+    @Test
+    void the_owner_assigns_an_existing_admin_to_another_centre_of_the_societe() throws Exception {
+        UUID second = UUID.fromString("99998000-0000-0000-0000-0000000000a2");
+        jdbc.update("INSERT INTO centers (id, code, name, societe_id, actif) VALUES (?,?,?,?,TRUE)", second, "ZT-SU1-D", "Centre S1 bis", SOC);
+        mockMvc.perform(post("/api/v1/societes/{id}/admin-accounts", SOC).contentType(MediaType.APPLICATION_JSON)
+                .content(adminBody(CENTRE, "zt-admin-s1", "Admin-Centre-2026")).with(user(principal("SUPERADMIN"))));
+        UUID userId = jdbc.queryForObject("SELECT id FROM app_user WHERE username = 'zt-admin-s1'", UUID.class);
+        // un rattachement à une autre société ne doit jamais être touché
+        jdbc.update("INSERT INTO app_user_center (user_id, center_id) VALUES (?, ?)", userId, CENTRE_OTHER);
+
+        String both = "{\"fullName\":\"Admin Renommé\",\"email\":\"admin@exemple.dz\",\"centerIds\":[\"" + CENTRE + "\",\"" + second + "\"]}";
+        mockMvc.perform(put("/api/v1/societes/{s}/admin-accounts/{u}", SOC, userId).contentType(MediaType.APPLICATION_JSON)
+                        .content(both).with(user(principal("ADMIN"))))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/api/v1/societes/{s}/admin-accounts/{u}", SOC, userId).contentType(MediaType.APPLICATION_JSON)
+                        .content(both).with(user(principal("SUPERADMIN"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fullName").value("Admin Renommé"))
+                .andExpect(jsonPath("$.centres.length()").value(2));
+
+        // centre d'une autre société, liste vide : refusés
+        mockMvc.perform(put("/api/v1/societes/{s}/admin-accounts/{u}", SOC, userId).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerIds\":[\"" + CENTRE_OTHER + "\"]}").with(user(principal("SUPERADMIN"))))
+                .andExpect(status().isUnprocessableEntity());
+        mockMvc.perform(put("/api/v1/societes/{s}/admin-accounts/{u}", SOC, userId).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerIds\":[]}").with(user(principal("SUPERADMIN"))))
+                .andExpect(status().isBadRequest());
+
+        // retrait du premier centre : reste le second, et le lien vers l'autre société est conservé
+        mockMvc.perform(put("/api/v1/societes/{s}/admin-accounts/{u}", SOC, userId).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"centerIds\":[\"" + second + "\"]}").with(user(principal("SUPERADMIN"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.centres.length()").value(1))
+                .andExpect(jsonPath("$.centres[0].name").value("Centre S1 bis"));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(1) FROM app_user_center WHERE user_id = ? AND center_id = ?",
+                Integer.class, userId, CENTRE_OTHER));
+    }
+
     // ───────────────────────────── Utilitaires ─────────────────────────────
 
     @Test
@@ -161,7 +200,7 @@ class InitialSetupIntegrationTest {
         mockMvc.perform(post("/api/v1/societes/{id}/admin-accounts", SOC).contentType(MediaType.APPLICATION_JSON)
                         .content(ok).with(user(principal("SUPERADMIN"))))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.centerName").value("Centre S1"));
+                .andExpect(jsonPath("$.centres[0].name").value("Centre S1"));
         mockMvc.perform(post("/api/v1/societes/{id}/admin-accounts", SOC).contentType(MediaType.APPLICATION_JSON)
                         .content(ok).with(user(principal("SUPERADMIN"))))
                 .andExpect(status().isUnprocessableEntity());

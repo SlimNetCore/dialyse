@@ -8,15 +8,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
  * Administrateurs (rôle {@code ADMIN}) des centres d'une société : c'est le propriétaire de l'application qui les
- * crée. Chaque administrateur est rattaché à un centre de la société ; il gère ensuite lui-même le personnel de
- * son centre. Le compte propriétaire, lui, ne peut être créé que par l'installation initiale.
+ * crée et les modifie. Un administrateur est rattaché à un ou plusieurs centres de la société (par exemple à
+ * chaque nouveau centre créé) et gère ensuite le personnel de ces centres. Le compte propriétaire, lui, ne peut
+ * être créé que par l'installation initiale.
  */
 @Service
 public class SocieteAdminAccountService {
@@ -24,8 +30,10 @@ public class SocieteAdminAccountService {
     private static final Logger log = LoggerFactory.getLogger(SocieteAdminAccountService.class);
     private static final Pattern USERNAME = Pattern.compile("[a-z0-9][a-z0-9._-]{2,49}");
     private static final Pattern EMAIL = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
+
     private final JdbcTemplate jdbc;
     private final PasswordEncoder encoder;
+
     public SocieteAdminAccountService(JdbcTemplate jdbc, PasswordEncoder encoder) {
         this.jdbc = jdbc;
         this.encoder = encoder;
@@ -33,18 +41,27 @@ public class SocieteAdminAccountService {
 
     public List<Account> list(UUID societeId) {
         requireSociete(societeId);
-        return jdbc.query(
+        Map<UUID, Account> byUser = new LinkedHashMap<>();
+        jdbc.query(
                 "SELECT u.id, u.username, u.full_name, u.email, u.active, c.id AS center_id, c.name AS center_name "
                         + "FROM app_user u "
                         + "INNER JOIN app_user_center uc ON uc.user_id = u.id "
                         + "INNER JOIN centers c ON c.id = uc.center_id "
                         + "INNER JOIN app_user_role ur ON ur.user_id = u.id "
                         + "INNER JOIN app_role r ON r.id = ur.role_id AND r.code = 'ADMIN' "
-                        + "WHERE c.societe_id = ? ORDER BY c.name, u.username",
-                (rs, i) -> new Account(rs.getObject("id", UUID.class), rs.getString("username"),
-                        rs.getString("full_name"), rs.getString("email"), rs.getBoolean("active"),
-                        rs.getObject("center_id", UUID.class), rs.getString("center_name")),
+                        + "WHERE c.societe_id = ? ORDER BY u.username, c.name",
+                (java.sql.ResultSet rs) -> {
+                    UUID id = rs.getObject("id", UUID.class);
+                    Account account = byUser.get(id);
+                    if (account == null) {
+                        account = new Account(id, rs.getString("username"), rs.getString("full_name"),
+                                rs.getString("email"), rs.getBoolean("active"), new ArrayList<>());
+                        byUser.put(id, account);
+                    }
+                    account.centres().add(new CentreRef(rs.getObject("center_id", UUID.class), rs.getString("center_name")));
+                },
                 societeId);
+        return List.copyOf(byUser.values());
     }
 
     @Transactional
@@ -81,7 +98,51 @@ public class SocieteAdminAccountService {
         jdbc.update("INSERT INTO app_user_center (user_id, center_id) VALUES (?, ?)", userId, centerId);
         log.info("Administrateur de centre créé : société={}, centre={}, utilisateur={}, par={}",
                 societeId, centerId, login, createdBy);
-        return new Account(userId, login, name, mail, true, centerId, centerName);
+        List<CentreRef> centres = new ArrayList<>();
+        centres.add(new CentreRef(centerId, centerName));
+        return new Account(userId, login, name, mail, true, centres);
+    }
+
+    /**
+     * Modifie un administrateur : nom, e-mail et centres de la société auxquels il est rattaché (au moins un). Les
+     * rattachements à des centres d'autres sociétés ne sont jamais touchés. Retirer un centre coupe les sessions
+     * ouvertes sur ce centre.
+     */
+    @Transactional
+    public Account update(UUID societeId, UUID userId, String fullName, String email, List<UUID> centerIds) {
+        requireAdminAccount(societeId, userId);
+        String mail = email == null || email.isBlank() ? null : email.trim();
+        if (mail != null && !EMAIL.matcher(mail).matches()) {
+            throw new BusinessException("EMAIL_INVALID", "Adresse email invalide");
+        }
+        Set<UUID> wanted = new LinkedHashSet<>(centerIds == null ? List.of() : centerIds);
+        if (wanted.isEmpty()) {
+            throw new BusinessException("CENTRE_REQUIS", "Un administrateur doit être rattaché à au moins un centre");
+        }
+        for (UUID centerId : wanted) {
+            centreOf(societeId, centerId);
+        }
+        String username = jdbc.queryForObject("SELECT username FROM app_user WHERE id = ?", String.class, userId);
+        String name = fullName == null || fullName.isBlank() ? username : fullName.trim();
+        jdbc.update("UPDATE app_user SET full_name = ?, email = ? WHERE id = ?", name, mail, userId);
+
+        List<UUID> current = jdbc.queryForList(
+                "SELECT uc.center_id FROM app_user_center uc INNER JOIN centers c ON c.id = uc.center_id "
+                        + "WHERE uc.user_id = ? AND c.societe_id = ?", UUID.class, userId, societeId);
+        for (UUID centerId : current) {
+            if (!wanted.contains(centerId)) {
+                jdbc.update("DELETE FROM app_user_center WHERE user_id = ? AND center_id = ?", userId, centerId);
+                jdbc.update("UPDATE auth_refresh_token SET revoked = TRUE, revoked_at = CURRENT_TIMESTAMP "
+                        + "WHERE user_id = ? AND center_id = ? AND revoked = FALSE", userId, centerId);
+            }
+        }
+        for (UUID centerId : wanted) {
+            if (!current.contains(centerId)) {
+                jdbc.update("INSERT INTO app_user_center (user_id, center_id) VALUES (?, ?)", userId, centerId);
+            }
+        }
+        log.info("Administrateur de centre modifié : société={}, utilisateur={}, centres={}", societeId, username, wanted);
+        return list(societeId).stream().filter(a -> a.userId().equals(userId)).findFirst().orElseThrow();
     }
 
     @Transactional
@@ -132,9 +193,7 @@ public class SocieteAdminAccountService {
         return names.get(0);
     }
 
-    /**
-     * Le compte doit porter le rôle ADMIN et être rattaché à un centre de cette société.
-     */
+    /** Le compte doit porter le rôle ADMIN et être rattaché à un centre de cette société. */
     private void requireAdminAccount(UUID societeId, UUID userId) {
         Integer n = jdbc.queryForObject(
                 "SELECT COUNT(1) FROM app_user_center uc "
@@ -148,7 +207,11 @@ public class SocieteAdminAccountService {
         }
     }
 
+    public record CentreRef(UUID id, String name) {
+    }
+
+    /** Un administrateur peut être rattaché à plusieurs centres de la société. */
     public record Account(UUID userId, String username, String fullName, String email, boolean active,
-                          UUID centerId, String centerName) {
+                          List<CentreRef> centres) {
     }
 }

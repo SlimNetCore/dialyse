@@ -106,6 +106,10 @@
     }
   },
   "ADMIN_ACCOUNTS": {
+    "EDIT_TITLE": "Edit administrator",
+    "CENTRES": "Centres",
+    "CENTRES_HINT": "Select the centres of the company this administrator manages (at least one).",
+    "UPDATED_OK": "Administrator updated",
     "TITLE": "Centre administrators",
     "ADD": "Add an administrator",
     "HINT": "Each administrator is attached to a centre of the company and then manages the staff of that centre.",

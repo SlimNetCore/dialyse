@@ -106,6 +106,10 @@
     }
   },
   "ADMIN_ACCOUNTS": {
+    "EDIT_TITLE": "Modifier l'administrateur",
+    "CENTRES": "Centres",
+    "CENTRES_HINT": "Cochez les centres de la société que cet administrateur gère (au moins un).",
+    "UPDATED_OK": "Administrateur modifié",
     "TITLE": "Administrateurs des centres",
     "ADD": "Ajouter un administrateur",
     "HINT": "Chaque administrateur est rattaché à un centre de la société et gère ensuite le personnel de ce centre.",

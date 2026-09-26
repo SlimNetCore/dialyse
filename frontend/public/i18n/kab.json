@@ -106,6 +106,10 @@
     }
   },
   "ADMIN_ACCOUNTS": {
+    "EDIT_TITLE": "Ẓreg anedbal",
+    "CENTRES": "Iɣwen",
+    "CENTRES_HINT": "Fren iɣwen n tkebbanit i yesefrek unedbal-a (yiwen ad-drus).",
+    "UPDATED_OK": "Anedbal yettwaẓreg",
     "TITLE": "Inedbalen n yiɣwen",
     "ADD": "Rnu anedbal",
     "HINT": "Yal anedbal yeqqen ɣer uɣwen n tkebbanit, syen yesefrek udrus n uɣwen-nni.",

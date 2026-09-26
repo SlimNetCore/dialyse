@@ -26,11 +26,14 @@ import {Observable} from 'rxjs';
 import {AdminAccount, SocieteAdminApiService} from '../../../core/api/societe-admin-api.service';
 import {CentreSociete} from '../../../core/api/societe-api.service';
 import {accountErrorKey} from './direction-accounts.component';
+import {adminToForm, centreNames, emptyAdminForm, toUpdatePayload} from './admin-accounts.util';
+
+type Mode = 'create' | 'edit' | 'reset';
 
 /**
- * Administrateurs des centres d'une société, créés par le propriétaire de l'application : un administrateur est
- * rattaché à un centre de la société et gère ensuite le personnel de ce centre. Création, activation,
- * désactivation et réinitialisation du mot de passe (jamais affiché ni renvoyé par le serveur).
+ * Administrateurs des centres d'une société, gérés par le propriétaire de l'application : création, modification
+ * (nom, e-mail et centres — par exemple pour affecter un administrateur existant à un nouveau centre),
+ * activation, désactivation et réinitialisation du mot de passe (jamais affiché ni renvoyé par le serveur).
  */
 @Component({
   selector: 'app-admin-accounts',
@@ -52,17 +55,26 @@ export class AdminAccountsComponent {
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly formOpen = signal(false);
-  /** Non nul : réinitialisation du mot de passe de ce compte ; nul : création. */
-  protected readonly resetTarget = signal<AdminAccount | null>(null);
+  protected readonly mode = signal<Mode>('create');
+  /** Compte visé par une modification ou une réinitialisation. */
+  protected readonly target = signal<AdminAccount | null>(null);
   protected readonly activeCentres = computed(() => this.centres().filter((c) => c.actif));
-  protected readonly model = signal({centerId: '', username: '', fullName: '', email: '', password: ''});
+  protected readonly model = signal(emptyAdminForm());
   protected readonly form = compatForm(this.model, (f) => {
     required(f.password);
   });
+  protected readonly centreNames = centreNames;
   protected readonly canSave = computed(() => {
     const m = this.model();
-    const identified = this.resetTarget() !== null || (!!m.username.trim() && !!m.centerId);
-    return identified && !!m.password && !this.saving();
+    if (this.saving()) return false;
+    switch (this.mode()) {
+      case 'create':
+        return !!m.username.trim() && !!m.centerId && !!m.password;
+      case 'edit':
+        return m.centerIds.length > 0;
+      case 'reset':
+        return !!m.password;
+    }
   });
 
   private readonly api = inject(SocieteAdminApiService);
@@ -78,46 +90,51 @@ export class AdminAccountsComponent {
   }
 
   protected openCreate(): void {
-    this.resetTarget.set(null);
-    this.model.set({centerId: this.activeCentres()[0]?.id ?? '', username: '', fullName: '', email: '', password: ''});
-    this.error.set(null);
-    this.formOpen.set(true);
+    this.open('create', null, {...emptyAdminForm(), centerId: this.activeCentres()[0]?.id ?? ''});
+  }
+
+  protected openEdit(account: AdminAccount): void {
+    this.open('edit', account, adminToForm(account));
   }
 
   protected openReset(account: AdminAccount): void {
-    this.resetTarget.set(account);
-    this.model.set({centerId: account.centerId, username: account.username, fullName: '', email: '', password: ''});
-    this.error.set(null);
-    this.formOpen.set(true);
+    this.open('reset', account, adminToForm(account));
   }
 
   protected close(): void {
     this.formOpen.set(false);
-    this.resetTarget.set(null);
-    this.model.set({centerId: '', username: '', fullName: '', email: '', password: ''});
+    this.target.set(null);
+    this.model.set(emptyAdminForm());
   }
 
   protected save(): void {
     if (!this.canSave()) return;
     const societeId = this.societeId();
     const m = this.model();
-    const target = this.resetTarget();
+    const target = this.target();
+    const mode = this.mode();
     this.saving.set(true);
     this.error.set(null);
-    const call: Observable<unknown> = target
-      ? this.api.resetPassword(societeId, target.userId, m.password)
-      : this.api.create(societeId, {
+    let call: Observable<unknown>;
+    if (mode === 'reset' && target) {
+      call = this.api.resetPassword(societeId, target.userId, m.password);
+    } else if (mode === 'edit' && target) {
+      call = this.api.update(societeId, target.userId, toUpdatePayload(m));
+    } else {
+      call = this.api.create(societeId, {
         centerId: m.centerId,
         username: m.username.trim(),
         fullName: m.fullName.trim() || undefined,
         email: m.email.trim() || undefined,
         password: m.password,
       });
+    }
     call.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving.set(false);
         this.close();
-        this.notify(target ? 'ADMIN_ACCOUNTS.PASSWORD_RESET_OK' : 'ADMIN_ACCOUNTS.CREATED_OK');
+        this.notify(mode === 'reset' ? 'ADMIN_ACCOUNTS.PASSWORD_RESET_OK'
+          : mode === 'edit' ? 'ADMIN_ACCOUNTS.UPDATED_OK' : 'ADMIN_ACCOUNTS.CREATED_OK');
         this.reload(societeId);
       },
       error: (err: { error?: { code?: string } }) => {
@@ -136,6 +153,14 @@ export class AdminAccountsComponent {
       },
       error: () => this.notify('DIRECTION.ACCOUNTS.ERR.GENERIC'),
     });
+  }
+
+  private open(mode: Mode, account: AdminAccount | null, model: ReturnType<typeof emptyAdminForm>): void {
+    this.mode.set(mode);
+    this.target.set(account);
+    this.model.set(model);
+    this.error.set(null);
+    this.formOpen.set(true);
   }
 
   private reload(societeId: string): void {

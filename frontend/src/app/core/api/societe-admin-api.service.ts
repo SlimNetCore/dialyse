@@ -3,14 +3,19 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 
+export type AdminCentre = {
+  id: string;
+  name: string;
+};
+
+/** Un administrateur peut être rattaché à plusieurs centres de la société. */
 export type AdminAccount = {
   userId: string;
   username: string;
   fullName: string | null;
   email: string | null;
   active: boolean;
-  centerId: string;
-  centerName: string;
+  centres: AdminCentre[];
 };
 
 export type CreateAdminAccount = {
@@ -19,6 +24,12 @@ export type CreateAdminAccount = {
   fullName?: string;
   email?: string;
   password: string;
+};
+
+export type UpdateAdminAccount = {
+  fullName?: string;
+  email?: string;
+  centerIds: string[];
 };
 
 /** Administrateurs des centres d'une société : créés et gérés par le propriétaire de l'application. */
@@ -33,6 +44,11 @@ export class SocieteAdminApiService {
 
   create(societeId: string, payload: CreateAdminAccount): Observable<AdminAccount> {
     return this.http.post<AdminAccount>(this.url(societeId), payload, {withCredentials: true});
+  }
+
+  /** Modifie le nom, l'e-mail et les centres de la société auxquels l'administrateur est rattaché. */
+  update(societeId: string, userId: string, payload: UpdateAdminAccount): Observable<AdminAccount> {
+    return this.http.put<AdminAccount>(`${this.url(societeId)}/${userId}`, payload, {withCredentials: true});
   }
 
   setActive(societeId: string, userId: string, active: boolean): Observable<void> {
