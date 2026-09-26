@@ -1,0 +1,73 @@
+<main class="setup-wrapper">
+  <mat-card class="setup-card" data-testid="setup-card">
+    <mat-card-header>
+      <div class="card-eyebrow">{{ 'SETUP.EYEBROW' | translate }}</div>
+      <mat-card-title>{{ 'SETUP.TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'SETUP.SUBTITLE' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (checking() || loading()) {
+        <mat-progress-bar mode="indeterminate"/>
+      }
+      @if (error()) {
+        <div class="error-msg" data-testid="setup-error">{{ error()! | translate }}</div>
+      }
+
+      @if (!checking()) {
+        <form [formRoot]="form" class="setup-form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SETUP.USERNAME' | translate }}</mat-label>
+            <input [formField]="form.username" autocomplete="username" data-testid="setup-username" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SETUP.FULL_NAME' | translate }}</mat-label>
+            <input [formField]="form.fullName" autocomplete="name" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SETUP.EMAIL' | translate }}</mat-label>
+            <input [formField]="form.email" autocomplete="email" matInput type="email"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SETUP.PASSWORD' | translate }}</mat-label>
+            <input [formField]="form.password" autocomplete="new-password" data-testid="setup-password" matInput
+                   type="password"/>
+          </mat-form-field>
+
+          <ul class="rules" data-testid="setup-rules">
+            <li [class.ok]="checks().length">{{ 'SETUP.RULE_LENGTH' | translate: {count: minLength} }}</li>
+            <li [class.ok]="checks().upper">{{ 'SETUP.RULE_UPPER' | translate }}</li>
+            <li [class.ok]="checks().lower">{{ 'SETUP.RULE_LOWER' | translate }}</li>
+            <li [class.ok]="checks().digit">{{ 'SETUP.RULE_DIGIT' | translate }}</li>
+            <li [class.ok]="checks().symbol">{{ 'SETUP.RULE_SYMBOL' | translate }}</li>
+            <li [class.ok]="checks().noUsername">{{ 'SETUP.RULE_NO_USERNAME' | translate }}</li>
+          </ul>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SETUP.CONFIRM' | translate }}</mat-label>
+            <input [formField]="form.confirm" autocomplete="new-password" data-testid="setup-confirm" matInput
+                   type="password"/>
+            @if (mismatch()) {
+              <mat-error>{{ 'SETUP.MISMATCH' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          @if (tokenRequired()) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'SETUP.TOKEN' | translate }}</mat-label>
+              <input [formField]="form.setupToken" autocomplete="off" data-testid="setup-token" matInput
+                     type="password"/>
+              <mat-hint>{{ 'SETUP.TOKEN_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          }
+
+          <button (click)="submit()" [disabled]="!canSubmit()" class="setup-btn" data-testid="setup-submit"
+                  mat-flat-button type="button">
+            <mat-icon>verified_user</mat-icon>
+            {{ 'SETUP.SUBMIT' | translate }}
+          </button>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

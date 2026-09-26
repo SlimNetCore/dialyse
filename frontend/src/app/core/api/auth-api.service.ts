@@ -33,6 +33,20 @@ export type LoginResponse = {
   scope?: SessionScope;
 };
 
+/** État de l'installation : `required` tant qu'aucun compte propriétaire n'existe. */
+export type SetupStatus = {
+  required: boolean;
+  tokenRequired: boolean;
+};
+
+export type CreateOwnerPayload = {
+  username: string;
+  fullName?: string;
+  email?: string;
+  password: string;
+  setupToken?: string;
+};
+
 export type LogoutResponse = {
   loggedOut: boolean;
 };
@@ -63,6 +77,18 @@ export class AuthApiService {
   /** Centres accessibles à l'utilisateur connecté (SUPERADMIN : tous ; sinon ceux de sa société). */
   getAccessibleCenters(): Observable<DirectoryItem[]> {
     return this.http.get<DirectoryItem[]>(`${this.baseUrl}/auth/centres`, {withCredentials: true});
+  }
+
+  getSetupStatus(): Observable<SetupStatus> {
+    // Public : un refus ne doit jamais déclencher le rafraîchissement de session ni une redirection.
+    return this.http.get<SetupStatus>(`${this.baseUrl}/auth/setup/status`, {
+      headers: new HttpHeaders({'x-skip-auth-refresh': '1'})
+    });
+  }
+
+  /** Installation initiale : crée le compte propriétaire (refusé dès qu'il en existe un). */
+  createOwner(payload: CreateOwnerPayload): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/setup/superadmin`, payload);
   }
 
   logout(): Observable<LogoutResponse> {

@@ -3,6 +3,7 @@ package com.hemodialyse.backend.infrastructure.config;
 import com.hemodialyse.backend.infrastructure.security.license.LicenseKeyProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,9 +16,10 @@ import java.util.UUID;
  * Commodité locale/dev uniquement : crée le rôle {@code SUPERADMIN} et un compte {@code superadmin} pour pouvoir
  * essayer la gestion des sociétés sans manipuler la base.
  *
- * <p>Comme {@link DevLicenseBootstrapInitializer}, cette classe ne fait <b>rien</b> dès que de vraies clés de
- * licence sont configurées (toute installation réelle) : le compte de l'éditeur y est créé à la main, jamais
- * avec un mot de passe connu du dépôt.
+ * <p><b>Désactivé par défaut</b> : le compte propriétaire est normalement créé à la première ouverture de
+ * l'application (écran d'installation, {@code InitialSetupService}) avec un mot de passe choisi par son titulaire.
+ * Cette commodité ne s'active que sur demande explicite ({@code app.dev.superadmin.enabled=true}) et, comme
+ * {@link DevLicenseBootstrapInitializer}, jamais dès que de vraies clés de licence sont configurées.
  */
 @Component
 public class DevSuperAdminBootstrapInitializer implements CommandLineRunner {
@@ -29,12 +31,15 @@ public class DevSuperAdminBootstrapInitializer implements CommandLineRunner {
     private static final String USERNAME = "superadmin";
     private static final String DEV_PASSWORD = "superadmin$$2026dz";
 
+    private final boolean enabled;
     private final LicenseKeyProperties keyProperties;
     private final JdbcTemplate jdbc;
     private final PasswordEncoder encoder;
 
-    public DevSuperAdminBootstrapInitializer(LicenseKeyProperties keyProperties, JdbcTemplate jdbc,
+    public DevSuperAdminBootstrapInitializer(@Value("${app.dev.superadmin.enabled:false}") boolean enabled,
+                                             LicenseKeyProperties keyProperties, JdbcTemplate jdbc,
                                              PasswordEncoder encoder) {
+        this.enabled = enabled;
         this.keyProperties = keyProperties;
         this.jdbc = jdbc;
         this.encoder = encoder;
@@ -42,7 +47,7 @@ public class DevSuperAdminBootstrapInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!keyProperties.isEphemeralDevMode()) {
+        if (!enabled || !keyProperties.isEphemeralDevMode()) {
             return;
         }
         if (count("SELECT COUNT(1) FROM app_role WHERE code = 'SUPERADMIN'") == 0) {

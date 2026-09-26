@@ -46,6 +46,9 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  setup:
+    # Facultatif : si renseigné, la création du compte propriétaire exige ce jeton (installation exposée sur Internet).
+    token: ${SETUP_TOKEN:}
   cache:
     ttl:
       referentials: ${CACHE_TTL_REFERENTIALS:PT6H}

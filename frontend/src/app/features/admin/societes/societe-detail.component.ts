@@ -23,6 +23,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
+import {AdminAccountsComponent} from './admin-accounts.component';
 import {DirectionAccountsComponent} from './direction-accounts.component';
 import {CentreSociete, Societe, SocieteApiService} from '../../../core/api/societe-api.service';
 import {
@@ -63,6 +64,7 @@ import {
     MatTooltipModule,
     FormRoot,
     FormField,
+    AdminAccountsComponent,
     DirectionAccountsComponent,
   ],
   templateUrl: './societe-detail.component.html',

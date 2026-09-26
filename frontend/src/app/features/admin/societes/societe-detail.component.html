@@ -101,6 +101,9 @@
       </form>
     </mat-card>
 
+    <!-- Administrateurs des centres (créés par le propriétaire) -->
+    <app-admin-accounts [centres]="societe()!.centres" [societeId]="societe()!.id"/>
+
     <!-- Comptes de la direction de la société (tableau de bord consolidé) -->
     <app-direction-accounts [societeId]="societe()!.id"/>
 

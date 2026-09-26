@@ -80,6 +80,9 @@
         @if (loading()) {
           <mat-progress-bar mode="indeterminate"/>
         }
+        @if (setupDone) {
+          <div class="success-msg" data-testid="setup-done">{{ 'SETUP.DONE' | translate }}</div>
+        }
         @if (error()) {
           <div class="error-msg">{{ error() }}</div>
         }

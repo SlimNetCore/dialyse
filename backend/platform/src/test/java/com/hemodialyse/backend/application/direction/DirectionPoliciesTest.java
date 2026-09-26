@@ -30,4 +30,13 @@ class DirectionPoliciesTest {
         assertEquals("PASSWORD_CONTAINS_USERNAME", PasswordPolicy.violation("Direction-2026x", "direction"));
         assertEquals("PASSWORD_TOO_LONG", PasswordPolicy.violation("a1".repeat(60), "u"));
     }
+
+    @Test
+    void the_owner_password_policy_is_stricter() {
+        assertNull(PasswordPolicy.ownerViolation("Proprietaire#Solide-2026", "owner"));
+        assertEquals("PASSWORD_TOO_SHORT", PasswordPolicy.ownerViolation("Aa1!aaaaaaaa", "u"));
+        assertEquals("PASSWORD_WEAK", PasswordPolicy.ownerViolation("proprietaire-solide-2026", "u"));
+        assertEquals("PASSWORD_WEAK", PasswordPolicy.ownerViolation("ProprietaireSolide2026", "u"));
+        assertEquals("PASSWORD_CONTAINS_USERNAME", PasswordPolicy.ownerViolation("Zz-Owner-Secret-2026", "owner"));
+    }
 }

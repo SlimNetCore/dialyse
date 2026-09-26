@@ -1,6 +1,6 @@
 import {TitleCasePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -51,6 +51,8 @@ export class LoginPageComponent {
   readonly theme = inject(ThemeStore);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
+  /** Affiché après la création du compte propriétaire par l'installation initiale. */
+  readonly setupDone = inject(ActivatedRoute).snapshot.queryParamMap.get('setup') === 'done';
   readonly loading = this.loginStore.loading;
   readonly error = this.loginStore.error;
 
@@ -86,6 +88,14 @@ export class LoginPageComponent {
   private readonly selectedSocieteId = computed(() => this.loginModel().selectedSociete);
 
   constructor() {
+    // Première ouverture : aucun propriétaire n'existe encore, l'installation doit d'abord le créer.
+    this.authApi.getSetupStatus().subscribe({
+      next: (status) => {
+        if (status.required) void this.router.navigate(['/setup']);
+      },
+      error: () => undefined,
+    });
+
     this.authApi.getLoginSocietes().subscribe({
       next: (list) => {
         this.societes.set(list);

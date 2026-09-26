@@ -39,6 +39,8 @@ export class App {
   private readonly currentUrl = signal('/');
   readonly startupServerUnavailable = computed(() => this.backendInit.state() === 'server-unavailable');
   readonly isLoginRoute = computed(() => this.currentUrl().startsWith('/login'));
+  /** Pages accessibles sans session : connexion et installation initiale. */
+  private readonly isPublicRoute = computed(() => this.isLoginRoute() || this.currentUrl().startsWith('/setup'));
 
   constructor() {
     inject(ThemeStore);
@@ -53,7 +55,7 @@ export class App {
       if (this.backendInit.state() !== 'ready-for-auth') {
         return;
       }
-      if (this.isLoginRoute()) {
+      if (this.isPublicRoute()) {
         return;
       }
       if (!this.auth.isAuthenticated()) {

@@ -10,6 +10,10 @@ import java.util.Locale;
 public final class PasswordPolicy {
 
     public static final int MIN_LENGTH = 12;
+    /**
+     * Le compte propriétaire (SUPERADMIN) porte tous les droits d'édition : politique renforcée.
+     */
+    public static final int OWNER_MIN_LENGTH = 14;
 
     private PasswordPolicy() {
     }
@@ -24,6 +28,25 @@ public final class PasswordPolicy {
         boolean digit = password.chars().anyMatch(Character::isDigit);
         if (!letter || !digit) return "PASSWORD_WEAK";
         if (username != null && password.toLowerCase(Locale.ROOT).contains(username.toLowerCase(Locale.ROOT))) {
+            return "PASSWORD_CONTAINS_USERNAME";
+        }
+        return null;
+    }
+
+    /**
+     * Politique du compte propriétaire : 14 caractères minimum avec majuscule, minuscule, chiffre et symbole, sans
+     * l'identifiant. Mêmes codes que {@link #violation}.
+     */
+    public static String ownerViolation(String password, String username) {
+        if (password == null || password.length() < OWNER_MIN_LENGTH) return "PASSWORD_TOO_SHORT";
+        if (password.length() > 100) return "PASSWORD_TOO_LONG";
+        boolean upper = password.chars().anyMatch(Character::isUpperCase);
+        boolean lower = password.chars().anyMatch(Character::isLowerCase);
+        boolean digit = password.chars().anyMatch(Character::isDigit);
+        boolean symbol = password.chars().anyMatch(c -> !Character.isLetterOrDigit(c) && !Character.isWhitespace(c));
+        if (!upper || !lower || !digit || !symbol) return "PASSWORD_WEAK";
+        if (username != null && !username.isBlank()
+                && password.toLowerCase(Locale.ROOT).contains(username.toLowerCase(Locale.ROOT))) {
             return "PASSWORD_CONTAINS_USERNAME";
         }
         return null;

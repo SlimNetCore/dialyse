@@ -40,6 +40,8 @@ async function mockBackend(page: Page): Promise<{ loginBodies: unknown[] }> {
     });
   });
   await page.route('**/actuator/health*', (r) => r.fulfill({json: {status: 'UP'}}));
+  // Le rafraîchissement ne doit jamais atteindre un vrai backend local : indisponible, sans redirection.
+  await page.route('**/api/v1/auth/refresh', (r) => r.fulfill({status: 503, json: {}}));
   await page.route('**/api/v1/auth/societes', (r) => r.fulfill({json: [SOCIETE]}));
   await page.route('**/api/v1/auth/societes/*/centres', (r) => r.fulfill({json: []}));
   await page.route('**/api/v1/auth/me', (r) =>
