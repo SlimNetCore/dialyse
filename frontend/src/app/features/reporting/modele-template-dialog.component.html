@@ -1,0 +1,183 @@
+<div class="tpl-dialog">
+  <div class="tpl-head">
+    <div>
+      <h2 mat-dialog-title>
+        <mat-icon>design_services</mat-icon>
+        {{ 'REPORTING.CUSTOMIZE.TITLE' | translate }}
+      </h2>
+      <p class="tpl-subtitle">{{ data.libelle }} <code>{{ data.code }}</code></p>
+    </div>
+    @if (hasCustomActive()) {
+      <span class="tpl-badge tpl-badge-custom">
+        <mat-icon>tune</mat-icon>
+        {{ 'REPORTING.CUSTOMIZE.ACTIVE_CUSTOM' | translate: {version: activeVersion()} }}
+      </span>
+    } @else {
+      <span class="tpl-badge">
+        <mat-icon>inventory_2</mat-icon>
+        {{ 'REPORTING.CUSTOMIZE.ACTIVE_ORIGINAL' | translate }}
+      </span>
+    }
+  </div>
+
+  <mat-dialog-content class="tpl-content">
+    <!-- Étapes -->
+    <ol class="tpl-steps">
+      <li>
+        <b>{{ 'REPORTING.CUSTOMIZE.STEP1_TITLE' | translate }}</b>
+        <span>{{ 'REPORTING.CUSTOMIZE.STEP1_TEXT' | translate }}</span>
+      </li>
+      <li>
+        <b>{{ 'REPORTING.CUSTOMIZE.STEP2_TITLE' | translate }}</b>
+        <span>{{ 'REPORTING.CUSTOMIZE.STEP2_TEXT' | translate }}</span>
+      </li>
+      <li>
+        <b>{{ 'REPORTING.CUSTOMIZE.STEP3_TITLE' | translate }}</b>
+        <span>{{ 'REPORTING.CUSTOMIZE.STEP3_TEXT' | translate }}</span>
+      </li>
+    </ol>
+
+    <div class="tpl-security" role="note">
+      <mat-icon>verified_user</mat-icon>
+      <span>{{ 'REPORTING.CUSTOMIZE.SECURITY_NOTE' | translate }}</span>
+    </div>
+
+    <!-- Téléchargement -->
+    <div class="tpl-actions">
+      <button (click)="downloadCurrent()" color="primary" mat-flat-button type="button">
+        <mat-icon>download</mat-icon>
+        {{ 'REPORTING.CUSTOMIZE.DOWNLOAD_CURRENT' | translate }}
+      </button>
+      @if (hasCustomActive()) {
+        <button (click)="downloadOriginal()" mat-stroked-button type="button">
+          <mat-icon>inventory_2</mat-icon>
+          {{ 'REPORTING.CUSTOMIZE.DOWNLOAD_ORIGINAL' | translate }}
+        </button>
+      }
+    </div>
+
+    <!-- Téléversement -->
+    <form [formRoot]="commentForm" class="tpl-upload">
+      <h3>{{ 'REPORTING.CUSTOMIZE.UPLOAD_TITLE' | translate }}</h3>
+      <div class="tpl-file-row">
+        <label class="tpl-file-btn mat-mdc-stroked-button mdc-button--outlined">
+          <mat-icon>upload_file</mat-icon>
+          {{ 'REPORTING.CUSTOMIZE.CHOOSE_FILE' | translate }}
+          <input (change)="onFileSelected($event)" accept=".jrxml,application/xml,text/xml" hidden type="file"/>
+        </label>
+        <span class="tpl-file-name">
+          {{ selectedFile()?.name ?? ('REPORTING.CUSTOMIZE.NO_FILE' | translate) }}
+        </span>
+      </div>
+
+      <mat-form-field appearance="outline" class="tpl-comment">
+        <mat-label>{{ 'REPORTING.CUSTOMIZE.COMMENT_LABEL' | translate }}</mat-label>
+        <textarea [formField]="commentForm.commentaire" matInput rows="2"></textarea>
+        <mat-hint>{{ 'REPORTING.CUSTOMIZE.COMMENT_HINT' | translate }}</mat-hint>
+      </mat-form-field>
+
+      @if (uploading()) {
+        <mat-progress-bar mode="indeterminate"/>
+      }
+
+      @if (violations().length) {
+        <div class="tpl-violations" role="alert">
+          <div class="tpl-violations-title">
+            <mat-icon>error</mat-icon>
+            {{ 'REPORTING.CUSTOMIZE.REJECTED_TITLE' | translate }}
+          </div>
+          <ul>
+            @for (v of violations(); track $index) {
+              <li>
+                <b>{{ violationKey(v.code) | translate }}</b>
+                @if (v.detail) {
+                  <code>{{ v.detail }}</code>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="tpl-upload-actions">
+        <button (click)="upload()" [disabled]="!canUpload()" color="primary" mat-flat-button type="button">
+          <mat-icon>cloud_upload</mat-icon>
+          {{ 'REPORTING.CUSTOMIZE.UPLOAD_BTN' | translate }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Historique -->
+    <div class="tpl-history-head">
+      <h3>{{ 'REPORTING.CUSTOMIZE.HISTORY_TITLE' | translate }}</h3>
+      @if (hasCustomActive()) {
+        <button (click)="resetToOriginal()" color="warn" mat-stroked-button type="button">
+          <mat-icon>restore</mat-icon>
+          {{ 'REPORTING.CUSTOMIZE.RESET_BTN' | translate }}
+        </button>
+      }
+    </div>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate"/>
+    }
+
+    <div class="tpl-table-wrap">
+      <table [dataSource]="versions()" class="tpl-table" mat-table>
+        <ng-container matColumnDef="version">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REPORTING.CUSTOMIZE.COL_VERSION' | translate }}</th>
+          <td *matCellDef="let v" mat-cell>
+            <b>v{{ v.version }}</b>
+            @if (v.actif) {
+              <span class="tpl-active-chip">{{ 'REPORTING.CUSTOMIZE.ACTIVE' | translate }}</span>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="uploadedAt">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REPORTING.CUSTOMIZE.COL_DATE' | translate }}</th>
+          <td *matCellDef="let v" mat-cell>{{ v.uploadedAt | date: 'short' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="uploadedBy">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REPORTING.CUSTOMIZE.COL_AUTHOR' | translate }}</th>
+          <td *matCellDef="let v" mat-cell>{{ v.uploadedBy }}</td>
+        </ng-container>
+        <ng-container matColumnDef="commentaire">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REPORTING.CUSTOMIZE.COL_COMMENT' | translate }}</th>
+          <td *matCellDef="let v" mat-cell>{{ v.commentaire || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="taille">
+          <th *matHeaderCellDef mat-header-cell>{{ 'REPORTING.CUSTOMIZE.COL_SIZE' | translate }}</th>
+          <td *matCellDef="let v" mat-cell>{{ formatSize(v.tailleOctets) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+          <td *matCellDef="let v" mat-cell>
+            <button (click)="downloadVersion(v)" [matTooltip]="'REPORTING.CUSTOMIZE.DOWNLOAD_VERSION' | translate"
+                    mat-icon-button type="button">
+              <mat-icon>download</mat-icon>
+            </button>
+            @if (!v.actif) {
+              <button (click)="activate(v)" [matTooltip]="'REPORTING.CUSTOMIZE.ACTIVATE' | translate"
+                      color="primary" mat-icon-button type="button">
+                <mat-icon>published_with_changes</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+      </table>
+    </div>
+
+    @if (!loading() && versions().length === 0) {
+      <p class="tpl-empty">{{ 'REPORTING.CUSTOMIZE.NO_VERSION' | translate }}</p>
+    }
+
+    <mat-paginator (page)="onPage($event)" [length]="total()" [pageIndex]="pageIndex()"
+                   [pageSizeOptions]="pageSizeOptions" [pageSize]="pageSize()" showFirstLastButtons/>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button (click)="close()" mat-stroked-button type="button">{{ 'REPORTING.CUSTOMIZE.CLOSE' | translate }}</button>
+  </mat-dialog-actions>
+</div>

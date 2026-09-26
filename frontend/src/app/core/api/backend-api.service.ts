@@ -6,6 +6,30 @@ import {environment} from '../../../environments/environment';
 export type PatientType = 'VACANCIER' | 'NON_VACANCIER';
 export type PecStatus = 'CREE' | 'VALIDEE' | 'CLOTUREE';
 
+/** Version personnalisée d'un modèle d'impression téléversée par un administrateur. */
+export type ModeleVersion = {
+  id: string;
+  version: number;
+  actif: boolean;
+  sha256: string;
+  tailleOctets: number;
+  commentaire: string | null;
+  uploadedBy: string;
+  uploadedAt: string;
+};
+
+export type ModeleVersionsPage = {
+  items: ModeleVersion[];
+  total: number;
+  page: number;
+  size: number;
+  /** Version personnalisée en vigueur ; `null` = modèle d'origine. */
+  activeVersion: number | null;
+};
+
+/** Anomalie détectée par la validation serveur d'un modèle téléversé (code stable + détail technique). */
+export type ModeleViolation = { code: string; detail: string };
+
 export type PagedResponse<T> = {
   items: T[];
   total: number;
@@ -1173,6 +1197,49 @@ export class BackendApiService {
   deleteModeleDocument(id: string, centerId: string): Observable<{ deleted: boolean }> {
     const params = new HttpParams().set('centerId', centerId);
     return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/documents/modeles/${id}`, { params });
+  }
+
+  // ─── Personnalisation des modèles d'impression (JRXML) ────────────
+
+  /** Historique paginé des versions personnalisées d'un modèle. */
+  listModeleVersions(modeleId: string, centerId: string, page: number, size: number): Observable<ModeleVersionsPage> {
+    const params = new HttpParams().set('centerId', centerId).set('page', page).set('size', size);
+    return this.http.get<ModeleVersionsPage>(`${this.baseUrl}/documents/modeles/${modeleId}/versions`, {params});
+  }
+
+  /**
+   * Télécharge le modèle à éditer : une version précise, le modèle d'origine (`origine`) ou, par défaut,
+   * le modèle en vigueur (version personnalisée active, sinon modèle d'origine).
+   */
+  downloadModeleSource(modeleId: string, centerId: string, options: {
+    version?: number;
+    origine?: boolean
+  } = {}): Observable<Blob> {
+    let params = new HttpParams().set('centerId', centerId);
+    if (options.version != null) params = params.set('version', options.version);
+    if (options.origine) params = params.set('origine', true);
+    return this.http.get(`${this.baseUrl}/documents/modeles/${modeleId}/source`, {params, responseType: 'blob'});
+  }
+
+  /** Téléverse un modèle modifié ; le serveur le valide et répond 422 `{violations}` s'il est refusé. */
+  uploadModeleVersion(modeleId: string, centerId: string, file: File, commentaire: string): Observable<ModeleVersion> {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    if (commentaire.trim()) body.append('commentaire', commentaire.trim());
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.post<ModeleVersion>(`${this.baseUrl}/documents/modeles/${modeleId}/versions`, body, {params});
+  }
+
+  /** Réactive une ancienne version personnalisée (retour arrière). */
+  activateModeleVersion(modeleId: string, centerId: string, version: number): Observable<ModeleVersion> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.post<ModeleVersion>(`${this.baseUrl}/documents/modeles/${modeleId}/versions/${version}/activate`, {}, {params});
+  }
+
+  /** Revient au modèle d'origine livré avec l'application (l'historique est conservé). */
+  resetModele(modeleId: string, centerId: string): Observable<void> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.post<void>(`${this.baseUrl}/documents/modeles/${modeleId}/reset`, {}, {params});
   }
 
   /** Types de documents disponibles */

@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler;
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
+import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
+import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.ModeleDocumentDto;
 import com.hemodialyse.backend.infrastructure.web.dto.request.DocumentSearchRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.PrintRequest;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -36,10 +40,30 @@ public class DocumentRestController {
 
     private final JdbcTemplate jdbc;
     private final JasperReportService jasperService;
+    /**
+     * Chemins de modèles autorisés : uniquement les modèles livrés avec l'application (jamais un chemin disque libre).
+     */
+    private static final java.util.regex.Pattern SAFE_TEMPLATE_PATH =
+            java.util.regex.Pattern.compile("reports/[A-Za-z0-9_\\-]+\\.jrxml");
+    private final ModeleDocumentTemplateService templateService;
+    private final CustomTemplateCompiler customTemplateCompiler;
+    private final CenterAccessGuard centerAccessGuard;
 
-    public DocumentRestController(JdbcTemplate jdbc, JasperReportService jasperService) {
+    public DocumentRestController(JdbcTemplate jdbc, JasperReportService jasperService,
+                                  ModeleDocumentTemplateService templateService,
+                                  CustomTemplateCompiler customTemplateCompiler,
+                                  CenterAccessGuard centerAccessGuard) {
         this.jdbc = jdbc;
         this.jasperService = jasperService;
+        this.templateService = templateService;
+        this.customTemplateCompiler = customTemplateCompiler;
+        this.centerAccessGuard = centerAccessGuard;
+    }
+
+    private static void requireSafeTemplatePath(String path) {
+        if (path == null || !SAFE_TEMPLATE_PATH.matcher(path).matches()) {
+            throw new IllegalArgumentException("Chemin de modèle invalide : attendu reports/<nom>.jrxml");
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -52,6 +76,7 @@ public class DocumentRestController {
     @GetMapping("/modeles")
     public ResponseEntity<?> listModeles(@RequestParam UUID centerId,
                                          @RequestParam(required = false) String typeDocument) {
+        centerId = centerAccessGuard.requireCenter(centerId).value();
         String sql = "SELECT id, center_id, code, libelle, type_document, chemin_jrxml, " +
                 "format_impression, description, active FROM modele_document " +
                 "WHERE center_id = ? " +
@@ -69,6 +94,7 @@ public class DocumentRestController {
      */
     @PostMapping("/modeles/search")
     public ResponseEntity<?> searchModeles(@RequestBody @Valid DocumentSearchRequest criteria) {
+        centerAccessGuard.requireCenter(criteria.centerId());
         String sql = "SELECT id, center_id, code, libelle, type_document, chemin_jrxml, " +
                 "format_impression, description, active FROM modele_document " +
                 "WHERE center_id = ? " +
@@ -90,12 +116,15 @@ public class DocumentRestController {
     /**
      * Créer un modèle
      */
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/modeles")
     public ResponseEntity<?> createModele(@RequestBody ModeleDocumentDto req) {
+        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).value();
+        requireSafeTemplatePath(req.cheminJrxml());
         UUID id = req.id() != null ? req.id() : UUID.randomUUID();
         jdbc.update("INSERT INTO modele_document (id, center_id, code, libelle, type_document, " +
                         "chemin_jrxml, format_impression, description, active) VALUES (?,?,?,?,?,?,?,?,?)",
-                id, req.centerId(), req.code(), req.libelle(), req.typeDocument(),
+                id, centerId, req.code(), req.libelle(), req.typeDocument(),
                 req.cheminJrxml(), req.formatImpression(), req.description(), req.active());
         return ResponseEntity.ok(Map.of("id", id));
     }
@@ -103,22 +132,30 @@ public class DocumentRestController {
     /**
      * Modifier un modèle
      */
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PutMapping("/modeles/{id}")
     public ResponseEntity<?> updateModele(@PathVariable UUID id, @RequestBody ModeleDocumentDto req) {
+        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).value();
+        requireSafeTemplatePath(req.cheminJrxml());
         jdbc.update("UPDATE modele_document SET code=?, libelle=?, type_document=?, " +
                         "chemin_jrxml=?, format_impression=?, description=?, active=? " +
                         "WHERE id=? AND center_id=?",
                 req.code(), req.libelle(), req.typeDocument(),
                 req.cheminJrxml(), req.formatImpression(), req.description(), req.active(),
-                id, req.centerId());
+                id, centerId);
         return ResponseEntity.ok(Map.of("id", id));
     }
 
     /**
      * Supprimer un modèle
      */
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @DeleteMapping("/modeles/{id}")
     public ResponseEntity<?> deleteModele(@PathVariable UUID id, @RequestParam UUID centerId) {
+        centerId = centerAccessGuard.requireCenter(centerId).value();
+        if (templateService.findModele(centerId, id).isPresent()) {
+            templateService.deleteAllVersions(id);
+        }
         jdbc.update("DELETE FROM modele_document WHERE id = ? AND center_id = ?", id, centerId);
         return ResponseEntity.ok(Map.of("deleted", true));
     }
@@ -156,7 +193,7 @@ public class DocumentRestController {
             String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
             // 1) Récupérer le modèle actif pour ce centre et ce type
             var modeles = jdbc.queryForList(
-                    "SELECT chemin_jrxml, format_impression FROM modele_document " +
+                    "SELECT id, chemin_jrxml, format_impression FROM modele_document " +
                             "WHERE center_id = ? AND UPPER(type_document) = ? AND active = TRUE " +
                             "ORDER BY created_at DESC",
                     req.centerId(), normalizedType
@@ -186,7 +223,9 @@ public class DocumentRestController {
             // 3) Générer le rapport
             log.info("Impression: type={}, centre={}, jrxml={}, format={}",
                     normalizedType, req.centerId(), cheminJrxml, format);
-            byte[] data = jasperService.generateReport(cheminJrxml, jasperParams, format);
+            byte[] data = render(UUID.fromString(Objects.toString(
+                            modele.getOrDefault("ID", modele.get("id")))),
+                    req.centerId(), cheminJrxml, jasperParams, format);
 
             // 4) Construire la réponse
             return buildResponse(data, format, normalizedType);
@@ -238,7 +277,7 @@ public class DocumentRestController {
             jasperParams.put("CENTER_ID", req.centerId().toString());
             normalizeParams(req.params()).forEach(jasperParams::put);
 
-            byte[] data = jasperService.generateReport(cheminJrxml, jasperParams, format);
+            byte[] data = render(modeleId, req.centerId(), cheminJrxml, jasperParams, format);
             return buildResponse(data, format, typeDoc);
 
         } catch (EmptyResultDataAccessException e) {
@@ -261,6 +300,20 @@ public class DocumentRestController {
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(("Erreur critique: " + t.getClass().getSimpleName() + " - " + t.getMessage()).getBytes());
         }
+    }
+
+    /**
+     * Génère le document : utilise la version personnalisée active du modèle si le centre en a téléversé une,
+     * sinon le modèle d'origine.
+     */
+    private byte[] render(UUID modeleId, UUID centerId, String cheminJrxml, Map<String, Object> params, String format)
+            throws Exception {
+        var custom = templateService.activeCustom(centerId, modeleId);
+        if (custom.isPresent()) {
+            var report = customTemplateCompiler.compile(centerId, modeleId, custom.get().version(), custom.get().contenu());
+            return jasperService.generateFromCompiled(report, params, format);
+        }
+        return jasperService.generateReport(cheminJrxml, params, format);
     }
 
     private void validatePrintRequest(PrintRequest req, boolean requireTypeDocument) {

@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler;
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
+import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
+import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,7 +20,8 @@ class DocumentRestControllerTest {
 
     @Test
     void buildResponseShouldUseXlsxHeadersForExcelFormats() throws Exception {
-        DocumentRestController controller = new DocumentRestController(mock(JdbcTemplate.class), mock(JasperReportService.class));
+        DocumentRestController controller = new DocumentRestController(mock(JdbcTemplate.class), mock(JasperReportService.class),
+                mock(ModeleDocumentTemplateService.class), mock(CustomTemplateCompiler.class), mock(CenterAccessGuard.class));
         byte[] payload = new byte[]{1, 2, 3};
 
         Method method = DocumentRestController.class.getDeclaredMethod("buildResponse", byte[].class, String.class, String.class);

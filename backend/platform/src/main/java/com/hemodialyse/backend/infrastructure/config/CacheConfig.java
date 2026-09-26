@@ -75,6 +75,9 @@ public class CacheConfig {
         register(manager, "tva-types-list", referentialTtl);
         register(manager, "tva-active", referentialTtl);
 
+        // Modèles d'impression personnalisés compilés (clé : centre + modèle + version, versions immuables)
+        register(manager, "reporting.customTemplates", Duration.ofHours(12));
+
         return manager;
     }
 

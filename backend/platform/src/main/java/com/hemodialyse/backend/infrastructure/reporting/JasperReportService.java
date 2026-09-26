@@ -174,6 +174,23 @@ public class JasperReportService {
      * 3) classpath (géré séparément via InputStream)
      */
     private Path resolveTemplatePath(String jrxmlPath) {
+        return resolveTemplatePathInternal(jrxmlPath);
+    }
+
+    /**
+     * Remplit et exporte un modèle déjà compilé (modèle personnalisé validé).
+     */
+    public byte[] generateFromCompiled(JasperReport report, Map<String, Object> params, String format)
+            throws Exception {
+        JasperPrint print = fillReport(report, params);
+        return switch (format.toUpperCase()) {
+            case "EXCEL", "XLS", "XLSX" -> exportToExcel(print);
+            case "HTML" -> exportToHtml(print);
+            default -> exportToPdf(print);
+        };
+    }
+
+    private Path resolveTemplatePathInternal(String jrxmlPath) {
         if (jrxmlPath == null || jrxmlPath.isBlank()) return null;
 
         String filename = Path.of(jrxmlPath).getFileName().toString();

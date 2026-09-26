@@ -144,6 +144,15 @@
             <button (click)="edit(m)" [matTooltip]="'COMMON.EDIT_BTN' | translate" mat-icon-button>
               <mat-icon>edit</mat-icon>
             </button>
+            @if (canCustomize()) {
+              <button
+                (click)="customize(m)"
+                [matTooltip]="'REPORTING.CUSTOMIZE.CUSTOMIZE_TOOLTIP' | translate"
+                mat-icon-button
+              >
+                <mat-icon>design_services</mat-icon>
+              </button>
+            }
             <button
               (click)="testPrint(m)"
               color="primary"

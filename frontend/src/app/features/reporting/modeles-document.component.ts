@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
@@ -18,6 +18,7 @@ import {BackendApiService} from '../../core/api/backend-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ModelesDocumentStore} from './state/modeles-document.store';
+import {ModeleTemplateDialogComponent} from './modele-template-dialog.component';
 
 @Component({
   selector: 'app-modeles-document',
@@ -50,6 +51,9 @@ export class ModelesDocumentComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly modelesStore = inject(ModelesDocumentStore);
   private readonly translate = inject(TranslateService);
+
+  /** La personnalisation des modèles est réservée aux administrateurs (contrôlé aussi côté serveur). */
+  readonly canCustomize = computed(() => this.auth.hasRole('ADMIN') || this.auth.hasRole('SUPERADMIN'));
 
   readonly modeles = this.modelesStore.modeles;
   readonly documentTypes = this.modelesStore.documentTypes;
@@ -173,6 +177,22 @@ export class ModelesDocumentComponent implements OnInit {
           this.loadModeles();
         },
       });
+    });
+  }
+
+  customize(row: any): void {
+    const centerId = this.auth.centerId();
+    const modeleId = this.val(row, 'ID', 'id');
+    if (!centerId || !modeleId) return;
+    this.dialog.open(ModeleTemplateDialogComponent, {
+      width: 'min(96vw, 900px)',
+      maxWidth: '96vw',
+      data: {
+        modeleId,
+        centerId,
+        code: this.val(row, 'CODE', 'code'),
+        libelle: this.val(row, 'LIBELLE', 'libelle'),
+      },
     });
   }
 
