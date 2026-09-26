@@ -33,7 +33,7 @@
     "@ngrx/store-devtools": "^21.1.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
-    "@sbourahla/ng-table": "file:../../ngTable/dist/ng-table",
+    "@sbourahla/ng-table": "^1.0.0",
     "@stomp/stompjs": "^7.3.0",
     "chart.js": "^4.5.1",
     "html2canvas": "^1.4.1",

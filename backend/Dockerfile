@@ -19,6 +19,7 @@ COPY bc-assure/pom.xml ./bc-assure/pom.xml
 COPY bc-stock/pom.xml ./bc-stock/pom.xml
 COPY bc-pec/pom.xml ./bc-pec/pom.xml
 COPY bc-seance/pom.xml ./bc-seance/pom.xml
+COPY bc-medical/pom.xml ./bc-medical/pom.xml
 COPY bc-facturation/pom.xml ./bc-facturation/pom.xml
 COPY bc-reglement/pom.xml ./bc-reglement/pom.xml
 COPY bc-comptabilite/pom.xml ./bc-comptabilite/pom.xml
