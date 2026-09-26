@@ -1,21 +1,21 @@
 <div class="license-page">
   <section class="app-hero-card">
-    <span class="app-eyebrow">Réservé au propriétaire de l'application</span>
-    <h1 class="app-section-title">Gestion des licences</h1>
-    <p class="app-section-copy">
-      Attribuez, suivez et révoquez les licences de chaque centre client. Ce menu n'est visible que par un compte
-      SUPERADMIN.
-    </p>
+    <span class="app-eyebrow">{{ 'LICENCES.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'LICENCES.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'LICENCES.COPY' | translate }}</p>
 
     <div class="hero-bottom">
       <div class="app-data-strip">
-        <div class="app-data-pill"><span>Centres sous licence</span><strong>{{ totalCenters() }}</strong></div>
-        <div class="app-data-pill"><span>Licences actives</span><strong>{{ activeCount() }}</strong></div>
-        <div class="app-data-pill"><span>Expirées / révoquées</span><strong>{{ expiredCount() }}</strong></div>
+        <div class="app-data-pill">
+          <span>{{ 'LICENCES.KPI_CENTRES' | translate }}</span><strong>{{ totalCenters() }}</strong></div>
+        <div class="app-data-pill">
+          <span>{{ 'LICENCES.KPI_ACTIVE' | translate }}</span><strong>{{ activeCount() }}</strong></div>
+        <div class="app-data-pill">
+          <span>{{ 'LICENCES.KPI_EXPIRED' | translate }}</span><strong>{{ expiredCount() }}</strong></div>
       </div>
-      <a color="primary" mat-flat-button routerLink="/admin/licenses/new">
+      <a color="primary" data-testid="issue-licence" mat-flat-button routerLink="/admin/licenses/new">
         <mat-icon>add_moderator</mat-icon>
-        Émettre une licence
+        {{ 'LICENCES.ISSUE_BTN' | translate }}
       </a>
     </div>
   </section>
@@ -23,47 +23,51 @@
   <section class="app-panel">
     <h3 class="section-title">
       <mat-icon>fact_check</mat-icon>
-      Licences par centre
+      {{ 'LICENCES.TABLE_TITLE' | translate }}
     </h3>
 
     @if (loading()) {
-      <p class="muted-note">Chargement…</p>
+      <p class="muted-note">{{ 'LICENCES.LOADING' | translate }}</p>
     } @else if (licenses().length === 0) {
-      <p class="muted-note">Aucune licence émise pour le moment.</p>
+      <p class="muted-note">{{ 'LICENCES.EMPTY' | translate }}</p>
     } @else {
       <div class="table-wrap">
         <table>
           <thead>
           <tr>
-            <th>Centre</th>
-            <th>Type</th>
-            <th>Statut</th>
-            <th>Postes</th>
-            <th>Validité</th>
-            <th>Dernière vérif. en ligne</th>
+            <th>{{ 'LICENCES.COL_SOCIETE' | translate }}</th>
+            <th>{{ 'LICENCES.COL_CENTRE' | translate }}</th>
+            <th>{{ 'LICENCES.COL_TYPE' | translate }}</th>
+            <th>{{ 'LICENCES.COL_STATUS' | translate }}</th>
+            <th>{{ 'LICENCES.COL_SEATS' | translate }}</th>
+            <th>{{ 'LICENCES.COL_VALIDITY' | translate }}</th>
+            <th>{{ 'LICENCES.COL_LAST_CHECK' | translate }}</th>
             <th></th>
           </tr>
           </thead>
           <tbody>
-            @for (l of licenses(); track l.id) {
+            @for (l of sorted(); track l.id) {
               <tr>
+                <td>{{ l.societeName || ('LICENCES.NO_SOCIETE' | translate) }}</td>
                 <td class="center-cell">{{ l.centerName || l.centerId }}</td>
-                <td>{{ l.type === 'TRIAL' ? "Essai" : 'Standard' }}</td>
+                <td>{{ (l.type === 'TRIAL' ? 'LICENCES.TYPE_TRIAL' : 'LICENCES.TYPE_STANDARD') | translate }}</td>
                 <td>
-                  <span [attr.data-status]="status(l)" class="status-badge">{{ statusLabel(status(l)) }}</span>
+                  <span [attr.data-status]="status(l)"
+                        class="status-badge">{{ ('LICENCES.STATUS_' + status(l)) | translate }}</span>
                   @if (status(l) === 'ACTIVE' || status(l) === 'TRIAL') {
-                    <div class="days-left">{{ daysRemaining(l) }} j restants</div>
+                    <div class="days-left">{{ 'LICENCES.DAYS_LEFT' | translate: {count: daysRemaining(l)} }}</div>
                   }
                 </td>
                 <td>{{ l.maxUsers }}</td>
                 <td class="mono">{{ l.validFrom | date: 'dd/MM/yyyy' }} → {{ l.validUntil | date: 'dd/MM/yyyy' }}</td>
                 <td class="mono">{{ l.lastOnlineCheckAt ? (l.lastOnlineCheckAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
                 <td class="actions-cell">
-                  <button (click)="copyKey(l)" [matTooltip]="'Copier la clé à envoyer au client'" mat-icon-button>
+                  <button (click)="copyKey(l)" [matTooltip]="'LICENCES.COPY_KEY' | translate" mat-icon-button>
                     <mat-icon>content_copy</mat-icon>
                   </button>
                   @if (l.status !== 'REVOKED') {
-                    <button (click)="revoke(l)" [attr.aria-label]="'Révoquer'" color="warn" mat-icon-button>
+                    <button (click)="revoke(l)" [attr.aria-label]="'LICENCES.REVOKE' | translate" color="warn"
+                            mat-icon-button>
                       <mat-icon>block</mat-icon>
                     </button>
                   }
@@ -79,25 +83,23 @@
   <section class="app-panel">
     <h3 class="section-title">
       <mat-icon>key</mat-icon>
-      Activer une licence émise ailleurs
+      {{ 'LICENCES.ACTIVATE_TITLE' | translate }}
     </h3>
-    <p class="muted-note">
-      Collez ici une clé de licence générée sur l'instance autorité pour l'activer directement pour un centre.
-    </p>
+    <p class="muted-note">{{ 'LICENCES.ACTIVATE_NOTE' | translate }}</p>
     <form [formRoot]="activateForm" class="activate-row">
       <mat-form-field appearance="outline" class="flex1">
-        <mat-label>ID du centre</mat-label>
-        <input [formField]="activateForm.centerId" matInput placeholder="uuid du centre"/>
+        <mat-label>{{ 'LICENCES.ACTIVATE_CENTRE_ID' | translate }}</mat-label>
+        <input [formField]="activateForm.centerId" matInput/>
         <mat-icon matPrefix>business</mat-icon>
       </mat-form-field>
       <mat-form-field appearance="outline" class="flex2">
-        <mat-label>Clé de licence</mat-label>
-        <input [formField]="activateForm.licenseKey" matInput placeholder="Coller la clé…"/>
+        <mat-label>{{ 'LICENCES.ACTIVATE_KEY' | translate }}</mat-label>
+        <input [formField]="activateForm.licenseKey" matInput/>
         <mat-icon matPrefix>vpn_key</mat-icon>
       </mat-form-field>
       <button (click)="activate()" [disabled]="activating()" color="primary" mat-flat-button type="button">
         <mat-icon>check_circle</mat-icon>
-        Activer
+        {{ 'LICENCES.ACTIVATE_BTN' | translate }}
       </button>
     </form>
   </section>

@@ -6,7 +6,9 @@
   </div>
   <div class="topbar-right">
     <!-- Notification bell -->
-    <app-notification-bell/>
+    @if (!ownerMode) {
+      <app-notification-bell/>
+    }
 
     <!-- Language switcher -->
     <button [matMenuTriggerFor]="langMenu" class="lang-btn" mat-icon-button>

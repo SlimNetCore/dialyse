@@ -7,6 +7,9 @@ export interface License {
   id: string;
   centerId: string;
   centerName: string | null;
+  /** Société du centre (le propriétaire lit les licences par société puis par centre). */
+  societeId?: string | null;
+  societeName?: string | null;
   licenseKey: string;
   type: 'STANDARD' | 'TRIAL';
   maxUsers: number;
@@ -46,6 +49,19 @@ export class LicenseApiService {
     validUntil: string
   }): Observable<License> {
     return this.http.post<License>(`${this.base}/licenses/issue`, payload);
+  }
+
+  /** Attribue une licence à une société : une licence (donc une clé) par centre actif ou par centre sélectionné. */
+  issueForSociete(payload: {
+    societeId: string;
+    /** Vide = tous les centres actifs de la société. */
+    centerIds: string[];
+    type: string;
+    maxUsers: number;
+    validFrom: string;
+    validUntil: string;
+  }): Observable<License[]> {
+    return this.http.post<License[]>(`${this.base}/licenses/issue-societe`, payload);
   }
 
   revoke(id: string, reason: string): Observable<{ revoked: boolean }> {

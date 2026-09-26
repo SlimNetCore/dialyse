@@ -110,7 +110,8 @@ export class LoginPageComponent {
             error: () => undefined,
           });
           this.loginStore.setLoading(false);
-          this.router.navigate(['/dashboard']);
+          const owner = (res.roles ?? []).some((r) => r === 'SUPERADMIN' || r === 'ROLE_SUPERADMIN');
+          this.router.navigate([owner ? '/admin/societes' : '/dashboard']);
         },
         error: (err) => {
           this.loginStore.setError(

@@ -44,7 +44,17 @@ import {filter} from 'rxjs/operators';
   styleUrl: './shell.component.css',
 })
 export class ShellComponent implements OnInit, AfterViewInit {
-  readonly modules = [
+  private readonly roleAuth = inject(AuthStore);
+  /**
+   * Le propriétaire (SUPERADMIN) ne voit que la gestion des sociétés et des licences ; les autres profils ne voient
+   * jamais ces entrées. Le serveur applique la même séparation sur l'API.
+   */
+  readonly ownerMode = this.roleAuth.hasRole('SUPERADMIN');
+
+  readonly breadcrumbs = signal<string[]>([]);
+  readonly compactNav = signal(false);
+  /** Tous les modules ; {@link modules} n'en garde que ceux du profil connecté. */
+  private readonly allModules = [
     {
       key: 'dashboard',
       route: '/dashboard',
@@ -122,7 +132,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'tune',
       label: 'NAV.ADMIN',
       items: [
-        {route: '/admin/societes', label: 'Sociétés', icon: 'apartment', superadminOnly: true},
+        {route: '/admin/societes', label: 'Sociétés', icon: 'apartment', owner: true},
+        {route: '/admin/licenses', label: 'Licences', icon: 'verified_user', owner: true},
         {route: '/admin/users', label: 'Utilisateurs', icon: 'manage_accounts'},
         {route: '/admin/roles', label: 'Rôles', icon: 'admin_panel_settings'},
         {route: '/admin/parametrage/calendrier-clinique', label: 'Calendrier clinique/centre', icon: 'calendar_month'},
@@ -131,9 +142,14 @@ export class ShellComponent implements OnInit, AfterViewInit {
       ],
     },
   ];
+  readonly modules = this.allModules
+    .filter((m) => !this.ownerMode || m.key === 'admin')
+    .map((m) => ({
+      ...m,
+      items: (m.items as ReadonlyArray<{ route: string; label: string; icon: string; owner?: boolean }>)
+        .filter((item) => !!item.owner === this.ownerMode),
+    }));
 
-  readonly breadcrumbs = signal<string[]>([]);
-  readonly compactNav = signal(false);
   readonly navItems = this.modules.map(m => ({route: m.route, icon: m.icon, label: m.label}));
   readonly activeModuleItems = signal<{ route: string; label: string; icon: string }[]>([]);
 
@@ -154,7 +170,9 @@ export class ShellComponent implements OnInit, AfterViewInit {
   private resizeFrame: number | null = null;
 
   ngOnInit(): void {
-    this.ws.connect();
+    if (!this.ownerMode) {
+      this.ws.connect();
+    }
     this.computeBreadcrumb(this.router.url);
     this.syncActiveModule(this.router.url);
     this.router.events
@@ -225,9 +243,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       || (m.key === 'dashboard' && currentUrl === '/modeles-document'));
 
     const active = moduleFound ?? this.modules[0];
-    const isSuperAdmin = this.auth.hasRole('SUPERADMIN');
-    this.activeModuleItems.set(
-      active.items.filter((item) => !(item as { superadminOnly?: boolean }).superadminOnly || isSuperAdmin));
+    this.activeModuleItems.set(active.items);
   }
 
   private finalizeLogout(): void {

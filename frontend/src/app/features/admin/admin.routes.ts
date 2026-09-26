@@ -15,6 +15,16 @@ export const adminRoutes: Routes = [
     canActivate: [superadminGuard],
     loadComponent: () => import('./societes/societe-detail.component').then(m => m.SocieteDetailComponent),
   },
+  {
+    path: 'licenses',
+    canActivate: [superadminGuard],
+    loadComponent: () => import('./license-list.component').then(m => m.LicenseListComponent),
+  },
+  {
+    path: 'licenses/new',
+    canActivate: [superadminGuard],
+    loadComponent: () => import('./license-form.component').then(m => m.LicenseFormComponent),
+  },
   { path: 'roles', loadComponent: () => import('./role-list.component').then(m => m.RoleListComponent) },
   { path: 'roles/new', loadComponent: () => import('./role-form.component').then(m => m.RoleFormComponent) },
   { path: 'roles/:id/edit', loadComponent: () => import('./role-form.component').then(m => m.RoleFormComponent) },

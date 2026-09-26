@@ -162,6 +162,9 @@ MERGE INTO app_role (id, code, name, description) KEY (id)
 VALUES ('a0a00001-0000-0000-0000-000000000003', 'INFIRMIER', 'Infirmier', 'Accès aux séances et soins');
 MERGE INTO app_role (id, code, name, description) KEY (id)
 VALUES ('a0a00001-0000-0000-0000-000000000004', 'SECRETAIRE', 'Secrétaire', 'Gestion administrative');
+MERGE INTO app_role (id, code, name, description) KEY (id)
+    VALUES ('a0a00001-0000-0000-0000-000000000006', 'DIRECTION', 'Direction',
+    'Consultation des tableaux de bord consolidés de la société (agrégats anonymes, lecture seule)');
 
 -- ═══ USERS (passwords set by SeedPasswordInitializer at runtime) ═══
 MERGE INTO app_user (id, username, password_hash, email, full_name, active) KEY (id)

@@ -7,33 +7,37 @@
       <mat-icon>add_moderator</mat-icon>
     </span>
     <div class="hero-copy">
-      <span class="app-eyebrow">Nouvelle licence</span>
-      <h1 class="app-section-title">Émettre une licence</h1>
-      <p class="app-section-copy">
-        La licence est signée et ne peut être ni forgée ni prolongée par le centre lui-même.
-      </p>
+      <span class="app-eyebrow">{{ 'LICENCES.FORM_EYEBROW' | translate }}</span>
+      <h1 class="app-section-title">{{ 'LICENCES.FORM_TITLE' | translate }}</h1>
+      <p class="app-section-copy">{{ 'LICENCES.FORM_COPY' | translate }}</p>
     </div>
   </section>
 
-  @if (issuedKey(); as key) {
+  @if (issued().length) {
     <section class="app-panel form-section issued-panel">
       <h3 class="section-title">
         <mat-icon>check_circle</mat-icon>
-        Licence émise
+        {{ 'LICENCES.ISSUED_TITLE' | translate: {count: issued().length} }}
       </h3>
-      <p class="app-section-copy">
-        Copiez cette clé et transmettez-la au centre — il l'activera dans « Licence du centre » sur son instance.
-      </p>
-      <div class="key-box">
-        <code>{{ key }}</code>
-        <button (click)="copyIssuedKey()" color="primary" mat-icon-button matTooltip="Copier la clé">
-          <mat-icon>content_copy</mat-icon>
-        </button>
-      </div>
+      <p class="app-section-copy">{{ 'LICENCES.ISSUED_COPY' | translate }}</p>
+      @for (l of issued(); track l.id) {
+        <div class="issued-item">
+          <div class="issued-centre">
+            <mat-icon>business</mat-icon>
+            {{ l.centerName || l.centerId }}
+          </div>
+          <div class="key-box">
+            <code>{{ l.licenseKey }}</code>
+            <button (click)="copyKey(l)" [matTooltip]="'LICENCES.COPY_KEY' | translate" color="primary" mat-icon-button>
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
       <div class="actions">
         <button (click)="goToList()" color="primary" mat-flat-button type="button">
           <mat-icon>list</mat-icon>
-          Retour à la liste des licences
+          {{ 'LICENCES.BACK_TO_LIST' | translate }}
         </button>
       </div>
     </section>
@@ -41,32 +45,51 @@
     <form [formRoot]="licenseForm" class="app-panel form-section">
       <div class="form-row">
         <mat-form-field appearance="outline" class="flex1">
-          <mat-label>Centre</mat-label>
-          <mat-select [formField]="licenseForm.centerId">
-            @for (c of appShell.availableCenters(); track c.id) {
-              <mat-option [value]="c.id">{{ c.name }}</mat-option>
+          <mat-label>{{ 'LICENCES.SOCIETE' | translate }}</mat-label>
+          <mat-select [formField]="licenseForm.societeId" data-testid="licence-societe">
+            @for (s of societes(); track s.id) {
+              <mat-option [value]="s.id">{{ s.raisonSociale }}</mat-option>
             }
           </mat-select>
-          <mat-icon matPrefix>business</mat-icon>
+          <mat-icon matPrefix>apartment</mat-icon>
         </mat-form-field>
       </div>
 
+      @if (form().societeId) {
+        <fieldset class="centres-fieldset">
+          <legend>{{ 'LICENCES.CENTRES' | translate }}
+            <small>({{
+                'LICENCES.CENTRES_SELECTED' | translate: {
+                  selected: selectedCount(),
+                  total: activeCentres().length
+                }
+              }})</small>
+          </legend>
+          @for (c of activeCentres(); track c.id) {
+            <mat-checkbox (change)="toggleCentre(c.id, $event.checked)" [checked]="selectedCenterIds().has(c.id)">
+              {{ c.nom }} <code>{{ c.code }}</code>
+            </mat-checkbox>
+          } @empty {
+            <p class="muted-note">{{ 'LICENCES.NO_CENTRES' | translate }}</p>
+          }
+        </fieldset>
+      }
+
       <div class="type-toggle">
-        <button (click)="applyStandardDefaults()" [class.active]="form().type === 'STANDARD'" mat-stroked-button
+        <button (click)="setType('STANDARD')" [class.active]="form().type === 'STANDARD'" mat-stroked-button
                 type="button">
           <mat-icon>verified</mat-icon>
-          Licence standard
+          {{ 'LICENCES.TYPE_STANDARD_BTN' | translate }}
         </button>
-        <button (click)="applyTrialDefaults()" [class.active]="form().type === 'TRIAL'" mat-stroked-button
-                type="button">
+        <button (click)="setType('TRIAL')" [class.active]="form().type === 'TRIAL'" mat-stroked-button type="button">
           <mat-icon>schedule</mat-icon>
-          Période d'essai
+          {{ 'LICENCES.TYPE_TRIAL_BTN' | translate }}
         </button>
       </div>
 
       <div class="form-row">
         <mat-form-field appearance="outline" class="flex1">
-          <mat-label>Postes autorisés (utilisateurs)</mat-label>
+          <mat-label>{{ 'LICENCES.SEATS' | translate }}</mat-label>
           <input [formField]="licenseForm.maxUsers" matInput type="number"/>
           <mat-icon matPrefix>groups</mat-icon>
         </mat-form-field>
@@ -74,12 +97,12 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline" class="flex1">
-          <mat-label>Valide à partir du</mat-label>
+          <mat-label>{{ 'LICENCES.VALID_FROM' | translate }}</mat-label>
           <input [formField]="licenseForm.validFrom" matInput type="date"/>
           <mat-icon matPrefix>event</mat-icon>
         </mat-form-field>
         <mat-form-field appearance="outline" class="flex1">
-          <mat-label>Valide jusqu'au</mat-label>
+          <mat-label>{{ 'LICENCES.VALID_UNTIL' | translate }}</mat-label>
           <input [formField]="licenseForm.validUntil" matInput type="date"/>
           <mat-icon matPrefix>event_busy</mat-icon>
         </mat-form-field>
@@ -88,15 +111,16 @@
       <div class="actions">
         <button [disabled]="saving()" mat-stroked-button routerLink="/admin/licenses">
           <mat-icon>arrow_back</mat-icon>
-          Retour
+          {{ 'LICENCES.BACK' | translate }}
         </button>
-        <button (click)="save()" [disabled]="saving()" color="primary" mat-flat-button type="button">
+        <button (click)="save()" [disabled]="saving()" color="primary" data-testid="licence-submit" mat-flat-button
+                type="button">
           @if (saving()) {
             <mat-progress-spinner class="btn-spinner" diameter="18" mode="indeterminate"></mat-progress-spinner>
           } @else {
             <mat-icon>save</mat-icon>
           }
-          Émettre la licence
+          {{ 'LICENCES.SUBMIT' | translate }}
         </button>
       </div>
     </form>

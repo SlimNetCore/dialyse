@@ -4,7 +4,10 @@ import com.hemodialyse.backend.application.license.LicenseService;
 import com.hemodialyse.backend.infrastructure.persistence.entity.CenterJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.entity.LicenseJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.CenterJpaRepository;
+import com.hemodialyse.backend.infrastructure.persistence.entity.SocieteJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.LicenseJpaRepository;
+import com.hemodialyse.backend.infrastructure.persistence.repository.SocieteJpaRepository;
+import com.hemodialyse.backend.infrastructure.web.dto.request.IssueSocieteLicenseRequest;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import com.hemodialyse.backend.infrastructure.security.license.LicenseKeyProperties;
 import com.hemodialyse.backend.infrastructure.web.dto.request.ActivateLicenseRequest;
@@ -33,15 +36,18 @@ public class LicenseRestController {
     private final LicenseService licenseService;
     private final LicenseJpaRepository licenseRepository;
     private final CenterJpaRepository centerRepository;
+    private final SocieteJpaRepository societeRepository;
     private final LicenseKeyProperties keyProperties;
 
     public LicenseRestController(LicenseService licenseService,
                                  LicenseJpaRepository licenseRepository,
                                  CenterJpaRepository centerRepository,
+                                 SocieteJpaRepository societeRepository,
                                  LicenseKeyProperties keyProperties) {
         this.licenseService = licenseService;
         this.licenseRepository = licenseRepository;
         this.centerRepository = centerRepository;
+        this.societeRepository = societeRepository;
         this.keyProperties = keyProperties;
     }
 
@@ -54,15 +60,54 @@ public class LicenseRestController {
         return ResponseEntity.ok(toPayload(entity));
     }
 
+    /**
+     * Attribue une licence à une société : une licence par centre actif (ou par centre sélectionné), en une seule
+     * transaction. Chaque centre reçoit sa propre clé, à lui transmettre pour activation.
+     */
+    @PreAuthorize("hasRole('SUPERADMIN')")
+    @PostMapping("/issue-societe")
+    public ResponseEntity<?> issueForSociete(@RequestBody IssueSocieteLicenseRequest req, Authentication authentication) {
+        if (req.societeId() == null) {
+            throw new IllegalArgumentException("societeId est obligatoire");
+        }
+        if (req.validFrom() == null || req.validUntil() == null || !req.validUntil().isAfter(req.validFrom())) {
+            throw new IllegalArgumentException("La date de fin doit être postérieure à la date de début");
+        }
+        if (req.maxUsers() < 1) {
+            throw new IllegalArgumentException("Le nombre de postes doit être d'au moins 1");
+        }
+        UUID createdBy = UUID.fromString(((UserPrincipal) authentication.getPrincipal()).getId());
+        Map<UUID, String> names = new LinkedHashMap<>();
+        for (CenterJpaEntity c : centerRepository.findBySocieteIdOrderByNameAsc(req.societeId())) {
+            names.put(c.getId(), c.getName());
+        }
+        List<Map<String, Object>> issued = licenseService.issueForSociete(req.societeId(), req.centerIds(), req.type(),
+                        req.maxUsers(), req.validFrom(), req.validUntil(), createdBy).stream()
+                .map(l -> toPayload(l, names.get(l.getCenterId())))
+                .toList();
+        return ResponseEntity.ok(issued);
+    }
+
     @PreAuthorize("hasRole('SUPERADMIN')")
     @GetMapping
     public ResponseEntity<?> listAll() {
-        Map<UUID, String> centerNames = new LinkedHashMap<>();
+        Map<UUID, CenterJpaEntity> centers = new LinkedHashMap<>();
         for (CenterJpaEntity center : centerRepository.findAll()) {
-            centerNames.put(center.getId(), center.getName());
+            centers.put(center.getId(), center);
+        }
+        Map<UUID, String> societeNames = new LinkedHashMap<>();
+        for (SocieteJpaEntity s : societeRepository.findAll()) {
+            societeNames.put(s.getId(), s.getRaisonSociale());
         }
         List<Map<String, Object>> items = licenseService.listAll().stream()
-                .map(l -> toPayload(l, centerNames.get(l.getCenterId())))
+                .map(l -> {
+                    CenterJpaEntity center = centers.get(l.getCenterId());
+                    Map<String, Object> payload = toPayload(l, center == null ? null : center.getName());
+                    UUID societeId = center == null ? null : center.getSocieteId();
+                    payload.put("societeId", societeId);
+                    payload.put("societeName", societeId == null ? null : societeNames.get(societeId));
+                    return payload;
+                })
                 .toList();
         return ResponseEntity.ok(items);
     }

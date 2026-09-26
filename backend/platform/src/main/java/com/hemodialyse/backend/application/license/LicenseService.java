@@ -78,6 +78,36 @@ public class LicenseService {
     }
 
     /**
+     * Émet une licence pour chacun des centres <b>actifs</b> d'une société (ou pour la sélection {@code centerIds}),
+     * en une seule transaction : soit tous les centres sont licenciés, soit aucun.
+     *
+     * @param centerIds sous-ensemble de centres de la société ; {@code null} ou vide = tous les centres actifs
+     * @throws IllegalArgumentException si un centre demandé n'appartient pas à la société ou est inactif
+     */
+    @Transactional
+    public List<LicenseJpaEntity> issueForSociete(UUID societeId, java.util.Collection<UUID> centerIds, String type,
+                                                  int maxUsers, Instant validFrom, Instant validUntil, UUID createdBy) {
+        java.util.Map<UUID, CenterJpaEntity> actifs = new java.util.LinkedHashMap<>();
+        for (CenterJpaEntity c : centerRepository.findBySocieteIdOrderByNameAsc(societeId)) {
+            if (c.isActif()) actifs.put(c.getId(), c);
+        }
+        if (actifs.isEmpty()) {
+            throw new IllegalArgumentException("Cette société n'a aucun centre actif à licencier");
+        }
+        java.util.Collection<UUID> targets = centerIds == null || centerIds.isEmpty() ? actifs.keySet() : centerIds;
+        for (UUID id : targets) {
+            if (!actifs.containsKey(id)) {
+                throw new IllegalArgumentException("Le centre " + id + " n'est pas un centre actif de cette société");
+            }
+        }
+        List<LicenseJpaEntity> issued = new java.util.ArrayList<>();
+        for (UUID id : new java.util.LinkedHashSet<>(targets)) {
+            issued.add(issue(id, type, maxUsers, validFrom, validUntil, createdBy));
+        }
+        return issued;
+    }
+
+    /**
      * Activates a license key generated elsewhere (offline activation flow) for a given center.
      */
     @Transactional
