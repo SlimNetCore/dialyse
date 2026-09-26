@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
  *   <li>seuls les éléments de mise en page sont autorisés (pas de scriptlet, sous-rapport, image, graphique ajouté…) ;</li>
  *   <li>la requête SQL doit être <b>strictement identique</b> à celle du modèle d'origine livré avec l'application ;</li>
  *   <li>les paramètres et champs doivent être un sous-ensemble de ceux du modèle d'origine, avec les mêmes types ;</li>
+ *   <li>l'en-tête d'identité (société + centre) ne peut pas être retiré, et la seule image autorisée est le
+ *       logo de la société ({@code $P{SOCIETE_LOGO}}) : jamais de chemin ni d'URL (lecture de fichier, SSRF) ;</li>
  *   <li>chaque expression doit respecter une grammaire minimale (champs/paramètres/variables déclarés, chaînes,
  *       opérateurs simples, mise en forme de dates/nombres) — aucun appel de méthode arbitraire.</li>
  * </ul>
@@ -41,6 +43,9 @@ import java.util.regex.Pattern;
 public final class JrxmlSecurityValidator {
 
     public static final int MAX_BYTES = 512 * 1024;
+    private static final String IDENTITY_MARKER = "$P{SOCIETE_NOM}";
+    private static final String CENTRE_MARKER = "$P{CENTRE_NOM}";
+    private static final String LOGO_EXPRESSION = "$P{SOCIETE_LOGO}";
     private static final int MAX_ELEMENTS = 5_000;
     private static final int MAX_EXPRESSION_LENGTH = 2_000;
     private static final String JR_NS = "http://jasperreports.sourceforge.net/jasperreports";
@@ -52,6 +57,7 @@ public final class JrxmlSecurityValidator {
             "variableExpression", "initialValueExpression", "background", "title", "pageHeader", "columnHeader",
             "detail", "columnFooter", "pageFooter", "lastPageFooter", "summary", "noData", "band",
             "staticText", "text", "textField", "textFieldExpression", "reportElement", "textElement", "font",
+            "image", "imageExpression",
             "box", "pen", "line", "rectangle", "ellipse", "graphicElement", "printWhenExpression",
             "group", "groupExpression", "groupHeader", "groupFooter");
     private static final Set<String> COMMON_ATTRIBUTES = Set.of(
@@ -67,7 +73,9 @@ public final class JrxmlSecurityValidator {
             "keepTogether", "orientation", "pageWidth", "pageHeight", "columnWidth", "columnCount",
             "columnSpacing", "leftMargin", "rightMargin", "topMargin", "bottomMargin", "whenNoDataType",
             "isTitleNewPage", "isSummaryNewPage", "isSummaryWithPageHeaderAndFooter", "isFloatColumnFooter",
-            "printOrder", "columnDirection", "isIgnorePagination", "xmlns", "xmlns:xsi", "xsi:schemaLocation");
+            "printOrder", "columnDirection", "isIgnorePagination", "xmlns", "xmlns:xsi", "xsi:schemaLocation",
+            // image du logo (l'expression est limitée à $P{SOCIETE_LOGO})
+            "scaleImage", "hAlign", "vAlign", "onErrorType");
     private static final Set<String> ALLOWED_VARIABLE_CLASSES = Set.of(
             "java.lang.String", "java.lang.Integer", "java.lang.Long", "java.lang.Double", "java.lang.Float",
             "java.lang.Boolean", "java.lang.Number", "java.math.BigDecimal", "java.util.Date", "java.sql.Date",
@@ -342,12 +350,25 @@ public final class JrxmlSecurityValidator {
         Set<String> fields = ref.fields().keySet();
         Set<String> params = ref.parameters().keySet();
 
+        StringBuilder all = new StringBuilder();
         walk(candidate.getDocumentElement(), (e) -> {
             String name = localName(e);
             if (!name.endsWith("Expression")) return;
+            all.append(e.getTextContent()).append('\n');
+            if ("imageExpression".equals(name)) {
+                // Seule image autorisée : le logo fourni par le serveur (jamais un chemin, une URL, un fichier).
+                if (!LOGO_EXPRESSION.equals(e.getTextContent().trim())) {
+                    out.add(new Violation("IMAGE_FORBIDDEN", "seule l'expression " + LOGO_EXPRESSION + " est autorisée"));
+                }
+                return;
+            }
             String violation = checkExpression(e.getTextContent(), fields, params, variables);
             if (violation != null) out.add(new Violation("EXPRESSION_FORBIDDEN", violation));
         });
+        if (ref.usesIdentity() && (all.indexOf(IDENTITY_MARKER) < 0 || all.indexOf(CENTRE_MARKER) < 0)) {
+            out.add(new Violation("IDENTITY_REMOVED",
+                    "l'en-tête doit conserver " + IDENTITY_MARKER + " et " + CENTRE_MARKER));
+        }
     }
 
     /**
@@ -360,13 +381,15 @@ public final class JrxmlSecurityValidator {
      * Éléments, attributs, paramètres, champs et requête du modèle d'origine (base de confiance).
      */
     private record Reference(Set<String> elements, Map<String, Set<String>> attributes,
-                             Map<String, String> parameters, Map<String, String> fields, String query) {
+                             Map<String, String> parameters, Map<String, String> fields, String query,
+                             boolean usesIdentity) {
         static Reference of(Document doc) {
             Set<String> elements = new HashSet<>();
             Map<String, Set<String>> attributes = new HashMap<>();
             Map<String, String> params = new LinkedHashMap<>();
             Map<String, String> fields = new LinkedHashMap<>();
             String[] query = {""};
+            StringBuilder expressions = new StringBuilder();
             walk(doc.getDocumentElement(), (e) -> {
                 String name = localName(e);
                 elements.add(name);
@@ -377,8 +400,10 @@ public final class JrxmlSecurityValidator {
                 if ("parameter".equals(name)) params.put(e.getAttribute("name"), e.getAttribute("class"));
                 if ("field".equals(name)) fields.put(e.getAttribute("name"), e.getAttribute("class"));
                 if ("queryString".equals(name)) query[0] = normalizeSql(e.getTextContent());
+                if (name.endsWith("Expression")) expressions.append(e.getTextContent()).append('\n');
             });
-            return new Reference(elements, attributes, params, fields, query[0]);
+            return new Reference(elements, attributes, params, fields, query[0],
+                    expressions.indexOf(IDENTITY_MARKER) >= 0);
         }
     }
 }

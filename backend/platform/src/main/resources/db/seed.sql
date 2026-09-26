@@ -1,10 +1,27 @@
 -- Seed data for local development (H2)
--- Centers
-MERGE INTO centers (id, code, name) KEY (id)
-    VALUES ('11111111-1111-1111-1111-111111111111', 'CTR-DAKAR-01', 'ANNABA 1');
+-- Sociétés (une société chapeaute un ou plusieurs centres ; au moins un centre par société)
+MERGE INTO societes (id, code, raison_sociale, nif, adresse, ville, wilaya, telephone, email, site_web, actif, created_at)
+    KEY (id)
+    VALUES ('51000001-0000-0000-0000-000000000001', 'GHNE', 'Groupe Hémodialyse Nord-Est', '099823000123456',
+    '12 boulevard de la Révolution', 'Annaba', 'Annaba', '038 00 00 00', 'contact@ghne.example.dz',
+    'https://www.ghne.example.dz', TRUE, CURRENT_TIMESTAMP);
 
-MERGE INTO centers (id, code, name) KEY (id)
-    VALUES ('22222222-2222-2222-2222-222222222222', 'CTR-SAINTLOUIS-01', 'ROUIBA');
+MERGE INTO societes (id, code, raison_sociale, nif, adresse, ville, wilaya, telephone, email, site_web, actif, created_at)
+    KEY (id)
+    VALUES ('51000001-0000-0000-0000-000000000002', 'CLR', 'Clinique de Rouiba', '099816000654321',
+    '3 rue des Frères Bouchama', 'Rouiba', 'Alger', '023 00 00 00', 'contact@clinique-rouiba.example.dz',
+    'https://www.clinique-rouiba.example.dz', TRUE, CURRENT_TIMESTAMP);
+
+-- Centers (chaque centre appartient à exactement une société)
+MERGE INTO centers (id, code, name, societe_id, adresse, ville, wilaya, telephone, email, site_web, actif) KEY (id)
+    VALUES ('11111111-1111-1111-1111-111111111111', 'CTR-DAKAR-01', 'ANNABA 1',
+    '51000001-0000-0000-0000-000000000001', '12 boulevard de la Révolution', 'Annaba', 'Annaba',
+    '038 00 00 01', 'annaba1@ghne.example.dz', 'https://www.ghne.example.dz/annaba-1', TRUE);
+
+MERGE INTO centers (id, code, name, societe_id, adresse, ville, wilaya, telephone, email, site_web, actif) KEY (id)
+    VALUES ('22222222-2222-2222-2222-222222222222', 'CTR-SAINTLOUIS-01', 'ROUIBA',
+    '51000001-0000-0000-0000-000000000002', '3 rue des Frères Bouchama', 'Rouiba', 'Alger',
+    '023 00 00 01', 'dialyse@clinique-rouiba.example.dz', 'https://www.clinique-rouiba.example.dz', TRUE);
 
 -- Calendrier centre (jours fériés / fermetures exceptionnelles)
 MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id)

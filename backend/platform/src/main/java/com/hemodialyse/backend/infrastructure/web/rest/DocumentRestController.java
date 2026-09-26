@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler;
+import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
@@ -48,16 +49,19 @@ public class DocumentRestController {
     private final ModeleDocumentTemplateService templateService;
     private final CustomTemplateCompiler customTemplateCompiler;
     private final CenterAccessGuard centerAccessGuard;
+    private final DocumentIdentityProvider identityProvider;
 
     public DocumentRestController(JdbcTemplate jdbc, JasperReportService jasperService,
                                   ModeleDocumentTemplateService templateService,
                                   CustomTemplateCompiler customTemplateCompiler,
-                                  CenterAccessGuard centerAccessGuard) {
+                                  CenterAccessGuard centerAccessGuard,
+                                  DocumentIdentityProvider identityProvider) {
         this.jdbc = jdbc;
         this.jasperService = jasperService;
         this.templateService = templateService;
         this.customTemplateCompiler = customTemplateCompiler;
         this.centerAccessGuard = centerAccessGuard;
+        this.identityProvider = identityProvider;
     }
 
     private static void requireSafeTemplatePath(String path) {
@@ -218,7 +222,9 @@ public class DocumentRestController {
             // 2) Construire les paramètres Jasper
             Map<String, Object> jasperParams = new HashMap<>();
             jasperParams.put("CENTER_ID", req.centerId().toString());
-            normalizeParams(req.params()).forEach(jasperParams::put);
+            DocumentIdentityProvider.stripReservedParams(normalizeParams(req.params())).forEach(jasperParams::put);
+            // Identité société + centre (en-tête et pied de page) : posée par le serveur, jamais par le client.
+            jasperParams.putAll(identityProvider.paramsFor(req.centerId()));
 
             // 3) Générer le rapport
             log.info("Impression: type={}, centre={}, jrxml={}, format={}",
@@ -275,7 +281,9 @@ public class DocumentRestController {
 
             Map<String, Object> jasperParams = new HashMap<>();
             jasperParams.put("CENTER_ID", req.centerId().toString());
-            normalizeParams(req.params()).forEach(jasperParams::put);
+            DocumentIdentityProvider.stripReservedParams(normalizeParams(req.params())).forEach(jasperParams::put);
+            // Identité société + centre (en-tête et pied de page) : posée par le serveur, jamais par le client.
+            jasperParams.putAll(identityProvider.paramsFor(req.centerId()));
 
             byte[] data = render(modeleId, req.centerId(), cheminJrxml, jasperParams, format);
             return buildResponse(data, format, typeDoc);

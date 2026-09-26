@@ -40,18 +40,21 @@ public class GreffePdfService {
     private final SerologieRepositoryPort serologieRepository;
     private final AntecedentRepositoryPort antecedentRepository;
     private final DonneurVivantRepositoryPort donneurRepository;
+    private final com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity;
 
     public GreffePdfService(PatientRepositoryPort patientRepository, BilanPreGreffeRepositoryPort bilanRepository,
                             EtapeBilanPreGreffeRepositoryPort etapeRepository,
                             SerologieRepositoryPort serologieRepository,
                             AntecedentRepositoryPort antecedentRepository,
-                            DonneurVivantRepositoryPort donneurRepository) {
+                            DonneurVivantRepositoryPort donneurRepository,
+                            com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity) {
         this.patientRepository = patientRepository;
         this.bilanRepository = bilanRepository;
         this.etapeRepository = etapeRepository;
         this.serologieRepository = serologieRepository;
         this.antecedentRepository = antecedentRepository;
         this.donneurRepository = donneurRepository;
+        this.identity = identity;
     }
 
     public byte[] exportPdf(CenterId centerId, UUID patientId) {
@@ -67,7 +70,8 @@ public class GreffePdfService {
                         .toList();
         List<DonneurVivant> donneurs = donneurRepository.findByPatientId(patientId, centerId);
 
-        String html = buildHtml(patient, bilan, etapes, serologies, antecedents, donneurs);
+        String html = identity.decorateHtml(buildHtml(patient, bilan, etapes, serologies, antecedents, donneurs),
+                centerId.value());
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             PdfRendererBuilder builder = new PdfRendererBuilder();

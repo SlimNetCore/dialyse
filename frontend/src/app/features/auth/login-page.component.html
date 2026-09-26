@@ -10,8 +10,8 @@
 
     <div class="hero-grid">
       <article>
-        <span>{{ 'LOGIN.HERO_CENTERS_LABEL' | translate }}</span>
-        <strong>{{ store.availableCenters().length || '—' }}</strong>
+        <span>{{ 'LOGIN.HERO_SOCIETES_LABEL' | translate }}</span>
+        <strong>{{ societes().length || '—' }}</strong>
         <p>{{ 'LOGIN.HERO_CENTERS_DESC' | translate }}</p>
       </article>
       <article>
@@ -86,9 +86,18 @@
 
         <form [formRoot]="loginForm" class="login-form">
           <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'LOGIN.SOCIETE' | translate }}</mat-label>
+            <mat-select [formField]="loginForm.selectedSociete" data-testid="login-societe-select">
+              @for (s of societes(); track s.id) {
+                <mat-option [value]="s.id">{{ s.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'LOGIN.CENTER' | translate }}</mat-label>
             <mat-select [formField]="loginForm.selectedCenter" data-testid="login-center-select">
-              @for (c of store.availableCenters(); track c.id) {
+              @for (c of centres(); track c.id) {
                 <mat-option [value]="c.id">{{ c.name }}</mat-option>
               }
             </mat-select>

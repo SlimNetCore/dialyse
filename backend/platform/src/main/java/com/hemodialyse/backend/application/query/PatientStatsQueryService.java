@@ -15,9 +15,11 @@ import java.util.stream.Collectors;
 public class PatientStatsQueryService {
 
     private final JdbcTemplate jdbc;
+    private final com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider identity;
 
     public PatientStatsQueryService(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
+        this.identity = new com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider(jdbc);
     }
 
     public Map<String, Object> getParamedicalStats(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
@@ -118,7 +120,7 @@ public class PatientStatsQueryService {
         Map<String, Object> paramedical = getParamedicalStats(centerId, patientId, from, to);
         Map<String, Object> medical = getMedicalStats(centerId, patientId, from, to);
 
-        String html = buildPdfHtml(centerId, patientId, from, to, paramedical, medical);
+        String html = identity.decorateHtml(buildPdfHtml(centerId, patientId, from, to, paramedical, medical), centerId);
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             PdfRendererBuilder builder = new PdfRendererBuilder();

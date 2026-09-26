@@ -35,6 +35,12 @@ public class JasperReportService {
     private static final Logger log = LoggerFactory.getLogger(JasperReportService.class);
     private final DataSource dataSource;
 
+    /**
+     * Modèles livrés (classpath, immuables) déjà compilés : la compilation Jasper est coûteuse.
+     */
+    private final java.util.concurrent.ConcurrentHashMap<String, JasperReport> classpathCache =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
     /** Configurable via REPORTS_DIR env var or app.reports.base-dir property */
     @Value("${app.reports.base-dir:}")
     private String reportsBaseDir;
@@ -90,9 +96,13 @@ public class JasperReportService {
         // Fallback classpath (compatible jar/boot fat-jar): compile via InputStream
         ClassPathResource cpr = resolveClasspathResource(jrxmlPath);
         if (cpr != null && cpr.exists()) {
+            JasperReport cached = classpathCache.get(cpr.getPath());
+            if (cached != null) return cached;
             log.info("Compilation du rapport (classpath) : {}", cpr.getPath());
             try (InputStream is = cpr.getInputStream()) {
-                return JasperCompileManager.compileReport(is);
+                JasperReport compiled = JasperCompileManager.compileReport(is);
+                classpathCache.put(cpr.getPath(), compiled);
+                return compiled;
             }
         }
 

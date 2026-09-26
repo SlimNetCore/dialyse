@@ -26,6 +26,8 @@ import com.hemodialyse.backend.domain.medical.ordonnance.port.OrdonnanceReposito
 import com.hemodialyse.backend.domain.medical.ordonnance.service.OrdonnanceDomainService;
 import com.hemodialyse.backend.domain.medical.serologie.port.SerologieRepositoryPort;
 import com.hemodialyse.backend.domain.medical.serologie.service.SerologieDomainService;
+import com.hemodialyse.backend.domain.organisation.port.SocieteRepositoryPort;
+import com.hemodialyse.backend.domain.organisation.service.SocieteDomainService;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.pec.port.PecRepositoryPort;
 import com.hemodialyse.backend.domain.pec.service.PecDomainService;
@@ -168,6 +170,11 @@ public class DomainServiceConfig {
     @Bean
     public EtapeBilanPreGreffeDomainService etapeBilanPreGreffeDomainService(EtapeBilanPreGreffeRepositoryPort repo) {
         return new EtapeBilanPreGreffeDomainService(repo);
+    }
+
+    @Bean
+    public SocieteDomainService societeDomainService(SocieteRepositoryPort repo, TransactionRunner tx) {
+        return new SocieteDomainService(repo, tx);
     }
 
     @Bean

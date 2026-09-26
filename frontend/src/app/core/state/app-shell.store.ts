@@ -18,10 +18,7 @@ type AppShellState = {
 };
 
 const initialState: AppShellState = {
-  availableCenters: [
-    {id: '11111111-1111-1111-1111-111111111111', name: 'ANNABA 1'},
-    {id: '22222222-2222-2222-2222-222222222222', name: 'ROUIBA'}
-  ],
+  availableCenters: [],
   currentCenterId: '11111111-1111-1111-1111-111111111111',
   seanceScanClipboard: null,
 };
@@ -30,6 +27,10 @@ export const AppShellStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withMethods((store) => ({
+    /** Centres accessibles à l'utilisateur connecté (chargés après la connexion). */
+    setAvailableCenters(centers: CenterRef[]): void {
+      patchState(store, {availableCenters: centers});
+    },
     switchCenter(centerId: string): void {
       patchState(store, { currentCenterId: centerId });
     },

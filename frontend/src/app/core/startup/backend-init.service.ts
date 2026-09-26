@@ -1,5 +1,7 @@
 import {inject, Injectable, signal} from '@angular/core';
+import {firstValueFrom} from 'rxjs';
 
+import {AuthApiService} from '../api/auth-api.service';
 import {AuthStore} from '../state/auth.store';
 import {AppShellStore} from '../state/app-shell.store';
 import {WebSocketService} from '../ws/websocket.service';
@@ -12,6 +14,7 @@ export class BackendInitService {
   private readonly auth = inject(AuthStore);
   private readonly appShellStore = inject(AppShellStore);
   private readonly websocket = inject(WebSocketService);
+  private readonly authApi = inject(AuthApiService);
   private started = false;
 
   start(): void {
@@ -35,6 +38,11 @@ export class BackendInitService {
     const centerId = this.auth.centerId();
     if (centerId) {
       this.appShellStore.switchCenter(centerId);
+      try {
+        this.appShellStore.setAvailableCenters(await firstValueFrom(this.authApi.getAccessibleCenters()));
+      } catch {
+        // La liste des centres est un confort : l'application reste utilisable sans elle.
+      }
     }
 
     this.state.set('ready-for-auth');

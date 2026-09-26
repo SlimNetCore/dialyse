@@ -58,7 +58,7 @@ public class AuthRestController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
-        LoginResult result = authService.login(request.centerId(), request.username(), request.password());
+        LoginResult result = authService.login(request.societeId(), request.centerId(), request.username(), request.password());
         String accessToken = result.token();
         String refreshToken = authService.issueRefreshToken(result.userId(), result.centerId());
 
@@ -75,6 +75,37 @@ public class AuthRestController {
                         result.centerName(),
                         result.roles()
                 ));
+    }
+
+    /**
+     * Annuaire public de connexion (étape 1) : sociétés actives — identifiant et nom seulement.
+     */
+    @GetMapping("/societes")
+    public ResponseEntity<List<AuthService.DirectoryItem>> societes() {
+        return ResponseEntity.ok(authService.listLoginSocietes());
+    }
+
+    /**
+     * Annuaire public de connexion (étape 2) : centres actifs de la société choisie.
+     */
+    @GetMapping("/societes/{societeId}/centres")
+    public ResponseEntity<List<AuthService.DirectoryItem>> centres(@PathVariable UUID societeId) {
+        return ResponseEntity.ok(authService.listLoginCentres(societeId));
+    }
+
+    /**
+     * Centres accessibles à l'utilisateur connecté (liste des écrans d'administration).
+     */
+    @GetMapping("/centres")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<AuthService.DirectoryItem>> accessibleCentres(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)
+                || principal.getCenterId() == null || principal.getCenterId().isBlank()) {
+            return ResponseEntity.status(401).build();
+        }
+        boolean superAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_SUPERADMIN".equals(a.getAuthority()));
+        return ResponseEntity.ok(authService.listAccessibleCentres(UUID.fromString(principal.getCenterId()), superAdmin));
     }
 
     @PostMapping("/logout")
@@ -161,7 +192,11 @@ public class AuthRestController {
         return null;
     }
 
-    public record LoginRequest(@NotNull UUID centerId, @NotBlank String username, @NotBlank String password) {
+    /**
+     * {@code societeId} est facultatif (compatibilité) mais, s'il est fourni, le centre doit lui appartenir.
+     */
+    public record LoginRequest(UUID societeId, @NotNull UUID centerId, @NotBlank String username,
+                               @NotBlank String password) {
     }
 
     public record LoginResponse(String username, String fullName, UUID userId, UUID centerId, String centerName,

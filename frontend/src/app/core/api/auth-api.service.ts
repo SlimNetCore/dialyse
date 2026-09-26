@@ -3,7 +3,15 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 
+/** Entrée d'un annuaire de connexion : identifiant et nom uniquement. */
+export type DirectoryItem = {
+  id: string;
+  name: string;
+};
+
 export type LoginPayload = {
+  /** Société choisie à l'étape 1 ; le serveur vérifie que le centre lui appartient. */
+  societeId?: string;
   centerId: string;
   username: string;
   password: string;
@@ -33,6 +41,21 @@ export class AuthApiService {
 
   login(payload: LoginPayload): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, payload, {withCredentials: true});
+  }
+
+  /** Étape 1 de la connexion : sociétés actives (endpoint public, id et nom seulement). */
+  getLoginSocietes(): Observable<DirectoryItem[]> {
+    return this.http.get<DirectoryItem[]>(`${this.baseUrl}/auth/societes`);
+  }
+
+  /** Étape 2 de la connexion : centres actifs de la société choisie. */
+  getLoginCentres(societeId: string): Observable<DirectoryItem[]> {
+    return this.http.get<DirectoryItem[]>(`${this.baseUrl}/auth/societes/${societeId}/centres`);
+  }
+
+  /** Centres accessibles à l'utilisateur connecté (SUPERADMIN : tous ; sinon ceux de sa société). */
+  getAccessibleCenters(): Observable<DirectoryItem[]> {
+    return this.http.get<DirectoryItem[]>(`${this.baseUrl}/auth/centres`, {withCredentials: true});
   }
 
   logout(): Observable<LogoutResponse> {

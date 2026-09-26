@@ -122,6 +122,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'tune',
       label: 'NAV.ADMIN',
       items: [
+        {route: '/admin/societes', label: 'Sociétés', icon: 'apartment', superadminOnly: true},
         {route: '/admin/users', label: 'Utilisateurs', icon: 'manage_accounts'},
         {route: '/admin/roles', label: 'Rôles', icon: 'admin_panel_settings'},
         {route: '/admin/parametrage/calendrier-clinique', label: 'Calendrier clinique/centre', icon: 'calendar_month'},
@@ -224,7 +225,9 @@ export class ShellComponent implements OnInit, AfterViewInit {
       || (m.key === 'dashboard' && currentUrl === '/modeles-document'));
 
     const active = moduleFound ?? this.modules[0];
-    this.activeModuleItems.set(active.items);
+    const isSuperAdmin = this.auth.hasRole('SUPERADMIN');
+    this.activeModuleItems.set(
+      active.items.filter((item) => !(item as { superadminOnly?: boolean }).superadminOnly || isSuperAdmin));
   }
 
   private finalizeLogout(): void {

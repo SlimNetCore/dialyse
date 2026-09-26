@@ -1,0 +1,186 @@
+<div class="soc-page">
+  <mat-card class="soc-header">
+    <div class="soc-header-row">
+      <div>
+        <h2>
+          <mat-icon>apartment</mat-icon>
+          {{ 'SOCIETES.TITLE' | translate }}
+        </h2>
+        <p class="soc-subtitle">{{ 'SOCIETES.SUBTITLE' | translate }}</p>
+      </div>
+      <button (click)="openForm()" color="primary" mat-flat-button type="button">
+        <mat-icon>add_business</mat-icon>
+        {{ 'SOCIETES.NEW_BTN' | translate }}
+      </button>
+    </div>
+  </mat-card>
+
+  @if (showForm()) {
+    <mat-card class="soc-form-card">
+      <form [formRoot]="societeForm" class="soc-form">
+        <h3>{{ 'SOCIETES.NEW_TITLE' | translate }}</h3>
+        <p class="soc-hint">{{ 'SOCIETES.NEW_HINT' | translate }}</p>
+
+        <h4 class="soc-section">{{ 'SOCIETES.SECTION_SOCIETE' | translate }}</h4>
+        <div class="soc-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.CODE' | translate }}</mat-label>
+            <input [formField]="societeForm.code" data-testid="societe-code" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="soc-span-2">
+            <mat-label>{{ 'SOCIETES.RAISON_SOCIALE' | translate }}</mat-label>
+            <input [formField]="societeForm.raisonSociale" data-testid="societe-raison-sociale" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.NIF' | translate }}</mat-label>
+            <input [formField]="societeForm.nif" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.NIS' | translate }}</mat-label>
+            <input [formField]="societeForm.nis" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.RC' | translate }}</mat-label>
+            <input [formField]="societeForm.rc" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="soc-span-2">
+            <mat-label>{{ 'SOCIETES.ADRESSE' | translate }}</mat-label>
+            <input [formField]="societeForm.adresse" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.VILLE' | translate }}</mat-label>
+            <input [formField]="societeForm.ville" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.WILAYA' | translate }}</mat-label>
+            <input [formField]="societeForm.wilaya" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.TELEPHONE' | translate }}</mat-label>
+            <input [formField]="societeForm.telephone" matInput type="tel"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.EMAIL' | translate }}</mat-label>
+            <input [formField]="societeForm.email" matInput type="email"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.SITE_WEB' | translate }}</mat-label>
+            <input [formField]="societeForm.siteWeb" matInput/>
+          </mat-form-field>
+        </div>
+
+        <h4 class="soc-section">{{ 'SOCIETES.SECTION_PREMIER_CENTRE' | translate }}</h4>
+        <div class="soc-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.CENTRE_CODE' | translate }}</mat-label>
+            <input [formField]="centreForm.code" data-testid="centre-code" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="soc-span-2">
+            <mat-label>{{ 'SOCIETES.CENTRE_NOM' | translate }}</mat-label>
+            <input [formField]="centreForm.nom" data-testid="centre-nom" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="soc-span-2">
+            <mat-label>{{ 'SOCIETES.ADRESSE' | translate }}</mat-label>
+            <input [formField]="centreForm.adresse" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.VILLE' | translate }}</mat-label>
+            <input [formField]="centreForm.ville" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.WILAYA' | translate }}</mat-label>
+            <input [formField]="centreForm.wilaya" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.TELEPHONE' | translate }}</mat-label>
+            <input [formField]="centreForm.telephone" matInput type="tel"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.EMAIL' | translate }}</mat-label>
+            <input [formField]="centreForm.email" matInput type="email"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SOCIETES.SITE_WEB' | translate }}</mat-label>
+            <input [formField]="centreForm.siteWeb" matInput/>
+          </mat-form-field>
+        </div>
+
+        <div class="soc-actions">
+          <button (click)="closeForm()" mat-stroked-button type="button">{{ 'PATIENT_FORM.BTN_CANCEL' | translate }}
+          </button>
+          <button (click)="save()" [disabled]="!canSave()" color="primary" data-testid="societe-save" mat-flat-button
+                  type="button">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  }
+
+  <mat-card class="soc-table-card">
+    <form (submit)="$event.preventDefault(); search()" [formRoot]="searchForm" class="soc-search">
+      <mat-form-field appearance="outline" class="soc-search-field">
+        <mat-label>{{ 'SOCIETES.SEARCH' | translate }}</mat-label>
+        <input [formField]="searchForm.q" matInput/>
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+      <button mat-stroked-button type="submit">{{ 'SOCIETES.SEARCH_BTN' | translate }}</button>
+    </form>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate"/>
+    }
+    @if (error()) {
+      <p class="soc-error" role="alert">{{ 'SOCIETES.LOAD_ERROR' | translate }}</p>
+    }
+
+    <div class="soc-table-wrap">
+      <table [dataSource]="rows()" class="soc-table" mat-table>
+        <ng-container matColumnDef="code">
+          <th *matHeaderCellDef mat-header-cell>{{ 'SOCIETES.CODE' | translate }}</th>
+          <td *matCellDef="let s" mat-cell><code>{{ s.code }}</code></td>
+        </ng-container>
+        <ng-container matColumnDef="raisonSociale">
+          <th *matHeaderCellDef mat-header-cell>{{ 'SOCIETES.RAISON_SOCIALE' | translate }}</th>
+          <td *matCellDef="let s" mat-cell>{{ s.raisonSociale }}</td>
+        </ng-container>
+        <ng-container matColumnDef="localisation">
+          <th *matHeaderCellDef mat-header-cell>{{ 'SOCIETES.LOCALISATION' | translate }}</th>
+          <td *matCellDef="let s" mat-cell>{{ location(s) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="centres">
+          <th *matHeaderCellDef mat-header-cell>{{ 'SOCIETES.CENTRES' | translate }}</th>
+          <td *matCellDef="let s" mat-cell>
+            {{ 'SOCIETES.CENTRES_COUNT' | translate: {actifs: summary(s).actifs, total: summary(s).total} }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actif">
+          <th *matHeaderCellDef mat-header-cell>{{ 'SOCIETES.STATUT' | translate }}</th>
+          <td *matCellDef="let s" mat-cell>
+            <span [class.soc-badge-off]="!s.actif" class="soc-badge">
+              {{ (s.actif ? 'SOCIETES.ACTIVE' : 'SOCIETES.INACTIVE') | translate }}
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
+          <td *matCellDef="let s" mat-cell>
+            <a [matTooltip]="'SOCIETES.OPEN' | translate" [routerLink]="['/admin/societes', s.id]" mat-icon-button>
+              <mat-icon>edit</mat-icon>
+            </a>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+      </table>
+    </div>
+
+    @if (!loading() && rows().length === 0) {
+      <p class="soc-empty">{{ 'SOCIETES.EMPTY' | translate }}</p>
+    }
+
+    <mat-paginator (page)="onPage($event)" [length]="total()" [pageIndex]="pageIndex()"
+                   [pageSizeOptions]="pageSizeOptions" [pageSize]="pageSize()" showFirstLastButtons/>
+  </mat-card>
+</div>

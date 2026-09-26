@@ -33,7 +33,18 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Connexion à un centre sans précision de société (le centre appartient à exactement une société).
+     */
     public LoginResult login(UUID centerId, String username, String password) {
+        return login(null, centerId, username, password);
+    }
+
+    /**
+     * Connexion à un centre. Si {@code societeId} est fourni, le centre doit appartenir à cette société ; dans
+     * tous les cas, le centre et sa société doivent être actifs.
+     */
+    public LoginResult login(UUID societeId, UUID centerId, String username, String password) {
         // 1. Load user from app_user table
         var users = jdbc.queryForList(
             "SELECT id, username, password_hash, full_name, active FROM app_user WHERE username = ?", username
@@ -64,6 +75,9 @@ public class AuthService {
             throw new IllegalStateException("Utilisateur non autorisé sur ce centre");
         }
 
+        // 3b. Le centre (et sa société) doit être actif, et appartenir à la société choisie
+        assertCentreEtSocieteUtilisables(centerId, societeId);
+
         // 4. Load center name
         String centerName = jdbc.queryForObject("SELECT name FROM centers WHERE id = ?", String.class, centerId);
 
@@ -79,6 +93,66 @@ public class AuthService {
         String token = jwtTokenProvider.generateToken(username, userId.toString(), prefixedRoles, centerId.toString());
 
         return new LoginResult(token, username, fullName, userId, centerId, centerName, prefixedRoles);
+    }
+
+    /**
+     * Sociétés proposées à la connexion : actives et disposant d'au moins un centre actif.
+     */
+    public List<DirectoryItem> listLoginSocietes() {
+        return jdbc.query(
+                "SELECT s.id, s.raison_sociale FROM societes s WHERE s.actif = TRUE AND EXISTS ("
+                        + "SELECT 1 FROM centers c WHERE c.societe_id = s.id AND COALESCE(c.actif, TRUE) = TRUE) "
+                        + "ORDER BY s.raison_sociale",
+                (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("raison_sociale")));
+    }
+
+    /**
+     * Centres actifs d'une société active, proposés à la connexion une fois la société choisie.
+     */
+    public List<DirectoryItem> listLoginCentres(UUID societeId) {
+        return jdbc.query(
+                "SELECT c.id, c.name FROM centers c INNER JOIN societes s ON s.id = c.societe_id "
+                        + "WHERE c.societe_id = ? AND s.actif = TRUE AND COALESCE(c.actif, TRUE) = TRUE ORDER BY c.name",
+                (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("name")),
+                societeId);
+    }
+
+    /**
+     * Centres visibles par l'utilisateur connecté : tous pour le SUPERADMIN (éditeur), sinon les centres actifs
+     * de sa société (déduite de son centre courant).
+     */
+    public List<DirectoryItem> listAccessibleCentres(UUID currentCenterId, boolean superAdmin) {
+        if (superAdmin) {
+            return jdbc.query("SELECT id, name FROM centers ORDER BY name",
+                    (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("name")));
+        }
+        return jdbc.query(
+                "SELECT c.id, c.name FROM centers c WHERE COALESCE(c.actif, TRUE) = TRUE AND "
+                        + "(c.id = ? OR c.societe_id = (SELECT societe_id FROM centers WHERE id = ?)) ORDER BY c.name",
+                (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("name")),
+                currentCenterId, currentCenterId);
+    }
+
+    private void assertCentreEtSocieteUtilisables(UUID centerId, UUID expectedSocieteId) {
+        var rows = jdbc.query(
+                "SELECT c.societe_id, COALESCE(c.actif, TRUE) AS centre_actif, s.actif AS societe_actif "
+                        + "FROM centers c LEFT JOIN societes s ON s.id = c.societe_id WHERE c.id = ?",
+                (rs, i) -> new Object[]{rs.getObject("societe_id", UUID.class), rs.getBoolean("centre_actif"),
+                        rs.getObject("societe_actif") == null || rs.getBoolean("societe_actif")},
+                centerId);
+        if (rows.isEmpty()) {
+            throw new IllegalStateException("Utilisateur non autorisé sur ce centre");
+        }
+        Object[] row = rows.get(0);
+        if (expectedSocieteId != null && !expectedSocieteId.equals(row[0])) {
+            throw new IllegalStateException("Ce centre n'appartient pas à la société sélectionnée");
+        }
+        if (!(Boolean) row[1]) {
+            throw new IllegalStateException("Ce centre est désactivé");
+        }
+        if (!(Boolean) row[2]) {
+            throw new IllegalStateException("Cette société est désactivée");
+        }
     }
 
     public LoginResult rebuildSession(UUID centerId, UUID userId) {
@@ -105,6 +179,8 @@ public class AuthService {
             throw new IllegalStateException("Utilisateur non autorisé sur ce centre");
         }
 
+        assertCentreEtSocieteUtilisables(centerId, null);
+
         String username = (String) user.get("USERNAME");
         String fullName = (String) user.get("FULL_NAME");
         String centerName = jdbc.queryForObject("SELECT name FROM centers WHERE id = ?", String.class, centerId);
@@ -116,6 +192,12 @@ public class AuthService {
         List<String> prefixedRoles = roles.stream().map(r -> "ROLE_" + r).toList();
 
         return new LoginResult("", username, fullName, userId, centerId, centerName, prefixedRoles);
+    }
+
+    /**
+     * Entrée d'un annuaire public de connexion : identifiant et nom uniquement (aucune autre donnée exposée).
+     */
+    public record DirectoryItem(UUID id, String name) {
     }
 
     public String generateAccessToken(LoginResult session) {

@@ -167,12 +167,40 @@ class JrxmlSecurityValidatorTest {
         String withImage = reference.replaceFirst("<title>",
                 "<title><band height=\"10\"><image><reportElement x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>"
                         + "<imageExpression>\"http://attacker/x.png\"</imageExpression></image></band>");
-        assertThat(codes(validator.validate(withImage, reference))).contains("ELEMENT_FORBIDDEN");
+        assertThat(codes(validator.validate(withImage, reference))).contains("IMAGE_FORBIDDEN");
 
         String withSubreport = reference.replaceFirst("<title>",
                 "<title><band height=\"10\"><subreport><reportElement x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>"
                         + "<subreportExpression>\"evil.jasper\"</subreportExpression></subreport></band>");
         assertThat(codes(validator.validate(withSubreport, reference))).contains("ELEMENT_FORBIDDEN");
+    }
+
+    @Test
+    void seuleLImageDuLogoServeurEstAutorisee() throws IOException {
+        String reference = load("attestation.jrxml");
+        String logo = reference.replace("<title>",
+                "<title><band height=\"10\"><image scaleImage=\"RetainShape\" onErrorType=\"Blank\">"
+                        + "<reportElement x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>"
+                        + "<imageExpression>$P{SOCIETE_LOGO}</imageExpression></image></band>");
+        assertThat(validator.validate(logo, reference)).isEmpty();
+
+        String localFile = logo.replace("<imageExpression>$P{SOCIETE_LOGO}", "<imageExpression>\"C:/Windows/win.ini\"");
+        assertThat(codes(validator.validate(localFile, reference))).contains("IMAGE_FORBIDDEN");
+
+        String hyperlink = logo.replace("onErrorType=\"Blank\"", "onErrorType=\"Blank\" hyperlinkType=\"Reference\"");
+        assertThat(codes(validator.validate(hyperlink, reference))).contains("ATTRIBUTE_FORBIDDEN");
+    }
+
+    @Test
+    void lEnTeteDIdentiteNePeutPasEtreRetire() throws IOException {
+        String reference = load("attestation.jrxml");
+        assertThat(reference).contains("$P{SOCIETE_NOM}").contains("$P{CENTRE_NOM}");
+
+        String sansSociete = reference.replace("$P{SOCIETE_NOM}", "\"Ma société\"");
+        assertThat(codes(validator.validate(sansSociete, reference))).contains("IDENTITY_REMOVED");
+
+        String sansCentre = reference.replace("$P{CENTRE_NOM}", "\"Mon centre\"");
+        assertThat(codes(validator.validate(sansCentre, reference))).contains("IDENTITY_REMOVED");
     }
 
     @Test

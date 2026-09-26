@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,10 +46,10 @@ class AuthRestControllerTest {
                 List.of("ROLE_ADMIN")
         );
 
-        when(authService.login(eq(centerId), eq("admin"), eq("secret"))).thenReturn(loginResult);
+        when(authService.login(isNull(), eq(centerId), eq("admin"), eq("secret"))).thenReturn(loginResult);
         when(authService.issueRefreshToken(eq(userId), eq(centerId))).thenReturn("refresh-token");
 
-        var response = controller.login(new AuthRestController.LoginRequest(centerId, "admin", "secret"));
+        var response = controller.login(new AuthRestController.LoginRequest(null, centerId, "admin", "secret"));
 
         assertEquals(200, response.getStatusCode().value());
         List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
@@ -86,10 +87,10 @@ class AuthRestControllerTest {
                 List.of("ROLE_ADMIN")
         );
 
-        when(authService.login(eq(centerId), eq("admin"), eq("secret"))).thenReturn(loginResult);
+        when(authService.login(isNull(), eq(centerId), eq("admin"), eq("secret"))).thenReturn(loginResult);
         when(authService.issueRefreshToken(eq(userId), eq(centerId))).thenReturn("refresh-token");
 
-        var response = controller.login(new AuthRestController.LoginRequest(centerId, "admin", "secret"));
+        var response = controller.login(new AuthRestController.LoginRequest(null, centerId, "admin", "secret"));
 
         assertEquals(200, response.getStatusCode().value());
         List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);

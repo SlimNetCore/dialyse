@@ -1,9 +1,20 @@
 import {Routes} from '@angular/router';
+import {superadminGuard} from '../../core/auth/superadmin.guard';
 
 export const adminRoutes: Routes = [
   { path: 'users', loadComponent: () => import('./user-list.component').then(m => m.UserListComponent) },
   { path: 'users/new', loadComponent: () => import('./user-form.component').then(m => m.UserFormComponent) },
   { path: 'users/:id/edit', loadComponent: () => import('./user-form.component').then(m => m.UserFormComponent) },
+  {
+    path: 'societes',
+    canActivate: [superadminGuard],
+    loadComponent: () => import('./societes/societes.component').then(m => m.SocietesComponent),
+  },
+  {
+    path: 'societes/:id',
+    canActivate: [superadminGuard],
+    loadComponent: () => import('./societes/societe-detail.component').then(m => m.SocieteDetailComponent),
+  },
   { path: 'roles', loadComponent: () => import('./role-list.component').then(m => m.RoleListComponent) },
   { path: 'roles/new', loadComponent: () => import('./role-form.component').then(m => m.RoleFormComponent) },
   { path: 'roles/:id/edit', loadComponent: () => import('./role-form.component').then(m => m.RoleFormComponent) },
