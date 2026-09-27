@@ -102,6 +102,17 @@ export type DirectionAlert = {
   valeur: number | null;
 };
 
+/** Entrée de l'historique des alertes : `resolvedAt` nul tant que l'alerte est toujours active. */
+export type AlertHistoryEntry = {
+  centerId: string;
+  centre: string;
+  code: string;
+  severity: 'WARNING' | 'CRITICAL';
+  valeur: number | null;
+  firstSeenAt: string;
+  resolvedAt: string | null;
+};
+
 export type DirectionIndicators = {
   societeId: string;
   from: string;
@@ -196,6 +207,18 @@ export type SnapshotInfo = {
   generatedAt: string;
 };
 
+/**
+ * Contenu complet d'un instantané mensuel figé : mêmes formes que les endpoints en direct, pour réutiliser les
+ * mêmes composants d'affichage. `breakdown` est absent (`null`) sur les instantanés créés avant son ajout.
+ */
+export type Snapshot = {
+  mois: string;
+  generatedAt: string;
+  overview: DirectionOverview;
+  indicators: DirectionIndicators;
+  breakdown: DirectionBreakdown | null;
+};
+
 export type DirectionAccount = {
   userId: string;
   username: string;
@@ -240,6 +263,17 @@ export class DirectionApiService {
 
   listSnapshots(): Observable<SnapshotInfo[]> {
     return this.http.get<SnapshotInfo[]>(`${this.baseUrl}/direction/snapshots`, {withCredentials: true});
+  }
+
+  /** Contenu d'un mois déjà figé (404 s'il ne l'est pas encore : voir `ensureSnapshot`). */
+  getSnapshot(mois: string): Observable<Snapshot> {
+    return this.http.get<Snapshot>(`${this.baseUrl}/direction/snapshots/${mois}`, {withCredentials: true});
+  }
+
+  /** Historique récent des alertes (apparitions et résolutions), du plus récemment actif au plus ancien. */
+  alertsHistory(limit = 50): Observable<AlertHistoryEntry[]> {
+    return this.http.get<AlertHistoryEntry[]>(`${this.baseUrl}/direction/alerts/history`,
+      {params: new HttpParams().set('limit', limit), withCredentials: true});
   }
 
   /** Fige le mois écoulé s'il ne l'est pas encore (idempotent). */

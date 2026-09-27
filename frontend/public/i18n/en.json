@@ -263,6 +263,14 @@
       "DOWNLOAD": "PDF report",
       "ERROR": "Unable to produce the report."
     },
+    "COMPARE": {
+      "TITLE": "Month comparison",
+      "HINT": "Compare two already-frozen months on figures that no longer change.",
+      "MONTH_A": "Month A",
+      "MONTH_B": "Month B",
+      "DELTA": "Change",
+      "ERROR": "Unable to load this month."
+    },
     "TOTAL": "Company total",
     "ALERTS": {
       "TITLE": "Alerts",
@@ -271,7 +279,13 @@
       "OBSERVANCE_EN_RETARD": "Some patients have an overdue anaemia treatment administration",
       "STOCK_SOUS_SEUIL": "{{value}} article(s) below the alert threshold",
       "LOTS_PERIMES": "{{value}} expired lot(s) still in stock",
-      "LOTS_PEREMPTION_PROCHE": "{{value}} lot(s) expiring within 90 days"
+      "LOTS_PEREMPTION_PROCHE": "{{value}} lot(s) expiring within 90 days",
+      "HISTORY_TITLE": "Alert history",
+      "HISTORY_HINT": "Recent occurrences and resolutions, recorded while the dashboard was being watched.",
+      "STATUS_OPEN": "Open",
+      "STATUS_RESOLVED": "Resolved",
+      "SINCE": "since",
+      "UNTIL": "resolved on"
     },
     "CLINICAL": {
       "TITLE": "Quality of care (KDIGO targets)",

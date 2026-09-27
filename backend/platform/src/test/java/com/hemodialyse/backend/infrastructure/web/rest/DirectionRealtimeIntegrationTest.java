@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService;
 import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
@@ -52,6 +53,8 @@ class DirectionRealtimeIntegrationTest {
     private DirectionIndicatorsQueryService indicators;
     @Autowired
     private DirectionBreakdownQueryService breakdowns;
+    @Autowired
+    private DirectionAlertHistoryService alertHistory;
     /**
      * Service isolé du contexte (diffusion capturée) : pas de bean simulé, donc pas de second contexte Spring.
      */
@@ -65,7 +68,7 @@ class DirectionRealtimeIntegrationTest {
     @BeforeEach
     void setup() {
         port = mock(DirectionRealtimePort.class);
-        realtime = new DirectionRealtimeService(jdbc, dashboard, indicators, breakdowns, port);
+        realtime = new DirectionRealtimeService(jdbc, dashboard, indicators, breakdowns, port, alertHistory);
         cleanup();
         jdbc.update("INSERT INTO societes (id, code, raison_sociale, actif, created_at) VALUES (?,?,?,TRUE,CURRENT_TIMESTAMP)",
                 SOC, "ZT-RT1", "Société RT");

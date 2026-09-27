@@ -69,6 +69,27 @@ export class DirectionDashboardComponent implements OnInit {
     const frozen = new Map(this.store.snapshots().map((s) => [s.mois, s.generatedAt]));
     return lastCompleteMonths(new Date(), 12).map((mois) => ({mois, generatedAt: frozen.get(mois) ?? null}));
   });
+  /** Mois déjà figés, sélectionnables dans le comparateur (un mois non figé n'a pas encore d'instantané). */
+  protected readonly frozenMonths = computed(() =>
+    [...this.store.snapshots()].map((s) => s.mois).sort().reverse());
+  /**
+   * Delta société entre les deux mois figés choisis dans le comparateur (activité et finances) ; `null` tant que
+   * les deux ne sont pas chargés.
+   */
+  protected readonly compareDeltas = computed(() => {
+    const a = this.store.compareA();
+    const b = this.store.compareB();
+    if (!a || !b) return null;
+    const ta = a.overview.totaux;
+    const tb = b.overview.totaux;
+    return {
+      patients: {a: ta.patients, b: tb.patients},
+      seances: {a: ta.seances, b: tb.seances, d: delta(tb.seances, ta.seances)},
+      caTtc: {a: ta.caTtc, b: tb.caTtc, d: delta(tb.caTtc, ta.caTtc)},
+      encaisse: {a: ta.encaisse, b: tb.encaisse, d: delta(tb.encaisse, ta.encaisse)},
+      tauxEncaissement: {a: ta.tauxEncaissement, b: tb.tauxEncaissement},
+    };
+  });
   protected readonly threshold = computed(() => this.store.overview()?.seuilAnonymat ?? 5);
   /** Centre isolé par la direction (`null` = tous les centres, vue consolidée). */
   protected readonly selectedCentre = signal<string | null>(null);
@@ -184,10 +205,13 @@ export class DirectionDashboardComponent implements OnInit {
       datasets: this.pivotCentres().map((c) => ({label: c.nom, data: lines.map((l) => l.cells[c.id] ?? 0)})),
     };
   });
+  /** Historique des alertes limité au centre isolé par le filtre, le cas échéant. */
+  protected readonly displayAlertHistory = computed(() => filterByCentre(this.store.alertHistory(), this.selectedCentre()));
 
   ngOnInit(): void {
     void this.store.load('', '');
     void this.store.loadSnapshots();
+    void this.store.loadAlertHistory();
   }
 
   /** Fige le mois au besoin, puis enregistre le rapport PDF sur le poste. */
@@ -229,6 +253,11 @@ export class DirectionDashboardComponent implements OnInit {
   /** Isole un centre (`null` = vue consolidée de tous les centres). */
   protected setCentre(centerId: string | null): void {
     this.selectedCentre.set(centerId);
+  }
+
+  /** Charge le mois choisi dans l'emplacement A ou B du comparateur de mois figés. */
+  protected setCompareMonth(slot: 'a' | 'b', mois: string | null): void {
+    if (mois) void this.store.loadCompare(slot, mois);
   }
 
   /**

@@ -307,6 +307,31 @@ class DirectionIntegrationTest {
         }
     }
 
+    @Test
+    void alert_history_is_scoped_to_its_societe_and_direction_only() throws Exception {
+        jdbc.update("INSERT INTO direction_alert_history (id, societe_id, center_id, centre_nom, code, severity, "
+                        + "valeur, first_seen_at) VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
+                UUID.randomUUID(), SOC_A, A1, "Centre A1", "STOCK_SOUS_SEUIL", "WARNING", new java.math.BigDecimal("2"));
+        jdbc.update("INSERT INTO direction_alert_history (id, societe_id, center_id, centre_nom, code, severity, "
+                        + "valeur, first_seen_at) VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
+                UUID.randomUUID(), SOC_B, B1, "Centre B1", "LOTS_PERIMES", "CRITICAL", null);
+
+        createAccount("zt-dir-a", SOC_A);
+        Cookie session = login(SOC_A, "zt-dir-a", PASSWORD, 200).getResponse().getCookie("HEMO_AUTH");
+        MvcResult result = mockMvc.perform(get("/api/v1/direction/alerts/history").cookie(session))
+                .andExpect(status().isOk()).andReturn();
+        String raw = result.getResponse().getContentAsString();
+        assertTrue(raw.contains("STOCK_SOUS_SEUIL") && raw.contains("Centre A1"));
+        assertFalse(raw.contains("LOTS_PERIMES") || raw.contains("Centre B1"), "aucune donnée de la société B");
+
+        for (String role : List.of("ADMIN", "MEDECIN", "SUPERADMIN")) {
+            mockMvc.perform(get("/api/v1/direction/alerts/history").with(user(principal(role))))
+                    .andExpect(status().isForbidden());
+        }
+
+        jdbc.update("DELETE FROM direction_alert_history WHERE societe_id IN (?, ?)", SOC_A, SOC_B);
+    }
+
     private void bilan(UUID centre, UUID patient, String ktv, String hb) {
         jdbc.update("INSERT INTO resultats_analyses (id, patient_id, center_id, date_prelevement, kt_v_mensuel, hb_g_dl) VALUES (?,?,?,?,?,?)",
                 UUID.randomUUID(), patient, centre, Date.valueOf(java.time.LocalDate.now().minusDays(10)),

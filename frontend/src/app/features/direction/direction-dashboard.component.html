@@ -93,6 +93,33 @@
       </mat-card>
     }
 
+    @if (displayAlertHistory().length > 0) {
+      <mat-card class="block" data-testid="direction-alert-history">
+        <h2>
+          <mat-icon>history</mat-icon>
+          {{ 'DIRECTION.ALERTS.HISTORY_TITLE' | translate }}
+        </h2>
+        <p class="muted">{{ 'DIRECTION.ALERTS.HISTORY_HINT' | translate }}</p>
+        <ul class="history-list">
+          @for (h of displayAlertHistory(); track h.centerId + h.code + h.firstSeenAt) {
+            <li [class.resolved]="h.resolvedAt">
+              <span [class]="'status-pill ' + (h.resolvedAt ? 'resolved' : h.severity.toLowerCase())">
+                {{ (h.resolvedAt ? 'DIRECTION.ALERTS.STATUS_RESOLVED' : 'DIRECTION.ALERTS.STATUS_OPEN') | translate }}
+              </span>
+              <strong>{{ h.centre }}</strong>
+              <span>{{ alertKey(h.code) | translate: {value: h.valeur} }}</span>
+              <span class="history-dates">
+                {{ 'DIRECTION.ALERTS.SINCE' | translate }} {{ h.firstSeenAt | date: 'dd/MM/yyyy HH:mm' }}
+                @if (h.resolvedAt) {
+                  — {{ 'DIRECTION.ALERTS.UNTIL' | translate }} {{ h.resolvedAt | date: 'dd/MM/yyyy HH:mm' }}
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      </mat-card>
+    }
+
     <div class="kpis" data-testid="direction-kpis">
       @if (displayTotals(); as t) {
         <mat-card class="kpi">
@@ -460,5 +487,79 @@
         </tbody>
       </table>
     </div>
+  </mat-card>
+
+  <mat-card class="block" data-testid="direction-compare">
+    <h2>{{ 'DIRECTION.COMPARE.TITLE' | translate }}</h2>
+    <p class="muted">{{ 'DIRECTION.COMPARE.HINT' | translate }}</p>
+    <div class="compare-selectors">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'DIRECTION.COMPARE.MONTH_A' | translate }}</mat-label>
+        <mat-select (selectionChange)="setCompareMonth('a', $event.value)" [value]="store.compareA()?.mois ?? null"
+                    data-testid="compare-month-a">
+          @for (mois of frozenMonths(); track mois) {
+            <mat-option [value]="mois">{{ mois }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'DIRECTION.COMPARE.MONTH_B' | translate }}</mat-label>
+        <mat-select (selectionChange)="setCompareMonth('b', $event.value)" [value]="store.compareB()?.mois ?? null"
+                    data-testid="compare-month-b">
+          @for (mois of frozenMonths(); track mois) {
+            <mat-option [value]="mois">{{ mois }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    @if (store.compareError()) {
+      <div class="error-msg" data-testid="compare-error">{{ 'DIRECTION.COMPARE.ERROR' | translate }}</div>
+    }
+    @if (compareDeltas(); as c) {
+      <div class="table-scroll">
+        <table class="centres" data-testid="compare-table">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ store.compareA()!.mois }}</th>
+            <th class="num">{{ store.compareB()!.mois }}</th>
+            <th class="num">{{ 'DIRECTION.COMPARE.DELTA' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>{{ 'DIRECTION.KPI.PATIENTS' | translate }}</td>
+            <td class="num">{{ headcount(c.patients.a) }}</td>
+            <td class="num">{{ headcount(c.patients.b) }}</td>
+            <td class="num">—</td>
+          </tr>
+          <tr>
+            <td>{{ 'DIRECTION.KPI.SEANCES' | translate }}</td>
+            <td class="num">{{ c.seances.a }}</td>
+            <td class="num">{{ c.seances.b }}</td>
+            <td [class]="'num delta ' + c.seances.d.direction">{{ formatDelta(c.seances.d) || '—' }}</td>
+          </tr>
+          <tr>
+            <td>{{ 'DIRECTION.KPI.CA_TTC' | translate }}</td>
+            <td class="num">{{ c.caTtc.a | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+            <td class="num">{{ c.caTtc.b | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+            <td [class]="'num delta ' + c.caTtc.d.direction">{{ formatDelta(c.caTtc.d) || '—' }}</td>
+          </tr>
+          <tr>
+            <td>{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</td>
+            <td class="num">{{ c.encaisse.a | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+            <td class="num">{{ c.encaisse.b | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+            <td [class]="'num delta ' + c.encaisse.d.direction">{{ formatDelta(c.encaisse.d) || '—' }}</td>
+          </tr>
+          <tr>
+            <td>{{ 'DIRECTION.KPI.TAUX' | translate }}</td>
+            <td class="num">{{ c.tauxEncaissement.a === null ? '—' : c.tauxEncaissement.a + ' %' }}</td>
+            <td class="num">{{ c.tauxEncaissement.b === null ? '—' : c.tauxEncaissement.b + ' %' }}</td>
+            <td class="num">—</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    }
   </mat-card>
 </section>

@@ -43,6 +43,7 @@ public class DirectionRealtimeService {
     private final DirectionIndicatorsQueryService indicators;
     private final DirectionBreakdownQueryService breakdowns;
     private final DirectionRealtimePort port;
+    private final DirectionAlertHistoryService alertHistory;
 
     private final Map<UUID, Snapshot> last = new ConcurrentHashMap<>();
     private final Map<UUID, Integer> watchers = new ConcurrentHashMap<>();
@@ -51,12 +52,14 @@ public class DirectionRealtimeService {
 
     public DirectionRealtimeService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
                                     DirectionIndicatorsQueryService indicators,
-                                    DirectionBreakdownQueryService breakdowns, DirectionRealtimePort port) {
+                                    DirectionBreakdownQueryService breakdowns, DirectionRealtimePort port,
+                                    DirectionAlertHistoryService alertHistory) {
         this.jdbc = jdbc;
         this.dashboard = dashboard;
         this.indicators = indicators;
         this.breakdowns = breakdowns;
         this.port = port;
+        this.alertHistory = alertHistory;
     }
 
     // ───────────────────────────── Abonnés ─────────────────────────────
@@ -153,6 +156,7 @@ public class DirectionRealtimeService {
         Overview overview = dashboard.overview(societeId, null, null);
         Indicators ind = indicators.indicators(societeId, null, null);
         Breakdown breakdown = breakdowns.breakdown(societeId, null, null);
+        alertHistory.record(societeId, ind.alertes());
         Snapshot s = new Snapshot();
 
         for (CentreStats c : overview.centres()) {

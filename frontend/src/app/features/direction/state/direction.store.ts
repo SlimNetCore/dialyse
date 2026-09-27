@@ -3,10 +3,12 @@ import {patchState, signalStore, withComputed, withMethods, withState} from '@ng
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {firstValueFrom} from 'rxjs';
 import {
+  AlertHistoryEntry,
   DirectionApiService,
   DirectionBreakdown,
   DirectionIndicators,
   DirectionOverview,
+  Snapshot,
   SnapshotInfo
 } from '../../../core/api/direction-api.service';
 import {monthlyTotals, rankByRevenue, sortAlerts} from '../direction.util';
@@ -28,11 +30,19 @@ type DirectionState = {
   loading: boolean;
   /** Code d'erreur stable renvoyé par le serveur (ex. PERIODE_INVALIDE) ou LOAD_ERROR. */
   error: string | null;
+  /** Comparateur de deux mois figés : contenu chargé pour chaque emplacement, `undefined` = non demandé. */
+  compareA: Snapshot | null | undefined;
+  compareB: Snapshot | null | undefined;
+  compareBusy: boolean;
+  compareError: boolean;
+  /** Historique récent des alertes (apparitions/résolutions), le plus récent d'abord. */
+  alertHistory: AlertHistoryEntry[];
 };
 
 const initialState: DirectionState = {
   overview: null, indicators: null, breakdown: null, updatedAt: null, snapshots: [], reportBusy: null,
   reportError: false, from: '', to: '', loading: false, error: null,
+  compareA: undefined, compareB: undefined, compareBusy: false, compareError: false, alertHistory: [],
 };
 
 /** Valeur de `reportBusy` pendant la production du rapport de la période affichée (aucun mois ne peut la prendre). */
@@ -77,6 +87,7 @@ export const DirectionStore = signalStore(
     /** Relit toutes les données de la période affichée, en arrière-plan (changement reçu en temps réel). */
     async refresh(): Promise<void> {
       await this.load(store.from(), store.to(), true);
+      void this.loadAlertHistory();
     },
 
     async loadSnapshots(): Promise<void> {
@@ -113,6 +124,31 @@ export const DirectionStore = signalStore(
         console.error('Rapport de direction : échec du téléchargement', e);
         patchState(store, {reportBusy: null, reportError: true});
         return null;
+      }
+    },
+
+    /** Charge le contenu d'un mois figé dans l'emplacement `a` ou `b` du comparateur ; `null` en cas d'échec. */
+    async loadCompare(slot: 'a' | 'b', mois: string): Promise<void> {
+      patchState(store, {compareBusy: true, compareError: false});
+      try {
+        const snapshot = await firstValueFrom(api.getSnapshot(mois));
+        patchState(store, slot === 'a' ? {compareA: snapshot, compareBusy: false}
+          : {compareB: snapshot, compareBusy: false});
+      } catch {
+        patchState(store, slot === 'a' ? {compareA: null, compareBusy: false, compareError: true}
+          : {compareB: null, compareBusy: false, compareError: true});
+      }
+    },
+
+    clearCompare(): void {
+      patchState(store, {compareA: undefined, compareB: undefined, compareError: false});
+    },
+
+    async loadAlertHistory(): Promise<void> {
+      try {
+        patchState(store, {alertHistory: await firstValueFrom(api.alertsHistory())});
+      } catch {
+        patchState(store, {alertHistory: []});
       }
     },
   })),

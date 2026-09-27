@@ -5,6 +5,8 @@ import com.hemodialyse.backend.application.direction.DirectionDashboardQueryServ
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
 import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
 import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService.Breakdown;
+import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService;
+import com.hemodialyse.backend.application.direction.DirectionAlertHistoryService.Entry;
 import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -40,16 +43,19 @@ public class DirectionDashboardRestController {
     private final DirectionIndicatorsQueryService indicators;
     private final DirectionBreakdownQueryService breakdowns;
     private final DirectionReportPdfService reports;
+    private final DirectionAlertHistoryService alertHistory;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
                                             DirectionIndicatorsQueryService indicators,
                                             DirectionBreakdownQueryService breakdowns,
-                                            DirectionReportPdfService reports) {
+                                            DirectionReportPdfService reports,
+                                            DirectionAlertHistoryService alertHistory) {
         this.reports = reports;
         this.guard = guard;
         this.queries = queries;
         this.indicators = indicators;
         this.breakdowns = breakdowns;
+        this.alertHistory = alertHistory;
     }
 
     /**
@@ -110,5 +116,17 @@ public class DirectionDashboardRestController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
                         .filename("rapport-direction.pdf").build().toString())
                 .body(reports.pdf(societeId, from, to));
+    }
+
+    /**
+     * Historique récent des alertes (apparitions et résolutions), du plus récemment actif au plus ancien.
+     * Alimenté uniquement pendant que la direction est connectée (voir {@code DirectionRealtimeService}).
+     */
+    @GetMapping("/alerts/history")
+    public ResponseEntity<List<Entry>> alertsHistory(
+            @RequestParam(required = false, defaultValue = "50") int limit) {
+        UUID societeId = guard.requireSociete();
+        int bounded = Math.max(1, Math.min(limit, 200));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(alertHistory.history(societeId, bounded));
     }
 }

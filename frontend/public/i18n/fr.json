@@ -263,6 +263,14 @@
       "DOWNLOAD": "Rapport PDF",
       "ERROR": "Impossible de produire le rapport."
     },
+    "COMPARE": {
+      "TITLE": "Comparateur de mois",
+      "HINT": "Comparez deux mois déjà figés sur des chiffres qui ne bougent plus.",
+      "MONTH_A": "Mois A",
+      "MONTH_B": "Mois B",
+      "DELTA": "Évolution",
+      "ERROR": "Impossible de charger ce mois."
+    },
     "TOTAL": "Total société",
     "ALERTS": {
       "TITLE": "Alertes",
@@ -271,7 +279,13 @@
       "OBSERVANCE_EN_RETARD": "Des patients ont un traitement de l'anémie en retard d'administration",
       "STOCK_SOUS_SEUIL": "{{value}} article(s) sous le seuil d'alerte",
       "LOTS_PERIMES": "{{value}} lot(s) périmé(s) encore en stock",
-      "LOTS_PEREMPTION_PROCHE": "{{value}} lot(s) à péremption sous 90 jours"
+      "LOTS_PEREMPTION_PROCHE": "{{value}} lot(s) à péremption sous 90 jours",
+      "HISTORY_TITLE": "Historique des alertes",
+      "HISTORY_HINT": "Apparitions et résolutions récentes, constatées pendant que le tableau de bord était consulté.",
+      "STATUS_OPEN": "En cours",
+      "STATUS_RESOLVED": "Résolue",
+      "SINCE": "depuis le",
+      "UNTIL": "résolue le"
     },
     "CLINICAL": {
       "TITLE": "Qualité des soins (cibles KDIGO)",

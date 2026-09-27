@@ -172,7 +172,25 @@ async function mockBackend(page: Page): Promise<{ loginBodies: unknown[]; push: 
   await page.route('**/api/v1/direction/overview*', (r) => r.fulfill({json: OVERVIEW}));
   await page.route('**/api/v1/direction/indicators*', (r) => r.fulfill({json: INDICATORS}));
   await page.route('**/api/v1/direction/breakdown*', (r) => r.fulfill({json: BREAKDOWN}));
-  await page.route('**/api/v1/direction/snapshots', (r) => r.fulfill({json: []}));
+  await page.route('**/api/v1/direction/snapshots', (r) =>
+    r.fulfill({
+      json: [{mois: '2026-08', generatedAt: '2026-09-01T02:30:00Z'},
+        {mois: '2026-07', generatedAt: '2026-08-01T02:30:00Z'}]
+    }));
+  await page.route('**/api/v1/direction/snapshots/2026-08', (r) => r.fulfill({
+    json: {
+      mois: '2026-08', generatedAt: '2026-09-01T02:30:00Z',
+      overview: {...OVERVIEW, totaux: {...OVERVIEW.totaux, seances: 20, caTtc: 600000, encaisse: 300000}},
+      indicators: INDICATORS, breakdown: BREAKDOWN,
+    }
+  }));
+  await page.route('**/api/v1/direction/snapshots/2026-07', (r) => r.fulfill({
+    json: {
+      mois: '2026-07', generatedAt: '2026-08-01T02:30:00Z',
+      overview: {...OVERVIEW, totaux: {...OVERVIEW.totaux, seances: 10, caTtc: 500000, encaisse: 250000}},
+      indicators: INDICATORS, breakdown: BREAKDOWN,
+    }
+  }));
   await page.route('**/api/v1/direction/report*', (r) =>
     r.fulfill({status: 200, contentType: 'application/pdf', body: '%PDF-1.4 test'}));
   await page.route('**/api/v1/auth/setup/status', (r) => r.fulfill({json: {required: false, tokenRequired: false}}));
@@ -249,6 +267,18 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await page.getByTestId('direction-export-csv').click();
     const csv = await csvDownload;
     expect(csv.suggestedFilename()).toMatch(/^tableau-de-bord-direction-.*\.csv$/);
+
+    // comparateur de deux mois figés
+    await page.getByTestId('compare-month-a').click();
+    await page.getByRole('option', {name: '2026-07'}).click();
+    await page.getByTestId('compare-month-b').click();
+    await page.getByRole('option', {name: '2026-08'}).click();
+    const compare = page.getByTestId('compare-table');
+    const seancesRow = compare.locator('tr', {hasText: 'Séances'});
+    await expect(seancesRow).toContainText('10');
+    await expect(seancesRow).toContainText('20');
+    await expect(seancesRow).toContainText('+100.0 %');
+    await expect(compare.locator('tr', {hasText: 'Encaissé'})).toContainText('+20.0 %');
   });
 
   test('reçoit les changements en temps réel : notification et données relues', async ({page}) => {

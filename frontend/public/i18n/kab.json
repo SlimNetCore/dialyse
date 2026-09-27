@@ -263,6 +263,14 @@
       "DOWNLOAD": "Anaqqis PDF",
       "ERROR": "Ur izmir ara ad yettwaggar unaqqis."
     },
+    "COMPARE": {
+      "TITLE": "Aseɣti n wagguren",
+      "HINT": "Sɣit sin wagguren yettwaḥbesen zik ɣef yimḍanen ur nettbeddil ara.",
+      "MONTH_A": "Aggur A",
+      "MONTH_B": "Aggur B",
+      "DELTA": "Asnifel",
+      "ERROR": "Ur izmir ara ad yali wagur-agi."
+    },
     "TOTAL": "Amatu n tkebbanit",
     "ALERTS": {
       "TITLE": "Ineɣmisen",
@@ -271,7 +279,13 @@
       "OBSERVANCE_EN_RETARD": "Kra n yinelmaden ɛeṭṭlen deg uwelleh n ukeččum n tmaziɣt",
       "STOCK_SOUS_SEUIL": "{{value}} n yiferdisen ddaw n useqdac n yineɣmisen",
       "LOTS_PERIMES": "{{value}} n tfelwiyin ifuten ur zeddigent ara",
-      "LOTS_PEREMPTION_PROCHE": "{{value}} n tfelwiyin ara ifat deg 90 n wussan"
+      "LOTS_PEREMPTION_PROCHE": "{{value}} n tfelwiyin ara ifat deg 90 n wussan",
+      "HISTORY_TITLE": "Azray n tɣuriwin",
+      "HISTORY_HINT": "Tibεath d yifsayen ineggura, ittwaskanen ticki tafelwit n usenqed tettwaḥbes.",
+      "STATUS_OPEN": "Yekker",
+      "STATUS_RESOLVED": "Yefsi",
+      "SINCE": "seg",
+      "UNTIL": "yefsi deg"
     },
     "CLINICAL": {
       "TITLE": "Tazmert n yiɣdaren (iɣawasen KDIGO)",
