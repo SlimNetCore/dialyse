@@ -1,0 +1,73 @@
+<div class="owner-wrapper">
+  <a class="back-link" data-testid="owner-back-link" routerLink="/login">
+    <mat-icon>arrow_back</mat-icon>
+    {{ 'OWNER_LOGIN.BACK' | translate }}
+  </a>
+
+  <mat-card class="owner-card" data-testid="owner-login-card">
+    <div class="owner-badge">
+      <mat-icon>shield_person</mat-icon>
+    </div>
+
+    <div class="owner-eyebrow">{{ 'OWNER_LOGIN.EYEBROW' | translate }}</div>
+    <h1>{{ 'OWNER_LOGIN.TITLE' | translate }}</h1>
+    <p class="owner-subtitle">{{ 'OWNER_LOGIN.SUBTITLE' | translate }}</p>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate"/>
+    }
+    @if (setupDone) {
+      <div class="success-msg" data-testid="owner-setup-done">{{ 'SETUP.DONE' | translate }}</div>
+    }
+    @if (error()) {
+      <div class="error-msg">{{ error() }}</div>
+    }
+
+    <form [formRoot]="form" class="owner-form">
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'LOGIN.USERNAME' | translate }}</mat-label>
+        <input [formField]="form.username" data-testid="owner-username" matInput/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
+        <input
+          (keydown.enter)="doLogin()"
+          [formField]="form.password"
+          data-testid="owner-password"
+          matInput
+          type="password"
+        />
+      </mat-form-field>
+
+      @if (otpRequired()) {
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'LOGIN.OTP' | translate }}</mat-label>
+          <input
+            (keydown.enter)="doLogin()"
+            [formField]="form.otp"
+            autocomplete="one-time-code"
+            data-testid="owner-otp"
+            inputmode="numeric"
+            matInput
+          />
+          <mat-hint>{{ 'LOGIN.OTP_HINT' | translate }}</mat-hint>
+        </mat-form-field>
+      }
+
+      <button
+        (click)="doLogin()"
+        [disabled]="!canSubmit()"
+        class="owner-btn"
+        data-testid="owner-login-submit"
+        mat-flat-button
+        type="button"
+      >
+        <mat-icon>lock_open</mat-icon>
+        {{ 'OWNER_LOGIN.SUBMIT' | translate }}
+      </button>
+    </form>
+
+    <p class="owner-footnote">{{ 'OWNER_LOGIN.FOOTNOTE' | translate }}</p>
+  </mat-card>
+</div>

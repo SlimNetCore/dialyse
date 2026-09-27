@@ -49,13 +49,38 @@ test.describe('Installation initiale', () => {
     await expect(page.getByTestId('setup-rules').locator('li.ok')).toHaveCount(6);
     await page.getByTestId('setup-submit').click();
 
-    await page.waitForURL('**/login?setup=done');
-    await expect(page.getByTestId('setup-done')).toBeVisible();
+    await page.waitForURL('**/login/proprietaire?setup=done');
+    await expect(page.getByTestId('owner-setup-done')).toBeVisible();
     expect(created).toHaveLength(1);
     expect(created[0]).toMatchObject({username: 'gestionnaire', password: strong});
 
     await page.goto(`${baseUrl}/setup`);
     await page.waitForURL('**/login');
+  });
+
+  test('un lien discret sur la connexion générale mène à la connexion propriétaire dédiée', async ({page}) => {
+    await mockBackend(page, {required: false});
+    await page.goto(`${baseUrl}/login`);
+    await page.getByTestId('login-owner-link').click();
+    await page.waitForURL('**/login/proprietaire');
+    await expect(page.getByTestId('owner-login-card')).toBeVisible();
+
+    await page.route('**/api/v1/auth/login', async (r) => {
+      const body = r.request().postDataJSON();
+      expect(body).toMatchObject({username: 'proprietaire'});
+      expect(body).not.toHaveProperty('societeId');
+      expect(body).not.toHaveProperty('centerId');
+      await r.fulfill({
+        json: {
+          username: 'proprietaire', fullName: 'Le Propriétaire', userId: 'owner-1', centerId: null, centerName: null,
+          roles: ['SUPERADMIN'],
+        }
+      });
+    });
+    await page.getByTestId('owner-username').fill('proprietaire');
+    await page.getByTestId('owner-password').fill('un-mot-de-passe-solide-1');
+    await page.getByTestId('owner-login-submit').click();
+    await page.waitForURL('**/admin/societes');
   });
 
   test('reste dans le viewport sur mobile (320 px)', async ({page}) => {

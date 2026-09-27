@@ -1,0 +1,155 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.owner-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 32px;
+  background: radial-gradient(circle at 20% 15%, rgba(20, 118, 110, 0.35), transparent 40%),
+  radial-gradient(circle at 82% 75%, rgba(43, 111, 158, 0.28), transparent 42%),
+  linear-gradient(160deg, #0b1620 0%, #0f2027 55%, #12262c 100%);
+}
+
+.back-link {
+  align-self: flex-start;
+  margin-left: max(4vw, 8px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #fff;
+}
+
+.back-link mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.owner-card {
+  width: min(100%, 440px);
+  padding: 36px 32px;
+  text-align: center;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  color: #f2f6f5;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+}
+
+.owner-badge {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #14766e, #2b6f9e);
+  box-shadow: 0 10px 30px rgba(20, 118, 110, 0.45);
+}
+
+.owner-badge mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #fff;
+}
+
+.owner-eyebrow {
+  margin-bottom: 8px;
+  color: #f2b544;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.owner-card h1 {
+  margin: 0 0 8px;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 1.8rem;
+  color: #fff;
+}
+
+.owner-subtitle {
+  margin: 0 0 22px;
+  color: rgba(242, 246, 245, 0.68);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.owner-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: start;
+}
+
+.full {
+  width: 100%;
+}
+
+:host ::ng-deep .owner-card .mat-mdc-form-field {
+  --mdc-outlined-text-field-label-text-color: rgba(242, 246, 245, 0.65);
+  --mdc-outlined-text-field-outline-color: rgba(255, 255, 255, 0.22);
+  --mdc-outlined-text-field-input-text-color: #fff;
+  --mdc-outlined-text-field-focus-outline-color: #61d8df;
+}
+
+.owner-btn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #14766e, #2b6f9e) !important;
+  color: #fff !important;
+}
+
+.owner-footnote {
+  margin: 20px 0 0;
+  color: rgba(242, 246, 245, 0.45);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.success-msg {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(46, 125, 50, 0.22);
+  color: #8ee6a1;
+  font-size: 0.86rem;
+}
+
+.error-msg {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.16);
+  color: #ffb4b4;
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 480px) {
+  .owner-wrapper {
+    padding: 20px;
+  }
+
+  .owner-card {
+    padding: 26px 20px;
+  }
+}

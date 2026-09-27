@@ -85,7 +85,7 @@ export class SetupPageComponent implements OnInit {
     })).then(
       () => {
         this.loading.set(false);
-        void this.router.navigate(['/login'], {queryParams: {setup: 'done'}});
+        void this.router.navigate(['/login/proprietaire'], {queryParams: {setup: 'done'}});
       },
       (err: { error?: { code?: string } }) => {
         this.loading.set(false);

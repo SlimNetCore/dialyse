@@ -7,6 +7,10 @@ export const routes: Routes = [
   {path: 'setup', loadComponent: () => import('./features/auth/setup-page.component').then(m => m.SetupPageComponent)},
   { path: 'login', loadComponent: () => import('./features/auth/login-page.component').then(m => m.LoginPageComponent) },
   {
+    path: 'login/proprietaire',
+    loadComponent: () => import('./features/auth/owner-login-page.component').then(m => m.OwnerLoginPageComponent),
+  },
+  {
     path: '',
     component: ShellComponent,
     canActivate: [authGuard],

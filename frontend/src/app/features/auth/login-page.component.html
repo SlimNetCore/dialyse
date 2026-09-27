@@ -80,36 +80,38 @@
         @if (loading()) {
           <mat-progress-bar mode="indeterminate"/>
         }
-        @if (setupDone) {
-          <div class="success-msg" data-testid="setup-done">{{ 'SETUP.DONE' | translate }}</div>
-        }
         @if (error()) {
           <div class="error-msg">{{ error() }}</div>
         }
 
-        <mat-button-toggle-group
-          (change)="setMode($event.value)"
-          [aria-label]="'LOGIN.MODE_LABEL' | translate"
-          [hideSingleSelectionIndicator]="true"
-          [value]="mode()"
-          class="mode-toggle"
-          data-testid="login-mode"
-        >
-          <mat-button-toggle data-testid="login-mode-centre" value="centre">
+        <div class="elegant-tabs" data-testid="login-mode" role="tablist">
+          <button
+            (click)="setMode('centre')"
+            [class.active]="mode() === 'centre'"
+            data-testid="login-mode-centre"
+            role="tab"
+            type="button"
+          >
+            <mat-icon>business</mat-icon>
             {{ 'LOGIN.MODE_CENTRE' | translate }}
-          </mat-button-toggle>
-          <mat-button-toggle data-testid="login-mode-direction" value="direction">
+          </button>
+          <button
+            (click)="setMode('direction')"
+            [class.active]="mode() === 'direction'"
+            data-testid="login-mode-direction"
+            role="tab"
+            type="button"
+          >
+            <mat-icon>insights</mat-icon>
             {{ 'LOGIN.MODE_DIRECTION' | translate }}
-          </mat-button-toggle>
-        </mat-button-toggle-group>
+          </button>
+          <span [class.right]="mode() === 'direction'" class="tab-thumb"></span>
+        </div>
 
         <form [formRoot]="loginForm" class="login-form">
           <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ (mode() === 'direction' ? 'LOGIN.SOCIETE_OPTIONAL' : 'LOGIN.SOCIETE') | translate }}</mat-label>
+            <mat-label>{{ 'LOGIN.SOCIETE' | translate }}</mat-label>
             <mat-select [formField]="loginForm.selectedSociete" data-testid="login-societe-select">
-              @if (mode() === 'direction') {
-                <mat-option value="">{{ 'LOGIN.NO_SOCIETE' | translate }}</mat-option>
-              }
               @for (s of societes(); track s.id) {
                 <mat-option [value]="s.id">{{ s.name }}</mat-option>
               }
@@ -173,6 +175,14 @@
             {{ 'LOGIN.SUBMIT' | translate }}
           </button>
         </form>
+
+        <div class="owner-link">
+          <a data-testid="login-owner-link" routerLink="/login/proprietaire">
+            <mat-icon>shield_person</mat-icon>
+            {{ 'LOGIN.OWNER_LINK' | translate }}
+            <mat-icon class="arrow">arrow_forward</mat-icon>
+          </a>
+        </div>
       </mat-card-content>
     </mat-card>
   </section>

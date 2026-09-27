@@ -72,6 +72,15 @@
     "ISSUE_ERROR": "Échec de l'émission des licences",
     "SOCIETES_LOAD_ERROR": "Impossible de charger les sociétés"
   },
+  "OWNER_LOGIN": {
+    "EYEBROW": "Accès propriétaire",
+    "TITLE": "Espace propriétaire",
+    "SUBTITLE": "Gestion des sociétés, des centres, des licences et du journal d'audit de toute la plateforme.",
+    "SUBMIT": "Accéder à l'espace propriétaire",
+    "BACK": "Retour à la connexion",
+    "FOOTNOTE": "Réservé au compte créé à l'installation de la plateforme.",
+    "ERROR": "Connexion refusée. Vérifiez votre identifiant et votre mot de passe."
+  },
   "SETUP": {
     "EYEBROW": "Première installation",
     "TITLE": "Créer le compte propriétaire",
@@ -85,7 +94,7 @@
     "TOKEN": "Jeton d'installation",
     "TOKEN_HINT": "Fourni avec l'installation (variable SETUP_TOKEN)",
     "SUBMIT": "Créer le compte propriétaire",
-    "DONE": "Compte propriétaire créé. Connectez-vous en mode « Direction / Propriétaire ».",
+    "DONE": "Compte propriétaire créé. Connectez-vous ci-dessous.",
     "RULE_LENGTH": "{{count}} caractères minimum",
     "RULE_UPPER": "Une majuscule",
     "RULE_LOWER": "Une minuscule",
@@ -461,10 +470,9 @@
     "MFA_LOCKED": "Trop d'échecs : réessayez dans quelques minutes",
     "MODE_LABEL": "Type de connexion",
     "MODE_CENTRE": "Centre",
-    "MODE_DIRECTION": "Direction / Propriétaire",
-    "SOCIETE_OPTIONAL": "Société (facultatif)",
-    "NO_SOCIETE": "Aucune (propriétaire de l'application)",
-    "DIRECTION_HINT": "Direction : choisissez votre société. Propriétaire : laissez vide.",
+    "MODE_DIRECTION": "Direction",
+    "DIRECTION_HINT": "Choisissez la société dont vous dirigez l'activité.",
+    "OWNER_LINK": "Vous êtes propriétaire de la plateforme ?",
     "TITLE": "Connexion",
     "SUBTITLE": "Identifiez-vous pour accéder à votre centre",
     "CENTER": "Centre d'hémodialyse",

@@ -72,6 +72,15 @@
     "ISSUE_ERROR": "License issuance failed",
     "SOCIETES_LOAD_ERROR": "Unable to load companies"
   },
+  "OWNER_LOGIN": {
+    "EYEBROW": "Owner access",
+    "TITLE": "Owner workspace",
+    "SUBTITLE": "Manage companies, centres, licences and the audit log across the whole platform.",
+    "SUBMIT": "Enter the owner workspace",
+    "BACK": "Back to sign-in",
+    "FOOTNOTE": "Reserved for the account created during platform setup.",
+    "ERROR": "Sign-in refused. Check your username and password."
+  },
   "SETUP": {
     "EYEBROW": "First installation",
     "TITLE": "Create the owner account",
@@ -85,7 +94,7 @@
     "TOKEN": "Setup token",
     "TOKEN_HINT": "Provided with the installation (SETUP_TOKEN variable)",
     "SUBMIT": "Create the owner account",
-    "DONE": "Owner account created. Sign in using the \"Management / Owner\" mode.",
+    "DONE": "Owner account created. Sign in below.",
     "RULE_LENGTH": "At least {{count}} characters",
     "RULE_UPPER": "An uppercase letter",
     "RULE_LOWER": "A lowercase letter",
@@ -461,10 +470,9 @@
     "MFA_LOCKED": "Too many failures: try again in a few minutes",
     "MODE_LABEL": "Sign-in type",
     "MODE_CENTRE": "Centre",
-    "MODE_DIRECTION": "Management / Owner",
-    "SOCIETE_OPTIONAL": "Company (optional)",
-    "NO_SOCIETE": "None (application owner)",
-    "DIRECTION_HINT": "Management: choose your company. Owner: leave empty.",
+    "MODE_DIRECTION": "Management",
+    "DIRECTION_HINT": "Choose the company whose activity you manage.",
+    "OWNER_LINK": "Are you the platform owner?",
     "TITLE": "Sign in",
     "SUBTITLE": "Identify yourself to access your center",
     "CENTER": "Hemodialysis center",

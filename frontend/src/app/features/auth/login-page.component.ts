@@ -1,6 +1,6 @@
 import {TitleCasePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -17,7 +17,6 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {LangStore} from '../../core/state/lang.store';
 import {ThemeStore} from '../../core/state/theme.store';
 import {MatMenuModule} from '@angular/material/menu';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {homeRouteFor} from '../../core/auth/role-scope.guard';
 import {LoginPageStore} from './state/login-page.store';
 
@@ -36,8 +35,8 @@ import {LoginPageStore} from './state/login-page.store';
     FormRoot,
     FormField,
     MatMenuModule,
-    MatButtonToggleModule,
     TitleCasePipe,
+    RouterLink,
   ],
   templateUrl: './login-page.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -58,8 +57,6 @@ export class LoginPageComponent {
     password: '',
     otp: '',
   });
-  /** Affiché après la création du compte propriétaire par l'installation initiale. */
-  readonly setupDone = inject(ActivatedRoute).snapshot.queryParamMap.get('setup') === 'done';
   readonly loading = this.loginStore.loading;
   readonly error = this.loginStore.error;
 
@@ -69,8 +66,8 @@ export class LoginPageComponent {
   readonly loadingCentres = signal(false);
 
   /**
-   * « centre » : société puis centre (personnel). « direction » : société facultative, sans centre — le
-   * propriétaire de l'application (aucune société) et la direction d'une société se connectent ici.
+   * « centre » : société puis centre (personnel). « direction » : société puis compte direction, sans centre.
+   * Le propriétaire de l'application (aucune société) a sa propre page dédiée (voir le lien en bas de carte).
    */
   readonly mode = signal<'centre' | 'direction'>('centre');
   /** Devient vrai quand le serveur demande le code de double authentification du compte. */
@@ -78,8 +75,8 @@ export class LoginPageComponent {
   readonly canSubmit = computed(() => {
     const form = this.loginModel();
     const identified = !!form.username && !!form.password && (!this.otpRequired() || !!form.otp.trim())
-      && !this.loading();
-    return this.mode() === 'direction' ? identified : identified && !!form.selectedSociete && !!form.selectedCenter;
+      && !this.loading() && !!form.selectedSociete;
+    return this.mode() === 'direction' ? identified : identified && !!form.selectedCenter;
   });
 
   readonly loginForm = compatForm(this.loginModel, (form) => {
