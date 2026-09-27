@@ -3,6 +3,9 @@
     "TITLE": "HemoDialyse",
     "SUBTITLE": "Plateforme de gestion multi-centre"
   },
+  "AUTH": {
+    "COPYRIGHT": "© {{year}} Slimane BOURAHLA — Tous droits réservés."
+  },
   "LICENCES": {
     "EYEBROW": "Réservé au propriétaire de l'application",
     "TITLE": "Gestion des licences",

@@ -392,6 +392,21 @@
   height: 15px;
 }
 
+/* ── Copyright : hors du flux, jamais au détriment de la carte de connexion ── */
+.auth-copyright {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  margin: 0;
+  text-align: center;
+  color: var(--app-muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .success-msg {
   margin-bottom: 12px;
   padding: 10px 12px;

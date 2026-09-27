@@ -59,6 +59,7 @@ export class LoginPageComponent {
   });
   readonly loading = this.loginStore.loading;
   readonly error = this.loginStore.error;
+  readonly copyrightYear = new Date().getFullYear();
 
   /** Étape 1 : sociétés actives (annuaire public). Étape 2 : centres de la société choisie. */
   readonly societes = signal<DirectoryItem[]>([]);

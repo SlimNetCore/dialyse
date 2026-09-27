@@ -35,6 +35,7 @@ import {
 })
 export class SetupPageComponent implements OnInit {
   protected readonly minLength = OWNER_PASSWORD_MIN_LENGTH;
+  protected readonly copyrightYear = new Date().getFullYear();
   protected readonly checking = signal(true);
   protected readonly tokenRequired = signal(false);
   protected readonly loading = signal(false);

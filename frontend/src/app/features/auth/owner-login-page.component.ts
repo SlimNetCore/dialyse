@@ -45,6 +45,7 @@ export class OwnerLoginPageComponent {
   private readonly loginStore = inject(LoginPageStore);
   readonly loading = this.loginStore.loading;
   readonly error = this.loginStore.error;
+  readonly copyrightYear = new Date().getFullYear();
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);

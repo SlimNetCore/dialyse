@@ -3,6 +3,9 @@
     "TITLE": "HemoDialyse",
     "SUBTITLE": "Aɣirim n usefrek n waṭas n tnasiwin"
   },
+  "AUTH": {
+    "COPYRIGHT": "© {{year}} Slimane BOURAHLA — Akk izerfan ttwaḥerzen."
+  },
   "LICENCES": {
     "EYEBROW": "I bab n usnas kan",
     "TITLE": "Asefrek n turagin",
