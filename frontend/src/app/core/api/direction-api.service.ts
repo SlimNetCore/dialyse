@@ -97,6 +97,83 @@ export type DirectionIndicators = {
   alertes: DirectionAlert[];
 };
 
+export type SexeRow = {
+  centerId: string;
+  nom: string;
+  masculin: number | null;
+  feminin: number | null;
+  autre: number | null;
+};
+
+export type AgeRow = {
+  centerId: string;
+  nom: string;
+  tranches: { code: string; count: number | null }[];
+};
+
+/** `caisseCode` vide : patients sans caisse renseignée. */
+export type CaisseRow = {
+  centerId: string;
+  centre: string;
+  caisseCode: string;
+  caisse: string | null;
+  patients: number | null;
+  seances: number;
+  caHt: number;
+};
+
+export type CaisseTotal = {
+  caisseCode: string;
+  caisse: string | null;
+  patients: number | null;
+  seances: number;
+  caHt: number;
+};
+
+export type AnemieRow = {
+  centerId: string;
+  nom: string;
+  patientsEpo: number | null;
+  patientsFer: number | null;
+  administreesEpo: number;
+  administreesFer: number;
+  nonAdministrees: number;
+  tauxAdministration: number | null;
+  patientsSousEpo: number | null;
+  patientsSousFer: number | null;
+};
+
+export type DirectionBreakdown = {
+  societeId: string;
+  from: string;
+  to: string;
+  generatedAt: string;
+  seuilAnonymat: number;
+  sexe: SexeRow[];
+  ages: AgeRow[];
+  caisses: CaisseRow[];
+  caisseTotaux: CaisseTotal[];
+  anemie: AnemieRow[];
+};
+
+/** Un indicateur qui a changé (temps réel). */
+export type DashboardChange = {
+  centerId: string;
+  centre: string;
+  family: string;
+  name: string;
+  before: number;
+  after: number;
+};
+
+/** Événement diffusé à la direction : uniquement des indicateurs agrégés (la relecture passe par l'API). */
+export type DashboardChangedEvent = {
+  type: 'DASHBOARD_CHANGED';
+  societeId: string;
+  at: string;
+  changes: DashboardChange[];
+};
+
 /** Mois figé (instantané mensuel des tableaux de bord). */
 export type SnapshotInfo = {
   mois: string;
@@ -136,6 +213,13 @@ export class DirectionApiService {
     if (from) params = params.set('from', from);
     if (to) params = params.set('to', to);
     return this.http.get<DirectionIndicators>(`${this.baseUrl}/direction/indicators`, {params, withCredentials: true});
+  }
+
+  breakdown(from?: string, to?: string): Observable<DirectionBreakdown> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<DirectionBreakdown>(`${this.baseUrl}/direction/breakdown`, {params, withCredentials: true});
   }
 
   listSnapshots(): Observable<SnapshotInfo[]> {

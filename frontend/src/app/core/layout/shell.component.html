@@ -6,6 +6,9 @@
   </div>
   <div class="topbar-right">
     <!-- Notification bell -->
+    @if (directionMode) {
+      <app-direction-notification-bell/>
+    }
     @if (!centreless) {
       <app-notification-bell/>
     }

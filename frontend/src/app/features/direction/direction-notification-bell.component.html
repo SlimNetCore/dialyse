@@ -1,0 +1,86 @@
+<button
+  [matBadgeHidden]="realtime.unreadCount() === 0"
+  [matBadge]="realtime.unreadCount()"
+  [matMenuTriggerFor]="panel"
+  [matTooltip]="statusKey() | translate"
+  aria-label="notifications"
+  class="dnb-trigger"
+  data-testid="direction-bell"
+  mat-icon-button
+  matBadgeColor="warn"
+  matBadgeSize="small"
+  type="button"
+>
+  <mat-icon>{{ realtime.unreadCount() > 0 ? 'notifications_active' : 'notifications' }}</mat-icon>
+  <span [class]="'dnb-dot ' + realtime.status()"></span>
+</button>
+
+<mat-menu #panel="matMenu" panelClass="dnb-panel" xPosition="before">
+  <div (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" class="dnb" role="presentation">
+    <header class="dnb-head">
+      <div class="dnb-heading">
+        <h3>{{ 'DIRECTION.RT.TITLE' | translate }}</h3>
+        <span class="dnb-sub">
+          {{ 'DIRECTION.RT.UNREAD_COUNT' | translate: {count: realtime.unreadCount()} }}
+        </span>
+      </div>
+      <span [class]="'dnb-status ' + realtime.status()">
+        <i class="dnb-status-dot"></i>{{ statusKey() | translate }}
+      </span>
+    </header>
+
+    <div class="dnb-toolbar">
+      <mat-button-toggle-group (change)="setFilter($event.value)" [hideSingleSelectionIndicator]="true"
+                               [value]="filter()" aria-label="filter" class="dnb-filter">
+        <mat-button-toggle data-testid="direction-filter-all" value="all">
+          {{ 'DIRECTION.RT.FILTER_ALL' | translate }}
+        </mat-button-toggle>
+        <mat-button-toggle data-testid="direction-filter-unread" value="unread">
+          {{ 'DIRECTION.RT.FILTER_UNREAD' | translate }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      <span class="dnb-spacer"></span>
+      <button (click)="realtime.markAllRead()" [disabled]="realtime.unreadCount() === 0"
+              [matTooltip]="'DIRECTION.RT.MARK_ALL_READ' | translate" aria-label="mark all read" mat-icon-button
+              type="button">
+        <mat-icon>done_all</mat-icon>
+      </button>
+      <button (click)="realtime.clear()" [disabled]="realtime.notifications().length === 0"
+              [matTooltip]="'DIRECTION.RT.CLEAR' | translate" aria-label="clear" mat-icon-button type="button">
+        <mat-icon>delete_sweep</mat-icon>
+      </button>
+    </div>
+
+    <div class="dnb-list" data-testid="direction-notifications">
+      @for (n of visible(); track n.id) {
+        <button (click)="realtime.markRead(n.id)" [class.unread]="!n.read" [class]="'dnb-item sev-' + n.severity"
+                type="button">
+          <span class="dnb-avatar"><mat-icon>{{ icon(n) }}</mat-icon></span>
+          <span class="dnb-body">
+            <span class="dnb-line">
+              <strong class="dnb-title">{{ n.title }}</strong>
+              <time [attr.datetime]="n.at" class="dnb-time">{{ ago(n) }}</time>
+            </span>
+            <span class="dnb-centre">{{ n.centre }}</span>
+            <span class="dnb-detail">{{ n.detail }}</span>
+          </span>
+          @if (!n.read) {
+            <span aria-hidden="true" class="dnb-unread"></span>
+          }
+        </button>
+      } @empty {
+        <div class="dnb-empty">
+          <mat-icon>notifications_none</mat-icon>
+          <p>{{ (filter() === 'unread' ? 'DIRECTION.RT.EMPTY_UNREAD' : 'DIRECTION.RT.EMPTY') | translate }}</p>
+        </div>
+      }
+    </div>
+
+    <footer class="dnb-foot">
+      <mat-slide-toggle (change)="toggleBrowser($event.checked)" [checked]="realtime.browserNotifications()"
+                        data-testid="direction-browser-notifications">
+        {{ 'DIRECTION.RT.BROWSER_SWITCH' | translate }}
+      </mat-slide-toggle>
+    </footer>
+  </div>
+</mat-menu>

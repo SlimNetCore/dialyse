@@ -3,6 +3,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.Overview;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
+import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
+import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService.Breakdown;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
 import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
@@ -32,12 +34,15 @@ public class DirectionDashboardRestController {
     private final DirectionAccessGuard guard;
     private final DirectionDashboardQueryService queries;
     private final DirectionIndicatorsQueryService indicators;
+    private final DirectionBreakdownQueryService breakdowns;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
-                                            DirectionIndicatorsQueryService indicators) {
+                                            DirectionIndicatorsQueryService indicators,
+                                            DirectionBreakdownQueryService breakdowns) {
         this.guard = guard;
         this.queries = queries;
         this.indicators = indicators;
+        this.breakdowns = breakdowns;
     }
 
     /**
@@ -69,5 +74,17 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(indicators.indicators(societeId, from, to));
+    }
+
+    /**
+     * Répartitions par centre : patients par sexe et par âge, par caisse d'assurance (patients, séances, CA HT) et
+     * traitement de l'anémie. Agrégats anonymes.
+     */
+    @GetMapping("/breakdown")
+    public ResponseEntity<Breakdown> breakdown(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UUID societeId = guard.requireSociete();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(breakdowns.breakdown(societeId, from, to));
     }
 }

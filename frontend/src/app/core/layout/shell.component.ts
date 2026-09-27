@@ -21,6 +21,8 @@ import {LangStore} from '../state/lang.store';
 import {ThemeStore} from '../state/theme.store';
 import {WebSocketService} from '../ws/websocket.service';
 import {NotificationBellComponent} from './notification-bell.component';
+import {DirectionNotificationBellComponent} from '../../features/direction/direction-notification-bell.component';
+import {DirectionRealtimeService} from '../../features/direction/state/direction-realtime.service';
 import {MatDialog} from '@angular/material/dialog';
 import {MfaDialogComponent} from './mfa-dialog.component';
 import {AuthApiService} from '../api/auth-api.service';
@@ -40,6 +42,7 @@ import {filter} from 'rxjs/operators';
     MatTooltipModule,
     TranslateModule,
     NotificationBellComponent,
+    DirectionNotificationBellComponent,
   ],
   templateUrl: './shell.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -182,6 +185,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly overflowNavItems = signal<typeof this.navItems>([]);
 
+  private readonly directionRealtime = inject(DirectionRealtimeService);
   private breadcrumbRoutes: string[] = [];
   private resizeObserver?: ResizeObserver;
   private resizeFrame: number | null = null;
@@ -189,6 +193,10 @@ export class ShellComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     if (!this.centreless) {
       this.ws.connect();
+    }
+    if (this.directionMode) {
+      // Temps réel du tableau de bord : abonnement au canal de la société, notifications de la direction.
+      this.directionRealtime.start(this.auth.societeId());
     }
     this.computeBreadcrumb(this.router.url);
     this.syncActiveModule(this.router.url);
@@ -269,6 +277,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
 
   private finalizeLogout(): void {
     this.ws.disconnect();
+    this.directionRealtime.stop();
     this.auth.clearSession();
     window.location.href = '/login';
   }

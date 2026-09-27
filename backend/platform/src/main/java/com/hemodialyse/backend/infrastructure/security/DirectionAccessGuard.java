@@ -36,8 +36,17 @@ public class DirectionAccessGuard {
         if (principal.getSocieteId() == null || principal.getSocieteId().isBlank()) {
             throw new AccessDeniedException("Session sans société");
         }
-        UUID userId = UUID.fromString(principal.getId());
         UUID societeId = UUID.fromString(principal.getSocieteId());
+        verifyMember(UUID.fromString(principal.getId()), societeId);
+        return societeId;
+    }
+
+    /**
+     * Revérifie en base que l'utilisateur est actif, rattaché à la société, et que la société est active.
+     *
+     * @throws AccessDeniedException sinon
+     */
+    public void verifyMember(UUID userId, UUID societeId) {
         Integer ok = jdbc.queryForObject(
                 "SELECT COUNT(1) FROM app_user u "
                         + "INNER JOIN app_user_societe us ON us.user_id = u.id "
@@ -47,6 +56,5 @@ public class DirectionAccessGuard {
         if (ok == null || ok == 0) {
             throw new AccessDeniedException("Accès à cette société refusé");
         }
-        return societeId;
     }
 }

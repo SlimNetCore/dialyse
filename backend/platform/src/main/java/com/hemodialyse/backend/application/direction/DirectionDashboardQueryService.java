@@ -106,7 +106,7 @@ public class DirectionDashboardQueryService {
 
         Map<UUID, Long> seances = new HashMap<>();
         jdbc.query("SELECT center_id, COUNT(*) AS n FROM seances WHERE center_id IN (" + in + ") "
-                        + "AND date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE','SIGNEE') GROUP BY center_id",
+                        + "AND date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY center_id",
                 rs -> {
                     seances.put(rs.getObject("center_id", UUID.class), rs.getLong("n"));
                 }, params(ids, sqlFrom, sqlTo));
@@ -155,7 +155,7 @@ public class DirectionDashboardQueryService {
         Map<String, long[]> seancesByKey = new HashMap<>();
         jdbc.query("SELECT center_id, EXTRACT(YEAR FROM date_seance) AS y, EXTRACT(MONTH FROM date_seance) AS m, COUNT(*) AS n "
                         + "FROM seances WHERE center_id IN (" + in + ") AND date_seance BETWEEN ? AND ? "
-                        + "AND statut IN ('VALIDEE','SIGNEE') GROUP BY center_id, y, m",
+                        + "AND statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY center_id, y, m",
                 rs -> {
                     seancesByKey.put(key(rs.getObject("center_id", UUID.class), rs.getInt("y"), rs.getInt("m")),
                             new long[]{rs.getLong("n")});

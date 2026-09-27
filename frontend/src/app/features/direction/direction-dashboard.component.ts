@@ -14,6 +14,16 @@ import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {DirectionStore} from './state/direction.store';
 import {collectionLevel, formatHeadcount, formatPct, lastCompleteMonths} from './direction.util';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {
+  AGE_CODES,
+  ageSeries,
+  CaisseMetric,
+  pivotCaisses,
+  PivotCentre,
+  sexeSeries
+} from './direction-breakdown.util';
+import {DirectionRealtimeService} from './state/direction-realtime.service';
 
 Chart.register(...registerables);
 
@@ -27,6 +37,7 @@ Chart.register(...registerables);
   imports: [
     CurrencyPipe, DatePipe, TranslateModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatProgressBarModule, MatTooltipModule, BaseChartDirective, FormRoot, FormField,
+    MatButtonToggleModule,
   ],
   templateUrl: './direction-dashboard.component.html',
   styleUrl: './direction-dashboard.component.css',
@@ -34,6 +45,7 @@ Chart.register(...registerables);
 })
 export class DirectionDashboardComponent implements OnInit {
   protected readonly store = inject(DirectionStore);
+  protected readonly realtime = inject(DirectionRealtimeService);
   protected readonly period = signal({from: '', to: ''});
   protected readonly periodForm = compatForm(this.period);
   protected readonly canApply = computed(() => !!this.period().from && !!this.period().to && !this.store.loading());
@@ -81,16 +93,7 @@ export class DirectionDashboardComponent implements OnInit {
       }],
     };
   });
-
-  constructor() {
-    // Aligne les champs de période sur celle réellement renvoyée par le serveur (période par défaut incluse).
-    effect(() => {
-      const overview = this.store.overview();
-      if (overview) {
-        untracked(() => this.period.set({from: overview.from, to: overview.to}));
-      }
-    });
-  }
+  protected readonly ageCodes = AGE_CODES;
 
   ngOnInit(): void {
     void this.store.load('', '');
@@ -121,6 +124,67 @@ export class DirectionDashboardComponent implements OnInit {
     if (!ind) return [];
     return [...ind.centres.map((c) => ({c, total: false})), {c: ind.totaux, total: true}];
   });
+
+  // ───────────────────────────── Répartitions par centre ─────────────────────────────
+  protected readonly caisseMetrics: CaisseMetric[] = ['patients', 'seances', 'caHt'];
+  protected readonly caisseMetric = signal<CaisseMetric>('caHt');
+  protected readonly breakdown = this.store.breakdown;
+  protected readonly pivotCentres = computed<PivotCentre[]>(() =>
+    (this.breakdown()?.sexe ?? []).map((r) => ({id: r.centerId, nom: r.nom})));
+  protected readonly caissePivot = computed(() => {
+    const b = this.breakdown();
+    return b ? pivotCaisses(this.pivotCentres(), b.caisses, b.caisseTotaux, this.caisseMetric()) : [];
+  });
+  protected readonly stackedOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {legend: {display: true, position: 'bottom'}},
+    scales: {x: {stacked: true}, y: {stacked: true, beginAtZero: true}},
+  };
+  protected readonly sexeChart = computed<ChartData<'bar'>>(() => {
+    const s = sexeSeries(this.breakdown()?.sexe ?? []);
+    return {
+      labels: s.labels,
+      datasets: [
+        {label: this.translate.instant('DIRECTION.BREAKDOWN.MASCULIN'), data: s.masculin},
+        {label: this.translate.instant('DIRECTION.BREAKDOWN.FEMININ'), data: s.feminin},
+        {label: this.translate.instant('DIRECTION.BREAKDOWN.AUTRE'), data: s.autre},
+      ],
+    };
+  });
+  protected readonly ageChart = computed<ChartData<'bar'>>(() => {
+    const s = ageSeries(this.breakdown()?.ages ?? [], AGE_CODES);
+    return {
+      labels: s.labels,
+      datasets: AGE_CODES.map((code) => ({
+        label: this.translate.instant(`DIRECTION.BREAKDOWN.AGE.${code}`), data: s.series[code],
+      })),
+    };
+  });
+  /** CA HT par caisse, empilé par centre. */
+  protected readonly caisseCaChart = computed<ChartData<'bar'>>(() => {
+    const lines = pivotCaisses(this.pivotCentres(), this.breakdown()?.caisses ?? [], this.breakdown()?.caisseTotaux ?? [], 'caHt');
+    return {
+      labels: lines.map((l) => l.nom || this.translate.instant('DIRECTION.BREAKDOWN.CAISSE_INCONNUE')),
+      datasets: this.pivotCentres().map((c) => ({label: c.nom, data: lines.map((l) => l.cells[c.id] ?? 0)})),
+    };
+  });
+
+  constructor() {
+    // Aligne les champs de période sur celle réellement renvoyée par le serveur (période par défaut incluse).
+    // Dépend de la période du store (et non des données) : une relecture en temps réel n'écrase pas une saisie en cours.
+    effect(() => {
+      const from = this.store.from();
+      const to = this.store.to();
+      if (from && to) {
+        untracked(() => this.period.set({from, to}));
+      }
+    });
+  }
+
+  protected caisseLabel(nom: string): string {
+    return nom || this.translate.instant('DIRECTION.BREAKDOWN.CAISSE_INCONNUE');
+  }
 
   protected pct(value: number | null): string {
     return formatPct(value);

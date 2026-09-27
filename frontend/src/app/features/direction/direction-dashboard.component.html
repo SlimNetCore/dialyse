@@ -33,8 +33,12 @@
     <p class="notice">
       <mat-icon>shield</mat-icon>
       {{ 'DIRECTION.ANONYMITY_NOTICE' | translate: {threshold: o.seuilAnonymat} }}
-      <span
-        class="fresh">{{ 'DIRECTION.GENERATED_AT' | translate }} {{ o.generatedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+      <span class="fresh" data-testid="direction-live">
+        <span [class]="'live-dot ' + realtime.status()"></span>
+        {{ ('DIRECTION.RT.STATUS_' + realtime.status().toUpperCase()) | translate }}
+        — {{ 'DIRECTION.GENERATED_AT' | translate }}
+        {{ (store.updatedAt() ?? o.generatedAt) | date: 'dd/MM/yyyy HH:mm:ss' }}
+      </span>
     </p>
 
     @if (store.alerts().length > 0) {
@@ -199,6 +203,159 @@
                     class="num">{{ row.c.stock.lotsPeremptionProche }}
                 </td>
                 <td class="num">{{ row.c.stock.valeurStock | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
+  }
+
+  @if (breakdown(); as b) {
+    <div class="charts">
+      <mat-card class="block" data-testid="direction-sexe">
+        <h2>{{ 'DIRECTION.BREAKDOWN.SEXE_TITLE' | translate }}</h2>
+        <div class="chart-wrap">
+          <canvas [data]="sexeChart()" [options]="stackedOptions" [type]="'bar'" baseChart></canvas>
+        </div>
+        <div class="table-scroll">
+          <table class="centres">
+            <thead>
+            <tr>
+              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.BREAKDOWN.MASCULIN' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.BREAKDOWN.FEMININ' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.BREAKDOWN.AUTRE' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (r of b.sexe; track r.centerId) {
+                <tr>
+                  <td>{{ r.nom }}</td>
+                  <td class="num">{{ headcount(r.masculin) }}</td>
+                  <td class="num">{{ headcount(r.feminin) }}</td>
+                  <td class="num">{{ headcount(r.autre) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-card>
+
+      <mat-card class="block" data-testid="direction-ages">
+        <h2>{{ 'DIRECTION.BREAKDOWN.AGE_TITLE' | translate }}</h2>
+        <div class="chart-wrap">
+          <canvas [data]="ageChart()" [options]="stackedOptions" [type]="'bar'" baseChart></canvas>
+        </div>
+        <div class="table-scroll">
+          <table class="centres">
+            <thead>
+            <tr>
+              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+              @for (code of ageCodes; track code) {
+                <th class="num">{{ 'DIRECTION.BREAKDOWN.AGE.' + code | translate }}</th>
+              }
+            </tr>
+            </thead>
+            <tbody>
+              @for (r of b.ages; track r.centerId) {
+                <tr>
+                  <td>{{ r.nom }}</td>
+                  @for (t of r.tranches; track t.code) {
+                    <td class="num">{{ headcount(t.count) }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-card>
+    </div>
+
+    <mat-card class="block" data-testid="direction-caisses">
+      <div class="block-head">
+        <h2>{{ 'DIRECTION.BREAKDOWN.CAISSES_TITLE' | translate }}</h2>
+        <mat-button-toggle-group (change)="caisseMetric.set($event.value)" [hideSingleSelectionIndicator]="true"
+                                 [value]="caisseMetric()" aria-label="metric"
+                                 data-testid="caisse-metric">
+          @for (m of caisseMetrics; track m) {
+            <mat-button-toggle [attr.data-testid]="'caisse-metric-' + m" [value]="m">
+              {{ 'DIRECTION.BREAKDOWN.METRIC_' + m.toUpperCase() | translate }}
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+      <div class="chart-wrap">
+        <canvas [data]="caisseCaChart()" [options]="stackedOptions" [type]="'bar'" baseChart></canvas>
+      </div>
+      <div class="table-scroll">
+        <table class="centres" data-testid="direction-caisses-table">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.BREAKDOWN.CAISSE' | translate }}</th>
+            @for (c of pivotCentres(); track c.id) {
+              <th class="num">{{ c.nom }}</th>
+            }
+            <th class="num">{{ 'DIRECTION.TOTAL' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (line of caissePivot(); track line.code) {
+              <tr>
+                <td>{{ caisseLabel(line.nom) }}</td>
+                @for (c of pivotCentres(); track c.id) {
+                  <td class="num">
+                    @if (caisseMetric() === 'caHt') {
+                      {{ line.cells[c.id] | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}
+                    } @else {
+                      {{ caisseMetric() === 'patients' ? headcount(line.cells[c.id]) : line.cells[c.id] }}
+                    }
+                  </td>
+                }
+                <td class="num total-cell">
+                  @if (caisseMetric() === 'caHt') {
+                    {{ line.total | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}
+                  } @else {
+                    {{ caisseMetric() === 'patients' ? headcount(line.total) : line.total }}
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
+
+    <mat-card class="block" data-testid="direction-anemie">
+      <h2>{{ 'DIRECTION.BREAKDOWN.ANEMIE_TITLE' | translate }}</h2>
+      <p class="muted">{{ 'DIRECTION.BREAKDOWN.ANEMIE_HINT' | translate }}</p>
+      <div class="table-scroll">
+        <table class="centres">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.SOUS_EPO' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.SOUS_FER' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.PAT_EPO' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.PAT_FER' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.ADM_EPO' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.ADM_FER' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.NON_ADM' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.BREAKDOWN.TAUX_ADM' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (r of b.anemie; track r.centerId) {
+              <tr>
+                <td>{{ r.nom }}</td>
+                <td class="num">{{ headcount(r.patientsSousEpo) }}</td>
+                <td class="num">{{ headcount(r.patientsSousFer) }}</td>
+                <td class="num">{{ headcount(r.patientsEpo) }}</td>
+                <td class="num">{{ headcount(r.patientsFer) }}</td>
+                <td class="num">{{ r.administreesEpo }}</td>
+                <td class="num">{{ r.administreesFer }}</td>
+                <td [class.bad]="r.nonAdministrees > 0" class="num">{{ r.nonAdministrees }}</td>
+                <td class="num">{{ pct(r.tauxAdministration) }}</td>
               </tr>
             }
           </tbody>

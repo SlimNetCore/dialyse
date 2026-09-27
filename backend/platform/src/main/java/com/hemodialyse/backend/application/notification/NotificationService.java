@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.notification;
 
+import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +15,11 @@ import java.util.UUID;
 public class NotificationService {
 
     private final SimpMessagingTemplate messaging;
+    private final DirectionRealtimeService directionRealtime;
 
-    public NotificationService(SimpMessagingTemplate messaging) {
+    public NotificationService(SimpMessagingTemplate messaging, DirectionRealtimeService directionRealtime) {
         this.messaging = messaging;
+        this.directionRealtime = directionRealtime;
     }
 
     public void notifyPatientCreated(UUID centerId, UUID patientId, String patientCode, String patientNom, String patientPrenom) {
@@ -151,6 +154,8 @@ public class NotificationService {
         event.put("timestamp", Instant.now().toString());
         String destination = "/topic/center/" + centerId + "/events";
         messaging.convertAndSend(destination, (Object) event);
+        // La direction de la société voit aussi ce changement, sans attendre le prochain balayage.
+        directionRealtime.markDirtyForCentre(centerId);
     }
 }
 

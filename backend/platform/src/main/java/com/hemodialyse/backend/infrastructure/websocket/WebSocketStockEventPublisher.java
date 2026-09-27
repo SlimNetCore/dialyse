@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.websocket;
 
 import com.hemodialyse.backend.domain.stock.port.StockEventPublisher;
+import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +22,11 @@ import java.util.UUID;
 public class WebSocketStockEventPublisher implements StockEventPublisher {
 
     private final SimpMessagingTemplate messaging;
+    private final DirectionRealtimeService directionRealtime;
 
-    public WebSocketStockEventPublisher(SimpMessagingTemplate messaging) {
+    public WebSocketStockEventPublisher(SimpMessagingTemplate messaging, DirectionRealtimeService directionRealtime) {
         this.messaging = messaging;
+        this.directionRealtime = directionRealtime;
     }
 
     @Override
@@ -51,6 +54,7 @@ public class WebSocketStockEventPublisher implements StockEventPublisher {
         event.put("payload", payload);
         event.put("timestamp", Instant.now().toString());
         messaging.convertAndSend("/topic/center/" + centerId + "/events", (Object) event);
+        directionRealtime.markDirtyForCentre(centerId);
     }
 }
 

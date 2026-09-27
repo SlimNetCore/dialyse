@@ -199,3 +199,44 @@
   color: #ed6c02;
   font-weight: 600;
 }
+
+.block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.block-head h2 {
+  margin: 0;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-inline-end: 4px;
+  border-radius: 50%;
+  background: #9e9e9e;
+}
+
+.live-dot.live {
+  background: #2e7d32;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+.live-dot.connecting,
+.live-dot.reconnecting {
+  background: #ef6c00;
+}
+
+.total-cell {
+  font-weight: 600;
+}
+
+@keyframes live-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}

@@ -63,16 +63,96 @@ const INDICATORS = {
   }],
 };
 
-async function mockBackend(page: Page): Promise<{ loginBodies: unknown[] }> {
+const BREAKDOWN = {
+  societeId: SOCIETE.id, from: '2026-01-01', to: '2026-09-26', generatedAt: '2026-09-26T10:00:00Z', seuilAnonymat: 5,
+  sexe: [
+    {centerId: 'Centre Alpha', nom: 'Centre Alpha', masculin: 20, feminin: 22, autre: 0},
+    {centerId: 'Centre Beta', nom: 'Centre Beta', masculin: null, feminin: null, autre: 0},
+  ],
+  ages: [
+    {
+      centerId: 'Centre Alpha', nom: 'Centre Alpha', tranches: ['0_17', '18_29', '30_44', '45_59', '60_PLUS', 'INCONNU']
+        .map((code) => ({code, count: code === '45_59' ? 30 : code === '60_PLUS' ? 12 : 0}))
+    },
+    {
+      centerId: 'Centre Beta', nom: 'Centre Beta', tranches: ['0_17', '18_29', '30_44', '45_59', '60_PLUS', 'INCONNU']
+        .map((code) => ({code, count: null}))
+    },
+  ],
+  caisses: [
+    {
+      centerId: 'Centre Alpha',
+      centre: 'Centre Alpha',
+      caisseCode: 'CNAS',
+      caisse: 'CNAS Nationale',
+      patients: 30,
+      seances: 400,
+      caHt: 1500000
+    },
+    {
+      centerId: 'Centre Beta',
+      centre: 'Centre Beta',
+      caisseCode: 'CNAS',
+      caisse: 'CNAS Nationale',
+      patients: null,
+      seances: 40,
+      caHt: 90000
+    },
+  ],
+  caisseTotaux: [{caisseCode: 'CNAS', caisse: 'CNAS Nationale', patients: 32, seances: 440, caHt: 1590000}],
+  anemie: [
+    {
+      centerId: 'Centre Alpha',
+      nom: 'Centre Alpha',
+      patientsEpo: 18,
+      patientsFer: null,
+      administreesEpo: 90,
+      administreesFer: 12,
+      nonAdministrees: 3,
+      tauxAdministration: 97.1,
+      patientsSousEpo: 20,
+      patientsSousFer: null
+    },
+    {
+      centerId: 'Centre Beta',
+      nom: 'Centre Beta',
+      patientsEpo: null,
+      patientsFer: null,
+      administreesEpo: 2,
+      administreesFer: 0,
+      nonAdministrees: 0,
+      tauxAdministration: 100,
+      patientsSousEpo: null,
+      patientsSousFer: null
+    },
+  ],
+};
+
+/** Envoie un message STOMP sur le canal de la société, comme le ferait le serveur à un changement de données. */
+type Push = (body: unknown) => void;
+
+async function mockBackend(page: Page): Promise<{ loginBodies: unknown[]; push: Push }> {
   const loginBodies: unknown[] = [];
   let signedIn = false;
+  const subscriptions: { id: string; destination: string; send: (frame: string) => void }[] = [];
   await page.routeWebSocket(/\/ws/, (ws) => {
     ws.onMessage((message) => {
-      if (typeof message === 'string' && message.startsWith('CONNECT')) {
+      if (typeof message !== 'string') return;
+      if (message.startsWith('CONNECT')) {
         ws.send('CONNECTED\nversion:1.2\nheart-beat:0,0\n\n\0');
+      } else if (message.startsWith('SUBSCRIBE')) {
+        const id = /(?:^|\n)id:([^\n]+)/.exec(message)?.[1] ?? 'sub-0';
+        const destination = /(?:^|\n)destination:([^\n]+)/.exec(message)?.[1] ?? '';
+        subscriptions.push({id, destination, send: (frame) => ws.send(frame)});
       }
     });
   });
+  const push: Push = (body) => {
+    for (const s of subscriptions.filter((x) => x.destination.startsWith('/topic/societe/'))) {
+      s.send(`MESSAGE\ndestination:${s.destination}\nsubscription:${s.id}\nmessage-id:m${Date.now()}\n`
+        + `content-type:application/json\n\n${JSON.stringify(body)}\0`);
+    }
+  };
   await page.route('**/actuator/health*', (r) => r.fulfill({json: {status: 'UP'}}));
   // Le rafraîchissement ne doit jamais atteindre un vrai backend local : indisponible, sans redirection.
   await page.route('**/api/v1/auth/refresh', (r) => r.fulfill({status: 503, json: {}}));
@@ -87,9 +167,10 @@ async function mockBackend(page: Page): Promise<{ loginBodies: unknown[] }> {
   });
   await page.route('**/api/v1/direction/overview*', (r) => r.fulfill({json: OVERVIEW}));
   await page.route('**/api/v1/direction/indicators*', (r) => r.fulfill({json: INDICATORS}));
+  await page.route('**/api/v1/direction/breakdown*', (r) => r.fulfill({json: BREAKDOWN}));
   await page.route('**/api/v1/direction/snapshots', (r) => r.fulfill({json: []}));
   await page.route('**/api/v1/auth/setup/status', (r) => r.fulfill({json: {required: false, tokenRequired: false}}));
-  return {loginBodies};
+  return {loginBodies, push};
 }
 
 test.describe('Direction — tableau de bord consolidé', () => {
@@ -120,6 +201,48 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await expect(clinical.locator('tr', {hasText: 'Centre Alpha'})).toContainText('62.5 %');
     await expect(clinical.locator('tr', {hasText: 'Centre Beta'})).not.toContainText('%');
     await expect(page.getByTestId('direction-stock').locator('tr', {hasText: 'Centre Alpha'})).toContainText('3');
+
+    // répartitions par centre : sexe, âge, caisses (patients / séances / CA HT), anémie — effectifs faibles masqués
+    await expect(page.getByTestId('direction-sexe').locator('tr', {hasText: 'Centre Alpha'})).toContainText('20');
+    await expect(page.getByTestId('direction-sexe').locator('tr', {hasText: 'Centre Beta'})).toContainText('< 5');
+    await expect(page.getByTestId('direction-ages').locator('tr', {hasText: 'Centre Alpha'})).toContainText('30');
+    const caisses = page.getByTestId('direction-caisses-table');
+    await expect(caisses).toContainText('CNAS Nationale');
+    await page.getByTestId('caisse-metric-seances').click();
+    await expect(caisses.locator('tr', {hasText: 'CNAS Nationale'})).toContainText('440');
+    await page.getByTestId('caisse-metric-patients').click();
+    await expect(caisses.locator('tr', {hasText: 'CNAS Nationale'})).toContainText('< 5');
+    await expect(page.getByTestId('direction-anemie').locator('tr', {hasText: 'Centre Alpha'})).toContainText('97.1');
+  });
+
+  test('reçoit les changements en temps réel : notification et données relues', async ({page}) => {
+    const {push} = await mockBackend(page);
+    await page.goto(`${baseUrl}/login`);
+    await page.getByTestId('login-mode-direction').click();
+    await page.getByTestId('login-societe-select').click();
+    await page.getByRole('option', {name: SOCIETE.name}).click();
+    await page.getByTestId('login-username').fill('direction');
+    await page.getByTestId('login-password').fill('un-mot-de-passe-de-test-1');
+    await page.getByTestId('login-submit').click();
+    await page.waitForURL('**/direction');
+    await expect(page.getByTestId('direction-live')).toContainText(/temps réel actif/i);
+
+    // le serveur signale un changement : une séance de plus au Centre Alpha
+    push({
+      type: 'DASHBOARD_CHANGED', societeId: SOCIETE.id, at: new Date().toISOString(),
+      changes: [{
+        centerId: 'Centre Alpha',
+        centre: 'Centre Alpha',
+        family: 'SEANCES',
+        name: 'seances',
+        before: 12,
+        after: 13
+      }],
+    });
+    const bell = page.getByTestId('direction-bell');
+    await expect(bell).toContainText('notifications_active');
+    await bell.click();
+    await expect(page.getByTestId('direction-notifications')).toContainText('Centre Alpha');
   });
 
   test('cantonne la direction à /direction', async ({page}) => {
