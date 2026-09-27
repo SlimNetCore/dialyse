@@ -1299,6 +1299,24 @@
     "BILLABLE_LABEL": "Billable"
   },
   "ADMIN": {
+    "AUDIT": {
+      "TITLE": "Audit log",
+      "HINT_ADMIN": "Writes made on your centre and medical record consultations, most recent first.",
+      "HINT_OWNER": "Writes made across the whole platform and medical record consultations, most recent first.",
+      "SOCIETE_ID": "Company ID",
+      "USER_ID": "User ID",
+      "ACTION": "Action",
+      "ALL_ACTIONS": "All actions",
+      "COL_DATE": "Date",
+      "COL_USER": "User",
+      "COL_CENTRE": "Centre",
+      "COL_ACTION": "Action",
+      "COL_DETAIL": "Detail",
+      "COL_STATUS": "Status",
+      "COL_DURATION": "Duration",
+      "EMPTY": "No entry for this filter.",
+      "ERROR": "Unable to load the audit log."
+    },
     "BILLING_SETTINGS": {
       "EYEBROW": "Administration",
       "TITLE": "Billing settings",

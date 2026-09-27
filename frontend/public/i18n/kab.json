@@ -1295,6 +1295,24 @@
     "BILLABLE_LABEL": "Yettwasefruy"
   },
   "ADMIN": {
+    "AUDIT": {
+      "TITLE": "Aneqqis n usenqed",
+      "HINT_ADMIN": "Tigawin ittwaxedmen ɣef usentel-nnwen d tɣuriwin n uɣmis n usegzawal, seg ineggura ɣer imezwura.",
+      "HINT_OWNER": "Tigawin ittwaxedmen ɣef akk tanezduɣt d tɣuriwin n uɣmis n usegzawal, seg ineggura ɣer imezwura.",
+      "SOCIETE_ID": "Asulay n tkebbanit",
+      "USER_ID": "Asulay n useqdac",
+      "ACTION": "Tigawt",
+      "ALL_ACTIONS": "Akk tigawin",
+      "COL_DATE": "Azemz",
+      "COL_USER": "Aseqdac",
+      "COL_CENTRE": "Aseɣwen",
+      "COL_ACTION": "Tigawt",
+      "COL_DETAIL": "Talqayt",
+      "COL_STATUS": "Addad",
+      "COL_DURATION": "Tallit",
+      "EMPTY": "Ulac tigawt i uzennuḥ-agi.",
+      "ERROR": "Ur izmir ara ad d-yali uneqqis n usenqed."
+    },
     "USERS": {
       "TITLE": "Asefrek n yiseqdacen",
       "NEW_USER": "Aseqdac amaynut",

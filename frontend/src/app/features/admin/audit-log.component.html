@@ -1,0 +1,108 @@
+<section class="audit" data-testid="audit-log">
+  <mat-card class="block">
+    <div class="head">
+      <h2>
+        <mat-icon>fact_check</mat-icon>
+        {{ 'ADMIN.AUDIT.TITLE' | translate }}
+      </h2>
+      <p class="muted">
+        {{ (isOwner() ? 'ADMIN.AUDIT.HINT_OWNER' : 'ADMIN.AUDIT.HINT_ADMIN') | translate }}
+      </p>
+    </div>
+
+    <form (submit)="$event.preventDefault(); apply()" [formRoot]="filterForm" class="filters">
+      @if (isOwner()) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'ADMIN.AUDIT.SOCIETE_ID' | translate }}</mat-label>
+          <input [formField]="filterForm.societeId" data-testid="audit-filter-societe" matInput/>
+        </mat-form-field>
+      }
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'ADMIN.AUDIT.USER_ID' | translate }}</mat-label>
+        <input [formField]="filterForm.userId" data-testid="audit-filter-user" matInput/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'ADMIN.AUDIT.ACTION' | translate }}</mat-label>
+        <mat-select [formField]="filterForm.actionCode" data-testid="audit-filter-action">
+          <mat-option value="">{{ 'ADMIN.AUDIT.ALL_ACTIONS' | translate }}</mat-option>
+          @for (code of store.actionCodes(); track code) {
+            <mat-option [value]="code">{{ code }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'DIRECTION.PERIOD_FROM' | translate }}</mat-label>
+        <input [formField]="filterForm.from" data-testid="audit-filter-from" matInput type="date"/>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'DIRECTION.PERIOD_TO' | translate }}</mat-label>
+        <input [formField]="filterForm.to" data-testid="audit-filter-to" matInput type="date"/>
+      </mat-form-field>
+      <button data-testid="audit-apply" mat-flat-button type="submit">
+        <mat-icon>filter_alt</mat-icon>
+        {{ 'DIRECTION.APPLY' | translate }}
+      </button>
+      <button (click)="clear()" data-testid="audit-clear" mat-stroked-button type="button">
+        <mat-icon>filter_alt_off</mat-icon>
+        {{ 'PATIENT_LIST.RESET_FILTERS_BUTTON' | translate }}
+      </button>
+    </form>
+
+    @if (store.loading()) {
+      <mat-progress-bar mode="indeterminate"/>
+    }
+    @if (store.error()) {
+      <div class="error-msg" data-testid="audit-error">{{ 'ADMIN.AUDIT.ERROR' | translate }}</div>
+    }
+
+    <div class="table-scroll">
+      <table [dataSource]="store.rows()" data-testid="audit-table" mat-table>
+        <ng-container matColumnDef="occurredAt">
+          <th *matHeaderCellDef mat-header-cell>{{ 'ADMIN.AUDIT.COL_DATE' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>{{ r.occurredAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="username">
+          <th *matHeaderCellDef mat-header-cell>{{ 'ADMIN.AUDIT.COL_USER' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>{{ r.username ?? '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="centerId">
+          <th *matHeaderCellDef mat-header-cell>{{ 'ADMIN.AUDIT.COL_CENTRE' | translate }}</th>
+          <td *matCellDef="let r" class="mono" mat-cell>{{ r.centerId ?? '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actionCode">
+          <th *matHeaderCellDef mat-header-cell>{{ 'ADMIN.AUDIT.COL_ACTION' | translate }}</th>
+          <td *matCellDef="let r" mat-cell><span class="action-pill">{{ r.actionCode }}</span></td>
+        </ng-container>
+        <ng-container matColumnDef="libelle">
+          <th *matHeaderCellDef mat-header-cell>{{ 'ADMIN.AUDIT.COL_DETAIL' | translate }}</th>
+          <td *matCellDef="let r" mat-cell>
+            <span [matTooltip]="r.entityId ?? ''">{{ r.libelle ?? (r.httpMethod + ' ' + r.routeTemplate) }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="statusCode">
+          <th *matHeaderCellDef mat-header-cell>{{ 'ADMIN.AUDIT.COL_STATUS' | translate }}</th>
+          <td *matCellDef="let r" mat-cell><span
+            [class]="'status ' + statusClass(r.statusCode)">{{ r.statusCode }}</span></td>
+        </ng-container>
+        <ng-container matColumnDef="durationMs">
+          <th *matHeaderCellDef mat-header-cell>{{ 'ADMIN.AUDIT.COL_DURATION' | translate }}</th>
+          <td *matCellDef="let r" class="num" mat-cell>{{ r.durationMs }} ms</td>
+        </ng-container>
+        <tr *matHeaderRowDef="columns()" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: columns()" mat-row></tr>
+      </table>
+      @if (!store.loading() && store.rows().length === 0) {
+        <p class="muted empty">{{ 'ADMIN.AUDIT.EMPTY' | translate }}</p>
+      }
+    </div>
+
+    <mat-paginator
+      (page)="onPage($event)"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="[10, 20, 50, 100]"
+      [pageSize]="store.pageSize()"
+      data-testid="audit-paginator"
+    />
+  </mat-card>
+</section>

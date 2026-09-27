@@ -1299,6 +1299,24 @@
     "BILLABLE_LABEL": "Facturable"
   },
   "ADMIN": {
+    "AUDIT": {
+      "TITLE": "Journal d'audit",
+      "HINT_ADMIN": "Écritures effectuées sur votre centre et consultations du dossier médical, du plus récent au plus ancien.",
+      "HINT_OWNER": "Écritures effectuées sur toute la plateforme et consultations du dossier médical, du plus récent au plus ancien.",
+      "SOCIETE_ID": "Identifiant société",
+      "USER_ID": "Identifiant utilisateur",
+      "ACTION": "Action",
+      "ALL_ACTIONS": "Toutes les actions",
+      "COL_DATE": "Date",
+      "COL_USER": "Utilisateur",
+      "COL_CENTRE": "Centre",
+      "COL_ACTION": "Action",
+      "COL_DETAIL": "Détail",
+      "COL_STATUS": "Statut",
+      "COL_DURATION": "Durée",
+      "EMPTY": "Aucune entrée pour ce filtre.",
+      "ERROR": "Impossible de charger le journal d'audit."
+    },
     "BILLING_SETTINGS": {
       "EYEBROW": "Administration",
       "TITLE": "Paramétrage facturation",

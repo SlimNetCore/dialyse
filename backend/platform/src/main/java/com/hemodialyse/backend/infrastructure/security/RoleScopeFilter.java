@@ -18,7 +18,7 @@ import java.util.Map;
  * Cantonne les rôles « transverses » à leurs seules routes, côté serveur (et pas seulement dans le menu) :
  * <ul>
  *   <li>{@code SUPERADMIN} — le propriétaire de l'application — : gestion des sociétés (et de leurs comptes
- *       direction) et des licences uniquement ;</li>
+ *       direction), des licences, et consultation du journal d'audit (toute la plateforme) uniquement ;</li>
  *   <li>{@code DIRECTION} — la direction d'une société — : tableaux de bord consolidés ({@code /api/v1/direction})
  *       uniquement, en lecture, sur des agrégats anonymes.</li>
  * </ul>
@@ -40,7 +40,7 @@ public class RoleScopeFilter extends OncePerRequestFilter {
      * Routes autorisées par rôle restreint.
      */
     private static final Map<String, List<String>> ALLOWED_BY_ROLE = Map.of(
-            "ROLE_SUPERADMIN", List.of("/api/v1/societes", "/api/v1/licenses"),
+            "ROLE_SUPERADMIN", List.of("/api/v1/societes", "/api/v1/licenses", "/api/v1/audit"),
             "ROLE_DIRECTION", List.of("/api/v1/direction")
     );
 
