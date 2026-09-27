@@ -169,6 +169,8 @@ async function mockBackend(page: Page): Promise<{ loginBodies: unknown[]; push: 
   await page.route('**/api/v1/direction/indicators*', (r) => r.fulfill({json: INDICATORS}));
   await page.route('**/api/v1/direction/breakdown*', (r) => r.fulfill({json: BREAKDOWN}));
   await page.route('**/api/v1/direction/snapshots', (r) => r.fulfill({json: []}));
+  await page.route('**/api/v1/direction/report*', (r) =>
+    r.fulfill({status: 200, contentType: 'application/pdf', body: '%PDF-1.4 test'}));
   await page.route('**/api/v1/auth/setup/status', (r) => r.fulfill({json: {required: false, tokenRequired: false}}));
   return {loginBodies, push};
 }
@@ -213,6 +215,11 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await page.getByTestId('caisse-metric-patients').click();
     await expect(caisses.locator('tr', {hasText: 'CNAS Nationale'})).toContainText('< 5');
     await expect(page.getByTestId('direction-anemie').locator('tr', {hasText: 'Centre Alpha'})).toContainText('97.1');
+
+    // rapport imprimable de la période affichée
+    const download = page.waitForEvent('download');
+    await page.getByTestId('direction-print').click();
+    expect((await download).suggestedFilename()).toMatch(/^rapport-direction-.*\.pdf$/);
   });
 
   test('reçoit les changements en temps réel : notification et données relues', async ({page}) => {

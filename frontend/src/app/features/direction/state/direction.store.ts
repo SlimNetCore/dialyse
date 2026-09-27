@@ -35,6 +35,9 @@ const initialState: DirectionState = {
   reportError: false, from: '', to: '', loading: false, error: null,
 };
 
+/** Valeur de `reportBusy` pendant la production du rapport de la période affichée (aucun mois ne peut la prendre). */
+export const LIVE_REPORT = 'live';
+
 /** Numéro de la dernière requête lancée : une réponse plus ancienne ne remplace jamais une plus récente. */
 let requestSeq = 0;
 
@@ -91,6 +94,19 @@ export const DirectionStore = signalStore(
         await firstValueFrom(api.ensureSnapshot(mois));
         const blob = await firstValueFrom(api.downloadReport(mois));
         patchState(store, {snapshots: await firstValueFrom(api.listSnapshots()), reportBusy: null});
+        return blob;
+      } catch {
+        patchState(store, {reportBusy: null, reportError: true});
+        return null;
+      }
+    },
+
+    /** Rapport PDF de la période affichée ; `null` en cas d'échec. */
+    async liveReport(): Promise<Blob | null> {
+      patchState(store, {reportBusy: LIVE_REPORT, reportError: false});
+      try {
+        const blob = await firstValueFrom(api.downloadLiveReport(store.from() || undefined, store.to() || undefined));
+        patchState(store, {reportBusy: null});
         return blob;
       } catch {
         patchState(store, {reportBusy: null, reportError: true});

@@ -34,12 +34,16 @@ public class DirectionSnapshotService {
     private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
     private final DirectionIndicatorsQueryService indicators;
+    private final DirectionBreakdownQueryService breakdowns;
     private final ObjectMapper mapper;
+
     public DirectionSnapshotService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
-                                    DirectionIndicatorsQueryService indicators, ObjectMapper mapper) {
+                                    DirectionIndicatorsQueryService indicators,
+                                    DirectionBreakdownQueryService breakdowns, ObjectMapper mapper) {
         this.jdbc = jdbc;
         this.dashboard = dashboard;
         this.indicators = indicators;
+        this.breakdowns = breakdowns;
         this.mapper = mapper;
     }
 
@@ -117,6 +121,7 @@ public class DirectionSnapshotService {
         var root = mapper.createObjectNode();
         root.set("overview", mapper.valueToTree(overview));
         root.set("indicators", mapper.valueToTree(ind));
+        root.set("breakdown", mapper.valueToTree(breakdowns.breakdown(societeId, from, to)));
         try {
             jdbc.update("INSERT INTO direction_snapshot (id, societe_id, mois, payload, generated_at) "
                             + "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
@@ -129,12 +134,14 @@ public class DirectionSnapshotService {
 
     private Snapshot read(String mois, OffsetDateTime generatedAt, String payload) {
         JsonNode root = mapper.readTree(payload);
-        return new Snapshot(mois, generatedAt, root.path("overview"), root.path("indicators"));
+        // « breakdown » est absent des instantanés créés avant l'ajout des répartitions : nœud manquant, non bloquant.
+        return new Snapshot(mois, generatedAt, root.path("overview"), root.path("indicators"), root.path("breakdown"));
     }
 
     public record Info(String mois, OffsetDateTime generatedAt) {
     }
 
-    public record Snapshot(String mois, OffsetDateTime generatedAt, JsonNode overview, JsonNode indicators) {
+    public record Snapshot(String mois, OffsetDateTime generatedAt, JsonNode overview, JsonNode indicators,
+                           JsonNode breakdown) {
     }
 }

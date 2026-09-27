@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -157,6 +158,33 @@ public class DocumentIdentityProvider {
             params.put("SOCIETE_LOGO", new ByteArrayInputStream(bytes));
         }
         return params;
+    }
+
+    /**
+     * Identité de la seule société (documents de direction, sans centre) : raison sociale, ligne de contact, mentions
+     * légales, pied de page et logo. Vide si la société est inconnue.
+     */
+    public Optional<SocieteIdentity> societeIdentity(UUID societeId) {
+        if (societeId == null) return Optional.empty();
+        var rows = jdbc.queryForList(
+                "SELECT s.raison_sociale AS s_nom, s.adresse AS s_adresse, s.ville AS s_ville, s.wilaya AS s_wilaya, "
+                        + "s.telephone AS s_tel, s.email AS s_email, s.site_web AS s_web, s.nif AS s_nif, "
+                        + "s.nis AS s_nis, s.rc AS s_rc, s.pied_page AS s_pied, s.logo AS s_logo "
+                        + "FROM societes s WHERE s.id = ?", societeId);
+        if (rows.isEmpty()) return Optional.empty();
+        Map<String, Object> r = lower(rows.get(0));
+        String adresse = join(", ", str(r, "s_adresse"), place(str(r, "s_ville"), str(r, "s_wilaya")));
+        String contact = join(" · ", adresse, contact(str(r, "s_tel"), str(r, "s_email"), str(r, "s_web")));
+        String legal = Stream.of(label("NIF", str(r, "s_nif")), label("NIS", str(r, "s_nis")), label("RC", str(r, "s_rc")))
+                .filter(x -> !x.isEmpty()).collect(Collectors.joining(" · "));
+        byte[] logo = r.get("s_logo") instanceof byte[] bytes && bytes.length > 0 ? bytes : null;
+        return Optional.of(new SocieteIdentity(str(r, "s_nom"), contact, legal, str(r, "s_pied"), logo));
+    }
+
+    /**
+     * Identité d'une société pour l'en-tête et le pied de page d'un document ({@code logo} peut être nul).
+     */
+    public record SocieteIdentity(String nom, String contact, String legal, String piedPage, byte[] logo) {
     }
 
     /**

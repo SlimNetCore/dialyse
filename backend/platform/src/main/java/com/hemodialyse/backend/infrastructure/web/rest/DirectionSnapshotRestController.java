@@ -65,7 +65,7 @@ public class DirectionSnapshotRestController {
     public ResponseEntity<byte[]> report(@PathVariable String mois) {
         UUID societeId = guard.requireSociete();
         Snapshot snapshot = snapshots.get(societeId, mois);
-        byte[] pdf = reports.pdf(snapshot);
+        byte[] pdf = reports.pdf(societeId, snapshot);
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
                 .contentType(MediaType.APPLICATION_PDF)

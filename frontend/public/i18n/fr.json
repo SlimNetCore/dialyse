@@ -300,6 +300,7 @@
     "PERIOD_FROM": "Du",
     "PERIOD_TO": "Au",
     "APPLY": "Actualiser",
+    "PRINT_REPORT": "Imprimer le rapport",
     "ANONYMITY_NOTICE": "Agrégats anonymes uniquement : les effectifs inférieurs à {{threshold}} sont masqués.",
     "GENERATED_AT": "Données au",
     "CENTRES_TITLE": "Comparatif des centres",

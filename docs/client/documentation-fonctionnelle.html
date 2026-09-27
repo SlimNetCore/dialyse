@@ -14,10 +14,10 @@
     <div>
         <h1>Documentation fonctionnelle</h1>
         <p class="subtitle">Plateforme de gestion multi-centres pour l'hémodialyse : patients, dossier médical, séances,
-            stock, facturation et préparation à la greffe rénale.</p>
-        <img alt="Tableau de bord HemoDialyse" class="cover-shot" src="img/01-dashboard.png">
+            stock, facturation, préparation à la greffe rénale et pilotage de la direction en temps réel.</p>
+        <img alt="Tableau de bord de la direction" class="cover-shot" src="img/90-direction-dashboard.png">
     </div>
-    <div class="meta"><span>Version du document : 1.0</span><span>Septembre 2026</span><span>Destinataires : direction, médecins, équipes soignantes et administratives</span>
+    <div class="meta"><span>Version du document : 1.1</span><span>Septembre 2026</span><span>Destinataires : direction, médecins, équipes soignantes et administratives</span>
     </div>
 </header>
 
@@ -28,6 +28,10 @@
         <h2>Sommaire</h2>
         <ol>
             <li><a href="#intro">Présentation générale</a><small>objectifs, rôles, principes</small></li>
+            <li><a href="#direction">Pilotage de la direction</a><small>tableau de bord de décision, temps réel,
+                rapports</small></li>
+            <li><a href="#societe">Sociétés, comptes et sécurité</a><small>propriétaire, rôles, 2FA, licences</small>
+            </li>
             <li><a href="#acces">Connexion et navigation</a><small>centre, menus, langues, thèmes</small></li>
             <li><a href="#dashboard">Tableau de bord du centre</a></li>
             <li><a href="#patients">Gestion des patients</a><small>dossier administratif, PEC, attestations</small></li>
@@ -55,6 +59,13 @@
             médical de chaque séance, jusqu'à la facturation et à la préparation d'une éventuelle greffe rénale. Elle
             s'adresse à plusieurs centres d'hémodialyse : chaque donnée appartient à un centre, et un utilisateur ne
             voit que les données du centre sur lequel il est connecté.</p>
+
+        <div class="callout"><strong>Nouveau — la direction pilote son groupe.</strong> Une société peut regrouper
+            plusieurs centres. Sa direction dispose d'un <b>tableau de bord de décision en temps réel</b> (activité,
+            finances, qualité des soins KDIGO, stock, alertes, répartitions des patients) et de <b>rapports PDF
+                imprimables</b> à l'en-tête de la société — sans jamais accéder à une donnée nominative. Voir le
+            chapitre 2.
+        </div>
 
         <h3>Les modules</h3>
         <div class="grid2">
@@ -102,6 +113,18 @@
                 <td><b>Administrateur</b></td>
                 <td>Utilisateurs, rôles, paramétrage, stock, facturation et supervision du centre.</td>
             </tr>
+            <tr>
+                <td><b>Direction</b></td>
+                <td>Pilote la société : tableaux de bord consolidés et anonymes, notifications en temps réel, rapports
+                    mensuels et imprimés. Aucun accès aux dossiers patients.
+                </td>
+            </tr>
+            <tr>
+                <td><b>Propriétaire</b></td>
+                <td>Administre la plateforme : crée les sociétés et leurs centres, gère les licences et les comptes
+                    d'administration de chaque société.
+                </td>
+            </tr>
         </table>
         <p>Les droits sont paramétrables : un même écran peut être en <em>lecture seule</em> pour un profil (badge «
             Lecture seule ») et modifiable pour un autre.</p>
@@ -114,10 +137,192 @@
         </div>
     </section>
 
-    <!-- ============================ 2. ACCES ============================ -->
-    <section class="chapter" id="acces">
+    <!-- ============================ 2. DIRECTION ============================ -->
+    <section class="chapter" id="direction">
         <div class="chapter-head">
             <div class="kicker">Chapitre 2</div>
+            <h2>Pilotage de la direction</h2>
+            <p>Voir, comparer et décider : toute l'activité du groupe sur un seul écran, à jour en temps réel.</p></div>
+
+        <p>Le tableau de bord de la direction consolide les données de <b>tous les centres de la société</b> et les
+            présente sous forme d'agrégats. Il répond aux questions qu'une direction se pose chaque semaine : <em>où
+                l'activité progresse-t-elle ? quels centres encaissent moins vite ? où la qualité des soins
+                décroche-t-elle ? quel stock est en danger ?</em></p>
+        <figure><img alt="Tableau de bord de la direction" src="img/90-direction-dashboard.png">
+            <figcaption><b>Figure D1.</b> Tableau de bord de la direction : indicateurs clés, alertes, tendance du
+                chiffre d'affaires, comparaison des centres et centre de notifications (données fictives).
+            </figcaption>
+        </figure>
+
+        <h3>Ce que la direction voit</h3>
+        <div class="grid2">
+            <div class="card"><h4>Indicateurs clés</h4>
+                <p>Patients (dont sous cathéter), séances, factures, CA HT et TTC, montants encaissés, reste à
+                    recouvrer et taux d'encaissement, sur la période choisie.</p></div>
+            <div class="card"><h4>Comparaison des centres</h4>
+                <p>Un tableau par centre et un total société : activité, chiffre d'affaires, encaissement et part de
+                    chaque centre dans le CA.</p></div>
+            <div class="card"><h4>Qualité des soins (KDIGO)</h4>
+                <p>Part des patients dans la cible : Kt/V, hémoglobine, phosphore, PTH, albumine, ainsi que les
+                    sérologies positives, traitements en retard et greffes.</p></div>
+            <div class="card"><h4>Stock</h4>
+                <p>Articles actifs, articles sous le seuil de réapprovisionnement, lots périmés, péremptions à moins
+                    de 90 jours et valeur du stock par centre.</p></div>
+            <div class="card"><h4>Alertes</h4>
+                <p>Les situations à traiter en priorité, classées par gravité (critique, attention) et rattachées au
+                    centre concerné.</p></div>
+            <div class="card"><h4>Évolution mensuelle</h4>
+                <p>Séances et chiffre d'affaires mois par mois, pour repérer une tendance avant qu'elle ne pèse sur
+                    les résultats.</p></div>
+        </div>
+        <figure><img alt="Qualité des soins et stock" src="img/91-direction-qualite-stock.png">
+            <figcaption><b>Figure D2.</b> Qualité des soins (cibles KDIGO) et stock, centre par centre : les couleurs
+                signalent immédiatement les écarts.
+            </figcaption>
+        </figure>
+
+        <h3>Répartition des patients et de l'activité</h3>
+        <p>Le tableau de bord détaille aussi <b>qui est soigné et comment l'activité est financée</b>, centre par
+            centre :</p>
+        <ul>
+            <li>répartition des patients <b>par sexe</b> et <b>par tranche d'âge</b> ;</li>
+            <li>répartition par <b>caisse d'assurance</b> : nombre de patients, nombre de séances et chiffre d'affaires
+                HT de chaque caisse, avec un sélecteur de mesure ;
+            </li>
+            <li><b>traitement de l'anémie</b> par centre : patients sous EPO ou fer, administrations réalisées et taux
+                d'administration.
+            </li>
+        </ul>
+        <figure><img alt="Répartitions" src="img/92-direction-repartitions.png">
+            <figcaption><b>Figure D3.</b> Répartitions par sexe, âge, caisse d'assurance et traitement de l'anémie.
+            </figcaption>
+        </figure>
+
+        <h3>Temps réel et notifications</h3>
+        <p>Toute donnée qui change et qui figure au tableau de bord est <b>mise à jour automatiquement</b>, sans
+            recharger la page : un indicateur « Temps réel actif » confirme la connexion. Chaque changement significatif
+            (nouvelles séances, encaissement, lot périmé, alerte apparue ou levée…) génère une <b>notification</b> dans
+            le centre de notifications (cloche), avec le centre concerné, l'indicateur touché et sa valeur avant /
+            après.</p>
+        <figure class="narrow"><img alt="Centre de notifications" src="img/94-direction-notifications.png">
+            <figcaption><b>Figure D4.</b> Centre de notifications de la direction.</figcaption>
+        </figure>
+
+        <h3>Rapports pour la décision et l'archivage</h3>
+        <ul>
+            <li><b>Rapport imprimé de la période</b> : le bouton « Imprimer le rapport » produit un PDF de la période
+                affichée, avec l'<b>en-tête de la société</b> (logo, raison sociale, adresse, NIF / NIS / RC) et un
+                <b>pied de page</b> personnalisé avec pagination, puis <b>l'ensemble des statistiques</b> : indicateurs
+                clés, alertes, finances par centre, évolution mensuelle, qualité des soins, stock, répartitions par
+                sexe, âge, caisse et anémie.
+            </li>
+            <li><b>Rapports mensuels figés</b> : à la fin de chaque mois, les chiffres de la société sont conservés à
+                l'identique (instantané immuable, produit automatiquement le 1<sup>er</sup> du mois). Ils permettent de
+                comparer des périodes sur des chiffres qui ne bougent plus, même si une donnée source est corrigée
+                ensuite, et se téléchargent en PDF.
+            </li>
+        </ul>
+        <figure><img alt="Rapport imprimé" src="img/93-direction-rapport.png">
+            <figcaption><b>Figure D5.</b> Rapport imprimé : en-tête de la société, statistiques, pied de page et
+                pagination.
+            </figcaption>
+        </figure>
+
+        <div class="callout"><strong>Décider sans exposer les patients.</strong> La direction ne voit jamais de
+            donnée nominative. Les effectifs de moins de 5 patients sont masqués (« &lt; seuil ») et les taux calculés
+            sur moins de 5 patients évalués ne sont pas publiés : un chiffre ne permet jamais de reconnaître une
+            personne. La société est déterminée par la session de connexion, jamais par un paramètre modifiable.
+        </div>
+    </section>
+
+    <!-- ============================ 3. SOCIETES ============================ -->
+    <section class="chapter" id="societe">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 3</div>
+            <h2>Sociétés, comptes et sécurité</h2>
+            <p>Une organisation claire : le propriétaire de la plateforme, les sociétés, leurs centres et leurs
+                équipes.</p></div>
+
+        <h3>Sociétés et centres</h3>
+        <p>Une <b>société</b> regroupe un ou plusieurs centres d'hémodialyse. Chaque centre est rattaché à une société ;
+            la société porte l'identité utilisée dans les documents de direction (raison sociale, coordonnées,
+            mentions légales, logo, pied de page). Les données de chaque centre restent cloisonnées : les équipes d'un
+            centre ne voient jamais celles d'un autre.</p>
+        <table class="tbl">
+            <tr>
+                <th>Profil</th>
+                <th>Périmètre</th>
+                <th>Ce qu'il peut faire</th>
+            </tr>
+            <tr>
+                <td><b>Propriétaire</b></td>
+                <td>Plateforme</td>
+                <td>Créer les sociétés et les centres, gérer les licences, créer et modifier les comptes
+                    d'administration de chaque société, réinitialiser un mot de passe.
+                </td>
+            </tr>
+            <tr>
+                <td><b>Direction</b></td>
+                <td>Société</td>
+                <td>Consulter les tableaux de bord consolidés et anonymes, recevoir les notifications, imprimer les
+                    rapports. Connexion sans choisir de centre.
+                </td>
+            </tr>
+            <tr>
+                <td><b>Administrateur, médecin, infirmier, secrétariat</b></td>
+                <td>Centre (un ou plusieurs)</td>
+                <td>Travail quotidien du centre. Un compte peut être rattaché à plusieurs centres de sa société.</td>
+            </tr>
+        </table>
+
+        <h3>Installation initiale</h3>
+        <p>Au premier démarrage, une page d'initialisation permet de créer le <b>compte propriétaire</b>, protégé par
+            un jeton d'installation et un mot de passe robuste (longueur minimale, majuscules, minuscules, chiffres,
+            caractères spéciaux). Cette page n'est plus accessible une fois le propriétaire créé. Le propriétaire
+            crée ensuite chaque société et son administrateur.</p>
+
+        <h3>Comptes et rattachement aux centres</h3>
+        <ul>
+            <li>Le propriétaire <b>crée, modifie ou réinitialise</b> les comptes d'une société ; un compte peut être
+                affecté à un ou plusieurs centres.
+            </li>
+            <li>Les administrateurs d'un centre gèrent les utilisateurs de leur centre (voir « Administration et
+                paramétrage »).
+            </li>
+            <li>Chaque profil ne voit et n'appelle que ce qui relève de son périmètre : un compte de direction ne peut
+                atteindre aucun dossier patient.
+            </li>
+        </ul>
+
+        <h3>Licences</h3>
+        <p>L'usage d'un centre est soumis à une <b>licence</b> gérée par le propriétaire. Un centre dont la licence
+            n'est pas valide n'est plus utilisable : l'accès est refusé et la plateforme l'indique clairement à
+            l'utilisateur.</p>
+
+        <h3>Authentification à deux facteurs (2FA)</h3>
+        <p>Les comptes peuvent être protégés par une <b>double authentification</b> :</p>
+        <ul>
+            <li><b>Activation guidée</b> depuis le menu utilisateur (« Sécurité ») : saisie de la clé fournie dans
+                une application d'authentification (code à 6 chiffres renouvelé toutes les 30 secondes), puis
+                confirmation d'un premier code. La double authentification est facultative.
+            </li>
+            <li><b>Codes de secours</b> à usage unique, affichés une seule fois, pour se reconnecter en cas de perte
+                du téléphone.
+            </li>
+            <li><b>Protections</b> : un code déjà utilisé est refusé, et les tentatives répétées verrouillent
+                temporairement la vérification.
+            </li>
+        </ul>
+        <div class="callout"><strong>Sécurité de bout en bout.</strong> Sessions par cookies sécurisés non lisibles
+            par les scripts de la page, secrets 2FA chiffrés, canal temps réel authentifié : un utilisateur ne reçoit
+            que les événements de sa propre société.
+        </div>
+    </section>
+
+    <!-- ============================ ACCES ============================ -->
+    <section class="chapter" id="acces">
+        <div class="chapter-head">
+            <div class="kicker">Chapitre 4</div>
             <h2>Connexion et navigation</h2>
             <p>Un accès sécurisé, un centre actif, une navigation identique sur tous les écrans.</p></div>
 
@@ -155,7 +360,7 @@
     <!-- ============================ 3. DASHBOARD ============================ -->
     <section class="chapter" id="dashboard">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 3</div>
+            <div class="kicker">Chapitre 5</div>
             <h2>Tableau de bord du centre</h2>
             <p>L'essentiel de l'activité, dès la connexion.</p></div>
         <p>Le tableau de bord présente en un coup d'œil le nombre de patients et de prises en charge du centre, ainsi
@@ -173,7 +378,7 @@
     <!-- ============================ 4. PATIENTS ============================ -->
     <section class="chapter" id="patients">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 4</div>
+            <div class="kicker">Chapitre 6</div>
             <h2>Gestion des patients</h2>
             <p>Du premier accueil au suivi administratif, sans ressaisie.</p></div>
 
@@ -249,7 +454,7 @@
     <!-- ============================ 5. DOSSIER MEDICAL ============================ -->
     <section class="chapter" id="dossier">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 5</div>
+            <div class="kicker">Chapitre 7</div>
             <h2>Dossier médical</h2>
             <p>Onze onglets pour un dossier clinique complet et structuré.</p></div>
         <p>Le dossier médical est accessible depuis la liste des patients. Il est en <b>lecture seule</b> pour les
@@ -323,7 +528,7 @@
     <!-- ============================ 6. ANEMIE ============================ -->
     <section class="chapter" id="anemie">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 6</div>
+            <div class="kicker">Chapitre 8</div>
             <h2>Suivi de l'anémie (EPO / Fer)</h2>
             <p>Une prescription respectée, prouvée et sans oubli.</p></div>
         <p>L'anémie est une complication majeure de l'insuffisance rénale : le traitement par EPO et fer injectable doit
@@ -390,7 +595,7 @@
     <!-- ============================ 7. GREFFE ============================ -->
     <section class="chapter" id="greffe">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 7</div>
+            <div class="kicker">Chapitre 9</div>
             <h2>Préparation à la greffe rénale</h2>
             <p>Transformer les données du dialysé en dossier de transplantation.</p></div>
         <p>La greffe est le traitement de référence de l'insuffisance rénale terminale. L'onglet <b>Greffe rénale</b> du
@@ -452,7 +657,7 @@
     <!-- ============================ 8. SEANCES ============================ -->
     <section class="chapter" id="seances">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 8</div>
+            <div class="kicker">Chapitre 10</div>
             <h2>Séances de dialyse</h2>
             <p>Planifier, identifier le patient, saisir, tracer.</p></div>
 
@@ -497,7 +702,7 @@
     <!-- ============================ 9. STOCK ============================ -->
     <section class="chapter" id="stock">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 9</div>
+            <div class="kicker">Chapitre 11</div>
             <h2>Gestion du stock</h2>
             <p>Valorisation en temps réel et traçabilité du lot jusqu'au patient.</p></div>
         <p>Le stock est valorisé au <b>prix moyen pondéré (PMP)</b>, recalculé à chaque réception. Les articles gérés
@@ -564,7 +769,7 @@
     <!-- ============================ 10. FINANCE ============================ -->
     <section class="chapter" id="finance">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 10</div>
+            <div class="kicker">Chapitre 12</div>
             <h2>Facturation, règlements, comptabilité</h2>
             <p>De la séance réalisée à l'écriture comptable.</p></div>
 
@@ -599,7 +804,7 @@
     <!-- ============================ 11. ADMIN ============================ -->
     <section class="chapter" id="admin">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 11</div>
+            <div class="kicker">Chapitre 13</div>
             <h2>Administration et paramétrage</h2>
             <p>Chaque centre configure l'application selon ses règles.</p></div>
         <div class="grid2">
@@ -639,7 +844,7 @@
     <!-- ============================ 12. TRANSVERSE ============================ -->
     <section class="chapter" id="transverse">
         <div class="chapter-head">
-            <div class="kicker">Chapitre 12</div>
+            <div class="kicker">Chapitre 14</div>
             <h2>Fonctions transverses</h2>
             <p>Ce qui vaut pour tous les écrans.</p></div>
         <div class="grid2">
@@ -650,8 +855,8 @@
                 <p>Authentification par session sécurisée, renouvellement automatique, droits par rôle appliqués sur
                     chaque écran et chaque action.</p></div>
             <div class="card"><h4>Temps réel</h4>
-                <p>Notifications instantanées (alertes d'observance, échéances, événements du centre) sans rafraîchir la
-                    page.</p></div>
+                <p>Notifications instantanées (alertes d'observance, échéances, événements du centre) et tableaux de
+                    bord de la direction mis à jour sans rafraîchir la page.</p></div>
             <div class="card"><h4>Multilingue</h4>
                 <p>Français, arabe (droite à gauche), kabyle, anglais.</p></div>
             <div class="card"><h4>Toujours utilisable</h4>
@@ -739,7 +944,7 @@
             utilisent des données fictives à titre d'illustration. L'aide à la décision KDIGO ne se substitue pas au
             jugement clinique du médecin.
         </div>
-        <footer class="doc-foot">HemoDialyse – Documentation fonctionnelle – Version 1.0</footer>
+        <footer class="doc-foot">HemoDialyse – Documentation fonctionnelle – Version 1.1</footer>
     </section>
 
 </main>

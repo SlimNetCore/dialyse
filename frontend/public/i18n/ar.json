@@ -300,6 +300,7 @@
     "PERIOD_FROM": "من",
     "PERIOD_TO": "إلى",
     "APPLY": "تحديث",
+    "PRINT_REPORT": "طباعة التقرير",
     "ANONYMITY_NOTICE": "مجمّعات مجهولة فقط: يتم إخفاء الأعداد الأقل من {{threshold}}.",
     "GENERATED_AT": "البيانات بتاريخ",
     "CENTRES_TITLE": "مقارنة المراكز",

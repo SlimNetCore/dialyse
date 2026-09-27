@@ -300,6 +300,7 @@
     "PERIOD_FROM": "From",
     "PERIOD_TO": "To",
     "APPLY": "Refresh",
+    "PRINT_REPORT": "Print report",
     "ANONYMITY_NOTICE": "Anonymous aggregates only: headcounts below {{threshold}} are hidden.",
     "GENERATED_AT": "Data as of",
     "CENTRES_TITLE": "Centre comparison",

@@ -19,6 +19,11 @@
         <mat-icon>refresh</mat-icon>
         {{ 'DIRECTION.APPLY' | translate }}
       </button>
+      <button (click)="printReport()" [disabled]="store.reportBusy() !== null || !store.overview()"
+              data-testid="direction-print" mat-stroked-button type="button">
+        <mat-icon>print</mat-icon>
+        {{ 'DIRECTION.PRINT_REPORT' | translate }}
+      </button>
     </form>
   </header>
 

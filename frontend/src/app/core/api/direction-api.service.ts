@@ -236,6 +236,14 @@ export class DirectionApiService {
       {responseType: 'blob', withCredentials: true});
   }
 
+  /** Rapport PDF (en-tête, pied de page, toutes les statistiques) de la période affichée. */
+  downloadLiveReport(from?: string, to?: string): Observable<Blob> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get(`${this.baseUrl}/direction/report`, {params, responseType: 'blob', withCredentials: true});
+  }
+
   listAccounts(societeId: string): Observable<DirectionAccount[]> {
     return this.http.get<DirectionAccount[]>(`${this.baseUrl}/societes/${societeId}/direction-accounts`,
       {withCredentials: true});

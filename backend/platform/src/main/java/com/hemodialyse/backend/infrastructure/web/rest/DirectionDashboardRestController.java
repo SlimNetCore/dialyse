@@ -5,11 +5,15 @@ import com.hemodialyse.backend.application.direction.DirectionDashboardQueryServ
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
 import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService;
 import com.hemodialyse.backend.application.direction.DirectionBreakdownQueryService.Breakdown;
+import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
 import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,10 +39,13 @@ public class DirectionDashboardRestController {
     private final DirectionDashboardQueryService queries;
     private final DirectionIndicatorsQueryService indicators;
     private final DirectionBreakdownQueryService breakdowns;
+    private final DirectionReportPdfService reports;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
                                             DirectionIndicatorsQueryService indicators,
-                                            DirectionBreakdownQueryService breakdowns) {
+                                            DirectionBreakdownQueryService breakdowns,
+                                            DirectionReportPdfService reports) {
+        this.reports = reports;
         this.guard = guard;
         this.queries = queries;
         this.indicators = indicators;
@@ -86,5 +93,22 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(breakdowns.breakdown(societeId, from, to));
+    }
+
+    /**
+     * Rapport imprimable (PDF) de la période : en-tête et pied de page de la société, puis toutes les statistiques
+     * du tableau de bord.
+     */
+    @GetMapping("/report")
+    public ResponseEntity<byte[]> report(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UUID societeId = guard.requireSociete();
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename("rapport-direction.pdf").build().toString())
+                .body(reports.pdf(societeId, from, to));
     }
 }

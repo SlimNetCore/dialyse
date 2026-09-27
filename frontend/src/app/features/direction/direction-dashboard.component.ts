@@ -12,7 +12,7 @@ import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot} from '@angular/forms/signals';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
-import {DirectionStore} from './state/direction.store';
+import {DirectionStore, LIVE_REPORT} from './state/direction.store';
 import {collectionLevel, formatHeadcount, formatPct, lastCompleteMonths} from './direction.util';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {
@@ -94,6 +94,7 @@ export class DirectionDashboardComponent implements OnInit {
     };
   });
   protected readonly ageCodes = AGE_CODES;
+  protected readonly liveReport = LIVE_REPORT;
 
   ngOnInit(): void {
     void this.store.load('', '');
@@ -102,12 +103,20 @@ export class DirectionDashboardComponent implements OnInit {
 
   /** Fige le mois au besoin, puis enregistre le rapport PDF sur le poste. */
   protected async downloadReport(mois: string): Promise<void> {
-    const blob = await this.store.report(mois);
+    this.save(await this.store.report(mois), `rapport-direction-${mois}.pdf`);
+  }
+
+  /** Enregistre le rapport PDF de la période affichée (en-tête, pied de page et toutes les statistiques). */
+  protected async printReport(): Promise<void> {
+    this.save(await this.store.liveReport(), `rapport-direction-${this.store.from()}_${this.store.to()}.pdf`);
+  }
+
+  private save(blob: Blob | null, filename: string): void {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `rapport-direction-${mois}.pdf`;
+    link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
   }
