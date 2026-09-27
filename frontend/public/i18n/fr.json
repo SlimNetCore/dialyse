@@ -290,6 +290,9 @@
     "CLINICAL": {
       "TITLE": "Qualité des soins (cibles KDIGO)",
       "HINT": "Part des patients évalués dont le dernier résultat de la période est dans la cible. « — » : moins de patients évalués que le seuil d'anonymat.",
+      "LEGEND_GOOD": "≥ 66 % dans la cible",
+      "LEGEND_WARN": "45–65 % dans la cible",
+      "LEGEND_BAD": "< 45 % dans la cible",
       "KTV": "Kt/V ≥ 1,2",
       "HB": "Hb 10–11,5 g/dL",
       "PHOSPHORE": "Phosphore",

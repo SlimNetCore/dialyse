@@ -223,6 +223,11 @@
     <mat-card class="block">
       <h2>{{ 'DIRECTION.CLINICAL.TITLE' | translate }}</h2>
       <p class="muted">{{ 'DIRECTION.CLINICAL.HINT' | translate }}</p>
+      <div class="kdigo-legend">
+        <span class="legend-item"><i class="dot good"></i>{{ 'DIRECTION.CLINICAL.LEGEND_GOOD' | translate }}</span>
+        <span class="legend-item"><i class="dot warn"></i>{{ 'DIRECTION.CLINICAL.LEGEND_WARN' | translate }}</span>
+        <span class="legend-item"><i class="dot bad"></i>{{ 'DIRECTION.CLINICAL.LEGEND_BAD' | translate }}</span>
+      </div>
       <div class="table-scroll">
         <table class="centres" data-testid="direction-clinical">
           <thead>
@@ -245,11 +250,26 @@
             @for (row of indicatorRows(); track row.c.centerId) {
               <tr [class.total]="row.total">
                 <td>{{ row.total ? ('DIRECTION.TOTAL' | translate) : row.c.nom }}</td>
-                <td class="num">{{ pct(row.c.clinique.ktV.pctDansCible) }}</td>
-                <td class="num">{{ pct(row.c.clinique.hemoglobine.pctDansCible) }}</td>
-                <td class="num">{{ pct(row.c.clinique.phosphore.pctDansCible) }}</td>
-                <td class="num">{{ pct(row.c.clinique.pth.pctDansCible) }}</td>
-                <td class="num">{{ pct(row.c.clinique.albumine.pctDansCible) }}</td>
+                <td class="num">
+                  <span
+                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.ktV.pctDansCible)">{{ pct(row.c.clinique.ktV.pctDansCible) }}</span>
+                </td>
+                <td class="num">
+                  <span
+                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.hemoglobine.pctDansCible)">{{ pct(row.c.clinique.hemoglobine.pctDansCible) }}</span>
+                </td>
+                <td class="num">
+                  <span
+                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.phosphore.pctDansCible)">{{ pct(row.c.clinique.phosphore.pctDansCible) }}</span>
+                </td>
+                <td class="num">
+                  <span
+                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.pth.pctDansCible)">{{ pct(row.c.clinique.pth.pctDansCible) }}</span>
+                </td>
+                <td class="num">
+                  <span
+                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.albumine.pctDansCible)">{{ pct(row.c.clinique.albumine.pctDansCible) }}</span>
+                </td>
                 <td class="num">{{ headcount(row.c.clinique.vhbPositifs) }}</td>
                 <td class="num">{{ headcount(row.c.clinique.vhcPositifs) }}</td>
                 <td class="num">{{ headcount(row.c.clinique.vihPositifs) }}</td>

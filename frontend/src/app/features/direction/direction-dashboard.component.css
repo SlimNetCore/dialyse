@@ -244,15 +244,38 @@ td.delta.down {
 
 .centres {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   white-space: nowrap;
 }
 
-.centres th,
+.centres thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 9px 10px;
+  text-align: start;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant, #5b6b75);
+  background: color-mix(in srgb, var(--mat-sys-primary, #14766e) 6%, var(--app-surface, #fff));
+  border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary, #14766e) 22%, transparent);
+}
+
 .centres td {
   padding: 8px 10px;
   text-align: start;
-  border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.centres tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, currentColor 3%, transparent);
+}
+
+.centres tbody tr:hover td {
+  background: color-mix(in srgb, var(--mat-sys-primary, #14766e) 7%, transparent);
 }
 
 .centres .num {
@@ -274,6 +297,72 @@ td.delta.down {
 
 .rate.bad {
   color: #c62828;
+}
+
+.kdigo-pill {
+  display: inline-block;
+  min-width: 52px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.kdigo-pill.good {
+  background: color-mix(in srgb, #2e7d32 15%, transparent);
+  color: #1b5e20;
+}
+
+.kdigo-pill.warn {
+  background: color-mix(in srgb, #ed6c02 15%, transparent);
+  color: #ad5300;
+}
+
+.kdigo-pill.bad {
+  background: color-mix(in srgb, #c62828 15%, transparent);
+  color: #b71c1c;
+}
+
+.kdigo-pill.none {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  color: inherit;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+.kdigo-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: -4px 0 12px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  opacity: 0.75;
+}
+
+.legend-item .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-item .dot.good {
+  background: #2e7d32;
+}
+
+.legend-item .dot.warn {
+  background: #ed6c02;
+}
+
+.legend-item .dot.bad {
+  background: #c62828;
 }
 
 .charts {

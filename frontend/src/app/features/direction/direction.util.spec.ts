@@ -7,6 +7,7 @@ import {
   filterByCentre,
   formatHeadcount,
   formatPct,
+  kdigoLevel,
   lastCompleteMonths,
   monthlyTotals,
   periodForPreset,
@@ -110,6 +111,16 @@ describe('direction.util', () => {
       '"Compresses ""stériles"""\r\n' +
       ''
     );
+  });
+
+  it('qualifie un marqueur KDIGO (part des patients dans la cible)', () => {
+    expect(kdigoLevel(null)).toBe('none');
+    expect(kdigoLevel(66)).toBe('good');
+    expect(kdigoLevel(90)).toBe('good');
+    expect(kdigoLevel(45)).toBe('warn');
+    expect(kdigoLevel(65.9)).toBe('warn');
+    expect(kdigoLevel(44.9)).toBe('bad');
+    expect(kdigoLevel(0)).toBe('bad');
   });
 
   it('trie les alertes critiques en premier', () => {

@@ -23,6 +23,7 @@ import {
   filterByCentre,
   formatHeadcount,
   formatPct,
+  kdigoLevel,
   lastCompleteMonths,
   monthlyTotals,
   PeriodPreset,
@@ -425,5 +426,10 @@ export class DirectionDashboardComponent implements OnInit {
 
   protected level(rate: number | null): string {
     return collectionLevel(rate);
+  }
+
+  /** Niveau d'un marqueur KDIGO (part des patients dans la cible) : vert/orange/rouge/neutre. */
+  protected kdigo(pctDansCible: number | null): string {
+    return kdigoLevel(pctDansCible);
   }
 }

@@ -44,6 +44,17 @@ export function collectionLevel(rate: number | null): 'good' | 'warn' | 'bad' | 
   return 'bad';
 }
 
+/**
+ * Niveau d'un marqueur KDIGO (part des patients évalués dans la cible) : vert ≥ 66 %, orange 45-65 %, rouge < 45 %,
+ * neutre si non publiable (masqué par l'anonymat ou moins de patients évalués que le seuil).
+ */
+export function kdigoLevel(pctDansCible: number | null): 'good' | 'warn' | 'bad' | 'none' {
+  if (pctDansCible === null) return 'none';
+  if (pctDansCible >= 66) return 'good';
+  if (pctDansCible >= 45) return 'warn';
+  return 'bad';
+}
+
 /** Affichage d'un taux : « — » lorsqu'il est masqué par le seuil d'anonymat. */
 export function formatPct(value: number | null): string {
   return value === null ? '—' : `${value} %`;

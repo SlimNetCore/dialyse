@@ -290,6 +290,9 @@
     "CLINICAL": {
       "TITLE": "Quality of care (KDIGO targets)",
       "HINT": "Share of evaluated patients whose latest result in the period is on target. \"—\": fewer evaluated patients than the anonymity threshold.",
+      "LEGEND_GOOD": "≥ 66 % on target",
+      "LEGEND_WARN": "45–65 % on target",
+      "LEGEND_BAD": "< 45 % on target",
       "KTV": "Kt/V ≥ 1.2",
       "HB": "Hb 10–11.5 g/dL",
       "PHOSPHORE": "Phosphorus",
