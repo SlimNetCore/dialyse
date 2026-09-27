@@ -1,0 +1,12 @@
+# Profil optionnel : ajoute le jeu de test RENADIAL (17 centres, 12 mois de données — voir db/demo/README.md) au
+# chargement rejoué à chaque démarrage, en plus du seed habituel. N'affecte rien tant que ce profil n'est pas activé
+# (--spring.profiles.active=demo-renadial, ou SPRING_PROFILES_ACTIVE=demo-renadial).
+#
+# Sûr en dev (H2 en mémoire : base neuve à chaque démarrage, donc rejouable sans limite). À éviter sur une base
+# PostgreSQL persistante partagée : les identifiants du jeu de données sont fixes, une deuxième exécution contre la
+# même base violerait les contraintes d'unicité (numéro de facture, etc.) — purgez d'abord avec
+# db/demo/renadial-purge.sql si vous l'activez sur une base qui a déjà été seedée.
+spring:
+  sql:
+    init:
+      data-locations: classpath:db/seed.sql,classpath:db/demo/renadial-seed.sql

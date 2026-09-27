@@ -21,7 +21,9 @@ spring:
     init:
       mode: always
       schema-locations: classpath:db/schema.sql
-      data-locations: classpath:db/seed.sql
+      # Jeu(x) de données rejoués à chaque démarrage. Le profil "demo-renadial" y ajoute le jeu de test RENADIAL
+      # (17 centres, 12 mois de données — voir db/demo/README.md) sans toucher au comportement par défaut.
+      data-locations: ${SEED_DATA_LOCATIONS:classpath:db/seed.sql}
   h2:
     console:
       enabled: true
