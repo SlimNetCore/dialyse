@@ -369,11 +369,18 @@
       "ACTIVATED_OK": "Compte activé",
       "DEACTIVATED_OK": "Compte désactivé",
       "ERR": {
-        "GENERIC": "Action impossible (identifiant déjà utilisé ou société inactive ?)",
+        "GENERIC": "Action impossible. Réessayez.",
         "PASSWORD_TOO_SHORT": "Mot de passe trop court (12 caractères minimum)",
         "PASSWORD_TOO_LONG": "Mot de passe trop long",
         "PASSWORD_WEAK": "Le mot de passe doit contenir des lettres et des chiffres",
-        "PASSWORD_CONTAINS_USERNAME": "Le mot de passe ne doit pas contenir l'identifiant"
+        "PASSWORD_CONTAINS_USERNAME": "Le mot de passe ne doit pas contenir l'identifiant",
+        "USERNAME_TAKEN": "Cet identifiant est déjà utilisé par un autre compte.",
+        "USERNAME_INVALID": "Identifiant invalide.",
+        "EMAIL_INVALID": "Adresse e-mail invalide.",
+        "CENTRE_REQUIS": "Un centre (au moins) est obligatoire.",
+        "CENTRE_HORS_SOCIETE": "Ce centre n'appartient pas à cette société.",
+        "SOCIETE_INTROUVABLE": "Société introuvable.",
+        "COMPTE_INTROUVABLE": "Compte introuvable dans cette société."
       }
     }
   },

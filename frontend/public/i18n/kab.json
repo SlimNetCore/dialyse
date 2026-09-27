@@ -369,11 +369,18 @@
       "ACTIVATED_OK": "Amiḍan yettwarmed",
       "DEACTIVATED_OK": "Amiḍan yettwasens",
       "ERR": {
-        "GENERIC": "Ur yezmir ara ad yettwaskar (isem n useqdac yettwaseqdac yakan ?)",
+        "GENERIC": "Ur yezmir ara ad yettwaskar. Ɛreḍ tikelt-nniḍen.",
         "PASSWORD_TOO_SHORT": "Awal uffir mecṭuḥ aṭas (12 n yisekkilen ad-drus)",
         "PASSWORD_TOO_LONG": "Awal uffir ɣezzif aṭas",
         "PASSWORD_WEAK": "Awal uffir ilaq ad yesɛu isekkilen d wuṭṭunen",
-        "PASSWORD_CONTAINS_USERNAME": "Awal uffir ur ilaq ara ad yesɛu isem n useqdac"
+        "PASSWORD_CONTAINS_USERNAME": "Awal uffir ur ilaq ara ad yesɛu isem n useqdac",
+        "USERNAME_TAKEN": "Isem-agi n useqdac yettwaseqdac yakan sɣur amidan-nniḍen.",
+        "USERNAME_INVALID": "Isem n useqdac ur yṣeḥḥa ara.",
+        "EMAIL_INVALID": "Tansa email ur tṣeḥḥa ara.",
+        "CENTRE_REQUIS": "Yiwen n useɣwen ad-drus yettwasra.",
+        "CENTRE_HORS_SOCIETE": "Aseɣwen-agi ur yelli ara deg tkebbanit-agi.",
+        "SOCIETE_INTROUVABLE": "Takebbanit ur tettwaf ara.",
+        "COMPTE_INTROUVABLE": "Amidan ur yettwaf ara deg tkebbanit-agi."
       }
     }
   },

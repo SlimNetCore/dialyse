@@ -369,11 +369,18 @@
       "ACTIVATED_OK": "Account activated",
       "DEACTIVATED_OK": "Account deactivated",
       "ERR": {
-        "GENERIC": "Action failed (username already used or company inactive?)",
+        "GENERIC": "Action failed. Please try again.",
         "PASSWORD_TOO_SHORT": "Password too short (12 characters minimum)",
         "PASSWORD_TOO_LONG": "Password too long",
         "PASSWORD_WEAK": "The password must contain letters and digits",
-        "PASSWORD_CONTAINS_USERNAME": "The password must not contain the username"
+        "PASSWORD_CONTAINS_USERNAME": "The password must not contain the username",
+        "USERNAME_TAKEN": "This username is already used by another account.",
+        "USERNAME_INVALID": "Invalid username.",
+        "EMAIL_INVALID": "Invalid email address.",
+        "CENTRE_REQUIS": "At least one centre is required.",
+        "CENTRE_HORS_SOCIETE": "This centre does not belong to this company.",
+        "SOCIETE_INTROUVABLE": "Company not found.",
+        "COMPTE_INTROUVABLE": "Account not found in this company."
       }
     }
   },

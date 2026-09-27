@@ -24,11 +24,14 @@ import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {DirectionAccount, DirectionApiService} from '../../../core/api/direction-api.service';
 
-const PASSWORD_CODES = ['PASSWORD_TOO_SHORT', 'PASSWORD_TOO_LONG', 'PASSWORD_WEAK', 'PASSWORD_CONTAINS_USERNAME'];
+/** Codes métier renvoyés par le serveur (comptes direction et administrateurs de centre) qui ont un message précis. */
+const KNOWN_CODES = ['PASSWORD_TOO_SHORT', 'PASSWORD_TOO_LONG', 'PASSWORD_WEAK', 'PASSWORD_CONTAINS_USERNAME',
+  'USERNAME_TAKEN', 'USERNAME_INVALID', 'EMAIL_INVALID', 'CENTRE_REQUIS', 'CENTRE_HORS_SOCIETE',
+  'SOCIETE_INTROUVABLE', 'COMPTE_INTROUVABLE'];
 
-/** Clé de traduction du refus renvoyé par le serveur (règle de mot de passe, sinon message générique). */
+/** Clé de traduction du refus renvoyé par le serveur (message précis si le code est connu, sinon générique). */
 export function accountErrorKey(code: string | undefined): string {
-  return code && PASSWORD_CODES.includes(code) ? `DIRECTION.ACCOUNTS.ERR.${code}` : 'DIRECTION.ACCOUNTS.ERR.GENERIC';
+  return code && KNOWN_CODES.includes(code) ? `DIRECTION.ACCOUNTS.ERR.${code}` : 'DIRECTION.ACCOUNTS.ERR.GENERIC';
 }
 
 /**
