@@ -3,6 +3,8 @@ package com.hemodialyse.backend.application.direction;
 import com.hemodialyse.backend.application.direction.DirectionSnapshotService.Snapshot;
 import com.hemodialyse.backend.application.direction.SocieteLetterheadPort.Letterhead;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -33,6 +35,7 @@ import java.util.UUID;
 @Service
 public class DirectionReportPdfService {
 
+    private static final Logger log = LoggerFactory.getLogger(DirectionReportPdfService.class);
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final Map<String, String> AGE_LABELS = new LinkedHashMap<>();
 
@@ -190,7 +193,9 @@ public class DirectionReportPdfService {
             builder.run();
             return out.toByteArray();
         } catch (Exception e) {
-            throw new IllegalStateException("Impossible de générer le rapport PDF", e);
+            log.error("Rapport de direction : échec du rendu PDF", e);
+            String cause = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            throw new IllegalStateException("Impossible de générer le rapport PDF (" + cause + ")", e);
         }
     }
 

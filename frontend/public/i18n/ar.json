@@ -301,6 +301,15 @@
     "PERIOD_TO": "إلى",
     "APPLY": "تحديث",
     "PRINT_REPORT": "طباعة التقرير",
+    "PRESET": {
+      "MONTH": "هذا الشهر",
+      "QUARTER": "هذا الفصل",
+      "YEAR": "هذه السنة",
+      "LAST_12_MONTHS": "آخر 12 شهرًا"
+    },
+    "CENTRE_FILTER": "المركز",
+    "CENTRE_FILTER_ALL": "كل المراكز",
+    "EXPORT_CSV": "تصدير (CSV)",
     "ANONYMITY_NOTICE": "مجمّعات مجهولة فقط: يتم إخفاء الأعداد الأقل من {{threshold}}.",
     "GENERATED_AT": "البيانات بتاريخ",
     "CENTRES_TITLE": "مقارنة المراكز",
@@ -318,7 +327,8 @@
     "COL": {
       "CENTRE": "المركز",
       "SOUS_KT": "المرضى بالقسطرة",
-      "FACTURES": "الفواتير"
+      "FACTURES": "الفواتير",
+      "PART_CA": "حصة من رقم الأعمال"
     },
     "ERROR": {
       "LOAD_ERROR": "تعذّر تحميل لوحة القيادة.",

@@ -108,7 +108,9 @@ export const DirectionStore = signalStore(
         const blob = await firstValueFrom(api.downloadLiveReport(store.from() || undefined, store.to() || undefined));
         patchState(store, {reportBusy: null});
         return blob;
-      } catch {
+      } catch (e) {
+        // eslint-disable-next-line no-console -- diagnostic : sinon l'échec du téléchargement est totalement silencieux
+        console.error('Rapport de direction : échec du téléchargement', e);
         patchState(store, {reportBusy: null, reportError: true});
         return null;
       }

@@ -3,6 +3,8 @@ package com.hemodialyse.backend.infrastructure.web;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.stock.exception.SeanceBilledStockModificationException;
 import com.hemodialyse.backend.domain.stock.exception.SeanceStockExitDateImmutableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
     /**
      * Sans ce handler, le {@code @ExceptionHandler(Exception.class)} ci-dessous capterait les refus
@@ -65,6 +69,9 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     ProblemDetail handleBusinessRule(IllegalStateException ex) {
+        // Une IllegalStateException peut aussi bien signaler une règle métier (message clair) qu'un échec technique
+        // inattendu (ex. rendu PDF) : on la journalise pour ne jamais avoir d'échec 100% silencieux côté serveur.
+        log.error("Requête refusée (règle métier ou échec technique)", ex);
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_CONTENT);
         problem.setTitle("Regle metier violee");
         problem.setDetail(ex.getMessage());
@@ -83,6 +90,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(DataAccessException.class)
     ProblemDetail handleDataAccess(DataAccessException ex) {
+        log.error("Erreur d'accès aux données", ex);
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problem.setTitle("Erreur technique");
         problem.setDetail(ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage());
@@ -92,6 +100,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     ProblemDetail handleUnexpected(Exception ex) {
+        log.error("Erreur interne non gérée", ex);
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problem.setTitle("Erreur interne");
         problem.setDetail(ex.getMessage());

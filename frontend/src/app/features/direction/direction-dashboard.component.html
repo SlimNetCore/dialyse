@@ -7,6 +7,24 @@
       }
     </div>
     <form (submit)="$event.preventDefault(); apply()" [formRoot]="periodForm" class="period">
+      <div class="period-presets" data-testid="direction-presets">
+        @for (preset of periodPresets; track preset) {
+          <button (click)="applyPreset(preset)" [attr.data-testid]="'preset-' + preset" mat-stroked-button
+                  type="button">
+            {{ 'DIRECTION.PRESET.' + preset | translate }}
+          </button>
+        }
+      </div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'DIRECTION.CENTRE_FILTER' | translate }}</mat-label>
+        <mat-select (selectionChange)="setCentre($event.value)" [value]="selectedCentre()"
+                    data-testid="direction-centre-filter">
+          <mat-option [value]="null">{{ 'DIRECTION.CENTRE_FILTER_ALL' | translate }}</mat-option>
+          @for (c of centreOptions(); track c.id) {
+            <mat-option [attr.data-testid]="'centre-option-' + c.id" [value]="c.id">{{ c.nom }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ 'DIRECTION.PERIOD_FROM' | translate }}</mat-label>
         <input [formField]="periodForm.from" data-testid="direction-from" matInput type="date"/>
@@ -19,10 +37,19 @@
         <mat-icon>refresh</mat-icon>
         {{ 'DIRECTION.APPLY' | translate }}
       </button>
-      <button (click)="printReport()" [disabled]="store.reportBusy() !== null || !store.overview()"
+      <button (click)="printReport()" [disabled]="store.reportBusy() === liveReport || !store.overview()"
               data-testid="direction-print" mat-stroked-button type="button">
-        <mat-icon>print</mat-icon>
+        @if (store.reportBusy() === liveReport) {
+          <mat-icon class="spin">progress_activity</mat-icon>
+        } @else {
+          <mat-icon>print</mat-icon>
+        }
         {{ 'DIRECTION.PRINT_REPORT' | translate }}
+      </button>
+      <button (click)="exportCsv()" [disabled]="!store.overview()" data-testid="direction-export-csv"
+              mat-stroked-button type="button">
+        <mat-icon>table_view</mat-icon>
+        {{ 'DIRECTION.EXPORT_CSV' | translate }}
       </button>
     </form>
   </header>
@@ -32,6 +59,9 @@
   }
   @if (store.error()) {
     <div class="error-msg" data-testid="direction-error">{{ errorKey() | translate }}</div>
+  }
+  @if (store.reportError()) {
+    <div class="error-msg" data-testid="direction-print-error">{{ 'DIRECTION.REPORTS.ERROR' | translate }}</div>
   }
 
   @if (store.overview(); as o) {
@@ -46,14 +76,14 @@
       </span>
     </p>
 
-    @if (store.alerts().length > 0) {
+    @if (displayAlerts().length > 0) {
       <mat-card class="block alerts" data-testid="direction-alerts">
         <h2>
           <mat-icon>notifications_active</mat-icon>
           {{ 'DIRECTION.ALERTS.TITLE' | translate }}
         </h2>
         <ul>
-          @for (a of store.alerts(); track a.centerId + a.code) {
+          @for (a of displayAlerts(); track a.centerId + a.code) {
             <li [class]="'alert ' + a.severity.toLowerCase()">
               <strong>{{ a.centre }}</strong>
               <span>{{ alertKey(a.code) | translate: {value: a.valeur} }}</span>
@@ -64,23 +94,35 @@
     }
 
     <div class="kpis" data-testid="direction-kpis">
-      <mat-card class="kpi">
-        <span>{{ 'DIRECTION.KPI.PATIENTS' | translate }}</span><strong>{{ headcount(o.totaux.patients) }}</strong>
-      </mat-card>
-      <mat-card class="kpi">
-        <span>{{ 'DIRECTION.KPI.SEANCES' | translate }}</span><strong>{{ o.totaux.seances }}</strong></mat-card>
-      <mat-card class="kpi">
-        <span>{{ 'DIRECTION.KPI.CA_TTC' | translate }}</span><strong>{{ o.totaux.caTtc | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
-      </mat-card>
-      <mat-card class="kpi">
-        <span>{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</span><strong>{{ o.totaux.encaisse | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
-      </mat-card>
-      <mat-card class="kpi">
-        <span>{{ 'DIRECTION.KPI.RESTE' | translate }}</span><strong>{{ o.totaux.resteARecouvrer | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
-      </mat-card>
-      <mat-card class="kpi">
-        <span>{{ 'DIRECTION.KPI.TAUX' | translate }}</span><strong>{{ o.totaux.tauxEncaissement === null ? '—' : o.totaux.tauxEncaissement + ' %' }}</strong>
-      </mat-card>
+      @if (displayTotals(); as t) {
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.PATIENTS' | translate }}</span><strong>{{ headcount(t.patients) }}</strong>
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.SEANCES' | translate }}</span><strong>{{ t.seances }}</strong>
+          @if (formatDelta(kpiDeltas()?.seances); as d) {
+            <em [class]="'delta ' + kpiDeltas()!.seances.direction" data-testid="delta-seances">{{ d }}</em>
+          }
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.CA_TTC' | translate }}</span><strong>{{ t.caTtc | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+          @if (formatDelta(kpiDeltas()?.caTtc); as d) {
+            <em [class]="'delta ' + kpiDeltas()!.caTtc.direction" data-testid="delta-ca-ttc">{{ d }}</em>
+          }
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</span><strong>{{ t.encaisse | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+          @if (formatDelta(kpiDeltas()?.encaisse); as d) {
+            <em [class]="'delta ' + kpiDeltas()!.encaisse.direction" data-testid="delta-encaisse">{{ d }}</em>
+          }
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.RESTE' | translate }}</span><strong>{{ t.resteARecouvrer | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.TAUX' | translate }}</span><strong>{{ t.tauxEncaissement === null ? '—' : t.tauxEncaissement + ' %' }}</strong>
+        </mat-card>
+      }
     </div>
 
     <mat-card class="block">
@@ -89,6 +131,7 @@
         <table class="centres" data-testid="direction-centres">
           <thead>
           <tr>
+            <th class="rank-col"></th>
             <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
             <th class="num">{{ 'DIRECTION.KPI.PATIENTS' | translate }}</th>
             <th class="num">{{ 'DIRECTION.COL.SOUS_KT' | translate }}</th>
@@ -98,11 +141,15 @@
             <th class="num">{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</th>
             <th class="num">{{ 'DIRECTION.KPI.RESTE' | translate }}</th>
             <th class="num">{{ 'DIRECTION.KPI.TAUX' | translate }}</th>
+            <th>{{ 'DIRECTION.COL.PART_CA' | translate }}</th>
           </tr>
           </thead>
           <tbody>
-            @for (c of store.rankedCentres(); track c.centerId) {
+            @for (c of displayCentres(); track c.centerId) {
               <tr [class.inactive]="!c.actif">
+                <td class="rank-col">
+                  <span [class]="'rank-badge rank-' + rankOf(c.centerId)">{{ rankOf(c.centerId) }}</span>
+                </td>
                 <td>{{ c.nom }}</td>
                 <td class="num">{{ headcount(c.patients) }}</td>
                 <td class="num">{{ headcount(c.patientsSousKt) }}</td>
@@ -113,6 +160,12 @@
                 <td class="num">{{ c.resteARecouvrer | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
                 <td [class]="'rate ' + level(c.tauxEncaissement)" class="num rate">
                   {{ c.tauxEncaissement === null ? '—' : c.tauxEncaissement + ' %' }}
+                </td>
+                <td class="share-cell">
+                  <div class="share-bar">
+                    <span class="track"><span [style.width.%]="caShare(c.centerId)" class="fill"></span></span>
+                    <span class="pct">{{ caShare(c.centerId) | number: '1.0-0' }} %</span>
+                  </div>
                 </td>
               </tr>
             }

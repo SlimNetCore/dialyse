@@ -91,7 +91,8 @@ public class DirectionDashboardQueryService {
         List<UUID> ids = societe.centres().stream().map(CentreInfo::id).toList();
         if (ids.isEmpty()) {
             return new Overview(societeId, societe.raisonSociale(), start, end, OffsetDateTime.now(ZoneOffset.UTC),
-                    AnonymityPolicy.THRESHOLD, List.of(), stats(null, null, true, 0, 0, 0, 0, zero(), zero(), zero()), List.of());
+                    AnonymityPolicy.THRESHOLD, List.of(), stats(null, null, true, 0, 0, 0, 0, zero(), zero(), zero()),
+                    List.of(), null);
         }
         String in = placeholders(ids.size());
         Date sqlFrom = Date.valueOf(start);
@@ -146,8 +147,40 @@ public class DirectionDashboardQueryService {
             totEnc = totEnc.add(e);
         }
         CentreStats totaux = stats(null, null, true, totPatients, totKt, totSeances, totFactures, totHt, totTtc, totEnc);
+        PeriodComparison previous = previousPeriodTotals(ids, in, start, end);
         return new Overview(societeId, societe.raisonSociale(), start, end, OffsetDateTime.now(ZoneOffset.UTC),
-                AnonymityPolicy.THRESHOLD, perCentre, totaux, monthly(ids, in, sqlFrom, sqlTo));
+                AnonymityPolicy.THRESHOLD, perCentre, totaux, monthly(ids, in, sqlFrom, sqlTo), previous);
+    }
+
+    /**
+     * Totaux de la même durée, immédiatement avant la période affichée (ex. période du 01 au 30/09 : comparaison du
+     * 01 au 31/08 si le mois précédent a la même longueur, sinon des jours équivalents) — pour les deltas affichés à
+     * côté des indicateurs financiers et d'activité. Le nombre de patients n'est volontairement pas comparé : c'est
+     * un effectif constaté à l'instant présent, pas une donnée d'activité mesurée sur la période.
+     */
+    private PeriodComparison previousPeriodTotals(List<UUID> ids, String in, LocalDate start, LocalDate end) {
+        long days = java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1;
+        LocalDate prevTo = start.minusDays(1);
+        LocalDate prevFrom = prevTo.minusDays(days - 1);
+        Date sqlFrom = Date.valueOf(prevFrom);
+        Date sqlTo = Date.valueOf(prevTo);
+
+        Long seances = jdbc.queryForObject("SELECT COUNT(*) FROM seances WHERE center_id IN (" + in + ") "
+                        + "AND date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE','SIGNEE','FACTUREE')",
+                Long.class, params(ids, sqlFrom, sqlTo));
+        Map<String, Object> factures = jdbc.queryForMap("SELECT COALESCE(SUM(total_ht),0) AS ht, "
+                + "COALESCE(SUM(total_ttc),0) AS ttc FROM factures WHERE center_id IN (" + in + ") "
+                + "AND date_facturation BETWEEN ? AND ?", params(ids, sqlFrom, sqlTo));
+        BigDecimal caHt = (BigDecimal) factures.get("ht");
+        BigDecimal caTtc = (BigDecimal) factures.get("ttc");
+        BigDecimal encaisse = jdbc.queryForObject("SELECT COALESCE(SUM(r.montant),0) FROM facture_reglements r "
+                        + "INNER JOIN factures f ON f.id = r.facture_id AND f.center_id = r.center_id "
+                        + "WHERE f.center_id IN (" + in + ") AND f.date_facturation BETWEEN ? AND ?",
+                BigDecimal.class, params(ids, sqlFrom, sqlTo));
+        BigDecimal reste = caTtc.subtract(encaisse).max(BigDecimal.ZERO);
+        BigDecimal taux = caTtc.signum() == 0 ? null
+                : encaisse.multiply(BigDecimal.valueOf(100)).divide(caTtc, 1, RoundingMode.HALF_UP);
+        return new PeriodComparison(prevFrom, prevTo, seances == null ? 0 : seances, caHt, caTtc, encaisse, reste, taux);
     }
 
     private List<MonthlyPoint> monthly(List<UUID> ids, String in, Date from, Date to) {
@@ -200,8 +233,17 @@ public class DirectionDashboardQueryService {
     public record MonthlyPoint(String mois, UUID centerId, long seances, BigDecimal caHt, BigDecimal caTtc) {
     }
 
+    /**
+     * Totaux de la période de même durée précédant immédiatement la période affichée, pour calculer un delta
+     * (activité et finances uniquement : le nombre de patients n'est pas une donnée d'activité sur la période).
+     */
+    public record PeriodComparison(LocalDate from, LocalDate to, long seances, BigDecimal caHt, BigDecimal caTtc,
+                                   BigDecimal encaisse, BigDecimal resteARecouvrer, BigDecimal tauxEncaissement) {
+    }
+
     public record Overview(UUID societeId, String societeNom, LocalDate from, LocalDate to,
                            OffsetDateTime generatedAt, int seuilAnonymat,
-                           List<CentreStats> centres, CentreStats totaux, List<MonthlyPoint> mensuel) {
+                           List<CentreStats> centres, CentreStats totaux, List<MonthlyPoint> mensuel,
+                           PeriodComparison periodePrecedente) {
     }
 }

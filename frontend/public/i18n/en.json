@@ -301,6 +301,15 @@
     "PERIOD_TO": "To",
     "APPLY": "Refresh",
     "PRINT_REPORT": "Print report",
+    "PRESET": {
+      "MONTH": "This month",
+      "QUARTER": "This quarter",
+      "YEAR": "This year",
+      "LAST_12_MONTHS": "Last 12 months"
+    },
+    "CENTRE_FILTER": "Centre",
+    "CENTRE_FILTER_ALL": "All centres",
+    "EXPORT_CSV": "Export (CSV)",
     "ANONYMITY_NOTICE": "Anonymous aggregates only: headcounts below {{threshold}} are hidden.",
     "GENERATED_AT": "Data as of",
     "CENTRES_TITLE": "Centre comparison",
@@ -318,7 +327,8 @@
     "COL": {
       "CENTRE": "Centre",
       "SOUS_KT": "Patients on catheter",
-      "FACTURES": "Invoices"
+      "FACTURES": "Invoices",
+      "PART_CA": "Revenue share"
     },
     "ERROR": {
       "LOAD_ERROR": "Unable to load the dashboard.",

@@ -27,6 +27,21 @@ export type MonthlyPoint = {
   caTtc: number;
 };
 
+/**
+ * Totaux de la période de même durée précédant immédiatement la période affichée (activité et finances
+ * uniquement) — pour calculer un delta à côté des indicateurs clés. `null` si la société n'a aucun centre.
+ */
+export type PeriodComparison = {
+  from: string;
+  to: string;
+  seances: number;
+  caHt: number;
+  caTtc: number;
+  encaisse: number;
+  resteARecouvrer: number;
+  tauxEncaissement: number | null;
+};
+
 export type DirectionOverview = {
   societeId: string;
   societeNom: string;
@@ -37,6 +52,7 @@ export type DirectionOverview = {
   centres: CentreStats[];
   totaux: CentreStats;
   mensuel: MonthlyPoint[];
+  periodePrecedente: PeriodComparison | null;
 };
 
 /** Patients évalués et répartition face à la cible KDIGO ; `null` sous le seuil d'anonymat. */

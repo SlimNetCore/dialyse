@@ -40,10 +40,9 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
       <span class="dnb-spacer"></span>
-      <button (click)="realtime.markAllRead()" [disabled]="realtime.unreadCount() === 0"
-              [matTooltip]="'DIRECTION.RT.MARK_ALL_READ' | translate" aria-label="mark all read" mat-icon-button
+      <button (click)="realtime.markAllRead()" [disabled]="realtime.unreadCount() === 0" class="dnb-mark-all"
               type="button">
-        <mat-icon>done_all</mat-icon>
+        {{ 'DIRECTION.RT.MARK_ALL_READ' | translate }}
       </button>
       <button (click)="realtime.clear()" [disabled]="realtime.notifications().length === 0"
               [matTooltip]="'DIRECTION.RT.CLEAR' | translate" aria-label="clear" mat-icon-button type="button">

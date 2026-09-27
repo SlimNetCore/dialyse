@@ -205,6 +205,15 @@ class DirectionIntegrationTest {
         assertEquals(5, overview.get("seuilAnonymat").asInt());
         assertTrue(overview.get("mensuel").size() >= 1);
 
+        // comparaison à la période précédente (même durée, immédiatement avant) : aucune facture/séance avant
+        // aujourd'hui dans ce jeu de test, donc des totaux à zéro, mais le champ doit être présent et cohérent
+        JsonNode prev = overview.get("periodePrecedente");
+        assertNotNull(prev, "le delta de période doit être calculé");
+        assertEquals(0, prev.get("seances").asInt());
+        assertEquals(0.0, prev.get("caTtc").asDouble(), 0.001);
+        assertTrue(prev.get("to").asText().compareTo(overview.get("from").asText()) < 0,
+                "la période précédente se termine avant le début de la période affichée");
+
         // aucune écriture, aucune donnée de centre
         int write = mockMvc.perform(post("/api/v1/direction/overview").cookie(session)).andReturn().getResponse().getStatus();
         assertTrue(write >= 400, "aucune écriture possible sur le tableau de bord");

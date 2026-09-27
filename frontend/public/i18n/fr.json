@@ -301,6 +301,15 @@
     "PERIOD_TO": "Au",
     "APPLY": "Actualiser",
     "PRINT_REPORT": "Imprimer le rapport",
+    "PRESET": {
+      "MONTH": "Ce mois",
+      "QUARTER": "Ce trimestre",
+      "YEAR": "Cette année",
+      "LAST_12_MONTHS": "12 derniers mois"
+    },
+    "CENTRE_FILTER": "Centre",
+    "CENTRE_FILTER_ALL": "Tous les centres",
+    "EXPORT_CSV": "Exporter (CSV)",
     "ANONYMITY_NOTICE": "Agrégats anonymes uniquement : les effectifs inférieurs à {{threshold}} sont masqués.",
     "GENERATED_AT": "Données au",
     "CENTRES_TITLE": "Comparatif des centres",
@@ -318,7 +327,8 @@
     "COL": {
       "CENTRE": "Centre",
       "SOUS_KT": "Patients sous KT",
-      "FACTURES": "Factures"
+      "FACTURES": "Factures",
+      "PART_CA": "Part du CA"
     },
     "ERROR": {
       "LOAD_ERROR": "Impossible de charger le tableau de bord.",

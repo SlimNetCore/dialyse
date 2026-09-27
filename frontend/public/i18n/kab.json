@@ -301,6 +301,15 @@
     "PERIOD_TO": "Ɣer",
     "APPLY": "Smiren",
     "PRINT_REPORT": "Siggez aneqqis",
+    "PRESET": {
+      "MONTH": "Aggur-agi",
+      "QUARTER": "Akerad-agi",
+      "YEAR": "Aseggas-agi",
+      "LAST_12_MONTHS": "12 wagguren ineggura"
+    },
+    "CENTRE_FILTER": "Aseɣwen",
+    "CENTRE_FILTER_ALL": "Akk iseɣwan",
+    "EXPORT_CSV": "Asifeḍ (CSV)",
     "ANONYMITY_NOTICE": "Isefka imezdayen kan: uṭṭunen ddaw {{threshold}} ttuffren.",
     "GENERATED_AT": "Isefka n",
     "CENTRES_TITLE": "Asemyizwer n yiɣwen",
@@ -318,7 +327,8 @@
     "COL": {
       "CENTRE": "Aseɣwen",
       "SOUS_KT": "Inelmaden s KT",
-      "FACTURES": "Isfuyla"
+      "FACTURES": "Isfuyla",
+      "PART_CA": "Amur n usnagem"
     },
     "ERROR": {
       "LOAD_ERROR": "Ur izmir ara ad d-yali ukemmus.",

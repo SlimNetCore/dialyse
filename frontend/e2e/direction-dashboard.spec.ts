@@ -27,6 +27,10 @@ const OVERVIEW = {
     {mois: '2026-01', centerId: 'Centre Alpha', seances: 5, caHt: 1, caTtc: 400000},
     {mois: '2026-02', centerId: 'Centre Alpha', seances: 7, caHt: 1, caTtc: 500000},
   ],
+  periodePrecedente: {
+    from: '2025-04-06', to: '2025-12-31', seances: 40, caHt: 900000, caTtc: 1071000, encaisse: 500000,
+    resteARecouvrer: 571000, tauxEncaissement: 46.7,
+  },
 };
 
 const marker = (pct: number | null) => ({
@@ -216,10 +220,35 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await expect(caisses.locator('tr', {hasText: 'CNAS Nationale'})).toContainText('< 5');
     await expect(page.getByTestId('direction-anemie').locator('tr', {hasText: 'Centre Alpha'})).toContainText('97.1');
 
+    // deltas vs la période précédente et raccourcis de période
+    await expect(page.getByTestId('delta-seances')).toContainText('-70.0 %');
+    await expect(page.getByTestId('delta-ca-ttc')).toContainText('+12.0 %');
+    await expect(page.getByTestId('delta-encaisse')).toContainText('+20.0 %');
+    await expect(page.getByTestId('direction-presets')).toContainText('Ce mois');
+
+    // filtre par centre : isole Centre Beta, les KPI et le comparatif se recentrent dessus
+    await page.getByTestId('direction-centre-filter').click();
+    await page.getByRole('option', {name: 'Centre Beta'}).click();
+    await expect(page.getByTestId('direction-kpis')).toContainText('< 5');
+    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(1);
+    await expect(page.getByTestId('direction-centres')).toContainText('Centre Beta');
+    await expect(page.getByTestId('direction-centres')).not.toContainText('Centre Alpha');
+
+    // retour à la vue consolidée
+    await page.getByTestId('direction-centre-filter').click();
+    await page.getByRole('option', {name: 'Tous les centres'}).click();
+    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(2);
+
     // rapport imprimable de la période affichée
     const download = page.waitForEvent('download');
     await page.getByTestId('direction-print').click();
     expect((await download).suggestedFilename()).toMatch(/^rapport-direction-.*\.pdf$/);
+
+    // export CSV des tableaux affichés
+    const csvDownload = page.waitForEvent('download');
+    await page.getByTestId('direction-export-csv').click();
+    const csv = await csvDownload;
+    expect(csv.suggestedFilename()).toMatch(/^tableau-de-bord-direction-.*\.csv$/);
   });
 
   test('reçoit les changements en temps réel : notification et données relues', async ({page}) => {
