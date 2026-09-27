@@ -5,7 +5,9 @@ import {
   DestroyRef,
   ElementRef,
   inject,
+  Injector,
   OnInit,
+  runInInjectionContext,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -22,7 +24,9 @@ import {ThemeStore} from '../state/theme.store';
 import {WebSocketService} from '../ws/websocket.service';
 import {NotificationBellComponent} from './notification-bell.component';
 import {DirectionNotificationBellComponent} from '../../features/direction/direction-notification-bell.component';
-import {DirectionRealtimeService} from '../../features/direction/state/direction-realtime.service';
+// Import de type uniquement (effacé à la compilation) : la classe elle-même n'est chargée qu'à l'exécution, via
+// l'import dynamique de ngOnInit, pour ne jamais peser sur le bundle initial des profils autres que Direction.
+import type {DirectionRealtimeService} from '../../features/direction/state/direction-realtime.service';
 import {MatDialog} from '@angular/material/dialog';
 import {MfaDialogComponent} from './mfa-dialog.component';
 import {AuthApiService} from '../api/auth-api.service';
@@ -187,7 +191,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly overflowNavItems = signal<typeof this.navItems>([]);
 
-  private readonly directionRealtime = inject(DirectionRealtimeService);
+  private readonly injector = inject(Injector);
+  private directionRealtime?: DirectionRealtimeService;
   private breadcrumbRoutes: string[] = [];
   private resizeObserver?: ResizeObserver;
   private resizeFrame: number | null = null;
@@ -198,7 +203,12 @@ export class ShellComponent implements OnInit, AfterViewInit {
     }
     if (this.directionMode) {
       // Temps réel du tableau de bord : abonnement au canal de la société, notifications de la direction.
-      this.directionRealtime.start(this.auth.societeId());
+      // Import dynamique : ce module (STOMP compris) ne doit jamais peser sur le bundle initial des autres profils
+      // (la grande majorité des sessions), seulement sur celui, chargé à la demande, des sessions Direction.
+      import('../../features/direction/state/direction-realtime.service').then(({DirectionRealtimeService}) => {
+        this.directionRealtime = runInInjectionContext(this.injector, () => inject(DirectionRealtimeService));
+        this.directionRealtime.start(this.auth.societeId());
+      });
     }
     this.computeBreadcrumb(this.router.url);
     this.syncActiveModule(this.router.url);
@@ -279,7 +289,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
 
   private finalizeLogout(): void {
     this.ws.disconnect();
-    this.directionRealtime.stop();
+    this.directionRealtime?.stop();
     this.auth.clearSession();
     window.location.href = '/login';
   }

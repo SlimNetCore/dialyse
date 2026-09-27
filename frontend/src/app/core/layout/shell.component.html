@@ -5,8 +5,9 @@
     <span>{{ 'APP.TITLE' | translate }}</span>
   </div>
   <div class="topbar-right">
-    <!-- Notification bell -->
-    @if (directionMode) {
+    <!-- Notification bell : la cloche direction (temps réel STOMP) est repoussée dans un chunk séparé, chargé
+         seulement pour les sessions Direction — elle ne doit jamais peser sur le bundle initial des autres profils. -->
+    @defer (when directionMode) {
       <app-direction-notification-bell/>
     }
     @if (!centreless) {
