@@ -121,7 +121,7 @@ jobs:
       - name: Envoyer le code sur la VM
         run: |
           # Nettoie l'ancien code (le .env et les volumes Docker sont conservés)
-          ssh vm "mkdir -p '$APP_DIR' && cd '$APP_DIR' && find . -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +"
+          ssh vm "sudo install -d -o \"\$(id -un)\" -g \"\$(id -gn)\" '$APP_DIR' && cd '$APP_DIR' && find . -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +"
           git archive --format=tar.gz HEAD | ssh vm "tar -xz -C '$APP_DIR'"
 
       # Premier déploiement : cp env.prod.example .env, avec secrets forts générés.
