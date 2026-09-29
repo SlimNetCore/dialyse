@@ -1,0 +1,1 @@
+-- Production intentionally starts without synthetic development/demo data.

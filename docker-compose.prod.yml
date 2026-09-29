@@ -43,6 +43,8 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_DRIVER: org.postgresql.Driver
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET manquant dans .env}
+      # Le seed par défaut utilise la syntaxe H2 ; la production conserve le schéma sans données de démo.
+      SEED_DATA_LOCATIONS: ${SEED_DATA_LOCATIONS:-classpath:db/seed-production.sql}
       SETUP_TOKEN: ${SETUP_TOKEN:-}
       STOCK_DEMO_DATA: ${STOCK_DEMO_DATA:-false}
       # Front et API partagent la même origine (via Nginx) ; CORS utile seulement si domaine séparé
@@ -75,4 +77,3 @@ volumes:
 
 networks:
   internal:
-
