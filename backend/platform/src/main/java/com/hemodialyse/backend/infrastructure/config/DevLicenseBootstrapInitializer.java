@@ -3,7 +3,6 @@ package com.hemodialyse.backend.infrastructure.config;
 import com.hemodialyse.backend.application.license.LicenseService;
 import com.hemodialyse.backend.infrastructure.persistence.entity.CenterJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.CenterJpaRepository;
-import com.hemodialyse.backend.infrastructure.persistence.repository.LicenseJpaRepository;
 import com.hemodialyse.backend.infrastructure.security.license.LicenseKeyProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +29,13 @@ public class DevLicenseBootstrapInitializer implements CommandLineRunner {
 
     private final LicenseKeyProperties keyProperties;
     private final CenterJpaRepository centerRepository;
-    private final LicenseJpaRepository licenseRepository;
     private final LicenseService licenseService;
 
     public DevLicenseBootstrapInitializer(LicenseKeyProperties keyProperties,
                                           CenterJpaRepository centerRepository,
-                                          LicenseJpaRepository licenseRepository,
                                           LicenseService licenseService) {
         this.keyProperties = keyProperties;
         this.centerRepository = centerRepository;
-        this.licenseRepository = licenseRepository;
         this.licenseService = licenseService;
     }
 
@@ -50,8 +46,13 @@ public class DevLicenseBootstrapInitializer implements CommandLineRunner {
         }
 
         for (CenterJpaEntity center : centerRepository.findAll()) {
-            boolean hasLicense = !licenseRepository.findByCenterIdOrderByCreatedAtDesc(center.getId()).isEmpty();
-            if (hasLicense) {
+            // La clé éphémère change à chaque démarrage : une licence émise lors d'un run précédent
+            // existe encore en base mais sa signature ne se vérifie plus. On ne la conserve que si elle
+            // est réellement valide (ou révoquée volontairement) ; sinon on en réémet une.
+            LicenseService.LicenseVerdict verdict = licenseService.verify(center.getId());
+            boolean revoked = verdict.entity() != null
+                    && LicenseService.STATUS_REVOKED.equals(verdict.entity().getStatus());
+            if (verdict.valid() || revoked) {
                 continue;
             }
             licenseService.issue(
