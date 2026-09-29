@@ -1,0 +1,178 @@
+name: CI/CD — Déploiement VM (chore/angular-22-upgrade)
+
+# Un merge dans la branche = un push : le pipeline se lance et déploie sur la VM.
+# Sur une pull request vers cette branche : tests + build uniquement (pas de déploiement).
+on:
+  push:
+    branches: [ "chore/angular-22-upgrade" ]
+  pull_request:
+    branches: [ "chore/angular-22-upgrade" ]
+  workflow_dispatch:
+
+# Un seul déploiement à la fois ; on n'annule pas un déploiement en cours.
+concurrency:
+  group: deploy-vm
+  cancel-in-progress: false
+
+env:
+  JAVA_VERSION: "21"
+  NODE_VERSION: "22"
+
+jobs:
+  # ============================================================
+  # 1. Backend : compilation + tests
+  # ============================================================
+  backend:
+    name: Backend (build + tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Build & tests
+        run: ./mvnw -B verify
+
+      - name: Rapports de tests (en cas d'échec)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-surefire-reports
+          path: backend/**/target/surefire-reports/
+          retention-days: 7
+
+  # ============================================================
+  # 2. Frontend : tests + build production
+  # ============================================================
+  frontend:
+    name: Frontend (tests + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # Le lockfile lie @sbourahla/ng-table à un dossier local absent du dépôt :
+      # on retire ces entrées pour le résoudre depuis npm (même logique que le Dockerfile).
+      - name: Corriger le lockfile (ng-table)
+        run: |
+          node -e "
+          const fs=require('fs');
+          const l=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+          for (const k of Object.keys(l.packages||{})) {
+            if (k==='node_modules/@sbourahla/ng-table' || k.endsWith('/ngTable/dist/ng-table')) delete l.packages[k];
+          }
+          fs.writeFileSync('package-lock.json', JSON.stringify(l,null,2));"
+
+      - name: Installer les dépendances
+        run: npm install --no-audit --no-fund
+
+      - name: Tests unitaires
+        run: npm test -- --watch=false
+
+      - name: Build production
+        run: npx ng build --configuration production
+
+  # ============================================================
+  # 3. Déploiement sur la VM (push / lancement manuel uniquement)
+  # ============================================================
+  deploy:
+    name: Déploiement sur la VM
+    runs-on: ubuntu-latest
+    needs: [ backend, frontend ]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    environment: production
+    env:
+      # Oracle Linux 9 : utilisateur SSH = opc par défaut (secret VM_USER facultatif pour le changer)
+      APP_DIR: ${{ vars.VM_APP_DIR || '/opt/hemodialyse' }}
+      SSH_PORT: ${{ secrets.VM_PORT || '22' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurer SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "$SSH_PORT" -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host vm
+            HostName ${{ secrets.VM_HOST }}
+            User ${{ secrets.VM_USER || 'opc' }}
+            Port $SSH_PORT
+            IdentityFile ~/.ssh/id_deploy
+            ServerAliveInterval 30
+          EOF
+
+      - name: Envoyer le code sur la VM
+        run: |
+          # Nettoie l'ancien code (le .env et les volumes Docker sont conservés)
+          ssh vm "mkdir -p '$APP_DIR' && cd '$APP_DIR' && find . -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +"
+          git archive --format=tar.gz HEAD | ssh vm "tar -xz -C '$APP_DIR'"
+
+      # Premier déploiement : cp env.prod.example .env, avec secrets forts générés.
+      # Les déploiements suivants conservent le .env existant (mot de passe DB inchangé).
+      - name: Initialiser le .env (si absent)
+        run: |
+          ssh vm "APP_DIR='$APP_DIR' bash -s" <<'EOF'
+          set -e
+          cd "$APP_DIR"
+          if [ -f .env ]; then
+            echo ".env existant conservé"
+          else
+            cp env.prod.example .env
+            sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$(openssl rand -hex 24)|" .env
+            sed -i "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -hex 32)|" .env
+            chmod 600 .env
+            echo ".env créé depuis env.prod.example (secrets générés)"
+          fi
+          EOF
+
+      - name: Construire et redémarrer les conteneurs
+        run: |
+          ssh vm "cd '$APP_DIR' && docker compose -f docker-compose.prod.yml up -d --build --remove-orphans"
+
+      - name: Vérifier la santé de l'application
+        run: |
+          ssh vm "APP_DIR='$APP_DIR' bash -s" <<'EOF'
+          set -e
+          PORT=$(grep -E "^HTTP_PORT=" "$APP_DIR/.env" 2>/dev/null | cut -d= -f2 || true)
+          PORT=${PORT:-80}
+          for i in $(seq 1 40); do
+            if curl -fsS "http://127.0.0.1:${PORT}/actuator/health" >/dev/null; then
+              echo "Application opérationnelle (tentative $i)"; exit 0
+            fi
+            sleep 6
+          done
+          echo "Le backend ne répond pas après 4 minutes"
+          exit 1
+          EOF
+
+      - name: Logs en cas d'échec
+        if: failure()
+        run: |
+          ssh vm "cd '$APP_DIR' && docker compose -f docker-compose.prod.yml ps && docker compose -f docker-compose.prod.yml logs --tail=100 backend" || true
+
+      - name: Nettoyer les anciennes images
+        if: success()
+        run: ssh vm "docker image prune -f" || true
+
+
+
+
+
+
