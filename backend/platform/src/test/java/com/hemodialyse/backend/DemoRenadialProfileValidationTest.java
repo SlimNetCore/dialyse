@@ -13,7 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Le profil {@code demo-renadial} charge le jeu de test RENADIAL au démarrage, en plus du seed habituel (jamais à
  * sa place) — voir {@code application-demo-renadial.yml} et {@code db/demo/README.md}.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.NONE,
+        properties = "spring.datasource.url=jdbc:h2:mem:demo-renadial-profile;MODE=PostgreSQL;DB_CLOSE_DELAY=-1")
 @ActiveProfiles({"test", "demo-renadial"})
 class DemoRenadialProfileValidationTest {
 
