@@ -265,7 +265,8 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
                 LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
                 WHERE f.center_id = ?
                   AND f.date_facturation BETWEEN ? AND ?
-                GROUP BY COALESCE(f.patient_status_snapshot, 'INCONNU')
+                        GROUP BY COALESCE(f.patient_status_snapshot, 'INCONNU'),
+                                 COALESCE(f.patient_status_snapshot, 'Inconnu')
                 ORDER BY seances_count DESC, status_code ASC
                 """,
                 (rs, rowNum) -> new FacturationDashboardStatusBucket(

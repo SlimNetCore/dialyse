@@ -64,7 +64,8 @@ public class AssurePatientRepositoryAdapter implements AssurePatientRepositoryPo
     @Cacheable(
             cacheNames = "patient.assignment.primary",
             key = "#centerId.value().toString() + ':' + #patientId.toString()",
-            unless = "#result == null || #result.isEmpty()"
+            // Spring Cache déballe l'Optional : #result est l'AssurePatientAssignment (ou null si vide)
+            unless = "#result == null"
     )
     public Optional<AssurePatientAssignment> findPrimary(CenterId centerId, UUID patientId) {
         return jpa.findFirstByCenterIdAndPatientIdAndIsPrimaryTrueOrderByDateAffectationDesc(centerId.value(), patientId)
