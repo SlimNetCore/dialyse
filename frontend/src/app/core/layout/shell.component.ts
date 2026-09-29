@@ -28,7 +28,6 @@ import {DirectionNotificationBellComponent} from '../../features/direction/direc
 // l'import dynamique de ngOnInit, pour ne jamais peser sur le bundle initial des profils autres que Direction.
 import type {DirectionRealtimeService} from '../../features/direction/state/direction-realtime.service';
 import {MatDialog} from '@angular/material/dialog';
-import {MfaDialogComponent} from './mfa-dialog.component';
 import {AuthApiService} from '../api/auth-api.service';
 import {filter} from 'rxjs/operators';
 
@@ -241,7 +240,11 @@ export class ShellComponent implements OnInit, AfterViewInit {
   }
 
   openSecurity(): void {
-    this.dialog.open(MfaDialogComponent, {width: '480px', maxWidth: '95vw'});
+    // Import dynamique : la double authentification est rarement ouverte, ce dialogue (et ses champs de
+    // formulaire) ne doit pas peser sur le bundle initial de toutes les sessions.
+    import('./mfa-dialog.component').then(({MfaDialogComponent}) => {
+      this.dialog.open(MfaDialogComponent, {width: '480px', maxWidth: '95vw'});
+    });
   }
 
   onLogout(): void {
