@@ -112,12 +112,46 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART} from '
             {{ 'STOCK.INVENTORY.COUNT_SHEET' | translate }}
           </button>
           @if (store.enCours()) {
+            <input #importInput type="file" hidden accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                   (change)="importSheet(importInput)" data-testid="inventory-import-input"/>
+            <button mat-stroked-button type="button" (click)="importInput.click()" [disabled]="store.busy()"
+                    [matTooltip]="'STOCK.INVENTORY.IMPORT_SHEET_HINT' | translate" data-testid="inventory-import">
+              <mat-icon>upload_file</mat-icon>{{ 'STOCK.INVENTORY.IMPORT_SHEET' | translate }}
+            </button>
             <button mat-stroked-button type="button" (click)="addLine()" data-testid="inventory-add-line">
               <mat-icon>add</mat-icon>
               {{ 'STOCK.INVENTORY.ADD_LINE' | translate }}
             </button>
           }
         </div>
+
+        @if (store.busy()) {
+          <mat-progress-bar mode="indeterminate"/>
+        }
+        @if (store.importResult(); as res) {
+          <div class="import-result" [class.has-issues]="res.anomalies.length > 0" role="status" data-testid="inventory-import-result">
+            <div class="import-head">
+              <mat-icon>{{ res.anomalies.length ? 'rule' : 'task_alt' }}</mat-icon>
+              <strong>{{ 'STOCK.INVENTORY.IMPORT_DONE' | translate }}</strong>
+              <span class="pill ok">{{ 'STOCK.INVENTORY.IMPORT_UPDATED' | translate: {count: res.lignesMisesAJour} }}</span>
+              <span class="pill">{{ 'STOCK.INVENTORY.IMPORT_UNCHANGED' | translate: {count: res.lignesInchangees} }}</span>
+              <span class="pill">{{ 'STOCK.INVENTORY.IMPORT_EMPTY' | translate: {count: res.lignesVides} }}</span>
+              @if (res.anomalies.length) {
+                <span class="pill warn">{{ 'STOCK.INVENTORY.IMPORT_ISSUES' | translate: {count: res.anomalies.length} }}</span>
+              }
+              <span class="spacer"></span>
+              <button mat-icon-button type="button" (click)="store.clearImportResult()"
+                      [attr.aria-label]="'COMMON.OK' | translate"><mat-icon>close</mat-icon></button>
+            </div>
+            @if (res.anomalies.length) {
+              <ul class="issues">
+                @for (a of res.anomalies; track $index) {
+                  <li><strong>{{ 'STOCK.INVENTORY.IMPORT_ROW' | translate: {row: a.ligne} }}</strong> {{ a.message }}</li>
+                }
+              </ul>
+            }
+          </div>
+        }
 
         <div class="table-wrapper">
           <table class="lines" data-testid="inventory-lines">
@@ -496,6 +530,16 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART} from '
       margin-top: 16px;
     }
 
+    .import-result { margin: 0 0 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid #bbf7d0; background: #f0fdf4; }
+    .import-result.has-issues { border-color: #fcd34d; background: #fffbeb; }
+    .import-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .import-head > mat-icon { color: #16a34a; }
+    .has-issues .import-head > mat-icon { color: #b45309; }
+    .pill { padding: 2px 10px; border-radius: 999px; font-size: 12px; background: var(--app-surface); border: 1px solid var(--app-border); }
+    .pill.ok { color: #166534; border-color: #86efac; }
+    .pill.warn { color: #92400e; border-color: #fcd34d; }
+    .issues { margin: 8px 0 0; padding-left: 20px; max-height: 220px; overflow: auto; display: grid; gap: 4px; font-size: 13px; }
+
     @media (max-width: 900px) {
       .kpis {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -635,6 +679,15 @@ export class InventaireDetailComponent {
     });
   }
 
+  /** Import de la feuille de comptage remplie : les saisies en cours à l'écran sont remplacées par le fichier. */
+  protected async importSheet(input: HTMLInputElement): Promise<void> {
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.drafts.set({});
+    await this.store.importerFeuille(file);
+  }
+
   private clearDraft(id: string): void {
     this.drafts.update((d) => {
       const {[id]: _, ...rest} = d;
@@ -656,6 +709,12 @@ export class InventaireDetailComponent {
     }).afterClosed());
   }
 }
+
+
+
+
+
+
 
 
 

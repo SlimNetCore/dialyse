@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.dto.stock;
 
 import com.hemodialyse.backend.domain.stock.model.Inventaire;
 import com.hemodialyse.backend.domain.stock.model.LigneInventaire;
+import com.hemodialyse.backend.domain.stock.model.ResultatImportComptage;
 import com.hemodialyse.backend.domain.stock.port.InventaireRepositoryPort;
 import com.hemodialyse.backend.domain.stock.port.InventaireUseCase;
 import jakarta.validation.constraints.NotNull;
@@ -11,8 +12,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * DTO de l'API d'inventaire de stock.
@@ -92,6 +95,24 @@ public final class InventaireDtos {
     public record AjoutLigneRequest(UUID centerId, @NotNull UUID articleId, @Size(max = 100) String numeroLot,
                                     LocalDate datePeremption, @NotNull BigDecimal quantite,
                                     @Size(max = 255) String motif) {
+    }
+
+    public record AnomalieImportResponse(int ligne, String message) {
+    }
+
+    /**
+     * Bilan de l'import d'une feuille de comptage remplie.
+     */
+    public record ImportComptageResponse(InventaireResponse inventaire, int lignesMisesAJour, int lignesInchangees,
+                                         int lignesVides, List<AnomalieImportResponse> anomalies) {
+        public static ImportComptageResponse from(ResultatImportComptage r, List<ResultatImportComptage.Anomalie> lecture) {
+            List<AnomalieImportResponse> anomalies = Stream.concat(lecture.stream(), r.anomalies().stream())
+                    .sorted(Comparator.comparingInt(ResultatImportComptage.Anomalie::ligneFichier))
+                    .map(a -> new AnomalieImportResponse(a.ligneFichier(), a.message()))
+                    .toList();
+            return new ImportComptageResponse(InventaireResponse.from(r.inventaire()), r.lignesMisesAJour(),
+                    r.lignesInchangees(), r.lignesVides(), anomalies);
+        }
     }
 }
 

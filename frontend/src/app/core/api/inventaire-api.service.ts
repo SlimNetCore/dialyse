@@ -79,6 +79,15 @@ export interface AjoutLignePayload {
   motif: string | null;
 }
 
+/** Bilan de l'import d'une feuille de comptage remplie. */
+export interface ImportComptageResult {
+  inventaire: Inventaire;
+  lignesMisesAJour: number;
+  lignesInchangees: number;
+  lignesVides: number;
+  anomalies: { ligne: number; message: string }[];
+}
+
 /** Inventaire de stock du centre actif (le centre est toujours transmis ; le backend refuse tout autre centre). */
 @Injectable({providedIn: 'root'})
 export class InventaireApiService {
@@ -148,8 +157,18 @@ export class InventaireApiService {
     return this.http.get(`${this.base}/${id}/feuille-comptage`, {params, responseType: 'blob', withCredentials: true});
   }
 
+  /** Import de la feuille de comptage remplie : lignes valides enregistrées, anomalies listées. */
+  importerFeuille(centerId: string, id: string, file: File): Observable<ImportComptageResult> {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    return this.http.post<ImportComptageResult>(`${this.base}/${id}/feuille-comptage`, form,
+      {params: this.center(centerId), withCredentials: true});
+  }
+
   private center(centerId: string): HttpParams {
     return new HttpParams().set('centerId', centerId);
   }
 }
+
+
 

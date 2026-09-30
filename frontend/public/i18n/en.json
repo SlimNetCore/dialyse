@@ -800,7 +800,16 @@
       "CLOSE_EFFECT_2": "movements before {{date}} are closed and will no longer be recalculated;",
       "CLOSE_EFFECT_3": "an opening stock is recorded per batch, valued at the count WAC;",
       "CLOSE_EFFECT_4": "stock movements are allowed again.",
-      "CLOSE_IRREVERSIBLE": "This operation is final."
+      "CLOSE_IRREVERSIBLE": "This operation is final.",
+      "IMPORT_SHEET": "Import sheet",
+      "IMPORT_SHEET_HINT": "Import the downloaded count sheet once filled in (counted quantities and reasons)",
+      "IMPORT_DONE": "Sheet imported",
+      "IMPORT_UPDATED": "{{count}} line(s) updated",
+      "IMPORT_UNCHANGED": "{{count}} unchanged",
+      "IMPORT_EMPTY": "{{count}} not filled in",
+      "IMPORT_ISSUES": "{{count}} issue(s)",
+      "IMPORT_ROW": "Row {{row}}:",
+      "IMPORT_ERROR": "Unable to import the count sheet."
     }
   },
   "FACTURATION": {

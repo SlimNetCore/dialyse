@@ -743,7 +743,16 @@
       "CLOSE_EFFECT_2": "movements before {{date}} are closed and will no longer be recalculated;",
       "CLOSE_EFFECT_3": "an opening stock is recorded per batch, valued at the count WAC;",
       "CLOSE_EFFECT_4": "stock movements are allowed again.",
-      "CLOSE_IRREVERSIBLE": "هذه العملية نهائية."
+      "CLOSE_IRREVERSIBLE": "هذه العملية نهائية.",
+      "IMPORT_SHEET": "استيراد الورقة",
+      "IMPORT_SHEET_HINT": "استورد ورقة العدّ بعد تعبئتها (الكميات المعدودة والأسباب)",
+      "IMPORT_DONE": "تم استيراد الورقة",
+      "IMPORT_UPDATED": "تم تحديث {{count}} سطر",
+      "IMPORT_UNCHANGED": "{{count}} دون تغيير",
+      "IMPORT_EMPTY": "{{count}} غير معبأ",
+      "IMPORT_ISSUES": "{{count}} خلل",
+      "IMPORT_ROW": "السطر {{row}}:",
+      "IMPORT_ERROR": "تعذّر استيراد ورقة العدّ."
     }
   },
   "FACTURATION": {

@@ -21,6 +21,7 @@ describe('InventaireStore', () => {
     ouvrir: vi.fn(),
     compter: vi.fn(),
     cloturer: vi.fn(),
+    importerFeuille: vi.fn(),
   };
 
   beforeEach(() => {
@@ -76,6 +77,37 @@ describe('InventaireStore', () => {
     expect(api.compter).toHaveBeenLastCalledWith('center-1', 'inv-1', 'l-1', 3, 'CASSE');
   });
 
+  it('importe la feuille remplie, met à jour l\'inventaire et conserve le bilan', async () => {
+    const store = TestBed.inject(InventaireStore);
+    api.get.mockReturnValue(of(inventaire({comptees: 0})));
+    await store.load('inv-1');
+    const bilan = {
+      inventaire: inventaire({comptees: 2}), lignesMisesAJour: 2, lignesInchangees: 0, lignesVides: 0,
+      anomalies: [{ligne: 7, message: 'Article X absent'}],
+    };
+    api.importerFeuille.mockReturnValue(of(bilan));
+    const file = new File(['x'], 'feuille.xlsx');
+
+    expect(await store.importerFeuille(file)).toEqual(bilan);
+    expect(api.importerFeuille).toHaveBeenCalledWith('center-1', 'inv-1', file);
+    expect(store.current()?.comptees).toBe(2);
+    expect(store.importResult()?.anomalies.length).toBe(1);
+
+    store.clearImportResult();
+    expect(store.importResult()).toBeNull();
+  });
+
+  it('remonte le refus d\'une feuille invalide sans bilan', async () => {
+    const store = TestBed.inject(InventaireStore);
+    api.get.mockReturnValue(of(inventaire()));
+    await store.load('inv-1');
+    api.importerFeuille.mockReturnValue(throwError(() => ({error: {detail: 'Cette feuille concerne un autre inventaire'}})));
+
+    expect(await store.importerFeuille(new File(['x'], 'f.xlsx'))).toBeNull();
+    expect(store.error()).toBe('Cette feuille concerne un autre inventaire');
+    expect(store.importResult()).toBeNull();
+  });
+
   it('rafraîchit la situation après la clôture', async () => {
     const store = TestBed.inject(InventaireStore);
     api.get.mockReturnValue(of(inventaire()));
@@ -88,4 +120,6 @@ describe('InventaireStore', () => {
     expect(store.mouvementsBloques()).toBe(false);
   });
 });
+
+
 

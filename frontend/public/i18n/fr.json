@@ -800,7 +800,16 @@
       "CLOSE_EFFECT_2": "les mouvements antérieurs au {{date}} sont clôturés et ne seront plus recalculés ;",
       "CLOSE_EFFECT_3": "un stock de départ est enregistré par lot, valorisé au PMP de l'inventaire ;",
       "CLOSE_EFFECT_4": "les mouvements de stock sont de nouveau autorisés.",
-      "CLOSE_IRREVERSIBLE": "Cette opération est définitive."
+      "CLOSE_IRREVERSIBLE": "Cette opération est définitive.",
+      "IMPORT_SHEET": "Importer la feuille",
+      "IMPORT_SHEET_HINT": "Importez la feuille de comptage téléchargée puis remplie (quantités comptées et motifs)",
+      "IMPORT_DONE": "Feuille importée",
+      "IMPORT_UPDATED": "{{count}} ligne(s) mise(s) à jour",
+      "IMPORT_UNCHANGED": "{{count}} inchangée(s)",
+      "IMPORT_EMPTY": "{{count}} non renseignée(s)",
+      "IMPORT_ISSUES": "{{count}} anomalie(s)",
+      "IMPORT_ROW": "Ligne {{row}} :",
+      "IMPORT_ERROR": "Impossible d'importer la feuille de comptage."
     }
   },
   "FACTURATION": {

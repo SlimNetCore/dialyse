@@ -1,23 +1,20 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.Inventaire;
-import com.hemodialyse.backend.domain.stock.model.LigneInventaire;
 import com.hemodialyse.backend.domain.stock.port.InventaireUseCase;
+import com.hemodialyse.backend.infrastructure.importer.FeuilleComptageExcel;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.response.PagedResponse;
 import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.AjoutLigneRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.ComptageRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.EtatResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.ImportComptageResponse;
 import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.InventaireResponse;
 import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.InventaireResumeResponse;
 import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.OuvrirRequest;
 import jakarta.validation.Valid;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,18 +30,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 /**
  * Inventaire de stock : ouverture (gel des mouvements du centre), comptage, clôture (stock de départ) ou
- * annulation, feuille de comptage imprimable.
+ * annulation, feuille de comptage (téléchargement puis import une fois remplie).
  * <p>
  * Consultation et comptage : ADMIN, PHARMACIEN, INFIRMIER. Ouverture, clôture, annulation : ADMIN, PHARMACIEN.
  */
@@ -54,57 +49,16 @@ public class InventaireRestController {
 
     private static final String READ = "hasAnyRole('ADMIN','PHARMACIEN','INFIRMIER')";
     private static final String MANAGE = "hasAnyRole('ADMIN','PHARMACIEN')";
-    private static final DateTimeFormatter FR = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final InventaireUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
+    private final FeuilleComptageExcel feuille;
 
-    public InventaireRestController(InventaireUseCase useCase, CenterAccessGuard centerAccessGuard) {
+    public InventaireRestController(InventaireUseCase useCase, CenterAccessGuard centerAccessGuard,
+                                    FeuilleComptageExcel feuille) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
-    }
-
-    private static byte[] countSheet(Inventaire inv, boolean aveugle) {
-        try (XSSFWorkbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            CellStyle bold = wb.createCellStyle();
-            Font font = wb.createFont();
-            font.setBold(true);
-            bold.setFont(font);
-            Sheet sheet = wb.createSheet("Comptage");
-            Row title = sheet.createRow(0);
-            title.createCell(0).setCellValue("Inventaire " + inv.getReference() + " du " + inv.getDateInventaire().format(FR));
-            title.getCell(0).setCellStyle(bold);
-            String[] headers = aveugle
-                    ? new String[]{"Code", "Article", "Unité", "N° de lot", "Péremption", "Quantité comptée", "Compté par"}
-                    : new String[]{"Code", "Article", "Unité", "N° de lot", "Péremption", "Théorique", "Quantité comptée", "Compté par"};
-            Row header = sheet.createRow(2);
-            for (int i = 0; i < headers.length; i++) {
-                header.createCell(i).setCellValue(headers[i]);
-                header.getCell(i).setCellStyle(bold);
-                sheet.setColumnWidth(i, (i == 1 ? 40 : 16) * 256);
-            }
-            int r = 3;
-            for (LigneInventaire l : inv.getLignes()) {
-                Row row = sheet.createRow(r++);
-                int c = 0;
-                row.createCell(c++).setCellValue(nz(l.getArticleCode()));
-                row.createCell(c++).setCellValue(nz(l.getArticleLibelle()));
-                row.createCell(c++).setCellValue(nz(l.getUnite()));
-                row.createCell(c++).setCellValue(nz(l.getNumeroLot()));
-                row.createCell(c++).setCellValue(l.getDatePeremption() != null ? l.getDatePeremption().format(FR) : "");
-                if (!aveugle) row.createCell(c++).setCellValue(l.getQuantiteTheorique().doubleValue());
-                row.createCell(c++).setCellValue("");
-                row.createCell(c).setCellValue("");
-            }
-            wb.write(out);
-            return out.toByteArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static String nz(String value) {
-        return value != null ? value : "";
+        this.feuille = feuille;
     }
 
     private static String user(Principal principal) {
@@ -187,7 +141,7 @@ public class InventaireRestController {
 
     /**
      * Feuille de comptage Excel. Par défaut « à l'aveugle » (sans quantité théorique) : bonne pratique qui évite
-     * de recopier le stock informatique au lieu de compter.
+     * de recopier le stock informatique au lieu de compter. Une fois remplie, elle se réimporte (POST).
      */
     @PreAuthorize(READ)
     @GetMapping("/{id}/feuille-comptage")
@@ -198,11 +152,34 @@ public class InventaireRestController {
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDisposition(ContentDisposition.attachment()
                 .filename("feuille-comptage-" + inv.getReference() + ".xlsx", StandardCharsets.UTF_8).build());
-        return ResponseEntity.ok().headers(headers).body(countSheet(inv, aveugle));
+        return ResponseEntity.ok().headers(headers).body(feuille.ecrire(inv, aveugle));
+    }
+
+    /**
+     * Import de la feuille de comptage remplie : les quantités (et motifs) renseignés sont enregistrés ; les
+     * lignes vides sont ignorées ; les lignes invalides sont listées dans le bilan sans bloquer les autres.
+     */
+    @PreAuthorize(READ)
+    @PostMapping(value = "/{id}/feuille-comptage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ImportComptageResponse importerFeuilleComptage(@PathVariable UUID id,
+                                                          @RequestParam("file") MultipartFile file,
+                                                          @RequestParam(required = false) UUID centerId,
+                                                          Principal principal) {
+        CenterId center = center(centerId);
+        Inventaire inv = useCase.get(center, id);
+        inv.ensureEnCours();
+        byte[] content;
+        try {
+            content = file.getBytes();
+        } catch (IOException e) {
+            throw new BusinessException("IMPORT_UNREADABLE_FILE", "Le fichier n'a pas pu être lu.");
+        }
+        FeuilleComptageExcel.Lecture lecture = feuille.lire(content, inv.getReference());
+        return ImportComptageResponse.from(useCase.importerComptage(center, id, lecture.lignes(), user(principal)),
+                lecture.anomalies());
     }
 
     private CenterId center(UUID requested) {
         return centerAccessGuard.requireCenter(requested);
     }
 }
-

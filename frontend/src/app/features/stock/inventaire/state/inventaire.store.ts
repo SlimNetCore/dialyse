@@ -5,6 +5,7 @@ import {firstValueFrom} from 'rxjs';
 import {
   AjoutLignePayload,
   EtatInventaire,
+  ImportComptageResult,
   Inventaire,
   InventaireApiService,
   InventaireResume,
@@ -25,11 +26,13 @@ type InventaireState = {
   savingLineId: string | null;
   busy: boolean;
   error: string | null;
+  /** Bilan du dernier import de feuille de comptage. */
+  importResult: ImportComptageResult | null;
 };
 
 const initialState: InventaireState = {
   etat: null, history: [], total: 0, pageIndex: 0, pageSize: 10, current: null, loading: false,
-  savingLineId: null, busy: false, error: null,
+  savingLineId: null, busy: false, error: null, importResult: null,
 };
 
 /** Inventaire de stock du centre actif : situation (gel), historique, comptage et cycle de vie. */
@@ -106,6 +109,7 @@ export const InventaireStore = signalStore(
         const center = centerId();
         if (!center) return;
         patchState(store, {loading: true, error: null});
+        if (store.current()?.id !== id) patchState(store, {importResult: null});
         try {
           patchState(store, {current: await firstValueFrom(api.get(center, id))});
         } catch (err) {
@@ -145,6 +149,24 @@ export const InventaireStore = signalStore(
         return run((c) => firstValueFrom(api.reporterTheorique(c, id)), 'STOCK.INVENTORY.COUNT_ERROR');
       },
 
+      /** Import de la feuille de comptage remplie ; le bilan reste affiché jusqu'à fermeture. */
+      async importerFeuille(file: File): Promise<ImportComptageResult | null> {
+        const id = store.current()?.id;
+        if (!id) return null;
+        let result: ImportComptageResult | null = null;
+        patchState(store, {importResult: null});
+        await run(async (c) => {
+          result = await firstValueFrom(api.importerFeuille(c, id, file));
+          return result.inventaire;
+        }, 'STOCK.INVENTORY.IMPORT_ERROR');
+        patchState(store, {importResult: result});
+        return result;
+      },
+
+      clearImportResult(): void {
+        patchState(store, {importResult: null});
+      },
+
       async cloturer(): Promise<boolean> {
         const id = store.current()?.id;
         if (!id) return false;
@@ -167,4 +189,8 @@ export const InventaireStore = signalStore(
     };
   }),
 );
+
+
+
+
 

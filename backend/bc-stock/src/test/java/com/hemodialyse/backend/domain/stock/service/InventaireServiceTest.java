@@ -6,10 +6,12 @@ import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.domain.stock.model.ComptageImporte;
 import com.hemodialyse.backend.domain.stock.model.Inventaire;
 import com.hemodialyse.backend.domain.stock.model.InventaireStatut;
 import com.hemodialyse.backend.domain.stock.model.LigneInventaire;
 import com.hemodialyse.backend.domain.stock.model.Lot;
+import com.hemodialyse.backend.domain.stock.model.ResultatImportComptage;
 import com.hemodialyse.backend.domain.stock.model.StockMovement;
 import com.hemodialyse.backend.domain.stock.model.StockMovementType;
 import com.hemodialyse.backend.domain.stock.port.InventaireEventPublisher;
@@ -217,6 +219,52 @@ class InventaireServiceTest {
                 () -> service.ajouterLigne(CENTER, inv.getId(), dialyseur.getId(), "a-01", null, BigDecimal.ONE, null, "p")).getCode());
     }
 
+    // ---- Import de la feuille de comptage ---------------------------------------------------------------------
+
+    @Test
+    void importAppliesValidRowsAndReportsTheOthers() {
+        Inventaire inv = service.ouvrir(CENTER, TODAY, null, "p");
+        UUID ligneA = inv.getLignes().get(0).getId();
+
+        ResultatImportComptage r = service.importerComptage(CENTER, inv.getId(), List.of(
+                new ComptageImporte(5, ligneA, "DIAL-01", "A-01", new BigDecimal("5.000"), "CASSE"),
+                new ComptageImporte(6, null, "dial-01", "b-02", new BigDecimal("6"), null),
+                new ComptageImporte(7, null, "DIAL-01", "Z-99", BigDecimal.ONE, null),
+                new ComptageImporte(8, null, "DIAL-01", "A-01", BigDecimal.TEN, null),
+                new ComptageImporte(9, null, "DIAL-01", "B-02", null, null)), "infirmier");
+
+        assertEquals(2, r.lignesMisesAJour());
+        assertEquals(1, r.lignesVides());
+        assertEquals(List.of(7, 8), r.anomalies().stream().map(ResultatImportComptage.Anomalie::ligneFichier).toList());
+        Inventaire saved = inventaires.findById(CENTER, inv.getId()).orElseThrow();
+        assertEquals(0, new BigDecimal("5").compareTo(saved.getLignes().get(0).getQuantiteComptee()));
+        assertEquals("CASSE", saved.getLignes().get(0).getMotifEcart());
+        assertEquals(0, new BigDecimal("6").compareTo(saved.getLignes().get(1).getQuantiteComptee()));
+        assertEquals("infirmier", saved.getLignes().get(1).getComptePar());
+    }
+
+    @Test
+    void reimportKeepsExistingReasonAndCountsUnchangedRows() {
+        Inventaire inv = service.ouvrir(CENTER, TODAY, null, "p");
+        UUID ligneA = inv.getLignes().get(0).getId();
+        service.compter(CENTER, inv.getId(), ligneA, new BigDecimal("5"), "PERTE", "p");
+
+        ResultatImportComptage r = service.importerComptage(CENTER, inv.getId(), List.of(
+                new ComptageImporte(5, ligneA, "DIAL-01", "A-01", new BigDecimal("5"), null)), "p");
+
+        assertEquals(0, r.lignesMisesAJour());
+        assertEquals(1, r.lignesInchangees());
+        assertEquals("PERTE", r.inventaire().getLignes().get(0).getMotifEcart());
+    }
+
+    @Test
+    void importIsRefusedOnceTheInventoryIsClosedOrCancelled() {
+        Inventaire inv = service.ouvrir(CENTER, TODAY, null, "p");
+        service.annuler(CENTER, inv.getId(), "p");
+        assertEquals("INVENTORY_NOT_IN_PROGRESS", assertThrows(BusinessException.class,
+                () -> service.importerComptage(CENTER, inv.getId(), List.of(), "p")).getCode());
+    }
+
     // ---- Faux adaptateurs --------------------------------------------------------------------------------------
 
     private static final class Articles implements ArticleRepositoryPort {
@@ -380,4 +428,7 @@ class InventaireServiceTest {
         }
     }
 }
+
+
+
 

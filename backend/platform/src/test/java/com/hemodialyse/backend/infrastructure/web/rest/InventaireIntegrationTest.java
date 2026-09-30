@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -182,12 +184,46 @@ class InventaireIntegrationTest {
     }
 
     @Test
-    void countSheetIsDownloadable() throws Exception {
+    void countSheetIsDownloadedFilledAndImported() throws Exception {
         String body = mockMvc.perform(post(BASE).with(as("ADMIN")).contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andReturn().getResponse().getContentAsString();
         String id = body.replaceAll("^\\{\"id\":\"([^\"]+)\".*", "$1");
-        mockMvc.perform(get(BASE + "/{id}/feuille-comptage", id).with(as("INFIRMIER")))
-                .andExpect(status().isOk());
+        byte[] sheet = mockMvc.perform(get(BASE + "/{id}/feuille-comptage", id).with(as("INFIRMIER")))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+
+        byte[] filled;
+        try (org.apache.poi.ss.usermodel.Workbook wb = org.apache.poi.ss.usermodel.WorkbookFactory.create(
+                new java.io.ByteArrayInputStream(sheet)); java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+            org.apache.poi.ss.usermodel.Row header = wb.getSheetAt(0).getRow(3);
+            org.apache.poi.ss.usermodel.Row line = wb.getSheetAt(0).getRow(4);
+            for (int c = 0; c < header.getLastCellNum(); c++) {
+                String h = header.getCell(c).getStringCellValue();
+                if (h.equals("Quantité comptée")) line.getCell(c).setCellValue(7);
+                if (h.equals("Motif écart")) line.getCell(c).setCellValue("Casse");
+            }
+            wb.write(out);
+            filled = out.toByteArray();
+        }
+
+        mockMvc.perform(multipart(BASE + "/{id}/feuille-comptage", id)
+                        .file(new MockMultipartFile("file", "feuille.xlsx", "application/octet-stream", filled))
+                        .with(as("INFIRMIER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lignesMisesAJour").value(1))
+                .andExpect(jsonPath("$.anomalies.length()").value(0))
+                .andExpect(jsonPath("$.inventaire.comptees").value(1))
+                .andExpect(jsonPath("$.inventaire.ecartsSansMotif").value(0))
+                .andExpect(jsonPath("$.inventaire.details[0].motifEcart").value("CASSE"));
+
+        mockMvc.perform(multipart(BASE + "/{id}/feuille-comptage", id)
+                        .file(new MockMultipartFile("file", "notes.csv", "text/csv", "code;qte".getBytes()))
+                        .with(as("INFIRMIER")))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.code").value("IMPORT_UNSUPPORTED_FORMAT"));
     }
 }
+
+
+
 
