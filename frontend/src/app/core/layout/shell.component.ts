@@ -135,6 +135,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/stock/bons-commande', label: 'Bons commande', icon: 'request_quote'},
         {route: '/stock/bons-reception', label: 'Bons réception', icon: 'inventory_2'},
         {route: '/stock/bons-sortie', label: 'Bons sortie', icon: 'logout'},
+        {route: '/stock/inventaires', label: 'Inventaires', icon: 'fact_check'},
         {route: '/stock/fournisseurs', label: 'Fournisseurs', icon: 'local_shipping'},
       ],
     },

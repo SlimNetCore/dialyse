@@ -35,7 +35,7 @@ public class StockDashboardAdapter implements StockDashboardPort {
                         "COALESCE(SUM(ABS(sm.quantite) * COALESCE(sm.prix_unitaire, art.pmp_courant, 0)), 0) AS valeur " +
                         "FROM stock_movements sm " +
                         "JOIN articles art ON art.id = sm.article_id " +
-                        "WHERE sm.center_id = ? AND sm.created_at >= ? " +
+                        "WHERE sm.center_id = ? AND sm.created_at >= ? AND sm.mouvement_type <> 'INVENTAIRE' " +
                         "GROUP BY CAST(sm.created_at AS DATE) " +
                         "ORDER BY jour ASC",
                 (rs, i) -> new StockTrendPoint(
@@ -60,7 +60,7 @@ public class StockDashboardAdapter implements StockDashboardPort {
                         "COALESCE(SUM(ABS(sm.quantite) * COALESCE(sm.prix_unitaire, art.pmp_courant, 0)), 0) AS valeur " +
                         "FROM stock_movements sm " +
                         "JOIN articles art ON art.id = sm.article_id " +
-                        "WHERE sm.center_id = ? AND sm.created_at >= ? " +
+                        "WHERE sm.center_id = ? AND sm.created_at >= ? AND sm.mouvement_type <> 'INVENTAIRE' " +
                         "GROUP BY art.id, art.code, art.libelle, art.unite " +
                         "ORDER BY " + orderBy + " " +
                         "LIMIT ?",

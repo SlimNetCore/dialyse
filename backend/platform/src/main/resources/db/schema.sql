@@ -622,4 +622,118 @@ CREATE TABLE IF NOT EXISTS migration_value_map
 )
     );
 
+-- Inventaire de stock (voir aussi migration/V4__inventaire_stock.sql)
+CREATE TABLE IF NOT EXISTS inventaires
+(
+    id
+    uuid
+    NOT
+    NULL
+    PRIMARY
+    KEY,
+    center_id
+    uuid
+    NOT
+    NULL,
+    reference
+    character
+    varying
+(
+    40
+) NOT NULL,
+    date_inventaire date NOT NULL,
+    statut character varying
+(
+    20
+) NOT NULL,
+    commentaire character varying
+(
+    1000
+),
+    created_by character varying
+(
+    100
+),
+    created_at timestamp with time zone NOT NULL,
+                             closed_by character varying (100),
+    closed_at timestamp
+                         with time zone,
+                             CONSTRAINT uk_inventaires_reference UNIQUE (center_id, reference)
+    );
+CREATE INDEX IF NOT EXISTS idx_inventaires_center_statut ON inventaires (center_id, statut, date_inventaire);
+
+CREATE TABLE IF NOT EXISTS inventaire_lignes
+(
+    id
+    uuid
+    NOT
+    NULL
+    PRIMARY
+    KEY,
+    inventaire_id
+    uuid
+    NOT
+    NULL,
+    center_id
+    uuid
+    NOT
+    NULL,
+    position_ligne
+    integer
+    NOT
+    NULL,
+    article_id
+    uuid
+    NOT
+    NULL,
+    article_code
+    character
+    varying
+(
+    100
+),
+    article_libelle character varying
+(
+    255
+),
+    unite character varying
+(
+    50
+),
+    lot_id uuid,
+    numero_lot character varying
+(
+    100
+),
+    date_peremption date,
+    quantite_theorique numeric
+(
+    14,
+    3
+) NOT NULL,
+    quantite_comptee numeric
+(
+    14,
+    3
+),
+    pmp numeric
+(
+    14,
+    4
+),
+    motif_ecart character varying
+(
+    255
+),
+    compte_par character varying
+(
+    100
+),
+    compte_le timestamp with time zone,
+                            ajoutee boolean NOT NULL DEFAULT FALSE
+                            );
+CREATE INDEX IF NOT EXISTS idx_inventaire_lignes_inventaire ON inventaire_lignes (inventaire_id, position_ligne);
+
+ALTER TABLE IF EXISTS stock_movements ADD COLUMN IF NOT EXISTS inventaire_id UUID;
+CREATE INDEX IF NOT EXISTS idx_stock_mvt_center_inventaire ON stock_movements (center_id, inventaire_id, created_at);
 

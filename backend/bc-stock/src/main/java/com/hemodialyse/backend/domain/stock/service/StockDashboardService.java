@@ -146,6 +146,7 @@ public class StockDashboardService implements StockDashboardUseCase {
         StockMovement m = d.movement();
         BigDecimal q = m.getQuantite() != null ? m.getQuantite() : BigDecimal.ZERO;
         boolean entry = m.getMovementType() == StockMovementType.ENTREE
+                || m.getMovementType() == StockMovementType.INVENTAIRE
                 || (m.getMovementType() == StockMovementType.AJUSTEMENT && m.getPrixUnitaire() != null);
 
         if (entry) {
@@ -202,6 +203,9 @@ public class StockDashboardService implements StockDashboardUseCase {
                                          StockMovement m,
                                          Map<UUID, String> pieceByLotCache,
                                          Map<String, String> pieceBySortieKeyCache) {
+        if (m.getMovementType() == StockMovementType.INVENTAIRE) {
+            return "INV";
+        }
         if (m.getMovementType() == StockMovementType.ENTREE) {
             UUID lotId = m.getLotId();
             if (lotId == null) {

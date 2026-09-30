@@ -28,13 +28,13 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
 
     @Override
     public List<StockMovement> findByArticleOrdered(CenterId centerId, UUID articleId) {
-        return jpa.findByCenterIdAndArticleIdOrderByCreatedAtAscIdAsc(centerId.value(), articleId)
+        return jpa.findByCenterIdAndArticleIdAndInventaireIdIsNullOrderByCreatedAtAscIdAsc(centerId.value(), articleId)
                 .stream().map(this::toDomain).toList();
     }
 
     @Override
     public List<StockMovement> findByArticleBefore(CenterId centerId, UUID articleId, OffsetDateTime before) {
-        return jpa.findByCenterIdAndArticleIdAndCreatedAtBeforeOrderByCreatedAtAscIdAsc(
+        return jpa.findByCenterIdAndArticleIdAndInventaireIdIsNullAndCreatedAtBeforeOrderByCreatedAtAscIdAsc(
                         centerId.value(), articleId, before)
                 .stream().map(this::toDomain).toList();
     }
@@ -103,6 +103,7 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
         entity.setPmpApres(m.getPmpApres());
         entity.setCreatedBy(m.getCreatedBy());
         entity.setCreatedAt(m.getCreatedAt());
+        entity.setInventaireId(m.getInventaireId());
         return entity;
     }
 
@@ -119,6 +120,7 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
         movement.setPmpApres(e.getPmpApres());
         movement.setCreatedBy(e.getCreatedBy());
         movement.setCreatedAt(e.getCreatedAt());
+        movement.setInventaireId(e.getInventaireId());
         return movement;
     }
 }

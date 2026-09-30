@@ -21,6 +21,14 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovementJ
     List<StockMovementJpaEntity> findByCenterIdAndSeanceIdAndArticleId(UUID centerId, UUID seanceId, UUID articleId);
 
     void deleteByCenterIdAndSeanceIdAndArticleId(UUID centerId, UUID seanceId, UUID articleId);
+
+    /**
+     * Mouvements ouverts (non clotures par inventaire), dans l'ordre chronologique : base du recalcul.
+     */
+    List<StockMovementJpaEntity> findByCenterIdAndArticleIdAndInventaireIdIsNullOrderByCreatedAtAscIdAsc(UUID centerId, UUID articleId);
+
+    List<StockMovementJpaEntity> findByCenterIdAndArticleIdAndInventaireIdIsNullAndCreatedAtBeforeOrderByCreatedAtAscIdAsc(
+            UUID centerId, UUID articleId, OffsetDateTime before);
 }
 
 

@@ -21,6 +21,10 @@ public class StockMovement {
     private BigDecimal pmpApres;
     private String createdBy;
     private OffsetDateTime createdAt;
+    /**
+     * Inventaire ayant cloture ce mouvement ({@code null} = mouvement ouvert, pris en compte par le recalcul).
+     */
+    private UUID inventaireId;
 
     public static StockMovement sortie(UUID centerId, UUID articleId, UUID seanceId, BigDecimal quantite, String createdBy) {
         return sortie(centerId, articleId, seanceId, quantite, createdBy, OffsetDateTime.now());
@@ -102,6 +106,43 @@ public class StockMovement {
         return movement;
     }
 
+    /**
+     * Stock de depart d'un lot pose par la cloture d'un inventaire : quantite comptee, valorisee au PMP
+     * de l'article au moment de l'inventaire. Date = fin du jour d'inventaire.
+     */
+    public static StockMovement inventaire(UUID centerId, UUID articleId, UUID lotId, BigDecimal quantite,
+                                           BigDecimal pmp, String createdBy, OffsetDateTime createdAt) {
+        Quantite.of(quantite);
+        if (pmp != null) {
+            Money.of(pmp);
+        }
+        StockMovement movement = new StockMovement();
+        movement.setId(UUID.randomUUID());
+        movement.setCenterId(centerId);
+        movement.setArticleId(articleId);
+        movement.setLotId(lotId);
+        movement.setMovementType(StockMovementType.INVENTAIRE);
+        movement.setQuantite(quantite);
+        movement.setPrixUnitaire(pmp != null ? pmp : BigDecimal.ZERO);
+        movement.setCreatedBy(createdBy);
+        movement.setCreatedAt(createdAt);
+        return movement;
+    }
+
+    /**
+     * Mouvement cloture par un inventaire : il ne peut plus etre modifie ni supprime.
+     */
+    public boolean isCloture() {
+        return inventaireId != null;
+    }
+
+    public UUID getInventaireId() {
+        return inventaireId;
+    }
+
+    public void setInventaireId(UUID inventaireId) {
+        this.inventaireId = inventaireId;
+    }
     private static OffsetDateTime toCreatedAt(LocalDate createdOn) {
         return createdOn != null ? createdOn.atStartOfDay().atOffset(ZoneOffset.UTC) : OffsetDateTime.now();
     }

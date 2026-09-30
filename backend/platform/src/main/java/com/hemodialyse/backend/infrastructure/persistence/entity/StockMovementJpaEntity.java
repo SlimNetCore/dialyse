@@ -46,6 +46,12 @@ public class StockMovementJpaEntity {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
+    /**
+     * Inventaire ayant cloture ce mouvement (null = ouvert, pris en compte par les recalculs).
+     */
+    @Column(name = "inventaire_id")
+    private UUID inventaireId;
+
     public UUID getId() {
         return id;
     }
@@ -132,6 +138,14 @@ public class StockMovementJpaEntity {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public UUID getInventaireId() {
+        return inventaireId;
+    }
+
+    public void setInventaireId(UUID inventaireId) {
+        this.inventaireId = inventaireId;
     }
 }
 
