@@ -86,9 +86,22 @@ public class TabularFileReader {
         int lastCell = Math.min(row.getLastCellNum(), MAX_COLUMNS);
         for (int c = 0; c < lastCell; c++) {
             Cell cell = row.getCell(c);
-            cells.add(cell == null ? "" : formatter.formatCellValue(cell, evaluator).trim());
+            cells.add(cell == null ? "" : cellText(cell, formatter, evaluator));
         }
         return cells;
+    }
+
+    /**
+     * Date Excel → AAAA-MM-JJ (le format d'affichage dépend du poste : « 1/2/19 » serait ambigu).
+     */
+    private static String cellText(Cell cell, DataFormatter formatter, FormulaEvaluator evaluator) {
+        org.apache.poi.ss.usermodel.CellType type = cell.getCellType() == org.apache.poi.ss.usermodel.CellType.FORMULA
+                ? evaluator.evaluateFormulaCell(cell) : cell.getCellType();
+        if (type == org.apache.poi.ss.usermodel.CellType.NUMERIC && org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
+            java.time.LocalDateTime value = cell.getLocalDateTimeCellValue();
+            return value.toLocalTime().equals(java.time.LocalTime.MIDNIGHT) ? value.toLocalDate().toString() : value.toString();
+        }
+        return formatter.formatCellValue(cell, evaluator).trim();
     }
 
     // ---- Excel -------------------------------------------------------------------------------------------------
@@ -217,4 +230,6 @@ public class TabularFileReader {
     record CsvRecord(int lineNumber, List<String> cells) {
     }
 }
+
+
 

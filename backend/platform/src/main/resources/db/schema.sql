@@ -481,4 +481,145 @@ ALTER TABLE IF EXISTS seances
 ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS forfait_override_updated_by VARCHAR(100);
 
+-- ••• Reprise des données d'un système existant (voir aussi migration/V3__reprise_donnees.sql) •••
+
+CREATE TABLE IF NOT EXISTS migration_batch
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    libelle
+    VARCHAR
+(
+    200
+) NOT NULL,
+    source_system VARCHAR
+(
+    100
+),
+    date_debut_reprise DATE,
+    status VARCHAR
+(
+    20
+) NOT NULL,
+    created_by VARCHAR
+(
+    100
+),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    closed_at TIMESTAMP WITH TIME ZONE
+                            );
+CREATE INDEX IF NOT EXISTS idx_migration_batch_center ON migration_batch (center_id, status);
+
+CREATE TABLE IF NOT EXISTS migration_entity_run
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    batch_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    entity
+    VARCHAR
+(
+    40
+) NOT NULL,
+    file_name VARCHAR
+(
+    255
+),
+    dry_run BOOLEAN NOT NULL,
+    applied BOOLEAN NOT NULL,
+    total_rows INTEGER NOT NULL,
+    created_count INTEGER NOT NULL,
+    updated_count INTEGER NOT NULL,
+    error_count INTEGER NOT NULL,
+    warning_count INTEGER NOT NULL,
+    report_json TEXT,
+    executed_by VARCHAR
+(
+    100
+),
+    executed_at TIMESTAMP WITH TIME ZONE NOT NULL
+                              );
+CREATE INDEX IF NOT EXISTS idx_migration_run_batch ON migration_entity_run (batch_id, entity, executed_at);
+
+CREATE TABLE IF NOT EXISTS migration_id_map
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    batch_id
+    UUID
+    NOT
+    NULL,
+    entity
+    VARCHAR
+(
+    40
+) NOT NULL,
+    legacy_id VARCHAR
+(
+    150
+) NOT NULL,
+    target_id VARCHAR
+(
+    150
+) NOT NULL,
+    operation VARCHAR
+(
+    10
+) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                             CONSTRAINT uk_migration_id_map UNIQUE (center_id, entity, legacy_id)
+    );
+CREATE INDEX IF NOT EXISTS idx_migration_id_map_batch ON migration_id_map (batch_id);
+
+CREATE TABLE IF NOT EXISTS migration_value_map
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    column_key
+    VARCHAR
+(
+    60
+) NOT NULL,
+    source_value VARCHAR
+(
+    150
+) NOT NULL,
+    target_value VARCHAR
+(
+    150
+) NOT NULL,
+    CONSTRAINT uk_migration_value_map UNIQUE
+(
+    center_id,
+    column_key,
+    source_value
+)
+    );
+
 

@@ -23,6 +23,7 @@ COPY bc-medical/pom.xml ./bc-medical/pom.xml
 COPY bc-facturation/pom.xml ./bc-facturation/pom.xml
 COPY bc-reglement/pom.xml ./bc-reglement/pom.xml
 COPY bc-comptabilite/pom.xml ./bc-comptabilite/pom.xml
+COPY bc-migration/pom.xml ./bc-migration/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
 RUN mvn -B -q -DskipTests dependency:go-offline

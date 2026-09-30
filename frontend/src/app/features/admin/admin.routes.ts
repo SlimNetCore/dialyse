@@ -47,6 +47,10 @@ export const adminRoutes: Routes = [
     loadComponent: () =>
       import('./referentiels/referentiels-admin.component').then((m) => m.ReferentielsAdminComponent),
   },
+  {
+    path: 'parametrage/reprise',
+    loadComponent: () => import('./reprise/reprise-donnees.component').then((m) => m.RepriseDonneesComponent),
+  },
   { path: '', redirectTo: 'users', pathMatch: 'full' }
 ];
 

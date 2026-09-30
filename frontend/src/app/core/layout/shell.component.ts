@@ -163,6 +163,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/admin/parametrage/facturation', label: 'Paramétrage facturation', icon: 'tune'},
         {route: '/admin/parametrage/tva', label: 'Types de TVA', icon: 'percent'},
         {route: '/admin/parametrage/referentiels', label: 'Référentiels', icon: 'dataset'},
+        {route: '/admin/parametrage/reprise', label: 'Reprise de données', icon: 'move_down'},
       ],
     },
   ];
@@ -271,6 +272,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       'modeles-document': 'Modèles documents',
       tva: 'Types de TVA',
       referentiels: 'Référentiels',
+      reprise: 'Reprise de données',
     };
     const segs = url.split('?')[0].split('/').filter(Boolean);
     this.breadcrumbRoutes = segs;
