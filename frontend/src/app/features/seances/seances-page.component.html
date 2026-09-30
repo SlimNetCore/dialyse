@@ -360,6 +360,15 @@
 
               <mat-tab [label]="'SEANCES.TAB_PARAMEDICAL' | translate">
                 <div class="tab-body">
+                  @if (summary(); as s) {
+                    <app-poids-sec-seance
+                      [centerId]="currentCenterId()"
+                      [patientId]="s.seance.patientId"
+                      [poidsApresKg]="poidsApresKg()"
+                      [poidsAvantKg]="poidsAvantKg()"
+                      [seanceDate]="s.seance.dateSeance"
+                    ></app-poids-sec-seance>
+                  }
                   <div class="form-grid">
                     <mat-form-field appearance="outline">
                       <mat-label>{{ 'CAHIER.PARAMEDICAL_TA_AVANT' | translate }}</mat-label>

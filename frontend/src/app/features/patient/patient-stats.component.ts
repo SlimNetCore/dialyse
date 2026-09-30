@@ -133,6 +133,22 @@ export class PatientStatsComponent {
           pointHitRadius: 14,
           fill: false,
         },
+        {
+          // Poids sec cible prescrit par le médecin : ligne en escalier pointillée (valeur constante
+          // entre deux prescriptions) — le poids après doit s'en approcher.
+          label: this.translate.instant('PATIENT_STATS.CHART_POIDS_SEC'),
+          data: this.seriesValues(rows, ['poids_sec_cible_kg', 'POIDS_SEC_CIBLE_KG']),
+          borderColor: '#dc2626',
+          backgroundColor: 'rgba(220, 38, 38, 0.1)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          stepped: true,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHitRadius: 14,
+          spanGaps: true,
+          fill: false,
+        },
       ],
     };
   });

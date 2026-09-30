@@ -1,10 +1,17 @@
 package com.hemodialyse.backend.domain.seance.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public class PrescriptionMedicale {
+    /**
+     * Bornes cliniques plausibles du poids sec cible (kg) — prescrit par le médecin.
+     */
+    public static final BigDecimal POIDS_SEC_MIN_KG = new BigDecimal("20.00");
+    public static final BigDecimal POIDS_SEC_MAX_KG = new BigDecimal("300.00");
+
     private UUID id;
     private UUID patientId;
     private UUID centerId;
@@ -14,6 +21,10 @@ public class PrescriptionMedicale {
     private Integer qdCible;
     private Integer ufMaxMl;
     private Integer dureeCibleMin;
+    /**
+     * Poids sec cible (kg) : poids visé en fin de séance, fixé par le médecin.
+     */
+    private BigDecimal poidsSecCibleKg;
     private String typeDialyseurPrescrit;
     private String anticoagTypePrescrit;
     private UUID epoArticleId;
@@ -99,6 +110,14 @@ public class PrescriptionMedicale {
 
     public void setDureeCibleMin(Integer dureeCibleMin) {
         this.dureeCibleMin = dureeCibleMin;
+    }
+
+    public BigDecimal getPoidsSecCibleKg() {
+        return poidsSecCibleKg;
+    }
+
+    public void setPoidsSecCibleKg(BigDecimal poidsSecCibleKg) {
+        this.poidsSecCibleKg = poidsSecCibleKg;
     }
 
     public String getTypeDialyseurPrescrit() {

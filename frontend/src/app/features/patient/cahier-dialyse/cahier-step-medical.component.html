@@ -46,6 +46,10 @@
             <h4>{{ 'CAHIER.MEDICAL_PRESCRIPTION_ACTIVE' | translate }}</h4>
             @if (prescription(); as p) {
               <div class="prescription-lines">
+                <p data-testid="cahier-medical-poids-sec">
+                  <strong>{{ 'DOSSIER_MEDICAL.POIDS_SEC_SHORT' | translate }}</strong>
+                  {{ p.poidsSecCibleKg != null ? p.poidsSecCibleKg + ' kg' : '-' }}
+                </p>
                 <p><strong>EPO</strong> {{ p.epoArticleLibelle || p.epoArticleCode || '-' }}
                   @if (p.epoDoseUi) {
                     — {{ p.epoDoseUi }} UI {{ p.epoVoie }} {{ p.epoFrequenceValeur }}
@@ -78,3 +82,4 @@
     </mat-card-content>
   </mat-card>
 </div>
+

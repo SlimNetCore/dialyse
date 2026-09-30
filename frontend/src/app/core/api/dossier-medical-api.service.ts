@@ -64,6 +64,8 @@ export type PrescriptionMedicale = {
   qdCible: number | null;
   ufMaxMl: number | null;
   dureeCibleMin: number | null;
+  /** Poids sec cible (kg) prescrit par le médecin. */
+  poidsSecCibleKg: number | null;
   typeDialyseurPrescrit: string | null;
   anticoagTypePrescrit: string | null;
   epoArticleId: string | null;
@@ -92,6 +94,7 @@ export type UpsertPrescriptionMedicalePayload = {
   qdCible: number | null;
   ufMaxMl: number | null;
   dureeCibleMin: number | null;
+  poidsSecCibleKg: number | null;
   typeDialyseurPrescrit: string | null;
   anticoagTypePrescrit: string | null;
   epoArticleId: string | null;

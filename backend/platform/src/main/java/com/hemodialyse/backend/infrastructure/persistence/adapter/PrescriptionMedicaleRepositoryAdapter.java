@@ -78,6 +78,7 @@ public class PrescriptionMedicaleRepositoryAdapter implements PrescriptionMedica
         p.setQdCible(e.getQdCible());
         p.setUfMaxMl(e.getUfMaxMl());
         p.setDureeCibleMin(e.getDureeCibleMin());
+        p.setPoidsSecCibleKg(e.getPoidsSecCibleKg());
         p.setTypeDialyseurPrescrit(e.getTypeDialyseurPrescrit());
         p.setAnticoagTypePrescrit(e.getAnticoagTypePrescrit());
         p.setEpoArticleId(e.getEpoArticleId());
@@ -106,6 +107,7 @@ public class PrescriptionMedicaleRepositoryAdapter implements PrescriptionMedica
         e.setQdCible(p.getQdCible());
         e.setUfMaxMl(p.getUfMaxMl());
         e.setDureeCibleMin(p.getDureeCibleMin());
+        e.setPoidsSecCibleKg(p.getPoidsSecCibleKg());
         e.setTypeDialyseurPrescrit(p.getTypeDialyseurPrescrit());
         e.setAnticoagTypePrescrit(p.getAnticoagTypePrescrit());
         e.setEpoArticleId(p.getEpoArticleId());

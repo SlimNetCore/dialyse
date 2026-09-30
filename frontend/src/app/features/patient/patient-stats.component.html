@@ -103,6 +103,10 @@
             <span>{{ 'PATIENT_STATS.AVG_UF' | translate }}</span>
             <strong>{{ paramedical().avgUfReelleMl | number: '1.0-0' }}</strong>
           </div>
+          <div class="kpi" data-testid="kpi-poids-sec">
+            <span>{{ 'PATIENT_STATS.KPI_POIDS_SEC' | translate }}</span>
+            <strong>{{ paramedical().poidsSecCibleKg != null ? (paramedical().poidsSecCibleKg | number: '1.0-2') + ' kg' : '-' }}</strong>
+          </div>
         </div>
       </mat-card>
 

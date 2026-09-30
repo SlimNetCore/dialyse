@@ -1,0 +1,60 @@
+:host {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.poids-sec-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 24px;
+  padding: 12px 16px;
+  border: 1px solid var(--app-border);
+  border-left: 4px solid #1976d2;
+  border-radius: 8px;
+  background: var(--app-surface-soft);
+}
+
+.poids-sec-alerte {
+  border-left-color: #c62828;
+}
+
+.poids-sec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.poids-sec-label {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.poids-sec-value {
+  font-size: 1.05rem;
+}
+
+.poids-sec-warning {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c62828;
+  font-weight: 600;
+}
+
+.poids-sec-absent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left-color: var(--app-border);
+  opacity: 0.8;
+}
+
+/* Mobile (AGENTS.md §4.1 : 320-767px). */
+@media (max-width: 767px) {
+  .poids-sec-panel {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -5,6 +5,7 @@ import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public interface PrescriptionMedicaleUseCase {
                               Integer qdCible,
                               Integer ufMaxMl,
                               Integer dureeCibleMin,
+                              BigDecimal poidsSecCibleKg,
                               String typeDialyseurPrescrit,
                               String anticoagTypePrescrit,
                               UUID epoArticleId,

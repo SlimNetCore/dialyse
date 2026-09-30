@@ -12,7 +12,7 @@ import {MatNativeDateModule} from '@angular/material/core';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
-import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
+import {requiredValidator, SignalForm, SignalFormValidator} from '../../../shared/forms/signal-form';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {PrescriptionMedicale, UniteFrequence} from '../../../core/api/dossier-medical-api.service';
 import {ArticleStock, StockApiService} from '../../../core/api/stock-api.service';
@@ -26,6 +26,7 @@ interface PrescriptionFormModel {
   qdCible: number | null;
   ufMaxMl: number | null;
   dureeCibleMin: number | null;
+  poidsSecCibleKg: number | null;
   typeDialyseurPrescrit: string;
   anticoagTypePrescrit: string;
   epoArticleId: string;
@@ -44,6 +45,18 @@ const ANTICOAG_TYPES = ['HNF', 'HBPM', 'CITRATE', 'AUCUN'] as const;
 const EPO_VOIES = ['SC', 'IV'] as const;
 const FER_VOIES = ['IV'] as const;
 const UNITES_FREQUENCE: readonly UniteFrequence[] = ['HEURE', 'JOUR', 'SEMAINE', 'MOIS', 'ANNEE'];
+/** Bornes cliniques du poids sec cible — identiques au backend (PrescriptionMedicale). */
+export const POIDS_SEC_MIN_KG = 20;
+export const POIDS_SEC_MAX_KG = 300;
+
+/** Poids sec facultatif ; s'il est saisi il doit rester dans les bornes cliniques. */
+export function poidsSecValidator(message = 'DOSSIER_MEDICAL.POIDS_SEC_RANGE_ERROR'): SignalFormValidator<unknown> {
+  return (value) => {
+    if (value === null || value === undefined || value === '') return null;
+    const n = Number(value);
+    return Number.isFinite(n) && n >= POIDS_SEC_MIN_KG && n <= POIDS_SEC_MAX_KG ? null : message;
+  };
+}
 
 function toIsoDate(value: Date | string | null): string | null {
   if (!value) return null;
@@ -61,6 +74,7 @@ function emptyForm(): PrescriptionFormModel {
     qdCible: null,
     ufMaxMl: null,
     dureeCibleMin: null,
+    poidsSecCibleKg: null,
     typeDialyseurPrescrit: '',
     anticoagTypePrescrit: '',
     epoArticleId: '',
@@ -118,6 +132,7 @@ export class PrescriptionsListComponent implements OnInit {
   protected readonly editingId = signal<string | null>(null);
   protected readonly form = new SignalForm<PrescriptionFormModel>(emptyForm(), {
     datePrescription: [requiredValidator()],
+    poidsSecCibleKg: [poidsSecValidator()],
   });
   private readonly route = inject(ActivatedRoute);
   protected readonly patientId = resolvePatientIdFromRoute(this.route);
@@ -137,6 +152,7 @@ export class PrescriptionsListComponent implements OnInit {
       qdCible: prescription.qdCible,
       ufMaxMl: prescription.ufMaxMl,
       dureeCibleMin: prescription.dureeCibleMin,
+      poidsSecCibleKg: prescription.poidsSecCibleKg ?? null,
       typeDialyseurPrescrit: prescription.typeDialyseurPrescrit ?? '',
       anticoagTypePrescrit: prescription.anticoagTypePrescrit ?? '',
       epoArticleId: prescription.epoArticleId ?? '',
@@ -184,6 +200,7 @@ export class PrescriptionsListComponent implements OnInit {
         qdCible: value.qdCible,
         ufMaxMl: value.ufMaxMl,
         dureeCibleMin: value.dureeCibleMin,
+        poidsSecCibleKg: value.poidsSecCibleKg,
         typeDialyseurPrescrit: value.typeDialyseurPrescrit || null,
         anticoagTypePrescrit: value.anticoagTypePrescrit || null,
         epoArticleId: value.epoArticleId || null,

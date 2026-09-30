@@ -3,6 +3,7 @@ package com.hemodialyse.backend.infrastructure.web.dto.response;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
 import com.hemodialyse.backend.domain.seance.model.UniteFrequence;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public record PrescriptionMedicaleResponse(
         Integer qdCible,
         Integer ufMaxMl,
         Integer dureeCibleMin,
+        BigDecimal poidsSecCibleKg,
         String typeDialyseurPrescrit,
         String anticoagTypePrescrit,
         UUID epoArticleId,
@@ -62,6 +64,7 @@ public record PrescriptionMedicaleResponse(
                 p.getQdCible(),
                 p.getUfMaxMl(),
                 p.getDureeCibleMin(),
+                p.getPoidsSecCibleKg(),
                 p.getTypeDialyseurPrescrit(),
                 p.getAnticoagTypePrescrit(),
                 p.getEpoArticleId(),

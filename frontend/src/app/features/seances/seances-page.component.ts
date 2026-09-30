@@ -35,6 +35,7 @@ import {SeanceStore} from './state/seance.store';
 import {RichTextEditorComponent} from '../../shared/rich-text-editor/rich-text-editor.component';
 import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 import {AdministrationAnemieSeanceComponent} from './administration-anemie/administration-anemie-seance.component';
+import {PoidsSecSeanceComponent} from './poids-sec/poids-sec-seance.component';
 
 type BarcodeDetectorInstance = {
   detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
@@ -47,7 +48,7 @@ Chart.register(...registerables);
   imports: [MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatTableModule, MatSelectModule, MatTabsModule, MatPaginatorModule,
     TranslateModule, BaseChartDirective, RouterLink, RichTextEditorComponent, ConfigurableListComponent,
-    AdministrationAnemieSeanceComponent],
+    AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',

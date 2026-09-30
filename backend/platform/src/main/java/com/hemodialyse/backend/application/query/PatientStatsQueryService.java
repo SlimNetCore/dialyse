@@ -24,11 +24,23 @@ public class PatientStatsQueryService {
 
     /**
      * UF réelle : valeur saisie (ultrafiltration_ml) ou, à défaut, perte de poids per-dialytique × 1000.
-     * Le schéma effectif de volet_paramedical (entité JPA) ne contient ni uf_reelle_ml, ni poids_sec_cible_kg,
-     * ni TA systolique/diastolique séparées : la TA est stockée en texte « 130/80 » (ta_avant / ta_apres).
+     * Le schéma effectif de volet_paramedical (entité JPA) ne contient ni uf_reelle_ml, ni TA
+     * systolique/diastolique séparées : la TA est stockée en texte « 130/80 » (ta_avant / ta_apres).
+     * Le poids sec cible provient de la prescription médicale (prescriptions_medicales).
      */
     private static final String UF_REELLE_EXPR =
             "COALESCE(vp.ultrafiltration_ml, (vp.poids_avant_kg - vp.poids_apres_kg) * 1000)";
+
+    /**
+     * Poids sec cible en vigueur le jour de la séance : dernière prescription médicale portant un
+     * poids sec, datée au plus tard du jour de la séance (le médecin n'a pas à le ressaisir à chaque
+     * nouvelle prescription).
+     */
+    private static final String POIDS_SEC_A_LA_SEANCE_EXPR =
+            "(SELECT pm.poids_sec_cible_kg FROM prescriptions_medicales pm "
+                    + "WHERE pm.patient_id = s.patient_id AND pm.center_id = s.center_id "
+                    + "AND pm.poids_sec_cible_kg IS NOT NULL AND pm.date_prescription <= s.date_seance "
+                    + "ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1)";
 
     private static final java.util.regex.Pattern TA_PATTERN =
             java.util.regex.Pattern.compile("^\\s*(\\d{2,3})\\s*[/\\-]\\s*(\\d{2,3})");
@@ -289,7 +301,7 @@ public class PatientStatsQueryService {
 
         List<Map<String, Object>> poidsEvolution = jdbc.queryForList(
                 "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, "
-                        + "CAST(NULL AS DECIMAL(6,2)) AS poids_sec_cible_kg, "
+                        + POIDS_SEC_A_LA_SEANCE_EXPR + " AS poids_sec_cible_kg, "
                         + UF_REELLE_EXPR + " AS uf_reelle_ml"
                         + baseFrom
                         + " ORDER BY s.date_seance ASC",
@@ -319,9 +331,23 @@ public class PatientStatsQueryService {
         out.put("avgPoidsAvantKg", avgPoidsAvant);
         out.put("avgPoidsApresKg", avgPoidsApres);
         out.put("avgUfReelleMl", avgUfReelle);
+        out.put("poidsSecCibleKg", currentPoidsSec(centerId, patientId, to));
         out.put("poidsEvolution", poidsEvolution);
         out.put("taEvolution", taEvolution);
         return out;
+    }
+
+    /**
+     * Poids sec cible en vigueur à la fin de la période (ou aujourd'hui) : dernière prescription
+     * portant un poids sec, datée au plus tard de {@code at}. Null si jamais prescrit.
+     */
+    private Double currentPoidsSec(UUID centerId, UUID patientId, LocalDate at) {
+        List<Double> values = jdbc.queryForList(
+                "SELECT pm.poids_sec_cible_kg FROM prescriptions_medicales pm "
+                        + "WHERE pm.center_id = ? AND pm.patient_id = ? AND pm.poids_sec_cible_kg IS NOT NULL "
+                        + "AND pm.date_prescription <= ? ORDER BY pm.date_prescription DESC, pm.updated_at DESC LIMIT 1",
+                Double.class, centerId, patientId, at != null ? at : LocalDate.now());
+        return values.isEmpty() ? null : values.get(0);
     }
 
     private Long queryLong(String sql, UUID centerId, UUID patientId) {

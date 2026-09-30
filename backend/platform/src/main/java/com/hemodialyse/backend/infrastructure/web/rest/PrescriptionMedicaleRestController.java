@@ -157,6 +157,7 @@ public class PrescriptionMedicaleRestController {
                 request.qdCible(),
                 request.ufMaxMl(),
                 request.dureeCibleMin(),
+                request.poidsSecCibleKg(),
                 request.typeDialyseurPrescrit(),
                 request.anticoagTypePrescrit(),
                 request.epoArticleId(),

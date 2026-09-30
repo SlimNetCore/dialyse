@@ -21,6 +21,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +95,8 @@ class PrescriptionMedicaleRestControllerTest {
         UUID medecinId = UUID.randomUUID();
 
         UpsertPrescriptionMedicaleRequest request = new UpsertPrescriptionMedicaleRequest(
-                centerId, LocalDate.of(2026, 5, 1), medecinId, 300, 500, 2500, 240, "FX-80", "HNF",
+                centerId, LocalDate.of(2026, 5, 1), medecinId, 300, 500, 2500, 240, new BigDecimal("68.50"),
+                "FX-80", "HNF",
                 UUID.randomUUID(), 60, "SC", 1, UniteFrequence.SEMAINE,
                 UUID.randomUUID(), 100, "IV", 1, UniteFrequence.SEMAINE);
 
@@ -104,6 +106,7 @@ class PrescriptionMedicaleRestControllerTest {
         assertEquals(centerId, useCase.lastCenterId.value());
         assertEquals(patientId, useCase.lastPatientId);
         assertEquals(medecinId, useCase.lastMedecinId);
+        assertEquals(new BigDecimal("68.50"), useCase.lastPoidsSec);
     }
 
     @Test
@@ -158,6 +161,7 @@ class PrescriptionMedicaleRestControllerTest {
         private CenterId lastCenterId;
         private UUID lastPatientId;
         private UUID lastMedecinId;
+        private BigDecimal lastPoidsSec;
         private UUID lastDeletedId;
         private int lastPage = -1;
         private int lastSize = -1;
@@ -184,6 +188,7 @@ class PrescriptionMedicaleRestControllerTest {
         public PrescriptionMedicale save(CenterId centerId, UUID patientId, UUID prescriptionId,
                                          LocalDate datePrescription, UUID medecinId, Integer qbCible,
                                          Integer qdCible, Integer ufMaxMl, Integer dureeCibleMin,
+                                         BigDecimal poidsSecCibleKg,
                                          String typeDialyseurPrescrit, String anticoagTypePrescrit,
                                          UUID epoArticleId, Integer epoDoseUi, String epoVoie,
                                          Integer epoFrequenceValeur, UniteFrequence epoFrequenceUnite,
@@ -192,6 +197,7 @@ class PrescriptionMedicaleRestControllerTest {
             this.lastCenterId = centerId;
             this.lastPatientId = patientId;
             this.lastMedecinId = medecinId;
+            this.lastPoidsSec = poidsSecCibleKg;
             PrescriptionMedicale p = new PrescriptionMedicale();
             p.setId(prescriptionId != null ? prescriptionId : UUID.randomUUID());
             p.setPatientId(patientId);

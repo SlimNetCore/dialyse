@@ -1297,7 +1297,7 @@ INSERT INTO prescriptions_medicales (id, anticoag_type_prescrit, center_id, crea
                                      duree_cible_min, epo_article_id, epo_dose_ui, epo_frequence_unite,
                                      epo_frequence_valeur, epo_voie, fer_article_id, fer_dose_mg, fer_frequence_unite,
                                      fer_frequence_valeur, fer_voie, medecin_id, patient_id, qb_cible, qd_cible,
-                                     type_dialyseur_prescrit, uf_max_ml, updated_at)
+                                     type_dialyseur_prescrit, uf_max_ml, updated_at, poids_sec_cible_kg)
 SELECT r.presc_id,
        CASE r.anticoag WHEN 'CITRATE' THEN 'CITRATE' ELSE r.anticoag END,
        r.center_id,
@@ -1322,7 +1322,8 @@ SELECT r.presc_id,
            WHEN r.forfait_code IN ('HDF-OL', 'HD-EPO') THEN 'FX80 haute perméabilité 1,8 m²'
            ELSE 'F8 HPS basse perméabilité 1,8 m²' END,
        CASE WHEN r.no = 1 THEN 3500 ELSE 3200 END,
-       pg_temp.ts(r.date_prescription, 11)
+       pg_temp.ts(r.date_prescription, 11),
+       r.poids_sec -- poids sec cible prescrit (migration V2)
 FROM _pr r;
 
 -- Administrations anémie : EPO hebdomadaire + fer mensuel (1re séance réalisée de la semaine / du mois)

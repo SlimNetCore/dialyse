@@ -52,6 +52,21 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>{{ 'DOSSIER_MEDICAL.POIDS_SEC_CIBLE' | translate }}</mat-label>
+          <input (input)="onNumber('poidsSecCibleKg', $any($event.target).value)"
+                 [value]="form.value().poidsSecCibleKg ?? ''"
+                 data-testid="prescription-poids-sec" matInput max="300" min="20" step="0.1" type="number"/>
+          <span matTextSuffix>kg</span>
+          @if (form.firstError('poidsSecCibleKg'); as err) {
+            <mat-hint class="prescription-field-error"
+                      data-testid="prescription-poids-sec-error">{{ err | translate }}
+            </mat-hint>
+          } @else {
+            <mat-hint>{{ 'DOSSIER_MEDICAL.POIDS_SEC_HINT' | translate }}</mat-hint>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.TYPE_DIALYSEUR' | translate }}</mat-label>
           <input (input)="onValue('typeDialyseurPrescrit', $any($event.target).value)"
                  [value]="form.value().typeDialyseurPrescrit" matInput/>
@@ -188,6 +203,10 @@
           <div class="prescription-card-body">
             <span>Qb {{ prescription.qbCible ?? '-' }} · Qd {{ prescription.qdCible ?? '-' }}
               · UF max {{ prescription.ufMaxMl ?? '-' }} · {{ prescription.dureeCibleMin ?? '-' }} min</span>
+            @if (prescription.poidsSecCibleKg != null) {
+              <span class="prescription-tag" data-testid="prescription-card-poids-sec">
+                {{ 'DOSSIER_MEDICAL.POIDS_SEC_SHORT' | translate }} {{ prescription.poidsSecCibleKg }} kg</span>
+            }
             @if (prescription.epoArticleId) {
               <span class="prescription-tag">EPO {{ prescription.epoArticleLibelle ?? prescription.epoArticleCode }}
                 {{ prescription.epoDoseUi }}

@@ -7,6 +7,8 @@ import com.hemodialyse.backend.domain.seance.port.PrescriptionMedicaleUseCase;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -65,6 +67,22 @@ public class PrescriptionMedicaleDomainService implements PrescriptionMedicaleUs
         return Math.min(size, MAX_PAGE_SIZE);
     }
 
+    /**
+     * Poids sec cible facultatif ; s'il est renseigné il doit rester dans des bornes cliniques
+     * plausibles. Arrondi au centième (colonne NUMERIC(5,2)).
+     */
+    static BigDecimal normalizePoidsSec(BigDecimal poidsSecCibleKg) {
+        if (poidsSecCibleKg == null) {
+            return null;
+        }
+        if (poidsSecCibleKg.compareTo(PrescriptionMedicale.POIDS_SEC_MIN_KG) < 0
+                || poidsSecCibleKg.compareTo(PrescriptionMedicale.POIDS_SEC_MAX_KG) > 0) {
+            throw new IllegalArgumentException("Le poids sec cible doit être compris entre "
+                    + PrescriptionMedicale.POIDS_SEC_MIN_KG + " et " + PrescriptionMedicale.POIDS_SEC_MAX_KG + " kg");
+        }
+        return poidsSecCibleKg.setScale(2, RoundingMode.HALF_UP);
+    }
+
     @Override
     public PrescriptionMedicale save(CenterId centerId,
                                      UUID patientId,
@@ -75,6 +93,7 @@ public class PrescriptionMedicaleDomainService implements PrescriptionMedicaleUs
                                      Integer qdCible,
                                      Integer ufMaxMl,
                                      Integer dureeCibleMin,
+                                     BigDecimal poidsSecCibleKg,
                                      String typeDialyseurPrescrit,
                                      String anticoagTypePrescrit,
                                      UUID epoArticleId,
@@ -97,6 +116,7 @@ public class PrescriptionMedicaleDomainService implements PrescriptionMedicaleUs
         prescription.setQdCible(qdCible);
         prescription.setUfMaxMl(ufMaxMl);
         prescription.setDureeCibleMin(dureeCibleMin);
+        prescription.setPoidsSecCibleKg(normalizePoidsSec(poidsSecCibleKg));
         prescription.setTypeDialyseurPrescrit(typeDialyseurPrescrit);
         prescription.setAnticoagTypePrescrit(anticoagTypePrescrit);
         prescription.setEpoArticleId(epoArticleId);

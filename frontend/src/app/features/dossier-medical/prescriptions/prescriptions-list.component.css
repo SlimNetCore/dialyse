@@ -122,6 +122,10 @@
   opacity: 0.7;
 }
 
+.prescription-field-error {
+  color: #c62828;
+}
+
 /* Tablette (768-1024px). */
 @media (max-width: 1024px) {
   .prescriptions-container {

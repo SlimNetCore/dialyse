@@ -366,6 +366,8 @@ export type PatientParamedicalStats = {
   avgPoidsAvantKg: number;
   avgPoidsApresKg: number;
   avgUfReelleMl: number;
+  /** Poids sec cible en vigueur (prescription médicale) à la fin de la période ; null si non prescrit. */
+  poidsSecCibleKg?: number | null;
   poidsEvolution: Array<Record<string, unknown>>;
   taEvolution: Array<Record<string, unknown>>;
 };

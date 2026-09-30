@@ -1,0 +1,34 @@
+@if (loaded()) {
+  @if (poidsSecCibleKg(); as poidsSec) {
+    <div [class.poids-sec-alerte]="surchargeAlerte()" class="poids-sec-panel" data-testid="poids-sec-panel">
+      <div class="poids-sec-item">
+        <span class="poids-sec-label">{{ 'SEANCES.POIDS_SEC_CIBLE' | translate }}</span>
+        <strong class="poids-sec-value" data-testid="poids-sec-cible">{{ poidsSec }} kg</strong>
+      </div>
+      <div class="poids-sec-item">
+        <span class="poids-sec-label">{{ 'SEANCES.SURCHARGE_HYDRIQUE' | translate }}</span>
+        <strong class="poids-sec-value" data-testid="poids-sec-surcharge">
+          {{ surchargeKg() !== null ? signed(surchargeKg()!) : '-' }}
+        </strong>
+      </div>
+      <div class="poids-sec-item">
+        <span class="poids-sec-label">{{ 'SEANCES.ECART_FIN_SEANCE' | translate }}</span>
+        <strong class="poids-sec-value" data-testid="poids-sec-ecart-fin">
+          {{ ecartFinKg() !== null ? signed(ecartFinKg()!) : '-' }}
+        </strong>
+      </div>
+      @if (surchargeAlerte()) {
+        <div class="poids-sec-warning" data-testid="poids-sec-alerte" role="alert">
+          <mat-icon aria-hidden="true">warning</mat-icon>
+          {{ 'SEANCES.SURCHARGE_ALERTE' | translate }}
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="poids-sec-panel poids-sec-absent" data-testid="poids-sec-absent">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      {{ 'SEANCES.POIDS_SEC_NON_PRESCRIT' | translate }}
+    </div>
+  }
+}
+

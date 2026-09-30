@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,6 +16,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PrescriptionMedicaleDomainServiceTest {
 
@@ -36,6 +39,7 @@ class PrescriptionMedicaleDomainServiceTest {
                 500,
                 2500,
                 240,
+                new BigDecimal("68.456"),
                 "FX-80",
                 "HNF",
                 UUID.randomUUID(),
@@ -54,8 +58,31 @@ class PrescriptionMedicaleDomainServiceTest {
         assertEquals(centerId.value(), p.getCenterId());
         assertEquals(patientId, p.getPatientId());
         assertEquals(LocalDate.now(), p.getDatePrescription());
+        assertEquals(new BigDecimal("68.46"), p.getPoidsSecCibleKg());
         assertNotNull(p.getCreatedAt());
         assertNotNull(p.getUpdatedAt());
+    }
+
+    @Test
+    void save_should_accept_missing_poids_sec() {
+        PrescriptionMedicaleDomainService service = new PrescriptionMedicaleDomainService(new InMemoryRepository());
+
+        PrescriptionMedicale p = service.save(CenterId.of(UUID.randomUUID()), UUID.randomUUID(), null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+
+        assertNull(p.getPoidsSecCibleKg());
+    }
+
+    @Test
+    void save_should_reject_out_of_range_poids_sec() {
+        PrescriptionMedicaleDomainService service = new PrescriptionMedicaleDomainService(new InMemoryRepository());
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+
+        for (String invalid : new String[]{"19.99", "300.01", "0", "-5"}) {
+            assertThrows(IllegalArgumentException.class, () -> service.save(centerId, UUID.randomUUID(), null, null, null,
+                    null, null, null, null, new BigDecimal(invalid), null, null, null, null, null, null, null, null,
+                    null, null, null, null));
+        }
     }
 
     @Test

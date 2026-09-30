@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -38,6 +39,12 @@ public class PrescriptionMedicaleJpaEntity {
 
     @Column(name = "duree_cible_min")
     private Integer dureeCibleMin;
+
+    /**
+     * Poids sec cible (kg), prescrit par le médecin — migration Flyway V2.
+     */
+    @Column(name = "poids_sec_cible_kg", precision = 5, scale = 2)
+    private BigDecimal poidsSecCibleKg;
 
     @Column(name = "type_dialyseur_prescrit", length = 100)
     private String typeDialyseurPrescrit;
@@ -151,6 +158,14 @@ public class PrescriptionMedicaleJpaEntity {
 
     public void setDureeCibleMin(Integer dureeCibleMin) {
         this.dureeCibleMin = dureeCibleMin;
+    }
+
+    public BigDecimal getPoidsSecCibleKg() {
+        return poidsSecCibleKg;
+    }
+
+    public void setPoidsSecCibleKg(BigDecimal poidsSecCibleKg) {
+        this.poidsSecCibleKg = poidsSecCibleKg;
     }
 
     public String getTypeDialyseurPrescrit() {
