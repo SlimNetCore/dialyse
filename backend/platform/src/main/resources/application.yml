@@ -32,6 +32,11 @@ spring:
     time-zone: UTC
   cache:
     type: caffeine
+  servlet:
+    multipart:
+      # Import de référentiels (CSV / Excel) : 5 Mo par fichier.
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 jakarta.persistence.jdbc.url: ${DB_URL:jdbc:h2:mem:hemodialyse;MODE=PostgreSQL;DB_CLOSE_DELAY=-1}
 

@@ -42,6 +42,11 @@ export const adminRoutes: Routes = [
     path: 'parametrage/tva',
     loadComponent: () => import('./tva-types.component').then((m) => m.TvaTypesComponent),
   },
+  {
+    path: 'parametrage/referentiels',
+    loadComponent: () =>
+      import('./referentiels/referentiels-admin.component').then((m) => m.ReferentielsAdminComponent),
+  },
   { path: '', redirectTo: 'users', pathMatch: 'full' }
 ];
 

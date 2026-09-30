@@ -95,6 +95,12 @@ public class DomainServiceConfig {
     }
 
     @Bean
+    public com.hemodialyse.backend.domain.referential.admin.service.ReferentialAdminDomainService referentialAdminDomainService(
+            com.hemodialyse.backend.domain.referential.admin.port.ReferentialAdminRepositoryPort repo) {
+        return new com.hemodialyse.backend.domain.referential.admin.service.ReferentialAdminDomainService(repo);
+    }
+
+    @Bean
     public VoletMedicalDomainService voletMedicalDomainService(SeanceRepositoryPort seanceRepo,
                                                                VoletMedicalRepositoryPort voletRepo) {
         return new VoletMedicalDomainService(seanceRepo, voletRepo);
