@@ -28,6 +28,31 @@ services:
       retries: 10
     networks: [ internal ]
 
+  # Migrations de schéma (one-shot) : s'exécute avant chaque démarrage du backend.
+  # - base vide            -> applique V1 (schéma de référence) puis V2, V3...
+  # - base existante sans historique Flyway -> baseline en V1, puis V2, V3...
+  # Scripts : backend/platform/src/main/resources/db/migration
+  flyway:
+    image: flyway/flyway:11-alpine
+    restart: "no"
+    command: migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-hemodialyse}
+      FLYWAY_USER: ${POSTGRES_USER:-hemo_user}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_BASELINE_VERSION: "1"
+      FLYWAY_CONNECT_RETRIES: "20"
+      FLYWAY_VALIDATE_MIGRATION_NAMING: "true"
+      FLYWAY_CLEAN_DISABLED: "true"
+    volumes:
+      - ./backend/platform/src/main/resources/db/migration:/flyway/sql:ro
+    networks: [ internal ]
+
   backend:
     build:
       context: ./backend
@@ -36,6 +61,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
     environment:
       PORT: 8090
       # Heap limité : adapté aux VM à faible RAM (1 Go AMD micro / 6+ Go Ampere)

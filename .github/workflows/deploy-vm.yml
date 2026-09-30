@@ -165,7 +165,7 @@ jobs:
       - name: Logs en cas d'échec
         if: failure()
         run: |
-          ssh vm "cd '$APP_DIR' && docker compose -f docker-compose.prod.yml ps && docker compose -f docker-compose.prod.yml logs --tail=100 backend" || true
+          ssh vm "cd '$APP_DIR' && docker compose -f docker-compose.prod.yml ps -a && docker compose -f docker-compose.prod.yml logs --tail=50 flyway; docker compose -f docker-compose.prod.yml logs --tail=100 backend" || true
 
       - name: Nettoyer les anciennes images
         if: success()

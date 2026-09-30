@@ -61,6 +61,13 @@ jobs:
           retention-days: 7
 
   # ============================================================
+  # Job 1bis — Flyway : migrations sur PostgreSQL vierge + cohérence JPA
+  # ============================================================
+  flyway:
+    name: Flyway
+    uses: ./.github/workflows/flyway.yml
+
+  # ============================================================
   # Job 2 — Frontend : lint + test + build production
   # ============================================================
   frontend:
@@ -147,6 +154,14 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Flyway migrate (schéma identique à la production)
+        run: |
+          docker run --rm --network host \
+            -v "$GITHUB_WORKSPACE/backend/platform/src/main/resources/db/migration:/flyway/sql:ro" \
+            flyway/flyway:11-alpine \
+            -url=jdbc:postgresql://localhost:5432/hemodialyse -user=hemo_user -password=hemo_pass \
+            -locations=filesystem:/flyway/sql -connectRetries=10 migrate
+
       - name: Start backend (background)
         working-directory: backend
         run: |
@@ -191,7 +206,7 @@ jobs:
   docker:
     name: Docker Build & Push
     runs-on: ubuntu-latest
-    needs: [ backend, frontend ]
+    needs: [ backend, frontend, flyway ]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
       contents: read

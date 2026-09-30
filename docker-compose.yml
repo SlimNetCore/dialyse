@@ -14,6 +14,24 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  # Migrations Flyway (one-shot) : docker compose run --rm flyway [migrate|info|validate]
+  flyway:
+    image: flyway/flyway:11-alpine
+    restart: "no"
+    command: migrate
+    depends_on:
+      - postgres
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/hemodialyse
+      FLYWAY_USER: hemo_user
+      FLYWAY_PASSWORD: hemo_pass
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_BASELINE_VERSION: "1"
+      FLYWAY_CONNECT_RETRIES: "20"
+    volumes:
+      - ./backend/platform/src/main/resources/db/migration:/flyway/sql:ro
+
   redis:
     image: redis:7-alpine
     container_name: hemodialyse-redis
