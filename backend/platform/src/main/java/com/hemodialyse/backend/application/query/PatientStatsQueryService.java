@@ -22,40 +22,29 @@ public class PatientStatsQueryService {
         this.identity = new com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider(jdbc);
     }
 
-    public Map<String, Object> getParamedicalStats(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
-        String dateFilter = buildSeanceDateFilter(from, to);
+    /**
+     * UF réelle : valeur saisie (ultrafiltration_ml) ou, à défaut, perte de poids per-dialytique × 1000.
+     * Le schéma effectif de volet_paramedical (entité JPA) ne contient ni uf_reelle_ml, ni poids_sec_cible_kg,
+     * ni TA systolique/diastolique séparées : la TA est stockée en texte « 130/80 » (ta_avant / ta_apres).
+     */
+    private static final String UF_REELLE_EXPR =
+            "COALESCE(vp.ultrafiltration_ml, (vp.poids_avant_kg - vp.poids_apres_kg) * 1000)";
 
-        String baseFrom = " FROM seances s LEFT JOIN volet_paramedical vp ON vp.seance_id = s.id "
-                + "WHERE s.center_id = ? AND s.patient_id = ? " + dateFilter;
+    private static final java.util.regex.Pattern TA_PATTERN =
+            java.util.regex.Pattern.compile("^\\s*(\\d{2,3})\\s*[/\\-]\\s*(\\d{2,3})");
 
-        Long seanceCount = queryLong("SELECT COUNT(1)" + baseFrom, centerId, patientId);
-        Double avgPoidsAvant = queryDouble("SELECT AVG(vp.poids_avant_kg)" + baseFrom, centerId, patientId);
-        Double avgPoidsApres = queryDouble("SELECT AVG(vp.poids_apres_kg)" + baseFrom, centerId, patientId);
-        Double avgUfReelle = queryDouble("SELECT AVG(vp.uf_reelle_ml)" + baseFrom, centerId, patientId);
-
-        List<Map<String, Object>> poidsEvolution = jdbc.queryForList(
-                "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, vp.poids_sec_cible_kg, vp.uf_reelle_ml "
-                        + baseFrom.replace("SELECT COUNT(1)", "")
-                        + " ORDER BY s.date_seance ASC",
-                centerId, patientId
-        );
-
-        List<Map<String, Object>> taEvolution = jdbc.queryForList(
-                "SELECT s.date_seance, vp.ta_systolique_avant, vp.ta_diastolique_avant, "
-                        + "vp.ta_systolique_apres, vp.ta_diastolique_apres "
-                        + baseFrom.replace("SELECT COUNT(1)", "")
-                        + " ORDER BY s.date_seance ASC",
-                centerId, patientId
-        );
-
-        Map<String, Object> out = new LinkedHashMap<>();
-        out.put("seanceCount", seanceCount);
-        out.put("avgPoidsAvantKg", avgPoidsAvant);
-        out.put("avgPoidsApresKg", avgPoidsApres);
-        out.put("avgUfReelleMl", avgUfReelle);
-        out.put("poidsEvolution", poidsEvolution);
-        out.put("taEvolution", taEvolution);
-        return out;
+    /**
+     * Extrait {systolique, diastolique} d'une TA texte (« 130/80 », « 130-80 »). Valeurs nulles si illisible.
+     */
+    static Integer[] parseTension(String raw) {
+        if (raw == null) {
+            return new Integer[]{null, null};
+        }
+        java.util.regex.Matcher m = TA_PATTERN.matcher(raw);
+        if (!m.find()) {
+            return new Integer[]{null, null};
+        }
+        return new Integer[]{Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2))};
     }
 
     public Map<String, Object> getMedicalStats(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
@@ -285,6 +274,54 @@ public class PatientStatsQueryService {
         if (from != null) return " AND p.date_prescription >= '" + from + "'";
         if (to != null) return " AND p.date_prescription <= '" + to + "'";
         return "";
+    }
+
+    public Map<String, Object> getParamedicalStats(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
+        String dateFilter = buildSeanceDateFilter(from, to);
+
+        String baseFrom = " FROM seances s LEFT JOIN volet_paramedical vp ON vp.seance_id = s.id "
+                + "WHERE s.center_id = ? AND s.patient_id = ? " + dateFilter;
+
+        Long seanceCount = queryLong("SELECT COUNT(1)" + baseFrom, centerId, patientId);
+        Double avgPoidsAvant = queryDouble("SELECT AVG(vp.poids_avant_kg)" + baseFrom, centerId, patientId);
+        Double avgPoidsApres = queryDouble("SELECT AVG(vp.poids_apres_kg)" + baseFrom, centerId, patientId);
+        Double avgUfReelle = queryDouble("SELECT AVG(" + UF_REELLE_EXPR + ")" + baseFrom, centerId, patientId);
+
+        List<Map<String, Object>> poidsEvolution = jdbc.queryForList(
+                "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, "
+                        + "CAST(NULL AS DECIMAL(6,2)) AS poids_sec_cible_kg, "
+                        + UF_REELLE_EXPR + " AS uf_reelle_ml"
+                        + baseFrom
+                        + " ORDER BY s.date_seance ASC",
+                centerId, patientId
+        );
+
+        List<Map<String, Object>> taEvolution = jdbc.query(
+                "SELECT s.date_seance, vp.ta_avant, vp.ta_apres"
+                        + baseFrom
+                        + " ORDER BY s.date_seance ASC",
+                (rs, rowNum) -> {
+                    Integer[] avant = parseTension(rs.getString("ta_avant"));
+                    Integer[] apres = parseTension(rs.getString("ta_apres"));
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("date_seance", rs.getDate("date_seance"));
+                    row.put("ta_systolique_avant", avant[0]);
+                    row.put("ta_diastolique_avant", avant[1]);
+                    row.put("ta_systolique_apres", apres[0]);
+                    row.put("ta_diastolique_apres", apres[1]);
+                    return row;
+                },
+                centerId, patientId
+        );
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("seanceCount", seanceCount);
+        out.put("avgPoidsAvantKg", avgPoidsAvant);
+        out.put("avgPoidsApresKg", avgPoidsApres);
+        out.put("avgUfReelleMl", avgUfReelle);
+        out.put("poidsEvolution", poidsEvolution);
+        out.put("taEvolution", taEvolution);
+        return out;
     }
 
     private Long queryLong(String sql, UUID centerId, UUID patientId) {
