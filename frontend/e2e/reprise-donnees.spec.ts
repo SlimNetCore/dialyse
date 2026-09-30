@@ -61,6 +61,17 @@ test.describe('Reprise de données', () => {
     await page.locator('[data-testid="migration-import-patients"]').click();
     await expect(report.locator('[data-testid="migration-applied"]')).toBeVisible();
 
+    // Historique : séance facturée dans l'ancien logiciel, puis solde d'ouverture (facture non soldée).
+    await page.locator('[data-testid="migration-file-seances"]').setInputFiles(
+      csv('seances.csv', `Patient;Date de séance;Facturée\nP-${suffix};05/01/2026;oui\n`));
+    await page.locator('[data-testid="migration-import-seances"]').click();
+    await expect(page.locator('[data-testid="migration-report-seances"] [data-testid="migration-applied"]')).toBeVisible();
+
+    await page.locator('[data-testid="migration-file-soldes-ouverture"]').setInputFiles(
+      csv('soldes.csv', `N° de facture d'origine;Patient;Date de facture;Montant TTC;Montant déjà réglé\nF-${suffix};P-${suffix};31/01/2026;67200;20000\n`));
+    await page.locator('[data-testid="migration-import-soldes-ouverture"]').click();
+    await expect(page.locator('[data-testid="migration-report-soldes-ouverture"] [data-testid="migration-applied"]')).toBeVisible();
+
     // Nettoyage : annulation du lot (les données créées sont supprimées).
     await page.locator('[data-testid="migration-cancel"]').click();
     await page.locator('mat-dialog-container').getByRole('button').last().click();
@@ -77,4 +88,5 @@ test.describe('Reprise de données', () => {
     expect(overflow).toBeLessThanOrEqual(1);
   });
 });
+
 

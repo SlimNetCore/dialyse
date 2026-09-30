@@ -31,7 +31,9 @@ public class MigrationApplicationService {
      */
     static final List<String> PATIENT_CACHES = List.of("patient.byId", "patient.byNumeroAssurance", "patient.byCenter",
             "patient.countByCenter", "patient.list.summary", "patient.list.summary.details", "patient.assure.byNumero",
-            "patient.assure.searchByCenter", "patient.assignment.primary", "patient.assignment.history");
+            "patient.assure.searchByCenter", "patient.assignment.primary", "patient.assignment.history",
+            "patient.attestation.byPatient", "patient.attestation.existsValidAt", "patient.pec.byId", "patient.pec.byPatient",
+            "patient.pec.byCenter");
 
     private final MigrationUseCase useCase;
     private final CacheManager cacheManager;

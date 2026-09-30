@@ -115,13 +115,34 @@ public final class LegacyValueParser {
                 yield date.toString();
             }
             case INTEGER -> {
-                String digits = value.replaceAll("\\s", "");
-                if (!digits.matches("\\d{1,4}")) {
+                String digits = value.replaceAll("[\\s\\u00A0\\u202F]", "");
+                if (!digits.matches("\\d{1,9}")) {
                     issues.add(issue(column, "INVALID_NUMBER", "« " + column.label() + " » : « " + value
                             + " » n'est pas un nombre entier.", Map.of("value", value)));
                     yield null;
                 }
                 yield String.valueOf(Integer.parseInt(digits));
+            }
+            case DECIMAL -> {
+                String compact = value.replaceAll("[\\s\\u00A0\\u202F]", "").replace(',', '.');
+                try {
+                    java.math.BigDecimal number = new java.math.BigDecimal(compact);
+                    if (number.signum() < 0) {
+                        issues.add(issue(column, "NEGATIVE_NUMBER", "« " + column.label() + " » ne peut pas être négatif.",
+                                Map.of("value", value)));
+                        yield null;
+                    }
+                    if (number.scale() > 3 || number.precision() - number.scale() > 11) {
+                        issues.add(issue(column, "INVALID_NUMBER", "« " + column.label() + " » : « " + value
+                                + " » est hors format (11 chiffres et 3 décimales au plus).", Map.of("value", value)));
+                        yield null;
+                    }
+                    yield number.stripTrailingZeros().toPlainString();
+                } catch (NumberFormatException e) {
+                    issues.add(issue(column, "INVALID_NUMBER", "« " + column.label() + " » : « " + value
+                            + " » n'est pas un nombre (ex. 5600 ou 5600,50).", Map.of("value", value)));
+                    yield null;
+                }
             }
             case BOOLEAN -> {
                 String code = toCode(value);
@@ -186,6 +207,7 @@ public final class LegacyValueParser {
         }
     }
 }
+
 
 
 

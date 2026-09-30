@@ -17,6 +17,10 @@ public enum ColumnType {
      */
     INTEGER,
     /**
+     * Nombre décimal positif (virgule ou point) : montants, résultats d'analyses.
+     */
+    DECIMAL,
+    /**
      * Oui / non (oui, non, o, n, 1, 0, x, vrai, faux, true, false).
      */
     BOOLEAN,
@@ -41,4 +45,5 @@ public enum ColumnType {
      */
     REFERENCE
 }
+
 

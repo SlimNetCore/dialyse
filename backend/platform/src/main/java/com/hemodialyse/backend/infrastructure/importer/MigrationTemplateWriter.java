@@ -27,6 +27,7 @@ public class MigrationTemplateWriter {
             case TEXT -> "Texte" + (column.maxLength() > 0 ? ", " + column.maxLength() + " caractères maximum" : "");
             case DATE -> "Date JJ/MM/AAAA (ou AAAA-MM-JJ)";
             case INTEGER -> "Nombre entier";
+            case DECIMAL -> "Nombre (virgule ou point décimal, ex. 5600,50)";
             case BOOLEAN -> "oui / non";
             case PHONE -> "Téléphone, 8 à 15 chiffres";
             case EMAIL -> "Adresse e-mail";
@@ -97,4 +98,5 @@ public class MigrationTemplateWriter {
         }
     }
 }
+
 

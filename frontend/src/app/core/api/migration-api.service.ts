@@ -9,6 +9,7 @@ export type MigrationColumnType =
   'TEXT'
   | 'DATE'
   | 'INTEGER'
+  | 'DECIMAL'
   | 'BOOLEAN'
   | 'ENUM'
   | 'PHONE'
