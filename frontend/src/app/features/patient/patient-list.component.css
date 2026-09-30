@@ -320,6 +320,50 @@ th.mat-mdc-header-cell:focus-within {
   color: #999;
 }
 
+/* Créneau du patient : code court + plage horaire. */
+.position-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.position-code {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(97, 216, 223, 0.12);
+  border: 1px solid var(--app-primary-outline);
+  color: var(--app-primary);
+}
+
+.position-libelle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Forfait de la PEC validée : description dans un badge (pas en majuscules, texte long). */
+.forfait-badge {
+  display: inline-block;
+  max-width: 100%;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #ddd6fe;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .row-actions {
   display: inline-flex;
   align-items: center;

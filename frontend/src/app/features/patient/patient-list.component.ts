@@ -56,12 +56,22 @@ export interface PatientRow {
   dateEvenementEtat?: string;
   nonFacturable?: boolean;
   medecinTraitantId?: string;
+  /** « NOM Prénom » du médecin traitant (résolu côté serveur). */
+  medecinTraitantNom?: string;
   positionId?: string;
+  /** Créneau du patient : code (ex. CR1) et libellé horaire (ex. « Matin (06h30 – 10h30) »). */
+  positionCode?: string;
+  positionLibelle?: string;
   transporteurAllerId?: string;
+  transporteurAllerNom?: string;
   transporteurRetourId?: string;
+  transporteurRetourNom?: string;
   joursDialyse?: any;
   pecStatus?: string;
   pecForfaitId?: string;
+  pecForfaitCode?: string;
+  /** Description du forfait de la PEC validée. */
+  pecForfaitLibelle?: string;
 }
 
 @Component({
@@ -214,13 +224,6 @@ export class PatientListComponent {
   readonly displayedTotal = computed(() =>
     this.dataMode === 'local' ? this.filteredTotal() : this.total(),
   );
-  readonly patientInlineFilterColumnIds: ReadonlyArray<string> = [
-    'numeroAssurance',
-    'code',
-    'nom',
-    'prenom',
-    'etatPatient',
-  ];
 
   protected readonly codeCellTemplate = viewChild<TemplateRef<any>>('codeCell');
   protected readonly nomCellTemplate = viewChild<TemplateRef<any>>('nomCell');
@@ -231,6 +234,8 @@ export class PatientListComponent {
   protected readonly pecStatusCellTemplate = viewChild<TemplateRef<any>>('pecStatusCell');
   protected readonly joursDialyseCellTemplate = viewChild<TemplateRef<any>>('joursDialyseCell');
   protected readonly nullableTextCellTemplate = viewChild<TemplateRef<any>>('nullableTextCell');
+  protected readonly positionCellTemplate = viewChild<TemplateRef<any>>('positionCell');
+  protected readonly forfaitCellTemplate = viewChild<TemplateRef<any>>('forfaitCell');
   protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
 
   private readonly allColumnDefsById = computed<Record<string, NgTableColumn<PatientRow>>>(() => {
@@ -333,11 +338,14 @@ export class PatientListComponent {
       filter: {type: 'enum', options: this.pecFilterOptions(), label: t('PATIENT_LIST.COL_PEC')},
       cellTemplate: this.asNgTableTemplate(this.pecStatusCellTemplate() ?? undefined),
     },
+      // Colonnes de référentiels : affichage du libellé résolu côté serveur ; le filtre texte
+      // recherche dans ce libellé (backend). Tri désactivé : le serveur ne sait trier que les
+      // colonnes du patient, trier sur l'identifiant n'aurait aucun sens pour l'utilisateur.
     medecinTraitantId: {
       id: 'medecinTraitantId',
       header: t('PATIENT_FORM.MEDECIN_TRAITANT'),
-      valueAccessor: (row) => row.medecinTraitantId ?? '',
-      sortable: true,
+      valueAccessor: (row) => row.medecinTraitantNom ?? '',
+      sortable: false,
       resizable: true,
       minWidthPx: 175,
       filter: {type: 'text', label: t('PATIENT_FORM.MEDECIN_TRAITANT')},
@@ -346,18 +354,23 @@ export class PatientListComponent {
     positionId: {
       id: 'positionId',
       header: t('PATIENT_FORM.POSITION'),
-      valueAccessor: (row) => row.positionId ?? '',
-      sortable: true,
+      valueAccessor: (row) => this.positionLabel(row),
+      sortable: false,
       resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', label: t('PATIENT_FORM.POSITION')},
-      cellTemplate: this.asNgTableTemplate(this.nullableTextCellTemplate() ?? undefined),
+      textOverflow: 'truncate',
+      minWidthPx: 210,
+      filter: {
+        type: 'enum',
+        optionsLoader: () => this.loadPositionFilterOptions(),
+        label: t('PATIENT_FORM.POSITION'),
+      },
+      cellTemplate: this.asNgTableTemplate(this.positionCellTemplate() ?? undefined),
     },
     transporteurAllerId: {
       id: 'transporteurAllerId',
       header: t('PATIENT_FORM.TRANSPORTEUR_ALLER'),
-      valueAccessor: (row) => row.transporteurAllerId ?? '',
-      sortable: true,
+      valueAccessor: (row) => row.transporteurAllerNom ?? '',
+      sortable: false,
       resizable: true,
       minWidthPx: 185,
       filter: {type: 'text', label: t('PATIENT_FORM.TRANSPORTEUR_ALLER')},
@@ -366,8 +379,8 @@ export class PatientListComponent {
     transporteurRetourId: {
       id: 'transporteurRetourId',
       header: t('PATIENT_FORM.TRANSPORTEUR_RETOUR'),
-      valueAccessor: (row) => row.transporteurRetourId ?? '',
-      sortable: true,
+      valueAccessor: (row) => row.transporteurRetourNom ?? '',
+      sortable: false,
       resizable: true,
       minWidthPx: 190,
       filter: {type: 'text', label: t('PATIENT_FORM.TRANSPORTEUR_RETOUR')},
@@ -386,12 +399,16 @@ export class PatientListComponent {
     pecForfaitId: {
       id: 'pecForfaitId',
       header: t('PATIENT_LIST.COL_FORFAIT'),
-      valueAccessor: (row) => row.pecForfaitId ?? '',
-      sortable: true,
+      valueAccessor: (row) => row.pecForfaitLibelle ?? '',
+      sortable: false,
       resizable: true,
-      minWidthPx: 160,
-      filter: {type: 'text', label: t('PATIENT_LIST.COL_FORFAIT')},
-      cellTemplate: this.asNgTableTemplate(this.nullableTextCellTemplate() ?? undefined),
+      minWidthPx: 200,
+      filter: {
+        type: 'enum',
+        optionsLoader: () => this.loadForfaitFilterOptions(),
+        label: t('PATIENT_LIST.COL_FORFAIT'),
+      },
+      cellTemplate: this.asNgTableTemplate(this.forfaitCellTemplate() ?? undefined),
     },
     actions: {
       id: 'actions',
@@ -655,6 +672,51 @@ export class PatientListComponent {
 
   textOrDash(value: string | undefined | null): string {
     return (value ?? '').trim() || '-';
+  }
+
+  /** Créneau du patient en texte : « CR1 · Matin (06h30 – 10h30) » (copie / filtre local / export). */
+  positionLabel(row: PatientRow): string {
+    const code = (row.positionCode ?? '').trim();
+    const libelle = (row.positionLibelle ?? '').trim();
+    return code && libelle ? `${code} · ${libelle}` : code || libelle;
+  }
+
+  /**
+   * Options du filtre « Position » : créneaux de la table position_creneau du centre
+   * (valeur = id, libellé = « CR1 · Matin (06h30 – 10h30) »).
+   */
+  private loadPositionFilterOptions(): Observable<Array<{ value: string; label: string }>> {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return of([]);
+    return this.referentialApi.getPositions(centerId).pipe(
+      map((items) => this.toRefFilterOptions(items, (item) => item.libelle)),
+      catchError(() => of([])),
+    );
+  }
+
+  /**
+   * Options du filtre « Forfait » : forfaits de la table forfait du centre
+   * (valeur = id, libellé = « CODE · description » ; la description arrive dans `nom`).
+   */
+  private loadForfaitFilterOptions(): Observable<Array<{ value: string; label: string }>> {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId) return of([]);
+    return this.referentialApi.getForfaits(centerId).pipe(
+      map((items) => this.toRefFilterOptions(items, (item) => item.nom)),
+      catchError(() => of([])),
+    );
+  }
+
+  private toRefFilterOptions(items: RefItem[], libelleOf: (item: RefItem) => string | undefined):
+    Array<{ value: string; label: string }> {
+    return (items ?? [])
+      .filter((item) => !!item?.id)
+      .map((item) => {
+        const code = (item.code ?? '').trim();
+        const libelle = (libelleOf(item) ?? '').trim();
+        return {value: item.id, label: code && libelle ? `${code} · ${libelle}` : code || libelle || item.id};
+      })
+      .sort((a, b) => a.label.localeCompare(b.label, undefined, {numeric: true, sensitivity: 'base'}));
   }
 
   private loadEtatFilterOptionsFromReferential(): Observable<Array<{ value: string; label: string }>> {

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 public final class PatientSpecifications {
@@ -20,6 +21,10 @@ public final class PatientSpecifications {
     }
 
     public static Specification<PatientJpaEntity> from(UUID centerId, PatientSearchRequest req) {
+        return from(centerId, req, ReferenceIdFilters.NONE);
+    }
+
+    public static Specification<PatientJpaEntity> from(UUID centerId, PatientSearchRequest req, ReferenceIdFilters refs) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("centerId"), centerId));
@@ -30,10 +35,28 @@ public final class PatientSpecifications {
             addLike(predicates, root, cb, "sexe", req.sexe());
             addLike(predicates, root, cb, "numeroAssurance", req.numeroAssurance());
             addLike(predicates, root, cb, "etatPatient", req.etatPatient());
-            addUuidLike(predicates, root, cb, "medecinTraitantId", req.medecinTraitantId());
-            addUuidLike(predicates, root, cb, "positionId", req.positionId());
-            addUuidLike(predicates, root, cb, "transporteurAllerId", req.transporteurAllerId());
-            addUuidLike(predicates, root, cb, "transporteurRetourId", req.transporteurRetourId());
+            addIdIn(predicates, root, cb, "medecinTraitantId", refs.medecinTraitantIds());
+            addIdIn(predicates, root, cb, "positionId", refs.positionIds());
+            addIdIn(predicates, root, cb, "transporteurAllerId", refs.transporteurAllerIds());
+            addIdIn(predicates, root, cb, "transporteurRetourId", refs.transporteurRetourIds());
+
+            if (refs.pecForfaitIds() != null) {
+                if (refs.pecForfaitIds().isEmpty()) {
+                    predicates.add(cb.disjunction());
+                } else {
+                    // Forfait de la PEC validée (même source que la colonne « Forfait » de la liste).
+                    Subquery<UUID> fsq = query.subquery(UUID.class);
+                    Root<PecJpaEntity> fpec = fsq.from(PecJpaEntity.class);
+                    fsq.select(fpec.get("id"));
+                    fsq.where(
+                            cb.equal(fpec.get("centerId"), root.get("centerId")),
+                            cb.equal(fpec.get("patientId"), root.get("id")),
+                            cb.equal(cb.lower(fpec.get("statut")), "validee"),
+                            fpec.get("forfaitDemandeId").in(refs.pecForfaitIds())
+                    );
+                    predicates.add(cb.exists(fsq));
+                }
+            }
 
             LocalDate from = req.dateAdmissionFrom();
             LocalDate to = req.dateAdmissionTo();
@@ -66,6 +89,16 @@ public final class PatientSpecifications {
         };
     }
 
+    /**
+     * Restreint une colonne UUID de référentiel aux identifiants résolus ; ensemble vide → aucun résultat.
+     */
+    private static void addIdIn(List<Predicate> predicates, Root<PatientJpaEntity> root,
+                                jakarta.persistence.criteria.CriteriaBuilder cb,
+                                String field, Set<UUID> ids) {
+        if (ids == null) return;
+        predicates.add(ids.isEmpty() ? cb.disjunction() : root.get(field).in(ids));
+    }
+
     private static void addLike(List<Predicate> predicates, Root<PatientJpaEntity> root,
                                 jakarta.persistence.criteria.CriteriaBuilder cb,
                                 String field, String value) {
@@ -74,13 +107,16 @@ public final class PatientSpecifications {
     }
 
     /**
-     * Same as {@link #addLike} but for UUID columns, cast to text for the LIKE match.
+     * Filtres de colonne portant sur des référentiels (médecin, position, transporteurs, forfait) :
+     * le texte saisi est résolu en amont en identifiants par libellé (voir PatientReferenceLookup).
+     * {@code null} = colonne non filtrée ; ensemble vide = aucun référentiel ne correspond → aucun patient.
      */
-    private static void addUuidLike(List<Predicate> predicates, Root<PatientJpaEntity> root,
-                                    jakarta.persistence.criteria.CriteriaBuilder cb,
-                                    String field, String value) {
-        if (value == null || value.isBlank()) return;
-        predicates.add(cb.like(cb.lower(root.get(field).as(String.class)), likeTerm(value)));
+    public record ReferenceIdFilters(Set<UUID> medecinTraitantIds,
+                                     Set<UUID> positionIds,
+                                     Set<UUID> transporteurAllerIds,
+                                     Set<UUID> transporteurRetourIds,
+                                     Set<UUID> pecForfaitIds) {
+        public static final ReferenceIdFilters NONE = new ReferenceIdFilters(null, null, null, null, null);
     }
 
     private static String likeTerm(String value) {

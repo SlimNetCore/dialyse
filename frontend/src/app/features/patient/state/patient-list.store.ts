@@ -22,9 +22,14 @@ function mapPatientRow(p: any): any {
     dateEvenementEtat: p.dateEvenementEtat ?? p.dateEvenement ?? '',
     nonFacturable: !!p.nonFacturable,
     medecinTraitantId: p.medecinTraitantId ?? '',
+    medecinTraitantNom: p.medecinTraitantNom ?? '',
     positionId: p.positionId ?? '',
+    positionCode: p.positionCode ?? '',
+    positionLibelle: p.positionLibelle ?? '',
     transporteurAllerId: p.transporteurAllerId ?? '',
+    transporteurAllerNom: p.transporteurAllerNom ?? '',
     transporteurRetourId: p.transporteurRetourId ?? '',
+    transporteurRetourNom: p.transporteurRetourNom ?? '',
     joursDialyse: {
       dimanche: p.jourDimanche ?? p.jour_dimanche ?? (p.joursDialyse ?? p.jours_dialyse)?.dimanche ?? false,
       lundi: p.jourLundi ?? p.jour_lundi ?? (p.joursDialyse ?? p.jours_dialyse)?.lundi ?? false,
@@ -35,7 +40,9 @@ function mapPatientRow(p: any): any {
       samedi: p.jourSamedi ?? p.jour_samedi ?? (p.joursDialyse ?? p.jours_dialyse)?.samedi ?? false
     },
     pecStatus: p.pecStatus ?? '',
-    pecForfaitId: p.pecForfaitId ?? ''
+    pecForfaitId: p.pecForfaitId ?? '',
+    pecForfaitCode: p.pecForfaitCode ?? '',
+    pecForfaitLibelle: p.pecForfaitLibelle ?? ''
   };
 }
 

@@ -20,10 +20,13 @@ public record PatientSearchRequest(
         String numeroAssurance,
         String etatPatient,
         Boolean nonFacturable,
+        // Filtres de colonne des référentiels : texte recherché dans le LIBELLÉ affiché
+        // (nom du médecin, créneau, transporteur, forfait) — le nom de champ reste l'id de colonne.
         String medecinTraitantId,
         String positionId,
         String transporteurAllerId,
         String transporteurRetourId,
+        String pecForfaitId,
         String sortBy,
         String sortDirection
 ) {

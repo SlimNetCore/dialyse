@@ -20,13 +20,12 @@ public class PatientListQueryService {
 
     private final PatientJpaRepository patientRepository;
     private final PecJpaRepository pecRepository;
-
     /**
      * Whitelist mapping a frontend column id (as sent by app-configurable-list) to
      * the actual sortable JPA entity property. Columns absent here (nonFacturable,
-     * pecStatus, pecForfaitId, joursDialyse...) are derived/looked up AFTER this
-     * query runs, so they can't be pushed down to SQL — sorting by them silently
-     * falls back to the default order.
+     * pecStatus, pecForfaitId, joursDialyse, and the referential columns medecin /
+     * position / transporteurs, which display a label resolved after the query) can't
+     * be pushed down to SQL — sorting by them silently falls back to the default order.
      */
     private static final Map<String, String> SORTABLE_COLUMNS = Map.ofEntries(
             Map.entry("code", "codePatient"),
@@ -35,16 +34,38 @@ public class PatientListQueryService {
             Map.entry("sexe", "sexe"),
             Map.entry("dateAdmission", "dateAdmission"),
             Map.entry("numeroAssurance", "numeroAssurance"),
-            Map.entry("etatPatient", "etatPatient"),
-            Map.entry("medecinTraitantId", "medecinTraitantId"),
-            Map.entry("positionId", "positionId"),
-            Map.entry("transporteurAllerId", "transporteurAllerId"),
-            Map.entry("transporteurRetourId", "transporteurRetourId")
+            Map.entry("etatPatient", "etatPatient")
     );
+    private final PatientReferenceLookup references;
 
-    public PatientListQueryService(PatientJpaRepository patientRepository, PecJpaRepository pecRepository) {
+    public PatientListQueryService(PatientJpaRepository patientRepository,
+                                   PecJpaRepository pecRepository,
+                                   PatientReferenceLookup references) {
         this.patientRepository = patientRepository;
         this.pecRepository = pecRepository;
+        this.references = references;
+    }
+
+    /**
+     * Filtre liste déroulante (multi-sélection) : identifiants séparés par des virgules, utilisés tels quels.
+     * Toute autre saisie (ex. texte d'une vue enregistrée avant la liste déroulante) est recherchée par libellé.
+     */
+    static Set<UUID> selectedIdsOr(String value, java.util.function.Function<String, Set<UUID>> byLabel) {
+        Set<UUID> ids = new HashSet<>();
+        for (String part : value.split(",")) {
+            String trimmed = part.trim();
+            if (trimmed.isEmpty()) continue;
+            try {
+                ids.add(UUID.fromString(trimmed));
+            } catch (IllegalArgumentException notAnId) {
+                return byLabel.apply(value);
+            }
+        }
+        return ids.isEmpty() ? byLabel.apply(value) : ids;
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     public PageResult search(UUID centerId, PatientSearchRequest req) {
@@ -52,10 +73,25 @@ public class PatientListQueryService {
         int size = req.size();
 
         var pageable = PageRequest.of(page, size, resolveSort(req.sortBy(), req.sortDirection()));
-        var pageResult = patientRepository.findAll(PatientSpecifications.from(centerId, req), pageable);
+        var pageResult = patientRepository.findAll(
+                PatientSpecifications.from(centerId, req, resolveReferenceFilters(centerId, req)), pageable);
 
         List<PatientJpaEntity> patients = pageResult.getContent();
         Map<UUID, PecJpaEntity> latestValidatedByPatient = loadLatestValidatedPecByPatient(centerId, patients);
+
+        // Libellés des référentiels, résolus par lot pour la page (pas de N+1).
+        Map<UUID, String> medecins = references.medecinLabels(centerId,
+                patients.stream().map(PatientJpaEntity::getMedecinTraitantId).toList());
+        Map<UUID, PatientReferenceLookup.CodeLibelle> positions = references.positions(centerId,
+                patients.stream().map(PatientJpaEntity::getPositionId).toList());
+        List<UUID> transporteurIds = new ArrayList<>();
+        patients.forEach(p -> {
+            transporteurIds.add(p.getTransporteurAllerId());
+            transporteurIds.add(p.getTransporteurRetourId());
+        });
+        Map<UUID, String> transporteurs = references.transporteurLabels(centerId, transporteurIds);
+        Map<UUID, PatientReferenceLookup.CodeLibelle> forfaits = references.forfaits(centerId,
+                latestValidatedByPatient.values().stream().map(PecJpaEntity::getForfaitDemandeId).toList());
 
         List<Map<String, Object>> items = new ArrayList<>();
         for (PatientJpaEntity p : patients) {
@@ -75,9 +111,15 @@ public class PatientListQueryService {
             row.put("dateEvenementEtat", dateEvt);
             row.put("dateEvenement", dateEvt);
             row.put("medecinTraitantId", p.getMedecinTraitantId());
+            row.put("medecinTraitantNom", medecins.get(p.getMedecinTraitantId()));
             row.put("positionId", p.getPositionId());
+            PatientReferenceLookup.CodeLibelle position = positions.get(p.getPositionId());
+            row.put("positionCode", position != null ? position.code() : null);
+            row.put("positionLibelle", position != null ? position.libelle() : null);
             row.put("transporteurAllerId", p.getTransporteurAllerId());
+            row.put("transporteurAllerNom", transporteurs.get(p.getTransporteurAllerId()));
             row.put("transporteurRetourId", p.getTransporteurRetourId());
+            row.put("transporteurRetourNom", transporteurs.get(p.getTransporteurRetourId()));
             row.put("jourDimanche", p.getJourDimanche());
             row.put("jourLundi", p.getJourLundi());
             row.put("jourMardi", p.getJourMardi());
@@ -88,10 +130,26 @@ public class PatientListQueryService {
             row.put("nonFacturable", nonFacturable);
             row.put("pecStatus", pec != null ? pec.getStatut() : null);
             row.put("pecForfaitId", pec != null ? pec.getForfaitDemandeId() : null);
+            PatientReferenceLookup.CodeLibelle forfait = pec != null ? forfaits.get(pec.getForfaitDemandeId()) : null;
+            row.put("pecForfaitCode", forfait != null ? forfait.code() : null);
+            row.put("pecForfaitLibelle", forfait != null ? forfait.libelle() : null);
             items.add(row);
         }
 
         return new PageResult(items, pageResult.getTotalElements(), page, size);
+    }
+
+    /**
+     * Texte des filtres de colonne des référentiels → identifiants correspondants (par libellé).
+     */
+    private PatientSpecifications.ReferenceIdFilters resolveReferenceFilters(UUID centerId, PatientSearchRequest req) {
+        return new PatientSpecifications.ReferenceIdFilters(
+                hasText(req.medecinTraitantId()) ? references.matchMedecins(centerId, req.medecinTraitantId()) : null,
+                hasText(req.positionId()) ? selectedIdsOr(req.positionId(), t -> references.matchPositions(centerId, t)) : null,
+                hasText(req.transporteurAllerId()) ? references.matchTransporteurs(centerId, req.transporteurAllerId()) : null,
+                hasText(req.transporteurRetourId()) ? references.matchTransporteurs(centerId, req.transporteurRetourId()) : null,
+                hasText(req.pecForfaitId()) ? selectedIdsOr(req.pecForfaitId(), t -> references.matchForfaits(centerId, t)) : null
+        );
     }
 
     private Sort resolveSort(String sortBy, String sortDirection) {
