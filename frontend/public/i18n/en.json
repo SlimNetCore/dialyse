@@ -809,7 +809,10 @@
       "IMPORT_EMPTY": "{{count}} not filled in",
       "IMPORT_ISSUES": "{{count}} issue(s)",
       "IMPORT_ROW": "Row {{row}}:",
-      "IMPORT_ERROR": "Unable to import the count sheet."
+      "IMPORT_ERROR": "Unable to import the count sheet.",
+      "PRINT": "Print",
+      "PRINT_HINT": "Stock count report (PDF) with the company and center letterhead and footer",
+      "PRINT_ERROR": "Unable to generate the stock count report."
     }
   },
   "FACTURATION": {

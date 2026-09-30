@@ -12,6 +12,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {firstValueFrom} from 'rxjs';
 import {AppShellStore} from '../../../core/state/app-shell.store';
@@ -22,7 +23,7 @@ import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
 import {InventaireStore} from './state/inventaire.store';
 import {InventaireAddLineDialogComponent} from './inventaire-add-line-dialog.component';
 import {InventaireCloseDialogComponent} from './inventaire-close-dialog.component';
-import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART} from './inventaire.util';
+import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPdf} from './inventaire.util';
 
 /** Comptage d'un inventaire : saisie ligne à ligne, écarts, motifs, clôture ou annulation. */
 @Component({
@@ -107,6 +108,11 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART} from '
             </mat-slide-toggle>
           }
           <span class="spacer"></span>
+          <button mat-flat-button color="primary" type="button" (click)="printReport()" [disabled]="printing()"
+                  [matTooltip]="'STOCK.INVENTORY.PRINT_HINT' | translate" data-testid="inventory-print">
+            <mat-icon>print</mat-icon>
+            {{ 'STOCK.INVENTORY.PRINT' | translate }}
+          </button>
           <button mat-stroked-button type="button" (click)="downloadSheet()" data-testid="inventory-sheet">
             <mat-icon>download</mat-icon>
             {{ 'STOCK.INVENTORY.COUNT_SHEET' | translate }}
@@ -574,6 +580,9 @@ export class InventaireDetailComponent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  /** Génération du procès-verbal PDF en cours. */
+  protected readonly printing = signal(false);
+  private readonly snackBar = inject(MatSnackBar);
   /** Saisies en cours, non encore enregistrées (clé : id de ligne). */
   private readonly drafts = signal<Record<string, string>>({});
 
@@ -679,6 +688,19 @@ export class InventaireDetailComponent {
     });
   }
 
+  /** Procès-verbal PDF (Jasper) avec en-tête et pied de page de la société et du centre. */
+  protected async printReport(): Promise<void> {
+    const inv = this.inv();
+    const center = this.appShell.currentCenterId();
+    if (!inv || !center) return;
+    this.printing.set(true);
+    const error = await openPdf(this.api.rapport(center, inv.id), `inventaire-${inv.reference}.pdf`);
+    this.printing.set(false);
+    if (error !== null) {
+      this.snackBar.open(error || this.translate.instant('STOCK.INVENTORY.PRINT_ERROR'), 'OK', {duration: 7000});
+    }
+  }
+
   /** Import de la feuille de comptage remplie : les saisies en cours à l'écran sont remplacées par le fichier. */
   protected async importSheet(input: HTMLInputElement): Promise<void> {
     const file = input.files?.[0];
@@ -709,6 +731,13 @@ export class InventaireDetailComponent {
     }).afterClosed());
   }
 }
+
+
+
+
+
+
+
 
 
 

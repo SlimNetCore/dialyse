@@ -809,7 +809,10 @@
       "IMPORT_EMPTY": "{{count}} non renseignée(s)",
       "IMPORT_ISSUES": "{{count}} anomalie(s)",
       "IMPORT_ROW": "Ligne {{row}} :",
-      "IMPORT_ERROR": "Impossible d'importer la feuille de comptage."
+      "IMPORT_ERROR": "Impossible d'importer la feuille de comptage.",
+      "PRINT": "Imprimer",
+      "PRINT_HINT": "Procès-verbal d'inventaire (PDF) avec l'en-tête et le pied de page de la société et du centre",
+      "PRINT_ERROR": "Impossible de générer le procès-verbal d'inventaire."
     }
   },
   "FACTURATION": {

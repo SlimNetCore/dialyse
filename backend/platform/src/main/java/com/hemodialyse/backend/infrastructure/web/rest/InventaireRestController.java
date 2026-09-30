@@ -5,6 +5,8 @@ import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.Inventaire;
 import com.hemodialyse.backend.domain.stock.port.InventaireUseCase;
 import com.hemodialyse.backend.infrastructure.importer.FeuilleComptageExcel;
+import com.hemodialyse.backend.infrastructure.reporting.InventaireReportService;
+import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.response.PagedResponse;
 import com.hemodialyse.backend.infrastructure.web.dto.stock.InventaireDtos.AjoutLigneRequest;
@@ -53,16 +55,45 @@ public class InventaireRestController {
     private final InventaireUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
     private final FeuilleComptageExcel feuille;
+    private final InventaireReportService rapport;
 
     public InventaireRestController(InventaireUseCase useCase, CenterAccessGuard centerAccessGuard,
-                                    FeuilleComptageExcel feuille) {
+                                    FeuilleComptageExcel feuille, InventaireReportService rapport) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
         this.feuille = feuille;
+        this.rapport = rapport;
     }
 
     private static String user(Principal principal) {
         return principal != null ? principal.getName() : null;
+    }
+
+    /**
+     * Procès-verbal d'inventaire : modèle de document « INVENTAIRE_STOCK » du centre (personnalisable dans Modèles
+     * de documents), avec l'en-tête et le pied de page de la société et du centre. Filigrane « PROVISOIRE » tant
+     * que l'inventaire est en cours.
+     */
+    @PreAuthorize(READ)
+    @GetMapping("/{id}/rapport")
+    public ResponseEntity<byte[]> rapport(@PathVariable UUID id, @RequestParam(required = false) UUID centerId,
+                                          Principal principal) {
+        Inventaire inv = useCase.get(center(centerId), id);
+        ModeleDocumentPrinter.Document doc = rapport.imprimer(inv, user(principal));
+        String base = "inventaire-" + inv.getReference();
+        return switch (doc.format().toUpperCase(java.util.Locale.ROOT)) {
+            case "EXCEL", "XLS", "XLSX" -> ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                            .filename(base + ".xlsx", StandardCharsets.UTF_8).build().toString())
+                    .body(doc.content());
+            case "HTML" -> ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(doc.content());
+            default -> ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                            .filename(base + ".pdf", StandardCharsets.UTF_8).build().toString())
+                    .body(doc.content());
+        };
     }
 
     @PreAuthorize(READ)
@@ -183,3 +214,7 @@ public class InventaireRestController {
         return centerAccessGuard.requireCenter(requested);
     }
 }
+
+
+
+

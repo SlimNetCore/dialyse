@@ -90,7 +90,7 @@ class InventaireIntegrationTest {
     @AfterEach
     void cleanup() {
         for (String table : List.of("inventaire_lignes", "inventaires", "stock_movements", "bon_sortie_lignes", "bons_sortie", "lots",
-                "articles")) {
+                "articles", "modele_document")) {
             try {
                 jdbc.update("DELETE FROM " + table + " WHERE center_id IN (?, ?)", CENTRE, AUTRE);
             } catch (org.springframework.dao.DataAccessException ignored) {
@@ -184,6 +184,43 @@ class InventaireIntegrationTest {
     }
 
     @Test
+    void reportIsPrintedAsAJasperPdfWithGapsAndProvisionalMention() throws Exception {
+        String body = mockMvc.perform(post(BASE).with(as("PHARMACIEN")).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"commentaire\":\"Inventaire annuel\"}"))
+                .andReturn().getResponse().getContentAsString();
+        String id = body.replaceAll("^\\{\"id\":\"([^\"]+)\".*", "$1");
+        String ligneId = body.replaceAll(".*\"details\":\\[\\{\"id\":\"([^\"]+)\".*", "$1");
+        mockMvc.perform(put(BASE + "/{id}/lignes/{ligne}", id, ligneId).with(as("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"quantite\":7,\"motif\":\"CASSE\"}"))
+                .andExpect(status().isOk());
+
+        byte[] pdf = mockMvc.perform(get(BASE + "/{id}/rapport", id).with(as("INFIRMIER")))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .contentType(MediaType.APPLICATION_PDF))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertThat(new String(pdf, 0, 5)).isEqualTo("%PDF-");
+        String text;
+        try (org.apache.pdfbox.pdmodel.PDDocument doc = org.apache.pdfbox.pdmodel.PDDocument.load(pdf)) {
+            text = new org.apache.pdfbox.text.PDFTextStripper().getText(doc);
+        }
+        assertThat(text).contains("PROCÈS-VERBAL D'INVENTAIRE PHYSIQUE", "PROVISOIRE", "EN COURS", "Dialyseur ZT", "ZT-A1",
+                "Casse", "Analyse des écarts par motif", "Inventaire annuel", "VISA DE LA DIRECTION", "Page 1 /");
+
+        mockMvc.perform(get(BASE + "/{id}/rapport", id).with(user(principal("ADMIN", AUTRE))))
+                .andExpect(status().isUnprocessableContent());
+
+        // Modèle de document : provisionné pour le centre ; désactivé, l'impression est refusée explicitement.
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM modele_document WHERE center_id = ? AND type_document = 'INVENTAIRE_STOCK'",
+                Long.class, CENTRE)).isEqualTo(1);
+        jdbc.update("UPDATE modele_document SET active = FALSE WHERE center_id = ? AND type_document = 'INVENTAIRE_STOCK'", CENTRE);
+        mockMvc.perform(get(BASE + "/{id}/rapport", id).with(as("INFIRMIER")))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.code").value("DOCUMENT_MODEL_INACTIVE"));
+    }
+
+    @Test
     void countSheetIsDownloadedFilledAndImported() throws Exception {
         String body = mockMvc.perform(post(BASE).with(as("ADMIN")).contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andReturn().getResponse().getContentAsString();
@@ -223,6 +260,9 @@ class InventaireIntegrationTest {
                 .andExpect(jsonPath("$.code").value("IMPORT_UNSUPPORTED_FORMAT"));
     }
 }
+
+
+
 
 
 

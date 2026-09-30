@@ -22,7 +22,8 @@ class DocumentRestControllerTest {
     void buildResponseShouldUseXlsxHeadersForExcelFormats() throws Exception {
         DocumentRestController controller = new DocumentRestController(mock(JdbcTemplate.class), mock(JasperReportService.class),
                 mock(ModeleDocumentTemplateService.class), mock(CustomTemplateCompiler.class), mock(CenterAccessGuard.class),
-                mock(com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider.class));
+                mock(com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider.class),
+                mock(com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter.class));
         byte[] payload = new byte[]{1, 2, 3};
 
         Method method = DocumentRestController.class.getDeclaredMethod("buildResponse", byte[].class, String.class, String.class);

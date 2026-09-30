@@ -1,3 +1,4 @@
+import {firstValueFrom, Observable} from 'rxjs';
 import {Inventaire, LigneInventaire} from '../../../core/api/inventaire-api.service';
 
 /** Motifs d'écart proposés (codes stockés, libellés traduits). */
@@ -37,4 +38,44 @@ export function etatPeremption(date: string | null, today: Date = new Date()): '
 export function ecart(ligne: LigneInventaire, saisie: number | null): number | null {
   return saisie === null ? null : Number((saisie - ligne.quantiteTheorique).toFixed(3));
 }
+
+/**
+ * Ouvre un PDF dans un nouvel onglet (impression depuis la visionneuse du navigateur). L'onglet est ouvert avant
+ * la requête pour ne pas être bloqué ; si le navigateur refuse, le PDF est téléchargé.
+ * @returns {@code null} si le document est ouvert, sinon le message d'erreur du serveur (ou {@code ''}).
+ */
+export function openPdf(source: Observable<Blob>, filename: string): Promise<string | null> {
+  const tab = window.open('', '_blank');
+  return firstValueFrom(source).then((blob) => {
+    const url = URL.createObjectURL(new Blob([blob], {type: 'application/pdf'}));
+    if (tab) {
+      tab.location.href = url;
+    } else {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return null;
+  }).catch(async (err: unknown) => {
+    tab?.close();
+    return blobErrorMessage(err);
+  });
+}
+
+/** Message d'un ProblemDetail renvoyé dans une réponse attendue en binaire (blob). */
+async function blobErrorMessage(err: unknown): Promise<string> {
+  const body = (err as { error?: unknown })?.error;
+  if (!(body instanceof Blob)) return '';
+  try {
+    const json = JSON.parse(await body.text()) as { detail?: string };
+    return json.detail ?? '';
+  } catch {
+    return '';
+  }
+}
+
+
+
 

@@ -1,5 +1,28 @@
+import {throwError} from 'rxjs';
+import {vi} from 'vitest';
 import {LigneInventaire} from '../../../core/api/inventaire-api.service';
-import {ecart, etatPeremption, filtrerLignes, progression} from './inventaire.util';
+import {ecart, etatPeremption, filtrerLignes, openPdf, progression} from './inventaire.util';
+
+describe('openPdf', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('restitue le message métier du serveur quand le document ne peut pas être généré', async () => {
+    const tab = {close: vi.fn(), location: {href: ''}};
+    vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window);
+    const body = new Blob([JSON.stringify({detail: 'Le modèle de document est désactivé pour ce centre.'})],
+      {type: 'application/json'});
+
+    const error = await openPdf(throwError(() => ({error: body})), 'x.pdf');
+
+    expect(error).toBe('Le modèle de document est désactivé pour ce centre.');
+    expect(tab.close).toHaveBeenCalled();
+  });
+
+  it('renvoie un message vide si l\'erreur n\'est pas lisible', async () => {
+    vi.spyOn(window, 'open').mockReturnValue(null);
+    expect(await openPdf(throwError(() => new Error('réseau')), 'x.pdf')).toBe('');
+  });
+});
 
 function ligne(partial: Partial<LigneInventaire>): LigneInventaire {
   return {

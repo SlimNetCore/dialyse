@@ -752,7 +752,10 @@
       "IMPORT_EMPTY": "{{count}} غير معبأ",
       "IMPORT_ISSUES": "{{count}} خلل",
       "IMPORT_ROW": "السطر {{row}}:",
-      "IMPORT_ERROR": "تعذّر استيراد ورقة العدّ."
+      "IMPORT_ERROR": "تعذّر استيراد ورقة العدّ.",
+      "PRINT": "طباعة",
+      "PRINT_HINT": "محضر الجرد (PDF) بترويسة وتذييل الشركة والمركز",
+      "PRINT_ERROR": "تعذّر إنشاء محضر الجرد."
     }
   },
   "FACTURATION": {

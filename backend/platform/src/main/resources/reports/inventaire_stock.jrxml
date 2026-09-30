@@ -1,0 +1,1008 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Procès-verbal d'inventaire de stock (modèle de document INVENTAIRE_STOCK, personnalisable par centre).
+  - En-tête (logo, société, centre) et pied de page (centre, pied de page société, édition, pagination) sur chaque page.
+  - Page 1 : titre, statut, indicateurs clés (calculés par le serveur).
+  - Détail du comptage par article et par lot (sous-totaux), analyse des écarts par motif, observations, validation.
+  - Filigrane « PROVISOIRE » / « ANNULÉ » tant que l'inventaire n'est pas clôturé.
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : une seule requête, expressions simples, police
+  standard. Valorisation au PMP figé à l'ouverture de l'inventaire.
+-->
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="inventaire_stock" pageWidth="595" pageHeight="842" columnWidth="539"
+              leftMargin="28" rightMargin="28" topMargin="24" bottomMargin="20"
+              whenNoDataType="AllSectionsNoDetail" isSummaryWithPageHeaderAndFooter="true">
+
+    <!-- ───────────────────────────── Styles ───────────────────────────── -->
+    <style name="base" isDefault="true" fontSize="7.5" forecolor="#1F2933"/>
+    <style name="muted" fontSize="6.8" forecolor="#627D98"/>
+    <style name="h2" fontSize="10" isBold="true" forecolor="#0D5750" vTextAlign="Bottom">
+        <box bottomPadding="2">
+            <bottomPen lineWidth="0.75" lineColor="#BCCCDC"/>
+        </box>
+    </style>
+    <style name="th" mode="Opaque" backcolor="#0D5750" forecolor="#FFFFFF" fontSize="6.5" isBold="true"
+           vTextAlign="Middle">
+        <box leftPadding="4" rightPadding="4"/>
+    </style>
+    <style name="cell" vTextAlign="Middle">
+        <box leftPadding="4" rightPadding="4"/>
+    </style>
+    <style name="zebra" mode="Transparent">
+        <conditionalStyle>
+            <conditionExpression><![CDATA[$V{ROW_IN_GROUP} % 2 == 0]]></conditionExpression>
+            <style mode="Opaque" backcolor="#F7FAFC"/>
+        </conditionalStyle>
+    </style>
+    <style name="gap" style="cell">
+        <conditionalStyle>
+            <conditionExpression><![CDATA[$F{ECART} != null && $F{ECART}.doubleValue() < 0]]></conditionExpression>
+            <style forecolor="#B42318" isBold="true"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA[$F{ECART} != null && $F{ECART}.doubleValue() > 0]]></conditionExpression>
+            <style forecolor="#067647" isBold="true"/>
+        </conditionalStyle>
+    </style>
+    <style name="groupGap" style="cell" isBold="true">
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[$V{G_VAL_ECART} != null && $V{G_VAL_ECART}.doubleValue() < 0]]></conditionExpression>
+            <style forecolor="#B42318"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[$V{G_VAL_ECART} != null && $V{G_VAL_ECART}.doubleValue() > 0]]></conditionExpression>
+            <style forecolor="#067647"/>
+        </conditionalStyle>
+    </style>
+    <style name="totalGap" isBold="true" forecolor="#0D5750">
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[$P{INV_ECART_SIGNE} != null && $P{INV_ECART_SIGNE} < 0]]></conditionExpression>
+            <style forecolor="#B42318"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[$P{INV_ECART_SIGNE} != null && $P{INV_ECART_SIGNE} > 0]]></conditionExpression>
+            <style forecolor="#067647"/>
+        </conditionalStyle>
+    </style>
+    <style name="expiry" style="cell">
+        <conditionalStyle>
+            <conditionExpression><![CDATA["EXPIRE".equals($F{PEREMPTION_ETAT})]]></conditionExpression>
+            <style forecolor="#B42318" isBold="true"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["PROCHE".equals($F{PEREMPTION_ETAT})]]></conditionExpression>
+            <style forecolor="#B54708"/>
+        </conditionalStyle>
+    </style>
+    <style name="motif" style="cell">
+        <conditionalStyle>
+            <conditionExpression><![CDATA["À justifier".equals($F{MOTIF})]]></conditionExpression>
+            <style forecolor="#B42318" isItalic="true"/>
+        </conditionalStyle>
+    </style>
+    <style name="pill" mode="Opaque" backcolor="#EEF2F6" forecolor="#52606D" fontSize="6.8" isBold="true"
+           hTextAlign="Center" vTextAlign="Middle">
+        <box>
+            <pen lineWidth="0.5" lineColor="#CBD2D9"/>
+        </box>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["CLOTURE".equals($P{INV_STATUT})]]></conditionExpression>
+            <style backcolor="#E3F9E5" forecolor="#05603A">
+                <box>
+                    <pen lineWidth="0.5" lineColor="#A3E4B1"/>
+                </box>
+            </style>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["EN_COURS".equals($P{INV_STATUT})]]></conditionExpression>
+            <style backcolor="#FFF4D6" forecolor="#8A5A00">
+                <box>
+                    <pen lineWidth="0.5" lineColor="#F5C35B"/>
+                </box>
+            </style>
+        </conditionalStyle>
+    </style>
+    <style name="kpiCard" mode="Opaque" backcolor="#F5F9FA">
+        <box topPadding="4" leftPadding="6" rightPadding="4">
+            <pen lineWidth="0.5" lineColor="#D9E2EC"/>
+        </box>
+    </style>
+    <style name="kpiLabel" fontSize="5.8" forecolor="#627D98" isBold="true"/>
+    <style name="kpiValue" fontSize="10.5" forecolor="#0D5750" isBold="true"/>
+
+    <!-- ───────────────────────────── Paramètres ───────────────────────────── -->
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="INVENTAIRE_ID" class="java.lang.String"/>
+    <parameter name="INV_REFERENCE" class="java.lang.String"/>
+    <parameter name="INV_DATE" class="java.lang.String"/>
+    <parameter name="INV_STATUT" class="java.lang.String"/>
+    <parameter name="INV_STATUT_LIBELLE" class="java.lang.String"/>
+    <parameter name="INV_COMMENTAIRE" class="java.lang.String"/>
+    <parameter name="INV_OUVERT" class="java.lang.String"/>
+    <parameter name="INV_CLOTURE_LIBELLE" class="java.lang.String"/>
+    <parameter name="INV_CLOTURE" class="java.lang.String"/>
+    <parameter name="INV_NOTICE" class="java.lang.String"/>
+    <parameter name="INV_FILIGRANE" class="java.lang.String"/>
+    <parameter name="INV_ECART_SIGNE" class="java.lang.Integer"/>
+    <parameter name="KPI_ARTICLES_LOTS" class="java.lang.String"/>
+    <parameter name="KPI_COMPTES" class="java.lang.String"/>
+    <parameter name="KPI_AVANCEMENT" class="java.lang.String"/>
+    <parameter name="KPI_ECARTS" class="java.lang.String"/>
+    <parameter name="KPI_ECARTS_PART" class="java.lang.String"/>
+    <parameter name="KPI_VAL_THEO" class="java.lang.String"/>
+    <parameter name="KPI_VAL_COMPTE" class="java.lang.String"/>
+    <parameter name="KPI_VAL_ECART" class="java.lang.String"/>
+    <parameter name="KPI_VAL_ECART_PART" class="java.lang.String"/>
+    <parameter name="MOTIFS_PRESENTS" class="java.lang.Boolean"/>
+    <parameter name="MOTIFS_LIBELLES" class="java.lang.String"/>
+    <parameter name="MOTIFS_LOTS" class="java.lang.String"/>
+    <parameter name="MOTIFS_MANQUANTS" class="java.lang.String"/>
+    <parameter name="MOTIFS_EXCEDENTS" class="java.lang.String"/>
+    <parameter name="MOTIFS_NETS" class="java.lang.String"/>
+    <parameter name="MOTIFS_TOTAL_LOTS" class="java.lang.String"/>
+    <parameter name="MOTIFS_TOTAL_MANQUANTS" class="java.lang.String"/>
+    <parameter name="MOTIFS_TOTAL_EXCEDENTS" class="java.lang.String"/>
+    <parameter name="MOTIFS_TOTAL_NET" class="java.lang.String"/>
+    <parameter name="SIGNATAIRE_ETABLI" class="java.lang.String"/>
+    <parameter name="SIGNATAIRE_VERIFIE" class="java.lang.String"/>
+    <parameter name="EDITE_LE" class="java.lang.String"/>
+    <parameter name="EDITE_PAR" class="java.lang.String"/>
+    <parameter name="SOCIETE_NOM" class="java.lang.String"/>
+    <parameter name="SOCIETE_ADRESSE" class="java.lang.String"/>
+    <parameter name="SOCIETE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="SOCIETE_EMAIL" class="java.lang.String"/>
+    <parameter name="SOCIETE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="SOCIETE_CONTACT" class="java.lang.String"/>
+    <parameter name="SOCIETE_LEGAL" class="java.lang.String"/>
+    <parameter name="SOCIETE_PIED_PAGE" class="java.lang.String"/>
+    <parameter name="SOCIETE_LOGO" class="java.io.InputStream"/>
+    <parameter name="CENTRE_NOM" class="java.lang.String"/>
+    <parameter name="CENTRE_ADRESSE" class="java.lang.String"/>
+    <parameter name="CENTRE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="CENTRE_EMAIL" class="java.lang.String"/>
+    <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
+    <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[
+        SELECT CAST(l.article_id AS VARCHAR(36)) AS ARTICLE_KEY,
+               l.article_code AS ARTICLE_CODE, l.article_libelle AS ARTICLE_LIBELLE, l.unite AS UNITE,
+               COALESCE(l.numero_lot, 'sans lot') || CASE WHEN l.ajoutee THEN ' (trouvé)' ELSE '' END AS LOT_LIBELLE,
+               l.date_peremption AS DATE_PEREMPTION,
+               CASE WHEN l.date_peremption IS NULL THEN NULL
+                    WHEN l.date_peremption < CURRENT_DATE THEN 'EXPIRE'
+                    WHEN l.date_peremption <= CURRENT_DATE + INTERVAL '90' DAY THEN 'PROCHE'
+                    ELSE NULL END AS PEREMPTION_ETAT,
+               l.quantite_theorique AS QUANTITE_THEORIQUE, l.quantite_comptee AS QUANTITE_COMPTEE,
+               CASE WHEN l.quantite_comptee IS NULL THEN 1 ELSE 0 END AS NON_COMPTE,
+               l.quantite_comptee - l.quantite_theorique AS ECART,
+               COALESCE(l.pmp, 0) AS PMP,
+               ROUND((l.quantite_comptee - l.quantite_theorique) * COALESCE(l.pmp, 0), 2) AS VAL_ECART,
+               l.compte_par AS COMPTE_PAR,
+               CASE
+                   WHEN l.motif_ecart = 'CASSE' THEN 'Casse'
+                   WHEN l.motif_ecart = 'PEREMPTION' THEN 'Péremption'
+                   WHEN l.motif_ecart = 'ERREUR_SAISIE' THEN 'Erreur de saisie'
+                   WHEN l.motif_ecart = 'PERTE' THEN 'Perte / vol'
+                   WHEN l.motif_ecart = 'NON_ENREGISTRE' THEN 'Mouvement non enregistré'
+                   WHEN l.motif_ecart = 'RETOUR' THEN 'Retour'
+                   WHEN l.motif_ecart = 'AUTRE' THEN 'Autre'
+                   WHEN l.motif_ecart IS NOT NULL THEN l.motif_ecart
+                   WHEN l.quantite_comptee IS NOT NULL AND l.quantite_comptee <> l.quantite_theorique THEN 'À justifier'
+                   ELSE NULL END AS MOTIF
+        FROM inventaire_lignes l
+        WHERE l.inventaire_id = CAST($P{INVENTAIRE_ID} AS UUID)
+          AND l.center_id = CAST($P{CENTER_ID} AS UUID)
+        ORDER BY LOWER(COALESCE(l.article_libelle, '')), l.article_id, l.date_peremption, l.position_ligne
+        ]]>
+    </queryString>
+
+    <field name="ARTICLE_KEY" class="java.lang.String"/>
+    <field name="ARTICLE_CODE" class="java.lang.String"/>
+    <field name="ARTICLE_LIBELLE" class="java.lang.String"/>
+    <field name="UNITE" class="java.lang.String"/>
+    <field name="LOT_LIBELLE" class="java.lang.String"/>
+    <field name="DATE_PEREMPTION" class="java.sql.Date"/>
+    <field name="PEREMPTION_ETAT" class="java.lang.String"/>
+    <field name="QUANTITE_THEORIQUE" class="java.math.BigDecimal"/>
+    <field name="QUANTITE_COMPTEE" class="java.math.BigDecimal"/>
+    <field name="NON_COMPTE" class="java.lang.Integer"/>
+    <field name="ECART" class="java.math.BigDecimal"/>
+    <field name="PMP" class="java.math.BigDecimal"/>
+    <field name="VAL_ECART" class="java.math.BigDecimal"/>
+    <field name="COMPTE_PAR" class="java.lang.String"/>
+    <field name="MOTIF" class="java.lang.String"/>
+
+    <!-- ───────────────────────────── Variables (par article) ───────────────────────────── -->
+    <variable name="ROW_IN_GROUP" class="java.lang.Integer" resetType="Group" resetGroup="article" calculation="Count">
+        <variableExpression><![CDATA[$F{ARTICLE_KEY}]]></variableExpression>
+    </variable>
+    <variable name="G_THEO" class="java.math.BigDecimal" resetType="Group" resetGroup="article" calculation="Sum">
+        <variableExpression><![CDATA[$F{QUANTITE_THEORIQUE}]]></variableExpression>
+    </variable>
+    <variable name="G_COMPTE" class="java.math.BigDecimal" resetType="Group" resetGroup="article" calculation="Sum">
+        <variableExpression><![CDATA[$F{QUANTITE_COMPTEE}]]></variableExpression>
+    </variable>
+    <variable name="G_ECART" class="java.math.BigDecimal" resetType="Group" resetGroup="article" calculation="Sum">
+        <variableExpression><![CDATA[$F{ECART}]]></variableExpression>
+    </variable>
+    <variable name="G_VAL_ECART" class="java.math.BigDecimal" resetType="Group" resetGroup="article" calculation="Sum">
+        <variableExpression><![CDATA[$F{VAL_ECART}]]></variableExpression>
+    </variable>
+    <variable name="G_NON_COMPTES" class="java.lang.Integer" resetType="Group" resetGroup="article" calculation="Sum">
+        <variableExpression><![CDATA[$F{NON_COMPTE}]]></variableExpression>
+    </variable>
+
+    <!-- ───────────────────────────── Regroupement par article ───────────────────────────── -->
+    <group name="article" keepTogether="true" minHeightToStartNewPage="48">
+        <groupExpression><![CDATA[$F{ARTICLE_KEY}]]></groupExpression>
+        <groupHeader>
+            <band height="17">
+                <frame>
+                    <reportElement x="0" y="2" width="539" height="15" mode="Opaque" backcolor="#E6F0EF"/>
+                    <box>
+                        <leftPen lineWidth="2" lineColor="#0D5750"/>
+                    </box>
+                    <textField textAdjust="ScaleFont">
+                        <reportElement style="cell" x="2" y="0" width="380" height="15" forecolor="#0D5750"/>
+                        <textElement>
+                            <font size="8" isBold="true"/>
+                        </textElement>
+                        <textFieldExpression>
+                            <![CDATA[$F{ARTICLE_LIBELLE} == null ? "Article" : $F{ARTICLE_LIBELLE}]]></textFieldExpression>
+                    </textField>
+                    <textField>
+                        <reportElement style="cell" x="382" y="0" width="155" height="15" forecolor="#486581"/>
+                        <textElement textAlignment="Right">
+                            <font size="6.8"/>
+                        </textElement>
+                        <textFieldExpression><![CDATA[($F{ARTICLE_CODE} == null ? "" : "Code " + $F{ARTICLE_CODE})
+                            + ($F{UNITE} == null ? "" : "  ·  Unité : " + $F{UNITE})]]></textFieldExpression>
+                    </textField>
+                </frame>
+            </band>
+        </groupHeader>
+        <groupFooter>
+            <band height="18">
+                <frame>
+                    <reportElement x="0" y="0" width="539" height="14" mode="Opaque" backcolor="#F4F8F8"/>
+                    <box>
+                        <topPen lineWidth="0.75" lineColor="#0D5750"/>
+                    </box>
+                    <textField>
+                        <reportElement style="cell" x="0" y="0" width="138" height="14" forecolor="#486581"/>
+                        <textElement>
+                            <font size="6.8" isItalic="true"/>
+                        </textElement>
+                        <textFieldExpression><![CDATA["Sous-total · " + $V{ROW_IN_GROUP} + ($V{ROW_IN_GROUP} > 1 ? " lots" : " lot")
+                            + ($V{G_NON_COMPTES} != null && $V{G_NON_COMPTES} > 0 ? " · " + $V{G_NON_COMPTES} + " non compté(s)" : "")]]></textFieldExpression>
+                    </textField>
+                    <textField pattern="#,##0.###" isBlankWhenNull="true">
+                        <reportElement style="cell" x="138" y="0" width="50" height="14"/>
+                        <textElement textAlignment="Right">
+                            <font isBold="true"/>
+                        </textElement>
+                        <textFieldExpression><![CDATA[$V{G_THEO}]]></textFieldExpression>
+                    </textField>
+                    <textField pattern="#,##0.###" isBlankWhenNull="true">
+                        <reportElement style="cell" x="188" y="0" width="50" height="14"/>
+                        <textElement textAlignment="Right">
+                            <font isBold="true"/>
+                        </textElement>
+                        <textFieldExpression><![CDATA[$V{G_COMPTE}]]></textFieldExpression>
+                    </textField>
+                    <textField pattern="+#,##0.###;-#,##0.###" isBlankWhenNull="true">
+                        <reportElement style="groupGap" x="238" y="0" width="46" height="14">
+                            <printWhenExpression>
+                                <![CDATA[$V{G_NON_COMPTES} == null || $V{G_NON_COMPTES} == 0]]></printWhenExpression>
+                        </reportElement>
+                        <textElement textAlignment="Right"/>
+                        <textFieldExpression><![CDATA[$V{G_ECART}]]></textFieldExpression>
+                    </textField>
+                    <textField pattern="+#,##0.00 DA;-#,##0.00 DA" isBlankWhenNull="true">
+                        <reportElement style="groupGap" x="340" y="0" width="66" height="14"/>
+                        <textElement textAlignment="Right"/>
+                        <textFieldExpression><![CDATA[$V{G_VAL_ECART}]]></textFieldExpression>
+                    </textField>
+                </frame>
+            </band>
+        </groupFooter>
+    </group>
+
+    <!-- ───────────────────────────── Filigrane ───────────────────────────── -->
+    <background>
+        <band height="798">
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="330" width="539" height="110" forecolor="#F6D5D1">
+                    <printWhenExpression><![CDATA[$P{INV_FILIGRANE} != null]]></printWhenExpression>
+                </reportElement>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="78" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{INV_FILIGRANE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </background>
+
+    <!-- ───────────────────────────── Titre (page 1) ───────────────────────────── -->
+    <title>
+        <band height="162">
+            <staticText>
+                <reportElement x="0" y="4" width="360" height="10" forecolor="#C9A227"/>
+                <textElement>
+                    <font size="6.5" isBold="true"/>
+                </textElement>
+                <text><![CDATA[PROCÈS-VERBAL D'INVENTAIRE PHYSIQUE DU STOCK]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="15" width="360" height="24" forecolor="#102A43"/>
+                <textElement>
+                    <font size="17" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Inventaire au " + $P{INV_DATE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="41" width="150" height="14" forecolor="#486581"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="8.5"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Réf. " + $P{INV_REFERENCE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="pill" x="150" y="42" width="62" height="12"/>
+                <textFieldExpression><![CDATA[$P{INV_STATUT_LIBELLE}]]></textFieldExpression>
+            </textField>
+
+            <frame>
+                <reportElement x="365" y="6" width="174" height="50"/>
+                <box leftPadding="8">
+                    <leftPen lineWidth="0.75" lineColor="#C9A227"/>
+                </box>
+                <staticText>
+                    <reportElement style="muted" x="0" y="0" width="166" height="9"/>
+                    <text><![CDATA[Ouverture]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="9" width="166" height="10" forecolor="#243B53"/>
+                    <textElement>
+                        <font size="7.2" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{INV_OUVERT}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="muted" x="0" y="21" width="166" height="9"/>
+                    <textFieldExpression><![CDATA[$P{INV_CLOTURE_LIBELLE}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="30" width="166" height="10" forecolor="#243B53"/>
+                    <textElement>
+                        <font size="7.2" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{INV_CLOTURE}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement style="muted" x="0" y="41" width="166" height="9"/>
+                    <text><![CDATA[Valorisation au PMP figé à l'ouverture]]></text>
+                </staticText>
+            </frame>
+
+            <frame>
+                <reportElement x="0" y="62" width="539" height="20" mode="Opaque" backcolor="#FFFBEA"
+                               isRemoveLineWhenBlank="true">
+                    <printWhenExpression><![CDATA[$P{INV_NOTICE} != null]]></printWhenExpression>
+                </reportElement>
+                <box leftPadding="8" rightPadding="6">
+                    <leftPen lineWidth="2.5" lineColor="#F0B429"/>
+                </box>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="0" width="525" height="20" forecolor="#8A5A00"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="7.2"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{INV_NOTICE}]]></textFieldExpression>
+                </textField>
+            </frame>
+
+            <!-- Indicateurs clés -->
+            <frame>
+                <reportElement style="kpiCard" positionType="Float" x="0" y="90" width="84" height="44"/>
+                <staticText>
+                    <reportElement style="kpiLabel" x="0" y="0" width="74" height="9"/>
+                    <text><![CDATA[ARTICLES / LOTS]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="kpiValue" x="0" y="10" width="74" height="16"/>
+                    <textFieldExpression><![CDATA[$P{KPI_ARTICLES_LOTS}]]></textFieldExpression>
+                </textField>
+            </frame>
+            <frame>
+                <reportElement style="kpiCard" positionType="Float" x="91" y="90" width="84" height="44"/>
+                <staticText>
+                    <reportElement style="kpiLabel" x="0" y="0" width="74" height="9"/>
+                    <text><![CDATA[LOTS COMPTÉS]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="kpiValue" x="0" y="10" width="74" height="16"/>
+                    <textFieldExpression><![CDATA[$P{KPI_COMPTES}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="muted" x="0" y="27" width="74" height="9"/>
+                    <textFieldExpression><![CDATA[$P{KPI_AVANCEMENT}]]></textFieldExpression>
+                </textField>
+            </frame>
+            <frame>
+                <reportElement style="kpiCard" positionType="Float" x="182" y="90" width="84" height="44"/>
+                <staticText>
+                    <reportElement style="kpiLabel" x="0" y="0" width="74" height="9"/>
+                    <text><![CDATA[LOTS EN ÉCART]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="kpiValue" x="0" y="10" width="74" height="16"/>
+                    <textFieldExpression><![CDATA[$P{KPI_ECARTS}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="muted" x="0" y="27" width="74" height="9"/>
+                    <textFieldExpression><![CDATA[$P{KPI_ECARTS_PART}]]></textFieldExpression>
+                </textField>
+            </frame>
+            <frame>
+                <reportElement style="kpiCard" positionType="Float" x="273" y="90" width="84" height="44"/>
+                <staticText>
+                    <reportElement style="kpiLabel" x="0" y="0" width="74" height="9"/>
+                    <text><![CDATA[VALEUR THÉORIQUE]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                    <reportElement style="kpiValue" x="0" y="10" width="74" height="16"/>
+                    <textFieldExpression><![CDATA[$P{KPI_VAL_THEO}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement style="muted" x="0" y="27" width="74" height="9"/>
+                    <text><![CDATA[DA]]></text>
+                </staticText>
+            </frame>
+            <frame>
+                <reportElement style="kpiCard" positionType="Float" x="364" y="90" width="84" height="44"/>
+                <staticText>
+                    <reportElement style="kpiLabel" x="0" y="0" width="74" height="9"/>
+                    <text><![CDATA[VALEUR COMPTÉE]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                    <reportElement style="kpiValue" x="0" y="10" width="74" height="16"/>
+                    <textFieldExpression><![CDATA[$P{KPI_VAL_COMPTE}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement style="muted" x="0" y="27" width="74" height="9"/>
+                    <text><![CDATA[DA]]></text>
+                </staticText>
+            </frame>
+            <frame>
+                <reportElement style="kpiCard" positionType="Float" x="455" y="90" width="84" height="44"
+                               backcolor="#FDF8EC"/>
+                <box topPadding="4" leftPadding="6" rightPadding="4">
+                    <pen lineWidth="0.5" lineColor="#E8D7A0"/>
+                </box>
+                <staticText>
+                    <reportElement style="kpiLabel" x="0" y="0" width="74" height="9"/>
+                    <text><![CDATA[VALEUR DES ÉCARTS]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                    <reportElement style="totalGap" x="0" y="10" width="74" height="16"/>
+                    <textElement>
+                        <font size="10.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{KPI_VAL_ECART}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="muted" x="0" y="27" width="74" height="9"/>
+                    <textFieldExpression><![CDATA[$P{KPI_VAL_ECART_PART}]]></textFieldExpression>
+                </textField>
+            </frame>
+
+            <textField>
+                <reportElement style="h2" positionType="Float" x="0" y="142" width="539" height="18"/>
+                <textFieldExpression><![CDATA["1   Détail du comptage par article et par lot"]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <!-- ───────────────────────────── En-tête de page (identité) ───────────────────────────── -->
+    <pageHeader>
+        <band height="74">
+            <image scaleImage="RetainShape" hAlign="Left" vAlign="Middle" onErrorType="Blank" isUsingCache="true">
+                <reportElement x="0" y="0" width="60" height="52">
+                    <printWhenExpression><![CDATA[$P{SOCIETE_LOGO} != null]]></printWhenExpression>
+                </reportElement>
+                <imageExpression><![CDATA[$P{SOCIETE_LOGO}]]></imageExpression>
+            </image>
+            <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                <reportElement x="68" y="0" width="268" height="18" forecolor="#0D5750"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="12.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="muted" x="68" y="19" width="268" height="20"/>
+                <textFieldExpression><![CDATA[$P{SOCIETE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="muted" x="68" y="40" width="268" height="10"/>
+                <textFieldExpression><![CDATA[$P{SOCIETE_LEGAL}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                <reportElement x="340" y="0" width="199" height="14" forecolor="#102A43"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="9.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="muted" x="340" y="15" width="199" height="10"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA[$P{CENTRE_ADRESSE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="muted" x="340" y="25" width="199" height="18"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA[$P{CENTRE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="340" y="43" width="199" height="10" forecolor="#0D5750"/>
+                <textElement textAlignment="Right">
+                    <font size="6.8" isBold="true"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["Inventaire " + $P{INV_REFERENCE} + " du " + $P{INV_DATE}]]></textFieldExpression>
+            </textField>
+            <rectangle>
+                <reportElement x="0" y="58" width="539" height="2" mode="Opaque" backcolor="#0D5750"
+                               forecolor="#0D5750"/>
+                <graphicElement>
+                    <pen lineWidth="0"/>
+                </graphicElement>
+            </rectangle>
+            <rectangle>
+                <reportElement x="0" y="61" width="539" height="1" mode="Opaque" backcolor="#C9A227"
+                               forecolor="#C9A227"/>
+                <graphicElement>
+                    <pen lineWidth="0"/>
+                </graphicElement>
+            </rectangle>
+        </band>
+    </pageHeader>
+
+    <!-- ───────────────────────────── En-têtes de colonnes (chaque page) ───────────────────────────── -->
+    <columnHeader>
+        <band height="18">
+            <staticText>
+                <reportElement style="th" x="0" y="2" width="84" height="16"/>
+                <text><![CDATA[N° DE LOT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="84" y="2" width="54" height="16"/>
+                <text><![CDATA[PÉREMPTION]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="138" y="2" width="50" height="16"/>
+                <textElement textAlignment="Right"/>
+                <text><![CDATA[THÉORIQUE]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="188" y="2" width="50" height="16"/>
+                <textElement textAlignment="Right"/>
+                <text><![CDATA[COMPTÉ]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="238" y="2" width="46" height="16"/>
+                <textElement textAlignment="Right"/>
+                <text><![CDATA[ÉCART]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="284" y="2" width="56" height="16"/>
+                <textElement textAlignment="Right"/>
+                <text><![CDATA[PMP]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="340" y="2" width="66" height="16"/>
+                <textElement textAlignment="Right"/>
+                <text><![CDATA[VALEUR ÉCART]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="406" y="2" width="75" height="16"/>
+                <text><![CDATA[MOTIF]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="th" x="481" y="2" width="58" height="16"/>
+                <text><![CDATA[COMPTÉ PAR]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- ───────────────────────────── Lignes (un lot) ───────────────────────────── -->
+    <detail>
+        <band height="14">
+            <frame>
+                <reportElement style="zebra" x="0" y="0" width="539" height="14"/>
+                <box>
+                    <bottomPen lineWidth="0.5" lineColor="#E4E7EB"/>
+                </box>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="cell" x="0" y="0" width="84" height="14"/>
+                    <textFieldExpression><![CDATA[$F{LOT_LIBELLE}]]></textFieldExpression>
+                </textField>
+                <textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+                    <reportElement style="expiry" x="84" y="0" width="54" height="14"/>
+                    <textFieldExpression><![CDATA[$F{DATE_PEREMPTION}]]></textFieldExpression>
+                </textField>
+                <textField pattern="#,##0.###" isBlankWhenNull="true">
+                    <reportElement style="cell" x="138" y="0" width="50" height="14"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{QUANTITE_THEORIQUE}]]></textFieldExpression>
+                </textField>
+                <textField pattern="#,##0.###" isBlankWhenNull="true">
+                    <reportElement style="cell" x="188" y="0" width="50" height="14">
+                        <printWhenExpression><![CDATA[$F{QUANTITE_COMPTEE} != null]]></printWhenExpression>
+                    </reportElement>
+                    <textElement textAlignment="Right">
+                        <font isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{QUANTITE_COMPTEE}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement style="cell" x="188" y="0" width="50" height="14" forecolor="#9AA5B1">
+                        <printWhenExpression><![CDATA[$F{QUANTITE_COMPTEE} == null]]></printWhenExpression>
+                    </reportElement>
+                    <textElement textAlignment="Right">
+                        <font size="6.5" isItalic="true"/>
+                    </textElement>
+                    <text><![CDATA[non compté]]></text>
+                </staticText>
+                <textField pattern="+#,##0.###;-#,##0.###" isBlankWhenNull="true">
+                    <reportElement style="gap" x="238" y="0" width="46" height="14"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression>
+                        <![CDATA[$F{ECART} != null && $F{ECART}.doubleValue() == 0 ? null : $F{ECART}]]></textFieldExpression>
+                </textField>
+                <textField pattern="#,##0.00" isBlankWhenNull="true">
+                    <reportElement style="cell" x="284" y="0" width="56" height="14" forecolor="#627D98"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{PMP}]]></textFieldExpression>
+                </textField>
+                <textField pattern="+#,##0.00;-#,##0.00" isBlankWhenNull="true">
+                    <reportElement style="gap" x="340" y="0" width="66" height="14"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression>
+                        <![CDATA[$F{VAL_ECART} != null && $F{VAL_ECART}.doubleValue() == 0 ? null : $F{VAL_ECART}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                    <reportElement style="motif" x="406" y="0" width="75" height="14"/>
+                    <textFieldExpression><![CDATA[$F{MOTIF}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" textAdjust="ScaleFont">
+                    <reportElement style="cell" x="481" y="0" width="58" height="14" forecolor="#627D98"/>
+                    <textFieldExpression><![CDATA[$F{COMPTE_PAR}]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </detail>
+
+    <!-- ───────────────────────────── Pied de page (identité, pagination) ───────────────────────────── -->
+    <pageFooter>
+        <band height="40">
+            <line>
+                <reportElement x="0" y="3" width="539" height="1" forecolor="#CBD2D9"/>
+                <graphicElement>
+                    <pen lineWidth="0.75"/>
+                </graphicElement>
+            </line>
+            <textField isBlankWhenNull="true">
+                <reportElement style="muted" x="0" y="7" width="420" height="10"/>
+                <textFieldExpression><![CDATA[$P{CENTRE_LIGNE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="muted" x="0" y="17" width="420" height="10"/>
+                <textFieldExpression><![CDATA[$P{SOCIETE_PIED_PAGE}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="muted" x="0" y="27" width="420" height="10" forecolor="#9AA5B1"/>
+                <textElement>
+                    <font isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Édité le " + $P{EDITE_LE} + ($P{EDITE_PAR} == null ? "" : " par " + $P{EDITE_PAR})
+                    + "  ·  Inventaire " + $P{INV_REFERENCE}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="420" y="7" width="95" height="12" forecolor="#0D5750"/>
+                <textElement textAlignment="Right">
+                    <font size="7.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " / "]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="515" y="7" width="24" height="12" forecolor="#0D5750"/>
+                <textElement>
+                    <font size="7.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <!-- ───────────────────────────── Synthèse, analyse, validation ───────────────────────────── -->
+    <summary>
+        <band height="316">
+            <frame>
+                <reportElement x="0" y="4" width="539" height="18" mode="Opaque" backcolor="#EEF4F3"/>
+                <box>
+                    <topPen lineWidth="1.5" lineColor="#0D5750"/>
+                </box>
+                <staticText>
+                    <reportElement style="cell" x="0" y="0" width="138" height="18" forecolor="#0D5750"/>
+                    <textElement>
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Total général]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="cell" x="138" y="0" width="202" height="18"/>
+                    <textElement textAlignment="Right">
+                        <font size="7"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["Valeur comptée : " + $P{KPI_VAL_COMPTE} + " DA"]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="totalGap" x="340" y="0" width="66" height="18"/>
+                    <box rightPadding="4"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="7.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{KPI_VAL_ECART}]]></textFieldExpression>
+                </textField>
+            </frame>
+
+            <textField>
+                <reportElement style="h2" positionType="Float" x="0" y="32" width="539" height="18"/>
+                <textFieldExpression><![CDATA["2   Analyse des écarts par motif"]]></textFieldExpression>
+            </textField>
+            <frame>
+                <reportElement positionType="Float" x="0" y="54" width="539" height="48">
+                    <printWhenExpression>
+                        <![CDATA[$P{MOTIFS_PRESENTS} != null && $P{MOTIFS_PRESENTS}]]></printWhenExpression>
+                </reportElement>
+                <staticText>
+                    <reportElement style="th" x="0" y="0" width="239" height="16"/>
+                    <text><![CDATA[MOTIF]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement style="th" x="239" y="0" width="60" height="16"/>
+                    <textElement textAlignment="Right"/>
+                    <text><![CDATA[LOTS]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement style="th" x="299" y="0" width="80" height="16"/>
+                    <textElement textAlignment="Right"/>
+                    <text><![CDATA[MANQUANTS]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement style="th" x="379" y="0" width="80" height="16"/>
+                    <textElement textAlignment="Right"/>
+                    <text><![CDATA[EXCÉDENTS]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement style="th" x="459" y="0" width="80" height="16"/>
+                    <textElement textAlignment="Right"/>
+                    <text><![CDATA[NET]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                    <reportElement style="cell" x="0" y="16" width="239" height="16"/>
+                    <box topPadding="3" bottomPadding="3"/>
+                    <textElement>
+                        <paragraph lineSpacing="Fixed" lineSpacingSize="12"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{MOTIFS_LIBELLES}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                    <reportElement style="cell" x="239" y="16" width="60" height="16"/>
+                    <box topPadding="3" bottomPadding="3"/>
+                    <textElement textAlignment="Right">
+                        <paragraph lineSpacing="Fixed" lineSpacingSize="12"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{MOTIFS_LOTS}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                    <reportElement style="cell" x="299" y="16" width="80" height="16" forecolor="#B42318"/>
+                    <box topPadding="3" bottomPadding="3"/>
+                    <textElement textAlignment="Right">
+                        <paragraph lineSpacing="Fixed" lineSpacingSize="12"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{MOTIFS_MANQUANTS}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                    <reportElement style="cell" x="379" y="16" width="80" height="16" forecolor="#067647"/>
+                    <box topPadding="3" bottomPadding="3"/>
+                    <textElement textAlignment="Right">
+                        <paragraph lineSpacing="Fixed" lineSpacingSize="12"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{MOTIFS_EXCEDENTS}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                    <reportElement style="cell" x="459" y="16" width="80" height="16" forecolor="#243B53"/>
+                    <box topPadding="3" bottomPadding="3"/>
+                    <textElement textAlignment="Right">
+                        <font isBold="true"/>
+                        <paragraph lineSpacing="Fixed" lineSpacingSize="12"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{MOTIFS_NETS}]]></textFieldExpression>
+                </textField>
+                <frame>
+                    <reportElement positionType="Float" x="0" y="32" width="539" height="16" mode="Opaque"
+                                   backcolor="#EEF4F3"/>
+                    <box>
+                        <topPen lineWidth="1" lineColor="#0D5750"/>
+                    </box>
+                    <staticText>
+                        <reportElement style="cell" x="0" y="0" width="239" height="16" forecolor="#0D5750"/>
+                        <textElement>
+                            <font isBold="true"/>
+                        </textElement>
+                        <text><![CDATA[Total des écarts]]></text>
+                    </staticText>
+                    <textField isBlankWhenNull="true">
+                        <reportElement style="cell" x="239" y="0" width="60" height="16"/>
+                        <textElement textAlignment="Right">
+                            <font isBold="true"/>
+                        </textElement>
+                        <textFieldExpression><![CDATA[$P{MOTIFS_TOTAL_LOTS}]]></textFieldExpression>
+                    </textField>
+                    <textField isBlankWhenNull="true">
+                        <reportElement style="cell" x="299" y="0" width="80" height="16" forecolor="#B42318"/>
+                        <textElement textAlignment="Right">
+                            <font isBold="true"/>
+                        </textElement>
+                        <textFieldExpression><![CDATA[$P{MOTIFS_TOTAL_MANQUANTS}]]></textFieldExpression>
+                    </textField>
+                    <textField isBlankWhenNull="true">
+                        <reportElement style="cell" x="379" y="0" width="80" height="16" forecolor="#067647"/>
+                        <textElement textAlignment="Right">
+                            <font isBold="true"/>
+                        </textElement>
+                        <textFieldExpression><![CDATA[$P{MOTIFS_TOTAL_EXCEDENTS}]]></textFieldExpression>
+                    </textField>
+                    <textField isBlankWhenNull="true">
+                        <reportElement style="totalGap" x="459" y="0" width="80" height="16"/>
+                        <box rightPadding="4"/>
+                        <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                        <textFieldExpression><![CDATA[$P{MOTIFS_TOTAL_NET}]]></textFieldExpression>
+                    </textField>
+                </frame>
+            </frame>
+            <frame>
+                <reportElement positionType="Float" x="0" y="54" width="539" height="22" mode="Opaque"
+                               backcolor="#F0FDF4">
+                    <printWhenExpression>
+                        <![CDATA[$P{MOTIFS_PRESENTS} == null || !$P{MOTIFS_PRESENTS}]]></printWhenExpression>
+                </reportElement>
+                <box leftPadding="8">
+                    <pen lineWidth="0.5" lineColor="#BBF7D0"/>
+                </box>
+                <staticText>
+                    <reportElement x="0" y="0" width="525" height="22" forecolor="#166534"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="7.5"/>
+                    </textElement>
+                    <text>
+                        <![CDATA[Aucun écart constaté : le stock physique compté est conforme au stock théorique.]]></text>
+                </staticText>
+            </frame>
+
+            <textField>
+                <reportElement style="h2" positionType="Float" x="0" y="112" width="539" height="18"/>
+                <textFieldExpression><![CDATA["3   Observations"]]></textFieldExpression>
+            </textField>
+            <frame>
+                <reportElement positionType="Float" x="0" y="134" width="539" height="26" mode="Opaque"
+                               backcolor="#FBFCFD"/>
+                <box topPadding="5" leftPadding="8" bottomPadding="5" rightPadding="8">
+                    <pen lineWidth="0.5" lineColor="#D9E2EC"/>
+                </box>
+                <textField textAdjust="StretchHeight">
+                    <reportElement x="0" y="0" width="523" height="16"/>
+                    <textElement>
+                        <font size="7.5"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA[$P{INV_COMMENTAIRE} == null ? "Aucune observation." : $P{INV_COMMENTAIRE}]]></textFieldExpression>
+                </textField>
+            </frame>
+
+            <frame>
+                <reportElement positionType="Float" x="0" y="170" width="539" height="146"/>
+                <textField>
+                    <reportElement style="h2" x="0" y="0" width="539" height="18"/>
+                    <textFieldExpression><![CDATA["4   Validation"]]></textFieldExpression>
+                </textField>
+                <frame>
+                    <reportElement x="0" y="24" width="173" height="84"/>
+                    <box topPadding="6" leftPadding="8" rightPadding="6">
+                        <pen lineWidth="0.6" lineColor="#BCCCDC"/>
+                    </box>
+                    <staticText>
+                        <reportElement x="0" y="0" width="159" height="10" forecolor="#0D5750"/>
+                        <textElement>
+                            <font size="6.8" isBold="true"/>
+                        </textElement>
+                        <text><![CDATA[ÉTABLI PAR]]></text>
+                    </staticText>
+                    <textField>
+                        <reportElement style="muted" x="0" y="12" width="159" height="10"/>
+                        <textFieldExpression>
+                            <![CDATA[$P{SIGNATAIRE_ETABLI} == null ? "Nom : ................................" : $P{SIGNATAIRE_ETABLI}]]></textFieldExpression>
+                    </textField>
+                    <staticText>
+                        <reportElement style="muted" x="0" y="64" width="159" height="10" forecolor="#9AA5B1"/>
+                        <text><![CDATA[Date et signature]]></text>
+                    </staticText>
+                </frame>
+                <frame>
+                    <reportElement x="183" y="24" width="173" height="84"/>
+                    <box topPadding="6" leftPadding="8" rightPadding="6">
+                        <pen lineWidth="0.6" lineColor="#BCCCDC"/>
+                    </box>
+                    <staticText>
+                        <reportElement x="0" y="0" width="159" height="10" forecolor="#0D5750"/>
+                        <textElement>
+                            <font size="6.8" isBold="true"/>
+                        </textElement>
+                        <text><![CDATA[VÉRIFIÉ PAR — PHARMACIEN]]></text>
+                    </staticText>
+                    <textField>
+                        <reportElement style="muted" x="0" y="12" width="159" height="10"/>
+                        <textFieldExpression>
+                            <![CDATA[$P{SIGNATAIRE_VERIFIE} == null ? "Nom : ................................" : $P{SIGNATAIRE_VERIFIE}]]></textFieldExpression>
+                    </textField>
+                    <staticText>
+                        <reportElement style="muted" x="0" y="64" width="159" height="10" forecolor="#9AA5B1"/>
+                        <text><![CDATA[Date et signature]]></text>
+                    </staticText>
+                </frame>
+                <frame>
+                    <reportElement x="366" y="24" width="173" height="84"/>
+                    <box topPadding="6" leftPadding="8" rightPadding="6">
+                        <pen lineWidth="0.6" lineColor="#BCCCDC"/>
+                    </box>
+                    <staticText>
+                        <reportElement x="0" y="0" width="159" height="10" forecolor="#0D5750"/>
+                        <textElement>
+                            <font size="6.8" isBold="true"/>
+                        </textElement>
+                        <text><![CDATA[VISA DE LA DIRECTION]]></text>
+                    </staticText>
+                    <staticText>
+                        <reportElement style="muted" x="0" y="12" width="159" height="10"/>
+                        <text><![CDATA[Nom : ................................]]></text>
+                    </staticText>
+                    <staticText>
+                        <reportElement style="muted" x="0" y="64" width="159" height="10" forecolor="#9AA5B1"/>
+                        <text><![CDATA[Date, signature et cachet]]></text>
+                    </staticText>
+                </frame>
+                <textField textAdjust="StretchHeight">
+                    <reportElement style="muted" x="0" y="116" width="539" height="30"/>
+                    <textElement textAlignment="Justified"/>
+                    <textFieldExpression><![CDATA["Les soussignés certifient l'exactitude du comptage physique ci-dessus. À la clôture, les quantités comptées "
+                        + "constituent le stock de départ de chaque lot au " + $P{INV_DATE} + " ; les mouvements antérieurs sont clôturés "
+                        + "et les écarts sont valorisés au prix moyen pondéré (PMP) figé à l'ouverture de l'inventaire."]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </summary>
+</jasperReport>
+

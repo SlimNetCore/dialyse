@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, untracked} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {Router, RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
@@ -10,15 +10,17 @@ import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {firstValueFrom} from 'rxjs';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
-import {InventaireResume} from '../../../core/api/inventaire-api.service';
+import {InventaireApiService, InventaireResume} from '../../../core/api/inventaire-api.service';
 import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
 import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
 import {InventaireStore} from './state/inventaire.store';
-import {progression} from './inventaire.util';
+import {openPdf, progression} from './inventaire.util';
 
 function todayIso(): string {
   const d = new Date();
@@ -31,7 +33,7 @@ function todayIso(): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatTableModule, MatPaginatorModule, MatProgressBarModule, MatExpansionModule, TranslateModule],
+    MatTableModule, MatPaginatorModule, MatProgressBarModule, MatExpansionModule, MatTooltipModule, TranslateModule],
   template: `
     <section class="app-page">
       <div class="app-hero-card">
@@ -171,6 +173,17 @@ function todayIso(): string {
             <ng-container matColumnDef="par">
               <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.COL_BY' | translate }}</th>
               <td mat-cell *matCellDef="let i">{{ i.closedBy ?? i.createdBy ?? '-' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let i" class="actions-cell">
+                <button mat-icon-button type="button" [disabled]="printingId() === i.id"
+                        [matTooltip]="'STOCK.INVENTORY.PRINT' | translate"
+                        [attr.aria-label]="'STOCK.INVENTORY.PRINT' | translate"
+                        (click)="$event.stopPropagation(); print(i)" [attr.data-testid]="'inventory-print-' + i.id">
+                  <mat-icon>print</mat-icon>
+                </button>
+              </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
             <tr mat-row *matRowDef="let row; columns: columns" class="clickable" (click)="openDetail(row)"></tr>
@@ -372,7 +385,7 @@ function todayIso(): string {
 export class InventairesComponent {
   protected readonly store = inject(InventaireStore);
   protected readonly today = todayIso();
-  protected readonly columns = ['reference', 'date', 'statut', 'progression', 'ecarts', 'valeur', 'par'];
+  protected readonly columns = ['reference', 'date', 'statut', 'progression', 'ecarts', 'valeur', 'par', 'actions'];
   protected readonly tips = ['STOCK.INVENTORY.TIP_1', 'STOCK.INVENTORY.TIP_2', 'STOCK.INVENTORY.TIP_3', 'STOCK.INVENTORY.TIP_4',
     'STOCK.INVENTORY.TIP_5', 'STOCK.INVENTORY.TIP_6'];
   protected readonly form = new SignalForm<{ date: string; commentaire: string }>(
@@ -383,6 +396,10 @@ export class InventairesComponent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  /** Inventaire dont le procès-verbal est en cours de génération. */
+  protected readonly printingId = signal<string | null>(null);
+  private readonly api = inject(InventaireApiService);
+  private readonly snackBar = inject(MatSnackBar);
 
   constructor() {
     effect(() => {
@@ -415,6 +432,18 @@ export class InventairesComponent {
     if (inventaire) void this.router.navigate(['/stock/inventaires', inventaire.id]);
   }
 
+  /** Procès-verbal PDF (Jasper) de l'inventaire, avec l'en-tête et le pied de page de la société et du centre. */
+  protected async print(row: InventaireResume): Promise<void> {
+    const center = this.appShell.currentCenterId();
+    if (!center) return;
+    this.printingId.set(row.id);
+    const error = await openPdf(this.api.rapport(center, row.id), `inventaire-${row.reference}.pdf`);
+    this.printingId.set(null);
+    if (error !== null) {
+      this.snackBar.open(error || this.translate.instant('STOCK.INVENTORY.PRINT_ERROR'), 'OK', {duration: 7000});
+    }
+  }
+
   protected openDetail(row: InventaireResume): void {
     void this.router.navigate(['/stock/inventaires', row.id]);
   }
@@ -423,4 +452,9 @@ export class InventairesComponent {
     void this.store.setPage(event.pageIndex, event.pageSize);
   }
 }
+
+
+
+
+
 

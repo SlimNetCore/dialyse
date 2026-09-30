@@ -3,6 +3,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler;
 import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
+import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
+import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.ModeleDocumentDto;
@@ -50,18 +52,21 @@ public class DocumentRestController {
     private final CustomTemplateCompiler customTemplateCompiler;
     private final CenterAccessGuard centerAccessGuard;
     private final DocumentIdentityProvider identityProvider;
+    private final ModeleDocumentPrinter printer;
 
     public DocumentRestController(JdbcTemplate jdbc, JasperReportService jasperService,
                                   ModeleDocumentTemplateService templateService,
                                   CustomTemplateCompiler customTemplateCompiler,
                                   CenterAccessGuard centerAccessGuard,
-                                  DocumentIdentityProvider identityProvider) {
+                                  DocumentIdentityProvider identityProvider,
+                                  ModeleDocumentPrinter printer) {
         this.jdbc = jdbc;
         this.jasperService = jasperService;
         this.templateService = templateService;
         this.customTemplateCompiler = customTemplateCompiler;
         this.centerAccessGuard = centerAccessGuard;
         this.identityProvider = identityProvider;
+        this.printer = printer;
     }
 
     private static void requireSafeTemplatePath(String path) {
@@ -165,21 +170,14 @@ public class DocumentRestController {
     }
 
     /**
-     * Types de documents disponibles
+     * Types de documents disponibles : le catalogue des documents livrés, plus les rapports personnalisés.
      */
     @GetMapping("/types")
     public ResponseEntity<?> availableTypes() {
-        return ResponseEntity.ok(List.of(
-                Map.of("code", "FICHE_PATIENT", "label", "Fiche signalétique patient"),
-                Map.of("code", "ATTESTATION", "label", "Attestation d'ouverture de droit"),
-                Map.of("code", "PEC", "label", "Prise en charge"),
-                Map.of("code", "LISTE_PATIENTS", "label", "Liste des patients"),
-                Map.of("code", "LISTE_PEC", "label", "Liste des prises en charge"),
-                Map.of("code", "LISTE_ATTESTATIONS", "label", "Liste des attestations"),
-                Map.of("code", "SYNTHESE_FACTURATION_MENSUELLE", "label", "Synthèse mensuelle facturation"),
-                Map.of("code", "ORDONNANCE", "label", "Ordonnance médicamenteuse"),
-                Map.of("code", "CUSTOM", "label", "Rapport personnalisé")
-        ));
+        List<Map<String, String>> types = new ArrayList<>();
+        ModeleDocumentCatalog.entries().forEach(e -> types.add(Map.of("code", e.type(), "label", e.libelle())));
+        types.add(Map.of("code", "CUSTOM", "label", "Rapport personnalisé"));
+        return ResponseEntity.ok(types);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -316,12 +314,7 @@ public class DocumentRestController {
      */
     private byte[] render(UUID modeleId, UUID centerId, String cheminJrxml, Map<String, Object> params, String format)
             throws Exception {
-        var custom = templateService.activeCustom(centerId, modeleId);
-        if (custom.isPresent()) {
-            var report = customTemplateCompiler.compile(centerId, modeleId, custom.get().version(), custom.get().contenu());
-            return jasperService.generateFromCompiled(report, params, format);
-        }
-        return jasperService.generateReport(cheminJrxml, params, format);
+        return printer.render(modeleId, centerId, cheminJrxml, params, format);
     }
 
     private void validatePrintRequest(PrintRequest req, boolean requireTypeDocument) {

@@ -165,10 +165,20 @@ export class InventaireApiService {
       {params: this.center(centerId), withCredentials: true});
   }
 
+  /** Procès-verbal d'inventaire (PDF Jasper) avec en-tête et pied de page de la société et du centre. */
+  rapport(centerId: string, id: string): Observable<Blob> {
+    return this.http.get(`${this.base}/${id}/rapport`, {
+      params: this.center(centerId),
+      responseType: 'blob',
+      withCredentials: true
+    });
+  }
+
   private center(centerId: string): HttpParams {
     return new HttpParams().set('centerId', centerId);
   }
 }
+
 
 
 

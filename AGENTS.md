@@ -362,9 +362,26 @@ cd frontend && npm run e2e     # Playwright
 ---
 
 ## 11. Reporting
-- Templates JasperReports dans `backend/src/main/resources/reports/*.jrxml` (compilés en `.jasper`).
+
+- Templates JasperReports dans `backend/platform/src/main/resources/reports/*.jrxml` (compilés à l'exécution).
 - Export PDF/HTML via `openhtmltopdf`.
 - Endpoints de reporting dans `infrastructure/reporting/` et `web/rest/DocumentRestController.java`.
+
+### 11.1 Tout rapport est un modèle de document **OBLIGATOIRE**
+
+Aucun rapport imprimé par l'application ne doit contourner les « Modèles de documents » :
+
+1. **Déclaration** : le type (code, libellé, `.jrxml`) est ajouté à `ModeleDocumentCatalog` — le test
+   `ModeleDocumentCatalogTest` échoue si un `reports/*.jrxml` n'y figure pas.
+2. **Provisionnement** : `ModeleDocumentProvisioner` crée le modèle pour chaque centre (au démarrage et à la première
+   impression) ; un modèle désactivé par un centre n'est jamais réactivé automatiquement.
+3. **Impression** : uniquement via `ModeleDocumentPrinter.print(centerId, type, params)` — modèle actif du centre,
+   version personnalisée active si elle existe, identité société + centre (logo, en-tête, pied de page) posée par le
+   serveur. Jamais d'appel direct à `JasperReportService` depuis un service métier.
+4. **Personnalisable** : le `.jrxml` doit passer `JrxmlSecurityValidator` contre lui-même (à ajouter dans
+   `JrxmlSecurityValidatorTest`) : une seule requête SQL, expressions simples (calculs en SQL ou passés en paramètres),
+   paramètres d'identité `SOCIETE_*` / `CENTRE_*` déclarés (à ajouter dans `JasperTemplateCompileTest`).
+5. **Polices standard uniquement** (pas de `fontName`) : aucune police externe n'est garantie sur le serveur.
 
 ---
 
@@ -411,6 +428,8 @@ cd frontend && npm run e2e     # Playwright
 15. **RÈGLE INVIOLABLE FRONTEND** : synchronisation des entrées/sorties de composants en Angular 22 via
     `input()` / `output()` / `model()` + `computed()` / `effect()` ; `ngOnChanges` ne doit pas être utilisé pour la
     synchronisation de `@Input`.
+16. **Tout rapport imprimé est un modèle de document** (catalogue, provisionnement par centre, impression via
+    `ModeleDocumentPrinter`, modèle personnalisable et validé) — voir §11.1.
 
 # 14. DDD Tactique et Découpage des Domaines — OBLIGATOIRE
 

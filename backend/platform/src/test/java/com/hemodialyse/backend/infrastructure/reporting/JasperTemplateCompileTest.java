@@ -31,7 +31,7 @@ class JasperTemplateCompileTest {
      * Modèles imprimés pour un centre : ils portent l'en-tête et le pied de page société + centre.
      */
     private static final List<String> DOCUMENT_TEMPLATES = List.of(
-            "attestation", "fiche_patient", "liste_attestations", "liste_patients", "liste_pec",
+            "attestation", "fiche_patient", "inventaire_stock", "liste_attestations", "liste_patients", "liste_pec",
             "ordonnance", "prise_en_charge");
 
     private static JasperReport compile(Path source) throws Exception {
