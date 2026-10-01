@@ -79,6 +79,10 @@
           <span>{{ 'GMAO.DASHBOARD.OVERDUE_PLANS' | translate }}</span>
           <strong>{{ s.plansMaintenanceEnRetard }}</strong>
         </div>
+        <div [class.tone-danger]="s.interventionsARelancer > 0" class="app-data-pill" data-testid="kpi-relance">
+          <span>{{ 'GMAO.DASHBOARD.INTERVENTIONS_A_RELANCER' | translate }}</span>
+          <strong>{{ s.interventionsARelancer }}</strong>
+        </div>
       </div>
       @if (s.plansMaintenanceEnRetard > 0) {
         <p class="gmao-overdue-note">

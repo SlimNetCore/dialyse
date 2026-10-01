@@ -130,6 +130,37 @@
       }
     </div>
 
+    <div class="gmao-stat-section" data-testid="fiche-historique-pannes">
+      <h2 class="gmao-stat-title">{{ 'GMAO.FICHE.HISTORIQUE_PANNES' | translate }}</h2>
+      @if (historique().length === 0) {
+        <p class="app-muted-note">{{ 'GMAO.FICHE.AUCUNE_INTERVENTION' | translate }}</p>
+      } @else {
+        <ul class="gmao-historique">
+          @for (h of historique(); track h.id) {
+            <li class="gmao-fiche-row">
+              <span class="gmao-historique-main">
+                <a [routerLink]="['/gmao/interventions', h.id]">
+                  {{ ('GMAO.INTERVENTION_TYPE.' + h.type) | translate }}
+                </a>
+                <span class="gmao-fiche-date">{{ h.dateDebut | date: 'dd/MM/yyyy HH:mm' }}</span>
+                <small>
+                  {{ 'GMAO.INTERVENTIONS.SYMPTOME' | translate }} : {{ h.symptome || '—' }}
+                  · {{ 'GMAO.INTERVENTIONS.CAUSE' | translate }} : {{ h.cause || '—' }}
+                </small>
+              </span>
+              <span class="gmao-badge neutral">{{ ('GMAO.STATUT_INTERVENTION.' + h.statut) | translate }}</span>
+            </li>
+          }
+        </ul>
+        <mat-paginator
+          (page)="onHistoriquePage($event)"
+          [length]="historiqueTotal()"
+          [pageIndex]="historiquePage()"
+          [pageSizeOptions]="[5, 10, 20]"
+          [pageSize]="historiqueSize()"/>
+      }
+    </div>
+
     <div class="gmao-stat-section">
       <h2 class="gmao-stat-title">{{ 'GMAO.FICHE.PROCHAINE_MAINTENANCE' | translate }}</h2>
       @if (f.prochainePlanMaintenance; as p) {

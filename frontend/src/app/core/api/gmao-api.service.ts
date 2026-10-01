@@ -11,6 +11,10 @@ export type TypeEquipement =
 export type StatutEquipement =
   'EN_SERVICE' | 'EN_MAINTENANCE' | 'EN_ATTENTE_PIECE' | 'HORS_SERVICE' | 'DESACTIF' | 'A_REFORMER' | 'REFORME';
 
+export type PrioriteIntervention = 'NORMALE' | 'HAUTE' | 'URGENTE';
+
+export type TypeDocumentIntervention = 'BON_INTERVENTION' | 'FACTURE' | 'PHOTO' | 'AUTRE';
+
 export type TypeIntervention =
   | 'PREVENTIVE' | 'CURATIVE' | 'URGENTE' | 'CONTROLE' | 'INSTALLATION'
   | 'DEINSTALLATION' | 'REMPLACEMENT_PIECE' | 'REVISION_COMPLETE';
@@ -62,6 +66,15 @@ export interface Intervention {
   etatEquipementAvant: StatutEquipement | null;
   /** État de l'équipement saisi à la clôture. */
   etatEquipementApres: StatutEquipement | null;
+  priorite: PrioriteIntervention;
+  echeance: string | null;
+  /** Panne constatée à la création. */
+  symptome: string | null;
+  /** Cause trouvée à la clôture. */
+  cause: string | null;
+  /** Planifiée mais non démarrée à l'heure prévue. */
+  enRetard: boolean;
+  echeanceDepassee: boolean;
   description: string;
   actions: string | null;
   pieceRemplacee: string | null;
@@ -93,6 +106,8 @@ export interface GmaoStats {
   interventionsTerminees: number;
   plansMaintenanceActifs: number;
   plansMaintenanceEnRetard: number;
+  /** Interventions planifiées non démarrées à l'heure, ou à échéance dépassée. */
+  interventionsARelancer: number;
 }
 
 export interface EquipementFiche {
@@ -159,6 +174,37 @@ export interface CreateInterventionPayload {
   description: string;
   intervenantId?: string | null;
   etatEquipementAvant: StatutEquipement;
+  symptome?: string | null;
+  priorite?: PrioriteIntervention;
+  echeance?: string | null;
+}
+
+export interface IndicateursIntervention {
+  delaiPriseEnChargeMinutes: number;
+  dureeInterventionMinutes: number;
+  indisponibiliteInterventionMinutes: number;
+  indisponibiliteEquipement12MoisMinutes: number;
+  /** Part (0-100) de l'indisponibilité des 12 derniers mois due à l'intervention ; null si aucune. */
+  partIndisponibilite12MoisPct: number | null;
+}
+
+export type TypeEvenementIntervention = 'CREEE' | 'DEMARREE' | 'TERMINEE' | 'ANNULEE' | 'MODIFIEE';
+
+export interface EvenementIntervention {
+  type: TypeEvenementIntervention;
+  at: string;
+  parId: string | null;
+  parNom: string | null;
+}
+
+export interface DocumentIntervention {
+  id: string;
+  interventionId: string;
+  type: TypeDocumentIntervention;
+  nom: string;
+  contentType: string;
+  taille: number;
+  ajouteLe: string;
 }
 
 export interface AjouterLigneCoutPayload {
@@ -260,8 +306,45 @@ export class GmaoApiService {
     return this.http.post<Intervention>(`${this.base}/interventions/${id}/demarrer`, {});
   }
 
-  finishIntervention(id: string, actions: string, etatEquipementApres: StatutEquipement): Observable<Intervention> {
-    return this.http.post<Intervention>(`${this.base}/interventions/${id}/terminer`, {actions, etatEquipementApres});
+  finishIntervention(
+    id: string, actions: string, etatEquipementApres: StatutEquipement, dateFin: string, cause?: string | null,
+  ): Observable<Intervention> {
+    return this.http.post<Intervention>(
+      `${this.base}/interventions/${id}/terminer`, {actions, etatEquipementApres, dateFin, cause});
+  }
+
+  /** Bon d'intervention (PDF) ; {@code tz} = fuseau du navigateur pour l'affichage des dates stockées en UTC. */
+  getBonIntervention(id: string, tz: string): Observable<Blob> {
+    const params = new HttpParams().set('tz', tz);
+    return this.http.get(`${this.base}/interventions/${id}/bon`, {params, responseType: 'blob'});
+  }
+
+  getIndicateursIntervention(id: string): Observable<IndicateursIntervention> {
+    return this.http.get<IndicateursIntervention>(`${this.base}/interventions/${id}/indicateurs`);
+  }
+
+  getChronologieIntervention(id: string): Observable<EvenementIntervention[]> {
+    return this.http.get<EvenementIntervention[]>(`${this.base}/interventions/${id}/chronologie`);
+  }
+
+  listDocumentsIntervention(id: string, page: number, size: number): Observable<PagedResponse<DocumentIntervention>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<PagedResponse<DocumentIntervention>>(`${this.base}/interventions/${id}/documents`, {params});
+  }
+
+  uploadDocumentIntervention(id: string, file: File, type: TypeDocumentIntervention): Observable<DocumentIntervention> {
+    const body = new FormData();
+    body.append('file', file);
+    body.append('type', type);
+    return this.http.post<DocumentIntervention>(`${this.base}/interventions/${id}/documents`, body);
+  }
+
+  downloadDocumentIntervention(id: string, documentId: string): Observable<Blob> {
+    return this.http.get(`${this.base}/interventions/${id}/documents/${documentId}`, {responseType: 'blob'});
+  }
+
+  deleteDocumentIntervention(id: string, documentId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/interventions/${id}/documents/${documentId}`);
   }
 
   cancelIntervention(id: string, raison: string): Observable<Intervention> {

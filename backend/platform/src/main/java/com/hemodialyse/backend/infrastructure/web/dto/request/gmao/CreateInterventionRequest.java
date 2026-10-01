@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.dto.request.gmao;
 
 import jakarta.validation.constraints.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -16,7 +16,7 @@ public record CreateInterventionRequest(
         String type,
 
         @NotNull(message = "Date de début requise")
-        LocalDateTime dateDebut,
+        OffsetDateTime dateDebut,
 
         @NotBlank(message = "Description requise")
         String description,
@@ -24,7 +24,20 @@ public record CreateInterventionRequest(
         UUID intervenantId,
 
         @NotBlank(message = "État de l'équipement requis")
-        String etatEquipementAvant
+        String etatEquipementAvant,
+
+        /** Panne constatée (symptôme), optionnelle. */
+        String symptome,
+
+        /** NORMALE (défaut), HAUTE ou URGENTE. */
+        String priorite,
+
+        /** Échéance de réalisation, optionnelle. */
+        OffsetDateTime echeance
 ) {
+    public CreateInterventionRequest(UUID equipementId, String type, OffsetDateTime dateDebut, String description,
+                                     UUID intervenantId, String etatEquipementAvant) {
+        this(equipementId, type, dateDebut, description, intervenantId, etatEquipementAvant, null, null, null);
+    }
 }
 

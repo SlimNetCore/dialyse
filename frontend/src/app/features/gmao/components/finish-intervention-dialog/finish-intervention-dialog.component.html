@@ -1,9 +1,30 @@
 <h2 mat-dialog-title>{{ 'GMAO.INTERVENTIONS.FINISH_TITLE' | translate }}</h2>
 <form (submit)="save(); $event.preventDefault()" [formRoot]="finishForm">
   <mat-dialog-content class="gmao-finish-grid">
+    <p class="gmao-finish-info">
+      {{ 'GMAO.INTERVENTIONS.START_DATE' | translate }} :
+      <strong>{{ data.dateDebut | date: 'dd/MM/yyyy HH:mm' }}</strong>
+    </p>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'GMAO.INTERVENTIONS.END_DATE' | translate }}</mat-label>
+      <input [formField]="finishForm.dateFin" data-testid="date-fin" matInput type="datetime-local"/>
+      @if (endBeforeStart()) {
+        <mat-error>{{ 'GMAO.INTERVENTIONS.END_BEFORE_START' | translate }}</mat-error>
+      } @else if (duree()) {
+        <mat-hint>{{ 'GMAO.INTERVENTIONS.DUREE' | translate }} : {{ duree() }}</mat-hint>
+      }
+    </mat-form-field>
+
     <mat-form-field appearance="outline">
       <mat-label>{{ 'GMAO.INTERVENTIONS.ACTIONS' | translate }}</mat-label>
       <textarea [formField]="finishForm.actions" matInput rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'GMAO.INTERVENTIONS.CAUSE' | translate }}</mat-label>
+      <textarea [formField]="finishForm.cause" data-testid="cause" matInput rows="2"></textarea>
+      <mat-hint>{{ 'GMAO.INTERVENTIONS.CAUSE_HINT' | translate }}</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline">

@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Bon d'intervention GMAO (modèle de document BON_INTERVENTION, personnalisable par centre).
+  - En-tête (logo, société, centre) et pied de page (centre, pied de page société, édition, pagination) sur chaque page.
+  - Équipement, période (début/fin/durée), états avant/après, constat et travaux, coûts (pièces, main d'œuvre,
+    honoraires, autres), signatures, ligne de temps. Les dates sont mises en forme par le serveur (fuseau demandé).
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : une seule requête, expressions simples, police
+  standard.
+-->
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="bon_intervention" pageWidth="595" pageHeight="842" columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="24" bottomMargin="20"
+              whenNoDataType="AllSectionsNoDetail" isSummaryWithPageHeaderAndFooter="true">
+
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="INTERVENTION_ID" class="java.lang.String"/>
+    <parameter name="SOCIETE_NOM" class="java.lang.String"/>
+    <parameter name="SOCIETE_ADRESSE" class="java.lang.String"/>
+    <parameter name="SOCIETE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="SOCIETE_EMAIL" class="java.lang.String"/>
+    <parameter name="SOCIETE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="SOCIETE_CONTACT" class="java.lang.String"/>
+    <parameter name="SOCIETE_LEGAL" class="java.lang.String"/>
+    <parameter name="SOCIETE_PIED_PAGE" class="java.lang.String"/>
+    <parameter name="SOCIETE_LOGO" class="java.io.InputStream"/>
+    <parameter name="CENTRE_NOM" class="java.lang.String"/>
+    <parameter name="CENTRE_ADRESSE" class="java.lang.String"/>
+    <parameter name="CENTRE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="CENTRE_EMAIL" class="java.lang.String"/>
+    <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
+    <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
+
+    <parameter name="BON_NUMERO" class="java.lang.String"/>
+    <parameter name="BON_TYPE" class="java.lang.String"/>
+    <parameter name="BON_STATUT" class="java.lang.String"/>
+    <parameter name="BON_PRIORITE" class="java.lang.String"/>
+    <parameter name="EQUIPEMENT_LIGNE" class="java.lang.String"/>
+    <parameter name="EQUIPEMENT_SERIE" class="java.lang.String"/>
+    <parameter name="INTERVENANT" class="java.lang.String"/>
+    <parameter name="DATE_DEBUT" class="java.lang.String"/>
+    <parameter name="DATE_FIN" class="java.lang.String"/>
+    <parameter name="DUREE" class="java.lang.String"/>
+    <parameter name="ECHEANCE" class="java.lang.String"/>
+    <parameter name="ETAT_AVANT" class="java.lang.String"/>
+    <parameter name="ETAT_APRES" class="java.lang.String"/>
+    <parameter name="CONSTAT_TRAVAUX" class="java.lang.String"/>
+    <parameter name="COUT_PIECES" class="java.lang.String"/>
+    <parameter name="COUT_MAIN_OEUVRE" class="java.lang.String"/>
+    <parameter name="COUT_INTERVENANT" class="java.lang.String"/>
+    <parameter name="COUT_AUTRES" class="java.lang.String"/>
+    <parameter name="COUT_TOTAL" class="java.lang.String"/>
+    <parameter name="SIGNATAIRE_CREE" class="java.lang.String"/>
+    <parameter name="SIGNATAIRE_CLOTURE" class="java.lang.String"/>
+    <parameter name="CHRONOLOGIE" class="java.lang.String"/>
+    <parameter name="EDITE_LE" class="java.lang.String"/>
+    <parameter name="EDITE_PAR" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[
+        SELECT CASE l.type WHEN 'PIECE' THEN 'Pièce'
+                           WHEN 'MAIN_OEUVRE' THEN 'Main d''œuvre'
+                           WHEN 'INTERVENANT' THEN 'Honoraires intervenant'
+                           ELSE 'Autre' END AS ligne_type,
+               l.libelle AS ligne_libelle,
+               l.quantite AS ligne_quantite,
+               l.prix_unitaire AS ligne_prix,
+               (l.quantite * l.prix_unitaire) AS ligne_montant
+        FROM gmao_interventions i
+        LEFT JOIN gmao_lignes_cout_intervention l ON l.intervention_id = i.id
+        WHERE i.centre_id = CAST($P{CENTER_ID} AS UUID)
+          AND i.id = CAST($P{INTERVENTION_ID} AS UUID)
+        ORDER BY l.libelle
+        ]]>
+    </queryString>
+
+    <field name="LIGNE_TYPE" class="java.lang.String"/>
+    <field name="LIGNE_LIBELLE" class="java.lang.String"/>
+    <field name="LIGNE_QUANTITE" class="java.math.BigDecimal"/>
+    <field name="LIGNE_PRIX" class="java.math.BigDecimal"/>
+    <field name="LIGNE_MONTANT" class="java.math.BigDecimal"/>
+
+    <!-- ───────────────────────────── Titre et informations (après l'en-tête de page 1) ───────────────────────────── -->
+    <group name="bon">
+        <groupExpression><![CDATA[$P{INTERVENTION_ID}]]></groupExpression>
+        <groupHeader>
+            <band height="290">
+                <staticText>
+                    <reportElement x="0" y="4" width="535" height="24"/>
+                    <textElement textAlignment="Center">
+                        <font size="16" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[BON D'INTERVENTION]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="30" width="535" height="16"/>
+                    <textElement textAlignment="Center">
+                        <font size="10" isItalic="true"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["N° " + $P{BON_NUMERO} + " — " + $P{BON_TYPE} + " — " + $P{BON_STATUT}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="56" width="90" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Équipement :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="92" y="56" width="443" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{EQUIPEMENT_LIGNE}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="76" width="90" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[N° de série :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="92" y="76" width="170" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{EQUIPEMENT_SERIE}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="290" y="76" width="70" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Priorité :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="362" y="76" width="173" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{BON_PRIORITE}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="96" width="90" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Début :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="92" y="96" width="170" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{DATE_DEBUT}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="290" y="96" width="70" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Fin :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="362" y="96" width="173" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{DATE_FIN}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="116" width="90" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Durée :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="92" y="116" width="170" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{DUREE}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="290" y="116" width="70" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Échéance :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="362" y="116" width="173" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{ECHEANCE}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="136" width="90" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Intervenant :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="92" y="136" width="443" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{INTERVENANT}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="156" width="90" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[État avant :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="92" y="156" width="170" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{ETAT_AVANT}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="290" y="156" width="70" height="16"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[État après :]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="362" y="156" width="173" height="16"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{ETAT_APRES}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="182" width="535" height="18" backcolor="#E8F5E9" mode="Opaque"/>
+                    <textElement>
+                        <font size="10" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[  Constat et travaux réalisés]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement x="0" y="204" width="535" height="60"/>
+                    <textElement textAlignment="Left">
+                        <font size="9"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$P{CONSTAT_TRAVAUX}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupHeader>
+    </group>
+
+    <!-- ───────────────────────────── En-tête de page (identité) ───────────────────────────── -->
+    <pageHeader>
+        <band height="66">
+            <image scaleImage="RetainShape" hAlign="Left" vAlign="Top" onErrorType="Blank">
+                <reportElement x="0" y="0" width="70" height="56">
+                    <printWhenExpression><![CDATA[$P{SOCIETE_LOGO} != null]]></printWhenExpression>
+                </reportElement>
+                <imageExpression><![CDATA[$P{SOCIETE_LOGO}]]></imageExpression>
+            </image>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="0" width="235" height="16"/>
+                <textElement textAlignment="Left">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="17" width="235" height="26"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="44" width="235" height="12"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_LEGAL}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="321" y="0" width="214" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="321" y="15" width="214" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_ADRESSE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="321" y="30" width="214" height="26"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="62" width="535" height="1"/>
+            </line>
+        </band>
+    </pageHeader>
+
+    <!-- ───────────────────────────── Lignes de coût ───────────────────────────── -->
+    <columnHeader>
+        <band height="22">
+            <staticText>
+                <reportElement x="0" y="2" width="535" height="18" backcolor="#E8F5E9" mode="Opaque"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[  Pièces, main d'œuvre et honoraires]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="18">
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="1" width="110" height="15">
+                    <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
+                </reportElement>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{LIGNE_TYPE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="112" y="1" width="190" height="15">
+                    <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
+                </reportElement>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{LIGNE_LIBELLE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" pattern="#,##0.##">
+                <reportElement x="304" y="1" width="50" height="15">
+                    <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
+                </reportElement>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{LIGNE_QUANTITE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" pattern="#,##0.00">
+                <reportElement x="358" y="1" width="82" height="15">
+                    <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
+                </reportElement>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{LIGNE_PRIX}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" pattern="#,##0.00">
+                <reportElement x="444" y="1" width="91" height="15">
+                    <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
+                </reportElement>
+                <textElement textAlignment="Right">
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{LIGNE_MONTANT}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="17" width="535" height="1" forecolor="#CCCCCC">
+                    <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
+                </reportElement>
+            </line>
+        </band>
+    </detail>
+
+    <!-- ───────────────────────────── Pied de page (identité, édition, pagination) ───────────────────────────── -->
+    <pageFooter>
+        <band height="48">
+            <line>
+                <reportElement x="0" y="3" width="535" height="1"/>
+            </line>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="6" width="400" height="12"/>
+                <textElement>
+                    <font size="7" isItalic="true"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["Édité le " + $P{EDITE_LE} + ($P{EDITE_PAR} != null ? " par " + $P{EDITE_PAR} : "")]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="440" y="6" width="70" height="12"/>
+                <textElement textAlignment="Right">
+                    <font size="7.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " / "]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="511" y="6" width="24" height="12"/>
+                <textElement>
+                    <font size="7.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="22" width="535" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_LIGNE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="33" width="535" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_PIED_PAGE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <!-- ───────────────────────────── Totaux, signatures, ligne de temps ───────────────────────────── -->
+    <summary>
+        <band height="300">
+            <staticText>
+                <reportElement x="260" y="8" width="170" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Pièces de rechange :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="434" y="8" width="101" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{COUT_PIECES}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="260" y="24" width="170" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Main d'œuvre :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="434" y="24" width="101" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{COUT_MAIN_OEUVRE}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="260" y="40" width="170" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Honoraires de l'intervenant :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="434" y="40" width="101" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{COUT_INTERVENANT}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="260" y="56" width="170" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Autres frais :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="434" y="56" width="101" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{COUT_AUTRES}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="260" y="73" width="275" height="1"/>
+            </line>
+            <staticText>
+                <reportElement x="260" y="77" width="170" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <text><![CDATA[COÛT TOTAL :]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="434" y="77" width="101" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{COUT_TOTAL}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="112" width="260" height="14"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Établi par]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="275" y="112" width="260" height="14"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Clôturé par]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="127" width="260" height="14"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SIGNATAIRE_CREE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="275" y="127" width="260" height="14"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SIGNATAIRE_CLOTURE}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="146" width="260" height="14"/>
+                <textElement>
+                    <font size="8" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Signature :]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="275" y="146" width="260" height="14"/>
+                <textElement>
+                    <font size="8" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Signature et cachet de l'intervenant :]]></text>
+            </staticText>
+            <rectangle>
+                <reportElement x="0" y="162" width="260" height="46" backcolor="#FFFFFF"/>
+                <graphicElement>
+                    <pen lineWidth="0.5"/>
+                </graphicElement>
+            </rectangle>
+            <rectangle>
+                <reportElement x="275" y="162" width="260" height="46" backcolor="#FFFFFF"/>
+                <graphicElement>
+                    <pen lineWidth="0.5"/>
+                </graphicElement>
+            </rectangle>
+
+            <staticText>
+                <reportElement x="0" y="220" width="535" height="16" backcolor="#E8F5E9" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[  Ligne de temps]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                <reportElement x="0" y="240" width="535" height="40"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CHRONOLOGIE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>

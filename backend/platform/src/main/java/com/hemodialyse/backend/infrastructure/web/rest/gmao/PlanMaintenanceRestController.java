@@ -12,7 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -114,7 +115,7 @@ public class PlanMaintenanceRestController {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         List<PlanMaintenanceResponse> plans = planRepository
-                .findOverdueByCentreId(UUID.fromString(principal.getCenterId()), LocalDateTime.now())
+                .findOverdueByCentreId(UUID.fromString(principal.getCenterId()), OffsetDateTime.now(ZoneOffset.UTC))
                 .stream()
                 .map(PlanMaintenanceResponse::new)
                 .toList();

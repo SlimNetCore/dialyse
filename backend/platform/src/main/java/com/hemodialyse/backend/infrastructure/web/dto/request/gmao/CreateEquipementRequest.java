@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.web.dto.request.gmao;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -28,7 +28,7 @@ public record CreateEquipementRequest(
         String numeroSerie,
 
         @NotNull(message = "Date d'installation requise")
-        LocalDateTime dateInstallation,
+        OffsetDateTime dateInstallation,
 
         String localisation,
 

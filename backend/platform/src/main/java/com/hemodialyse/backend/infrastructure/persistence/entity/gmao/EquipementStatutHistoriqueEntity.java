@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.entity.gmao;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -31,8 +31,8 @@ public class EquipementStatutHistoriqueEntity {
     @Column(columnDefinition = "TEXT")
     private String motif;
 
-    @Column(nullable = false)
-    private LocalDateTime changedAt;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime changedAt;
 
     private UUID changedBy;
 
@@ -40,7 +40,7 @@ public class EquipementStatutHistoriqueEntity {
     }
 
     public EquipementStatutHistoriqueEntity(UUID id, UUID equipementId, UUID centreId, String statutPrecedent,
-                                            String statutNouveau, String motif, LocalDateTime changedAt,
+                                            String statutNouveau, String motif, OffsetDateTime changedAt,
                                             UUID changedBy) {
         this.id = id;
         this.equipementId = equipementId;
@@ -100,11 +100,11 @@ public class EquipementStatutHistoriqueEntity {
         this.motif = motif;
     }
 
-    public LocalDateTime getChangedAt() {
+    public OffsetDateTime getChangedAt() {
         return changedAt;
     }
 
-    public void setChangedAt(LocalDateTime changedAt) {
+    public void setChangedAt(OffsetDateTime changedAt) {
         this.changedAt = changedAt;
     }
 

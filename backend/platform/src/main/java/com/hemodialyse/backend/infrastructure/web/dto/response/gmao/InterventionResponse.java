@@ -1,11 +1,13 @@
 package com.hemodialyse.backend.infrastructure.web.dto.response.gmao;
 
 import com.hemodialyse.backend.domain.gmao.model.Intervention;
+import com.hemodialyse.backend.domain.gmao.model.PrioriteIntervention;
 import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import com.hemodialyse.backend.domain.gmao.model.StatutIntervention;
 import com.hemodialyse.backend.domain.gmao.model.TypeIntervention;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -19,19 +21,25 @@ public record InterventionResponse(
         UUID centreId,
         TypeIntervention type,
         StatutIntervention statut,
-        LocalDateTime dateDebut,
-        LocalDateTime dateFin,
+        OffsetDateTime dateDebut,
+        OffsetDateTime dateFin,
         UUID intervenantId,
         StatutEquipement etatEquipementAvant,
         StatutEquipement etatEquipementApres,
+        PrioriteIntervention priorite,
+        OffsetDateTime echeance,
+        String symptome,
+        String cause,
+        boolean enRetard,
+        boolean echeanceDepassee,
         String description,
         String actions,
         String pieceRemplacee,
         List<LigneCoutResponse> lignesCout,
         BigDecimal coutTotal,
         String observations,
-        LocalDateTime dateCreation,
-        LocalDateTime dateModification,
+        OffsetDateTime dateCreation,
+        OffsetDateTime dateModification,
         UUID creePar,
         UUID modifiePar
 ) {
@@ -51,6 +59,12 @@ public record InterventionResponse(
                 intervention.getIntervenantId(),
                 intervention.getEtatEquipementAvant(),
                 intervention.getEtatEquipementApres(),
+                intervention.getPriorite(),
+                intervention.getEcheance(),
+                intervention.getSymptome(),
+                intervention.getCause(),
+                intervention.enRetard(OffsetDateTime.now(ZoneOffset.UTC)),
+                intervention.echeanceDepassee(OffsetDateTime.now(ZoneOffset.UTC)),
                 intervention.getDescription(),
                 intervention.getActions(),
                 intervention.getPieceRemplacee(),

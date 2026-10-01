@@ -41,7 +41,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'GMAO.INTERVENTIONS.START_DATE' | translate }}</mat-label>
-          <input [formField]="interventionForm.dateDebut" matInput type="date"/>
+          <input [formField]="interventionForm.dateDebut" matInput type="datetime-local"/>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -52,6 +52,27 @@
             }
           </mat-select>
           <mat-hint>{{ 'GMAO.INTERVENTIONS.ETAT_AVANT_HINT' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENTIONS.PRIORITE' | translate }}</mat-label>
+          <mat-select [formField]="interventionForm.priorite" data-testid="priorite">
+            @for (p of priorites; track p) {
+              <mat-option [value]="p">{{ ('GMAO.PRIORITE.' + p) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENTIONS.ECHEANCE' | translate }}</mat-label>
+          <input [formField]="interventionForm.echeance" data-testid="echeance" matInput type="datetime-local"/>
+          <mat-hint>{{ 'GMAO.INTERVENTIONS.ECHEANCE_HINT' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'GMAO.INTERVENTIONS.SYMPTOME' | translate }}</mat-label>
+          <textarea [formField]="interventionForm.symptome" data-testid="symptome" matInput rows="2"></textarea>
+          <mat-hint>{{ 'GMAO.INTERVENTIONS.SYMPTOME_HINT' | translate }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.gmao.model;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 /**
@@ -17,12 +18,12 @@ public final class EquipementStatutHistorique {
     private final StatutEquipement statutPrecedent;
     private final StatutEquipement statutNouveau;
     private final String motif;
-    private final LocalDateTime changedAt;
+    private final OffsetDateTime changedAt;
     private final UUID changedBy;
 
     private EquipementStatutHistorique(UUID id, UUID equipementId, UUID centreId,
                                        StatutEquipement statutPrecedent, StatutEquipement statutNouveau,
-                                       String motif, LocalDateTime changedAt, UUID changedBy) {
+                                       String motif, OffsetDateTime changedAt, UUID changedBy) {
         this.id = id;
         this.equipementId = equipementId;
         this.centreId = centreId;
@@ -41,12 +42,12 @@ public final class EquipementStatutHistorique {
         }
         return new EquipementStatutHistorique(
                 UUID.randomUUID(), equipementId, centreId, statutPrecedent, statutNouveau,
-                motif, LocalDateTime.now(), changedBy);
+                motif, OffsetDateTime.now(ZoneOffset.UTC), changedBy);
     }
 
     public static EquipementStatutHistorique reconstruct(
             UUID id, UUID equipementId, UUID centreId, StatutEquipement statutPrecedent,
-            StatutEquipement statutNouveau, String motif, LocalDateTime changedAt, UUID changedBy) {
+            StatutEquipement statutNouveau, String motif, OffsetDateTime changedAt, UUID changedBy) {
         return new EquipementStatutHistorique(id, equipementId, centreId, statutPrecedent, statutNouveau,
                 motif, changedAt, changedBy);
     }
@@ -75,7 +76,7 @@ public final class EquipementStatutHistorique {
         return motif;
     }
 
-    public LocalDateTime getChangedAt() {
+    public OffsetDateTime getChangedAt() {
         return changedAt;
     }
 

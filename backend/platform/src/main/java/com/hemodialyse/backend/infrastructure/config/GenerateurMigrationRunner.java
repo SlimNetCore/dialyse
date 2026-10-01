@@ -9,7 +9,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -57,12 +58,12 @@ public class GenerateurMigrationRunner implements CommandLineRunner {
                 (String) row.get("marque"),
                 (String) row.get("modele"),
                 null,
-                LocalDateTime.now(),
+                OffsetDateTime.now(ZoneOffset.UTC),
                 (UUID) row.get("center_id"),
                 mapStatut((String) row.get("etat")),
                 null,
                 "Migré automatiquement depuis l'ancien référentiel \"generateur\"",
-                LocalDateTime.now(),
+                OffsetDateTime.now(ZoneOffset.UTC),
                 null,
                 new UUID(0, 0),
                 null,

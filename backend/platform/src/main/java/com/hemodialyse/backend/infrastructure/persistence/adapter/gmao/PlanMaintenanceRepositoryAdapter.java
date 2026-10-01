@@ -6,7 +6,7 @@ import com.hemodialyse.backend.infrastructure.persistence.entity.gmao.PlanMainte
 import com.hemodialyse.backend.infrastructure.persistence.repository.gmao.PlanMaintenanceJpaRepository;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,7 +58,7 @@ public class PlanMaintenanceRepositoryAdapter implements PlanMaintenanceReposito
     }
 
     @Override
-    public List<PlanMaintenance> findOverdueByCentreId(UUID centreId, LocalDateTime dateLimit) {
+    public List<PlanMaintenance> findOverdueByCentreId(UUID centreId, OffsetDateTime dateLimit) {
         return jpaRepository.findOverdueByCentreId(centreId, dateLimit).stream()
                 .map(this::toDomain)
                 .toList();

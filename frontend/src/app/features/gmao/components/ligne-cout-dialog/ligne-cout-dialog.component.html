@@ -1,31 +1,40 @@
-<h2 mat-dialog-title>{{ 'GMAO.COUTS.ADD_TITLE' | translate }}</h2>
+<h2 mat-dialog-title>
+  {{ (mainOeuvre ? 'GMAO.COUTS.MAIN_OEUVRE_TITLE' : 'GMAO.COUTS.ADD_TITLE') | translate }}
+</h2>
 <form (submit)="save(); $event.preventDefault()" [formRoot]="ligneCoutForm">
   <mat-dialog-content class="gmao-cout-grid">
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'GMAO.COUTS.TYPE' | translate }}</mat-label>
-      <mat-select [formField]="ligneCoutForm.type">
-        <mat-option value="PIECE">{{ 'GMAO.COUTS.TYPE_PIECE' | translate }}</mat-option>
-        <mat-option value="MAIN_OEUVRE">{{ 'GMAO.COUTS.TYPE_MAIN_OEUVRE' | translate }}</mat-option>
-        <mat-option value="INTERVENANT">{{ 'GMAO.COUTS.TYPE_INTERVENANT' | translate }}</mat-option>
-        <mat-option value="AUTRE">{{ 'GMAO.COUTS.TYPE_AUTRE' | translate }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    @if (!mainOeuvre) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'GMAO.COUTS.TYPE' | translate }}</mat-label>
+        <mat-select [formField]="ligneCoutForm.type">
+          <mat-option value="PIECE">{{ 'GMAO.COUTS.TYPE_PIECE' | translate }}</mat-option>
+          <mat-option value="MAIN_OEUVRE">{{ 'GMAO.COUTS.TYPE_MAIN_OEUVRE' | translate }}</mat-option>
+          <mat-option value="INTERVENANT">{{ 'GMAO.COUTS.TYPE_INTERVENANT' | translate }}</mat-option>
+          <mat-option value="AUTRE">{{ 'GMAO.COUTS.TYPE_AUTRE' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    }
 
     <mat-form-field appearance="outline">
       <mat-label>{{ 'GMAO.COUTS.LIBELLE' | translate }}</mat-label>
-      <input [formField]="ligneCoutForm.libelle" matInput/>
+      <input [formField]="ligneCoutForm.libelle" data-testid="cout-libelle" matInput/>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>{{ 'GMAO.COUTS.QUANTITE' | translate }}</mat-label>
-      <input [formField]="ligneCoutForm.quantite" matInput type="number"/>
+      <mat-label>{{ (mainOeuvre ? 'GMAO.COUTS.HEURES' : 'GMAO.COUTS.QUANTITE') | translate }}</mat-label>
+      <input [formField]="ligneCoutForm.quantite" data-testid="cout-quantite" matInput type="number"/>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>{{ 'GMAO.COUTS.PRIX_UNITAIRE' | translate }}</mat-label>
-      <input [formField]="ligneCoutForm.prixUnitaire" matInput type="number"/>
+      <mat-label>{{ (mainOeuvre ? 'GMAO.COUTS.TAUX_HORAIRE' : 'GMAO.COUTS.PRIX_UNITAIRE') | translate }}</mat-label>
+      <input [formField]="ligneCoutForm.prixUnitaire" data-testid="cout-prix" matInput type="number"/>
       <span matSuffix>{{ 'COMMON.CURRENCY_DA' | translate }}</span>
     </mat-form-field>
+
+    <p class="gmao-cout-montant" data-testid="cout-montant">
+      {{ 'GMAO.COUTS.MONTANT' | translate }} :
+      <strong>{{ montant() | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
+    </p>
   </mat-dialog-content>
   <mat-dialog-actions align="end">
     <button (click)="cancel()" mat-stroked-button type="button">

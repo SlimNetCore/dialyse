@@ -4,7 +4,8 @@ import com.hemodialyse.backend.domain.gmao.model.EquipementStatutHistorique;
 import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -35,25 +36,25 @@ public final class IndisponibiliteCalculator {
      * @param historique    historique de l'équipement, trié du plus ancien au plus récent
      * @param statutCourant statut actuel de l'équipement (pour calculer l'intervalle ouvert jusqu'à {@code to})
      * @param from          début de la période (inclus)
-     * @param to            fin de la période (exclus) — généralement {@code LocalDateTime.now()}
+     * @param to            fin de la période (exclus) — généralement {@code OffsetDateTime.now(ZoneOffset.UTC)}
      * @return la durée cumulée passée dans un statut indisponible sur la période, jamais négative
      */
     public static Duration calculer(
             List<EquipementStatutHistorique> historique,
             StatutEquipement statutCourant,
-            LocalDateTime from,
-            LocalDateTime to) {
+            OffsetDateTime from,
+            OffsetDateTime to) {
 
         if (from == null || to == null || !from.isBefore(to)) {
             return Duration.ZERO;
         }
 
         Duration total = Duration.ZERO;
-        LocalDateTime intervalStart = from;
+        OffsetDateTime intervalStart = from;
         StatutEquipement intervalStatut = historique.isEmpty() ? statutCourant : historique.get(0).getStatutPrecedent();
 
         for (EquipementStatutHistorique entree : historique) {
-            LocalDateTime changedAt = entree.getChangedAt();
+            OffsetDateTime changedAt = entree.getChangedAt();
             if (changedAt.isAfter(to)) {
                 break;
             }
@@ -67,18 +68,18 @@ public final class IndisponibiliteCalculator {
         return total.isNegative() ? Duration.ZERO : total;
     }
 
-    private static Duration downDuration(StatutEquipement statut, LocalDateTime start, LocalDateTime end) {
+    private static Duration downDuration(StatutEquipement statut, OffsetDateTime start, OffsetDateTime end) {
         if (statut == null || !STATUTS_INDISPONIBLES.contains(statut) || !start.isBefore(end)) {
             return Duration.ZERO;
         }
         return Duration.between(start, end);
     }
 
-    private static LocalDateTime clampStart(LocalDateTime value, LocalDateTime from) {
+    private static OffsetDateTime clampStart(OffsetDateTime value, OffsetDateTime from) {
         return value.isBefore(from) ? from : value;
     }
 
-    private static LocalDateTime clampEnd(LocalDateTime value, LocalDateTime from, LocalDateTime to) {
+    private static OffsetDateTime clampEnd(OffsetDateTime value, OffsetDateTime from, OffsetDateTime to) {
         if (value.isBefore(from)) return from;
         if (value.isAfter(to)) return to;
         return value;

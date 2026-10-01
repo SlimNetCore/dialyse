@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.dto.request.gmao;
 
 import jakarta.validation.constraints.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -22,7 +22,7 @@ public record CreatePlanMaintenanceRequest(
         String frequence,
 
         @NotNull(message = "Prochaine date prévue requise")
-        LocalDateTime prochaineDatePrevue,
+        OffsetDateTime prochaineDatePrevue,
 
         String tachesAEffectuer
 ) {

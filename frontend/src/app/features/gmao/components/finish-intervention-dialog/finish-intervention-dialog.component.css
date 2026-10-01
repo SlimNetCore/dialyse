@@ -14,3 +14,8 @@
   background: color-mix(in srgb, #ed6c02 14%, transparent);
   color: #b45309;
 }
+
+.gmao-finish-info {
+  margin: 0 0 4px;
+  font-size: 13px;
+}

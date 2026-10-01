@@ -5,7 +5,7 @@ import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import com.hemodialyse.backend.domain.gmao.model.TypeEquipement;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -19,12 +19,12 @@ public record EquipementResponse(
         String fabricant,
         String modele,
         String numeroSerie,
-        LocalDateTime dateInstallation,
+        OffsetDateTime dateInstallation,
         StatutEquipement statut,
         String localisation,
         String observations,
-        LocalDateTime dateCreation,
-        LocalDateTime dateModification,
+        OffsetDateTime dateCreation,
+        OffsetDateTime dateModification,
         UUID creePar,
         UUID modifiePar,
         UUID salleId,

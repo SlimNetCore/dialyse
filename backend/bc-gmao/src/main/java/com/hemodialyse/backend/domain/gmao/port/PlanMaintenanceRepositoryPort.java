@@ -2,7 +2,7 @@ package com.hemodialyse.backend.domain.gmao.port;
 
 import com.hemodialyse.backend.domain.gmao.model.PlanMaintenance;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +41,7 @@ public interface PlanMaintenanceRepositoryPort {
     /**
      * Récupère les plans de maintenance dont la prochaine date est passée
      */
-    List<PlanMaintenance> findOverdueByCentreId(UUID centreId, LocalDateTime dateLimit);
+    List<PlanMaintenance> findOverdueByCentreId(UUID centreId, OffsetDateTime dateLimit);
 
     /**
      * Récupère les plans de maintenance actifs d'un équipement

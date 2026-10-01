@@ -1,0 +1,98 @@
+.gmao-stat-section {
+  display: grid;
+  gap: 12px;
+}
+
+.gmao-stat-title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--app-text);
+}
+
+.app-data-pill.tone-warning strong {
+  color: #e65100;
+}
+
+.gmao-fiche-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface);
+}
+
+.gmao-fiche-date {
+  color: var(--app-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .gmao-fiche-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.gmao-fiche-text span:last-child {
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.gmao-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 16px;
+  border-inline-start: 2px solid var(--app-border);
+  display: grid;
+  gap: 12px;
+}
+
+.gmao-timeline li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.gmao-doc-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.gmao-doc-type {
+  min-width: min(100%, 220px);
+}
+
+.gmao-doc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.gmao-doc-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.gmao-doc-name small {
+  flex-basis: 100%;
+  color: var(--app-muted);
+}
+
+.gmao-doc-actions {
+  display: flex;
+  flex-shrink: 0;
+}

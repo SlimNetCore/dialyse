@@ -62,6 +62,10 @@ public class InterventionRestController {
                 request.description(),
                 request.intervenantId(),
                 StatutEquipement.valueOf(request.etatEquipementAvant()),
+                request.symptome(),
+                request.priorite() == null || request.priorite().isBlank()
+                        ? PrioriteIntervention.NORMALE : PrioriteIntervention.valueOf(request.priorite()),
+                request.echeance(),
                 UUID.fromString(principal.getId())
         );
 
@@ -146,7 +150,8 @@ public class InterventionRestController {
         UUID centreId = centreId(authentication);
         Intervention intervention = requireIntervention(id, centreId);
 
-        intervention.terminer(request.actions(), StatutEquipement.valueOf(request.etatEquipementApres()), userId);
+        intervention.terminer(request.actions(), StatutEquipement.valueOf(request.etatEquipementApres()),
+                request.dateFin(), request.cause(), userId);
         // Valorisation automatique du temps de l'intervenant (tarif horaire × durée), si renseigné
         if (intervention.getIntervenantId() != null) {
             intervenantRepository.findById(intervention.getIntervenantId())

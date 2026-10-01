@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, effect, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {MatTableModule} from '@angular/material/table';
@@ -11,12 +11,22 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {Intervention} from '../../../../core/api/gmao-api.service';
+import {GmaoApiService, Intervention} from '../../../../core/api/gmao-api.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {openPdf} from '../../../stock/inventaire/inventaire.util';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
 import {GmaoInterventionsStore} from '../../state/gmao-interventions.store';
-import {statutInterventionTone, STATUTS_INTERVENTION} from '../../gmao-options.util';
-import {GmaoLigneCoutDialogComponent} from '../ligne-cout-dialog/ligne-cout-dialog.component';
 import {
+  browserTimeZone,
+  dureeLabel,
+  dureeMinutes,
+  prioriteTone,
+  statutInterventionTone,
+  STATUTS_INTERVENTION
+} from '../../gmao-options.util';
+import {GmaoLigneCoutDialogComponent, LigneCoutDialogData} from '../ligne-cout-dialog/ligne-cout-dialog.component';
+import {
+  FinishInterventionData,
   FinishInterventionResult,
   GmaoFinishInterventionDialogComponent,
 } from '../finish-intervention-dialog/finish-intervention-dialog.component';
@@ -37,9 +47,15 @@ import {
 })
 export class GmaoListInterventionComponent {
   protected readonly store = inject(GmaoInterventionsStore);
-  protected readonly columns = ['type', 'description', 'dateDebut', 'statut', 'coutTotal', 'actions'];
+  protected readonly columns = ['type', 'description', 'dateDebut', 'dateFin', 'duree', 'statut', 'coutTotal', 'actions'];
   protected readonly statuts = STATUTS_INTERVENTION;
   protected readonly statutInterventionTone = statutInterventionTone;
+  protected readonly dureeMinutes = dureeMinutes;
+  protected readonly prioriteTone = prioriteTone;
+  protected readonly dureeLabel = dureeLabel;
+  protected readonly printing = signal(false);
+  private readonly api = inject(GmaoApiService);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
@@ -63,12 +79,23 @@ export class GmaoListInterventionComponent {
     this.store.loadPage({page: event.pageIndex, size: event.pageSize});
   }
 
+  async printBon(row: Intervention): Promise<void> {
+    this.printing.set(true);
+    const error = await openPdf(
+      this.api.getBonIntervention(row.id, browserTimeZone()), `bon-intervention-${row.id.slice(0, 8)}.pdf`);
+    this.printing.set(false);
+    if (error !== null) {
+      this.snackBar.open(error || this.translate.instant('GMAO.INTERVENTIONS.PRINT_ERROR'), 'OK', {duration: 7000});
+    }
+  }
+
   start(row: Intervention): void {
     this.store.startIntervention(row.id);
   }
 
   finish(row: Intervention): void {
-    const ref = this.dialog.open(GmaoFinishInterventionDialogComponent, {width: 'min(96vw, 480px)'});
+    const data: FinishInterventionData = {dateDebut: row.dateDebut};
+    const ref = this.dialog.open(GmaoFinishInterventionDialogComponent, {width: 'min(96vw, 480px)', data});
     ref.afterClosed().subscribe((result: FinishInterventionResult | null) => {
       if (!result) return;
       this.store.finishIntervention({id: row.id, ...result});
@@ -94,8 +121,12 @@ export class GmaoListInterventionComponent {
     });
   }
 
-  addLigneCout(row: Intervention): void {
-    const ref = this.dialog.open(GmaoLigneCoutDialogComponent, {width: 'min(96vw, 480px)'});
+  saisirMainOeuvre(row: Intervention): void {
+    this.addLigneCout(row, {preset: 'MAIN_OEUVRE', libelle: this.translate.instant('GMAO.COUTS.MAIN_OEUVRE_LIBELLE')});
+  }
+
+  addLigneCout(row: Intervention, data?: LigneCoutDialogData): void {
+    const ref = this.dialog.open(GmaoLigneCoutDialogComponent, {width: 'min(96vw, 480px)', data});
     ref.afterClosed().subscribe((payload) => {
       if (!payload) return;
       this.store.ajouterLigneCout({id: row.id, payload});

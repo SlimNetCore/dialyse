@@ -151,10 +151,10 @@ class SeanceDetailsIntegrationTest {
                 "Générateur SDI-G01",
                 "Fresenius",
                 "5008S",
-                java.time.LocalDateTime.now(),
+                java.time.OffsetDateTime.now(ZoneOffset.UTC),
                 CENTER_ID,
                 UUID.fromString("50000001-0000-0000-0000-000000000001"),
-                java.time.LocalDateTime.now(),
+                java.time.OffsetDateTime.now(ZoneOffset.UTC),
                 new UUID(0, 0)
         );
     }

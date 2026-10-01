@@ -1,0 +1,269 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'GMAO.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">
+      @if (intervention(); as i) {
+        {{ ('GMAO.INTERVENTION_TYPE.' + i.type) | translate }}
+      } @else {
+        {{ 'GMAO.INTERVENTIONS.DETAIL' | translate }}
+      }
+    </h1>
+    @if (equipement(); as e) {
+      <p class="app-section-copy">
+        <a [routerLink]="['/gmao/equipements', e.id]">{{ e.code }} — {{ e.designation }}</a>
+      </p>
+    }
+    <div class="app-button-cluster">
+      <a mat-stroked-button routerLink="/gmao/interventions">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'GMAO.INTERVENTIONS.BACK' | translate }}
+      </a>
+      <button (click)="printBon()" [disabled]="printing()" color="primary" data-testid="print-bon" mat-stroked-button>
+        <mat-icon>print</mat-icon>
+        {{ 'GMAO.INTERVENTIONS.PRINT' | translate }}
+      </button>
+      @if (canAddCost()) {
+        <button (click)="saisirMainOeuvre()" [disabled]="saving()" color="primary" data-testid="add-labour"
+                mat-flat-button>
+          <mat-icon>engineering</mat-icon>
+          {{ 'GMAO.COUTS.MAIN_OEUVRE_BUTTON' | translate }}
+        </button>
+        <button (click)="addLigneCout()" [disabled]="saving()" data-testid="add-cost" mat-stroked-button>
+          <mat-icon>payments</mat-icon>
+          {{ 'GMAO.COUTS.ADD_TITLE' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading() || saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (error()) {
+    <p class="gmao-feedback error">{{ error()! | translate }}</p>
+  }
+
+  @if (intervention(); as i) {
+    <div class="gmao-stat-section">
+      <span [class]="statutInterventionTone(i.statut)" class="gmao-badge">
+        {{ ('GMAO.STATUT_INTERVENTION.' + i.statut) | translate }}
+      </span>
+
+      <div class="app-data-strip">
+        <div class="app-data-pill" data-testid="fiche-debut">
+          <span>{{ 'GMAO.INTERVENTIONS.START_DATE' | translate }}</span>
+          <strong>{{ i.dateDebut | date: 'dd/MM/yyyy HH:mm' }}</strong>
+        </div>
+        <div class="app-data-pill" data-testid="fiche-fin">
+          <span>{{ 'GMAO.INTERVENTIONS.END_DATE' | translate }}</span>
+          <strong>{{ i.dateFin ? (i.dateFin | date: 'dd/MM/yyyy HH:mm') : '—' }}</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'GMAO.INTERVENTIONS.DUREE' | translate }}</span>
+          <strong>{{ duree() || '—' }}</strong>
+        </div>
+        <div class="app-data-pill" data-testid="fiche-cout-total">
+          <span>{{ 'GMAO.COUTS.TOTAL' | translate }}</span>
+          <strong>{{ i.coutTotal | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="gmao-stat-section">
+      <h2 class="gmao-stat-title">{{ 'GMAO.INTERVENTIONS.SUIVI' | translate }}</h2>
+      <p class="gmao-fiche-row">
+        <span>{{ 'GMAO.INTERVENTIONS.ETAT_AVANT' | translate }}</span>
+        @if (i.etatEquipementAvant; as etat) {
+          <span [class]="statutEquipementTone(etat)"
+                class="gmao-badge">{{ ('GMAO.STATUT_EQUIPEMENT.' + etat) | translate }}</span>
+        } @else {
+          <span>—</span>
+        }
+      </p>
+      <p class="gmao-fiche-row">
+        <span>{{ 'GMAO.INTERVENTIONS.ETAT_APRES' | translate }}</span>
+        @if (i.etatEquipementApres; as etat) {
+          <span [class]="statutEquipementTone(etat)"
+                class="gmao-badge">{{ ('GMAO.STATUT_EQUIPEMENT.' + etat) | translate }}</span>
+        } @else {
+          <span>—</span>
+        }
+      </p>
+      <p class="gmao-fiche-row">
+        <span>{{ 'GMAO.INTERVENTIONS.INTERVENANT' | translate }}</span>
+        <span>{{ intervenantNom() || '—' }}</span>
+      </p>
+      <p class="gmao-fiche-row">
+        <span>{{ 'GMAO.INTERVENTIONS.PRIORITE' | translate }}</span>
+        <span [class]="prioriteTone(i.priorite)" class="gmao-badge" data-testid="fiche-priorite">
+          {{ ('GMAO.PRIORITE.' + i.priorite) | translate }}
+        </span>
+      </p>
+      <p class="gmao-fiche-row">
+        <span>{{ 'GMAO.INTERVENTIONS.ECHEANCE' | translate }}</span>
+        <span>
+          {{ i.echeance ? (i.echeance | date: 'dd/MM/yyyy HH:mm') : '—' }}
+          @if (i.enRetard) {
+            <span class="gmao-badge danger">{{ 'GMAO.INTERVENTIONS.EN_RETARD' | translate }}</span>
+          } @else if (i.echeanceDepassee) {
+            <span class="gmao-badge danger">{{ 'GMAO.INTERVENTIONS.ECHEANCE_DEPASSEE' | translate }}</span>
+          }
+        </span>
+      </p>
+      <p class="gmao-fiche-row gmao-fiche-text">
+        <span>{{ 'GMAO.INTERVENTIONS.DESCRIPTION' | translate }}</span>
+        <span>{{ i.description }}</span>
+      </p>
+      <p class="gmao-fiche-row gmao-fiche-text" data-testid="fiche-symptome">
+        <span>{{ 'GMAO.INTERVENTIONS.SYMPTOME' | translate }}</span>
+        <span>{{ i.symptome || '—' }}</span>
+      </p>
+      <p class="gmao-fiche-row gmao-fiche-text" data-testid="fiche-cause">
+        <span>{{ 'GMAO.INTERVENTIONS.CAUSE' | translate }}</span>
+        <span>{{ i.cause || '—' }}</span>
+      </p>
+      @if (i.actions) {
+        <p class="gmao-fiche-row gmao-fiche-text">
+          <span>{{ 'GMAO.INTERVENTIONS.ACTIONS' | translate }}</span>
+          <span>{{ i.actions }}</span>
+        </p>
+      }
+    </div>
+
+    @if (indicateurs(); as ind) {
+      <div class="gmao-stat-section" data-testid="fiche-indicateurs">
+        <h2 class="gmao-stat-title">{{ 'GMAO.INDICATEURS.TITLE' | translate }}</h2>
+        <div class="app-data-strip">
+          <div class="app-data-pill">
+            <span>{{ 'GMAO.INDICATEURS.DELAI' | translate }}</span>
+            <strong>{{ dureeLabel(ind.delaiPriseEnChargeMinutes) || '—' }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'GMAO.INDICATEURS.DUREE' | translate }}</span>
+            <strong>{{ dureeLabel(ind.dureeInterventionMinutes) || '—' }}</strong>
+          </div>
+          <div [class.tone-warning]="ind.indisponibiliteInterventionMinutes > 0" class="app-data-pill">
+            <span>{{ 'GMAO.INDICATEURS.INDISPO_INTERVENTION' | translate }}</span>
+            <strong>{{ dureeLabel(ind.indisponibiliteInterventionMinutes) || '—' }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'GMAO.INDICATEURS.INDISPO_12_MOIS' | translate }}</span>
+            <strong>{{ dureeLabel(ind.indisponibiliteEquipement12MoisMinutes) || '—' }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'GMAO.INDICATEURS.PART' | translate }}</span>
+            <strong>{{ ind.partIndisponibilite12MoisPct != null ? (ind.partIndisponibilite12MoisPct | number: '1.0-0') + ' %' : '—' }}</strong>
+          </div>
+        </div>
+        <p class="app-muted-note">{{ 'GMAO.INDICATEURS.HINT' | translate }}</p>
+      </div>
+    }
+
+    <div class="gmao-stat-section" data-testid="fiche-chronologie">
+      <h2 class="gmao-stat-title">{{ 'GMAO.CHRONOLOGIE.TITLE' | translate }}</h2>
+      <ol class="gmao-timeline">
+        @for (e of chronologie(); track e.type + e.at) {
+          <li>
+            <strong>{{ ('GMAO.CHRONOLOGIE.' + e.type) | translate }}</strong>
+            <span class="gmao-fiche-date">{{ e.at | date: 'dd/MM/yyyy HH:mm' }}</span>
+            <span>{{ e.parNom || ('GMAO.CHRONOLOGIE.INCONNU' | translate) }}</span>
+          </li>
+        }
+      </ol>
+    </div>
+
+    <div class="gmao-stat-section" data-testid="fiche-documents">
+      <h2 class="gmao-stat-title">{{ 'GMAO.DOCUMENTS.TITLE' | translate }}</h2>
+      <div class="gmao-doc-upload">
+        <mat-form-field appearance="outline" class="gmao-doc-type">
+          <mat-label>{{ 'GMAO.DOCUMENTS.TYPE' | translate }}</mat-label>
+          <mat-select (selectionChange)="typeDocument.set($event.value)" [value]="typeDocument()">
+            @for (t of typesDocument; track t) {
+              <mat-option [value]="t">{{ ('GMAO.DOCUMENTS.TYPE_' + t) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <input #fileInput (change)="onFileSelected($event)" accept="application/pdf,image/png,image/jpeg"
+               data-testid="doc-file" hidden type="file"/>
+        <button (click)="fileInput.click()" [disabled]="uploading()" mat-stroked-button type="button">
+          <mat-icon>attach_file</mat-icon>
+          {{ 'GMAO.DOCUMENTS.ADD' | translate }}
+        </button>
+      </div>
+      <p class="app-muted-note">{{ 'GMAO.DOCUMENTS.HINT' | translate }}</p>
+      @if (documents().length === 0) {
+        <p class="app-muted-note">{{ 'GMAO.DOCUMENTS.NONE' | translate }}</p>
+      } @else {
+        <ul class="gmao-doc-list">
+          @for (d of documents(); track d.id) {
+            <li class="gmao-fiche-row">
+              <span class="gmao-doc-name">
+                <mat-icon>{{ d.contentType === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>
+                {{ d.nom }}
+                <small>{{ ('GMAO.DOCUMENTS.TYPE_' + d.type) | translate }}
+                  · {{ d.taille / 1024 | number: '1.0-0' }} {{ 'GMAO.DOCUMENTS.KO' | translate }}
+                  · {{ d.ajouteLe | date: 'dd/MM/yyyy HH:mm' }}</small>
+              </span>
+              <span class="gmao-doc-actions">
+                <button (click)="download(d)" [attr.aria-label]="'GMAO.DOCUMENTS.DOWNLOAD' | translate" mat-icon-button
+                        type="button">
+                  <mat-icon>download</mat-icon>
+                </button>
+                <button (click)="remove(d)" [attr.aria-label]="'COMMON.DELETE' | translate" color="warn" mat-icon-button
+                        type="button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="gmao-stat-section">
+      <h2 class="gmao-stat-title">{{ 'GMAO.COUTS.DETAIL_TITLE' | translate }}</h2>
+      <div class="app-data-strip">
+        @for (s of sousTotaux(); track s.type) {
+          <div class="app-data-pill">
+            <span>{{ ('GMAO.COUTS.TYPE_' + s.type) | translate }}</span>
+            <strong>{{ s.montant | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
+          </div>
+        }
+      </div>
+
+      @if (i.lignesCout.length === 0) {
+        <p class="app-muted-note">{{ 'GMAO.COUTS.NO_LINES' | translate }}</p>
+      } @else {
+        <div class="gmao-table-wrap">
+          <table [dataSource]="i.lignesCout" class="gmao-table" mat-table>
+            <ng-container matColumnDef="type">
+              <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.TYPE' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>{{ ('GMAO.COUTS.TYPE_' + l.type) | translate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="libelle">
+              <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.LIBELLE' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>{{ l.libelle }}</td>
+            </ng-container>
+            <ng-container matColumnDef="quantite">
+              <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.QUANTITE' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>{{ l.quantite | number: '1.0-2' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="prixUnitaire">
+              <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.PRIX_UNITAIRE' | translate }}</th>
+              <td *matCellDef="let l" mat-cell>{{ l.prixUnitaire | number: '1.0-2' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="montant">
+              <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.MONTANT' | translate }}</th>
+              <td *matCellDef="let l"
+                  mat-cell>{{ l.montant | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}
+              </td>
+            </ng-container>
+
+            <tr *matHeaderRowDef="columns" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: columns" mat-row></tr>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</section>

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.gmao.model;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 /**
@@ -17,12 +18,12 @@ public class PlanMaintenance {
     private String description;
     private FrequenceMaintenance frequence;
     private StatutPlan statut;
-    private LocalDateTime prochaineDatePrevue;
-    private LocalDateTime derniereDateExecution;
+    private OffsetDateTime prochaineDatePrevue;
+    private OffsetDateTime derniereDateExecution;
     private Integer nombreExecutions;
     private String tachemesAEffectuer;
-    private LocalDateTime dateCreation;
-    private LocalDateTime dateModification;
+    private OffsetDateTime dateCreation;
+    private OffsetDateTime dateModification;
     private UUID creePar;
     private UUID modifiePar;
 
@@ -40,7 +41,7 @@ public class PlanMaintenance {
             String designation,
             String description,
             FrequenceMaintenance frequence,
-            LocalDateTime prochaineDatePrevue,
+            OffsetDateTime prochaineDatePrevue,
             String tachemesAEffectuer,
             UUID creePar) {
 
@@ -60,7 +61,7 @@ public class PlanMaintenance {
         plan.statut = StatutPlan.ACTIF;
         plan.prochaineDatePrevue = prochaineDatePrevue;
         plan.tachemesAEffectuer = tachemesAEffectuer;
-        plan.dateCreation = LocalDateTime.now();
+        plan.dateCreation = OffsetDateTime.now(ZoneOffset.UTC);
         plan.creePar = creePar;
         plan.nombreExecutions = 0;
 
@@ -79,12 +80,12 @@ public class PlanMaintenance {
             String description,
             FrequenceMaintenance frequence,
             StatutPlan statut,
-            LocalDateTime prochaineDatePrevue,
-            LocalDateTime derniereDateExecution,
+            OffsetDateTime prochaineDatePrevue,
+            OffsetDateTime derniereDateExecution,
             Integer nombreExecutions,
             String tachemesAEffectuer,
-            LocalDateTime dateCreation,
-            LocalDateTime dateModification,
+            OffsetDateTime dateCreation,
+            OffsetDateTime dateModification,
             UUID creePar,
             UUID modifiePar) {
 
@@ -116,21 +117,21 @@ public class PlanMaintenance {
             throw new IllegalStateException("Seul un plan actif peut être exécuté");
         }
 
-        this.derniereDateExecution = LocalDateTime.now();
+        this.derniereDateExecution = OffsetDateTime.now(ZoneOffset.UTC);
         this.nombreExecutions++;
 
         // Calcule la prochaine date en fonction de la fréquence
         this.prochaineDatePrevue = calculerProchaineDatePrevue();
 
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
     /**
      * Calcule la prochaine date prévue en fonction de la fréquence
      */
-    private LocalDateTime calculerProchaineDatePrevue() {
-        LocalDateTime now = LocalDateTime.now();
+    private OffsetDateTime calculerProchaineDatePrevue() {
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         return switch (frequence) {
             case MENSUELLE -> now.plusMonths(1);
             case TRIMESTRIELLE -> now.plusMonths(3);
@@ -149,20 +150,20 @@ public class PlanMaintenance {
             throw new IllegalStateException("Seul un plan actif peut être désactivé");
         }
         this.statut = StatutPlan.INACTIF;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
     /**
      * Réactive le plan de maintenance
      */
-    public void reactiver(LocalDateTime nouvelleDatePrevue, UUID parUtilisateur) {
+    public void reactiver(OffsetDateTime nouvelleDatePrevue, UUID parUtilisateur) {
         if (this.statut != StatutPlan.INACTIF) {
             throw new IllegalStateException("Seul un plan inactif peut être réactivé");
         }
         this.statut = StatutPlan.ACTIF;
         this.prochaineDatePrevue = nouvelleDatePrevue;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -195,11 +196,11 @@ public class PlanMaintenance {
         return statut;
     }
 
-    public LocalDateTime getProchaineDatePrevue() {
+    public OffsetDateTime getProchaineDatePrevue() {
         return prochaineDatePrevue;
     }
 
-    public LocalDateTime getDerniereDateExecution() {
+    public OffsetDateTime getDerniereDateExecution() {
         return derniereDateExecution;
     }
 
@@ -211,11 +212,11 @@ public class PlanMaintenance {
         return tachemesAEffectuer;
     }
 
-    public LocalDateTime getDateCreation() {
+    public OffsetDateTime getDateCreation() {
         return dateCreation;
     }
 
-    public LocalDateTime getDateModification() {
+    public OffsetDateTime getDateModification() {
         return dateModification;
     }
 

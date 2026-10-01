@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -75,8 +75,8 @@ public class DirectionGmaoQueryService {
         }
 
         SocieteInfo societe = dashboard.societe(societeId);
-        LocalDateTime fromDt = start.atStartOfDay();
-        LocalDateTime toDt = end.plusDays(1).atStartOfDay();
+        OffsetDateTime fromDt = start.atStartOfDay().atOffset(ZoneOffset.UTC);
+        OffsetDateTime toDt = end.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime generatedAt = OffsetDateTime.now(ZoneOffset.UTC);
 
         List<CentreGmao> centres = new ArrayList<>();
@@ -90,7 +90,7 @@ public class DirectionGmaoQueryService {
         return new GmaoOverview(societeId, start, end, generatedAt, centres, totaux(centres), alertes);
     }
 
-    private CentreGmao buildForCentre(UUID centreId, String nom, LocalDateTime from, LocalDateTime to) {
+    private CentreGmao buildForCentre(UUID centreId, String nom, OffsetDateTime from, OffsetDateTime to) {
         long nbEquipements = equipementRepository.countByCentreId(centreId);
         long nbHorsService = equipementRepository.countByCentreIdAndStatut(centreId, StatutEquipement.HORS_SERVICE.name());
         long nbEnMaintenance = equipementRepository.countByCentreIdAndStatut(centreId, StatutEquipement.EN_MAINTENANCE.name());
@@ -122,7 +122,7 @@ public class DirectionGmaoQueryService {
                 nbReformeRecommandee, topEquipements(classement));
     }
 
-    private double indisponibiliteHeures(Equipement e, LocalDateTime from, LocalDateTime to) {
+    private double indisponibiliteHeures(Equipement e, OffsetDateTime from, OffsetDateTime to) {
         Duration d = IndisponibiliteCalculator.calculer(
                 historiqueRepository.findByEquipementIdOrderByChangedAtAsc(e.getId()), e.getStatut(), from, to);
         return d.toMinutes() / 60.0;

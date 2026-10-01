@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -83,10 +83,10 @@ class PatientGenerateurIntegrationTest {
                 "Générateur G10",
                 "Fresenius",
                 "5008S",
-                LocalDateTime.now(),
+                OffsetDateTime.now(ZoneOffset.UTC),
                 CENTER_ID,
                 UUID.fromString("50000001-0000-0000-0000-000000000001"),
-                LocalDateTime.now(),
+                OffsetDateTime.now(ZoneOffset.UTC),
                 new UUID(0, 0)
         );
     }

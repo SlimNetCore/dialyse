@@ -17,7 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -135,7 +136,7 @@ class EquipementRestControllerTest {
 
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.gmao.CreateEquipementRequest(
                 "EQ-DUP", "Générateur", "GENERATEUR_DIALYSE", null, null, null,
-                LocalDateTime.now(), null, null, null);
+                OffsetDateTime.now(ZoneOffset.UTC), null, null, null);
 
         assertThrows(IllegalArgumentException.class,
                 () -> controller.creerEquipement(request, authentication()));
@@ -147,7 +148,7 @@ class EquipementRestControllerTest {
                 "Générateur de dialyse",
                 TypeEquipement.GENERATEUR_DIALYSE,
                 "Fresenius", "4008S", "SN-1",
-                LocalDateTime.now(), centerId, "Salle 1", UUID.randomUUID(), null, null);
+                OffsetDateTime.now(ZoneOffset.UTC), centerId, "Salle 1", UUID.randomUUID(), null, null);
     }
 
     private UUID authenticate(UUID centerId) {

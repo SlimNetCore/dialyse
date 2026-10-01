@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.domain.gmao.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 /**
@@ -18,15 +19,15 @@ public class Equipement {
     private String fabricant;
     private String modele;
     private String numeroSerie;
-    private LocalDateTime dateInstallation;
+    private OffsetDateTime dateInstallation;
     private UUID centreId;
     private StatutEquipement statut;
     private String localisation;
     private String observations;
     private UUID salleId;
     private BigDecimal prixAcquisition;
-    private LocalDateTime dateCreation;
-    private LocalDateTime dateModification;
+    private OffsetDateTime dateCreation;
+    private OffsetDateTime dateModification;
     private UUID creePar;
     private UUID modifiePar;
 
@@ -44,7 +45,7 @@ public class Equipement {
             String fabricant,
             String modele,
             String numeroSerie,
-            LocalDateTime dateInstallation,
+            OffsetDateTime dateInstallation,
             UUID centreId,
             String localisation,
             UUID creePar,
@@ -74,7 +75,7 @@ public class Equipement {
         equipement.localisation = localisation;
         equipement.salleId = salleId;
         equipement.prixAcquisition = prixAcquisition;
-        equipement.dateCreation = LocalDateTime.now();
+        equipement.dateCreation = OffsetDateTime.now(ZoneOffset.UTC);
         equipement.creePar = creePar;
 
         return equipement;
@@ -92,13 +93,13 @@ public class Equipement {
             String fabricant,
             String modele,
             String numeroSerie,
-            LocalDateTime dateInstallation,
+            OffsetDateTime dateInstallation,
             UUID centreId,
             StatutEquipement statut,
             String localisation,
             String observations,
-            LocalDateTime dateCreation,
-            LocalDateTime dateModification,
+            OffsetDateTime dateCreation,
+            OffsetDateTime dateModification,
             UUID creePar,
             UUID modifiePar,
             UUID salleId,
@@ -153,7 +154,7 @@ public class Equipement {
         this.localisation = localisation;
         this.salleId = salleId;
         this.prixAcquisition = prixAcquisition;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -169,7 +170,7 @@ public class Equipement {
         }
         this.statut = StatutEquipement.HORS_SERVICE;
         this.observations = (this.observations != null ? this.observations + "; " : "") + "Hors service: " + raison;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -184,7 +185,7 @@ public class Equipement {
             throw new IllegalStateException("Seul un équipement hors service peut être réactivé");
         }
         this.statut = StatutEquipement.EN_SERVICE;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -206,7 +207,7 @@ public class Equipement {
         if (nouveau == this.statut) return false;
         this.statut = nouveau;
         this.observations = (this.observations != null ? this.observations + "; " : "") + motif;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
         return true;
     }
@@ -223,7 +224,7 @@ public class Equipement {
         }
         this.statut = StatutEquipement.REFORME;
         this.observations = (this.observations != null ? this.observations + "; " : "") + "Réformé: " + motif;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -235,8 +236,8 @@ public class Equipement {
             throw new IllegalArgumentException("Observation requise");
         }
         this.observations = (this.observations != null ? this.observations + "\n" : "") +
-                LocalDateTime.now() + " - " + observation;
-        this.dateModification = LocalDateTime.now();
+                OffsetDateTime.now(ZoneOffset.UTC) + " - " + observation;
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -269,7 +270,7 @@ public class Equipement {
         return numeroSerie;
     }
 
-    public LocalDateTime getDateInstallation() {
+    public OffsetDateTime getDateInstallation() {
         return dateInstallation;
     }
 
@@ -289,11 +290,11 @@ public class Equipement {
         return observations;
     }
 
-    public LocalDateTime getDateCreation() {
+    public OffsetDateTime getDateCreation() {
         return dateCreation;
     }
 
-    public LocalDateTime getDateModification() {
+    public OffsetDateTime getDateModification() {
         return dateModification;
     }
 

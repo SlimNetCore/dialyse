@@ -12,7 +12,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {GmaoApiService} from '../../../../core/api/gmao-api.service';
-import {TYPES_EQUIPEMENT} from '../../gmao-options.util';
+import {localDateToUtcIso, TYPES_EQUIPEMENT, utcIsoToLocalDate} from '../../gmao-options.util';
 import {AuthStore} from '../../../../core/state/auth.store';
 import {SallesStore} from '../../../../core/state/referentials.store';
 
@@ -115,7 +115,7 @@ export class GmaoFormEquipementComponent implements OnInit {
         fabricant: form.fabricant.trim() || null,
         modele: form.modele.trim() || null,
         numeroSerie: form.numeroSerie.trim() || null,
-        dateInstallation: `${form.dateInstallation}T00:00:00`,
+        dateInstallation: localDateToUtcIso(form.dateInstallation),
         localisation: form.localisation.trim() || null,
         salleId: form.salleId || null,
         prixAcquisition,
@@ -142,7 +142,7 @@ export class GmaoFormEquipementComponent implements OnInit {
           fabricant: data.fabricant ?? '',
           modele: data.modele ?? '',
           numeroSerie: data.numeroSerie ?? '',
-          dateInstallation: data.dateInstallation.slice(0, 10),
+          dateInstallation: utcIsoToLocalDate(data.dateInstallation),
           localisation: data.localisation ?? '',
           salleId: data.salleId ?? '',
           prixAcquisition: data.prixAcquisition != null ? String(data.prixAcquisition) : '',

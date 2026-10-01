@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +30,7 @@ public interface LigneCoutInterventionJpaRepository extends JpaRepository<LigneC
             "  AND i.statut IN ('EN_COURS','TERMINEE') AND i.deletedAt IS NULL" +
             ")")
     BigDecimal sumByEquipementIdAndDateRange(
-            @Param("equipementId") UUID equipementId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+            @Param("equipementId") UUID equipementId, @Param("from") OffsetDateTime from, @Param("to") OffsetDateTime to);
 
     /**
      * Somme des coûts de toutes les interventions d'un centre démarrées sur la période [from, to)
@@ -43,7 +43,7 @@ public interface LigneCoutInterventionJpaRepository extends JpaRepository<LigneC
             "  AND i.statut IN ('EN_COURS','TERMINEE') AND i.deletedAt IS NULL" +
             ")")
     BigDecimal sumByCentreIdAndDateRange(
-            @Param("centreId") UUID centreId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+            @Param("centreId") UUID centreId, @Param("from") OffsetDateTime from, @Param("to") OffsetDateTime to);
 
     /**
      * Coût par équipement d'un centre sur la période [from, to) : lignes {@code [equipementId, montant]}.
@@ -55,5 +55,5 @@ public interface LigneCoutInterventionJpaRepository extends JpaRepository<LigneC
             "AND i.statut IN ('EN_COURS','TERMINEE') AND i.deletedAt IS NULL " +
             "GROUP BY i.equipementId")
     List<Object[]> sumGroupedByEquipement(
-            @Param("centreId") UUID centreId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+            @Param("centreId") UUID centreId, @Param("from") OffsetDateTime from, @Param("to") OffsetDateTime to);
 }

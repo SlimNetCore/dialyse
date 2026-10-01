@@ -57,12 +57,32 @@
           <td *matCellDef="let row" mat-cell>{{ row.dateDebut | date: 'dd/MM/yyyy HH:mm' }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="dateFin">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENTIONS.END_DATE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.dateFin ? (row.dateFin | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="duree">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENTIONS.DUREE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ dureeLabel(dureeMinutes(row.dateDebut, row.dateFin)) || '—' }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="statut">
           <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENTIONS.STATUT' | translate }}</th>
           <td *matCellDef="let row" mat-cell>
             <span [class]="statutInterventionTone(row.statut)" class="gmao-badge">
               {{ ('GMAO.STATUT_INTERVENTION.' + row.statut) | translate }}
             </span>
+            @if (row.priorite !== 'NORMALE') {
+              <span [class]="prioriteTone(row.priorite)" class="gmao-badge" data-testid="badge-priorite">
+                {{ ('GMAO.PRIORITE.' + row.priorite) | translate }}
+              </span>
+            }
+            @if (row.enRetard || row.echeanceDepassee) {
+              <span class="gmao-badge danger" data-testid="badge-retard">
+                {{ (row.enRetard ? 'GMAO.INTERVENTIONS.EN_RETARD' : 'GMAO.INTERVENTIONS.ECHEANCE_DEPASSEE') | translate }}
+              </span>
+            }
           </td>
         </ng-container>
 
@@ -77,11 +97,26 @@
           <th *matHeaderCellDef mat-header-cell></th>
           <td *matCellDef="let row" mat-cell>
             <div class="gmao-row-actions">
-              <button (click)="addLigneCout(row)" [disabled]="store.saving()"
-                      [matTooltip]="'GMAO.COUTS.ADD_TITLE' | translate"
-                      mat-icon-button>
-                <mat-icon>payments</mat-icon>
+              <a [matTooltip]="'GMAO.INTERVENTIONS.DETAIL' | translate" [routerLink]="[row.id]" mat-icon-button>
+                <mat-icon>visibility</mat-icon>
+              </a>
+              <button (click)="printBon(row)" [disabled]="printing()"
+                      [matTooltip]="'GMAO.INTERVENTIONS.PRINT' | translate"
+                      data-testid="print-bon-row" mat-icon-button>
+                <mat-icon>print</mat-icon>
               </button>
+              @if (row.statut !== 'ANNULEE') {
+                <button (click)="saisirMainOeuvre(row)" [disabled]="store.saving()"
+                        [matTooltip]="'GMAO.COUTS.MAIN_OEUVRE_BUTTON' | translate" data-testid="labour-row"
+                        mat-icon-button>
+                  <mat-icon>engineering</mat-icon>
+                </button>
+                <button (click)="addLigneCout(row)" [disabled]="store.saving()"
+                        [matTooltip]="'GMAO.COUTS.ADD_TITLE' | translate"
+                        mat-icon-button>
+                  <mat-icon>payments</mat-icon>
+                </button>
+              }
               @if (row.statut === 'PLANIFIEE') {
                 <button (click)="start(row)" [disabled]="store.saving()" [matTooltip]="'GMAO.INTERVENTIONS.START' | translate"
                         color="primary" mat-icon-button>

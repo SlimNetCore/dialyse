@@ -14,6 +14,7 @@ public record GmaoStatsResponse(
         long interventionsEnCours,
         long interventionsTerminees,
         long plansMaintenanceActifs,
-        long plansMaintenanceEnRetard
+        long plansMaintenanceEnRetard,
+        long interventionsARelancer
 ) {
 }

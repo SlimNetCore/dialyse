@@ -136,7 +136,7 @@ class DocumentRestControllerPatientDatasetIntegrationTest {
                         "date_installation, centre_id, statut, salle_id, date_creation, cree_par) " +
                         "VALUES (?, ?, ?, 'GENERATEUR_DIALYSE', ?, ?, ?, ?, 'EN_SERVICE', ?, ?, ?)",
                 GENERATEUR_ID, "GEN-99", "Générateur GEN-99", "Brand", "Modele",
-                java.time.LocalDateTime.now(), CENTER_ID, SALLE_ID, java.time.LocalDateTime.now(), new UUID(0, 0));
+                java.time.OffsetDateTime.now(ZoneOffset.UTC), CENTER_ID, SALLE_ID, java.time.OffsetDateTime.now(ZoneOffset.UTC), new UUID(0, 0));
     }
 
     private void seedPatient() {

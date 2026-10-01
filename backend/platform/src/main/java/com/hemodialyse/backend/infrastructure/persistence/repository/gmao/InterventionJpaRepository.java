@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +40,7 @@ public interface InterventionJpaRepository extends JpaRepository<InterventionEnt
      * Récupère les interventions dans une période
      */
     @Query("SELECT i FROM InterventionEntity i WHERE i.centreId = :centreId AND i.dateDebut >= :debut AND i.dateDebut <= :fin AND i.deletedAt IS NULL")
-    List<InterventionEntity> findByCentreIdAndDateRange(@Param("centreId") UUID centreId, @Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
+    List<InterventionEntity> findByCentreIdAndDateRange(@Param("centreId") UUID centreId, @Param("debut") OffsetDateTime debut, @Param("fin") OffsetDateTime fin);
 
     /**
      * Récupère les interventions d'un intervenant
@@ -65,6 +65,14 @@ public interface InterventionJpaRepository extends JpaRepository<InterventionEnt
      */
     @Query("SELECT COUNT(i) FROM InterventionEntity i WHERE i.centreId = :centreId AND i.statut = 'EN_COURS' AND i.deletedAt IS NULL")
     long countByCentreIdAndStatutEnCours(@Param("centreId") UUID centreId);
+
+    /**
+     * Interventions à relancer : planifiées dont l'heure de début est passée, ou dont l'échéance est dépassée.
+     */
+    @Query("SELECT COUNT(i) FROM InterventionEntity i WHERE i.centreId = :centreId AND i.deletedAt IS NULL AND (" +
+            "(i.statut = 'PLANIFIEE' AND i.dateDebut < :now) OR " +
+            "(i.statut IN ('PLANIFIEE', 'EN_COURS') AND i.echeance IS NOT NULL AND i.echeance < :now))")
+    long countEnRetard(@Param("centreId") UUID centreId, @Param("now") OffsetDateTime now);
 
     /**
      * Compte les interventions d'un centre par statut (statistiques du dashboard GMAO)

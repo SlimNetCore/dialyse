@@ -2,7 +2,8 @@ package com.hemodialyse.backend.domain.gmao.model;
 
 import com.hemodialyse.backend.domain.shared.vo.Money;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -18,8 +19,8 @@ public class Intervention {
     private UUID centreId;
     private TypeIntervention type;
     private StatutIntervention statut;
-    private LocalDateTime dateDebut;
-    private LocalDateTime dateFin;
+    private OffsetDateTime dateDebut;
+    private OffsetDateTime dateFin;
     private UUID intervenantId;
     private String description;
     private String actions;
@@ -40,17 +41,37 @@ public class Intervention {
     public static final Set<StatutEquipement> ETATS_APRES = EnumSet.of(
             StatutEquipement.EN_SERVICE, StatutEquipement.EN_ATTENTE_PIECE,
             StatutEquipement.HORS_SERVICE, StatutEquipement.A_REFORMER);
-    private LocalDateTime dateCreation;
-    private LocalDateTime dateModification;
+    private OffsetDateTime dateCreation;
+    private OffsetDateTime dateModification;
     private UUID creePar;
     private UUID modifiePar;
     private StatutEquipement etatEquipementAvant;
     private StatutEquipement etatEquipementApres;
+    private PrioriteIntervention priorite = PrioriteIntervention.NORMALE;
+    private OffsetDateTime echeance;
+    private String symptome;
+    private String cause;
+    private UUID demarrePar;
+    private OffsetDateTime demarreLe;
+    private UUID cloturePar;
+    private OffsetDateTime clotureLe;
+    private UUID annulePar;
+    private OffsetDateTime annuleLe;
 
     // Constructeur privé pour DDD
     private Intervention() {
         this.taches = new ArrayList<>();
         this.lignesCout = new ArrayList<>();
+    }
+
+    /**
+     * Crée une intervention sans suivi détaillé (priorité normale, sans échéance ni symptôme).
+     */
+    public static Intervention creer(
+            UUID equipementId, UUID centreId, TypeIntervention type, OffsetDateTime dateDebut, String description,
+            UUID intervenantId, StatutEquipement etatEquipementAvant, UUID creePar) {
+        return creer(equipementId, centreId, type, dateDebut, description, intervenantId, etatEquipementAvant,
+                null, PrioriteIntervention.NORMALE, null, creePar);
     }
 
     /**
@@ -60,11 +81,18 @@ public class Intervention {
             UUID equipementId,
             UUID centreId,
             TypeIntervention type,
-            LocalDateTime dateDebut,
+            OffsetDateTime dateDebut,
             String description,
             UUID intervenantId,
             StatutEquipement etatEquipementAvant,
+            String symptome,
+            PrioriteIntervention priorite,
+            OffsetDateTime echeance,
             UUID creePar) {
+
+        if (echeance != null && echeance.isBefore(dateDebut != null ? dateDebut : echeance)) {
+            throw new IllegalArgumentException("L'échéance doit être postérieure à la date de début");
+        }
 
         if (etatEquipementAvant == null || !ETATS_AVANT.contains(etatEquipementAvant)) {
             throw new IllegalArgumentException("État de l'équipement au moment de l'intervention invalide");
@@ -85,7 +113,10 @@ public class Intervention {
         intervention.description = description;
         intervention.intervenantId = intervenantId;
         intervention.etatEquipementAvant = etatEquipementAvant;
-        intervention.dateCreation = LocalDateTime.now();
+        intervention.dateCreation = OffsetDateTime.now(ZoneOffset.UTC);
+        intervention.symptome = blankToNull(symptome);
+        intervention.priorite = priorite != null ? priorite : PrioriteIntervention.NORMALE;
+        intervention.echeance = echeance;
         intervention.creePar = creePar;
         intervention.taches = new ArrayList<>();
         intervention.lignesCout = new ArrayList<>();
@@ -103,15 +134,15 @@ public class Intervention {
             UUID centreId,
             TypeIntervention type,
             StatutIntervention statut,
-            LocalDateTime dateDebut,
-            LocalDateTime dateFin,
+            OffsetDateTime dateDebut,
+            OffsetDateTime dateFin,
             UUID intervenantId,
             String description,
             String actions,
             String pieceRemplacee,
             String observations,
-            LocalDateTime dateCreation,
-            LocalDateTime dateModification,
+            OffsetDateTime dateCreation,
+            OffsetDateTime dateModification,
             UUID creePar,
             UUID modifiePar,
             List<LigneCoutIntervention> lignesCout,
@@ -142,6 +173,10 @@ public class Intervention {
         return intervention;
     }
 
+    private static String blankToNull(String s) {
+        return s == null || s.isBlank() ? null : s.trim();
+    }
+
     /**
      * Marque l'intervention comme commencée
      */
@@ -149,16 +184,26 @@ public class Intervention {
         if (this.statut != StatutIntervention.PLANIFIEE) {
             throw new IllegalStateException("Seule une intervention planifiée peut être démarrée");
         }
+        // La date/heure de début reste celle saisie dans la fiche d'intervention.
         this.statut = StatutIntervention.EN_COURS;
-        this.dateDebut = LocalDateTime.now();
-        this.dateModification = LocalDateTime.now();
+        this.demarreLe = OffsetDateTime.now(ZoneOffset.UTC);
+        this.demarrePar = parUtilisateur;
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
     /**
-     * Marque l'intervention comme terminée
+     * Termine l'intervention sans préciser la cause de la panne.
      */
-    public void terminer(String actions, StatutEquipement etatEquipementApres, UUID parUtilisateur) {
+    public void terminer(String actions, StatutEquipement etatEquipementApres, OffsetDateTime dateFin, UUID parUtilisateur) {
+        terminer(actions, etatEquipementApres, dateFin, null, parUtilisateur);
+    }
+
+    /**
+     * Marque l'intervention comme terminée ; {@code cause} = cause de la panne trouvée à la clôture (optionnelle).
+     */
+    public void terminer(String actions, StatutEquipement etatEquipementApres, OffsetDateTime dateFin, String cause,
+                         UUID parUtilisateur) {
         if (this.statut != StatutIntervention.EN_COURS) {
             throw new IllegalStateException("Seule une intervention en cours peut être terminée");
         }
@@ -168,25 +213,21 @@ public class Intervention {
         if (etatEquipementApres == null || !ETATS_APRES.contains(etatEquipementApres)) {
             throw new IllegalArgumentException("État de l'équipement après l'intervention invalide");
         }
+        if (dateFin == null) {
+            throw new IllegalArgumentException("Date et heure de fin requises");
+        }
+        if (dateFin.isBefore(dateDebut)) {
+            throw new IllegalArgumentException("La date de fin doit être postérieure à la date de début");
+        }
 
         this.etatEquipementApres = etatEquipementApres;
         this.statut = StatutIntervention.TERMINEE;
-        this.dateFin = LocalDateTime.now();
+        this.dateFin = dateFin;
         this.actions = actions;
-        this.dateModification = LocalDateTime.now();
-        this.modifiePar = parUtilisateur;
-    }
-
-    /**
-     * Annule l'intervention
-     */
-    public void annuler(String raison, UUID parUtilisateur) {
-        if (this.statut == StatutIntervention.TERMINEE) {
-            throw new IllegalStateException("Une intervention terminée ne peut pas être annulée");
-        }
-        this.statut = StatutIntervention.ANNULEE;
-        this.observations = (this.observations != null ? this.observations + "; " : "") + "Annulée: " + raison;
-        this.dateModification = LocalDateTime.now();
+        this.cause = blankToNull(cause);
+        this.clotureLe = OffsetDateTime.now(ZoneOffset.UTC);
+        this.cloturePar = parUtilisateur;
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -199,13 +240,17 @@ public class Intervention {
     }
 
     /**
-     * Ajoute une ligne de coût (pièce, main d'œuvre, intervenant...) — aide à la décision sur le coût
-     * réel de maintenance.
+     * Annule l'intervention
      */
-    public void ajouterLigneCout(LigneCoutIntervention ligne, UUID parUtilisateur) {
-        if (ligne == null) throw new IllegalArgumentException("Ligne de coût requise");
-        this.lignesCout.add(ligne);
-        this.dateModification = LocalDateTime.now();
+    public void annuler(String raison, UUID parUtilisateur) {
+        if (this.statut == StatutIntervention.TERMINEE) {
+            throw new IllegalStateException("Une intervention terminée ne peut pas être annulée");
+        }
+        this.statut = StatutIntervention.ANNULEE;
+        this.observations = (this.observations != null ? this.observations + "; " : "") + "Annulée: " + raison;
+        this.annuleLe = OffsetDateTime.now(ZoneOffset.UTC);
+        this.annulePar = parUtilisateur;
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -232,6 +277,80 @@ public class Intervention {
     }
 
     /**
+     * Ajoute une ligne de coût (pièce, main d'œuvre, intervenant...) — aide à la décision sur le coût
+     * réel de maintenance.
+     */
+    public void ajouterLigneCout(LigneCoutIntervention ligne, UUID parUtilisateur) {
+        if (ligne == null) throw new IllegalArgumentException("Ligne de coût requise");
+        if (statut == StatutIntervention.ANNULEE) {
+            throw new IllegalStateException("Une intervention annulée n'accepte plus de ligne de coût");
+        }
+        this.lignesCout.add(ligne);
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
+        this.modifiePar = parUtilisateur;
+    }
+
+    /**
+     * Restaure le suivi détaillé (priorité, échéance, symptôme/cause, audit du cycle de vie) depuis la
+     * persistance — à utiliser uniquement par les adapters, à la suite de {@link #reconstruct}.
+     */
+    public Intervention restaurerSuivi(
+            PrioriteIntervention priorite, OffsetDateTime echeance, String symptome, String cause,
+            UUID demarrePar, OffsetDateTime demarreLe, UUID cloturePar, OffsetDateTime clotureLe,
+            UUID annulePar, OffsetDateTime annuleLe) {
+        this.priorite = priorite != null ? priorite : PrioriteIntervention.NORMALE;
+        this.echeance = echeance;
+        this.symptome = symptome;
+        this.cause = cause;
+        this.demarrePar = demarrePar;
+        this.demarreLe = demarreLe;
+        this.cloturePar = cloturePar;
+        this.clotureLe = clotureLe;
+        this.annulePar = annulePar;
+        this.annuleLe = annuleLe;
+        return this;
+    }
+
+    /**
+     * Rappel : une intervention encore planifiée alors que son heure de début est passée.
+     */
+    public boolean enRetard(OffsetDateTime maintenant) {
+        return statut == StatutIntervention.PLANIFIEE && dateDebut != null && dateDebut.isBefore(maintenant);
+    }
+
+    /**
+     * Échéance dépassée alors que l'intervention n'est ni terminée ni annulée.
+     */
+    public boolean echeanceDepassee(OffsetDateTime maintenant) {
+        return echeance != null && echeance.isBefore(maintenant)
+                && (statut == StatutIntervention.PLANIFIEE || statut == StatutIntervention.EN_COURS);
+    }
+
+    /**
+     * Ligne de temps : création, démarrage, clôture ou annulation, et dernière modification si postérieure.
+     */
+    public List<EvenementIntervention> chronologie() {
+        List<EvenementIntervention> events = new ArrayList<>();
+        events.add(new EvenementIntervention(EvenementIntervention.Type.CREEE, dateCreation, creePar));
+        if (demarreLe != null) {
+            events.add(new EvenementIntervention(EvenementIntervention.Type.DEMARREE, demarreLe, demarrePar));
+        }
+        if (clotureLe != null) {
+            events.add(new EvenementIntervention(EvenementIntervention.Type.TERMINEE, clotureLe, cloturePar));
+        }
+        if (annuleLe != null) {
+            events.add(new EvenementIntervention(EvenementIntervention.Type.ANNULEE, annuleLe, annulePar));
+        }
+        OffsetDateTime dernier = events.stream().map(EvenementIntervention::at)
+                .filter(Objects::nonNull).max(Comparator.naturalOrder()).orElse(null);
+        if (dateModification != null && (dernier == null || dateModification.isAfter(dernier))) {
+            events.add(new EvenementIntervention(EvenementIntervention.Type.MODIFIEE, dateModification, modifiePar));
+        }
+        events.sort(Comparator.comparing(EvenementIntervention::at, Comparator.nullsFirst(Comparator.naturalOrder())));
+        return events;
+    }
+
+    /**
      * Coût total de l'intervention (somme des lignes de coût).
      */
     public BigDecimal coutTotal() {
@@ -246,7 +365,7 @@ public class Intervention {
      */
     public void definirPieceRemplacee(String piece, UUID parUtilisateur) {
         this.pieceRemplacee = piece;
-        this.dateModification = LocalDateTime.now();
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
         this.modifiePar = parUtilisateur;
     }
 
@@ -271,12 +390,52 @@ public class Intervention {
         return statut;
     }
 
-    public LocalDateTime getDateDebut() {
+    public OffsetDateTime getDateDebut() {
         return dateDebut;
     }
 
-    public LocalDateTime getDateFin() {
+    public OffsetDateTime getDateFin() {
         return dateFin;
+    }
+
+    public UUID getDemarrePar() {
+        return demarrePar;
+    }
+
+    public OffsetDateTime getDemarreLe() {
+        return demarreLe;
+    }
+
+    public UUID getCloturePar() {
+        return cloturePar;
+    }
+
+    public OffsetDateTime getClotureLe() {
+        return clotureLe;
+    }
+
+    public UUID getAnnulePar() {
+        return annulePar;
+    }
+
+    public OffsetDateTime getAnnuleLe() {
+        return annuleLe;
+    }
+
+    public PrioriteIntervention getPriorite() {
+        return priorite;
+    }
+
+    public OffsetDateTime getEcheance() {
+        return echeance;
+    }
+
+    public String getSymptome() {
+        return symptome;
+    }
+
+    public String getCause() {
+        return cause;
     }
 
     public StatutEquipement getEtatEquipementAvant() {
@@ -315,11 +474,11 @@ public class Intervention {
         return new ArrayList<>(lignesCout);
     }
 
-    public LocalDateTime getDateCreation() {
+    public OffsetDateTime getDateCreation() {
         return dateCreation;
     }
 
-    public LocalDateTime getDateModification() {
+    public OffsetDateTime getDateModification() {
         return dateModification;
     }
 

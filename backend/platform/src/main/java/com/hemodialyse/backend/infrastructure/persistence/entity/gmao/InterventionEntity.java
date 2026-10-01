@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.entity.gmao;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -27,11 +27,11 @@ public class InterventionEntity {
     @Column(nullable = false, length = 50)
     private String statut;
 
-    @Column(nullable = false)
-    private LocalDateTime dateDebut;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateDebut;
 
-    @Column
-    private LocalDateTime dateFin;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateFin;
 
     @Column
     private UUID intervenantId;
@@ -41,6 +41,36 @@ public class InterventionEntity {
 
     @Column(length = 50)
     private String etatEquipementApres;
+
+    @Column(length = 20)
+    private String priorite;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime echeance;
+
+    @Column(columnDefinition = "TEXT")
+    private String symptome;
+
+    @Column(columnDefinition = "TEXT")
+    private String cause;
+
+    @Column
+    private UUID demarrePar;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime demarreLe;
+
+    @Column
+    private UUID cloturePar;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime clotureLe;
+
+    @Column
+    private UUID annulePar;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime annuleLe;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
@@ -54,11 +84,11 @@ public class InterventionEntity {
     @Column(columnDefinition = "TEXT")
     private String observations;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime dateCreation;
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateCreation;
 
-    @Column
-    private LocalDateTime dateModification;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateModification;
 
     @Column(nullable = false, updatable = false)
     private UUID creePar;
@@ -66,18 +96,18 @@ public class InterventionEntity {
     @Column
     private UUID modifiePar;
 
-    @Column
-    private LocalDateTime deletedAt;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime deletedAt;
 
     // Constructeurs
     public InterventionEntity() {
     }
 
     public InterventionEntity(UUID id, UUID equipementId, UUID centreId, String type,
-                              String statut, LocalDateTime dateDebut, LocalDateTime dateFin,
+                              String statut, OffsetDateTime dateDebut, OffsetDateTime dateFin,
                               UUID intervenantId, String description, String actions,
                               String pieceRemplacee, String observations,
-                              LocalDateTime dateCreation, LocalDateTime dateModification,
+                              OffsetDateTime dateCreation, OffsetDateTime dateModification,
                               UUID creePar, UUID modifiePar,
                               String etatEquipementAvant, String etatEquipementApres) {
         this.etatEquipementAvant = etatEquipementAvant;
@@ -141,20 +171,100 @@ public class InterventionEntity {
         this.statut = statut;
     }
 
-    public LocalDateTime getDateDebut() {
+    public OffsetDateTime getDateDebut() {
         return dateDebut;
     }
 
-    public void setDateDebut(LocalDateTime dateDebut) {
+    public void setDateDebut(OffsetDateTime dateDebut) {
         this.dateDebut = dateDebut;
     }
 
-    public LocalDateTime getDateFin() {
+    public OffsetDateTime getDateFin() {
         return dateFin;
     }
 
-    public void setDateFin(LocalDateTime dateFin) {
+    public void setDateFin(OffsetDateTime dateFin) {
         this.dateFin = dateFin;
+    }
+
+    public String getPriorite() {
+        return priorite;
+    }
+
+    public void setPriorite(String priorite) {
+        this.priorite = priorite;
+    }
+
+    public OffsetDateTime getEcheance() {
+        return echeance;
+    }
+
+    public void setEcheance(OffsetDateTime echeance) {
+        this.echeance = echeance;
+    }
+
+    public String getSymptome() {
+        return symptome;
+    }
+
+    public void setSymptome(String symptome) {
+        this.symptome = symptome;
+    }
+
+    public String getCause() {
+        return cause;
+    }
+
+    public void setCause(String cause) {
+        this.cause = cause;
+    }
+
+    public UUID getDemarrePar() {
+        return demarrePar;
+    }
+
+    public void setDemarrePar(UUID demarrePar) {
+        this.demarrePar = demarrePar;
+    }
+
+    public OffsetDateTime getDemarreLe() {
+        return demarreLe;
+    }
+
+    public void setDemarreLe(OffsetDateTime demarreLe) {
+        this.demarreLe = demarreLe;
+    }
+
+    public UUID getCloturePar() {
+        return cloturePar;
+    }
+
+    public void setCloturePar(UUID cloturePar) {
+        this.cloturePar = cloturePar;
+    }
+
+    public OffsetDateTime getClotureLe() {
+        return clotureLe;
+    }
+
+    public void setClotureLe(OffsetDateTime clotureLe) {
+        this.clotureLe = clotureLe;
+    }
+
+    public UUID getAnnulePar() {
+        return annulePar;
+    }
+
+    public void setAnnulePar(UUID annulePar) {
+        this.annulePar = annulePar;
+    }
+
+    public OffsetDateTime getAnnuleLe() {
+        return annuleLe;
+    }
+
+    public void setAnnuleLe(OffsetDateTime annuleLe) {
+        this.annuleLe = annuleLe;
     }
 
     public String getEtatEquipementAvant() {
@@ -205,19 +315,19 @@ public class InterventionEntity {
         this.observations = observations;
     }
 
-    public LocalDateTime getDateCreation() {
+    public OffsetDateTime getDateCreation() {
         return dateCreation;
     }
 
-    public void setDateCreation(LocalDateTime dateCreation) {
+    public void setDateCreation(OffsetDateTime dateCreation) {
         this.dateCreation = dateCreation;
     }
 
-    public LocalDateTime getDateModification() {
+    public OffsetDateTime getDateModification() {
         return dateModification;
     }
 
-    public void setDateModification(LocalDateTime dateModification) {
+    public void setDateModification(OffsetDateTime dateModification) {
         this.dateModification = dateModification;
     }
 
@@ -237,11 +347,11 @@ public class InterventionEntity {
         this.modifiePar = modifiePar;
     }
 
-    public LocalDateTime getDeletedAt() {
+    public OffsetDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
+    public void setDeletedAt(OffsetDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 }

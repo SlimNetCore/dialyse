@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 /**
@@ -52,7 +53,8 @@ public class GmaoStatsRestController {
                 interventionRepository.countByCentreIdAndStatutEnCours(centreId),
                 interventionRepository.countByCentreIdAndStatut(centreId, StatutIntervention.TERMINEE.name()),
                 planRepository.countActiveByCentreId(centreId),
-                planRepository.findOverdueByCentreId(centreId, LocalDateTime.now()).size()
+                planRepository.findOverdueByCentreId(centreId, OffsetDateTime.now(ZoneOffset.UTC)).size(),
+                interventionRepository.countEnRetardByCentreId(centreId, OffsetDateTime.now(ZoneOffset.UTC))
         );
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +38,7 @@ public interface PlanMaintenanceJpaRepository extends JpaRepository<PlanMaintena
      * Récupère les plans en retard d'un centre
      */
     @Query("SELECT p FROM PlanMaintenanceEntity p WHERE p.centreId = :centreId AND p.statut = 'ACTIF' AND p.prochaineDatePrevue <= :dateLimit AND p.deletedAt IS NULL")
-    List<PlanMaintenanceEntity> findOverdueByCentreId(@Param("centreId") UUID centreId, @Param("dateLimit") LocalDateTime dateLimit);
+    List<PlanMaintenanceEntity> findOverdueByCentreId(@Param("centreId") UUID centreId, @Param("dateLimit") OffsetDateTime dateLimit);
 
     /**
      * Récupère les plans actifs d'un équipement

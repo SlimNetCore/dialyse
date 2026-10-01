@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.gmao.model;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 /**
@@ -12,8 +13,8 @@ public class TacheIntervention {
     private UUID id;
     private String description;
     private StatutTache statut;
-    private LocalDateTime dateCreation;
-    private LocalDateTime dateCompletion;
+    private OffsetDateTime dateCreation;
+    private OffsetDateTime dateCompletion;
 
     private TacheIntervention() {
     }
@@ -30,7 +31,7 @@ public class TacheIntervention {
         tache.id = UUID.randomUUID();
         tache.description = description;
         tache.statut = StatutTache.A_FAIRE;
-        tache.dateCreation = LocalDateTime.now();
+        tache.dateCreation = OffsetDateTime.now(ZoneOffset.UTC);
 
         return tache;
     }
@@ -53,7 +54,7 @@ public class TacheIntervention {
             throw new IllegalStateException("Seule une tâche 'En cours' peut être complétée");
         }
         this.statut = StatutTache.COMPLETEE;
-        this.dateCompletion = LocalDateTime.now();
+        this.dateCompletion = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
     // Getters
@@ -69,11 +70,11 @@ public class TacheIntervention {
         return statut;
     }
 
-    public LocalDateTime getDateCreation() {
+    public OffsetDateTime getDateCreation() {
         return dateCreation;
     }
 
-    public LocalDateTime getDateCompletion() {
+    public OffsetDateTime getDateCompletion() {
         return dateCompletion;
     }
 }

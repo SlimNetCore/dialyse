@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +83,7 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
     }
 
     @Override
-    public List<Intervention> findByCentreIdAndDateRange(UUID centreId, LocalDateTime debut, LocalDateTime fin) {
+    public List<Intervention> findByCentreIdAndDateRange(UUID centreId, OffsetDateTime debut, OffsetDateTime fin) {
         return jpaRepository.findByCentreIdAndDateRange(centreId, debut, fin).stream()
                 .map(this::toDomain)
                 .toList();
@@ -163,19 +163,24 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
     }
 
     @Override
-    public BigDecimal sumCoutByEquipementIdAndDateRange(UUID equipementId, LocalDateTime from, LocalDateTime to) {
+    public BigDecimal sumCoutByEquipementIdAndDateRange(UUID equipementId, OffsetDateTime from, OffsetDateTime to) {
         BigDecimal sum = lignesCoutRepository.sumByEquipementIdAndDateRange(equipementId, from, to);
         return sum == null ? BigDecimal.ZERO : sum;
     }
 
     @Override
-    public BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, LocalDateTime from, LocalDateTime to) {
+    public BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, OffsetDateTime from, OffsetDateTime to) {
         BigDecimal sum = lignesCoutRepository.sumByCentreIdAndDateRange(centreId, from, to);
         return sum == null ? BigDecimal.ZERO : sum;
     }
 
     @Override
-    public Map<UUID, BigDecimal> sumCoutParEquipement(UUID centreId, LocalDateTime from, LocalDateTime to) {
+    public long countEnRetardByCentreId(UUID centreId, OffsetDateTime maintenant) {
+        return jpaRepository.countEnRetard(centreId, maintenant);
+    }
+
+    @Override
+    public Map<UUID, BigDecimal> sumCoutParEquipement(UUID centreId, OffsetDateTime from, OffsetDateTime to) {
         Map<UUID, BigDecimal> result = new HashMap<>();
         for (Object[] row : lignesCoutRepository.sumGroupedByEquipement(centreId, from, to)) {
             result.put((UUID) row[0], (BigDecimal) row[1]);
@@ -185,7 +190,7 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
 
     // Mappers
     private InterventionEntity toEntity(Intervention domain) {
-        return new InterventionEntity(
+        InterventionEntity entity = new InterventionEntity(
                 domain.getId(),
                 domain.getEquipementId(),
                 domain.getCentreId(),
@@ -205,6 +210,17 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                 domain.getEtatEquipementAvant() != null ? domain.getEtatEquipementAvant().name() : null,
                 domain.getEtatEquipementApres() != null ? domain.getEtatEquipementApres().name() : null
         );
+        entity.setPriorite(domain.getPriorite().name());
+        entity.setEcheance(domain.getEcheance());
+        entity.setSymptome(domain.getSymptome());
+        entity.setCause(domain.getCause());
+        entity.setDemarrePar(domain.getDemarrePar());
+        entity.setDemarreLe(domain.getDemarreLe());
+        entity.setCloturePar(domain.getCloturePar());
+        entity.setClotureLe(domain.getClotureLe());
+        entity.setAnnulePar(domain.getAnnulePar());
+        entity.setAnnuleLe(domain.getAnnuleLe());
+        return entity;
     }
 
     private Intervention toDomain(InterventionEntity entity) {
@@ -214,7 +230,7 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                         l.getQuantite(), l.getPrixUnitaire(), l.getArticleStockId()))
                 .toList();
 
-        return Intervention.reconstruct(
+        Intervention intervention = Intervention.reconstruct(
                 entity.getId(),
                 entity.getEquipementId(),
                 entity.getCentreId(),
@@ -235,5 +251,10 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                 entity.getEtatEquipementAvant() != null ? StatutEquipement.valueOf(entity.getEtatEquipementAvant()) : null,
                 entity.getEtatEquipementApres() != null ? StatutEquipement.valueOf(entity.getEtatEquipementApres()) : null
         );
+        return intervention.restaurerSuivi(
+                entity.getPriorite() != null ? PrioriteIntervention.valueOf(entity.getPriorite()) : null,
+                entity.getEcheance(), entity.getSymptome(), entity.getCause(),
+                entity.getDemarrePar(), entity.getDemarreLe(), entity.getCloturePar(), entity.getClotureLe(),
+                entity.getAnnulePar(), entity.getAnnuleLe());
     }
 }

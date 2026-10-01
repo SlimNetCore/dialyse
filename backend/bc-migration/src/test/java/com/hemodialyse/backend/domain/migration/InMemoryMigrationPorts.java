@@ -275,7 +275,7 @@ final class InMemoryMigrationPorts {
                     com.hemodialyse.backend.domain.gmao.model.Equipement.creer(
                             code, "Générateur " + code,
                             com.hemodialyse.backend.domain.gmao.model.TypeEquipement.GENERATEUR_DIALYSE,
-                            null, null, null, java.time.LocalDateTime.now(), centerId.value(), null,
+                            null, null, null, java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC), centerId.value(), null,
                             UUID.randomUUID(), salleId, null);
             rows.add(equipement);
             return equipement.getId();

@@ -4,7 +4,7 @@ import com.hemodialyse.backend.domain.gmao.model.PlanMaintenance;
 import com.hemodialyse.backend.domain.gmao.model.FrequenceMaintenance;
 import com.hemodialyse.backend.domain.gmao.model.StatutPlan;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -18,12 +18,12 @@ public record PlanMaintenanceResponse(
         String description,
         FrequenceMaintenance frequence,
         StatutPlan statut,
-        LocalDateTime prochaineDatePrevue,
-        LocalDateTime derniereDateExecution,
+        OffsetDateTime prochaineDatePrevue,
+        OffsetDateTime derniereDateExecution,
         Integer nombreExecutions,
         String tachesAEffectuer,
-        LocalDateTime dateCreation,
-        LocalDateTime dateModification,
+        OffsetDateTime dateCreation,
+        OffsetDateTime dateModification,
         UUID creePar,
         UUID modifiePar
 ) {

@@ -6,7 +6,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {EquipementFiche, GmaoApiService} from '../../../../core/api/gmao-api.service';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {EquipementFiche, GmaoApiService, Intervention} from '../../../../core/api/gmao-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
 import {ROLE_GMAO_REFORME, statutEquipementTone} from '../../gmao-options.util';
 import {AuthStore} from '../../../../core/state/auth.store';
@@ -20,7 +21,7 @@ import {AuthStore} from '../../../../core/state/auth.store';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressBarModule, TranslateModule,
+    CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressBarModule, MatPaginatorModule, TranslateModule,
   ],
   templateUrl: './fiche-equipement.component.html',
   styleUrls: ['./fiche-equipement.component.css', '../../gmao-shared.css'],
@@ -29,6 +30,11 @@ export class GmaoFicheEquipementComponent {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly fiche = signal<EquipementFiche | null>(null);
+  /** Historique des interventions et pannes (symptôme / cause), paginé. */
+  protected readonly historique = signal<Intervention[]>([]);
+  protected readonly historiqueTotal = signal(0);
+  protected readonly historiquePage = signal(0);
+  protected readonly historiqueSize = signal(5);
   protected readonly statutEquipementTone = statutEquipementTone;
   private readonly api = inject(GmaoApiService);
   private readonly route = inject(ActivatedRoute);
@@ -42,6 +48,23 @@ export class GmaoFicheEquipementComponent {
 
   constructor() {
     this.reload();
+    this.loadHistorique();
+  }
+
+  protected loadHistorique(): void {
+    this.api.listInterventions(this.historiquePage(), this.historiqueSize(), {equipementId: this.equipementId}).subscribe({
+      next: (page) => {
+        this.historique.set(page.items ?? []);
+        this.historiqueTotal.set(page.total ?? 0);
+      },
+      error: () => this.historique.set([]),
+    });
+  }
+
+  protected onHistoriquePage(event: PageEvent): void {
+    this.historiquePage.set(event.pageIndex);
+    this.historiqueSize.set(event.pageSize);
+    this.loadHistorique();
   }
 
   protected reload(): void {

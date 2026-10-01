@@ -15,7 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
@@ -62,8 +63,8 @@ public class EquipementFicheRestController {
         Equipement equipement = requireEquipement(id, authentication);
         UUID equipementId = equipement.getId();
 
-        LocalDateTime to = LocalDateTime.now();
-        LocalDateTime from = to.minusMonths(12);
+        OffsetDateTime to = OffsetDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime from = to.minusMonths(12);
 
         long nbInterventions = interventionRepository.countByEquipementId(equipementId);
         Duration indisponibilite = IndisponibiliteCalculator.calculer(

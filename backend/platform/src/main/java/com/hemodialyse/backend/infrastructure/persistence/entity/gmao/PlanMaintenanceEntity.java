@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.entity.gmao;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -33,11 +33,11 @@ public class PlanMaintenanceEntity {
     @Column(nullable = false, length = 50)
     private String statut;
 
-    @Column(nullable = false)
-    private LocalDateTime prochaineDatePrevue;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime prochaineDatePrevue;
 
-    @Column
-    private LocalDateTime derniereDateExecution;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime derniereDateExecution;
 
     @Column(nullable = false)
     private Integer nombreExecutions;
@@ -45,11 +45,11 @@ public class PlanMaintenanceEntity {
     @Column(columnDefinition = "TEXT")
     private String tachesAEffectuer;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime dateCreation;
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateCreation;
 
-    @Column
-    private LocalDateTime dateModification;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateModification;
 
     @Column(nullable = false, updatable = false)
     private UUID creePar;
@@ -57,8 +57,8 @@ public class PlanMaintenanceEntity {
     @Column
     private UUID modifiePar;
 
-    @Column
-    private LocalDateTime deletedAt;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime deletedAt;
 
     // Constructeurs
     public PlanMaintenanceEntity() {
@@ -66,10 +66,10 @@ public class PlanMaintenanceEntity {
 
     public PlanMaintenanceEntity(UUID id, UUID equipementId, UUID centreId,
                                  String designation, String description, String frequence,
-                                 String statut, LocalDateTime prochaineDatePrevue,
-                                 LocalDateTime derniereDateExecution, Integer nombreExecutions,
-                                 String tachesAEffectuer, LocalDateTime dateCreation,
-                                 LocalDateTime dateModification, UUID creePar, UUID modifiePar) {
+                                 String statut, OffsetDateTime prochaineDatePrevue,
+                                 OffsetDateTime derniereDateExecution, Integer nombreExecutions,
+                                 String tachesAEffectuer, OffsetDateTime dateCreation,
+                                 OffsetDateTime dateModification, UUID creePar, UUID modifiePar) {
         this.id = id;
         this.equipementId = equipementId;
         this.centreId = centreId;
@@ -144,19 +144,19 @@ public class PlanMaintenanceEntity {
         this.statut = statut;
     }
 
-    public LocalDateTime getProchaineDatePrevue() {
+    public OffsetDateTime getProchaineDatePrevue() {
         return prochaineDatePrevue;
     }
 
-    public void setProchaineDatePrevue(LocalDateTime prochaineDatePrevue) {
+    public void setProchaineDatePrevue(OffsetDateTime prochaineDatePrevue) {
         this.prochaineDatePrevue = prochaineDatePrevue;
     }
 
-    public LocalDateTime getDerniereDateExecution() {
+    public OffsetDateTime getDerniereDateExecution() {
         return derniereDateExecution;
     }
 
-    public void setDerniereDateExecution(LocalDateTime derniereDateExecution) {
+    public void setDerniereDateExecution(OffsetDateTime derniereDateExecution) {
         this.derniereDateExecution = derniereDateExecution;
     }
 
@@ -176,19 +176,19 @@ public class PlanMaintenanceEntity {
         this.tachesAEffectuer = tachesAEffectuer;
     }
 
-    public LocalDateTime getDateCreation() {
+    public OffsetDateTime getDateCreation() {
         return dateCreation;
     }
 
-    public void setDateCreation(LocalDateTime dateCreation) {
+    public void setDateCreation(OffsetDateTime dateCreation) {
         this.dateCreation = dateCreation;
     }
 
-    public LocalDateTime getDateModification() {
+    public OffsetDateTime getDateModification() {
         return dateModification;
     }
 
-    public void setDateModification(LocalDateTime dateModification) {
+    public void setDateModification(OffsetDateTime dateModification) {
         this.dateModification = dateModification;
     }
 
@@ -208,11 +208,11 @@ public class PlanMaintenanceEntity {
         this.modifiePar = modifiePar;
     }
 
-    public LocalDateTime getDeletedAt() {
+    public OffsetDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
+    public void setDeletedAt(OffsetDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 }

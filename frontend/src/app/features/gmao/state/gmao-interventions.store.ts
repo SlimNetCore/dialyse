@@ -90,11 +90,17 @@ export const GmaoInterventionsStore = signalStore(
       ),
     ),
 
-    finishIntervention: rxMethod<{ id: string; actions: string; etatEquipementApres: StatutEquipement }>(
+    finishIntervention: rxMethod<{
+      id: string;
+      actions: string;
+      etatEquipementApres: StatutEquipement;
+      dateFin: string;
+      cause?: string | null
+    }>(
       pipe(
         tap(() => patchState(store, {saving: true, error: null, successMessage: null})),
-        switchMap(({id, actions, etatEquipementApres}) =>
-          api.finishIntervention(id, actions, etatEquipementApres).pipe(
+        switchMap(({id, actions, etatEquipementApres, dateFin, cause}) =>
+          api.finishIntervention(id, actions, etatEquipementApres, dateFin, cause).pipe(
             tap(() => patchState(store, {saving: false, successMessage: 'GMAO.INTERVENTIONS.STATUS_UPDATED'})),
             catchError(() => {
               patchState(store, {saving: false, error: 'GMAO.INTERVENTIONS.SAVE_ERROR'});

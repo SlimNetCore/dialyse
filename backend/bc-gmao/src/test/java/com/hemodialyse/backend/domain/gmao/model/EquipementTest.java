@@ -3,7 +3,8 @@ package com.hemodialyse.backend.domain.gmao.model;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +19,7 @@ class EquipementTest {
         UUID createur = UUID.randomUUID();
         Equipement eq = Equipement.creer(
                 "EQ-001", "Générateur de dialyse", TypeEquipement.GENERATEUR_DIALYSE,
-                "Fresenius", "4008S", "SN-1", LocalDateTime.now(), UUID.randomUUID(), "Salle 1", createur,
+                "Fresenius", "4008S", "SN-1", OffsetDateTime.now(ZoneOffset.UTC), UUID.randomUUID(), "Salle 1", createur,
                 null, new BigDecimal("1200000"));
 
         UUID editeur = UUID.randomUUID();
@@ -51,7 +52,7 @@ class EquipementTest {
     void creer_should_reject_negative_prix_acquisition() {
         assertThrows(IllegalArgumentException.class, () -> Equipement.creer(
                 "EQ-004", "Générateur", TypeEquipement.GENERATEUR_DIALYSE,
-                null, null, null, LocalDateTime.now(), UUID.randomUUID(), null, UUID.randomUUID(),
+                null, null, null, OffsetDateTime.now(ZoneOffset.UTC), UUID.randomUUID(), null, UUID.randomUUID(),
                 null, new BigDecimal("-1")));
     }
 
@@ -110,7 +111,7 @@ class EquipementTest {
     private Equipement equipement() {
         return Equipement.creer(
                 "EQ-003", "Générateur", TypeEquipement.GENERATEUR_DIALYSE,
-                null, null, null, LocalDateTime.now(), UUID.randomUUID(), null, UUID.randomUUID(),
+                null, null, null, OffsetDateTime.now(ZoneOffset.UTC), UUID.randomUUID(), null, UUID.randomUUID(),
                 null, null);
     }
 }

@@ -19,7 +19,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,7 +54,7 @@ class InterventionRestControllerTest {
         var controller = controller(repo);
 
         var request = new CreateInterventionRequest(
-                equipement.getId(), "CURATIVE", LocalDateTime.now(), "Panne pompe", intervenantId, "EN_MAINTENANCE");
+                equipement.getId(), "CURATIVE", OffsetDateTime.now(ZoneOffset.UTC), "Panne pompe", intervenantId, "EN_MAINTENANCE");
         ResponseEntity<InterventionResponse> response = controller.creerIntervention(request, authentication());
 
         assertEquals(201, response.getStatusCode().value());
@@ -69,7 +70,7 @@ class InterventionRestControllerTest {
         var controller = controller(new FakeInterventionRepository());
 
         var request = new CreateInterventionRequest(
-                autreCentre.getId(), "CURATIVE", LocalDateTime.now(), "Panne", null, "EN_SERVICE");
+                autreCentre.getId(), "CURATIVE", OffsetDateTime.now(ZoneOffset.UTC), "Panne", null, "EN_SERVICE");
 
         assertThrows(IllegalArgumentException.class, () -> controller.creerIntervention(request, authentication()));
     }
@@ -79,7 +80,7 @@ class InterventionRestControllerTest {
         UUID centreId = authenticate();
         Equipement equipement = equipement(centreId);
         Intervention planifiee = Intervention.creer(equipement.getId(), centreId, TypeIntervention.CURATIVE,
-                LocalDateTime.now(), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
+                OffsetDateTime.now(ZoneOffset.UTC), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
         FakeInterventionRepository repo = new FakeInterventionRepository();
         repo.byId = Optional.of(planifiee);
 
@@ -94,7 +95,7 @@ class InterventionRestControllerTest {
         UUID centreId = authenticate();
         Equipement equipement = equipement(centreId);
         Intervention planifiee = Intervention.creer(equipement.getId(), centreId, TypeIntervention.PREVENTIVE,
-                LocalDateTime.now(), "Contrôle", null, StatutEquipement.EN_SERVICE, UUID.randomUUID());
+                OffsetDateTime.now(ZoneOffset.UTC), "Contrôle", null, StatutEquipement.EN_SERVICE, UUID.randomUUID());
         FakeInterventionRepository repo = new FakeInterventionRepository();
         repo.byId = Optional.of(planifiee);
 
@@ -108,12 +109,12 @@ class InterventionRestControllerTest {
     void terminerIntervention_should_apply_the_state_after_and_allow_a_reform_proposal() {
         UUID centreId = authenticate();
         Equipement equipement = equipement(centreId);
-        Intervention enCours = enCours(equipement.getId(), centreId, null, LocalDateTime.now().minusHours(1));
+        Intervention enCours = enCours(equipement.getId(), centreId, null, OffsetDateTime.now(ZoneOffset.UTC).minusHours(1));
         FakeInterventionRepository repo = new FakeInterventionRepository();
         repo.byId = Optional.of(enCours);
 
         ResponseEntity<InterventionResponse> response = controller(repo).terminerIntervention(
-                enCours.getId().toString(), new TerminerInterventionRequest("Irréparable", "A_REFORMER"), authentication());
+                enCours.getId().toString(), new TerminerInterventionRequest("Irréparable", "A_REFORMER", OffsetDateTime.now(ZoneOffset.UTC)), authentication());
 
         assertEquals(StatutEquipement.A_REFORMER, response.getBody().etatEquipementApres());
         assertEquals(StatutEquipement.A_REFORMER, equipement.getStatut());
@@ -123,11 +124,11 @@ class InterventionRestControllerTest {
     void terminerIntervention_should_never_let_an_intervention_reform_an_equipment() {
         UUID centreId = authenticate();
         Equipement equipement = equipement(centreId);
-        Intervention enCours = enCours(equipement.getId(), centreId, null, LocalDateTime.now().minusHours(1));
+        Intervention enCours = enCours(equipement.getId(), centreId, null, OffsetDateTime.now(ZoneOffset.UTC).minusHours(1));
         FakeInterventionRepository repo = new FakeInterventionRepository();
         repo.byId = Optional.of(enCours);
         var controller = controller(repo);
-        var request = new TerminerInterventionRequest("Fait", "REFORME");
+        var request = new TerminerInterventionRequest("Fait", "REFORME", OffsetDateTime.now(ZoneOffset.UTC));
 
         assertThrows(IllegalArgumentException.class,
                 () -> controller.terminerIntervention(enCours.getId().toString(), request, authentication()));
@@ -141,12 +142,12 @@ class InterventionRestControllerTest {
         Intervenant intervenant = Intervenant.creer(
                 centreId, "Tech Interne", TypeIntervenant.INTERNE, null, null, new BigDecimal("1000"));
         intervenants.byId = Optional.of(intervenant);
-        Intervention enCours = enCours(equipement.getId(), centreId, intervenant.id(), LocalDateTime.now().minusHours(2));
+        Intervention enCours = enCours(equipement.getId(), centreId, intervenant.id(), OffsetDateTime.now(ZoneOffset.UTC).minusHours(2));
         FakeInterventionRepository repo = new FakeInterventionRepository();
         repo.byId = Optional.of(enCours);
 
         ResponseEntity<InterventionResponse> response = controller(repo).terminerIntervention(
-                enCours.getId().toString(), new TerminerInterventionRequest("Réparé", "EN_SERVICE"), authentication());
+                enCours.getId().toString(), new TerminerInterventionRequest("Réparé", "EN_SERVICE", OffsetDateTime.now(ZoneOffset.UTC)), authentication());
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(1, response.getBody().lignesCout().size());
@@ -159,12 +160,12 @@ class InterventionRestControllerTest {
         Equipement equipement = equipement(centreId);
         intervenants.byId = Optional.of(Intervenant.creer(
                 UUID.randomUUID(), "Autre centre", TypeIntervenant.EXTERNE, null, null, new BigDecimal("1000")));
-        Intervention enCours = enCours(equipement.getId(), centreId, UUID.randomUUID(), LocalDateTime.now().minusHours(2));
+        Intervention enCours = enCours(equipement.getId(), centreId, UUID.randomUUID(), OffsetDateTime.now(ZoneOffset.UTC).minusHours(2));
         FakeInterventionRepository repo = new FakeInterventionRepository();
         repo.byId = Optional.of(enCours);
 
         ResponseEntity<InterventionResponse> response = controller(repo).terminerIntervention(
-                enCours.getId().toString(), new TerminerInterventionRequest("Réparé", "EN_SERVICE"), authentication());
+                enCours.getId().toString(), new TerminerInterventionRequest("Réparé", "EN_SERVICE", OffsetDateTime.now(ZoneOffset.UTC)), authentication());
 
         assertTrue(response.getBody().lignesCout().isEmpty());
     }
@@ -174,7 +175,7 @@ class InterventionRestControllerTest {
         UUID centreId = authenticate();
         FakeInterventionRepository repo = new FakeInterventionRepository();
         Intervention intervention = Intervention.creer(UUID.randomUUID(), centreId, TypeIntervention.CURATIVE,
-                LocalDateTime.now(), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
+                OffsetDateTime.now(ZoneOffset.UTC), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
         repo.byId = Optional.of(intervention);
 
         var request = new AjouterLigneCoutRequest("PIECE", "Filtre RO", new BigDecimal("1"), new BigDecimal("1500.00"), null);
@@ -192,7 +193,7 @@ class InterventionRestControllerTest {
         authenticate();
         FakeInterventionRepository repo = new FakeInterventionRepository();
         Intervention autreCentre = Intervention.creer(UUID.randomUUID(), UUID.randomUUID(), TypeIntervention.CURATIVE,
-                LocalDateTime.now(), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
+                OffsetDateTime.now(ZoneOffset.UTC), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
         repo.byId = Optional.of(autreCentre);
         var controller = controller(repo);
         var id = autreCentre.getId().toString();
@@ -225,12 +226,12 @@ class InterventionRestControllerTest {
     private Equipement equipement(UUID centreId) {
         Equipement equipement = Equipement.creer(
                 "EQ-" + UUID.randomUUID().toString().substring(0, 4), "Générateur", TypeEquipement.GENERATEUR_DIALYSE,
-                null, null, null, LocalDateTime.now(), centreId, null, UUID.randomUUID(), null, null);
+                null, null, null, OffsetDateTime.now(ZoneOffset.UTC), centreId, null, UUID.randomUUID(), null, null);
         when(equipements.findById(equipement.getId())).thenReturn(Optional.of(equipement));
         return equipement;
     }
 
-    private Intervention enCours(UUID equipementId, UUID centreId, UUID intervenantId, LocalDateTime debut) {
+    private Intervention enCours(UUID equipementId, UUID centreId, UUID intervenantId, OffsetDateTime debut) {
         return Intervention.reconstruct(
                 UUID.randomUUID(), equipementId, centreId, TypeIntervention.CURATIVE,
                 StatutIntervention.EN_COURS, debut, null, intervenantId, "Panne", null, null, null,
@@ -283,7 +284,7 @@ class InterventionRestControllerTest {
         }
 
         @Override
-        public List<Intervention> findByCentreIdAndDateRange(UUID centreId, LocalDateTime debut, LocalDateTime fin) {
+        public List<Intervention> findByCentreIdAndDateRange(UUID centreId, OffsetDateTime debut, OffsetDateTime fin) {
             return List.of();
         }
 
@@ -338,17 +339,22 @@ class InterventionRestControllerTest {
         }
 
         @Override
-        public BigDecimal sumCoutByEquipementIdAndDateRange(UUID equipementId, LocalDateTime from, LocalDateTime to) {
+        public BigDecimal sumCoutByEquipementIdAndDateRange(UUID equipementId, OffsetDateTime from, OffsetDateTime to) {
             return BigDecimal.ZERO;
         }
 
         @Override
-        public BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, LocalDateTime from, LocalDateTime to) {
+        public BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, OffsetDateTime from, OffsetDateTime to) {
             return BigDecimal.ZERO;
         }
 
         @Override
-        public java.util.Map<UUID, BigDecimal> sumCoutParEquipement(UUID centreId, LocalDateTime from, LocalDateTime to) {
+        public long countEnRetardByCentreId(UUID centreId, OffsetDateTime maintenant) {
+            return 0;
+        }
+
+        @Override
+        public java.util.Map<UUID, BigDecimal> sumCoutParEquipement(UUID centreId, OffsetDateTime from, OffsetDateTime to) {
             return java.util.Map.of();
         }
     }

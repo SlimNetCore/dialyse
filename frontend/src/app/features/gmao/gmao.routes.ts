@@ -5,6 +5,7 @@ import {GmaoFormEquipementComponent} from './components/form-equipement/form-equ
 import {GmaoFicheEquipementComponent} from './components/fiche-equipement/fiche-equipement.component';
 import {GmaoListInterventionComponent} from './components/list-intervention/list-intervention.component';
 import {GmaoFormInterventionComponent} from './components/form-intervention/form-intervention.component';
+import {GmaoFicheInterventionComponent} from './components/fiche-intervention/fiche-intervention.component';
 import {GmaoIntervenantsComponent} from './components/intervenants/intervenants.component';
 
 /**
@@ -41,6 +42,10 @@ export const GMAO_ROUTES: Routes = [
       {
         path: 'interventions/new',
         component: GmaoFormInterventionComponent
+      },
+      {
+        path: 'interventions/:id',
+        component: GmaoFicheInterventionComponent
       },
       {
         path: 'interventions/:id/edit',

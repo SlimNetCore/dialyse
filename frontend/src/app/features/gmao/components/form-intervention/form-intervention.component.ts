@@ -13,7 +13,12 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {Equipement, GmaoApiService} from '../../../../core/api/gmao-api.service';
-import {ETATS_AVANT_INTERVENTION, TYPES_INTERVENTION} from '../../gmao-options.util';
+import {
+  ETATS_AVANT_INTERVENTION,
+  localInputToUtcIso,
+  PRIORITES_INTERVENTION,
+  TYPES_INTERVENTION
+} from '../../gmao-options.util';
 import {GmaoIntervenantsStore} from '../../state/gmao-intervenants.store';
 
 type InterventionFormModel = {
@@ -23,6 +28,9 @@ type InterventionFormModel = {
   description: string;
   intervenantId: string;
   etatEquipementAvant: string;
+  priorite: string;
+  echeance: string;
+  symptome: string;
 };
 
 function emptyForm(equipementId: string | null): InterventionFormModel {
@@ -32,7 +40,10 @@ function emptyForm(equipementId: string | null): InterventionFormModel {
     dateDebut: '',
     description: '',
     intervenantId: '',
-    etatEquipementAvant: ''
+    etatEquipementAvant: '',
+    priorite: 'NORMALE',
+    echeance: '',
+    symptome: '',
   };
 }
 
@@ -55,6 +66,7 @@ function emptyForm(equipementId: string | null): InterventionFormModel {
 export class GmaoFormInterventionComponent {
   protected readonly types = TYPES_INTERVENTION;
   protected readonly etats = ETATS_AVANT_INTERVENTION;
+  protected readonly priorites = PRIORITES_INTERVENTION;
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
   private readonly api = inject(GmaoApiService);
@@ -76,6 +88,7 @@ export class GmaoFormInterventionComponent {
     && !!this.formModel().dateDebut
     && !!this.formModel().description.trim()
     && !!this.formModel().etatEquipementAvant
+    && (!this.formModel().echeance || new Date(this.formModel().echeance).getTime() >= new Date(this.formModel().dateDebut).getTime())
     && !this.saving());
 
   /** Équipements sélectionnables (hors réformés/désactivés), pour la liste déroulante avec recherche. */
@@ -124,10 +137,13 @@ export class GmaoFormInterventionComponent {
     this.api.createIntervention({
       equipementId: form.equipementId.trim(),
       type: form.type as never,
-      dateDebut: `${form.dateDebut}T00:00:00`,
+      dateDebut: localInputToUtcIso(form.dateDebut),
       description: form.description.trim(),
       intervenantId: form.intervenantId || null,
       etatEquipementAvant: form.etatEquipementAvant as never,
+      priorite: form.priorite as never,
+      echeance: form.echeance ? localInputToUtcIso(form.echeance) : null,
+      symptome: form.symptome.trim() || null,
     }).subscribe({
       next: () => this.router.navigate(['/gmao/interventions']),
       error: () => {

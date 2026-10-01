@@ -10,3 +10,9 @@
     grid-template-columns: 1fr;
   }
 }
+
+.gmao-cout-montant {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: end;
+}

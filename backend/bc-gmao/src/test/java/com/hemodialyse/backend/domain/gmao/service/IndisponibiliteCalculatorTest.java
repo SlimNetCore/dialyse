@@ -5,7 +5,8 @@ import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ class IndisponibiliteCalculatorTest {
 
     private final UUID equipementId = UUID.randomUUID();
     private final UUID centreId = UUID.randomUUID();
-    private final LocalDateTime day0 = LocalDateTime.of(2026, 1, 1, 0, 0);
+    private final OffsetDateTime day0 = OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
     @Test
     void returns_zero_when_always_en_service() {
@@ -73,7 +74,7 @@ class IndisponibiliteCalculatorTest {
         assertEquals(Duration.ZERO, result);
     }
 
-    private EquipementStatutHistorique entree(StatutEquipement before, StatutEquipement after, LocalDateTime at) {
+    private EquipementStatutHistorique entree(StatutEquipement before, StatutEquipement after, OffsetDateTime at) {
         return EquipementStatutHistorique.reconstruct(
                 UUID.randomUUID(), equipementId, centreId, before, after, "test", at, UUID.randomUUID());
     }

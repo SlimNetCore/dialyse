@@ -3,7 +3,7 @@ package com.hemodialyse.backend.infrastructure.persistence.entity.gmao;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -35,8 +35,8 @@ public class EquipementEntity {
     @Column(length = 100)
     private String numeroSerie;
 
-    @Column(nullable = false)
-    private LocalDateTime dateInstallation;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateInstallation;
 
     @Column(nullable = false)
     private UUID centreId;
@@ -50,11 +50,11 @@ public class EquipementEntity {
     @Column(columnDefinition = "TEXT")
     private String observations;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime dateCreation;
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateCreation;
 
-    @Column
-    private LocalDateTime dateModification;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dateModification;
 
     @Column(nullable = false, updatable = false)
     private UUID creePar;
@@ -62,8 +62,8 @@ public class EquipementEntity {
     @Column
     private UUID modifiePar;
 
-    @Column
-    private LocalDateTime deletedAt;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime deletedAt;
 
     @Column
     private UUID salleId;
@@ -77,9 +77,9 @@ public class EquipementEntity {
 
     public EquipementEntity(UUID id, String code, String designation, String type,
                             String fabricant, String modele, String numeroSerie,
-                            LocalDateTime dateInstallation, UUID centreId, String statut,
-                            String localisation, String observations, LocalDateTime dateCreation,
-                            LocalDateTime dateModification, UUID creePar, UUID modifiePar,
+                            OffsetDateTime dateInstallation, UUID centreId, String statut,
+                            String localisation, String observations, OffsetDateTime dateCreation,
+                            OffsetDateTime dateModification, UUID creePar, UUID modifiePar,
                             UUID salleId, BigDecimal prixAcquisition) {
         this.id = id;
         this.code = code;
@@ -158,11 +158,11 @@ public class EquipementEntity {
         this.numeroSerie = numeroSerie;
     }
 
-    public LocalDateTime getDateInstallation() {
+    public OffsetDateTime getDateInstallation() {
         return dateInstallation;
     }
 
-    public void setDateInstallation(LocalDateTime dateInstallation) {
+    public void setDateInstallation(OffsetDateTime dateInstallation) {
         this.dateInstallation = dateInstallation;
     }
 
@@ -198,19 +198,19 @@ public class EquipementEntity {
         this.observations = observations;
     }
 
-    public LocalDateTime getDateCreation() {
+    public OffsetDateTime getDateCreation() {
         return dateCreation;
     }
 
-    public void setDateCreation(LocalDateTime dateCreation) {
+    public void setDateCreation(OffsetDateTime dateCreation) {
         this.dateCreation = dateCreation;
     }
 
-    public LocalDateTime getDateModification() {
+    public OffsetDateTime getDateModification() {
         return dateModification;
     }
 
-    public void setDateModification(LocalDateTime dateModification) {
+    public void setDateModification(OffsetDateTime dateModification) {
         this.dateModification = dateModification;
     }
 
@@ -230,11 +230,11 @@ public class EquipementEntity {
         this.modifiePar = modifiePar;
     }
 
-    public LocalDateTime getDeletedAt() {
+    public OffsetDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
+    public void setDeletedAt(OffsetDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 
