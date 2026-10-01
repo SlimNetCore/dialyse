@@ -54,8 +54,23 @@ public class EquipementRepositoryAdapter implements EquipementRepositoryPort {
     }
 
     @Override
-    public Optional<Equipement> findByCode(String code) {
-        return jpaRepository.findByCode(code).map(this::toDomain);
+    public Optional<Equipement> findByCentreIdAndCode(UUID centreId, String code) {
+        return jpaRepository.findByCentreIdAndCode(centreId, code).map(this::toDomain);
+    }
+
+    @Override
+    public List<Equipement> findByCentreIdAndType(UUID centreId, String type) {
+        return jpaRepository.findByCentreIdAndType(centreId, type).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<Equipement> findByCentreIdAndTypeAndSalleId(UUID centreId, String type, UUID salleId) {
+        return jpaRepository.findByCentreIdAndTypeAndSalleId(centreId, type, salleId).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return jpaRepository.existsById(id);
     }
 
     @Override
@@ -105,7 +120,9 @@ public class EquipementRepositoryAdapter implements EquipementRepositoryPort {
                 domain.getDateCreation(),
                 domain.getDateModification(),
                 domain.getCreePar(),
-                domain.getModifiePar()
+                domain.getModifiePar(),
+                domain.getSalleId(),
+                domain.getPrixAcquisition()
         );
     }
 
@@ -126,7 +143,9 @@ public class EquipementRepositoryAdapter implements EquipementRepositoryPort {
                 entity.getDateCreation(),
                 entity.getDateModification(),
                 entity.getCreePar(),
-                entity.getModifiePar()
+                entity.getModifiePar(),
+                entity.getSalleId(),
+                entity.getPrixAcquisition()
         );
     }
 }

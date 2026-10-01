@@ -10,6 +10,8 @@ import com.hemodialyse.backend.application.direction.DirectionAlertHistoryServic
 import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
+import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService;
+import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService.GmaoOverview;
 import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
@@ -44,18 +46,21 @@ public class DirectionDashboardRestController {
     private final DirectionBreakdownQueryService breakdowns;
     private final DirectionReportPdfService reports;
     private final DirectionAlertHistoryService alertHistory;
+    private final DirectionGmaoQueryService gmaoQueries;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
                                             DirectionIndicatorsQueryService indicators,
                                             DirectionBreakdownQueryService breakdowns,
                                             DirectionReportPdfService reports,
-                                            DirectionAlertHistoryService alertHistory) {
+                                            DirectionAlertHistoryService alertHistory,
+                                            DirectionGmaoQueryService gmaoQueries) {
         this.reports = reports;
         this.guard = guard;
         this.queries = queries;
         this.indicators = indicators;
         this.breakdowns = breakdowns;
         this.alertHistory = alertHistory;
+        this.gmaoQueries = gmaoQueries;
     }
 
     /**
@@ -87,6 +92,18 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(indicators.indicators(societeId, from, to));
+    }
+
+    /**
+     * Aide à la décision GMAO : coût de maintenance, état du parc d'équipements et temps
+     * d'indisponibilité, par centre et consolidés (module GMAO v2).
+     */
+    @GetMapping("/gmao")
+    public ResponseEntity<GmaoOverview> gmao(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UUID societeId = guard.requireSociete();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(gmaoQueries.gmao(societeId, from, to));
     }
 
     /**

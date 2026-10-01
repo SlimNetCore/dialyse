@@ -3,7 +3,6 @@ package com.hemodialyse.backend.infrastructure.persistence.entity.gmao;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -35,7 +34,7 @@ public class InterventionEntity {
     private LocalDateTime dateFin;
 
     @Column
-    private UUID technicienId;
+    private UUID intervenantId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
@@ -45,9 +44,6 @@ public class InterventionEntity {
 
     @Column(length = 255)
     private String pieceRemplacee;
-
-    @Column(precision = 10, scale = 2)
-    private BigDecimal cout;
 
     @Column(columnDefinition = "TEXT")
     private String observations;
@@ -73,8 +69,8 @@ public class InterventionEntity {
 
     public InterventionEntity(UUID id, UUID equipementId, UUID centreId, String type,
                               String statut, LocalDateTime dateDebut, LocalDateTime dateFin,
-                              UUID technicienId, String description, String actions,
-                              String pieceRemplacee, BigDecimal cout, String observations,
+                              UUID intervenantId, String description, String actions,
+                              String pieceRemplacee, String observations,
                               LocalDateTime dateCreation, LocalDateTime dateModification,
                               UUID creePar, UUID modifiePar) {
         this.id = id;
@@ -84,11 +80,10 @@ public class InterventionEntity {
         this.statut = statut;
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
-        this.technicienId = technicienId;
+        this.intervenantId = intervenantId;
         this.description = description;
         this.actions = actions;
         this.pieceRemplacee = pieceRemplacee;
-        this.cout = cout;
         this.observations = observations;
         this.dateCreation = dateCreation;
         this.dateModification = dateModification;
@@ -153,12 +148,12 @@ public class InterventionEntity {
         this.dateFin = dateFin;
     }
 
-    public UUID getTechnicienId() {
-        return technicienId;
+    public UUID getIntervenantId() {
+        return intervenantId;
     }
 
-    public void setTechnicienId(UUID technicienId) {
-        this.technicienId = technicienId;
+    public void setIntervenantId(UUID intervenantId) {
+        this.intervenantId = intervenantId;
     }
 
     public String getDescription() {
@@ -183,14 +178,6 @@ public class InterventionEntity {
 
     public void setPieceRemplacee(String pieceRemplacee) {
         this.pieceRemplacee = pieceRemplacee;
-    }
-
-    public BigDecimal getCout() {
-        return cout;
-    }
-
-    public void setCout(BigDecimal cout) {
-        this.cout = cout;
     }
 
     public String getObservations() {

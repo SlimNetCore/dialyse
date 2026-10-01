@@ -46,7 +46,7 @@ public class InterventionRestController {
                 TypeIntervention.valueOf(request.type()),
                 request.dateDebut(),
                 request.description(),
-                request.technicienId(),
+                request.intervenantId(),
                 UUID.fromString(principal.getId())
         );
 
@@ -127,6 +127,30 @@ public class InterventionRestController {
                 .orElseThrow(() -> new IllegalArgumentException("Intervention non trouvée"));
 
         intervention.terminer(request.actions(), UUID.fromString(principal.getId()));
+        interventionRepository.save(intervention);
+
+        return ResponseEntity.ok(new InterventionResponse(intervention));
+    }
+
+    /**
+     * Ajoute une ligne de coût (pièce, main d'œuvre, intervenant...) — aide à la décision sur le coût
+     * réel de maintenance.
+     */
+    @PostMapping("/{id}/lignes-cout")
+    public ResponseEntity<InterventionResponse> ajouterLigneCout(
+            @PathVariable String id,
+            @Valid @RequestBody AjouterLigneCoutRequest request,
+            Authentication authentication) {
+
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        Intervention intervention = interventionRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IllegalArgumentException("Intervention non trouvée"));
+
+        LigneCoutIntervention ligne = LigneCoutIntervention.creer(
+                TypeLigneCout.valueOf(request.type()), request.libelle(), request.quantite(),
+                request.prixUnitaire(), request.articleStockId());
+        intervention.ajouterLigneCout(ligne, UUID.fromString(principal.getId()));
         interventionRepository.save(intervention);
 
         return ResponseEntity.ok(new InterventionResponse(intervention));

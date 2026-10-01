@@ -2,7 +2,9 @@ package com.hemodialyse.backend.infrastructure.web.dto.request.gmao;
 
 import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * DTO de requête pour créer un équipement GMAO
@@ -28,7 +30,12 @@ public record CreateEquipementRequest(
         @NotNull(message = "Date d'installation requise")
         LocalDateTime dateInstallation,
 
-        String localisation
+        String localisation,
+
+        UUID salleId,
+
+        @DecimalMin(value = "0", inclusive = true, message = "Le prix d'acquisition ne peut pas être négatif")
+        BigDecimal prixAcquisition
 ) {
 }
 

@@ -36,6 +36,16 @@
           <textarea [formField]="interventionForm.description" matInput rows="3"></textarea>
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENTIONS.INTERVENANT' | translate }}</mat-label>
+          <mat-select [formField]="interventionForm.intervenantId">
+            <mat-option [value]="''">{{ 'GMAO.INTERVENTIONS.INTERVENANT_NONE' | translate }}</mat-option>
+            @for (iv of intervenants(); track iv.id) {
+              <mat-option [value]="iv.id">{{ iv.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
         <div class="gmao-form-actions full-width">
           <a mat-stroked-button routerLink="/gmao/interventions">
             {{ 'COMMON.CANCEL' | translate }}

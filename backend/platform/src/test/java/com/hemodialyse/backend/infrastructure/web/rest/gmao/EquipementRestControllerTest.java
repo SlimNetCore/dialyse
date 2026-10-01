@@ -1,11 +1,14 @@
 package com.hemodialyse.backend.infrastructure.web.rest.gmao;
 
 import com.hemodialyse.backend.domain.gmao.model.Equipement;
+import com.hemodialyse.backend.domain.gmao.model.EquipementStatutHistorique;
 import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import com.hemodialyse.backend.domain.gmao.model.TypeEquipement;
 import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.port.EquipementStatutHistoriqueRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
+import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.ReformerEquipementRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.UpdateEquipementRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.gmao.EquipementResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,7 +44,7 @@ class EquipementRestControllerTest {
         FakeEquipementRepository repo = new FakeEquipementRepository();
         Equipement eq = equipement(centerId);
         repo.paged = PagedResult.of(List.of(eq), 1, 0, 20);
-        var controller = new EquipementRestController(repo);
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
 
         ResponseEntity<PagedResult<EquipementResponse>> response =
                 controller.listerEquipements(null, 0, 20, authentication());
@@ -61,7 +65,7 @@ class EquipementRestControllerTest {
         UUID centerId = authenticate(UUID.randomUUID());
         FakeEquipementRepository repo = new FakeEquipementRepository();
         repo.paged = PagedResult.of(List.of(), 0, 1, 10);
-        var controller = new EquipementRestController(repo);
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
 
         controller.listerEquipements("HORS_SERVICE", 1, 10, authentication());
 
@@ -72,11 +76,11 @@ class EquipementRestControllerTest {
 
     @Test
     void get_should_return_404_when_equipement_belongs_to_another_center() {
-        UUID myCenter = authenticate(UUID.randomUUID());
+        authenticate(UUID.randomUUID());
         FakeEquipementRepository repo = new FakeEquipementRepository();
         Equipement fromOtherCenter = equipement(UUID.randomUUID());
         repo.byId = Optional.of(fromOtherCenter);
-        var controller = new EquipementRestController(repo);
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
 
         ResponseEntity<EquipementResponse> response =
                 controller.obtenirEquipement(fromOtherCenter.getId().toString(), authentication());
@@ -90,9 +94,10 @@ class EquipementRestControllerTest {
         FakeEquipementRepository repo = new FakeEquipementRepository();
         Equipement eq = equipement(centerId);
         repo.byId = Optional.of(eq);
-        var controller = new EquipementRestController(repo);
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
 
-        var request = new UpdateEquipementRequest("Générateur révisé", "Fresenius", "4008S", "SN-42", "Salle 2");
+        var request = new UpdateEquipementRequest(
+                "Générateur révisé", "Fresenius", "4008S", "SN-42", "Salle 2", null, null);
         ResponseEntity<EquipementResponse> response =
                 controller.modifierEquipement(eq.getId().toString(), request, authentication());
 
@@ -102,13 +107,47 @@ class EquipementRestControllerTest {
         assertNotNull(repo.saved);
     }
 
+    @Test
+    void reformer_should_update_statut_and_record_history() {
+        UUID centerId = authenticate(UUID.randomUUID());
+        FakeEquipementRepository repo = new FakeEquipementRepository();
+        Equipement eq = equipement(centerId);
+        repo.byId = Optional.of(eq);
+        FakeHistoriqueRepository historique = new FakeHistoriqueRepository();
+        var controller = new EquipementRestController(repo, historique);
+
+        ResponseEntity<EquipementResponse> response = controller.reformerEquipement(
+                eq.getId().toString(), new ReformerEquipementRequest("Fin de vie"), authentication());
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(StatutEquipement.REFORME, response.getBody().statut());
+        assertEquals(1, historique.saved.size());
+        assertEquals(StatutEquipement.EN_SERVICE, historique.saved.get(0).getStatutPrecedent());
+        assertEquals(StatutEquipement.REFORME, historique.saved.get(0).getStatutNouveau());
+    }
+
+    @Test
+    void creerEquipement_should_reject_duplicate_code_within_the_same_center() {
+        UUID centerId = authenticate(UUID.randomUUID());
+        FakeEquipementRepository repo = new FakeEquipementRepository();
+        repo.byCode = Optional.of(equipement(centerId));
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
+
+        var request = new com.hemodialyse.backend.infrastructure.web.dto.request.gmao.CreateEquipementRequest(
+                "EQ-DUP", "Générateur", "GENERATEUR_DIALYSE", null, null, null,
+                LocalDateTime.now(), null, null, null);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> controller.creerEquipement(request, authentication()));
+    }
+
     private Equipement equipement(UUID centerId) {
         return Equipement.creer(
                 "EQ-" + UUID.randomUUID().toString().substring(0, 8),
                 "Générateur de dialyse",
                 TypeEquipement.GENERATEUR_DIALYSE,
                 "Fresenius", "4008S", "SN-1",
-                LocalDateTime.now(), centerId, "Salle 1", UUID.randomUUID());
+                LocalDateTime.now(), centerId, "Salle 1", UUID.randomUUID(), null, null);
     }
 
     private UUID authenticate(UUID centerId) {
@@ -127,6 +166,7 @@ class EquipementRestControllerTest {
     private static final class FakeEquipementRepository implements EquipementRepositoryPort {
         private PagedResult<Equipement> paged = PagedResult.of(List.of(), 0, 0, 20);
         private Optional<Equipement> byId = Optional.empty();
+        private Optional<Equipement> byCode = Optional.empty();
         private Equipement saved;
         private UUID lastCentreId;
         private String lastStatut;
@@ -168,8 +208,23 @@ class EquipementRestControllerTest {
         }
 
         @Override
-        public Optional<Equipement> findByCode(String code) {
-            return Optional.empty();
+        public Optional<Equipement> findByCentreIdAndCode(UUID centreId, String code) {
+            return byCode;
+        }
+
+        @Override
+        public List<Equipement> findByCentreIdAndType(UUID centreId, String type) {
+            return List.of();
+        }
+
+        @Override
+        public List<Equipement> findByCentreIdAndTypeAndSalleId(UUID centreId, String type, UUID salleId) {
+            return List.of();
+        }
+
+        @Override
+        public boolean existsById(UUID id) {
+            return false;
         }
 
         @Override
@@ -179,6 +234,20 @@ class EquipementRestControllerTest {
         @Override
         public long countByCentreId(UUID centreId) {
             return 0;
+        }
+    }
+
+    private static final class FakeHistoriqueRepository implements EquipementStatutHistoriqueRepositoryPort {
+        private final List<EquipementStatutHistorique> saved = new ArrayList<>();
+
+        @Override
+        public void save(EquipementStatutHistorique entree) {
+            saved.add(entree);
+        }
+
+        @Override
+        public List<EquipementStatutHistorique> findByEquipementIdOrderByChangedAtAsc(UUID equipementId) {
+            return saved;
         }
     }
 }

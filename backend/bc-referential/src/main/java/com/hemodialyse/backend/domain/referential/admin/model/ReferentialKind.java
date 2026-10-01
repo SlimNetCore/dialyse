@@ -41,14 +41,10 @@ public enum ReferentialKind {
             text("specialite", "Spécialité", false, 255, "Néphrologue")
     ), List.of("nom", "prenom")),
 
-    GENERATEUR("generateurs", "Générateurs d'hémodialyse", 2, List.of(
-            text("numero", "Numéro", true, 50, "G01", "numero generateur", "code", "n"),
-            reference("salle", "Salle (code)", "salles", "S1", "salle", "code salle", "salle code"),
-            text("marque", "Marque", false, 100, "Fresenius"),
-            text("modele", "Modèle", false, 100, "5008S"),
-            enumeration("etat", "État", List.of("FONCTIONNEL", "EN_MAINTENANCE", "EN_PANNE", "HORS_SERVICE"),
-                    "FONCTIONNEL", "statut")
-    ), List.of("numero")),
+    // Les générateurs de dialyse ne sont plus un référentiel plat administrable ici depuis le module
+    // GMAO v2 : ils sont gérés comme des équipements GMAO (CRUD, statut de maintenance, coûts...) via
+    // /gmao/equipements (type GENERATEUR_DIALYSE). Voir GenerateurMigrationRunner pour la migration des
+    // données existantes.
 
     CAISSE("caisses", "Caisses", 1, List.of(
             text("code", "Code", true, 50, "CNAS", "code caisse"),

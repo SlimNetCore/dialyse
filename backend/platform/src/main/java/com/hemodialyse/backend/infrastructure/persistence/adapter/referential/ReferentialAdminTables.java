@@ -32,7 +32,9 @@ final class ReferentialAdminTables {
         TABLES.put(ReferentialKind.SALLE, new Table("salle",
                 List.of(text("code", "code"), text("nom", "nom")),
                 List.of(), List.of("t.code", "t.nom"), "t.code",
-                List.of(new Usage("generateur", "salle_id"), new Usage("patients", "salle_id")),
+                // Les générateurs vivent désormais dans gmao_equipements (module GMAO v2), plus dans
+                // l'ancien référentiel plat "generateur" — l'usage reste vérifié génériquement.
+                List.of(new Usage("gmao_equipements", "salle_id"), new Usage("patients", "salle_id")),
                 List.of("ref.salles", "ref.generateurs")));
 
         TABLES.put(ReferentialKind.MEDECIN, new Table("medecin",
@@ -40,14 +42,6 @@ final class ReferentialAdminTables {
                 List.of(), List.of("t.nom", "t.prenom", "t.specialite"), "t.nom, t.prenom",
                 List.of(new Usage("patients", "medecin_traitant_id"), new Usage("prescriptions_medicales", "medecin_id")),
                 List.of("ref.medecins")));
-
-        TABLES.put(ReferentialKind.GENERATEUR, new Table("generateur",
-                List.of(text("numero", "numero"), new Column("salle", "salle_id", ColumnType.UUID),
-                        text("marque", "marque"), text("modele", "modele"), text("etat", "etat")),
-                List.of(new Reference("salle", "salle", "CONCAT(r_salle.code, ' · ', r_salle.nom)")),
-                List.of("t.numero", "t.marque", "t.modele", "r_salle.code", "r_salle.nom"), "t.numero",
-                List.of(new Usage("patients", "generateur_id")),
-                List.of("ref.generateurs")));
 
         TABLES.put(ReferentialKind.CAISSE, new Table("caisse_assurance",
                 List.of(text("code", "code"), text("nom", "nom"), text("typeCaisse", "type_caisse")),

@@ -103,11 +103,13 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
     @Override
     @Cacheable(cacheNames = "ref.generateurs", key = "#c.value().toString()")
     public List<RefItem> findGenerateurs(CenterId c) {
+        // Module GMAO v2 : les générateurs de dialyse sont l'agrégat GMAO Equipement (type
+        // GENERATEUR_DIALYSE), source de vérité unique — l'ancien référentiel plat "generateur" est retiré.
         return jdbc.query(
-                "SELECT g.id, g.numero, CONCAT('Générateur ', g.numero) as nom, " +
+                "SELECT g.id, g.code, CONCAT('Générateur ', g.code) as nom, " +
                         "CAST(g.salle_id AS VARCHAR) as adresse, null, " +
-                        "CONCAT(COALESCE(g.marque,''), CASE WHEN g.modele IS NOT NULL THEN CONCAT(' ', g.modele) ELSE '' END) as libelle " +
-                        "FROM generateur g WHERE g.center_id = ? ORDER BY g.numero",
+                        "CONCAT(COALESCE(g.fabricant,''), CASE WHEN g.modele IS NOT NULL THEN CONCAT(' ', g.modele) ELSE '' END) as libelle " +
+                        "FROM gmao_equipements g WHERE g.centre_id = ? AND g.type = 'GENERATEUR_DIALYSE' AND g.deleted_at IS NULL ORDER BY g.code",
                 (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3),
                         rs.getString(4), null, rs.getString(6), null),
                 c.value());
@@ -117,10 +119,10 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
     @Cacheable(cacheNames = "ref.generateurs", key = "#c.value().toString() + ':salle:' + #salleId.toString()")
     public List<RefItem> findGenerateursBySalle(CenterId c, java.util.UUID salleId) {
         return jdbc.query(
-                "SELECT g.id, g.numero, CONCAT('Générateur ', g.numero) as nom, " +
+                "SELECT g.id, g.code, CONCAT('Générateur ', g.code) as nom, " +
                         "CAST(g.salle_id AS VARCHAR) as adresse, null, " +
-                        "CONCAT(COALESCE(g.marque,''), CASE WHEN g.modele IS NOT NULL THEN CONCAT(' ', g.modele) ELSE '' END) as libelle " +
-                        "FROM generateur g WHERE g.center_id = ? AND g.salle_id = ? ORDER BY g.numero",
+                        "CONCAT(COALESCE(g.fabricant,''), CASE WHEN g.modele IS NOT NULL THEN CONCAT(' ', g.modele) ELSE '' END) as libelle " +
+                        "FROM gmao_equipements g WHERE g.centre_id = ? AND g.salle_id = ? AND g.type = 'GENERATEUR_DIALYSE' AND g.deleted_at IS NULL ORDER BY g.code",
                 (rs, i) -> new RefItem(rs.getString(1), rs.getString(2), rs.getString(3),
                         rs.getString(4), null, rs.getString(6), null),
                 c.value(), salleId);

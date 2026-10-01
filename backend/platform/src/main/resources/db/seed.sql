@@ -106,16 +106,26 @@ VALUES ('50000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-1111111
 MERGE INTO salle (id, center_id, code, nom) KEY (id)
 VALUES ('50000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'S03', 'Salle ISO');
 
--- Generateur (démo) — centre 1
-MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
-    VALUES ('a1000001-0000-0000-0000-000000000001', '50000001-0000-0000-0000-000000000001',
-            '11111111-1111-1111-1111-111111111111', 'G01', 'Fresenius', '5008S', 'FONCTIONNEL');
-MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
-    VALUES ('a1000001-0000-0000-0000-000000000002', '50000001-0000-0000-0000-000000000002',
-            '11111111-1111-1111-1111-111111111111', 'G02', 'B.Braun', 'Dialog+', 'EN_PANNE');
-MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
-    VALUES ('a1000001-0000-0000-0000-000000000003', '50000001-0000-0000-0000-000000000003',
-            '11111111-1111-1111-1111-111111111111', 'G03', 'Nipro', 'SURDIAL-55plus', 'EN_REPARATION');
+-- Générateurs de dialyse (démo) — centre 1 — module GMAO v2 : Equipement (type GENERATEUR_DIALYSE)
+-- est désormais la source de vérité unique, l'ancien référentiel plat "generateur" est retiré.
+MERGE INTO gmao_equipements
+    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
+    salle_id, date_creation, cree_par) KEY (id)
+    VALUES ('a1000001-0000-0000-0000-000000000001', 'G01', 'Générateur G01', 'GENERATEUR_DIALYSE',
+    'Fresenius', '5008S', CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111', 'EN_SERVICE',
+    '50000001-0000-0000-0000-000000000001', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
+MERGE INTO gmao_equipements
+    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
+    salle_id, date_creation, cree_par) KEY (id)
+    VALUES ('a1000001-0000-0000-0000-000000000002', 'G02', 'Générateur G02', 'GENERATEUR_DIALYSE',
+    'B.Braun', 'Dialog+', CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111', 'HORS_SERVICE',
+    '50000001-0000-0000-0000-000000000002', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
+MERGE INTO gmao_equipements
+    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
+    salle_id, date_creation, cree_par) KEY (id)
+    VALUES ('a1000001-0000-0000-0000-000000000003', 'G03', 'Générateur G03', 'GENERATEUR_DIALYSE',
+    'Nipro', 'SURDIAL-55plus', CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111', 'EN_MAINTENANCE',
+    '50000001-0000-0000-0000-000000000003', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
 
 -- Position / Créneau (replaced p -> d0 for valid hex)
 MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
@@ -352,12 +362,18 @@ MERGE INTO salle (id, center_id, code, nom) KEY (id)
 MERGE INTO salle (id, center_id, code, nom) KEY (id)
     VALUES ('50000002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'SL-S2', 'Salle Vert');
 
-MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
-    VALUES ('a1000002-0000-0000-0000-000000000001', '50000002-0000-0000-0000-000000000001',
-            '22222222-2222-2222-2222-222222222222', 'G10', 'Fresenius', '5008S', 'FONCTIONNEL');
-MERGE INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) KEY (id)
-    VALUES ('a1000002-0000-0000-0000-000000000002', '50000002-0000-0000-0000-000000000002',
-            '22222222-2222-2222-2222-222222222222', 'G11', 'B.Braun', 'Dialog+', 'REFORME');
+MERGE INTO gmao_equipements
+    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
+    salle_id, date_creation, cree_par) KEY (id)
+    VALUES ('a1000002-0000-0000-0000-000000000001', 'G10', 'Générateur G10', 'GENERATEUR_DIALYSE',
+    'Fresenius', '5008S', CURRENT_TIMESTAMP, '22222222-2222-2222-2222-222222222222', 'EN_SERVICE',
+    '50000002-0000-0000-0000-000000000001', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
+MERGE INTO gmao_equipements
+    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
+    salle_id, date_creation, cree_par) KEY (id)
+    VALUES ('a1000002-0000-0000-0000-000000000002', 'G11', 'Générateur G11', 'GENERATEUR_DIALYSE',
+    'B.Braun', 'Dialog+', CURRENT_TIMESTAMP, '22222222-2222-2222-2222-222222222222', 'REFORME',
+    '50000002-0000-0000-0000-000000000002', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
 
 MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
     VALUES ('d0000002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'SL-CR1',

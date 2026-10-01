@@ -49,6 +49,7 @@ class MigrationDomainServiceTest {
     private InMemoryMigrationPorts.Assures assures;
     private InMemoryMigrationPorts.Assignments assignments;
     private InMemoryMigrationPorts.Referentials referentials;
+    private InMemoryMigrationPorts.Equipements equipements;
     private MigrationDomainService service;
     private UUID salle;
     private UUID generateur;
@@ -77,11 +78,12 @@ class MigrationDomainServiceTest {
         assures = new InMemoryMigrationPorts.Assures();
         assignments = new InMemoryMigrationPorts.Assignments();
         referentials = new InMemoryMigrationPorts.Referentials();
+        equipements = new InMemoryMigrationPorts.Equipements();
         salle = referentials.add(ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
-        generateur = referentials.add(ReferentialKind.GENERATEUR, Map.of("numero", "G01", "salle", salle.toString()));
+        generateur = equipements.addGenerateur(CENTER, "G01", salle);
         service = new MigrationDomainService(batches, ids, values, rollback, List.of(
                 new AssureMigrator(assures),
-                new PatientMigrator(patients, assures, assignments, referentials),
+                new PatientMigrator(patients, assures, assignments, referentials, equipements),
                 new AffectationMigrator(patients, assures, assignments)),
                 Clock.fixed(Instant.parse("2026-09-30T10:00:00Z"), ZoneOffset.UTC));
     }

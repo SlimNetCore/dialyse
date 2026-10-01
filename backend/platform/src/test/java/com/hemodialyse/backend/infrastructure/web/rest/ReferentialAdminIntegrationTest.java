@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -22,13 +21,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -45,7 +42,9 @@ class ReferentialAdminIntegrationTest {
     private static final UUID CENTRE_A = UUID.fromString("99995000-0000-0000-0000-0000000000a1");
     private static final UUID CENTRE_B = UUID.fromString("99995000-0000-0000-0000-0000000000b1");
     private static final String BASE = "/api/v1/admin/referentials";
-    private static final List<String> TABLES = List.of("generateur", "salle", "centre_payeur", "agence",
+    // Les générateurs ne sont plus un référentiel administrable génériquement ici (module GMAO v2) :
+    // ils sont gérés comme des équipements GMAO via /gmao/equipements.
+    private static final List<String> TABLES = List.of("salle", "centre_payeur", "agence",
             "caisse_assurance", "forfait", "position_creneau", "medecin", "transporteur");
 
     @Autowired
@@ -59,10 +58,6 @@ class ReferentialAdminIntegrationTest {
     private static UserPrincipal principal(String role, UUID centerId) {
         return UserPrincipal.create(UUID.randomUUID().toString(), centerId.toString(), "zt-ref-" + role, "",
                 List.of(role), true);
-    }
-
-    private static MockMultipartFile csv(String content) {
-        return new MockMultipartFile("file", "import.csv", "text/csv", content.getBytes(StandardCharsets.UTF_8));
     }
 
     @BeforeEach
@@ -79,13 +74,14 @@ class ReferentialAdminIntegrationTest {
     }
 
     @Test
-    void describesTheNineReferentialsInImportOrder() throws Exception {
+    void describesTheEightReferentialsInImportOrder() throws Exception {
+        // Depuis le module GMAO v2, les générateurs ne sont plus un référentiel administrable
+        // génériquement ici (8 référentiels au lieu de 9) : voir /gmao/equipements.
         mockMvc.perform(get(BASE).with(user(principal("ADMIN", CENTRE_A))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(9))
+                .andExpect(jsonPath("$.length()").value(8))
                 .andExpect(jsonPath("$[0].importOrder").value(1))
-                .andExpect(jsonPath("$[8].slug").value("centres-payeurs"))
-                .andExpect(jsonPath("$[?(@.slug == 'generateurs')].fields[1].reference").value(hasItem("salles")));
+                .andExpect(jsonPath("$[7].slug").value("centres-payeurs"));
     }
 
     @Test
@@ -116,55 +112,11 @@ class ReferentialAdminIntegrationTest {
                 .andExpect(jsonPath("$.items[0].values.code").value("AG1"));
     }
 
-    @Test
-    void invalidInputReturnsFieldIssues() throws Exception {
-        mockMvc.perform(post(BASE + "/generateurs").with(user(principal("ADMIN", CENTRE_A)))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"values\":{\"numero\":\"G01\",\"salle\":\"INCONNUE\",\"etat\":\"CASSE\"}}"))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("REFERENTIAL_VALIDATION"))
-                .andExpect(jsonPath("$.issues[0].field").value("salle"))
-                .andExpect(jsonPath("$.issues[0].code").value("REFERENCE_NOT_FOUND"))
-                .andExpect(jsonPath("$.issues[1].code").value("INVALID_VALUE"));
-    }
-
-    @Test
-    void importChecksTheFileThenImportsIt() throws Exception {
-        jdbc.update("INSERT INTO salle (id, center_id, code, nom) VALUES (?, ?, 'S1', 'Salle 1')", UUID.randomUUID(), CENTRE_A);
-
-        MockMultipartFile missingColumn = csv("Numéro;Marque\nG01;Fresenius\n");
-        mockMvc.perform(multipart(BASE + "/generateurs/import").file(missingColumn)
-                        .with(user(principal("ADMIN", CENTRE_A))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.valid").value(false))
-                .andExpect(jsonPath("$.missingColumns[0]").value("salle"));
-
-        MockMultipartFile withErrors = csv("Numéro;Salle (code);État\nG01;S1;\nG02;S9;\nG01;S1;en panne\n");
-        mockMvc.perform(multipart(BASE + "/generateurs/import").file(withErrors).param("dryRun", "false")
-                        .with(user(principal("ADMIN", CENTRE_A))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.applied").value(false))
-                .andExpect(jsonPath("$.errors[0].row").value(3))
-                .andExpect(jsonPath("$.errors[0].code").value("REFERENCE_NOT_FOUND"))
-                .andExpect(jsonPath("$.errors[1].row").value(4))
-                .andExpect(jsonPath("$.errors[1].code").value("DUPLICATE_IN_FILE"));
-        assertThat(count("generateur", CENTRE_A)).isZero();
-
-        MockMultipartFile valid = csv("Numéro;Salle (code);État\nG01;S1;\nG02;s1;en panne\n");
-        mockMvc.perform(multipart(BASE + "/generateurs/import").file(valid)
-                        .with(user(principal("ADMIN", CENTRE_A))))
-                .andExpect(jsonPath("$.valid").value(true))
-                .andExpect(jsonPath("$.created").value(2))
-                .andExpect(jsonPath("$.applied").value(false));
-        assertThat(count("generateur", CENTRE_A)).isZero();
-
-        mockMvc.perform(multipart(BASE + "/generateurs/import").file(valid).param("dryRun", "false")
-                        .with(user(principal("ADMIN", CENTRE_A))))
-                .andExpect(jsonPath("$.applied").value(true));
-        assertThat(count("generateur", CENTRE_A)).isEqualTo(2);
-        assertThat(jdbc.queryForObject("SELECT etat FROM generateur WHERE center_id = ? AND numero = 'G02'",
-                String.class, CENTRE_A)).isEqualTo("EN_PANNE");
-    }
+    // invalidInputReturnsFieldIssues et importChecksTheFileThenImportsIt (validation + import en masse du
+    // référentiel "generateurs") sont retirés avec le référentiel générique GENERATEUR (module GMAO v2) —
+    // compromis assumé : la validation par référence et le rapport d'import restent couverts par
+    // ReferentialAdminDomainServiceTest sur un autre référentiel (AGENCE → CAISSE) ; l'import en masse des
+    // équipements n'a pas d'équivalent pour l'instant (voir le plan GMAO v2, section Risques).
 
     @Test
     void deleteIsRefusedWhileAChildStillReferencesTheRow() throws Exception {

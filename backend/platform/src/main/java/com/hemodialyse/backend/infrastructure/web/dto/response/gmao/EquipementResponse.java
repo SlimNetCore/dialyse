@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.gmao.model.Equipement;
 import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import com.hemodialyse.backend.domain.gmao.model.TypeEquipement;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -25,7 +26,9 @@ public record EquipementResponse(
         LocalDateTime dateCreation,
         LocalDateTime dateModification,
         UUID creePar,
-        UUID modifiePar
+        UUID modifiePar,
+        UUID salleId,
+        BigDecimal prixAcquisition
 ) {
 
     /**
@@ -47,8 +50,9 @@ public record EquipementResponse(
                 equipement.getDateCreation(),
                 equipement.getDateModification(),
                 equipement.getCreePar(),
-                equipement.getModifiePar()
+                equipement.getModifiePar(),
+                equipement.getSalleId(),
+                equipement.getPrixAcquisition()
         );
     }
 }
-

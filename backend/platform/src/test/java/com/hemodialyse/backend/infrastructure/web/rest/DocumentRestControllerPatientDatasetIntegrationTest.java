@@ -59,7 +59,7 @@ class DocumentRestControllerPatientDatasetIntegrationTest {
     void cleanup() {
         jdbc.update("DELETE FROM patients WHERE id = ?", PATIENT_ID);
         jdbc.update("DELETE FROM modele_document WHERE id = ?", MODELE_ID);
-        jdbc.update("DELETE FROM generateur WHERE id = ?", GENERATEUR_ID);
+        jdbc.update("DELETE FROM gmao_equipements WHERE id = ?", GENERATEUR_ID);
         jdbc.update("DELETE FROM categorie_transport WHERE id = ?", CATEGORIE_TRANSPORT_ID);
         jdbc.update("DELETE FROM transporteur WHERE id IN (?, ?)", TRANSPORTEUR_ALLER_ID, TRANSPORTEUR_RETOUR_ID);
         jdbc.update("DELETE FROM position_creneau WHERE id = ?", POSITION_ID);
@@ -130,8 +130,13 @@ class DocumentRestControllerPatientDatasetIntegrationTest {
                 TRANSPORTEUR_RETOUR_ID, CENTER_ID, "Transport Retour", "055000002");
         jdbc.update("INSERT INTO categorie_transport (id, center_id, libelle) VALUES (?, ?, ?)",
                 CATEGORIE_TRANSPORT_ID, CENTER_ID, "Ambulance");
-        jdbc.update("INSERT INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                GENERATEUR_ID, SALLE_ID, CENTER_ID, "GEN-99", "Brand", "Modele", "FONCTIONNEL");
+        // Le générateur est désormais l'agrégat GMAO Equipement (module GMAO v2).
+        jdbc.update(
+                "INSERT INTO gmao_equipements (id, code, designation, type, fabricant, modele, " +
+                        "date_installation, centre_id, statut, salle_id, date_creation, cree_par) " +
+                        "VALUES (?, ?, ?, 'GENERATEUR_DIALYSE', ?, ?, ?, ?, 'EN_SERVICE', ?, ?, ?)",
+                GENERATEUR_ID, "GEN-99", "Générateur GEN-99", "Brand", "Modele",
+                java.time.LocalDateTime.now(), CENTER_ID, SALLE_ID, java.time.LocalDateTime.now(), new UUID(0, 0));
     }
 
     private void seedPatient() {

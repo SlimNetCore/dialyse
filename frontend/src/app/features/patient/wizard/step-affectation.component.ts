@@ -8,6 +8,7 @@ import {
   OnChanges,
   OnInit,
   Output,
+  signal,
   SimpleChanges,
 } from '@angular/core';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -25,6 +26,7 @@ import {
   TransporteursStore,
 } from '../../../core/state/referentials.store';
 import {SignalForm} from '../../../shared/forms/signal-form';
+import {GmaoApiService, StatutEquipement} from '../../../core/api/gmao-api.service';
 
 interface AffectationModel {
   salleId: string | null;
@@ -110,13 +112,13 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   readonly categoriesTransport = this.categoriesTransportStore
     .items as unknown as () => DropdownItem[];
   private readonly generateursStore = inject(GenerateursStore);
-
-  readonly generateurs = computed<DropdownItem[]>(() => {
-    const all = this.generateursStore.items() as unknown as Array<DropdownItem & { adresse?: string }>;
-    const salleId = this.form.value().salleId;
-    if (!salleId) return all;
-    return all.filter((item) => item.adresse === salleId);
-  });
+  /** Statut du générateur quand il est indisponible pour un patient — avertissement, pas un blocage. */
+  readonly disponibiliteWarning = signal<StatutEquipement | null>(null);
+  /** Tous les générateurs du centre sont toujours proposés ; l'indisponibilité est signalée après sélection. */
+  readonly generateurs = this.generateursStore.items as unknown as () => DropdownItem[];
+  /** Générateur indisponible (maintenance, attente de pièce, panne, réforme, intervention en cours) : enregistrement bloqué. */
+  readonly generateurBloque = computed(() => this.disponibiliteWarning() !== null);
+  private readonly gmaoApi = inject(GmaoApiService);
 
   ngOnInit(): void {
     const cid = this.appShell.currentCenterId();
@@ -136,13 +138,15 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   onSelect(key: AffectationSelectKey, item: DropdownItem | null): void {
     if (this.readonly) return;
     this.form.set(key, item?.id ?? null);
-    if (key === 'salleId') {
-      const currentGenerateurId = this.form.value().generateurId;
-      if (currentGenerateurId && !this.generateurs().some((g) => g.id === currentGenerateurId)) {
-        this.form.set('generateurId', null);
-      }
+    if (key === 'generateurId') {
+      this.checkDisponibilite(item?.id ?? null);
     }
     this.emit();
+  }
+
+  isValid(): boolean {
+    // L'étape affectation est facultative, sauf si le générateur choisi est indisponible.
+    return !this.generateurBloque();
   }
 
   onDay(key: AffectationDayKey, checked: boolean): void {
@@ -153,11 +157,6 @@ export class StepAffectationComponent implements OnInit, OnChanges {
 
   markTouched(): void {
     this.form.markAllTouched();
-  }
-
-  isValid(): boolean {
-    // L'étape affectation est facultative.
-    return true;
   }
 
   patchData(data: Record<string, any>): void {
@@ -202,13 +201,34 @@ export class StepAffectationComponent implements OnInit, OnChanges {
       jourVendredi: asBool(pick('jourVendredi', 'jour_vendredi', 'vendredi')),
       jourSamedi: asBool(pick('jourSamedi', 'jour_samedi', 'samedi')),
     });
-    this.validChange.emit(true);
     this.applyReadonly();
+    this.checkDisponibilite(this.form.value().generateurId);
+  }
+
+  /**
+   * Sécurité patient (module GMAO v2) : vérifie la disponibilité du générateur choisi. Un générateur en
+   * tout générateur indisponible (maintenance, attente de pièce, panne, réforme, intervention en cours)
+   * rend l'affectation invalide et bloque l'enregistrement du patient.
+   */
+  private checkDisponibilite(generateurId: string | null): void {
+    this.disponibiliteWarning.set(null);
+    this.validChange.emit(true);
+    if (!generateurId) return;
+    this.gmaoApi.checkDisponibilitePatient(generateurId).subscribe({
+      next: (res) => {
+        this.disponibiliteWarning.set(res.disponible ? null : res.statut);
+        this.validChange.emit(!this.generateurBloque());
+      },
+      error: () => {
+        this.disponibiliteWarning.set(null);
+        this.validChange.emit(true);
+      },
+    });
   }
 
   private emit(): void {
     this.dataChange.emit({...this.form.value()});
-    this.validChange.emit(true);
+    this.validChange.emit(!this.generateurBloque());
   }
 
   private applyReadonly(): void {

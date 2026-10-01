@@ -14,11 +14,12 @@ function intervention(overrides: Partial<Intervention> = {}): Intervention {
     statut: 'PLANIFIEE',
     dateDebut: '2024-01-01T00:00:00',
     dateFin: null,
-    technicien: null,
+    intervenantId: null,
     description: 'Contrôle annuel',
     actions: null,
     pieceRemplacee: null,
-    cout: null,
+    lignesCout: [],
+    coutTotal: 0,
     observations: null,
     dateCreation: '2024-01-01T00:00:00',
     dateModification: null,
@@ -33,6 +34,7 @@ describe('GmaoInterventionsStore', () => {
     startIntervention: ReturnType<typeof vi.fn>;
     finishIntervention: ReturnType<typeof vi.fn>;
     cancelIntervention: ReturnType<typeof vi.fn>;
+    ajouterLigneCout: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -42,6 +44,7 @@ describe('GmaoInterventionsStore', () => {
       startIntervention: vi.fn().mockReturnValue(of(intervention({statut: 'EN_COURS'}))),
       finishIntervention: vi.fn().mockReturnValue(of(intervention({statut: 'TERMINEE'}))),
       cancelIntervention: vi.fn().mockReturnValue(of(intervention({statut: 'ANNULEE'}))),
+      ajouterLigneCout: vi.fn().mockReturnValue(of(intervention({coutTotal: 1500}))),
     };
 
     TestBed.configureTestingModule({
@@ -90,5 +93,19 @@ describe('GmaoInterventionsStore', () => {
 
     expect(apiMock.finishIntervention).toHaveBeenCalledWith('int-1', 'Remplacement filtre');
     expect(store.successMessage()).toBe('GMAO.INTERVENTIONS.STATUS_UPDATED');
+  });
+
+  it('ajoute une ligne de coût et notifie le succès', () => {
+    const store = TestBed.inject(GmaoInterventionsStore);
+
+    store.ajouterLigneCout({
+      id: 'int-1',
+      payload: {type: 'PIECE', libelle: 'Filtre RO', quantite: 1, prixUnitaire: 1500},
+    });
+
+    expect(apiMock.ajouterLigneCout).toHaveBeenCalledWith('int-1', {
+      type: 'PIECE', libelle: 'Filtre RO', quantite: 1, prixUnitaire: 1500,
+    });
+    expect(store.successMessage()).toBe('GMAO.INTERVENTIONS.COST_LINE_ADDED');
   });
 });

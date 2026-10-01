@@ -292,12 +292,27 @@
       "STOCK_SOUS_SEUIL": "{{value}} n yiferdisen ddaw n useqdac n yineɣmisen",
       "LOTS_PERIMES": "{{value}} n tfelwiyin ifuten ur zeddigent ara",
       "LOTS_PEREMPTION_PROCHE": "{{value}} n tfelwiyin ara ifat deg 90 n wussan",
+      "GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE": "{{value}} n yibuhal ɣef ubenk ur yexdim ara ne deg uṣṣaṣ",
+      "GMAO_GENERATEURS_HORS_SERVICE": "{{value}} n ibenkan ur xeddmen ara",
       "HISTORY_TITLE": "Azray n tɣuriwin",
       "HISTORY_HINT": "Tibεath d yifsayen ineggura, ittwaskanen ticki tafelwit n usenqed tettwaḥbes.",
       "STATUS_OPEN": "Yekker",
       "STATUS_RESOLVED": "Yefsi",
       "SINCE": "seg",
       "UNTIL": "yefsi deg"
+    },
+    "GMAO": {
+      "TITLE": "Agraw n ibenkan (uṣṣaṣ)",
+      "HINT": "Ssuma n uṣṣaṣ, addad n ugraw akked wakud n ubaṭel, s umgay — tallelt ɣef luqan.",
+      "NB_EQUIPEMENTS": "Ibenkan",
+      "HORS_SERVICE": "Ur xeddmen ara",
+      "EN_MAINTENANCE": "Deg uṣṣaṣ",
+      "REFORMES": "Yettwakksen seg useqdec",
+      "INTERVENTIONS_EN_COURS": "Tiddukal deg uddeg",
+      "COUT_MAINTENANCE": "Ssuma n uṣṣaṣ",
+      "INDISPONIBILITE": "Akud n ubaṭel amagrad",
+      "PATIENTS_A_RISQUE": "Ibuhal ɣef ibenkan ur xeddmen ara",
+      "LOAD_ERROR": "Tuccḍa deg usali n yisefka n uṣṣaṣ"
     },
     "CLINICAL": {
       "TITLE": "Tazmert n yiɣdaren (iɣawasen KDIGO)",
@@ -1507,6 +1522,7 @@
     "GMAO_DASHBOARD": "Tafelwit n uselkim n uṣṣaṣ",
     "GMAO_EQUIPEMENTS": "Ibenkan",
     "GMAO_INTERVENTIONS": "Tiddukal",
+    "GMAO_INTERVENANTS": "Wid n uṣṣaṣ",
     "FACTURATION": "Asefru",
     "REGLEMENT": "Axelleṣ",
     "COMPTABILITE": "Taselɣut",
@@ -2428,6 +2444,9 @@
       "SERIAL_NUMBER": "Uṭṭun aḍfiran",
       "INSTALLATION_DATE": "Azemz n usbeded",
       "LOCALIZATION": "Adig",
+      "SALLE": "Taxxamt",
+      "SALLE_NONE": "Ulac taxxamt",
+      "PRIX_ACQUISITION": "Azal n lɣella",
       "STATUT": "Addad",
       "FILTER_STATUT": "Sizdeg s waddad",
       "NO_RESULTS": "Ulac abenk yettwafen",
@@ -2436,10 +2455,14 @@
       "SAVED_OK": "Abenk yettwasekles",
       "STATUS_UPDATED": "Addad n ubenk yettwaleqqem",
       "MARK_OUT_OF_SERVICE": "Ssers ur yexdim ara",
+      "REFORMER": "Kkes abenk seg useqdec",
       "REACTIVATE": "Ales asermed",
       "CONFIRM_OUT_OF_SERVICE_TITLE": "Ssers abenk ur yexdim ara?",
       "CONFIRM_OUT_OF_SERVICE_MESSAGE": "Abenk {{code}} ad yettwassers ur yexdim ara. Yezmer ad d-yuɣal ma yella yettwales usermed.",
-      "DEFAULT_OUT_OF_SERVICE_REASON": "Yettwassers ur yexdim ara seg tebdart n ibenkan"
+      "DEFAULT_OUT_OF_SERVICE_REASON": "Yettwassers ur yexdim ara seg tebdart n ibenkan",
+      "CONFIRM_REFORME_TITLE": "Kkes abenk-a seg useqdec i lebda?",
+      "CONFIRM_REFORME_MESSAGE": "Tigawt-a d tanegarut : abenk ur yezmir ara ad d-yuɣal ad yettwasermed ne ad yettwaseqdec.",
+      "DEFAULT_REFORME_MOTIF": "Yettwakkes seg useqdec seg tkarḍa n ubenk"
     },
     "INTERVENTIONS": {
       "TITLE": "Tiddukal",
@@ -2464,8 +2487,61 @@
       "CONFIRM_CANCEL_TITLE": "Sefsex taddukelt?",
       "CONFIRM_CANCEL_MESSAGE": "Taddukelt-a ad tettwasfeṣ, ur tezmir ara ad tuɣal.",
       "DEFAULT_CANCEL_REASON": "Tettwasfeṣ seg tebdart n tiddukal",
+      "INTERVENANT": "Amseddu",
+      "INTERVENANT_NONE": "Ulac amseddu",
       "EQUIPMENT_ID": "Asulay n ubenk",
-      "EQUIPMENT_ID_HINT": "Asulay n ubenk (seg tebdart n ibenkan)"
+      "EQUIPMENT_ID_HINT": "Asulay n ubenk (seg tebdart n ibenkan)",
+      "COST_LINE_ADDED": "Izirig n ssuma yettwarna"
+    },
+    "INTERVENANTS": {
+      "TITLE": "Wid n uṣṣaṣ",
+      "SUBTITLE": "Asefrak n wid n uṣṣaṣ idiganen akked iberraniyen.",
+      "CREATE_TITLE": "Rnu amseddu",
+      "EDIT_TITLE": "Ẓreg amseddu",
+      "NOM": "Isem",
+      "TYPE": "Anaw",
+      "TELEPHONE": "Tiliɣri",
+      "TARIF_HORAIRE": "Azal n saɛa",
+      "NO_RESULTS": "Ulac wid n uṣṣaṣ yettwafen",
+      "LOAD_ERROR": "Tuccḍa deg usali n wid n uṣṣaṣ",
+      "SAVE_ERROR": "Tuccḍa deg usekles n umseddu",
+      "SAVED_OK": "Amseddu yettwasekles",
+      "DEACTIVATED": "Amseddu yettwasens",
+      "STATUT": "Addad",
+      "ACTIF": "Yermed",
+      "INACTIF": "Yensa",
+      "DEACTIVATE": "Sens"
+    },
+    "INTERVENANT_TYPE": {
+      "INTERNE": "Agensan",
+      "EXTERNE": "Aberrani"
+    },
+    "FICHE": {
+      "TITLE": "Tafarkant n ubenk",
+      "BACK": "Uɣal ɣer ibenkan",
+      "NB_INTERVENTIONS": "Amḍan n tiddukal",
+      "INDISPONIBILITE": "Akud n urmad",
+      "COUT_PERIODE": "Asexleṣ n uṣṣaṣ deg tallit-a",
+      "DERNIERE_INTERVENTION": "Taddukelt taneggarut",
+      "AUCUNE_INTERVENTION": "Ulac taddukelt yettwarun",
+      "PROCHAINE_MAINTENANCE": "Aṣṣaṣ i d-iteddun",
+      "AUCUN_PLAN": "Ulac asenfar n uṣṣaṣ yettwaheggan"
+    },
+    "PATIENT_SAFETY": {
+      "WARNING": "Ɣur-k: amsulfu i yettwafernen ur yewjid ara ({{statut}}).",
+      "ERROR": "Asekcem ur yezmir ara: amsulfu i yettwafernen yella deg waddad ({{statut}}). Fren amsulfu-nniḍen akken ad tsekles ameɛdur."
+    },
+    "COUTS": {
+      "ADD_TITLE": "Rnu izirig n ssuma",
+      "TOTAL": "Asemday n ssuma",
+      "TYPE": "Anaw",
+      "TYPE_PIECE": "Tafeswit",
+      "TYPE_MAIN_OEUVRE": "Axeddim n ufus",
+      "TYPE_INTERVENANT": "Amseddu",
+      "TYPE_AUTRE": "Wayeḍ",
+      "LIBELLE": "Isem",
+      "QUANTITE": "Aṭṭas",
+      "PRIX_UNITAIRE": "Azal n yiwen"
     },
     "EQUIPEMENT_TYPE": {
       "GENERATEUR_DIALYSE": "Amsulfu n usizdeg n idammen",
@@ -2486,7 +2562,8 @@
       "EN_MAINTENANCE": "Deg uṣṣaṣ",
       "EN_ATTENTE_PIECE": "Yettraju tafeswit",
       "HORS_SERVICE": "Ur yexdim ara",
-      "DESACTIF": "Yensa"
+      "DESACTIF": "Yensa",
+      "REFORME": "Yettwakkes seg useqdec"
     },
     "INTERVENTION_TYPE": {
       "PREVENTIVE": "Aṣṣaṣ n uzgen",

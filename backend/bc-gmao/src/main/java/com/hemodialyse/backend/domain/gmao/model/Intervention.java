@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.domain.gmao.model;
 
+import com.hemodialyse.backend.domain.shared.vo.Money;
+
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.*;
@@ -18,13 +20,13 @@ public class Intervention {
     private StatutIntervention statut;
     private LocalDateTime dateDebut;
     private LocalDateTime dateFin;
-    private UUID technicien;
+    private UUID intervenantId;
     private String description;
     private String actions;
     private String pieceRemplacee;
-    private BigDecimal cout;
     private String observations;
     private List<TacheIntervention> taches;
+    private List<LigneCoutIntervention> lignesCout;
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
     private UUID creePar;
@@ -33,6 +35,7 @@ public class Intervention {
     // Constructeur privé pour DDD
     private Intervention() {
         this.taches = new ArrayList<>();
+        this.lignesCout = new ArrayList<>();
     }
 
     /**
@@ -44,7 +47,7 @@ public class Intervention {
             TypeIntervention type,
             LocalDateTime dateDebut,
             String description,
-            UUID technicien,
+            UUID intervenantId,
             UUID creePar) {
 
         if (equipementId == null) throw new IllegalArgumentException("Équipement requis");
@@ -61,10 +64,11 @@ public class Intervention {
         intervention.statut = StatutIntervention.PLANIFIEE;
         intervention.dateDebut = dateDebut;
         intervention.description = description;
-        intervention.technicien = technicien;
+        intervention.intervenantId = intervenantId;
         intervention.dateCreation = LocalDateTime.now();
         intervention.creePar = creePar;
         intervention.taches = new ArrayList<>();
+        intervention.lignesCout = new ArrayList<>();
 
         return intervention;
     }
@@ -81,16 +85,16 @@ public class Intervention {
             StatutIntervention statut,
             LocalDateTime dateDebut,
             LocalDateTime dateFin,
-            UUID technicien,
+            UUID intervenantId,
             String description,
             String actions,
             String pieceRemplacee,
-            BigDecimal cout,
             String observations,
             LocalDateTime dateCreation,
             LocalDateTime dateModification,
             UUID creePar,
-            UUID modifiePar) {
+            UUID modifiePar,
+            List<LigneCoutIntervention> lignesCout) {
 
         Intervention intervention = new Intervention();
         intervention.id = id;
@@ -100,16 +104,16 @@ public class Intervention {
         intervention.statut = statut;
         intervention.dateDebut = dateDebut;
         intervention.dateFin = dateFin;
-        intervention.technicien = technicien;
+        intervention.intervenantId = intervenantId;
         intervention.description = description;
         intervention.actions = actions;
         intervention.pieceRemplacee = pieceRemplacee;
-        intervention.cout = cout;
         intervention.observations = observations;
         intervention.dateCreation = dateCreation;
         intervention.dateModification = dateModification;
         intervention.creePar = creePar;
         intervention.modifiePar = modifiePar;
+        intervention.lignesCout = lignesCout == null ? new ArrayList<>() : new ArrayList<>(lignesCout);
 
         return intervention;
     }
@@ -167,15 +171,24 @@ public class Intervention {
     }
 
     /**
-     * Définit le coût de l'intervention
+     * Ajoute une ligne de coût (pièce, main d'œuvre, intervenant...) — aide à la décision sur le coût
+     * réel de maintenance.
      */
-    public void definirCout(BigDecimal cout, UUID parUtilisateur) {
-        if (cout != null && cout.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Le coût ne peut pas être négatif");
-        }
-        this.cout = cout;
+    public void ajouterLigneCout(LigneCoutIntervention ligne, UUID parUtilisateur) {
+        if (ligne == null) throw new IllegalArgumentException("Ligne de coût requise");
+        this.lignesCout.add(ligne);
         this.dateModification = LocalDateTime.now();
         this.modifiePar = parUtilisateur;
+    }
+
+    /**
+     * Coût total de l'intervention (somme des lignes de coût).
+     */
+    public BigDecimal coutTotal() {
+        return lignesCout.stream()
+                .map(l -> Money.of(l.montant()))
+                .reduce(Money.zero(), Money::add)
+                .amount();
     }
 
     /**
@@ -216,8 +229,8 @@ public class Intervention {
         return dateFin;
     }
 
-    public UUID getTechnicien() {
-        return technicien;
+    public UUID getIntervenantId() {
+        return intervenantId;
     }
 
     public String getDescription() {
@@ -232,16 +245,16 @@ public class Intervention {
         return pieceRemplacee;
     }
 
-    public BigDecimal getCout() {
-        return cout;
-    }
-
     public String getObservations() {
         return observations;
     }
 
     public List<TacheIntervention> getTaches() {
         return new ArrayList<>(taches);
+    }
+
+    public List<LigneCoutIntervention> getLignesCout() {
+        return new ArrayList<>(lignesCout);
     }
 
     public LocalDateTime getDateCreation() {

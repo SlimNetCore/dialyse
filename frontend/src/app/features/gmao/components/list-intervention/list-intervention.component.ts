@@ -15,6 +15,7 @@ import {Intervention} from '../../../../core/api/gmao-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
 import {GmaoInterventionsStore} from '../../state/gmao-interventions.store';
 import {statutInterventionTone, STATUTS_INTERVENTION} from '../../gmao-options.util';
+import {GmaoLigneCoutDialogComponent} from '../ligne-cout-dialog/ligne-cout-dialog.component';
 
 /**
  * Liste paginée des interventions GMAO (AGENTS.md §9 — jamais de chargement non paginé).
@@ -32,7 +33,7 @@ import {statutInterventionTone, STATUTS_INTERVENTION} from '../../gmao-options.u
 })
 export class GmaoListInterventionComponent {
   protected readonly store = inject(GmaoInterventionsStore);
-  protected readonly columns = ['type', 'description', 'dateDebut', 'statut', 'actions'];
+  protected readonly columns = ['type', 'description', 'dateDebut', 'statut', 'coutTotal', 'actions'];
   protected readonly statuts = STATUTS_INTERVENTION;
   protected readonly statutInterventionTone = statutInterventionTone;
   private readonly dialog = inject(MatDialog);
@@ -97,6 +98,14 @@ export class GmaoListInterventionComponent {
       if (!confirmed) return;
       const raison = this.translate.instant('GMAO.INTERVENTIONS.DEFAULT_CANCEL_REASON');
       this.store.cancelIntervention({id: row.id, raison});
+    });
+  }
+
+  addLigneCout(row: Intervention): void {
+    const ref = this.dialog.open(GmaoLigneCoutDialogComponent, {width: 'min(96vw, 480px)'});
+    ref.afterClosed().subscribe((payload) => {
+      if (!payload) return;
+      this.store.ajouterLigneCout({id: row.id, payload});
     });
   }
 }

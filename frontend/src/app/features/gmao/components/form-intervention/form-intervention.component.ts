@@ -13,21 +13,24 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {GmaoApiService} from '../../../../core/api/gmao-api.service';
 import {TYPES_INTERVENTION} from '../../gmao-options.util';
+import {GmaoIntervenantsStore} from '../../state/gmao-intervenants.store';
 
 type InterventionFormModel = {
   equipementId: string;
   type: string;
   dateDebut: string;
   description: string;
+  intervenantId: string;
 };
 
 function emptyForm(equipementId: string | null): InterventionFormModel {
-  return {equipementId: equipementId ?? '', type: '', dateDebut: '', description: ''};
+  return {equipementId: equipementId ?? '', type: '', dateDebut: '', description: '', intervenantId: ''};
 }
 
 /**
  * Création d'une intervention GMAO (signal forms — AGENTS.md §4).
- * Les transitions de statut (démarrer/terminer/annuler) se font depuis la liste.
+ * Les transitions de statut (démarrer/terminer/annuler) et les lignes de coût se gèrent depuis la
+ * liste / la fiche équipement.
  */
 @Component({
   selector: 'app-gmao-form-intervention',
@@ -44,6 +47,12 @@ export class GmaoFormInterventionComponent {
   protected readonly types = TYPES_INTERVENTION;
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
+  private readonly api = inject(GmaoApiService);
+  private readonly route = inject(ActivatedRoute);
+  protected readonly formModel = signal(emptyForm(this.route.snapshot.queryParamMap.get('equipementId')));
+  private readonly router = inject(Router);
+  private readonly intervenantsStore = inject(GmaoIntervenantsStore);
+  protected readonly intervenants = this.intervenantsStore.rows;
   protected readonly interventionForm = compatForm(this.formModel, (form) => {
     required(form.equipementId);
     required(form.type);
@@ -56,10 +65,10 @@ export class GmaoFormInterventionComponent {
     && !!this.formModel().dateDebut
     && !!this.formModel().description.trim()
     && !this.saving());
-  private readonly api = inject(GmaoApiService);
-  private readonly route = inject(ActivatedRoute);
-  protected readonly formModel = signal(emptyForm(this.route.snapshot.queryParamMap.get('equipementId')));
-  private readonly router = inject(Router);
+
+  constructor() {
+    this.intervenantsStore.loadPage({page: 0, size: 100});
+  }
 
   protected save(): void {
     if (!this.canSave()) return;
@@ -72,6 +81,7 @@ export class GmaoFormInterventionComponent {
       type: form.type as never,
       dateDebut: `${form.dateDebut}T00:00:00`,
       description: form.description.trim(),
+      intervenantId: form.intervenantId || null,
     }).subscribe({
       next: () => this.router.navigate(['/gmao/interventions']),
       error: () => {

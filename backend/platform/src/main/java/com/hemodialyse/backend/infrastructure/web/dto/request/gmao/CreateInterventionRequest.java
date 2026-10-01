@@ -21,7 +21,7 @@ public record CreateInterventionRequest(
         @NotBlank(message = "Description requise")
         String description,
 
-        UUID technicienId
+        UUID intervenantId
 ) {
 }
 

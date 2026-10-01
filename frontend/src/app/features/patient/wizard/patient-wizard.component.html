@@ -76,6 +76,7 @@
         <app-step-affectation
           #stepAff
           (dataChange)="updateData($event)"
+          (validChange)="affectationValid.set($event)"
           [readonly]="consultationMode()"
         />
       }

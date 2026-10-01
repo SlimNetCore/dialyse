@@ -124,6 +124,30 @@ export type DirectionIndicators = {
   alertes: DirectionAlert[];
 };
 
+/** Indicateurs GMAO d'un centre (ou totaux de la société) — aide à la décision (module GMAO v2). */
+export type CentreGmao = {
+  centerId: string | null;
+  nom: string | null;
+  nbEquipements: number;
+  nbHorsService: number;
+  nbEnMaintenance: number;
+  nbReformes: number;
+  interventionsEnCours: number;
+  coutMaintenancePeriode: number;
+  indisponibiliteHeuresCumulees: number;
+  patientsSurEquipementIndisponible: number;
+};
+
+export type GmaoOverview = {
+  societeId: string;
+  from: string;
+  to: string;
+  generatedAt: string;
+  centres: CentreGmao[];
+  totaux: CentreGmao;
+  alertes: DirectionAlert[];
+};
+
 export type SexeRow = {
   centerId: string;
   nom: string;
@@ -252,6 +276,14 @@ export class DirectionApiService {
     if (from) params = params.set('from', from);
     if (to) params = params.set('to', to);
     return this.http.get<DirectionIndicators>(`${this.baseUrl}/direction/indicators`, {params, withCredentials: true});
+  }
+
+  /** Aide à la décision GMAO : coût de maintenance, état du parc, indisponibilité (module GMAO v2). */
+  gmao(from?: string, to?: string): Observable<GmaoOverview> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<GmaoOverview>(`${this.baseUrl}/direction/gmao`, {params, withCredentials: true});
   }
 
   breakdown(from?: string, to?: string): Observable<DirectionBreakdown> {

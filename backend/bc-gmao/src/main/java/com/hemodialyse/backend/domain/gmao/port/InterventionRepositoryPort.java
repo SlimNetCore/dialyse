@@ -3,6 +3,7 @@ package com.hemodialyse.backend.domain.gmao.port;
 import com.hemodialyse.backend.domain.gmao.model.Intervention;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -45,9 +46,9 @@ public interface InterventionRepositoryPort {
     List<Intervention> findByCentreIdAndDateRange(UUID centreId, LocalDateTime debut, LocalDateTime fin);
 
     /**
-     * Récupère les interventions d'un technicien
+     * Récupère les interventions d'un intervenant
      */
-    List<Intervention> findByTechnicien(UUID technicienId);
+    List<Intervention> findByIntervenantId(UUID intervenantId);
 
     /**
      * Récupère les interventions planifiées ou en cours d'un équipement
@@ -83,5 +84,28 @@ public interface InterventionRepositoryPort {
      * Page des interventions d'un équipement (pagination obligatoire — AGENTS.md §9)
      */
     PagedResult<Intervention> findPagedByEquipementId(UUID equipementId, int page, int size);
+
+    /**
+     * Compte les interventions d'un équipement (fiche équipement — aide à la décision)
+     */
+    long countByEquipementId(UUID equipementId);
+
+    /**
+     * Dernière intervention (par date de début) d'un équipement, s'il en existe une
+     */
+    Optional<Intervention> findLatestByEquipementId(UUID equipementId);
+
+    /**
+     * Somme des coûts (toutes lignes de coût) des interventions d'un équipement démarrées sur la
+     * période [from, to) — calculée côté serveur (AGENTS.md §9 : jamais en sommant une liste paginée
+     * côté client).
+     */
+    BigDecimal sumCoutByEquipementIdAndDateRange(UUID equipementId, LocalDateTime from, LocalDateTime to);
+
+    /**
+     * Somme des coûts de toutes les interventions d'un centre démarrées sur la période [from, to)
+     * (tableau de bord Direction — agrégat société, calcul serveur).
+     */
+    BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, LocalDateTime from, LocalDateTime to);
 }
 

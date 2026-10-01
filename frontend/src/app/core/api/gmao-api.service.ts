@@ -8,13 +8,18 @@ export type TypeEquipement =
   | 'ULTRAFILTRE' | 'CHARBON_ACTIF' | 'ADOUCISSEUR' | 'DESINFECTANT_CHIMIQUE'
   | 'FILTRE_PARTICULES' | 'POMPE_EAU' | 'COMPRESSEUR_AIR' | 'ALARME_SURVEILLANCE' | 'AUTRE';
 
-export type StatutEquipement = 'EN_SERVICE' | 'EN_MAINTENANCE' | 'EN_ATTENTE_PIECE' | 'HORS_SERVICE' | 'DESACTIF';
+export type StatutEquipement =
+  'EN_SERVICE' | 'EN_MAINTENANCE' | 'EN_ATTENTE_PIECE' | 'HORS_SERVICE' | 'DESACTIF' | 'REFORME';
 
 export type TypeIntervention =
   | 'PREVENTIVE' | 'CURATIVE' | 'URGENTE' | 'CONTROLE' | 'INSTALLATION'
   | 'DEINSTALLATION' | 'REMPLACEMENT_PIECE' | 'REVISION_COMPLETE';
 
 export type StatutIntervention = 'PLANIFIEE' | 'EN_COURS' | 'TERMINEE' | 'ANNULEE' | 'EN_ATTENTE_VALIDATION';
+
+export type TypeLigneCout = 'PIECE' | 'MAIN_OEUVRE' | 'INTERVENANT' | 'AUTRE';
+
+export type TypeIntervenant = 'INTERNE' | 'EXTERNE';
 
 export interface Equipement {
   id: string;
@@ -30,6 +35,18 @@ export interface Equipement {
   observations: string | null;
   dateCreation: string;
   dateModification: string | null;
+  salleId: string | null;
+  prixAcquisition: number | null;
+}
+
+export interface LigneCout {
+  id: string;
+  type: TypeLigneCout;
+  libelle: string;
+  quantite: number;
+  prixUnitaire: number;
+  montant: number;
+  articleStockId: string | null;
 }
 
 export interface Intervention {
@@ -40,14 +57,26 @@ export interface Intervention {
   statut: StatutIntervention;
   dateDebut: string;
   dateFin: string | null;
-  technicien: string | null;
+  intervenantId: string | null;
   description: string;
   actions: string | null;
   pieceRemplacee: string | null;
-  cout: number | null;
+  lignesCout: LigneCout[];
+  coutTotal: number;
   observations: string | null;
   dateCreation: string;
   dateModification: string | null;
+}
+
+export interface Intervenant {
+  id: string;
+  centreId: string;
+  nom: string;
+  type: TypeIntervenant;
+  telephone: string | null;
+  email: string | null;
+  tarifHoraireDefaut: number | null;
+  actif: boolean;
 }
 
 export interface GmaoStats {
@@ -60,6 +89,25 @@ export interface GmaoStats {
   interventionsTerminees: number;
   plansMaintenanceActifs: number;
   plansMaintenanceEnRetard: number;
+}
+
+export interface EquipementFiche {
+  equipement: Equipement;
+  nbInterventions: number;
+  indisponibiliteHeures: number;
+  coutMaintenancePeriode: number;
+  derniereIntervention: Intervention | null;
+  prochainePlanMaintenance: {
+    id: string;
+    designation: string;
+    prochaineDatePrevue: string | null;
+  } | null;
+}
+
+export interface DisponibilitePatient {
+  disponible: boolean;
+  statut: StatutEquipement;
+  interventionEnCoursId: string | null;
 }
 
 export type PagedResponse<T> = {
@@ -78,6 +126,8 @@ export interface CreateEquipementPayload {
   numeroSerie?: string | null;
   dateInstallation: string;
   localisation?: string | null;
+  salleId?: string | null;
+  prixAcquisition?: number | null;
 }
 
 export interface UpdateEquipementPayload {
@@ -86,6 +136,8 @@ export interface UpdateEquipementPayload {
   modele?: string | null;
   numeroSerie?: string | null;
   localisation?: string | null;
+  salleId?: string | null;
+  prixAcquisition?: number | null;
 }
 
 export interface CreateInterventionPayload {
@@ -93,7 +145,23 @@ export interface CreateInterventionPayload {
   type: TypeIntervention;
   dateDebut: string;
   description: string;
-  technicienId?: string | null;
+  intervenantId?: string | null;
+}
+
+export interface AjouterLigneCoutPayload {
+  type: TypeLigneCout;
+  libelle: string;
+  quantite: number;
+  prixUnitaire: number;
+  articleStockId?: string | null;
+}
+
+export interface IntervenantPayload {
+  nom: string;
+  type: TypeIntervenant;
+  telephone?: string | null;
+  email?: string | null;
+  tarifHoraireDefaut?: number | null;
 }
 
 /**
@@ -134,8 +202,24 @@ export class GmaoApiService {
     return this.http.post<Equipement>(`${this.base}/equipements/${id}/reactiver`, {});
   }
 
+  reformerEquipement(id: string, motif: string): Observable<Equipement> {
+    return this.http.post<Equipement>(`${this.base}/equipements/${id}/reformer`, {motif});
+  }
+
   addEquipementObservation(id: string, observation: string): Observable<Equipement> {
     return this.http.post<Equipement>(`${this.base}/equipements/${id}/observations`, {observation});
+  }
+
+  getEquipementFiche(id: string): Observable<EquipementFiche> {
+    return this.http.get<EquipementFiche>(`${this.base}/equipements/${id}/fiche`);
+  }
+
+  /**
+   * Vérification de disponibilité avant d'affecter un patient à ce générateur — avertissement non
+   * bloquant (sécurité patient, module GMAO v2).
+   */
+  checkDisponibilitePatient(id: string): Observable<DisponibilitePatient> {
+    return this.http.get<DisponibilitePatient>(`${this.base}/equipements/${id}/disponibilite-patient`);
   }
 
   // ---- Interventions ----
@@ -169,6 +253,29 @@ export class GmaoApiService {
 
   cancelIntervention(id: string, raison: string): Observable<Intervention> {
     return this.http.post<Intervention>(`${this.base}/interventions/${id}/annuler`, {raison});
+  }
+
+  ajouterLigneCout(id: string, payload: AjouterLigneCoutPayload): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/lignes-cout`, payload);
+  }
+
+  // ---- Intervenants (techniciens internes / prestataires externes) ----
+
+  listIntervenants(page: number, size: number): Observable<PagedResponse<Intervenant>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<PagedResponse<Intervenant>>(`${this.base}/intervenants`, {params});
+  }
+
+  createIntervenant(payload: IntervenantPayload): Observable<Intervenant> {
+    return this.http.post<Intervenant>(`${this.base}/intervenants`, payload);
+  }
+
+  updateIntervenant(id: string, payload: IntervenantPayload): Observable<Intervenant> {
+    return this.http.put<Intervenant>(`${this.base}/intervenants/${id}`, payload);
+  }
+
+  deactivateIntervenant(id: string): Observable<Intervenant> {
+    return this.http.post<Intervenant>(`${this.base}/intervenants/${id}/desactiver`, {});
   }
 
   // ---- Statistiques (dashboard) ----

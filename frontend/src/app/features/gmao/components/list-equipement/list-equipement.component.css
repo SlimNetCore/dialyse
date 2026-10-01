@@ -7,3 +7,9 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+.gmao-reforme-note {
+  color: var(--app-muted);
+  font-size: 12px;
+  font-style: italic;
+}

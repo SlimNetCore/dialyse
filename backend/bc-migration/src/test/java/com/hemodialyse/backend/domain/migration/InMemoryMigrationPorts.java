@@ -263,5 +263,87 @@ final class InMemoryMigrationPorts {
             return 0;
         }
     }
+
+    static final class Equipements implements com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort {
+        final List<com.hemodialyse.backend.domain.gmao.model.Equipement> rows = new ArrayList<>();
+
+        /**
+         * Ajoute un générateur de dialyse de test et retourne son id.
+         */
+        UUID addGenerateur(CenterId centerId, String code, UUID salleId) {
+            com.hemodialyse.backend.domain.gmao.model.Equipement equipement =
+                    com.hemodialyse.backend.domain.gmao.model.Equipement.creer(
+                            code, "Générateur " + code,
+                            com.hemodialyse.backend.domain.gmao.model.TypeEquipement.GENERATEUR_DIALYSE,
+                            null, null, null, java.time.LocalDateTime.now(), centerId.value(), null,
+                            UUID.randomUUID(), salleId, null);
+            rows.add(equipement);
+            return equipement.getId();
+        }
+
+        @Override
+        public void save(com.hemodialyse.backend.domain.gmao.model.Equipement equipement) {
+            rows.add(equipement);
+        }
+
+        @Override
+        public Optional<com.hemodialyse.backend.domain.gmao.model.Equipement> findById(UUID id) {
+            return rows.stream().filter(e -> e.getId().equals(id)).findFirst();
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.domain.gmao.model.Equipement> findByCentreId(UUID centreId) {
+            return rows.stream().filter(e -> e.getCentreId().equals(centreId)).toList();
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.domain.gmao.model.Equipement> findByCentreIdAndStatut(UUID centreId, String statut) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.gmao.model.Equipement> findPaged(
+                UUID centreId, String statut, int page, int size) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long countByCentreIdAndStatut(UUID centreId, String statut) {
+            return 0;
+        }
+
+        @Override
+        public Optional<com.hemodialyse.backend.domain.gmao.model.Equipement> findByCentreIdAndCode(UUID centreId, String code) {
+            return rows.stream().filter(e -> e.getCentreId().equals(centreId) && e.getCode().equals(code)).findFirst();
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.domain.gmao.model.Equipement> findByCentreIdAndType(UUID centreId, String type) {
+            return rows.stream()
+                    .filter(e -> e.getCentreId().equals(centreId) && e.getType().name().equals(type))
+                    .toList();
+        }
+
+        @Override
+        public List<com.hemodialyse.backend.domain.gmao.model.Equipement> findByCentreIdAndTypeAndSalleId(
+                UUID centreId, String type, UUID salleId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean existsById(UUID id) {
+            return rows.stream().anyMatch(e -> e.getId().equals(id));
+        }
+
+        @Override
+        public void delete(UUID id) {
+            rows.removeIf(e -> e.getId().equals(id));
+        }
+
+        @Override
+        public long countByCentreId(UUID centreId) {
+            return rows.stream().filter(e -> e.getCentreId().equals(centreId)).count();
+        }
+    }
 }
 

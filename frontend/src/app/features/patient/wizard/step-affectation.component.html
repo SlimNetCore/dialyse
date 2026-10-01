@@ -44,6 +44,19 @@
       />
     </div>
 
+    @if (disponibiliteWarning()) {
+      <div [class.generateur-error]="generateurBloque()" class="generateur-warning" role="alert">
+        <mat-icon>{{ generateurBloque() ? 'error' : 'warning' }}</mat-icon>
+        <span>
+          {{
+            (generateurBloque() ? 'GMAO.PATIENT_SAFETY.ERROR' : 'GMAO.PATIENT_SAFETY.WARNING') | translate: {
+              statut: (('GMAO.STATUT_EQUIPEMENT.' + disponibiliteWarning()) | translate)
+            }
+          }}
+        </span>
+      </div>
+    }
+
     <div class="form-row">
       <app-searchable-select
         (selectionChanged)="onSelect('transporteurAllerId', $event)"

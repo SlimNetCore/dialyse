@@ -13,6 +13,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {GmaoApiService} from '../../../../core/api/gmao-api.service';
 import {TYPES_EQUIPEMENT} from '../../gmao-options.util';
+import {AuthStore} from '../../../../core/state/auth.store';
+import {SallesStore} from '../../../../core/state/referentials.store';
 
 type EquipementFormModel = {
   code: string;
@@ -23,12 +25,14 @@ type EquipementFormModel = {
   numeroSerie: string;
   dateInstallation: string;
   localisation: string;
+  salleId: string;
+  prixAcquisition: string;
 };
 
 function emptyForm(): EquipementFormModel {
   return {
     code: '', designation: '', type: '', fabricant: '', modele: '', numeroSerie: '',
-    dateInstallation: '', localisation: '',
+    dateInstallation: '', localisation: '', salleId: '', prixAcquisition: '',
   };
 }
 
@@ -67,11 +71,17 @@ export class GmaoFormEquipementComponent implements OnInit {
     && !!this.formModel().code.trim()
     && !!this.formModel().dateInstallation
     && !this.saving());
+  private readonly sallesStore = inject(SallesStore);
+  protected readonly salles = this.sallesStore.items;
   private readonly api = inject(GmaoApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthStore);
 
   ngOnInit(): void {
+    const centerId = this.auth.centerId();
+    if (centerId) this.sallesStore.ensureLoaded(centerId);
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditing.set(true);
@@ -87,6 +97,7 @@ export class GmaoFormEquipementComponent implements OnInit {
     this.error.set(null);
 
     const id = this.equipementId();
+    const prixAcquisition = form.prixAcquisition ? Number(form.prixAcquisition) : null;
     const request = id
       ? this.api.updateEquipement(id, {
         designation: form.designation.trim(),
@@ -94,6 +105,8 @@ export class GmaoFormEquipementComponent implements OnInit {
         modele: form.modele.trim() || null,
         numeroSerie: form.numeroSerie.trim() || null,
         localisation: form.localisation.trim() || null,
+        salleId: form.salleId || null,
+        prixAcquisition,
       })
       : this.api.createEquipement({
         code: form.code.trim(),
@@ -104,6 +117,8 @@ export class GmaoFormEquipementComponent implements OnInit {
         numeroSerie: form.numeroSerie.trim() || null,
         dateInstallation: `${form.dateInstallation}T00:00:00`,
         localisation: form.localisation.trim() || null,
+        salleId: form.salleId || null,
+        prixAcquisition,
       });
 
     request.subscribe({
@@ -129,6 +144,8 @@ export class GmaoFormEquipementComponent implements OnInit {
           numeroSerie: data.numeroSerie ?? '',
           dateInstallation: data.dateInstallation.slice(0, 10),
           localisation: data.localisation ?? '',
+          salleId: data.salleId ?? '',
+          prixAcquisition: data.prixAcquisition != null ? String(data.prixAcquisition) : '',
         });
         this.loading.set(false);
       },

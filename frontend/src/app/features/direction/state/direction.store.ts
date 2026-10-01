@@ -8,6 +8,7 @@ import {
   DirectionBreakdown,
   DirectionIndicators,
   DirectionOverview,
+  GmaoOverview,
   Snapshot,
   SnapshotInfo
 } from '../../../core/api/direction-api.service';
@@ -18,6 +19,8 @@ type DirectionState = {
   indicators: DirectionIndicators | null;
   /** Répartitions par centre : sexe, âge, caisse d'assurance, anémie. */
   breakdown: DirectionBreakdown | null;
+  /** Aide à la décision GMAO : coût de maintenance, état du parc, indisponibilité (module GMAO v2). */
+  gmao: GmaoOverview | null;
   /** Dernière mise à jour des données (chargement ou changement reçu en temps réel). */
   updatedAt: string | null;
   /** Mois déjà figés (instantanés mensuels), du plus récent au plus ancien. */
@@ -40,7 +43,7 @@ type DirectionState = {
 };
 
 const initialState: DirectionState = {
-  overview: null, indicators: null, breakdown: null, updatedAt: null, snapshots: [], reportBusy: null,
+  overview: null, indicators: null, breakdown: null, gmao: null, updatedAt: null, snapshots: [], reportBusy: null,
   reportError: false, from: '', to: '', loading: false, error: null,
   compareA: undefined, compareB: undefined, compareBusy: false, compareError: false, alertHistory: [],
 };
@@ -59,7 +62,10 @@ export const DirectionStore = signalStore(
   withComputed((store) => ({
     rankedCentres: computed(() => rankByRevenue(store.overview()?.centres ?? [])),
     months: computed(() => monthlyTotals(store.overview()?.mensuel ?? [])),
-    alerts: computed(() => sortAlerts(store.indicators()?.alertes ?? [])),
+    alerts: computed(() => sortAlerts([
+      ...(store.indicators()?.alertes ?? []),
+      ...(store.gmao()?.alertes ?? []),
+    ])),
   })),
   withMethods((store, api = inject(DirectionApiService)) => ({
     /** @param silent rechargement en arrière-plan (temps réel) : ni indicateur de chargement ni erreur affichée */
@@ -67,14 +73,15 @@ export const DirectionStore = signalStore(
       const seq = ++requestSeq;
       patchState(store, silent ? {} : {loading: true, error: null, from, to});
       try {
-        const [overview, indicators, breakdown] = await Promise.all([
+        const [overview, indicators, breakdown, gmao] = await Promise.all([
           firstValueFrom(api.overview(from || undefined, to || undefined)),
           firstValueFrom(api.indicators(from || undefined, to || undefined)),
           firstValueFrom(api.breakdown(from || undefined, to || undefined)),
+          firstValueFrom(api.gmao(from || undefined, to || undefined)),
         ]);
         if (seq !== requestSeq) return;
         patchState(store, {
-          overview, indicators, breakdown, loading: false, error: null, updatedAt: new Date().toISOString(),
+          overview, indicators, breakdown, gmao, loading: false, error: null, updatedAt: new Date().toISOString(),
           from: from || overview.from, to: to || overview.to,
         });
       } catch (e) {

@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.gmao.model.TypeIntervention;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -19,11 +20,12 @@ public record InterventionResponse(
         StatutIntervention statut,
         LocalDateTime dateDebut,
         LocalDateTime dateFin,
-        UUID technicien,
+        UUID intervenantId,
         String description,
         String actions,
         String pieceRemplacee,
-        BigDecimal cout,
+        List<LigneCoutResponse> lignesCout,
+        BigDecimal coutTotal,
         String observations,
         LocalDateTime dateCreation,
         LocalDateTime dateModification,
@@ -43,11 +45,12 @@ public record InterventionResponse(
                 intervention.getStatut(),
                 intervention.getDateDebut(),
                 intervention.getDateFin(),
-                intervention.getTechnicien(),
+                intervention.getIntervenantId(),
                 intervention.getDescription(),
                 intervention.getActions(),
                 intervention.getPieceRemplacee(),
-                intervention.getCout(),
+                intervention.getLignesCout().stream().map(LigneCoutResponse::new).toList(),
+                intervention.coutTotal(),
                 intervention.getObservations(),
                 intervention.getDateCreation(),
                 intervention.getDateModification(),
@@ -56,4 +59,3 @@ public record InterventionResponse(
         );
     }
 }
-

@@ -44,9 +44,24 @@ public interface EquipementRepositoryPort {
     long countByCentreIdAndStatut(UUID centreId, String statut);
 
     /**
-     * Récupère un équipement par son code
+     * Récupère un équipement par son code (unique par centre)
      */
-    Optional<Equipement> findByCode(String code);
+    Optional<Equipement> findByCentreIdAndCode(UUID centreId, String code);
+
+    /**
+     * Équipements d'un centre pour un type donné (ex. GENERATEUR_DIALYSE pour le référentiel unifié)
+     */
+    List<Equipement> findByCentreIdAndType(UUID centreId, String type);
+
+    /**
+     * Équipements d'un centre pour un type et une salle donnés
+     */
+    List<Equipement> findByCentreIdAndTypeAndSalleId(UUID centreId, String type, UUID salleId);
+
+    /**
+     * Vrai si un équipement existe déjà avec cet id (migration idempotente depuis l'ancien référentiel).
+     */
+    boolean existsById(UUID id);
 
     /**
      * Supprime un équipement (soft delete recommandé)

@@ -292,12 +292,27 @@
       "STOCK_SOUS_SEUIL": "{{value}} article(s) sous le seuil d'alerte",
       "LOTS_PERIMES": "{{value}} lot(s) périmé(s) encore en stock",
       "LOTS_PEREMPTION_PROCHE": "{{value}} lot(s) à péremption sous 90 jours",
+      "GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE": "{{value}} patient(s) affecté(s) à un générateur indisponible ou en intervention",
+      "GMAO_GENERATEURS_HORS_SERVICE": "{{value}} équipement(s) hors service",
       "HISTORY_TITLE": "Historique des alertes",
       "HISTORY_HINT": "Apparitions et résolutions récentes, constatées pendant que le tableau de bord était consulté.",
       "STATUS_OPEN": "En cours",
       "STATUS_RESOLVED": "Résolue",
       "SINCE": "depuis le",
       "UNTIL": "résolue le"
+    },
+    "GMAO": {
+      "TITLE": "Parc d'équipements (GMAO)",
+      "HINT": "Coût de maintenance, état du parc et indisponibilité, par centre — aide à la décision.",
+      "NB_EQUIPEMENTS": "Équipements",
+      "HORS_SERVICE": "Hors service",
+      "EN_MAINTENANCE": "En maintenance",
+      "REFORMES": "Réformés",
+      "INTERVENTIONS_EN_COURS": "Interventions en cours",
+      "COUT_MAINTENANCE": "Coût de maintenance",
+      "INDISPONIBILITE": "Indisponibilité cumulée",
+      "PATIENTS_A_RISQUE": "Patients sur équipement indisponible",
+      "LOAD_ERROR": "Erreur lors du chargement des indicateurs GMAO"
     },
     "CLINICAL": {
       "TITLE": "Qualité des soins (cibles KDIGO)",
@@ -1875,6 +1890,7 @@
     "GMAO_DASHBOARD": "Tableau de bord GMAO",
     "GMAO_EQUIPEMENTS": "Équipements",
     "GMAO_INTERVENTIONS": "Interventions",
+    "GMAO_INTERVENANTS": "Intervenants",
     "FACTURATION": "Facturation",
     "REGLEMENT": "Règlement",
     "COMPTABILITE": "Comptabilité",
@@ -2267,12 +2283,6 @@
     "GENERATEUR_MARQUE": "Marque",
     "GENERATEUR_ETAT": "État",
     "GENERATEUR_RESUME": "Résumé"
-  },
-  "GENERATEUR_ETATS": {
-    "FONCTIONNEL": "Fonctionnel",
-    "EN_PANNE": "En panne",
-    "EN_REPARATION": "En réparation",
-    "REFORME": "Réformé"
   },
   "COMMON": {
     "FILTER_BY": "Filtrer par {{field}}",
@@ -2808,6 +2818,9 @@
       "SERIAL_NUMBER": "Numéro de série",
       "INSTALLATION_DATE": "Date d'installation",
       "LOCALIZATION": "Localisation",
+      "SALLE": "Salle",
+      "SALLE_NONE": "Aucune salle",
+      "PRIX_ACQUISITION": "Prix d'acquisition",
       "STATUT": "Statut",
       "FILTER_STATUT": "Filtrer par statut",
       "NO_RESULTS": "Aucun équipement trouvé",
@@ -2816,10 +2829,14 @@
       "SAVED_OK": "Équipement enregistré",
       "STATUS_UPDATED": "Statut de l'équipement mis à jour",
       "MARK_OUT_OF_SERVICE": "Mettre hors service",
+      "REFORMER": "Réformer l'équipement",
       "REACTIVATE": "Réactiver",
       "CONFIRM_OUT_OF_SERVICE_TITLE": "Mettre l'équipement hors service ?",
       "CONFIRM_OUT_OF_SERVICE_MESSAGE": "L'équipement {{code}} sera marqué hors service. Cette action peut être annulée par une réactivation.",
-      "DEFAULT_OUT_OF_SERVICE_REASON": "Mise hors service depuis la liste des équipements"
+      "DEFAULT_OUT_OF_SERVICE_REASON": "Mise hors service depuis la liste des équipements",
+      "CONFIRM_REFORME_TITLE": "Réformer cet équipement ?",
+      "CONFIRM_REFORME_MESSAGE": "Cette action est définitive : l'équipement ne pourra plus être réactivé ni réutilisé.",
+      "DEFAULT_REFORME_MOTIF": "Réformé depuis la fiche équipement"
     },
     "INTERVENTIONS": {
       "TITLE": "Interventions",
@@ -2844,8 +2861,61 @@
       "CONFIRM_CANCEL_TITLE": "Annuler l'intervention ?",
       "CONFIRM_CANCEL_MESSAGE": "Cette intervention sera annulée et ne pourra plus être reprise.",
       "DEFAULT_CANCEL_REASON": "Annulée depuis la liste des interventions",
+      "INTERVENANT": "Intervenant",
+      "INTERVENANT_NONE": "Aucun intervenant",
       "EQUIPMENT_ID": "Identifiant de l'équipement",
-      "EQUIPMENT_ID_HINT": "UUID de l'équipement concerné (depuis la liste des équipements)"
+      "EQUIPMENT_ID_HINT": "UUID de l'équipement concerné (depuis la liste des équipements)",
+      "COST_LINE_ADDED": "Ligne de coût ajoutée"
+    },
+    "INTERVENANTS": {
+      "TITLE": "Intervenants",
+      "SUBTITLE": "Gestion des intervenants internes et externes de maintenance.",
+      "CREATE_TITLE": "Créer un intervenant",
+      "EDIT_TITLE": "Modifier l'intervenant",
+      "NOM": "Nom",
+      "TYPE": "Type",
+      "TELEPHONE": "Téléphone",
+      "TARIF_HORAIRE": "Tarif horaire",
+      "NO_RESULTS": "Aucun intervenant trouvé",
+      "LOAD_ERROR": "Erreur lors du chargement des intervenants",
+      "SAVE_ERROR": "Erreur lors de l'enregistrement de l'intervenant",
+      "SAVED_OK": "Intervenant enregistré",
+      "DEACTIVATED": "Intervenant désactivé",
+      "STATUT": "Statut",
+      "ACTIF": "Actif",
+      "INACTIF": "Inactif",
+      "DEACTIVATE": "Désactiver"
+    },
+    "INTERVENANT_TYPE": {
+      "INTERNE": "Interne",
+      "EXTERNE": "Externe"
+    },
+    "FICHE": {
+      "TITLE": "Fiche équipement",
+      "BACK": "Retour aux équipements",
+      "NB_INTERVENTIONS": "Nombre d'interventions",
+      "INDISPONIBILITE": "Indisponibilité",
+      "COUT_PERIODE": "Coût de maintenance sur la période",
+      "DERNIERE_INTERVENTION": "Dernière intervention",
+      "AUCUNE_INTERVENTION": "Aucune intervention enregistrée",
+      "PROCHAINE_MAINTENANCE": "Prochaine maintenance",
+      "AUCUN_PLAN": "Aucun plan de maintenance prévu"
+    },
+    "PATIENT_SAFETY": {
+      "WARNING": "Attention : le générateur sélectionné n'est pas disponible ({{statut}}).",
+      "ERROR": "Affectation impossible : le générateur sélectionné est {{statut}}. Choisissez un autre générateur pour pouvoir enregistrer le patient."
+    },
+    "COUTS": {
+      "ADD_TITLE": "Ajouter une ligne de coût",
+      "TOTAL": "Coût total",
+      "TYPE": "Type",
+      "TYPE_PIECE": "Pièce",
+      "TYPE_MAIN_OEUVRE": "Main d'œuvre",
+      "TYPE_INTERVENANT": "Intervenant",
+      "TYPE_AUTRE": "Autre",
+      "LIBELLE": "Libellé",
+      "QUANTITE": "Quantité",
+      "PRIX_UNITAIRE": "Prix unitaire"
     },
     "EQUIPEMENT_TYPE": {
       "GENERATEUR_DIALYSE": "Générateur de dialyse",
@@ -2866,7 +2936,8 @@
       "EN_MAINTENANCE": "En maintenance",
       "EN_ATTENTE_PIECE": "En attente de pièce",
       "HORS_SERVICE": "Hors service",
-      "DESACTIF": "Désactivé"
+      "DESACTIF": "Désactivé",
+      "REFORME": "Réformé"
     },
     "INTERVENTION_TYPE": {
       "PREVENTIVE": "Maintenance préventive",

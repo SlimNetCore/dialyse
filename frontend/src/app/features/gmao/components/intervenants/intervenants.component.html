@@ -1,0 +1,143 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'GMAO.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'GMAO.INTERVENANTS.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'GMAO.INTERVENANTS.SUBTITLE' | translate }}</p>
+  </div>
+
+  @if (store.error()) {
+    <p class="gmao-feedback error">{{ store.error()! | translate }}</p>
+  }
+  @if (store.successMessage()) {
+    <p class="gmao-feedback success">{{ store.successMessage()! | translate }}</p>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{ (editingId() ? 'GMAO.INTERVENANTS.EDIT_TITLE' : 'GMAO.INTERVENANTS.CREATE_TITLE') | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="intervenantForm" class="gmao-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENANTS.NOM' | translate }}</mat-label>
+          <input [formField]="intervenantForm.nom" matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENANTS.TYPE' | translate }}</mat-label>
+          <mat-select [formField]="intervenantForm.type">
+            <mat-option value="INTERNE">{{ 'GMAO.INTERVENANT_TYPE.INTERNE' | translate }}</mat-option>
+            <mat-option value="EXTERNE">{{ 'GMAO.INTERVENANT_TYPE.EXTERNE' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENANTS.TELEPHONE' | translate }}</mat-label>
+          <input [formField]="intervenantForm.telephone" matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PATIENT_FORM.EMAIL' | translate }}</mat-label>
+          <input [formField]="intervenantForm.email" matInput type="email"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENANTS.TARIF_HORAIRE' | translate }}</mat-label>
+          <input [formField]="intervenantForm.tarifHoraireDefaut" matInput type="number"/>
+          <span matSuffix>{{ 'COMMON.CURRENCY_DA' | translate }}</span>
+        </mat-form-field>
+
+        <div class="gmao-form-actions full-width">
+          @if (editingId()) {
+            <button (click)="cancelEdit()" mat-stroked-button type="button">
+              {{ 'COMMON.CANCEL' | translate }}
+            </button>
+          }
+          <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+
+        @if (store.saving()) {
+          <mat-progress-bar class="full-width" mode="indeterminate"/>
+        }
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (!store.loading() && store.isEmpty()) {
+    <div class="gmao-empty-state">
+      <mat-icon>engineering</mat-icon>
+      <p>{{ 'GMAO.INTERVENANTS.NO_RESULTS' | translate }}</p>
+    </div>
+  } @else {
+    <div class="gmao-table-wrap">
+      <table [dataSource]="store.rows()" class="gmao-table" mat-table>
+        <ng-container matColumnDef="nom">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENANTS.NOM' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.nom }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENANTS.TYPE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ ('GMAO.INTERVENANT_TYPE.' + row.type) | translate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="telephone">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENANTS.TELEPHONE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.telephone || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="tarifHoraireDefaut">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENANTS.TARIF_HORAIRE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            @if (row.tarifHoraireDefaut != null) {
+              {{ row.tarifHoraireDefaut | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}
+            } @else {
+              —
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actif">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.INTERVENANTS.STATUT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            <span [class]="row.actif ? 'success' : 'neutral'" class="gmao-badge">
+              {{ (row.actif ? 'GMAO.INTERVENANTS.ACTIF' : 'GMAO.INTERVENANTS.INACTIF') | translate }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell></th>
+          <td *matCellDef="let row" mat-cell>
+            <div class="gmao-row-actions">
+              <button (click)="edit(row)" [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button>
+                <mat-icon>edit</mat-icon>
+              </button>
+              @if (row.actif) {
+                <button (click)="deactivate(row)" [disabled]="store.saving()" [matTooltip]="'GMAO.INTERVENANTS.DEACTIVATE' | translate"
+                        color="warn" mat-icon-button>
+                  <mat-icon>block</mat-icon>
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="columns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: columns" [class.row-inactive]="!row.actif" mat-row></tr>
+      </table>
+
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [length]="store.total()"
+        [pageIndex]="store.pageIndex()"
+        [pageSizeOptions]="[10, 20, 50]"
+        [pageSize]="store.pageSize()"/>
+    </div>
+  }
+</section>

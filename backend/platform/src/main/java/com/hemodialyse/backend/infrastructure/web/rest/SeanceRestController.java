@@ -368,14 +368,15 @@ public class SeanceRestController {
         if (patient == null || patient.getGenerateurId() == null) {
             return;
         }
+        // Le générateur est désormais l'agrégat GMAO Equipement (module GMAO v2) — source de vérité unique.
         jdbc.query(
-                "SELECT id, numero, marque, etat FROM generateur WHERE center_id = ? AND id = ?",
+                "SELECT id, code, fabricant, statut FROM gmao_equipements WHERE centre_id = ? AND id = ? AND deleted_at IS NULL",
                 rs -> {
                     if (rs.next()) {
                         patient.setGenerateurId(rs.getObject("id", UUID.class));
-                        patient.setGenerateurNom(rs.getString("numero"));
-                        patient.setGenerateurMarque(rs.getString("marque"));
-                        patient.setGenerateurEtat(rs.getString("etat"));
+                        patient.setGenerateurNom(rs.getString("code"));
+                        patient.setGenerateurMarque(rs.getString("fabricant"));
+                        patient.setGenerateurEtat(rs.getString("statut"));
                     }
                     return null;
                 },

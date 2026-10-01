@@ -2,8 +2,10 @@ import {Routes} from '@angular/router';
 import {GmaoDashboardComponent} from './components/dashboard/dashboard.component';
 import {GmaoListEquipementComponent} from './components/list-equipement/list-equipement.component';
 import {GmaoFormEquipementComponent} from './components/form-equipement/form-equipement.component';
+import {GmaoFicheEquipementComponent} from './components/fiche-equipement/fiche-equipement.component';
 import {GmaoListInterventionComponent} from './components/list-intervention/list-intervention.component';
 import {GmaoFormInterventionComponent} from './components/form-intervention/form-intervention.component';
+import {GmaoIntervenantsComponent} from './components/intervenants/intervenants.component';
 
 /**
  * Routes du module GMAO (lazy-loaded)
@@ -29,6 +31,10 @@ export const GMAO_ROUTES: Routes = [
         component: GmaoFormEquipementComponent
       },
       {
+        path: 'equipements/:id',
+        component: GmaoFicheEquipementComponent
+      },
+      {
         path: 'interventions',
         component: GmaoListInterventionComponent
       },
@@ -41,6 +47,10 @@ export const GMAO_ROUTES: Routes = [
         component: GmaoFormInterventionComponent
       },
       {
+        path: 'intervenants',
+        component: GmaoIntervenantsComponent
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'
@@ -48,4 +58,3 @@ export const GMAO_ROUTES: Routes = [
     ]
   }
 ];
-

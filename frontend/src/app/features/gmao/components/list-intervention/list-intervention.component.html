@@ -66,10 +66,22 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="coutTotal">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.TOTAL' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.coutTotal | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="actions">
           <th *matHeaderCellDef mat-header-cell></th>
           <td *matCellDef="let row" mat-cell>
             <div class="gmao-row-actions">
+              <button (click)="addLigneCout(row)" [disabled]="store.saving()"
+                      [matTooltip]="'GMAO.COUTS.ADD_TITLE' | translate"
+                      mat-icon-button>
+                <mat-icon>payments</mat-icon>
+              </button>
               @if (row.statut === 'PLANIFIEE') {
                 <button (click)="start(row)" [disabled]="store.saving()" [matTooltip]="'GMAO.INTERVENTIONS.START' | translate"
                         color="primary" mat-icon-button>

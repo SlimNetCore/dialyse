@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.gmao.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -22,6 +23,8 @@ public class Equipement {
     private StatutEquipement statut;
     private String localisation;
     private String observations;
+    private UUID salleId;
+    private BigDecimal prixAcquisition;
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
     private UUID creePar;
@@ -44,13 +47,18 @@ public class Equipement {
             LocalDateTime dateInstallation,
             UUID centreId,
             String localisation,
-            UUID creePar) {
+            UUID creePar,
+            UUID salleId,
+            BigDecimal prixAcquisition) {
 
         if (code == null || code.isBlank()) throw new IllegalArgumentException("Code requis");
         if (designation == null || designation.isBlank()) throw new IllegalArgumentException("Désignation requise");
         if (type == null) throw new IllegalArgumentException("Type d'équipement requis");
         if (dateInstallation == null) throw new IllegalArgumentException("Date d'installation requise");
         if (centreId == null) throw new IllegalArgumentException("Centre requis");
+        if (prixAcquisition != null && prixAcquisition.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Le prix d'acquisition ne peut pas être négatif");
+        }
 
         Equipement equipement = new Equipement();
         equipement.id = UUID.randomUUID();
@@ -64,6 +72,8 @@ public class Equipement {
         equipement.centreId = centreId;
         equipement.statut = StatutEquipement.EN_SERVICE;
         equipement.localisation = localisation;
+        equipement.salleId = salleId;
+        equipement.prixAcquisition = prixAcquisition;
         equipement.dateCreation = LocalDateTime.now();
         equipement.creePar = creePar;
 
@@ -90,7 +100,9 @@ public class Equipement {
             LocalDateTime dateCreation,
             LocalDateTime dateModification,
             UUID creePar,
-            UUID modifiePar) {
+            UUID modifiePar,
+            UUID salleId,
+            BigDecimal prixAcquisition) {
 
         Equipement equipement = new Equipement();
         equipement.id = id;
@@ -109,6 +121,8 @@ public class Equipement {
         equipement.dateModification = dateModification;
         equipement.creePar = creePar;
         equipement.modifiePar = modifiePar;
+        equipement.salleId = salleId;
+        equipement.prixAcquisition = prixAcquisition;
 
         return equipement;
     }
@@ -123,15 +137,22 @@ public class Equipement {
             String modele,
             String numeroSerie,
             String localisation,
-            UUID parUtilisateur) {
+            UUID parUtilisateur,
+            UUID salleId,
+            BigDecimal prixAcquisition) {
         if (designation == null || designation.isBlank()) {
             throw new IllegalArgumentException("Désignation requise");
+        }
+        if (prixAcquisition != null && prixAcquisition.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Le prix d'acquisition ne peut pas être négatif");
         }
         this.designation = designation;
         this.fabricant = fabricant;
         this.modele = modele;
         this.numeroSerie = numeroSerie;
         this.localisation = localisation;
+        this.salleId = salleId;
+        this.prixAcquisition = prixAcquisition;
         this.dateModification = LocalDateTime.now();
         this.modifiePar = parUtilisateur;
     }
@@ -140,6 +161,9 @@ public class Equipement {
      * Marque l'équipement comme hors service
      */
     public void marquerHorsService(String raison, UUID parUtilisateur) {
+        if (this.statut == StatutEquipement.REFORME) {
+            throw new IllegalStateException("Un équipement réformé ne peut plus changer de statut");
+        }
         if (this.statut == StatutEquipement.HORS_SERVICE) {
             throw new IllegalStateException("L'équipement est déjà hors service");
         }
@@ -153,10 +177,29 @@ public class Equipement {
      * Réactive l'équipement
      */
     public void reactiver(UUID parUtilisateur) {
+        if (this.statut == StatutEquipement.REFORME) {
+            throw new IllegalStateException("Un équipement réformé ne peut pas être réactivé");
+        }
         if (this.statut != StatutEquipement.HORS_SERVICE) {
             throw new IllegalStateException("Seul un équipement hors service peut être réactivé");
         }
         this.statut = StatutEquipement.EN_SERVICE;
+        this.dateModification = LocalDateTime.now();
+        this.modifiePar = parUtilisateur;
+    }
+
+    /**
+     * Réforme définitivement l'équipement (fin de vie — état terminal, aucun retour en arrière possible).
+     */
+    public void reformer(String motif, UUID parUtilisateur) {
+        if (this.statut == StatutEquipement.REFORME) {
+            throw new IllegalStateException("L'équipement est déjà réformé");
+        }
+        if (motif == null || motif.isBlank()) {
+            throw new IllegalArgumentException("Motif de réforme requis");
+        }
+        this.statut = StatutEquipement.REFORME;
+        this.observations = (this.observations != null ? this.observations + "; " : "") + "Réformé: " + motif;
         this.dateModification = LocalDateTime.now();
         this.modifiePar = parUtilisateur;
     }
@@ -237,6 +280,14 @@ public class Equipement {
 
     public UUID getModifiePar() {
         return modifiePar;
+    }
+
+    public UUID getSalleId() {
+        return salleId;
+    }
+
+    public BigDecimal getPrixAcquisition() {
+        return prixAcquisition;
     }
 }
 

@@ -4,6 +4,8 @@ import com.hemodialyse.backend.domain.assure.model.Assure;
 import com.hemodialyse.backend.domain.assure.model.AssurePatientAssignment;
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
 import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.model.Equipement;
+import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
 import com.hemodialyse.backend.domain.migration.model.IdMapping;
 import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
 import com.hemodialyse.backend.domain.patient.model.Patient;
@@ -48,13 +50,16 @@ public class PatientMigrator implements EntityMigrator {
     private final AssureRepositoryPort assures;
     private final AssurePatientRepositoryPort assignments;
     private final ReferentialAdminRepositoryPort referentials;
+    private final EquipementRepositoryPort equipements;
 
     public PatientMigrator(PatientRepositoryPort patients, AssureRepositoryPort assures,
-                           AssurePatientRepositoryPort assignments, ReferentialAdminRepositoryPort referentials) {
+                           AssurePatientRepositoryPort assignments, ReferentialAdminRepositoryPort referentials,
+                           EquipementRepositoryPort equipements) {
         this.patients = patients;
         this.assures = assures;
         this.assignments = assignments;
         this.referentials = referentials;
+        this.equipements = equipements;
     }
 
     private static void checkDates(Row row, List<ValidationIssue> errors, List<ValidationIssue> warnings) {
@@ -311,6 +316,7 @@ public class PatientMigrator implements EntityMigrator {
     private final class Lookups {
         private final CenterId center;
         private final Map<ReferentialKind, Map<String, ReferentialEntry>> indexes = new EnumMap<>(ReferentialKind.class);
+        private final Map<CenterId, Map<String, Equipement>> generateurIndex = new HashMap<>();
 
         Lookups(CenterId center) {
             this.center = center;
@@ -322,14 +328,13 @@ public class PatientMigrator implements EntityMigrator {
 
         Refs resolve(Row row, List<ValidationIssue> errors, List<ValidationIssue> warnings) {
             UUID salle = find(row, "salle", ReferentialKind.SALLE, errors);
-            UUID generateur = find(row, "generateur", ReferentialKind.GENERATEUR, errors);
-            if (generateur != null) {
-                String salleDuGenerateur = index(ReferentialKind.GENERATEUR).values().stream()
-                        .filter(e -> e.id().equals(generateur)).findFirst()
-                        .map(e -> e.values().get("salle")).orElse(null);
+            Equipement generateurEquipement = findGenerateur(row, errors);
+            UUID generateur = generateurEquipement == null ? null : generateurEquipement.getId();
+            if (generateurEquipement != null) {
+                UUID salleDuGenerateur = generateurEquipement.getSalleId();
                 if (salle == null && salleDuGenerateur != null) {
-                    salle = UUID.fromString(salleDuGenerateur);
-                } else if (salle != null && salleDuGenerateur != null && !salle.toString().equals(salleDuGenerateur)) {
+                    salle = salleDuGenerateur;
+                } else if (salle != null && salleDuGenerateur != null && !salle.equals(salleDuGenerateur)) {
                     warnings.add(issue(row.line(), "generateur", "GENERATEUR_OTHER_ROOM",
                             "Le générateur « " + row.get("generateur") + " » est installé dans une autre salle que « "
                                     + row.get("salle") + " ».", Map.of()));
@@ -360,6 +365,35 @@ public class PatientMigrator implements EntityMigrator {
         }
 
         /**
+         * Les générateurs de dialyse ne sont plus un référentiel administrable génériquement (module GMAO
+         * v2) : ils sont résolus directement via l'agrégat GMAO Equipement (type GENERATEUR_DIALYSE),
+         * géré via /gmao/equipements — pas de {@link ReferentialKind} dédié.
+         */
+        private Equipement findGenerateur(Row row, List<ValidationIssue> errors) {
+            String value = row.get("generateur");
+            if (value == null) return null;
+            Equipement entry = generateurIndex().get(key(LegacyValueParser.toCode(value)));
+            if (entry == null) {
+                errors.add(issue(row.line(), "generateur", "REFERENCE_NOT_FOUND",
+                        "« " + value + " » est introuvable parmi les équipements GMAO (générateurs) de ce centre : "
+                                + "créez-le d'abord (GMAO → Équipements).",
+                        Map.of("value", value, "target", "gmao/equipements")));
+                return null;
+            }
+            return entry;
+        }
+
+        private Map<String, Equipement> generateurIndex() {
+            return generateurIndex.computeIfAbsent(center, c -> {
+                Map<String, Equipement> index = new HashMap<>();
+                for (Equipement e : equipements.findByCentreIdAndType(c.value(), "GENERATEUR_DIALYSE")) {
+                    index.putIfAbsent(key(LegacyValueParser.toCode(nz(e.getCode()))), e);
+                }
+                return index;
+            });
+        }
+
+        /**
          * Clés de recherche : code (ou numéro), nom ; médecins par « nom prénom » et « prénom nom ».
          */
         private Map<String, ReferentialEntry> index(ReferentialKind kind) {
@@ -370,7 +404,6 @@ public class PatientMigrator implements EntityMigrator {
                     List<String> keys = switch (k) {
                         case MEDECIN ->
                                 List.of(v.get("nom") + " " + nz(v.get("prenom")), nz(v.get("prenom")) + " " + v.get("nom"));
-                        case GENERATEUR -> List.of(nz(v.get("numero")));
                         case TRANSPORTEUR -> List.of(nz(v.get("nom")));
                         default -> List.of(nz(v.get("code")));
                     };

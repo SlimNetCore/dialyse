@@ -2,11 +2,13 @@ package com.hemodialyse.backend.infrastructure.web.rest.gmao;
 
 import com.hemodialyse.backend.domain.gmao.model.*;
 import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.port.EquipementStatutHistoriqueRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.*;
 import com.hemodialyse.backend.infrastructure.web.dto.response.gmao.*;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +21,12 @@ import java.util.UUID;
  * REST Controller pour la gestion des équipements GMAO.
  * Isolation multi-centre systématique (AGENTS.md §2) : toute lecture/écriture est bornée au
  * centre de l'utilisateur authentifié. Liste obligatoirement paginée (AGENTS.md §9).
+ * <p>
+ * Depuis la v2, {@code Equipement} (type {@code GENERATEUR_DIALYSE}) est la source de vérité
+ * unique pour les générateurs de dialyse (l'ancien référentiel plat {@code generateur} est retiré,
+ * cf. {@code GenerateurMigrationRunner}) : chaque endpoint d'écriture évince le cache référentiel
+ * {@code ref.generateurs} pour que le wizard patient / l'affichage séance ne restent jamais sur un
+ * statut périmé (sécurité patient — voir {@code EquipementFicheRestController}).
  */
 @RestController
 @RequestMapping("/api/v1/gmao/equipements")
@@ -26,20 +34,30 @@ import java.util.UUID;
 public class EquipementRestController {
 
     private final EquipementRepositoryPort equipementRepository;
+    private final EquipementStatutHistoriqueRepositoryPort historiqueRepository;
 
-    public EquipementRestController(EquipementRepositoryPort equipementRepository) {
+    public EquipementRestController(
+            EquipementRepositoryPort equipementRepository,
+            EquipementStatutHistoriqueRepositoryPort historiqueRepository) {
         this.equipementRepository = equipementRepository;
+        this.historiqueRepository = historiqueRepository;
     }
 
     /**
      * Crée un nouvel équipement
      */
     @PostMapping
+    @CacheEvict(cacheNames = "ref.generateurs", allEntries = true)
     public ResponseEntity<EquipementResponse> creerEquipement(
             @Valid @RequestBody CreateEquipementRequest request,
             Authentication authentication) {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UUID centreId = UUID.fromString(principal.getCenterId());
+
+        if (equipementRepository.findByCentreIdAndCode(centreId, request.code()).isPresent()) {
+            throw new IllegalArgumentException("Un équipement avec ce code existe déjà dans ce centre");
+        }
 
         Equipement equipement = Equipement.creer(
                 request.code(),
@@ -49,12 +67,15 @@ public class EquipementRestController {
                 request.modele(),
                 request.numeroSerie(),
                 request.dateInstallation(),
-                UUID.fromString(principal.getCenterId()),
+                centreId,
                 request.localisation(),
-                UUID.fromString(principal.getId())
+                UUID.fromString(principal.getId()),
+                request.salleId(),
+                request.prixAcquisition()
         );
 
         equipementRepository.save(equipement);
+        enregistrerHistorique(equipement, null);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new EquipementResponse(equipement));
@@ -106,6 +127,7 @@ public class EquipementRestController {
      * Modifie les caractéristiques d'un équipement existant (code/type/date d'installation immuables)
      */
     @PutMapping("/{id}")
+    @CacheEvict(cacheNames = "ref.generateurs", allEntries = true)
     public ResponseEntity<EquipementResponse> modifierEquipement(
             @PathVariable String id,
             @Valid @RequestBody UpdateEquipementRequest request,
@@ -124,7 +146,9 @@ public class EquipementRestController {
                 request.modele(),
                 request.numeroSerie(),
                 request.localisation(),
-                UUID.fromString(principal.getId())
+                UUID.fromString(principal.getId()),
+                request.salleId(),
+                request.prixAcquisition()
         );
         equipementRepository.save(equipement);
 
@@ -135,6 +159,7 @@ public class EquipementRestController {
      * Marque un équipement comme hors service
      */
     @PostMapping("/{id}/hors-service")
+    @CacheEvict(cacheNames = "ref.generateurs", allEntries = true)
     public ResponseEntity<EquipementResponse> marquerHorsService(
             @PathVariable String id,
             @Valid @RequestBody MarquerHorsServiceRequest request,
@@ -145,8 +170,10 @@ public class EquipementRestController {
         Equipement equipement = equipementRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
 
+        StatutEquipement statutPrecedent = equipement.getStatut();
         equipement.marquerHorsService(request.raison(), UUID.fromString(principal.getId()));
         equipementRepository.save(equipement);
+        enregistrerHistorique(equipement, statutPrecedent);
 
         return ResponseEntity.ok(new EquipementResponse(equipement));
     }
@@ -155,6 +182,7 @@ public class EquipementRestController {
      * Réactive un équipement
      */
     @PostMapping("/{id}/reactiver")
+    @CacheEvict(cacheNames = "ref.generateurs", allEntries = true)
     public ResponseEntity<EquipementResponse> reactiverEquipement(
             @PathVariable String id,
             Authentication authentication) {
@@ -164,8 +192,33 @@ public class EquipementRestController {
         Equipement equipement = equipementRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
 
+        StatutEquipement statutPrecedent = equipement.getStatut();
         equipement.reactiver(UUID.fromString(principal.getId()));
         equipementRepository.save(equipement);
+        enregistrerHistorique(equipement, statutPrecedent);
+
+        return ResponseEntity.ok(new EquipementResponse(equipement));
+    }
+
+    /**
+     * Réforme définitivement un équipement (fin de vie — aucun retour en arrière possible)
+     */
+    @PostMapping("/{id}/reformer")
+    @CacheEvict(cacheNames = "ref.generateurs", allEntries = true)
+    public ResponseEntity<EquipementResponse> reformerEquipement(
+            @PathVariable String id,
+            @Valid @RequestBody ReformerEquipementRequest request,
+            Authentication authentication) {
+
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        Equipement equipement = equipementRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
+
+        StatutEquipement statutPrecedent = equipement.getStatut();
+        equipement.reformer(request.motif(), UUID.fromString(principal.getId()));
+        equipementRepository.save(equipement);
+        enregistrerHistorique(equipement, statutPrecedent);
 
         return ResponseEntity.ok(new EquipementResponse(equipement));
     }
@@ -188,5 +241,12 @@ public class EquipementRestController {
         equipementRepository.save(equipement);
 
         return ResponseEntity.ok(new EquipementResponse(equipement));
+    }
+
+    private void enregistrerHistorique(Equipement equipement, StatutEquipement statutPrecedent) {
+        historiqueRepository.save(EquipementStatutHistorique.enregistrer(
+                equipement.getId(), equipement.getCentreId(), statutPrecedent, equipement.getStatut(),
+                equipement.getObservations(), equipement.getModifiePar() != null ? equipement.getModifiePar() : equipement.getCreePar()
+        ));
     }
 }

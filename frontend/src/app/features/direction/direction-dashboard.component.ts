@@ -185,6 +185,18 @@ export class DirectionDashboardComponent implements OnInit {
     const rows = centres.map((c) => ({c, total: false}));
     return sel ? rows : [...rows, {c: ind.totaux, total: true}];
   });
+  /**
+   * Lignes du tableau GMAO (aide à la décision) : un centre par ligne, puis le total de la société
+   * (masqué quand un centre est isolé par le filtre) — même patron que {@code indicatorRows}.
+   */
+  protected readonly gmaoRows = computed(() => {
+    const g = this.store.gmao();
+    if (!g) return [];
+    const sel = this.selectedCentre();
+    const centres = sel ? g.centres.filter((c) => c.centerId === sel) : g.centres;
+    const rows = centres.map((c) => ({c, total: false}));
+    return sel ? rows : [...rows, {c: g.totaux, total: true}];
+  });
   /** Répartitions filtrées sur le centre isolé, le cas échéant (toutes les listes de `breakdown` partagent `centerId`). */
   protected readonly breakdown = computed(() => {
     const b = this.store.breakdown();

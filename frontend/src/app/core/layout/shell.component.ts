@@ -148,6 +148,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/gmao/dashboard', label: 'NAV.GMAO_DASHBOARD', icon: 'space_dashboard'},
         {route: '/gmao/equipements', label: 'NAV.GMAO_EQUIPEMENTS', icon: 'precision_manufacturing'},
         {route: '/gmao/interventions', label: 'NAV.GMAO_INTERVENTIONS', icon: 'build'},
+        {route: '/gmao/intervenants', label: 'NAV.GMAO_INTERVENANTS', icon: 'engineering'},
       ],
     },
     {
@@ -272,7 +273,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
     const map: Record<string, string> = {
       dashboard: 'Dashboard',
       patients: 'Patients',
-      new: 'Nouveau',
+      new: 'COMMON.NEW',
       'pec-admin': 'Validation PEC',
       'pec-list': 'Liste PEC',
       'attestations-list': 'Liste attestations',
@@ -288,7 +289,16 @@ export class ShellComponent implements OnInit, AfterViewInit {
     };
     const segs = url.split('?')[0].split('/').filter(Boolean);
     this.breadcrumbRoutes = segs;
-    this.breadcrumbs.set(segs.map((s) => map[s] ?? s));
+    this.breadcrumbs.set(segs.map((s, index) => {
+      if (segs[0] === 'gmao') {
+        if (index === 0) return 'NAV.GMAO';
+        if (s === 'dashboard') return 'NAV.GMAO_DASHBOARD';
+        if (s === 'equipements') return 'NAV.GMAO_EQUIPEMENTS';
+        if (s === 'interventions') return 'NAV.GMAO_INTERVENTIONS';
+        if (s === 'intervenants') return 'NAV.GMAO_INTERVENANTS';
+      }
+      return map[s] ?? s;
+    }));
   }
 
   protected openModule(route: string): void {

@@ -1,0 +1,106 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'GMAO.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ fiche()?.equipement?.designation || ('GMAO.FICHE.TITLE' | translate) }}</h1>
+    @if (fiche(); as f) {
+      <p class="app-section-copy">
+        {{ f.equipement.code }}
+        @if (f.equipement.fabricant) {
+          · {{ f.equipement.fabricant }}
+        }
+        @if (f.equipement.modele) {
+          {{ f.equipement.modele }}
+        }
+      </p>
+    }
+    <div class="app-button-cluster">
+      <a mat-stroked-button routerLink="/gmao/equipements">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'GMAO.FICHE.BACK' | translate }}
+      </a>
+      <button (click)="goToEdit()" mat-stroked-button>
+        <mat-icon>edit</mat-icon>
+        {{ 'COMMON.EDIT' | translate }}
+      </button>
+      @if (fiche() && fiche()!.equipement.statut !== 'REFORME') {
+        @if (fiche()!.equipement.statut !== 'HORS_SERVICE') {
+          <button (click)="markOutOfService()" color="warn" mat-stroked-button>
+            <mat-icon>report</mat-icon>
+            {{ 'GMAO.EQUIPEMENTS.MARK_OUT_OF_SERVICE' | translate }}
+          </button>
+        } @else {
+          <button (click)="reactivate()" color="primary" mat-stroked-button>
+            <mat-icon>restart_alt</mat-icon>
+            {{ 'GMAO.EQUIPEMENTS.REACTIVATE' | translate }}
+          </button>
+        }
+        <button (click)="reformer()" color="warn" mat-stroked-button>
+          <mat-icon>delete_forever</mat-icon>
+          {{ 'GMAO.EQUIPEMENTS.REFORMER' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (error()) {
+    <p class="gmao-feedback error">{{ error()! | translate }}</p>
+  }
+
+  @if (fiche(); as f) {
+    <div class="gmao-stat-section">
+      <span [class]="statutEquipementTone(f.equipement.statut)" class="gmao-badge">
+        {{ ('GMAO.STATUT_EQUIPEMENT.' + f.equipement.statut) | translate }}
+      </span>
+
+      <div class="app-data-strip">
+        <div class="app-data-pill">
+          <span>{{ 'GMAO.FICHE.NB_INTERVENTIONS' | translate }}</span>
+          <strong>{{ f.nbInterventions }}</strong>
+        </div>
+        <div [class.tone-warning]="f.indisponibiliteHeures > 0" class="app-data-pill">
+          <span>{{ 'GMAO.FICHE.INDISPONIBILITE' | translate }}</span>
+          <strong>{{ f.indisponibiliteHeures | number: '1.0-1' }} h</strong>
+        </div>
+        <div class="app-data-pill">
+          <span>{{ 'GMAO.FICHE.COUT_PERIODE' | translate }}</span>
+          <strong>{{ f.coutMaintenancePeriode | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
+        </div>
+        @if (f.equipement.prixAcquisition != null) {
+          <div class="app-data-pill">
+            <span>{{ 'GMAO.EQUIPEMENTS.PRIX_ACQUISITION' | translate }}</span>
+            <strong>{{ f.equipement.prixAcquisition | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="gmao-stat-section">
+      <h2 class="gmao-stat-title">{{ 'GMAO.FICHE.DERNIERE_INTERVENTION' | translate }}</h2>
+      @if (f.derniereIntervention; as i) {
+        <p class="gmao-fiche-row">
+          {{ ('GMAO.INTERVENTION_TYPE.' + i.type) | translate }} — {{ i.description }}
+          <span class="gmao-fiche-date">{{ i.dateDebut | date: 'dd/MM/yyyy' }}</span>
+        </p>
+      } @else {
+        <p class="app-muted-note">{{ 'GMAO.FICHE.AUCUNE_INTERVENTION' | translate }}</p>
+      }
+    </div>
+
+    <div class="gmao-stat-section">
+      <h2 class="gmao-stat-title">{{ 'GMAO.FICHE.PROCHAINE_MAINTENANCE' | translate }}</h2>
+      @if (f.prochainePlanMaintenance; as p) {
+        <p class="gmao-fiche-row">
+          {{ p.designation }}
+          @if (p.prochaineDatePrevue) {
+            <span class="gmao-fiche-date">{{ p.prochaineDatePrevue | date: 'dd/MM/yyyy' }}</span>
+          }
+        </p>
+      } @else {
+        <p class="app-muted-note">{{ 'GMAO.FICHE.AUCUN_PLAN' | translate }}</p>
+      }
+    </div>
+  }
+</section>

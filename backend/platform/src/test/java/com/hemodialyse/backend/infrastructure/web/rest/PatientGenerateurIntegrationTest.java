@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -22,6 +23,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Le générateur affecté à un patient est désormais l'agrégat GMAO Equipement (module GMAO v2,
+ * type GENERATEUR_DIALYSE) — plus l'ancien référentiel plat "generateur".
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
 class PatientGenerateurIntegrationTest {
@@ -48,7 +53,7 @@ class PatientGenerateurIntegrationTest {
     @AfterEach
     void cleanup() {
         jdbc.update("DELETE FROM patients WHERE id = ?", PATIENT_ID);
-        jdbc.update("DELETE FROM generateur WHERE id = ?", GENERATEUR_ID);
+        jdbc.update("DELETE FROM gmao_equipements WHERE id = ?", GENERATEUR_ID);
     }
 
     @Test
@@ -65,19 +70,24 @@ class PatientGenerateurIntegrationTest {
                 .andExpect(jsonPath("$.generateurId").value(GENERATEUR_ID.toString()))
                 .andExpect(jsonPath("$.generateurNom").value("G10"))
                 .andExpect(jsonPath("$.generateurMarque").value("Fresenius"))
-                .andExpect(jsonPath("$.generateurEtat").value("FONCTIONNEL"));
+                .andExpect(jsonPath("$.generateurEtat").value("EN_SERVICE"));
     }
 
     private void seedGenerateur() {
         jdbc.update(
-                "INSERT INTO generateur (id, salle_id, center_id, numero, marque, modele, etat) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO gmao_equipements (id, code, designation, type, fabricant, modele, " +
+                        "date_installation, centre_id, statut, salle_id, date_creation, cree_par) " +
+                        "VALUES (?, ?, ?, 'GENERATEUR_DIALYSE', ?, ?, ?, ?, 'EN_SERVICE', ?, ?, ?)",
                 GENERATEUR_ID,
-                UUID.fromString("50000001-0000-0000-0000-000000000001"),
-                CENTER_ID,
                 "G10",
+                "Générateur G10",
                 "Fresenius",
                 "5008S",
-                "FONCTIONNEL"
+                LocalDateTime.now(),
+                CENTER_ID,
+                UUID.fromString("50000001-0000-0000-0000-000000000001"),
+                LocalDateTime.now(),
+                new UUID(0, 0)
         );
     }
 
@@ -103,4 +113,3 @@ class PatientGenerateurIntegrationTest {
         );
     }
 }
-

@@ -802,7 +802,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     if (!normalized) {
       return '-';
     }
-    const key = `GENERATEUR_ETATS.${normalized}`;
+    const key = `GMAO.STATUT_EQUIPEMENT.${normalized}`;
     const translated = this.translate.instant(key);
     return translated && translated !== key ? translated : normalized.replaceAll('_', ' ');
   }

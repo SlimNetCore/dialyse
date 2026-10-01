@@ -4,35 +4,54 @@ import com.hemodialyse.backend.domain.gmao.model.*;
 import com.hemodialyse.backend.domain.gmao.port.InterventionRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.persistence.entity.gmao.InterventionEntity;
+import com.hemodialyse.backend.infrastructure.persistence.entity.gmao.LigneCoutInterventionEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.gmao.InterventionJpaRepository;
+import com.hemodialyse.backend.infrastructure.persistence.repository.gmao.LigneCoutInterventionJpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Adapter de persistance pour Intervention
- * Implémente le port InterventionRepositoryPort
- * Gère la conversion entre domaine et entités JPA
+ * Adapter de persistance pour Intervention.
+ * Implémente le port InterventionRepositoryPort — gère la conversion entre domaine et entités JPA,
+ * ainsi que la persistance explicite des lignes de coût (enfants, table séparée : contrairement à
+ * {@code TacheIntervention}, elles ne doivent jamais être perdues au rechargement de l'agrégat).
  */
 @Component
 public class InterventionRepositoryAdapter implements InterventionRepositoryPort {
 
     private final InterventionJpaRepository jpaRepository;
+    private final LigneCoutInterventionJpaRepository lignesCoutRepository;
 
-    public InterventionRepositoryAdapter(InterventionJpaRepository jpaRepository) {
+    public InterventionRepositoryAdapter(
+            InterventionJpaRepository jpaRepository, LigneCoutInterventionJpaRepository lignesCoutRepository) {
         this.jpaRepository = jpaRepository;
+        this.lignesCoutRepository = lignesCoutRepository;
     }
 
     @Override
+    @Transactional
     public void save(Intervention intervention) {
         InterventionEntity entity = toEntity(intervention);
         jpaRepository.save(entity);
+
+        // Remplace l'ensemble des lignes de coût (simple et sûr pour un agrégat sans concurrence
+        // d'écriture attendue sur une même intervention — patron volontairement simple).
+        lignesCoutRepository.deleteByInterventionId(intervention.getId());
+        List<LigneCoutInterventionEntity> lignes = intervention.getLignesCout().stream()
+                .map(l -> new LigneCoutInterventionEntity(
+                        l.getId(), intervention.getId(), l.getType().name(), l.getLibelle(),
+                        l.getQuantite(), l.getPrixUnitaire(), l.getArticleStockId()))
+                .toList();
+        lignesCoutRepository.saveAll(lignes);
     }
 
     @Override
@@ -69,8 +88,8 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
     }
 
     @Override
-    public List<Intervention> findByTechnicien(UUID technicienId) {
-        return jpaRepository.findByTechnicien(technicienId).stream()
+    public List<Intervention> findByIntervenantId(UUID intervenantId) {
+        return jpaRepository.findByIntervenantId(intervenantId).stream()
                 .map(this::toDomain)
                 .toList();
     }
@@ -83,7 +102,9 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
     }
 
     @Override
+    @Transactional
     public void delete(UUID id) {
+        lignesCoutRepository.deleteByInterventionId(id);
         jpaRepository.deleteById(id);
     }
 
@@ -128,6 +149,29 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
         );
     }
 
+    @Override
+    public long countByEquipementId(UUID equipementId) {
+        return jpaRepository.countByEquipementId(equipementId);
+    }
+
+    @Override
+    public Optional<Intervention> findLatestByEquipementId(UUID equipementId) {
+        return jpaRepository.findByEquipementIdOrderByDateDebutDesc(equipementId, PageRequest.of(0, 1))
+                .stream().findFirst().map(this::toDomain);
+    }
+
+    @Override
+    public BigDecimal sumCoutByEquipementIdAndDateRange(UUID equipementId, LocalDateTime from, LocalDateTime to) {
+        BigDecimal sum = lignesCoutRepository.sumByEquipementIdAndDateRange(equipementId, from, to);
+        return sum == null ? BigDecimal.ZERO : sum;
+    }
+
+    @Override
+    public BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, LocalDateTime from, LocalDateTime to) {
+        BigDecimal sum = lignesCoutRepository.sumByCentreIdAndDateRange(centreId, from, to);
+        return sum == null ? BigDecimal.ZERO : sum;
+    }
+
     // Mappers
     private InterventionEntity toEntity(Intervention domain) {
         return new InterventionEntity(
@@ -138,11 +182,10 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                 domain.getStatut().name(),
                 domain.getDateDebut(),
                 domain.getDateFin(),
-                domain.getTechnicien(),
+                domain.getIntervenantId(),
                 domain.getDescription(),
                 domain.getActions(),
                 domain.getPieceRemplacee(),
-                domain.getCout(),
                 domain.getObservations(),
                 domain.getDateCreation(),
                 domain.getDateModification(),
@@ -152,6 +195,12 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
     }
 
     private Intervention toDomain(InterventionEntity entity) {
+        List<LigneCoutIntervention> lignesCout = lignesCoutRepository.findByInterventionId(entity.getId()).stream()
+                .map(l -> LigneCoutIntervention.reconstruct(
+                        l.getId(), TypeLigneCout.valueOf(l.getType()), l.getLibelle(),
+                        l.getQuantite(), l.getPrixUnitaire(), l.getArticleStockId()))
+                .toList();
+
         return Intervention.reconstruct(
                 entity.getId(),
                 entity.getEquipementId(),
@@ -160,17 +209,16 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                 StatutIntervention.valueOf(entity.getStatut()),
                 entity.getDateDebut(),
                 entity.getDateFin(),
-                entity.getTechnicienId(),
+                entity.getIntervenantId(),
                 entity.getDescription(),
                 entity.getActions(),
                 entity.getPieceRemplacee(),
-                entity.getCout(),
                 entity.getObservations(),
                 entity.getDateCreation(),
                 entity.getDateModification(),
                 entity.getCreePar(),
-                entity.getModifiePar()
+                entity.getModifiePar(),
+                lignesCout
         );
     }
 }
-

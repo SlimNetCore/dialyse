@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.config;
 
 import com.hemodialyse.backend.domain.assure.port.AssurePatientRepositoryPort;
 import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
 import com.hemodialyse.backend.domain.migration.port.HistoricalRecordPort;
 import com.hemodialyse.backend.domain.migration.port.IdMappingPort;
 import com.hemodialyse.backend.domain.migration.port.MigrationBatchRepositoryPort;
@@ -38,10 +39,11 @@ public class MigrationConfig {
                                                          PatientRepositoryPort patients, AssureRepositoryPort assures,
                                                          AssurePatientRepositoryPort assignments,
                                                          ReferentialAdminRepositoryPort referentials,
+                                                         EquipementRepositoryPort equipements,
                                                          HistoricalRecordPort records, OpeningBalancePort balances) {
         List<EntityMigrator> migrators = new ArrayList<>(List.of(
                 new AssureMigrator(assures),
-                new PatientMigrator(patients, assures, assignments, referentials),
+                new PatientMigrator(patients, assures, assignments, referentials, equipements),
                 new AffectationMigrator(patients, assures, assignments),
                 new OpeningBalanceMigrator(balances, patients)));
         HistoryRules.all(referentials).forEach(rules -> migrators.add(new PatientRecordMigrator(rules, records)));

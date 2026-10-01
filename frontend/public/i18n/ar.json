@@ -292,12 +292,27 @@
       "STOCK_SOUS_SEUIL": "{{value}} صنف/أصناف دون حد التنبيه",
       "LOTS_PERIMES": "{{value}} دفعة/دفعات منتهية الصلاحية لا تزال في المخزون",
       "LOTS_PEREMPTION_PROCHE": "{{value}} دفعة/دفعات تنتهي صلاحيتها خلال 90 يومًا",
+      "GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE": "{{value}} مريض/مرضى على مولّد غير متاح أو قيد التدخل",
+      "GMAO_GENERATEURS_HORS_SERVICE": "{{value}} معدة/معدات خارج الخدمة",
       "HISTORY_TITLE": "سجل التنبيهات",
       "HISTORY_HINT": "الظهورات والحلول الأخيرة، المسجّلة أثناء متابعة لوحة القيادة.",
       "STATUS_OPEN": "جارٍ",
       "STATUS_RESOLVED": "تم الحل",
       "SINCE": "منذ",
       "UNTIL": "حُلّت في"
+    },
+    "GMAO": {
+      "TITLE": "أسطول المعدات (الصيانة)",
+      "HINT": "تكلفة الصيانة، حالة الأسطول ومدة التوقف، حسب المركز — مساعدة على القرار.",
+      "NB_EQUIPEMENTS": "المعدات",
+      "HORS_SERVICE": "خارج الخدمة",
+      "EN_MAINTENANCE": "في الصيانة",
+      "REFORMES": "مُخرَجة نهائياً من الخدمة",
+      "INTERVENTIONS_EN_COURS": "تدخلات جارية",
+      "COUT_MAINTENANCE": "تكلفة الصيانة",
+      "INDISPONIBILITE": "مدة التوقف التراكمية",
+      "PATIENTS_A_RISQUE": "مرضى على معدات غير متاحة",
+      "LOAD_ERROR": "خطأ في تحميل مؤشرات الصيانة"
     },
     "CLINICAL": {
       "TITLE": "جودة الرعاية (أهداف KDIGO)",
@@ -1729,6 +1744,7 @@
     "GMAO_DASHBOARD": "لوحة معلومات الصيانة",
     "GMAO_EQUIPEMENTS": "المعدات",
     "GMAO_INTERVENTIONS": "التدخلات",
+    "GMAO_INTERVENANTS": "الفنيون",
     "FACTURATION": "الفوترة",
     "REGLEMENT": "الدفع",
     "COMPTABILITE": "المحاسبة",
@@ -2092,12 +2108,6 @@
     "GENERATEUR_MARQUE": "العلامة التجارية",
     "GENERATEUR_ETAT": "الحالة",
     "GENERATEUR_RESUME": "ملخص"
-  },
-  "GENERATEUR_ETATS": {
-    "FONCTIONNEL": "يعمل بشكل طبيعي",
-    "EN_PANNE": "متعطل",
-    "EN_REPARATION": "قيد الإصلاح",
-    "REFORME": "مُشطب"
   },
   "COMMON": {
     "FILTER_BY": "تصفية حسب {{field}}",
@@ -2489,6 +2499,9 @@
       "SERIAL_NUMBER": "الرقم التسلسلي",
       "INSTALLATION_DATE": "تاريخ التركيب",
       "LOCALIZATION": "الموقع",
+      "SALLE": "الغرفة",
+      "SALLE_NONE": "بدون غرفة",
+      "PRIX_ACQUISITION": "سعر الشراء",
       "STATUT": "الحالة",
       "FILTER_STATUT": "تصفية بالحالة",
       "NO_RESULTS": "لا توجد معدات",
@@ -2497,10 +2510,14 @@
       "SAVED_OK": "تم حفظ المعدة",
       "STATUS_UPDATED": "تم تحديث حالة المعدة",
       "MARK_OUT_OF_SERVICE": "وضع خارج الخدمة",
+      "REFORMER": "إخراج المعدة من الخدمة نهائياً",
       "REACTIVATE": "إعادة التفعيل",
       "CONFIRM_OUT_OF_SERVICE_TITLE": "وضع المعدة خارج الخدمة؟",
       "CONFIRM_OUT_OF_SERVICE_MESSAGE": "سيتم وضع المعدة {{code}} خارج الخدمة. يمكن التراجع عن هذا الإجراء بإعادة التفعيل.",
-      "DEFAULT_OUT_OF_SERVICE_REASON": "وضع خارج الخدمة من قائمة المعدات"
+      "DEFAULT_OUT_OF_SERVICE_REASON": "وضع خارج الخدمة من قائمة المعدات",
+      "CONFIRM_REFORME_TITLE": "إخراج هذه المعدة نهائيًا من الخدمة؟",
+      "CONFIRM_REFORME_MESSAGE": "هذا الإجراء نهائي: لا يمكن إعادة تفعيل المعدة أو استخدامها بعد ذلك.",
+      "DEFAULT_REFORME_MOTIF": "تم الإخراج النهائي من الخدمة عبر بطاقة المعدة"
     },
     "INTERVENTIONS": {
       "TITLE": "التدخلات",
@@ -2525,8 +2542,61 @@
       "CONFIRM_CANCEL_TITLE": "إلغاء التدخل؟",
       "CONFIRM_CANCEL_MESSAGE": "سيتم إلغاء هذا التدخل ولن يمكن استئنافه.",
       "DEFAULT_CANCEL_REASON": "تم إلغاؤه من قائمة التدخلات",
+      "INTERVENANT": "الفني",
+      "INTERVENANT_NONE": "بدون فني",
       "EQUIPMENT_ID": "معرّف المعدة",
-      "EQUIPMENT_ID_HINT": "المعرّف الفريد للمعدة (من قائمة المعدات)"
+      "EQUIPMENT_ID_HINT": "المعرّف الفريد للمعدة (من قائمة المعدات)",
+      "COST_LINE_ADDED": "تمت إضافة بند التكلفة"
+    },
+    "INTERVENANTS": {
+      "TITLE": "الفنيون",
+      "SUBTITLE": "إدارة فنيي الصيانة الداخليين والخارجيين.",
+      "CREATE_TITLE": "إضافة فني",
+      "EDIT_TITLE": "تعديل بيانات الفني",
+      "NOM": "الاسم",
+      "TYPE": "النوع",
+      "TELEPHONE": "الهاتف",
+      "TARIF_HORAIRE": "الأجر بالساعة",
+      "NO_RESULTS": "لم يتم العثور على فنيين",
+      "LOAD_ERROR": "خطأ في تحميل الفنيين",
+      "SAVE_ERROR": "خطأ في حفظ بيانات الفني",
+      "SAVED_OK": "تم حفظ بيانات الفني",
+      "DEACTIVATED": "تم تعطيل الفني",
+      "STATUT": "الحالة",
+      "ACTIF": "نشط",
+      "INACTIF": "غير نشط",
+      "DEACTIVATE": "إلغاء التفعيل"
+    },
+    "INTERVENANT_TYPE": {
+      "INTERNE": "داخلي",
+      "EXTERNE": "خارجي"
+    },
+    "FICHE": {
+      "TITLE": "بطاقة المعدة",
+      "BACK": "العودة إلى المعدات",
+      "NB_INTERVENTIONS": "عدد التدخلات",
+      "INDISPONIBILITE": "مدة التوقف",
+      "COUT_PERIODE": "تكلفة الصيانة خلال الفترة",
+      "DERNIERE_INTERVENTION": "آخر تدخل",
+      "AUCUNE_INTERVENTION": "لا توجد تدخلات مسجلة",
+      "PROCHAINE_MAINTENANCE": "الصيانة القادمة",
+      "AUCUN_PLAN": "لا توجد صيانة مجدولة"
+    },
+    "PATIENT_SAFETY": {
+      "WARNING": "تحذير: مولّد غسيل الكلى المحدد غير متاح ({{statut}}).",
+      "ERROR": "تعذّر التعيين: مولّد غسيل الكلى المحدد حالته ({{statut}}). اختر مولّدًا آخر لتتمكن من حفظ المريض."
+    },
+    "COUTS": {
+      "ADD_TITLE": "إضافة بند تكلفة",
+      "TOTAL": "التكلفة الإجمالية",
+      "TYPE": "النوع",
+      "TYPE_PIECE": "قطعة غيار",
+      "TYPE_MAIN_OEUVRE": "يد عاملة",
+      "TYPE_INTERVENANT": "فني",
+      "TYPE_AUTRE": "أخرى",
+      "LIBELLE": "التسمية",
+      "QUANTITE": "الكمية",
+      "PRIX_UNITAIRE": "السعر الوحدوي"
     },
     "EQUIPEMENT_TYPE": {
       "GENERATEUR_DIALYSE": "مولّد غسيل الكلى",
@@ -2547,7 +2617,8 @@
       "EN_MAINTENANCE": "في الصيانة",
       "EN_ATTENTE_PIECE": "في انتظار قطعة",
       "HORS_SERVICE": "خارج الخدمة",
-      "DESACTIF": "معطّل"
+      "DESACTIF": "معطّل",
+      "REFORME": "مُخرَج نهائياً من الخدمة"
     },
     "INTERVENTION_TYPE": {
       "PREVENTIVE": "صيانة وقائية",

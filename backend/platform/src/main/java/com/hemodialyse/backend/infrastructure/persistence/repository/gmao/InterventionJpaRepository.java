@@ -43,10 +43,10 @@ public interface InterventionJpaRepository extends JpaRepository<InterventionEnt
     List<InterventionEntity> findByCentreIdAndDateRange(@Param("centreId") UUID centreId, @Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
 
     /**
-     * Récupère les interventions d'un technicien
+     * Récupère les interventions d'un intervenant
      */
-    @Query("SELECT i FROM InterventionEntity i WHERE i.technicienId = :technicienId AND i.deletedAt IS NULL")
-    List<InterventionEntity> findByTechnicien(@Param("technicienId") UUID technicienId);
+    @Query("SELECT i FROM InterventionEntity i WHERE i.intervenantId = :intervenantId AND i.deletedAt IS NULL")
+    List<InterventionEntity> findByIntervenantId(@Param("intervenantId") UUID intervenantId);
 
     /**
      * Récupère les interventions en attente (planifiées ou en cours)
@@ -92,5 +92,17 @@ public interface InterventionJpaRepository extends JpaRepository<InterventionEnt
     @Query(value = "SELECT i FROM InterventionEntity i WHERE i.equipementId = :equipementId AND i.deletedAt IS NULL",
             countQuery = "SELECT COUNT(i) FROM InterventionEntity i WHERE i.equipementId = :equipementId AND i.deletedAt IS NULL")
     Page<InterventionEntity> findPageByEquipementId(@Param("equipementId") UUID equipementId, Pageable pageable);
+
+    /**
+     * Compte les interventions d'un équipement (fiche équipement — aide à la décision)
+     */
+    @Query("SELECT COUNT(i) FROM InterventionEntity i WHERE i.equipementId = :equipementId AND i.deletedAt IS NULL")
+    long countByEquipementId(@Param("equipementId") UUID equipementId);
+
+    /**
+     * Dernière intervention (par date de début) d'un équipement
+     */
+    @Query("SELECT i FROM InterventionEntity i WHERE i.equipementId = :equipementId AND i.deletedAt IS NULL ORDER BY i.dateDebut DESC")
+    List<InterventionEntity> findByEquipementIdOrderByDateDebutDesc(@Param("equipementId") UUID equipementId, Pageable pageable);
 }
 

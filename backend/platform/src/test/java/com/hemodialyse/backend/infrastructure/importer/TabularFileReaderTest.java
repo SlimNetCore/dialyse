@@ -48,13 +48,13 @@ class TabularFileReaderTest {
 
     @Test
     void readsTheExcelTemplateItProduces() {
-        ImportTable table = reader.read("modele.xlsx", writer.xlsx(ReferentialKind.GENERATEUR));
+        ImportTable table = reader.read("modele.xlsx", writer.xlsx(ReferentialKind.SALLE));
 
         assertThat(table.headers()).containsExactlyElementsOf(
-                ReferentialKind.GENERATEUR.fields().stream().map(ReferentialField::label).toList());
+                ReferentialKind.SALLE.fields().stream().map(ReferentialField::label).toList());
         assertThat(table.rows()).hasSize(1);
         assertThat(table.rows().getFirst().lineNumber()).isEqualTo(2);
-        assertThat(table.rows().getFirst().cells()).startsWith("G01", "S1");
+        assertThat(table.rows().getFirst().cells()).startsWith("S1", "Salle 1");
     }
 
     @Test

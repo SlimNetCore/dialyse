@@ -101,19 +101,19 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void referenceAcceptsIdOrCodeButOnlyFromTheSameCenter() {
-        UUID salle = repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
-        repo.seed(OTHER, ReferentialKind.SALLE, Map.of("code", "S9", "nom", "Salle autre centre"));
+        UUID caisse = repo.seed(CENTER, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "CNAS", "typeCaisse", "STANDARD"));
+        repo.seed(OTHER, ReferentialKind.CAISSE, Map.of("code", "CNAS9", "nom", "Autre centre", "typeCaisse", "STANDARD"));
 
-        ReferentialEntry byCode = service.create(CENTER, ReferentialKind.GENERATEUR, Map.of("numero", "G01", "salle", "s1"));
-        ReferentialEntry byId = service.create(CENTER, ReferentialKind.GENERATEUR,
-                Map.of("numero", "G02", "salle", salle.toString(), "etat", "en panne"));
+        ReferentialEntry byCode = service.create(CENTER, ReferentialKind.AGENCE,
+                Map.of("code", "AG1", "nom", "Agence 1", "caisse", "cnas"));
+        ReferentialEntry byId = service.create(CENTER, ReferentialKind.AGENCE,
+                Map.of("code", "AG2", "nom", "Agence 2", "caisse", caisse.toString()));
 
-        assertEquals(salle.toString(), byCode.values().get("salle"));
-        assertEquals("FONCTIONNEL", byCode.values().get("etat"));
-        assertEquals("EN_PANNE", byId.values().get("etat"));
+        assertEquals(caisse.toString(), byCode.values().get("caisse"));
+        assertEquals(caisse.toString(), byId.values().get("caisse"));
 
         ReferentialValidationException ex = assertThrows(ReferentialValidationException.class,
-                () -> service.create(CENTER, ReferentialKind.GENERATEUR, Map.of("numero", "G03", "salle", "S9")));
+                () -> service.create(CENTER, ReferentialKind.AGENCE, Map.of("code", "AG3", "nom", "Agence 3", "caisse", "CNAS9")));
         assertEquals("REFERENCE_NOT_FOUND", ex.getIssues().getFirst().code());
     }
 
@@ -145,10 +145,10 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void importReportsMissingRequiredColumnsAndIgnoredOnes() {
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.GENERATEUR,
-                table(List.of("Numéro", "Marque", "Couleur"), List.of("G01", "Fresenius", "bleu")), false);
+        ImportReport report = service.importEntries(CENTER, ReferentialKind.AGENCE,
+                table(List.of("Code", "Nom", "Couleur"), List.of("AG1", "Agence 1", "bleu")), false);
 
-        assertEquals(List.of("salle"), report.missingColumns());
+        assertEquals(List.of("caisse"), report.missingColumns());
         assertEquals(List.of("Couleur"), report.ignoredColumns());
         assertFalse(report.applied());
         assertFalse(report.isValid());

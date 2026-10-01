@@ -19,7 +19,7 @@ describe('CahierStepFicheComponent', () => {
       numeroAssurance: 'ASS-001',
       generateurNom: 'G10',
       generateurMarque: 'Fresenius',
-      generateurEtat: 'FONCTIONNEL',
+      generateurEtat: 'EN_SERVICE',
     })),
   };
 

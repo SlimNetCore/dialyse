@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.entity.gmao;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -9,13 +10,14 @@ import java.util.*;
  * Entité JPA pour Equipement GMAO
  */
 @Entity
-@Table(name = "gmao_equipements")
+@Table(name = "gmao_equipements",
+        uniqueConstraints = @UniqueConstraint(name = "uk_gmao_equipement_centre_code", columnNames = {"centreId", "code"}))
 public class EquipementEntity {
 
     @Id
     private UUID id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50)
     private String code;
 
     @Column(nullable = false, length = 255)
@@ -63,6 +65,12 @@ public class EquipementEntity {
     @Column
     private LocalDateTime deletedAt;
 
+    @Column
+    private UUID salleId;
+
+    @Column(precision = 14, scale = 2)
+    private BigDecimal prixAcquisition;
+
     // Constructeurs
     public EquipementEntity() {
     }
@@ -71,7 +79,8 @@ public class EquipementEntity {
                             String fabricant, String modele, String numeroSerie,
                             LocalDateTime dateInstallation, UUID centreId, String statut,
                             String localisation, String observations, LocalDateTime dateCreation,
-                            LocalDateTime dateModification, UUID creePar, UUID modifiePar) {
+                            LocalDateTime dateModification, UUID creePar, UUID modifiePar,
+                            UUID salleId, BigDecimal prixAcquisition) {
         this.id = id;
         this.code = code;
         this.designation = designation;
@@ -88,6 +97,8 @@ public class EquipementEntity {
         this.dateModification = dateModification;
         this.creePar = creePar;
         this.modifiePar = modifiePar;
+        this.salleId = salleId;
+        this.prixAcquisition = prixAcquisition;
     }
 
     // Getters et Setters
@@ -225,6 +236,22 @@ public class EquipementEntity {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public UUID getSalleId() {
+        return salleId;
+    }
+
+    public void setSalleId(UUID salleId) {
+        this.salleId = salleId;
+    }
+
+    public BigDecimal getPrixAcquisition() {
+        return prixAcquisition;
+    }
+
+    public void setPrixAcquisition(BigDecimal prixAcquisition) {
+        this.prixAcquisition = prixAcquisition;
     }
 }
 

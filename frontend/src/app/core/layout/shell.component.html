@@ -116,7 +116,7 @@
         type="button"
       >
         <mat-icon>{{ item.icon }}</mat-icon>
-        {{ item.label }}
+        {{ item.label | translate }}
       </button>
     }
   </div>
@@ -195,7 +195,7 @@
             class="crumb-btn"
             type="button"
           >
-            {{ b }}
+            {{ b | translate }}
           </button>
           @if (i < breadcrumbs().length - 1) {
             <mat-icon class="sep">chevron_right</mat-icon>
@@ -206,4 +206,3 @@
     <router-outlet/>
   </main>
 </div>
-

@@ -316,6 +316,47 @@
     </mat-card>
   }
 
+  @if (store.gmao(); as g) {
+    <mat-card class="block" data-testid="direction-gmao">
+      <h2>{{ 'DIRECTION.GMAO.TITLE' | translate }}</h2>
+      <p class="muted">{{ 'DIRECTION.GMAO.HINT' | translate }}</p>
+      <div class="table-scroll">
+        <table class="centres" data-testid="direction-gmao-table">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.NB_EQUIPEMENTS' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.HORS_SERVICE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.EN_MAINTENANCE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.REFORMES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.INTERVENTIONS_EN_COURS' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.COUT_MAINTENANCE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.INDISPONIBILITE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.PATIENTS_A_RISQUE' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (row of gmaoRows(); track row.c.centerId) {
+              <tr [class.total]="row.total">
+                <td>{{ row.total ? ('DIRECTION.TOTAL' | translate) : row.c.nom }}</td>
+                <td class="num">{{ row.c.nbEquipements }}</td>
+                <td [class.bad]="row.c.nbHorsService > 0" class="num">{{ row.c.nbHorsService }}</td>
+                <td [class.warn]="row.c.nbEnMaintenance > 0" class="num">{{ row.c.nbEnMaintenance }}</td>
+                <td class="num">{{ row.c.nbReformes }}</td>
+                <td class="num">{{ row.c.interventionsEnCours }}</td>
+                <td class="num">{{ row.c.coutMaintenancePeriode | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td class="num">{{ row.c.indisponibiliteHeuresCumulees | number: '1.0-1' }} h</td>
+                <td [class.bad]="row.c.patientsSurEquipementIndisponible > 0"
+                    class="num">{{ row.c.patientsSurEquipementIndisponible }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
+  }
+
   @if (breakdown(); as b) {
     <div class="charts">
       <mat-card class="block" data-testid="direction-sexe">

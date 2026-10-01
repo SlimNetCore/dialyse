@@ -243,7 +243,7 @@ describe('SeancesPageComponent', () => {
         numeroAssurance: 'ASS-001',
         generateurNom: 'G10',
         generateurMarque: 'Fresenius',
-        generateurEtat: 'FONCTIONNEL',
+        generateurEtat: 'EN_SERVICE',
       },
       paramedical: null,
       medical: null,
@@ -253,12 +253,12 @@ describe('SeancesPageComponent', () => {
     const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
     const translate = TestBed.inject(TranslateService) as any;
     translate.instant = (key: string) => (
-      key === 'GENERATEUR_ETATS.FONCTIONNEL' ? 'Fonctionnel' : key
+      key === 'GMAO.STATUT_EQUIPEMENT.EN_SERVICE' ? 'En service' : key
     );
 
     expect(component['currentForfaitName']()).toBe('Forfait hémodialyse');
     expect(component['currentForfaitPrice']()).toBe('3 500,00');
-    expect(component['generatorSummary']()).toBe('G10 — Fresenius — Fonctionnel');
+    expect(component['generatorSummary']()).toBe('G10 — Fresenius — En service');
   });
 
   it('should format forfait label and price in seances list helpers', () => {

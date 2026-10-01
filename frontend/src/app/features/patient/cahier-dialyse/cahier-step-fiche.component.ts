@@ -104,7 +104,7 @@ export class CahierStepFicheComponent implements OnInit {
     if (normalized === '-') {
       return '-';
     }
-    const key = `GENERATEUR_ETATS.${normalized.toUpperCase()}`;
+    const key = `GMAO.STATUT_EQUIPEMENT.${normalized.toUpperCase()}`;
     const translated = this.translate.instant(key);
     return translated && translated !== key ? translated : normalized.replaceAll('_', ' ');
   }

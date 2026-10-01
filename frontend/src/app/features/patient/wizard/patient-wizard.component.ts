@@ -79,6 +79,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   readonly step2Valid = this.ficheStore.step2Valid;
   readonly step4Valid = this.ficheStore.step4Valid;
   readonly step5Valid = this.ficheStore.step5Valid;
+  /** Faux quand le générateur affecté est réformé ou en panne : l'enregistrement du patient est alors bloqué. */
+  readonly affectationValid = signal(true);
   readonly isVacancier = computed(() => {
     this.wizardDataVersion(); // trigger re-eval on data change
     const etat = (this.wizardData['etatPatient'] ?? '').toString();
@@ -102,6 +104,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     const dataBase = this.isDataBaseValid();
     const base = this.editMode() ? uiBase || dataBase : uiBase;
     if (this.consultationMode()) return false;
+    if (!this.affectationValid()) return false;
     const uiAtt = this.step4Valid();
     const dataAtt = this.isAttestationDataValid();
     const attOk = this.editMode() ? uiAtt || dataAtt : uiAtt;

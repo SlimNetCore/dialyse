@@ -3,7 +3,12 @@ import {patchState, signalStore, withComputed, withMethods, withState} from '@ng
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, EMPTY, pipe, switchMap, tap} from 'rxjs';
-import {CreateInterventionPayload, GmaoApiService, Intervention} from '../../../core/api/gmao-api.service';
+import {
+  AjouterLigneCoutPayload,
+  CreateInterventionPayload,
+  GmaoApiService,
+  Intervention,
+} from '../../../core/api/gmao-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 
 type GmaoInterventionsState = PagedListState<Intervention> & {
@@ -105,6 +110,21 @@ export const GmaoInterventionsStore = signalStore(
         switchMap(({id, raison}) =>
           api.cancelIntervention(id, raison).pipe(
             tap(() => patchState(store, {saving: false, successMessage: 'GMAO.INTERVENTIONS.STATUS_UPDATED'})),
+            catchError(() => {
+              patchState(store, {saving: false, error: 'GMAO.INTERVENTIONS.SAVE_ERROR'});
+              return EMPTY;
+            }),
+          ),
+        ),
+      ),
+    ),
+
+    ajouterLigneCout: rxMethod<{ id: string; payload: AjouterLigneCoutPayload }>(
+      pipe(
+        tap(() => patchState(store, {saving: true, error: null, successMessage: null})),
+        switchMap(({id, payload}) =>
+          api.ajouterLigneCout(id, payload).pipe(
+            tap(() => patchState(store, {saving: false, successMessage: 'GMAO.INTERVENTIONS.COST_LINE_ADDED'})),
             catchError(() => {
               patchState(store, {saving: false, error: 'GMAO.INTERVENTIONS.SAVE_ERROR'});
               return EMPTY;

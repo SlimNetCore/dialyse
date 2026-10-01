@@ -20,6 +20,8 @@ function equipement(overrides: Partial<Equipement> = {}): Equipement {
     observations: null,
     dateCreation: '2024-01-01T00:00:00',
     dateModification: null,
+    salleId: null,
+    prixAcquisition: null,
     ...overrides,
   };
 }
@@ -31,6 +33,7 @@ describe('GmaoEquipementsStore', () => {
     updateEquipement: ReturnType<typeof vi.fn>;
     markEquipementOutOfService: ReturnType<typeof vi.fn>;
     reactivateEquipement: ReturnType<typeof vi.fn>;
+    reformerEquipement: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -40,6 +43,7 @@ describe('GmaoEquipementsStore', () => {
       updateEquipement: vi.fn().mockReturnValue(of(equipement())),
       markEquipementOutOfService: vi.fn().mockReturnValue(of(equipement({statut: 'HORS_SERVICE'}))),
       reactivateEquipement: vi.fn().mockReturnValue(of(equipement())),
+      reformerEquipement: vi.fn().mockReturnValue(of(equipement({statut: 'REFORME'}))),
     };
 
     TestBed.configureTestingModule({
@@ -80,6 +84,15 @@ describe('GmaoEquipementsStore', () => {
     expect(store.rows()).toEqual([]);
     expect(store.total()).toBe(0);
     expect(store.error()).toBe('GMAO.EQUIPEMENTS.LOAD_ERROR');
+  });
+
+  it('réforme un équipement et remonte un message de succès', () => {
+    const store = TestBed.inject(GmaoEquipementsStore);
+
+    store.reformer({id: 'eq-1', motif: 'Fin de vie'});
+
+    expect(apiMock.reformerEquipement).toHaveBeenCalledWith('eq-1', 'Fin de vie');
+    expect(store.successMessage()).toBe('GMAO.EQUIPEMENTS.STATUS_UPDATED');
   });
 
   it('marque un équipement hors service et remonte un message de succès', () => {

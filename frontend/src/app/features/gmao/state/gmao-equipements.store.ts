@@ -114,6 +114,21 @@ export const GmaoEquipementsStore = signalStore(
       ),
     ),
 
+    reformer: rxMethod<{ id: string; motif: string }>(
+      pipe(
+        tap(() => patchState(store, {saving: true, error: null, successMessage: null})),
+        switchMap(({id, motif}) =>
+          api.reformerEquipement(id, motif).pipe(
+            tap(() => patchState(store, {saving: false, successMessage: 'GMAO.EQUIPEMENTS.STATUS_UPDATED'})),
+            catchError(() => {
+              patchState(store, {saving: false, error: 'GMAO.EQUIPEMENTS.SAVE_ERROR'});
+              return EMPTY;
+            }),
+          ),
+        ),
+      ),
+    ),
+
     setStatutFilter(statutFilter: string | null): void {
       patchState(store, {statutFilter});
     },

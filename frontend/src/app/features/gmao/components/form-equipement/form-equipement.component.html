@@ -72,6 +72,22 @@
           <input [formField]="equipementForm.localisation" matInput/>
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.SALLE' | translate }}</mat-label>
+          <mat-select [formField]="equipementForm.salleId">
+            <mat-option [value]="''">{{ 'GMAO.EQUIPEMENTS.SALLE_NONE' | translate }}</mat-option>
+            @for (s of salles(); track s.id) {
+              <mat-option [value]="s.id">{{ s.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.PRIX_ACQUISITION' | translate }}</mat-label>
+          <input [formField]="equipementForm.prixAcquisition" matInput type="number"/>
+          <span matSuffix>{{ 'COMMON.CURRENCY_DA' | translate }}</span>
+        </mat-form-field>
+
         <div class="gmao-form-actions full-width">
           <a mat-stroked-button routerLink="/gmao/equipements">
             {{ 'COMMON.CANCEL' | translate }}

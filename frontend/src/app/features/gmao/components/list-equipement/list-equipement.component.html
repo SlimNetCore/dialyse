@@ -50,7 +50,7 @@
         <ng-container matColumnDef="designation">
           <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.EQUIPEMENTS.DESIGNATION' | translate }}</th>
           <td *matCellDef="let row" mat-cell>
-            <a [routerLink]="['/gmao/equipements', row.id, 'edit']">{{ row.designation }}</a>
+            <a [routerLink]="['/gmao/equipements', row.id]">{{ row.designation }}</a>
           </td>
         </ng-container>
 
@@ -81,17 +81,29 @@
                  mat-icon-button>
                 <mat-icon>edit</mat-icon>
               </a>
-              @if (row.statut !== 'HORS_SERVICE') {
-                <button (click)="markOutOfService(row)" [disabled]="store.saving()" [matTooltip]="'GMAO.EQUIPEMENTS.MARK_OUT_OF_SERVICE' | translate"
+              @if (row.statut === 'REFORME') {
+                <span class="gmao-reforme-note">{{ 'GMAO.STATUT_EQUIPEMENT.REFORME' | translate }}</span>
+              } @else {
+                @if (row.statut !== 'HORS_SERVICE') {
+                  <button (click)="markOutOfService(row)" [disabled]="store.saving()"
+                          [matTooltip]="'GMAO.EQUIPEMENTS.MARK_OUT_OF_SERVICE' | translate"
+                          color="warn"
+                          mat-icon-button>
+                    <mat-icon>report</mat-icon>
+                  </button>
+                } @else {
+                  <button (click)="reactivate(row)" [disabled]="store.saving()"
+                          [matTooltip]="'GMAO.EQUIPEMENTS.REACTIVATE' | translate"
+                          color="primary"
+                          mat-icon-button>
+                    <mat-icon>restart_alt</mat-icon>
+                  </button>
+                }
+                <button (click)="reformer(row)" [disabled]="store.saving()"
+                        [matTooltip]="'GMAO.EQUIPEMENTS.REFORMER' | translate"
                         color="warn"
                         mat-icon-button>
-                  <mat-icon>report</mat-icon>
-                </button>
-              } @else {
-                <button (click)="reactivate(row)" [disabled]="store.saving()" [matTooltip]="'GMAO.EQUIPEMENTS.REACTIVATE' | translate"
-                        color="primary"
-                        mat-icon-button>
-                  <mat-icon>restart_alt</mat-icon>
+                  <mat-icon>delete_forever</mat-icon>
                 </button>
               }
             </div>

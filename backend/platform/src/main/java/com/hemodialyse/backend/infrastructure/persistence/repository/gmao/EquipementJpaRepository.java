@@ -31,10 +31,22 @@ public interface EquipementJpaRepository extends JpaRepository<EquipementEntity,
     List<EquipementEntity> findByCentreIdAndStatut(@Param("centreId") UUID centreId, @Param("statut") String statut);
 
     /**
-     * Récupère un équipement par code
+     * Récupère un équipement par code (unique par centre — AGENTS.md §2, pas globalement)
      */
-    @Query("SELECT e FROM EquipementEntity e WHERE e.code = :code AND e.deletedAt IS NULL")
-    Optional<EquipementEntity> findByCode(@Param("code") String code);
+    @Query("SELECT e FROM EquipementEntity e WHERE e.centreId = :centreId AND e.code = :code AND e.deletedAt IS NULL")
+    Optional<EquipementEntity> findByCentreIdAndCode(@Param("centreId") UUID centreId, @Param("code") String code);
+
+    /**
+     * Équipements d'un centre par type (utilisé pour retrouver les générateurs de dialyse — référentiel unifié)
+     */
+    @Query("SELECT e FROM EquipementEntity e WHERE e.centreId = :centreId AND e.type = :type AND e.deletedAt IS NULL ORDER BY e.code")
+    List<EquipementEntity> findByCentreIdAndType(@Param("centreId") UUID centreId, @Param("type") String type);
+
+    /**
+     * Équipements d'un centre par type et salle
+     */
+    @Query("SELECT e FROM EquipementEntity e WHERE e.centreId = :centreId AND e.type = :type AND e.salleId = :salleId AND e.deletedAt IS NULL ORDER BY e.code")
+    List<EquipementEntity> findByCentreIdAndTypeAndSalleId(@Param("centreId") UUID centreId, @Param("type") String type, @Param("salleId") UUID salleId);
 
     /**
      * Compte les équipements d'un centre

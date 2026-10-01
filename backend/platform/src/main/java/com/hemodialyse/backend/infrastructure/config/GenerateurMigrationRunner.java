@@ -1,0 +1,93 @@
+package com.hemodialyse.backend.infrastructure.config;
+
+import com.hemodialyse.backend.domain.gmao.model.Equipement;
+import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
+import com.hemodialyse.backend.domain.gmao.model.TypeEquipement;
+import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * Migration idempotente, au démarrage, de l'ancien référentiel plat {@code generateur} vers l'agrégat
+ * GMAO {@code Equipement} (type {@code GENERATEUR_DIALYSE}), qui en devient la source de vérité unique
+ * (module GMAO v2 — l'ancien référentiel ne comporte pas de vrai statut de maintenance).
+ * <p>
+ * Préserve l'{@code id} d'origine : {@code patients.generateur_id} n'a aucune contrainte FK (voir
+ * {@code PatientJpaEntity}) et reste donc valide sans aucune réécriture.
+ * <p>
+ * Défensif comme {@link SeedPasswordInitializer} : si la table {@code generateur} n'existe pas (base
+ * neuve — elle n'est plus créée par {@code db/schema.sql}), ce composant ne fait rien.
+ */
+@Component
+public class GenerateurMigrationRunner implements CommandLineRunner {
+
+    private final JdbcTemplate jdbc;
+    private final EquipementRepositoryPort equipementRepository;
+
+    public GenerateurMigrationRunner(JdbcTemplate jdbc, EquipementRepositoryPort equipementRepository) {
+        this.jdbc = jdbc;
+        this.equipementRepository = equipementRepository;
+    }
+
+    @Override
+    public void run(String... args) {
+        for (Map<String, Object> row : safeFindLegacyGenerateurs()) {
+            UUID id = (UUID) row.get("id");
+            if (equipementRepository.existsById(id)) {
+                continue;
+            }
+            equipementRepository.save(toEquipement(row, id));
+        }
+    }
+
+    private Equipement toEquipement(Map<String, Object> row, UUID id) {
+        String numero = (String) row.get("numero");
+        return Equipement.reconstruct(
+                id,
+                numero,
+                "Générateur " + numero,
+                TypeEquipement.GENERATEUR_DIALYSE,
+                (String) row.get("marque"),
+                (String) row.get("modele"),
+                null,
+                LocalDateTime.now(),
+                (UUID) row.get("center_id"),
+                mapStatut((String) row.get("etat")),
+                null,
+                "Migré automatiquement depuis l'ancien référentiel \"generateur\"",
+                LocalDateTime.now(),
+                null,
+                new UUID(0, 0),
+                null,
+                (UUID) row.get("salle_id"),
+                null
+        );
+    }
+
+    private StatutEquipement mapStatut(String etat) {
+        if (etat == null) return StatutEquipement.EN_SERVICE;
+        return switch (etat) {
+            case "EN_MAINTENANCE", "EN_REPARATION" -> StatutEquipement.EN_MAINTENANCE;
+            case "EN_PANNE", "HORS_SERVICE" -> StatutEquipement.HORS_SERVICE;
+            case "REFORME" -> StatutEquipement.REFORME;
+            default -> StatutEquipement.EN_SERVICE;
+        };
+    }
+
+    private List<Map<String, Object>> safeFindLegacyGenerateurs() {
+        try {
+            return jdbc.queryForList(
+                    "SELECT id, salle_id, center_id, numero, marque, modele, etat FROM generateur");
+        } catch (DataAccessException ignored) {
+            // Base neuve : la table n'existe plus (retirée de db/schema.sql) — rien à migrer.
+            return List.of();
+        }
+    }
+}

@@ -80,4 +80,23 @@ export class GmaoListEquipementComponent {
   reactivate(row: Equipement): void {
     this.store.reactivate(row.id);
   }
+
+  reformer(row: Equipement): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: 'min(96vw, 460px)',
+      data: {
+        title: this.translate.instant('GMAO.EQUIPEMENTS.CONFIRM_REFORME_TITLE'),
+        message: this.translate.instant('GMAO.EQUIPEMENTS.CONFIRM_REFORME_MESSAGE'),
+        confirmLabel: this.translate.instant('COMMON.CONFIRM'),
+        cancelLabel: this.translate.instant('COMMON.CANCEL'),
+        color: 'warn',
+        icon: 'delete_forever',
+      },
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+      const motif = this.translate.instant('GMAO.EQUIPEMENTS.DEFAULT_REFORME_MOTIF');
+      this.store.reformer({id: row.id, motif});
+    });
+  }
 }
