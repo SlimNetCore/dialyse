@@ -1,0 +1,145 @@
+/* Pastilles de statut partagées par le dashboard et les listes GMAO. */
+.gmao-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.gmao-badge.success {
+  background: color-mix(in srgb, #2e7d32 14%, transparent);
+  color: #2e7d32;
+}
+
+.gmao-badge.warning {
+  background: color-mix(in srgb, #e65100 14%, transparent);
+  color: #e65100;
+}
+
+.gmao-badge.info {
+  background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+  color: var(--app-primary);
+}
+
+.gmao-badge.danger {
+  background: color-mix(in srgb, #c62828 14%, transparent);
+  color: #c62828;
+}
+
+.gmao-badge.neutral {
+  background: var(--app-frost);
+  color: var(--app-muted);
+}
+
+.gmao-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+}
+
+.gmao-table {
+  width: 100%;
+}
+
+.gmao-table .mat-mdc-header-cell {
+  color: var(--app-primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gmao-table .mat-mdc-row:hover {
+  background: var(--app-frost);
+}
+
+.gmao-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.gmao-toolbar .spacer {
+  flex: 1 1 auto;
+}
+
+.gmao-status-filter {
+  min-width: 220px;
+}
+
+.gmao-empty-state {
+  text-align: center;
+  padding: 56px 16px;
+  color: var(--app-muted);
+}
+
+.gmao-empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+  opacity: 0.6;
+}
+
+.gmao-row-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+}
+
+.gmao-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px 16px;
+}
+
+.gmao-form-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.gmao-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.gmao-feedback {
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.gmao-feedback.success {
+  background: color-mix(in srgb, #2e7d32 12%, transparent);
+  color: #2e7d32;
+}
+
+.gmao-feedback.error {
+  background: color-mix(in srgb, #c62828 12%, transparent);
+  color: #c62828;
+}
+
+@media (max-width: 767px) {
+  .gmao-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gmao-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gmao-status-filter {
+    min-width: 0;
+    width: 100%;
+  }
+}

@@ -1,0 +1,179 @@
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {environment} from '../../../environments/environment';
+
+export type TypeEquipement =
+  | 'GENERATEUR_DIALYSE' | 'STATION_TRAITEMENT_EAU' | 'RO_REVERSE_OSMOSIS'
+  | 'ULTRAFILTRE' | 'CHARBON_ACTIF' | 'ADOUCISSEUR' | 'DESINFECTANT_CHIMIQUE'
+  | 'FILTRE_PARTICULES' | 'POMPE_EAU' | 'COMPRESSEUR_AIR' | 'ALARME_SURVEILLANCE' | 'AUTRE';
+
+export type StatutEquipement = 'EN_SERVICE' | 'EN_MAINTENANCE' | 'EN_ATTENTE_PIECE' | 'HORS_SERVICE' | 'DESACTIF';
+
+export type TypeIntervention =
+  | 'PREVENTIVE' | 'CURATIVE' | 'URGENTE' | 'CONTROLE' | 'INSTALLATION'
+  | 'DEINSTALLATION' | 'REMPLACEMENT_PIECE' | 'REVISION_COMPLETE';
+
+export type StatutIntervention = 'PLANIFIEE' | 'EN_COURS' | 'TERMINEE' | 'ANNULEE' | 'EN_ATTENTE_VALIDATION';
+
+export interface Equipement {
+  id: string;
+  code: string;
+  designation: string;
+  type: TypeEquipement;
+  fabricant: string | null;
+  modele: string | null;
+  numeroSerie: string | null;
+  dateInstallation: string;
+  statut: StatutEquipement;
+  localisation: string | null;
+  observations: string | null;
+  dateCreation: string;
+  dateModification: string | null;
+}
+
+export interface Intervention {
+  id: string;
+  equipementId: string;
+  centreId: string;
+  type: TypeIntervention;
+  statut: StatutIntervention;
+  dateDebut: string;
+  dateFin: string | null;
+  technicien: string | null;
+  description: string;
+  actions: string | null;
+  pieceRemplacee: string | null;
+  cout: number | null;
+  observations: string | null;
+  dateCreation: string;
+  dateModification: string | null;
+}
+
+export interface GmaoStats {
+  totalEquipements: number;
+  equipementsEnService: number;
+  equipementsEnMaintenance: number;
+  equipementsHorsService: number;
+  totalInterventions: number;
+  interventionsEnCours: number;
+  interventionsTerminees: number;
+  plansMaintenanceActifs: number;
+  plansMaintenanceEnRetard: number;
+}
+
+export type PagedResponse<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  size: number;
+};
+
+export interface CreateEquipementPayload {
+  code: string;
+  designation: string;
+  type: TypeEquipement;
+  fabricant?: string | null;
+  modele?: string | null;
+  numeroSerie?: string | null;
+  dateInstallation: string;
+  localisation?: string | null;
+}
+
+export interface UpdateEquipementPayload {
+  designation: string;
+  fabricant?: string | null;
+  modele?: string | null;
+  numeroSerie?: string | null;
+  localisation?: string | null;
+}
+
+export interface CreateInterventionPayload {
+  equipementId: string;
+  type: TypeIntervention;
+  dateDebut: string;
+  description: string;
+  technicienId?: string | null;
+}
+
+/**
+ * Client HTTP du module GMAO (gestion de maintenance des équipements).
+ * Toutes les listes sont paginées côté serveur (AGENTS.md §9) — le centre courant
+ * est toujours déduit de la session authentifiée côté backend, jamais passé en paramètre ici.
+ */
+@Injectable({providedIn: 'root'})
+export class GmaoApiService {
+  private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiBaseUrl}/gmao`;
+
+  // ---- Équipements ----
+
+  listEquipements(page: number, size: number, statut?: string | null): Observable<PagedResponse<Equipement>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (statut) params = params.set('statut', statut);
+    return this.http.get<PagedResponse<Equipement>>(`${this.base}/equipements`, {params});
+  }
+
+  getEquipement(id: string): Observable<Equipement> {
+    return this.http.get<Equipement>(`${this.base}/equipements/${id}`);
+  }
+
+  createEquipement(payload: CreateEquipementPayload): Observable<Equipement> {
+    return this.http.post<Equipement>(`${this.base}/equipements`, payload);
+  }
+
+  updateEquipement(id: string, payload: UpdateEquipementPayload): Observable<Equipement> {
+    return this.http.put<Equipement>(`${this.base}/equipements/${id}`, payload);
+  }
+
+  markEquipementOutOfService(id: string, raison: string): Observable<Equipement> {
+    return this.http.post<Equipement>(`${this.base}/equipements/${id}/hors-service`, {raison});
+  }
+
+  reactivateEquipement(id: string): Observable<Equipement> {
+    return this.http.post<Equipement>(`${this.base}/equipements/${id}/reactiver`, {});
+  }
+
+  addEquipementObservation(id: string, observation: string): Observable<Equipement> {
+    return this.http.post<Equipement>(`${this.base}/equipements/${id}/observations`, {observation});
+  }
+
+  // ---- Interventions ----
+
+  listInterventions(
+    page: number,
+    size: number,
+    options?: { statut?: string | null; equipementId?: string | null },
+  ): Observable<PagedResponse<Intervention>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (options?.statut) params = params.set('statut', options.statut);
+    if (options?.equipementId) params = params.set('equipementId', options.equipementId);
+    return this.http.get<PagedResponse<Intervention>>(`${this.base}/interventions`, {params});
+  }
+
+  getIntervention(id: string): Observable<Intervention> {
+    return this.http.get<Intervention>(`${this.base}/interventions/${id}`);
+  }
+
+  createIntervention(payload: CreateInterventionPayload): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions`, payload);
+  }
+
+  startIntervention(id: string): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/demarrer`, {});
+  }
+
+  finishIntervention(id: string, actions: string): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/terminer`, {actions});
+  }
+
+  cancelIntervention(id: string, raison: string): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/annuler`, {raison});
+  }
+
+  // ---- Statistiques (dashboard) ----
+
+  getStats(): Observable<GmaoStats> {
+    return this.http.get<GmaoStats>(`${this.base}/stats`);
+  }
+}

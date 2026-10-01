@@ -34,6 +34,7 @@
         <module>bc-facturation</module>
         <module>bc-reglement</module>
         <module>bc-comptabilite</module>
+        <module>bc-gmao</module>
         <module>bc-migration</module>
         <module>platform</module>
     </modules>
@@ -107,6 +108,11 @@
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>bc-comptabilite</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hemodialyse</groupId>
+                <artifactId>bc-gmao</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>

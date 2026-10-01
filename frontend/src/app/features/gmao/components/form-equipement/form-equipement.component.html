@@ -1,0 +1,91 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'GMAO.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">
+      {{ (isEditing() ? 'GMAO.EQUIPEMENTS.EDIT_TITLE' : 'GMAO.EQUIPEMENTS.CREATE_TITLE') | translate }}
+    </h1>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (error()) {
+    <p class="gmao-feedback error">{{ error()! | translate }}</p>
+  }
+
+  <mat-card>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="equipementForm" class="gmao-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.CODE' | translate }}</mat-label>
+          @if (isEditing()) {
+            <input [value]="formModel().code" disabled matInput/>
+          } @else {
+            <input [formField]="equipementForm.code" matInput/>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.TYPE' | translate }}</mat-label>
+          @if (isEditing()) {
+            <input [value]="('GMAO.EQUIPEMENT_TYPE.' + formModel().type) | translate" disabled matInput/>
+          } @else {
+            <mat-select [formField]="equipementForm.type">
+              @for (t of types; track t) {
+                <mat-option [value]="t">{{ ('GMAO.EQUIPEMENT_TYPE.' + t) | translate }}</mat-option>
+              }
+            </mat-select>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.DESIGNATION' | translate }}</mat-label>
+          <input [formField]="equipementForm.designation" matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.MANUFACTURER' | translate }}</mat-label>
+          <input [formField]="equipementForm.fabricant" matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.MODEL' | translate }}</mat-label>
+          <input [formField]="equipementForm.modele" matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.SERIAL_NUMBER' | translate }}</mat-label>
+          <input [formField]="equipementForm.numeroSerie" matInput/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.INSTALLATION_DATE' | translate }}</mat-label>
+          @if (isEditing()) {
+            <input [value]="formModel().dateInstallation" disabled matInput/>
+          } @else {
+            <input [formField]="equipementForm.dateInstallation" matInput type="date"/>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.EQUIPEMENTS.LOCALIZATION' | translate }}</mat-label>
+          <input [formField]="equipementForm.localisation" matInput/>
+        </mat-form-field>
+
+        <div class="gmao-form-actions full-width">
+          <a mat-stroked-button routerLink="/gmao/equipements">
+            {{ 'COMMON.CANCEL' | translate }}
+          </a>
+          <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+
+        @if (saving()) {
+          <mat-progress-bar class="full-width" mode="indeterminate"/>
+        }
+      </form>
+    </mat-card-content>
+  </mat-card>
+</section>

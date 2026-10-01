@@ -1,0 +1,37 @@
+.gmao-stat-section {
+  display: grid;
+  gap: 12px;
+}
+
+.gmao-stat-title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--app-text);
+}
+
+.app-data-pill.tone-success strong {
+  color: #2e7d32;
+}
+
+.app-data-pill.tone-warning strong {
+  color: #e65100;
+}
+
+.app-data-pill.tone-danger strong {
+  color: #c62828;
+}
+
+.gmao-overdue-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #c62828;
+  font-size: 13px;
+}
+
+.gmao-overdue-note mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}

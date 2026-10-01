@@ -1,0 +1,113 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'GMAO.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'GMAO.EQUIPEMENTS.TITLE' | translate }}</h1>
+    <div class="app-button-cluster">
+      <a color="primary" mat-flat-button routerLink="/gmao/equipements/new">
+        <mat-icon>add</mat-icon>
+        {{ 'GMAO.EQUIPEMENTS.NEW' | translate }}
+      </a>
+    </div>
+  </div>
+
+  @if (store.error()) {
+    <p class="gmao-feedback error">{{ store.error()! | translate }}</p>
+  }
+  @if (store.successMessage()) {
+    <p class="gmao-feedback success">{{ store.successMessage()! | translate }}</p>
+  }
+
+  <div class="gmao-toolbar">
+    <mat-form-field appearance="outline" class="gmao-status-filter">
+      <mat-label>{{ 'GMAO.EQUIPEMENTS.FILTER_STATUT' | translate }}</mat-label>
+      <mat-select (selectionChange)="onStatutFilterChange($event.value)" [value]="store.statutFilter()">
+        <mat-option [value]="null">{{ 'GMAO.ALL_STATUSES' | translate }}</mat-option>
+        @for (s of statuts; track s) {
+          <mat-option [value]="s">{{ ('GMAO.STATUT_EQUIPEMENT.' + s) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <span class="spacer"></span>
+  </div>
+
+  @if (store.loading() && store.isEmpty()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  @if (!store.loading() && store.isEmpty()) {
+    <div class="gmao-empty-state">
+      <mat-icon>precision_manufacturing</mat-icon>
+      <p>{{ 'GMAO.EQUIPEMENTS.NO_RESULTS' | translate }}</p>
+    </div>
+  } @else {
+    <div class="gmao-table-wrap">
+      <table [dataSource]="store.rows()" class="gmao-table" mat-table>
+        <ng-container matColumnDef="code">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.EQUIPEMENTS.CODE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.code }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="designation">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.EQUIPEMENTS.DESIGNATION' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            <a [routerLink]="['/gmao/equipements', row.id, 'edit']">{{ row.designation }}</a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.EQUIPEMENTS.TYPE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ ('GMAO.EQUIPEMENT_TYPE.' + row.type) | translate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="statut">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.EQUIPEMENTS.STATUT' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            <span [class]="statutEquipementTone(row.statut)" class="gmao-badge">
+              {{ ('GMAO.STATUT_EQUIPEMENT.' + row.statut) | translate }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="localisation">
+          <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.EQUIPEMENTS.LOCALIZATION' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.localisation || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell></th>
+          <td *matCellDef="let row" mat-cell>
+            <div class="gmao-row-actions">
+              <a [matTooltip]="'COMMON.EDIT' | translate" [routerLink]="['/gmao/equipements', row.id, 'edit']"
+                 mat-icon-button>
+                <mat-icon>edit</mat-icon>
+              </a>
+              @if (row.statut !== 'HORS_SERVICE') {
+                <button (click)="markOutOfService(row)" [disabled]="store.saving()" [matTooltip]="'GMAO.EQUIPEMENTS.MARK_OUT_OF_SERVICE' | translate"
+                        color="warn"
+                        mat-icon-button>
+                  <mat-icon>report</mat-icon>
+                </button>
+              } @else {
+                <button (click)="reactivate(row)" [disabled]="store.saving()" [matTooltip]="'GMAO.EQUIPEMENTS.REACTIVATE' | translate"
+                        color="primary"
+                        mat-icon-button>
+                  <mat-icon>restart_alt</mat-icon>
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="columns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: columns" mat-row></tr>
+      </table>
+
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [length]="store.total()"
+        [pageIndex]="store.pageIndex()"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        [pageSize]="store.pageSize()"/>
+    </div>
+  }
+</section>

@@ -1,0 +1,91 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'GMAO.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'GMAO.DASHBOARD.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'GMAO.DASHBOARD.SUBTITLE' | translate }}</p>
+    <div class="app-button-cluster">
+      <a color="primary" mat-flat-button routerLink="/gmao/equipements">
+        <mat-icon>precision_manufacturing</mat-icon>
+        {{ 'GMAO.DASHBOARD.VIEW_EQUIPMENT' | translate }}
+      </a>
+      <a mat-stroked-button routerLink="/gmao/interventions">
+        <mat-icon>build</mat-icon>
+        {{ 'GMAO.DASHBOARD.VIEW_INTERVENTIONS' | translate }}
+      </a>
+      <a mat-stroked-button routerLink="/gmao/equipements/new">
+        <mat-icon>add</mat-icon>
+        {{ 'GMAO.EQUIPEMENTS.NEW' | translate }}
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  @if (error()) {
+    <p class="gmao-feedback error">{{ error()! | translate }}</p>
+  }
+
+  @if (stats(); as s) {
+    <div class="gmao-stat-section">
+      <h2 class="gmao-stat-title">{{ 'GMAO.DASHBOARD.EQUIPMENT_SECTION' | translate }}</h2>
+      <div class="app-data-strip">
+        <div class="app-data-pill">
+          <span>{{ 'GMAO.DASHBOARD.TOTAL_EQUIPMENT' | translate }}</span>
+          <strong>{{ s.totalEquipements }}</strong>
+        </div>
+        <div class="app-data-pill tone-success">
+          <span>{{ 'GMAO.STATUT_EQUIPEMENT.EN_SERVICE' | translate }}</span>
+          <strong>{{ s.equipementsEnService }}</strong>
+        </div>
+        <div class="app-data-pill tone-warning">
+          <span>{{ 'GMAO.STATUT_EQUIPEMENT.EN_MAINTENANCE' | translate }}</span>
+          <strong>{{ s.equipementsEnMaintenance }}</strong>
+        </div>
+        <div class="app-data-pill tone-danger">
+          <span>{{ 'GMAO.STATUT_EQUIPEMENT.HORS_SERVICE' | translate }}</span>
+          <strong>{{ s.equipementsHorsService }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="gmao-stat-section">
+      <h2 class="gmao-stat-title">{{ 'GMAO.DASHBOARD.INTERVENTION_SECTION' | translate }}</h2>
+      <div class="app-data-strip">
+        <div class="app-data-pill">
+          <span>{{ 'GMAO.DASHBOARD.TOTAL_INTERVENTIONS' | translate }}</span>
+          <strong>{{ s.totalInterventions }}</strong>
+        </div>
+        <div class="app-data-pill tone-warning">
+          <span>{{ 'GMAO.STATUT_INTERVENTION.EN_COURS' | translate }}</span>
+          <strong>{{ s.interventionsEnCours }}</strong>
+        </div>
+        <div class="app-data-pill tone-success">
+          <span>{{ 'GMAO.STATUT_INTERVENTION.TERMINEE' | translate }}</span>
+          <strong>{{ s.interventionsTerminees }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="gmao-stat-section">
+      <h2 class="gmao-stat-title">{{ 'GMAO.DASHBOARD.PLAN_SECTION' | translate }}</h2>
+      <div class="app-data-strip">
+        <div class="app-data-pill tone-success">
+          <span>{{ 'GMAO.DASHBOARD.ACTIVE_PLANS' | translate }}</span>
+          <strong>{{ s.plansMaintenanceActifs }}</strong>
+        </div>
+        <div [class.tone-danger]="s.plansMaintenanceEnRetard > 0" class="app-data-pill">
+          <span>{{ 'GMAO.DASHBOARD.OVERDUE_PLANS' | translate }}</span>
+          <strong>{{ s.plansMaintenanceEnRetard }}</strong>
+        </div>
+      </div>
+      @if (s.plansMaintenanceEnRetard > 0) {
+        <p class="gmao-overdue-note">
+          <mat-icon>warning</mat-icon>
+          {{ 'GMAO.DASHBOARD.OVERDUE_NOTE' | translate }}
+        </p>
+      }
+    </div>
+  }
+</section>

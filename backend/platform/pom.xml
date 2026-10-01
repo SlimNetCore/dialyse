@@ -66,6 +66,10 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
+            <artifactId>bc-gmao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
             <artifactId>bc-migration</artifactId>
         </dependency>
         <dependency>

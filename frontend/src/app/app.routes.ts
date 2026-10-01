@@ -25,6 +25,10 @@ export const routes: Routes = [
       },
       {path: 'stock', loadChildren: () => import('./features/stock/stock.routes').then(m => m.stockRoutes)},
       {
+        path: 'gmao',
+        loadChildren: () => import('./features/gmao/gmao.routes').then(m => m.GMAO_ROUTES)
+      },
+      {
         path: 'facturation',
         loadChildren: () => import('./features/facturation/facturation.routes').then(m => m.facturationRoutes)
       },
