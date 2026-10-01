@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.infrastructure.web.rest.gmao;
 
+import com.hemodialyse.backend.application.gmao.InterventionEquipementStatutService;
 import com.hemodialyse.backend.domain.gmao.model.*;
+import com.hemodialyse.backend.domain.gmao.port.IntervenantRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.InterventionRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
@@ -18,6 +20,10 @@ import java.util.UUID;
 /**
  * REST Controller pour la gestion des interventions GMAO.
  * Isolation multi-centre systématique (AGENTS.md §2). Liste obligatoirement paginée (AGENTS.md §9).
+ * <p>
+ * L'utilisateur saisit l'état de l'équipement à la création (appliqué au démarrage) et après l'intervention
+ * (appliqué à la clôture) ; « À réformer » n'est qu'une proposition — la réforme elle-même relève d'une
+ * personne habilitée ({@code EquipementRestController#reformerEquipement}).
  */
 @RestController
 @RequestMapping("/api/v1/gmao/interventions")
@@ -25,9 +31,15 @@ import java.util.UUID;
 public class InterventionRestController {
 
     private final InterventionRepositoryPort interventionRepository;
+    private final IntervenantRepositoryPort intervenantRepository;
+    private final InterventionEquipementStatutService statutService;
 
-    public InterventionRestController(InterventionRepositoryPort interventionRepository) {
+    public InterventionRestController(InterventionRepositoryPort interventionRepository,
+                                      IntervenantRepositoryPort intervenantRepository,
+                                      InterventionEquipementStatutService statutService) {
         this.interventionRepository = interventionRepository;
+        this.intervenantRepository = intervenantRepository;
+        this.statutService = statutService;
     }
 
     /**
@@ -39,14 +51,17 @@ public class InterventionRestController {
             Authentication authentication) {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UUID centreId = UUID.fromString(principal.getCenterId());
+        statutService.requireEquipement(request.equipementId(), centreId);
 
         Intervention intervention = Intervention.creer(
                 request.equipementId(),
-                UUID.fromString(principal.getCenterId()),
+                centreId,
                 TypeIntervention.valueOf(request.type()),
                 request.dateDebut(),
                 request.description(),
                 request.intervenantId(),
+                StatutEquipement.valueOf(request.etatEquipementAvant()),
                 UUID.fromString(principal.getId())
         );
 
@@ -57,11 +72,14 @@ public class InterventionRestController {
     }
 
     /**
-     * Récupère une intervention par ID
+     * Récupère une intervention par ID (restreinte au centre courant)
      */
     @GetMapping("/{id}")
-    public ResponseEntity<InterventionResponse> obtenirIntervention(@PathVariable String id) {
+    public ResponseEntity<InterventionResponse> obtenirIntervention(
+            @PathVariable String id, Authentication authentication) {
+        UUID centreId = centreId(authentication);
         return interventionRepository.findById(UUID.fromString(id))
+                .filter(i -> i.getCentreId().equals(centreId))
                 .map(InterventionResponse::new)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -79,11 +97,12 @@ public class InterventionRestController {
             @RequestParam(defaultValue = "20") int size,
             Authentication authentication) {
 
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UUID centreId = centreId(authentication);
 
         PagedResult<Intervention> paged = equipementId != null
-                ? interventionRepository.findPagedByEquipementId(equipementId, page, size)
-                : interventionRepository.findPaged(UUID.fromString(principal.getCenterId()), statut, page, size);
+                ? interventionRepository.findPagedByEquipementId(
+                statutService.requireEquipement(equipementId, centreId).getId(), page, size)
+                : interventionRepository.findPaged(centreId, statut, page, size);
 
         return ResponseEntity.ok(new PagedResult<>(
                 paged.items().stream().map(InterventionResponse::new).toList(),
@@ -94,7 +113,7 @@ public class InterventionRestController {
     }
 
     /**
-     * Démarre une intervention
+     * Démarre une intervention : l'équipement prend l'état saisi à la création
      */
     @PostMapping("/{id}/demarrer")
     public ResponseEntity<InterventionResponse> demarrerIntervention(
@@ -102,18 +121,19 @@ public class InterventionRestController {
             Authentication authentication) {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UUID userId = UUID.fromString(principal.getId());
+        Intervention intervention = requireIntervention(id, centreId(authentication));
 
-        Intervention intervention = interventionRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new IllegalArgumentException("Intervention non trouvée"));
-
-        intervention.demarrer(UUID.fromString(principal.getId()));
+        intervention.demarrer(userId);
+        statutService.appliquerEtat(intervention.getEquipementId(), intervention.getCentreId(),
+                intervention.getEtatEquipementAvant(), "Intervention démarrée", userId);
         interventionRepository.save(intervention);
 
         return ResponseEntity.ok(new InterventionResponse(intervention));
     }
 
     /**
-     * Termine une intervention
+     * Termine une intervention : l'équipement prend l'état saisi après intervention
      */
     @PostMapping("/{id}/terminer")
     public ResponseEntity<InterventionResponse> terminerIntervention(
@@ -122,11 +142,19 @@ public class InterventionRestController {
             Authentication authentication) {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UUID userId = UUID.fromString(principal.getId());
+        UUID centreId = centreId(authentication);
+        Intervention intervention = requireIntervention(id, centreId);
 
-        Intervention intervention = interventionRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new IllegalArgumentException("Intervention non trouvée"));
-
-        intervention.terminer(request.actions(), UUID.fromString(principal.getId()));
+        intervention.terminer(request.actions(), StatutEquipement.valueOf(request.etatEquipementApres()), userId);
+        // Valorisation automatique du temps de l'intervenant (tarif horaire × durée), si renseigné
+        if (intervention.getIntervenantId() != null) {
+            intervenantRepository.findById(intervention.getIntervenantId())
+                    .filter(i -> i.centreId().equals(centreId))
+                    .ifPresent(i -> intervention.appliquerTarifIntervenant(i.tarifHoraireDefaut(), userId));
+        }
+        statutService.appliquerEtat(intervention.getEquipementId(), centreId,
+                intervention.getEtatEquipementApres(), "Intervention terminée", userId);
         interventionRepository.save(intervention);
 
         return ResponseEntity.ok(new InterventionResponse(intervention));
@@ -143,9 +171,7 @@ public class InterventionRestController {
             Authentication authentication) {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-
-        Intervention intervention = interventionRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new IllegalArgumentException("Intervention non trouvée"));
+        Intervention intervention = requireIntervention(id, centreId(authentication));
 
         LigneCoutIntervention ligne = LigneCoutIntervention.creer(
                 TypeLigneCout.valueOf(request.type()), request.libelle(), request.quantite(),
@@ -166,13 +192,21 @@ public class InterventionRestController {
             Authentication authentication) {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-
-        Intervention intervention = interventionRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new IllegalArgumentException("Intervention non trouvée"));
+        Intervention intervention = requireIntervention(id, centreId(authentication));
 
         intervention.annuler(request.raison(), UUID.fromString(principal.getId()));
         interventionRepository.save(intervention);
 
         return ResponseEntity.ok(new InterventionResponse(intervention));
+    }
+
+    private Intervention requireIntervention(String id, UUID centreId) {
+        return interventionRepository.findById(UUID.fromString(id))
+                .filter(i -> i.getCentreId().equals(centreId))
+                .orElseThrow(() -> new IllegalArgumentException("Intervention non trouvée"));
+    }
+
+    private UUID centreId(Authentication authentication) {
+        return UUID.fromString(((UserPrincipal) authentication.getPrincipal()).getCenterId());
     }
 }

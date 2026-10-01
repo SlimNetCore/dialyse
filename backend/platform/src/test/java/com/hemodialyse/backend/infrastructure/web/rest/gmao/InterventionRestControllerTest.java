@@ -1,11 +1,16 @@
 package com.hemodialyse.backend.infrastructure.web.rest.gmao;
 
+import com.hemodialyse.backend.application.gmao.InterventionEquipementStatutService;
 import com.hemodialyse.backend.domain.gmao.model.*;
+import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.port.EquipementStatutHistoriqueRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.port.IntervenantRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.InterventionRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.AjouterLigneCoutRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.CreateInterventionRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.TerminerInterventionRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.gmao.InterventionResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +25,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class InterventionRestControllerTest {
+
+    private final FakeIntervenantRepository intervenants = new FakeIntervenantRepository();
+    private final EquipementRepositoryPort equipements = mock(EquipementRepositoryPort.class);
+    private final EquipementStatutHistoriqueRepositoryPort historique = mock(EquipementStatutHistoriqueRepositoryPort.class);
+    private final InterventionEquipementStatutService statutService =
+            new InterventionEquipementStatutService(equipements, historique);
 
     @AfterEach
     void clearSecurityContext() {
@@ -29,32 +45,140 @@ class InterventionRestControllerTest {
     }
 
     @Test
-    void creerIntervention_should_use_the_authenticated_center_and_intervenant() {
+    void creerIntervention_should_use_the_authenticated_center_and_record_the_state_before() {
         UUID centreId = authenticate();
         UUID intervenantId = UUID.randomUUID();
+        Equipement equipement = equipement(centreId);
         FakeInterventionRepository repo = new FakeInterventionRepository();
-        var controller = new InterventionRestController(repo);
+        var controller = controller(repo);
 
         var request = new CreateInterventionRequest(
-                UUID.randomUUID(), "CURATIVE", LocalDateTime.now(), "Panne pompe", intervenantId);
+                equipement.getId(), "CURATIVE", LocalDateTime.now(), "Panne pompe", intervenantId, "EN_MAINTENANCE");
         ResponseEntity<InterventionResponse> response = controller.creerIntervention(request, authentication());
 
         assertEquals(201, response.getStatusCode().value());
         assertEquals(centreId, response.getBody().centreId());
         assertEquals(intervenantId, response.getBody().intervenantId());
+        assertEquals(StatutEquipement.EN_MAINTENANCE, response.getBody().etatEquipementAvant());
+    }
+
+    @Test
+    void creerIntervention_should_reject_an_equipment_of_another_center() {
+        authenticate();
+        Equipement autreCentre = equipement(UUID.randomUUID());
+        var controller = controller(new FakeInterventionRepository());
+
+        var request = new CreateInterventionRequest(
+                autreCentre.getId(), "CURATIVE", LocalDateTime.now(), "Panne", null, "EN_SERVICE");
+
+        assertThrows(IllegalArgumentException.class, () -> controller.creerIntervention(request, authentication()));
+    }
+
+    @Test
+    void demarrerIntervention_should_apply_the_state_before_to_the_equipment() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        Intervention planifiee = Intervention.creer(equipement.getId(), centreId, TypeIntervention.CURATIVE,
+                LocalDateTime.now(), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(planifiee);
+
+        controller(repo).demarrerIntervention(planifiee.getId().toString(), authentication());
+
+        assertEquals(StatutEquipement.EN_MAINTENANCE, equipement.getStatut());
+        verify(historique).save(any());
+    }
+
+    @Test
+    void demarrerIntervention_should_keep_an_in_service_equipment_available() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        Intervention planifiee = Intervention.creer(equipement.getId(), centreId, TypeIntervention.PREVENTIVE,
+                LocalDateTime.now(), "Contrôle", null, StatutEquipement.EN_SERVICE, UUID.randomUUID());
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(planifiee);
+
+        controller(repo).demarrerIntervention(planifiee.getId().toString(), authentication());
+
+        assertEquals(StatutEquipement.EN_SERVICE, equipement.getStatut());
+        verify(historique, never()).save(any());
+    }
+
+    @Test
+    void terminerIntervention_should_apply_the_state_after_and_allow_a_reform_proposal() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        Intervention enCours = enCours(equipement.getId(), centreId, null, LocalDateTime.now().minusHours(1));
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(enCours);
+
+        ResponseEntity<InterventionResponse> response = controller(repo).terminerIntervention(
+                enCours.getId().toString(), new TerminerInterventionRequest("Irréparable", "A_REFORMER"), authentication());
+
+        assertEquals(StatutEquipement.A_REFORMER, response.getBody().etatEquipementApres());
+        assertEquals(StatutEquipement.A_REFORMER, equipement.getStatut());
+    }
+
+    @Test
+    void terminerIntervention_should_never_let_an_intervention_reform_an_equipment() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        Intervention enCours = enCours(equipement.getId(), centreId, null, LocalDateTime.now().minusHours(1));
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(enCours);
+        var controller = controller(repo);
+        var request = new TerminerInterventionRequest("Fait", "REFORME");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> controller.terminerIntervention(enCours.getId().toString(), request, authentication()));
+        assertEquals(StatutEquipement.EN_SERVICE, equipement.getStatut());
+    }
+
+    @Test
+    void terminerIntervention_should_value_the_intervenant_time_from_his_hourly_rate() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        Intervenant intervenant = Intervenant.creer(
+                centreId, "Tech Interne", TypeIntervenant.INTERNE, null, null, new BigDecimal("1000"));
+        intervenants.byId = Optional.of(intervenant);
+        Intervention enCours = enCours(equipement.getId(), centreId, intervenant.id(), LocalDateTime.now().minusHours(2));
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(enCours);
+
+        ResponseEntity<InterventionResponse> response = controller(repo).terminerIntervention(
+                enCours.getId().toString(), new TerminerInterventionRequest("Réparé", "EN_SERVICE"), authentication());
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(1, response.getBody().lignesCout().size());
+        assertEquals(0, new BigDecimal("2000").compareTo(response.getBody().coutTotal()));
+    }
+
+    @Test
+    void terminerIntervention_should_ignore_an_intervenant_of_another_center() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        intervenants.byId = Optional.of(Intervenant.creer(
+                UUID.randomUUID(), "Autre centre", TypeIntervenant.EXTERNE, null, null, new BigDecimal("1000")));
+        Intervention enCours = enCours(equipement.getId(), centreId, UUID.randomUUID(), LocalDateTime.now().minusHours(2));
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(enCours);
+
+        ResponseEntity<InterventionResponse> response = controller(repo).terminerIntervention(
+                enCours.getId().toString(), new TerminerInterventionRequest("Réparé", "EN_SERVICE"), authentication());
+
+        assertTrue(response.getBody().lignesCout().isEmpty());
     }
 
     @Test
     void ajouterLigneCout_should_accumulate_and_return_the_updated_total() {
-        authenticate();
+        UUID centreId = authenticate();
         FakeInterventionRepository repo = new FakeInterventionRepository();
-        Intervention intervention = Intervention.creer(UUID.randomUUID(), UUID.randomUUID(), TypeIntervention.CURATIVE,
-                LocalDateTime.now(), "Panne", null, UUID.randomUUID());
+        Intervention intervention = Intervention.creer(UUID.randomUUID(), centreId, TypeIntervention.CURATIVE,
+                LocalDateTime.now(), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
         repo.byId = Optional.of(intervention);
-        var controller = new InterventionRestController(repo);
 
         var request = new AjouterLigneCoutRequest("PIECE", "Filtre RO", new BigDecimal("1"), new BigDecimal("1500.00"), null);
-        ResponseEntity<InterventionResponse> response = controller.ajouterLigneCout(
+        ResponseEntity<InterventionResponse> response = controller(repo).ajouterLigneCout(
                 intervention.getId().toString(), request, authentication());
 
         assertEquals(200, response.getStatusCode().value());
@@ -64,15 +188,54 @@ class InterventionRestControllerTest {
     }
 
     @Test
+    void actions_should_not_reach_an_intervention_of_another_center() {
+        authenticate();
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        Intervention autreCentre = Intervention.creer(UUID.randomUUID(), UUID.randomUUID(), TypeIntervention.CURATIVE,
+                LocalDateTime.now(), "Panne", null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
+        repo.byId = Optional.of(autreCentre);
+        var controller = controller(repo);
+        var id = autreCentre.getId().toString();
+        var ligne = new AjouterLigneCoutRequest("PIECE", "Filtre", BigDecimal.ONE, BigDecimal.TEN, null);
+
+        assertThrows(IllegalArgumentException.class, () -> controller.demarrerIntervention(id, authentication()));
+        assertThrows(IllegalArgumentException.class, () -> controller.ajouterLigneCout(id, ligne, authentication()));
+        assertEquals(404, controller.obtenirIntervention(id, authentication()).getStatusCode().value());
+        assertNull(repo.saved);
+    }
+
+    @Test
     void listerInterventions_should_be_paginated_and_scoped_to_the_authenticated_center() {
         UUID centreId = authenticate();
         FakeInterventionRepository repo = new FakeInterventionRepository();
         repo.paged = PagedResult.of(List.of(), 0, 0, 20);
-        var controller = new InterventionRestController(repo);
 
-        controller.listerInterventions(null, null, 0, 20, authentication());
+        controller(repo).listerInterventions(null, null, 0, 20, authentication());
 
         assertEquals(centreId, repo.lastCentreId);
+    }
+
+    private InterventionRestController controller(InterventionRepositoryPort repo) {
+        return new InterventionRestController(repo, intervenants, statutService);
+    }
+
+    /**
+     * Équipement en service du centre donné, résolu par le mock du port.
+     */
+    private Equipement equipement(UUID centreId) {
+        Equipement equipement = Equipement.creer(
+                "EQ-" + UUID.randomUUID().toString().substring(0, 4), "Générateur", TypeEquipement.GENERATEUR_DIALYSE,
+                null, null, null, LocalDateTime.now(), centreId, null, UUID.randomUUID(), null, null);
+        when(equipements.findById(equipement.getId())).thenReturn(Optional.of(equipement));
+        return equipement;
+    }
+
+    private Intervention enCours(UUID equipementId, UUID centreId, UUID intervenantId, LocalDateTime debut) {
+        return Intervention.reconstruct(
+                UUID.randomUUID(), equipementId, centreId, TypeIntervention.CURATIVE,
+                StatutIntervention.EN_COURS, debut, null, intervenantId, "Panne", null, null, null,
+                debut, debut, UUID.randomUUID(), UUID.randomUUID(), null,
+                StatutEquipement.EN_MAINTENANCE, null);
     }
 
     private UUID authenticate() {
@@ -182,6 +345,30 @@ class InterventionRestControllerTest {
         @Override
         public BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, LocalDateTime from, LocalDateTime to) {
             return BigDecimal.ZERO;
+        }
+
+        @Override
+        public java.util.Map<UUID, BigDecimal> sumCoutParEquipement(UUID centreId, LocalDateTime from, LocalDateTime to) {
+            return java.util.Map.of();
+        }
+    }
+
+    private static final class FakeIntervenantRepository implements IntervenantRepositoryPort {
+        private Optional<Intervenant> byId = Optional.empty();
+
+        @Override
+        public Intervenant save(Intervenant intervenant) {
+            return intervenant;
+        }
+
+        @Override
+        public Optional<Intervenant> findById(UUID id) {
+            return byId;
+        }
+
+        @Override
+        public PagedResult<Intervenant> findPaged(UUID centreId, int page, int size) {
+            return PagedResult.of(List.of(), 0, page, size);
         }
     }
 }

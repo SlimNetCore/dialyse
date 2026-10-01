@@ -99,12 +99,14 @@
                     <mat-icon>restart_alt</mat-icon>
                   </button>
                 }
+                @if (canReform()) {
                 <button (click)="reformer(row)" [disabled]="store.saving()"
                         [matTooltip]="'GMAO.EQUIPEMENTS.REFORMER' | translate"
                         color="warn"
                         mat-icon-button>
                   <mat-icon>delete_forever</mat-icon>
                 </button>
+                }
               }
             </div>
           </td>

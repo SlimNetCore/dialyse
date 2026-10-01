@@ -5,6 +5,7 @@ import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.EquipementStatutHistoriqueRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.InterventionRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.PlanMaintenanceRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.service.AideDecisionMaintenance;
 import com.hemodialyse.backend.domain.gmao.service.IndisponibiliteCalculator;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import com.hemodialyse.backend.infrastructure.web.dto.response.gmao.*;
@@ -31,18 +32,21 @@ public class EquipementFicheRestController {
 
     private static final Set<StatutEquipement> STATUTS_INDISPONIBLES_PATIENT = Set.of(
             StatutEquipement.EN_MAINTENANCE, StatutEquipement.EN_ATTENTE_PIECE,
-            StatutEquipement.HORS_SERVICE, StatutEquipement.REFORME);
+            StatutEquipement.HORS_SERVICE, StatutEquipement.A_REFORMER, StatutEquipement.REFORME);
 
     private final EquipementRepositoryPort equipementRepository;
     private final InterventionRepositoryPort interventionRepository;
     private final PlanMaintenanceRepositoryPort planRepository;
     private final EquipementStatutHistoriqueRepositoryPort historiqueRepository;
+    private final AideDecisionMaintenance aideDecision;
 
     public EquipementFicheRestController(
             EquipementRepositoryPort equipementRepository,
             InterventionRepositoryPort interventionRepository,
             PlanMaintenanceRepositoryPort planRepository,
-            EquipementStatutHistoriqueRepositoryPort historiqueRepository) {
+            EquipementStatutHistoriqueRepositoryPort historiqueRepository,
+            AideDecisionMaintenance aideDecision) {
+        this.aideDecision = aideDecision;
         this.equipementRepository = equipementRepository;
         this.interventionRepository = interventionRepository;
         this.planRepository = planRepository;
@@ -74,9 +78,14 @@ public class EquipementFicheRestController {
                 .map(PlanMaintenanceResponse::new)
                 .orElse(null);
 
+        double heuresIndispo = indisponibilite.toMinutes() / 60.0;
+        var coutCumule = interventionRepository.sumCoutCumuleByEquipementId(equipementId);
+        var analyse = aideDecision.analyser(
+                equipement.getStatut(), equipement.getPrixAcquisition(), coutCumule, coutPeriode, heuresIndispo);
+
         return ResponseEntity.ok(EquipementFicheResponse.of(
-                new EquipementResponse(equipement), nbInterventions,
-                indisponibilite.toMinutes() / 60.0, coutPeriode, derniere, prochainPlan));
+                new EquipementResponse(equipement), nbInterventions, heuresIndispo, coutPeriode, coutCumule,
+                analyse, aideDecision.seuilRatio(), derniere, prochainPlan));
     }
 
     /**
@@ -88,16 +97,11 @@ public class EquipementFicheRestController {
             @PathVariable String id, Authentication authentication) {
         Equipement equipement = requireEquipement(id, authentication);
 
-        UUID interventionEnCoursId = interventionRepository.findPendingByEquipementId(equipement.getId()).stream()
-                .filter(i -> i.getStatut() == StatutIntervention.EN_COURS)
-                .map(Intervention::getId)
-                .findFirst()
-                .orElse(null);
+        // La disponibilité ne dépend que de l'état de l'équipement : celui-ci est saisi par l'utilisateur au
+        // démarrage et à la clôture de chaque intervention (un équipement « En service » reste affectable).
+        boolean disponible = !STATUTS_INDISPONIBLES_PATIENT.contains(equipement.getStatut());
 
-        boolean disponible = !STATUTS_INDISPONIBLES_PATIENT.contains(equipement.getStatut())
-                && interventionEnCoursId == null;
-
-        return ResponseEntity.ok(new DisponibilitePatientResponse(disponible, equipement.getStatut(), interventionEnCoursId));
+        return ResponseEntity.ok(new DisponibilitePatientResponse(disponible, equipement.getStatut()));
     }
 
     private Equipement requireEquipement(String id, Authentication authentication) {

@@ -34,10 +34,12 @@
             {{ 'GMAO.EQUIPEMENTS.REACTIVATE' | translate }}
           </button>
         }
+        @if (canReform()) {
         <button (click)="reformer()" color="warn" mat-stroked-button>
           <mat-icon>delete_forever</mat-icon>
           {{ 'GMAO.EQUIPEMENTS.REFORMER' | translate }}
         </button>
+        }
       }
     </div>
   </div>
@@ -74,7 +76,46 @@
             <strong>{{ f.equipement.prixAcquisition | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
           </div>
         }
+        <div class="app-data-pill" data-testid="fiche-cout-cumule">
+          <span>{{ 'GMAO.FICHE.COUT_CUMULE' | translate }}</span>
+          <strong>{{ f.coutMaintenanceCumule | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
+        </div>
+        <div class="app-data-pill" data-testid="fiche-cout-possession">
+          <span>{{ 'GMAO.FICHE.COUT_POSSESSION' | translate }}</span>
+          <strong>{{ f.coutPossession | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}</strong>
+        </div>
+        <div [class.tone-warning]="f.reformeRecommandee" class="app-data-pill" data-testid="fiche-ratio">
+          <span>{{ 'GMAO.FICHE.RATIO' | translate }}</span>
+          <strong>
+            @if (f.ratioMaintenance != null) {
+              {{ f.ratioMaintenance * 100 | number: '1.0-0' }} %
+            } @else {
+              —
+            }
+          </strong>
+        </div>
+        <div class="app-data-pill" data-testid="fiche-cout-par-heure">
+          <span>{{ 'GMAO.FICHE.COUT_PAR_HEURE' | translate }}</span>
+          <strong>
+            @if (f.coutParHeureIndisponibilite != null) {
+              {{ f.coutParHeureIndisponibilite | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}
+            } @else {
+              —
+            }
+          </strong>
+        </div>
       </div>
+
+      @if (f.ratioMaintenance != null && f.ratioMaintenance >= f.seuilReforme) {
+        <p class="gmao-feedback warning" data-testid="fiche-reforme-alert" role="alert">
+          {{
+            'GMAO.FICHE.REFORME_ALERT' | translate: {
+              ratio: (f.ratioMaintenance * 100 | number: '1.0-0'),
+              seuil: (f.seuilReforme * 100 | number: '1.0-0')
+            }
+          }}
+        </p>
+      }
     </div>
 
     <div class="gmao-stat-section">

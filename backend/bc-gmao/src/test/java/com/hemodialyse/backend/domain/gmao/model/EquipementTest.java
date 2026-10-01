@@ -85,6 +85,28 @@ class EquipementTest {
         assertThrows(IllegalArgumentException.class, () -> eq.reformer("  ", UUID.randomUUID()));
     }
 
+    @Test
+    void changerStatutIntervention_should_apply_operational_states_and_report_changes() {
+        Equipement eq = equipement();
+
+        assertTrue(eq.changerStatutIntervention(StatutEquipement.EN_MAINTENANCE, "Intervention démarrée", UUID.randomUUID()));
+        assertEquals(StatutEquipement.EN_MAINTENANCE, eq.getStatut());
+        assertFalse(eq.changerStatutIntervention(StatutEquipement.EN_MAINTENANCE, "idem", UUID.randomUUID()));
+        assertTrue(eq.changerStatutIntervention(StatutEquipement.A_REFORMER, "Irréparable", UUID.randomUUID()));
+        assertEquals(StatutEquipement.A_REFORMER, eq.getStatut());
+    }
+
+    @Test
+    void changerStatutIntervention_should_never_reform_or_touch_a_reformed_equipment() {
+        Equipement eq = equipement();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> eq.changerStatutIntervention(StatutEquipement.REFORME, "x", UUID.randomUUID()));
+        eq.reformer("Fin de vie", UUID.randomUUID());
+        assertThrows(IllegalStateException.class,
+                () -> eq.changerStatutIntervention(StatutEquipement.EN_SERVICE, "x", UUID.randomUUID()));
+    }
+
     private Equipement equipement() {
         return Equipement.creer(
                 "EQ-003", "Générateur", TypeEquipement.GENERATEUR_DIALYSE,

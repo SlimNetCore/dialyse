@@ -189,6 +189,29 @@ public class Equipement {
     }
 
     /**
+     * Change l'état de l'équipement suite à une intervention (état constaté au démarrage / après clôture).
+     * La réforme (REFORME) et la désactivation ne passent jamais par ici : la réforme est réservée à
+     * {@link #reformer} (personne habilitée).
+     *
+     * @return true si le statut a effectivement changé
+     */
+    public boolean changerStatutIntervention(StatutEquipement nouveau, String motif, UUID parUtilisateur) {
+        if (nouveau == null) throw new IllegalArgumentException("Nouvel état requis");
+        if (this.statut == StatutEquipement.REFORME) {
+            throw new IllegalStateException("Un équipement réformé ne peut plus changer de statut");
+        }
+        if (nouveau == StatutEquipement.REFORME || nouveau == StatutEquipement.DESACTIF) {
+            throw new IllegalArgumentException("Cet état ne peut pas être fixé par une intervention");
+        }
+        if (nouveau == this.statut) return false;
+        this.statut = nouveau;
+        this.observations = (this.observations != null ? this.observations + "; " : "") + motif;
+        this.dateModification = LocalDateTime.now();
+        this.modifiePar = parUtilisateur;
+        return true;
+    }
+
+    /**
      * Réforme définitivement l'équipement (fin de vie — état terminal, aucun retour en arrière possible).
      */
     public void reformer(String motif, UUID parUtilisateur) {

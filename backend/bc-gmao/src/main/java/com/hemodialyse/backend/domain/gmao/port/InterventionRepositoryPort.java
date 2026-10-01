@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.shared.PagedResult;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -107,5 +108,34 @@ public interface InterventionRepositoryPort {
      * (tableau de bord Direction — agrégat société, calcul serveur).
      */
     BigDecimal sumCoutByCentreIdAndDateRange(UUID centreId, LocalDateTime from, LocalDateTime to);
+
+    /**
+     * Début de période « depuis l'installation » pour les cumuls.
+     */
+    LocalDateTime DEPUIS_TOUJOURS = LocalDateTime.of(1970, 1, 1, 0, 0);
+    /**
+     * Fin de période « sans limite » pour les cumuls.
+     */
+    LocalDateTime SANS_LIMITE = LocalDateTime.of(9999, 1, 1, 0, 0);
+
+    /**
+     * Coût de maintenance par équipement d'un centre sur la période [from, to) (classement Direction,
+     * détection des équipements à réformer). Les équipements sans coût sont absents de la map.
+     */
+    Map<UUID, BigDecimal> sumCoutParEquipement(UUID centreId, LocalDateTime from, LocalDateTime to);
+
+    /**
+     * Maintenance cumulée d'un équipement depuis son installation.
+     */
+    default BigDecimal sumCoutCumuleByEquipementId(UUID equipementId) {
+        return sumCoutByEquipementIdAndDateRange(equipementId, DEPUIS_TOUJOURS, SANS_LIMITE);
+    }
+
+    /**
+     * Maintenance cumulée par équipement d'un centre depuis l'installation.
+     */
+    default Map<UUID, BigDecimal> sumCoutCumuleParEquipement(UUID centreId) {
+        return sumCoutParEquipement(centreId, DEPUIS_TOUJOURS, SANS_LIMITE);
+    }
 }
 

@@ -13,8 +13,21 @@
       <form (submit)="save(); $event.preventDefault()" [formRoot]="interventionForm" class="gmao-form-grid">
         <mat-form-field appearance="outline">
           <mat-label>{{ 'GMAO.INTERVENTIONS.EQUIPMENT_ID' | translate }}</mat-label>
-          <input [formField]="interventionForm.equipementId" matInput/>
+          <input
+            (input)="onEquipementSearch($any($event.target).value)"
+            [matAutocomplete]="equipementAuto"
+            [value]="equipementSearch()"
+            data-testid="equipement-search"
+            matInput
+            required/>
           <mat-hint>{{ 'GMAO.INTERVENTIONS.EQUIPMENT_ID_HINT' | translate }}</mat-hint>
+          <mat-autocomplete #equipementAuto="matAutocomplete" (optionSelected)="selectEquipement($event.option.value)">
+            @for (e of filteredEquipements(); track e.id) {
+              <mat-option [value]="e">{{ equipementLabel(e) }}</mat-option>
+            } @empty {
+              <mat-option disabled>{{ 'GMAO.INTERVENTIONS.EQUIPMENT_NO_MATCH' | translate }}</mat-option>
+            }
+          </mat-autocomplete>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -29,6 +42,16 @@
         <mat-form-field appearance="outline">
           <mat-label>{{ 'GMAO.INTERVENTIONS.START_DATE' | translate }}</mat-label>
           <input [formField]="interventionForm.dateDebut" matInput type="date"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'GMAO.INTERVENTIONS.ETAT_AVANT' | translate }}</mat-label>
+          <mat-select [formField]="interventionForm.etatEquipementAvant" data-testid="etat-avant">
+            @for (e of etats; track e) {
+              <mat-option [value]="e">{{ ('GMAO.STATUT_EQUIPEMENT.' + e) | translate }}</mat-option>
+            }
+          </mat-select>
+          <mat-hint>{{ 'GMAO.INTERVENTIONS.ETAT_AVANT_HINT' | translate }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">

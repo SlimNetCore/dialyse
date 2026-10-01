@@ -36,6 +36,12 @@ public class InterventionEntity {
     @Column
     private UUID intervenantId;
 
+    @Column(length = 50)
+    private String etatEquipementAvant;
+
+    @Column(length = 50)
+    private String etatEquipementApres;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
@@ -72,7 +78,10 @@ public class InterventionEntity {
                               UUID intervenantId, String description, String actions,
                               String pieceRemplacee, String observations,
                               LocalDateTime dateCreation, LocalDateTime dateModification,
-                              UUID creePar, UUID modifiePar) {
+                              UUID creePar, UUID modifiePar,
+                              String etatEquipementAvant, String etatEquipementApres) {
+        this.etatEquipementAvant = etatEquipementAvant;
+        this.etatEquipementApres = etatEquipementApres;
         this.id = id;
         this.equipementId = equipementId;
         this.centreId = centreId;
@@ -146,6 +155,14 @@ public class InterventionEntity {
 
     public void setDateFin(LocalDateTime dateFin) {
         this.dateFin = dateFin;
+    }
+
+    public String getEtatEquipementAvant() {
+        return etatEquipementAvant;
+    }
+
+    public String getEtatEquipementApres() {
+        return etatEquipementApres;
     }
 
     public UUID getIntervenantId() {

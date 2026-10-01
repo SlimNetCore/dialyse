@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -172,6 +174,15 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
         return sum == null ? BigDecimal.ZERO : sum;
     }
 
+    @Override
+    public Map<UUID, BigDecimal> sumCoutParEquipement(UUID centreId, LocalDateTime from, LocalDateTime to) {
+        Map<UUID, BigDecimal> result = new HashMap<>();
+        for (Object[] row : lignesCoutRepository.sumGroupedByEquipement(centreId, from, to)) {
+            result.put((UUID) row[0], (BigDecimal) row[1]);
+        }
+        return result;
+    }
+
     // Mappers
     private InterventionEntity toEntity(Intervention domain) {
         return new InterventionEntity(
@@ -190,7 +201,9 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                 domain.getDateCreation(),
                 domain.getDateModification(),
                 domain.getCreePar(),
-                domain.getModifiePar()
+                domain.getModifiePar(),
+                domain.getEtatEquipementAvant() != null ? domain.getEtatEquipementAvant().name() : null,
+                domain.getEtatEquipementApres() != null ? domain.getEtatEquipementApres().name() : null
         );
     }
 
@@ -218,7 +231,9 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                 entity.getDateModification(),
                 entity.getCreePar(),
                 entity.getModifiePar(),
-                lignesCout
+                lignesCout,
+                entity.getEtatEquipementAvant() != null ? StatutEquipement.valueOf(entity.getEtatEquipementAvant()) : null,
+                entity.getEtatEquipementApres() != null ? StatutEquipement.valueOf(entity.getEtatEquipementApres()) : null
         );
     }
 }

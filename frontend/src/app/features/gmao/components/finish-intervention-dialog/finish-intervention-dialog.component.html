@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>{{ 'GMAO.INTERVENTIONS.FINISH_TITLE' | translate }}</h2>
+<form (submit)="save(); $event.preventDefault()" [formRoot]="finishForm">
+  <mat-dialog-content class="gmao-finish-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'GMAO.INTERVENTIONS.ACTIONS' | translate }}</mat-label>
+      <textarea [formField]="finishForm.actions" matInput rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'GMAO.INTERVENTIONS.ETAT_APRES' | translate }}</mat-label>
+      <mat-select [formField]="finishForm.etatEquipementApres">
+        @for (e of etats; track e) {
+          <mat-option [value]="e">{{ ('GMAO.STATUT_EQUIPEMENT.' + e) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (reformProposed()) {
+      <p class="gmao-finish-note" role="note">{{ 'GMAO.INTERVENTIONS.REFORME_NOTE' | translate }}</p>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button (click)="cancel()" mat-stroked-button type="button">
+      {{ 'COMMON.CANCEL' | translate }}
+    </button>
+    <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+      <mat-icon>task_alt</mat-icon>
+      {{ 'COMMON.CONFIRM' | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

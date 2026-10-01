@@ -7,12 +7,13 @@ import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {TranslateModule} from '@ngx-translate/core';
-import {GmaoApiService} from '../../../../core/api/gmao-api.service';
-import {TYPES_INTERVENTION} from '../../gmao-options.util';
+import {Equipement, GmaoApiService} from '../../../../core/api/gmao-api.service';
+import {ETATS_AVANT_INTERVENTION, TYPES_INTERVENTION} from '../../gmao-options.util';
 import {GmaoIntervenantsStore} from '../../state/gmao-intervenants.store';
 
 type InterventionFormModel = {
@@ -21,10 +22,18 @@ type InterventionFormModel = {
   dateDebut: string;
   description: string;
   intervenantId: string;
+  etatEquipementAvant: string;
 };
 
 function emptyForm(equipementId: string | null): InterventionFormModel {
-  return {equipementId: equipementId ?? '', type: '', dateDebut: '', description: '', intervenantId: ''};
+  return {
+    equipementId: equipementId ?? '',
+    type: '',
+    dateDebut: '',
+    description: '',
+    intervenantId: '',
+    etatEquipementAvant: ''
+  };
 }
 
 /**
@@ -37,7 +46,7 @@ function emptyForm(equipementId: string | null): InterventionFormModel {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    CommonModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatAutocompleteModule,
     MatButtonModule, MatIconModule, MatProgressBarModule, FormRoot, FormField, TranslateModule,
   ],
   templateUrl: './form-intervention.component.html',
@@ -45,6 +54,7 @@ function emptyForm(equipementId: string | null): InterventionFormModel {
 })
 export class GmaoFormInterventionComponent {
   protected readonly types = TYPES_INTERVENTION;
+  protected readonly etats = ETATS_AVANT_INTERVENTION;
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
   private readonly api = inject(GmaoApiService);
@@ -58,16 +68,51 @@ export class GmaoFormInterventionComponent {
     required(form.type);
     required(form.dateDebut);
     required(form.description);
+    required(form.etatEquipementAvant);
   });
   protected readonly canSave = computed(() =>
     !!this.formModel().equipementId.trim()
     && !!this.formModel().type
     && !!this.formModel().dateDebut
     && !!this.formModel().description.trim()
+    && !!this.formModel().etatEquipementAvant
     && !this.saving());
+
+  /** Équipements sélectionnables (hors réformés/désactivés), pour la liste déroulante avec recherche. */
+  protected readonly equipements = signal<Equipement[]>([]);
+  protected readonly equipementSearch = signal('');
+  protected readonly filteredEquipements = computed(() => {
+    const q = this.equipementSearch().trim().toLowerCase();
+    const selected = this.equipements().find((e) => e.id === this.formModel().equipementId);
+    if (!q || (selected && this.equipementLabel(selected).toLowerCase() === q)) return this.equipements();
+    return this.equipements().filter((e) => this.equipementLabel(e).toLowerCase().includes(q));
+  });
 
   constructor() {
     this.intervenantsStore.loadPage({page: 0, size: 100});
+    this.api.listEquipements(0, 200).subscribe({
+      next: (res) => {
+        this.equipements.set((res.items ?? []).filter((e) => e.statut !== 'REFORME' && e.statut !== 'DESACTIF'));
+        const preset = this.equipements().find((e) => e.id === this.formModel().equipementId);
+        if (preset) this.equipementSearch.set(this.equipementLabel(preset));
+      },
+      error: () => this.error.set('GMAO.EQUIPEMENTS.LOAD_ERROR'),
+    });
+  }
+
+  protected equipementLabel(e: Equipement): string {
+    return `${e.code} — ${e.designation}`;
+  }
+
+  protected onEquipementSearch(value: string): void {
+    this.equipementSearch.set(value);
+    // Toute modification du texte invalide la sélection précédente : il faut en choisir une dans la liste.
+    this.formModel.update((m) => ({...m, equipementId: ''}));
+  }
+
+  protected selectEquipement(e: Equipement): void {
+    this.formModel.update((m) => ({...m, equipementId: e.id}));
+    this.equipementSearch.set(this.equipementLabel(e));
   }
 
   protected save(): void {
@@ -82,6 +127,7 @@ export class GmaoFormInterventionComponent {
       dateDebut: `${form.dateDebut}T00:00:00`,
       description: form.description.trim(),
       intervenantId: form.intervenantId || null,
+      etatEquipementAvant: form.etatEquipementAvant as never,
     }).subscribe({
       next: () => this.router.navigate(['/gmao/interventions']),
       error: () => {

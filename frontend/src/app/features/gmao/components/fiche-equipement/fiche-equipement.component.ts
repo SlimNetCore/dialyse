@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
@@ -8,7 +8,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {EquipementFiche, GmaoApiService} from '../../../../core/api/gmao-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
-import {statutEquipementTone} from '../../gmao-options.util';
+import {ROLE_GMAO_REFORME, statutEquipementTone} from '../../gmao-options.util';
+import {AuthStore} from '../../../../core/state/auth.store';
 
 /**
  * Fiche détaillée d'un équipement GMAO — aide à la décision : coût cumulé de maintenance,
@@ -33,6 +34,9 @@ export class GmaoFicheEquipementComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly auth = inject(AuthStore);
+  /** Seule la personne habilitée (rôle GMAO_REFORME) décide de la réforme ; les autres ne voient pas l'action. */
+  protected readonly canReform = computed(() => this.auth.hasRole(ROLE_GMAO_REFORME));
   private readonly translate = inject(TranslateService);
   private readonly equipementId = this.route.snapshot.paramMap.get('id')!;
 

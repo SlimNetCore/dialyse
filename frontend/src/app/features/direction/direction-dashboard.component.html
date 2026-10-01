@@ -333,6 +333,7 @@
             <th class="num">{{ 'DIRECTION.GMAO.COUT_MAINTENANCE' | translate }}</th>
             <th class="num">{{ 'DIRECTION.GMAO.INDISPONIBILITE' | translate }}</th>
             <th class="num">{{ 'DIRECTION.GMAO.PATIENTS_A_RISQUE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.GMAO.A_REFORMER' | translate }}</th>
           </tr>
           </thead>
           <tbody>
@@ -349,11 +350,57 @@
                 <td [class.bad]="row.c.patientsSurEquipementIndisponible > 0"
                     class="num">{{ row.c.patientsSurEquipementIndisponible }}
                 </td>
+                <td [class.warn]="row.c.nbReformeRecommandee > 0" class="num">{{ row.c.nbReformeRecommandee }}</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+
+      <h3>{{ 'DIRECTION.GMAO.TOP_TITLE' | translate }}</h3>
+      <p class="muted">{{ 'DIRECTION.GMAO.TOP_HINT' | translate }}</p>
+      @if (gmaoTopRows().length === 0) {
+        <p class="muted">{{ 'DIRECTION.GMAO.TOP_EMPTY' | translate }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="centres" data-testid="direction-gmao-top">
+            <thead>
+            <tr>
+              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+              <th>{{ 'DIRECTION.GMAO.COL_EQUIPEMENT' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.GMAO.COL_COUT_PERIODE' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.GMAO.COL_COUT_CUMULE' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.GMAO.COL_RATIO' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.GMAO.COL_INDISPONIBILITE' | translate }}</th>
+              <th>{{ 'DIRECTION.GMAO.A_REFORMER' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (row of gmaoTopRows(); track row.e.equipementId) {
+                <tr>
+                  <td>{{ row.centre }}</td>
+                  <td>{{ row.e.code }} — {{ row.e.designation }}</td>
+                  <td class="num">{{ row.e.coutPeriode | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                  <td class="num">{{ row.e.coutCumule | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                  <td [class.warn]="row.e.reformeRecommandee" class="num">
+                    @if (row.e.ratioMaintenance != null) {
+                      {{ row.e.ratioMaintenance * 100 | number: '1.0-0' }} %
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="num">{{ row.e.indisponibiliteHeures | number: '1.0-1' }} h</td>
+                  <td [class.warn]="row.e.reformeRecommandee">
+                    @if (row.e.reformeRecommandee) {
+                      {{ 'DIRECTION.GMAO.A_REFORMER' | translate }}
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </mat-card>
   }
 

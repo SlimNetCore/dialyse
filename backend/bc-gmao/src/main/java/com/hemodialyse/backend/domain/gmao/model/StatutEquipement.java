@@ -9,6 +9,7 @@ public enum StatutEquipement {
     EN_ATTENTE_PIECE("En attente de pièce"),
     HORS_SERVICE("Hors service"),
     DESACTIF("Désactivé"),
+    A_REFORMER("À réformer"),
     REFORME("Réformé");
 
     private final String label;

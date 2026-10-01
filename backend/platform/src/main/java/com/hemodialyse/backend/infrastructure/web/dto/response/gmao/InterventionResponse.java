@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.dto.response.gmao;
 
 import com.hemodialyse.backend.domain.gmao.model.Intervention;
+import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import com.hemodialyse.backend.domain.gmao.model.StatutIntervention;
 import com.hemodialyse.backend.domain.gmao.model.TypeIntervention;
 
@@ -21,6 +22,8 @@ public record InterventionResponse(
         LocalDateTime dateDebut,
         LocalDateTime dateFin,
         UUID intervenantId,
+        StatutEquipement etatEquipementAvant,
+        StatutEquipement etatEquipementApres,
         String description,
         String actions,
         String pieceRemplacee,
@@ -46,6 +49,8 @@ public record InterventionResponse(
                 intervention.getDateDebut(),
                 intervention.getDateFin(),
                 intervention.getIntervenantId(),
+                intervention.getEtatEquipementAvant(),
+                intervention.getEtatEquipementApres(),
                 intervention.getDescription(),
                 intervention.getActions(),
                 intervention.getPieceRemplacee(),

@@ -9,7 +9,7 @@ export type TypeEquipement =
   | 'FILTRE_PARTICULES' | 'POMPE_EAU' | 'COMPRESSEUR_AIR' | 'ALARME_SURVEILLANCE' | 'AUTRE';
 
 export type StatutEquipement =
-  'EN_SERVICE' | 'EN_MAINTENANCE' | 'EN_ATTENTE_PIECE' | 'HORS_SERVICE' | 'DESACTIF' | 'REFORME';
+  'EN_SERVICE' | 'EN_MAINTENANCE' | 'EN_ATTENTE_PIECE' | 'HORS_SERVICE' | 'DESACTIF' | 'A_REFORMER' | 'REFORME';
 
 export type TypeIntervention =
   | 'PREVENTIVE' | 'CURATIVE' | 'URGENTE' | 'CONTROLE' | 'INSTALLATION'
@@ -58,6 +58,10 @@ export interface Intervention {
   dateDebut: string;
   dateFin: string | null;
   intervenantId: string | null;
+  /** État de l'équipement saisi à la création (appliqué au démarrage). */
+  etatEquipementAvant: StatutEquipement | null;
+  /** État de l'équipement saisi à la clôture. */
+  etatEquipementApres: StatutEquipement | null;
   description: string;
   actions: string | null;
   pieceRemplacee: string | null;
@@ -96,6 +100,15 @@ export interface EquipementFiche {
   nbInterventions: number;
   indisponibiliteHeures: number;
   coutMaintenancePeriode: number;
+  coutMaintenanceCumule: number;
+  /** Prix d'acquisition + maintenance cumulée. */
+  coutPossession: number;
+  /** Maintenance cumulée / prix d'acquisition (null si prix inconnu). */
+  ratioMaintenance: number | null;
+  /** Coût de maintenance de la période / heures d'indisponibilité (null si aucune). */
+  coutParHeureIndisponibilite: number | null;
+  reformeRecommandee: boolean;
+  seuilReforme: number;
   derniereIntervention: Intervention | null;
   prochainePlanMaintenance: {
     id: string;
@@ -107,7 +120,6 @@ export interface EquipementFiche {
 export interface DisponibilitePatient {
   disponible: boolean;
   statut: StatutEquipement;
-  interventionEnCoursId: string | null;
 }
 
 export type PagedResponse<T> = {
@@ -146,6 +158,7 @@ export interface CreateInterventionPayload {
   dateDebut: string;
   description: string;
   intervenantId?: string | null;
+  etatEquipementAvant: StatutEquipement;
 }
 
 export interface AjouterLigneCoutPayload {
@@ -247,8 +260,8 @@ export class GmaoApiService {
     return this.http.post<Intervention>(`${this.base}/interventions/${id}/demarrer`, {});
   }
 
-  finishIntervention(id: string, actions: string): Observable<Intervention> {
-    return this.http.post<Intervention>(`${this.base}/interventions/${id}/terminer`, {actions});
+  finishIntervention(id: string, actions: string, etatEquipementApres: StatutEquipement): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/terminer`, {actions, etatEquipementApres});
   }
 
   cancelIntervention(id: string, raison: string): Observable<Intervention> {

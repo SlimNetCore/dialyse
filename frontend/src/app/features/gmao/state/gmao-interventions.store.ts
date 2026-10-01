@@ -8,6 +8,7 @@ import {
   CreateInterventionPayload,
   GmaoApiService,
   Intervention,
+  StatutEquipement,
 } from '../../../core/api/gmao-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 
@@ -89,11 +90,11 @@ export const GmaoInterventionsStore = signalStore(
       ),
     ),
 
-    finishIntervention: rxMethod<{ id: string; actions: string }>(
+    finishIntervention: rxMethod<{ id: string; actions: string; etatEquipementApres: StatutEquipement }>(
       pipe(
         tap(() => patchState(store, {saving: true, error: null, successMessage: null})),
-        switchMap(({id, actions}) =>
-          api.finishIntervention(id, actions).pipe(
+        switchMap(({id, actions, etatEquipementApres}) =>
+          api.finishIntervention(id, actions, etatEquipementApres).pipe(
             tap(() => patchState(store, {saving: false, successMessage: 'GMAO.INTERVENTIONS.STATUS_UPDATED'})),
             catchError(() => {
               patchState(store, {saving: false, error: 'GMAO.INTERVENTIONS.SAVE_ERROR'});

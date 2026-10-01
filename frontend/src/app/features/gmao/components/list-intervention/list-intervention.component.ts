@@ -16,6 +16,10 @@ import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.componen
 import {GmaoInterventionsStore} from '../../state/gmao-interventions.store';
 import {statutInterventionTone, STATUTS_INTERVENTION} from '../../gmao-options.util';
 import {GmaoLigneCoutDialogComponent} from '../ligne-cout-dialog/ligne-cout-dialog.component';
+import {
+  FinishInterventionResult,
+  GmaoFinishInterventionDialogComponent,
+} from '../finish-intervention-dialog/finish-intervention-dialog.component';
 
 /**
  * Liste paginée des interventions GMAO (AGENTS.md §9 — jamais de chargement non paginé).
@@ -64,21 +68,10 @@ export class GmaoListInterventionComponent {
   }
 
   finish(row: Intervention): void {
-    const ref = this.dialog.open(ConfirmDialogComponent, {
-      width: 'min(96vw, 460px)',
-      data: {
-        title: this.translate.instant('GMAO.INTERVENTIONS.CONFIRM_FINISH_TITLE'),
-        message: this.translate.instant('GMAO.INTERVENTIONS.CONFIRM_FINISH_MESSAGE'),
-        confirmLabel: this.translate.instant('COMMON.CONFIRM'),
-        cancelLabel: this.translate.instant('COMMON.CANCEL'),
-        color: 'primary',
-        icon: 'task_alt',
-      },
-    });
-    ref.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-      const actions = this.translate.instant('GMAO.INTERVENTIONS.DEFAULT_FINISH_NOTE');
-      this.store.finishIntervention({id: row.id, actions});
+    const ref = this.dialog.open(GmaoFinishInterventionDialogComponent, {width: 'min(96vw, 480px)'});
+    ref.afterClosed().subscribe((result: FinishInterventionResult | null) => {
+      if (!result) return;
+      this.store.finishIntervention({id: row.id, ...result});
     });
   }
 

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, effect, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {MatTableModule} from '@angular/material/table';
@@ -14,7 +14,8 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {Equipement} from '../../../../core/api/gmao-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
 import {GmaoEquipementsStore} from '../../state/gmao-equipements.store';
-import {statutEquipementTone, STATUTS_EQUIPEMENT} from '../../gmao-options.util';
+import {ROLE_GMAO_REFORME, statutEquipementTone, STATUTS_EQUIPEMENT} from '../../gmao-options.util';
+import {AuthStore} from '../../../../core/state/auth.store';
 
 /**
  * Liste paginée des équipements GMAO (AGENTS.md §9 — jamais de chargement non paginé).
@@ -36,6 +37,9 @@ export class GmaoListEquipementComponent {
   protected readonly statuts = STATUTS_EQUIPEMENT;
   protected readonly statutEquipementTone = statutEquipementTone;
   private readonly dialog = inject(MatDialog);
+  private readonly auth = inject(AuthStore);
+  /** Seule la personne habilitée (rôle GMAO_REFORME) décide de la réforme ; les autres ne voient pas l'action. */
+  protected readonly canReform = computed(() => this.auth.hasRole(ROLE_GMAO_REFORME));
   private readonly translate = inject(TranslateService);
 
   constructor() {

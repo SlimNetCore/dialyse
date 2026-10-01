@@ -21,7 +21,10 @@ public record CreateInterventionRequest(
         @NotBlank(message = "Description requise")
         String description,
 
-        UUID intervenantId
+        UUID intervenantId,
+
+        @NotBlank(message = "État de l'équipement requis")
+        String etatEquipementAvant
 ) {
 }
 

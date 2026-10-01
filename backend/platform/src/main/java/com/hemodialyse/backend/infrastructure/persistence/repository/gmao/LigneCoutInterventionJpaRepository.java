@@ -20,24 +20,40 @@ public interface LigneCoutInterventionJpaRepository extends JpaRepository<LigneC
 
     /**
      * Somme des coûts (quantité × prix unitaire) des lignes dont l'intervention porte sur l'équipement
-     * donné et a démarré sur la période [from, to) — calcul serveur (AGENTS.md §9).
+     * donné et a démarré sur la période [from, to) — calcul serveur (AGENTS.md §9). Seules les
+     * interventions en cours ou terminées comptent (ni planifiées, ni annulées).
      */
     @Query("SELECT COALESCE(SUM(l.quantite * l.prixUnitaire), 0) FROM LigneCoutInterventionEntity l " +
             "WHERE l.interventionId IN (" +
             "  SELECT i.id FROM InterventionEntity i " +
-            "  WHERE i.equipementId = :equipementId AND i.dateDebut >= :from AND i.dateDebut < :to AND i.deletedAt IS NULL" +
+            "  WHERE i.equipementId = :equipementId AND i.dateDebut >= :from AND i.dateDebut < :to " +
+            "  AND i.statut IN ('EN_COURS','TERMINEE') AND i.deletedAt IS NULL" +
             ")")
     BigDecimal sumByEquipementIdAndDateRange(
             @Param("equipementId") UUID equipementId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     /**
-     * Somme des coûts de toutes les interventions d'un centre démarrées sur la période [from, to).
+     * Somme des coûts de toutes les interventions d'un centre démarrées sur la période [from, to)
+     * (mêmes statuts comptés que ci-dessus).
      */
     @Query("SELECT COALESCE(SUM(l.quantite * l.prixUnitaire), 0) FROM LigneCoutInterventionEntity l " +
             "WHERE l.interventionId IN (" +
             "  SELECT i.id FROM InterventionEntity i " +
-            "  WHERE i.centreId = :centreId AND i.dateDebut >= :from AND i.dateDebut < :to AND i.deletedAt IS NULL" +
+            "  WHERE i.centreId = :centreId AND i.dateDebut >= :from AND i.dateDebut < :to " +
+            "  AND i.statut IN ('EN_COURS','TERMINEE') AND i.deletedAt IS NULL" +
             ")")
     BigDecimal sumByCentreIdAndDateRange(
+            @Param("centreId") UUID centreId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    /**
+     * Coût par équipement d'un centre sur la période [from, to) : lignes {@code [equipementId, montant]}.
+     */
+    @Query("SELECT i.equipementId, SUM(l.quantite * l.prixUnitaire) " +
+            "FROM LigneCoutInterventionEntity l, InterventionEntity i " +
+            "WHERE l.interventionId = i.id AND i.centreId = :centreId " +
+            "AND i.dateDebut >= :from AND i.dateDebut < :to " +
+            "AND i.statut IN ('EN_COURS','TERMINEE') AND i.deletedAt IS NULL " +
+            "GROUP BY i.equipementId")
+    List<Object[]> sumGroupedByEquipement(
             @Param("centreId") UUID centreId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

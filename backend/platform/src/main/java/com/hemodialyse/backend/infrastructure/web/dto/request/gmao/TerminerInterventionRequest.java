@@ -7,7 +7,10 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record TerminerInterventionRequest(
         @NotBlank(message = "Actions requises")
-        String actions
+        String actions,
+
+        @NotBlank(message = "État de l'équipement après intervention requis")
+        String etatEquipementApres
 ) {
 }
 

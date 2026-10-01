@@ -168,6 +168,7 @@ public class EquipementRestController {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         Equipement equipement = equipementRepository.findById(UUID.fromString(id))
+                .filter(e -> e.getCentreId().equals(UUID.fromString(principal.getCenterId())))
                 .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
 
         StatutEquipement statutPrecedent = equipement.getStatut();
@@ -190,6 +191,7 @@ public class EquipementRestController {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         Equipement equipement = equipementRepository.findById(UUID.fromString(id))
+                .filter(e -> e.getCentreId().equals(UUID.fromString(principal.getCenterId())))
                 .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
 
         StatutEquipement statutPrecedent = equipement.getStatut();
@@ -204,6 +206,7 @@ public class EquipementRestController {
      * Réforme définitivement un équipement (fin de vie — aucun retour en arrière possible)
      */
     @PostMapping("/{id}/reformer")
+    @PreAuthorize("hasRole('GMAO_REFORME')")
     @CacheEvict(cacheNames = "ref.generateurs", allEntries = true)
     public ResponseEntity<EquipementResponse> reformerEquipement(
             @PathVariable String id,
@@ -213,6 +216,7 @@ public class EquipementRestController {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         Equipement equipement = equipementRepository.findById(UUID.fromString(id))
+                .filter(e -> e.getCentreId().equals(UUID.fromString(principal.getCenterId())))
                 .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
 
         StatutEquipement statutPrecedent = equipement.getStatut();
@@ -235,6 +239,7 @@ public class EquipementRestController {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         Equipement equipement = equipementRepository.findById(UUID.fromString(id))
+                .filter(e -> e.getCentreId().equals(UUID.fromString(principal.getCenterId())))
                 .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
 
         equipement.ajouterObservation(request.observation(), UUID.fromString(principal.getId()));

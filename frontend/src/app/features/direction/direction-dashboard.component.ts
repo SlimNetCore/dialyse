@@ -14,6 +14,7 @@ import {FormField, FormRoot} from '@angular/forms/signals';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {DirectionStore, LIVE_REPORT} from './state/direction.store';
+import {gmaoTopRows} from './direction-gmao.util';
 import {
   buildDashboardCsv,
   collectionLevel,
@@ -197,6 +198,8 @@ export class DirectionDashboardComponent implements OnInit {
     const rows = centres.map((c) => ({c, total: false}));
     return sel ? rows : [...rows, {c: g.totaux, total: true}];
   });
+  /** Classement des équipements les plus coûteux, tous centres confondus (ou du centre isolé), du plus coûteux au moins coûteux. */
+  protected readonly gmaoTopRows = computed(() => gmaoTopRows(this.store.gmao(), this.selectedCentre()));
   /** Répartitions filtrées sur le centre isolé, le cas échéant (toutes les listes de `breakdown` partagent `centerId`). */
   protected readonly breakdown = computed(() => {
     const b = this.store.breakdown();

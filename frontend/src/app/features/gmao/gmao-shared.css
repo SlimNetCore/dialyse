@@ -128,6 +128,11 @@
   color: #c62828;
 }
 
+.gmao-feedback.warning {
+  background: color-mix(in srgb, #ed6c02 14%, transparent);
+  color: #b45309;
+}
+
 @media (max-width: 767px) {
   .gmao-form-grid {
     grid-template-columns: 1fr;

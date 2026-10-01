@@ -17,12 +17,22 @@ export const TYPES_EQUIPEMENT: TypeEquipement[] = [
 ];
 
 export const STATUTS_EQUIPEMENT: StatutEquipement[] = [
-  'EN_SERVICE', 'EN_MAINTENANCE', 'EN_ATTENTE_PIECE', 'HORS_SERVICE', 'DESACTIF', 'REFORME',
+  'EN_SERVICE', 'EN_MAINTENANCE', 'EN_ATTENTE_PIECE', 'HORS_SERVICE', 'DESACTIF', 'A_REFORMER', 'REFORME',
+];
+
+/** États saisissables à la création d'une intervention (état de l'équipement au moment de l'intervention). */
+export const ETATS_AVANT_INTERVENTION: StatutEquipement[] = [
+  'EN_SERVICE', 'EN_MAINTENANCE', 'EN_ATTENTE_PIECE', 'HORS_SERVICE',
+];
+
+/** États saisissables à la clôture : « À réformer » est une proposition, la décision revient à la personne habilitée. */
+export const ETATS_APRES_INTERVENTION: StatutEquipement[] = [
+  'EN_SERVICE', 'EN_ATTENTE_PIECE', 'HORS_SERVICE', 'A_REFORMER',
 ];
 
 /** Statuts rendant un équipement indisponible pour l'affectation d'un patient (sécurité patient). */
 export const STATUTS_INDISPONIBLES_PATIENT: StatutEquipement[] = [
-  'EN_MAINTENANCE', 'EN_ATTENTE_PIECE', 'HORS_SERVICE', 'REFORME',
+  'EN_MAINTENANCE', 'EN_ATTENTE_PIECE', 'HORS_SERVICE', 'A_REFORMER', 'REFORME',
 ];
 
 export const TYPES_INTERVENTION: TypeIntervention[] = [
@@ -43,6 +53,7 @@ const STATUT_EQUIPEMENT_TONE: Record<StatutEquipement, GmaoBadgeTone> = {
   EN_ATTENTE_PIECE: 'info',
   HORS_SERVICE: 'danger',
   DESACTIF: 'neutral',
+  A_REFORMER: 'danger',
   REFORME: 'neutral',
 };
 
@@ -61,3 +72,6 @@ export function statutEquipementTone(statut: StatutEquipement): GmaoBadgeTone {
 export function statutInterventionTone(statut: StatutIntervention): GmaoBadgeTone {
   return STATUT_INTERVENTION_TONE[statut] ?? 'neutral';
 }
+
+/** Droit particulier : décider de la réforme d'un équipement (distinct de l'administration GMAO). */
+export const ROLE_GMAO_REFORME = 'GMAO_REFORME';

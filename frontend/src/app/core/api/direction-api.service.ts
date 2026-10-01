@@ -136,6 +136,24 @@ export type CentreGmao = {
   coutMaintenancePeriode: number;
   indisponibiliteHeuresCumulees: number;
   patientsSurEquipementIndisponible: number;
+  nbReformeRecommandee: number;
+  /** Équipements les plus coûteux de la période (vide pour les totaux société). */
+  topEquipements: EquipementCout[];
+};
+
+/** Ligne du classement des équipements : coût de maintenance, ratio sur le prix d'achat, signal de réforme. */
+export type EquipementCout = {
+  equipementId: string;
+  code: string;
+  designation: string;
+  statut: string;
+  coutPeriode: number;
+  coutCumule: number;
+  prixAcquisition: number | null;
+  /** Maintenance cumulée / prix d'acquisition (null si prix inconnu). */
+  ratioMaintenance: number | null;
+  indisponibiliteHeures: number;
+  reformeRecommandee: boolean;
 };
 
 export type GmaoOverview = {

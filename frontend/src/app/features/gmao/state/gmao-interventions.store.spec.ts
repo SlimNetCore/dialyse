@@ -15,6 +15,8 @@ function intervention(overrides: Partial<Intervention> = {}): Intervention {
     dateDebut: '2024-01-01T00:00:00',
     dateFin: null,
     intervenantId: null,
+    etatEquipementAvant: 'EN_SERVICE',
+    etatEquipementApres: null,
     description: 'Contrôle annuel',
     actions: null,
     pieceRemplacee: null,
@@ -89,9 +91,9 @@ describe('GmaoInterventionsStore', () => {
   it('termine une intervention et notifie le succès', () => {
     const store = TestBed.inject(GmaoInterventionsStore);
 
-    store.finishIntervention({id: 'int-1', actions: 'Remplacement filtre'});
+    store.finishIntervention({id: 'int-1', actions: 'Remplacement filtre', etatEquipementApres: 'EN_SERVICE'});
 
-    expect(apiMock.finishIntervention).toHaveBeenCalledWith('int-1', 'Remplacement filtre');
+    expect(apiMock.finishIntervention).toHaveBeenCalledWith('int-1', 'Remplacement filtre', 'EN_SERVICE');
     expect(store.successMessage()).toBe('GMAO.INTERVENTIONS.STATUS_UPDATED');
   });
 

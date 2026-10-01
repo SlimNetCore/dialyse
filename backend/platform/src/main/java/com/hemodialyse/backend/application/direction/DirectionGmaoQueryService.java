@@ -9,6 +9,8 @@ import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.EquipementStatutHistoriqueRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.InterventionRepositoryPort;
+import com.hemodialyse.backend.domain.gmao.service.AideDecisionMaintenance;
+import com.hemodialyse.backend.domain.gmao.service.AideDecisionMaintenance.AnalyseCout;
 import com.hemodialyse.backend.domain.gmao.service.IndisponibiliteCalculator;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,6 +23,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,14 +44,19 @@ public class DirectionGmaoQueryService {
     private final DirectionDashboardQueryService dashboard;
     private final EquipementRepositoryPort equipementRepository;
     private final InterventionRepositoryPort interventionRepository;
+    private static final int TOP_EQUIPEMENTS = 5;
+
     private final EquipementStatutHistoriqueRepositoryPort historiqueRepository;
+    private final AideDecisionMaintenance aideDecision;
 
     public DirectionGmaoQueryService(
             JdbcTemplate jdbc,
             DirectionDashboardQueryService dashboard,
             EquipementRepositoryPort equipementRepository,
             InterventionRepositoryPort interventionRepository,
-            EquipementStatutHistoriqueRepositoryPort historiqueRepository) {
+            EquipementStatutHistoriqueRepositoryPort historiqueRepository,
+            AideDecisionMaintenance aideDecision) {
+        this.aideDecision = aideDecision;
         this.jdbc = jdbc;
         this.dashboard = dashboard;
         this.equipementRepository = equipementRepository;
@@ -87,35 +97,61 @@ public class DirectionGmaoQueryService {
         long nbReformes = equipementRepository.countByCentreIdAndStatut(centreId, StatutEquipement.REFORME.name());
         long interventionsEnCours = interventionRepository.countByCentreIdAndStatut(centreId, "EN_COURS");
         BigDecimal coutMaintenancePeriode = interventionRepository.sumCoutByCentreIdAndDateRange(centreId, from, to);
-        double indisponibiliteHeures = indisponibiliteHeuresCumulees(centreId, from, to);
         long patientsSurEquipementIndisponible = countPatientsSurEquipementIndisponible(centreId);
 
+        List<Equipement> equipements = equipementRepository.findByCentreId(centreId);
+        Map<UUID, BigDecimal> coutsPeriode = interventionRepository.sumCoutParEquipement(centreId, from, to);
+        Map<UUID, BigDecimal> coutsCumules = interventionRepository.sumCoutCumuleParEquipement(centreId);
+        double indisponibiliteHeures = 0;
+        List<EquipementCout> classement = new ArrayList<>();
+        for (Equipement e : equipements) {
+            double heures = indisponibiliteHeures(e, from, to);
+            indisponibiliteHeures += heures;
+            BigDecimal coutPeriode = coutsPeriode.getOrDefault(e.getId(), BigDecimal.ZERO);
+            BigDecimal coutCumule = coutsCumules.getOrDefault(e.getId(), BigDecimal.ZERO);
+            AnalyseCout analyse = aideDecision.analyser(
+                    e.getStatut(), e.getPrixAcquisition(), coutCumule, coutPeriode, heures);
+            classement.add(new EquipementCout(e.getId(), e.getCode(), e.getDesignation(), e.getStatut().name(),
+                    coutPeriode, coutCumule, e.getPrixAcquisition(), analyse.ratioMaintenance(), heures,
+                    analyse.reformeRecommandee()));
+        }
+        long nbReformeRecommandee = classement.stream().filter(EquipementCout::reformeRecommandee).count();
+
         return new CentreGmao(centreId, nom, nbEquipements, nbHorsService, nbEnMaintenance, nbReformes,
-                interventionsEnCours, coutMaintenancePeriode, indisponibiliteHeures, patientsSurEquipementIndisponible);
+                interventionsEnCours, coutMaintenancePeriode, indisponibiliteHeures, patientsSurEquipementIndisponible,
+                nbReformeRecommandee, topEquipements(classement));
     }
 
-    private double indisponibiliteHeuresCumulees(UUID centreId, LocalDateTime from, LocalDateTime to) {
-        double totalHeures = 0;
-        for (Equipement e : equipementRepository.findByCentreId(centreId)) {
-            Duration d = IndisponibiliteCalculator.calculer(
-                    historiqueRepository.findByEquipementIdOrderByChangedAtAsc(e.getId()), e.getStatut(), from, to);
-            totalHeures += d.toMinutes() / 60.0;
-        }
-        return totalHeures;
+    private double indisponibiliteHeures(Equipement e, LocalDateTime from, LocalDateTime to) {
+        Duration d = IndisponibiliteCalculator.calculer(
+                historiqueRepository.findByEquipementIdOrderByChangedAtAsc(e.getId()), e.getStatut(), from, to);
+        return d.toMinutes() / 60.0;
+    }
+
+    /**
+     * Classement des équipements les plus coûteux sur la période, complété par tous ceux dont la
+     * réforme est recommandée (même sans coût sur la période).
+     */
+    private List<EquipementCout> topEquipements(List<EquipementCout> all) {
+        List<EquipementCout> top = new ArrayList<>(all.stream()
+                .filter(e -> e.coutPeriode().signum() > 0)
+                .sorted(Comparator.comparing(EquipementCout::coutPeriode).reversed())
+                .limit(TOP_EQUIPEMENTS)
+                .toList());
+        all.stream().filter(EquipementCout::reformeRecommandee).filter(e -> !top.contains(e)).forEach(top::add);
+        return top;
     }
 
     /**
      * Patients actuellement affectés à un générateur indisponible (en maintenance, en attente de pièce,
-     * hors service, réformé) ou sous intervention en cours — alerte de sécurité patient (module GMAO v2).
+     * hors service, réformé) ou à réformer — alerte de sécurité patient (module GMAO v2).
      */
     private long countPatientsSurEquipementIndisponible(UUID centreId) {
         Long count = jdbc.queryForObject(
                 "SELECT COUNT(DISTINCT p.id) FROM patients p " +
                         "JOIN gmao_equipements g ON g.id = p.generateur_id AND g.deleted_at IS NULL " +
                         "WHERE p.center_id = ? AND (" +
-                        "  g.statut IN ('EN_MAINTENANCE','EN_ATTENTE_PIECE','HORS_SERVICE','REFORME') " +
-                        "  OR EXISTS (SELECT 1 FROM gmao_interventions i " +
-                        "             WHERE i.equipement_id = g.id AND i.statut = 'EN_COURS' AND i.deleted_at IS NULL)" +
+                        "  g.statut IN ('EN_MAINTENANCE','EN_ATTENTE_PIECE','HORS_SERVICE','A_REFORMER','REFORME')" +
                         ")",
                 Long.class, centreId);
         return count == null ? 0 : count;
@@ -131,12 +167,16 @@ public class DirectionGmaoQueryService {
             alerts.add(new Alert(centreId, nom, "GMAO_GENERATEURS_HORS_SERVICE", Severity.WARNING,
                     BigDecimal.valueOf(c.nbHorsService())));
         }
+        if (c.nbReformeRecommandee() > 0) {
+            alerts.add(new Alert(centreId, nom, "GMAO_REFORME_RECOMMANDEE", Severity.WARNING,
+                    BigDecimal.valueOf(c.nbReformeRecommandee())));
+        }
         return alerts;
     }
 
     private CentreGmao totaux(List<CentreGmao> centres) {
         long nbEquipements = 0, nbHorsService = 0, nbEnMaintenance = 0, nbReformes = 0, interventionsEnCours = 0,
-                patientsSurEquipementIndisponible = 0;
+                patientsSurEquipementIndisponible = 0, nbReformeRecommandee = 0;
         BigDecimal coutMaintenancePeriode = BigDecimal.ZERO;
         double indisponibiliteHeures = 0;
         for (CentreGmao c : centres) {
@@ -148,9 +188,11 @@ public class DirectionGmaoQueryService {
             coutMaintenancePeriode = coutMaintenancePeriode.add(c.coutMaintenancePeriode());
             indisponibiliteHeures += c.indisponibiliteHeuresCumulees();
             patientsSurEquipementIndisponible += c.patientsSurEquipementIndisponible();
+            nbReformeRecommandee += c.nbReformeRecommandee();
         }
         return new CentreGmao(null, null, nbEquipements, nbHorsService, nbEnMaintenance, nbReformes,
-                interventionsEnCours, coutMaintenancePeriode, indisponibiliteHeures, patientsSurEquipementIndisponible);
+                interventionsEnCours, coutMaintenancePeriode, indisponibiliteHeures, patientsSurEquipementIndisponible,
+                nbReformeRecommandee, List.of());
     }
 
     public record CentreGmao(
@@ -163,7 +205,27 @@ public class DirectionGmaoQueryService {
             long interventionsEnCours,
             BigDecimal coutMaintenancePeriode,
             double indisponibiliteHeuresCumulees,
-            long patientsSurEquipementIndisponible
+            long patientsSurEquipementIndisponible,
+            long nbReformeRecommandee,
+            List<EquipementCout> topEquipements
+    ) {
+    }
+
+    /**
+     * Ligne du classement des équipements : coût de maintenance (période et cumulé), ratio sur le prix
+     * d'acquisition (null si prix inconnu) et signal de réforme.
+     */
+    public record EquipementCout(
+            UUID equipementId,
+            String code,
+            String designation,
+            String statut,
+            BigDecimal coutPeriode,
+            BigDecimal coutCumule,
+            BigDecimal prixAcquisition,
+            BigDecimal ratioMaintenance,
+            double indisponibiliteHeures,
+            boolean reformeRecommandee
     ) {
     }
 
