@@ -21,9 +21,14 @@ public final class LigneCoutIntervention {
     private final BigDecimal quantite;
     private final BigDecimal prixUnitaire;
     private final UUID articleStockId;
+    /**
+     * Ligne générée par le système à la clôture (recalculée après rectification), non saisie par l'utilisateur.
+     */
+    private final boolean automatique;
 
     private LigneCoutIntervention(UUID id, TypeLigneCout type, String libelle, BigDecimal quantite,
-                                  BigDecimal prixUnitaire, UUID articleStockId) {
+                                  BigDecimal prixUnitaire, UUID articleStockId, boolean automatique) {
+        this.automatique = automatique;
         this.id = id;
         this.type = type;
         this.libelle = libelle;
@@ -39,12 +44,27 @@ public final class LigneCoutIntervention {
         if (quantite == null || quantite.signum() <= 0) throw new IllegalArgumentException("Quantité invalide");
         if (prixUnitaire == null || prixUnitaire.signum() < 0)
             throw new IllegalArgumentException("Prix unitaire invalide");
-        return new LigneCoutIntervention(UUID.randomUUID(), type, libelle, quantite, prixUnitaire, articleStockId);
+        return new LigneCoutIntervention(UUID.randomUUID(), type, libelle, quantite, prixUnitaire, articleStockId, false);
+    }
+
+    /**
+     * Ligne calculée par le système (honoraires ou main d'œuvre de l'intervenant à la clôture).
+     */
+    public static LigneCoutIntervention creerAutomatique(
+            TypeLigneCout type, String libelle, BigDecimal quantite, BigDecimal prixUnitaire) {
+        LigneCoutIntervention l = creer(type, libelle, quantite, prixUnitaire, null);
+        return new LigneCoutIntervention(l.id, l.type, l.libelle, l.quantite, l.prixUnitaire, null, true);
     }
 
     public static LigneCoutIntervention reconstruct(
             UUID id, TypeLigneCout type, String libelle, BigDecimal quantite, BigDecimal prixUnitaire, UUID articleStockId) {
-        return new LigneCoutIntervention(id, type, libelle, quantite, prixUnitaire, articleStockId);
+        return new LigneCoutIntervention(id, type, libelle, quantite, prixUnitaire, articleStockId, false);
+    }
+
+    public static LigneCoutIntervention reconstruct(
+            UUID id, TypeLigneCout type, String libelle, BigDecimal quantite, BigDecimal prixUnitaire,
+            UUID articleStockId, boolean automatique) {
+        return new LigneCoutIntervention(id, type, libelle, quantite, prixUnitaire, articleStockId, automatique);
     }
 
     /**
@@ -52,6 +72,10 @@ public final class LigneCoutIntervention {
      */
     public BigDecimal montant() {
         return Money.of(prixUnitaire).times(Quantite.of(quantite)).amount();
+    }
+
+    public boolean isAutomatique() {
+        return automatique;
     }
 
     public UUID getId() {

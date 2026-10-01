@@ -22,12 +22,26 @@
         <mat-icon>print</mat-icon>
         {{ 'GMAO.INTERVENTIONS.PRINT' | translate }}
       </button>
-      @if (canAddCost()) {
+      @if (canRectify()) {
+        <button (click)="rectifier()" [disabled]="saving()" color="warn" data-testid="rectify" mat-flat-button>
+          <mat-icon>edit_note</mat-icon>
+          {{ 'GMAO.RECTIFICATION.BUTTON' | translate }}
+        </button>
+      }
+      @if (canFinish()) {
+        <button (click)="terminer()" [disabled]="saving()" color="primary" data-testid="finish" mat-flat-button>
+          <mat-icon>task_alt</mat-icon>
+          {{ 'GMAO.INTERVENTIONS.FINISH' | translate }}
+        </button>
+      }
+      @if (canSaisirMainOeuvre()) {
         <button (click)="saisirMainOeuvre()" [disabled]="saving()" color="primary" data-testid="add-labour"
-                mat-flat-button>
+                mat-stroked-button>
           <mat-icon>engineering</mat-icon>
           {{ 'GMAO.COUTS.MAIN_OEUVRE_BUTTON' | translate }}
         </button>
+      }
+      @if (canAddCost()) {
         <button (click)="addLigneCout()" [disabled]="saving()" data-testid="add-cost" mat-stroked-button>
           <mat-icon>payments</mat-icon>
           {{ 'GMAO.COUTS.ADD_TITLE' | translate }}
@@ -167,6 +181,10 @@
             <strong>{{ ('GMAO.CHRONOLOGIE.' + e.type) | translate }}</strong>
             <span class="gmao-fiche-date">{{ e.at | date: 'dd/MM/yyyy HH:mm' }}</span>
             <span>{{ e.parNom || ('GMAO.CHRONOLOGIE.INCONNU' | translate) }}</span>
+            @if (e.detail) {
+              <span class="gmao-timeline-detail">{{ 'GMAO.RECTIFICATION.MOTIF_LABEL' | translate }}
+                : {{ e.detail }}</span>
+            }
           </li>
         }
       </ol>
@@ -242,7 +260,12 @@
             </ng-container>
             <ng-container matColumnDef="libelle">
               <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.LIBELLE' | translate }}</th>
-              <td *matCellDef="let l" mat-cell>{{ l.libelle }}</td>
+              <td *matCellDef="let l" mat-cell>
+                {{ l.libelle }}
+                @if (l.automatique) {
+                  <span class="gmao-badge neutral" data-testid="badge-auto">{{ 'GMAO.COUTS.AUTO' | translate }}</span>
+                }
+              </td>
             </ng-container>
             <ng-container matColumnDef="quantite">
               <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.QUANTITE' | translate }}</th>
@@ -256,6 +279,18 @@
               <th *matHeaderCellDef mat-header-cell>{{ 'GMAO.COUTS.MONTANT' | translate }}</th>
               <td *matCellDef="let l"
                   mat-cell>{{ l.montant | number: '1.0-2' }} {{ 'COMMON.CURRENCY_DA' | translate }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th *matHeaderCellDef mat-header-cell></th>
+              <td *matCellDef="let l" mat-cell>
+                @if (canEditLines()) {
+                  <button (click)="supprimerLigne(l)" [attr.aria-label]="'COMMON.DELETE' | translate"
+                          [disabled]="saving()"
+                          color="warn" data-testid="delete-line" mat-icon-button type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
               </td>
             </ng-container>
 

@@ -24,7 +24,7 @@ import {
   statutInterventionTone,
   STATUTS_INTERVENTION
 } from '../../gmao-options.util';
-import {GmaoLigneCoutDialogComponent, LigneCoutDialogData} from '../ligne-cout-dialog/ligne-cout-dialog.component';
+import {GmaoLigneCoutDialogComponent} from '../ligne-cout-dialog/ligne-cout-dialog.component';
 import {
   FinishInterventionData,
   FinishInterventionResult,
@@ -121,12 +121,8 @@ export class GmaoListInterventionComponent {
     });
   }
 
-  saisirMainOeuvre(row: Intervention): void {
-    this.addLigneCout(row, {preset: 'MAIN_OEUVRE', libelle: this.translate.instant('GMAO.COUTS.MAIN_OEUVRE_LIBELLE')});
-  }
-
-  addLigneCout(row: Intervention, data?: LigneCoutDialogData): void {
-    const ref = this.dialog.open(GmaoLigneCoutDialogComponent, {width: 'min(96vw, 480px)', data});
+  addLigneCout(row: Intervention): void {
+    const ref = this.dialog.open(GmaoLigneCoutDialogComponent, {width: 'min(96vw, 480px)'});
     ref.afterClosed().subscribe((payload) => {
       if (!payload) return;
       this.store.ajouterLigneCout({id: row.id, payload});

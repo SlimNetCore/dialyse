@@ -23,6 +23,7 @@ function intervention(overrides: Partial<Intervention> = {}): Intervention {
     cause: null,
     enRetard: false,
     echeanceDepassee: false,
+    nbRectifications: 0,
     description: 'Contrôle annuel',
     actions: null,
     pieceRemplacee: null,

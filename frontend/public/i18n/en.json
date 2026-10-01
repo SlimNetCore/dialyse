@@ -2939,6 +2939,14 @@
       "HISTORIQUE_PANNES": "Interventions and faults history",
       "AUCUN_PLAN": "No maintenance plan scheduled"
     },
+    "RECTIFICATION": {
+      "BUTTON": "Rectify",
+      "TITLE": "Rectify the intervention",
+      "NOTE": "The finished intervention is reopened (in progress) for correction. The reason is traced in the timeline; the end date, states and automatic lines (fees / labour) are recomputed when it is closed again.",
+      "MOTIF": "Reason for the rectification",
+      "MOTIF_LABEL": "Reason",
+      "CONFIRM": "Rectify"
+    },
     "PRIORITE": {
       "NORMALE": "Normal",
       "HAUTE": "High",
@@ -2959,6 +2967,7 @@
       "DEMARREE": "Started",
       "TERMINEE": "Finished",
       "ANNULEE": "Cancelled",
+      "RECTIFIEE": "Rectified",
       "MODIFIEE": "Last modification",
       "INCONNU": "Unknown user"
     },
@@ -2987,6 +2996,9 @@
     "COUTS": {
       "ADD_TITLE": "Add a cost line",
       "DETAIL_TITLE": "Cost breakdown",
+      "AUTO": "auto",
+      "CONFIRM_DELETE_TITLE": "Delete the cost line?",
+      "CONFIRM_DELETE_MESSAGE": "\"{{libelle}}\" will be removed from the intervention cost.",
       "MAIN_OEUVRE_TITLE": "Enter labour",
       "MAIN_OEUVRE_BUTTON": "Enter labour",
       "MAIN_OEUVRE_LIBELLE": "Labour",

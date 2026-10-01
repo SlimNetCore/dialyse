@@ -35,11 +35,19 @@ public class LigneCoutInterventionEntity {
     @Column
     private UUID articleStockId;
 
+    /**
+     * Ligne générée par le système (nullable pour les lignes antérieures : traitées comme manuelles).
+     */
+    @Column
+    private Boolean automatique;
+
     public LigneCoutInterventionEntity() {
     }
 
     public LigneCoutInterventionEntity(UUID id, UUID interventionId, String type, String libelle,
-                                       BigDecimal quantite, BigDecimal prixUnitaire, UUID articleStockId) {
+                                       BigDecimal quantite, BigDecimal prixUnitaire, UUID articleStockId,
+                                       boolean automatique) {
+        this.automatique = automatique;
         this.id = id;
         this.interventionId = interventionId;
         this.type = type;
@@ -47,6 +55,10 @@ public class LigneCoutInterventionEntity {
         this.quantite = quantite;
         this.prixUnitaire = prixUnitaire;
         this.articleStockId = articleStockId;
+    }
+
+    public boolean isAutomatique() {
+        return Boolean.TRUE.equals(automatique);
     }
 
     public UUID getId() {

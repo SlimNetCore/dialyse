@@ -16,10 +16,11 @@ public record LigneCoutResponse(
         BigDecimal quantite,
         BigDecimal prixUnitaire,
         BigDecimal montant,
-        UUID articleStockId
+        UUID articleStockId,
+        boolean automatique
 ) {
     public LigneCoutResponse(LigneCoutIntervention ligne) {
         this(ligne.getId(), ligne.getType(), ligne.getLibelle(), ligne.getQuantite(),
-                ligne.getPrixUnitaire(), ligne.montant(), ligne.getArticleStockId());
+                ligne.getPrixUnitaire(), ligne.montant(), ligne.getArticleStockId(), ligne.isAutomatique());
     }
 }

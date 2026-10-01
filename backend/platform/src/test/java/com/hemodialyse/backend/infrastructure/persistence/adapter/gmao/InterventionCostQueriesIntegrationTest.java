@@ -61,6 +61,8 @@ class InterventionCostQueriesIntegrationTest {
 
     @AfterEach
     void cleanup() {
+        jdbc.update("DELETE FROM gmao_rectifications_intervention WHERE intervention_id IN " +
+                "(SELECT id FROM gmao_interventions WHERE centre_id IN (?, ?))", CENTRE_A, CENTRE_B);
         jdbc.update("DELETE FROM gmao_documents_intervention WHERE centre_id IN (?, ?)", CENTRE_A, CENTRE_B);
         jdbc.update("DELETE FROM gmao_lignes_cout_intervention WHERE intervention_id IN " +
                 "(SELECT id FROM gmao_interventions WHERE centre_id IN (?, ?))", CENTRE_A, CENTRE_B);
@@ -125,6 +127,34 @@ class InterventionCostQueriesIntegrationTest {
         assertEquals(technicien, relu.getCloturePar());
         assertEquals(List.of(EvenementIntervention.Type.CREEE, EvenementIntervention.Type.DEMARREE,
                 EvenementIntervention.Type.TERMINEE), relu.chronologie().stream().map(EvenementIntervention::type).toList());
+    }
+
+    @Test
+    void rectification_and_automatic_lines_should_survive_a_persistence_round_trip() {
+        UUID auteur = UUID.randomUUID();
+        Intervention i = Intervention.creer(EQUIPEMENT_A, CENTRE_A, TypeIntervention.CURATIVE, DEBUT, "Panne",
+                null, StatutEquipement.EN_MAINTENANCE, UUID.randomUUID());
+        i.demarrer(auteur);
+        i.terminer("Fait", StatutEquipement.EN_SERVICE, DEBUT.plusHours(2), auteur);
+        i.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.INTERNE, auteur);
+        i.ajouterLigneCout(LigneCoutIntervention.creer(TypeLigneCout.PIECE, "Joint", BigDecimal.ONE, new BigDecimal("500"), null), auteur);
+        interventions.save(i);
+
+        Intervention relu = interventions.findById(i.getId()).orElseThrow();
+        assertTrue(relu.getLignesCout().stream().anyMatch(l -> l.isAutomatique() && l.getType() == TypeLigneCout.MAIN_OEUVRE));
+        assertTrue(relu.getLignesCout().stream().anyMatch(l -> !l.isAutomatique() && l.getType() == TypeLigneCout.PIECE));
+
+        relu.rectifier("Durée erronée", DEBUT.minusHours(1), auteur);
+        interventions.save(relu);
+
+        Intervention rectifiee = interventions.findById(i.getId()).orElseThrow();
+        assertEquals(StatutIntervention.EN_COURS, rectifiee.getStatut());
+        assertEquals(1, rectifiee.getRectifications().size());
+        assertEquals("Durée erronée", rectifiee.getRectifications().get(0).motif());
+        assertEquals(auteur, rectifiee.getRectifications().get(0).par());
+        assertEquals(1, rectifiee.getLignesCout().size());
+        assertEquals(TypeLigneCout.PIECE, rectifiee.getLignesCout().get(0).getType());
+        assertEquals(EvenementIntervention.Type.RECTIFIEE, rectifiee.chronologie().get(rectifiee.chronologie().size() - 1).type());
     }
 
     @Test

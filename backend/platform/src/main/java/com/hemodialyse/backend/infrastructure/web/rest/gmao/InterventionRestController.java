@@ -156,7 +156,7 @@ public class InterventionRestController {
         if (intervention.getIntervenantId() != null) {
             intervenantRepository.findById(intervention.getIntervenantId())
                     .filter(i -> i.centreId().equals(centreId))
-                    .ifPresent(i -> intervention.appliquerTarifIntervenant(i.tarifHoraireDefaut(), userId));
+                    .ifPresent(i -> intervention.appliquerTarifIntervenant(i.tarifHoraireDefaut(), i.type(), userId));
         }
         statutService.appliquerEtat(intervention.getEquipementId(), centreId,
                 intervention.getEtatEquipementApres(), "Intervention terminée", userId);
@@ -177,11 +177,47 @@ public class InterventionRestController {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         Intervention intervention = requireIntervention(id, centreId(authentication));
+        refuserMainOeuvreExterne(intervention, request.type(), centreId(authentication));
 
         LigneCoutIntervention ligne = LigneCoutIntervention.creer(
                 TypeLigneCout.valueOf(request.type()), request.libelle(), request.quantite(),
                 request.prixUnitaire(), request.articleStockId());
         intervention.ajouterLigneCout(ligne, UUID.fromString(principal.getId()));
+        interventionRepository.save(intervention);
+
+        return ResponseEntity.ok(new InterventionResponse(intervention));
+    }
+
+    /**
+     * Supprime une ligne de coût d'une intervention ouverte (une intervention terminée se rectifie d'abord).
+     */
+    @DeleteMapping("/{id}/lignes-cout/{ligneId}")
+    public ResponseEntity<InterventionResponse> supprimerLigneCout(
+            @PathVariable String id, @PathVariable UUID ligneId, Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        Intervention intervention = requireIntervention(id, centreId(authentication));
+
+        intervention.supprimerLigneCout(ligneId, UUID.fromString(principal.getId()));
+        interventionRepository.save(intervention);
+
+        return ResponseEntity.ok(new InterventionResponse(intervention));
+    }
+
+    /**
+     * Rectifie une intervention terminée : la rouvre avec un motif obligatoire, tracé dans la ligne de temps.
+     * Réservé au droit particulier {@code GMAO_RECTIFICATION} (distinct de l'administration GMAO), car les
+     * dates et coûts alimentent le suivi de maintenance et les décisions de réforme.
+     */
+    @PostMapping("/{id}/rectifier")
+    @PreAuthorize("hasRole('GMAO_RECTIFICATION')")
+    public ResponseEntity<InterventionResponse> rectifierIntervention(
+            @PathVariable String id,
+            @Valid @RequestBody RectifierInterventionRequest request,
+            Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        Intervention intervention = requireIntervention(id, centreId(authentication));
+
+        intervention.rectifier(request.motif(), request.dateDebut(), UUID.fromString(principal.getId()));
         interventionRepository.save(intervention);
 
         return ResponseEntity.ok(new InterventionResponse(intervention));
@@ -203,6 +239,19 @@ public class InterventionRestController {
         interventionRepository.save(intervention);
 
         return ResponseEntity.ok(new InterventionResponse(intervention));
+    }
+
+    /**
+     * Un intervenant externe est facturé en honoraires (ligne automatique) : pas de main d'œuvre à saisir.
+     */
+    private void refuserMainOeuvreExterne(Intervention intervention, String typeLigne, UUID centreId) {
+        if (!TypeLigneCout.MAIN_OEUVRE.name().equals(typeLigne) || intervention.getIntervenantId() == null) return;
+        intervenantRepository.findById(intervention.getIntervenantId())
+                .filter(i -> i.centreId().equals(centreId) && i.type() == TypeIntervenant.EXTERNE)
+                .ifPresent(i -> {
+                    throw new IllegalArgumentException(
+                            "Intervenant externe : ses honoraires sont facturés automatiquement, pas de main d'œuvre à saisir");
+                });
     }
 
     private Intervention requireIntervention(String id, UUID centreId) {

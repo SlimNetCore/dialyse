@@ -144,3 +144,13 @@ export function browserTimeZone(): string {
     return 'UTC';
   }
 }
+
+/** Droit particulier : rectifier (rouvrir, avec motif tracé) une intervention terminée. */
+export const ROLE_GMAO_RECTIFICATION = 'GMAO_RECTIFICATION';
+
+/** Instant ISO UTC → valeur `datetime-local` (heure locale du navigateur, à la minute). */
+export function utcIsoToLocalInput(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}

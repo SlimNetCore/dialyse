@@ -51,6 +51,8 @@ export interface LigneCout {
   prixUnitaire: number;
   montant: number;
   articleStockId: string | null;
+  /** Ligne générée à la clôture (honoraires / main d'œuvre de l'intervenant), recalculée après rectification. */
+  automatique: boolean;
 }
 
 export interface Intervention {
@@ -75,6 +77,7 @@ export interface Intervention {
   /** Planifiée mais non démarrée à l'heure prévue. */
   enRetard: boolean;
   echeanceDepassee: boolean;
+  nbRectifications: number;
   description: string;
   actions: string | null;
   pieceRemplacee: string | null;
@@ -188,13 +191,15 @@ export interface IndicateursIntervention {
   partIndisponibilite12MoisPct: number | null;
 }
 
-export type TypeEvenementIntervention = 'CREEE' | 'DEMARREE' | 'TERMINEE' | 'ANNULEE' | 'MODIFIEE';
+export type TypeEvenementIntervention = 'CREEE' | 'DEMARREE' | 'TERMINEE' | 'ANNULEE' | 'RECTIFIEE' | 'MODIFIEE';
 
 export interface EvenementIntervention {
   type: TypeEvenementIntervention;
   at: string;
   parId: string | null;
   parNom: string | null;
+  /** Précision (ex. motif d'une rectification). */
+  detail: string | null;
 }
 
 export interface DocumentIntervention {
@@ -317,6 +322,15 @@ export class GmaoApiService {
   getBonIntervention(id: string, tz: string): Observable<Blob> {
     const params = new HttpParams().set('tz', tz);
     return this.http.get(`${this.base}/interventions/${id}/bon`, {params, responseType: 'blob'});
+  }
+
+  /** Rectifie (rouvre) une intervention terminée — droit particulier, motif obligatoire. */
+  rectifierIntervention(id: string, motif: string, dateDebut?: string | null): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/rectifier`, {motif, dateDebut});
+  }
+
+  supprimerLigneCout(id: string, ligneId: string): Observable<Intervention> {
+    return this.http.delete<Intervention>(`${this.base}/interventions/${id}/lignes-cout/${ligneId}`);
   }
 
   getIndicateursIntervention(id: string): Observable<IndicateursIntervention> {

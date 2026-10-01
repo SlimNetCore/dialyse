@@ -10,6 +10,7 @@ import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.AjouterLigneCoutRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.CreateInterventionRequest;
+import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.RectifierInterventionRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.gmao.TerminerInterventionRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.gmao.InterventionResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -152,6 +153,86 @@ class InterventionRestControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertEquals(1, response.getBody().lignesCout().size());
         assertEquals(0, new BigDecimal("2000").compareTo(response.getBody().coutTotal()));
+        // intervenant interne : son temps est valorisé en main d'œuvre (ligne automatique)
+        assertEquals(TypeLigneCout.MAIN_OEUVRE, response.getBody().lignesCout().get(0).type());
+        assertTrue(response.getBody().lignesCout().get(0).automatique());
+    }
+
+    @Test
+    void terminerIntervention_should_bill_fees_for_an_external_intervenant() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        Intervenant externe = Intervenant.creer(
+                centreId, "Prestataire", TypeIntervenant.EXTERNE, null, null, new BigDecimal("1500"));
+        intervenants.byId = Optional.of(externe);
+        Intervention enCours = enCours(equipement.getId(), centreId, externe.id(), OffsetDateTime.now(ZoneOffset.UTC).minusHours(2));
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(enCours);
+
+        ResponseEntity<InterventionResponse> response = controller(repo).terminerIntervention(
+                enCours.getId().toString(), new TerminerInterventionRequest("Réparé", "EN_SERVICE", OffsetDateTime.now(ZoneOffset.UTC)), authentication());
+
+        assertEquals(TypeLigneCout.INTERVENANT, response.getBody().lignesCout().get(0).type());
+    }
+
+    @Test
+    void ajouterLigneCout_should_refuse_labour_for_an_external_intervenant() {
+        UUID centreId = authenticate();
+        Intervenant externe = Intervenant.creer(
+                centreId, "Prestataire", TypeIntervenant.EXTERNE, null, null, new BigDecimal("1500"));
+        intervenants.byId = Optional.of(externe);
+        Intervention enCours = enCours(UUID.randomUUID(), centreId, externe.id(), OffsetDateTime.now(ZoneOffset.UTC).minusHours(1));
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(enCours);
+        var controller = controller(repo);
+
+        assertThrows(IllegalArgumentException.class, () -> controller.ajouterLigneCout(enCours.getId().toString(),
+                new AjouterLigneCoutRequest("MAIN_OEUVRE", "Technicien", new BigDecimal("2"), new BigDecimal("800"), null), authentication()));
+        var piece = controller.ajouterLigneCout(enCours.getId().toString(),
+                new AjouterLigneCoutRequest("PIECE", "Joint", BigDecimal.ONE, new BigDecimal("500"), null), authentication());
+        assertEquals(1, piece.getBody().lignesCout().size());
+    }
+
+    @Test
+    void rectifierIntervention_should_reopen_with_a_reason_and_allow_a_new_closing_then_isolate_by_center() {
+        UUID centreId = authenticate();
+        Equipement equipement = equipement(centreId);
+        Intervention terminee = enCours(equipement.getId(), centreId, null, OffsetDateTime.now(ZoneOffset.UTC).minusHours(3));
+        terminee.terminer("Fait", StatutEquipement.EN_SERVICE, OffsetDateTime.now(ZoneOffset.UTC).minusHours(1), UUID.randomUUID());
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(terminee);
+        var controller = controller(repo);
+
+        var response = controller.rectifierIntervention(terminee.getId().toString(),
+                new RectifierInterventionRequest("Heure de fin erronée", null), authentication());
+
+        assertEquals(StatutIntervention.EN_COURS, response.getBody().statut());
+        assertEquals(1, response.getBody().nbRectifications());
+        assertNull(response.getBody().dateFin());
+
+        Intervention autreCentre = enCours(UUID.randomUUID(), UUID.randomUUID(), null, OffsetDateTime.now(ZoneOffset.UTC).minusHours(3));
+        repo.byId = Optional.of(autreCentre);
+        assertThrows(IllegalArgumentException.class, () -> controller.rectifierIntervention(autreCentre.getId().toString(),
+                new RectifierInterventionRequest("x", null), authentication()));
+    }
+
+    @Test
+    void supprimerLigneCout_should_work_on_an_open_intervention_only() {
+        UUID centreId = authenticate();
+        Intervention enCours = enCours(UUID.randomUUID(), centreId, null, OffsetDateTime.now(ZoneOffset.UTC).minusHours(1));
+        LigneCoutIntervention ligne = LigneCoutIntervention.creer(TypeLigneCout.PIECE, "Joint", BigDecimal.ONE, new BigDecimal("500"), null);
+        enCours.ajouterLigneCout(ligne, UUID.randomUUID());
+        FakeInterventionRepository repo = new FakeInterventionRepository();
+        repo.byId = Optional.of(enCours);
+        var controller = controller(repo);
+
+        var response = controller.supprimerLigneCout(enCours.getId().toString(), ligne.getId(), authentication());
+        assertTrue(response.getBody().lignesCout().isEmpty());
+
+        enCours.ajouterLigneCout(ligne, UUID.randomUUID());
+        enCours.terminer("Fait", StatutEquipement.EN_SERVICE, OffsetDateTime.now(ZoneOffset.UTC), UUID.randomUUID());
+        assertThrows(IllegalStateException.class,
+                () -> controller.supprimerLigneCout(enCours.getId().toString(), ligne.getId(), authentication()));
     }
 
     @Test

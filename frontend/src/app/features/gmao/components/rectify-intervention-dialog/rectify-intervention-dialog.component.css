@@ -1,0 +1,16 @@
+.gmao-rectify-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding-top: 4px;
+  min-width: min(80vw, 420px);
+}
+
+.gmao-rectify-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: color-mix(in srgb, #ed6c02 14%, transparent);
+  color: #b45309;
+}

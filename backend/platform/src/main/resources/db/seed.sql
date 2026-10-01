@@ -211,11 +211,18 @@ MERGE INTO app_role (id, code, name, description) KEY (id)
     VALUES ('a0a00001-0000-0000-0000-000000000007', 'GMAO_REFORME', 'Habilité à réformer',
     'Décide de la réforme des équipements (GMAO) — droit particulier distinct de l''administration');
 
+-- Droit particulier : rectification (réouverture tracée) d'une intervention GMAO terminée.
+MERGE INTO app_role (id, code, name, description) KEY (id)
+    VALUES ('a0a00001-0000-0000-0000-000000000008', 'GMAO_RECTIFICATION', 'Habilité à rectifier les interventions',
+    'Rouvre une intervention GMAO terminée pour correction (motif obligatoire, tracé) — droit particulier');
+
 -- ═══ USER-ROLE ASSIGNMENTS ═══
 MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
 VALUES ('b0b00001-0000-0000-0000-000000000001', 'a0a00001-0000-0000-0000-000000000001');
 MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
     VALUES ('b0b00001-0000-0000-0000-000000000001', 'a0a00001-0000-0000-0000-000000000007');
+MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
+    VALUES ('b0b00001-0000-0000-0000-000000000001', 'a0a00001-0000-0000-0000-000000000008');
 MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)
 VALUES ('b0b00001-0000-0000-0000-000000000002', 'a0a00001-0000-0000-0000-000000000002');
 MERGE INTO app_user_role (user_id, role_id) KEY (user_id, role_id)

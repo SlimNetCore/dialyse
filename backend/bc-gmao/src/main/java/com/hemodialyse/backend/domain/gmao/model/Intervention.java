@@ -57,6 +57,7 @@ public class Intervention {
     private OffsetDateTime clotureLe;
     private UUID annulePar;
     private OffsetDateTime annuleLe;
+    private List<RectificationIntervention> rectifications = new ArrayList<>();
 
     // Constructeur privé pour DDD
     private Intervention() {
@@ -255,25 +256,84 @@ public class Intervention {
     }
 
     /**
-     * À la clôture : valorise le temps de l'intervenant (tarif horaire × durée début→fin) en ligne de coût
-     * {@link TypeLigneCout#INTERVENANT}. Sans effet si l'intervention n'est pas terminée, si le tarif est
-     * absent/nul, si la durée est nulle, ou si une ligne INTERVENANT a déjà été saisie manuellement.
+     * À la clôture : valorise le temps de l'intervenant (tarif horaire × durée début→fin) en ligne automatique.
+     * Intervenant externe (prestataire) : «Honoraires intervenant» ({@link TypeLigneCout#INTERVENANT}) ;
+     * intervenant interne : «Main d'œuvre» ({@link TypeLigneCout#MAIN_OEUVRE}). Sans effet si l'intervention
+     * n'est pas terminée, si le tarif est absent/nul, si la durée est nulle, ou si une ligne de la même nature
+     * existe déjà (saisie manuelle : jamais de double comptage).
      *
      * @return true si une ligne a été ajoutée
      */
-    public boolean appliquerTarifIntervenant(BigDecimal tarifHoraire, UUID parUtilisateur) {
+    public boolean appliquerTarifIntervenant(BigDecimal tarifHoraire, TypeIntervenant typeIntervenant, UUID parUtilisateur) {
         if (statut != StatutIntervention.TERMINEE || dateDebut == null || dateFin == null) return false;
-        if (tarifHoraire == null || tarifHoraire.signum() <= 0) return false;
-        if (lignesCout.stream().anyMatch(l -> l.getType() == TypeLigneCout.INTERVENANT)) return false;
+        if (tarifHoraire == null || tarifHoraire.signum() <= 0 || typeIntervenant == null) return false;
+        boolean externe = typeIntervenant == TypeIntervenant.EXTERNE;
+        TypeLigneCout nature = externe ? TypeLigneCout.INTERVENANT : TypeLigneCout.MAIN_OEUVRE;
+        if (lignesCout.stream().anyMatch(l -> l.getType() == nature)) return false;
 
         long minutes = java.time.Duration.between(dateDebut, dateFin).toMinutes();
         if (minutes <= 0) return false;
         BigDecimal heures = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, java.math.RoundingMode.HALF_UP);
         if (heures.signum() <= 0) return false;
 
-        ajouterLigneCout(LigneCoutIntervention.creer(
-                TypeLigneCout.INTERVENANT, "Temps intervenant", heures, tarifHoraire, null), parUtilisateur);
+        ajouterLigneCout(LigneCoutIntervention.creerAutomatique(
+                nature, externe ? "Honoraires intervenant" : "Main d'œuvre", heures, tarifHoraire), parUtilisateur);
         return true;
+    }
+
+    /**
+     * Rectifie une intervention terminée : la rouvre (en cours) pour permettre la correction. Motif obligatoire,
+     * clôture précédente conservée dans la trace ; la date de fin, les états et les lignes automatiques
+     * (recalculées à la nouvelle clôture) sont réinitialisés. Une nouvelle date de début peut être fournie.
+     */
+    public void rectifier(String motif, OffsetDateTime nouvelleDateDebut, UUID parUtilisateur) {
+        if (statut != StatutIntervention.TERMINEE) {
+            throw new IllegalStateException("Seule une intervention terminée peut être rectifiée");
+        }
+        if (motif == null || motif.isBlank()) {
+            throw new IllegalArgumentException("Motif de rectification requis");
+        }
+        OffsetDateTime maintenant = OffsetDateTime.now(ZoneOffset.UTC);
+        rectifications.add(new RectificationIntervention(
+                UUID.randomUUID(), motif.trim(), parUtilisateur, maintenant, clotureLe, cloturePar));
+        if (nouvelleDateDebut != null) {
+            this.dateDebut = nouvelleDateDebut;
+        }
+        this.statut = StatutIntervention.EN_COURS;
+        this.dateFin = null;
+        this.clotureLe = null;
+        this.cloturePar = null;
+        this.etatEquipementApres = null;
+        this.lignesCout.removeIf(LigneCoutIntervention::isAutomatique);
+        this.dateModification = maintenant;
+        this.modifiePar = parUtilisateur;
+    }
+
+    /**
+     * Supprime une ligne de coût : uniquement tant que l'intervention est ouverte (planifiée ou en cours,
+     * y compris après une rectification) ; une intervention terminée doit d'abord être rectifiée.
+     */
+    public void supprimerLigneCout(UUID ligneId, UUID parUtilisateur) {
+        if (statut != StatutIntervention.PLANIFIEE && statut != StatutIntervention.EN_COURS) {
+            throw new IllegalStateException("Les lignes de coût ne se corrigent que sur une intervention ouverte : rectifiez-la d'abord");
+        }
+        if (!lignesCout.removeIf(l -> l.getId().equals(ligneId))) {
+            throw new IllegalArgumentException("Ligne de coût non trouvée");
+        }
+        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
+        this.modifiePar = parUtilisateur;
+    }
+
+    public List<RectificationIntervention> getRectifications() {
+        return Collections.unmodifiableList(rectifications);
+    }
+
+    /**
+     * Restaure les rectifications depuis la persistance (adapters uniquement).
+     */
+    public Intervention restaurerRectifications(List<RectificationIntervention> liste) {
+        this.rectifications = liste == null ? new ArrayList<>() : new ArrayList<>(liste);
+        return this;
     }
 
     /**
@@ -340,6 +400,12 @@ public class Intervention {
         }
         if (annuleLe != null) {
             events.add(new EvenementIntervention(EvenementIntervention.Type.ANNULEE, annuleLe, annulePar));
+        }
+        for (RectificationIntervention r : rectifications) {
+            if (r.clotureAnterieureLe() != null) {
+                events.add(new EvenementIntervention(EvenementIntervention.Type.TERMINEE, r.clotureAnterieureLe(), r.clotureAnterieurePar()));
+            }
+            events.add(new EvenementIntervention(EvenementIntervention.Type.RECTIFIEE, r.le(), r.par(), r.motif()));
         }
         OffsetDateTime dernier = events.stream().map(EvenementIntervention::at)
                 .filter(Objects::nonNull).max(Comparator.naturalOrder()).orElse(null);

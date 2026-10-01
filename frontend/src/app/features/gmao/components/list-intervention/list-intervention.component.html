@@ -106,11 +106,6 @@
                 <mat-icon>print</mat-icon>
               </button>
               @if (row.statut !== 'ANNULEE') {
-                <button (click)="saisirMainOeuvre(row)" [disabled]="store.saving()"
-                        [matTooltip]="'GMAO.COUTS.MAIN_OEUVRE_BUTTON' | translate" data-testid="labour-row"
-                        mat-icon-button>
-                  <mat-icon>engineering</mat-icon>
-                </button>
                 <button (click)="addLigneCout(row)" [disabled]="store.saving()"
                         [matTooltip]="'GMAO.COUTS.ADD_TITLE' | translate"
                         mat-icon-button>

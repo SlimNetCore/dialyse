@@ -87,7 +87,7 @@ public class InterventionSuiviRestController {
             @PathVariable UUID id, Authentication authentication) {
         return ResponseEntity.ok(suivi.chronologie(id, centreId(authentication)).stream()
                 .map(e -> new EvenementInterventionResponse(
-                        e.evenement().type(), e.evenement().at(), e.evenement().par(), e.parNom()))
+                        e.evenement().type(), e.evenement().at(), e.evenement().par(), e.parNom(), e.evenement().detail()))
                 .toList());
     }
 

@@ -12,6 +12,7 @@ public record EvenementInterventionResponse(
         EvenementIntervention.Type type,
         OffsetDateTime at,
         UUID parId,
-        String parNom
+        String parNom,
+        String detail
 ) {
 }

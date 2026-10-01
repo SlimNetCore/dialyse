@@ -141,7 +141,7 @@ class InterventionTest {
     void appliquerTarifIntervenant_should_add_labour_line_from_duration_and_rate() {
         Intervention i = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 30, 0, 0, ZoneOffset.UTC));
 
-        assertTrue(i.appliquerTarifIntervenant(new BigDecimal("2000"), UUID.randomUUID()));
+        assertTrue(i.appliquerTarifIntervenant(new BigDecimal("2000"), TypeIntervenant.EXTERNE, UUID.randomUUID()));
 
         assertEquals(1, i.getLignesCout().size());
         assertEquals(TypeLigneCout.INTERVENANT, i.getLignesCout().get(0).getType());
@@ -152,15 +152,102 @@ class InterventionTest {
     void appliquerTarifIntervenant_should_be_idempotent_and_skip_missing_rate() {
         Intervention i = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 0, 0, 0, ZoneOffset.UTC));
 
-        assertFalse(i.appliquerTarifIntervenant(null, UUID.randomUUID()));
-        assertTrue(i.appliquerTarifIntervenant(new BigDecimal("1000"), UUID.randomUUID()));
-        assertFalse(i.appliquerTarifIntervenant(new BigDecimal("1000"), UUID.randomUUID()));
+        assertFalse(i.appliquerTarifIntervenant(null, TypeIntervenant.EXTERNE, UUID.randomUUID()));
+        assertTrue(i.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.EXTERNE, UUID.randomUUID()));
+        assertFalse(i.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.EXTERNE, UUID.randomUUID()));
         assertEquals(1, i.getLignesCout().size());
     }
 
     @Test
     void appliquerTarifIntervenant_should_ignore_an_intervention_not_finished() {
-        assertFalse(intervention().appliquerTarifIntervenant(new BigDecimal("1000"), UUID.randomUUID()));
+        assertFalse(intervention().appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.EXTERNE, UUID.randomUUID()));
+    }
+
+    @Test
+    void appliquerTarifIntervenant_should_bill_fees_for_an_external_and_labour_for_an_internal() {
+        Intervention externe = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 0, 0, 0, ZoneOffset.UTC));
+        Intervention interne = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 0, 0, 0, ZoneOffset.UTC));
+
+        externe.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.EXTERNE, UUID.randomUUID());
+        interne.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.INTERNE, UUID.randomUUID());
+
+        assertEquals(TypeLigneCout.INTERVENANT, externe.getLignesCout().get(0).getType());
+        assertTrue(externe.getLignesCout().get(0).isAutomatique());
+        assertEquals(TypeLigneCout.MAIN_OEUVRE, interne.getLignesCout().get(0).getType());
+        assertTrue(interne.getLignesCout().get(0).isAutomatique());
+    }
+
+    @Test
+    void appliquerTarifIntervenant_should_not_double_count_a_manual_labour_line_for_an_internal() {
+        Intervention i = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 0, 0, 0, ZoneOffset.UTC));
+        i.ajouterLigneCout(LigneCoutIntervention.creer(
+                TypeLigneCout.MAIN_OEUVRE, "Main d'œuvre saisie", new BigDecimal("3"), new BigDecimal("800"), null), UUID.randomUUID());
+
+        assertFalse(i.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.INTERNE, UUID.randomUUID()));
+        assertEquals(1, i.getLignesCout().size());
+    }
+
+    @Test
+    void rectifier_should_reopen_a_finished_intervention_with_a_traced_reason() {
+        UUID auteur = UUID.randomUUID();
+        Intervention i = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 0, 0, 0, ZoneOffset.UTC));
+        i.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.INTERNE, UUID.randomUUID());
+        i.ajouterLigneCout(LigneCoutIntervention.creer(
+                TypeLigneCout.PIECE, "Joint", BigDecimal.ONE, new BigDecimal("500"), null), UUID.randomUUID());
+
+        i.rectifier("  Heure de fin erronée ", null, auteur);
+
+        assertEquals(StatutIntervention.EN_COURS, i.getStatut());
+        assertNull(i.getDateFin());
+        assertNull(i.getEtatEquipementApres());
+        assertEquals(1, i.getLignesCout().size());
+        assertEquals(TypeLigneCout.PIECE, i.getLignesCout().get(0).getType());
+        assertEquals(1, i.getRectifications().size());
+        assertEquals("Heure de fin erronée", i.getRectifications().get(0).motif());
+        var events = i.chronologie();
+        assertEquals(EvenementIntervention.Type.RECTIFIEE, events.get(events.size() - 1).type());
+        assertEquals("Heure de fin erronée", events.get(events.size() - 1).detail());
+        assertEquals(auteur, events.get(events.size() - 1).par());
+    }
+
+    @Test
+    void rectifier_then_close_again_should_recompute_the_automatic_line_on_the_new_dates() {
+        OffsetDateTime debut = OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC);
+        Intervention i = terminee(debut, debut.plusHours(2));
+        i.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.INTERNE, UUID.randomUUID());
+        assertEquals(0, new BigDecimal("2000").compareTo(i.coutTotal()));
+
+        i.rectifier("Durée sous-estimée", debut.minusHours(1), UUID.randomUUID());
+        i.terminer("Refait", StatutEquipement.EN_SERVICE, debut.plusHours(2), UUID.randomUUID());
+        i.appliquerTarifIntervenant(new BigDecimal("1000"), TypeIntervenant.INTERNE, UUID.randomUUID());
+
+        assertEquals(StatutIntervention.TERMINEE, i.getStatut());
+        assertEquals(0, new BigDecimal("3000").compareTo(i.coutTotal()));
+    }
+
+    @Test
+    void rectifier_should_only_apply_to_a_finished_intervention_and_require_a_reason() {
+        assertThrows(IllegalStateException.class, () -> intervention().rectifier("x", null, UUID.randomUUID()));
+        Intervention i = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 0, 0, 0, ZoneOffset.UTC));
+        assertThrows(IllegalArgumentException.class, () -> i.rectifier("  ", null, UUID.randomUUID()));
+        assertEquals(StatutIntervention.TERMINEE, i.getStatut());
+    }
+
+    @Test
+    void supprimerLigneCout_should_only_work_on_an_open_intervention() {
+        Intervention i = intervention();
+        LigneCoutIntervention ligne = LigneCoutIntervention.creer(
+                TypeLigneCout.PIECE, "Joint", BigDecimal.ONE, new BigDecimal("500"), null);
+        i.ajouterLigneCout(ligne, UUID.randomUUID());
+        i.demarrer(UUID.randomUUID());
+
+        i.supprimerLigneCout(ligne.getId(), UUID.randomUUID());
+        assertTrue(i.getLignesCout().isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> i.supprimerLigneCout(UUID.randomUUID(), UUID.randomUUID()));
+
+        Intervention fermee = terminee(OffsetDateTime.of(2026, 1, 5, 8, 0, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2026, 1, 5, 10, 0, 0, 0, ZoneOffset.UTC));
+        fermee.ajouterLigneCout(ligne, UUID.randomUUID());
+        assertThrows(IllegalStateException.class, () -> fermee.supprimerLigneCout(ligne.getId(), UUID.randomUUID()));
     }
 
     @Test

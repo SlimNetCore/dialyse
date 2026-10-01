@@ -13,6 +13,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatTableModule} from '@angular/material/table';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule} from '@ngx-translate/core';
+import {Observable} from 'rxjs';
 import {
   AjouterLigneCoutPayload,
   DocumentIntervention,
@@ -21,6 +22,7 @@ import {
   IndicateursIntervention,
   GmaoApiService,
   Intervention,
+  LigneCout,
   TypeDocumentIntervention,
   TypeLigneCout,
 } from '../../../../core/api/gmao-api.service';
@@ -29,12 +31,24 @@ import {
   dureeMinutes,
   browserTimeZone,
   prioriteTone,
+  ROLE_GMAO_RECTIFICATION,
   statutEquipementTone,
   statutInterventionTone,
   TYPES_DOCUMENT_INTERVENTION,
 } from '../../gmao-options.util';
 import {GmaoIntervenantsStore} from '../../state/gmao-intervenants.store';
 import {GmaoLigneCoutDialogComponent, LigneCoutDialogData} from '../ligne-cout-dialog/ligne-cout-dialog.component';
+import {
+  FinishInterventionData,
+  FinishInterventionResult,
+  GmaoFinishInterventionDialogComponent,
+} from '../finish-intervention-dialog/finish-intervention-dialog.component';
+import {
+  GmaoRectifyInterventionDialogComponent,
+  RectifyInterventionData,
+  RectifyInterventionResult,
+} from '../rectify-intervention-dialog/rectify-intervention-dialog.component';
+import {AuthStore} from '../../../../core/state/auth.store';
 
 const TYPES_LIGNE: TypeLigneCout[] = ['PIECE', 'MAIN_OEUVRE', 'INTERVENANT', 'AUTRE'];
 
@@ -60,7 +74,7 @@ export class GmaoFicheInterventionComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly intervention = signal<Intervention | null>(null);
   protected readonly equipement = signal<Equipement | null>(null);
-  protected readonly columns = ['type', 'libelle', 'quantite', 'prixUnitaire', 'montant'];
+  protected readonly columns = ['type', 'libelle', 'quantite', 'prixUnitaire', 'montant', 'actions'];
   protected readonly statutInterventionTone = statutInterventionTone;
   protected readonly statutEquipementTone = statutEquipementTone;
   protected readonly prioriteTone = prioriteTone;
@@ -89,7 +103,23 @@ export class GmaoFicheInterventionComponent {
     const s = this.intervention()?.statut;
     return !!s && s !== 'ANNULEE';
   });
+  protected readonly canFinish = computed(() => this.intervention()?.statut === 'EN_COURS');
+  /** Les lignes ne se corrigent que sur une intervention ouverte (une intervention terminée se rectifie d'abord). */
+  protected readonly canEditLines = computed(() => {
+    const s = this.intervention()?.statut;
+    return s === 'PLANIFIEE' || s === 'EN_COURS';
+  });
+  /** Intervenant externe : honoraires facturés automatiquement, pas de main d'œuvre à saisir. */
+  protected readonly intervenantExterne = computed(() => {
+    const id = this.intervention()?.intervenantId;
+    return !!id && this.intervenantsStore.rows().find((x) => x.id === id)?.type === 'EXTERNE';
+  });
+  protected readonly canSaisirMainOeuvre = computed(() => this.canAddCost() && !this.intervenantExterne());
+  private readonly auth = inject(AuthStore);
   private readonly api = inject(GmaoApiService);
+  /** Rectification : réservée au droit particulier GMAO_RECTIFICATION, uniquement sur une intervention terminée. */
+  protected readonly canRectify = computed(() =>
+    this.intervention()?.statut === 'TERMINEE' && this.auth.hasRole(ROLE_GMAO_RECTIFICATION));
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly intervenantsStore = inject(GmaoIntervenantsStore);
@@ -202,6 +232,64 @@ export class GmaoFicheInterventionComponent {
       libelle: this.translate.instant('GMAO.COUTS.MAIN_OEUVRE_LIBELLE'),
       heures: minutes > 0 ? Math.round(minutes / 60 * 100) / 100 : undefined,
       tauxHoraire: intervenant?.tarifHoraireDefaut ?? null,
+    });
+  }
+
+  protected rectifier(): void {
+    const i = this.intervention();
+    if (!i) return;
+    const data: RectifyInterventionData = {dateDebut: i.dateDebut};
+    const ref = this.dialog.open(GmaoRectifyInterventionDialogComponent, {width: 'min(96vw, 480px)', data});
+    ref.afterClosed().subscribe((result: RectifyInterventionResult | null) => {
+      if (!result) return;
+      this.run(this.api.rectifierIntervention(this.interventionId, result.motif, result.dateDebut));
+    });
+  }
+
+  protected terminer(): void {
+    const i = this.intervention();
+    if (!i) return;
+    const data: FinishInterventionData = {dateDebut: i.dateDebut, actions: i.actions, cause: i.cause};
+    const ref = this.dialog.open(GmaoFinishInterventionDialogComponent, {width: 'min(96vw, 480px)', data});
+    ref.afterClosed().subscribe((result: FinishInterventionResult | null) => {
+      if (!result) return;
+      this.run(this.api.finishIntervention(
+        this.interventionId, result.actions, result.etatEquipementApres, result.dateFin, result.cause));
+    });
+  }
+
+  protected supprimerLigne(ligne: LigneCout): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: 'min(96vw, 460px)',
+      data: {
+        title: this.translate.instant('GMAO.COUTS.CONFIRM_DELETE_TITLE'),
+        message: this.translate.instant('GMAO.COUTS.CONFIRM_DELETE_MESSAGE', {libelle: ligne.libelle}),
+        confirmLabel: this.translate.instant('COMMON.CONFIRM'),
+        cancelLabel: this.translate.instant('COMMON.CANCEL'),
+        color: 'warn',
+        icon: 'delete',
+      },
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.run(this.api.supprimerLigneCout(this.interventionId, ligne.id));
+    });
+  }
+
+  /** Exécute une action qui renvoie l'intervention mise à jour, puis rafraîchit le suivi (ligne de temps, indicateurs). */
+  private run(action: Observable<Intervention>): void {
+    this.saving.set(true);
+    this.error.set(null);
+    action.subscribe({
+      next: (updated) => {
+        this.intervention.set(updated);
+        this.saving.set(false);
+        this.loadSuivi();
+      },
+      error: () => {
+        this.error.set('GMAO.INTERVENTIONS.SAVE_ERROR');
+        this.saving.set(false);
+      },
     });
   }
 

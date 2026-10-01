@@ -5,6 +5,8 @@ import com.hemodialyse.backend.domain.gmao.port.InterventionRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.persistence.entity.gmao.InterventionEntity;
 import com.hemodialyse.backend.infrastructure.persistence.entity.gmao.LigneCoutInterventionEntity;
+import com.hemodialyse.backend.infrastructure.persistence.entity.gmao.RectificationInterventionEntity;
+import com.hemodialyse.backend.infrastructure.persistence.repository.gmao.RectificationInterventionJpaRepository;
 import com.hemodialyse.backend.infrastructure.persistence.repository.gmao.InterventionJpaRepository;
 import com.hemodialyse.backend.infrastructure.persistence.repository.gmao.LigneCoutInterventionJpaRepository;
 import org.springframework.data.domain.Page;
@@ -32,9 +34,12 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
 
     private final InterventionJpaRepository jpaRepository;
     private final LigneCoutInterventionJpaRepository lignesCoutRepository;
+    private final RectificationInterventionJpaRepository rectificationRepository;
 
     public InterventionRepositoryAdapter(
-            InterventionJpaRepository jpaRepository, LigneCoutInterventionJpaRepository lignesCoutRepository) {
+            InterventionJpaRepository jpaRepository, LigneCoutInterventionJpaRepository lignesCoutRepository,
+            RectificationInterventionJpaRepository rectificationRepository) {
+        this.rectificationRepository = rectificationRepository;
         this.jpaRepository = jpaRepository;
         this.lignesCoutRepository = lignesCoutRepository;
     }
@@ -51,9 +56,15 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
         List<LigneCoutInterventionEntity> lignes = intervention.getLignesCout().stream()
                 .map(l -> new LigneCoutInterventionEntity(
                         l.getId(), intervention.getId(), l.getType().name(), l.getLibelle(),
-                        l.getQuantite(), l.getPrixUnitaire(), l.getArticleStockId()))
+                        l.getQuantite(), l.getPrixUnitaire(), l.getArticleStockId(), l.isAutomatique()))
                 .toList();
         lignesCoutRepository.saveAll(lignes);
+
+        rectificationRepository.deleteByInterventionId(intervention.getId());
+        rectificationRepository.saveAll(intervention.getRectifications().stream()
+                .map(r -> new RectificationInterventionEntity(r.id(), intervention.getId(), r.motif(), r.par(), r.le(),
+                        r.clotureAnterieureLe(), r.clotureAnterieurePar()))
+                .toList());
     }
 
     @Override
@@ -227,7 +238,7 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
         List<LigneCoutIntervention> lignesCout = lignesCoutRepository.findByInterventionId(entity.getId()).stream()
                 .map(l -> LigneCoutIntervention.reconstruct(
                         l.getId(), TypeLigneCout.valueOf(l.getType()), l.getLibelle(),
-                        l.getQuantite(), l.getPrixUnitaire(), l.getArticleStockId()))
+                        l.getQuantite(), l.getPrixUnitaire(), l.getArticleStockId(), l.isAutomatique()))
                 .toList();
 
         Intervention intervention = Intervention.reconstruct(
@@ -251,6 +262,11 @@ public class InterventionRepositoryAdapter implements InterventionRepositoryPort
                 entity.getEtatEquipementAvant() != null ? StatutEquipement.valueOf(entity.getEtatEquipementAvant()) : null,
                 entity.getEtatEquipementApres() != null ? StatutEquipement.valueOf(entity.getEtatEquipementApres()) : null
         );
+        List<RectificationIntervention> rectifications = rectificationRepository.findByInterventionIdOrderByLeAsc(entity.getId()).stream()
+                .map(r -> new RectificationIntervention(r.getId(), r.getMotif(), r.getPar(), r.getLe(),
+                        r.getClotureAnterieureLe(), r.getClotureAnterieurePar()))
+                .toList();
+        intervention.restaurerRectifications(rectifications);
         return intervention.restaurerSuivi(
                 entity.getPriorite() != null ? PrioriteIntervention.valueOf(entity.getPriorite()) : null,
                 entity.getEcheance(), entity.getSymptome(), entity.getCause(),

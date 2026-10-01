@@ -84,7 +84,8 @@ public class BonInterventionReportService {
         List<String> lignes = new ArrayList<>();
         for (InterventionSuiviQueryService.Evenement e : events) {
             lignes.add(stamp(e.evenement().at(), zone) + " — " + libelle(e.evenement().type())
-                    + (e.parNom() == null ? "" : " par " + e.parNom()));
+                    + (e.parNom() == null ? "" : " par " + e.parNom())
+                    + (e.evenement().detail() == null ? "" : " — motif : " + e.evenement().detail()));
         }
         lignes.add("Heures exprimées dans le fuseau " + zone.getId() + ".");
         return String.join("\n", lignes);
@@ -96,6 +97,7 @@ public class BonInterventionReportService {
             case DEMARREE -> "Démarrée";
             case TERMINEE -> "Terminée";
             case ANNULEE -> "Annulée";
+            case RECTIFIEE -> "Rectifiée";
             case MODIFIEE -> "Dernière modification";
         };
     }

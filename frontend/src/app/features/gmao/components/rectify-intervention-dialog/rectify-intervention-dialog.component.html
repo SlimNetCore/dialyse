@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>{{ 'GMAO.RECTIFICATION.TITLE' | translate }}</h2>
+<form (submit)="save(); $event.preventDefault()" [formRoot]="rectifyForm">
+  <mat-dialog-content class="gmao-rectify-grid">
+    <p class="gmao-rectify-note" role="note">{{ 'GMAO.RECTIFICATION.NOTE' | translate }}</p>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'GMAO.RECTIFICATION.MOTIF' | translate }}</mat-label>
+      <textarea [formField]="rectifyForm.motif" data-testid="rectif-motif" matInput rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'GMAO.INTERVENTIONS.START_DATE' | translate }}</mat-label>
+      <input [formField]="rectifyForm.dateDebut" data-testid="rectif-debut" matInput type="datetime-local"/>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button (click)="cancel()" mat-stroked-button type="button">
+      {{ 'COMMON.CANCEL' | translate }}
+    </button>
+    <button [disabled]="!canSave()" color="warn" mat-flat-button type="submit">
+      <mat-icon>edit_note</mat-icon>
+      {{ 'GMAO.RECTIFICATION.CONFIRM' | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

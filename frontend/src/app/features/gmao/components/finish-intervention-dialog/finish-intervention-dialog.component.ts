@@ -25,7 +25,8 @@ export type FinishInterventionResult = {
   cause: string | null;
 };
 
-export type FinishInterventionData = { dateDebut: string };
+/** `actions` et `cause` : préremplissage lors d'une nouvelle clôture après rectification. */
+export type FinishInterventionData = { dateDebut: string; actions?: string | null; cause?: string | null };
 
 type FinishFormModel = { actions: string; etatEquipementApres: string; dateFin: string; cause: string };
 
@@ -46,18 +47,18 @@ type FinishFormModel = { actions: string; etatEquipementApres: string; dateFin: 
 })
 export class GmaoFinishInterventionDialogComponent {
   protected readonly etats = ETATS_APRES_INTERVENTION;
+  protected readonly data = inject<FinishInterventionData>(MAT_DIALOG_DATA);
   protected readonly formModel = signal<FinishFormModel>({
-    actions: '',
+    actions: this.data.actions ?? '',
     etatEquipementApres: '',
     dateFin: nowDatetimeLocal(),
-    cause: ''
+    cause: this.data.cause ?? ''
   });
   protected readonly finishForm = compatForm(this.formModel, (form) => {
     required(form.actions);
     required(form.etatEquipementApres);
     required(form.dateFin);
   });
-  protected readonly data = inject<FinishInterventionData>(MAT_DIALOG_DATA);
   /** Fin avant le début : refusée (le serveur la refuse aussi). */
   protected readonly endBeforeStart = computed(() => {
     const fin = this.formModel().dateFin;

@@ -2939,6 +2939,14 @@
       "HISTORIQUE_PANNES": "Historique des interventions et pannes",
       "AUCUN_PLAN": "Aucun plan de maintenance prévu"
     },
+    "RECTIFICATION": {
+      "BUTTON": "Rectifier",
+      "TITLE": "Rectifier l'intervention",
+      "NOTE": "L'intervention terminée est rouverte (en cours) pour correction. Le motif est tracé dans la ligne de temps ; la date de fin, les états et les lignes automatiques (honoraires / main d'œuvre) sont recalculés à la nouvelle clôture.",
+      "MOTIF": "Motif de la rectification",
+      "MOTIF_LABEL": "Motif",
+      "CONFIRM": "Rectifier"
+    },
     "PRIORITE": {
       "NORMALE": "Normale",
       "HAUTE": "Haute",
@@ -2959,6 +2967,7 @@
       "DEMARREE": "Démarrée",
       "TERMINEE": "Terminée",
       "ANNULEE": "Annulée",
+      "RECTIFIEE": "Rectifiée",
       "MODIFIEE": "Dernière modification",
       "INCONNU": "Utilisateur inconnu"
     },
@@ -2987,6 +2996,9 @@
     "COUTS": {
       "ADD_TITLE": "Ajouter une ligne de coût",
       "DETAIL_TITLE": "Détail des coûts",
+      "AUTO": "auto",
+      "CONFIRM_DELETE_TITLE": "Supprimer la ligne de coût ?",
+      "CONFIRM_DELETE_MESSAGE": "« {{libelle}} » sera retirée du coût de l'intervention.",
       "MAIN_OEUVRE_TITLE": "Saisir la main d'œuvre",
       "MAIN_OEUVRE_BUTTON": "Saisir la main d'œuvre",
       "MAIN_OEUVRE_LIBELLE": "Main d'œuvre",

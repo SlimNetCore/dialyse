@@ -2565,6 +2565,14 @@
       "HISTORIQUE_PANNES": "Amazray n tdukkal d tuccḍiwin",
       "AUCUN_PLAN": "Ulac asenfar n uṣṣaṣ yettwaheggan"
     },
+    "RECTIFICATION": {
+      "BUTTON": "Seɣti",
+      "TITLE": "Seɣti tadukelt",
+      "NOTE": "Tadukelt yekfan ad d-teldi i tikkelt-nniḍen (tetteddu) i useɣti. Ssebba ad yettwarreg deg useɣmer n wakud ; azemz n taggara, iddaden d yizirigen iwurmanen (ttawila / amahil) ad ttwaḥsben i tikkelt-nniḍen ticki tettwamdel.",
+      "MOTIF": "Ssebba n useɣti",
+      "MOTIF_LABEL": "Ssebba",
+      "CONFIRM": "Seɣti"
+    },
     "PRIORITE": {
       "NORMALE": "Tamagnut",
       "HAUTE": "Tamezwarut",
@@ -2585,6 +2593,7 @@
       "DEMARREE": "Yebda",
       "TERMINEE": "Yekfa",
       "ANNULEE": "Yettwasefsex",
+      "RECTIFIEE": "Yettwaseɣti",
       "MODIFIEE": "Beddel aneggaru",
       "INCONNU": "Amseqdac arussin"
     },
@@ -2613,6 +2622,9 @@
     "COUTS": {
       "ADD_TITLE": "Rnu izirig n ssuma",
       "DETAIL_TITLE": "Aglam n usexleṣ",
+      "AUTO": "awurman",
+      "CONFIRM_DELETE_TITLE": "Kkes izirig n usexleṣ?",
+      "CONFIRM_DELETE_MESSAGE": "\"{{libelle}}\" ad yettwakkes seg usexleṣ n tddukelt.",
       "MAIN_OEUVRE_TITLE": "Aru amahil",
       "MAIN_OEUVRE_BUTTON": "Aru amahil",
       "MAIN_OEUVRE_LIBELLE": "Amahil",

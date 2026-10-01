@@ -8,6 +8,7 @@ import {
   localInputToUtcIso,
   prioriteTone,
   utcIsoToLocalDate,
+  utcIsoToLocalInput,
   STATUTS_INDISPONIBLES_PATIENT,
   statutEquipementTone,
 } from './gmao-options.util';
@@ -58,5 +59,12 @@ describe('priorité d\'intervention', () => {
     expect(prioriteTone('NORMALE')).toBe('neutral');
     expect(prioriteTone('HAUTE')).toBe('warning');
     expect(prioriteTone('URGENTE')).toBe('danger');
+  });
+});
+
+describe('valeur datetime-local', () => {
+  it('restitue en heure locale l\'instant saisi (aller-retour à la minute)', () => {
+    const local = '2026-03-10T08:30';
+    expect(utcIsoToLocalInput(localInputToUtcIso(local))).toBe(local);
   });
 });
