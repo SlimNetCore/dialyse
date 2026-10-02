@@ -87,6 +87,7 @@ export class NotificationBellComponent {
       case 'INFIRMIER_SOUS_EFFECTIF':
         return 'groups';
       case 'INFIRMIER_ABSENCE_DECLAREE':
+      case 'ABSENCES_A_QUALIFIER':
         return 'event_busy';
       default:
         return 'info';
@@ -102,6 +103,7 @@ export class NotificationBellComponent {
       case 'PEC_CLOSED':
       case 'INFIRMIER_SOUS_EFFECTIF':
       case 'INFIRMIER_ABSENCE_DECLAREE':
+      case 'ABSENCES_A_QUALIFIER':
         return 'warning';
       default:
         return '';
@@ -127,6 +129,11 @@ export class NotificationBellComponent {
           infirmier: evt.payload['infirmier'] ?? '',
           debut: evt.payload['debut'] ?? '',
           fin: evt.payload['fin'] ?? '',
+        });
+      case 'ABSENCES_A_QUALIFIER':
+        return this.translate.instant('NOTIFICATION.ABSENCES_A_QUALIFIER', {
+          count: evt.payload['nbAQualifier'] ?? '',
+          late: evt.payload['nbEnRetard'] ?? '',
         });
       case 'INFIRMIER_SOUS_EFFECTIF':
         return this.translate.instant('NOTIFICATION.INFIRMIER_SOUS_EFFECTIF', {

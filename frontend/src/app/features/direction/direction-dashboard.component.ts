@@ -14,6 +14,8 @@ import {FormField, FormRoot} from '@angular/forms/signals';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {DirectionStore, LIVE_REPORT} from './state/direction.store';
+import {MotifAbsenceStat} from '../../core/api/direction-api.service';
+import {absencesHeadline, absencesMotifs, absencesRows, motifShare} from './direction-absences.util';
 import {gmaoTopRows} from './direction-gmao.util';
 import {stockGroupeRows} from './direction-stock-groupes.util';
 import {
@@ -203,6 +205,10 @@ export class DirectionDashboardComponent implements OnInit {
   protected readonly gmaoTopRows = computed(() => gmaoTopRows(this.store.gmao(), this.selectedCentre()));
   /** Valorisation du stock des groupes d'articles : total consolidé puis détail par centre. */
   protected readonly stockGroupeRows = computed(() => stockGroupeRows(this.store.stockGroupes(), this.selectedCentre()));
+  /** Absences de patients : un centre par ligne puis le total, indicateurs mis en avant et motifs. */
+  protected readonly absencesRows = computed(() => absencesRows(this.store.absences(), this.selectedCentre()));
+  protected readonly absencesHeadline = computed(() => absencesHeadline(this.store.absences(), this.selectedCentre()));
+  protected readonly absencesMotifs = computed(() => absencesMotifs(this.store.absences(), this.selectedCentre()));
   /** Répartitions filtrées sur le centre isolé, le cas échéant (toutes les listes de `breakdown` partagent `centerId`). */
   protected readonly breakdown = computed(() => {
     const b = this.store.breakdown();
@@ -432,6 +438,10 @@ export class DirectionDashboardComponent implements OnInit {
 
   protected pct(value: number | null): string {
     return formatPct(value);
+  }
+
+  protected motifPart(motif: MotifAbsenceStat): number | null {
+    return motifShare(motif, this.absencesMotifs());
   }
 
   protected alertKey(code: string): string {

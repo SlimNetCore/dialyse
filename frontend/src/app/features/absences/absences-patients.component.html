@@ -1,0 +1,267 @@
+<section class="abs-page">
+  <header class="abs-head">
+    <div>
+      <h1>{{ 'ABSENCES.TITLE' | translate }}</h1>
+      <p class="abs-sub">{{ 'ABSENCES.SUBTITLE' | translate }}</p>
+    </div>
+    <button (click)="declareOpen.set(!declareOpen())" color="primary" data-testid="abs-declare-toggle" mat-flat-button
+            type="button">
+      <mat-icon>{{ declareOpen() ? 'close' : 'add' }}</mat-icon>
+      {{ 'ABSENCES.DECLARER' | translate }}
+    </button>
+  </header>
+
+  @if (store.error()) {
+    <p class="abs-feedback error" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.successMessage()) {
+    <p class="abs-feedback success" role="status">{{ store.successMessage()! | translate }}</p>
+  }
+  @if (store.loading() || store.saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  <div class="abs-kpis">
+    <mat-card (click)="showToQualify()" (keydown.enter)="showToQualify()"
+              [class.abs-alert]="store.synthese().aQualifier > 0"
+              [matTooltip]="'ABSENCES.KPI_A_QUALIFIER_HINT' | translate" class="abs-clickable" role="button"
+              tabindex="0">
+      <mat-card-content>
+        <span class="abs-kpi-label">{{ 'ABSENCES.KPI_A_QUALIFIER' | translate }}</span>
+        <strong class="abs-kpi-value" data-testid="abs-kpi-a-qualifier">{{ store.synthese().aQualifier }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card [class.abs-alert]="store.synthese().enRetard > 0">
+      <mat-card-content>
+        <span class="abs-kpi-label">{{ 'ABSENCES.KPI_EN_RETARD' | translate }}</span>
+        <strong class="abs-kpi-value" data-testid="abs-kpi-en-retard">{{ store.synthese().enRetard }}</strong>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  @if (declareOpen()) {
+    <mat-card data-testid="abs-declare-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'ABSENCES.DECLARER' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form (submit)="save(); $event.preventDefault()" [formRoot]="declareForm" class="abs-form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'ABSENCES.PATIENT_SEARCH' | translate }}</mat-label>
+            <input (input)="onPatientInput($any($event.target).value)" [matAutocomplete]="patientAuto"
+                   [value]="patientQuery()" autocomplete="off" data-testid="abs-patient-query" matInput/>
+            <mat-icon matSuffix>search</mat-icon>
+            <mat-autocomplete #patientAuto="matAutocomplete">
+              @for (p of patientOptions(); track p.id) {
+                <mat-option (onSelectionChange)="$event.isUserInput && selectPatient(p)" [value]="p.label">
+                  {{ p.label }}
+                </mat-option>
+              } @empty {
+                @if (patientQuery().trim().length > 1 && !patientSearching() && !declareModel().patientId) {
+                  <mat-option disabled>{{ 'ABSENCES.NO_PATIENT_RESULT' | translate }}</mat-option>
+                }
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'ABSENCES.DATE' | translate }}</mat-label>
+            <input [formField]="declareForm.dateSeance" data-testid="abs-date" matInput type="date"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'ABSENCES.MOTIF' | translate }}</mat-label>
+            <mat-select [formField]="declareForm.motif" data-testid="abs-motif">
+              <mat-option value="">{{ 'ABSENCES.A_QUALIFIER_PLUS_TARD' | translate }}</mat-option>
+              @for (m of motifs; track m) {
+                <mat-option [value]="m">{{ ('ABSENCES.MOTIFS.' + m) | translate }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>{{ 'ABSENCES.MOTIF_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="abs-span">
+            <mat-label>{{ 'ABSENCES.COMMENTAIRE' | translate }}</mat-label>
+            <input [formField]="declareForm.commentaire" data-testid="abs-commentaire" matInput/>
+            @if (declareCommentaireRequis()) {
+              <mat-hint>{{ 'ABSENCES.COMMENTAIRE_REQUIS' | translate }}</mat-hint>
+            }
+          </mat-form-field>
+          <div class="abs-actions abs-full">
+            <button [disabled]="!canDeclare()" color="primary" data-testid="abs-save" mat-flat-button type="submit">
+              <mat-icon>save</mat-icon>
+              {{ 'COMMON.SAVE' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card>
+    <mat-card-content>
+      <form (submit)="applyFilters(); $event.preventDefault()" class="abs-filters">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'ABSENCES.STATUT' | translate }}</mat-label>
+          <mat-select [formField]="filtersForm.statut" data-testid="abs-filter-statut">
+            <mat-option value="">{{ 'ABSENCES.ALL' | translate }}</mat-option>
+            @for (s of statuts; track s) {
+              <mat-option [value]="s">{{ ('ABSENCES.STATUTS.' + s) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'ABSENCES.MOTIF' | translate }}</mat-label>
+          <mat-select [formField]="filtersForm.motif" data-testid="abs-filter-motif">
+            <mat-option value="">{{ 'ABSENCES.ALL' | translate }}</mat-option>
+            @for (m of motifs; track m) {
+              <mat-option [value]="m">{{ ('ABSENCES.MOTIFS.' + m) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'ABSENCES.FROM' | translate }}</mat-label>
+          <input [formField]="filtersForm.from" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'ABSENCES.TO' | translate }}</mat-label>
+          <input [formField]="filtersForm.to" matInput type="date"/>
+        </mat-form-field>
+        <div class="abs-actions">
+          <button data-testid="abs-filter-apply" mat-stroked-button type="submit">
+            <mat-icon>filter_alt</mat-icon>
+            {{ 'ABSENCES.APPLY' | translate }}
+          </button>
+          <button (click)="resetFilters()" mat-button type="button">{{ 'ABSENCES.RESET' | translate }}</button>
+        </div>
+      </form>
+
+      <div class="abs-table-scroll">
+        <table [dataSource]="store.rows()" class="abs-table" data-testid="abs-table" mat-table>
+          <ng-container matColumnDef="date">
+            <th *matHeaderCellDef mat-header-cell>{{ 'ABSENCES.DATE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              {{ row.dateSeance | date: 'dd/MM/yyyy' }}
+              @if (row.enRetard) {
+                <mat-icon [matTooltip]="'ABSENCES.EN_RETARD' | translate" class="abs-late">schedule</mat-icon>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="patient">
+            <th *matHeaderCellDef mat-header-cell>{{ 'ABSENCES.PATIENT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.patientNom }}</td>
+          </ng-container>
+          <ng-container matColumnDef="source">
+            <th *matHeaderCellDef mat-header-cell>{{ 'ABSENCES.SOURCE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ ('ABSENCES.SOURCES.' + row.source) | translate }}</td>
+          </ng-container>
+          <ng-container matColumnDef="statut">
+            <th *matHeaderCellDef mat-header-cell>{{ 'ABSENCES.STATUT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span [class]="statutClass(row.statut)">{{ ('ABSENCES.STATUTS.' + row.statut) | translate }}</span>
+              @if (row.dateRattrapage) {
+                <small class="abs-sub">{{ row.dateRattrapage | date: 'dd/MM/yyyy' }}</small>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="motif">
+            <th *matHeaderCellDef mat-header-cell>{{ 'ABSENCES.MOTIF' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              @if (row.motif) {
+                {{ ('ABSENCES.MOTIFS.' + row.motif) | translate }}
+              }
+              @if (row.commentaire) {
+                <small [matTooltip]="row.commentaire" class="abs-sub abs-comment">{{ row.commentaire }}</small>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="valeur">
+            <th *matHeaderCellDef mat-header-cell>{{ 'ABSENCES.VALEUR_HT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.montantHt | currency: 'DZD' : 'symbol' : '1.0-2' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let row" class="abs-row-actions" mat-cell>
+              @if (row.statut === 'A_QUALIFIER') {
+                <mat-form-field appearance="outline" class="abs-inline-motif subscript-hidden">
+                  <mat-label>{{ 'ABSENCES.CHOISIR_MOTIF' | translate }}</mat-label>
+                  <mat-select (selectionChange)="quickQualify(row, $event.value)" data-testid="abs-qualifier">
+                    @for (m of motifs; track m) {
+                      <mat-option [value]="m">{{ ('ABSENCES.MOTIFS.' + m) | translate }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              } @else if (possible('qualifier', row)) {
+                <button (click)="openAction('qualifier', row)" [matTooltip]="'ABSENCES.CORRIGER_HINT' | translate"
+                        data-testid="abs-corriger" mat-button type="button">
+                  {{ 'ABSENCES.ACTIONS.CORRIGER' | translate }}
+                </button>
+              }
+              @if (possible('rattrapage', row)) {
+                <button (click)="openAction('rattrapage', row)" data-testid="abs-rattraper" mat-button type="button">
+                  {{ 'ABSENCES.ACTIONS.RATTRAPER' | translate }}
+                </button>
+              }
+              @if (possible('annuler', row)) {
+                <button (click)="openAction('annuler', row)" [attr.aria-label]="'ABSENCES.ACTIONS.ANNULER' | translate"
+                        data-testid="abs-annuler" mat-icon-button type="button">
+                  <mat-icon>block</mat-icon>
+                </button>
+              }
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="columns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: columns" mat-row></tr>
+        </table>
+      </div>
+      @if (store.isEmpty() && !store.loading()) {
+        <p class="abs-sub">{{ 'ABSENCES.EMPTY' | translate }}</p>
+      }
+      <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
+    </mat-card-content>
+  </mat-card>
+
+  @if (action(); as a) {
+    <mat-card class="abs-action-card" data-testid="abs-action-card">
+      <mat-card-header>
+        <mat-card-title>{{ ('ABSENCES.ACTIONS.' + a.mode.toUpperCase()) | translate }}</mat-card-title>
+        <mat-card-subtitle>{{ a.row.patientNom }} · {{ a.row.dateSeance | date: 'dd/MM/yyyy' }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form (submit)="confirmAction(); $event.preventDefault()" class="abs-form">
+          @if (a.mode === 'qualifier') {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ABSENCES.MOTIF' | translate }}</mat-label>
+              <mat-select [formField]="actionForm.motif" data-testid="abs-action-motif">
+                @for (m of motifs; track m) {
+                  <mat-option [value]="m">{{ ('ABSENCES.MOTIFS.' + m) | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+          @if (a.mode === 'rattrapage') {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ABSENCES.RATTRAPAGE_DATE' | translate }}</mat-label>
+              <input [formField]="actionForm.dateRattrapage" data-testid="abs-action-date" matInput type="date"/>
+              <mat-hint>{{ 'ABSENCES.RATTRAPAGE_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline" class="abs-span">
+              <mat-label>{{ 'ABSENCES.COMMENTAIRE' | translate }}</mat-label>
+              <input [formField]="actionForm.commentaire" data-testid="abs-action-commentaire" matInput/>
+              @if (commentaireRequis()) {
+                <mat-hint>{{ 'ABSENCES.COMMENTAIRE_REQUIS' | translate }}</mat-hint>
+              }
+            </mat-form-field>
+          }
+          <div class="abs-actions abs-full">
+            <button (click)="closeAction()" mat-button type="button">{{ 'ABSENCES.ACTIONS.FERMER' | translate }}
+            </button>
+            <button [disabled]="!actionOk()" color="primary" data-testid="abs-action-confirm" mat-flat-button
+                    type="submit">
+              {{ 'ABSENCES.ACTIONS.CONFIRMER' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

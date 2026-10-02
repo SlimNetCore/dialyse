@@ -10,6 +10,8 @@ import com.hemodialyse.backend.application.direction.DirectionAlertHistoryServic
 import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
+import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService;
+import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService.AbsencesOverview;
 import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService;
 import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService.GmaoOverview;
 import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService;
@@ -50,6 +52,7 @@ public class DirectionDashboardRestController {
     private final DirectionAlertHistoryService alertHistory;
     private final DirectionGmaoQueryService gmaoQueries;
     private final DirectionStockGroupesQueryService stockGroupes;
+    private final DirectionAbsencesQueryService absences;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
                                             DirectionIndicatorsQueryService indicators,
@@ -57,7 +60,9 @@ public class DirectionDashboardRestController {
                                             DirectionReportPdfService reports,
                                             DirectionAlertHistoryService alertHistory,
                                             DirectionGmaoQueryService gmaoQueries,
-                                            DirectionStockGroupesQueryService stockGroupes) {
+                                            DirectionStockGroupesQueryService stockGroupes,
+                                            DirectionAbsencesQueryService absences) {
+        this.absences = absences;
         this.stockGroupes = stockGroupes;
         this.reports = reports;
         this.guard = guard;
@@ -121,6 +126,18 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(stockGroupes.groupes(societeId, from, to));
+    }
+
+    /**
+     * Absences des patients sur la période : nombre, motifs, valorisation HT, taux d'absentéisme et part du CA HT,
+     * par centre et consolidées pour la société.
+     */
+    @GetMapping("/absences")
+    public ResponseEntity<AbsencesOverview> absences(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UUID societeId = guard.requireSociete();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(absences.absences(societeId, from, to));
     }
 
     /**

@@ -1,0 +1,184 @@
+.abs-page {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.abs-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.abs-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.abs-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.abs-feedback {
+  margin: 0;
+}
+
+.abs-feedback.error {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.abs-feedback.success {
+  color: #1b7f3b;
+}
+
+.abs-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.abs-kpi-label {
+  display: block;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.abs-kpi-value {
+  font-size: 1.8rem;
+}
+
+.abs-alert {
+  border-left: 4px solid #c77700;
+}
+
+.abs-clickable {
+  cursor: pointer;
+}
+
+.abs-inline-motif {
+  width: 200px;
+  max-width: 100%;
+}
+
+.abs-form,
+.abs-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 16px;
+  padding-top: 8px;
+}
+
+.abs-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.abs-span {
+  grid-column: span 2;
+}
+
+.abs-full {
+  grid-column: 1 / -1;
+}
+
+.abs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* défilement horizontal local : la page ne déborde jamais */
+.abs-table-scroll {
+  overflow-x: auto;
+}
+
+.abs-table {
+  width: 100%;
+  min-width: 760px;
+}
+
+.abs-row-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.abs-comment {
+  display: block;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abs-late {
+  color: #c77700;
+  vertical-align: middle;
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+}
+
+.abs-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  background: rgba(95, 107, 122, 0.15);
+}
+
+.abs-badge.a_qualifier {
+  background: rgba(199, 119, 0, 0.18);
+}
+
+.abs-badge.justifiee {
+  background: rgba(27, 127, 59, 0.18);
+}
+
+.abs-badge.non_justifiee {
+  background: rgba(179, 38, 30, 0.16);
+}
+
+.abs-badge.rattrapee {
+  background: rgba(25, 118, 210, 0.16);
+}
+
+@media (max-width: 1023px) {
+  .abs-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .abs-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .abs-page {
+    padding: 8px;
+  }
+
+  .abs-filters,
+  .abs-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .abs-span {
+    grid-column: auto;
+  }
+
+  .abs-actions {
+    justify-content: stretch;
+  }
+
+  .abs-actions button,
+  .abs-head button {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+}

@@ -8,6 +8,7 @@ import {
   DirectionBreakdown,
   DirectionIndicators,
   DirectionOverview,
+  AbsencesOverview,
   GmaoOverview,
   StockGroupesOverview,
   Snapshot,
@@ -24,6 +25,8 @@ type DirectionState = {
   gmao: GmaoOverview | null;
   /** Valorisation du stock des groupes d'articles (ex. « KIT CNAS ») sur la période. */
   stockGroupes: StockGroupesOverview | null;
+  /** Absences de patients : motifs, valorisation HT, taux d'absentéisme et part du CA HT. */
+  absences: AbsencesOverview | null;
   /** Dernière mise à jour des données (chargement ou changement reçu en temps réel). */
   updatedAt: string | null;
   /** Mois déjà figés (instantanés mensuels), du plus récent au plus ancien. */
@@ -51,6 +54,7 @@ const initialState: DirectionState = {
   breakdown: null,
   gmao: null,
   stockGroupes: null,
+  absences: null,
   updatedAt: null,
   snapshots: [],
   reportBusy: null,
@@ -83,12 +87,13 @@ export const DirectionStore = signalStore(
       const seq = ++requestSeq;
       patchState(store, silent ? {} : {loading: true, error: null, from, to});
       try {
-        const [overview, indicators, breakdown, gmao, stockGroupes] = await Promise.all([
+        const [overview, indicators, breakdown, gmao, stockGroupes, absences] = await Promise.all([
           firstValueFrom(api.overview(from || undefined, to || undefined)),
           firstValueFrom(api.indicators(from || undefined, to || undefined)),
           firstValueFrom(api.breakdown(from || undefined, to || undefined)),
           firstValueFrom(api.gmao(from || undefined, to || undefined)),
           firstValueFrom(api.stockGroupes(from || undefined, to || undefined)),
+          firstValueFrom(api.absences(from || undefined, to || undefined)),
         ]);
         if (seq !== requestSeq) return;
         patchState(store, {
@@ -97,6 +102,7 @@ export const DirectionStore = signalStore(
           breakdown,
           gmao,
           stockGroupes,
+          absences,
           loading: false,
           error: null,
           updatedAt: new Date().toISOString(),

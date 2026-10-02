@@ -878,3 +878,71 @@ CREATE TABLE IF NOT EXISTS infirmier_remplacement
 -- Lien facultatif d'un infirmier avec un compte utilisateur (un compte ne sert qu'une fiche par centre)
 ALTER TABLE IF EXISTS infirmier ADD COLUMN IF NOT EXISTS user_id UUID;
 CREATE UNIQUE INDEX IF NOT EXISTS ux_infirmier_user ON infirmier (center_id, user_id);
+
+-- Absences des patients : une par patient et par jour, valorisée au forfait de la prise en charge (TTC -> HT)
+CREATE TABLE IF NOT EXISTS absence_patient
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    patient_id
+    UUID
+    NOT
+    NULL,
+    date_seance
+    DATE
+    NOT
+    NULL,
+    source
+    VARCHAR
+(
+    20
+) NOT NULL,
+    statut VARCHAR
+(
+    20
+) NOT NULL,
+    motif VARCHAR
+(
+    30
+),
+    commentaire VARCHAR
+(
+    1000
+),
+    forfait_id UUID,
+    forfait_libelle VARCHAR
+(
+    255
+),
+    prix_ttc NUMERIC
+(
+    14,
+    2
+) NOT NULL DEFAULT 0,
+    taux_tva NUMERIC
+(
+    6,
+    2
+) NOT NULL DEFAULT 0,
+    montant_ht NUMERIC
+(
+    14,
+    2
+) NOT NULL DEFAULT 0,
+    declaree_par UUID,
+    declaree_le TIMESTAMP WITH TIME ZONE,
+    qualifiee_par UUID,
+    qualifiee_le TIMESTAMP WITH TIME ZONE,
+    date_rattrapage DATE,
+    modifiee_par UUID,
+    modifiee_le TIMESTAMP WITH TIME ZONE,
+                              UNIQUE (center_id, patient_id, date_seance)
+    );
+CREATE INDEX IF NOT EXISTS idx_absence_patient_periode ON absence_patient (center_id, date_seance);
+CREATE INDEX IF NOT EXISTS idx_absence_patient_statut ON absence_patient (center_id, statut);

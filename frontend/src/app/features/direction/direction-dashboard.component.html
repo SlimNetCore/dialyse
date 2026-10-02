@@ -404,6 +404,126 @@
     </mat-card>
   }
 
+  @if (store.absences(); as ab) {
+    <mat-card class="block" data-testid="direction-absences">
+      <h2>{{ 'DIRECTION.ABSENCES.TITLE' | translate }}</h2>
+      <p class="muted">{{ 'DIRECTION.ABSENCES.HINT' | translate }}</p>
+      @if (absencesHeadline(); as h) {
+        <div class="kpis" data-testid="direction-absences-kpis">
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.ABSENCES.KPI_NB' | translate }}</span>
+            <strong data-testid="direction-absences-nb">{{ h.nbAbsences }}</strong>
+          </mat-card>
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.ABSENCES.KPI_TAUX' | translate }}</span>
+            <strong>{{ pct(h.tauxAbsenteisme) }}</strong>
+          </mat-card>
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.ABSENCES.KPI_VALORISATION' | translate }}</span>
+            <strong>{{ h.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+          </mat-card>
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.ABSENCES.KPI_PART_CA' | translate }}</span>
+            <strong data-testid="direction-absences-part-ca">{{ pct(h.partCaHt) }}</strong>
+          </mat-card>
+        </div>
+      }
+      <div class="table-scroll">
+        <table class="centres" data-testid="direction-absences-table">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_NB' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_JUSTIFIEES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_NON_JUSTIFIEES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_A_QUALIFIER' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_RATTRAPEES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_TAUX' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_VALORISATION' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_CA_HT' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.ABSENCES.COL_PART_CA' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (row of absencesRows(); track row.centerId ?? 'total') {
+              <tr [class.total]="row.total">
+                <td>{{ row.nom ?? ('DIRECTION.TOTAL' | translate) }}</td>
+                <td class="num">{{ row.stats.nbAbsences }}</td>
+                <td class="num">{{ row.stats.nbJustifiees }}</td>
+                <td class="num">{{ row.stats.nbNonJustifiees }}</td>
+                <td [class.warn]="row.stats.nbAQualifier > 0" class="num">{{ row.stats.nbAQualifier }}</td>
+                <td class="num">{{ row.stats.nbRattrapees }}</td>
+                <td class="num">{{ pct(row.stats.tauxAbsenteisme) }}</td>
+                <td class="num">{{ row.stats.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td class="num">{{ row.stats.caHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td class="num"><strong>{{ pct(row.stats.partCaHt) }}</strong></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <h3>{{ 'DIRECTION.ABSENCES.MOTIFS_TITLE' | translate }}</h3>
+      @if (absencesMotifs().length === 0) {
+        <p class="muted" data-testid="direction-absences-empty">{{ 'DIRECTION.ABSENCES.EMPTY' | translate }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="centres" data-testid="direction-absences-motifs">
+            <thead>
+            <tr>
+              <th>{{ 'DIRECTION.ABSENCES.MOTIF' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.ABSENCES.COL_NB' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.ABSENCES.COL_PART' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.ABSENCES.COL_VALORISATION' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (m of absencesMotifs(); track m.motif) {
+                <tr>
+                  <td>
+                    {{ (m.motif === 'NON_QUALIFIE' ? 'DIRECTION.ABSENCES.NON_QUALIFIE' : 'ABSENCES.MOTIFS.' + m.motif) | translate }}
+                  </td>
+                  <td class="num">{{ headcount(m.nb) }}</td>
+                  <td class="num">{{ pct(motifPart(m)) }}</td>
+                  <td class="num">
+                    {{ m.valorisationHt === null ? '—' : (m.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (ab.mensuel.length > 0) {
+        <h3>{{ 'DIRECTION.ABSENCES.MENSUEL_TITLE' | translate }}</h3>
+        <div class="table-scroll">
+          <table class="centres" data-testid="direction-absences-mensuel">
+            <thead>
+            <tr>
+              <th>{{ 'DIRECTION.REPORTS.MONTH' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.ABSENCES.COL_NB' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.ABSENCES.COL_VALORISATION' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (m of ab.mensuel; track m.annee * 100 + m.mois) {
+                <tr>
+                  <td>{{ m.annee }}-{{ m.mois < 10 ? '0' + m.mois : m.mois }}</td>
+                  <td class="num">{{ headcount(m.nbAbsences) }}</td>
+                  <td class="num">
+                    {{ m.valorisationHt === null ? '—' : (m.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      <p class="muted">{{ 'DIRECTION.ABSENCES.NOTE' | translate }}</p>
+    </mat-card>
+  }
+
   @if (store.stockGroupes()) {
     <mat-card class="block" data-testid="direction-stock-groupes">
       <h2>{{ 'DIRECTION.STOCK_GROUPES.TITLE' | translate }}</h2>

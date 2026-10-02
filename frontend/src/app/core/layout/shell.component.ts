@@ -118,6 +118,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/patients/new', label: 'Nouveau patient', icon: 'person_add'},
         {route: '/patients/pec-list', label: 'Liste PEC', icon: 'fact_check'},
         {route: '/patients/attestations-list', label: 'Attestations', icon: 'badge'},
+        {route: '/absences-patients', label: 'NAV.ABSENCES_PATIENTS', icon: 'event_busy', nurse: true, doctor: true},
       ],
     },
     {
@@ -336,6 +337,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       medecin: 'NAV.MEDECIN_DASHBOARD',
       referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
       absences: 'NAV.INFIRMIERS_ABSENCES',
+      'absences-patients': 'NAV.ABSENCES_PATIENTS',
       charge: 'NAV.INFIRMIERS_CHARGE',
       moi: 'NAV.INFIRMIERS_MOI',
     };

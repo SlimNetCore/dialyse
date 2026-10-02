@@ -228,6 +228,12 @@ public class DomainServiceConfig {
                                                        BonSortieRepositoryPort bonSortieRepo) {
         return new StockDashboardService(dashboardPort, movementRepo, articleRepo, lotRepo, bonReceptionRepo, bonSortieRepo);
     }
+
+    @Bean
+    public com.hemodialyse.backend.domain.absence.service.ValorisationAbsenceService valorisationAbsenceService(
+            com.hemodialyse.backend.domain.absence.port.ForfaitAbsencePort forfaits) {
+        return new com.hemodialyse.backend.domain.absence.service.ValorisationAbsenceService(forfaits);
+    }
 }
 
 

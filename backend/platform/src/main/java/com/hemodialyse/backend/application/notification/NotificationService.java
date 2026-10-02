@@ -170,6 +170,17 @@ public class NotificationService {
         send(centerId, "INFIRMIER_ABSENCE_DECLAREE", payload);
     }
 
+    /**
+     * Des absences de patients attendent leur qualification (motif) ; certaines dépassent le délai.
+     */
+    public void notifyAbsencesAQualifier(UUID centerId, long nbAQualifier, long nbEnRetard) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("nbAQualifier", String.valueOf(nbAQualifier));
+        payload.put("nbEnRetard", String.valueOf(nbEnRetard));
+        payload.put("targetRoles", "ADMIN,SECRETAIRE,INFIRMIER,MEDECIN");
+        send(centerId, "ABSENCES_A_QUALIFIER", payload);
+    }
+
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
         Map<String, Object> event = new java.util.HashMap<>();
         event.put("type", eventType);

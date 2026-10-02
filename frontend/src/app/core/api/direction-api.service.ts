@@ -315,6 +315,14 @@ export class DirectionApiService {
     });
   }
 
+  /** Absences de patients : motifs, valorisation HT, taux d'absentéisme et part du CA HT, par centre et consolidées. */
+  absences(from?: string, to?: string): Observable<AbsencesOverview> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<AbsencesOverview>(`${this.baseUrl}/direction/absences`, {params, withCredentials: true});
+  }
+
   breakdown(from?: string, to?: string): Observable<DirectionBreakdown> {
     let params = new HttpParams();
     if (from) params = params.set('from', from);
@@ -408,4 +416,52 @@ export type StockGroupesOverview = {
   to: string;
   generatedAt: string;
   groupes: GroupeStock[];
+};
+
+/** Effectif et valorisation HT d'un motif d'absence ; `null` si l'effectif est trop faible (anonymat). */
+export type MotifAbsenceStat = {
+  motif: string;
+  nb: number | null;
+  valorisationHt: number | null;
+};
+
+/** Indicateurs d'absence d'un centre (ou totaux) : % exprimés en points de pourcentage, `null` sans base de calcul. */
+export type AbsencesStats = {
+  nbAbsences: number;
+  nbJustifiees: number;
+  nbNonJustifiees: number;
+  nbAQualifier: number;
+  nbRattrapees: number;
+  nbSeances: number;
+  valorisationHt: number;
+  valorisationTtc: number;
+  caHt: number;
+  tauxAbsenteisme: number | null;
+  partCaHt: number | null;
+};
+
+export type CentreAbsences = {
+  centerId: string;
+  nom: string;
+  actif: boolean;
+  stats: AbsencesStats;
+  motifs: MotifAbsenceStat[];
+};
+
+export type MoisAbsences = {
+  annee: number;
+  mois: number;
+  nbAbsences: number | null;
+  valorisationHt: number | null;
+};
+
+export type AbsencesOverview = {
+  societeId: string;
+  from: string;
+  to: string;
+  generatedAt: string;
+  total: AbsencesStats;
+  centres: CentreAbsences[];
+  motifs: MotifAbsenceStat[];
+  mensuel: MoisAbsences[];
 };

@@ -35,10 +35,13 @@ const has = (roles: readonly string[], role: string): boolean => roles.includes(
 export const isNurseOnly = (roles: readonly string[]): boolean =>
   has(roles, 'INFIRMIER') && !OTHER_CENTRE_ROLES.some((role) => has(roles, role));
 
-/** Écrans de l'infirmier seul : son planning (page d'accueil) et le tableau de bord des séances. */
+/** Suivi des absences de patients : ouvert à l'infirmier seul et au médecin seul. */
+const ABSENCES_PATIENTS = '/absences-patients';
+
+/** Écrans de l'infirmier seul : son planning (page d'accueil), le tableau de bord des séances et les absences. */
 export const isNurseArea = (url: string): boolean => {
   const path = url.split('?')[0];
-  return isUnder(path, NURSE_HOME) || path === '/seances';
+  return isUnder(path, NURSE_HOME) || path === '/seances' || path === ABSENCES_PATIENTS;
 };
 
 /**
@@ -59,7 +62,7 @@ export const isDoctorOnlyFor = (hasRole: (role: string) => boolean): boolean =>
 /** Écrans du médecin seul : tableau de bord, liste des patients et, par patient, fiche, cahier, dossier et statistiques. */
 export const isDoctorArea = (url: string): boolean => {
   const path = url.split('?')[0];
-  if (path === DOCTOR_HOME || path === '/patients') return true;
+  if (path === DOCTOR_HOME || path === '/patients' || path === ABSENCES_PATIENTS) return true;
   const match = /^\/patients\/([^/]+)(?:\/(?:cahier|stats|dossier-medical)(?:\/.*)?)?$/.exec(path);
   return !!match && !PATIENT_ROUTES_CLOSED_TO_DOCTOR.includes(match[1]);
 };

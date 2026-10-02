@@ -89,6 +89,10 @@
           <mat-select (selectionChange)="onValue('epoArticleId', $event.value)" [value]="form.value().epoArticleId">
             @for (article of epoArticles(); track article.id) {
               <mat-option [value]="article.id">{{ article.code }} - {{ article.libelle }}</mat-option>
+            } @empty {
+              <mat-option data-testid="epo-aucune-molecule" disabled>
+                {{ 'DOSSIER_MEDICAL.MOLECULE_AUCUNE' | translate }}
+              </mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -131,6 +135,10 @@
           <mat-select (selectionChange)="onValue('ferArticleId', $event.value)" [value]="form.value().ferArticleId">
             @for (article of ferArticles(); track article.id) {
               <mat-option [value]="article.id">{{ article.code }} - {{ article.libelle }}</mat-option>
+            } @empty {
+              <mat-option data-testid="fer-aucune-molecule" disabled>
+                {{ 'DOSSIER_MEDICAL.MOLECULE_AUCUNE' | translate }}
+              </mat-option>
             }
           </mat-select>
         </mat-form-field>
