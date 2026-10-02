@@ -1,6 +1,7 @@
 import {Routes} from '@angular/router';
 import {ShellComponent} from './core/layout/shell.component';
 import {authGuard, passwordChangeGuard} from './core/auth/auth.guard';
+import {medecinAccueilGuard} from './core/auth/medecin.guard';
 import {directionGuard, roleScopeGuard} from './core/auth/role-scope.guard';
 
 export const routes: Routes = [
@@ -27,6 +28,11 @@ export const routes: Routes = [
       {
         path: 'seances',
         loadChildren: () => import('./features/seances/seances.routes').then((m) => m.seancesRoutes),
+      },
+      {
+        path: 'medecin',
+        canActivate: [medecinAccueilGuard],
+        loadComponent: () => import('./features/medecin/medecin-dashboard.component').then((m) => m.MedecinDashboardComponent),
       },
       {
         path: 'infirmiers',

@@ -1828,6 +1828,24 @@
       "SALLE_ISOLEMENT": "قاعة العزل"
     }
   },
+  "MEDECIN": {
+    "DASHBOARD": {
+      "TITLE": "مخطط اليوم",
+      "PATIENTS": "قائمة المرضى",
+      "NB_PATIENTS": "المرضى المنتظرون اليوم",
+      "SOUS_EFFECTIF": "فترات ناقصة الممرضين",
+      "FERME": "المركز لا يعمل اليوم.",
+      "RIEN": "لا يوجد مريض ولا ممرض مبرمج اليوم.",
+      "EFFECTIF": "{{patients}} مريض(ا) · {{presents}} ممرض(ين) مبرمج من أصل {{requis}} مطلوب",
+      "PATIENTS_COL": "المرضى",
+      "INFIRMIERS_COL": "الممرضون",
+      "AUCUN_PATIENT": "لا يوجد مريض في هذه الفترة.",
+      "ISOLEMENT": "عزل",
+      "ERR": {
+        "LOAD": "تعذّر تحميل مخطط اليوم"
+      }
+    }
+  },
   "CHANGE_PASSWORD": {
     "TITLE": "اختر كلمة المرور الخاصة بك",
     "INTRO": "كلمة مرورك مؤقتة: استبدلها للدخول إلى التطبيق.",
@@ -2060,6 +2078,8 @@
     "INFIRMIERS_ABSENCES": "الغيابات",
     "INFIRMIERS_CHARGE": "حمل العمل",
     "INFIRMIERS_MOI": "مخططي",
+    "MEDECIN": "الطبيب",
+    "MEDECIN_DASHBOARD": "مخطط اليوم",
     "DIRECTION": "الإدارة",
     "DASHBOARD": "لوحة المعلومات",
     "PATIENTS": "المرضى",

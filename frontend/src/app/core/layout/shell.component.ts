@@ -19,7 +19,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import {AuthStore} from '../state/auth.store';
-import {isNurseOnly} from '../auth/role-scope.guard';
+import {isDoctorOnly, isNurseOnly} from '../auth/role-scope.guard';
 import {LangStore} from '../state/lang.store';
 import {ThemeStore} from '../state/theme.store';
 import {WebSocketService} from '../ws/websocket.service';
@@ -33,10 +33,12 @@ import {AuthApiService} from '../api/auth-api.service';
 import {filter} from 'rxjs/operators';
 
 /**
- * Entrée du menu. {@code owner} : réservée au propriétaire ; {@code nurse} : visible de l'infirmier seul ;
- * {@code role} : visible des seuls utilisateurs ayant ce rôle.
+ * Entrée du menu. {@code owner} : réservée au propriétaire ; {@code nurse} / {@code doctor} : visible de l'infirmier /
+ * du médecin seul ; {@code role} : visible des seuls utilisateurs ayant ce rôle.
  */
-type NavItem = { route: string; label: string; icon: string; owner?: boolean; nurse?: boolean; role?: string };
+type NavItem = {
+  route: string; label: string; icon: string; owner?: boolean; nurse?: boolean; doctor?: boolean; role?: string;
+};
 
 @Component({
   selector: 'app-shell',
@@ -69,6 +71,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly directionMode = this.roleAuth.hasRole('DIRECTION');
   /** L'infirmier seul ne voit que son planning du jour et les séances. */
   readonly infirmierMode = isNurseOnly(this.roleAuth.roles());
+  /** Le médecin seul ne voit que son tableau de bord et la consultation des patients. */
+  readonly medecinMode = isDoctorOnly(this.roleAuth.roles());
   /** Sessions sans centre : ni cloche de notifications ni WebSocket de centre. */
   readonly centreless = this.ownerMode || this.directionMode;
 
@@ -83,6 +87,15 @@ export class ShellComponent implements OnInit, AfterViewInit {
       label: 'NAV.DIRECTION',
       items: [
         {route: '/direction', label: 'Tableau de bord', icon: 'space_dashboard', direction: true},
+      ],
+    },
+    {
+      key: 'medecin',
+      route: '/medecin',
+      icon: 'stethoscope',
+      label: 'NAV.MEDECIN',
+      items: [
+        {route: '/medecin', label: 'NAV.MEDECIN_DASHBOARD', icon: 'today', doctor: true, role: 'MEDECIN'},
       ],
     },
     {
@@ -101,7 +114,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'people',
       label: 'NAV.PATIENTS',
       items: [
-        {route: '/patients', label: 'Dashboard patients', icon: 'space_dashboard'},
+        {route: '/patients', label: 'Dashboard patients', icon: 'space_dashboard', doctor: true},
         {route: '/patients/new', label: 'Nouveau patient', icon: 'person_add'},
         {route: '/patients/pec-list', label: 'Liste PEC', icon: 'fact_check'},
         {route: '/patients/attestations-list', label: 'Attestations', icon: 'badge'},
@@ -214,6 +227,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       items: (m.items as ReadonlyArray<NavItem>)
         .filter((item) => this.directionMode || !!item.owner === this.ownerMode)
         .filter((item) => !this.infirmierMode || !!item.nurse)
+        .filter((item) => !this.medecinMode || !!item.doctor)
         .filter((item) => !item.role || this.roleAuth.hasRole(item.role)),
     }))
     // un module sans écran visible pour ce profil disparaît du menu (ex. l'infirmier seul : planning + séances)
@@ -319,6 +333,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       planning: 'NAV.PLANNING_SEMAINE',
       'planning-centre': 'NAV.ADMIN_PLANNING',
       infirmiers: 'NAV.INFIRMIERS',
+      medecin: 'NAV.MEDECIN_DASHBOARD',
       referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
       absences: 'NAV.INFIRMIERS_ABSENCES',
       charge: 'NAV.INFIRMIERS_CHARGE',

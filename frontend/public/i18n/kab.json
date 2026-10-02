@@ -1606,6 +1606,24 @@
       "SALLE_ISOLEMENT": "Taxxamt n usnaw"
     }
   },
+  "MEDECIN": {
+    "DASHBOARD": {
+      "TITLE": "Amuddu n wass",
+      "PATIENTS": "Tabdart n inebdalen",
+      "NB_PATIENTS": "Inebdalen i d-yettwarǧun ass-a",
+      "SOUS_EFFECTIF": "Ismalen ur nelhi ara s inemgalen",
+      "FERME": "Aɣallis ur ixeddem ara ass-a.",
+      "RIEN": "Ulac anebdal neɣ anemgal yettwaɣerrez ass-a.",
+      "EFFECTIF": "{{patients}} n unebdal · {{presents}} n unemgal yettwaɣerrez ɣef {{requis}} yettwasran",
+      "PATIENTS_COL": "Inebdalen",
+      "INFIRMIERS_COL": "Inemgalen",
+      "AUCUN_PATIENT": "Ulac anebdal deg usmel-agi.",
+      "ISOLEMENT": "Asnaw",
+      "ERR": {
+        "LOAD": "Ur izmir ara ad yettwasali umuddu n wass"
+      }
+    }
+  },
   "CHANGE_PASSWORD": {
     "TITLE": "Fren awal uffir-ik",
     "INTRO": "Awal uffir-ik d aneggaru: beddel-it akken ad tkecmeḍ ɣer usnas.",
@@ -1838,6 +1856,8 @@
     "INFIRMIERS_ABSENCES": "Tamettant",
     "INFIRMIERS_CHARGE": "Amahil",
     "INFIRMIERS_MOI": "Amuddu-iw",
+    "MEDECIN": "Aṭbib",
+    "MEDECIN_DASHBOARD": "Amuddu n wass",
     "DIRECTION": "Tegdurt",
     "DASHBOARD": "Tafelwit n uselkim",
     "PATIENTS": "Imdanen",

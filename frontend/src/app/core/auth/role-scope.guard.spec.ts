@@ -3,7 +3,8 @@ import {Router, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {describe, expect, it} from 'vitest';
 import {AuthStore} from '../state/auth.store';
 import {
-  directionGuard, homeRouteFor, isDirectionArea, isNurseArea, isNurseOnly, isOwnerArea, roleScopeGuard,
+  directionGuard, homeRouteFor, isDirectionArea, isDoctorArea, isDoctorOnly, isNurseArea, isNurseOnly, isOwnerArea,
+  roleScopeGuard,
 } from './role-scope.guard';
 
 function setup(roles: string[]): void {
@@ -57,7 +58,7 @@ describe('roleScopeGuard', () => {
 
   it('ne concerne pas les autres rôles', () => {
     expect(run(['ADMIN'], '/patients')).toBe(true);
-    expect(run(['MEDECIN'], '/dashboard')).toBe(true);
+    expect(run(['MEDECIN', 'SECRETAIRE'], '/dashboard')).toBe(true);
   });
 
   it('cantonne l\'infirmier seul à son planning et aux séances', () => {
@@ -79,6 +80,29 @@ describe('roleScopeGuard', () => {
     expect(isNurseOnly(['ADMIN'])).toBe(false);
     expect(isNurseArea('/infirmiers/moi/absences')).toBe(true);
     expect(isNurseArea('/infirmiersx')).toBe(false);
+  });
+
+  it('cantonne le médecin seul à ses écrans de consultation', () => {
+    for (const url of ['/medecin', '/patients', '/patients/abc', '/patients/abc/cahier', '/patients/abc/stats',
+      '/patients/abc/dossier-medical', '/patients/abc/dossier-medical/prescriptions', '/patients?page=2']) {
+      expect(run(['MEDECIN'], url), url).toBe(true);
+    }
+    for (const url of ['/dashboard', '/patients/new', '/patients/pec-admin', '/patients/pec-list',
+      '/patients/attestations-list', '/seances', '/stock', '/admin/users', '/infirmiers', '/infirmiers/moi',
+      '/patients/abc/autre', '/gmao', '/facturation']) {
+      expect(run(['MEDECIN'], url), url).toEqual({redirect: '/medecin'});
+    }
+  });
+
+  it('laisse tout l\'accès à un médecin qui cumule un autre rôle', () => {
+    for (const autre of ['ADMIN', 'SECRETAIRE', 'INFIRMIER']) {
+      expect(run(['MEDECIN', autre], '/patients/new'), autre).toBe(true);
+      expect(isDoctorOnly(['MEDECIN', autre]), autre).toBe(false);
+    }
+    expect(isDoctorOnly(['ROLE_MEDECIN'])).toBe(true);
+    expect(isDoctorArea('/medecinx')).toBe(false);
+    expect(homeRouteFor(['MEDECIN'])).toBe('/medecin');
+    expect(homeRouteFor(['MEDECIN', 'ADMIN'])).toBe('/dashboard');
   });
 
   it("choisit l'accueil selon le profil", () => {

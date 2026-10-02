@@ -26,6 +26,7 @@ import {StepAttestationComponent} from './step-attestation.component';
 import {StepPecComponent} from './step-pec.component';
 import {StepPiecesJointesComponent} from './step-pieces-jointes.component';
 import {AuthStore} from '../../../core/state/auth.store';
+import {isDoctorOnlyFor} from '../../../core/auth/role-scope.guard';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService, WsEvent} from '../../../core/ws/websocket.service';
 import {PatientFicheStore} from '../state/patient-fiche.store';
@@ -63,6 +64,8 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   @ViewChild('stepPj') stepPj?: StepPiecesJointesComponent;
 
   protected readonly auth = inject(AuthStore);
+  /** Le médecin seul consulte la fiche : le passage en modification lui est fermé (le serveur refuse aussi l'écriture). */
+  protected readonly canEnableEdit = computed(() => !isDoctorOnlyFor((role) => this.auth.hasRole(role)));
   private readonly appShell = inject(AppShellStore);
   private readonly ficheStore = inject(PatientFicheStore);
   private readonly patientListStore = inject(PatientListStore);
@@ -366,6 +369,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
   }
 
   enableEditing(): void {
+    if (!this.canEnableEdit()) return;
     this.ficheStore.setConsultationMode(false);
     // Eagerly load attestation + PEC data so coverage validation works immediately
     if (this.editingPatientId()) {

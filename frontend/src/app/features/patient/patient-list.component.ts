@@ -26,6 +26,7 @@ import {PatientQrCardComponent} from './patient-qr-card.component';
 import {PatientSummaryCardsComponent} from './patient-summary-cards.component';
 import {PatientSummaryDetailsDialogComponent} from './patient-summary-details-dialog.component';
 import {AuthStore} from '../../core/state/auth.store';
+import {isDoctorOnlyFor} from '../../core/auth/role-scope.guard';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {WebSocketService} from '../../core/ws/websocket.service';
@@ -106,6 +107,8 @@ export class PatientListComponent {
   readonly viewStats = output<PatientRow>();
 
   protected readonly auth = inject(AuthStore);
+  /** Le médecin seul consulte les patients : il ne crée pas de fiche. */
+  protected readonly canCreatePatient = computed(() => !isDoctorOnlyFor((role) => this.auth.hasRole(role)));
   private readonly patientListStore = inject(PatientListStore);
   private readonly router = inject(Router);
   /**

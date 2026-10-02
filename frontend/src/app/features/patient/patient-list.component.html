@@ -53,10 +53,12 @@
       </div>
 
       <div class="toolbar-group toolbar-group-end">
-        <button (click)="newPatient.emit()" class="btn-new" color="primary" mat-flat-button>
-          <mat-icon>person_add</mat-icon>
-          {{ 'PATIENT_LIST.BTN_NEW' | translate }}
-        </button>
+        @if (canCreatePatient()) {
+          <button (click)="newPatient.emit()" class="btn-new" color="primary" mat-flat-button>
+            <mat-icon>person_add</mat-icon>
+            {{ 'PATIENT_LIST.BTN_NEW' | translate }}
+          </button>
+        }
       </div>
     </div>
 

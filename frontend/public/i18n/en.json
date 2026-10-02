@@ -1974,6 +1974,24 @@
       "SALLE_ISOLEMENT": "Isolation room"
     }
   },
+  "MEDECIN": {
+    "DASHBOARD": {
+      "TITLE": "Today's planning",
+      "PATIENTS": "Patient list",
+      "NB_PATIENTS": "Patients expected today",
+      "SOUS_EFFECTIF": "Slots understaffed in nurses",
+      "FERME": "The center does not dialyse today.",
+      "RIEN": "No patient or nurse planned today.",
+      "EFFECTIF": "{{patients}} patient(s) · {{presents}} nurse(s) planned out of {{requis}} required",
+      "PATIENTS_COL": "Patients",
+      "INFIRMIERS_COL": "Nurses",
+      "AUCUN_PATIENT": "No patient on this slot.",
+      "ISOLEMENT": "Isolation",
+      "ERR": {
+        "LOAD": "Unable to load today's planning"
+      }
+    }
+  },
   "CHANGE_PASSWORD": {
     "TITLE": "Choose your password",
     "INTRO": "Your password is temporary: replace it to access the application.",
@@ -2206,6 +2224,8 @@
     "INFIRMIERS_ABSENCES": "Absences",
     "INFIRMIERS_CHARGE": "Workload",
     "INFIRMIERS_MOI": "My planning",
+    "MEDECIN": "Physician",
+    "MEDECIN_DASHBOARD": "Today's planning",
     "DIRECTION": "Management",
     "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",

@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/patients")
 public class PatientRestController {
+
+    /**
+     * Écriture de la fiche patient (création, modification, assurés) : refusée au médecin « seul », qui consulte la
+     * fiche sans la modifier. Les autres profils (y compris les rôles personnalisés) sont inchangés.
+     */
+    private static final String ECRITURE_FICHE = "!hasRole('MEDECIN') or hasAnyRole('ADMIN','SECRETAIRE','INFIRMIER')";
 
     private final PatientUseCase useCase;
     private final NotificationService notificationService;
@@ -104,6 +111,7 @@ public class PatientRestController {
 
     @PostMapping
     @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
+    @PreAuthorize(ECRITURE_FICHE)
     public ResponseEntity<?> create(@RequestBody @Valid CreatePatientRequest r) {
         Patient p = useCase.createPatient(CenterId.of(r.centerId()), toCommand(r));
 
@@ -120,6 +128,7 @@ public class PatientRestController {
 
     @PutMapping("/{id}")
     @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
+    @PreAuthorize(ECRITURE_FICHE)
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody @Valid CreatePatientRequest r) {
         Patient p = useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r));
 
@@ -163,6 +172,7 @@ public class PatientRestController {
 
     @Transactional
     @PostMapping("/{id}/assures/{numeroAssurance}/affecter")
+    @PreAuthorize(ECRITURE_FICHE)
     public ResponseEntity<?> affecterAssure(@PathVariable UUID id,
                                             @PathVariable String numeroAssurance,
                                             @RequestParam UUID centerId) {
@@ -202,6 +212,7 @@ public class PatientRestController {
 
     @Transactional
     @PutMapping("/{patientId}/assures/assignments/{assignmentId}")
+    @PreAuthorize(ECRITURE_FICHE)
     public ResponseEntity<?> updateAssureAssignment(@PathVariable UUID patientId,
                                                     @PathVariable UUID assignmentId,
                                                     @RequestParam UUID centerId,
@@ -227,6 +238,7 @@ public class PatientRestController {
     }
 
     @PutMapping("/assures/{numeroAssurance}")
+    @PreAuthorize(ECRITURE_FICHE)
     public ResponseEntity<?> updateAssure(@PathVariable String numeroAssurance,
                                           @RequestParam UUID centerId,
                                           @RequestBody @Valid UpdateAssureRequest req) {

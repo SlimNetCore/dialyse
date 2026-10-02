@@ -14,7 +14,7 @@
             : ('WIZARD.EDITING_MODE' | translate)
         }}
       </div>
-      @if (consultationMode()) {
+      @if (consultationMode() && canEnableEdit()) {
         <button (click)="enableEditing()" class="edit-toggle-btn" mat-stroked-button>
           <mat-icon>edit</mat-icon>
           {{ 'WIZARD.ENABLE_EDIT' | translate }}

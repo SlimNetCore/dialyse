@@ -79,6 +79,30 @@ public class RoleScopeFilter extends OncePerRequestFilter {
                 && OTHER_CENTRE_ROLES.stream().noneMatch(role -> hasAuthority(auth, role));
     }
 
+    /**
+     * Gestion du personnel, du planning, de la facturation et de la maintenance : interdite au médecin « seul » (rôle
+     * MEDECIN sans autre rôle de centre). Il garde la lecture du planning de la semaine et de la présence des
+     * infirmiers, qui alimentent son tableau de bord.
+     */
+    private static final List<String> DOCTOR_DENIED = List.of("/api/v1/infirmiers", "/api/v1/planning",
+            "/api/v1/facturation", "/api/v1/reglements", "/api/v1/comptabilite", "/api/v1/gmao");
+    private static final List<String> DOCTOR_ALLOWED = List.of("/api/v1/infirmiers/presence/semaine",
+            "/api/v1/planning/semaine");
+    private static final List<String> DOCTOR_EXCLUDING_ROLES = List.of("ROLE_ADMIN", "ROLE_SECRETAIRE", "ROLE_INFIRMIER");
+
+    /**
+     * Vrai pour un compte dont le seul rôle de centre est MEDECIN.
+     */
+    private static boolean doctorOnly(Authentication auth) {
+        return hasAuthority(auth, "ROLE_MEDECIN")
+                && DOCTOR_EXCLUDING_ROLES.stream().noneMatch(role -> hasAuthority(auth, role));
+    }
+
+    private static boolean deniedToDoctor(String path) {
+        if (DOCTOR_ALLOWED.stream().anyMatch(path::equals)) return false;
+        return DOCTOR_DENIED.stream().anyMatch(prefix -> path.equals(prefix) || path.startsWith(prefix + "/"));
+    }
+
     private static boolean deniedToNurse(String path) {
         if (path.equals(NURSE_OWN_PLANNING) || path.startsWith(NURSE_OWN_PLANNING + "/")) return false;
         return NURSE_DENIED.stream().anyMatch(prefix -> path.equals(prefix) || path.startsWith(prefix + "/"));
@@ -103,6 +127,7 @@ public class RoleScopeFilter extends OncePerRequestFilter {
                 .toList();
         boolean allowed = restrictedRoles.isEmpty()
                 ? !(nurseOnly(auth) && deniedToNurse(request.getRequestURI()))
+                && !(doctorOnly(auth) && deniedToDoctor(request.getRequestURI()))
                 : isAllowed(request.getRequestURI(), restrictedRoles);
         if (allowed) {
             chain.doFilter(request, response);

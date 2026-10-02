@@ -1974,6 +1974,24 @@
       "SALLE_ISOLEMENT": "Salle d'isolement"
     }
   },
+  "MEDECIN": {
+    "DASHBOARD": {
+      "TITLE": "Planning du jour",
+      "PATIENTS": "Liste des patients",
+      "NB_PATIENTS": "Patients attendus aujourd'hui",
+      "SOUS_EFFECTIF": "Créneaux en sous-effectif d'infirmiers",
+      "FERME": "Le centre ne dialyse pas aujourd'hui.",
+      "RIEN": "Aucun patient ni infirmier prévu aujourd'hui.",
+      "EFFECTIF": "{{patients}} patient(s) · {{presents}} infirmier(s) prévu(s) sur {{requis}} requis",
+      "PATIENTS_COL": "Patients",
+      "INFIRMIERS_COL": "Infirmiers",
+      "AUCUN_PATIENT": "Aucun patient sur ce créneau.",
+      "ISOLEMENT": "Isolement",
+      "ERR": {
+        "LOAD": "Impossible de charger le planning du jour"
+      }
+    }
+  },
   "CHANGE_PASSWORD": {
     "TITLE": "Choisissez votre mot de passe",
     "INTRO": "Votre mot de passe est temporaire : remplacez-le pour accéder à l'application.",
@@ -2206,6 +2224,8 @@
     "INFIRMIERS_ABSENCES": "Absences",
     "INFIRMIERS_CHARGE": "Charge de travail",
     "INFIRMIERS_MOI": "Mon planning",
+    "MEDECIN": "Médecin",
+    "MEDECIN_DASHBOARD": "Planning du jour",
     "DIRECTION": "Direction",
     "DASHBOARD": "Tableau de bord",
     "PATIENTS": "Patients",
