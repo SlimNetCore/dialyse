@@ -22,6 +22,7 @@ import {
   jourParDefaut,
   lignesDuJour,
   peutDeclarerAbsence,
+  seanceRealiseeDe,
 } from './planning.util';
 
 export type VuePlanning = 'SEMAINE' | 'JOUR';
@@ -107,16 +108,25 @@ export class PlanningSemaineComponent {
     return date ? absenceDe(this.store.absences(), patientId, date) : undefined;
   }
 
-  /** Classe de couleur d'un patient : normal, à risque ou absent (selon le statut de l'absence). */
+  /** Vrai si l'infirmier a validé la séance de ce patient ce jour-là (présence confirmée). */
+  protected realisee(patientId: string, jour: JourSemaine): boolean {
+    const date = this.jourDe(jour)?.date;
+    return !!date && !!seanceRealiseeDe(this.store.seancesRealisees(), patientId, date);
+  }
+
+  /** Classe de couleur d'un patient : séance validée, absent (selon le statut de l'absence), à risque ou normal. */
   protected classePatient(o: OccupantPlanning, jour: JourSemaine): string {
+    if (this.realisee(o.patientId, jour)) return 'done';
     const a = this.absence(o.patientId, jour);
     if (a) return `absent ${a.statut.toLowerCase()}`;
     return o.aRisque ? 'risk' : '';
   }
 
+  /** L'absence se déclare tant que la séance n'est ni validée ni déjà déclarée absente. */
   protected declarable(jour: JourSemaine, patientId: string): boolean {
     const date = this.jourDe(jour)?.date;
-    return !!date && !this.absence(patientId, jour) && peutDeclarerAbsence(date, this.aujourdhuiIso, this.ferme(jour));
+    return !!date && !this.realisee(patientId, jour) && !this.absence(patientId, jour)
+      && peutDeclarerAbsence(date, this.aujourdhuiIso, this.ferme(jour));
   }
 
   /** Ouvre le détail du patient pour la séance cliquée (avec la déclaration d'absence si elle est possible). */
@@ -129,6 +139,7 @@ export class PlanningSemaineComponent {
       salleNom: this.salleNom(salleId),
       creneauLibelle: this.creneauLibelle(creneauId),
       absence: this.absence(o.patientId, jour),
+      realisee: this.realisee(o.patientId, jour),
       peutDeclarer: peutDeclarerAbsence(date, this.aujourdhuiIso, this.ferme(jour)),
     };
     this.dialog.open(PlanningPatientDialogComponent, {data, width: '480px', maxWidth: '95vw'});

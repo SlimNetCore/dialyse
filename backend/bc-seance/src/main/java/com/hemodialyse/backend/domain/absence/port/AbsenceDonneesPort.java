@@ -24,6 +24,15 @@ public interface AbsenceDonneesPort {
     boolean seanceRealisee(UUID centerId, UUID patientId, LocalDate date);
 
     /**
+     * Séances réalisées (validées, signées ou facturées) du centre sur une courte période, une ligne par patient et
+     * par jour : la grille du planning les marque comme faites.
+     */
+    List<SeanceRealisee> seancesRealisees(UUID centerId, LocalDate from, LocalDate to);
+
+    record SeanceRealisee(UUID patientId, LocalDate dateSeance) {
+    }
+
+    /**
      * Vrai si la facturation du patient est validée pour une période couvrant ce jour : l'absence est alors clôturée
      * (plus de déclaration ni de modification).
      */

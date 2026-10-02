@@ -96,6 +96,10 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
                 BigDecimal value = rs.getBigDecimal(c.column());
                 yield value == null ? null : value.toPlainString();
             }
+            case INTEGER -> {
+                int value = rs.getInt(c.column());
+                yield rs.wasNull() ? null : String.valueOf(value);
+            }
             case UUID -> {
                 Object value = rs.getObject(c.column());
                 yield value == null ? null : value.toString();
@@ -108,6 +112,7 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
         return switch (c.type()) {
             case TEXT -> value;
             case DECIMAL -> new BigDecimal(value);
+            case INTEGER -> Integer.valueOf(value);
             case UUID -> UUID.fromString(value);
         };
     }

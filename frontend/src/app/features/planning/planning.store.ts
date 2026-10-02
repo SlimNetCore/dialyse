@@ -6,6 +6,8 @@ import {catchError, EMPTY, firstValueFrom, forkJoin, of, pipe, switchMap, tap} f
 import {
   AbsencePatientApiService,
   AbsenceSemaine,
+  SeanceRealisee,
+  SuiviSemaine,
   DeclarationAbsencePayload,
 } from '../../core/api/absence-patient-api.service';
 import {absencePatientErrorKey} from '../absences/absences-patients.store';
@@ -23,6 +25,8 @@ interface PlanningState {
   semaine: SemainePlanning | null;
   /** Absences non annulées de la semaine affichée (colorent les séances absentes). */
   absences: AbsenceSemaine[];
+  /** Séances validées par l'infirmier (patient présent) de la semaine affichée : marquées d'un soleil. */
+  seancesRealisees: SeanceRealisee[];
   absenceSaving: boolean;
   absenceError: string | null;
   parametres: PlanningParametres | null;
@@ -36,6 +40,7 @@ const initialState: PlanningState = {
   date: null,
   semaine: null,
   absences: [],
+  seancesRealisees: [],
   absenceSaving: false,
   absenceError: null,
   parametres: null,
@@ -67,9 +72,12 @@ export const PlanningStore = signalStore(
           forkJoin({
             semaine: api.semaine(centerId(), date ?? undefined),
             // Les absences colorent la grille : leur échec ne doit pas empêcher d'afficher le planning.
-            absences: absenceApi.semaine(centerId(), date ?? undefined).pipe(catchError(() => of([]))),
+            suivi: absenceApi.semaine(centerId(), date ?? undefined)
+              .pipe(catchError(() => of({absences: [], seancesRealisees: []} as SuiviSemaine))),
           }).pipe(
-            tap(({semaine, absences}) => patchState(store, {semaine, absences, loading: false})),
+            tap(({semaine, suivi}) => patchState(store, {
+              semaine, absences: suivi.absences, seancesRealisees: suivi.seancesRealisees, loading: false,
+            })),
             catchError(() => {
               patchState(store, {semaine: null, loading: false, error: 'PLANNING.SEMAINE.ERR.LOAD'});
               return EMPTY;

@@ -45,7 +45,8 @@ class EquipementRestControllerTest {
         FakeEquipementRepository repo = new FakeEquipementRepository();
         Equipement eq = equipement(centerId);
         repo.paged = PagedResult.of(List.of(eq), 1, 0, 20);
-        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository(),
+                org.mockito.Mockito.mock(com.hemodialyse.backend.application.planning.SalleGenerateursService.class));
 
         ResponseEntity<PagedResult<EquipementResponse>> response =
                 controller.listerEquipements(null, 0, 20, authentication());
@@ -66,7 +67,8 @@ class EquipementRestControllerTest {
         UUID centerId = authenticate(UUID.randomUUID());
         FakeEquipementRepository repo = new FakeEquipementRepository();
         repo.paged = PagedResult.of(List.of(), 0, 1, 10);
-        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository(),
+                org.mockito.Mockito.mock(com.hemodialyse.backend.application.planning.SalleGenerateursService.class));
 
         controller.listerEquipements("HORS_SERVICE", 1, 10, authentication());
 
@@ -81,7 +83,8 @@ class EquipementRestControllerTest {
         FakeEquipementRepository repo = new FakeEquipementRepository();
         Equipement fromOtherCenter = equipement(UUID.randomUUID());
         repo.byId = Optional.of(fromOtherCenter);
-        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository(),
+                org.mockito.Mockito.mock(com.hemodialyse.backend.application.planning.SalleGenerateursService.class));
 
         ResponseEntity<EquipementResponse> response =
                 controller.obtenirEquipement(fromOtherCenter.getId().toString(), authentication());
@@ -95,7 +98,8 @@ class EquipementRestControllerTest {
         FakeEquipementRepository repo = new FakeEquipementRepository();
         Equipement eq = equipement(centerId);
         repo.byId = Optional.of(eq);
-        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository(),
+                org.mockito.Mockito.mock(com.hemodialyse.backend.application.planning.SalleGenerateursService.class));
 
         var request = new UpdateEquipementRequest(
                 "Générateur révisé", "Fresenius", "4008S", "SN-42", "Salle 2", null, null);
@@ -115,7 +119,8 @@ class EquipementRestControllerTest {
         Equipement eq = equipement(centerId);
         repo.byId = Optional.of(eq);
         FakeHistoriqueRepository historique = new FakeHistoriqueRepository();
-        var controller = new EquipementRestController(repo, historique);
+        var controller = new EquipementRestController(repo, historique,
+                org.mockito.Mockito.mock(com.hemodialyse.backend.application.planning.SalleGenerateursService.class));
 
         ResponseEntity<EquipementResponse> response = controller.reformerEquipement(
                 eq.getId().toString(), new ReformerEquipementRequest("Fin de vie"), authentication());
@@ -132,7 +137,8 @@ class EquipementRestControllerTest {
         UUID centerId = authenticate(UUID.randomUUID());
         FakeEquipementRepository repo = new FakeEquipementRepository();
         repo.byCode = Optional.of(equipement(centerId));
-        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository());
+        var controller = new EquipementRestController(repo, new FakeHistoriqueRepository(),
+                org.mockito.Mockito.mock(com.hemodialyse.backend.application.planning.SalleGenerateursService.class));
 
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.gmao.CreateEquipementRequest(
                 "EQ-DUP", "Générateur", "GENERATEUR_DIALYSE", null, null, null,

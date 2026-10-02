@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {provideZonelessChangeDetection} from '@angular/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {of, throwError} from 'rxjs';
-import {GmaoEquipementsStore} from './gmao-equipements.store';
+import {equipementSaveErrorKey, GmaoEquipementsStore} from './gmao-equipements.store';
 import {Equipement, GmaoApiService} from '../../../core/api/gmao-api.service';
 
 function equipement(overrides: Partial<Equipement> = {}): Equipement {
@@ -103,6 +103,21 @@ describe('GmaoEquipementsStore', () => {
     expect(apiMock.markEquipementOutOfService).toHaveBeenCalledWith('eq-1', 'Panne');
     expect(store.successMessage()).toBe('GMAO.EQUIPEMENTS.STATUS_UPDATED');
     expect(store.saving()).toBe(false);
+  });
+
+  it('affiche le message de capacité quand la salle est pleine, sinon le message générique', () => {
+    const capacite = {status: 422, error: {code: 'SALLE_CAPACITE_DEPASSEE'}};
+    apiMock.createEquipement.mockReturnValue(throwError(() => capacite));
+    const store = TestBed.inject(GmaoEquipementsStore);
+
+    store.createEquipement({} as never);
+    expect(store.error()).toBe('GMAO.EQUIPEMENTS.ERR_CAPACITE');
+
+    apiMock.createEquipement.mockReturnValue(throwError(() => ({status: 500})));
+    store.createEquipement({} as never);
+    expect(store.error()).toBe('GMAO.EQUIPEMENTS.SAVE_ERROR');
+    expect(equipementSaveErrorKey(capacite)).toBe('GMAO.EQUIPEMENTS.ERR_CAPACITE');
+    expect(equipementSaveErrorKey(null)).toBe('GMAO.EQUIPEMENTS.SAVE_ERROR');
   });
 
   it('isEmpty reflète l\'absence de lignes', () => {

@@ -127,6 +127,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       items: [
         {route: '/seances', label: 'Dashboard séances', icon: 'space_dashboard', nurse: true},
         {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week'},
+        {route: '/seances/salles', label: 'NAV.SALLES_GENERATEURS', icon: 'meeting_room'},
         {
           route: '/seances/absences-patients', label: 'NAV.ABSENCES_PATIENTS', icon: 'event_busy', nurse: true,
           doctor: true
@@ -340,6 +341,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
       absences: 'NAV.INFIRMIERS_ABSENCES',
       'absences-patients': 'NAV.ABSENCES_PATIENTS',
+      salles: 'NAV.SALLES_GENERATEURS',
       charge: 'NAV.INFIRMIERS_CHARGE',
       moi: 'NAV.INFIRMIERS_MOI',
     };

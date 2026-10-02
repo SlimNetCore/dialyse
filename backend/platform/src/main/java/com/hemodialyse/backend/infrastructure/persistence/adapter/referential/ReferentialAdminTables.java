@@ -30,7 +30,8 @@ final class ReferentialAdminTables {
                 List.of("ref.positions")));
 
         TABLES.put(ReferentialKind.SALLE, new Table("salle",
-                List.of(text("code", "code"), text("nom", "nom"), text("isolement", "isolement")),
+                List.of(text("code", "code"), text("nom", "nom"), text("isolement", "isolement"),
+                        new Column("capacite", "capacite", ColumnType.INTEGER)),
                 List.of(), List.of("t.code", "t.nom"), "t.code",
                 // Les générateurs vivent désormais dans gmao_equipements (module GMAO v2), plus dans
                 // l'ancien référentiel plat "generateur" — l'usage reste vérifié génériquement.
@@ -82,7 +83,7 @@ final class ReferentialAdminTables {
         return new Column(field, column, ColumnType.TEXT);
     }
 
-    enum ColumnType {TEXT, DECIMAL, UUID}
+    enum ColumnType {TEXT, DECIMAL, INTEGER, UUID}
 
     /**
      * Champ de référentiel ↔ colonne.

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import static com.hemodialyse.backend.domain.referential.admin.model.ReferentialField.decimal;
 import static com.hemodialyse.backend.domain.referential.admin.model.ReferentialField.enumeration;
+import static com.hemodialyse.backend.domain.referential.admin.model.ReferentialField.integer;
 import static com.hemodialyse.backend.domain.referential.admin.model.ReferentialField.phone;
 import static com.hemodialyse.backend.domain.referential.admin.model.ReferentialField.reference;
 import static com.hemodialyse.backend.domain.referential.admin.model.ReferentialField.text;
@@ -34,7 +35,8 @@ public enum ReferentialKind {
             text("code", "Code", true, 50, "S1", "code salle"),
             text("nom", "Nom", true, 255, "Salle 1", "libelle", "salle"),
             enumeration("isolement", "Salle d'isolement", List.of("NON", "OUI"), "NON", "isolement",
-                    "salle isolement")
+                    "salle isolement"),
+            integer("capacite", "Capacité (générateurs max.)", false, "12", "capacite", "nombre de generateurs")
     ), List.of("code")),
 
     MEDECIN("medecins", "Médecins traitants", 1, List.of(

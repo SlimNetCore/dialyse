@@ -150,16 +150,33 @@ class AbsencePatientIntegrationTest {
     @Test
     void the_week_view_lists_the_non_cancelled_absences_of_the_week_of_the_centre() {
         service.declarer(C1, absent, jour, MotifAbsence.MALADIE, null, USER);
-        var semaine = service.semaine(C1, jour.plusDays(1));
+        var semaine = service.semaine(C1, jour.plusDays(1)).absences();
 
         assertEquals(1, semaine.size());
         assertEquals(absent, semaine.get(0).patientId());
         assertEquals(StatutAbsence.JUSTIFIEE, semaine.get(0).statut());
-        assertEquals(0, service.semaine(C2, jour).size(), "isolation par centre");
-        assertEquals(0, service.semaine(C1, jour.plusDays(14)).size(), "autre semaine");
+        assertEquals(0, service.semaine(C2, jour).absences().size(), "isolation par centre");
+        assertEquals(0, service.semaine(C1, jour.plusDays(14)).absences().size(), "autre semaine");
 
         service.annuler(C1, semaine.get(0).absenceId(), "Erreur", USER, true);
-        assertEquals(0, service.semaine(C1, jour).size(), "une absence annulée disparaît du planning");
+        assertEquals(0, service.semaine(C1, jour).absences().size(), "une absence annulée disparaît du planning");
+    }
+
+    @Test
+    void the_week_view_lists_the_sessions_validated_by_the_nurse_of_the_center_only() {
+        LocalDate debut = com.hemodialyse.backend.domain.planning.service.PlanningSemaineService.debutSemaine(jour);
+        jdbc.update("DELETE FROM seances WHERE center_id = ?", C1);   // repart de zéro (séance du setup)
+        seance(C1, absent, debut, "CREE");        // créée mais pas encore validée : pas « réalisée »
+        seance(C1, absent, debut.plusDays(1), "VALIDEE");
+        seance(C1, present, debut.plusDays(2), "FACTUREE");
+        seance(C3, patient(C3), debut.plusDays(1), "VALIDEE");   // autre centre
+
+        var realisees = service.semaine(C1, jour).seancesRealisees();
+
+        assertEquals(2, realisees.size());
+        assertEquals(java.util.Set.of(debut.plusDays(1), debut.plusDays(2)),
+                realisees.stream().map(s -> s.dateSeance()).collect(java.util.stream.Collectors.toSet()));
+        assertEquals(0, service.semaine(C2, jour).seancesRealisees().size(), "isolation par centre");
     }
 
     @Test

@@ -1,0 +1,193 @@
+.sal-page {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.sal-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sal-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.sal-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.sal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sal-error {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.sal-warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(199, 119, 0, 0.14);
+}
+
+.sal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.sal-card {
+  min-width: 0;
+  border-left: 4px solid #2e7d32;
+}
+
+.sal-card.pleine {
+  border-left-color: #c77700;
+}
+
+.sal-card.depassee {
+  border-left-color: #b3261e;
+}
+
+.sal-card.illimitee {
+  border-left-color: #5f6b7a;
+}
+
+.sal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.sal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  background: rgba(95, 107, 122, 0.15);
+}
+
+.sal-badge.iso {
+  background: rgba(179, 38, 30, 0.14);
+  color: #8c1d18;
+}
+
+.sal-badge.cap {
+  font-weight: 600;
+}
+
+.sal-badge mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.sal-gauge {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(95, 107, 122, 0.2);
+  overflow: hidden;
+}
+
+.sal-gauge-fill {
+  height: 100%;
+  background: #2e7d32;
+}
+
+.sal-card.pleine .sal-gauge-fill {
+  background: #c77700;
+}
+
+.sal-card.depassee .sal-gauge-fill {
+  background: #b3261e;
+}
+
+.sal-places {
+  margin: 4px 0 8px;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.sal-places.sal-over {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.sal-card h4 {
+  margin: 8px 0 4px;
+}
+
+.sal-card h4 small {
+  font-weight: 400;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.sal-gens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.sal-gens li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sal-gens mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.sal-gen-code {
+  flex: 1 1 auto;
+  font-weight: 500;
+}
+
+.sal-statut {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  background: rgba(95, 107, 122, 0.15);
+}
+
+.sal-statut.en_service {
+  background: rgba(46, 125, 50, 0.16);
+}
+
+.sal-statut.hors_service,
+.sal-statut.en_maintenance,
+.sal-statut.en_attente_piece {
+  background: rgba(179, 38, 30, 0.14);
+}
+
+@media (max-width: 767px) {
+  .sal-page {
+    padding: 8px;
+  }
+
+  .sal-actions a {
+    flex: 1 1 100%;
+    min-height: 44px;
+  }
+}

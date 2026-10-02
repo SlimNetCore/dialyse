@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {PagedResponse} from './admin-api.service';
 
-export type ReferentialFieldType = 'TEXT' | 'DECIMAL' | 'ENUM' | 'PHONE' | 'REFERENCE';
+export type ReferentialFieldType = 'TEXT' | 'DECIMAL' | 'INTEGER' | 'ENUM' | 'PHONE' | 'REFERENCE';
 
 /** Champ d'un référentiel (décrit par le backend : formulaire, colonnes, aide à l'import). */
 export interface ReferentialFieldDef {

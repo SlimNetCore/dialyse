@@ -8,7 +8,12 @@
         <small>{{ o.generateurCode }}</small>
       }
     </button>
-    @if (absence(o.patientId, jour); as a) {
+    @if (realisee(o.patientId, jour)) {
+      <mat-icon [matTooltip]="'PLANNING.SEMAINE.SEANCE_VALIDEE' | translate" class="chip-sun"
+                data-testid="week-validee">
+        wb_sunny
+      </mat-icon>
+    } @else if (absence(o.patientId, jour); as a) {
       <mat-icon [matTooltip]="('ABSENCES.STATUTS.' + a.statut) | translate" class="chip-ico" data-testid="week-absent">
         event_busy
       </mat-icon>
@@ -96,6 +101,11 @@
           <ul class="legend-list">
             <li><span class="swatch chip"></span>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENT_NORMAL' | translate }}</li>
             <li><span class="swatch chip risk"></span>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENT_RISQUE' | translate }}</li>
+            <li>
+              <span class="swatch chip done"></span>
+              <mat-icon class="chip-sun">wb_sunny</mat-icon>
+              {{ 'PLANNING.SEMAINE.LEGENDE.SEANCE_VALIDEE' | translate }}
+            </li>
             <li><span
               class="swatch chip absent a_qualifier"></span>{{ 'PLANNING.SEMAINE.LEGENDE.ABSENT_A_QUALIFIER' | translate }}
             </li>

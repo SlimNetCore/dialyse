@@ -1498,7 +1498,12 @@
   "ADMIN": {
     "REFERENTIALS": {
       "FIELDS": {
-        "isolement": "Taxxamt n usuffeɣ"
+        "isolement": "Taxxamt n usuffeɣ",
+        "capacite": "Tazmert (amḍan afellay n yismalen)"
+      },
+      "ISSUES": {
+        "INVALID_INTEGER": "« {{field}} » ilaq ad yili d uṭṭun ummid gar 1 d 999 (amedya: 12).",
+        "INTEGER_OUT_OF_RANGE": "« {{field}} » ilaq ad yili gar 1 d {{max}}."
       },
       "ENUM": {
         "NON": "Ala",
@@ -1576,6 +1581,27 @@
     "ISOLEMENT_AUTO_NOTE": "Ugur yettwafka seg yimsirmen n unebdal; tzemreḍ ad t-tbeddleḍ.",
     "PLACEMENT_VERROUILLE": "Taxxamt, tallit, asmal d wussan ttwafernen kan s umuddu n usnulfu s ufella: ayagi ittḍemmin amuddu amṣada.",
     "RETIRER_PLACEMENT": "Kkes asbedd",
+    "SALLES": {
+      "TITLE": "Tixxamin d yismalen",
+      "SUBTITLE": "Tamuɣli tamatut ɣef texxamin n uɣallis: ismalen yettwaxdmen, tazmert d yimukan yeqqimen. Taxxamt i yebla tazmert-is ur tt-teqbil ara asmal amaynut.",
+      "GERER_SALLES": "Sefrek tixxamin",
+      "GERER_GENERATEURS": "Sefrek ismalen",
+      "EMPTY": "Ulac taxxamt yettwasbeddent i uɣallis-a.",
+      "ISOLEMENT": "Taxxamt n usuffeɣ",
+      "CAPACITE": "Tazmert",
+      "CAPACITE_TIP": "Ismalen yettwaxdmen / tazmert tafellayt n texxamt",
+      "PLACES_RESTANTES": "{{count}} n umkan(imukan) i yeqqimen",
+      "PLEINE": "Taxxamt teččur: ulac asmal-nniḍen",
+      "DEPASSEMENT": "Tazmert tettwabeddel s {{count}} n usmal(ismalen): kkes kra neɣ ssali tazmert",
+      "DEPASSEMENT_GLOBAL": "{{count}} n texxamin ad ssinen tazmert-nsent deg usebter-a.",
+      "SANS_LIMITE": "Tazmert war talast",
+      "GENERATEURS": "Ismalen yettwaxdmen",
+      "EN_SERVICE": "deg useqdec",
+      "AUCUN_GENERATEUR": "Ulac asmal yettwaxdem.",
+      "ERR": {
+        "LOAD": "Ulamek ad d-tuɣal texxamin."
+      }
+    },
     "CRENEAU_SOUHAITE": "Tallit i d-yettwarǧan",
     "SALLE_SOUHAITEE": "Taxxamt i d-yettwarǧan",
     "PEU_IMPORTE": "Ur d-yettwarǧa ara",
@@ -1615,6 +1641,7 @@
       "AUCUN_PATIENT_JOUR": "Ulac anelmad neɣ asmal yettwaburjen deg wass-a.",
       "CASE_VIDE": "Ulac anelmad yettwasbedden.",
       "CLIC_DETAIL": "Ssed i wakken ad twaliḍ talqayt n unelmad",
+      "SEANCE_VALIDEE": "Aɣimi yettwasentem sɣur uneggaru: anelmad yella",
       "DECLARER_ABSENCE": "Sekned tamettant",
       "DETAIL": {
         "DATE": "Azemz n uɣimi",
@@ -1627,6 +1654,8 @@
         "DOSSIER": "Afaylu unabaḍ",
         "ABSENCE": "Tamettant deg uɣimi-a",
         "ABSENCE_EXISTANTE": "Tamettant tettwaseklas yakan: aɣimi yettwaskan d amettan deg umuddu.",
+        "SEANCE_VALIDEE": "Aɣimi yettwasentem sɣur uneggaru",
+        "SEANCE_VALIDEE_HINT": "Anelmad yella: ulac tamettant i izemren ad tettwasekned i uɣimi-a.",
         "MOTIF_HINT": "Mi ara yettwaseklas, aɣimi ad yettwaḥseb d amettan yerna ad yettbeddil ini.",
         "DECLARATION_IMPOSSIBLE": "Tamettant tettwasekned i uɣimi n wass-a neɣ yezrin, deg wass yeldin."
       },
@@ -1641,6 +1670,7 @@
         "PATIENTS": "Initen n yinelmaden",
         "PATIENT_NORMAL": "Anelmad yettwarǧan",
         "PATIENT_RISQUE": "Anelmad s uḥrir n tuktit (asuffeɣ)",
+        "SEANCE_VALIDEE": "Aɣimi yettwasentem sɣur uneggaru (anelmad yella)",
         "ABSENT_A_QUALIFIER": "Ulac-it: ssebba ad tettwasbadu",
         "ABSENT_JUSTIFIEE": "Ulac-it: tamettant tettwasefru",
         "ABSENT_NON_JUSTIFIEE": "Ulac-it: tamettant ur tettwasefru ara",
@@ -2023,6 +2053,7 @@
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "Igrawen n yimsalen",
     "ABSENCES_PATIENTS": "Tamettant n yinelmaden",
+    "SALLES_GENERATEURS": "Tixxamin d yismalen",
     "ADMIN_PLANNING": "Amuddu n uɣallis",
     "PLANNING_SEMAINE": "Amuddu n yimalas",
     "INFIRMIERS": "Inemgalen",
@@ -2983,6 +3014,7 @@
       "NO_RESULTS": "Ulac abenk yettwafen",
       "LOAD_ERROR": "Tuccḍa deg usali n ibenkan",
       "SAVE_ERROR": "Tuccḍa deg usekles n ubenk",
+      "ERR_CAPACITE": "Asnefli yettwagdel: taxxamt yettwafernen tebla tazmert-is tafellayt n yismalen. Fren taxxamt-nniḍen neɣ ssali tazmert-is.",
       "SAVED_OK": "Abenk yettwasekles",
       "STATUS_UPDATED": "Addad n ubenk yettwaleqqem",
       "MARK_OUT_OF_SERVICE": "Ssers ur yexdim ara",

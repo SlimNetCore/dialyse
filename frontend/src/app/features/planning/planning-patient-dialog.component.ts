@@ -21,6 +21,8 @@ export interface PlanningPatientDialogData {
   salleNom: string;
   creneauLibelle: string;
   absence: AbsenceSemaine | undefined;
+  /** Séance validée par l'infirmier : le patient était présent, aucune absence possible. */
+  realisee: boolean;
   /** Jour ouvert, passé ou du jour : l'absence peut être déclarée. */
   peutDeclarer: boolean;
 }

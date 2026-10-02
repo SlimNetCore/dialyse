@@ -51,6 +51,17 @@ export interface AbsenceSemaine {
   motif: MotifAbsence | null;
 }
 
+/** Séance réalisée : validée par l'infirmier à la présence du patient (un patient, un jour). */
+export interface SeanceRealisee {
+  patientId: string;
+  dateSeance: string;
+}
+
+export interface SuiviSemaine {
+  absences: AbsenceSemaine[];
+  seancesRealisees: SeanceRealisee[];
+}
+
 export interface AbsenceSynthese {
   aQualifier: number;
   enRetard: number;
@@ -89,11 +100,11 @@ export class AbsencePatientApiService {
     return this.http.get<PagedResponse<AbsencePatient>>(this.base, {params});
   }
 
-  /** Absences non annulées de la semaine contenant `date` (grille du planning, bornée à 7 jours). */
-  semaine(centerId: string, date?: string): Observable<AbsenceSemaine[]> {
+  /** Absences non annulées et séances réalisées de la semaine contenant `date` (grille du planning, 7 jours). */
+  semaine(centerId: string, date?: string): Observable<SuiviSemaine> {
     let params = AbsencePatientApiService.centre(centerId);
     if (date) params = params.set('date', date);
-    return this.http.get<AbsenceSemaine[]>(`${this.base}/semaine`, {params});
+    return this.http.get<SuiviSemaine>(`${this.base}/semaine`, {params});
   }
 
   synthese(centerId: string): Observable<AbsenceSynthese> {

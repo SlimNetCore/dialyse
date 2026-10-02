@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
 import com.hemodialyse.backend.domain.absence.model.MotifAbsence;
 import com.hemodialyse.backend.domain.absence.model.StatutAbsence;
 import com.hemodialyse.backend.domain.absence.port.AbsenceDonneesPort;
+import com.hemodialyse.backend.domain.absence.port.AbsenceDonneesPort.SeanceRealisee;
 import com.hemodialyse.backend.domain.absence.port.AbsencePatientRepositoryPort;
 import com.hemodialyse.backend.domain.absence.service.ValorisationAbsenceService;
 import com.hemodialyse.backend.domain.planning.service.PlanningSemaineService;
@@ -61,13 +62,19 @@ public class AbsencePatientService {
     }
 
     /**
-     * Absences non annulées de la semaine (dimanche → samedi) contenant {@code date}, pour colorer le planning.
+     * Suivi de la semaine (dimanche → samedi) contenant {@code date}, pour colorer le planning : absences non annulées
+     * et séances réalisées (validées par l'infirmier à la présence du patient).
      */
-    public List<AbsenceSemaine> semaine(UUID centerId, LocalDate date) {
+    public SuiviSemaine semaine(UUID centerId, LocalDate date) {
         LocalDate debut = PlanningSemaineService.debutSemaine(date);
-        return absences.findBetween(centerId, debut, debut.plusDays(6)).stream()
+        LocalDate fin = debut.plusDays(6);
+        List<AbsenceSemaine> liste = absences.findBetween(centerId, debut, fin).stream()
                 .map(a -> new AbsenceSemaine(a.id(), a.patientId(), a.dateSeance(), a.statut(), a.motif()))
                 .toList();
+        return new SuiviSemaine(liste, donnees.seancesRealisees(centerId, debut, fin));
+    }
+
+    public record SuiviSemaine(List<AbsenceSemaine> absences, List<SeanceRealisee> seancesRealisees) {
     }
 
     public record AbsenceSemaine(UUID absenceId, UUID patientId, LocalDate dateSeance, StatutAbsence statut,

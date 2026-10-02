@@ -6,7 +6,7 @@ import {
   SalleRef,
   SemainePlanning,
 } from '../../core/api/planning-api.service';
-import {AbsenceSemaine} from '../../core/api/absence-patient-api.service';
+import {AbsenceSemaine, SeanceRealisee} from '../../core/api/absence-patient-api.service';
 
 /** Décale une date `yyyy-MM-dd` d'un nombre de jours (calcul en UTC : pas de dérive liée à l'heure d'été). */
 export function decalerJours(date: string, jours: number): string {
@@ -61,4 +61,9 @@ export function lignesDuJour(semaine: SemainePlanning, jour: JourSemaine): Ligne
   return semaine.salles.flatMap((salle) => semaine.creneaux.map((creneau) => ({
     salle, creneau, cellule: cellule(semaine, salle.id, creneau.id, jour),
   }))).filter((l): l is LigneJour => !!l.cellule && (l.cellule.occupants.length > 0 || l.cellule.capacite > 0));
+}
+
+/** Séance réalisée (validée par l'infirmier) d'un patient à une date, le cas échéant. */
+export function seanceRealiseeDe(seances: SeanceRealisee[], patientId: string, date: string): SeanceRealisee | undefined {
+  return seances.find((s) => s.patientId === patientId && s.dateSeance === date);
 }

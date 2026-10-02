@@ -960,3 +960,6 @@ WHERE isolement = 'NON'
 UPDATE planning_parametres
 SET salles_isolement = NULL
 WHERE salles_isolement IS NOT NULL;
+
+-- Capacité d une salle : nombre maximal de générateurs affectés (NULL = illimitée)
+ALTER TABLE IF EXISTS salle ADD COLUMN IF NOT EXISTS capacite INTEGER;

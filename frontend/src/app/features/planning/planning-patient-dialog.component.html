@@ -30,7 +30,13 @@
 
   <section class="ppd-absence">
     <h3>{{ 'PLANNING.SEMAINE.DETAIL.ABSENCE' | translate }}</h3>
-    @if (data.absence; as a) {
+    @if (data.realisee) {
+      <p class="ppd-validated" data-testid="ppd-validee">
+        <mat-icon>wb_sunny</mat-icon>
+        {{ 'PLANNING.SEMAINE.DETAIL.SEANCE_VALIDEE' | translate }}
+      </p>
+      <p class="ppd-hint">{{ 'PLANNING.SEMAINE.DETAIL.SEANCE_VALIDEE_HINT' | translate }}</p>
+    } @else if (data.absence; as a) {
       <p class="ppd-done" data-testid="ppd-absence-existante">
         <mat-icon>event_busy</mat-icon>
         {{ ('ABSENCES.STATUTS.' + a.statut) | translate }}

@@ -1,0 +1,98 @@
+<section class="sal-page">
+  <header class="sal-head">
+    <div>
+      <h1>{{ 'PLANNING.SALLES.TITLE' | translate }}</h1>
+      <p class="sal-sub">{{ 'PLANNING.SALLES.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="sal-actions">
+      <a mat-stroked-button routerLink="/admin/parametrage/referentiels">
+        <mat-icon>meeting_room</mat-icon>
+        {{ 'PLANNING.SALLES.GERER_SALLES' | translate }}
+      </a>
+      <a mat-stroked-button routerLink="/gmao/equipements">
+        <mat-icon>water_pump</mat-icon>
+        {{ 'PLANNING.SALLES.GERER_GENERATEURS' | translate }}
+      </a>
+    </div>
+  </header>
+
+  @if (store.loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error(); as err) {
+    <p class="sal-error" role="alert">{{ err | translate }}</p>
+  }
+  @if (store.nbDepassements() > 0) {
+    <p class="sal-warn" data-testid="sal-depassement-global" role="status">
+      <mat-icon>warning</mat-icon>
+      {{ 'PLANNING.SALLES.DEPASSEMENT_GLOBAL' | translate: {count: store.nbDepassements()} }}
+    </p>
+  }
+
+  @if (store.isEmpty() && !store.loading()) {
+    <p class="sal-sub" data-testid="sal-empty">{{ 'PLANNING.SALLES.EMPTY' | translate }}</p>
+  }
+
+  <div class="sal-grid" data-testid="sal-grid">
+    @for (s of store.rows(); track s.id) {
+      <mat-card [class]="'sal-card ' + etat(s).toLowerCase()" data-testid="sal-card">
+        <mat-card-header>
+          <mat-card-title>{{ s.nom }}</mat-card-title>
+          <mat-card-subtitle>{{ s.code }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="sal-badges">
+            @if (s.isolement) {
+              <span class="sal-badge iso" data-testid="sal-isolement">
+                <mat-icon>masks</mat-icon>
+                {{ 'PLANNING.SALLES.ISOLEMENT' | translate }}
+              </span>
+            }
+            <span [matTooltip]="'PLANNING.SALLES.CAPACITE_TIP' | translate" class="sal-badge cap"
+                  data-testid="sal-capacite">
+              {{ s.nbGenerateurs }}/{{ s.capacite ?? '∞' }}
+            </span>
+          </div>
+
+          @if (s.capacite !== null) {
+            <div [attr.aria-label]="'PLANNING.SALLES.CAPACITE' | translate" class="sal-gauge">
+              <div [style.width.%]="taux(s)" class="sal-gauge-fill"></div>
+            </div>
+            <p [class.sal-over]="s.depassement" class="sal-places" data-testid="sal-places">
+              @if (s.depassement) {
+                {{ 'PLANNING.SALLES.DEPASSEMENT' | translate: {count: -(s.placesRestantes ?? 0)} }}
+              } @else if (s.placesRestantes === 0) {
+                {{ 'PLANNING.SALLES.PLEINE' | translate }}
+              } @else {
+                {{ 'PLANNING.SALLES.PLACES_RESTANTES' | translate: {count: s.placesRestantes} }}
+              }
+            </p>
+          } @else {
+            <p class="sal-places">{{ 'PLANNING.SALLES.SANS_LIMITE' | translate }}</p>
+          }
+
+          <h4>
+            {{ 'PLANNING.SALLES.GENERATEURS' | translate }}
+            <small>({{ enService(s) }}/{{ s.nbGenerateurs }} {{ 'PLANNING.SALLES.EN_SERVICE' | translate }})</small>
+          </h4>
+          <ul class="sal-gens">
+            @for (g of s.generateurs; track g.id) {
+              <li data-testid="sal-generateur">
+                <mat-icon>water_pump</mat-icon>
+                <span [matTooltip]="g.designation" class="sal-gen-code">{{ g.code }}</span>
+                <span [class]="'sal-statut ' + g.statut.toLowerCase()">
+                  {{ ('GMAO.STATUT_EQUIPEMENT.' + g.statut) | translate }}
+                </span>
+              </li>
+            } @empty {
+              <li class="sal-sub">{{ 'PLANNING.SALLES.AUCUN_GENERATEUR' | translate }}</li>
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                 [pageSizeOptions]="[12, 24, 48, 100]" [pageSize]="store.pageSize()"/>
+</section>

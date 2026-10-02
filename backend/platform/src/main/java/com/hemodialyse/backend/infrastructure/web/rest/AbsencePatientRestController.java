@@ -81,11 +81,12 @@ public class AbsencePatientRestController {
     }
 
     /**
-     * Absences de la semaine du planning (grille bornée à 7 jours, donc non paginée) pour colorer les séances absentes.
+     * Suivi de la semaine du planning (grille bornée à 7 jours, donc non paginée) : absences et séances réalisées, qui
+     * colorent les séances du planning.
      */
     @GetMapping("/semaine")
     @PreAuthorize(ACCES)
-    public ResponseEntity<List<AbsencePatientService.AbsenceSemaine>> semaine(
+    public ResponseEntity<AbsencePatientService.SuiviSemaine> semaine(
             @RequestParam(required = false) UUID centerId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         UUID centre = centerAccessGuard.requireCenter(centerId).value();

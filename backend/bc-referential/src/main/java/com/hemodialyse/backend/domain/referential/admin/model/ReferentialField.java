@@ -39,6 +39,12 @@ public record ReferentialField(String key, String label, FieldType type, boolean
                 example, List.of(aliases));
     }
 
+    public static ReferentialField integer(String key, String label, boolean required, String example,
+                                           String... aliases) {
+        return new ReferentialField(key, label, FieldType.INTEGER, required, 0, List.of(), null, null,
+                example, List.of(aliases));
+    }
+
     public static ReferentialField phone(String key, String label, boolean required, int maxLength,
                                          String example, String... aliases) {
         return new ReferentialField(key, label, FieldType.PHONE, required, maxLength, List.of(), null, null,

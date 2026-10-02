@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest.gmao;
 
+import com.hemodialyse.backend.application.planning.SalleGenerateursService;
 import com.hemodialyse.backend.domain.gmao.model.*;
 import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
 import com.hemodialyse.backend.domain.gmao.port.EquipementStatutHistoriqueRepositoryPort;
@@ -36,11 +37,15 @@ public class EquipementRestController {
     private final EquipementRepositoryPort equipementRepository;
     private final EquipementStatutHistoriqueRepositoryPort historiqueRepository;
 
+    private final SalleGenerateursService salleGenerateurs;
+
     public EquipementRestController(
             EquipementRepositoryPort equipementRepository,
-            EquipementStatutHistoriqueRepositoryPort historiqueRepository) {
+            EquipementStatutHistoriqueRepositoryPort historiqueRepository,
+            SalleGenerateursService salleGenerateurs) {
         this.equipementRepository = equipementRepository;
         this.historiqueRepository = historiqueRepository;
+        this.salleGenerateurs = salleGenerateurs;
     }
 
     /**
@@ -57,6 +62,11 @@ public class EquipementRestController {
 
         if (equipementRepository.findByCentreIdAndCode(centreId, request.code()).isPresent()) {
             throw new IllegalArgumentException("Un équipement avec ce code existe déjà dans ce centre");
+        }
+
+        // Capacité de la salle : un générateur de plus ne doit pas la dépasser
+        if (TypeEquipement.valueOf(request.type()) == TypeEquipement.GENERATEUR_DIALYSE) {
+            salleGenerateurs.verifierAffectation(centreId, request.salleId(), null);
         }
 
         Equipement equipement = Equipement.creer(
@@ -139,6 +149,10 @@ public class EquipementRestController {
         Equipement equipement = equipementRepository.findById(UUID.fromString(id))
                 .filter(e -> e.getCentreId().equals(centreId))
                 .orElseThrow(() -> new IllegalArgumentException("Équipement non trouvé"));
+
+        if (equipement.getType() == TypeEquipement.GENERATEUR_DIALYSE) {
+            salleGenerateurs.verifierAffectation(centreId, request.salleId(), equipement.getId());
+        }
 
         equipement.modifier(
                 request.designation(),

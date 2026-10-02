@@ -13,6 +13,10 @@ public enum FieldType {
      */
     DECIMAL,
     /**
+     * Entier positif sans décimale (ex. capacité d'une salle).
+     */
+    INTEGER,
+    /**
      * Valeur parmi {@link ReferentialField#allowedValues()}.
      */
     ENUM,

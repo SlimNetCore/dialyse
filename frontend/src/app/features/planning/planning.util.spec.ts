@@ -1,7 +1,15 @@
 import {describe, expect, it} from 'vitest';
 import {CellulePlanning, JourPlanning, SemainePlanning} from '../../core/api/planning-api.service';
 import {
-  absenceDe, cellule, decalerJours, etatCellule, jourFerme, jourParDefaut, lignesDuJour, peutDeclarerAbsence,
+  absenceDe,
+  cellule,
+  decalerJours,
+  etatCellule,
+  jourFerme,
+  jourParDefaut,
+  lignesDuJour,
+  peutDeclarerAbsence,
+  seanceRealiseeDe,
 } from './planning.util';
 
 const jour = (ouvert: boolean, motif: string | null): JourPlanning =>
@@ -80,6 +88,13 @@ describe('planning.util — absences et vue du jour', () => {
     expect(absenceDe(absences, 'p1', '2026-09-28')?.absenceId).toBe('a');
     expect(absenceDe(absences, 'p1', '2026-09-29')).toBeUndefined();
     expect(absenceDe(absences, 'p2', '2026-09-28')).toBeUndefined();
+  });
+
+  it('retrouve la séance réalisée (validée) d\'un patient à une date précise', () => {
+    const seances = [{patientId: 'p1', dateSeance: '2026-09-28'}];
+    expect(seanceRealiseeDe(seances, 'p1', '2026-09-28')).toBeDefined();
+    expect(seanceRealiseeDe(seances, 'p1', '2026-09-29')).toBeUndefined();
+    expect(seanceRealiseeDe(seances, 'p2', '2026-09-28')).toBeUndefined();
   });
 
   it('choisit aujourd\'hui s\'il est dans la semaine, sinon le premier jour ouvert', () => {

@@ -2,6 +2,7 @@ import {SignalFormValidator} from '../../../shared/forms/signal-form';
 import {ReferentialEntry, ReferentialFieldDef, ValidationIssue} from '../../../core/api/referential-admin-api.service';
 
 const PHONE = /^[+0-9 ().\-/]{6,}$/;
+const INTEGER = /^[1-9]\d{0,2}$/;
 const DECIMAL = /^\d+([.,]\d{1,2})?$/;
 
 /** Valeur affichée dans le tableau : libellé de la cible pour une référence, valeur brute sinon. */
@@ -25,6 +26,10 @@ export function fieldValidators(field: ReferentialFieldDef): SignalFormValidator
   if (field.type === 'DECIMAL') {
     validators.push((v) => !(v ?? '').trim() || DECIMAL.test((v ?? '').replace(/\s/g, ''))
       ? null : 'ADMIN.REFERENTIALS.ISSUES.INVALID_NUMBER');
+  }
+  if (field.type === 'INTEGER') {
+    validators.push((v) => !(v ?? '').trim() || INTEGER.test((v ?? '').replace(/\s/g, ''))
+      ? null : 'ADMIN.REFERENTIALS.ISSUES.INVALID_INTEGER');
   }
   if (field.type === 'PHONE') {
     validators.push((v) => !(v ?? '').trim() || PHONE.test((v ?? '').trim()) ? null : 'ADMIN.REFERENTIALS.ISSUES.INVALID_PHONE');

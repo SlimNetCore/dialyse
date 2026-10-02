@@ -62,7 +62,7 @@ export interface ReferentialEntryDialogData {
                 <input matInput [value]="form.value()[field.key] ?? ''"
                        (input)="set(field.key, $any($event.target).value)"
                        (blur)="form.markTouched(field.key)" [attr.maxlength]="field.maxLength || null"
-                       [attr.inputmode]="field.type === 'DECIMAL' ? 'decimal' : field.type === 'PHONE' ? 'tel' : null"
+                       [attr.inputmode]="field.type === 'DECIMAL' ? 'decimal' : field.type === 'INTEGER' ? 'numeric' : field.type === 'PHONE' ? 'tel' : null"
                        [attr.data-testid]="'field-' + field.key"/>
               }
             }

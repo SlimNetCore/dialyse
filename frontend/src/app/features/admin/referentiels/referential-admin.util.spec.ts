@@ -34,6 +34,15 @@ describe('referential-admin.util', () => {
     expect(run(field({type: 'ENUM', defaultValue: 'FONCTIONNEL', maxLength: 30}), '')).toEqual([]);
   });
 
+  it('contrôle les entiers (capacité) : de 1 à 999, sans décimale', () => {
+    const capacite = field({key: 'capacite', type: 'INTEGER', required: false, maxLength: 0});
+    expect(run(capacite, '12')).toEqual([]);
+    expect(run(capacite, '')).toEqual([]);
+    for (const invalide of ['0', '-3', '1,5', '1000', 'abc']) {
+      expect(run(capacite, invalide), invalide).toEqual(['ADMIN.REFERENTIALS.ISSUES.INVALID_INTEGER']);
+    }
+  });
+
   it('contrôle les nombres et les téléphones', () => {
     const prix = field({key: 'prix', type: 'DECIMAL', required: false, maxLength: 0});
     expect(run(prix, '5600,50')).toEqual([]);

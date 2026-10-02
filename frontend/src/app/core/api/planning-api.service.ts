@@ -2,6 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
+import {PagedResponse} from './gmao-api.service';
 
 export type JourSemaine = 'DIMANCHE' | 'LUNDI' | 'MARDI' | 'MERCREDI' | 'JEUDI' | 'VENDREDI' | 'SAMEDI';
 
@@ -123,6 +124,27 @@ export interface SemainePlanning {
   patientsAReplanifier: number;
 }
 
+/** Générateur affecté à une salle (statut GMAO : EN_SERVICE, HORS_SERVICE, EN_MAINTENANCE…). */
+export interface GenerateurSalle {
+  id: string;
+  code: string;
+  designation: string;
+  statut: string;
+}
+
+/** Salle avec ses générateurs affectés ; `capacite` nulle = illimitée, `placesRestantes` négatif = dépassement. */
+export interface SalleVue {
+  id: string;
+  code: string;
+  nom: string;
+  isolement: boolean;
+  capacite: number | null;
+  nbGenerateurs: number;
+  placesRestantes: number | null;
+  depassement: boolean;
+  generateurs: GenerateurSalle[];
+}
+
 export interface PlanningParametres {
   /** Ratio de sécurité : nombre maximal de patients par infirmier. */
   patientsParInfirmier: number;
@@ -152,6 +174,12 @@ export class PlanningApiService {
     let params = new HttpParams().set('centerId', centerId);
     if (date) params = params.set('date', date);
     return this.http.get<SemainePlanning>(`${this.base}/semaine`, {params});
+  }
+
+  /** Vue d'ensemble des salles : générateurs affectés, capacité et places restantes (liste paginée). */
+  salles(centerId: string, page: number, size: number): Observable<PagedResponse<SalleVue>> {
+    const params = new HttpParams().set('centerId', centerId).set('page', page).set('size', size);
+    return this.http.get<PagedResponse<SalleVue>>(`${this.base}/salles`, {params});
   }
 
   parametres(centerId: string): Observable<PlanningParametres> {

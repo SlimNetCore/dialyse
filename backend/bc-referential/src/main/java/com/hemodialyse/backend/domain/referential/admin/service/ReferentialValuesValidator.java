@@ -25,6 +25,7 @@ public final class ReferentialValuesValidator {
     /**
      * Borne de {@code numeric(10,2)}.
      */
+    private static final int MAX_INTEGER = 999;
     private static final BigDecimal MAX_DECIMAL = new BigDecimal("99999999.99");
     private static final Pattern PHONE = Pattern.compile("^[+0-9 ().\\-/]{6,}$");
 
@@ -80,6 +81,7 @@ public final class ReferentialValuesValidator {
                 yield checkLength(field, value, issues);
             }
             case DECIMAL -> parseDecimal(field, value, issues);
+            case INTEGER -> parseInteger(field, value, issues);
             case ENUM -> {
                 String code = toEnumCode(value);
                 if (!field.allowedValues().contains(code)) {
@@ -114,6 +116,26 @@ public final class ReferentialValuesValidator {
             return Optional.empty();
         }
         return Optional.of(value);
+    }
+
+    private Optional<String> parseInteger(ReferentialField field, String value, List<ValidationIssue> issues) {
+        String compact = value.replaceAll("[\\s\\u00A0\\u202F]", "");
+        int number;
+        try {
+            number = Integer.parseInt(compact);
+        } catch (NumberFormatException e) {
+            issues.add(issue(field, "INVALID_INTEGER",
+                    "« " + field.label() + " » : « " + value + " » n'est pas un nombre entier (ex. 12).",
+                    Map.of("value", value)));
+            return Optional.empty();
+        }
+        if (number < 1 || number > MAX_INTEGER) {
+            issues.add(issue(field, "INTEGER_OUT_OF_RANGE",
+                    "« " + field.label() + " » doit être compris entre 1 et " + MAX_INTEGER + ".",
+                    Map.of("value", value, "max", String.valueOf(MAX_INTEGER))));
+            return Optional.empty();
+        }
+        return Optional.of(String.valueOf(number));
     }
 
     private Optional<String> parseDecimal(ReferentialField field, String value, List<ValidationIssue> issues) {

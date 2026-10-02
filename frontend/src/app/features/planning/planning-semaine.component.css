@@ -372,3 +372,16 @@
     align-items: center;
   }
 }
+
+/* Séance validée par l'infirmier (patient présent) : soleil et couleur dédiée */
+.chip.done {
+  background: #fff3c4;
+  border: 1px solid #f9a825;
+}
+
+.chip-sun {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: #f9a825;
+}

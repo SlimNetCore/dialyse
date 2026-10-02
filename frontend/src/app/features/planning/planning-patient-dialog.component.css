@@ -76,3 +76,16 @@
     min-height: 44px;
   }
 }
+
+.ppd-validated {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 500;
+  color: #8a6100;
+}
+
+.ppd-validated mat-icon {
+  color: #f9a825;
+}

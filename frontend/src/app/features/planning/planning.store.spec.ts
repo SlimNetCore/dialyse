@@ -25,13 +25,16 @@ describe('PlanningStore', () => {
 
   beforeEach(() => {
     absenceApi = {
-      semaine: vi.fn().mockReturnValue(of([{
-        absenceId: 'a1',
-        patientId: 'p1',
-        dateSeance: '2026-09-28',
-        statut: 'JUSTIFIEE',
-        motif: 'MALADIE'
-      }])),
+      semaine: vi.fn().mockReturnValue(of({
+        absences: [{
+          absenceId: 'a1',
+          patientId: 'p1',
+          dateSeance: '2026-09-28',
+          statut: 'JUSTIFIEE',
+          motif: 'MALADIE'
+        }],
+        seancesRealisees: [{patientId: 'p2', dateSeance: '2026-09-29'}],
+      })),
       declarer: vi.fn().mockReturnValue(of({})),
     };
     api = {
@@ -103,11 +106,13 @@ describe('PlanningStore', () => {
     store.chargerSemaine(null);
     expect(absenceApi.semaine).toHaveBeenCalledWith(CENTRE, undefined);
     expect(store.absences()).toHaveLength(1);
+    expect(store.seancesRealisees()).toEqual([{patientId: 'p2', dateSeance: '2026-09-29'}]);
 
     absenceApi.semaine.mockReturnValue(throwError(() => new Error('boom')));
     store.chargerSemaine('2026-10-04');
     expect(store.semaine()?.debut).toBe('2026-09-27');
     expect(store.absences()).toEqual([]);
+    expect(store.seancesRealisees()).toEqual([]);
     expect(store.error()).toBeNull();
   });
 

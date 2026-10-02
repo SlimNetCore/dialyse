@@ -11,6 +11,12 @@ import {
 } from '../../../core/api/gmao-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 
+/** Clé i18n de l'erreur d'enregistrement d'un équipement : capacité de salle dépassée, sinon message générique. */
+export function equipementSaveErrorKey(err: unknown): string {
+  const code = (err as { error?: { code?: string } } | null)?.error?.code;
+  return code === 'SALLE_CAPACITE_DEPASSEE' ? 'GMAO.EQUIPEMENTS.ERR_CAPACITE' : 'GMAO.EQUIPEMENTS.SAVE_ERROR';
+}
+
 type GmaoEquipementsState = PagedListState<Equipement> & {
   statutFilter: string | null;
   saving: boolean;
@@ -60,8 +66,8 @@ export const GmaoEquipementsStore = signalStore(
         switchMap((payload) =>
           api.createEquipement(payload).pipe(
             tap(() => patchState(store, {saving: false, successMessage: 'GMAO.EQUIPEMENTS.SAVED_OK'})),
-            catchError(() => {
-              patchState(store, {saving: false, error: 'GMAO.EQUIPEMENTS.SAVE_ERROR'});
+            catchError((err) => {
+              patchState(store, {saving: false, error: equipementSaveErrorKey(err)});
               return EMPTY;
             }),
           ),
@@ -75,8 +81,8 @@ export const GmaoEquipementsStore = signalStore(
         switchMap(({id, payload}) =>
           api.updateEquipement(id, payload).pipe(
             tap(() => patchState(store, {saving: false, successMessage: 'GMAO.EQUIPEMENTS.SAVED_OK'})),
-            catchError(() => {
-              patchState(store, {saving: false, error: 'GMAO.EQUIPEMENTS.SAVE_ERROR'});
+            catchError((err) => {
+              patchState(store, {saving: false, error: equipementSaveErrorKey(err)});
               return EMPTY;
             }),
           ),
