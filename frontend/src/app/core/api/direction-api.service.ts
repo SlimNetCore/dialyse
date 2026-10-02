@@ -304,6 +304,17 @@ export class DirectionApiService {
     return this.http.get<GmaoOverview>(`${this.baseUrl}/direction/gmao`, {params, withCredentials: true});
   }
 
+  /** Valorisation du stock des groupes d'articles (ex. « KIT CNAS ») sur la période, par centre et consolidée. */
+  stockGroupes(from?: string, to?: string): Observable<StockGroupesOverview> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<StockGroupesOverview>(`${this.baseUrl}/direction/stock-groupes`, {
+      params,
+      withCredentials: true
+    });
+  }
+
   breakdown(from?: string, to?: string): Observable<DirectionBreakdown> {
     let params = new HttpParams();
     if (from) params = params.set('from', from);
@@ -365,3 +376,36 @@ export class DirectionApiService {
       {password}, {withCredentials: true});
   }
 }
+
+/** Valeurs d'un groupe d'articles sur la période (DA) : stock début/fin, entrées, sorties au PMP, autres variations. */
+export type ValeursStockGroupe = {
+  valeurDebut: number;
+  entrees: number;
+  sorties: number;
+  autresVariations: number;
+  valeurFin: number;
+};
+
+export type CentreGroupeStock = {
+  centerId: string;
+  centreNom: string | null;
+  nbArticles: number;
+  valeurs: ValeursStockGroupe;
+};
+
+/** Groupe d'articles consolidé (même nom dans plusieurs centres de la société). */
+export type GroupeStock = {
+  nom: string;
+  nbCentres: number;
+  nbArticles: number;
+  total: ValeursStockGroupe;
+  centres: CentreGroupeStock[];
+};
+
+export type StockGroupesOverview = {
+  societeId: string;
+  from: string;
+  to: string;
+  generatedAt: string;
+  groupes: GroupeStock[];
+};

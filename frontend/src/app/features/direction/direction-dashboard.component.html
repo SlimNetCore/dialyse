@@ -404,6 +404,52 @@
     </mat-card>
   }
 
+  @if (store.stockGroupes()) {
+    <mat-card class="block" data-testid="direction-stock-groupes">
+      <h2>{{ 'DIRECTION.STOCK_GROUPES.TITLE' | translate }}</h2>
+      <p class="muted">{{ 'DIRECTION.STOCK_GROUPES.HINT' | translate }}</p>
+      @if (stockGroupeRows().length === 0) {
+        <p class="muted"
+           data-testid="direction-stock-groupes-empty">{{ 'DIRECTION.STOCK_GROUPES.EMPTY' | translate }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="centres" data-testid="direction-stock-groupes-table">
+            <thead>
+            <tr>
+              <th>{{ 'DIRECTION.STOCK_GROUPES.GROUPE' | translate }}</th>
+              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.ARTICLES' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.DEBUT' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.ENTREES' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.SORTIES' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.AUTRES' | translate }}</th>
+              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.FIN' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (row of stockGroupeRows(); track row.key) {
+                <tr [class.total]="row.total">
+                  <td>{{ row.nom }}</td>
+                  <td>{{ row.centre ?? ('DIRECTION.TOTAL' | translate) }}</td>
+                  <td class="num">{{ row.nbArticles }}</td>
+                  <td class="num">{{ row.valeurs.valeurDebut | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                  <td class="num">{{ row.valeurs.entrees | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                  <td class="num">{{ row.valeurs.sorties | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
+                  <td [class.warn]="row.valeurs.autresVariations < 0" class="num">
+                    {{ row.valeurs.autresVariations | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}
+                  </td>
+                  <td class="num">
+                    <strong>{{ row.valeurs.valeurFin | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">{{ 'DIRECTION.STOCK_GROUPES.NOTE' | translate }}</p>
+      }
+    </mat-card>
+  }
+
   @if (breakdown(); as b) {
     <div class="charts">
       <mat-card class="block" data-testid="direction-sexe">

@@ -43,6 +43,11 @@ export const adminRoutes: Routes = [
     loadComponent: () => import('./tva-types.component').then((m) => m.TvaTypesComponent),
   },
   {
+    path: 'parametrage/groupes-articles',
+    loadComponent: () =>
+      import('./groupes-articles/groupes-articles.component').then((m) => m.GroupesArticlesComponent),
+  },
+  {
     path: 'parametrage/referentiels',
     loadComponent: () =>
       import('./referentiels/referentiels-admin.component').then((m) => m.ReferentielsAdminComponent),

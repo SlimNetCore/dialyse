@@ -1,8 +1,11 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
+import com.hemodialyse.backend.application.stock.ValorisationArticlesService;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import org.springframework.cache.annotation.CacheEvict;
 import com.hemodialyse.backend.domain.stock.model.StockMovement;
 import com.hemodialyse.backend.domain.stock.model.StockMovementType;
+import com.hemodialyse.backend.domain.stock.port.StockMovementHistoryPort;
 import com.hemodialyse.backend.domain.stock.port.StockMovementRepositoryPort;
 import com.hemodialyse.backend.infrastructure.persistence.entity.StockMovementJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.StockMovementJpaRepository;
@@ -13,7 +16,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 @Component
-public class StockMovementRepositoryAdapter implements StockMovementRepositoryPort {
+public class StockMovementRepositoryAdapter implements StockMovementRepositoryPort, StockMovementHistoryPort {
 
     private final StockMovementJpaRepository jpa;
 
@@ -22,8 +25,19 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
     }
 
     @Override
+    @CacheEvict(cacheNames = ValorisationArticlesService.CACHE, allEntries = true)
     public StockMovement save(StockMovement movement) {
         return toDomain(jpa.save(toJpa(movement)));
+    }
+
+    @Override
+    public Map<UUID, List<StockMovement>> mouvementsParArticle(CenterId centerId, Collection<UUID> articleIds) {
+        Map<UUID, List<StockMovement>> result = new HashMap<>();
+        if (articleIds == null || articleIds.isEmpty()) return result;
+        for (StockMovementJpaEntity e : jpa.findByCenterIdAndArticleIdInOrderByCreatedAtAscIdAsc(centerId.value(), articleIds)) {
+            result.computeIfAbsent(e.getArticleId(), k -> new ArrayList<>()).add(toDomain(e));
+        }
+        return result;
     }
 
     @Override
@@ -40,6 +54,7 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
     }
 
     @Override
+    @CacheEvict(cacheNames = ValorisationArticlesService.CACHE, allEntries = true)
     public void updatePmpApres(UUID movementId, BigDecimal pmpApres) {
         jpa.findById(movementId).ifPresent(e -> {
             e.setPmpApres(pmpApres);
@@ -61,11 +76,13 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
     }
 
     @Override
+    @CacheEvict(cacheNames = ValorisationArticlesService.CACHE, allEntries = true)
     public void deleteBySeanceAndArticle(CenterId centerId, UUID seanceId, UUID articleId) {
         jpa.deleteByCenterIdAndSeanceIdAndArticleId(centerId.value(), seanceId, articleId);
     }
 
     @Override
+    @CacheEvict(cacheNames = ValorisationArticlesService.CACHE, allEntries = true)
     public void applyRecalc(List<MovementRecalc> updates) {
         if (updates == null || updates.isEmpty()) {
             return;

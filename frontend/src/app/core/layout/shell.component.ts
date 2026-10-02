@@ -176,6 +176,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/admin/parametrage/facturation', label: 'Paramétrage facturation', icon: 'tune'},
         {route: '/admin/parametrage/tva', label: 'Types de TVA', icon: 'percent'},
         {route: '/admin/parametrage/referentiels', label: 'Référentiels', icon: 'dataset'},
+        {route: '/admin/parametrage/groupes-articles', label: 'NAV.ADMIN_GROUPES_ARTICLES', icon: 'category'},
         {route: '/admin/parametrage/reprise', label: 'Reprise de données', icon: 'move_down'},
       ],
     },

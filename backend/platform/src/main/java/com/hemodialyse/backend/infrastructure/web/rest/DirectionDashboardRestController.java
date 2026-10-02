@@ -12,6 +12,8 @@ import com.hemodialyse.backend.application.direction.DirectionIndicatorsQuerySer
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
 import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService;
 import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService.GmaoOverview;
+import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService;
+import com.hemodialyse.backend.application.direction.DirectionStockGroupesQueryService.StockGroupesOverview;
 import com.hemodialyse.backend.infrastructure.security.DirectionAccessGuard;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
@@ -47,13 +49,16 @@ public class DirectionDashboardRestController {
     private final DirectionReportPdfService reports;
     private final DirectionAlertHistoryService alertHistory;
     private final DirectionGmaoQueryService gmaoQueries;
+    private final DirectionStockGroupesQueryService stockGroupes;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
                                             DirectionIndicatorsQueryService indicators,
                                             DirectionBreakdownQueryService breakdowns,
                                             DirectionReportPdfService reports,
                                             DirectionAlertHistoryService alertHistory,
-                                            DirectionGmaoQueryService gmaoQueries) {
+                                            DirectionGmaoQueryService gmaoQueries,
+                                            DirectionStockGroupesQueryService stockGroupes) {
+        this.stockGroupes = stockGroupes;
         this.reports = reports;
         this.guard = guard;
         this.queries = queries;
@@ -104,6 +109,18 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(gmaoQueries.gmao(societeId, from, to));
+    }
+
+    /**
+     * Valorisation du stock des groupes d'articles (ex. « KIT CNAS ») sur la période : stock début/fin, entrées,
+     * sorties, par centre et consolidée pour la société.
+     */
+    @GetMapping("/stock-groupes")
+    public ResponseEntity<StockGroupesOverview> stockGroupes(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UUID societeId = guard.requireSociete();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(stockGroupes.groupes(societeId, from, to));
     }
 
     /**

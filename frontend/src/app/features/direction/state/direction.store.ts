@@ -9,6 +9,7 @@ import {
   DirectionIndicators,
   DirectionOverview,
   GmaoOverview,
+  StockGroupesOverview,
   Snapshot,
   SnapshotInfo
 } from '../../../core/api/direction-api.service';
@@ -21,6 +22,8 @@ type DirectionState = {
   breakdown: DirectionBreakdown | null;
   /** Aide à la décision GMAO : coût de maintenance, état du parc, indisponibilité (module GMAO v2). */
   gmao: GmaoOverview | null;
+  /** Valorisation du stock des groupes d'articles (ex. « KIT CNAS ») sur la période. */
+  stockGroupes: StockGroupesOverview | null;
   /** Dernière mise à jour des données (chargement ou changement reçu en temps réel). */
   updatedAt: string | null;
   /** Mois déjà figés (instantanés mensuels), du plus récent au plus ancien. */
@@ -43,7 +46,14 @@ type DirectionState = {
 };
 
 const initialState: DirectionState = {
-  overview: null, indicators: null, breakdown: null, gmao: null, updatedAt: null, snapshots: [], reportBusy: null,
+  overview: null,
+  indicators: null,
+  breakdown: null,
+  gmao: null,
+  stockGroupes: null,
+  updatedAt: null,
+  snapshots: [],
+  reportBusy: null,
   reportError: false, from: '', to: '', loading: false, error: null,
   compareA: undefined, compareB: undefined, compareBusy: false, compareError: false, alertHistory: [],
 };
@@ -73,15 +83,23 @@ export const DirectionStore = signalStore(
       const seq = ++requestSeq;
       patchState(store, silent ? {} : {loading: true, error: null, from, to});
       try {
-        const [overview, indicators, breakdown, gmao] = await Promise.all([
+        const [overview, indicators, breakdown, gmao, stockGroupes] = await Promise.all([
           firstValueFrom(api.overview(from || undefined, to || undefined)),
           firstValueFrom(api.indicators(from || undefined, to || undefined)),
           firstValueFrom(api.breakdown(from || undefined, to || undefined)),
           firstValueFrom(api.gmao(from || undefined, to || undefined)),
+          firstValueFrom(api.stockGroupes(from || undefined, to || undefined)),
         ]);
         if (seq !== requestSeq) return;
         patchState(store, {
-          overview, indicators, breakdown, gmao, loading: false, error: null, updatedAt: new Date().toISOString(),
+          overview,
+          indicators,
+          breakdown,
+          gmao,
+          stockGroupes,
+          loading: false,
+          error: null,
+          updatedAt: new Date().toISOString(),
           from: from || overview.from, to: to || overview.to,
         });
       } catch (e) {

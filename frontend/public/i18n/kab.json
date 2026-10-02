@@ -302,6 +302,19 @@
       "SINCE": "seg",
       "UNTIL": "yefsi deg"
     },
+    "STOCK_GROUPES": {
+      "TITLE": "Ssuma n usenfaṛ s agraw n yimsalen",
+      "HINT": "Asenfaṛ n yal agraw (amedya KIT CNAS) di tazwara d taggara n tallit, s unekcum d tuffɣa yettwasumen — s uɣerbaz d umatu.",
+      "GROUPE": "Agraw",
+      "ARTICLES": "Imsalen",
+      "DEBUT": "Asenfaṛ n tazwara",
+      "ENTREES": "Inekcam",
+      "SORTIES": "Tuffɣiwin",
+      "AUTRES": "Imbeddilen niḍen",
+      "FIN": "Asenfaṛ n taggara",
+      "EMPTY": "Ulac agraw n yimsalen: arnu-t deg Tadbelt → Igrawen n yimsalen.",
+      "NOTE": "Asumel s PMP, s uɛawed n yimussuten. \"Imbeddilen niḍen\": iɣerfan n usenqed, ibeddilen d yimzurifen."
+    },
     "GMAO": {
       "TITLE": "Agraw n ibenkan (uṣṣaṣ)",
       "HINT": "Ssuma n uṣṣaṣ, addad n ugraw akked wakud n ubaṭel, s umgay — tallelt ɣef luqan.",
@@ -1519,7 +1532,35 @@
     "CLOTUREE_TITLE": "YETTWADEQ",
     "CLOTUREE_DESC": "Takfalit tfuk — taɣimit tettwaḥbes"
   },
+  "GROUPES_ARTICLES": {
+    "TITLE": "Igrawen n yimsalen",
+    "SUBTITLE": "Sdukkel imsalen ddaw yisem (amedya KIT CNAS): tegdurt tettḥawil ssuma n usenfaṛ-nsen deg tallit.",
+    "CREATE_TITLE": "Agraw amaynut",
+    "EDIT_TITLE": "Ẓreg agraw",
+    "NOM": "Isem n ugraw",
+    "NOM_HINT": "Ulac amitti deg uɣerbaz ; isem-nni deg waṭas n yiɣerbazen ad yettwasdukkel s tegdurt",
+    "DESCRIPTION": "Aglam",
+    "SEARCH": "Nadi ɣef umsal (tangalt neɣ isem)",
+    "SELECTED": "{{count}} n yimsalen yettwafren",
+    "SELECT_FILTERED": "Fren akk (igmaḍ)",
+    "CLEAR": "Kkes afran akk",
+    "NO_ARTICLES": "Ulac amsal yettwafen",
+    "NB_ARTICLES": "Imsalen",
+    "EMPTY": "Ulac igrawen n yimsalen i uɣerbaz-a",
+    "SAVED_OK": "Agraw yettwasekles",
+    "CONFIRM_DELETE_TITLE": "Kkes agraw?",
+    "CONFIRM_DELETE_MESSAGE": "Agraw \"{{nom}}\" ad yettwakkes (imsalen ur ttbeddilen ara).",
+    "ERR": {
+      "LOAD": "Ur izmir ara ad d-yettwasali wagraw n yimsalen",
+      "ARTICLES": "Ur izmir ara ad d-yettwasalin yimsalen n uɣerbaz",
+      "SAVE": "Ur izmir ara ad yettwasekles",
+      "GROUPE_ARTICLE_NOM_EXISTANT": "Yella yagi agraw s yisem-a deg uɣerbaz-a",
+      "GROUPE_ARTICLE_ARTICLE_INCONNU": "Amsal yettwafren ur yellis n uɣerbaz-a",
+      "GROUPE_ARTICLE_INTROUVABLE": "Agraw ulac-it"
+    }
+  },
   "NAV": {
+    "ADMIN_GROUPES_ARTICLES": "Igrawen n yimsalen",
     "DIRECTION": "Tegdurt",
     "DASHBOARD": "Tafelwit n uselkim",
     "PATIENTS": "Imdanen",

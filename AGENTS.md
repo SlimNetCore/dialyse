@@ -387,17 +387,18 @@ Aucun rapport imprimé par l'application ne doit contourner les « Modèles de d
 
 ## 12. Configuration clé (variables d'environnement)
 
-| Var                        | Défaut                  | Usage                                    |
-|----------------------------|-------------------------|------------------------------------------|
-| `DB_URL`                   | H2 en mémoire           | URL JDBC de la base                      |
-| `JWT_SECRET`               | `change-me-…`           | **À surcharger obligatoirement en prod** |
-| `CORS_ORIGINS`             | localhost:4200 + vercel | Origines CORS autorisées                 |
-| `CACHE_TTL_REFERENTIALS`   | `PT6H`                  | TTL des caches référentiels              |
-| `CACHE_TTL_PATIENT_DETAIL` | `PT15M`                 | TTL des caches patient detail            |
-| `CACHE_TTL_PATIENT_LIST`   | `PT3M`                  | TTL des caches listes patient            |
-| `CACHE_TTL_PATIENT_COUNT`  | `PT3M`                  | TTL du cache de comptage patient         |
-| `STOCK_DEMO_DATA`          | `true`                  | Seed des données de démo stock           |
-| `REPORTS_DIR`              | classpath               | Override du répertoire de base jasper    |
+| Var                            | Défaut                  | Usage                                                                                              |
+|--------------------------------|-------------------------|----------------------------------------------------------------------------------------------------|
+| `DB_URL`                       | H2 en mémoire           | URL JDBC de la base                                                                                |
+| `JWT_SECRET`                   | `change-me-…`           | **À surcharger obligatoirement en prod**                                                           |
+| `CORS_ORIGINS`                 | localhost:4200 + vercel | Origines CORS autorisées                                                                           |
+| `CACHE_TTL_REFERENTIALS`       | `PT6H`                  | TTL des caches référentiels                                                                        |
+| `CACHE_TTL_PATIENT_DETAIL`     | `PT15M`                 | TTL des caches patient detail                                                                      |
+| `CACHE_TTL_PATIENT_LIST`       | `PT3M`                  | TTL des caches listes patient                                                                      |
+| `CACHE_TTL_PATIENT_COUNT`      | `PT3M`                  | TTL du cache de comptage patient                                                                   |
+| `CACHE_TTL_STOCK_VALORISATION` | `PT30M`                 | TTL du cache de valorisation du stock des groupes d'articles (vidé à chaque écriture de mouvement) |
+| `STOCK_DEMO_DATA`              | `true`                  | Seed des données de démo stock                                                                     |
+| `REPORTS_DIR`                  | classpath               | Override du répertoire de base jasper                                                              |
 
 ---
 

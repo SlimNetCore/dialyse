@@ -12,6 +12,12 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovementJ
 
     List<StockMovementJpaEntity> findByCenterIdAndArticleIdOrderByCreatedAtAscIdAsc(UUID centerId, UUID articleId);
 
+    /**
+     * Historique complet (y compris les mouvements clôturés par un inventaire) de plusieurs articles.
+     */
+    List<StockMovementJpaEntity> findByCenterIdAndArticleIdInOrderByCreatedAtAscIdAsc(
+            UUID centerId, java.util.Collection<UUID> articleIds);
+
     List<StockMovementJpaEntity> findByCenterIdAndArticleIdAndCreatedAtBeforeOrderByCreatedAtAscIdAsc(
             UUID centerId, UUID articleId, OffsetDateTime before);
 

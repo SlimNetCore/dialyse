@@ -302,6 +302,19 @@
       "SINCE": "depuis le",
       "UNTIL": "résolue le"
     },
+    "STOCK_GROUPES": {
+      "TITLE": "Valorisation du stock par groupe d'articles",
+      "HINT": "Stock de chaque groupe (ex. KIT CNAS) au début et à la fin de la période, avec les entrées et les sorties valorisées — par centre et consolidé.",
+      "GROUPE": "Groupe",
+      "ARTICLES": "Articles",
+      "DEBUT": "Stock début",
+      "ENTREES": "Entrées",
+      "SORTIES": "Sorties",
+      "AUTRES": "Autres variations",
+      "FIN": "Stock fin",
+      "EMPTY": "Aucun groupe d'articles défini : créez-les dans Administration → Groupes d'articles.",
+      "NOTE": "Valorisation au PMP, par rejeu des mouvements. « Autres variations » : écarts d'inventaire, ajustements et arrondis."
+    },
     "GMAO": {
       "TITLE": "Parc d'équipements (GMAO)",
       "HINT": "Coût de maintenance, état du parc et indisponibilité, par centre — aide à la décision.",
@@ -1887,7 +1900,35 @@
     "CLOTUREE_TITLE": "PEC CLÔTURÉE",
     "CLOTUREE_DESC": "Prise en charge expirée — séance bloquée"
   },
+  "GROUPES_ARTICLES": {
+    "TITLE": "Groupes d'articles",
+    "SUBTITLE": "Regroupez des articles sous un nom (ex. KIT CNAS) : la direction suit la valorisation de leur stock sur une période.",
+    "CREATE_TITLE": "Nouveau groupe",
+    "EDIT_TITLE": "Modifier le groupe",
+    "NOM": "Nom du groupe",
+    "NOM_HINT": "Unique dans le centre ; un même nom dans plusieurs centres est consolidé par la direction",
+    "DESCRIPTION": "Description",
+    "SEARCH": "Rechercher un article (code ou libellé)",
+    "SELECTED": "{{count}} article(s) sélectionné(s)",
+    "SELECT_FILTERED": "Tout sélectionner (résultats)",
+    "CLEAR": "Tout désélectionner",
+    "NO_ARTICLES": "Aucun article trouvé",
+    "NB_ARTICLES": "Articles",
+    "EMPTY": "Aucun groupe d'articles pour ce centre",
+    "SAVED_OK": "Groupe enregistré",
+    "CONFIRM_DELETE_TITLE": "Supprimer le groupe ?",
+    "CONFIRM_DELETE_MESSAGE": "Le groupe « {{nom}} » sera supprimé (les articles ne sont pas modifiés).",
+    "ERR": {
+      "LOAD": "Impossible de charger les groupes d'articles",
+      "ARTICLES": "Impossible de charger les articles du centre",
+      "SAVE": "Enregistrement impossible",
+      "GROUPE_ARTICLE_NOM_EXISTANT": "Un groupe porte déjà ce nom dans ce centre",
+      "GROUPE_ARTICLE_ARTICLE_INCONNU": "Un article sélectionné n'appartient pas à ce centre",
+      "GROUPE_ARTICLE_INTROUVABLE": "Groupe introuvable"
+    }
+  },
   "NAV": {
+    "ADMIN_GROUPES_ARTICLES": "Groupes d'articles",
     "DIRECTION": "Direction",
     "DASHBOARD": "Tableau de bord",
     "PATIENTS": "Patients",

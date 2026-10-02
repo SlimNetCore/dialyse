@@ -302,6 +302,19 @@
       "SINCE": "since",
       "UNTIL": "resolved on"
     },
+    "STOCK_GROUPES": {
+      "TITLE": "Stock valuation by article group",
+      "HINT": "Stock of each group (e.g. CNAS KIT) at the start and end of the period, with valued receipts and issues — by centre and consolidated.",
+      "GROUPE": "Group",
+      "ARTICLES": "Articles",
+      "DEBUT": "Opening stock",
+      "ENTREES": "Receipts",
+      "SORTIES": "Issues",
+      "AUTRES": "Other changes",
+      "FIN": "Closing stock",
+      "EMPTY": "No article group defined: create them in Administration → Article groups.",
+      "NOTE": "Weighted average cost valuation, replaying the movements. \"Other changes\": inventory gaps, adjustments and rounding."
+    },
     "GMAO": {
       "TITLE": "Equipment fleet (CMMS)",
       "HINT": "Maintenance cost, fleet status and downtime, by centre — decision support.",
@@ -1887,7 +1900,35 @@
     "CLOTUREE_TITLE": "CLOSED",
     "CLOTUREE_DESC": "Coverage expired — session blocked"
   },
+  "GROUPES_ARTICLES": {
+    "TITLE": "Article groups",
+    "SUBTITLE": "Group articles under a name (e.g. CNAS KIT): management tracks the valuation of their stock over a period.",
+    "CREATE_TITLE": "New group",
+    "EDIT_TITLE": "Edit the group",
+    "NOM": "Group name",
+    "NOM_HINT": "Unique in the centre; the same name in several centres is consolidated by management",
+    "DESCRIPTION": "Description",
+    "SEARCH": "Search an article (code or label)",
+    "SELECTED": "{{count}} article(s) selected",
+    "SELECT_FILTERED": "Select all (results)",
+    "CLEAR": "Deselect all",
+    "NO_ARTICLES": "No article found",
+    "NB_ARTICLES": "Articles",
+    "EMPTY": "No article group for this centre",
+    "SAVED_OK": "Group saved",
+    "CONFIRM_DELETE_TITLE": "Delete the group?",
+    "CONFIRM_DELETE_MESSAGE": "The group \"{{nom}}\" will be deleted (articles are not changed).",
+    "ERR": {
+      "LOAD": "Unable to load the article groups",
+      "ARTICLES": "Unable to load the centre's articles",
+      "SAVE": "Unable to save",
+      "GROUPE_ARTICLE_NOM_EXISTANT": "A group already has this name in this centre",
+      "GROUPE_ARTICLE_ARTICLE_INCONNU": "A selected article does not belong to this centre",
+      "GROUPE_ARTICLE_INTROUVABLE": "Group not found"
+    }
+  },
   "NAV": {
+    "ADMIN_GROUPES_ARTICLES": "Article groups",
     "DIRECTION": "Management",
     "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",

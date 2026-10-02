@@ -62,6 +62,7 @@ app:
       patient-detail: ${CACHE_TTL_PATIENT_DETAIL:PT15M}
       patient-list: ${CACHE_TTL_PATIENT_LIST:PT3M}
       patient-count: ${CACHE_TTL_PATIENT_COUNT:PT3M}
+      stock-valorisation: ${CACHE_TTL_STOCK_VALORISATION:PT30M}
   cors:
     allowed-origins: ${CORS_ORIGINS:https://dialyse.onrender.com,https://dialysis-beta.vercel.app,http://localhost:4200}
     allowed-origin-patterns: ${CORS_ORIGIN_PATTERNS:}

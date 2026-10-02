@@ -24,6 +24,9 @@ public class CacheConfig {
     @Value("${app.cache.ttl.patient-list:PT3M}")
     private Duration patientListTtl;
 
+    @Value("${app.cache.ttl.stock-valorisation:PT30M}")
+    private Duration stockValorisationTtl;
+
     @Value("${app.cache.ttl.patient-count:PT3M}")
     private Duration patientCountTtl;
 
@@ -77,6 +80,10 @@ public class CacheConfig {
 
         // Modèles d'impression personnalisés compilés (clé : centre + modèle + version, versions immuables)
         register(manager, "reporting.customTemplates", Duration.ofHours(12));
+
+        // Valorisation historique du stock d'un ensemble d'articles (clé : centre + période + articles ; vidé à chaque
+        // écriture de mouvement de stock, TTL = filet de sécurité)
+        register(manager, "stock.valorisation.articles", stockValorisationTtl);
 
         return manager;
     }

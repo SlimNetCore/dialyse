@@ -33,15 +33,16 @@ type RectifyFormModel = { motif: string; dateDebut: string };
   styleUrl: './rectify-intervention-dialog.component.css',
 })
 export class GmaoRectifyInterventionDialogComponent {
+  // L'ordre des champs est significatif (initialisation séquentielle) : ne pas les réordonner.
+  private readonly data = inject<RectifyInterventionData>(MAT_DIALOG_DATA);
+  private readonly initialDebut = utcIsoToLocalInput(this.data.dateDebut);
+  protected readonly formModel = signal<RectifyFormModel>({motif: '', dateDebut: this.initialDebut});
   protected readonly rectifyForm = compatForm(this.formModel, (form) => {
     required(form.motif);
     required(form.dateDebut);
   });
   protected readonly canSave = computed(() =>
     !!this.formModel().motif.trim() && !!this.formModel().dateDebut);
-  private readonly data = inject<RectifyInterventionData>(MAT_DIALOG_DATA);
-  private readonly initialDebut = utcIsoToLocalInput(this.data.dateDebut);
-  protected readonly formModel = signal<RectifyFormModel>({motif: '', dateDebut: this.initialDebut});
   private readonly dialogRef = inject(MatDialogRef<GmaoRectifyInterventionDialogComponent>);
 
   protected save(): void {
