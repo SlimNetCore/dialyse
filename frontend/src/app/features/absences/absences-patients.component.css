@@ -182,3 +182,12 @@
     min-height: 44px;
   }
 }
+
+.abs-feedback.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(179, 38, 30, 0.1);
+}

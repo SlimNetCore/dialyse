@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -77,6 +78,19 @@ public class AbsencePatientRestController {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(PagedResult.of(
                 paged.items().stream().map(l -> AbsenceResponse.de(l.absence(), l.patientNom())).toList(),
                 paged.total(), paged.page(), paged.size()));
+    }
+
+    /**
+     * Absences de la semaine du planning (grille bornée à 7 jours, donc non paginée) pour colorer les séances absentes.
+     */
+    @GetMapping("/semaine")
+    @PreAuthorize(ACCES)
+    public ResponseEntity<List<AbsencePatientService.AbsenceSemaine>> semaine(
+            @RequestParam(required = false) UUID centerId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        LocalDate jour = date != null ? date : LocalDate.now(ZoneOffset.UTC);
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(service.semaine(centre, jour));
     }
 
     @GetMapping("/synthese")

@@ -1,0 +1,78 @@
+.ppd-content {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.ppd-details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.ppd-details dt {
+  color: var(--app-muted, #5f6b7a);
+}
+
+.ppd-details dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.ppd-risk {
+  color: #b3261e;
+}
+
+.ppd-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ppd-absence h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.ppd-form {
+  display: grid;
+  gap: 8px;
+}
+
+.ppd-done {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 500;
+  color: #8a5a00;
+}
+
+.ppd-hint {
+  margin: 4px 0 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.ppd-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--mat-sys-error, #b3261e);
+  background: rgba(179, 38, 30, 0.1);
+}
+
+@media (max-width: 767px) {
+  .ppd-details {
+    grid-template-columns: 1fr;
+  }
+
+  .ppd-links a,
+  .ppd-form button {
+    flex: 1 1 100%;
+    min-height: 44px;
+  }
+}

@@ -26,7 +26,7 @@ import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {AbsencesPatientsStore, EMPTY_FILTERS} from './absences-patients.store';
-import {actionPossible, actionValide, ActionAbsence, estModifiable} from './absences-patients.util';
+import {actionPossible, actionValide, ActionAbsence, estModifiable, todayIso} from './absences-patients.util';
 
 type PatientOption = { id: string; label: string };
 
@@ -38,9 +38,7 @@ const DELAI_RECHERCHE_MS = 300;
 
 /** Déclaration vierge : la date de la séance manquée est aujourd'hui par défaut. */
 function emptyDeclaration() {
-  const now = new Date();
-  const jour = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  return {patientId: '', dateSeance: jour, motif: '' as MotifAbsence | '', commentaire: ''};
+  return {patientId: '', dateSeance: todayIso(), motif: '' as MotifAbsence | '', commentaire: ''};
 }
 
 /**
@@ -112,6 +110,11 @@ export class AbsencesPatientsComponent {
         this.declareOpen.set(false);
       });
     });
+  }
+
+  protected toggleDeclare(): void {
+    this.store.clearMessages();
+    this.declareOpen.update((open) => !open);
   }
 
   protected applyFilters(): void {

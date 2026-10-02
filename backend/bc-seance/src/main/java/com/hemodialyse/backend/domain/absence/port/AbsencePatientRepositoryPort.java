@@ -22,6 +22,11 @@ public interface AbsencePatientRepositoryPort {
 
     PagedResult<AbsenceLigne> findPaged(UUID centerId, AbsenceFiltre filtre, int page, int size);
 
+    /**
+     * Absences non annulées d'une courte période (la grille du planning de la semaine), toutes affichées d'un coup.
+     */
+    java.util.List<AbsencePatient> findBetween(UUID centerId, LocalDate from, LocalDate to);
+
     long countAQualifier(UUID centerId);
 
     long countEnRetard(UUID centerId, LocalDate limite);

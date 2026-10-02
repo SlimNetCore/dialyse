@@ -95,11 +95,11 @@ describe('roleScopeGuard', () => {
   });
 
   it('ouvre le suivi des absences de patients à l\'infirmier seul et au médecin seul', () => {
-    expect(run(['INFIRMIER'], '/absences-patients')).toBe(true);
-    expect(run(['MEDECIN'], '/absences-patients')).toBe(true);
-    expect(isNurseArea('/absences-patients')).toBe(true);
-    expect(isDoctorArea('/absences-patients')).toBe(true);
-    expect(run(['DIRECTION'], '/absences-patients')).toEqual({redirect: '/direction'});
+    expect(run(['INFIRMIER'], '/seances/absences-patients')).toBe(true);
+    expect(run(['MEDECIN'], '/seances/absences-patients')).toBe(true);
+    expect(isNurseArea('/seances/absences-patients')).toBe(true);
+    expect(isDoctorArea('/seances/absences-patients')).toBe(true);
+    expect(run(['DIRECTION'], '/seances/absences-patients')).toEqual({redirect: '/direction'});
   });
 
   it('laisse tout l\'accès à un médecin qui cumule un autre rôle', () => {

@@ -1,9 +1,12 @@
 import {
   CellulePlanning,
+  CreneauRef,
   JourPlanning,
   JourSemaine,
+  SalleRef,
   SemainePlanning,
 } from '../../core/api/planning-api.service';
+import {AbsenceSemaine} from '../../core/api/absence-patient-api.service';
 
 /** Décale une date `yyyy-MM-dd` d'un nombre de jours (calcul en UTC : pas de dérive liée à l'heure d'été). */
 export function decalerJours(date: string, jours: number): string {
@@ -28,4 +31,34 @@ export function etatCellule(c: CellulePlanning | undefined): 'closed' | 'empty' 
   if (c.occupants.length === 0) return 'empty';
   if (c.occupants.length > c.capacite) return 'over';
   return c.occupants.length === c.capacite ? 'full' : 'partial';
+}
+
+/** Une absence ne se déclare que pour un jour ouvert, passé ou du jour (jamais pour une séance à venir). */
+export function peutDeclarerAbsence(date: string, aujourdhui: string, ferme: boolean): boolean {
+  return !ferme && date <= aujourdhui;
+}
+
+/** Absence enregistrée (non annulée) d'un patient à une date, le cas échéant. */
+export function absenceDe(absences: AbsenceSemaine[], patientId: string, date: string): AbsenceSemaine | undefined {
+  return absences.find((a) => a.patientId === patientId && a.dateSeance === date);
+}
+
+/** Jour affiché par défaut : aujourd'hui s'il est dans la semaine, sinon le premier jour ouvert. */
+export function jourParDefaut(semaine: SemainePlanning, aujourdhui: string): JourSemaine | null {
+  const jourDuJour = semaine.jours.find((j) => j.date === aujourdhui);
+  if (jourDuJour) return jourDuJour.jour;
+  return (semaine.jours.find((j) => !jourFerme(j)) ?? semaine.jours[0])?.jour ?? null;
+}
+
+export interface LigneJour {
+  salle: SalleRef;
+  creneau: CreneauRef;
+  cellule: CellulePlanning;
+}
+
+/** Salles/créneaux d'un jour qui ont des patients ou des générateurs, dans l'ordre salle puis créneau. */
+export function lignesDuJour(semaine: SemainePlanning, jour: JourSemaine): LigneJour[] {
+  return semaine.salles.flatMap((salle) => semaine.creneaux.map((creneau) => ({
+    salle, creneau, cellule: cellule(semaine, salle.id, creneau.id, jour),
+  }))).filter((l): l is LigneJour => !!l.cellule && (l.cellule.occupants.length > 0 || l.cellule.capacite > 0));
 }

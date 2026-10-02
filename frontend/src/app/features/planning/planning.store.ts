@@ -2,7 +2,13 @@ import {computed, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
-import {catchError, EMPTY, pipe, switchMap, tap} from 'rxjs';
+import {catchError, EMPTY, firstValueFrom, forkJoin, of, pipe, switchMap, tap} from 'rxjs';
+import {
+  AbsencePatientApiService,
+  AbsenceSemaine,
+  DeclarationAbsencePayload,
+} from '../../core/api/absence-patient-api.service';
+import {absencePatientErrorKey} from '../absences/absences-patients.store';
 import {
   PlanningApiService,
   PlanningParametres,
@@ -15,6 +21,10 @@ interface PlanningState {
   /** Un jour de la semaine affichée (`yyyy-MM-dd`) ; null = semaine courante. */
   date: string | null;
   semaine: SemainePlanning | null;
+  /** Absences non annulées de la semaine affichée (colorent les séances absentes). */
+  absences: AbsenceSemaine[];
+  absenceSaving: boolean;
+  absenceError: string | null;
   parametres: PlanningParametres | null;
   loading: boolean;
   saving: boolean;
@@ -25,6 +35,9 @@ interface PlanningState {
 const initialState: PlanningState = {
   date: null,
   semaine: null,
+  absences: [],
+  absenceSaving: false,
+  absenceError: null,
   parametres: null,
   loading: false,
   saving: false,
@@ -43,15 +56,20 @@ export const PlanningStore = signalStore(
   withComputed((store) => ({
     nbConflits: computed(() => store.semaine()?.conflits.length ?? 0),
   })),
-  withMethods((store, api = inject(PlanningApiService), shell = inject(AppShellStore)) => {
+  withMethods((store, api = inject(PlanningApiService), absenceApi = inject(AbsencePatientApiService),
+               shell = inject(AppShellStore)) => {
     const centerId = (): string => shell.currentCenterId() ?? '';
 
     const chargerSemaine = rxMethod<string | null>(
       pipe(
         tap((date) => patchState(store, {loading: true, error: null, date})),
         switchMap((date) =>
-          api.semaine(centerId(), date ?? undefined).pipe(
-            tap((semaine) => patchState(store, {semaine, loading: false})),
+          forkJoin({
+            semaine: api.semaine(centerId(), date ?? undefined),
+            // Les absences colorent la grille : leur échec ne doit pas empêcher d'afficher le planning.
+            absences: absenceApi.semaine(centerId(), date ?? undefined).pipe(catchError(() => of([]))),
+          }).pipe(
+            tap(({semaine, absences}) => patchState(store, {semaine, absences, loading: false})),
             catchError(() => {
               patchState(store, {semaine: null, loading: false, error: 'PLANNING.SEMAINE.ERR.LOAD'});
               return EMPTY;
@@ -63,6 +81,27 @@ export const PlanningStore = signalStore(
 
     return {
       chargerSemaine,
+
+      /**
+       * Déclare l'absence d'un patient à une séance du planning, déjà qualifiée par son motif, puis recharge la
+       * semaine pour colorer la case. Renvoie vrai en cas de succès ; sinon `absenceError` porte la clé du message.
+       */
+      async declarerAbsence(payload: DeclarationAbsencePayload): Promise<boolean> {
+        patchState(store, {absenceSaving: true, absenceError: null});
+        try {
+          await firstValueFrom(absenceApi.declarer(centerId(), payload));
+          patchState(store, {absenceSaving: false});
+          chargerSemaine(store.date());
+          return true;
+        } catch (err) {
+          patchState(store, {absenceSaving: false, absenceError: absencePatientErrorKey(err)});
+          return false;
+        }
+      },
+
+      clearAbsenceError(): void {
+        patchState(store, {absenceError: null});
+      },
 
       /** Semaine précédente (-1) ou suivante (+1) de celle affichée. */
       changerSemaine(delta: number): void {

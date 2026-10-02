@@ -35,10 +35,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/medecin/medecin-dashboard.component').then((m) => m.MedecinDashboardComponent),
       },
       {
-        path: 'absences-patients',
-        loadComponent: () => import('./features/absences/absences-patients.component').then((m) => m.AbsencesPatientsComponent),
-      },
-      {
         path: 'infirmiers',
         loadChildren: () => import('./features/infirmier/infirmier.routes').then((m) => m.infirmierRoutes),
       },

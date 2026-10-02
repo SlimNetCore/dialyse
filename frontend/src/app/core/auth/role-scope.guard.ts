@@ -36,7 +36,7 @@ export const isNurseOnly = (roles: readonly string[]): boolean =>
   has(roles, 'INFIRMIER') && !OTHER_CENTRE_ROLES.some((role) => has(roles, role));
 
 /** Suivi des absences de patients : ouvert à l'infirmier seul et au médecin seul. */
-const ABSENCES_PATIENTS = '/absences-patients';
+const ABSENCES_PATIENTS = '/seances/absences-patients';
 
 /** Écrans de l'infirmier seul : son planning (page d'accueil), le tableau de bord des séances et les absences. */
 export const isNurseArea = (url: string): boolean => {

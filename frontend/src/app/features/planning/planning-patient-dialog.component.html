@@ -1,0 +1,81 @@
+<h2 data-testid="ppd-title" mat-dialog-title>{{ data.occupant.nom }}</h2>
+<mat-dialog-content class="ppd-content">
+  <dl class="ppd-details">
+    <dt>{{ 'PLANNING.SEMAINE.DETAIL.DATE' | translate }}</dt>
+    <dd>{{ data.date | date: 'dd/MM/yyyy' }}</dd>
+    <dt>{{ 'PLANNING.SEMAINE.DETAIL.SALLE' | translate }}</dt>
+    <dd>{{ data.salleNom }}</dd>
+    <dt>{{ 'PLANNING.SEMAINE.DETAIL.CRENEAU' | translate }}</dt>
+    <dd>{{ data.creneauLibelle }}</dd>
+    <dt>{{ 'PLANNING.SEMAINE.DETAIL.GENERATEUR' | translate }}</dt>
+    <dd>{{ data.occupant.generateurCode ?? ('PLANNING.SEMAINE.DETAIL.AUCUN' | translate) }}</dd>
+    @if (data.occupant.aRisque) {
+      <dt>{{ 'PLANNING.SEMAINE.DETAIL.ISOLEMENT' | translate }}</dt>
+      <dd class="ppd-risk">{{ 'PLANNING.SEMAINE.RISQUE' | translate }}</dd>
+    }
+  </dl>
+
+  <div class="ppd-links">
+    <a [routerLink]="['/patients', data.occupant.patientId]" data-testid="ppd-fiche" mat-dialog-close
+       mat-stroked-button>
+      <mat-icon>badge</mat-icon>
+      {{ 'PLANNING.SEMAINE.DETAIL.FICHE' | translate }}
+    </a>
+    <a [routerLink]="['/patients', data.occupant.patientId, 'dossier-medical']" data-testid="ppd-dossier"
+       mat-dialog-close mat-stroked-button>
+      <mat-icon>medical_information</mat-icon>
+      {{ 'PLANNING.SEMAINE.DETAIL.DOSSIER' | translate }}
+    </a>
+  </div>
+
+  <section class="ppd-absence">
+    <h3>{{ 'PLANNING.SEMAINE.DETAIL.ABSENCE' | translate }}</h3>
+    @if (data.absence; as a) {
+      <p class="ppd-done" data-testid="ppd-absence-existante">
+        <mat-icon>event_busy</mat-icon>
+        {{ ('ABSENCES.STATUTS.' + a.statut) | translate }}
+        @if (a.motif) {
+          · {{ ('ABSENCES.MOTIFS.' + a.motif) | translate }}
+        }
+      </p>
+      <p class="ppd-hint">{{ 'PLANNING.SEMAINE.DETAIL.ABSENCE_EXISTANTE' | translate }}</p>
+    } @else if (data.peutDeclarer) {
+      <form (submit)="declarer(); $event.preventDefault()" [formRoot]="form" class="ppd-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'ABSENCES.MOTIF' | translate }}</mat-label>
+          <mat-select [formField]="form.motif" data-testid="ppd-motif">
+            @for (m of motifs; track m) {
+              <mat-option [value]="m">{{ ('ABSENCES.MOTIFS.' + m) | translate }}</mat-option>
+            }
+          </mat-select>
+          <mat-hint>{{ 'PLANNING.SEMAINE.DETAIL.MOTIF_HINT' | translate }}</mat-hint>
+        </mat-form-field>
+        @if (model().motif) {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'ABSENCES.COMMENTAIRE' | translate }}</mat-label>
+            <input [formField]="form.commentaire" data-testid="ppd-commentaire" matInput/>
+            @if (commentaireRequis()) {
+              <mat-hint>{{ 'ABSENCES.COMMENTAIRE_REQUIS' | translate }}</mat-hint>
+            }
+          </mat-form-field>
+        }
+        @if (store.absenceError()) {
+          <p class="ppd-error" data-testid="ppd-error" role="alert">
+            <mat-icon>error</mat-icon>
+            {{ store.absenceError()! | translate }}
+          </p>
+        }
+        <button [disabled]="!canSave()" color="warn" data-testid="ppd-declarer" mat-flat-button type="submit">
+          <mat-icon>event_busy</mat-icon>
+          {{ 'PLANNING.SEMAINE.DECLARER_ABSENCE' | translate }}
+        </button>
+      </form>
+    } @else {
+      <p class="ppd-hint"
+         data-testid="ppd-impossible">{{ 'PLANNING.SEMAINE.DETAIL.DECLARATION_IMPOSSIBLE' | translate }}</p>
+    }
+  </section>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">{{ 'ABSENCES.ACTIONS.FERMER' | translate }}</button>
+</mat-dialog-actions>

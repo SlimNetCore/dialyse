@@ -8,6 +8,7 @@ import com.hemodialyse.backend.domain.absence.model.StatutAbsence;
 import com.hemodialyse.backend.domain.absence.port.AbsenceDonneesPort;
 import com.hemodialyse.backend.domain.absence.port.AbsencePatientRepositoryPort;
 import com.hemodialyse.backend.domain.absence.service.ValorisationAbsenceService;
+import com.hemodialyse.backend.domain.planning.service.PlanningSemaineService;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,20 @@ public class AbsencePatientService {
 
     private LocalDate aujourdhui() {
         return LocalDate.now(clock);
+    }
+
+    /**
+     * Absences non annulées de la semaine (dimanche → samedi) contenant {@code date}, pour colorer le planning.
+     */
+    public List<AbsenceSemaine> semaine(UUID centerId, LocalDate date) {
+        LocalDate debut = PlanningSemaineService.debutSemaine(date);
+        return absences.findBetween(centerId, debut, debut.plusDays(6)).stream()
+                .map(a -> new AbsenceSemaine(a.id(), a.patientId(), a.dateSeance(), a.statut(), a.motif()))
+                .toList();
+    }
+
+    public record AbsenceSemaine(UUID absenceId, UUID patientId, LocalDate dateSeance, StatutAbsence statut,
+                                 MotifAbsence motif) {
     }
 
     public PagedResult<AbsenceLigne> lister(UUID centerId, AbsenceFiltre filtre, int page, int size) {

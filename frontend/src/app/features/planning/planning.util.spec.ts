@@ -1,6 +1,8 @@
 import {describe, expect, it} from 'vitest';
 import {CellulePlanning, JourPlanning, SemainePlanning} from '../../core/api/planning-api.service';
-import {cellule, decalerJours, etatCellule, jourFerme} from './planning.util';
+import {
+  absenceDe, cellule, decalerJours, etatCellule, jourFerme, jourParDefaut, lignesDuJour, peutDeclarerAbsence,
+} from './planning.util';
 
 const jour = (ouvert: boolean, motif: string | null): JourPlanning =>
   ({jour: 'LUNDI', date: '2026-09-28', ouvertHebdomadaire: ouvert, fermetureMotif: motif});
@@ -44,5 +46,55 @@ describe('planning.util', () => {
     expect(cellule(semaine, 's', 'c', 'LUNDI')).toBeDefined();
     expect(cellule(semaine, 's', 'c', 'MARDI')).toBeUndefined();
     expect(cellule(semaine, 'autre', 'c', 'LUNDI')).toBeUndefined();
+  });
+});
+
+describe('planning.util — absences et vue du jour', () => {
+  const jours: JourPlanning[] = [
+    {jour: 'DIMANCHE', date: '2026-09-27', ouvertHebdomadaire: true, fermetureMotif: null},
+    {jour: 'LUNDI', date: '2026-09-28', ouvertHebdomadaire: true, fermetureMotif: null},
+    {jour: 'MARDI', date: '2026-09-29', ouvertHebdomadaire: false, fermetureMotif: null},
+  ];
+  const semaine = (cellules: CellulePlanning[]): SemainePlanning => ({
+    debut: '2026-09-27', fin: '2026-10-03', jours,
+    salles: [{id: 's1', nom: 'Salle 1'}, {id: 's2', nom: 'Salle 2'}],
+    creneaux: [{id: 'c1', libelle: 'Matin', ordre: 1}],
+    cellules, conflits: [], patientsAReplanifier: 0,
+  });
+
+  it('autorise la déclaration pour un jour ouvert passé ou du jour, jamais futur ni fermé', () => {
+    expect(peutDeclarerAbsence('2026-09-28', '2026-09-28', false)).toBe(true);
+    expect(peutDeclarerAbsence('2026-09-27', '2026-09-28', false)).toBe(true);
+    expect(peutDeclarerAbsence('2026-09-29', '2026-09-28', false)).toBe(false);
+    expect(peutDeclarerAbsence('2026-09-27', '2026-09-28', true)).toBe(false);
+  });
+
+  it('retrouve l\'absence d\'un patient à une date précise', () => {
+    const absences = [{
+      absenceId: 'a',
+      patientId: 'p1',
+      dateSeance: '2026-09-28',
+      statut: 'JUSTIFIEE' as const,
+      motif: null
+    }];
+    expect(absenceDe(absences, 'p1', '2026-09-28')?.absenceId).toBe('a');
+    expect(absenceDe(absences, 'p1', '2026-09-29')).toBeUndefined();
+    expect(absenceDe(absences, 'p2', '2026-09-28')).toBeUndefined();
+  });
+
+  it('choisit aujourd\'hui s\'il est dans la semaine, sinon le premier jour ouvert', () => {
+    expect(jourParDefaut(semaine([]), '2026-09-28')).toBe('LUNDI');
+    expect(jourParDefaut(semaine([]), '2026-12-01')).toBe('DIMANCHE');
+  });
+
+  it('ne garde du jour que les salles et créneaux utiles', () => {
+    const vide = {...cell(0, 0), salleId: 's2', creneauId: 'c1', jour: 'LUNDI' as const};
+    const utile = {...cell(3, 1), salleId: 's1', creneauId: 'c1', jour: 'LUNDI' as const};
+    const autreJour = {...cell(3, 1), salleId: 's1', creneauId: 'c1', jour: 'MARDI' as const};
+
+    const lignes = lignesDuJour(semaine([vide, utile, autreJour]), 'LUNDI');
+
+    expect(lignes.map((l) => l.salle.id)).toEqual(['s1']);
+    expect(lignes[0].cellule.capacite).toBe(3);
   });
 });

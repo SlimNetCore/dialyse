@@ -1,3 +1,28 @@
+<ng-template #patientTpl let-creneau="creneau" let-jour="jour" let-o let-salle="salle">
+  <span [class]="'chip ' + classePatient(o, jour)" data-testid="week-patient">
+    <button (click)="ouvrirPatient(o, salle, creneau, jour)"
+            [matTooltip]="(o.aRisque ? ('PLANNING.SEMAINE.RISQUE' | translate) + ' · ' : '') + ('PLANNING.SEMAINE.CLIC_DETAIL' | translate)"
+            class="chip-name" data-testid="week-patient-open" type="button">
+      {{ o.nom }}
+      @if (o.generateurCode) {
+        <small>{{ o.generateurCode }}</small>
+      }
+    </button>
+    @if (absence(o.patientId, jour); as a) {
+      <mat-icon [matTooltip]="('ABSENCES.STATUTS.' + a.statut) | translate" class="chip-ico" data-testid="week-absent">
+        event_busy
+      </mat-icon>
+    } @else if (declarable(jour, o.patientId)) {
+      <button (click)="ouvrirPatient(o, salle, creneau, jour)"
+              [attr.aria-label]="'PLANNING.SEMAINE.DECLARER_ABSENCE' | translate"
+              [matTooltip]="'PLANNING.SEMAINE.DECLARER_ABSENCE' | translate" class="chip-absent"
+              data-testid="week-declare" type="button">
+        <mat-icon>event_busy</mat-icon>
+      </button>
+    }
+  </span>
+</ng-template>
+
 <div class="week-page">
   <header class="week-head">
     <div>
@@ -30,12 +55,70 @@
     </div>
   </header>
 
+  <mat-button-toggle-group (change)="vue.set($event.value)" [attr.aria-label]="'PLANNING.SEMAINE.VUE' | translate" [hideSingleSelectionIndicator]="true"
+                           [value]="vue()" class="week-views"
+                           data-testid="week-views">
+    <mat-button-toggle data-testid="week-view-semaine" value="SEMAINE">
+      <mat-icon>calendar_view_week</mat-icon>
+      {{ 'PLANNING.SEMAINE.VUE_SEMAINE' | translate }}
+    </mat-button-toggle>
+    <mat-button-toggle data-testid="week-view-jour" value="JOUR">
+      <mat-icon>today</mat-icon>
+      {{ 'PLANNING.SEMAINE.VUE_JOUR' | translate }}
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+
   @if (store.loading()) {
     <mat-progress-bar mode="indeterminate"/>
   }
   @if (store.error(); as err) {
     <p class="week-error" role="alert">{{ err | translate }}</p>
   }
+
+  <mat-card class="week-legend" data-testid="week-legend">
+    <mat-card-header>
+      <mat-card-title>{{ 'PLANNING.SEMAINE.LEGENDE.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="legend-grid">
+        <section>
+          <h4>{{ 'PLANNING.SEMAINE.LEGENDE.CASES' | translate }}</h4>
+          <ul class="legend-list">
+            <li><span class="swatch cell empty"></span>{{ 'PLANNING.SEMAINE.LEGENDE.VIDE' | translate }}</li>
+            <li><span class="swatch cell partial"></span>{{ 'PLANNING.SEMAINE.LEGENDE.PARTIEL' | translate }}</li>
+            <li><span class="swatch cell full"></span>{{ 'PLANNING.SEMAINE.LEGENDE.COMPLET' | translate }}</li>
+            <li><span class="swatch cell over"></span>{{ 'PLANNING.SEMAINE.LEGENDE.SURCHARGE' | translate }}</li>
+            <li><span class="swatch closed"></span>{{ 'PLANNING.SEMAINE.LEGENDE.FERME' | translate }}</li>
+          </ul>
+        </section>
+        <section>
+          <h4>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENTS' | translate }}</h4>
+          <ul class="legend-list">
+            <li><span class="swatch chip"></span>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENT_NORMAL' | translate }}</li>
+            <li><span class="swatch chip risk"></span>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENT_RISQUE' | translate }}</li>
+            <li><span
+              class="swatch chip absent a_qualifier"></span>{{ 'PLANNING.SEMAINE.LEGENDE.ABSENT_A_QUALIFIER' | translate }}
+            </li>
+            <li><span
+              class="swatch chip absent justifiee"></span>{{ 'PLANNING.SEMAINE.LEGENDE.ABSENT_JUSTIFIEE' | translate }}
+            </li>
+            <li><span
+              class="swatch chip absent non_justifiee"></span>{{ 'PLANNING.SEMAINE.LEGENDE.ABSENT_NON_JUSTIFIEE' | translate }}
+            </li>
+            <li><span
+              class="swatch chip absent rattrapee"></span>{{ 'PLANNING.SEMAINE.LEGENDE.ABSENT_RATTRAPEE' | translate }}
+            </li>
+          </ul>
+        </section>
+        <section class="legend-explain">
+          <h4>{{ 'PLANNING.SEMAINE.LEGENDE.LIRE' | translate }}</h4>
+          <p data-testid="week-legend-ratio">{{ 'PLANNING.SEMAINE.LEGENDE.RATIO' | translate }}</p>
+          <p>{{ 'PLANNING.SEMAINE.LEGENDE.GENERATEUR' | translate }}</p>
+          <p>{{ 'PLANNING.SEMAINE.LEGENDE.INTERACTIF' | translate }}</p>
+        </section>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
   @if (store.semaine(); as s) {
     @if (s.patientsAReplanifier > 0) {
@@ -47,7 +130,7 @@
 
     @if (lignes().length === 0) {
       <p class="week-sub">{{ 'PLANNING.SEMAINE.EMPTY_ROWS' | translate }}</p>
-    } @else {
+    } @else if (vue() === 'SEMAINE') {
       <div class="week-scroll">
         <table class="week-table" data-testid="week-table">
           <thead>
@@ -56,7 +139,7 @@
             <th>{{ 'PATIENT_FORM.POSITION' | translate }}</th>
             @for (j of jours; track j) {
               @let jp = jourDe(j);
-              <th [class.closed]="ferme(j)">
+              <th [class.closed]="ferme(j)" [class.today]="jp?.date === aujourdhuiIso">
                 {{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}
                 @if (jp) {
                   <small>{{ jp.date | date: 'dd/MM' }}</small>
@@ -80,16 +163,14 @@
                   <td [class.closed]="ferme(j)" [class]="'cell ' + etat(c)">
                     @if (c) {
                       @for (o of c.occupants; track o.patientId) {
-                        <span [class.risk]="o.aRisque" [matTooltip]="o.aRisque ? ('PLANNING.SEMAINE.RISQUE' | translate) : ''"
-                              class="chip">
-                          {{ o.nom }}
-                          @if (o.generateurCode) {
-                            <small>{{ o.generateurCode }}</small>
-                          }
-                        </span>
+                        <ng-container
+                          [ngTemplateOutletContext]="{$implicit: o, salle: ligne.salle.id, creneau: ligne.creneau.id, jour: j}"
+                          [ngTemplateOutlet]="patientTpl"/>
                       }
                       @if (c.capacite > 0) {
-                        <small class="cap">{{ c.occupants.length }}/{{ c.capacite }}</small>
+                        <small
+                          [matTooltip]="'PLANNING.SEMAINE.LEGENDE.RATIO_TIP' | translate: {n: c.occupants.length, m: c.capacite}"
+                          class="cap">{{ c.occupants.length }}/{{ c.capacite }}</small>
                       }
                     }
                   </td>
@@ -99,6 +180,68 @@
           </tbody>
         </table>
       </div>
+    } @else {
+      <section class="day-view" data-testid="week-day-view">
+        <mat-button-toggle-group (change)="choisirJour($event.value)" [hideSingleSelectionIndicator]="true"
+                                 [value]="jourActif()" class="day-tabs">
+          @for (j of jours; track j) {
+            @let jp = jourDe(j);
+            <mat-button-toggle [class.closed]="ferme(j)" [value]="j">
+              {{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}
+              @if (jp) {
+                <small>{{ jp.date | date: 'dd/MM' }}</small>
+              }
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+
+        @if (jourActif(); as ja) {
+          @let jpa = jourDe(ja);
+          <h2 class="day-title" data-testid="week-day-title">
+            {{ ('PATIENT_FORM.' + ja) | translate }}
+            @if (jpa) {
+              {{ jpa.date | date: 'dd/MM/yyyy' }}
+            }
+          </h2>
+          @if (ferme(ja)) {
+            <p class="week-warn" role="status">
+              <mat-icon>event_busy</mat-icon>
+              {{ 'PLANNING.SEMAINE.JOUR_FERME' | translate }}
+              @if (jpa?.fermetureMotif) {
+                — {{ jpa!.fermetureMotif }}
+              }
+            </p>
+          }
+          @if (lignesJour().length === 0) {
+            <p class="week-sub" data-testid="week-day-empty">{{ 'PLANNING.SEMAINE.AUCUN_PATIENT_JOUR' | translate }}</p>
+          }
+          <div class="day-cards">
+            @for (l of lignesJour(); track l.salle.id + l.creneau.id) {
+              <mat-card [class]="'day-card ' + etat(l.cellule)" data-testid="week-day-card">
+                <mat-card-header>
+                  <mat-card-title>{{ l.salle.nom }} · {{ l.creneau.libelle }}</mat-card-title>
+                  <mat-card-subtitle>
+                    <span
+                      [matTooltip]="'PLANNING.SEMAINE.LEGENDE.RATIO_TIP' | translate: {n: l.cellule.occupants.length, m: l.cellule.capacite}"
+                      class="day-cap">
+                      {{ l.cellule.occupants.length }}/{{ l.cellule.capacite }}
+                    </span>
+                  </mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                  @for (o of l.cellule.occupants; track o.patientId) {
+                    <ng-container
+                      [ngTemplateOutletContext]="{$implicit: o, salle: l.salle.id, creneau: l.creneau.id, jour: ja}"
+                      [ngTemplateOutlet]="patientTpl"/>
+                  } @empty {
+                    <p class="week-sub">{{ 'PLANNING.SEMAINE.CASE_VIDE' | translate }}</p>
+                  }
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        }
+      </section>
     }
 
     <mat-card class="week-conflicts">

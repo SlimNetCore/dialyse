@@ -2,6 +2,11 @@ import {MotifAbsence, StatutAbsence} from '../../core/api/absence-patient-api.se
 
 export type ActionAbsence = 'qualifier' | 'rattrapage' | 'annuler';
 
+/** Date du jour au format ISO (calendrier local). */
+export function todayIso(now: Date = new Date()): string {
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 /** Une absence rattrapée ou annulée n'est plus modifiable. */
 export const estModifiable = (statut: StatutAbsence): boolean =>
   statut === 'A_QUALIFIER' || statut === 'JUSTIFIEE' || statut === 'NON_JUSTIFIEE';

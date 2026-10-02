@@ -148,6 +148,21 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
+    void the_week_view_lists_the_non_cancelled_absences_of_the_week_of_the_centre() {
+        service.declarer(C1, absent, jour, MotifAbsence.MALADIE, null, USER);
+        var semaine = service.semaine(C1, jour.plusDays(1));
+
+        assertEquals(1, semaine.size());
+        assertEquals(absent, semaine.get(0).patientId());
+        assertEquals(StatutAbsence.JUSTIFIEE, semaine.get(0).statut());
+        assertEquals(0, service.semaine(C2, jour).size(), "isolation par centre");
+        assertEquals(0, service.semaine(C1, jour.plusDays(14)).size(), "autre semaine");
+
+        service.annuler(C1, semaine.get(0).absenceId(), "Erreur", USER, true);
+        assertEquals(0, service.semaine(C1, jour).size(), "une absence annulée disparaît du planning");
+    }
+
+    @Test
     void a_closed_day_produces_no_absence() {
         jdbc.update("INSERT INTO center_holiday (id, center_id, day_date, label) VALUES (?,?,?,?)", UUID.randomUUID(), C1,
                 Date.valueOf(jour), "Férié test");

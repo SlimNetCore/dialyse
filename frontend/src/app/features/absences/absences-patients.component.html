@@ -4,14 +4,14 @@
       <h1>{{ 'ABSENCES.TITLE' | translate }}</h1>
       <p class="abs-sub">{{ 'ABSENCES.SUBTITLE' | translate }}</p>
     </div>
-    <button (click)="declareOpen.set(!declareOpen())" color="primary" data-testid="abs-declare-toggle" mat-flat-button
+    <button (click)="toggleDeclare()" color="primary" data-testid="abs-declare-toggle" mat-flat-button
             type="button">
       <mat-icon>{{ declareOpen() ? 'close' : 'add' }}</mat-icon>
       {{ 'ABSENCES.DECLARER' | translate }}
     </button>
   </header>
 
-  @if (store.error()) {
+  @if (store.error() && !declareOpen() && !action()) {
     <p class="abs-feedback error" role="alert">{{ store.error()! | translate }}</p>
   }
   @if (store.successMessage()) {
@@ -84,6 +84,12 @@
               <mat-hint>{{ 'ABSENCES.COMMENTAIRE_REQUIS' | translate }}</mat-hint>
             }
           </mat-form-field>
+          @if (store.error()) {
+            <p class="abs-feedback error abs-full" data-testid="abs-declare-error" role="alert">
+              <mat-icon>error</mat-icon>
+              {{ store.error()! | translate }}
+            </p>
+          }
           <div class="abs-actions abs-full">
             <button [disabled]="!canDeclare()" color="primary" data-testid="abs-save" mat-flat-button type="submit">
               <mat-icon>save</mat-icon>
@@ -251,6 +257,12 @@
                 <mat-hint>{{ 'ABSENCES.COMMENTAIRE_REQUIS' | translate }}</mat-hint>
               }
             </mat-form-field>
+          }
+          @if (store.error()) {
+            <p class="abs-feedback error abs-full" data-testid="abs-action-error" role="alert">
+              <mat-icon>error</mat-icon>
+              {{ store.error()! | translate }}
+            </p>
           }
           <div class="abs-actions abs-full">
             <button (click)="closeAction()" mat-button type="button">{{ 'ABSENCES.ACTIONS.FERMER' | translate }}

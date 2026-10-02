@@ -11,4 +11,9 @@ export const seancesRoutes: Routes = [
     loadComponent: () =>
       import('../planning/planning-semaine.component').then((m) => m.PlanningSemaineComponent),
   },
+  {
+    path: 'absences-patients',
+    loadComponent: () =>
+      import('../absences/absences-patients.component').then((m) => m.AbsencesPatientsComponent),
+  },
 ];
