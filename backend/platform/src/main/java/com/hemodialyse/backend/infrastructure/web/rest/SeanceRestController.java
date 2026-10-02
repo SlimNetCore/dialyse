@@ -396,7 +396,10 @@ public class SeanceRestController {
         ));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    /**
+     * Le forfait d'une séance relève de l'administration (facturation) : l'infirmier ne peut pas le modifier.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{seanceId}/forfait")
     public ResponseEntity<?> updateForfait(@PathVariable UUID seanceId,
                                            @RequestBody @Valid UpdateSeanceForfaitRequest request) {

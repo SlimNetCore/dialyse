@@ -104,7 +104,7 @@ class SeanceDetailsIntegrationTest {
                                   "userId": "inf-01"
                                 }
                                 """.formatted(CENTER_ID, FORFAIT_OVERRIDE_ID))
-                        .with(user("inf").roles("INFIRMIER")))
+                        .with(user("admin").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.forfait.id").value(FORFAIT_OVERRIDE_ID.toString()))
                 .andExpect(jsonPath("$.forfait.nom").value("Forfait modifié séance"));
@@ -116,6 +116,37 @@ class SeanceDetailsIntegrationTest {
                 .andExpect(jsonPath("$.forfait.id").value(FORFAIT_OVERRIDE_ID.toString()))
                 .andExpect(jsonPath("$.forfait.nom").value("Forfait modifié séance"))
                 .andExpect(jsonPath("$.forfait.updatedBy").value("inf-01"));
+    }
+
+    @Test
+    void updateForfait_should_be_refused_to_a_nurse_and_leave_the_forfait_unchanged() throws Exception {
+        cleanup();
+        seedPatient();
+        seedGenerateur();
+        seedForfait();
+        seedForfaitOverride();
+        seedPec();
+        seedSeance();
+
+        for (String role : new String[]{"INFIRMIER", "MEDECIN", "SECRETAIRE"}) {
+            mockMvc.perform(put("/api/v1/seances/{seanceId}/forfait", SEANCE_ID)
+                            .contentType("application/json")
+                            .content("""
+                                    {
+                                      "centerId": "%s",
+                                      "forfaitId": "%s",
+                                      "userId": "inf-01"
+                                    }
+                                    """.formatted(CENTER_ID, FORFAIT_OVERRIDE_ID))
+                            .with(user("u").roles(role)))
+                    .andExpect(status().isForbidden());
+        }
+
+        mockMvc.perform(get("/api/v1/seances/{seanceId}", SEANCE_ID)
+                        .param("centerId", CENTER_ID.toString())
+                        .with(user("inf").roles("INFIRMIER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.forfait.id").value(FORFAIT_ID.toString()));
     }
 
     private void seedPatient() {

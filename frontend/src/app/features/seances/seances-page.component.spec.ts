@@ -102,6 +102,8 @@ type SeanceStoreMock = {
 };
 
 describe('SeancesPageComponent', () => {
+  /** Rôles de l'utilisateur simulé (infirmier par défaut, remis à zéro avant chaque test). */
+  let rolesCourants: string[] = ['INFIRMIER'];
   let storeMock: SeanceStoreMock;
   let appShellMock: {
     currentCenterId: () => string;
@@ -109,6 +111,7 @@ describe('SeancesPageComponent', () => {
   };
 
   beforeEach(async () => {
+    rolesCourants = ['INFIRMIER'];
     storeMock = {
       selectSeance: vi.fn(),
       loadSeanceSummary: vi.fn(),
@@ -201,7 +204,10 @@ describe('SeancesPageComponent', () => {
         provideZonelessChangeDetection(),
         {provide: SeanceStore, useValue: storeMock},
         {provide: AppShellStore, useValue: appShellMock},
-        {provide: AuthStore, useValue: {hasRole: (role: string) => role === 'INFIRMIER', username: () => 'inf-01'}},
+        {
+          provide: AuthStore,
+          useValue: {hasRole: (role: string) => rolesCourants.includes(role), username: () => 'inf-01'}
+        },
         {provide: BackendApiService, useValue: {}},
         {provide: WebSocketService, useValue: {lastEvent: () => null}},
         {provide: TranslateService, useValue: {currentLang: 'fr', get: vi.fn(), instant: (key: string) => key}},
@@ -337,7 +343,26 @@ describe('SeancesPageComponent', () => {
     });
   });
 
-  it('should save forfait when seance is not facturee', () => {
+  it('should not let a nurse change the forfait but keep her other seance entries', () => {
+    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
+    storeMock['summary'] = vi.fn(() => ({
+      seance: {id: 'seance-123', centerId: CENTER_ID, patientId: 'patient-1', dateSeance: '2026-07-24', status: 'CREE'},
+      patient: {id: 'patient-1', codePatient: 'PAT-001', nom: 'Dupont', prenom: 'Jean'},
+      forfait: {id: 'forfait-1', nom: 'Forfait HD', prix: 3500},
+    }));
+    storeMock['selectedForfaitId'] = vi.fn(() => 'forfait-2');
+
+    component['saveForfait']();
+
+    expect(component['canEditForfait']()).toBe(false);
+    expect(storeMock.saveForfait).not.toHaveBeenCalled();
+    expect(component['canEditParamedical']()).toBe(true);
+    expect(component['canAdministerAnemie']()).toBe(true);
+    expect(component['canScanSeances']()).toBe(true);
+  });
+
+  it('should save forfait when an administrator edits a seance that is not facturee', () => {
+    rolesCourants = ['ADMIN'];
     const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
     storeMock['summary'] = vi.fn(() => ({
       seance: {id: 'seance-123', centerId: CENTER_ID, patientId: 'patient-1', dateSeance: '2026-07-24', status: 'CREE'},

@@ -110,7 +110,8 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly canOpenSeanceDetails = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'MEDECIN'));
   protected readonly isSeanceFacturee = computed(() => this.summary()?.seance.status === 'FACTUREE');
   protected readonly canEditDate = computed(() => this.hasAnyRole('ADMIN') && !this.isSeanceFacturee());
-  protected readonly canEditForfait = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER') && !this.isSeanceFacturee());
+  /** Le forfait relève de l'administration : l'infirmier ne le modifie pas (il saisit constantes, consommables, anémie et remarques). */
+  protected readonly canEditForfait = computed(() => this.hasAnyRole('ADMIN') && !this.isSeanceFacturee());
   protected readonly canEditParamedical = computed(() =>
     this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE') && !this.isSeanceFacturee()
   );
