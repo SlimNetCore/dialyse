@@ -4,6 +4,7 @@ import {
   computed,
   EventEmitter,
   inject,
+  input,
   Input,
   OnChanges,
   OnInit,
@@ -27,6 +28,9 @@ import {
 } from '../../../core/state/referentials.store';
 import {SignalForm} from '../../../shared/forms/signal-form';
 import {GmaoApiService, StatutEquipement} from '../../../core/api/gmao-api.service';
+import {PropositionAffectation} from '../../../core/api/planning-api.service';
+import {AffectationSuggestionsComponent} from './affectation-suggestions/affectation-suggestions.component';
+import {joursCoches, joursVersFlags} from './affectation-suggestions/affectation-suggestions.util';
 
 interface AffectationModel {
   salleId: string | null;
@@ -72,6 +76,7 @@ type AffectationDayKey =
     MatCheckboxModule,
     TranslateModule,
     SearchableSelectComponent,
+    AffectationSuggestionsComponent,
   ],
   templateUrl: './step-affectation.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -79,6 +84,8 @@ type AffectationDayKey =
 })
 export class StepAffectationComponent implements OnInit, OnChanges {
   @Input() readonly = false;
+  /** Patient en cours de modification : sa place actuelle est comptée comme libre par l'aide au placement. */
+  readonly patientId = input<string | null>(null);
   @Output() dataChange = new EventEmitter<Record<string, any>>();
   @Output() validChange = new EventEmitter<boolean>();
 
@@ -141,6 +148,25 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     if (key === 'generateurId') {
       this.checkDisponibilite(item?.id ?? null);
     }
+    this.emit();
+  }
+
+  /** Jours cochés sur la fiche : imposés à l'aide au placement. */
+  readonly joursImposes = computed(() => joursCoches(this.form.value()));
+
+  /**
+   * Applique une place proposée par l'aide au placement : salle, créneau, générateur et jours de dialyse. La
+   * disponibilité du générateur est revérifiée (sécurité patient) comme pour une sélection manuelle.
+   */
+  appliquerProposition(p: PropositionAffectation): void {
+    if (this.readonly) return;
+    this.form.patch({
+      salleId: p.salle.id,
+      positionId: p.creneau.id,
+      generateurId: p.generateur.id,
+      ...joursVersFlags(p.jours),
+    });
+    this.checkDisponibilite(p.generateur.id);
     this.emit();
   }
 

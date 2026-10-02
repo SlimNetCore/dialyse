@@ -1,0 +1,175 @@
+.week-page {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.week-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.week-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.week-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.week-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.week-range {
+  min-width: 190px;
+  text-align: center;
+}
+
+.week-error {
+  color: var(--mat-sys-error, #b3261e);
+  margin: 0;
+}
+
+.week-warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fff3e0;
+  color: #8a4b00;
+}
+
+/* défilement horizontal local : la page ne déborde jamais */
+.week-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--app-border, #d9dee5);
+  border-radius: 8px;
+}
+
+.week-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.week-table th,
+.week-table td {
+  border: 1px solid var(--app-border, #e3e7ed);
+  padding: 6px 8px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.week-table thead th {
+  text-align: center;
+  background: var(--app-surface-alt, #f3f5f8);
+}
+
+.week-table th small {
+  display: block;
+  font-weight: 400;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.closed,
+.week-table td.closed {
+  background: repeating-linear-gradient(45deg, #eceff3, #eceff3 6px, #f6f7f9 6px, #f6f7f9 12px);
+}
+
+.closed-tag {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.cell {
+  min-width: 112px;
+}
+
+.cell.full {
+  background: #fdecea;
+}
+
+.cell.partial {
+  background: #fff6e5;
+}
+
+.cell.empty {
+  background: #eaf6ee;
+}
+
+.cell.over {
+  background: #f8c9c4;
+}
+
+.chip {
+  display: block;
+  margin-bottom: 3px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #e3ecfb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip.risk {
+  background: #fbe0e0;
+  border: 1px solid #d96b6b;
+}
+
+.chip small {
+  margin-left: 4px;
+  color: #4a5a70;
+}
+
+.cap {
+  display: block;
+  text-align: right;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.conflict-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.conflict-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+
+@media (max-width: 767px) {
+  .week-page {
+    padding: 12px;
+  }
+
+  .week-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .week-range {
+    min-width: 0;
+    flex: 1;
+  }
+}

@@ -1900,6 +1900,76 @@
     "CLOTUREE_TITLE": "PEC CLÔTURÉE",
     "CLOTUREE_DESC": "Prise en charge expirée — séance bloquée"
   },
+  "PLANNING": {
+    "TITLE": "Aide au placement",
+    "SUBTITLE": "Salles ayant une place, créneaux et générateurs libres pour ce patient — classés du plus adapté au moins adapté.",
+    "SEANCES": "Séances par semaine",
+    "REFRESH": "Actualiser",
+    "JOURS_IMPOSES_NOTE": "Les jours cochés ci-dessous sont imposés : seules les places libres ces jours-là sont proposées.",
+    "ERROR": "Impossible de calculer les places disponibles",
+    "ISOLEMENT": "Patient à risque infectieux (VHB, VHC, VIH) : salle d'isolement",
+    "ISOLEMENT_AUTO_NOTE": "Risque détecté d'après les sérologies du patient ; vous pouvez le modifier.",
+    "FERMETURE_NOTE": "Fermeture le {{date}} : {{motif}}",
+    "ALERTE": {
+      "AUCUNE_SALLE_ISOLEMENT": "Aucune salle d'isolement n'est paramétrée pour ce centre : un patient à risque ne peut pas être placé. Paramétrez-la dans Administration > Planning du centre.",
+      "JOURS_IMPOSES_FERMES": "Un des jours imposés est fermé dans ce centre (fermeture hebdomadaire)."
+    },
+    "SEMAINE": {
+      "TITLE": "Planning de la semaine",
+      "SUBTITLE": "Qui dialyse où, quel jour et sur quel générateur. Les jours fermés sont hachurés.",
+      "PREV": "Semaine précédente",
+      "NEXT": "Semaine suivante",
+      "TODAY": "Cette semaine",
+      "SEMAINE_DU": "Semaine du {{debut}} au {{fin}}",
+      "FERME": "Fermé",
+      "RISQUE": "Patient à risque infectieux",
+      "EMPTY_ROWS": "Aucune salle ou aucun créneau n'est configuré pour ce centre.",
+      "A_REPLANIFIER": "{{count}} patient(s) à replanifier : ils sont placés sur un jour fermé.",
+      "CONFLITS_TITLE": "Conflits",
+      "AUCUN_CONFLIT": "Aucun conflit sur cette semaine.",
+      "CONFLIT": {
+        "GENERATEUR_DOUBLE": "Générateur réservé deux fois",
+        "SALLE_SURCHARGEE": "Salle surchargée",
+        "GENERATEUR_INDISPONIBLE": "Générateur hors service ou d'une autre salle",
+        "SANS_GENERATEUR": "Patient sans générateur",
+        "ISOLEMENT_NON_RESPECTE": "Règle d'isolement non respectée",
+        "GENERATEUR_MIXTE": "Générateur partagé entre patients à risque et sans risque"
+      },
+      "ERR": {
+        "LOAD": "Impossible de charger le planning de la semaine"
+      }
+    },
+    "PARAMS": {
+      "TITLE": "Planning du centre",
+      "SUBTITLE": "Jours d'ouverture et salles d'isolement : ils pilotent l'aide au placement et le planning de la semaine.",
+      "JOURS_TITLE": "Jours d'ouverture",
+      "JOURS_HINT": "Aucune séance n'est proposée les jours non cochés. Les fériés et fermetures exceptionnelles se règlent dans le calendrier clinique.",
+      "JOURS_REQUIS": "Cochez au moins un jour d'ouverture.",
+      "ISOLEMENT_TITLE": "Salles d'isolement",
+      "ISOLEMENT_HINT": "Réservées aux patients à risque infectieux (VHB, VHC, VIH) ; les autres patients n'y sont jamais placés.",
+      "AUCUNE_SALLE": "Aucune salle n'est définie pour ce centre.",
+      "SAVED_OK": "Paramètres enregistrés",
+      "ERR": {
+        "LOAD": "Impossible de charger les paramètres du planning",
+        "SAVE": "Enregistrement impossible"
+      }
+    },
+    "NO_PLACE": "Aucune place ne correspond : essayez moins de séances, d'autres jours ou un autre créneau.",
+    "AUTRES_GENERATEURS": "+{{count}} autre(s) libre(s)",
+    "SCORE": "Adéquation du placement",
+    "APPLY": "Appliquer",
+    "APPLIED": "Appliqué",
+    "GRID_TITLE": "Disponibilités par salle et créneau",
+    "GRID_HINT": "Places libres / générateurs en service, pour chaque jour. Vert : libre — orange : partiellement occupé — rouge : complet.",
+    "RAISON": {
+      "JOURS_IMPOSES_LIBRES": "Jours choisis libres",
+      "JOURS_BIEN_ESPACES": "Jours bien espacés",
+      "CRENEAU_PREFERE": "Créneau choisi",
+      "SALLE_PREFEREE": "Salle choisie",
+      "SALLE_PEU_CHARGEE": "Salle peu chargée",
+      "SALLE_ISOLEMENT": "Salle d'isolement"
+    }
+  },
   "GROUPES_ARTICLES": {
     "TITLE": "Groupes d'articles",
     "SUBTITLE": "Regroupez des articles sous un nom (ex. KIT CNAS) : la direction suit la valorisation de leur stock sur une période.",
@@ -1929,6 +1999,8 @@
   },
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "Groupes d'articles",
+    "ADMIN_PLANNING": "Planning du centre",
+    "PLANNING_SEMAINE": "Planning de la semaine",
     "DIRECTION": "Direction",
     "DASHBOARD": "Tableau de bord",
     "PATIENTS": "Patients",

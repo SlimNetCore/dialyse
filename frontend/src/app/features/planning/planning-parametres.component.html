@@ -1,0 +1,57 @@
+<div class="params-page">
+  <header class="params-head">
+    <h1>{{ 'PLANNING.PARAMS.TITLE' | translate }}</h1>
+    <p class="params-sub">{{ 'PLANNING.PARAMS.SUBTITLE' | translate }}</p>
+  </header>
+
+  @if (store.loading() || store.saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error(); as err) {
+    <p class="params-error" role="alert">{{ err | translate }}</p>
+  }
+  @if (store.successMessage(); as ok) {
+    <p class="params-ok" role="status">{{ ok | translate }}</p>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'PLANNING.PARAMS.JOURS_TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'PLANNING.PARAMS.JOURS_HINT' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="params-list" data-testid="params-jours">
+      @for (j of jours; track j) {
+        <mat-checkbox (change)="basculerJour(j, $event.checked)" [checked]="joursOuverts().has(j)">
+          {{ ('PATIENT_FORM.' + j) | translate }}
+        </mat-checkbox>
+      }
+      @if (joursOuverts().size === 0) {
+        <p class="params-error" role="alert">{{ 'PLANNING.PARAMS.JOURS_REQUIS' | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'PLANNING.PARAMS.ISOLEMENT_TITLE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'PLANNING.PARAMS.ISOLEMENT_HINT' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="params-list" data-testid="params-salles">
+      @for (s of sallesStore.items(); track s.id) {
+        <mat-checkbox (change)="basculerSalle(s.id, $event.checked)" [checked]="sallesIsolement().has(s.id)">
+          {{ s.label }}
+        </mat-checkbox>
+      } @empty {
+        <p class="params-sub">{{ 'PLANNING.PARAMS.AUCUNE_SALLE' | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <div class="params-actions">
+    <button (click)="enregistrer()" [disabled]="!canSave()" color="primary" data-testid="params-save" mat-flat-button
+            type="button">
+      <mat-icon>save</mat-icon>
+      {{ 'COMMON.SAVE' | translate }}
+    </button>
+  </div>
+</div>

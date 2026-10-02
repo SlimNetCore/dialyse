@@ -1532,6 +1532,76 @@
     "CLOTUREE_TITLE": "YETTWADEQ",
     "CLOTUREE_DESC": "Takfalit tfuk — taɣimit tettwaḥbes"
   },
+  "PLANNING": {
+    "TITLE": "Tallelt n usuddes",
+    "SUBTITLE": "Tixxamin yesɛan amkan, isuddisen d yimawalen ilelliyen i umuḍin-a — yettwasmizzwer seg wid yettwaεelmen akk ɣer wid yettwaεelmen cwiṭ.",
+    "SEANCES": "Isuddisen deg ddurt",
+    "REFRESH": "Smiren",
+    "JOURS_IMPOSES_NOTE": "Ussan yettwafren sdaw ɣur-sen ilaq: ala imukan ilelliyen deg ussan-nni i d-yettwasumren.",
+    "ERROR": "Ur izmir ara ad yettwaḥseb umkan yellan",
+    "ISOLEMENT": "Anebdal yesɛan ugur n uɣessu (VHB, VHC, VIH): taxxamt n usnaw",
+    "ISOLEMENT_AUTO_NOTE": "Ugur yettwafka seg yimsirmen n unebdal; tzemreḍ ad t-tbeddleḍ.",
+    "FERMETURE_NOTE": "Taɣellist ass n {{date}}: {{motif}}",
+    "ALERTE": {
+      "AUCUNE_SALLE_ISOLEMENT": "Ulac taxxamt n usnaw yettwasbadun i uɣallis-agi: anebdal yesɛan ugur ur izmir ara ad yettwaserdes. Sbadu-tt deg Tadbelt > Amuddu n uɣallis.",
+      "JOURS_IMPOSES_FERMES": "Yiwen seg ussan yettwafernen yeɣlaq deg uɣallis-agi (taɣellist n yimalas)."
+    },
+    "SEMAINE": {
+      "TITLE": "Amuddu n yimalas",
+      "SUBTITLE": "Anwa i ixeddmen anida, ass acu akked tamacint tuɣ. Ussan iɣelqen ttwaneḥsen s yizirigen.",
+      "PREV": "Imalas yezrin",
+      "NEXT": "Imalas i d-iteddun",
+      "TODAY": "Imalas-agi",
+      "SEMAINE_DU": "Imalas seg {{debut}} ɣer {{fin}}",
+      "FERME": "Yeɣlaq",
+      "RISQUE": "Anebdal yesɛan ugur n uɣessu",
+      "EMPTY_ROWS": "Ulac taxxamt neɣ asmel yettwasbadun i uɣallis-agi.",
+      "A_REPLANIFIER": "{{count}} n yinebdalen ilaqen ad ttwaɛiwen: llan deg wass yeɣlaq.",
+      "CONFLITS_TITLE": "Isenfal",
+      "AUCUN_CONFLIT": "Ulac asenfal deg yimalas-agi.",
+      "CONFLIT": {
+        "GENERATEUR_DOUBLE": "Tamacint yettwaḥeggez sin tikkal",
+        "SALLE_SURCHARGEE": "Taxxamt tebbwi aṭas",
+        "GENERATEUR_INDISPONIBLE": "Tamacint ur teddu ara neɣ deg texxamt-nniḍen",
+        "SANS_GENERATEUR": "Anebdal war tamacint",
+        "ISOLEMENT_NON_RESPECTE": "Ilugan n usnaw ur ttwaḥerzen ara",
+        "GENERATEUR_MIXTE": "Tamacint yemyezwar gar inebdalen yesɛan ugur d wid ur nesɛi ara"
+      },
+      "ERR": {
+        "LOAD": "Ur izmir ara ad yettwasali umuddu n yimalas"
+      }
+    },
+    "PARAMS": {
+      "TITLE": "Amuddu n uɣallis",
+      "SUBTITLE": "Ussan n ukeccam d texxamin n usnaw: ttḥekkamen deg umallal n usuddes d umuddu n yimalas.",
+      "JOURS_TITLE": "Ussan n ukeccam",
+      "JOURS_HINT": "Ulac tiɣimit i d-yettwasumren deg ussan ur yettwafren ara. Ussan n tfaska d taɣellist tuzzigt ttwaseggmen deg useggas n tgrawla.",
+      "JOURS_REQUIS": "Fren ma drus yiwen wass n ukeccam.",
+      "ISOLEMENT_TITLE": "Texxamin n usnaw",
+      "ISOLEMENT_HINT": "Tettwaḥeggzent i yinebdalen yesɛan ugur n uɣessu (VHB, VHC, VIH); inebdalen-nniḍen ur ttwaserdsen ara dinna.",
+      "AUCUNE_SALLE": "Ulac taxxamt yettwasbadun i uɣallis-agi.",
+      "SAVED_OK": "Iɣewwaren ttwaklasen",
+      "ERR": {
+        "LOAD": "Ur izmir ara ad yettwasali iɣewwaren n umuddu",
+        "SAVE": "Ur izmir ara ad yettwaklas"
+      }
+    },
+    "NO_PLACE": "Ulac amkan yernan: ɛreḍ drus n yisuddisen, ussan niḍen neɣ asuddis niḍen.",
+    "AUTRES_GENERATEURS": "+{{count}} nniḍen i ilelliyen",
+    "SCORE": "Askuti n usuddes",
+    "APPLY": "Snes",
+    "APPLIED": "Yettwasnes",
+    "GRID_TITLE": "Tilelli s texxamt d usuddis",
+    "GRID_HINT": "Imukan ilelliyen / imawalen n useqdec, i yal ass. Azegzaw: ilelli — aqenṭar: yewɛer cwiṭ — azeggaɣ: yeččur.",
+    "RAISON": {
+      "JOURS_IMPOSES_LIBRES": "Ussan yettwafren ilelliyen",
+      "JOURS_BIEN_ESPACES": "Ussan yettwabeεden akken iwata",
+      "CRENEAU_PREFERE": "Asuddis yettwafren",
+      "SALLE_PREFEREE": "Taxxamt yettwafren",
+      "SALLE_PEU_CHARGEE": "Taxxamt tecfa drus",
+      "SALLE_ISOLEMENT": "Taxxamt n usnaw"
+    }
+  },
   "GROUPES_ARTICLES": {
     "TITLE": "Igrawen n yimsalen",
     "SUBTITLE": "Sdukkel imsalen ddaw yisem (amedya KIT CNAS): tegdurt tettḥawil ssuma n usenfaṛ-nsen deg tallit.",
@@ -1561,6 +1631,8 @@
   },
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "Igrawen n yimsalen",
+    "ADMIN_PLANNING": "Amuddu n uɣallis",
+    "PLANNING_SEMAINE": "Amuddu n yimalas",
     "DIRECTION": "Tegdurt",
     "DASHBOARD": "Tafelwit n uselkim",
     "PATIENTS": "Imdanen",

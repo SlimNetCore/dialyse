@@ -1,0 +1,130 @@
+<div class="week-page">
+  <header class="week-head">
+    <div>
+      <h1>{{ 'PLANNING.SEMAINE.TITLE' | translate }}</h1>
+      <p class="week-sub">{{ 'PLANNING.SEMAINE.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="week-nav">
+      <button (click)="precedente()" [attr.aria-label]="'PLANNING.SEMAINE.PREV' | translate"
+              [disabled]="store.loading()"
+              data-testid="week-prev" mat-icon-button type="button">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      @if (store.semaine(); as s) {
+        <strong class="week-range" data-testid="week-range">
+          {{
+            'PLANNING.SEMAINE.SEMAINE_DU' | translate: {
+              debut: (s.debut | date: 'dd/MM/yyyy'),
+              fin: (s.fin | date: 'dd/MM/yyyy')
+            }
+          }}
+        </strong>
+      }
+      <button (click)="suivante()" [attr.aria-label]="'PLANNING.SEMAINE.NEXT' | translate" [disabled]="store.loading()"
+              data-testid="week-next" mat-icon-button type="button">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button (click)="aujourdhui()" [disabled]="store.loading()" mat-stroked-button type="button">
+        {{ 'PLANNING.SEMAINE.TODAY' | translate }}
+      </button>
+    </div>
+  </header>
+
+  @if (store.loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error(); as err) {
+    <p class="week-error" role="alert">{{ err | translate }}</p>
+  }
+
+  @if (store.semaine(); as s) {
+    @if (s.patientsAReplanifier > 0) {
+      <p class="week-warn" data-testid="week-replan" role="status">
+        <mat-icon>event_busy</mat-icon>
+        {{ 'PLANNING.SEMAINE.A_REPLANIFIER' | translate: {count: s.patientsAReplanifier} }}
+      </p>
+    }
+
+    @if (lignes().length === 0) {
+      <p class="week-sub">{{ 'PLANNING.SEMAINE.EMPTY_ROWS' | translate }}</p>
+    } @else {
+      <div class="week-scroll">
+        <table class="week-table" data-testid="week-table">
+          <thead>
+          <tr>
+            <th>{{ 'PATIENT_FORM.SALLE' | translate }}</th>
+            <th>{{ 'PATIENT_FORM.POSITION' | translate }}</th>
+            @for (j of jours; track j) {
+              @let jp = jourDe(j);
+              <th [class.closed]="ferme(j)">
+                {{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}
+                @if (jp) {
+                  <small>{{ jp.date | date: 'dd/MM' }}</small>
+                  @if (ferme(j)) {
+                    <small [matTooltip]="jp.fermetureMotif ?? ''" class="closed-tag">
+                      {{ 'PLANNING.SEMAINE.FERME' | translate }}
+                    </small>
+                  }
+                }
+              </th>
+            }
+          </tr>
+          </thead>
+          <tbody>
+            @for (ligne of lignes(); track ligne.salle.id + ligne.creneau.id) {
+              <tr>
+                <th scope="row">{{ ligne.salle.nom }}</th>
+                <td>{{ ligne.creneau.libelle }}</td>
+                @for (j of jours; track j) {
+                  @let c = cellule(ligne.salle.id, ligne.creneau.id, j);
+                  <td [class.closed]="ferme(j)" [class]="'cell ' + etat(c)">
+                    @if (c) {
+                      @for (o of c.occupants; track o.patientId) {
+                        <span [class.risk]="o.aRisque" [matTooltip]="o.aRisque ? ('PLANNING.SEMAINE.RISQUE' | translate) : ''"
+                              class="chip">
+                          {{ o.nom }}
+                          @if (o.generateurCode) {
+                            <small>{{ o.generateurCode }}</small>
+                          }
+                        </span>
+                      }
+                      @if (c.capacite > 0) {
+                        <small class="cap">{{ c.occupants.length }}/{{ c.capacite }}</small>
+                      }
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <mat-card class="week-conflicts">
+      <mat-card-header>
+        <mat-card-title>{{ 'PLANNING.SEMAINE.CONFLITS_TITLE' | translate }} ({{ s.conflits.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (s.conflits.length === 0) {
+          <p class="week-sub" data-testid="week-no-conflict">{{ 'PLANNING.SEMAINE.AUCUN_CONFLIT' | translate }}</p>
+        } @else {
+          <ul class="conflict-list" data-testid="week-conflicts">
+            @for (c of s.conflits; track $index) {
+              <li>
+                <strong>{{ ('PLANNING.SEMAINE.CONFLIT.' + c.type) | translate }}</strong>
+                @if (c.jour) {
+                  <span>{{ ('PATIENT_FORM.' + c.jour) | translate }}</span>
+                }
+                @if (emplacement(c)) {
+                  <span>{{ emplacement(c) }}</span>
+                }
+                <span class="week-sub">{{ c.patients.join(', ') }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

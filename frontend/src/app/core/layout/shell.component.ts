@@ -105,6 +105,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       label: 'NAV.SEANCES',
       items: [
         {route: '/seances', label: 'Dashboard séances', icon: 'space_dashboard'},
+        {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week'},
       ],
     },
     {
@@ -177,6 +178,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/admin/parametrage/tva', label: 'Types de TVA', icon: 'percent'},
         {route: '/admin/parametrage/referentiels', label: 'Référentiels', icon: 'dataset'},
         {route: '/admin/parametrage/groupes-articles', label: 'NAV.ADMIN_GROUPES_ARTICLES', icon: 'category'},
+        {route: '/admin/parametrage/planning-centre', label: 'NAV.ADMIN_PLANNING', icon: 'event_available'},
         {route: '/admin/parametrage/reprise', label: 'Reprise de données', icon: 'move_down'},
       ],
     },
@@ -287,6 +289,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
       tva: 'Types de TVA',
       referentiels: 'Référentiels',
       reprise: 'Reprise de données',
+      planning: 'NAV.PLANNING_SEMAINE',
+      'planning-centre': 'NAV.ADMIN_PLANNING',
     };
     const segs = url.split('?')[0].split('/').filter(Boolean);
     this.breadcrumbRoutes = segs;

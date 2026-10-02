@@ -1,6 +1,15 @@
 <div class="step-content">
   <h3 class="section-title">{{ 'PATIENT_FORM.SECTION_AFFECTATION' | translate }}</h3>
   <div class="wizard-form">
+    @if (!readonly) {
+      <app-affectation-suggestions
+        (appliquer)="appliquerProposition($event)"
+        [joursImposes]="joursImposes()"
+        [patientId]="patientId()"
+        [positionId]="form.value().positionId"
+        [salleId]="form.value().salleId"
+      />
+    }
     <div class="form-row">
       <app-searchable-select
         (selectionChanged)="onSelect('salleId', $event)"

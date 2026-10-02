@@ -1,0 +1,50 @@
+.params-page {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.params-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.params-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.params-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 4px 16px;
+  padding-top: 12px;
+}
+
+.params-error {
+  color: var(--mat-sys-error, #b3261e);
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.params-ok {
+  color: #1b7f3b;
+  margin: 0;
+}
+
+.params-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 767px) {
+  .params-page {
+    padding: 12px;
+  }
+
+  .params-actions button {
+    width: 100%;
+  }
+}

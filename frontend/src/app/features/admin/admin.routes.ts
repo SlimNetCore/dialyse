@@ -48,6 +48,11 @@ export const adminRoutes: Routes = [
       import('./groupes-articles/groupes-articles.component').then((m) => m.GroupesArticlesComponent),
   },
   {
+    path: 'parametrage/planning-centre',
+    loadComponent: () =>
+      import('../planning/planning-parametres.component').then((m) => m.PlanningParametresComponent),
+  },
+  {
     path: 'parametrage/referentiels',
     loadComponent: () =>
       import('./referentiels/referentiels-admin.component').then((m) => m.ReferentielsAdminComponent),

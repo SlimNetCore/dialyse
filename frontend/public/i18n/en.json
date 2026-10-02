@@ -1900,6 +1900,76 @@
     "CLOTUREE_TITLE": "CLOSED",
     "CLOTUREE_DESC": "Coverage expired — session blocked"
   },
+  "PLANNING": {
+    "TITLE": "Placement assistant",
+    "SUBTITLE": "Rooms with a free place, free time slots and generators for this patient — ranked from most to least suitable.",
+    "SEANCES": "Sessions per week",
+    "REFRESH": "Refresh",
+    "JOURS_IMPOSES_NOTE": "The days ticked below are required: only places free on those days are proposed.",
+    "ERROR": "Unable to compute the available places",
+    "ISOLEMENT": "Patient at infectious risk (HBV, HCV, HIV): isolation room",
+    "ISOLEMENT_AUTO_NOTE": "Risk detected from the patient's serologies; you can change it.",
+    "FERMETURE_NOTE": "Closed on {{date}}: {{motif}}",
+    "ALERTE": {
+      "AUCUNE_SALLE_ISOLEMENT": "No isolation room is configured for this center: a patient at risk cannot be placed. Set it up in Administration > Center planning.",
+      "JOURS_IMPOSES_FERMES": "One of the required days is closed in this center (weekly closure)."
+    },
+    "SEMAINE": {
+      "TITLE": "Weekly planning",
+      "SUBTITLE": "Who dialyses where, which day and on which machine. Closed days are hatched.",
+      "PREV": "Previous week",
+      "NEXT": "Next week",
+      "TODAY": "This week",
+      "SEMAINE_DU": "Week of {{debut}} to {{fin}}",
+      "FERME": "Closed",
+      "RISQUE": "Patient at infectious risk",
+      "EMPTY_ROWS": "No room or time slot is configured for this center.",
+      "A_REPLANIFIER": "{{count}} patient(s) to reschedule: they are placed on a closed day.",
+      "CONFLITS_TITLE": "Conflicts",
+      "AUCUN_CONFLIT": "No conflict this week.",
+      "CONFLIT": {
+        "GENERATEUR_DOUBLE": "Machine booked twice",
+        "SALLE_SURCHARGEE": "Room overloaded",
+        "GENERATEUR_INDISPONIBLE": "Machine out of service or in another room",
+        "SANS_GENERATEUR": "Patient without a machine",
+        "ISOLEMENT_NON_RESPECTE": "Isolation rule not respected",
+        "GENERATEUR_MIXTE": "Machine shared between patients at risk and without risk"
+      },
+      "ERR": {
+        "LOAD": "Unable to load the weekly planning"
+      }
+    },
+    "PARAMS": {
+      "TITLE": "Center planning",
+      "SUBTITLE": "Opening days and isolation rooms: they drive the placement assistant and the weekly planning.",
+      "JOURS_TITLE": "Opening days",
+      "JOURS_HINT": "No session is proposed on unticked days. Public holidays and exceptional closures are set in the clinical calendar.",
+      "JOURS_REQUIS": "Tick at least one opening day.",
+      "ISOLEMENT_TITLE": "Isolation rooms",
+      "ISOLEMENT_HINT": "Reserved for patients at infectious risk (HBV, HCV, HIV); other patients are never placed there.",
+      "AUCUNE_SALLE": "No room is defined for this center.",
+      "SAVED_OK": "Settings saved",
+      "ERR": {
+        "LOAD": "Unable to load the planning settings",
+        "SAVE": "Unable to save"
+      }
+    },
+    "NO_PLACE": "No place matches: try fewer sessions, other days or another time slot.",
+    "AUTRES_GENERATEURS": "+{{count}} other free",
+    "SCORE": "Placement suitability",
+    "APPLY": "Apply",
+    "APPLIED": "Applied",
+    "GRID_TITLE": "Availability by room and time slot",
+    "GRID_HINT": "Free places / generators in service, for each day. Green: free — orange: partly occupied — red: full.",
+    "RAISON": {
+      "JOURS_IMPOSES_LIBRES": "Chosen days are free",
+      "JOURS_BIEN_ESPACES": "Well-spaced days",
+      "CRENEAU_PREFERE": "Chosen time slot",
+      "SALLE_PREFEREE": "Chosen room",
+      "SALLE_PEU_CHARGEE": "Lightly loaded room",
+      "SALLE_ISOLEMENT": "Isolation room"
+    }
+  },
   "GROUPES_ARTICLES": {
     "TITLE": "Article groups",
     "SUBTITLE": "Group articles under a name (e.g. CNAS KIT): management tracks the valuation of their stock over a period.",
@@ -1929,6 +1999,8 @@
   },
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "Article groups",
+    "ADMIN_PLANNING": "Center planning",
+    "PLANNING_SEMAINE": "Weekly planning",
     "DIRECTION": "Management",
     "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",

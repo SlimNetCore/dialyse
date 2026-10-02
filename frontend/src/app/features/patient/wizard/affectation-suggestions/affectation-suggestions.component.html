@@ -1,0 +1,127 @@
+<section aria-live="polite" class="suggest" data-testid="affectation-suggestions">
+  <header class="suggest-head">
+    <h4>
+      <mat-icon>auto_awesome</mat-icon>
+      {{ 'PLANNING.TITLE' | translate }}
+    </h4>
+    <p class="suggest-sub">{{ 'PLANNING.SUBTITLE' | translate }}</p>
+    <div class="suggest-controls">
+      <mat-form-field appearance="outline" class="suggest-seances" subscriptSizing="dynamic">
+        <mat-label>{{ 'PLANNING.SEANCES' | translate }}</mat-label>
+        <mat-select (selectionChange)="choisirSeances($event.value)" [disabled]="joursImposesActifs()"
+                    [value]="seances()">
+          @for (n of nbSeancesOptions; track n) {
+            <mat-option [value]="n">{{ n }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button (click)="rechercher()" [disabled]="loading()" mat-stroked-button type="button">
+        <mat-icon>refresh</mat-icon>
+        {{ 'PLANNING.REFRESH' | translate }}
+      </button>
+    </div>
+    <mat-checkbox (change)="basculerIsolement($event.checked)" [checked]="aRisque()" data-testid="suggest-isolement">
+      {{ 'PLANNING.ISOLEMENT' | translate }}
+    </mat-checkbox>
+    @if (isolementForce() === null && resultat()?.patientARisque) {
+      <p class="suggest-note">{{ 'PLANNING.ISOLEMENT_AUTO_NOTE' | translate }}</p>
+    }
+    @if (joursImposesActifs()) {
+      <p class="suggest-note">{{ 'PLANNING.JOURS_IMPOSES_NOTE' | translate }}</p>
+    }
+  </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (error()) {
+    <p class="suggest-error" role="alert">{{ 'PLANNING.ERROR' | translate }}</p>
+  }
+
+  @if (resultat(); as r) {
+    @for (a of r.alertes; track a) {
+      <p class="suggest-error" data-testid="suggest-alerte" role="alert">{{ ('PLANNING.ALERTE.' + a) | translate }}</p>
+    }
+    @if (propositions().length === 0) {
+      <p class="suggest-empty" data-testid="suggest-empty">{{ 'PLANNING.NO_PLACE' | translate }}</p>
+    } @else {
+      <ul class="suggest-list">
+        @for (p of propositions(); track $index) {
+          <li [class.applied]="estAppliquee(p)" class="suggest-card" data-testid="suggest-card">
+            <div class="suggest-main">
+              <strong>{{ p.salle.nom }}</strong>
+              <span>{{ p.creneau.libelle }}</span>
+              <span class="suggest-gen">
+                <mat-icon>water_pump</mat-icon>
+                {{ p.generateur.code }}
+                @if (p.generateursAlternatifs.length > 0) {
+                  <small>{{ 'PLANNING.AUTRES_GENERATEURS' | translate: {count: p.generateursAlternatifs.length} }}</small>
+                }
+              </span>
+            </div>
+            <div class="suggest-days">
+              @for (j of p.jours; track j) {
+                <span class="suggest-day">{{ ('PATIENT_FORM.' + j) | translate }}</span>
+              }
+            </div>
+            <div class="suggest-meta">
+              <span [class.good]="p.score >= 80" class="suggest-score" title="{{ 'PLANNING.SCORE' | translate }}">
+                {{ p.score }} %
+              </span>
+              @for (raison of p.raisons; track raison) {
+                <span class="suggest-reason">{{ ('PLANNING.RAISON.' + raison) | translate }}</span>
+              }
+            </div>
+            @for (f of p.fermetures; track f.date) {
+              <p class="suggest-note" data-testid="suggest-fermeture">
+                <mat-icon>event_busy</mat-icon>
+                {{ 'PLANNING.FERMETURE_NOTE' | translate: {date: (f.date | date: 'dd/MM/yyyy'), motif: f.motif ?? ''} }}
+              </p>
+            }
+            <button (click)="appliquerProposition(p)" [color]="estAppliquee(p) ? 'accent' : 'primary'"
+                    data-testid="suggest-apply" mat-flat-button type="button">
+              <mat-icon>{{ estAppliquee(p) ? 'check' : 'done_all' }}</mat-icon>
+              {{ (estAppliquee(p) ? 'PLANNING.APPLIED' : 'PLANNING.APPLY') | translate }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    <details class="suggest-grid">
+      <summary>{{ 'PLANNING.GRID_TITLE' | translate }}</summary>
+      <p class="suggest-sub">{{ 'PLANNING.GRID_HINT' | translate }}</p>
+      <div class="suggest-grid-scroll">
+        <table>
+          <thead>
+          <tr>
+            <th>{{ 'PATIENT_FORM.SALLE' | translate }}</th>
+            <th>{{ 'PATIENT_FORM.POSITION' | translate }}</th>
+            @for (j of jours; track j) {
+              <th>{{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}</th>
+            }
+          </tr>
+          </thead>
+          <tbody>
+            @for (ligne of lignesGrille(); track ligne.salle.id + ligne.creneau.id) {
+              <tr>
+                <td>{{ ligne.salle.nom }}</td>
+                <td>{{ ligne.creneau.libelle }}</td>
+                @for (j of jours; track j) {
+                  @let c = caseDe(ligne.salle.id, ligne.creneau.id, j);
+                  <td [class]="'cell ' + (c ? etatCase(c) : 'none')">
+                    @if (c && c.capacite > 0) {
+                      {{ libres(ligne.salle.id, ligne.creneau.id, j) }}/{{ c.capacite }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </details>
+  }
+</section>
