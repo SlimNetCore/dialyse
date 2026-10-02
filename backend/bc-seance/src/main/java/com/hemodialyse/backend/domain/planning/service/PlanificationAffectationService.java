@@ -220,6 +220,57 @@ public final class PlanificationAffectationService {
         return schemaUsuelExiste && !SCHEMAS_USUELS.contains(jours) ? Math.max(0, score - BONUS_SCHEMA_USUEL) : score;
     }
 
+    // ───────────────────────────── Vérification d'un placement ─────────────────────────────
+
+    /**
+     * Vérifie un placement (salle, créneau, générateur, jours) selon les mêmes règles que les propositions : la
+     * planification est la seule source de cohérence. {@code donnees} ne doit pas compter le placement actuel du
+     * patient. Un patient à risque exige une salle d'isolement ; un patient placé en salle d'isolement est traité
+     * comme à risque (générateur jamais mélangé avec des patients sans risque).
+     *
+     * @return les règles enfreintes (vide : placement valide)
+     */
+    public static List<Violation> verifier(DonneesPlanning donnees, boolean aRisque, UUID salleId, UUID creneauId,
+                                           UUID generateurId, Set<JourSemaine> jours) {
+        if (salleId == null || creneauId == null || generateurId == null || jours == null || jours.isEmpty()) {
+            return List.of(Violation.INCOMPLET);
+        }
+        List<Violation> violations = new ArrayList<>();
+        Index index = new Index(donnees);
+        if (donnees.salles().stream().noneMatch(s -> s.id().equals(salleId))) violations.add(Violation.SALLE_INCONNUE);
+        if (donnees.creneaux().stream().noneMatch(c -> c.id().equals(creneauId)))
+            violations.add(Violation.CRENEAU_INCONNU);
+        if (!index.joursOuverts.containsAll(jours)) violations.add(Violation.JOUR_FERME);
+        if (aRisque && !index.estIsolement(salleId)) violations.add(Violation.ISOLEMENT_REQUIS);
+        GenerateurRef generateur = index.generateursDe(salleId).stream()
+                .filter(g -> g.id().equals(generateurId)).findFirst().orElse(null);
+        if (generateur == null) {
+            violations.add(Violation.GENERATEUR_INCONNU);
+            return violations;
+        }
+        if (!index.generateurCompatible(generateur, aRisque || index.estIsolement(salleId))) {
+            violations.add(Violation.GENERATEUR_INCOMPATIBLE);
+        }
+        if (jours.stream().anyMatch(j -> !index.generateurLibre(generateur, creneauId, j))) {
+            violations.add(Violation.GENERATEUR_OCCUPE);
+        }
+        return violations;
+    }
+
+    /**
+     * Règle de planification enfreinte par un placement.
+     */
+    public enum Violation {
+        INCOMPLET,
+        SALLE_INCONNUE,
+        CRENEAU_INCONNU,
+        JOUR_FERME,
+        ISOLEMENT_REQUIS,
+        GENERATEUR_INCONNU,
+        GENERATEUR_INCOMPATIBLE,
+        GENERATEUR_OCCUPE
+    }
+
     // ───────────────────────────── Structures internes ─────────────────────────────
 
     private record Cle(UUID salleId, UUID creneauId, Set<JourSemaine> jours) {

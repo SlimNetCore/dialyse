@@ -20,6 +20,35 @@
         {{ 'PLANNING.REFRESH' | translate }}
       </button>
     </div>
+    <div class="suggest-controls">
+      <mat-form-field appearance="outline" class="suggest-seances" subscriptSizing="dynamic">
+        <mat-label>{{ 'PLANNING.CRENEAU_SOUHAITE' | translate }}</mat-label>
+        <mat-select (selectionChange)="choisirCreneau($event.value)" [value]="positionId()"
+                    data-testid="suggest-creneau">
+          <mat-option [value]="null">{{ 'PLANNING.PEU_IMPORTE' | translate }}</mat-option>
+          @for (c of resultat()?.creneaux ?? []; track c.id) {
+            <mat-option [value]="c.id">{{ c.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="suggest-seances" subscriptSizing="dynamic">
+        <mat-label>{{ 'PLANNING.SALLE_SOUHAITEE' | translate }}</mat-label>
+        <mat-select (selectionChange)="choisirSalle($event.value)" [value]="salleId()" data-testid="suggest-salle">
+          <mat-option [value]="null">{{ 'PLANNING.PEU_IMPORTE' | translate }}</mat-option>
+          @for (s of resultat()?.salles ?? []; track s.id) {
+            <mat-option [value]="s.id">{{ s.nom }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="suggest-jours" data-testid="suggest-jours">
+      <span class="suggest-sub">{{ 'PLANNING.JOURS_SOUHAITES' | translate }}</span>
+      @for (j of jours; track j) {
+        <mat-checkbox (change)="basculerJour(j, $event.checked)" [checked]="joursImposes().includes(j)">
+          {{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}
+        </mat-checkbox>
+      }
+    </div>
     <mat-checkbox (change)="basculerIsolement($event.checked)" [checked]="aRisque()" data-testid="suggest-isolement">
       {{ 'PLANNING.ISOLEMENT' | translate }}
     </mat-checkbox>

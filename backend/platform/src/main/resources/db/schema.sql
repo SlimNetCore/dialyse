@@ -946,3 +946,17 @@ CREATE TABLE IF NOT EXISTS absence_patient
     );
 CREATE INDEX IF NOT EXISTS idx_absence_patient_periode ON absence_patient (center_id, date_seance);
 CREATE INDEX IF NOT EXISTS idx_absence_patient_statut ON absence_patient (center_id, statut);
+
+-- Salle d'isolement : propriété de la salle (créée avec elle). 'OUI' = réservée aux patients à risque infectieux.
+ALTER TABLE IF EXISTS salle ADD COLUMN IF NOT EXISTS isolement VARCHAR (3) NOT NULL DEFAULT 'NON';
+-- Reprise des salles d'isolement de l'ancien paramétrage du planning (liste d'identifiants), une seule fois
+UPDATE salle
+SET isolement = 'OUI'
+WHERE isolement = 'NON'
+  AND EXISTS (SELECT 1
+              FROM planning_parametres p
+              WHERE p.center_id = salle.center_id
+                AND p.salles_isolement LIKE '%' || CAST(salle.id AS VARCHAR(36)) || '%');
+UPDATE planning_parametres
+SET salles_isolement = NULL
+WHERE salles_isolement IS NOT NULL;

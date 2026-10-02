@@ -12,6 +12,7 @@ import {
   signal,
   SimpleChanges,
 } from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -49,28 +50,18 @@ interface AffectationModel {
   jourSamedi: boolean;
 }
 
+/** Champs saisissables : la salle, le créneau, le générateur et les jours ne se règlent que via le planificateur. */
 type AffectationSelectKey =
-  | 'salleId'
   | 'medecinTraitantId'
-  | 'positionId'
   | 'transporteurAllerId'
   | 'transporteurRetourId'
-  | 'categorieTransportId'
-  | 'generateurId';
-
-type AffectationDayKey =
-  | 'jourDimanche'
-  | 'jourLundi'
-  | 'jourMardi'
-  | 'jourMercredi'
-  | 'jourJeudi'
-  | 'jourVendredi'
-  | 'jourSamedi';
+  | 'categorieTransportId';
 
 @Component({
   selector: 'app-step-affectation',
   standalone: true,
   imports: [
+    MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
     MatCheckboxModule,
@@ -142,17 +133,30 @@ export class StepAffectationComponent implements OnInit, OnChanges {
     if (changes['readonly']) this.applyReadonly();
   }
 
+  /** Vrai si la fiche porte un placement (salle, créneau, générateur ou jour). */
+  readonly aUnPlacement = computed(() => {
+    const v = this.form.value();
+    return !!(v.salleId || v.positionId || v.generateurId || joursCoches(v).length > 0);
+  });
+
   onSelect(key: AffectationSelectKey, item: DropdownItem | null): void {
     if (this.readonly) return;
     this.form.set(key, item?.id ?? null);
-    if (key === 'generateurId') {
-      this.checkDisponibilite(item?.id ?? null);
-    }
     this.emit();
   }
 
-  /** Jours cochés sur la fiche : imposés à l'aide au placement. */
-  readonly joursImposes = computed(() => joursCoches(this.form.value()));
+  /** Retire le placement de la fiche : un nouveau placement se choisit ensuite via le planificateur. */
+  effacerPlacement(): void {
+    if (this.readonly) return;
+    this.form.patch({
+      salleId: null,
+      positionId: null,
+      generateurId: null,
+      ...joursVersFlags([]),
+    });
+    this.disponibiliteWarning.set(null);
+    this.emit();
+  }
 
   /**
    * Applique une place proposée par l'aide au placement : salle, créneau, générateur et jours de dialyse. La
@@ -173,12 +177,6 @@ export class StepAffectationComponent implements OnInit, OnChanges {
   isValid(): boolean {
     // L'étape affectation est facultative, sauf si le générateur choisi est indisponible.
     return !this.generateurBloque();
-  }
-
-  onDay(key: AffectationDayKey, checked: boolean): void {
-    if (this.readonly) return;
-    this.form.set(key, checked);
-    this.emit();
   }
 
   markTouched(): void {

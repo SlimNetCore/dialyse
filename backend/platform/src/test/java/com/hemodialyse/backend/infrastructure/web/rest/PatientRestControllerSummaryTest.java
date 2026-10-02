@@ -33,7 +33,8 @@ class PatientRestControllerSummaryTest {
                 assurePatientRepo,
                 listQueryService,
                 summaryQueryService,
-                mock(JdbcTemplate.class)
+                mock(JdbcTemplate.class),
+                mock(com.hemodialyse.backend.application.planning.PlacementPatientService.class)
         );
 
         UUID centerId = UUID.randomUUID();

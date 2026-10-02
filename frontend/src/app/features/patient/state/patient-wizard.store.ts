@@ -572,7 +572,11 @@ export const PatientWizardStore = signalStore(
             })),
             tap(() => publishActionSuccess(store, 'SUBMIT_PATIENT')),
             catchError((err: any) => {
-              const message = err?.error?.detail || err?.error?.message || 'Erreur lors de la sauvegarde';
+              const code = err?.error?.code;
+              // Placement refusé par la planification : clé de traduction (affichée traduite par le composant)
+              const message = typeof code === 'string' && code.startsWith('PLACEMENT_')
+                ? `PLANNING.PLACEMENT_ERR.${code}`
+                : err?.error?.detail || err?.error?.message || 'Erreur lors de la sauvegarde';
               patchState(store, {
                 saving: false,
                 submitStatus: 'error',

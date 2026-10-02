@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.application.planning.PlacementPatientService;
 import com.hemodialyse.backend.domain.medical.serologie.aggregate.Serologie;
 import com.hemodialyse.backend.domain.medical.serologie.port.SerologieUseCase;
 import com.hemodialyse.backend.domain.medical.serologie.valueobject.MarqueurSerologique;
@@ -38,7 +39,11 @@ public class SerologieRestController {
     private final SerologieUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
 
-    public SerologieRestController(SerologieUseCase useCase, CenterAccessGuard centerAccessGuard) {
+    private final PlacementPatientService placementService;
+
+    public SerologieRestController(SerologieUseCase useCase, CenterAccessGuard centerAccessGuard,
+                                   PlacementPatientService placementService) {
+        this.placementService = placementService;
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
     }
@@ -76,6 +81,8 @@ public class SerologieRestController {
                 ResultatSerologique.valueOf(request.resultat()), request.titre(), request.unite(),
                 request.datePrelevement(), request.laboratoire(), request.dateProchainControle(),
                 request.conduiteATenir());
+        // Sérologie positive : le patient doit être replacé en isolement s'il ne l'est pas déjà.
+        placementService.reaffecterSiRisque(center.value(), patientId);
         return ResponseEntity.ok(SerologieResponse.from(serologie));
     }
 
@@ -87,6 +94,7 @@ public class SerologieRestController {
         CenterId center = centerAccessGuard.requireCenter(request.centerId());
         Serologie serologie = useCase.update(center, patientId, serologieId,
                 ResultatSerologique.valueOf(request.resultat()), request.conduiteATenir());
+        placementService.reaffecterSiRisque(center.value(), patientId);
         return ResponseEntity.ok(SerologieResponse.from(serologie));
     }
 

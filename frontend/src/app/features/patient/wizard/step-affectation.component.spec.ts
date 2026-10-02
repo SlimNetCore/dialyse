@@ -38,7 +38,7 @@ describe('StepAffectationComponent (signal forms)', () => {
     expect(fixture.componentInstance.isValid()).toBe(true);
   });
 
-  it('émet les données et la validité lors de la sélection d’une salle', () => {
+  it('émet les données et la validité lors de la sélection du médecin traitant', () => {
     const fixture = TestBed.createComponent(StepAffectationComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -48,22 +48,54 @@ describe('StepAffectationComponent (signal forms)', () => {
     component.dataChange.subscribe(dataSpy);
     component.validChange.subscribe(validSpy);
 
-    component.onSelect('salleId', {id: 'salle-1', label: 'Salle 1'});
+    component.onSelect('medecinTraitantId', {id: 'med-1', label: 'Dr Test'});
 
-    expect(component.form.get('salleId')).toBe('salle-1');
-    expect(dataSpy).toHaveBeenCalledWith(expect.objectContaining({salleId: 'salle-1'}));
+    expect(component.form.get('medecinTraitantId')).toBe('med-1');
+    expect(dataSpy).toHaveBeenCalledWith(expect.objectContaining({medecinTraitantId: 'med-1'}));
     expect(validSpy).toHaveBeenCalledWith(true);
   });
 
-  it('bascule un jour de dialyse via la checkbox', () => {
+  it('ne règle salle, créneau, générateur et jours que via une proposition du planificateur', () => {
     const fixture = TestBed.createComponent(StepAffectationComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance;
+    const dataSpy = vi.fn();
+    component.dataChange.subscribe(dataSpy);
 
-    component.onDay('jourLundi', true);
+    expect(component.aUnPlacement()).toBe(false);
+    component.appliquerProposition({
+      salle: {id: 'salle-1', nom: 'Salle 1'}, creneau: {id: 'pos-1', libelle: 'Matin', ordre: 1},
+      generateur: {id: 'gen-1', code: 'G01', salleId: 'salle-1'}, generateursAlternatifs: [],
+      jours: ['LUNDI', 'JEUDI'], score: 90, raisons: [], fermetures: [],
+    });
+
+    expect(component.form.get('salleId')).toBe('salle-1');
+    expect(component.form.get('positionId')).toBe('pos-1');
+    expect(component.form.get('generateurId')).toBe('gen-1');
     expect(component.form.get('jourLundi')).toBe(true);
+    expect(component.form.get('jourJeudi')).toBe(true);
+    expect(component.form.get('jourMardi')).toBe(false);
+    expect(component.aUnPlacement()).toBe(true);
+    expect(dataSpy).toHaveBeenCalledWith(expect.objectContaining({salleId: 'salle-1', jourLundi: true}));
+  });
 
-    component.onDay('jourLundi', false);
+  it('retire le placement de la fiche', () => {
+    const fixture = TestBed.createComponent(StepAffectationComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.patchData({
+      salle_id: 'salle-9',
+      position_id: 'pos-2',
+      generateur_id: 'gen-3',
+      jours_dialyse: {lundi: true}
+    });
+    expect(component.aUnPlacement()).toBe(true);
+
+    component.effacerPlacement();
+
+    expect(component.aUnPlacement()).toBe(false);
+    expect(component.form.get('salleId')).toBeNull();
+    expect(component.form.get('generateurId')).toBeNull();
     expect(component.form.get('jourLundi')).toBe(false);
   });
 
@@ -97,9 +129,14 @@ describe('StepAffectationComponent (signal forms)', () => {
     fixture.detectChanges();
     const component = fixture.componentInstance;
 
-    component.onSelect('salleId', {id: 'salle-1', label: 'Salle 1'});
-    component.onDay('jourLundi', true);
+    component.onSelect('medecinTraitantId', {id: 'med-1', label: 'Dr Test'});
+    component.appliquerProposition({
+      salle: {id: 'salle-1', nom: 'Salle 1'}, creneau: {id: 'pos-1', libelle: 'Matin', ordre: 1},
+      generateur: {id: 'gen-1', code: 'G01', salleId: 'salle-1'}, generateursAlternatifs: [],
+      jours: ['LUNDI'], score: 90, raisons: [], fermetures: [],
+    });
 
+    expect(component.form.get('medecinTraitantId')).toBeNull();
     expect(component.form.get('salleId')).toBeNull();
     expect(component.form.get('jourLundi')).toBe(false);
   });

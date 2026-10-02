@@ -187,7 +187,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      this.snackBar.open(this.ficheStore.error() || 'Erreur', 'OK', {duration: 5000});
+      this.snackBar.open(this.translate.instant(this.ficheStore.error() || 'Erreur'), 'OK', {duration: 7000});
       this.ficheStore.resetSubmitStatus();
     });
 

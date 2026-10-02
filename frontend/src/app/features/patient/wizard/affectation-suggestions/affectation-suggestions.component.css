@@ -190,3 +190,11 @@
     width: 100%;
   }
 }
+
+.suggest-jours {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 8px 0;
+}

@@ -30,7 +30,7 @@ final class ReferentialAdminTables {
                 List.of("ref.positions")));
 
         TABLES.put(ReferentialKind.SALLE, new Table("salle",
-                List.of(text("code", "code"), text("nom", "nom")),
+                List.of(text("code", "code"), text("nom", "nom"), text("isolement", "isolement")),
                 List.of(), List.of("t.code", "t.nom"), "t.code",
                 // Les générateurs vivent désormais dans gmao_equipements (module GMAO v2), plus dans
                 // l'ancien référentiel plat "generateur" — l'usage reste vérifié génériquement.

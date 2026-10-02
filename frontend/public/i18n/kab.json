@@ -1496,6 +1496,15 @@
     "BILLABLE_LABEL": "Yettwasefruy"
   },
   "ADMIN": {
+    "REFERENTIALS": {
+      "FIELDS": {
+        "isolement": "Taxxamt n usuffeɣ"
+      },
+      "ENUM": {
+        "NON": "Ala",
+        "OUI": "Ih (i yinelmaden s uḥrir n tuktit kan)"
+      }
+    },
     "AUDIT": {
       "TITLE": "Aneqqis n usenqed",
       "HINT_ADMIN": "Tigawin ittwaxedmen ɣef usentel-nnwen d tɣuriwin n uɣmis n usegzawal, seg ineggura ɣer imezwura.",
@@ -1565,6 +1574,22 @@
     "ERROR": "Ur izmir ara ad yettwaḥseb umkan yellan",
     "ISOLEMENT": "Anebdal yesɛan ugur n uɣessu (VHB, VHC, VIH): taxxamt n usnaw",
     "ISOLEMENT_AUTO_NOTE": "Ugur yettwafka seg yimsirmen n unebdal; tzemreḍ ad t-tbeddleḍ.",
+    "PLACEMENT_VERROUILLE": "Taxxamt, tallit, asmal d wussan ttwafernen kan s umuddu n usnulfu s ufella: ayagi ittḍemmin amuddu amṣada.",
+    "RETIRER_PLACEMENT": "Kkes asbedd",
+    "CRENEAU_SOUHAITE": "Tallit i d-yettwarǧan",
+    "SALLE_SOUHAITEE": "Taxxamt i d-yettwarǧan",
+    "PEU_IMPORTE": "Ur d-yettwarǧa ara",
+    "JOURS_SOUHAITES": "Ussan i d-yettwarǧan:",
+    "PLACEMENT_ERR": {
+      "PLACEMENT_INCOMPLET": "Asbedd yettwagdel: fren amkan ummid (taxxamt, tallit, asmal d yiwen wass ugar-agi) s umuddu n usnulfu.",
+      "PLACEMENT_SALLE_INCONNUE": "Asbedd yettwagdel: taxxamt-a ulac-itt deg uɣallis.",
+      "PLACEMENT_CRENEAU_INCONNU": "Asbedd yettwagdel: tallit-a ulac-itt deg uɣallis.",
+      "PLACEMENT_JOUR_FERME": "Asbedd yettwagdel: aɣallis ur yettasfaḍ ara deg yiwen seg wussan i yettwafernen.",
+      "PLACEMENT_ISOLEMENT_REQUIS": "Asbedd yettwagdel: anelmad-a yesɛa uḥrir n tuktit, ilaq ad yettwasbedd deg taxxamt n usuffeɣ.",
+      "PLACEMENT_GENERATEUR_INCONNU": "Asbedd yettwagdel: asmal-a ur yettwaseqdac ara deg taxxamt-a.",
+      "PLACEMENT_GENERATEUR_INCOMPATIBLE": "Asbedd yettwagdel: asmal-a ur izmir ara ad ikcem inelmaden s uḥrir d wid war uḥrir.",
+      "PLACEMENT_GENERATEUR_OCCUPE": "Asbedd yettwagdel: asmal-a yettwaseqdac yakan sɣur unelmad-nniḍen deg tallit-a d yiwen seg wussan-a. Fren amkan-nniḍen s umuddu n usnulfu."
+    },
     "FERMETURE_NOTE": "Taɣellist ass n {{date}}: {{motif}}",
     "ALERTE": {
       "AUCUNE_SALLE_ISOLEMENT": "Ulac taxxamt n usnaw yettwasbadun i uɣallis-agi: anebdal yesɛan ugur ur izmir ara ad yettwaserdes. Sbadu-tt deg Tadbelt > Amuddu n uɣallis.",
@@ -2271,6 +2296,8 @@
     "PEC_VALIDATED": "PEC tettwasentem: {{nom}}",
     "PEC_CLOSED": "PEC temdel: {{nom}}",
     "ABSENCES_A_QUALIFIER": "{{count}} n tmettant n yinelmaden ad tettwasbadu, seg-sent {{late}} tettwaɛṭṭel",
+    "PATIENT_REPLACE_ISOLEMENT": "{{nom}} yesɛa uḥrir n tuktit: yettwanɣel s wudem awurman ɣer taxxamt n usuffeɣ ({{salle}}).",
+    "ISOLEMENT_IMPOSSIBLE": "{{nom}} yesɛa uḥrir n tuktit maca ulac amkan deg usuffeɣ: ilaq ad yettwasnulfu tikkelt-nniḍen.",
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} n ismalen ur nelhi ara s inemgalen deg wussan i d-iteddun (seg {{date}}): imbedlen ilaq ad ttwasuddmen",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} icuɛ tamettant seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
     "SEANCE_CREATED": "Tamsirt tettwarna i {{nom}} ({{date}})",

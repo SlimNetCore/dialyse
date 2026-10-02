@@ -4,17 +4,16 @@
     @if (!readonly) {
       <app-affectation-suggestions
         (appliquer)="appliquerProposition($event)"
-        [joursImposes]="joursImposes()"
         [patientId]="patientId()"
-        [positionId]="form.value().positionId"
-        [salleId]="form.value().salleId"
       />
     }
+    <p class="placement-note" data-testid="placement-note">
+      <mat-icon>lock</mat-icon>
+      {{ 'PLANNING.PLACEMENT_VERROUILLE' | translate }}
+    </p>
     <div class="form-row">
       <app-searchable-select
-        (selectionChanged)="onSelect('salleId', $event)"
-        [autofocusFirst]="true"
-        [disabled]="readonly"
+        [disabled]="true"
         [items]="salles()"
         [label]="'PATIENT_FORM.SALLE' | translate"
         [prefixIcon]="'meeting_room'"
@@ -34,8 +33,7 @@
 
     <div class="form-row">
       <app-searchable-select
-        (selectionChanged)="onSelect('positionId', $event)"
-        [disabled]="readonly"
+        [disabled]="true"
         [items]="positions()"
         [label]="'PATIENT_FORM.POSITION' | translate"
         [prefixIcon]="'schedule'"
@@ -43,8 +41,7 @@
         cssClass="flex1"
       />
       <app-searchable-select
-        (selectionChanged)="onSelect('generateurId', $event)"
-        [disabled]="readonly"
+        [disabled]="true"
         [items]="generateurs()"
         [label]="'PATIENT_FORM.GENERATEUR' | translate"
         [prefixIcon]="'water_pump'"
@@ -52,6 +49,14 @@
         cssClass="flex1"
       />
     </div>
+
+    @if (aUnPlacement() && !readonly) {
+      <button (click)="effacerPlacement()" class="placement-clear" data-testid="placement-clear" mat-stroked-button
+              type="button">
+        <mat-icon>link_off</mat-icon>
+        {{ 'PLANNING.RETIRER_PLACEMENT' | translate }}
+      </button>
+    }
 
     @if (disponibiliteWarning()) {
       <div [class.generateur-error]="generateurBloque()" class="generateur-warning" role="alert">
@@ -96,44 +101,22 @@
       />
     </div>
 
-    <h4 class="dialyse-title">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }} *</h4>
-    <div class="jours-row">
-      <mat-checkbox (change)="onDay('jourDimanche', $event.checked)" [checked]="form.value().jourDimanche"
-                    [disabled]="readonly">{{
-          'PATIENT_FORM.DIMANCHE' | translate
-        }}
+    <h4 class="dialyse-title">{{ 'PATIENT_FORM.JOURS_DIALYSE' | translate }}</h4>
+    <div class="jours-row" data-testid="jours-verrouilles">
+      <mat-checkbox [checked]="form.value().jourDimanche" [disabled]="true">{{ 'PATIENT_FORM.DIMANCHE' | translate }}
       </mat-checkbox>
-      <mat-checkbox (change)="onDay('jourLundi', $event.checked)" [checked]="form.value().jourLundi"
-                    [disabled]="readonly">{{
-          'PATIENT_FORM.LUNDI' | translate
-        }}
+      <mat-checkbox [checked]="form.value().jourLundi" [disabled]="true">{{ 'PATIENT_FORM.LUNDI' | translate }}
       </mat-checkbox>
-      <mat-checkbox (change)="onDay('jourMardi', $event.checked)" [checked]="form.value().jourMardi"
-                    [disabled]="readonly">{{
-          'PATIENT_FORM.MARDI' | translate
-        }}
+      <mat-checkbox [checked]="form.value().jourMardi" [disabled]="true">{{ 'PATIENT_FORM.MARDI' | translate }}
       </mat-checkbox>
-      <mat-checkbox (change)="onDay('jourMercredi', $event.checked)" [checked]="form.value().jourMercredi"
-                    [disabled]="readonly">{{
-          'PATIENT_FORM.MERCREDI' | translate
-        }}
+      <mat-checkbox [checked]="form.value().jourMercredi" [disabled]="true">{{ 'PATIENT_FORM.MERCREDI' | translate }}
       </mat-checkbox>
-      <mat-checkbox (change)="onDay('jourJeudi', $event.checked)" [checked]="form.value().jourJeudi"
-                    [disabled]="readonly">{{
-          'PATIENT_FORM.JEUDI' | translate
-        }}
+      <mat-checkbox [checked]="form.value().jourJeudi" [disabled]="true">{{ 'PATIENT_FORM.JEUDI' | translate }}
       </mat-checkbox>
-      <mat-checkbox (change)="onDay('jourVendredi', $event.checked)" [checked]="form.value().jourVendredi"
-                    [disabled]="readonly">{{
-          'PATIENT_FORM.VENDREDI' | translate
-        }}
+      <mat-checkbox [checked]="form.value().jourVendredi" [disabled]="true">{{ 'PATIENT_FORM.VENDREDI' | translate }}
       </mat-checkbox>
-      <mat-checkbox (change)="onDay('jourSamedi', $event.checked)" [checked]="form.value().jourSamedi"
-                    [disabled]="readonly">{{
-          'PATIENT_FORM.SAMEDI' | translate
-        }}
+      <mat-checkbox [checked]="form.value().jourSamedi" [disabled]="true">{{ 'PATIENT_FORM.SAMEDI' | translate }}
       </mat-checkbox>
     </div>
   </div>
 </div>
-

@@ -42,13 +42,13 @@ import {etatCase, trouverCase} from './affectation-suggestions.util';
   styleUrl: './affectation-suggestions.component.css',
 })
 export class AffectationSuggestionsComponent {
-  /** Jours cochés sur la fiche : imposés à la recherche (vide : le système choisit les jours les mieux espacés). */
-  readonly joursImposes = input<readonly JourSemaine[]>([]);
-  /** Salle et créneau déjà choisis sur la fiche : préférences. */
-  readonly salleId = input<string | null>(null);
-  readonly positionId = input<string | null>(null);
   /** Patient dont on modifie le placement : sa place actuelle est comptée comme libre. */
   readonly patientId = input<string | null>(null);
+  /** Jours souhaités : imposés à la recherche (vide : le système choisit les jours les mieux espacés). */
+  protected readonly joursImposes = signal<readonly JourSemaine[]>([]);
+  /** Créneau et salle souhaités : simples préférences qui améliorent le classement des propositions. */
+  protected readonly positionId = signal<string | null>(null);
+  protected readonly salleId = signal<string | null>(null);
 
   readonly appliquer = output<PropositionAffectation>();
 
@@ -108,6 +108,18 @@ export class AffectationSuggestionsComponent {
         this.loading.set(false);
       },
     });
+  }
+
+  protected basculerJour(jour: JourSemaine, coche: boolean): void {
+    this.joursImposes.update((jours) => coche ? [...jours, jour] : jours.filter((j) => j !== jour));
+  }
+
+  protected choisirCreneau(id: string | null): void {
+    this.positionId.set(id || null);
+  }
+
+  protected choisirSalle(id: string | null): void {
+    this.salleId.set(id || null);
   }
 
   protected basculerIsolement(coche: boolean): void {

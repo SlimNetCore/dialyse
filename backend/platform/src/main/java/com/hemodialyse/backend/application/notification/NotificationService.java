@@ -181,6 +181,29 @@ public class NotificationService {
         send(centerId, "ABSENCES_A_QUALIFIER", payload);
     }
 
+    /**
+     * Un patient devenu à risque infectieux a été replacé automatiquement en salle d'isolement.
+     */
+    public void notifyPatientReplaceIsolement(UUID centerId, UUID patientId, String patientNom, String salle) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("patientId", patientId.toString());
+        payload.put("patientNom", patientNom);
+        payload.put("salle", salle);
+        payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
+        send(centerId, "PATIENT_REPLACE_ISOLEMENT", payload);
+    }
+
+    /**
+     * Un patient devenu à risque infectieux n'a pu être replacé faute de place d'isolement : à replanifier.
+     */
+    public void notifyIsolementImpossible(UUID centerId, UUID patientId, String patientNom) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("patientId", patientId.toString());
+        payload.put("patientNom", patientNom);
+        payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
+        send(centerId, "ISOLEMENT_IMPOSSIBLE", payload);
+    }
+
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
         Map<String, Object> event = new java.util.HashMap<>();
         event.put("type", eventType);

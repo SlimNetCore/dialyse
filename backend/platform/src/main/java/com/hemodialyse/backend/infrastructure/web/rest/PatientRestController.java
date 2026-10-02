@@ -1,6 +1,11 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.application.planning.PlacementPatientService;
+import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+
+import java.util.EnumSet;
+import java.util.Set;
 import com.hemodialyse.backend.application.query.PatientListQueryService;
 import com.hemodialyse.backend.application.query.PatientSummaryQueryService;
 import com.hemodialyse.backend.domain.assure.model.Assure;
@@ -48,12 +53,14 @@ public class PatientRestController {
     private final PatientListQueryService patientListQueryService;
     private final PatientSummaryQueryService patientSummaryQueryService;
     private final JdbcTemplate jdbc;
+    private final PlacementPatientService placementService;
 
     public PatientRestController(PatientUseCase useCase, NotificationService notificationService,
                                  AssureRepositoryPort assureRepo, AssurePatientRepositoryPort assurePatientRepo,
                                  PatientListQueryService patientListQueryService,
                                  PatientSummaryQueryService patientSummaryQueryService,
-                                 JdbcTemplate jdbc) {
+                                 JdbcTemplate jdbc, PlacementPatientService placementService) {
+        this.placementService = placementService;
         this.useCase = useCase;
         this.notificationService = notificationService;
         this.assureRepo = assureRepo;
@@ -82,6 +89,22 @@ public class PatientRestController {
             return m;
         }).toList();
         return ResponseEntity.ok(rows);
+    }
+
+    /**
+     * L'affectation (salle, créneau, générateur, jours) ne s'enregistre que si elle respecte les règles de la
+     * planification : mêmes contrôles que l'aide au placement, appliqués côté serveur.
+     */
+    private void verifierPlacement(CreatePatientRequest r, UUID patientId) {
+        Set<JourSemaine> jours = EnumSet.noneOf(JourSemaine.class);
+        if (r.jourDimanche()) jours.add(JourSemaine.DIMANCHE);
+        if (r.jourLundi()) jours.add(JourSemaine.LUNDI);
+        if (r.jourMardi()) jours.add(JourSemaine.MARDI);
+        if (r.jourMercredi()) jours.add(JourSemaine.MERCREDI);
+        if (r.jourJeudi()) jours.add(JourSemaine.JEUDI);
+        if (r.jourVendredi()) jours.add(JourSemaine.VENDREDI);
+        if (r.jourSamedi()) jours.add(JourSemaine.SAMEDI);
+        placementService.verifier(r.centerId(), patientId, r.salleId(), r.positionId(), r.generateurId(), jours);
     }
 
     private CreatePatientCommand toCommand(CreatePatientRequest r) {
@@ -113,6 +136,7 @@ public class PatientRestController {
     @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
     @PreAuthorize(ECRITURE_FICHE)
     public ResponseEntity<?> create(@RequestBody @Valid CreatePatientRequest r) {
+        verifierPlacement(r, null);
         Patient p = useCase.createPatient(CenterId.of(r.centerId()), toCommand(r));
 
         // Send real-time notification
@@ -130,6 +154,7 @@ public class PatientRestController {
     @CacheEvict(cacheNames = {"patient.list.summary", "patient.list.summary.details"}, allEntries = true)
     @PreAuthorize(ECRITURE_FICHE)
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody @Valid CreatePatientRequest r) {
+        verifierPlacement(r, id);
         Patient p = useCase.updatePatient(CenterId.of(r.centerId()), id, toCommand(r));
 
         // Notify connected clients to refresh fiche/list in real-time.

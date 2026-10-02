@@ -89,6 +89,9 @@ export class NotificationBellComponent {
       case 'INFIRMIER_ABSENCE_DECLAREE':
       case 'ABSENCES_A_QUALIFIER':
         return 'event_busy';
+      case 'PATIENT_REPLACE_ISOLEMENT':
+      case 'ISOLEMENT_IMPOSSIBLE':
+        return 'masks';
       default:
         return 'info';
     }
@@ -104,6 +107,8 @@ export class NotificationBellComponent {
       case 'INFIRMIER_SOUS_EFFECTIF':
       case 'INFIRMIER_ABSENCE_DECLAREE':
       case 'ABSENCES_A_QUALIFIER':
+      case 'PATIENT_REPLACE_ISOLEMENT':
+      case 'ISOLEMENT_IMPOSSIBLE':
         return 'warning';
       default:
         return '';
@@ -130,6 +135,13 @@ export class NotificationBellComponent {
           debut: evt.payload['debut'] ?? '',
           fin: evt.payload['fin'] ?? '',
         });
+      case 'PATIENT_REPLACE_ISOLEMENT':
+        return this.translate.instant('NOTIFICATION.PATIENT_REPLACE_ISOLEMENT', {
+          nom: evt.payload['patientNom'] ?? '',
+          salle: evt.payload['salle'] ?? '',
+        });
+      case 'ISOLEMENT_IMPOSSIBLE':
+        return this.translate.instant('NOTIFICATION.ISOLEMENT_IMPOSSIBLE', {nom: evt.payload['patientNom'] ?? ''});
       case 'ABSENCES_A_QUALIFIER':
         return this.translate.instant('NOTIFICATION.ABSENCES_A_QUALIFIER', {
           count: evt.payload['nbAQualifier'] ?? '',

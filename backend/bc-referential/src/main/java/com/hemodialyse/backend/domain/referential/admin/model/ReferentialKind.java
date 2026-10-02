@@ -32,7 +32,9 @@ public enum ReferentialKind {
 
     SALLE("salles", "Salles", 1, List.of(
             text("code", "Code", true, 50, "S1", "code salle"),
-            text("nom", "Nom", true, 255, "Salle 1", "libelle", "salle")
+            text("nom", "Nom", true, 255, "Salle 1", "libelle", "salle"),
+            enumeration("isolement", "Salle d'isolement", List.of("NON", "OUI"), "NON", "isolement",
+                    "salle isolement")
     ), List.of("code")),
 
     MEDECIN("medecins", "Médecins traitants", 1, List.of(
