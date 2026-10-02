@@ -39,6 +39,12 @@ public class AppUserJpaEntity {
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
+    /**
+     * Vrai tant que l'utilisateur n'a pas remplacé le mot de passe temporaire qui lui a été communiqué.
+     */
+    @Column(name = "must_change_password", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE NOT NULL")
+    private boolean mustChangePassword;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "app_user_role",
@@ -93,6 +99,10 @@ public class AppUserJpaEntity {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public boolean isMustChangePassword() {
+        return mustChangePassword;
     }
 
     public boolean isActive() {

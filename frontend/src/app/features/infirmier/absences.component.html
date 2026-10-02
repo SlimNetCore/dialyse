@@ -1,0 +1,109 @@
+<section class="inf-page">
+  <header class="inf-head">
+    <h1>{{ 'INFIRMIER.ABSENCES.TITLE' | translate }}</h1>
+    <p class="inf-sub">{{ 'INFIRMIER.ABSENCES.SUBTITLE' | translate }}</p>
+  </header>
+
+  @if (store.error()) {
+    <p class="inf-feedback error" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.successMessage()) {
+    <p class="inf-feedback success" role="status">{{ store.successMessage()! | translate }}</p>
+  }
+  @if (store.loading() || store.saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'INFIRMIER.ABSENCES.DECLARER' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="absenceForm" class="inf-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.TITLE_SINGULIER' | translate }}</mat-label>
+          <mat-select [formField]="absenceForm.infirmierId" data-testid="abs-infirmier">
+            @for (i of infirmiers.rows(); track i.id) {
+              @if (i.actif) {
+                <mat-option [value]="i.id">{{ i.prenom ? i.prenom + ' ' + i.nom : i.nom }}</mat-option>
+              }
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.ABSENCES.DEBUT' | translate }}</mat-label>
+          <input [formField]="absenceForm.debut" data-testid="abs-debut" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.ABSENCES.FIN' | translate }}</mat-label>
+          <input [formField]="absenceForm.fin" data-testid="abs-fin" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.ABSENCES.TYPE' | translate }}</mat-label>
+          <mat-select [formField]="absenceForm.type" data-testid="abs-type">
+            @for (t of types; track t) {
+              <mat-option [value]="t">{{ ('INFIRMIER.ABSENCES.TYPES.' + t) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>{{ 'INFIRMIER.ABSENCES.MOTIF' | translate }}</mat-label>
+          <input [formField]="absenceForm.motif" matInput/>
+        </mat-form-field>
+        @if (!periodeValide()) {
+          <p class="inf-feedback error full-width"
+             role="alert">{{ 'INFIRMIER.ABSENCES.PERIODE_INVALIDE' | translate }}</p>
+        }
+        <div class="inf-actions full-width">
+          <button [disabled]="!canSave()" color="primary" data-testid="abs-save" mat-flat-button type="submit">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <div class="inf-table-scroll">
+        <table [dataSource]="store.rows()" class="inf-table" data-testid="abs-table" mat-table>
+          <ng-container matColumnDef="infirmier">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.TITLE_SINGULIER' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ nom(row.infirmierId) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="periode">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ABSENCES.PERIODE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              {{ row.debut | date: 'dd/MM/yyyy' }} → {{ row.fin | date: 'dd/MM/yyyy' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="type">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ABSENCES.TYPE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ ('INFIRMIER.ABSENCES.TYPES.' + row.type) | translate }}</td>
+          </ng-container>
+          <ng-container matColumnDef="motif">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ABSENCES.MOTIF' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.motif }}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let row" class="inf-row-actions" mat-cell>
+              <button (click)="remove(row)" [attr.aria-label]="'COMMON.DELETE' | translate" data-testid="abs-delete"
+                      mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="columns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: columns" mat-row></tr>
+        </table>
+      </div>
+      @if (store.isEmpty() && !store.loading()) {
+        <p class="inf-sub">{{ 'INFIRMIER.ABSENCES.EMPTY' | translate }}</p>
+      }
+      <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
+    </mat-card-content>
+  </mat-card>
+</section>

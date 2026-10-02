@@ -90,6 +90,17 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
     }
 
     @Override
+    public DonneesPlanning chargerPeriode(UUID centerId, LocalDate du, LocalDate au) {
+        return construire(centerId, null, du, au);
+    }
+
+    @Override
+    public Set<UUID> creneauxDuCentre(UUID centerId) {
+        return new HashSet<>(jdbc.query("SELECT id FROM position_creneau WHERE center_id = ?",
+                (rs, i) -> rs.getObject("id", UUID.class), centerId));
+    }
+
+    @Override
     public boolean patientARisque(UUID centerId, UUID patientId) {
         return new HashSet<>(jdbc.query(PATIENTS_A_RISQUE, (rs, i) -> rs.getObject("patient_id", UUID.class), centerId))
                 .contains(patientId);

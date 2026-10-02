@@ -1,0 +1,266 @@
+.pres-page {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.pres-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pres-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.pres-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.pres-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.pres-range {
+  min-width: 190px;
+  text-align: center;
+}
+
+.pres-feedback {
+  margin: 0;
+}
+
+.pres-feedback.error {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.pres-feedback.success {
+  color: #1b7f3b;
+}
+
+.pres-alerte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 8px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--app-border, #e3e7ed);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pres-alerte mat-icon {
+  color: #b3261e;
+}
+
+/* défilement horizontal local : la page ne déborde jamais */
+.pres-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--app-border, #d9dee5);
+  border-radius: 8px;
+}
+
+.pres-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pres-table th,
+.pres-table td {
+  border: 1px solid var(--app-border, #e3e7ed);
+  padding: 6px 8px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.pres-table thead th {
+  text-align: center;
+  background: var(--app-surface-alt, #f3f5f8);
+}
+
+.pres-table th small {
+  display: block;
+  font-weight: 400;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.cell {
+  min-width: 118px;
+  cursor: pointer;
+}
+
+.cell.closed {
+  cursor: default;
+  background: repeating-linear-gradient(45deg, #eceff3, #eceff3 6px, #f6f7f9 6px, #f6f7f9 12px);
+}
+
+.cell.idle {
+  background: #f6f7f9;
+  cursor: default;
+}
+
+.cell.covered {
+  background: #eaf6ee;
+}
+
+.cell.under {
+  background: #fdecea;
+}
+
+.cell.selected {
+  outline: 2px solid #1b5e20;
+  outline-offset: -2px;
+}
+
+th.closed {
+  background: repeating-linear-gradient(45deg, #eceff3, #eceff3 6px, #f6f7f9 6px, #f6f7f9 12px);
+}
+
+.chip {
+  display: block;
+  margin-bottom: 3px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #e3ecfb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip.sub {
+  background: #fff3cd;
+}
+
+.chip.absent {
+  background: #eceff3;
+  color: #7a8594;
+  text-decoration: line-through;
+}
+
+.cap {
+  display: block;
+  text-align: right;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.pres-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  border-radius: 3px;
+  border: 1px solid #c8ced6;
+}
+
+.dot.covered {
+  background: #eaf6ee;
+}
+
+.dot.under {
+  background: #fdecea;
+}
+
+.dot.idle {
+  background: #f6f7f9;
+}
+
+.dot.closed {
+  background: repeating-linear-gradient(45deg, #eceff3, #eceff3 3px, #f6f7f9 3px, #f6f7f9 6px);
+}
+
+.pres-detail h4 {
+  margin: 16px 0 6px;
+}
+
+.pres-close {
+  margin-left: auto;
+}
+
+.pres-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.pres-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 160px;
+}
+
+.badge {
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #fff3cd;
+  font-size: 12px;
+}
+
+.reason {
+  display: inline-block;
+  margin: 2px 4px 0 0;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #e3ecfb;
+  font-size: 11px;
+}
+
+.score {
+  font-weight: 600;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.score.good {
+  color: #1b7f3b;
+}
+
+@media (max-width: 767px) {
+  .pres-page {
+    padding: 12px;
+  }
+
+  .pres-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pres-range {
+    min-width: 0;
+    flex: 1;
+  }
+}

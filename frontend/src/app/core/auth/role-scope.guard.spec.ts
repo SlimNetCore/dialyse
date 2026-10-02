@@ -2,7 +2,9 @@ import {TestBed} from '@angular/core/testing';
 import {Router, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {describe, expect, it} from 'vitest';
 import {AuthStore} from '../state/auth.store';
-import {directionGuard, homeRouteFor, isDirectionArea, isOwnerArea, roleScopeGuard} from './role-scope.guard';
+import {
+  directionGuard, homeRouteFor, isDirectionArea, isNurseArea, isNurseOnly, isOwnerArea, roleScopeGuard,
+} from './role-scope.guard';
 
 function setup(roles: string[]): void {
   TestBed.resetTestingModule();
@@ -58,10 +60,33 @@ describe('roleScopeGuard', () => {
     expect(run(['MEDECIN'], '/dashboard')).toBe(true);
   });
 
+  it('cantonne l\'infirmier seul à son planning et aux séances', () => {
+    expect(run(['INFIRMIER'], '/infirmiers/moi')).toBe(true);
+    expect(run(['INFIRMIER'], '/seances')).toBe(true);
+    expect(run(['INFIRMIER'], '/seances?date=2026-10-05')).toBe(true);
+    for (const url of ['/dashboard', '/patients', '/stock', '/admin/users', '/infirmiers', '/infirmiers/referentiel',
+      '/infirmiers/absences', '/seances/planning', '/gmao', '/facturation']) {
+      expect(run(['INFIRMIER'], url), url).toEqual({redirect: '/infirmiers/moi'});
+    }
+  });
+
+  it('laisse tout l\'accès à un infirmier qui cumule un autre rôle de centre', () => {
+    for (const autre of ['ADMIN', 'MEDECIN', 'SECRETAIRE']) {
+      expect(run(['INFIRMIER', autre], '/patients'), autre).toBe(true);
+      expect(isNurseOnly(['INFIRMIER', autre]), autre).toBe(false);
+    }
+    expect(isNurseOnly(['ROLE_INFIRMIER'])).toBe(true);
+    expect(isNurseOnly(['ADMIN'])).toBe(false);
+    expect(isNurseArea('/infirmiers/moi/absences')).toBe(true);
+    expect(isNurseArea('/infirmiersx')).toBe(false);
+  });
+
   it("choisit l'accueil selon le profil", () => {
     expect(homeRouteFor(['SUPERADMIN'])).toBe('/admin/societes');
     expect(homeRouteFor(['ROLE_DIRECTION'])).toBe('/direction');
     expect(homeRouteFor(['ADMIN'])).toBe('/dashboard');
+    expect(homeRouteFor(['INFIRMIER'])).toBe('/infirmiers/moi');
+    expect(homeRouteFor(['INFIRMIER', 'MEDECIN'])).toBe('/dashboard');
   });
 
   it("n'ouvre /direction qu'au rôle direction", () => {

@@ -1,0 +1,193 @@
+<div class="moi-page">
+  @if (store.nonLie()) {
+    <mat-card data-testid="moi-non-lie">
+      <mat-card-content>
+        <p class="moi-warn" role="status">
+          <mat-icon>link_off</mat-icon>
+          {{ 'INFIRMIER.MOI.NON_LIE' | translate }}
+        </p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <header class="moi-head">
+      <div>
+        <h1>{{ 'INFIRMIER.MOI.TITLE' | translate }}</h1>
+        @if (store.planning(); as p) {
+          <p class="moi-sub" data-testid="moi-nom">
+            {{ p.infirmier.prenom ? p.infirmier.prenom + ' ' + p.infirmier.nom : p.infirmier.nom }}
+            · {{ ('INFIRMIER.QUALIF.' + p.infirmier.qualification) | translate }}
+          </p>
+        }
+      </div>
+      <div class="moi-nav">
+        <button (click)="store.changerSemaine(-1)" [attr.aria-label]="'PLANNING.SEMAINE.PREV' | translate"
+                [disabled]="store.loadingPlanning()" data-testid="moi-prev" mat-icon-button type="button">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        @if (store.planning(); as p) {
+          <strong class="moi-range">
+            {{
+              'PLANNING.SEMAINE.SEMAINE_DU' | translate: {
+                debut: (p.debut | date: 'dd/MM/yyyy'),
+                fin: (p.fin | date: 'dd/MM/yyyy')
+              }
+            }}
+          </strong>
+        }
+        <button (click)="store.changerSemaine(1)" [attr.aria-label]="'PLANNING.SEMAINE.NEXT' | translate"
+                [disabled]="store.loadingPlanning()" data-testid="moi-next" mat-icon-button type="button">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <button (click)="store.chargerPlanning(null)" [disabled]="store.loadingPlanning()" mat-stroked-button
+                type="button">
+          {{ 'PLANNING.SEMAINE.TODAY' | translate }}
+        </button>
+      </div>
+    </header>
+
+    @if (store.loadingPlanning() || store.saving()) {
+      <mat-progress-bar mode="indeterminate"/>
+    }
+    @if (store.error()) {
+      <p class="moi-feedback error" role="alert">{{ store.error()! | translate }}</p>
+    }
+    @if (store.successMessage()) {
+      <p class="moi-feedback success" role="status">{{ store.successMessage()! | translate }}</p>
+    }
+
+    @if (semaineCourante()) {
+      <mat-card class="moi-today" data-testid="moi-aujourdhui">
+        <mat-card-header>
+          <mat-card-title>{{ 'INFIRMIER.MOI.AUJOURDHUI' | translate }}— {{ aujourdhui | date: 'dd/MM/yyyy' }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="moi-list">
+            @for (c of creneauxDuJour(); track c.salleId + c.creneauId + c.situation) {
+              <li [class]="'moi-item ' + c.situation.toLowerCase()" data-testid="moi-creneau-jour">
+                <strong>{{ creneauLibelle(c.creneauId) }}</strong>
+                <span>{{ salleNom(c.salleId) }}</span>
+                <span class="moi-badge">{{ ('INFIRMIER.MOI.SITUATION.' + c.situation) | translate }}</span>
+              </li>
+            } @empty {
+              <li class="moi-sub" data-testid="moi-rien-aujourdhui">{{ 'INFIRMIER.MOI.AUCUN_AUJOURDHUI' | translate }}
+              </li>
+            }
+          </ul>
+          <div class="moi-actions">
+            <a color="primary" data-testid="moi-seances" mat-flat-button routerLink="/seances">
+              <mat-icon>event_note</mat-icon>
+              {{ 'INFIRMIER.MOI.VOIR_SEANCES' | translate }}
+            </a>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'INFIRMIER.MOI.MES_CRENEAUX' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ul class="moi-list" data-testid="moi-creneaux">
+          @for (c of store.planning()?.mesCreneaux ?? []; track c.date + c.salleId + c.creneauId + c.situation) {
+            <li [class]="'moi-item ' + c.situation.toLowerCase()">
+              <strong>{{ ('PATIENT_FORM.' + c.jour) | translate | slice: 0 : 3 }} {{ c.date | date: 'dd/MM' }}</strong>
+              <span>{{ salleNom(c.salleId) }} · {{ creneauLibelle(c.creneauId) }}</span>
+              <span class="moi-badge">{{ ('INFIRMIER.MOI.SITUATION.' + c.situation) | translate }}</span>
+            </li>
+          } @empty {
+            @if (!store.loadingPlanning()) {
+              <li class="moi-sub">{{ 'INFIRMIER.MOI.AUCUN_CRENEAU' | translate }}</li>
+            }
+          }
+        </ul>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'INFIRMIER.MOI.DECLARER' | translate }}</mat-card-title>
+        <mat-card-subtitle>{{ 'INFIRMIER.MOI.DECLARER_HINT' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form (submit)="save(); $event.preventDefault()" [formRoot]="absenceForm" class="moi-form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INFIRMIER.ABSENCES.DEBUT' | translate }}</mat-label>
+            <input [formField]="absenceForm.debut" data-testid="moi-debut" matInput type="date"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INFIRMIER.ABSENCES.FIN' | translate }}</mat-label>
+            <input [formField]="absenceForm.fin" data-testid="moi-fin" matInput type="date"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INFIRMIER.ABSENCES.TYPE' | translate }}</mat-label>
+            <mat-select [formField]="absenceForm.type" data-testid="moi-type">
+              @for (t of types; track t) {
+                <mat-option [value]="t">{{ ('INFIRMIER.ABSENCES.TYPES.' + t) | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INFIRMIER.ABSENCES.MOTIF' | translate }}</mat-label>
+            <input [formField]="absenceForm.motif" matInput/>
+          </mat-form-field>
+          @if (!periodeValide()) {
+            <p class="moi-feedback error full-width"
+               role="alert">{{ 'INFIRMIER.ABSENCES.PERIODE_INVALIDE' | translate }}</p>
+          }
+          <div class="moi-actions full-width">
+            <button [disabled]="!canSave()" color="primary" data-testid="moi-save" mat-flat-button type="submit">
+              <mat-icon>event_busy</mat-icon>
+              {{ 'INFIRMIER.MOI.DECLARER_BTN' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'INFIRMIER.MOI.MES_ABSENCES' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="moi-table-scroll">
+          <table [dataSource]="store.rows()" class="moi-table" data-testid="moi-absences" mat-table>
+            <ng-container matColumnDef="periode">
+              <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ABSENCES.PERIODE' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>
+                {{ row.debut | date: 'dd/MM/yyyy' }} → {{ row.fin | date: 'dd/MM/yyyy' }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="type">
+              <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ABSENCES.TYPE' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>{{ ('INFIRMIER.ABSENCES.TYPES.' + row.type) | translate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="motif">
+              <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ABSENCES.MOTIF' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>{{ row.motif }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th *matHeaderCellDef mat-header-cell></th>
+              <td *matCellDef="let row" class="moi-row-actions" mat-cell>
+                @if (annulable(row, aujourdhui)) {
+                  <button (click)="store.annuler(row.id)" [attr.aria-label]="'INFIRMIER.MOI.RETIRER' | translate"
+                          [disabled]="store.saving()" data-testid="moi-retirer" mat-icon-button type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+            <tr *matHeaderRowDef="columns" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: columns" mat-row></tr>
+          </table>
+        </div>
+        @if (store.rows().length === 0 && !store.loading()) {
+          <p class="moi-sub">{{ 'INFIRMIER.ABSENCES.EMPTY' | translate }}</p>
+        }
+        <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                       [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

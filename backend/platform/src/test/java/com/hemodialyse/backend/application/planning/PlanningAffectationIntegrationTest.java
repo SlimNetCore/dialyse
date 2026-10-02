@@ -220,10 +220,10 @@ class PlanningAffectationIntegrationTest {
     @Test
     void isolation_rooms_must_belong_to_the_center() {
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> parametresService.enregistrer(CENTRE, EnumSet.allOf(JourSemaine.class), Set.of(SALLE_AUTRE)));
+                () -> parametresService.enregistrer(CENTRE, EnumSet.allOf(JourSemaine.class), Set.of(SALLE_AUTRE), 4));
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> parametresService.enregistrer(CENTRE, Set.of(), Set.of()));
-        parametresService.enregistrer(CENTRE, EnumSet.of(JourSemaine.LUNDI), Set.of(SALLE));
+                () -> parametresService.enregistrer(CENTRE, Set.of(), Set.of(), 4));
+        parametresService.enregistrer(CENTRE, EnumSet.of(JourSemaine.LUNDI), Set.of(SALLE), 4);
         assertEquals(Set.of(SALLE), parametresService.lire(CENTRE).sallesIsolement());
     }
 

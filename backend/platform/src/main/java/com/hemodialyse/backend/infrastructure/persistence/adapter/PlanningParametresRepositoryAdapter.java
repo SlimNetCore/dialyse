@@ -32,7 +32,8 @@ public class PlanningParametresRepositoryAdapter implements PlanningParametresPo
         Set<UUID> salles = e.getSallesIsolement() == null ? Set.of()
                 : Arrays.stream(e.getSallesIsolement().split(",")).filter(s -> !s.isBlank())
                 .map(s -> UUID.fromString(s.trim())).collect(Collectors.toSet());
-        return new PlanningParametres(jours.isEmpty() ? EnumSet.allOf(JourSemaine.class) : jours, salles);
+        int ratio = e.getPatientsParInfirmier() == null ? PlanningParametres.RATIO_PAR_DEFAUT : e.getPatientsParInfirmier();
+        return new PlanningParametres(jours.isEmpty() ? EnumSet.allOf(JourSemaine.class) : jours, salles, ratio);
     }
 
     @Override
@@ -47,6 +48,6 @@ public class PlanningParametresRepositoryAdapter implements PlanningParametresPo
     public void enregistrer(UUID centerId, PlanningParametres p) {
         String jours = p.joursOuverts().stream().sorted().map(Enum::name).collect(Collectors.joining(","));
         String salles = p.sallesIsolement().stream().map(UUID::toString).sorted().collect(Collectors.joining(","));
-        jpa.save(new PlanningParametresJpaEntity(centerId, jours, salles, OffsetDateTime.now(ZoneOffset.UTC)));
+        jpa.save(new PlanningParametresJpaEntity(centerId, jours, salles, p.patientsParInfirmier(), OffsetDateTime.now(ZoneOffset.UTC)));
     }
 }

@@ -19,6 +19,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import {AuthStore} from '../state/auth.store';
+import {isNurseOnly} from '../auth/role-scope.guard';
 import {LangStore} from '../state/lang.store';
 import {ThemeStore} from '../state/theme.store';
 import {WebSocketService} from '../ws/websocket.service';
@@ -30,6 +31,12 @@ import type {DirectionRealtimeService} from '../../features/direction/state/dire
 import {MatDialog} from '@angular/material/dialog';
 import {AuthApiService} from '../api/auth-api.service';
 import {filter} from 'rxjs/operators';
+
+/**
+ * Entrée du menu. {@code owner} : réservée au propriétaire ; {@code nurse} : visible de l'infirmier seul ;
+ * {@code role} : visible des seuls utilisateurs ayant ce rôle.
+ */
+type NavItem = { route: string; label: string; icon: string; owner?: boolean; nurse?: boolean; role?: string };
 
 @Component({
   selector: 'app-shell',
@@ -60,6 +67,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly ownerMode = this.roleAuth.hasRole('SUPERADMIN');
   /** La direction d'une société ne voit que son tableau de bord consolidé. */
   readonly directionMode = this.roleAuth.hasRole('DIRECTION');
+  /** L'infirmier seul ne voit que son planning du jour et les séances. */
+  readonly infirmierMode = isNurseOnly(this.roleAuth.roles());
   /** Sessions sans centre : ni cloche de notifications ni WebSocket de centre. */
   readonly centreless = this.ownerMode || this.directionMode;
 
@@ -104,8 +113,21 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'event_note',
       label: 'NAV.SEANCES',
       items: [
-        {route: '/seances', label: 'Dashboard séances', icon: 'space_dashboard'},
+        {route: '/seances', label: 'Dashboard séances', icon: 'space_dashboard', nurse: true},
         {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week'},
+      ],
+    },
+    {
+      key: 'infirmiers',
+      route: '/infirmiers',
+      icon: 'medical_services',
+      label: 'NAV.INFIRMIERS',
+      items: [
+        {route: '/infirmiers/moi', label: 'NAV.INFIRMIERS_MOI', icon: 'person_pin', nurse: true, role: 'INFIRMIER'},
+        {route: '/infirmiers', label: 'NAV.INFIRMIERS_PRESENCE', icon: 'calendar_view_week'},
+        {route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'badge'},
+        {route: '/infirmiers/absences', label: 'NAV.INFIRMIERS_ABSENCES', icon: 'event_busy'},
+        {route: '/infirmiers/charge', label: 'NAV.INFIRMIERS_CHARGE', icon: 'balance'},
       ],
     },
     {
@@ -179,6 +201,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/admin/parametrage/referentiels', label: 'Référentiels', icon: 'dataset'},
         {route: '/admin/parametrage/groupes-articles', label: 'NAV.ADMIN_GROUPES_ARTICLES', icon: 'category'},
         {route: '/admin/parametrage/planning-centre', label: 'NAV.ADMIN_PLANNING', icon: 'event_available'},
+        {route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'medical_services'},
         {route: '/admin/parametrage/reprise', label: 'Reprise de données', icon: 'move_down'},
       ],
     },
@@ -188,9 +211,13 @@ export class ShellComponent implements OnInit, AfterViewInit {
     .filter((m) => !this.ownerMode || m.key === 'admin')
     .map((m) => ({
       ...m,
-      items: (m.items as ReadonlyArray<{ route: string; label: string; icon: string; owner?: boolean }>)
-        .filter((item) => this.directionMode || !!item.owner === this.ownerMode),
-    }));
+      items: (m.items as ReadonlyArray<NavItem>)
+        .filter((item) => this.directionMode || !!item.owner === this.ownerMode)
+        .filter((item) => !this.infirmierMode || !!item.nurse)
+        .filter((item) => !item.role || this.roleAuth.hasRole(item.role)),
+    }))
+    // un module sans écran visible pour ce profil disparaît du menu (ex. l'infirmier seul : planning + séances)
+    .filter((m) => m.items.length > 0);
 
   readonly navItems = this.modules.map(m => ({route: m.route, icon: m.icon, label: m.label}));
   readonly activeModuleItems = signal<{ route: string; label: string; icon: string }[]>([]);
@@ -291,6 +318,11 @@ export class ShellComponent implements OnInit, AfterViewInit {
       reprise: 'Reprise de données',
       planning: 'NAV.PLANNING_SEMAINE',
       'planning-centre': 'NAV.ADMIN_PLANNING',
+      infirmiers: 'NAV.INFIRMIERS',
+      referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
+      absences: 'NAV.INFIRMIERS_ABSENCES',
+      charge: 'NAV.INFIRMIERS_CHARGE',
+      moi: 'NAV.INFIRMIERS_MOI',
     };
     const segs = url.split('?')[0].split('/').filter(Boolean);
     this.breadcrumbRoutes = segs;

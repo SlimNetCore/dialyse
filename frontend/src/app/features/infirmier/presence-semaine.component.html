@@ -1,0 +1,241 @@
+<div class="pres-page">
+  <header class="pres-head">
+    <div>
+      <h1>{{ 'INFIRMIER.PRESENCE.TITLE' | translate }}</h1>
+      <p class="pres-sub">
+        {{ 'INFIRMIER.PRESENCE.SUBTITLE' | translate: {ratio: store.semaine()?.patientsParInfirmier ?? '-'} }}
+      </p>
+    </div>
+    <div class="pres-nav">
+      <button (click)="precedente()" [attr.aria-label]="'PLANNING.SEMAINE.PREV' | translate"
+              [disabled]="store.loading()"
+              data-testid="pres-prev" mat-icon-button type="button">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      @if (store.semaine(); as s) {
+        <strong class="pres-range" data-testid="pres-range">
+          {{
+            'PLANNING.SEMAINE.SEMAINE_DU' | translate: {
+              debut: (s.debut | date: 'dd/MM/yyyy'),
+              fin: (s.fin | date: 'dd/MM/yyyy')
+            }
+          }}
+        </strong>
+      }
+      <button (click)="suivante()" [attr.aria-label]="'PLANNING.SEMAINE.NEXT' | translate" [disabled]="store.loading()"
+              data-testid="pres-next" mat-icon-button type="button">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button (click)="aujourdhui()" [disabled]="store.loading()" mat-stroked-button type="button">
+        {{ 'PLANNING.SEMAINE.TODAY' | translate }}
+      </button>
+      <button (click)="imprimer()" [disabled]="printing() || !store.semaine()" data-testid="pres-print"
+              mat-stroked-button
+              type="button">
+        <mat-icon>print</mat-icon>
+        {{ 'INFIRMIER.PRESENCE.PRINT' | translate }}
+      </button>
+    </div>
+  </header>
+
+  @if (store.loading() || store.saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error()) {
+    <p class="pres-feedback error" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.successMessage()) {
+    <p class="pres-feedback success" role="status">{{ store.successMessage()! | translate }}</p>
+  }
+
+  <mat-card class="pres-alertes" data-testid="pres-alertes">
+    <mat-card-header>
+      <mat-card-title>{{ 'INFIRMIER.PRESENCE.ALERTES_TITLE' | translate }} ({{ store.alertes().length }})
+      </mat-card-title>
+      <mat-card-subtitle>{{ 'INFIRMIER.PRESENCE.ALERTES_HINT' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @for (a of store.alertes(); track a.date + a.salleId + a.creneauId) {
+        <button (click)="voirAlerte(a)" class="pres-alerte" type="button">
+          <mat-icon>warning_amber</mat-icon>
+          <span>
+            <strong>{{ a.date | date: 'dd/MM' }} {{ ('PATIENT_FORM.' + a.jour) | translate | slice: 0 : 3 }}</strong>
+            · {{ salleNom(a.salleId) || ('PATIENT_FORM.SALLE' | translate) }} · {{ creneauLibelle(a.creneauId) }}
+          </span>
+          <span class="pres-sub">
+            {{ 'INFIRMIER.PRESENCE.MANQUE' | translate: {manque: a.manque, requis: a.requis, patients: a.patients} }}
+            @if (a.absents.length > 0) {
+              — {{ 'INFIRMIER.PRESENCE.ABSENTS' | translate }} : {{ a.absents.join(', ') }}
+            }
+          </span>
+        </button>
+      } @empty {
+        <p class="pres-sub" data-testid="pres-no-alerte">{{ 'INFIRMIER.PRESENCE.AUCUNE_ALERTE' | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (store.semaine(); as s) {
+    @if (lignes().length === 0) {
+      <p class="pres-sub">{{ 'PLANNING.SEMAINE.EMPTY_ROWS' | translate }}</p>
+    } @else {
+      <div class="pres-scroll">
+        <table class="pres-table" data-testid="pres-table">
+          <thead>
+          <tr>
+            <th>{{ 'PATIENT_FORM.SALLE' | translate }}</th>
+            <th>{{ 'PATIENT_FORM.POSITION' | translate }}</th>
+            @for (j of jours; track j) {
+              @let jp = jourPlanning(j);
+              <th [class.closed]="jp && (!jp.ouvertHebdomadaire || jp.fermetureMotif !== null)">
+                {{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}
+                @if (jp) {
+                  <small>{{ jp.date | date: 'dd/MM' }}</small>
+                }
+              </th>
+            }
+          </tr>
+          </thead>
+          <tbody>
+            @for (ligne of lignes(); track ligne.salle.id + ligne.creneau.id) {
+              <tr>
+                <th scope="row">{{ ligne.salle.nom }}</th>
+                <td>{{ ligne.creneau.libelle }}</td>
+                @for (j of jours; track j) {
+                  @let c = cellule(ligne.salle.id, ligne.creneau.id, j);
+                  <td (click)="ouvrir(c)" (keydown.enter)="ouvrir(c)" [attr.tabindex]="c && c.statut !== 'FERME' ? 0 : null"
+                      [class.selected]="estSelectionnee(c)" [class]="'cell ' + classe(c?.statut)"
+                      data-testid="pres-cell">
+                    @if (c && c.statut !== 'FERME' && c.statut !== 'SANS_PATIENT') {
+                      <small class="cap">{{ c.presents.length }}/{{ c.requis }}</small>
+                      @for (p of c.presents; track p.infirmierId) {
+                        <span [class.sub]="p.remplacant" class="chip">{{ p.nom }}</span>
+                      }
+                      @for (a of c.absents; track a.infirmierId) {
+                        <span class="chip absent">{{ a.nom }}</span>
+                      }
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="pres-legend">
+        <span class="dot covered"></span> {{ 'INFIRMIER.PRESENCE.LEGENDE.COUVERT' | translate }}
+        <span class="dot under"></span> {{ 'INFIRMIER.PRESENCE.LEGENDE.SOUS_EFFECTIF' | translate }}
+        <span class="dot idle"></span> {{ 'INFIRMIER.PRESENCE.LEGENDE.SANS_PATIENT' | translate }}
+        <span class="dot closed"></span> {{ 'PLANNING.SEMAINE.FERME' | translate }}
+      </p>
+    }
+
+    @if (caseOuverte(); as c) {
+      <mat-card class="pres-detail" data-testid="pres-detail">
+        <mat-card-header>
+          <mat-card-title>
+            {{ salleNom(c.salleId) }} · {{ creneauLibelle(c.creneauId) }} ·
+            {{ c.date | date: 'dd/MM/yyyy' }}
+          </mat-card-title>
+          <mat-card-subtitle>
+            {{
+              'INFIRMIER.PRESENCE.BESOIN' | translate: {
+                patients: c.patients,
+                requis: c.requis,
+                presents: c.presents.length
+              }
+            }}
+            @if (c.salleIsolement) {
+              · {{ 'INFIRMIER.PRESENCE.SALLE_ISOLEMENT' | translate }}
+            }
+          </mat-card-subtitle>
+          <button (click)="fermer()" [attr.aria-label]="'COMMON.CLOSE' | translate" class="pres-close" mat-icon-button
+                  type="button">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          <h4>{{ 'INFIRMIER.PRESENCE.PRESENTS' | translate }}</h4>
+          <ul class="pres-list">
+            @for (p of c.presents; track p.infirmierId) {
+              <li>
+                <span>{{ p.nom }}</span>
+                @if (p.remplacant) {
+                  <span class="badge">{{ 'INFIRMIER.PRESENCE.REMPLACANT' | translate }}</span>
+                  @if (peutModifier() && p.remplacementId) {
+                    <button (click)="store.annuler(p.remplacementId)" [disabled]="store.saving()"
+                            data-testid="pres-annuler" mat-stroked-button type="button">
+                      {{ 'INFIRMIER.PRESENCE.ANNULER' | translate }}
+                    </button>
+                  }
+                }
+              </li>
+            } @empty {
+              <li class="pres-sub">{{ 'INFIRMIER.PRESENCE.PERSONNE' | translate }}</li>
+            }
+          </ul>
+          @if (c.absents.length > 0) {
+            <h4>{{ 'INFIRMIER.PRESENCE.ABSENTS' | translate }}</h4>
+            <ul class="pres-list">
+              @for (a of c.absents; track a.infirmierId) {
+                <li>{{ a.nom }} — {{ ('INFIRMIER.ABSENCES.TYPES.' + a.type) | translate }}</li>
+              }
+            </ul>
+          }
+
+          <h4>{{ 'INFIRMIER.PRESENCE.REMPLACANTS' | translate }}</h4>
+          @if (store.loadingCandidats()) {
+            <mat-progress-bar mode="indeterminate"/>
+          }
+          <ul class="pres-list" data-testid="pres-candidats">
+            @for (k of store.candidats(); track k.infirmierId) {
+              <li>
+                <span class="grow">
+                  <strong>{{ k.nom }}</strong>
+                  <span class="pres-sub">
+                    {{ 'INFIRMIER.PRESENCE.SEANCES_SEMAINE' | translate: {count: k.seancesSemaine} }}
+                  </span>
+                  @for (r of k.raisons; track r) {
+                    <span class="reason">{{ ('INFIRMIER.PRESENCE.RAISON.' + r) | translate }}</span>
+                  }
+                </span>
+                <span [class.good]="k.score >= 70" class="score">{{ k.score }} %</span>
+                @if (peutModifier()) {
+                  <button (click)="affecter(k.infirmierId)" [disabled]="store.saving()" color="primary"
+                          data-testid="pres-affecter" mat-flat-button type="button">
+                    {{ 'INFIRMIER.PRESENCE.AFFECTER' | translate }}
+                  </button>
+                }
+              </li>
+            } @empty {
+              @if (!store.loadingCandidats()) {
+                <li class="pres-sub">{{ 'INFIRMIER.PRESENCE.AUCUN_CANDIDAT' | translate }}</li>
+              }
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (s.conflits.length > 0) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ 'PLANNING.SEMAINE.CONFLITS_TITLE' | translate }} ({{ s.conflits.length }})</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="pres-list" data-testid="pres-conflits">
+            @for (c of s.conflits; track $index) {
+              <li>
+                <strong>{{ ('INFIRMIER.PRESENCE.CONFLIT.' + c.type) | translate }}</strong>
+                <span>{{ c.infirmier }}</span>
+                <span class="pres-sub">
+                  {{ c.date | date: 'dd/MM' }} · {{ salleNom(c.salleId) }} · {{ creneauLibelle(c.creneauId) }}
+                </span>
+              </li>
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

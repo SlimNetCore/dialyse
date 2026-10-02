@@ -4,7 +4,6 @@ import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, EMPTY, pipe, switchMap, tap} from 'rxjs';
 import {
-  JourSemaine,
   PlanningApiService,
   PlanningParametres,
   SemainePlanning,
@@ -86,7 +85,7 @@ export const PlanningStore = signalStore(
         ),
       ),
 
-      enregistrerParametres: rxMethod<{ joursOuverts: JourSemaine[]; sallesIsolement: string[] }>(
+      enregistrerParametres: rxMethod<PlanningParametres>(
         pipe(
           tap(() => patchState(store, {saving: true, error: null, successMessage: null})),
           switchMap((payload) =>

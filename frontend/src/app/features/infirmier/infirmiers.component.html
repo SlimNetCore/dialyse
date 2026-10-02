@@ -1,0 +1,280 @@
+<section class="inf-page">
+  <header class="inf-head">
+    <h1>{{ 'INFIRMIER.REFERENTIEL.TITLE' | translate }}</h1>
+    <p class="inf-sub">{{ 'INFIRMIER.REFERENTIEL.SUBTITLE' | translate }}</p>
+  </header>
+
+  @if (store.error()) {
+    <p class="inf-feedback error" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.successMessage()) {
+    <p class="inf-feedback success" role="status">{{ store.successMessage()! | translate }}</p>
+  }
+  @if (store.loading() || store.saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{ (editingId() ? 'INFIRMIER.REFERENTIEL.EDIT_TITLE' : 'INFIRMIER.REFERENTIEL.CREATE_TITLE') | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="save(); $event.preventDefault()" [formRoot]="infirmierForm" class="inf-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.MATRICULE' | translate }}</mat-label>
+          <input [formField]="infirmierForm.matricule" data-testid="inf-matricule" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.NOM' | translate }}</mat-label>
+          <input [formField]="infirmierForm.nom" data-testid="inf-nom" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.PRENOM' | translate }}</mat-label>
+          <input [formField]="infirmierForm.prenom" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.TELEPHONE' | translate }}</mat-label>
+          <input [formField]="infirmierForm.telephone" matInput type="tel"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INFIRMIER.QUALIFICATION' | translate }}</mat-label>
+          <mat-select [formField]="infirmierForm.qualification" data-testid="inf-qualification">
+            @for (q of qualifications; track q) {
+              <mat-option [value]="q">{{ ('INFIRMIER.QUALIF.' + q) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-checkbox [formField]="infirmierForm.habiliteIsolement" class="inf-check" color="primary">
+          {{ 'INFIRMIER.HABILITE_ISOLEMENT' | translate }}
+        </mat-checkbox>
+
+        <div class="inf-actions full-width">
+          @if (editingId()) {
+            <button (click)="cancelEdit()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+          }
+          <button [disabled]="!canSave()" color="primary" data-testid="inf-save" mat-flat-button type="submit">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <div class="inf-table-scroll">
+        <table [dataSource]="store.rows()" class="inf-table" data-testid="inf-table" mat-table>
+          <ng-container matColumnDef="matricule">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.MATRICULE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.matricule }}</td>
+          </ng-container>
+          <ng-container matColumnDef="nom">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.NOM' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.prenom ? row.prenom + ' ' + row.nom : row.nom }}</td>
+          </ng-container>
+          <ng-container matColumnDef="qualification">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.QUALIFICATION' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ ('INFIRMIER.QUALIF.' + row.qualification) | translate }}</td>
+          </ng-container>
+          <ng-container matColumnDef="isolement">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ISOLEMENT_COL' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              @if (row.habiliteIsolement) {
+                <mat-icon [attr.aria-label]="'INFIRMIER.HABILITE_ISOLEMENT' | translate">verified_user</mat-icon>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="roulement">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.ROULEMENT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.affectations.length }}</td>
+          </ng-container>
+          <ng-container matColumnDef="compte">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.COMPTE.COLONNE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.compte ? row.compte.username : '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="statut">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.STATUT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              {{ (row.actif ? 'INFIRMIER.ACTIF' : 'INFIRMIER.INACTIF') | translate }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let row" class="inf-row-actions" mat-cell>
+              <button (click)="openRoulement(row)" [attr.aria-label]="'INFIRMIER.ROULEMENT' | translate"
+                      data-testid="inf-roulement" mat-icon-button type="button">
+                <mat-icon>event_repeat</mat-icon>
+              </button>
+              <button (click)="edit(row)" [attr.aria-label]="'COMMON.EDIT' | translate" mat-icon-button type="button">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button (click)="toggleActif(row)"
+                      [attr.aria-label]="(row.actif ? 'INFIRMIER.DESACTIVER' : 'INFIRMIER.REACTIVER') | translate"
+                      mat-icon-button type="button">
+                <mat-icon>{{ row.actif ? 'person_off' : 'person' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="columns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: columns" [class.selected]="row.id === selectedId()" mat-row></tr>
+        </table>
+      </div>
+      @if (store.isEmpty() && !store.loading()) {
+        <p class="inf-sub">{{ 'INFIRMIER.EMPTY' | translate }}</p>
+      }
+      <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
+    </mat-card-content>
+  </mat-card>
+
+  @if (selected(); as infirmier) {
+    <mat-card data-testid="inf-compte-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'INFIRMIER.COMPTE.TITLE' | translate }}</mat-card-title>
+        <mat-card-subtitle>{{ 'INFIRMIER.COMPTE.HINT' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (infirmier.compte; as compte) {
+          <p class="inf-compte-line" data-testid="inf-compte-actuel">
+            <mat-icon>account_circle</mat-icon>
+            <strong>{{ compte.username }}</strong>
+            <span class="inf-sub">
+              {{ (compte.actif ? 'INFIRMIER.ACTIF' : 'INFIRMIER.INACTIF') | translate }}
+            </span>
+            <button (click)="delierCompte()" [disabled]="store.saving()" data-testid="inf-delier" mat-stroked-button
+                    type="button">
+              <mat-icon>link_off</mat-icon>
+              {{ 'INFIRMIER.COMPTE.DELIER' | translate }}
+            </button>
+          </p>
+          <p class="inf-sub">{{ 'INFIRMIER.COMPTE.SYNC_HINT' | translate }}</p>
+        } @else {
+          <form [formRoot]="lierForm" class="inf-form inf-compte-form">
+            <mat-form-field appearance="outline" class="span-2">
+              <mat-label>{{ 'INFIRMIER.COMPTE.LIER_LABEL' | translate }}</mat-label>
+              <mat-select [formField]="lierForm.userId" data-testid="cpt-lier-select">
+                @for (c of store.comptesLiables(); track c.id) {
+                  <mat-option [value]="c.id">{{ c.username }}{{ c.nomComplet ? ' — ' + c.nomComplet : '' }}</mat-option>
+                } @empty {
+                  <mat-option disabled value="">{{ 'INFIRMIER.COMPTE.AUCUN_COMPTE_LIBRE' | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="inf-actions">
+              <button (click)="lierCompte()" [disabled]="!canLier()" color="primary" data-testid="cpt-lier"
+                      mat-flat-button
+                      type="button">
+                <mat-icon>link</mat-icon>
+                {{ 'INFIRMIER.COMPTE.LIER' | translate }}
+              </button>
+            </div>
+          </form>
+          <form [formRoot]="creerForm" class="inf-form inf-compte-form">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'INFIRMIER.COMPTE.IDENTIFIANT' | translate }}</mat-label>
+              <input [formField]="creerForm.identifiant" autocomplete="off" data-testid="cpt-identifiant" matInput/>
+              <mat-hint>{{ 'INFIRMIER.COMPTE.IDENTIFIANT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'INFIRMIER.COMPTE.EMAIL' | translate }}</mat-label>
+              <input [formField]="creerForm.email" autocomplete="off" matInput type="email"/>
+            </mat-form-field>
+            <div class="inf-actions">
+              <button (click)="creerCompte()" [disabled]="!canCreerCompte()" color="primary" data-testid="cpt-creer"
+                      mat-stroked-button type="button">
+                <mat-icon>person_add</mat-icon>
+                {{ 'INFIRMIER.COMPTE.CREER' | translate }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (motDePasse(); as mdp) {
+          <div class="inf-secret" data-testid="cpt-mot-de-passe" role="status">
+            <strong>{{ 'INFIRMIER.COMPTE.MOT_DE_PASSE' | translate }}</strong>
+            <code>{{ mdp }}</code>
+            <span class="inf-sub">{{ 'INFIRMIER.COMPTE.MOT_DE_PASSE_HINT' | translate }}</span>
+            <span class="inf-actions">
+              <button (click)="copierMotDePasse()" mat-stroked-button type="button">
+                <mat-icon>content_copy</mat-icon>
+                {{ 'INFIRMIER.COMPTE.COPIER' | translate }}
+              </button>
+              <button (click)="store.effacerMotDePasse()" mat-stroked-button type="button">
+                {{ 'COMMON.CLOSE' | translate }}
+              </button>
+            </span>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card data-testid="inf-roulement-card">
+      <mat-card-header>
+        <mat-card-title>
+          {{ 'INFIRMIER.ROULEMENT_DE' | translate: {nom: infirmier.prenom ? infirmier.prenom + ' ' + infirmier.nom : infirmier.nom} }}
+        </mat-card-title>
+        <mat-card-subtitle>{{ 'INFIRMIER.ROULEMENT_HINT' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <ul class="inf-affectations">
+          @for (a of infirmier.affectations; track a.id) {
+            <li>
+              <span><strong>{{ salleLabel(a.salleId) }}</strong> · {{ creneauLabel(a.creneauId) }}</span>
+              <span class="inf-days">
+                @for (j of ordonnes(a.jours); track j) {
+                  <span class="inf-day">{{ ('PATIENT_FORM.' + j) | translate }}</span>
+                }
+              </span>
+              <button (click)="deleteAffectation(a.id)" [attr.aria-label]="'COMMON.DELETE' | translate"
+                      mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </li>
+          } @empty {
+            <li class="inf-sub">{{ 'INFIRMIER.AUCUNE_AFFECTATION' | translate }}</li>
+          }
+        </ul>
+
+        <form [formRoot]="affectationForm" class="inf-form inf-affectation-form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PATIENT_FORM.SALLE' | translate }}</mat-label>
+            <mat-select [formField]="affectationForm.salleId" data-testid="aff-salle">
+              @for (s of sallesStore.items(); track s.id) {
+                <mat-option [value]="s.id">{{ s.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PATIENT_FORM.POSITION' | translate }}</mat-label>
+            <mat-select [formField]="affectationForm.creneauId" data-testid="aff-creneau">
+              @for (p of positionsStore.items(); track p.id) {
+                <mat-option [value]="p.id">{{ p.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <div class="inf-jours full-width" data-testid="aff-jours">
+            @for (j of jours; track j) {
+              <mat-checkbox (change)="basculerJour(j, $event.checked)" [checked]="joursChoisis().has(j)">
+                {{ ('PATIENT_FORM.' + j) | translate }}
+              </mat-checkbox>
+            }
+          </div>
+          @if (chevauchement()) {
+            <p class="inf-feedback error full-width"
+               role="alert">{{ 'INFIRMIER.ERR.AFFECTATION_CHEVAUCHEMENT' | translate }}</p>
+          }
+          <div class="inf-actions full-width">
+            <button (click)="addAffectation()" [disabled]="!canAddAffectation()" color="primary" data-testid="aff-add"
+                    mat-flat-button type="button">
+              <mat-icon>add</mat-icon>
+              {{ 'INFIRMIER.AJOUTER_AFFECTATION' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

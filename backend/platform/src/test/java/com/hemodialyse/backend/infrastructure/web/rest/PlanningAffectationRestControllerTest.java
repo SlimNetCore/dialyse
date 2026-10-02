@@ -91,15 +91,15 @@ class PlanningAffectationRestControllerTest {
         when(guard.requireCenter(null)).thenReturn(CenterId.of(centre));
         PlanningParametres params = new PlanningParametres(EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI), Set.of(salle));
         when(parametresService.lire(centre)).thenReturn(params);
-        when(parametresService.enregistrer(eq(centre), any(), any())).thenReturn(params);
+        when(parametresService.enregistrer(eq(centre), any(), any(), eq(3))).thenReturn(params);
         PlanningParametresRestController ctrl = new PlanningParametresRestController(parametresService, guard);
 
         ParametresResponse lu = ctrl.lire(null).getBody();
         ParametresResponse ecrit = ctrl.enregistrer(null,
-                new ParametresRequest(List.of(JourSemaine.LUNDI, JourSemaine.MARDI), List.of(salle))).getBody();
+                new ParametresRequest(List.of(JourSemaine.LUNDI, JourSemaine.MARDI), List.of(salle), 3)).getBody();
 
         assertEquals(List.of(JourSemaine.LUNDI, JourSemaine.MARDI), lu.joursOuverts());
         assertEquals(List.of(salle), ecrit.sallesIsolement());
-        verify(parametresService).enregistrer(centre, EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI), Set.of(salle));
+        verify(parametresService).enregistrer(centre, EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI), Set.of(salle), 3);
     }
 }

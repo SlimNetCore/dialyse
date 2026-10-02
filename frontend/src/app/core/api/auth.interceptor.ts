@@ -1,5 +1,7 @@
 import {HttpInterceptorFn} from '@angular/common/http';
 import {inject} from '@angular/core';
+import {Router} from '@angular/router';
+import {PASSWORD_CHANGE_URL} from '../auth/auth.guard';
 import {catchError, finalize, Observable, shareReplay, switchMap, throwError} from 'rxjs';
 import {AuthApiService} from './auth-api.service';
 import {AuthStore} from '../state/auth.store';
@@ -13,6 +15,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const authApi = inject(AuthApiService);
   const authStore = inject(AuthStore);
+  const router = inject(Router);
   const isRefreshCall = req.url.includes('/api/v1/auth/refresh');
   const isLoginOrLogout = req.url.includes('/api/v1/auth/login') || req.url.includes('/api/v1/auth/logout');
   const skipRefresh = req.headers.has('x-skip-auth-refresh');
@@ -23,6 +26,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(cloned).pipe(
     catchError((err) => {
+      // Mot de passe temporaire non remplacé : le serveur bloque l'API, on renvoie vers la page de changement.
+      if (err?.status === 403 && err?.error?.code === 'PASSWORD_CHANGE_REQUIRED') {
+        authStore.requirePasswordChange();
+        void router.navigateByUrl(PASSWORD_CHANGE_URL);
+        return throwError(() => err);
+      }
+
       if (isRefreshCall || isLoginOrLogout || skipRefresh || err?.status !== 401) {
         return throwError(() => err);
       }

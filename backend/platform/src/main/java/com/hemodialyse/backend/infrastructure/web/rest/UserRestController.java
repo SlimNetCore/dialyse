@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.application.infirmier.CompteInfirmierService;
 import com.hemodialyse.backend.infrastructure.persistence.entity.AppUserJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.AppUserJpaRepository;
 import com.hemodialyse.backend.infrastructure.persistence.spec.UserSpecifications;
@@ -32,10 +33,14 @@ public class UserRestController {
     private final AppUserJpaRepository userRepository;
     //private final LicenseService licenseService;
 
-    public UserRestController(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, AppUserJpaRepository userRepository) {
+    private final CompteInfirmierService comptesInfirmier;
+
+    public UserRestController(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, AppUserJpaRepository userRepository,
+                              CompteInfirmierService comptesInfirmier) {
         this.jdbc = jdbc;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.comptesInfirmier = comptesInfirmier;
         //this.licenseService = licenseService;
     }
 
@@ -163,11 +168,14 @@ public class UserRestController {
                 jdbc.update("INSERT INTO app_user_center (user_id, center_id) VALUES (?,?)", id, centerId);
             }
         }
+        // Une fiche infirmier reliée à ce compte suit son état (actif / inactif).
+        comptesInfirmier.surChangementEtatCompte(id, req.active());
         return ResponseEntity.ok(Map.of("id", id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+        comptesInfirmier.surSuppressionCompte(id);
         jdbc.update("DELETE FROM app_user WHERE id = ?", id);
         return ResponseEntity.ok(Map.of("deleted", true));
     }

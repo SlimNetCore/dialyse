@@ -94,6 +94,30 @@ class RoleScopeFilterTest {
     }
 
     @Test
+    void a_nurse_alone_reaches_his_own_planning_and_the_sessions_but_not_staff_management() throws Exception {
+        authenticateAs("INFIRMIER");
+        for (String path : List.of("/api/v1/infirmiers/moi/planning", "/api/v1/infirmiers/moi/absences",
+                "/api/v1/seances", "/api/v1/patients", "/api/v1/auth/me")) {
+            assertAllowed(path);
+        }
+        for (String path : List.of("/api/v1/infirmiers", "/api/v1/infirmiers/presence/semaine",
+                "/api/v1/infirmiers/absences", "/api/v1/infirmiers/comptes-liables",
+                "/api/v1/planning/semaine", "/api/v1/planning/parametres", "/api/v1/planning/affectations")) {
+            assertForbidden(path);
+        }
+        assertAllowed("/api/v1/infirmiersx");
+    }
+
+    @Test
+    void a_nurse_who_also_holds_another_centre_role_keeps_staff_management() throws Exception {
+        for (String autre : List.of("ADMIN", "MEDECIN", "SECRETAIRE")) {
+            authenticateAs("INFIRMIER", autre);
+            assertAllowed("/api/v1/infirmiers/presence/semaine");
+            assertAllowed("/api/v1/planning/semaine");
+        }
+    }
+
+    @Test
     void non_api_paths_and_preflight_requests_are_ignored() throws Exception {
         authenticateAs("DIRECTION");
         FilterChain chain = mock(FilterChain.class);

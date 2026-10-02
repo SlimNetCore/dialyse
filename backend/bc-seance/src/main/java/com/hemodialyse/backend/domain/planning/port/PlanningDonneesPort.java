@@ -2,6 +2,8 @@ package com.hemodialyse.backend.domain.planning.port;
 
 import com.hemodialyse.backend.domain.planning.model.Planning.DonneesPlanning;
 
+import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -17,12 +19,22 @@ public interface PlanningDonneesPort {
     DonneesPlanning charger(UUID centerId, UUID patientAIgnorer);
 
     /**
+     * Données du planning avec les fermetures datées comprises entre deux dates (bornes incluses).
+     */
+    DonneesPlanning chargerPeriode(UUID centerId, LocalDate du, LocalDate au);
+
+    /**
      * Le patient est-il à risque infectieux (dernière sérologie positive pour le VHB, le VHC ou le VIH) ?
      */
     boolean patientARisque(UUID centerId, UUID patientId);
 
     /**
-     * Identifiants des salles du centre (validation du paramétrage des salles d'isolement).
+     * Identifiants des salles du centre (validation du paramétrage des salles d'isolement et des affectations).
      */
-    java.util.Set<UUID> sallesDuCentre(UUID centerId);
+    Set<UUID> sallesDuCentre(UUID centerId);
+
+    /**
+     * Identifiants des créneaux (positions horaires) du centre.
+     */
+    Set<UUID> creneauxDuCentre(UUID centerId);
 }

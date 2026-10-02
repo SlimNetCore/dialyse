@@ -1581,6 +1581,10 @@
       "ISOLEMENT_HINT": "Tettwaḥeggzent i yinebdalen yesɛan ugur n uɣessu (VHB, VHC, VIH); inebdalen-nniḍen ur ttwaserdsen ara dinna.",
       "AUCUNE_SALLE": "Ulac taxxamt yettwasbadun i uɣallis-agi.",
       "SAVED_OK": "Iɣewwaren ttwaklasen",
+      "RATIO_TITLE": "Azal n tɣellist n inemgalen",
+      "RATIO_HINT": "Amḍan afellay n yinebdalen i yiwen n unemgal: iseww-it i usentel n yal asmel deg umuddu n tedyant.",
+      "RATIO_LABEL": "Inebdalen i yiwen n unemgal",
+      "RATIO_RANGE": "Gar 1 d {{max}}",
       "ERR": {
         "LOAD": "Ur izmir ara ad yettwasali iɣewwaren n umuddu",
         "SAVE": "Ur izmir ara ad yettwaklas"
@@ -1600,6 +1604,198 @@
       "SALLE_PREFEREE": "Taxxamt yettwafren",
       "SALLE_PEU_CHARGEE": "Taxxamt tecfa drus",
       "SALLE_ISOLEMENT": "Taxxamt n usnaw"
+    }
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "Fren awal uffir-ik",
+    "INTRO": "Awal uffir-ik d aneggaru: beddel-it akken ad tkecmeḍ ɣer usnas.",
+    "CURRENT": "Awal uffir ineggar",
+    "NEW": "Awal uffir amaynut",
+    "CONFIRM": "Sentem awal uffir amaynut",
+    "HINT": "{{min}} n yisekkilen ma drus, s yiwen n usekkil d yiwen n uṭṭun ma drus",
+    "MISMATCH": "Sin n yiwalen uffiren ur mṣadan ara.",
+    "SUBMIT": "Sekles u kemmel",
+    "LOGOUT": "Ffeɣ",
+    "ERR": {
+      "GENERIC": "Ur izmir ara ad yettwabeddel wawal uffir",
+      "PASSWORD_ACTUEL_INVALIDE": "Awal uffir ineggar ur yelli ara d ameɣtu",
+      "PASSWORD_IDENTIQUE": "Awal uffir amaynut ilaq ad yemgarad ɣer wawal uffir ineggar",
+      "PASSWORD_TROP_FAIBLE": "Awal uffir yezmel: {{min}} n yisekkilen ma drus, s usekkil d uṭṭun, war usulay-ik n unekcum"
+    }
+  },
+  "INFIRMIER": {
+    "TITLE_SINGULIER": "Anemgal",
+    "MATRICULE": "Uṭṭun n usekles",
+    "NOM": "Isem n tmagit",
+    "PRENOM": "Isem",
+    "TELEPHONE": "Tiliɣri",
+    "QUALIFICATION": "Tiktiwin",
+    "HABILITE_ISOLEMENT": "Yettwarra ad ixdem deg texxamt n usnaw",
+    "ISOLEMENT_COL": "Asnaw",
+    "ROULEMENT": "Tawuri",
+    "STATUT": "Addad",
+    "ACTIF": "Yermed",
+    "INACTIF": "Ur yermid ara",
+    "DESACTIVER": "Sens",
+    "REACTIVER": "Rmed i tikelt-nniḍen",
+    "EMPTY": "Ulac isefka",
+    "ROULEMENT_DE": "Tawuri n {{nom}}",
+    "ROULEMENT_HINT": "Taxxamt, asmel d ussan n umahil. Anemgal ur izmir ara ad yili deg sin texxamin deg yiwen n usmel deg yiwen n wass.",
+    "AUCUNE_AFFECTATION": "Ulac asuddes: anemgal-agi ur d-yettban deg yiwen n usmel.",
+    "AJOUTER_AFFECTATION": "Rnu asuddes",
+    "SAVED_OK": "Yettwaklas",
+    "COMPTE": {
+      "COLONNE": "Amiḍan",
+      "TITLE": "Amiḍan n unekcum ɣer usnas",
+      "HINT": "Yeqqen afaylu ɣer umiḍan n useqdac (tasɣent n unemgal): anemgal yezmer ad iwali amuddu-ines.",
+      "DELIER": "Kkes aseqqen n umiḍan",
+      "SYNC_HINT": "Asens n ufaylu isens amiḍan, d agdil-is. Tukksa n useqqen teǧǧa sin-nsen.",
+      "LIER_LABEL": "Amiḍan n unemgal yellan",
+      "AUCUN_COMPTE_LIBRE": "Ulac amiḍan n unemgal yellan deg uɣallis-agi",
+      "LIER": "Qqen amiḍan",
+      "IDENTIFIANT": "Asulay n unekcum",
+      "IDENTIFIANT_HINT": "Seg 3 ɣer 50 n yisekkilen: isekkilen, ineḍfaren, tanqiṭ, ajerriḍ, ajerriḍ ukessar",
+      "EMAIL": "Imayl (afrayan)",
+      "CREER": "Snulfu-d amiḍan",
+      "MOT_DE_PASSE": "Awal uffir ineggar",
+      "MOT_DE_PASSE_HINT": "Efk-it i unemgal: ur d-yettwaskan ara ticki ad yemdel.",
+      "COPIER": "Nɣel",
+      "LIE_OK": "Amiḍan yeqqen ɣer ufaylu",
+      "CREE_OK": "Amiḍan yettwasnulfa u yeqqen ɣer ufaylu",
+      "DELIE_OK": "Amiḍan yettwakkes seg ufaylu"
+    },
+    "MOI": {
+      "TITLE": "Amuddu-iw",
+      "NON_LIE": "Amiḍan-ik ur yeqqin ɣer yiwen n ufaylu n unemgal deg uɣallis-agi. Nermes anedbal.",
+      "MES_CRENEAUX": "Ismalen-iw n yimalas-agi",
+      "AUCUN_CRENEAU": "Ulac asmel yettwaɣerrez deg yimalas-agi.",
+      "AUJOURDHUI": "Ass-a",
+      "AUCUN_AUJOURDHUI": "Ulac asmel yettwaɣerrez ass-a.",
+      "VOIR_SEANCES": "Wali tiɣimiyin",
+      "SITUATION": {
+        "PREVU": "Yettwaɣerrez",
+        "REMPLACANT": "Ambedal",
+        "ABSENT": "Ur yelli ara"
+      },
+      "DECLARER": "Cuɛ tamettant",
+      "DECLARER_HINT": "Tadbelt tettwassen u tetteg abeddel. Tamettant yebdan ur tezmireḍ ara ad tt-tekkseḍ.",
+      "DECLARER_BTN": "Cuɛ",
+      "MES_ABSENCES": "Tamettant-iw",
+      "RETIRER": "Kkes tamettant",
+      "ABSENCE_OK": "Tamettant tettwacuɛ",
+      "ANNULEE_OK": "Tamettant tettwakkes",
+      "ERR": {
+        "LOAD": "Ur izmir ara ad yettwasali umuddu-ik"
+      }
+    },
+    "QUALIF": {
+      "INFIRMIER": "Anemgal",
+      "MAJOR": "Aqeddar n inemgalen",
+      "AIDE_SOIGNANT": "Amallal n unemgal"
+    },
+    "REFERENTIEL": {
+      "TITLE": "Inemgalen",
+      "SUBTITLE": "Tarbaɛt n unemgal n uɣallis d tewuri s texxamt, asmel d wass n umahil.",
+      "CREATE_TITLE": "Anemgal amaynut",
+      "EDIT_TITLE": "Ẓreg anemgal"
+    },
+    "ABSENCES": {
+      "TITLE": "Tamettant n inemgalen",
+      "SUBTITLE": "Tikli, ugur n tezmert d uselmed: ttwakksent seg tewuri deg umuddu n tedyant.",
+      "DECLARER": "Cuɛ tamettant",
+      "DEBUT": "Seg",
+      "FIN": "Ɣer",
+      "TYPE": "Anaw",
+      "MOTIF": "Ssebba",
+      "PERIODE": "Tagara",
+      "PERIODE_INVALIDE": "Taggara n tmettant tezwar tazwara-ines.",
+      "EMPTY": "Ulac tamettant yettwacuɛen",
+      "SAVED_OK": "Tamettant tettwaklas",
+      "TYPES": {
+        "CONGE": "Tikli",
+        "MALADIE": "Aɣilif",
+        "FORMATION": "Uselmed",
+        "AUTRE": "Nniḍen"
+      }
+    },
+    "PRESENCE": {
+      "TITLE": "Amuddu n tedyant n inemgalen",
+      "SUBTITLE": "Inemgalen yettwaɣerrzen s texxamt, asmel d wass ɣer usentel (azal: {{ratio}} n yinebdalen i yiwen n unemgal).",
+      "PRINT": "Siggez",
+      "PRINT_ERROR": "Ur izmir ara ad yettwasiggez umuddu n tedyant",
+      "ALERTES_TITLE": "Ismalen deg ugur (14 n wussan i d-iteddun)",
+      "ALERTES_HINT": "Tuffɣa n tarbaɛt tettwafren zik: ssit akken ad twaliḍ imbedlen izemren.",
+      "AUCUNE_ALERTE": "Ulac asmel ur nelhi ara deg 14 n wussan i d-iteddun.",
+      "MANQUE": "Yeɣli {{manque}} n unemgal — {{requis}} i d-yettwasran i {{patients}} n unebdal",
+      "ABSENTS": "Ur llin ara",
+      "BESOIN": "{{patients}} n unebdal: {{requis}} n unemgal yettwasran, {{presents}} yettwaɣerrez",
+      "SALLE_ISOLEMENT": "Taxxamt n usnaw (inemgalen yettwarran kan)",
+      "PRESENTS": "Yettwaɣerrzen",
+      "REMPLACANT": "Ambedal",
+      "ANNULER": "Sefsex abeddel",
+      "PERSONNE": "Ulac yiwen yettwaɣerrez deg usmel-agi.",
+      "REMPLACANTS": "Imbedlen izemren",
+      "SEANCES_SEMAINE": "{{count}} n tɣimit deg imalas-agi",
+      "AFFECTER": "Suddes",
+      "AUCUN_CANDIDAT": "Ulac amebdal yellan: akk ur llin ara, ttwaɣerzen yakan deg usmel-agi neɣ ur ttwarran ara.",
+      "SAVED_OK": "Amuddu yettwarmed",
+      "LEGENDE": {
+        "COUVERT": "Yettwasekles",
+        "SOUS_EFFECTIF": "Tuffɣa n tarbaɛt",
+        "SANS_PATIENT": "War unebdal"
+      },
+      "RAISON": {
+        "SALLE_CONNUE": "Yessen taxxamt",
+        "CRENEAU_HABITUEL": "Asmel amagdaz",
+        "CHARGE_FAIBLE": "Amahil fessus",
+        "JOUR_LIBRE": "Ass n usteɣfer",
+        "HABILITE_ISOLEMENT": "Yettwarra i usnaw",
+        "DOUBLE_VACATION": "Tawuri tuḍfirt"
+      },
+      "CONFLIT": {
+        "DOUBLE_AFFECTATION": "Anemgal yettwaɣerrez deg sin texxamin deg yiwen n usmel",
+        "NON_HABILITE": "Anemgal ur yettwarri ara deg texxamt n usnaw"
+      },
+      "ERR": {
+        "LOAD": "Ur izmir ara ad yettwasali umuddu n tedyant",
+        "CANDIDATS": "Ur izmir ara ad ttwasalin imbedlen izemren"
+      }
+    },
+    "CHARGE": {
+      "TITLE": "Amahil n inemgalen",
+      "SUBTITLE": "Tiɣimit n tewuri, imbedlen d tmettant n wayyur, i usuddem n imbedlen s tifawt.",
+      "PREV": "Ayyur yezrin",
+      "NEXT": "Ayyur i d-iteddun",
+      "MOYENNE": "Anamud n uɣallis: {{valeur}} n tɣimit i yiwen n unemgal",
+      "SEANCES": "Tiɣimit (tawuri)",
+      "REMPLACEMENTS": "Imbedlen",
+      "JOURS_ABSENCE": "Ussan n tmettant",
+      "TOTAL": "Amatu",
+      "ECART": "Anmeggag ɣer unamud",
+      "ERR": {
+        "LOAD": "Ur izmir ara ad yettwasali umahil"
+      }
+    },
+    "ERR": {
+      "LOAD": "Ur izmir ara ad ttwasalin yisefka",
+      "SAVE": "Ur izmir ara ad yettwaklas",
+      "INFIRMIER_MATRICULE_EXISTANT": "Uṭṭun-agi n usekles yella yakan deg uɣallis",
+      "INFIRMIER_INTROUVABLE": "Anemgal ulac-it",
+      "AFFECTATION_CHEVAUCHEMENT": "Anemgal yettwasuddes yakan ɣer usmel-agi deg yiwen seg ussan-agi",
+      "AFFECTATION_SALLE_INCONNUE": "Taxxamt-agi ur tt-nettekki ara i uɣallis",
+      "AFFECTATION_CRENEAU_INCONNU": "Asmel-agi ur t-nettekki ara i uɣallis",
+      "AFFECTATION_INTROUVABLE": "Asuddes ulac-it",
+      "ABSENCE_INTROUVABLE": "Tamettant ulac-itt",
+      "REMPLACEMENT_INELIGIBLE": "Anemgal-agi ur izmir ara ad yettwasuddes ɣer usmel-agi (ur yelli ara, yettwaɣerzen yakan neɣ ur yettwarri ara)",
+      "REMPLACEMENT_INTROUVABLE": "Abeddel ulac-it",
+      "COMPTE_INTROUVABLE": "Amiḍan-agi ulac-it deg uɣallis neɣ ur yesɛi ara tasɣent n unemgal",
+      "COMPTE_DEJA_LIE": "Afaylu-agi yeqqen yakan ɣer umiḍan",
+      "COMPTE_DEJA_UTILISE": "Amiḍan-agi yeqqen yakan ɣer unemgal-nniḍen",
+      "COMPTE_ETAT_INCOHERENT": "Amiḍan d ufaylu ilaq ad yermed sin neɣ ur yermid ara sin",
+      "COMPTE_IDENTIFIANT_INVALIDE": "Asulay arameɣtu (seg 3 ɣer 50 n yisekkilen: isekkilen, ineḍfaren, tanqiṭ, ajerriḍ, ajerriḍ ukessar)",
+      "COMPTE_IDENTIFIANT_EXISTANT": "Asulay-agi n unekcum yella yakan",
+      "ABSENCE_PASSEE": "Tamettant yezrin kan tadbelt i izemren ad tt-tessekcem",
+      "ABSENCE_NON_ANNULABLE": "Tamettant yebdan kan tadbelt i izemren ad tt-tekkes"
     }
   },
   "GROUPES_ARTICLES": {
@@ -1633,6 +1829,12 @@
     "ADMIN_GROUPES_ARTICLES": "Igrawen n yimsalen",
     "ADMIN_PLANNING": "Amuddu n uɣallis",
     "PLANNING_SEMAINE": "Amuddu n yimalas",
+    "INFIRMIERS": "Inemgalen",
+    "INFIRMIERS_PRESENCE": "Amuddu n tedyant",
+    "INFIRMIERS_REFERENTIEL": "Inemgalen",
+    "INFIRMIERS_ABSENCES": "Tamettant",
+    "INFIRMIERS_CHARGE": "Amahil",
+    "INFIRMIERS_MOI": "Amuddu-iw",
     "DIRECTION": "Tegdurt",
     "DASHBOARD": "Tafelwit n uselkim",
     "PATIENTS": "Imdanen",
@@ -1895,6 +2097,8 @@
     "PATIENT_CREATED": "Amdan amaynut: {{nom}}",
     "PEC_VALIDATED": "PEC tettwasentem: {{nom}}",
     "PEC_CLOSED": "PEC temdel: {{nom}}",
+    "INFIRMIER_SOUS_EFFECTIF": "{{count}} n ismalen ur nelhi ara s inemgalen deg wussan i d-iteddun (seg {{date}}): imbedlen ilaq ad ttwasuddmen",
+    "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} icuɛ tamettant seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
     "SEANCE_CREATED": "Tamsirt tettwarna i {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Tamsirt tettwaqbel i {{nom}} ({{date}})"
   },
@@ -2055,6 +2259,7 @@
     "PRINT_MONTHLY_SUMMARY": "Siggez tasemlest taggurant",
     "DELETE": "Kkes",
     "SAVE": "Sekles",
+    "CLOSE": "Mdel",
     "READONLY": "Taɣuri kan",
     "EDITING": "Aẓreg",
     "RETRY": "Ɛreḍ tikkelt-nniḍen",

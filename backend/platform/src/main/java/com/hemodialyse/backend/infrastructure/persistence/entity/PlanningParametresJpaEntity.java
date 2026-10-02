@@ -25,6 +25,12 @@ public class PlanningParametresJpaEntity {
     @Column(name = "salles_isolement", columnDefinition = "TEXT")
     private String sallesIsolement;
 
+    /**
+     * Ratio de sécurité ; null pour les lignes créées avant l'introduction du planning de présence (défaut).
+     */
+    @Column(name = "patients_par_infirmier")
+    private Integer patientsParInfirmier;
+
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime updatedAt;
 
@@ -32,11 +38,16 @@ public class PlanningParametresJpaEntity {
     }
 
     public PlanningParametresJpaEntity(UUID centerId, String joursOuverts, String sallesIsolement,
-                                       OffsetDateTime updatedAt) {
+                                       Integer patientsParInfirmier, OffsetDateTime updatedAt) {
         this.centerId = centerId;
         this.joursOuverts = joursOuverts;
         this.sallesIsolement = sallesIsolement;
+        this.patientsParInfirmier = patientsParInfirmier;
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getPatientsParInfirmier() {
+        return patientsParInfirmier;
     }
 
     public UUID getCenterId() {

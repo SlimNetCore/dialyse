@@ -48,3 +48,8 @@
     width: 100%;
   }
 }
+
+.params-ratio {
+  padding-top: 12px;
+  max-width: 280px;
+}

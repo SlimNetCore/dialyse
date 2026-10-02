@@ -1949,6 +1949,10 @@
       "ISOLEMENT_HINT": "Reserved for patients at infectious risk (HBV, HCV, HIV); other patients are never placed there.",
       "AUCUNE_SALLE": "No room is defined for this center.",
       "SAVED_OK": "Settings saved",
+      "RATIO_TITLE": "Nurse safety ratio",
+      "RATIO_HINT": "Maximum number of patients per nurse: it sets the need of each slot in the presence planning.",
+      "RATIO_LABEL": "Patients per nurse",
+      "RATIO_RANGE": "Between 1 and {{max}}",
       "ERR": {
         "LOAD": "Unable to load the planning settings",
         "SAVE": "Unable to save"
@@ -1968,6 +1972,198 @@
       "SALLE_PREFEREE": "Chosen room",
       "SALLE_PEU_CHARGEE": "Lightly loaded room",
       "SALLE_ISOLEMENT": "Isolation room"
+    }
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "Choose your password",
+    "INTRO": "Your password is temporary: replace it to access the application.",
+    "CURRENT": "Temporary password",
+    "NEW": "New password",
+    "CONFIRM": "Confirm the new password",
+    "HINT": "At least {{min}} characters, with at least one letter and one digit",
+    "MISMATCH": "The two passwords do not match.",
+    "SUBMIT": "Save and continue",
+    "LOGOUT": "Log out",
+    "ERR": {
+      "GENERIC": "Unable to change the password",
+      "PASSWORD_ACTUEL_INVALIDE": "The temporary password is incorrect",
+      "PASSWORD_IDENTIQUE": "The new password must be different from the temporary password",
+      "PASSWORD_TROP_FAIBLE": "Password too weak: at least {{min}} characters, with a letter and a digit, without your login"
+    }
+  },
+  "INFIRMIER": {
+    "TITLE_SINGULIER": "Nurse",
+    "MATRICULE": "Staff number",
+    "NOM": "Last name",
+    "PRENOM": "First name",
+    "TELEPHONE": "Phone",
+    "QUALIFICATION": "Qualification",
+    "HABILITE_ISOLEMENT": "Qualified to work in the isolation room",
+    "ISOLEMENT_COL": "Isolation",
+    "ROULEMENT": "Rota",
+    "STATUT": "Status",
+    "ACTIF": "Active",
+    "INACTIF": "Inactive",
+    "DESACTIVER": "Deactivate",
+    "REACTIVER": "Reactivate",
+    "EMPTY": "No records",
+    "ROULEMENT_DE": "Rota of {{nom}}",
+    "ROULEMENT_HINT": "Room, time slot and working days. A nurse cannot be in two rooms on the same slot on the same day.",
+    "AUCUNE_AFFECTATION": "No assignment: this nurse does not appear in any time slot.",
+    "AJOUTER_AFFECTATION": "Add assignment",
+    "SAVED_OK": "Saved",
+    "COMPTE": {
+      "COLONNE": "Account",
+      "TITLE": "Application access account",
+      "HINT": "Links the file to a user account (nurse role): the nurse can then view their own planning.",
+      "DELIER": "Unlink the account",
+      "SYNC_HINT": "Deactivating the file deactivates the account, and the other way round. Unlinking keeps both.",
+      "LIER_LABEL": "Existing nurse account",
+      "AUCUN_COMPTE_LIBRE": "No nurse account available in this center",
+      "LIER": "Link the account",
+      "IDENTIFIANT": "Login",
+      "IDENTIFIANT_HINT": "3 to 50 characters: letters, digits, dot, dash, underscore",
+      "EMAIL": "Email (optional)",
+      "CREER": "Create an account",
+      "MOT_DE_PASSE": "Temporary password",
+      "MOT_DE_PASSE_HINT": "Give it to the nurse: it will not be shown again once closed.",
+      "COPIER": "Copy",
+      "LIE_OK": "Account linked to the file",
+      "CREE_OK": "Account created and linked to the file",
+      "DELIE_OK": "Account unlinked from the file"
+    },
+    "MOI": {
+      "TITLE": "My planning",
+      "NON_LIE": "Your account is not linked to any nurse file in this center. Contact the administrator.",
+      "MES_CRENEAUX": "My slots this week",
+      "AUCUN_CRENEAU": "No slot planned this week.",
+      "AUJOURDHUI": "Today",
+      "AUCUN_AUJOURDHUI": "No slot planned today.",
+      "VOIR_SEANCES": "View the sessions",
+      "SITUATION": {
+        "PREVU": "Planned",
+        "REMPLACANT": "Replacement",
+        "ABSENT": "Absent"
+      },
+      "DECLARER": "Declare an absence",
+      "DECLARER_HINT": "The administration is notified and organizes the replacement. You can no longer withdraw an absence that has started.",
+      "DECLARER_BTN": "Declare",
+      "MES_ABSENCES": "My absences",
+      "RETIRER": "Withdraw the absence",
+      "ABSENCE_OK": "Absence declared",
+      "ANNULEE_OK": "Absence withdrawn",
+      "ERR": {
+        "LOAD": "Unable to load your planning"
+      }
+    },
+    "QUALIF": {
+      "INFIRMIER": "Nurse",
+      "MAJOR": "Head nurse",
+      "AIDE_SOIGNANT": "Nursing assistant"
+    },
+    "REFERENTIEL": {
+      "TITLE": "Nurses",
+      "SUBTITLE": "Nursing staff of the center and rota by room, time slot and working day.",
+      "CREATE_TITLE": "New nurse",
+      "EDIT_TITLE": "Edit nurse"
+    },
+    "ABSENCES": {
+      "TITLE": "Nurse absences",
+      "SUBTITLE": "Leave, sick days and training: they are deducted from the rota in the presence planning.",
+      "DECLARER": "Declare an absence",
+      "DEBUT": "From",
+      "FIN": "To",
+      "TYPE": "Type",
+      "MOTIF": "Reason",
+      "PERIODE": "Period",
+      "PERIODE_INVALIDE": "The end of the absence is before its start.",
+      "EMPTY": "No absence declared",
+      "SAVED_OK": "Absence saved",
+      "TYPES": {
+        "CONGE": "Leave",
+        "MALADIE": "Sick leave",
+        "FORMATION": "Training",
+        "AUTRE": "Other"
+      }
+    },
+    "PRESENCE": {
+      "TITLE": "Nurse presence planning",
+      "SUBTITLE": "Nurses planned per room, time slot and day against the need (ratio: {{ratio}} patients per nurse).",
+      "PRINT": "Print",
+      "PRINT_ERROR": "Unable to print the presence planning",
+      "ALERTES_TITLE": "At-risk slots (next 14 days)",
+      "ALERTES_HINT": "Understaffing detected in advance: click to see possible replacements.",
+      "AUCUNE_ALERTE": "No understaffed slot in the next 14 days.",
+      "MANQUE": "{{manque}} nurse(s) missing — {{requis}} required for {{patients}} patient(s)",
+      "ABSENTS": "Absent",
+      "BESOIN": "{{patients}} patient(s): {{requis}} nurse(s) required, {{presents}} planned",
+      "SALLE_ISOLEMENT": "Isolation room (qualified nurses only)",
+      "PRESENTS": "Planned",
+      "REMPLACANT": "Replacement",
+      "ANNULER": "Cancel replacement",
+      "PERSONNE": "Nobody planned on this slot.",
+      "REMPLACANTS": "Possible replacements",
+      "SEANCES_SEMAINE": "{{count}} session(s) this week",
+      "AFFECTER": "Assign",
+      "AUCUN_CANDIDAT": "No replacement available: all are absent, already planned on this slot or not qualified.",
+      "SAVED_OK": "Planning updated",
+      "LEGENDE": {
+        "COUVERT": "Covered",
+        "SOUS_EFFECTIF": "Understaffed",
+        "SANS_PATIENT": "No patient"
+      },
+      "RAISON": {
+        "SALLE_CONNUE": "Knows the room",
+        "CRENEAU_HABITUEL": "Usual time slot",
+        "CHARGE_FAIBLE": "Light workload",
+        "JOUR_LIBRE": "Day off",
+        "HABILITE_ISOLEMENT": "Isolation-qualified",
+        "DOUBLE_VACATION": "Double shift"
+      },
+      "CONFLIT": {
+        "DOUBLE_AFFECTATION": "Nurse planned in two rooms on the same slot",
+        "NON_HABILITE": "Unqualified nurse in the isolation room"
+      },
+      "ERR": {
+        "LOAD": "Unable to load the presence planning",
+        "CANDIDATS": "Unable to load the possible replacements"
+      }
+    },
+    "CHARGE": {
+      "TITLE": "Nurse workload",
+      "SUBTITLE": "Rota sessions, replacements and absences of the month, to share replacements fairly.",
+      "PREV": "Previous month",
+      "NEXT": "Next month",
+      "MOYENNE": "Center average: {{valeur}} session(s) per nurse",
+      "SEANCES": "Sessions (rota)",
+      "REMPLACEMENTS": "Replacements",
+      "JOURS_ABSENCE": "Days absent",
+      "TOTAL": "Total",
+      "ECART": "Gap to average",
+      "ERR": {
+        "LOAD": "Unable to load the workload"
+      }
+    },
+    "ERR": {
+      "LOAD": "Unable to load the data",
+      "SAVE": "Unable to save",
+      "INFIRMIER_MATRICULE_EXISTANT": "This staff number already exists in the center",
+      "INFIRMIER_INTROUVABLE": "Nurse not found",
+      "AFFECTATION_CHEVAUCHEMENT": "The nurse is already assigned to this slot on one of these days",
+      "AFFECTATION_SALLE_INCONNUE": "This room does not belong to the center",
+      "AFFECTATION_CRENEAU_INCONNU": "This time slot does not belong to the center",
+      "AFFECTATION_INTROUVABLE": "Assignment not found",
+      "ABSENCE_INTROUVABLE": "Absence not found",
+      "REMPLACEMENT_INELIGIBLE": "This nurse cannot be assigned to this slot (absent, already planned or not qualified)",
+      "REMPLACEMENT_INTROUVABLE": "Replacement not found",
+      "COMPTE_INTROUVABLE": "This account does not exist in the center or does not have the nurse role",
+      "COMPTE_DEJA_LIE": "This file is already linked to an account",
+      "COMPTE_DEJA_UTILISE": "This account is already linked to another nurse",
+      "COMPTE_ETAT_INCOHERENT": "The account and the file must both be active or both be inactive",
+      "COMPTE_IDENTIFIANT_INVALIDE": "Invalid login (3 to 50 characters: letters, digits, dot, dash, underscore)",
+      "COMPTE_IDENTIFIANT_EXISTANT": "This login already exists",
+      "ABSENCE_PASSEE": "A past absence can only be entered by the administration",
+      "ABSENCE_NON_ANNULABLE": "An absence that has started can only be withdrawn by the administration"
     }
   },
   "GROUPES_ARTICLES": {
@@ -2001,6 +2197,12 @@
     "ADMIN_GROUPES_ARTICLES": "Article groups",
     "ADMIN_PLANNING": "Center planning",
     "PLANNING_SEMAINE": "Weekly planning",
+    "INFIRMIERS": "Nurses",
+    "INFIRMIERS_PRESENCE": "Presence planning",
+    "INFIRMIERS_REFERENTIEL": "Nurses",
+    "INFIRMIERS_ABSENCES": "Absences",
+    "INFIRMIERS_CHARGE": "Workload",
+    "INFIRMIERS_MOI": "My planning",
     "DIRECTION": "Management",
     "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",
@@ -2263,6 +2465,8 @@
     "PATIENT_CREATED": "New patient: {{nom}}",
     "PEC_VALIDATED": "Coverage validated: {{nom}}",
     "PEC_CLOSED": "Coverage closed: {{nom}}",
+    "INFIRMIER_SOUS_EFFECTIF": "{{count}} slot(s) understaffed in the coming days (from {{date}}): replacements to organize",
+    "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} declared an absence from {{debut}} to {{fin}}: replacement to organize",
     "SEANCE_CREATED": "Session created for {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})"
   },
@@ -2429,6 +2633,7 @@
     "PRINT_ERROR": "Printing failed",
     "DELETE": "Delete",
     "SAVE": "Save",
+    "CLOSE": "Close",
     "READONLY": "Read-only",
     "EDITING": "Editing",
     "RETRY": "Retry",

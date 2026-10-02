@@ -31,8 +31,9 @@ public class PlanningParametresService {
     /**
      * @throws IllegalArgumentException aucun jour d'ouverture, ou salle d'isolement étrangère au centre
      */
-    public PlanningParametres enregistrer(UUID centerId, Set<JourSemaine> joursOuverts, Set<UUID> sallesIsolement) {
-        PlanningParametres nouveaux = new PlanningParametres(joursOuverts, sallesIsolement);
+    public PlanningParametres enregistrer(UUID centerId, Set<JourSemaine> joursOuverts, Set<UUID> sallesIsolement,
+                                          int patientsParInfirmier) {
+        PlanningParametres nouveaux = new PlanningParametres(joursOuverts, sallesIsolement, patientsParInfirmier);
         if (!donnees.sallesDuCentre(centerId).containsAll(nouveaux.sallesIsolement())) {
             throw new IllegalArgumentException("Une salle d'isolement n'appartient pas à ce centre");
         }

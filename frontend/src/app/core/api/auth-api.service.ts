@@ -38,6 +38,8 @@ export type LoginResponse = {
   societeName?: string | null;
   /** CENTRE, SOCIETE (direction) ou PLATEFORME (propriétaire). */
   scope?: SessionScope;
+  /** Vrai tant que l'utilisateur n'a pas remplacé son mot de passe temporaire. */
+  mustChangePassword?: boolean;
 };
 
 /** État de l'installation : `required` tant qu'aucun compte propriétaire n'existe. */
@@ -119,6 +121,12 @@ export class AuthApiService {
 
   logout(): Observable<LogoutResponse> {
     return this.http.post<LogoutResponse>(`${this.baseUrl}/auth/logout`, {}, {withCredentials: true});
+  }
+
+  /** Remplace le mot de passe de l'utilisateur connecté (obligatoire tant que le mot de passe est temporaire). */
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/change-password`, {currentPassword, newPassword},
+      {withCredentials: true});
   }
 
   me(): Observable<LoginResponse> {

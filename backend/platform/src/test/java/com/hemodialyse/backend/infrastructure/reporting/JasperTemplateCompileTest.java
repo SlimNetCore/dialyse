@@ -32,7 +32,7 @@ class JasperTemplateCompileTest {
      */
     private static final List<String> DOCUMENT_TEMPLATES = List.of(
             "attestation", "fiche_patient", "inventaire_stock", "liste_attestations", "liste_patients", "liste_pec",
-            "ordonnance", "prise_en_charge", "bon_intervention");
+            "ordonnance", "prise_en_charge", "bon_intervention", "planning_presence_infirmiers");
 
     private static JasperReport compile(Path source) throws Exception {
         try (InputStream is = Files.newInputStream(source)) {

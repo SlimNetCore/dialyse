@@ -13,6 +13,8 @@ export type AuthSession = {
   societeId?: string | null;
   societeName?: string | null;
   scope?: SessionScope;
+  /** Vrai tant que l'utilisateur n'a pas remplacé son mot de passe temporaire. */
+  mustChangePassword?: boolean;
 };
 
 type AuthState = {
@@ -24,6 +26,7 @@ type AuthState = {
   societeId: string | null;
   societeName: string | null;
   scope: SessionScope;
+  mustChangePassword: boolean;
   isAuthenticated: boolean;
   serverSyncPending: number;
 };
@@ -37,6 +40,7 @@ const INITIAL_STATE: AuthState = {
   societeId: null,
   societeName: null,
   scope: 'CENTRE',
+  mustChangePassword: false,
   isAuthenticated: false,
   serverSyncPending: 0
 };
@@ -68,8 +72,19 @@ export const AuthStore = signalStore(
           societeId: session.societeId ?? null,
           societeName: session.societeName ?? null,
           scope: session.scope ?? 'CENTRE',
+          mustChangePassword: session.mustChangePassword ?? false,
           isAuthenticated: true
         });
+      },
+
+      /** Le serveur exige le remplacement du mot de passe temporaire (réponse 403 PASSWORD_CHANGE_REQUIRED). */
+      requirePasswordChange(): void {
+        patchState(store, {mustChangePassword: true});
+      },
+
+      /** Le mot de passe temporaire vient d'être remplacé. */
+      markPasswordChanged(): void {
+        patchState(store, {mustChangePassword: false});
       },
 
       /**
@@ -85,6 +100,7 @@ export const AuthStore = signalStore(
           societeId: null,
           societeName: null,
           scope: 'CENTRE',
+          mustChangePassword: false,
           isAuthenticated: false,
           serverSyncPending: 0
         });
@@ -168,7 +184,8 @@ function mapLoginResponseToSession(res: LoginResponse): AuthSession {
     roles: res.roles ?? [],
     societeId: res.societeId ?? null,
     societeName: res.societeName ?? null,
-    scope: res.scope ?? 'CENTRE'
+    scope: res.scope ?? 'CENTRE',
+    mustChangePassword: res.mustChangePassword ?? false
   };
 }
 

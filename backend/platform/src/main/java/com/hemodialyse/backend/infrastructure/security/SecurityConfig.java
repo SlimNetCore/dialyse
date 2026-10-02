@@ -31,9 +31,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final PasswordChangeRequiredFilter passwordChangeFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, PasswordChangeRequiredFilter passwordChangeFilter) {
         this.jwtFilter = jwtFilter;
+        this.passwordChangeFilter = passwordChangeFilter;
     }
 
     @Value("${app.cors.allowed-origins}")
@@ -80,7 +82,8 @@ public class SecurityConfig {
                         })
                         .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(passwordChangeFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

@@ -1,0 +1,162 @@
+.moi-page {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.moi-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.moi-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.moi-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.moi-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.moi-range {
+  min-width: 190px;
+  text-align: center;
+}
+
+.moi-warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #8a4b00;
+}
+
+.moi-feedback {
+  margin: 0;
+}
+
+.moi-feedback.error {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.moi-feedback.success {
+  color: #1b7f3b;
+}
+
+.moi-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.moi-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #eaf6ee;
+}
+
+.moi-item.remplacant {
+  background: #fff3cd;
+}
+
+.moi-item.absent {
+  background: #eceff3;
+  color: #7a8594;
+}
+
+.moi-badge {
+  margin-left: auto;
+  padding: 1px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.07);
+  font-size: 12px;
+}
+
+.moi-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 16px;
+  padding-top: 8px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.moi-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* défilement horizontal local : la page ne déborde jamais */
+.moi-table-scroll {
+  overflow-x: auto;
+}
+
+.moi-table {
+  width: 100%;
+  min-width: 480px;
+}
+
+.moi-row-actions {
+  text-align: right;
+}
+
+@media (max-width: 1023px) {
+  .moi-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .moi-page {
+    padding: 12px;
+  }
+
+  .moi-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .moi-range {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .moi-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .moi-actions button {
+    width: 100%;
+  }
+}
+
+.moi-today {
+  border-left: 4px solid #1b5e20;
+}
+
+.moi-today .moi-actions {
+  justify-content: flex-start;
+  padding-top: 12px;
+}

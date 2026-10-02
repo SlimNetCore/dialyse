@@ -124,6 +124,8 @@ export interface SemainePlanning {
 }
 
 export interface PlanningParametres {
+  /** Ratio de sécurité : nombre maximal de patients par infirmier. */
+  patientsParInfirmier: number;
   joursOuverts: JourSemaine[];
   sallesIsolement: string[];
 }

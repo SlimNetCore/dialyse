@@ -17,6 +17,7 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {LangStore} from '../../core/state/lang.store';
 import {ThemeStore} from '../../core/state/theme.store';
 import {MatMenuModule} from '@angular/material/menu';
+import {PASSWORD_CHANGE_URL} from '../../core/auth/auth.guard';
 import {homeRouteFor} from '../../core/auth/role-scope.guard';
 import {LoginPageStore} from './state/login-page.store';
 
@@ -141,7 +142,7 @@ export class LoginPageComponent {
             });
           }
           this.loginStore.setLoading(false);
-          this.router.navigate([homeRouteFor(res.roles ?? [])]);
+          this.router.navigate([res.mustChangePassword ? PASSWORD_CHANGE_URL : homeRouteFor(res.roles ?? [])]);
         },
         error: (err) => {
           const code: string | undefined = err?.error?.code;

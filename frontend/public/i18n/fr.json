@@ -1949,6 +1949,10 @@
       "ISOLEMENT_HINT": "Réservées aux patients à risque infectieux (VHB, VHC, VIH) ; les autres patients n'y sont jamais placés.",
       "AUCUNE_SALLE": "Aucune salle n'est définie pour ce centre.",
       "SAVED_OK": "Paramètres enregistrés",
+      "RATIO_TITLE": "Ratio de sécurité des infirmiers",
+      "RATIO_HINT": "Nombre maximal de patients par infirmier : il fixe le besoin de chaque créneau dans le planning de présence.",
+      "RATIO_LABEL": "Patients par infirmier",
+      "RATIO_RANGE": "Entre 1 et {{max}}",
       "ERR": {
         "LOAD": "Impossible de charger les paramètres du planning",
         "SAVE": "Enregistrement impossible"
@@ -1968,6 +1972,198 @@
       "SALLE_PREFEREE": "Salle choisie",
       "SALLE_PEU_CHARGEE": "Salle peu chargée",
       "SALLE_ISOLEMENT": "Salle d'isolement"
+    }
+  },
+  "CHANGE_PASSWORD": {
+    "TITLE": "Choisissez votre mot de passe",
+    "INTRO": "Votre mot de passe est temporaire : remplacez-le pour accéder à l'application.",
+    "CURRENT": "Mot de passe temporaire",
+    "NEW": "Nouveau mot de passe",
+    "CONFIRM": "Confirmer le nouveau mot de passe",
+    "HINT": "{{min}} caractères minimum, avec au moins une lettre et un chiffre",
+    "MISMATCH": "Les deux mots de passe ne correspondent pas.",
+    "SUBMIT": "Enregistrer et continuer",
+    "LOGOUT": "Se déconnecter",
+    "ERR": {
+      "GENERIC": "Impossible de changer le mot de passe",
+      "PASSWORD_ACTUEL_INVALIDE": "Le mot de passe temporaire est incorrect",
+      "PASSWORD_IDENTIQUE": "Le nouveau mot de passe doit être différent du mot de passe temporaire",
+      "PASSWORD_TROP_FAIBLE": "Mot de passe trop faible : {{min}} caractères minimum, avec une lettre et un chiffre, sans votre identifiant"
+    }
+  },
+  "INFIRMIER": {
+    "TITLE_SINGULIER": "Infirmier",
+    "MATRICULE": "Matricule",
+    "NOM": "Nom",
+    "PRENOM": "Prénom",
+    "TELEPHONE": "Téléphone",
+    "QUALIFICATION": "Qualification",
+    "HABILITE_ISOLEMENT": "Habilité à travailler en salle d'isolement",
+    "ISOLEMENT_COL": "Isolement",
+    "ROULEMENT": "Roulement",
+    "STATUT": "Statut",
+    "ACTIF": "Actif",
+    "INACTIF": "Inactif",
+    "DESACTIVER": "Désactiver",
+    "REACTIVER": "Réactiver",
+    "EMPTY": "Aucun enregistrement",
+    "ROULEMENT_DE": "Roulement de {{nom}}",
+    "ROULEMENT_HINT": "Salle, créneau et jours de travail. Un infirmier ne peut pas être sur deux salles le même créneau le même jour.",
+    "AUCUNE_AFFECTATION": "Aucune affectation : cet infirmier n'apparaît dans aucun créneau.",
+    "AJOUTER_AFFECTATION": "Ajouter l'affectation",
+    "SAVED_OK": "Enregistré",
+    "COMPTE": {
+      "COLONNE": "Compte",
+      "TITLE": "Compte d'accès à l'application",
+      "HINT": "Relie la fiche à un compte utilisateur (rôle infirmier) : l'infirmier consulte alors son propre planning.",
+      "DELIER": "Délier le compte",
+      "SYNC_HINT": "Désactiver la fiche désactive le compte, et inversement. Délier conserve les deux.",
+      "LIER_LABEL": "Compte infirmier existant",
+      "AUCUN_COMPTE_LIBRE": "Aucun compte infirmier disponible dans ce centre",
+      "LIER": "Lier le compte",
+      "IDENTIFIANT": "Identifiant de connexion",
+      "IDENTIFIANT_HINT": "3 à 50 caractères : lettres, chiffres, point, tiret, souligné",
+      "EMAIL": "E-mail (facultatif)",
+      "CREER": "Créer un compte",
+      "MOT_DE_PASSE": "Mot de passe temporaire",
+      "MOT_DE_PASSE_HINT": "Communiquez-le à l'infirmier : il ne sera plus affiché après fermeture.",
+      "COPIER": "Copier",
+      "LIE_OK": "Compte relié à la fiche",
+      "CREE_OK": "Compte créé et relié à la fiche",
+      "DELIE_OK": "Compte délié de la fiche"
+    },
+    "MOI": {
+      "TITLE": "Mon planning",
+      "NON_LIE": "Votre compte n'est relié à aucune fiche infirmier de ce centre. Contactez l'administrateur.",
+      "MES_CRENEAUX": "Mes créneaux de la semaine",
+      "AUCUN_CRENEAU": "Aucun créneau prévu cette semaine.",
+      "AUJOURDHUI": "Aujourd'hui",
+      "AUCUN_AUJOURDHUI": "Aucun créneau prévu aujourd'hui.",
+      "VOIR_SEANCES": "Voir les séances",
+      "SITUATION": {
+        "PREVU": "Prévu",
+        "REMPLACANT": "Remplaçant",
+        "ABSENT": "Absent"
+      },
+      "DECLARER": "Déclarer une absence",
+      "DECLARER_HINT": "L'administration est prévenue et organise le remplacement. Une absence commencée ne peut plus être retirée par vous.",
+      "DECLARER_BTN": "Déclarer",
+      "MES_ABSENCES": "Mes absences",
+      "RETIRER": "Retirer l'absence",
+      "ABSENCE_OK": "Absence déclarée",
+      "ANNULEE_OK": "Absence retirée",
+      "ERR": {
+        "LOAD": "Impossible de charger votre planning"
+      }
+    },
+    "QUALIF": {
+      "INFIRMIER": "Infirmier",
+      "MAJOR": "Infirmier major",
+      "AIDE_SOIGNANT": "Aide-soignant"
+    },
+    "REFERENTIEL": {
+      "TITLE": "Infirmiers",
+      "SUBTITLE": "Personnel soignant du centre et roulement par salle, créneau et jour de travail.",
+      "CREATE_TITLE": "Nouvel infirmier",
+      "EDIT_TITLE": "Modifier l'infirmier"
+    },
+    "ABSENCES": {
+      "TITLE": "Absences des infirmiers",
+      "SUBTITLE": "Congés, maladies et formations : elles se déduisent du roulement dans le planning de présence.",
+      "DECLARER": "Déclarer une absence",
+      "DEBUT": "Du",
+      "FIN": "Au",
+      "TYPE": "Type",
+      "MOTIF": "Motif",
+      "PERIODE": "Période",
+      "PERIODE_INVALIDE": "La fin de l'absence précède son début.",
+      "EMPTY": "Aucune absence déclarée",
+      "SAVED_OK": "Absence enregistrée",
+      "TYPES": {
+        "CONGE": "Congé",
+        "MALADIE": "Maladie",
+        "FORMATION": "Formation",
+        "AUTRE": "Autre"
+      }
+    },
+    "PRESENCE": {
+      "TITLE": "Planning de présence des infirmiers",
+      "SUBTITLE": "Infirmiers prévus par salle, créneau et jour face au besoin (ratio : {{ratio}} patients par infirmier).",
+      "PRINT": "Imprimer",
+      "PRINT_ERROR": "Impossible d'imprimer le planning de présence",
+      "ALERTES_TITLE": "Créneaux à risque (14 prochains jours)",
+      "ALERTES_HINT": "Sous-effectif détecté à l'avance : cliquez pour voir les remplaçants possibles.",
+      "AUCUNE_ALERTE": "Aucun créneau en sous-effectif dans les 14 prochains jours.",
+      "MANQUE": "Il manque {{manque}} infirmier(s) — {{requis}} requis pour {{patients}} patient(s)",
+      "ABSENTS": "Absents",
+      "BESOIN": "{{patients}} patient(s) : {{requis}} infirmier(s) requis, {{presents}} prévu(s)",
+      "SALLE_ISOLEMENT": "Salle d'isolement (infirmiers habilités uniquement)",
+      "PRESENTS": "Prévus",
+      "REMPLACANT": "Remplaçant",
+      "ANNULER": "Annuler le remplacement",
+      "PERSONNE": "Personne de prévu sur ce créneau.",
+      "REMPLACANTS": "Remplaçants possibles",
+      "SEANCES_SEMAINE": "{{count}} séance(s) cette semaine",
+      "AFFECTER": "Affecter",
+      "AUCUN_CANDIDAT": "Aucun remplaçant disponible : tous sont absents, déjà prévus sur ce créneau ou non habilités.",
+      "SAVED_OK": "Planning mis à jour",
+      "LEGENDE": {
+        "COUVERT": "Couvert",
+        "SOUS_EFFECTIF": "Sous-effectif",
+        "SANS_PATIENT": "Sans patient"
+      },
+      "RAISON": {
+        "SALLE_CONNUE": "Connaît la salle",
+        "CRENEAU_HABITUEL": "Créneau habituel",
+        "CHARGE_FAIBLE": "Charge légère",
+        "JOUR_LIBRE": "Jour de repos",
+        "HABILITE_ISOLEMENT": "Habilité isolement",
+        "DOUBLE_VACATION": "Double vacation"
+      },
+      "CONFLIT": {
+        "DOUBLE_AFFECTATION": "Infirmier prévu dans deux salles sur le même créneau",
+        "NON_HABILITE": "Infirmier non habilité en salle d'isolement"
+      },
+      "ERR": {
+        "LOAD": "Impossible de charger le planning de présence",
+        "CANDIDATS": "Impossible de charger les remplaçants possibles"
+      }
+    },
+    "CHARGE": {
+      "TITLE": "Charge de travail des infirmiers",
+      "SUBTITLE": "Séances du roulement, remplacements et absences du mois, pour répartir équitablement les remplacements.",
+      "PREV": "Mois précédent",
+      "NEXT": "Mois suivant",
+      "MOYENNE": "Moyenne du centre : {{valeur}} séance(s) par infirmier",
+      "SEANCES": "Séances (roulement)",
+      "REMPLACEMENTS": "Remplacements",
+      "JOURS_ABSENCE": "Jours d'absence",
+      "TOTAL": "Total",
+      "ECART": "Écart à la moyenne",
+      "ERR": {
+        "LOAD": "Impossible de charger la charge de travail"
+      }
+    },
+    "ERR": {
+      "LOAD": "Impossible de charger les données",
+      "SAVE": "Enregistrement impossible",
+      "INFIRMIER_MATRICULE_EXISTANT": "Ce matricule existe déjà dans le centre",
+      "INFIRMIER_INTROUVABLE": "Infirmier introuvable",
+      "AFFECTATION_CHEVAUCHEMENT": "L'infirmier est déjà affecté à ce créneau l'un de ces jours",
+      "AFFECTATION_SALLE_INCONNUE": "Cette salle n'appartient pas au centre",
+      "AFFECTATION_CRENEAU_INCONNU": "Ce créneau n'appartient pas au centre",
+      "AFFECTATION_INTROUVABLE": "Affectation introuvable",
+      "ABSENCE_INTROUVABLE": "Absence introuvable",
+      "REMPLACEMENT_INELIGIBLE": "Cet infirmier ne peut pas être affecté à ce créneau (absent, déjà prévu ou non habilité)",
+      "REMPLACEMENT_INTROUVABLE": "Remplacement introuvable",
+      "COMPTE_INTROUVABLE": "Ce compte n'existe pas dans le centre ou n'a pas le rôle infirmier",
+      "COMPTE_DEJA_LIE": "Cette fiche est déjà reliée à un compte",
+      "COMPTE_DEJA_UTILISE": "Ce compte est déjà relié à un autre infirmier",
+      "COMPTE_ETAT_INCOHERENT": "Le compte et la fiche doivent être tous deux actifs ou tous deux inactifs",
+      "COMPTE_IDENTIFIANT_INVALIDE": "Identifiant invalide (3 à 50 caractères : lettres, chiffres, point, tiret, souligné)",
+      "COMPTE_IDENTIFIANT_EXISTANT": "Cet identifiant de connexion existe déjà",
+      "ABSENCE_PASSEE": "Une absence passée ne peut être saisie que par l'administration",
+      "ABSENCE_NON_ANNULABLE": "Une absence commencée ne peut être retirée que par l'administration"
     }
   },
   "GROUPES_ARTICLES": {
@@ -2001,6 +2197,12 @@
     "ADMIN_GROUPES_ARTICLES": "Groupes d'articles",
     "ADMIN_PLANNING": "Planning du centre",
     "PLANNING_SEMAINE": "Planning de la semaine",
+    "INFIRMIERS": "Infirmiers",
+    "INFIRMIERS_PRESENCE": "Planning de présence",
+    "INFIRMIERS_REFERENTIEL": "Infirmiers",
+    "INFIRMIERS_ABSENCES": "Absences",
+    "INFIRMIERS_CHARGE": "Charge de travail",
+    "INFIRMIERS_MOI": "Mon planning",
     "DIRECTION": "Direction",
     "DASHBOARD": "Tableau de bord",
     "PATIENTS": "Patients",
@@ -2263,6 +2465,8 @@
     "PATIENT_CREATED": "Nouveau patient : {{nom}}",
     "PEC_VALIDATED": "PEC validée : {{nom}}",
     "PEC_CLOSED": "PEC clôturée : {{nom}}",
+    "INFIRMIER_SOUS_EFFECTIF": "{{count}} créneau(x) en sous-effectif d'infirmiers dans les prochains jours (dès le {{date}}) : remplacements à organiser",
+    "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} a déclaré une absence du {{debut}} au {{fin}} : remplacement à organiser",
     "SEANCE_CREATED": "Séance créée pour {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Séance validée pour {{nom}} ({{date}})"
   },
@@ -2429,6 +2633,7 @@
     "PRINT_ERROR": "Erreur lors de l'impression",
     "DELETE": "Supprimer",
     "SAVE": "Enregistrer",
+    "CLOSE": "Fermer",
     "READONLY": "Lecture seule",
     "EDITING": "Édition",
     "RETRY": "Réessayer",

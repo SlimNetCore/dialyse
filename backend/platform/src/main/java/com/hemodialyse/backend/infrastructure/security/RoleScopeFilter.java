@@ -59,6 +59,31 @@ public class RoleScopeFilter extends OncePerRequestFilter {
         return false;
     }
 
+    /**
+     * Gestion du personnel et du planning du centre : interdite à l'infirmier « seul » (rôle INFIRMIER sans aucun autre
+     * rôle de centre), qui ne dispose que de son propre planning et des séances.
+     */
+    private static final List<String> NURSE_DENIED = List.of("/api/v1/infirmiers", "/api/v1/planning");
+    private static final String NURSE_OWN_PLANNING = "/api/v1/infirmiers/moi";
+    private static final List<String> OTHER_CENTRE_ROLES = List.of("ROLE_ADMIN", "ROLE_MEDECIN", "ROLE_SECRETAIRE");
+
+    private static boolean hasAuthority(Authentication auth, String role) {
+        return auth.getAuthorities().stream().anyMatch(a -> role.equals(a.getAuthority()));
+    }
+
+    /**
+     * Vrai pour un compte dont le seul rôle de centre est INFIRMIER.
+     */
+    private static boolean nurseOnly(Authentication auth) {
+        return hasAuthority(auth, "ROLE_INFIRMIER")
+                && OTHER_CENTRE_ROLES.stream().noneMatch(role -> hasAuthority(auth, role));
+    }
+
+    private static boolean deniedToNurse(String path) {
+        if (path.equals(NURSE_OWN_PLANNING) || path.startsWith(NURSE_OWN_PLANNING + "/")) return false;
+        return NURSE_DENIED.stream().anyMatch(prefix -> path.equals(prefix) || path.startsWith(prefix + "/"));
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
@@ -76,7 +101,10 @@ public class RoleScopeFilter extends OncePerRequestFilter {
         List<String> restrictedRoles = ALLOWED_BY_ROLE.keySet().stream()
                 .filter(role -> auth.getAuthorities().stream().anyMatch(a -> role.equals(a.getAuthority())))
                 .toList();
-        if (restrictedRoles.isEmpty() || isAllowed(request.getRequestURI(), restrictedRoles)) {
+        boolean allowed = restrictedRoles.isEmpty()
+                ? !(nurseOnly(auth) && deniedToNurse(request.getRequestURI()))
+                : isAllowed(request.getRequestURI(), restrictedRoles);
+        if (allowed) {
             chain.doFilter(request, response);
             return;
         }

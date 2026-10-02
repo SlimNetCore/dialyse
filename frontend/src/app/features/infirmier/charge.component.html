@@ -1,0 +1,70 @@
+<section class="inf-page">
+  <header class="inf-head">
+    <h1>{{ 'INFIRMIER.CHARGE.TITLE' | translate }}</h1>
+    <p class="inf-sub">{{ 'INFIRMIER.CHARGE.SUBTITLE' | translate }}</p>
+  </header>
+
+  <div class="inf-actions month-nav">
+    <button (click)="changerMois(-1)" [attr.aria-label]="'INFIRMIER.CHARGE.PREV' | translate" data-testid="charge-prev"
+            mat-icon-button type="button">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <strong data-testid="charge-mois">{{ store.chargeMois() }}</strong>
+    <button (click)="changerMois(1)" [attr.aria-label]="'INFIRMIER.CHARGE.NEXT' | translate" data-testid="charge-next"
+            mat-icon-button type="button">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  @if (store.error()) {
+    <p class="inf-feedback error" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.loadingCharge()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  <mat-card>
+    <mat-card-content>
+      <p class="inf-sub" data-testid="charge-moyenne">
+        {{ 'INFIRMIER.CHARGE.MOYENNE' | translate: {valeur: store.chargeMoyenne()} }}
+      </p>
+      <div class="inf-table-scroll">
+        <table [dataSource]="store.charge()" class="inf-table" data-testid="charge-table" mat-table>
+          <ng-container matColumnDef="infirmier">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.TITLE_SINGULIER' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.nom }}</td>
+          </ng-container>
+          <ng-container matColumnDef="seances">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.CHARGE.SEANCES' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.seances }}</td>
+          </ng-container>
+          <ng-container matColumnDef="remplacements">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.CHARGE.REMPLACEMENTS' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.remplacements }}</td>
+          </ng-container>
+          <ng-container matColumnDef="absence">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.CHARGE.JOURS_ABSENCE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.joursAbsence }}</td>
+          </ng-container>
+          <ng-container matColumnDef="total">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.CHARGE.TOTAL' | translate }}</th>
+            <td *matCellDef="let row" mat-cell><strong>{{ row.total }}</strong></td>
+          </ng-container>
+          <ng-container matColumnDef="ecart">
+            <th *matHeaderCellDef mat-header-cell>{{ 'INFIRMIER.CHARGE.ECART' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              {{ ecart(row.total) > 0 ? '+' : '' }}{{ ecart(row.total) }}
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="columns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: columns" mat-row></tr>
+        </table>
+      </div>
+      @if (store.charge().length === 0 && !store.loadingCharge()) {
+        <p class="inf-sub">{{ 'INFIRMIER.EMPTY' | translate }}</p>
+      }
+      <mat-paginator (page)="onPage($event)" [length]="store.chargeTotal()" [pageIndex]="store.chargePageIndex()"
+                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.chargePageSize()"/>
+    </mat-card-content>
+  </mat-card>
+</section>

@@ -22,7 +22,7 @@ describe('PlanningStore', () => {
   beforeEach(() => {
     api = {
       semaine: vi.fn().mockReturnValue(of(semaine('2026-09-27'))),
-      parametres: vi.fn().mockReturnValue(of({joursOuverts: ['LUNDI'], sallesIsolement: []})),
+      parametres: vi.fn().mockReturnValue(of({joursOuverts: ['LUNDI'], sallesIsolement: [], patientsParInfirmier: 4})),
       enregistrerParametres: vi.fn().mockImplementation((_c: string, p: unknown) => of(p)),
     };
     TestBed.configureTestingModule({
@@ -62,10 +62,11 @@ describe('PlanningStore', () => {
     expect(api.parametres).toHaveBeenCalledWith(CENTRE);
     expect(store.parametres()?.joursOuverts).toEqual(['LUNDI']);
 
-    store.enregistrerParametres({joursOuverts: ['LUNDI', 'MARDI'], sallesIsolement: ['s1']});
+    store.enregistrerParametres({joursOuverts: ['LUNDI', 'MARDI'], sallesIsolement: ['s1'], patientsParInfirmier: 3});
     expect(api.enregistrerParametres).toHaveBeenCalledWith(CENTRE, {
       joursOuverts: ['LUNDI', 'MARDI'],
-      sallesIsolement: ['s1']
+      sallesIsolement: ['s1'],
+      patientsParInfirmier: 3
     });
     expect(store.parametres()?.sallesIsolement).toEqual(['s1']);
     expect(store.successMessage()).toBe('PLANNING.PARAMS.SAVED_OK');
@@ -75,7 +76,7 @@ describe('PlanningStore', () => {
     api.enregistrerParametres.mockReturnValue(throwError(() => new Error('boom')));
     const store = TestBed.inject(PlanningStore);
 
-    store.enregistrerParametres({joursOuverts: ['LUNDI'], sallesIsolement: []});
+    store.enregistrerParametres({joursOuverts: ['LUNDI'], sallesIsolement: [], patientsParInfirmier: 4});
 
     expect(store.saving()).toBe(false);
     expect(store.error()).toBe('PLANNING.PARAMS.ERR.SAVE');

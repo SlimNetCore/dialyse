@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="planning_presence_infirmiers" pageWidth="842" pageHeight="595" orientation="Landscape"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" columnWidth="802">
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="SEMAINE_LABEL" class="java.lang.String"/>
+    <parameter name="DATE_0" class="java.sql.Date"/>
+    <parameter name="DATE_1" class="java.sql.Date"/>
+    <parameter name="DATE_2" class="java.sql.Date"/>
+    <parameter name="DATE_3" class="java.sql.Date"/>
+    <parameter name="DATE_4" class="java.sql.Date"/>
+    <parameter name="DATE_5" class="java.sql.Date"/>
+    <parameter name="DATE_6" class="java.sql.Date"/>
+    <parameter name="SOCIETE_NOM" class="java.lang.String"/>
+    <parameter name="SOCIETE_ADRESSE" class="java.lang.String"/>
+    <parameter name="SOCIETE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="SOCIETE_EMAIL" class="java.lang.String"/>
+    <parameter name="SOCIETE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="SOCIETE_CONTACT" class="java.lang.String"/>
+    <parameter name="SOCIETE_LEGAL" class="java.lang.String"/>
+    <parameter name="SOCIETE_PIED_PAGE" class="java.lang.String"/>
+    <parameter name="SOCIETE_LOGO" class="java.io.InputStream"/>
+    <parameter name="CENTRE_NOM" class="java.lang.String"/>
+    <parameter name="CENTRE_ADRESSE" class="java.lang.String"/>
+    <parameter name="CENTRE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="CENTRE_EMAIL" class="java.lang.String"/>
+    <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
+    <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
+    <queryString><![CDATA[
+      SELECT * FROM (
+      SELECT CAST($P{DATE_0} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
+             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
+                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_0} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
+                  THEN 'Absent' ELSE 'Prévu' END AS statut
+      FROM infirmier_affectation a
+      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
+      JOIN salle sa ON sa.id = a.salle_id
+      JOIN position_creneau pc ON pc.id = a.creneau_id
+      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%DIMANCHE%'
+      UNION ALL
+      SELECT CAST($P{DATE_0} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
+      FROM infirmier_remplacement r
+      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
+      JOIN salle sa ON sa.id = r.salle_id
+      JOIN position_creneau pc ON pc.id = r.creneau_id
+      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_0} AS DATE)
+      UNION ALL
+      SELECT CAST($P{DATE_1} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
+             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
+                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_1} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
+                  THEN 'Absent' ELSE 'Prévu' END AS statut
+      FROM infirmier_affectation a
+      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
+      JOIN salle sa ON sa.id = a.salle_id
+      JOIN position_creneau pc ON pc.id = a.creneau_id
+      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%LUNDI%'
+      UNION ALL
+      SELECT CAST($P{DATE_1} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
+      FROM infirmier_remplacement r
+      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
+      JOIN salle sa ON sa.id = r.salle_id
+      JOIN position_creneau pc ON pc.id = r.creneau_id
+      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_1} AS DATE)
+      UNION ALL
+      SELECT CAST($P{DATE_2} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
+             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
+                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_2} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
+                  THEN 'Absent' ELSE 'Prévu' END AS statut
+      FROM infirmier_affectation a
+      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
+      JOIN salle sa ON sa.id = a.salle_id
+      JOIN position_creneau pc ON pc.id = a.creneau_id
+      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%MARDI%'
+      UNION ALL
+      SELECT CAST($P{DATE_2} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
+      FROM infirmier_remplacement r
+      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
+      JOIN salle sa ON sa.id = r.salle_id
+      JOIN position_creneau pc ON pc.id = r.creneau_id
+      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_2} AS DATE)
+      UNION ALL
+      SELECT CAST($P{DATE_3} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
+             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
+                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_3} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
+                  THEN 'Absent' ELSE 'Prévu' END AS statut
+      FROM infirmier_affectation a
+      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
+      JOIN salle sa ON sa.id = a.salle_id
+      JOIN position_creneau pc ON pc.id = a.creneau_id
+      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%MERCREDI%'
+      UNION ALL
+      SELECT CAST($P{DATE_3} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
+      FROM infirmier_remplacement r
+      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
+      JOIN salle sa ON sa.id = r.salle_id
+      JOIN position_creneau pc ON pc.id = r.creneau_id
+      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_3} AS DATE)
+      UNION ALL
+      SELECT CAST($P{DATE_4} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
+             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
+                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_4} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
+                  THEN 'Absent' ELSE 'Prévu' END AS statut
+      FROM infirmier_affectation a
+      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
+      JOIN salle sa ON sa.id = a.salle_id
+      JOIN position_creneau pc ON pc.id = a.creneau_id
+      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%JEUDI%'
+      UNION ALL
+      SELECT CAST($P{DATE_4} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
+      FROM infirmier_remplacement r
+      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
+      JOIN salle sa ON sa.id = r.salle_id
+      JOIN position_creneau pc ON pc.id = r.creneau_id
+      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_4} AS DATE)
+      UNION ALL
+      SELECT CAST($P{DATE_5} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
+             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
+                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_5} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
+                  THEN 'Absent' ELSE 'Prévu' END AS statut
+      FROM infirmier_affectation a
+      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
+      JOIN salle sa ON sa.id = a.salle_id
+      JOIN position_creneau pc ON pc.id = a.creneau_id
+      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%VENDREDI%'
+      UNION ALL
+      SELECT CAST($P{DATE_5} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
+      FROM infirmier_remplacement r
+      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
+      JOIN salle sa ON sa.id = r.salle_id
+      JOIN position_creneau pc ON pc.id = r.creneau_id
+      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_5} AS DATE)
+      UNION ALL
+      SELECT CAST($P{DATE_6} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
+             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
+                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_6} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
+                  THEN 'Absent' ELSE 'Prévu' END AS statut
+      FROM infirmier_affectation a
+      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
+      JOIN salle sa ON sa.id = a.salle_id
+      JOIN position_creneau pc ON pc.id = a.creneau_id
+      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%SAMEDI%'
+      UNION ALL
+      SELECT CAST($P{DATE_6} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
+      FROM infirmier_remplacement r
+      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
+      JOIN salle sa ON sa.id = r.salle_id
+      JOIN position_creneau pc ON pc.id = r.creneau_id
+      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_6} AS DATE)
+      ) planning
+      ORDER BY date_jour, creneau_code, salle, statut, infirmier
+    ]]></queryString>
+
+    <field name="DATE_JOUR" class="java.sql.Date"/>
+    <field name="SALLE" class="java.lang.String"/>
+    <field name="CRENEAU_CODE" class="java.lang.String"/>
+    <field name="CRENEAU" class="java.lang.String"/>
+    <field name="INFIRMIER" class="java.lang.String"/>
+    <field name="STATUT" class="java.lang.String"/>
+
+    <group name="JOUR">
+        <groupExpression><![CDATA[$F{DATE_JOUR}]]></groupExpression>
+        <groupHeader>
+            <band height="22">
+                <textField pattern="EEEE dd/MM/yyyy">
+                    <reportElement x="0" y="3" width="802" height="17" backcolor="#E8F5E9" mode="Opaque"/>
+                    <textElement textAlignment="Left">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{DATE_JOUR}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupHeader>
+    </group>
+
+    <title>
+        <band height="106">
+            <image scaleImage="RetainShape" hAlign="Left" vAlign="Top" onErrorType="Blank">
+                <reportElement x="0" y="0" width="70" height="56">
+                    <printWhenExpression><![CDATA[$P{SOCIETE_LOGO} != null]]></printWhenExpression>
+                </reportElement>
+                <imageExpression><![CDATA[$P{SOCIETE_LOGO}]]></imageExpression>
+            </image>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="0" width="396" height="16"/>
+                <textElement textAlignment="Left">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="17" width="396" height="26"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="44" width="396" height="12"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_LEGAL}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="482" y="0" width="320" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="482" y="15" width="320" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_ADRESSE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="482" y="30" width="320" height="26"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="60" width="802" height="1"/>
+            </line>
+            <staticText>
+                <reportElement x="0" y="68" width="802" height="22"/>
+                <textElement textAlignment="Center">
+                    <font size="14" isBold="true"/>
+                </textElement>
+                <text><![CDATA[PLANNING DE PRÉSENCE DES INFIRMIERS]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="90" width="802" height="14"/>
+                <textElement textAlignment="Center">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SEMAINE_LABEL}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+    <columnHeader>
+        <band height="20">
+            <staticText>
+                <reportElement x="0" y="0" width="140" height="18" backcolor="#1B5E20" mode="Opaque"
+                               forecolor="#FFFFFF"/>
+                <textElement textAlignment="Center">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Créneau]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="140" y="0" width="180" height="18" backcolor="#1B5E20" mode="Opaque"
+                               forecolor="#FFFFFF"/>
+                <textElement textAlignment="Center">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Salle]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="320" y="0" width="300" height="18" backcolor="#1B5E20" mode="Opaque"
+                               forecolor="#FFFFFF"/>
+                <textElement textAlignment="Center">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Infirmier]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="620" y="0" width="182" height="18" backcolor="#1B5E20" mode="Opaque"
+                               forecolor="#FFFFFF"/>
+                <textElement textAlignment="Center">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Situation]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="16">
+            <textField>
+                <reportElement x="0" y="0" width="140" height="14"/>
+                <textElement textAlignment="Center">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CRENEAU}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="140" y="0" width="180" height="14"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{SALLE}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="320" y="0" width="300" height="14"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{INFIRMIER}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="620" y="0" width="182" height="14"/>
+                <textElement textAlignment="Center">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{STATUT}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="28">
+            <line>
+                <reportElement x="0" y="0" width="802" height="1"/>
+            </line>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="3" width="802" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_LIGNE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="14" width="802" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_PIED_PAGE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+</jasperReport>

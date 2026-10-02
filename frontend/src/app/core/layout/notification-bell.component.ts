@@ -84,6 +84,10 @@ export class NotificationBellComponent {
         return 'verified';
       case 'PEC_CLOSED':
         return 'event_busy';
+      case 'INFIRMIER_SOUS_EFFECTIF':
+        return 'groups';
+      case 'INFIRMIER_ABSENCE_DECLAREE':
+        return 'event_busy';
       default:
         return 'info';
     }
@@ -96,6 +100,8 @@ export class NotificationBellComponent {
       case 'PEC_VALIDATED':
         return 'pec';
       case 'PEC_CLOSED':
+      case 'INFIRMIER_SOUS_EFFECTIF':
+      case 'INFIRMIER_ABSENCE_DECLAREE':
         return 'warning';
       default:
         return '';
@@ -115,6 +121,17 @@ export class NotificationBellComponent {
       case 'PEC_CLOSED':
         return this.translate.instant('NOTIFICATION.PEC_CLOSED', {
           nom: evt.payload['patientNom'] ?? '',
+        });
+      case 'INFIRMIER_ABSENCE_DECLAREE':
+        return this.translate.instant('NOTIFICATION.INFIRMIER_ABSENCE_DECLAREE', {
+          infirmier: evt.payload['infirmier'] ?? '',
+          debut: evt.payload['debut'] ?? '',
+          fin: evt.payload['fin'] ?? '',
+        });
+      case 'INFIRMIER_SOUS_EFFECTIF':
+        return this.translate.instant('NOTIFICATION.INFIRMIER_SOUS_EFFECTIF', {
+          count: evt.payload['nbCreneaux'] ?? '',
+          date: evt.payload['premiereDate'] ?? '',
         });
       default:
         return evt.type;

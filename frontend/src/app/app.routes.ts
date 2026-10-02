@@ -1,6 +1,6 @@
 import {Routes} from '@angular/router';
 import {ShellComponent} from './core/layout/shell.component';
-import {authGuard} from './core/auth/auth.guard';
+import {authGuard, passwordChangeGuard} from './core/auth/auth.guard';
 import {directionGuard, roleScopeGuard} from './core/auth/role-scope.guard';
 
 export const routes: Routes = [
@@ -9,6 +9,11 @@ export const routes: Routes = [
   {
     path: 'login/proprietaire',
     loadComponent: () => import('./features/auth/owner-login-page.component').then(m => m.OwnerLoginPageComponent),
+  },
+  {
+    path: 'changer-mot-de-passe',
+    canActivate: [passwordChangeGuard],
+    loadComponent: () => import('./features/auth/change-password-page.component').then(m => m.ChangePasswordPageComponent),
   },
   {
     path: '',
@@ -22,6 +27,10 @@ export const routes: Routes = [
       {
         path: 'seances',
         loadChildren: () => import('./features/seances/seances.routes').then((m) => m.seancesRoutes),
+      },
+      {
+        path: 'infirmiers',
+        loadChildren: () => import('./features/infirmier/infirmier.routes').then((m) => m.infirmierRoutes),
       },
       {path: 'stock', loadChildren: () => import('./features/stock/stock.routes').then(m => m.stockRoutes)},
       {

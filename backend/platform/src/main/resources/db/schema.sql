@@ -731,3 +731,150 @@ CREATE INDEX IF NOT EXISTS idx_inventaire_lignes_inventaire ON inventaire_lignes
 ALTER TABLE IF EXISTS stock_movements ADD COLUMN IF NOT EXISTS inventaire_id UUID;
 CREATE INDEX IF NOT EXISTS idx_stock_mvt_center_inventaire ON stock_movements (center_id, inventaire_id, created_at);
 
+
+-- ═══ Personnel soignant : infirmiers, roulement, absences et remplacements ═══
+
+CREATE TABLE IF NOT EXISTS infirmier
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    matricule
+    VARCHAR
+(
+    50
+) NOT NULL,
+    nom VARCHAR
+(
+    255
+) NOT NULL,
+    prenom VARCHAR
+(
+    255
+),
+    telephone VARCHAR
+(
+    50
+),
+    qualification VARCHAR
+(
+    20
+) NOT NULL,
+    habilite_isolement BOOLEAN NOT NULL DEFAULT FALSE,
+    actif BOOLEAN NOT NULL DEFAULT TRUE,
+    UNIQUE
+(
+    center_id,
+    matricule
+)
+    );
+
+CREATE TABLE IF NOT EXISTS infirmier_affectation
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    infirmier_id
+    UUID
+    NOT
+    NULL,
+    salle_id
+    UUID
+    NOT
+    NULL,
+    creneau_id
+    UUID
+    NOT
+    NULL,
+    jours
+    VARCHAR
+(
+    100
+) NOT NULL
+    );
+CREATE INDEX IF NOT EXISTS idx_infirmier_affectation_infirmier ON infirmier_affectation (center_id, infirmier_id);
+
+CREATE TABLE IF NOT EXISTS infirmier_absence
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    infirmier_id
+    UUID
+    NOT
+    NULL,
+    date_debut
+    DATE
+    NOT
+    NULL,
+    date_fin
+    DATE
+    NOT
+    NULL,
+    type
+    VARCHAR
+(
+    20
+) NOT NULL,
+    motif VARCHAR
+(
+    255
+)
+    );
+CREATE INDEX IF NOT EXISTS idx_infirmier_absence_periode ON infirmier_absence (center_id, date_debut, date_fin);
+
+CREATE TABLE IF NOT EXISTS infirmier_remplacement
+(
+    id
+    UUID
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    date_jour
+    DATE
+    NOT
+    NULL,
+    salle_id
+    UUID
+    NOT
+    NULL,
+    creneau_id
+    UUID
+    NOT
+    NULL,
+    infirmier_id
+    UUID
+    NOT
+    NULL,
+    remplace_infirmier_id
+    UUID,
+    UNIQUE
+(
+    center_id,
+    date_jour,
+    creneau_id,
+    infirmier_id
+)
+    );
+
+-- Lien facultatif d'un infirmier avec un compte utilisateur (un compte ne sert qu'une fiche par centre)
+ALTER TABLE IF EXISTS infirmier ADD COLUMN IF NOT EXISTS user_id UUID;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_infirmier_user ON infirmier (center_id, user_id);

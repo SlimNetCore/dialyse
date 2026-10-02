@@ -85,6 +85,10 @@ public class CacheConfig {
         // écriture de mouvement de stock, TTL = filet de sécurité)
         register(manager, "stock.valorisation.articles", stockValorisationTtl);
 
+        // Indicateur « mot de passe temporaire à remplacer » lu à chaque requête par le filtre de sécurité
+        // (clé : utilisateur ; vidé au changement de mot de passe, TTL court = filet de sécurité)
+        register(manager, "auth.mustChangePassword", Duration.ofMinutes(1));
+
         return manager;
     }
 

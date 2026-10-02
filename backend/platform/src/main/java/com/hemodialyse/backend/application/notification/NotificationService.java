@@ -146,6 +146,30 @@ public class NotificationService {
         send(centerId, "OBSERVANCE_NON_RESPECTEE", payload);
     }
 
+    /**
+     * Des créneaux sont en sous-effectif d'infirmiers dans les prochains jours (remplacements à organiser).
+     */
+    public void notifyPresenceSousEffectif(UUID centerId, int nbCreneaux, java.time.LocalDate premiereDate) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("nbCreneaux", String.valueOf(nbCreneaux));
+        payload.put("premiereDate", premiereDate.toString());
+        payload.put("targetRoles", "ADMIN,SECRETAIRE");
+        send(centerId, "INFIRMIER_SOUS_EFFECTIF", payload);
+    }
+
+    /**
+     * Un infirmier a déclaré lui-même une absence (à prendre en compte dans les remplacements).
+     */
+    public void notifyAbsenceInfirmierDeclaree(UUID centerId, String infirmier, java.time.LocalDate debut,
+                                               java.time.LocalDate fin) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("infirmier", infirmier);
+        payload.put("debut", debut.toString());
+        payload.put("fin", fin.toString());
+        payload.put("targetRoles", "ADMIN,SECRETAIRE");
+        send(centerId, "INFIRMIER_ABSENCE_DECLAREE", payload);
+    }
+
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
         Map<String, Object> event = new java.util.HashMap<>();
         event.put("type", eventType);

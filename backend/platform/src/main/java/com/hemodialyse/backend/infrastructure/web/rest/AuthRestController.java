@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.auth.AuthService;
 import com.hemodialyse.backend.application.auth.AuthService.LoginResult;
+import com.hemodialyse.backend.application.auth.ChangementMotDePasseService;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,8 +54,25 @@ public class AuthRestController {
     @Value("${app.jwt.refresh-expiration:604800}")
     private long refreshCookieMaxAgeSec;
 
-    public AuthRestController(AuthService authService) {
+    private final ChangementMotDePasseService motsDePasse;
+
+    public AuthRestController(AuthService authService, ChangementMotDePasseService motsDePasse) {
         this.authService = authService;
+        this.motsDePasse = motsDePasse;
+    }
+
+    /**
+     * Remplace le mot de passe de l'utilisateur connecté (obligatoire tant que le mot de passe est temporaire).
+     */
+    @PostMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request,
+                                               Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            return ResponseEntity.status(401).build();
+        }
+        motsDePasse.changer(UUID.fromString(principal.getId()), request.currentPassword(), request.newPassword());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
@@ -81,7 +99,8 @@ public class AuthRestController {
                         result.roles(),
                         result.societeId(),
                         result.societeName(),
-                        result.scope()
+                        result.scope(),
+                        motsDePasse.doitChanger(result.userId())
                 ));
     }
 
@@ -175,7 +194,8 @@ public class AuthRestController {
                 result.roles(),
                 result.societeId(),
                 result.societeName(),
-                result.scope()
+                result.scope(),
+                motsDePasse.doitChanger(result.userId())
         ));
     }
 
@@ -218,8 +238,16 @@ public class AuthRestController {
         }
     }
 
+    /**
+     * @param mustChangePassword vrai tant que l'utilisateur n'a pas remplacé son mot de passe temporaire
+     */
     public record LoginResponse(String username, String fullName, UUID userId, UUID centerId, String centerName,
-                                List<String> roles, UUID societeId, String societeName, String scope) {
+                                List<String> roles, UUID societeId, String societeName, String scope,
+                                boolean mustChangePassword) {
+    }
+
+    public record ChangePasswordRequest(@NotBlank String currentPassword,
+                                        @NotBlank @Size(max = 128) String newPassword) {
     }
 
     public record LogoutResponse(boolean loggedOut) {
