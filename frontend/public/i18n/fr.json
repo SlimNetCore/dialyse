@@ -2077,6 +2077,7 @@
       "MOTIF": "Motif",
       "PERIODE": "Période",
       "PERIODE_INVALIDE": "La fin de l'absence précède son début.",
+      "REMPLACER": "Remplacer",
       "EMPTY": "Aucune absence déclarée",
       "SAVED_OK": "Absence enregistrée",
       "TYPES": {
@@ -2102,7 +2103,9 @@
       "REMPLACANT": "Remplaçant",
       "ANNULER": "Annuler le remplacement",
       "PERSONNE": "Personne de prévu sur ce créneau.",
-      "REMPLACANTS": "Remplaçants possibles",
+      "REMPLACANTS": "Déclarer un remplaçant — infirmiers disponibles",
+      "AIDE_REMPLACANT": "Pour déclarer un remplaçant : cliquez sur une case du planning (ou sur un créneau à risque ci-dessous), puis sur « Affecter » dans la liste des infirmiers disponibles.",
+      "DROIT_AFFECTER": "Seuls l'administrateur et le secrétariat peuvent affecter un remplaçant.",
       "SEANCES_SEMAINE": "{{count}} séance(s) cette semaine",
       "AFFECTER": "Affecter",
       "AUCUN_CANDIDAT": "Aucun remplaçant disponible : tous sont absents, déjà prévus sur ce créneau ou non habilités.",

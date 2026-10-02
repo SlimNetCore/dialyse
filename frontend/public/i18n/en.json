@@ -2077,6 +2077,7 @@
       "MOTIF": "Reason",
       "PERIODE": "Period",
       "PERIODE_INVALIDE": "The end of the absence is before its start.",
+      "REMPLACER": "Replace",
       "EMPTY": "No absence declared",
       "SAVED_OK": "Absence saved",
       "TYPES": {
@@ -2102,7 +2103,9 @@
       "REMPLACANT": "Replacement",
       "ANNULER": "Cancel replacement",
       "PERSONNE": "Nobody planned on this slot.",
-      "REMPLACANTS": "Possible replacements",
+      "REMPLACANTS": "Declare a replacement — available nurses",
+      "AIDE_REMPLACANT": "To declare a replacement: click a cell of the planning (or an at-risk slot below), then \"Assign\" in the list of available nurses.",
+      "DROIT_AFFECTER": "Only the administrator and the secretariat can assign a replacement.",
       "SEANCES_SEMAINE": "{{count}} session(s) this week",
       "AFFECTER": "Assign",
       "AUCUN_CANDIDAT": "No replacement available: all are absent, already planned on this slot or not qualified.",

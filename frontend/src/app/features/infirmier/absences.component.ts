@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
 import {DatePipe} from '@angular/common';
+import {RouterLink} from '@angular/router';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatButtonModule} from '@angular/material/button';
@@ -34,7 +35,7 @@ function emptyAbsence(): AbsenceFormModel {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule,
+    DatePipe, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule,
     MatProgressBarModule, MatSelectModule, MatTableModule, FormRoot, FormField, TranslateModule,
   ],
   templateUrl: './absences.component.html',

@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
 import {DatePipe, SlicePipe} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
@@ -46,6 +47,7 @@ export class PresenceSemaineComponent {
     const sel = this.store.selection();
     return s && sel ? trouverCase(s, sel.salleId, sel.creneauId, sel.jour) ?? null : null;
   });
+  private readonly route = inject(ActivatedRoute);
   private readonly api = inject(InfirmierApiService);
   private readonly shell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
@@ -59,7 +61,9 @@ export class PresenceSemaineComponent {
       this.shell.currentCenterId();
       untracked(() => {
         this.store.selectionnerCase(null);
-        this.store.chargerSemaine(null);
+        // `?date=yyyy-MM-dd` (lien « Remplacer » d'une absence) ouvre directement la semaine concernée
+        const date = this.route.snapshot.queryParamMap.get('date');
+        this.store.chargerSemaine(date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null);
         this.store.chargerAlertes();
       });
     });

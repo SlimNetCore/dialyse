@@ -1709,6 +1709,7 @@
       "MOTIF": "Ssebba",
       "PERIODE": "Tagara",
       "PERIODE_INVALIDE": "Taggara n tmettant tezwar tazwara-ines.",
+      "REMPLACER": "Beddel",
       "EMPTY": "Ulac tamettant yettwacuɛen",
       "SAVED_OK": "Tamettant tettwaklas",
       "TYPES": {
@@ -1734,7 +1735,9 @@
       "REMPLACANT": "Ambedal",
       "ANNULER": "Sefsex abeddel",
       "PERSONNE": "Ulac yiwen yettwaɣerrez deg usmel-agi.",
-      "REMPLACANTS": "Imbedlen izemren",
+      "REMPLACANTS": "Cuɛ ambedal — inemgalen yellan",
+      "AIDE_REMPLACANT": "I wakken ad tcuɛeḍ ambedal: ssit ɣef tkeččunt n umuddu (neɣ ɣef usmel deg ugur ddaw), sakin ɣef «Suddes» deg tebdart n inemgalen yellan.",
+      "DROIT_AFFECTER": "Anedbal d tseqqamt kan i izemren ad suddsen ambedal.",
       "SEANCES_SEMAINE": "{{count}} n tɣimit deg imalas-agi",
       "AFFECTER": "Suddes",
       "AUCUN_CANDIDAT": "Ulac amebdal yellan: akk ur llin ara, ttwaɣerzen yakan deg usmel-agi neɣ ur ttwarran ara.",

@@ -89,6 +89,11 @@
           <ng-container matColumnDef="actions">
             <th *matHeaderCellDef mat-header-cell></th>
             <td *matCellDef="let row" class="inf-row-actions" mat-cell>
+              <a [queryParams]="{date: row.debut}" [routerLink]="'/infirmiers'" data-testid="abs-remplacer"
+                 mat-stroked-button>
+                <mat-icon>person_add</mat-icon>
+                {{ 'INFIRMIER.ABSENCES.REMPLACER' | translate }}
+              </a>
               <button (click)="remove(row)" [attr.aria-label]="'COMMON.DELETE' | translate" data-testid="abs-delete"
                       mat-icon-button type="button">
                 <mat-icon>delete</mat-icon>

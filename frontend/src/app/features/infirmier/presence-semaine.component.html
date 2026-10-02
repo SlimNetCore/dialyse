@@ -48,6 +48,11 @@
     <p class="pres-feedback success" role="status">{{ store.successMessage()! | translate }}</p>
   }
 
+  <p class="pres-help" data-testid="pres-aide">
+    <mat-icon>person_add</mat-icon>
+    {{ 'INFIRMIER.PRESENCE.AIDE_REMPLACANT' | translate }}
+  </p>
+
   <mat-card class="pres-alertes" data-testid="pres-alertes">
     <mat-card-header>
       <mat-card-title>{{ 'INFIRMIER.PRESENCE.ALERTES_TITLE' | translate }} ({{ store.alertes().length }})
@@ -107,7 +112,12 @@
                       [class.selected]="estSelectionnee(c)" [class]="'cell ' + classe(c?.statut)"
                       data-testid="pres-cell">
                     @if (c && c.statut !== 'FERME' && c.statut !== 'SANS_PATIENT') {
-                      <small class="cap">{{ c.presents.length }}/{{ c.requis }}</small>
+                      <small class="cap">
+                        @if (c.statut === 'SOUS_EFFECTIF') {
+                          <mat-icon class="cell-add">person_add</mat-icon>
+                        }
+                        {{ c.presents.length }}/{{ c.requis }}
+                      </small>
                       @for (p of c.presents; track p.infirmierId) {
                         <span [class.sub]="p.remplacant" class="chip">{{ p.nom }}</span>
                       }
@@ -184,6 +194,9 @@
           }
 
           <h4>{{ 'INFIRMIER.PRESENCE.REMPLACANTS' | translate }}</h4>
+          @if (!peutModifier()) {
+            <p class="pres-sub" data-testid="pres-droit">{{ 'INFIRMIER.PRESENCE.DROIT_AFFECTER' | translate }}</p>
+          }
           @if (store.loadingCandidats()) {
             <mat-progress-bar mode="indeterminate"/>
           }

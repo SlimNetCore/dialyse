@@ -264,3 +264,23 @@ th.closed {
     flex: 1;
   }
 }
+
+.pres-help {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #e8f1fb;
+  color: #1f3b5c;
+  font-size: 13px;
+}
+
+.cell-add {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+  vertical-align: middle;
+  color: #b3261e;
+}
