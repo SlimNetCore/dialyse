@@ -126,9 +126,14 @@ jobs:
 
       # Premier déploiement : cp env.prod.example .env, avec secrets forts générés.
       # Les déploiements suivants conservent le .env existant (mot de passe DB inchangé).
-      - name: Initialiser le .env (si absent)
+      # Le domaine et l'e-mail Let's Encrypt viennent des variables du dépôt (Settings > Variables) :
+      # APP_DOMAIN (défaut plateforme-hemodialyse.online) et ACME_EMAIL (obligatoire pour le HTTPS).
+      - name: Initialiser le .env (si absent) et le domaine HTTPS
+        env:
+          APP_DOMAIN: ${{ vars.APP_DOMAIN || 'plateforme-hemodialyse.online' }}
+          ACME_EMAIL: ${{ vars.ACME_EMAIL }}
         run: |
-          ssh vm "APP_DIR='$APP_DIR' bash -s" <<'EOF'
+          ssh vm "APP_DIR='$APP_DIR' APP_DOMAIN='$APP_DOMAIN' ACME_EMAIL='$ACME_EMAIL' bash -s" <<'EOF'
           set -e
           cd "$APP_DIR"
           if [ -f .env ]; then
@@ -140,6 +145,15 @@ jobs:
             chmod 600 .env
             echo ".env créé depuis env.prod.example (secrets générés)"
           fi
+          # Valeurs HTTPS : posées ou complétées à chaque déploiement (le .env peut dater d'avant le passage au HTTPS)
+          set_env() { if grep -q "^$1=" .env; then sed -i "s|^$1=.*|$1=$2|" .env; else echo "$1=$2" >> .env; fi; }
+          set_env DOMAIN "$APP_DOMAIN"
+          set_env AUTH_COOKIE_SECURE true
+          set_env CORS_ORIGINS "https://$APP_DOMAIN"
+          if [ -n "$ACME_EMAIL" ]; then set_env ACME_EMAIL "$ACME_EMAIL"; fi
+          if ! grep -Eq "^ACME_EMAIL=[^ ]+@" .env; then
+            echo "ACME_EMAIL absent : définir la variable de dépôt ACME_EMAIL ou l'ajouter dans $APP_DIR/.env"; exit 1
+          fi
           EOF
 
       - name: Construire et redémarrer les conteneurs
@@ -150,10 +164,10 @@ jobs:
         run: |
           ssh vm "APP_DIR='$APP_DIR' bash -s" <<'EOF'
           set -e
-          PORT=$(grep -E "^HTTP_PORT=" "$APP_DIR/.env" 2>/dev/null | cut -d= -f2 || true)
-          PORT=${PORT:-80}
+          cd "$APP_DIR"
+          # Sonde interne (Caddy redirige le HTTP vers le HTTPS) : on interroge Nginx puis le backend via le réseau Docker
           for i in $(seq 1 40); do
-            if curl -fsS "http://127.0.0.1:${PORT}/actuator/health" >/dev/null; then
+            if docker compose -f docker-compose.prod.yml exec -T frontend wget -qO- http://127.0.0.1/actuator/health >/dev/null 2>&1; then
               echo "Application opérationnelle (tentative $i)"; exit 0
             fi
             sleep 6

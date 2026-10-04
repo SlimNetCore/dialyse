@@ -1,0 +1,26 @@
+# Reverse proxy HTTPS de production (voir docker-compose.prod.yml, service "caddy").
+# Variables lues dans l'environnement du conteneur : DOMAIN, ACME_EMAIL.
+{
+	email {$ACME_EMAIL}
+}
+
+# Domaine principal : HTTPS automatique (Let's Encrypt), HTTP/2 et HTTP/3.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Nginx (service "frontend") sert l'application Angular et proxifie /api, /ws et /actuator/health vers le backend.
+	# Les WebSockets (/ws) sont gérés nativement par Caddy ; X-Forwarded-Proto/For sont ajoutés automatiquement.
+	reverse_proxy frontend:80
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+# www.<domaine> -> domaine principal
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}

@@ -93,8 +93,13 @@ Dans la console Oracle : **Networking → VCN → Security List** → ajouter un
 depuis `0.0.0.0/0`.
 
 Le `.env` n'est pas à créer à la main : le pipeline exécute `cp env.prod.example .env` au premier déploiement et génère
-`POSTGRES_PASSWORD` et `JWT_SECRET`. Pour ajuster d'autres valeurs (`SETUP_TOKEN`, clés de licence, `HTTP_PORT`…),
+`POSTGRES_PASSWORD` et `JWT_SECRET`. Pour ajuster d'autres valeurs (`SETUP_TOKEN`, clés de licence…),
 éditer `/opt/hemodialyse/.env` puis relancer le workflow.
+
+**Domaine et HTTPS** : définir dans *Settings → Secrets and variables → Actions → Variables* du dépôt `ACME_EMAIL`
+(obligatoire, e-mail Let's Encrypt) et, si besoin, `APP_DOMAIN` (défaut `plateforme-hemodialyse.online`). Le pipeline
+écrit `DOMAIN`, `ACME_EMAIL`, `AUTH_COOKIE_SECURE=true` et `CORS_ORIGINS` dans le `.env` à chaque déploiement. Les ports
+80, 443 (TCP) et 443 (UDP) doivent être ouverts ; configuration DNS chez amen.fr : voir `infra/DEPLOIEMENT-DOMAINE.md`.
 
 ## 5. Déroulement du pipeline
 
