@@ -150,7 +150,13 @@ jobs:
           set_env DOMAIN "$APP_DOMAIN"
           set_env AUTH_COOKIE_SECURE true
           set_env CORS_ORIGINS "https://$APP_DOMAIN"
-          if [ -n "$ACME_EMAIL" ]; then set_env ACME_EMAIL "$ACME_EMAIL"; fi
+          if [ -n "$ACME_EMAIL" ]; then
+            set_env ACME_EMAIL "$ACME_EMAIL"
+          elif ! grep -Eq "^ACME_EMAIL=[^ ]+@" .env; then
+            # Repli sur la valeur par défaut de env.prod.example
+            DEFAULT_ACME_EMAIL=$(sed -n 's/^ACME_EMAIL=//p' env.prod.example | head -n1)
+            if [ -n "$DEFAULT_ACME_EMAIL" ]; then set_env ACME_EMAIL "$DEFAULT_ACME_EMAIL"; fi
+          fi
           if ! grep -Eq "^ACME_EMAIL=[^ ]+@" .env; then
             echo "ACME_EMAIL absent : définir la variable de dépôt ACME_EMAIL ou l'ajouter dans $APP_DIR/.env"; exit 1
           fi
