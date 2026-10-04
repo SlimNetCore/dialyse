@@ -59,6 +59,9 @@ public class VoletParamedicalRestController {
                 patient.getPrenom(),
                 seance.getDateSeance() == null ? null : seance.getDateSeance().toString()
         );
+        notificationService.notifySaisieInfirmier(request.centerId(), "PARAMEDICAL", seance.getPatientId(),
+                patient.getNom(), patient.getPrenom(), com.hemodialyse.backend.infrastructure.security.CurrentUser.username(),
+                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
 
         return ResponseEntity.ok(Map.of(
                 "id", volet.getId(),

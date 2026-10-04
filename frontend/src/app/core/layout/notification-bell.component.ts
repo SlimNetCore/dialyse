@@ -92,6 +92,8 @@ export class NotificationBellComponent {
       case 'PATIENT_REPLACE_ISOLEMENT':
       case 'ISOLEMENT_IMPOSSIBLE':
         return 'masks';
+      case 'SAISIE_INFIRMIER':
+        return 'medical_services';
       default:
         return 'info';
     }
@@ -151,6 +153,12 @@ export class NotificationBellComponent {
         return this.translate.instant('NOTIFICATION.INFIRMIER_SOUS_EFFECTIF', {
           count: evt.payload['nbCreneaux'] ?? '',
           date: evt.payload['premiereDate'] ?? '',
+        });
+      case 'SAISIE_INFIRMIER':
+        return this.translate.instant(`NOTIFICATION.SAISIE.${evt.payload['saisie'] ?? 'DEFAULT'}`, {
+          nom: `${evt.payload['patientNom'] ?? ''} ${evt.payload['patientPrenom'] ?? ''}`.trim(),
+          auteur: evt.payload['auteur'] ?? '',
+          date: evt.payload['date'] ?? '',
         });
       default:
         return evt.type;

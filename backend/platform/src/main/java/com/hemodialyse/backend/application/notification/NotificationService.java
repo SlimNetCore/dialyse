@@ -83,6 +83,13 @@ public class NotificationService {
         send(centerId, "ATTESTATION_DELETED", payload);
     }
 
+    /**
+     * Types de saisie de l'infirmier notifiés au médecin du centre (clé de traduction {@code NOTIFICATION.SAISIE.<type>}).
+     */
+    public static final java.util.Set<String> SAISIES_INFIRMIER = java.util.Set.of(
+            "SEANCE_CREEE", "SEANCE_VALIDEE", "PARAMEDICAL", "CONSOMMABLE_AJOUT", "CONSOMMABLE_MODIF",
+            "CONSOMMABLE_RETRAIT", "ANEMIE", "ABSENCE");
+
     public void notifySeanceCreated(UUID centerId, UUID seanceId, UUID patientId,
                                     String patientNom, String patientPrenom, String dateSeance) {
         var payload = new java.util.HashMap<String, String>();
@@ -91,7 +98,8 @@ public class NotificationService {
         payload.put("patientNom", patientNom == null ? "" : patientNom);
         payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
         payload.put("dateSeance", dateSeance == null ? "" : dateSeance);
-        payload.put("targetRoles", "INFIRMIER,MEDECIN");
+        // le médecin est prévenu par l'évènement SAISIE_INFIRMIER (qui nomme l'auteur), pas par celui-ci
+        payload.put("targetRoles", "INFIRMIER,SECRETAIRE");
         send(centerId, "SEANCE_CREATED", payload);
     }
 
@@ -103,20 +111,8 @@ public class NotificationService {
         payload.put("patientNom", patientNom == null ? "" : patientNom);
         payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
         payload.put("dateSeance", dateSeance == null ? "" : dateSeance);
-        payload.put("targetRoles", "INFIRMIER,MEDECIN");
+        payload.put("targetRoles", "INFIRMIER,SECRETAIRE");
         send(centerId, "SEANCE_VALIDATED", payload);
-    }
-
-    public void notifySeanceParamedicalSaved(UUID centerId, UUID seanceId, UUID patientId,
-                                             String patientNom, String patientPrenom, String dateSeance) {
-        var payload = new java.util.HashMap<String, String>();
-        payload.put("seanceId", seanceId.toString());
-        payload.put("patientId", patientId.toString());
-        payload.put("patientNom", patientNom == null ? "" : patientNom);
-        payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
-        payload.put("dateSeance", dateSeance == null ? "" : dateSeance);
-        payload.put("targetRoles", "INFIRMIER,MEDECIN,SECRETAIRE");
-        send(centerId, "SEANCE_PARAMEDICAL_SAVED", payload);
     }
 
     public void notifySeanceMedicalSaved(UUID centerId, UUID seanceId, UUID patientId,
@@ -131,11 +127,51 @@ public class NotificationService {
         send(centerId, "SEANCE_MEDICAL_SAVED", payload);
     }
 
+    public void notifySeanceParamedicalSaved(UUID centerId, UUID seanceId, UUID patientId,
+                                             String patientNom, String patientPrenom, String dateSeance) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("seanceId", seanceId.toString());
+        payload.put("patientId", patientId.toString());
+        payload.put("patientNom", patientNom == null ? "" : patientNom);
+        payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
+        payload.put("dateSeance", dateSeance == null ? "" : dateSeance);
+        payload.put("targetRoles", "INFIRMIER,SECRETAIRE");
+        send(centerId, "SEANCE_PARAMEDICAL_SAVED", payload);
+    }
+
     /**
      * Notify that a seance consommable was added, updated or removed (stock changed).
      */
     public void notifySeanceUpdated(UUID centerId, UUID seanceId) {
-        send(centerId, "SEANCE_CONSOMMABLE_CHANGED", Map.of("seanceId", seanceId.toString()));
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("seanceId", seanceId.toString());
+        payload.put("targetRoles", "INFIRMIER,SECRETAIRE");
+        send(centerId, "SEANCE_CONSOMMABLE_CHANGED", payload);
+    }
+
+    /**
+     * Toute saisie de l'infirmier (séance créée ou validée, volet paramédical, consommables, administration EPO/fer,
+     * absence de patient) est signalée au <b>médecin</b> du centre dans son centre de notifications.
+     *
+     * @param type    l'une de {@link #SAISIES_INFIRMIER}
+     * @param patient identité du patient concerné (peut être vide pour une saisie sans patient)
+     * @param auteur  nom d'utilisateur de l'auteur de la saisie
+     * @param date    date de la séance ou de l'absence concernée (ISO), facultative
+     */
+    public void notifySaisieInfirmier(UUID centerId, String type, UUID patientId, String patientNom,
+                                      String patientPrenom, String auteur, String date) {
+        if (!SAISIES_INFIRMIER.contains(type)) {
+            throw new IllegalArgumentException("Type de saisie inconnu : " + type);
+        }
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("saisie", type);
+        payload.put("patientId", patientId == null ? "" : patientId.toString());
+        payload.put("patientNom", patientNom == null ? "" : patientNom);
+        payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
+        payload.put("auteur", auteur == null ? "" : auteur);
+        payload.put("date", date == null ? "" : date);
+        payload.put("targetRoles", "MEDECIN");
+        send(centerId, "SAISIE_INFIRMIER", payload);
     }
 
     public void notifyObservanceNonRespectee(UUID centerId, UUID patientId, String message) {

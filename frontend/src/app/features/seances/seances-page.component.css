@@ -229,17 +229,55 @@ mat-card {
 }
 
 .scan-status {
-  margin-top: 10px;
-  display: inline-flex;
-  max-width: 100%;
+  margin-top: 12px;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 18px;
   border: 1px solid var(--app-border);
   background: color-mix(in srgb, var(--app-surface-solid) 92%, transparent);
   color: var(--app-text);
-  font-size: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.scan-status mat-icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  font-size: 32px;
+}
+
+.scan-result {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.scan-result-patient {
+  font-size: 20px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.scan-result-detail {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.scanner-card .scan-row input {
+  font-size: 18px;
+}
+
+.scanner-card .scan-row > button {
+  min-height: 56px;
+  min-width: 56px;
+  font-size: 16px;
 }
 
 .scan-status[data-state='success'] {

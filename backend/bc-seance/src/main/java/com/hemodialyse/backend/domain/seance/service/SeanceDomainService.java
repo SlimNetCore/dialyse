@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -89,6 +90,46 @@ public class SeanceDomainService implements SeanceUseCase {
         LocalDate date = LocalDate.now();
         return seanceRepo.findByPatientIdAndDate(centerId, patientId, date)
                 .orElseGet(() -> create(centerId, patientId, date));
+    }
+
+    @Override
+    public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId) {
+        UUID patientId = resolvePatientIdFromQr(centerId, qrCode);
+        LocalDate date = LocalDate.now();
+        Optional<Seance> existante = seanceRepo.findByPatientIdAndDate(centerId, patientId, date);
+        if (existante.isEmpty()) {
+            Seance creee = create(centerId, patientId, date);
+            return new ScanResult(validate(centerId, creee.getId(), userId, List.of()), true, true, false);
+        }
+        Seance seance = existante.get();
+        return switch (seance.getStatus()) {
+            case CREE -> new ScanResult(validate(centerId, seance.getId(), userId, List.of()), false, true, false);
+            case VALIDEE, SIGNEE, FACTUREE -> new ScanResult(seance, false, false, true);
+            default -> throw new IllegalStateException(
+                    "La séance du jour de ce patient est marquée absente : elle ne peut pas être validée");
+        };
+    }
+
+    @Override
+    public void addConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, BigDecimal quantite, String userId) {
+        if (quantite == null || quantite.signum() <= 0) {
+            throw new IllegalArgumentException("La quantite doit etre strictement positive");
+        }
+        Seance seance = seanceRepo.findById(seanceId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
+        if (seance.getStatus() == SeanceStatus.FACTUREE) {
+            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+        }
+        if (seance.getStatus() != SeanceStatus.VALIDEE && seance.getStatus() != SeanceStatus.SIGNEE) {
+            throw new IllegalStateException("La seance doit etre validee avant d'ajouter un consommable");
+        }
+        var article = articleRepo.findById(articleId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
+        if (!article.isActive()) {
+            throw new IllegalStateException("Article inactif: " + article.getCode());
+        }
+        bonSortieUseCase.addArticleConsommation(centerId, seanceId, seance.getPatientId(), seance.getDateSeance(),
+                articleId, quantite, userId != null ? userId : "system");
     }
 
     @Override

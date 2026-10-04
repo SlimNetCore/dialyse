@@ -42,6 +42,7 @@ describe('SeanceStore', () => {
     exportSeanceDashboard: ReturnType<typeof vi.fn>;
     listArticlesStock: ReturnType<typeof vi.fn>;
     removeSeanceConsommable: ReturnType<typeof vi.fn>;
+    addSeanceConsommable: ReturnType<typeof vi.fn>;
     updateSeanceConsommableQuantite: ReturnType<typeof vi.fn>;
   };
   beforeEach(() => {
@@ -108,6 +109,7 @@ describe('SeanceStore', () => {
       deleteSeanceClosure: vi.fn().mockReturnValue(of({deleted: true})),
       exportSeanceDashboard: vi.fn().mockReturnValue(of(new Blob())),
       removeSeanceConsommable: vi.fn().mockReturnValue(of({removed: true, articleId: 'art1'})),
+      addSeanceConsommable: vi.fn().mockReturnValue(of({added: true})),
       updateSeanceConsommableQuantite: vi.fn().mockReturnValue(of({updated: true, articleId: 'art1', quantite: 5})),
       listArticlesStock: vi.fn().mockReturnValue(of([
         {
@@ -199,6 +201,51 @@ describe('SeanceStore', () => {
     expect(mockApi.getSeanceSummary).toHaveBeenCalledWith(SEANCE_ID, CENTER_ID);
     expect(store.summary()?.forfait?.nom).toBe('Forfait hémodialyse');
     expect(store.summary()?.forfait?.prix).toBe(3500);
+  });
+  it('should announce a session validated by the scan and keep the scan result for the banner', () => {
+    mockApi.scanSeanceQr.mockReturnValueOnce(of({
+      id: SEANCE_ID, status: 'VALIDEE', dateSeance: '2026-07-24', created: true, validatedNow: true,
+      alreadyValidated: false, patientNom: 'Dupont', patientPrenom: 'Jean', patientCode: 'PAT-001',
+    }));
+    const store = TestBed.inject(SeanceStore);
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
+    expect(store.scanMessage()).toBe('SEANCES.SCAN_VALIDATED');
+    expect(store.lastScan()?.patientNom).toBe('Dupont');
+    expect(store.qrCode()).toBe('');
+  });
+  it('should say nothing was changed on a second scan of an already validated session', () => {
+    mockApi.scanSeanceQr.mockReturnValueOnce(of({
+      id: SEANCE_ID, status: 'VALIDEE', dateSeance: '2026-07-24', created: false, validatedNow: false,
+      alreadyValidated: true,
+    }));
+    const store = TestBed.inject(SeanceStore);
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
+    expect(store.scanMessage()).toBe('SEANCES.SCAN_ALREADY_VALIDATED');
+  });
+  it('should clear the previous scan result when a scan fails', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
+    mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({status: 422})));
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-002'});
+    expect(store.lastScan()).toBeNull();
+    expect(store.scanState()).toBe('error');
+  });
+  it('should add a consommable straight to a validated session and reload its summary', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.addConsommableToSeance({seanceId: SEANCE_ID, centerId: CENTER_ID, articleId: 'art1', quantite: 2});
+    expect(mockApi.addSeanceConsommable).toHaveBeenCalledWith(SEANCE_ID, {
+      centerId: CENTER_ID, articleId: 'art1', quantite: 2,
+    });
+    expect(mockApi.getSeanceSummary).toHaveBeenCalledWith(SEANCE_ID, CENTER_ID);
+    expect(store.savingConsommable()).toBe(false);
+    expect(store.scanMessage()).toBe('SEANCES.CONSUMABLE_ADDED');
+  });
+  it('should keep the error and stop saving when adding a consommable fails', () => {
+    mockApi.addSeanceConsommable.mockReturnValueOnce(throwError(() => ({status: 422})));
+    const store = TestBed.inject(SeanceStore);
+    store.addConsommableToSeance({seanceId: SEANCE_ID, centerId: CENTER_ID, articleId: 'art1', quantite: 2});
+    expect(store.savingConsommable()).toBe(false);
+    expect(store.error()).toBeTruthy();
   });
   it('should set error state on scan failure', () => {
     mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({status: 400, statusText: 'Bad Request'})));

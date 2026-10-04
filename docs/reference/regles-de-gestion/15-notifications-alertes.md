@@ -17,6 +17,14 @@
   surveiller (alertes de stock, absences à qualifier, alertes d'observance, sous-effectif,
   conflits de planning, alertes de la direction) restent consultables dans leurs écrans.
 
+- **RG-NOT-004** — **Toute saisie d'un infirmier prévient le médecin du centre** : l'évènement `SAISIE_INFIRMIER`
+  (destinataire `MEDECIN`) nomme l'auteur, le patient, la date et la nature de la saisie — séance créée ou validée
+  (`SEANCE_CREEE`, `SEANCE_VALIDEE`), volet paramédical (`PARAMEDICAL`), consommable ajouté / modifié / retiré
+  (`CONSOMMABLE_AJOUT`, `CONSOMMABLE_MODIF`, `CONSOMMABLE_RETRAIT`), traitement anémie (`ANEMIE`), absence de patient
+  (`ABSENCE`). La notification accompagne la saisie sans jamais la faire échouer (une panne du canal temps réel est
+  ignorée). Les évènements de séance historiques ne visent plus le médecin : il n'est prévenu que par ce message.
+  *Source :* `SaisieInfirmierNotifier`, `NotificationService.notifySaisieInfirmier`.
+
 ## 15.2 Catalogue des évènements de centre
 
 | Évènement                                    | Déclencheur                                                      | Destinataires (cloche)                              | Règle                  |
@@ -24,11 +32,12 @@
 | `PATIENT_CREATED`, `PATIENT_UPDATED`         | création / modification d'une fiche patient                      | tous (rafraîchissement)                             | RG-PAT-015             |
 | `ATTESTATION_CREATED`, `ATTESTATION_DELETED` | attestation de droits                                            | tous                                                | RG-ATT-004             |
 | `PEC_VALIDATED`, `PEC_CLOSED`, `PEC_DELETED` | cycle de vie d'une PEC                                           | tous                                                | RG-PEC-003/004/008     |
-| `SEANCE_CREATED`                             | création / scan d'une séance                                     | `INFIRMIER`, `MEDECIN`                              | RG-SEA-013             |
-| `SEANCE_VALIDATED`                           | validation infirmière                                            | `INFIRMIER`, `MEDECIN`                              | RG-SEA-020             |
-| `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                     | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-030             |
+| `SEANCE_CREATED`                             | création / scan d'une séance                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-013             |
+| `SEANCE_VALIDATED`                           | validation infirmière                                            | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-020             |
+| `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-030             |
 | `SEANCE_MEDICAL_SAVED`                       | volet médical enregistré                                         | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-031             |
-| `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                            | tous                                                | RG-SEA-022             |
+| `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                            | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-022             |
+| `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                    | `MEDECIN`                                           | RG-NOT-004             |
 | `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30) | `MEDECIN`                                           | RG-MED-073             |
 | `ABSENCES_A_QUALIFIER`                       | absences détectées à qualifier (contrôle de 02:30)               | `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`       | RG-ABS-044             |
 | `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)  | `ADMIN`, `SECRETAIRE`                               | RG-INF-046             |

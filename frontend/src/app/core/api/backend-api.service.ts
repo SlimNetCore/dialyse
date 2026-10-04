@@ -133,6 +133,24 @@ export type ScanSeanceQrPayload = {
   qrCode: string;
 };
 
+/** Réponse d'un scan de patient (voir `POST /seances/scan`). */
+export type ScanSeanceResult = {
+  id: string;
+  status: string;
+  dateSeance: string;
+  patientNom?: string | null;
+  patientPrenom?: string | null;
+  patientCode?: string | null;
+  generateurNom?: string | null;
+  generateurEtat?: string | null;
+  /** La séance a été créée par ce scan. */
+  created?: boolean;
+  /** La séance a été validée par ce scan. */
+  validatedNow?: boolean;
+  /** La séance du jour était déjà validée, signée ou facturée (aucun retraitement). */
+  alreadyValidated?: boolean;
+};
+
 export type UpdateSeancePayload = {
   centerId: string;
   dateSeance?: string;
@@ -757,8 +775,20 @@ export class BackendApiService {
     return this.http.get<PagedResponse<SeanceListItem>>(`${this.baseUrl}/seances`, {params});
   }
 
-  scanSeanceQr(payload: ScanSeanceQrPayload): Observable<{ id: string; status: string; dateSeance: string }> {
-    return this.http.post<{ id: string; status: string; dateSeance: string }>(`${this.baseUrl}/seances/scan`, payload);
+  /**
+   * Scan d'un patient. Infirmier / administrateur : la séance du jour est validée directement ; secrétaire : elle est
+   * seulement créée (ou renvoyée), à valider par l'infirmier.
+   */
+  scanSeanceQr(payload: ScanSeanceQrPayload): Observable<ScanSeanceResult> {
+    return this.http.post<ScanSeanceResult>(`${this.baseUrl}/seances/scan`, payload);
+  }
+
+  /** Ajoute un consommable à une séance déjà validée (seule cette ligne sort du stock). */
+  addSeanceConsommable(seanceId: string, payload: { centerId: string; articleId: string; quantite: number }):
+    Observable<{ added: boolean; articleId: string; quantite: number }> {
+    return this.http.post<{ added: boolean; articleId: string; quantite: number }>(
+      `${this.baseUrl}/seances/${seanceId}/consommables`, payload
+    );
   }
 
   updateSeance(seanceId: string, payload: UpdateSeancePayload): Observable<{

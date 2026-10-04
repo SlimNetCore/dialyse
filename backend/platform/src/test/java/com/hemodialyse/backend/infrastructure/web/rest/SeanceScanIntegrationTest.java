@@ -57,6 +57,15 @@ class SeanceScanIntegrationTest {
         jdbc.update("DELETE FROM patients WHERE id = ?", PATIENT_ID);
     }
 
+    private static String scanPayload() {
+        return """
+                {
+                  "centerId": "%s",
+                  "qrCode": "PAT-SCAN-NULL-GEN"
+                }
+                """.formatted(CENTER_ID);
+    }
+
     @Test
     void scan_should_return_200_when_patient_has_no_generateur() throws Exception {
         cleanup();
@@ -75,7 +84,10 @@ class SeanceScanIntegrationTest {
                         .content(payload))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.status").value("CREE"))
+                .andExpect(jsonPath("$.status").value("VALIDEE"))
+                .andExpect(jsonPath("$.created").value(true))
+                .andExpect(jsonPath("$.validatedNow").value(true))
+                .andExpect(jsonPath("$.alreadyValidated").value(false))
                 .andExpect(jsonPath("$.generateurId").value(nullValue()))
                 .andExpect(jsonPath("$.generateurNom").value(nullValue()))
                 .andExpect(jsonPath("$.generateurMarque").value(nullValue()))
@@ -88,6 +100,54 @@ class SeanceScanIntegrationTest {
                 PATIENT_ID
         );
         org.junit.jupiter.api.Assertions.assertEquals(1L, createdSeances == null ? 0L : createdSeances);
+        org.junit.jupiter.api.Assertions.assertEquals("infirmer-01", jdbc.queryForObject(
+                "SELECT signed_infirmier_by FROM seances WHERE center_id = ? AND patient_id = ?", String.class,
+                CENTER_ID, PATIENT_ID), "l'infirmier qui scanne signe la validation");
+    }
+
+    @Test
+    void a_second_nurse_scan_returns_the_same_validated_session_without_reprocessing_it() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        String payload = scanPayload();
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                .contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isOk());
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-02").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("VALIDEE"))
+                .andExpect(jsonPath("$.created").value(false))
+                .andExpect(jsonPath("$.validatedNow").value(false))
+                .andExpect(jsonPath("$.alreadyValidated").value(true));
+
+        org.junit.jupiter.api.Assertions.assertEquals(1L, jdbc.queryForObject(
+                "SELECT COUNT(1) FROM seances WHERE center_id = ? AND patient_id = ?", Long.class, CENTER_ID, PATIENT_ID));
+        org.junit.jupiter.api.Assertions.assertEquals("infirmer-01", jdbc.queryForObject(
+                "SELECT signed_infirmier_by FROM seances WHERE center_id = ? AND patient_id = ?", String.class,
+                CENTER_ID, PATIENT_ID), "la signature du premier scan est conservée");
+    }
+
+    @Test
+    void a_nurse_scan_validates_the_created_session_of_the_secretary_instead_of_duplicating_it() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        String payload = scanPayload();
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("secretaire-01").roles("SECRETAIRE"))
+                        .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CREE"))
+                .andExpect(jsonPath("$.validatedNow").value(false));
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("VALIDEE"))
+                .andExpect(jsonPath("$.created").value(false))
+                .andExpect(jsonPath("$.validatedNow").value(true));
+
+        org.junit.jupiter.api.Assertions.assertEquals(1L, jdbc.queryForObject(
+                "SELECT COUNT(1) FROM seances WHERE center_id = ? AND patient_id = ?", Long.class, CENTER_ID, PATIENT_ID));
     }
 
     @Test

@@ -985,6 +985,9 @@
     "NO_CLOSURES": "لا توجد إغلاقات محددة.",
     "SCAN_READY_MESSAGE": "جاهز للمسح",
     "CONSUMABLE_REMOVED": "تم حذف الصنف",
+    "CONSUMABLE_ADDED": "تمت إضافة مستهلك إلى الحصة",
+    "SCAN_VALIDATED": "تم تأكيد الحصة عبر المسح",
+    "SCAN_ALREADY_VALIDATED": "الحصة مؤكَّدة مسبقًا — لم يتم تعديل أي شيء",
     "CONSUMABLE_QTY_UPDATED": "تم تحديث الكمية",
     "SESSION_CREATED_LISTED": "تم إنشاء الحصة وإضافتها إلى القائمة",
     "INVALID_QR_OR_PATIENT": "رمز QR غير صالح أو المريض غير موجود",
@@ -2616,6 +2619,17 @@
     "EXPORT_ERROR": "خطأ أثناء التصدير"
   },
   "NOTIFICATION": {
+    "SAISIE": {
+      "DEFAULT": "قام {{auteur}} بإدخال بيانات للمريض {{nom}}",
+      "SEANCE_CREEE": "أنشأ {{auteur}} حصة المريض {{nom}} ({{date}})",
+      "SEANCE_VALIDEE": "أكّد {{auteur}} حصة المريض {{nom}} ({{date}})",
+      "PARAMEDICAL": "سجّل {{auteur}} الجانب شبه الطبي للمريض {{nom}} ({{date}})",
+      "CONSOMMABLE_AJOUT": "أضاف {{auteur}} مستهلكًا إلى حصة المريض {{nom}}",
+      "CONSOMMABLE_MODIF": "عدّل {{auteur}} مستهلكًا في حصة المريض {{nom}}",
+      "CONSOMMABLE_RETRAIT": "حذف {{auteur}} مستهلكًا من حصة المريض {{nom}}",
+      "ANEMIE": "سجّل {{auteur}} علاج فقر الدم للمريض {{nom}}",
+      "ABSENCE": "صرّح {{auteur}} بغياب المريض {{nom}} ({{date}})"
+    },
     "TITLE": "الإشعارات",
     "EMPTY": "لا توجد إشعارات",
     "MARK_READ": "تحديد الكل كمقروء",

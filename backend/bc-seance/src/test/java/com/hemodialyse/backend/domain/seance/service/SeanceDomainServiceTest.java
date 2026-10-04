@@ -331,6 +331,153 @@ class SeanceDomainServiceTest {
         assertTrue(ex.getMessage().contains("Patient introuvable"));
     }
 
+    // ───────── Scan infirmier : la séance du jour est validée directement ─────────
+
+    private ScanFixture scanFixture() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
+        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), spy);
+        return new ScanFixture(centerId, patientId, seanceRepo, spy, service);
+    }
+
+    @Test
+    void scanAndValidate_should_create_then_validate_when_no_session_exists_today() {
+        ScanFixture f = scanFixture();
+
+        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01");
+
+        assertTrue(result.created());
+        assertTrue(result.validatedNow());
+        assertFalse(result.alreadyValidated());
+        assertEquals(SeanceStatus.VALIDEE, result.seance().getStatus());
+        assertEquals(LocalDate.now(), result.seance().getDateSeance());
+        assertEquals("inf-01", result.seance().getSignedByInfirmierUserId());
+        assertNotNull(result.seance().getValidatedAt());
+        assertFalse(f.bonSortie().called, "aucun consommable : aucune sortie de stock");
+    }
+
+    @Test
+    void scanAndValidate_should_validate_an_existing_created_session_without_duplicating_it() {
+        ScanFixture f = scanFixture();
+        UUID id = UUID.randomUUID();
+        f.seances().save(new Seance(id, f.patientId(), f.centerId().value(), LocalDate.now()));
+
+        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01");
+
+        assertFalse(result.created());
+        assertTrue(result.validatedNow());
+        assertEquals(id, result.seance().getId());
+        assertEquals(SeanceStatus.VALIDEE, f.seances().findById(id, f.centerId()).orElseThrow().getStatus());
+        assertEquals(id, f.seances().findByPatientIdAndDate(f.centerId(), f.patientId(), LocalDate.now()).orElseThrow().getId());
+    }
+
+    @Test
+    void scanAndValidate_should_be_idempotent_for_validated_signed_or_billed_sessions() {
+        for (SeanceStatus status : List.of(SeanceStatus.VALIDEE, SeanceStatus.SIGNEE, SeanceStatus.FACTUREE)) {
+            ScanFixture f = scanFixture();
+            Seance existante = new Seance(UUID.randomUUID(), f.patientId(), f.centerId().value(), LocalDate.now());
+            existante.setStatus(status);
+            f.seances().save(existante);
+
+            var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-02");
+
+            assertTrue(result.alreadyValidated(), status.name());
+            assertFalse(result.created());
+            assertFalse(result.validatedNow());
+            assertEquals(status, result.seance().getStatus(), "le statut ne change pas");
+            assertNull(result.seance().getSignedByInfirmierUserId(), "pas de nouvelle signature infirmier");
+        }
+    }
+
+    @Test
+    void scanAndValidate_should_refuse_an_absent_session() {
+        ScanFixture f = scanFixture();
+        Seance absente = new Seance(UUID.randomUUID(), f.patientId(), f.centerId().value(), LocalDate.now());
+        absente.setStatus(SeanceStatus.ABSENT);
+        f.seances().save(absente);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01"));
+        assertTrue(ex.getMessage().contains("absente"));
+    }
+
+    @Test
+    void scanAndValidate_should_refuse_a_patient_of_another_center() {
+        ScanFixture f = scanFixture();
+        CenterId autre = CenterId.of(UUID.randomUUID());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> f.service().scanAndValidate(autre, f.patientId().toString(), "inf-01"));
+    }
+
+    @Test
+    void addConsommableSeance_should_issue_only_the_new_line_on_a_validated_session() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryArticleRepository articles = new InMemoryArticleRepository();
+        articles.addArticle(articleId, centerId.value(), "ART-1", BigDecimal.TEN);
+        SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
+        Seance seance = new Seance(seanceId, patientId, centerId.value(), LocalDate.now());
+        seance.validerParInfirmier("inf-01");
+        seanceRepo.save(seance);
+        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
+                articles, new InMemoryLotRepository(), spy);
+
+        service.addConsommableSeance(centerId, seanceId, articleId, new BigDecimal("2"), "inf-01");
+
+        assertTrue(spy.addCalled);
+        assertEquals(articleId, spy.lastAddedArticleId);
+        assertEquals(new BigDecimal("2"), spy.lastAddedQuantite);
+        assertFalse(spy.called, "ni bon de sortie de validation ni retraitement des lignes existantes");
+    }
+
+    // ───────── Ajout d'un consommable à une séance déjà validée ─────────
+
+    @Test
+    void addConsommableSeance_should_refuse_a_created_a_billed_session_a_bad_quantity_and_an_inactive_article() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID articleId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        InMemoryArticleRepository articles = new InMemoryArticleRepository();
+        articles.addArticle(articleId, centerId.value(), "ART-1", BigDecimal.TEN);
+        SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
+        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
+                articles, new InMemoryLotRepository(), spy);
+
+        UUID creee = UUID.randomUUID();
+        seanceRepo.save(new Seance(creee, patientId, centerId.value(), LocalDate.now()));
+        assertThrows(IllegalStateException.class,
+                () -> service.addConsommableSeance(centerId, creee, articleId, BigDecimal.ONE, "inf"));
+
+        UUID facturee = UUID.randomUUID();
+        Seance f = new Seance(facturee, patientId, centerId.value(), LocalDate.now().minusDays(1));
+        f.setStatus(SeanceStatus.FACTUREE);
+        seanceRepo.save(f);
+        assertThrows(IllegalStateException.class,
+                () -> service.addConsommableSeance(centerId, facturee, articleId, BigDecimal.ONE, "inf"));
+
+        UUID validee = UUID.randomUUID();
+        Seance v = new Seance(validee, patientId, centerId.value(), LocalDate.now().minusDays(2));
+        v.validerParInfirmier("inf");
+        seanceRepo.save(v);
+        assertThrows(IllegalArgumentException.class,
+                () -> service.addConsommableSeance(centerId, validee, articleId, BigDecimal.ZERO, "inf"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.addConsommableSeance(centerId, validee, UUID.randomUUID(), BigDecimal.ONE, "inf"));
+        assertFalse(spy.addCalled, "aucune sortie de stock sur un refus");
+    }
+
+    private record ScanFixture(CenterId centerId, UUID patientId, InMemorySeanceRepository seances,
+                               SpyBonSortieUseCase bonSortie, SeanceDomainService service) {
+    }
+
     @Test
     void removeConsommableSeance_should_call_reverse_and_succeed() {
         CenterId centerId = CenterId.of(UUID.randomUUID());

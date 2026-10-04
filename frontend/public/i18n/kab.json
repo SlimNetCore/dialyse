@@ -1121,6 +1121,9 @@
     "NO_CLOSURES": "Ulac tameḍlit yettwasnifen.",
     "SCAN_READY_MESSAGE": "Ires i usisfer",
     "CONSUMABLE_REMOVED": "Aḥric yettwakkes",
+    "CONSUMABLE_ADDED": "Aḥric yettwarna ɣer tsedrit",
+    "SCAN_VALIDATED": "Tasedrit tettwaṣeḥḥa s umsisfer",
+    "SCAN_ALREADY_VALIDATED": "Tasedrit tettwaṣeḥḥa yakan — ur yettwabeddel acemma",
     "CONSUMABLE_QTY_UPDATED": "Amḍan yettwaleqqem",
     "SESSION_CREATED_LISTED": "Tamsirt tettwarna d tettwaqqen ɣer tabdart",
     "INVALID_QR_OR_PATIENT": "QR d arameɣtu neɣ amdan ur yettwafi ara",
@@ -2402,6 +2405,17 @@
     "EXPORT_ERROR": "Tuccḍa deg usifeḍ"
   },
   "NOTIFICATION": {
+    "SAISIE": {
+      "DEFAULT": "{{auteur}} yuru isalen i {{nom}}",
+      "SEANCE_CREEE": "{{auteur}} yernu tasedrit n {{nom}} ({{date}})",
+      "SEANCE_VALIDEE": "{{auteur}} yeṣeḥḥa tasedrit n {{nom}} ({{date}})",
+      "PARAMEDICAL": "{{auteur}} yuru aferdis n tallalt n {{nom}} ({{date}})",
+      "CONSOMMABLE_AJOUT": "{{auteur}} yerna aḥric ɣer tsedrit n {{nom}}",
+      "CONSOMMABLE_MODIF": "{{auteur}} yesnifel aḥric n tsedrit n {{nom}}",
+      "CONSOMMABLE_RETRAIT": "{{auteur}} yekkes aḥric seg tsedrit n {{nom}}",
+      "ANEMIE": "{{auteur}} yuru tamunt n tbaɣa n idammen i {{nom}}",
+      "ABSENCE": "{{auteur}} yeslal anaw n {{nom}} ({{date}})"
+    },
     "TITLE": "Ilɣa",
     "EMPTY": "Ulac ilɣa",
     "MARK_READ": "Rcem akk d yettwaɣṛan",

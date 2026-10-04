@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-04<br>456 règles de gestion · 16 domaines · 327 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-04<br>458 règles de gestion · 16 domaines · 333 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,7 +295,7 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>456</b>règles de gestion</div>
+            <div><b>458</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
             <div><b>7</b>points d'attention</div>
@@ -1630,11 +1630,13 @@
             <div class="rtxt"><p><strong>Enregistrer la fiche ne dégrade jamais la prise en charge ni
                 l&#39;attestation</strong> : la demande de prise
                 en charge saisie sur la fiche retrouve la PEC existante (par identifiant, à défaut de même demande) et
-                la conserve avec
+                la conserve
+                avec
                 son statut et son accord (une PEC <code>VALIDEE</code> reste <code>VALIDEE</code>) ; seule une demande
                 modifiée met à jour les dates et le
                 forfait demandés. Une PEC n&#39;est créée (état <code>CREE</code>) que si aucune PEC ne correspond. Une
-                attestation déjà présente avec
+                attestation déjà présente
+                avec
                 les mêmes dates n&#39;est pas recréée (aucun doublon).</p>
             </div>
         </div>
@@ -1710,7 +1712,7 @@
             <div class="rid">RG-PAT-024</div>
             <div class="rtxt"><p>La synthèse mensuelle des patients (comptages par sexe, âge, KT) est calculée pour le
                 mois demandé
-                (mois courant par défaut) sur l&#39;<strong>effectif du mois</strong> (RG-PAT-037), mise en cache
+                (mois courant par défaut) sur l&#39; <strong>effectif du mois</strong> (RG-PAT-037), mise en cache
                 <strong>par centre et par mois</strong> (3 min) ;
                 ses détails de même (motif d&#39;inclusion : <code>PERMANENT</code>, <code>EVENT_MONTH</code> = sortie
                 ou fin de séjour dans le mois,
@@ -2665,7 +2667,19 @@
                 patient, numéro d&#39;assurance du patient ou de l&#39;assuré ; QR vide ou introuvable : refus
                 explicite. Si le patient a déjà
                 une séance ce jour-là, <strong>elle est
-                    renvoyée</strong> (pas de doublon).</p>
+                    renvoyée</strong> (pas de doublon). <strong>Scan par un infirmier (<code>INFIRMIER</code>, <code>ADMIN</code>)
+                    : la séance est validée directement</strong> —
+                si une séance <code>CREE</code> existe ce jour-là (par exemple créée par la secrétaire) elle passe à
+                <code>VALIDEE</code>, sinon elle est
+                créée directement à l&#39;état <code>VALIDEE</code> (RG-SEA-011 reste exigée), sans passer par «
+                Modifier → Enregistrer » ; la
+                signature de l&#39;infirmier est celle de l&#39;utilisateur qui scanne. Un second scan d&#39;une séance
+                déjà <code>VALIDEE</code>, <code>SIGNEE</code>
+                ou <code>FACTUREE</code> ne change rien (réponse <code>alreadyValidated</code>). Le scan de la <strong>secrétaire</strong>
+                crée seulement la séance
+                (<code>CREE</code>) : elle ne peut pas valider (RG-SEA-020). La réponse indique <code>created</code>,
+                <code>validatedNow</code>, <code>alreadyValidated</code> et
+                l&#39;identité du patient.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-013">
@@ -2715,6 +2729,16 @@
                 une au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.</p>
             </div>
         </div>
+        <div class="rule" id="RG-SEA-025">
+            <div class="rid">RG-SEA-025</div>
+            <div class="rtxt"><p><strong>Ajout d&#39;un consommable à une séance déjà validée</strong>
+                (<code>ADMIN</code>, <code>INFIRMIER</code> ; <code>POST /seances/{id}/consommables</code>) : seule la
+                ligne ajoutée sort du stock (FEFO, article actif, quantité strictement
+                positive) sans retraiter les consommables existants ; autorisé pour une séance <code>VALIDEE</code> ou
+                <code>SIGNEE</code>, refusé si
+                facturée ou non validée. Chaque saisie notifie le médecin (RG-NOT-004).</p>
+            </div>
+        </div>
         <div class="rule" id="RG-SEA-023">
             <div class="rid">RG-SEA-023</div>
             <div class="rtxt"><p>La date d&#39;une sortie de stock rattachée à une séance est immuable
@@ -2725,7 +2749,9 @@
             <div class="rid">RG-SEA-024<small>point d'attention</small></div>
             <div class="rtxt"><p>Valider à nouveau une séance déjà validée avec une liste de consommables retraite
                 ces consommables (nouvelle sortie) : l&#39;idempotence ne
-                porte que sur le statut. L&#39;interface n&#39;expose pas ce cas ; à protéger côté serveur.</p>
+                porte que sur le statut. L&#39;interface n&#39;expose pas ce cas ; à protéger côté serveur. L&#39;ajout
+                d&#39;un consommable
+                après validation passe par RG-SEA-025.</p>
             </div>
         </div>
         <h2>7.4 Volets de la séance</h2>
@@ -4578,8 +4604,9 @@
         <div class="rule" id="RG-DIR-020">
             <div class="rid">RG-DIR-020</div>
             <div class="rtxt"><p>Par centre et total : patients (effectif de la période, RG-PAT-037 : un patient sorti
-                avant la période n&#39;est pas compté, un patient sorti pendant ou après l&#39;est), patients « sous KT
-                », séances réalisées de la
+                avant la
+                période n&#39;est pas compté, un patient sorti pendant ou après l&#39;est), patients « sous KT »,
+                séances réalisées de la
                 période (statuts validée, signée ou facturée), factures, chiffre d&#39;affaires HT et TTC,
                 montants encaissés des factures de la période, évolution mensuelle, et <strong>comparaison avec la
                     période précédente</strong> de
@@ -4703,7 +4730,8 @@
                     théorique</strong>, <strong>file active</strong> (effectif de la période, RG-PAT-037 : patients
                 admis non sortis
                 avant la période, hors « en sommeil ») et <strong>taux d&#39;occupation</strong> avec son niveau (marge,
-                proche de la saturation ≥ 90 %, atteinte, sans
+                proche de la saturation ≥
+                90 %, atteinte, sans
                 capacité). Le total additionne les centres ; séries et patients par poste n&#39;ont pas de sens
                 consolidé. Une file active de 1 à 4 patients est masquée avec son taux. Voir RG-PLN-070 à 074.</p>
             </div>
@@ -5123,6 +5151,24 @@
                 conflits de planning, alertes de la direction) restent consultables dans leurs écrans.</p>
             </div>
         </div>
+        <div class="rule" id="RG-NOT-004">
+            <div class="rid">RG-NOT-004</div>
+            <div class="rtxt"><p><strong>Toute saisie d&#39;un infirmier prévient le médecin du centre</strong> : l&#39;évènement
+                <code>SAISIE_INFIRMIER</code>
+                (destinataire <code>MEDECIN</code>) nomme l&#39;auteur, le patient, la date et la nature de la saisie —
+                séance créée ou validée
+                (<code>SEANCE_CREEE</code>, <code>SEANCE_VALIDEE</code>), volet paramédical (<code>PARAMEDICAL</code>),
+                consommable ajouté / modifié / retiré
+                (<code>CONSOMMABLE_AJOUT</code>, <code>CONSOMMABLE_MODIF</code>, <code>CONSOMMABLE_RETRAIT</code>),
+                traitement anémie (<code>ANEMIE</code>), absence de patient
+                (<code>ABSENCE</code>). La notification accompagne la saisie sans jamais la faire échouer (une panne du
+                canal temps réel est
+                ignorée). Les évènements de séance historiques ne visent plus le médecin : il n&#39;est prévenu que par
+                ce message.
+                <em>Source :</em> <code>SaisieInfirmierNotifier</code>,
+                <code>NotificationService.notifySaisieInfirmier</code>.</p>
+            </div>
+        </div>
         <h2>15.2 Catalogue des évènements de centre</h2>
         <table>
             <thead>
@@ -5155,19 +5201,19 @@
             <tr>
                 <td><code>SEANCE_CREATED</code></td>
                 <td>création / scan d&#39;une séance</td>
-                <td><code>INFIRMIER</code>, <code>MEDECIN</code></td>
+                <td><code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
                 <td>RG-SEA-013</td>
             </tr>
             <tr>
                 <td><code>SEANCE_VALIDATED</code></td>
                 <td>validation infirmière</td>
-                <td><code>INFIRMIER</code>, <code>MEDECIN</code></td>
+                <td><code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
                 <td>RG-SEA-020</td>
             </tr>
             <tr>
                 <td><code>SEANCE_PARAMEDICAL_SAVED</code></td>
                 <td>volet paramédical enregistré</td>
-                <td><code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code></td>
+                <td><code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
                 <td>RG-SEA-030</td>
             </tr>
             <tr>
@@ -5179,8 +5225,14 @@
             <tr>
                 <td><code>SEANCE_CONSOMMABLE_CHANGED</code></td>
                 <td>consommable ajouté / modifié / retiré</td>
-                <td>tous</td>
+                <td><code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
                 <td>RG-SEA-022</td>
+            </tr>
+            <tr>
+                <td><code>SAISIE_INFIRMIER</code></td>
+                <td>toute saisie d&#39;un infirmier (voir RG-NOT-004)</td>
+                <td><code>MEDECIN</code></td>
+                <td>RG-NOT-004</td>
             </tr>
             <tr>
                 <td><code>OBSERVANCE_NON_RESPECTEE</code></td>
@@ -5933,7 +5985,7 @@
             <li><a href="#RG-SEA-024"><b>RG-SEA-024</b></a> — Valider à nouveau une séance déjà validée avec une liste
                 de consommables retraite
                 ces consommables (nouvelle sortie) : l'idempotence ne
-                porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté serveur.…
+                porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté serveur. …
             </li>
             <li><a href="#RG-STK-061"><b>RG-STK-061</b></a> — Contrôle quotidien à 07:00
                 (ExpirationAlertScheduler.scanExpirations) : pour chaque centre, les

@@ -161,8 +161,9 @@
         <div class="scan-row">
           <mat-form-field appearance="outline" class="flex1">
             <mat-label>{{ 'SEANCES.QR_CODE_LABEL' | translate }}</mat-label>
-            <input (input)="onQrInput($event)" [placeholder]="'SEANCES.QR_INPUT_PLACEHOLDER' | translate" [value]="qrCode()"
-                   matInput/>
+            <input (input)="onQrInput($event)" (keydown.enter)="scanQr()"
+                   [placeholder]="'SEANCES.QR_INPUT_PLACEHOLDER' | translate"
+                   [value]="qrCode()" autocomplete="off" autofocus enterkeyhint="go" inputmode="text" matInput/>
             <button
               (click)="pasteQrCodeManually()"
               [attr.aria-label]="'SEANCES.PASTE_BTN' | translate"
@@ -202,7 +203,14 @@
 
         <div [attr.data-state]="scanState()" class="scan-status">
           <mat-icon>{{ scanState() === 'success' ? 'check_circle' : scanState() === 'error' ? 'error' : 'info' }}</mat-icon>
-          <span>{{ scanMessage() | translate }}</span>
+          <div class="scan-result">
+            @if (scanState() === 'success' && lastScan(); as scan) {
+              <span class="scan-result-patient">{{ scan.patientNom }} {{ scan.patientPrenom }}
+                · {{ scan.patientCode }}</span>
+            }
+            <span
+              [class.scan-result-detail]="scanState() === 'success' && lastScan()">{{ scanMessage() | translate }}</span>
+          </div>
         </div>
 
         @if (!canOpenSeanceDetails()) {

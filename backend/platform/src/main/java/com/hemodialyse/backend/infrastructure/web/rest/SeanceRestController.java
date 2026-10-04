@@ -5,6 +5,7 @@ import com.hemodialyse.backend.domain.patient.service.FinOccupation;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.infrastructure.security.CurrentUser;
 import com.hemodialyse.backend.infrastructure.web.dto.request.*;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import jakarta.validation.Valid;
@@ -63,6 +64,9 @@ public class SeanceRestController {
                 patient.getPrenom(),
                 seance.getDateSeance() == null ? null : seance.getDateSeance().toString()
         );
+        notificationService.notifySaisieInfirmier(request.centerId(), "SEANCE_CREEE", seance.getPatientId(),
+                patient.getNom(), patient.getPrenom(), CurrentUser.username(),
+                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
 
         return ResponseEntity.ok(buildSeanceCreationPayload(seance, patient));
     }
@@ -113,24 +117,57 @@ public class SeanceRestController {
         return ResponseEntity.ok(payload);
     }
 
+    /**
+     * Scan d'un patient. <b>Infirmier / administrateur</b> : la séance du jour est validée directement (créée puis
+     * validée s'il n'y en a pas, validée si elle était « créée », renvoyée telle quelle si déjà validée). <b>Secrétaire</b>
+     * (qui ne valide pas) : la séance du jour est créée ou renvoyée, à valider par l'infirmier.
+     */
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
     @PostMapping("/scan")
     public ResponseEntity<?> scanQr(@RequestBody @Valid ScanSeanceQrRequest request) {
-        var seance = seanceUseCase.createFromQr(CenterId.of(request.centerId()), request.qrCode());
+        CenterId centre = CenterId.of(request.centerId());
+        String auteur = CurrentUser.username();
+        boolean created = false;
+        boolean validatedNow = false;
+        boolean alreadyValidated;
+        com.hemodialyse.backend.domain.seance.model.Seance seance;
+        if (CurrentUser.hasAnyRole("ADMIN", "INFIRMIER")) {
+            var result = seanceUseCase.scanAndValidate(centre, request.qrCode(), auteur);
+            seance = result.seance();
+            created = result.created();
+            validatedNow = result.validatedNow();
+            alreadyValidated = result.alreadyValidated();
+        } else {
+            seance = seanceUseCase.createFromQr(centre, request.qrCode());
+            alreadyValidated = seance.getStatus() != com.hemodialyse.backend.domain.seance.model.SeanceStatus.CREE;
+        }
 
-        var details = seanceUseCase.getDetails(CenterId.of(request.centerId()), seance.getId());
+        var details = seanceUseCase.getDetails(centre, seance.getId());
         var patient = details.patient();
         enrichGenerateur(patient, request.centerId());
-        notificationService.notifySeanceCreated(
-                request.centerId(),
-                seance.getId(),
-                seance.getPatientId(),
-                patient.getNom(),
-                patient.getPrenom(),
-                seance.getDateSeance() == null ? null : seance.getDateSeance().toString()
-        );
+        String date = seance.getDateSeance() == null ? null : seance.getDateSeance().toString();
+        if (!alreadyValidated) {
+            notificationService.notifySeanceCreated(request.centerId(), seance.getId(), seance.getPatientId(),
+                    patient.getNom(), patient.getPrenom(), date);
+        }
+        if (validatedNow) {
+            notificationService.notifySeanceValidated(request.centerId(), seance.getId(), seance.getPatientId(),
+                    patient.getNom(), patient.getPrenom(), date);
+            notificationService.notifySaisieInfirmier(request.centerId(), "SEANCE_VALIDEE", seance.getPatientId(),
+                    patient.getNom(), patient.getPrenom(), auteur, date);
+        } else if (!alreadyValidated) {
+            notificationService.notifySaisieInfirmier(request.centerId(), "SEANCE_CREEE", seance.getPatientId(),
+                    patient.getNom(), patient.getPrenom(), auteur, date);
+        }
 
-        return ResponseEntity.ok(buildSeanceCreationPayload(seance, patient));
+        Map<String, Object> payload = buildSeanceCreationPayload(seance, patient);
+        payload.put("patientNom", patient.getNom());
+        payload.put("patientPrenom", patient.getPrenom());
+        payload.put("patientCode", patient.getCodePatient());
+        payload.put("created", created);
+        payload.put("validatedNow", validatedNow);
+        payload.put("alreadyValidated", alreadyValidated);
+        return ResponseEntity.ok(payload);
     }
 
     private Map<String, Object> buildSeanceCreationPayload(com.hemodialyse.backend.domain.seance.model.Seance seance,
@@ -445,6 +482,9 @@ public class SeanceRestController {
                 patient.getPrenom(),
                 seance.getDateSeance() == null ? null : seance.getDateSeance().toString()
         );
+        notificationService.notifySaisieInfirmier(request.centerId(), "SEANCE_VALIDEE", seance.getPatientId(),
+                patient.getNom(), patient.getPrenom(), CurrentUser.username(),
+                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
 
         return ResponseEntity.ok(Map.of(
                 "id", seance.getId(),
@@ -1148,7 +1188,34 @@ public class SeanceRestController {
                                                @RequestParam(defaultValue = "system") String userId) {
         seanceUseCase.removeConsommableSeance(CenterId.of(centerId), seanceId, articleId, userId);
         notificationService.notifySeanceUpdated(centerId, seanceId);
+        notifierSaisieConsommable(centerId, seanceId, "CONSOMMABLE_RETRAIT");
         return ResponseEntity.ok(Map.of("removed", true, "articleId", articleId));
+    }
+
+    /**
+     * Ajoute un consommable à une séance <b>déjà validée</b> : seule cette ligne sort du stock (FEFO), les consommables
+     * déjà sortis ne sont jamais retraités.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
+    @PostMapping("/{seanceId}/consommables")
+    public ResponseEntity<?> addConsommable(@PathVariable UUID seanceId,
+                                            @RequestBody @Valid AddConsommableRequest request) {
+        seanceUseCase.addConsommableSeance(CenterId.of(request.centerId()), seanceId, request.articleId(),
+                request.quantite(), CurrentUser.username());
+        notificationService.notifySeanceUpdated(request.centerId(), seanceId);
+        notifierSaisieConsommable(request.centerId(), seanceId, "CONSOMMABLE_AJOUT");
+        return ResponseEntity.ok(Map.of("added", true, "articleId", request.articleId(), "quantite", request.quantite()));
+    }
+
+    /**
+     * Signale au médecin une saisie de consommable (patient et date lus sur la séance).
+     */
+    private void notifierSaisieConsommable(UUID centerId, UUID seanceId, String type) {
+        var details = seanceUseCase.getDetails(CenterId.of(centerId), seanceId);
+        var seance = details.seance();
+        notificationService.notifySaisieInfirmier(centerId, type, seance.getPatientId(), details.patient().getNom(),
+                details.patient().getPrenom(), CurrentUser.username(),
+                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
     }
 
     /**
@@ -1163,7 +1230,14 @@ public class SeanceRestController {
                 CenterId.of(request.centerId()), seanceId, articleId,
                 request.quantite(), request.userId());
         notificationService.notifySeanceUpdated(request.centerId(), seanceId);
+        notifierSaisieConsommable(request.centerId(), seanceId, "CONSOMMABLE_MODIF");
         return ResponseEntity.ok(Map.of("updated", true, "articleId", articleId, "quantite", request.quantite()));
+    }
+
+    public record AddConsommableRequest(
+            @jakarta.validation.constraints.NotNull UUID centerId,
+            @jakarta.validation.constraints.NotNull UUID articleId,
+            @jakarta.validation.constraints.NotNull @jakarta.validation.constraints.Positive java.math.BigDecimal quantite) {
     }
 
     public record UpdateConsommableRequest(UUID centerId, String userId, java.math.BigDecimal quantite) {

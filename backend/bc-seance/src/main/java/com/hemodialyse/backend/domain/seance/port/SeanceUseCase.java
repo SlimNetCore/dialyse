@@ -18,6 +18,29 @@ public interface SeanceUseCase {
 
     Seance createFromQr(CenterId centerId, String qrCode);
 
+    /**
+     * Scan d'un patient par l'infirmier : la séance du jour est <b>validée directement</b>. Une séance « créée »
+     * existante passe à « validée » ; sans séance, elle est créée puis validée ; une séance déjà validée, signée ou
+     * facturée est renvoyée telle quelle (idempotent : un second scan ne retraite rien).
+     */
+    ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId);
+
+    /**
+     * Ajoute un consommable à une séance <b>déjà validée</b> (sortie de stock FEFO de cette seule ligne), sans repasser
+     * par la validation : les consommables déjà sortis ne sont jamais retraités.
+     */
+    void addConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, BigDecimal quantite, String userId);
+
+    /**
+     * Résultat d'un scan.
+     *
+     * @param created          la séance a été créée par ce scan
+     * @param validatedNow     la séance a été validée par ce scan
+     * @param alreadyValidated la séance du jour était déjà validée, signée ou facturée
+     */
+    record ScanResult(Seance seance, boolean created, boolean validatedNow, boolean alreadyValidated) {
+    }
+
     SeanceDetails getDetails(CenterId centerId, UUID seanceId);
 
     List<SeanceListItem> list(CenterId centerId);

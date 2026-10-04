@@ -6,6 +6,7 @@ import {catchError, EMPTY, of, pipe, switchMap, tap} from 'rxjs';
 import {
   ArticleStock,
   BackendApiService,
+  ScanSeanceResult,
   SeanceCalendarResponse,
   SeanceDashboardDetailItem,
   SeanceDashboardDetailsResponse,
@@ -22,6 +23,16 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 
 function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+/**
+ * Message affiché après un scan réussi : séance validée par ce scan, déjà validée (second scan, rien n'est retraité) ou
+ * seulement créée (scan de la secrétaire, à valider par l'infirmier).
+ */
+export function scanSuccessMessage(result: Pick<ScanSeanceResult, 'validatedNow' | 'alreadyValidated'>): string {
+  if (result.validatedNow) return 'SEANCES.SCAN_VALIDATED';
+  if (result.alreadyValidated) return 'SEANCES.SCAN_ALREADY_VALIDATED';
+  return 'SEANCES.SESSION_CREATED_LISTED';
 }
 
 function currentMonthIso(): string {
@@ -57,6 +68,8 @@ type SeanceState = {
   scanState: SeanceScanState;
   scanMessage: string;
   scanning: boolean;
+  /** Dernier patient scanné (affiché en grand à l'infirmier pour confirmer le scan). */
+  lastScan: ScanSeanceResult | null;
 
   /** Journal journalier */
   journalDate: string;
@@ -156,6 +169,7 @@ const initialState: SeanceState = {
   scanState: 'idle',
   scanMessage: 'SEANCES.SCAN_READY_MESSAGE',
   scanning: false,
+  lastScan: null,
   journalDate: todayIsoDate(),
   journalLoading: false,
   journalPatients: [],
@@ -351,6 +365,33 @@ export const SeanceStore = signalStore(
       )
     ),
 
+    /**
+     * Ajoute un consommable à une séance déjà validée : seule cette ligne sort du stock (aucun retraitement des lignes
+     * existantes), puis le résumé de la séance est rechargé depuis le serveur.
+     */
+    addConsommableToSeance: rxMethod<{ seanceId: string; centerId: string; articleId: string; quantite: number }>(
+      pipe(
+        tap(() => patchState(store, {savingConsommable: true, error: null})),
+        switchMap(({seanceId, centerId, articleId, quantite}) =>
+          api.addSeanceConsommable(seanceId, {centerId, articleId, quantite}).pipe(
+            switchMap(() => api.getSeanceSummary(seanceId, centerId)),
+            tap((summary) => patchState(store, {
+              savingConsommable: false,
+              ...summaryStateFromSummary(summary),
+              newConsommableArticleId: '',
+              newConsommableQuantite: null,
+              scanState: 'success',
+              scanMessage: 'SEANCES.CONSUMABLE_ADDED',
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {savingConsommable: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
     // --- QR / scan ---
     setQrCode(qrCode: string): void {
       patchState(store, {qrCode});
@@ -415,6 +456,7 @@ export const SeanceStore = signalStore(
         tap(() => patchState(store, {scanning: true, error: null})),
         switchMap(({centerId, qrCode}) =>
           api.scanSeanceQr({centerId, qrCode}).pipe(
+            tap((created) => patchState(store, {lastScan: created, qrCode: ''})),
             switchMap((created) =>
               api.listSeances(centerId, 0, store.seancesPageSize()).pipe(
                 switchMap((res) =>
@@ -426,7 +468,7 @@ export const SeanceStore = signalStore(
                         seancesPageIndex: 0,
                         scanning: false,
                         scanState: 'success',
-                        scanMessage: 'SEANCES.SESSION_CREATED_LISTED',
+                        scanMessage: scanSuccessMessage(created),
                         ...summaryStateFromSummary(summary),
                       });
                     }),
@@ -441,7 +483,7 @@ export const SeanceStore = signalStore(
                         dateSeance: created.dateSeance,
                         scanning: false,
                         scanState: 'success',
-                        scanMessage: 'SEANCES.SESSION_CREATED_LISTED',
+                        scanMessage: scanSuccessMessage(created),
                       });
                       return EMPTY;
                     })
@@ -455,7 +497,7 @@ export const SeanceStore = signalStore(
                     dateSeance: created.dateSeance,
                     scanning: false,
                     scanState: 'success',
-                    scanMessage: 'SEANCES.SESSION_CREATED_LISTED',
+                    scanMessage: scanSuccessMessage(created),
                   });
                   return EMPTY;
                 })
@@ -464,6 +506,7 @@ export const SeanceStore = signalStore(
             catchError((err: unknown) => {
               patchState(store, {
                 scanning: false,
+                lastScan: null,
                 scanState: 'error',
                 scanMessage: scanErrorMessage(err),
                 error: errorMessage(err),

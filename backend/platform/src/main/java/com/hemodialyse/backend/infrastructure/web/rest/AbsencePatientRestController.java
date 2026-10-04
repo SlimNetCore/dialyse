@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.absence.AbsencePatientService;
+import com.hemodialyse.backend.application.notification.SaisieInfirmierNotifier;
 import com.hemodialyse.backend.domain.absence.model.AbsenceFiltre;
 import com.hemodialyse.backend.domain.absence.model.AbsenceLigne;
 import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
@@ -46,10 +47,13 @@ public class AbsencePatientRestController {
 
     private final AbsencePatientService service;
     private final CenterAccessGuard centerAccessGuard;
+    private final SaisieInfirmierNotifier saisieNotifier;
 
-    public AbsencePatientRestController(AbsencePatientService service, CenterAccessGuard centerAccessGuard) {
+    public AbsencePatientRestController(AbsencePatientService service, CenterAccessGuard centerAccessGuard,
+                                        SaisieInfirmierNotifier saisieNotifier) {
         this.service = service;
         this.centerAccessGuard = centerAccessGuard;
+        this.saisieNotifier = saisieNotifier;
     }
 
     private static UUID utilisateur(Authentication authentication) {
@@ -125,6 +129,7 @@ public class AbsencePatientRestController {
         AbsencePatient a = service.declarer(centre, r.patientId(), r.dateSeance(),
                 r.motif() == null ? null : MotifAbsence.valueOf(r.motif()), r.commentaire(),
                 utilisateur(authentication));
+        saisieNotifier.saisie(centre, "ABSENCE", a.patientId(), a.dateSeance());
         return ResponseEntity.status(HttpStatus.CREATED).body(AbsenceResponse.de(a, null));
     }
 
@@ -137,6 +142,7 @@ public class AbsencePatientRestController {
         UUID centre = centerAccessGuard.requireCenter(centerId).value();
         AbsencePatient a = service.qualifier(centre, id, MotifAbsence.valueOf(r.motif()), r.commentaire(),
                 utilisateur(authentication), peutCorriger(authentication));
+        saisieNotifier.saisie(centre, "ABSENCE", a.patientId(), a.dateSeance());
         return ResponseEntity.ok(AbsenceResponse.de(a, null));
     }
 
@@ -146,8 +152,9 @@ public class AbsencePatientRestController {
                                                      @PathVariable UUID id, @Valid @RequestBody RattrapageRequest r,
                                                      Authentication authentication) {
         UUID centre = centerAccessGuard.requireCenter(centerId).value();
-        return ResponseEntity.ok(AbsenceResponse.de(
-                service.rattraper(centre, id, r.dateRattrapage(), utilisateur(authentication)), null));
+        AbsencePatient a = service.rattraper(centre, id, r.dateRattrapage(), utilisateur(authentication));
+        saisieNotifier.saisie(centre, "ABSENCE", a.patientId(), a.dateSeance());
+        return ResponseEntity.ok(AbsenceResponse.de(a, null));
     }
 
     @PutMapping("/{id}/annulation")
@@ -156,8 +163,10 @@ public class AbsencePatientRestController {
                                                    @PathVariable UUID id, @Valid @RequestBody AnnulationRequest r,
                                                    Authentication authentication) {
         UUID centre = centerAccessGuard.requireCenter(centerId).value();
-        return ResponseEntity.ok(AbsenceResponse.de(service.annuler(centre, id, r.commentaire(),
-                utilisateur(authentication), peutCorriger(authentication)), null));
+        AbsencePatient a = service.annuler(centre, id, r.commentaire(), utilisateur(authentication),
+                peutCorriger(authentication));
+        saisieNotifier.saisie(centre, "ABSENCE", a.patientId(), a.dateSeance());
+        return ResponseEntity.ok(AbsenceResponse.de(a, null));
     }
 
     public record DeclarationRequest(@NotNull UUID patientId, @NotNull LocalDate dateSeance, String motif,

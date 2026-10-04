@@ -1345,6 +1345,9 @@
     "PASTE_EMPTY_CLIPBOARD": "No code available to paste",
     "PASTE_ERROR": "Unable to paste from clipboard",
     "CONSUMABLE_REMOVED": "Item removed",
+    "CONSUMABLE_ADDED": "Consumable added to the session",
+    "SCAN_VALIDATED": "Session validated by the scan",
+    "SCAN_ALREADY_VALIDATED": "Session already validated — nothing was changed",
     "CONSUMABLE_QTY_UPDATED": "Quantity updated",
     "SESSION_CREATED_LISTED": "Session created and added to list",
     "INVALID_QR_OR_PATIENT": "Invalid QR scan or patient not found",
@@ -2762,6 +2765,17 @@
     "EXPORT_ERROR": "Error during export"
   },
   "NOTIFICATION": {
+    "SAISIE": {
+      "DEFAULT": "{{auteur}} made an entry for {{nom}}",
+      "SEANCE_CREEE": "{{auteur}} created the session of {{nom}} ({{date}})",
+      "SEANCE_VALIDEE": "{{auteur}} validated the session of {{nom}} ({{date}})",
+      "PARAMEDICAL": "{{auteur}} recorded the nursing section of {{nom}} ({{date}})",
+      "CONSOMMABLE_AJOUT": "{{auteur}} added a consumable to {{nom}}'s session",
+      "CONSOMMABLE_MODIF": "{{auteur}} changed a consumable of {{nom}}'s session",
+      "CONSOMMABLE_RETRAIT": "{{auteur}} removed a consumable from {{nom}}'s session",
+      "ANEMIE": "{{auteur}} recorded an anaemia treatment for {{nom}}",
+      "ABSENCE": "{{auteur}} declared an absence for {{nom}} ({{date}})"
+    },
     "TITLE": "Notifications",
     "EMPTY": "No notifications",
     "MARK_READ": "Mark all as read",

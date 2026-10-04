@@ -63,6 +63,7 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly scanState = computed(() => this.store.scanState());
   protected readonly scanMessage = computed(() => this.store.scanMessage());
   protected readonly scanning = computed(() => this.store.scanning());
+  protected readonly lastScan = computed(() => this.store.lastScan());
   protected readonly seances = computed(() => this.store.seances());
   protected readonly seancesTotal = computed(() => this.store.seancesTotal());
   protected readonly seancesPageIndex = computed(() => this.store.seancesPageIndex());
@@ -592,6 +593,13 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
         this.translate.instant('COMMON.OK'),
         {duration: 3000},
       );
+      return;
+    }
+    const centerId = this.appShell.currentCenterId();
+    const seanceId = this.store.summary()?.seance.id;
+    if (this.store.isSeanceAlreadyValidated() && centerId && seanceId) {
+      // Séance déjà validée (scan infirmier) : la ligne est enregistrée tout de suite, sans « Modifier → Enregistrer ».
+      this.store.addConsommableToSeance({seanceId, centerId, articleId, quantite});
       return;
     }
     this.store.addConsommable(article, quantite);

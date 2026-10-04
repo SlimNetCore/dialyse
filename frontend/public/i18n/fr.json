@@ -1345,6 +1345,9 @@
     "PASTE_EMPTY_CLIPBOARD": "Aucun code à coller",
     "PASTE_ERROR": "Impossible de coller depuis le presse-papiers",
     "CONSUMABLE_REMOVED": "Article supprimé",
+    "CONSUMABLE_ADDED": "Consommable ajouté à la séance",
+    "SCAN_VALIDATED": "Séance validée par le scan",
+    "SCAN_ALREADY_VALIDATED": "Séance déjà validée — rien n'a été modifié",
     "CONSUMABLE_QTY_UPDATED": "Quantité mise à jour",
     "SESSION_CREATED_LISTED": "Séance créée et ajoutée à la liste",
     "INVALID_QR_OR_PATIENT": "Scan QR invalide ou patient introuvable",
@@ -2762,6 +2765,17 @@
     "EXPORT_ERROR": "Erreur lors de l'export"
   },
   "NOTIFICATION": {
+    "SAISIE": {
+      "DEFAULT": "{{auteur}} a effectué une saisie pour {{nom}}",
+      "SEANCE_CREEE": "{{auteur}} a créé la séance de {{nom}} ({{date}})",
+      "SEANCE_VALIDEE": "{{auteur}} a validé la séance de {{nom}} ({{date}})",
+      "PARAMEDICAL": "{{auteur}} a saisi le volet paramédical de {{nom}} ({{date}})",
+      "CONSOMMABLE_AJOUT": "{{auteur}} a ajouté un consommable à la séance de {{nom}}",
+      "CONSOMMABLE_MODIF": "{{auteur}} a modifié un consommable de la séance de {{nom}}",
+      "CONSOMMABLE_RETRAIT": "{{auteur}} a retiré un consommable de la séance de {{nom}}",
+      "ANEMIE": "{{auteur}} a saisi un traitement anémie pour {{nom}}",
+      "ABSENCE": "{{auteur}} a déclaré une absence pour {{nom}} ({{date}})"
+    },
     "TITLE": "Notifications",
     "EMPTY": "Aucune notification",
     "MARK_READ": "Tout marquer comme lu",

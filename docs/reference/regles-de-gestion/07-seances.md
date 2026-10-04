@@ -32,7 +32,13 @@
   espace, tiret ni ponctuation) sur code
   patient, numéro d'assurance du patient ou de l'assuré ; QR vide ou introuvable : refus explicite. Si le patient a déjà
   une séance ce jour-là, **elle est
-  renvoyée** (pas de doublon).
+  renvoyée** (pas de doublon). **Scan par un infirmier (`INFIRMIER`, `ADMIN`) : la séance est validée directement** —
+  si une séance `CREE` existe ce jour-là (par exemple créée par la secrétaire) elle passe à `VALIDEE`, sinon elle est
+  créée directement à l'état `VALIDEE` (RG-SEA-011 reste exigée), sans passer par « Modifier → Enregistrer » ; la
+  signature de l'infirmier est celle de l'utilisateur qui scanne. Un second scan d'une séance déjà `VALIDEE`, `SIGNEE`
+  ou `FACTUREE` ne change rien (réponse `alreadyValidated`). Le scan de la **secrétaire** crée seulement la séance
+  (`CREE`) : elle ne peut pas valider (RG-SEA-020). La réponse indique `created`, `validatedNow`, `alreadyValidated` et
+  l'identité du patient.
 - **RG-SEA-013** — La création notifie le centre en temps réel (séance créée) ; la réponse indique le générateur affecté
   au patient et son état (statut GMAO) pour
   avertir l'équipe d'un générateur indisponible.
@@ -54,11 +60,16 @@
 - **RG-SEA-022** — Retirer un consommable d'une séance (`ADMIN`, `INFIRMIER`) restitue le stock ; modifier sa quantité
   (strictement positive) annule la sortie existante et en recrée
   une au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.
+- **RG-SEA-025** — **Ajout d'un consommable à une séance déjà validée** (`ADMIN`, `INFIRMIER` ; `POST
+  /seances/{id}/consommables`) : seule la ligne ajoutée sort du stock (FEFO, article actif, quantité strictement
+  positive) sans retraiter les consommables existants ; autorisé pour une séance `VALIDEE` ou `SIGNEE`, refusé si
+  facturée ou non validée. Chaque saisie notifie le médecin (RG-NOT-004).
 - **RG-SEA-023** — La date d'une sortie de stock rattachée à une séance est immuable
   (`SEANCE_STOCK_EXIT_DATE_IMMUTABLE`).
 - **Point d'attention (RG-SEA-024)** — Valider à nouveau une séance déjà validée avec une liste de consommables retraite
   ces consommables (nouvelle sortie) : l'idempotence ne
-  porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté serveur.
+  porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté serveur. L'ajout d'un consommable
+  après validation passe par RG-SEA-025.
 
 ## 7.4 Volets de la séance
 

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.application.notification.SaisieInfirmierNotifier;
 import com.hemodialyse.backend.domain.medical.anemie.port.AdministrationTraitementUseCase;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.DoseAdministree;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
@@ -39,13 +40,16 @@ public class AdministrationTraitementRestController {
     private final AdministrationTraitementUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
     private final BonSortieUseCase bonSortieUseCase;
+    private final SaisieInfirmierNotifier saisieNotifier;
 
     public AdministrationTraitementRestController(AdministrationTraitementUseCase useCase,
                                                   CenterAccessGuard centerAccessGuard,
-                                                  BonSortieUseCase bonSortieUseCase) {
+                                                  BonSortieUseCase bonSortieUseCase,
+                                                  SaisieInfirmierNotifier saisieNotifier) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
         this.bonSortieUseCase = bonSortieUseCase;
+        this.saisieNotifier = saisieNotifier;
     }
 
     @PreAuthorize("hasAnyRole('MEDECIN','ADMIN','INFIRMIER')")
@@ -86,6 +90,7 @@ public class AdministrationTraitementRestController {
                 TypeTraitementAnemie.valueOf(request.typeTraitement()), request.molecule(), dose, request.voie(),
                 request.dateAdministration(), request.seanceId(), request.administrePar(), request.administree(),
                 request.motifNonAdministration(), request.articleId(), request.quantiteArticle());
+        saisieNotifier.saisie(center.value(), "ANEMIE", patientId, request.dateAdministration());
         return ResponseEntity.ok(AdministrationTraitementResponse.from(administration));
     }
 }

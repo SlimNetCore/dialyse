@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.absence.AbsencePatientService;
+import com.hemodialyse.backend.application.notification.SaisieInfirmierNotifier;
 import com.hemodialyse.backend.domain.absence.model.AbsenceFiltre;
 import com.hemodialyse.backend.domain.absence.model.AbsenceLigne;
 import com.hemodialyse.backend.domain.absence.model.AbsencePatient;
@@ -44,7 +45,8 @@ class AbsencePatientRestControllerTest {
     private final UUID centre = UUID.randomUUID();
     private final UUID patient = UUID.randomUUID();
     private final LocalDate jour = LocalDate.now().minusDays(1);
-    private final AbsencePatientRestController controller = new AbsencePatientRestController(service, guard);
+    private final SaisieInfirmierNotifier saisieNotifier = mock(SaisieInfirmierNotifier.class);
+    private final AbsencePatientRestController controller = new AbsencePatientRestController(service, guard, saisieNotifier);
 
     AbsencePatientRestControllerTest() {
         when(guard.requireCenter(any())).thenReturn(CenterId.of(centre));
@@ -115,6 +117,24 @@ class AbsencePatientRestControllerTest {
 
         assertEquals(12, body.creees());
         assertEquals(2, body.annulees());
+    }
+
+    @Test
+    void every_absence_entry_notifies_the_doctor_of_the_center() {
+        UUID id = UUID.randomUUID();
+        AbsencePatient a = absence();
+        when(service.declarer(eq(centre), eq(patient), eq(jour), eq(null), eq(null), any())).thenReturn(a);
+        when(service.qualifier(eq(centre), eq(id), eq(MotifAbsence.VOYAGE), eq("x"), any(), eq(false))).thenReturn(a);
+        when(service.rattraper(eq(centre), eq(id), eq(jour), any())).thenReturn(a);
+        when(service.annuler(eq(centre), eq(id), eq("Erreur"), any(), eq(false))).thenReturn(a);
+        Authentication nurse = auth("INFIRMIER");
+
+        controller.declarer(null, new DeclarationRequest(patient, jour, null, null), nurse);
+        controller.qualifier(null, id, new QualificationRequest("VOYAGE", "x"), nurse);
+        controller.rattraper(null, id, new AbsencePatientRestController.RattrapageRequest(jour), nurse);
+        controller.annuler(null, id, new AnnulationRequest("Erreur"), nurse);
+
+        org.mockito.Mockito.verify(saisieNotifier, org.mockito.Mockito.times(4)).saisie(centre, "ABSENCE", patient, jour);
     }
 
     @Test

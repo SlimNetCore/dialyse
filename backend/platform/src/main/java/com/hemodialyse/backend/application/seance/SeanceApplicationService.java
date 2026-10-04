@@ -64,6 +64,20 @@ public class SeanceApplicationService implements SeanceUseCase {
         return delegate.createFromQr(centerId, qrCode);
     }
 
+    /**
+     * Création éventuelle + validation de la séance du jour dans une seule transaction : un échec (patient non
+     * facturable, séance absente) ne laisse jamais une séance créée à moitié.
+     */
+    @Override
+    public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId) {
+        return delegate.scanAndValidate(centerId, qrCode, userId);
+    }
+
+    @Override
+    public void addConsommableSeance(CenterId centerId, UUID seanceId, UUID articleId, BigDecimal quantite, String userId) {
+        delegate.addConsommableSeance(centerId, seanceId, articleId, quantite, userId);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public SeanceDetails getDetails(CenterId centerId, UUID seanceId) {
