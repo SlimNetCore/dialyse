@@ -54,8 +54,10 @@ export function joursOrdonnes(jours: readonly JourSemaine[]): JourSemaine[] {
   return JOURS_SEMAINE.filter((j) => jours.includes(j));
 }
 
+/** Créneau et jours d'une affectation (jours en lecture seule : accepte aussi les tableaux `as const`). */
+type AffectationJours = Pick<AffectationInfirmier, 'creneauId'> & { readonly jours: readonly JourSemaine[] };
+
 /** Deux affectations de l'infirmier se chevauchent-elles (même créneau, un jour en commun) ? */
-export function chevauche(a: Pick<AffectationInfirmier, 'creneauId' | 'jours'>,
-                          autres: readonly Pick<AffectationInfirmier, 'creneauId' | 'jours'>[]): boolean {
+export function chevauche(a: AffectationJours, autres: readonly AffectationJours[]): boolean {
   return autres.some((b) => b.creneauId === a.creneauId && b.jours.some((j) => a.jours.includes(j)));
 }
