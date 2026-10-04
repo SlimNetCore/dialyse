@@ -1024,6 +1024,11 @@
     "DASHBOARD_TITLE": "Tafelwit n tmsirin",
     "REFRESH_DASHBOARD_BTN": "Smiren tafelwit",
     "EXPECTED_SESSIONS_KPI": "Tamsirin yetturaǧen",
+    "SEANCE_STATUTS": {
+      "VALIDEE": "Yettwasentem",
+      "SIGNEE": "Yettwazwel",
+      "FACTUREE": "Yettwabeddel"
+    },
     "PRESENCE_KPI": "Amuddu",
     "ABSENCE_KPI": "Ulac amuddu",
     "TOTAL_SESSIONS_KPI": "Tamsirin s umata (aggur)",
@@ -2077,6 +2082,12 @@
     "SAVED_OK": "Yettwasekles.",
     "RATTRAPAGE_DATE": "Azemz n uɣimi n usmuttel",
     "RATTRAPAGE_HINT": "Ilaq ad yili uɣimi yemmden i unelmad deg wass-nni.",
+    "RATTRAPAGE_DETECTION": {
+      "TITLE": "Nadi ɣef tmettanin ur nettwafen ara",
+      "HINT": "Ales anadi deg tallit yezrin (aseggas ar ugar, armi d iḍelli): ayyuren send asnas, aqeddac yeḥbes, taktawt n yisefka.",
+      "RUN": "Sker anadi",
+      "RESULT": "{{creees}} n tmettant ttwarna, {{annulees}} ttwasefsex (tamsirt yettwaskcem ticki)."
+    },
     "STATUTS": {
       "A_QUALIFIER": "Ad tettwasbadu",
       "JUSTIFIEE": "Tettwasefru",
@@ -2125,7 +2136,9 @@
       "ABSENCE_RATTRAPAGE_ANTERIEUR": "Asmuttel ilaq ad yili deffir uɣimi i d-yeffɣen.",
       "ABSENCE_RATTRAPAGE_DATE_REQUISE": "Azemz n usmuttel yewjeb.",
       "ABSENCE_DEJA_ANNULEE": "Tamettant tettwasefsex yakan.",
-      "ABSENCE_PERIODE_FACTUREE": "Tafaturt n tallit-a tettwasentem: tamettant tettwasdel."
+      "ABSENCE_PERIODE_FACTUREE": "Tafaturt n tallit-a tettwasentem: tamettant tettwasdel.",
+      "ABSENCE_PERIODE_INVALIDE": "Tallit mačči d tameɣtut: tazwara ilaq ad tezwir taggara (iḍelli ugar).",
+      "ABSENCE_PERIODE_TROP_LONGUE": "Tallit ɣezzifet barka: 366 n wussan afellay."
     }
   },
   "NAV": {

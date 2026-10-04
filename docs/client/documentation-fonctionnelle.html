@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-04<br>451 règles de gestion · 16 domaines · 320 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-04<br>453 règles de gestion · 16 domaines · 322 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,10 +295,10 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>451</b>règles de gestion</div>
+            <div><b>453</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
-            <div><b>8</b>points d'attention</div>
+            <div><b>7</b>points d'attention</div>
         </div>
         <h2>Profils et périmètres</h2>
         <table>
@@ -1620,7 +1620,7 @@
                 <code>SEJOUR_TEMPORAIRE</code>, <code>REPRISE</code>, <code>TRANSFERT</code>,
                 <code>DECES</code>, <code>GREFFE</code>, <code>GUERISON</code>, <code>PLACE_LIBEREE</code>) portant l&#39;état
                 précédent et nouveau, la date d&#39;effet et
-                l&#39;<strong>affectation occupée à cet instant</strong> (salle, créneau, générateur, jours). Un
+                l&#39; <strong>affectation occupée à cet instant</strong> (salle, créneau, générateur, jours). Un
                 mouvement n&#39;est jamais modifié ni
                 supprimé ; la libération automatique est marquée comme telle.</p>
             </div>
@@ -2121,7 +2121,8 @@
                 capacité (nulle un jour fermé). Un patient dont la place est libérée à une date de la semaine
                 (RG-PLN-010) n&#39;apparaît
                 plus à partir de cette date (de même qu&#39;un séjour avant sa date d&#39;admission) et porte l&#39;indication
-                « place libérée le jj/mm/aaaa » (infobulle de la grille et détail du
+                « place libérée le
+                jj/mm/aaaa » (infobulle de la grille et détail du
                 patient). Les jours fermés (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont
                 signalés avec leur
                 motif.</p>
@@ -2456,13 +2457,39 @@
             <div class="rid">RG-ABS-040</div>
             <div class="rtxt"><p>Contrôle quotidien (02:30, tâche <code>AbsencePatientScheduler.controlerAbsences</code>)
                 de chaque centre actif,
-                sur les <strong>3 derniers jours</strong>
-                (hors aujourd&#39;hui) : (1) <strong>réconciliation</strong> — les absences détectées « à qualifier »
-                dont la séance a finalement été
+                sur les <strong>7 derniers jours</strong>
+                (hors aujourd&#39;hui ; une semaine pour absorber un arrêt du serveur) : (1)
+                <strong>réconciliation</strong> — les absences détectées « à qualifier » dont la séance a finalement été
                 réalisée sont annulées avec le
                 commentaire « Séance réalisée à cette date » ; (2) <strong>détection</strong> des absences. Un échec sur
                 un centre n&#39;empêche pas
                 les autres.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-ABS-045">
+            <div class="rid">RG-ABS-045</div>
+            <div class="rtxt"><p><strong>Rattrapage au démarrage</strong> : à chaque démarrage du serveur, le contrôle
+                (réconciliation +
+                détection) est rejoué sur les <strong>31 derniers jours</strong> de chaque centre, sans notification (la
+                notification suit le
+                contrôle de la nuit). Idempotent ; désactivable par la propriété
+                <code>app.absences.startup-catchup</code>.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-ABS-046">
+            <div class="rid">RG-ABS-046</div>
+            <div class="rtxt"><p><strong>Rattrapage manuel d&#39;une période passée</strong> (<code>POST
+                /api/v1/absences-patients/rattrapage-detection</code>,
+                <code>ADMIN</code>, centre courant) : réconciliation puis détection jour par jour entre deux dates, pour
+                les absences jamais
+                détectées (mois antérieurs au déploiement, scheduler arrêté, reprise de données). La fin est ramenée à
+                hier ; le début
+                doit la précéder (<code>ABSENCE_PERIODE_INVALIDE</code>) ; la période ne dépasse pas 366 jours (<code>ABSENCE_PERIODE_TROP_LONGUE</code>).
+                Retourne le nombre d&#39;absences créées et annulées. <strong>Limite :</strong> la détection s&#39;appuie
+                sur la fiche patient actuelle ;
+                un patient dont les jours de dialyse ont été retirés à la libération de sa place (RG-PAT-033) n&#39;est
+                plus détecté pour
+                ses jours passés.</p>
             </div>
         </div>
         <div class="rule" id="RG-ABS-041">
@@ -2475,7 +2502,8 @@
                 l&#39;évènement incluse ; décédé ou greffé : plus attendu à cette date ; séjour occasionnel ou vacancier
                 : attendu jusqu&#39;à
                 la fin de séjour incluse ; état de sortie sans date : plus attendu, cf. RG-PAT-032), le centre n&#39;est
-                pas fermé ce jour (férié ou fermeture exceptionnelle) et il n&#39;a
+                pas fermé ce jour
+                (férié ou fermeture exceptionnelle) et il n&#39;a
                 aucune séance réalisée ce jour.</p>
             </div>
         </div>
@@ -2715,28 +2743,35 @@
                 articles sortis ce jour-là par code article.</p>
             </div>
         </div>
-        <div class="rule attention" id="RG-SEA-042">
-            <div class="rid">RG-SEA-042<small>point d'attention</small></div>
+        <div class="rule" id="RG-SEA-042">
+            <div class="rid">RG-SEA-042</div>
             <div class="rtxt"><p><strong>Tableau de bord mensuel</strong> : séances prévues = somme, sur les jours
-                ouvrés du mois (hors fériés et
-                fermetures exceptionnelles), des patients programmés ce jour de la
-                semaine, hors patients « en sommeil », à partir de leur date d&#39;admission et jusqu&#39;à la
-                libération de leur place
-                (transfert, décès, greffe, guérison, fin de séjour : RG-PAT-032) ; présences = séances créées dans le
-                mois ;
-                <strong>absences = max (0, prévues − présences)</strong> ; répartition
-                par sexe (M/F/autre) et par tranche d&#39;âge (0-17, 18-39, 40-59, 60+, inconnu) des patients présents ;
-                détail par jour
-                de la semaine ; exports PDF, XLSX et CSV. <strong>Point d&#39;attention :</strong> cet indicateur «
-                absences » est une estimation
-                arithmétique ; le décompte qualifié et valorisé des absences est celui du suivi des absences (RG-ABS).
-            </p>
+                ouvrés <strong>échus</strong> du mois (hors
+                fériés et fermetures exceptionnelles ; le futur n&#39;est compté ni en présence ni en absence), des
+                patients programmés ce
+                jour de la semaine, hors patients « en sommeil », à partir de leur date d&#39;admission et jusqu&#39;à
+                la libération de leur
+                place (transfert, décès, greffe, guérison, fin de séjour : RG-PAT-032) ; <strong>présences = séances
+                    réalisées</strong> (statuts
+                <code>VALIDEE</code>, <code>SIGNEE</code>, <code>FACTUREE</code>) du mois ; <strong>absences = absences
+                    du suivi des absences (RG-ABS) du mois, hors
+                    annulées</strong>, qu&#39;elles soient déclarées ou détectées par le contrôle quotidien (plus de
+                calcul « prévues − présences »,
+                supprimé) ; <strong>effectif du mois</strong> = patients pris en charge sur la période (admis au plus
+                tard le dernier jour du mois,
+                place non libérée avant le 1er du mois, hors « en sommeil ») auxquels s&#39;ajoutent ceux qui ont une
+                séance réalisée
+                dans le mois, qu&#39;ils aient déjà dialysé ou non ; répartition par sexe (M/F/autre) et par tranche d&#39;âge
+                (0-17, 18-39,
+                40-59, 60+, inconnu) de cet effectif (<code>effectifPatients</code>) ; détail par jour de la semaine ;
+                exports PDF, XLSX et CSV.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-043">
             <div class="rid">RG-SEA-043</div>
-            <div class="rtxt"><p>Le détail du tableau de bord se demande pour <code>presence</code> ou
-                <code>absence</code> ; toute autre valeur est refusée
+            <div class="rtxt"><p>Le détail du tableau de bord se demande pour <code>presence</code> (séances réalisées
+                du mois) ou <code>absence</code>
+                (absences du suivi du mois, hors annulées, avec leur statut) ; toute autre valeur est refusée
                 (« kind must be &#39;presence&#39; or &#39;absence&#39; »).</p>
             </div>
         </div>
@@ -5737,8 +5772,8 @@
             <tbody>
             <tr>
                 <td><code>AbsencePatientScheduler</code></td>
-                <td>02:30 chaque jour</td>
-                <td>RG-ABS-040 à 044</td>
+                <td>02:30 chaque jour et au démarrage</td>
+                <td>RG-ABS-040 à 046</td>
             </tr>
             <tr>
                 <td><code>AuditScheduler</code></td>
@@ -5819,11 +5854,6 @@
                 de consommables retraite
                 ces consommables (nouvelle sortie) : l'idempotence ne
                 porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté serveur.…
-            </li>
-            <li><a href="#RG-SEA-042"><b>RG-SEA-042</b></a> — Tableau de bord mensuel : séances prévues = somme, sur les
-                jours ouvrés du mois (hors fériés et
-                fermetures exceptionnelles), des patients programmés ce jour de la
-                semaine, hors patients « en sommeil », à partir de leur d…
             </li>
             <li><a href="#RG-STK-061"><b>RG-STK-061</b></a> — Contrôle quotidien à 07:00
                 (ExpirationAlertScheduler.scanExpirations) : pour chaque centre, les

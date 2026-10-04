@@ -73,11 +73,22 @@
 ## 6.5 Détection automatique et alertes
 
 - **RG-ABS-040** — Contrôle quotidien (02:30, tâche `AbsencePatientScheduler.controlerAbsences`) de chaque centre actif,
-  sur les **3 derniers jours**
-  (hors aujourd'hui) : (1) **réconciliation** — les absences détectées « à qualifier » dont la séance a finalement été
+  sur les **7 derniers jours**
+  (hors aujourd'hui ; une semaine pour absorber un arrêt du serveur) : (1) **réconciliation** — les absences détectées «
+  à qualifier » dont la séance a finalement été
   réalisée sont annulées avec le
   commentaire « Séance réalisée à cette date » ; (2) **détection** des absences. Un échec sur un centre n'empêche pas
   les autres.
+- **RG-ABS-045** — **Rattrapage au démarrage** : à chaque démarrage du serveur, le contrôle (réconciliation +
+  détection) est rejoué sur les **31 derniers jours** de chaque centre, sans notification (la notification suit le
+  contrôle de la nuit). Idempotent ; désactivable par la propriété `app.absences.startup-catchup`.
+- **RG-ABS-046** — **Rattrapage manuel d'une période passée** (`POST /api/v1/absences-patients/rattrapage-detection`,
+  `ADMIN`, centre courant) : réconciliation puis détection jour par jour entre deux dates, pour les absences jamais
+  détectées (mois antérieurs au déploiement, scheduler arrêté, reprise de données). La fin est ramenée à hier ; le début
+  doit la précéder (`ABSENCE_PERIODE_INVALIDE`) ; la période ne dépasse pas 366 jours (`ABSENCE_PERIODE_TROP_LONGUE`).
+  Retourne le nombre d'absences créées et annulées. **Limite :** la détection s'appuie sur la fiche patient actuelle ;
+  un patient dont les jours de dialyse ont été retirés à la libération de sa place (RG-PAT-033) n'est plus détecté pour
+  ses jours passés.
 - **RG-ABS-041** — Un patient est **attendu** un jour donné si : le jour de la semaine est coché sur sa fiche, il n'est
   pas « en sommeil », sa date
   d'admission n'est pas postérieure, sa place n'est pas libérée (patient transféré ou guéri : attendu jusqu'à la date de

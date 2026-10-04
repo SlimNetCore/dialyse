@@ -891,6 +891,11 @@
     "DASHBOARD_TITLE": "لوحة الحصص",
     "REFRESH_DASHBOARD_BTN": "تحديث اللوحة",
     "EXPECTED_SESSIONS_KPI": "الحصص المتوقعة",
+    "SEANCE_STATUTS": {
+      "VALIDEE": "مصادق عليها",
+      "SIGNEE": "موقّعة",
+      "FACTUREE": "مفوترة"
+    },
     "PRESENCE_KPI": "الحضور",
     "ABSENCE_KPI": "الغياب",
     "TOTAL_SESSIONS_KPI": "إجمالي الحصص (الشهر)",
@@ -2291,6 +2296,12 @@
     "SAVED_OK": "تم الحفظ.",
     "RATTRAPAGE_DATE": "تاريخ حصة التعويض",
     "RATTRAPAGE_HINT": "يجب أن تكون للمريض حصة منجزة في ذلك اليوم.",
+    "RATTRAPAGE_DETECTION": {
+      "TITLE": "البحث عن الغيابات غير المكتشفة",
+      "HINT": "يعيد الكشف على فترة سابقة (سنة على الأكثر وحتى أمس): أشهر قبل النشر، توقف الخادم، استيراد البيانات.",
+      "RUN": "بدء البحث",
+      "RESULT": "{{creees}} غياب مُنشأ، {{annulees}} مُلغى (حصة سُجلت لاحقًا)."
+    },
     "STATUTS": {
       "A_QUALIFIER": "بانتظار تحديد السبب",
       "JUSTIFIEE": "مبررة",
@@ -2339,7 +2350,9 @@
       "ABSENCE_RATTRAPAGE_ANTERIEUR": "يجب أن يتم التعويض بعد الحصة الفائتة.",
       "ABSENCE_RATTRAPAGE_DATE_REQUISE": "تاريخ التعويض إلزامي.",
       "ABSENCE_DEJA_ANNULEE": "الغيابة ملغاة مسبقاً.",
-      "ABSENCE_PERIODE_FACTUREE": "تم اعتماد فوترة هذه الفترة: الغيابة مغلقة."
+      "ABSENCE_PERIODE_FACTUREE": "تم اعتماد فوترة هذه الفترة: الغيابة مغلقة.",
+      "ABSENCE_PERIODE_INVALIDE": "فترة غير صالحة: يجب أن يسبق البداية النهاية (أمس على الأكثر).",
+      "ABSENCE_PERIODE_TROP_LONGUE": "الفترة طويلة جدًا: 366 يومًا كحد أقصى."
     }
   },
   "NAV": {

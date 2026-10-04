@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.time.YearMonth;
@@ -28,6 +29,11 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/seances")
 public class SeanceRestController {
+
+    /**
+     * Statuts d'une séance réalisée (présence du patient) ; commence par une espace pour suivre {@code IN}.
+     */
+    private static final String SEANCES_REALISEES = " ('VALIDEE', 'SIGNEE', 'FACTUREE')";
 
     private final SeanceUseCase seanceUseCase;
     private final NotificationService notificationService;
@@ -659,15 +665,29 @@ public class SeanceRestController {
         LocalDate from = ym.atDay(1);
         LocalDate to = ym.atEndOfMonth();
 
-        // Séances effectivement créées (présences)
+        // Présences : séances réalisées (validées, signées ou facturées) du mois
         Long presenceCountRaw = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM seances WHERE center_id = ? AND date_seance BETWEEN ? AND ?",
+                "SELECT COUNT(1) FROM seances WHERE center_id = ? AND date_seance BETWEEN ? AND ? AND statut IN " + SEANCES_REALISEES,
                 Long.class,
                 centerId,
                 Date.valueOf(from),
                 Date.valueOf(to)
         );
         long presenceCount = presenceCountRaw == null ? 0L : presenceCountRaw;
+
+        // Absences : celles du suivi des absences (déclarées ou détectées par le contrôle quotidien), hors annulées
+        Long absenceCountRaw = jdbc.queryForObject(
+                "SELECT COUNT(1) FROM absence_patient WHERE center_id = ? AND date_seance BETWEEN ? AND ? "
+                        + "AND statut <> 'ANNULEE'",
+                Long.class,
+                centerId,
+                Date.valueOf(from),
+                Date.valueOf(to)
+        );
+        long absences = absenceCountRaw == null ? 0L : absenceCountRaw;
+        // Séances prévues : jours échus seulement (le futur n'est ni présence ni absence)
+        LocalDate aujourdhui = LocalDate.now(ZoneOffset.UTC);
+        LocalDate limite = to.isAfter(aujourdhui) ? aujourdhui : to;
 
         // Jours non ouvrés centre (fériés + fermetures exceptionnelles)
         Set<LocalDate> blockedDates = new HashSet<>();
@@ -678,6 +698,8 @@ public class SeanceRestController {
         List<Map<String, Object>> patients = jdbc.queryForList(
                 """
                         SELECT id,
+                               sexe,
+                               date_naissance,
                                date_admission,
                                en_sommeil,
                                etat_patient,
@@ -694,6 +716,10 @@ public class SeanceRestController {
                         """,
                 centerId
         );
+
+        // Effectif du mois : patients pris en charge sur la période (admis, non sortis, non en sommeil), qu'ils aient
+        // déjà dialysé ou non, auxquels s'ajoutent ceux qui ont une séance réalisée dans le mois
+        Map<Object, Map<String, Object>> effectif = new LinkedHashMap<>();
 
         long expectedSeances = 0L;
         long consideredPatients = 0L;
@@ -712,7 +738,10 @@ public class SeanceRestController {
             }
             LocalDate admission = asLocalDate(readColumn(patient, "date_admission"));
             LocalDate effectiveStart = admission == null || admission.isBefore(from) ? from : admission;
-            LocalDate effectiveEnd = derniereDateAttendue(patient, to);
+            if (!effectiveStart.isAfter(derniereDateAttendue(patient, to))) {
+                effectif.put(readColumn(patient, "id"), patient);
+            }
+            LocalDate effectiveEnd = derniereDateAttendue(patient, limite);
             if (effectiveStart.isAfter(effectiveEnd)) {
                 continue;
             }
@@ -729,9 +758,7 @@ public class SeanceRestController {
             }
         }
 
-        long absences = Math.max(0L, expectedSeances - presenceCount);
-
-        // Répartition sexe + âge sur patients présents (distinct) durant le mois
+        // Répartition sexe + âge de l'effectif du mois (patients pris en charge + patients présents)
         List<Map<String, Object>> presentPatients = jdbc.queryForList(
                 """
                         SELECT DISTINCT p.id, p.sexe, p.date_naissance
@@ -739,7 +766,7 @@ public class SeanceRestController {
                         INNER JOIN patients p ON p.id = s.patient_id
                         WHERE s.center_id = ?
                           AND s.date_seance BETWEEN ? AND ?
-                        """,
+                          AND s.statut IN """ + SEANCES_REALISEES + "\n",
                 centerId,
                 Date.valueOf(from),
                 Date.valueOf(to)
@@ -758,7 +785,8 @@ public class SeanceRestController {
         byAgeRange.put("INCONNU", 0L);
 
         LocalDate refDate = to;
-        for (Map<String, Object> p : presentPatients) {
+        presentPatients.forEach(p -> effectif.putIfAbsent(readColumn(p, "id"), p));
+        for (Map<String, Object> p : effectif.values()) {
             String sexe = normalizeSexe((String) readColumn(p, "sexe"));
             bySexe.put(sexe, bySexe.getOrDefault(sexe, 0L) + 1L);
 
@@ -774,10 +802,11 @@ public class SeanceRestController {
         payload.put("presenceCount", presenceCount);
         payload.put("absenceCount", absences);
         payload.put("totalSeances", presenceCount);
+        payload.put("effectifPatients", effectif.size());
         payload.put("absenceDetails", Map.of(
-                "formula", "absences = max(0, seancesPrevues - presences)",
+                "formula", "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
                 "periodStart", from,
-                "periodEnd", to,
+                "periodEnd", limite,
                 "patientsConsidered", consideredPatients,
                 "blockedDays", blockedDates.size(),
                 "expectedFromSchedule", expectedSeances,
@@ -823,86 +852,34 @@ public class SeanceRestController {
         LocalDate from = ym.atDay(1);
         LocalDate to = ym.atEndOfMonth();
 
-        Set<LocalDate> blockedDates = new HashSet<>();
-        blockedDates.addAll(loadBlockedDates("center_holiday", centerId, from, to));
-        blockedDates.addAll(loadBlockedDates("center_closure_day", centerId, from, to));
-
-        List<Map<String, Object>> patients = jdbc.queryForList(
-                """
-                        SELECT id,
-                               nom,
-                               prenom,
-                               date_admission,
-                               en_sommeil,
-                               etat_patient,
-                               date_evenement_etat,
-                               jour_lundi,
-                               jour_mardi,
-                               jour_mercredi,
-                               jour_jeudi,
-                               jour_vendredi,
-                               jour_samedi,
-                               jour_dimanche
-                        FROM patients
-                        WHERE center_id = ?
-                        """,
-                centerId
-        );
-
-        Map<String, String> presenceByKey = new HashMap<>();
-        List<Map<String, Object>> presenceRows = jdbc.queryForList(
-                """
-                        SELECT s.patient_id AS patient_id,
-                               s.date_seance AS date_seance,
-                               s.statut AS statut
-                        FROM seances s
-                        WHERE s.center_id = ?
-                          AND s.date_seance BETWEEN ? AND ?
-                        """,
-                centerId,
-                Date.valueOf(from),
-                Date.valueOf(to)
-        );
-        for (Map<String, Object> row : presenceRows) {
-            UUID patientId = (UUID) readColumn(row, "patient_id");
-            LocalDate dateSeance = asLocalDate(readColumn(row, "date_seance"));
-            if (patientId == null || dateSeance == null) continue;
-            String key = patientId + "|" + dateSeance;
-            presenceByKey.putIfAbsent(key, String.valueOf(readColumn(row, "statut")));
-        }
+        // Présences : séances réalisées ; absences : suivi des absences (déclarées ou détectées), hors annulées
+        boolean presence = normalizedKind.equals("presence");
+        String source = presence
+                ? "SELECT s.patient_id, s.date_seance, s.statut FROM seances s WHERE s.center_id = ? "
+                + "AND s.date_seance BETWEEN ? AND ? AND s.statut IN" + SEANCES_REALISEES
+                : "SELECT s.patient_id, s.date_seance, s.statut FROM absence_patient s WHERE s.center_id = ? "
+                + "AND s.date_seance BETWEEN ? AND ? AND s.statut <> 'ANNULEE'";
+        Map<UUID, Map<String, Object>> patients = new HashMap<>();
+        jdbc.queryForList("SELECT id, nom, prenom FROM patients WHERE center_id = ?", centerId)
+                .forEach(p -> patients.put((UUID) readColumn(p, "id"), p));
 
         List<Map<String, Object>> items = new ArrayList<>();
-        for (Map<String, Object> patient : patients) {
-            Boolean enSommeil = asBoolean(readColumn(patient, "en_sommeil"));
-            if (Boolean.TRUE.equals(enSommeil)) continue;
+        for (Map<String, Object> ligne : jdbc.queryForList(source, centerId, Date.valueOf(from), Date.valueOf(to))) {
+            UUID patientId = (UUID) readColumn(ligne, "patient_id");
+            LocalDate d = asLocalDate(readColumn(ligne, "date_seance"));
+            Map<String, Object> patient = patients.get(patientId);
+            if (patient == null || d == null) continue;
 
-            UUID patientId = (UUID) readColumn(patient, "id");
-            String nom = Objects.toString(readColumn(patient, "nom"), "");
-            String prenom = Objects.toString(readColumn(patient, "prenom"), "");
-            LocalDate admission = asLocalDate(readColumn(patient, "date_admission"));
-            LocalDate effectiveStart = admission == null || admission.isBefore(from) ? from : admission;
-            LocalDate effectiveEnd = derniereDateAttendue(patient, to);
-            if (effectiveStart.isAfter(effectiveEnd)) continue;
-
-            for (LocalDate d = effectiveStart; !d.isAfter(effectiveEnd); d = d.plusDays(1)) {
-                if (blockedDates.contains(d)) continue;
-                if (!isPatientScheduledOn(patient, d)) continue;
-
-                String key = patientId + "|" + d;
-                boolean present = presenceByKey.containsKey(key);
-                if (normalizedKind.equals("presence") != present) continue;
-
-                Map<String, Object> row = new LinkedHashMap<>();
-                row.put("patientId", patientId);
-                row.put("patientNom", nom);
-                row.put("patientPrenom", prenom);
-                row.put("dateSeance", d);
-                row.put("weekday", d.getDayOfWeek().name());
-                row.put("scheduled", true);
-                row.put("present", present);
-                row.put("status", present ? presenceByKey.get(key) : "ABSENT");
-                items.add(row);
-            }
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("patientId", patientId);
+            row.put("patientNom", Objects.toString(readColumn(patient, "nom"), ""));
+            row.put("patientPrenom", Objects.toString(readColumn(patient, "prenom"), ""));
+            row.put("dateSeance", d);
+            row.put("weekday", d.getDayOfWeek().name());
+            row.put("scheduled", true);
+            row.put("present", presence);
+            row.put("status", Objects.toString(readColumn(ligne, "statut"), ""));
+            items.add(row);
         }
 
         items.sort(Comparator

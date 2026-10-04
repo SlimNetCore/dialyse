@@ -61,6 +61,8 @@ class AbsencePatientIntegrationTest {
     @Autowired
     private AbsencePatientService service;
     @Autowired
+    private SeanceRestController seances;
+    @Autowired
     private DirectionAbsencesQueryService direction;
     @Autowired
     private RoleScopeFilter roleScopeFilter;
@@ -148,6 +150,50 @@ class AbsencePatientIntegrationTest {
     void does_not_expect_an_exited_patient_without_event_date() {
         sortir("GREFFE", null);
         assertEquals(0, service.detecter(C1, jour));
+    }
+
+    @Test
+    void a_past_period_is_caught_up_idempotently_and_bounded() {
+        LocalDate debut = jour.minusDays(2);
+
+        AbsencePatientService.Rattrapage premier = service.rattraperPeriode(C1, debut, LocalDate.now());
+        AbsencePatientService.Rattrapage second = service.rattraperPeriode(C1, debut, LocalDate.now());
+
+        // le patient programmé tous les jours sans séance réalisée est absent chaque jour passé de la période
+        // (le jour courant est ignoré : la période est ramenée à hier), le patient présent seulement le jour de sa séance
+        long attendues = debut.datesUntil(LocalDate.now()).count();
+        assertEquals(attendues * 2 - 1, premier.creees());
+        assertEquals(0, second.creees(), "rattrapage idempotent");
+        assertEquals("ABSENCE_PERIODE_TROP_LONGUE", assertThrows(BusinessException.class,
+                () -> service.rattraperPeriode(C1, LocalDate.now().minusDays(400), LocalDate.now())).getCode());
+        assertEquals("ABSENCE_PERIODE_INVALIDE", assertThrows(BusinessException.class,
+                () -> service.rattraperPeriode(C1, LocalDate.now(), LocalDate.now())).getCode());
+        assertEquals(0, service.rattraperPeriode(C2, debut, LocalDate.now()).creees(), "autre centre : aucun patient");
+    }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    @SuppressWarnings("unchecked")
+    void the_monthly_dashboard_counts_the_tracked_absences_and_the_performed_sessions() {
+        service.detecter(C1, jour);   // le patient sans séance réalisée est absent
+        seance(C1, absent, jour, "CREE");   // une séance seulement créée n'est pas une présence
+        jdbc.update("INSERT INTO absence_patient (id, center_id, patient_id, date_seance, source, statut, prix_ttc, "
+                        + "taux_tva, montant_ht) VALUES (?,?,?,?,?,?,?,?,?)", UUID.randomUUID(), C1, present,
+                Date.valueOf(jour), "DECLAREE", "ANNULEE", 0, 0, 0);
+        int annee = jour.getYear();
+        int mois = jour.getMonthValue();
+
+        var c1 = (java.util.Map<String, Object>) seances.dashboard(C1, annee, mois).getBody();
+        var c2 = (java.util.Map<String, Object>) seances.dashboard(C2, annee, mois).getBody();
+
+        assertEquals(1L, c1.get("presenceCount"), "seule la séance validée est une présence");
+        assertEquals(1L, c1.get("absenceCount"), "l'absence suivie compte, l'absence annulée non");
+        assertEquals(0L, c2.get("absenceCount"), "isolation par centre");
+        var absences = (java.util.Map<String, Object>) seances.dashboardDetails(C1, annee, mois, "absence").getBody();
+        var presences = (java.util.Map<String, Object>) seances.dashboardDetails(C1, annee, mois, "presence").getBody();
+        assertEquals(1, absences.get("total"));
+        assertEquals("A_QUALIFIER", ((List<java.util.Map<String, Object>>) absences.get("items")).getFirst().get("status"));
+        assertEquals(1, presences.get("total"));
     }
 
     private void sortir(String etat, LocalDate dateEvenement) {

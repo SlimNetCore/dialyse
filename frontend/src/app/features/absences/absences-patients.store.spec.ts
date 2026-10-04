@@ -97,6 +97,29 @@ describe('AbsencesPatientsStore', () => {
     expect(absencePatientErrorKey(new Error('boom'))).toBe('ABSENCES.ERR.SAVE');
   });
 
+  it('rattrape la détection sur une période du centre actif puis recharge la liste', () => {
+    api['rattraperDetection'] = vi.fn().mockReturnValue(of({creees: 12, annulees: 2}));
+    const store = TestBed.inject(AbsencesPatientsStore);
+
+    store.catchUp({from: '2026-08-01', to: '2026-08-31'});
+
+    expect(api['rattraperDetection']).toHaveBeenCalledWith(CENTRE, '2026-08-01', '2026-08-31');
+    expect(store.rattrapage()).toEqual({creees: 12, annulees: 2});
+    expect(store.saving()).toBe(false);
+    expect(api['list']).toHaveBeenCalledWith(CENTRE, EMPTY_FILTERS, 0, 10);
+  });
+
+  it('traduit les erreurs de période du rattrapage', () => {
+    api['rattraperDetection'] = vi.fn().mockReturnValue(throwError(() => erreurServeur('ABSENCE_PERIODE_TROP_LONGUE')));
+    const store = TestBed.inject(AbsencesPatientsStore);
+
+    store.catchUp({from: '2020-01-01', to: '2026-08-31'});
+
+    expect(store.error()).toBe('ABSENCES.ERR.ABSENCE_PERIODE_TROP_LONGUE');
+    expect(store.rattrapage()).toBeNull();
+    expect(store.saving()).toBe(false);
+  });
+
   it("signale l'échec du chargement et vide la liste", () => {
     api['list'].mockReturnValue(throwError(() => new Error('boom')));
     const store = TestBed.inject(AbsencesPatientsStore);

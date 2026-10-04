@@ -682,6 +682,13 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     this.store.loadDashboardDetails({centerId, year, month, kind});
   }
 
+  /** Clé de traduction du statut d'une ligne de détail : absence du suivi ou séance réalisée. */
+  protected detailStatusKey(status: string): string {
+    return this.store.dashboardDetailsKind() === 'absence'
+      ? `ABSENCES.STATUTS.${status}`
+      : `SEANCES.SEANCE_STATUTS.${status}`;
+  }
+
   protected closeDashboardDetails(): void {
     this.store.closeDashboardDetails();
   }

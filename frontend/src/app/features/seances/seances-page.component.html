@@ -124,7 +124,8 @@
             <ng-container matColumnDef="status">
               <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
               <td *matCellDef="let row" mat-cell>
-                <span [attr.data-status]="row.status" class="status-badge">{{ row.status }}</span>
+                <span [attr.data-status]="row.status"
+                      class="status-badge">{{ detailStatusKey(row.status) | translate }}</span>
               </td>
             </ng-container>
             <tr *matHeaderRowDef="dashboardDetailCols" mat-header-row></tr>

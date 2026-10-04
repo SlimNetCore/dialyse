@@ -11,6 +11,7 @@ import {
   AbsenceSynthese,
   DeclarationAbsencePayload,
   MotifAbsence,
+  RattrapageDetection,
 } from '../../core/api/absence-patient-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {createPagedListState, PagedListState} from '../../core/state/paged-list-state.util';
@@ -19,6 +20,8 @@ type AbsencesPatientsState = PagedListState<AbsencePatient> & {
   filters: AbsenceFilters;
   synthese: AbsenceSynthese;
   saving: boolean;
+  /** Résultat du dernier rattrapage de détection (null tant qu'aucun n'a été lancé). */
+  rattrapage: RattrapageDetection | null;
   successMessage: string | null;
   error: string | null;
 };
@@ -30,6 +33,7 @@ const initialState: AbsencesPatientsState = {
   filters: EMPTY_FILTERS,
   synthese: {aQualifier: 0, enRetard: 0},
   saving: false,
+  rattrapage: null,
   successMessage: null,
   error: null,
 };
@@ -39,7 +43,7 @@ const KNOWN_CODES = [
   'ABSENCE_DELAI_DEPASSE', 'ABSENCE_COMMENTAIRE_REQUIS', 'ABSENCE_MOTIF_REQUIS', 'ABSENCE_NON_MODIFIABLE',
   'ABSENCE_CORRECTION_INTERDITE', 'ABSENCE_RATTRAPAGE_SANS_SEANCE', 'ABSENCE_RATTRAPAGE_ANTERIEUR',
   'ABSENCE_RATTRAPAGE_DATE_REQUISE', 'ABSENCE_DEJA_ANNULEE',
-  'ABSENCE_PERIODE_FACTUREE',
+  'ABSENCE_PERIODE_FACTUREE', 'ABSENCE_PERIODE_INVALIDE', 'ABSENCE_PERIODE_TROP_LONGUE',
 ];
 
 /** Clé i18n de l'erreur d'une écriture : code métier connu, sinon message générique. */
@@ -113,6 +117,21 @@ export const AbsencesPatientsStore = signalStore(
 
       cancel: rxMethod<{ id: string; commentaire: string }>(pipe(tap(begin),
         switchMap((p) => saveFlow(api.annuler(centerId(), p.id, p.commentaire))))),
+
+      /** Rattrape les absences jamais détectées entre deux dates, puis recharge la liste. */
+      catchUp: rxMethod<{ from: string; to: string }>(pipe(
+        tap(() => patchState(store, {saving: true, error: null, successMessage: null, rattrapage: null})),
+        switchMap((p) => api.rattraperDetection(centerId(), p.from, p.to).pipe(
+          tap((rattrapage) => {
+            patchState(store, {saving: false, rattrapage});
+            loadPage({page: 0, size: store.pageSize()});
+          }),
+          catchError((err) => {
+            patchState(store, {saving: false, error: absencePatientErrorKey(err)});
+            return EMPTY;
+          }),
+        )),
+      )),
 
       setPagination(pageIndex: number, pageSize: number): void {
         patchState(store, {pageIndex, pageSize});

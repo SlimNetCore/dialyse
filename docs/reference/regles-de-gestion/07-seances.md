@@ -84,15 +84,18 @@
   `MEDECIN`, `SECRETAIRE`.
 - **RG-SEA-041** — Le **journal du jour** rassemble les patients dialysés à une date, avec leur statut, et le total des
   articles sortis ce jour-là par code article.
-- **RG-SEA-042** — **Tableau de bord mensuel** : séances prévues = somme, sur les jours ouvrés du mois (hors fériés et
-  fermetures exceptionnelles), des patients programmés ce jour de la
-  semaine, hors patients « en sommeil », à partir de leur date d'admission et jusqu'à la libération de leur place
-  (transfert, décès, greffe, guérison, fin de séjour : RG-PAT-032) ; présences = séances créées dans le mois ;
-  **absences = max (0, prévues − présences)** ; répartition
-  par sexe (M/F/autre) et par tranche d'âge (0-17, 18-39, 40-59, 60+, inconnu) des patients présents ; détail par jour
-  de la semaine ; exports PDF, XLSX et CSV. **Point d'attention :** cet indicateur « absences » est une estimation
-  arithmétique ; le décompte qualifié et valorisé des absences est celui du suivi des absences (RG-ABS).
-- **RG-SEA-043** — Le détail du tableau de bord se demande pour `presence` ou `absence` ; toute autre valeur est refusée
+- **RG-SEA-042** — **Tableau de bord mensuel** : séances prévues = somme, sur les jours ouvrés **échus** du mois (hors
+  fériés et fermetures exceptionnelles ; le futur n'est compté ni en présence ni en absence), des patients programmés ce
+  jour de la semaine, hors patients « en sommeil », à partir de leur date d'admission et jusqu'à la libération de leur
+  place (transfert, décès, greffe, guérison, fin de séjour : RG-PAT-032) ; **présences = séances réalisées** (statuts
+  `VALIDEE`, `SIGNEE`, `FACTUREE`) du mois ; **absences = absences du suivi des absences (RG-ABS) du mois, hors
+  annulées**, qu'elles soient déclarées ou détectées par le contrôle quotidien (plus de calcul « prévues − présences »,
+  supprimé) ; **effectif du mois** = patients pris en charge sur la période (admis au plus tard le dernier jour du mois,
+  place non libérée avant le 1er du mois, hors « en sommeil ») auxquels s'ajoutent ceux qui ont une séance réalisée
+  dans le mois, qu'ils aient déjà dialysé ou non ; répartition par sexe (M/F/autre) et par tranche d'âge (0-17, 18-39,
+  40-59, 60+, inconnu) de cet effectif (`effectifPatients`) ; détail par jour de la semaine ; exports PDF, XLSX et CSV.
+- **RG-SEA-043** — Le détail du tableau de bord se demande pour `presence` (séances réalisées du mois) ou `absence`
+  (absences du suivi du mois, hors annulées, avec leur statut) ; toute autre valeur est refusée
   (« kind must be 'presence' or 'absence' »).
 - **RG-SEA-044** — **Calendrier du centre** : jours fériés (libellé) et jours de fermeture exceptionnelle (motif) par
   mois ; ajout et suppression réservés à `ADMIN`, bornés au centre.

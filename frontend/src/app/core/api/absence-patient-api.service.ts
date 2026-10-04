@@ -67,6 +67,12 @@ export interface AbsenceSynthese {
   enRetard: number;
 }
 
+/** Résultat d'un rattrapage de détection : absences créées et absences annulées (séance saisie après coup). */
+export interface RattrapageDetection {
+  creees: number;
+  annulees: number;
+}
+
 export interface AbsenceFilters {
   statut: StatutAbsence | '';
   motif: MotifAbsence | '';
@@ -122,6 +128,12 @@ export class AbsencePatientApiService {
 
   rattraper(centerId: string, id: string, dateRattrapage: string): Observable<AbsencePatient> {
     return this.http.put<AbsencePatient>(`${this.base}/${id}/rattrapage`, {dateRattrapage},
+      {params: AbsencePatientApiService.centre(centerId)});
+  }
+
+  /** Rattrapage des absences jamais détectées sur une période passée (administrateur du centre). */
+  rattraperDetection(centerId: string, from: string, to: string): Observable<RattrapageDetection> {
+    return this.http.post<RattrapageDetection>(`${this.base}/rattrapage-detection`, {from, to},
       {params: AbsencePatientApiService.centre(centerId)});
   }
 

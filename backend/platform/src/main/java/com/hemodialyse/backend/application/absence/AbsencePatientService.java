@@ -30,6 +30,10 @@ import java.util.UUID;
 public class AbsencePatientService {
 
     static final int PAGE_RECONCILIATION = 200;
+    /**
+     * Durée maximale d'un rattrapage manuel (un an).
+     */
+    static final int RATTRAPAGE_JOURS_MAX = 366;
 
     private final AbsencePatientRepositoryPort absences;
     private final AbsenceDonneesPort donnees;
@@ -188,6 +192,37 @@ public class AbsencePatientService {
             detecter(centerId, d);
         }
         return synthese(centerId);
+    }
+
+    /**
+     * Rattrapage d'une période passée : détecte les absences jamais détectées (scheduler arrêté, base reprise, mois
+     * antérieurs au déploiement) et annule celles dont la séance a été saisie après coup. Idempotent. La fin est
+     * ramenée à hier (le jour courant n'est pas terminé).
+     *
+     * @throws BusinessException {@code ABSENCE_PERIODE_INVALIDE} (début après la fin) ou
+     *                           {@code ABSENCE_PERIODE_TROP_LONGUE} (plus de {@value #RATTRAPAGE_JOURS_MAX} jours)
+     */
+    public Rattrapage rattraperPeriode(UUID centerId, LocalDate from, LocalDate to) {
+        LocalDate fin = to.isAfter(aujourdhui().minusDays(1)) ? aujourdhui().minusDays(1) : to;
+        if (from.isAfter(fin)) {
+            throw new BusinessException("ABSENCE_PERIODE_INVALIDE", "Période invalide : le début doit précéder la fin (hier au plus tard)");
+        }
+        if (java.time.temporal.ChronoUnit.DAYS.between(from, fin) >= RATTRAPAGE_JOURS_MAX) {
+            throw new BusinessException("ABSENCE_PERIODE_TROP_LONGUE",
+                    "Période trop longue : " + RATTRAPAGE_JOURS_MAX + " jours au maximum");
+        }
+        int annulees = reconcilier(centerId, from, fin);
+        int creees = 0;
+        for (LocalDate d = from; !d.isAfter(fin); d = d.plusDays(1)) {
+            creees += detecter(centerId, d);
+        }
+        return new Rattrapage(creees, annulees);
+    }
+
+    /**
+     * Résultat d'un rattrapage : absences créées et absences annulées (séance saisie après coup).
+     */
+    public record Rattrapage(int creees, int annulees) {
     }
 
     public List<UUID> centres() {

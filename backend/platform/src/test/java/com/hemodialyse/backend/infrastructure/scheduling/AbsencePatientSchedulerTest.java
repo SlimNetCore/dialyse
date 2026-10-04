@@ -46,4 +46,21 @@ class AbsencePatientSchedulerTest {
         verify(notifications).notifyAbsencesAQualifier(b, 2, 0);
         verify(service, org.mockito.Mockito.times(2)).controlerCentre(org.mockito.ArgumentMatchers.any(), anyInt());
     }
+
+    @Test
+    void catches_up_the_last_month_of_every_centre_at_startup_without_notifying() {
+        when(service.centres()).thenReturn(List.of(a, b));
+        when(service.controlerCentre(a, AbsencePatientScheduler.JOURS_RATTRAPAGE_DEMARRAGE)).thenThrow(new IllegalStateException("boom"));
+
+        scheduler.rattraperAuDemarrage();
+
+        verify(service).controlerCentre(a, AbsencePatientScheduler.JOURS_RATTRAPAGE_DEMARRAGE);
+        verify(service).controlerCentre(b, AbsencePatientScheduler.JOURS_RATTRAPAGE_DEMARRAGE);
+        verify(notifications, never()).notifyAbsencesAQualifier(org.mockito.ArgumentMatchers.any(), anyLong(), anyLong());
+    }
+
+    @Test
+    void the_daily_window_covers_a_week() {
+        org.junit.jupiter.api.Assertions.assertEquals(7, AbsencePatientScheduler.JOURS_A_CONTROLER);
+    }
 }

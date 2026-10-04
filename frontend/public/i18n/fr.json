@@ -1244,6 +1244,11 @@
     "DASHBOARD_TITLE": "Dashboard séances",
     "REFRESH_DASHBOARD_BTN": "Actualiser dashboard",
     "EXPECTED_SESSIONS_KPI": "Séances prévues",
+    "SEANCE_STATUTS": {
+      "VALIDEE": "Validée",
+      "SIGNEE": "Signée",
+      "FACTUREE": "Facturée"
+    },
     "PRESENCE_KPI": "Présences",
     "ABSENCE_KPI": "Absences",
     "TOTAL_SESSIONS_KPI": "Séances totales (mois)",
@@ -2437,6 +2442,12 @@
     "SAVED_OK": "Enregistré.",
     "RATTRAPAGE_DATE": "Date de la séance de rattrapage",
     "RATTRAPAGE_HINT": "Une séance réalisée ce jour-là doit exister pour ce patient.",
+    "RATTRAPAGE_DETECTION": {
+      "TITLE": "Rechercher les absences non détectées",
+      "HINT": "Rejoue la détection sur une période passée (un an au plus, jusqu'à hier) : mois antérieurs au déploiement, serveur arrêté, reprise de données.",
+      "RUN": "Lancer la recherche",
+      "RESULT": "{{creees}} absence(s) créée(s), {{annulees}} annulée(s) (séance saisie après coup)."
+    },
     "STATUTS": {
       "A_QUALIFIER": "À qualifier",
       "JUSTIFIEE": "Justifiée",
@@ -2485,7 +2496,9 @@
       "ABSENCE_RATTRAPAGE_ANTERIEUR": "Le rattrapage doit avoir lieu après la séance manquée.",
       "ABSENCE_RATTRAPAGE_DATE_REQUISE": "La date de rattrapage est obligatoire.",
       "ABSENCE_DEJA_ANNULEE": "L'absence est déjà annulée.",
-      "ABSENCE_PERIODE_FACTUREE": "La facturation de cette période est validée : l'absence est clôturée."
+      "ABSENCE_PERIODE_FACTUREE": "La facturation de cette période est validée : l'absence est clôturée.",
+      "ABSENCE_PERIODE_INVALIDE": "Période invalide : le début doit précéder la fin (hier au plus tard).",
+      "ABSENCE_PERIODE_TROP_LONGUE": "Période trop longue : 366 jours au maximum."
     }
   },
   "NAV": {

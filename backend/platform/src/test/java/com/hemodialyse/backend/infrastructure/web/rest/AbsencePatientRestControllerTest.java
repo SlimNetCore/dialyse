@@ -107,6 +107,17 @@ class AbsencePatientRestControllerTest {
     }
 
     @Test
+    void the_catch_up_runs_on_the_guarded_center_and_reports_the_counts() {
+        LocalDate debut = jour.minusDays(30);
+        when(service.rattraperPeriode(centre, debut, jour)).thenReturn(new AbsencePatientService.Rattrapage(12, 2));
+
+        var body = controller.rattraperDetection(null, new AbsencePatientRestController.PeriodeRequest(debut, jour)).getBody();
+
+        assertEquals(12, body.creees());
+        assertEquals(2, body.annulees());
+    }
+
+    @Test
     void cancelling_uses_the_guarded_center() {
         UUID id = UUID.randomUUID();
         when(service.annuler(eq(centre), eq(id), eq("Erreur"), any(), eq(false))).thenReturn(absence());

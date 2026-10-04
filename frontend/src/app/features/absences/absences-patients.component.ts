@@ -41,6 +41,15 @@ function emptyDeclaration() {
   return {patientId: '', dateSeance: todayIso(), motif: '' as MotifAbsence | '', commentaire: ''};
 }
 
+/** Période de rattrapage proposée : les 31 derniers jours, jusqu'à hier. */
+export function periodeParDefaut(maintenant: Date = new Date()): { from: string; to: string } {
+  const jour = (decalage: number) => {
+    const d = new Date(Date.UTC(maintenant.getUTCFullYear(), maintenant.getUTCMonth(), maintenant.getUTCDate() + decalage));
+    return d.toISOString().slice(0, 10);
+  };
+  return {from: jour(-31), to: jour(-1)};
+}
+
 /**
  * Suivi des absences de patients : déclaration, qualification par un motif, rattrapage et annulation. Les absences
  * détectées automatiquement (séance prévue sans séance réalisée) arrivent « à qualifier ».
@@ -94,6 +103,17 @@ export class AbsencesPatientsComponent {
   /** Un administrateur ou un médecin peut corriger une absence déjà qualifiée. */
   protected readonly peutCorriger = computed(() => this.auth.hasRole('ADMIN') || this.auth.hasRole('MEDECIN'));
 
+  // --- Rattrapage de la détection (administrateur) : un mois par défaut, jusqu'à hier
+  protected readonly estAdmin = computed(() => this.auth.hasRole('ADMIN'));
+  protected readonly rattrapageOpen = signal(false);
+  protected readonly rattrapageModel = signal(periodeParDefaut());
+  protected readonly rattrapageForm = compatForm(this.rattrapageModel, (form) => {
+    required(form.from);
+    required(form.to);
+  });
+  protected readonly canCatchUp = computed(() =>
+    this.rattrapageForm().valid() && !this.store.saving() && this.rattrapageModel().from <= this.rattrapageModel().to);
+
   constructor() {
     effect(() => {
       // Rechargement au changement de centre actif.
@@ -110,6 +130,16 @@ export class AbsencesPatientsComponent {
         this.declareOpen.set(false);
       });
     });
+  }
+
+  protected toggleRattrapage(): void {
+    this.store.clearMessages();
+    this.rattrapageOpen.update((open) => !open);
+  }
+
+  protected runCatchUp(): void {
+    if (!this.canCatchUp()) return;
+    this.store.catchUp({...this.rattrapageModel()});
   }
 
   protected toggleDeclare(): void {

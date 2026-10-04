@@ -11,6 +11,8 @@ spring:
       mode: always
 
 app:
+  absences:
+    startup-catchup: false
   security:
     jwt:
       secret: test-secret-test-secret-test-secret

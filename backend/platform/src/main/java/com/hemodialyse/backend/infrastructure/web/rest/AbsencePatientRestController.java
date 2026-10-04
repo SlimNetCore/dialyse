@@ -103,6 +103,19 @@ public class AbsencePatientRestController {
                 .body(new SyntheseResponse(s.aQualifier(), s.enRetard()));
     }
 
+    /**
+     * Rattrapage d'une période passée (absences jamais détectées) : réservé à l'administrateur du centre.
+     */
+    @PostMapping("/rattrapage-detection")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RattrapageDetectionResponse> rattraperDetection(
+            @RequestParam(required = false) UUID centerId, @Valid @RequestBody PeriodeRequest r) {
+        UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        AbsencePatientService.Rattrapage res = service.rattraperPeriode(centre, r.from(), r.to());
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(new RattrapageDetectionResponse(res.creees(), res.annulees()));
+    }
+
     @PostMapping
     @PreAuthorize(ACCES)
     public ResponseEntity<AbsenceResponse> declarer(@RequestParam(required = false) UUID centerId,
@@ -161,6 +174,12 @@ public class AbsencePatientRestController {
     }
 
     public record SyntheseResponse(long aQualifier, long enRetard) {
+    }
+
+    public record PeriodeRequest(@NotNull LocalDate from, @NotNull LocalDate to) {
+    }
+
+    public record RattrapageDetectionResponse(int creees, int annulees) {
     }
 
     public record AbsenceResponse(UUID id, UUID patientId, String patientNom, LocalDate dateSeance, String source,

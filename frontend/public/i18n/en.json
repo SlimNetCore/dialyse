@@ -1244,6 +1244,11 @@
     "DASHBOARD_TITLE": "Sessions dashboard",
     "REFRESH_DASHBOARD_BTN": "Refresh dashboard",
     "EXPECTED_SESSIONS_KPI": "Expected sessions",
+    "SEANCE_STATUTS": {
+      "VALIDEE": "Validated",
+      "SIGNEE": "Signed",
+      "FACTUREE": "Invoiced"
+    },
     "PRESENCE_KPI": "Present",
     "ABSENCE_KPI": "Absent",
     "TOTAL_SESSIONS_KPI": "Total sessions (month)",
@@ -2437,6 +2442,12 @@
     "SAVED_OK": "Saved.",
     "RATTRAPAGE_DATE": "Make-up session date",
     "RATTRAPAGE_HINT": "A completed session must exist for this patient on that day.",
+    "RATTRAPAGE_DETECTION": {
+      "TITLE": "Find undetected absences",
+      "HINT": "Replays the detection over a past period (one year at most, up to yesterday): months before deployment, server downtime, data import.",
+      "RUN": "Start the search",
+      "RESULT": "{{creees}} absence(s) created, {{annulees}} cancelled (session entered afterwards)."
+    },
     "STATUTS": {
       "A_QUALIFIER": "To qualify",
       "JUSTIFIEE": "Justified",
@@ -2485,7 +2496,9 @@
       "ABSENCE_RATTRAPAGE_ANTERIEUR": "The make-up must take place after the missed session.",
       "ABSENCE_RATTRAPAGE_DATE_REQUISE": "The make-up date is required.",
       "ABSENCE_DEJA_ANNULEE": "The absence is already cancelled.",
-      "ABSENCE_PERIODE_FACTUREE": "Billing for this period is validated: the absence is closed."
+      "ABSENCE_PERIODE_FACTUREE": "Billing for this period is validated: the absence is closed.",
+      "ABSENCE_PERIODE_INVALIDE": "Invalid period: the start must precede the end (yesterday at the latest).",
+      "ABSENCE_PERIODE_TROP_LONGUE": "Period too long: 366 days maximum."
     }
   },
   "NAV": {

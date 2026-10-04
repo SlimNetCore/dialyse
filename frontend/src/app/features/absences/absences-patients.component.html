@@ -4,12 +4,59 @@
       <h1>{{ 'ABSENCES.TITLE' | translate }}</h1>
       <p class="abs-sub">{{ 'ABSENCES.SUBTITLE' | translate }}</p>
     </div>
-    <button (click)="toggleDeclare()" color="primary" data-testid="abs-declare-toggle" mat-flat-button
-            type="button">
-      <mat-icon>{{ declareOpen() ? 'close' : 'add' }}</mat-icon>
-      {{ 'ABSENCES.DECLARER' | translate }}
-    </button>
+    <div class="abs-head-actions">
+      @if (estAdmin()) {
+        <button (click)="toggleRattrapage()" data-testid="abs-rattrapage-toggle" mat-stroked-button type="button">
+          <mat-icon>history</mat-icon>
+          {{ 'ABSENCES.RATTRAPAGE_DETECTION.TITLE' | translate }}
+        </button>
+      }
+      <button (click)="toggleDeclare()" color="primary" data-testid="abs-declare-toggle" mat-flat-button
+              type="button">
+        <mat-icon>{{ declareOpen() ? 'close' : 'add' }}</mat-icon>
+        {{ 'ABSENCES.DECLARER' | translate }}
+      </button>
+    </div>
   </header>
+
+  @if (estAdmin() && rattrapageOpen()) {
+    <mat-card data-testid="abs-rattrapage-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'ABSENCES.RATTRAPAGE_DETECTION.TITLE' | translate }}</mat-card-title>
+        <mat-card-subtitle>{{ 'ABSENCES.RATTRAPAGE_DETECTION.HINT' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form (submit)="runCatchUp(); $event.preventDefault()" class="abs-filters">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'ABSENCES.FROM' | translate }}</mat-label>
+            <input [formField]="rattrapageForm.from" data-testid="abs-rattrapage-from" matInput type="date"/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'ABSENCES.TO' | translate }}</mat-label>
+            <input [formField]="rattrapageForm.to" data-testid="abs-rattrapage-to" matInput type="date"/>
+          </mat-form-field>
+          <div class="abs-actions">
+            <button [disabled]="!canCatchUp()" color="primary" data-testid="abs-rattrapage-run" mat-flat-button
+                    type="submit">
+              <mat-icon>search</mat-icon>
+              {{ 'ABSENCES.RATTRAPAGE_DETECTION.RUN' | translate }}
+            </button>
+          </div>
+        </form>
+        @if (store.rattrapage(); as r) {
+          <p class="abs-feedback success" data-testid="abs-rattrapage-result" role="status">
+            {{ 'ABSENCES.RATTRAPAGE_DETECTION.RESULT' | translate: {creees: r.creees, annulees: r.annulees} }}
+          </p>
+        }
+        @if (store.error()) {
+          <p class="abs-feedback error" data-testid="abs-rattrapage-error" role="alert">
+            <mat-icon>error</mat-icon>
+            {{ store.error()! | translate }}
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
 
   @if (store.error() && !declareOpen() && !action()) {
     <p class="abs-feedback error" role="alert">{{ store.error()! | translate }}</p>

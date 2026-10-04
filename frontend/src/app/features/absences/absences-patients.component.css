@@ -191,3 +191,19 @@
   border-radius: 8px;
   background: rgba(179, 38, 30, 0.1);
 }
+
+.abs-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 767px) {
+  .abs-head-actions {
+    width: 100%;
+  }
+
+  .abs-head-actions button {
+    flex: 1 1 auto;
+  }
+}
