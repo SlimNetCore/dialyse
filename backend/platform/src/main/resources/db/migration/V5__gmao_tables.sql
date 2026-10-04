@@ -54,21 +54,21 @@ CREATE TABLE IF NOT EXISTS gmao_equipements
     CONSTRAINT fk_gmao_eq_centre FOREIGN KEY
 (
     centre_id
-) REFERENCES centres
+) REFERENCES centers
 (
     id
 ),
     CONSTRAINT fk_gmao_eq_cree_par FOREIGN KEY
 (
     cree_par
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 ),
     CONSTRAINT fk_gmao_eq_modifie_par FOREIGN KEY
 (
     modifie_par
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 )
@@ -134,28 +134,28 @@ CREATE TABLE IF NOT EXISTS gmao_interventions
     CONSTRAINT fk_gmao_int_centre FOREIGN KEY
 (
     centre_id
-) REFERENCES centres
+) REFERENCES centers
 (
     id
 ),
     CONSTRAINT fk_gmao_int_technicien FOREIGN KEY
 (
     technicien_id
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 ),
     CONSTRAINT fk_gmao_int_cree_par FOREIGN KEY
 (
     cree_par
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 ),
     CONSTRAINT fk_gmao_int_modifie_par FOREIGN KEY
 (
     modifie_par
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 )
@@ -253,21 +253,21 @@ CREATE TABLE IF NOT EXISTS gmao_plans_maintenance
     CONSTRAINT fk_gmao_plan_centre FOREIGN KEY
 (
     centre_id
-) REFERENCES centres
+) REFERENCES centers
 (
     id
 ),
     CONSTRAINT fk_gmao_plan_cree_par FOREIGN KEY
 (
     cree_par
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 ),
     CONSTRAINT fk_gmao_plan_modifie_par FOREIGN KEY
 (
     modifie_par
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 )
@@ -321,14 +321,14 @@ CREATE TABLE IF NOT EXISTS gmao_historique_maintenance
     CONSTRAINT fk_gmao_histo_centre FOREIGN KEY
 (
     centre_id
-) REFERENCES centres
+) REFERENCES centers
 (
     id
 ),
     CONSTRAINT fk_gmao_histo_utilisateur FOREIGN KEY
 (
     utilisateur_id
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 )
@@ -382,14 +382,14 @@ CREATE TABLE IF NOT EXISTS gmao_alertes_maintenance
     CONSTRAINT fk_gmao_alerte_centre FOREIGN KEY
 (
     centre_id
-) REFERENCES centres
+) REFERENCES centers
 (
     id
 ),
     CONSTRAINT fk_gmao_alerte_utilisateur FOREIGN KEY
 (
     utilisateur_id
-) REFERENCES utilisateurs
+) REFERENCES app_user
 (
     id
 )
@@ -399,4 +399,3 @@ CREATE INDEX IF NOT EXISTS idx_gmao_alertes_equipement_id ON gmao_alertes_mainte
 CREATE INDEX IF NOT EXISTS idx_gmao_alertes_centre_id ON gmao_alertes_maintenance(centre_id);
 CREATE INDEX IF NOT EXISTS idx_gmao_alertes_statut ON gmao_alertes_maintenance(statut);
 CREATE INDEX IF NOT EXISTS idx_gmao_alertes_date ON gmao_alertes_maintenance(date_alerte);
-
