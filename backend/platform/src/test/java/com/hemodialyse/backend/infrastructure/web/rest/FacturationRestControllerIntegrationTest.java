@@ -47,6 +47,9 @@ class FacturationRestControllerIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
+    private com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort seanceRepository;
+
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -280,6 +283,12 @@ class FacturationRestControllerIntegrationTest {
                 CENTER_ID
         );
         assertEquals("ABSENT", statut);
+
+        // La séance exclue doit rester relisible par le domaine (le statut fait partie de SeanceStatus).
+        var relue = seanceRepository.findById(SEANCE_ID,
+                com.hemodialyse.backend.domain.shared.vo.CenterId.of(CENTER_ID));
+        assertEquals(com.hemodialyse.backend.domain.seance.model.SeanceStatus.ABSENT,
+                relue.orElseThrow().getStatus());
     }
 
     @Test

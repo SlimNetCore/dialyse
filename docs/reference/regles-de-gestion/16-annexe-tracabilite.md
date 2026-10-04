@@ -1,0 +1,100 @@
+# 16 — Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles
+
+> Cette annexe rattache **chaque contrôleur REST** et **chaque tâche planifiée** du code aux chapitres de règles qui les
+> décrivent (AGENTS.md §18). Un test automatique vérifie qu'aucun contrôleur ni
+> aucune tâche n'est absent de ce tableau (voir `ReglesDeGestionDocumentationTest`). Toute nouvelle route ou tâche doit
+> y être ajoutée **dans la même modification**.
+
+## 16.1 Contrôleurs REST
+
+| Contrôleur                               | Base de l'API                                       | Accès principal                                                  | Règles                             |
+|------------------------------------------|-----------------------------------------------------|------------------------------------------------------------------|------------------------------------|
+| `AuthRestController`                     | `/api/v1/auth`                                      | public (connexion, annuaires, rafraîchissement) puis authentifié | RG-SEC-010 à 019b                  |
+| `InitialSetupRestController`             | `/api/v1/auth/setup`                                | public, une seule fois                                           | RG-SEC-039                         |
+| `MfaRestController`                      | `/api/v1/auth/mfa`                                  | utilisateur connecté                                             | RG-SEC-027 à 029                   |
+| `LicenseRestController`                  | `/api/v1/licenses`                                  | `SUPERADMIN` (émission, révocation), `ADMIN` (activation)        | RG-SEC-031 à 037                   |
+| `UserRestController`                     | `/api/v1/users`                                     | `ADMIN`                                                          | RG-SEC-003, 005, 038               |
+| `RoleRestController`                     | `/api/v1/roles`                                     | `ADMIN`                                                          | RG-SEC-001 à 005                   |
+| `AuditRestController`                    | `/api/v1/audit`                                     | `ADMIN`, `SUPERADMIN`                                            | RG-SEC-050 à 053                   |
+| `SocieteRestController`                  | `/api/v1/societes`                                  | `SUPERADMIN`                                                     | RG-ORG-001 à 031                   |
+| `SocieteAdminAccountRestController`      | `/api/v1/societes/{id}/admin-accounts`              | `SUPERADMIN`                                                     | RG-ORG-040 à 043                   |
+| `SocieteDirectionAccountRestController`  | `/api/v1/societes/{id}/direction-accounts`          | `SUPERADMIN`                                                     | RG-ORG-050 à 052                   |
+| `SystemRestController`                   | `/api/v1/system`                                    | public (ping)                                                    | RG-SEC-036                         |
+| `ReferentialRestController`              | `/api/v1/referentials`                              | profils de centre (lecture, mis en cache)                        | RG-REF-001, RG-TRV-040             |
+| `ReferentialAdminRestController`         | `/api/v1/admin/referentials`                        | `ADMIN`, `SUPERADMIN`                                            | RG-REF-001 à 012                   |
+| `MigrationRestController`                | `/api/v1/admin/migration`                           | `ADMIN`, `SUPERADMIN`                                            | RG-MIG-001 à 010                   |
+| `DocumentRestController`                 | `/api/v1/documents`                                 | impression ouverte, gestion `ADMIN`/`SUPERADMIN`                 | RG-DOC-001 à 006                   |
+| `ModeleDocumentTemplateRestController`   | `/api/v1/documents/modeles/{id}`                    | `ADMIN`, `SUPERADMIN`                                            | RG-DOC-003, 004                    |
+| `PatientRestController`                  | `/api/v1/patients`                                  | lecture tous profils de centre, écriture hors médecin « seul »   | RG-PAT-001 à 024, RG-ASS-001 à 008 |
+| `PatientStatsRestController`             | `/api/v1/patients/.../stats`                        | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` (export `ADMIN`)   | RG-MED-101                         |
+| `PecRestController`                      | `/api/v1/pec`                                       | profils de centre (validation `ADMIN`)                           | RG-ATT-001 à 004, RG-PEC-001 à 010 |
+| `DashboardRestController`                | `/api/v1/dashboard`                                 | profils de centre                                                | RG-PEC-010                         |
+| `SeanceRestController`                   | `/api/v1/seances`                                   | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` selon l'action     | RG-SEA-001 à 044                   |
+| `VoletParamedicalRestController`         | `/api/v1/seances/{id}/volet-paramedical`            | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                               | RG-SEA-030                         |
+| `VoletMedicalRestController`             | `/api/v1/seances/{id}/volet-medical`                | `ADMIN`, `MEDECIN`                                               | RG-SEA-031                         |
+| `AbsencePatientRestController`           | `/api/v1/absences-patients`                         | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                    | RG-ABS-001 à 052                   |
+| `PlanningAffectationRestController`      | `/api/v1/planning/affectations`                     | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                    | RG-PLN-020 à 036                   |
+| `PlanningParametresRestController`       | `/api/v1/planning/parametres`                       | lecture tous, écriture `ADMIN`                                   | RG-PLN-001 à 006                   |
+| `PlanningSemaineRestController`          | `/api/v1/planning/semaine`                          | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                    | RG-PLN-040 à 044                   |
+| `SalleGenerateursRestController`         | `/api/v1/planning/salles`                           | `ADMIN`, `SECRETAIRE`                                            | RG-PLN-060 à 062                   |
+| `InfirmierRestController`                | `/api/v1/infirmiers`                                | lecture tous, écriture `ADMIN`                                   | RG-INF-001 à 022                   |
+| `AbsenceInfirmierRestController`         | `/api/v1/infirmiers/absences`                       | lecture tous, écriture `ADMIN`/`SECRETAIRE`                      | RG-INF-030, 031                    |
+| `PresenceInfirmierRestController`        | `/api/v1/infirmiers/presence`                       | lecture tous, écriture `ADMIN`/`SECRETAIRE`                      | RG-INF-040 à 060                   |
+| `MonPlanningInfirmierRestController`     | `/api/v1/infirmiers/moi`                            | l'infirmier connecté                                             | RG-INF-032                         |
+| `DossierMedicalPatientRestController`    | `/api/v1/patients/{id}/dossier-medical`             | `MEDECIN` (écriture), `ADMIN`/`INFIRMIER` (lecture)              | RG-MED-063                         |
+| `AntecedentRestController`               | `/api/v1/patients/{id}/antecedents`                 | `MEDECIN` (écriture), `ADMIN` (lecture)                          | RG-MED-010 à 012                   |
+| `AllergieRestController`                 | `/api/v1/patients/{id}/allergies`                   | idem                                                             | RG-MED-020, 021                    |
+| `SerologieRestController`                | `/api/v1/patients/{id}/serologies`                  | idem                                                             | RG-MED-030 à 033                   |
+| `DemandeExamenRestController`            | `/api/v1/patients/{id}/demandes-examen`             | idem                                                             | RG-MED-040 à 041                   |
+| `ObservationBiologiqueRestController`    | `/api/v1/patients/{id}/observations`                | idem                                                             | RG-MED-042, 043                    |
+| `ResultatAnalyseRestController`          | `/api/v1/patients/{id}/analyses`                    | idem                                                             | RG-MED-044                         |
+| `OrdonnanceRestController`               | `/api/v1/patients/{id}/ordonnances`                 | idem                                                             | RG-MED-050, 051                    |
+| `PrescriptionMedicaleRestController`     | `/api/v1/patients/{id}/prescriptions`               | `MEDECIN` (écriture), `MEDECIN`/`ADMIN`/`INFIRMIER` (lecture)    | RG-MED-060, 061                    |
+| `AbordVasculaireRestController`          | `/api/v1/patients/{id}/abords-vasculaires`          | `MEDECIN` (écriture)                                             | RG-MED-062                         |
+| `ConstantesRestController`               | `/api/v1/patients/{id}/constantes`                  | `MEDECIN`, `ADMIN`                                               | RG-MED-100                         |
+| `AdministrationTraitementRestController` | `/api/v1/patients/{id}/administrations-anemie`      | `INFIRMIER`, `MEDECIN` (écriture)                                | RG-MED-070, 071                    |
+| `ObservanceAnemieRestController`         | `/api/v1/patients/{id}/observance-anemie`           | `MEDECIN`, `ADMIN`, `INFIRMIER`                                  | RG-MED-072                         |
+| `AlerteObservanceRestController`         | `/api/v1/patients/{id}/alertes-observance`          | `MEDECIN`, `ADMIN`                                               | RG-MED-073, 074                    |
+| `SuiviAnemieRestController`              | `/api/v1/patients/{id}/suivi-anemie`                | `MEDECIN`, `ADMIN`                                               | RG-MED-080, 081                    |
+| `KdigoGreffeRestController`              | `/api/v1/patients/{id}/greffe/kdigo`                | `MEDECIN`, `ADMIN`                                               | RG-MED-082                         |
+| `BilanPreGreffeRestController`           | `/api/v1/patients/{id}/greffe/bilan`                | `MEDECIN` (écriture)                                             | RG-MED-090 à 092                   |
+| `EtapeBilanPreGreffeRestController`      | `/api/v1/patients/{id}/greffe/etapes`               | `MEDECIN`, `INFIRMIER`                                           | RG-MED-093                         |
+| `DonneurVivantRestController`            | `/api/v1/patients/{id}/greffe/donneurs`             | `MEDECIN` (écriture)                                             | RG-MED-094                         |
+| `GreffeExportRestController`             | `/api/v1/patients/{id}/greffe/export-pdf`           | `MEDECIN`                                                        | RG-MED-095                         |
+| `FhirExportRestController`               | `/api/v1/patients/{id}/dossier-medical/export-fhir` | `MEDECIN`                                                        | RG-MED-102                         |
+| `StockReferentialRestController`         | `/api/v1/stock/referentiel`                         | `ADMIN`, `PHARMACIEN` (écriture)                                 | RG-STK-001 à 005                   |
+| `BonCommandeRestController`              | `/api/v1/stock/bons-commande`                       | `ADMIN`, `PHARMACIEN`                                            | RG-STK-010 à 012                   |
+| `BonReceptionRestController`             | `/api/v1/stock/bons-reception`                      | `ADMIN`, `PHARMACIEN`                                            | RG-STK-020 à 025                   |
+| `BonSortieRestController`                | `/api/v1/stock/bons-sortie`                         | `ADMIN`, `PHARMACIEN`, `INFIRMIER`                               | RG-STK-030 à 033                   |
+| `InventaireRestController`               | `/api/v1/stock/inventaires`                         | `ADMIN`, `PHARMACIEN`, `INFIRMIER`                               | RG-STK-050 à 057                   |
+| `StockDashboardRestController`           | `/api/v1/stock/dashboard`                           | `ADMIN`, `PHARMACIEN`, `INFIRMIER`                               | RG-STK-040 à 044, 060, 062         |
+| `GroupeArticleRestController`            | `/api/v1/stock/groupes-articles`                    | `ADMIN`                                                          | RG-STK-070 à 073                   |
+| `EquipementRestController`               | `/api/v1/gmao/equipements`                          | `ADMIN` (réforme : `GMAO_REFORME`)                               | RG-GMA-010 à 016                   |
+| `EquipementFicheRestController`          | `/api/v1/gmao/equipements/{id}`                     | `ADMIN`                                                          | RG-GMA-017, 061 à 063              |
+| `InterventionRestController`             | `/api/v1/gmao/interventions`                        | `ADMIN` (rectification : `GMAO_RECTIFICATION`)                   | RG-GMA-020 à 027                   |
+| `InterventionSuiviRestController`        | `/api/v1/gmao/interventions/{id}`                   | `ADMIN`                                                          | RG-GMA-031                         |
+| `InterventionDocumentRestController`     | `/api/v1/gmao/interventions/{id}/documents`         | `ADMIN`                                                          | RG-GMA-028                         |
+| `IntervenantRestController`              | `/api/v1/gmao/intervenants`                         | `ADMIN`                                                          | RG-GMA-040                         |
+| `PlanMaintenanceRestController`          | `/api/v1/gmao/plans-maintenance`                    | `ADMIN`                                                          | RG-GMA-050 à 052                   |
+| `GmaoStatsRestController`                | `/api/v1/gmao/stats`                                | `ADMIN`                                                          | RG-GMA-002, 030, 052               |
+| `TvaTypesRestController`                 | `/api/v1/tva-types`                                 | `ADMIN` (écriture), `MEDECIN`/`SECRETAIRE` (lecture)             | RG-FAC-001 à 003                   |
+| `FacturationRestController`              | `/api/v1/facturation`                               | `ADMIN`, `MEDECIN` (+ `SECRETAIRE` en lecture)                   | RG-FAC-010 à 032                   |
+| `ReglementRestController`                | `/api/v1/reglements`                                | `ADMIN`, `SECRETAIRE`                                            | RG-REG-001 à 004                   |
+| `ComptabiliteRestController`             | `/api/v1/comptabilite`                              | `ADMIN` (`SECRETAIRE` en lecture des écritures)                  | RG-CPT-001 à 008                   |
+| `DirectionDashboardRestController`       | `/api/v1/direction`                                 | `DIRECTION`                                                      | RG-DIR-001 à 080, 100 à 102        |
+| `DirectionSnapshotRestController`        | `/api/v1/direction/snapshots`                       | `DIRECTION`                                                      | RG-DIR-090 à 092                   |
+| `ApiExceptionHandler`                    | (contrat d'erreur)                                  | —                                                                | RG-TRV-010 à 016                   |
+| `ReferentialAdminExceptionHandler`       | (erreurs d'import et de référentiels)               | —                                                                | RG-REF-004, RG-REF-012             |
+
+## 16.2 Tâches planifiées
+
+| Tâche                             | Cadence                              | Règles                 |
+|-----------------------------------|--------------------------------------|------------------------|
+| `AbsencePatientScheduler`         | 02:30 chaque jour                    | RG-ABS-040 à 044       |
+| `AuditScheduler`                  | écriture toutes les 3 s, purge 03:30 | RG-SEC-051, RG-SEC-052 |
+| `DirectionRealtimeScheduler`      | 1 s et 10 s                          | RG-DIR-100, RG-DIR-101 |
+| `DirectionSnapshotScheduler`      | 02:30 le 1er du mois                 | RG-DIR-090             |
+| `ExpirationAlertScheduler`        | 07:00 chaque jour                    | RG-STK-061             |
+| `LicenseOnlineCheckJob`           | 03:15 chaque jour                    | RG-SEC-032             |
+| `ObservancePrescriptionScheduler` | 06:30 chaque jour                    | RG-MED-073             |
+| `PresenceInfirmierScheduler`      | 07:15 chaque jour                    | RG-INF-046             |

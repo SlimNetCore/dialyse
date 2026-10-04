@@ -15,6 +15,13 @@ import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {DirectionStore, LIVE_REPORT} from './state/direction.store';
 import {MotifAbsenceStat} from '../../core/api/direction-api.service';
+import {
+  capaciteExemple,
+  capaciteHeadline,
+  capaciteRows,
+  jaugeCapacite,
+  nbCentresAtteints,
+} from './direction-capacite.util';
 import {absencesHeadline, absencesMotifs, absencesRows, motifShare} from './direction-absences.util';
 import {gmaoTopRows} from './direction-gmao.util';
 import {stockGroupeRows} from './direction-stock-groupes.util';
@@ -208,6 +215,12 @@ export class DirectionDashboardComponent implements OnInit {
   /** Absences de patients : un centre par ligne puis le total, indicateurs mis en avant et motifs. */
   protected readonly absencesRows = computed(() => absencesRows(this.store.absences(), this.selectedCentre()));
   protected readonly absencesHeadline = computed(() => absencesHeadline(this.store.absences(), this.selectedCentre()));
+  /** Capacité théorique : un centre par ligne puis le total, capacité mise en avant et centres à saturation. */
+  protected readonly capaciteRows = computed(() => capaciteRows(this.store.capacite(), this.selectedCentre()));
+  protected readonly capaciteHeadline = computed(() => capaciteHeadline(this.store.capacite(), this.selectedCentre()));
+  protected readonly nbCentresAtteints = computed(() => nbCentresAtteints(this.store.capacite()));
+  protected readonly capaciteExemple = computed(() => capaciteExemple(this.store.capacite(), this.selectedCentre()));
+  protected readonly jaugeCapacite = jaugeCapacite;
   protected readonly absencesMotifs = computed(() => absencesMotifs(this.store.absences(), this.selectedCentre()));
   /** Répartitions filtrées sur le centre isolé, le cas échéant (toutes les listes de `breakdown` partagent `centerId`). */
   protected readonly breakdown = computed(() => {

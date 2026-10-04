@@ -39,6 +39,9 @@ public class VoletMedicalDomainService implements VoletMedicalUseCase {
         var seance = seanceRepository.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
 
+        if (seance.getStatus() == SeanceStatus.ABSENT) {
+            throw new IllegalStateException("La seance exclue de la facturation (patient absent) n'a pas de volet medical");
+        }
         if (seance.getStatus() == SeanceStatus.CREE) {
             throw new IllegalStateException("Le volet medical n'est accessible qu'apres validation infirmiere");
         }

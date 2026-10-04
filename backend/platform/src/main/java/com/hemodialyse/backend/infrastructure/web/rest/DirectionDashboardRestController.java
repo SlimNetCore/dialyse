@@ -10,6 +10,8 @@ import com.hemodialyse.backend.application.direction.DirectionAlertHistoryServic
 import com.hemodialyse.backend.application.direction.DirectionReportPdfService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService;
 import com.hemodialyse.backend.application.direction.DirectionIndicatorsQueryService.Indicators;
+import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService;
+import com.hemodialyse.backend.application.direction.DirectionCapaciteQueryService.CapaciteOverview;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService;
 import com.hemodialyse.backend.application.direction.DirectionAbsencesQueryService.AbsencesOverview;
 import com.hemodialyse.backend.application.direction.DirectionGmaoQueryService;
@@ -53,6 +55,7 @@ public class DirectionDashboardRestController {
     private final DirectionGmaoQueryService gmaoQueries;
     private final DirectionStockGroupesQueryService stockGroupes;
     private final DirectionAbsencesQueryService absences;
+    private final DirectionCapaciteQueryService capacites;
 
     public DirectionDashboardRestController(DirectionAccessGuard guard, DirectionDashboardQueryService queries,
                                             DirectionIndicatorsQueryService indicators,
@@ -61,7 +64,9 @@ public class DirectionDashboardRestController {
                                             DirectionAlertHistoryService alertHistory,
                                             DirectionGmaoQueryService gmaoQueries,
                                             DirectionStockGroupesQueryService stockGroupes,
-                                            DirectionAbsencesQueryService absences) {
+                                            DirectionAbsencesQueryService absences,
+                                            DirectionCapaciteQueryService capacites) {
+        this.capacites = capacites;
         this.absences = absences;
         this.stockGroupes = stockGroupes;
         this.reports = reports;
@@ -126,6 +131,18 @@ public class DirectionDashboardRestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UUID societeId = guard.requireSociete();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(stockGroupes.groupes(societeId, from, to));
+    }
+
+    /**
+     * Capacité théorique des centres (générateurs, postes actifs, séries) et taux d'occupation de la file active sur la
+     * période : par centre et consolidée pour la société.
+     */
+    @GetMapping("/capacite")
+    public ResponseEntity<CapaciteOverview> capacite(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UUID societeId = guard.requireSociete();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(capacites.capacite(societeId, from, to));
     }
 
     /**

@@ -53,23 +53,27 @@ public class PlanningParametresRestController {
         Set<UUID> salles = request.sallesIsolement() == null ? Set.of() : Set.copyOf(request.sallesIsolement());
         int ratio = request.patientsParInfirmier() == null
                 ? PlanningParametres.RATIO_PAR_DEFAUT : request.patientsParInfirmier();
-        return ResponseEntity.ok(ParametresResponse.de(service.enregistrer(centre, jours, salles, ratio)));
+        int patientsParPoste = request.patientsParPosteEtSerie() == null
+                ? PlanningParametres.PATIENTS_PAR_POSTE_PAR_DEFAUT : request.patientsParPosteEtSerie();
+        return ResponseEntity.ok(ParametresResponse.de(
+                service.enregistrer(centre, jours, salles, ratio, patientsParPoste)));
     }
 
     /**
-     * @param patientsParInfirmier ratio de sécurité ; absent = valeur par défaut
+     * @param patientsParInfirmier    ratio de sécurité ; absent = valeur par défaut
+     * @param patientsParPosteEtSerie patients suivis par poste et par série (capacité théorique) ; absent = défaut
      */
     public record ParametresRequest(List<JourSemaine> joursOuverts, List<UUID> sallesIsolement,
-                                    Integer patientsParInfirmier) {
+                                    Integer patientsParInfirmier, Integer patientsParPosteEtSerie) {
     }
 
     public record ParametresResponse(List<JourSemaine> joursOuverts, List<UUID> sallesIsolement,
-                                     int patientsParInfirmier) {
+                                     int patientsParInfirmier, int patientsParPosteEtSerie) {
         static ParametresResponse de(PlanningParametres p) {
             return new ParametresResponse(
                     EnumSet.copyOf(p.joursOuverts()).stream().toList(),
                     p.sallesIsolement().stream().sorted().toList(),
-                    p.patientsParInfirmier());
+                    p.patientsParInfirmier(), p.patientsParPosteEtSerie());
         }
     }
 }

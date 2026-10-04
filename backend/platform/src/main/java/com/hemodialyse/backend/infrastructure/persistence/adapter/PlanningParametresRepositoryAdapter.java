@@ -42,7 +42,10 @@ public class PlanningParametresRepositoryAdapter implements PlanningParametresPo
         Arrays.stream(e.getJoursOuverts().split(",")).filter(s -> !s.isBlank())
                 .forEach(s -> jours.add(JourSemaine.valueOf(s.trim())));
         int ratio = e.getPatientsParInfirmier() == null ? PlanningParametres.RATIO_PAR_DEFAUT : e.getPatientsParInfirmier();
-        return new PlanningParametres(jours.isEmpty() ? EnumSet.allOf(JourSemaine.class) : jours, sallesIsolement, ratio);
+        int patientsParPoste = e.getPatientsParPosteEtSerie() == null
+                ? PlanningParametres.PATIENTS_PAR_POSTE_PAR_DEFAUT : e.getPatientsParPosteEtSerie();
+        return new PlanningParametres(jours.isEmpty() ? EnumSet.allOf(JourSemaine.class) : jours, sallesIsolement, ratio,
+                patientsParPoste);
     }
 
     private Set<UUID> sallesIsolement(UUID centerId) {
@@ -56,7 +59,8 @@ public class PlanningParametresRepositoryAdapter implements PlanningParametresPo
         Set<UUID> isolement = sallesIsolement(centerId);
         PlanningParametres lus = jpa.findById(centerId).map(e -> toDomain(e, isolement))
                 .orElseGet(PlanningParametres::parDefaut);
-        return new PlanningParametres(lus.joursOuverts(), isolement, lus.patientsParInfirmier());
+        return new PlanningParametres(lus.joursOuverts(), isolement, lus.patientsParInfirmier(),
+                lus.patientsParPosteEtSerie());
     }
 
     @Override
@@ -64,7 +68,7 @@ public class PlanningParametresRepositoryAdapter implements PlanningParametresPo
     public void enregistrer(UUID centerId, PlanningParametres p) {
         String jours = p.joursOuverts().stream().sorted().map(Enum::name).collect(Collectors.joining(","));
         jpa.save(new PlanningParametresJpaEntity(centerId, jours, null, p.patientsParInfirmier(),
-                OffsetDateTime.now(ZoneOffset.UTC)));
+                p.patientsParPosteEtSerie(), OffsetDateTime.now(ZoneOffset.UTC)));
         jdbc.update("UPDATE salle SET isolement = ? WHERE center_id = ?", NON, centerId);
         for (UUID salleId : p.sallesIsolement()) {
             jdbc.update("UPDATE salle SET isolement = ? WHERE center_id = ? AND id = ?", OUI, centerId, salleId);

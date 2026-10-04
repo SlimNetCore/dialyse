@@ -404,6 +404,187 @@
     </mat-card>
   }
 
+  @if (store.capacite(); as cap) {
+    <mat-card class="block" data-testid="direction-capacite">
+      <h2>{{ 'DIRECTION.CAPACITE.TITLE' | translate }}</h2>
+      <p class="muted">{{ 'DIRECTION.CAPACITE.HINT' | translate }}</p>
+      <p class="muted" data-testid="direction-capacite-periode">
+        {{
+          'DIRECTION.CAPACITE.PERIODE' | translate: {
+            from: (cap.from | date: 'dd/MM/yyyy'),
+            to: (cap.to | date: 'dd/MM/yyyy')
+          }
+        }}
+      </p>
+
+      @if (capaciteHeadline(); as h) {
+        <div [class]="'capacite-verdict ' + h.niveau.toLowerCase()" data-testid="direction-capacite-verdict"
+             role="status">
+          @switch (h.niveau) {
+            @case ('ATTEINTE') {
+              <strong>{{ 'DIRECTION.CAPACITE.VERDICT_ATTEINTE' | translate }}</strong>
+            }
+            @case ('PROCHE') {
+              <strong>{{ 'DIRECTION.CAPACITE.VERDICT_PROCHE' | translate: {seuil: cap.regle.seuilProchePourcent} }}</strong>
+            }
+            @case ('MARGE') {
+              <strong>{{ 'DIRECTION.CAPACITE.VERDICT_MARGE' | translate }}</strong>
+            }
+            @default {
+              <strong>{{ 'DIRECTION.CAPACITE.VERDICT_SANS' | translate }}</strong>
+            }
+          }
+          @if (h.fileActive !== null && h.capacite > 0) {
+            <span>
+              {{ 'DIRECTION.CAPACITE.VERDICT_DETAIL' | translate: {file: h.fileActive, capacite: h.capacite} }}
+              @if (h.fileActive < h.capacite) {
+                {{ 'DIRECTION.CAPACITE.PLACES_RESTANTES' | translate: {count: h.capacite - h.fileActive} }}
+              }
+            </span>
+          }
+          @if (nbCentresAtteints() > 0 && !selectedCentre()) {
+            <span data-testid="direction-capacite-atteints">
+              {{ 'DIRECTION.CAPACITE.CENTRES_ATTEINTS' | translate: {count: nbCentresAtteints()} }}
+            </span>
+          }
+        </div>
+
+        <div class="kpis" data-testid="direction-capacite-kpis">
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.CAPACITE.KPI_CAPACITE' | translate }}</span>
+            <strong data-testid="direction-capacite-valeur">{{ h.capacite }}</strong>
+          </mat-card>
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.CAPACITE.KPI_FILE' | translate }}</span>
+            <strong>{{ headcount(h.fileActive) }}</strong>
+          </mat-card>
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.CAPACITE.KPI_TAUX' | translate }}</span>
+            <strong data-testid="direction-capacite-taux">{{ pct(h.tauxOccupation) }}</strong>
+          </mat-card>
+          <mat-card class="kpi">
+            <span>{{ 'DIRECTION.CAPACITE.KPI_POSTES' | translate }}</span>
+            <strong>{{ h.postesActifs }}</strong>
+          </mat-card>
+        </div>
+        @if (h.tauxOccupation !== null) {
+          <div [attr.aria-label]="'DIRECTION.CAPACITE.KPI_TAUX' | translate"
+               [class]="'capacite-gauge ' + h.niveau.toLowerCase()">
+            <div [style.width.%]="jaugeCapacite(h)" class="capacite-gauge-fill"></div>
+          </div>
+        }
+      }
+
+      <h3>{{ 'DIRECTION.CAPACITE.PAR_CENTRE' | translate }}</h3>
+      <div class="capacite-cards" data-testid="direction-capacite-centres">
+        @for (row of capaciteRows(); track row.centerId ?? 'total') {
+          @if (!row.total) {
+            <mat-card [class]="'capacite-card ' + row.ligne.niveau.toLowerCase()"
+                      data-testid="direction-capacite-centre">
+              <div class="capacite-card-head">
+                <strong>{{ row.nom }}</strong>
+                <span [class]="'capacite-badge ' + row.ligne.niveau.toLowerCase()">
+                  {{ ('DIRECTION.CAPACITE.NIVEAU.' + row.ligne.niveau) | translate }}
+                </span>
+              </div>
+              <p class="capacite-card-taux">{{ pct(row.ligne.tauxOccupation) }}</p>
+              @if (row.ligne.tauxOccupation !== null) {
+                <div [class]="'capacite-gauge ' + row.ligne.niveau.toLowerCase()">
+                  <div [style.width.%]="jaugeCapacite(row.ligne)" class="capacite-gauge-fill"></div>
+                </div>
+              }
+              <p class="muted">
+                {{
+                  'DIRECTION.CAPACITE.CARTE_FILE' | translate: {
+                    file: headcount(row.ligne.fileActive),
+                    capacite: row.ligne.capacite
+                  }
+                }}
+              </p>
+              <p class="muted capacite-card-calcul">
+                {{
+                  'DIRECTION.CAPACITE.CARTE_CALCUL' | translate: {
+                    postes: row.ligne.postesActifs, series: row.ligne.series, k: row.ligne.patientsParPosteEtSerie,
+                    capacite: row.ligne.capacite
+                  }
+                }}
+              </p>
+            </mat-card>
+          }
+        }
+      </div>
+
+      <div class="table-scroll">
+        <table class="centres" data-testid="direction-capacite-table">
+          <thead>
+          <tr>
+            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CAPACITE.COL_GENERATEURS' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CAPACITE.COL_SECOURS' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CAPACITE.COL_POSTES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CAPACITE.COL_SERIES' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CAPACITE.COL_CAPACITE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CAPACITE.COL_FILE' | translate }}</th>
+            <th class="num">{{ 'DIRECTION.CAPACITE.COL_TAUX' | translate }}</th>
+            <th>{{ 'DIRECTION.CAPACITE.COL_STATUT' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (row of capaciteRows(); track row.centerId ?? 'total') {
+              <tr [class.total]="row.total">
+                <td>{{ row.nom ?? ('DIRECTION.TOTAL' | translate) }}</td>
+                <td class="num">{{ row.ligne.generateurs }}</td>
+                <td class="num">{{ row.ligne.generateursSecours }}</td>
+                <td class="num">{{ row.ligne.postesActifs }}</td>
+                <td class="num">{{ row.total ? '—' : row.ligne.series }}</td>
+                <td class="num"><strong>{{ row.ligne.capacite }}</strong></td>
+                <td class="num">{{ headcount(row.ligne.fileActive) }}</td>
+                <td class="num">{{ pct(row.ligne.tauxOccupation) }}</td>
+                <td>
+                  <span [class]="'capacite-badge ' + row.ligne.niveau.toLowerCase()"
+                        data-testid="direction-capacite-statut">
+                    {{ ('DIRECTION.CAPACITE.NIVEAU.' + row.ligne.niveau) | translate }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <details class="capacite-methode" data-testid="direction-capacite-methode" open>
+        <summary>{{ 'DIRECTION.CAPACITE.METHODE_TITLE' | translate }}</summary>
+        <ol>
+          <li>
+            <strong>{{ 'DIRECTION.CAPACITE.METHODE_1_TITLE' | translate }}</strong>
+            {{ 'DIRECTION.CAPACITE.METHODE_1' | translate: {regle: cap.regle.generateursParSecours} }}
+          </li>
+          <li>
+            <strong>{{ 'DIRECTION.CAPACITE.METHODE_2_TITLE' | translate }}</strong>
+            {{ 'DIRECTION.CAPACITE.METHODE_2' | translate }}
+          </li>
+          <li>
+            <strong>{{ 'DIRECTION.CAPACITE.METHODE_3_TITLE' | translate }}</strong>
+            {{ 'DIRECTION.CAPACITE.METHODE_3' | translate: {seuil: cap.regle.seuilProchePourcent} }}
+          </li>
+        </ol>
+        @if (capaciteExemple(); as ex) {
+          <p class="capacite-exemple" data-testid="direction-capacite-exemple">
+            <strong>{{ 'DIRECTION.CAPACITE.EXEMPLE' | translate: {centre: ex.nom} }}</strong>
+            {{
+              'DIRECTION.CAPACITE.EXEMPLE_CALCUL' | translate: {
+                generateurs: ex.ligne.generateurs, secours: ex.ligne.generateursSecours,
+                postes: ex.ligne.postesActifs, series: ex.ligne.series, k: ex.ligne.patientsParPosteEtSerie,
+                capacite: ex.ligne.capacite
+              }
+            }}
+          </p>
+        }
+        <p class="muted">{{ 'DIRECTION.CAPACITE.NOTE' | translate }}</p>
+      </details>
+    </mat-card>
+  }
+
   @if (store.absences(); as ab) {
     <mat-card class="block" data-testid="direction-absences">
       <h2>{{ 'DIRECTION.ABSENCES.TITLE' | translate }}</h2>

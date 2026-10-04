@@ -315,6 +315,14 @@ export class DirectionApiService {
     });
   }
 
+  /** Capacité théorique des centres et taux d'occupation de la file active sur la période, par centre et consolidés. */
+  capacite(from?: string, to?: string): Observable<CapaciteOverview> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<CapaciteOverview>(`${this.baseUrl}/direction/capacite`, {params, withCredentials: true});
+  }
+
   /** Absences de patients : motifs, valorisation HT, taux d'absentéisme et part du CA HT, par centre et consolidées. */
   absences(from?: string, to?: string): Observable<AbsencesOverview> {
     let params = new HttpParams();
@@ -464,4 +472,48 @@ export type AbsencesOverview = {
   centres: CentreAbsences[];
   motifs: MotifAbsenceStat[];
   mensuel: MoisAbsences[];
+};
+
+/** Niveau d'occupation de la capacité théorique d'un centre. */
+export type NiveauCapacite = 'SANS_CAPACITE' | 'MARGE' | 'PROCHE' | 'ATTEINTE';
+
+/**
+ * Capacité théorique d'un centre (ou totaux, `series` = 0) : `fileActive` et `tauxOccupation` sont `null` si la file
+ * active est trop faible pour être publiée (anonymat).
+ */
+export type LigneCapacite = {
+  generateurs: number;
+  generateursSecours: number;
+  postesActifs: number;
+  series: number;
+  /** Patients suivis par poste et par série (paramètre du centre) ; 0 pour les totaux. */
+  patientsParPosteEtSerie: number;
+  capacite: number;
+  fileActive: number | null;
+  tauxOccupation: number | null;
+  niveau: NiveauCapacite;
+  atteinte: boolean;
+};
+
+export type CentreCapacite = {
+  centerId: string;
+  nom: string;
+  actif: boolean;
+  capacite: LigneCapacite;
+};
+
+/** Paramètres de la méthode de calcul (fournis par le serveur pour l'expliquer à l'écran). */
+export type RegleCapacite = {
+  generateursParSecours: number;
+  seuilProchePourcent: number;
+};
+
+export type CapaciteOverview = {
+  societeId: string;
+  from: string;
+  to: string;
+  generatedAt: string;
+  regle: RegleCapacite;
+  total: LigneCapacite;
+  centres: CentreCapacite[];
 };

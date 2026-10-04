@@ -4,6 +4,11 @@ public enum SeanceStatus {
     CREE,
     VALIDEE,
     SIGNEE,
-    FACTUREE
+    FACTUREE,
+    /**
+     * Séance exclue de la facturation depuis la simulation (patient finalement absent) : elle n'est ni réalisée ni
+     * facturable et ne se valide plus.
+     */
+    ABSENT
 }
 

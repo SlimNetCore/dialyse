@@ -148,6 +148,8 @@ export interface SalleVue {
 export interface PlanningParametres {
   /** Ratio de sécurité : nombre maximal de patients par infirmier. */
   patientsParInfirmier: number;
+  /** Patients suivis par poste et par série : base du calcul de la capacité théorique (défaut 3). */
+  patientsParPosteEtSerie: number;
   joursOuverts: JourSemaine[];
   sallesIsolement: string[];
 }

@@ -220,11 +220,16 @@ class PlanningAffectationIntegrationTest {
     @Test
     void isolation_rooms_must_belong_to_the_center() {
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> parametresService.enregistrer(CENTRE, EnumSet.allOf(JourSemaine.class), Set.of(SALLE_AUTRE), 4));
+                () -> parametresService.enregistrer(CENTRE, EnumSet.allOf(JourSemaine.class), Set.of(SALLE_AUTRE), 4, 3));
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> parametresService.enregistrer(CENTRE, Set.of(), Set.of(), 4));
-        parametresService.enregistrer(CENTRE, EnumSet.of(JourSemaine.LUNDI), Set.of(SALLE), 4);
+                () -> parametresService.enregistrer(CENTRE, Set.of(), Set.of(), 4, 3));
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> parametresService.enregistrer(CENTRE, EnumSet.of(JourSemaine.LUNDI), Set.of(SALLE), 4, 0));
+        parametresService.enregistrer(CENTRE, EnumSet.of(JourSemaine.LUNDI), Set.of(SALLE), 4, 5);
         assertEquals(Set.of(SALLE), parametresService.lire(CENTRE).sallesIsolement());
+        assertEquals(5, parametresService.lire(CENTRE).patientsParPosteEtSerie(),
+                "le nombre de patients par poste et par série est paramétrable par centre");
+        assertEquals(3, parametresService.lire(AUTRE_CENTRE).patientsParPosteEtSerie(), "défaut pour un autre centre");
     }
 
     private Resultat proposer(Set<JourSemaine> jours, UUID creneau, int limite, UUID patient, Boolean isolement) {

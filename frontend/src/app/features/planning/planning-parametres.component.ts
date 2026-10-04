@@ -17,6 +17,9 @@ import {PlanningStore} from './planning.store';
 /** Ratio de sécurité par défaut (patients par infirmier) et bornes acceptées par le serveur. */
 export const RATIO_DEFAUT = 4;
 export const RATIO_MAX = 20;
+/** Patients suivis par poste et par série (capacité théorique) : défaut et maximum. */
+export const POSTE_DEFAUT = 3;
+export const POSTE_MAX = 10;
 
 /**
  * Paramétrage du planning du centre : jours où l'on dialyse, salles d'isolement réservées aux patients à risque
@@ -41,11 +44,18 @@ export class PlanningParametresComponent {
   protected readonly ratioMax = RATIO_MAX;
   protected readonly joursOuverts = signal<ReadonlySet<JourSemaine>>(new Set(JOURS_SEMAINE));
   protected readonly sallesIsolement = signal<ReadonlySet<string>>(new Set());
-  protected readonly ratioModel = signal({patientsParInfirmier: RATIO_DEFAUT});
+  protected readonly posteMax = POSTE_MAX;
+  protected readonly ratioModel = signal({
+    patientsParInfirmier: RATIO_DEFAUT,
+    patientsParPosteEtSerie: POSTE_DEFAUT,
+  });
   protected readonly ratioForm = compatForm(this.ratioModel, (form) => {
     required(form.patientsParInfirmier);
     min(form.patientsParInfirmier, 1);
     max(form.patientsParInfirmier, RATIO_MAX);
+    required(form.patientsParPosteEtSerie);
+    min(form.patientsParPosteEtSerie, 1);
+    max(form.patientsParPosteEtSerie, POSTE_MAX);
   });
   protected readonly canSave = computed(() =>
     this.joursOuverts().size > 0 && this.ratioForm().valid() && !this.store.saving());
@@ -65,7 +75,10 @@ export class PlanningParametresComponent {
       if (!p) return;
       this.joursOuverts.set(new Set(p.joursOuverts));
       this.sallesIsolement.set(new Set(p.sallesIsolement));
-      this.ratioModel.set({patientsParInfirmier: p.patientsParInfirmier});
+      this.ratioModel.set({
+        patientsParInfirmier: p.patientsParInfirmier,
+        patientsParPosteEtSerie: p.patientsParPosteEtSerie ?? POSTE_DEFAUT,
+      });
     });
   }
 
@@ -82,6 +95,7 @@ export class PlanningParametresComponent {
       joursOuverts: JOURS_SEMAINE.filter((j) => this.joursOuverts().has(j)),
       sallesIsolement: [...this.sallesIsolement()],
       patientsParInfirmier: Number(this.ratioModel().patientsParInfirmier),
+      patientsParPosteEtSerie: Number(this.ratioModel().patientsParPosteEtSerie),
     });
   }
 }

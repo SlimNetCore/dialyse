@@ -9,6 +9,7 @@ import {
   DirectionIndicators,
   DirectionOverview,
   AbsencesOverview,
+  CapaciteOverview,
   GmaoOverview,
   StockGroupesOverview,
   Snapshot,
@@ -27,6 +28,8 @@ type DirectionState = {
   stockGroupes: StockGroupesOverview | null;
   /** Absences de patients : motifs, valorisation HT, taux d'absentéisme et part du CA HT. */
   absences: AbsencesOverview | null;
+  /** Capacité théorique des centres et taux d'occupation de la file active (à la date du jour). */
+  capacite: CapaciteOverview | null;
   /** Dernière mise à jour des données (chargement ou changement reçu en temps réel). */
   updatedAt: string | null;
   /** Mois déjà figés (instantanés mensuels), du plus récent au plus ancien. */
@@ -55,6 +58,7 @@ const initialState: DirectionState = {
   gmao: null,
   stockGroupes: null,
   absences: null,
+  capacite: null,
   updatedAt: null,
   snapshots: [],
   reportBusy: null,
@@ -87,13 +91,14 @@ export const DirectionStore = signalStore(
       const seq = ++requestSeq;
       patchState(store, silent ? {} : {loading: true, error: null, from, to});
       try {
-        const [overview, indicators, breakdown, gmao, stockGroupes, absences] = await Promise.all([
+        const [overview, indicators, breakdown, gmao, stockGroupes, absences, capacite] = await Promise.all([
           firstValueFrom(api.overview(from || undefined, to || undefined)),
           firstValueFrom(api.indicators(from || undefined, to || undefined)),
           firstValueFrom(api.breakdown(from || undefined, to || undefined)),
           firstValueFrom(api.gmao(from || undefined, to || undefined)),
           firstValueFrom(api.stockGroupes(from || undefined, to || undefined)),
           firstValueFrom(api.absences(from || undefined, to || undefined)),
+          firstValueFrom(api.capacite(from || undefined, to || undefined)),
         ]);
         if (seq !== requestSeq) return;
         patchState(store, {
@@ -103,6 +108,7 @@ export const DirectionStore = signalStore(
           gmao,
           stockGroupes,
           absences,
+          capacite,
           loading: false,
           error: null,
           updatedAt: new Date().toISOString(),

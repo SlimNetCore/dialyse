@@ -1,0 +1,101 @@
+# 07 — Séances de dialyse (cahier de dialyse)
+
+> Préfixe `RG-SEA`. Sources : `Seance`, `SeanceStatus`, `SeanceDomainService`, `SeanceApplicationService`,
+> `SeanceBillingEligibilityJdbcAdapter`, `VoletParamedicalDomainService`, `VoletMedicalDomainService`,
+> `TensionArterielle`,
+> `SeanceRestController`, `VoletMedicalRestController`, `VoletParamedicalRestController`, `BonSortieService`.
+
+## 7.1 Cycle de vie
+
+- **RG-SEA-001** — Statuts d'une séance : `CREE` → `VALIDEE` (validation infirmière) → `SIGNEE` (signature médecin) →
+  `FACTUREE`
+  (facturation). Aucun retour en arrière. Statut particulier `ABSENT` : séance exclue de la facturation depuis la
+  simulation (RG-FAC-023) ; elle n'est plus validable ni facturable, ne compte pas comme réalisée et n'accepte pas de
+  volet médical.
+- **RG-SEA-002** — Une séance **facturée** ne peut plus être modifiée : date, forfait, volets paramédical et médical,
+  consommables (« La seance facturee ne peut plus etre modifiee »). L'entrée de stock liée à une séance facturée est
+  également immuable (`SEANCE_BILLED_STOCK_EXIT_IMMUTABLE`).
+- **RG-SEA-003** — Une séance appartient à un patient et à un centre ; une séance inconnue du centre : « Seance
+  introuvable ».
+
+## 7.2 Création
+
+- **RG-SEA-010** — Création : `ADMIN` ou `INFIRMIER`. Le patient doit exister dans le centre. La date par défaut est
+  aujourd'hui.
+- **RG-SEA-011** — **Le patient doit être facturable à la date de la séance** : une prise en charge au statut `VALIDEE`,
+  avec un forfait (effectif sinon demandé), dont la période (effective sinon demandée) couvre la date, **et** une
+  attestation de droits couvrant la date (« Le patient
+  doit avoir une prise en charge valide pour être facturé »). Sans cela, la séance ne se crée pas.
+- **RG-SEA-012** — Création par **scan de QR** (`ADMIN`, `INFIRMIER`, `SECRETAIRE`) : le code est résolu, dans cet
+  ordre, comme identifiant patient (UUID,
+  éventuellement après un préfixe `xxx:`), code patient, numéro d'assurance, puis par comparaison tolérante (sans
+  espace, tiret ni ponctuation) sur code
+  patient, numéro d'assurance du patient ou de l'assuré ; QR vide ou introuvable : refus explicite. Si le patient a déjà
+  une séance ce jour-là, **elle est
+  renvoyée** (pas de doublon).
+- **RG-SEA-013** — La création notifie le centre en temps réel (séance créée) ; la réponse indique le générateur affecté
+  au patient et son état (statut GMAO) pour
+  avertir l'équipe d'un générateur indisponible.
+- **RG-SEA-014** — Modification de la date d'une séance : `ADMIN` seul, interdite si facturée ; sans date, aujourd'hui.
+
+## 7.3 Validation infirmière et consommables
+
+- **RG-SEA-020** — La validation (`ADMIN`, `INFIRMIER`) fait passer la séance de `CREE` à `VALIDEE`, date la validation
+  et enregistre la signature de l'infirmier. Une
+  séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
+  statut que `CREE` : « La seance n'est pas en statut CREE ».
+- **RG-SEA-021** — À la validation, les **consommables** utilisés sont sortis du stock automatiquement : chaque ligne
+  doit désigner un article existant du centre et **actif**
+  (« Article inactif »), la quantité est prélevée sur les lots disponibles par **FEFO** (lot le plus proche de la
+  péremption d'abord) ; si le stock disponible est insuffisant,
+  la validation est refusée avec la quantité manquante (« Stock insuffisant pour l'article … »). Un **bon de sortie**
+  valorisé au PMP est créé (motif SEANCE), de façon atomique avec
+  le changement de statut.
+- **RG-SEA-022** — Retirer un consommable d'une séance (`ADMIN`, `INFIRMIER`) restitue le stock ; modifier sa quantité
+  (strictement positive) annule la sortie existante et en recrée
+  une au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.
+- **RG-SEA-023** — La date d'une sortie de stock rattachée à une séance est immuable
+  (`SEANCE_STOCK_EXIT_DATE_IMMUTABLE`).
+- **Point d'attention (RG-SEA-024)** — Valider à nouveau une séance déjà validée avec une liste de consommables retraite
+  ces consommables (nouvelle sortie) : l'idempotence ne
+  porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté serveur.
+
+## 7.4 Volets de la séance
+
+- **RG-SEA-030** — **Volet paramédical** (`ADMIN`, `INFIRMIER`, `SECRETAIRE`) : poids avant/après, tension avant/après,
+  durée, débit sang, ultrafiltration, anticoagulant, type de
+  dialysat, incidents. Les poids saisis respectent RG-TRV-032 (> 0, ≤ 500 kg). Une tension est normalisée au format
+  `systolique/diastolique` ; chaque valeur entre **20 et 400 mmHg**,
+  systolique ≥ diastolique. Enregistrement notifié ; interdit si facturée.
+- **RG-SEA-031** — **Volet médical** (`ADMIN`, `MEDECIN`) : prescription, tolérance, examen clinique, résultats
+  biologiques, ajustements thérapeutiques, conclusion. Il n'est
+  accessible **qu'après validation infirmière** (« n'est accessible qu'apres validation infirmiere ») ; interdit si
+  facturée.
+- **RG-SEA-032** — **Signature médecin** (`ADMIN`, `MEDECIN`) : uniquement après validation infirmière, une seule fois
+  (« deja signee par un medecin ») ; statut `SIGNEE`.
+- **RG-SEA-033** — Forfait de la séance : par défaut celui de la prise en charge ; l'administrateur (`ADMIN` seul —
+  l'infirmier ne le modifie pas) peut le **surcharger** par un forfait du
+  centre actif (« Forfait introuvable pour le centre actif » sinon), avec enregistrement de l'auteur et de
+  l'horodatage ; interdit si facturée.
+
+## 7.5 Consultation, journal, tableau de bord et calendrier
+
+- **RG-SEA-040** — La liste des séances est paginée et peut être filtrée par mois ; accès `ADMIN`, `INFIRMIER`,
+  `MEDECIN`, `SECRETAIRE`.
+- **RG-SEA-041** — Le **journal du jour** rassemble les patients dialysés à une date, avec leur statut, et le total des
+  articles sortis ce jour-là par code article.
+- **RG-SEA-042** — **Tableau de bord mensuel** : séances prévues = somme, sur les jours ouvrés du mois (hors fériés et
+  fermetures exceptionnelles), des patients programmés ce jour de la
+  semaine, hors patients « en sommeil » et à partir de leur date d'admission ; présences = séances créées dans le mois ;
+  **absences = max (0, prévues − présences)** ; répartition
+  par sexe (M/F/autre) et par tranche d'âge (0-17, 18-39, 40-59, 60+, inconnu) des patients présents ; détail par jour
+  de la semaine ; exports PDF, XLSX et CSV. **Point d'attention :** cet indicateur « absences » est une estimation
+  arithmétique ; le décompte qualifié et valorisé des absences est celui du suivi des absences (RG-ABS).
+- **RG-SEA-043** — Le détail du tableau de bord se demande pour `presence` ou `absence` ; toute autre valeur est refusée
+  (« kind must be 'presence' or 'absence' »).
+- **RG-SEA-044** — **Calendrier du centre** : jours fériés (libellé) et jours de fermeture exceptionnelle (motif) par
+  mois ; ajout et suppression réservés à `ADMIN`, bornés au centre.
+  Ces jours bloquent les séances prévues, les absences automatiques et le planning de la semaine. **Point
+  d'attention :** l'ajout utilise une instruction `MERGE … KEY` propre à H2 ; elle est à remplacer par une requête
+  compatible PostgreSQL (AGENTS.md §10) avant la
+  mise en production sur ce moteur, et l'unicité d'un jour férié n'est pas contrôlée.

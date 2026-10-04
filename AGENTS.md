@@ -773,3 +773,21 @@ pages, composants Angular, formulaires, onglets, tableaux, cartes, graphiques, d
   principales, et les dialogues doivent rester contenus dans le viewport.
 - Toute modification frontend doit inclure une vérification responsive automatisée ou manuelle avant livraison.
 
+# 22. Référentiel des règles de gestion — mise à jour OBLIGATOIRE
+
+Le document de référence `docs/reference/regles-de-gestion/` (voir son `README.md`) décrit **toutes** les règles de
+gestion de la plateforme. Il alimente les documentations fonctionnelle et commerciale (`docs/client`) et ne tolère
+**aucun oubli**.
+
+- **À chaque changement de spécification ou ajout de fonctionnalité**, l'agent met à jour ce référentiel **dans la même
+  tâche** : nouvelle règle (nouvel identifiant `RG-XXX-nnn`), règle modifiée (texte et
+  source), règle supprimée (mention « supprimée », identifiant conservé). Les identifiants ne sont jamais renumérotés ni
+  réutilisés.
+- Tout nouveau **code d'erreur métier** (`new BusinessException("CODE", …)`) est cité entre apostrophes inversées dans
+  un chapitre ; tout nouveau **contrôleur REST** ou toute nouvelle **tâche planifiée** est
+  ajouté à `16-annexe-tracabilite.md`. Le test `ReglesDeGestionDocumentationTest` (module `platform`) échoue sinon ; il
+  vérifie aussi l'unicité et la résolution des identifiants.
+- Un écart constaté entre le code et l'intention métier est consigné par un encart « Point d'attention » (jamais caché
+  ni corrigé silencieusement) ; la correction retire l'encart.
+- Les documents de `docs/client` sont **régénérés depuis le référentiel**, jamais corrigés à la main en premier.
+

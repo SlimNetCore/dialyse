@@ -19,6 +19,21 @@ import static org.junit.jupiter.api.Assertions.*;
 class VoletMedicalDomainServiceTest {
 
     @Test
+    void save_should_refuse_a_seance_excluded_from_billing() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID seanceId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        Seance seance = new Seance(seanceId, UUID.randomUUID(), centerId.value(), LocalDate.now());
+        seance.setStatus(SeanceStatus.ABSENT);
+        seanceRepo.save(seance);
+
+        VoletMedicalDomainService service = new VoletMedicalDomainService(seanceRepo, new InMemoryVoletRepository());
+
+        assertThrows(IllegalStateException.class,
+                () -> service.save(centerId, seanceId, "p", "t", "e", "r", "a", "c"));
+    }
+
+    @Test
     void save_should_create_medical_sheet_after_infirmier_validation() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
