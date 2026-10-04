@@ -200,6 +200,10 @@
             />
             <mat-datepicker-toggle [for]="dpEvt" matSuffix/>
             <mat-datepicker #dpEvt/>
+            @if (form.showError('dateEvenementEtat')) {
+              <mat-error data-testid="date-evenement-error">{{ form.firstError('dateEvenementEtat')! | translate }}
+              </mat-error>
+            }
           </mat-form-field>
         }
       </div>

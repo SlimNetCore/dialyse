@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.domain.patient.service.FinOccupation;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -679,6 +680,8 @@ public class SeanceRestController {
                         SELECT id,
                                date_admission,
                                en_sommeil,
+                               etat_patient,
+                               date_evenement_etat,
                                jour_lundi,
                                jour_mardi,
                                jour_mercredi,
@@ -709,11 +712,12 @@ public class SeanceRestController {
             }
             LocalDate admission = asLocalDate(readColumn(patient, "date_admission"));
             LocalDate effectiveStart = admission == null || admission.isBefore(from) ? from : admission;
-            if (effectiveStart.isAfter(to)) {
+            LocalDate effectiveEnd = derniereDateAttendue(patient, to);
+            if (effectiveStart.isAfter(effectiveEnd)) {
                 continue;
             }
             consideredPatients++;
-            for (LocalDate d = effectiveStart; !d.isAfter(to); d = d.plusDays(1)) {
+            for (LocalDate d = effectiveStart; !d.isAfter(effectiveEnd); d = d.plusDays(1)) {
                 if (blockedDates.contains(d)) {
                     continue;
                 }
@@ -830,6 +834,8 @@ public class SeanceRestController {
                                prenom,
                                date_admission,
                                en_sommeil,
+                               etat_patient,
+                               date_evenement_etat,
                                jour_lundi,
                                jour_mardi,
                                jour_mercredi,
@@ -875,9 +881,10 @@ public class SeanceRestController {
             String prenom = Objects.toString(readColumn(patient, "prenom"), "");
             LocalDate admission = asLocalDate(readColumn(patient, "date_admission"));
             LocalDate effectiveStart = admission == null || admission.isBefore(from) ? from : admission;
-            if (effectiveStart.isAfter(to)) continue;
+            LocalDate effectiveEnd = derniereDateAttendue(patient, to);
+            if (effectiveStart.isAfter(effectiveEnd)) continue;
 
-            for (LocalDate d = effectiveStart; !d.isAfter(to); d = d.plusDays(1)) {
+            for (LocalDate d = effectiveStart; !d.isAfter(effectiveEnd); d = d.plusDays(1)) {
                 if (blockedDates.contains(d)) continue;
                 if (!isPatientScheduledOn(patient, d)) continue;
 
@@ -1044,6 +1051,17 @@ public class SeanceRestController {
             // Compatible avec les environnements où les tables calendrier ne sont pas encore créées.
             return List.of();
         }
+    }
+
+    /**
+     * Dernier jour où le patient est attendu en séance dans la période : borné par la libération de sa place
+     * (transfert, décès, greffe, guérison) ; {@link LocalDate#MIN} si l'état de sortie n'a pas de date.
+     */
+    private LocalDate derniereDateAttendue(Map<String, Object> patient, LocalDate to) {
+        LocalDate fin = FinOccupation.dernierJourOccupe(
+                (String) readColumn(patient, "etat_patient"),
+                asLocalDate(readColumn(patient, "date_evenement_etat"))).orElse(to);
+        return fin.isBefore(to) ? fin : to;
     }
 
     private boolean isPatientScheduledOn(Map<String, Object> patient, LocalDate date) {

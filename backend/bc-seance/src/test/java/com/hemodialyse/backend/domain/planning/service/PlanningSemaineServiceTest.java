@@ -88,6 +88,28 @@ class PlanningSemaineServiceTest {
     }
 
     @Test
+    void should_free_the_place_after_the_exit_date_and_announce_the_release_date() {
+        UUID sorti = patient("Sorti");
+        LocalDate dernierJour = DIMANCHE.plusDays(3);   // mercredi
+        SemainePlanning s = semaine(
+                List.of(new Occupation(sorti, SALLE.id(), MATIN.id(), G1.id(), LMV, false, dernierJour)),
+                EnumSet.allOf(JourSemaine.class), Set.of(), List.of(), List.of(G1, G2));
+
+        assertEquals(1, cellule(s, SALLE, JourSemaine.LUNDI).occupants().size());
+        assertEquals(1, cellule(s, SALLE, JourSemaine.MERCREDI).occupants().size());
+        assertTrue(cellule(s, SALLE, JourSemaine.VENDREDI).occupants().isEmpty());
+        assertEquals(dernierJour.plusDays(1), cellule(s, SALLE, JourSemaine.LUNDI).occupants().get(0).libereLe());
+    }
+
+    @Test
+    void should_not_announce_any_release_for_a_patient_without_exit_date() {
+        SemainePlanning s = semaine(List.of(occupation(patient("Actif"), SALLE, G1, false, LMV)),
+                EnumSet.allOf(JourSemaine.class), Set.of(), List.of(), List.of(G1, G2));
+
+        assertNull(cellule(s, SALLE, JourSemaine.LUNDI).occupants().get(0).libereLe());
+    }
+
+    @Test
     void should_detect_a_double_booked_generator_and_an_overloaded_room() {
         SemainePlanning s = semaine(
                 List.of(occupation(patient("A"), SALLE, G1, false, EnumSet.of(JourSemaine.LUNDI)),

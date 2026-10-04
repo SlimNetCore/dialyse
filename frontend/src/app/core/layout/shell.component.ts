@@ -117,7 +117,9 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/patients', label: 'Dashboard patients', icon: 'space_dashboard', doctor: true},
         {route: '/patients/new', label: 'Nouveau patient', icon: 'person_add'},
         {route: '/patients/pec-list', label: 'Liste PEC', icon: 'fact_check'},
-        {route: '/patients/attestations-list', label: 'Attestations', icon: 'badge'},],
+        {route: '/patients/attestations-list', label: 'Attestations', icon: 'badge'},
+        {route: '/patients/mouvements', label: 'NAV.MOUVEMENTS_PATIENTS', icon: 'swap_horiz'},
+      ],
     },
     {
       key: 'seances',
@@ -341,6 +343,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
       absences: 'NAV.INFIRMIERS_ABSENCES',
       'absences-patients': 'NAV.ABSENCES_PATIENTS',
+      mouvements: 'NAV.MOUVEMENTS_PATIENTS',
       salles: 'NAV.SALLES_GENERATEURS',
       charge: 'NAV.INFIRMIERS_CHARGE',
       moi: 'NAV.INFIRMIERS_MOI',

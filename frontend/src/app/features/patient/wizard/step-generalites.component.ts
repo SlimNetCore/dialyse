@@ -33,6 +33,9 @@ const PATIENT_STATES_WITH_EVENT_DATE = new Set([
   'GUERRI',
 ]);
 
+/** États de sortie : la date de l'évènement est obligatoire. */
+const PATIENT_EXIT_STATES = new Set(['TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI']);
+
 interface GeneralitesModel {
   civilite: string;
   nom: string;
@@ -197,7 +200,7 @@ export class StepGeneralitesComponent implements OnChanges {
       case 'OCCASIONNEL':
       case 'VACANCIER_LOCAL':
       case 'VACANCIER_ETRANGER':
-        return 'PATIENT_FORM.DATE_SORTIE';
+        return 'PATIENT_FORM.DATE_FIN_SEJOUR';
       case 'GREFFE':
         return 'PATIENT_FORM.DATE_GREFFE';
       case 'GUERRI':
@@ -256,6 +259,14 @@ export class StepGeneralitesComponent implements OnChanges {
     if (!PATIENT_STATES_WITH_EVENT_DATE.has(etat)) {
       this.form.set('dateEvenementEtat', null);
     }
+    this.applyEventDateRule(etat);
+    this.emit();
+  }
+
+  onDateEvenement(value: Date | null): void {
+    if (this.readonly) return;
+    this.form.set('dateEvenementEtat', value);
+    this.form.markTouched('dateEvenementEtat');
     this.emit();
   }
 
@@ -270,43 +281,6 @@ export class StepGeneralitesComponent implements OnChanges {
     this.form.set(key, value);
     this.form.markTouched(key);
     this.emit();
-  }
-
-  onDateEvenement(value: Date | null): void {
-    if (this.readonly) return;
-    this.form.set('dateEvenementEtat', value);
-    this.emit();
-  }
-
-  onQualiteAssure(value: string): void {
-    if (this.readonly) return;
-    this.form.set('qualiteAssure', value);
-    this.emit();
-  }
-
-  markTouched(): void {
-    this.form.markAllTouched();
-  }
-
-  onPhoto(event: Event): void {
-    if (this.readonly) return;
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.photoPreview.set(reader.result as string);
-      this.dataChange.emit({...this.form.value(), photoBase64: reader.result});
-    };
-    reader.readAsDataURL(file);
-  }
-
-  openMedicalRecord(): void {
-    if (!this.canAccessMedicalRecord() || !this.hasPatientId) return;
-    this.openMedicalRecordRequested.emit();
-  }
-
-  isValid(): boolean {
-    return this.form.valid();
   }
 
   patchData(data: Record<string, any>): void {
@@ -340,8 +314,49 @@ export class StepGeneralitesComponent implements OnChanges {
       observation: data['observation'] ?? '',
     });
     if (data['photoBase64']) this.photoPreview.set(data['photoBase64']);
+    this.applyEventDateRule(etat);
     this.validChange.emit(this.form.valid());
     this.applyReadonly();
+  }
+
+  onQualiteAssure(value: string): void {
+    if (this.readonly) return;
+    this.form.set('qualiteAssure', value);
+    this.emit();
+  }
+
+  markTouched(): void {
+    this.form.markAllTouched();
+  }
+
+  onPhoto(event: Event): void {
+    if (this.readonly) return;
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.photoPreview.set(reader.result as string);
+      this.dataChange.emit({...this.form.value(), photoBase64: reader.result});
+    };
+    reader.readAsDataURL(file);
+  }
+
+  openMedicalRecord(): void {
+    if (!this.canAccessMedicalRecord() || !this.hasPatientId) return;
+    this.openMedicalRecordRequested.emit();
+  }
+
+  isValid(): boolean {
+    return this.form.valid();
+  }
+
+  /** Un état de sortie (transfert, décès, greffe, guérison) exige la date de l'évènement (RG-PAT-031). */
+  private applyEventDateRule(etat: string): void {
+    if (PATIENT_EXIT_STATES.has(etat)) {
+      this.form.setValidators('dateEvenementEtat', [requiredValidator('PATIENT_FORM.DATE_EVENEMENT_REQUISE')]);
+    } else {
+      this.form.clearValidators('dateEvenementEtat');
+    }
   }
 
   private emit(): void {

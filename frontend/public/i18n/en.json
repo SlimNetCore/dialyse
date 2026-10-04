@@ -1436,6 +1436,8 @@
     "ETAT_PATIENT": "Patient status",
     "DATE_EVENEMENT_ETAT": "Event date",
     "DATE_SORTIE": "Discharge date",
+    "DATE_FIN_SEJOUR": "End of stay date",
+    "DATE_EVENEMENT_REQUISE": "The event date is required for this status",
     "DATE_GREFFE": "Transplant date",
     "DATE_GUERISON": "Recovery date",
     "DATE_DECES": "Date of death",
@@ -2033,6 +2035,7 @@
       "SEMAINE_DU": "Week of {{debut}} to {{fin}}",
       "FERME": "Closed",
       "RISQUE": "Patient at infectious risk",
+      "LIBERE_LE": "The place is freed on {{date}} (patient discharge)",
       "EMPTY_ROWS": "No room or time slot is configured for this center.",
       "A_REPLANIFIER": "{{count}} patient(s) to reschedule: they are placed on a closed day.",
       "CONFLITS_TITLE": "Conflicts",
@@ -2053,6 +2056,7 @@
         "GENERATEUR": "Generator",
         "AUCUN": "Not assigned",
         "ISOLEMENT": "Isolation",
+        "LIBERATION": "Place freed on",
         "FICHE": "Patient record",
         "DOSSIER": "Medical file",
         "ABSENCE": "Absence at this session",
@@ -2375,6 +2379,33 @@
       "GROUPE_ARTICLE_INTROUVABLE": "Group not found"
     }
   },
+  "MOUVEMENTS": {
+    "TITLE": "Patient movements",
+    "SUBTITLE": "Admissions, stays, transfers, deaths, grafts, cures and release of the center's places",
+    "TYPE": "Movement type",
+    "ALL": "All",
+    "FROM": "From",
+    "TO": "To",
+    "APPLY": "Filter",
+    "RESET": "Reset",
+    "DATE_EFFET": "Effective date",
+    "PATIENT": "Patient",
+    "ETAT": "Status",
+    "AFFECTATION": "Place occupied",
+    "AUTOMATIQUE": "Automatic",
+    "EMPTY": "No movement for these criteria.",
+    "ERR_LOAD": "Unable to load the movements.",
+    "TYPES": {
+      "ADMISSION": "Admission",
+      "SEJOUR_TEMPORAIRE": "Temporary stay",
+      "REPRISE": "Back to permanent",
+      "TRANSFERT": "Transfer",
+      "DECES": "Death",
+      "GREFFE": "Graft",
+      "GUERISON": "Cure",
+      "PLACE_LIBEREE": "Place released"
+    }
+  },
   "ABSENCES": {
     "TITLE": "Patient absences",
     "SUBTITLE": "Missed sessions tracking: automatic detection, declaration, qualification by a reason and make-up. Each absence is valued at the forfait of the coverage.",
@@ -2460,6 +2491,7 @@
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "Article groups",
     "ABSENCES_PATIENTS": "Patient absences",
+    "MOUVEMENTS_PATIENTS": "Patient movements",
     "SALLES_GENERATEURS": "Rooms and generators",
     "ADMIN_PLANNING": "Center planning",
     "PLANNING_SEMAINE": "Weekly planning",

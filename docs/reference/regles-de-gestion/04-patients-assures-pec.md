@@ -20,7 +20,7 @@
 - **RG-PAT-005** — État du patient : `PERMANENT` (défaut à la création), `OCCASIONNEL`, `TRANSFERE`, `DECEDE`, `GREFFE`,
   `GUERRI`, `VACANCIER_LOCAL`, `VACANCIER_ETRANGER`, avec une date de l'évènement d'état. À la modification, l'état
   fourni
-  remplace l'état courant ; non fourni, l'état courant est conservé.
+  remplace l'état courant ; non fourni, l'état courant est conservé. Sens et obligation de la date : RG-PAT-030/031.
 - **RG-PAT-006** — Type de patient dérivé de l'état : `VACANCIER` si l'état est `VACANCIER_LOCAL` ou
   `VACANCIER_ETRANGER`,
   sinon `NON_VACANCIER`.
@@ -60,6 +60,34 @@
 - **RG-PAT-016** — Les affectations de jours/salles saisies dans l'assistant sont verrouillées côté interface
   lorsqu'elles
   dépendent du planning ; seul le planificateur les modifie (voir chapitre planification).
+
+### Situation du patient, date d'évènement et mouvements
+
+- **RG-PAT-030** — La **date d'évènement** (`dateEvenementEtat`) a un sens propre à l'état : pour `TRANSFERE`,
+  `DECEDE`, `GREFFE` et `GUERRI`, c'est la **date de sortie** (transfert, décès, greffe, guérison) ; pour `OCCASIONNEL`,
+  `VACANCIER_LOCAL` et `VACANCIER_ETRANGER`, c'est la **date de fin de séjour** (dernier jour inclus), le séjour
+  commençant à la date d'admission ; pour `PERMANENT`, elle n'existe pas.
+- **RG-PAT-031** — À la création comme à la modification, un état de sortie **exige une date d'évènement**
+  (`PATIENT_DATE_EVENEMENT_REQUISE`) et aucune date d'évènement ne peut précéder la date d'admission
+  (`PATIENT_DATE_EVENEMENT_AVANT_ADMISSION`). La date de fin d'un séjour limité reste facultative (séjour non borné).
+- **RG-PAT-032** — **Dernier jour d'occupation de la place** : `TRANSFERE` et `GUERRI` = la date d'évènement incluse
+  (dernière séance) ; `DECEDE` et `GREFFE` = la veille de la date d'évènement (le patient ne dialyse plus ce jour-là) ;
+  séjour limité = la date de fin de séjour incluse ; un état de sortie sans date libère la place immédiatement ;
+  `PERMANENT` n'a pas de limite. Cette règle unique alimente le planning (RG-PLN-010, 040), la charge des infirmiers
+  (RG-INF-040), les séances attendues (RG-ABS-041, RG-SEA-042) et la libération des places (RG-PAT-033).
+- **RG-PAT-033** — **Libération effective de la place** : lorsque le dernier jour d'occupation est dépassé, la fiche
+  perd sa salle, son créneau, son générateur et ses jours de dialyse ; le patient reste dans le centre (consultation,
+  facturation, historique). Le traitement s'exécute chaque nuit à 04:00 (après le contrôle des absences de 02:30, qui a
+  encore besoin des jours de dialyse de la veille) et à l'enregistrement d'une fiche dont l'échéance est dépassée de
+  plus d'un jour. Il est idempotent, par centre, et vide les caches de liste et de synthèse patient.
+- **RG-PAT-034** — **Mouvements de patients** : chaque admission, changement d'état ou de date d'évènement et chaque
+  libération de place produit un mouvement immuable (`ADMISSION`, `SEJOUR_TEMPORAIRE`, `REPRISE`, `TRANSFERT`,
+  `DECES`, `GREFFE`, `GUERISON`, `PLACE_LIBEREE`) portant l'état précédent et nouveau, la date d'effet et
+  l' **affectation occupée à cet instant** (salle, créneau, générateur, jours). Un mouvement n'est jamais modifié ni
+  supprimé ; la libération automatique est marquée comme telle.
+- **RG-PAT-035** — Le suivi des mouvements est consultable en **liste paginée** (page 0, taille 20 par défaut,
+  100 maximum), du plus récent au plus ancien, filtrable par patient, type et période de date d'effet, **limitée au
+  centre courant**, pour les profils `ADMIN`, `SECRETAIRE`, `MEDECIN` et `INFIRMIER`.
 
 ## 4.2 Liste, recherche, synthèse
 

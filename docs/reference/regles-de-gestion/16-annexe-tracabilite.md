@@ -27,6 +27,7 @@
 | `ModeleDocumentTemplateRestController`   | `/api/v1/documents/modeles/{id}`                    | `ADMIN`, `SUPERADMIN`                                            | RG-DOC-003, 004                    |
 | `PatientRestController`                  | `/api/v1/patients`                                  | lecture tous profils de centre, écriture hors médecin « seul »   | RG-PAT-001 à 024, RG-ASS-001 à 008 |
 | `PatientStatsRestController`             | `/api/v1/patients/.../stats`                        | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` (export `ADMIN`)   | RG-MED-101                         |
+| `MouvementPatientRestController`         | `/api/v1/mouvements-patients`                       | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                    | RG-PAT-034, 035                    |
 | `PecRestController`                      | `/api/v1/pec`                                       | profils de centre (validation `ADMIN`)                           | RG-ATT-001 à 004, RG-PEC-001 à 010 |
 | `DashboardRestController`                | `/api/v1/dashboard`                                 | profils de centre                                                | RG-PEC-010                         |
 | `SeanceRestController`                   | `/api/v1/seances`                                   | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` selon l'action     | RG-SEA-001 à 044                   |
@@ -96,5 +97,6 @@
 | `DirectionSnapshotScheduler`      | 02:30 le 1er du mois                 | RG-DIR-090             |
 | `ExpirationAlertScheduler`        | 07:00 chaque jour                    | RG-STK-061             |
 | `LicenseOnlineCheckJob`           | 03:15 chaque jour                    | RG-SEC-032             |
+| `LiberationPlacesScheduler`       | 04:00 chaque jour                    | RG-PAT-033             |
 | `ObservancePrescriptionScheduler` | 06:30 chaque jour                    | RG-MED-073             |
 | `PresenceInfirmierScheduler`      | 07:15 chaque jour                    | RG-INF-046             |

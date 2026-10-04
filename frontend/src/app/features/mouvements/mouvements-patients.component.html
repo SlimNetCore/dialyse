@@ -1,0 +1,113 @@
+<section class="mvt-page">
+  <header class="mvt-head">
+    <h1>{{ 'MOUVEMENTS.TITLE' | translate }}</h1>
+    <p class="mvt-sub">{{ 'MOUVEMENTS.SUBTITLE' | translate }}</p>
+  </header>
+
+  @if (store.error()) {
+    <p class="mvt-error" data-testid="mvt-error" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  <mat-card>
+    <mat-card-content>
+      <form (submit)="applyFilters(); $event.preventDefault()" class="mvt-filters">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'MOUVEMENTS.TYPE' | translate }}</mat-label>
+          <mat-select [formField]="filtersForm.type" data-testid="mvt-filter-type">
+            <mat-option value="">{{ 'MOUVEMENTS.ALL' | translate }}</mat-option>
+            @for (t of types; track t) {
+              <mat-option [value]="t">{{ ('MOUVEMENTS.TYPES.' + t) | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'MOUVEMENTS.FROM' | translate }}</mat-label>
+          <input [formField]="filtersForm.from" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'MOUVEMENTS.TO' | translate }}</mat-label>
+          <input [formField]="filtersForm.to" matInput type="date"/>
+        </mat-form-field>
+        <div class="mvt-actions">
+          <button data-testid="mvt-filter-apply" mat-stroked-button type="submit">
+            <mat-icon>filter_alt</mat-icon>
+            {{ 'MOUVEMENTS.APPLY' | translate }}
+          </button>
+          <button (click)="resetFilters()" mat-button type="button">{{ 'MOUVEMENTS.RESET' | translate }}</button>
+        </div>
+      </form>
+
+      <div class="mvt-table-scroll">
+        <table [dataSource]="store.rows()" class="mvt-table" data-testid="mvt-table" mat-table>
+          <ng-container matColumnDef="date">
+            <th *matHeaderCellDef mat-header-cell>{{ 'MOUVEMENTS.DATE_EFFET' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.dateEffet | date: 'dd/MM/yyyy' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="patient">
+            <th *matHeaderCellDef mat-header-cell>{{ 'MOUVEMENTS.PATIENT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              {{ row.patientNom }}
+              <small class="mvt-sub mvt-block">{{ row.patientCode }}</small>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="type">
+            <th *matHeaderCellDef mat-header-cell>{{ 'MOUVEMENTS.TYPE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span [class]="'mvt-badge ' + row.type.toLowerCase()">
+                {{ ('MOUVEMENTS.TYPES.' + row.type) | translate }}
+              </span>
+              @if (row.automatique) {
+                <small class="mvt-sub mvt-block">{{ 'MOUVEMENTS.AUTOMATIQUE' | translate }}</small>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="etat">
+            <th *matHeaderCellDef mat-header-cell>{{ 'MOUVEMENTS.ETAT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              @if (row.etatPrecedent && row.etatPrecedent !== row.etatNouveau) {
+                {{ ('PATIENT_FORM.' + row.etatPrecedent) | translate }}
+                <mat-icon class="mvt-arrow">arrow_forward</mat-icon>
+              }
+              @if (row.etatNouveau) {
+                {{ ('PATIENT_FORM.' + row.etatNouveau) | translate }}
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="affectation">
+            <th *matHeaderCellDef mat-header-cell>{{ 'MOUVEMENTS.AFFECTATION' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              @if (row.salle || row.creneau || row.generateur) {
+                {{ row.salle }}
+                @if (row.creneau) {
+                  · {{ row.creneau }}
+                }
+                @if (row.generateur) {
+                  · {{ row.generateur }}
+                }
+                <small class="mvt-sub mvt-block">
+                  @for (j of jours(row.joursDialyse); track j; let last = $last) {
+                    {{ ('PATIENT_FORM.' + j) | translate }}@if (!last) {
+                      ,
+                    }
+                  }
+                </small>
+              } @else {
+                <span class="mvt-sub">—</span>
+              }
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="columns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: columns" mat-row></tr>
+        </table>
+      </div>
+      @if (store.isEmpty() && !store.loading()) {
+        <p class="mvt-sub" data-testid="mvt-empty">{{ 'MOUVEMENTS.EMPTY' | translate }}</p>
+      }
+      <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
+    </mat-card-content>
+  </mat-card>
+</section>

@@ -172,6 +172,16 @@ class PecDomainServiceTest {
         public long countByCenter(CenterId centerId) {
             return byId.values().stream().filter(p -> p.getCenterId().equals(centerId)).count();
         }
+
+        @Override
+        public List<Patient> findWithAssignment(CenterId centerId) {
+            return byId.values().stream().filter(p -> p.getCenterId().equals(centerId) && p.getSalleId() != null).toList();
+        }
+
+        @Override
+        public List<CenterId> findCentersWithAssignments() {
+            return byId.values().stream().filter(p -> p.getSalleId() != null).map(Patient::getCenterId).distinct().toList();
+        }
     }
 
     private record InMemoryAttestationRepository(boolean valid) implements AttestationRepositoryPort {

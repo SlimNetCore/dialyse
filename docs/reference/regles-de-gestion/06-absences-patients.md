@@ -80,7 +80,10 @@
   les autres.
 - **RG-ABS-041** — Un patient est **attendu** un jour donné si : le jour de la semaine est coché sur sa fiche, il n'est
   pas « en sommeil », sa date
-  d'admission n'est pas postérieure, le centre n'est pas fermé ce jour (férié ou fermeture exceptionnelle) et il n'a
+  d'admission n'est pas postérieure, sa place n'est pas libérée (patient transféré ou guéri : attendu jusqu'à la date de
+  l'évènement incluse ; décédé ou greffé : plus attendu à cette date ; séjour occasionnel ou vacancier : attendu jusqu'à
+  la fin de séjour incluse ; état de sortie sans date : plus attendu, cf. RG-PAT-032), le centre n'est pas fermé ce jour
+  (férié ou fermeture exceptionnelle) et il n'a
   aucune séance réalisée ce jour.
 - **RG-ABS-042** — La détection est **idempotente** : aucune absence n'est créée si une absence existe déjà (même
   annulée) ou si la période est facturée.

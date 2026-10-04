@@ -126,6 +126,36 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
+    void does_not_expect_an_exited_patient_once_the_place_is_freed() {
+        sortir("DECEDE", jour);
+        assertEquals(0, service.detecter(C1, jour), "décédé le jour même : plus attendu");
+
+        sortir("DECEDE", jour.plusDays(1));
+        assertEquals(1, service.detecter(C1, jour), "décédé le lendemain : encore attendu ce jour-là");
+    }
+
+    @Test
+    void expects_a_transferred_patient_through_the_transfer_date_only() {
+        sortir("TRANSFERE", jour);
+        assertEquals(1, service.detecter(C1, jour), "transféré le jour même : dernière séance attendue");
+
+        jdbc.update("DELETE FROM absence_patient WHERE center_id = ?", C1);
+        sortir("TRANSFERE", jour.minusDays(1));
+        assertEquals(0, service.detecter(C1, jour), "transféré la veille : plus attendu");
+    }
+
+    @Test
+    void does_not_expect_an_exited_patient_without_event_date() {
+        sortir("GREFFE", null);
+        assertEquals(0, service.detecter(C1, jour));
+    }
+
+    private void sortir(String etat, LocalDate dateEvenement) {
+        jdbc.update("UPDATE patients SET etat_patient = ?, date_evenement_etat = ? WHERE id = ?", etat,
+                dateEvenement == null ? null : Date.valueOf(dateEvenement), absent);
+    }
+
+    @Test
     void a_validated_billing_period_closes_the_absences_of_that_patient() {
         service.detecter(C1, jour);
         UUID id = service.lister(C1, AbsenceFiltre.aucun(), 0, 20).items().get(0).absence().id();

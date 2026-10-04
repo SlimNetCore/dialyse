@@ -78,8 +78,11 @@ public final class PlanningSemaineService {
             GenerateurRef g = o.generateurId() == null ? null : generateurs.get(o.generateurId());
             OccupantPlanning occupant = new OccupantPlanning(
                     o.patientId(), donnees.nomsPatients().getOrDefault(o.patientId(), ""),
-                    g == null ? null : g.code(), o.aRisque());
+                    g == null ? null : g.code(), o.aRisque(),
+                    o.dernierJour() == null ? null : o.dernierJour().plusDays(1));
             for (JourSemaine jour : o.jours()) {
+                // place déjà libérée ce jour-là (patient sorti à une date passée dans la semaine)
+                if (!o.occupeLe(debut.plusDays(jour.ordinal()))) continue;
                 String key = key(o.salleId(), o.creneauId(), jour);
                 occupants.computeIfAbsent(key, k -> new ArrayList<>()).add(occupant);
                 occupationsParCellule.computeIfAbsent(key, k -> new ArrayList<>()).add(o);

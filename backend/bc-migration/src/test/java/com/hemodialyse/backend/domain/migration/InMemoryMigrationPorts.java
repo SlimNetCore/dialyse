@@ -167,6 +167,16 @@ final class InMemoryMigrationPorts {
         public long countByCenter(CenterId centerId) {
             return findAllByCenter(centerId).size();
         }
+
+        @Override
+        public List<Patient> findWithAssignment(CenterId centerId) {
+            return findAllByCenter(centerId).stream().filter(p -> p.getSalleId() != null).toList();
+        }
+
+        @Override
+        public List<CenterId> findCentersWithAssignments() {
+            return List.of();
+        }
     }
 
     static final class Assures implements AssureRepositoryPort {

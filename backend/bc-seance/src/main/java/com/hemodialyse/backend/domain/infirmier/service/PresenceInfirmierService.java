@@ -51,7 +51,7 @@ public final class PresenceInfirmierService {
         Set<UUID> isolement = planning.sallesIsolement() == null ? Set.of() : planning.sallesIsolement();
         Map<UUID, InfirmierRef> infirmiers = new HashMap<>();
         donnees.infirmiers().forEach(i -> infirmiers.put(i.id(), i));
-        Map<String, Integer> patients = patientsParCase(planning.occupations());
+        Map<String, Integer> patients = patientsParCase(planning.occupations(), debut);
 
         List<JourPlanning> jours = new ArrayList<>();
         Set<JourSemaine> ouverts = planning.joursOuverts();
@@ -199,10 +199,15 @@ public final class PresenceInfirmierService {
                 .filter(a -> a.infirmierId().equals(infirmierId) && a.couvre(date)).findFirst();
     }
 
-    private static Map<String, Integer> patientsParCase(List<Occupation> occupations) {
+    /**
+     * Patients par case de la semaine commençant à {@code debut} : un patient sorti (transfert, décès, greffe,
+     * guérison) ne compte plus à partir de la date de libération de sa place.
+     */
+    private static Map<String, Integer> patientsParCase(List<Occupation> occupations, LocalDate debut) {
         Map<String, Integer> parCase = new HashMap<>();
         for (Occupation o : occupations) {
             for (JourSemaine jour : o.jours()) {
+                if (!o.occupeLe(debut.plusDays(jour.ordinal()))) continue;
                 parCase.merge(cle(o.salleId(), o.creneauId(), jour), 1, Integer::sum);
             }
         }

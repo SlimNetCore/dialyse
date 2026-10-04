@@ -4,6 +4,8 @@ import com.hemodialyse.backend.domain.gmao.model.Equipement;
 import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
 import com.hemodialyse.backend.domain.gmao.model.TypeEquipement;
 import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,6 +31,8 @@ import java.util.UUID;
 @Component
 public class GenerateurMigrationRunner implements CommandLineRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(GenerateurMigrationRunner.class);
+
     private final JdbcTemplate jdbc;
     private final EquipementRepositoryPort equipementRepository;
 
@@ -44,11 +48,30 @@ public class GenerateurMigrationRunner implements CommandLineRunner {
             if (equipementRepository.existsById(id)) {
                 continue;
             }
-            equipementRepository.save(toEquipement(row, id));
+            try {
+                equipementRepository.save(toEquipement(row, id, createur((UUID) row.get("center_id"))));
+            } catch (RuntimeException e) {
+                // ne jamais empêcher le démarrage : la migration est reprise au prochain démarrage (idempotente)
+                log.warn("[GMAO] Migration du générateur {} impossible pour l'instant : {}", id, e.getMessage());
+            }
         }
     }
 
-    private Equipement toEquipement(Map<String, Object> row, UUID id) {
+    /**
+     * Utilisateur référencé comme créateur (clé étrangère vers {@code app_user} en PostgreSQL) : un utilisateur du
+     * centre, à défaut n'importe quel utilisateur ; l'identifiant nul n'est qu'un repli pour une base sans utilisateur
+     * (la contrainte rejette alors l'insertion, reprise au démarrage suivant).
+     */
+    private UUID createur(UUID centerId) {
+        List<UUID> ids = jdbc.query("SELECT user_id FROM app_user_center WHERE center_id = ? ORDER BY user_id LIMIT 1",
+                (rs, i) -> rs.getObject(1, UUID.class), centerId);
+        if (ids.isEmpty()) {
+            ids = jdbc.query("SELECT id FROM app_user ORDER BY username LIMIT 1", (rs, i) -> rs.getObject(1, UUID.class));
+        }
+        return ids.isEmpty() ? new UUID(0, 0) : ids.getFirst();
+    }
+
+    private Equipement toEquipement(Map<String, Object> row, UUID id, UUID creePar) {
         String numero = (String) row.get("numero");
         return Equipement.reconstruct(
                 id,
@@ -65,7 +88,7 @@ public class GenerateurMigrationRunner implements CommandLineRunner {
                 "Migré automatiquement depuis l'ancien référentiel \"generateur\"",
                 OffsetDateTime.now(ZoneOffset.UTC),
                 null,
-                new UUID(0, 0),
+                creePar,
                 null,
                 (UUID) row.get("salle_id"),
                 null

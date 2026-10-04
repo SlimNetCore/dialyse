@@ -8,6 +8,12 @@
         <small>{{ o.generateurCode }}</small>
       }
     </button>
+    @if (o.libereLe) {
+      <mat-icon [matTooltip]="'PLANNING.SEMAINE.LIBERE_LE' | translate: {date: (o.libereLe | date: 'dd/MM/yyyy')}"
+                class="chip-ico" data-testid="week-libere">
+        logout
+      </mat-icon>
+    }
     @if (realisee(o.patientId, jour)) {
       <mat-icon [matTooltip]="'PLANNING.SEMAINE.SEANCE_VALIDEE' | translate" class="chip-sun"
                 data-testid="week-validee">

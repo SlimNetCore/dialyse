@@ -91,6 +91,8 @@ export interface OccupantPlanning {
   nom: string;
   generateurCode: string | null;
   aRisque: boolean;
+  /** Premier jour où la place est libérée (transfert, décès, greffe, guérison daté), sinon null. */
+  libereLe?: string | null;
 }
 
 export interface CellulePlanning {

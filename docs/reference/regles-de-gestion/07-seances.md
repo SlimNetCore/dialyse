@@ -86,7 +86,8 @@
   articles sortis ce jour-là par code article.
 - **RG-SEA-042** — **Tableau de bord mensuel** : séances prévues = somme, sur les jours ouvrés du mois (hors fériés et
   fermetures exceptionnelles), des patients programmés ce jour de la
-  semaine, hors patients « en sommeil » et à partir de leur date d'admission ; présences = séances créées dans le mois ;
+  semaine, hors patients « en sommeil », à partir de leur date d'admission et jusqu'à la libération de leur place
+  (transfert, décès, greffe, guérison, fin de séjour : RG-PAT-032) ; présences = séances créées dans le mois ;
   **absences = max (0, prévues − présences)** ; répartition
   par sexe (M/F/autre) et par tranche d'âge (0-17, 18-39, 40-59, 60+, inconnu) des patients présents ; détail par jour
   de la semaine ; exports PDF, XLSX et CSV. **Point d'attention :** cet indicateur « absences » est une estimation

@@ -72,6 +72,16 @@ public class PatientRepositoryAdapter implements PatientRepositoryPort {
     }
 
     @Override
+    public List<Patient> findWithAssignment(CenterId centerId) {
+        return jpa.findWithAssignment(centerId.value()).stream().map(PatientMapper::toDomain).toList();
+    }
+
+    @Override
+    public List<CenterId> findCentersWithAssignments() {
+        return jpa.findCenterIdsWithAssignment().stream().map(CenterId::of).toList();
+    }
+
+    @Override
     @Cacheable(cacheNames = "patient.countByCenter", key = "#centerId.value().toString()")
     public long countByCenter(CenterId centerId) {
         return jpa.countByCenterId(centerId.value());

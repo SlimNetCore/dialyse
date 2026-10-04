@@ -119,6 +119,17 @@ public class Patient {
         return p;
     }
 
+    /**
+     * Libère la place du patient : plus de salle, de créneau, de générateur ni de jours de dialyse. Le patient reste
+     * dans le centre (consultation, facturation, historique) mais n'occupe plus aucune place du planning.
+     */
+    public void libererPlacement() {
+        this.salleId = null;
+        this.positionId = null;
+        this.generateurId = null;
+        this.joursDialyse = JoursDialyse.none();
+    }
+
     // ═══ Getters ═══
     public PatientId getId() { return id; }
     public CenterId getCenterId() { return centerId; }

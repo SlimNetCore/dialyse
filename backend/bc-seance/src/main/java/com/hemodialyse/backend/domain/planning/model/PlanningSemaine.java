@@ -45,7 +45,14 @@ public final class PlanningSemaine {
         }
     }
 
-    public record OccupantPlanning(UUID patientId, String nom, String generateurCode, boolean aRisque) {
+    /**
+     * @param libereLe premier jour où la place est libérée (transfert, décès, greffe ou guérison daté), sinon null
+     */
+    public record OccupantPlanning(UUID patientId, String nom, String generateurCode, boolean aRisque,
+                                   LocalDate libereLe) {
+        public OccupantPlanning(UUID patientId, String nom, String generateurCode, boolean aRisque) {
+            this(patientId, nom, generateurCode, aRisque, null);
+        }
     }
 
     public record CellulePlanning(UUID salleId, UUID creneauId, JourSemaine jour, int capacite,

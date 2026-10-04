@@ -1432,6 +1432,8 @@
     "ETAT_PATIENT": "Addad n umdan",
     "DATE_EVENEMENT_ETAT": "Azemz n tedyant",
     "DATE_SORTIE": "Azemz n tuffɣa",
+    "DATE_FIN_SEJOUR": "Azemz n taggara n unagar",
+    "DATE_EVENEMENT_REQUISE": "Azemz n tedyant yewwi-d i wannuz-agi",
     "DATE_GREFFE": "Azemz n ugraf",
     "DATE_GUERISON": "Azemz n ujji",
     "DATE_DECES": "Azemz n tmettant",
@@ -1673,6 +1675,7 @@
       "SEMAINE_DU": "Imalas seg {{debut}} ɣer {{fin}}",
       "FERME": "Yeɣlaq",
       "RISQUE": "Anebdal yesɛan ugur n uɣessu",
+      "LIBERE_LE": "Adig ad yettwafsi ass n {{date}} (tuffɣa n unelmad)",
       "EMPTY_ROWS": "Ulac taxxamt neɣ asmel yettwasbadun i uɣallis-agi.",
       "A_REPLANIFIER": "{{count}} n yinebdalen ilaqen ad ttwaɛiwen: llan deg wass yeɣlaq.",
       "CONFLITS_TITLE": "Isenfal",
@@ -1693,6 +1696,7 @@
         "GENERATEUR": "Asmal",
         "AUCUN": "Ur yettwafren ara",
         "ISOLEMENT": "Asuffeɣ",
+        "LIBERATION": "Adig yettwafsi ass n",
         "FICHE": "Afaylu n unelmad",
         "DOSSIER": "Afaylu unabaḍ",
         "ABSENCE": "Tamettant deg uɣimi-a",
@@ -2015,6 +2019,33 @@
       "GROUPE_ARTICLE_INTROUVABLE": "Agraw ulac-it"
     }
   },
+  "MOUVEMENTS": {
+    "TITLE": "Tikli n yinelmaden",
+    "SUBTITLE": "Tuqqna, imezwura, tuzzya, tmettant, tuɣeṛsa, tifawt d usnefli n yidgan n uɣallis",
+    "TYPE": "Anaw n tikli",
+    "ALL": "Akk",
+    "FROM": "Seg",
+    "TO": "Ɣer",
+    "APPLY": "Sizdeg",
+    "RESET": "Wennez",
+    "DATE_EFFET": "Azemz n usnas",
+    "PATIENT": "Anelmad",
+    "ETAT": "Addad",
+    "AFFECTATION": "Adig yettwawṛen",
+    "AUTOMATIQUE": "Awurman",
+    "EMPTY": "Ulac tikli i yiɣewwaren-agi.",
+    "ERR_LOAD": "Ur izmir ara ad d-yali wawal n tikli.",
+    "TYPES": {
+      "ADMISSION": "Tuqqna",
+      "SEJOUR_TEMPORAIRE": "Anagar amaẓẓal",
+      "REPRISE": "Tuɣalin ɣer unaṣli",
+      "TRANSFERT": "Tuzzya",
+      "DECES": "Tamettant",
+      "GREFFE": "Tuɣeṛsa",
+      "GUERISON": "Tifawt",
+      "PLACE_LIBEREE": "Adig yettwafsi"
+    }
+  },
   "ABSENCES": {
     "TITLE": "Tamettant n yinelmaden",
     "SUBTITLE": "Aḍfar n yiɣimen i d-yeffɣen: tifin tawurmant, asnulfu, tasbaduyt s ssebba akked usmuttel. Yal tamettant tettwaḥseb s uforfet n usenned.",
@@ -2100,6 +2131,7 @@
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "Igrawen n yimsalen",
     "ABSENCES_PATIENTS": "Tamettant n yinelmaden",
+    "MOUVEMENTS_PATIENTS": "Tikli n yinelmaden",
     "SALLES_GENERATEURS": "Tixxamin d yismalen",
     "ADMIN_PLANNING": "Amuddu n uɣallis",
     "PLANNING_SEMAINE": "Amuddu n yimalas",

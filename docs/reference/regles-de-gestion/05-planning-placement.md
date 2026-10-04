@@ -26,9 +26,15 @@
 
 - **RG-PLN-010** — Un patient occupe une place dès que sa fiche porte une salle, un créneau (position) et au moins un
   jour de
-  dialyse. Les patients **transférés, décédés, greffés ou guéris** ne tiennent plus de place ; un patient **en sommeil**
-  garde la
-  sienne (évite un double placement à son retour).
+  dialyse. Les patients **transférés, décédés, greffés ou guéris** ne tiennent plus de place **à partir de la date de
+  l'évènement** (`date_evenement_etat`) : le patient transféré ou guéri garde sa place **jusqu'à cette date incluse**
+  (dernière séance), le patient décédé ou greffé la libère **à cette date** (dernier jour occupé = la veille). Sans date
+  d'évènement, la place est libérée immédiatement. Un séjour **occasionnel ou vacancier** occupe la place **de la date
+  d'admission à la date de fin de séjour incluse** (sans date de fin : non borné) ; l'état permanent n'a pas de limite
+  (règle détaillée RG-PAT-032). Une fois l'échéance dépassée, la fiche perd son affectation (RG-PAT-033). Un patient
+  **en sommeil** garde sa place (évite un double placement à son retour). Les propositions de placement restent
+  prudentes : une place dont la libération est future, ou dont le séjour n'a pas encore commencé, reste considérée comme
+  occupée.
 - **RG-PLN-011** — Seuls les générateurs **en service** (statut GMAO `EN_SERVICE`, non supprimés) de type générateur de
   dialyse,
   rattachés à une salle du centre, sont disponibles. Un générateur en maintenance, en attente de pièce, hors service,
@@ -94,7 +100,10 @@
 
 - **RG-PLN-040** — Le planning d'une semaine liste, par salle, créneau et jour, les patients présents (nom, générateur,
   risque) et la
-  capacité (nulle un jour fermé). Les jours fermés (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont
+  capacité (nulle un jour fermé). Un patient dont la place est libérée à une date de la semaine (RG-PLN-010) n'apparaît
+  plus à partir de cette date (de même qu'un séjour avant sa date d'admission) et porte l'indication « place libérée le
+  jj/mm/aaaa » (infobulle de la grille et détail du
+  patient). Les jours fermés (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont
   signalés avec leur
   motif.
 - **RG-PLN-041** — Conflits détectés automatiquement : `GENERATEUR_DOUBLE` (générateur réservé deux fois),

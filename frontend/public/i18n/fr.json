@@ -1436,6 +1436,8 @@
     "ETAT_PATIENT": "État du patient",
     "DATE_EVENEMENT_ETAT": "Date de l'événement",
     "DATE_SORTIE": "Date de sortie",
+    "DATE_FIN_SEJOUR": "Date de fin de séjour",
+    "DATE_EVENEMENT_REQUISE": "La date de l'évènement est obligatoire pour cet état",
     "DATE_GREFFE": "Date de la greffe",
     "DATE_GUERISON": "Date de guérison",
     "DATE_DECES": "Date du décès",
@@ -2033,6 +2035,7 @@
       "SEMAINE_DU": "Semaine du {{debut}} au {{fin}}",
       "FERME": "Fermé",
       "RISQUE": "Patient à risque infectieux",
+      "LIBERE_LE": "La place est libérée le {{date}} (sortie du patient)",
       "EMPTY_ROWS": "Aucune salle ou aucun créneau n'est configuré pour ce centre.",
       "A_REPLANIFIER": "{{count}} patient(s) à replanifier : ils sont placés sur un jour fermé.",
       "CONFLITS_TITLE": "Conflits",
@@ -2053,6 +2056,7 @@
         "GENERATEUR": "Générateur",
         "AUCUN": "Non attribué",
         "ISOLEMENT": "Isolement",
+        "LIBERATION": "Place libérée le",
         "FICHE": "Fiche patient",
         "DOSSIER": "Dossier médical",
         "ABSENCE": "Absence à cette séance",
@@ -2375,6 +2379,33 @@
       "GROUPE_ARTICLE_INTROUVABLE": "Groupe introuvable"
     }
   },
+  "MOUVEMENTS": {
+    "TITLE": "Mouvements des patients",
+    "SUBTITLE": "Admissions, séjours, transferts, décès, greffes, guérisons et libération des places du centre",
+    "TYPE": "Type de mouvement",
+    "ALL": "Tous",
+    "FROM": "Du",
+    "TO": "Au",
+    "APPLY": "Filtrer",
+    "RESET": "Réinitialiser",
+    "DATE_EFFET": "Date d'effet",
+    "PATIENT": "Patient",
+    "ETAT": "État",
+    "AFFECTATION": "Affectation occupée",
+    "AUTOMATIQUE": "Automatique",
+    "EMPTY": "Aucun mouvement pour ces critères.",
+    "ERR_LOAD": "Impossible de charger les mouvements.",
+    "TYPES": {
+      "ADMISSION": "Admission",
+      "SEJOUR_TEMPORAIRE": "Séjour temporaire",
+      "REPRISE": "Retour en permanent",
+      "TRANSFERT": "Transfert",
+      "DECES": "Décès",
+      "GREFFE": "Greffe",
+      "GUERISON": "Guérison",
+      "PLACE_LIBEREE": "Place libérée"
+    }
+  },
   "ABSENCES": {
     "TITLE": "Absences des patients",
     "SUBTITLE": "Suivi des séances manquées : détection automatique, déclaration, qualification par un motif et rattrapage. Chaque absence est valorisée au forfait de la prise en charge.",
@@ -2460,6 +2491,7 @@
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "Groupes d'articles",
     "ABSENCES_PATIENTS": "Absences des patients",
+    "MOUVEMENTS_PATIENTS": "Mouvements des patients",
     "SALLES_GENERATEURS": "Salles et générateurs",
     "ADMIN_PLANNING": "Planning du centre",
     "PLANNING_SEMAINE": "Planning de la semaine",

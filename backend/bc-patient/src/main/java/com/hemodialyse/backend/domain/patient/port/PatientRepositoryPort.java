@@ -19,5 +19,15 @@ public interface PatientRepositoryPort {
     Optional<Patient> findByNumeroAssurance(CenterId centerId, String numeroAssurance);
     List<Patient> findAllByCenter(CenterId centerId);
     long countByCenter(CenterId centerId);
+
+    /**
+     * Patients du centre qui portent encore une affectation (salle, créneau ou générateur).
+     */
+    List<Patient> findWithAssignment(CenterId centerId);
+
+    /**
+     * Centres qui comptent au moins un patient affecté (traitement de libération des places).
+     */
+    List<CenterId> findCentersWithAssignments();
 }
 

@@ -55,12 +55,31 @@ public final class Planning {
     /**
      * Placement existant d'un patient actif ; {@code generateurId} peut être inconnu (le patient occupe alors
      * une place de la salle sans générateur précis). {@code aRisque} : sérologie positive (VHB, VHC, VIH) imposant
-     * l'isolement.
+     * l'isolement. {@code dernierJour} : dernier jour où la place est occupée (patient transféré, décédé, greffé ou
+     * guéri, fin de séjour d'un vacancier) ; nul = occupée sans limite. {@code premierJour} : date d'admission, la place
+     * n'est occupée qu'à partir de ce jour ; nul = déjà occupée.
      */
     public record Occupation(UUID patientId, UUID salleId, UUID creneauId, UUID generateurId, Set<JourSemaine> jours,
-                             boolean aRisque) {
+                             boolean aRisque, LocalDate dernierJour, LocalDate premierJour) {
+        public Occupation(UUID patientId, UUID salleId, UUID creneauId, UUID generateurId, Set<JourSemaine> jours,
+                          boolean aRisque, LocalDate dernierJour) {
+            this(patientId, salleId, creneauId, generateurId, jours, aRisque, dernierJour, null);
+        }
+
+        public Occupation(UUID patientId, UUID salleId, UUID creneauId, UUID generateurId, Set<JourSemaine> jours,
+                          boolean aRisque) {
+            this(patientId, salleId, creneauId, generateurId, jours, aRisque, null, null);
+        }
+
         public Occupation(UUID patientId, UUID salleId, UUID creneauId, UUID generateurId, Set<JourSemaine> jours) {
-            this(patientId, salleId, creneauId, generateurId, jours, false);
+            this(patientId, salleId, creneauId, generateurId, jours, false, null, null);
+        }
+
+        /**
+         * La place est-elle occupée à cette date (séjour commencé et non terminé) ?
+         */
+        public boolean occupeLe(LocalDate date) {
+            return (premierJour == null || !date.isBefore(premierJour)) && (dernierJour == null || !date.isAfter(dernierJour));
         }
     }
 

@@ -7,8 +7,11 @@ import com.hemodialyse.backend.domain.assure.port.AssureRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.model.AttestationDroit;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.patient.model.Patient;
+import com.hemodialyse.backend.domain.patient.port.MouvementPatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.port.PatientUseCase;
+import com.hemodialyse.backend.domain.patient.service.FinOccupation;
+import com.hemodialyse.backend.domain.patient.service.MouvementsPatient;
 import com.hemodialyse.backend.domain.patient.service.PatientDomainService;
 import com.hemodialyse.backend.domain.patient.vo.AssureInfo;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
@@ -18,8 +21,10 @@ import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,24 +49,32 @@ public class PatientApplicationService implements PatientUseCase {
     private final PecRepositoryPort pecRepo;
     private final AssureRepositoryPort assureRepo;
     private final AssurePatientRepositoryPort assurePatientRepo;
+    private final MouvementPatientRepositoryPort mouvementRepo;
+    private final LiberationPlacesService liberationPlaces;
 
     public PatientApplicationService(PatientRepositoryPort patientRepo,
                                      AttestationRepositoryPort attestationRepo,
                                      PecRepositoryPort pecRepo,
                                      AssureRepositoryPort assureRepo,
-                                     AssurePatientRepositoryPort assurePatientRepo) {
+                                     AssurePatientRepositoryPort assurePatientRepo,
+                                     MouvementPatientRepositoryPort mouvementRepo,
+                                     LiberationPlacesService liberationPlaces) {
         this.patientRepo = patientRepo;
         this.attestationRepo = attestationRepo;
         this.pecRepo = pecRepo;
         this.assureRepo = assureRepo;
         this.assurePatientRepo = assurePatientRepo;
+        this.mouvementRepo = mouvementRepo;
+        this.liberationPlaces = liberationPlaces;
         this.delegate = new PatientDomainService(patientRepo);
     }
 
     @Override
     public Patient createPatient(CenterId centerId, CreatePatientCommand cmd) {
+        FinOccupation.verifierDate(cmd.etatPatient(), cmd.dateEvenementEtat(), cmd.dateAdmission());
         Patient saved = delegate.createPatient(centerId, cmd);
         syncAssureRelation(saved, cmd, centerId);
+        mouvementRepo.save(MouvementsPatient.admission(saved, Instant.now()));
 
         if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
             attestationRepo.save(new AttestationDroit(
@@ -87,6 +100,10 @@ public class PatientApplicationService implements PatientUseCase {
         Patient current = patientRepo.findById(PatientId.of(patientId), centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient introuvable"));
         String etat = cmd.etatPatient() != null ? cmd.etatPatient() : current.getEtatPatient();
+        // état et date d'évènement avant enregistrement (la fiche en cache peut être modifiée par le domaine)
+        String etatAvant = current.getEtatPatient();
+        LocalDate dateAvant = current.getDateEvenementEtat();
+        FinOccupation.verifierDate(etat, cmd.dateEvenementEtat(), cmd.dateAdmission());
         boolean isVacancier = "VACANCIER_LOCAL".equals(etat) || "VACANCIER_ETRANGER".equals(etat);
         if (!isVacancier && (cmd.attestationDebut() == null || cmd.attestationFin() == null)) {
             var existingAtt = attestationRepo.findByPatient(centerId, patientId);
@@ -97,6 +114,9 @@ public class PatientApplicationService implements PatientUseCase {
 
         Patient saved = delegate.updatePatient(centerId, patientId, cmd);
         syncAssureRelation(saved, cmd, centerId);
+        MouvementsPatient.changementEtat(saved, etatAvant, dateAvant, LocalDate.now(ZoneOffset.UTC), Instant.now())
+                .ifPresent(mouvementRepo::save);
+        liberationPlaces.libererALEnregistrement(saved);
 
         if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
             UUID attId = cmd.attestationId() != null ? cmd.attestationId() : UUID.randomUUID();

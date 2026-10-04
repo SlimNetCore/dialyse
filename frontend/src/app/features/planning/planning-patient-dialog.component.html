@@ -9,6 +9,10 @@
     <dd>{{ data.creneauLibelle }}</dd>
     <dt>{{ 'PLANNING.SEMAINE.DETAIL.GENERATEUR' | translate }}</dt>
     <dd>{{ data.occupant.generateurCode ?? ('PLANNING.SEMAINE.DETAIL.AUCUN' | translate) }}</dd>
+    @if (data.occupant.libereLe) {
+      <dt>{{ 'PLANNING.SEMAINE.DETAIL.LIBERATION' | translate }}</dt>
+      <dd data-testid="ppd-libere">{{ data.occupant.libereLe | date: 'dd/MM/yyyy' }}</dd>
+    }
     @if (data.occupant.aRisque) {
       <dt>{{ 'PLANNING.SEMAINE.DETAIL.ISOLEMENT' | translate }}</dt>
       <dd class="ppd-risk">{{ 'PLANNING.SEMAINE.RISQUE' | translate }}</dd>

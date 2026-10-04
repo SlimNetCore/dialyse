@@ -1296,6 +1296,8 @@
     "ETAT_PATIENT": "حالة المريض",
     "DATE_EVENEMENT_ETAT": "تاريخ الحدث",
     "DATE_SORTIE": "تاريخ الخروج",
+    "DATE_FIN_SEJOUR": "تاريخ نهاية الإقامة",
+    "DATE_EVENEMENT_REQUISE": "تاريخ الحدث إلزامي لهذه الحالة",
     "DATE_GREFFE": "تاريخ الزرع",
     "DATE_GUERISON": "تاريخ الشفاء",
     "DATE_DECES": "تاريخ الوفاة",
@@ -1887,6 +1889,7 @@
       "SEMAINE_DU": "أسبوع من {{debut}} إلى {{fin}}",
       "FERME": "مغلق",
       "RISQUE": "مريض معرّض لخطر العدوى",
+      "LIBERE_LE": "يُخلى المكان بتاريخ {{date}} (خروج المريض)",
       "EMPTY_ROWS": "لم تُحدَّد أي قاعة أو فترة لهذا المركز.",
       "A_REPLANIFIER": "{{count}} مريض(ة) يجب إعادة جدولتهم: موضوعون في يوم مغلق.",
       "CONFLITS_TITLE": "التعارضات",
@@ -1907,6 +1910,7 @@
         "GENERATEUR": "الجهاز",
         "AUCUN": "غير مخصص",
         "ISOLEMENT": "العزل",
+        "LIBERATION": "يُخلى المكان بتاريخ",
         "FICHE": "ملف المريض",
         "DOSSIER": "الملف الطبي",
         "ABSENCE": "الغياب في هذه الحصة",
@@ -2229,6 +2233,33 @@
       "GROUPE_ARTICLE_INTROUVABLE": "المجموعة غير موجودة"
     }
   },
+  "MOUVEMENTS": {
+    "TITLE": "حركات المرضى",
+    "SUBTITLE": "القبول والإقامات والتحويلات والوفيات والزرع والشفاء وتحرير أماكن المركز",
+    "TYPE": "نوع الحركة",
+    "ALL": "الكل",
+    "FROM": "من",
+    "TO": "إلى",
+    "APPLY": "تصفية",
+    "RESET": "إعادة تعيين",
+    "DATE_EFFET": "تاريخ السريان",
+    "PATIENT": "المريض",
+    "ETAT": "الحالة",
+    "AFFECTATION": "المكان المشغول",
+    "AUTOMATIQUE": "تلقائي",
+    "EMPTY": "لا توجد حركات وفق هذه المعايير.",
+    "ERR_LOAD": "تعذّر تحميل الحركات.",
+    "TYPES": {
+      "ADMISSION": "قبول",
+      "SEJOUR_TEMPORAIRE": "إقامة مؤقتة",
+      "REPRISE": "العودة إلى الدائم",
+      "TRANSFERT": "تحويل",
+      "DECES": "وفاة",
+      "GREFFE": "زرع",
+      "GUERISON": "شفاء",
+      "PLACE_LIBEREE": "تحرير المكان"
+    }
+  },
   "ABSENCES": {
     "TITLE": "غيابات المرضى",
     "SUBTITLE": "متابعة الحصص الفائتة: كشف تلقائي، تصريح، تحديد السبب والتعويض. تُقيَّم كل غيابة وفق جزافية التكفل.",
@@ -2314,6 +2345,7 @@
   "NAV": {
     "ADMIN_GROUPES_ARTICLES": "مجموعات المواد",
     "ABSENCES_PATIENTS": "غيابات المرضى",
+    "MOUVEMENTS_PATIENTS": "حركات المرضى",
     "SALLES_GENERATEURS": "القاعات والأجهزة",
     "ADMIN_PLANNING": "مخطط المركز",
     "PLANNING_SEMAINE": "مخطط الأسبوع",

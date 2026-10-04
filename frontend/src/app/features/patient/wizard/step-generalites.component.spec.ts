@@ -41,7 +41,7 @@ describe('StepGeneralitesComponent (signal forms)', () => {
 
     component.onEtatPatientChange('VACANCIER_LOCAL');
     expect(component.showDateEvenement()).toBe(true);
-    expect(component.dateEvenementLabelKey()).toBe('PATIENT_FORM.DATE_SORTIE');
+    expect(component.dateEvenementLabelKey()).toBe('PATIENT_FORM.DATE_FIN_SEJOUR');
 
     component.onEtatPatientChange('GREFFE');
     expect(component.showDateEvenement()).toBe(true);
@@ -116,5 +116,71 @@ describe('StepGeneralitesComponent (signal forms)', () => {
     expect(component.form.get('sexe')).toBe('M');
     expect(component.isValid()).toBe(true);
     expect(validSpy).toHaveBeenLastCalledWith(true);
+  });
+
+  describe('date d’évènement obligatoire pour un état de sortie (RG-PAT-031)', () => {
+    const base = {
+      nom: 'Dupont', prenom: 'Jean', sexe: 'M', dateAdmission: '2026-01-10', dateNaissance: '1990-01-01',
+    };
+
+    it.each(['TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI'])('%s sans date rend le formulaire invalide', (etat) => {
+      const fixture = TestBed.createComponent(StepGeneralitesComponent);
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+      const validSpy = vi.fn();
+      component.validChange.subscribe(validSpy);
+      component.patchData({...base, etatPatient: 'PERMANENT'});
+
+      component.onEtatPatientChange(etat);
+
+      expect(component.isValid()).toBe(false);
+      expect(component.form.firstError('dateEvenementEtat')).toBe('PATIENT_FORM.DATE_EVENEMENT_REQUISE');
+      expect(validSpy).toHaveBeenLastCalledWith(false);
+    });
+
+    it('devient valide une fois la date saisie', () => {
+      const fixture = TestBed.createComponent(StepGeneralitesComponent);
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+      component.patchData({...base, etatPatient: 'PERMANENT'});
+      component.onEtatPatientChange('DECEDE');
+
+      component.onDateEvenement(new Date(2026, 8, 20));
+
+      expect(component.isValid()).toBe(true);
+    });
+
+    it('la fin de séjour d’un vacancier reste facultative', () => {
+      const fixture = TestBed.createComponent(StepGeneralitesComponent);
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+      component.patchData({...base, etatPatient: 'PERMANENT'});
+
+      component.onEtatPatientChange('VACANCIER_LOCAL');
+
+      expect(component.isValid()).toBe(true);
+    });
+
+    it('revenir à l’état permanent supprime l’obligation', () => {
+      const fixture = TestBed.createComponent(StepGeneralitesComponent);
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+      component.patchData({...base, etatPatient: 'PERMANENT'});
+      component.onEtatPatientChange('TRANSFERE');
+
+      component.onEtatPatientChange('PERMANENT');
+
+      expect(component.isValid()).toBe(true);
+    });
+
+    it('un patient chargé en état de sortie sans date est signalé invalide', () => {
+      const fixture = TestBed.createComponent(StepGeneralitesComponent);
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+
+      component.patchData({...base, etatPatient: 'TRANSFERE'});
+
+      expect(component.isValid()).toBe(false);
+    });
   });
 });

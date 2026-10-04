@@ -46,9 +46,19 @@ public class AbsenceDonneesJdbcAdapter implements AbsenceDonneesPort {
         if (fermes != null && fermes > 0) return List.of();
         return jdbc.query("SELECT p.id FROM patients p WHERE p.center_id = ? AND p." + colonneJour(date.getDayOfWeek())
                         + " = TRUE AND COALESCE(p.en_sommeil, FALSE) = FALSE AND p.date_admission <= ? "
+                        // patient sorti (transfert, décès, greffe, guérison) : plus attendu à partir de la libération
+                        // de sa place (cf. FinOccupation) ; sans date d'évènement, il n'est plus attendu du tout
+                        + "AND (p.etat_patient IS NULL "
+                        + "OR p.etat_patient NOT IN ('TRANSFERE','DECEDE','GREFFE','GUERRI','OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER') "
+                        // séjour limité (occasionnel, vacancier) : attendu jusqu'à la fin de séjour incluse
+                        + "OR (p.etat_patient IN ('OCCASIONNEL','VACANCIER_LOCAL','VACANCIER_ETRANGER') "
+                        + "AND (p.date_evenement_etat IS NULL OR ? <= p.date_evenement_etat)) "
+                        + "OR (p.date_evenement_etat IS NOT NULL AND ((p.etat_patient IN ('DECEDE','GREFFE') "
+                        + "AND ? < p.date_evenement_etat) OR (p.etat_patient IN ('TRANSFERE','GUERRI') "
+                        + "AND ? <= p.date_evenement_etat)))) "
                         + "AND NOT EXISTS (SELECT 1 FROM seances s WHERE s.center_id = p.center_id AND s.patient_id = p.id "
                         + "AND s.date_seance = ? AND " + SEANCE_REALISEE + ") ORDER BY p.id",
-                (rs, i) -> rs.getObject(1, UUID.class), centerId, jour, jour);
+                (rs, i) -> rs.getObject(1, UUID.class), centerId, jour, jour, jour, jour, jour);
     }
 
     @Override

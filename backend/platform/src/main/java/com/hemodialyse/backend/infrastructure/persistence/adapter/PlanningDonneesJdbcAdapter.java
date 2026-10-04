@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
+import com.hemodialyse.backend.domain.patient.service.FinOccupation;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.Planning.CreneauRef;
 import com.hemodialyse.backend.domain.planning.model.Planning.DonneesPlanning;
@@ -46,9 +47,6 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
      */
     static final int HORIZON_FERMETURES_JOURS = 90;
 
-    private static final String PATIENTS_ACTIFS =
-            "(etat_patient IS NULL OR etat_patient NOT IN ('TRANSFERE', 'DECEDE', 'GREFFE', 'GUERRI'))";
-
     /**
      * Patients dont la dernière sérologie d'au moins un marqueur à risque est positive.
      */
@@ -80,8 +78,7 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
         LocalDate fin = debutSemaine.plusDays(6);
         DonneesPlanning planning = construire(centerId, null, debutSemaine, fin);
         Map<UUID, String> noms = new HashMap<>();
-        jdbc.query("SELECT id, nom, prenom FROM patients WHERE center_id = ? AND salle_id IS NOT NULL AND "
-                        + PATIENTS_ACTIFS,
+        jdbc.query("SELECT id, nom, prenom FROM patients WHERE center_id = ? AND salle_id IS NOT NULL",
                 rs -> {
                     noms.put(rs.getObject("id", UUID.class),
                             (rs.getString("prenom") + " " + rs.getString("nom")).trim());
@@ -133,9 +130,12 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
         Set<UUID> aRisque = new HashSet<>(jdbc.query(PATIENTS_A_RISQUE,
                 (rs, i) -> rs.getObject("patient_id", UUID.class), centerId));
 
-        String sql = "SELECT id, salle_id, position_id, generateur_id, jour_dimanche, jour_lundi, jour_mardi, "
+        // Patients sortis (transfert, décès, greffe, guérison) : ils gardent leur place jusqu'à la date de
+        // l'évènement (FinOccupation) ; la place est libre dès que ce dernier jour est antérieur à la période lue.
+        String sql = "SELECT id, salle_id, position_id, generateur_id, etat_patient, date_evenement_etat, date_admission, "
+                + "jour_dimanche, jour_lundi, jour_mardi, "
                 + "jour_mercredi, jour_jeudi, jour_vendredi, jour_samedi FROM patients "
-                + "WHERE center_id = ? AND salle_id IS NOT NULL AND position_id IS NOT NULL AND " + PATIENTS_ACTIFS
+                + "WHERE center_id = ? AND salle_id IS NOT NULL AND position_id IS NOT NULL"
                 + (patientAIgnorer != null ? " AND id <> ?" : "");
         Object[] args = patientAIgnorer != null ? new Object[]{centerId, patientAIgnorer} : new Object[]{centerId};
         List<Occupation> occupations = new ArrayList<>(jdbc.query(sql, (rs, i) -> {
@@ -144,11 +144,17 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
                 if (rs.getBoolean("jour_" + jour.name().toLowerCase(Locale.ROOT))) jours.add(jour);
             }
             UUID patientId = rs.getObject("id", UUID.class);
+            Date evenement = rs.getDate("date_evenement_etat");
+            LocalDate dernierJour = FinOccupation.dernierJourOccupe(rs.getString("etat_patient"),
+                    evenement == null ? null : evenement.toLocalDate()).orElse(null);
+            Date admission = rs.getDate("date_admission");
             return new Occupation(patientId, rs.getObject("salle_id", UUID.class),
                     rs.getObject("position_id", UUID.class), rs.getObject("generateur_id", UUID.class), jours,
-                    aRisque.contains(patientId));
+                    aRisque.contains(patientId), dernierJour, admission == null ? null : admission.toLocalDate());
         }, args));
-        occupations.removeIf(o -> o.jours().isEmpty());
+        // place déjà libérée au début de la période ; un séjour pas encore commencé reste compté (prudence)
+        occupations.removeIf(o -> o.jours().isEmpty()
+                || (o.dernierJour() != null && fermeturesDu.isAfter(o.dernierJour())));
 
         PlanningParametres params = parametres.lire(centerId);
         return new DonneesPlanning(salles, creneaux, generateurs, occupations, params.joursOuverts(),
