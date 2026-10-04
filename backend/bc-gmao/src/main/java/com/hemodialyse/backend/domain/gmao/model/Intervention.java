@@ -186,10 +186,13 @@ public class Intervention {
             throw new IllegalStateException("Seule une intervention planifiée peut être démarrée");
         }
         // La date/heure de début reste celle saisie dans la fiche d'intervention.
+        // Un seul horodatage : la modification coïncide avec le démarrage (sinon la chronologie afficherait
+        // un évènement « modifiée » parasite sur une horloge à résolution fine).
+        OffsetDateTime maintenant = OffsetDateTime.now(ZoneOffset.UTC);
         this.statut = StatutIntervention.EN_COURS;
-        this.demarreLe = OffsetDateTime.now(ZoneOffset.UTC);
+        this.demarreLe = maintenant;
         this.demarrePar = parUtilisateur;
-        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
+        this.dateModification = maintenant;
         this.modifiePar = parUtilisateur;
     }
 
@@ -221,14 +224,15 @@ public class Intervention {
             throw new IllegalArgumentException("La date de fin doit être postérieure à la date de début");
         }
 
+        OffsetDateTime maintenant = OffsetDateTime.now(ZoneOffset.UTC);
         this.etatEquipementApres = etatEquipementApres;
         this.statut = StatutIntervention.TERMINEE;
         this.dateFin = dateFin;
         this.actions = actions;
         this.cause = blankToNull(cause);
-        this.clotureLe = OffsetDateTime.now(ZoneOffset.UTC);
+        this.clotureLe = maintenant;
         this.cloturePar = parUtilisateur;
-        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
+        this.dateModification = maintenant;
         this.modifiePar = parUtilisateur;
     }
 
@@ -247,11 +251,12 @@ public class Intervention {
         if (this.statut == StatutIntervention.TERMINEE) {
             throw new IllegalStateException("Une intervention terminée ne peut pas être annulée");
         }
+        OffsetDateTime maintenant = OffsetDateTime.now(ZoneOffset.UTC);
         this.statut = StatutIntervention.ANNULEE;
         this.observations = (this.observations != null ? this.observations + "; " : "") + "Annulée: " + raison;
-        this.annuleLe = OffsetDateTime.now(ZoneOffset.UTC);
+        this.annuleLe = maintenant;
         this.annulePar = parUtilisateur;
-        this.dateModification = OffsetDateTime.now(ZoneOffset.UTC);
+        this.dateModification = maintenant;
         this.modifiePar = parUtilisateur;
     }
 
