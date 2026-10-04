@@ -2449,6 +2449,9 @@
     "EMPTY": "Ulac taselkent yettwafi"
   },
   "CAHIER": {
+    "PRINT_BOOK": "Siggez aɣmis",
+    "PRINT_PAGE": "Siggez asebter-agi",
+    "PRINT_ERROR": "Ur izmir ara ad yettwasiggez uɣmis n usizdeg.",
     "TITLE": "Amkanik n dializ",
     "PATIENT": "Amdan",
     "DATE": "Azemz",

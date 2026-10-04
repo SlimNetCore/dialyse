@@ -17,6 +17,7 @@ public final class ModeleDocumentCatalog {
     public static final String INVENTAIRE_STOCK = "INVENTAIRE_STOCK";
     public static final String BON_INTERVENTION = "BON_INTERVENTION";
     public static final String PLANNING_PRESENCE_INFIRMIERS = "PLANNING_PRESENCE_INFIRMIERS";
+    public static final String CAHIER_DIALYSE = "CAHIER_DIALYSE";
     private static final List<Entry> ENTRIES = List.of(
             new Entry("FICHE_PATIENT", "Fiche signalétique patient", "reports/fiche_patient.jrxml",
                     "Fiche complète du patient avec ses informations personnelles et médicales"),
@@ -41,7 +42,10 @@ public final class ModeleDocumentCatalog {
                     "Bon d'intervention de maintenance : équipement, période, états, travaux, coûts, signatures"),
             new Entry(PLANNING_PRESENCE_INFIRMIERS, "Planning de présence des infirmiers",
                     "reports/planning_presence_infirmiers.jrxml",
-                    "Présence des infirmiers sur une semaine : créneau, salle, absences et remplaçants"));
+                    "Présence des infirmiers sur une semaine : créneau, salle, absences et remplaçants"),
+            new Entry(CAHIER_DIALYSE, "Cahier de dialyse", "reports/cahier_dialyse.jrxml",
+                    "Cahier de dialyse d'un patient : une page par séance (paramédical, consommables valorisés, "
+                            + "dossier et prescription médicale)"));
 
     private ModeleDocumentCatalog() {
     }

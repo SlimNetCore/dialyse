@@ -2809,6 +2809,9 @@
     "EMPTY": "Aucune attestation trouvée"
   },
   "CAHIER": {
+    "PRINT_BOOK": "Imprimer le cahier",
+    "PRINT_PAGE": "Imprimer cette page",
+    "PRINT_ERROR": "Impossible d'imprimer le cahier de dialyse.",
     "TITLE": "Cahier de dialyse",
     "PATIENT": "Patient",
     "DATE": "Date",

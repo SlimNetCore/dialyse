@@ -15,8 +15,10 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {TranslateModule} from '@ngx-translate/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BackendApiService, SeanceListItem, SeanceSummary} from '../../../core/api/backend-api.service';
+import {openPdf} from '../../stock/inventaire/inventaire.util';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {CahierStepParamedicalComponent} from './cahier-step-paramedical.component';
 import {CahierStepMedicalComponent} from './cahier-step-medical.component';
@@ -54,7 +56,10 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
   private readonly route = inject(ActivatedRoute);
   readonly patientId = this.route.snapshot.paramMap.get('id') ?? '';
 
+  readonly printing = signal(false);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private readonly appShell = inject(AppShellStore);
   private readonly api = inject(BackendApiService);
 
@@ -144,6 +149,22 @@ export class CahierDialyseComponent implements AfterViewInit, OnInit {
 
   goBack(): void {
     this.router.navigate(['/patients']);
+  }
+
+  /** Imprime tout le cahier (une page par séance réalisée) ou, avec `pageSeule`, la séance affichée. */
+  async imprimer(pageSeule: boolean): Promise<void> {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId || !this.patientId || !this.hasSeances()) return;
+    const date = pageSeule ? this.selectedSeanceDate() : null;
+    this.printing.set(true);
+    const error = await openPdf(
+      this.api.printCahierDialyse(centerId, this.patientId, date ?? undefined, date ?? undefined),
+      `cahier-dialyse-${this.patientId.slice(0, 8)}.pdf`,
+    );
+    this.printing.set(false);
+    if (error !== null) {
+      this.snackBar.open(error || this.translate.instant('CAHIER.PRINT_ERROR'), 'OK', {duration: 7000});
+    }
   }
 
   private loadSeanceBook(): void {

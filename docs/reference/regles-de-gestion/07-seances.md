@@ -103,3 +103,20 @@
   d'attention :** l'ajout utilise une instruction `MERGE … KEY` propre à H2 ; elle est à remplacer par une requête
   compatible PostgreSQL (AGENTS.md §10) avant la
   mise en production sur ce moteur, et l'unicité d'un jour férié n'est pas contrôlée.
+
+## 7.6 Impression du cahier de dialyse
+
+- **RG-SEA-045** — **Cahier de dialyse imprimable** (modèle de document `CAHIER_DIALYSE`, `GET
+  /api/v1/cahier-dialyse/{patientId}/imprimer`, profils `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`, patient du centre
+  courant uniquement) : **une page par séance validée, signée ou facturée** (jamais une séance seulement créée), de la
+  plus récente à la plus ancienne comme à l'écran, éventuellement limitée à une période (`from`, `to` incluses). Chaque
+  page reprend **toutes les informations du cahier** : date, statut et forfait de la séance (forfait modifié sur la
+  séance, sinon forfait de la prise en charge couvrant la date, sinon dernier forfait connu) ; saisie infirmier (poids
+  avant et après, TA avant et après, durée, débit sang, ultrafiltration, type de dialysat, anticoagulant, incidents) ;
+  consommables sortis du stock avec quantité, unité, valorisation unitaire (PMP) et totale, et valorisation totale de la
+  séance ; saisie médecin (néphropathie initiale, date de mise en dialyse, statuts des hépatites B et C, observation
+  globale, conclusion du médecin, prescription en vigueur **à la date de la séance** — poids sec, EPO, fer — et volet
+  médical de la séance : prescription, tolérance, examen clinique, résultats biologiques, ajustements, conclusion). Une
+  information absente est imprimée « - ». Chaque page porte l'en-tête (logo, société, centre, identité du patient) et
+  le pied de page (édition, pagination, centre, pied de page société) du centre. Refus : patient hors du centre
+  (`PATIENT_INTROUVABLE`), aucune séance à imprimer (`CAHIER_VIDE`), début après la fin (`CAHIER_PERIODE_INVALIDE`).

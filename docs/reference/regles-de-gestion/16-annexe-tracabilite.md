@@ -27,6 +27,7 @@
 | `ModeleDocumentTemplateRestController`   | `/api/v1/documents/modeles/{id}`                    | `ADMIN`, `SUPERADMIN`                                            | RG-DOC-003, 004                    |
 | `PatientRestController`                  | `/api/v1/patients`                                  | lecture tous profils de centre, écriture hors médecin « seul »   | RG-PAT-001 à 024, RG-ASS-001 à 008 |
 | `PatientStatsRestController`             | `/api/v1/patients/.../stats`                        | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` (export `ADMIN`)   | RG-MED-101                         |
+| `CahierDialyseRestController`            | `/api/v1/cahier-dialyse`                            | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                    | RG-SEA-045                         |
 | `MouvementPatientRestController`         | `/api/v1/mouvements-patients`                       | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                    | RG-PAT-034, 035                    |
 | `PecRestController`                      | `/api/v1/pec`                                       | profils de centre (validation `ADMIN`)                           | RG-ATT-001 à 004, RG-PEC-001 à 010 |
 | `DashboardRestController`                | `/api/v1/dashboard`                                 | profils de centre                                                | RG-PEC-010                         |

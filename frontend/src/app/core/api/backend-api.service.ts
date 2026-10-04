@@ -855,6 +855,17 @@ export class BackendApiService {
     return this.http.delete<{ deleted: boolean }>(`${this.baseUrl}/seances/calendar/closure/${id}`, {params});
   }
 
+  /**
+   * Cahier de dialyse imprimable d'un patient (PDF) : une page par séance réalisée, éventuellement limité à une période.
+   * Le fuseau du navigateur sert à dater l'édition.
+   */
+  printCahierDialyse(centerId: string, patientId: string, from?: string, to?: string): Observable<Blob> {
+    let params = new HttpParams().set('centerId', centerId).set('tz', Intl.DateTimeFormat().resolvedOptions().timeZone);
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get(`${this.baseUrl}/cahier-dialyse/${patientId}/imprimer`, {params, responseType: 'blob'});
+  }
+
   exportSeanceDashboard(centerId: string, year: number, month: number, format: 'csv' | 'pdf' | 'xlsx'): Observable<Blob> {
     const params = new HttpParams()
       .set('centerId', centerId)

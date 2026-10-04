@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {provideZonelessChangeDetection} from '@angular/core';
 import {of, throwError} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {SeanceStore} from './seance.store';
+import {SeanceStore, scanErrorMessage} from './seance.store';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 
@@ -529,5 +529,21 @@ describe('SeanceStore', () => {
     store.cancelEditConsommable();
     expect(store.editingConsommableArticleId()).toBeNull();
     expect(store.editingConsommableQuantite()).toBeNull();
+  });
+});
+
+describe('scanErrorMessage', () => {
+  it('montre la règle métier refusée (422) telle quelle', () => {
+    const detail = 'Le patient doit avoir une prise en charge valide pour être facturé';
+    expect(scanErrorMessage({status: 422, error: {detail}})).toBe(detail);
+  });
+
+  it('garde le message générique pour un QR invalide ou un patient inconnu', () => {
+    expect(scanErrorMessage({
+      status: 400,
+      error: {detail: 'Patient introuvable'}
+    })).toBe('SEANCES.INVALID_QR_OR_PATIENT');
+    expect(scanErrorMessage({status: 422, error: {}})).toBe('SEANCES.INVALID_QR_OR_PATIENT');
+    expect(scanErrorMessage(null)).toBe('SEANCES.INVALID_QR_OR_PATIENT');
   });
 });

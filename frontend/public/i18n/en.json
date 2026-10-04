@@ -2809,6 +2809,9 @@
     "EMPTY": "No certificate found"
   },
   "CAHIER": {
+    "PRINT_BOOK": "Print the notebook",
+    "PRINT_PAGE": "Print this page",
+    "PRINT_ERROR": "Unable to print the dialysis notebook.",
     "TITLE": "Dialysis logbook",
     "PATIENT": "Patient",
     "DATE": "Date",

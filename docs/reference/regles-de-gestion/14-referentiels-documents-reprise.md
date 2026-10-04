@@ -56,7 +56,8 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
 
 - **RG-DOC-001** — Documents livrés : fiche signalétique patient, attestation d'ouverture de droit, prise en charge,
   liste des patients, liste des PEC, liste des attestations, synthèse mensuelle de
-  facturation, ordonnance, procès-verbal d'inventaire, bon d'intervention GMAO, planning de présence des infirmiers.
+  facturation, ordonnance, procès-verbal d'inventaire, bon d'intervention GMAO, planning de présence des infirmiers,
+  cahier de dialyse (RG-SEA-045).
   **Aucun rapport ne contourne le catalogue** : déclaration au catalogue, provisionnement
   par centre (au démarrage et à la première impression), impression **uniquement** via le service d'impression des
   modèles. Un test échoue si un modèle livré n'est pas au catalogue.

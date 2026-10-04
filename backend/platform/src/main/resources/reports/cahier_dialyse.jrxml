@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Cahier de dialyse d'un patient (modèle de document CAHIER_DIALYSE, personnalisable par centre).
+  - Une page par séance (validée, signée ou facturée), de la plus récente à la plus ancienne, comme le cahier à l'écran :
+    date, statut, forfait ; saisie infirmier (volet paramédical : 10 informations) ; consommables / sorties de stock
+    valorisés (PMP) et total ; saisie médecin (dossier médical : néphropathie, mise en dialyse, hépatites, observation,
+    conclusion ; prescription en vigueur à la date de la séance : poids sec, EPO, fer ; volet médical de la séance).
+  - En-tête (logo, société, centre, patient) et pied de page (édition, pagination, centre, pied de page société) sur
+    chaque page ; mêmes couleurs que les autres documents de l'application.
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : une seule requête, expressions simples, police
+  standard.
+-->
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="cahier_dialyse" pageWidth="595" pageHeight="842" columnWidth="539"
+              leftMargin="28" rightMargin="28" topMargin="24" bottomMargin="20">
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="PATIENT_ID" class="java.lang.String"/>
+    <parameter name="DATE_DEBUT" class="java.sql.Date"/>
+    <parameter name="DATE_FIN" class="java.sql.Date"/>
+    <parameter name="PATIENT_LIGNE" class="java.lang.String"/>
+    <parameter name="EDITE_LE" class="java.lang.String"/>
+    <parameter name="EDITE_PAR" class="java.lang.String"/>
+    <parameter name="SOCIETE_NOM" class="java.lang.String"/>
+    <parameter name="SOCIETE_ADRESSE" class="java.lang.String"/>
+    <parameter name="SOCIETE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="SOCIETE_EMAIL" class="java.lang.String"/>
+    <parameter name="SOCIETE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="SOCIETE_CONTACT" class="java.lang.String"/>
+    <parameter name="SOCIETE_LEGAL" class="java.lang.String"/>
+    <parameter name="SOCIETE_PIED_PAGE" class="java.lang.String"/>
+    <parameter name="SOCIETE_LOGO" class="java.io.InputStream"/>
+    <parameter name="CENTRE_NOM" class="java.lang.String"/>
+    <parameter name="CENTRE_ADRESSE" class="java.lang.String"/>
+    <parameter name="CENTRE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="CENTRE_EMAIL" class="java.lang.String"/>
+    <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
+    <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
+    <queryString><![CDATA[
+      SELECT CAST(s.id AS VARCHAR(36)) AS seance_id,
+             s.date_seance AS date_seance,
+             CASE s.statut WHEN 'VALIDEE' THEN 'Validée' WHEN 'SIGNEE' THEN 'Signée' WHEN 'FACTUREE' THEN 'Facturée' ELSE s.statut END AS statut,
+             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_code ELSE f.code END AS forfait_code,
+             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_nom ELSE f.libelle END AS forfait_nom,
+             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_prix ELSE f.prix END AS forfait_prix,
+             COALESCE(CASE WHEN POSITION('.' IN CAST(v.poids_avant_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_avant_kg AS VARCHAR(40)))) ELSE CAST(v.poids_avant_kg AS VARCHAR(40)) END, '-') AS poids_avant,
+             COALESCE(CASE WHEN POSITION('.' IN CAST(v.poids_apres_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_apres_kg AS VARCHAR(40)))) ELSE CAST(v.poids_apres_kg AS VARCHAR(40)) END, '-') AS poids_apres,
+             COALESCE(NULLIF(TRIM(v.ta_avant), ''), '-') AS ta_avant,
+             COALESCE(NULLIF(TRIM(v.ta_apres), ''), '-') AS ta_apres,
+             COALESCE(NULLIF(TRIM(CAST(v.duree_minutes AS VARCHAR(40))), ''), '-') AS duree,
+             COALESCE(NULLIF(TRIM(CAST(v.debit_sang_ml_min AS VARCHAR(40))), ''), '-') AS debit_sang,
+             COALESCE(CASE WHEN POSITION('.' IN CAST(v.ultrafiltration_ml AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.ultrafiltration_ml AS VARCHAR(40)))) ELSE CAST(v.ultrafiltration_ml AS VARCHAR(40)) END, '-') AS uf,
+             COALESCE(NULLIF(TRIM(v.type_dialysat), ''), '-') AS dialysat,
+             COALESCE(NULLIF(TRIM(v.anticoagulant), ''), '-') AS anticoagulant,
+             COALESCE(NULLIF(TRIM(v.incidents), ''), '-') AS incidents,
+             ac.code AS article_code,
+             ac.libelle AS article_libelle,
+             ac.unite AS article_unite,
+             c.quantite AS quantite,
+             c.prix_unitaire AS valeur_unitaire,
+             c.total_valorise AS total_valorise,
+             COALESCE(NULLIF(TRIM(d.nephropathie_initiale), ''), '-') AS nephropathie,
+             d.date_mise_en_dialyse AS date_mise_dialyse,
+             CASE d.hepatite_b_statut WHEN 'NEGATIF' THEN 'Négatif' WHEN 'PORTEUR' THEN 'Porteur' WHEN 'VACCINE' THEN 'Vacciné' WHEN 'IMMUNE' THEN 'Immunisé' WHEN 'INCONNU' THEN 'Inconnu' ELSE COALESCE(NULLIF(TRIM(d.hepatite_b_statut), ''), '-') END AS hepatite_b,
+             CASE d.hepatite_c_statut WHEN 'NEGATIF' THEN 'Négatif' WHEN 'PORTEUR' THEN 'Porteur' WHEN 'VACCINE' THEN 'Vacciné' WHEN 'IMMUNE' THEN 'Immunisé' WHEN 'INCONNU' THEN 'Inconnu' ELSE COALESCE(NULLIF(TRIM(d.hepatite_c_statut), ''), '-') END AS hepatite_c,
+             COALESCE(NULLIF(TRIM(d.observation_globale), ''), '-') AS observation_globale,
+             COALESCE(NULLIF(TRIM(d.conclusion_medicale), ''), '-') AS conclusion_dossier,
+             CASE WHEN pm.poids_sec_cible_kg IS NOT NULL
+                  THEN CASE WHEN POSITION('.' IN CAST(pm.poids_sec_cible_kg AS VARCHAR(20))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(pm.poids_sec_cible_kg AS VARCHAR(20)))) ELSE CAST(pm.poids_sec_cible_kg AS VARCHAR(20)) END || ' kg'
+                  ELSE '-' END AS poids_sec,
+             CASE WHEN pm.id IS NULL THEN '-'
+                  ELSE COALESCE(ea.libelle, ea.code, '-')
+                       || CASE WHEN COALESCE(pm.epo_dose_ui, 0) > 0
+                               THEN ' — ' || CAST(pm.epo_dose_ui AS VARCHAR(20)) || ' UI ' || COALESCE(pm.epo_voie, '') || ' '
+                                    || COALESCE(CAST(pm.epo_frequence_valeur AS VARCHAR(10)), '') || '/'
+                                    || CASE pm.epo_frequence_unite WHEN 'HEURE' THEN 'heure' WHEN 'JOUR' THEN 'jour' WHEN 'SEMAINE' THEN 'semaine' WHEN 'MOIS' THEN 'mois' WHEN 'ANNEE' THEN 'année' ELSE COALESCE(pm.epo_frequence_unite, '') END
+                               ELSE '' END
+             END AS epo_ligne,
+             CASE WHEN pm.id IS NULL THEN '-'
+                  ELSE COALESCE(fa.libelle, fa.code, '-')
+                       || CASE WHEN COALESCE(pm.fer_dose_mg, 0) > 0
+                               THEN ' — ' || CAST(pm.fer_dose_mg AS VARCHAR(20)) || ' mg ' || COALESCE(pm.fer_voie, '') || ' '
+                                    || COALESCE(CAST(pm.fer_frequence_valeur AS VARCHAR(10)), '') || '/'
+                                    || CASE pm.fer_frequence_unite WHEN 'HEURE' THEN 'heure' WHEN 'JOUR' THEN 'jour' WHEN 'SEMAINE' THEN 'semaine' WHEN 'MOIS' THEN 'mois' WHEN 'ANNEE' THEN 'année' ELSE COALESCE(pm.fer_frequence_unite, '') END
+                               ELSE '' END
+             END AS fer_ligne,
+             COALESCE(NULLIF(TRIM(vm.prescription), ''), '-') AS med_prescription,
+             COALESCE(NULLIF(TRIM(vm.tolerance_seance), ''), '-') AS med_tolerance,
+             COALESCE(NULLIF(TRIM(vm.examen_clinique), ''), '-') AS med_examen,
+             COALESCE(NULLIF(TRIM(vm.resultats_biologiques), ''), '-') AS med_resultats,
+             COALESCE(NULLIF(TRIM(vm.ajustements_therapeutiques), ''), '-') AS med_ajustements,
+             COALESCE(NULLIF(TRIM(vm.conclusion_medicale), ''), '-') AS med_conclusion
+      FROM seances s
+      LEFT JOIN volet_paramedical v ON v.seance_id = s.id AND v.center_id = s.center_id
+      LEFT JOIN volet_medical vm ON vm.seance_id = s.id AND vm.center_id = s.center_id
+      LEFT JOIN dossier_medical_patient d ON d.patient_id = s.patient_id AND d.center_id = s.center_id
+      LEFT JOIN forfait f ON f.center_id = s.center_id AND f.id = COALESCE(
+             (SELECT COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
+                FROM prise_en_charge p
+               WHERE p.center_id = s.center_id AND p.patient_id = s.patient_id
+                 AND COALESCE(p.forfait_effectif_id, p.forfait_demande_id) IS NOT NULL
+                 AND ((p.date_debut_effectif IS NOT NULL AND s.date_seance >= p.date_debut_effectif
+                       AND (s.date_seance <= p.date_fin_effectif OR p.date_fin_effectif IS NULL))
+                   OR (p.date_debut_demande IS NOT NULL AND s.date_seance >= p.date_debut_demande
+                       AND (s.date_seance <= p.date_fin_demande OR p.date_fin_demande IS NULL)))
+               ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END, p.created_at DESC
+               FETCH FIRST 1 ROWS ONLY),
+             (SELECT COALESCE(p2.forfait_effectif_id, p2.forfait_demande_id)
+                FROM prise_en_charge p2
+               WHERE p2.center_id = s.center_id AND p2.patient_id = s.patient_id
+                 AND COALESCE(p2.forfait_effectif_id, p2.forfait_demande_id) IS NOT NULL
+               ORDER BY CASE WHEN p2.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END, p2.created_at DESC
+               FETCH FIRST 1 ROWS ONLY))
+      LEFT JOIN prescriptions_medicales pm ON pm.id = (
+             SELECT p3.id FROM prescriptions_medicales p3
+              WHERE p3.patient_id = s.patient_id AND p3.center_id = s.center_id AND p3.date_prescription <= s.date_seance
+              ORDER BY p3.date_prescription DESC, p3.created_at DESC
+              FETCH FIRST 1 ROWS ONLY)
+      LEFT JOIN articles ea ON ea.id = pm.epo_article_id AND ea.center_id = pm.center_id
+      LEFT JOIN articles fa ON fa.id = pm.fer_article_id AND fa.center_id = pm.center_id
+      LEFT JOIN (SELECT sm.center_id AS center_id, sm.seance_id AS seance_id, sm.article_id AS article_id,
+                        sm.prix_unitaire AS prix_unitaire, SUM(sm.quantite) AS quantite,
+                        SUM(COALESCE(sm.quantite, 0) * COALESCE(sm.prix_unitaire, 0)) AS total_valorise
+                   FROM stock_movements sm
+                  WHERE sm.center_id = CAST($P{CENTER_ID} AS UUID) AND sm.mouvement_type = 'SORTIE'
+                  GROUP BY sm.center_id, sm.seance_id, sm.article_id, sm.prix_unitaire) c
+             ON c.seance_id = s.id AND c.center_id = s.center_id
+      LEFT JOIN articles ac ON ac.id = c.article_id AND ac.center_id = c.center_id
+      WHERE s.center_id = CAST($P{CENTER_ID} AS UUID)
+        AND s.patient_id = CAST($P{PATIENT_ID} AS UUID)
+        AND s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE')
+        AND s.date_seance BETWEEN CAST($P{DATE_DEBUT} AS DATE) AND CAST($P{DATE_FIN} AS DATE)
+      ORDER BY s.date_seance DESC, s.id, ac.code
+    ]]></queryString>
+
+    <field name="SEANCE_ID" class="java.lang.String"/>
+    <field name="DATE_SEANCE" class="java.sql.Date"/>
+    <field name="STATUT" class="java.lang.String"/>
+    <field name="FORFAIT_CODE" class="java.lang.String"/>
+    <field name="FORFAIT_NOM" class="java.lang.String"/>
+    <field name="FORFAIT_PRIX" class="java.math.BigDecimal"/>
+    <field name="POIDS_AVANT" class="java.lang.String"/>
+    <field name="POIDS_APRES" class="java.lang.String"/>
+    <field name="TA_AVANT" class="java.lang.String"/>
+    <field name="TA_APRES" class="java.lang.String"/>
+    <field name="DUREE" class="java.lang.String"/>
+    <field name="DEBIT_SANG" class="java.lang.String"/>
+    <field name="UF" class="java.lang.String"/>
+    <field name="DIALYSAT" class="java.lang.String"/>
+    <field name="ANTICOAGULANT" class="java.lang.String"/>
+    <field name="INCIDENTS" class="java.lang.String"/>
+    <field name="ARTICLE_CODE" class="java.lang.String"/>
+    <field name="ARTICLE_LIBELLE" class="java.lang.String"/>
+    <field name="ARTICLE_UNITE" class="java.lang.String"/>
+    <field name="QUANTITE" class="java.math.BigDecimal"/>
+    <field name="VALEUR_UNITAIRE" class="java.math.BigDecimal"/>
+    <field name="TOTAL_VALORISE" class="java.math.BigDecimal"/>
+    <field name="NEPHROPATHIE" class="java.lang.String"/>
+    <field name="DATE_MISE_DIALYSE" class="java.sql.Date"/>
+    <field name="HEPATITE_B" class="java.lang.String"/>
+    <field name="HEPATITE_C" class="java.lang.String"/>
+    <field name="OBSERVATION_GLOBALE" class="java.lang.String"/>
+    <field name="CONCLUSION_DOSSIER" class="java.lang.String"/>
+    <field name="POIDS_SEC" class="java.lang.String"/>
+    <field name="EPO_LIGNE" class="java.lang.String"/>
+    <field name="FER_LIGNE" class="java.lang.String"/>
+    <field name="MED_PRESCRIPTION" class="java.lang.String"/>
+    <field name="MED_TOLERANCE" class="java.lang.String"/>
+    <field name="MED_EXAMEN" class="java.lang.String"/>
+    <field name="MED_RESULTATS" class="java.lang.String"/>
+    <field name="MED_AJUSTEMENTS" class="java.lang.String"/>
+    <field name="MED_CONCLUSION" class="java.lang.String"/>
+
+    <variable name="NUM_SEANCE" class="java.lang.Integer" calculation="DistinctCount">
+        <variableExpression><![CDATA[$F{SEANCE_ID}]]></variableExpression>
+    </variable>
+    <variable name="NB_CONSO" class="java.lang.Integer" resetType="Group" resetGroup="SEANCE" calculation="Sum">
+        <variableExpression><![CDATA[$F{ARTICLE_CODE} != null ? 1 : 0]]></variableExpression>
+    </variable>
+    <variable name="TOTAL_CONSO" class="java.math.BigDecimal" resetType="Group" resetGroup="SEANCE" calculation="Sum">
+        <variableExpression><![CDATA[$F{TOTAL_VALORISE}]]></variableExpression>
+    </variable>
+
+    <group name="SEANCE" isStartNewPage="true">
+        <groupExpression><![CDATA[$F{SEANCE_ID}]]></groupExpression>
+        <groupHeader>
+            <band height="202">
+                <textField>
+                    <reportElement x="0" y="0" width="400" height="20" backcolor="#1B5E20" forecolor="#FFFFFF"
+                                   mode="Opaque"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="10" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["  Page " + (($V{NUM_SEANCE} != null ? $V{NUM_SEANCE} : 0) + 1) + " du cahier — Séance d'hémodialyse du " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{DATE_SEANCE})]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="400" y="0" width="139" height="20" backcolor="#1B5E20" forecolor="#FFFFFF"
+                                   mode="Opaque"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Statut : " + $F{STATUT} + "  "]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="24" width="400" height="14"/>
+                    <textElement>
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["Forfait : " + ($F{FORFAIT_CODE} != null ? $F{FORFAIT_CODE} : "-") + ($F{FORFAIT_NOM} != null ? " — " + $F{FORFAIT_NOM} : "")]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="400" y="24" width="50" height="14"/>
+                    <textElement textAlignment="Right">
+                        <font size="9"/>
+                    </textElement>
+                    <text><![CDATA[Prix :]]></text>
+                </staticText>
+                <textField pattern="#,##0.00" isBlankWhenNull="true">
+                    <reportElement x="452" y="24" width="68" height="14"/>
+                    <textElement textAlignment="Right">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{FORFAIT_PRIX}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="521" y="24" width="18" height="14"/>
+                    <textElement>
+                        <font size="9"/>
+                    </textElement>
+                    <text><![CDATA[ DA]]></text>
+                </staticText>
+
+                <staticText>
+                    <reportElement x="0" y="42" width="539" height="16" backcolor="#E8F5E9" mode="Opaque"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[  Saisie infirmier — Volet paramédical]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="62" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Poids avant (kg) : " + $F{POIDS_AVANT}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="274" y="62" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Poids après (kg) : " + $F{POIDS_APRES}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="76" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["TA avant : " + $F{TA_AVANT}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="274" y="76" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["TA après : " + $F{TA_APRES}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="90" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Durée (min) : " + $F{DUREE}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="274" y="90" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Débit sang (mL/min) : " + $F{DEBIT_SANG}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="0" y="104" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Ultrafiltration (mL) : " + $F{UF}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="118" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Type de dialysat : " + $F{DIALYSAT}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="132" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Anticoagulant : " + $F{ANTICOAGULANT}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="146" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Incidents / remarques : " + $F{INCIDENTS}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement positionType="Float" x="0" y="166" width="539" height="16" backcolor="#E8F5E9"
+                                   mode="Opaque"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[  Consommables / sorties de stock]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement positionType="Float" x="0" y="184" width="250" height="16" backcolor="#1B5E20"
+                                   forecolor="#FFFFFF" mode="Opaque"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[  Article]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement positionType="Float" x="250" y="184" width="70" height="16" backcolor="#1B5E20"
+                                   forecolor="#FFFFFF" mode="Opaque"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Qté  ]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement positionType="Float" x="320" y="184" width="50" height="16" backcolor="#1B5E20"
+                                   forecolor="#FFFFFF" mode="Opaque"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[  Unité]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement positionType="Float" x="370" y="184" width="85" height="16" backcolor="#1B5E20"
+                                   forecolor="#FFFFFF" mode="Opaque"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Val. unitaire (PMP)  ]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement positionType="Float" x="455" y="184" width="84" height="16" backcolor="#1B5E20"
+                                   forecolor="#FFFFFF" mode="Opaque"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Val. totale  ]]></text>
+                </staticText>
+            </band>
+        </groupHeader>
+        <groupFooter>
+            <band height="290">
+                <textField>
+                    <reportElement x="0" y="2" width="270" height="14"/>
+                    <textElement>
+                        <font size="8.5" isItalic="true"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA[$V{NB_CONSO} == 0 ? "Aucun article sorti pour cette séance." : ""]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="270" y="2" width="169" height="14"/>
+                    <textElement textAlignment="Right">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Valorisation totale (DA) :]]></text>
+                </staticText>
+                <textField pattern="#,##0.00" isBlankWhenNull="true">
+                    <reportElement x="440" y="2" width="99" height="14"/>
+                    <textElement textAlignment="Right">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$V{TOTAL_CONSO}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement positionType="Float" x="0" y="22" width="539" height="16" backcolor="#E8F5E9"
+                                   mode="Opaque"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[  Saisie médecin — Volet médical]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement positionType="Float" x="0" y="42" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["Date de mise en dialyse : " + ($F{DATE_MISE_DIALYSE} != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{DATE_MISE_DIALYSE}) : "-")]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement positionType="Float" x="274" y="42" width="265" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Statut hépatite B : " + $F{HEPATITE_B}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement positionType="Float" x="0" y="56" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Statut hépatite C : " + $F{HEPATITE_C}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="70" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Néphropathie initiale : " + $F{NEPHROPATHIE}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="84" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["Observation globale : " + $F{OBSERVATION_GLOBALE}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="98" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["Conclusion du médecin : " + $F{CONCLUSION_DOSSIER}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement positionType="Float" x="0" y="118" width="539" height="14" forecolor="#1B5E20"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Prescription en vigueur (EPO / Fer)]]></text>
+                </staticText>
+                <line>
+                    <reportElement positionType="Float" x="0" y="132" width="539" height="1" forecolor="#1B5E20"/>
+                </line>
+                <textField isBlankWhenNull="true">
+                    <reportElement positionType="Float" x="0" y="136" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Poids sec : " + $F{POIDS_SEC}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="150" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["EPO : " + $F{EPO_LIGNE}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="164" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Fer : " + $F{FER_LIGNE}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement positionType="Float" x="0" y="184" width="539" height="14" forecolor="#1B5E20"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Volet médical de la séance]]></text>
+                </staticText>
+                <line>
+                    <reportElement positionType="Float" x="0" y="198" width="539" height="1" forecolor="#1B5E20"/>
+                </line>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="202" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Prescription : " + $F{MED_PRESCRIPTION}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="216" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Tolérance de séance : " + $F{MED_TOLERANCE}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="230" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Examen clinique : " + $F{MED_EXAMEN}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="244" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["Résultats biologiques : " + $F{MED_RESULTATS}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="258" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA["Ajustements thérapeutiques : " + $F{MED_AJUSTEMENTS}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                    <reportElement positionType="Float" x="0" y="272" width="539" height="14"/>
+                    <textElement>
+                        <font size="8.5"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Conclusion médicale : " + $F{MED_CONCLUSION}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupFooter>
+    </group>
+
+    <pageHeader>
+        <band height="96">
+            <image scaleImage="RetainShape" hAlign="Left" vAlign="Top" onErrorType="Blank">
+                <reportElement x="0" y="0" width="60" height="50">
+                    <printWhenExpression><![CDATA[$P{SOCIETE_LOGO} != null]]></printWhenExpression>
+                </reportElement>
+                <imageExpression><![CDATA[$P{SOCIETE_LOGO}]]></imageExpression>
+            </image>
+            <textField isBlankWhenNull="true">
+                <reportElement x="66" y="0" width="290" height="15"/>
+                <textElement textAlignment="Left">
+                    <font size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="66" y="16" width="290" height="24"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="66" y="41" width="290" height="10"/>
+                <textElement textAlignment="Left">
+                    <font size="6.5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_LEGAL}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="362" y="0" width="177" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="9.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="362" y="15" width="177" height="12"/>
+                <textElement textAlignment="Right">
+                    <font size="7.5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_ADRESSE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="362" y="28" width="177" height="22"/>
+                <textElement textAlignment="Right">
+                    <font size="7.5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="55" width="539" height="1" forecolor="#1B5E20"/>
+            </line>
+            <staticText>
+                <reportElement x="0" y="60" width="539" height="20" forecolor="#1B5E20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="14" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CAHIER DE DIALYSE]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="81" width="539" height="13"/>
+                <textElement textAlignment="Center">
+                    <font size="8.5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{PATIENT_LIGNE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageHeader>
+
+    <detail>
+        <band height="16">
+            <printWhenExpression><![CDATA[$F{ARTICLE_CODE} != null]]></printWhenExpression>
+            <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                <reportElement x="0" y="1" width="250" height="14"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["  " + $F{ARTICLE_CODE} + ($F{ARTICLE_LIBELLE} != null ? " — " + $F{ARTICLE_LIBELLE} : "")]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.##" isBlankWhenNull="true">
+                <reportElement x="250" y="1" width="70" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{QUANTITE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="320" y="1" width="50" height="14"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA[" " + ($F{ARTICLE_UNITE} != null ? $F{ARTICLE_UNITE} : "")]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00" isBlankWhenNull="true">
+                <reportElement x="370" y="1" width="85" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{VALEUR_UNITAIRE}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00" isBlankWhenNull="true">
+                <reportElement x="455" y="1" width="84" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TOTAL_VALORISE}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="15" width="539" height="1" forecolor="#CCCCCC"/>
+            </line>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="46">
+            <line>
+                <reportElement x="0" y="3" width="539" height="1" forecolor="#1B5E20"/>
+            </line>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="6" width="400" height="12"/>
+                <textElement>
+                    <font size="7" isItalic="true"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA["Édité le " + $P{EDITE_LE} + ($P{EDITE_PAR} != null ? " par " + $P{EDITE_PAR} : "")]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="444" y="6" width="70" height="12"/>
+                <textElement textAlignment="Right">
+                    <font size="7.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " / "]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="515" y="6" width="24" height="12"/>
+                <textElement>
+                    <font size="7.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="22" width="539" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_LIGNE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="33" width="539" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_PIED_PAGE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+</jasperReport>

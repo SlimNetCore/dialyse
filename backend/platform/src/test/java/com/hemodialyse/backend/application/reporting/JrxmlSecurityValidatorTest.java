@@ -40,7 +40,7 @@ class JrxmlSecurityValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {"attestation.jrxml", "fiche_patient.jrxml", "liste_attestations.jrxml",
             "liste_patients.jrxml", "liste_pec.jrxml", "prise_en_charge.jrxml", "ordonnance.jrxml", "inventaire_stock.jrxml",
-            "bon_intervention.jrxml", "planning_presence_infirmiers.jrxml"})
+            "bon_intervention.jrxml", "planning_presence_infirmiers.jrxml", "cahier_dialyse.jrxml"})
     void lesModelesLivresSontAcceptesContreEuxMemes(String template) throws IOException {
         String xml = load(template);
         assertThat(validator.validate(xml, xml)).isEmpty();

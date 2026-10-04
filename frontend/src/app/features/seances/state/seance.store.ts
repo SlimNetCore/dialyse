@@ -465,7 +465,7 @@ export const SeanceStore = signalStore(
               patchState(store, {
                 scanning: false,
                 scanState: 'error',
-                scanMessage: 'SEANCES.INVALID_QR_OR_PATIENT',
+                scanMessage: scanErrorMessage(err),
                 error: errorMessage(err),
               });
               return EMPTY;
@@ -812,6 +812,16 @@ export const SeanceStore = signalStore(
     }
   }))
 );
+
+/**
+ * Message affiché après l'échec d'un scan : la règle métier refusée par le serveur (422, ex. patient sans prise en
+ * charge valide) est montrée telle quelle ; QR inconnu ou invalide (400/404) garde le message générique.
+ */
+export function scanErrorMessage(err: unknown): string {
+  const e = err as { status?: number; error?: { detail?: unknown } } | null;
+  const detail = e?.error?.detail;
+  return e?.status === 422 && typeof detail === 'string' && detail.trim() ? detail : 'SEANCES.INVALID_QR_OR_PATIENT';
+}
 
 function errorMessage(err: unknown): string {
   if (err && typeof err === 'object') {

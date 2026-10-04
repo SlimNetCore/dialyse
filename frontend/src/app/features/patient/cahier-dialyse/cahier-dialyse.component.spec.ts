@@ -2,6 +2,7 @@ import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
 import {vi} from 'vitest';
+import {TranslateModule} from '@ngx-translate/core';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {CahierDialyseComponent} from './cahier-dialyse.component';
@@ -34,6 +35,7 @@ describe('CahierDialyseComponent', () => {
         medical: null,
       })
     ),
+    printCahierDialyse: vi.fn(() => of(new Blob(['%PDF'], {type: 'application/pdf'}))),
   };
 
   const routeMock = {
@@ -53,6 +55,7 @@ describe('CahierDialyseComponent', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [
         {provide: BackendApiService, useValue: apiMock},
         {provide: ActivatedRoute, useValue: routeMock},
@@ -93,5 +96,42 @@ describe('CahierDialyseComponent', () => {
 
     expect(component.statusClass('FACTUREE')).toBe('status-facturee');
   });
-});
 
+  describe('impression', () => {
+    beforeEach(() => {
+      vi.spyOn(window, 'open').mockReturnValue({location: {href: ''}, close: vi.fn()} as unknown as Window);
+      URL.createObjectURL = vi.fn(() => 'blob:cahier');
+      URL.revokeObjectURL = vi.fn();
+    });
+
+    it('imprime le cahier entier du patient dans le centre actif', async () => {
+      const component = createComponent();
+      component.ngOnInit();
+
+      await component.imprimer(false);
+
+      expect(apiMock.printCahierDialyse).toHaveBeenCalledWith('center-1', 'patient-1', undefined, undefined);
+      expect(component.printing()).toBe(false);
+    });
+
+    it('imprime seulement la page affichee en bornant la periode a la date de la seance', async () => {
+      const component = createComponent();
+      component.ngOnInit();
+      component.goToNextPage();
+
+      await component.imprimer(true);
+
+      expect(apiMock.printCahierDialyse).toHaveBeenCalledWith('center-1', 'patient-1', '2026-07-14', '2026-07-14');
+    });
+
+    it("n'imprime rien sans seance", async () => {
+      apiMock.listSeances.mockReturnValueOnce(of({items: [], total: 0}));
+      const component = createComponent();
+      component.ngOnInit();
+
+      await component.imprimer(false);
+
+      expect(apiMock.printCahierDialyse).not.toHaveBeenCalled();
+    });
+  });
+});

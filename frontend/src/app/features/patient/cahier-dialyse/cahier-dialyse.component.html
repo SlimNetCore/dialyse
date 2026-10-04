@@ -9,6 +9,18 @@
         {{ 'CAHIER.PATIENT' | translate }}: <strong>{{ patientId }}</strong>
       </p>
     </div>
+    <div class="header-actions">
+      <button (click)="imprimer(false)" [disabled]="printing() || !hasSeances()" data-testid="cahier-print-book"
+              mat-stroked-button type="button">
+        <mat-icon>print</mat-icon>
+        {{ 'CAHIER.PRINT_BOOK' | translate }}
+      </button>
+      <button (click)="imprimer(true)" [disabled]="printing() || !hasSeances()" data-testid="cahier-print-page"
+              mat-stroked-button type="button">
+        <mat-icon>description</mat-icon>
+        {{ 'CAHIER.PRINT_PAGE' | translate }}
+      </button>
+    </div>
     <div class="header-badges">
       <span class="header-pill">
         {{ 'CAHIER.BOOK_PAGE' | translate }} {{ pageNumber() }}/{{ totalPages() || 1 }}
