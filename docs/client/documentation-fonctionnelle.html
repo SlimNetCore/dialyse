@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-04<br>454 règles de gestion · 16 domaines · 325 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-04<br>456 règles de gestion · 16 domaines · 327 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,7 +295,7 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>454</b>règles de gestion</div>
+            <div><b>456</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
             <div><b>7</b>points d'attention</div>
@@ -1625,6 +1625,36 @@
                 supprimé ; la libération automatique est marquée comme telle.</p>
             </div>
         </div>
+        <div class="rule" id="RG-PAT-036">
+            <div class="rid">RG-PAT-036</div>
+            <div class="rtxt"><p><strong>Enregistrer la fiche ne dégrade jamais la prise en charge ni
+                l&#39;attestation</strong> : la demande de prise
+                en charge saisie sur la fiche retrouve la PEC existante (par identifiant, à défaut de même demande) et
+                la conserve avec
+                son statut et son accord (une PEC <code>VALIDEE</code> reste <code>VALIDEE</code>) ; seule une demande
+                modifiée met à jour les dates et le
+                forfait demandés. Une PEC n&#39;est créée (état <code>CREE</code>) que si aucune PEC ne correspond. Une
+                attestation déjà présente avec
+                les mêmes dates n&#39;est pas recréée (aucun doublon).</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-PAT-037">
+            <div class="rid">RG-PAT-037</div>
+            <div class="rtxt"><p><strong>Effectif d&#39;une période</strong> (règle unique, partout où l&#39;on compte
+                des patients : synthèse mensuelle,
+                tableau de bord de la direction — patients, sexe, âge, caisse, anémie —, file active rapportée à la
+                capacité, nombre
+                de patients du tableau de bord du centre) : un patient est compté s&#39;il est <strong>admis au plus
+                    tard le dernier jour de la
+                    période</strong> et s&#39;il n&#39;est <strong>pas sorti avant son premier jour</strong>. La sortie
+                (transfert, décès, greffe, guérison) ou la fin
+                de séjour est lue à la date d&#39;évènement selon RG-PAT-032 : un évènement <strong>pendant ou
+                    après</strong> la période garde le
+                patient dans l&#39;effectif, un évènement <strong>antérieur</strong> l&#39;en retire ; un état de sortie
+                sans date n&#39;est jamais compté. La
+                file active de la capacité écarte en plus les patients « en sommeil » (RG-PAT-008).</p>
+            </div>
+        </div>
         <div class="rule" id="RG-PAT-035">
             <div class="rid">RG-PAT-035</div>
             <div class="rtxt"><p>Le suivi des mouvements est consultable en <strong>liste paginée</strong> (page 0,
@@ -1644,7 +1674,12 @@
                 par code, nom, prénom, sexe, période d&#39;admission, numéro d&#39;assurance, état, statut « non
                 facturable » et, par texte du
                 libellé
-                affiché, médecin traitant, créneau, transporteurs aller/retour et forfait.</p>
+                affiché, médecin traitant, créneau, transporteurs aller/retour et forfait. Les filtres
+                <strong>sexe</strong> et <strong>état</strong> acceptent
+                <strong>plusieurs valeurs</strong> séparées par des virgules (ex. <code>M,F</code>) : le patient doit
+                correspondre à l&#39;une d&#39;elles
+                (comparaison exacte, insensible à la casse et aux espaces) ; une saisie sans virgule reste une recherche
+                par contenu.</p>
             </div>
         </div>
         <div class="rule" id="RG-PAT-021">
@@ -1673,10 +1708,13 @@
         </div>
         <div class="rule" id="RG-PAT-024">
             <div class="rid">RG-PAT-024</div>
-            <div class="rtxt"><p>La synthèse mensuelle des patients (comptages par état, etc.) est calculée pour le mois
-                demandé (mois
-                courant par
-                défaut), mise en cache <strong>par centre et par mois</strong> (3 min) ; ses détails de même.</p>
+            <div class="rtxt"><p>La synthèse mensuelle des patients (comptages par sexe, âge, KT) est calculée pour le
+                mois demandé
+                (mois courant par défaut) sur l&#39;<strong>effectif du mois</strong> (RG-PAT-037), mise en cache
+                <strong>par centre et par mois</strong> (3 min) ;
+                ses détails de même (motif d&#39;inclusion : <code>PERMANENT</code>, <code>EVENT_MONTH</code> = sortie
+                ou fin de séjour dans le mois,
+                <code>ACTIVE_PERIOD</code> = sortie ou fin de séjour postérieure au mois).</p>
             </div>
         </div>
         <h2>4.3 Assurés (ayants droit)</h2>
@@ -4539,8 +4577,9 @@
         <h2>13.3 Vue d&#39;ensemble et finances</h2>
         <div class="rule" id="RG-DIR-020">
             <div class="rid">RG-DIR-020</div>
-            <div class="rtxt"><p>Par centre et total : patients (effectif courant), patients « sous KT », séances
-                réalisées de la
+            <div class="rtxt"><p>Par centre et total : patients (effectif de la période, RG-PAT-037 : un patient sorti
+                avant la période n&#39;est pas compté, un patient sorti pendant ou après l&#39;est), patients « sous KT
+                », séances réalisées de la
                 période (statuts validée, signée ou facturée), factures, chiffre d&#39;affaires HT et TTC,
                 montants encaissés des factures de la période, évolution mensuelle, et <strong>comparaison avec la
                     période précédente</strong> de
@@ -4661,10 +4700,10 @@
                 (hors réformés, désactivés, supprimés), générateurs de secours (1 pour 8), postes actifs,
                 séries par jour (créneaux configurés), patients par poste et par série (paramètre du centre, 3 par
                 défaut), <strong>capacité
-                    théorique</strong>, <strong>file active</strong> (patients distincts ayant au moins une séance
-                réalisée
-                dans la période) et <strong>taux d&#39;occupation</strong> avec son niveau (marge, proche de la
-                saturation ≥ 90 %, atteinte, sans
+                    théorique</strong>, <strong>file active</strong> (effectif de la période, RG-PAT-037 : patients
+                admis non sortis
+                avant la période, hors « en sommeil ») et <strong>taux d&#39;occupation</strong> avec son niveau (marge,
+                proche de la saturation ≥ 90 %, atteinte, sans
                 capacité). Le total additionne les centres ; séries et patients par poste n&#39;ont pas de sens
                 consolidé. Une file active de 1 à 4 patients est masquée avec son taux. Voir RG-PLN-070 à 074.</p>
             </div>

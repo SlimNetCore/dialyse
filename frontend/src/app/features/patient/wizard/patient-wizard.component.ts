@@ -32,6 +32,7 @@ import {WebSocketService, WsEvent} from '../../../core/ws/websocket.service';
 import {PatientFicheStore} from '../state/patient-fiche.store';
 import {PatientListStore} from '../state/patient-list.store';
 import {consumeWizardActionStatus} from './wizard-action-status.util';
+import {toLocalIsoDate} from '../../../shared/date.util';
 
 @Component({
   selector: 'app-patient-wizard',
@@ -284,7 +285,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
     const d = this.wizardData;
     const toDate = (v: any) => {
       if (!v) return undefined;
-      if (v instanceof Date) return v.toISOString().slice(0, 10);
+      if (v instanceof Date) return toLocalIsoDate(v);
       return String(v);
     };
     const derivedTypePatient =
@@ -298,7 +299,7 @@ export class PatientWizardComponent implements OnInit, AfterViewInit {
       nom: d['nom'],
       prenom: d['prenom'],
       sexe: d['sexe'],
-      dateAdmission: toDate(d['dateAdmission']) || new Date().toISOString().slice(0, 10),
+      dateAdmission: toDate(d['dateAdmission']) || toLocalIsoDate(new Date()),
       dateNaissance: toDate(d['dateNaissance']),
       numeroAssurance: d['numeroAssurance'] || 'TEMP-' + Date.now(),
       typePatient: derivedTypePatient,

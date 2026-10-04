@@ -59,8 +59,8 @@ class PatientEtatMouvementsIntegrationTest {
 
     @AfterEach
     void cleanup() {
-        for (String table : List.of("mouvement_patient", "attestation_droit", "assure_patient", "patients", "salle",
-                "position_creneau")) {
+        for (String table : List.of("mouvement_patient", "attestation_droit", "assure_patient", "prise_en_charge", "forfait",
+                "patients", "salle", "position_creneau")) {
             try {
                 jdbc.update("DELETE FROM " + table + " WHERE center_id = ?", C1);
             } catch (RuntimeException ignoree) {
@@ -72,6 +72,11 @@ class PatientEtatMouvementsIntegrationTest {
     }
 
     private CreatePatientCommand commande(String numero, String etat, LocalDate dateEvenement, boolean place) {
+        return commande(numero, etat, dateEvenement, place, null, null);
+    }
+
+    private CreatePatientCommand commande(String numero, String etat, LocalDate dateEvenement, boolean place, UUID pecId,
+                                          UUID forfait) {
         return new CreatePatientCommand(
                 // généralités : civilité, nom, prénom, sexe, groupe sanguin, enfants, admission, naissance, lieu, famille
                 null, "Nom", "Prenom", "M", null, 0, admission, LocalDate.of(1970, 5, 5), null, null,
@@ -86,7 +91,51 @@ class PatientEtatMouvementsIntegrationTest {
                 // état, date d'évènement, jours (dim → sam)
                 etat, dateEvenement, false, place, false, place, false, false, false,
                 // attestation (id, début, fin), PEC (id, début, fin, forfait)
-                null, aujourdhui.minusDays(30), aujourdhui.plusDays(300), null, null, null, null);
+                null, aujourdhui.minusDays(30), aujourdhui.plusDays(300),
+                pecId, forfait == null ? null : aujourdhui.minusDays(30), forfait == null ? null : aujourdhui.plusDays(300),
+                forfait);
+    }
+
+    @Test
+    void saving_the_patient_never_brings_a_validated_pec_back_to_created_nor_duplicates_it() {
+        UUID forfait = UUID.randomUUID();
+        jdbc.update("INSERT INTO forfait (id, center_id, code, libelle, prix) VALUES (?,?,?,?,?)", forfait, C1, "ZT-PF",
+                "Forfait PE", new java.math.BigDecimal("1000.00"));
+        UUID pecId = UUID.randomUUID();
+        Patient p = patients.createPatient(CenterId.of(C1), commande("ASS-PE-0010", "PERMANENT", null, true, pecId, forfait));
+        jdbc.update("UPDATE prise_en_charge SET statut = 'VALIDEE', date_debut_effectif = ?, date_fin_effectif = ?, "
+                        + "forfait_effectif_id = ? WHERE id = ?", java.sql.Date.valueOf(aujourdhui.minusDays(30)),
+                java.sql.Date.valueOf(aujourdhui.plusDays(300)), forfait, pecId);
+
+        // même fiche réenregistrée, avec ou sans identifiant de PEC : rien ne change
+        patients.updatePatient(CenterId.of(C1), p.getId().value(), commande("ASS-PE-0010", "PERMANENT", null, true, pecId, forfait));
+        patients.updatePatient(CenterId.of(C1), p.getId().value(), commande("ASS-PE-0010", "PERMANENT", null, true, null, forfait));
+
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM prise_en_charge WHERE patient_id = ?", Integer.class,
+                p.getId().value()), "aucun doublon de PEC");
+        assertEquals("VALIDEE", jdbc.queryForObject("SELECT statut FROM prise_en_charge WHERE id = ?", String.class, pecId));
+        assertEquals(forfait, jdbc.queryForObject("SELECT forfait_effectif_id FROM prise_en_charge WHERE id = ?", UUID.class,
+                pecId), "l'accord est conservé");
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM attestation_droit WHERE patient_id = ?", Integer.class,
+                p.getId().value()), "aucun doublon d'attestation");
+    }
+
+    @Test
+    void a_modified_pec_request_updates_the_existing_pec_and_keeps_its_status() {
+        UUID forfait = UUID.randomUUID();
+        UUID autreForfait = UUID.randomUUID();
+        jdbc.update("INSERT INTO forfait (id, center_id, code, libelle, prix) VALUES (?,?,?,?,?)", forfait, C1, "ZT-PF1", "F1",
+                new java.math.BigDecimal("1000.00"));
+        jdbc.update("INSERT INTO forfait (id, center_id, code, libelle, prix) VALUES (?,?,?,?,?)", autreForfait, C1, "ZT-PF2", "F2",
+                new java.math.BigDecimal("2000.00"));
+        UUID pecId = UUID.randomUUID();
+        Patient p = patients.createPatient(CenterId.of(C1), commande("ASS-PE-0011", "PERMANENT", null, true, pecId, forfait));
+        jdbc.update("UPDATE prise_en_charge SET statut = 'VALIDEE' WHERE id = ?", pecId);
+
+        patients.updatePatient(CenterId.of(C1), p.getId().value(), commande("ASS-PE-0011", "PERMANENT", null, true, pecId, autreForfait));
+
+        assertEquals(autreForfait, jdbc.queryForObject("SELECT forfait_demande_id FROM prise_en_charge WHERE id = ?", UUID.class, pecId));
+        assertEquals("VALIDEE", jdbc.queryForObject("SELECT statut FROM prise_en_charge WHERE id = ?", String.class, pecId));
     }
 
     private Patient creer(String numero) {

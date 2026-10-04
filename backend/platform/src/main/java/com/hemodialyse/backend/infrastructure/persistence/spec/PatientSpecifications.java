@@ -32,9 +32,9 @@ public final class PatientSpecifications {
             addLike(predicates, root, cb, "codePatient", req.code());
             addLike(predicates, root, cb, "nom", req.nom());
             addLike(predicates, root, cb, "prenom", req.prenom());
-            addLike(predicates, root, cb, "sexe", req.sexe());
+            addLikeOrAnyOf(predicates, root, cb, "sexe", req.sexe());
             addLike(predicates, root, cb, "numeroAssurance", req.numeroAssurance());
-            addLike(predicates, root, cb, "etatPatient", req.etatPatient());
+            addLikeOrAnyOf(predicates, root, cb, "etatPatient", req.etatPatient());
             addIdIn(predicates, root, cb, "medecinTraitantId", refs.medecinTraitantIds());
             addIdIn(predicates, root, cb, "positionId", refs.positionIds());
             addIdIn(predicates, root, cb, "transporteurAllerId", refs.transporteurAllerIds());
@@ -97,6 +97,25 @@ public final class PatientSpecifications {
                                 String field, Set<UUID> ids) {
         if (ids == null) return;
         predicates.add(ids.isEmpty() ? cb.disjunction() : root.get(field).in(ids));
+    }
+
+    /**
+     * Filtre de liste déroulante à choix multiple : les valeurs séparées par des virgules (ex. {@code M,F}) sont
+     * comparées exactement et le patient doit correspondre à l'une d'elles ; une saisie sans virgule reste une
+     * recherche par contenu.
+     */
+    private static void addLikeOrAnyOf(List<Predicate> predicates, Root<PatientJpaEntity> root,
+                                       jakarta.persistence.criteria.CriteriaBuilder cb,
+                                       String field, String value) {
+        if (value == null || value.isBlank()) return;
+        if (!value.contains(",")) {
+            addLike(predicates, root, cb, field, value);
+            return;
+        }
+        List<String> choices = java.util.Arrays.stream(value.split(","))
+                .map(v -> v.trim().toLowerCase(Locale.ROOT)).filter(v -> !v.isEmpty()).distinct().toList();
+        if (choices.isEmpty()) return;
+        predicates.add(cb.lower(root.get(field)).in(choices));
     }
 
     private static void addLike(List<Predicate> predicates, Root<PatientJpaEntity> root,

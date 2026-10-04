@@ -2,6 +2,7 @@ package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
+import com.hemodialyse.backend.application.query.EffectifSql;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,16 @@ public class DirectionBreakdownQueryService {
         return a;
     }
 
+    /**
+     * Arguments d'une requête sur les patients de l'effectif de la période : identifiants de centre puis paramètres du
+     * prédicat d'effectif.
+     */
+    private static Object[] effectifArgs(List<UUID> ids, EffectifSql.Fragment effectif) {
+        List<Object> args = new ArrayList<>(ids);
+        args.addAll(effectif.args());
+        return args.toArray();
+    }
+
     public Breakdown breakdown(UUID societeId, LocalDate from, LocalDate to) {
         LocalDate end = to != null ? to : LocalDate.now();
         LocalDate start = from != null ? from : LocalDate.of(end.getYear(), 1, 1);
@@ -89,15 +100,15 @@ public class DirectionBreakdownQueryService {
 
         Map<UUID, long[]> sexes = new HashMap<>();          // [M, F, autre]
         Map<UUID, Map<String, Long>> ages = new HashMap<>();
-        loadPatientProfiles(in, ids, sexes, ages);
+        loadPatientProfiles(in, ids, start, end, sexes, ages);
 
         Map<String, Agg> caisseCells = new LinkedHashMap<>();
-        loadCaissePatients(in, ids, caisseCells);
+        loadCaissePatients(in, ids, start, end, caisseCells);
         loadCaisseSeances(in, ids, sqlFrom, sqlTo, caisseCells);
         loadCaisseCa(in, ids, sqlFrom, sqlTo, caisseCells);
 
         Map<UUID, Anemie> anemie = new HashMap<>();
-        loadAnemie(in, ids, sqlFrom, sqlTo, anemie);
+        loadAnemie(in, ids, start, end, anemie);
 
         Map<UUID, String> names = new HashMap<>();
         centres.forEach(c -> names.put(c.id(), c.nom()));
@@ -140,10 +151,12 @@ public class DirectionBreakdownQueryService {
                 caisseTotaux, anemieRows);
     }
 
-    private void loadPatientProfiles(String in, List<UUID> ids, Map<UUID, long[]> sexes,
-                                     Map<UUID, Map<String, Long>> ages) {
+    private void loadPatientProfiles(String in, List<UUID> ids, LocalDate start, LocalDate end,
+                                     Map<UUID, long[]> sexes, Map<UUID, Map<String, Long>> ages) {
         LocalDate today = LocalDate.now();
-        jdbc.query("SELECT center_id, sexe, date_naissance FROM patients WHERE center_id IN (" + in + ")", rs -> {
+        EffectifSql.Fragment effectif = EffectifSql.presentSur("p", start, end);
+        jdbc.query("SELECT p.center_id, p.sexe, p.date_naissance FROM patients p WHERE p.center_id IN (" + in + ") AND "
+                + effectif.sql(), rs -> {
             UUID center = rs.getObject("center_id", UUID.class);
             long[] s = sexes.computeIfAbsent(center, k -> new long[3]);
             String sexe = rs.getString("sexe");
@@ -152,17 +165,18 @@ public class DirectionBreakdownQueryService {
             java.sql.Date birth = rs.getDate("date_naissance");
             ages.computeIfAbsent(center, k -> new HashMap<>())
                     .merge(ageBucket(birth == null ? null : birth.toLocalDate(), today), 1L, Long::sum);
-        }, ids.toArray());
+        }, effectifArgs(ids, effectif));
     }
 
-    private void loadCaissePatients(String in, List<UUID> ids, Map<String, Agg> cells) {
+    private void loadCaissePatients(String in, List<UUID> ids, LocalDate start, LocalDate end, Map<String, Agg> cells) {
+        EffectifSql.Fragment effectif = EffectifSql.presentSur("p", start, end);
         jdbc.query("SELECT p.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, COUNT(*) AS n "
-                        + "FROM patients p " + CAISSE_JOIN + "WHERE p.center_id IN (" + in + ") "
+                        + "FROM patients p " + CAISSE_JOIN + "WHERE p.center_id IN (" + in + ") AND " + effectif.sql() + " "
                         + "GROUP BY p.center_id, COALESCE(ca.code, '')",
                 rs -> {
                     cell(cells, rs.getObject("center_id", UUID.class), rs.getString("code"), rs.getString("nom"))
                             .patients += rs.getLong("n");
-                }, ids.toArray());
+                }, effectifArgs(ids, effectif));
     }
 
     private void loadCaisseSeances(String in, List<UUID> ids, Date from, Date to, Map<String, Agg> cells) {
@@ -198,7 +212,9 @@ public class DirectionBreakdownQueryService {
 
     // ───────────────────────────── Chargement ─────────────────────────────
 
-    private void loadAnemie(String in, List<UUID> ids, Date from, Date to, Map<UUID, Anemie> anemie) {
+    private void loadAnemie(String in, List<UUID> ids, LocalDate start, LocalDate end, Map<UUID, Anemie> anemie) {
+        Date from = Date.valueOf(start);
+        Date to = Date.valueOf(end);
         List<Object> args = new ArrayList<>(ids);
         args.addAll(List.of(from, to));
         jdbc.query("SELECT center_id, "
@@ -217,15 +233,16 @@ public class DirectionBreakdownQueryService {
                     a.admFer = rs.getLong("adm_fer");
                     a.nonAdm = rs.getLong("non_adm");
                 }, args.toArray());
-        jdbc.query("SELECT center_id, "
-                        + "SUM(CASE WHEN epo_enabled = TRUE THEN 1 ELSE 0 END) AS sous_epo, "
-                        + "SUM(CASE WHEN fer_enabled = TRUE THEN 1 ELSE 0 END) AS sous_fer "
-                        + "FROM patients WHERE center_id IN (" + in + ") GROUP BY center_id",
+        EffectifSql.Fragment effectif = EffectifSql.presentSur("p", start, end);
+        jdbc.query("SELECT p.center_id, "
+                        + "SUM(CASE WHEN p.epo_enabled = TRUE THEN 1 ELSE 0 END) AS sous_epo, "
+                        + "SUM(CASE WHEN p.fer_enabled = TRUE THEN 1 ELSE 0 END) AS sous_fer "
+                        + "FROM patients p WHERE p.center_id IN (" + in + ") AND " + effectif.sql() + " GROUP BY p.center_id",
                 rs -> {
                     Anemie a = anemie.computeIfAbsent(rs.getObject("center_id", UUID.class), k -> new Anemie());
                     a.sousEpo = rs.getLong("sous_epo");
                     a.sousFer = rs.getLong("sous_fer");
-                }, ids.toArray());
+                }, effectifArgs(ids, effectif));
     }
 
     public record SexeRow(UUID centerId, String nom, Long masculin, Long feminin, Long autre) {

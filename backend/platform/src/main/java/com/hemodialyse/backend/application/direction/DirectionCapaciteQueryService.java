@@ -5,6 +5,7 @@ import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator;
 import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator.Niveau;
 import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator.Resultat;
+import com.hemodialyse.backend.application.query.EffectifSql;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -43,9 +44,13 @@ public class DirectionCapaciteQueryService {
             + "AND date_installation < ? AND centre_id IN (%s) GROUP BY centre_id";
     private static final String SERIES = "SELECT center_id AS cid, COUNT(*) AS n FROM position_creneau "
             + "WHERE center_id IN (%s) GROUP BY center_id";
-    private static final String FILE_ACTIVE = "SELECT center_id AS cid, COUNT(DISTINCT patient_id) AS n FROM seances "
-            + "WHERE date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') "
-            + "AND center_id IN (%s) GROUP BY center_id";
+    /**
+     * File active : effectif de la période (règle unique RG-PAT-032 — un patient sorti avant le début n'est pas compté,
+     * un patient sorti pendant ou après la période l'est), hors patients « en sommeil ».
+     */
+    private static final String FILE_ACTIVE = "SELECT p.center_id AS cid, COUNT(*) AS n FROM patients p WHERE "
+            + EffectifSql.presentSur("p", LocalDate.EPOCH, LocalDate.EPOCH).sql()
+            + " AND COALESCE(p.en_sommeil, FALSE) = FALSE AND p.center_id IN (%s) GROUP BY p.center_id";
     private static final String PARAMETRES = "SELECT center_id AS cid, patients_par_poste_serie AS n "
             + "FROM planning_parametres WHERE center_id IN (%s)";
 
@@ -84,7 +89,7 @@ public class DirectionCapaciteQueryService {
         List<UUID> ids = centres.stream().map(CentreInfo::id).toList();
         Map<UUID, Long> generateurs = compter(GENERATEURS, ids, end.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC));
         Map<UUID, Long> series = compter(SERIES, ids);
-        Map<UUID, Long> files = compter(FILE_ACTIVE, ids, Date.valueOf(start), Date.valueOf(end));
+        Map<UUID, Long> files = compter(FILE_ACTIVE, ids, EffectifSql.presentSur("p", start, end).args().toArray());
         Map<UUID, Long> parametres = compter(PARAMETRES, ids);
 
         List<Resultat> resultats = new ArrayList<>();

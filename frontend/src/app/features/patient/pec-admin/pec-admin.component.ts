@@ -17,6 +17,7 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 import {SearchableSelectComponent} from '../../../shared/searchable-select.component';
 import {PecAdminStore} from './state/pec-admin.store';
+import {toLocalIsoDate} from '../../../shared/date.util';
 
 @Component({
   selector: 'app-pec-admin',
@@ -99,7 +100,7 @@ export class PecAdminComponent implements OnInit {
     if (!pec || this.validateDisabled()) return;
     const cid = this.store.currentCenterId()!;
     const v = this.validateModel();
-    const toDate = (d: any) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
+    const toDate = (d: any) => (d instanceof Date ? toLocalIsoDate(d) : d);
 
     this.pecAdminStore.validatePec({
       pecId: pec.id,

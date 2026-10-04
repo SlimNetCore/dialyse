@@ -37,6 +37,28 @@ public class PriseEnCharge {
         this.createdAt = OffsetDateTime.now();
     }
 
+    /**
+     * Les informations de la demande sont-elles déjà celles-ci ?
+     */
+    public boolean demandeIdentique(LocalDate debut, LocalDate fin, UUID forfaitId) {
+        return java.util.Objects.equals(dateDebutDemande, debut) && java.util.Objects.equals(dateFinDemande, fin)
+                && java.util.Objects.equals(forfaitDemandeId, forfaitId);
+    }
+
+    /**
+     * Révise la demande sans toucher au statut ni à l'accord déjà prononcé : enregistrer la fiche d'un patient ne doit
+     * jamais ramener une prise en charge validée à l'état « créée ».
+     *
+     * @return {@code true} si la demande a changé
+     */
+    public boolean reviserDemande(LocalDate debut, LocalDate fin, UUID forfaitId) {
+        if (demandeIdentique(debut, fin, forfaitId)) return false;
+        this.dateDebutDemande = debut;
+        this.dateFinDemande = fin;
+        this.forfaitDemandeId = forfaitId;
+        return true;
+    }
+
     public void valider(LocalDate debutEffectif, LocalDate finEffectif, UUID forfaitEffectifId) {
         if (status != PecStatus.CREE) throw new IllegalStateException("Transition invalide vers VALIDEE");
         this.dateDebutEffectif = debutEffectif;

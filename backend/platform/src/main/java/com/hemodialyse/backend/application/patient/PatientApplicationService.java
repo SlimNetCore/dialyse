@@ -76,20 +76,8 @@ public class PatientApplicationService implements PatientUseCase {
         syncAssureRelation(saved, cmd, centerId);
         mouvementRepo.save(MouvementsPatient.admission(saved, Instant.now()));
 
-        if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
-            attestationRepo.save(new AttestationDroit(
-                    cmd.attestationId() != null ? cmd.attestationId() : UUID.randomUUID(),
-                    saved.getId().value(), centerId.value(),
-                    cmd.attestationDebut(), cmd.attestationFin()
-            ));
-        }
-        if (cmd.pecDateDebutDemande() != null && cmd.pecDateFinDemande() != null) {
-            pecRepo.save(new PriseEnCharge(
-                    cmd.pecId() != null ? cmd.pecId() : UUID.randomUUID(),
-                    saved.getId().value(), centerId.value(),
-                    cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId()
-            ));
-        }
+        enregistrerAttestation(saved, centerId, cmd);
+        enregistrerPec(saved, centerId, cmd);
         return saved;
     }
 
@@ -118,21 +106,50 @@ public class PatientApplicationService implements PatientUseCase {
                 .ifPresent(mouvementRepo::save);
         liberationPlaces.libererALEnregistrement(saved);
 
-        if (cmd.attestationDebut() != null && cmd.attestationFin() != null) {
-            UUID attId = cmd.attestationId() != null ? cmd.attestationId() : UUID.randomUUID();
-            attestationRepo.save(new AttestationDroit(
-                    attId, saved.getId().value(), centerId.value(),
-                    cmd.attestationDebut(), cmd.attestationFin()
-            ));
-        }
-        if (cmd.pecDateDebutDemande() != null && cmd.pecDateFinDemande() != null) {
-            UUID pecId = cmd.pecId() != null ? cmd.pecId() : UUID.randomUUID();
-            pecRepo.save(new PriseEnCharge(
-                    pecId, saved.getId().value(), centerId.value(),
-                    cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId()
-            ));
-        }
+        enregistrerAttestation(saved, centerId, cmd);
+        enregistrerPec(saved, centerId, cmd);
         return saved;
+    }
+
+    /**
+     * Enregistre l'attestation saisie sur la fiche sans jamais en dupliquer : une attestation déjà présente avec les
+     * mêmes dates est conservée telle quelle.
+     */
+    private void enregistrerAttestation(Patient patient, CenterId centerId, CreatePatientCommand cmd) {
+        if (cmd.attestationDebut() == null || cmd.attestationFin() == null) return;
+        UUID patientId = patient.getId().value();
+        boolean dejaPresente = attestationRepo.findByPatient(centerId, patientId).stream()
+                .anyMatch(a -> cmd.attestationDebut().equals(a.getDateDebut()) && cmd.attestationFin().equals(a.getDateFin()));
+        if (dejaPresente) return;
+        attestationRepo.save(new AttestationDroit(
+                cmd.attestationId() != null ? cmd.attestationId() : UUID.randomUUID(), patientId, centerId.value(),
+                cmd.attestationDebut(), cmd.attestationFin()));
+    }
+
+    /**
+     * Enregistre la demande de prise en charge saisie sur la fiche. Une prise en charge existante (par identifiant, à
+     * défaut de même demande) est conservée avec son statut et son accord : enregistrer la fiche ne ramène jamais une
+     * prise en charge validée à l'état « créée ». Seule une demande modifiée met à jour la prise en charge existante.
+     */
+    private void enregistrerPec(Patient patient, CenterId centerId, CreatePatientCommand cmd) {
+        if (cmd.pecDateDebutDemande() == null || cmd.pecDateFinDemande() == null) return;
+        UUID patientId = patient.getId().value();
+        List<PriseEnCharge> existantes = pecRepo.findByPatient(centerId, patientId);
+        PriseEnCharge existante = cmd.pecId() == null ? null : existantes.stream()
+                .filter(p -> cmd.pecId().equals(p.getId())).findFirst().orElse(null);
+        if (existante == null) {
+            existante = existantes.stream()
+                    .filter(p -> p.demandeIdentique(cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId()))
+                    .findFirst().orElse(null);
+        }
+        if (existante == null) {
+            pecRepo.save(new PriseEnCharge(cmd.pecId() != null ? cmd.pecId() : UUID.randomUUID(), patientId,
+                    centerId.value(), cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId()));
+            return;
+        }
+        if (existante.reviserDemande(cmd.pecDateDebutDemande(), cmd.pecDateFinDemande(), cmd.pecForfaitDemandeId())) {
+            pecRepo.save(existante);
+        }
     }
 
     @Override

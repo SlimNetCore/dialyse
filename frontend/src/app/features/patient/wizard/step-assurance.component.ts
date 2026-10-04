@@ -29,6 +29,7 @@ import {CentresPayeursDetailsStore, CentresPayeursStore,} from '../../../core/st
 import {PatientFicheStore} from '../state/patient-fiche.store';
 import {consumeWizardActionStatus} from './wizard-action-status.util';
 import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
+import {toLocalIsoDate} from '../../../shared/date.util';
 
 interface AssignmentEdit {
   id: string;
@@ -150,7 +151,7 @@ export class AssureEditDialogComponent {
     const dn = val.dateNaissance;
     this.dialogRef.close({
       ...val,
-      dateNaissance: dn instanceof Date ? dn.toISOString().slice(0, 10) : (dn ?? null),
+      dateNaissance: dn instanceof Date ? toLocalIsoDate(dn) : (dn ?? null),
     });
   }
 }
@@ -500,7 +501,7 @@ export class StepAssuranceComponent implements OnInit, OnChanges {
     const edit = this.editingAssignment();
     const centerId = this.appShell.currentCenterId();
     if (!edit || !this.patientId || !centerId) return;
-    const toStr = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
+    const toStr = (d: Date | null) => (d ? toLocalIsoDate(d) : null);
     const debut = toStr(edit.dateDebutAffectation);
     const fin = toStr(edit.dateFinAffectation);
     if (debut && fin && fin < debut) {

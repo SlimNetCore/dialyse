@@ -85,6 +85,20 @@
   `DECES`, `GREFFE`, `GUERISON`, `PLACE_LIBEREE`) portant l'état précédent et nouveau, la date d'effet et
   l' **affectation occupée à cet instant** (salle, créneau, générateur, jours). Un mouvement n'est jamais modifié ni
   supprimé ; la libération automatique est marquée comme telle.
+- **RG-PAT-036** — **Enregistrer la fiche ne dégrade jamais la prise en charge ni l'attestation** : la demande de prise
+  en charge saisie sur la fiche retrouve la PEC existante (par identifiant, à défaut de même demande) et la conserve
+  avec
+  son statut et son accord (une PEC `VALIDEE` reste `VALIDEE`) ; seule une demande modifiée met à jour les dates et le
+  forfait demandés. Une PEC n'est créée (état `CREE`) que si aucune PEC ne correspond. Une attestation déjà présente
+  avec
+  les mêmes dates n'est pas recréée (aucun doublon).
+- **RG-PAT-037** — **Effectif d'une période** (règle unique, partout où l'on compte des patients : synthèse mensuelle,
+  tableau de bord de la direction — patients, sexe, âge, caisse, anémie —, file active rapportée à la capacité, nombre
+  de patients du tableau de bord du centre) : un patient est compté s'il est **admis au plus tard le dernier jour de la
+  période** et s'il n'est **pas sorti avant son premier jour**. La sortie (transfert, décès, greffe, guérison) ou la fin
+  de séjour est lue à la date d'évènement selon RG-PAT-032 : un évènement **pendant ou après** la période garde le
+  patient dans l'effectif, un évènement **antérieur** l'en retire ; un état de sortie sans date n'est jamais compté. La
+  file active de la capacité écarte en plus les patients « en sommeil » (RG-PAT-008).
 - **RG-PAT-035** — Le suivi des mouvements est consultable en **liste paginée** (page 0, taille 20 par défaut,
   100 maximum), du plus récent au plus ancien, filtrable par patient, type et période de date d'effet, **limitée au
   centre courant**, pour les profils `ADMIN`, `SECRETAIRE`, `MEDECIN` et `INFIRMIER`.
@@ -95,7 +109,9 @@
   filtrable
   par code, nom, prénom, sexe, période d'admission, numéro d'assurance, état, statut « non facturable » et, par texte du
   libellé
-  affiché, médecin traitant, créneau, transporteurs aller/retour et forfait.
+  affiché, médecin traitant, créneau, transporteurs aller/retour et forfait. Les filtres **sexe** et **état** acceptent
+  **plusieurs valeurs** séparées par des virgules (ex. `M,F`) : le patient doit correspondre à l'une d'elles
+  (comparaison exacte, insensible à la casse et aux espaces) ; une saisie sans virgule reste une recherche par contenu.
 - **RG-PAT-021** — Tri autorisé uniquement sur code, nom, prénom, sexe, date d'admission, numéro d'assurance, état ; un
   tri demandé
   sur une autre colonne retombe sur l'ordre par défaut (jamais d'erreur, jamais de tri SQL arbitraire).
@@ -104,9 +120,10 @@
   sa dernière PEC validée apparaissent dans la liste.
 - **RG-PAT-023** — Les libellés de référentiels (médecin, créneau, transporteurs, forfait) sont résolus par lot pour la
   page (pas de requête par ligne).
-- **RG-PAT-024** — La synthèse mensuelle des patients (comptages par état, etc.) est calculée pour le mois demandé (mois
-  courant par
-  défaut), mise en cache **par centre et par mois** (3 min) ; ses détails de même.
+- **RG-PAT-024** — La synthèse mensuelle des patients (comptages par sexe, âge, KT) est calculée pour le mois demandé
+  (mois courant par défaut) sur l' **effectif du mois** (RG-PAT-037), mise en cache **par centre et par mois** (3 min) ;
+  ses détails de même (motif d'inclusion : `PERMANENT`, `EVENT_MONTH` = sortie ou fin de séjour dans le mois,
+  `ACTIVE_PERIOD` = sortie ou fin de séjour postérieure au mois).
 
 ## 4.3 Assurés (ayants droit)
 

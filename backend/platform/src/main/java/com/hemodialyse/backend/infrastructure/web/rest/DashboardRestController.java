@@ -142,9 +142,15 @@ public class DashboardRestController {
 
     private long countPatients(UUID centerId, YearMonth month) {
         if (month == null) {
+            // effectif d'aujourd'hui : un patient sorti (transfert, décès, greffe, guérison, fin de séjour) n'est plus compté
+            LocalDate today = LocalDate.now(java.time.ZoneOffset.UTC);
+            var effectif = com.hemodialyse.backend.application.query.EffectifSql.presentSur("p", today, today);
+            java.util.List<Object> args = new java.util.ArrayList<>();
+            args.add(centerId);
+            args.addAll(effectif.args());
             Long count = jdbc.queryForObject(
-                    "SELECT COUNT(1) FROM patients WHERE center_id = ?",
-                    Long.class, centerId);
+                    "SELECT COUNT(1) FROM patients p WHERE p.center_id = ? AND " + effectif.sql(),
+                    Long.class, args.toArray());
             return count != null ? count : 0;
         }
         LocalDate start = month.atDay(1);

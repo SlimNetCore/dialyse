@@ -403,7 +403,7 @@ export type PatientSummaryDetailItem = {
   dateEvenementEtat?: string | null;
   dateAdmission?: string | null;
   sousKt: boolean;
-  inclusionReason: 'PERMANENT' | 'EVENT_MONTH';
+  inclusionReason: 'PERMANENT' | 'EVENT_MONTH' | 'ACTIVE_PERIOD';
 };
 
 export type PatientSummaryDetailsResponse = {

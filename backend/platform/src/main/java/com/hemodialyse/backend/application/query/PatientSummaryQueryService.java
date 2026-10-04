@@ -19,12 +19,11 @@ public class PatientSummaryQueryService {
     }
 
     private static boolean shouldIncludeInSummary(Map<String, Object> row, YearMonth referenceMonth) {
-        String etatPatient = resolvePatientState(row.get("etat_patient"));
-        if ("PERMANENT".equals(etatPatient)) {
-            return true;
-        }
-        LocalDate eventDate = toLocalDate(row.get("date_evenement_etat"));
-        return eventDate != null && YearMonth.from(eventDate).equals(referenceMonth);
+        // Effectif du mois (règle unique, RG-PAT-032) : admis au plus tard en fin de mois et pas déjà sorti avant le 1er ;
+        // un patient dont la sortie tombe pendant ou après le mois est compté, avant le mois il ne l'est pas.
+        return EffectifSql.present(resolvePatientState(row.get("etat_patient")),
+                toLocalDate(row.get("date_evenement_etat")), toLocalDate(row.get("date_admission")),
+                referenceMonth.atDay(1), referenceMonth.atEndOfMonth());
     }
 
     private static void increment(Map<String, Long> counts, String code) {
@@ -118,7 +117,7 @@ public class PatientSummaryQueryService {
 
     public PatientSummaryResponse getSummary(UUID centerId, YearMonth referenceMonth) {
         List<Map<String, Object>> rows = jdbc.queryForList(
-                "SELECT sexe, date_naissance, sous_kt, etat_patient, date_evenement_etat FROM patients WHERE center_id = ?",
+                "SELECT sexe, date_naissance, sous_kt, etat_patient, date_evenement_etat, date_admission FROM patients WHERE center_id = ?",
                 centerId
         );
 
@@ -201,7 +200,10 @@ public class PatientSummaryQueryService {
             String state = resolvePatientState(row.get("etat_patient"));
             LocalDate eventDate = toLocalDate(row.get("date_evenement_etat"));
             LocalDate admissionDate = toLocalDate(row.get("date_admission"));
-            String inclusionReason = "PERMANENT".equals(state) ? "PERMANENT" : "EVENT_MONTH";
+            // PERMANENT : état permanent ; EVENT_MONTH : évènement (sortie, fin de séjour) dans le mois ;
+            // ACTIVE_PERIOD : séjour ou sortie postérieur au mois, le patient est encore dans l'effectif
+            String inclusionReason = "PERMANENT".equals(state) ? "PERMANENT"
+                    : eventDate != null && YearMonth.from(eventDate).equals(referenceMonth) ? "EVENT_MONTH" : "ACTIVE_PERIOD";
 
             items.add(new PatientSummaryDetailItem(
                     id,

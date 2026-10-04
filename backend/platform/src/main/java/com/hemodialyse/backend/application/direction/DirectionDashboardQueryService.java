@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.direction;
 
+import com.hemodialyse.backend.application.query.EffectifSql;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -99,11 +100,15 @@ public class DirectionDashboardQueryService {
         Date sqlTo = Date.valueOf(end);
 
         Map<UUID, long[]> patients = new HashMap<>();
-        jdbc.query("SELECT center_id, COUNT(*) AS total, SUM(CASE WHEN sous_kt = TRUE THEN 1 ELSE 0 END) AS kt "
-                        + "FROM patients WHERE center_id IN (" + in + ") GROUP BY center_id",
+        // Effectif de la période : un patient sorti avant le début n'est pas compté, un patient sorti pendant ou après l'est
+        EffectifSql.Fragment effectif = EffectifSql.presentSur("p", start, end);
+        List<Object> effectifArgs = new ArrayList<>(ids);
+        effectifArgs.addAll(effectif.args());
+        jdbc.query("SELECT p.center_id, COUNT(*) AS total, SUM(CASE WHEN p.sous_kt = TRUE THEN 1 ELSE 0 END) AS kt "
+                        + "FROM patients p WHERE p.center_id IN (" + in + ") AND " + effectif.sql() + " GROUP BY p.center_id",
                 rs -> {
                     patients.put(rs.getObject("center_id", UUID.class), new long[]{rs.getLong("total"), rs.getLong("kt")});
-                }, ids.toArray());
+                }, effectifArgs.toArray());
 
         Map<UUID, Long> seances = new HashMap<>();
         jdbc.query("SELECT center_id, COUNT(*) AS n FROM seances WHERE center_id IN (" + in + ") "

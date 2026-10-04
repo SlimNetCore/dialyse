@@ -65,7 +65,10 @@ class DirectionCapaciteIntegrationTest {
         creneau(GRAND, "A", "Après-midi");
         for (int i = 0; i < 6; i++) seance(patient(GRAND), GRAND, debut.plusDays(2 + i), "VALIDEE");
         seance(patient(GRAND), GRAND, debut.plusDays(3), "CREE");            // pas réalisée : ne compte pas
-        seance(patient(GRAND), GRAND, debut.minusDays(10), "VALIDEE");        // avant la période
+        UUID sorti = patient(GRAND);                                           // transféré avant la période : hors effectif
+        seance(sorti, GRAND, debut.minusDays(12), "VALIDEE");
+        jdbc.update("UPDATE patients SET etat_patient = 'TRANSFERE', date_evenement_etat = ? WHERE id = ?",
+                Date.valueOf(debut.minusDays(10)), sorti);
         UUID deuxSeances = patient(GRAND);
         seance(deuxSeances, GRAND, debut.plusDays(4), "FACTUREE");
         seance(deuxSeances, GRAND, debut.plusDays(6), "SIGNEE");              // un même patient compte une fois
@@ -112,8 +115,9 @@ class DirectionCapaciteIntegrationTest {
         assertEquals(2, grand.capacite().series());
         assertEquals(3, grand.capacite().patientsParPosteEtSerie());
         assertEquals(84, grand.capacite().capacite());
-        assertEquals(7L, grand.capacite().fileActive(), "6 patients + 1 avec deux séances ; hors CREE et hors période");
-        assertEquals(0, grand.capacite().tauxOccupation().compareTo(new BigDecimal("8.3")));
+        assertEquals(8L, grand.capacite().fileActive(),
+                "effectif de la période : 8 patients, hors le patient transféré avant le début");
+        assertEquals(0, grand.capacite().tauxOccupation().compareTo(new BigDecimal("9.5")));
         assertEquals(Niveau.MARGE, grand.capacite().niveau());
         assertFalse(grand.capacite().atteinte());
 
@@ -124,16 +128,19 @@ class DirectionCapaciteIntegrationTest {
 
         assertEquals(24, o.total().generateurs());
         assertEquals(98, o.total().capacite(), "84 + 14");
-        assertEquals(9L, o.total().fileActive());
+        assertEquals(10L, o.total().fileActive(), "8 + 2");
         assertEquals(8, o.regle().generateursParSecours());
     }
 
     @Test
     void the_active_file_follows_the_selected_period() {
-        CapaciteOverview ancienne = service.capacite(SOC, debut.minusDays(20), debut.minusDays(5));
+        CapaciteOverview pendantLaSortie = service.capacite(SOC, debut.minusDays(20), debut.minusDays(5));
+        CapaciteOverview avantLesAdmissions = service.capacite(SOC, LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30));
 
-        assertNull(centre(ancienne, GRAND).capacite().fileActive(), "un seul patient dans cette période : file masquée");
-        assertEquals(84, centre(ancienne, GRAND).capacite().capacite(), "la capacité ne dépend pas des séances");
+        assertEquals(9L, centre(pendantLaSortie, GRAND).capacite().fileActive(),
+                "le transfert tombe dans la période : le patient est encore compté");
+        assertEquals(0L, centre(avantLesAdmissions, GRAND).capacite().fileActive(), "personne n'est encore admis");
+        assertEquals(84, centre(pendantLaSortie, GRAND).capacite().capacite(), "la capacité ne dépend pas des séances");
     }
 
     @Test

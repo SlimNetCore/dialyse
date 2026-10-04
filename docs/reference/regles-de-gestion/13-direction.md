@@ -30,7 +30,8 @@
 
 ## 13.3 Vue d'ensemble et finances
 
-- **RG-DIR-020** — Par centre et total : patients (effectif courant), patients « sous KT », séances réalisées de la
+- **RG-DIR-020** — Par centre et total : patients (effectif de la période, RG-PAT-037 : un patient sorti avant la
+  période n'est pas compté, un patient sorti pendant ou après l'est), patients « sous KT », séances réalisées de la
   période (statuts validée, signée ou facturée), factures, chiffre d'affaires HT et TTC,
   montants encaissés des factures de la période, évolution mensuelle, et **comparaison avec la période précédente** de
   même durée (activité et finances seulement : le nombre de patients est un effectif
@@ -94,8 +95,9 @@
 - **RG-DIR-080** — Par centre et total, pour la période : générateurs installés au plus tard à la fin de la période
   (hors réformés, désactivés, supprimés), générateurs de secours (1 pour 8), postes actifs,
   séries par jour (créneaux configurés), patients par poste et par série (paramètre du centre, 3 par défaut), **capacité
-  théorique**, **file active** (patients distincts ayant au moins une séance réalisée
-  dans la période) et **taux d'occupation** avec son niveau (marge, proche de la saturation ≥ 90 %, atteinte, sans
+  théorique**, **file active** (effectif de la période, RG-PAT-037 : patients admis non sortis
+  avant la période, hors « en sommeil ») et **taux d'occupation** avec son niveau (marge, proche de la saturation ≥
+  90 %, atteinte, sans
   capacité). Le total additionne les centres ; séries et patients par poste n'ont pas de sens
   consolidé. Une file active de 1 à 4 patients est masquée avec son taux. Voir RG-PLN-070 à 074.
 

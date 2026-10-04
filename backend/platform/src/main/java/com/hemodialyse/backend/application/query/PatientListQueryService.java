@@ -64,6 +64,14 @@ public class PatientListQueryService {
         return ids.isEmpty() ? byLabel.apply(value) : ids;
     }
 
+    /**
+     * Lecture d'un libellé résolu par lot : un patient sans référentiel (clé nulle) n'a simplement pas de libellé (les
+     * tables de résultats peuvent être immuables et refuser une clé nulle).
+     */
+    private static <V> V lookup(Map<UUID, V> labels, UUID id) {
+        return id == null ? null : labels.get(id);
+    }
+
     private static boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
@@ -111,15 +119,15 @@ public class PatientListQueryService {
             row.put("dateEvenementEtat", dateEvt);
             row.put("dateEvenement", dateEvt);
             row.put("medecinTraitantId", p.getMedecinTraitantId());
-            row.put("medecinTraitantNom", medecins.get(p.getMedecinTraitantId()));
+            row.put("medecinTraitantNom", lookup(medecins, p.getMedecinTraitantId()));
             row.put("positionId", p.getPositionId());
-            PatientReferenceLookup.CodeLibelle position = positions.get(p.getPositionId());
+            PatientReferenceLookup.CodeLibelle position = lookup(positions, p.getPositionId());
             row.put("positionCode", position != null ? position.code() : null);
             row.put("positionLibelle", position != null ? position.libelle() : null);
             row.put("transporteurAllerId", p.getTransporteurAllerId());
-            row.put("transporteurAllerNom", transporteurs.get(p.getTransporteurAllerId()));
+            row.put("transporteurAllerNom", lookup(transporteurs, p.getTransporteurAllerId()));
             row.put("transporteurRetourId", p.getTransporteurRetourId());
-            row.put("transporteurRetourNom", transporteurs.get(p.getTransporteurRetourId()));
+            row.put("transporteurRetourNom", lookup(transporteurs, p.getTransporteurRetourId()));
             row.put("jourDimanche", p.getJourDimanche());
             row.put("jourLundi", p.getJourLundi());
             row.put("jourMardi", p.getJourMardi());
@@ -130,7 +138,7 @@ public class PatientListQueryService {
             row.put("nonFacturable", nonFacturable);
             row.put("pecStatus", pec != null ? pec.getStatut() : null);
             row.put("pecForfaitId", pec != null ? pec.getForfaitDemandeId() : null);
-            PatientReferenceLookup.CodeLibelle forfait = pec != null ? forfaits.get(pec.getForfaitDemandeId()) : null;
+            PatientReferenceLookup.CodeLibelle forfait = pec != null ? lookup(forfaits, pec.getForfaitDemandeId()) : null;
             row.put("pecForfaitCode", forfait != null ? forfait.code() : null);
             row.put("pecForfaitLibelle", forfait != null ? forfait.libelle() : null);
             items.add(row);
