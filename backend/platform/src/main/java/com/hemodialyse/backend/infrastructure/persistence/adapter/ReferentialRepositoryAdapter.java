@@ -104,7 +104,7 @@ public class ReferentialRepositoryAdapter implements ReferentialRepositoryPort {
     @Cacheable(cacheNames = "ref.generateurs", key = "#c.value().toString()")
     public List<RefItem> findGenerateurs(CenterId c) {
         // Module GMAO v2 : les générateurs de dialyse sont l'agrégat GMAO Equipement (type
-        // GENERATEUR_DIALYSE), source de vérité unique — l'ancien référentiel plat "generateur" est retiré.
+        // GENERATEUR_DIALYSE), source de vérité unique.
         return jdbc.query(
                 "SELECT g.id, g.code, CONCAT('Générateur ', g.code) as nom, " +
                         "CAST(g.salle_id AS VARCHAR) as adresse, null, " +

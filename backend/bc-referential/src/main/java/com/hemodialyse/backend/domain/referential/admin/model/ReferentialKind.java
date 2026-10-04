@@ -47,8 +47,7 @@ public enum ReferentialKind {
 
     // Les générateurs de dialyse ne sont plus un référentiel plat administrable ici depuis le module
     // GMAO v2 : ils sont gérés comme des équipements GMAO (CRUD, statut de maintenance, coûts...) via
-    // /gmao/equipements (type GENERATEUR_DIALYSE). Voir GenerateurMigrationRunner pour la migration des
-    // données existantes.
+    // /gmao/equipements (type GENERATEUR_DIALYSE).
 
     CAISSE("caisses", "Caisses", 1, List.of(
             text("code", "Code", true, 50, "CNAS", "code caisse"),

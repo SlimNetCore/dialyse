@@ -41,10 +41,8 @@ CREATE TABLE IF NOT EXISTS salle (
     nom VARCHAR(255) NOT NULL
 );
 
--- L'ancien référentiel "generateur" est retiré (module GMAO v2) : les générateurs de dialyse sont
--- désormais l'agrégat GMAO Equipement (type GENERATEUR_DIALYSE, table gmao_equipements, gérée par
--- Hibernate ddl-auto). Les lignes existantes en production sont migrées au démarrage, avec le même id,
--- par GenerateurMigrationRunner — voir backend/platform/.../infrastructure/config/GenerateurMigrationRunner.java.
+-- Les générateurs de dialyse sont l'agrégat GMAO Equipement (type GENERATEUR_DIALYSE, table gmao_equipements, gérée
+-- par Hibernate ddl-auto). L'ancienne table plate "generateur" n'existe plus (supprimée par la migration V19).
 
 CREATE TABLE IF NOT EXISTS position_creneau (
     id UUID PRIMARY KEY,

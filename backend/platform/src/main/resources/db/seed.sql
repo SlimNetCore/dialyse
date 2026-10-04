@@ -107,7 +107,7 @@ MERGE INTO salle (id, center_id, code, nom) KEY (id)
 VALUES ('50000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'S03', 'Salle ISO');
 
 -- Générateurs de dialyse (démo) — centre 1 — module GMAO v2 : Equipement (type GENERATEUR_DIALYSE)
--- est désormais la source de vérité unique, l'ancien référentiel plat "generateur" est retiré.
+-- est la source de vérité unique.
 MERGE INTO gmao_equipements
     (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
     salle_id, date_creation, cree_par) KEY (id)

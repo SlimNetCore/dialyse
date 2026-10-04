@@ -33,8 +33,7 @@ final class ReferentialAdminTables {
                 List.of(text("code", "code"), text("nom", "nom"), text("isolement", "isolement"),
                         new Column("capacite", "capacite", ColumnType.INTEGER)),
                 List.of(), List.of("t.code", "t.nom"), "t.code",
-                // Les générateurs vivent désormais dans gmao_equipements (module GMAO v2), plus dans
-                // l'ancien référentiel plat "generateur" — l'usage reste vérifié génériquement.
+                // Les générateurs vivent dans gmao_equipements (module GMAO v2) : l'usage d'une salle y est vérifié.
                 List.of(new Usage("gmao_equipements", "salle_id"), new Usage("patients", "salle_id")),
                 List.of("ref.salles", "ref.generateurs")));
 

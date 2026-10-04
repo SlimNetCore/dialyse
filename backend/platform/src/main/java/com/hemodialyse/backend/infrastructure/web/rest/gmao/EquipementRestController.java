@@ -24,8 +24,8 @@ import java.util.UUID;
  * centre de l'utilisateur authentifié. Liste obligatoirement paginée (AGENTS.md §9).
  * <p>
  * Depuis la v2, {@code Equipement} (type {@code GENERATEUR_DIALYSE}) est la source de vérité
- * unique pour les générateurs de dialyse (l'ancien référentiel plat {@code generateur} est retiré,
- * cf. {@code GenerateurMigrationRunner}) : chaque endpoint d'écriture évince le cache référentiel
+ * unique pour les générateurs de dialyse (l'ancien référentiel plat {@code generateur} est supprimé, migration
+ * V19) : chaque endpoint d'écriture évince le cache référentiel
  * {@code ref.generateurs} pour que le wizard patient / l'affichage séance ne restent jamais sur un
  * statut périmé (sécurité patient — voir {@code EquipementFicheRestController}).
  */
