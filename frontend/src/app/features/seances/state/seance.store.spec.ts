@@ -44,6 +44,7 @@ describe('SeanceStore', () => {
     removeSeanceConsommable: ReturnType<typeof vi.fn>;
     addSeanceConsommable: ReturnType<typeof vi.fn>;
     getSeanceRaccourcis: ReturnType<typeof vi.fn>;
+    deverrouillerSeance: ReturnType<typeof vi.fn>;
     saveSeanceRaccourcis: ReturnType<typeof vi.fn>;
     getRecentSeancesPatient: ReturnType<typeof vi.fn>;
     updateSeanceConsommableQuantite: ReturnType<typeof vi.fn>;
@@ -114,6 +115,7 @@ describe('SeanceStore', () => {
       removeSeanceConsommable: vi.fn().mockReturnValue(of({removed: true, articleId: 'art1'})),
       addSeanceConsommable: vi.fn().mockReturnValue(of({added: true})),
       getSeanceRaccourcis: vi.fn().mockReturnValue(of(['art1', 'art2'])),
+      deverrouillerSeance: vi.fn(),
       saveSeanceRaccourcis: vi.fn().mockImplementation((_c: string, ids: string[]) => of(ids)),
       getRecentSeancesPatient: vi.fn().mockReturnValue(of([{
         seanceId: 'r1',
@@ -230,6 +232,39 @@ describe('SeanceStore', () => {
     expect(mockApi.getSeanceSummary).toHaveBeenCalledWith(SEANCE_ID, CENTER_ID);
     expect(store.savingConsommable()).toBe(false);
     expect(store.scanMessage()).toBe('SEANCES.CONSUMABLE_ADDED');
+  });
+  it('should ask only for the unlocked sessions when the nurse loads the forgotten ones', () => {
+    const store = TestBed.inject(SeanceStore);
+
+    store.loadPendingSeances({centerId: CENTER_ID, from: '2026-09-28', to: '2026-10-04', deverrouillee: true});
+
+    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID, 0, 50, expect.objectContaining({
+      deverrouillee: true,
+      status: 'CREE'
+    }));
+  });
+  it('should unlock a forgotten session and mark it as unlocked in the displayed list, or surface the error', () => {
+    mockApi.listSeances.mockReturnValueOnce(of({
+      items: [{id: 'old1', status: 'CREE'}, {id: 'old2', status: 'CREE'}], total: 2, page: 0, size: 50,
+    }));
+    mockApi.deverrouillerSeance.mockReturnValueOnce(of({
+      id: 'old1',
+      status: 'CREE',
+      regularisationDeverrouilleeAt: '2026-10-05T07:00:00Z'
+    }));
+    const store = TestBed.inject(SeanceStore);
+    store.loadPendingSeances({centerId: CENTER_ID, from: '2026-09-28', to: '2026-10-04'});
+
+    store.unlockSeance({seanceId: 'old1', centerId: CENTER_ID});
+
+    expect(mockApi.deverrouillerSeance).toHaveBeenCalledWith('old1', CENTER_ID);
+    expect(store.pendingSeances()[0].regularisationDeverrouilleeAt).toBe('2026-10-05T07:00:00Z');
+    expect(store.pendingSeances()[1].regularisationDeverrouilleeAt).toBeUndefined();
+
+    mockApi.deverrouillerSeance.mockReturnValueOnce(throwError(() => ({status: 422})));
+    store.unlockSeance({seanceId: 'old2', centerId: CENTER_ID});
+    expect(store.pendingSeances()[1].regularisationDeverrouilleeAt).toBeUndefined();
+    expect(store.error()).toBeTruthy();
   });
   it('should load the unvalidated sessions of the previous days, oldest first, and clear them on error', () => {
     mockApi.listSeances.mockReturnValueOnce(of({items: [{id: 'old1', status: 'CREE'}], total: 1, page: 0, size: 50}));

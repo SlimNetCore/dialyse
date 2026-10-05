@@ -47,6 +47,21 @@ describe('NotificationBellComponent — textes des évènements', () => {
     expect(cmp.iconClass(evt)).toBe('warning');
   });
 
+  it('prévient l\'infirmier qu\'une séance oubliée est déverrouillée', () => {
+    TestBed.inject(TranslateService).setTranslation('fr', {
+      NOTIFICATION: {SEANCE_DEVERROUILLEE: 'Séance de {{nom}} du {{date}} déverrouillée'},
+    }, true);
+    const evt = event('SEANCE_DEVERROUILLEE', {
+      patientNom: 'Dupont',
+      patientPrenom: 'Jean',
+      dateSeance: '2026-10-03',
+      targetRoles: 'INFIRMIER'
+    });
+
+    expect(cmp.textFor(evt)).toBe('Séance de Dupont Jean du 2026-10-03 déverrouillée');
+    expect(cmp.iconFor(evt)).toBe('lock_open');
+  });
+
   it('nomme l\'auteur et le patient d\'une saisie d\'infirmier', () => {
     const evt = event('SAISIE_INFIRMIER', {
       saisie: 'PARAMEDICAL',

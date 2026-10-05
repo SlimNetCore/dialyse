@@ -44,6 +44,8 @@ export type SeanceHistoryQuery = {
   /** Un ou plusieurs statuts séparés par une virgule. */
   status?: string | null;
   q?: string | null;
+  /** true : seulement les séances déverrouillées pour régularisation ; false : seulement les autres. */
+  deverrouillee?: boolean | null;
   sortBy?: string | null;
   sortDir?: 'asc' | 'desc';
 };
@@ -186,6 +188,8 @@ export type SeanceListItem = {
   validatedAt?: string;
   signedByInfirmierAt?: string;
   signedByMedecinAt?: string;
+  /** Date à laquelle l'administrateur a déverrouillé cette séance oubliée pour régularisation (null sinon). */
+  regularisationDeverrouilleeAt?: string | null;
   forfait?: {
     id: string;
     code?: string | null;
@@ -798,6 +802,7 @@ export class BackendApiService {
     if (query.to) params = params.set('to', query.to);
     if (query.status) params = params.set('status', query.status);
     if (query.q) params = params.set('q', query.q);
+    if (query.deverrouillee != null) params = params.set('deverrouillee', query.deverrouillee);
     if (query.sortBy) params = params.set('sortBy', query.sortBy).set('sortDir', query.sortDir ?? 'desc');
     return this.http.get<PagedResponse<SeanceListItem>>(`${this.baseUrl}/seances`, {params});
   }
@@ -808,6 +813,14 @@ export class BackendApiService {
    */
   scanSeanceQr(payload: ScanSeanceQrPayload): Observable<ScanSeanceResult> {
     return this.http.post<ScanSeanceResult>(`${this.baseUrl}/seances/scan`, payload);
+  }
+
+  /** L'administrateur déverrouille une séance oubliée (jour passé) : l'infirmier peut alors la valider. */
+  deverrouillerSeance(seanceId: string, centerId: string):
+    Observable<{ id: string; status: string; regularisationDeverrouilleeAt: string }> {
+    return this.http.post<{ id: string; status: string; regularisationDeverrouilleeAt: string }>(
+      `${this.baseUrl}/seances/${seanceId}/deverrouiller-regularisation`, null, {params: {centerId}}
+    );
   }
 
   /** Ajoute un consommable à une séance déjà validée (seule cette ligne sort du stock). */

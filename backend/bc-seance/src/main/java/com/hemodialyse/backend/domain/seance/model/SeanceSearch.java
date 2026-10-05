@@ -5,22 +5,31 @@ import java.util.Set;
 
 /**
  * Critères de recherche de l'historique des séances : période, statuts, texte libre (nom, prénom ou code du patient,
- * tous les mots doivent correspondre) et tri. Tous les critères sont facultatifs.
+ * tous les mots doivent correspondre), déverrouillage pour régularisation et tri. Tous les critères sont facultatifs.
  *
- * @param from     première date incluse (null = sans borne)
- * @param to       dernière date incluse (null = sans borne)
- * @param statuses statuts retenus (vide = tous)
- * @param text     texte libre (null ou vide = sans filtre)
- * @param sort     colonne de tri ({@link Sort#DATE} par défaut)
- * @param desc     tri décroissant
+ * @param from          première date incluse (null = sans borne)
+ * @param to            dernière date incluse (null = sans borne)
+ * @param statuses      statuts retenus (vide = tous)
+ * @param text          texte libre (null ou vide = sans filtre)
+ * @param sort          colonne de tri ({@link Sort#DATE} par défaut)
+ * @param desc          tri décroissant
+ * @param deverrouillee {@code true} : seulement les séances déverrouillées pour régularisation ; {@code false} :
+ *                      seulement celles qui ne le sont pas ; {@code null} : sans filtre
  */
 public record SeanceSearch(LocalDate from, LocalDate to, Set<SeanceStatus> statuses, String text, Sort sort,
-                           boolean desc) {
+                           boolean desc, Boolean deverrouillee) {
 
     public SeanceSearch {
         statuses = statuses == null ? Set.of() : Set.copyOf(statuses);
         sort = sort == null ? Sort.DATE : sort;
         text = text == null ? null : text.trim();
+    }
+
+    /**
+     * Recherche sans filtre de déverrouillage.
+     */
+    public SeanceSearch(LocalDate from, LocalDate to, Set<SeanceStatus> statuses, String text, Sort sort, boolean desc) {
+        this(from, to, statuses, text, sort, desc, null);
     }
 
     /**

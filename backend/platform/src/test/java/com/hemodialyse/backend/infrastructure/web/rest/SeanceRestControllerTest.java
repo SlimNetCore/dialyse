@@ -52,7 +52,7 @@ class SeanceRestControllerTest {
         when(useCase.search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(pagedResult);
 
         SeanceRestController controller = buildController(useCase);
-        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc", null);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -66,14 +66,14 @@ class SeanceRestControllerTest {
                 SEANCE_ID, CENTER_ID, PATIENT_ID,
                 "PAT-001", "Dupont", "Jean",
                 LocalDate.now(), SeanceStatus.FACTUREE,
-                null, null, null, null
+                null, null, null, null, null
         );
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
         when(useCase.search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(pagedResult);
 
         SeanceRestController controller = buildController(useCase);
-        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc", null);
 
         assertEquals(200, response.getStatusCode().value());
         @SuppressWarnings("unchecked")
@@ -96,7 +96,7 @@ class SeanceRestControllerTest {
                 SEANCE_ID, CENTER_ID, PATIENT_ID,
                 "PAT-001", "Dupont", "Jean",
                 LocalDate.of(2026, 7, 25), SeanceStatus.CREE,
-                null, null, null, null
+                null, null, null, null, null
         );
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
@@ -113,7 +113,7 @@ class SeanceRestControllerTest {
                 )));
 
         SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc);
-        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc", null);
 
         assertEquals(200, response.getStatusCode().value());
         @SuppressWarnings("unchecked")
@@ -139,8 +139,8 @@ class SeanceRestControllerTest {
         when(useCase.search(eq(CenterId.of(otherCenter)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(emptyResult);
 
         SeanceRestController controller = buildController(useCase);
-        controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
-        controller.list(otherCenter, 0, 20, null, null, null, null, null, "desc");
+        controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc", null);
+        controller.list(otherCenter, 0, 20, null, null, null, null, null, "desc", null);
 
         verify(useCase).search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20));
         verify(useCase).search(eq(CenterId.of(otherCenter)), any(SeanceSearch.class), eq(0), eq(20));
@@ -157,7 +157,7 @@ class SeanceRestControllerTest {
                 .thenReturn(new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 2, 50));
 
         ResponseEntity<?> response = buildController(useCase).list(CENTER_ID, 2, 50,
-                LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), "validee, cree", "dupont jean", "patient", "asc");
+                LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), "validee, cree", "dupont jean", "patient", "asc", true);
 
         assertEquals(200, response.getStatusCode().value());
         org.mockito.ArgumentCaptor<SeanceSearch> captor = org.mockito.ArgumentCaptor.forClass(SeanceSearch.class);
@@ -169,6 +169,7 @@ class SeanceRestControllerTest {
         assertEquals("dupont jean", criteria.text());
         assertEquals(SeanceSearch.Sort.PATIENT, criteria.sort());
         assertFalse(criteria.desc());
+        assertEquals(true, criteria.deverrouillee());
     }
 
     @Test
@@ -178,13 +179,13 @@ class SeanceRestControllerTest {
                 .thenReturn(new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 0, 20));
         SeanceRestController controller = buildController(useCase);
 
-        controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
+        controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc", null);
         org.mockito.ArgumentCaptor<SeanceSearch> captor = org.mockito.ArgumentCaptor.forClass(SeanceSearch.class);
         verify(useCase).search(any(), captor.capture(), eq(0), eq(20));
         assertEquals(SeanceSearch.Sort.DATE, captor.getValue().sort());
         assertTrue(captor.getValue().desc());
 
-        ResponseEntity<?> bad = controller.list(CENTER_ID, 0, 20, null, null, "NOPE", null, null, "desc");
+        ResponseEntity<?> bad = controller.list(CENTER_ID, 0, 20, null, null, "NOPE", null, null, "desc", null);
         assertEquals(400, bad.getStatusCode().value());
     }
 
@@ -297,9 +298,10 @@ class SeanceRestControllerTest {
         assertEquals(SeanceStatus.VALIDEE, body.get("status"));
     }
 
-    private ResponseEntity<?> validatePastSeanceAs(String role) {
+    private ResponseEntity<?> validatePastSeanceAs(String role, boolean deverrouillee) {
         SeanceUseCase useCase = mock(SeanceUseCase.class);
         Seance seance = new Seance(SEANCE_ID, PATIENT_ID, CENTER_ID, LocalDate.now().minusDays(2));
+        if (deverrouillee) seance.setRegularisationDeverrouilleeAt(java.time.OffsetDateTime.now());
         seance.validerParInfirmier("u");
         Patient patient = new Patient();
         patient.setId(PatientId.of(PATIENT_ID));
@@ -320,15 +322,41 @@ class SeanceRestControllerTest {
     }
 
     @Test
-    void validate_should_refuse_a_nurse_on_a_past_day_session_left_unvalidated() {
+    void validate_should_refuse_a_nurse_on_a_past_day_session_the_admin_has_not_unlocked() {
         var e = assertThrows(com.hemodialyse.backend.domain.shared.exception.BusinessException.class,
-                () -> validatePastSeanceAs("INFIRMIER"));
-        assertEquals("SEANCE_REGULARISATION_ADMIN", e.getCode());
+                () -> validatePastSeanceAs("INFIRMIER", false));
+        assertEquals("SEANCE_REGULARISATION_NON_DEVERROUILLEE", e.getCode());
     }
 
     @Test
-    void validate_should_let_the_administrator_regularise_a_past_day_session() {
-        assertEquals(200, validatePastSeanceAs("ADMIN").getStatusCode().value());
+    void validate_should_let_a_nurse_regularise_a_past_day_session_once_unlocked() {
+        assertEquals(200, validatePastSeanceAs("INFIRMIER", true).getStatusCode().value());
+    }
+
+    @Test
+    void validate_should_always_let_the_administrator_regularise_a_past_day_session() {
+        assertEquals(200, validatePastSeanceAs("ADMIN", false).getStatusCode().value());
+    }
+
+    @Test
+    void unlock_should_unlock_the_session_and_warn_the_nurses_of_the_center() {
+        SeanceUseCase useCase = mock(SeanceUseCase.class);
+        NotificationService notif = mock(NotificationService.class);
+        Seance seance = new Seance(SEANCE_ID, PATIENT_ID, CENTER_ID, LocalDate.now().minusDays(2));
+        seance.setRegularisationDeverrouilleeAt(java.time.OffsetDateTime.now());
+        Patient patient = new Patient();
+        patient.setId(PatientId.of(PATIENT_ID));
+        patient.setNom("Dupont");
+        patient.setPrenom("Jean");
+        when(useCase.unlockForRegularisation(eq(CenterId.of(CENTER_ID)), eq(SEANCE_ID), any())).thenReturn(seance);
+        when(useCase.getDetails(CenterId.of(CENTER_ID), SEANCE_ID)).thenReturn(new SeanceDetails(seance, patient, null, null));
+
+        ResponseEntity<?> response = new SeanceRestController(useCase, notif, mock(JdbcTemplate.class))
+                .unlockForRegularisation(SEANCE_ID, CENTER_ID);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(notif).notifySeanceDeverrouillee(eq(CENTER_ID), eq(SEANCE_ID), eq("Dupont"), eq("Jean"),
+                eq(LocalDate.now().minusDays(2).toString()));
     }
 
     @Test

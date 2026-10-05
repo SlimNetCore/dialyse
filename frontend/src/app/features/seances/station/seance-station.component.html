@@ -82,8 +82,9 @@
           <span [attr.data-status]="p.status" class="chip">{{ statusKey(p.status) | translate }}</span>
         </button>
       }
-      @if (isAdmin()) {
-        <app-pending-seances (opened)="openFromQueue($event)" [seances]="pendingSeances()"
+      @if (canViewPending()) {
+        <app-pending-seances (opened)="openFromQueue($event)" (unlock)="unlockPending($event)"
+                             [canUnlock]="isAdmin()" [seances]="pendingSeances()"
                              [selectedId]="store.selectedSeanceId()"/>
       }
       <a class="history-link" routerLink="historique">

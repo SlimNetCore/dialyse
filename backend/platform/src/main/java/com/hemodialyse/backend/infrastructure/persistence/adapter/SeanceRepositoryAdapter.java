@@ -95,7 +95,8 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
                     return new SeanceListItem(e.getId(), e.getCenterId(), e.getPatientId(),
                             row.get("code", String.class), row.get("nom", String.class),
                             row.get("prenom", String.class), e.getDateSeance(), SeanceStatus.valueOf(e.getStatut()),
-                            e.getCreatedAt(), e.getValidatedAt(), e.getSignedInfirmierAt(), e.getSignedMedecinAt());
+                            e.getCreatedAt(), e.getValidatedAt(), e.getSignedInfirmierAt(), e.getSignedMedecinAt(),
+                            e.getRegularisationDeverrouilleeAt());
                 })
                 .toList();
         return PagedResult.of(items, total, page, size);
@@ -109,6 +110,11 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         where.add(cb.equal(patient.get("centerId"), centerId.value()));
         if (criteria.from() != null) where.add(cb.greaterThanOrEqualTo(seance.get("dateSeance"), criteria.from()));
         if (criteria.to() != null) where.add(cb.lessThanOrEqualTo(seance.get("dateSeance"), criteria.to()));
+        if (criteria.deverrouillee() != null) {
+            where.add(criteria.deverrouillee()
+                    ? cb.isNotNull(seance.get("regularisationDeverrouilleeAt"))
+                    : cb.isNull(seance.get("regularisationDeverrouilleeAt")));
+        }
         if (!criteria.statuses().isEmpty()) {
             where.add(seance.get("statut").in(criteria.statuses().stream().map(SeanceStatus::name).toList()));
         }
@@ -162,6 +168,8 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         s.setForfaitOverridePrix(e.getForfaitOverridePrix());
         s.setForfaitOverrideUpdatedAt(e.getForfaitOverrideUpdatedAt());
         s.setForfaitOverrideUpdatedBy(e.getForfaitOverrideUpdatedBy());
+        s.setRegularisationDeverrouilleeAt(e.getRegularisationDeverrouilleeAt());
+        s.setRegularisationDeverrouilleeBy(e.getRegularisationDeverrouilleeBy());
         return s;
     }
 
@@ -184,6 +192,8 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         e.setForfaitOverridePrix(s.getForfaitOverridePrix());
         e.setForfaitOverrideUpdatedAt(s.getForfaitOverrideUpdatedAt());
         e.setForfaitOverrideUpdatedBy(s.getForfaitOverrideUpdatedBy());
+        e.setRegularisationDeverrouilleeAt(s.getRegularisationDeverrouilleeAt());
+        e.setRegularisationDeverrouilleeBy(s.getRegularisationDeverrouilleeBy());
         return e;
     }
 }

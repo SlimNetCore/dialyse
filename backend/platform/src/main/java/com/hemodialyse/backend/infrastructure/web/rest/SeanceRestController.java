@@ -85,7 +85,8 @@ public class SeanceRestController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false, defaultValue = "desc") String sortDir) {
+            @RequestParam(required = false, defaultValue = "desc") String sortDir,
+            @RequestParam(required = false) Boolean deverrouillee) {
 
         Set<SeanceStatus> statuses = new LinkedHashSet<>();
         if (status != null && !status.isBlank()) {
@@ -98,7 +99,7 @@ public class SeanceRestController {
             }
         }
         var criteria = new SeanceSearch(from, to, statuses, q, SeanceSearch.Sort.parse(sortBy),
-                !"asc".equalsIgnoreCase(sortDir));
+                !"asc".equalsIgnoreCase(sortDir), deverrouillee);
         var paged = seanceUseCase.search(CenterId.of(centerId), criteria, page, size);
 
         var items = paged.items().stream().map(item -> {
@@ -115,6 +116,7 @@ public class SeanceRestController {
             row.put("validatedAt", item.validatedAt());
             row.put("signedByInfirmierAt", item.signedByInfirmierAt());
             row.put("signedByMedecinAt", item.signedByMedecinAt());
+            row.put("regularisationDeverrouilleeAt", item.regularisationDeverrouilleeAt());
             row.put("forfait", loadCurrentForfait(item.id(), centerId, item.patientId(), item.dateSeance()));
             return row;
         }).toList();
@@ -474,7 +476,7 @@ public class SeanceRestController {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
     @PostMapping("/{seanceId}/valider")
     public ResponseEntity<?> validate(@PathVariable UUID seanceId, @RequestBody @Valid ValidateSeanceRequest request) {
-        exigerAdminPourSeancePassee(CenterId.of(request.centerId()), seanceId);
+        exigerDeverrouillagePourSeancePassee(CenterId.of(request.centerId()), seanceId);
         var consommations = request.consommations() == null
                 ? java.util.List.<SeanceArticleConsumption>of()
                 : request.consommations().stream()
@@ -505,14 +507,36 @@ public class SeanceRestController {
     }
 
     /**
-     * Une séance d'un jour passé restée « créée » (validation oubliée) ne se régularise que par l'administrateur :
-     * l'infirmier ne valide que les séances du jour.
+     * L'administrateur déverrouille une séance d'un jour passé restée « créée » (validation oubliée) : elle devient
+     * visible de l'infirmier, qui peut la valider. Les infirmiers du centre en sont prévenus.
      */
-    private void exigerAdminPourSeancePassee(CenterId centre, UUID seanceId) {
-        LocalDate jour = seanceUseCase.getDetails(centre, seanceId).seance().getDateSeance();
-        if (jour != null && jour.isBefore(LocalDate.now()) && !CurrentUser.hasAnyRole("ADMIN")) {
-            throw new BusinessException("SEANCE_REGULARISATION_ADMIN",
-                    "Seul l'administrateur peut valider une séance d'un jour passé");
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{seanceId}/deverrouiller-regularisation")
+    public ResponseEntity<?> unlockForRegularisation(@PathVariable UUID seanceId, @RequestParam UUID centerId) {
+        var centre = CenterId.of(centerId);
+        var seance = seanceUseCase.unlockForRegularisation(centre, seanceId, CurrentUser.username());
+        var patient = seanceUseCase.getDetails(centre, seanceId).patient();
+        notificationService.notifySeanceDeverrouillee(centerId, seanceId, patient.getNom(), patient.getPrenom(),
+                seance.getDateSeance() == null ? null : seance.getDateSeance().toString());
+        var payload = new LinkedHashMap<String, Object>();
+        payload.put("id", seance.getId());
+        payload.put("status", seance.getStatus());
+        payload.put("regularisationDeverrouilleeAt", seance.getRegularisationDeverrouilleeAt());
+        return ResponseEntity.ok(payload);
+    }
+
+    /**
+     * Une séance d'un jour passé restée « créée » (validation oubliée) ne se régularise que si l'administrateur l'a
+     * déverrouillée : l'infirmier valide librement les séances du jour, jamais les autres. L'administrateur valide
+     * toujours.
+     */
+    private void exigerDeverrouillagePourSeancePassee(CenterId centre, UUID seanceId) {
+        var seance = seanceUseCase.getDetails(centre, seanceId).seance();
+        LocalDate jour = seance.getDateSeance();
+        if (jour != null && jour.isBefore(LocalDate.now()) && !CurrentUser.hasAnyRole("ADMIN")
+                && !seance.estDeverrouilleePourRegularisation()) {
+            throw new BusinessException("SEANCE_REGULARISATION_NON_DEVERROUILLEE",
+                    "Cette séance d'un jour passé doit d'abord être déverrouillée par l'administrateur");
         }
     }
 

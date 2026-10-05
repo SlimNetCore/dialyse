@@ -51,6 +51,34 @@ describe('PendingSeancesComponent', () => {
     expect(root.querySelector('.name strong')?.textContent).toContain('PAT-1');
   });
 
+  it('l\'administrateur peut déverrouiller une séance, puis la voit marquée « déverrouillée »', () => {
+    const fixture = TestBed.createComponent(PendingSeancesComponent);
+    fixture.componentRef.setInput('seances', [seance(), seance({
+      id: 's2',
+      regularisationDeverrouilleeAt: '2026-10-05T07:00:00Z'
+    })]);
+    fixture.componentRef.setInput('canUnlock', true);
+    fixture.detectChanges();
+    const unlocked: string[] = [];
+    fixture.componentInstance.unlock.subscribe((id) => unlocked.push(id));
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelectorAll('.unlock-btn')).toHaveLength(1);
+    expect(root.querySelectorAll('.unlocked')).toHaveLength(1);
+    root.querySelector<HTMLButtonElement>('.unlock-btn')!.click();
+
+    expect(unlocked).toEqual(['s1']);
+    expect(root.querySelector('.hint')?.textContent).toContain('PENDING_HINT_ADMIN');
+  });
+
+  it('l\'infirmier n\'a aucun bouton de déverrouillage et un texte adapté', () => {
+    const {root} = render([seance({regularisationDeverrouilleeAt: '2026-10-05T07:00:00Z'})]);
+
+    expect(root.querySelector('.unlock-btn')).toBeNull();
+    expect(root.querySelector('.unlocked')).toBeNull();
+    expect(root.querySelector('.hint')?.textContent).toContain('PENDING_HINT_NURSE');
+  });
+
   it('émet la séance choisie et met en évidence celle qui est ouverte', () => {
     const {root, opened} = render([seance(), seance({id: 's2'})], 's2');
 

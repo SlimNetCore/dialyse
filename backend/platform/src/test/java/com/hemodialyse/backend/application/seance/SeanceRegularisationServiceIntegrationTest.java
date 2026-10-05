@@ -34,6 +34,7 @@ class SeanceRegularisationServiceIntegrationTest {
     private static final UUID CENTER_A = UUID.fromString("66666666-6666-6666-6666-666666666661");
     private static final UUID CENTER_B = UUID.fromString("66666666-6666-6666-6666-666666666662");
     private static final UUID PATIENT = UUID.fromString("66666666-6666-6666-6666-666666666663");
+    private static final UUID PATIENT_B = UUID.fromString("66666666-6666-6666-6666-666666666664");
     private static final LocalDate AUJOURDHUI = LocalDate.of(2026, 10, 5);
 
     @Autowired
@@ -42,9 +43,15 @@ class SeanceRegularisationServiceIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    private static UUID patientId(UUID center) {
+        return center.equals(CENTER_A) ? PATIENT : PATIENT_B;
+    }
+
     @BeforeEach
     void seed() {
         cleanup();
+        patient(CENTER_A);
+        patient(CENTER_B);
         seance(CENTER_A, AUJOURDHUI.minusDays(1), "CREE");
         seance(CENTER_A, AUJOURDHUI.minusDays(4), "CREE");
         seance(CENTER_A, AUJOURDHUI.minusDays(7), "CREE");
@@ -52,16 +59,27 @@ class SeanceRegularisationServiceIntegrationTest {
         seance(CENTER_A, AUJOURDHUI, "CREE");                     // aujourd'hui : pas encore oubliée
         seance(CENTER_A, AUJOURDHUI.minusDays(2), "VALIDEE");     // déjà validée
         seance(CENTER_B, AUJOURDHUI.minusDays(3), "CREE");        // autre centre
+        seance(CENTER_A, AUJOURDHUI.minusDays(5), "CREE");
+        jdbc.update("UPDATE seances SET regularisation_deverrouillee_at = CURRENT_TIMESTAMP WHERE center_id = ? AND date_seance = ?",
+                CENTER_A, AUJOURDHUI.minusDays(5));               // déjà déverrouillée : plus à rappeler
     }
 
     @AfterEach
     void cleanup() {
         jdbc.update("DELETE FROM seances WHERE center_id IN (?, ?)", CENTER_A, CENTER_B);
+        jdbc.update("DELETE FROM patients WHERE id IN (?, ?)", patientId(CENTER_A), patientId(CENTER_B));
+    }
+
+    private void patient(UUID center) {
+        jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, "
+                        + "type_patient, created_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE, ?, ?, ?)",
+                patientId(center), center, "REG-" + patientId(center).toString().substring(30), "Nom", "Prenom", "M",
+                "ASS-" + patientId(center).toString().substring(30), "NON_VACANCIER", OffsetDateTime.now(ZoneOffset.UTC));
     }
 
     private void seance(UUID center, LocalDate date, String statut) {
         jdbc.update("INSERT INTO seances (id, patient_id, center_id, date_seance, statut, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-                UUID.randomUUID(), PATIENT, center, date, statut, OffsetDateTime.now(ZoneOffset.UTC));
+                UUID.randomUUID(), patientId(center), center, date, statut, OffsetDateTime.now(ZoneOffset.UTC));
     }
 
     @Test

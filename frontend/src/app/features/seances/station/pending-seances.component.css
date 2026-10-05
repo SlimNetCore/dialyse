@@ -33,6 +33,45 @@ h3 {
   font-size: 13px;
 }
 
+.pending-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pending-row .pending-item {
+  flex: 1 1 160px;
+  width: auto;
+  margin-bottom: 0;
+}
+
+.unlock-btn,
+.unlocked {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.unlock-btn {
+  border: 1px solid var(--app-primary-outline);
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  cursor: pointer;
+}
+
+.unlocked {
+  color: #1f9d63;
+}
+
 .pending-item {
   display: flex;
   width: 100%;

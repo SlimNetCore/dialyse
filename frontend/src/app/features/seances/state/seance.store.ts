@@ -292,13 +292,36 @@ export const SeanceStore = signalStore(
     ),
 
     // --- Séances « À valider » des jours précédents (les plus anciennes d'abord) ---
-    loadPendingSeances: rxMethod<{ centerId: string; from: string; to: string }>(
+    /**
+     * L'administrateur voit toutes les séances oubliées ; l'infirmier seulement celles que l'administrateur a
+     * déverrouillées ({@code deverrouillee: true}).
+     */
+    loadPendingSeances: rxMethod<{ centerId: string; from: string; to: string; deverrouillee?: boolean }>(
       pipe(
-        switchMap(({centerId, from, to}) =>
-          api.listSeances(centerId, 0, 50, {from, to, status: 'CREE', sortBy: 'dateSeance', sortDir: 'asc'}).pipe(
+        switchMap(({centerId, from, to, deverrouillee}) =>
+          api.listSeances(centerId, 0, 50, {
+            from, to, status: 'CREE', deverrouillee, sortBy: 'dateSeance', sortDir: 'asc',
+          }).pipe(
             tap((res) => patchState(store, {pendingSeances: res.items})),
             catchError(() => {
               patchState(store, {pendingSeances: []});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    /** Déverrouille une séance oubliée pour régularisation et la marque comme telle dans la liste affichée. */
+    unlockSeance: rxMethod<{ seanceId: string; centerId: string }>(
+      pipe(
+        switchMap(({seanceId, centerId}) =>
+          api.deverrouillerSeance(seanceId, centerId).pipe(
+            tap((res) => patchState(store, {
+              pendingSeances: store.pendingSeances().map((s) =>
+                s.id === seanceId ? {...s, regularisationDeverrouilleeAt: res.regularisationDeverrouilleeAt} : s),
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {error: errorMessage(err)});
               return EMPTY;
             })
           )

@@ -96,6 +96,8 @@ export class NotificationBellComponent {
         return 'medical_services';
       case 'SEANCES_A_REGULARISER':
         return 'pending_actions';
+      case 'SEANCE_DEVERROUILLEE':
+        return 'lock_open';
       default:
         return 'info';
     }
@@ -156,6 +158,11 @@ export class NotificationBellComponent {
         return this.translate.instant('NOTIFICATION.SEANCES_A_REGULARISER', {
           count: evt.payload['nbSeances'] ?? '',
           date: evt.payload['plusAncienne'] ?? '',
+        });
+      case 'SEANCE_DEVERROUILLEE':
+        return this.translate.instant('NOTIFICATION.SEANCE_DEVERROUILLEE', {
+          nom: `${evt.payload['patientNom'] ?? ''} ${evt.payload['patientPrenom'] ?? ''}`.trim(),
+          date: evt.payload['dateSeance'] ?? '',
         });
       case 'INFIRMIER_SOUS_EFFECTIF':
         return this.translate.instant('NOTIFICATION.INFIRMIER_SOUS_EFFECTIF', {

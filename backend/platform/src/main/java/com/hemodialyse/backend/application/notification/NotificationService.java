@@ -230,6 +230,20 @@ public class NotificationService {
     }
 
     /**
+     * L'administrateur a déverrouillé une séance oubliée : les infirmiers peuvent la valider.
+     */
+    public void notifySeanceDeverrouillee(UUID centerId, UUID seanceId, String patientNom, String patientPrenom,
+                                          String dateSeance) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("seanceId", seanceId.toString());
+        payload.put("patientNom", patientNom == null ? "" : patientNom);
+        payload.put("patientPrenom", patientPrenom == null ? "" : patientPrenom);
+        payload.put("dateSeance", dateSeance == null ? "" : dateSeance);
+        payload.put("targetRoles", "INFIRMIER");
+        send(centerId, "SEANCE_DEVERROUILLEE", payload);
+    }
+
+    /**
      * Un patient devenu à risque infectieux a été replacé automatiquement en salle d'isolement.
      */
     public void notifyPatientReplaceIsolement(UUID centerId, UUID patientId, String patientNom, String salle) {

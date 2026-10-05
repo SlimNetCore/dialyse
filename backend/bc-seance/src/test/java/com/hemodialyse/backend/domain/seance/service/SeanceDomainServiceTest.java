@@ -527,6 +527,24 @@ class SeanceDomainServiceTest {
     }
 
     @Test
+    void unlockForRegularisation_should_persist_the_unlock_of_a_past_session_and_refuse_an_unknown_one() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        UUID seanceId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        seanceRepo.save(new Seance(seanceId, patientId, centerId.value(), LocalDate.now().minusDays(3)));
+        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
+
+        Seance unlocked = service.unlockForRegularisation(centerId, seanceId, "admin");
+
+        assertTrue(unlocked.estDeverrouilleePourRegularisation());
+        assertTrue(seanceRepo.findById(seanceId, centerId).orElseThrow().estDeverrouilleePourRegularisation());
+        assertThrows(IllegalArgumentException.class,
+                () -> service.unlockForRegularisation(centerId, UUID.randomUUID(), "admin"));
+    }
+
+    @Test
     void search_should_bound_the_page_and_the_size_and_forward_the_criteria() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();

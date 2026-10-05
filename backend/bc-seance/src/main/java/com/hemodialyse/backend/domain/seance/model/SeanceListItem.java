@@ -16,7 +16,8 @@ public record SeanceListItem(
         OffsetDateTime createdAt,
         OffsetDateTime validatedAt,
         OffsetDateTime signedByInfirmierAt,
-        OffsetDateTime signedByMedecinAt
+        OffsetDateTime signedByMedecinAt,
+        OffsetDateTime regularisationDeverrouilleeAt
 ) {
 }
 

@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.domain.seance.model;
 
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -23,6 +25,11 @@ public class Seance {
     private BigDecimal forfaitOverridePrix;
     private OffsetDateTime forfaitOverrideUpdatedAt;
     private String forfaitOverrideUpdatedBy;
+    /**
+     * Déverrouillage pour régularisation : l'administrateur autorise l'infirmier à valider cette séance d'un jour passé.
+     */
+    private OffsetDateTime regularisationDeverrouilleeAt;
+    private String regularisationDeverrouilleeBy;
 
     public Seance() {
     }
@@ -53,6 +60,47 @@ public class Seance {
         this.validatedAt = OffsetDateTime.now();
         this.signedByInfirmierAt = this.validatedAt;
         this.signedByInfirmierUserId = userId;
+    }
+
+    /**
+     * L'administrateur déverrouille une séance d'un jour passé restée « créée » (validation oubliée) : l'infirmier peut
+     * alors la valider. Sans effet si elle l'est déjà ; refusé pour une séance du jour ou à venir (l'infirmier la valide
+     * librement) ou qui n'est plus « créée ».
+     */
+    public void deverrouillerPourRegularisation(String userId, LocalDate aujourdhui) {
+        if (status != SeanceStatus.CREE) {
+            throw new BusinessException("SEANCE_DEVERROUILLAGE_INVALIDE",
+                    "Seule une séance restée « créée » peut être déverrouillée pour régularisation");
+        }
+        if (dateSeance == null || !dateSeance.isBefore(aujourdhui)) {
+            throw new BusinessException("SEANCE_DEVERROUILLAGE_INVALIDE",
+                    "Seule une séance d'un jour passé peut être déverrouillée pour régularisation");
+        }
+        if (regularisationDeverrouilleeAt != null) {
+            return;
+        }
+        this.regularisationDeverrouilleeAt = OffsetDateTime.now();
+        this.regularisationDeverrouilleeBy = userId;
+    }
+
+    public boolean estDeverrouilleePourRegularisation() {
+        return regularisationDeverrouilleeAt != null;
+    }
+
+    public OffsetDateTime getRegularisationDeverrouilleeAt() {
+        return regularisationDeverrouilleeAt;
+    }
+
+    public void setRegularisationDeverrouilleeAt(OffsetDateTime regularisationDeverrouilleeAt) {
+        this.regularisationDeverrouilleeAt = regularisationDeverrouilleeAt;
+    }
+
+    public String getRegularisationDeverrouilleeBy() {
+        return regularisationDeverrouilleeBy;
+    }
+
+    public void setRegularisationDeverrouilleeBy(String regularisationDeverrouilleeBy) {
+        this.regularisationDeverrouilleeBy = regularisationDeverrouilleeBy;
     }
 
     public void signerParMedecin(String userId) {

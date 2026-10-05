@@ -186,6 +186,14 @@ public class SeanceDomainService implements SeanceUseCase {
     }
 
     @Override
+    public Seance unlockForRegularisation(CenterId centerId, UUID seanceId, String userId) {
+        Seance seance = seanceRepo.findById(seanceId, centerId)
+                .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
+        seance.deverrouillerPourRegularisation(userId != null ? userId : "system", LocalDate.now());
+        return seanceRepo.save(seance);
+    }
+
+    @Override
     public Seance validate(CenterId centerId, UUID seanceId, String userId, List<SeanceArticleConsumption> consommations) {
         Seance seance = seanceRepo.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));

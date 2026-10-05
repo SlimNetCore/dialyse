@@ -61,7 +61,7 @@ function fakeStore() {
     anticoagulant: signal(''), typeDialysat: signal(''), incidents: signal(''),
     savingParamedical: signal(false), savingConsommable: signal(false), validatingSeance: signal(false),
     raccourcisIds: signal<string[]>([]), savingRaccourcis: signal(false),
-    pendingSeances: signal<Array<Record<string, unknown>>>([]), loadPendingSeances: vi.fn(),
+    pendingSeances: signal<Array<Record<string, unknown>>>([]), loadPendingSeances: vi.fn(), unlockSeance: vi.fn(),
     recentSeances: signal<Array<Record<string, unknown>>>([]),
     loadRaccourcis: vi.fn(), saveRaccourcis: vi.fn(), loadRecentSeances: vi.fn(),
     setQrCode: vi.fn(), setDateSeance: vi.fn(), setJournalDate: vi.fn(), loadJournal: vi.fn(),
@@ -115,24 +115,26 @@ describe('SeanceStationComponent', () => {
     expect(store.loadArticlesStock).toHaveBeenCalledWith({centerId: CENTER_ID});
   });
 
-  it('seul l\'administrateur charge les séances « À valider » des 7 derniers jours', () => {
+  const DATES = {
+    from: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    to: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+  };
+
+  it('l\'administrateur charge toutes les séances oubliées des 7 derniers jours', () => {
     roles = ['ADMIN'];
     render();
-    expect(store.loadPendingSeances).toHaveBeenCalledWith({
-      centerId: CENTER_ID,
-      from: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-      to: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-    });
-
-    for (const role of ['INFIRMIER', 'SECRETAIRE']) {
-      roles = [role];
-      store.loadPendingSeances.mockClear();
-      render();
-      expect(store.loadPendingSeances, role).not.toHaveBeenCalled();
-    }
+    expect(store.loadPendingSeances).toHaveBeenCalledWith(expect.objectContaining({centerId: CENTER_ID, ...DATES}));
+    expect(store.loadPendingSeances.mock.calls[0][0].deverrouillee).toBeUndefined();
   });
 
-  it('le bloc « À régulariser » est caché à l\'infirmier et à la secrétaire, même s\'il y a des séances en attente', () => {
+  it('l\'infirmier ne charge que les séances déverrouillées par l\'administrateur', () => {
+    roles = ['INFIRMIER'];
+    render();
+    expect(store.loadPendingSeances).toHaveBeenCalledWith({centerId: CENTER_ID, ...DATES, deverrouillee: true});
+  });
+
+  it('la secrétaire ne charge ni ne voit les séances à régulariser', () => {
+    roles = ['SECRETAIRE'];
     store.pendingSeances.set([
       {
         id: 'old1',
@@ -144,10 +146,37 @@ describe('SeanceStationComponent', () => {
         status: 'CREE'
       },
     ]);
-    for (const role of ['INFIRMIER', 'SECRETAIRE']) {
-      roles = [role];
-      expect(render().root.querySelector('app-pending-seances'), role).toBeNull();
-    }
+    const {root} = render();
+    expect(store.loadPendingSeances).not.toHaveBeenCalled();
+    expect(root.querySelector('app-pending-seances')).toBeNull();
+  });
+
+  it('l\'administrateur déverrouille une séance oubliée, l\'infirmier n\'a pas ce bouton', () => {
+    const oubliee = {
+      id: 'old1',
+      centerId: CENTER_ID,
+      patientId: 'p9',
+      patientNom: 'Saidi',
+      patientPrenom: 'Karim',
+      dateSeance: '2026-10-01',
+      status: 'CREE'
+    };
+    store.pendingSeances.set([oubliee]);
+
+    roles = ['ADMIN'];
+    const admin = render();
+    admin.root.querySelector<HTMLButtonElement>('.unlock-btn')!.click();
+    expect(store.unlockSeance).toHaveBeenCalledWith({seanceId: 'old1', centerId: CENTER_ID});
+
+    roles = ['INFIRMIER'];
+    expect(render().root.querySelector('.unlock-btn')).toBeNull();
+  });
+
+  it('un infirmier ne peut pas déverrouiller même en appelant la méthode directement', () => {
+    roles = ['INFIRMIER'];
+    const {fixture} = render();
+    fixture.componentInstance['unlockPending']('old1');
+    expect(store.unlockSeance).not.toHaveBeenCalled();
   });
 
   it('propose d\'imprimer le badge QR du patient depuis la séance ouverte', () => {

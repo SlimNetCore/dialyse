@@ -64,6 +64,12 @@ public interface SeanceUseCase {
 
     Seance updateForfait(CenterId centerId, UUID seanceId, UUID forfaitId, String userId);
 
+    /**
+     * Déverrouille pour régularisation une séance d'un jour passé restée « créée » (validation oubliée) : l'infirmier
+     * peut ensuite la valider. Idempotent ; refusé pour une séance du jour ou déjà validée.
+     */
+    Seance unlockForRegularisation(CenterId centerId, UUID seanceId, String userId);
+
     Seance validate(CenterId centerId, UUID seanceId, String userId, List<SeanceArticleConsumption> consommations);
 
     Seance signByMedecin(CenterId centerId, UUID seanceId, String userId);

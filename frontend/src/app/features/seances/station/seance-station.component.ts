@@ -116,8 +116,9 @@ export class SeanceStationComponent implements OnDestroy {
   protected readonly activeArticles = computed(() => this.store.availableArticles().filter((a) => a.active));
   protected readonly recentSeances = computed(() => this.store.recentSeances());
   protected readonly pendingSeances = computed(() => this.store.pendingSeances());
-  /** La régularisation des séances oubliées (jours passés) est réservée à l'administrateur. */
+  /** L'administrateur déverrouille les séances oubliées ; l'infirmier ne voit et ne valide que celles-là. */
   protected readonly isAdmin = computed(() => this.hasAnyRole('ADMIN'));
+  protected readonly canViewPending = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER'));
   protected readonly articleItems = computed<DropdownItem[]>(() =>
     this.store.availableArticles().filter((a) => a.active)
       .map((a) => ({id: a.id, label: `${a.code} — ${a.libelle}`}))
@@ -220,6 +221,12 @@ export class SeanceStationComponent implements OnDestroy {
     this.store.selectSeance(seanceId);
     this.store.loadSeanceSummary({seanceId, centerId});
     this.view.set('seance');
+  }
+
+  /** Déverrouille une séance oubliée pour régularisation (administrateur) : l'infirmier pourra la valider. */
+  protected unlockPending(seanceId: string): void {
+    const centerId = this.centerId();
+    if (centerId && this.isAdmin()) this.store.unlockSeance({seanceId, centerId});
   }
 
   protected backToQueue(): void {
@@ -372,7 +379,10 @@ export class SeanceStationComponent implements OnDestroy {
     const centerId = this.centerId();
     if (!centerId) return;
     this.store.loadJournal({centerId, date: todayIsoDate()});
-    if (this.isAdmin()) this.store.loadPendingSeances({centerId, ...pendingWindow()});
+    if (this.canViewPending()) {
+      // L'administrateur voit toutes les séances oubliées ; l'infirmier seulement celles déjà déverrouillées.
+      this.store.loadPendingSeances({centerId, ...pendingWindow(), deverrouillee: this.isAdmin() ? undefined : true});
+    }
   }
 
   private scheduleSave(): void {

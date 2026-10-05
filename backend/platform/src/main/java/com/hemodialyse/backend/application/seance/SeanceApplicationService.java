@@ -108,6 +108,11 @@ public class SeanceApplicationService implements SeanceUseCase {
     }
 
     @Override
+    public Seance unlockForRegularisation(CenterId centerId, UUID seanceId, String userId) {
+        return delegate.unlockForRegularisation(centerId, seanceId, userId);
+    }
+
+    @Override
     public Seance validate(CenterId centerId, UUID seanceId, String userId, List<SeanceArticleConsumption> consommations) {
         return delegate.validate(centerId, seanceId, userId, consommations);
     }

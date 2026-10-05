@@ -5,16 +5,33 @@
       {{ 'SEANCES.STATION.PENDING_TITLE' | translate }}
       <span class="count">{{ seances().length }}</span>
     </h3>
-    <p class="hint">{{ 'SEANCES.STATION.PENDING_HINT' | translate }}</p>
+    <p class="hint">
+      {{ (canUnlock() ? 'SEANCES.STATION.PENDING_HINT_ADMIN' : 'SEANCES.STATION.PENDING_HINT_NURSE') | translate }}
+    </p>
     @for (s of seances(); track s.id) {
-      <button (click)="opened.emit(s.id)" [class.selected]="s.id === selectedId()" class="pending-item"
-              type="button">
-        <span class="avatar">{{ initials(s.patientNom, s.patientPrenom) }}</span>
-        <span class="name">
-          <strong>{{ label(s) }}</strong>
-          <small>{{ s.dateSeance }}</small>
-        </span>
-      </button>
+      <div class="pending-row">
+        <button (click)="opened.emit(s.id)" [class.selected]="s.id === selectedId()" class="pending-item"
+                type="button">
+          <span class="avatar">{{ initials(s.patientNom, s.patientPrenom) }}</span>
+          <span class="name">
+            <strong>{{ label(s) }}</strong>
+            <small>{{ s.dateSeance }}</small>
+          </span>
+        </button>
+        @if (canUnlock()) {
+          @if (s.regularisationDeverrouilleeAt) {
+            <span [attr.title]="'SEANCES.STATION.PENDING_UNLOCKED_HINT' | translate" class="unlocked">
+              <mat-icon aria-hidden="true">lock_open</mat-icon>
+              {{ 'SEANCES.STATION.PENDING_UNLOCKED' | translate }}
+            </span>
+          } @else {
+            <button (click)="unlock.emit(s.id)" class="unlock-btn" type="button">
+              <mat-icon aria-hidden="true">lock_open</mat-icon>
+              {{ 'SEANCES.STATION.PENDING_UNLOCK' | translate }}
+            </button>
+          }
+        }
+      </div>
     }
   </section>
 }

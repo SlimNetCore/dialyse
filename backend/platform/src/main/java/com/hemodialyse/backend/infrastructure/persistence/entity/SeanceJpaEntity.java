@@ -70,6 +70,28 @@ public class SeanceJpaEntity {
     @Column(name = "forfait_override_updated_by", length = 100)
     private String forfaitOverrideUpdatedBy;
 
+    @Column(name = "regularisation_deverrouillee_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime regularisationDeverrouilleeAt;
+
+    @Column(name = "regularisation_deverrouillee_by", length = 100)
+    private String regularisationDeverrouilleeBy;
+
+    public OffsetDateTime getRegularisationDeverrouilleeAt() {
+        return regularisationDeverrouilleeAt;
+    }
+
+    public void setRegularisationDeverrouilleeAt(OffsetDateTime regularisationDeverrouilleeAt) {
+        this.regularisationDeverrouilleeAt = regularisationDeverrouilleeAt;
+    }
+
+    public String getRegularisationDeverrouilleeBy() {
+        return regularisationDeverrouilleeBy;
+    }
+
+    public void setRegularisationDeverrouilleeBy(String regularisationDeverrouilleeBy) {
+        this.regularisationDeverrouilleeBy = regularisationDeverrouilleeBy;
+    }
+
     public UUID getId() {
         return id;
     }

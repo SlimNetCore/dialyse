@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-05<br>463 règles de gestion · 16 domaines · 335 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-05<br>463 règles de gestion · 16 domaines · 338 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -2782,7 +2782,8 @@
                 Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). L&#39;en-tête de
                 la séance ouverte
                 propose d&#39;afficher et d&#39;imprimer le <strong>badge du patient avec son QR code</strong> (le même
-                qu&#39;à la liste des patients). <em>Source :</em>
+                qu&#39;à la liste des patients).
+                <em>Source :</em>
                 <code>SeanceStationComponent</code>, <code>QrScannerComponent</code>.</p>
             </div>
         </div>
@@ -2790,15 +2791,31 @@
             <div class="rid">RG-SEA-046</div>
             <div class="rtxt"><p><strong>Validation oubliée</strong> : une séance restée <code>CREE</code> après son
                 jour n&#39;est pas réalisée (RG-ABS-041) :
-                la détection de la nuit compte le patient absent (« à qualifier ») et la perte est valorisée. <strong>Seul
-                    l&#39;administrateur régularise</strong> : le poste infirmier lui liste, dans « À régulariser », les
-                séances <code>CREE</code> des <strong>7
-                    derniers jours</strong> (les plus anciennes d&#39;abord, jusqu&#39;à 50) ; le bloc est
-                <strong>caché</strong> à l&#39;infirmier et à la secrétaire.
-                L&#39;infirmier ne valide que les séances <strong>du jour</strong> : valider une séance d&#39;un jour
-                passé sans être administrateur est
-                refusé par le serveur (<code>SEANCE_REGULARISATION_ADMIN</code>). Une fois validée, la séance compte
-                comme réalisée et
+                la détection de la nuit compte le patient absent (« à qualifier ») et la perte est valorisée. La
+                régularisation se
+                fait <strong>en deux temps</strong> : (1) l&#39;<strong>administrateur</strong> consulte, dans « À
+                régulariser » du poste infirmier, les séances
+                <code>CREE</code> des <strong>7 derniers jours</strong> (les plus anciennes d&#39;abord, jusqu&#39;à 50)
+                et <strong>déverrouille pour régularisation</strong>
+                (<code>POST /seances/{id}/deverrouiller-regularisation</code>, <code>ADMIN</code> seul) celles dont il
+                est sûr qu&#39;il s&#39;agit d&#39;un oubli ;
+                seule une séance d&#39;un <strong>jour passé</strong> restée <code>CREE</code> peut l&#39;être (<code>SEANCE_DEVERROUILLAGE_INVALIDE</code>),
+                l&#39;action est
+                idempotente et notifie les infirmiers (<code>SEANCE_DEVERROUILLEE</code>) ; (2) la séance déverrouillée
+                devient visible de
+                l&#39;<strong>infirmier</strong> dans son bloc « À régulariser » (il ne voit que celles-là, jamais les
+                autres) et il peut la valider.
+                L&#39;infirmier ne valide librement que les séances <strong>du jour</strong> : valider une séance d&#39;un
+                jour passé non déverrouillée est
+                refusé par le serveur (<code>SEANCE_REGULARISATION_NON_DEVERROUILLEE</code>) ; l&#39;administrateur
+                valide toujours. La secrétaire
+                ne voit pas le bloc. Un <strong>rappel</strong> est envoyé chaque jour à <strong>07:00</strong> (<code>SeanceRegularisationScheduler</code>,
+                après la
+                détection des absences de 02:30) à l&#39;administrateur de chaque centre qui a de telles séances
+                <strong>pas encore
+                    déverrouillées</strong> : nombre et date de la plus ancienne (notification <code>SEANCES_A_REGULARISER</code>,
+                <code>ADMIN</code> seul ; rien
+                n&#39;est envoyé s&#39;il n&#39;y en a aucune). Une fois validée, la séance compte comme réalisée et
                 l&#39;absence détectée à tort est annulée à la réconciliation suivante (RG-ABS-040, commentaire « Séance
                 réalisée à
                 cette date »). Au-delà de 7 jours, la séance reste consultable dans l&#39;historique (RG-SEA-029).</p>
@@ -5362,6 +5379,18 @@
                 <td>RG-ABS-044</td>
             </tr>
             <tr>
+                <td><code>SEANCES_A_REGULARISER</code></td>
+                <td>séances des 7 derniers jours jamais validées, pas encore déverrouillées (rappel de 07:00)</td>
+                <td><code>ADMIN</code></td>
+                <td>RG-SEA-046</td>
+            </tr>
+            <tr>
+                <td><code>SEANCE_DEVERROUILLEE</code></td>
+                <td>l&#39;administrateur déverrouille une séance oubliée pour régularisation</td>
+                <td><code>INFIRMIER</code></td>
+                <td>RG-SEA-046</td>
+            </tr>
+            <tr>
                 <td><code>INFIRMIER_SOUS_EFFECTIF</code></td>
                 <td>créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)</td>
                 <td><code>ADMIN</code>, <code>SECRETAIRE</code></td>
@@ -6029,6 +6058,11 @@
                 <td><code>AbsencePatientScheduler</code></td>
                 <td>02:30 chaque jour et au démarrage</td>
                 <td>RG-ABS-040 à 046</td>
+            </tr>
+            <tr>
+                <td><code>SeanceRegularisationScheduler</code></td>
+                <td>07:00 chaque jour</td>
+                <td>RG-SEA-046</td>
             </tr>
             <tr>
                 <td><code>AuditScheduler</code></td>

@@ -29,12 +29,12 @@ public class SeanceRegularisationService {
     }
 
     /**
-     * Nombre de séances « créées » des {@value #JOURS} derniers jours du centre et date de la plus ancienne
-     * ({@code null} quand il n'y en a aucune).
+     * Nombre de séances « créées » des {@value #JOURS} derniers jours du centre que l'administrateur n'a pas encore
+     * déverrouillées, et date de la plus ancienne ({@code null} quand il n'y en a aucune).
      */
     public Resume aRegulariser(UUID centerId, LocalDate aujourdhui) {
         SeanceSearch criteres = new SeanceSearch(aujourdhui.minusDays(JOURS), aujourdhui.minusDays(1),
-                Set.of(SeanceStatus.CREE), null, SeanceSearch.Sort.DATE, false);
+                Set.of(SeanceStatus.CREE), null, SeanceSearch.Sort.DATE, false, false);
         var page = seances.search(CenterId.of(centerId), criteres, 0, 1);
         LocalDate plusAncienne = page.items().isEmpty() ? null : page.items().getFirst().dateSeance();
         return new Resume(page.total(), plusAncienne);

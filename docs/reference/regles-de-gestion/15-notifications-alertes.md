@@ -27,27 +27,28 @@
 
 ## 15.2 Catalogue des évènements de centre
 
-| Évènement                                    | Déclencheur                                                      | Destinataires (cloche)                              | Règle                  |
-|----------------------------------------------|------------------------------------------------------------------|-----------------------------------------------------|------------------------|
-| `PATIENT_CREATED`, `PATIENT_UPDATED`         | création / modification d'une fiche patient                      | tous (rafraîchissement)                             | RG-PAT-015             |
-| `ATTESTATION_CREATED`, `ATTESTATION_DELETED` | attestation de droits                                            | tous                                                | RG-ATT-004             |
-| `PEC_VALIDATED`, `PEC_CLOSED`, `PEC_DELETED` | cycle de vie d'une PEC                                           | tous                                                | RG-PEC-003/004/008     |
-| `SEANCE_CREATED`                             | création / scan d'une séance                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-013             |
-| `SEANCE_VALIDATED`                           | validation infirmière                                            | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-020             |
-| `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-030             |
-| `SEANCE_MEDICAL_SAVED`                       | volet médical enregistré                                         | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-031             |
-| `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                            | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-022             |
-| `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                    | `MEDECIN`                                           | RG-NOT-004             |
-| `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30) | `MEDECIN`                                           | RG-MED-073             |
-| `ABSENCES_A_QUALIFIER`                       | absences détectées à qualifier (contrôle de 02:30)               | `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`       | RG-ABS-044             |
-| `SEANCES_A_REGULARISER`                      | séances des 7 derniers jours jamais validées (rappel de 07:00)   | `ADMIN`                                             | RG-SEA-046             |
-| `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)  | `ADMIN`, `SECRETAIRE`                               | RG-INF-046             |
-| `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                 | `ADMIN`, `SECRETAIRE`                               | RG-INF-032             |
-| `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                     | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
-| `ISOLEMENT_IMPOSSIBLE`                       | patient à risque sans place d'isolement                          | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
-| `STOCK_MOVEMENT_CHANGED`                     | entrée ou sortie de stock                                        | tous (rafraîchissement)                             | RG-STK-021, RG-STK-030 |
-| `STOCK_RECALC_LOCKS_CHANGED`                 | verrous de recalcul de PMP modifiés                              | tous                                                | RG-STK-024, RG-STK-041 |
-| `STOCK_INVENTORY_CHANGED`                    | ouverture, clôture ou annulation d'inventaire                    | rôles du stock (`ADMIN`, `PHARMACIEN`, `INFIRMIER`) | RG-STK-057             |
+| Évènement                                    | Déclencheur                                                                               | Destinataires (cloche)                              | Règle                  |
+|----------------------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------------------------|------------------------|
+| `PATIENT_CREATED`, `PATIENT_UPDATED`         | création / modification d'une fiche patient                                               | tous (rafraîchissement)                             | RG-PAT-015             |
+| `ATTESTATION_CREATED`, `ATTESTATION_DELETED` | attestation de droits                                                                     | tous                                                | RG-ATT-004             |
+| `PEC_VALIDATED`, `PEC_CLOSED`, `PEC_DELETED` | cycle de vie d'une PEC                                                                    | tous                                                | RG-PEC-003/004/008     |
+| `SEANCE_CREATED`                             | création / scan d'une séance                                                              | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-013             |
+| `SEANCE_VALIDATED`                           | validation infirmière                                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-020             |
+| `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                                              | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-030             |
+| `SEANCE_MEDICAL_SAVED`                       | volet médical enregistré                                                                  | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-031             |
+| `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-022             |
+| `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                                             | `MEDECIN`                                           | RG-NOT-004             |
+| `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30)                          | `MEDECIN`                                           | RG-MED-073             |
+| `ABSENCES_A_QUALIFIER`                       | absences détectées à qualifier (contrôle de 02:30)                                        | `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`       | RG-ABS-044             |
+| `SEANCES_A_REGULARISER`                      | séances des 7 derniers jours jamais validées, pas encore déverrouillées (rappel de 07:00) | `ADMIN`                                             | RG-SEA-046             |
+| `SEANCE_DEVERROUILLEE`                       | l'administrateur déverrouille une séance oubliée pour régularisation                      | `INFIRMIER`                                         | RG-SEA-046             |
+| `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)                           | `ADMIN`, `SECRETAIRE`                               | RG-INF-046             |
+| `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                                          | `ADMIN`, `SECRETAIRE`                               | RG-INF-032             |
+| `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                                              | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
+| `ISOLEMENT_IMPOSSIBLE`                       | patient à risque sans place d'isolement                                                   | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
+| `STOCK_MOVEMENT_CHANGED`                     | entrée ou sortie de stock                                                                 | tous (rafraîchissement)                             | RG-STK-021, RG-STK-030 |
+| `STOCK_RECALC_LOCKS_CHANGED`                 | verrous de recalcul de PMP modifiés                                                       | tous                                                | RG-STK-024, RG-STK-041 |
+| `STOCK_INVENTORY_CHANGED`                    | ouverture, clôture ou annulation d'inventaire                                             | rôles du stock (`ADMIN`, `PHARMACIEN`, `INFIRMIER`) | RG-STK-057             |
 
 ## 15.3 États surveillés par le système (consultables dans les écrans)
 
