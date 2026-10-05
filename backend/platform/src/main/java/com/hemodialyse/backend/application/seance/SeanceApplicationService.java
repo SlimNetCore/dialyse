@@ -2,6 +2,7 @@ package com.hemodialyse.backend.application.seance;
 
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
+import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
@@ -10,6 +11,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
+import com.hemodialyse.backend.domain.seance.port.SeancePlanningPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
@@ -50,9 +52,11 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     VoletParamedicalRepositoryPort voletParamedicalRepo,
                                     VoletMedicalRepositoryPort voletMedicalRepo,
                                     SeanceForfaitCatalogPort forfaitCatalogPort,
-                                    SeanceBillingEligibilityPort billingEligibilityPort) {
+                                    SeanceBillingEligibilityPort billingEligibilityPort,
+                                    SeancePlanningPort planningPort) {
         this.delegate = new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo,
-                bonSortieUseCase, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort);
+                bonSortieUseCase, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
+                planningPort);
     }
 
     @Override
@@ -70,8 +74,8 @@ public class SeanceApplicationService implements SeanceUseCase {
      * facturable, séance absente) ne laisse jamais une séance créée à moitié.
      */
     @Override
-    public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId) {
-        return delegate.scanAndValidate(centerId, qrCode, userId);
+    public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId, DerogationPlanning derogation) {
+        return delegate.scanAndValidate(centerId, qrCode, userId, derogation);
     }
 
     @Override

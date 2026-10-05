@@ -1,0 +1,56 @@
+:host {
+  display: block;
+}
+
+.hp {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--app-accent, #f0bf7a) 70%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--app-accent, #f0bf7a) 16%, var(--app-surface-solid) 84%);
+}
+
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.reason {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0 0 10px;
+  color: var(--app-muted);
+}
+
+.fields {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.actions button {
+  min-height: 44px;
+}
+
+@media (max-width: 600px) {
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
+import com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
@@ -96,7 +97,9 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
                             row.get("code", String.class), row.get("nom", String.class),
                             row.get("prenom", String.class), e.getDateSeance(), SeanceStatus.valueOf(e.getStatut()),
                             e.getCreatedAt(), e.getValidatedAt(), e.getSignedInfirmierAt(), e.getSignedMedecinAt(),
-                            e.getRegularisationDeverrouilleeAt());
+                            e.getRegularisationDeverrouilleeAt(), e.isHorsPlanning(),
+                            e.getMotifHorsPlanning() == null
+                                    ? null : MotifHorsPlanning.valueOf(e.getMotifHorsPlanning()));
                 })
                 .toList();
         return PagedResult.of(items, total, page, size);
@@ -170,6 +173,10 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         s.setForfaitOverrideUpdatedBy(e.getForfaitOverrideUpdatedBy());
         s.setRegularisationDeverrouilleeAt(e.getRegularisationDeverrouilleeAt());
         s.setRegularisationDeverrouilleeBy(e.getRegularisationDeverrouilleeBy());
+        s.setHorsPlanning(e.isHorsPlanning());
+        s.setMotifHorsPlanning(e.getMotifHorsPlanning() == null
+                ? null : MotifHorsPlanning.valueOf(e.getMotifHorsPlanning()));
+        s.setPrecisionHorsPlanning(e.getPrecisionHorsPlanning());
         return s;
     }
 
@@ -194,6 +201,9 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         e.setForfaitOverrideUpdatedBy(s.getForfaitOverrideUpdatedBy());
         e.setRegularisationDeverrouilleeAt(s.getRegularisationDeverrouilleeAt());
         e.setRegularisationDeverrouilleeBy(s.getRegularisationDeverrouilleeBy());
+        e.setHorsPlanning(s.isHorsPlanning());
+        e.setMotifHorsPlanning(s.getMotifHorsPlanning() == null ? null : s.getMotifHorsPlanning().name());
+        e.setPrecisionHorsPlanning(s.getPrecisionHorsPlanning());
         return e;
     }
 }

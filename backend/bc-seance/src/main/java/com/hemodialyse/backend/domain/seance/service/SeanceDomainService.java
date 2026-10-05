@@ -3,6 +3,7 @@ package com.hemodialyse.backend.domain.seance.service;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
+import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
@@ -12,11 +13,13 @@ import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
+import com.hemodialyse.backend.domain.seance.port.SeancePlanningPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.seance.port.VoletMedicalRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.VoletParamedicalRepositoryPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.Lot;
 import com.hemodialyse.backend.domain.stock.model.SortieRequestItem;
@@ -50,6 +53,7 @@ public class SeanceDomainService implements SeanceUseCase {
     private final VoletMedicalRepositoryPort voletMedicalRepo;
     private final SeanceForfaitCatalogPort forfaitCatalogPort;
     private final SeanceBillingEligibilityPort billingEligibilityPort;
+    private final SeancePlanningPort planningPort;
 
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
@@ -59,7 +63,8 @@ public class SeanceDomainService implements SeanceUseCase {
                                VoletParamedicalRepositoryPort voletParamedicalRepo,
                                VoletMedicalRepositoryPort voletMedicalRepo,
                                SeanceForfaitCatalogPort forfaitCatalogPort,
-                               SeanceBillingEligibilityPort billingEligibilityPort) {
+                               SeanceBillingEligibilityPort billingEligibilityPort,
+                               SeancePlanningPort planningPort) {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
         this.articleRepo = articleRepo;
@@ -69,10 +74,22 @@ public class SeanceDomainService implements SeanceUseCase {
         this.voletMedicalRepo = voletMedicalRepo;
         this.forfaitCatalogPort = forfaitCatalogPort;
         this.billingEligibilityPort = billingEligibilityPort;
+        this.planningPort = planningPort;
+    }
+
+    private static DerogationPlanning exigerDerogation(DerogationPlanning derogation, String code, String message) {
+        if (derogation == null) {
+            throw new BusinessException(code, message);
+        }
+        return derogation;
     }
 
     @Override
     public Seance create(CenterId centerId, UUID patientId, LocalDate dateSeance) {
+        return creer(centerId, patientId, dateSeance, null);
+    }
+
+    private Seance creer(CenterId centerId, UUID patientId, LocalDate dateSeance, DerogationPlanning derogation) {
         patientRepo.findById(PatientId.of(patientId), centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient introuvable"));
 
@@ -82,7 +99,38 @@ public class SeanceDomainService implements SeanceUseCase {
         }
 
         Seance seance = new Seance(UUID.randomUUID(), patientId, centerId.value(), effectiveDate);
+        if (derogation != null) {
+            seance.marquerHorsPlanning(derogation);
+        }
         return seanceRepo.save(seance);
+    }
+
+    /**
+     * Le patient doit être programmé à la date de la séance (jour de dialyse, centre ouvert, patient présent).
+     * Sinon : un jour de fermeture n'est franchi que par un administrateur confirmant un motif ; tout autre hors
+     * planning demande une confirmation avec motif (jamais accordée à la secrétaire, qui ne confirme pas).
+     *
+     * @return la dérogation à enregistrer sur la séance, ou {@code null} si le patient est attendu
+     */
+    private DerogationPlanning verifierProgramme(CenterId centerId, UUID patientId, LocalDate date,
+                                                 DerogationPlanning derogation) {
+        var raison = ProgrammationSeance.evaluer(planningPort.situation(centerId, patientId, date), date);
+        if (raison.isEmpty()) {
+            return null;
+        }
+        return switch (raison.get()) {
+            case CENTRE_FERME -> {
+                if (derogation == null || !derogation.administrateur()) {
+                    throw new BusinessException("SEANCE_CENTRE_FERME",
+                            "Le centre est fermé ce jour : seul un administrateur peut enregistrer une séance");
+                }
+                yield derogation;
+            }
+            case JOUR_NON_DIALYSE -> exigerDerogation(derogation, "SEANCE_HORS_PLANNING_JOUR",
+                    "Ce patient n'est pas programmé aujourd'hui (ce n'est pas un de ses jours de dialyse)");
+            case PATIENT_NON_ATTENDU -> exigerDerogation(derogation, "SEANCE_HORS_PLANNING_PATIENT",
+                    "Ce patient n'est pas attendu aujourd'hui (sommeil, sortie ou séjour terminé)");
+        };
     }
 
     @Override
@@ -90,16 +138,20 @@ public class SeanceDomainService implements SeanceUseCase {
         UUID patientId = resolvePatientIdFromQr(centerId, qrCode);
         LocalDate date = LocalDate.now();
         return seanceRepo.findByPatientIdAndDate(centerId, patientId, date)
-                .orElseGet(() -> create(centerId, patientId, date));
+                .orElseGet(() -> {
+                    verifierProgramme(centerId, patientId, date, null);
+                    return create(centerId, patientId, date);
+                });
     }
 
     @Override
-    public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId) {
+    public ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId, DerogationPlanning derogation) {
         UUID patientId = resolvePatientIdFromQr(centerId, qrCode);
         LocalDate date = LocalDate.now();
         Optional<Seance> existante = seanceRepo.findByPatientIdAndDate(centerId, patientId, date);
         if (existante.isEmpty()) {
-            Seance creee = create(centerId, patientId, date);
+            DerogationPlanning retenue = verifierProgramme(centerId, patientId, date, derogation);
+            Seance creee = creer(centerId, patientId, date, retenue);
             return new ScanResult(validate(centerId, creee.getId(), userId, List.of()), true, true, false);
         }
         Seance seance = existante.get();

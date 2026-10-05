@@ -41,7 +41,12 @@
         <app-qr-scanner (scanned)="scan($event)"/>
       </div>
 
-      @if (store.scanState() === 'error' && store.scanMessage()) {
+      @if (store.scanConfirmation(); as pending) {
+        <app-hors-planning-confirm (confirmed)="confirmHorsPlanning($event)"
+                                   (dismissed)="store.cancelScanConfirmation()"
+                                   [busy]="store.scanning()" [canConfirm]="canConfirmHorsPlanning()"
+                                   [code]="pending.code"/>
+      } @else if (store.scanState() === 'error' && store.scanMessage()) {
         <div class="banner banner-error" role="alert">
           <mat-icon aria-hidden="true">error</mat-icon>
           <span>{{ store.scanMessage() | translate }}</span>
@@ -106,6 +111,12 @@
             <div class="meta-chips">
               <span class="meta-chip"><mat-icon aria-hidden="true">badge</mat-icon>
                 {{ s.patient.codePatient }}</span>
+              @if (s.seance.horsPlanning) {
+                <span [attr.title]="'SEANCES.STATION.HP.MOTIFS.' + (s.seance.motifHorsPlanning ?? 'AUTRE') | translate"
+                      class="meta-chip" data-testid="hp-chip">
+                  <mat-icon aria-hidden="true">event_busy</mat-icon>
+                  {{ 'SEANCES.STATION.HP.CHIP' | translate }}</span>
+              }
               @if (forfaitLabel()) {
                 <span class="meta-chip"><mat-icon aria-hidden="true">receipt_long</mat-icon>
                   {{ forfaitLabel() }}</span>

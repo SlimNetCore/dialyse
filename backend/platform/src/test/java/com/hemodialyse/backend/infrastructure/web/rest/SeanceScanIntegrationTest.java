@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -206,6 +207,29 @@ class SeanceScanIntegrationTest {
         );
     }
 
+    /**
+     * Colonne « jour de dialyse » du patient correspondant à aujourd'hui.
+     */
+    private static String colonneAujourdhui() {
+        return switch (LocalDate.now().getDayOfWeek()) {
+            case MONDAY -> "jour_lundi";
+            case TUESDAY -> "jour_mardi";
+            case WEDNESDAY -> "jour_mercredi";
+            case THURSDAY -> "jour_jeudi";
+            case FRIDAY -> "jour_vendredi";
+            case SATURDAY -> "jour_samedi";
+            case SUNDAY -> "jour_dimanche";
+        };
+    }
+
+    private static String scanPayloadAvecMotif(String motif, String precision) {
+        return """
+                {"centerId": "%s", "qrCode": "PAT-SCAN-NULL-GEN", "motifHorsPlanning": %s,
+                 "precisionHorsPlanning": %s}
+                """.formatted(CENTER_ID, motif == null ? "null" : "\"" + motif + "\"",
+                precision == null ? "null" : "\"" + precision + "\"");
+    }
+
     private void seedPatientOnlyWithoutBillingEligibility() {
         jdbc.update(
                 """
@@ -224,6 +248,90 @@ class SeanceScanIntegrationTest {
                 "NON_VACANCIER",
                 OffsetDateTime.now(ZoneOffset.UTC)
         );
+        definirJourDeDialyseAujourdhui(true);
+    }
+
+    private void definirJourDeDialyseAujourdhui(boolean programme) {
+        jdbc.update("UPDATE patients SET " + colonneAujourdhui() + " = ? WHERE id = ?", programme, PATIENT_ID);
+    }
+
+    @Test
+    void scan_of_a_patient_not_scheduled_today_asks_for_a_confirmation_and_creates_nothing() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        definirJourDeDialyseAujourdhui(false);
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("SEANCE_HORS_PLANNING_JOUR"));
+
+        org.junit.jupiter.api.Assertions.assertEquals(0L, jdbc.queryForObject(
+                "SELECT COUNT(1) FROM seances WHERE center_id = ? AND patient_id = ?", Long.class, CENTER_ID, PATIENT_ID));
+    }
+
+    @Test
+    void the_nurse_confirmation_with_a_motive_creates_a_flagged_validated_session() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        definirJourDeDialyseAujourdhui(false);
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("RATTRAPAGE", null)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("VALIDEE"))
+                .andExpect(jsonPath("$.horsPlanning").value(true))
+                .andExpect(jsonPath("$.motifHorsPlanning").value("RATTRAPAGE"));
+
+        org.junit.jupiter.api.Assertions.assertEquals("RATTRAPAGE", jdbc.queryForObject(
+                "SELECT motif_hors_planning FROM seances WHERE center_id = ? AND patient_id = ?", String.class,
+                CENTER_ID, PATIENT_ID));
+    }
+
+    @Test
+    void the_motive_other_requires_a_precision() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        definirJourDeDialyseAujourdhui(false);
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("AUTRE", null)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("SEANCE_DEROGATION_PRECISION_REQUISE"));
+    }
+
+    @Test
+    void the_secretary_cannot_confirm_an_out_of_planning_scan() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        definirJourDeDialyseAujourdhui(false);
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("secretaire-01").roles("SECRETAIRE"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("URGENCE", null)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("SEANCE_HORS_PLANNING_JOUR"));
+    }
+
+    @Test
+    void a_closed_day_is_refused_to_the_nurse_but_can_be_forced_by_an_administrator() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        UUID fermeture = UUID.randomUUID();
+        jdbc.update("INSERT INTO center_holiday (id, center_id, day_date, label) VALUES (?, ?, CURRENT_DATE, ?)",
+                fermeture, CENTER_ID, "Fermeture test");
+        try {
+            mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                            .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("URGENCE", null)))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.code").value("SEANCE_CENTRE_FERME"));
+
+            mockMvc.perform(post("/api/v1/seances/scan").with(user("admin-01").roles("ADMIN"))
+                            .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("URGENCE", null)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.horsPlanning").value(true));
+        } finally {
+            jdbc.update("DELETE FROM center_holiday WHERE id = ?", fermeture);
+        }
     }
 }
 

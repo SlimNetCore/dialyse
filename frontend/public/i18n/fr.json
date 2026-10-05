@@ -1366,6 +1366,26 @@
       "PAGER_LABEL": "Navigation entre les patients du jour",
       "PAGER_PREVIOUS": "Patient précédent",
       "PAGER_NEXT": "Patient suivant",
+      "HP": {
+        "TITLE": "Patient non programmé aujourd'hui",
+        "SEANCE_HORS_PLANNING_JOUR": "Ce patient n'est pas programmé aujourd'hui : ce n'est pas un de ses jours de dialyse.",
+        "SEANCE_HORS_PLANNING_PATIENT": "Ce patient n'est pas attendu aujourd'hui (mis en sommeil, sorti du centre ou séjour terminé).",
+        "SEANCE_CENTRE_FERME": "Le centre est fermé aujourd'hui (jour férié ou fermeture exceptionnelle).",
+        "CONFIRM_HINT": "Si la séance a bien lieu, confirmez-la en indiquant le motif : elle sera marquée « hors planning ».",
+        "NO_RIGHT_GENERIC": "Aucune séance n'a été créée. Prévenez l'infirmier : lui seul peut confirmer une séance hors planning.",
+        "NO_RIGHT_CLOSED": "Aucune séance n'a été créée. Seul un administrateur peut enregistrer une séance un jour de fermeture du centre.",
+        "MOTIF": "Motif",
+        "PRECISION": "Précision",
+        "MOTIFS": {
+          "RATTRAPAGE": "Rattrapage",
+          "URGENCE": "Urgence",
+          "AUTRE": "Autre"
+        },
+        "CONFIRM": "Confirmer la séance",
+        "RENOUNCE": "Annuler le scan",
+        "CLOSE": "Fermer",
+        "CHIP": "Hors planning"
+      },
       "SELECT_PATIENT": "Choisissez un patient dans la liste ou scannez-le.",
       "STATUS_CREE": "À valider",
       "STATUS_VALIDEE": "Validée",

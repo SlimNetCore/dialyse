@@ -6,6 +6,7 @@ import {catchError, concatMap, EMPTY, of, pipe, switchMap, tap} from 'rxjs';
 import {
   ArticleStock,
   BackendApiService,
+  ScanSeanceQrPayload,
   ScanSeanceResult,
   SeanceCalendarResponse,
   SeanceDashboardDetailItem,
@@ -64,6 +65,8 @@ type SeanceState = {
   scanning: boolean;
   /** Dernier patient scanné (affiché en grand à l'infirmier pour confirmer le scan). */
   lastScan: ScanSeanceResult | null;
+  /** Scan refusé car le patient n'est pas programmé aujourd'hui : en attente de confirmation (ou de renoncement). */
+  scanConfirmation: ScanConfirmation | null;
 
   /** Journal journalier */
   journalDate: string;
@@ -171,6 +174,7 @@ const initialState: SeanceState = {
   scanMessage: 'SEANCES.SCAN_READY_MESSAGE',
   scanning: false,
   lastScan: null,
+  scanConfirmation: null,
   journalDate: todayIsoDate(),
   journalLoading: false,
   journalPatients: [],
@@ -516,12 +520,13 @@ export const SeanceStore = signalStore(
     ),
 
     // --- Scan QR ---
-    scanQr: rxMethod<{ centerId: string; qrCode: string }>(
+    scanQr: rxMethod<ScanSeanceQrPayload>(
       pipe(
         tap(() => patchState(store, {scanning: true, error: null})),
-        switchMap(({centerId, qrCode}) =>
-          api.scanSeanceQr({centerId, qrCode}).pipe(
-            tap((created) => patchState(store, {lastScan: created, qrCode: ''})),
+        switchMap((payload) => {
+          const {centerId, qrCode} = payload;
+          return api.scanSeanceQr(payload).pipe(
+            tap((created) => patchState(store, {lastScan: created, qrCode: '', scanConfirmation: null})),
             switchMap((created) =>
               api.getSeanceSummary(created.id, centerId).pipe(
                 tap((summary) => {
@@ -547,19 +552,25 @@ export const SeanceStore = signalStore(
               )
             ),
             catchError((err: unknown) => {
+              const code = horsPlanningCode(err);
               patchState(store, {
                 scanning: false,
                 lastScan: null,
                 scanState: 'error',
-                scanMessage: scanErrorMessage(err),
+                scanMessage: code ? `SEANCES.STATION.HP.${code}` : scanErrorMessage(err),
                 error: errorMessage(err),
+                scanConfirmation: code ? {qrCode, code} : null,
               });
               return EMPTY;
             })
-          )
-        )
+          );
+        })
       )
     ),
+    /** Renonce à confirmer la séance d'un patient non programmé (le scan reste sans effet). */
+    cancelScanConfirmation(): void {
+      patchState(store, {scanConfirmation: null, scanState: 'idle', scanMessage: 'SEANCES.SCAN_READY_MESSAGE'});
+    },
 
     // --- Détail séance ---
     loadSeanceSummary: rxMethod<{ seanceId: string; centerId: string }>(
@@ -910,6 +921,23 @@ export const SeanceStore = signalStore(
  * Message affiché après l'échec d'un scan : la règle métier refusée par le serveur (422, ex. patient sans prise en
  * charge valide) est montrée telle quelle ; QR inconnu ou invalide (400/404) garde le message générique.
  */
+export type HorsPlanningCode = 'SEANCE_HORS_PLANNING_JOUR' | 'SEANCE_HORS_PLANNING_PATIENT' | 'SEANCE_CENTRE_FERME';
+
+/** Scan en attente de confirmation : le code du serveur dit pourquoi le patient n'est pas attendu. */
+export type ScanConfirmation = { qrCode: string; code: HorsPlanningCode };
+
+const HORS_PLANNING_CODES: readonly string[] = [
+  'SEANCE_HORS_PLANNING_JOUR', 'SEANCE_HORS_PLANNING_PATIENT', 'SEANCE_CENTRE_FERME',
+];
+
+/** Code « hors planning » d'un refus de scan (422), ou {@code null} pour toute autre erreur. */
+export function horsPlanningCode(err: unknown): HorsPlanningCode | null {
+  const e = err as { status?: number; error?: { code?: unknown } } | null;
+  const code = e?.error?.code;
+  return e?.status === 422 && typeof code === 'string' && HORS_PLANNING_CODES.includes(code)
+    ? (code as HorsPlanningCode) : null;
+}
+
 export function scanErrorMessage(err: unknown): string {
   const e = err as { status?: number; error?: { detail?: unknown } } | null;
   const detail = e?.error?.detail;

@@ -27,7 +27,8 @@ function summary(status: string, generateurEtat?: string) {
 function fakeStore() {
   return {
     qrCode: signal(''), scanning: signal(false), scanState: signal('idle'), scanMessage: signal(''),
-    lastScan: signal(null), summary: signal<unknown>(null), summaryLoading: signal(false),
+    lastScan: signal(null), scanConfirmation: signal<unknown>(null), cancelScanConfirmation: vi.fn(),
+    summary: signal<unknown>(null), summaryLoading: signal(false),
     selectedSeanceId: signal<string | null>(null), isSeanceAlreadyValidated: signal(false),
     journalPatients: signal([
       {
@@ -268,6 +269,47 @@ describe('SeanceStationComponent', () => {
     root.querySelector<HTMLInputElement>('.scan-field input')!
       .dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
     expect(store.scanQr).not.toHaveBeenCalled();
+  });
+
+  it('un scan hors planning confirmé par l\'infirmier renvoie le même code avec le motif', () => {
+    store.scanConfirmation.set({qrCode: 'PAT-9', code: 'SEANCE_HORS_PLANNING_JOUR'});
+    const {fixture} = render();
+    const cmp = fixture.componentInstance as unknown as {
+      canConfirmHorsPlanning(): boolean;
+      confirmHorsPlanning(c: { motif: string; precision: string | null }): void;
+    };
+
+    expect(cmp.canConfirmHorsPlanning()).toBe(true);
+    cmp.confirmHorsPlanning({motif: 'AUTRE', precision: 'transfert exceptionnel'});
+
+    expect(store.scanQr).toHaveBeenCalledWith({
+      centerId: CENTER_ID, qrCode: 'PAT-9', motifHorsPlanning: 'AUTRE', precisionHorsPlanning: 'transfert exceptionnel',
+    });
+  });
+
+  it('la secrétaire ne peut pas confirmer une séance hors planning', () => {
+    roles = ['SECRETAIRE'];
+    store.scanConfirmation.set({qrCode: 'PAT-9', code: 'SEANCE_HORS_PLANNING_JOUR'});
+    const {fixture} = render();
+    const cmp = fixture.componentInstance as unknown as {
+      canConfirmHorsPlanning(): boolean;
+      confirmHorsPlanning(c: { motif: string; precision: string | null }): void;
+    };
+
+    expect(cmp.canConfirmHorsPlanning()).toBe(false);
+    cmp.confirmHorsPlanning({motif: 'URGENCE', precision: null});
+
+    expect(store.scanQr).not.toHaveBeenCalled();
+  });
+
+  it('un jour de fermeture, seul l\'administrateur peut confirmer', () => {
+    store.scanConfirmation.set({qrCode: 'PAT-9', code: 'SEANCE_CENTRE_FERME'});
+    const infirmier = render().fixture.componentInstance as unknown as { canConfirmHorsPlanning(): boolean };
+    expect(infirmier.canConfirmHorsPlanning()).toBe(false);
+
+    roles = ['ADMIN'];
+    const admin = render().fixture.componentInstance as unknown as { canConfirmHorsPlanning(): boolean };
+    expect(admin.canConfirmHorsPlanning()).toBe(true);
   });
 
   it('propose en premier les consommables les plus sortis aujourd\'hui', () => {

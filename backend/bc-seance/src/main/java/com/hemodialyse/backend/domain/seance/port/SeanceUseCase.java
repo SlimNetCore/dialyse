@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.seance.port;
 
+import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
@@ -23,8 +24,13 @@ public interface SeanceUseCase {
      * Scan d'un patient par l'infirmier : la séance du jour est <b>validée directement</b>. Une séance « créée »
      * existante passe à « validée » ; sans séance, elle est créée puis validée ; une séance déjà validée, signée ou
      * facturée est renvoyée telle quelle (idempotent : un second scan ne retraite rien).
+     * <p>
+     * Un patient non programmé ce jour-là n'est pas enregistré sans {@code derogation} (motif confirmé par
+     * l'infirmier) ; un jour de fermeture du centre n'est franchi que par une dérogation d'administrateur.
+     *
+     * @param derogation confirmation d'une séance hors planning, ou {@code null} sans confirmation
      */
-    ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId);
+    ScanResult scanAndValidate(CenterId centerId, String qrCode, String userId, DerogationPlanning derogation);
 
     /**
      * Ajoute un consommable à une séance <b>déjà validée</b> (sortie de stock FEFO de cette seule ligne), sans repasser

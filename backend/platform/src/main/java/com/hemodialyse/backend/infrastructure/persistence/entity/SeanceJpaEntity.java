@@ -76,6 +76,39 @@ public class SeanceJpaEntity {
     @Column(name = "regularisation_deverrouillee_by", length = 100)
     private String regularisationDeverrouilleeBy;
 
+    @Column(name = "hors_planning", nullable = false, columnDefinition = "boolean default false")
+    private boolean horsPlanning;
+
+    @Column(name = "motif_hors_planning", length = 20)
+    private String motifHorsPlanning;
+
+    @Column(name = "precision_hors_planning", length = 255)
+    private String precisionHorsPlanning;
+
+    public boolean isHorsPlanning() {
+        return horsPlanning;
+    }
+
+    public void setHorsPlanning(boolean horsPlanning) {
+        this.horsPlanning = horsPlanning;
+    }
+
+    public String getMotifHorsPlanning() {
+        return motifHorsPlanning;
+    }
+
+    public void setMotifHorsPlanning(String motifHorsPlanning) {
+        this.motifHorsPlanning = motifHorsPlanning;
+    }
+
+    public String getPrecisionHorsPlanning() {
+        return precisionHorsPlanning;
+    }
+
+    public void setPrecisionHorsPlanning(String precisionHorsPlanning) {
+        this.precisionHorsPlanning = precisionHorsPlanning;
+    }
+
     public OffsetDateTime getRegularisationDeverrouilleeAt() {
         return regularisationDeverrouilleeAt;
     }

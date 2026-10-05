@@ -30,6 +30,12 @@ public class Seance {
      */
     private OffsetDateTime regularisationDeverrouilleeAt;
     private String regularisationDeverrouilleeBy;
+    /**
+     * Séance confirmée alors que le patient n'était pas programmé ce jour-là : motif déclaré par l'infirmier.
+     */
+    private boolean horsPlanning;
+    private MotifHorsPlanning motifHorsPlanning;
+    private String precisionHorsPlanning;
 
     public Seance() {
     }
@@ -41,6 +47,39 @@ public class Seance {
         this.dateSeance = dateSeance;
         this.status = SeanceStatus.CREE;
         this.createdAt = OffsetDateTime.now();
+    }
+
+    /**
+     * Marque la séance comme confirmée hors planning, avec le motif déclaré.
+     */
+    public void marquerHorsPlanning(DerogationPlanning derogation) {
+        this.horsPlanning = true;
+        this.motifHorsPlanning = derogation.motif();
+        this.precisionHorsPlanning = derogation.precision();
+    }
+
+    public boolean isHorsPlanning() {
+        return horsPlanning;
+    }
+
+    public void setHorsPlanning(boolean horsPlanning) {
+        this.horsPlanning = horsPlanning;
+    }
+
+    public MotifHorsPlanning getMotifHorsPlanning() {
+        return motifHorsPlanning;
+    }
+
+    public void setMotifHorsPlanning(MotifHorsPlanning motifHorsPlanning) {
+        this.motifHorsPlanning = motifHorsPlanning;
+    }
+
+    public String getPrecisionHorsPlanning() {
+        return precisionHorsPlanning;
+    }
+
+    public void setPrecisionHorsPlanning(String precisionHorsPlanning) {
+        this.precisionHorsPlanning = precisionHorsPlanning;
     }
 
     public void validerParInfirmier(String userId) {

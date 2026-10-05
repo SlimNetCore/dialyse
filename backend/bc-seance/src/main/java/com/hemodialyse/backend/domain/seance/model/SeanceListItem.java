@@ -17,7 +17,9 @@ public record SeanceListItem(
         OffsetDateTime validatedAt,
         OffsetDateTime signedByInfirmierAt,
         OffsetDateTime signedByMedecinAt,
-        OffsetDateTime regularisationDeverrouilleeAt
+        OffsetDateTime regularisationDeverrouilleeAt,
+        boolean horsPlanning,
+        MotifHorsPlanning motifHorsPlanning
 ) {
 }
 

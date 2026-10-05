@@ -37,6 +37,7 @@ import {
 import {PatientQrCardComponent} from '../../patient/patient-qr-card.component';
 import {PendingSeancesComponent} from './pending-seances.component';
 import {PatientPagerComponent} from './patient-pager.component';
+import {HorsPlanningConfirmation, HorsPlanningConfirmComponent} from './hors-planning-confirm.component';
 import {RecentSeancesPanelComponent} from './recent-seances-panel.component';
 import {ShortcutsConfigComponent} from './shortcuts-config.component';
 
@@ -55,7 +56,7 @@ const AUTOSAVE_DELAY_MS = 800;
   imports: [
     RouterLink, MatButtonModule, MatIconModule, TranslateModule, SearchableSelectComponent, RichTextEditorComponent,
     QrScannerComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent, RecentSeancesPanelComponent,
-    ShortcutsConfigComponent, PendingSeancesComponent, PatientPagerComponent, PatientQrCardComponent,
+    ShortcutsConfigComponent, PendingSeancesComponent, PatientPagerComponent, HorsPlanningConfirmComponent, PatientQrCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seance-station.component.html',
@@ -230,6 +231,23 @@ export class SeanceStationComponent implements OnDestroy {
     this.flushSave();
     this.store.setDateSeance(todayIsoDate());
     this.store.scanQr({centerId, qrCode: qr});
+  }
+
+  /** Infirmier ou administrateur confirme ; un jour de fermeture du centre n'est franchi que par l'administrateur. */
+  protected readonly canConfirmHorsPlanning = computed(() =>
+    this.isClinicalUser() && (this.store.scanConfirmation()?.code !== 'SEANCE_CENTRE_FERME' || this.isAdmin()));
+
+  protected confirmHorsPlanning(confirmation: HorsPlanningConfirmation): void {
+    const centerId = this.centerId();
+    const pending = this.store.scanConfirmation();
+    if (!centerId || !pending || !this.canConfirmHorsPlanning()) return;
+    this.flushSave();
+    this.store.scanQr({
+      centerId,
+      qrCode: pending.qrCode,
+      motifHorsPlanning: confirmation.motif,
+      precisionHorsPlanning: confirmation.precision,
+    });
   }
 
   // --- File du jour ---

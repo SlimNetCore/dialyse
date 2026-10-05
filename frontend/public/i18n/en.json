@@ -1366,6 +1366,26 @@
       "PAGER_LABEL": "Navigation between today's patients",
       "PAGER_PREVIOUS": "Previous patient",
       "PAGER_NEXT": "Next patient",
+      "HP": {
+        "TITLE": "Patient not scheduled today",
+        "SEANCE_HORS_PLANNING_JOUR": "This patient is not scheduled today: it is not one of their dialysis days.",
+        "SEANCE_HORS_PLANNING_PATIENT": "This patient is not expected today (dormant, left the center or stay ended).",
+        "SEANCE_CENTRE_FERME": "The center is closed today (public holiday or exceptional closure).",
+        "CONFIRM_HINT": "If the session does take place, confirm it with a reason: it will be flagged \"off-schedule\".",
+        "NO_RIGHT_GENERIC": "No session was created. Tell the nurse: only they can confirm an off-schedule session.",
+        "NO_RIGHT_CLOSED": "No session was created. Only an administrator can record a session on a day the center is closed.",
+        "MOTIF": "Reason",
+        "PRECISION": "Details",
+        "MOTIFS": {
+          "RATTRAPAGE": "Make-up session",
+          "URGENCE": "Emergency",
+          "AUTRE": "Other"
+        },
+        "CONFIRM": "Confirm the session",
+        "RENOUNCE": "Cancel the scan",
+        "CLOSE": "Close",
+        "CHIP": "Off-schedule"
+      },
       "SELECT_PATIENT": "Pick a patient from the list or scan one.",
       "STATUS_CREE": "To validate",
       "STATUS_VALIDEE": "Validated",

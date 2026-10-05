@@ -2,6 +2,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.patient.service.FinOccupation;
+import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
+import com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
@@ -74,6 +76,30 @@ public class SeanceRestController {
         return ResponseEntity.ok(buildSeanceCreationPayload(seance, patient));
     }
 
+    /**
+     * Confirmation d'une séance hors planning portée par la requête de scan ; {@code null} sans confirmation.
+     * Seul l'administrateur peut franchir un jour de fermeture du centre.
+     */
+    private static DerogationPlanning derogation(ScanSeanceQrRequest request) {
+        if (request.motifHorsPlanning() == null || request.motifHorsPlanning().isBlank()) {
+            return null;
+        }
+        MotifHorsPlanning motif;
+        try {
+            motif = MotifHorsPlanning.valueOf(request.motifHorsPlanning().trim().toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException("SEANCE_DEROGATION_MOTIF_REQUIS",
+                    "Motif de séance hors planning inconnu : " + request.motifHorsPlanning());
+        }
+        return new DerogationPlanning(motif, request.precisionHorsPlanning(), CurrentUser.hasAnyRole("ADMIN"));
+    }
+
+    /**
+     * Scan d'un patient. <b>Infirmier / administrateur</b> : la séance du jour est validée directement (créée puis
+     * validée s'il n'y en a pas, validée si elle était « créée », renvoyée telle quelle si déjà validée). <b>Secrétaire</b>
+     * (qui ne valide pas) : la séance du jour est créée ou renvoyée, à valider par l'infirmier.
+     */
+
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")
     @GetMapping
     public ResponseEntity<?> list(
@@ -117,6 +143,8 @@ public class SeanceRestController {
             row.put("signedByInfirmierAt", item.signedByInfirmierAt());
             row.put("signedByMedecinAt", item.signedByMedecinAt());
             row.put("regularisationDeverrouilleeAt", item.regularisationDeverrouilleeAt());
+            row.put("horsPlanning", item.horsPlanning());
+            row.put("motifHorsPlanning", item.motifHorsPlanning());
             row.put("forfait", loadCurrentForfait(item.id(), centerId, item.patientId(), item.dateSeance()));
             return row;
         }).toList();
@@ -128,11 +156,6 @@ public class SeanceRestController {
         return ResponseEntity.ok(payload);
     }
 
-    /**
-     * Scan d'un patient. <b>Infirmier / administrateur</b> : la séance du jour est validée directement (créée puis
-     * validée s'il n'y en a pas, validée si elle était « créée », renvoyée telle quelle si déjà validée). <b>Secrétaire</b>
-     * (qui ne valide pas) : la séance du jour est créée ou renvoyée, à valider par l'infirmier.
-     */
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','SECRETAIRE')")
     @PostMapping("/scan")
     public ResponseEntity<?> scanQr(@RequestBody @Valid ScanSeanceQrRequest request) {
@@ -143,7 +166,7 @@ public class SeanceRestController {
         boolean alreadyValidated;
         com.hemodialyse.backend.domain.seance.model.Seance seance;
         if (CurrentUser.hasAnyRole("ADMIN", "INFIRMIER")) {
-            var result = seanceUseCase.scanAndValidate(centre, request.qrCode(), auteur);
+            var result = seanceUseCase.scanAndValidate(centre, request.qrCode(), auteur, derogation(request));
             seance = result.seance();
             created = result.created();
             validatedNow = result.validatedNow();
@@ -187,6 +210,8 @@ public class SeanceRestController {
         payload.put("id", seance.getId());
         payload.put("status", seance.getStatus());
         payload.put("dateSeance", seance.getDateSeance());
+        payload.put("horsPlanning", seance.isHorsPlanning());
+        payload.put("motifHorsPlanning", seance.getMotifHorsPlanning());
         payload.put("generateurId", patient.getGenerateurId());
         payload.put("generateurNom", patient.getGenerateurNom());
         payload.put("generateurMarque", patient.getGenerateurMarque());
@@ -212,6 +237,9 @@ public class SeanceRestController {
         seanceMap.put("patientId", seance.getPatientId());
         seanceMap.put("dateSeance", seance.getDateSeance());
         seanceMap.put("status", seance.getStatus());
+        seanceMap.put("horsPlanning", seance.isHorsPlanning());
+        seanceMap.put("motifHorsPlanning", seance.getMotifHorsPlanning());
+        seanceMap.put("precisionHorsPlanning", seance.getPrecisionHorsPlanning());
         seanceMap.put("createdAt", seance.getCreatedAt());
         seanceMap.put("validatedAt", seance.getValidatedAt());
         seanceMap.put("signedByInfirmierAt", seance.getSignedByInfirmierAt());

@@ -1,0 +1,45 @@
+<section [attr.aria-label]="'SEANCES.STATION.HP.TITLE' | translate" class="hp" data-testid="hp-confirm"
+         role="alertdialog">
+  <h3>
+    <mat-icon aria-hidden="true">event_busy</mat-icon>
+    {{ 'SEANCES.STATION.HP.TITLE' | translate }}
+  </h3>
+  <p class="reason" data-testid="hp-reason">{{ 'SEANCES.STATION.HP.' + code() | translate }}</p>
+
+  @if (canConfirm()) {
+    <p class="hint">{{ 'SEANCES.STATION.HP.CONFIRM_HINT' | translate }}</p>
+    <div class="fields">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'SEANCES.STATION.HP.MOTIF' | translate }}</mat-label>
+        <mat-select [formField]="form.motif" data-testid="hp-motif">
+          @for (m of motifs; track m) {
+            <mat-option [value]="m">{{ 'SEANCES.STATION.HP.MOTIFS.' + m | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      @if (precisionRequise()) {
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SEANCES.STATION.HP.PRECISION' | translate }} *</mat-label>
+          <input [formField]="form.precision" data-testid="hp-precision" matInput/>
+        </mat-form-field>
+      }
+    </div>
+  } @else {
+    <p class="hint" data-testid="hp-no-right">
+      {{ 'SEANCES.STATION.HP.NO_RIGHT_' + (code() === 'SEANCE_CENTRE_FERME' ? 'CLOSED' : 'GENERIC') | translate }}
+    </p>
+  }
+
+  <div class="actions">
+    <button (click)="dismissed.emit()" data-testid="hp-dismiss" mat-stroked-button type="button">
+      {{ (canConfirm() ? 'SEANCES.STATION.HP.RENOUNCE' : 'SEANCES.STATION.HP.CLOSE') | translate }}
+    </button>
+    @if (canConfirm()) {
+      <button (click)="submit()" [disabled]="!canSubmit()" color="primary" data-testid="hp-submit" mat-flat-button
+              type="button">
+        <mat-icon>check</mat-icon>
+        {{ 'SEANCES.STATION.HP.CONFIRM' | translate }}
+      </button>
+    }
+  </div>
+</section>

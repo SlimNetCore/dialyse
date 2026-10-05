@@ -120,6 +120,12 @@
   color: #1f9d63;
 }
 
+.status-chip.hp-chip {
+  margin-inline-start: 6px;
+  background: color-mix(in srgb, #7c3aed 18%, transparent);
+  color: #7c3aed;
+}
+
 .forfait-chip {
   display: inline-flex;
   align-items: center;

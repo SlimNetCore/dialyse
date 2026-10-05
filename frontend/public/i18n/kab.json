@@ -1146,6 +1146,26 @@
       "PAGER_LABEL": "Tunigin gar yimuḍanen n ass-a",
       "PAGER_PREVIOUS": "Amuḍan yezrin",
       "PAGER_NEXT": "Amuḍan i d-iteddun",
+      "HP": {
+        "TITLE": "Amuḍan ur yettwasɣer ara ass-a",
+        "SEANCE_HORS_PLANNING_JOUR": "Amuḍan-a ur yettwasɣer ara ass-a: mačči d yiwen seg wussan-is n tdialit.",
+        "SEANCE_HORS_PLANNING_PATIENT": "Amuḍan-a ur yettwammen ara ass-a (yeṭṭes, yeffeɣ seg uffaɣ neɣ tfukk tegrawt-is).",
+        "SEANCE_CENTRE_FERME": "Uffaɣ ixeḍḍa ass-a (ass n uɛeṭṭel neɣ takksiwt tuzzigt).",
+        "CONFIRM_HINT": "Ma yella tasedrit ad tili s tidet, sentem-itt s ssebba: ad tettwacreḍ \"berra n useɣḍan\".",
+        "NO_RIGHT_GENERIC": "Ulac tasedrit i d-yettwarnan. Mmel i unemgal: d netta kan i izemren ad isentem tasedrit berra n useɣḍan.",
+        "NO_RIGHT_CLOSED": "Ulac tasedrit i d-yettwarnan. Anedbal kan i izemren ad yessekles tasedrit deg wass n tmerna n uffaɣ.",
+        "MOTIF": "Ssebba",
+        "PRECISION": "Tabdart",
+        "MOTIFS": {
+          "RATTRAPAGE": "Tuɣalin",
+          "URGENCE": "Taguri",
+          "AUTRE": "Wayeḍ"
+        },
+        "CONFIRM": "Sentem tasedrit",
+        "RENOUNCE": "Sefsex askan",
+        "CLOSE": "Mdel",
+        "CHIP": "Berra n useɣḍan"
+      },
       "SELECT_PATIENT": "Fren amdan seg tebdart neɣ sisfer-it.",
       "STATUS_CREE": "Ad yettwasentem",
       "STATUS_VALIDEE": "Tettwasentem",

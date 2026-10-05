@@ -7,6 +7,10 @@ import com.hemodialyse.backend.domain.patient.model.Patient;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
+import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
+import com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning;
+import com.hemodialyse.backend.domain.seance.model.SituationPlanning;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
@@ -56,18 +60,14 @@ class SeanceDomainServiceTest {
                 forfaitCatalogPort, new AlwaysBillableEligibility());
     }
 
-    private static SeanceDomainService buildService(
-            SeanceRepositoryPort seanceRepo,
-            PatientRepositoryPort patientRepo,
-            ArticleRepositoryPort articleRepo,
-            LotRepositoryPort lotRepo,
-            BonSortieUseCase bonSortieUseCase,
-            SeanceForfaitCatalogPort forfaitCatalogPort,
-            SeanceBillingEligibilityPort billingEligibilityPort) {
-        return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
-                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
-                forfaitCatalogPort, billingEligibilityPort);
-    }
+    /**
+     * Patient programmé ce jour : jour de dialyse, centre ouvert, patient régulier.
+     */
+    private static final SituationPlanning ATTENDU = new SituationPlanning(false, true, false, null, null, null);
+    private static final SituationPlanning JOUR_NON_DIALYSE =
+            new SituationPlanning(false, false, false, null, null, null);
+    private static final SituationPlanning CENTRE_FERME =
+            new SituationPlanning(true, true, false, null, null, null);
 
     @Test
     void create_should_fail_when_patient_is_not_billable() {
@@ -333,14 +333,47 @@ class SeanceDomainServiceTest {
     }
 
     // ───────── Scan infirmier : la séance du jour est validée directement ─────────
+    private static final SituationPlanning PATIENT_EN_SOMMEIL =
+            new SituationPlanning(false, true, true, null, null, null);
+
+    private static SeanceDomainService buildService(
+            SeanceRepositoryPort seanceRepo,
+            PatientRepositoryPort patientRepo,
+            ArticleRepositoryPort articleRepo,
+            LotRepositoryPort lotRepo,
+            BonSortieUseCase bonSortieUseCase,
+            SeanceForfaitCatalogPort forfaitCatalogPort,
+            SeanceBillingEligibilityPort billingEligibilityPort) {
+        return buildService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase, forfaitCatalogPort,
+                billingEligibilityPort, ATTENDU);
+    }
+
+    private static SeanceDomainService buildService(
+            SeanceRepositoryPort seanceRepo,
+            PatientRepositoryPort patientRepo,
+            ArticleRepositoryPort articleRepo,
+            LotRepositoryPort lotRepo,
+            BonSortieUseCase bonSortieUseCase,
+            SeanceForfaitCatalogPort forfaitCatalogPort,
+            SeanceBillingEligibilityPort billingEligibilityPort,
+            SituationPlanning situation) {
+        return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
+                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
+                forfaitCatalogPort, billingEligibilityPort, (centerId, patientId, date) -> situation);
+    }
 
     private ScanFixture scanFixture() {
+        return scanFixture(ATTENDU);
+    }
+
+    private ScanFixture scanFixture(SituationPlanning situation) {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
         InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
         SpyBonSortieUseCase spy = new SpyBonSortieUseCase();
         SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
-                new InMemoryArticleRepository(), new InMemoryLotRepository(), spy);
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), spy, new InMemoryForfaitCatalog(),
+                new AlwaysBillableEligibility(), situation);
         return new ScanFixture(centerId, patientId, seanceRepo, spy, service);
     }
 
@@ -348,7 +381,7 @@ class SeanceDomainServiceTest {
     void scanAndValidate_should_create_then_validate_when_no_session_exists_today() {
         ScanFixture f = scanFixture();
 
-        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01");
+        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", null);
 
         assertTrue(result.created());
         assertTrue(result.validatedNow());
@@ -366,7 +399,7 @@ class SeanceDomainServiceTest {
         UUID id = UUID.randomUUID();
         f.seances().save(new Seance(id, f.patientId(), f.centerId().value(), LocalDate.now()));
 
-        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01");
+        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", null);
 
         assertFalse(result.created());
         assertTrue(result.validatedNow());
@@ -383,7 +416,7 @@ class SeanceDomainServiceTest {
             existante.setStatus(status);
             f.seances().save(existante);
 
-            var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-02");
+            var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-02", null);
 
             assertTrue(result.alreadyValidated(), status.name());
             assertFalse(result.created());
@@ -401,8 +434,91 @@ class SeanceDomainServiceTest {
         f.seances().save(absente);
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01"));
+                () -> f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", null));
         assertTrue(ex.getMessage().contains("absente"));
+    }
+
+    @Test
+    void scanAndValidate_should_ask_for_confirmation_when_the_patient_is_not_scheduled_today() {
+        ScanFixture f = scanFixture(JOUR_NON_DIALYSE);
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", null));
+
+        assertEquals("SEANCE_HORS_PLANNING_JOUR", ex.getCode());
+        assertTrue(f.seances().findByPatientIdAndDate(f.centerId(), f.patientId(), LocalDate.now()).isEmpty(),
+                "rien n'est créé sans confirmation");
+    }
+
+    @Test
+    void scanAndValidate_should_flag_the_session_when_the_nurse_confirms_with_a_motive() {
+        ScanFixture f = scanFixture(JOUR_NON_DIALYSE);
+
+        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01",
+                new DerogationPlanning(MotifHorsPlanning.RATTRAPAGE, null, false));
+
+        assertTrue(result.created());
+        assertEquals(SeanceStatus.VALIDEE, result.seance().getStatus());
+        assertTrue(result.seance().isHorsPlanning());
+        assertEquals(MotifHorsPlanning.RATTRAPAGE, result.seance().getMotifHorsPlanning());
+    }
+
+    @Test
+    void scanAndValidate_should_distinguish_an_unexpected_patient_from_a_non_dialysis_day() {
+        ScanFixture f = scanFixture(PATIENT_EN_SOMMEIL);
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", null));
+
+        assertEquals("SEANCE_HORS_PLANNING_PATIENT", ex.getCode());
+    }
+
+    @Test
+    void scanAndValidate_should_refuse_a_closed_center_unless_an_administrator_forces_it() {
+        ScanFixture f = scanFixture(CENTRE_FERME);
+        var parInfirmier = new DerogationPlanning(MotifHorsPlanning.URGENCE, null, false);
+
+        assertEquals("SEANCE_CENTRE_FERME", assertThrows(BusinessException.class,
+                () -> f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", null)).getCode());
+        assertEquals("SEANCE_CENTRE_FERME", assertThrows(BusinessException.class,
+                () -> f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", parInfirmier))
+                .getCode(), "la confirmation d'un infirmier ne suffit pas un jour de fermeture");
+
+        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "admin",
+                new DerogationPlanning(MotifHorsPlanning.URGENCE, null, true));
+        assertTrue(result.seance().isHorsPlanning());
+    }
+
+    @Test
+    void scanAndValidate_should_not_check_the_planning_again_for_an_existing_session() {
+        ScanFixture f = scanFixture(JOUR_NON_DIALYSE);
+        UUID id = UUID.randomUUID();
+        f.seances().save(new Seance(id, f.patientId(), f.centerId().value(), LocalDate.now()));
+
+        var result = f.service().scanAndValidate(f.centerId(), f.patientId().toString(), "inf-01", null);
+
+        assertEquals(id, result.seance().getId());
+        assertFalse(result.seance().isHorsPlanning());
+    }
+
+    @Test
+    void createFromQr_should_never_create_an_out_of_planning_session_for_the_secretary() {
+        ScanFixture f = scanFixture(JOUR_NON_DIALYSE);
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> f.service().createFromQr(f.centerId(), f.patientId().toString()));
+
+        assertEquals("SEANCE_HORS_PLANNING_JOUR", ex.getCode());
+    }
+
+    @Test
+    void a_motive_other_requires_a_precision() {
+        assertEquals("SEANCE_DEROGATION_PRECISION_REQUISE", assertThrows(BusinessException.class,
+                () -> new DerogationPlanning(MotifHorsPlanning.AUTRE, "  ", false)).getCode());
+        assertEquals("SEANCE_DEROGATION_MOTIF_REQUIS", assertThrows(BusinessException.class,
+                () -> new DerogationPlanning(null, null, false)).getCode());
+        assertEquals("transfert exceptionnel",
+                new DerogationPlanning(MotifHorsPlanning.AUTRE, " transfert exceptionnel ", false).precision());
     }
 
     @Test
@@ -411,7 +527,7 @@ class SeanceDomainServiceTest {
         CenterId autre = CenterId.of(UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class,
-                () -> f.service().scanAndValidate(autre, f.patientId().toString(), "inf-01"));
+                () -> f.service().scanAndValidate(autre, f.patientId().toString(), "inf-01", null));
     }
 
     @Test

@@ -141,9 +141,16 @@ export type CreateSeancePayload = {
   dateSeance: string;
 };
 
+/** Motif déclaré pour confirmer la séance d'un patient non programmé ce jour-là. */
+export type MotifHorsPlanning = 'RATTRAPAGE' | 'URGENCE' | 'AUTRE';
+
 export type ScanSeanceQrPayload = {
   centerId: string;
   qrCode: string;
+  /** Confirmation d'une séance hors planning ; absent au premier scan. */
+  motifHorsPlanning?: MotifHorsPlanning;
+  /** Précision libre, obligatoire pour le motif « autre ». */
+  precisionHorsPlanning?: string | null;
 };
 
 /** Réponse d'un scan de patient (voir `POST /seances/scan`). */
@@ -162,6 +169,9 @@ export type ScanSeanceResult = {
   validatedNow?: boolean;
   /** La séance du jour était déjà validée, signée ou facturée (aucun retraitement). */
   alreadyValidated?: boolean;
+  /** Séance confirmée alors que le patient n'était pas programmé ce jour-là. */
+  horsPlanning?: boolean;
+  motifHorsPlanning?: MotifHorsPlanning | null;
 };
 
 export type UpdateSeancePayload = {
@@ -190,6 +200,9 @@ export type SeanceListItem = {
   signedByMedecinAt?: string;
   /** Date à laquelle l'administrateur a déverrouillé cette séance oubliée pour régularisation (null sinon). */
   regularisationDeverrouilleeAt?: string | null;
+  /** Séance confirmée hors planning (patient non programmé ce jour-là), avec son motif. */
+  horsPlanning?: boolean;
+  motifHorsPlanning?: MotifHorsPlanning | null;
   forfait?: {
     id: string;
     code?: string | null;
@@ -210,6 +223,9 @@ export type SeanceSummary = {
     validatedAt?: string;
     signedByInfirmierAt?: string;
     signedByMedecinAt?: string;
+    horsPlanning?: boolean;
+    motifHorsPlanning?: MotifHorsPlanning | null;
+    precisionHorsPlanning?: string | null;
   };
   patient: {
     id: string;

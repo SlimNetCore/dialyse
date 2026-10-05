@@ -66,7 +66,7 @@ class SeanceRestControllerTest {
                 SEANCE_ID, CENTER_ID, PATIENT_ID,
                 "PAT-001", "Dupont", "Jean",
                 LocalDate.now(), SeanceStatus.FACTUREE,
-                null, null, null, null, null
+                null, null, null, null, null, false, null
         );
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
@@ -96,7 +96,7 @@ class SeanceRestControllerTest {
                 SEANCE_ID, CENTER_ID, PATIENT_ID,
                 "PAT-001", "Dupont", "Jean",
                 LocalDate.of(2026, 7, 25), SeanceStatus.CREE,
-                null, null, null, null, null
+                null, null, null, null, null, false, null
         );
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
@@ -249,7 +249,7 @@ class SeanceRestControllerTest {
 
         var request = new com.hemodialyse.backend.infrastructure.web.dto.request.ScanSeanceQrRequest(
                 CENTER_ID,
-                "PAT-001"
+                "PAT-001", null, null
         );
         ResponseEntity<?> response = controller.scanQr(request);
 

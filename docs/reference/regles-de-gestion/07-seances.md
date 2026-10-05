@@ -34,7 +34,8 @@
   une séance ce jour-là, **elle est
   renvoyée** (pas de doublon). **Scan par un infirmier (`INFIRMIER`, `ADMIN`) : la séance est validée directement** —
   si une séance `CREE` existe ce jour-là (par exemple créée par la secrétaire) elle passe à `VALIDEE`, sinon elle est
-  créée directement à l'état `VALIDEE` (RG-SEA-011 reste exigée), sans passer par « Modifier → Enregistrer » ; la
+  créée directement à l'état `VALIDEE` (RG-SEA-011 reste exigée ; le patient doit en outre être programmé ce jour-là,
+  voir RG-SEA-048), sans passer par « Modifier → Enregistrer » ; la
   signature de l'infirmier est celle de l'utilisateur qui scanne. Un second scan d'une séance déjà `VALIDEE`, `SIGNEE`
   ou `FACTUREE` ne change rien (réponse `alreadyValidated`). Le scan de la **secrétaire** crée seulement la séance
   (`CREE`) : elle ne peut pas valider (RG-SEA-020). La réponse indique `created`, `validatedNow`, `alreadyValidated` et
@@ -106,6 +107,24 @@
   liste (désactivés aux extrémités, rang « n / total » affiché) ; ils sont masqués pour une séance hors file (ex. séance
   à régulariser) ou lorsqu'il n'y a qu'un patient. La saisie en cours est enregistrée avant le changement. *Source :*
   `SeanceStationComponent`, `PatientPagerComponent`.
+- **RG-SEA-048** — **Séance hors planning** : le scan qui doit **créer** la séance du jour (aucune séance n'existe
+  encore ce jour-là ; une séance existante est simplement renvoyée) vérifie que le patient est **attendu** à la date,
+  avec les mêmes critères que la détection des absences (RG-ABS) : la date est un de ses **jours de dialyse**, le centre
+  est **ouvert** (ni jour férié ni fermeture exceptionnelle), le patient n'est ni en sommeil, ni admis plus tard, ni
+  sorti (transféré, guéri : attendu jusqu'au jour de sortie inclus ; décédé, greffé : jusqu'à la veille ; occasionnel ou
+  vacancier : jusqu'à la fin du séjour incluse). Sinon, **rien n'est créé** et le serveur répond 422 avec le motif :
+  `SEANCE_HORS_PLANNING_JOUR` (pas un jour de dialyse), `SEANCE_HORS_PLANNING_PATIENT` (patient non attendu) ou
+  `SEANCE_CENTRE_FERME` (centre fermé). L' **infirmier** (et l'administrateur) peut alors **confirmer** en renvoyant le
+  scan
+  avec un motif — `RATTRAPAGE`, `URGENCE` ou `AUTRE` (précision libre obligatoire :
+  `SEANCE_DEROGATION_PRECISION_REQUISE` ; motif absent ou inconnu : `SEANCE_DEROGATION_MOTIF_REQUIS`) : la séance est
+  créée
+  et validée, marquée **« hors planning »** avec son motif (poste infirmier, historique des séances). Un **jour de
+  fermeture** n'est franchi que par l'**administrateur** (la confirmation d'un infirmier reste refusée par
+  `SEANCE_CENTRE_FERME`). La **secrétaire** ne peut jamais confirmer : son scan hors planning est refusé avec les mêmes
+  codes et l'écran lui demande de prévenir l'infirmier. La création manuelle d'une séance (`POST /seances`) n'est pas
+  concernée. *Source :* `SeanceDomainService.verifierProgramme`, `ProgrammationSeance`, `SeancePlanningJdbcAdapter`,
+  `HorsPlanningConfirmComponent`.
 - **RG-SEA-029** — **Historique des séances** (`GET /seances`, tous profils de centre ; écran « Historique des
   séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et par âge,
   détail et export) et **liste paginée** des séances du centre. La recherche, les filtres et le tri sont appliqués **par

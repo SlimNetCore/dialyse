@@ -336,6 +336,54 @@ describe('SeanceStore', () => {
     expect(store.scanState()).toBe('error');
     expect(store.scanning()).toBe(false);
   });
+  it('garde le scan en attente de confirmation quand le patient n\'est pas programmé aujourd\'hui', () => {
+    mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({
+      status: 422, error: {code: 'SEANCE_HORS_PLANNING_JOUR', detail: 'Ce patient n\'est pas programmé'},
+    })));
+    const store = TestBed.inject(SeanceStore);
+
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
+
+    expect(store.scanConfirmation()).toEqual({qrCode: 'PAT-001', code: 'SEANCE_HORS_PLANNING_JOUR'});
+    expect(store.scanMessage()).toBe('SEANCES.STATION.HP.SEANCE_HORS_PLANNING_JOUR');
+    expect(store.lastScan()).toBeNull();
+  });
+  it('renvoie le scan avec le motif, puis efface la confirmation en attente', () => {
+    mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({
+      status: 422, error: {code: 'SEANCE_HORS_PLANNING_PATIENT'},
+    })));
+    const store = TestBed.inject(SeanceStore);
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
+
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001', motifHorsPlanning: 'RATTRAPAGE'});
+
+    expect(mockApi.scanSeanceQr).toHaveBeenLastCalledWith(
+      {centerId: CENTER_ID, qrCode: 'PAT-001', motifHorsPlanning: 'RATTRAPAGE'});
+    expect(store.scanConfirmation()).toBeNull();
+    expect(store.scanState()).toBe('success');
+  });
+  it('renoncer à confirmer remet le poste au repos sans rien envoyer', () => {
+    mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({status: 422, error: {code: 'SEANCE_CENTRE_FERME'}})));
+    const store = TestBed.inject(SeanceStore);
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
+
+    store.cancelScanConfirmation();
+
+    expect(store.scanConfirmation()).toBeNull();
+    expect(store.scanState()).toBe('idle');
+    expect(mockApi.scanSeanceQr).toHaveBeenCalledTimes(1);
+  });
+  it('une autre erreur 422 ne déclenche pas de demande de confirmation', () => {
+    mockApi.scanSeanceQr.mockReturnValueOnce(throwError(() => ({
+      status: 422, error: {code: 'BUSINESS_ERROR', detail: 'Le patient doit avoir une prise en charge valide'},
+    })));
+    const store = TestBed.inject(SeanceStore);
+
+    store.scanQr({centerId: CENTER_ID, qrCode: 'PAT-001'});
+
+    expect(store.scanConfirmation()).toBeNull();
+    expect(store.scanMessage()).toBe('Le patient doit avoir une prise en charge valide');
+  });
   it('should load seance summary and populate form fields', () => {
     const store = TestBed.inject(SeanceStore);
     store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});

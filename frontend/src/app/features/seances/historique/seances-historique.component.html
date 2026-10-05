@@ -72,6 +72,10 @@
 
     <ng-template #statusCell let-row>
       <span [attr.data-status]="row.status" class="status-chip">{{ statusKey(row.status) | translate }}</span>
+      @if (row.horsPlanning) {
+        <span [attr.title]="'SEANCES.STATION.HP.MOTIFS.' + (row.motifHorsPlanning ?? 'AUTRE') | translate"
+              class="status-chip hp-chip" data-testid="hist-hp-chip">{{ 'SEANCES.STATION.HP.CHIP' | translate }}</span>
+      }
     </ng-template>
 
     <ng-template #forfaitCell let-row>
