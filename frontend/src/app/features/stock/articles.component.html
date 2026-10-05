@@ -5,35 +5,41 @@
     <p class="app-section-copy">{{ 'STOCK.ARTICLES_BATCH_MANAGEMENT_DESC' | translate }}</p>
   </div>
 
-  <mat-card>
+  <mat-card data-testid="art-form-card">
     <mat-card-header>
-      <mat-card-title>{{ 'STOCK.NEW_ARTICLE_TITLE' | translate }}</mat-card-title>
+      <mat-card-title>
+        {{ (editingId() ? 'STOCK.ARTICLES.EDIT_TITLE' : 'STOCK.NEW_ARTICLE_TITLE') | translate }}
+      </mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form (submit)="save(); $event.preventDefault()" [formRoot]="articleForm">
+        <h3 class="section-title">{{ 'STOCK.ARTICLES.SECTION_IDENTITE' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'COMMON.CODE_LABEL' | translate }}</mat-label>
-            <input [formField]="articleForm.code" matInput/>
+            <input [formField]="articleForm.code" data-testid="art-code" matInput/>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>{{ 'STOCK.ARTICLE_LIBELLE_LABEL' | translate }}</mat-label>
-            <input [formField]="articleForm.libelle" matInput/>
+            <input [formField]="articleForm.libelle" data-testid="art-libelle" matInput/>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'STOCK.UNIT_LABEL' | translate }}</mat-label>
-            <input [formField]="articleForm.unite" matInput/>
+            <mat-label>{{ 'STOCK.ARTICLES.DCI' | translate }}</mat-label>
+            <input [formField]="articleForm.dci" matInput/>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'STOCK.ALERT_THRESHOLD_LABEL' | translate }}</mat-label>
-            <input [formField]="articleForm.seuilAlerte" matInput type="number"/>
+            <mat-label>{{ 'STOCK.ARTICLES.FORME' | translate }}</mat-label>
+            <input [formField]="articleForm.formeGalenique" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.CODE_BARRES' | translate }}</mat-label>
+            <input [formField]="articleForm.codeBarres" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.REF_FABRICANT' | translate }}</mat-label>
+            <input [formField]="articleForm.referenceFabricant" matInput/>
           </mat-form-field>
         </div>
-
-        <mat-checkbox [formField]="articleForm.gereParLot">
-          {{ 'STOCK.BATCH_MANAGED_ARTICLE_CHECKBOX' | translate }}
-        </mat-checkbox>
-
         <div class="anemie-treatment-row">
           <mat-checkbox [formField]="articleForm.estTraitementAnemie">
             {{ 'STOCK.ANEMIA_TREATMENT_ARTICLE_CHECKBOX' | translate }}
@@ -49,10 +55,119 @@
           }
         </div>
 
+        <h3 class="section-title">{{ 'STOCK.ARTICLES.SECTION_UNITES' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.UNIT_LABEL' | translate }}</mat-label>
+            <input [formField]="articleForm.unite" data-testid="art-unite" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.UNITE_ACHAT' | translate }}</mat-label>
+            <input [formField]="articleForm.uniteAchat" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.COEFF_ACHAT' | translate }}</mat-label>
+            <input [formField]="articleForm.coefficientAchat" inputmode="decimal" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.DOSAGE' | translate }}</mat-label>
+            <input [formField]="articleForm.dosageParUnite" data-testid="art-dosage" inputmode="decimal" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.UNITE_DOSAGE' | translate }}</mat-label>
+            <input [formField]="articleForm.uniteDosage" data-testid="art-unite-dosage" matInput/>
+          </mat-form-field>
+        </div>
+        <p class="hint">{{ 'STOCK.ARTICLES.DOSAGE_HINT' | translate }}</p>
+        @if (conversionPreview(); as c) {
+          <p class="conversion" data-testid="art-conversion">
+            <mat-icon aria-hidden="true">swap_horiz</mat-icon>
+            {{
+              'STOCK.ARTICLES.CONVERSION' | translate: {
+                unite: c.unite,
+                dosage: c.dosage,
+                uniteDosage: c.uniteDosage
+              }
+            }}
+          </p>
+        }
+        @if (!dosageCoherent()) {
+          <p class="field-error" role="alert">{{ 'STOCK.ARTICLES.DOSAGE_INCOHERENT' | translate }}</p>
+        }
+
+        <h3 class="section-title">{{ 'STOCK.ARTICLES.SECTION_ACHAT' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.FOURNISSEUR' | translate }}</mat-label>
+            <mat-select [formField]="articleForm.fournisseurId">
+              <mat-option value="">{{ 'STOCK.ARTICLES.NONE' | translate }}</mat-option>
+              @for (f of store.fournisseurs(); track f.id) {
+                <mat-option [value]="f.id">{{ f.raisonSociale }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.TVA' | translate }}</mat-label>
+            <mat-select [formField]="articleForm.tvaTypeId">
+              <mat-option value="">{{ 'STOCK.ARTICLES.NONE' | translate }}</mat-option>
+              @for (t of store.tvaTypes(); track t.id) {
+                <mat-option [value]="t.id">{{ t.libelle }} ({{ t.taux }} %)</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.PRIX_ACHAT' | translate }}</mat-label>
+            <input [formField]="articleForm.prixAchat" inputmode="decimal" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ALERT_THRESHOLD_LABEL' | translate }}</mat-label>
+            <input [formField]="articleForm.seuilAlerte" inputmode="decimal" matInput/>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.STOCK_MAX' | translate }}</mat-label>
+            <input [formField]="articleForm.stockMax" inputmode="decimal" matInput/>
+          </mat-form-field>
+        </div>
+        @if (!stockMaxCoherent()) {
+          <p class="field-error" role="alert">{{ 'STOCK.ARTICLES.STOCK_MAX_ERR' | translate }}</p>
+        }
+
+        <h3 class="section-title">{{ 'STOCK.ARTICLES.SECTION_CONSERVATION' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.CONSERVATION' | translate }}</mat-label>
+            <mat-select [formField]="articleForm.conditionConservation">
+              <mat-option value="">{{ 'STOCK.ARTICLES.NONE' | translate }}</mat-option>
+              @for (c of conservations; track c) {
+                <mat-option [value]="c">{{ 'STOCK.ARTICLES.CONSERVATION_VALUES.' + c | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="checks">
+          <mat-checkbox [formField]="articleForm.gereParLot">
+            {{ 'STOCK.BATCH_MANAGED_ARTICLE_CHECKBOX' | translate }}
+          </mat-checkbox>
+          <mat-checkbox [formField]="articleForm.peremptionObligatoire">
+            {{ 'STOCK.ARTICLES.PEREMPTION' | translate }}
+          </mat-checkbox>
+          <mat-checkbox [formField]="articleForm.produitDangereux">
+            {{ 'STOCK.ARTICLES.DANGEREUX' | translate }}
+          </mat-checkbox>
+          <mat-checkbox [formField]="articleForm.dechetDasri">
+            {{ 'STOCK.ARTICLES.DASRI' | translate }}
+          </mat-checkbox>
+        </div>
+
         <div class="actions">
-          <button [disabled]="!canSave()" color="primary" mat-flat-button type="submit">
+          @if (editingId()) {
+            <button (click)="cancelEdit()" mat-stroked-button type="button">
+              {{ 'STOCK.ARTICLES.CANCEL_EDIT' | translate }}
+            </button>
+          }
+          <button [disabled]="!canSave()" color="primary" data-testid="art-save" mat-flat-button type="submit">
             <mat-icon>save</mat-icon>
-            {{ 'STOCK.CREATE_ARTICLE_BTN' | translate }}
+            {{ (editingId() ? 'COMMON.SAVE' : 'STOCK.CREATE_ARTICLE_BTN') | translate }}
           </button>
         </div>
       </form>
@@ -61,40 +176,76 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>{{ 'STOCK.ACTIVE_ARTICLES_TITLE' | translate }}</mat-card-title>
+      <mat-card-title>{{ 'STOCK.ARTICLES.LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="table-wrap">
-      <table [dataSource]="articles()" class="full-width" mat-table>
-        <ng-container matColumnDef="code">
-          <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.CODE_LABEL' | translate }}</th>
-          <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
-        </ng-container>
-        <ng-container matColumnDef="libelle">
-          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLE_LIBELLE_LABEL' | translate }}</th>
-          <td *matCellDef="let a" mat-cell>{{ a.libelle || a.nom }}</td>
-        </ng-container>
-        <ng-container matColumnDef="unite">
-          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.UNIT_LABEL' | translate }}</th>
-          <td *matCellDef="let a" mat-cell>{{ a.unite || '—' }}</td>
-        </ng-container>
-        <ng-container matColumnDef="lot">
-          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.BATCH_MANAGEMENT_LABEL' | translate }}</th>
-          <td *matCellDef="let a" mat-cell>{{ a.gereParLot ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="typeTraitementAnemie">
-          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ANEMIA_TREATMENT_TYPE_LABEL' | translate }}</th>
-          <td *matCellDef="let a" mat-cell>
-            {{ a.typeTraitementAnemie ? ('ANEMIE_TYPE.' + a.typeTraitementAnemie | translate) : '—' }}
-          </td>
-        </ng-container>
-
-        <tr *matHeaderRowDef="cols" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: cols" mat-row></tr>
-      </table>
+      <div class="toolbar">
+        <mat-form-field appearance="outline" class="search">
+          <mat-label>{{ 'STOCK.ARTICLES.SEARCH' | translate }}</mat-label>
+          <input (input)="onSearch($any($event.target).value)" data-testid="art-search" matInput type="search"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="filter">
+          <mat-label>{{ 'STOCK.ARTICLES.COL_STATUT' | translate }}</mat-label>
+          <mat-select (selectionChange)="onFilter($event.value)" [value]="store.activeFilter()"
+                      data-testid="art-filter">
+            @for (f of filters; track f) {
+              <mat-option [value]="f">{{ 'STOCK.ARTICLES.FILTER.' + f.toUpperCase() | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
       </div>
+      <div class="table-wrap">
+        <table [dataSource]="store.rows()" class="full-width" data-testid="art-table" mat-table>
+          <ng-container matColumnDef="code">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.CODE_LABEL' | translate }}</th>
+            <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
+          </ng-container>
+          <ng-container matColumnDef="libelle">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLE_LIBELLE_LABEL' | translate }}</th>
+            <td *matCellDef="let a" mat-cell>{{ a.libelle }}</td>
+          </ng-container>
+          <ng-container matColumnDef="unite">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.UNIT_LABEL' | translate }}</th>
+            <td *matCellDef="let a" mat-cell>{{ a.unite || '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="dosage">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLES.COL_DOSAGE' | translate }}</th>
+            <td *matCellDef="let a" mat-cell>{{ dosageLabel(a) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="stock">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLES.COL_STOCK' | translate }}</th>
+            <td *matCellDef="let a" mat-cell>{{ a.stockQuantity }}</td>
+          </ng-container>
+          <ng-container matColumnDef="statut">
+            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLES.COL_STATUT' | translate }}</th>
+            <td *matCellDef="let a" mat-cell>
+              {{ (a.active ? 'STOCK.ARTICLES.ACTIVE' : 'STOCK.ARTICLES.INACTIVE') | translate }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let a" class="row-actions" mat-cell>
+              <button (click)="edit(a)" [attr.aria-label]="'COMMON.EDIT' | translate" data-testid="art-edit"
+                      mat-icon-button type="button">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button (click)="toggleActive(a)"
+                      [attr.aria-label]="(a.active ? 'STOCK.ARTICLES.DEACTIVATE' : 'STOCK.ARTICLES.ACTIVATE') | translate"
+                      data-testid="art-toggle" mat-icon-button type="button">
+                <mat-icon>{{ a.active ? 'block' : 'check_circle' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr *matHeaderRowDef="cols" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: cols" [class.editing]="row.id === editingId()" mat-row></tr>
+        </table>
+      </div>
+      @if (store.isEmpty() && !store.loading()) {
+        <p class="hint">{{ 'STOCK.ARTICLES.EMPTY' | translate }}</p>
+      }
+      <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
     </mat-card-content>
   </mat-card>
 </section>
-

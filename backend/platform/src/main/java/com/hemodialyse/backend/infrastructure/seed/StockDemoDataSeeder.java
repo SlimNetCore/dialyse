@@ -76,10 +76,14 @@ public class StockDemoDataSeeder {
             UUID heparine = createArticle(articleRepo, "HEP-5000", "Heparine 5000 UI", "flacon", "15");
             UUID serum = createArticle(articleRepo, "SERPH-500", "Serum physiologique 500ml", "poche", "40");
             UUID bicarbonate = createArticle(articleRepo, "BICA-650", "Cartouche bicarbonate 650g", "cartouche", "25");
-            createArticle(articleRepo, "EPO-DARBE-60", "Darbepoetine alfa 60 mcg (seringue)", "seringue", "10",
-                    com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie.EPO);
+            // Dosage par unité de stock = unité de prescription du médecin (UI / mg) : la sortie de stock se déduit
+            // de la dose prescrite (ex. 8000 UI = 2 seringues de 4000 UI).
+            createArticle(articleRepo, "EPO-ALFA-4000", "Epoetine alfa 4000 UI (seringue)", "seringue", "10",
+                    com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie.EPO,
+                    new BigDecimal("4000"), "UI");
             createArticle(articleRepo, "FER-SACC-100", "Fer saccharose 100 mg (ampoule)", "ampoule", "10",
-                    com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie.FER_INJECTABLE);
+                    com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie.FER_INJECTABLE,
+                    new BigDecimal("100"), "mg");
 
             // --- Bon de commande (BL) valide ---
             var bl = bonCommandeUseCase.create(center, fres.id(), List.of(
@@ -128,11 +132,12 @@ public class StockDemoDataSeeder {
     }
 
     private UUID createArticle(ArticleRepositoryPort repo, String code, String libelle, String unite, String seuil) {
-        return createArticle(repo, code, libelle, unite, seuil, null);
+        return createArticle(repo, code, libelle, unite, seuil, null, null, null);
     }
 
     private UUID createArticle(ArticleRepositoryPort repo, String code, String libelle, String unite, String seuil,
-                               com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie typeTraitementAnemie) {
+                               com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie typeTraitementAnemie,
+                               BigDecimal dosageParUnite, String uniteDosage) {
         Article a = new Article();
         a.setId(UUID.randomUUID());
         a.setCenterId(CENTER_1);
@@ -144,6 +149,8 @@ public class StockDemoDataSeeder {
         a.setGereParLot(true);
         a.setActive(true);
         a.setTypeTraitementAnemie(typeTraitementAnemie);
+        a.setDosageParUnite(dosageParUnite);
+        a.setUniteDosage(uniteDosage);
         a.setCreatedAt(OffsetDateTime.now());
         return repo.save(a).getId();
     }

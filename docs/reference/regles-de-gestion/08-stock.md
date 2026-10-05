@@ -13,11 +13,43 @@
 
 ## 8.1 Référentiel (articles, fournisseurs, emplacements)
 
-- **RG-STK-001** — Un article porte : code, libellé, unité (tous trois obligatoires), seuil d'alerte, stock courant, PMP
-  courant, indicateur « géré par lot »
-  et « actif », et un éventuel **type de traitement de l'anémie** (`EPO` ou `FER_INJECTABLE`, vide = article ordinaire)
-  qui alimente les listes de
-  prescription (voir RG-MED).
+- **RG-STK-001** — **Fiche article** : un article porte son **identité** (code, libellé, DCI, forme galénique,
+  code-barres, référence fabricant), ses **unités** (unité de stock = unité de sortie, unité d'achat et coefficient
+  d'achat, dosage par unité — voir RG-STK-006), son **achat** (fournisseur principal, type de TVA, prix d'achat, seuil
+  d'alerte, stock maximum), sa **conservation et sa sécurité** (géré par lot, péremption obligatoire, condition de
+  conservation `AMBIANT` / `REFRIGERE` / `CONGELE`, produit dangereux, génère des déchets DASRI), ainsi que son stock
+  courant, son PMP courant et son état « actif » (jamais saisis sur la fiche : ils résultent des mouvements). Code,
+  libellé et unité de stock sont obligatoires (`ARTICLE_CODE_REQUIS`, `ARTICLE_LIBELLE_REQUIS`,
+  `ARTICLE_UNITE_REQUISE`) ; le coefficient d'achat doit être > 0 (`ARTICLE_COEFFICIENT_ACHAT_INVALIDE`), prix, seuil
+  et stock maximum ≥ 0 (`ARTICLE_VALEUR_NEGATIVE`) et le stock maximum au moins égal au seuil d'alerte
+  (`ARTICLE_STOCK_MAX_INFERIEUR_SEUIL`). Un éventuel **type de traitement de l'anémie** (`EPO` ou `FER_INJECTABLE`,
+  vide = article ordinaire) alimente les listes de prescription (voir RG-MED). *Source :* `Article.appliquerFiche`,
+  `ArticlesComponent`.
+- **RG-STK-006** — **Dosage par unité de stock** : la fiche peut porter « 1 unité de stock = X UI (ou mg…) »,
+  c'est-à-dire
+  un dosage (> 0, `ARTICLE_DOSAGE_INVALIDE`) **et** son unité, indissociables (`ARTICLE_DOSAGE_INCOMPLET`). Il relie
+  l'unité de prescription du médecin à la sortie de stock : **quantité sortie = dose ÷ dosage** (4 décimales ; ex. 8000
+  UI avec une seringue de 4000 UI = 2 seringues). Sans dosage, seule une dose déjà exprimée dans l'unité de stock est
+  acceptée (conversion 1:1). Une dose dans une autre unité que celle du dosage est refusée
+  (`ARTICLE_UNITE_DOSE_INCOMPATIBLE`), de même qu'une dose à convertir alors que le dosage n'est pas renseigné
+  (`ARTICLE_DOSAGE_NON_DEFINI`) : le stock n'est jamais décrémenté « au hasard ». **Comment remplir la fiche** (bloc «
+  Unités et conditionnement ») : l' **unité** est ce qui se compte en stock et
+  se sort (seringue, ampoule, pièce…) ; l' **unité d'achat** et le nombre d' **unités de stock par unité d'achat**
+  décrivent la commande au fournisseur (facultatifs) ; le **dosage** et son **unité** donnent la quantité de produit
+  actif d'une unité de stock, dans l'unité de la prescription (**UI pour l'EPO, mg pour le fer**), et ne se remplissent
+  que pour ces articles. Exemples : *Époétine alfa 4000 UI* — unité « seringue », unité d'achat « boîte », 6 unités
+  par boîte, dosage 4000, unité du dosage « UI » : une prescription de 8000 UI sort 2 seringues (RG-MED-071) ; *Fer
+  saccharose 100 mg* — unité « ampoule », unité d'achat « boîte », 5 unités par boîte, dosage 100, unité du dosage
+  « mg » : une prescription de 200 mg sort 2 ampoules ; *Dialyseur FX60* — unité « pièce », unité d'achat « carton »,
+  12 unités par carton, dosage et unité du dosage laissés vides (aucune conversion). Dès que le dosage et son unité sont
+  saisis, la fiche affiche la ligne de contrôle « 1 seringue = 4000 UI ». *Source :* `Article.quantiteStockPourDose`,
+  `ArticlesComponent`.
+- **RG-STK-007** — Le code article est **unique par centre** sans tenir compte de la casse (`ARTICLE_CODE_EXISTANT`) ;
+  un article inconnu du centre est introuvable (`ARTICLE_INTROUVABLE`). Création, modification et (dés)activation :
+  `ADMIN`, `PHARMACIEN`. L'écran « Articles » liste les fiches **par pages** (`GET /stock/referentiel/articles/page`,
+  `page`/`size`), avec recherche sur le code, le libellé, la DCI ou le code-barres et filtre actif / désactivé ; un
+  article désactivé n'est plus proposé mais son historique reste. *Source :* `StockReferentialRestController`,
+  `ArticleCatalogPort`.
 - **RG-STK-002** — Un article inactif ne peut plus être sorti du stock (« Article inactif »). Une consommation doit être
   strictement positive et ne peut dépasser le stock (« Stock insuffisant pour l'article »).
 - **RG-STK-003** — Un fournisseur exige une raison sociale ; un emplacement exige un libellé. Les fournisseurs et

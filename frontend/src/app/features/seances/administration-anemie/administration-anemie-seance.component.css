@@ -97,6 +97,20 @@
   grid-column: span 2;
 }
 
+.admin-conversion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--app-primary-soft);
+  font-weight: 600;
+}
+
+.admin-conversion.conversion-error {
+  background: color-mix(in srgb, var(--app-accent, #f0bf7a) 28%, transparent);
+}
+
 .admin-checkbox {
   display: flex;
   align-items: center;

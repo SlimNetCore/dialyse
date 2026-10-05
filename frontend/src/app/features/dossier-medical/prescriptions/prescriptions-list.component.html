@@ -102,6 +102,15 @@
           <input (input)="onNumber('epoDoseUi', $any($event.target).value)" [value]="form.value().epoDoseUi" matInput
                  type="number"/>
         </mat-form-field>
+        @if (epoConversion(); as c) {
+          <p [class.conversion-error]="c.erreur" class="dose-conversion" data-testid="epo-conversion" role="status">
+            @if (c.erreur === null) {
+              {{ 'SEANCES.CONVERSION_OK' | translate: {quantite: c.quantite, unite: epoArticle()?.unite} }}
+            } @else {
+              {{ 'SEANCES.CONVERSION_ERR.' + c.erreur | translate }}
+            }
+          </p>
+        }
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
@@ -148,6 +157,15 @@
           <input (input)="onNumber('ferDoseMg', $any($event.target).value)" [value]="form.value().ferDoseMg" matInput
                  type="number"/>
         </mat-form-field>
+        @if (ferConversion(); as c) {
+          <p [class.conversion-error]="c.erreur" class="dose-conversion" data-testid="fer-conversion" role="status">
+            @if (c.erreur === null) {
+              {{ 'SEANCES.CONVERSION_OK' | translate: {quantite: c.quantite, unite: ferArticle()?.unite} }}
+            } @else {
+              {{ 'SEANCES.CONVERSION_ERR.' + c.erreur | translate }}
+            }
+          </p>
+        }
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>

@@ -129,9 +129,19 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   0 `DOSE_ADMINISTREE_INVALIDE`, unité `DOSE_ADMINISTREE_UNITE_REQUISE`) ; si **non administrée**, un **motif** est
   obligatoire (`ADMINISTRATION_MOTIF_REQUIS`) et
   l'événement « écart prescription/administration » est émis. Saisie par `INFIRMIER` ou `MEDECIN`.
-- **RG-MED-071** — Une administration rattachée à un article, à une séance et à une quantité **sort le stock** au FEFO,
+- **RG-MED-071** — Une administration rattachée à un article, à une séance et à une dose **sort le stock** au FEFO,
   datée du jour réel de la saisie, via un bon de sortie numéroté (motif
   ADMINISTRATION) ; si le stock est insuffisant, l'administration **n'est pas créée** (pas de trace sans sortie réelle).
+  La **quantité sortie est déduite par le serveur** de la dose (UI, mg) et de la fiche article (dose ÷ dosage par
+  unité, RG-STK-006) : elle n'est plus saisie à la main et toute quantité envoyée par le client est ignorée. Une unité
+  de dose incompatible avec l'article refuse l'administration (`ARTICLE_UNITE_DOSE_INCOMPATIBLE`,
+  `ARTICLE_DOSAGE_NON_DEFINI`) ; l'écran de l'infirmier affiche la sortie de stock calculée avant l'enregistrement.
+- **RG-MED-075** — À l'enregistrement d'une **prescription**, la dose d'EPO (UI) et la dose de fer (mg) doivent pouvoir
+  se convertir dans l'unité de stock de l'article choisi (RG-STK-006) : sinon la prescription est refusée avec les mêmes
+  codes (`ARTICLE_UNITE_DOSE_INCOMPATIBLE`, `ARTICLE_DOSAGE_NON_DEFINI`). Le formulaire de prescription affiche la
+  sortie
+  de stock correspondant à la dose saisie. Ainsi unité prescrite et unité de sortie restent conformes. *Source :*
+  `PrescriptionMedicaleRestController`.
 - **RG-MED-072** — **Périodes d'observance** : la prescription la plus récente découpe le temps en périodes successives
   ancrées sur sa date (fenêtre : heure/jour = 1 jour, semaine = 7, mois = 30,
   année = 365 jours). **Doses attendues** = fréquence prescrite ; **administrées** = administrations effectives de la

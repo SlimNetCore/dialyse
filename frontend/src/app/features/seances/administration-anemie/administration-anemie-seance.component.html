@@ -103,11 +103,17 @@
             <mat-label>{{ 'DOSSIER_MEDICAL.VOIE' | translate }}</mat-label>
             <input [value]="form.value().voie" disabled matInput/>
           </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'SEANCES.QUANTITE_ADMINISTREE' | translate }} *</mat-label>
-            <input (input)="onNumber('quantiteAdministree', $any($event.target).value)"
-                   [value]="form.value().quantiteAdministree" matInput min="0" step="0.001" type="number"/>
-          </mat-form-field>
+          @if (conversion(); as c) {
+            <div [class.conversion-error]="c.erreur" class="admin-conversion admin-form-full"
+                 data-testid="admin-conversion" role="status">
+              <mat-icon aria-hidden="true">{{ c.erreur ? 'warning' : 'inventory_2' }}</mat-icon>
+              @if (c.erreur === null) {
+                <span>{{ 'SEANCES.CONVERSION_OK' | translate: {quantite: c.quantite, unite: article()?.unite} }}</span>
+              } @else {
+                <span>{{ 'SEANCES.CONVERSION_ERR.' + c.erreur | translate }}</span>
+              }
+            </div>
+          }
         } @else {
           <mat-form-field appearance="outline" class="admin-form-full">
             <mat-label>{{ 'DOSSIER_MEDICAL.MOTIF_NON_ADMINISTRATION' | translate }} *</mat-label>

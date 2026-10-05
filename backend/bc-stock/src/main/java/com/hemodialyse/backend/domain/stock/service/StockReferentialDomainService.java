@@ -1,8 +1,12 @@
 package com.hemodialyse.backend.domain.stock.service;
 
 import com.hemodialyse.backend.domain.article.model.Article;
+import com.hemodialyse.backend.domain.article.model.ArticleFiche;
 import com.hemodialyse.backend.domain.article.model.TypeTraitementAnemie;
+import com.hemodialyse.backend.domain.article.port.ArticleCatalogPort;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
+import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.model.Emplacement;
 import com.hemodialyse.backend.domain.stock.model.Fournisseur;
@@ -26,42 +30,64 @@ public class StockReferentialDomainService implements StockReferentialUseCase {
     private final FournisseurRepositoryPort fournisseurRepo;
     private final EmplacementRepositoryPort emplacementRepo;
     private final ArticleRepositoryPort articleRepo;
+    private final ArticleCatalogPort articleCatalog;
 
     public StockReferentialDomainService(FournisseurRepositoryPort fournisseurRepo,
                                          EmplacementRepositoryPort emplacementRepo,
-                                         ArticleRepositoryPort articleRepo) {
+                                         ArticleRepositoryPort articleRepo,
+                                         ArticleCatalogPort articleCatalog) {
         this.fournisseurRepo = fournisseurRepo;
         this.emplacementRepo = emplacementRepo;
         this.articleRepo = articleRepo;
+        this.articleCatalog = articleCatalog;
     }
 
     @Override
-    public Article createArticle(CenterId centerId, String code, String libelle, String unite,
-                                 BigDecimal seuilAlerte, boolean gereParLot, TypeTraitementAnemie typeTraitementAnemie) {
-        if (code == null || code.isBlank()) {
-            throw new IllegalArgumentException("Le code article est obligatoire");
-        }
-        if (libelle == null || libelle.isBlank()) {
-            throw new IllegalArgumentException("Le libelle article est obligatoire");
-        }
-        if (unite == null || unite.isBlank()) {
-            throw new IllegalArgumentException("L'unite est obligatoire");
-        }
-
+    public Article createArticle(CenterId centerId, ArticleFiche fiche) {
         Article article = new Article();
         article.setId(UUID.randomUUID());
         article.setCenterId(centerId.value());
-        article.setCode(code.trim());
-        article.setLibelle(libelle.trim());
-        article.setUnite(unite.trim());
+        article.appliquerFiche(fiche);
+        exigerCodeLibre(centerId, article.getCode(), null);
         article.setStockQuantity(BigDecimal.ZERO);
         article.setPmpCourant(BigDecimal.ZERO);
-        article.setSeuilAlerte(seuilAlerte != null ? seuilAlerte : BigDecimal.ZERO);
-        article.setGereParLot(gereParLot);
         article.setActive(true);
-        article.setTypeTraitementAnemie(typeTraitementAnemie);
         article.setCreatedAt(OffsetDateTime.now());
         return articleRepo.save(article);
+    }
+
+    @Override
+    public Article updateArticle(CenterId centerId, UUID articleId, ArticleFiche fiche) {
+        Article article = getArticle(centerId, articleId);
+        article.appliquerFiche(fiche);
+        exigerCodeLibre(centerId, article.getCode(), articleId);
+        return articleRepo.save(article);
+    }
+
+    @Override
+    public Article getArticle(CenterId centerId, UUID articleId) {
+        return articleRepo.findById(articleId, centerId)
+                .orElseThrow(() -> new BusinessException("ARTICLE_INTROUVABLE", "Article introuvable"));
+    }
+
+    @Override
+    public Article setArticleActive(CenterId centerId, UUID articleId, boolean active) {
+        Article article = getArticle(centerId, articleId);
+        article.setActive(active);
+        return articleRepo.save(article);
+    }
+
+    @Override
+    public PagedResult<Article> searchArticles(CenterId centerId, String query, Boolean active, int page, int size) {
+        return articleCatalog.findPaged(centerId, query, active, Math.max(page, 0), Math.min(Math.max(size, 1), 200));
+    }
+
+    private void exigerCodeLibre(CenterId centerId, String code, UUID articleCourant) {
+        boolean pris = articleCatalog.findByCode(centerId, code)
+                .filter(autre -> !autre.getId().equals(articleCourant)).isPresent();
+        if (pris) {
+            throw new BusinessException("ARTICLE_CODE_EXISTANT", "Ce code article existe déjà dans le centre");
+        }
     }
 
     @Override

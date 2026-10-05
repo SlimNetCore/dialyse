@@ -20,6 +20,21 @@ class TensionArterielleTest {
     }
 
     @Test
+    void convertsCentimetresOfMercuryToMillimetres() {
+        assertEquals("110/80", TensionArterielle.parse("11/8").format());
+        assertEquals("140/90", TensionArterielle.parse(" 14 / 9 ").format());
+        assertEquals("125/75", TensionArterielle.parse("12,5/7.5").format());
+        assertEquals(110, TensionArterielle.parse("11/8").systolique());
+    }
+
+    @Test
+    void keepsMillimetresUntouchedAndStillValidatesCentimetreInput() {
+        assertEquals("120/80", TensionArterielle.parse("120/80").format());
+        assertThrows(BusinessException.class, () -> TensionArterielle.parse("8/12"));
+        assertThrows(BusinessException.class, () -> TensionArterielle.parse("1/0,5"));
+    }
+
+    @Test
     void rejectsInvalidFormat() {
         assertThrows(BusinessException.class, () -> TensionArterielle.parse("140-90"));
         assertThrows(BusinessException.class, () -> TensionArterielle.parse("abc/90"));

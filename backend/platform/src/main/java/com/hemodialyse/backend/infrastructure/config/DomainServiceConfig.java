@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.config;
 
+import com.hemodialyse.backend.domain.article.port.ArticleCatalogPort;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.port.AttestationRepositoryPort;
 import com.hemodialyse.backend.domain.insurance.service.AttestationDomainService;
@@ -215,8 +216,9 @@ public class DomainServiceConfig {
     @Bean
     public StockReferentialDomainService stockReferentialDomainService(FournisseurRepositoryPort fournisseurRepo,
                                                                        EmplacementRepositoryPort emplacementRepo,
-                                                                       ArticleRepositoryPort articleRepo) {
-        return new StockReferentialDomainService(fournisseurRepo, emplacementRepo, articleRepo);
+                                                                       ArticleRepositoryPort articleRepo,
+                                                                       ArticleCatalogPort articleCatalog) {
+        return new StockReferentialDomainService(fournisseurRepo, emplacementRepo, articleRepo, articleCatalog);
     }
 
     @Bean

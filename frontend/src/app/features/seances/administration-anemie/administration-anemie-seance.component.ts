@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, effect, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -11,6 +11,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule} from '@ngx-translate/core';
 import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
 import {AuthStore} from '../../../core/state/auth.store';
+import {ArticleStock, StockApiService} from '../../../core/api/stock-api.service';
+import {quantiteStockPourDose} from '../../../shared/article-conversion.util';
 import {
   AdministrationTraitement,
   DossierMedicalApiService,
@@ -27,7 +29,6 @@ interface AdministrationFormModel {
   administree: boolean;
   motifNonAdministration: string | null;
   articleId: string | null;
-  quantiteAdministree: number | null;
 }
 
 function emptyForm(): AdministrationFormModel {
@@ -40,7 +41,6 @@ function emptyForm(): AdministrationFormModel {
     administree: true,
     motifNonAdministration: null,
     articleId: null,
-    quantiteAdministree: null,
   };
 }
 
@@ -88,7 +88,17 @@ export class AdministrationAnemieSeanceComponent {
     molecule: [requiredValidator()],
   });
 
+  /** Fiche de l'article prescrit : porte le dosage par unité qui relie la dose (UI, mg) à la sortie de stock. */
+  protected readonly article = signal<ArticleStock | null>(null);
+  /** Quantité à sortir du stock pour la dose prescrite, ou la raison pour laquelle la conversion est impossible. */
+  protected readonly conversion = computed(() => {
+    const {dose, uniteDose, articleId} = this.form.value();
+    return articleId ? quantiteStockPourDose(this.article(), dose, uniteDose) : null;
+  });
+  protected readonly conversionBlocking = computed(() => this.conversion()?.erreur != null);
+
   private readonly api = inject(DossierMedicalApiService);
+  private readonly stockApi = inject(StockApiService);
   private readonly auth = inject(AuthStore);
   private lastKey: string | null = null;
 
@@ -122,10 +132,10 @@ export class AdministrationAnemieSeanceComponent {
         model.uniteDose = 'mg';
         model.articleId = prescription.ferArticleId;
       }
-      model.quantiteAdministree = model.dose;
     }
     this.form.reset(model);
     this.formOpen.set(true);
+    this.loadArticle(model.articleId);
   }
 
   cancelForm(): void {
@@ -136,18 +146,13 @@ export class AdministrationAnemieSeanceComponent {
     this.form.set(key, value);
   }
 
-  onNumber(key: 'dose' | 'quantiteAdministree', raw: string): void {
-    const value = raw === '' ? null : Number(raw);
-    this.form.set(key, Number.isNaN(value) ? null : value);
-  }
-
   save(): void {
     const value = this.form.value();
     if (!value.administree) {
       if (!value.motifNonAdministration || value.motifNonAdministration.trim() === '') return;
     } else {
       this.form.markAllTouched();
-      if (!this.form.valid()) return;
+      if (!this.form.valid() || this.conversionBlocking()) return;
     }
     const patientId = this.patientId();
     const centerId = this.centerId();
@@ -169,7 +174,8 @@ export class AdministrationAnemieSeanceComponent {
       administree: value.administree,
       motifNonAdministration: value.administree ? null : value.motifNonAdministration,
       articleId: value.administree ? value.articleId : null,
-      quantiteArticle: value.administree ? value.quantiteAdministree : null,
+      // La quantité sortie du stock est déduite par le serveur de la dose et de la fiche article.
+      quantiteArticle: null,
     }).subscribe({
       next: () => {
         this.saving.set(false);
@@ -198,6 +204,16 @@ export class AdministrationAnemieSeanceComponent {
     this.loadPrescription();
     this.loadAdministrations();
     this.loadObservance();
+  }
+
+  private loadArticle(articleId: string | null): void {
+    const centerId = this.centerId();
+    this.article.set(null);
+    if (!articleId || !centerId) return;
+    this.stockApi.getArticle(centerId, articleId).subscribe({
+      next: (article) => this.article.set(article),
+      error: () => this.article.set(null),
+    });
   }
 
   private loadObservance(): void {

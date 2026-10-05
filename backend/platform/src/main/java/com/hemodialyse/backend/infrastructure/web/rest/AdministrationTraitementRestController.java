@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.medical.anemie.valueobject.DoseAdministree
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.domain.stock.port.BonSortieUseCase;
+import com.hemodialyse.backend.domain.stock.port.StockReferentialUseCase;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.request.CreateAdministrationTraitementRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.AdministrationTraitementResponse;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -41,15 +43,18 @@ public class AdministrationTraitementRestController {
     private final CenterAccessGuard centerAccessGuard;
     private final BonSortieUseCase bonSortieUseCase;
     private final SaisieInfirmierNotifier saisieNotifier;
+    private final StockReferentialUseCase stockReferentialUseCase;
 
     public AdministrationTraitementRestController(AdministrationTraitementUseCase useCase,
                                                   CenterAccessGuard centerAccessGuard,
                                                   BonSortieUseCase bonSortieUseCase,
-                                                  SaisieInfirmierNotifier saisieNotifier) {
+                                                  SaisieInfirmierNotifier saisieNotifier,
+                                                  StockReferentialUseCase stockReferentialUseCase) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
         this.bonSortieUseCase = bonSortieUseCase;
         this.saisieNotifier = saisieNotifier;
+        this.stockReferentialUseCase = stockReferentialUseCase;
     }
 
     @PreAuthorize("hasAnyRole('MEDECIN','ADMIN','INFIRMIER')")
@@ -70,10 +75,18 @@ public class AdministrationTraitementRestController {
             @PathVariable UUID patientId, @RequestBody @Valid CreateAdministrationTraitementRequest request) {
         CenterId center = centerAccessGuard.requireCenter(request.centerId());
 
+        // La dose est prescrite en UI / mg ; le stock sort dans l'unité de l'article : la quantité est déduite de la
+        // fiche article (dose ÷ dosage par unité) et jamais saisie à la main, pour que stock et prescription concordent.
+        BigDecimal quantiteArticle = request.quantiteArticle();
+        if (request.administree() && request.articleId() != null && request.dose() != null) {
+            quantiteArticle = stockReferentialUseCase.getArticle(center, request.articleId())
+                    .quantiteStockPourDose(request.dose(), request.uniteDose());
+        }
+
         boolean sortieStockRequise = request.administree()
                 && request.articleId() != null
                 && request.seanceId() != null
-                && request.quantiteArticle() != null;
+                && quantiteArticle != null;
         if (sortieStockRequise) {
             // Lève IllegalStateException (-> 422, cf. ApiExceptionHandler) si le stock est insuffisant ;
             // dans ce cas l'administration n'est pas créée, pour éviter une trace sans sortie de stock réelle.
@@ -82,14 +95,14 @@ public class AdministrationTraitementRestController {
             // createViaFefo() génère un bon de sortie numéroté propre à l'administration, distinct du bon
             // « SEANCE » unique qui regroupe les consommables de la séance.
             bonSortieUseCase.createViaFefo(center, request.seanceId(), patientId, "ADMINISTRATION",
-                    LocalDate.now(), request.articleId(), request.quantiteArticle(), request.administrePar());
+                    LocalDate.now(), request.articleId(), quantiteArticle, request.administrePar());
         }
 
         DoseAdministree dose = request.dose() == null ? null : new DoseAdministree(request.dose(), request.uniteDose());
         var administration = useCase.create(center, patientId, request.prescriptionMedicaleId(),
                 TypeTraitementAnemie.valueOf(request.typeTraitement()), request.molecule(), dose, request.voie(),
                 request.dateAdministration(), request.seanceId(), request.administrePar(), request.administree(),
-                request.motifNonAdministration(), request.articleId(), request.quantiteArticle());
+                request.motifNonAdministration(), request.articleId(), quantiteArticle);
         saisieNotifier.saisie(center.value(), "ANEMIE", patientId, request.dateAdministration());
         return ResponseEntity.ok(AdministrationTraitementResponse.from(administration));
     }

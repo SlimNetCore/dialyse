@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -145,8 +146,22 @@ public class PrescriptionMedicaleRestController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * La dose prescrite (UI, mg) doit pouvoir se convertir dans l'unité de stock de l'article choisi, sinon
+     * l'administration ne saurait pas quelle quantité sortir : le médecin est averti dès la prescription.
+     */
+    private void verifierConversionDose(CenterId center, UUID articleId, Integer dose, String uniteDose) {
+        if (articleId == null || dose == null || dose <= 0) {
+            return;
+        }
+        articleRepository.findById(articleId, center)
+                .ifPresent(article -> article.quantiteStockPourDose(BigDecimal.valueOf(dose), uniteDose));
+    }
+
     private EntityWriteResponse save(UUID patientId, UUID prescriptionId, UpsertPrescriptionMedicaleRequest request) {
         CenterId center = centerAccessGuard.requireCenter(request.centerId());
+        verifierConversionDose(center, request.epoArticleId(), request.epoDoseUi(), "UI");
+        verifierConversionDose(center, request.ferArticleId(), request.ferDoseMg(), "mg");
         var prescription = useCase.save(
                 center,
                 patientId,

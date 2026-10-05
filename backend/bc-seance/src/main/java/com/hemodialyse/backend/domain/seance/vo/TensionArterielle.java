@@ -2,6 +2,8 @@ package com.hemodialyse.backend.domain.seance.vo;
 
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 /**
@@ -16,6 +18,7 @@ public final class TensionArterielle {
 
     private static final int MIN_MMHG = 20;
     private static final int MAX_MMHG = 400;
+    private static final BigDecimal MAX_CMHG = new BigDecimal("30");
 
     private final int systolique;
     private final int diastolique;
@@ -38,8 +41,13 @@ public final class TensionArterielle {
         if (parts.length != 2) {
             throw new BusinessException("Format de tension artérielle invalide (attendu: systolique/diastolique)");
         }
-        int sys = parsePart(parts[0]);
-        int dia = parsePart(parts[1]);
+        BigDecimal rawSys = parseNumber(parts[0]);
+        BigDecimal rawDia = parseNumber(parts[1]);
+        // Notation en centimètres de mercure (« 12/8 », « 11,5/7 »), courante en pratique : convertie en mmHg.
+        // Aucune systolique réelle n'est ≤ 30 mmHg, donc la notation n'est jamais ambiguë.
+        BigDecimal factor = rawSys.compareTo(MAX_CMHG) <= 0 ? BigDecimal.TEN : BigDecimal.ONE;
+        int sys = checkRange(rawSys.multiply(factor));
+        int dia = checkRange(rawDia.multiply(factor));
         if (sys < dia) {
             throw new BusinessException("La systolique doit être supérieure ou égale à la diastolique");
         }
@@ -56,16 +64,20 @@ public final class TensionArterielle {
         return Optional.of(parse(raw));
     }
 
-    private static int parsePart(String value) {
+    private static BigDecimal parseNumber(String value) {
         try {
-            int parsed = Integer.parseInt(value.trim());
-            if (parsed < MIN_MMHG || parsed > MAX_MMHG) {
-                throw new BusinessException("Valeur de tension hors bornes physiologiques: " + parsed);
-            }
-            return parsed;
+            return new BigDecimal(value.trim().replace(',', '.'));
         } catch (NumberFormatException e) {
             throw new BusinessException("Valeur de tension non numérique: " + value);
         }
+    }
+
+    private static int checkRange(BigDecimal mmHg) {
+        int rounded = mmHg.setScale(0, RoundingMode.HALF_UP).intValue();
+        if (rounded < MIN_MMHG || rounded > MAX_MMHG) {
+            throw new BusinessException("Valeur de tension hors bornes physiologiques: " + rounded);
+        }
+        return rounded;
     }
 
     public int systolique() {

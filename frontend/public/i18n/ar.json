@@ -632,8 +632,68 @@
       "SAVE_ERROR": "خطأ أثناء حفظ المورّد"
     },
     "ARTICLES": {
-      "CREATED_OK": "تم إنشاء الصنف",
-      "CREATE_ERROR": "خطأ أثناء إنشاء الصنف"
+      "SAVED_OK": "تم حفظ بطاقة الصنف",
+      "LIST_TITLE": "بطاقات الأصناف",
+      "EDIT_TITLE": "تعديل بطاقة الصنف",
+      "SEARCH": "بحث (الرمز، التسمية، الاسم الدولي، الباركود)",
+      "FILTER": {
+        "ACTIVE": "النشطة",
+        "INACTIVE": "المعطلة",
+        "ALL": "الكل"
+      },
+      "SECTION_IDENTITE": "الهوية والتصنيف",
+      "SECTION_UNITES": "الوحدات والتعبئة",
+      "SECTION_ACHAT": "الشراء والتقييم",
+      "SECTION_CONSERVATION": "الحفظ والسلامة",
+      "DCI": "الاسم الدولي غير المسجل",
+      "FORME": "الشكل الصيدلاني",
+      "CODE_BARRES": "الباركود",
+      "REF_FABRICANT": "مرجع المصنّع",
+      "UNITE_ACHAT": "وحدة الشراء (مثل علبة)",
+      "COEFF_ACHAT": "وحدات المخزون في وحدة الشراء",
+      "DOSAGE": "التركيز لكل وحدة مخزون",
+      "UNITE_DOSAGE": "وحدة التركيز (وحدة دولية، ملغ…)",
+      "DOSAGE_HINT": "يربط وصفة الطبيب (وحدة دولية، ملغ) بإخراج المخزون: الكمية المخرجة = الجرعة ÷ التركيز.",
+      "CONVERSION": "1 {{unite}} = {{dosage}} {{uniteDosage}}",
+      "DOSAGE_INCOHERENT": "أدخل التركيز ووحدته معًا أو لا تدخل أيًّا منهما.",
+      "FOURNISSEUR": "المورّد الرئيسي",
+      "TVA": "نوع الرسم على القيمة المضافة",
+      "PRIX_ACHAT": "سعر الشراء",
+      "STOCK_MAX": "الحد الأقصى للمخزون",
+      "STOCK_MAX_ERR": "لا يمكن أن يقل الحد الأقصى للمخزون عن عتبة التنبيه.",
+      "PEREMPTION": "تاريخ الصلاحية إلزامي",
+      "CONSERVATION": "شرط الحفظ",
+      "CONSERVATION_VALUES": {
+        "AMBIANT": "درجة حرارة الغرفة",
+        "REFRIGERE": "مبرّد (2-8 °م)",
+        "CONGELE": "مجمّد"
+      },
+      "DANGEREUX": "منتج خطر",
+      "DASRI": "ينتج نفايات DASRI (نفايات الرعاية المعدية)",
+      "NONE": "لا شيء",
+      "COL_DOSAGE": "التركيز",
+      "COL_STOCK": "المخزون",
+      "COL_STATUT": "الحالة",
+      "ACTIVE": "نشط",
+      "INACTIVE": "معطّل",
+      "ACTIVATE": "إعادة التفعيل",
+      "DEACTIVATE": "تعطيل",
+      "EMPTY": "لا يوجد صنف مطابق للبحث.",
+      "CANCEL_EDIT": "إلغاء التعديل",
+      "ERR": {
+        "SAVE": "تعذّر الحفظ",
+        "LOAD": "تعذّر تحميل الأصناف",
+        "ARTICLE_CODE_REQUIS": "رمز الصنف إلزامي",
+        "ARTICLE_LIBELLE_REQUIS": "التسمية إلزامية",
+        "ARTICLE_UNITE_REQUISE": "وحدة المخزون إلزامية",
+        "ARTICLE_DOSAGE_INCOMPLET": "التركيز ووحدته مرتبطان",
+        "ARTICLE_DOSAGE_INVALIDE": "يجب أن يكون التركيز موجبًا تمامًا",
+        "ARTICLE_COEFFICIENT_ACHAT_INVALIDE": "يجب أن يكون معامل الشراء موجبًا تمامًا",
+        "ARTICLE_VALEUR_NEGATIVE": "لا يمكن أن تكون الأسعار والعتبة والحد الأقصى سالبة",
+        "ARTICLE_STOCK_MAX_INFERIEUR_SEUIL": "لا يمكن أن يقل الحد الأقصى للمخزون عن عتبة التنبيه",
+        "ARTICLE_CODE_EXISTANT": "رمز الصنف موجود مسبقًا في المركز",
+        "ARTICLE_INTROUVABLE": "الصنف غير موجود"
+      }
     },
     "BON_COMMANDE": {
       "CREATED_OK": "تم إنشاء طلب الشراء",
@@ -883,6 +943,12 @@
     }
   },
   "SEANCES": {
+    "CONVERSION_OK": "إخراج من المخزون: {{quantite}} {{unite}} (مستخرج من الجرعة الموصوفة)",
+    "CONVERSION_ERR": {
+      "UNITE_INCOMPATIBLE": "وحدة الجرعة لا تطابق تركيز الصنف: صحّح بطاقة الصنف أو الوصفة.",
+      "DOSAGE_NON_DEFINI": "تركيز الصنف لكل وحدة غير محدد: أكمل بطاقة الصنف لتحويل الجرعة إلى إخراج من المخزون.",
+      "DOSE_INVALIDE": "الجرعة أو بطاقة الصنف غير متاحة: التحويل مستحيل."
+    },
     "EYEBROW": "السجل",
     "TITLE": "سجل الحصص",
     "DESCRIPTION": "إحصاءات الشهر وقائمة مرقّمة بحصص المركز: ابحث عن مريض، صفِّ حسب الفترة أو الحالة، ورتّب الأعمدة.",

@@ -140,8 +140,10 @@
 - **RG-SEA-030** — **Volet paramédical** (`ADMIN`, `INFIRMIER`, `SECRETAIRE`) : poids avant/après, tension avant/après,
   durée, débit sang, ultrafiltration, anticoagulant, type de
   dialysat, incidents. Les poids saisis respectent RG-TRV-032 (> 0, ≤ 500 kg). Une tension est normalisée au format
-  `systolique/diastolique` ; chaque valeur entre **20 et 400 mmHg**,
-  systolique ≥ diastolique. Enregistrement notifié ; interdit si facturée.
+  `systolique/diastolique` en **mmHg** ; chaque valeur entre **20 et 400 mmHg**,
+  systolique ≥ diastolique. La saisie en **centimètres de mercure** est acceptée et convertie : dès que la systolique
+  saisie est ≤ 30, les deux valeurs sont multipliées par 10 (« 12/8 » → `120/80`, « 11,5/7 » → `115/70`) ; la virgule
+  ou le point décimal sont tolérés. Enregistrement notifié ; interdit si facturée.
 - **RG-SEA-031** — **Volet médical** (`ADMIN`, `MEDECIN`) : prescription, tolérance, examen clinique, résultats
   biologiques, ajustements thérapeutiques, conclusion. Il n'est
   accessible **qu'après validation infirmière** (« n'est accessible qu'apres validation infirmiere ») ; interdit si

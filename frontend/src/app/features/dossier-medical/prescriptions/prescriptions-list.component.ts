@@ -16,6 +16,7 @@ import {requiredValidator, SignalForm, SignalFormValidator} from '../../../share
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {PrescriptionMedicale, UniteFrequence} from '../../../core/api/dossier-medical-api.service';
 import {ArticleStock, StockApiService} from '../../../core/api/stock-api.service';
+import {quantiteStockPourDose} from '../../../shared/article-conversion.util';
 import {DossierMedicalAccessService} from '../dossier-medical-access.service';
 import {PrescriptionsStore} from '../state/prescriptions.store';
 import {resolvePatientIdFromRoute} from '../dossier-medical-route.util';
@@ -125,6 +126,21 @@ export class PrescriptionsListComponent implements OnInit {
   protected readonly unitesFrequence = UNITES_FREQUENCE;
   protected readonly epoArticles = signal<ArticleStock[]>([]);
   protected readonly ferArticles = signal<ArticleStock[]>([]);
+  /** Sortie de stock correspondant à la dose saisie (dose ÷ dosage de l'article) : prévient dès la prescription. */
+  protected readonly epoConversion = computed(() => {
+    const {epoArticleId, epoDoseUi} = this.form.value();
+    return epoArticleId && epoDoseUi
+      ? quantiteStockPourDose(this.epoArticles().find((a) => a.id === epoArticleId), epoDoseUi, 'UI') : null;
+  });
+  protected readonly ferConversion = computed(() => {
+    const {ferArticleId, ferDoseMg} = this.form.value();
+    return ferArticleId && ferDoseMg
+      ? quantiteStockPourDose(this.ferArticles().find((a) => a.id === ferArticleId), ferDoseMg, 'mg') : null;
+  });
+  protected readonly epoArticle = computed(() =>
+    this.epoArticles().find((a) => a.id === this.form.value().epoArticleId));
+  protected readonly ferArticle = computed(() =>
+    this.ferArticles().find((a) => a.id === this.form.value().ferArticleId));
   /** Seule la prescription la plus récente (page 0, première ligne) peut être modifiée. */
   protected readonly mostRecentId = computed(() =>
     this.store.pageIndex() === 0 ? (this.store.rows()[0]?.id ?? null) : null);

@@ -48,6 +48,54 @@ public class ArticleJpaEntity {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
+    @Column(name = "dci", length = 150)
+    private String dci;
+
+    @Column(name = "forme_galenique", length = 80)
+    private String formeGalenique;
+
+    @Column(name = "code_barres", length = 64)
+    private String codeBarres;
+
+    @Column(name = "reference_fabricant", length = 80)
+    private String referenceFabricant;
+
+    @Column(name = "unite_achat", length = 30)
+    private String uniteAchat;
+
+    @Column(name = "coefficient_achat", precision = 14, scale = 4)
+    private BigDecimal coefficientAchat;
+
+    @Column(name = "dosage_par_unite", precision = 14, scale = 4)
+    private BigDecimal dosageParUnite;
+
+    @Column(name = "unite_dosage", length = 20)
+    private String uniteDosage;
+
+    @Column(name = "fournisseur_id")
+    private UUID fournisseurId;
+
+    @Column(name = "tva_type_id")
+    private UUID tvaTypeId;
+
+    @Column(name = "prix_achat", precision = 14, scale = 4)
+    private BigDecimal prixAchat;
+
+    @Column(name = "stock_max", precision = 14, scale = 4)
+    private BigDecimal stockMax;
+
+    @Column(name = "peremption_obligatoire", nullable = false, columnDefinition = "boolean default false")
+    private boolean peremptionObligatoire;
+
+    @Column(name = "condition_conservation", length = 20)
+    private String conditionConservation;
+
+    @Column(name = "produit_dangereux", nullable = false, columnDefinition = "boolean default false")
+    private boolean produitDangereux;
+
+    @Column(name = "dechet_dasri", nullable = false, columnDefinition = "boolean default false")
+    private boolean dechetDasri;
+
     public UUID getId() {
         return id;
     }
@@ -142,6 +190,134 @@ public class ArticleJpaEntity {
 
     public void setTypeTraitementAnemie(String typeTraitementAnemie) {
         this.typeTraitementAnemie = typeTraitementAnemie;
+    }
+
+    public String getDci() {
+        return dci;
+    }
+
+    public void setDci(String dci) {
+        this.dci = dci;
+    }
+
+    public String getFormeGalenique() {
+        return formeGalenique;
+    }
+
+    public void setFormeGalenique(String formeGalenique) {
+        this.formeGalenique = formeGalenique;
+    }
+
+    public String getCodeBarres() {
+        return codeBarres;
+    }
+
+    public void setCodeBarres(String codeBarres) {
+        this.codeBarres = codeBarres;
+    }
+
+    public String getReferenceFabricant() {
+        return referenceFabricant;
+    }
+
+    public void setReferenceFabricant(String referenceFabricant) {
+        this.referenceFabricant = referenceFabricant;
+    }
+
+    public String getUniteAchat() {
+        return uniteAchat;
+    }
+
+    public void setUniteAchat(String uniteAchat) {
+        this.uniteAchat = uniteAchat;
+    }
+
+    public BigDecimal getCoefficientAchat() {
+        return coefficientAchat;
+    }
+
+    public void setCoefficientAchat(BigDecimal coefficientAchat) {
+        this.coefficientAchat = coefficientAchat;
+    }
+
+    public BigDecimal getDosageParUnite() {
+        return dosageParUnite;
+    }
+
+    public void setDosageParUnite(BigDecimal dosageParUnite) {
+        this.dosageParUnite = dosageParUnite;
+    }
+
+    public String getUniteDosage() {
+        return uniteDosage;
+    }
+
+    public void setUniteDosage(String uniteDosage) {
+        this.uniteDosage = uniteDosage;
+    }
+
+    public UUID getFournisseurId() {
+        return fournisseurId;
+    }
+
+    public void setFournisseurId(UUID fournisseurId) {
+        this.fournisseurId = fournisseurId;
+    }
+
+    public UUID getTvaTypeId() {
+        return tvaTypeId;
+    }
+
+    public void setTvaTypeId(UUID tvaTypeId) {
+        this.tvaTypeId = tvaTypeId;
+    }
+
+    public BigDecimal getPrixAchat() {
+        return prixAchat;
+    }
+
+    public void setPrixAchat(BigDecimal prixAchat) {
+        this.prixAchat = prixAchat;
+    }
+
+    public BigDecimal getStockMax() {
+        return stockMax;
+    }
+
+    public void setStockMax(BigDecimal stockMax) {
+        this.stockMax = stockMax;
+    }
+
+    public boolean isPeremptionObligatoire() {
+        return peremptionObligatoire;
+    }
+
+    public void setPeremptionObligatoire(boolean peremptionObligatoire) {
+        this.peremptionObligatoire = peremptionObligatoire;
+    }
+
+    public String getConditionConservation() {
+        return conditionConservation;
+    }
+
+    public void setConditionConservation(String conditionConservation) {
+        this.conditionConservation = conditionConservation;
+    }
+
+    public boolean isProduitDangereux() {
+        return produitDangereux;
+    }
+
+    public void setProduitDangereux(boolean produitDangereux) {
+        this.produitDangereux = produitDangereux;
+    }
+
+    public boolean isDechetDasri() {
+        return dechetDasri;
+    }
+
+    public void setDechetDasri(boolean dechetDasri) {
+        this.dechetDasri = dechetDasri;
     }
 }
 

@@ -22,6 +22,60 @@
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  margin: 20px 0 8px;
+  font-size: 1rem;
+}
+
+.hint {
+  margin: 0 0 8px;
+  color: var(--app-muted);
+}
+
+.conversion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-weight: 600;
+  color: var(--app-primary);
+}
+
+.field-error {
+  margin: 0 0 8px;
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.toolbar .search {
+  flex: 1 1 260px;
+}
+
+.toolbar .filter {
+  flex: 0 1 200px;
+}
+
+.row-actions {
+  white-space: nowrap;
+}
+
+tr.editing {
+  background: var(--app-primary-soft);
 }
 
 .full-width {

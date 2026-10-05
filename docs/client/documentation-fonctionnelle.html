@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-05<br>464 règles de gestion · 16 domaines · 338 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-05<br>467 règles de gestion · 16 domaines · 350 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,7 +295,7 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>464</b>règles de gestion</div>
+            <div><b>467</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
             <div><b>8</b>points d'attention</div>
@@ -2832,8 +2832,8 @@
                 liste (désactivés aux extrémités, rang « n / total » affiché) ; ils sont masqués pour une séance hors
                 file (ex. séance
                 à régulariser) ou lorsqu&#39;il n&#39;y a qu&#39;un patient. La saisie en cours est enregistrée avant le
-                changement.
-                <em>Source :</em> <code>SeanceStationComponent</code>, <code>PatientPagerComponent</code>.</p>
+                changement. <em>Source :</em>
+                <code>SeanceStationComponent</code>, <code>PatientPagerComponent</code>.</p>
             </div>
         </div>
         <div class="rule attention" id="RG-SEA-029">
@@ -2909,8 +2909,13 @@
                 durée, débit sang, ultrafiltration, anticoagulant, type de
                 dialysat, incidents. Les poids saisis respectent RG-TRV-032 (&gt; 0, ≤ 500 kg). Une tension est
                 normalisée au format
-                <code>systolique/diastolique</code> ; chaque valeur entre <strong>20 et 400 mmHg</strong>,
-                systolique ≥ diastolique. Enregistrement notifié ; interdit si facturée.</p>
+                <code>systolique/diastolique</code> en <strong>mmHg</strong> ; chaque valeur entre <strong>20 et 400
+                    mmHg</strong>,
+                systolique ≥ diastolique. La saisie en <strong>centimètres de mercure</strong> est acceptée et convertie
+                : dès que la systolique
+                saisie est ≤ 30, les deux valeurs sont multipliées par 10 (« 12/8 » → <code>120/80</code>, « 11,5/7 » →
+                <code>115/70</code>) ; la virgule
+                ou le point décimal sont tolérés. Enregistrement notifié ; interdit si facturée.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-031">
@@ -3058,13 +3063,76 @@
         <h2>8.1 Référentiel (articles, fournisseurs, emplacements)</h2>
         <div class="rule" id="RG-STK-001">
             <div class="rid">RG-STK-001</div>
-            <div class="rtxt"><p>Un article porte : code, libellé, unité (tous trois obligatoires), seuil d&#39;alerte,
-                stock courant, PMP
-                courant, indicateur « géré par lot »
-                et « actif », et un éventuel <strong>type de traitement de l&#39;anémie</strong> (<code>EPO</code> ou
-                <code>FER_INJECTABLE</code>, vide = article ordinaire)
-                qui alimente les listes de
-                prescription (voir RG-MED).</p>
+            <div class="rtxt"><p><strong>Fiche article</strong> : un article porte son <strong>identité</strong> (code,
+                libellé, DCI, forme galénique,
+                code-barres, référence fabricant), ses <strong>unités</strong> (unité de stock = unité de sortie, unité
+                d&#39;achat et coefficient
+                d&#39;achat, dosage par unité — voir RG-STK-006), son <strong>achat</strong> (fournisseur principal,
+                type de TVA, prix d&#39;achat, seuil
+                d&#39;alerte, stock maximum), sa <strong>conservation et sa sécurité</strong> (géré par lot, péremption
+                obligatoire, condition de
+                conservation <code>AMBIANT</code> / <code>REFRIGERE</code> / <code>CONGELE</code>, produit dangereux,
+                génère des déchets DASRI), ainsi que son stock
+                courant, son PMP courant et son état « actif » (jamais saisis sur la fiche : ils résultent des
+                mouvements). Code,
+                libellé et unité de stock sont obligatoires (<code>ARTICLE_CODE_REQUIS</code>, <code>ARTICLE_LIBELLE_REQUIS</code>,
+                <code>ARTICLE_UNITE_REQUISE</code>) ; le coefficient d&#39;achat doit être &gt; 0 (<code>ARTICLE_COEFFICIENT_ACHAT_INVALIDE</code>),
+                prix, seuil
+                et stock maximum ≥ 0 (<code>ARTICLE_VALEUR_NEGATIVE</code>) et le stock maximum au moins égal au seuil d&#39;alerte
+                (<code>ARTICLE_STOCK_MAX_INFERIEUR_SEUIL</code>). Un éventuel <strong>type de traitement de
+                    l&#39;anémie</strong> (<code>EPO</code> ou <code>FER_INJECTABLE</code>,
+                vide = article ordinaire) alimente les listes de prescription (voir RG-MED).
+                <em>Source :</em> <code>Article.appliquerFiche</code>, <code>ArticlesComponent</code>.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-STK-006">
+            <div class="rid">RG-STK-006</div>
+            <div class="rtxt"><p><strong>Dosage par unité de stock</strong> : la fiche peut porter « 1 unité de stock =
+                X UI (ou mg…) », c&#39;est-à-dire
+                un dosage (&gt; 0, <code>ARTICLE_DOSAGE_INVALIDE</code>) <strong>et</strong> son unité, indissociables (<code>ARTICLE_DOSAGE_INCOMPLET</code>).
+                Il relie
+                l&#39;unité de prescription du médecin à la sortie de stock : <strong>quantité sortie = dose ÷
+                    dosage</strong> (4 décimales ; ex. 8000
+                UI avec une seringue de 4000 UI = 2 seringues). Sans dosage, seule une dose déjà exprimée dans l&#39;unité
+                de stock est
+                acceptée (conversion 1:1). Une dose dans une autre unité que celle du dosage est refusée
+                (<code>ARTICLE_UNITE_DOSE_INCOMPATIBLE</code>), de même qu&#39;une dose à convertir alors que le dosage
+                n&#39;est pas renseigné
+                (<code>ARTICLE_DOSAGE_NON_DEFINI</code>) : le stock n&#39;est jamais décrémenté « au hasard ».
+                <strong>Comment remplir la fiche</strong> (bloc « Unités et conditionnement ») :
+                l&#39;<strong>unité</strong> est ce qui se compte en stock et
+                se sort (seringue, ampoule, pièce…) ; l&#39;<strong>unité d&#39;achat</strong> et le nombre
+                d&#39;<strong>unités de stock par unité d&#39;achat</strong>
+                décrivent la commande au fournisseur (facultatifs) ; le <strong>dosage</strong> et son
+                <strong>unité</strong> donnent la quantité de produit
+                actif d&#39;une unité de stock, dans l&#39;unité de la prescription (<strong>UI pour l&#39;EPO, mg pour
+                    le fer</strong>), et ne se remplissent
+                que pour ces articles. Exemples : <em>Époétine alfa 4000 UI</em> — unité « seringue », unité d&#39;achat
+                « boîte », 6 unités
+                par boîte, dosage 4000, unité du dosage « UI » : une prescription de 8000 UI sort 2 seringues
+                (RG-MED-071) ;
+                <em>Fer saccharose 100 mg</em> — unité « ampoule », unité d&#39;achat « boîte », 5 unités par boîte,
+                dosage 100, unité du dosage
+                « mg » : une prescription de 200 mg sort 2 ampoules ; <em>Dialyseur FX60</em> — unité « pièce », unité d&#39;achat
+                « carton »,
+                12 unités par carton, dosage et unité du dosage laissés vides (aucune conversion). Dès que le dosage et
+                son unité sont
+                saisis, la fiche affiche la ligne de contrôle « 1 seringue = 4000 UI ».
+                <em>Source :</em> <code>Article.quantiteStockPourDose</code>, <code>ArticlesComponent</code>.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-STK-007">
+            <div class="rid">RG-STK-007</div>
+            <div class="rtxt"><p>Le code article est <strong>unique par centre</strong> sans tenir compte de la casse
+                (<code>ARTICLE_CODE_EXISTANT</code>) ;
+                un article inconnu du centre est introuvable (<code>ARTICLE_INTROUVABLE</code>). Création, modification
+                et (dés)activation :
+                <code>ADMIN</code>, <code>PHARMACIEN</code>. L&#39;écran « Articles » liste les fiches <strong>par
+                    pages</strong> (<code>GET /stock/referentiel/articles/page</code>,
+                <code>page</code>/<code>size</code>), avec recherche sur le code, le libellé, la DCI ou le code-barres
+                et filtre actif / désactivé ; un
+                article désactivé n&#39;est plus proposé mais son historique reste.
+                <em>Source :</em> <code>StockReferentialRestController</code>, <code>ArticleCatalogPort</code>.</p>
             </div>
         </div>
         <div class="rule" id="RG-STK-002">
@@ -4235,11 +4303,30 @@
         </div>
         <div class="rule" id="RG-MED-071">
             <div class="rid">RG-MED-071</div>
-            <div class="rtxt"><p>Une administration rattachée à un article, à une séance et à une quantité <strong>sort
-                le stock</strong> au FEFO,
+            <div class="rtxt"><p>Une administration rattachée à un article, à une séance et à une dose <strong>sort le
+                stock</strong> au FEFO,
                 datée du jour réel de la saisie, via un bon de sortie numéroté (motif
                 ADMINISTRATION) ; si le stock est insuffisant, l&#39;administration <strong>n&#39;est pas créée</strong>
-                (pas de trace sans sortie réelle).</p>
+                (pas de trace sans sortie réelle).
+                La <strong>quantité sortie est déduite par le serveur</strong> de la dose (UI, mg) et de la fiche
+                article (dose ÷ dosage par
+                unité, RG-STK-006) : elle n&#39;est plus saisie à la main et toute quantité envoyée par le client est
+                ignorée. Une unité
+                de dose incompatible avec l&#39;article refuse l&#39;administration (<code>ARTICLE_UNITE_DOSE_INCOMPATIBLE</code>,
+                <code>ARTICLE_DOSAGE_NON_DEFINI</code>) ; l&#39;écran de l&#39;infirmier affiche la sortie de stock
+                calculée avant l&#39;enregistrement.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-MED-075">
+            <div class="rid">RG-MED-075</div>
+            <div class="rtxt"><p>À l&#39;enregistrement d&#39;une <strong>prescription</strong>, la dose d&#39;EPO (UI)
+                et la dose de fer (mg) doivent pouvoir
+                se convertir dans l&#39;unité de stock de l&#39;article choisi (RG-STK-006) : sinon la prescription est
+                refusée avec les mêmes
+                codes (<code>ARTICLE_UNITE_DOSE_INCOMPATIBLE</code>, <code>ARTICLE_DOSAGE_NON_DEFINI</code>). Le
+                formulaire de prescription affiche la sortie
+                de stock correspondant à la dose saisie. Ainsi unité prescrite et unité de sortie restent conformes.
+                <em>Source :</em> <code>PrescriptionMedicaleRestController</code>.</p>
             </div>
         </div>
         <div class="rule" id="RG-MED-072">

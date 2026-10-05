@@ -37,6 +37,53 @@ export interface ArticleStock {
   active: boolean;
   typeTraitementAnemie: TypeTraitementAnemie | null;
   createdAt?: string;
+  dci?: string | null;
+  formeGalenique?: string | null;
+  codeBarres?: string | null;
+  referenceFabricant?: string | null;
+  uniteAchat?: string | null;
+  coefficientAchat?: number | null;
+  /** Quantité de principe actif par unité de stock (ex. 4000 pour une seringue de 4000 UI). */
+  dosageParUnite?: number | null;
+  /** Unité de ce dosage (UI, mg…) : celle de la prescription du médecin. */
+  uniteDosage?: string | null;
+  fournisseurId?: string | null;
+  tvaTypeId?: string | null;
+  prixAchat?: number | null;
+  stockMax?: number | null;
+  peremptionObligatoire?: boolean;
+  conditionConservation?: ConditionConservation | null;
+  produitDangereux?: boolean;
+  dechetDasri?: boolean;
+}
+
+export type ConditionConservation = 'AMBIANT' | 'REFRIGERE' | 'CONGELE';
+
+/** Fiche article éditable (création et modification) ; le stock et le PMP ne s'éditent pas. */
+export interface ArticleFichePayload {
+  centerId: string;
+  code: string;
+  libelle: string;
+  dci?: string | null;
+  formeGalenique?: string | null;
+  codeBarres?: string | null;
+  referenceFabricant?: string | null;
+  unite: string;
+  uniteAchat?: string | null;
+  coefficientAchat?: number | null;
+  dosageParUnite?: number | null;
+  uniteDosage?: string | null;
+  fournisseurId?: string | null;
+  tvaTypeId?: string | null;
+  prixAchat?: number | null;
+  seuilAlerte?: number | null;
+  stockMax?: number | null;
+  gereParLot: boolean;
+  peremptionObligatoire: boolean;
+  conditionConservation?: ConditionConservation | null;
+  produitDangereux: boolean;
+  dechetDasri: boolean;
+  typeTraitementAnemie?: TypeTraitementAnemie | null;
 }
 
 export interface LigneBonCommande {
@@ -241,16 +288,38 @@ export class StockApiService {
     return this.http.get<ArticleStock[]>(`${this.base}/referentiel/articles`, {params});
   }
 
-  createArticle(payload: {
-    centerId: string;
-    code: string;
-    libelle: string;
-    unite: string;
-    seuilAlerte?: number;
-    gereParLot: boolean;
-    typeTraitementAnemie?: TypeTraitementAnemie | null;
-  }): Observable<ArticleStock> {
+  createArticle(payload: ArticleFichePayload): Observable<ArticleStock> {
     return this.http.post<ArticleStock>(`${this.base}/referentiel/articles`, payload);
+  }
+
+  updateArticle(articleId: string, payload: ArticleFichePayload): Observable<ArticleStock> {
+    return this.http.put<ArticleStock>(`${this.base}/referentiel/articles/${articleId}`, payload);
+  }
+
+  getArticle(centerId: string, articleId: string): Observable<ArticleStock> {
+    return this.http.get<ArticleStock>(`${this.base}/referentiel/articles/${articleId}`, {
+      params: new HttpParams().set('centerId', centerId),
+    });
+  }
+
+  setArticleActive(centerId: string, articleId: string, active: boolean): Observable<ArticleStock> {
+    return this.http.patch<ArticleStock>(`${this.base}/referentiel/articles/${articleId}/active`, null, {
+      params: new HttpParams().set('centerId', centerId).set('active', active),
+    });
+  }
+
+  /** Fiches articles paginées (recherche sur code, libellé, DCI, code-barres ; filtre sur l'état). */
+  searchArticles(centerId: string, query: {
+    q?: string;
+    active?: boolean | null;
+    page: number;
+    size: number
+  }): Observable<{ items: ArticleStock[]; total: number; page: number; size: number }> {
+    let params = new HttpParams().set('centerId', centerId).set('page', query.page).set('size', query.size);
+    if (query.q?.trim()) params = params.set('q', query.q.trim());
+    if (query.active != null) params = params.set('active', query.active);
+    return this.http.get<{ items: ArticleStock[]; total: number; page: number; size: number }>(
+      `${this.base}/referentiel/articles/page`, {params});
   }
 
   // --- Bons de commande (BL) ---
