@@ -91,6 +91,57 @@ class SeanceDomainServiceTest {
     }
 
     @Test
+    void create_should_say_that_the_pec_is_not_validated_when_it_covers_the_date() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        SeanceBillingEligibilityPort nonValidee = new SeanceBillingEligibilityPort() {
+            @Override
+            public boolean isPatientBillableAt(CenterId c, UUID p, LocalDate d) {
+                return false;
+            }
+
+            @Override
+            public java.util.Optional<CauseNonFacturable> causeNonFacturable(CenterId c, UUID p, LocalDate d) {
+                return java.util.Optional.of(CauseNonFacturable.PRISE_EN_CHARGE_NON_VALIDEE);
+            }
+        };
+        SeanceDomainService service = buildService(new InMemorySeanceRepository(),
+                new InMemoryPatientRepository(patientId, centerId), new InMemoryArticleRepository(),
+                new InMemoryLotRepository(), new SpyBonSortieUseCase(), new InMemoryForfaitCatalog(), nonValidee);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.create(centerId, patientId, LocalDate.of(2026, 8, 14)));
+
+        assertTrue(ex.getMessage().contains("n'est pas validée"), ex.getMessage());
+    }
+
+    @Test
+    void create_should_say_that_the_rights_certificate_is_missing_when_the_pec_itself_is_valid() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        SeanceBillingEligibilityPort sansAttestation = new SeanceBillingEligibilityPort() {
+            @Override
+            public boolean isPatientBillableAt(CenterId c, UUID p, LocalDate d) {
+                return false;
+            }
+
+            @Override
+            public java.util.Optional<CauseNonFacturable> causeNonFacturable(CenterId c, UUID p, LocalDate d) {
+                return java.util.Optional.of(CauseNonFacturable.ATTESTATION_DROITS);
+            }
+        };
+        SeanceDomainService service = buildService(new InMemorySeanceRepository(),
+                new InMemoryPatientRepository(patientId, centerId), new InMemoryArticleRepository(),
+                new InMemoryLotRepository(), new SpyBonSortieUseCase(), new InMemoryForfaitCatalog(), sansAttestation);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.create(centerId, patientId, LocalDate.of(2026, 8, 14)));
+
+        assertTrue(ex.getMessage().contains("attestation de droits"), ex.getMessage());
+        assertTrue(ex.getMessage().contains("2026-08-14"), ex.getMessage());
+    }
+
+    @Test
     void validate_without_consommables_should_succeed_without_stock_movement() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();

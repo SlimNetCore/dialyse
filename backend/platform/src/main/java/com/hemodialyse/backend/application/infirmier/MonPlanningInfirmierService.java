@@ -13,13 +13,18 @@ import com.hemodialyse.backend.domain.infirmier.service.PresenceInfirmierService
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.Planning.CreneauRef;
 import com.hemodialyse.backend.domain.planning.model.Planning.SalleRef;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.CellulePlanning;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.JourPlanning;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.OccupantPlanning;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SemainePlanning;
+import com.hemodialyse.backend.application.planning.PlanningSemaineQueryService;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,10 +42,12 @@ public class MonPlanningInfirmierService {
     private final PresenceInfirmierQueryService presence;
     private final InfirmierService referentiel;
     private final NotificationService notifications;
+    private final PlanningSemaineQueryService planningSemaine;
 
     public MonPlanningInfirmierService(InfirmierRepositoryPort infirmiers, AbsenceInfirmierRepositoryPort absences,
                                        PresenceInfirmierQueryService presence, InfirmierService referentiel,
-                                       NotificationService notifications) {
+                                       NotificationService notifications, PlanningSemaineQueryService planningSemaine) {
+        this.planningSemaine = planningSemaine;
         this.infirmiers = infirmiers;
         this.absences = absences;
         this.presence = presence;
@@ -49,18 +56,22 @@ public class MonPlanningInfirmierService {
     }
 
     /**
-     * Résumé de chaque case où l'infirmier est prévu, remplaçant ou absent : nombre de patients, effectif requis et
-     * nombre de collègues. Aucune donnée nominative d'un autre infirmier n'est exposée.
+     * Résumé de chaque case où l'infirmier est prévu, remplaçant ou absent : patients placés, effectif requis et
+     * nombre de collègues. Aucune donnée nominative d'un autre infirmier n'est exposée ; les patients sont ceux de ses
+     * propres salles et créneaux.
      */
-    private static List<CaseMonPlanning> mesCases(SemainePresence semaine, List<CreneauPersonnel> mesCreneaux,
-                                                  UUID infirmierId) {
+    private static List<CaseMonPlanning> mesCases(SemainePresence semaine, SemainePlanning planning,
+                                                  List<CreneauPersonnel> mesCreneaux, UUID infirmierId) {
         Set<String> miennes = mesCreneaux.stream()
                 .map(c -> cle(c.date(), c.salleId(), c.creneauId())).collect(Collectors.toSet());
+        Map<String, List<OccupantPlanning>> occupants = planning.cellules().stream().collect(Collectors.toMap(
+                c -> c.salleId() + "|" + c.creneauId() + "|" + c.jour(), CellulePlanning::occupants, (a, b) -> a));
         return semaine.cases().stream()
                 .filter(c -> miennes.contains(cle(c.date(), c.salleId(), c.creneauId())))
                 .map(c -> new CaseMonPlanning(c.date(), c.jour(), c.salleId(), c.creneauId(), c.patients(),
                         c.requis(), c.salleIsolement(),
-                        (int) c.presents().stream().filter(p -> !p.infirmierId().equals(infirmierId)).count()))
+                        (int) c.presents().stream().filter(p -> !p.infirmierId().equals(infirmierId)).count(),
+                        occupants.getOrDefault(c.salleId() + "|" + c.creneauId() + "|" + c.jour(), List.of())))
                 .toList();
     }
 
@@ -75,8 +86,10 @@ public class MonPlanningInfirmierService {
         Infirmier fiche = fiche(centerId, userId);
         SemainePresence semaine = presence.semaine(centerId, date);
         List<CreneauPersonnel> mesCreneaux = PresenceInfirmierService.creneauxDe(semaine, fiche.id());
+        SemainePlanning planning = planningSemaine.semaine(centerId, date);
         return new MonPlanning(referentiel.detail(centerId, fiche), semaine.debut(), semaine.fin(), semaine.salles(),
-                semaine.creneaux(), mesCreneaux, semaine.jours(), mesCases(semaine, mesCreneaux, fiche.id()));
+                semaine.creneaux(), mesCreneaux, semaine.jours(),
+                mesCases(semaine, planning, mesCreneaux, fiche.id()));
     }
 
     public PagedResult<AbsenceInfirmier> mesAbsences(UUID centerId, UUID userId, int page, int size) {
@@ -128,6 +141,7 @@ public class MonPlanningInfirmierService {
      * prévus avec lui.
      */
     public record CaseMonPlanning(LocalDate date, JourSemaine jour, UUID salleId, UUID creneauId, int patients,
-                                  int requis, boolean salleIsolement, int collegues) {
+                                  int requis, boolean salleIsolement, int collegues,
+                                  List<OccupantPlanning> occupants) {
     }
 }

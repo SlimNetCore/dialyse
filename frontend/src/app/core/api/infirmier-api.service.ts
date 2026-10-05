@@ -3,7 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {PagedResponse} from './gmao-api.service';
-import {CreneauRef, JourPlanning, JourSemaine, SalleRef} from './planning-api.service';
+import {CreneauRef, JourPlanning, JourSemaine, OccupantPlanning, SalleRef} from './planning-api.service';
 
 export type QualificationInfirmier = 'INFIRMIER' | 'MAJOR' | 'AIDE_SOIGNANT';
 export type TypeAbsence = 'CONGE' | 'MALADIE' | 'FORMATION' | 'AUTRE';
@@ -96,6 +96,8 @@ export interface CaseMonPlanning {
   requis: number;
   salleIsolement: boolean;
   collegues: number;
+  /** Patients placés dans cette salle et ce créneau ce jour-là. */
+  occupants: OccupantPlanning[];
 }
 
 export interface MonAbsencePayload {

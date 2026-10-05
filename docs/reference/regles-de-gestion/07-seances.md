@@ -23,9 +23,14 @@
 - **RG-SEA-010** — Création : `ADMIN` ou `INFIRMIER`. Le patient doit exister dans le centre. La date par défaut est
   aujourd'hui.
 - **RG-SEA-011** — **Le patient doit être facturable à la date de la séance** : une prise en charge au statut `VALIDEE`,
-  avec un forfait (effectif sinon demandé), dont la période (effective sinon demandée) couvre la date, **et** une
-  attestation de droits couvrant la date (« Le patient
-  doit avoir une prise en charge valide pour être facturé »). Sans cela, la séance ne se crée pas.
+  avec un forfait (effectif sinon demandé), dont la période couvre la date, **et** une attestation de droits couvrant
+  la date. La période est celle de la **période effective** (début et fin pris ensemble : sans fin, elle reste ouverte)
+  ou, à défaut, celle de la **période demandée** — jamais un mélange des bornes, comme pour la résolution du forfait de
+  la séance. Sans cela, la séance ne se crée pas, et le message dit **ce qui manque réellement** : « Le patient doit
+  avoir une prise en charge valide pour être facturé » quand aucune prise en charge ne couvre la date, « La prise en
+  charge du patient couvre le … mais n'est pas validée » quand elle existe mais n'est pas validée, ou « La prise en
+  charge du patient est valide mais aucune attestation de droits ne couvre le … » quand seule l'attestation est
+  absente ou expirée.
 - **RG-SEA-012** — Création par **scan de QR** (`ADMIN`, `INFIRMIER`, `SECRETAIRE`) : le code est résolu, dans cet
   ordre, comme identifiant patient (UUID,
   éventuellement après un préfixe `xxx:`), code patient, numéro d'assurance, puis par comparaison tolérante (sans

@@ -27,6 +27,10 @@ function planningFixture(): MonPlanning {
     mesCases: [{
       date: aujourdhui, jour: 'LUNDI', salleId: 's1', creneauId: 'm', patients: 6, requis: 2, salleIsolement: false,
       collegues: 1,
+      occupants: [
+        {patientId: 'p1', nom: 'Amine Benali', generateurCode: 'G201', aRisque: false, libereLe: null},
+        {patientId: 'p2', nom: 'Houria Bekkouche', generateurCode: null, aRisque: true, libereLe: '2026-10-20'},
+      ],
     }],
   };
 }
@@ -76,6 +80,62 @@ describe('MonPlanningComponent — grille de mes salles et créneaux', () => {
     expect(mine.textContent).toContain('INFIRMIER.MOI.SITUATION.PREVU');
     expect(mine.textContent).toContain('INFIRMIER.MOI.GRILLE.PATIENTS');
     expect(mine.textContent).toContain('INFIRMIER.MOI.GRILLE.COLLEGUES');
+  });
+
+  it('détaille les patients de ma case : nom, générateur, risque infectieux et libération de la place', async () => {
+    const {root} = await render();
+
+    const patients = Array.from(root.querySelectorAll('[data-testid="moi-patient"]'));
+    expect(patients).toHaveLength(2);
+    expect(patients[0].textContent).toContain('Amine Benali');
+    expect(patients[0].textContent).toContain('G201');
+    expect(patients[0].classList.contains('risk')).toBe(false);
+    expect(patients[1].textContent).toContain('Houria Bekkouche');
+    expect(patients[1].classList.contains('risk')).toBe(true);
+    expect(patients[1].querySelectorAll('mat-icon')).toHaveLength(2);
+  });
+
+  it('indique quand aucun patient n\'est placé dans ma case', async () => {
+    const p = planningFixture();
+    p.mesCases[0].occupants = [];
+    planning.set(p);
+    const {root} = await render();
+
+    expect(root.querySelector('[data-testid="moi-patients"]')).toBeNull();
+    expect(root.querySelector('[data-testid="moi-aucun-patient"]')).not.toBeNull();
+  });
+
+  it('s\'ouvre sur la vue jour sur un écran de mobile, sans la grille semaine à faire défiler', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({matches: query.includes('767px')}));
+    try {
+      const {root} = await render();
+
+      expect(root.querySelector('[data-testid="moi-table"]')).toBeNull();
+      expect(root.querySelectorAll('[data-testid="moi-day-card"]')).toHaveLength(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('s\'ouvre sur la grille semaine sur un grand écran', async () => {
+    vi.stubGlobal('matchMedia', () => ({matches: false}));
+    try {
+      const {root} = await render();
+
+      expect(root.querySelector('[data-testid="moi-table"]')).not.toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('affiche aussi les patients dans la vue jour', async () => {
+    const {fixture, root} = await render();
+
+    root.querySelector<HTMLElement>('[data-testid="moi-view-jour"] button')!.click();
+    fixture.detectChanges();
+
+    const card = root.querySelector('[data-testid="moi-day-card"]')!;
+    expect(card.querySelectorAll('[data-testid="moi-patient"]')).toHaveLength(2);
   });
 
   it('grise un jour de fermeture du centre et n\'y affiche aucun créneau', async () => {

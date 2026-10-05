@@ -2391,7 +2391,8 @@
         "COLLEGUES": "{{count}} collègue(s)",
         "SEUL": "Seul(e) sur ce créneau",
         "ISOLEMENT": "Salle d'isolement",
-        "AUCUN_JOUR": "Vous n'êtes affecté(e) à aucune salle ce jour-là."
+        "AUCUN_JOUR": "Vous n'êtes affecté(e) à aucune salle ce jour-là.",
+        "AUCUN_PATIENT": "Aucun patient placé"
       },
       "AUJOURDHUI": "Aujourd'hui",
       "AUCUN_AUJOURDHUI": "Aucun créneau prévu aujourd'hui.",

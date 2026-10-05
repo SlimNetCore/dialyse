@@ -2657,10 +2657,21 @@
             <div class="rid">RG-SEA-011</div>
             <div class="rtxt"><p><strong>Le patient doit être facturable à la date de la séance</strong> : une prise en
                 charge au statut <code>VALIDEE</code>,
-                avec un forfait (effectif sinon demandé), dont la période (effective sinon demandée) couvre la date,
-                <strong>et</strong> une
-                attestation de droits couvrant la date (« Le patient
-                doit avoir une prise en charge valide pour être facturé »). Sans cela, la séance ne se crée pas.</p>
+                avec un forfait (effectif sinon demandé), dont la période couvre la date, <strong>et</strong> une
+                attestation de droits couvrant
+                la date. La période est celle de la <strong>période effective</strong> (début et fin pris ensemble :
+                sans fin, elle reste ouverte)
+                ou, à défaut, celle de la <strong>période demandée</strong> — jamais un mélange des bornes, comme pour
+                la résolution du forfait de
+                la séance. Sans cela, la séance ne se crée pas, et le message dit <strong>ce qui manque
+                    réellement</strong> : « Le patient doit
+                avoir une prise en charge valide pour être facturé » quand aucune prise en charge ne couvre la date, «
+                La prise en
+                charge du patient couvre le … mais n&#39;est pas validée » quand elle existe mais n&#39;est pas validée,
+                ou « La prise en
+                charge du patient est valide mais aucune attestation de droits ne couvre le … » quand seule l&#39;attestation
+                est
+                absente ou expirée.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-012">
@@ -3958,10 +3969,13 @@
                     aux salles et créneaux
                     où il est affecté</strong>. Chaque case indique sa situation (prévu, remplaçant, absent), le nombre
                 de patients de la salle,
-                le nombre de collègues prévus avec lui (sans nom, un autre infirmier n&#39;est jamais identifié) et la
+                le nombre de collègues prévus avec lui (sans nom, un autre infirmier n&#39;est jamais identifié), la
                 salle
-                d&#39;isolement ; les jours de fermeture du centre (fermeture hebdomadaire, férié, fermeture
-                exceptionnelle) sont grisés.
+                d&#39;isolement et le <strong>détail des patients placés</strong> dans cette salle et ce créneau ce
+                jour-là (nom, générateur,
+                signalement du risque infectieux, libération prochaine de la place) — uniquement ceux de ses propres
+                cases ; les jours de fermeture du centre (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont
+                grisés.
                 L&#39;écran est responsive : défilement horizontal local de la grille, cartes en une colonne sur mobile.
                 <em>Source :</em>
                 <code>MonPlanningInfirmierService</code>, <code>MonPlanningComponent</code>.</p>

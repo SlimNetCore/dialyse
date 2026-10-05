@@ -64,8 +64,10 @@
   comme le planning des séances : une **grille semaine** (salles et créneaux en lignes, jours du dimanche au samedi en
   colonnes) ou une **vue jour** (une carte par salle et créneau, onglets de jours), **limitées aux salles et créneaux
   où il est affecté**. Chaque case indique sa situation (prévu, remplaçant, absent), le nombre de patients de la salle,
-  le nombre de collègues prévus avec lui (sans nom, un autre infirmier n'est jamais identifié) et la salle
-  d'isolement ; les jours de fermeture du centre (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont grisés.
+  le nombre de collègues prévus avec lui (sans nom, un autre infirmier n'est jamais identifié), la salle
+  d'isolement et le **détail des patients placés** dans cette salle et ce créneau ce jour-là (nom, générateur,
+  signalement du risque infectieux, libération prochaine de la place) — uniquement ceux de ses propres cases ; les jours
+  de fermeture du centre (fermeture hebdomadaire, férié, fermeture exceptionnelle) sont grisés.
   L'écran est responsive : défilement horizontal local de la grille, cartes en une colonne sur mobile. *Source :*
   `MonPlanningInfirmierService`, `MonPlanningComponent`.
 

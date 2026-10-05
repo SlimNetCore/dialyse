@@ -7,6 +7,14 @@
   min-width: 0;
 }
 
+/* Les cartes (éléments de la grille) ne doivent jamais dépasser l'écran : leur contenu défile localement */
+.moi-page > *,
+.moi-page mat-card,
+.moi-page mat-card-content {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .moi-head {
   display: flex;
   flex-wrap: wrap;
@@ -263,6 +271,48 @@
   font-size: 14px;
 }
 
+.moi-patients {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.moi-patients li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  min-width: 0;
+}
+
+.moi-patients li.risk {
+  background: #fbe0e0;
+  border: 1px solid #d96b6b;
+}
+
+.moi-patient-nom {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moi-patient-gen {
+  color: var(--app-muted, #5f6b7a);
+}
+
+.moi-patient-ico {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
 .moi-day {
   display: grid;
   gap: 12px;
@@ -302,7 +352,26 @@
 @media (max-width: 767px) {
   .moi-views,
   .moi-day-tabs {
+    display: flex;
     width: 100%;
+  }
+
+  .moi-views mat-button-toggle {
+    flex: 1;
+  }
+
+  /* jours en défilement horizontal local plutôt qu'en débordement de page */
+  .moi-day-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .moi-day-tabs mat-button-toggle {
+    flex: 0 0 auto;
+  }
+
+  .moi-day-cards {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

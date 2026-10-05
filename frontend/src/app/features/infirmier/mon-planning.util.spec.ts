@@ -55,7 +55,7 @@ describe('mon-planning.util', () => {
   it('retrouve la charge de ma case', () => {
     const c: CaseMonPlanning = {
       date: '2026-10-05', jour: 'LUNDI', salleId: 's1', creneauId: 'm', patients: 6, requis: 2,
-      salleIsolement: false, collegues: 1,
+      salleIsolement: false, collegues: 1, occupants: [],
     };
     const p = planning([creneau('LUNDI', 's1', 'm')], [c]);
 

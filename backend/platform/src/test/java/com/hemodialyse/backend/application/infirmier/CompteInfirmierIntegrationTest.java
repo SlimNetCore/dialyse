@@ -88,6 +88,7 @@ class CompteInfirmierIntegrationTest {
         jdbc.update("DELETE FROM app_user_role WHERE user_id IN (SELECT id FROM app_user WHERE username LIKE ?)", PREFIXE + "%");
         jdbc.update("DELETE FROM app_user_center WHERE user_id IN (SELECT id FROM app_user WHERE username LIKE ?)", PREFIXE + "%");
         jdbc.update("DELETE FROM app_user WHERE username LIKE ?", PREFIXE + "%");
+        jdbc.update("DELETE FROM patients WHERE center_id IN (?, ?)", CENTRE, AUTRE_CENTRE);
         jdbc.update("DELETE FROM position_creneau WHERE center_id IN (?, ?)", CENTRE, AUTRE_CENTRE);
         jdbc.update("DELETE FROM salle WHERE center_id IN (?, ?)", CENTRE, AUTRE_CENTRE);
         jdbc.update("DELETE FROM centers WHERE id IN (?, ?)", CENTRE, AUTRE_CENTRE);
@@ -246,6 +247,11 @@ class CompteInfirmierIntegrationTest {
         UUID mesComptes = comptes.creerEtLier(CENTRE, moi, PREFIXE + "moi", null).infirmier().compte().id();
         affectations.ajouter(CENTRE, moi, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI));
         affectations.ajouter(CENTRE, autre, SALLE, MATIN, EnumSet.of(JourSemaine.MARDI));
+        UUID patient = UUID.fromString("99998200-0000-0000-0000-0000000000b1");
+        jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, "
+                + "numero_assurance, type_patient, created_at, salle_id, position_id, jour_lundi) "
+                + "VALUES (?, ?, 'CP-PAT-1', 'Benali', 'Amine', 'M', DATE '2020-01-01', 'ASS-CP-1', "
+                + "'NON_VACANCIER', CURRENT_TIMESTAMP, ?, ?, TRUE)", patient, CENTRE, SALLE, MATIN);
 
         MonPlanning planning = monPlanning.planning(CENTRE, mesComptes, DIMANCHE.plusDays(3));
 
@@ -259,6 +265,9 @@ class CompteInfirmierIntegrationTest {
         assertTrue(planning.mesCases().stream().allMatch(c -> c.date().equals(LUNDI)),
                 "seules les cases où je suis prévu, jamais celles d'un autre infirmier");
         assertEquals(0, planning.mesCases().get(0).collegues(), "aucun collègue prévu ce lundi-là");
+        var occupants = planning.mesCases().get(0).occupants();
+        assertEquals(1, occupants.size(), "le patient placé dans ma salle et mon créneau ce jour-là");
+        assertEquals("Amine Benali", occupants.get(0).nom());
 
         UUID sansFiche = compteExistant(CENTRE, PREFIXE + "sans-fiche", "INFIRMIER");
         assertEquals("INFIRMIER_NON_LIE", code(assertThrows(BusinessException.class,

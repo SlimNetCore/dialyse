@@ -99,6 +99,35 @@
             {{ 'INFIRMIER.MOI.GRILLE.ISOLEMENT' | translate }}
           </small>
         }
+        @if (m.occupants.length > 0) {
+          <ul class="moi-patients" data-testid="moi-patients">
+            @for (o of m.occupants; track o.patientId) {
+              <li [class.risk]="o.aRisque" data-testid="moi-patient">
+                <span class="moi-patient-nom">{{ o.nom }}</span>
+                @if (o.generateurCode) {
+                  <small class="moi-patient-gen">{{ o.generateurCode }}</small>
+                }
+                @if (o.aRisque) {
+                  <mat-icon [attr.aria-label]="'PLANNING.SEMAINE.RISQUE' | translate"
+                            [attr.title]="'PLANNING.SEMAINE.RISQUE' | translate" class="moi-patient-ico">
+                    coronavirus
+                  </mat-icon>
+                }
+                @if (o.libereLe) {
+                  <mat-icon
+                    [attr.title]="'PLANNING.SEMAINE.LIBERE_LE' | translate: {date: (o.libereLe | date: 'dd/MM/yyyy')}"
+                    class="moi-patient-ico">
+                    logout
+                  </mat-icon>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <small class="moi-cell-info" data-testid="moi-aucun-patient">
+            {{ 'INFIRMIER.MOI.GRILLE.AUCUN_PATIENT' | translate }}
+          </small>
+        }
       }
     </ng-template>
 

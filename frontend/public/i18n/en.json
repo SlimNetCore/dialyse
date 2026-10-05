@@ -2391,7 +2391,8 @@
         "COLLEGUES": "{{count}} colleague(s)",
         "SEUL": "Alone on this slot",
         "ISOLEMENT": "Isolation room",
-        "AUCUN_JOUR": "You are not assigned to any room that day."
+        "AUCUN_JOUR": "You are not assigned to any room that day.",
+        "AUCUN_PATIENT": "No patient placed"
       },
       "AUJOURDHUI": "Today",
       "AUCUN_AUJOURDHUI": "No slot planned today.",

@@ -179,6 +179,55 @@ class SeanceScanIntegrationTest {
         org.junit.jupiter.api.Assertions.assertEquals(0L, createdSeances == null ? 0L : createdSeances);
     }
 
+    @Test
+    void scan_should_name_the_missing_rights_certificate_when_the_pec_is_valid() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        jdbc.update("DELETE FROM attestation_droit WHERE patient_id = ? AND center_id = ?", PATIENT_ID, CENTER_ID);
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("attestation de droits")));
+    }
+
+    @Test
+    void scan_should_accept_an_open_ended_effective_period_even_when_the_requested_period_is_over() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        // période effective ouverte (pas de fin) alors que la période demandée est échue : la PEC reste valable
+        jdbc.update("UPDATE prise_en_charge SET date_fin_effectif = NULL, date_fin_demande = DATE '2024-02-01' "
+                + "WHERE patient_id = ? AND center_id = ?", PATIENT_ID, CENTER_ID);
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("VALIDEE"));
+    }
+
+    @Test
+    void scan_should_say_that_the_pec_is_not_validated_when_it_covers_the_date_but_is_still_created() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+        jdbc.update("UPDATE prise_en_charge SET statut = 'CREE' WHERE patient_id = ? AND center_id = ?",
+                PATIENT_ID, CENTER_ID);
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("n'est pas validée")));
+    }
+
+    @Test
+    void scan_should_accept_a_patient_with_a_valid_pec_and_a_covering_certificate() throws Exception {
+        cleanup();
+        seedBillablePatientWithoutGenerateur();
+
+        mockMvc.perform(post("/api/v1/seances/scan").with(user("infirmer-01").roles("INFIRMIER"))
+                        .contentType(MediaType.APPLICATION_JSON).content(scanPayload()))
+                .andExpect(status().isOk());
+    }
+
     private void seedBillablePatientWithoutGenerateur() {
         seedPatientOnlyWithoutBillingEligibility();
         jdbc.update(

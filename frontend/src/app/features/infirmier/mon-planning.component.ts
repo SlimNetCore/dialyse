@@ -74,7 +74,9 @@ export class MonPlanningComponent {
   protected readonly creneauxDuJour = computed(() =>
     (this.store.planning()?.mesCreneaux ?? []).filter((c) => c.date === this.aujourdhui));
   protected readonly jours = JOURS_SEMAINE;
-  protected readonly vue = signal<VueMonPlanning>('SEMAINE');
+  /** Sur petit écran (mobile), la vue jour est lisible d'emblée ; la grille semaine reste choisissable. */
+  protected readonly vue = signal<VueMonPlanning>(
+    typeof window !== 'undefined' && window.matchMedia?.('(max-width: 767px)').matches ? 'JOUR' : 'SEMAINE');
   /** Mes salles et créneaux de la semaine : les lignes de ma grille. */
   protected readonly lignes = computed(() => {
     const p = this.store.planning();

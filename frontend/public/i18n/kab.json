@@ -2031,7 +2031,8 @@
         "COLLEGUES": "{{count}} n yimdukkal",
         "SEUL": "Kečč kan deg usmel-a",
         "ISOLEMENT": "Taxxamt n usnaḍ",
-        "AUCUN_JOUR": "Ur tettwasɣer ara ɣer texxamt ula yiwet deg wass-nni."
+        "AUCUN_JOUR": "Ur tettwasɣer ara ɣer texxamt ula yiwet deg wass-nni.",
+        "AUCUN_PATIENT": "Ulac amuḍan yettwasɣen"
       },
       "AUJOURDHUI": "Ass-a",
       "AUCUN_AUJOURDHUI": "Ulac asmel yettwaɣerrez ass-a.",

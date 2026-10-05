@@ -94,9 +94,15 @@ public class SeanceDomainService implements SeanceUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Patient introuvable"));
 
         LocalDate effectiveDate = dateSeance != null ? dateSeance : LocalDate.now();
-        if (!billingEligibilityPort.isPatientBillableAt(centerId, patientId, effectiveDate)) {
-            throw new IllegalStateException("Le patient doit avoir une prise en charge valide pour être facturé");
-        }
+        billingEligibilityPort.causeNonFacturable(centerId, patientId, effectiveDate).ifPresent(cause -> {
+            throw new IllegalStateException(switch (cause) {
+                case PRISE_EN_CHARGE -> "Le patient doit avoir une prise en charge valide pour être facturé";
+                case PRISE_EN_CHARGE_NON_VALIDEE -> "La prise en charge du patient couvre le " + effectiveDate
+                        + " mais n'est pas validée : validez-la pour pouvoir le facturer";
+                case ATTESTATION_DROITS -> "La prise en charge du patient est valide mais aucune attestation de droits "
+                        + "ne couvre le " + effectiveDate + " : renouvelez l'attestation pour pouvoir le facturer";
+            });
+        });
 
         Seance seance = new Seance(UUID.randomUUID(), patientId, centerId.value(), effectiveDate);
         if (derogation != null) {
