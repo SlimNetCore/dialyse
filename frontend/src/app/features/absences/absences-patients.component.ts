@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, un
 import {CurrencyPipe, DatePipe} from '@angular/common';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
+import {RouterLink} from '@angular/router';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -61,7 +62,7 @@ export function periodeParDefaut(maintenant: Date = new Date()): { from: string;
   imports: [
     CurrencyPipe, DatePipe, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatPaginatorModule, MatProgressBarModule, MatSelectModule, MatTableModule, MatTooltipModule, FormRoot, FormField,
-    TranslateModule,
+    TranslateModule, RouterLink,
   ],
   templateUrl: './absences-patients.component.html',
   styleUrl: './absences-patients.component.css',
@@ -236,6 +237,7 @@ export class AbsencesPatientsComponent {
       motif: mode === 'qualifier' ? (row.motif ?? '') : '', commentaire: '', dateRattrapage: '',
     });
     this.action.set({mode, row});
+    if (mode === 'rattrapage') this.store.loadMakeUpDates({id: row.id});
   }
 
   protected closeAction(): void {

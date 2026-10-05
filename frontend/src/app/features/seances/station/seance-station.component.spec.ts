@@ -61,6 +61,7 @@ function fakeStore() {
     anticoagulant: signal(''), typeDialysat: signal(''), incidents: signal(''),
     savingParamedical: signal(false), savingConsommable: signal(false), validatingSeance: signal(false),
     raccourcisIds: signal<string[]>([]), savingRaccourcis: signal(false),
+    pendingSeances: signal<Array<Record<string, unknown>>>([]), loadPendingSeances: vi.fn(),
     recentSeances: signal<Array<Record<string, unknown>>>([]),
     loadRaccourcis: vi.fn(), saveRaccourcis: vi.fn(), loadRecentSeances: vi.fn(),
     setQrCode: vi.fn(), setDateSeance: vi.fn(), setJournalDate: vi.fn(), loadJournal: vi.fn(),
@@ -75,10 +76,12 @@ describe('SeanceStationComponent', () => {
   let store: ReturnType<typeof fakeStore>;
   let roles: string[];
   let clipboard: ReturnType<typeof signal<{ centerId: string; patientCode: string; copiedAt: number } | null>>;
+  let centre: ReturnType<typeof signal<string | null>>;
 
   beforeEach(() => {
     store = fakeStore();
     clipboard = signal(null);
+    centre = signal<string | null>(CENTER_ID);
     roles = ['INFIRMIER'];
     TestBed.configureTestingModule({
       imports: [SeanceStationComponent, TranslateModule.forRoot()],
@@ -87,7 +90,7 @@ describe('SeanceStationComponent', () => {
         provideRouter([]),
         {provide: SeanceStore, useValue: store},
         {provide: AuthStore, useValue: {hasRole: (r: string) => roles.includes(r), username: () => 'inf-01'}},
-        {provide: AppShellStore, useValue: {currentCenterId: signal(CENTER_ID), seanceScanClipboard: clipboard}},
+        {provide: AppShellStore, useValue: {currentCenterId: centre, seanceScanClipboard: clipboard}},
         {provide: WebSocketService, useValue: {lastEvent: signal(null)}},
       ],
     });
@@ -110,6 +113,92 @@ describe('SeanceStationComponent', () => {
       date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
     });
     expect(store.loadArticlesStock).toHaveBeenCalledWith({centerId: CENTER_ID});
+  });
+
+  it('seul l\'administrateur charge les séances « À valider » des 7 derniers jours', () => {
+    roles = ['ADMIN'];
+    render();
+    expect(store.loadPendingSeances).toHaveBeenCalledWith({
+      centerId: CENTER_ID,
+      from: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      to: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    });
+
+    for (const role of ['INFIRMIER', 'SECRETAIRE']) {
+      roles = [role];
+      store.loadPendingSeances.mockClear();
+      render();
+      expect(store.loadPendingSeances, role).not.toHaveBeenCalled();
+    }
+  });
+
+  it('le bloc « À régulariser » est caché à l\'infirmier et à la secrétaire, même s\'il y a des séances en attente', () => {
+    store.pendingSeances.set([
+      {
+        id: 'old1',
+        centerId: CENTER_ID,
+        patientId: 'p9',
+        patientNom: 'Saidi',
+        patientPrenom: 'Karim',
+        dateSeance: '2026-10-01',
+        status: 'CREE'
+      },
+    ]);
+    for (const role of ['INFIRMIER', 'SECRETAIRE']) {
+      roles = [role];
+      expect(render().root.querySelector('app-pending-seances'), role).toBeNull();
+    }
+  });
+
+  it('propose d\'imprimer le badge QR du patient depuis la séance ouverte', () => {
+    store.summary.set(summary('VALIDEE'));
+    const {root} = render();
+    expect(root.querySelector('.patient-head app-patient-qr-card')).not.toBeNull();
+  });
+
+  it('charge les données dès que le centre actif est connu, même s\'il arrive après l\'ouverture', () => {
+    roles = ['ADMIN'];
+    centre.set(null);
+    render();
+    expect(store.loadJournal).not.toHaveBeenCalled();
+
+    centre.set(CENTER_ID);
+    TestBed.tick();
+
+    expect(store.loadJournal).toHaveBeenCalledWith({centerId: CENTER_ID, date: expect.any(String)});
+    expect(store.loadPendingSeances).toHaveBeenCalled();
+    expect(store.loadRaccourcis).toHaveBeenCalledWith({centerId: CENTER_ID});
+  });
+
+  it('propose à l\'administrateur de régulariser une séance oubliée et l\'ouvre au toucher', () => {
+    roles = ['ADMIN'];
+    store.pendingSeances.set([
+      {
+        id: 'old1',
+        centerId: CENTER_ID,
+        patientId: 'p9',
+        patientNom: 'Saidi',
+        patientPrenom: 'Karim',
+        dateSeance: '2026-10-01',
+        status: 'CREE'
+      },
+    ]);
+    const {fixture, root} = render();
+
+    const item = root.querySelector<HTMLButtonElement>('app-pending-seances .pending-item')!;
+    expect(item.textContent).toContain('Saidi Karim');
+    expect(item.textContent).toContain('2026-10-01');
+    item.click();
+    fixture.detectChanges();
+
+    expect(store.selectSeance).toHaveBeenCalledWith('old1');
+    expect(store.loadSeanceSummary).toHaveBeenCalledWith({seanceId: 'old1', centerId: CENTER_ID});
+  });
+
+  it('n\'affiche pas la régularisation quand rien n\'est en attente', () => {
+    roles = ['ADMIN'];
+    const {root} = render();
+    expect(root.querySelector('.pending')).toBeNull();
   });
 
   it('propose le lien vers l\'historique des séances à tous les profils du poste', () => {
@@ -265,7 +354,7 @@ describe('SeanceStationComponent', () => {
 
     root.querySelector<HTMLButtonElement>('.link-btn')!.click();
     fixture.detectChanges();
-    expect(root.querySelector('app-shortcuts-config')).not.toBeNull();
+    expect(root.querySelector('.shortcut-config')).not.toBeNull();
 
     const chips = root.querySelectorAll<HTMLButtonElement>('.shortcut-chip');
     chips[1].click();
@@ -275,7 +364,8 @@ describe('SeanceStationComponent', () => {
     fixture.detectChanges();
 
     expect(store.saveRaccourcis).toHaveBeenCalledWith({centerId: CENTER_ID, articleIds: ['art2', 'art1']});
-    expect(root.querySelector('app-shortcuts-config')).toBeNull();
+    expect(root.querySelector('.shortcut-config')).toBeNull();
+    expect(root.querySelector('.link-btn')).not.toBeNull();
   });
 
   it('charge le rappel des dernières séances du patient et l\'affiche', () => {

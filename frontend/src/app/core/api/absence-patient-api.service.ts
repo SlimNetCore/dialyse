@@ -131,6 +131,12 @@ export class AbsencePatientApiService {
       {params: AbsencePatientApiService.centre(centerId)});
   }
 
+  /** Dates des séances réalisées qui peuvent rattraper cette absence (après la séance manquée, pas déjà utilisées). */
+  seancesDeRattrapage(centerId: string, id: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/${id}/seances-rattrapage`,
+      {params: AbsencePatientApiService.centre(centerId)});
+  }
+
   /** Rattrapage des absences jamais détectées sur une période passée (administrateur du centre). */
   rattraperDetection(centerId: string, from: string, to: string): Observable<RattrapageDetection> {
     return this.http.post<RattrapageDetection>(`${this.base}/rattrapage-detection`, {from, to},

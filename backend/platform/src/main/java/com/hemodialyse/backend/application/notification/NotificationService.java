@@ -218,6 +218,18 @@ public class NotificationService {
     }
 
     /**
+     * Des séances des jours précédents n'ont jamais été validées : l'administrateur doit les régulariser, sinon les
+     * patients concernés sont comptés absents.
+     */
+    public void notifySeancesARegulariser(UUID centerId, long nbSeances, java.time.LocalDate plusAncienne) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("nbSeances", String.valueOf(nbSeances));
+        payload.put("plusAncienne", plusAncienne == null ? "" : plusAncienne.toString());
+        payload.put("targetRoles", "ADMIN");
+        send(centerId, "SEANCES_A_REGULARISER", payload);
+    }
+
+    /**
      * Un patient devenu à risque infectieux a été replacé automatiquement en salle d'isolement.
      */
     public void notifyPatientReplaceIsolement(UUID centerId, UUID patientId, String patientNom, String salle) {

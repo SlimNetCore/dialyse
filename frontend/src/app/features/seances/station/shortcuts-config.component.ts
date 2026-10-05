@@ -1,5 +1,6 @@
-import {ChangeDetectionStrategy, Component, input, linkedSignal, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, linkedSignal, output, signal} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 import {TranslateModule} from '@ngx-translate/core';
 import {ArticleStock} from '../../../core/api/backend-api.service';
 import {SHORTCUTS_MAX} from './station.util';
@@ -11,7 +12,7 @@ import {SHORTCUTS_MAX} from './station.util';
 @Component({
   selector: 'app-shortcuts-config',
   standalone: true,
-  imports: [MatButtonModule, TranslateModule],
+  imports: [MatButtonModule, MatIconModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './shortcuts-config.component.html',
   styleUrl: './shortcuts-config.component.css',
@@ -27,8 +28,24 @@ export class ShortcutsConfigComponent {
   readonly cancelled = output<void>();
 
   protected readonly max = SHORTCUTS_MAX;
+  protected readonly editing = signal(false);
   /** Sélection en cours d'édition ; repart de la liste enregistrée quand elle change. */
   protected readonly draft = linkedSignal(() => [...this.selected()]);
+
+  protected open(): void {
+    this.draft.set([...this.selected()]);
+    this.editing.set(true);
+  }
+
+  protected cancel(): void {
+    this.editing.set(false);
+    this.cancelled.emit();
+  }
+
+  protected save(): void {
+    this.saved.emit(this.draft());
+    this.editing.set(false);
+  }
 
   protected toggle(articleId: string): void {
     const draft = this.draft();

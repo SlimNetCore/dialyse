@@ -146,6 +146,17 @@ public class AbsencePatientRestController {
         return ResponseEntity.ok(AbsenceResponse.de(a, null));
     }
 
+    /**
+     * Dates des séances réalisées qui peuvent rattraper cette absence (après la séance manquée, pas déjà utilisées).
+     */
+    @GetMapping("/{id}/seances-rattrapage")
+    @PreAuthorize(ACCES)
+    public ResponseEntity<java.util.List<LocalDate>> seancesDeRattrapage(@RequestParam(required = false) UUID centerId,
+                                                                         @PathVariable UUID id) {
+        UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        return ResponseEntity.ok(service.seancesDeRattrapage(centre, id));
+    }
+
     @PutMapping("/{id}/rattrapage")
     @PreAuthorize(ACCES)
     public ResponseEntity<AbsenceResponse> rattraper(@RequestParam(required = false) UUID centerId,

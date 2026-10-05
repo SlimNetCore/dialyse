@@ -291,11 +291,23 @@
             </mat-form-field>
           }
           @if (a.mode === 'rattrapage') {
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'ABSENCES.RATTRAPAGE_DATE' | translate }}</mat-label>
-              <input [formField]="actionForm.dateRattrapage" data-testid="abs-action-date" matInput type="date"/>
-              <mat-hint>{{ 'ABSENCES.RATTRAPAGE_HINT' | translate }}</mat-hint>
-            </mat-form-field>
+            @if (store.makeUpDates().length > 0) {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'ABSENCES.RATTRAPAGE_DATE' | translate }}</mat-label>
+                <mat-select [formField]="actionForm.dateRattrapage" data-testid="abs-action-date">
+                  @for (d of store.makeUpDates(); track d) {
+                    <mat-option [value]="d">{{ d | date: 'dd/MM/yyyy' }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>{{ 'ABSENCES.RATTRAPAGE_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+            } @else if (!store.makeUpDatesLoading()) {
+              <p class="abs-feedback abs-full" data-testid="abs-no-makeup" role="status">
+                <mat-icon>info</mat-icon>
+                {{ 'ABSENCES.RATTRAPAGE_AUCUNE_SEANCE' | translate }}
+                <a routerLink="/seances">{{ 'ABSENCES.RATTRAPAGE_VERS_POSTE' | translate }}</a>
+              </p>
+            }
           } @else {
             <mat-form-field appearance="outline" class="abs-span">
               <mat-label>{{ 'ABSENCES.COMMENTAIRE' | translate }}</mat-label>

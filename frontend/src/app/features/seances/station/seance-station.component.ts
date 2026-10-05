@@ -5,7 +5,6 @@ import {
   effect,
   inject,
   OnDestroy,
-  OnInit,
   signal,
   untracked,
 } from '@angular/core';
@@ -27,6 +26,7 @@ import {
   generatorNeedsAttention,
   initials,
   parseDecimal,
+  pendingWindow,
   QUICK_ARTICLES_MAX,
   quickArticleIds,
   STATION_STEPS,
@@ -34,6 +34,8 @@ import {
   todayIsoDate,
   toNullableText,
 } from './station.util';
+import {PatientQrCardComponent} from '../../patient/patient-qr-card.component';
+import {PendingSeancesComponent} from './pending-seances.component';
 import {RecentSeancesPanelComponent} from './recent-seances-panel.component';
 import {ShortcutsConfigComponent} from './shortcuts-config.component';
 
@@ -52,13 +54,13 @@ const AUTOSAVE_DELAY_MS = 800;
   imports: [
     RouterLink, MatButtonModule, MatIconModule, TranslateModule, SearchableSelectComponent, RichTextEditorComponent,
     QrScannerComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent, RecentSeancesPanelComponent,
-    ShortcutsConfigComponent,
+    ShortcutsConfigComponent, PendingSeancesComponent, PatientQrCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seance-station.component.html',
   styleUrl: './seance-station.component.css',
 })
-export class SeanceStationComponent implements OnInit, OnDestroy {
+export class SeanceStationComponent implements OnDestroy {
   protected readonly store = inject(SeanceStore);
   protected readonly initials = initials;
   protected readonly steps = STATION_STEPS;
@@ -111,9 +113,11 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
   });
   /** Seul l'administrateur choisit les raccourcis du centre. */
   protected readonly canConfigureShortcuts = computed(() => this.hasAnyRole('ADMIN'));
-  protected readonly configuring = signal(false);
   protected readonly activeArticles = computed(() => this.store.availableArticles().filter((a) => a.active));
   protected readonly recentSeances = computed(() => this.store.recentSeances());
+  protected readonly pendingSeances = computed(() => this.store.pendingSeances());
+  /** La régularisation des séances oubliées (jours passés) est réservée à l'administrateur. */
+  protected readonly isAdmin = computed(() => this.hasAnyRole('ADMIN'));
   protected readonly articleItems = computed<DropdownItem[]>(() =>
     this.store.availableArticles().filter((a) => a.active)
       .map((a) => ({id: a.id, label: `${a.code} — ${a.libelle}`}))
@@ -132,6 +136,17 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
   private lastPastedAt: number | null = null;
 
   constructor() {
+    // Chargement dès que le centre actif est connu (et à chaque changement de centre), pour tous les profils.
+    effect(() => {
+      const centerId = this.centerId();
+      if (!centerId) return;
+      untracked(() => {
+        this.store.setJournalDate(todayIsoDate());
+        this.reloadQueue();
+        this.store.loadArticlesStock({centerId});
+        this.store.loadRaccourcis({centerId});
+      });
+    });
     // Après un scan réussi : la séance est déjà chargée par le store ; on bascule sur elle et on rafraîchit la file.
     effect(() => {
       const scan = this.store.lastScan();
@@ -175,15 +190,6 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
       if (this.store.savingParamedical()) this.savedOnce.set(false);
       else if (this.store.scanMessage() === 'SEANCES.PARAMEDICAL_SAVED') this.savedOnce.set(true);
     });
-  }
-
-  ngOnInit(): void {
-    const centerId = this.centerId();
-    if (!centerId) return;
-    this.store.setJournalDate(todayIsoDate());
-    this.reloadQueue();
-    this.store.loadArticlesStock({centerId});
-    this.store.loadRaccourcis({centerId});
   }
 
   ngOnDestroy(): void {
@@ -298,7 +304,6 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
     const centerId = this.centerId();
     if (!centerId || !this.canConfigureShortcuts()) return;
     this.store.saveRaccourcis({centerId, articleIds});
-    this.configuring.set(false);
   }
 
   protected onOtherArticle(item: DropdownItem | null): void {
@@ -365,7 +370,9 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
 
   private reloadQueue(): void {
     const centerId = this.centerId();
-    if (centerId) this.store.loadJournal({centerId, date: todayIsoDate()});
+    if (!centerId) return;
+    this.store.loadJournal({centerId, date: todayIsoDate()});
+    if (this.isAdmin()) this.store.loadPendingSeances({centerId, ...pendingWindow()});
   }
 
   private scheduleSave(): void {

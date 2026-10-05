@@ -80,8 +80,21 @@
   secrétaire voit la file et scanne mais n'ouvre pas la saisie clinique. L'écran est responsive : une
   colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
   L'habillage suit la charte de l'application (thème actif, titres Fraunces, cartes vitrées, indicateurs du jour).
-  Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). *Source :*
+  Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). L'en-tête de la séance ouverte
+  propose d'afficher et d'imprimer le **badge du patient avec son QR code** (le même qu'à la liste des patients).
+  *Source :*
   `SeanceStationComponent`, `QrScannerComponent`.
+- **RG-SEA-046** — **Validation oubliée** : une séance restée `CREE` après son jour n'est pas réalisée (RG-ABS-041) :
+  la détection de la nuit compte le patient absent (« à qualifier ») et la perte est valorisée. **Seul
+  l'administrateur régularise** : le poste infirmier lui liste, dans « À régulariser », les séances `CREE` des **7
+  derniers jours** (les plus anciennes d'abord, jusqu'à 50) ; le bloc est **caché** à l'infirmier et à la secrétaire.
+  L'infirmier ne valide que les séances **du jour** : valider une séance d'un jour passé sans être administrateur est
+  refusé par le serveur (`SEANCE_REGULARISATION_ADMIN`). Un **rappel** est envoyé chaque jour à **07:00**
+  (`SeanceRegularisationScheduler`, après la détection des absences de 02:30) à l'administrateur de chaque centre qui a
+  de telles séances : nombre et date de la plus ancienne (notification `SEANCES_A_REGULARISER`, `ADMIN` seul ; rien
+  n'est envoyé s'il n'y en a aucune). Une fois validée, la séance compte comme réalisée et
+  l'absence détectée à tort est annulée à la réconciliation suivante (RG-ABS-040, commentaire « Séance réalisée à
+  cette date »). Au-delà de 7 jours, la séance reste consultable dans l'historique (RG-SEA-029).
 - **RG-SEA-029** — **Historique des séances** (`GET /seances`, tous profils de centre ; écran « Historique des
   séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et par âge,
   détail et export) et **liste paginée** des séances du centre. La recherche, les filtres et le tri sont appliqués **par

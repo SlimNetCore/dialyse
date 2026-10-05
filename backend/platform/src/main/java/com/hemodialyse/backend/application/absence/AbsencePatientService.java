@@ -125,8 +125,25 @@ public class AbsencePatientService {
             throw new BusinessException("ABSENCE_RATTRAPAGE_SANS_SEANCE",
                     "Aucune séance réalisée pour ce patient à la date de rattrapage");
         }
+        if (absences.datesRattrapage(centerId, a.patientId()).contains(dateRattrapage)) {
+            throw new BusinessException("ABSENCE_RATTRAPAGE_DEJA_UTILISEE",
+                    "Cette séance rattrape déjà une autre absence de ce patient");
+        }
         a.rattraper(dateRattrapage, utilisateur, aujourdhui(), Instant.now(clock));
         return absences.save(a);
+    }
+
+    /**
+     * Séances qui peuvent rattraper cette absence : séances réalisées du patient, après la séance manquée et jusqu'à
+     * aujourd'hui, qui ne rattrapent pas déjà une autre absence (de la plus ancienne à la plus récente).
+     */
+    public List<LocalDate> seancesDeRattrapage(UUID centerId, UUID id) {
+        AbsencePatient a = absences.findById(centerId, id)
+                .orElseThrow(() -> new BusinessException("ABSENCE_INTROUVABLE", "Absence introuvable"));
+        List<LocalDate> utilisees = absences.datesRattrapage(centerId, a.patientId());
+        return donnees.datesSeancesRealisees(centerId, a.patientId(), a.dateSeance().plusDays(1), aujourdhui()).stream()
+                .filter((date) -> !utilisees.contains(date))
+                .toList();
     }
 
     public AbsencePatient annuler(UUID centerId, UUID id, String motifAnnulation, UUID utilisateur,

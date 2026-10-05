@@ -24,6 +24,9 @@ type AbsencesPatientsState = PagedListState<AbsencePatient> & {
   rattrapage: RattrapageDetection | null;
   successMessage: string | null;
   error: string | null;
+  /** Séances proposées pour rattraper l'absence ouverte (dates ISO) ; vide tant qu'aucune n'est chargée. */
+  makeUpDates: string[];
+  makeUpDatesLoading: boolean;
 };
 
 export const EMPTY_FILTERS: AbsenceFilters = {statut: '', motif: '', from: '', to: ''};
@@ -36,13 +39,15 @@ const initialState: AbsencesPatientsState = {
   rattrapage: null,
   successMessage: null,
   error: null,
+  makeUpDates: [],
+  makeUpDatesLoading: false,
 };
 
 const KNOWN_CODES = [
   'ABSENCE_EXISTANTE', 'ABSENCE_SEANCE_REALISEE', 'PATIENT_INTROUVABLE', 'ABSENCE_INTROUVABLE', 'ABSENCE_DATE_FUTURE',
   'ABSENCE_DELAI_DEPASSE', 'ABSENCE_COMMENTAIRE_REQUIS', 'ABSENCE_MOTIF_REQUIS', 'ABSENCE_NON_MODIFIABLE',
   'ABSENCE_CORRECTION_INTERDITE', 'ABSENCE_RATTRAPAGE_SANS_SEANCE', 'ABSENCE_RATTRAPAGE_ANTERIEUR',
-  'ABSENCE_RATTRAPAGE_DATE_REQUISE', 'ABSENCE_DEJA_ANNULEE',
+  'ABSENCE_RATTRAPAGE_DATE_REQUISE', 'ABSENCE_RATTRAPAGE_DEJA_UTILISEE', 'ABSENCE_DEJA_ANNULEE',
   'ABSENCE_PERIODE_FACTUREE', 'ABSENCE_PERIODE_INVALIDE', 'ABSENCE_PERIODE_TROP_LONGUE',
 ];
 
@@ -111,6 +116,18 @@ export const AbsencesPatientsStore = signalStore(
 
       qualify: rxMethod<{ id: string; motif: MotifAbsence; commentaire: string | null }>(pipe(tap(begin),
         switchMap((p) => saveFlow(api.qualifier(centerId(), p.id, p.motif, p.commentaire))))),
+
+      /** Charge les séances réalisées qui peuvent rattraper l'absence (choix proposé à l'utilisateur). */
+      loadMakeUpDates: rxMethod<{ id: string }>(pipe(
+        tap(() => patchState(store, {makeUpDates: [], makeUpDatesLoading: true})),
+        switchMap(({id}) => api.seancesDeRattrapage(centerId(), id).pipe(
+          tap((makeUpDates) => patchState(store, {makeUpDates, makeUpDatesLoading: false})),
+          catchError((err) => {
+            patchState(store, {makeUpDatesLoading: false, error: absencePatientErrorKey(err)});
+            return EMPTY;
+          }),
+        )),
+      )),
 
       makeUp: rxMethod<{ id: string; dateRattrapage: string }>(pipe(tap(begin),
         switchMap((p) => saveFlow(api.rattraper(centerId(), p.id, p.dateRattrapage))))),

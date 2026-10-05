@@ -312,6 +312,42 @@ class AbsencePatientIntegrationTest {
     }
 
     @Test
+    void the_make_up_candidates_are_the_patient_sessions_after_the_missed_day_not_already_used() {
+        service.detecter(C1, jour);
+        UUID id = service.lister(C1, AbsenceFiltre.aucun(), 0, 20).items().get(0).absence().id();
+        assertEquals(List.of(), service.seancesDeRattrapage(C1, id), "aucune séance réalisée : aucun candidat");
+
+        seance(C1, absent, jour.plusDays(1), "VALIDEE");
+        seance(C1, absent, jour.plusDays(3), "SIGNEE");
+        seance(C1, absent, jour.plusDays(2), "CREE");          // pas réalisée : jamais proposée
+        seance(C1, absent, jour.minusDays(1), "VALIDEE");      // avant l'absence : jamais proposée
+        seance(C1, present, jour.plusDays(1), "VALIDEE");      // autre patient : jamais proposée
+
+        assertEquals(List.of(jour.plusDays(1), jour.plusDays(3)), service.seancesDeRattrapage(C1, id));
+        assertEquals("ABSENCE_INTROUVABLE", assertThrows(BusinessException.class,
+                () -> service.seancesDeRattrapage(C2, id)).getCode(), "une absence d'un autre centre est introuvable");
+    }
+
+    @Test
+    void a_session_can_make_up_only_one_absence() {
+        LocalDate premiereAbsence = jour.minusDays(1);
+        AbsencePatient premiere = service.declarer(C1, absent, premiereAbsence, MotifAbsence.MALADIE, null, USER);
+        AbsencePatient seconde = service.declarer(C1, absent, jour, MotifAbsence.MALADIE, null, USER);
+        LocalDate rattrapage = jour.plusDays(2);
+        seance(C1, absent, rattrapage, "VALIDEE");
+        seance(C1, absent, rattrapage.plusDays(1), "VALIDEE");
+
+        service.rattraper(C1, premiere.id(), rattrapage, USER);
+
+        assertEquals("ABSENCE_RATTRAPAGE_DEJA_UTILISEE", assertThrows(BusinessException.class,
+                () -> service.rattraper(C1, seconde.id(), rattrapage, USER)).getCode());
+        assertEquals(List.of(rattrapage.plusDays(1)), service.seancesDeRattrapage(C1, seconde.id()),
+                "la séance déjà utilisée n'est plus proposée");
+        assertEquals(StatutAbsence.RATTRAPEE,
+                service.rattraper(C1, seconde.id(), rattrapage.plusDays(1), USER).statut());
+    }
+
+    @Test
     void a_session_entered_late_cancels_the_detected_absence() {
         service.detecter(C1, jour);
         seance(C1, absent, jour, "SIGNEE");

@@ -33,6 +33,12 @@ public interface AbsenceDonneesPort {
     }
 
     /**
+     * Jours (du plus ancien au plus récent) où ce patient a une séance réalisée entre les deux dates incluses : les
+     * séances qui peuvent servir de rattrapage.
+     */
+    List<LocalDate> datesSeancesRealisees(UUID centerId, UUID patientId, LocalDate from, LocalDate to);
+
+    /**
      * Vrai si la facturation du patient est validée pour une période couvrant ce jour : l'absence est alors clôturée
      * (plus de déclaration ni de modification).
      */

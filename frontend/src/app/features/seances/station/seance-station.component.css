@@ -650,26 +650,6 @@
   color: var(--st-danger);
 }
 
-/* Configuration des raccourcis (administrateur) */
-.link-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--app-primary);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.link-btn:hover {
-  background: var(--app-primary-soft);
-}
-
 /* Rappel des dernières séances (contenu : RecentSeancesPanelComponent) */
 .context-pane {
   min-width: 0;
@@ -826,6 +806,20 @@
 
   .chip-lg {
     display: none;
+  }
+
+  /* Le bouton de scan passe sous le champ au lieu d'être rogné */
+  .scan-field {
+    flex-wrap: wrap;
+    padding: 6px 12px 10px;
+  }
+
+  .scan-field input {
+    flex: 1 1 calc(100% - 50px);
+  }
+
+  .scan-go {
+    flex: 1 1 100%;
   }
 }
 

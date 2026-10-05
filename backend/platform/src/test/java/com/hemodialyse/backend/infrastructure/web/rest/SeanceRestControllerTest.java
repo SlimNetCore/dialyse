@@ -297,6 +297,40 @@ class SeanceRestControllerTest {
         assertEquals(SeanceStatus.VALIDEE, body.get("status"));
     }
 
+    private ResponseEntity<?> validatePastSeanceAs(String role) {
+        SeanceUseCase useCase = mock(SeanceUseCase.class);
+        Seance seance = new Seance(SEANCE_ID, PATIENT_ID, CENTER_ID, LocalDate.now().minusDays(2));
+        seance.validerParInfirmier("u");
+        Patient patient = new Patient();
+        patient.setId(PatientId.of(PATIENT_ID));
+        patient.setNom("Test");
+        patient.setPrenom("Patient");
+        when(useCase.getDetails(CenterId.of(CENTER_ID), SEANCE_ID)).thenReturn(new SeanceDetails(seance, patient, null, null));
+        when(useCase.validate(eq(CenterId.of(CENTER_ID)), eq(SEANCE_ID), any(), any())).thenReturn(seance);
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        "u", null, List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role))));
+        try {
+            return new SeanceRestController(useCase, mock(NotificationService.class), mock(JdbcTemplate.class))
+                    .validate(SEANCE_ID, new com.hemodialyse.backend.infrastructure.web.dto.request.ValidateSeanceRequest(
+                            CENTER_ID, "u", null));
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
+        }
+    }
+
+    @Test
+    void validate_should_refuse_a_nurse_on_a_past_day_session_left_unvalidated() {
+        var e = assertThrows(com.hemodialyse.backend.domain.shared.exception.BusinessException.class,
+                () -> validatePastSeanceAs("INFIRMIER"));
+        assertEquals("SEANCE_REGULARISATION_ADMIN", e.getCode());
+    }
+
+    @Test
+    void validate_should_let_the_administrator_regularise_a_past_day_session() {
+        assertEquals(200, validatePastSeanceAs("ADMIN").getStatusCode().value());
+    }
+
     @Test
     void updateForfait_should_return_updated_forfait_payload() {
         SeanceUseCase useCase = mock(SeanceUseCase.class);

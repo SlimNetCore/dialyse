@@ -11,6 +11,7 @@ import {
   SeanceDashboardDetailItem,
   SeanceDashboardDetailsResponse,
   SeanceJournalByDate,
+  SeanceListItem,
   SeanceMonthlyDashboard,
   SeanceRecent,
   SeanceSummary,
@@ -151,6 +152,9 @@ type SeanceState = {
 
   /** Dernières séances du patient ouvert (rappel du poste infirmier) */
   recentSeances: SeanceRecent[];
+
+  /** Séances des jours précédents restées « À valider » (validation oubliée) */
+  pendingSeances: SeanceListItem[];
 };
 
 const DASHBOARD_PAGE_SIZE = 10;
@@ -221,6 +225,7 @@ const initialState: SeanceState = {
   raccourcisIds: [],
   savingRaccourcis: false,
   recentSeances: [],
+  pendingSeances: [],
 };
 
 export const SeanceStore = signalStore(
@@ -279,6 +284,21 @@ export const SeanceStore = signalStore(
             tap((raccourcisIds) => patchState(store, {raccourcisIds, savingRaccourcis: false})),
             catchError((err: unknown) => {
               patchState(store, {savingRaccourcis: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
+    // --- Séances « À valider » des jours précédents (les plus anciennes d'abord) ---
+    loadPendingSeances: rxMethod<{ centerId: string; from: string; to: string }>(
+      pipe(
+        switchMap(({centerId, from, to}) =>
+          api.listSeances(centerId, 0, 50, {from, to, status: 'CREE', sortBy: 'dateSeance', sortDir: 'asc'}).pipe(
+            tap((res) => patchState(store, {pendingSeances: res.items})),
+            catchError(() => {
+              patchState(store, {pendingSeances: []});
               return EMPTY;
             })
           )

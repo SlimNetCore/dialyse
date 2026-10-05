@@ -1,0 +1,20 @@
+@if (seances().length > 0) {
+  <section [attr.aria-label]="'SEANCES.STATION.PENDING_TITLE' | translate" class="pending">
+    <h3>
+      <mat-icon aria-hidden="true">pending_actions</mat-icon>
+      {{ 'SEANCES.STATION.PENDING_TITLE' | translate }}
+      <span class="count">{{ seances().length }}</span>
+    </h3>
+    <p class="hint">{{ 'SEANCES.STATION.PENDING_HINT' | translate }}</p>
+    @for (s of seances(); track s.id) {
+      <button (click)="opened.emit(s.id)" [class.selected]="s.id === selectedId()" class="pending-item"
+              type="button">
+        <span class="avatar">{{ initials(s.patientNom, s.patientPrenom) }}</span>
+        <span class="name">
+          <strong>{{ label(s) }}</strong>
+          <small>{{ s.dateSeance }}</small>
+        </span>
+      </button>
+    }
+  </section>
+}

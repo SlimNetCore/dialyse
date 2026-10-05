@@ -49,7 +49,11 @@
   `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`.
 - **RG-ABS-021** — Rattrapage : la date est obligatoire (`ABSENCE_RATTRAPAGE_DATE_REQUISE`), **postérieure** à la séance
   manquée (`ABSENCE_RATTRAPAGE_ANTERIEUR`), non future (`ABSENCE_DATE_FUTURE`) et le patient doit avoir une séance
-  réalisée à cette date (`ABSENCE_RATTRAPAGE_SANS_SEANCE`). La perte n'est alors plus comptabilisée.
+  réalisée à cette date (`ABSENCE_RATTRAPAGE_SANS_SEANCE`). **Une séance ne rattrape qu'une seule absence** du
+  patient (`ABSENCE_RATTRAPAGE_DEJA_UTILISEE`). La perte n'est alors plus comptabilisée. À l'écran, l'utilisateur
+  **choisit la séance dans une liste** (`GET /absences-patients/{id}/seances-rattrapage` : séances réalisées du patient
+  après la séance manquée, jusqu'à aujourd'hui, pas déjà utilisées) au lieu de saisir une date ; sans séance éligible,
+  l'écran renvoie au poste infirmier (le patient doit d'abord venir et être scanné).
 - **RG-ABS-022** — Annulation : commentaire obligatoire (`ABSENCE_COMMENTAIRE_REQUIS`) ; déjà annulée :
   `ABSENCE_DEJA_ANNULEE` ; mêmes droits de
   correction que RG-ABS-020 pour une absence déjà qualifiée.

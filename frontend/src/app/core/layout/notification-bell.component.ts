@@ -94,6 +94,8 @@ export class NotificationBellComponent {
         return 'masks';
       case 'SAISIE_INFIRMIER':
         return 'medical_services';
+      case 'SEANCES_A_REGULARISER':
+        return 'pending_actions';
       default:
         return 'info';
     }
@@ -109,6 +111,7 @@ export class NotificationBellComponent {
       case 'INFIRMIER_SOUS_EFFECTIF':
       case 'INFIRMIER_ABSENCE_DECLAREE':
       case 'ABSENCES_A_QUALIFIER':
+      case 'SEANCES_A_REGULARISER':
       case 'PATIENT_REPLACE_ISOLEMENT':
       case 'ISOLEMENT_IMPOSSIBLE':
         return 'warning';
@@ -148,6 +151,11 @@ export class NotificationBellComponent {
         return this.translate.instant('NOTIFICATION.ABSENCES_A_QUALIFIER', {
           count: evt.payload['nbAQualifier'] ?? '',
           late: evt.payload['nbEnRetard'] ?? '',
+        });
+      case 'SEANCES_A_REGULARISER':
+        return this.translate.instant('NOTIFICATION.SEANCES_A_REGULARISER', {
+          count: evt.payload['nbSeances'] ?? '',
+          date: evt.payload['plusAncienne'] ?? '',
         });
       case 'INFIRMIER_SOUS_EFFECTIF':
         return this.translate.instant('NOTIFICATION.INFIRMIER_SOUS_EFFECTIF', {

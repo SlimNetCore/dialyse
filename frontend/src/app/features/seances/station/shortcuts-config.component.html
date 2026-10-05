@@ -1,20 +1,27 @@
-<div class="shortcut-config">
-  <p class="hint">{{ 'SEANCES.STATION.SHORTCUTS_HINT' | translate: {max: max} }}</p>
-  <div class="shortcut-chips">
-    @for (a of articles(); track a.id) {
-      <button (click)="toggle(a.id)" [attr.aria-pressed]="draft().includes(a.id)" [class.on]="draft().includes(a.id)"
-              class="shortcut-chip" type="button">
-        @if (draft().includes(a.id)) {
-          <span class="chip-rank">{{ draft().indexOf(a.id) + 1 }}</span>
-        }
-        {{ a.libelle }}
+@if (editing()) {
+  <div class="shortcut-config">
+    <p class="hint">{{ 'SEANCES.STATION.SHORTCUTS_HINT' | translate: {max: max} }}</p>
+    <div class="shortcut-chips">
+      @for (a of articles(); track a.id) {
+        <button (click)="toggle(a.id)" [attr.aria-pressed]="draft().includes(a.id)" [class.on]="draft().includes(a.id)"
+                class="shortcut-chip" type="button">
+          @if (draft().includes(a.id)) {
+            <span class="chip-rank">{{ draft().indexOf(a.id) + 1 }}</span>
+          }
+          {{ a.libelle }}
+        </button>
+      }
+    </div>
+    <div class="shortcut-actions">
+      <button (click)="cancel()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+      <button (click)="save()" [disabled]="saving()" color="primary" mat-flat-button type="button">
+        {{ 'COMMON.SAVE' | translate }}
       </button>
-    }
+    </div>
   </div>
-  <div class="shortcut-actions">
-    <button (click)="cancelled.emit()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
-    <button (click)="saved.emit(draft())" [disabled]="saving()" color="primary" mat-flat-button type="button">
-      {{ 'COMMON.SAVE' | translate }}
-    </button>
-  </div>
-</div>
+} @else {
+  <button (click)="open()" class="link-btn" type="button">
+    <mat-icon aria-hidden="true">tune</mat-icon>
+    {{ 'SEANCES.STATION.CONFIGURE_SHORTCUTS' | translate }}
+  </button>
+}

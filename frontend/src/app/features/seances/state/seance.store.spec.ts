@@ -231,6 +231,21 @@ describe('SeanceStore', () => {
     expect(store.savingConsommable()).toBe(false);
     expect(store.scanMessage()).toBe('SEANCES.CONSUMABLE_ADDED');
   });
+  it('should load the unvalidated sessions of the previous days, oldest first, and clear them on error', () => {
+    mockApi.listSeances.mockReturnValueOnce(of({items: [{id: 'old1', status: 'CREE'}], total: 1, page: 0, size: 50}));
+    const store = TestBed.inject(SeanceStore);
+
+    store.loadPendingSeances({centerId: CENTER_ID, from: '2026-09-28', to: '2026-10-04'});
+
+    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID, 0, 50, {
+      from: '2026-09-28', to: '2026-10-04', status: 'CREE', sortBy: 'dateSeance', sortDir: 'asc',
+    });
+    expect(store.pendingSeances()).toHaveLength(1);
+
+    mockApi.listSeances.mockReturnValueOnce(throwError(() => new Error('boom')));
+    store.loadPendingSeances({centerId: CENTER_ID, from: '2026-09-28', to: '2026-10-04'});
+    expect(store.pendingSeances()).toEqual([]);
+  });
   it('should load the center consommable shortcuts and fall back to none when the call fails', () => {
     const store = TestBed.inject(SeanceStore);
     store.loadRaccourcis({centerId: CENTER_ID});

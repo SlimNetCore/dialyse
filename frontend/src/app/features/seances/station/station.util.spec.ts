@@ -3,6 +3,7 @@ import {
   generatorNeedsAttention,
   initials,
   parseDecimal,
+  pendingWindow,
   QUICK_ARTICLES_MAX,
   quickArticleIds,
   todayIsoDate,
@@ -22,6 +23,11 @@ describe('station.util', () => {
     expect(parseDecimal('')).toBeNull();
     expect(parseDecimal(null)).toBeNull();
     expect(parseDecimal('abc')).toBeNull();
+  });
+
+  it('propose à la régularisation les 7 jours qui précèdent aujourd\'hui, hier inclus', () => {
+    expect(pendingWindow(new Date(2026, 9, 5, 8, 0))).toEqual({from: '2026-09-28', to: '2026-10-04'});
+    expect(pendingWindow(new Date(2026, 0, 3))).toEqual({from: '2025-12-27', to: '2026-01-02'});
   });
 
   it('calcule la perte de poids d\'une séance passée', () => {

@@ -40,6 +40,7 @@
 | `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                    | `MEDECIN`                                           | RG-NOT-004             |
 | `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30) | `MEDECIN`                                           | RG-MED-073             |
 | `ABSENCES_A_QUALIFIER`                       | absences détectées à qualifier (contrôle de 02:30)               | `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`       | RG-ABS-044             |
+| `SEANCES_A_REGULARISER`                      | séances des 7 derniers jours jamais validées (rappel de 07:00)   | `ADMIN`                                             | RG-SEA-046             |
 | `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)  | `ADMIN`, `SECRETAIRE`                               | RG-INF-046             |
 | `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                 | `ADMIN`, `SECRETAIRE`                               | RG-INF-032             |
 | `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                     | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |

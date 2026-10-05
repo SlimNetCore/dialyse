@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-05<br>462 règles de gestion · 16 domaines · 333 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-05<br>463 règles de gestion · 16 domaines · 335 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,7 +295,7 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>462</b>règles de gestion</div>
+            <div><b>463</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
             <div><b>8</b>points d'attention</div>
@@ -2436,8 +2436,15 @@
                 <strong>postérieure</strong> à la séance
                 manquée (<code>ABSENCE_RATTRAPAGE_ANTERIEUR</code>), non future (<code>ABSENCE_DATE_FUTURE</code>) et le
                 patient doit avoir une séance
-                réalisée à cette date (<code>ABSENCE_RATTRAPAGE_SANS_SEANCE</code>). La perte n&#39;est alors plus
-                comptabilisée.</p>
+                réalisée à cette date (<code>ABSENCE_RATTRAPAGE_SANS_SEANCE</code>). <strong>Une séance ne rattrape qu&#39;une
+                    seule absence</strong> du
+                patient (<code>ABSENCE_RATTRAPAGE_DEJA_UTILISEE</code>). La perte n&#39;est alors plus comptabilisée. À
+                l&#39;écran, l&#39;utilisateur
+                <strong>choisit la séance dans une liste</strong> (<code>GET
+                    /absences-patients/{id}/seances-rattrapage</code> : séances réalisées du patient
+                après la séance manquée, jusqu&#39;à aujourd&#39;hui, pas déjà utilisées) au lieu de saisir une date ;
+                sans séance éligible,
+                l&#39;écran renvoie au poste infirmier (le patient doit d&#39;abord venir et être scanné).</p>
             </div>
         </div>
         <div class="rule" id="RG-ABS-022">
@@ -2765,15 +2772,36 @@
                 (+1 unité,
                 RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l&#39;état n&#39;est pas « en
                 service ». Les
-                statistiques et le tableau des séances sont dans l&#39;<strong>historique</strong> (RG-SEA-029),
+                statistiques et le tableau des séances sont dans l&#39; <strong>historique</strong> (RG-SEA-029),
                 accessible depuis le poste. La
                 secrétaire voit la file et scanne mais n&#39;ouvre pas la saisie clinique. L&#39;écran est responsive :
                 une
                 colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
                 L&#39;habillage suit la charte de l&#39;application (thème actif, titres Fraunces, cartes vitrées,
                 indicateurs du jour).
-                Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). <em>Source :</em>
+                Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). L&#39;en-tête de
+                la séance ouverte
+                propose d&#39;afficher et d&#39;imprimer le <strong>badge du patient avec son QR code</strong> (le même
+                qu&#39;à la liste des patients). <em>Source :</em>
                 <code>SeanceStationComponent</code>, <code>QrScannerComponent</code>.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-SEA-046">
+            <div class="rid">RG-SEA-046</div>
+            <div class="rtxt"><p><strong>Validation oubliée</strong> : une séance restée <code>CREE</code> après son
+                jour n&#39;est pas réalisée (RG-ABS-041) :
+                la détection de la nuit compte le patient absent (« à qualifier ») et la perte est valorisée. <strong>Seul
+                    l&#39;administrateur régularise</strong> : le poste infirmier lui liste, dans « À régulariser », les
+                séances <code>CREE</code> des <strong>7
+                    derniers jours</strong> (les plus anciennes d&#39;abord, jusqu&#39;à 50) ; le bloc est
+                <strong>caché</strong> à l&#39;infirmier et à la secrétaire.
+                L&#39;infirmier ne valide que les séances <strong>du jour</strong> : valider une séance d&#39;un jour
+                passé sans être administrateur est
+                refusé par le serveur (<code>SEANCE_REGULARISATION_ADMIN</code>). Une fois validée, la séance compte
+                comme réalisée et
+                l&#39;absence détectée à tort est annulée à la réconciliation suivante (RG-ABS-040, commentaire « Séance
+                réalisée à
+                cette date »). Au-delà de 7 jours, la séance reste consultable dans l&#39;historique (RG-SEA-029).</p>
             </div>
         </div>
         <div class="rule attention" id="RG-SEA-029">
@@ -2783,9 +2811,9 @@
                 séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et
                 par âge,
                 détail et export) et <strong>liste paginée</strong> des séances du centre. La recherche, les filtres et
-                le tri sont appliqués
-                <strong>par le serveur</strong> sur toute la liste, jamais sur la seule page affichée : période (<code>from</code>,
-                <code>to</code>, bornes incluses,
+                le tri sont appliqués <strong>par
+                    le serveur</strong> sur toute la liste, jamais sur la seule page affichée : période
+                (<code>from</code>, <code>to</code>, bornes incluses,
                 début ≤ fin), statut (un ou plusieurs), texte libre sur le nom, le prénom ou le code du patient (tous
                 les mots
                 doivent correspondre), tri sur la date, le patient, le code, le statut ou la création (liste blanche ;
@@ -2794,12 +2822,11 @@
                     size}</code> ; <code>size</code>
                 est borné à 500 et la liste est toujours limitée au centre demandé. L&#39;écran est en consultation
                 seule : la saisie se
-                fait au poste infirmier (RG-SEA-026).
-                <em>Point d&#39;attention :</em> l&#39;ancien écran permettait à l&#39;<code>ADMIN</code> de modifier la
-                <strong>date</strong> et le <strong>forfait</strong> d&#39;une séance
-                (RG-SEA-014 et suivantes) ; ces actions n&#39;ont plus d&#39;écran depuis la refonte (les points d&#39;accès
-                subsistent).
-                <em>Source :</em> <code>SeanceDomainService.search</code>, <code>SeanceRepositoryAdapter.search</code>,
+                fait au poste infirmier (RG-SEA-026). <em>Point d&#39;attention :</em> l&#39;ancien écran permettait à l&#39;<code>ADMIN</code>
+                de modifier la
+                <strong>date</strong> et le <strong>forfait</strong> d&#39;une séance (RG-SEA-014 et suivantes) ; ces
+                actions n&#39;ont plus d&#39;écran depuis la refonte
+                (les points d&#39;accès subsistent). <em>Source :</em> <code>SeanceDomainService.search</code>, <code>SeanceRepositoryAdapter.search</code>,
                 <code>SeancesHistoriqueComponent</code>.</p>
             </div>
         </div>

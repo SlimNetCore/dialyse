@@ -420,9 +420,9 @@ export class PatientListComponent {
       sortable: false,
       resizable: false,
       mobileRowActions: true,
-      widthPx: 240,
-      minWidthPx: 210,
-      maxWidthPx: 300,
+      widthPx: 300,
+      minWidthPx: 250,
+      maxWidthPx: 340,
       cellTemplate: this.asNgTableTemplate(this.actionsCellTemplate() ?? undefined),
     },
     };

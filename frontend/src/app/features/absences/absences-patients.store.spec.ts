@@ -31,11 +31,34 @@ describe('AbsencesPatientsStore', () => {
       qualifier: vi.fn().mockReturnValue(of(absence({statut: 'JUSTIFIEE'}))),
       rattraper: vi.fn().mockReturnValue(of(absence({statut: 'RATTRAPEE'}))),
       annuler: vi.fn().mockReturnValue(of(absence({statut: 'ANNULEE'}))),
+      seancesDeRattrapage: vi.fn().mockReturnValue(of(['2026-09-30', '2026-10-02'])),
     };
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), {provide: AbsencePatientApiService, useValue: api}],
     });
     TestBed.inject(AppShellStore).switchCenter(CENTRE);
+  });
+
+  it('propose les séances qui peuvent rattraper l\'absence et vide la liste si l\'appel échoue', () => {
+    const store = TestBed.inject(AbsencesPatientsStore);
+
+    store.loadMakeUpDates({id: 'a1'});
+
+    expect(api['seancesDeRattrapage']).toHaveBeenCalledWith(CENTRE, 'a1');
+    expect(store.makeUpDates()).toEqual(['2026-09-30', '2026-10-02']);
+    expect(store.makeUpDatesLoading()).toBe(false);
+
+    api['seancesDeRattrapage'].mockReturnValueOnce(throwError(() => erreurServeur('ABSENCE_INTROUVABLE')));
+    store.loadMakeUpDates({id: 'a2'});
+
+    expect(store.makeUpDates()).toEqual([]);
+    expect(store.makeUpDatesLoading()).toBe(false);
+    expect(store.error()).toBe('ABSENCES.ERR.ABSENCE_INTROUVABLE');
+  });
+
+  it('traduit l\'erreur d\'une séance déjà utilisée comme rattrapage', () => {
+    expect(absencePatientErrorKey(erreurServeur('ABSENCE_RATTRAPAGE_DEJA_UTILISEE')))
+      .toBe('ABSENCES.ERR.ABSENCE_RATTRAPAGE_DEJA_UTILISEE');
   });
 
   it('charge une page paginée et la synthèse du centre actif', () => {

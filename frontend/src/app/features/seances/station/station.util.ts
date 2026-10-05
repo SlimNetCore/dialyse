@@ -23,6 +23,15 @@ export function todayIsoDate(now = new Date()): string {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
+/** Nombre de jours passés où une séance restée « À valider » est proposée à la régularisation (= fenêtre de détection des absences). */
+export const PENDING_DAYS = 7;
+
+/** Période des séances à régulariser : les {@link PENDING_DAYS} jours qui précèdent aujourd'hui, hier inclus. */
+export function pendingWindow(now = new Date()): { from: string; to: string } {
+  const day = (offset: number) => todayIsoDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset));
+  return {from: day(PENDING_DAYS), to: day(1)};
+}
+
 /** Initiales d'un patient pour son avatar (« DJ » pour Dupont Jean) ; « ? » quand aucun nom n'est connu. */
 export function initials(nom: string | null | undefined, prenom: string | null | undefined): string {
   const letters = [nom, prenom].map((part) => (part ?? '').trim().charAt(0).toUpperCase()).join('');

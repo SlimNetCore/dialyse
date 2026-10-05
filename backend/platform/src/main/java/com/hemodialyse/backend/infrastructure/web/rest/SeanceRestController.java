@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CurrentUser;
 import com.hemodialyse.backend.infrastructure.web.dto.request.*;
@@ -473,6 +474,7 @@ public class SeanceRestController {
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER')")
     @PostMapping("/{seanceId}/valider")
     public ResponseEntity<?> validate(@PathVariable UUID seanceId, @RequestBody @Valid ValidateSeanceRequest request) {
+        exigerAdminPourSeancePassee(CenterId.of(request.centerId()), seanceId);
         var consommations = request.consommations() == null
                 ? java.util.List.<SeanceArticleConsumption>of()
                 : request.consommations().stream()
@@ -500,6 +502,18 @@ public class SeanceRestController {
                 "validatedAt", seance.getValidatedAt(),
                 "signedByInfirmierAt", seance.getSignedByInfirmierAt()
         ));
+    }
+
+    /**
+     * Une séance d'un jour passé restée « créée » (validation oubliée) ne se régularise que par l'administrateur :
+     * l'infirmier ne valide que les séances du jour.
+     */
+    private void exigerAdminPourSeancePassee(CenterId centre, UUID seanceId) {
+        LocalDate jour = seanceUseCase.getDetails(centre, seanceId).seance().getDateSeance();
+        if (jour != null && jour.isBefore(LocalDate.now()) && !CurrentUser.hasAnyRole("ADMIN")) {
+            throw new BusinessException("SEANCE_REGULARISATION_ADMIN",
+                    "Seul l'administrateur peut valider une séance d'un jour passé");
+        }
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','INFIRMIER','MEDECIN','SECRETAIRE')")

@@ -78,6 +78,13 @@ public class AbsenceDonneesJdbcAdapter implements AbsenceDonneesPort {
     }
 
     @Override
+    public List<LocalDate> datesSeancesRealisees(UUID centerId, UUID patientId, LocalDate from, LocalDate to) {
+        return jdbc.query("SELECT DISTINCT s.date_seance FROM seances s WHERE s.center_id = ? AND s.patient_id = ? "
+                        + "AND s.date_seance BETWEEN ? AND ? AND " + SEANCE_REALISEE + " ORDER BY s.date_seance",
+                (rs, i) -> rs.getDate(1).toLocalDate(), centerId, patientId, Date.valueOf(from), Date.valueOf(to));
+    }
+
+    @Override
     public boolean periodeFacturee(UUID centerId, UUID patientId, LocalDate date) {
         Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM factures WHERE center_id = ? AND patient_id = ? "
                         + "AND period_start <= ? AND period_end >= ?", Integer.class, centerId, patientId, Date.valueOf(date),

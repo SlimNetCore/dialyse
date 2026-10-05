@@ -364,11 +364,13 @@ th.mat-mdc-header-cell:focus-within {
   vertical-align: middle;
 }
 
+/* Les actions passent à la ligne au lieu d'être rognées : le dernier bouton (badge QR) reste accessible. */
 .row-actions {
   display: inline-flex;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 2px;
+  max-width: 100%;
 }
 
 .empty-state {

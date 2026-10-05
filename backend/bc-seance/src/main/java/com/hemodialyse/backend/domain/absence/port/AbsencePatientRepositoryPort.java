@@ -27,6 +27,12 @@ public interface AbsencePatientRepositoryPort {
      */
     java.util.List<AbsencePatient> findBetween(UUID centerId, LocalDate from, LocalDate to);
 
+    /**
+     * Dates de séances déjà utilisées comme rattrapage d'une autre absence de ce patient : une séance ne rattrape
+     * qu'une seule absence.
+     */
+    java.util.List<LocalDate> datesRattrapage(UUID centerId, UUID patientId);
+
     long countAQualifier(UUID centerId);
 
     long countEnRetard(UUID centerId, LocalDate limite);

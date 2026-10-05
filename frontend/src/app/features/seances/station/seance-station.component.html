@@ -82,6 +82,10 @@
           <span [attr.data-status]="p.status" class="chip">{{ statusKey(p.status) | translate }}</span>
         </button>
       }
+      @if (isAdmin()) {
+        <app-pending-seances (opened)="openFromQueue($event)" [seances]="pendingSeances()"
+                             [selectedId]="store.selectedSeanceId()"/>
+      }
       <a class="history-link" routerLink="historique">
         <mat-icon aria-hidden="true">history</mat-icon>
         {{ 'SEANCES.STATION.HISTORY' | translate }}
@@ -111,6 +115,14 @@
               }
             </div>
           </div>
+          <app-patient-qr-card
+            [codePatient]="s.patient.codePatient ?? ''"
+            [groupeSanguin]="s.patient.groupeSanguin ?? ''"
+            [nom]="s.patient.nom ?? ''"
+            [numeroAssurance]="s.patient.numeroAssurance ?? ''"
+            [patientId]="s.patient.id"
+            [prenom]="s.patient.prenom ?? ''"
+          />
           <span [attr.data-status]="s.seance.status"
                 class="chip chip-lg">{{ statusKey(s.seance.status) | translate }}</span>
         </div>
@@ -222,20 +234,12 @@
               prefixIcon="search"
             />
             @if (canConfigureShortcuts()) {
-              @if (configuring()) {
-                <app-shortcuts-config
-                  (cancelled)="configuring.set(false)"
-                  (saved)="saveShortcuts($event)"
-                  [articles]="activeArticles()"
-                  [saving]="store.savingRaccourcis()"
-                  [selected]="store.raccourcisIds()"
-                />
-              } @else {
-                <button (click)="configuring.set(true)" class="link-btn" type="button">
-                  <mat-icon aria-hidden="true">tune</mat-icon>
-                  {{ 'SEANCES.STATION.CONFIGURE_SHORTCUTS' | translate }}
-                </button>
-              }
+              <app-shortcuts-config
+                (saved)="saveShortcuts($event)"
+                [articles]="activeArticles()"
+                [saving]="store.savingRaccourcis()"
+                [selected]="store.raccourcisIds()"
+              />
             }
           }
           @if (store.consommables().length === 0) {

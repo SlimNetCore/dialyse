@@ -148,6 +148,13 @@ public class AbsencePatientJdbcAdapter implements AbsencePatientRepositoryPort {
     }
 
     @Override
+    public List<LocalDate> datesRattrapage(UUID centerId, UUID patientId) {
+        return jdbc.query("SELECT date_rattrapage FROM absence_patient WHERE center_id = ? AND patient_id = ? "
+                        + "AND statut = ? AND date_rattrapage IS NOT NULL",
+                (rs, i) -> rs.getDate(1).toLocalDate(), centerId, patientId, StatutAbsence.RATTRAPEE.name());
+    }
+
+    @Override
     public long countAQualifier(UUID centerId) {
         Long n = jdbc.queryForObject("SELECT COUNT(*) FROM absence_patient WHERE center_id = ? AND statut = ?",
                 Long.class, centerId, StatutAbsence.A_QUALIFIER.name());
