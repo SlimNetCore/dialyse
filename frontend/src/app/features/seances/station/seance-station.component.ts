@@ -36,6 +36,7 @@ import {
 } from './station.util';
 import {PatientQrCardComponent} from '../../patient/patient-qr-card.component';
 import {PendingSeancesComponent} from './pending-seances.component';
+import {PatientPagerComponent} from './patient-pager.component';
 import {RecentSeancesPanelComponent} from './recent-seances-panel.component';
 import {ShortcutsConfigComponent} from './shortcuts-config.component';
 
@@ -54,7 +55,7 @@ const AUTOSAVE_DELAY_MS = 800;
   imports: [
     RouterLink, MatButtonModule, MatIconModule, TranslateModule, SearchableSelectComponent, RichTextEditorComponent,
     QrScannerComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent, RecentSeancesPanelComponent,
-    ShortcutsConfigComponent, PendingSeancesComponent, PatientQrCardComponent,
+    ShortcutsConfigComponent, PendingSeancesComponent, PatientPagerComponent, PatientQrCardComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seance-station.component.html',
@@ -82,6 +83,9 @@ export class SeanceStationComponent implements OnDestroy {
     return scan ? scanSuccessMessage(scan) : '';
   });
   protected readonly queue = computed(() => this.store.journalPatients());
+  /** Rang de la séance ouverte dans la file du jour (-1 si elle n'en fait pas partie, ex. séance à régulariser). */
+  protected readonly queuePosition = computed(() =>
+    this.queue().findIndex((p) => p.seanceId === this.store.selectedSeanceId()));
   protected readonly doneCount = computed(() => this.queue().filter((p) => p.status !== 'CREE').length);
   protected readonly patientName = computed(() => {
     const p = this.summary()?.patient;
@@ -221,6 +225,12 @@ export class SeanceStationComponent implements OnDestroy {
     this.store.selectSeance(seanceId);
     this.store.loadSeanceSummary({seanceId, centerId});
     this.view.set('seance');
+  }
+
+  /** Patient précédent (-1) ou suivant (+1) de la file, sans repasser par la liste. */
+  protected openAdjacent(offset: -1 | 1): void {
+    const target = this.queue()[this.queuePosition() + offset];
+    if (target) this.openFromQueue(target.seanceId);
   }
 
   /** Déverrouille une séance oubliée pour régularisation (administrateur) : l'infirmier pourra la valider. */

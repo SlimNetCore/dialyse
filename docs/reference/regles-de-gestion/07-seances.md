@@ -100,6 +100,12 @@
   n'est envoyé s'il n'y en a aucune). Une fois validée, la séance compte comme réalisée et
   l'absence détectée à tort est annulée à la réconciliation suivante (RG-ABS-040, commentaire « Séance réalisée à
   cette date »). Au-delà de 7 jours, la séance reste consultable dans l'historique (RG-SEA-029).
+- **RG-SEA-047** — **Navigation entre patients du poste infirmier** : après un scan réussi, le poste se positionne
+  automatiquement sur la séance du patient scanné (étape « constantes »). Depuis une séance ouverte de la file du jour,
+  les boutons « Patient précédent » / « Patient suivant » ouvrent le voisin dans l'ordre de la file sans repasser par la
+  liste (désactivés aux extrémités, rang « n / total » affiché) ; ils sont masqués pour une séance hors file (ex. séance
+  à régulariser) ou lorsqu'il n'y a qu'un patient. La saisie en cours est enregistrée avant le changement. *Source :*
+  `SeanceStationComponent`, `PatientPagerComponent`.
 - **RG-SEA-029** — **Historique des séances** (`GET /seances`, tous profils de centre ; écran « Historique des
   séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et par âge,
   détail et export) et **liste paginée** des séances du centre. La recherche, les filtres et le tri sont appliqués **par

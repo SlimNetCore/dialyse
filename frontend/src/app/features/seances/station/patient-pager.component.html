@@ -1,0 +1,13 @@
+@if (visible()) {
+  <nav [attr.aria-label]="'SEANCES.STATION.PAGER_LABEL' | translate" class="pager">
+    <button (click)="previous.emit()" [disabled]="!hasPrevious()" class="pager-prev" mat-stroked-button type="button">
+      <mat-icon aria-hidden="true">chevron_left</mat-icon>
+      {{ 'SEANCES.STATION.PAGER_PREVIOUS' | translate }}
+    </button>
+    <span class="pager-pos">{{ position() + 1 }} / {{ total() }}</span>
+    <button (click)="next.emit()" [disabled]="!hasNext()" class="pager-next" mat-stroked-button type="button">
+      {{ 'SEANCES.STATION.PAGER_NEXT' | translate }}
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+    </button>
+  </nav>
+}

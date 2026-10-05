@@ -128,6 +128,9 @@
                 class="chip chip-lg">{{ statusKey(s.seance.status) | translate }}</span>
         </div>
 
+        <app-patient-pager (next)="openAdjacent(1)" (previous)="openAdjacent(-1)" [position]="queuePosition()"
+                           [total]="queue().length"/>
+
         @if (generatorWarning(); as state) {
           <div class="banner banner-warning" role="alert">
             <mat-icon aria-hidden="true">warning</mat-icon>

@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-05<br>463 règles de gestion · 16 domaines · 338 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-05<br>464 règles de gestion · 16 domaines · 338 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,7 +295,7 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>463</b>règles de gestion</div>
+            <div><b>464</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
             <div><b>8</b>points d'attention</div>
@@ -2793,7 +2793,7 @@
                 jour n&#39;est pas réalisée (RG-ABS-041) :
                 la détection de la nuit compte le patient absent (« à qualifier ») et la perte est valorisée. La
                 régularisation se
-                fait <strong>en deux temps</strong> : (1) l&#39;<strong>administrateur</strong> consulte, dans « À
+                fait <strong>en deux temps</strong> : (1) l&#39; <strong>administrateur</strong> consulte, dans « À
                 régulariser » du poste infirmier, les séances
                 <code>CREE</code> des <strong>7 derniers jours</strong> (les plus anciennes d&#39;abord, jusqu&#39;à 50)
                 et <strong>déverrouille pour régularisation</strong>
@@ -2803,7 +2803,7 @@
                 l&#39;action est
                 idempotente et notifie les infirmiers (<code>SEANCE_DEVERROUILLEE</code>) ; (2) la séance déverrouillée
                 devient visible de
-                l&#39;<strong>infirmier</strong> dans son bloc « À régulariser » (il ne voit que celles-là, jamais les
+                l&#39; <strong>infirmier</strong> dans son bloc « À régulariser » (il ne voit que celles-là, jamais les
                 autres) et il peut la valider.
                 L&#39;infirmier ne valide librement que les séances <strong>du jour</strong> : valider une séance d&#39;un
                 jour passé non déverrouillée est
@@ -2819,6 +2819,21 @@
                 l&#39;absence détectée à tort est annulée à la réconciliation suivante (RG-ABS-040, commentaire « Séance
                 réalisée à
                 cette date »). Au-delà de 7 jours, la séance reste consultable dans l&#39;historique (RG-SEA-029).</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-SEA-047">
+            <div class="rid">RG-SEA-047</div>
+            <div class="rtxt"><p><strong>Navigation entre patients du poste infirmier</strong> : après un scan réussi,
+                le poste se positionne
+                automatiquement sur la séance du patient scanné (étape « constantes »). Depuis une séance ouverte de la
+                file du jour,
+                les boutons « Patient précédent » / « Patient suivant » ouvrent le voisin dans l&#39;ordre de la file
+                sans repasser par la
+                liste (désactivés aux extrémités, rang « n / total » affiché) ; ils sont masqués pour une séance hors
+                file (ex. séance
+                à régulariser) ou lorsqu&#39;il n&#39;y a qu&#39;un patient. La saisie en cours est enregistrée avant le
+                changement.
+                <em>Source :</em> <code>SeanceStationComponent</code>, <code>PatientPagerComponent</code>.</p>
             </div>
         </div>
         <div class="rule attention" id="RG-SEA-029">
@@ -3772,7 +3787,11 @@
             <div class="rid">RG-INF-012</div>
             <div class="rtxt"><p>Délier une fiche de son compte est toujours possible ; les comptes pouvant être liés
                 sont listés
-                (paginés).</p>
+                (paginés). Dans la liste des infirmiers, chaque ligne porte une action <strong>« Compte d&#39;accès
+                    »</strong> (icône lien, ou gestion
+                de compte si déjà lié) qui ouvre la carte permettant de lier un compte existant, d&#39;en créer un ou de
+                le délier.
+                <em>Source :</em> <code>InfirmiersComponent</code>.</p>
             </div>
         </div>
         <h2>10.3 Roulement (affectations)</h2>

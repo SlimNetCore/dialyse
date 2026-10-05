@@ -35,7 +35,9 @@
   caractères ambigus) est généré, **affiché une seule fois** à l'administrateur et jamais journalisé ; le compte devra
   être modifié au premier accès (RG-SEC-025).
 - **RG-INF-012** — Délier une fiche de son compte est toujours possible ; les comptes pouvant être liés sont listés
-  (paginés).
+  (paginés). Dans la liste des infirmiers, chaque ligne porte une action **« Compte d'accès »** (icône lien, ou gestion
+  de compte si déjà lié) qui ouvre la carte permettant de lier un compte existant, d'en créer un ou de le délier.
+  *Source :* `InfirmiersComponent`.
 
 ## 10.3 Roulement (affectations)
 

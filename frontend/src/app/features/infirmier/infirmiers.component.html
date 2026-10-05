@@ -104,6 +104,11 @@
           <ng-container matColumnDef="actions">
             <th *matHeaderCellDef mat-header-cell></th>
             <td *matCellDef="let row" class="inf-row-actions" mat-cell>
+              <button (click)="openCompte(row)" [attr.aria-label]="'INFIRMIER.COMPTE.GERER' | translate"
+                      [attr.title]="'INFIRMIER.COMPTE.GERER' | translate" data-testid="inf-compte-open"
+                      mat-icon-button type="button">
+                <mat-icon>{{ row.compte ? 'manage_accounts' : 'link' }}</mat-icon>
+              </button>
               <button (click)="openRoulement(row)" [attr.aria-label]="'INFIRMIER.ROULEMENT' | translate"
                       data-testid="inf-roulement" mat-icon-button type="button">
                 <mat-icon>event_repeat</mat-icon>

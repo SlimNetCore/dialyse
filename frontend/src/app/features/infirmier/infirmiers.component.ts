@@ -202,6 +202,14 @@ export class InfirmiersComponent {
     this.store.setActif({id: row.id, actif: !row.actif});
   }
 
+  /** Ouvre la carte « Compte d'accès » de la fiche et la fait défiler dans la vue. */
+  protected openCompte(row: Infirmier): void {
+    this.selectedId.set(row.id);
+    this.joursChoisis.set(new Set());
+    setTimeout(() => document.querySelector('[data-testid="inf-compte-card"]')
+      ?.scrollIntoView({behavior: 'smooth', block: 'start'}));
+  }
+
   protected openRoulement(row: Infirmier): void {
     this.selectedId.set(this.selectedId() === row.id ? null : row.id);
     this.joursChoisis.set(new Set());
