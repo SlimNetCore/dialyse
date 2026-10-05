@@ -246,26 +246,36 @@ describe('SeanceStationComponent', () => {
     expect(names).toEqual(['Lignes']);
   });
 
-  it('seul l\'administrateur configure les raccourcis, dans l\'ordre de sélection et dans la limite du serveur', () => {
+  it('seul l\'administrateur voit le bouton de configuration des raccourcis', () => {
+    store.summary.set(summary('VALIDEE'));
+    const nurse = render();
+    nurse.fixture.componentInstance['step'].set('consommables');
+    nurse.fixture.detectChanges();
+    expect(nurse.root.querySelector('.link-btn')).toBeNull();
+    nurse.fixture.componentInstance['saveShortcuts'](['art1']);
+    expect(store.saveRaccourcis).not.toHaveBeenCalled();
+  });
+
+  it('l\'administrateur ouvre la configuration, enregistre l\'ordre choisi et la referme', () => {
+    roles = ['ADMIN'];
     store.summary.set(summary('VALIDEE'));
     const {fixture, root} = render();
-    const cmp = fixture.componentInstance;
-    expect(cmp['canConfigureShortcuts']()).toBe(false);
+    fixture.componentInstance['step'].set('consommables');
+    fixture.detectChanges();
 
-    roles = ['ADMIN'];
-    const admin = render();
-    const adminCmp = admin.fixture.componentInstance;
-    adminCmp['step'].set('consommables');
-    admin.fixture.detectChanges();
-    adminCmp['startConfiguring']();
-    adminCmp['toggleShortcut']('art2');
-    adminCmp['toggleShortcut']('art1');
-    adminCmp['toggleShortcut']('art2');
-    expect(adminCmp['draftShortcuts']()).toEqual(['art1']);
-    adminCmp['toggleShortcut']('art2');
-    adminCmp['saveShortcuts']();
-    expect(store.saveRaccourcis).toHaveBeenCalledWith({centerId: CENTER_ID, articleIds: ['art1', 'art2']});
-    expect(root).toBeTruthy();
+    root.querySelector<HTMLButtonElement>('.link-btn')!.click();
+    fixture.detectChanges();
+    expect(root.querySelector('app-shortcuts-config')).not.toBeNull();
+
+    const chips = root.querySelectorAll<HTMLButtonElement>('.shortcut-chip');
+    chips[1].click();
+    chips[0].click();
+    fixture.detectChanges();
+    root.querySelector<HTMLButtonElement>('.shortcut-actions button[color="primary"]')!.click();
+    fixture.detectChanges();
+
+    expect(store.saveRaccourcis).toHaveBeenCalledWith({centerId: CENTER_ID, articleIds: ['art2', 'art1']});
+    expect(root.querySelector('app-shortcuts-config')).toBeNull();
   });
 
   it('charge le rappel des dernières séances du patient et l\'affiche', () => {

@@ -1,0 +1,60 @@
+:host {
+  display: block;
+}
+
+.shortcut-config {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px dashed var(--app-primary-outline);
+  border-radius: 18px;
+  background: var(--app-primary-soft);
+}
+
+.hint {
+  margin: 0 0 10px;
+  color: var(--app-muted);
+}
+
+.shortcut-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shortcut-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 999px;
+  background: var(--app-field-bg);
+  color: var(--app-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.shortcut-chip.on {
+  border-color: var(--app-primary);
+  background: var(--app-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.chip-rank {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  font-size: 12px;
+}
+
+.shortcut-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}

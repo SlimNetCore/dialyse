@@ -10,7 +10,7 @@
   gap: 18px;
 }
 
-/* ── En-tête : titre, indicateurs, scan ─────────────────────────────── */
+/* En-tête : titre, indicateurs, scan */
 .hero {
   display: grid;
   gap: 18px;
@@ -166,7 +166,7 @@
   font-size: 15px;
 }
 
-/* ── Volets : mobile = un seul à la fois ───────────────────────────── */
+/* Volets : mobile = un seul à la fois */
 .panes {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -205,7 +205,7 @@
   font-weight: 800;
 }
 
-/* ── File du jour ──────────────────────────────────────────────────── */
+/* File du jour */
 .queue-item {
   position: relative;
   display: flex;
@@ -367,7 +367,7 @@
   color: var(--app-muted);
 }
 
-/* ── Séance ────────────────────────────────────────────────────────── */
+/* Séance */
 .patient-head {
   display: flex;
   align-items: center;
@@ -670,59 +670,7 @@
   background: var(--app-primary-soft);
 }
 
-.shortcut-config {
-  margin-top: 12px;
-  padding: 14px;
-  border: 1px dashed var(--app-primary-outline);
-  border-radius: 18px;
-  background: var(--app-primary-soft);
-}
-
-.shortcut-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.shortcut-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 999px;
-  background: var(--app-field-bg);
-  color: var(--app-text);
-  font: inherit;
-  cursor: pointer;
-}
-
-.shortcut-chip.on {
-  border-color: var(--app-primary);
-  background: var(--app-primary);
-  color: #fff;
-  font-weight: 700;
-}
-
-.chip-rank {
-  display: inline-grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
-  font-size: 12px;
-}
-
-.shortcut-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-/* Rappel des dernières séances */
+/* Rappel des dernières séances (contenu : RecentSeancesPanelComponent) */
 .context-pane {
   min-width: 0;
   padding: 18px;
@@ -732,44 +680,7 @@
   display: none;
 }
 
-.recent-item {
-  margin-bottom: 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--app-border);
-  border-radius: 18px;
-  background: var(--app-frost);
-}
-
-.recent-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.recent-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 12px;
-  margin: 0;
-}
-
-.recent-grid dt {
-  color: var(--app-muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.recent-grid dd {
-  margin: 2px 0 0;
-  font-size: 17px;
-  font-weight: 700;
-}
-
-/* ── Barre d'actions ───────────────────────────────────────────────── */
+/* Barre d'actions */
 .action-bar {
   position: sticky;
   bottom: 0;
@@ -814,11 +725,7 @@
   font-weight: 700;
 }
 
-.back-btn {
-  display: inline-flex;
-}
-
-/* ── Tablette ──────────────────────────────────────────────────────── */
+/* Tablette */
 @media (min-width: 768px) {
   .panes {
     grid-template-columns: 290px minmax(0, 1fr);
@@ -855,7 +762,7 @@
   }
 }
 
-/* ── PC : toutes les sections visibles, plus d'étapes à parcourir ─── */
+/* PC : toutes les sections visibles, plus d'étapes à parcourir */
 @media (min-width: 1200px) {
   .panes {
     grid-template-columns: 300px minmax(0, 1fr) 300px;
@@ -895,7 +802,7 @@
   }
 }
 
-/* ── Mobile ────────────────────────────────────────────────────────── */
+/* Mobile */
 @media (max-width: 767px) {
   .hero,
   .queue-pane,

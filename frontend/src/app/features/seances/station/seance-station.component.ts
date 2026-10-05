@@ -29,13 +29,13 @@ import {
   parseDecimal,
   QUICK_ARTICLES_MAX,
   quickArticleIds,
-  SHORTCUTS_MAX,
   STATION_STEPS,
   StationStep,
   todayIsoDate,
   toNullableText,
-  weightLossKg,
 } from './station.util';
+import {RecentSeancesPanelComponent} from './recent-seances-panel.component';
+import {ShortcutsConfigComponent} from './shortcuts-config.component';
 
 /** Délai d'enregistrement automatique après la dernière frappe dans une zone de texte libre. */
 const AUTOSAVE_DELAY_MS = 800;
@@ -51,7 +51,8 @@ const AUTOSAVE_DELAY_MS = 800;
   standalone: true,
   imports: [
     RouterLink, MatButtonModule, MatIconModule, TranslateModule, SearchableSelectComponent, RichTextEditorComponent,
-    QrScannerComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent,
+    QrScannerComponent, AdministrationAnemieSeanceComponent, PoidsSecSeanceComponent, RecentSeancesPanelComponent,
+    ShortcutsConfigComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seance-station.component.html',
@@ -60,7 +61,6 @@ const AUTOSAVE_DELAY_MS = 800;
 export class SeanceStationComponent implements OnInit, OnDestroy {
   protected readonly store = inject(SeanceStore);
   protected readonly initials = initials;
-  protected readonly weightLossKg = weightLossKg;
   protected readonly steps = STATION_STEPS;
   protected readonly step = signal<StationStep>('constantes');
   /** Mobile uniquement : quel volet est affiché (la file ou la séance). */
@@ -112,8 +112,6 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
   /** Seul l'administrateur choisit les raccourcis du centre. */
   protected readonly canConfigureShortcuts = computed(() => this.hasAnyRole('ADMIN'));
   protected readonly configuring = signal(false);
-  protected readonly draftShortcuts = signal<string[]>([]);
-  protected readonly shortcutsMax = SHORTCUTS_MAX;
   protected readonly activeArticles = computed(() => this.store.availableArticles().filter((a) => a.active));
   protected readonly recentSeances = computed(() => this.store.recentSeances());
   protected readonly articleItems = computed<DropdownItem[]>(() =>
@@ -296,28 +294,10 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
   }
 
   // --- Raccourcis de consommables du centre (administrateur) ---
-  protected startConfiguring(): void {
-    this.draftShortcuts.set(this.quickArticles().map((a) => a.id).filter((id) => this.store.raccourcisIds().includes(id)));
-    this.configuring.set(true);
-  }
-
-  protected toggleShortcut(articleId: string): void {
-    const draft = this.draftShortcuts();
-    if (draft.includes(articleId)) {
-      this.draftShortcuts.set(draft.filter((id) => id !== articleId));
-    } else if (draft.length < SHORTCUTS_MAX) {
-      this.draftShortcuts.set([...draft, articleId]);
-    }
-  }
-
-  protected saveShortcuts(): void {
+  protected saveShortcuts(articleIds: string[]): void {
     const centerId = this.centerId();
     if (!centerId || !this.canConfigureShortcuts()) return;
-    this.store.saveRaccourcis({centerId, articleIds: this.draftShortcuts()});
-    this.configuring.set(false);
-  }
-
-  protected cancelConfiguring(): void {
+    this.store.saveRaccourcis({centerId, articleIds});
     this.configuring.set(false);
   }
 

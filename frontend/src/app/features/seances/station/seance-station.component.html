@@ -223,31 +223,15 @@
             />
             @if (canConfigureShortcuts()) {
               @if (configuring()) {
-                <div class="shortcut-config">
-                  <p class="hint">{{ 'SEANCES.STATION.SHORTCUTS_HINT' | translate: {max: shortcutsMax} }}</p>
-                  <div class="shortcut-chips">
-                    @for (a of activeArticles(); track a.id) {
-                      <button (click)="toggleShortcut(a.id)" [attr.aria-pressed]="draftShortcuts().includes(a.id)"
-                              [class.on]="draftShortcuts().includes(a.id)" class="shortcut-chip" type="button">
-                        @if (draftShortcuts().includes(a.id)) {
-                          <span class="chip-rank">{{ draftShortcuts().indexOf(a.id) + 1 }}</span>
-                        }
-                        {{ a.libelle }}
-                      </button>
-                    }
-                  </div>
-                  <div class="shortcut-actions">
-                    <button (click)="cancelConfiguring()" mat-stroked-button type="button">
-                      {{ 'COMMON.CANCEL' | translate }}
-                    </button>
-                    <button (click)="saveShortcuts()" [disabled]="store.savingRaccourcis()" color="primary"
-                            mat-flat-button type="button">
-                      {{ 'COMMON.SAVE' | translate }}
-                    </button>
-                  </div>
-                </div>
+                <app-shortcuts-config
+                  (cancelled)="configuring.set(false)"
+                  (saved)="saveShortcuts($event)"
+                  [articles]="activeArticles()"
+                  [saving]="store.savingRaccourcis()"
+                  [selected]="store.raccourcisIds()"
+                />
               } @else {
-                <button (click)="startConfiguring()" class="link-btn" type="button">
+                <button (click)="configuring.set(true)" class="link-btn" type="button">
                   <mat-icon aria-hidden="true">tune</mat-icon>
                   {{ 'SEANCES.STATION.CONFIGURE_SHORTCUTS' | translate }}
                 </button>
@@ -356,38 +340,7 @@
 
     @if (summary()) {
       <aside [attr.aria-label]="'SEANCES.STATION.RECENT_TITLE' | translate" class="app-panel context-pane">
-        <div class="pane-head">
-          <h2>{{ 'SEANCES.STATION.RECENT_TITLE' | translate }}</h2>
-        </div>
-        @if (recentSeances().length === 0) {
-          <p class="empty">{{ 'SEANCES.STATION.RECENT_EMPTY' | translate }}</p>
-        }
-        @for (r of recentSeances(); track r.seanceId) {
-          <div class="recent-item">
-            <div class="recent-head">
-              <strong>{{ r.dateSeance }}</strong>
-              <span [attr.data-status]="r.status" class="chip">{{ statusKey(r.status) | translate }}</span>
-            </div>
-            <dl class="recent-grid">
-              <div>
-                <dt>{{ 'SEANCES.STATION.RECENT_WEIGHT' | translate }}</dt>
-                <dd>{{ r.poidsAvantKg ?? '–' }} → {{ r.poidsApresKg ?? '–' }}</dd>
-              </div>
-              <div>
-                <dt>{{ 'SEANCES.STATION.RECENT_LOSS' | translate }}</dt>
-                <dd>{{ weightLossKg(r.poidsAvantKg, r.poidsApresKg) ?? '–' }}</dd>
-              </div>
-              <div>
-                <dt>{{ 'SEANCES.STATION.BP_BEFORE' | translate }}</dt>
-                <dd>{{ r.taAvant || '–' }}</dd>
-              </div>
-              <div>
-                <dt>{{ 'SEANCES.STATION.DURATION' | translate }}</dt>
-                <dd>{{ r.dureeMinutes ?? '–' }}</dd>
-              </div>
-            </dl>
-          </div>
-        }
+        <app-recent-seances-panel [seances]="recentSeances()"/>
       </aside>
     }
   </div>

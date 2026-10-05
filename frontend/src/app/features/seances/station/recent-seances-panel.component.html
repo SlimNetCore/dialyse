@@ -1,0 +1,30 @@
+<h2>{{ 'SEANCES.STATION.RECENT_TITLE' | translate }}</h2>
+@if (seances().length === 0) {
+  <p class="empty">{{ 'SEANCES.STATION.RECENT_EMPTY' | translate }}</p>
+}
+@for (r of seances(); track r.seanceId) {
+  <div class="recent-item">
+    <div class="recent-head">
+      <strong>{{ r.dateSeance }}</strong>
+      <span [attr.data-status]="r.status" class="chip">{{ statusKey(r.status) | translate }}</span>
+    </div>
+    <dl class="recent-grid">
+      <div>
+        <dt>{{ 'SEANCES.STATION.RECENT_WEIGHT' | translate }}</dt>
+        <dd>{{ r.poidsAvantKg ?? '–' }} → {{ r.poidsApresKg ?? '–' }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'SEANCES.STATION.RECENT_LOSS' | translate }}</dt>
+        <dd>{{ weightLossKg(r.poidsAvantKg, r.poidsApresKg) ?? '–' }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'SEANCES.STATION.BP_BEFORE' | translate }}</dt>
+        <dd>{{ r.taAvant || '–' }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'SEANCES.STATION.DURATION' | translate }}</dt>
+        <dd>{{ r.dureeMinutes ?? '–' }}</dd>
+      </div>
+    </dl>
+  </div>
+}
