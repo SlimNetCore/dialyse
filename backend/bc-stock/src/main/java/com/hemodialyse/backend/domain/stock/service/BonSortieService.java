@@ -24,6 +24,10 @@ import java.util.*;
 public class BonSortieService implements BonSortieUseCase {
 
     private static final UUID DEFAULT_SEANCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    /**
+     * Poste du bon de sortie unique qui regroupe les consommables d'une séance.
+     */
+    private static final String POSTE_SEANCE = "SEANCE";
 
     private final BonSortieRepositoryPort repo;
     private final LotRepositoryPort lotRepo;
@@ -209,76 +213,137 @@ public class BonSortieService implements BonSortieUseCase {
     }
 
     @Override
-    public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
-        if (isLinkedToSeance(seanceId) && seanceBillingStatusPort.isBilled(centerId, seanceId)) {
-            throw new SeanceBilledStockModificationException();
+    public BonSortie addSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                           UUID articleId, BigDecimal quantite, String userId) {
+        if (quantite == null || quantite.signum() <= 0) {
+            throw new IllegalArgumentException("La quantite doit etre strictement positive");
         }
-        // Find all SORTIE movements for this article+seance
-        List<StockMovement> movements = movementRepo.findBySeanceAndArticle(centerId, seanceId, articleId);
-        if (movements.isEmpty()) {
-            return; // Nothing to reverse
-        }
-        // Restore each lot's quantity
-        for (StockMovement m : movements) {
-            if (m.getLotId() != null) {
-                lotRepo.findById(m.getLotId(), centerId).ifPresent(lot -> {
-                    lot.restituer(m.getQuantite());
-                    lotRepo.save(lot);
-                });
-            }
-        }
-        // Delete the movements
-        movementRepo.deleteBySeanceAndArticle(centerId, seanceId, articleId);
-        // Trigger PMP recalculation to restore coherency
-        pmpEngine.recalculerArticle(centerId, articleId);
-        publishStockMovementChanged(centerId.value(), "CORRECTION", "SEANCE-CORR", 1);
+        return applySeanceQuantity(centerId, seanceId, patientId, dateSeance, articleId, quantite, true, userId);
     }
 
     @Override
-    public void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
-                                       LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId) {
-        if (isLinkedToSeance(seanceId) && seanceBillingStatusPort.isBilled(centerId, seanceId)) {
+    public BonSortie setSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                           UUID articleId, BigDecimal quantite, String userId) {
+        if (quantite == null || quantite.signum() < 0) {
+            throw new IllegalArgumentException("La quantite ne peut pas etre negative");
+        }
+        return applySeanceQuantity(centerId, seanceId, patientId, dateSeance, articleId, quantite, false, userId);
+    }
+
+    /**
+     * Une séance a un seul bon de sortie « SEANCE » : créé à la première ligne, puis mis à jour (lignes, lots et
+     * mouvements recalculés par FEFO) à chaque ajout, modification ou retrait — jamais un bon par article. Les lots de
+     * l'ancien contenu sont d'abord restitués pour que la nouvelle sélection FEFO voie le stock réel.
+     */
+    private BonSortie applySeanceQuantity(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                          UUID articleId, BigDecimal quantite, boolean increment, String userId) {
+        if (!isLinkedToSeance(seanceId)) {
+            throw new IllegalArgumentException("Une seance est requise pour ce bon de sortie");
+        }
+        if (seanceBillingStatusPort.isBilled(centerId, seanceId)) {
             throw new SeanceBilledStockModificationException();
         }
         String by = userId != null ? userId : "system";
+        BonSortie existing = repo.findBySeance(seanceId, centerId).stream()
+                .filter(b -> POSTE_SEANCE.equals(b.getPoste()))
+                .findFirst().orElse(null);
+
+        Map<UUID, BigDecimal> wanted = new LinkedHashMap<>();
+        if (existing != null) {
+            for (LigneSortie line : existing.getLignes()) {
+                wanted.merge(line.articleId(), line.quantite(), BigDecimal::add);
+            }
+        }
+        BigDecimal current = wanted.getOrDefault(articleId, BigDecimal.ZERO);
+        BigDecimal target = increment ? current.add(quantite) : quantite;
+        if (target.compareTo(current) == 0) {
+            return existing;
+        }
+        if (target.compareTo(current) > 0) {
+            Article article = articleRepo.findById(articleId, centerId)
+                    .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
+            if (!article.isActive()) {
+                throw new IllegalStateException("Article inactif: " + article.getCode());
+            }
+        }
+        if (target.signum() == 0) {
+            wanted.remove(articleId);
+        } else {
+            wanted.put(articleId, target);
+        }
+
+        Set<UUID> touched = new LinkedHashSet<>();
+        touched.add(articleId);
+        BonSortie bon;
+        if (existing != null) {
+            for (LigneSortie line : existing.getLignes()) {
+                touched.add(line.articleId());
+                if (line.lotId() != null) {
+                    lotRepo.findById(line.lotId(), centerId).ifPresent(lot -> {
+                        lot.restituer(line.quantite());
+                        lotRepo.save(lot);
+                    });
+                }
+            }
+            for (UUID touchedArticle : touched) {
+                movementRepo.deleteBySeanceAndArticle(centerId, seanceId, touchedArticle);
+            }
+            bon = new BonSortie();
+            bon.setId(existing.getId());
+            bon.setCenterId(existing.getCenterId());
+            bon.setReference(existing.getReference());
+            bon.setSeanceId(existing.getSeanceId());
+            bon.setPatientId(existing.getPatientId());
+            bon.setPoste(existing.getPoste());
+            bon.setDateSortie(existing.getDateSortie());
+            bon.setCreatedBy(existing.getCreatedBy());
+            bon.setCreatedAt(existing.getCreatedAt());
+        } else {
+            bon = BonSortie.create(centerId.value(), sequence.next(centerId, "SEQ_BS"), seanceId, patientId,
+                    POSTE_SEANCE, dateSeance, by);
+        }
+
+        for (Map.Entry<UUID, BigDecimal> line : wanted.entrySet()) {
+            allocateFefo(centerId, bon, line.getKey(), line.getValue(), by);
+        }
+
+        BonSortie saved = repo.save(bon);
+        for (UUID touchedArticle : touched) {
+            pmpEngine.recalculerArticle(centerId, touchedArticle);
+        }
+        publishStockMovementChanged(centerId.value(), existing == null ? "SORTIE" : "CORRECTION",
+                saved.getReference(), touched.size());
+        return saved;
+    }
+
+    /**
+     * Prélève la quantité sur les lots par FEFO et ajoute les lignes et mouvements correspondants au bon.
+     */
+    private void allocateFefo(CenterId centerId, BonSortie bon, UUID articleId, BigDecimal quantite, String by) {
         Article article = articleRepo.findById(articleId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));
-        if (!article.isActive()) {
-            throw new IllegalStateException("Article inactif: " + article.getCode());
-        }
         if (recalcCoordinator.isLocked(centerId, articleId)) {
             throw new IllegalStateException("Recalcul en cours pour l'article " + article.getCode());
         }
-
-        // FEFO selection
-        List<Lot> fefoLots = lotRepo.findAvailableByArticleFefo(articleId, centerId);
+        BigDecimal pmpApplique = article.getPmpCourant() != null ? article.getPmpCourant() : BigDecimal.ZERO;
         BigDecimal remaining = quantite;
-        List<StockMovement> newMovements = new java.util.ArrayList<>();
-
-        for (Lot lot : fefoLots) {
+        for (Lot lot : lotRepo.findAvailableByArticleFefo(articleId, centerId)) {
             if (remaining.signum() <= 0) break;
             BigDecimal dispo = lot.getQuantiteRestante() != null ? lot.getQuantiteRestante() : BigDecimal.ZERO;
             if (dispo.signum() <= 0) continue;
             BigDecimal take = remaining.min(dispo);
             lot.consommer(take);
             lotRepo.save(lot);
-            BigDecimal pmpApplique = article.getPmpCourant() != null ? article.getPmpCourant() : BigDecimal.ZERO;
-            StockMovement m = StockMovement.sortieLot(centerId.value(), articleId, seanceId, lot.getId(), take, pmpApplique, by, dateSeance);
-            newMovements.add(m);
+            bon.ajouterLigne(new LigneSortie(UUID.randomUUID(), articleId, lot.getId(), take, pmpApplique));
+            movementRepo.save(StockMovement.sortieLot(centerId.value(), articleId, bon.getSeanceId(), lot.getId(),
+                    take, pmpApplique, by, bon.getDateSortie()));
             remaining = remaining.subtract(take);
         }
-
         if (remaining.signum() > 0) {
             throw new IllegalStateException(
                     "Stock insuffisant pour l'article " + article.getCode()
                             + " (manque: " + remaining + " " + article.getUnite() + ")");
         }
-
-        for (StockMovement m : newMovements) {
-            movementRepo.save(m);
-        }
-        pmpEngine.recalculerArticle(centerId, articleId);
-        publishStockMovementChanged(centerId.value(), "SORTIE", "SEANCE-UPDATE", 1);
     }
 
     @Override

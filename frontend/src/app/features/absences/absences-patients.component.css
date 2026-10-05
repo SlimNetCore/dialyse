@@ -1,9 +1,17 @@
+/* Une colonne qui peut rétrécir : sans minmax(0, 1fr), le tableau (min-width) élargit toute la page au-delà de l'écran. */
 .abs-page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
+  min-width: 0;
+}
+
+.abs-page > *,
+.abs-page mat-card,
+.abs-page mat-card-content {
   min-width: 0;
 }
 
@@ -13,6 +21,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.abs-head > div:first-child {
+  flex: 1 1 260px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .abs-head h1 {
@@ -205,5 +219,16 @@
 
   .abs-head-actions button {
     flex: 1 1 auto;
+    justify-content: center;
+    white-space: normal;
+    height: auto;
+    min-height: 44px;
+    padding-block: 8px;
+  }
+
+  /* Tableau : défilement horizontal local avec un indice visuel, jamais de débordement de la page */
+  .abs-table-scroll {
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 }

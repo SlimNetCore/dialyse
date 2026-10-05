@@ -3,13 +3,10 @@
   Component,
   computed,
   effect,
-  ElementRef,
   inject,
-  OnDestroy,
   OnInit,
   signal,
   TemplateRef,
-  ViewChild,
   viewChild,
 } from '@angular/core';
 import {RouterLink} from '@angular/router';
@@ -26,7 +23,6 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
-import jsQR from 'jsqr';
 import {AuthStore} from '../../core/state/auth.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {BackendApiService, SeanceDashboardDetailItem, SeanceListItem} from '../../core/api/backend-api.service';
@@ -37,10 +33,6 @@ import {ConfigurableListComponent, SharedListColumn} from '../../shared/configur
 import {AdministrationAnemieSeanceComponent} from './administration-anemie/administration-anemie-seance.component';
 import {PoidsSecSeanceComponent} from './poids-sec/poids-sec-seance.component';
 
-type BarcodeDetectorInstance = {
-  detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
-};
-type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => BarcodeDetectorInstance;
 Chart.register(...registerables);
 
 @Component({
@@ -53,17 +45,10 @@ Chart.register(...registerables);
   templateUrl: './seances-page.component.html',
   styleUrl: './seances-page.component.css',
 })
-export class SeancesPageComponent implements OnInit, OnDestroy {
+export class SeancesPageComponent implements OnInit {
   protected readonly store = inject(SeanceStore);
-  protected readonly cameraActive = signal(false);
-  protected readonly cameraStarting = signal(false);
   protected readonly activeTabIndex = signal(0);
   // Alias réactifs attendus par le template
-  protected readonly qrCode = computed(() => this.store.qrCode());
-  protected readonly scanState = computed(() => this.store.scanState());
-  protected readonly scanMessage = computed(() => this.store.scanMessage());
-  protected readonly scanning = computed(() => this.store.scanning());
-  protected readonly lastScan = computed(() => this.store.lastScan());
   protected readonly seances = computed(() => this.store.seances());
   protected readonly seancesTotal = computed(() => this.store.seancesTotal());
   protected readonly seancesPageIndex = computed(() => this.store.seancesPageIndex());
@@ -107,7 +92,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected readonly editingConsommableQuantite = computed(() => this.store.editingConsommableQuantite());
   protected readonly savingConsommable = computed(() => this.store.savingConsommable());
   protected readonly savingForfait = computed(() => this.store.savingForfait());
-  protected readonly canScanSeances = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'SECRETAIRE'));
   protected readonly canOpenSeanceDetails = computed(() => this.hasAnyRole('ADMIN', 'INFIRMIER', 'MEDECIN'));
   protected readonly isSeanceFacturee = computed(() => this.summary()?.seance.status === 'FACTUREE');
   protected readonly canEditDate = computed(() => this.hasAnyRole('ADMIN') && !this.isSeanceFacturee());
@@ -223,19 +207,12 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       }]
     };
   });
-  @ViewChild('qrImageInput') private qrImageInputRef?: ElementRef<HTMLInputElement>;
-  @ViewChild('cameraVideo') private cameraVideoRef?: ElementRef<HTMLVideoElement>;
   private readonly api = inject(BackendApiService);
   private readonly appShell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
   private readonly ws = inject(WebSocketService);
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly lastAutoPastedCopiedAt = signal<number | null>(null);
-  private cameraStream: MediaStream | null = null;
-  private cameraFrameId: number | null = null;
-  private cameraDetector: BarcodeDetectorInstance | null = null;
-  private cameraDetectionInFlight = false;
 
   constructor() {
     effect(() => {
@@ -244,24 +221,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       if (!event || !centerId || event.centerId !== centerId) return;
       if (!this.mustRefreshFromEvent(event.type)) return;
       this.refreshRealtime(centerId);
-    });
-
-    effect(() => {
-      const centerId = this.appShell.currentCenterId();
-      const clipboard = this.appShell.seanceScanClipboard();
-      if (!centerId || !clipboard || clipboard.centerId !== centerId) {
-        return;
-      }
-      if (clipboard.copiedAt === this.lastAutoPastedCopiedAt()) {
-        return;
-      }
-      this.store.setQrCode(clipboard.patientCode);
-      this.lastAutoPastedCopiedAt.set(clipboard.copiedAt);
-      this.snackBar.open(
-        this.translate.instant('SEANCES.PATIENT_CODE_AUTOFILLED'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 1800},
-      );
     });
   }
 
@@ -275,26 +234,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
       this.loadJournalByDate();
     }
   }
-
-  ngOnDestroy(): void {
-    this.stopCamera();
-  }
-
-  protected scrollToScanner(): void {
-    const el = document.getElementById('scanner-card');
-    if (el) {
-      el.scrollIntoView({behavior: 'smooth', block: 'center'});
-    }
-  }
-
-  protected onQrInput(e: Event): void {
-    this.store.setQrCode((e.target as HTMLInputElement)?.value ?? '');
-  }
-
-  protected pasteQrCodeManually(): void {
-    void this.readClipboardAndPasteQrCode();
-  }
-
 
   protected onEditDateInput(e: Event): void {
     this.store.setEditDateSeance((e.target as HTMLInputElement)?.value ?? todayIso());
@@ -373,51 +312,6 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
   protected onIncidentsRichChange(content: string): void {
     // Convertir le HTML enrichi en texte plain pour le stockage/traitement
     this.store.patchParamedical({incidents: content ?? ''});
-  }
-
-  protected triggerImagePicker(): void {
-    if (!this.canScanSeances()) {
-      this.snackBar.open(
-        this.translate.instant('SEANCES.SCAN_PERMISSION_DENIED'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 3000},
-      );
-      return;
-    }
-    this.qrImageInputRef?.nativeElement.click();
-  }
-
-  protected toggleCamera(): void {
-    if (this.cameraActive()) {
-      this.stopCamera();
-      return;
-    }
-    void this.startCamera();
-  }
-
-  protected onQrImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    const file = input?.files?.[0];
-    if (!file) return;
-    void this.scanQrFromImage(file);
-    if (input) input.value = '';
-  }
-
-  protected scanQr(): void {
-    const centerId = this.appShell.currentCenterId();
-    const qr = this.store.qrCode().trim();
-    if (!this.canScanSeances() || !centerId || !qr) {
-      this.snackBar.open(
-        this.translate.instant('SEANCES.MISSING_CENTER_OR_QR'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 3000},
-      );
-      return;
-    }
-    const dateSeance = todayIso();
-    this.store.setDateSeance(dateSeance);
-    this.stopCamera();
-    this.store.scanQr({centerId, qrCode: qr});
   }
 
   protected selectSeance(seance: SeanceListItem): void {
@@ -842,229 +736,8 @@ export class SeancesPageComponent implements OnInit, OnDestroy {
     }).format(Number(prix));
   }
 
-  private getBarcodeDetectorConstructor(): BarcodeDetectorConstructor | null {
-    return (window as Window & { BarcodeDetector?: BarcodeDetectorConstructor }).BarcodeDetector ?? null;
-  }
-
-  private supportsCameraScan(): boolean {
-    return typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia && !!this.getBarcodeDetectorConstructor();
-  }
-
-  private async startCamera(): Promise<void> {
-    if (!this.canScanSeances() || !this.supportsCameraScan()) {
-      this.snackBar.open(
-        this.translate.instant('SEANCES.CAMERA_NOT_SUPPORTED'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 3000},
-      );
-      return;
-    }
-    const video = this.cameraVideoRef?.nativeElement;
-    if (!video) return;
-    this.cameraStarting.set(true);
-    try {
-      this.cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: {facingMode: {ideal: 'environment'}},
-        audio: false
-      });
-      video.srcObject = this.cameraStream;
-      await video.play();
-      this.cameraActive.set(true);
-      this.scheduleCameraDetection();
-    } catch {
-      this.stopCamera();
-      this.snackBar.open(
-        this.translate.instant('SEANCES.CAMERA_ACCESS_DENIED'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 3000},
-      );
-    } finally {
-      this.cameraStarting.set(false);
-    }
-  }
-
-  private stopCamera(): void {
-    if (this.cameraFrameId !== null) {
-      cancelAnimationFrame(this.cameraFrameId);
-      this.cameraFrameId = null;
-    }
-    const video = this.cameraVideoRef?.nativeElement;
-    if (video) {
-      video.pause();
-      video.srcObject = null;
-    }
-    this.cameraStream?.getTracks().forEach((t) => t.stop());
-    this.cameraStream = null;
-    this.cameraActive.set(false);
-    this.cameraDetectionInFlight = false;
-  }
-
-  private scheduleCameraDetection(): void {
-    if (!this.cameraActive()) return;
-    this.cameraFrameId = requestAnimationFrame(() => void this.detectQrFromCameraFrame());
-  }
-
-  private async detectQrFromCameraFrame(): Promise<void> {
-    if (!this.cameraActive() || this.cameraDetectionInFlight) {
-      this.scheduleCameraDetection();
-      return;
-    }
-    const video = this.cameraVideoRef?.nativeElement;
-    if (!video || video.readyState < 2) {
-      this.scheduleCameraDetection();
-      return;
-    }
-    const DetectorCtor = this.getBarcodeDetectorConstructor();
-    if (!DetectorCtor) {
-      this.stopCamera();
-      return;
-    }
-    this.cameraDetector ??= new DetectorCtor({formats: ['qr_code']});
-    this.cameraDetectionInFlight = true;
-    try {
-      const barcodes = await this.cameraDetector.detect(video);
-      const value = (barcodes[0]?.rawValue ?? '').trim();
-      if (value) {
-        this.store.setQrCode(value);
-        this.stopCamera();
-        this.scanQr();
-        return;
-      }
-    } catch {
-      this.stopCamera();
-      return;
-    } finally {
-      this.cameraDetectionInFlight = false;
-    }
-    this.scheduleCameraDetection();
-  }
-
-  private async scanQrFromImage(file: File): Promise<void> {
-    const centerId = this.appShell.currentCenterId();
-    if (!centerId) return;
-    try {
-      const image = await this.loadImageFromFile(file);
-      const value = await this.decodeQrValueFromImage(image);
-      if (!value) {
-        this.snackBar.open(
-          this.translate.instant('SEANCES.NO_QR_DETECTED'),
-          this.translate.instant('COMMON.OK'),
-          {duration: 3000},
-        );
-        return;
-      }
-      this.store.setQrCode(value);
-      this.scanQr();
-    } catch {
-      this.snackBar.open(
-        this.translate.instant('SEANCES.QR_READ_ERROR'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 3000},
-      );
-    }
-  }
-
-  private async loadImageFromFile(file: File): Promise<HTMLImageElement> {
-    return await new Promise<HTMLImageElement>((resolve, reject) => {
-      const imageUrl = URL.createObjectURL(file);
-      const image = new Image();
-      image.onload = () => {
-        URL.revokeObjectURL(imageUrl);
-        resolve(image);
-      };
-      image.onerror = () => {
-        URL.revokeObjectURL(imageUrl);
-        reject(new Error('IMAGE_LOAD_FAILED'));
-      };
-      image.src = imageUrl;
-    });
-  }
-
-  private async decodeQrValueFromImage(image: HTMLImageElement): Promise<string | null> {
-    const detectorValue = await this.decodeQrValueWithBarcodeDetector(image);
-    if (detectorValue) {
-      return detectorValue;
-    }
-    return this.decodeQrValueWithJsQr(image);
-  }
-
-  private async decodeQrValueWithBarcodeDetector(image: HTMLImageElement): Promise<string | null> {
-    const DetectorCtor = this.getBarcodeDetectorConstructor();
-    if (!DetectorCtor) {
-      return null;
-    }
-    try {
-      const detector = new DetectorCtor({formats: ['qr_code']});
-      const barcodes = await detector.detect(image);
-      const value = (barcodes[0]?.rawValue ?? '').trim();
-      return value || null;
-    } catch {
-      return null;
-    }
-  }
-
-  private decodeQrValueWithJsQr(image: HTMLImageElement): string | null {
-    const canvas = document.createElement('canvas');
-    const width = image.naturalWidth || image.width;
-    const height = image.naturalHeight || image.height;
-    if (!width || !height) {
-      return null;
-    }
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext('2d', {willReadFrequently: true});
-    if (!context) {
-      return null;
-    }
-    context.drawImage(image, 0, 0, width, height);
-    const imageData = context.getImageData(0, 0, width, height);
-    const result = jsQR(imageData.data, width, height, {
-      inversionAttempts: 'attemptBoth',
-    });
-    return result?.data?.trim() || null;
-  }
-
   private hasAnyRole(...roles: string[]): boolean {
     return roles.some((role) => this.auth.hasRole(role));
-  }
-
-  private async readClipboardAndPasteQrCode(): Promise<void> {
-    const centerId = this.appShell.currentCenterId();
-    const appClipboard = this.appShell.seanceScanClipboard();
-    const fallbackCode = centerId && appClipboard?.centerId === centerId ? appClipboard.patientCode : '';
-    try {
-      const browserClipboardCode = (await navigator.clipboard.readText())?.trim() ?? '';
-      const value = browserClipboardCode || fallbackCode;
-      if (!value) {
-        this.snackBar.open(
-          this.translate.instant('SEANCES.PASTE_EMPTY_CLIPBOARD'),
-          this.translate.instant('COMMON.OK'),
-          {duration: 2400},
-        );
-        return;
-      }
-      this.store.setQrCode(value);
-      this.snackBar.open(
-        this.translate.instant('SEANCES.PATIENT_CODE_AUTOFILLED'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 1800},
-      );
-    } catch {
-      if (!fallbackCode) {
-        this.snackBar.open(
-          this.translate.instant('SEANCES.PASTE_ERROR'),
-          this.translate.instant('COMMON.OK'),
-          {duration: 2400},
-        );
-        return;
-      }
-      this.store.setQrCode(fallbackCode);
-      this.snackBar.open(
-        this.translate.instant('SEANCES.PATIENT_CODE_AUTOFILLED'),
-        this.translate.instant('COMMON.OK'),
-        {duration: 1800},
-      );
-    }
   }
 
   private mustRefreshFromEvent(type: string): boolean {

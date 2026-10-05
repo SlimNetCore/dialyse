@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
+import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
@@ -42,6 +43,14 @@ public interface SeanceUseCase {
     }
 
     SeanceDetails getDetails(CenterId centerId, UUID seanceId);
+
+    int RECENT_MAX = 10;
+
+    /**
+     * Les dernières séances d'un patient (strictement avant {@code before}), de la plus récente à la plus ancienne,
+     * avec leurs constantes ; {@code limit} est borné entre 1 et {@value #RECENT_MAX}.
+     */
+    List<SeanceRecap> recentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit);
 
     List<SeanceListItem> list(CenterId centerId);
 

@@ -1,0 +1,19 @@
+<div class="qr-actions">
+  <button (click)="toggleCamera()" [disabled]="cameraStarting()" class="qr-btn" color="primary" mat-flat-button
+          type="button">
+    <mat-icon>{{ cameraActive() ? 'videocam_off' : 'videocam' }}</mat-icon>
+    <span class="qr-label">{{ (cameraActive() ? 'SEANCES.STOP_CAMERA_BTN' : 'SEANCES.CAMERA_BTN') | translate }}</span>
+  </button>
+  <button (click)="pickImage()" class="qr-btn" mat-stroked-button type="button">
+    <mat-icon>image_search</mat-icon>
+    <span class="qr-label">{{ 'SEANCES.IMAGE_BTN' | translate }}</span>
+  </button>
+  <input #imageInput (change)="onImageSelected($event)" accept="image/*" hidden type="file"/>
+</div>
+
+@if (cameraActive()) {
+  <div class="qr-camera">
+    <video #cameraVideo autoplay class="qr-video" muted playsinline></video>
+    <div class="qr-hint">{{ 'SEANCES.CAMERA_HINT' | translate }}</div>
+  </div>
+}

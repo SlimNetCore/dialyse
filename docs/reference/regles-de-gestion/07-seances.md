@@ -58,12 +58,40 @@
   valorisé au PMP est créé (motif SEANCE), de façon atomique avec
   le changement de statut.
 - **RG-SEA-022** — Retirer un consommable d'une séance (`ADMIN`, `INFIRMIER`) restitue le stock ; modifier sa quantité
-  (strictement positive) annule la sortie existante et en recrée
-  une au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.
-- **RG-SEA-025** — **Ajout d'un consommable à une séance déjà validée** (`ADMIN`, `INFIRMIER` ; `POST
-  /seances/{id}/consommables`) : seule la ligne ajoutée sort du stock (FEFO, article actif, quantité strictement
-  positive) sans retraiter les consommables existants ; autorisé pour une séance `VALIDEE` ou `SIGNEE`, refusé si
-  facturée ou non validée. Chaque saisie notifie le médecin (RG-NOT-004).
+  (positive) met à jour la ligne du **bon de sortie unique de la séance** (RG-SEA-025), dont les lots sont
+  resélectionnés
+  au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.
+- **RG-SEA-025** — **Une séance = un seul bon de sortie « SEANCE »** : à la validation (RG-SEA-021) ou, pour une
+  séance déjà validée, dès le **premier article ajouté** (`ADMIN`, `INFIRMIER` ; `POST /seances/{id}/consommables`),
+  le bon est créé avec son numéro de pièce ; chaque ajout, modification de quantité ou retrait **met à jour ce même
+  bon** (lignes, lots et mouvements recalculés par FEFO, stock rendu restitué) au lieu de créer une sortie par article.
+  Article actif exigé pour une quantité qui augmente, quantité d'ajout strictement positive ; autorisé pour une séance
+  `VALIDEE` ou `SIGNEE`, refusé si facturée (« La seance facturee ne peut plus etre modifiee ») ou non validée.
+  Les administrations EPO/fer gardent leur propre bon numéroté (poste « ADMINISTRATION »). Chaque saisie notifie le
+  médecin (RG-NOT-004).
+- **RG-SEA-026** — **Poste infirmier** (écran « Séances » des rôles `ADMIN`, `INFIRMIER`, `SECRETAIRE` ; le médecin seul
+  garde l'écran de consultation) : un seul écran pour scanner, choisir le patient dans la **file du jour** (séances du
+  jour avec leur statut : à valider, validée, signée, facturée, absent) et saisir la séance en quatre étapes —
+  constantes (avec le poids sec prescrit), consommables, anémie, remarques. Les constantes s'enregistrent à la sortie de
+  chaque champ et les remarques après une courte pause de frappe, sans bouton « Enregistrer » ; une séance facturée est
+  en lecture seule. Les consommables les plus sortis du jour dans le centre sont proposés en un toucher (+1 unité,
+  RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l'état n'est pas « en service ». Les
+  tableaux, filtres et la modification du forfait ou de la date restent dans l' **historique** des séances (`ADMIN`). La
+  secrétaire voit la file et scanne mais n'ouvre pas la saisie clinique. L'écran est responsive : une
+  colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
+  L'habillage suit la charte de l'application (thème actif, titres Fraunces, cartes vitrées, indicateurs du jour).
+  Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). *Source :*
+  `SeanceStationComponent`, `QrScannerComponent`.
+- **RG-SEA-027** — **Raccourcis de consommables du centre** : l'`ADMIN` choisit (au plus 12, sans doublon, articles
+  actifs du centre, ordre de sélection conservé) les articles proposés en un toucher à l'infirmier
+  (`PUT /seances/raccourcis-consommables`) ; la lecture est ouverte à `ADMIN`, `INFIRMIER` et `SECRETAIRE`. Sans
+  raccourci configuré, l'écran propose les articles les plus sortis du jour (6 au plus). La liste est propre au centre
+  (isolation stricte), mise en cache par centre et purgée à chaque modification. *Source :*
+  `SeanceRaccourciDomainService`, `SeanceRaccourciApplicationService`.
+- **RG-SEA-028** — **Rappel des dernières séances** (`GET /seances/patient/{id}/recentes`, `ADMIN`, `INFIRMIER`,
+  `MEDECIN`) : les 3 dernières séances du patient antérieures à la séance ouverte (10 au plus, de la plus récente à
+  la plus ancienne) avec leurs constantes — poids avant/après, perte de poids, tension, durée, ultrafiltration.
+  Limité au centre de la session. *Source :* `SeanceDomainService.recentByPatient`.
 - **RG-SEA-023** — La date d'une sortie de stock rattachée à une séance est immuable
   (`SEANCE_STOCK_EXIT_DATE_IMMUTABLE`).
 - **Point d'attention (RG-SEA-024)** — Valider à nouveau une séance déjà validée avec une liste de consommables retraite

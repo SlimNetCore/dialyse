@@ -43,6 +43,14 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
     }
 
     @Override
+    public List<Seance> findRecentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
+        return jpa.findByCenterIdAndPatientIdAndDateSeanceLessThanOrderByDateSeanceDesc(
+                        centerId.value(), patientId, before, PageRequest.of(0, limit)).stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
     public List<SeanceListItem> findAllByCenter(CenterId centerId) {
         return jpa.findByCenterIdOrderByDateSeanceDescCreatedAtDesc(centerId.value()).stream()
                 .map(e -> new SeanceListItem(

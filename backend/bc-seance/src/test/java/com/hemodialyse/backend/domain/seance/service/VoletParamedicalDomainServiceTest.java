@@ -107,6 +107,11 @@ class VoletParamedicalDomainServiceTest {
         }
 
         @Override
+        public java.util.List<com.hemodialyse.backend.domain.seance.model.Seance> findRecentByPatient(CenterId centerId, UUID patientId, java.time.LocalDate before, int limit) {
+            return java.util.List.of();
+        }
+
+        @Override
         public java.util.List<com.hemodialyse.backend.domain.seance.model.SeanceListItem> findAllByCenter(CenterId centerId) {
             return java.util.List.of();
         }

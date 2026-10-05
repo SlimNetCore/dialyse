@@ -29,8 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BonSortieServiceTest {
 
@@ -106,6 +105,164 @@ class BonSortieServiceTest {
         List<StockMovement> movements = movementRepo.findBySeanceAndArticle(centerId, seanceId, articleId);
         assertEquals(1, movements.size());
         assertEquals(LocalDate.of(2026, 8, 2), movements.get(0).getCreatedAt().toLocalDate());
+    }
+
+    @Test
+    void the_first_article_creates_the_session_bon_and_the_next_ones_update_the_same_bon() {
+        SeanceBonFixture f = new SeanceBonFixture();
+
+        BonSortie first = f.add(f.articleA, "2");
+        BonSortie second = f.add(f.articleB, "3");
+        BonSortie third = f.add(f.articleA, "1");
+
+        assertEquals(1, f.repo.findBySeance(f.seanceId, f.centerId).size(), "une seule sortie par séance");
+        assertEquals(first.getId(), second.getId());
+        assertEquals(first.getId(), third.getId());
+        assertEquals("BS-1", third.getReference());
+        assertEquals(1, f.sequenceCalls, "un seul numéro de pièce consommé");
+        assertEquals(0, new BigDecimal("3").compareTo(f.quantiteLigne(third, f.articleA)));
+        assertEquals(0, new BigDecimal("3").compareTo(f.quantiteLigne(third, f.articleB)));
+        assertEquals(0, new BigDecimal("7").compareTo(f.lotA.getQuantiteRestante()));
+        assertEquals(0, new BigDecimal("7").compareTo(f.lotB.getQuantiteRestante()));
+    }
+
+    @Test
+    void movements_follow_the_bon_without_duplicates_when_the_same_article_is_added_again() {
+        SeanceBonFixture f = new SeanceBonFixture();
+
+        f.add(f.articleA, "1");
+        f.add(f.articleA, "1");
+        f.add(f.articleA, "1");
+
+        BigDecimal sortie = f.movementRepo.findBySeanceAndArticle(f.centerId, f.seanceId, f.articleA).stream()
+                .map(StockMovement::getQuantite).reduce(BigDecimal.ZERO, BigDecimal::add);
+        assertEquals(0, new BigDecimal("3").compareTo(sortie));
+        assertEquals(1, f.movementRepo.findBySeanceAndArticle(f.centerId, f.seanceId, f.articleA).size(),
+                "les mouvements sont reconstruits, pas empilés");
+    }
+
+    @Test
+    void setting_a_quantity_replaces_it_on_the_same_bon_and_zero_removes_the_line() {
+        SeanceBonFixture f = new SeanceBonFixture();
+        f.add(f.articleA, "4");
+        f.add(f.articleB, "2");
+
+        BonSortie lowered = f.set(f.articleA, "1");
+        assertEquals(0, BigDecimal.ONE.compareTo(f.quantiteLigne(lowered, f.articleA)));
+        assertEquals(0, new BigDecimal("9").compareTo(f.lotA.getQuantiteRestante()), "le stock rendu est restitué");
+
+        BonSortie removed = f.set(f.articleB, "0");
+        assertEquals(lowered.getId(), removed.getId());
+        assertEquals(0, BigDecimal.ZERO.compareTo(f.quantiteLigne(removed, f.articleB)));
+        assertEquals(0, new BigDecimal("10").compareTo(f.lotB.getQuantiteRestante()));
+        assertEquals(0, f.movementRepo.findBySeanceAndArticle(f.centerId, f.seanceId, f.articleB).size());
+    }
+
+    @Test
+    void an_unchanged_quantity_leaves_everything_as_is() {
+        SeanceBonFixture f = new SeanceBonFixture();
+        BonSortie bon = f.add(f.articleA, "2");
+
+        BonSortie same = f.set(f.articleA, "2");
+
+        assertEquals(bon.getId(), same.getId());
+        assertEquals(0, new BigDecimal("8").compareTo(f.lotA.getQuantiteRestante()));
+    }
+
+    @Test
+    void insufficient_stock_is_refused_with_the_missing_quantity() {
+        SeanceBonFixture f = new SeanceBonFixture();
+
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> f.add(f.articleA, "11"));
+
+        assertTrue(e.getMessage().contains("Stock insuffisant"));
+    }
+
+    @Test
+    void a_billed_session_can_no_longer_change_its_bon() {
+        SeanceBonFixture f = new SeanceBonFixture();
+        f.add(f.articleA, "1");
+        f.billing.markBilled(f.centerId, f.seanceId);
+
+        assertThrows(IllegalStateException.class, () -> f.add(f.articleA, "1"));
+        assertThrows(IllegalStateException.class, () -> f.set(f.articleA, "0"));
+    }
+
+    @Test
+    void quantities_are_validated() {
+        SeanceBonFixture f = new SeanceBonFixture();
+
+        assertThrows(IllegalArgumentException.class, () -> f.add(f.articleA, "0"));
+        assertThrows(IllegalArgumentException.class, () -> f.set(f.articleA, "-1"));
+    }
+
+    /**
+     * Fixture d'une séance avec deux articles en stock (un lot chacun) et un service câblé sur des fakes mémoire.
+     */
+    private static final class SeanceBonFixture {
+        final CenterId centerId = CenterId.of(UUID.randomUUID());
+        final UUID seanceId = UUID.randomUUID();
+        final UUID patientId = UUID.randomUUID();
+        final UUID articleA = UUID.randomUUID();
+        final UUID articleB = UUID.randomUUID();
+        final InMemoryBonSortieRepo repo = new InMemoryBonSortieRepo();
+        final InMemoryLotRepo lotRepo = new InMemoryLotRepo();
+        final InMemoryMovementRepo movementRepo = new InMemoryMovementRepo();
+        final InMemorySeanceBillingStatusPort billing = new InMemorySeanceBillingStatusPort();
+        final Lot lotA = lot(articleA, "A", "10");
+        final Lot lotB = lot(articleB, "B", "10");
+        final BonSortieService service;
+        int sequenceCalls = 0;
+
+        SeanceBonFixture() {
+            InMemoryArticleRepo articleRepo = new InMemoryArticleRepo();
+            articleRepo.save(article(articleA, "ART-A"));
+            articleRepo.save(article(articleB, "ART-B"));
+            lotRepo.save(lotA);
+            lotRepo.save(lotB);
+            StockEventPublisher events = new NoOpStockEventPublisher();
+            PmpEngine pmpEngine = new PmpEngine(movementRepo, articleRepo);
+            PmpRecalculationCoordinator coordinator = new PmpRecalculationCoordinator(
+                    pmpEngine, events, new ImmediateTransactionRunner());
+            service = new BonSortieService(repo, lotRepo, movementRepo, articleRepo,
+                    (c, key) -> "BS-" + (++sequenceCalls), pmpEngine, coordinator, events, billing);
+        }
+
+        private Lot lot(UUID articleId, String numero, String quantite) {
+            Lot lot = new Lot();
+            lot.setId(UUID.randomUUID());
+            lot.setCenterId(centerId.value());
+            lot.setArticleId(articleId);
+            lot.setNumeroLot(numero);
+            lot.setQuantiteRestante(new BigDecimal(quantite));
+            return lot;
+        }
+
+        private Article article(UUID id, String code) {
+            Article article = new Article();
+            article.setId(id);
+            article.setCenterId(centerId.value());
+            article.setCode(code);
+            article.setUnite("u");
+            article.setPmpCourant(BigDecimal.TEN);
+            article.setActive(true);
+            return article;
+        }
+
+        BonSortie add(UUID articleId, String quantite) {
+            return service.addSeanceConsommation(centerId, seanceId, patientId, LocalDate.of(2026, 10, 4),
+                    articleId, new BigDecimal(quantite), "inf-01");
+        }
+
+        BonSortie set(UUID articleId, String quantite) {
+            return service.setSeanceConsommation(centerId, seanceId, patientId, LocalDate.of(2026, 10, 4),
+                    articleId, new BigDecimal(quantite), "inf-01");
+        }
+
+        BigDecimal quantiteLigne(BonSortie bon, UUID articleId) {
+            return bon.getLignes().stream().filter(l -> l.articleId().equals(articleId))
+                    .map(LigneSortie::quantite).reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
     }
 
     @Test

@@ -389,6 +389,29 @@ CREATE TABLE IF NOT EXISTS tva_types
 CREATE INDEX IF NOT EXISTS idx_tva_types_center_prestation ON tva_types (center_id, type_prestation, date_debut_validite);
 CREATE INDEX IF NOT EXISTS idx_tva_types_center_actif ON tva_types (center_id, actif);
 
+-- Consommables proposés en un toucher à l'infirmier (poste infirmier), par centre et dans l'ordre choisi.
+CREATE TABLE IF NOT EXISTS seance_raccourcis_articles
+(
+    center_id
+    UUID
+    NOT
+    NULL,
+    article_id
+    UUID
+    NOT
+    NULL,
+    ordre
+    INTEGER
+    NOT
+    NULL,
+    PRIMARY
+    KEY
+(
+    center_id,
+    article_id
+)
+    );
+
 CREATE TABLE IF NOT EXISTS facturation_settings (
     center_id UUID PRIMARY KEY,
     tva_rate DECIMAL(5, 2) DEFAULT 0.00, -- Décommissionné : TVA gérée via tva_types (TypeTVA)

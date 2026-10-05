@@ -253,6 +253,19 @@ export type SeanceSummary = {
   } | null;
 };
 
+/** Séance passée d'un patient avec ses constantes, pour le rappel du poste infirmier. */
+export type SeanceRecent = {
+  seanceId: string;
+  dateSeance: string;
+  status: string;
+  poidsAvantKg?: number | null;
+  poidsApresKg?: number | null;
+  taAvant?: string | null;
+  taApres?: string | null;
+  dureeMinutes?: number | null;
+  ultrafiltrationMl?: number | null;
+};
+
 export type SeanceJournalByDate = {
   dateSeance: string;
   patients: Array<{
@@ -789,6 +802,21 @@ export class BackendApiService {
     return this.http.post<{ added: boolean; articleId: string; quantite: number }>(
       `${this.baseUrl}/seances/${seanceId}/consommables`, payload
     );
+  }
+
+  /** Les dernières séances d'un patient (avant aujourd'hui), constantes comprises : rappel pendant la séance en cours. */
+  getRecentSeancesPatient(centerId: string, patientId: string, before: string, limit = 3): Observable<SeanceRecent[]> {
+    const params = new HttpParams().set('centerId', centerId).set('before', before).set('limit', limit);
+    return this.http.get<SeanceRecent[]>(`${this.baseUrl}/seances/patient/${patientId}/recentes`, {params});
+  }
+
+  /** Articles proposés en un toucher à l'infirmier (liste du centre, ordre d'affichage). */
+  getSeanceRaccourcis(centerId: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/seances/raccourcis-consommables`, {params: {centerId}});
+  }
+
+  saveSeanceRaccourcis(centerId: string, articleIds: string[]): Observable<string[]> {
+    return this.http.put<string[]>(`${this.baseUrl}/seances/raccourcis-consommables`, {articleIds}, {params: {centerId}});
   }
 
   updateSeance(seanceId: string, payload: UpdateSeancePayload): Observable<{

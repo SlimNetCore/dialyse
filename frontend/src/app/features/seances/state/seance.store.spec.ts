@@ -43,6 +43,9 @@ describe('SeanceStore', () => {
     listArticlesStock: ReturnType<typeof vi.fn>;
     removeSeanceConsommable: ReturnType<typeof vi.fn>;
     addSeanceConsommable: ReturnType<typeof vi.fn>;
+    getSeanceRaccourcis: ReturnType<typeof vi.fn>;
+    saveSeanceRaccourcis: ReturnType<typeof vi.fn>;
+    getRecentSeancesPatient: ReturnType<typeof vi.fn>;
     updateSeanceConsommableQuantite: ReturnType<typeof vi.fn>;
   };
   beforeEach(() => {
@@ -110,6 +113,13 @@ describe('SeanceStore', () => {
       exportSeanceDashboard: vi.fn().mockReturnValue(of(new Blob())),
       removeSeanceConsommable: vi.fn().mockReturnValue(of({removed: true, articleId: 'art1'})),
       addSeanceConsommable: vi.fn().mockReturnValue(of({added: true})),
+      getSeanceRaccourcis: vi.fn().mockReturnValue(of(['art1', 'art2'])),
+      saveSeanceRaccourcis: vi.fn().mockImplementation((_c: string, ids: string[]) => of(ids)),
+      getRecentSeancesPatient: vi.fn().mockReturnValue(of([{
+        seanceId: 'r1',
+        dateSeance: '2026-10-02',
+        status: 'VALIDEE'
+      }])),
       updateSeanceConsommableQuantite: vi.fn().mockReturnValue(of({updated: true, articleId: 'art1', quantite: 5})),
       listArticlesStock: vi.fn().mockReturnValue(of([
         {
@@ -239,6 +249,47 @@ describe('SeanceStore', () => {
     expect(mockApi.getSeanceSummary).toHaveBeenCalledWith(SEANCE_ID, CENTER_ID);
     expect(store.savingConsommable()).toBe(false);
     expect(store.scanMessage()).toBe('SEANCES.CONSUMABLE_ADDED');
+  });
+  it('should load the center consommable shortcuts and fall back to none when the call fails', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.loadRaccourcis({centerId: CENTER_ID});
+    expect(mockApi.getSeanceRaccourcis).toHaveBeenCalledWith(CENTER_ID);
+    expect(store.raccourcisIds()).toEqual(['art1', 'art2']);
+
+    mockApi.getSeanceRaccourcis.mockReturnValueOnce(throwError(() => ({status: 500})));
+    store.loadRaccourcis({centerId: CENTER_ID});
+    expect(store.raccourcisIds()).toEqual([]);
+  });
+  it('should save the shortcuts and keep the server order, or surface the error', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.saveRaccourcis({centerId: CENTER_ID, articleIds: ['art2', 'art1']});
+    expect(mockApi.saveSeanceRaccourcis).toHaveBeenCalledWith(CENTER_ID, ['art2', 'art1']);
+    expect(store.raccourcisIds()).toEqual(['art2', 'art1']);
+    expect(store.savingRaccourcis()).toBe(false);
+
+    mockApi.saveSeanceRaccourcis.mockReturnValueOnce(throwError(() => ({status: 422})));
+    store.saveRaccourcis({centerId: CENTER_ID, articleIds: ['x']});
+    expect(store.raccourcisIds()).toEqual(['art2', 'art1']);
+    expect(store.error()).toBeTruthy();
+  });
+  it('should load the previous sessions of the patient and clear them when the call fails', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.loadRecentSeances({centerId: CENTER_ID, patientId: 'pid', before: '2026-10-04'});
+    expect(mockApi.getRecentSeancesPatient).toHaveBeenCalledWith(CENTER_ID, 'pid', '2026-10-04');
+    expect(store.recentSeances()).toHaveLength(1);
+
+    mockApi.getRecentSeancesPatient.mockReturnValueOnce(throwError(() => ({status: 500})));
+    store.loadRecentSeances({centerId: CENTER_ID, patientId: 'pid', before: '2026-10-04'});
+    expect(store.recentSeances()).toEqual([]);
+  });
+  it('should adjust a local consommable and drop the line at zero', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.loadArticlesStock({centerId: CENTER_ID});
+    store.addConsommable(store.availableArticles()[0], 2);
+    store.adjustConsommable('art1', -1);
+    expect(store.consommables()[0].quantite).toBe(1);
+    store.adjustConsommable('art1', -1);
+    expect(store.consommables()).toEqual([]);
   });
   it('should keep the error and stop saving when adding a consommable fails', () => {
     mockApi.addSeanceConsommable.mockReturnValueOnce(throwError(() => ({status: 422})));

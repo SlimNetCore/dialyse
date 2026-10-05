@@ -24,24 +24,22 @@ public interface BonSortieUseCase {
                      String poste, LocalDate dateSortie, List<SortieRequestItem> items, String userId);
 
     /**
-     * Cancel all stock exits already recorded for a given article+seance pair.
-     * Lot quantities are restored (FEFO reversal), movements deleted, and PMP recalculated.
-     * Called before updating a consommable quantity on a validated seance.
+     * Ajoute {@code quantite} d'un article au bon de sortie « SEANCE » de la séance : le bon est créé à la première
+     * ligne, puis mis à jour (une séance = un seul bon, jamais un bon par article).
      */
-    void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId);
+    BonSortie addSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                    UUID articleId, BigDecimal quantite, String userId);
 
     /**
-     * Issue new FEFO stock exits for an article on an already-validated seance.
-     * Equivalent to calling {@code create()} but scoped to a single article and
-     * carrying the seance context. Callers should call
-     * {@link #reverseArticleConsommation} first when this is an update (not a pure add).
+     * Fixe la quantité totale d'un article sur le bon de sortie « SEANCE » de la séance ({@code 0} retire la ligne) ;
+     * lots, lignes et mouvements sont recalculés par FEFO sur le même bon.
      */
-    void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
-                                LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId);
+    BonSortie setSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                    UUID articleId, BigDecimal quantite, String userId);
 
     /**
-     * Sortie de stock FEFO à part entière (numéro de pièce dédié, contrairement à
-     * {@link #addArticleConsommation}) : sélectionne automatiquement les lots par FEFO puis crée
+     * Sortie de stock FEFO à part entière (numéro de pièce dédié, distincte du bon « SEANCE » unique tenu par
+     * {@link #addSeanceConsommation}) : sélectionne automatiquement les lots par FEFO puis crée
      * un {@link BonSortie} complet via {@link #create}. Utilisé par l'administration EPO/fer
      * pendant la séance, où chaque administration doit être traçable comme une sortie numérotée
      * distincte (pas une simple correction de mouvement).

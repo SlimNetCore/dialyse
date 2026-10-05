@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.qr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qr-btn {
+  min-height: 56px;
+  min-width: 56px;
+  font-size: 16px;
+}
+
+.qr-camera {
+  position: relative;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #000;
+}
+
+.qr-video {
+  display: block;
+  width: 100%;
+  max-height: min(60vh, 420px);
+  object-fit: cover;
+}
+
+.qr-hint {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+}
+
+.qr-actions .qr-btn.mat-mdc-button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile : seules les icônes restent ; elles sont centrées (Material réserve sinon une marge pour le libellé). */
+@media (max-width: 479px) {
+  .qr-label {
+    display: none;
+  }
+
+  .qr-actions .qr-btn.mat-mdc-button-base {
+    min-width: 56px;
+    padding: 0;
+  }
+
+  .qr-actions .qr-btn.mat-mdc-button-base .mat-icon {
+    margin: 0;
+  }
+}

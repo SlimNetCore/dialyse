@@ -79,8 +79,8 @@ public class AdministrationTraitementRestController {
             // dans ce cas l'administration n'est pas créée, pour éviter une trace sans sortie de stock réelle.
             // Sortie datée du jour réel de l'administration (pas de la date de la séance, qui peut être
             // planifiée dans le futur) : le stock quitte physiquement le magasin au moment du clic, et
-            // createViaFefo() génère un bon de sortie numéroté (contrairement à addArticleConsommation,
-            // qui ne fait que des mouvements bruts sans pièce associée).
+            // createViaFefo() génère un bon de sortie numéroté propre à l'administration, distinct du bon
+            // « SEANCE » unique qui regroupe les consommables de la séance.
             bonSortieUseCase.createViaFefo(center, request.seanceId(), patientId, "ADMINISTRATION",
                     LocalDate.now(), request.articleId(), request.quantiteArticle(), request.administrePar());
         }

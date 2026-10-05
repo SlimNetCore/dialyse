@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
+import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
@@ -128,8 +129,17 @@ public class SeanceDomainService implements SeanceUseCase {
         if (!article.isActive()) {
             throw new IllegalStateException("Article inactif: " + article.getCode());
         }
-        bonSortieUseCase.addArticleConsommation(centerId, seanceId, seance.getPatientId(), seance.getDateSeance(),
+        bonSortieUseCase.addSeanceConsommation(centerId, seanceId, seance.getPatientId(), seance.getDateSeance(),
                 articleId, quantite, userId != null ? userId : "system");
+    }
+
+    @Override
+    public List<SeanceRecap> recentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
+        int bounded = Math.max(1, Math.min(limit, RECENT_MAX));
+        LocalDate until = before != null ? before : LocalDate.now();
+        return seanceRepo.findRecentByPatient(centerId, patientId, until, bounded).stream()
+                .map(s -> new SeanceRecap(s, voletParamedicalRepo.findBySeanceId(s.getId(), centerId).orElse(null)))
+                .toList();
     }
 
     @Override
@@ -306,7 +316,8 @@ public class SeanceDomainService implements SeanceUseCase {
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
             throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
         }
-        bonSortieUseCase.reverseArticleConsommation(centerId, seanceId, articleId, userId);
+        bonSortieUseCase.setSeanceConsommation(centerId, seanceId, seance.getPatientId(), seance.getDateSeance(),
+                articleId, BigDecimal.ZERO, userId);
     }
 
     @Override
@@ -320,9 +331,8 @@ public class SeanceDomainService implements SeanceUseCase {
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
             throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
         }
-        // Reverse existing exits, then create new ones with the updated quantity
-        bonSortieUseCase.reverseArticleConsommation(centerId, seanceId, articleId, userId);
-        bonSortieUseCase.addArticleConsommation(centerId, seanceId, seance.getPatientId(),
+        // Le bon de sortie unique de la séance est mis à jour avec la nouvelle quantité de l'article
+        bonSortieUseCase.setSeanceConsommation(centerId, seanceId, seance.getPatientId(),
                 seance.getDateSeance(), articleId, newQuantite, userId);
     }
 

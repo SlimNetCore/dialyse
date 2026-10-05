@@ -287,62 +287,6 @@ describe('SeancesPageComponent', () => {
     expect(component['listForfaitPrice'](row)).toBe('3 500,00');
   });
 
-  it('should auto-fill qr field when patient code clipboard matches current center', () => {
-    appShellMock.seanceScanClipboard.mockReturnValue({
-      centerId: CENTER_ID,
-      patientCode: 'PAT-777',
-      copiedAt: 1750000000000,
-    });
-
-    TestBed.runInInjectionContext(() => new SeancesPageComponent());
-    TestBed.flushEffects();
-
-    expect(storeMock.setQrCode).toHaveBeenCalledWith('PAT-777');
-  });
-
-  it('should paste qr code manually from browser clipboard', async () => {
-    vi.stubGlobal('navigator', {
-      clipboard: {
-        readText: vi.fn().mockResolvedValue('PAT-321'),
-      },
-    });
-
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
-    await component['readClipboardAndPasteQrCode']();
-
-    expect(storeMock.setQrCode).toHaveBeenCalledWith('PAT-321');
-    vi.unstubAllGlobals();
-  });
-
-  it('should fallback to jsQR for image scanning when BarcodeDetector is unavailable', async () => {
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent()) as any;
-    component['loadImageFromFile'] = vi.fn().mockResolvedValue({naturalWidth: 120, naturalHeight: 120});
-    component['decodeQrValueWithBarcodeDetector'] = vi.fn().mockResolvedValue(null);
-    component['decodeQrValueWithJsQr'] = vi.fn().mockReturnValue('PAT:IMG-001');
-    component['scanQr'] = vi.fn();
-
-    await component['scanQrFromImage'](new File(['qr'], 'qr.png', {type: 'image/png'}));
-
-    expect(component['decodeQrValueWithJsQr']).toHaveBeenCalled();
-    expect(storeMock.setQrCode).toHaveBeenCalledWith('PAT:IMG-001');
-    expect(component['scanQr']).toHaveBeenCalled();
-  });
-
-  it('should always scan with today date', () => {
-    const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
-    const expectedToday = new Date().toISOString().slice(0, 10);
-
-    storeMock['qrCode'] = vi.fn(() => 'PAT-001');
-
-    component['scanQr']();
-
-    expect(storeMock.setDateSeance).toHaveBeenCalledWith(expectedToday);
-    expect(storeMock.scanQr).toHaveBeenCalledWith({
-      centerId: CENTER_ID,
-      qrCode: 'PAT-001',
-    });
-  });
-
   it('should not let a nurse change the forfait but keep her other seance entries', () => {
     const component = TestBed.runInInjectionContext(() => new SeancesPageComponent());
     storeMock['summary'] = vi.fn(() => ({
@@ -358,7 +302,6 @@ describe('SeancesPageComponent', () => {
     expect(storeMock.saveForfait).not.toHaveBeenCalled();
     expect(component['canEditParamedical']()).toBe(true);
     expect(component['canAdministerAnemie']()).toBe(true);
-    expect(component['canScanSeances']()).toBe(true);
   });
 
   it('should save forfait when an administrator edits a seance that is not facturee', () => {

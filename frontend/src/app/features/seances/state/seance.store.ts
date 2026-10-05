@@ -2,7 +2,7 @@ import {computed, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withHooks, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
-import {catchError, EMPTY, of, pipe, switchMap, tap} from 'rxjs';
+import {catchError, concatMap, EMPTY, of, pipe, switchMap, tap} from 'rxjs';
 import {
   ArticleStock,
   BackendApiService,
@@ -13,6 +13,7 @@ import {
   SeanceJournalByDate,
   SeanceListItem,
   SeanceMonthlyDashboard,
+  SeanceRecent,
   SeanceSummary,
   UpsertVoletMedicalPayload,
   UpsertVoletParamedicalPayload,
@@ -151,6 +152,13 @@ type SeanceState = {
   /** Articles disponibles dans le stock du centre */
   availableArticles: ArticleStock[];
   articlesLoading: boolean;
+
+  /** Articles proposés en un toucher à l'infirmier (liste du centre) */
+  raccourcisIds: string[];
+  savingRaccourcis: boolean;
+
+  /** Dernières séances du patient ouvert (rappel du poste infirmier) */
+  recentSeances: SeanceRecent[];
 };
 
 const DASHBOARD_PAGE_SIZE = 10;
@@ -223,6 +231,9 @@ const initialState: SeanceState = {
   savingConsommable: false,
   availableArticles: [],
   articlesLoading: false,
+  raccourcisIds: [],
+  savingRaccourcis: false,
+  recentSeances: [],
 };
 
 export const SeanceStore = signalStore(
@@ -263,6 +274,51 @@ export const SeanceStore = signalStore(
       )
     ),
 
+    // --- Raccourcis de consommables (liste du centre) ---
+    loadRaccourcis: rxMethod<{ centerId: string }>(
+      pipe(
+        switchMap(({centerId}) =>
+          api.getSeanceRaccourcis(centerId).pipe(
+            tap((raccourcisIds) => patchState(store, {raccourcisIds})),
+            catchError(() => {
+              patchState(store, {raccourcisIds: []});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    saveRaccourcis: rxMethod<{ centerId: string; articleIds: string[] }>(
+      pipe(
+        tap(() => patchState(store, {savingRaccourcis: true, error: null})),
+        switchMap(({centerId, articleIds}) =>
+          api.saveSeanceRaccourcis(centerId, articleIds).pipe(
+            tap((raccourcisIds) => patchState(store, {raccourcisIds, savingRaccourcis: false})),
+            catchError((err: unknown) => {
+              patchState(store, {savingRaccourcis: false, error: errorMessage(err)});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
+    // --- Rappel des dernières séances du patient ---
+    loadRecentSeances: rxMethod<{ centerId: string; patientId: string; before: string }>(
+      pipe(
+        tap(() => patchState(store, {recentSeances: []})),
+        switchMap(({centerId, patientId, before}) =>
+          api.getRecentSeancesPatient(centerId, patientId, before).pipe(
+            tap((recentSeances) => patchState(store, {recentSeances})),
+            catchError(() => {
+              patchState(store, {recentSeances: []});
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+
     // --- Consommables ---
     setNewConsommableArticleId(newConsommableArticleId: string): void {
       patchState(store, {newConsommableArticleId});
@@ -294,6 +350,14 @@ export const SeanceStore = signalStore(
           newConsommableQuantite: null,
         });
       }
+    },
+    /** Ajuste localement la quantité d'une ligne (séance pas encore validée) ; la ligne disparaît à 0. */
+    adjustConsommable(articleId: string, delta: number): void {
+      patchState(store, {
+        consommables: store.consommables()
+          .map((c) => (c.articleId === articleId ? {...c, quantite: c.quantite + delta} : c))
+          .filter((c) => c.quantite > 0),
+      });
     },
     removeConsommable(articleId: string): void {
       patchState(store, {consommables: store.consommables().filter((c) => c.articleId !== articleId)});
@@ -372,7 +436,8 @@ export const SeanceStore = signalStore(
     addConsommableToSeance: rxMethod<{ seanceId: string; centerId: string; articleId: string; quantite: number }>(
       pipe(
         tap(() => patchState(store, {savingConsommable: true, error: null})),
-        switchMap(({seanceId, centerId, articleId, quantite}) =>
+        // concatMap : des touches rapides sur « +1 » s'enchaînent toutes, aucune n'est abandonnée.
+        concatMap(({seanceId, centerId, articleId, quantite}) =>
           api.addSeanceConsommable(seanceId, {centerId, articleId, quantite}).pipe(
             switchMap(() => api.getSeanceSummary(seanceId, centerId)),
             tap((summary) => patchState(store, {

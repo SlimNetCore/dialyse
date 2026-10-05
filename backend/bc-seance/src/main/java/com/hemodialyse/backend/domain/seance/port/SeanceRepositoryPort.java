@@ -20,6 +20,12 @@ public interface SeanceRepositoryPort {
     List<SeanceListItem> findAllByCenter(CenterId centerId);
 
     /**
+     * Les {@code limit} séances les plus récentes d'un patient, strictement antérieures à {@code before}
+     * (de la plus récente à la plus ancienne), dans le centre.
+     */
+    List<Seance> findRecentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit);
+
+    /**
      * Returns a paginated list of SeanceListItem (no patient enrichment — done by domain service).
      */
     PagedResult<SeanceListItem> findPagedByCenter(CenterId centerId, int page, int size);

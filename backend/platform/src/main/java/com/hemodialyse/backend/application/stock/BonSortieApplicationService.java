@@ -75,14 +75,15 @@ public class BonSortieApplicationService implements BonSortieUseCase {
     }
 
     @Override
-    public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
-        delegate.reverseArticleConsommation(centerId, seanceId, articleId, userId);
+    public BonSortie addSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                           UUID articleId, BigDecimal quantite, String userId) {
+        return delegate.addSeanceConsommation(centerId, seanceId, patientId, dateSeance, articleId, quantite, userId);
     }
 
     @Override
-    public void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
-                                       LocalDate dateSeance, UUID articleId, BigDecimal quantite, String userId) {
-        delegate.addArticleConsommation(centerId, seanceId, patientId, dateSeance, articleId, quantite, userId);
+    public BonSortie setSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                           UUID articleId, BigDecimal quantite, String userId) {
+        return delegate.setSeanceConsommation(centerId, seanceId, patientId, dateSeance, articleId, quantite, userId);
     }
 
     @Override

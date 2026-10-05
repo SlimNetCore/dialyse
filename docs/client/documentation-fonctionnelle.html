@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-04<br>458 règles de gestion · 16 domaines · 333 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-04<br>461 règles de gestion · 16 domaines · 333 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,7 +295,7 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>458</b>règles de gestion</div>
+            <div><b>461</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
             <div><b>7</b>points d'attention</div>
@@ -2725,18 +2725,81 @@
             <div class="rid">RG-SEA-022</div>
             <div class="rtxt"><p>Retirer un consommable d&#39;une séance (<code>ADMIN</code>, <code>INFIRMIER</code>)
                 restitue le stock ; modifier sa quantité
-                (strictement positive) annule la sortie existante et en recrée
-                une au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.</p>
+                (positive) met à jour la ligne du <strong>bon de sortie unique de la séance</strong> (RG-SEA-025), dont
+                les lots sont resélectionnés
+                au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-025">
             <div class="rid">RG-SEA-025</div>
-            <div class="rtxt"><p><strong>Ajout d&#39;un consommable à une séance déjà validée</strong>
-                (<code>ADMIN</code>, <code>INFIRMIER</code> ; <code>POST /seances/{id}/consommables</code>) : seule la
-                ligne ajoutée sort du stock (FEFO, article actif, quantité strictement
-                positive) sans retraiter les consommables existants ; autorisé pour une séance <code>VALIDEE</code> ou
-                <code>SIGNEE</code>, refusé si
-                facturée ou non validée. Chaque saisie notifie le médecin (RG-NOT-004).</p>
+            <div class="rtxt"><p><strong>Une séance = un seul bon de sortie « SEANCE »</strong> : à la validation
+                (RG-SEA-021) ou, pour une
+                séance déjà validée, dès le <strong>premier article ajouté</strong> (<code>ADMIN</code>,
+                <code>INFIRMIER</code> ; <code>POST /seances/{id}/consommables</code>),
+                le bon est créé avec son numéro de pièce ; chaque ajout, modification de quantité ou retrait <strong>met
+                    à jour ce même
+                    bon</strong> (lignes, lots et mouvements recalculés par FEFO, stock rendu restitué) au lieu de créer
+                une sortie par article.
+                Article actif exigé pour une quantité qui augmente, quantité d&#39;ajout strictement positive ; autorisé
+                pour une séance
+                <code>VALIDEE</code> ou <code>SIGNEE</code>, refusé si facturée (« La seance facturee ne peut plus etre
+                modifiee ») ou non validée.
+                Les administrations EPO/fer gardent leur propre bon numéroté (poste « ADMINISTRATION »). Chaque saisie
+                notifie le
+                médecin (RG-NOT-004).</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-SEA-026">
+            <div class="rid">RG-SEA-026</div>
+            <div class="rtxt"><p><strong>Poste infirmier</strong> (écran « Séances » des rôles <code>ADMIN</code>,
+                <code>INFIRMIER</code>, <code>SECRETAIRE</code> ; le médecin seul
+                garde l&#39;écran de consultation) : un seul écran pour scanner, choisir le patient dans la <strong>file
+                    du jour</strong> (séances du
+                jour avec leur statut : à valider, validée, signée, facturée, absent) et saisir la séance en quatre
+                étapes —
+                constantes (avec le poids sec prescrit), consommables, anémie, remarques. Les constantes s&#39;enregistrent
+                à la sortie de
+                chaque champ et les remarques après une courte pause de frappe, sans bouton « Enregistrer » ; une séance
+                facturée est
+                en lecture seule. Les consommables les plus sortis du jour dans le centre sont proposés en un toucher
+                (+1 unité,
+                RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l&#39;état n&#39;est pas « en
+                service ». Les
+                tableaux, filtres et la modification du forfait ou de la date restent dans
+                l&#39;<strong>historique</strong> des séances
+                (<code>ADMIN</code>). La secrétaire voit la file et scanne mais n&#39;ouvre pas la saisie clinique. L&#39;écran
+                est responsive : une
+                colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
+                L&#39;habillage suit la charte de l&#39;application (thème actif, titres Fraunces, cartes vitrées,
+                indicateurs du jour).
+                Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028).
+                <em>Source :</em> <code>SeanceStationComponent</code>, <code>QrScannerComponent</code>.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-SEA-027">
+            <div class="rid">RG-SEA-027</div>
+            <div class="rtxt"><p><strong>Raccourcis de consommables du centre</strong> : l&#39;<code>ADMIN</code>
+                choisit (au plus 12, sans doublon, articles
+                actifs du centre, ordre de sélection conservé) les articles proposés en un toucher à l&#39;infirmier
+                (<code>PUT /seances/raccourcis-consommables</code>) ; la lecture est ouverte à <code>ADMIN</code>,
+                <code>INFIRMIER</code> et <code>SECRETAIRE</code>. Sans
+                raccourci configuré, l&#39;écran propose les articles les plus sortis du jour (6 au plus). La liste est
+                propre au centre
+                (isolation stricte), mise en cache par centre et purgée à chaque modification.
+                <em>Source :</em> <code>SeanceRaccourciDomainService</code>,
+                <code>SeanceRaccourciApplicationService</code>.</p>
+            </div>
+        </div>
+        <div class="rule" id="RG-SEA-028">
+            <div class="rid">RG-SEA-028</div>
+            <div class="rtxt"><p><strong>Rappel des dernières séances</strong> (<code>GET
+                /seances/patient/{id}/recentes</code>, <code>ADMIN</code>, <code>INFIRMIER</code>,
+                <code>MEDECIN</code>) : les 3 dernières séances du patient antérieures à la séance ouverte (10 au plus,
+                de la plus récente à
+                la plus ancienne) avec leurs constantes — poids avant/après, perte de poids, tension, durée,
+                ultrafiltration.
+                Limité au centre de la session.
+                <em>Source :</em> <code>SeanceDomainService.recentByPatient</code>.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-023">
@@ -5557,6 +5620,14 @@
                 <td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> selon l&#39;action
                 </td>
                 <td>RG-SEA-001 à 044</td>
+            </tr>
+            <tr>
+                <td><code>SeanceStationRestController</code></td>
+                <td><code>/api/v1/seances/raccourcis-consommables</code>, <code>/patient/{id}/recentes</code></td>
+                <td><code>ADMIN</code> (écriture), <code>INFIRMIER</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>
+                    selon l&#39;action
+                </td>
+                <td>RG-SEA-026 à 028</td>
             </tr>
             <tr>
                 <td><code>VoletParamedicalRestController</code></td>

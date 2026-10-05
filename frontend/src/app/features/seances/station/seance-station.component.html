@@ -1,0 +1,396 @@
+<section [attr.data-view]="view()" class="station app-page">
+  <header class="app-hero-card hero">
+    <div class="hero-top">
+      <div class="hero-title">
+        <span class="app-eyebrow">
+          <mat-icon aria-hidden="true">monitor_heart</mat-icon>
+          {{ 'SEANCES.STATION.EYEBROW' | translate }}
+        </span>
+        <h1>{{ 'SEANCES.STATION.TITLE' | translate }}</h1>
+        <p class="hero-date">{{ todayLabel() }}</p>
+      </div>
+      <div class="app-data-strip hero-kpis">
+        <div class="app-data-pill">
+          <span>{{ 'SEANCES.STATION.KPI_TOTAL' | translate }}</span>
+          <strong>{{ queue().length }}</strong>
+        </div>
+        <div class="app-data-pill kpi-ok">
+          <span>{{ 'SEANCES.STATION.KPI_VALIDATED' | translate }}</span>
+          <strong>{{ doneCount() }}</strong>
+        </div>
+        <div class="app-data-pill kpi-todo">
+          <span>{{ 'SEANCES.STATION.KPI_TODO' | translate }}</span>
+          <strong>{{ queue().length - doneCount() }}</strong>
+        </div>
+      </div>
+    </div>
+
+    @if (canScan()) {
+      <div class="scan-bar">
+        <div class="scan-field">
+          <mat-icon aria-hidden="true">qr_code_scanner</mat-icon>
+          <input (input)="onQrInput($event)" (keydown.enter)="scan()"
+                 [attr.aria-label]="'SEANCES.STATION.SCAN_PLACEHOLDER' | translate"
+                 [placeholder]="'SEANCES.STATION.SCAN_PLACEHOLDER' | translate" [value]="store.qrCode()"
+                 autocomplete="off" autofocus enterkeyhint="go" inputmode="text" type="text"/>
+          <button (click)="scan()" [disabled]="store.scanning()" class="scan-go" color="primary" mat-flat-button
+                  type="button">
+            {{ 'SEANCES.STATION.SCAN_GO' | translate }}
+          </button>
+        </div>
+        <app-qr-scanner (scanned)="scan($event)"/>
+      </div>
+
+      @if (store.scanState() === 'error' && store.scanMessage()) {
+        <div class="banner banner-error" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          <span>{{ store.scanMessage() | translate }}</span>
+        </div>
+      } @else if (store.lastScan(); as scan) {
+        <div class="banner banner-success" role="status">
+          <mat-icon aria-hidden="true">check_circle</mat-icon>
+          <div class="banner-text">
+            <strong>{{ scan.patientNom }} {{ scan.patientPrenom }} · {{ scan.patientCode }}</strong>
+            <span>{{ scanKey() | translate }}</span>
+          </div>
+        </div>
+      }
+    }
+  </header>
+
+  <div class="panes">
+    <aside [attr.aria-label]="'SEANCES.STATION.QUEUE_TITLE' | translate" class="app-panel queue-pane">
+      <div class="pane-head">
+        <h2>{{ 'SEANCES.STATION.QUEUE_TITLE' | translate }}</h2>
+        <span class="count-badge">{{ doneCount() }}/{{ queue().length }}</span>
+      </div>
+      @if (queue().length === 0) {
+        <div class="empty-state">
+          <mat-icon aria-hidden="true">event_available</mat-icon>
+          <p>{{ 'SEANCES.STATION.QUEUE_EMPTY' | translate }}</p>
+        </div>
+      }
+      @for (p of queue(); track p.seanceId) {
+        <button (click)="openFromQueue(p.seanceId)" [attr.data-status]="p.status"
+                [class.selected]="p.seanceId === store.selectedSeanceId()" [disabled]="!isClinicalUser()"
+                class="queue-item" type="button">
+          <span class="avatar">{{ initials(p.patientNom, p.patientPrenom) }}</span>
+          <span class="queue-name">
+            <strong>{{ p.patientNom }} {{ p.patientPrenom }}</strong>
+            <small>{{ p.patientCode }}</small>
+          </span>
+          <span [attr.data-status]="p.status" class="chip">{{ statusKey(p.status) | translate }}</span>
+        </button>
+      }
+      @if (hasHistory()) {
+        <a class="history-link" routerLink="historique">
+          <mat-icon aria-hidden="true">history</mat-icon>
+          {{ 'SEANCES.STATION.HISTORY' | translate }}
+        </a>
+      }
+    </aside>
+
+    <main class="app-panel seance-pane">
+      @if (summary(); as s) {
+        <div class="patient-head">
+          <button (click)="backToQueue()" [attr.aria-label]="'SEANCES.STATION.BACK_TO_QUEUE' | translate"
+                  class="back-btn" mat-icon-button type="button">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="avatar avatar-lg">{{ initials(s.patient.nom, s.patient.prenom) }}</span>
+          <div class="patient-id">
+            <h2>{{ patientName() }}</h2>
+            <div class="meta-chips">
+              <span class="meta-chip"><mat-icon aria-hidden="true">badge</mat-icon>
+                {{ s.patient.codePatient }}</span>
+              @if (forfaitLabel()) {
+                <span class="meta-chip"><mat-icon aria-hidden="true">receipt_long</mat-icon>
+                  {{ forfaitLabel() }}</span>
+              }
+              @if (generatorLabel()) {
+                <span class="meta-chip"><mat-icon aria-hidden="true">settings_input_component</mat-icon>
+                  {{ generatorLabel() }}</span>
+              }
+            </div>
+          </div>
+          <span [attr.data-status]="s.seance.status"
+                class="chip chip-lg">{{ statusKey(s.seance.status) | translate }}</span>
+        </div>
+
+        @if (generatorWarning(); as state) {
+          <div class="banner banner-warning" role="alert">
+            <mat-icon aria-hidden="true">warning</mat-icon>
+            <span>{{ 'SEANCES.STATION.GENERATOR_WARNING' | translate: {state: state} }}</span>
+          </div>
+        }
+
+        <nav [attr.aria-label]="'SEANCES.STATION.STEPS' | translate" class="stepper">
+          @for (st of steps; track st; let i = $index) {
+            <button (click)="goTo(st)" [class.active]="step() === st" [class.done]="i < stepIndex()" class="step-pill"
+                    type="button">
+              <span class="step-num">
+                @if (i < stepIndex()) {
+                  <mat-icon aria-hidden="true">check</mat-icon>
+                } @else {
+                  {{ i + 1 }}
+                }
+              </span>
+              <span class="step-label">{{ 'SEANCES.STATION.STEP_' + st.toUpperCase() | translate }}</span>
+            </button>
+          }
+        </nav>
+
+        <section [class.active]="step() === 'constantes'" class="step-section">
+          <h3>
+            <mat-icon aria-hidden="true">monitor_heart</mat-icon>
+            {{ 'SEANCES.STATION.STEP_CONSTANTES' | translate }}
+          </h3>
+          <div class="fields">
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.WEIGHT_BEFORE' | translate }}</span>
+              <input (change)="setDecimal('poidsAvantKg', $event); save()" [disabled]="!canEdit()"
+                     [value]="store.poidsAvantKg() ?? ''" inputmode="decimal" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.WEIGHT_AFTER' | translate }}</span>
+              <input (change)="setDecimal('poidsApresKg', $event); save()" [disabled]="!canEdit()"
+                     [value]="store.poidsApresKg() ?? ''" inputmode="decimal" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.BP_BEFORE' | translate }}</span>
+              <input (change)="setText('taAvant', $event); save()" [disabled]="!canEdit()" [value]="store.taAvant()"
+                     inputmode="text" placeholder="12/8" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.BP_AFTER' | translate }}</span>
+              <input (change)="setText('taApres', $event); save()" [disabled]="!canEdit()" [value]="store.taApres()"
+                     inputmode="text" placeholder="12/8" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.DURATION' | translate }}</span>
+              <input (change)="setDecimal('dureeMinutes', $event); save()" [disabled]="!canEdit()"
+                     [value]="store.dureeMinutes() ?? ''" inputmode="numeric" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.BLOOD_FLOW' | translate }}</span>
+              <input (change)="setDecimal('debitSangMlMin', $event); save()" [disabled]="!canEdit()"
+                     [value]="store.debitSangMlMin() ?? ''" inputmode="numeric" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.ULTRAFILTRATION' | translate }}</span>
+              <input (change)="setDecimal('ultrafiltrationMl', $event); save()" [disabled]="!canEdit()"
+                     [value]="store.ultrafiltrationMl() ?? ''" inputmode="numeric" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.ANTICOAGULANT' | translate }}</span>
+              <input (change)="setText('anticoagulant', $event); save()" [disabled]="!canEdit()"
+                     [value]="store.anticoagulant()" type="text"/>
+            </label>
+            <label class="field">
+              <span>{{ 'SEANCES.STATION.DIALYSATE' | translate }}</span>
+              <input (change)="setText('typeDialysat', $event); save()" [disabled]="!canEdit()"
+                     [value]="store.typeDialysat()" type="text"/>
+            </label>
+          </div>
+          <app-poids-sec-seance
+            [centerId]="centerId()"
+            [patientId]="s.seance.patientId"
+            [poidsApresKg]="store.poidsApresKg()"
+            [poidsAvantKg]="store.poidsAvantKg()"
+            [seanceDate]="s.seance.dateSeance"
+          />
+        </section>
+
+        <section [class.active]="step() === 'consommables'" class="step-section">
+          <h3>
+            <mat-icon aria-hidden="true">inventory_2</mat-icon>
+            {{ 'SEANCES.STATION.STEP_CONSOMMABLES' | translate }}
+          </h3>
+          @if (canEdit()) {
+            <p class="hint">{{ 'SEANCES.STATION.QUICK_ARTICLES' | translate }}</p>
+            <div class="quick-grid">
+              @for (a of quickArticles(); track a.id) {
+                <button (click)="addOne(a.id)" [disabled]="store.savingConsommable()" class="quick-btn" type="button">
+                  <span class="quick-icon"><mat-icon aria-hidden="true">add</mat-icon></span>
+                  <span class="quick-name">{{ a.libelle }}</span>
+                </button>
+              }
+            </div>
+            <app-searchable-select
+              (selectionChanged)="onOtherArticle($event)"
+              [items]="articleItems()"
+              [label]="'SEANCES.STATION.OTHER_ARTICLE' | translate"
+              [selectedId]="null"
+              prefixIcon="search"
+            />
+            @if (canConfigureShortcuts()) {
+              @if (configuring()) {
+                <div class="shortcut-config">
+                  <p class="hint">{{ 'SEANCES.STATION.SHORTCUTS_HINT' | translate: {max: shortcutsMax} }}</p>
+                  <div class="shortcut-chips">
+                    @for (a of activeArticles(); track a.id) {
+                      <button (click)="toggleShortcut(a.id)" [attr.aria-pressed]="draftShortcuts().includes(a.id)"
+                              [class.on]="draftShortcuts().includes(a.id)" class="shortcut-chip" type="button">
+                        @if (draftShortcuts().includes(a.id)) {
+                          <span class="chip-rank">{{ draftShortcuts().indexOf(a.id) + 1 }}</span>
+                        }
+                        {{ a.libelle }}
+                      </button>
+                    }
+                  </div>
+                  <div class="shortcut-actions">
+                    <button (click)="cancelConfiguring()" mat-stroked-button type="button">
+                      {{ 'COMMON.CANCEL' | translate }}
+                    </button>
+                    <button (click)="saveShortcuts()" [disabled]="store.savingRaccourcis()" color="primary"
+                            mat-flat-button type="button">
+                      {{ 'COMMON.SAVE' | translate }}
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <button (click)="startConfiguring()" class="link-btn" type="button">
+                  <mat-icon aria-hidden="true">tune</mat-icon>
+                  {{ 'SEANCES.STATION.CONFIGURE_SHORTCUTS' | translate }}
+                </button>
+              }
+            }
+          }
+          @if (store.consommables().length === 0) {
+            <div class="empty-state">
+              <mat-icon aria-hidden="true">inventory</mat-icon>
+              <p>{{ 'SEANCES.STATION.NO_CONSOMMABLE' | translate }}</p>
+            </div>
+          }
+          <ul class="conso-list">
+            @for (c of store.consommables(); track c.articleId) {
+              <li class="conso-row">
+                <span class="conso-name">{{ articleLabel(c.articleId, c.articleLibelle) }}</span>
+                <span class="stepper-qty">
+                  @if (canEdit()) {
+                    <button (click)="decrease(c.articleId, c.quantite)"
+                            [attr.aria-label]="'SEANCES.STATION.DECREASE' | translate"
+                            class="round-btn" type="button">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                  }
+                  <span class="conso-qty">{{ c.quantite }}</span>
+                  @if (canEdit()) {
+                    <button (click)="addOne(c.articleId)" [attr.aria-label]="'SEANCES.STATION.INCREASE' | translate"
+                            class="round-btn" type="button">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  }
+                </span>
+                @if (canEdit()) {
+                  <button (click)="remove(c.articleId)" [attr.aria-label]="'SEANCES.STATION.REMOVE' | translate"
+                          class="round-btn danger" type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section [class.active]="step() === 'anemie'" class="step-section">
+          <h3>
+            <mat-icon aria-hidden="true">bloodtype</mat-icon>
+            {{ 'SEANCES.STATION.STEP_ANEMIE' | translate }}
+          </h3>
+          <app-administration-anemie-seance
+            [canEdit]="canAdministerAnemie()"
+            [centerId]="centerId()"
+            [patientId]="s.seance.patientId"
+            [seanceDate]="s.seance.dateSeance"
+            [seanceId]="s.seance.id"
+          />
+        </section>
+
+        <section [class.active]="step() === 'remarques'" class="step-section">
+          <h3>
+            <mat-icon aria-hidden="true">edit_note</mat-icon>
+            {{ 'SEANCES.STATION.STEP_REMARQUES' | translate }}
+          </h3>
+          <app-rich-text-editor
+            (contentChange)="onRemarques($event)"
+            [readOnly]="!canEdit()"
+            [value]="store.incidents()"
+            height="200px"
+          />
+        </section>
+
+        <div class="action-bar">
+          <span aria-live="polite" class="save-state">
+            @if (store.savingParamedical() || store.savingConsommable()) {
+              {{ 'SEANCES.STATION.SAVING' | translate }}
+            } @else if (savedOnce()) {
+              <mat-icon aria-hidden="true">check_circle</mat-icon>{{ 'SEANCES.STATION.SAVED' | translate }}
+            }
+          </span>
+          @if (canValidate()) {
+            <button (click)="validate()" [disabled]="store.validatingSeance()" class="act-btn act-primary"
+                    color="primary"
+                    mat-flat-button type="button">
+              <mat-icon>task_alt</mat-icon>
+              {{ 'SEANCES.STATION.VALIDATE' | translate }}
+            </button>
+          }
+          <div class="nav-btns">
+            <button (click)="previous()" [disabled]="stepIndex() === 0" class="act-btn" mat-stroked-button
+                    type="button">
+              <mat-icon>arrow_back</mat-icon>
+              {{ 'SEANCES.STATION.PREV' | translate }}
+            </button>
+            <button (click)="next()" class="act-btn" mat-stroked-button type="button">
+              {{ (isLastStep() ? 'SEANCES.STATION.FINISH' : 'SEANCES.STATION.NEXT') | translate }}
+              <mat-icon iconPositionEnd>{{ isLastStep() ? 'done_all' : 'arrow_forward' }}</mat-icon>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="placeholder">
+          <mat-icon aria-hidden="true">{{ store.summaryLoading() ? 'hourglass_top' : 'touch_app' }}</mat-icon>
+          <p>{{ (store.summaryLoading() ? 'COMMON.LOADING' : 'SEANCES.STATION.SELECT_PATIENT') | translate }}</p>
+        </div>
+      }
+    </main>
+
+    @if (summary()) {
+      <aside [attr.aria-label]="'SEANCES.STATION.RECENT_TITLE' | translate" class="app-panel context-pane">
+        <div class="pane-head">
+          <h2>{{ 'SEANCES.STATION.RECENT_TITLE' | translate }}</h2>
+        </div>
+        @if (recentSeances().length === 0) {
+          <p class="empty">{{ 'SEANCES.STATION.RECENT_EMPTY' | translate }}</p>
+        }
+        @for (r of recentSeances(); track r.seanceId) {
+          <div class="recent-item">
+            <div class="recent-head">
+              <strong>{{ r.dateSeance }}</strong>
+              <span [attr.data-status]="r.status" class="chip">{{ statusKey(r.status) | translate }}</span>
+            </div>
+            <dl class="recent-grid">
+              <div>
+                <dt>{{ 'SEANCES.STATION.RECENT_WEIGHT' | translate }}</dt>
+                <dd>{{ r.poidsAvantKg ?? '–' }} → {{ r.poidsApresKg ?? '–' }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'SEANCES.STATION.RECENT_LOSS' | translate }}</dt>
+                <dd>{{ weightLossKg(r.poidsAvantKg, r.poidsApresKg) ?? '–' }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'SEANCES.STATION.BP_BEFORE' | translate }}</dt>
+                <dd>{{ r.taAvant || '–' }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'SEANCES.STATION.DURATION' | translate }}</dt>
+                <dd>{{ r.dureeMinutes ?? '–' }}</dd>
+              </div>
+            </dl>
+          </div>
+        }
+      </aside>
+    }
+  </div>
+</section>

@@ -20,46 +20,6 @@ mat-card {
   color: var(--app-muted, #64748b);
 }
 
-.camera-container,
-.camera-panel {
-  position: relative;
-  margin-top: 16px;
-  overflow: hidden;
-  border-radius: 24px;
-  border: 1px solid var(--app-border);
-  background: color-mix(in srgb, var(--app-surface-solid) 88%, transparent);
-  min-height: 260px;
-}
-
-.camera-panel.is-hidden {
-  display: none;
-}
-
-.camera-video {
-  display: block;
-  width: 100%;
-  max-height: 420px;
-  object-fit: cover;
-  background: #000;
-}
-
-.camera-overlay {
-  position: absolute;
-  inset: auto 16px 16px 16px;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.camera-overlay span {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.58);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
 
 .resume-grid {
   display: grid;
@@ -226,68 +186,6 @@ mat-card {
 
 .role-note, .locked-note, .section-note, .loading-note {
   margin-top: 12px;
-}
-
-.scan-status {
-  margin-top: 12px;
-  display: flex;
-  width: 100%;
-  box-sizing: border-box;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: 18px;
-  border: 1px solid var(--app-border);
-  background: color-mix(in srgb, var(--app-surface-solid) 92%, transparent);
-  color: var(--app-text);
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.scan-status mat-icon {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  font-size: 32px;
-}
-
-.scan-result {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.scan-result-patient {
-  font-size: 20px;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.scan-result-detail {
-  font-size: 14px;
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-.scanner-card .scan-row input {
-  font-size: 18px;
-}
-
-.scanner-card .scan-row > button {
-  min-height: 56px;
-  min-width: 56px;
-  font-size: 16px;
-}
-
-.scan-status[data-state='success'] {
-  background: color-mix(in srgb, #16a34a 14%, var(--app-surface-solid) 86%);
-  color: color-mix(in srgb, #16a34a 72%, white 28%);
-}
-
-.scan-status[data-state='error'] {
-  background: color-mix(in srgb, #dc2626 14%, var(--app-surface-solid) 86%);
-  color: color-mix(in srgb, #dc2626 76%, white 24%);
 }
 
 .table-wrap {
@@ -693,12 +591,6 @@ mat-card {
   color: var(--app-muted);
 }
 
-.scanner-card mat-card-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
 @media (max-width: 1200px) {
   .seance-workspace {
     grid-template-columns: minmax(0, 1fr);
@@ -778,8 +670,7 @@ mat-card {
     overflow-wrap: anywhere;
   }
 
-  .forfait-pill,
-  .scan-status {
+  .forfait-pill {
     width: 100%;
   }
 
@@ -791,11 +682,6 @@ mat-card {
   .forfait-pill__field {
     min-width: 100%;
     flex-basis: 100%;
-  }
-
-  .scan-status {
-    align-items: flex-start;
-    border-radius: 14px;
   }
 
   .chart-wrap {

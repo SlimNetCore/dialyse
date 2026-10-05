@@ -10,12 +10,6 @@
           {{ 'SEANCES.CALENDAR_CENTER_BTN' | translate }}
         </a>
       }
-      @if (canScanSeances()) {
-        <button (click)="scrollToScanner()" color="accent" mat-stroked-button type="button">
-          <mat-icon>qr_code_scanner</mat-icon>
-          {{ 'SEANCES.SCAN_PATIENT_BTN' | translate }}
-        </button>
-      }
     </div>
   </div>
 
@@ -147,79 +141,6 @@
         </div>
       </div>
     </div>
-  }
-
-  @if (canScanSeances()) {
-    <mat-card class="scanner-card" id="scanner-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>qr_code_scanner</mat-icon>
-          {{ 'SEANCES.QR_SCANNER_TITLE' | translate }}
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="scan-row">
-          <mat-form-field appearance="outline" class="flex1">
-            <mat-label>{{ 'SEANCES.QR_CODE_LABEL' | translate }}</mat-label>
-            <input (input)="onQrInput($event)" (keydown.enter)="scanQr()"
-                   [placeholder]="'SEANCES.QR_INPUT_PLACEHOLDER' | translate"
-                   [value]="qrCode()" autocomplete="off" autofocus enterkeyhint="go" inputmode="text" matInput/>
-            <button
-              (click)="pasteQrCodeManually()"
-              [attr.aria-label]="'SEANCES.PASTE_BTN' | translate"
-              [disabled]="scanning()"
-              [title]="'SEANCES.PASTE_BTN' | translate"
-              mat-icon-button
-              matSuffix
-              type="button"
-            >
-              <mat-icon>content_paste</mat-icon>
-            </button>
-          </mat-form-field>
-          <button (click)="scanQr()" [disabled]="scanning()" color="primary" mat-flat-button type="button">
-            <mat-icon>qr_code_scanner</mat-icon>
-            {{ scanning() ? ('COMMON.SCANNING' | translate) : ('SEANCES.SCAN_BTN' | translate) }}
-          </button>
-          <button (click)="triggerImagePicker()" color="accent" mat-stroked-button type="button">
-            <mat-icon>image_search</mat-icon>
-            {{ 'SEANCES.IMAGE_BTN' | translate }}
-          </button>
-          <input #qrImageInput (change)="onQrImageSelected($event)" accept="image/*" hidden type="file"/>
-          <button (click)="toggleCamera()" [disabled]="cameraStarting()" color="accent" mat-stroked-button
-                  type="button">
-            <mat-icon>{{ cameraActive() ? 'videocam_off' : 'videocam' }}</mat-icon>
-            {{ cameraActive() ? ('SEANCES.STOP_CAMERA_BTN' | translate) : ('SEANCES.CAMERA_BTN' | translate) }}
-          </button>
-        </div>
-
-        @if (cameraActive()) {
-          <div class="camera-container">
-            <video #cameraVideo autoplay class="camera-video" playsinline></video>
-            <div class="camera-overlay">
-              <span>{{ 'SEANCES.CAMERA_HINT' | translate }}</span>
-            </div>
-          </div>
-        }
-
-        <div [attr.data-state]="scanState()" class="scan-status">
-          <mat-icon>{{ scanState() === 'success' ? 'check_circle' : scanState() === 'error' ? 'error' : 'info' }}</mat-icon>
-          <div class="scan-result">
-            @if (scanState() === 'success' && lastScan(); as scan) {
-              <span class="scan-result-patient">{{ scan.patientNom }} {{ scan.patientPrenom }}
-                · {{ scan.patientCode }}</span>
-            }
-            <span
-              [class.scan-result-detail]="scanState() === 'success' && lastScan()">{{ scanMessage() | translate }}</span>
-          </div>
-        </div>
-
-        @if (!canOpenSeanceDetails()) {
-          <p class="role-note">
-            {{ 'SEANCES.SECRETARY_SCAN_NOTE' | translate }}
-          </p>
-        }
-      </mat-card-content>
-    </mat-card>
   }
 
   <div class="seance-workspace">

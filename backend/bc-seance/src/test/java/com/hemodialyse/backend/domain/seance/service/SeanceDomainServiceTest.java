@@ -479,7 +479,7 @@ class SeanceDomainServiceTest {
     }
 
     @Test
-    void removeConsommableSeance_should_call_reverse_and_succeed() {
+    void removeConsommableSeance_should_set_the_article_quantity_to_zero_on_the_session_bon() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
         UUID seanceId = UUID.randomUUID();
@@ -496,12 +496,13 @@ class SeanceDomainServiceTest {
                 new InMemoryArticleRepository(), new InMemoryLotRepository(), spyBonSortie);
         service.removeConsommableSeance(centerId, seanceId, articleId, "inf-01");
 
-        assertTrue(spyBonSortie.reverseCalled);
-        assertEquals(articleId, spyBonSortie.lastReversedArticleId);
+        assertTrue(spyBonSortie.setCalled);
+        assertEquals(articleId, spyBonSortie.lastSetArticleId);
+        assertEquals(0, BigDecimal.ZERO.compareTo(spyBonSortie.lastSetQuantite));
     }
 
     @Test
-    void updateConsommableSeance_should_call_reverse_then_add() {
+    void updateConsommableSeance_should_set_the_new_quantity_on_the_single_session_bon() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
         UUID seanceId = UUID.randomUUID();
@@ -518,11 +519,34 @@ class SeanceDomainServiceTest {
                 new InMemoryArticleRepository(), new InMemoryLotRepository(), spyBonSortie);
         service.updateConsommableSeance(centerId, seanceId, articleId, new BigDecimal("3"), "inf-01");
 
-        assertTrue(spyBonSortie.reverseCalled);
-        assertEquals(articleId, spyBonSortie.lastReversedArticleId);
-        assertTrue(spyBonSortie.addCalled);
-        assertEquals(articleId, spyBonSortie.lastAddedArticleId);
-        assertEquals(new BigDecimal("3"), spyBonSortie.lastAddedQuantite);
+        assertTrue(spyBonSortie.setCalled);
+        assertEquals(articleId, spyBonSortie.lastSetArticleId);
+        assertEquals(new BigDecimal("3"), spyBonSortie.lastSetQuantite);
+        assertFalse(spyBonSortie.addCalled, "une modification ne crée pas une nouvelle sortie");
+    }
+
+    @Test
+    void recentByPatient_should_return_the_latest_sessions_before_the_date_newest_first_and_bounded() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        LocalDate today = LocalDate.of(2026, 10, 4);
+        for (int i = 0; i < 14; i++) {
+            seanceRepo.save(new Seance(UUID.randomUUID(), patientId, centerId.value(), today.minusDays(i)));
+        }
+        seanceRepo.save(new Seance(UUID.randomUUID(), UUID.randomUUID(), centerId.value(), today.minusDays(1)));
+        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
+
+        var recents = service.recentByPatient(centerId, patientId, today, 3);
+
+        assertEquals(3, recents.size());
+        assertEquals(today.minusDays(1), recents.get(0).seance().getDateSeance(), "la séance du jour est exclue");
+        assertEquals(today.minusDays(3), recents.get(2).seance().getDateSeance());
+        assertEquals(10, service.recentByPatient(centerId, patientId, today, 99).size(), "limite bornée à 10");
+        assertEquals(1, service.recentByPatient(centerId, patientId, today, 0).size(), "au moins une");
+        assertEquals(0, service.recentByPatient(CenterId.of(UUID.randomUUID()), patientId, today, 3).size(),
+                "un autre centre ne voit rien");
     }
 
     @Test
@@ -685,6 +709,16 @@ class SeanceDomainServiceTest {
         @Override
         public PagedResult<SeanceListItem> findPagedByCenter(CenterId centerId, int page, int size) {
             return new PagedResult<>(List.of(), 0, page, size);
+        }
+
+        @Override
+        public List<Seance> findRecentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit) {
+            return data.values().stream()
+                    .filter(s -> centerId.value().equals(s.getCenterId()) && patientId.equals(s.getPatientId())
+                            && s.getDateSeance().isBefore(before))
+                    .sorted(java.util.Comparator.comparing(Seance::getDateSeance).reversed())
+                    .limit(limit)
+                    .toList();
         }
 
         @Override
@@ -886,8 +920,9 @@ class SeanceDomainServiceTest {
     private static final class SpyBonSortieUseCase implements BonSortieUseCase {
         boolean called = false;
         List<SortieRequestItem> lastItems = List.of();
-        boolean reverseCalled = false;
-        UUID lastReversedArticleId = null;
+        boolean setCalled = false;
+        UUID lastSetArticleId = null;
+        BigDecimal lastSetQuantite = null;
         boolean addCalled = false;
         UUID lastAddedArticleId = null;
         BigDecimal lastAddedQuantite = null;
@@ -911,17 +946,21 @@ class SeanceDomainServiceTest {
         }
 
         @Override
-        public void reverseArticleConsommation(CenterId centerId, UUID seanceId, UUID articleId, String userId) {
-            reverseCalled = true;
-            lastReversedArticleId = articleId;
+        public BonSortie setSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                               UUID articleId, java.math.BigDecimal quantite, String userId) {
+            setCalled = true;
+            lastSetArticleId = articleId;
+            lastSetQuantite = quantite;
+            return null;
         }
 
         @Override
-        public void addArticleConsommation(CenterId centerId, UUID seanceId, UUID patientId,
-                                           LocalDate dateSeance, UUID articleId, java.math.BigDecimal quantite, String userId) {
+        public BonSortie addSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
+                                               UUID articleId, java.math.BigDecimal quantite, String userId) {
             addCalled = true;
             lastAddedArticleId = articleId;
             lastAddedQuantite = quantite;
+            return null;
         }
 
         @Override
