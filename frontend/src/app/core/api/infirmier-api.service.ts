@@ -80,6 +80,22 @@ export interface MonPlanning {
   salles: SalleRef[];
   creneaux: CreneauRef[];
   mesCreneaux: CreneauPersonnel[];
+  /** Les 7 jours de la semaine, avec leur éventuelle fermeture du centre. */
+  jours: JourPlanning[];
+  /** Charge de chacune de mes cases (patients, effectif requis, collègues prévus). */
+  mesCases: CaseMonPlanning[];
+}
+
+/** Case de ma grille : charge de la salle et du créneau, sans donnée nominative d'un collègue. */
+export interface CaseMonPlanning {
+  date: string;
+  jour: JourSemaine;
+  salleId: string;
+  creneauId: string;
+  patients: number;
+  requis: number;
+  salleIsolement: boolean;
+  collegues: number;
 }
 
 export interface MonAbsencePayload {

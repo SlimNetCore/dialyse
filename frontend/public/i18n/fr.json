@@ -2381,6 +2381,16 @@
       "NON_LIE": "Votre compte n'est relié à aucune fiche infirmier de ce centre. Contactez l'administrateur.",
       "MES_CRENEAUX": "Mes créneaux de la semaine",
       "AUCUN_CRENEAU": "Aucun créneau prévu cette semaine.",
+      "GRILLE": {
+        "VUE": "Affichage du planning",
+        "VUE_SEMAINE": "Semaine",
+        "VUE_JOUR": "Jour",
+        "PATIENTS": "{{count}} patient(s)",
+        "COLLEGUES": "{{count}} collègue(s)",
+        "SEUL": "Seul(e) sur ce créneau",
+        "ISOLEMENT": "Salle d'isolement",
+        "AUCUN_JOUR": "Vous n'êtes affecté(e) à aucune salle ce jour-là."
+      },
       "AUJOURDHUI": "Aujourd'hui",
       "AUCUN_AUJOURDHUI": "Aucun créneau prévu aujourd'hui.",
       "VOIR_SEANCES": "Voir les séances",

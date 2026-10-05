@@ -2381,6 +2381,16 @@
       "NON_LIE": "Your account is not linked to any nurse file in this center. Contact the administrator.",
       "MES_CRENEAUX": "My slots this week",
       "AUCUN_CRENEAU": "No slot planned this week.",
+      "GRILLE": {
+        "VUE": "Planning view",
+        "VUE_SEMAINE": "Week",
+        "VUE_JOUR": "Day",
+        "PATIENTS": "{{count}} patient(s)",
+        "COLLEGUES": "{{count}} colleague(s)",
+        "SEUL": "Alone on this slot",
+        "ISOLEMENT": "Isolation room",
+        "AUCUN_JOUR": "You are not assigned to any room that day."
+      },
       "AUJOURDHUI": "Today",
       "AUCUN_AUJOURDHUI": "No slot planned today.",
       "VOIR_SEANCES": "View the sessions",

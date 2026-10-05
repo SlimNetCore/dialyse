@@ -124,7 +124,7 @@ class InfirmierCompteRestControllersTest {
         LocalDate date = LocalDate.of(2026, 9, 30);
         when(service.planning(centre, utilisateur, date)).thenReturn(new MonPlanning(
                 new InfirmierDetail(fiche, List.of()), LocalDate.of(2026, 9, 27), LocalDate.of(2026, 10, 3), List.of(),
-                List.of(), List.of()));
+                List.of(), List.of(), List.of(), List.of()));
         var controller = new MonPlanningInfirmierRestController(service, guard);
 
         ResponseEntity<MonPlanningResponse> response = controller.planning(null, date, authentification());

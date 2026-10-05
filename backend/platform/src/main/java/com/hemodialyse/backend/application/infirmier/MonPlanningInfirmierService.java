@@ -10,15 +10,19 @@ import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
 import com.hemodialyse.backend.domain.infirmier.port.AbsenceInfirmierRepositoryPort;
 import com.hemodialyse.backend.domain.infirmier.port.InfirmierRepositoryPort;
 import com.hemodialyse.backend.domain.infirmier.service.PresenceInfirmierService;
+import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.Planning.CreneauRef;
 import com.hemodialyse.backend.domain.planning.model.Planning.SalleRef;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.JourPlanning;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * « Mon planning » : l'infirmier connecté (compte relié à une fiche) consulte ses propres créneaux, déclare ses absences
@@ -45,13 +49,34 @@ public class MonPlanningInfirmierService {
     }
 
     /**
+     * Résumé de chaque case où l'infirmier est prévu, remplaçant ou absent : nombre de patients, effectif requis et
+     * nombre de collègues. Aucune donnée nominative d'un autre infirmier n'est exposée.
+     */
+    private static List<CaseMonPlanning> mesCases(SemainePresence semaine, List<CreneauPersonnel> mesCreneaux,
+                                                  UUID infirmierId) {
+        Set<String> miennes = mesCreneaux.stream()
+                .map(c -> cle(c.date(), c.salleId(), c.creneauId())).collect(Collectors.toSet());
+        return semaine.cases().stream()
+                .filter(c -> miennes.contains(cle(c.date(), c.salleId(), c.creneauId())))
+                .map(c -> new CaseMonPlanning(c.date(), c.jour(), c.salleId(), c.creneauId(), c.patients(),
+                        c.requis(), c.salleIsolement(),
+                        (int) c.presents().stream().filter(p -> !p.infirmierId().equals(infirmierId)).count()))
+                .toList();
+    }
+
+    private static String cle(LocalDate date, UUID salleId, UUID creneauId) {
+        return date + "|" + salleId + "|" + creneauId;
+    }
+
+    /**
      * @param date un jour de la semaine voulue (semaine du dimanche au samedi)
      */
     public MonPlanning planning(UUID centerId, UUID userId, LocalDate date) {
         Infirmier fiche = fiche(centerId, userId);
         SemainePresence semaine = presence.semaine(centerId, date);
+        List<CreneauPersonnel> mesCreneaux = PresenceInfirmierService.creneauxDe(semaine, fiche.id());
         return new MonPlanning(referentiel.detail(centerId, fiche), semaine.debut(), semaine.fin(), semaine.salles(),
-                semaine.creneaux(), PresenceInfirmierService.creneauxDe(semaine, fiche.id()));
+                semaine.creneaux(), mesCreneaux, semaine.jours(), mesCases(semaine, mesCreneaux, fiche.id()));
     }
 
     public PagedResult<AbsenceInfirmier> mesAbsences(UUID centerId, UUID userId, int page, int size) {
@@ -94,6 +119,15 @@ public class MonPlanningInfirmierService {
      * Planning personnel d'une semaine.
      */
     public record MonPlanning(InfirmierDetail infirmier, LocalDate debut, LocalDate fin, List<SalleRef> salles,
-                              List<CreneauRef> creneaux, List<CreneauPersonnel> mesCreneaux) {
+                              List<CreneauRef> creneaux, List<CreneauPersonnel> mesCreneaux, List<JourPlanning> jours,
+                              List<CaseMonPlanning> mesCases) {
+    }
+
+    /**
+     * Case de la grille de l'infirmier : charge de la salle et du créneau (patients, requis) et nombre de collègues
+     * prévus avec lui.
+     */
+    public record CaseMonPlanning(LocalDate date, JourSemaine jour, UUID salleId, UUID creneauId, int patients,
+                                  int requis, boolean salleIsolement, int collegues) {
     }
 }

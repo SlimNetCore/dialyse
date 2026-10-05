@@ -254,6 +254,11 @@ class CompteInfirmierIntegrationTest {
         assertEquals(LUNDI, planning.mesCreneaux().get(0).date());
         assertEquals(SituationPersonnelle.PREVU, planning.mesCreneaux().get(0).situation());
         assertEquals("Sara Amrani", planning.infirmier().infirmier().nomComplet());
+        assertEquals(7, planning.jours().size(), "les 7 jours de la semaine, avec leur éventuelle fermeture");
+        assertEquals(1, planning.mesCases().size());
+        assertTrue(planning.mesCases().stream().allMatch(c -> c.date().equals(LUNDI)),
+                "seules les cases où je suis prévu, jamais celles d'un autre infirmier");
+        assertEquals(0, planning.mesCases().get(0).collegues(), "aucun collègue prévu ce lundi-là");
 
         UUID sansFiche = compteExistant(CENTRE, PREFIXE + "sans-fiche", "INFIRMIER");
         assertEquals("INFIRMIER_NON_LIE", code(assertThrows(BusinessException.class,

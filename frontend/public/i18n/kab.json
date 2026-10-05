@@ -2021,6 +2021,16 @@
       "NON_LIE": "Amiḍan-ik ur yeqqin ɣer yiwen n ufaylu n unemgal deg uɣallis-agi. Nermes anedbal.",
       "MES_CRENEAUX": "Ismalen-iw n yimalas-agi",
       "AUCUN_CRENEAU": "Ulac asmel yettwaɣerrez deg yimalas-agi.",
+      "GRILLE": {
+        "VUE": "Askan n usɣiwes",
+        "VUE_SEMAINE": "Amalas",
+        "VUE_JOUR": "Ass",
+        "PATIENTS": "{{count}} n yimuḍanen",
+        "COLLEGUES": "{{count}} n yimdukkal",
+        "SEUL": "Kečč kan deg usmel-a",
+        "ISOLEMENT": "Taxxamt n usnaḍ",
+        "AUCUN_JOUR": "Ur tettwasɣer ara ɣer texxamt ula yiwet deg wass-nni."
+      },
       "AUJOURDHUI": "Ass-a",
       "AUCUN_AUJOURDHUI": "Ulac asmel yettwaɣerrez ass-a.",
       "VOIR_SEANCES": "Wali tiɣimiyin",

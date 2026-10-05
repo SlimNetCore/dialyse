@@ -42,7 +42,16 @@ function compte(): CompteInfirmier {
 }
 
 function planning(debut: string): MonPlanning {
-  return {infirmier: infirmier(), debut, fin: debut, salles: [], creneaux: [], mesCreneaux: []};
+  return {
+    infirmier: infirmier(),
+    debut,
+    fin: debut,
+    salles: [],
+    creneaux: [],
+    mesCreneaux: [],
+    jours: [],
+    mesCases: []
+  };
 }
 
 const erreurServeur = (code: string) => new HttpErrorResponse({status: 422, error: {code}});

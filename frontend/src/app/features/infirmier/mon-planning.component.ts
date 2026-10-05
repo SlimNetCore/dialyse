@@ -1,9 +1,10 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
-import {DatePipe, SlicePipe} from '@angular/common';
+import {DatePipe, NgTemplateOutlet, SlicePipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatButtonModule} from '@angular/material/button';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
@@ -13,10 +14,23 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTableModule} from '@angular/material/table';
 import {TranslateModule} from '@ngx-translate/core';
-import {TYPES_ABSENCE, TypeAbsence} from '../../core/api/infirmier-api.service';
+import {CreneauPersonnel, TYPES_ABSENCE, TypeAbsence} from '../../core/api/infirmier-api.service';
+import {JOURS_SEMAINE, JourSemaine} from '../../core/api/planning-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {jourFerme} from '../planning/planning.util';
 import {MonPlanningStore} from './mon-planning.store';
+import {
+  classeMaCase,
+  jourDe,
+  jourParDefautMonPlanning,
+  lignesMonJour,
+  lignesMonPlanning,
+  maCase,
+  monCreneau,
+} from './mon-planning.util';
 import {absenceAnnulable, aujourdhuiUtc} from './presence.util';
+
+export type VueMonPlanning = 'SEMAINE' | 'JOUR';
 
 type AbsenceFormModel = { debut: string; fin: string; type: TypeAbsence; motif: string };
 
@@ -33,8 +47,9 @@ function emptyAbsence(): AbsenceFormModel {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, SlicePipe, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
-    MatPaginatorModule, MatProgressBarModule, MatSelectModule, MatTableModule, FormRoot, FormField, TranslateModule,
+    DatePipe, NgTemplateOutlet, SlicePipe, RouterLink, MatButtonModule, MatButtonToggleModule, MatCardModule,
+    MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
+    MatTableModule, FormRoot, FormField, TranslateModule,
   ],
   templateUrl: './mon-planning.component.html',
   styleUrl: './mon-planning.component.css',
@@ -58,6 +73,26 @@ export class MonPlanningComponent {
   });
   protected readonly creneauxDuJour = computed(() =>
     (this.store.planning()?.mesCreneaux ?? []).filter((c) => c.date === this.aujourdhui));
+  protected readonly jours = JOURS_SEMAINE;
+  protected readonly vue = signal<VueMonPlanning>('SEMAINE');
+  /** Mes salles et créneaux de la semaine : les lignes de ma grille. */
+  protected readonly lignes = computed(() => {
+    const p = this.store.planning();
+    return p ? lignesMonPlanning(p) : [];
+  });
+  protected readonly lignesJour = computed(() => {
+    const p = this.store.planning();
+    const jour = this.jourActif();
+    return p && jour ? lignesMonJour(p, jour) : [];
+  });
+  private readonly jourChoisi = signal<JourSemaine | null>(null);
+  /** Jour de la vue « Jour » : celui choisi, sinon aujourd'hui (s'il est dans la semaine) ou mon premier jour. */
+  protected readonly jourActif = computed(() => {
+    const p = this.store.planning();
+    if (!p) return null;
+    const choisi = this.jourChoisi();
+    return choisi && p.jours.some((j) => j.jour === choisi) ? choisi : jourParDefautMonPlanning(p, this.aujourdhui);
+  });
   protected readonly periodeValide = computed(() => {
     const {debut, fin} = this.formModel();
     return !debut || !fin || fin >= debut;
@@ -79,6 +114,34 @@ export class MonPlanningComponent {
       if (!this.store.successMessage()) return;
       untracked(() => this.formModel.set(emptyAbsence()));
     });
+  }
+
+  protected jourPlanning(jour: JourSemaine) {
+    const p = this.store.planning();
+    return p ? jourDe(p, jour) : undefined;
+  }
+
+  protected ferme(jour: JourSemaine): boolean {
+    const j = this.jourPlanning(jour);
+    return !!j && jourFerme(j);
+  }
+
+  protected monCreneau(salleId: string, creneauId: string, jour: JourSemaine) {
+    const p = this.store.planning();
+    return p ? monCreneau(p, salleId, creneauId, jour) : undefined;
+  }
+
+  protected maCase(salleId: string, creneauId: string, jour: JourSemaine) {
+    const p = this.store.planning();
+    return p ? maCase(p, salleId, creneauId, jour) : undefined;
+  }
+
+  protected classe(creneau: CreneauPersonnel | undefined, jour: JourSemaine): string {
+    return classeMaCase(creneau, this.ferme(jour));
+  }
+
+  protected choisirJour(jour: JourSemaine): void {
+    this.jourChoisi.set(jour);
   }
 
   protected salleNom(id: string): string {

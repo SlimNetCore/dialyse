@@ -1,7 +1,9 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.application.infirmier.MonPlanningInfirmierService;
+import com.hemodialyse.backend.application.infirmier.MonPlanningInfirmierService.CaseMonPlanning;
 import com.hemodialyse.backend.application.infirmier.MonPlanningInfirmierService.MonPlanning;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.JourPlanning;
 import com.hemodialyse.backend.domain.infirmier.model.AbsenceInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.CreneauPersonnel;
 import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
@@ -106,10 +108,11 @@ public class MonPlanningInfirmierRestController {
 
     public record MonPlanningResponse(InfirmierResponse infirmier, LocalDate debut, LocalDate fin,
                                       List<SalleRef> salles,
-                                      List<CreneauRef> creneaux, List<CreneauPersonnel> mesCreneaux) {
+                                      List<CreneauRef> creneaux, List<CreneauPersonnel> mesCreneaux,
+                                      List<JourPlanning> jours, List<CaseMonPlanning> mesCases) {
         static MonPlanningResponse de(MonPlanning p) {
             return new MonPlanningResponse(InfirmierResponse.de(p.infirmier()), p.debut(), p.fin(), p.salles(),
-                    p.creneaux(), p.mesCreneaux());
+                    p.creneaux(), p.mesCreneaux(), p.jours(), p.mesCases());
         }
     }
 }

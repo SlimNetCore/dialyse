@@ -84,24 +84,147 @@
       </mat-card>
     }
 
-    <mat-card>
+    <ng-template #celluleTpl let-c="creneau" let-m="maCase">
+      <span class="moi-badge" data-testid="moi-cell-situation">
+        {{ ('INFIRMIER.MOI.SITUATION.' + c.situation) | translate }}
+      </span>
+      @if (m) {
+        <small class="moi-cell-info">
+          {{ 'INFIRMIER.MOI.GRILLE.PATIENTS' | translate: {count: m.patients} }}
+          · {{ (m.collegues === 0 ? 'INFIRMIER.MOI.GRILLE.SEUL' : 'INFIRMIER.MOI.GRILLE.COLLEGUES') | translate: {count: m.collegues} }}
+        </small>
+        @if (m.salleIsolement) {
+          <small class="moi-cell-info">
+            <mat-icon aria-hidden="true">shield</mat-icon>
+            {{ 'INFIRMIER.MOI.GRILLE.ISOLEMENT' | translate }}
+          </small>
+        }
+      }
+    </ng-template>
+
+    <mat-card class="moi-grille" data-testid="moi-grille">
       <mat-card-header>
         <mat-card-title>{{ 'INFIRMIER.MOI.MES_CRENEAUX' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <ul class="moi-list" data-testid="moi-creneaux">
-          @for (c of store.planning()?.mesCreneaux ?? []; track c.date + c.salleId + c.creneauId + c.situation) {
-            <li [class]="'moi-item ' + c.situation.toLowerCase()">
-              <strong>{{ ('PATIENT_FORM.' + c.jour) | translate | slice: 0 : 3 }} {{ c.date | date: 'dd/MM' }}</strong>
-              <span>{{ salleNom(c.salleId) }} · {{ creneauLibelle(c.creneauId) }}</span>
-              <span class="moi-badge">{{ ('INFIRMIER.MOI.SITUATION.' + c.situation) | translate }}</span>
-            </li>
-          } @empty {
-            @if (!store.loadingPlanning()) {
-              <li class="moi-sub">{{ 'INFIRMIER.MOI.AUCUN_CRENEAU' | translate }}</li>
-            }
-          }
+        <mat-button-toggle-group (change)="vue.set($event.value)"
+                                 [attr.aria-label]="'INFIRMIER.MOI.GRILLE.VUE' | translate"
+                                 [hideSingleSelectionIndicator]="true" [value]="vue()" class="moi-views"
+                                 data-testid="moi-views">
+          <mat-button-toggle data-testid="moi-view-semaine" value="SEMAINE">
+            <mat-icon>calendar_view_week</mat-icon>
+            {{ 'INFIRMIER.MOI.GRILLE.VUE_SEMAINE' | translate }}
+          </mat-button-toggle>
+          <mat-button-toggle data-testid="moi-view-jour" value="JOUR">
+            <mat-icon>today</mat-icon>
+            {{ 'INFIRMIER.MOI.GRILLE.VUE_JOUR' | translate }}
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <ul class="moi-legend" data-testid="moi-legend">
+          <li><span class="swatch prevu"></span>{{ 'INFIRMIER.MOI.SITUATION.PREVU' | translate }}</li>
+          <li><span class="swatch remplacant"></span>{{ 'INFIRMIER.MOI.SITUATION.REMPLACANT' | translate }}</li>
+          <li><span class="swatch absent"></span>{{ 'INFIRMIER.MOI.SITUATION.ABSENT' | translate }}</li>
+          <li><span class="swatch closed"></span>{{ 'PLANNING.SEMAINE.LEGENDE.FERME' | translate }}</li>
         </ul>
+
+        @if (store.planning(); as p) {
+          @if (lignes().length === 0) {
+            @if (!store.loadingPlanning()) {
+              <p class="moi-sub" data-testid="moi-aucun-creneau">{{ 'INFIRMIER.MOI.AUCUN_CRENEAU' | translate }}</p>
+            }
+          } @else if (vue() === 'SEMAINE') {
+            <div class="moi-scroll">
+              <table class="moi-grid" data-testid="moi-table">
+                <thead>
+                <tr>
+                  <th>{{ 'PATIENT_FORM.SALLE' | translate }}</th>
+                  <th>{{ 'PATIENT_FORM.POSITION' | translate }}</th>
+                  @for (j of jours; track j) {
+                    @let jp = jourPlanning(j);
+                    <th [class.closed]="ferme(j)" [class.today]="jp?.date === aujourdhui">
+                      {{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}
+                      @if (jp) {
+                        <small>{{ jp.date | date: 'dd/MM' }}</small>
+                      }
+                    </th>
+                  }
+                </tr>
+                </thead>
+                <tbody>
+                  @for (l of lignes(); track l.salle.id + l.creneau.id) {
+                    <tr>
+                      <th scope="row">{{ l.salle.nom }}</th>
+                      <td>{{ l.creneau.libelle }}</td>
+                      @for (j of jours; track j) {
+                        @let c = monCreneau(l.salle.id, l.creneau.id, j);
+                        <td [class]="'cell ' + classe(c, j)" data-testid="moi-cell">
+                          @if (c && !ferme(j)) {
+                            <ng-container
+                              [ngTemplateOutletContext]="{creneau: c, maCase: maCase(l.salle.id, l.creneau.id, j)}"
+                              [ngTemplateOutlet]="celluleTpl"/>
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <section class="moi-day" data-testid="moi-day-view">
+              <mat-button-toggle-group (change)="choisirJour($event.value)" [hideSingleSelectionIndicator]="true"
+                                       [value]="jourActif()" class="moi-day-tabs">
+                @for (j of jours; track j) {
+                  @let jp = jourPlanning(j);
+                  <mat-button-toggle [class.closed]="ferme(j)" [value]="j">
+                    {{ ('PATIENT_FORM.' + j) | translate | slice: 0 : 3 }}
+                    @if (jp) {
+                      <small>{{ jp.date | date: 'dd/MM' }}</small>
+                    }
+                  </mat-button-toggle>
+                }
+              </mat-button-toggle-group>
+              @if (jourActif(); as ja) {
+                @let jpa = jourPlanning(ja);
+                <h2 class="moi-day-title" data-testid="moi-day-title">
+                  {{ ('PATIENT_FORM.' + ja) | translate }}
+                  @if (jpa) {
+                    {{ jpa.date | date: 'dd/MM/yyyy' }}
+                  }
+                </h2>
+                @if (ferme(ja)) {
+                  <p class="moi-warn" role="status">
+                    <mat-icon>event_busy</mat-icon>
+                    {{ 'PLANNING.SEMAINE.JOUR_FERME' | translate }}
+                    @if (jpa?.fermetureMotif) {
+                      — {{ jpa!.fermetureMotif }}
+                    }
+                  </p>
+                } @else if (lignesJour().length === 0) {
+                  <p class="moi-sub" data-testid="moi-day-empty">{{ 'INFIRMIER.MOI.GRILLE.AUCUN_JOUR' | translate }}</p>
+                }
+                <div class="moi-day-cards">
+                  @for (l of lignesJour(); track l.salle.id + l.creneau.id) {
+                    @let c = monCreneau(l.salle.id, l.creneau.id, ja)!;
+                    @if (!ferme(ja)) {
+                      <mat-card [class]="'moi-day-card ' + classe(c, ja)" data-testid="moi-day-card">
+                        <mat-card-header>
+                          <mat-card-title>{{ l.salle.nom }} · {{ l.creneau.libelle }}</mat-card-title>
+                        </mat-card-header>
+                        <mat-card-content class="moi-day-content">
+                          <ng-container
+                            [ngTemplateOutletContext]="{creneau: c, maCase: maCase(l.salle.id, l.creneau.id, ja)}"
+                            [ngTemplateOutlet]="celluleTpl"/>
+                        </mat-card-content>
+                      </mat-card>
+                    }
+                  }
+                </div>
+              }
+            </section>
+          }
+        }
       </mat-card-content>
     </mat-card>
 

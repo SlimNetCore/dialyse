@@ -2846,19 +2846,21 @@
                 avec les mêmes critères que la détection des absences (RG-ABS) : la date est un de ses <strong>jours de
                     dialyse</strong>, le centre
                 est <strong>ouvert</strong> (ni jour férié ni fermeture exceptionnelle), le patient n&#39;est ni en
-                sommeil, ni admis plus tard, ni sorti
-                (transféré, guéri : attendu jusqu&#39;au jour de sortie inclus ; décédé, greffé : jusqu&#39;à la veille
-                ; occasionnel ou
+                sommeil, ni admis plus tard, ni
+                sorti (transféré, guéri : attendu jusqu&#39;au jour de sortie inclus ; décédé, greffé : jusqu&#39;à la
+                veille ; occasionnel ou
                 vacancier : jusqu&#39;à la fin du séjour incluse). Sinon, <strong>rien n&#39;est créé</strong> et le
                 serveur répond 422 avec le motif :
                 <code>SEANCE_HORS_PLANNING_JOUR</code> (pas un jour de dialyse),
                 <code>SEANCE_HORS_PLANNING_PATIENT</code> (patient non attendu) ou
-                <code>SEANCE_CENTRE_FERME</code> (centre fermé). L&#39;<strong>infirmier</strong> (et l&#39;administrateur)
-                peut alors <strong>confirmer</strong> en renvoyant le scan
+                <code>SEANCE_CENTRE_FERME</code> (centre fermé). L&#39; <strong>infirmier</strong> (et l&#39;administrateur)
+                peut alors <strong>confirmer</strong> en renvoyant le
+                scan
                 avec un motif — <code>RATTRAPAGE</code>, <code>URGENCE</code> ou <code>AUTRE</code> (précision libre
                 obligatoire :
                 <code>SEANCE_DEROGATION_PRECISION_REQUISE</code> ; motif absent ou inconnu : <code>SEANCE_DEROGATION_MOTIF_REQUIS</code>)
-                : la séance est créée
+                : la séance est
+                créée
                 et validée, marquée <strong>« hors planning »</strong> avec son motif (poste infirmier, historique des
                 séances). Un <strong>jour de
                     fermeture</strong> n&#39;est franchi que par l&#39;<strong>administrateur</strong> (la confirmation
@@ -3948,7 +3950,20 @@
                 le secrétariat sont prévenus ; il ne retire que ses absences <strong>non commencées</strong> (début
                 strictement postérieur à
                 aujourd&#39;hui, sinon <code>ABSENCE_NON_ANNULABLE</code>). Il ne voit ni ne modifie jamais
-                les données d&#39;un autre ; sans fiche liée à son compte : <code>INFIRMIER_NON_LIE</code>.</p>
+                les données d&#39;un autre ; sans fiche liée à son compte : <code>INFIRMIER_NON_LIE</code>. Son planning
+                de la semaine se présente
+                comme le planning des séances : une <strong>grille semaine</strong> (salles et créneaux en lignes, jours
+                du dimanche au samedi en
+                colonnes) ou une <strong>vue jour</strong> (une carte par salle et créneau, onglets de jours), <strong>limitées
+                    aux salles et créneaux
+                    où il est affecté</strong>. Chaque case indique sa situation (prévu, remplaçant, absent), le nombre
+                de patients de la salle,
+                le nombre de collègues prévus avec lui (sans nom, un autre infirmier n&#39;est jamais identifié) et la
+                salle
+                d&#39;isolement ; les jours de fermeture du centre (fermeture hebdomadaire, férié, fermeture
+                exceptionnelle) sont grisés.
+                L&#39;écran est responsive : défilement horizontal local de la grille, cartes en une colonne sur mobile.
+                <em>Source :</em> <code>MonPlanningInfirmierService</code>, <code>MonPlanningComponent</code>.</p>
             </div>
         </div>
         <h2>10.5 Présence et effectif requis</h2>

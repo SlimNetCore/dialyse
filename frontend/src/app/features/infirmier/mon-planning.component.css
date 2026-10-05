@@ -2,7 +2,7 @@
   display: grid;
   gap: 16px;
   padding: 16px;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   min-width: 0;
 }
@@ -152,8 +152,158 @@
   }
 }
 
+/* Grille de la semaine : mes salles et créneaux (même principe que le planning des séances) */
+.moi-views {
+  margin-bottom: 12px;
+}
+
+.moi-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.moi-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  display: inline-block;
+  width: 24px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.swatch.prevu,
+.cell.prevu,
+.moi-day-card.prevu {
+  background: #eaf6ee;
+}
+
+.swatch.remplacant,
+.cell.remplacant,
+.moi-day-card.remplacant {
+  background: #fff3cd;
+}
+
+.swatch.absent,
+.cell.absent,
+.moi-day-card.absent {
+  background: #eceff3;
+  color: #7a8594;
+}
+
+.swatch.closed,
+.moi-grid td.closed,
+.moi-grid th.closed,
+.moi-day-tabs .closed,
+.moi-day-card.closed {
+  background: repeating-linear-gradient(45deg, #eceff3, #eceff3 6px, #f6f7f9 6px, #f6f7f9 12px);
+}
+
+/* défilement horizontal local : la page ne déborde jamais */
+.moi-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--app-border, #d9dee5);
+  border-radius: 8px;
+}
+
+.moi-grid {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.moi-grid th,
+.moi-grid td {
+  border: 1px solid var(--app-border, #e3e7ed);
+  padding: 6px 8px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.moi-grid thead th {
+  text-align: center;
+  background: var(--app-surface-alt, #f3f5f8);
+}
+
+.moi-grid th small {
+  display: block;
+  font-weight: 400;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.moi-grid th.today {
+  box-shadow: inset 0 -3px 0 #1976d2;
+}
+
+.moi-grid .cell {
+  min-width: 104px;
+}
+
+.moi-cell-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.moi-cell-info mat-icon {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+}
+
+.moi-day {
+  display: grid;
+  gap: 12px;
+}
+
+.moi-day-tabs {
+  flex-wrap: wrap;
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.moi-day-tabs small {
+  margin-left: 4px;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.moi-day-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.moi-day-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.moi-day-content {
+  display: grid;
+  gap: 4px;
+}
+
 .moi-today {
   border-left: 4px solid #1b5e20;
+}
+
+@media (max-width: 767px) {
+  .moi-views,
+  .moi-day-tabs {
+    width: 100%;
+  }
 }
 
 .moi-today .moi-actions {
