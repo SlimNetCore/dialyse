@@ -8,6 +8,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
+import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
@@ -24,7 +25,6 @@ import com.hemodialyse.backend.domain.stock.port.LotRepositoryPort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -154,70 +154,14 @@ public class SeanceDomainService implements SeanceUseCase {
     }
 
     @Override
-    public List<SeanceListItem> list(CenterId centerId) {
-        return seanceRepo.findAllByCenter(centerId).stream().map(item -> {
-            var patient = patientRepo.findById(PatientId.of(item.patientId()), centerId).orElse(null);
-            return new SeanceListItem(
-                    item.id(),
-                    item.centerId(),
-                    item.patientId(),
-                    patient != null ? patient.getCodePatient() : null,
-                    patient != null ? patient.getNom() : null,
-                    patient != null ? patient.getPrenom() : null,
-                    item.dateSeance(),
-                    item.status(),
-                    item.createdAt(),
-                    item.validatedAt(),
-                    item.signedByInfirmierAt(),
-                    item.signedByMedecinAt()
-            );
-        }).toList();
-    }
-
-    @Override
-    public PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size) {
-        PagedResult<SeanceListItem> raw = seanceRepo.findPagedByCenter(centerId, page, size);
-        List<SeanceListItem> enriched = raw.items().stream().map(item -> {
-            var patient = patientRepo.findById(PatientId.of(item.patientId()), centerId).orElse(null);
-            return new SeanceListItem(
-                    item.id(),
-                    item.centerId(),
-                    item.patientId(),
-                    patient != null ? patient.getCodePatient() : null,
-                    patient != null ? patient.getNom() : null,
-                    patient != null ? patient.getPrenom() : null,
-                    item.dateSeance(),
-                    item.status(),
-                    item.createdAt(),
-                    item.validatedAt(),
-                    item.signedByInfirmierAt(),
-                    item.signedByMedecinAt()
-            );
-        }).toList();
-        return PagedResult.of(enriched, raw.total(), page, size);
-    }
-
-    @Override
-    public PagedResult<SeanceListItem> listPagedByMonth(CenterId centerId, YearMonth month, int page, int size) {
-        PagedResult<SeanceListItem> raw = seanceRepo.findPagedByCenterAndMonth(centerId, month, page, size);
-        List<SeanceListItem> enriched = raw.items().stream().map(item -> {
-            var patient = patientRepo.findById(PatientId.of(item.patientId()), centerId).orElse(null);
-            return new SeanceListItem(
-                    item.id(),
-                    item.centerId(),
-                    item.patientId(),
-                    patient != null ? patient.getCodePatient() : null,
-                    patient != null ? patient.getNom() : null,
-                    patient != null ? patient.getPrenom() : null,
-                    item.dateSeance(),
-                    item.status(),
-                    item.createdAt(),
-                    item.validatedAt(),
-                    item.signedByInfirmierAt(),
-                    item.signedByMedecinAt()
-            );
-        }).toList();
-        return PagedResult.of(enriched, raw.total(), page, size);
+    public PagedResult<SeanceListItem> search(CenterId centerId, SeanceSearch criteria, int page, int size) {
+        int safePage = Math.max(0, page);
+        int safeSize = Math.max(1, Math.min(size, SEARCH_MAX_SIZE));
+        SeanceSearch effective = criteria != null ? criteria : SeanceSearch.all();
+        if (effective.from() != null && effective.to() != null && effective.from().isAfter(effective.to())) {
+            throw new IllegalArgumentException("La date de debut doit preceder la date de fin");
+        }
+        return seanceRepo.search(centerId, effective, safePage, safeSize);
     }
 
     @Override

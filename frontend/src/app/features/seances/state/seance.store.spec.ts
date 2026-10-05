@@ -153,10 +153,6 @@ describe('SeanceStore', () => {
       ],
     });
   });
-  it('should start with empty seances list', () => {
-    const store = TestBed.inject(SeanceStore);
-    expect(store.seances()).toEqual([]);
-  });
   it('should start with no selected seance', () => {
     const store = TestBed.inject(SeanceStore);
     expect(store.selectedSeanceId()).toBeNull();
@@ -176,21 +172,6 @@ describe('SeanceStore', () => {
     const store = TestBed.inject(SeanceStore);
     store.setDateSeance('2026-07-24');
     expect(store.dateSeance()).toBe('2026-07-24');
-  });
-  it('should load seances for center', () => {
-    const store = TestBed.inject(SeanceStore);
-    store.loadSeances({centerId: CENTER_ID});
-    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID, 0, 20, expect.any(String));
-    expect(store.seances()).toEqual([]);
-    expect(store.seancesLoading()).toBe(false);
-  });
-  it('should handle loadSeances error gracefully', () => {
-    mockApi.listSeances.mockReturnValueOnce(throwError(() => new Error('Network error')));
-    const store = TestBed.inject(SeanceStore);
-    store.loadSeances({centerId: CENTER_ID});
-    expect(store.seances()).toEqual([]);
-    expect(store.seancesLoading()).toBe(false);
-    expect(store.error()).toBeTruthy();
   });
   it('should scan QR and update selectedSeanceId on success', () => {
     const store = TestBed.inject(SeanceStore);
@@ -444,14 +425,6 @@ describe('SeanceStore', () => {
     expect(mockApi.addSeanceHoliday).toHaveBeenCalledWith(CENTER_ID, '2026-07-05', 'Fete nationale');
     expect(store.newHolidayLabel()).toBe('');
   });
-  it('should use centerId from loadSeances argument (not hardcoded)', () => {
-    const store = TestBed.inject(SeanceStore);
-    const otherCenter = '22222222-2222-2222-2222-222222222222';
-    store.loadSeances({centerId: CENTER_ID});
-    store.loadSeances({centerId: otherCenter});
-    expect(mockApi.listSeances).toHaveBeenCalledWith(CENTER_ID, 0, 20, expect.any(String));
-    expect(mockApi.listSeances).toHaveBeenCalledWith(otherCenter, 0, 20, expect.any(String));
-  });
   it('selectSeance should update selectedSeanceId', () => {
     const store = TestBed.inject(SeanceStore);
     store.selectSeance(SEANCE_ID);
@@ -464,11 +437,6 @@ describe('SeanceStore', () => {
     expect(store.selectedSeanceId()).toBeNull();
     expect(store.summary()).toBeNull();
   });
-  it('selectedPreview should be null when no seance selected', () => {
-    const store = TestBed.inject(SeanceStore);
-    expect(store.selectedPreview()).toBeNull();
-  });
-
   // ── Consommables ──────────────────────────────────────────────────
   it('should start with empty consommables', () => {
     const store = TestBed.inject(SeanceStore);

@@ -1,0 +1,159 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/* Une colonne qui peut rétrécir : le tableau défile dans son cadre, jamais la page. */
+.historique {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+.historique > * {
+  min-width: 0;
+}
+
+.hero {
+  display: grid;
+  gap: 10px;
+}
+
+.hero h1 {
+  margin: 0;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.hero-actions a {
+  min-height: 44px;
+  border-radius: 14px !important;
+}
+
+.list-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.list-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.period mat-form-field {
+  width: 170px;
+}
+
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 18px;
+}
+
+.table-scroll[aria-busy='true'] {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.list-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, #d64545 12%, var(--app-surface-solid) 88%);
+}
+
+.patient-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.patient-cell span,
+.muted {
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+.status-chip {
+  display: inline-flex;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #d97706 24%, transparent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-chip[data-status='VALIDEE'] {
+  background: color-mix(in srgb, var(--app-primary) 22%, transparent);
+  color: var(--app-primary);
+}
+
+.status-chip[data-status='SIGNEE'],
+.status-chip[data-status='FACTUREE'] {
+  background: color-mix(in srgb, #1f9d63 22%, transparent);
+  color: #1f9d63;
+}
+
+.forfait-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  border: 1px solid var(--app-primary-outline);
+  border-radius: 999px;
+  background: var(--app-primary-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.forfait-price {
+  color: var(--app-primary);
+  font-weight: 800;
+}
+
+@media (max-width: 767px) {
+  .hero-actions a {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .period {
+    width: 100%;
+  }
+
+  .period mat-form-field {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    width: auto;
+  }
+
+  .period button {
+    flex: 1 1 100%;
+  }
+}

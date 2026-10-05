@@ -10,6 +10,7 @@ import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
+import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
@@ -526,6 +527,50 @@ class SeanceDomainServiceTest {
     }
 
     @Test
+    void search_should_bound_the_page_and_the_size_and_forward_the_criteria() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        SeanceDomainService service = buildService(seanceRepo, new InMemoryPatientRepository(UUID.randomUUID(), centerId),
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase());
+        SeanceSearch criteria = new SeanceSearch(LocalDate.of(2026, 10, 1), null,
+                java.util.Set.of(SeanceStatus.VALIDEE), " dupont ", SeanceSearch.Sort.PATIENT, false);
+
+        service.search(centerId, criteria, -3, 100000);
+
+        assertEquals(0, seanceRepo.lastPage);
+        assertEquals(com.hemodialyse.backend.domain.seance.port.SeanceUseCase.SEARCH_MAX_SIZE, seanceRepo.lastSize);
+        assertEquals("dupont", seanceRepo.lastSearch.text(), "le texte est nettoyé");
+        assertEquals(SeanceSearch.Sort.PATIENT, seanceRepo.lastSearch.sort());
+
+        service.search(centerId, null, 0, 0);
+        assertEquals(1, seanceRepo.lastSize);
+        assertEquals(SeanceSearch.Sort.DATE, seanceRepo.lastSearch.sort());
+        assertTrue(seanceRepo.lastSearch.desc());
+    }
+
+    @Test
+    void search_should_refuse_a_period_that_ends_before_it_starts() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        SeanceDomainService service = buildService(new InMemorySeanceRepository(),
+                new InMemoryPatientRepository(UUID.randomUUID(), centerId), new InMemoryArticleRepository(),
+                new InMemoryLotRepository(), new SpyBonSortieUseCase());
+
+        assertThrows(IllegalArgumentException.class, () -> service.search(centerId,
+                new SeanceSearch(LocalDate.of(2026, 10, 5), LocalDate.of(2026, 10, 1), java.util.Set.of(), null, null, true),
+                0, 20));
+    }
+
+    @Test
+    void sort_parsing_should_only_accept_whitelisted_columns() {
+        assertEquals(SeanceSearch.Sort.PATIENT, SeanceSearch.Sort.parse("patient"));
+        assertEquals(SeanceSearch.Sort.CODE, SeanceSearch.Sort.parse("patientCode"));
+        assertEquals(SeanceSearch.Sort.STATUS, SeanceSearch.Sort.parse("status"));
+        assertEquals(SeanceSearch.Sort.CREATED, SeanceSearch.Sort.parse("createdAt"));
+        assertEquals(SeanceSearch.Sort.DATE, SeanceSearch.Sort.parse("password; drop table"));
+        assertEquals(SeanceSearch.Sort.DATE, SeanceSearch.Sort.parse(null));
+    }
+
+    @Test
     void recentByPatient_should_return_the_latest_sessions_before_the_date_newest_first_and_bounded() {
         CenterId centerId = CenterId.of(UUID.randomUUID());
         UUID patientId = UUID.randomUUID();
@@ -701,13 +746,16 @@ class SeanceDomainServiceTest {
                     .filter(s -> s.getCenterId().equals(centerId.value()) && s.getPatientId().equals(patientId) && s.getDateSeance().equals(date))
                     .findFirst();
         }
-        @Override
-        public List<SeanceListItem> findAllByCenter(CenterId centerId) {
-            return List.of();
-        }
+
+        SeanceSearch lastSearch;
+        int lastPage;
+        int lastSize;
 
         @Override
-        public PagedResult<SeanceListItem> findPagedByCenter(CenterId centerId, int page, int size) {
+        public PagedResult<SeanceListItem> search(CenterId centerId, SeanceSearch criteria, int page, int size) {
+            lastSearch = criteria;
+            lastPage = page;
+            lastSize = size;
             return new PagedResult<>(List.of(), 0, page, size);
         }
 
@@ -721,10 +769,6 @@ class SeanceDomainServiceTest {
                     .toList();
         }
 
-        @Override
-        public PagedResult<SeanceListItem> findPagedByCenterAndMonth(CenterId centerId, java.time.YearMonth month, int page, int size) {
-            return new PagedResult<>(List.of(), 0, page, size);
-        }
     }
 
     private static final class InMemoryPatientRepository implements PatientRepositoryPort {

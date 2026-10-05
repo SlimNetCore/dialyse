@@ -1,0 +1,126 @@
+<section class="app-panel stats">
+  <header class="stats-head">
+    <div>
+      <h2>{{ 'SEANCES.DASHBOARD_TITLE' | translate }}</h2>
+    </div>
+    <div class="stats-tools">
+      <mat-form-field appearance="outline" class="month-field subscript-hidden">
+        <mat-label>{{ 'COMMON.MONTH_LABEL' | translate }}</mat-label>
+        <input (input)="onMonthInput($event)" [value]="store.dashboardMonth()" matInput type="month"/>
+      </mat-form-field>
+      <button (click)="refresh(true)" [disabled]="store.dashboardLoading()" class="tool-btn" color="primary"
+              mat-stroked-button type="button">
+        <mat-icon>bar_chart</mat-icon>
+        <span>{{ store.dashboardLoading() ? ('COMMON.LOADING_DATA' | translate) : ('SEANCES.REFRESH_DASHBOARD_BTN' | translate) }}</span>
+      </button>
+      <button (click)="exportDashboard('csv')" [disabled]="store.dashboardLoading()" class="tool-btn" mat-stroked-button
+              type="button">
+        <mat-icon>download</mat-icon>
+        <span>{{ 'COMMON.EXPORT_CSV_BTN' | translate }}</span>
+      </button>
+      <button (click)="exportDashboard('pdf')" [disabled]="store.dashboardLoading()" class="tool-btn" mat-stroked-button
+              type="button">
+        <mat-icon>picture_as_pdf</mat-icon>
+        <span>{{ 'COMMON.EXPORT_PDF_BTN' | translate }}</span>
+      </button>
+      <button (click)="exportDashboard('xlsx')" [disabled]="store.dashboardLoading()" class="tool-btn"
+              mat-stroked-button
+              type="button">
+        <mat-icon>table_view</mat-icon>
+        <span>{{ 'COMMON.EXPORT_XLSX_BTN' | translate }}</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="app-data-pill">
+      <span>{{ 'SEANCES.EXPECTED_SESSIONS_KPI' | translate }}</span>
+      <strong>{{ dashboard()?.expectedSeances ?? 0 }}</strong>
+    </div>
+    <button (click)="openDetails('presence')" class="app-data-pill kpi-clickable" type="button">
+      <span>{{ 'SEANCES.PRESENCE_KPI' | translate }}</span>
+      <strong class="ok">{{ dashboard()?.presenceCount ?? 0 }}</strong>
+    </button>
+    <button (click)="openDetails('absence')" class="app-data-pill kpi-clickable" type="button">
+      <span>{{ 'SEANCES.ABSENCE_KPI' | translate }}</span>
+      <strong class="ko">{{ dashboard()?.absenceCount ?? 0 }}</strong>
+    </button>
+    <div class="app-data-pill">
+      <span>{{ 'SEANCES.TOTAL_SESSIONS_KPI' | translate }}</span>
+      <strong>{{ dashboard()?.totalSeances ?? 0 }}</strong>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="chart-card">
+      <h3>{{ 'SEANCES.PRESENCE_ABSENCE_CHART_TITLE' | translate }}</h3>
+      <div class="chart-wrap">
+        <canvas [data]="presenceAbsenceChart()" [options]="chartOptions" [type]="'bar'" baseChart></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>{{ 'SEANCES.SEX_DISTRIBUTION_CHART_TITLE' | translate }}</h3>
+      <div class="chart-wrap">
+        <canvas [data]="sexeChart()" [options]="chartOptions" [type]="'doughnut'" baseChart></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>{{ 'SEANCES.AGE_DISTRIBUTION_CHART_TITLE' | translate }}</h3>
+      <div class="chart-wrap">
+        <canvas [data]="ageChart()" [options]="chartOptions" [type]="'bar'" baseChart></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+@if (store.dashboardDetailsOpen()) {
+  <div (click)="closeDetails()" class="popin-backdrop">
+    <div (click)="$event.stopPropagation()" aria-modal="true" class="popin-card" role="dialog">
+      <div class="popin-head">
+        <h3>{{ detailsTitle() }}</h3>
+        <button (click)="closeDetails()" [attr.aria-label]="'COMMON.CLOSE' | translate" mat-icon-button type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <p class="popin-sub">{{ detailsSubtitle() }}</p>
+      <div class="table-wrap">
+        <table [dataSource]="store.dashboardDetailPageItems()" class="detail-table" mat-table>
+          <ng-container matColumnDef="date">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.DATE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.dateSeance }}</td>
+          </ng-container>
+          <ng-container matColumnDef="patient">
+            <th *matHeaderCellDef mat-header-cell>{{ 'CAHIER.PATIENT' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ patientLabel(row) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="weekday">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.WEEKDAY_LABEL' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span [class]="weekdayClass(row)" class="weekday-badge">{{ weekdayLabel(row) }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <span [attr.data-status]="row.status"
+                    class="status-badge">{{ detailStatusKey(row.status) | translate }}</span>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="detailCols" mat-header-row></tr>
+          <tr *matRowDef="let _row; columns: detailCols" mat-row></tr>
+        </table>
+      </div>
+      <div class="popin-pagination">
+        <button (click)="previousPage()" [disabled]="!canPreviousPage()" mat-stroked-button type="button">
+          <mat-icon>chevron_left</mat-icon>
+          {{ 'WIZARD.PREV' | translate }}
+        </button>
+        <span>{{ pageLabel() }}</span>
+        <button (click)="nextPage()" [disabled]="!canNextPage()" mat-stroked-button type="button">
+          {{ 'WIZARD.NEXT' | translate }}
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+}

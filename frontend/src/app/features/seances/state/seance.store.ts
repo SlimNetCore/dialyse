@@ -11,7 +11,6 @@ import {
   SeanceDashboardDetailItem,
   SeanceDashboardDetailsResponse,
   SeanceJournalByDate,
-  SeanceListItem,
   SeanceMonthlyDashboard,
   SeanceRecent,
   SeanceSummary,
@@ -51,13 +50,6 @@ export type ConsommableItem = {
 };
 
 type SeanceState = {
-  /** Liste des séances du centre courant */
-  seances: SeanceListItem[];
-  seancesLoading: boolean;
-  seancesTotal: number;
-  seancesPageIndex: number;
-  seancesPageSize: number;
-
   /** Séance sélectionnée */
   selectedSeanceId: string | null;
   summary: SeanceSummary | null;
@@ -164,11 +156,6 @@ type SeanceState = {
 const DASHBOARD_PAGE_SIZE = 10;
 
 const initialState: SeanceState = {
-  seances: [],
-  seancesLoading: false,
-  seancesTotal: 0,
-  seancesPageIndex: 0,
-  seancesPageSize: 20,
   selectedSeanceId: null,
   summary: null,
   summaryLoading: false,
@@ -241,10 +228,6 @@ export const SeanceStore = signalStore(
   withState(initialState),
   withDevtools('SeanceStore'),
   withComputed((store) => ({
-    selectedPreview: computed(() => {
-      const id = store.selectedSeanceId();
-      return id ? (store.seances().find((s) => s.id === id) ?? null) : null;
-    }),
     isSeanceAlreadyValidated: computed(() => {
       const status = store.summary()?.seance.status;
       return status === 'VALIDEE' || status === 'SIGNEE' || status === 'FACTUREE';
@@ -486,35 +469,6 @@ export const SeanceStore = signalStore(
       )
     ),
 
-    // --- Chargement liste séances ---
-    loadSeances: rxMethod<{ centerId: string; page?: number; size?: number; month?: string }>(
-      pipe(
-        tap(() => patchState(store, {seancesLoading: true, error: null})),
-        switchMap(({centerId, page, size, month}) =>
-          api.listSeances(
-            centerId,
-            page ?? store.seancesPageIndex(),
-            size ?? store.seancesPageSize(),
-            month ?? store.dashboardMonth()
-          ).pipe(
-            tap((res) => patchState(store, {
-              seances: res.items,
-              seancesTotal: res.total,
-              seancesLoading: false,
-            })),
-            catchError((err: unknown) => {
-              patchState(store, {seances: [], seancesTotal: 0, seancesLoading: false, error: errorMessage(err)});
-              return EMPTY;
-            })
-          )
-        )
-      )
-    ),
-
-    setSeancesPagination(pageIndex: number, pageSize: number): void {
-      patchState(store, {seancesPageIndex: pageIndex, seancesPageSize: pageSize});
-    },
-
     // --- Scan QR ---
     scanQr: rxMethod<{ centerId: string; qrCode: string }>(
       pipe(
@@ -523,37 +477,15 @@ export const SeanceStore = signalStore(
           api.scanSeanceQr({centerId, qrCode}).pipe(
             tap((created) => patchState(store, {lastScan: created, qrCode: ''})),
             switchMap((created) =>
-              api.listSeances(centerId, 0, store.seancesPageSize()).pipe(
-                switchMap((res) =>
-                  api.getSeanceSummary(created.id, centerId).pipe(
-                    tap((summary) => {
-                      patchState(store, {
-                        seances: res.items,
-                        seancesTotal: res.total,
-                        seancesPageIndex: 0,
-                        scanning: false,
-                        scanState: 'success',
-                        scanMessage: scanSuccessMessage(created),
-                        ...summaryStateFromSummary(summary),
-                      });
-                    }),
-                    catchError(() => {
-                      patchState(store, {
-                        seances: res.items,
-                        seancesTotal: res.total,
-                        seancesPageIndex: 0,
-                        summary: null,
-                        selectedSeanceId: created.id,
-                        editDateSeance: created.dateSeance,
-                        dateSeance: created.dateSeance,
-                        scanning: false,
-                        scanState: 'success',
-                        scanMessage: scanSuccessMessage(created),
-                      });
-                      return EMPTY;
-                    })
-                  )
-                ),
+              api.getSeanceSummary(created.id, centerId).pipe(
+                tap((summary) => {
+                  patchState(store, {
+                    scanning: false,
+                    scanState: 'success',
+                    scanMessage: scanSuccessMessage(created),
+                    ...summaryStateFromSummary(summary),
+                  });
+                }),
                 catchError(() => {
                   patchState(store, {
                     summary: null,
@@ -609,10 +541,8 @@ export const SeanceStore = signalStore(
         switchMap(({seanceId, centerId, dateSeance}) =>
           api.updateSeance(seanceId, {centerId, dateSeance}).pipe(
             tap((updated) => {
-              const nextSeances = upsertSeanceInList(store.seances(), updated.id, updated.status, updated.dateSeance || dateSeance);
               const nextSummary = patchSummaryStatusAndDate(store.summary(), updated.id, updated.status, updated.dateSeance || dateSeance);
               patchState(store, {
-                seances: nextSeances,
                 summary: nextSummary,
                 savingDate: false,
                 dateSeance: updated.dateSeance || dateSeance,
@@ -636,7 +566,6 @@ export const SeanceStore = signalStore(
         switchMap(({seanceId, centerId, forfaitId, userId}) =>
           api.updateSeanceForfait(seanceId, {centerId, forfaitId, userId}).pipe(
             tap((updated) => patchState(store, {
-              seances: patchSeanceForfaitInList(store.seances(), seanceId, updated.forfait ?? null),
               summary: patchSummaryForfait(store.summary(), seanceId, updated.forfait ?? null),
               selectedForfaitId: updated.forfait?.id ?? forfaitId,
               savingForfait: false,
@@ -710,7 +639,6 @@ export const SeanceStore = signalStore(
         switchMap(({seanceId, payload}) =>
           api.validateSeance(seanceId, payload).pipe(
             tap((updated) => patchState(store, {
-              seances: upsertSeanceInList(store.seances(), updated.id, updated.status),
               summary: patchSummaryStatusAndDate(store.summary(), updated.id, updated.status),
               validatingSeance: false,
               scanState: 'success',
@@ -945,23 +873,6 @@ function errorMessage(err: unknown): string {
   return 'Erreur inattendue';
 }
 
-function upsertSeanceInList(
-  seances: SeanceListItem[],
-  seanceId: string,
-  status: string,
-  dateSeance?: string | null,
-): SeanceListItem[] {
-  return seances.map((s) =>
-    s.id === seanceId
-      ? {
-        ...s,
-        status,
-        dateSeance: dateSeance ?? s.dateSeance,
-      }
-      : s
-  );
-}
-
 function patchSummaryStatusAndDate(
   summary: SeanceSummary | null,
   seanceId: string,
@@ -1028,20 +939,5 @@ function patchSummaryForfait(
     ...summary,
     forfait,
   };
-}
-
-function patchSeanceForfaitInList(
-  seances: SeanceListItem[],
-  seanceId: string,
-  forfait: SeanceSummary['forfait'] | null,
-): SeanceListItem[] {
-  return seances.map((seance) =>
-    seance.id === seanceId
-      ? {
-        ...seance,
-        forfait,
-      }
-      : seance
-  );
 }
 

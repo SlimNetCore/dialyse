@@ -38,10 +38,13 @@ export const isNurseOnly = (roles: readonly string[]): boolean =>
 /** Suivi des absences de patients : ouvert à l'infirmier seul et au médecin seul. */
 const ABSENCES_PATIENTS = '/seances/absences-patients';
 
-/** Écrans de l'infirmier seul : son planning (page d'accueil), le tableau de bord des séances et les absences. */
+/** Historique des séances (statistiques et tableau) : consultation ouverte à l'infirmier seul. */
+const SEANCES_HISTORIQUE = '/seances/historique';
+
+/** Écrans de l'infirmier seul : son planning (page d'accueil), le poste infirmier, l'historique des séances et les absences. */
 export const isNurseArea = (url: string): boolean => {
   const path = url.split('?')[0];
-  return isUnder(path, NURSE_HOME) || path === '/seances' || path === ABSENCES_PATIENTS;
+  return isUnder(path, NURSE_HOME) || path === '/seances' || path === SEANCES_HISTORIQUE || path === ABSENCES_PATIENTS;
 };
 
 /**

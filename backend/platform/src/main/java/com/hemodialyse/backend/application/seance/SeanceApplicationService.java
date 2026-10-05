@@ -7,6 +7,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
+import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,20 +93,8 @@ public class SeanceApplicationService implements SeanceUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SeanceListItem> list(CenterId centerId) {
-        return delegate.list(centerId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size) {
-        return delegate.listPaged(centerId, page, size);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PagedResult<SeanceListItem> listPagedByMonth(CenterId centerId, YearMonth month, int page, int size) {
-        return delegate.listPagedByMonth(centerId, month, page, size);
+    public PagedResult<SeanceListItem> search(CenterId centerId, SeanceSearch criteria, int page, int size) {
+        return delegate.search(centerId, criteria, page, size);
     }
 
     @Override

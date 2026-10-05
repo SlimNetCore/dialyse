@@ -37,6 +37,17 @@ export type PagedResponse<T> = {
   size: number;
 };
 
+/** Critères facultatifs de l'historique des séances (tous traités côté serveur). */
+export type SeanceHistoryQuery = {
+  from?: string | null;
+  to?: string | null;
+  /** Un ou plusieurs statuts séparés par une virgule. */
+  status?: string | null;
+  q?: string | null;
+  sortBy?: string | null;
+  sortDir?: 'asc' | 'desc';
+};
+
 export type ListQuery = {
   page: number;
   size: number;
@@ -777,14 +788,17 @@ export class BackendApiService {
     return this.http.post<{ id: string; status: string; dateSeance: string }>(`${this.baseUrl}/seances`, payload);
   }
 
-  listSeances(centerId: string, page = 0, size = 20, month?: string): Observable<PagedResponse<SeanceListItem>> {
+  /** Historique paginé des séances ; période, statuts, texte patient et tri sont appliqués par le serveur. */
+  listSeances(centerId: string, page = 0, size = 20, query: SeanceHistoryQuery = {}): Observable<PagedResponse<SeanceListItem>> {
     let params = new HttpParams()
       .set('centerId', centerId)
       .set('page', page)
       .set('size', size);
-    if (month) {
-      params = params.set('month', month);
-    }
+    if (query.from) params = params.set('from', query.from);
+    if (query.to) params = params.set('to', query.to);
+    if (query.status) params = params.set('status', query.status);
+    if (query.q) params = params.set('q', query.q);
+    if (query.sortBy) params = params.set('sortBy', query.sortBy).set('sortDir', query.sortDir ?? 'desc');
     return this.http.get<PagedResponse<SeanceListItem>>(`${this.baseUrl}/seances`, {params});
   }
 

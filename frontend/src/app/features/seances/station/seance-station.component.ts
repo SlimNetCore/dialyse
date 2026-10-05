@@ -75,8 +75,6 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
   protected readonly canEdit = computed(() => this.isClinicalUser() && !this.isFacturee());
   protected readonly canAdministerAnemie = computed(() => this.hasAnyRole('INFIRMIER', 'MEDECIN') && !this.isFacturee());
   protected readonly canValidate = computed(() => this.isClinicalUser() && this.status() === 'CREE');
-  /** L'historique (tableaux, filtres, forfait, dates) est réservé à l'administrateur. */
-  protected readonly hasHistory = computed(() => this.hasAnyRole('ADMIN'));
   protected readonly scanKey = computed(() => {
     const scan = this.store.lastScan();
     return scan ? scanSuccessMessage(scan) : '';
@@ -187,7 +185,6 @@ export class SeanceStationComponent implements OnInit, OnDestroy {
     this.store.setJournalDate(todayIsoDate());
     this.reloadQueue();
     this.store.loadArticlesStock({centerId});
-    this.store.loadForfaits({centerId});
     this.store.loadRaccourcis({centerId});
   }
 

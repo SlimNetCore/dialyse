@@ -64,7 +64,7 @@ function fakeStore() {
     recentSeances: signal<Array<Record<string, unknown>>>([]),
     loadRaccourcis: vi.fn(), saveRaccourcis: vi.fn(), loadRecentSeances: vi.fn(),
     setQrCode: vi.fn(), setDateSeance: vi.fn(), setJournalDate: vi.fn(), loadJournal: vi.fn(),
-    loadArticlesStock: vi.fn(), loadForfaits: vi.fn(), loadSeanceSummary: vi.fn(), selectSeance: vi.fn(),
+    loadArticlesStock: vi.fn(), loadSeanceSummary: vi.fn(), selectSeance: vi.fn(),
     scanQr: vi.fn(), addConsommableToSeance: vi.fn(), addConsommable: vi.fn(), adjustConsommable: vi.fn(),
     removeConsommable: vi.fn(), removeConsommableFromSeance: vi.fn(), updateConsommableQuantiteInSeance: vi.fn(),
     patchParamedical: vi.fn(), saveParamedical: vi.fn(), validateSeance: vi.fn(),
@@ -110,7 +110,11 @@ describe('SeanceStationComponent', () => {
       date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
     });
     expect(store.loadArticlesStock).toHaveBeenCalledWith({centerId: CENTER_ID});
-    expect(store.loadForfaits).toHaveBeenCalledWith({centerId: CENTER_ID});
+  });
+
+  it('propose le lien vers l\'historique des séances à tous les profils du poste', () => {
+    const {root} = render();
+    expect(root.querySelector('.history-link')).not.toBeNull();
   });
 
   it('affiche les patients du jour et ouvre la séance au toucher', () => {

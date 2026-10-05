@@ -94,6 +94,13 @@ describe('roleScopeGuard', () => {
     }
   });
 
+  it('ouvre l\'historique des séances à l\'infirmier seul mais pas au médecin seul', () => {
+    expect(run(['INFIRMIER'], '/seances/historique')).toBe(true);
+    expect(isNurseArea('/seances/historique')).toBe(true);
+    expect(isNurseArea('/seances/planning')).toBe(false);
+    expect(isDoctorArea('/seances/historique')).toBe(false);
+  });
+
   it('ouvre le suivi des absences de patients à l\'infirmier seul et au médecin seul', () => {
     expect(run(['INFIRMIER'], '/seances/absences-patients')).toBe(true);
     expect(run(['MEDECIN'], '/seances/absences-patients')).toBe(true);

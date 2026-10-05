@@ -3,6 +3,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.patient.service.FinOccupation;
 import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
+import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
+import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.security.CurrentUser;
@@ -77,20 +79,26 @@ public class SeanceRestController {
             @RequestParam UUID centerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String month) {
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDir) {
 
-        final com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> paged;
-        if (month != null && !month.isBlank()) {
-            YearMonth yearMonth;
-            try {
-                yearMonth = YearMonth.parse(month);
-            } catch (DateTimeParseException e) {
-                return ResponseEntity.badRequest().body("Invalid month format. Expected YYYY-MM.");
+        Set<SeanceStatus> statuses = new LinkedHashSet<>();
+        if (status != null && !status.isBlank()) {
+            for (String raw : status.split(",")) {
+                try {
+                    statuses.add(SeanceStatus.valueOf(raw.trim().toUpperCase(Locale.ROOT)));
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body("Invalid status: " + raw.trim());
+                }
             }
-            paged = seanceUseCase.listPagedByMonth(CenterId.of(centerId), yearMonth, page, size);
-        } else {
-            paged = seanceUseCase.listPaged(CenterId.of(centerId), page, size);
         }
+        var criteria = new SeanceSearch(from, to, statuses, q, SeanceSearch.Sort.parse(sortBy),
+                !"asc".equalsIgnoreCase(sortDir));
+        var paged = seanceUseCase.search(CenterId.of(centerId), criteria, page, size);
 
         var items = paged.items().stream().map(item -> {
             var row = new java.util.LinkedHashMap<String, Object>();

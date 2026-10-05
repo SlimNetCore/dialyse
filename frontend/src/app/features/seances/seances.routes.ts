@@ -1,22 +1,15 @@
 import {Routes} from '@angular/router';
-import {seanceStationMatch} from './station/station.guard';
 
 export const seancesRoutes: Routes = [
   {
     path: '',
-    canMatch: [seanceStationMatch],
     loadComponent: () =>
       import('./station/seance-station.component').then((m) => m.SeanceStationComponent),
   },
   {
-    path: '',
-    loadComponent: () =>
-      import('./seances-page.component').then((m) => m.SeancesPageComponent),
-  },
-  {
     path: 'historique',
     loadComponent: () =>
-      import('./seances-page.component').then((m) => m.SeancesPageComponent),
+      import('./historique/seances-historique.component').then((m) => m.SeancesHistoriqueComponent),
   },
   {
     path: 'planning',

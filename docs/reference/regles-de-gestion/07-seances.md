@@ -69,19 +69,31 @@
   `VALIDEE` ou `SIGNEE`, refusé si facturée (« La seance facturee ne peut plus etre modifiee ») ou non validée.
   Les administrations EPO/fer gardent leur propre bon numéroté (poste « ADMINISTRATION »). Chaque saisie notifie le
   médecin (RG-NOT-004).
-- **RG-SEA-026** — **Poste infirmier** (écran « Séances » des rôles `ADMIN`, `INFIRMIER`, `SECRETAIRE` ; le médecin seul
-  garde l'écran de consultation) : un seul écran pour scanner, choisir le patient dans la **file du jour** (séances du
+- **RG-SEA-026** — **Poste infirmier** (écran « Séances » ; le médecin seul n'y a pas accès, il passe par son tableau de
+  bord) : un seul écran pour scanner, choisir le patient dans la **file du jour** (séances du
   jour avec leur statut : à valider, validée, signée, facturée, absent) et saisir la séance en quatre étapes —
   constantes (avec le poids sec prescrit), consommables, anémie, remarques. Les constantes s'enregistrent à la sortie de
   chaque champ et les remarques après une courte pause de frappe, sans bouton « Enregistrer » ; une séance facturée est
   en lecture seule. Les consommables les plus sortis du jour dans le centre sont proposés en un toucher (+1 unité,
   RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l'état n'est pas « en service ». Les
-  tableaux, filtres et la modification du forfait ou de la date restent dans l' **historique** des séances (`ADMIN`). La
+  statistiques et le tableau des séances sont dans l' **historique** (RG-SEA-029), accessible depuis le poste. La
   secrétaire voit la file et scanne mais n'ouvre pas la saisie clinique. L'écran est responsive : une
   colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
   L'habillage suit la charte de l'application (thème actif, titres Fraunces, cartes vitrées, indicateurs du jour).
   Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). *Source :*
   `SeanceStationComponent`, `QrScannerComponent`.
+- **RG-SEA-029** — **Historique des séances** (`GET /seances`, tous profils de centre ; écran « Historique des
+  séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et par âge,
+  détail et export) et **liste paginée** des séances du centre. La recherche, les filtres et le tri sont appliqués **par
+  le serveur** sur toute la liste, jamais sur la seule page affichée : période (`from`, `to`, bornes incluses,
+  début ≤ fin), statut (un ou plusieurs), texte libre sur le nom, le prénom ou le code du patient (tous les mots
+  doivent correspondre), tri sur la date, le patient, le code, le statut ou la création (liste blanche ; toute autre
+  colonne retombe sur la date décroissante, avec un départage stable). Réponse `{items, total, page, size}` ; `size`
+  est borné à 500 et la liste est toujours limitée au centre demandé. L'écran est en consultation seule : la saisie se
+  fait au poste infirmier (RG-SEA-026). *Point d'attention :* l'ancien écran permettait à l'`ADMIN` de modifier la
+  **date** et le **forfait** d'une séance (RG-SEA-014 et suivantes) ; ces actions n'ont plus d'écran depuis la refonte
+  (les points d'accès subsistent). *Source :* `SeanceDomainService.search`, `SeanceRepositoryAdapter.search`,
+  `SeancesHistoriqueComponent`.
 - **RG-SEA-027** — **Raccourcis de consommables du centre** : l'`ADMIN` choisit (au plus 12, sans doublon, articles
   actifs du centre, ordre de sélection conservé) les articles proposés en un toucher à l'infirmier
   (`PUT /seances/raccourcis-consommables`) ; la lecture est ouverte à `ADMIN`, `INFIRMIER` et `SECRETAIRE`. Sans

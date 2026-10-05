@@ -1,0 +1,99 @@
+<section class="app-page historique">
+  <header class="app-hero-card hero">
+    <span class="app-eyebrow">
+      <mat-icon aria-hidden="true">history</mat-icon>
+      {{ 'SEANCES.EYEBROW' | translate }}
+    </span>
+    <h1 class="app-section-title">{{ 'SEANCES.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'SEANCES.DESCRIPTION' | translate }}</p>
+    <div class="hero-actions">
+      @if (canOpenStation()) {
+        <a color="primary" mat-flat-button routerLink="/seances">
+          <mat-icon>monitor_heart</mat-icon>
+          {{ 'SEANCES.HISTORY_TO_STATION' | translate }}
+        </a>
+      }
+      @if (canEditCalendar()) {
+        <a mat-stroked-button routerLink="/admin/parametrage/calendrier-clinique">
+          <mat-icon>calendar_month</mat-icon>
+          {{ 'SEANCES.CALENDAR_CENTER_BTN' | translate }}
+        </a>
+      }
+    </div>
+  </header>
+
+  <app-seances-stats/>
+
+  <section class="app-panel list-panel">
+    <header class="list-head">
+      <h2>{{ 'SEANCES.SESSIONS_LIST_TITLE' | translate }}</h2>
+      <div class="period">
+        <mat-form-field appearance="outline" class="subscript-hidden">
+          <mat-label>{{ 'SEANCES.HISTORY_FROM' | translate }}</mat-label>
+          <input (change)="onPeriodInput('from', $event)" [value]="store.periodFrom()" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="subscript-hidden">
+          <mat-label>{{ 'SEANCES.HISTORY_TO' | translate }}</mat-label>
+          <input (change)="onPeriodInput('to', $event)" [value]="store.periodTo()" matInput type="date"/>
+        </mat-form-field>
+        @if (hasPeriod()) {
+          <button (click)="clearPeriod()" mat-stroked-button type="button">
+            <mat-icon>filter_alt_off</mat-icon>
+            {{ 'SEANCES.HISTORY_CLEAR_PERIOD' | translate }}
+          </button>
+        }
+      </div>
+    </header>
+
+    @if (store.error()) {
+      <p class="list-error" role="alert">
+        <mat-icon aria-hidden="true">error</mat-icon>
+        {{ store.error()! | translate }}
+      </p>
+    }
+
+    <div [attr.aria-busy]="store.loading()" class="table-scroll">
+      <app-configurable-list
+        (remoteQueryChange)="onRemoteQuery($event)"
+        [columns]="columns()"
+        [dataMode]="'remote'"
+        [emptyLabelKey]="'SEANCES.NO_SESSIONS_FOUND'"
+        [inlineFilters]="true"
+        [rows]="store.rows()"
+      />
+    </div>
+
+    <ng-template #patientCell let-row>
+      <div class="patient-cell">
+        <strong>{{ patientLabel(row) }}</strong>
+        <span>{{ row.patientCode || row.patientId }}</span>
+      </div>
+    </ng-template>
+
+    <ng-template #statusCell let-row>
+      <span [attr.data-status]="row.status" class="status-chip">{{ statusKey(row.status) | translate }}</span>
+    </ng-template>
+
+    <ng-template #forfaitCell let-row>
+      @if (forfaitName(row) !== '-') {
+        <span class="forfait-chip">
+          {{ forfaitName(row) }}
+          @if (forfaitPrice(row)) {
+            <span class="forfait-price">— {{ forfaitPrice(row) }} {{ 'COMMON.CURRENCY_DA' | translate }}</span>
+          }
+        </span>
+      } @else {
+        <span class="muted">-</span>
+      }
+    </ng-template>
+
+    <mat-paginator
+      (page)="onPage($event)"
+      [attr.aria-label]="'COMMON.PAGINATOR_ARIA_LABEL' | translate"
+      [length]="store.total()"
+      [pageIndex]="store.pageIndex()"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageSize]="store.pageSize()"
+    ></mat-paginator>
+  </section>
+</section>

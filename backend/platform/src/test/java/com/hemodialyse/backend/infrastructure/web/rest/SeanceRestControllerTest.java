@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
+import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -48,14 +49,14 @@ class SeanceRestControllerTest {
         SeanceUseCase useCase = mock(SeanceUseCase.class);
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 0, 20);
-        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(pagedResult);
+        when(useCase.search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(pagedResult);
 
         SeanceRestController controller = buildController(useCase);
-        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null);
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        verify(useCase).listPaged(CenterId.of(CENTER_ID), 0, 20);
+        verify(useCase).search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20));
     }
 
     @Test
@@ -69,10 +70,10 @@ class SeanceRestControllerTest {
         );
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
-        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(pagedResult);
+        when(useCase.search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(pagedResult);
 
         SeanceRestController controller = buildController(useCase);
-        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null);
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
 
         assertEquals(200, response.getStatusCode().value());
         @SuppressWarnings("unchecked")
@@ -82,7 +83,7 @@ class SeanceRestControllerTest {
         List<Map<String, Object>> rows = (List<Map<String, Object>>) body.get("items");
         assertEquals(1, rows.size());
         assertEquals(SeanceStatus.FACTUREE, rows.getFirst().get("status"));
-        verify(useCase).listPaged(CenterId.of(CENTER_ID), 0, 20);
+        verify(useCase).search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20));
     }
 
     @Test
@@ -99,7 +100,7 @@ class SeanceRestControllerTest {
         );
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> pagedResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(item), 1, 0, 20);
-        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(pagedResult);
+        when(useCase.search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(pagedResult);
         when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.ResultSetExtractor.class), eq(SEANCE_ID), eq(CENTER_ID)))
                 .thenReturn(null);
         when(jdbc.query(any(String.class), any(org.springframework.jdbc.core.RowMapper.class), any(), any(), any(), any(), any(), any()))
@@ -112,7 +113,7 @@ class SeanceRestControllerTest {
                 )));
 
         SeanceRestController controller = new SeanceRestController(useCase, notif, jdbc);
-        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null);
+        ResponseEntity<?> response = controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
 
         assertEquals(200, response.getStatusCode().value());
         @SuppressWarnings("unchecked")
@@ -134,19 +135,57 @@ class SeanceRestControllerTest {
         UUID otherCenter = UUID.randomUUID();
         com.hemodialyse.backend.domain.shared.PagedResult<com.hemodialyse.backend.domain.seance.model.SeanceListItem> emptyResult =
                 new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 0, 20);
-        when(useCase.listPaged(eq(CenterId.of(CENTER_ID)), eq(0), eq(20))).thenReturn(emptyResult);
-        when(useCase.listPaged(eq(CenterId.of(otherCenter)), eq(0), eq(20))).thenReturn(emptyResult);
+        when(useCase.search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(emptyResult);
+        when(useCase.search(eq(CenterId.of(otherCenter)), any(SeanceSearch.class), eq(0), eq(20))).thenReturn(emptyResult);
 
         SeanceRestController controller = buildController(useCase);
-        controller.list(CENTER_ID, 0, 20, null);
-        controller.list(otherCenter, 0, 20, null);
+        controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
+        controller.list(otherCenter, 0, 20, null, null, null, null, null, "desc");
 
-        verify(useCase).listPaged(CenterId.of(CENTER_ID), 0, 20);
-        verify(useCase).listPaged(CenterId.of(otherCenter), 0, 20);
+        verify(useCase).search(eq(CenterId.of(CENTER_ID)), any(SeanceSearch.class), eq(0), eq(20));
+        verify(useCase).search(eq(CenterId.of(otherCenter)), any(SeanceSearch.class), eq(0), eq(20));
         // Chaque appel utilise strictement le centerId fourni
-        verify(useCase, never()).listPaged(argThat(c ->
+        verify(useCase, never()).search(argThat(c ->
                 !c.value().equals(CENTER_ID) && !c.value().equals(otherCenter)
-        ), eq(0), eq(20));
+        ), any(SeanceSearch.class), eq(0), eq(20));
+    }
+
+    @Test
+    void list_should_translate_the_query_params_into_search_criteria() {
+        SeanceUseCase useCase = mock(SeanceUseCase.class);
+        when(useCase.search(any(), any(SeanceSearch.class), eq(2), eq(50)))
+                .thenReturn(new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 2, 50));
+
+        ResponseEntity<?> response = buildController(useCase).list(CENTER_ID, 2, 50,
+                LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), "validee, cree", "dupont jean", "patient", "asc");
+
+        assertEquals(200, response.getStatusCode().value());
+        org.mockito.ArgumentCaptor<SeanceSearch> captor = org.mockito.ArgumentCaptor.forClass(SeanceSearch.class);
+        verify(useCase).search(eq(CenterId.of(CENTER_ID)), captor.capture(), eq(2), eq(50));
+        SeanceSearch criteria = captor.getValue();
+        assertEquals(LocalDate.of(2026, 10, 1), criteria.from());
+        assertEquals(LocalDate.of(2026, 10, 31), criteria.to());
+        assertEquals(java.util.Set.of(SeanceStatus.VALIDEE, SeanceStatus.CREE), criteria.statuses());
+        assertEquals("dupont jean", criteria.text());
+        assertEquals(SeanceSearch.Sort.PATIENT, criteria.sort());
+        assertFalse(criteria.desc());
+    }
+
+    @Test
+    void list_should_default_to_newest_first_and_refuse_an_unknown_status() {
+        SeanceUseCase useCase = mock(SeanceUseCase.class);
+        when(useCase.search(any(), any(SeanceSearch.class), eq(0), eq(20)))
+                .thenReturn(new com.hemodialyse.backend.domain.shared.PagedResult<>(List.of(), 0, 0, 20));
+        SeanceRestController controller = buildController(useCase);
+
+        controller.list(CENTER_ID, 0, 20, null, null, null, null, null, "desc");
+        org.mockito.ArgumentCaptor<SeanceSearch> captor = org.mockito.ArgumentCaptor.forClass(SeanceSearch.class);
+        verify(useCase).search(any(), captor.capture(), eq(0), eq(20));
+        assertEquals(SeanceSearch.Sort.DATE, captor.getValue().sort());
+        assertTrue(captor.getValue().desc());
+
+        ResponseEntity<?> bad = controller.list(CENTER_ID, 0, 20, null, null, "NOPE", null, null, "desc");
+        assertEquals(400, bad.getStatusCode().value());
     }
 
     // ─── create ──────────────────────────────────────────────────────────────

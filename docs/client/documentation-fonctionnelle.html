@@ -252,7 +252,7 @@
     <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
     <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans
         exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-04<br>461 règles de gestion · 16 domaines · 333 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-05<br>462 règles de gestion · 16 domaines · 333 codes d'erreur métier</div>
 </div>
 <div class="page">
     <section><h1><span class="n">Sommaire</span>Contenu du document</h1>
@@ -295,10 +295,10 @@
             <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock
             pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
         <div class="stat">
-            <div><b>461</b>règles de gestion</div>
+            <div><b>462</b>règles de gestion</div>
             <div><b>16</b>domaines</div>
             <div><b>15</b>surveillances automatiques</div>
-            <div><b>7</b>points d'attention</div>
+            <div><b>8</b>points d'attention</div>
         </div>
         <h2>Profils et périmètres</h2>
         <table>
@@ -2726,7 +2726,8 @@
             <div class="rtxt"><p>Retirer un consommable d&#39;une séance (<code>ADMIN</code>, <code>INFIRMIER</code>)
                 restitue le stock ; modifier sa quantité
                 (positive) met à jour la ligne du <strong>bon de sortie unique de la séance</strong> (RG-SEA-025), dont
-                les lots sont resélectionnés
+                les lots sont
+                resélectionnés
                 au FEFO. Interdit si la séance est facturée. Chaque changement notifie le centre.</p>
             </div>
         </div>
@@ -2751,10 +2752,9 @@
         </div>
         <div class="rule" id="RG-SEA-026">
             <div class="rid">RG-SEA-026</div>
-            <div class="rtxt"><p><strong>Poste infirmier</strong> (écran « Séances » des rôles <code>ADMIN</code>,
-                <code>INFIRMIER</code>, <code>SECRETAIRE</code> ; le médecin seul
-                garde l&#39;écran de consultation) : un seul écran pour scanner, choisir le patient dans la <strong>file
-                    du jour</strong> (séances du
+            <div class="rtxt"><p><strong>Poste infirmier</strong> (écran « Séances » ; le médecin seul n&#39;y a pas
+                accès, il passe par son tableau de
+                bord) : un seul écran pour scanner, choisir le patient dans la <strong>file du jour</strong> (séances du
                 jour avec leur statut : à valider, validée, signée, facturée, absent) et saisir la séance en quatre
                 étapes —
                 constantes (avec le poids sec prescrit), consommables, anémie, remarques. Les constantes s&#39;enregistrent
@@ -2765,15 +2765,42 @@
                 (+1 unité,
                 RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l&#39;état n&#39;est pas « en
                 service ». Les
-                tableaux, filtres et la modification du forfait ou de la date restent dans
-                l&#39;<strong>historique</strong> des séances
-                (<code>ADMIN</code>). La secrétaire voit la file et scanne mais n&#39;ouvre pas la saisie clinique. L&#39;écran
-                est responsive : une
+                statistiques et le tableau des séances sont dans l&#39;<strong>historique</strong> (RG-SEA-029),
+                accessible depuis le poste. La
+                secrétaire voit la file et scanne mais n&#39;ouvre pas la saisie clinique. L&#39;écran est responsive :
+                une
                 colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
                 L&#39;habillage suit la charte de l&#39;application (thème actif, titres Fraunces, cartes vitrées,
                 indicateurs du jour).
-                Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028).
-                <em>Source :</em> <code>SeanceStationComponent</code>, <code>QrScannerComponent</code>.</p>
+                Sur PC, un panneau de contexte rappelle les dernières séances du patient (RG-SEA-028). <em>Source :</em>
+                <code>SeanceStationComponent</code>, <code>QrScannerComponent</code>.</p>
+            </div>
+        </div>
+        <div class="rule attention" id="RG-SEA-029">
+            <div class="rid">RG-SEA-029<small>point d'attention</small></div>
+            <div class="rtxt"><p><strong>Historique des séances</strong> (<code>GET /seances</code>, tous profils de
+                centre ; écran « Historique des
+                séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et
+                par âge,
+                détail et export) et <strong>liste paginée</strong> des séances du centre. La recherche, les filtres et
+                le tri sont appliqués
+                <strong>par le serveur</strong> sur toute la liste, jamais sur la seule page affichée : période (<code>from</code>,
+                <code>to</code>, bornes incluses,
+                début ≤ fin), statut (un ou plusieurs), texte libre sur le nom, le prénom ou le code du patient (tous
+                les mots
+                doivent correspondre), tri sur la date, le patient, le code, le statut ou la création (liste blanche ;
+                toute autre
+                colonne retombe sur la date décroissante, avec un départage stable). Réponse <code>{items, total, page,
+                    size}</code> ; <code>size</code>
+                est borné à 500 et la liste est toujours limitée au centre demandé. L&#39;écran est en consultation
+                seule : la saisie se
+                fait au poste infirmier (RG-SEA-026).
+                <em>Point d&#39;attention :</em> l&#39;ancien écran permettait à l&#39;<code>ADMIN</code> de modifier la
+                <strong>date</strong> et le <strong>forfait</strong> d&#39;une séance
+                (RG-SEA-014 et suivantes) ; ces actions n&#39;ont plus d&#39;écran depuis la refonte (les points d&#39;accès
+                subsistent).
+                <em>Source :</em> <code>SeanceDomainService.search</code>, <code>SeanceRepositoryAdapter.search</code>,
+                <code>SeancesHistoriqueComponent</code>.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-027">
@@ -2785,9 +2812,8 @@
                 <code>INFIRMIER</code> et <code>SECRETAIRE</code>. Sans
                 raccourci configuré, l&#39;écran propose les articles les plus sortis du jour (6 au plus). La liste est
                 propre au centre
-                (isolation stricte), mise en cache par centre et purgée à chaque modification.
-                <em>Source :</em> <code>SeanceRaccourciDomainService</code>,
-                <code>SeanceRaccourciApplicationService</code>.</p>
+                (isolation stricte), mise en cache par centre et purgée à chaque modification. <em>Source :</em>
+                <code>SeanceRaccourciDomainService</code>, <code>SeanceRaccourciApplicationService</code>.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-028">
@@ -2798,8 +2824,7 @@
                 de la plus récente à
                 la plus ancienne) avec leurs constantes — poids avant/après, perte de poids, tension, durée,
                 ultrafiltration.
-                Limité au centre de la session.
-                <em>Source :</em> <code>SeanceDomainService.recentByPatient</code>.</p>
+                Limité au centre de la session. <em>Source :</em> <code>SeanceDomainService.recentByPatient</code>.</p>
             </div>
         </div>
         <div class="rule" id="RG-SEA-023">
@@ -5627,7 +5652,7 @@
                 <td><code>ADMIN</code> (écriture), <code>INFIRMIER</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>
                     selon l&#39;action
                 </td>
-                <td>RG-SEA-026 à 028</td>
+                <td>RG-SEA-026 à 029</td>
             </tr>
             <tr>
                 <td><code>VoletParamedicalRestController</code></td>
@@ -6052,6 +6077,12 @@
                 résorber au
                 profit de la
                 re…
+            </li>
+            <li><a href="#RG-SEA-029"><b>RG-SEA-029</b></a> — Historique des séances (GET /seances, tous profils de
+                centre ; écran « Historique des
+                séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et
+                par âge,
+                détail et export) et…
             </li>
             <li><a href="#RG-SEA-024"><b>RG-SEA-024</b></a> — Valider à nouveau une séance déjà validée avec une liste
                 de consommables retraite

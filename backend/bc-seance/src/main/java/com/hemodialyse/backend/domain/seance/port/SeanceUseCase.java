@@ -5,12 +5,12 @@ import com.hemodialyse.backend.domain.seance.model.SeanceArticleConsumption;
 import com.hemodialyse.backend.domain.seance.model.SeanceDetails;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
+import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,17 +52,13 @@ public interface SeanceUseCase {
      */
     List<SeanceRecap> recentByPatient(CenterId centerId, UUID patientId, LocalDate before, int limit);
 
-    List<SeanceListItem> list(CenterId centerId);
+    int SEARCH_MAX_SIZE = 500;
 
     /**
-     * Returns a paginated and patient-enriched list of séances.
+     * Historique paginé des séances du centre, filtré (période, statut, texte patient) et trié en base ;
+     * {@code size} est borné à {@value #SEARCH_MAX_SIZE}.
      */
-    PagedResult<SeanceListItem> listPaged(CenterId centerId, int page, int size);
-
-    /**
-     * Returns a paginated and patient-enriched list of séances filtered to a given month.
-     */
-    PagedResult<SeanceListItem> listPagedByMonth(CenterId centerId, YearMonth month, int page, int size);
+    PagedResult<SeanceListItem> search(CenterId centerId, SeanceSearch criteria, int page, int size);
 
     Seance updateDate(CenterId centerId, UUID seanceId, LocalDate dateSeance);
 

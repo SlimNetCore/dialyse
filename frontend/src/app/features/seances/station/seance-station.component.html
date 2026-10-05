@@ -82,12 +82,10 @@
           <span [attr.data-status]="p.status" class="chip">{{ statusKey(p.status) | translate }}</span>
         </button>
       }
-      @if (hasHistory()) {
-        <a class="history-link" routerLink="historique">
-          <mat-icon aria-hidden="true">history</mat-icon>
-          {{ 'SEANCES.STATION.HISTORY' | translate }}
-        </a>
-      }
+      <a class="history-link" routerLink="historique">
+        <mat-icon aria-hidden="true">history</mat-icon>
+        {{ 'SEANCES.STATION.HISTORY' | translate }}
+      </a>
     </aside>
 
     <main class="app-panel seance-pane">
