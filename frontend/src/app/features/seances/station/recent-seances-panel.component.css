@@ -70,3 +70,16 @@ dd {
   font-size: 17px;
   font-weight: 700;
 }
+
+.recent-item.live {
+  border-color: var(--app-primary);
+}
+
+.live-tag {
+  margin-inline-end: auto;
+  padding-inline-start: 8px;
+  color: var(--app-primary);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}

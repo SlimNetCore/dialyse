@@ -41,6 +41,25 @@ describe('RecentSeancesPanelComponent', () => {
     expect(text).toContain('240');
   });
 
+  it('place en tête la séance en cours avec les constantes saisies, sans doublon', () => {
+    const fixture = TestBed.createComponent(RecentSeancesPanelComponent);
+    fixture.componentRef.setInput('seances', [{seanceId: 'r1', dateSeance: '2026-10-02', status: 'VALIDEE'}]);
+    fixture.componentRef.setInput('current', {
+      seanceId: 's0', dateSeance: '2026-10-05', status: 'CREE', taAvant: '13/8', taApres: '12/7',
+      dureeMinutes: 240, ultrafiltrationMl: 2500,
+    });
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    const items = root.querySelectorAll('.recent-item');
+    expect(items).toHaveLength(2);
+    expect(items[0].classList.contains('live')).toBe(true);
+    expect(items[0].textContent).toContain('13/8');
+    expect(items[0].textContent).toContain('12/7');
+    expect(items[0].textContent).toContain('2500');
+    expect(items[1].classList.contains('live')).toBe(false);
+  });
+
   it('remplace une valeur absente par un tiret', () => {
     const root = render([{seanceId: 'r1', dateSeance: '2026-10-02', status: 'CREE'}]);
     expect(root.querySelector('.recent-grid')!.textContent!.match(/–/g)!.length).toBeGreaterThanOrEqual(4);

@@ -15,7 +15,7 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../../core/state/auth.store';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService} from '../../../core/ws/websocket.service';
-import {ArticleStock} from '../../../core/api/backend-api.service';
+import {ArticleStock, SeanceRecent} from '../../../core/api/backend-api.service';
 import {DropdownItem, SearchableSelectComponent} from '../../../shared/searchable-select.component';
 import {RichTextEditorComponent} from '../../../shared/rich-text-editor/rich-text-editor.component';
 import {QrScannerComponent} from '../../../shared/qr-scanner/qr-scanner.component';
@@ -119,6 +119,22 @@ export class SeanceStationComponent implements OnDestroy {
   protected readonly canConfigureShortcuts = computed(() => this.hasAnyRole('ADMIN'));
   protected readonly activeArticles = computed(() => this.store.availableArticles().filter((a) => a.active));
   protected readonly recentSeances = computed(() => this.store.recentSeances());
+  /** Séance ouverte, avec les constantes en cours de saisie : le rappel de droite se met à jour en direct. */
+  protected readonly currentRecap = computed<SeanceRecent | null>(() => {
+    const s = this.summary()?.seance;
+    if (!s) return null;
+    return {
+      seanceId: s.id,
+      dateSeance: s.dateSeance,
+      status: s.status,
+      poidsAvantKg: this.store.poidsAvantKg(),
+      poidsApresKg: this.store.poidsApresKg(),
+      taAvant: toNullableText(this.store.taAvant()),
+      taApres: toNullableText(this.store.taApres()),
+      dureeMinutes: this.store.dureeMinutes(),
+      ultrafiltrationMl: this.store.ultrafiltrationMl(),
+    };
+  });
   protected readonly pendingSeances = computed(() => this.store.pendingSeances());
   /** L'administrateur déverrouille les séances oubliées ; l'infirmier ne voit et ne valide que celles-là. */
   protected readonly isAdmin = computed(() => this.hasAnyRole('ADMIN'));

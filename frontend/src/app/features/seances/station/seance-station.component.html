@@ -348,7 +348,7 @@
 
     @if (summary()) {
       <aside [attr.aria-label]="'SEANCES.STATION.RECENT_TITLE' | translate" class="app-panel context-pane">
-        <app-recent-seances-panel [seances]="recentSeances()"/>
+        <app-recent-seances-panel [current]="currentRecap()" [seances]="recentSeances()"/>
       </aside>
     }
   </div>

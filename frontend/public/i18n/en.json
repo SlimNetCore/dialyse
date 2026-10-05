@@ -1292,6 +1292,7 @@
       "SHORTCUTS_HINT": "Tap the items to offer as one-tap shortcuts (maximum {{max}}); the selection order is the display order.",
       "RECENT_TITLE": "Previous sessions",
       "RECENT_EMPTY": "No previous session.",
+      "RECENT_CURRENT": "In progress",
       "RECENT_WEIGHT": "Weight before → after (kg)",
       "RECENT_LOSS": "Loss (kg)",
       "TITLE": "Today's sessions",

@@ -1292,6 +1292,7 @@
       "SHORTCUTS_HINT": "Touchez les articles à proposer en un toucher (maximum {{max}}) ; l'ordre de sélection est l'ordre d'affichage.",
       "RECENT_TITLE": "Dernières séances",
       "RECENT_EMPTY": "Aucune séance précédente.",
+      "RECENT_CURRENT": "En cours",
       "RECENT_WEIGHT": "Poids avant → après (kg)",
       "RECENT_LOSS": "Perte (kg)",
       "TITLE": "Séances du jour",

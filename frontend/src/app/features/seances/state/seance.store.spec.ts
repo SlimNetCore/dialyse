@@ -1,6 +1,6 @@
 import {TestBed} from '@angular/core/testing';
 import {provideZonelessChangeDetection} from '@angular/core';
-import {of, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {SeanceStore, scanErrorMessage} from './seance.store';
 import {BackendApiService} from '../../../core/api/backend-api.service';
@@ -352,6 +352,34 @@ describe('SeanceStore', () => {
     expect(store.poidsAvantKg()).toBe(70.5);
     expect(store.taApres()).toBe('');
     expect(store.poidsApresKg()).toBeNull();
+  });
+  it('un rechargement périmé n\'écrase pas les constantes saisies depuis l\'envoi de la requête', () => {
+    const store = TestBed.inject(SeanceStore);
+    const reponse = new Subject<typeof MOCK_SUMMARY>();
+    mockApi.getSeanceSummary.mockReturnValueOnce(reponse);
+    store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});
+    store.selectSeance(SEANCE_ID);
+
+    store.patchParamedical({taAvant: '13/8', dureeMinutes: 240, anticoagulant: 'Héparine'});
+    reponse.next(MOCK_SUMMARY);
+
+    expect(store.taAvant()).toBe('13/8');
+    expect(store.dureeMinutes()).toBe(240);
+    expect(store.anticoagulant()).toBe('Héparine');
+    expect(store.summary()?.seance.id).toBe(SEANCE_ID);
+  });
+  it('un rechargement sans saisie intermédiaire reprend les valeurs du serveur', () => {
+    const store = TestBed.inject(SeanceStore);
+    store.patchParamedical({taAvant: 'ancien'});
+    mockApi.getSeanceSummary.mockReturnValueOnce(of({
+      ...MOCK_SUMMARY,
+      paramedical: {taAvant: '12/7', dureeMinutes: 240},
+    }));
+
+    store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});
+
+    expect(store.taAvant()).toBe('12/7');
+    expect(store.dureeMinutes()).toBe(240);
   });
   it('should patch medical fields independently', () => {
     const store = TestBed.inject(SeanceStore);

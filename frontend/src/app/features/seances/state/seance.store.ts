@@ -102,6 +102,8 @@ type SeanceState = {
   anticoagulant: string;
   typeDialysat: string;
   incidents: string;
+  /** Incrémenté à chaque saisie locale : une réponse serveur plus ancienne ne doit pas l'écraser. */
+  paramedicalRevision: number;
   savingParamedical: boolean;
 
   /** Volet médical édité */
@@ -197,6 +199,7 @@ const initialState: SeanceState = {
   anticoagulant: '',
   typeDialysat: '',
   incidents: '',
+  paramedicalRevision: 0,
   savingParamedical: false,
   prescription: '',
   toleranceSeance: '',
@@ -562,15 +565,26 @@ export const SeanceStore = signalStore(
     loadSeanceSummary: rxMethod<{ seanceId: string; centerId: string }>(
       pipe(
         tap(() => patchState(store, {summaryLoading: true, error: null})),
-        switchMap(({seanceId, centerId}) =>
-          api.getSeanceSummary(seanceId, centerId).pipe(
-            tap((summary) => patchState(store, {summaryLoading: false, ...summaryStateFromSummary(summary)})),
+        switchMap(({seanceId, centerId}) => {
+          const revisionAtRequest = store.paramedicalRevision();
+          return api.getSeanceSummary(seanceId, centerId).pipe(
+            tap((summary) => {
+              const next = summaryStateFromSummary(summary);
+              // Un rechargement (ex. évènement temps réel) ne doit jamais écraser une saisie faite ou enregistrée
+              // depuis l'envoi de la requête : la réponse serait périmée.
+              const keepEdits = store.selectedSeanceId() === summary.seance.id
+                && (store.savingParamedical() || store.paramedicalRevision() !== revisionAtRequest);
+              patchState(store, {
+                summaryLoading: false,
+                ...(keepEdits ? withoutParamedicalFields(next) : next),
+              });
+            }),
             catchError((err: unknown) => {
               patchState(store, {summaryLoading: false, error: errorMessage(err)});
               return EMPTY;
             })
-          )
-        )
+          );
+        })
       )
     ),
 
@@ -629,7 +643,7 @@ export const SeanceStore = signalStore(
       'taAvant' | 'taApres' | 'poidsAvantKg' | 'poidsApresKg' |
       'dureeMinutes' | 'debitSangMlMin' | 'ultrafiltrationMl' |
       'anticoagulant' | 'typeDialysat' | 'incidents'>>): void {
-      patchState(store, fields);
+      patchState(store, {...fields, paramedicalRevision: store.paramedicalRevision() + 1});
     },
     saveParamedical: rxMethod<{ seanceId: string; payload: UpsertVoletParamedicalPayload }>(
       pipe(
@@ -933,6 +947,17 @@ function patchSummaryStatusAndDate(
       dateSeance: dateSeance ?? summary.seance.dateSeance,
     }
   };
+}
+
+const PARAMEDICAL_FIELDS = [
+  'taAvant', 'taApres', 'poidsAvantKg', 'poidsApresKg', 'dureeMinutes', 'debitSangMlMin', 'ultrafiltrationMl',
+  'anticoagulant', 'typeDialysat', 'incidents',
+] as const satisfies ReadonlyArray<keyof SeanceState>;
+
+function withoutParamedicalFields(state: Partial<SeanceState>): Partial<SeanceState> {
+  const copy = {...state};
+  for (const field of PARAMEDICAL_FIELDS) delete copy[field];
+  return copy;
 }
 
 function summaryStateFromSummary(summary: SeanceSummary): Partial<SeanceState> {

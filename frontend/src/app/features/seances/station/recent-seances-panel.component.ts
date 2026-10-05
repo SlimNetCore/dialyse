@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
 import {TranslateModule} from '@ngx-translate/core';
 import {SeanceRecent} from '../../../core/api/backend-api.service';
 import {weightLossKg} from './station.util';
@@ -14,6 +14,13 @@ import {weightLossKg} from './station.util';
 })
 export class RecentSeancesPanelComponent {
   readonly seances = input.required<SeanceRecent[]>();
+  /** Séance ouverte, reflétant en direct les constantes en cours de saisie (affichée en tête). */
+  readonly current = input<SeanceRecent | null>(null);
+
+  protected readonly items = computed(() => {
+    const live = this.current();
+    return live ? [live, ...this.seances().filter((s) => s.seanceId !== live.seanceId)] : this.seances();
+  });
 
   protected readonly weightLossKg = weightLossKg;
 

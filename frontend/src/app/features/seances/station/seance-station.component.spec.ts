@@ -412,7 +412,9 @@ describe('SeanceStationComponent', () => {
     ]);
     const {root} = render();
     expect(store.loadRecentSeances).toHaveBeenCalledWith({centerId: CENTER_ID, patientId: 'pid', before: '2026-10-04'});
-    const item = root.querySelector('.context-pane .recent-item')!;
+    const items = root.querySelectorAll('.context-pane .recent-item');
+    expect(items[0].classList.contains('live')).toBe(true);
+    const item = items[1];
     expect(item.textContent).toContain('2026-10-02');
     expect(item.textContent).toContain('72 → 69.5');
     expect(item.textContent).toContain('2.5');

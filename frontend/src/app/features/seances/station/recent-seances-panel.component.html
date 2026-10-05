@@ -1,11 +1,14 @@
 <h2>{{ 'SEANCES.STATION.RECENT_TITLE' | translate }}</h2>
-@if (seances().length === 0) {
+@if (items().length === 0) {
   <p class="empty">{{ 'SEANCES.STATION.RECENT_EMPTY' | translate }}</p>
 }
-@for (r of seances(); track r.seanceId) {
-  <div class="recent-item">
+@for (r of items(); track r.seanceId) {
+  <div [class.live]="r.seanceId === current()?.seanceId" class="recent-item">
     <div class="recent-head">
       <strong>{{ r.dateSeance }}</strong>
+      @if (r.seanceId === current()?.seanceId) {
+        <span class="live-tag">{{ 'SEANCES.STATION.RECENT_CURRENT' | translate }}</span>
+      }
       <span [attr.data-status]="r.status" class="chip">{{ statusKey(r.status) | translate }}</span>
     </div>
     <dl class="recent-grid">
@@ -22,8 +25,16 @@
         <dd>{{ r.taAvant || '–' }}</dd>
       </div>
       <div>
+        <dt>{{ 'SEANCES.STATION.BP_AFTER' | translate }}</dt>
+        <dd>{{ r.taApres || '–' }}</dd>
+      </div>
+      <div>
         <dt>{{ 'SEANCES.STATION.DURATION' | translate }}</dt>
         <dd>{{ r.dureeMinutes ?? '–' }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'SEANCES.STATION.ULTRAFILTRATION' | translate }}</dt>
+        <dd>{{ r.ultrafiltrationMl ?? '–' }}</dd>
       </div>
     </dl>
   </div>
