@@ -9,8 +9,12 @@
     <form (submit)="$event.preventDefault(); apply()" [formRoot]="periodForm" class="period">
       <div class="period-presets" data-testid="direction-presets">
         @for (preset of periodPresets; track preset) {
-          <button (click)="applyPreset(preset)" [attr.data-testid]="'preset-' + preset" mat-stroked-button
-                  type="button">
+          <button (click)="applyPreset(preset)" [attr.aria-pressed]="activePreset() === preset"
+                  [attr.data-testid]="'preset-' + preset" [class.preset-active]="activePreset() === preset"
+                  mat-stroked-button type="button">
+            @if (activePreset() === preset) {
+              <mat-icon aria-hidden="true">check</mat-icon>
+            }
             {{ 'DIRECTION.PRESET.' + preset | translate }}
           </button>
         }
@@ -673,6 +677,25 @@
               }
             </tbody>
           </table>
+        </div>
+      }
+
+      @if (motifsNbChart().labels?.length) {
+        <div class="charts motifs-charts" data-testid="direction-absences-motifs-charts">
+          <section>
+            <h3>{{ 'DIRECTION.ABSENCES.CHART_NB' | translate }}</h3>
+            <div class="chart-wrap">
+              <canvas [data]="motifsNbChart()" [options]="doughnutOptions" [type]="'doughnut'" baseChart
+                      data-testid="direction-absences-chart-nb"></canvas>
+            </div>
+          </section>
+          <section>
+            <h3>{{ 'DIRECTION.ABSENCES.CHART_VALEUR' | translate }}</h3>
+            <div class="chart-wrap">
+              <canvas [data]="motifsValeurChart()" [options]="doughnutOptions" [type]="'doughnut'" baseChart
+                      data-testid="direction-absences-chart-valeur"></canvas>
+            </div>
+          </section>
         </div>
       }
 

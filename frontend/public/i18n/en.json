@@ -320,6 +320,8 @@
       "COL_PART_CA": "% of revenue excl. VAT",
       "COL_PART": "Share",
       "MOTIFS_TITLE": "Absence reasons",
+      "CHART_NB": "Breakdown by number of absences",
+      "CHART_VALEUR": "Breakdown by value (excl. VAT)",
       "MOTIF": "Reason",
       "NON_QUALIFIE": "Not qualified",
       "MENSUEL_TITLE": "Monthly trend",

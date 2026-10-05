@@ -34,3 +34,22 @@ export function motifShare(motif: MotifAbsenceStat, motifs: MotifAbsenceStat[]):
   const total = motifs.reduce((sum, m) => sum + (m.nb ?? 0), 0);
   return total > 0 ? Math.round((motif.nb / total) * 1000) / 10 : null;
 }
+
+/** Clé de traduction du libellé d'un motif d'absence (« non qualifié » a sa propre clé côté direction). */
+export function motifLabelKey(motif: string): string {
+  return motif === 'NON_QUALIFIE' ? 'DIRECTION.ABSENCES.NON_QUALIFIE' : `ABSENCES.MOTIFS.${motif}`;
+}
+
+export type MotifsChartBy = 'nb' | 'valeur';
+
+/**
+ * Séries d'un graphique de répartition par motif, par nombre d'absences ou par valorisation HT. Les motifs masqués
+ * (`null`, anonymat) et ceux à zéro sont écartés ; l'ordre est celui du tableau (du plus fréquent au moins fréquent).
+ */
+export function motifsChartSeries(
+  motifs: MotifAbsenceStat[], by: MotifsChartBy,
+): { motif: string; value: number }[] {
+  return motifs
+    .map((m) => ({motif: m.motif, value: by === 'nb' ? m.nb : m.valorisationHt}))
+    .filter((p): p is { motif: string; value: number } => p.value !== null && p.value > 0);
+}

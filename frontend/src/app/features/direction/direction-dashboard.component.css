@@ -120,6 +120,34 @@ td.delta.down {
   line-height: 1;
 }
 
+/* Raccourci de période actif : plein et contrasté, pour voir d'un coup d'œil la période affichée */
+.period-presets button.preset-active {
+  border-color: var(--app-primary, #1565c0);
+  background: var(--app-primary, #1565c0);
+  color: #fff;
+  font-weight: 700;
+}
+
+.period-presets button.preset-active mat-icon {
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 2px;
+  font-size: 16px;
+}
+
+.period-presets button:focus-visible {
+  outline: 3px solid var(--app-primary, #1565c0);
+  outline-offset: 2px;
+}
+
+.motifs-charts {
+  margin-top: 12px;
+}
+
+.motifs-charts h3 {
+  margin: 0 0 8px;
+}
+
 .notice {
   display: flex;
   flex-wrap: wrap;

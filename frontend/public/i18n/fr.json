@@ -320,6 +320,8 @@
       "COL_PART_CA": "% du CA HT",
       "COL_PART": "Part",
       "MOTIFS_TITLE": "Motifs d'absence",
+      "CHART_NB": "Répartition par nombre d'absences",
+      "CHART_VALEUR": "Répartition par valeur (HT)",
       "MOTIF": "Motif",
       "NON_QUALIFIE": "Non qualifié",
       "MENSUEL_TITLE": "Évolution mensuelle",

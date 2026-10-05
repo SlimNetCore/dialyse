@@ -22,7 +22,14 @@ import {
   jaugeCapacite,
   nbCentresAtteints,
 } from './direction-capacite.util';
-import {absencesHeadline, absencesMotifs, absencesRows, motifShare} from './direction-absences.util';
+import {
+  absencesHeadline,
+  absencesMotifs,
+  absencesRows,
+  motifLabelKey,
+  motifShare,
+  motifsChartSeries,
+} from './direction-absences.util';
 import {gmaoTopRows} from './direction-gmao.util';
 import {stockGroupeRows} from './direction-stock-groupes.util';
 import {
@@ -160,6 +167,8 @@ export class DirectionDashboardComponent implements OnInit {
     scales: {x: {ticks: {autoSkip: true, maxRotation: 45, minRotation: 0}}},
   };
   private readonly translate = inject(TranslateService);
+  /** Répartition des absences par motif : une part par nombre d'absences, une autre par valorisation HT. */
+  protected readonly motifsNbChart = computed(() => this.motifsChart('nb'));
   protected readonly periodPresets: PeriodPreset[] = ['MONTH', 'QUARTER', 'YEAR', 'LAST_12_MONTHS'];
   /**
    * Deltas des KPI d'activité/finances vs la période de même durée précédente ; `null` si non comparable ou si un
@@ -222,6 +231,23 @@ export class DirectionDashboardComponent implements OnInit {
   protected readonly capaciteExemple = computed(() => capaciteExemple(this.store.capacite(), this.selectedCentre()));
   protected readonly jaugeCapacite = jaugeCapacite;
   protected readonly absencesMotifs = computed(() => absencesMotifs(this.store.absences(), this.selectedCentre()));
+  protected readonly motifsValeurChart = computed(() => this.motifsChart('valeur'));
+  protected readonly doughnutOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {legend: {display: true, position: 'bottom'}},
+  };
+  /** Date de référence des raccourcis de période, fixée à l'ouverture de l'écran. */
+  private readonly today = new Date();
+  /** Période affichée = raccourci actif (ce mois, ce trimestre…), `null` pour une période personnalisée. */
+  protected readonly activePreset = computed<PeriodPreset | null>(() => {
+    const from = this.store.from();
+    const to = this.store.to();
+    return this.periodPresets.find((p) => {
+      const range = periodForPreset(p, this.today);
+      return range.from === from && range.to === to;
+    }) ?? null;
+  });
   /** Répartitions filtrées sur le centre isolé, le cas échéant (toutes les listes de `breakdown` partagent `centerId`). */
   protected readonly breakdown = computed(() => {
     const b = this.store.breakdown();
@@ -247,7 +273,9 @@ export class DirectionDashboardComponent implements OnInit {
   protected readonly displayAlertHistory = computed(() => filterByCentre(this.store.alertHistory(), this.selectedCentre()));
 
   ngOnInit(): void {
-    void this.store.load('', '');
+    // Le tableau de bord s'ouvre sur le mois en cours (bouton « Ce mois » mis en évidence).
+    const {from, to} = periodForPreset('MONTH', this.today);
+    void this.store.load(from, to);
     void this.store.loadSnapshots();
     void this.store.loadAlertHistory();
   }
@@ -380,7 +408,7 @@ export class DirectionDashboardComponent implements OnInit {
 
   /** Raccourci de période (ce mois, ce trimestre, cette année, 12 derniers mois). */
   protected applyPreset(preset: PeriodPreset): void {
-    const {from, to} = periodForPreset(preset, new Date());
+    const {from, to} = periodForPreset(preset, this.today);
     this.period.set({from, to});
     void this.store.load(from, to);
   }
@@ -451,6 +479,14 @@ export class DirectionDashboardComponent implements OnInit {
 
   protected pct(value: number | null): string {
     return formatPct(value);
+  }
+
+  private motifsChart(by: 'nb' | 'valeur'): ChartData<'doughnut'> {
+    const series = motifsChartSeries(this.absencesMotifs(), by);
+    return {
+      labels: series.map((p) => this.translate.instant(motifLabelKey(p.motif))),
+      datasets: [{data: series.map((p) => p.value)}],
+    };
   }
 
   protected motifPart(motif: MotifAbsenceStat): number | null {

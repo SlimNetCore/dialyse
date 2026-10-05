@@ -3,19 +3,23 @@ import {provideZonelessChangeDetection} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {QrScannerComponent} from './qr-scanner.component';
-
-vi.mock('jsqr', () => ({default: vi.fn()}));
-import jsQR from 'jsqr';
+import {QR_DECODER, QrScannerComponent} from './qr-scanner.component';
 
 describe('QrScannerComponent', () => {
   const snackBar = {open: vi.fn()};
+  /** Décodeur injecté à la place de jsQR : aucune dépendance à un mock de module. */
+  const decoder = vi.fn();
 
   beforeEach(() => {
     snackBar.open.mockClear();
+    decoder.mockReset();
     TestBed.configureTestingModule({
       imports: [QrScannerComponent, TranslateModule.forRoot()],
-      providers: [provideZonelessChangeDetection(), {provide: MatSnackBar, useValue: snackBar}],
+      providers: [
+        provideZonelessChangeDetection(),
+        {provide: MatSnackBar, useValue: snackBar},
+        {provide: QR_DECODER, useValue: decoder},
+      ],
     });
   });
 
@@ -63,7 +67,7 @@ describe('QrScannerComponent', () => {
   });
 
   it('lit une image avec jsQR quand BarcodeDetector est absent et émet la valeur lue', async () => {
-    (jsQR as unknown as ReturnType<typeof vi.fn>).mockReturnValue({data: ' PAT:IMG-001 '});
+    decoder.mockReturnValue({data: ' PAT:IMG-001 '});
     const fixture = create();
     const component = fixture.componentInstance as any;
     component['loadImage'] = vi.fn().mockResolvedValue({naturalWidth: 4, naturalHeight: 4});
@@ -76,11 +80,12 @@ describe('QrScannerComponent', () => {
     await component['scanImage'](new File(['qr'], 'qr.png', {type: 'image/png'}));
 
     expect(scanned).toEqual(['PAT:IMG-001']);
+    expect(decoder).toHaveBeenCalledWith(expect.anything(), 4, 4, {inversionAttempts: 'attemptBoth'});
     getContext.mockRestore();
   });
 
   it('prévient quand aucun QR n\'est détecté dans l\'image', async () => {
-    (jsQR as unknown as ReturnType<typeof vi.fn>).mockReturnValue(null);
+    decoder.mockReturnValue(null);
     const fixture = create();
     const component = fixture.componentInstance as any;
     component['loadImage'] = vi.fn().mockResolvedValue({naturalWidth: 4, naturalHeight: 4});

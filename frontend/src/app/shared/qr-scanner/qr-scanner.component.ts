@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   inject,
+  InjectionToken,
   OnDestroy,
   output,
   signal,
@@ -13,6 +14,9 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import jsQR from 'jsqr';
+
+/** Décodeur de QR code sur des pixels (jsQR par défaut) : injectable pour le remplacer dans les tests. */
+export const QR_DECODER = new InjectionToken<typeof jsQR>('QR_DECODER', {providedIn: 'root', factory: () => jsQR});
 
 type BarcodeDetectorInstance = {
   detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
@@ -40,6 +44,7 @@ export class QrScannerComponent implements OnDestroy {
 
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly decodeQr = inject(QR_DECODER);
   private readonly cameraVideo = viewChild<ElementRef<HTMLVideoElement>>('cameraVideo');
   private readonly imageInput = viewChild<ElementRef<HTMLInputElement>>('imageInput');
   private cameraStream: MediaStream | null = null;
@@ -231,7 +236,7 @@ export class QrScannerComponent implements OnDestroy {
     if (!context) return null;
     context.drawImage(video, 0, 0, width, height);
     const data = context.getImageData(0, 0, width, height);
-    return jsQR(data.data, width, height, {inversionAttempts: 'dontInvert'})?.data?.trim() || null;
+    return this.decodeQr(data.data, width, height, {inversionAttempts: 'dontInvert'})?.data?.trim() || null;
   }
 
   private decodeWithJsQr(image: HTMLImageElement): string | null {
@@ -245,6 +250,6 @@ export class QrScannerComponent implements OnDestroy {
     if (!context) return null;
     context.drawImage(image, 0, 0, width, height);
     const data = context.getImageData(0, 0, width, height);
-    return jsQR(data.data, width, height, {inversionAttempts: 'attemptBoth'})?.data?.trim() || null;
+    return this.decodeQr(data.data, width, height, {inversionAttempts: 'attemptBoth'})?.data?.trim() || null;
   }
 }

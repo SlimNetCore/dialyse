@@ -17,6 +17,10 @@
 - **RG-DIR-003** — **Période** : par défaut du 1er janvier de l'année en cours à aujourd'hui ; la date de début doit
   précéder la date de fin (`PERIODE_INVALIDE`) et l'amplitude ne dépasse pas **5 ans**
   (`PERIODE_TROP_LONGUE`). Tous les chiffres d'un écran (sauf mention contraire) sont ceux de la période choisie.
+  Le tableau de bord s'ouvre sur le **mois en cours** (du 1er du mois à aujourd'hui) : le raccourci actif (« Ce mois »,
+  « Ce trimestre », « Cette année », « 12 derniers mois ») est mis en évidence (bouton plein, coche, état exposé aux
+  lecteurs d'écran) et aucun ne l'est pour une période personnalisée ; le bouton a un contour de focus bien visible au
+  clavier. *Source :* `DirectionDashboardComponent`.
 - **RG-DIR-004** — Chaque écran présente **par centre et pour l'ensemble de la société** ; un centre inactif apparaît
   marqué comme tel.
 
@@ -88,7 +92,10 @@
 - **RG-DIR-070** — Par centre et total : nombre d'absences **comptabilisées** (ni rattrapées ni annulées), répartition
   par motif (« non qualifié » pour celles en attente), valorisation (HT et TTC), **taux
   d'absentéisme** = absences / (absences + séances réalisées) en %, et **part du chiffre d'affaires HT** = valorisation
-  HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués. Sources : RG-ABS.
+  HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués. Sources : RG-ABS. La répartition par
+  motif est présentée en tableau (nombre, part, valorisation) **et en deux graphiques en anneau** : l'un par **nombre
+  d'absences**, l'autre par **valeur HT** ; les motifs masqués (effectif faible) et à zéro n'y figurent pas, et aucun
+  graphique n'est affiché s'il ne reste aucun motif publiable. *Source :* `DirectionDashboardComponent`.
 
 ## 13.9 Capacité théorique et occupation
 

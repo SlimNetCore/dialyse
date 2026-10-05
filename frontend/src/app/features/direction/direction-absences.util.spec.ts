@@ -1,6 +1,13 @@
 import {describe, expect, it} from 'vitest';
 import {AbsencesOverview, AbsencesStats, CentreAbsences} from '../../core/api/direction-api.service';
-import {absencesHeadline, absencesMotifs, absencesRows, motifShare} from './direction-absences.util';
+import {
+  absencesHeadline,
+  absencesMotifs,
+  absencesRows,
+  motifLabelKey,
+  motifShare,
+  motifsChartSeries,
+} from './direction-absences.util';
 
 const stats = (nbAbsences: number): AbsencesStats => ({
   nbAbsences, nbJustifiees: 0, nbNonJustifiees: 0, nbAQualifier: nbAbsences, nbRattrapees: 0, nbSeances: 10,
@@ -57,5 +64,19 @@ describe('direction absences util', () => {
     expect(motifShare(overview.motifs[2], overview.motifs)).toBeNull();
     expect(motifShare({motif: 'X', nb: 1, valorisationHt: 1}, [{motif: 'X', nb: 1, valorisationHt: 1}])).toBe(100);
     expect(motifShare({motif: 'X', nb: 0, valorisationHt: 0}, [{motif: 'X', nb: 0, valorisationHt: 0}])).toBeNull();
+  });
+
+  it('builds the chart series by number and by value, skipping masked and empty motifs', () => {
+    const motifs = [...overview.motifs, {motif: 'ZERO', nb: 0, valorisationHt: 0}];
+
+    expect(motifsChartSeries(motifs, 'nb')).toEqual([{motif: 'MALADIE', value: 6}, {motif: 'VOYAGE', value: 2}]);
+    expect(motifsChartSeries(motifs, 'valeur')).toEqual([
+      {motif: 'MALADIE', value: 600}, {motif: 'VOYAGE', value: 200}]);
+    expect(motifsChartSeries([], 'nb')).toEqual([]);
+  });
+
+  it('gives the translation key of a motif, with a dedicated one for the unqualified', () => {
+    expect(motifLabelKey('MALADIE')).toBe('ABSENCES.MOTIFS.MALADIE');
+    expect(motifLabelKey('NON_QUALIFIE')).toBe('DIRECTION.ABSENCES.NON_QUALIFIE');
   });
 });
