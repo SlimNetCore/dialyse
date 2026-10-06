@@ -56,6 +56,11 @@
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
   statut que `CREE` : « La seance n'est pas en statut CREE ».
+- **RG-SEA-049** — À la validation, la séance **mémorise la place où elle a eu lieu** (salle, créneau, générateur) :
+  le déplacement temporaire du patient pour ce jour s'il en a un (RG-PLN-096), sinon sa place habituelle ; rien si le
+  patient n'est pas placé. Une place déjà mémorisée n'est jamais remplacée, même si la séance est revalidée (ajout de
+  consommables) ou si la place ou les jours du patient changent ensuite. Les séances validées avant cette règle n'ont
+  pas de place mémorisée (`SeancePlaceJdbcAdapter`, migration V26).
 - **RG-SEA-021** — À la validation, les **consommables** utilisés sont sortis du stock automatiquement : chaque ligne
   doit désigner un article existant du centre et **actif**
   (« Article inactif »), la quantité est prélevée sur les lots disponibles par **FEFO** (lot le plus proche de la

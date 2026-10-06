@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-10-06<br>491 règles de gestion · 16 domaines · 369 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-10-06<br>493 règles de gestion · 16 domaines · 369 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>491</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>493</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -995,6 +995,16 @@ notation « N/M » (N patients pour M générateur (s)).</p>
 patient sont
 affichés sur le planning (voir RG-ABS-0xx).</p>
 </div></div>
+<div class="rule" id="RG-PLN-045"><div class="rid">RG-PLN-045</div><div class="rtxt"><p>Le planning de la semaine est recalculé à chaque affichage à partir des jours et de la place
+<strong>actuels</strong> des patients. Une <strong>séance réalisée</strong> (validée, signée ou facturée) que ce calcul ne montre plus — jours
+ou place du patient modifiés depuis — reste affichée dans la case où elle a eu lieu (place mémorisée à la validation,
+RG-SEA-049 ; à défaut, place actuelle du patient), avec le repère « réalisée hors du planning actuel ». Elle ne crée
+pas de conflit (RG-PLN-041) et ne compte pas parmi les patients à replanifier (RG-PLN-042). Une séance réalisée
+qu&#39;aucune case ne peut accueillir (place non mémorisée, patient plus placé) est listée à part avec sa date. Les
+séances encore <strong>prévues plus tard dans la même semaine</strong> pour ce patient, et pas encore réalisées, portent
+l&#39;alerte « séance déjà réalisée le jj/mm/aaaa » : le patient risque une séance en trop (par exemple séance du lundi
+validée puis jours passés au mercredi).</p>
+</div></div>
 <h2>5.6 Contrôle du placement enregistré sur une fiche patient</h2>
 <div class="rule" id="RG-PLN-050"><div class="rid">RG-PLN-050</div><div class="rtxt"><p>Tout placement saisi sur une fiche (création ou modification) est vérifié <strong>côté serveur</strong> avec les
 mêmes règles que
@@ -1418,6 +1428,12 @@ avertir l&#39;équipe d&#39;un générateur indisponible.</p>
 et enregistre la signature de l&#39;infirmier. Une
 séance déjà validée ou signée n&#39;est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
 statut que <code>CREE</code> : « La seance n&#39;est pas en statut CREE ».</p>
+</div></div>
+<div class="rule" id="RG-SEA-049"><div class="rid">RG-SEA-049</div><div class="rtxt"><p>À la validation, la séance <strong>mémorise la place où elle a eu lieu</strong> (salle, créneau, générateur) :
+le déplacement temporaire du patient pour ce jour s&#39;il en a un (RG-PLN-096), sinon sa place habituelle ; rien si le
+patient n&#39;est pas placé. Une place déjà mémorisée n&#39;est jamais remplacée, même si la séance est revalidée (ajout de
+consommables) ou si la place ou les jours du patient changent ensuite. Les séances validées avant cette règle n&#39;ont
+pas de place mémorisée (<code>SeancePlaceJdbcAdapter</code>, migration V26).</p>
 </div></div>
 <div class="rule" id="RG-SEA-021"><div class="rid">RG-SEA-021</div><div class="rtxt"><p>À la validation, les <strong>consommables</strong> utilisés sont sortis du stock automatiquement : chaque ligne
 doit désigner un article existant du centre et <strong>actif</strong>

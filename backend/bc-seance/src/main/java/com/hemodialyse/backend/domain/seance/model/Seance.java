@@ -36,6 +36,11 @@ public class Seance {
     private boolean horsPlanning;
     private MotifHorsPlanning motifHorsPlanning;
     private String precisionHorsPlanning;
+    /**
+     * Place (salle, créneau, générateur) où la séance a eu lieu, figée à la validation ; nulle avant ou pour une séance
+     * validée avant que cette place soit mémorisée.
+     */
+    private PlaceSeance place;
 
     public Seance() {
     }
@@ -99,6 +104,24 @@ public class Seance {
         this.validatedAt = OffsetDateTime.now();
         this.signedByInfirmierAt = this.validatedAt;
         this.signedByInfirmierUserId = userId;
+    }
+
+    /**
+     * Fige la place où la séance a eu lieu. Une place déjà mémorisée n'est jamais remplacée : elle reste celle du jour
+     * de la séance, même si la place habituelle du patient change ensuite.
+     */
+    public void memoriserPlace(PlaceSeance placeDuJour) {
+        if (this.place == null && placeDuJour != null) {
+            this.place = placeDuJour;
+        }
+    }
+
+    public PlaceSeance getPlace() {
+        return place;
+    }
+
+    public void setPlace(PlaceSeance place) {
+        this.place = place;
     }
 
     /**

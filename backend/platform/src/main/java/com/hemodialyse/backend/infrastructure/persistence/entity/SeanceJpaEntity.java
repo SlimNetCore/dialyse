@@ -85,6 +85,39 @@ public class SeanceJpaEntity {
     @Column(name = "precision_hors_planning", length = 255)
     private String precisionHorsPlanning;
 
+    @Column(name = "salle_id")
+    private UUID salleId;
+
+    @Column(name = "creneau_id")
+    private UUID creneauId;
+
+    @Column(name = "generateur_id")
+    private UUID generateurId;
+
+    public UUID getSalleId() {
+        return salleId;
+    }
+
+    public void setSalleId(UUID salleId) {
+        this.salleId = salleId;
+    }
+
+    public UUID getCreneauId() {
+        return creneauId;
+    }
+
+    public void setCreneauId(UUID creneauId) {
+        this.creneauId = creneauId;
+    }
+
+    public UUID getGenerateurId() {
+        return generateurId;
+    }
+
+    public void setGenerateurId(UUID generateurId) {
+        this.generateurId = generateurId;
+    }
+
     public boolean isHorsPlanning() {
         return horsPlanning;
     }

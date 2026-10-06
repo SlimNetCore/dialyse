@@ -3,6 +3,7 @@ import {
   CreneauRef,
   JourPlanning,
   JourSemaine,
+  OccupantPlanning,
   SalleRef,
   SemainePlanning,
 } from '../../core/api/planning-api.service';
@@ -67,3 +68,15 @@ export function lignesDuJour(semaine: SemainePlanning, jour: JourSemaine): Ligne
 export function seanceRealiseeDe(seances: SeanceRealisee[], patientId: string, date: string): SeanceRealisee | undefined {
   return seances.find((s) => s.patientId === patientId && s.dateSeance === date);
 }
+
+/**
+ * Classe de couleur d'un patient dans une case : séance validée (avec contour pointillé si elle a eu lieu hors du
+ * planning actuel du patient), absent selon le statut de l'absence, à risque, ou normal.
+ */
+export function classeOccupant(o: Pick<OccupantPlanning, 'aRisque' | 'realiseeHorsPlanning'>, realisee: boolean,
+                               absence: Pick<AbsenceSemaine, 'statut'> | undefined): string {
+  if (realisee) return o.realiseeHorsPlanning ? 'done hors' : 'done';
+  if (absence) return `absent ${absence.statut.toLowerCase()}`;
+  return o.aRisque ? 'risk' : '';
+}
+

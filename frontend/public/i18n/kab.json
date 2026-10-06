@@ -1901,7 +1901,10 @@
       "ERR": {
         "LOAD": "Ur izmir ara ad yettwasali umuddu n yimalas"
       },
-      "TEMPORAIRE": "Tiɣimit tettwasenkez s wudem akudan (aseɣti n umesgar n yal ass)"
+      "TEMPORAIRE": "Tiɣimit tettwasenkez s wudem akudan (aseɣti n umesgar n yal ass)",
+      "REALISEE_HORS_PLANNING": "Tiɣimit tettwaxdem da deg wass-nni; asɣiwes amiran n umuḍin ur tt-id-yettwali ara (ussan neɣ amkan ttwabeddlen seg wakken)",
+      "DEJA_REALISEE": "Tiɣimit tettwaxdem yakan ass n {{date}} beṛṛa n wussan-is imiranen: senqed uqbel asizdeg (izmer ad tili tɣimit tarnawt)",
+      "SANS_CASE": "Tiɣimiyin yettwaxedmen war tixxamt deg usɣiwes amiran (amuḍin ur yettwasideg ara):"
     },
     "PARAMS": {
       "TITLE": "Amuddu n uɣallis",

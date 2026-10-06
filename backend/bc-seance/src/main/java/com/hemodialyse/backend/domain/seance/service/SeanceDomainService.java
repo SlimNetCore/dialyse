@@ -13,6 +13,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
+import com.hemodialyse.backend.domain.seance.port.SeancePlacePort;
 import com.hemodialyse.backend.domain.seance.port.SeancePlanningPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
@@ -54,6 +55,7 @@ public class SeanceDomainService implements SeanceUseCase {
     private final SeanceForfaitCatalogPort forfaitCatalogPort;
     private final SeanceBillingEligibilityPort billingEligibilityPort;
     private final SeancePlanningPort planningPort;
+    private final SeancePlacePort placePort;
 
     public SeanceDomainService(SeanceRepositoryPort seanceRepo,
                                PatientRepositoryPort patientRepo,
@@ -64,7 +66,8 @@ public class SeanceDomainService implements SeanceUseCase {
                                VoletMedicalRepositoryPort voletMedicalRepo,
                                SeanceForfaitCatalogPort forfaitCatalogPort,
                                SeanceBillingEligibilityPort billingEligibilityPort,
-                               SeancePlanningPort planningPort) {
+                               SeancePlanningPort planningPort,
+                               SeancePlacePort placePort) {
         this.seanceRepo = seanceRepo;
         this.patientRepo = patientRepo;
         this.articleRepo = articleRepo;
@@ -75,6 +78,7 @@ public class SeanceDomainService implements SeanceUseCase {
         this.forfaitCatalogPort = forfaitCatalogPort;
         this.billingEligibilityPort = billingEligibilityPort;
         this.planningPort = planningPort;
+        this.placePort = placePort;
     }
 
     private static DerogationPlanning exigerDerogation(DerogationPlanning derogation, String code, String message) {
@@ -257,6 +261,9 @@ public class SeanceDomainService implements SeanceUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
 
         seance.validerParInfirmier(userId != null ? userId : "system");
+        if (seance.getPlace() == null) {
+            placePort.placeLe(centerId, seance.getPatientId(), seance.getDateSeance()).ifPresent(seance::memoriserPlace);
+        }
 
         List<SeanceArticleConsumption> items = consommations != null ? consommations : List.of();
 

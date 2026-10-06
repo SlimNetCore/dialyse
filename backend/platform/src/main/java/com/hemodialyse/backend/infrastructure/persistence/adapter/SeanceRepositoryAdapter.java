@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning;
+import com.hemodialyse.backend.domain.seance.model.PlaceSeance;
 import com.hemodialyse.backend.domain.seance.model.Seance;
 import com.hemodialyse.backend.domain.seance.model.SeanceListItem;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
@@ -177,6 +178,9 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         s.setMotifHorsPlanning(e.getMotifHorsPlanning() == null
                 ? null : MotifHorsPlanning.valueOf(e.getMotifHorsPlanning()));
         s.setPrecisionHorsPlanning(e.getPrecisionHorsPlanning());
+        if (e.getSalleId() != null && e.getCreneauId() != null) {
+            s.setPlace(new PlaceSeance(e.getSalleId(), e.getCreneauId(), e.getGenerateurId()));
+        }
         return s;
     }
 
@@ -204,6 +208,11 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
         e.setHorsPlanning(s.isHorsPlanning());
         e.setMotifHorsPlanning(s.getMotifHorsPlanning() == null ? null : s.getMotifHorsPlanning().name());
         e.setPrecisionHorsPlanning(s.getPrecisionHorsPlanning());
+        if (s.getPlace() != null) {
+            e.setSalleId(s.getPlace().salleId());
+            e.setCreneauId(s.getPlace().creneauId());
+            e.setGenerateurId(s.getPlace().generateurId());
+        }
         return e;
     }
 }

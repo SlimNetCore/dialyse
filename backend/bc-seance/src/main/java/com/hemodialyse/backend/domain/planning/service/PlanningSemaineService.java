@@ -13,6 +13,8 @@ import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.Conflit;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.DonneesSemaine;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.JourPlanning;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.OccupantPlanning;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SeanceRealisee;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SeanceSansCase;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SemainePlanning;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.TypeConflit;
 
@@ -31,7 +33,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Service de domaine pur : construit le planning réel d'une semaine à partir des placements des patients actifs,
+ * Service de domaine pur : construit le planning réel d'une semaine à partir des placements des patients actifs et des
+ * séances déjà réalisées (visibles là où elles ont eu lieu même si le planning du patient a changé depuis),
  * signale les jours fermés (fermeture hebdomadaire, férié, fermeture exceptionnelle) et détecte les conflits :
  * générateur réservé deux fois, salle surchargée, patient sur un générateur hors service ou sans générateur, règles
  * d'isolement non respectées et générateur mélangeant patients à risque et patients sans risque.
@@ -104,6 +107,9 @@ public final class PlanningSemaineService {
             }
         }
 
+        List<SeanceSansCase> sansCase = placerSeancesRealisees(donnees, debut, occupants, sallesConnues, creneauxConnus,
+                generateurs);
+
         List<CellulePlanning> cellules = new ArrayList<>();
         List<Conflit> conflits = new ArrayList<>();
         for (SalleRef salle : planning.salles()) {
@@ -124,10 +130,78 @@ public final class PlanningSemaineService {
         Set<UUID> aReplanifier = new HashSet<>();
         for (CellulePlanning c : cellules) {
             JourPlanning jour = jours.get(c.jour().ordinal());
-            if (jour.ferme()) c.occupants().forEach(o -> aReplanifier.add(o.patientId()));
+            if (!jour.ferme()) continue;
+            c.occupants().stream().filter(o -> !o.realiseeHorsPlanning()).forEach(o -> aReplanifier.add(o.patientId()));
         }
         return new SemainePlanning(debut, debut.plusDays(6), jours, planning.salles(), planning.creneaux(), cellules,
-                conflits, aReplanifier.size());
+                conflits, aReplanifier.size(), sansCase);
+    }
+
+    /**
+     * Séances réalisées de la semaine que le planning actuel ne montre plus (jours ou place du patient modifiés depuis) :
+     * elles sont ajoutées à la case où elles ont eu lieu (place figée à la validation, sinon place actuelle du patient)
+     * sans compter dans les conflits — elles sont passées. Les séances encore prévues ensuite dans la semaine sont
+     * marquées « déjà réalisée le … » : le patient risque une séance en trop.
+     *
+     * @return séances réalisées qu'aucune case ne peut accueillir
+     */
+    private static List<SeanceSansCase> placerSeancesRealisees(DonneesSemaine donnees, LocalDate debut,
+                                                               Map<String, List<OccupantPlanning>> occupants,
+                                                               Set<UUID> sallesConnues, Set<UUID> creneauxConnus,
+                                                               Map<UUID, GenerateurRef> generateurs) {
+        Set<String> presents = new HashSet<>();
+        occupants.forEach((cle, liste) -> {
+            String jour = cle.substring(cle.lastIndexOf('|') + 1);
+            liste.forEach(o -> presents.add(o.patientId() + "|" + jour));
+        });
+        Map<UUID, Occupation> placeActuelle = new HashMap<>();
+        donnees.planning().occupations().forEach(o -> placeActuelle.putIfAbsent(o.patientId(), o));
+
+        List<SeanceSansCase> sansCase = new ArrayList<>();
+        Map<UUID, LocalDate> horsPlanning = new HashMap<>();
+        LocalDate fin = debut.plusDays(6);
+        for (SeanceRealisee s : donnees.realisees()) {
+            if (s.date().isBefore(debut) || s.date().isAfter(fin)) continue;
+            JourSemaine jour = JourSemaine.de(s.date().getDayOfWeek());
+            if (presents.contains(s.patientId() + "|" + jour)) continue;
+            UUID salle = s.salleId();
+            UUID creneau = s.creneauId();
+            UUID generateur = s.generateurId();
+            boolean aRisque = s.aRisque();
+            Occupation actuelle = placeActuelle.get(s.patientId());
+            if (!s.placeConnue() && actuelle != null) {
+                salle = actuelle.salleId();
+                creneau = actuelle.creneauId();
+                generateur = actuelle.generateurId();
+                aRisque = actuelle.aRisque();
+            }
+            String nom = donnees.nomsPatients().getOrDefault(s.patientId(), "");
+            horsPlanning.merge(s.patientId(), s.date(), (a, b) -> a.isBefore(b) ? a : b);
+            if (salle == null || creneau == null || !sallesConnues.contains(salle) || !creneauxConnus.contains(creneau)) {
+                sansCase.add(new SeanceSansCase(s.patientId(), nom, s.date(), jour));
+                continue;
+            }
+            GenerateurRef g = generateur == null ? null : generateurs.get(generateur);
+            occupants.computeIfAbsent(key(salle, creneau, jour), k -> new ArrayList<>()).add(new OccupantPlanning(
+                    s.patientId(), nom, g == null ? null : g.code(), aRisque, null, false, true, null));
+            presents.add(s.patientId() + "|" + jour);
+        }
+        if (horsPlanning.isEmpty()) return sansCase;
+
+        Set<String> realisees = new HashSet<>();
+        donnees.realisees().forEach(s -> realisees.add(s.patientId() + "|" + s.date()));
+        occupants.forEach((cle, liste) -> {
+            JourSemaine jour = JourSemaine.valueOf(cle.substring(cle.lastIndexOf('|') + 1));
+            LocalDate date = debut.plusDays(jour.ordinal());
+            liste.replaceAll(o -> {
+                LocalDate deja = horsPlanning.get(o.patientId());
+                boolean aVerifier = deja != null && !o.realiseeHorsPlanning() && date.isAfter(deja)
+                        && !realisees.contains(o.patientId() + "|" + date);
+                return aVerifier ? o.avecDejaRealiseeLe(deja) : o;
+            });
+        });
+        sansCase.sort(Comparator.comparing(SeanceSansCase::date).thenComparing(SeanceSansCase::nom));
+        return sansCase;
     }
 
     private static void detecterConflitsDeCase(

@@ -95,6 +95,18 @@ export interface OccupantPlanning {
   libereLe?: string | null;
   /** Séance déplacée temporairement sur cette case (maintenance du générateur habituel). */
   temporaire?: boolean;
+  /** Séance réalisée ici ce jour-là alors que le planning actuel du patient ne le prévoit plus (jours ou place changés). */
+  realiseeHorsPlanning?: boolean;
+  /** Séance prévue alors que le patient a déjà dialysé cette semaine, à cette date, hors de ses jours actuels. */
+  dejaRealiseeLe?: string | null;
+}
+
+/** Séance réalisée de la semaine qu'aucune case ne peut accueillir (place non mémorisée, patient plus placé). */
+export interface SeanceSansCase {
+  patientId: string;
+  nom: string;
+  date: string;
+  jour: JourSemaine;
 }
 
 export interface CellulePlanning {
@@ -126,6 +138,7 @@ export interface SemainePlanning {
   cellules: CellulePlanning[];
   conflits: ConflitPlanning[];
   patientsAReplanifier: number;
+  seancesSansCase?: SeanceSansCase[];
 }
 
 /** Générateur affecté à une salle (statut GMAO : EN_SERVICE, HORS_SERVICE, EN_MAINTENANCE…). */

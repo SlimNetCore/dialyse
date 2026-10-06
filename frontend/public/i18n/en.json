@@ -2261,7 +2261,10 @@
       "ERR": {
         "LOAD": "Unable to load the weekly planning"
       },
-      "TEMPORAIRE": "Session temporarily moved (maintenance of the usual generator)"
+      "TEMPORAIRE": "Session temporarily moved (maintenance of the usual generator)",
+      "REALISEE_HORS_PLANNING": "Session done here that day; the patient's current planning no longer schedules it (days or place changed since)",
+      "DEJA_REALISEE": "Session already done on {{date}} outside the current days: check before dialysing (possibly one session too many)",
+      "SANS_CASE": "Sessions done with no cell in the current planning (patient no longer placed):"
     },
     "PARAMS": {
       "TITLE": "Center planning",

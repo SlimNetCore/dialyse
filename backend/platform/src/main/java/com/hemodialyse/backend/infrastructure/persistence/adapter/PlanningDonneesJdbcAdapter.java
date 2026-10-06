@@ -10,6 +10,7 @@ import com.hemodialyse.backend.domain.planning.model.Planning.Occupation;
 import com.hemodialyse.backend.domain.planning.model.Planning.SalleRef;
 import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.DonneesSemaine;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SeanceRealisee;
 import com.hemodialyse.backend.domain.planning.port.PlanningDonneesPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningParametresPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningSemainePort;
@@ -87,7 +88,21 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
                     noms.put(rs.getObject("id", UUID.class),
                             (rs.getString("prenom") + " " + rs.getString("nom")).trim());
                 }, centerId);
-        return new DonneesSemaine(planning, noms, planning.fermetures(), temporaires.entre(centerId, debutSemaine, fin));
+        Set<UUID> aRisque = patientsARisque(centerId);
+        List<SeanceRealisee> realisees = jdbc.query("SELECT s.patient_id, s.date_seance, s.salle_id, s.creneau_id, "
+                        + "s.generateur_id, p.nom, p.prenom FROM seances s JOIN patients p ON p.id = s.patient_id "
+                        + "AND p.center_id = s.center_id WHERE s.center_id = ? AND s.date_seance BETWEEN ? AND ? "
+                        + "AND s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') ORDER BY s.date_seance",
+                (rs, i) -> {
+                    UUID patientId = rs.getObject("patient_id", UUID.class);
+                    // un patient sorti depuis (place libérée) garde son nom sur ses séances passées
+                    noms.putIfAbsent(patientId, (rs.getString("prenom") + " " + rs.getString("nom")).trim());
+                    return new SeanceRealisee(patientId, rs.getDate("date_seance").toLocalDate(),
+                            rs.getObject("salle_id", UUID.class), rs.getObject("creneau_id", UUID.class),
+                            rs.getObject("generateur_id", UUID.class), aRisque.contains(patientId));
+                }, centerId, Date.valueOf(debutSemaine), Date.valueOf(fin));
+        return new DonneesSemaine(planning, noms, planning.fermetures(), temporaires.entre(centerId, debutSemaine, fin),
+                realisees);
     }
 
     @Override

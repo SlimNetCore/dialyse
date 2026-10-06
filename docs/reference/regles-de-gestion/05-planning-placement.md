@@ -123,6 +123,15 @@
 - **RG-PLN-044** — Les absences de patients de la semaine, les séances validées par l'infirmier et le détail d'un
   patient sont
   affichés sur le planning (voir RG-ABS-0xx).
+- **RG-PLN-045** — Le planning de la semaine est recalculé à chaque affichage à partir des jours et de la place
+  **actuels** des patients. Une **séance réalisée** (validée, signée ou facturée) que ce calcul ne montre plus — jours
+  ou place du patient modifiés depuis — reste affichée dans la case où elle a eu lieu (place mémorisée à la validation,
+  RG-SEA-049 ; à défaut, place actuelle du patient), avec le repère « réalisée hors du planning actuel ». Elle ne crée
+  pas de conflit (RG-PLN-041) et ne compte pas parmi les patients à replanifier (RG-PLN-042). Une séance réalisée
+  qu'aucune case ne peut accueillir (place non mémorisée, patient plus placé) est listée à part avec sa date. Les
+  séances encore **prévues plus tard dans la même semaine** pour ce patient, et pas encore réalisées, portent
+  l'alerte « séance déjà réalisée le jj/mm/aaaa » : le patient risque une séance en trop (par exemple séance du lundi
+  validée puis jours passés au mercredi).
 
 ## 5.6 Contrôle du placement enregistré sur une fiche patient
 

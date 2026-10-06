@@ -2261,7 +2261,10 @@
       "ERR": {
         "LOAD": "Impossible de charger le planning de la semaine"
       },
-      "TEMPORAIRE": "Séance déplacée temporairement (maintenance du générateur habituel)"
+      "TEMPORAIRE": "Séance déplacée temporairement (maintenance du générateur habituel)",
+      "REALISEE_HORS_PLANNING": "Séance réalisée ici ce jour-là ; le planning actuel du patient ne la prévoit plus (jours ou place modifiés depuis)",
+      "DEJA_REALISEE": "Séance déjà réalisée le {{date}} hors de ses jours actuels : vérifier avant de dialyser (séance peut-être en trop)",
+      "SANS_CASE": "Séances réalisées sans case dans le planning actuel (patient plus placé) :"
     },
     "PARAMS": {
       "TITLE": "Planning du centre",
