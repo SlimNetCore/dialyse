@@ -5,10 +5,12 @@ import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+import ai.timefold.solver.core.api.score.stream.uni.UniConstraintStream;
 
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.count;
 import static ai.timefold.solver.core.api.score.stream.ConstraintCollectors.countDistinct;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.AFFINITE;
+import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.COMPETENCE;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.CONTINUITE_SALLE;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.DEPASSEMENT_HEBDOMADAIRE;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.DOUBLE_VACATION;
@@ -16,6 +18,8 @@ import static com.hemodialyse.backend.infrastructure.optimisation.timefold.Poids
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.INFIRMIERS_MOBILISES;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.MAX_VACATIONS_JOUR;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.QUALIFICATION;
+import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.QUOTA_HEURES;
+import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.REPOS_HEBDOMADAIRE;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.STABILITE_ROULEMENT;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.VACATION_DOUBLE_CRENEAU;
 import static com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation.VACATION_NON_POURVUE;
@@ -24,7 +28,8 @@ import static com.hemodialyse.backend.infrastructure.optimisation.timefold.Poids
  * Contraintes de la planification des infirmiers. Dures : un infirmier n'est jamais sur deux salles au même créneau
  * ({@code RG-INF-022}) et ne dépasse pas ses vacations quotidiennes. Moyenne : chaque vacation exigée est pourvue.
  * Souples : dépassement hebdomadaire, équité (ou économie de personnel), double vacation, continuité de salle,
- * connaissance de la salle et du créneau, stabilité du roulement, qualification.
+ * connaissance de la salle et du créneau, stabilité du roulement, qualification, repos hebdomadaire, quota d'heures
+ * (temps partiel) et compétences demandées par les patients de la case.
  * <p>
  * L'absence d'un infirmier, son habilitation à l'isolement et sa disponibilité sur le créneau sont garanties par la
  * liste de candidats de chaque vacation : elles ne sont pas des contraintes.
@@ -44,11 +49,14 @@ public class InfirmiersConstraintProvider implements ConstraintProvider {
                 continuiteSalle(factory),
                 affinite(factory),
                 stabiliteRoulement(factory),
-                qualification(factory)
+                qualification(factory),
+                reposHebdomadaire(factory),
+                quotaHeures(factory),
+                competence(factory)
         };
     }
 
-    Constraint vacationDoubleCreneau(ConstraintFactory factory) {
+    public Constraint vacationDoubleCreneau(ConstraintFactory factory) {
         return factory.forEachUniquePair(Vacation.class,
                         Joiners.equal(Vacation::getInfirmier),
                         Joiners.equal(Vacation::getDate),
@@ -57,7 +65,7 @@ public class InfirmiersConstraintProvider implements ConstraintProvider {
                 .asConstraint(VACATION_DOUBLE_CRENEAU);
     }
 
-    Constraint maxVacationsJour(ConstraintFactory factory) {
+    public Constraint maxVacationsJour(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .groupBy(Vacation::getInfirmier, Vacation::getDate, count())
                 .filter((infirmier, date, n) -> n > infirmier.maxParJour())
@@ -65,14 +73,14 @@ public class InfirmiersConstraintProvider implements ConstraintProvider {
                 .asConstraint(MAX_VACATIONS_JOUR);
     }
 
-    Constraint vacationNonPourvue(ConstraintFactory factory) {
+    public Constraint vacationNonPourvue(ConstraintFactory factory) {
         return factory.forEachIncludingUnassigned(Vacation.class)
                 .filter(v -> v.getInfirmier() == null)
                 .penalize(HardMediumSoftScore.ONE_MEDIUM)
                 .asConstraint(VACATION_NON_POURVUE);
     }
 
-    Constraint depassementHebdomadaire(ConstraintFactory factory) {
+    public Constraint depassementHebdomadaire(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .groupBy(Vacation::getInfirmier, Vacation::getSemaine, count())
                 .filter((infirmier, semaine, n) -> n > infirmier.maxParSemaine())
@@ -83,21 +91,21 @@ public class InfirmiersConstraintProvider implements ConstraintProvider {
     /**
      * Somme des carrés des vacations par infirmier : à total égal, minimale quand la charge est également répartie.
      */
-    Constraint equiteCharge(ConstraintFactory factory) {
+    public Constraint equiteCharge(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .groupBy(Vacation::getInfirmier, count())
                 .penalize(HardMediumSoftScore.ONE_SOFT, (infirmier, n) -> (int) (n * n))
                 .asConstraint(EQUITE_CHARGE);
     }
 
-    Constraint infirmiersMobilises(ConstraintFactory factory) {
+    public Constraint infirmiersMobilises(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .groupBy(Vacation::getInfirmier)
                 .penalize(HardMediumSoftScore.ONE_SOFT)
                 .asConstraint(INFIRMIERS_MOBILISES);
     }
 
-    Constraint doubleVacation(ConstraintFactory factory) {
+    public Constraint doubleVacation(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .groupBy(Vacation::getInfirmier, Vacation::getDate, count())
                 .filter((infirmier, date, n) -> n > 1)
@@ -108,7 +116,7 @@ public class InfirmiersConstraintProvider implements ConstraintProvider {
     /**
      * Un infirmier qui change de salle dans la semaine coûte plus qu'un infirmier qui reste dans la même salle.
      */
-    Constraint continuiteSalle(ConstraintFactory factory) {
+    public Constraint continuiteSalle(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .groupBy(Vacation::getInfirmier, countDistinct(Vacation::getSalleId))
                 .filter((infirmier, salles) -> salles > 1)
@@ -116,7 +124,7 @@ public class InfirmiersConstraintProvider implements ConstraintProvider {
                 .asConstraint(CONTINUITE_SALLE);
     }
 
-    Constraint affinite(ConstraintFactory factory) {
+    public Constraint affinite(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .filter(v -> v.getInfirmier().affiniteManquante(v.getSalleId(), v.getCreneauId()) > 0)
                 .penalize(HardMediumSoftScore.ONE_SOFT,
@@ -124,17 +132,58 @@ public class InfirmiersConstraintProvider implements ConstraintProvider {
                 .asConstraint(AFFINITE);
     }
 
-    Constraint stabiliteRoulement(ConstraintFactory factory) {
+    public Constraint stabiliteRoulement(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .filter(v -> !v.getInfirmier().placesExactes().contains(v.cleExacte()))
                 .penalize(HardMediumSoftScore.ONE_SOFT)
                 .asConstraint(STABILITE_ROULEMENT);
     }
 
-    Constraint qualification(ConstraintFactory factory) {
+    public Constraint qualification(ConstraintFactory factory) {
         return factory.forEach(Vacation.class)
                 .filter(v -> v.isPrefereQualifie() && v.getInfirmier().aideSoignant())
                 .penalize(HardMediumSoftScore.ONE_SOFT)
                 .asConstraint(QUALIFICATION);
+    }
+
+    /**
+     * Repos hebdomadaire : au-delà de {@code joursTravailMax} jours travaillés dans la semaine, chaque jour de plus est
+     * un repos manqué.
+     */
+    public Constraint reposHebdomadaire(ConstraintFactory factory) {
+        return factory.forEach(Vacation.class)
+                .groupBy(Vacation::getInfirmier, Vacation::getSemaine, countDistinct(Vacation::getDate))
+                .filter((infirmier, semaine, jours) -> jours > infirmier.joursTravailMax())
+                .penalize(HardMediumSoftScore.ONE_SOFT,
+                        (infirmier, semaine, jours) -> jours.intValue() - infirmier.joursTravailMax())
+                .asConstraint(REPOS_HEBDOMADAIRE);
+    }
+
+    /**
+     * Quota d'heures hebdomadaire (temps partiel au prorata) : chaque heure au-delà est pénalisée.
+     */
+    public Constraint quotaHeures(ConstraintFactory factory) {
+        return factory.forEach(Vacation.class)
+                .groupBy(Vacation::getInfirmier, Vacation::getSemaine, count())
+                .filter((infirmier, semaine, n) -> infirmier.heuresAuDela(n.intValue()) > 0)
+                .penalize(HardMediumSoftScore.ONE_SOFT, (infirmier, semaine, n) -> infirmier.heuresAuDela(n.intValue()))
+                .asConstraint(QUOTA_HEURES);
+    }
+
+    public Constraint competence(ConstraintFactory factory) {
+        return competenceManquante(factory.forEach(ExigenceCompetence.class));
+    }
+
+    /**
+     * Compétence demandée par un patient d'une case (pédiatrie, cathéter) qu'aucun infirmier de la case n'a.
+     */
+    public static Constraint competenceManquante(UniConstraintStream<ExigenceCompetence> exigences) {
+        return exigences
+                .ifNotExists(Vacation.class,
+                        Joiners.equal(ExigenceCompetence::cle, Vacation::cleCase),
+                        Joiners.filtering((e, v) -> v.getInfirmier() != null
+                                && v.getInfirmier().competences().contains(e.competence())))
+                .penalize(HardMediumSoftScore.ONE_SOFT)
+                .asConstraint(COMPETENCE);
     }
 }

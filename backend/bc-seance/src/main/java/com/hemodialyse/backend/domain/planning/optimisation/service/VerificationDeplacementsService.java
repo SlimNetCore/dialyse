@@ -36,6 +36,11 @@ public final class VerificationDeplacementsService {
         deplacements.forEach(d -> finaux.put(d.patientId(), d.vers()));
         Map<UUID, PatientAPlacer> parId = new HashMap<>();
         donnees.patients().forEach(p -> parId.put(p.patientId(), p));
+        // jours choisis par l'optimisation : ils remplacent les jours prescrits dans l'état final
+        for (DeplacementPatient d : deplacements) {
+            PatientAPlacer p = parId.get(d.patientId());
+            if (p != null && d.jours() != null) parId.put(p.patientId(), p.avecJours(java.util.EnumSet.copyOf(d.jours())));
+        }
         DonneesPlanning base = donnees.planning();
 
         Map<UUID, List<Violation>> refus = new HashMap<>();
@@ -46,10 +51,11 @@ public final class VerificationDeplacementsService {
                 continue;
             }
             List<Occupation> autres = new ArrayList<>();
-            for (PatientAPlacer p : donnees.patients()) {
+            for (PatientAPlacer initial : donnees.patients()) {
+                PatientAPlacer p = parId.get(initial.patientId());
                 Poste poste = finaux.get(p.patientId());
                 if (!p.patientId().equals(d.patientId()) && poste != null && poste.salleId() != null
-                        && poste.creneauId() != null) {
+                        && poste.creneauId() != null && !p.jours().isEmpty()) {
                     autres.add(p.versOccupation(poste));
                 }
             }

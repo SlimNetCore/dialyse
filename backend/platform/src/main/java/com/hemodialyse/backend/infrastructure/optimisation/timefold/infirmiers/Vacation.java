@@ -6,6 +6,7 @@ import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.CleCase;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -59,6 +60,10 @@ public class Vacation {
      */
     public String cleExacte() {
         return salleId + "|" + creneauId + "|" + jour;
+    }
+
+    public CleCase cleCase() {
+        return new CleCase(salleId, creneauId, semaine, jour);
     }
 
     public String getId() {

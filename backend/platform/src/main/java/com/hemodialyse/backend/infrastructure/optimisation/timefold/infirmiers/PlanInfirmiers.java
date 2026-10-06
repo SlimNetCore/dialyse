@@ -11,13 +11,17 @@ import java.util.List;
 
 /**
  * Problème de planification des infirmiers : qui tient chaque vacation exigée par le ratio de sécurité, en respectant
- * absences, habilitations et limites de charge, avec une charge équitable (ou la plus économe en personnel).
+ * absences, habilitations, limites de charge, repos, quotas d'heures et compétences demandées par les patients, avec une
+ * charge équitable (ou la plus économe en personnel).
  */
 @PlanningSolution
 public class PlanInfirmiers {
 
     @ProblemFactCollectionProperty
     private List<InfirmierPlan> infirmiers;
+
+    @ProblemFactCollectionProperty
+    private List<ExigenceCompetence> exigences;
 
     @PlanningEntityCollectionProperty
     private List<Vacation> vacations;
@@ -32,9 +36,23 @@ public class PlanInfirmiers {
 
     public PlanInfirmiers(List<InfirmierPlan> infirmiers, List<Vacation> vacations,
                           ConstraintWeightOverrides<HardMediumSoftScore> poids) {
+        this(infirmiers, List.of(), vacations, poids);
+    }
+
+    public PlanInfirmiers(List<InfirmierPlan> infirmiers, List<ExigenceCompetence> exigences, List<Vacation> vacations,
+                          ConstraintWeightOverrides<HardMediumSoftScore> poids) {
         this.infirmiers = infirmiers;
+        this.exigences = exigences;
         this.vacations = vacations;
         this.poids = poids;
+    }
+
+    public List<ExigenceCompetence> getExigences() {
+        return exigences;
+    }
+
+    public void setExigences(List<ExigenceCompetence> exigences) {
+        this.exigences = exigences;
     }
 
     public List<InfirmierPlan> getInfirmiers() {

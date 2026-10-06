@@ -5,14 +5,17 @@ import {environment} from '../../../environments/environment';
 import {PagedResponse} from './gmao-api.service';
 import {CreneauRef, JourSemaine, SalleRef} from './planning-api.service';
 
-/** Ce que l'optimisation planifie : patients, roulement des infirmiers, couverture des absences, ou patients + roulement. */
-export type PerimetreOptimisation = 'PATIENTS' | 'ROULEMENT' | 'COUVERTURE' | 'COMPLET';
+/**
+ * Ce que l'optimisation planifie : patients, roulement des infirmiers, couverture des absences, patients + roulement
+ * (modèle conjoint) ou déplacements temporaires liés aux maintenances des générateurs.
+ */
+export type PerimetreOptimisation = 'PATIENTS' | 'ROULEMENT' | 'COUVERTURE' | 'COMPLET' | 'MAINTENANCE';
 export type ObjectifInfirmiers = 'EQUITE' | 'ECONOMIE';
 export type StatutOptimisation = 'EN_COURS' | 'TERMINEE' | 'ECHEC';
 export type CauseNonPlace = 'AUCUNE_PLACE' | 'ISOLEMENT_IMPOSSIBLE' | 'JOURS_FERMES';
 
 export const PERIMETRES_OPTIMISATION: readonly PerimetreOptimisation[] =
-  ['COMPLET', 'PATIENTS', 'ROULEMENT', 'COUVERTURE'];
+  ['COMPLET', 'PATIENTS', 'ROULEMENT', 'COUVERTURE', 'MAINTENANCE'];
 export const OBJECTIFS_INFIRMIERS: readonly ObjectifInfirmiers[] = ['EQUITE', 'ECONOMIE'];
 
 /** Bornes acceptées par le serveur. */
@@ -52,6 +55,29 @@ export interface DeplacementPatient {
   /** Place actuelle ; nulle pour un patient jusqu'ici non placé. */
   de: PosteOptimisation | null;
   vers: PosteOptimisation;
+  /** Nouveaux jours de dialyse choisis par l'optimisation ; nul quand les jours ne changent pas. */
+  jours?: JourSemaine[] | null;
+}
+
+/** Séance datée déplacée parce que son générateur est en maintenance ce jour-là (la place habituelle ne change pas). */
+export interface DeplacementTemporairePropose {
+  patientId: string;
+  nom: string;
+  date: string;
+  jour: JourSemaine;
+  de: PosteOptimisation;
+  vers: PosteOptimisation;
+  motif: string | null;
+}
+
+/** Séance datée dont le générateur est indisponible et qu'aucune place libre n'accueille : à organiser. */
+export interface SeanceSansSolution {
+  patientId: string;
+  nom: string;
+  date: string;
+  jour: JourSemaine;
+  de: PosteOptimisation;
+  motif: string | null;
 }
 
 export interface PatientNonPlace {
@@ -99,6 +125,8 @@ export interface ResumeOptimisation {
   manques: number;
   avant: IndicateursOptimisation;
   apres: IndicateursOptimisation;
+  temporaires?: number;
+  seancesSansSolution?: number;
 }
 
 export interface ResultatOptimisation {
@@ -110,6 +138,8 @@ export interface ResultatOptimisation {
   manques: VacationNonPourvue[];
   avant: IndicateursOptimisation;
   apres: IndicateursOptimisation;
+  temporaires?: DeplacementTemporairePropose[];
+  seancesSansSolution?: SeanceSansSolution[];
 }
 
 /** Exécution d'une optimisation : `resultat` n'est chargé que par la consultation d'une exécution (pas par l'historique). */
@@ -121,7 +151,7 @@ export interface RunOptimisation {
   creeLe: string;
   termineLe: string | null;
   lancePar: string | null;
-  phase: 'PATIENTS' | 'INFIRMIERS' | null;
+  phase: 'PATIENTS' | 'INFIRMIERS' | 'COMPLET' | 'MAINTENANCE' | null;
   score: string | null;
   resume: ResumeOptimisation | null;
   resultat: ResultatOptimisation | null;

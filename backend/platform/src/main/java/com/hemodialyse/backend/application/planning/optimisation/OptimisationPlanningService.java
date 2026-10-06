@@ -8,6 +8,7 @@ import com.hemodialyse.backend.domain.planning.optimisation.port.OptimisationDon
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimisationRunRepositoryPort;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimiseurPlanningPort;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimiseurPlanningPort.Ecouteur;
+import com.hemodialyse.backend.domain.planning.optimisation.port.ReglagesOptimisationPort;
 import com.hemodialyse.backend.domain.planning.optimisation.service.EmpreinteOptimisation;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * Lancement, suivi et arrêt des optimisations du planning d'un centre. Un seul calcul à la fois par centre ; le calcul
@@ -42,29 +44,43 @@ public class OptimisationPlanningService {
     private final OptimisationDonneesPort donnees;
     private final OptimisationRunRepositoryPort runs;
     private final OptimiseurPlanningPort optimiseur;
+    private final ReglagesOptimisationPort reglages;
     private final Clock horloge;
     private final Map<UUID, Object> verrous = new ConcurrentHashMap<>();
 
     @Autowired
     public OptimisationPlanningService(OptimisationDonneesPort donnees, OptimisationRunRepositoryPort runs,
-                                       OptimiseurPlanningPort optimiseur) {
-        this(donnees, runs, optimiseur, Clock.systemUTC());
+                                       OptimiseurPlanningPort optimiseur, ReglagesOptimisationPort reglages) {
+        this(donnees, runs, optimiseur, reglages, Clock.systemUTC());
     }
 
     OptimisationPlanningService(OptimisationDonneesPort donnees, OptimisationRunRepositoryPort runs,
-                                OptimiseurPlanningPort optimiseur, Clock horloge) {
+                                OptimiseurPlanningPort optimiseur, ReglagesOptimisationPort reglages, Clock horloge) {
         this.donnees = donnees;
         this.runs = runs;
         this.optimiseur = optimiseur;
+        this.reglages = reglages;
         this.horloge = horloge;
     }
 
     /**
-     * Lance une optimisation et rend immédiatement l'exécution {@code EN_COURS}.
+     * Lance une optimisation et rend immédiatement l'exécution {@code EN_COURS}. Les contraintes de personnel (durée
+     * d'une vacation, temps plein, repos hebdomadaire) sont celles des réglages du centre.
      *
      * @throws BusinessException {@code OPTIMISATION_DEJA_EN_COURS} si le centre a déjà un calcul en cours
      */
     public RunOptimisation lancer(UUID centerId, ParametresOptimisation parametres, String utilisateur) {
+        return lancer(centerId, parametres, utilisateur, run -> {
+        });
+    }
+
+    /**
+     * Comme {@link #lancer(UUID, ParametresOptimisation, String)}, en appelant {@code aLaFin} quand l'exécution se
+     * termine (avec ou sans succès) — utilisé par la replanification automatique pour enchaîner les calculs.
+     */
+    public RunOptimisation lancer(UUID centerId, ParametresOptimisation demandes, String utilisateur,
+                                  Consumer<RunOptimisation> aLaFin) {
+        ParametresOptimisation parametres = demandes.avecReglages(reglages.lire(centerId));
         synchronized (verrous.computeIfAbsent(centerId, k -> new Object())) {
             if (runs.findEnCours(centerId).isPresent()) {
                 throw new BusinessException("OPTIMISATION_DEJA_EN_COURS",
@@ -74,7 +90,7 @@ public class OptimisationPlanningService {
             RunOptimisation run = runs.save(RunOptimisation.demarrer(centerId, parametres, utilisateur,
                     EmpreinteOptimisation.calculer(lues, parametres), horloge.instant()));
             runs.purger(centerId, HISTORIQUE_MAX);
-            optimiseur.demarrer(run.id(), lues, parametres, new Suivi(run));
+            optimiseur.demarrer(run.id(), lues, parametres, new Suivi(run, aLaFin));
             return run;
         }
     }
@@ -105,11 +121,13 @@ public class OptimisationPlanningService {
      * persistance sont journalisées : elles ne doivent pas interrompre le moteur.
      */
     private final class Suivi implements Ecouteur {
+        private final Consumer<RunOptimisation> aLaFin;
         private volatile RunOptimisation courant;
         private volatile Instant derniereProgression = Instant.MIN;
 
-        private Suivi(RunOptimisation run) {
+        private Suivi(RunOptimisation run, Consumer<RunOptimisation> aLaFin) {
             this.courant = run;
+            this.aLaFin = aLaFin;
         }
 
         @Override
@@ -123,11 +141,21 @@ public class OptimisationPlanningService {
         @Override
         public void termine(ResultatOptimisation resultat, String score) {
             enregistrer(courant.terminer(resultat, score, horloge.instant()));
+            signalerFin();
         }
 
         @Override
         public void echec(String message) {
             enregistrer(courant.echouer(message, horloge.instant()));
+            signalerFin();
+        }
+
+        private void signalerFin() {
+            try {
+                aLaFin.accept(courant);
+            } catch (RuntimeException e) {
+                log.warn("[OPTIMISATION] Suite de l'exécution {} en échec", courant.id(), e);
+            }
         }
 
         private void enregistrer(RunOptimisation run) {

@@ -175,33 +175,44 @@
 ## 5.9 Optimisation du planning (moteur Timefold)
 
 > Sources : `domain/planning/optimisation` (modèle, ports, `IndicateursOptimisationService`, `EmpreinteOptimisation`,
-> `VerificationDeplacementsService`), `infrastructure/optimisation/timefold` (`TimefoldOptimiseurAdapter`,
-> `PatientsConstraintProvider`, `InfirmiersConstraintProvider`, `PoidsOptimisation`),
-> `OptimisationPlanningService`, `OptimisationApplicationService`, `OptimisationDonneesJdbcAdapter`,
-> `OptimisationRunJdbcAdapter`, `OptimisationPlanningRecovery`, `PlanningOptimisationRestController`.
+> `VerificationDeplacementsService`, `SchemasJoursService`, `MaintenanceGenerateursService`, `MotifProposition`),
+> `infrastructure/optimisation/timefold` (`TimefoldOptimiseurAdapter`, `PatientsConstraintProvider`,
+> `InfirmiersConstraintProvider`, `CompletConstraintProvider`, `MaintenanceConstraintProvider`, `PoidsOptimisation`),
+> `OptimisationPlanningService`, `OptimisationApplicationService`, `PreferencesPlanningService`,
+> `ReplanificationAutomatiqueService`, `OptimisationDonneesJdbcAdapter`, `OptimisationRunJdbcAdapter`,
+> `PreferencePatientJdbcAdapter`, `ProfilInfirmierJdbcAdapter`, `ReglagesOptimisationJdbcAdapter`,
+> `DeplacementTemporaireJdbcAdapter`, `OptimisationPlanningRecovery`, `ReplanificationAutomatiqueScheduler`,
+> `PlanningOptimisationRestController`, `PlanningPreferencesRestController`.
 
 - **RG-PLN-080** — L'optimisation **propose** un planning qui consomme le moins de ressources possible (générateurs,
-  salles ouvertes, vacations d'infirmiers) sans enfreindre les règles de la planification. Quatre **périmètres** :
-  `PATIENTS` (replace les patients : salle, créneau, générateur), `ROULEMENT` (conçoit le roulement hebdomadaire des
-  infirmiers face aux placements actuels), `COUVERTURE` (comble les cases en sous-effectif sur 1 à 4 semaines avec des
-  remplaçants), `COMPLET` (`PATIENTS` puis `ROULEMENT` sur les nouveaux placements). Une proposition **n'est jamais
-  appliquée automatiquement**.
+  salles ouvertes, vacations d'infirmiers) sans enfreindre les règles de la planification. Cinq **périmètres** :
+  `PATIENTS` (replace les patients : salle, créneau, générateur, et choisit les jours de ceux qui le demandent,
+  RG-PLN-094), `ROULEMENT` (conçoit le roulement hebdomadaire des infirmiers face aux placements actuels),
+  `COUVERTURE` (comble les cases en sous-effectif sur 1 à 4 semaines avec des remplaçants), `COMPLET` (patients et
+  roulement **dans un seul modèle**, RG-PLN-095) et `MAINTENANCE` (déplacements temporaires des séances dont le
+  générateur est indisponible, RG-PLN-096). Une proposition **n'est jamais appliquée automatiquement**, y compris
+  celles de la replanification nocturne (RG-PLN-100).
 - **RG-PLN-081** — Le calcul est **asynchrone** : le lancement répond immédiatement (`202`) avec une exécution
   `EN_COURS`, suivie ensuite (avancement et score de la meilleure solution). **Un seul calcul à la fois par centre**
   (`OPTIMISATION_DEJA_EN_COURS`). Les 20 dernières exécutions de chaque centre sont conservées (historique) ; au
   démarrage du serveur, toute exécution restée en cours passe en échec (« calcul interrompu par l'arrêt du serveur »).
   Nombre de calculs en parallèle : `PLANNING_OPTIMISATION_WORKERS` (défaut 2).
 - **RG-PLN-082** — Paramètres et bornes (sinon refus 400) : début de l'horizon (ramené au dimanche de sa semaine),
-  nombre de semaines 1 à 4 (**uniquement** pour `COUVERTURE`, 1 sinon), durée maximale de calcul **par phase** 2 à 300
+  nombre de semaines 1 à 4 (**uniquement** pour `COUVERTURE` et `MAINTENANCE`, 1 sinon), durée maximale de calcul
+  **par phase** 2 à 300
   secondes (défaut 20), **stabilité** 0 à 10 (défaut 5 : 0 = tout peut changer, 10 = changer le moins possible),
   objectif des infirmiers `EQUITE` (défaut) ou `ECONOMIE`, vacations maximales par jour 1 à 3 (défaut 2) et par semaine
-  1 à 14 (défaut 6).
+  1 à 14 (défaut 6). Les contraintes de personnel (durée d'une vacation, temps plein, repos hebdomadaire) viennent des
+  réglages du centre (RG-PLN-098), lus à chaque lancement.
 - **RG-PLN-083** — Données lues, toutes bornées au centre : générateurs en service (RG-PLN-011), patients actifs placés
   **et patients en attente de place** (jours prescrits mais salle ou créneau manquant), à l'exclusion des patients sortis
-  ou dont le séjour est terminé (RG-PLN-010) ; infirmiers actifs, roulement, absences et remplacements de l'horizon.
-  Les **jours de dialyse des patients ne sont jamais modifiés**. Un patient dont aucun jour n'est ouvert garde sa
-  place. Hors couverture, le planning est évalué sur la **semaine type** (sans fermeture datée, absence ni
-  remplacement) : on compare des roulements, pas des aléas.
+  ou dont le séjour est terminé (RG-PLN-010), ainsi que les patients sans jours dont la préférence demande de choisir
+  les jours (RG-PLN-093) ; infirmiers actifs, profils (RG-PLN-097), roulement, absences et remplacements de l'horizon ;
+  préférences et transporteurs (aller, retour) des patients ; compétences demandées (RG-PLN-097) ; indisponibilités
+  des générateurs et déplacements temporaires déjà enregistrés (RG-PLN-096). Les **jours de dialyse d'un patient ne
+  sont modifiés que si sa préférence le demande** (RG-PLN-094). Un patient dont aucun jour n'est ouvert (ou, jours à
+  choisir, sans schéma possible) garde sa place. Hors couverture et maintenance, le planning est évalué sur la
+  **semaine type** (sans fermeture datée, absence ni remplacement) : on compare des roulements, pas des aléas.
 - **RG-PLN-084** — Placement des patients, règles **dures** : un générateur ne sert qu'un patient par jour et par
   créneau (RG-PLN-021) ; un patient à risque n'est placé qu'en salle d'isolement et un patient sans risque jamais
   (RG-PLN-024). Un patient garde la même place tous ses jours (RG-PLN-020). Un patient qu'aucune place ne peut accueillir
@@ -210,8 +221,9 @@
   ratio (100 par vacation, une par tranche de patients par infirmier, case par case), salles ouvertes (30 par case salle
   × créneau × jour), générateurs utilisés (10), réserve de générateurs de secours à garder libre à chaque créneau et
   chaque jour (50 par générateur manquant, RG-PLN-070), stabilité : changer un patient de créneau coûte
-  `3 × stabilité × 6`, de salle `2 × stabilité × 6`, de générateur seul `1 × stabilité × 6`. Placer un patient prime sur
-  tous les objectifs souples. La recherche part des places actuelles (« ne rien changer » est la solution de départ).
+  `3 × stabilité × 6`, de salle `2 × stabilité × 6`, de générateur seul `1 × stabilité × 6` ; préférences et jours
+  choisis : RG-PLN-094. Placer un patient prime sur tous les objectifs souples. La recherche part des places actuelles
+  (« ne rien changer » est la solution de départ).
 - **RG-PLN-086** — Infirmiers, règles **dures** : jamais deux salles au même créneau le même jour (RG-INF-022), au plus
   N vacations par jour (RG-PLN-082). Un infirmier absent ce jour-là, non habilité pour une salle d'isolement ou déjà
   prévu sur le créneau n'est jamais candidat. Une vacation sans infirmier est signalée (« non pourvue ») et prime sur les
@@ -220,7 +232,8 @@
   équité (somme des carrés des vacations) ou, avec l'objectif `ECONOMIE`, nombre d'infirmiers mobilisés (300 par
   infirmier), double vacation dans la journée (40), changement de salle dans la semaine (30), connaissance de la salle
   et du créneau d'après le roulement actuel (10 par habitude manquante), stabilité du roulement (`8 × stabilité`, hors
-  couverture), et au moins un infirmier qui n'est pas aide-soignant par case occupée (200).
+  couverture), au moins un infirmier qui n'est pas aide-soignant par case occupée (200), repos hebdomadaire, quota
+  d'heures et compétences (RG-PLN-099).
 - **RG-PLN-088** — Couverture : les infirmiers déjà prévus (roulement moins absences, plus remplacements en place) sont
   conservés tels quels ; seules les vacations manquantes sont à pourvoir, par des infirmiers disponibles sur le créneau.
   L'application crée des remplacements (RG-INF-052) ; les vacations déjà tenues sont ignorées.
@@ -238,11 +251,70 @@
   déjà appliquée (`OPTIMISATION_DEJA_APPLIQUEE`). Le centre ne doit pas avoir changé depuis le calcul : l'**empreinte**
   (SHA-256 des données lues) est recalculée, sinon `OPTIMISATION_PERIMEE` et il faut relancer. Chaque nouvelle place est
   revérifiée avec les règles de RG-PLN-050 face à l'état final des autres patients (`OPTIMISATION_PLACEMENT_<règle>`).
-  Effets : `PATIENTS` déplace les patients ; `ROULEMENT` remplace le roulement des infirmiers actifs (affectations
-  identiques conservées, autres modifiées, créées ou supprimées) ; `COUVERTURE` crée les remplacements ; `COMPLET`
-  fait les deux premiers.
+  Effets : `PATIENTS` déplace les patients et enregistre sur leur fiche les jours choisis par l'optimisation ;
+  `ROULEMENT` remplace le roulement des infirmiers actifs (affectations identiques conservées, autres modifiées, créées
+  ou supprimées) ; `COUVERTURE` crée les remplacements ; `COMPLET` fait les deux premiers ; `MAINTENANCE` enregistre
+  les déplacements temporaires (RG-PLN-096) sans toucher aux places habituelles.
 - **RG-PLN-092** — Accès : lancer, consulter, arrêter et lister (`ADMIN`, `SECRETAIRE`) ; appliquer (`ADMIN`). Interdit
   à l'infirmier « seul » et au médecin « seul » (RG-SEC-022/023). Aucune mise en cache (RG-TRV-041). L'historique est
   paginé (`page`, `size`) et ne charge pas le détail des propositions ; une exécution d'un autre centre est introuvable
   (`OPTIMISATION_INTROUVABLE`).
+- **RG-PLN-093** — **Préférences de planification d'un patient** (`/api/v1/planning/preferences/patients`, `ADMIN`,
+  `SECRETAIRE`, liste paginée des patients non sortis du centre, sans cache) : créneau préféré (facultatif, du centre,
+  sinon `PREFERENCE_CRENEAU_INCONNU`) et, pour un nouveau patient ou des jours à revoir, « jours choisis par
+  l'optimisation » avec un nombre de séances hebdomadaires de 1 à 7 (requis dans ce cas). Un patient d'un autre centre
+  ou sorti est introuvable (`PREFERENCE_PATIENT_INTROUVABLE`). Une préférence ne modifie rien par elle-même : elle n'est
+  prise en compte qu'au prochain calcul.
+- **RG-PLN-094** — **Jours choisis et préférences dans le placement** : les schémas de jours candidats d'un patient aux
+  jours à choisir sont ceux du bon nombre de séances, parmi les jours d'ouverture, dont l'espacement (même note que
+  l'aide au placement, RG-PLN-031) est à au plus 15 points du meilleur (8 schémas au plus) ; ses jours actuels restent
+  candidats s'ils ont le bon nombre de séances. Objectifs souples : écart d'espacement au meilleur schéma (2 par
+  point), chaque jour actuel abandonné (`20 × stabilité`, au moins 20), créneau préféré non respecté (40), deux patients
+  partageant un transporteur qui dialysent un même jour à des créneaux différents (15 par jour commun). Un patient dont
+  seuls les jours changent figure parmi les déplacements avec ses nouveaux jours ; les jours sont écrits sur la fiche
+  avant la nouvelle place, à l'application.
+- **RG-PLN-095** — **Modèle conjoint** (`COMPLET`) : patients et vacations sont résolus ensemble sur la semaine type.
+  Chaque case ouverte (salle × créneau × jour) reçoit autant de vacations potentielles que sa salle peut exiger
+  d'infirmiers (générateurs de la salle rapportés au ratio) ; le besoin d'une case suit, pendant le calcul, les patients
+  qui y sont placés. Règle moyenne : chaque vacation exigée est tenue (comptée avec les patients non placés). Objectifs
+  souples : toutes les contraintes du placement (RG-PLN-085, 094) et des infirmiers (RG-PLN-087, 099), une vacation
+  tenue au-delà du besoin de sa case (50), au moins un infirmier qui n'est pas aide-soignant par case servie (200) et
+  les compétences demandées par les patients de la case. Le calcul part des places actuelles et du roulement actuel. La
+  proposition ne garde que les vacations utiles face aux placements retenus (RG-PLN-091) et signale les manques.
+- **RG-PLN-096** — **Maintenance des générateurs** (`MAINTENANCE`, 1 à 4 semaines datées) : un générateur est
+  indisponible pendant une intervention GMAO `PLANIFIEE` ou `EN_COURS` (non supprimée) qui chevauche l'horizon ; sans
+  date de fin, une intervention planifiée immobilise son jour de début, une intervention en cours tout l'horizon. Sont
+  touchées les séances datées (jours d'ouverture hors fermetures, séjour en cours) dont la place effective — la place
+  habituelle, ou le déplacement temporaire déjà enregistré pour cette date — est sur un générateur indisponible. Places
+  possibles d'une séance : générateurs disponibles ce jour-là, de la même catégorie (isolement ou non, RG-PLN-024),
+  qu'aucun autre patient n'occupe à ce créneau ce jour-là. Règle dure : deux séances déplacées ne prennent jamais la même
+  place le même jour ; règle moyenne : chaque séance trouve une place, sinon elle est listée « sans solution » (à
+  organiser) ; objectifs souples : garder le créneau (100), puis la salle (30). L'application enregistre un
+  **déplacement temporaire** par séance (patient, date, salle, créneau, générateur, motif), qui remplace un déplacement
+  existant du même patient à la même date ; la place habituelle ne change pas. Le planning de la semaine affiche le
+  patient dans sa case temporaire à cette date (repère « déplacé temporairement ») et en tient compte pour les conflits
+  (RG-PLN-040, RG-PLN-041).
+- **RG-PLN-097** — **Profil de planification d'un infirmier** (`/api/v1/planning/preferences/infirmiers`, `ADMIN`,
+  `SECRETAIRE`, liste paginée des infirmiers actifs du centre) : taux d'activité de 10 à 100 % (défaut 100 : temps
+  plein) et compétences particulières `PEDIATRIE`, `CATHETER`. Un infirmier d'un autre centre ou inactif est introuvable
+  (`PROFIL_INFIRMIER_INTROUVABLE`). Quota d'heures hebdomadaire = heures d'un temps plein (RG-PLN-098) × taux, arrondi à
+  l'heure. Compétences demandées par un patient : `PEDIATRIE` s'il a moins de 18 ans au début de l'horizon, `CATHETER`
+  s'il a un abord vasculaire actif de type `KT_TUNNELISE` ou `KT_AIGU`.
+- **RG-PLN-098** — **Réglages de planification du centre** (`/api/v1/planning/preferences/reglages` ; lecture `ADMIN`,
+  `SECRETAIRE`, modification `ADMIN`) : durée d'une vacation 1 à 12 h (défaut 5), heures hebdomadaires d'un temps plein
+  10 à 60 (défaut 40), jours de repos minimum par semaine 0 à 6 (défaut 1), replanification automatique nocturne
+  (défaut non). Hors bornes : refus 400. Un centre sans réglage enregistré a les valeurs par défaut.
+- **RG-PLN-099** — **Contraintes de personnel** (objectifs souples, roulement, couverture et modèle conjoint) : chaque jour
+  travaillé au-delà de `7 − repos minimum` dans une semaine (300), chaque heure au-delà du quota de l'infirmier, les
+  vacations comptant la durée réglée (100 par heure, soit 500 pour une vacation de 5 h), chaque compétence demandée par
+  un patient d'une case qu'aucun infirmier de la case n'a (250).
+- **RG-PLN-100** — **Replanification automatique nocturne** (`ReplanificationAutomatiqueScheduler`, 02:30 UTC chaque
+  nuit), pour les centres qui l'ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
+  semaines), la maintenance (2 semaines) à partir de la semaine en cours, puis le placement des patients de la semaine
+  suivante, 30 secondes par phase, au nom de `SYSTEME`. Un calcul déjà en cours dans le centre interrompt l'enchaînement
+  pour la nuit ; un centre en erreur n'empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
+  (`OPTIMISATION_PROPOSITION`) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif
+  `SOUS_EFFECTIF`), séances à déplacer ou sans solution (`MAINTENANCE`), vacations requises économisées ou patients en
+  attente placés (`GAIN`). Rien n'est appliqué d'office : l'administrateur consulte la proposition dans l'historique et
+  l'applique (RG-PLN-091).
 

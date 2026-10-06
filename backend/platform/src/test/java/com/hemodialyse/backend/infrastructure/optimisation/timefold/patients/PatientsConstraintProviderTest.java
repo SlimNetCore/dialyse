@@ -5,9 +5,11 @@ import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.hemodialyse.backend.domain.planning.model.JourSemaine.JEUDI;
+import static org.assertj.core.api.Assertions.assertThat;
 import static com.hemodialyse.backend.domain.planning.model.JourSemaine.LUNDI;
 import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MARDI;
 import static com.hemodialyse.backend.domain.planning.model.JourSemaine.MERCREDI;
@@ -147,5 +149,66 @@ class PatientsConstraintProviderTest {
         verifier.verifyThat(PatientsConstraintProvider::stabilite)
                 .given(creneau, salle, generateur, inchange)
                 .penalizesBy(3 + 2 + 1);
+    }
+
+    private static PlacementPatient avecPreferences(PosteSerie poste, List<JourSemaine> actuels, List<SchemaJours> schemas,
+                                                    UUID prefere, Set<UUID> transporteurs) {
+        PlacementPatient p = new PlacementPatient(UUID.randomUUID(), "P", false, actuels, schemas, null, null, null,
+                List.of(), prefere, transporteurs, Set.of());
+        p.setPoste(poste);
+        return p;
+    }
+
+    @Test
+    void should_penalize_a_less_well_spaced_day_pattern() {
+        SchemaJours bon = new SchemaJours(List.of(LUNDI, MERCREDI), 0);
+        SchemaJours serre = new SchemaJours(List.of(LUNDI, MARDI), 12);
+        PlacementPatient p = avecPreferences(poste("A1", SALLE_A, MATIN, false), List.of(), List.of(bon, serre), null,
+                Set.of());
+        p.setSchema(serre);
+        verifier.verifyThat(PatientsConstraintProvider::espacementJours).given(p).penalizesBy(12);
+        p.setSchema(bon);
+        verifier.verifyThat(PatientsConstraintProvider::espacementJours).given(p).penalizesBy(0);
+    }
+
+    @Test
+    void should_count_each_usual_day_dropped_when_days_are_revised() {
+        SchemaJours actuel = new SchemaJours(List.of(LUNDI, MERCREDI), 0);
+        SchemaJours autre = new SchemaJours(List.of(MARDI, JEUDI), 0);
+        SchemaJours proche = new SchemaJours(List.of(LUNDI, JEUDI), 0);
+        PlacementPatient p = avecPreferences(poste("A1", SALLE_A, MATIN, false), List.of(LUNDI, MERCREDI),
+                List.of(actuel, autre, proche), null, Set.of());
+        assertThat(p.getSchema()).as("démarre sur ses jours actuels").isEqualTo(actuel);
+        verifier.verifyThat(PatientsConstraintProvider::changementJours).given(p).penalizesBy(0);
+        p.setSchema(autre);
+        verifier.verifyThat(PatientsConstraintProvider::changementJours).given(p).penalizesBy(2);
+        p.setSchema(proche);
+        verifier.verifyThat(PatientsConstraintProvider::changementJours).given(p).penalizesBy(1);
+    }
+
+    @Test
+    void should_penalize_a_patient_outside_the_preferred_slot() {
+        List<SchemaJours> lundi = List.of(SchemaJours.fixe(List.of(LUNDI)));
+        verifier.verifyThat(PatientsConstraintProvider::creneauPrefere)
+                .given(avecPreferences(poste("A1", SALLE_A, MATIN, false), List.of(LUNDI), lundi, SOIR, Set.of()),
+                        avecPreferences(poste("A2", SALLE_A, SOIR, false), List.of(LUNDI), lundi, SOIR, Set.of()),
+                        avecPreferences(poste("A3", SALLE_A, MATIN, false), List.of(LUNDI), lundi, null, Set.of()))
+                .penalizesBy(1);
+    }
+
+    @Test
+    void should_penalize_patients_of_a_same_transporter_split_across_slots_on_common_days() {
+        UUID ambulance = UUID.randomUUID();
+        List<SchemaJours> lunMer = List.of(SchemaJours.fixe(List.of(LUNDI, MERCREDI)));
+        List<SchemaJours> merJeu = List.of(SchemaJours.fixe(List.of(MERCREDI, JEUDI)));
+        verifier.verifyThat(PatientsConstraintProvider::transportPartage)
+                .given(avecPreferences(poste("A1", SALLE_A, MATIN, false), List.of(), lunMer, null, Set.of(ambulance)),
+                        avecPreferences(poste("A2", SALLE_A, SOIR, false), List.of(), merJeu, null, Set.of(ambulance)),
+                        avecPreferences(poste("A3", SALLE_A, SOIR, false), List.of(), lunMer, null, Set.of()))
+                .penalizesBy(1);
+        verifier.verifyThat(PatientsConstraintProvider::transportPartage)
+                .given(avecPreferences(poste("A1", SALLE_A, MATIN, false), List.of(), lunMer, null, Set.of(ambulance)),
+                        avecPreferences(poste("B1", SALLE_B, MATIN, false), List.of(), lunMer, null, Set.of(ambulance)))
+                .penalizesBy(0);
     }
 }

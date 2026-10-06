@@ -13,6 +13,7 @@ import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.DonneesSema
 import com.hemodialyse.backend.domain.planning.port.PlanningDonneesPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningParametresPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningSemainePort;
+import com.hemodialyse.backend.domain.planning.port.DeplacementTemporairePort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -61,10 +62,13 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
 
     private final JdbcTemplate jdbc;
     private final PlanningParametresPort parametres;
+    private final DeplacementTemporairePort temporaires;
 
-    public PlanningDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningParametresPort parametres) {
+    public PlanningDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningParametresPort parametres,
+                                      DeplacementTemporairePort temporaires) {
         this.jdbc = jdbc;
         this.parametres = parametres;
+        this.temporaires = temporaires;
     }
 
     @Override
@@ -83,7 +87,7 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
                     noms.put(rs.getObject("id", UUID.class),
                             (rs.getString("prenom") + " " + rs.getString("nom")).trim());
                 }, centerId);
-        return new DonneesSemaine(planning, noms, planning.fermetures());
+        return new DonneesSemaine(planning, noms, planning.fermetures(), temporaires.entre(centerId, debutSemaine, fin));
     }
 
     @Override

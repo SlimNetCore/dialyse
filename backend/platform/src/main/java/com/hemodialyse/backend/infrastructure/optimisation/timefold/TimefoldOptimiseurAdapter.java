@@ -4,14 +4,25 @@ import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.solver.Solver;
 import ai.timefold.solver.core.api.solver.SolverFactory;
 import ai.timefold.solver.core.config.constructionheuristic.ConstructionHeuristicPhaseConfig;
+import ai.timefold.solver.core.config.constructionheuristic.placer.QueuedEntityPlacerConfig;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
+import ai.timefold.solver.core.config.heuristic.selector.common.SelectionCacheType;
+import ai.timefold.solver.core.config.heuristic.selector.entity.EntitySelectorConfig;
+import ai.timefold.solver.core.config.heuristic.selector.move.MoveSelectorConfig;
+import ai.timefold.solver.core.config.heuristic.selector.move.composite.CartesianProductMoveSelectorConfig;
+import ai.timefold.solver.core.config.heuristic.selector.move.generic.ChangeMoveSelectorConfig;
+import ai.timefold.solver.core.config.heuristic.selector.value.ValueSelectorConfig;
+import ai.timefold.solver.core.config.phase.PhaseConfig;
 import ai.timefold.solver.core.config.localsearch.LocalSearchPhaseConfig;
 import ai.timefold.solver.core.config.localsearch.decider.acceptor.LocalSearchAcceptorConfig;
 import ai.timefold.solver.core.config.localsearch.decider.forager.LocalSearchForagerConfig;
 import ai.timefold.solver.core.config.solver.EnvironmentMode;
 import ai.timefold.solver.core.config.solver.SolverConfig;
 import ai.timefold.solver.core.config.solver.termination.TerminationConfig;
+import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOptimisation;
+import com.hemodialyse.backend.domain.planning.optimisation.model.PerimetreOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.Poste;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.DeplacementPatient;
@@ -20,10 +31,17 @@ import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimi
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.VacationPlanifiee;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimiseurPlanningPort;
 import com.hemodialyse.backend.domain.planning.optimisation.service.IndicateursOptimisationService;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.complet.CompletConstraintProvider;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.complet.CompletMapper;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.complet.PlanComplet;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.infirmiers.InfirmiersConstraintProvider;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.infirmiers.InfirmiersMapper;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.infirmiers.PlanInfirmiers;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.infirmiers.Vacation;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.maintenance.MaintenanceConstraintProvider;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.maintenance.MaintenanceMapper;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.maintenance.PlanMaintenance;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.maintenance.SeanceTemporaire;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.patients.PatientsConstraintProvider;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.patients.PatientsMapper;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.patients.PlacementPatient;
@@ -34,10 +52,12 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -46,10 +66,15 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Adaptateur du port {@link OptimiseurPlanningPort} fondé sur Timefold Solver. Le calcul se fait en deux phases
- * indépendantes : placement des patients puis planification des infirmiers (sur les nouveaux placements pour le
- * périmètre complet). Chaque phase dispose de la durée demandée ; après un arrêt, les phases restantes ne reçoivent
- * qu'un court délai pour livrer une proposition complète.
+ * Adaptateur du port {@link OptimiseurPlanningPort} fondé sur Timefold Solver. Selon le périmètre :
+ * <ul>
+ *   <li>patients, roulement, couverture : une phase de placement des patients et / ou une phase de planification des
+ *   infirmiers ;</li>
+ *   <li>complet : un seul modèle conjoint, patients et vacations ensemble ;</li>
+ *   <li>maintenance : déplacements temporaires des séances dont le générateur est indisponible.</li>
+ * </ul>
+ * Chaque phase dispose de la durée demandée ; après un arrêt, les phases restantes ne reçoivent qu'un court délai pour
+ * livrer une proposition complète.
  * <p>
  * Le moteur ne touche ni à la base ni au contexte de sécurité : il reçoit des données, renvoie une proposition. La
  * graine aléatoire est fixe et le mode d'environnement reproductible sans vérifications coûteuses
@@ -60,6 +85,8 @@ public class TimefoldOptimiseurAdapter implements OptimiseurPlanningPort, Dispos
 
     static final String PHASE_PATIENTS = "PATIENTS";
     static final String PHASE_INFIRMIERS = "INFIRMIERS";
+    static final String PHASE_COMPLET = "COMPLET";
+    static final String PHASE_MAINTENANCE = "MAINTENANCE";
     private static final Logger log = LoggerFactory.getLogger(TimefoldOptimiseurAdapter.class);
     private static final long GRAINE = 20260926L;
     private static final String TEMPERATURE_INITIALE = "0hard/0medium/100soft";
@@ -120,8 +147,14 @@ public class TimefoldOptimiseurAdapter implements OptimiseurPlanningPort, Dispos
 
     private ResultatEtScore executer(DonneesOptimisation donnees, ParametresOptimisation parametres, Execution execution,
                                      Ecouteur ecouteur) {
+        if (parametres.perimetre() == PerimetreOptimisation.MAINTENANCE) {
+            return maintenance(donnees, parametres, execution, ecouteur);
+        }
+        if (parametres.perimetre().conjoint()) return complet(donnees, parametres, execution, ecouteur);
+
         List<String> scores = new ArrayList<>();
         Map<UUID, Poste> placements = donnees.placementsActuels();
+        Map<UUID, Set<JourSemaine>> joursChoisis = Map.of();
         List<DeplacementPatient> deplacements = List.of();
         List<PatientNonPlace> nonPlaces = List.of();
         List<VacationPlanifiee> vacations = null;
@@ -129,21 +162,24 @@ public class TimefoldOptimiseurAdapter implements OptimiseurPlanningPort, Dispos
 
         if (parametres.perimetre().placePatients()) {
             PlanPatients probleme = PatientsMapper.versProbleme(donnees, parametres);
-            PlanPatients solution = resoudre(PlanPatients.class, PlacementPatient.class, PatientsConstraintProvider.class,
-                    probleme, probleme.getPatients().isEmpty(), parametres, execution, PHASE_PATIENTS, ecouteur);
+            PlanPatients solution = resoudre(PlanPatients.class, PatientsConstraintProvider.class, probleme,
+                    probleme.getPatients().isEmpty(), parametres, execution, PHASE_PATIENTS, ecouteur,
+                    PlacementPatient.class);
             scores.add(PHASE_PATIENTS + " " + solution.getScore());
             PatientsMapper.Resultat patients = PatientsMapper.versResultat(solution, donnees);
             deplacements = patients.deplacements();
             nonPlaces = patients.nonPlaces();
             placements = patients.placements();
+            joursChoisis = patients.joursChoisis();
         }
 
         if (parametres.perimetre().planifieInfirmiers()) {
             DonneesOptimisation avecPlacements = IndicateursOptimisationService
-                    .reference(donnees, parametres).avecPlacements(placements);
+                    .reference(donnees, parametres).avecPlacements(placements, joursChoisis);
             PlanInfirmiers probleme = InfirmiersMapper.versProbleme(avecPlacements, parametres);
-            PlanInfirmiers solution = resoudre(PlanInfirmiers.class, Vacation.class, InfirmiersConstraintProvider.class,
-                    probleme, probleme.getVacations().isEmpty(), parametres, execution, PHASE_INFIRMIERS, ecouteur);
+            PlanInfirmiers solution = resoudre(PlanInfirmiers.class, InfirmiersConstraintProvider.class, probleme,
+                    probleme.getVacations().isEmpty(), parametres, execution, PHASE_INFIRMIERS, ecouteur,
+                    Vacation.class);
             scores.add(PHASE_INFIRMIERS + " " + solution.getScore());
             InfirmiersMapper.Resultat infirmiers = InfirmiersMapper.versResultat(solution, avecPlacements);
             vacations = infirmiers.vacations();
@@ -154,20 +190,57 @@ public class TimefoldOptimiseurAdapter implements OptimiseurPlanningPort, Dispos
                 donnees.planning().creneaux(), deplacements, nonPlaces,
                 vacations == null ? List.of() : vacations, manques == null ? List.of() : manques,
                 IndicateursOptimisationService.avant(donnees, parametres),
-                IndicateursOptimisationService.apres(donnees, placements, parametres, vacations, manques));
+                IndicateursOptimisationService.apres(donnees, placements, joursChoisis, parametres, vacations, manques));
         return new ResultatEtScore(resultat, String.join(" ; ", scores));
     }
 
-    private <S> S resoudre(Class<S> solutionClass, Class<?> entiteClass, Class<? extends ConstraintProvider> provider,
-                           S probleme, boolean vide, ParametresOptimisation parametres, Execution execution,
-                           String phase, Ecouteur ecouteur) {
+    /**
+     * Patients et infirmiers dans un seul modèle : le besoin en personnel suit les placements pendant le calcul.
+     */
+    private ResultatEtScore complet(DonneesOptimisation donnees, ParametresOptimisation parametres,
+                                    Execution execution, Ecouteur ecouteur) {
+        PlanComplet probleme = CompletMapper.versProbleme(donnees, parametres);
+        PlanComplet solution = resoudre(PlanComplet.class, CompletConstraintProvider.class, probleme,
+                probleme.getPatients().isEmpty() && probleme.getVacations().isEmpty(), parametres, execution,
+                PHASE_COMPLET, ecouteur, PlacementPatient.class, Vacation.class);
+        CompletMapper.Resultat r = CompletMapper.versResultat(solution, donnees, parametres);
+        PatientsMapper.Resultat patients = r.patients();
+        ResultatOptimisation resultat = new ResultatOptimisation(donnees.planning().salles(),
+                donnees.planning().creneaux(), patients.deplacements(), patients.nonPlaces(), r.vacations(),
+                r.manques(), IndicateursOptimisationService.avant(donnees, parametres),
+                IndicateursOptimisationService.apres(donnees, patients.placements(), patients.joursChoisis(),
+                        parametres, r.vacations(), r.manques()));
+        return new ResultatEtScore(resultat, PHASE_COMPLET + " " + solution.getScore());
+    }
+
+    /**
+     * Déplacements temporaires des séances dont le générateur est indisponible : les places habituelles ne changent
+     * pas, les indicateurs non plus.
+     */
+    private ResultatEtScore maintenance(DonneesOptimisation donnees, ParametresOptimisation parametres,
+                                        Execution execution, Ecouteur ecouteur) {
+        PlanMaintenance probleme = MaintenanceMapper.versProbleme(donnees, parametres);
+        PlanMaintenance solution = resoudre(PlanMaintenance.class, MaintenanceConstraintProvider.class, probleme,
+                probleme.getSeances().isEmpty(), parametres, execution, PHASE_MAINTENANCE, ecouteur,
+                SeanceTemporaire.class);
+        MaintenanceMapper.Resultat r = MaintenanceMapper.versResultat(solution, donnees);
+        var indicateurs = IndicateursOptimisationService.avant(donnees, parametres);
+        ResultatOptimisation resultat = new ResultatOptimisation(donnees.planning().salles(),
+                donnees.planning().creneaux(), List.of(), List.of(), List.of(), List.of(), indicateurs, indicateurs,
+                r.deplacements(), r.sansSolution());
+        return new ResultatEtScore(resultat, PHASE_MAINTENANCE + " " + solution.getScore());
+    }
+
+    private <S> S resoudre(Class<S> solutionClass, Class<? extends ConstraintProvider> provider, S probleme,
+                           boolean vide, ParametresOptimisation parametres, Execution execution, String phase,
+                           Ecouteur ecouteur, Class<?>... entites) {
         SolverConfig config = new SolverConfig()
                 .withSolutionClass(solutionClass)
-                .withEntityClasses(entiteClass)
+                .withEntityClasses(entites)
                 .withConstraintProviderClass(provider)
                 .withEnvironmentMode(EnvironmentMode.NO_ASSERT)
                 .withRandomSeed(GRAINE)
-                .withPhases(new ConstructionHeuristicPhaseConfig(), recuitSimule())
+                .withPhases(phases(entites))
                 .withTerminationConfig(terminaison(execution.arretDemande()
                         ? DUREE_APRES_ARRET : Duration.ofSeconds(parametres.dureeMaxSecondes())));
         SolverFactory<S> usine = SolverFactory.create(config);
@@ -175,6 +248,41 @@ public class TimefoldOptimiseurAdapter implements OptimiseurPlanningPort, Dispos
         solver.addEventListener(event -> ecouteur.progression(phase, String.valueOf(event.getNewBestScore())));
         execution.suivre(solver);
         return vide ? probleme : solver.solve(probleme);
+    }
+
+    /**
+     * Une heuristique de construction par classe d'entités (dans l'ordre donné : les patients avant les vacations du
+     * modèle conjoint, pour que le besoin en personnel soit connu), puis le recuit simulé.
+     */
+    private static PhaseConfig<?>[] phases(Class<?>... entites) {
+        List<PhaseConfig<?>> phases = new ArrayList<>();
+        for (Class<?> entite : entites) {
+            String selecteur = "placeur-" + entite.getSimpleName();
+            List<MoveSelectorConfig> changements = new ArrayList<>();
+            for (String variable : variables(entite)) {
+                changements.add(new ChangeMoveSelectorConfig()
+                        .withEntitySelectorConfig(EntitySelectorConfig.newMimicSelectorConfig(selecteur))
+                        .withValueSelectorConfig(new ValueSelectorConfig(variable)));
+            }
+            phases.add(new ConstructionHeuristicPhaseConfig().withEntityPlacerConfig(new QueuedEntityPlacerConfig()
+                    .withEntitySelectorConfig(new EntitySelectorConfig().withId(selecteur).withEntityClass(entite)
+                            .withCacheType(SelectionCacheType.PHASE))
+                    .withMoveSelectorConfigList(changements.size() == 1 ? changements
+                            : List.of(new CartesianProductMoveSelectorConfig(changements)))));
+        }
+        phases.add(recuitSimule());
+        return phases.toArray(PhaseConfig<?>[]::new);
+    }
+
+    /**
+     * Variables de planification déclarées par une classe d'entités (nom du champ annoté).
+     */
+    private static List<String> variables(Class<?> entite) {
+        List<String> noms = new ArrayList<>();
+        for (Field champ : entite.getDeclaredFields()) {
+            if (champ.isAnnotationPresent(PlanningVariable.class)) noms.add(champ.getName());
+        }
+        return noms;
     }
 
     /**

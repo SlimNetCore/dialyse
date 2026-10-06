@@ -1900,7 +1900,8 @@
       },
       "ERR": {
         "LOAD": "Ur izmir ara ad yettwasali umuddu n yimalas"
-      }
+      },
+      "TEMPORAIRE": "Tiɣimit tettwasenkez s wudem akudan (aseɣti n umesgar n yal ass)"
     },
     "PARAMS": {
       "TITLE": "Amuddu n uɣallis",
@@ -1949,13 +1950,15 @@
         "COMPLET": "Inelmaden + tuzzya n yinemgalen",
         "PATIENTS": "Asbedd n yinelmaden",
         "ROULEMENT": "Tuzzya n yinemgalen",
-        "COUVERTURE": "Asekkel n tmettanin"
+        "COUVERTURE": "Asekkel n tmettanin",
+        "MAINTENANCE": "Aseɣti n yimesgaren"
       },
       "PERIMETRES_HINT": {
-        "COMPLET": "Yales asbedd n yinelmaden, syin yesnulfu tuzzya n yinemgalen n yimalas ɣef yismalen-a imaynuten.",
+        "COMPLET": "Ad yesseggem akk, deg yiwet n tmudemt, imukan n yimuḍan d uzrar n yimennɣen: tuttra n umahil teṭṭafar asideg deg tallit n usiḍen.",
         "PATIENTS": "Yales asbedd n yinelmaden (taxxamt, tallit, asmal) i wakken ad d-yeffɣen kra n texxamin yerna ad ɛedlen tallatin n yinemgalen. Ussan-nsen n usuddes ur ttbeddilen ara.",
         "ROULEMENT": "Yesnulfu tuzzya n yimalas n yinemgalen ɣef usbedd amiran n yinelmaden.",
-        "COUVERTURE": "Yessekkel s yimsemlilen tallatin yesɛan tuffra n yinemgalen deg yimalasen i d-iteddun (tamettanin, tuffɣa)."
+        "COUVERTURE": "Yessekkel s yimsemlilen tallatin yesɛan tuffra n yinemgalen deg yimalasen i d-iteddun (tamettanin, tuffɣa).",
+        "MAINTENANCE": "I yal tiɣimit anida amesgar yella deg useɣti (GMAO), ad d-yessumer amkan akudan deg wass-nni, war ma ibeddel umkan n yal ass n umuḍin."
       },
       "DEBUT": "Aɣawas n tallit",
       "DEBUT_HINT": "Yettuɣal ɣer lḥedd n yimalas",
@@ -1977,7 +1980,9 @@
       "PHASE": {
         "INIT": "Ahegget…",
         "PATIENTS": "Asbedd n yinelmaden",
-        "INFIRMIERS": "Asuddes n yinemgalen"
+        "INFIRMIERS": "Asuddes n yinemgalen",
+        "COMPLET": "Imuḍan d yimennɣen (tamudemt tamcarkit)",
+        "MAINTENANCE": "Asenkez akudan"
       },
       "SCORE": "Agmuḍ ufrin",
       "ARRETER": "Seḥbes yerna eǧǧ asumer ufrin",
@@ -2009,13 +2014,17 @@
         "CRENEAU": "Tallit",
         "INFIRMIER": "Anemgal",
         "STATUT": "Addad",
-        "MANQUE": "Tuzzyin i yettwafɛen"
+        "MANQUE": "Tuzzyin i yettwafɛen",
+        "JOURS": "Ussan",
+        "MOTIF": "Taɣẓint"
       },
       "TABS": {
         "DEPLACEMENTS": "Isenfal n umkan",
         "NON_PLACES": "War amkan",
         "VACATIONS": "Tuzzyin",
-        "MANQUES": "War asemmed"
+        "MANQUES": "War asemmed",
+        "TEMPORAIRES": "Asenkez akudan",
+        "SANS_SOLUTION": "Tiɣimiyin war tifrat"
       },
       "CAUSES": {
         "AUCUNE_PLACE": "Ulac amkan yellan",
@@ -2035,7 +2044,8 @@
         "MESSAGE_PATIENTS": "Inelmaden yellan deg tebdart n yisnfal ad beddlen taxxamt, tallit d usmal deg ifuyla-nsen.",
         "MESSAGE_ROULEMENT": "Tuzzya tamirant n yinemgalen ad tettwasenfel s tin n usumer.",
         "MESSAGE_COUVERTURE": "Imsemlilen n usumer ad ttwaseklasen deg umuddu n tilin.",
-        "MESSAGE_COMPLET": "Inelmaden ad ttwanɣelen, syin tuzzya n yinemgalen ad tettwasenfel s tin n usumer."
+        "MESSAGE_COMPLET": "Inelmaden ad ttwanɣelen, syin tuzzya n yinemgalen ad tettwasenfel s tin n usumer.",
+        "MESSAGE_MAINTENANCE": "Asenkez akudan ad yettwasekles s uzemz-is; amkan n yal ass n yimuḍan ur yettbeddil ara."
       },
       "STATUT": {
         "EN_COURS": "La yeddu",
@@ -2058,6 +2068,51 @@
       },
       "OK": {
         "APPLIQUEE": "Asumer yettwasebded."
+      },
+      "JOURS_INCHANGES": "Ur ttwabeddlen ara",
+      "AUCUNE_MAINTENANCE": "Ulac tiɣimit i yeḥuza useɣti deg tallit-a.",
+      "AUCUNE_SEANCE_SANS_SOLUTION": "Akk tiɣimiyin i yettwaḥuzan sɛant amkan akudan.",
+      "PREFS": {
+        "TITLE": "Ismenyifen n usɣiwes",
+        "SUBTITLE": "Ayen i d-yettwaṭṭafen deg usseggem s ternant i usɣiwes: isirmen n yimuḍan, axeddim aḥric d tmusniwin n yimennɣen, iɣewwaren n tlemmast.",
+        "TAB_PATIENTS": "Imuḍan",
+        "TAB_INFIRMIERS": "Imennɣen",
+        "TAB_REGLAGES": "Iɣewwaren",
+        "PATIENTS_HINT": "Tallit i yebɣa, akked, i umuḍin amaynut neɣ i wussan ara yettwaɛawden, amḍan n tɣimiyin i ara yefren usseggem ussan-nsent.",
+        "INFIRMIERS_HINT": "Afmiḍi n urmud (axeddim aḥric) d tmusniwin tulmisin (asegnef n warrac, kateṭer) n yal amennaɣ.",
+        "CRENEAU_PREFERE": "Tallit yettwasmenyifen",
+        "AUCUN_CRENEAU": "War asmenyif",
+        "JOURS_A_CHOISIR": "Ussan i ifren usseggem",
+        "SEANCES": "Tiɣimiyin deg yimalas",
+        "SEANCES_N": "{{n}} n tɣimit / amalas",
+        "JOURS_HINT": "Ussan ttwafernen mbaɛaden akken iwata gar wussan n ulday; ad semselsen wid n ufaylu kan mi ara yettwasnes usumer.",
+        "MODIFIER": "Ẓreg",
+        "EDITION": "Aẓrag: {{nom}}",
+        "ENREGISTRER": "Sekles",
+        "AUCUN_PATIENT": "Ulac amuḍin urmid deg tlemmast-a.",
+        "AUCUN_INFIRMIER": "Ulac amennaɣ urmid deg tlemmast-a.",
+        "QUALIFICATION": "Tazrirt",
+        "TAUX": "Afmiḍi n urmud (%)",
+        "COMPETENCES": "Timusniwin",
+        "COMPETENCE": {
+          "PEDIATRIE": "Asegnef n warrac",
+          "CATHETER": "Kateṭer"
+        },
+        "AUTO": "Asɣiwes awurman yal iḍ",
+        "AUTO_HINT": "Yal iḍ, asmiḍen n tuffat, asenkez n useɣti d usideg n yimuḍan ad ttwaḥesben tikkelt-nniḍen; isumar yelhan ad ttwaceggɛen i tedbelt, werǧin ad ttwasnesen s yiman-nsen.",
+        "HEURES_VACATION": "Tanzagt n tnubga (isragen)",
+        "HEURES_HEBDO": "Isragen n yimalas n ukud ummid",
+        "REPOS": "Ussan n usgunfu deg yimalas (adday)",
+        "ADMIN_SEUL": "Anedbal kan i izemren ad ibeddel iɣewwaren.",
+        "OK": "Yettwasekles.",
+        "ERR": {
+          "GENERIC": "Asekles ur yeddi ara. Ɛreḍ tikkelt-nniḍen.",
+          "VALEURS": "Azalen ttwagin: senqed tilisa yettwammlen.",
+          "DROITS": "Ur tesɛiḍ ara azref ad tgeḍ abeddel-a.",
+          "PREFERENCE_CRENEAU_INCONNU": "Tallit-a ur tettekki ara deg tlemmast.",
+          "PREFERENCE_PATIENT_INTROUVABLE": "Amuḍin ulac-it deg tlemmast-a.",
+          "PROFIL_INFIRMIER_INTROUVABLE": "Amennaɣ ulac-it deg tlemmast-a."
+        }
       }
     }
   },
@@ -2732,7 +2787,12 @@
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} n ismalen ur nelhi ara s inemgalen deg wussan i d-iteddun (seg {{date}}): imbedlen ilaq ad ttwasuddmen",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} icuɛ tamettant seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
     "SEANCE_CREATED": "Tamsirt tettwarna i {{nom}} ({{date}})",
-    "SEANCE_VALIDATED": "Tamsirt tettwaqbel i {{nom}} ({{date}})"
+    "SEANCE_VALIDATED": "Tamsirt tettwaqbel i {{nom}} ({{date}})",
+    "OPTIMISATION_PROPOSITION": {
+      "SOUS_EFFECTIF": "Asɣiwes n yiḍ: {{n}} n tnubga ixuṣṣen ara yettwaččren — asumer ara teẓreḍ",
+      "MAINTENANCE": "Asɣiwes n yiḍ: {{n}} n tɣimit ara yettwasenkzen ɣef useɣti n umesgar",
+      "GAIN": "Asɣiwes n yiḍ: asumer n usideg ad d-yesselḥu {{n}} n tɣbula"
+    }
   },
   "PEC_LIST": {
     "TITLE": "Tabdart n tneḍrutin",

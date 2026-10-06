@@ -40,7 +40,8 @@
 | `PlanningParametresRestController`       | `/api/v1/planning/parametres`                                       | lecture tous, écriture `ADMIN`                                          | RG-PLN-001 à 006                   |
 | `PlanningSemaineRestController`          | `/api/v1/planning/semaine`                                          | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                           | RG-PLN-040 à 044                   |
 | `SalleGenerateursRestController`         | `/api/v1/planning/salles`                                           | `ADMIN`, `SECRETAIRE`                                                   | RG-PLN-060 à 062                   |
-| `PlanningOptimisationRestController`     | `/api/v1/planning/optimisations`                                    | `ADMIN`, `SECRETAIRE` (application : `ADMIN`)                           | RG-PLN-080 à 092, RG-INF-070       |
+| `PlanningOptimisationRestController`     | `/api/v1/planning/optimisations`                                    | `ADMIN`, `SECRETAIRE` (application : `ADMIN`)                           | RG-PLN-080 à 096, RG-INF-070       |
+| `PlanningPreferencesRestController`      | `/api/v1/planning/preferences`                                      | `ADMIN`, `SECRETAIRE` (réglages : modification `ADMIN`)                 | RG-PLN-093, 097, 098, RG-INF-071   |
 | `InfirmierRestController`                | `/api/v1/infirmiers`                                                | lecture tous, écriture `ADMIN`                                          | RG-INF-001 à 022                   |
 | `AbsenceInfirmierRestController`         | `/api/v1/infirmiers/absences`                                       | lecture tous, écriture `ADMIN`/`SECRETAIRE`                             | RG-INF-030, 031                    |
 | `PresenceInfirmierRestController`        | `/api/v1/infirmiers/presence`                                       | lecture tous, écriture `ADMIN`/`SECRETAIRE`                             | RG-INF-040 à 060                   |
@@ -104,3 +105,4 @@
 | `LiberationPlacesScheduler`       | 04:00 chaque jour                    | RG-PAT-033             |
 | `ObservancePrescriptionScheduler` | 06:30 chaque jour                    | RG-MED-073             |
 | `PresenceInfirmierScheduler`      | 07:15 chaque jour                    | RG-INF-046             |
+| `ReplanificationAutomatiqueScheduler` | 02:30 chaque nuit                | RG-PLN-100             |

@@ -8,6 +8,11 @@
         <small>{{ o.generateurCode }}</small>
       }
     </button>
+    @if (o.temporaire) {
+      <mat-icon [matTooltip]="'PLANNING.SEMAINE.TEMPORAIRE' | translate" class="chip-ico" data-testid="week-temporaire">
+        swap_horiz
+      </mat-icon>
+    }
     @if (o.libereLe) {
       <mat-icon [matTooltip]="'PLANNING.SEMAINE.LIBERE_LE' | translate: {date: (o.libereLe | date: 'dd/MM/yyyy')}"
                 class="chip-ico" data-testid="week-libere">

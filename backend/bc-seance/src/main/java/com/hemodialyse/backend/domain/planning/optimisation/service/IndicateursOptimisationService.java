@@ -11,7 +11,6 @@ import com.hemodialyse.backend.domain.planning.model.Planning.Occupation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation.PatientAPlacer;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOptimisation;
-import com.hemodialyse.backend.domain.planning.optimisation.model.PerimetreOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.Poste;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.Indicateurs;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.VacationNonPourvue;
@@ -42,7 +41,7 @@ public final class IndicateursOptimisationService {
      * Données de référence de l'évaluation : réelles pour la couverture, semaine type sinon.
      */
     public static DonneesOptimisation reference(DonneesOptimisation donnees, ParametresOptimisation parametres) {
-        return parametres.perimetre() == PerimetreOptimisation.COUVERTURE ? donnees : donnees.sansAleas();
+        return parametres.perimetre().datee() ? donnees : donnees.sansAleas();
     }
 
     /**
@@ -63,7 +62,17 @@ public final class IndicateursOptimisationService {
     public static Indicateurs apres(DonneesOptimisation donnees, Map<UUID, Poste> placements,
                                     ParametresOptimisation parametres, List<VacationPlanifiee> vacations,
                                     List<VacationNonPourvue> manques) {
-        DonneesOptimisation ref = reference(donnees, parametres).avecPlacements(placements);
+        return apres(donnees, placements, Map.of(), parametres, vacations, manques);
+    }
+
+    /**
+     * Comme {@link #apres(DonneesOptimisation, Map, ParametresOptimisation, List, List)}, avec les jours de dialyse
+     * choisis par l'optimisation pour certains patients.
+     */
+    public static Indicateurs apres(DonneesOptimisation donnees, Map<UUID, Poste> placements,
+                                    Map<UUID, Set<JourSemaine>> joursChoisis, ParametresOptimisation parametres,
+                                    List<VacationPlanifiee> vacations, List<VacationNonPourvue> manques) {
+        DonneesOptimisation ref = reference(donnees, parametres).avecPlacements(placements, joursChoisis);
         return calculer(ref, placements, parametres, vacations, manques);
     }
 

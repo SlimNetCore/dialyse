@@ -2260,7 +2260,8 @@
       },
       "ERR": {
         "LOAD": "Impossible de charger le planning de la semaine"
-      }
+      },
+      "TEMPORAIRE": "Séance déplacée temporairement (maintenance du générateur habituel)"
     },
     "PARAMS": {
       "TITLE": "Planning du centre",
@@ -2309,13 +2310,15 @@
         "COMPLET": "Patients + roulement des infirmiers",
         "PATIENTS": "Placement des patients",
         "ROULEMENT": "Roulement des infirmiers",
-        "COUVERTURE": "Couverture des absences"
+        "COUVERTURE": "Couverture des absences",
+        "MAINTENANCE": "Maintenance des générateurs"
       },
       "PERIMETRES_HINT": {
-        "COMPLET": "Replace les patients, puis conçoit le roulement hebdomadaire des infirmiers sur ces nouveaux placements.",
+        "COMPLET": "Optimise ensemble, dans un seul modèle, la place des patients et le roulement des infirmiers : le besoin en personnel suit les placements pendant le calcul.",
         "PATIENTS": "Replace les patients (salle, créneau, générateur) pour libérer des salles et réduire les vacations d'infirmiers. Leurs jours de dialyse ne changent pas.",
         "ROULEMENT": "Conçoit le roulement hebdomadaire des infirmiers face aux placements actuels des patients.",
-        "COUVERTURE": "Comble avec des remplaçants les créneaux en sous-effectif des prochaines semaines (absences, congés)."
+        "COUVERTURE": "Comble avec des remplaçants les créneaux en sous-effectif des prochaines semaines (absences, congés).",
+        "MAINTENANCE": "Pour chaque séance dont le générateur est en maintenance (GMAO), propose une place temporaire ce jour-là, sans changer la place habituelle du patient."
       },
       "DEBUT": "Début de la période",
       "DEBUT_HINT": "Ramené au dimanche de la semaine",
@@ -2337,7 +2340,9 @@
       "PHASE": {
         "INIT": "Préparation…",
         "PATIENTS": "Placement des patients",
-        "INFIRMIERS": "Planification des infirmiers"
+        "INFIRMIERS": "Planification des infirmiers",
+        "COMPLET": "Patients et infirmiers (modèle conjoint)",
+        "MAINTENANCE": "Déplacements temporaires"
       },
       "SCORE": "Meilleur score",
       "ARRETER": "Arrêter et garder la meilleure solution",
@@ -2369,13 +2374,17 @@
         "CRENEAU": "Créneau",
         "INFIRMIER": "Infirmier",
         "STATUT": "Statut",
-        "MANQUE": "Vacations manquantes"
+        "MANQUE": "Vacations manquantes",
+        "JOURS": "Jours",
+        "MOTIF": "Motif"
       },
       "TABS": {
         "DEPLACEMENTS": "Déplacements",
         "NON_PLACES": "Non placés",
         "VACATIONS": "Vacations",
-        "MANQUES": "Non pourvues"
+        "MANQUES": "Non pourvues",
+        "TEMPORAIRES": "Déplacements temporaires",
+        "SANS_SOLUTION": "Séances sans solution"
       },
       "CAUSES": {
         "AUCUNE_PLACE": "Aucune place disponible",
@@ -2395,7 +2404,8 @@
         "MESSAGE_PATIENTS": "Les patients de la liste des déplacements changeront de salle, de créneau et de générateur sur leur fiche.",
         "MESSAGE_ROULEMENT": "Le roulement actuel des infirmiers sera remplacé par celui de la proposition.",
         "MESSAGE_COUVERTURE": "Les remplacements de la proposition seront enregistrés dans le planning de présence.",
-        "MESSAGE_COMPLET": "Les patients seront déplacés puis le roulement des infirmiers sera remplacé par celui de la proposition."
+        "MESSAGE_COMPLET": "Les patients seront déplacés puis le roulement des infirmiers sera remplacé par celui de la proposition.",
+        "MESSAGE_MAINTENANCE": "Les déplacements temporaires seront enregistrés pour leur date ; la place habituelle des patients ne change pas."
       },
       "STATUT": {
         "EN_COURS": "En cours",
@@ -2418,6 +2428,51 @@
       },
       "OK": {
         "APPLIQUEE": "La proposition a été appliquée."
+      },
+      "JOURS_INCHANGES": "Inchangés",
+      "AUCUNE_MAINTENANCE": "Aucune séance touchée par une maintenance sur l'horizon.",
+      "AUCUNE_SEANCE_SANS_SOLUTION": "Toutes les séances touchées ont une place temporaire.",
+      "PREFS": {
+        "TITLE": "Préférences de planification",
+        "SUBTITLE": "Ce que l'optimisation prend en compte en plus du planning : souhaits des patients, temps partiel et compétences des infirmiers, réglages du centre.",
+        "TAB_PATIENTS": "Patients",
+        "TAB_INFIRMIERS": "Infirmiers",
+        "TAB_REGLAGES": "Réglages",
+        "PATIENTS_HINT": "Créneau souhaité et, pour un nouveau patient ou des jours à revoir, nombre de séances dont l'optimisation choisit les jours.",
+        "INFIRMIERS_HINT": "Taux d'activité (temps partiel) et compétences particulières (pédiatrie, cathéter) de chaque infirmier.",
+        "CRENEAU_PREFERE": "Créneau préféré",
+        "AUCUN_CRENEAU": "Sans préférence",
+        "JOURS_A_CHOISIR": "Jours choisis par l'optimisation",
+        "SEANCES": "Séances par semaine",
+        "SEANCES_N": "{{n}} séance(s) / semaine",
+        "JOURS_HINT": "Les jours sont choisis bien espacés parmi les jours d'ouverture ; ils ne remplacent ceux de la fiche qu'à l'application de la proposition.",
+        "MODIFIER": "Modifier",
+        "EDITION": "Modification : {{nom}}",
+        "ENREGISTRER": "Enregistrer",
+        "AUCUN_PATIENT": "Aucun patient actif dans ce centre.",
+        "AUCUN_INFIRMIER": "Aucun infirmier actif dans ce centre.",
+        "QUALIFICATION": "Qualification",
+        "TAUX": "Taux d'activité (%)",
+        "COMPETENCES": "Compétences",
+        "COMPETENCE": {
+          "PEDIATRIE": "Pédiatrie",
+          "CATHETER": "Cathéter"
+        },
+        "AUTO": "Replanification automatique chaque nuit",
+        "AUTO_HINT": "Chaque nuit, couverture des absences, déplacements liés aux maintenances et placement des patients sont recalculés ; les propositions utiles sont notifiées à l'administration, jamais appliquées d'office.",
+        "HEURES_VACATION": "Durée d'une vacation (heures)",
+        "HEURES_HEBDO": "Heures hebdomadaires d'un temps plein",
+        "REPOS": "Jours de repos par semaine (minimum)",
+        "ADMIN_SEUL": "Seul un administrateur peut modifier les réglages.",
+        "OK": "Enregistré.",
+        "ERR": {
+          "GENERIC": "L'enregistrement a échoué. Réessayez.",
+          "VALEURS": "Valeurs refusées : vérifiez les bornes indiquées.",
+          "DROITS": "Vous n'avez pas le droit de faire cette modification.",
+          "PREFERENCE_CRENEAU_INCONNU": "Ce créneau n'appartient pas au centre.",
+          "PREFERENCE_PATIENT_INTROUVABLE": "Patient introuvable dans ce centre.",
+          "PROFIL_INFIRMIER_INTROUVABLE": "Infirmier introuvable dans ce centre."
+        }
       }
     }
   },
@@ -3092,7 +3147,12 @@
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} créneau(x) en sous-effectif d'infirmiers dans les prochains jours (dès le {{date}}) : remplacements à organiser",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} a déclaré une absence du {{debut}} au {{fin}} : remplacement à organiser",
     "SEANCE_CREATED": "Séance créée pour {{nom}} ({{date}})",
-    "SEANCE_VALIDATED": "Séance validée pour {{nom}} ({{date}})"
+    "SEANCE_VALIDATED": "Séance validée pour {{nom}} ({{date}})",
+    "OPTIMISATION_PROPOSITION": {
+      "SOUS_EFFECTIF": "Replanification nocturne : {{n}} vacation(s) en sous-effectif à pourvoir — proposition à consulter",
+      "MAINTENANCE": "Replanification nocturne : {{n}} séance(s) à déplacer pour maintenance d'un générateur",
+      "GAIN": "Replanification nocturne : une proposition de placement économise {{n}} ressource(s)"
+    }
   },
   "PEC_LIST": {
     "TITLE": "Liste PEC",

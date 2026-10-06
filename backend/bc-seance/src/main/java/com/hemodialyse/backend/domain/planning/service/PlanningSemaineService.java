@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.planning.service;
 
+import com.hemodialyse.backend.domain.planning.model.DeplacementTemporaire;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.Planning.CreneauRef;
 import com.hemodialyse.backend.domain.planning.model.Planning.DonneesPlanning;
@@ -70,6 +71,10 @@ public final class PlanningSemaineService {
             jours.add(new JourPlanning(jour, date, ouverts.contains(jour), motif));
         }
 
+        // Déplacements temporaires de la semaine : le patient quitte sa case habituelle pour cette seule date
+        Map<String, DeplacementTemporaire> temporaires = new HashMap<>();
+        for (DeplacementTemporaire t : donnees.temporaires()) temporaires.put(t.patientId() + "|" + t.date(), t);
+
         // Cellules : occupants par (salle, créneau, jour)
         Map<String, List<OccupantPlanning>> occupants = new LinkedHashMap<>();
         Map<String, List<Occupation>> occupationsParCellule = new LinkedHashMap<>();
@@ -83,6 +88,16 @@ public final class PlanningSemaineService {
             for (JourSemaine jour : o.jours()) {
                 // place déjà libérée ce jour-là (patient sorti à une date passée dans la semaine)
                 if (!o.occupeLe(debut.plusDays(jour.ordinal()))) continue;
+                DeplacementTemporaire t = temporaires.get(o.patientId() + "|" + debut.plusDays(jour.ordinal()));
+                if (t != null && sallesConnues.contains(t.salleId()) && creneauxConnus.contains(t.creneauId())) {
+                    GenerateurRef cible = generateurs.get(t.generateurId());
+                    String cle = key(t.salleId(), t.creneauId(), jour);
+                    occupants.computeIfAbsent(cle, k -> new ArrayList<>()).add(new OccupantPlanning(o.patientId(),
+                            occupant.nom(), cible == null ? null : cible.code(), o.aRisque(), occupant.libereLe(), true));
+                    occupationsParCellule.computeIfAbsent(cle, k -> new ArrayList<>()).add(new Occupation(o.patientId(),
+                            t.salleId(), t.creneauId(), t.generateurId(), EnumSet.of(jour), o.aRisque()));
+                    continue;
+                }
                 String key = key(o.salleId(), o.creneauId(), jour);
                 occupants.computeIfAbsent(key, k -> new ArrayList<>()).add(occupant);
                 occupationsParCellule.computeIfAbsent(key, k -> new ArrayList<>()).add(o);

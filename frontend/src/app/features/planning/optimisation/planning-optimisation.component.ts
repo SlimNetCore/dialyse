@@ -34,8 +34,10 @@ import {
   lignesIndicateurs,
   planifieInfirmiers,
   placePatients,
+  proposeTemporaires,
   vacationsNouvelles,
 } from './optimisation.util';
+import {PlanningPreferencesComponent} from './planning-preferences.component';
 
 type ParametresFormModel = {
   perimetre: PerimetreOptimisation;
@@ -73,6 +75,7 @@ function parametresParDefaut(): ParametresFormModel {
   imports: [
     DatePipe, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule,
     MatProgressBarModule, MatSelectModule, MatTableModule, MatTabsModule, FormRoot, FormField, TranslateModule,
+    PlanningPreferencesComponent,
   ],
   templateUrl: './planning-optimisation.component.html',
   styleUrl: './planning-optimisation.component.css',
@@ -83,7 +86,9 @@ export class PlanningOptimisationComponent {
   protected readonly objectifs = OBJECTIFS_INFIRMIERS;
   protected readonly bornes = BORNES_OPTIMISATION;
   protected readonly colonnesIndicateurs = ['indicateur', 'avant', 'apres', 'ecart'];
-  protected readonly colonnesDeplacements = ['patient', 'de', 'vers'];
+  protected readonly colonnesDeplacements = ['patient', 'de', 'vers', 'jours'];
+  protected readonly colonnesTemporaires = ['date', 'patient', 'de', 'vers', 'motif'];
+  protected readonly colonnesSansSolution = ['date', 'patient', 'de', 'motif'];
   protected readonly colonnesNonPlaces = ['patient', 'cause'];
   protected readonly colonnesVacations = ['date', 'salle', 'creneau', 'infirmier', 'statut'];
   protected readonly colonnesManques = ['date', 'salle', 'creneau', 'manque'];
@@ -117,9 +122,22 @@ export class PlanningOptimisationComponent {
     const r = this.resultat();
     return r ? lignesIndicateurs(r.avant, r.apres) : [];
   });
+  private readonly perimetreRun = computed(() => this.store.courant()?.parametres.perimetre ?? null);
   protected readonly avecPatients = computed(() => {
-    const p = this.store.courant()?.parametres.perimetre;
+    const p = this.perimetreRun();
     return !!p && placePatients(p);
+  });
+  protected readonly avecInfirmiersRun = computed(() => {
+    const p = this.perimetreRun();
+    return !!p && planifieInfirmiers(p);
+  });
+  protected readonly avecTemporaires = computed(() => {
+    const p = this.perimetreRun();
+    return !!p && proposeTemporaires(p);
+  });
+  protected readonly horizonLibreRun = computed(() => {
+    const p = this.perimetreRun();
+    return !!p && horizonLibre(p);
   });
   protected readonly salles = computed(() => new Map((this.resultat()?.salles ?? []).map((s) => [s.id, s.nom])));
   protected readonly creneaux = computed(() => new Map((this.resultat()?.creneaux ?? []).map((c) => [c.id, c.libelle])));
@@ -128,6 +146,9 @@ export class PlanningOptimisationComponent {
   protected readonly pageNonPlaces = creerPaginationLocale(computed(() => this.resultat()?.nonPlaces ?? []));
   protected readonly pageVacations = creerPaginationLocale(this.vacationsNouvelles);
   protected readonly pageManques = creerPaginationLocale(computed(() => this.resultat()?.manques ?? []));
+  protected readonly pageTemporaires = creerPaginationLocale(computed(() => this.resultat()?.temporaires ?? []));
+  protected readonly pageSansSolution = creerPaginationLocale(
+    computed(() => this.resultat()?.seancesSansSolution ?? []));
 
   private readonly auth = inject(AuthStore);
   private readonly shell = inject(AppShellStore);

@@ -2260,7 +2260,8 @@
       },
       "ERR": {
         "LOAD": "Unable to load the weekly planning"
-      }
+      },
+      "TEMPORAIRE": "Session temporarily moved (maintenance of the usual generator)"
     },
     "PARAMS": {
       "TITLE": "Center planning",
@@ -2309,13 +2310,15 @@
         "COMPLET": "Patients + nurse rotation",
         "PATIENTS": "Patient placement",
         "ROULEMENT": "Nurse rotation",
-        "COUVERTURE": "Absence cover"
+        "COUVERTURE": "Absence cover",
+        "MAINTENANCE": "Generator maintenance"
       },
       "PERIMETRES_HINT": {
-        "COMPLET": "Re-places the patients, then designs the weekly nurse rotation on these new placements.",
+        "COMPLET": "Optimises the patients' places and the nurse rotation together, in a single model: the staffing need follows the placements during the calculation.",
         "PATIENTS": "Re-places the patients (room, slot, generator) to free rooms and reduce nurse shifts. Their dialysis days do not change.",
         "ROULEMENT": "Designs the weekly nurse rotation against the current patient placements.",
-        "COUVERTURE": "Fills the understaffed slots of the coming weeks (absences, leave) with replacements."
+        "COUVERTURE": "Fills the understaffed slots of the coming weeks (absences, leave) with replacements.",
+        "MAINTENANCE": "For each session whose generator is under maintenance (CMMS), proposes a temporary place for that day without changing the patient's usual place."
       },
       "DEBUT": "Start of the period",
       "DEBUT_HINT": "Moved back to the Sunday of the week",
@@ -2337,7 +2340,9 @@
       "PHASE": {
         "INIT": "Preparing…",
         "PATIENTS": "Placing the patients",
-        "INFIRMIERS": "Planning the nurses"
+        "INFIRMIERS": "Planning the nurses",
+        "COMPLET": "Patients and nurses (joint model)",
+        "MAINTENANCE": "Temporary moves"
       },
       "SCORE": "Best score",
       "ARRETER": "Stop and keep the best solution",
@@ -2369,13 +2374,17 @@
         "CRENEAU": "Slot",
         "INFIRMIER": "Nurse",
         "STATUT": "Status",
-        "MANQUE": "Missing shifts"
+        "MANQUE": "Missing shifts",
+        "JOURS": "Days",
+        "MOTIF": "Reason"
       },
       "TABS": {
         "DEPLACEMENTS": "Moves",
         "NON_PLACES": "Unplaced",
         "VACATIONS": "Shifts",
-        "MANQUES": "Unfilled"
+        "MANQUES": "Unfilled",
+        "TEMPORAIRES": "Temporary moves",
+        "SANS_SOLUTION": "Sessions without a solution"
       },
       "CAUSES": {
         "AUCUNE_PLACE": "No place available",
@@ -2395,7 +2404,8 @@
         "MESSAGE_PATIENTS": "The patients in the list of moves will change room, slot and generator on their record.",
         "MESSAGE_ROULEMENT": "The current nurse rotation will be replaced by the one in the proposal.",
         "MESSAGE_COUVERTURE": "The replacements in the proposal will be recorded in the attendance planning.",
-        "MESSAGE_COMPLET": "The patients will be moved, then the nurse rotation will be replaced by the one in the proposal."
+        "MESSAGE_COMPLET": "The patients will be moved, then the nurse rotation will be replaced by the one in the proposal.",
+        "MESSAGE_MAINTENANCE": "The temporary moves will be recorded for their date; the patients' usual places do not change."
       },
       "STATUT": {
         "EN_COURS": "In progress",
@@ -2418,6 +2428,51 @@
       },
       "OK": {
         "APPLIQUEE": "The proposal has been applied."
+      },
+      "JOURS_INCHANGES": "Unchanged",
+      "AUCUNE_MAINTENANCE": "No session is affected by a maintenance over the horizon.",
+      "AUCUNE_SEANCE_SANS_SOLUTION": "Every affected session has a temporary place.",
+      "PREFS": {
+        "TITLE": "Planning preferences",
+        "SUBTITLE": "What the optimisation takes into account besides the planning: patients' wishes, nurses' part-time and skills, centre settings.",
+        "TAB_PATIENTS": "Patients",
+        "TAB_INFIRMIERS": "Nurses",
+        "TAB_REGLAGES": "Settings",
+        "PATIENTS_HINT": "Preferred slot and, for a new patient or days to review, the number of sessions whose days the optimisation chooses.",
+        "INFIRMIERS_HINT": "Activity rate (part-time) and particular skills (paediatrics, catheter) of each nurse.",
+        "CRENEAU_PREFERE": "Preferred slot",
+        "AUCUN_CRENEAU": "No preference",
+        "JOURS_A_CHOISIR": "Days chosen by the optimisation",
+        "SEANCES": "Sessions per week",
+        "SEANCES_N": "{{n}} session(s) / week",
+        "JOURS_HINT": "Well-spaced days are chosen among the opening days; they replace those of the record only when the proposal is applied.",
+        "MODIFIER": "Edit",
+        "EDITION": "Editing: {{nom}}",
+        "ENREGISTRER": "Save",
+        "AUCUN_PATIENT": "No active patient in this centre.",
+        "AUCUN_INFIRMIER": "No active nurse in this centre.",
+        "QUALIFICATION": "Qualification",
+        "TAUX": "Activity rate (%)",
+        "COMPETENCES": "Skills",
+        "COMPETENCE": {
+          "PEDIATRIE": "Paediatrics",
+          "CATHETER": "Catheter"
+        },
+        "AUTO": "Automatic re-planning every night",
+        "AUTO_HINT": "Every night, absence cover, maintenance moves and patient placement are recalculated; useful proposals are notified to the administration, never applied automatically.",
+        "HEURES_VACATION": "Length of a shift (hours)",
+        "HEURES_HEBDO": "Weekly hours of a full-time nurse",
+        "REPOS": "Rest days per week (minimum)",
+        "ADMIN_SEUL": "Only an administrator can change the settings.",
+        "OK": "Saved.",
+        "ERR": {
+          "GENERIC": "Saving failed. Try again.",
+          "VALEURS": "Values refused: check the indicated bounds.",
+          "DROITS": "You are not allowed to make this change.",
+          "PREFERENCE_CRENEAU_INCONNU": "This slot does not belong to the centre.",
+          "PREFERENCE_PATIENT_INTROUVABLE": "Patient not found in this centre.",
+          "PROFIL_INFIRMIER_INTROUVABLE": "Nurse not found in this centre."
+        }
       }
     }
   },
@@ -3092,7 +3147,12 @@
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} slot(s) understaffed in the coming days (from {{date}}): replacements to organize",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} declared an absence from {{debut}} to {{fin}}: replacement to organize",
     "SEANCE_CREATED": "Session created for {{nom}} ({{date}})",
-    "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})"
+    "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})",
+    "OPTIMISATION_PROPOSITION": {
+      "SOUS_EFFECTIF": "Nightly re-planning: {{n}} understaffed shift(s) to fill — proposal to review",
+      "MAINTENANCE": "Nightly re-planning: {{n}} session(s) to move for a generator maintenance",
+      "GAIN": "Nightly re-planning: a placement proposal saves {{n}} resource(s)"
+    }
   },
   "PEC_LIST": {
     "TITLE": "Coverage list",

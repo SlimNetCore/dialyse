@@ -9,12 +9,15 @@ import java.time.LocalDate;
  *
  * @param perimetre              ce qui est planifié
  * @param debutSemaine           début de l'horizon (ramené au dimanche de sa semaine)
- * @param nbSemaines             semaines planifiées (1 sauf pour {@code COUVERTURE} : 1 à {@value #SEMAINES_MAX})
+ * @param nbSemaines             semaines planifiées (1, sauf couverture et maintenance : 1 à {@value #SEMAINES_MAX})
  * @param dureeMaxSecondes       temps de calcul maximal par phase
  * @param stabilite              de 0 (tout peut changer) à 10 (changer le moins possible les placements et le roulement)
  * @param objectif               arbitrage équité / économie de personnel
  * @param maxVacationsParJour    vacations (créneaux) maximales d'un infirmier dans la journée
  * @param maxVacationsParSemaine vacations hebdomadaires au-delà desquelles un infirmier est en dépassement
+ * @param heuresParVacation      durée d'une vacation (heures), pour le quota d'heures des infirmiers
+ * @param heuresHebdoTempsPlein  heures hebdomadaires d'un temps plein (quota d'un infirmier = au prorata de son taux)
+ * @param reposHebdoMin          jours sans vacation exigés par semaine pour chaque infirmier
  */
 public record ParametresOptimisation(
         PerimetreOptimisation perimetre,
@@ -24,7 +27,10 @@ public record ParametresOptimisation(
         int stabilite,
         ObjectifInfirmiers objectif,
         int maxVacationsParJour,
-        int maxVacationsParSemaine
+        int maxVacationsParSemaine,
+        int heuresParVacation,
+        int heuresHebdoTempsPlein,
+        int reposHebdoMin
 ) {
 
     public static final int SEMAINES_MAX = 4;
@@ -44,8 +50,8 @@ public record ParametresOptimisation(
         if (nbSemaines < 1 || nbSemaines > SEMAINES_MAX) {
             throw new IllegalArgumentException("L'horizon doit être compris entre 1 et " + SEMAINES_MAX + " semaines");
         }
-        if (perimetre != PerimetreOptimisation.COUVERTURE && nbSemaines != 1) {
-            throw new IllegalArgumentException("Seule la couverture se planifie sur plusieurs semaines");
+        if (!perimetre.datee() && nbSemaines != 1) {
+            throw new IllegalArgumentException("Seules la couverture et la maintenance se planifient sur plusieurs semaines");
         }
         if (dureeMaxSecondes < DUREE_MIN_SECONDES || dureeMaxSecondes > DUREE_MAX_SECONDES) {
             throw new IllegalArgumentException("La durée de calcul doit être comprise entre " + DUREE_MIN_SECONDES
@@ -61,8 +67,21 @@ public record ParametresOptimisation(
             throw new IllegalArgumentException(
                     "Les vacations par semaine doivent être comprises entre 1 et " + VACATIONS_SEMAINE_MAX);
         }
+        // valide les réglages de personnel avec les mêmes bornes que le paramétrage du centre
+        new ReglagesOptimisation(false, heuresParVacation, heuresHebdoTempsPlein, reposHebdoMin);
         objectif = objectif == null ? ObjectifInfirmiers.EQUITE : objectif;
         debutSemaine = PlanningSemaineService.debutSemaine(debutSemaine);
+    }
+
+    /**
+     * Réglages de personnel par défaut ({@link ReglagesOptimisation#parDefaut()}).
+     */
+    public ParametresOptimisation(PerimetreOptimisation perimetre, LocalDate debutSemaine, int nbSemaines,
+                                  int dureeMaxSecondes, int stabilite, ObjectifInfirmiers objectif,
+                                  int maxVacationsParJour, int maxVacationsParSemaine) {
+        this(perimetre, debutSemaine, nbSemaines, dureeMaxSecondes, stabilite, objectif, maxVacationsParJour,
+                maxVacationsParSemaine, ReglagesOptimisation.HEURES_VACATION_PAR_DEFAUT,
+                ReglagesOptimisation.HEURES_HEBDO_PAR_DEFAUT, ReglagesOptimisation.REPOS_PAR_DEFAUT);
     }
 
     /**
@@ -71,6 +90,15 @@ public record ParametresOptimisation(
     public static ParametresOptimisation parDefaut(PerimetreOptimisation perimetre, LocalDate date) {
         return new ParametresOptimisation(perimetre, date, 1, DUREE_PAR_DEFAUT, STABILITE_PAR_DEFAUT,
                 ObjectifInfirmiers.EQUITE, VACATIONS_JOUR_PAR_DEFAUT, VACATIONS_SEMAINE_PAR_DEFAUT);
+    }
+
+    /**
+     * Mêmes paramètres avec les réglages de personnel du centre.
+     */
+    public ParametresOptimisation avecReglages(ReglagesOptimisation reglages) {
+        return new ParametresOptimisation(perimetre, debutSemaine, nbSemaines, dureeMaxSecondes, stabilite, objectif,
+                maxVacationsParJour, maxVacationsParSemaine, reglages.heuresParVacation(),
+                reglages.heuresHebdoTempsPlein(), reglages.reposHebdoMin());
     }
 
     /**

@@ -6,7 +6,9 @@ import {
   horizonLibre,
   lignesIndicateurs,
   placePatients,
+  payloadPreference,
   planifieInfirmiers,
+  proposeTemporaires,
   vacationsNouvelles,
 } from './optimisation.util';
 
@@ -51,6 +53,23 @@ describe('périmètres', () => {
     expect(planifieInfirmiers('COUVERTURE')).toBe(true);
     expect(horizonLibre('COUVERTURE')).toBe(true);
     expect(horizonLibre('COMPLET')).toBe(false);
+  });
+
+  it('traite la maintenance comme datée, sans patient à replacer ni infirmier à planifier', () => {
+    expect(horizonLibre('MAINTENANCE')).toBe(true);
+    expect(placePatients('MAINTENANCE')).toBe(false);
+    expect(planifieInfirmiers('MAINTENANCE')).toBe(false);
+    expect(proposeTemporaires('MAINTENANCE')).toBe(true);
+    expect(proposeTemporaires('COUVERTURE')).toBe(false);
+  });
+});
+
+describe('payloadPreference', () => {
+  it('envoie un créneau nul quand il n\'y a pas de préférence et les séances seulement si les jours sont à choisir', () => {
+    expect(payloadPreference({creneauPrefereId: '', joursAChoisir: false, seancesParSemaine: 3}))
+      .toEqual({creneauPrefereId: null, joursAChoisir: false, seancesParSemaine: null});
+    expect(payloadPreference({creneauPrefereId: 'c1', joursAChoisir: true, seancesParSemaine: '2' as unknown as number}))
+      .toEqual({creneauPrefereId: 'c1', joursAChoisir: true, seancesParSemaine: 2});
   });
 });
 

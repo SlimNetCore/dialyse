@@ -14,6 +14,19 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 import {PlanningOptimisationComponent} from './planning-optimisation.component';
 import {OptimisationStore} from './optimisation.store';
+import {PreferencesPlanningStore} from './preferences-planning.store';
+import {PositionsStore} from '../../../core/state/referentials.store';
+import {createPagedListState} from '../../../core/state/paged-list-state.util';
+
+/** Store des préférences (composant enfant) : vide, sans appel serveur. */
+export function preferencesStoreVide() {
+  return {
+    patients: signal(createPagedListState()), infirmiers: signal(createPagedListState()), reglages: signal(null),
+    saving: signal(false), error: signal<string | null>(null), successMessage: signal<string | null>(null),
+    charger: vi.fn(), reinitialiser: vi.fn(), setPatientsPagination: vi.fn(), setInfirmiersPagination: vi.fn(),
+    enregistrerPreference: vi.fn(), enregistrerProfil: vi.fn(), enregistrerReglages: vi.fn(),
+  };
+}
 
 const CENTRE = '11111111-1111-1111-1111-111111111111';
 
@@ -73,6 +86,8 @@ describe('PlanningOptimisationComponent', () => {
         {provide: OptimisationStore, useValue: store},
         {provide: AuthStore, useValue: {hasRole: (r: string) => admin && r === 'ADMIN'}},
         {provide: MatDialog, useValue: {open: dialogOpen}},
+        {provide: PreferencesPlanningStore, useValue: preferencesStoreVide()},
+        {provide: PositionsStore, useValue: {items: signal([]), ensureLoaded: vi.fn()}},
       ],
     }).compileComponents();
     TestBed.inject(AppShellStore).switchCenter(CENTRE);
@@ -239,5 +254,62 @@ describe('PlanningOptimisationComponent', () => {
     expect(root.querySelector('[data-testid="optimisation-error"]')?.textContent)
       .toContain('PLANNING.OPTIM.ERR.OPTIMISATION_PERIMEE');
     expect(root.querySelector('[data-testid="optimisation-ok"]')?.textContent).toContain('PLANNING.OPTIM.OK.APPLIQUEE');
+  });
+
+  it('affiche les nouveaux jours choisis par l\'optimisation dans les déplacements', async () => {
+    const r = resultat();
+    r.deplacements = [{
+      patientId: 'pn', nom: 'Nouveau', de: null, jours: ['LUNDI', 'JEUDI'],
+      vers: {salleId: 's1', creneauId: 'c1', generateurId: 'h1', generateurCode: 'A-G1'},
+    }, {...r.deplacements[1], jours: null}];
+    courant.set(run({resultat: r}));
+    const {root} = await render();
+
+    const lignes = root.querySelectorAll('[data-testid="opt-deplacements"] tbody tr');
+    expect(lignes[0].textContent).toContain('PATIENT_FORM.LUNDI');
+    expect(lignes[0].textContent).toContain('PATIENT_FORM.JEUDI');
+    expect(lignes[1].textContent).toContain('PLANNING.OPTIM.JOURS_INCHANGES');
+  });
+
+  it('montre les déplacements temporaires et les séances sans solution d\'une maintenance, sans vacations', async () => {
+    const r = resultat();
+    const poste = {salleId: 's1', creneauId: 'c1', generateurId: 'g1', generateurCode: 'A-G1'};
+    r.deplacements = [];
+    r.vacations = [];
+    r.temporaires = [{patientId: 'p1', nom: 'Alpha', date: '2026-09-28', jour: 'LUNDI', de: poste,
+      vers: {...poste, generateurId: 'g2', generateurCode: 'A-G2'}, motif: 'Révision'}];
+    r.seancesSansSolution = [{patientId: 'p2', nom: 'Bravo', date: '2026-09-29', jour: 'MARDI', de: poste, motif: 'Panne'}];
+    courant.set(run({resultat: r, parametres: {...run().parametres, perimetre: 'MAINTENANCE', nbSemaines: 2}}));
+    const {root} = await render();
+
+    const temporaire = root.querySelector('[data-testid="opt-temporaires"] tbody tr');
+    expect(temporaire?.textContent).toContain('Alpha');
+    expect(temporaire?.textContent).toContain('Salle A · Matin · A-G2');
+    expect(temporaire?.textContent).toContain('Révision');
+    expect(root.querySelector('[data-testid="opt-vacations"]')).toBeNull();
+    expect(root.querySelector('[data-testid="opt-deplacements"]')).toBeNull();
+    expect(root.textContent).not.toContain('PLANNING.OPTIM.SEMAINE_TYPE');
+  });
+
+  it('planifie la maintenance sur plusieurs semaines, sans paramètres de personnel', async () => {
+    const {fixture, root} = await render();
+    const composant = fixture.componentInstance as unknown as {
+      formModel: { update: (f: (m: Record<string, unknown>) => Record<string, unknown>) => void }
+    };
+    composant.formModel.update((m) => ({...m, perimetre: 'MAINTENANCE', nbSemaines: 2}));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector('[data-testid="opt-semaines"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="opt-objectif"]')).toBeNull();
+    (root.querySelector('[data-testid="opt-lancer"]') as HTMLButtonElement).click();
+    expect(store.lancer).toHaveBeenLastCalledWith(expect.objectContaining({perimetre: 'MAINTENANCE', nbSemaines: 2}));
+  });
+
+  it('intègre les préférences de planification du centre', async () => {
+    const {root} = await render();
+
+    expect(root.querySelector('[data-testid="opt-preferences"]')).not.toBeNull();
   });
 });

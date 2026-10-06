@@ -120,7 +120,12 @@
 ## 10.8 Roulement et remplacements issus de l'optimisation
 
 - **RG-INF-070** — Le roulement des infirmiers peut être **conçu** et les cases en sous-effectif **couvertes** par
-  l'optimisation du planning (RG-PLN-080 à 092). L'application d'une proposition remplace le roulement des infirmiers
+  l'optimisation du planning (RG-PLN-080 à 100). L'application d'une proposition remplace le roulement des infirmiers
   actifs (`ROULEMENT`, `COMPLET`) ou crée des remplacements (`COUVERTURE`) ; elle respecte les mêmes règles que la saisie
   manuelle (jamais deux salles au même créneau le même jour, RG-INF-022 ; absents et non habilités exclus, RG-INF-050).
+- **RG-INF-071** — Le **profil de planification** d'un infirmier (taux d'activité, compétences pédiatrie et cathéter,
+  RG-PLN-097) et les **réglages** du centre (durée d'une vacation, temps plein, repos hebdomadaire, RG-PLN-098) sont
+  pris en compte par l'optimisation : un temps partiel ne dépasse pas son quota d'heures, chacun garde son repos
+  hebdomadaire et les patients qui le demandent sont suivis par un infirmier compétent (RG-PLN-099). Ils n'imposent
+  rien à la saisie manuelle du roulement.
 

@@ -1,0 +1,215 @@
+<mat-card data-testid="opt-preferences">
+  <mat-card-header>
+    <mat-card-title>{{ 'PLANNING.OPTIM.PREFS.TITLE' | translate }}</mat-card-title>
+    <mat-card-subtitle>{{ 'PLANNING.OPTIM.PREFS.SUBTITLE' | translate }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class="opt-result">
+    @if (store.error(); as err) {
+      <p class="opt-feedback error" role="alert" data-testid="prefs-error">{{ err | translate }}</p>
+    }
+    @if (store.successMessage(); as ok) {
+      <p class="opt-feedback success" role="status" data-testid="prefs-ok">{{ ok | translate }}</p>
+    }
+
+    <mat-tab-group (selectedIndexChange)="annuler()" animationDuration="0ms" class="opt-tabs prefs-tabs">
+      <mat-tab [label]="'PLANNING.OPTIM.PREFS.TAB_PATIENTS' | translate">
+        <p class="opt-sub opt-empty">{{ 'PLANNING.OPTIM.PREFS.PATIENTS_HINT' | translate }}</p>
+        <div class="opt-scroll">
+          <table [dataSource]="store.patients().rows" class="opt-table" data-testid="prefs-patients" mat-table>
+            <ng-container matColumnDef="patient">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.PATIENT' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>{{ row.nom }}</td>
+            </ng-container>
+            <ng-container matColumnDef="jours">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.JOURS' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>
+                @for (j of row.jours; track j; let last = $last) {
+                  {{ ('PATIENT_FORM.' + j) | translate }}{{ last ? '' : ', ' }}
+                } @empty {
+                  —
+                }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="creneau">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.PREFS.CRENEAU_PREFERE' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>{{ creneau(row.preference.creneauPrefereId) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="choix">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.PREFS.JOURS_A_CHOISIR' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>
+                @if (row.preference.joursAChoisir) {
+                  {{ 'PLANNING.OPTIM.PREFS.SEANCES_N' | translate: {n: row.preference.seancesParSemaine} }}
+                } @else {
+                  —
+                }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th *matHeaderCellDef mat-header-cell></th>
+              <td *matCellDef="let row" mat-cell>
+                <button (click)="modifierPatient(row)" [attr.aria-label]="'PLANNING.OPTIM.PREFS.MODIFIER' | translate"
+                        data-testid="prefs-patient-modifier" mat-icon-button type="button">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr *matHeaderRowDef="colonnesPatients" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: colonnesPatients" mat-row></tr>
+          </table>
+        </div>
+        @if (store.patients().total === 0 && !store.patients().loading) {
+          <p class="opt-sub opt-empty">{{ 'PLANNING.OPTIM.PREFS.AUCUN_PATIENT' | translate }}</p>
+        }
+        <mat-paginator (page)="onPagePatients($event)" [length]="store.patients().total"
+                       [pageIndex]="store.patients().pageIndex" [pageSizeOptions]="tailles"
+                       [pageSize]="store.patients().pageSize" showFirstLastButtons/>
+
+        @if (patientEdite(); as ligne) {
+          <form (submit)="enregistrerPreference(); $event.preventDefault()" [formRoot]="preferenceForm"
+                class="opt-form" data-testid="prefs-patient-form">
+            <p class="opt-full opt-label">{{ 'PLANNING.OPTIM.PREFS.EDITION' | translate: {nom: ligne.nom} }}</p>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'PLANNING.OPTIM.PREFS.CRENEAU_PREFERE' | translate }}</mat-label>
+              <mat-select [formField]="preferenceForm.creneauPrefereId" data-testid="prefs-creneau">
+                <mat-option value="">{{ 'PLANNING.OPTIM.PREFS.AUCUN_CRENEAU' | translate }}</mat-option>
+                @for (p of positions.items(); track p.id) {
+                  <mat-option [value]="p.id">{{ p.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-checkbox [formField]="preferenceForm.joursAChoisir" color="primary" data-testid="prefs-jours-a-choisir">
+              {{ 'PLANNING.OPTIM.PREFS.JOURS_A_CHOISIR' | translate }}
+            </mat-checkbox>
+            @if (preferenceModel().joursAChoisir) {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PLANNING.OPTIM.PREFS.SEANCES' | translate }}</mat-label>
+                <input [formField]="preferenceForm.seancesParSemaine" data-testid="prefs-seances" matInput type="number"/>
+                <mat-hint>{{ 'PLANNING.OPTIM.RANGE' | translate: {min: bornes.seances.min, max: bornes.seances.max} }}</mat-hint>
+              </mat-form-field>
+            }
+            <p class="opt-full opt-sub">{{ 'PLANNING.OPTIM.PREFS.JOURS_HINT' | translate }}</p>
+            <div class="opt-actions opt-full">
+              <button (click)="annuler()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+              <button [disabled]="store.saving() || !preferenceForm().valid()" color="primary"
+                      data-testid="prefs-patient-enregistrer" mat-flat-button type="submit">
+                {{ 'PLANNING.OPTIM.PREFS.ENREGISTRER' | translate }}
+              </button>
+            </div>
+          </form>
+        }
+      </mat-tab>
+
+      <mat-tab [label]="'PLANNING.OPTIM.PREFS.TAB_INFIRMIERS' | translate">
+        <p class="opt-sub opt-empty">{{ 'PLANNING.OPTIM.PREFS.INFIRMIERS_HINT' | translate }}</p>
+        <div class="opt-scroll">
+          <table [dataSource]="store.infirmiers().rows" class="opt-table" data-testid="prefs-infirmiers" mat-table>
+            <ng-container matColumnDef="infirmier">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.INFIRMIER' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>{{ row.nom }}</td>
+            </ng-container>
+            <ng-container matColumnDef="qualification">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.PREFS.QUALIFICATION' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>{{ ('INFIRMIER.QUALIF.' + row.qualification) | translate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="taux">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.PREFS.TAUX' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>{{ row.profil.tauxActivite }} %</td>
+            </ng-container>
+            <ng-container matColumnDef="competences">
+              <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.PREFS.COMPETENCES' | translate }}</th>
+              <td *matCellDef="let row" mat-cell>
+                @for (c of row.profil.competences; track c; let last = $last) {
+                  {{ ('PLANNING.OPTIM.PREFS.COMPETENCE.' + c) | translate }}{{ last ? '' : ', ' }}
+                } @empty {
+                  —
+                }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th *matHeaderCellDef mat-header-cell></th>
+              <td *matCellDef="let row" mat-cell>
+                <button (click)="modifierInfirmier(row)" [attr.aria-label]="'PLANNING.OPTIM.PREFS.MODIFIER' | translate"
+                        data-testid="prefs-infirmier-modifier" mat-icon-button type="button">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr *matHeaderRowDef="colonnesInfirmiers" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: colonnesInfirmiers" mat-row></tr>
+          </table>
+        </div>
+        @if (store.infirmiers().total === 0 && !store.infirmiers().loading) {
+          <p class="opt-sub opt-empty">{{ 'PLANNING.OPTIM.PREFS.AUCUN_INFIRMIER' | translate }}</p>
+        }
+        <mat-paginator (page)="onPageInfirmiers($event)" [length]="store.infirmiers().total"
+                       [pageIndex]="store.infirmiers().pageIndex" [pageSizeOptions]="tailles"
+                       [pageSize]="store.infirmiers().pageSize" showFirstLastButtons/>
+
+        @if (infirmierEdite(); as ligne) {
+          <form (submit)="enregistrerProfil(); $event.preventDefault()" [formRoot]="profilForm" class="opt-form"
+                data-testid="prefs-infirmier-form">
+            <p class="opt-full opt-label">{{ 'PLANNING.OPTIM.PREFS.EDITION' | translate: {nom: ligne.nom} }}</p>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'PLANNING.OPTIM.PREFS.TAUX' | translate }}</mat-label>
+              <input [formField]="profilForm.tauxActivite" data-testid="prefs-taux" matInput type="number"/>
+              <mat-hint>{{ 'PLANNING.OPTIM.RANGE' | translate: {min: bornes.taux.min, max: bornes.taux.max} }}</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'PLANNING.OPTIM.PREFS.COMPETENCES' | translate }}</mat-label>
+              <mat-select [formField]="profilForm.competences" data-testid="prefs-competences" multiple>
+                @for (c of competences; track c) {
+                  <mat-option [value]="c">{{ ('PLANNING.OPTIM.PREFS.COMPETENCE.' + c) | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="opt-actions opt-full">
+              <button (click)="annuler()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+              <button [disabled]="store.saving() || !profilForm().valid()" color="primary"
+                      data-testid="prefs-infirmier-enregistrer" mat-flat-button type="submit">
+                {{ 'PLANNING.OPTIM.PREFS.ENREGISTRER' | translate }}
+              </button>
+            </div>
+          </form>
+        }
+      </mat-tab>
+
+      <mat-tab [label]="'PLANNING.OPTIM.PREFS.TAB_REGLAGES' | translate">
+        <form (submit)="enregistrerReglages(); $event.preventDefault()" [formRoot]="reglagesForm" class="opt-form"
+              data-testid="prefs-reglages-form">
+          <mat-checkbox [formField]="reglagesForm.replanificationAuto" class="opt-full" color="primary"
+                        data-testid="prefs-auto">
+            {{ 'PLANNING.OPTIM.PREFS.AUTO' | translate }}
+          </mat-checkbox>
+          <p class="opt-full opt-sub">{{ 'PLANNING.OPTIM.PREFS.AUTO_HINT' | translate }}</p>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLANNING.OPTIM.PREFS.HEURES_VACATION' | translate }}</mat-label>
+            <input [formField]="reglagesForm.heuresParVacation" data-testid="prefs-heures-vacation" matInput
+                   type="number"/>
+            <mat-hint>{{ 'PLANNING.OPTIM.RANGE' | translate: {min: bornes.heuresVacation.min, max: bornes.heuresVacation.max} }}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLANNING.OPTIM.PREFS.HEURES_HEBDO' | translate }}</mat-label>
+            <input [formField]="reglagesForm.heuresHebdoTempsPlein" data-testid="prefs-heures-hebdo" matInput
+                   type="number"/>
+            <mat-hint>{{ 'PLANNING.OPTIM.RANGE' | translate: {min: bornes.heuresHebdo.min, max: bornes.heuresHebdo.max} }}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLANNING.OPTIM.PREFS.REPOS' | translate }}</mat-label>
+            <input [formField]="reglagesForm.reposHebdoMin" data-testid="prefs-repos" matInput type="number"/>
+            <mat-hint>{{ 'PLANNING.OPTIM.RANGE' | translate: {min: bornes.repos.min, max: bornes.repos.max} }}</mat-hint>
+          </mat-form-field>
+          <div class="opt-actions opt-full">
+            @if (estAdmin()) {
+              <button [disabled]="store.saving() || !reglagesForm().valid()" color="primary"
+                      data-testid="prefs-reglages-enregistrer" mat-flat-button type="submit">
+                {{ 'PLANNING.OPTIM.PREFS.ENREGISTRER' | translate }}
+              </button>
+            } @else {
+              <p class="opt-sub">{{ 'PLANNING.OPTIM.PREFS.ADMIN_SEUL' | translate }}</p>
+            }
+          </div>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

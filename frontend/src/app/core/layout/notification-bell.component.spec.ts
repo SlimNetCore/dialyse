@@ -74,6 +74,25 @@ describe('NotificationBellComponent — textes des évènements', () => {
     expect(cmp.iconFor(evt)).toBe('medical_services');
   });
 
+  it('annonce la proposition de la replanification nocturne selon son motif', () => {
+    TestBed.inject(TranslateService).setTranslation('fr', {
+      NOTIFICATION: {
+        OPTIMISATION_PROPOSITION: {
+          MAINTENANCE: '{{n}} séance(s) à déplacer', GAIN: 'Économie de {{n}} ressource(s)',
+        },
+      },
+    }, true);
+    const maintenance = event('OPTIMISATION_PROPOSITION', {runId: 'r1', perimetre: 'MAINTENANCE', motif: 'MAINTENANCE',
+      valeur: '2', targetRoles: 'ADMIN'});
+    const gain = event('OPTIMISATION_PROPOSITION', {runId: 'r2', perimetre: 'PATIENTS', motif: 'GAIN', valeur: '3'});
+
+    expect(cmp.textFor(maintenance)).toBe('2 séance(s) à déplacer');
+    expect(cmp.iconFor(maintenance)).toBe('auto_fix_high');
+    expect(cmp.iconClass(maintenance)).toBe('warning');
+    expect(cmp.textFor(gain)).toBe('Économie de 3 ressource(s)');
+    expect(cmp.iconClass(gain)).toBe('pec');
+  });
+
   it('affiche le type brut d\'un évènement inconnu', () => {
     const evt = event('AUTRE_CHOSE', {});
     expect(cmp.textFor(evt)).toBe('AUTRE_CHOSE');

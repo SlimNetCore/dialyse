@@ -14,15 +14,20 @@ import com.hemodialyse.backend.domain.planning.model.Planning.Fermeture;
 import com.hemodialyse.backend.domain.planning.model.Planning.GenerateurRef;
 import com.hemodialyse.backend.domain.planning.model.Planning.Occupation;
 import com.hemodialyse.backend.domain.planning.model.Planning.SalleRef;
+import com.hemodialyse.backend.domain.planning.optimisation.model.CompetenceInfirmier;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation.PatientAPlacer;
+import com.hemodialyse.backend.domain.planning.optimisation.model.IndisponibiliteGenerateur;
 import com.hemodialyse.backend.domain.planning.optimisation.model.Poste;
+import com.hemodialyse.backend.domain.planning.optimisation.model.ProfilInfirmier;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -44,6 +49,8 @@ public final class OptimisationFixture {
     public final List<RemplacementInfirmier> remplacements = new ArrayList<>();
     public final List<Fermeture> fermetures = new ArrayList<>();
     public final Set<UUID> isolement = new HashSet<>();
+    public final Map<UUID, ProfilInfirmier> profils = new HashMap<>();
+    public final List<IndisponibiliteGenerateur> indisponibilites = new ArrayList<>();
     public Set<JourSemaine> ouverts = EnumSet.allOf(JourSemaine.class);
     public int ratio = 4;
 
@@ -84,6 +91,34 @@ public final class OptimisationFixture {
         return p;
     }
 
+    /**
+     * Remplace un patient par une variante (préférences, transporteurs, compétences…).
+     */
+    public PatientAPlacer remplacer(PatientAPlacer ancien, PatientAPlacer nouveau) {
+        patients.set(patients.indexOf(ancien), nouveau);
+        return nouveau;
+    }
+
+    /**
+     * Nouveau patient sans place dont l'optimisation choisit les {@code seances} jours hebdomadaires.
+     */
+    public PatientAPlacer patientAChoisir(String nom, int seances) {
+        PatientAPlacer p = new PatientAPlacer(UUID.randomUUID(), nom, Set.of(), false, null, null, null, null, seances,
+                Set.of(), Set.of());
+        patients.add(p);
+        return p;
+    }
+
+    public OptimisationFixture profil(InfirmierRef infirmier, int taux, CompetenceInfirmier... competences) {
+        profils.put(infirmier.id(), new ProfilInfirmier(infirmier.id(), taux, Set.of(competences)));
+        return this;
+    }
+
+    public OptimisationFixture maintenance(GenerateurRef generateur, LocalDate debut, LocalDate fin) {
+        indisponibilites.add(new IndisponibiliteGenerateur(generateur.id(), debut, fin, "Révision"));
+        return this;
+    }
+
     public PatientAPlacer patientNonPlace(String nom, boolean aRisque, JourSemaine... jours) {
         return patient(nom, aRisque, null, null, null, jours);
     }
@@ -117,6 +152,7 @@ public final class OptimisationFixture {
         DonneesPlanning planning = new DonneesPlanning(List.copyOf(salles), List.copyOf(creneaux), List.copyOf(generateurs),
                 occupations, ouverts, Set.copyOf(isolement), List.copyOf(fermetures));
         return new DonneesOptimisation(new DonneesPresence(planning, ratio, List.copyOf(infirmiers),
-                List.copyOf(affectations), List.copyOf(absences), List.copyOf(remplacements)), List.copyOf(patients));
+                List.copyOf(affectations), List.copyOf(absences), List.copyOf(remplacements)), List.copyOf(patients),
+                profils, indisponibilites, List.of());
     }
 }

@@ -126,5 +126,6 @@
 | `DirectionSnapshotScheduler`                   | 02:30 le 1er du mois | fige le mois écoulé                                         | RG-DIR-090        |
 | `ObservancePrescriptionScheduler`              | 06:30 chaque jour    | contrôle l'observance des prescriptions                     | RG-MED-073        |
 | `ExpirationAlertScheduler.scanExpirations`     | 07:00 chaque jour    | contrôle de péremption J-30 (consigné au journal technique) | RG-STK-061        |
+| `ReplanificationAutomatiqueScheduler.replanifier` | 02:30 chaque nuit | replanification automatique (centres volontaires)        | RG-PLN-100        |
 | `PresenceInfirmierScheduler.controlerPresence` | 07:15 chaque jour    | alerte de sous-effectif infirmiers                          | RG-INF-046        |
 | `DirectionRealtimeScheduler`                   | 1 s et 10 s          | diffusion temps réel de la direction                        | RG-DIR-100        |

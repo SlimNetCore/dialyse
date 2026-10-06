@@ -21,7 +21,9 @@ public record ResultatOptimisation(
         List<VacationPlanifiee> vacations,
         List<VacationNonPourvue> manques,
         Indicateurs avant,
-        Indicateurs apres
+        Indicateurs apres,
+        List<DeplacementTemporairePropose> temporaires,
+        List<SeanceSansSolution> seancesSansSolution
 ) {
 
     public ResultatOptimisation {
@@ -31,23 +33,54 @@ public record ResultatOptimisation(
         nonPlaces = nonPlaces == null ? List.of() : List.copyOf(nonPlaces);
         vacations = vacations == null ? List.of() : List.copyOf(vacations);
         manques = manques == null ? List.of() : List.copyOf(manques);
+        temporaires = temporaires == null ? List.of() : List.copyOf(temporaires);
+        seancesSansSolution = seancesSansSolution == null ? List.of() : List.copyOf(seancesSansSolution);
+    }
+
+    public ResultatOptimisation(List<SalleRef> salles, List<CreneauRef> creneaux, List<DeplacementPatient> deplacements,
+                                List<PatientNonPlace> nonPlaces, List<VacationPlanifiee> vacations,
+                                List<VacationNonPourvue> manques, Indicateurs avant, Indicateurs apres) {
+        this(salles, creneaux, deplacements, nonPlaces, vacations, manques, avant, apres, List.of(), List.of());
     }
 
     /**
      * Synthèse affichée dans l'historique des optimisations (sans le détail des déplacements ni des vacations).
      */
     public Resume resume() {
-        return new Resume(deplacements.size(), nonPlaces.size(), vacations.size(), manques.size(), avant, apres);
+        return new Resume(deplacements.size(), nonPlaces.size(), vacations.size(), manques.size(), avant, apres,
+                temporaires.size(), seancesSansSolution.size());
     }
 
     public record Resume(int deplacements, int nonPlaces, int vacations, int manques, Indicateurs avant,
-                         Indicateurs apres) {
+                         Indicateurs apres, int temporaires, int seancesSansSolution) {
     }
 
     /**
-     * Patient dont la place change ({@code de} nul : patient jusqu'ici non placé).
+     * Patient dont la place change ({@code de} nul : patient jusqu'ici non placé). {@code jours} : nouveaux jours de
+     * dialyse quand ils ont été choisis par l'optimisation, nul sinon (jours inchangés).
      */
-    public record DeplacementPatient(UUID patientId, String nom, Poste de, Poste vers) {
+    public record DeplacementPatient(UUID patientId, String nom, Poste de, Poste vers, List<JourSemaine> jours) {
+        public DeplacementPatient {
+            jours = jours == null ? null : List.copyOf(jours);
+        }
+
+        public DeplacementPatient(UUID patientId, String nom, Poste de, Poste vers) {
+            this(patientId, nom, de, vers, null);
+        }
+    }
+
+    /**
+     * Séance datée déplacée parce que le générateur habituel est indisponible ce jour-là.
+     */
+    public record DeplacementTemporairePropose(UUID patientId, String nom, LocalDate date, JourSemaine jour, Poste de,
+                                               Poste vers, String motif) {
+    }
+
+    /**
+     * Séance datée dont le générateur est indisponible et qu'aucune place libre ne peut accueillir : à organiser.
+     */
+    public record SeanceSansSolution(UUID patientId, String nom, LocalDate date, JourSemaine jour, Poste de,
+                                     String motif) {
     }
 
     public enum CauseNonPlace {

@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.optimisation.timefold.infirmiers;
 
 import ai.timefold.solver.core.api.score.stream.test.ConstraintVerifier;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.domain.planning.optimisation.model.CompetenceInfirmier;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -155,5 +156,46 @@ class InfirmiersConstraintProviderTest {
         verifier.verifyThat(InfirmiersConstraintProvider::qualification)
                 .given(preferee, libre, qualifiee)
                 .penalizesBy(1);
+    }
+
+    private static InfirmierPlan profil(String nom, int joursMax, int quota, CompetenceInfirmier... competences) {
+        return new InfirmierPlan(UUID.nameUUIDFromBytes(nom.getBytes()), nom, false, false, 2, 14, Set.of(), Set.of(),
+                Set.of(), joursMax, 5, quota, Set.of(competences));
+    }
+
+    @Test
+    void should_penalize_each_worked_day_beyond_the_weekly_rest() {
+        InfirmierPlan marie = profil("Marie", 2, 100);
+        verifier.verifyThat(InfirmiersConstraintProvider::reposHebdomadaire)
+                .given(vacation("1", LUNDI, SALLE_A, MATIN, marie), vacation("2", LUNDI, SALLE_A, SOIR, marie),
+                        vacation("3", LUNDI.plusDays(1), SALLE_A, MATIN, marie),
+                        vacation("4", LUNDI.plusDays(2), SALLE_A, MATIN, marie),
+                        vacation("5", LUNDI.plusDays(3), SALLE_A, MATIN, marie))
+                .penalizesBy(2);
+    }
+
+    @Test
+    void should_penalize_each_hour_beyond_the_part_time_quota() {
+        InfirmierPlan partiel = profil("Partiel", 7, 8);
+        verifier.verifyThat(InfirmiersConstraintProvider::quotaHeures)
+                .given(vacation("1", LUNDI, SALLE_A, MATIN, partiel), vacation("2", LUNDI.plusDays(1), SALLE_A, MATIN, partiel))
+                .penalizesBy(2);
+        verifier.verifyThat(InfirmiersConstraintProvider::quotaHeures)
+                .given(vacation("1", LUNDI, SALLE_A, MATIN, partiel))
+                .penalizesBy(0);
+    }
+
+    @Test
+    void should_penalize_a_case_whose_patients_need_a_skill_no_nurse_of_the_case_has() {
+        InfirmierPlan pediatre = profil("Pediatre", 7, 100, CompetenceInfirmier.PEDIATRIE);
+        InfirmierPlan generaliste = profil("Generaliste", 7, 100);
+        Vacation a = vacation("1", LUNDI, SALLE_A, MATIN, generaliste);
+        Vacation b = vacation("2", LUNDI, SALLE_B, MATIN, pediatre);
+        ExigenceCompetence pediatrieA = new ExigenceCompetence(a.cleCase(), CompetenceInfirmier.PEDIATRIE);
+        ExigenceCompetence pediatrieB = new ExigenceCompetence(b.cleCase(), CompetenceInfirmier.PEDIATRIE);
+        ExigenceCompetence catheterB = new ExigenceCompetence(b.cleCase(), CompetenceInfirmier.CATHETER);
+        verifier.verifyThat(InfirmiersConstraintProvider::competence)
+                .given(a, b, pediatrieA, pediatrieB, catheterB)
+                .penalizesBy(2);
     }
 }

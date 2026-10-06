@@ -35,6 +35,8 @@ class OptimisationPlanningServiceTest {
 
     private final OptimisationDonneesPort donnees = mock(OptimisationDonneesPort.class);
     private final OptimiseurPlanningPort optimiseur = mock(OptimiseurPlanningPort.class);
+    private final com.hemodialyse.backend.domain.planning.optimisation.port.ReglagesOptimisationPort reglages =
+            mock(com.hemodialyse.backend.domain.planning.optimisation.port.ReglagesOptimisationPort.class);
     private final RunsEnMemoire runs = new RunsEnMemoire();
     private Instant maintenant = T0;
     private OptimisationPlanningService service;
@@ -42,7 +44,8 @@ class OptimisationPlanningServiceTest {
     @BeforeEach
     void setUp() {
         when(donnees.charger(any(), any(), any())).thenReturn(OptimisationTestSupport.donneesVides());
-        service = new OptimisationPlanningService(donnees, runs, optimiseur, new java.time.Clock() {
+        when(reglages.lire(any())).thenReturn(com.hemodialyse.backend.domain.planning.optimisation.model.ReglagesOptimisation.parDefaut());
+        service = new OptimisationPlanningService(donnees, runs, optimiseur, reglages, new java.time.Clock() {
             @Override
             public java.time.ZoneId getZone() {
                 return java.time.ZoneOffset.UTC;

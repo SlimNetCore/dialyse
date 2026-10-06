@@ -6,6 +6,7 @@ import com.hemodialyse.backend.domain.infirmier.model.Presence.InfirmierRef;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
 import com.hemodialyse.backend.domain.infirmier.port.AffectationInfirmierRepositoryPort;
 import com.hemodialyse.backend.domain.infirmier.port.RemplacementInfirmierRepositoryPort;
+import com.hemodialyse.backend.domain.planning.model.DeplacementTemporaire;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.model.Planning.CreneauRef;
 import com.hemodialyse.backend.domain.planning.model.Planning.SalleRef;
@@ -16,10 +17,12 @@ import com.hemodialyse.backend.domain.planning.optimisation.model.PerimetreOptim
 import com.hemodialyse.backend.domain.planning.optimisation.model.Poste;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.DeplacementPatient;
+import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.DeplacementTemporairePropose;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.VacationPlanifiee;
 import com.hemodialyse.backend.domain.planning.optimisation.model.RunOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimisationDonneesPort;
 import com.hemodialyse.backend.domain.planning.optimisation.service.EmpreinteOptimisation;
+import com.hemodialyse.backend.domain.planning.port.DeplacementTemporairePort;
 import com.hemodialyse.backend.domain.planning.port.PlacementPatientPort;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.OptimisationFixture;
@@ -28,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,8 +58,9 @@ class OptimisationApplicationServiceTest {
     private final PlacementPatientPort placements = mock(PlacementPatientPort.class);
     private final AffectationInfirmierRepositoryPort affectations = mock(AffectationInfirmierRepositoryPort.class);
     private final RemplacementInfirmierRepositoryPort remplacements = mock(RemplacementInfirmierRepositoryPort.class);
+    private final DeplacementTemporairePort temporaires = mock(DeplacementTemporairePort.class);
     private final OptimisationApplicationService service = new OptimisationApplicationService(runs, donnees, placements,
-            affectations, remplacements, horloge(T0.plusSeconds(60)));
+            affectations, remplacements, temporaires, horloge(T0.plusSeconds(60)));
 
     private SalleRef a;
     private CreneauRef matin;
@@ -208,5 +213,43 @@ class OptimisationApplicationServiceTest {
     private VacationPlanifiee vacation(JourSemaine jour, InfirmierRef infirmier, boolean existante) {
         LocalDate date = DIMANCHE.plusDays(jour.ordinal());
         return new VacationPlanifiee(date, jour, a.id(), matin.id(), infirmier.id(), infirmier.nom(), existante);
+    }
+
+    @Test
+    void should_record_the_days_chosen_by_the_optimisation_before_moving_the_patient() {
+        PatientAPlacer nouveau = f.patientAChoisir("Nouveau", 2);
+        Poste vers = new Poste(a.id(), matin.id(), f.generateur(a, 1).id(), "A-G2");
+        RunOptimisation run = run(PerimetreOptimisation.PATIENTS, resultat(List.of(new DeplacementPatient(
+                nouveau.patientId(), "Nouveau", null, vers, List.of(JourSemaine.MARDI, JourSemaine.JEUDI))), List.of()));
+
+        service.appliquer(centre, run.id());
+
+        verify(placements).definirJours(centre, nouveau.patientId(), EnumSet.of(JourSemaine.MARDI, JourSemaine.JEUDI));
+        verify(placements).deplacer(centre, nouveau.patientId(), a.id(), matin.id(), vers.generateurId());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void should_record_the_temporary_moves_of_a_maintenance_proposal_without_touching_the_usual_place() {
+        LocalDate lundi = DIMANCHE.plusDays(1);
+        Poste vers = new Poste(a.id(), matin.id(), f.generateur(a, 1).id(), "A-G2");
+        ResultatOptimisation proposition = new ResultatOptimisation(List.of(), List.of(), List.of(), List.of(), List.of(),
+                List.of(), OptimisationTestSupport.resultatVide().avant(), OptimisationTestSupport.resultatVide().apres(),
+                List.of(new DeplacementTemporairePropose(p1.patientId(), "P1", lundi, LUNDI, p1.actuelle(), vers,
+                        "Révision")), List.of());
+        RunOptimisation run = run(PerimetreOptimisation.MAINTENANCE, proposition);
+
+        service.appliquer(centre, run.id());
+
+        ArgumentCaptor<List<DeplacementTemporaire>> enregistres = ArgumentCaptor.forClass(List.class);
+        verify(temporaires).enregistrer(enregistres.capture());
+        assertThat(enregistres.getValue()).singleElement().satisfies(t -> {
+            assertThat(t.centerId()).isEqualTo(centre);
+            assertThat(t.patientId()).isEqualTo(p1.patientId());
+            assertThat(t.date()).isEqualTo(lundi);
+            assertThat(t.generateurId()).isEqualTo(vers.generateurId());
+            assertThat(t.motif()).isEqualTo("Révision");
+        });
+        verify(placements, never()).deplacer(any(), any(), any(), any(), any());
     }
 }

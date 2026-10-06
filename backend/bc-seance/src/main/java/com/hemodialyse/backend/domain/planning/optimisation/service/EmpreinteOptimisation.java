@@ -41,7 +41,13 @@ public final class EmpreinteOptimisation {
         donnees.patients().forEach(p -> lignes.add("A|" + p.patientId() + "|" + trie(p.jours()) + "|" + p.aRisque() + "|"
                 + p.premierJour() + "|" + p.dernierJour() + "|"
                 + (p.actuelle() == null ? "-" : p.actuelle().salleId() + "/" + p.actuelle().creneauId() + "/"
-                + p.actuelle().generateurId())));
+                + p.actuelle().generateurId()) + "|" + p.creneauPrefereId() + "|" + p.seancesAChoisir() + "|"
+                + trie(p.transporteurs()) + "|" + trie(p.competencesRequises())));
+        donnees.profils().values().forEach(pr -> lignes.add("Q|" + pr.infirmierId() + "|" + pr.tauxActivite() + "|"
+                + trie(pr.competences())));
+        donnees.indisponibilites().forEach(i -> lignes.add("X|" + i.generateurId() + "|" + i.debut() + "|" + i.fin()));
+        donnees.temporaires().forEach(t -> lignes.add("T|" + t.id() + "|" + t.patientId() + "|" + t.date() + "|"
+                + t.generateurId() + "|" + t.creneauId()));
         presence.infirmiers().forEach(i -> lignes.add("N|" + i.id() + "|" + i.qualification() + "|" + i.habiliteIsolement()));
         presence.affectations().forEach(a -> lignes.add("Y|" + a.id() + "|" + a.infirmierId() + "|" + a.salleId() + "|"
                 + a.creneauId() + "|" + trie(a.jours())));

@@ -78,6 +78,8 @@
     </mat-card-content>
   </mat-card>
 
+  <app-planning-preferences/>
+
   @if (store.launching() || store.loading()) {
     <mat-progress-bar mode="indeterminate"/>
   }
@@ -126,7 +128,7 @@
           </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content class="opt-result">
-          @if (run.parametres.perimetre !== 'COUVERTURE') {
+          @if (!horizonLibreRun()) {
             <p class="opt-sub">{{ 'PLANNING.OPTIM.SEMAINE_TYPE' | translate }}</p>
           }
           <div class="opt-scroll">
@@ -174,6 +176,16 @@
                       <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.VERS' | translate }}</th>
                       <td *matCellDef="let row" mat-cell><strong>{{ poste(row.vers) }}</strong></td>
                     </ng-container>
+                    <ng-container matColumnDef="jours">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.JOURS' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>
+                        @for (j of row.jours ?? []; track j; let last = $last) {
+                          <strong>{{ ('PATIENT_FORM.' + j) | translate }}</strong>{{ last ? '' : ', ' }}
+                        } @empty {
+                          {{ 'PLANNING.OPTIM.JOURS_INCHANGES' | translate }}
+                        }
+                      </td>
+                    </ng-container>
                     <tr *matHeaderRowDef="colonnesDeplacements" mat-header-row></tr>
                     <tr *matRowDef="let row; columns: colonnesDeplacements" mat-row></tr>
                   </table>
@@ -212,7 +224,84 @@
                                [pageSizeOptions]="tailles" [pageSize]="pageNonPlaces.pageSize()" showFirstLastButtons/>
               </mat-tab>
             }
-            @if (run.parametres.perimetre !== 'PATIENTS') {
+            @if (avecTemporaires()) {
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  {{ 'PLANNING.OPTIM.TABS.TEMPORAIRES' | translate }} ({{ pageTemporaires.total() }})
+                </ng-template>
+                <div class="opt-scroll">
+                  <table [dataSource]="pageTemporaires.page()" class="opt-table" data-testid="opt-temporaires" mat-table>
+                    <ng-container matColumnDef="date">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.DATE' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>
+                        {{ ('PATIENT_FORM.' + row.jour) | translate }} {{ row.date | date: 'dd/MM' }}
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="patient">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.PATIENT' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>{{ row.nom }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="de">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.DE' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>{{ poste(row.de) }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="vers">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.VERS' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell><strong>{{ poste(row.vers) }}</strong></td>
+                    </ng-container>
+                    <ng-container matColumnDef="motif">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.MOTIF' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>{{ row.motif ?? '—' }}</td>
+                    </ng-container>
+                    <tr *matHeaderRowDef="colonnesTemporaires" mat-header-row></tr>
+                    <tr *matRowDef="let row; columns: colonnesTemporaires" mat-row></tr>
+                  </table>
+                </div>
+                @if (pageTemporaires.total() === 0) {
+                  <p class="opt-sub opt-empty">{{ 'PLANNING.OPTIM.AUCUNE_MAINTENANCE' | translate }}</p>
+                }
+                <mat-paginator (page)="pageTemporaires.aller($event.pageIndex, $event.pageSize)"
+                               [length]="pageTemporaires.total()" [pageIndex]="pageTemporaires.pageIndex()"
+                               [pageSizeOptions]="tailles" [pageSize]="pageTemporaires.pageSize()" showFirstLastButtons/>
+              </mat-tab>
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  {{ 'PLANNING.OPTIM.TABS.SANS_SOLUTION' | translate }} ({{ pageSansSolution.total() }})
+                </ng-template>
+                <div class="opt-scroll">
+                  <table [dataSource]="pageSansSolution.page()" class="opt-table" data-testid="opt-sans-solution"
+                         mat-table>
+                    <ng-container matColumnDef="date">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.DATE' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>
+                        {{ ('PATIENT_FORM.' + row.jour) | translate }} {{ row.date | date: 'dd/MM' }}
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="patient">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.PATIENT' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>{{ row.nom }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="de">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.DE' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>{{ poste(row.de) }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="motif">
+                      <th *matHeaderCellDef mat-header-cell>{{ 'PLANNING.OPTIM.COL.MOTIF' | translate }}</th>
+                      <td *matCellDef="let row" mat-cell>{{ row.motif ?? '—' }}</td>
+                    </ng-container>
+                    <tr *matHeaderRowDef="colonnesSansSolution" mat-header-row></tr>
+                    <tr *matRowDef="let row; columns: colonnesSansSolution" mat-row></tr>
+                  </table>
+                </div>
+                @if (pageSansSolution.total() === 0) {
+                  <p class="opt-sub opt-empty">{{ 'PLANNING.OPTIM.AUCUNE_SEANCE_SANS_SOLUTION' | translate }}</p>
+                }
+                <mat-paginator (page)="pageSansSolution.aller($event.pageIndex, $event.pageSize)"
+                               [length]="pageSansSolution.total()" [pageIndex]="pageSansSolution.pageIndex()"
+                               [pageSizeOptions]="tailles" [pageSize]="pageSansSolution.pageSize()" showFirstLastButtons/>
+              </mat-tab>
+            }
+            @if (avecInfirmiersRun()) {
               <mat-tab>
                 <ng-template mat-tab-label>
                   {{ 'PLANNING.OPTIM.TABS.VACATIONS' | translate }} ({{ pageVacations.total() }})

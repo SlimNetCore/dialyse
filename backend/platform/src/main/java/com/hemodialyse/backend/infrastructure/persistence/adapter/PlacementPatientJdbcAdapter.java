@@ -44,6 +44,21 @@ public class PlacementPatientJdbcAdapter implements PlacementPatientPort {
     }
 
     @Override
+    public void definirJours(UUID centerId, UUID patientId, Set<JourSemaine> jours) {
+        StringBuilder sql = new StringBuilder("UPDATE patients SET ");
+        Object[] args = new Object[JourSemaine.NB_JOURS + 2];
+        int i = 0;
+        for (JourSemaine jour : JourSemaine.values()) {
+            sql.append(i == 0 ? "" : ", ").append("jour_").append(jour.name().toLowerCase(Locale.ROOT)).append(" = ?");
+            args[i++] = jours.contains(jour);
+        }
+        sql.append(" WHERE center_id = ? AND id = ?");
+        args[i++] = centerId;
+        args[i] = patientId;
+        jdbc.update(sql.toString(), args);
+    }
+
+    @Override
     public String nomPatient(UUID centerId, UUID patientId) {
         return jdbc.query("SELECT prenom, nom FROM patients WHERE center_id = ? AND id = ?",
                         (rs, i) -> (rs.getString(1) + " " + rs.getString(2)).trim(), centerId, patientId)

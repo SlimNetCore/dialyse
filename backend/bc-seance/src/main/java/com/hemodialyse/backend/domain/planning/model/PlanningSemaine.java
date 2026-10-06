@@ -32,7 +32,15 @@ public final class PlanningSemaine {
      * Données lues pour une semaine : planning du centre (placements de tous les patients actifs), noms des patients
      * et fermetures datées tombant dans la semaine.
      */
-    public record DonneesSemaine(DonneesPlanning planning, Map<UUID, String> nomsPatients, List<Fermeture> fermetures) {
+    public record DonneesSemaine(DonneesPlanning planning, Map<UUID, String> nomsPatients, List<Fermeture> fermetures,
+                                 List<DeplacementTemporaire> temporaires) {
+        public DonneesSemaine {
+            temporaires = temporaires == null ? List.of() : List.copyOf(temporaires);
+        }
+
+        public DonneesSemaine(DonneesPlanning planning, Map<UUID, String> nomsPatients, List<Fermeture> fermetures) {
+            this(planning, nomsPatients, fermetures, List.of());
+        }
     }
 
     /**
@@ -46,12 +54,18 @@ public final class PlanningSemaine {
     }
 
     /**
-     * @param libereLe premier jour où la place est libérée (transfert, décès, greffe ou guérison daté), sinon null
+     * @param libereLe   premier jour où la place est libérée (transfert, décès, greffe ou guérison daté), sinon null
+     * @param temporaire le patient dialyse ici pour cette seule date (déplacement temporaire : générateur habituel
+     *                   en maintenance)
      */
     public record OccupantPlanning(UUID patientId, String nom, String generateurCode, boolean aRisque,
-                                   LocalDate libereLe) {
+                                   LocalDate libereLe, boolean temporaire) {
+        public OccupantPlanning(UUID patientId, String nom, String generateurCode, boolean aRisque, LocalDate libereLe) {
+            this(patientId, nom, generateurCode, aRisque, libereLe, false);
+        }
+
         public OccupantPlanning(UUID patientId, String nom, String generateurCode, boolean aRisque) {
-            this(patientId, nom, generateurCode, aRisque, null);
+            this(patientId, nom, generateurCode, aRisque, null, false);
         }
     }
 

@@ -194,6 +194,20 @@ public class NotificationService {
     }
 
     /**
+     * La replanification automatique nocturne a calculé une proposition qui mérite l'attention de l'administration
+     * (sous-effectif à pourvoir, séances à déplacer pour maintenance, gain de ressources).
+     */
+    public void notifyOptimisationProposition(UUID centerId, UUID runId, String perimetre, String motif, int valeur) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("runId", runId.toString());
+        payload.put("perimetre", perimetre);
+        payload.put("motif", motif);
+        payload.put("valeur", String.valueOf(valeur));
+        payload.put("targetRoles", "ADMIN");
+        send(centerId, "OPTIMISATION_PROPOSITION", payload);
+    }
+
+    /**
      * Un infirmier a déclaré lui-même une absence (à prendre en compte dans les remplacements).
      */
     public void notifyAbsenceInfirmierDeclaree(UUID centerId, String infirmier, java.time.LocalDate debut,

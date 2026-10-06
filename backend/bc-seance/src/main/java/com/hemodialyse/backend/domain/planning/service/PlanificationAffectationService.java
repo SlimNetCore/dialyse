@@ -198,7 +198,7 @@ public final class PlanificationAffectationService {
      * Qualité de l'espacement des séances (0 à 100) : pénalise les séances sur des jours consécutifs au-delà du
      * minimum inévitable, et les trop longues interruptions ; avantage léger aux schémas usuels.
      */
-    static int scoreEspacement(Set<JourSemaine> jours, int n) {
+    public static int scoreEspacement(Set<JourSemaine> jours, int n) {
         if (n <= 1) return 100;
         List<JourSemaine> tries = jours.stream().sorted().toList();
         int consecutifs = 0;

@@ -10,19 +10,26 @@ import com.hemodialyse.backend.domain.infirmier.model.Presence.StatutCase;
 import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.service.PresenceInfirmierService;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
+import com.hemodialyse.backend.domain.planning.model.Planning.Occupation;
+import com.hemodialyse.backend.domain.planning.optimisation.model.CompetenceInfirmier;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation;
+import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation.PatientAPlacer;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.PerimetreOptimisation;
+import com.hemodialyse.backend.domain.planning.optimisation.model.ProfilInfirmier;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.VacationNonPourvue;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.VacationPlanifiee;
+import com.hemodialyse.backend.infrastructure.optimisation.timefold.CleCase;
 import com.hemodialyse.backend.infrastructure.optimisation.timefold.PoidsOptimisation;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +59,8 @@ public final class InfirmiersMapper {
         List<InfirmierPlan> tous = new ArrayList<>(infirmiers.values());
         Map<String, List<InfirmierPlan>> candidatsParCle = new HashMap<>();
 
+        Map<String, Set<CompetenceInfirmier>> competencesParCase = competencesParCase(donnees, parametres);
+        Set<ExigenceCompetence> exigences = new LinkedHashSet<>();
         List<Vacation> vacations = new ArrayList<>();
         for (int semaine = 0; semaine < parametres.nbSemaines(); semaine++) {
             SemainePresence presence = PresenceInfirmierService.construire(donnees.presence(),
@@ -66,6 +75,11 @@ public final class InfirmiersMapper {
             }
             for (CasePresence c : presence.cases()) {
                 if (c.statut() == StatutCase.FERME) continue;
+                for (CompetenceInfirmier competence : competencesParCase.getOrDefault(
+                        c.salleId() + "|" + c.creneauId() + "|" + c.date(), Set.of())) {
+                    exigences.add(new ExigenceCompetence(new CleCase(c.salleId(), c.creneauId(), semaine, c.jour()),
+                            competence));
+                }
                 boolean qualifiePresent = false;
                 if (couverture) {
                     for (Present p : c.presents()) {
@@ -80,7 +94,8 @@ public final class InfirmiersMapper {
                 if (aPourvoir <= 0) continue;
                 String cle = c.date() + "|" + c.creneauId() + "|" + c.salleIsolement();
                 List<InfirmierPlan> candidats = candidatsParCle.computeIfAbsent(cle, k ->
-                        candidats(tous, donnees, c, pris.getOrDefault(c.date() + "|" + c.creneauId(), Set.of())));
+                        candidats(tous, donnees, c.date(), c.salleIsolement(),
+                                pris.getOrDefault(c.date() + "|" + c.creneauId(), Set.of())));
                 for (int rang = 0; rang < aPourvoir; rang++) {
                     boolean qualifie = rang == 0 && !qualifiePresent;
                     vacations.add(new Vacation(id(c, "V" + rang), c.date(), c.jour(), semaine, c.salleId(),
@@ -88,7 +103,31 @@ public final class InfirmiersMapper {
                 }
             }
         }
-        return new PlanInfirmiers(tous, vacations, PoidsOptimisation.infirmiers(parametres));
+        return new PlanInfirmiers(tous, List.copyOf(exigences), vacations, PoidsOptimisation.infirmiers(parametres));
+    }
+
+    /**
+     * Compétences demandées, par case datée « salle|créneau|date », par les patients qui y dialysent.
+     */
+    private static Map<String, Set<CompetenceInfirmier>> competencesParCase(DonneesOptimisation donnees,
+                                                                            ParametresOptimisation parametres) {
+        Map<UUID, Set<CompetenceInfirmier>> parPatient = new HashMap<>();
+        for (PatientAPlacer p : donnees.patients()) {
+            if (!p.competencesRequises().isEmpty()) parPatient.put(p.patientId(), p.competencesRequises());
+        }
+        Map<String, Set<CompetenceInfirmier>> parCase = new HashMap<>();
+        if (parPatient.isEmpty()) return parCase;
+        for (Occupation o : donnees.planning().occupations()) {
+            Set<CompetenceInfirmier> competences = parPatient.get(o.patientId());
+            if (competences == null) continue;
+            for (LocalDate date = parametres.debutSemaine(); !date.isAfter(parametres.finHorizon());
+                 date = date.plusDays(1)) {
+                if (!o.jours().contains(JourSemaine.de(date.getDayOfWeek())) || !o.occupeLe(date)) continue;
+                parCase.computeIfAbsent(o.salleId() + "|" + o.creneauId() + "|" + date,
+                        k -> EnumSet.noneOf(CompetenceInfirmier.class)).addAll(competences);
+            }
+        }
+        return parCase;
     }
 
     /**
@@ -135,26 +174,26 @@ public final class InfirmiersMapper {
      * Infirmiers qui peuvent tenir une vacation de la case : pas absents ce jour, habilités si la salle est en
      * isolement, pas déjà prévus sur ce créneau ce jour-là.
      */
-    private static List<InfirmierPlan> candidats(List<InfirmierPlan> tous, DonneesOptimisation donnees, CasePresence c,
-                                                 Set<UUID> dejaPrevus) {
+    public static List<InfirmierPlan> candidats(List<InfirmierPlan> tous, DonneesOptimisation donnees, LocalDate date,
+                                         boolean salleIsolement, Set<UUID> dejaPrevus) {
         List<InfirmierPlan> candidats = new ArrayList<>();
         for (InfirmierPlan i : tous) {
-            if (c.salleIsolement() && !i.habiliteIsolement()) continue;
+            if (salleIsolement && !i.habiliteIsolement()) continue;
             if (dejaPrevus.contains(i.id())) continue;
-            if (absentLe(donnees, i.id(), c.date())) continue;
+            if (absentLe(donnees, i.id(), date)) continue;
             candidats.add(i);
         }
         return candidats;
     }
 
-    private static boolean absentLe(DonneesOptimisation donnees, UUID infirmierId, LocalDate date) {
+    static boolean absentLe(DonneesOptimisation donnees, UUID infirmierId, LocalDate date) {
         for (AbsenceInfirmier a : donnees.presence().absences()) {
             if (a.infirmierId().equals(infirmierId) && a.couvre(date)) return true;
         }
         return false;
     }
 
-    private static Map<UUID, InfirmierPlan> infirmiers(DonneesOptimisation donnees, ParametresOptimisation parametres) {
+    public static Map<UUID, InfirmierPlan> infirmiers(DonneesOptimisation donnees, ParametresOptimisation parametres) {
         Map<UUID, Set<UUID>> salles = new HashMap<>();
         Map<UUID, Set<UUID>> creneaux = new HashMap<>();
         Map<UUID, Set<String>> exactes = new HashMap<>();
@@ -168,10 +207,13 @@ public final class InfirmiersMapper {
         }
         Map<UUID, InfirmierPlan> infirmiers = new LinkedHashMap<>();
         for (InfirmierRef ref : donnees.presence().infirmiers()) {
+            ProfilInfirmier profil = donnees.profil(ref.id());
             infirmiers.put(ref.id(), new InfirmierPlan(ref.id(), ref.nom(),
                     ref.qualification() == QualificationInfirmier.AIDE_SOIGNANT, ref.habiliteIsolement(),
                     parametres.maxVacationsParJour(), parametres.maxVacationsParSemaine(),
-                    salles.get(ref.id()), creneaux.get(ref.id()), exactes.get(ref.id())));
+                    salles.get(ref.id()), creneaux.get(ref.id()), exactes.get(ref.id()),
+                    JourSemaine.NB_JOURS - parametres.reposHebdoMin(), parametres.heuresParVacation(),
+                    profil.quotaHeures(parametres.heuresHebdoTempsPlein()), profil.competences()));
         }
         return infirmiers;
     }

@@ -5,18 +5,21 @@ import com.hemodialyse.backend.domain.infirmier.model.Presence.InfirmierRef;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
 import com.hemodialyse.backend.domain.infirmier.port.AffectationInfirmierRepositoryPort;
 import com.hemodialyse.backend.domain.infirmier.port.RemplacementInfirmierRepositoryPort;
+import com.hemodialyse.backend.domain.planning.model.DeplacementTemporaire;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.PerimetreOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.DeplacementPatient;
+import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.DeplacementTemporairePropose;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation.VacationPlanifiee;
 import com.hemodialyse.backend.domain.planning.optimisation.model.RunOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimisationDonneesPort;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimisationRunRepositoryPort;
 import com.hemodialyse.backend.domain.planning.optimisation.service.EmpreinteOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.service.VerificationDeplacementsService;
+import com.hemodialyse.backend.domain.planning.port.DeplacementTemporairePort;
 import com.hemodialyse.backend.domain.planning.port.PlacementPatientPort;
 import com.hemodialyse.backend.domain.planning.service.PlanificationAffectationService.Violation;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -36,8 +39,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Applique une proposition d'optimisation validée par l'administration : déplacement des patients, roulement des
- * infirmiers ou remplacements, selon le périmètre. Tout ou rien (une transaction).
+ * Applique une proposition d'optimisation validée par l'administration : déplacement des patients (et nouveaux jours
+ * de dialyse choisis), roulement des infirmiers, remplacements ou déplacements temporaires, selon le périmètre. Tout ou
+ * rien (une transaction).
  * <p>
  * Garde-fous : la proposition n'est applicable que si le centre n'a pas changé depuis son calcul (empreinte des
  * données lues) et si chaque nouvelle place respecte les règles de la planification, revérifiées par le domaine.
@@ -50,24 +54,28 @@ public class OptimisationApplicationService {
     private final PlacementPatientPort placements;
     private final AffectationInfirmierRepositoryPort affectations;
     private final RemplacementInfirmierRepositoryPort remplacements;
+    private final DeplacementTemporairePort temporaires;
     private final Clock horloge;
 
     @Autowired
     public OptimisationApplicationService(OptimisationRunRepositoryPort runs, OptimisationDonneesPort donnees,
                                           PlacementPatientPort placements,
                                           AffectationInfirmierRepositoryPort affectations,
-                                          RemplacementInfirmierRepositoryPort remplacements) {
-        this(runs, donnees, placements, affectations, remplacements, Clock.systemUTC());
+                                          RemplacementInfirmierRepositoryPort remplacements,
+                                          DeplacementTemporairePort temporaires) {
+        this(runs, donnees, placements, affectations, remplacements, temporaires, Clock.systemUTC());
     }
 
     OptimisationApplicationService(OptimisationRunRepositoryPort runs, OptimisationDonneesPort donnees,
                                    PlacementPatientPort placements, AffectationInfirmierRepositoryPort affectations,
-                                   RemplacementInfirmierRepositoryPort remplacements, Clock horloge) {
+                                   RemplacementInfirmierRepositoryPort remplacements,
+                                   DeplacementTemporairePort temporaires, Clock horloge) {
         this.runs = runs;
         this.donnees = donnees;
         this.placements = placements;
         this.affectations = affectations;
         this.remplacements = remplacements;
+        this.temporaires = temporaires;
         this.horloge = horloge;
     }
 
@@ -98,6 +106,8 @@ public class OptimisationApplicationService {
             appliquerRoulement(centerId, actuelles, resultat.vacations());
         } else if (parametres.perimetre() == PerimetreOptimisation.COUVERTURE) {
             appliquerCouverture(centerId, resultat.vacations());
+        } else if (parametres.perimetre() == PerimetreOptimisation.MAINTENANCE) {
+            appliquerTemporaires(centerId, resultat.temporaires());
         }
         return runs.save(appliquee);
     }
@@ -110,8 +120,21 @@ public class OptimisationApplicationService {
                     "Une nouvelle place proposée enfreint les règles de la planification : " + refus.values());
         }
         for (DeplacementPatient d : deplacements) {
+            if (d.jours() != null) placements.definirJours(centerId, d.patientId(), EnumSet.copyOf(d.jours()));
             placements.deplacer(centerId, d.patientId(), d.vers().salleId(), d.vers().creneauId(), d.vers().generateurId());
         }
+    }
+
+    /**
+     * Enregistre les déplacements temporaires d'une séance datée ; la place habituelle du patient ne change pas.
+     */
+    private void appliquerTemporaires(UUID centerId, List<DeplacementTemporairePropose> proposes) {
+        List<DeplacementTemporaire> nouveaux = new ArrayList<>();
+        for (DeplacementTemporairePropose t : proposes) {
+            nouveaux.add(DeplacementTemporaire.creer(centerId, t.patientId(), t.date(), t.vers().salleId(),
+                    t.vers().creneauId(), t.vers().generateurId(), t.motif()));
+        }
+        if (!nouveaux.isEmpty()) temporaires.enregistrer(nouveaux);
     }
 
     /**

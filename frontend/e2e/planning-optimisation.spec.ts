@@ -113,7 +113,7 @@ test.describe('Optimisation du planning', () => {
     await expect(page.locator('[data-testid="opt-indicateurs"] .opt-ecart.mieux').first()).toBeVisible();
     await expect(vacations.or(page.locator('[data-testid="opt-indicateurs"]'))).toContainText('-6');
     await expect(page.locator('[data-testid="opt-deplacements"] tbody tr')).toHaveCount(10);
-    await page.locator('.opt-tabs .mat-mdc-paginator-navigation-next').click();
+    await page.locator('[data-testid="opt-resultat"] .opt-tabs .mat-mdc-paginator-navigation-next').click();
     await expect(page.locator('[data-testid="opt-deplacements"] tbody tr')).toHaveCount(2);
   });
 
@@ -161,4 +161,52 @@ test.describe('Optimisation du planning', () => {
       await expect(page.locator('[data-testid="opt-appliquer"]')).toBeVisible();
     });
   }
+
+  test('enregistre la préférence d\'un patient : jours choisis par l\'optimisation (serveur réel)', async ({page}) => {
+    await login(page);
+    await page.goto(`${baseUrl}/seances/optimisation`);
+    const preferences = page.locator('[data-testid="opt-preferences"]');
+    await expect(preferences).toBeVisible();
+    await expect(preferences.locator('[data-testid="prefs-patients"] tbody tr').first()).toBeVisible({timeout: 15_000});
+
+    await preferences.locator('[data-testid="prefs-patient-modifier"]').first().click();
+    await preferences.locator('[data-testid="prefs-jours-a-choisir"] input').check();
+    await preferences.locator('[data-testid="prefs-seances"]').fill('3');
+    await preferences.locator('[data-testid="prefs-patient-enregistrer"]').click();
+
+    await expect(preferences.locator('[data-testid="prefs-ok"]')).toBeVisible();
+    await expect(preferences.locator('[data-testid="prefs-patient-form"]')).toHaveCount(0);
+    await expect(preferences.locator('[data-testid="prefs-patients"] tbody tr').first()).toContainText('3');
+  });
+
+  test('montre les déplacements temporaires proposés pour une maintenance', async ({page}) => {
+    await login(page);
+    const poste = (g: string) => ({salleId: 's1', creneauId: 'c1', generateurId: g, generateurCode: g.toUpperCase()});
+    const maintenance = {...parametres, perimetre: 'MAINTENANCE', nbSemaines: 2};
+    const proposition = {
+      ...resultat(), deplacements: [], nonPlaces: [], vacations: [],
+      temporaires: [{patientId: 'p1', nom: 'Patient 1', date: '2026-10-05', jour: 'LUNDI', de: poste('a-g1'),
+        vers: poste('a-g2'), motif: 'Révision annuelle'}],
+      seancesSansSolution: [{patientId: 'p2', nom: 'Patient 2', date: '2026-10-06', jour: 'MARDI', de: poste('a-g1'),
+        motif: 'Révision annuelle'}],
+    };
+    await page.route('**/api/v1/planning/optimisations?*', async (route: Route) => {
+      await route.fulfill(route.request().method() === 'POST'
+        ? json(run('EN_COURS', {parametres: maintenance}), 202)
+        : json({items: [], total: 0, page: 0, size: 10}));
+    });
+    await page.route('**/api/v1/planning/optimisations/run-1?*', async (route) => {
+      await route.fulfill(json(run('TERMINEE', {parametres: maintenance, resultat: proposition})));
+    });
+    await page.goto(`${baseUrl}/seances/optimisation`);
+
+    await page.click('[data-testid="opt-perimetre"]');
+    await page.locator('mat-option', {hasText: /Maintenance/}).click();
+    await expect(page.locator('[data-testid="opt-semaines"]')).toBeVisible();
+    await page.click('[data-testid="opt-lancer"]');
+
+    await expect(page.locator('[data-testid="opt-temporaires"] tbody tr')).toHaveCount(1, {timeout: 10_000});
+    await expect(page.locator('[data-testid="opt-temporaires"]')).toContainText('A-G2');
+    await expect(page.locator('[data-testid="opt-vacations"]')).toHaveCount(0);
+  });
 });

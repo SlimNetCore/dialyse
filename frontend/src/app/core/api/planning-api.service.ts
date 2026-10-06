@@ -93,6 +93,8 @@ export interface OccupantPlanning {
   aRisque: boolean;
   /** Premier jour où la place est libérée (transfert, décès, greffe, guérison daté), sinon null. */
   libereLe?: string | null;
+  /** Séance déplacée temporairement sur cette case (maintenance du générateur habituel). */
+  temporaire?: boolean;
 }
 
 export interface CellulePlanning {
