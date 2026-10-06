@@ -11,6 +11,7 @@ import com.hemodialyse.backend.domain.seance.model.SeanceRecap;
 import com.hemodialyse.backend.domain.seance.model.SeanceSearch;
 import com.hemodialyse.backend.domain.seance.port.SeanceBillingEligibilityPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceForfaitCatalogPort;
+import com.hemodialyse.backend.domain.seance.port.SeancePlacePort;
 import com.hemodialyse.backend.domain.seance.port.SeancePlanningPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
 import com.hemodialyse.backend.domain.seance.port.SeanceUseCase;
@@ -53,10 +54,11 @@ public class SeanceApplicationService implements SeanceUseCase {
                                     VoletMedicalRepositoryPort voletMedicalRepo,
                                     SeanceForfaitCatalogPort forfaitCatalogPort,
                                     SeanceBillingEligibilityPort billingEligibilityPort,
-                                    SeancePlanningPort planningPort) {
+                                    SeancePlanningPort planningPort,
+                                    SeancePlacePort placePort) {
         this.delegate = new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo,
                 bonSortieUseCase, voletParamedicalRepo, voletMedicalRepo, forfaitCatalogPort, billingEligibilityPort,
-                planningPort);
+                planningPort, placePort);
     }
 
     @Override

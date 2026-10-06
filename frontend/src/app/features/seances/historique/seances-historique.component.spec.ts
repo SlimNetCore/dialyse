@@ -10,6 +10,8 @@ import {ConfigurableListComponent} from '../../../shared/configurable-list.compo
 import {AuthStore} from '../../../core/state/auth.store';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService} from '../../../core/ws/websocket.service';
+import {MatDialog} from '@angular/material/dialog';
+import {of} from 'rxjs';
 
 const CENTER_ID = '11111111-1111-1111-1111-111111111111';
 
@@ -17,7 +19,9 @@ function fakeStore() {
   return {
     rows: signal<unknown[]>([]), total: signal(0), pageIndex: signal(0), pageSize: signal(20), loading: signal(false),
     error: signal<string | null>(null), periodFrom: signal(''), periodTo: signal(''),
+    deleting: signal(false), successMessage: signal<string | null>(null),
     reload: vi.fn(), applyQuery: vi.fn(), setPage: vi.fn(), setPeriod: vi.fn(),
+    supprimer: vi.fn().mockResolvedValue(true),
   };
 }
 
@@ -25,11 +29,13 @@ describe('SeancesHistoriqueComponent', () => {
   let store: ReturnType<typeof fakeStore>;
   let roles: string[];
   let lastEvent: ReturnType<typeof signal<{ type: string; centerId: string } | null>>;
+  let dialogOpen: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     store = fakeStore();
     roles = ['ADMIN'];
     lastEvent = signal(null);
+    dialogOpen = vi.fn().mockReturnValue({afterClosed: () => of('Séance saisie en double')});
     TestBed.configureTestingModule({
       imports: [SeancesHistoriqueComponent, TranslateModule.forRoot()],
       providers: [
@@ -39,6 +45,7 @@ describe('SeancesHistoriqueComponent', () => {
         {provide: AuthStore, useValue: {hasRole: (r: string) => roles.includes(r)}},
         {provide: AppShellStore, useValue: {currentCenterId: signal(CENTER_ID)}},
         {provide: WebSocketService, useValue: {lastEvent}},
+        {provide: MatDialog, useValue: {open: dialogOpen}},
       ],
     });
     TestBed.overrideComponent(SeancesHistoriqueComponent, {
@@ -154,5 +161,41 @@ describe('SeancesHistoriqueComponent', () => {
     expect(cmp.forfaitName({})).toBe('-');
     expect(cmp.forfaitPrice(row)).toMatch(/3\s?500,00/);
     expect(cmp.forfaitPrice({})).toBe('');
+  });
+
+  const ligne = (status: string) => ({id: 's9', patientId: 'p9', patientNom: 'Bensaid', patientPrenom: 'Karim',
+    dateSeance: '2026-10-05', status});
+
+  it('propose la suppression à l\'administrateur seulement, jamais pour une séance facturée', () => {
+    const {cmp} = render();
+    expect(cmp.columns().map((c: { id: string }) => c.id)).toContain('actions');
+    expect(cmp.supprimable(ligne('SIGNEE'))).toBe(true);
+    expect(cmp.supprimable(ligne('FACTUREE'))).toBe(false);
+
+    roles = ['SECRETAIRE'];
+    const autre = TestBed.createComponent(SeancesHistoriqueComponent);
+    autre.detectChanges();
+    expect((autre.componentInstance as any).columns().map((c: { id: string }) => c.id)).not.toContain('actions');
+  });
+
+  it('demande le motif puis supprime la séance du centre actif', () => {
+    const {cmp} = render();
+
+    cmp.supprimer(ligne('VALIDEE'));
+
+    expect(dialogOpen).toHaveBeenCalled();
+    expect(dialogOpen.mock.calls[0][1].data).toMatchObject({patient: 'Bensaid Karim', date: '2026-10-05'});
+    expect(store.supprimer).toHaveBeenCalledWith(CENTER_ID, 's9', 'Séance saisie en double');
+  });
+
+  it('ne supprime rien si la boîte de dialogue est annulée ou pour une séance facturée', () => {
+    dialogOpen.mockReturnValue({afterClosed: () => of(undefined)});
+    const {cmp} = render();
+
+    cmp.supprimer(ligne('VALIDEE'));
+    cmp.supprimer(ligne('FACTUREE'));
+
+    expect(store.supprimer).not.toHaveBeenCalled();
+    expect(dialogOpen).toHaveBeenCalledTimes(1);
   });
 });

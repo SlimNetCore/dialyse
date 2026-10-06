@@ -9,6 +9,7 @@ import com.hemodialyse.backend.domain.patient.vo.PatientId;
 import com.hemodialyse.backend.domain.patient.vo.NumeroAssurance;
 import com.hemodialyse.backend.domain.seance.model.DerogationPlanning;
 import com.hemodialyse.backend.domain.seance.model.MotifHorsPlanning;
+import com.hemodialyse.backend.domain.seance.model.PlaceSeance;
 import com.hemodialyse.backend.domain.seance.model.SituationPlanning;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.seance.model.Seance;
@@ -410,7 +411,48 @@ class SeanceDomainServiceTest {
             SituationPlanning situation) {
         return new SeanceDomainService(seanceRepo, patientRepo, articleRepo, lotRepo, bonSortieUseCase,
                 mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
-                forfaitCatalogPort, billingEligibilityPort, (centerId, patientId, date) -> situation);
+                forfaitCatalogPort, billingEligibilityPort, (centerId, patientId, date) -> situation,
+                (centerId, patientId, date) -> Optional.of(PLACE_DU_JOUR));
+    }
+
+    private static final PlaceSeance PLACE_DU_JOUR = new PlaceSeance(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+
+    @Test
+    void validate_should_freeze_the_place_of_the_day_and_never_replace_it_afterwards() {
+        ScanFixture f = scanFixture();
+        UUID id = UUID.randomUUID();
+        f.seances().save(new Seance(id, f.patientId(), f.centerId().value(), LocalDate.now()));
+
+        Seance validee = f.service().validate(f.centerId(), id, "inf-01", List.of());
+        assertEquals(PLACE_DU_JOUR, validee.getPlace());
+
+        // une séance validée garde la place de son jour, même revalidée plus tard (ajout de consommables)
+        PlaceSeance ancienne = new PlaceSeance(UUID.randomUUID(), UUID.randomUUID(), null);
+        validee.setPlace(ancienne);
+        f.seances().save(validee);
+        assertEquals(ancienne, f.service().validate(f.centerId(), id, "inf-01", List.of()).getPlace());
+    }
+
+    @Test
+    void validate_should_leave_the_place_empty_for_a_patient_without_place() {
+        CenterId centerId = CenterId.of(UUID.randomUUID());
+        UUID patientId = UUID.randomUUID();
+        InMemorySeanceRepository seanceRepo = new InMemorySeanceRepository();
+        UUID id = UUID.randomUUID();
+        seanceRepo.save(new Seance(id, patientId, centerId.value(), LocalDate.now()));
+        SeanceDomainService service = new SeanceDomainService(seanceRepo, new InMemoryPatientRepository(patientId, centerId),
+                new InMemoryArticleRepository(), new InMemoryLotRepository(), new SpyBonSortieUseCase(),
+                mock(VoletParamedicalRepositoryPort.class), mock(VoletMedicalRepositoryPort.class),
+                new InMemoryForfaitCatalog(), new AlwaysBillableEligibility(), (c, p, d) -> ATTENDU,
+                (c, p, d) -> Optional.empty());
+
+        assertNull(service.validate(centerId, id, "inf-01", List.of()).getPlace());
+    }
+
+    @Test
+    void a_place_requires_a_room_and_a_slot() {
+        assertThrows(IllegalArgumentException.class, () -> new PlaceSeance(null, UUID.randomUUID(), null));
+        assertThrows(IllegalArgumentException.class, () -> new PlaceSeance(UUID.randomUUID(), null, null));
     }
 
     private ScanFixture scanFixture() {
@@ -915,6 +957,11 @@ class SeanceDomainServiceTest {
     // ── In-memory stubs ──────────────────────────────────────────────
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {
+        @Override
+        public void delete(CenterId centerId, UUID seanceId) {
+            throw new UnsupportedOperationException();
+        }
+
         private final Map<UUID, Seance> data = new HashMap<>();
         @Override
         public Seance save(Seance seance) {
@@ -1147,6 +1194,11 @@ class SeanceDomainServiceTest {
     }
 
     private static final class SpyBonSortieUseCase implements BonSortieUseCase {
+        @Override
+        public void annulerSortiesSeance(CenterId centerId, UUID seanceId, String userId) {
+            throw new UnsupportedOperationException();
+        }
+
         boolean called = false;
         List<SortieRequestItem> lastItems = List.of();
         boolean setCalled = false;

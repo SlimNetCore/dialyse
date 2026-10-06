@@ -17,6 +17,15 @@
   également immuable (`SEANCE_BILLED_STOCK_EXIT_IMMUTABLE`).
 - **RG-SEA-003** — Une séance appartient à un patient et à un centre ; une séance inconnue du centre : « Seance
   introuvable ».
+- **RG-SEA-050** — **Suppression d'une séance** (`ADMIN` seul, écran « Historique des séances » ;
+  `DELETE /api/v1/seances/{id}`), tout ou rien : la séance doit exister dans le centre (`SEANCE_INTROUVABLE`) et ne
+  pas être facturée (`SEANCE_FACTUREE_NON_SUPPRIMABLE` : annuler d'abord la facture) ; un **motif** de 5 à 500
+  caractères est exigé (`SEANCE_SUPPRESSION_MOTIF_INVALIDE`). Une séance créée, validée ou signée peut être supprimée.
+  Effets : les consommables et administrations EPO/fer sortis du stock pour la séance sont **restitués** (lots
+  recrédités, mouvements et bons de sortie supprimés, PMP recalculé) ; les volets paramédical et médical et les
+  administrations EPO/fer de la séance sont effacés ; la séance est supprimée. La suppression est **journalisée**
+  (séance, patient, date, statut, motif, auteur, horodatage — table `seance_suppression`) en plus du journal d'audit
+  (RG-SEC-050), et notifiée en temps réel (`SEANCE_SUPPRIMEE`) pour rafraîchir les écrans. Irréversible.
 
 ## 7.2 Création
 
@@ -56,6 +65,11 @@
   et enregistre la signature de l'infirmier. Une
   séance déjà validée ou signée n'est pas rejetée mais ne change pas de statut ; une séance facturée est refusée. Autre
   statut que `CREE` : « La seance n'est pas en statut CREE ».
+- **RG-SEA-049** — À la validation, la séance **mémorise la place où elle a eu lieu** (salle, créneau, générateur) :
+  le déplacement temporaire du patient pour ce jour s'il en a un (RG-PLN-096), sinon sa place habituelle ; rien si le
+  patient n'est pas placé. Une place déjà mémorisée n'est jamais remplacée, même si la séance est revalidée (ajout de
+  consommables) ou si la place ou les jours du patient changent ensuite. Les séances validées avant cette règle n'ont
+  pas de place mémorisée (`SeancePlaceJdbcAdapter`, migration V26).
 - **RG-SEA-021** — À la validation, les **consommables** utilisés sont sortis du stock automatiquement : chaque ligne
   doit désigner un article existant du centre et **actif**
   (« Article inactif »), la quantité est prélevée sur les lots disponibles par **FEFO** (lot le plus proche de la

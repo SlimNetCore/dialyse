@@ -38,6 +38,15 @@ public class BonSortieRepositoryAdapter implements BonSortieRepositoryPort {
     }
 
     @Override
+    @Transactional
+    public void delete(UUID id, CenterId centerId) {
+        jpa.findByIdAndCenterId(id, centerId.value()).ifPresent(e -> {
+            ligneJpa.deleteByBonSortieId(e.getId());
+            jpa.delete(e);
+        });
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Optional<BonSortie> findById(UUID id, CenterId centerId) {
         return jpa.findByIdAndCenterId(id, centerId.value()).map(this::toDomainWithLines);

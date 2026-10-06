@@ -19,3 +19,14 @@ npm run e2e
 
 Le test stubbe les endpoints stats/export pour fiabiliser le scenario UI, tout en conservant un vrai login et la navigation applicative.
 
+
+# E2E optimisation du planning
+
+`planning-optimisation.spec.ts` couvre `/seances/optimisation` : calcul réel sur le serveur (lancement, suivi,
+comparaison avant / après, historique) puis scénarios déterministes avec l'API d'optimisation stubbée (suivi, pagination
+des déplacements, application après confirmation, absence de débordement horizontal en mobile et tablette).
+
+- Le login est réel et choisit la première société et le premier centre proposés ; par défaut le compte de démonstration
+  `admin` (`E2E_USERNAME`, `E2E_PASSWORD`).
+- Le frontend doit être servi sur `http://localhost:4200` (origine autorisée par le CORS du backend ; `E2E_BASE_URL`
+  pour en changer).

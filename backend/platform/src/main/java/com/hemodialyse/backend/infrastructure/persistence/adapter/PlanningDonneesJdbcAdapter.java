@@ -10,9 +10,11 @@ import com.hemodialyse.backend.domain.planning.model.Planning.Occupation;
 import com.hemodialyse.backend.domain.planning.model.Planning.SalleRef;
 import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.DonneesSemaine;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SeanceRealisee;
 import com.hemodialyse.backend.domain.planning.port.PlanningDonneesPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningParametresPort;
 import com.hemodialyse.backend.domain.planning.port.PlanningSemainePort;
+import com.hemodialyse.backend.domain.planning.port.DeplacementTemporairePort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -61,10 +63,13 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
 
     private final JdbcTemplate jdbc;
     private final PlanningParametresPort parametres;
+    private final DeplacementTemporairePort temporaires;
 
-    public PlanningDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningParametresPort parametres) {
+    public PlanningDonneesJdbcAdapter(JdbcTemplate jdbc, PlanningParametresPort parametres,
+                                      DeplacementTemporairePort temporaires) {
         this.jdbc = jdbc;
         this.parametres = parametres;
+        this.temporaires = temporaires;
     }
 
     @Override
@@ -83,7 +88,21 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
                     noms.put(rs.getObject("id", UUID.class),
                             (rs.getString("prenom") + " " + rs.getString("nom")).trim());
                 }, centerId);
-        return new DonneesSemaine(planning, noms, planning.fermetures());
+        Set<UUID> aRisque = patientsARisque(centerId);
+        List<SeanceRealisee> realisees = jdbc.query("SELECT s.patient_id, s.date_seance, s.salle_id, s.creneau_id, "
+                        + "s.generateur_id, p.nom, p.prenom FROM seances s JOIN patients p ON p.id = s.patient_id "
+                        + "AND p.center_id = s.center_id WHERE s.center_id = ? AND s.date_seance BETWEEN ? AND ? "
+                        + "AND s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') ORDER BY s.date_seance",
+                (rs, i) -> {
+                    UUID patientId = rs.getObject("patient_id", UUID.class);
+                    // un patient sorti depuis (place libérée) garde son nom sur ses séances passées
+                    noms.putIfAbsent(patientId, (rs.getString("prenom") + " " + rs.getString("nom")).trim());
+                    return new SeanceRealisee(patientId, rs.getDate("date_seance").toLocalDate(),
+                            rs.getObject("salle_id", UUID.class), rs.getObject("creneau_id", UUID.class),
+                            rs.getObject("generateur_id", UUID.class), aRisque.contains(patientId));
+                }, centerId, Date.valueOf(debutSemaine), Date.valueOf(fin));
+        return new DonneesSemaine(planning, noms, planning.fermetures(), temporaires.entre(centerId, debutSemaine, fin),
+                realisees);
     }
 
     @Override
@@ -99,8 +118,12 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
 
     @Override
     public boolean patientARisque(UUID centerId, UUID patientId) {
-        return new HashSet<>(jdbc.query(PATIENTS_A_RISQUE, (rs, i) -> rs.getObject("patient_id", UUID.class), centerId))
-                .contains(patientId);
+        return patientsARisque(centerId).contains(patientId);
+    }
+
+    @Override
+    public Set<UUID> patientsARisque(UUID centerId) {
+        return new HashSet<>(jdbc.query(PATIENTS_A_RISQUE, (rs, i) -> rs.getObject("patient_id", UUID.class), centerId));
     }
 
     @Override
@@ -127,8 +150,7 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
                         rs.getObject("salle_id", UUID.class)),
                 centerId);
 
-        Set<UUID> aRisque = new HashSet<>(jdbc.query(PATIENTS_A_RISQUE,
-                (rs, i) -> rs.getObject("patient_id", UUID.class), centerId));
+        Set<UUID> aRisque = patientsARisque(centerId);
 
         // Patients sortis (transfert, décès, greffe, guérison) : ils gardent leur place jusqu'à la date de
         // l'évènement (FinOccupation) ; la place est libre dès que ce dernier jour est antérieur à la période lue.

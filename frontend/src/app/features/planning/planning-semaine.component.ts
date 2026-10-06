@@ -21,6 +21,7 @@ import {
   jourFerme,
   jourParDefaut,
   lignesDuJour,
+  classeOccupant,
   peutDeclarerAbsence,
   seanceRealiseeDe,
 } from './planning.util';
@@ -116,10 +117,7 @@ export class PlanningSemaineComponent {
 
   /** Classe de couleur d'un patient : séance validée, absent (selon le statut de l'absence), à risque ou normal. */
   protected classePatient(o: OccupantPlanning, jour: JourSemaine): string {
-    if (this.realisee(o.patientId, jour)) return 'done';
-    const a = this.absence(o.patientId, jour);
-    if (a) return `absent ${a.statut.toLowerCase()}`;
-    return o.aRisque ? 'risk' : '';
+    return classeOccupant(o, this.realisee(o.patientId, jour), this.absence(o.patientId, jour));
   }
 
   /** L'absence se déclare tant que la séance n'est ni validée ni déjà déclarée absente. */

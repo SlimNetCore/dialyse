@@ -21,6 +21,11 @@ public interface PlacementPatientPort {
     void deplacer(UUID centerId, UUID patientId, UUID salleId, UUID creneauId, UUID generateurId);
 
     /**
+     * Remplace les jours de dialyse du patient (jours choisis par l'optimisation du planning).
+     */
+    void definirJours(UUID centerId, UUID patientId, Set<JourSemaine> jours);
+
+    /**
      * Nom complet du patient (messages et notifications), vide si inconnu.
      */
     String nomPatient(UUID centerId, UUID patientId);

@@ -8,6 +8,23 @@
         <small>{{ o.generateurCode }}</small>
       }
     </button>
+    @if (o.realiseeHorsPlanning) {
+      <mat-icon [matTooltip]="'PLANNING.SEMAINE.REALISEE_HORS_PLANNING' | translate" class="chip-ico"
+                data-testid="week-hors-planning">
+        history
+      </mat-icon>
+    }
+    @if (o.dejaRealiseeLe) {
+      <mat-icon [matTooltip]="'PLANNING.SEMAINE.DEJA_REALISEE' | translate: {date: (o.dejaRealiseeLe | date: 'dd/MM/yyyy')}"
+                class="chip-ico chip-warn" data-testid="week-deja-realisee">
+        warning
+      </mat-icon>
+    }
+    @if (o.temporaire) {
+      <mat-icon [matTooltip]="'PLANNING.SEMAINE.TEMPORAIRE' | translate" class="chip-ico" data-testid="week-temporaire">
+        swap_horiz
+      </mat-icon>
+    }
     @if (o.libereLe) {
       <mat-icon [matTooltip]="'PLANNING.SEMAINE.LIBERE_LE' | translate: {date: (o.libereLe | date: 'dd/MM/yyyy')}"
                 class="chip-ico" data-testid="week-libere">
@@ -142,6 +159,18 @@
         <mat-icon>event_busy</mat-icon>
         {{ 'PLANNING.SEMAINE.A_REPLANIFIER' | translate: {count: s.patientsAReplanifier} }}
       </p>
+    }
+
+    @if (s.seancesSansCase?.length) {
+      <div class="week-warn" data-testid="week-sans-case" role="status">
+        <mat-icon>history</mat-icon>
+        <span>
+          {{ 'PLANNING.SEMAINE.SANS_CASE' | translate }}
+          @for (r of s.seancesSansCase; track r.patientId + r.date; let last = $last) {
+            {{ r.nom }} ({{ ('PATIENT_FORM.' + r.jour) | translate }} {{ r.date | date: 'dd/MM' }}){{ last ? '' : ', ' }}
+          }
+        </span>
+      </div>
     }
 
     @if (lignes().length === 0) {

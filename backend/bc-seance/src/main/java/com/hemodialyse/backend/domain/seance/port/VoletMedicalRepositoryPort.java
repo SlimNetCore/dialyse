@@ -10,5 +10,7 @@ public interface VoletMedicalRepositoryPort {
     Optional<VoletMedical> findBySeanceId(UUID seanceId, CenterId centerId);
 
     VoletMedical save(VoletMedical volet);
+
+    void deleteBySeanceId(UUID seanceId, CenterId centerId);
 }
 

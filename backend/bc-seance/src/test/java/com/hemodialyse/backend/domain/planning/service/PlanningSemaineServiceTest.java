@@ -10,6 +10,8 @@ import com.hemodialyse.backend.domain.planning.model.Planning.SalleRef;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.CellulePlanning;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.Conflit;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.DonneesSemaine;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.OccupantPlanning;
+import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SeanceRealisee;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.SemainePlanning;
 import com.hemodialyse.backend.domain.planning.model.PlanningSemaine.TypeConflit;
 import org.junit.jupiter.api.Test;
@@ -178,5 +180,79 @@ class PlanningSemaineServiceTest {
 
         assertTrue(s.conflits().isEmpty());
         assertEquals(0, s.patientsAReplanifier());
+    }
+
+    // ─── séances réalisées que le planning actuel ne montre plus ───
+
+    private static final LocalDate LUNDI = DIMANCHE.plusDays(1);
+    private static final LocalDate MERCREDI = DIMANCHE.plusDays(3);
+
+    private SemainePlanning semaineAvecRealisees(List<Occupation> occupations, List<SeanceRealisee> realisees) {
+        DonneesPlanning planning = new DonneesPlanning(List.of(SALLE, ISO), List.of(MATIN), List.of(G1, G2, GI),
+                occupations, EnumSet.allOf(JourSemaine.class), Set.of(ISO.id()), List.of());
+        return PlanningSemaineService.construire(new DonneesSemaine(planning, noms, List.of(), List.of(), realisees),
+                DIMANCHE);
+    }
+
+    @Test
+    void a_session_done_on_monday_stays_visible_where_it_took_place_after_the_days_moved_to_wednesday() {
+        UUID p = patient("Karim B.");
+        // le lundi, il dialysait sur G1 ; ses jours sont ensuite passés au mercredi, sur G2
+        SemainePlanning s = semaineAvecRealisees(
+                List.of(occupation(p, SALLE, G2, false, EnumSet.of(JourSemaine.MERCREDI))),
+                List.of(new SeanceRealisee(p, LUNDI, SALLE.id(), MATIN.id(), G1.id(), false)));
+
+        OccupantPlanning lundi = cellule(s, SALLE, JourSemaine.LUNDI).occupants().getFirst();
+        assertTrue(lundi.realiseeHorsPlanning());
+        assertEquals("G01", lundi.generateurCode(), "la place figée à la validation, pas la place actuelle");
+        OccupantPlanning mercredi = cellule(s, SALLE, JourSemaine.MERCREDI).occupants().getFirst();
+        assertFalse(mercredi.realiseeHorsPlanning());
+        assertEquals(LUNDI, mercredi.dejaRealiseeLe(), "la séance prévue mercredi est peut-être en trop");
+        assertTrue(s.conflits().isEmpty(), "une séance passée ne crée pas de conflit");
+        assertTrue(s.seancesSansCase().isEmpty());
+    }
+
+    @Test
+    void a_session_done_on_a_planned_day_is_not_duplicated() {
+        UUID p = patient("Lina C.");
+        SemainePlanning s = semaineAvecRealisees(List.of(occupation(p, SALLE, G1, false, LMV)),
+                List.of(new SeanceRealisee(p, LUNDI, SALLE.id(), MATIN.id(), G1.id(), false)));
+
+        assertEquals(1, cellule(s, SALLE, JourSemaine.LUNDI).occupants().size());
+        assertFalse(cellule(s, SALLE, JourSemaine.LUNDI).occupants().getFirst().realiseeHorsPlanning());
+        assertNull(cellule(s, SALLE, JourSemaine.MERCREDI).occupants().getFirst().dejaRealiseeLe());
+    }
+
+    @Test
+    void a_session_without_frozen_place_falls_back_on_the_current_place_or_is_listed_apart() {
+        UUID place = patient("Omar D.");
+        UUID sorti = patient("Nadia E.");
+        SemainePlanning s = semaineAvecRealisees(
+                List.of(occupation(place, SALLE, G2, false, EnumSet.of(JourSemaine.MERCREDI))),
+                List.of(new SeanceRealisee(place, LUNDI, null, null, null, false),
+                        new SeanceRealisee(sorti, LUNDI, null, null, null, false),
+                        new SeanceRealisee(place, DIMANCHE.minusDays(1), SALLE.id(), MATIN.id(), G1.id(), false)));
+
+        OccupantPlanning lundi = cellule(s, SALLE, JourSemaine.LUNDI).occupants().getFirst();
+        assertEquals(place, lundi.patientId());
+        assertEquals("G02", lundi.generateurCode());
+        assertEquals(1, s.seancesSansCase().size());
+        assertEquals("Nadia E.", s.seancesSansCase().getFirst().nom());
+        assertEquals(1, cellule(s, SALLE, JourSemaine.LUNDI).occupants().size(), "séance d'une autre semaine ignorée");
+    }
+
+    @Test
+    void a_session_done_on_a_now_closed_day_does_not_count_as_to_replan_and_wednesday_done_is_not_flagged() {
+        UUID p = patient("Sami F.");
+        DonneesPlanning planning = new DonneesPlanning(List.of(SALLE), List.of(MATIN), List.of(G1, G2),
+                List.of(occupation(p, SALLE, G2, false, EnumSet.of(JourSemaine.MERCREDI))),
+                EnumSet.of(JourSemaine.MERCREDI), Set.of(), List.of());
+        SemainePlanning s = PlanningSemaineService.construire(new DonneesSemaine(planning, noms, List.of(), List.of(),
+                List.of(new SeanceRealisee(p, LUNDI, SALLE.id(), MATIN.id(), G1.id(), false),
+                        new SeanceRealisee(p, MERCREDI, SALLE.id(), MATIN.id(), G2.id(), false))), DIMANCHE);
+
+        assertEquals(0, s.patientsAReplanifier());
+        assertNull(cellule(s, SALLE, JourSemaine.MERCREDI).occupants().getFirst().dejaRealiseeLe(),
+                "la séance du mercredi est faite : rien à vérifier");
     }
 }

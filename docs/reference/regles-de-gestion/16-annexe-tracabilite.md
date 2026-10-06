@@ -32,6 +32,7 @@
 | `PecRestController`                      | `/api/v1/pec`                                                       | profils de centre (validation `ADMIN`)                                  | RG-ATT-001 à 004, RG-PEC-001 à 010 |
 | `DashboardRestController`                | `/api/v1/dashboard`                                                 | profils de centre                                                       | RG-PEC-010                         |
 | `SeanceRestController`                   | `/api/v1/seances`                                                   | `ADMIN`, `INFIRMIER`, `MEDECIN`, `SECRETAIRE` selon l'action            | RG-SEA-001 à 044                   |
+| `SeanceSuppressionRestController`        | `/api/v1/seances/{id}` (`DELETE`)                                   | `ADMIN`                                                                 | RG-SEA-050                         |
 | `SeanceStationRestController`            | `/api/v1/seances/raccourcis-consommables`, `/patient/{id}/recentes` | `ADMIN` (écriture), `INFIRMIER`, `SECRETAIRE`, `MEDECIN` selon l'action | RG-SEA-026 à 029                   |
 | `VoletParamedicalRestController`         | `/api/v1/seances/{id}/volet-paramedical`                            | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                                      | RG-SEA-030                         |
 | `VoletMedicalRestController`             | `/api/v1/seances/{id}/volet-medical`                                | `ADMIN`, `MEDECIN`                                                      | RG-SEA-031                         |
@@ -40,6 +41,8 @@
 | `PlanningParametresRestController`       | `/api/v1/planning/parametres`                                       | lecture tous, écriture `ADMIN`                                          | RG-PLN-001 à 006                   |
 | `PlanningSemaineRestController`          | `/api/v1/planning/semaine`                                          | `ADMIN`, `SECRETAIRE`, `MEDECIN`, `INFIRMIER`                           | RG-PLN-040 à 044                   |
 | `SalleGenerateursRestController`         | `/api/v1/planning/salles`                                           | `ADMIN`, `SECRETAIRE`                                                   | RG-PLN-060 à 062                   |
+| `PlanningOptimisationRestController`     | `/api/v1/planning/optimisations`                                    | `ADMIN`, `SECRETAIRE` (application : `ADMIN`)                           | RG-PLN-080 à 096, RG-INF-070       |
+| `PlanningPreferencesRestController`      | `/api/v1/planning/preferences`                                      | `ADMIN`, `SECRETAIRE` (réglages : modification `ADMIN`)                 | RG-PLN-093, 097, 098, RG-INF-071   |
 | `InfirmierRestController`                | `/api/v1/infirmiers`                                                | lecture tous, écriture `ADMIN`                                          | RG-INF-001 à 022                   |
 | `AbsenceInfirmierRestController`         | `/api/v1/infirmiers/absences`                                       | lecture tous, écriture `ADMIN`/`SECRETAIRE`                             | RG-INF-030, 031                    |
 | `PresenceInfirmierRestController`        | `/api/v1/infirmiers/presence`                                       | lecture tous, écriture `ADMIN`/`SECRETAIRE`                             | RG-INF-040 à 060                   |
@@ -103,3 +106,4 @@
 | `LiberationPlacesScheduler`       | 04:00 chaque jour                    | RG-PAT-033             |
 | `ObservancePrescriptionScheduler` | 06:30 chaque jour                    | RG-MED-073             |
 | `PresenceInfirmierScheduler`      | 07:15 chaque jour                    | RG-INF-046             |
+| `ReplanificationAutomatiqueScheduler` | 02:30 chaque nuit                | RG-PLN-100             |

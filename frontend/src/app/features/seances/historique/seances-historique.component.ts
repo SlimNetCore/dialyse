@@ -10,6 +10,7 @@ import {
   viewChild
 } from '@angular/core';
 import {RouterLink} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
@@ -28,6 +29,7 @@ import {
 import {SeanceHistoriqueStore} from './seance-historique.store';
 import {SEANCE_STATUSES} from './seance-historique.util';
 import {SeancesStatsComponent} from './seances-stats.component';
+import {SupprimerSeanceDialogComponent, SupprimerSeanceDialogData} from './supprimer-seance-dialog.component';
 
 /**
  * Historique des séances : statistiques du mois et tableau paginé dont la recherche, les filtres et le tri sont
@@ -53,12 +55,17 @@ export class SeancesHistoriqueComponent implements OnInit {
   protected readonly statusCell = viewChild<TemplateRef<any>>('statusCell');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected readonly forfaitCell = viewChild<TemplateRef<any>>('forfaitCell');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected readonly actionsCell = viewChild<TemplateRef<any>>('actionsCell');
   private readonly appShell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
   protected readonly canOpenStation = computed(() => ['ADMIN', 'INFIRMIER', 'SECRETAIRE'].some((r) => this.auth.hasRole(r)));
   protected readonly canEditCalendar = computed(() => this.auth.hasRole('ADMIN'));
   private readonly ws = inject(WebSocketService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+  /** Seul l'administrateur supprime une séance (et jamais une séance facturée). */
+  protected readonly canDelete = computed(() => this.auth.hasRole('ADMIN'));
   /** Colonnes : tri et filtres délégués au serveur (mode distant) ; le forfait, calculé après coup, reste informatif. */
   protected readonly columns = computed<SharedListColumn<SeanceListItem>[]>(() => [
     {
@@ -101,6 +108,14 @@ export class SeancesHistoriqueComponent implements OnInit {
       minWidthPx: 180,
       cellTemplate: this.forfaitCell() ?? undefined,
     },
+    ...(this.canDelete() ? [{
+      id: 'actions',
+      headerKey: 'SEANCES.DELETE.COLUMN',
+      valueAccessor: () => '',
+      minWidthPx: 90,
+      mobileRowActions: true,
+      cellTemplate: this.actionsCell() ?? undefined,
+    } satisfies SharedListColumn<SeanceListItem>] : []),
   ]);
 
   constructor() {
@@ -161,6 +176,25 @@ export class SeancesHistoriqueComponent implements OnInit {
       maximumFractionDigits: 2
     })
       .format(Number(prix));
+  }
+
+  /** Une séance facturée ne se supprime pas (la facture la référence). */
+  protected supprimable(row: SeanceListItem): boolean {
+    return row.status !== 'FACTUREE';
+  }
+
+  /** Demande le motif puis supprime la séance (administrateur). */
+  protected supprimer(row: SeanceListItem): void {
+    const centerId = this.appShell.currentCenterId();
+    if (!centerId || !this.canDelete() || !this.supprimable(row)) return;
+    const data: SupprimerSeanceDialogData = {
+      patient: this.patientLabel(row), date: row.dateSeance, statut: row.status,
+    };
+    this.dialog.open<SupprimerSeanceDialogComponent, SupprimerSeanceDialogData, string>(SupprimerSeanceDialogComponent,
+      {data, width: 'min(96vw, 560px)'})
+      .afterClosed().subscribe((motif) => {
+        if (motif) void this.store.supprimer(centerId, row.id, motif);
+      });
   }
 
   protected statusKey(status: string): string {

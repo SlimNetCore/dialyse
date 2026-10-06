@@ -163,3 +163,11 @@
     flex: 1 1 100%;
   }
 }
+
+.list-ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: #1b7f3b;
+}

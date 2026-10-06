@@ -397,6 +397,7 @@ Aucun rapport imprimé par l'application ne doit contourner les « Modèles de d
 | `CACHE_TTL_PATIENT_LIST`       | `PT3M`                  | TTL des caches listes patient                                                                      |
 | `CACHE_TTL_PATIENT_COUNT`      | `PT3M`                  | TTL du cache de comptage patient                                                                   |
 | `CACHE_TTL_STOCK_VALORISATION` | `PT30M`                 | TTL du cache de valorisation du stock des groupes d'articles (vidé à chaque écriture de mouvement) |
+| `PLANNING_OPTIMISATION_WORKERS`| `2`                     | Calculs d'optimisation du planning (Timefold) exécutés en parallèle (un seul par centre à la fois) |
 | `STOCK_DEMO_DATA`              | `true`                  | Seed des données de démo stock                                                                     |
 | `REPORTS_DIR`                  | classpath               | Override du répertoire de base jasper                                                              |
 

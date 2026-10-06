@@ -9,6 +9,7 @@ import {
   jourParDefaut,
   lignesDuJour,
   peutDeclarerAbsence,
+  classeOccupant,
   seanceRealiseeDe,
 } from './planning.util';
 
@@ -113,3 +114,17 @@ describe('planning.util — absences et vue du jour', () => {
     expect(lignes[0].cellule.capacite).toBe(3);
   });
 });
+
+describe('classeOccupant', () => {
+  it('distingue une séance réalisée hors du planning actuel du patient', () => {
+    expect(classeOccupant({aRisque: false, realiseeHorsPlanning: true}, true, undefined)).toBe('done hors');
+    expect(classeOccupant({aRisque: true, realiseeHorsPlanning: false}, true, undefined)).toBe('done');
+  });
+
+  it('colore une absence selon son statut, puis le risque', () => {
+    expect(classeOccupant({aRisque: true}, false, {statut: 'NON_JUSTIFIEE'} as never)).toBe('absent non_justifiee');
+    expect(classeOccupant({aRisque: true}, false, undefined)).toBe('risk');
+    expect(classeOccupant({aRisque: false}, false, undefined)).toBe('');
+  });
+});
+

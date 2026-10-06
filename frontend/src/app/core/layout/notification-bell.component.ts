@@ -98,6 +98,10 @@ export class NotificationBellComponent {
         return 'pending_actions';
       case 'SEANCE_DEVERROUILLEE':
         return 'lock_open';
+      case 'OPTIMISATION_PROPOSITION':
+        return 'auto_fix_high';
+      case 'SEANCE_SUPPRIMEE':
+        return 'delete';
       default:
         return 'info';
     }
@@ -117,6 +121,8 @@ export class NotificationBellComponent {
       case 'PATIENT_REPLACE_ISOLEMENT':
       case 'ISOLEMENT_IMPOSSIBLE':
         return 'warning';
+      case 'OPTIMISATION_PROPOSITION':
+        return evt.payload['motif'] === 'GAIN' ? 'pec' : 'warning';
       default:
         return '';
     }
@@ -168,6 +174,12 @@ export class NotificationBellComponent {
         return this.translate.instant('NOTIFICATION.INFIRMIER_SOUS_EFFECTIF', {
           count: evt.payload['nbCreneaux'] ?? '',
           date: evt.payload['premiereDate'] ?? '',
+        });
+      case 'SEANCE_SUPPRIMEE':
+        return this.translate.instant('NOTIFICATION.SEANCE_SUPPRIMEE', {date: evt.payload['dateSeance'] ?? ''});
+      case 'OPTIMISATION_PROPOSITION':
+        return this.translate.instant(`NOTIFICATION.OPTIMISATION_PROPOSITION.${evt.payload['motif'] ?? 'GAIN'}`, {
+          n: evt.payload['valeur'] ?? '',
         });
       case 'SAISIE_INFIRMIER':
         return this.translate.instant(`NOTIFICATION.SAISIE.${evt.payload['saisie'] ?? 'DEFAULT'}`, {

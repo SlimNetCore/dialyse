@@ -169,6 +169,16 @@
   font-size: 16px;
 }
 
+/* Séance réalisée ici alors que le planning actuel du patient ne la prévoit plus : contour pointillé */
+.chip.hors {
+  border: 1px dashed currentColor;
+  opacity: 0.85;
+}
+
+.chip-warn {
+  color: #b26a00;
+}
+
 /* Patient absent à la séance : la couleur dépend du statut de l'absence */
 .chip.absent {
   border: 1px dashed #8a5a00;

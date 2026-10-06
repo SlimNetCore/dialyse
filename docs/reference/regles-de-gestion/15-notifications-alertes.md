@@ -36,6 +36,7 @@
 | `SEANCE_VALIDATED`                           | validation infirmière                                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-020             |
 | `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                                              | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-030             |
 | `SEANCE_MEDICAL_SAVED`                       | volet médical enregistré                                                                  | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-031             |
+| `SEANCE_SUPPRIMEE`                           | séance supprimée par l'administrateur (motif journalisé)                                  | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                  | RG-SEA-050             |
 | `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-022             |
 | `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                                             | `MEDECIN`                                           | RG-NOT-004             |
 | `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30)                          | `MEDECIN`                                           | RG-MED-073             |
@@ -43,6 +44,7 @@
 | `SEANCES_A_REGULARISER`                      | séances des 7 derniers jours jamais validées, pas encore déverrouillées (rappel de 07:00) | `ADMIN`                                             | RG-SEA-046             |
 | `SEANCE_DEVERROUILLEE`                       | l'administrateur déverrouille une séance oubliée pour régularisation                      | `INFIRMIER`                                         | RG-SEA-046             |
 | `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)                           | `ADMIN`, `SECRETAIRE`                               | RG-INF-046             |
+| `OPTIMISATION_PROPOSITION`                   | proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)       | `ADMIN`                                             | RG-PLN-100             |
 | `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                                          | `ADMIN`, `SECRETAIRE`                               | RG-INF-032             |
 | `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                                              | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
 | `ISOLEMENT_IMPOSSIBLE`                       | patient à risque sans place d'isolement                                                   | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |

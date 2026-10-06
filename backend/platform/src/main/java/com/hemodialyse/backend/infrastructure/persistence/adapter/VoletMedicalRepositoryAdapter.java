@@ -25,6 +25,11 @@ public class VoletMedicalRepositoryAdapter implements VoletMedicalRepositoryPort
     }
 
     @Override
+    public void deleteBySeanceId(UUID seanceId, CenterId centerId) {
+        jpa.findBySeanceIdAndCenterId(seanceId, centerId.value()).ifPresent(jpa::delete);
+    }
+
+    @Override
     public VoletMedical save(VoletMedical volet) {
         return toDomain(jpa.save(toJpa(volet)));
     }

@@ -213,6 +213,35 @@ public class BonSortieService implements BonSortieUseCase {
     }
 
     @Override
+    public void annulerSortiesSeance(CenterId centerId, UUID seanceId, String userId) {
+        if (seanceBillingStatusPort.isBilled(centerId, seanceId)) {
+            throw new SeanceBilledStockModificationException();
+        }
+        List<BonSortie> bons = repo.findBySeance(seanceId, centerId);
+        if (bons.isEmpty()) return;
+        Set<UUID> touches = new LinkedHashSet<>();
+        for (BonSortie bon : bons) {
+            for (LigneSortie line : bon.getLignes()) {
+                touches.add(line.articleId());
+                if (line.lotId() != null) {
+                    lotRepo.findById(line.lotId(), centerId).ifPresent(lot -> {
+                        lot.restituer(line.quantite());
+                        lotRepo.save(lot);
+                    });
+                }
+            }
+        }
+        for (UUID articleId : touches) {
+            movementRepo.deleteBySeanceAndArticle(centerId, seanceId, articleId);
+        }
+        bons.forEach(bon -> repo.delete(bon.getId(), centerId));
+        for (UUID articleId : touches) {
+            pmpEngine.recalculerArticle(centerId, articleId);
+        }
+        publishStockMovementChanged(centerId.value(), "ANNULATION", bons.getFirst().getReference(), touches.size());
+    }
+
+    @Override
     public BonSortie addSeanceConsommation(CenterId centerId, UUID seanceId, UUID patientId, LocalDate dateSeance,
                                            UUID articleId, BigDecimal quantite, String userId) {
         if (quantite == null || quantite.signum() <= 0) {

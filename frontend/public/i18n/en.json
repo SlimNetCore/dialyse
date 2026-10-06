@@ -1509,7 +1509,25 @@
     "PARAMEDICAL_SAVED": "Paramedical section saved",
     "MEDICAL_SAVED": "Medical section saved",
     "SESSION_VALIDATED": "Session validated",
-    "SESSION_SIGNED_BY_DOCTOR": "Session signed by doctor"
+    "SESSION_SIGNED_BY_DOCTOR": "Session signed by doctor",
+    "DELETE": {
+      "COLUMN": "Actions",
+      "ACTION": "Delete the session",
+      "TITLE": "Delete the session?",
+      "MESSAGE": "Session of {{patient}} on {{date}}.",
+      "CONSEQUENCES": "The session, its paramedical and medical sheets and its EPO/iron administrations are erased; consumables taken from stock are returned. The deletion is logged and cannot be undone.",
+      "MOTIF": "Reason for deletion",
+      "MOTIF_HINT": "Required, {{min}} to {{max}} characters",
+      "CONFIRM": "Delete",
+      "OK": "Session deleted; consumed stock has been returned.",
+      "ERR": {
+        "GENERIC": "Deletion failed. Try again.",
+        "DROITS": "Only an administrator can delete a session.",
+        "SEANCE_INTROUVABLE": "Session not found in this centre (already deleted?).",
+        "SEANCE_FACTUREE_NON_SUPPRIMABLE": "An invoiced session cannot be deleted: cancel the invoice first.",
+        "SEANCE_SUPPRESSION_MOTIF_INVALIDE": "The reason must be 5 to 500 characters long."
+      }
+    }
   },
   "TOOLBAR": {
     "LOGOUT": "Sign out"
@@ -2260,7 +2278,11 @@
       },
       "ERR": {
         "LOAD": "Unable to load the weekly planning"
-      }
+      },
+      "TEMPORAIRE": "Session temporarily moved (maintenance of the usual generator)",
+      "REALISEE_HORS_PLANNING": "Session done here that day; the patient's current planning no longer schedules it (days or place changed since)",
+      "DEJA_REALISEE": "Session already done on {{date}} outside the current days: check before dialysing (possibly one session too many)",
+      "SANS_CASE": "Sessions done with no cell in the current planning (patient no longer placed):"
     },
     "PARAMS": {
       "TITLE": "Center planning",
@@ -2299,6 +2321,180 @@
       "SALLE_PREFEREE": "Chosen room",
       "SALLE_PEU_CHARGEE": "Lightly loaded room",
       "SALLE_ISOLEMENT": "Isolation room"
+    },
+    "OPTIM": {
+      "TITLE": "Planning optimisation",
+      "SUBTITLE": "The optimisation engine proposes a planning that uses as few resources as possible (generators, rooms, nurses). Nothing changes until you apply the proposal.",
+      "PARAMS_TITLE": "Calculation settings",
+      "PERIMETRE": "Scope",
+      "PERIMETRES": {
+        "COMPLET": "Patients + nurse rotation",
+        "PATIENTS": "Patient placement",
+        "ROULEMENT": "Nurse rotation",
+        "COUVERTURE": "Absence cover",
+        "MAINTENANCE": "Generator maintenance"
+      },
+      "PERIMETRES_HINT": {
+        "COMPLET": "Optimises the patients' places and the nurse rotation together, in a single model: the staffing need follows the placements during the calculation.",
+        "PATIENTS": "Re-places the patients (room, slot, generator) to free rooms and reduce nurse shifts. Their dialysis days do not change.",
+        "ROULEMENT": "Designs the weekly nurse rotation against the current patient placements.",
+        "COUVERTURE": "Fills the understaffed slots of the coming weeks (absences, leave) with replacements.",
+        "MAINTENANCE": "For each session whose generator is under maintenance (CMMS), proposes a temporary place for that day without changing the patient's usual place."
+      },
+      "DEBUT": "Start of the period",
+      "DEBUT_HINT": "Moved back to the Sunday of the week",
+      "SEMAINES": "Number of weeks",
+      "RANGE": "From {{min}} to {{max}}",
+      "DUREE": "Calculation time (seconds)",
+      "DUREE_HINT": "Per phase, {{min}} to {{max}} s: the longer, the better the proposal",
+      "STABILITE": "Stability",
+      "STABILITE_HINT": "From {{min}} (anything can change) to {{max}} (change habits as little as possible)",
+      "OBJECTIF": "Nurse objective",
+      "OBJECTIFS": {
+        "EQUITE": "Share the workload fairly",
+        "ECONOMIE": "Use as few nurses as possible"
+      },
+      "MAX_JOUR": "Maximum shifts per day",
+      "MAX_SEMAINE": "Maximum shifts per week",
+      "LANCER": "Run the optimisation",
+      "RUNNING_TITLE": "Calculation in progress",
+      "PHASE": {
+        "INIT": "Preparing…",
+        "PATIENTS": "Placing the patients",
+        "INFIRMIERS": "Planning the nurses",
+        "COMPLET": "Patients and nurses (joint model)",
+        "MAINTENANCE": "Temporary moves"
+      },
+      "SCORE": "Best score",
+      "ARRETER": "Stop and keep the best solution",
+      "ARRETER_HINT": "The calculation keeps running in the background: you can leave this screen and come back through the history.",
+      "RESULT_TITLE": "Proposal",
+      "SEMAINE_TYPE": "Patient, room and shift indicators describe a typical week (no closure, absence or replacement).",
+      "INDICATEUR": {
+        "generateursUtilises": "Generators used",
+        "sallesOuvertes": "Open rooms (room × slot × day)",
+        "vacationsRequises": "Nurse shifts required",
+        "placesInfirmierInutilisees": "Unused nurse capacity",
+        "patientsNonPlaces": "Unplaced patients",
+        "vacationsNonPourvues": "Unfilled shifts",
+        "infirmiersMobilises": "Nurses mobilised",
+        "ecartCharge": "Workload gap between nurses",
+        "depassementsHebdo": "Weekly overtime"
+      },
+      "COL": {
+        "INDICATEUR": "Indicator",
+        "AVANT": "Before",
+        "APRES": "After",
+        "ECART": "Change",
+        "PATIENT": "Patient",
+        "DE": "Current place",
+        "VERS": "New place",
+        "CAUSE": "Cause",
+        "DATE": "Date",
+        "SALLE": "Room",
+        "CRENEAU": "Slot",
+        "INFIRMIER": "Nurse",
+        "STATUT": "Status",
+        "MANQUE": "Missing shifts",
+        "JOURS": "Days",
+        "MOTIF": "Reason"
+      },
+      "TABS": {
+        "DEPLACEMENTS": "Moves",
+        "NON_PLACES": "Unplaced",
+        "VACATIONS": "Shifts",
+        "MANQUES": "Unfilled",
+        "TEMPORAIRES": "Temporary moves",
+        "SANS_SOLUTION": "Sessions without a solution"
+      },
+      "CAUSES": {
+        "AUCUNE_PLACE": "No place available",
+        "ISOLEMENT_IMPOSSIBLE": "No isolation room",
+        "JOURS_FERMES": "No open dialysis day"
+      },
+      "NOUVELLE_VACATION": "New",
+      "AUCUN_CHANGEMENT": "No change proposed.",
+      "AUCUN_NON_PLACE": "Every patient has a place.",
+      "AUCUN_MANQUE": "Every shift is filled.",
+      "APPLIQUER": "Apply the proposal",
+      "APPLIQUEE": "Applied",
+      "APPLIQUEE_LE": "applied on {{date}}",
+      "ADMIN_SEUL": "Only the administrator can apply a proposal.",
+      "CONFIRM": {
+        "TITLE": "Apply the proposal?",
+        "MESSAGE_PATIENTS": "The patients in the list of moves will change room, slot and generator on their record.",
+        "MESSAGE_ROULEMENT": "The current nurse rotation will be replaced by the one in the proposal.",
+        "MESSAGE_COUVERTURE": "The replacements in the proposal will be recorded in the attendance planning.",
+        "MESSAGE_COMPLET": "The patients will be moved, then the nurse rotation will be replaced by the one in the proposal.",
+        "MESSAGE_MAINTENANCE": "The temporary moves will be recorded for their date; the patients' usual places do not change."
+      },
+      "STATUT": {
+        "EN_COURS": "In progress",
+        "TERMINEE": "Finished",
+        "ECHEC": "Failed"
+      },
+      "HISTORY_TITLE": "Calculation history",
+      "HISTORY_EMPTY": "No optimisation yet.",
+      "OUVRIR": "Open",
+      "ERR": {
+        "GENERIC": "The operation failed. Please try again.",
+        "PARAMETRES": "Settings rejected: check the values entered.",
+        "SUIVI": "Unable to follow the progress of the calculation.",
+        "OPTIMISATION_DEJA_EN_COURS": "An optimisation is already running for this center.",
+        "OPTIMISATION_INTROUVABLE": "Optimisation not found.",
+        "OPTIMISATION_NON_APPLICABLE": "Only a finished optimisation can be applied.",
+        "OPTIMISATION_DEJA_APPLIQUEE": "This proposal has already been applied.",
+        "OPTIMISATION_PERIMEE": "The center has changed since the calculation: run the optimisation again.",
+        "PLACEMENT": "A proposed place breaks the planning rules: run the optimisation again."
+      },
+      "OK": {
+        "APPLIQUEE": "The proposal has been applied."
+      },
+      "JOURS_INCHANGES": "Unchanged",
+      "AUCUNE_MAINTENANCE": "No session is affected by a maintenance over the horizon.",
+      "AUCUNE_SEANCE_SANS_SOLUTION": "Every affected session has a temporary place.",
+      "PREFS": {
+        "TITLE": "Planning preferences",
+        "SUBTITLE": "What the optimisation takes into account besides the planning: patients' wishes, nurses' part-time and skills, centre settings.",
+        "TAB_PATIENTS": "Patients",
+        "TAB_INFIRMIERS": "Nurses",
+        "TAB_REGLAGES": "Settings",
+        "PATIENTS_HINT": "Preferred slot and, for a new patient or days to review, the number of sessions whose days the optimisation chooses.",
+        "INFIRMIERS_HINT": "Activity rate (part-time) and particular skills (paediatrics, catheter) of each nurse.",
+        "CRENEAU_PREFERE": "Preferred slot",
+        "AUCUN_CRENEAU": "No preference",
+        "JOURS_A_CHOISIR": "Days chosen by the optimisation",
+        "SEANCES": "Sessions per week",
+        "SEANCES_N": "{{n}} session(s) / week",
+        "JOURS_HINT": "Well-spaced days are chosen among the opening days; they replace those of the record only when the proposal is applied.",
+        "MODIFIER": "Edit",
+        "EDITION": "Editing: {{nom}}",
+        "ENREGISTRER": "Save",
+        "AUCUN_PATIENT": "No active patient in this centre.",
+        "AUCUN_INFIRMIER": "No active nurse in this centre.",
+        "QUALIFICATION": "Qualification",
+        "TAUX": "Activity rate (%)",
+        "COMPETENCES": "Skills",
+        "COMPETENCE": {
+          "PEDIATRIE": "Paediatrics",
+          "CATHETER": "Catheter"
+        },
+        "AUTO": "Automatic re-planning every night",
+        "AUTO_HINT": "Every night, absence cover, maintenance moves and patient placement are recalculated; useful proposals are notified to the administration, never applied automatically.",
+        "HEURES_VACATION": "Length of a shift (hours)",
+        "HEURES_HEBDO": "Weekly hours of a full-time nurse",
+        "REPOS": "Rest days per week (minimum)",
+        "ADMIN_SEUL": "Only an administrator can change the settings.",
+        "OK": "Saved.",
+        "ERR": {
+          "GENERIC": "Saving failed. Try again.",
+          "VALEURS": "Values refused: check the indicated bounds.",
+          "DROITS": "You are not allowed to make this change.",
+          "PREFERENCE_CRENEAU_INCONNU": "This slot does not belong to the centre.",
+          "PREFERENCE_PATIENT_INTROUVABLE": "Patient not found in this centre.",
+          "PROFIL_INFIRMIER_INTROUVABLE": "Nurse not found in this centre."
+        }
+      }
     }
   },
   "MEDECIN": {
@@ -2706,7 +2902,8 @@
     "FACTURATION": "Billing",
     "REGLEMENT": "Payments",
     "COMPTABILITE": "Accounting",
-    "MENU": "Menu"
+    "MENU": "Menu",
+    "PLANNING_OPTIMISATION": "Planning optimisation"
   },
   "COMPTABILITE": {
     "EYEBROW": "Accounting module",
@@ -2971,7 +3168,13 @@
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} slot(s) understaffed in the coming days (from {{date}}): replacements to organize",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} declared an absence from {{debut}} to {{fin}}: replacement to organize",
     "SEANCE_CREATED": "Session created for {{nom}} ({{date}})",
-    "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})"
+    "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})",
+    "OPTIMISATION_PROPOSITION": {
+      "SOUS_EFFECTIF": "Nightly re-planning: {{n}} understaffed shift(s) to fill — proposal to review",
+      "MAINTENANCE": "Nightly re-planning: {{n}} session(s) to move for a generator maintenance",
+      "GAIN": "Nightly re-planning: a placement proposal saves {{n}} resource(s)"
+    },
+    "SEANCE_SUPPRIMEE": "Session of {{date}} deleted by the administration"
   },
   "PEC_LIST": {
     "TITLE": "Coverage list",
