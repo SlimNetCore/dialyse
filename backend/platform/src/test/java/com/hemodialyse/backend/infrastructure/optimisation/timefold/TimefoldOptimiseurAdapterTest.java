@@ -19,6 +19,7 @@ import com.hemodialyse.backend.domain.planning.optimisation.service.Verification
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +53,13 @@ class TimefoldOptimiseurAdapterTest {
 
     private static ParametresOptimisation params(PerimetreOptimisation perimetre, int stabilite) {
         return new ParametresOptimisation(perimetre, DIMANCHE, 1, 2, stabilite, ObjectifInfirmiers.EQUITE, 2, 6);
+    }
+
+    @Test
+    void should_round_unimproved_termination_limit_down_to_whole_seconds() {
+        var terminaison = TimefoldOptimiseurAdapter.terminaison(Duration.ofSeconds(20));
+
+        assertThat(terminaison.getUnimprovedSpentLimit()).isEqualTo(Duration.ofSeconds(6));
     }
 
     private ResultatOptimisation resoudre(DonneesOptimisation donnees, ParametresOptimisation parametres) throws Exception {

@@ -297,8 +297,9 @@ public class TimefoldOptimiseurAdapter implements OptimiseurPlanningPort, Dispos
                 .withForagerConfig(new LocalSearchForagerConfig().withAcceptedCountLimit(1));
     }
 
-    private static TerminationConfig terminaison(Duration duree) {
-        Duration sansAmelioration = duree.dividedBy(DIVISEUR_SANS_AMELIORATION);
+    static TerminationConfig terminaison(Duration duree) {
+        Duration sansAmelioration = Duration.ofSeconds(
+                duree.dividedBy(DIVISEUR_SANS_AMELIORATION).toSeconds());
         if (sansAmelioration.compareTo(SANS_AMELIORATION_MIN) < 0) sansAmelioration = SANS_AMELIORATION_MIN;
         return new TerminationConfig().withSpentLimit(duree).withUnimprovedSpentLimit(sansAmelioration);
     }
