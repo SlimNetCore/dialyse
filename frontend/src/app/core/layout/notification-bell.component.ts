@@ -100,6 +100,8 @@ export class NotificationBellComponent {
         return 'lock_open';
       case 'OPTIMISATION_PROPOSITION':
         return 'auto_fix_high';
+      case 'SEANCE_SUPPRIMEE':
+        return 'delete';
       default:
         return 'info';
     }
@@ -173,6 +175,8 @@ export class NotificationBellComponent {
           count: evt.payload['nbCreneaux'] ?? '',
           date: evt.payload['premiereDate'] ?? '',
         });
+      case 'SEANCE_SUPPRIMEE':
+        return this.translate.instant('NOTIFICATION.SEANCE_SUPPRIMEE', {date: evt.payload['dateSeance'] ?? ''});
       case 'OPTIMISATION_PROPOSITION':
         return this.translate.instant(`NOTIFICATION.OPTIMISATION_PROPOSITION.${evt.payload['motif'] ?? 'GAIN'}`, {
           n: evt.payload['valeur'] ?? '',

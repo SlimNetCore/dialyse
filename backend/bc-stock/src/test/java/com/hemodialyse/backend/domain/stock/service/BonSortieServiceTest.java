@@ -196,6 +196,36 @@ class BonSortieServiceTest {
         assertThrows(IllegalArgumentException.class, () -> f.set(f.articleA, "-1"));
     }
 
+    @Test
+    void cancelling_the_exits_of_a_deleted_session_restores_every_lot_and_removes_bons_and_movements() {
+        SeanceBonFixture f = new SeanceBonFixture();
+        f.add(f.articleA, "3");
+        f.add(f.articleB, "2");
+        // administration EPO/fer : un second bon numéroté, rattaché à la même séance
+        f.service.createViaFefo(f.centerId, f.seanceId, f.patientId, "ANEMIE", LocalDate.of(2026, 10, 4), f.articleA,
+                new BigDecimal("1"), "inf-01");
+        assertEquals(2, f.repo.findBySeance(f.seanceId, f.centerId).size());
+
+        f.service.annulerSortiesSeance(f.centerId, f.seanceId, "admin");
+
+        assertTrue(f.repo.findBySeance(f.seanceId, f.centerId).isEmpty());
+        assertEquals(0, new BigDecimal("10").compareTo(f.lotA.getQuantiteRestante()));
+        assertEquals(0, new BigDecimal("10").compareTo(f.lotB.getQuantiteRestante()));
+        assertTrue(f.movementRepo.findBySeanceAndArticle(f.centerId, f.seanceId, f.articleA).isEmpty());
+        assertTrue(f.movementRepo.findBySeanceAndArticle(f.centerId, f.seanceId, f.articleB).isEmpty());
+    }
+
+    @Test
+    void cancelling_is_harmless_without_exits_and_refused_for_a_billed_session() {
+        SeanceBonFixture f = new SeanceBonFixture();
+        f.service.annulerSortiesSeance(f.centerId, f.seanceId, "admin");
+
+        f.add(f.articleA, "1");
+        f.billing.markBilled(f.centerId, f.seanceId);
+        assertThrows(IllegalStateException.class, () -> f.service.annulerSortiesSeance(f.centerId, f.seanceId, "admin"));
+        assertEquals(0, new BigDecimal("9").compareTo(f.lotA.getQuantiteRestante()), "rien n'est restitué");
+    }
+
     /**
      * Fixture d'une séance avec deux articles en stock (un lot chacun) et un service câblé sur des fakes mémoire.
      */
@@ -357,6 +387,11 @@ class BonSortieServiceTest {
     }
 
     private static final class InMemoryBonSortieRepo implements BonSortieRepositoryPort {
+        @Override
+        public void delete(UUID id, CenterId centerId) {
+            findById(id, centerId).ifPresent(b -> data.remove(b.getId()));
+        }
+
         private final Map<UUID, BonSortie> data = new HashMap<>();
 
         @Override

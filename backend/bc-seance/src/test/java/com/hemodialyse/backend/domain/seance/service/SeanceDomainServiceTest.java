@@ -957,6 +957,11 @@ class SeanceDomainServiceTest {
     // ── In-memory stubs ──────────────────────────────────────────────
 
     private static final class InMemorySeanceRepository implements SeanceRepositoryPort {
+        @Override
+        public void delete(CenterId centerId, UUID seanceId) {
+            throw new UnsupportedOperationException();
+        }
+
         private final Map<UUID, Seance> data = new HashMap<>();
         @Override
         public Seance save(Seance seance) {
@@ -1189,6 +1194,11 @@ class SeanceDomainServiceTest {
     }
 
     private static final class SpyBonSortieUseCase implements BonSortieUseCase {
+        @Override
+        public void annulerSortiesSeance(CenterId centerId, UUID seanceId, String userId) {
+            throw new UnsupportedOperationException();
+        }
+
         boolean called = false;
         List<SortieRequestItem> lastItems = List.of();
         boolean setCalled = false;

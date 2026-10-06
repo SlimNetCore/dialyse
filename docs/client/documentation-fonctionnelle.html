@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-10-06<br>493 règles de gestion · 16 domaines · 369 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-10-06<br>494 règles de gestion · 16 domaines · 373 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>493</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>494</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -1387,6 +1387,16 @@ consommables (« La seance facturee ne peut plus etre modifiee »). L&#39;entré
 </div></div>
 <div class="rule" id="RG-SEA-003"><div class="rid">RG-SEA-003</div><div class="rtxt"><p>Une séance appartient à un patient et à un centre ; une séance inconnue du centre : « Seance
 introuvable ».</p>
+</div></div>
+<div class="rule" id="RG-SEA-050"><div class="rid">RG-SEA-050</div><div class="rtxt"><p><strong>Suppression d&#39;une séance</strong> (<code>ADMIN</code> seul, écran « Historique des séances » ;
+<code>DELETE /api/v1/seances/{id}</code>), tout ou rien : la séance doit exister dans le centre (<code>SEANCE_INTROUVABLE</code>) et ne
+pas être facturée (<code>SEANCE_FACTUREE_NON_SUPPRIMABLE</code> : annuler d&#39;abord la facture) ; un <strong>motif</strong> de 5 à 500
+caractères est exigé (<code>SEANCE_SUPPRESSION_MOTIF_INVALIDE</code>). Une séance créée, validée ou signée peut être supprimée.
+Effets : les consommables et administrations EPO/fer sortis du stock pour la séance sont <strong>restitués</strong> (lots
+recrédités, mouvements et bons de sortie supprimés, PMP recalculé) ; les volets paramédical et médical et les
+administrations EPO/fer de la séance sont effacés ; la séance est supprimée. La suppression est <strong>journalisée</strong>
+(séance, patient, date, statut, motif, auteur, horodatage — table <code>seance_suppression</code>) en plus du journal d&#39;audit
+(RG-SEC-050), et notifiée en temps réel (<code>SEANCE_SUPPRIMEE</code>) pour rafraîchir les écrans. Irréversible.</p>
 </div></div>
 <h2>7.2 Création</h2>
 <div class="rule" id="RG-SEA-010"><div class="rid">RG-SEA-010</div><div class="rtxt"><p>Création : <code>ADMIN</code> ou <code>INFIRMIER</code>. Le patient doit exister dans le centre. La date par défaut est
@@ -2882,6 +2892,12 @@ ignorée). Les évènements de séance historiques ne visent plus le médecin : 
 <td>RG-SEA-031</td>
 </tr>
 <tr>
+<td><code>SEANCE_SUPPRIMEE</code></td>
+<td>séance supprimée par l&#39;administrateur (motif journalisé)</td>
+<td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
+<td>RG-SEA-050</td>
+</tr>
+<tr>
 <td><code>SEANCE_CONSOMMABLE_CHANGED</code></td>
 <td>consommable ajouté / modifié / retiré</td>
 <td><code>INFIRMIER</code>, <code>SECRETAIRE</code></td>
@@ -3222,6 +3238,12 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>/api/v1/seances</code></td>
 <td><code>ADMIN</code>, <code>INFIRMIER</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> selon l&#39;action</td>
 <td>RG-SEA-001 à 044</td>
+</tr>
+<tr>
+<td><code>SeanceSuppressionRestController</code></td>
+<td><code>/api/v1/seances/{id}</code> (<code>DELETE</code>)</td>
+<td><code>ADMIN</code></td>
+<td>RG-SEA-050</td>
 </tr>
 <tr>
 <td><code>SeanceStationRestController</code></td>

@@ -15,5 +15,7 @@ public interface BonSortieRepositoryPort {
     List<BonSortie> findAll(CenterId centerId);
 
     List<BonSortie> findBySeance(UUID seanceId, CenterId centerId);
+
+    void delete(UUID id, CenterId centerId);
 }
 

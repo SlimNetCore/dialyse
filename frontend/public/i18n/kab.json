@@ -1285,7 +1285,25 @@
     "PARAMEDICAL_SAVED": "Aḥric aparamedikal yettwasekles",
     "MEDICAL_SAVED": "Aḥric asnajyan yettwasekles",
     "SESSION_VALIDATED": "Tamsirt tettwaqbel",
-    "SESSION_SIGNED_BY_DOCTOR": "Aṭbib yezml ɣef tmsirt"
+    "SESSION_SIGNED_BY_DOCTOR": "Aṭbib yezml ɣef tmsirt",
+    "DELETE": {
+      "COLUMN": "Tigawin",
+      "ACTION": "Kkes tiɣimit",
+      "TITLE": "Ad tekkseḍ tiɣimit?",
+      "MESSAGE": "Tiɣimit n {{patient}} n {{date}}.",
+      "CONSEQUENCES": "Tiɣimit, ifuyla-s paramédical d usegnaf d tmuddiwin n EPO/uzzal ad ttwakksen; tisusmin yeffɣen seg uḥraz ad d-uɣalent ɣur-s. Tukksa ad tettwasekles, ur tettwasefsay ara.",
+      "MOTIF": "Taɣẓint n tukksa",
+      "MOTIF_HINT": "Ilaq, seg {{min}} ar {{max}} n yisekkilen",
+      "CONFIRM": "Kkes",
+      "OK": "Tiɣimit tettwakkes; aḥraz yettwaseqdacen yuɣal-d.",
+      "ERR": {
+        "GENERIC": "Tukksa ur teddi ara. Ɛreḍ tikkelt-nniḍen.",
+        "DROITS": "Anedbal kan i izemren ad yekkes tiɣimit.",
+        "SEANCE_INTROUVABLE": "Tiɣimit ulac-itt deg tlemmast-a (tettwakkes yakan?).",
+        "SEANCE_FACTUREE_NON_SUPPRIMABLE": "Tiɣimit yettwafeṭren ur tettwakkas ara: sefsex tafaṭurt qbel.",
+        "SEANCE_SUPPRESSION_MOTIF_INVALIDE": "Taɣẓint ilaq ad tesɛu seg 5 ar 500 n yisekkilen."
+      }
+    }
   },
   "REPORTING": {
     "CUSTOMIZE": {
@@ -2795,7 +2813,8 @@
       "SOUS_EFFECTIF": "Asɣiwes n yiḍ: {{n}} n tnubga ixuṣṣen ara yettwaččren — asumer ara teẓreḍ",
       "MAINTENANCE": "Asɣiwes n yiḍ: {{n}} n tɣimit ara yettwasenkzen ɣef useɣti n umesgar",
       "GAIN": "Asɣiwes n yiḍ: asumer n usideg ad d-yesselḥu {{n}} n tɣbula"
-    }
+    },
+    "SEANCE_SUPPRIMEE": "Tiɣimit n {{date}} tettwakkes sɣur tedbelt"
   },
   "PEC_LIST": {
     "TITLE": "Tabdart n tneḍrutin",

@@ -14,4 +14,9 @@ public interface AdministrationTraitementRepositoryPort {
     List<AdministrationTraitement> findByPatientId(UUID patientId, CenterId centerId);
 
     AdministrationTraitement save(AdministrationTraitement administration);
+
+    /**
+     * Supprime les administrations faites pendant une séance (séance supprimée).
+     */
+    void deleteBySeanceId(UUID seanceId, CenterId centerId);
 }

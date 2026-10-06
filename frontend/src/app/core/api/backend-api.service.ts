@@ -831,6 +831,14 @@ export class BackendApiService {
     return this.http.post<ScanSeanceResult>(`${this.baseUrl}/seances/scan`, payload);
   }
 
+  /**
+   * L'administrateur supprime une séance non facturée, motif obligatoire : le stock consommé est restitué et la
+   * suppression journalisée.
+   */
+  supprimerSeance(seanceId: string, centerId: string, motif: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/seances/${seanceId}`, {params: {centerId}, body: {motif}});
+  }
+
   /** L'administrateur déverrouille une séance oubliée (jour passé) : l'infirmier peut alors la valider. */
   deverrouillerSeance(seanceId: string, centerId: string):
     Observable<{ id: string; status: string; regularisationDeverrouilleeAt: string }> {

@@ -49,6 +49,11 @@ public class SeanceRepositoryAdapter implements SeanceRepositoryPort {
     }
 
     @Override
+    public void delete(CenterId centerId, UUID seanceId) {
+        jpa.findByIdAndCenterId(seanceId, centerId.value()).ifPresent(jpa::delete);
+    }
+
+    @Override
     public Optional<Seance> findById(UUID seanceId, CenterId centerId) {
         return jpa.findByIdAndCenterId(seanceId, centerId.value()).map(this::toDomain);
     }

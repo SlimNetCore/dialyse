@@ -17,6 +17,15 @@
   également immuable (`SEANCE_BILLED_STOCK_EXIT_IMMUTABLE`).
 - **RG-SEA-003** — Une séance appartient à un patient et à un centre ; une séance inconnue du centre : « Seance
   introuvable ».
+- **RG-SEA-050** — **Suppression d'une séance** (`ADMIN` seul, écran « Historique des séances » ;
+  `DELETE /api/v1/seances/{id}`), tout ou rien : la séance doit exister dans le centre (`SEANCE_INTROUVABLE`) et ne
+  pas être facturée (`SEANCE_FACTUREE_NON_SUPPRIMABLE` : annuler d'abord la facture) ; un **motif** de 5 à 500
+  caractères est exigé (`SEANCE_SUPPRESSION_MOTIF_INVALIDE`). Une séance créée, validée ou signée peut être supprimée.
+  Effets : les consommables et administrations EPO/fer sortis du stock pour la séance sont **restitués** (lots
+  recrédités, mouvements et bons de sortie supprimés, PMP recalculé) ; les volets paramédical et médical et les
+  administrations EPO/fer de la séance sont effacés ; la séance est supprimée. La suppression est **journalisée**
+  (séance, patient, date, statut, motif, auteur, horodatage — table `seance_suppression`) en plus du journal d'audit
+  (RG-SEC-050), et notifiée en temps réel (`SEANCE_SUPPRIMEE`) pour rafraîchir les écrans. Irréversible.
 
 ## 7.2 Création
 

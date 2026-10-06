@@ -36,6 +36,7 @@
 | `SEANCE_VALIDATED`                           | validation infirmière                                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-020             |
 | `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                                              | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-030             |
 | `SEANCE_MEDICAL_SAVED`                       | volet médical enregistré                                                                  | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-031             |
+| `SEANCE_SUPPRIMEE`                           | séance supprimée par l'administrateur (motif journalisé)                                  | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                  | RG-SEA-050             |
 | `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-022             |
 | `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                                             | `MEDECIN`                                           | RG-NOT-004             |
 | `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30)                          | `MEDECIN`                                           | RG-MED-073             |

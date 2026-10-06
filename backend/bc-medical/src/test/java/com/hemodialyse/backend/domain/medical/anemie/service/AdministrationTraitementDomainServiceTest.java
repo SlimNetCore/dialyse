@@ -68,6 +68,11 @@ class AdministrationTraitementDomainServiceTest {
     }
 
     private static final class FakeRepository implements AdministrationTraitementRepositoryPort {
+        @Override
+        public void deleteBySeanceId(UUID seanceId, CenterId centerId) {
+            throw new UnsupportedOperationException();
+        }
+
         private final List<AdministrationTraitement> saved = new ArrayList<>();
 
         @Override

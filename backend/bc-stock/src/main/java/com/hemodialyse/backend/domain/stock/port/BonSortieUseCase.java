@@ -44,6 +44,13 @@ public interface BonSortieUseCase {
      * pendant la séance, où chaque administration doit être traçable comme une sortie numérotée
      * distincte (pas une simple correction de mouvement).
      */
+    /**
+     * Annule toutes les sorties de stock d'une séance supprimée (bon « SEANCE » et administrations EPO/fer) : les lots
+     * sont restitués, les mouvements et les bons supprimés, le PMP des articles recalculé. Refusé si la séance est
+     * facturée.
+     */
+    void annulerSortiesSeance(CenterId centerId, UUID seanceId, String userId);
+
     BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
                             LocalDate dateSortie, UUID articleId, BigDecimal quantite, String userId);
 }

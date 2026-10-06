@@ -1093,3 +1093,19 @@ CREATE TABLE IF NOT EXISTS deplacement_temporaire
     UNIQUE (center_id, patient_id, date_seance)
 );
 CREATE INDEX IF NOT EXISTS idx_deplacement_temporaire_date ON deplacement_temporaire (center_id, date_seance);
+
+-- Journal des séances supprimées (voir migration V27)
+CREATE TABLE IF NOT EXISTS seance_suppression
+(
+    id          UUID PRIMARY KEY,
+    center_id   UUID                     NOT NULL,
+    seance_id   UUID                     NOT NULL,
+    patient_id  UUID                     NOT NULL,
+    date_seance DATE                     NOT NULL,
+    statut      VARCHAR(20)              NOT NULL,
+    motif       VARCHAR(500)             NOT NULL,
+    supprime_par VARCHAR(255)            NOT NULL,
+    supprime_le TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_seance_suppression_centre ON seance_suppression (center_id, supprime_le);

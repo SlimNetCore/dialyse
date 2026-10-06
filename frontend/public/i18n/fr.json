@@ -1509,7 +1509,25 @@
     "PARAMEDICAL_SAVED": "Volet paramédical enregistré",
     "MEDICAL_SAVED": "Volet médical enregistré",
     "SESSION_VALIDATED": "Séance validée",
-    "SESSION_SIGNED_BY_DOCTOR": "Séance signée par le médecin"
+    "SESSION_SIGNED_BY_DOCTOR": "Séance signée par le médecin",
+    "DELETE": {
+      "COLUMN": "Actions",
+      "ACTION": "Supprimer la séance",
+      "TITLE": "Supprimer la séance ?",
+      "MESSAGE": "Séance de {{patient}} du {{date}}.",
+      "CONSEQUENCES": "La séance, ses volets paramédical et médical et ses administrations EPO/fer sont effacés ; les consommables sortis du stock y sont restitués. La suppression est journalisée et ne peut pas être annulée.",
+      "MOTIF": "Motif de la suppression",
+      "MOTIF_HINT": "Obligatoire, de {{min}} à {{max}} caractères",
+      "CONFIRM": "Supprimer",
+      "OK": "Séance supprimée ; le stock consommé a été restitué.",
+      "ERR": {
+        "GENERIC": "La suppression a échoué. Réessayez.",
+        "DROITS": "Seul un administrateur peut supprimer une séance.",
+        "SEANCE_INTROUVABLE": "Séance introuvable dans ce centre (déjà supprimée ?).",
+        "SEANCE_FACTUREE_NON_SUPPRIMABLE": "Une séance facturée ne peut pas être supprimée : annulez d'abord la facture.",
+        "SEANCE_SUPPRESSION_MOTIF_INVALIDE": "Le motif doit compter de 5 à 500 caractères."
+      }
+    }
   },
   "TOOLBAR": {
     "LOGOUT": "Déconnexion"
@@ -3155,7 +3173,8 @@
       "SOUS_EFFECTIF": "Replanification nocturne : {{n}} vacation(s) en sous-effectif à pourvoir — proposition à consulter",
       "MAINTENANCE": "Replanification nocturne : {{n}} séance(s) à déplacer pour maintenance d'un générateur",
       "GAIN": "Replanification nocturne : une proposition de placement économise {{n}} ressource(s)"
-    }
+    },
+    "SEANCE_SUPPRIMEE": "Séance du {{date}} supprimée par l'administration"
   },
   "PEC_LIST": {
     "TITLE": "Liste PEC",

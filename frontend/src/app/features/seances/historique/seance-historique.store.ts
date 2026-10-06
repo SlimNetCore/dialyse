@@ -2,7 +2,8 @@ import {inject} from '@angular/core';
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
-import {catchError, EMPTY, pipe, switchMap, tap} from 'rxjs';
+import {HttpErrorResponse} from '@angular/common/http';
+import {catchError, EMPTY, firstValueFrom, pipe, switchMap, tap} from 'rxjs';
 import {BackendApiService, SeanceListItem} from '../../../core/api/backend-api.service';
 import {toSeanceHistoryQuery} from './seance-historique.util';
 
@@ -21,6 +22,9 @@ export type SeanceHistoriqueState = {
   periodTo: string;
   sortColumnId: string | null;
   sortDirection: SortDirection;
+  /** Suppression en cours (bouton désactivé) et dernier message de succès. */
+  deleting: boolean;
+  successMessage: string | null;
 };
 
 const initialState: SeanceHistoriqueState = {
@@ -35,12 +39,26 @@ const initialState: SeanceHistoriqueState = {
   periodTo: '',
   sortColumnId: null,
   sortDirection: '',
+  deleting: false,
+  successMessage: null,
 };
+
+const CODES_SUPPRESSION = ['SEANCE_INTROUVABLE', 'SEANCE_FACTUREE_NON_SUPPRIMABLE', 'SEANCE_SUPPRESSION_MOTIF_INVALIDE'];
+
+/** Clé i18n de l'échec d'une suppression : refus métier connu, droits, sinon générique. */
+export function suppressionErrorKey(err: unknown): string {
+  if (!(err instanceof HttpErrorResponse)) return 'SEANCES.DELETE.ERR.GENERIC';
+  const code: string | undefined = err.error?.code;
+  if (code && CODES_SUPPRESSION.includes(code)) return `SEANCES.DELETE.ERR.${code}`;
+  if (err.status === 403) return 'SEANCES.DELETE.ERR.DROITS';
+  return 'SEANCES.DELETE.ERR.GENERIC';
+}
 
 /**
  * Historique des séances : la recherche, le filtre, le tri et la pagination sont faits par le serveur (jamais sur la
  * seule page affichée). Tout changement de tri ou de filtre revient à la première page.
- * Traçabilité : SeancesHistoriqueComponent → ce store → BackendApiService.listSeances → GET /api/v1/seances.
+ * Traçabilité : SeancesHistoriqueComponent → ce store → BackendApiService.listSeances → GET /api/v1/seances ;
+ * suppression : BackendApiService.supprimerSeance → DELETE /api/v1/seances/{id} (SuppressionSeanceService).
  */
 export const SeanceHistoriqueStore = signalStore(
   {providedIn: 'root'},
@@ -94,6 +112,19 @@ export const SeanceHistoriqueStore = signalStore(
       },
       reload(centerId: string): void {
         load(centerId);
+      },
+      /** Supprime une séance (administrateur) puis recharge la page ; renvoie vrai si elle a été supprimée. */
+      async supprimer(centerId: string, seanceId: string, motif: string): Promise<boolean> {
+        patchState(store, {deleting: true, error: null, successMessage: null});
+        try {
+          await firstValueFrom(api.supprimerSeance(seanceId, centerId, motif), {defaultValue: undefined});
+          patchState(store, {deleting: false, successMessage: 'SEANCES.DELETE.OK'});
+          load(centerId);
+          return true;
+        } catch (err) {
+          patchState(store, {deleting: false, error: suppressionErrorKey(err)});
+          return false;
+        }
       },
     };
   }),

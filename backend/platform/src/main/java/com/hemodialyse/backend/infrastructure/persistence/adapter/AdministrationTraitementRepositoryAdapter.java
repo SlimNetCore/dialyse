@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,12 @@ public class AdministrationTraitementRepositoryAdapter implements Administration
     public List<AdministrationTraitement> findByPatientId(UUID patientId, CenterId centerId) {
         return jpa.findByPatientIdAndCenterIdOrderByDateAdministrationDesc(patientId, centerId.value())
                 .stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteBySeanceId(UUID seanceId, CenterId centerId) {
+        jpa.deleteAll(jpa.findBySeanceIdAndCenterId(seanceId, centerId.value()));
     }
 
     @Override

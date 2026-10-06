@@ -14,4 +14,6 @@ public interface AdministrationTraitementJpaRepository extends JpaRepository<Adm
 
     List<AdministrationTraitementJpaEntity> findByPatientIdAndCenterIdOrderByDateAdministrationDesc(
             UUID patientId, UUID centerId);
+
+    List<AdministrationTraitementJpaEntity> findBySeanceIdAndCenterId(UUID seanceId, UUID centerId);
 }

@@ -1509,7 +1509,25 @@
     "PARAMEDICAL_SAVED": "Paramedical section saved",
     "MEDICAL_SAVED": "Medical section saved",
     "SESSION_VALIDATED": "Session validated",
-    "SESSION_SIGNED_BY_DOCTOR": "Session signed by doctor"
+    "SESSION_SIGNED_BY_DOCTOR": "Session signed by doctor",
+    "DELETE": {
+      "COLUMN": "Actions",
+      "ACTION": "Delete the session",
+      "TITLE": "Delete the session?",
+      "MESSAGE": "Session of {{patient}} on {{date}}.",
+      "CONSEQUENCES": "The session, its paramedical and medical sheets and its EPO/iron administrations are erased; consumables taken from stock are returned. The deletion is logged and cannot be undone.",
+      "MOTIF": "Reason for deletion",
+      "MOTIF_HINT": "Required, {{min}} to {{max}} characters",
+      "CONFIRM": "Delete",
+      "OK": "Session deleted; consumed stock has been returned.",
+      "ERR": {
+        "GENERIC": "Deletion failed. Try again.",
+        "DROITS": "Only an administrator can delete a session.",
+        "SEANCE_INTROUVABLE": "Session not found in this centre (already deleted?).",
+        "SEANCE_FACTUREE_NON_SUPPRIMABLE": "An invoiced session cannot be deleted: cancel the invoice first.",
+        "SEANCE_SUPPRESSION_MOTIF_INVALIDE": "The reason must be 5 to 500 characters long."
+      }
+    }
   },
   "TOOLBAR": {
     "LOGOUT": "Sign out"
@@ -3155,7 +3173,8 @@
       "SOUS_EFFECTIF": "Nightly re-planning: {{n}} understaffed shift(s) to fill — proposal to review",
       "MAINTENANCE": "Nightly re-planning: {{n}} session(s) to move for a generator maintenance",
       "GAIN": "Nightly re-planning: a placement proposal saves {{n}} resource(s)"
-    }
+    },
+    "SEANCE_SUPPRIMEE": "Session of {{date}} deleted by the administration"
   },
   "PEC_LIST": {
     "TITLE": "Coverage list",

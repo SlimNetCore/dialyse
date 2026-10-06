@@ -107,6 +107,16 @@ public class Seance {
     }
 
     /**
+     * Une séance facturée ne se supprime pas : la facture la référence (l'annuler d'abord).
+     */
+    public void verifierSuppressible() {
+        if (status == SeanceStatus.FACTUREE) {
+            throw new BusinessException("SEANCE_FACTUREE_NON_SUPPRIMABLE",
+                    "Une séance facturée ne peut pas être supprimée : annulez d'abord la facture");
+        }
+    }
+
+    /**
      * Fige la place où la séance a eu lieu. Une place déjà mémorisée n'est jamais remplacée : elle reste celle du jour
      * de la séance, même si la place habituelle du patient change ensuite.
      */

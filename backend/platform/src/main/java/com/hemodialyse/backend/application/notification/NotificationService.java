@@ -150,6 +150,18 @@ public class NotificationService {
     }
 
     /**
+     * Une séance a été supprimée par l'administrateur (listes, poste infirmier et planning se rafraîchissent).
+     */
+    public void notifySeanceSupprimee(UUID centerId, UUID seanceId, UUID patientId, java.time.LocalDate dateSeance) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("seanceId", seanceId.toString());
+        payload.put("patientId", patientId.toString());
+        payload.put("dateSeance", dateSeance == null ? "" : dateSeance.toString());
+        payload.put("targetRoles", "ADMIN,INFIRMIER,SECRETAIRE");
+        send(centerId, "SEANCE_SUPPRIMEE", payload);
+    }
+
+    /**
      * Toute saisie de l'infirmier (séance créée ou validée, volet paramédical, consommables, administration EPO/fer,
      * absence de patient) est signalée au <b>médecin</b> du centre dans son centre de notifications.
      *

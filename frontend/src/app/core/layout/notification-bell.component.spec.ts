@@ -93,6 +93,16 @@ describe('NotificationBellComponent — textes des évènements', () => {
     expect(cmp.iconClass(gain)).toBe('pec');
   });
 
+  it('annonce la suppression d\'une séance par l\'administration', () => {
+    TestBed.inject(TranslateService).setTranslation('fr', {
+      NOTIFICATION: {SEANCE_SUPPRIMEE: 'Séance du {{date}} supprimée'},
+    }, true);
+    const evt = event('SEANCE_SUPPRIMEE', {seanceId: 's1', patientId: 'p1', dateSeance: '2026-10-05'});
+
+    expect(cmp.textFor(evt)).toBe('Séance du 2026-10-05 supprimée');
+    expect(cmp.iconFor(evt)).toBe('delete');
+  });
+
   it('affiche le type brut d\'un évènement inconnu', () => {
     const evt = event('AUTRE_CHOSE', {});
     expect(cmp.textFor(evt)).toBe('AUTRE_CHOSE');

@@ -10,5 +10,7 @@ public interface VoletParamedicalRepositoryPort {
     Optional<VoletParamedical> findBySeanceId(UUID seanceId, CenterId centerId);
 
     VoletParamedical save(VoletParamedical volet);
+
+    void deleteBySeanceId(UUID seanceId, CenterId centerId);
 }
 

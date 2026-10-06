@@ -45,6 +45,12 @@
       </div>
     </header>
 
+    @if (store.successMessage(); as ok) {
+      <p class="list-ok" data-testid="seance-delete-ok" role="status">
+        <mat-icon aria-hidden="true">check_circle</mat-icon>
+        {{ ok | translate }}
+      </p>
+    }
     @if (store.error()) {
       <p class="list-error" role="alert">
         <mat-icon aria-hidden="true">error</mat-icon>
@@ -88,6 +94,15 @@
         </span>
       } @else {
         <span class="muted">-</span>
+      }
+    </ng-template>
+
+    <ng-template #actionsCell let-row>
+      @if (supprimable(row)) {
+        <button (click)="supprimer(row)" [attr.aria-label]="'SEANCES.DELETE.ACTION' | translate"
+                [disabled]="store.deleting()" color="warn" data-testid="seance-delete" mat-icon-button type="button">
+          <mat-icon>delete</mat-icon>
+        </button>
       }
     </ng-template>
 
