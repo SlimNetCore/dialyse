@@ -171,3 +171,78 @@
   séries et
   patients par poste n'ont pas de sens consolidé (valent 0). La restitution à la direction est détaillée par centre
   (voir RG-DIR).
+
+## 5.9 Optimisation du planning (moteur Timefold)
+
+> Sources : `domain/planning/optimisation` (modèle, ports, `IndicateursOptimisationService`, `EmpreinteOptimisation`,
+> `VerificationDeplacementsService`), `infrastructure/optimisation/timefold` (`TimefoldOptimiseurAdapter`,
+> `PatientsConstraintProvider`, `InfirmiersConstraintProvider`, `PoidsOptimisation`),
+> `OptimisationPlanningService`, `OptimisationApplicationService`, `OptimisationDonneesJdbcAdapter`,
+> `OptimisationRunJdbcAdapter`, `OptimisationPlanningRecovery`, `PlanningOptimisationRestController`.
+
+- **RG-PLN-080** — L'optimisation **propose** un planning qui consomme le moins de ressources possible (générateurs,
+  salles ouvertes, vacations d'infirmiers) sans enfreindre les règles de la planification. Quatre **périmètres** :
+  `PATIENTS` (replace les patients : salle, créneau, générateur), `ROULEMENT` (conçoit le roulement hebdomadaire des
+  infirmiers face aux placements actuels), `COUVERTURE` (comble les cases en sous-effectif sur 1 à 4 semaines avec des
+  remplaçants), `COMPLET` (`PATIENTS` puis `ROULEMENT` sur les nouveaux placements). Une proposition **n'est jamais
+  appliquée automatiquement**.
+- **RG-PLN-081** — Le calcul est **asynchrone** : le lancement répond immédiatement (`202`) avec une exécution
+  `EN_COURS`, suivie ensuite (avancement et score de la meilleure solution). **Un seul calcul à la fois par centre**
+  (`OPTIMISATION_DEJA_EN_COURS`). Les 20 dernières exécutions de chaque centre sont conservées (historique) ; au
+  démarrage du serveur, toute exécution restée en cours passe en échec (« calcul interrompu par l'arrêt du serveur »).
+  Nombre de calculs en parallèle : `PLANNING_OPTIMISATION_WORKERS` (défaut 2).
+- **RG-PLN-082** — Paramètres et bornes (sinon refus 400) : début de l'horizon (ramené au dimanche de sa semaine),
+  nombre de semaines 1 à 4 (**uniquement** pour `COUVERTURE`, 1 sinon), durée maximale de calcul **par phase** 2 à 300
+  secondes (défaut 20), **stabilité** 0 à 10 (défaut 5 : 0 = tout peut changer, 10 = changer le moins possible),
+  objectif des infirmiers `EQUITE` (défaut) ou `ECONOMIE`, vacations maximales par jour 1 à 3 (défaut 2) et par semaine
+  1 à 14 (défaut 6).
+- **RG-PLN-083** — Données lues, toutes bornées au centre : générateurs en service (RG-PLN-011), patients actifs placés
+  **et patients en attente de place** (jours prescrits mais salle ou créneau manquant), à l'exclusion des patients sortis
+  ou dont le séjour est terminé (RG-PLN-010) ; infirmiers actifs, roulement, absences et remplacements de l'horizon.
+  Les **jours de dialyse des patients ne sont jamais modifiés**. Un patient dont aucun jour n'est ouvert garde sa
+  place. Hors couverture, le planning est évalué sur la **semaine type** (sans fermeture datée, absence ni
+  remplacement) : on compare des roulements, pas des aléas.
+- **RG-PLN-084** — Placement des patients, règles **dures** : un générateur ne sert qu'un patient par jour et par
+  créneau (RG-PLN-021) ; un patient à risque n'est placé qu'en salle d'isolement et un patient sans risque jamais
+  (RG-PLN-024). Un patient garde la même place tous ses jours (RG-PLN-020). Un patient qu'aucune place ne peut accueillir
+  reste « non placé » avec sa cause : `AUCUNE_PLACE`, `ISOLEMENT_IMPOSSIBLE` (aucune salle d'isolement) ou `JOURS_FERMES`.
+- **RG-PLN-085** — Placement des patients, objectifs **souples** (poids relatifs) : vacations d'infirmiers exigées par le
+  ratio (100 par vacation, une par tranche de patients par infirmier, case par case), salles ouvertes (30 par case salle
+  × créneau × jour), générateurs utilisés (10), réserve de générateurs de secours à garder libre à chaque créneau et
+  chaque jour (50 par générateur manquant, RG-PLN-070), stabilité : changer un patient de créneau coûte
+  `3 × stabilité × 6`, de salle `2 × stabilité × 6`, de générateur seul `1 × stabilité × 6`. Placer un patient prime sur
+  tous les objectifs souples. La recherche part des places actuelles (« ne rien changer » est la solution de départ).
+- **RG-PLN-086** — Infirmiers, règles **dures** : jamais deux salles au même créneau le même jour (RG-INF-022), au plus
+  N vacations par jour (RG-PLN-082). Un infirmier absent ce jour-là, non habilité pour une salle d'isolement ou déjà
+  prévu sur le créneau n'est jamais candidat. Une vacation sans infirmier est signalée (« non pourvue ») et prime sur les
+  objectifs souples.
+- **RG-PLN-087** — Infirmiers, objectifs **souples** : dépassement hebdomadaire (500 par vacation au-delà du maximum),
+  équité (somme des carrés des vacations) ou, avec l'objectif `ECONOMIE`, nombre d'infirmiers mobilisés (300 par
+  infirmier), double vacation dans la journée (40), changement de salle dans la semaine (30), connaissance de la salle
+  et du créneau d'après le roulement actuel (10 par habitude manquante), stabilité du roulement (`8 × stabilité`, hors
+  couverture), et au moins un infirmier qui n'est pas aide-soignant par case occupée (200).
+- **RG-PLN-088** — Couverture : les infirmiers déjà prévus (roulement moins absences, plus remplacements en place) sont
+  conservés tels quels ; seules les vacations manquantes sont à pourvoir, par des infirmiers disponibles sur le créneau.
+  L'application crée des remplacements (RG-INF-052) ; les vacations déjà tenues sont ignorées.
+- **RG-PLN-089** — Chaque proposition comporte les **indicateurs avant / après** : générateurs utilisés, salles
+  ouvertes, vacations requises, places d'infirmier inutilisées, patients non placés, vacations non pourvues,
+  infirmiers mobilisés, écart de charge, dépassements hebdomadaires. Ils sont **recalculés par le domaine** à partir des
+  placements et vacations proposés, indépendamment du solveur ; la proposition liste aussi les déplacements (de →
+  vers), les patients non placés, les vacations planifiées (avec l'indication « déjà prévue ») et les vacations non
+  pourvues.
+- **RG-PLN-090** — Arrêt anticipé : un calcul en cours peut être arrêté ; la meilleure solution trouvée est conservée
+  et les phases restantes ne reçoivent que 2 secondes. La graine aléatoire du moteur est fixe, mais la limite de calcul
+  étant un temps, deux exécutions identiques peuvent différer légèrement.
+- **RG-PLN-091** — **Application** d'une proposition (`ADMIN` seul), tout ou rien : l'exécution doit exister dans le
+  centre (`OPTIMISATION_INTROUVABLE`), être terminée avec un résultat (`OPTIMISATION_NON_APPLICABLE`) et ne pas être
+  déjà appliquée (`OPTIMISATION_DEJA_APPLIQUEE`). Le centre ne doit pas avoir changé depuis le calcul : l'**empreinte**
+  (SHA-256 des données lues) est recalculée, sinon `OPTIMISATION_PERIMEE` et il faut relancer. Chaque nouvelle place est
+  revérifiée avec les règles de RG-PLN-050 face à l'état final des autres patients (`OPTIMISATION_PLACEMENT_<règle>`).
+  Effets : `PATIENTS` déplace les patients ; `ROULEMENT` remplace le roulement des infirmiers actifs (affectations
+  identiques conservées, autres modifiées, créées ou supprimées) ; `COUVERTURE` crée les remplacements ; `COMPLET`
+  fait les deux premiers.
+- **RG-PLN-092** — Accès : lancer, consulter, arrêter et lister (`ADMIN`, `SECRETAIRE`) ; appliquer (`ADMIN`). Interdit
+  à l'infirmier « seul » et au médecin « seul » (RG-SEC-022/023). Aucune mise en cache (RG-TRV-041). L'historique est
+  paginé (`page`, `size`) et ne charge pas le détail des propositions ; une exécution d'un autre centre est introuvable
+  (`OPTIMISATION_INTROUVABLE`).
+

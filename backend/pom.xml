@@ -15,6 +15,7 @@
     <name>backend-parent</name>
 	<properties>
 		<java.version>21</java.version>
+        <timefold-solver.version>2.7.0</timefold-solver.version>
         <org-springframework-security.spring-security-core.version>7.0.5</org-springframework-security.spring-security-core.version>
         <org-springframework-security.spring-security-config.version>7.0.5</org-springframework-security.spring-security-config.version>
         <org-springframework-security.spring-security-web.version>7.0.5</org-springframework-security.spring-security-web.version>
@@ -40,6 +41,11 @@
     </modules>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>ai.timefold.solver</groupId>
+                <artifactId>timefold-solver-core</artifactId>
+                <version>${timefold-solver.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.hemodialyse</groupId>
                 <artifactId>shared-kernel</artifactId>

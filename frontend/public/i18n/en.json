@@ -2299,6 +2299,126 @@
       "SALLE_PREFEREE": "Chosen room",
       "SALLE_PEU_CHARGEE": "Lightly loaded room",
       "SALLE_ISOLEMENT": "Isolation room"
+    },
+    "OPTIM": {
+      "TITLE": "Planning optimisation",
+      "SUBTITLE": "The optimisation engine proposes a planning that uses as few resources as possible (generators, rooms, nurses). Nothing changes until you apply the proposal.",
+      "PARAMS_TITLE": "Calculation settings",
+      "PERIMETRE": "Scope",
+      "PERIMETRES": {
+        "COMPLET": "Patients + nurse rotation",
+        "PATIENTS": "Patient placement",
+        "ROULEMENT": "Nurse rotation",
+        "COUVERTURE": "Absence cover"
+      },
+      "PERIMETRES_HINT": {
+        "COMPLET": "Re-places the patients, then designs the weekly nurse rotation on these new placements.",
+        "PATIENTS": "Re-places the patients (room, slot, generator) to free rooms and reduce nurse shifts. Their dialysis days do not change.",
+        "ROULEMENT": "Designs the weekly nurse rotation against the current patient placements.",
+        "COUVERTURE": "Fills the understaffed slots of the coming weeks (absences, leave) with replacements."
+      },
+      "DEBUT": "Start of the period",
+      "DEBUT_HINT": "Moved back to the Sunday of the week",
+      "SEMAINES": "Number of weeks",
+      "RANGE": "From {{min}} to {{max}}",
+      "DUREE": "Calculation time (seconds)",
+      "DUREE_HINT": "Per phase, {{min}} to {{max}} s: the longer, the better the proposal",
+      "STABILITE": "Stability",
+      "STABILITE_HINT": "From {{min}} (anything can change) to {{max}} (change habits as little as possible)",
+      "OBJECTIF": "Nurse objective",
+      "OBJECTIFS": {
+        "EQUITE": "Share the workload fairly",
+        "ECONOMIE": "Use as few nurses as possible"
+      },
+      "MAX_JOUR": "Maximum shifts per day",
+      "MAX_SEMAINE": "Maximum shifts per week",
+      "LANCER": "Run the optimisation",
+      "RUNNING_TITLE": "Calculation in progress",
+      "PHASE": {
+        "INIT": "Preparing…",
+        "PATIENTS": "Placing the patients",
+        "INFIRMIERS": "Planning the nurses"
+      },
+      "SCORE": "Best score",
+      "ARRETER": "Stop and keep the best solution",
+      "ARRETER_HINT": "The calculation keeps running in the background: you can leave this screen and come back through the history.",
+      "RESULT_TITLE": "Proposal",
+      "SEMAINE_TYPE": "Patient, room and shift indicators describe a typical week (no closure, absence or replacement).",
+      "INDICATEUR": {
+        "generateursUtilises": "Generators used",
+        "sallesOuvertes": "Open rooms (room × slot × day)",
+        "vacationsRequises": "Nurse shifts required",
+        "placesInfirmierInutilisees": "Unused nurse capacity",
+        "patientsNonPlaces": "Unplaced patients",
+        "vacationsNonPourvues": "Unfilled shifts",
+        "infirmiersMobilises": "Nurses mobilised",
+        "ecartCharge": "Workload gap between nurses",
+        "depassementsHebdo": "Weekly overtime"
+      },
+      "COL": {
+        "INDICATEUR": "Indicator",
+        "AVANT": "Before",
+        "APRES": "After",
+        "ECART": "Change",
+        "PATIENT": "Patient",
+        "DE": "Current place",
+        "VERS": "New place",
+        "CAUSE": "Cause",
+        "DATE": "Date",
+        "SALLE": "Room",
+        "CRENEAU": "Slot",
+        "INFIRMIER": "Nurse",
+        "STATUT": "Status",
+        "MANQUE": "Missing shifts"
+      },
+      "TABS": {
+        "DEPLACEMENTS": "Moves",
+        "NON_PLACES": "Unplaced",
+        "VACATIONS": "Shifts",
+        "MANQUES": "Unfilled"
+      },
+      "CAUSES": {
+        "AUCUNE_PLACE": "No place available",
+        "ISOLEMENT_IMPOSSIBLE": "No isolation room",
+        "JOURS_FERMES": "No open dialysis day"
+      },
+      "NOUVELLE_VACATION": "New",
+      "AUCUN_CHANGEMENT": "No change proposed.",
+      "AUCUN_NON_PLACE": "Every patient has a place.",
+      "AUCUN_MANQUE": "Every shift is filled.",
+      "APPLIQUER": "Apply the proposal",
+      "APPLIQUEE": "Applied",
+      "APPLIQUEE_LE": "applied on {{date}}",
+      "ADMIN_SEUL": "Only the administrator can apply a proposal.",
+      "CONFIRM": {
+        "TITLE": "Apply the proposal?",
+        "MESSAGE_PATIENTS": "The patients in the list of moves will change room, slot and generator on their record.",
+        "MESSAGE_ROULEMENT": "The current nurse rotation will be replaced by the one in the proposal.",
+        "MESSAGE_COUVERTURE": "The replacements in the proposal will be recorded in the attendance planning.",
+        "MESSAGE_COMPLET": "The patients will be moved, then the nurse rotation will be replaced by the one in the proposal."
+      },
+      "STATUT": {
+        "EN_COURS": "In progress",
+        "TERMINEE": "Finished",
+        "ECHEC": "Failed"
+      },
+      "HISTORY_TITLE": "Calculation history",
+      "HISTORY_EMPTY": "No optimisation yet.",
+      "OUVRIR": "Open",
+      "ERR": {
+        "GENERIC": "The operation failed. Please try again.",
+        "PARAMETRES": "Settings rejected: check the values entered.",
+        "SUIVI": "Unable to follow the progress of the calculation.",
+        "OPTIMISATION_DEJA_EN_COURS": "An optimisation is already running for this center.",
+        "OPTIMISATION_INTROUVABLE": "Optimisation not found.",
+        "OPTIMISATION_NON_APPLICABLE": "Only a finished optimisation can be applied.",
+        "OPTIMISATION_DEJA_APPLIQUEE": "This proposal has already been applied.",
+        "OPTIMISATION_PERIMEE": "The center has changed since the calculation: run the optimisation again.",
+        "PLACEMENT": "A proposed place breaks the planning rules: run the optimisation again."
+      },
+      "OK": {
+        "APPLIQUEE": "The proposal has been applied."
+      }
     }
   },
   "MEDECIN": {
@@ -2706,7 +2826,8 @@
     "FACTURATION": "Billing",
     "REGLEMENT": "Payments",
     "COMPTABILITE": "Accounting",
-    "MENU": "Menu"
+    "MENU": "Menu",
+    "PLANNING_OPTIMISATION": "Planning optimisation"
   },
   "COMPTABILITE": {
     "EYEBROW": "Accounting module",

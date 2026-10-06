@@ -99,8 +99,12 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
 
     @Override
     public boolean patientARisque(UUID centerId, UUID patientId) {
-        return new HashSet<>(jdbc.query(PATIENTS_A_RISQUE, (rs, i) -> rs.getObject("patient_id", UUID.class), centerId))
-                .contains(patientId);
+        return patientsARisque(centerId).contains(patientId);
+    }
+
+    @Override
+    public Set<UUID> patientsARisque(UUID centerId) {
+        return new HashSet<>(jdbc.query(PATIENTS_A_RISQUE, (rs, i) -> rs.getObject("patient_id", UUID.class), centerId));
     }
 
     @Override
@@ -127,8 +131,7 @@ public class PlanningDonneesJdbcAdapter implements PlanningDonneesPort, Planning
                         rs.getObject("salle_id", UUID.class)),
                 centerId);
 
-        Set<UUID> aRisque = new HashSet<>(jdbc.query(PATIENTS_A_RISQUE,
-                (rs, i) -> rs.getObject("patient_id", UUID.class), centerId));
+        Set<UUID> aRisque = patientsARisque(centerId);
 
         // Patients sortis (transfert, décès, greffe, guérison) : ils gardent leur place jusqu'à la date de
         // l'évènement (FinOccupation) ; la place est libre dès que ce dernier jour est antérieur à la période lue.

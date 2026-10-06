@@ -1,0 +1,114 @@
+.opt-page {
+  display: grid;
+  /* minmax(0, 1fr) : la colonne ne s'élargit jamais au contenu (formulaire, tableaux) au-delà de l'écran. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.opt-head h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.opt-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.opt-feedback {
+  margin: 0;
+}
+
+.opt-feedback.error {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.opt-feedback.success {
+  color: #1b7f3b;
+}
+
+.opt-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  align-items: start;
+  gap: 8px 16px;
+  padding-top: 12px;
+}
+
+.opt-wide,
+.opt-full {
+  grid-column: 1 / -1;
+}
+
+.opt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.opt-running,
+.opt-result {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding-top: 12px;
+  min-width: 0;
+}
+
+.opt-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  word-break: break-word;
+}
+
+.opt-label {
+  color: var(--app-muted, #5f6b7a);
+}
+
+/* Les tableaux denses défilent dans leur conteneur : la page ne déborde jamais horizontalement. */
+.opt-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.opt-table {
+  width: 100%;
+  min-width: 420px;
+}
+
+.opt-empty {
+  padding: 12px 0;
+}
+
+.opt-ecart.mieux {
+  color: #1b7f3b;
+  font-weight: 600;
+}
+
+.opt-ecart.pire {
+  color: var(--mat-sys-error, #b3261e);
+  font-weight: 600;
+}
+
+.opt-applied {
+  vertical-align: middle;
+  margin-inline-start: 4px;
+  color: #1b7f3b;
+}
+
+@media (max-width: 767px) {
+  .opt-page {
+    padding: 12px;
+  }
+
+  .opt-actions button {
+    width: 100%;
+  }
+}

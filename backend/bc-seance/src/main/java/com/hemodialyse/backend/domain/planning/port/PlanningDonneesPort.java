@@ -29,6 +29,11 @@ public interface PlanningDonneesPort {
     boolean patientARisque(UUID centerId, UUID patientId);
 
     /**
+     * Patients du centre à risque infectieux (dernière sérologie positive pour le VHB, le VHC ou le VIH).
+     */
+    Set<UUID> patientsARisque(UUID centerId);
+
+    /**
      * Identifiants des salles du centre (validation du paramétrage des salles d'isolement et des affectations).
      */
     Set<UUID> sallesDuCentre(UUID centerId);

@@ -2299,6 +2299,126 @@
       "SALLE_PREFEREE": "Salle choisie",
       "SALLE_PEU_CHARGEE": "Salle peu chargée",
       "SALLE_ISOLEMENT": "Salle d'isolement"
+    },
+    "OPTIM": {
+      "TITLE": "Optimisation du planning",
+      "SUBTITLE": "Le moteur d'optimisation propose un planning qui consomme le moins de ressources possible (générateurs, salles, infirmiers). Rien ne change tant que vous n'appliquez pas la proposition.",
+      "PARAMS_TITLE": "Paramètres du calcul",
+      "PERIMETRE": "Périmètre",
+      "PERIMETRES": {
+        "COMPLET": "Patients + roulement des infirmiers",
+        "PATIENTS": "Placement des patients",
+        "ROULEMENT": "Roulement des infirmiers",
+        "COUVERTURE": "Couverture des absences"
+      },
+      "PERIMETRES_HINT": {
+        "COMPLET": "Replace les patients, puis conçoit le roulement hebdomadaire des infirmiers sur ces nouveaux placements.",
+        "PATIENTS": "Replace les patients (salle, créneau, générateur) pour libérer des salles et réduire les vacations d'infirmiers. Leurs jours de dialyse ne changent pas.",
+        "ROULEMENT": "Conçoit le roulement hebdomadaire des infirmiers face aux placements actuels des patients.",
+        "COUVERTURE": "Comble avec des remplaçants les créneaux en sous-effectif des prochaines semaines (absences, congés)."
+      },
+      "DEBUT": "Début de la période",
+      "DEBUT_HINT": "Ramené au dimanche de la semaine",
+      "SEMAINES": "Nombre de semaines",
+      "RANGE": "De {{min}} à {{max}}",
+      "DUREE": "Durée de calcul (secondes)",
+      "DUREE_HINT": "Par phase, de {{min}} à {{max}} s : plus c'est long, meilleure est la proposition",
+      "STABILITE": "Stabilité",
+      "STABILITE_HINT": "De {{min}} (tout peut changer) à {{max}} (changer le moins possible les habitudes)",
+      "OBJECTIF": "Objectif pour les infirmiers",
+      "OBJECTIFS": {
+        "EQUITE": "Répartir équitablement la charge",
+        "ECONOMIE": "Mobiliser le moins d'infirmiers"
+      },
+      "MAX_JOUR": "Vacations maximales par jour",
+      "MAX_SEMAINE": "Vacations maximales par semaine",
+      "LANCER": "Lancer l'optimisation",
+      "RUNNING_TITLE": "Calcul en cours",
+      "PHASE": {
+        "INIT": "Préparation…",
+        "PATIENTS": "Placement des patients",
+        "INFIRMIERS": "Planification des infirmiers"
+      },
+      "SCORE": "Meilleur score",
+      "ARRETER": "Arrêter et garder la meilleure solution",
+      "ARRETER_HINT": "Le calcul continue en tâche de fond : vous pouvez quitter cet écran et revenir dans l'historique.",
+      "RESULT_TITLE": "Proposition",
+      "SEMAINE_TYPE": "Les indicateurs de patients, de salles et de vacations portent sur une semaine type (sans fermeture, absence ni remplacement).",
+      "INDICATEUR": {
+        "generateursUtilises": "Générateurs utilisés",
+        "sallesOuvertes": "Salles ouvertes (salle × créneau × jour)",
+        "vacationsRequises": "Vacations d'infirmiers requises",
+        "placesInfirmierInutilisees": "Places d'infirmier inutilisées",
+        "patientsNonPlaces": "Patients non placés",
+        "vacationsNonPourvues": "Vacations non pourvues",
+        "infirmiersMobilises": "Infirmiers mobilisés",
+        "ecartCharge": "Écart de charge entre infirmiers",
+        "depassementsHebdo": "Dépassements hebdomadaires"
+      },
+      "COL": {
+        "INDICATEUR": "Indicateur",
+        "AVANT": "Avant",
+        "APRES": "Après",
+        "ECART": "Écart",
+        "PATIENT": "Patient",
+        "DE": "Place actuelle",
+        "VERS": "Nouvelle place",
+        "CAUSE": "Cause",
+        "DATE": "Date",
+        "SALLE": "Salle",
+        "CRENEAU": "Créneau",
+        "INFIRMIER": "Infirmier",
+        "STATUT": "Statut",
+        "MANQUE": "Vacations manquantes"
+      },
+      "TABS": {
+        "DEPLACEMENTS": "Déplacements",
+        "NON_PLACES": "Non placés",
+        "VACATIONS": "Vacations",
+        "MANQUES": "Non pourvues"
+      },
+      "CAUSES": {
+        "AUCUNE_PLACE": "Aucune place disponible",
+        "ISOLEMENT_IMPOSSIBLE": "Aucune salle d'isolement",
+        "JOURS_FERMES": "Aucun jour de dialyse ouvert"
+      },
+      "NOUVELLE_VACATION": "Nouvelle",
+      "AUCUN_CHANGEMENT": "Aucun changement proposé.",
+      "AUCUN_NON_PLACE": "Tous les patients ont une place.",
+      "AUCUN_MANQUE": "Toutes les vacations sont pourvues.",
+      "APPLIQUER": "Appliquer la proposition",
+      "APPLIQUEE": "Appliquée",
+      "APPLIQUEE_LE": "appliquée le {{date}}",
+      "ADMIN_SEUL": "Seul l'administrateur peut appliquer une proposition.",
+      "CONFIRM": {
+        "TITLE": "Appliquer la proposition ?",
+        "MESSAGE_PATIENTS": "Les patients de la liste des déplacements changeront de salle, de créneau et de générateur sur leur fiche.",
+        "MESSAGE_ROULEMENT": "Le roulement actuel des infirmiers sera remplacé par celui de la proposition.",
+        "MESSAGE_COUVERTURE": "Les remplacements de la proposition seront enregistrés dans le planning de présence.",
+        "MESSAGE_COMPLET": "Les patients seront déplacés puis le roulement des infirmiers sera remplacé par celui de la proposition."
+      },
+      "STATUT": {
+        "EN_COURS": "En cours",
+        "TERMINEE": "Terminée",
+        "ECHEC": "Échec"
+      },
+      "HISTORY_TITLE": "Historique des calculs",
+      "HISTORY_EMPTY": "Aucune optimisation pour le moment.",
+      "OUVRIR": "Ouvrir",
+      "ERR": {
+        "GENERIC": "L'opération a échoué. Réessayez.",
+        "PARAMETRES": "Paramètres refusés : vérifiez les valeurs saisies.",
+        "SUIVI": "Impossible de suivre l'avancement du calcul.",
+        "OPTIMISATION_DEJA_EN_COURS": "Une optimisation est déjà en cours pour ce centre.",
+        "OPTIMISATION_INTROUVABLE": "Optimisation introuvable.",
+        "OPTIMISATION_NON_APPLICABLE": "Seule une optimisation terminée peut être appliquée.",
+        "OPTIMISATION_DEJA_APPLIQUEE": "Cette proposition a déjà été appliquée.",
+        "OPTIMISATION_PERIMEE": "Le centre a changé depuis le calcul : relancez l'optimisation.",
+        "PLACEMENT": "Une nouvelle place proposée enfreint les règles de la planification : relancez l'optimisation."
+      },
+      "OK": {
+        "APPLIQUEE": "La proposition a été appliquée."
+      }
     }
   },
   "MEDECIN": {
@@ -2706,7 +2826,8 @@
     "FACTURATION": "Facturation",
     "REGLEMENT": "Règlement",
     "COMPTABILITE": "Comptabilité",
-    "MENU": "Menu"
+    "MENU": "Menu",
+    "PLANNING_OPTIMISATION": "Optimisation du planning"
   },
   "COMPTABILITE": {
     "EYEBROW": "Module comptabilité",

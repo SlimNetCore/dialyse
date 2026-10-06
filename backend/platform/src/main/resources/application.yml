@@ -84,6 +84,10 @@ app:
     secret: ${JWT_SECRET:change-me-change-me-change-me-123456}
     expiration: ${JWT_EXPIRATION:28800}
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
+  planning:
+    optimisation:
+      # Calculs d'optimisation du planning (Timefold) exécutés en parallèle ; un seul par centre à la fois.
+      workers: ${PLANNING_OPTIMISATION_WORKERS:2}
   stock:
     demo-data: ${STOCK_DEMO_DATA:true}
 

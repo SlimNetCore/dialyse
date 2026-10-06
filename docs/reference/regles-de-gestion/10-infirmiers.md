@@ -116,3 +116,11 @@
   d'absence) + remplacements effectués dans le mois ; les jours d'absence sont
   comptés à part ; la **moyenne** du centre (une décimale) sert de repère d'équité pour répartir les remplacements. La
   liste est paginée.
+
+## 10.8 Roulement et remplacements issus de l'optimisation
+
+- **RG-INF-070** — Le roulement des infirmiers peut être **conçu** et les cases en sous-effectif **couvertes** par
+  l'optimisation du planning (RG-PLN-080 à 092). L'application d'une proposition remplace le roulement des infirmiers
+  actifs (`ROULEMENT`, `COMPLET`) ou crée des remplacements (`COUVERTURE`) ; elle respecte les mêmes règles que la saisie
+  manuelle (jamais deux salles au même créneau le même jour, RG-INF-022 ; absents et non habilités exclus, RG-INF-050).
+

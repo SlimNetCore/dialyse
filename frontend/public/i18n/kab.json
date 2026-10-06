@@ -1939,6 +1939,126 @@
       "SALLE_PREFEREE": "Taxxamt yettwafren",
       "SALLE_PEU_CHARGEE": "Taxxamt tecfa drus",
       "SALLE_ISOLEMENT": "Taxxamt n usnaw"
+    },
+    "OPTIM": {
+      "TITLE": "Asnerni n umuddu",
+      "SUBTITLE": "Amsedday n usnerni yettarra-d amuddu i yesseqdacen cwiṭ n yiɣbula (ismalen, tixxamin, inemgalen). Ulac ayen ara yettbeddil alamma tessemlileḍ asumer.",
+      "PARAMS_TITLE": "Iɣewwaren n uḥseb",
+      "PERIMETRE": "Tawaɣit",
+      "PERIMETRES": {
+        "COMPLET": "Inelmaden + tuzzya n yinemgalen",
+        "PATIENTS": "Asbedd n yinelmaden",
+        "ROULEMENT": "Tuzzya n yinemgalen",
+        "COUVERTURE": "Asekkel n tmettanin"
+      },
+      "PERIMETRES_HINT": {
+        "COMPLET": "Yales asbedd n yinelmaden, syin yesnulfu tuzzya n yinemgalen n yimalas ɣef yismalen-a imaynuten.",
+        "PATIENTS": "Yales asbedd n yinelmaden (taxxamt, tallit, asmal) i wakken ad d-yeffɣen kra n texxamin yerna ad ɛedlen tallatin n yinemgalen. Ussan-nsen n usuddes ur ttbeddilen ara.",
+        "ROULEMENT": "Yesnulfu tuzzya n yimalas n yinemgalen ɣef usbedd amiran n yinelmaden.",
+        "COUVERTURE": "Yessekkel s yimsemlilen tallatin yesɛan tuffra n yinemgalen deg yimalasen i d-iteddun (tamettanin, tuffɣa)."
+      },
+      "DEBUT": "Aɣawas n tallit",
+      "DEBUT_HINT": "Yettuɣal ɣer lḥedd n yimalas",
+      "SEMAINES": "Amḍan n yimalasen",
+      "RANGE": "Seg {{min}} ɣer {{max}}",
+      "DUREE": "Tanzagt n uḥseb (tisinin)",
+      "DUREE_HINT": "I yal aswir, seg {{min}} ɣer {{max}} n tisinin: yal ma ɣezzifen, asumer ad yelhu ugar",
+      "STABILITE": "Tabɣest",
+      "STABILITE_HINT": "Seg {{min}} (kullec izmer ad yettbeddel) ɣer {{max}} (ad nbeddel cwiṭ n tiɣri)",
+      "OBJECTIF": "Iswi i yinemgalen",
+      "OBJECTIFS": {
+        "EQUITE": "Beddu tasɣent s tmusni",
+        "ECONOMIE": "Seqdec cwiṭ n yinemgalen"
+      },
+      "MAX_JOUR": "Amḍan afellay n tuzzyin deg wass",
+      "MAX_SEMAINE": "Amḍan afellay n tuzzyin deg yimalas",
+      "LANCER": "Sker asnerni",
+      "RUNNING_TITLE": "Aḥseb la yeddu",
+      "PHASE": {
+        "INIT": "Ahegget…",
+        "PATIENTS": "Asbedd n yinelmaden",
+        "INFIRMIERS": "Asuddes n yinemgalen"
+      },
+      "SCORE": "Agmuḍ ufrin",
+      "ARRETER": "Seḥbes yerna eǧǧ asumer ufrin",
+      "ARRETER_HINT": "Aḥseb ad yettkemmil deg ugilal: tzemreḍ ad teffɣeḍ seg usebter-a tuɣaleḍ s uḍris n yiɣbula.",
+      "RESULT_TITLE": "Asumer",
+      "SEMAINE_TYPE": "Ineḍruyen n yinelmaden, tixxamin d tuzzyin ttwabeddlen i yimalas amezwar (war aɣelluy, tamettant neɣ asemmed).",
+      "INDICATEUR": {
+        "generateursUtilises": "Ismalen yettwaseqdacen",
+        "sallesOuvertes": "Tixxamin yeldin (taxxamt × tallit × ass)",
+        "vacationsRequises": "Tuzzyin n yinemgalen yettwasran",
+        "placesInfirmierInutilisees": "Tazmert n unemgal ur yettwaseqdac ara",
+        "patientsNonPlaces": "Inelmaden war amkan",
+        "vacationsNonPourvues": "Tuzzyin war asemmed",
+        "infirmiersMobilises": "Inemgalen yettwaḥettmen",
+        "ecartCharge": "Afraq n tasɣent gar yinemgalen",
+        "depassementsHebdo": "Allalen n yimalas"
+      },
+      "COL": {
+        "INDICATEUR": "Anamek",
+        "AVANT": "send",
+        "APRES": "deffir",
+        "ECART": "Afraq",
+        "PATIENT": "Anelmad",
+        "DE": "Amkan amiran",
+        "VERS": "Amkan amaynut",
+        "CAUSE": "Ssebba",
+        "DATE": "Azemz",
+        "SALLE": "Taxxamt",
+        "CRENEAU": "Tallit",
+        "INFIRMIER": "Anemgal",
+        "STATUT": "Addad",
+        "MANQUE": "Tuzzyin i yettwafɛen"
+      },
+      "TABS": {
+        "DEPLACEMENTS": "Isenfal n umkan",
+        "NON_PLACES": "War amkan",
+        "VACATIONS": "Tuzzyin",
+        "MANQUES": "War asemmed"
+      },
+      "CAUSES": {
+        "AUCUNE_PLACE": "Ulac amkan yellan",
+        "ISOLEMENT_IMPOSSIBLE": "Ulac taxxamt n usuffeɣ",
+        "JOURS_FERMES": "Ulac ass n usuddes yeldin"
+      },
+      "NOUVELLE_VACATION": "Tamaynut",
+      "AUCUN_CHANGEMENT": "Ulac asnfel yettwasumren.",
+      "AUCUN_NON_PLACE": "Akk inelmaden ɣur-sen amkan.",
+      "AUCUN_MANQUE": "Akk tuzzyin ɣur-sent asemmed.",
+      "APPLIQUER": "Sebded asumer",
+      "APPLIQUEE": "Yettwasebded",
+      "APPLIQUEE_LE": "yettwasebded ass n {{date}}",
+      "ADMIN_SEUL": "Ala unedbal i izemren ad isebded asumer.",
+      "CONFIRM": {
+        "TITLE": "Ad tsebdeḍ asumer?",
+        "MESSAGE_PATIENTS": "Inelmaden yellan deg tebdart n yisnfal ad beddlen taxxamt, tallit d usmal deg ifuyla-nsen.",
+        "MESSAGE_ROULEMENT": "Tuzzya tamirant n yinemgalen ad tettwasenfel s tin n usumer.",
+        "MESSAGE_COUVERTURE": "Imsemlilen n usumer ad ttwaseklasen deg umuddu n tilin.",
+        "MESSAGE_COMPLET": "Inelmaden ad ttwanɣelen, syin tuzzya n yinemgalen ad tettwasenfel s tin n usumer."
+      },
+      "STATUT": {
+        "EN_COURS": "La yeddu",
+        "TERMINEE": "Yemmed",
+        "ECHEC": "Yexser"
+      },
+      "HISTORY_TITLE": "Aḍris n uḥseb",
+      "HISTORY_EMPTY": "Ulac asnerni ar tura.",
+      "OUVRIR": "Ldi",
+      "ERR": {
+        "GENERIC": "Tamahilt tecceḍ. Ɛreḍ tikkelt-nniḍen.",
+        "PARAMETRES": "Iɣewwaren ttwagdlen: wali azal i d-tketbeḍ.",
+        "SUIVI": "Ulamek ad yettwaḍfer usneqqes n uḥseb.",
+        "OPTIMISATION_DEJA_EN_COURS": "Yella yakan usnerni yettwaxedmen i uɣallis-a.",
+        "OPTIMISATION_INTROUVABLE": "Asnerni ulac-it.",
+        "OPTIMISATION_NON_APPLICABLE": "Ala asnerni yemmden i izemren ad yettwasebded.",
+        "OPTIMISATION_DEJA_APPLIQUEE": "Asumer-a yettwasebded yakan.",
+        "OPTIMISATION_PERIMEE": "Aɣallis yettbeddel seg uḥseb: ales asnerni.",
+        "PLACEMENT": "Amkan i d-yettwasumren yextalaf ilugan n usuddes: ales asnerni."
+      },
+      "OK": {
+        "APPLIQUEE": "Asumer yettwasebded."
+      }
     }
   },
   "MEDECIN": {
@@ -2346,7 +2466,8 @@
     "FACTURATION": "Asefru",
     "REGLEMENT": "Axelleṣ",
     "COMPTABILITE": "Taselɣut",
-    "MENU": "Umuɣ"
+    "MENU": "Umuɣ",
+    "PLANNING_OPTIMISATION": "Asnerni n umuddu"
   },
   "COMPTABILITE": {
     "EYEBROW": "Azegrir n tselɣut",
