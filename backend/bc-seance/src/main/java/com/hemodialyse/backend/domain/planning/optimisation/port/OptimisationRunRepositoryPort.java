@@ -34,6 +34,13 @@ public interface OptimisationRunRepositoryPort {
     void purger(UUID centerId, int aGarder);
 
     /**
+     * Supprime une exécution du centre.
+     *
+     * @return {@code true} si elle existait dans ce centre
+     */
+    boolean supprimer(UUID centerId, UUID id);
+
+    /**
      * Passe en échec les exécutions restées en cours (arrêt du serveur) ; tous centres confondus, réservé au démarrage.
      *
      * @return nombre d'exécutions interrompues

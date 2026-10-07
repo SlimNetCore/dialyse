@@ -2436,6 +2436,12 @@
       "HISTORY_TITLE": "Historique des calculs",
       "HISTORY_EMPTY": "Aucune optimisation pour le moment.",
       "OUVRIR": "Ouvrir",
+      "SUPPRIMER": "Supprimer",
+      "SUPPRIMER_CONFIRM": {
+        "TITLE": "Supprimer cette exécution ?",
+        "MESSAGE": "L'exécution et son planning proposé seront définitivement supprimés de l'historique.",
+        "MESSAGE_APPLIQUEE": "L'exécution et son planning proposé seront supprimés de l'historique. La proposition a déjà été appliquée : le planning du centre ne change pas."
+      },
       "ERR": {
         "GENERIC": "L'opération a échoué. Réessayez.",
         "PARAMETRES": "Paramètres refusés : vérifiez les valeurs saisies.",
@@ -2445,10 +2451,35 @@
         "OPTIMISATION_NON_APPLICABLE": "Seule une optimisation terminée peut être appliquée.",
         "OPTIMISATION_DEJA_APPLIQUEE": "Cette proposition a déjà été appliquée.",
         "OPTIMISATION_PERIMEE": "Le centre a changé depuis le calcul : relancez l'optimisation.",
-        "PLACEMENT": "Une nouvelle place proposée enfreint les règles de la planification : relancez l'optimisation."
+        "PLACEMENT": "Une nouvelle place proposée enfreint les règles de la planification : relancez l'optimisation.",
+        "OPTIMISATION_CALENDRIER_ABSENT": "Cette proposition n'a pas de planning calendaire : relancez l'optimisation.",
+        "OPTIMISATION_SUPPRESSION_EN_COURS": "Un calcul en cours ne peut pas être supprimé : arrêtez-le d'abord.",
+        "IMPRESSION": "Impossible de générer l'impression du planning proposé."
+      },
+      "CALENDRIER": {
+        "TITLE": "Planning proposé",
+        "SUBTITLE": "Calendrier semaine par semaine : salles, créneaux, patients (avec générateur), infirmiers et effectif de chaque case.",
+        "IMPRIMER": "Imprimer le planning proposé",
+        "ABSENT": "Cette proposition n'a pas de planning calendaire : relancez le calcul.",
+        "VIDE": "Aucune activité proposée cette semaine.",
+        "AUCUN_JOUR": "Aucune activité proposée ce jour.",
+        "DEPLACE": "Patient déplacé",
+        "TEMPORAIRE": "Place temporaire",
+        "SITUATION": {
+          "REMPLACANT": "remplaçant",
+          "ABSENT": "absent",
+          "NOUVEAU": "nouveau"
+        },
+        "EFFECTIF": "{{patients}} patient(s), {{requis}} infirmier(s) requis",
+        "MANQUE": "manque {{count}}",
+        "LEGENDE": {
+          "COUVERT": "Case couverte",
+          "MANQUE": "Infirmier manquant"
+        }
       },
       "OK": {
-        "APPLIQUEE": "La proposition a été appliquée."
+        "APPLIQUEE": "La proposition a été appliquée.",
+        "SUPPRIMEE": "L'exécution a été supprimée."
       },
       "JOURS_INCHANGES": "Inchangés",
       "AUCUNE_MAINTENANCE": "Aucune séance touchée par une maintenance sur l'horizon.",

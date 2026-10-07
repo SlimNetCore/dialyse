@@ -1,0 +1,277 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.pp {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pp-head,
+.pp-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.pp-head h3 {
+  margin: 0 0 2px;
+}
+
+.pp-sub {
+  margin: 0;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.pp-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pp-range {
+  min-width: 190px;
+  text-align: center;
+}
+
+.pp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+
+.pp-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sw {
+  display: inline-block;
+  width: 24px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.ok,
+.cell.ok,
+.pp-card.ok {
+  background: #eaf6ee;
+}
+
+.manque,
+.cell.manque,
+.pp-card.manque {
+  background: #fdecea;
+}
+
+.closed,
+.pp-grid td.closed,
+.pp-grid th.closed,
+.pp-day-tabs .closed,
+.pp-card.closed {
+  background: repeating-linear-gradient(45deg, #eceff3, #eceff3 6px, #f6f7f9 6px, #f6f7f9 12px);
+}
+
+/* défilement horizontal local : la page ne déborde jamais */
+.pp-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--app-border, #d9dee5);
+  border-radius: 8px;
+}
+
+.pp-grid {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.pp-grid th,
+.pp-grid td {
+  border: 1px solid var(--app-border, #e3e7ed);
+  padding: 5px 6px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.pp-grid thead th {
+  text-align: center;
+  background: var(--app-surface-alt, #f3f5f8);
+}
+
+.pp-grid th small {
+  display: block;
+  font-weight: 400;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.pp-grid .cell {
+  min-width: 118px;
+}
+
+.pp-patients,
+.pp-infirmiers {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.pp-patients li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #e3ecfb;
+}
+
+.pp-patients li.risk {
+  background: #fbe0e0;
+  border: 1px solid #d96b6b;
+}
+
+.pp-patients li.moved {
+  box-shadow: inset 3px 0 0 #1976d2;
+}
+
+.pp-patients li.temp {
+  border: 1px dashed #8a5a00;
+  background: #ffe9c2;
+}
+
+.pp-nom {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pp-gen {
+  color: #4a5a70;
+}
+
+.pp-ico {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+}
+
+.pp-infirmiers li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pp-infirmiers li[data-situation='ABSENT'] {
+  color: #7a8594;
+  text-decoration: line-through;
+}
+
+.pp-infirmiers li[data-situation='NOUVEAU'] {
+  font-weight: 600;
+}
+
+.pp-effectif {
+  display: block;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.pp-manque {
+  color: #b3261e;
+}
+
+.pp-ferme {
+  font-weight: 600;
+  color: #b3261e;
+}
+
+.pp-day {
+  display: grid;
+  gap: 12px;
+}
+
+.pp-day-tabs {
+  flex-wrap: wrap;
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.pp-day-tabs small {
+  margin-left: 4px;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.pp-day-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.pp-card {
+  padding: 10px 12px;
+  border: 1px solid var(--app-border, #d9dee5);
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.pp-card h4 {
+  margin: 0 0 6px;
+}
+
+@media (max-width: 767px) {
+  .pp-nav,
+  .pp-views,
+  .pp-day-tabs {
+    width: 100%;
+  }
+
+  .pp-nav {
+    justify-content: space-between;
+  }
+
+  .pp-range {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .pp-views {
+    display: flex;
+  }
+
+  .pp-views mat-button-toggle {
+    flex: 1;
+  }
+
+  .pp-day-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .pp-day-tabs mat-button-toggle {
+    flex: 0 0 auto;
+  }
+
+  .pp-day-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pp-head button {
+    width: 100%;
+  }
+}

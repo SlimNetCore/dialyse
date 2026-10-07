@@ -1049,6 +1049,73 @@ CREATE TABLE IF NOT EXISTS planification_optimisation
 );
 CREATE INDEX IF NOT EXISTS idx_planification_optimisation_centre ON planification_optimisation (center_id, cree_le);
 
+-- Planning calendaire figé d'une proposition (une ligne par exécution, semaine, salle et créneau) : détail JSON des
+-- sept jours et textes prêts à imprimer (entete_i / cell_i, i = 0 dimanche … 6 samedi).
+CREATE TABLE IF NOT EXISTS planification_calendrier_case
+(
+    run_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    semaine_debut
+    DATE
+    NOT
+    NULL,
+    salle_id
+    UUID
+    NOT
+    NULL,
+    salle_nom
+    VARCHAR
+(
+    255
+) NOT NULL,
+    salle_ordre INTEGER NOT NULL,
+    creneau_id UUID NOT NULL,
+    creneau_libelle VARCHAR
+(
+    255
+) NOT NULL,
+    creneau_ordre INTEGER NOT NULL,
+    jours TEXT NOT NULL,
+    entete_0 VARCHAR
+(
+    40
+), entete_1 VARCHAR
+(
+    40
+), entete_2 VARCHAR
+(
+    40
+), entete_3 VARCHAR
+(
+    40
+),
+    entete_4 VARCHAR
+(
+    40
+), entete_5 VARCHAR
+(
+    40
+), entete_6 VARCHAR
+(
+    40
+),
+    cell_0 TEXT, cell_1 TEXT, cell_2 TEXT, cell_3 TEXT, cell_4 TEXT, cell_5 TEXT, cell_6 TEXT,
+    PRIMARY KEY
+(
+    run_id,
+    semaine_debut,
+    salle_id,
+    creneau_id
+)
+    );
+CREATE INDEX IF NOT EXISTS idx_planification_calendrier_centre ON planification_calendrier_case (center_id, run_id);
+
 -- Améliorations de l'optimisation du planning : préférences des patients, profils des infirmiers, réglages du centre
 -- et déplacements temporaires de séances (générateur en maintenance un jour donné).
 CREATE TABLE IF NOT EXISTS planning_preference_patient

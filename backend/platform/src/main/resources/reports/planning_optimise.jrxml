@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="planning_optimise" pageWidth="842" pageHeight="595" orientation="Landscape"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" columnWidth="802">
+    <parameter name="CENTER_ID" class="java.lang.String"/>
+    <parameter name="RUN_ID" class="java.lang.String"/>
+    <parameter name="TITRE_PROPOSITION" class="java.lang.String"/>
+    <parameter name="RESUME_INDICATEURS" class="java.lang.String"/>
+    <parameter name="SOCIETE_NOM" class="java.lang.String"/>
+    <parameter name="SOCIETE_ADRESSE" class="java.lang.String"/>
+    <parameter name="SOCIETE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="SOCIETE_EMAIL" class="java.lang.String"/>
+    <parameter name="SOCIETE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="SOCIETE_CONTACT" class="java.lang.String"/>
+    <parameter name="SOCIETE_LEGAL" class="java.lang.String"/>
+    <parameter name="SOCIETE_PIED_PAGE" class="java.lang.String"/>
+    <parameter name="SOCIETE_LOGO" class="java.io.InputStream"/>
+    <parameter name="CENTRE_NOM" class="java.lang.String"/>
+    <parameter name="CENTRE_ADRESSE" class="java.lang.String"/>
+    <parameter name="CENTRE_TELEPHONE" class="java.lang.String"/>
+    <parameter name="CENTRE_EMAIL" class="java.lang.String"/>
+    <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
+    <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
+    <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
+    <queryString><![CDATA[
+      SELECT semaine_debut, salle_nom, creneau_libelle, creneau_ordre,
+             entete_0, entete_1, entete_2, entete_3, entete_4, entete_5, entete_6,
+             cell_0, cell_1, cell_2, cell_3, cell_4, cell_5, cell_6
+      FROM planification_calendrier_case
+      WHERE center_id = CAST($P{CENTER_ID} AS UUID) AND run_id = CAST($P{RUN_ID} AS UUID)
+      ORDER BY semaine_debut, creneau_ordre, salle_ordre
+    ]]></queryString>
+
+    <field name="SEMAINE_DEBUT" class="java.sql.Date"/>
+    <field name="SALLE_NOM" class="java.lang.String"/>
+    <field name="CRENEAU_LIBELLE" class="java.lang.String"/>
+    <field name="CRENEAU_ORDRE" class="java.lang.Integer"/>
+    <field name="ENTETE_0" class="java.lang.String"/>
+    <field name="ENTETE_1" class="java.lang.String"/>
+    <field name="ENTETE_2" class="java.lang.String"/>
+    <field name="ENTETE_3" class="java.lang.String"/>
+    <field name="ENTETE_4" class="java.lang.String"/>
+    <field name="ENTETE_5" class="java.lang.String"/>
+    <field name="ENTETE_6" class="java.lang.String"/>
+    <field name="CELL_0" class="java.lang.String"/>
+    <field name="CELL_1" class="java.lang.String"/>
+    <field name="CELL_2" class="java.lang.String"/>
+    <field name="CELL_3" class="java.lang.String"/>
+    <field name="CELL_4" class="java.lang.String"/>
+    <field name="CELL_5" class="java.lang.String"/>
+    <field name="CELL_6" class="java.lang.String"/>
+
+    <group name="SEMAINE" isReprintHeaderOnEachPage="true">
+        <groupExpression><![CDATA[$F{SEMAINE_DEBUT}]]></groupExpression>
+        <groupHeader>
+            <band height="40">
+                <staticText>
+                    <reportElement x="0" y="2" width="80" height="14"/>
+                    <textElement textAlignment="Left">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Semaine du]]></text>
+                </staticText>
+                <textField pattern="dd/MM/yyyy">
+                    <reportElement x="62" y="2" width="120" height="14"/>
+                    <textElement textAlignment="Left">
+                        <font size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{SEMAINE_DEBUT}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="0" y="20" width="62" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Salle]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="62" y="20" width="62" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Créneau]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="124" y="20" width="96" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{ENTETE_0}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="220" y="20" width="96" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{ENTETE_1}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="316" y="20" width="96" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{ENTETE_2}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="412" y="20" width="96" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{ENTETE_3}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="508" y="20" width="96" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{ENTETE_4}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="604" y="20" width="96" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{ENTETE_5}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="700" y="20" width="96" height="18" backcolor="#1B5E20" mode="Opaque"
+                                   forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{ENTETE_6}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupHeader>
+    </group>
+
+    <title>
+        <band height="136">
+            <image scaleImage="RetainShape" hAlign="Left" vAlign="Top" onErrorType="Blank">
+                <reportElement x="0" y="0" width="70" height="56">
+                    <printWhenExpression><![CDATA[$P{SOCIETE_LOGO} != null]]></printWhenExpression>
+                </reportElement>
+                <imageExpression><![CDATA[$P{SOCIETE_LOGO}]]></imageExpression>
+            </image>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="0" width="396" height="16"/>
+                <textElement textAlignment="Left">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="17" width="396" height="26"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="78" y="44" width="396" height="12"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_LEGAL}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="482" y="0" width="320" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="482" y="15" width="320" height="14"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_ADRESSE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="482" y="30" width="320" height="26"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_CONTACT}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="60" width="802" height="1"/>
+            </line>
+            <staticText>
+                <reportElement x="0" y="68" width="802" height="22"/>
+                <textElement textAlignment="Center">
+                    <font size="14" isBold="true"/>
+                </textElement>
+                <text><![CDATA[PLANNING PROPOSÉ PAR L'OPTIMISATION]]></text>
+            </staticText>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="92" width="802" height="14"/>
+                <textElement textAlignment="Center">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{TITRE_PROPOSITION}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true" isStretchWithOverflow="true">
+                <reportElement x="0" y="108" width="802" height="24"/>
+                <textElement textAlignment="Center">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{RESUME_INDICATEURS}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <detail>
+        <band height="46">
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="62" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{SALLE_NOM}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="62" y="0" width="62" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CRENEAU_LIBELLE}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="124" y="0" width="96" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Top">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CELL_0}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="220" y="0" width="96" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Top">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CELL_1}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="316" y="0" width="96" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Top">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CELL_2}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="412" y="0" width="96" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Top">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CELL_3}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="508" y="0" width="96" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Top">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CELL_4}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="604" y="0" width="96" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Top">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CELL_5}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="700" y="0" width="96" height="46"/>
+                <box padding="2">
+                    <pen lineWidth="0.5"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Top">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{CELL_6}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="28">
+            <line>
+                <reportElement x="0" y="0" width="802" height="1"/>
+            </line>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="3" width="802" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{CENTRE_LIGNE}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="0" y="14" width="802" height="11"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOCIETE_PIED_PAGE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <summary>
+        <band height="30">
+            <staticText>
+                <reportElement x="0" y="6" width="802" height="22"/>
+                <textElement textAlignment="Left">
+                    <font size="7"/>
+                </textElement>
+                <text>
+                    <![CDATA[Légende : (R) patient à risque infectieux, accueilli en salle d'isolement - (dépl.) patient dont la place change dans cette proposition - (temp.) place temporaire ce jour-là (générateur indisponible) - (rempl.) infirmier remplaçant - (nouveau) infirmier ajouté par la proposition - (absent) infirmier absent ce jour-là. Proposition non appliquée tant qu'elle n'a pas été validée par l'administrateur.]]></text>
+            </staticText>
+        </band>
+    </summary>
+</jasperReport>

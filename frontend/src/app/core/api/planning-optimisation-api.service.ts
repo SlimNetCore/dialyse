@@ -142,6 +142,56 @@ export interface ResultatOptimisation {
   seancesSansSolution?: SeanceSansSolution[];
 }
 
+/** Situation d'un infirmier sur une case du planning proposé. */
+export type SituationInfirmierCalendrier = 'PREVU' | 'REMPLACANT' | 'ABSENT' | 'NOUVEAU';
+
+export interface PatientCalendrier {
+  patientId: string;
+  nom: string;
+  generateurCode: string | null;
+  aRisque: boolean;
+  /** Patient dont la place change dans la proposition. */
+  deplace: boolean;
+  /** Patient placé ici seulement ce jour-là (générateur indisponible à sa place habituelle). */
+  temporaire: boolean;
+}
+
+export interface InfirmierCalendrier {
+  nom: string;
+  situation: SituationInfirmierCalendrier;
+}
+
+/** Un jour d'une salle et d'un créneau du planning proposé. */
+export interface JourCalendrier {
+  jour: JourSemaine;
+  date: string;
+  ferme: boolean;
+  motifFermeture: string | null;
+  requis: number;
+  manque: number;
+  patients: PatientCalendrier[];
+  infirmiers: InfirmierCalendrier[];
+}
+
+/** Ligne du planning proposé : une salle et un créneau d'une semaine, avec ses sept jours (dimanche → samedi). */
+export interface CaseCalendrier {
+  semaineDebut: string;
+  salleId: string;
+  salleNom: string;
+  salleOrdre: number;
+  creneauId: string;
+  creneauLibelle: string;
+  creneauOrdre: number;
+  jours: JourCalendrier[];
+}
+
+/** Planning calendaire d'une proposition : semaines disponibles et lignes de la semaine demandée. */
+export interface CalendrierProposition {
+  semaines: string[];
+  semaine: string | null;
+  cases: CaseCalendrier[];
+}
+
 /** Exécution d'une optimisation : `resultat` n'est chargé que par la consultation d'une exécution (pas par l'historique). */
 export interface RunOptimisation {
   id: string;
@@ -182,9 +232,26 @@ export class PlanningOptimisationApiService {
     return this.http.get<RunOptimisation>(`${this.base}/${id}`, {params: PlanningOptimisationApiService.centre(centerId)});
   }
 
+  /** Planning calendaire figé de la proposition ; la première semaine par défaut. */
+  calendrier(centerId: string, id: string, semaine?: string | null): Observable<CalendrierProposition> {
+    let params = PlanningOptimisationApiService.centre(centerId);
+    if (semaine) params = params.set('semaine', semaine);
+    return this.http.get<CalendrierProposition>(`${this.base}/${id}/calendrier`, {params});
+  }
+
+  /** Planning calendaire imprimable (modèle de document du centre). */
+  imprimer(centerId: string, id: string): Observable<Blob> {
+    return this.http.get(`${this.base}/${id}/impression`,
+      {params: PlanningOptimisationApiService.centre(centerId), responseType: 'blob'});
+  }
+
   arreter(centerId: string, id: string): Observable<RunOptimisation> {
     return this.http.post<RunOptimisation>(`${this.base}/${id}/arret`, null,
       {params: PlanningOptimisationApiService.centre(centerId)});
+  }
+
+  supprimer(centerId: string, id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`, {params: PlanningOptimisationApiService.centre(centerId)});
   }
 
   appliquer(centerId: string, id: string): Observable<RunOptimisation> {

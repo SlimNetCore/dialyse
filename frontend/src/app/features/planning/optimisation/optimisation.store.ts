@@ -5,11 +5,13 @@ import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, EMPTY, firstValueFrom, pipe, switchMap, takeWhile, tap, timer} from 'rxjs';
 import {
+  CalendrierProposition,
   LancerOptimisationPayload,
   PlanningOptimisationApiService,
   RunOptimisation,
 } from '../../../core/api/planning-optimisation-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
+import {openPdf} from '../../stock/inventaire/inventaire.util';
 import {INTERVALLE_SUIVI_MS} from './optimisation.util';
 
 interface OptimisationState {
@@ -22,6 +24,10 @@ interface OptimisationState {
   loading: boolean;
   launching: boolean;
   applying: boolean;
+  /** Planning calendaire de la proposition affichée (semaines disponibles et lignes de la semaine choisie). */
+  calendrier: CalendrierProposition | null;
+  loadingCalendrier: boolean;
+  printing: boolean;
   error: string | null;
   successMessage: string | null;
 }
@@ -35,13 +41,17 @@ const initialState: OptimisationState = {
   loading: false,
   launching: false,
   applying: false,
+  calendrier: null,
+  loadingCalendrier: false,
+  printing: false,
   error: null,
   successMessage: null,
 };
 
 const CODES_CONNUS = [
   'OPTIMISATION_DEJA_EN_COURS', 'OPTIMISATION_INTROUVABLE', 'OPTIMISATION_NON_APPLICABLE',
-  'OPTIMISATION_DEJA_APPLIQUEE', 'OPTIMISATION_PERIMEE',
+  'OPTIMISATION_DEJA_APPLIQUEE', 'OPTIMISATION_PERIMEE', 'OPTIMISATION_CALENDRIER_ABSENT',
+  'OPTIMISATION_SUPPRESSION_EN_COURS',
 ];
 
 /** Clé i18n de l'erreur d'une action : code métier connu, refus de placement, paramètres refusés, sinon générique. */
@@ -125,7 +135,7 @@ export const OptimisationStore = signalStore(
         patchState(store, {launching: true, error: null, successMessage: null});
         try {
           const run = await firstValueFrom(api.lancer(centerId(), payload));
-          patchState(store, {courant: run, launching: false});
+          patchState(store, {courant: run, launching: false, calendrier: null});
           suivre(run.id);
           rafraichirHistorique();
           return true;
@@ -140,11 +150,38 @@ export const OptimisationStore = signalStore(
         patchState(store, {loading: true, error: null, successMessage: null});
         try {
           const run = await firstValueFrom(api.consulter(centerId(), id));
-          patchState(store, {courant: run, loading: false});
+          patchState(store, {courant: run, loading: false, calendrier: null});
           suivre(run.statut === 'EN_COURS' ? run.id : null);
         } catch (err) {
           patchState(store, {loading: false, error: optimisationErrorKey(err)});
         }
+      },
+
+      /**
+       * Charge le planning calendaire de la proposition terminée affichée (première semaine par défaut). Sans effet
+       * tant qu'aucune proposition n'est affichée.
+       */
+      async chargerCalendrier(semaine?: string | null): Promise<void> {
+        const run = store.courant();
+        if (!run || run.statut !== 'TERMINEE' || !run.resultat) return;
+        patchState(store, {loadingCalendrier: true, error: null});
+        try {
+          const calendrier = await firstValueFrom(api.calendrier(centerId(), run.id, semaine));
+          // une réponse tardive d'une autre exécution (ou d'un autre centre) ne remplace pas l'affichage courant
+          if (store.courant()?.id !== run.id) return;
+          patchState(store, {calendrier, loadingCalendrier: false});
+        } catch (err) {
+          patchState(store, {loadingCalendrier: false, calendrier: null, error: optimisationErrorKey(err)});
+        }
+      },
+
+      /** Ouvre le planning calendaire imprimable de la proposition affichée (PDF du modèle de document du centre). */
+      async imprimerCalendrier(): Promise<void> {
+        const run = store.courant();
+        if (!run || run.statut !== 'TERMINEE') return;
+        patchState(store, {printing: true, error: null});
+        const erreur = await openPdf(api.imprimer(centerId(), run.id), `planning-propose-${run.id}.pdf`);
+        patchState(store, {printing: false, error: erreur === null ? null : 'PLANNING.OPTIM.ERR.IMPRESSION'});
       },
 
       /** Arrête le calcul en cours : la meilleure solution trouvée est conservée, le suivi la récupère. */
@@ -156,6 +193,29 @@ export const OptimisationStore = signalStore(
         } catch (err) {
           patchState(store, {error: optimisationErrorKey(err)});
         }
+      },
+
+      /**
+       * Supprime une exécution de l'historique (administrateur) ; si elle était affichée, l'écran est vidé. Renvoie
+       * vrai si le serveur l'a supprimée.
+       */
+      async supprimer(id: string): Promise<boolean> {
+        patchState(store, {error: null, successMessage: null});
+        try {
+          await firstValueFrom(api.supprimer(centerId(), id));
+        } catch (err) {
+          patchState(store, {error: optimisationErrorKey(err)});
+          return false;
+        }
+        if (store.courant()?.id === id) {
+          suivre(null);
+          patchState(store, {courant: null, calendrier: null});
+        }
+        // dernière ligne d'une page > 1 supprimée : on recule d'une page plutôt que d'afficher une page vide
+        const page = store.historique().length === 1 && store.pageIndex() > 0 ? store.pageIndex() - 1 : store.pageIndex();
+        patchState(store, {pageIndex: page, successMessage: 'PLANNING.OPTIM.OK.SUPPRIMEE'});
+        rafraichirHistorique();
+        return true;
       },
 
       /** Applique la proposition affichée (administrateur) ; renvoie vrai si elle a été appliquée. */

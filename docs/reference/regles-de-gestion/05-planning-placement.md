@@ -191,7 +191,8 @@
 > `ReplanificationAutomatiqueService`, `OptimisationDonneesJdbcAdapter`, `OptimisationRunJdbcAdapter`,
 > `PreferencePatientJdbcAdapter`, `ProfilInfirmierJdbcAdapter`, `ReglagesOptimisationJdbcAdapter`,
 > `DeplacementTemporaireJdbcAdapter`, `OptimisationPlanningRecovery`, `ReplanificationAutomatiqueScheduler`,
-> `PlanningOptimisationRestController`, `PlanningPreferencesRestController`.
+> `PlanningOptimisationRestController`, `PlanningPreferencesRestController`, `CalendrierPropositionService`,
+> `CalendrierPropositionJdbcAdapter`, `PlanningOptimiseReportService`.
 
 - **RG-PLN-080** — L'optimisation **propose** un planning qui consomme le moins de ressources possible (générateurs,
   salles ouvertes, vacations d'infirmiers) sans enfreindre les règles de la planification. Cinq **périmètres** :
@@ -326,4 +327,28 @@
   `SOUS_EFFECTIF`), séances à déplacer ou sans solution (`MAINTENANCE`), vacations requises économisées ou patients en
   attente placés (`GAIN`). Rien n'est appliqué d'office : l'administrateur consulte la proposition dans l'historique et
   l'applique (RG-PLN-091).
+- **RG-PLN-101** — **Planning calendaire de la proposition** (`GET /api/v1/planning/optimisations/{id}/calendrier`,
+  `ADMIN`, `SECRETAIRE`) : à la fin du calcul, la proposition est **figée** en un calendrier semaine par semaine sur
+  l'horizon (`CalendrierPropositionService`, table `planification_calendrier_case`, rattachée au centre et à
+  l'exécution, purgée avec elle). Une ligne par salle et créneau ayant de l'activité ; une colonne par jour (dimanche à
+  samedi). Chaque case indique les patients **avec leur générateur** (repères : patient à risque, déplacé par la
+  proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d'infirmiers requis
+  (ratio
+  de la salle) et le manque éventuel ; un jour fermé est signalé avec son motif. Les infirmiers viennent des vacations
+  de
+  la proposition quand son périmètre planifie le personnel (`ROULEMENT`, `COUVERTURE`, `COMPLET`), sinon du roulement
+  actuel. Le calendrier reflète l'état du centre **au lancement** : il ne change pas si le centre évolue ensuite. Une
+  exécution sans calendrier (calcul antérieur à cette fonction, échec) est refusée par `OPTIMISATION_CALENDRIER_ABSENT`
+  (relancer le calcul) ; l'exécution d'un autre centre est introuvable (`OPTIMISATION_INTROUVABLE`). **Impression**
+  (`GET /api/v1/planning/optimisations/{id}/impression`) : modèle de document « Planning proposé par
+  l'optimisation » (`planning_optimise`, §11.1 des règles du dépôt), A4 paysage, une page par semaine, identité de la
+  société
+  et du centre, indicateurs avant/après en en-tête. **Isolation par centre** : chaque exécution, historique, calendrier,
+  impression et application est borné au centre de la session ; seul le nombre de calculs en parallèle
+  (`PLANNING_OPTIMISATION_WORKERS`) est partagé, jamais les données.
+- **RG-PLN-102** — **Suppression d'une exécution** (`DELETE /api/v1/planning/optimisations/{id}`, `ADMIN`) : une
+  exécution terminée, en échec ou déjà appliquée peut être supprimée de l'historique du centre, avec son planning
+  calendaire. La suppression n'annule jamais une proposition déjà appliquée (le planning du centre ne change pas). Un
+  calcul encore en cours est refusé par `OPTIMISATION_SUPPRESSION_EN_COURS` (l'arrêter d'abord) ; l'exécution d'un autre
+  centre est introuvable (`OPTIMISATION_INTROUVABLE`).
 

@@ -18,6 +18,7 @@ public final class ModeleDocumentCatalog {
     public static final String BON_INTERVENTION = "BON_INTERVENTION";
     public static final String PLANNING_PRESENCE_INFIRMIERS = "PLANNING_PRESENCE_INFIRMIERS";
     public static final String CAHIER_DIALYSE = "CAHIER_DIALYSE";
+    public static final String PLANNING_OPTIMISE = "PLANNING_OPTIMISE";
     private static final List<Entry> ENTRIES = List.of(
             new Entry("FICHE_PATIENT", "Fiche signalétique patient", "reports/fiche_patient.jrxml",
                     "Fiche complète du patient avec ses informations personnelles et médicales"),
@@ -43,6 +44,9 @@ public final class ModeleDocumentCatalog {
             new Entry(PLANNING_PRESENCE_INFIRMIERS, "Planning de présence des infirmiers",
                     "reports/planning_presence_infirmiers.jrxml",
                     "Présence des infirmiers sur une semaine : créneau, salle, absences et remplaçants"),
+            new Entry(PLANNING_OPTIMISE, "Planning proposé par l'optimisation", "reports/planning_optimise.jrxml",
+                    "Planning calendaire d'une proposition d'optimisation : semaine par semaine, salle et créneau en "
+                            + "lignes, jours en colonnes, avec patients, générateurs et infirmiers"),
             new Entry(CAHIER_DIALYSE, "Cahier de dialyse", "reports/cahier_dialyse.jrxml",
                     "Cahier de dialyse d'un patient : une page par séance (paramédical, consommables valorisés, "
                             + "dossier et prescription médicale)"));

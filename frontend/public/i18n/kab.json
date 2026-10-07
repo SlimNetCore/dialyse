@@ -2076,6 +2076,12 @@
       "HISTORY_TITLE": "Aḍris n uḥseb",
       "HISTORY_EMPTY": "Ulac asnerni ar tura.",
       "OUVRIR": "Ldi",
+      "SUPPRIMER": "Kkes",
+      "SUPPRIMER_CONFIRM": {
+        "TITLE": "Kkes aselkem-agi ?",
+        "MESSAGE": "Aselkem d uɣawas-is yettwasumren ad ttwakksen i lebda seg umezruy.",
+        "MESSAGE_APPLIQUEE": "Aselkem d uɣawas-is yettwasumren ad ttwakksen seg umezruy. Asumer yettwasebded yakan: aɣawas n yiɣrem ur yettbeddil ara."
+      },
       "ERR": {
         "GENERIC": "Tamahilt tecceḍ. Ɛreḍ tikkelt-nniḍen.",
         "PARAMETRES": "Iɣewwaren ttwagdlen: wali azal i d-tketbeḍ.",
@@ -2085,10 +2091,35 @@
         "OPTIMISATION_NON_APPLICABLE": "Ala asnerni yemmden i izemren ad yettwasebded.",
         "OPTIMISATION_DEJA_APPLIQUEE": "Asumer-a yettwasebded yakan.",
         "OPTIMISATION_PERIMEE": "Aɣallis yettbeddel seg uḥseb: ales asnerni.",
-        "PLACEMENT": "Amkan i d-yettwasumren yextalaf ilugan n usuddes: ales asnerni."
+        "PLACEMENT": "Amkan i d-yettwasumren yextalaf ilugan n usuddes: ales asnerni.",
+        "OPTIMISATION_CALENDRIER_ABSENT": "Asumer-agi ur yesɛi ara aɣawas n useggas: ales asnerni.",
+        "OPTIMISATION_SUPPRESSION_EN_COURS": "Aḥseb teddu ur yezmir ara ad yettwakkes: seḥbes-it uqbel.",
+        "IMPRESSION": "Ur izmir ara ad yettwaxdem usiggez n uɣawas yettwasumren."
+      },
+      "CALENDRIER": {
+        "TITLE": "Aɣawas yettwasumren",
+        "SUBTITLE": "Aseggas ilem ilem: tigzelmatin, isurifen, inelmaden (d umsedday), imsawen d umḍan n yal tanaka.",
+        "IMPRIMER": "Siggez aɣawas yettwasumren",
+        "ABSENT": "Asumer-agi ur yesɛi ara aɣawas n useggas: ales aḥseb.",
+        "VIDE": "Ulac armud yettwasumren deg ssmana-agi.",
+        "AUCUN_JOUR": "Ulac armud yettwasumren deg ass-agi.",
+        "DEPLACE": "Anelmad yettwazzuzer",
+        "TEMPORAIRE": "Amkan unmir",
+        "SITUATION": {
+          "REMPLACANT": "amsiwel",
+          "ABSENT": "ulac-it",
+          "NOUVEAU": "amaynut"
+        },
+        "EFFECTIF": "{{patients}} n inelmaden, {{requis}} n imsawen yettwasran",
+        "MANQUE": "yenqes {{count}}",
+        "LEGENDE": {
+          "COUVERT": "Tanaka tettwaɣṛ",
+          "MANQUE": "Amsaw yenqes"
+        }
       },
       "OK": {
-        "APPLIQUEE": "Asumer yettwasebded."
+        "APPLIQUEE": "Asumer yettwasebded.",
+        "SUPPRIMEE": "Aselkem yettwakkes."
       },
       "JOURS_INCHANGES": "Ur ttwabeddlen ara",
       "AUCUNE_MAINTENANCE": "Ulac tiɣimit i yeḥuza useɣti deg tallit-a.",

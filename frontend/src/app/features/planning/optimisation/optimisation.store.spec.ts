@@ -45,7 +45,8 @@ function httpError(status: number, code?: string): HttpErrorResponse {
 }
 
 describe('OptimisationStore', () => {
-  let api: Record<'lancer' | 'historique' | 'consulter' | 'arreter' | 'appliquer', ReturnType<typeof vi.fn>>;
+  let api: Record<'lancer' | 'historique' | 'consulter' | 'arreter' | 'appliquer' | 'calendrier' | 'imprimer' | 'supprimer',
+    ReturnType<typeof vi.fn>>;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -55,6 +56,7 @@ describe('OptimisationStore', () => {
       consulter: vi.fn().mockReturnValue(of(run({statut: 'TERMINEE', resultat: resultat()}))),
       arreter: vi.fn().mockReturnValue(of(run())),
       appliquer: vi.fn().mockReturnValue(of(run({statut: 'TERMINEE', appliqueLe: '2026-10-01T09:00:00Z'}))),
+      calendrier: vi.fn(), imprimer: vi.fn(), supprimer: vi.fn(),
     };
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), {provide: PlanningOptimisationApiService, useValue: api}],
@@ -221,6 +223,133 @@ describe('OptimisationStore', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.error()).toBe('PLANNING.OPTIM.ERR.SUIVI');
+  });
+
+  describe('suppression d\'une exécution', () => {
+    it('supprime l\'exécution affichée, vide l\'écran et recharge l\'historique du centre', async () => {
+      api.supprimer.mockReturnValue(of(undefined));
+      const store = TestBed.inject(OptimisationStore);
+      await store.ouvrir('r1');
+      api.historique.mockClear();
+
+      const supprimee = await store.supprimer('r1');
+
+      expect(supprimee).toBe(true);
+      expect(api.supprimer).toHaveBeenCalledWith(CENTRE, 'r1');
+      expect(store.courant()).toBeNull();
+      expect(store.calendrier()).toBeNull();
+      expect(store.successMessage()).toBe('PLANNING.OPTIM.OK.SUPPRIMEE');
+      expect(api.historique).toHaveBeenCalledWith(CENTRE, 0, 10);
+    });
+
+    it('garde l\'exécution affichée quand une autre est supprimée', async () => {
+      api.supprimer.mockReturnValue(of(undefined));
+      const store = TestBed.inject(OptimisationStore);
+      await store.ouvrir('r1');
+
+      await store.supprimer('autre');
+
+      expect(store.courant()?.id).toBe('r1');
+    });
+
+    it('recule d\'une page quand la dernière ligne d\'une page est supprimée', async () => {
+      api.supprimer.mockReturnValue(of(undefined));
+      api.historique.mockReturnValue(of({items: [run()], total: 11, page: 1, size: 10}));
+      const store = TestBed.inject(OptimisationStore);
+      store.setPagination(1, 10);
+
+      await store.supprimer('r1');
+
+      expect(api.historique).toHaveBeenLastCalledWith(CENTRE, 0, 10);
+    });
+
+    it('signale le refus d\'un calcul en cours sans rien vider', async () => {
+      api.supprimer.mockReturnValue(throwError(() => httpError(422, 'OPTIMISATION_SUPPRESSION_EN_COURS')));
+      const store = TestBed.inject(OptimisationStore);
+      await store.ouvrir('r1');
+
+      const supprimee = await store.supprimer('r1');
+
+      expect(supprimee).toBe(false);
+      expect(store.error()).toBe('PLANNING.OPTIM.ERR.OPTIMISATION_SUPPRESSION_EN_COURS');
+      expect(store.courant()?.id).toBe('r1');
+    });
+  });
+
+  describe('planning calendaire de la proposition', () => {
+    const CALENDRIER = {semaines: ['2026-09-27', '2026-10-04'], semaine: '2026-09-27', cases: []};
+
+    async function storeAvecProposition() {
+      const store = TestBed.inject(OptimisationStore);
+      await store.ouvrir('r1');
+      return store;
+    }
+
+    it('charge la première semaine, puis la semaine demandée, pour le centre actif', async () => {
+      api.calendrier.mockReturnValue(of(CALENDRIER));
+      const store = await storeAvecProposition();
+
+      await store.chargerCalendrier(null);
+      expect(api.calendrier).toHaveBeenLastCalledWith(CENTRE, 'r1', null);
+      expect(store.calendrier()).toEqual(CALENDRIER);
+      expect(store.loadingCalendrier()).toBe(false);
+
+      await store.chargerCalendrier('2026-10-04');
+      expect(api.calendrier).toHaveBeenLastCalledWith(CENTRE, 'r1', '2026-10-04');
+    });
+
+    it('ne charge rien tant qu\'aucune proposition terminée n\'est affichée', async () => {
+      const store = TestBed.inject(OptimisationStore);
+      await store.chargerCalendrier(null);
+
+      api.consulter.mockReturnValue(of(run({statut: 'EN_COURS'})));
+      await store.ouvrir('r1');
+      await store.chargerCalendrier(null);
+
+      expect(api.calendrier).not.toHaveBeenCalled();
+    });
+
+    it('signale l\'absence de calendrier d\'une ancienne proposition', async () => {
+      api.calendrier.mockReturnValue(throwError(() => httpError(422, 'OPTIMISATION_CALENDRIER_ABSENT')));
+      const store = await storeAvecProposition();
+
+      await store.chargerCalendrier(null);
+
+      expect(store.calendrier()).toBeNull();
+      expect(store.error()).toBe('PLANNING.OPTIM.ERR.OPTIMISATION_CALENDRIER_ABSENT');
+    });
+
+    it('oublie le calendrier quand une autre proposition est ouverte ou le centre change', async () => {
+      api.calendrier.mockReturnValue(of(CALENDRIER));
+      const store = await storeAvecProposition();
+      await store.chargerCalendrier(null);
+
+      await store.ouvrir('r1');
+      expect(store.calendrier()).toBeNull();
+
+      await store.chargerCalendrier(null);
+      store.reinitialiser();
+      expect(store.calendrier()).toBeNull();
+    });
+
+    it('imprime la proposition affichée et signale un échec d\'impression', async () => {
+      const tab = {location: {href: ''}, close: vi.fn()};
+      vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window);
+      URL.createObjectURL = vi.fn().mockReturnValue('blob:planning');
+      api.imprimer.mockReturnValue(of(new Blob(['pdf'])));
+      const store = await storeAvecProposition();
+
+      await store.imprimerCalendrier();
+      expect(api.imprimer).toHaveBeenCalledWith(CENTRE, 'r1');
+      expect(tab.location.href).toBe('blob:planning');
+      expect(store.error()).toBeNull();
+      expect(store.printing()).toBe(false);
+
+      api.imprimer.mockReturnValue(throwError(() => httpError(500)));
+      await store.imprimerCalendrier();
+      expect(store.error()).toBe('PLANNING.OPTIM.ERR.IMPRESSION');
+      expect(tab.close).toHaveBeenCalled();
+    });
   });
 });
 

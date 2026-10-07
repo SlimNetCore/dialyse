@@ -392,6 +392,13 @@
           }
         </mat-card-content>
       </mat-card>
+      <mat-card data-testid="opt-calendrier">
+        <mat-card-content>
+          <app-planning-propose (imprimer)="imprimerCalendrier()" (semaineChoisie)="choisirSemaine($event)"
+                                [calendrier]="store.calendrier()" [loading]="store.loadingCalendrier()"
+                                [printing]="store.printing()"/>
+        </mat-card-content>
+      </mat-card>
     }
   }
 
@@ -434,6 +441,12 @@
                       data-testid="opt-ouvrir" mat-icon-button type="button">
                 <mat-icon>visibility</mat-icon>
               </button>
+              @if (estAdmin() && row.statut !== 'EN_COURS') {
+                <button (click)="supprimer(row)" [attr.aria-label]="'PLANNING.OPTIM.SUPPRIMER' | translate"
+                        data-testid="opt-supprimer" mat-icon-button type="button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
             </td>
           </ng-container>
           <tr *matHeaderRowDef="colonnesHistorique" mat-header-row></tr>

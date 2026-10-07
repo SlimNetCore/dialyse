@@ -9,6 +9,8 @@ import com.hemodialyse.backend.domain.planning.optimisation.model.RunOptimisatio
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.TenantScope;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
+import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
+import com.hemodialyse.backend.infrastructure.reporting.PlanningOptimiseReportService;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.rest.PlanningOptimisationRestController.LancerRequest;
 import org.junit.jupiter.api.Test;
@@ -34,8 +36,9 @@ class PlanningOptimisationRestControllerTest {
     private final OptimisationPlanningService planification = mock(OptimisationPlanningService.class);
     private final OptimisationApplicationService application = mock(OptimisationApplicationService.class);
     private final CenterAccessGuard guard = mock(CenterAccessGuard.class);
+    private final PlanningOptimiseReportService rapport = mock(PlanningOptimiseReportService.class);
     private final PlanningOptimisationRestController controller =
-            new PlanningOptimisationRestController(planification, application, guard);
+            new PlanningOptimisationRestController(planification, application, guard, rapport);
     private final UUID centre = UUID.randomUUID();
 
     private RunOptimisation run() {
@@ -117,6 +120,70 @@ class PlanningOptimisationRestControllerTest {
         assertThat(controller.consulter(null, run.id()).getBody()).isSameAs(run);
         assertThat(controller.arreter(null, run.id()).getStatusCode().value()).isEqualTo(202);
         assertThat(controller.appliquer(null, run.id()).getBody()).isSameAs(run);
+    }
+
+    @Test
+    void should_delete_a_run_inside_the_center_of_the_session() {
+        sessionDuCentre();
+        UUID id = UUID.randomUUID();
+
+        assertThat(controller.supprimer(null, id).getStatusCode().value()).isEqualTo(204);
+
+        verify(planification).supprimer(centre, id);
+    }
+
+    @Test
+    void should_serve_the_calendar_of_the_first_week_by_default_inside_the_center_of_the_session() {
+        sessionDuCentre();
+        UUID id = UUID.randomUUID();
+        LocalDate s1 = LocalDate.of(2026, 9, 27);
+        when(planification.semainesCalendrier(centre, id)).thenReturn(List.of(s1, s1.plusWeeks(1)));
+        when(planification.calendrier(centre, id, s1)).thenReturn(List.of());
+
+        ResponseEntity<PlanningOptimisationRestController.CalendrierResponse> reponse =
+                controller.calendrier(UUID.randomUUID(), id, null);
+
+        assertThat(reponse.getBody().semaines()).containsExactly(s1, s1.plusWeeks(1));
+        assertThat(reponse.getBody().semaine()).isEqualTo(s1);
+        assertThat(reponse.getHeaders().getCacheControl()).contains("no-store");
+        verify(planification).calendrier(centre, id, s1);
+    }
+
+    @Test
+    void should_serve_the_requested_week_and_nothing_when_the_run_has_no_calendar() {
+        sessionDuCentre();
+        UUID id = UUID.randomUUID();
+        LocalDate s2 = LocalDate.of(2026, 10, 4);
+        when(planification.semainesCalendrier(centre, id)).thenReturn(List.of(LocalDate.of(2026, 9, 27), s2));
+        controller.calendrier(null, id, s2);
+        verify(planification).calendrier(centre, id, s2);
+
+        UUID ancien = UUID.randomUUID();
+        when(planification.semainesCalendrier(centre, ancien)).thenReturn(List.of());
+        var vide = controller.calendrier(null, ancien, null).getBody();
+        assertThat(vide.semaines()).isEmpty();
+        assertThat(vide.semaine()).isNull();
+        assertThat(vide.cases()).isEmpty();
+    }
+
+    @Test
+    void should_print_the_calendar_as_a_pdf_html_or_excel_document_of_the_center() {
+        sessionDuCentre();
+        UUID id = UUID.randomUUID();
+        byte[] contenu = {1, 2, 3};
+        when(rapport.imprimer(centre, id)).thenReturn(new ModeleDocumentPrinter.Document(contenu, "PDF"));
+
+        ResponseEntity<byte[]> pdf = controller.imprimer(null, id);
+
+        assertThat(pdf.getHeaders().getContentType().toString()).isEqualTo("application/pdf");
+        assertThat(pdf.getHeaders().getContentDisposition().getFilename()).isEqualTo("planning-propose-" + id + ".pdf");
+        assertThat(pdf.getBody()).isEqualTo(contenu);
+
+        when(rapport.imprimer(centre, id)).thenReturn(new ModeleDocumentPrinter.Document(contenu, "HTML"));
+        assertThat(controller.imprimer(null, id).getHeaders().getContentType().toString()).startsWith("text/html");
+
+        when(rapport.imprimer(centre, id)).thenReturn(new ModeleDocumentPrinter.Document(contenu, "EXCEL"));
+        assertThat(controller.imprimer(null, id).getHeaders().getContentDisposition().getFilename()).endsWith(".xlsx");
     }
 
     @Test

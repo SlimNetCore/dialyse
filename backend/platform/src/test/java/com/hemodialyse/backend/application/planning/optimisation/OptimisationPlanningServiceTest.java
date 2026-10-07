@@ -5,6 +5,7 @@ import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOpti
 import com.hemodialyse.backend.domain.planning.optimisation.model.PerimetreOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.RunOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.RunOptimisation.StatutRun;
+import com.hemodialyse.backend.domain.planning.optimisation.port.CalendrierPropositionPort;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimisationDonneesPort;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimiseurPlanningPort;
 import com.hemodialyse.backend.domain.planning.optimisation.port.OptimiseurPlanningPort.Ecouteur;
@@ -37,6 +38,7 @@ class OptimisationPlanningServiceTest {
     private final OptimiseurPlanningPort optimiseur = mock(OptimiseurPlanningPort.class);
     private final com.hemodialyse.backend.domain.planning.optimisation.port.ReglagesOptimisationPort reglages =
             mock(com.hemodialyse.backend.domain.planning.optimisation.port.ReglagesOptimisationPort.class);
+    private final CalendrierPropositionPort calendriers = mock(CalendrierPropositionPort.class);
     private final RunsEnMemoire runs = new RunsEnMemoire();
     private Instant maintenant = T0;
     private OptimisationPlanningService service;
@@ -45,7 +47,7 @@ class OptimisationPlanningServiceTest {
     void setUp() {
         when(donnees.charger(any(), any(), any())).thenReturn(OptimisationTestSupport.donneesVides());
         when(reglages.lire(any())).thenReturn(com.hemodialyse.backend.domain.planning.optimisation.model.ReglagesOptimisation.parDefaut());
-        service = new OptimisationPlanningService(donnees, runs, optimiseur, reglages, new java.time.Clock() {
+        service = new OptimisationPlanningService(donnees, runs, optimiseur, reglages, calendriers, new java.time.Clock() {
             @Override
             public java.time.ZoneId getZone() {
                 return java.time.ZoneOffset.UTC;
@@ -109,6 +111,88 @@ class OptimisationPlanningServiceTest {
         assertThat(fini.termineLe()).isEqualTo(T0.plusSeconds(20));
         assertThat(fini.resume()).isNotNull();
         assertThat(service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin").enCours()).isTrue();
+    }
+
+    @Test
+    void should_freeze_the_calendar_of_the_proposal_for_the_center_when_the_optimiser_finishes() {
+        RunOptimisation run = service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+
+        ecouteurDuDernierLancement(run.id()).termine(resultatVide(), "0hard/0medium/0soft");
+
+        verify(calendriers).enregistrer(eq(C1), eq(run.id()), any());
+    }
+
+    @Test
+    void should_not_freeze_a_calendar_when_the_run_fails() {
+        RunOptimisation run = service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+
+        ecouteurDuDernierLancement(run.id()).echec("boom");
+
+        verify(calendriers, never()).enregistrer(any(), any(), any());
+    }
+
+    @Test
+    void should_keep_the_proposal_when_its_calendar_cannot_be_built() {
+        org.mockito.Mockito.doThrow(new IllegalStateException("base inaccessible")).when(calendriers)
+                .enregistrer(any(), any(), any());
+        RunOptimisation run = service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+
+        ecouteurDuDernierLancement(run.id()).termine(resultatVide(), "0hard/0medium/0soft");
+
+        assertThat(service.consulter(C1, run.id()).statut()).isEqualTo(StatutRun.TERMINEE);
+    }
+
+    @Test
+    void should_purge_the_calendars_of_runs_that_left_the_history_of_the_center() {
+        service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+
+        verify(calendriers).purgerOrphelins(C1);
+    }
+
+    @Test
+    void should_only_read_the_calendar_of_a_run_of_the_center() {
+        RunOptimisation run = service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+
+        assertThatThrownBy(() -> service.calendrier(C2, run.id(), OptimisationTestSupport.DIMANCHE))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode()).isEqualTo("OPTIMISATION_INTROUVABLE");
+        assertThatThrownBy(() -> service.semainesCalendrier(C2, run.id())).isInstanceOf(BusinessException.class);
+        verify(calendriers, never()).lire(any(), any(), any());
+
+        service.calendrier(C1, run.id(), OptimisationTestSupport.DIMANCHE.plusDays(3));
+        verify(calendriers).lire(C1, run.id(), OptimisationTestSupport.DIMANCHE);
+    }
+
+    @Test
+    void should_delete_a_finished_run_of_the_center_with_its_calendar() {
+        RunOptimisation run = service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+        ecouteurDuDernierLancement(run.id()).termine(resultatVide(), "0hard/0medium/0soft");
+
+        service.supprimer(C1, run.id());
+
+        assertThatThrownBy(() -> service.consulter(C1, run.id())).isInstanceOf(BusinessException.class);
+        verify(calendriers, org.mockito.Mockito.atLeast(2)).purgerOrphelins(C1);
+    }
+
+    @Test
+    void should_refuse_to_delete_a_running_calculation() {
+        RunOptimisation run = service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+
+        assertThatThrownBy(() -> service.supprimer(C1, run.id()))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode()).isEqualTo("OPTIMISATION_SUPPRESSION_EN_COURS");
+        assertThat(service.consulter(C1, run.id())).isNotNull();
+    }
+
+    @Test
+    void should_not_delete_a_run_of_another_center() {
+        RunOptimisation run = service.lancer(C1, parametres(PerimetreOptimisation.PATIENTS), "admin");
+        ecouteurDuDernierLancement(run.id()).termine(resultatVide(), "0hard/0medium/0soft");
+
+        assertThatThrownBy(() -> service.supprimer(C2, run.id()))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode()).isEqualTo("OPTIMISATION_INTROUVABLE");
+        assertThat(service.consulter(C1, run.id())).isNotNull();
     }
 
     @Test

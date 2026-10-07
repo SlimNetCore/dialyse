@@ -38,6 +38,7 @@ import {
   vacationsNouvelles,
 } from './optimisation.util';
 import {PlanningPreferencesComponent} from './planning-preferences.component';
+import {PlanningProposeComponent} from './planning-propose.component';
 
 type ParametresFormModel = {
   perimetre: PerimetreOptimisation;
@@ -75,7 +76,7 @@ function parametresParDefaut(): ParametresFormModel {
   imports: [
     DatePipe, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule,
     MatProgressBarModule, MatSelectModule, MatTableModule, MatTabsModule, FormRoot, FormField, TranslateModule,
-    PlanningPreferencesComponent,
+    PlanningPreferencesComponent, PlanningProposeComponent,
   ],
   templateUrl: './planning-optimisation.component.html',
   styleUrl: './planning-optimisation.component.css',
@@ -164,6 +165,13 @@ export class PlanningOptimisationComponent {
         this.store.chargerHistorique({page: 0, size: this.store.pageSize()});
       });
     });
+    // Proposition terminée affichée : on charge son planning calendaire (une fois par exécution consultée).
+    effect(() => {
+      const run = this.store.courant();
+      if (run?.statut === 'TERMINEE' && run.resultat && !untracked(() => this.store.calendrier())) {
+        untracked(() => void this.store.chargerCalendrier(null));
+      }
+    });
     // Quitter l'écran n'interrompt pas le calcul (il continue côté serveur) mais arrête la lecture périodique.
     inject(DestroyRef).onDestroy(() => this.store.reinitialiser());
   }
@@ -206,8 +214,35 @@ export class PlanningOptimisationComponent {
     });
   }
 
+  protected choisirSemaine(semaine: string): void {
+    void this.store.chargerCalendrier(semaine);
+  }
+
+  protected imprimerCalendrier(): void {
+    void this.store.imprimerCalendrier();
+  }
+
   protected ouvrir(run: RunOptimisation): void {
     void this.store.ouvrir(run.id);
+  }
+
+  protected supprimer(run: RunOptimisation): void {
+    if (!this.estAdmin() || run.statut === 'EN_COURS') return;
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: 'min(96vw, 480px)',
+      data: {
+        title: this.translate.instant('PLANNING.OPTIM.SUPPRIMER_CONFIRM.TITLE'),
+        message: this.translate.instant(
+          run.appliqueLe ? 'PLANNING.OPTIM.SUPPRIMER_CONFIRM.MESSAGE_APPLIQUEE' : 'PLANNING.OPTIM.SUPPRIMER_CONFIRM.MESSAGE'),
+        confirmLabel: this.translate.instant('PLANNING.OPTIM.SUPPRIMER'),
+        cancelLabel: this.translate.instant('COMMON.CANCEL'),
+        color: 'warn',
+        icon: 'delete',
+      },
+    });
+    ref.afterClosed().subscribe((confirme) => {
+      if (confirme) void this.store.supprimer(run.id);
+    });
   }
 
   protected onPageHistorique(event: PageEvent): void {

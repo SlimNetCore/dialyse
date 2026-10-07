@@ -22,13 +22,19 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-10-06<br>494 règles de gestion · 16 domaines · 373 codes d'erreur métier</div></div>
+    <div class="meta">Version 1.0 · 2026-10-07<br>496 règles de gestion · 16 domaines · 375 codes d'erreur métier</div>
+</div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>494</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+    <div class="stat">
+        <div><b>496</b>règles de gestion</div>
+        <div><b>16</b>domaines</div>
+        <div><b>15</b>surveillances automatiques</div>
+        <div><b>8</b>points d'attention</div>
+    </div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -1069,7 +1075,8 @@ patients par poste n&#39;ont pas de sens consolidé (valent 0). La restitution �
 <code>ReplanificationAutomatiqueService</code>, <code>OptimisationDonneesJdbcAdapter</code>, <code>OptimisationRunJdbcAdapter</code>,
 <code>PreferencePatientJdbcAdapter</code>, <code>ProfilInfirmierJdbcAdapter</code>, <code>ReglagesOptimisationJdbcAdapter</code>,
 <code>DeplacementTemporaireJdbcAdapter</code>, <code>OptimisationPlanningRecovery</code>, <code>ReplanificationAutomatiqueScheduler</code>,
-<code>PlanningOptimisationRestController</code>, <code>PlanningPreferencesRestController</code>.</p>
+    <code>PlanningOptimisationRestController</code>, <code>PlanningPreferencesRestController</code>, <code>CalendrierPropositionService</code>,
+    <code>CalendrierPropositionJdbcAdapter</code>, <code>PlanningOptimiseReportService</code>.</p>
 </blockquote>
 <div class="rule" id="RG-PLN-080"><div class="rid">RG-PLN-080</div><div class="rtxt"><p>L&#39;optimisation <strong>propose</strong> un planning qui consomme le moins de ressources possible (générateurs,
 salles ouvertes, vacations d&#39;infirmiers) sans enfreindre les règles de la planification. Cinq <strong>périmètres</strong> :
@@ -1225,6 +1232,52 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
 attente placés (<code>GAIN</code>). Rien n&#39;est appliqué d&#39;office : l&#39;administrateur consulte la proposition dans l&#39;historique et
 l&#39;applique (RG-PLN-091).</p>
 </div></div>
+    <div class="rule" id="RG-PLN-101">
+        <div class="rid">RG-PLN-101</div>
+        <div class="rtxt"><p><strong>Planning calendaire de la proposition</strong> (<code>GET
+            /api/v1/planning/optimisations/{id}/calendrier</code>,
+            <code>ADMIN</code>, <code>SECRETAIRE</code>) : à la fin du calcul, la proposition est <strong>figée</strong>
+            en un calendrier semaine par semaine sur
+            l&#39;horizon (<code>CalendrierPropositionService</code>, table <code>planification_calendrier_case</code>,
+            rattachée au centre et à
+            l&#39;exécution, purgée avec elle). Une ligne par salle et créneau ayant de l&#39;activité ; une colonne par
+            jour (dimanche à
+            samedi). Chaque case indique les patients <strong>avec leur générateur</strong> (repères : patient à risque,
+            déplacé par la
+            proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d&#39;infirmiers
+            requis (ratio
+            de la salle) et le manque éventuel ; un jour fermé est signalé avec son motif. Les infirmiers viennent des
+            vacations de
+            la proposition quand son périmètre planifie le personnel (<code>ROULEMENT</code>, <code>COUVERTURE</code>,
+            <code>COMPLET</code>), sinon du roulement
+            actuel. Le calendrier reflète l&#39;état du centre <strong>au lancement</strong> : il ne change pas si le
+            centre évolue ensuite. Une
+            exécution sans calendrier (calcul antérieur à cette fonction, échec) est refusée par <code>OPTIMISATION_CALENDRIER_ABSENT</code>
+            (relancer le calcul) ; l&#39;exécution d&#39;un autre centre est introuvable
+            (<code>OPTIMISATION_INTROUVABLE</code>).
+            <strong>Impression</strong> (<code>GET /api/v1/planning/optimisations/{id}/impression</code>) : modèle de
+            document « Planning proposé par
+            l&#39;optimisation » (<code>planning_optimise</code>, §11.1 des règles du dépôt), A4 paysage, une page par
+            semaine, identité de la société
+            et du centre, indicateurs avant/après en en-tête. <strong>Isolation par centre</strong> : chaque exécution,
+            historique, calendrier,
+            impression et application est borné au centre de la session ; seul le nombre de calculs en parallèle
+            (<code>PLANNING_OPTIMISATION_WORKERS</code>) est partagé, jamais les données.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-PLN-102">
+        <div class="rid">RG-PLN-102</div>
+        <div class="rtxt"><p><strong>Suppression d&#39;une exécution</strong> (<code>DELETE
+            /api/v1/planning/optimisations/{id}</code>, <code>ADMIN</code>) : une
+            exécution terminée, en échec ou déjà appliquée peut être supprimée de l&#39;historique du centre, avec son
+            planning
+            calendaire. La suppression n&#39;annule jamais une proposition déjà appliquée (le planning du centre ne
+            change pas). Un
+            calcul encore en cours est refusé par <code>OPTIMISATION_SUPPRESSION_EN_COURS</code> (l&#39;arrêter d&#39;abord)
+            ; l&#39;exécution d&#39;un autre
+            centre est introuvable (<code>OPTIMISATION_INTROUVABLE</code>).</p>
+        </div>
+    </div>
 </section>
 <section class="part" id="p06"><h1><span class="n">Partie 6</span>Absences des patients</h1>
 <figure><img src="img/absences-patients.png" alt="Suivi des absences des patients"><figcaption>Suivi des absences des patients</figcaption></figure><blockquote>
@@ -3297,7 +3350,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PlanningOptimisationRestController</code></td>
 <td><code>/api/v1/planning/optimisations</code></td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code> (application : <code>ADMIN</code>)</td>
-<td>RG-PLN-080 à 096, RG-INF-070</td>
+    <td>RG-PLN-080 à 096, 101, 102, RG-INF-070</td>
 </tr>
 <tr>
 <td><code>PlanningPreferencesRestController</code></td>

@@ -1,0 +1,185 @@
+<ng-template #jourTpl let-j>
+  @if (j.ferme) {
+    <span class="pp-ferme" data-testid="pp-ferme">
+      {{ 'PLANNING.SEMAINE.FERME' | translate }}@if (j.motifFermeture) {
+      — {{ j.motifFermeture }}
+    }
+    </span>
+  } @else {
+    <ul class="pp-patients">
+      @for (p of j.patients; track p.patientId) {
+        <li [class.moved]="p.deplace" [class.risk]="p.aRisque" [class.temp]="p.temporaire" data-testid="pp-patient">
+          <span class="pp-nom">{{ p.nom }}</span>
+          @if (p.generateurCode) {
+            <small class="pp-gen">{{ p.generateurCode }}</small>
+          }
+          @if (p.aRisque) {
+            <mat-icon [attr.title]="'PLANNING.SEMAINE.RISQUE' | translate" class="pp-ico">coronavirus</mat-icon>
+          }
+          @if (p.deplace) {
+            <mat-icon [attr.title]="'PLANNING.OPTIM.CALENDRIER.DEPLACE' | translate" class="pp-ico">swap_horiz
+            </mat-icon>
+          }
+          @if (p.temporaire) {
+            <mat-icon [attr.title]="'PLANNING.OPTIM.CALENDRIER.TEMPORAIRE' | translate" class="pp-ico">schedule
+            </mat-icon>
+          }
+        </li>
+      }
+    </ul>
+    @if (j.infirmiers.length > 0) {
+      <ul class="pp-infirmiers" data-testid="pp-infirmiers">
+        @for (i of j.infirmiers; track $index) {
+          <li [attr.data-situation]="i.situation">
+            <mat-icon class="pp-ico">medical_services</mat-icon>
+            {{ i.nom }}
+            @if (i.situation !== 'PREVU') {
+              <small>({{ 'PLANNING.OPTIM.CALENDRIER.SITUATION.' + i.situation | translate }})</small>
+            }
+          </li>
+        }
+      </ul>
+    }
+    @if (j.patients.length > 0 || j.infirmiers.length > 0) {
+      <small class="pp-effectif" data-testid="pp-effectif">
+        {{ 'PLANNING.OPTIM.CALENDRIER.EFFECTIF' | translate: {patients: j.patients.length, requis: j.requis} }}
+        @if (j.manque > 0) {
+          <strong class="pp-manque">· {{ 'PLANNING.OPTIM.CALENDRIER.MANQUE' | translate: {count: j.manque} }}</strong>
+        }
+      </small>
+    }
+  }
+</ng-template>
+
+<section class="pp" data-testid="pp">
+  <header class="pp-head">
+    <div>
+      <h3>{{ 'PLANNING.OPTIM.CALENDRIER.TITLE' | translate }}</h3>
+      <p class="pp-sub">{{ 'PLANNING.OPTIM.CALENDRIER.SUBTITLE' | translate }}</p>
+    </div>
+    <button (click)="imprimer.emit()" [disabled]="printing() || cases().length === 0" data-testid="pp-imprimer"
+            mat-stroked-button type="button">
+      <mat-icon>print</mat-icon>
+      {{ 'PLANNING.OPTIM.CALENDRIER.IMPRIMER' | translate }}
+    </button>
+  </header>
+
+  @if (loading() || printing()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+
+  @if (semaines().length === 0) {
+    <p class="pp-sub" data-testid="pp-absent">{{ 'PLANNING.OPTIM.CALENDRIER.ABSENT' | translate }}</p>
+  } @else {
+    <div class="pp-bar">
+      <div class="pp-nav">
+        <button (click)="allerA(precedente())" [attr.aria-label]="'PLANNING.SEMAINE.PREV' | translate"
+                [disabled]="!precedente() || loading()" data-testid="pp-prev" mat-icon-button type="button">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <strong class="pp-range" data-testid="pp-range">
+          {{
+            'PLANNING.SEMAINE.SEMAINE_DU' | translate: {
+              debut: (semaine() | date: 'dd/MM/yyyy'),
+              fin: (fin() | date: 'dd/MM/yyyy')
+            }
+          }}
+        </strong>
+        <button (click)="allerA(suivante())" [attr.aria-label]="'PLANNING.SEMAINE.NEXT' | translate"
+                [disabled]="!suivante() || loading()" data-testid="pp-next" mat-icon-button type="button">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      <mat-button-toggle-group (change)="vue.set($event.value)" [hideSingleSelectionIndicator]="true"
+                               [value]="vue()" class="pp-views" data-testid="pp-views">
+        <mat-button-toggle data-testid="pp-view-semaine" value="SEMAINE">
+          <mat-icon>calendar_view_week</mat-icon>
+          {{ 'PLANNING.SEMAINE.VUE_SEMAINE' | translate }}
+        </mat-button-toggle>
+        <mat-button-toggle data-testid="pp-view-jour" value="JOUR">
+          <mat-icon>today</mat-icon>
+          {{ 'PLANNING.SEMAINE.VUE_JOUR' | translate }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <ul class="pp-legend" data-testid="pp-legend">
+      <li><span class="sw ok"></span>{{ 'PLANNING.OPTIM.CALENDRIER.LEGENDE.COUVERT' | translate }}</li>
+      <li><span class="sw manque"></span>{{ 'PLANNING.OPTIM.CALENDRIER.LEGENDE.MANQUE' | translate }}</li>
+      <li><span class="sw closed"></span>{{ 'PLANNING.SEMAINE.LEGENDE.FERME' | translate }}</li>
+      <li>
+        <mat-icon class="pp-ico">swap_horiz</mat-icon>
+        {{ 'PLANNING.OPTIM.CALENDRIER.DEPLACE' | translate }}
+      </li>
+      <li>
+        <mat-icon class="pp-ico">schedule</mat-icon>
+        {{ 'PLANNING.OPTIM.CALENDRIER.TEMPORAIRE' | translate }}
+      </li>
+      <li>
+        <mat-icon class="pp-ico">coronavirus</mat-icon>
+        {{ 'PLANNING.SEMAINE.RISQUE' | translate }}
+      </li>
+    </ul>
+
+    @if (cases().length === 0) {
+      <p class="pp-sub" data-testid="pp-vide">{{ 'PLANNING.OPTIM.CALENDRIER.VIDE' | translate }}</p>
+    } @else if (vue() === 'SEMAINE') {
+      <div class="pp-scroll">
+        <table class="pp-grid" data-testid="pp-table">
+          <thead>
+          <tr>
+            <th>{{ 'PATIENT_FORM.SALLE' | translate }}</th>
+            <th>{{ 'PATIENT_FORM.POSITION' | translate }}</th>
+            @for (e of entetes(); track e.index) {
+              <th [class.closed]="e.ferme">
+                {{ ('PATIENT_FORM.' + e.jour) | translate | slice: 0 : 3 }}
+                <small>{{ e.date | date: 'dd/MM' }}</small>
+              </th>
+            }
+          </tr>
+          </thead>
+          <tbody>
+            @for (l of cases(); track l.salleId + l.creneauId) {
+              <tr data-testid="pp-ligne">
+                <th scope="row">{{ l.salleNom }}</th>
+                <td>{{ l.creneauLibelle }}</td>
+                @for (e of entetes(); track e.index) {
+                  @let j = jour(l, e.index);
+                  <td [class]="'cell ' + classe(j)" data-testid="pp-cell">
+                    @if (j) {
+                      <ng-container [ngTemplateOutletContext]="{$implicit: j}" [ngTemplateOutlet]="jourTpl"/>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <section class="pp-day" data-testid="pp-day-view">
+        <mat-button-toggle-group (change)="choisirJour($event.value)" [hideSingleSelectionIndicator]="true"
+                                 [value]="jourActif()" class="pp-day-tabs">
+          @for (e of entetes(); track e.index) {
+            <mat-button-toggle [class.closed]="e.ferme" [value]="e.index">
+              {{ ('PATIENT_FORM.' + e.jour) | translate | slice: 0 : 3 }}
+              <small>{{ e.date | date: 'dd/MM' }}</small>
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+        @if (lignesJour().length === 0) {
+          <p class="pp-sub" data-testid="pp-day-empty">{{ 'PLANNING.OPTIM.CALENDRIER.AUCUN_JOUR' | translate }}</p>
+        }
+        <div class="pp-day-cards">
+          @for (l of lignesJour(); track l.salleId + l.creneauId) {
+            @let j = jour(l, jourActif())!;
+            <article [class]="'pp-card ' + classe(j)" data-testid="pp-day-card">
+              <h4>{{ l.salleNom }} · {{ l.creneauLibelle }}</h4>
+              <ng-container [ngTemplateOutletContext]="{$implicit: j}" [ngTemplateOutlet]="jourTpl"/>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

@@ -1,6 +1,10 @@
 package com.hemodialyse.backend.application.planning.optimisation;
 
+import com.hemodialyse.backend.domain.planning.optimisation.model.CalendrierProposition.CaseCalendrier;
 import com.hemodialyse.backend.domain.planning.optimisation.model.DonneesOptimisation;
+import com.hemodialyse.backend.domain.planning.optimisation.port.CalendrierPropositionPort;
+import com.hemodialyse.backend.domain.planning.optimisation.service.CalendrierPropositionService;
+import com.hemodialyse.backend.domain.planning.service.PlanningSemaineService;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ResultatOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.RunOptimisation;
@@ -20,6 +24,8 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,21 +51,25 @@ public class OptimisationPlanningService {
     private final OptimisationRunRepositoryPort runs;
     private final OptimiseurPlanningPort optimiseur;
     private final ReglagesOptimisationPort reglages;
+    private final CalendrierPropositionPort calendriers;
     private final Clock horloge;
     private final Map<UUID, Object> verrous = new ConcurrentHashMap<>();
 
     @Autowired
     public OptimisationPlanningService(OptimisationDonneesPort donnees, OptimisationRunRepositoryPort runs,
-                                       OptimiseurPlanningPort optimiseur, ReglagesOptimisationPort reglages) {
-        this(donnees, runs, optimiseur, reglages, Clock.systemUTC());
+                                       OptimiseurPlanningPort optimiseur, ReglagesOptimisationPort reglages,
+                                       CalendrierPropositionPort calendriers) {
+        this(donnees, runs, optimiseur, reglages, calendriers, Clock.systemUTC());
     }
 
     OptimisationPlanningService(OptimisationDonneesPort donnees, OptimisationRunRepositoryPort runs,
-                                OptimiseurPlanningPort optimiseur, ReglagesOptimisationPort reglages, Clock horloge) {
+                                OptimiseurPlanningPort optimiseur, ReglagesOptimisationPort reglages,
+                                CalendrierPropositionPort calendriers, Clock horloge) {
         this.donnees = donnees;
         this.runs = runs;
         this.optimiseur = optimiseur;
         this.reglages = reglages;
+        this.calendriers = calendriers;
         this.horloge = horloge;
     }
 
@@ -90,13 +100,33 @@ public class OptimisationPlanningService {
             RunOptimisation run = runs.save(RunOptimisation.demarrer(centerId, parametres, utilisateur,
                     EmpreinteOptimisation.calculer(lues, parametres), horloge.instant()));
             runs.purger(centerId, HISTORIQUE_MAX);
-            optimiseur.demarrer(run.id(), lues, parametres, new Suivi(run, aLaFin));
+            calendriers.purgerOrphelins(centerId);
+            optimiseur.demarrer(run.id(), lues, parametres, new Suivi(run, lues, aLaFin));
             return run;
         }
     }
 
     public RunOptimisation consulter(UUID centerId, UUID runId) {
         return runs.findById(centerId, runId).orElseThrow(OptimisationPlanningService::introuvable);
+    }
+
+    /**
+     * Semaines (dates de début) du planning calendaire de la proposition ; vide pour une exécution sans résultat ou
+     * antérieure à l'introduction du calendrier.
+     *
+     * @throws BusinessException {@code OPTIMISATION_INTROUVABLE} si l'exécution n'appartient pas au centre
+     */
+    public List<LocalDate> semainesCalendrier(UUID centerId, UUID runId) {
+        consulter(centerId, runId);
+        return calendriers.semaines(centerId, runId);
+    }
+
+    /**
+     * Lignes (salle × créneau) d'une semaine du planning calendaire de la proposition.
+     */
+    public List<CaseCalendrier> calendrier(UUID centerId, UUID runId, LocalDate semaineDebut) {
+        consulter(centerId, runId);
+        return calendriers.lire(centerId, runId, PlanningSemaineService.debutSemaine(semaineDebut));
     }
 
     public PagedResult<RunOptimisation> historique(UUID centerId, int page, int size) {
@@ -112,6 +142,23 @@ public class OptimisationPlanningService {
         return run;
     }
 
+    /**
+     * Supprime une exécution de l'historique du centre, avec son planning calendaire. Un calcul en cours doit d'abord
+     * être arrêté.
+     *
+     * @throws BusinessException {@code OPTIMISATION_INTROUVABLE} si l'exécution n'appartient pas au centre,
+     *                           {@code OPTIMISATION_SUPPRESSION_EN_COURS} si elle est encore en cours
+     */
+    public void supprimer(UUID centerId, UUID runId) {
+        RunOptimisation run = consulter(centerId, runId);
+        if (run.enCours()) {
+            throw new BusinessException("OPTIMISATION_SUPPRESSION_EN_COURS",
+                    "Un calcul en cours ne peut pas être supprimé : arrêtez-le d'abord");
+        }
+        runs.supprimer(centerId, runId);
+        calendriers.purgerOrphelins(centerId);
+    }
+
     static BusinessException introuvable() {
         return new BusinessException("OPTIMISATION_INTROUVABLE", "Optimisation introuvable");
     }
@@ -122,11 +169,13 @@ public class OptimisationPlanningService {
      */
     private final class Suivi implements Ecouteur {
         private final Consumer<RunOptimisation> aLaFin;
+        private final DonneesOptimisation lues;
         private volatile RunOptimisation courant;
         private volatile Instant derniereProgression = Instant.MIN;
 
-        private Suivi(RunOptimisation run, Consumer<RunOptimisation> aLaFin) {
+        private Suivi(RunOptimisation run, DonneesOptimisation lues, Consumer<RunOptimisation> aLaFin) {
             this.courant = run;
+            this.lues = lues;
             this.aLaFin = aLaFin;
         }
 
@@ -141,7 +190,21 @@ public class OptimisationPlanningService {
         @Override
         public void termine(ResultatOptimisation resultat, String score) {
             enregistrer(courant.terminer(resultat, score, horloge.instant()));
+            figerCalendrier(resultat);
             signalerFin();
+        }
+
+        /**
+         * Fige le planning calendaire de la proposition tant que l'état du centre lu au lancement est en mémoire.
+         * Un échec est journalisé : la proposition reste utilisable, sans calendrier imprimable.
+         */
+        private void figerCalendrier(ResultatOptimisation resultat) {
+            try {
+                calendriers.enregistrer(courant.centerId(), courant.id(),
+                        CalendrierPropositionService.construire(lues, resultat, courant.parametres()));
+            } catch (RuntimeException e) {
+                log.warn("[OPTIMISATION] Calendrier de l'exécution {} non construit", courant.id(), e);
+            }
         }
 
         @Override

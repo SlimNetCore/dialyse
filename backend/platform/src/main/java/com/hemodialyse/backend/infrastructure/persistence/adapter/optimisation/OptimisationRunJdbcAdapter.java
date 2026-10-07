@@ -109,6 +109,11 @@ public class OptimisationRunJdbcAdapter implements OptimisationRunRepositoryPort
     }
 
     @Override
+    public boolean supprimer(UUID centerId, UUID id) {
+        return jdbc.update("DELETE FROM planification_optimisation WHERE center_id = ? AND id = ?", centerId, id) > 0;
+    }
+
+    @Override
     public int interrompreEnCours(String motif) {
         return jdbc.update("UPDATE planification_optimisation SET statut = 'ECHEC', erreur = ?, termine_le = ? "
                 + "WHERE statut = 'EN_COURS'", motif, horodatage(Instant.now()));

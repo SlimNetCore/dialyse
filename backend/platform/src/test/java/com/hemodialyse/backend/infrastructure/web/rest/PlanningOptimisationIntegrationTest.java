@@ -112,7 +112,7 @@ class PlanningOptimisationIntegrationTest {
 
     @AfterEach
     void cleanup() {
-        for (String table : List.of("planification_optimisation", "infirmier_remplacement", "infirmier_absence",
+        for (String table : List.of("planification_calendrier_case", "planification_optimisation", "infirmier_remplacement", "infirmier_absence",
                 "infirmier_affectation", "infirmier", "patients", "position_creneau", "salle")) {
             jdbc.update("DELETE FROM " + table + " WHERE center_id IN (?, ?)", C1, C2);
         }
@@ -188,6 +188,24 @@ class PlanningOptimisationIntegrationTest {
             assertThat(h.resultat()).as("l'historique ne charge pas le détail").isNull();
             assertThat(h.resume()).isNotNull();
         });
+
+        // planning calendaire figé à la fin du calcul : les cinq patients dialysent le lundi dans la salle proposée
+        assertThat(planification.semainesCalendrier(C1, lancee.id())).containsExactly(DIMANCHE);
+        var lignes = planification.calendrier(C1, lancee.id(), DIMANCHE);
+        var salleAccueil = lignes.stream().filter(l -> l.jours().get(1).patients().size() == 5).findFirst().orElseThrow();
+        var lundi = salleAccueil.jours().get(1);
+        assertThat(lundi.patients()).extracting(p -> p.nom())
+                .containsExactly("Prenom Alpha", "Prenom Bravo", "Prenom Charlie", "Prenom Delta", "Prenom Echo");
+        assertThat(lundi.patients()).allMatch(p -> p.generateurCode() != null);
+        assertThat(lundi.patients()).filteredOn(p -> p.deplace()).extracting(p -> p.nom())
+                .as("les patients déplacés par la proposition sont signalés").isNotEmpty();
+        assertThat(lundi.requis()).as("5 patients, ratio 4").isEqualTo(2);
+        assertThat(lundi.manque()).as("un seul infirmier (Marie) dans cette salle").isEqualTo(1);
+        assertThat(lignes).as("la salle vidée n'affiche plus que l'infirmier encore affecté")
+                .anyMatch(l -> l.jours().get(1).patients().isEmpty() && !l.jours().get(1).infirmiers().isEmpty());
+        assertThatThrownBy(() -> planification.calendrier(C2, lancee.id(), DIMANCHE))
+                .as("le calendrier d'une exécution d'un autre centre est introuvable")
+                .isInstanceOf(BusinessException.class);
 
         application.appliquer(C1, lancee.id());
 
@@ -268,6 +286,24 @@ class PlanningOptimisationIntegrationTest {
             assertThat(r.erreur()).isEqualTo("redémarrage");
         });
         assertThat(runs.findEnCours(C1)).isEmpty();
+    }
+
+    @Test
+    void should_delete_a_finished_run_with_its_calendar_only_inside_its_center() throws Exception {
+        RunOptimisation fini = attendre(
+                planification.lancer(C1, parametres(PerimetreOptimisation.PATIENTS, 1), "admin").id());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM planification_calendrier_case WHERE run_id = ?",
+                Long.class, fini.id())).isPositive();
+
+        assertThatThrownBy(() -> planification.supprimer(C2, fini.id())).isInstanceOf(BusinessException.class);
+        assertThat(runs.findById(C1, fini.id())).as("un autre centre ne supprime rien").isPresent();
+
+        planification.supprimer(C1, fini.id());
+
+        assertThat(runs.findById(C1, fini.id())).isEmpty();
+        assertThat(planification.historique(C1, 0, 20).items()).isEmpty();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM planification_calendrier_case WHERE run_id = ?",
+                Long.class, fini.id())).as("le calendrier est supprimé avec l'exécution").isZero();
     }
 
     @Test

@@ -90,6 +90,14 @@ final class OptimisationTestSupport {
         }
 
         @Override
+        public boolean supprimer(UUID centerId, UUID id) {
+            if (findById(centerId, id).isEmpty()) return false;
+            parId.remove(id);
+            journal.add("SUPPRESSION");
+            return true;
+        }
+
+        @Override
         public int interrompreEnCours(String motif) {
             return 0;
         }

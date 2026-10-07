@@ -112,7 +112,53 @@ describe('PlanningOptimisationComponent', () => {
       lancer: vi.fn().mockResolvedValue(true), arreter: vi.fn().mockResolvedValue(undefined),
       appliquer: vi.fn().mockResolvedValue(true), ouvrir: vi.fn().mockResolvedValue(undefined),
       setPagination: vi.fn(), chargerHistorique: vi.fn(), reinitialiser: vi.fn(),
+      calendrier: signal(null),
+      loadingCalendrier: signal(false),
+      printing: signal(false),
+      supprimer: vi.fn().mockResolvedValue(true),
+      chargerCalendrier: vi.fn().mockResolvedValue(undefined),
+      imprimerCalendrier: vi.fn().mockResolvedValue(undefined),
     } as typeof store;
+  });
+
+  it('charge le planning calendaire d\'une proposition terminée et propose de l\'imprimer', async () => {
+    const {root} = await render();
+
+    expect(store['chargerCalendrier']).toHaveBeenCalledWith(null);
+    expect(root.querySelector('[data-testid="opt-calendrier"]')).not.toBeNull();
+    (root.querySelector('[data-testid="pp-imprimer"]') as HTMLButtonElement).click();
+    expect(store['imprimerCalendrier']).not.toHaveBeenCalled(); // désactivé : aucune ligne dans la proposition de test
+  });
+
+  it('supprime une exécution terminée après confirmation de l\'administrateur', async () => {
+    const {root} = await render();
+
+    (root.querySelector('[data-testid="opt-supprimer"]') as HTMLButtonElement).click();
+
+    expect(dialogOpen).toHaveBeenCalled();
+    expect(store['supprimer']).toHaveBeenCalledWith('r1');
+  });
+
+  it('ne propose pas la suppression à un non-administrateur ni pour un calcul en cours', async () => {
+    admin = false;
+    const {root} = await render();
+    expect(root.querySelector('[data-testid="opt-supprimer"]')).toBeNull();
+
+    TestBed.resetTestingModule();
+    admin = true;
+    (store['historique'] as ReturnType<typeof signal<RunOptimisation[]>>).set([run({
+      statut: 'EN_COURS',
+      resultat: null
+    })]);
+    const autre = await render();
+    expect(autre.root.querySelector('[data-testid="opt-supprimer"]')).toBeNull();
+  });
+
+  it('ne charge pas de calendrier tant que le calcul est en cours', async () => {
+    courant.set(run({statut: 'EN_COURS', resultat: null}));
+    await render();
+
+    expect(store['chargerCalendrier']).not.toHaveBeenCalled();
   });
 
   it('charge l\'historique du centre actif au démarrage', async () => {

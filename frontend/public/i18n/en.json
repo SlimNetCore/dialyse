@@ -2436,6 +2436,12 @@
       "HISTORY_TITLE": "Calculation history",
       "HISTORY_EMPTY": "No optimisation yet.",
       "OUVRIR": "Open",
+      "SUPPRIMER": "Delete",
+      "SUPPRIMER_CONFIRM": {
+        "TITLE": "Delete this run?",
+        "MESSAGE": "The run and its proposed planning will be permanently deleted from the history.",
+        "MESSAGE_APPLIQUEE": "The run and its proposed planning will be deleted from the history. The proposal has already been applied: the center's planning does not change."
+      },
       "ERR": {
         "GENERIC": "The operation failed. Please try again.",
         "PARAMETRES": "Settings rejected: check the values entered.",
@@ -2445,10 +2451,35 @@
         "OPTIMISATION_NON_APPLICABLE": "Only a finished optimisation can be applied.",
         "OPTIMISATION_DEJA_APPLIQUEE": "This proposal has already been applied.",
         "OPTIMISATION_PERIMEE": "The center has changed since the calculation: run the optimisation again.",
-        "PLACEMENT": "A proposed place breaks the planning rules: run the optimisation again."
+        "PLACEMENT": "A proposed place breaks the planning rules: run the optimisation again.",
+        "OPTIMISATION_CALENDRIER_ABSENT": "This proposal has no calendar planning: run the optimisation again.",
+        "OPTIMISATION_SUPPRESSION_EN_COURS": "A running calculation cannot be deleted: stop it first.",
+        "IMPRESSION": "Unable to generate the print of the proposed planning."
+      },
+      "CALENDRIER": {
+        "TITLE": "Proposed planning",
+        "SUBTITLE": "Week-by-week calendar: rooms, slots, patients (with generator), nurses and staffing of each cell.",
+        "IMPRIMER": "Print the proposed planning",
+        "ABSENT": "This proposal has no calendar planning: run the calculation again.",
+        "VIDE": "No activity proposed this week.",
+        "AUCUN_JOUR": "No activity proposed this day.",
+        "DEPLACE": "Moved patient",
+        "TEMPORAIRE": "Temporary place",
+        "SITUATION": {
+          "REMPLACANT": "replacement",
+          "ABSENT": "absent",
+          "NOUVEAU": "new"
+        },
+        "EFFECTIF": "{{patients}} patient(s), {{requis}} nurse(s) required",
+        "MANQUE": "{{count}} missing",
+        "LEGENDE": {
+          "COUVERT": "Covered cell",
+          "MANQUE": "Missing nurse"
+        }
       },
       "OK": {
-        "APPLIQUEE": "The proposal has been applied."
+        "APPLIQUEE": "The proposal has been applied.",
+        "SUPPRIMEE": "The run has been deleted."
       },
       "JOURS_INCHANGES": "Unchanged",
       "AUCUNE_MAINTENANCE": "No session is affected by a maintenance over the horizon.",
