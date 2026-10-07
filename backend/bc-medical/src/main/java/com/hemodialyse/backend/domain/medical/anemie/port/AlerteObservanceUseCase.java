@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.medical.anemie.port;
 
 import com.hemodialyse.backend.domain.medical.anemie.aggregate.AlerteObservance;
+import com.hemodialyse.backend.domain.medical.anemie.valueobject.DetailObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeAlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -19,9 +20,20 @@ public interface AlerteObservanceUseCase {
      * Appelé par {@code ObservancePrescriptionScheduler} : ouvre une nouvelle alerte non résolue si
      * aucune n'est déjà ouverte pour ce patient/type/nature, sinon ne fait rien (pas de doublon).
      */
+    default void signalerNonConformite(CenterId centerId, UUID patientId, TypeTraitementAnemie typeTraitement,
+                                       TypeAlerteObservance type, LocalDate periodeDebut, LocalDate periodeFin,
+                                       int dosesAttendues, int dosesAdministrees, String message) {
+        signalerNonConformite(centerId, patientId, typeTraitement, type, periodeDebut, periodeFin, dosesAttendues,
+                dosesAdministrees, message, DetailObservance.AUCUN);
+    }
+
+    /**
+     * Comme ci-dessus, avec la prescription qui explique l'alerte : dose par administration, fréquence, et unité dans
+     * laquelle {@code dosesAttendues} / {@code dosesAdministrees} sont exprimées.
+     */
     void signalerNonConformite(CenterId centerId, UUID patientId, TypeTraitementAnemie typeTraitement,
                                TypeAlerteObservance type, LocalDate periodeDebut, LocalDate periodeFin,
-                               int dosesAttendues, int dosesAdministrees, String message);
+                               int dosesAttendues, int dosesAdministrees, String message, DetailObservance detail);
 
     /**
      * Appelé par le job planifié quand l'observance redevient conforme : résout silencieusement

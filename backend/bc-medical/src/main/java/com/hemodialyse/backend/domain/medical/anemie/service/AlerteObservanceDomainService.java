@@ -3,6 +3,7 @@ package com.hemodialyse.backend.domain.medical.anemie.service;
 import com.hemodialyse.backend.domain.medical.anemie.aggregate.AlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.port.AlerteObservanceRepositoryPort;
 import com.hemodialyse.backend.domain.medical.anemie.port.AlerteObservanceUseCase;
+import com.hemodialyse.backend.domain.medical.anemie.valueobject.DetailObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeAlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -39,13 +40,14 @@ public class AlerteObservanceDomainService implements AlerteObservanceUseCase {
     @Override
     public void signalerNonConformite(CenterId centerId, UUID patientId, TypeTraitementAnemie typeTraitement,
                                       TypeAlerteObservance type, LocalDate periodeDebut, LocalDate periodeFin,
-                                      int dosesAttendues, int dosesAdministrees, String message) {
+                                      int dosesAttendues, int dosesAdministrees, String message,
+                                      DetailObservance detail) {
         boolean dejaOuverte = repository.findActiveByPatientAndType(patientId, centerId, typeTraitement, type).isPresent();
         if (dejaOuverte) {
             return;
         }
         AlerteObservance alerte = AlerteObservance.declencher(patientId, centerId.value(), typeTraitement, type,
-                periodeDebut, periodeFin, dosesAttendues, dosesAdministrees, message);
+                periodeDebut, periodeFin, dosesAttendues, dosesAdministrees, message, detail);
         repository.save(alerte);
     }
 

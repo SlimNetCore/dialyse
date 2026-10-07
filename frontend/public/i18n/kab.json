@@ -1229,6 +1229,8 @@
     "NO_ACTIVE_PRESCRIPTION": "Ulac tira n ubbedwal n uɛessas irmiden ɣef uzemz n tiɣimit-a.",
     "ADMINISTER": "Sezdeg",
     "ADMINISTERED_TODAY": "Yettwasezdeg",
+    "ADMINISTER_COMPLEMENT": "Sezdeg ayen i d-yeqqimen",
+    "RESTE_A_ADMINISTRER_DOSE": "Iqqim-d {{dose}} {{unite}} ara yettwasezdgen",
     "ADMINISTERED_THIS_SESSION": "Isezdiyen n tiɣimit-a",
     "CONVERSION_OK": "Tuffɣa seg usekles: {{quantite}} {{unite}} (yettwasuffeɣ seg tmedda yettwabren)",
     "CONVERSION_ERR": {
@@ -1867,7 +1869,7 @@
       "AUCUN_PATIENT_JOUR": "Ulac anelmad neɣ asmal yettwaburjen deg wass-a.",
       "CASE_VIDE": "Ulac anelmad yettwasbedden.",
       "INFIRMIERS_MANQUE": "Ttqenṣen {{count}} n imsawen seg {{requis}} yettwasran",
-      "INFIRMIERS_REQUIS": "{{requis}} n imsawen yettwasran",
+      "INFIRMIERS_AFFECTES": "{{count}} n imsawen yettwasbedden",
       "INFIRMIERS_SURPLUS": "{{count}} n imsawen i d-yezwiren",
       "CLIC_DETAIL": "Ssed i wakken ad twaliḍ talqayt n unelmad",
       "SEANCE_VALIDEE": "Aɣimi yettwasentem sɣur uneggaru: anelmad yella",
@@ -2122,7 +2124,7 @@
           "ABSENT": "ulac-it",
           "NOUVEAU": "amaynut"
         },
-        "EFFECTIF": "{{patients}} n inelmaden, {{requis}} n imsawen yettwasran",
+        "EFFECTIF": "{{patients}} n inelmaden, {{affectes}} n imsawen yettwasbedden",
         "MANQUE": "yenqes {{count}}",
         "SURPLUS": "{{count}} i d-yezwiren",
         "LEGENDE": {
@@ -2179,24 +2181,6 @@
           "PREFERENCE_PATIENT_INTROUVABLE": "Amuḍin ulac-it deg tlemmast-a.",
           "PROFIL_INFIRMIER_INTROUVABLE": "Amennaɣ ulac-it deg tlemmast-a."
         }
-      }
-    }
-  },
-  "MEDECIN": {
-    "DASHBOARD": {
-      "TITLE": "Amuddu n wass",
-      "PATIENTS": "Tabdart n inebdalen",
-      "NB_PATIENTS": "Inebdalen i d-yettwarǧun ass-a",
-      "SOUS_EFFECTIF": "Ismalen ur nelhi ara s inemgalen",
-      "FERME": "Aɣallis ur ixeddem ara ass-a.",
-      "RIEN": "Ulac anebdal neɣ anemgal yettwaɣerrez ass-a.",
-      "EFFECTIF": "{{patients}} n unebdal · {{presents}} n unemgal yettwaɣerrez ɣef {{requis}} yettwasran",
-      "PATIENTS_COL": "Inebdalen",
-      "INFIRMIERS_COL": "Inemgalen",
-      "AUCUN_PATIENT": "Ulac anebdal deg usmel-agi.",
-      "ISOLEMENT": "Asnaw",
-      "ERR": {
-        "LOAD": "Ur izmir ara ad yettwasali umuddu n wass"
       }
     }
   },
@@ -2575,7 +2559,6 @@
     "INFIRMIERS_CHARGE": "Amahil",
     "INFIRMIERS_MOI": "Amuddu-iw",
     "MEDECIN": "Aṭbib",
-    "MEDECIN_DASHBOARD": "Amuddu n wass",
     "DIRECTION": "Tegdurt",
     "DASHBOARD": "Tafelwit n uselkim",
     "PATIENTS": "Imdanen",
@@ -2861,7 +2844,14 @@
     "INFIRMIER_ABSENCE_ENREGISTREE": "Tamettant n {{infirmier}} tettwaseklas seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
     "GENERATEUR_INDISPONIBLE": "Amsedday {{generateur}} ulac-it ({{statut}}): {{count}} n inelmaden ilaq ad ttwazzuzren {{patients}}",
     "SEANCES_DEPLACEES": "Aɣawas yettwabeddel: {{patients}} n inelmaden ttwazzuzren, {{temporaires}} n tɣimiyin ttwazzuzren s wakud",
+    "OBSERVANCE_NON_RESPECTEE": {
+      "DOSE_RETARD_CONSTATE": "Alwexer yettwabaner deg {{traitement}} seg {{debut}} ɣer {{fin}}: {{administre}} {{unite}} yettwasezdeg ɣef {{attendu}} yettwasiwlen (yenqes {{manque}} {{unite}})",
+      "DOSE_RAPPEL_ECHEANCE": "{{traitement}}: yeqqim {{manque}} {{unite}} ara yettwasezdgen send {{fin}} ({{administre}}/{{attendu}} {{unite}})",
+      "COMPTE_RETARD_CONSTATE": "Alwexer yettwabaner deg {{traitement}} seg {{debut}} ɣer {{fin}}: {{administre}} n usezdi ɣef {{attendu}} yettwasiwlen",
+      "COMPTE_RAPPEL_ECHEANCE": "{{traitement}}: yeqqim {{manque}} n usezdi send {{fin}}"
+    },
     "ACTION": {
+      "ANEMIE": "Wali aḍfar n twaɛɛurt n idammen",
       "PROPOSITION": "Ldi asumer",
       "MAINTENANCE": "Sumer izuzar",
       "COUVERTURE": "Nadi imsiwlen",
@@ -3182,6 +3172,27 @@
     "ALERTE_OBSERVANCE_TYPE": {
       "RETARD_CONSTATE": "Alwexer yettwabaner",
       "RAPPEL_ECHEANCE": "Asmekti send lawan"
+    },
+    "ALERTE_OBSERVANCE_EXPLICATION": {
+      "TITRE": {
+        "RETARD_CONSTATE": "{{traitement}}: tasnakta seg {{debut}} ɣer {{fin}} tfaw, maca ittwaxdem kra kan seg tsiwelt.",
+        "RAPPEL_ECHEANCE": "{{traitement}}: yeqqim ad yettwasezdeg send taggara n tasnakta n tura, ass n {{fin}}."
+      },
+      "TRAITEMENT": {
+        "EPO": "EPO",
+        "FER_INJECTABLE": "Uzzal i usezdi"
+      },
+      "PRESCRIPTION_DOSE": "Tasiwelt: {{dose}} {{unite}} × {{frequence}} i {{periode}}, d {{attendu}} {{unite}} yettwarǧun deg tsnakta.",
+      "PRESCRIPTION_COMPTE": "Tasiwelt: {{frequence}} n usezdi i {{periode}}.",
+      "ADMINISTRE_DOSE": "Yettwasezdeg: {{administre}} {{unite}}.",
+      "ADMINISTRE_COMPTE": "Yettwasezdeg: {{administre}} n usezdi.",
+      "MANQUE_DOSE": "Yenqes {{manque}} {{unite}}.",
+      "MANQUE_COMPTE": "Yenqes {{manque}} n usezdi.",
+      "QUE_FAIRE": {
+        "RETARD_CONSTATE": "Tasnakta tfaw: ulac ayen ara yettwaṭṭef deg-s. Senqed isezdiyen n tsnakta, sakin sentem alɣu ticki yettwaɛqel ugar.",
+        "RAPPEL_ECHEANCE": "Amsaw izmer ad yesezdeg ayen i d-yeqqimen deg tɣimit i d-iteddun: asmekti yettwaḥell s timmad-is."
+      },
+      "COMMENT": "Aḥseb: tisnakta ttedun seg wass n tsiwelt (ssmana = 7 n wussan, aggur = 30 n wussan); yettwasenmmeg ayen yettwasiwel d wayen yettwasezdeg s tidet deg yal tasnakta."
     },
     "NO_PRESCRIPTIONS": "Ulac prescription yettwajerden",
     "ADD_ANALYSE": "Sekcem igmaḍ",

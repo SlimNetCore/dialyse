@@ -334,9 +334,9 @@
   l'horizon (`CalendrierPropositionService`, table `planification_calendrier_case`, rattachée au centre et à
   l'exécution, purgée avec elle). Une ligne par salle et créneau ayant de l'activité ; une colonne par jour (dimanche à
   samedi). Chaque case indique les patients **avec leur générateur** (repères : patient à risque, déplacé par la
-  proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d'infirmiers requis
-  (ratio
-  de la salle), le manque éventuel et le **sur-effectif** (infirmiers prévus au-delà de l'effectif requis, y compris
+  proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d'infirmiers
+  **affectés** (absents exclus), le manque éventuel par rapport à l'effectif requis (ratio de la salle) et le
+  **sur-effectif** (infirmiers prévus au-delà de l'effectif requis, y compris
   dans
   une salle que la proposition vide, RG-INF-047), à l'écran comme à l'impression ; un jour fermé est signalé avec son
   motif. Les infirmiers viennent des vacations
@@ -361,13 +361,28 @@
   affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les **infirmiers** de la
   case d'après la présence réelle de la semaine (`/api/v1/infirmiers/presence/semaine`, RG-INF-044) : prévus au
   roulement,
-  remplaçants, absents (barrés, avec le type d'absence), l'effectif requis par le ratio de sécurité et, en rouge, le
+  remplaçants, absents (barrés, avec le type d'absence), le nombre d'infirmiers **affectés** (et non le nombre requis,
+  qui n'apparaît que dans le manque) et, en rouge, le
   manque
   ou, au contraire, le sur-effectif (infirmiers en trop, RG-INF-047).
   La légende explique chaque repère. Si la présence ne peut pas être chargée, le planning des patients reste affiché
-  sans les infirmiers. Le **médecin « seul »** consulte ce planning complet (menu Séances › Planning de la semaine) : il
-  lit patients, infirmiers et légende comme les autres profils, sans accès aux autres écrans de planification
+  sans les infirmiers. Le **médecin « seul »** a **le même planning** que les autres profils, avec les deux vues semaine
+  et
+  jour : c'est son accueil (`/medecin`, menu Planning), le même composant que le planning des séances ; il y lit
+  patients, générateurs, infirmiers et légende, sans accès aux autres écrans de planification
   (optimisation, salles et générateurs). Dans le planning proposé par l'optimisation (RG-PLN-101), au survol d'un
   patient **déplacé** s'affiche sa place d'avant (salle · créneau · générateur), et pour une place temporaire sa place
   habituelle.
+- **RG-PLN-104** — **Planning en temps réel et lecture seule du médecin.** Le planning de la semaine se **met à jour
+  seul**
+  pour tous ceux qui ont le droit de le voir (administrateur, secrétariat, médecin) : le scan du QR code d'un patient ou
+  la validation d'une séance (`SEANCE_VALIDATED`, `SEANCE_CREATED`), la suppression d'une séance, l'absence d'un patient
+  ou d'un infirmier, un déplacement de patients ou de séances, un placement modifié ou un générateur devenu indisponible
+  rechargent la semaine affichée, sans action de l'utilisateur (de même la détection nocturne des absences,
+  `ABSENCES_A_QUALIFIER`) ; seuls les évènements du centre actif comptent (RG-NOT-001). **Le planning de l'infirmier («
+  Mon planning »)** suit la même règle : une absence de patient déclarée, même le jour J, y **barre** aussitôt le
+  patient (couleur selon le statut de l'absence) et une séance validée y marque un soleil, comme sur le planning des
+  séances. Pour le **médecin**, le planning est en **lecture seule** : il ne peut pas déclarer l'absence d'un
+  patient (RG-ABS-015) ; le détail d'un patient reste consultable, avec les liens vers sa fiche et son dossier.
+  *Source :* `PlanningSemaineComponent`, `evenementRafraichitPlanning`, `AbsencePatientRestController`.
 

@@ -128,7 +128,8 @@
   `facturation`, `reglements`, `comptabilite` et `gmao` interdites, sauf la lecture du planning de la semaine
   (`/planning/semaine`) et de la présence des infirmiers (`/infirmiers/presence/semaine`). Il consulte patients (fiche
   en
-  lecture seule), dossier médical, cahier de dialyse, statistiques, son tableau de bord et le suivi des absences.
+  lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences et, comme accueil
+  (`/medecin`), **exactement le planning des séances** (vues semaine et jour, RG-PLN-103).
   *Source :* idem.
 - **RG-SEC-024** — Les écrans interdits à un profil restreint le redirigent vers son accueil (`/infirmiers/moi`,
   `/medecin`,

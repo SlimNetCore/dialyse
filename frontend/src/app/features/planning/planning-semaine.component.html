@@ -79,8 +79,11 @@
         <mat-icon class="chip-ico">warning</mat-icon>
         {{ 'PLANNING.SEMAINE.INFIRMIERS_MANQUE' | translate: {count: c.manque, requis: c.requis} }}
       </li>
-    } @else if (c.requis > 0) {
-      <li class="need">{{ 'PLANNING.SEMAINE.INFIRMIERS_REQUIS' | translate: {requis: c.requis} }}</li>
+    }
+    @if (c.presents.length > 0) {
+      <li class="need" data-testid="week-affectes">
+        {{ 'PLANNING.SEMAINE.INFIRMIERS_AFFECTES' | translate: {count: c.presents.length} }}
+      </li>
     }
     @if (c.surplus > 0) {
       <li class="over" data-testid="week-surplus">

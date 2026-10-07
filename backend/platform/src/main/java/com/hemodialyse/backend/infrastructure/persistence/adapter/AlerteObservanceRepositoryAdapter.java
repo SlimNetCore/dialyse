@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.domain.medical.anemie.aggregate.AlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.port.AlerteObservanceRepositoryPort;
+import com.hemodialyse.backend.domain.medical.anemie.valueobject.DetailObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeAlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
@@ -50,7 +51,10 @@ public class AlerteObservanceRepositoryAdapter implements AlerteObservanceReposi
         return AlerteObservance.reconstituer(e.getId(), e.getPatientId(), e.getCenterId(),
                 TypeTraitementAnemie.valueOf(e.getTypeTraitement()), TypeAlerteObservance.valueOf(e.getTypeAlerte()),
                 e.getPeriodeDebut(), e.getPeriodeFin(),
-                e.getDosesAttendues(), e.getDosesAdministrees(), e.getMessage(), e.getCreatedAt(), e.getResolvedAt());
+                e.getDosesAttendues(), e.getDosesAdministrees(), e.getMessage(),
+                new DetailObservance(e.getUniteDose(), e.getDosePrescrite(), e.getFrequenceValeur(),
+                        e.getFrequenceUnite()),
+                e.getCreatedAt(), e.getResolvedAt());
     }
 
     private AlerteObservanceJpaEntity toJpa(AlerteObservance a) {
@@ -65,6 +69,10 @@ public class AlerteObservanceRepositoryAdapter implements AlerteObservanceReposi
         e.setDosesAttendues(a.getDosesAttendues());
         e.setDosesAdministrees(a.getDosesAdministrees());
         e.setMessage(a.getMessage());
+        e.setUniteDose(a.getDetail().uniteDose());
+        e.setDosePrescrite(a.getDetail().dosePrescrite());
+        e.setFrequenceValeur(a.getDetail().frequenceValeur());
+        e.setFrequenceUnite(a.getDetail().frequenceUnite());
         e.setCreatedAt(a.getCreatedAt());
         e.setResolvedAt(a.getResolvedAt().orElse(null));
         return e;

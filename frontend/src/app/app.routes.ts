@@ -32,7 +32,8 @@ export const routes: Routes = [
       {
         path: 'medecin',
         canActivate: [medecinAccueilGuard],
-        loadComponent: () => import('./features/medecin/medecin-dashboard.component').then((m) => m.MedecinDashboardComponent),
+        // accueil du médecin : exactement le planning des séances (vues semaine et jour)
+        loadComponent: () => import('./features/planning/planning-semaine.component').then((m) => m.PlanningSemaineComponent),
       },
       {
         path: 'infirmiers',

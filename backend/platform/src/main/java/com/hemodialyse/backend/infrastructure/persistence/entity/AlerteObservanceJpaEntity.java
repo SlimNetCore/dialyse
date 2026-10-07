@@ -43,11 +43,58 @@ public class AlerteObservanceJpaEntity {
     @Column(name = "message", length = 500)
     private String message;
 
+    /**
+     * Unité des doses de l'alerte (« UI », « mg ») ; vide : elles comptent des administrations.
+     */
+    @Column(name = "unite_dose", length = 10)
+    private String uniteDose;
+
+    @Column(name = "dose_prescrite")
+    private Integer dosePrescrite;
+
+    @Column(name = "frequence_valeur")
+    private Integer frequenceValeur;
+
+    @Column(name = "frequence_unite", length = 10)
+    private String frequenceUnite;
+
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
     @Column(name = "resolved_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime resolvedAt;
+
+    public String getUniteDose() {
+        return uniteDose;
+    }
+
+    public void setUniteDose(String uniteDose) {
+        this.uniteDose = uniteDose;
+    }
+
+    public Integer getDosePrescrite() {
+        return dosePrescrite;
+    }
+
+    public void setDosePrescrite(Integer dosePrescrite) {
+        this.dosePrescrite = dosePrescrite;
+    }
+
+    public Integer getFrequenceValeur() {
+        return frequenceValeur;
+    }
+
+    public void setFrequenceValeur(Integer frequenceValeur) {
+        this.frequenceValeur = frequenceValeur;
+    }
+
+    public String getFrequenceUnite() {
+        return frequenceUnite;
+    }
+
+    public void setFrequenceUnite(String frequenceUnite) {
+        this.frequenceUnite = frequenceUnite;
+    }
 
     public UUID getId() {
         return id;

@@ -44,6 +44,7 @@ import java.util.UUID;
 public class AbsencePatientRestController {
 
     private static final String ACCES = "hasAnyRole('ADMIN','SECRETAIRE','MEDECIN','INFIRMIER')";
+    private static final String DECLARATION = "hasAnyRole('ADMIN','SECRETAIRE','INFIRMIER')";
 
     private final AbsencePatientService service;
     private final CenterAccessGuard centerAccessGuard;
@@ -120,8 +121,12 @@ public class AbsencePatientRestController {
                 .body(new RattrapageDetectionResponse(res.creees(), res.annulees()));
     }
 
+    /**
+     * Déclaration d'une absence : administrateur, secrétariat et infirmier. Le médecin consulte le planning et le suivi
+     * des absences, mais ne déclare pas (il peut en revanche corriger une absence déjà qualifiée).
+     */
     @PostMapping
-    @PreAuthorize(ACCES)
+    @PreAuthorize(DECLARATION)
     public ResponseEntity<AbsenceResponse> declarer(@RequestParam(required = false) UUID centerId,
                                                     @Valid @RequestBody DeclarationRequest r,
                                                     Authentication authentication) {

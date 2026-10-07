@@ -183,7 +183,46 @@ describe('NotificationBellComponent — textes des évènements', () => {
 
     expect(cmp.lienFor(event('GENERATEUR_INDISPONIBLE', {}))).toBeNull();
     expect(cmp.lienFor(event('OPTIMISATION_PROPOSITION', {runId: 'r1'}))).toBeNull();
-    expect(cmp.lienFor(event('SEANCES_DEPLACEES', {}))).toMatchObject({commands: ['/seances/planning']});
+    expect(cmp.lienFor(event('SEANCES_DEPLACEES', {}))).toMatchObject({commands: ['/medecin']});
+  });
+
+  it('explique au médecin le retard d\'observance en quantités et mène à l\'onglet Anémie', () => {
+    TestBed.inject(TranslateService).setTranslation('fr', {
+      NOTIFICATION: {
+        OBSERVANCE_NON_RESPECTEE: {
+          DOSE_RETARD_CONSTATE: '{{traitement}} {{debut}}→{{fin}} : {{administre}}/{{attendu}} {{unite}}, manque {{manque}}',
+          COMPTE_RAPPEL_ECHEANCE: '{{traitement}} : {{manque}} administration(s) avant {{fin}}',
+        },
+      },
+      DOSSIER_MEDICAL: {ALERTE_OBSERVANCE_EXPLICATION: {TRAITEMENT: {EPO: 'EPO'}}},
+    }, true);
+    roles = ['MEDECIN'];
+    const retard = event('OBSERVANCE_NON_RESPECTEE', {
+      patientId: 'p1', typeAlerte: 'RETARD_CONSTATE', typeTraitement: 'EPO', debut: '2026-09-28', fin: '2026-10-04',
+      attendu: '8000', administre: '4000', unite: 'UI',
+    });
+    const rappel = event('OBSERVANCE_NON_RESPECTEE', {
+      patientId: 'p1',
+      typeAlerte: 'RAPPEL_ECHEANCE',
+      typeTraitement: 'EPO',
+      fin: '2026-10-11',
+      attendu: '3',
+      administre: '2',
+    });
+
+    expect(cmp.textFor(retard)).toBe('EPO 2026-09-28→2026-10-04 : 4000/8000 UI, manque 4000');
+    expect(cmp.textFor(rappel)).toBe('EPO : 1 administration(s) avant 2026-10-11');
+    expect(cmp.iconFor(retard)).toBe('vaccines');
+    expect(cmp.iconClass(retard)).toBe('warning');
+    expect(cmp.lienFor(retard)).toMatchObject({commands: ['/patients', 'p1', 'dossier-medical', 'anemie']});
+  });
+
+  it('garde le texte du serveur pour une alerte d\'observance antérieure au détail, sans lien pour un infirmier', () => {
+    roles = ['INFIRMIER'];
+    const ancienne = event('OBSERVANCE_NON_RESPECTEE', {patientId: 'p1', message: 'Retard constaté (ancien texte)'});
+
+    expect(cmp.textFor(ancienne)).toBe('Retard constaté (ancien texte)');
+    expect(cmp.lienFor(ancienne)).toBeNull();
   });
 
   it('affiche le type brut d\'un évènement inconnu', () => {

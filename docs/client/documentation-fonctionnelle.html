@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-07<br>500 règles de gestion · 16 domaines · 378 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-07<br>502 règles de gestion · 16 domaines · 378 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>500</b>règles de gestion</div>
+        <div><b>502</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>8</b>points d'attention</div>
@@ -387,7 +387,8 @@ planning du jour, au tableau de bord des séances et au suivi des absences de pa
 <code>facturation</code>, <code>reglements</code>, <code>comptabilite</code> et <code>gmao</code> interdites, sauf la lecture du planning de la semaine
 (<code>/planning/semaine</code>) et de la présence des infirmiers (<code>/infirmiers/presence/semaine</code>). Il consulte patients (fiche
 en
-lecture seule), dossier médical, cahier de dialyse, statistiques, son tableau de bord et le suivi des absences.
+    lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences et, comme accueil (<code>/medecin</code>),
+    <strong>exactement le planning des séances</strong> (vues semaine et jour, RG-PLN-103).
 <em>Source :</em> idem.</p>
 </div></div>
 <div class="rule" id="RG-SEC-024"><div class="rid">RG-SEC-024</div><div class="rtxt"><p>Les écrans interdits à un profil restreint le redirigent vers son accueil (<code>/infirmiers/moi</code>,
@@ -1232,7 +1233,8 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
     attente placés (<code>GAIN</code>). La notification est <strong>enregistrée au journal du centre</strong> : l&#39;administrateur
     la retrouve à sa
     prochaine connexion, même s&#39;il n&#39;était pas connecté à 02:30 (RG-NOT-005), avec un lien direct vers la
-    proposition. Rien
+    proposition.
+    Rien
     n&#39;est appliqué d&#39;office : l&#39;administrateur consulte la proposition dans l&#39;historique et l&#39;applique
     (RG-PLN-091).</p>
 </div></div>
@@ -1249,10 +1251,9 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
             samedi). Chaque case indique les patients <strong>avec leur générateur</strong> (repères : patient à risque,
             déplacé par la
             proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d&#39;infirmiers
-            requis
-            (ratio
-            de la salle), le manque éventuel et le <strong>sur-effectif</strong> (infirmiers prévus au-delà de l&#39;effectif
-            requis, y compris dans
+            <strong>affectés</strong> (absents exclus), le manque éventuel par rapport à l&#39;effectif requis (ratio de
+            la salle) et le <strong>sur-effectif</strong> (infirmiers prévus au-delà de l&#39;effectif requis, y compris
+            dans
             une salle que la proposition vide, RG-INF-047), à l&#39;écran comme à l&#39;impression ; un jour fermé est
             signalé avec son
             motif. Les infirmiers viennent des vacations
@@ -1291,23 +1292,55 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
     <div class="rule" id="RG-PLN-103">
         <div class="rid">RG-PLN-103</div>
         <div class="rtxt"><p><strong>Infirmiers sur le planning de la semaine et accès du médecin.</strong> Le planning
-            de la semaine (RG-PLN-043)
+            de la semaine
+            (RG-PLN-043)
             affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les <strong>infirmiers</strong>
             de la
             case d&#39;après la présence réelle de la semaine (<code>/api/v1/infirmiers/presence/semaine</code>,
-            RG-INF-044) : prévus au roulement,
-            remplaçants, absents (barrés, avec le type d&#39;absence), l&#39;effectif requis par le ratio de sécurité
-            et, en rouge, le manque
+            RG-INF-044) : prévus au
+            roulement,
+            remplaçants, absents (barrés, avec le type d&#39;absence), le nombre d&#39;infirmiers
+            <strong>affectés</strong> (et non le nombre requis, qui n&#39;apparaît que dans le manque) et, en rouge, le
+            manque
             ou, au contraire, le sur-effectif (infirmiers en trop, RG-INF-047).
             La légende explique chaque repère. Si la présence ne peut pas être chargée, le planning des patients reste
             affiché
-            sans les infirmiers. Le <strong>médecin « seul »</strong> consulte ce planning complet (menu Séances ›
-            Planning de la semaine) : il
-            lit patients, infirmiers et légende comme les autres profils, sans accès aux autres écrans de planification
+            sans les infirmiers. Le <strong>médecin « seul »</strong> a <strong>le même planning</strong> que les autres
+            profils, avec les deux vues semaine et
+            jour : c&#39;est son accueil (<code>/medecin</code>, menu Planning), le même composant que le planning des
+            séances ; il y lit
+            patients, générateurs, infirmiers et légende, sans accès aux autres écrans de planification
             (optimisation, salles et générateurs). Dans le planning proposé par l&#39;optimisation (RG-PLN-101), au
-            survol d&#39;un patient
-            <strong>déplacé</strong> s&#39;affiche sa place d&#39;avant (salle · créneau · générateur), et pour une
-            place temporaire sa place habituelle.</p>
+            survol d&#39;un
+            patient <strong>déplacé</strong> s&#39;affiche sa place d&#39;avant (salle · créneau · générateur), et pour
+            une place temporaire sa place
+            habituelle.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-PLN-104">
+        <div class="rid">RG-PLN-104</div>
+        <div class="rtxt"><p><strong>Planning en temps réel et lecture seule du médecin.</strong> Le planning de la
+            semaine se <strong>met à jour seul</strong>
+            pour tous ceux qui ont le droit de le voir (administrateur, secrétariat, médecin) : le scan du QR code d&#39;un
+            patient ou
+            la validation d&#39;une séance (<code>SEANCE_VALIDATED</code>, <code>SEANCE_CREATED</code>), la suppression
+            d&#39;une séance, l&#39;absence d&#39;un patient
+            ou d&#39;un infirmier, un déplacement de patients ou de séances, un placement modifié ou un générateur
+            devenu indisponible
+            rechargent la semaine affichée, sans action de l&#39;utilisateur (de même la détection nocturne des
+            absences,
+            <code>ABSENCES_A_QUALIFIER</code>) ; seuls les évènements du centre actif comptent (RG-NOT-001). <strong>Le
+                planning de l&#39;infirmier
+                (« Mon planning »)</strong> suit la même règle : une absence de patient déclarée, même le jour J, y
+            <strong>barre</strong> aussitôt le
+            patient (couleur selon le statut de l&#39;absence) et une séance validée y marque un soleil, comme sur le
+            planning des
+            séances. Pour le <strong>médecin</strong>, le planning est en <strong>lecture seule</strong> : il ne peut
+            pas déclarer l&#39;absence d&#39;un
+            patient (RG-ABS-015) ; le détail d&#39;un patient reste consultable, avec les liens vers sa fiche et son
+            dossier.
+            <em>Source :</em> <code>PlanningSemaineComponent</code>, <code>evenementRafraichitPlanning</code>, <code>AbsencePatientRestController</code>.
+        </p>
         </div>
     </div>
 </section>
@@ -1359,6 +1392,17 @@ est réalisée une séance au statut <code>VALIDEE</code>, <code>SIGNEE</code> o
 <div class="rule" id="RG-ABS-014"><div class="rid">RG-ABS-014</div><div class="rtxt"><p>La déclaration est possible depuis l&#39;écran de suivi des absences (choix du patient par saisie
 assistée, motif en ligne,
 erreurs affichées dans le formulaire) et depuis le planning de la semaine.</p>
+</div>
+</div>
+    <div class="rule" id="RG-ABS-015">
+        <div class="rid">RG-ABS-015</div>
+        <div class="rtxt"><p><strong>Qui déclare.</strong> La déclaration d&#39;une absence est réservée à
+            <code>ADMIN</code>, <code>SECRETAIRE</code> et <code>INFIRMIER</code>
+            (refus d&#39;accès côté serveur pour tout autre profil). <strong>Le médecin ne déclare pas l&#39;absence d&#39;un
+                patient</strong> : son planning
+            est en <strong>lecture seule</strong> (aucun bouton de déclaration, ni sur le planning, ni sur l&#39;écran
+            de suivi des absences, RG-PLN-104) ;
+            il consulte le suivi et garde la correction d&#39;une absence déjà qualifiée (RG-ABS-020).</p>
 </div></div>
 <h2>6.3 Qualification, rattrapage, annulation</h2>
 <div class="rule" id="RG-ABS-020"><div class="rid">RG-ABS-020</div><div class="rtxt"><p>Requalifier une absence déjà qualifiée exige un commentaire (<code>ABSENCE_COMMENTAIRE_REQUIS</code>) <strong>et</strong> un
@@ -2199,8 +2243,9 @@ n&#39;empêche pas les autres.</p>
             sans patient, tous les infirmiers prévus sont en trop. Le sur-effectif n&#39;est <strong>pas</strong> un
             manque : le statut de la case
             reste <code>COUVERT</code> (ou <code>SANS_PATIENT</code>), aucune alerte n&#39;est envoyée ; il est signalé
-            en jaune avec « +N » sur le planning de
-            présence et en « N infirmier(s) en trop » sur le planning des séances, pour réaffecter ces ressources aux
+            en jaune avec « +N » sur le planning
+            de
+            présence et en « N infirmier (s) en trop » sur le planning des séances, pour réaffecter ces ressources aux
             cases en
             sous-effectif. C&#39;est toutefois du personnel payé sans activité utile : le <strong>contrôle quotidien de
                 07:15</strong> (RG-INF-046)
@@ -2211,8 +2256,9 @@ n&#39;empêche pas les autres.</p>
             ratio de 4) — avec le nombre de cases, de vacations en trop et les <strong>heures payées sans activité
                 utile</strong> (vacations en
             trop × durée d&#39;une vacation des réglages du centre, RG-PLN-098). Ce contrôle est indépendant de celui du
-            sous-effectif : l&#39;échec de l&#39;un n&#39;empêche pas l&#39;autre. À l&#39;<strong>affectation</strong>
-            d&#39;un infirmier à une salle (RG-INF-020), la
+            sous-effectif : l&#39;échec de l&#39;un n&#39;empêche pas l&#39;autre. À l&#39; <strong>affectation</strong>
+            d&#39;un infirmier à une salle (RG-INF-020),
+            la
             réponse indique les jours de la semaine en cours où elle crée un sur-effectif ; l&#39;écran affiche un
             avertissement, sans
             jamais refuser ni annuler l&#39;affectation (un échec du calcul de cet avertissement est ignoré).</p>
@@ -2412,17 +2458,36 @@ de stock correspondant à la dose saisie. Ainsi unité prescrite et unité de so
 </div></div>
 <div class="rule" id="RG-MED-072"><div class="rid">RG-MED-072</div><div class="rtxt"><p><strong>Périodes d&#39;observance</strong> : la prescription la plus récente découpe le temps en périodes successives
 ancrées sur sa date (fenêtre : heure/jour = 1 jour, semaine = 7, mois = 30,
-année = 365 jours). <strong>Doses attendues</strong> = fréquence prescrite ; <strong>administrées</strong> = administrations effectives de la
-période ; <strong>restantes</strong> = attendues − administrées (≥ 0). L&#39;infirmier voit,
-en séance, ce qu&#39;il reste à administrer et l&#39;échéance (même calcul que l&#39;alerte planifiée).</p>
+    année = 365 jours). Quand la prescription porte une <strong>dose</strong> (UI pour l&#39;EPO, mg pour le fer), le
+    calcul est en
+    <strong>quantités</strong> : <strong>attendu</strong> = dose × fréquence ; <strong>administré</strong> = somme des
+    doses effectivement administrées dans la
+    période, dans la même unité ; <strong>restant</strong> = attendu − administré (≥ 0) ; <strong>doses
+        restantes</strong> = restant ÷ dose, arrondi
+    au supérieur. Une prescription relevée en cours de période (ex. 4000 → 8000 UI après une administration de
+    4000 UI) laisse donc 4000 UI à administrer, soit un <strong>complément</strong> : l&#39;infirmier peut le saisir en
+    séance, la dose
+    proposée étant exactement le reste. Sans dose prescrite, repli sur le <strong>nombre d&#39;administrations</strong>
+    (attendues =
+    fréquence ; administrées = administrations effectives). L&#39;infirmier voit, en séance, ce qu&#39;il reste à
+    administrer et
+    l&#39;échéance (même calcul que l&#39;alerte planifiée).</p>
 </div></div>
 <div class="rule" id="RG-MED-073"><div class="rid">RG-MED-073</div><div class="rtxt"><p><strong>Contrôle quotidien à 06:30</strong> (<code>ObservancePrescriptionScheduler.controlerObservance</code>), pour chaque
 patient ayant une prescription EPO/fer avec article et fréquence : (1) <strong>retard
-constaté</strong> — la période close compte moins d&#39;administrations que prescrit : alerte <code>RETARD_CONSTATE</code>, acquittée
+        constaté</strong> — la période close compte moins (en quantité, ou en nombre d&#39;administrations sans dose)
+    que prescrit :
+    alerte <code>RETARD_CONSTATE</code>, qui <strong>explique</strong> le constat (traitement, période, prescription «
+    dose × fréquence », attendu,
+    administré, manque, conduite à tenir ; les champs sont conservés avec l&#39;alerte ; les alertes antérieures gardent
+    leur
+    texte d&#39;origine), acquittée
 <strong>manuellement</strong> par le médecin ; (2) <strong>rappel d&#39;échéance</strong> — il reste des doses et il reste
 au plus ⌊fenêtre / 3⌋ jours (1 jour si fenêtre ≤ 2) : alerte <code>RAPPEL_ECHEANCE</code>, <strong>résolue automatiquement</strong> dès que le
 retard est rattrapé. Une alerte déjà ouverte du même type n&#39;est pas dupliquée ;
-une notification temps réel (<code>OBSERVANCE_NON_RESPECTEE</code>) est adressée au rôle <code>MEDECIN</code>.</p>
+    une notification durable (<code>OBSERVANCE_NON_RESPECTEE</code>, RG-NOT-005) est adressée au rôle
+    <code>MEDECIN</code>, avec un lien vers
+    l&#39;onglet Anémie du patient.</p>
 </div></div>
 <div class="rule" id="RG-MED-074"><div class="rid">RG-MED-074</div><div class="rtxt"><p>Alerte inconnue : <code>ALERTE_OBSERVANCE_INTROUVABLE</code>. Consultation et acquittement : <code>MEDECIN</code>, <code>ADMIN</code>.</p>
 </div></div>
@@ -2953,14 +3018,15 @@ RG-DIR-101).</p>
     <div class="rule" id="RG-NOT-005">
         <div class="rid">RG-NOT-005</div>
         <div class="rtxt"><p><strong>Journal durable des alertes.</strong> Les alertes qui demandent une action sont, en
-            plus d&#39;être poussées en
+            plus d&#39;être poussées
+            en
             temps réel, <strong>enregistrées</strong> dans le journal du centre (<code>INFIRMIER_SOUS_EFFECTIF</code>,
             <code>INFIRMIER_ABSENCE_DECLAREE</code>,
             <code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>OPTIMISATION_PROPOSITION</code>, <code>ABSENCES_A_QUALIFIER</code>,
             <code>SEANCES_A_REGULARISER</code>,
             <code>PATIENT_REPLACE_ISOLEMENT</code>, <code>ISOLEMENT_IMPOSSIBLE</code>,
             <code>GENERATEUR_INDISPONIBLE</code>, <code>SEANCES_DEPLACEES</code>,
-            <code>INFIRMIER_SUREFFECTIF</code>) ; les autres
+            <code>INFIRMIER_SUREFFECTIF</code>, <code>OBSERVANCE_NON_RESPECTEE</code>) ; les autres
             évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50
             alertes
             récentes (30 derniers jours) <strong>destinées à ses rôles</strong> dans <strong>son centre</strong> (<code>GET
@@ -2968,11 +3034,14 @@ RG-DIR-101).</p>
             proposition calculée à 02:30 est donc retrouvée même si personne n&#39;était connecté. La <strong>lecture
                 est propre à chaque
                 utilisateur</strong> (<code>POST /api/v1/notifications/lecture</code> et <code>/lecture-tout</code>) ;
-            une alerte d&#39;un autre centre ne peut ni se lire
+            une alerte d&#39;un autre centre ne peut ni se
+            lire
             ni se marquer lue. Le journal ne ralentit ni ne fait échouer l&#39;alerte temps réel (une base indisponible
             est ignorée) ;
             les alertes de plus de 60 jours sont purgées chaque jour à 03:40 (<code>NotificationPurgeScheduler</code>).
-            <em>Source :</em> <code>NotificationService</code>, <code>NotificationJournalPort</code>, <code>NotificationJournalJdbcAdapter</code>,
+            <em>Source :</em>
+            <code>NotificationService</code>, <code>NotificationJournalPort</code>,
+            <code>NotificationJournalJdbcAdapter</code>,
             <code>NotificationRestController</code>.</p>
         </div>
     </div>
@@ -2983,17 +3052,20 @@ RG-DIR-101).</p>
             (maintenance, attente de pièce, panne, réforme — par la fiche équipement ou une intervention GMAO) alerte
             <code>ADMIN</code> et
             <code>SECRETAIRE</code> (<code>GENERATEUR_INDISPONIBLE</code>) avec le code du générateur, son nouveau
-            statut, le nombre de patients dont c&#39;est
+            statut, le nombre de patients dont
+            c&#39;est
             la place habituelle et les cinq premiers noms : leurs séances sont à déplacer. Aucune alerte pour un autre
             équipement,
             pour un générateur déjà indisponible, ni à la création. Une <strong>absence d&#39;infirmier saisie par le
                 secrétariat</strong> alerte
             <code>ADMIN</code> (<code>INFIRMIER_ABSENCE_ENREGISTREE</code>) ; saisie par l&#39;administrateur, elle ne
-            le prévient pas. L&#39;<strong>application d&#39;une
+            le prévient pas. L&#39; <strong>application
+                d&#39;une
                 proposition d&#39;optimisation</strong> qui déplace des patients ou des séances alerte
             <code>MEDECIN</code> et <code>SECRETAIRE</code>
             (<code>SEANCES_DEPLACEES</code>). Le contrôle quotidien de sous-effectif (RG-INF-046) prévient aussi <code>MEDECIN</code>
-            ; son contrôle jumeau
+            ; son contrôle
+            jumeau
             de <strong>sur-effectif</strong> (<code>INFIRMIER_SUREFFECTIF</code>, RG-INF-047) prévient
             <code>ADMIN</code> des infirmiers payés au-delà de l&#39;effectif
             requis, avec les heures concernées. Un échec de ces
@@ -3003,9 +3075,9 @@ RG-DIR-101).</p>
             pour une absence ou un
             sous-effectif), la proposition elle-même, ou le planning ; ces liens vers l&#39;optimisation ne sont
             proposés qu&#39;à
-            <code>ADMIN</code> et <code>SECRETAIRE</code>.
-            <em>Source :</em> <code>GenerateurIndisponibleService</code>, <code>AbsenceInfirmierService</code>, <code>OptimisationApplicationService</code>.
-        </p>
+            <code>ADMIN</code> et <code>SECRETAIRE</code>. <em>Source :</em> <code>GenerateurIndisponibleService</code>,
+            <code>AbsenceInfirmierService</code>,
+            <code>OptimisationApplicationService</code>.</p>
 </div></div>
 <div class="rule" id="RG-NOT-004"><div class="rid">RG-NOT-004</div><div class="rtxt"><p><strong>Toute saisie d&#39;un infirmier prévient le médecin du centre</strong> : l&#39;évènement <code>SAISIE_INFIRMIER</code>
 (destinataire <code>MEDECIN</code>) nomme l&#39;auteur, le patient, la date et la nature de la saisie — séance créée ou validée
@@ -3467,7 +3539,8 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <tr>
 <td><code>AbsencePatientRestController</code></td>
 <td><code>/api/v1/absences-patients</code></td>
-<td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code></td>
+    <td>lecture et suivi tous profils ; déclaration <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code>
+    </td>
 <td>RG-ABS-001 à 052</td>
 </tr>
 <tr>
@@ -3486,7 +3559,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PlanningSemaineRestController</code></td>
 <td><code>/api/v1/planning/semaine</code></td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code></td>
-    <td>RG-PLN-040 à 044, RG-PLN-103</td>
+    <td>RG-PLN-040 à 044, RG-PLN-103, 104</td>
 </tr>
 <tr>
 <td><code>SalleGenerateursRestController</code></td>

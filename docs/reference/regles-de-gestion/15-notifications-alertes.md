@@ -21,7 +21,7 @@
   temps réel, **enregistrées** dans le journal du centre (`INFIRMIER_SOUS_EFFECTIF`, `INFIRMIER_ABSENCE_DECLAREE`,
   `INFIRMIER_ABSENCE_ENREGISTREE`, `OPTIMISATION_PROPOSITION`, `ABSENCES_A_QUALIFIER`, `SEANCES_A_REGULARISER`,
   `PATIENT_REPLACE_ISOLEMENT`, `ISOLEMENT_IMPOSSIBLE`, `GENERATEUR_INDISPONIBLE`, `SEANCES_DEPLACEES`,
-  `INFIRMIER_SUREFFECTIF`) ; les autres
+  `INFIRMIER_SUREFFECTIF`, `OBSERVANCE_NON_RESPECTEE`) ; les autres
   évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50 alertes
   récentes (30 derniers jours) **destinées à ses rôles** dans **son centre** (`GET /api/v1/notifications`, paginé) : une
   proposition calculée à 02:30 est donc retrouvée même si personne n'était connecté. La **lecture est propre à chaque

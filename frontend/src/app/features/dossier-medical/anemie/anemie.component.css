@@ -27,7 +27,8 @@
 
 .anemie-alerte-observance-row {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: 10px;
   padding: 10px 14px;
   border-radius: 8px;
@@ -40,8 +41,24 @@
 }
 
 .anemie-alerte-message {
-  flex: 1;
+  flex: 1 1 260px;
   color: #7a3e00;
+}
+
+.anemie-alerte-explication {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.anemie-alerte-explication ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.anemie-alerte-comment {
+  opacity: 0.8;
 }
 
 .anemie-alerte-rappel {

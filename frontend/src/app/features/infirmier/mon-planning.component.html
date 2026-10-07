@@ -102,7 +102,7 @@
         @if (m.occupants.length > 0) {
           <ul class="moi-patients" data-testid="moi-patients">
             @for (o of m.occupants; track o.patientId) {
-              <li [class.risk]="o.aRisque" data-testid="moi-patient">
+              <li [class]="classePatient(o, m.date)" data-testid="moi-patient">
                 <span class="moi-patient-nom">{{ o.nom }}</span>
                 @if (o.generateurCode) {
                   <small class="moi-patient-gen">{{ o.generateurCode }}</small>
@@ -118,6 +118,17 @@
                     [attr.title]="'PLANNING.SEMAINE.LIBERE_LE' | translate: {date: (o.libereLe | date: 'dd/MM/yyyy')}"
                     class="moi-patient-ico">
                     logout
+                  </mat-icon>
+                }
+                @if (realisee(o.patientId, m.date)) {
+                  <mat-icon [attr.title]="'PLANNING.SEMAINE.SEANCE_VALIDEE' | translate" class="moi-patient-ico moi-sun"
+                            data-testid="moi-validee">
+                    wb_sunny
+                  </mat-icon>
+                } @else if (absence(o.patientId, m.date); as a) {
+                  <mat-icon [attr.title]="('ABSENCES.STATUTS.' + a.statut) | translate" class="moi-patient-ico"
+                            data-testid="moi-absent">
+                    event_busy
                   </mat-icon>
                 }
               </li>

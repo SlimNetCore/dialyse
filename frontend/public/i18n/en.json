@@ -1450,6 +1450,8 @@
     "NO_ACTIVE_PRESCRIPTION": "No doctor's prescription active as of this session's date.",
     "ADMINISTER": "Administer",
     "ADMINISTERED_TODAY": "Administered",
+    "ADMINISTER_COMPLEMENT": "Administer the remainder",
+    "RESTE_A_ADMINISTRER_DOSE": "{{dose}} {{unite}} remaining to administer",
     "ADMINISTERED_THIS_SESSION": "Administrations for this session",
     "CONVERSION_OK": "Stock issue: {{quantite}} {{unite}} (derived from the prescribed dose)",
     "CONVERSION_ERR": {
@@ -2227,7 +2229,7 @@
       "AUCUN_PATIENT_JOUR": "No patient or generator scheduled on this day.",
       "CASE_VIDE": "No patient placed.",
       "INFIRMIERS_MANQUE": "{{count}} nurse(s) missing out of {{requis}} required",
-      "INFIRMIERS_REQUIS": "{{requis}} nurse(s) required",
+      "INFIRMIERS_AFFECTES": "{{count}} nurse(s) assigned",
       "INFIRMIERS_SURPLUS": "{{count}} surplus nurse(s)",
       "CLIC_DETAIL": "Click to see the patient's details",
       "SEANCE_VALIDEE": "Session validated by the nurse: patient present",
@@ -2482,7 +2484,7 @@
           "ABSENT": "absent",
           "NOUVEAU": "new"
         },
-        "EFFECTIF": "{{patients}} patient(s), {{requis}} nurse(s) required",
+        "EFFECTIF": "{{patients}} patient(s), {{affectes}} nurse(s) assigned",
         "MANQUE": "{{count}} missing",
         "SURPLUS": "{{count}} surplus",
         "LEGENDE": {
@@ -2539,24 +2541,6 @@
           "PREFERENCE_PATIENT_INTROUVABLE": "Patient not found in this centre.",
           "PROFIL_INFIRMIER_INTROUVABLE": "Nurse not found in this centre."
         }
-      }
-    }
-  },
-  "MEDECIN": {
-    "DASHBOARD": {
-      "TITLE": "Today's planning",
-      "PATIENTS": "Patient list",
-      "NB_PATIENTS": "Patients expected today",
-      "SOUS_EFFECTIF": "Slots understaffed in nurses",
-      "FERME": "The center does not dialyse today.",
-      "RIEN": "No patient or nurse planned today.",
-      "EFFECTIF": "{{patients}} patient(s) · {{presents}} nurse(s) planned out of {{requis}} required",
-      "PATIENTS_COL": "Patients",
-      "INFIRMIERS_COL": "Nurses",
-      "AUCUN_PATIENT": "No patient on this slot.",
-      "ISOLEMENT": "Isolation",
-      "ERR": {
-        "LOAD": "Unable to load today's planning"
       }
     }
   },
@@ -2935,7 +2919,6 @@
     "INFIRMIERS_CHARGE": "Workload",
     "INFIRMIERS_MOI": "My planning",
     "MEDECIN": "Physician",
-    "MEDECIN_DASHBOARD": "Today's planning",
     "DIRECTION": "Management",
     "DASHBOARD": "Dashboard",
     "PATIENTS": "Patients",
@@ -3221,7 +3204,14 @@
     "INFIRMIER_ABSENCE_ENREGISTREE": "Absence of {{infirmier}} recorded from {{debut}} to {{fin}}: replacement to organize",
     "GENERATEUR_INDISPONIBLE": "Generator {{generateur}} unavailable ({{statut}}): {{count}} patient(s) to move {{patients}}",
     "SEANCES_DEPLACEES": "Planning changed: {{patients}} patient(s) moved, {{temporaires}} session(s) moved temporarily",
+    "OBSERVANCE_NON_RESPECTEE": {
+      "DOSE_RETARD_CONSTATE": "Delay confirmed on {{traitement}} from {{debut}} to {{fin}}: {{administre}} {{unite}} administered out of {{attendu}} prescribed ({{manque}} {{unite}} missing)",
+      "DOSE_RAPPEL_ECHEANCE": "{{traitement}}: {{manque}} {{unite}} still to administer before {{fin}} ({{administre}}/{{attendu}} {{unite}})",
+      "COMPTE_RETARD_CONSTATE": "Delay confirmed on {{traitement}} from {{debut}} to {{fin}}: {{administre}} administration(s) out of {{attendu}} prescribed",
+      "COMPTE_RAPPEL_ECHEANCE": "{{traitement}}: {{manque}} administration(s) still to perform before {{fin}}"
+    },
     "ACTION": {
+      "ANEMIE": "See the anemia follow-up",
       "PROPOSITION": "Open the proposal",
       "MAINTENANCE": "Suggest moves",
       "COUVERTURE": "Find replacements",
@@ -3548,6 +3538,27 @@
     "ALERTE_OBSERVANCE_TYPE": {
       "RETARD_CONSTATE": "Delay confirmed",
       "RAPPEL_ECHEANCE": "Reminder before deadline"
+    },
+    "ALERTE_OBSERVANCE_EXPLICATION": {
+      "TITRE": {
+        "RETARD_CONSTATE": "{{traitement}}: the period from {{debut}} to {{fin}} is over and the prescription was not fully administered.",
+        "RAPPEL_ECHEANCE": "{{traitement}}: some is still to be administered before the end of the current period, on {{fin}}."
+      },
+      "TRAITEMENT": {
+        "EPO": "EPO",
+        "FER_INJECTABLE": "Injectable iron"
+      },
+      "PRESCRIPTION_DOSE": "Prescription: {{dose}} {{unite}} × {{frequence}} per {{periode}}, i.e. {{attendu}} {{unite}} expected over the period.",
+      "PRESCRIPTION_COMPTE": "Prescription: {{frequence}} administration(s) per {{periode}}.",
+      "ADMINISTRE_DOSE": "Administered: {{administre}} {{unite}}.",
+      "ADMINISTRE_COMPTE": "Administered: {{administre}} administration(s).",
+      "MANQUE_DOSE": "{{manque}} {{unite}} missing.",
+      "MANQUE_COMPTE": "{{manque}} administration(s) missing.",
+      "QUE_FAIRE": {
+        "RETARD_CONSTATE": "The period is closed: nothing can be made up in it any more. Check the period's administrations, then acknowledge the alert once the finding has been taken into account.",
+        "RAPPEL_ECHEANCE": "The nurse can administer the remainder at the next session: the reminder then resolves by itself."
+      },
+      "COMMENT": "Calculation: periods follow one another from the prescription date (week = 7 days, month = 30 days); what is prescribed is compared with what was actually administered in each period."
     },
     "NO_PRESCRIPTIONS": "No prescription recorded",
     "ADD_ANALYSE": "Enter results",

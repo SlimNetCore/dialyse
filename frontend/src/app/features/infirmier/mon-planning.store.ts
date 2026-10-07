@@ -3,7 +3,13 @@ import {inject} from '@angular/core';
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
-import {catchError, EMPTY, Observable, pipe, switchMap, tap} from 'rxjs';
+import {catchError, EMPTY, forkJoin, Observable, of, pipe, switchMap, tap} from 'rxjs';
+import {
+  AbsencePatientApiService,
+  AbsenceSemaine,
+  SeanceRealisee,
+  SuiviSemaine,
+} from '../../core/api/absence-patient-api.service';
 import {
   AbsenceInfirmier,
   InfirmierApiService,
@@ -16,6 +22,10 @@ import {decalerJours} from '../planning/planning.util';
 
 type MonPlanningState = PagedListState<AbsenceInfirmier> & {
   planning: MonPlanning | null;
+  /** Absences de patients non annulées de la semaine affichée : barrent les patients absents de mes cases. */
+  absencesPatients: AbsenceSemaine[];
+  /** Séances validées (patient présent) de la semaine affichée. */
+  seancesRealisees: SeanceRealisee[];
   /** Le compte connecté n'est relié à aucune fiche infirmier du centre. */
   nonLie: boolean;
   loadingPlanning: boolean;
@@ -27,6 +37,8 @@ type MonPlanningState = PagedListState<AbsenceInfirmier> & {
 const initialState: MonPlanningState = {
   ...createPagedListState<AbsenceInfirmier>({pageSize: 10}),
   planning: null,
+  absencesPatients: [],
+  seancesRealisees: [],
   nonLie: false,
   loadingPlanning: false,
   saving: false,
@@ -53,15 +65,24 @@ export const MonPlanningStore = signalStore(
   {providedIn: 'root'},
   withState(initialState),
   withDevtools('MonPlanningStore'),
-  withMethods((store, api = inject(InfirmierApiService), shell = inject(AppShellStore)) => {
+  withMethods((store, api = inject(InfirmierApiService), absenceApi = inject(AbsencePatientApiService),
+               shell = inject(AppShellStore)) => {
     const centerId = (): string => shell.currentCenterId() ?? '';
 
     const chargerPlanning = rxMethod<string | null>(
       pipe(
         tap(() => patchState(store, {loadingPlanning: true, error: null, nonLie: false})),
         switchMap((date) =>
-          api.monPlanning(centerId(), date ?? undefined).pipe(
-            tap((planning) => patchState(store, {planning, loadingPlanning: false})),
+          forkJoin({
+            planning: api.monPlanning(centerId(), date ?? undefined),
+            // Les absences barrent les patients : leur échec ne doit pas empêcher d'afficher mon planning.
+            suivi: absenceApi.semaine(centerId(), date ?? undefined)
+              .pipe(catchError(() => of({absences: [], seancesRealisees: []} as SuiviSemaine))),
+          }).pipe(
+            tap(({planning, suivi}) => patchState(store, {
+              planning, absencesPatients: suivi.absences, seancesRealisees: suivi.seancesRealisees,
+              loadingPlanning: false,
+            })),
             catchError((err) => {
               const nonLie = codeDe(err) === 'INFIRMIER_NON_LIE';
               patchState(store, {

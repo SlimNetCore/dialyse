@@ -39,6 +39,12 @@
 - **RG-ABS-014** — La déclaration est possible depuis l'écran de suivi des absences (choix du patient par saisie
   assistée, motif en ligne,
   erreurs affichées dans le formulaire) et depuis le planning de la semaine.
+- **RG-ABS-015** — **Qui déclare.** La déclaration d'une absence est réservée à `ADMIN`, `SECRETAIRE` et `INFIRMIER`
+  (refus d'accès côté serveur pour tout autre profil). **Le médecin ne déclare pas l'absence d'un patient** : son
+  planning
+  est en **lecture seule** (aucun bouton de déclaration, ni sur le planning, ni sur l'écran de suivi des absences,
+  RG-PLN-104) ;
+  il consulte le suivi et garde la correction d'une absence déjà qualifiée (RG-ABS-020).
 
 ## 6.3 Qualification, rattrapage, annulation
 

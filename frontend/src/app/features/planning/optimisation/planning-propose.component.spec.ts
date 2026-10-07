@@ -127,6 +127,19 @@ describe('PlanningProposeComponent', () => {
     expect(avant({temporaire: true, avant: 'Salle A · Matin · A-G1'})).toBe('PLANNING.OPTIM.CALENDRIER.HABITUELLE');
   });
 
+  it('compte les infirmiers affectés de la case, absents exclus', async () => {
+    await render(calendrier());
+    const {affectes} = cible.instance as unknown as { affectes(j: JourCalendrier): number };
+
+    const jourAvecAbsent = jour(1, {
+      infirmiers: [{nom: 'Sara', situation: 'PREVU'}, {nom: 'Lila', situation: 'ABSENT'},
+        {nom: 'Rym', situation: 'NOUVEAU'}]
+    });
+
+    expect(affectes.call(cible.instance, jourAvecAbsent)).toBe(2);
+    expect(affectes.call(cible.instance, jour(2))).toBe(0);
+  });
+
   it('signale les infirmiers en trop d\'une case, et seulement celles-là', async () => {
     const avecSurplus = calendrier({
       cases: [ligne({

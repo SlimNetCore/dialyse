@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.optimisation.model.CalendrierProposition.InfirmierCalendrier;
 import com.hemodialyse.backend.domain.planning.optimisation.model.CalendrierProposition.JourCalendrier;
 import com.hemodialyse.backend.domain.planning.optimisation.model.CalendrierProposition.PatientCalendrier;
+import com.hemodialyse.backend.domain.planning.optimisation.model.CalendrierProposition.SituationInfirmier;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -43,7 +44,8 @@ public final class CalendrierTexte {
             lignes.add("Infirmiers :");
             for (InfirmierCalendrier i : jour.infirmiers()) lignes.add("  " + infirmier(i));
         }
-        String effectif = jour.patients().size() + " patient(s), " + jour.requis() + " inf. requis";
+        long affectes = jour.infirmiers().stream().filter(i -> i.situation() != SituationInfirmier.ABSENT).count();
+        String effectif = jour.patients().size() + " patient(s), " + affectes + " inf. affecté(s)";
         lignes.add(jour.manque() > 0 ? effectif + " - MANQUE " + jour.manque() : effectif);
         if (jour.surplus() > 0) lignes.add(jour.surplus() + " inf. en trop");
         return String.join("\n", lignes);

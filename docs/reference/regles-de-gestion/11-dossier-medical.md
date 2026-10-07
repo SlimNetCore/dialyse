@@ -144,16 +144,26 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   `PrescriptionMedicaleRestController`.
 - **RG-MED-072** — **Périodes d'observance** : la prescription la plus récente découpe le temps en périodes successives
   ancrées sur sa date (fenêtre : heure/jour = 1 jour, semaine = 7, mois = 30,
-  année = 365 jours). **Doses attendues** = fréquence prescrite ; **administrées** = administrations effectives de la
-  période ; **restantes** = attendues − administrées (≥ 0). L'infirmier voit,
-  en séance, ce qu'il reste à administrer et l'échéance (même calcul que l'alerte planifiée).
+  année = 365 jours). Quand la prescription porte une **dose** (UI pour l'EPO, mg pour le fer), le calcul est en
+  **quantités** : **attendu** = dose × fréquence ; **administré** = somme des doses effectivement administrées dans la
+  période, dans la même unité ; **restant** = attendu − administré (≥ 0) ; **doses restantes** = restant ÷ dose, arrondi
+  au supérieur. Une prescription relevée en cours de période (ex. 4000 → 8000 UI après une administration de
+  4000 UI) laisse donc 4000 UI à administrer, soit un **complément** : l'infirmier peut le saisir en séance, la dose
+  proposée étant exactement le reste. Sans dose prescrite, repli sur le **nombre d'administrations** (attendues =
+  fréquence ; administrées = administrations effectives). L'infirmier voit, en séance, ce qu'il reste à administrer et
+  l'échéance (même calcul que l'alerte planifiée).
 - **RG-MED-073** — **Contrôle quotidien à 06:30** (`ObservancePrescriptionScheduler.controlerObservance`), pour chaque
   patient ayant une prescription EPO/fer avec article et fréquence : (1) **retard
-  constaté** — la période close compte moins d'administrations que prescrit : alerte `RETARD_CONSTATE`, acquittée
+  constaté** — la période close compte moins (en quantité, ou en nombre d'administrations sans dose) que prescrit :
+  alerte `RETARD_CONSTATE`, qui **explique** le constat (traitement, période, prescription « dose × fréquence »,
+  attendu,
+  administré, manque, conduite à tenir ; les champs sont conservés avec l'alerte ; les alertes antérieures gardent leur
+  texte d'origine), acquittée
   **manuellement** par le médecin ; (2) **rappel d'échéance** — il reste des doses et il reste
   au plus ⌊fenêtre / 3⌋ jours (1 jour si fenêtre ≤ 2) : alerte `RAPPEL_ECHEANCE`, **résolue automatiquement** dès que le
   retard est rattrapé. Une alerte déjà ouverte du même type n'est pas dupliquée ;
-  une notification temps réel (`OBSERVANCE_NON_RESPECTEE`) est adressée au rôle `MEDECIN`.
+  une notification durable (`OBSERVANCE_NON_RESPECTEE`, RG-NOT-005) est adressée au rôle `MEDECIN`, avec un lien vers
+  l'onglet Anémie du patient.
 - **RG-MED-074** — Alerte inconnue : `ALERTE_OBSERVANCE_INTROUVABLE`. Consultation et acquittement : `MEDECIN`, `ADMIN`.
 
 ## 11.9 Suivi et cibles KDIGO (aide à la décision)

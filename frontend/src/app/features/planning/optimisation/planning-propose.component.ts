@@ -82,6 +82,11 @@ export class PlanningProposeComponent {
     return ligne.jours[index];
   }
 
+  /** Infirmiers affectés à la case ce jour-là (les absents ne comptent pas). */
+  protected affectes(jour: JourCalendrier): number {
+    return jour.infirmiers.filter((i) => i.situation !== 'ABSENT').length;
+  }
+
   /** Infobulle d'un patient déplacé ou placé temporairement : où il était avant ; vide pour les autres. */
   protected placeAvant(p: PatientCalendrier): string {
     if (!p.deplace && !p.temporaire) return '';

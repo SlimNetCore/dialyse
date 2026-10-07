@@ -11,11 +11,13 @@
           {{ 'ABSENCES.RATTRAPAGE_DETECTION.TITLE' | translate }}
         </button>
       }
-      <button (click)="toggleDeclare()" color="primary" data-testid="abs-declare-toggle" mat-flat-button
-              type="button">
-        <mat-icon>{{ declareOpen() ? 'close' : 'add' }}</mat-icon>
-        {{ 'ABSENCES.DECLARER' | translate }}
-      </button>
+      @if (peutDeclarer()) {
+        <button (click)="toggleDeclare()" color="primary" data-testid="abs-declare-toggle" mat-flat-button
+                type="button">
+          <mat-icon>{{ declareOpen() ? 'close' : 'add' }}</mat-icon>
+          {{ 'ABSENCES.DECLARER' | translate }}
+        </button>
+      }
     </div>
   </header>
 

@@ -92,4 +92,84 @@ describe('AdministrationAnemieSeanceComponent — conversion dose → stock', ()
     expect(root.querySelector('[data-testid="admin-conversion"]')!.textContent)
       .toContain('SEANCES.CONVERSION_ERR.UNITE_INCOMPATIBLE');
   });
+
+  describe('prescription relevée de 4000 à 8000 UI après une première administration de 4000 UI', () => {
+    const observance = {
+      epo: {
+        periodeDebut: '2026-10-05', periodeFin: '2026-10-11', dosesAttendues: 8000, dosesAdministrees: 4000,
+        dosesRestantes: 1, joursRestants: 4, uniteDose: 'UI', dosePrescrite: 8000,
+        doseAttendue: 8000, doseAdministree: 4000, doseRestante: 4000,
+      },
+      fer: null,
+    };
+    const dejaAdministre = {
+      items: [{id: 'a1', seanceId: 's1', typeTraitement: 'EPO', administree: true, dose: 4000}],
+      total: 1, page: 0, size: 100,
+    };
+
+    async function ouvrir() {
+      api['getObservanceAnemie'].mockReturnValue(of(observance));
+      api['listAdministrationsAnemie'].mockReturnValue(of(dejaAdministre));
+      const fixture = TestBed.createComponent(AdministrationAnemieSeanceComponent);
+      fixture.componentRef.setInput('patientId', 'pat');
+      fixture.componentRef.setInput('seanceId', 's1');
+      fixture.componentRef.setInput('seanceDate', '2026-10-05');
+      fixture.componentRef.setInput('centerId', CENTRE);
+      fixture.componentRef.setInput('canEdit', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      return {fixture, root: fixture.nativeElement as HTMLElement};
+    }
+
+    it('affiche le reste en quantité et non « 0 dose restante »', async () => {
+      const {root} = await ouvrir();
+
+      const texte = root.querySelector('[data-testid="observance-epo"]')!.textContent!;
+      expect(texte).toContain('SEANCES.RESTE_A_ADMINISTRER_DOSE');
+      expect(texte).not.toContain('SEANCES.RESTE_A_ADMINISTRER ');
+    });
+
+    it('autorise le complément alors que l\'EPO est déjà administrée à cette séance', async () => {
+      const {fixture} = await ouvrir();
+      const component = fixture.componentInstance as unknown as {
+        peutAdministrer(t: 'EPO' | 'FER_INJECTABLE'): boolean;
+      };
+
+      expect(component.peutAdministrer('EPO')).toBe(true);
+    });
+
+    it('propose exactement le reste (4000 UI) comme dose du complément', async () => {
+      const {fixture} = await ouvrir();
+      const component = fixture.componentInstance as unknown as {
+        openCreateForm(t: 'EPO' | 'FER_INJECTABLE'): void;
+        form: { value(): { dose: number | null } };
+      };
+
+      component.openCreateForm('EPO');
+
+      expect(component.form.value().dose).toBe(4000);
+    });
+
+    it('ne propose plus d\'administration quand la quantité prescrite est atteinte', async () => {
+      api['getObservanceAnemie'].mockReturnValue(of({
+        epo: {...observance.epo, doseAdministree: 8000, doseRestante: 0, dosesRestantes: 0},
+        fer: null,
+      }));
+      api['listAdministrationsAnemie'].mockReturnValue(of(dejaAdministre));
+      const fixture = TestBed.createComponent(AdministrationAnemieSeanceComponent);
+      fixture.componentRef.setInput('patientId', 'pat');
+      fixture.componentRef.setInput('seanceId', 's1');
+      fixture.componentRef.setInput('seanceDate', '2026-10-05');
+      fixture.componentRef.setInput('centerId', CENTRE);
+      fixture.componentRef.setInput('canEdit', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance as unknown as {
+        peutAdministrer(t: 'EPO' | 'FER_INJECTABLE'): boolean;
+      };
+      expect(component.peutAdministrer('EPO')).toBe(false);
+    });
+  });
 });

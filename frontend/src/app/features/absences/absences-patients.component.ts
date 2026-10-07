@@ -27,7 +27,9 @@ import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {AbsencesPatientsStore, EMPTY_FILTERS} from './absences-patients.store';
-import {actionPossible, actionValide, ActionAbsence, estModifiable, todayIso} from './absences-patients.util';
+import {
+  actionPossible, actionValide, ActionAbsence, estModifiable, peutDeclarerParRole, todayIso,
+} from './absences-patients.util';
 
 type PatientOption = { id: string; label: string };
 
@@ -103,6 +105,8 @@ export class AbsencesPatientsComponent {
   private readonly auth = inject(AuthStore);
   /** Un administrateur ou un médecin peut corriger une absence déjà qualifiée. */
   protected readonly peutCorriger = computed(() => this.auth.hasRole('ADMIN') || this.auth.hasRole('MEDECIN'));
+  /** Le médecin consulte le suivi et corrige les absences qualifiées, mais ne déclare pas d'absence. */
+  protected readonly peutDeclarer = computed(() => peutDeclarerParRole((role) => this.auth.hasRole(role)));
 
   // --- Rattrapage de la détection (administrateur) : un mois par défaut, jusqu'à hier
   protected readonly estAdmin = computed(() => this.auth.hasRole('ADMIN'));

@@ -101,9 +101,10 @@ describe('roleScopeGuard', () => {
     expect(isDoctorArea('/seances/historique')).toBe(false);
   });
 
-  it('ouvre le planning de la semaine au médecin seul, sans l\'ouvrir à l\'infirmier seul', () => {
-    expect(run(['MEDECIN'], '/seances/planning')).toBe(true);
-    expect(isDoctorArea('/seances/planning')).toBe(true);
+  it('donne au médecin seul le planning à son accueil (/medecin), pas à l\'adresse des séances', () => {
+    expect(run(['MEDECIN'], '/medecin')).toBe(true);
+    expect(run(['MEDECIN'], '/seances/planning')).toEqual({redirect: '/medecin'});
+    expect(isDoctorArea('/seances/planning')).toBe(false);
     expect(run(['INFIRMIER'], '/seances/planning')).toEqual({redirect: '/infirmiers/moi'});
     expect(isDoctorArea('/seances/optimisation')).toBe(false);
     expect(isDoctorArea('/seances/salles')).toBe(false);

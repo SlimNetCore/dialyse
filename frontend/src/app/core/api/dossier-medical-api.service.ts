@@ -398,8 +398,14 @@ export type AlerteObservance = {
   type: string;
   periodeDebut: string;
   periodeFin: string;
+  /** Attendu et administré : en `uniteDose` quand elle est renseignée (quantités), sinon en nombre d'administrations. */
   dosesAttendues: number;
   dosesAdministrees: number;
+  uniteDose?: string | null;
+  /** Prescription qui explique l'alerte : dose à chaque administration et fréquence (absentes des anciennes alertes). */
+  dosePrescrite?: number | null;
+  frequenceValeur?: number | null;
+  frequenceUnite?: string | null;
   message: string | null;
   createdAt: string;
   resolvedAt: string | null;
@@ -412,6 +418,12 @@ export type ObservanceTraitement = {
   dosesAdministrees: number;
   dosesRestantes: number;
   joursRestants: number;
+  /** Prescription avec dose : quantités attendue, administrée et restante sur la période (UI, mg). */
+  uniteDose?: string | null;
+  dosePrescrite?: number | null;
+  doseAttendue?: number | null;
+  doseAdministree?: number | null;
+  doseRestante?: number | null;
 };
 
 export type ObservanceAnemie = {

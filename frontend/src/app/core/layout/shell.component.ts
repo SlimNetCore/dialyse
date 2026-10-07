@@ -95,7 +95,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'stethoscope',
       label: 'NAV.MEDECIN',
       items: [
-        {route: '/medecin', label: 'NAV.MEDECIN_DASHBOARD', icon: 'today', doctor: true, role: 'MEDECIN'},
+        {route: '/medecin', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week', doctor: true, role: 'MEDECIN'},
       ],
     },
     {
@@ -129,7 +129,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       items: [
         {route: '/seances', label: 'NAV.SEANCES_STATION', icon: 'monitor_heart', nurse: true},
         {route: '/seances/historique', label: 'NAV.SEANCES_HISTORIQUE', icon: 'history', nurse: true},
-        {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week', doctor: true},
+        {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week'},
         {route: '/seances/salles', label: 'NAV.SALLES_GENERATEURS', icon: 'meeting_room'},
         {route: '/seances/optimisation', label: 'NAV.PLANNING_OPTIMISATION', icon: 'auto_fix_high'},
         {
@@ -341,7 +341,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       planning: 'NAV.PLANNING_SEMAINE',
       'planning-centre': 'NAV.ADMIN_PLANNING',
       infirmiers: 'NAV.INFIRMIERS',
-      medecin: 'NAV.MEDECIN_DASHBOARD',
+      medecin: 'NAV.PLANNING_SEMAINE',
       referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
       absences: 'NAV.INFIRMIERS_ABSENCES',
       'absences-patients': 'NAV.ABSENCES_PATIENTS',

@@ -43,7 +43,7 @@
     }
     @if (j.patients.length > 0 || j.infirmiers.length > 0) {
       <small class="pp-effectif" data-testid="pp-effectif">
-        {{ 'PLANNING.OPTIM.CALENDRIER.EFFECTIF' | translate: {patients: j.patients.length, requis: j.requis} }}
+        {{ 'PLANNING.OPTIM.CALENDRIER.EFFECTIF' | translate: {patients: j.patients.length, affectes: affectes(j)} }}
         @if (j.manque > 0) {
           <strong class="pp-manque">· {{ 'PLANNING.OPTIM.CALENDRIER.MANQUE' | translate: {count: j.manque} }}</strong>
         }

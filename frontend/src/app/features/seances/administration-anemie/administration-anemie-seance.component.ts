@@ -132,6 +132,9 @@ export class AdministrationAnemieSeanceComponent {
         model.uniteDose = 'mg';
         model.articleId = prescription.ferArticleId;
       }
+      // Complément : s'il reste moins que la dose prescrite à administrer, la saisie propose exactement ce reste.
+      const reste = this.observanceFor(type)?.doseRestante;
+      if (reste && model.dose != null && reste < model.dose) model.dose = reste;
     }
     this.form.reset(model);
     this.formOpen.set(true);
@@ -192,6 +195,14 @@ export class AdministrationAnemieSeanceComponent {
 
   alreadyAdministered(type: 'EPO' | 'FER_INJECTABLE'): boolean {
     return this.administrationsSeance().some((a) => a.typeTraitement === type);
+  }
+
+  /**
+   * Une administration peut être saisie tant que rien n'a été saisi pour ce traitement à cette séance, ou qu'il reste une
+   * quantité à administrer (prescription relevée après une première dose : le complément se saisit en séance).
+   */
+  peutAdministrer(type: 'EPO' | 'FER_INJECTABLE'): boolean {
+    return !this.alreadyAdministered(type) || (this.observanceFor(type)?.doseRestante ?? 0) > 0;
   }
 
   observanceFor(type: 'EPO' | 'FER_INJECTABLE'): ObservanceAnemie['epo'] {

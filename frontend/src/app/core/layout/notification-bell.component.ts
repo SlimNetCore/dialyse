@@ -96,6 +96,8 @@ export class NotificationBellComponent {
         return 'event_busy';
       case 'GENERATEUR_INDISPONIBLE':
         return 'build_circle';
+      case 'OBSERVANCE_NON_RESPECTEE':
+        return 'vaccines';
       case 'INFIRMIER_SUREFFECTIF':
         return 'person_off';
       case 'SEANCES_DEPLACEES':
@@ -134,6 +136,7 @@ export class NotificationBellComponent {
       case 'ISOLEMENT_IMPOSSIBLE':
       case 'GENERATEUR_INDISPONIBLE':
       case 'INFIRMIER_SUREFFECTIF':
+      case 'OBSERVANCE_NON_RESPECTEE':
         return 'warning';
       case 'OPTIMISATION_PROPOSITION':
         return evt.payload['motif'] === 'GAIN' ? 'pec' : 'warning';
@@ -172,6 +175,13 @@ export class NotificationBellComponent {
             queryParams: {perimetre: 'COUVERTURE'}
           }
           : null;
+      case 'OBSERVANCE_NON_RESPECTEE':
+        return evt.payload['patientId'] && (this.auth.hasRole('MEDECIN') || this.auth.hasRole('ADMIN'))
+          ? {
+            label: 'NOTIFICATION.ACTION.ANEMIE',
+            commands: ['/patients', evt.payload['patientId'], 'dossier-medical', 'anemie'], queryParams: {}
+          }
+          : null;
       case 'INFIRMIER_SUREFFECTIF':
         return peutOptimiser
           ? {
@@ -180,7 +190,10 @@ export class NotificationBellComponent {
           }
           : null;
       case 'SEANCES_DEPLACEES':
-        return {label: 'NOTIFICATION.ACTION.PLANNING', commands: ['/seances/planning'], queryParams: {}};
+        return {
+          label: 'NOTIFICATION.ACTION.PLANNING', commands: [peutOptimiser ? '/seances/planning' : '/medecin'],
+          queryParams: {}
+        };
       default:
         return null;
     }
@@ -219,6 +232,21 @@ export class NotificationBellComponent {
           count: evt.payload['nbPatients'] ?? '0',
           patients: evt.payload['patients'] ?? '',
         });
+      case 'OBSERVANCE_NON_RESPECTEE': {
+        const nature = evt.payload['typeAlerte'];
+        // alertes d'avant le détail : texte d'origine du serveur
+        if (!nature) return evt.payload['message'] || evt.type;
+        const unite = evt.payload['unite'] ?? '';
+        const attendu = Number(evt.payload['attendu'] ?? 0);
+        const administre = Number(evt.payload['administre'] ?? 0);
+        return this.translate.instant(
+          `NOTIFICATION.OBSERVANCE_NON_RESPECTEE.${unite ? 'DOSE' : 'COMPTE'}_${nature}`, {
+            traitement: this.translate.instant(
+              `DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.TRAITEMENT.${evt.payload['typeTraitement'] ?? 'EPO'}`),
+            attendu, administre, manque: Math.max(0, attendu - administre), unite,
+            debut: evt.payload['debut'] ?? '', fin: evt.payload['fin'] ?? '',
+          });
+      }
       case 'INFIRMIER_SUREFFECTIF':
         return this.translate.instant('NOTIFICATION.INFIRMIER_SUREFFECTIF', {
           count: evt.payload['nbCreneaux'] ?? '0',

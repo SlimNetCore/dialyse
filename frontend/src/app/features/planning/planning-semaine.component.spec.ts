@@ -7,6 +7,8 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {CasePresence, SemainePresence} from '../../core/api/infirmier-api.service';
 import {JOURS_SEMAINE, SemainePlanning} from '../../core/api/planning-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {AuthStore} from '../../core/state/auth.store';
+import {WebSocketService, WsEvent} from '../../core/ws/websocket.service';
 import {PlanningSemaineComponent} from './planning-semaine.component';
 import {PlanningStore} from './planning.store';
 
@@ -60,17 +62,23 @@ function presence(cases: CasePresence[]): SemainePresence {
 describe('PlanningSemaineComponent', () => {
   let presenceSignal: ReturnType<typeof signal<SemainePresence | null>>;
   let chargerSemaine: ReturnType<typeof vi.fn>;
+  let dialogOpen: ReturnType<typeof vi.fn>;
+  let dernierEvenement: ReturnType<typeof signal<WsEvent | null>>;
+  let roles: string[];
 
   async function render() {
     await TestBed.configureTestingModule({
       imports: [PlanningSemaineComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideZonelessChangeDetection(),
-        {provide: MatDialog, useValue: {open: vi.fn()}},
+        {provide: MatDialog, useValue: {open: dialogOpen}},
+        {provide: WebSocketService, useValue: {lastEvent: dernierEvenement}},
+        {provide: AuthStore, useValue: {hasRole: (r: string) => roles.includes(r)}},
         {
           provide: PlanningStore, useValue: {
             semaine: signal(semaine), presence: presenceSignal, absences: signal([]), seancesRealisees: signal([]),
-            loading: signal(false), error: signal<string | null>(null), chargerSemaine, changerSemaine: vi.fn(),
+            loading: signal(false), error: signal<string | null>(null), date: signal<string | null>('2026-09-27'),
+            chargerSemaine, changerSemaine: vi.fn(),
           },
         },
       ],
@@ -85,6 +93,9 @@ describe('PlanningSemaineComponent', () => {
 
   beforeEach(() => {
     chargerSemaine = vi.fn();
+    dialogOpen = vi.fn();
+    dernierEvenement = signal<WsEvent | null>(null);
+    roles = ['ADMIN'];
     presenceSignal = signal<SemainePresence | null>(presence([casePresence({
       presents: [
         {infirmierId: 'i1', nom: 'Sara', habiliteIsolement: false, remplacant: false, remplacementId: null},
@@ -108,6 +119,22 @@ describe('PlanningSemaineComponent', () => {
     expect(root.querySelector('[data-testid="week-infirmier-absent"]')?.textContent).toContain('Nadia');
   });
 
+  it('indique le nombre d\'infirmiers affectés (et non le nombre requis), absents exclus', async () => {
+    const {root} = await render();
+
+    const affectes = root.querySelector('[data-testid="week-affectes"]');
+    expect(affectes?.textContent).toContain('PLANNING.SEMAINE.INFIRMIERS_AFFECTES');
+    expect(root.textContent).not.toContain('INFIRMIERS_REQUIS');
+  });
+
+  it('n\'indique aucun nombre d\'affectés quand personne n\'est affecté à la case', async () => {
+    presenceSignal.set(presence([casePresence({statut: 'SOUS_EFFECTIF', requis: 2, manque: 2, presents: []})]));
+    const {root} = await render();
+
+    expect(root.querySelector('[data-testid="week-affectes"]')).toBeNull();
+    expect(root.querySelector('[data-testid="week-manque"]')).not.toBeNull();
+  });
+
   it('marque d\'une icône de risque infectieux les seuls patients à risque, comme le planning proposé', async () => {
     const {root} = await render();
 
@@ -117,6 +144,91 @@ describe('PlanningSemaineComponent', () => {
     expect(avecIcone).toHaveLength(1);
     expect(avecIcone[0].textContent).toContain('Kaci');
     expect(avecIcone[0].querySelector('[data-testid="week-risque"]')?.textContent).toContain('coronavirus');
+  });
+
+  describe('mise à jour en temps réel', () => {
+    const evenement = (type: string, payload: Record<string, string> = {}, centerId = CENTRE): WsEvent =>
+      ({type, centerId, payload, timestamp: '2026-10-07T08:00:00Z'});
+
+    async function apres(evt: WsEvent) {
+      const rendu = await render();
+      chargerSemaine.mockClear();
+      dernierEvenement.set(evt);
+      rendu.fixture.detectChanges();
+      await rendu.fixture.whenStable();
+      return chargerSemaine;
+    }
+
+    it('recharge la semaine affichée quand une séance est validée (scan du QR code) dans le centre', async () => {
+      const recharge = await apres(evenement('SEANCE_VALIDATED', {targetRoles: 'INFIRMIER,SECRETAIRE'}));
+
+      expect(recharge).toHaveBeenCalledTimes(1);
+      expect(recharge).toHaveBeenCalledWith('2026-09-27');
+    });
+
+    it('recharge aussi pour une création ou suppression de séance, un déplacement et une absence de patient', async () => {
+      for (const evt of [evenement('SEANCE_CREATED'), evenement('SEANCE_SUPPRIMEE'), evenement('SEANCES_DEPLACEES'),
+        evenement('PATIENT_UPDATED'), evenement('SAISIE_INFIRMIER', {saisie: 'ABSENCE'}),
+        evenement('INFIRMIER_ABSENCE_DECLAREE')]) {
+        TestBed.resetTestingModule();
+        dernierEvenement = signal<WsEvent | null>(null);
+        expect(await apres(evt), evt.type).toHaveBeenCalledTimes(1);
+      }
+    });
+
+    it('ignore les évènements d\'un autre centre ou sans effet sur le planning', async () => {
+      for (const evt of [evenement('SEANCE_VALIDATED', {}, 'autre-centre'), evenement('STOCK_MOVEMENT_CHANGED'),
+        evenement('SAISIE_INFIRMIER', {saisie: 'PARAMEDICAL'}), evenement('OPTIMISATION_PROPOSITION')]) {
+        TestBed.resetTestingModule();
+        dernierEvenement = signal<WsEvent | null>(null);
+        expect(await apres(evt), evt.type).not.toHaveBeenCalled();
+      }
+    });
+
+    it('met aussi à jour le planning du médecin, qui le consulte en lecture seule', async () => {
+      roles = ['MEDECIN'];
+
+      const recharge = await apres(evenement('SEANCE_VALIDATED'));
+
+      expect(recharge).toHaveBeenCalledWith('2026-09-27');
+    });
+  });
+
+  describe('lecture seule du médecin', () => {
+    it('ne propose aucun bouton de déclaration d\'absence au médecin', async () => {
+      roles = ['MEDECIN'];
+      const {root} = await render();
+
+      expect(root.querySelector('[data-testid="week-patient"]')).not.toBeNull();
+      expect(root.querySelector('[data-testid="week-declare"]')).toBeNull();
+    });
+
+    it('propose la déclaration d\'absence à l\'administrateur, au secrétariat et à l\'infirmier', async () => {
+      for (const role of ['ADMIN', 'SECRETAIRE', 'INFIRMIER']) {
+        TestBed.resetTestingModule();
+        roles = [role];
+        const {root} = await render();
+        expect(root.querySelector('[data-testid="week-declare"]'), role).not.toBeNull();
+      }
+    });
+
+    it('ouvre le détail du patient sans formulaire d\'absence pour le médecin', async () => {
+      roles = ['MEDECIN'];
+      const {root} = await render();
+
+      (root.querySelector('[data-testid="week-patient-open"]') as HTMLButtonElement).click();
+
+      expect(dialogOpen).toHaveBeenCalledTimes(1);
+      expect(dialogOpen.mock.calls[0][1].data.peutDeclarer).toBe(false);
+    });
+
+    it('ouvre le détail du patient avec le formulaire d\'absence pour l\'administrateur', async () => {
+      const {root} = await render();
+
+      (root.querySelector('[data-testid="week-patient-open"]') as HTMLButtonElement).click();
+
+      expect(dialogOpen.mock.calls[0][1].data.peutDeclarer).toBe(true);
+    });
   });
 
   it('signale le manque d\'infirmiers d\'une case en sous-effectif', async () => {

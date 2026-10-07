@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.medical.anemie.aggregate;
 
+import com.hemodialyse.backend.domain.medical.anemie.valueobject.DetailObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeAlerteObservance;
 import com.hemodialyse.backend.domain.medical.anemie.valueobject.TypeTraitementAnemie;
 
@@ -10,9 +11,12 @@ import java.util.UUID;
 
 /**
  * Alerte déclenchée quand les administrations réelles d'un traitement de l'anémie (EPO ou fer
- * injectable) sont en dessous du nombre de doses attendues par la prescription — soit sur une
+ * injectable) sont en dessous de ce qu'attend la prescription — soit sur une
  * période déjà close ({@link TypeAlerteObservance#RETARD_CONSTATE}), soit en anticipation de la
  * fin de la période en cours ({@link TypeAlerteObservance#RAPPEL_ECHEANCE}).
+ * <p>
+ * {@code dosesAttendues} et {@code dosesAdministrees} sont des <b>quantités de dose</b> (dans l'unité du
+ * {@link DetailObservance}) quand la prescription porte une dose, sinon un nombre d'administrations.
  */
 public final class AlerteObservance {
 
@@ -26,13 +30,14 @@ public final class AlerteObservance {
     private final int dosesAttendues;
     private final int dosesAdministrees;
     private final String message;
+    private final DetailObservance detail;
     private final OffsetDateTime createdAt;
     private final OffsetDateTime resolvedAt;
 
     private AlerteObservance(UUID id, UUID patientId, UUID centerId, TypeTraitementAnemie typeTraitement,
                              TypeAlerteObservance type, LocalDate periodeDebut, LocalDate periodeFin,
-                             int dosesAttendues, int dosesAdministrees, String message, OffsetDateTime createdAt,
-                             OffsetDateTime resolvedAt) {
+                             int dosesAttendues, int dosesAdministrees, String message, DetailObservance detail,
+                             OffsetDateTime createdAt, OffsetDateTime resolvedAt) {
         this.id = id;
         this.patientId = patientId;
         this.centerId = centerId;
@@ -43,6 +48,7 @@ public final class AlerteObservance {
         this.dosesAttendues = dosesAttendues;
         this.dosesAdministrees = dosesAdministrees;
         this.message = message;
+        this.detail = detail == null ? DetailObservance.AUCUN : detail;
         this.createdAt = createdAt;
         this.resolvedAt = resolvedAt;
     }
@@ -50,8 +56,16 @@ public final class AlerteObservance {
     public static AlerteObservance declencher(UUID patientId, UUID centerId, TypeTraitementAnemie typeTraitement,
                                               TypeAlerteObservance type, LocalDate periodeDebut, LocalDate periodeFin,
                                               int dosesAttendues, int dosesAdministrees, String message) {
+        return declencher(patientId, centerId, typeTraitement, type, periodeDebut, periodeFin, dosesAttendues,
+                dosesAdministrees, message, DetailObservance.AUCUN);
+    }
+
+    public static AlerteObservance declencher(UUID patientId, UUID centerId, TypeTraitementAnemie typeTraitement,
+                                              TypeAlerteObservance type, LocalDate periodeDebut, LocalDate periodeFin,
+                                              int dosesAttendues, int dosesAdministrees, String message,
+                                              DetailObservance detail) {
         return new AlerteObservance(UUID.randomUUID(), patientId, centerId, typeTraitement, type, periodeDebut,
-                periodeFin, dosesAttendues, dosesAdministrees, message, OffsetDateTime.now(), null);
+                periodeFin, dosesAttendues, dosesAdministrees, message, detail, OffsetDateTime.now(), null);
     }
 
     public static AlerteObservance reconstituer(UUID id, UUID patientId, UUID centerId,
@@ -59,13 +73,22 @@ public final class AlerteObservance {
                                                 LocalDate periodeDebut, LocalDate periodeFin, int dosesAttendues,
                                                 int dosesAdministrees, String message, OffsetDateTime createdAt,
                                                 OffsetDateTime resolvedAt) {
+        return reconstituer(id, patientId, centerId, typeTraitement, type, periodeDebut, periodeFin, dosesAttendues,
+                dosesAdministrees, message, DetailObservance.AUCUN, createdAt, resolvedAt);
+    }
+
+    public static AlerteObservance reconstituer(UUID id, UUID patientId, UUID centerId,
+                                                TypeTraitementAnemie typeTraitement, TypeAlerteObservance type,
+                                                LocalDate periodeDebut, LocalDate periodeFin, int dosesAttendues,
+                                                int dosesAdministrees, String message, DetailObservance detail,
+                                                OffsetDateTime createdAt, OffsetDateTime resolvedAt) {
         return new AlerteObservance(id, patientId, centerId, typeTraitement, type, periodeDebut, periodeFin,
-                dosesAttendues, dosesAdministrees, message, createdAt, resolvedAt);
+                dosesAttendues, dosesAdministrees, message, detail, createdAt, resolvedAt);
     }
 
     public AlerteObservance resoudre() {
         return new AlerteObservance(id, patientId, centerId, typeTraitement, type, periodeDebut, periodeFin,
-                dosesAttendues, dosesAdministrees, message, createdAt, OffsetDateTime.now());
+                dosesAttendues, dosesAdministrees, message, detail, createdAt, OffsetDateTime.now());
     }
 
     public UUID getId() {
@@ -106,6 +129,10 @@ public final class AlerteObservance {
 
     public String getMessage() {
         return message;
+    }
+
+    public DetailObservance getDetail() {
+        return detail;
     }
 
     public OffsetDateTime getCreatedAt() {

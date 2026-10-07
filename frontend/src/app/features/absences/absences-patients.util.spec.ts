@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {actionPossible, actionValide, estModifiable} from './absences-patients.util';
+import {actionPossible, actionValide, estModifiable, peutDeclarerParRole} from './absences-patients.util';
 
 const vide = {motif: '' as const, commentaire: '', dateRattrapage: ''};
 
@@ -35,5 +35,16 @@ describe('absences-patients util', () => {
     expect(actionValide('rattrapage', 'A_QUALIFIER', {...vide, dateRattrapage: '2026-09-30'})).toBe(true);
     expect(actionValide('annuler', 'A_QUALIFIER', {...vide, commentaire: '  '})).toBe(false);
     expect(actionValide('annuler', 'A_QUALIFIER', {...vide, commentaire: 'Erreur de saisie'})).toBe(true);
+  });
+
+  it('réserve la déclaration d\'une absence à l\'administrateur, au secrétariat et à l\'infirmier, jamais au médecin seul', () => {
+    const avec = (...roles: string[]) => peutDeclarerParRole((r) => roles.includes(r));
+
+    expect(avec('ADMIN')).toBe(true);
+    expect(avec('SECRETAIRE')).toBe(true);
+    expect(avec('INFIRMIER')).toBe(true);
+    expect(avec('MEDECIN')).toBe(false);
+    expect(avec('MEDECIN', 'ADMIN')).toBe(true);
+    expect(avec()).toBe(false);
   });
 });

@@ -12,8 +12,10 @@ import {AbsenceSemaine} from '../../core/api/absence-patient-api.service';
 import {ConflitPlanning, JOURS_SEMAINE, JourSemaine, OccupantPlanning} from '../../core/api/planning-api.service';
 import {CasePresence} from '../../core/api/infirmier-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {AuthStore} from '../../core/state/auth.store';
+import {WebSocketService} from '../../core/ws/websocket.service';
 import {trouverCase} from '../infirmier/presence.util';
-import {todayIso} from '../absences/absences-patients.util';
+import {peutDeclarerParRole, todayIso} from '../absences/absences-patients.util';
 import {PlanningPatientDialogComponent, PlanningPatientDialogData} from './planning-patient-dialog.component';
 import {PlanningStore} from './planning.store';
 import {
@@ -24,6 +26,7 @@ import {
   jourParDefaut,
   lignesDuJour,
   classeOccupant,
+  evenementRafraichitPlanning,
   peutDeclarerAbsence,
   seanceRealiseeDe,
 } from './planning.util';
@@ -72,12 +75,25 @@ export class PlanningSemaineComponent {
   protected readonly etat = etatCellule;
   private readonly shell = inject(AppShellStore);
   private readonly dialog = inject(MatDialog);
+  private readonly ws = inject(WebSocketService);
+  private readonly auth = inject(AuthStore);
+  /** Le médecin consulte le planning sans pouvoir déclarer l'absence d'un patient (le serveur applique la règle). */
+  protected readonly lectureSeule = computed(() => !peutDeclarerParRole((role) => this.auth.hasRole(role)));
 
   constructor() {
     // Recharge la semaine courante à l'ouverture et à chaque changement de centre actif.
     effect(() => {
       this.shell.currentCenterId();
       untracked(() => this.store.chargerSemaine(null));
+    });
+    // Temps réel : scan du QR code, validation, absence, déplacement… rechargent la semaine affichée pour tous ceux qui
+    // la consultent (l'évènement est diffusé à tout le centre ; seul le centre actif compte).
+    effect(() => {
+      const evenement = this.ws.lastEvent();
+      const centre = this.shell.currentCenterId();
+      if (!evenement || !centre || evenement.centerId !== centre) return;
+      if (!evenementRafraichitPlanning(evenement.type, evenement.payload)) return;
+      untracked(() => this.store.chargerSemaine(this.store.date()));
     });
   }
 
@@ -136,7 +152,7 @@ export class PlanningSemaineComponent {
   /** L'absence se déclare tant que la séance n'est ni validée ni déjà déclarée absente. */
   protected declarable(jour: JourSemaine, patientId: string): boolean {
     const date = this.jourDe(jour)?.date;
-    return !!date && !this.realisee(patientId, jour) && !this.absence(patientId, jour)
+    return !this.lectureSeule() && !!date && !this.realisee(patientId, jour) && !this.absence(patientId, jour)
       && peutDeclarerAbsence(date, this.aujourdhuiIso, this.ferme(jour));
   }
 
@@ -151,7 +167,7 @@ export class PlanningSemaineComponent {
       creneauLibelle: this.creneauLibelle(creneauId),
       absence: this.absence(o.patientId, jour),
       realisee: this.realisee(o.patientId, jour),
-      peutDeclarer: peutDeclarerAbsence(date, this.aujourdhuiIso, this.ferme(jour)),
+      peutDeclarer: !this.lectureSeule() && peutDeclarerAbsence(date, this.aujourdhuiIso, this.ferme(jour)),
     };
     this.dialog.open(PlanningPatientDialogComponent, {data, width: '480px', maxWidth: '95vw'});
   }

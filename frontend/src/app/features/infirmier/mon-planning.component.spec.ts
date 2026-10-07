@@ -4,8 +4,10 @@ import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {provideRouter} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {AbsenceSemaine, SeanceRealisee} from '../../core/api/absence-patient-api.service';
 import {MonPlanning} from '../../core/api/infirmier-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {WebSocketService, WsEvent} from '../../core/ws/websocket.service';
 import {aujourdhuiUtc} from './presence.util';
 import {MonPlanningComponent} from './mon-planning.component';
 import {MonPlanningStore} from './mon-planning.store';
@@ -37,18 +39,28 @@ function planningFixture(): MonPlanning {
 
 describe('MonPlanningComponent — grille de mes salles et créneaux', () => {
   let planning: ReturnType<typeof signal<MonPlanning | null>>;
+  let absencesPatients: ReturnType<typeof signal<AbsenceSemaine[]>>;
+  let seancesRealisees: ReturnType<typeof signal<SeanceRealisee[]>>;
+  let dernierEvenement: ReturnType<typeof signal<WsEvent | null>>;
+  let chargerPlanning: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     planning = signal<MonPlanning | null>(planningFixture());
+    absencesPatients = signal<AbsenceSemaine[]>([]);
+    seancesRealisees = signal<SeanceRealisee[]>([]);
+    dernierEvenement = signal<WsEvent | null>(null);
+    chargerPlanning = vi.fn();
     const store = {
-      planning, nonLie: signal(false), loadingPlanning: signal(false), saving: signal(false), error: signal(null),
+      planning, absencesPatients, seancesRealisees, nonLie: signal(false), loadingPlanning: signal(false),
+      saving: signal(false), error: signal(null),
       successMessage: signal(null), rows: signal([]), total: signal(0), pageIndex: signal(0), pageSize: signal(10),
-      loading: signal(false), chargerPlanning: vi.fn(), loadAbsences: vi.fn(), changerSemaine: vi.fn(),
+      loading: signal(false), chargerPlanning, loadAbsences: vi.fn(), changerSemaine: vi.fn(),
       setPagination: vi.fn(), declarer: vi.fn(), annuler: vi.fn(),
     };
     await TestBed.configureTestingModule({
       imports: [MonPlanningComponent, TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [provideZonelessChangeDetection(), provideRouter([]), {provide: MonPlanningStore, useValue: store}],
+      providers: [provideZonelessChangeDetection(), provideRouter([]), {provide: MonPlanningStore, useValue: store},
+        {provide: WebSocketService, useValue: {lastEvent: dernierEvenement}}],
     }).compileComponents();
     TestBed.inject(AppShellStore).switchCenter(CENTRE);
   });
@@ -93,6 +105,80 @@ describe('MonPlanningComponent — grille de mes salles et créneaux', () => {
     expect(patients[1].textContent).toContain('Houria Bekkouche');
     expect(patients[1].classList.contains('risk')).toBe(true);
     expect(patients[1].querySelectorAll('mat-icon')).toHaveLength(2);
+  });
+
+  it('barre le patient absent et signale l\'absence du jour même, selon son statut', async () => {
+    absencesPatients.set([{
+      absenceId: 'a1',
+      patientId: 'p1',
+      dateSeance: aujourdhuiUtc(),
+      statut: 'JUSTIFIEE',
+      motif: 'MALADIE'
+    }]);
+    const {root} = await render();
+
+    const patients = Array.from(root.querySelectorAll('[data-testid="moi-patient"]'));
+    expect(patients[0].classList.contains('absent')).toBe(true);
+    expect(patients[0].classList.contains('justifiee')).toBe(true);
+    expect(patients[0].querySelector('[data-testid="moi-absent"]')).not.toBeNull();
+    expect(patients[1].classList.contains('absent')).toBe(false);
+    expect(patients[1].querySelector('[data-testid="moi-absent"]')).toBeNull();
+  });
+
+  it('marque d\'un soleil le patient dont la séance est validée, sans le barrer', async () => {
+    seancesRealisees.set([{patientId: 'p2', dateSeance: aujourdhuiUtc()}]);
+    const {root} = await render();
+
+    const patients = Array.from(root.querySelectorAll('[data-testid="moi-patient"]'));
+    expect(patients[1].classList.contains('done')).toBe(true);
+    expect(patients[1].classList.contains('absent')).toBe(false);
+    expect(patients[1].querySelector('[data-testid="moi-validee"]')).not.toBeNull();
+  });
+
+  it('ne barre pas un patient absent un autre jour', async () => {
+    absencesPatients.set([{
+      absenceId: 'a1',
+      patientId: 'p1',
+      dateSeance: '2099-01-02',
+      statut: 'A_QUALIFIER',
+      motif: null
+    }]);
+    const {root} = await render();
+
+    expect(root.querySelector('[data-testid="moi-patient"].absent')).toBeNull();
+  });
+
+  describe('mise à jour en temps réel', () => {
+    const evenement = (type: string, payload: Record<string, string> = {}, centerId = CENTRE): WsEvent =>
+      ({type, centerId, payload, timestamp: '2026-10-07T08:00:00Z'});
+
+    async function apres(evt: WsEvent) {
+      const {fixture} = await render();
+      chargerPlanning.mockClear();
+      dernierEvenement.set(evt);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      return chargerPlanning;
+    }
+
+    it('recharge la semaine affichée quand une absence de patient est déclarée (même le jour J)', async () => {
+      const recharge = await apres(evenement('SAISIE_INFIRMIER', {saisie: 'ABSENCE'}));
+
+      expect(recharge).toHaveBeenCalledTimes(1);
+      expect(recharge).toHaveBeenCalledWith(aujourdhuiUtc());
+    });
+
+    it('recharge aussi quand une séance est validée par le scan du QR code', async () => {
+      expect(await apres(evenement('SEANCE_VALIDATED'))).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignore les évènements d\'un autre centre ou sans effet sur le planning', async () => {
+      expect(await apres(evenement('SEANCE_VALIDATED', {}, 'autre-centre'))).not.toHaveBeenCalled();
+    });
+
+    it('ignore un évènement qui ne change pas le planning', async () => {
+      expect(await apres(evenement('STOCK_MOVEMENT_CHANGED'))).not.toHaveBeenCalled();
+    });
   });
 
   it('indique quand aucun patient n\'est placé dans ma case', async () => {

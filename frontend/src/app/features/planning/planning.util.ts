@@ -39,6 +39,23 @@ export function peutDeclarerAbsence(date: string, aujourdhui: string, ferme: boo
   return !ferme && date <= aujourdhui;
 }
 
+/**
+ * Évènements du centre qui changent le planning de la semaine : séances créées, validées (scan du QR code ou saisie),
+ * supprimées, absences de patients ou d'infirmiers, déplacements de patients ou de séances, placements modifiés,
+ * générateur indisponible.
+ */
+const EVENEMENTS_PLANNING = new Set([
+  'PATIENT_SCANNED', 'PATIENT_CREATED', 'PATIENT_UPDATED', 'SEANCES_DEPLACEES', 'GENERATEUR_INDISPONIBLE',
+  'INFIRMIER_ABSENCE_DECLAREE', 'INFIRMIER_ABSENCE_ENREGISTREE', 'PATIENT_REPLACE_ISOLEMENT', 'ISOLEMENT_IMPOSSIBLE',
+  'ABSENCES_A_QUALIFIER',
+]);
+
+/** Vrai si un évènement du serveur doit faire recharger le planning affiché. */
+export function evenementRafraichitPlanning(type: string, payload: Record<string, string> = {}): boolean {
+  if (type === 'SAISIE_INFIRMIER') return payload['saisie'] === 'ABSENCE';
+  return type.startsWith('SEANCE_') || EVENEMENTS_PLANNING.has(type);
+}
+
 /** Absence enregistrée (non annulée) d'un patient à une date, le cas échéant. */
 export function absenceDe(absences: AbsenceSemaine[], patientId: string, date: string): AbsenceSemaine | undefined {
   return absences.find((a) => a.patientId === patientId && a.dateSeance === date);

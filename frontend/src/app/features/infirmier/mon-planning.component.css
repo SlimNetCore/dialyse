@@ -294,6 +294,41 @@
   border: 1px solid #d96b6b;
 }
 
+/* Patient absent à la séance : barré, la couleur dépend du statut de l'absence (comme le planning des séances) */
+.moi-patients li.absent {
+  border: 1px dashed #8a5a00;
+  background: #ffe9c2;
+}
+
+.moi-patients li.absent .moi-patient-nom {
+  text-decoration: line-through;
+}
+
+.moi-patients li.absent.justifiee {
+  background: #d8f0dc;
+  border-color: #2e7d32;
+}
+
+.moi-patients li.absent.non_justifiee {
+  background: #f8d0cc;
+  border-color: #b3261e;
+}
+
+.moi-patients li.absent.rattrapee {
+  background: #d6e6fb;
+  border-color: #1976d2;
+}
+
+/* Séance validée (patient présent) : soleil et couleur dédiée */
+.moi-patients li.done {
+  background: #fff3c4;
+  border: 1px solid #f9a825;
+}
+
+.moi-sun {
+  color: #f9a825;
+}
+
 .moi-patient-nom {
   flex: 1 1 auto;
   min-width: 0;

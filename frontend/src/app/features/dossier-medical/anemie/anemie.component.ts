@@ -16,6 +16,7 @@ import {SuiviAnemieStore} from '../state/suivi-anemie.store';
 import {AdministrationsAnemieStore} from '../state/administrations-anemie.store';
 import {AlertesObservanceStore} from '../state/alertes-observance.store';
 import {resolvePatientIdFromRoute} from '../dossier-medical-route.util';
+import {alerteDetaillee, alerteEnDose, manqueAlerte} from './alerte-observance.util';
 
 Chart.register(...registerables);
 
@@ -55,6 +56,9 @@ export class AnemieComponent implements OnInit {
   protected readonly suiviStore = inject(SuiviAnemieStore);
   protected readonly administrationsStore = inject(AdministrationsAnemieStore);
   protected readonly alertesStore = inject(AlertesObservanceStore);
+  protected readonly detaillee = alerteDetaillee;
+  protected readonly enDose = alerteEnDose;
+  protected readonly manque = manqueAlerte;
   protected readonly displayedColumns = [
     'dateAdministration', 'typeTraitement', 'molecule', 'dose', 'administree', 'administrePar',
   ];

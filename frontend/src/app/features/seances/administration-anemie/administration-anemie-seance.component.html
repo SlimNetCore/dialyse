@@ -27,17 +27,27 @@
             }
           </span>
           @if (observanceFor('EPO'); as obs) {
-            <span [class.observance-warn]="obs.dosesRestantes > 0" class="prescription-observance">
-              {{ 'SEANCES.RESTE_A_ADMINISTRER' | translate: {count: obs.dosesRestantes} }}
-              {{ 'SEANCES.AVANT_LE' | translate }} {{ obs.periodeFin }}
-              ({{ obs.dosesAdministrees }}/{{ obs.dosesAttendues }})
+            <span [class.observance-warn]="obs.dosesRestantes > 0" class="prescription-observance"
+                  data-testid="observance-epo">
+              @if (obs.uniteDose && obs.doseRestante != null) {
+                {{ 'SEANCES.RESTE_A_ADMINISTRER_DOSE' | translate: {dose: obs.doseRestante, unite: obs.uniteDose} }}
+                {{ 'SEANCES.AVANT_LE' | translate }} {{ obs.periodeFin }}
+                ({{ obs.doseAdministree }}/{{ obs.doseAttendue }} {{ obs.uniteDose }})
+              } @else {
+                {{ 'SEANCES.RESTE_A_ADMINISTRER' | translate: {count: obs.dosesRestantes} }}
+                {{ 'SEANCES.AVANT_LE' | translate }} {{ obs.periodeFin }}
+                ({{ obs.dosesAdministrees }}/{{ obs.dosesAttendues }})
+              }
             </span>
           }
           @if (canEdit()) {
-            <button (click)="openCreateForm('EPO')" [disabled]="alreadyAdministered('EPO')" color="primary"
-                    mat-stroked-button type="button">
-              <mat-icon>{{ alreadyAdministered('EPO') ? 'check_circle' : 'add' }}</mat-icon>
-              {{ (alreadyAdministered('EPO') ? 'SEANCES.ADMINISTERED_TODAY' : 'SEANCES.ADMINISTER') | translate }}
+            <button (click)="openCreateForm('EPO')" [disabled]="!peutAdministrer('EPO')" color="primary"
+                    data-testid="administrer-epo" mat-stroked-button type="button">
+              <mat-icon>{{ peutAdministrer('EPO') ? 'add' : 'check_circle' }}</mat-icon>
+              {{
+                (!peutAdministrer('EPO') ? 'SEANCES.ADMINISTERED_TODAY'
+                  : alreadyAdministered('EPO') ? 'SEANCES.ADMINISTER_COMPLEMENT' : 'SEANCES.ADMINISTER') | translate
+              }}
             </button>
           }
         } @else {
@@ -56,17 +66,28 @@
             }
           </span>
           @if (observanceFor('FER_INJECTABLE'); as obs) {
-            <span [class.observance-warn]="obs.dosesRestantes > 0" class="prescription-observance">
-              {{ 'SEANCES.RESTE_A_ADMINISTRER' | translate: {count: obs.dosesRestantes} }}
-              {{ 'SEANCES.AVANT_LE' | translate }} {{ obs.periodeFin }}
-              ({{ obs.dosesAdministrees }}/{{ obs.dosesAttendues }})
+            <span [class.observance-warn]="obs.dosesRestantes > 0" class="prescription-observance"
+                  data-testid="observance-fer">
+              @if (obs.uniteDose && obs.doseRestante != null) {
+                {{ 'SEANCES.RESTE_A_ADMINISTRER_DOSE' | translate: {dose: obs.doseRestante, unite: obs.uniteDose} }}
+                {{ 'SEANCES.AVANT_LE' | translate }} {{ obs.periodeFin }}
+                ({{ obs.doseAdministree }}/{{ obs.doseAttendue }} {{ obs.uniteDose }})
+              } @else {
+                {{ 'SEANCES.RESTE_A_ADMINISTRER' | translate: {count: obs.dosesRestantes} }}
+                {{ 'SEANCES.AVANT_LE' | translate }} {{ obs.periodeFin }}
+                ({{ obs.dosesAdministrees }}/{{ obs.dosesAttendues }})
+              }
             </span>
           }
           @if (canEdit()) {
-            <button (click)="openCreateForm('FER_INJECTABLE')" [disabled]="alreadyAdministered('FER_INJECTABLE')"
-                    color="primary" mat-stroked-button type="button">
-              <mat-icon>{{ alreadyAdministered('FER_INJECTABLE') ? 'check_circle' : 'add' }}</mat-icon>
-              {{ (alreadyAdministered('FER_INJECTABLE') ? 'SEANCES.ADMINISTERED_TODAY' : 'SEANCES.ADMINISTER') | translate }}
+            <button (click)="openCreateForm('FER_INJECTABLE')" [disabled]="!peutAdministrer('FER_INJECTABLE')"
+                    color="primary" data-testid="administrer-fer" mat-stroked-button type="button">
+              <mat-icon>{{ peutAdministrer('FER_INJECTABLE') ? 'add' : 'check_circle' }}</mat-icon>
+              {{
+                (!peutAdministrer('FER_INJECTABLE') ? 'SEANCES.ADMINISTERED_TODAY'
+                  : alreadyAdministered('FER_INJECTABLE') ? 'SEANCES.ADMINISTER_COMPLEMENT' : 'SEANCES.ADMINISTER')
+                  | translate
+              }}
             </button>
           }
         } @else {

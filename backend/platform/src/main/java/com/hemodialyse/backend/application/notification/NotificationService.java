@@ -26,7 +26,7 @@ public class NotificationService {
             "INFIRMIER_SOUS_EFFECTIF", "INFIRMIER_ABSENCE_DECLAREE", "OPTIMISATION_PROPOSITION",
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
-            "INFIRMIER_SUREFFECTIF");
+            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -206,7 +206,17 @@ public class NotificationService {
     }
 
     public void notifyObservanceNonRespectee(UUID centerId, UUID patientId, String message) {
-        var payload = new java.util.HashMap<String, String>();
+        notifyObservanceNonRespectee(centerId, patientId, message, Map.of());
+    }
+
+    /**
+     * Retard constaté ou rappel d'échéance sur un traitement de l'anémie. {@code details} (nature de l'alerte, traitement,
+     * période, quantité attendue et administrée, unité) permet à l'écran de l'expliquer dans la langue de l'utilisateur ;
+     * {@code message} reste le texte complet de repli.
+     */
+    public void notifyObservanceNonRespectee(UUID centerId, UUID patientId, String message,
+                                             Map<String, String> details) {
+        var payload = new java.util.HashMap<String, String>(details);
         payload.put("patientId", patientId.toString());
         payload.put("message", message);
         payload.put("targetRoles", "MEDECIN");

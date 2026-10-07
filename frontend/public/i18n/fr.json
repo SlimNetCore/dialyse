@@ -1450,6 +1450,8 @@
     "NO_ACTIVE_PRESCRIPTION": "Aucune prescription du médecin en vigueur à la date de cette séance.",
     "ADMINISTER": "Administrer",
     "ADMINISTERED_TODAY": "Administré",
+    "ADMINISTER_COMPLEMENT": "Administrer le complément",
+    "RESTE_A_ADMINISTRER_DOSE": "Reste {{dose}} {{unite}} à administrer",
     "ADMINISTERED_THIS_SESSION": "Administrations de cette séance",
     "CONVERSION_OK": "Sortie de stock : {{quantite}} {{unite}} (déduit de la dose prescrite)",
     "CONVERSION_ERR": {
@@ -2227,7 +2229,7 @@
       "AUCUN_PATIENT_JOUR": "Aucun patient ni générateur planifié ce jour.",
       "CASE_VIDE": "Aucun patient placé.",
       "INFIRMIERS_MANQUE": "Manque {{count}} infirmier(s) sur {{requis}} requis",
-      "INFIRMIERS_REQUIS": "{{requis}} infirmier(s) requis",
+      "INFIRMIERS_AFFECTES": "{{count}} infirmier(s) affecté(s)",
       "INFIRMIERS_SURPLUS": "{{count}} infirmier(s) en trop",
       "CLIC_DETAIL": "Cliquer pour voir le détail du patient",
       "SEANCE_VALIDEE": "Séance validée par l'infirmier : patient présent",
@@ -2482,7 +2484,7 @@
           "ABSENT": "absent",
           "NOUVEAU": "nouveau"
         },
-        "EFFECTIF": "{{patients}} patient(s), {{requis}} infirmier(s) requis",
+        "EFFECTIF": "{{patients}} patient(s), {{affectes}} infirmier(s) affecté(s)",
         "MANQUE": "manque {{count}}",
         "SURPLUS": "{{count}} en trop",
         "LEGENDE": {
@@ -2539,24 +2541,6 @@
           "PREFERENCE_PATIENT_INTROUVABLE": "Patient introuvable dans ce centre.",
           "PROFIL_INFIRMIER_INTROUVABLE": "Infirmier introuvable dans ce centre."
         }
-      }
-    }
-  },
-  "MEDECIN": {
-    "DASHBOARD": {
-      "TITLE": "Planning du jour",
-      "PATIENTS": "Liste des patients",
-      "NB_PATIENTS": "Patients attendus aujourd'hui",
-      "SOUS_EFFECTIF": "Créneaux en sous-effectif d'infirmiers",
-      "FERME": "Le centre ne dialyse pas aujourd'hui.",
-      "RIEN": "Aucun patient ni infirmier prévu aujourd'hui.",
-      "EFFECTIF": "{{patients}} patient(s) · {{presents}} infirmier(s) prévu(s) sur {{requis}} requis",
-      "PATIENTS_COL": "Patients",
-      "INFIRMIERS_COL": "Infirmiers",
-      "AUCUN_PATIENT": "Aucun patient sur ce créneau.",
-      "ISOLEMENT": "Isolement",
-      "ERR": {
-        "LOAD": "Impossible de charger le planning du jour"
       }
     }
   },
@@ -2935,7 +2919,6 @@
     "INFIRMIERS_CHARGE": "Charge de travail",
     "INFIRMIERS_MOI": "Mon planning",
     "MEDECIN": "Médecin",
-    "MEDECIN_DASHBOARD": "Planning du jour",
     "DIRECTION": "Direction",
     "DASHBOARD": "Tableau de bord",
     "PATIENTS": "Patients",
@@ -3221,7 +3204,14 @@
     "INFIRMIER_ABSENCE_ENREGISTREE": "Absence de {{infirmier}} enregistrée du {{debut}} au {{fin}} : remplacement à organiser",
     "GENERATEUR_INDISPONIBLE": "Générateur {{generateur}} indisponible ({{statut}}) : {{count}} patient(s) à déplacer {{patients}}",
     "SEANCES_DEPLACEES": "Planning modifié : {{patients}} patient(s) déplacé(s), {{temporaires}} séance(s) déplacée(s) temporairement",
+    "OBSERVANCE_NON_RESPECTEE": {
+      "DOSE_RETARD_CONSTATE": "Retard constaté sur {{traitement}} du {{debut}} au {{fin}} : {{administre}} {{unite}} administrés sur {{attendu}} prescrits (il manque {{manque}} {{unite}})",
+      "DOSE_RAPPEL_ECHEANCE": "{{traitement}} : il reste {{manque}} {{unite}} à administrer avant le {{fin}} ({{administre}}/{{attendu}} {{unite}})",
+      "COMPTE_RETARD_CONSTATE": "Retard constaté sur {{traitement}} du {{debut}} au {{fin}} : {{administre}} administration(s) sur {{attendu}} prescrites",
+      "COMPTE_RAPPEL_ECHEANCE": "{{traitement}} : il reste {{manque}} administration(s) à effectuer avant le {{fin}}"
+    },
     "ACTION": {
+      "ANEMIE": "Voir le suivi de l'anémie",
       "PROPOSITION": "Ouvrir la proposition",
       "MAINTENANCE": "Proposer des déplacements",
       "COUVERTURE": "Chercher des remplaçants",
@@ -3548,6 +3538,27 @@
     "ALERTE_OBSERVANCE_TYPE": {
       "RETARD_CONSTATE": "Retard constaté",
       "RAPPEL_ECHEANCE": "Rappel avant échéance"
+    },
+    "ALERTE_OBSERVANCE_EXPLICATION": {
+      "TITRE": {
+        "RETARD_CONSTATE": "{{traitement}} : la période du {{debut}} au {{fin}} est terminée et la prescription n'a pas été entièrement administrée.",
+        "RAPPEL_ECHEANCE": "{{traitement}} : il reste à administrer avant la fin de la période en cours, le {{fin}}."
+      },
+      "TRAITEMENT": {
+        "EPO": "EPO",
+        "FER_INJECTABLE": "Fer injectable"
+      },
+      "PRESCRIPTION_DOSE": "Prescription : {{dose}} {{unite}} × {{frequence}} par {{periode}}, soit {{attendu}} {{unite}} attendus sur la période.",
+      "PRESCRIPTION_COMPTE": "Prescription : {{frequence}} administration(s) par {{periode}}.",
+      "ADMINISTRE_DOSE": "Administré : {{administre}} {{unite}}.",
+      "ADMINISTRE_COMPTE": "Administré : {{administre}} administration(s).",
+      "MANQUE_DOSE": "Il manque {{manque}} {{unite}}.",
+      "MANQUE_COMPTE": "Il manque {{manque}} administration(s).",
+      "QUE_FAIRE": {
+        "RETARD_CONSTATE": "La période est close : rien ne peut plus y être rattrapé. Vérifiez les administrations de la période, puis acquittez l'alerte une fois le constat pris en compte.",
+        "RAPPEL_ECHEANCE": "L'infirmier peut administrer le complément à la prochaine séance : le rappel se résout alors tout seul."
+      },
+      "COMMENT": "Calcul : les périodes se suivent à partir de la date de la prescription (semaine = 7 jours, mois = 30 jours) ; on compare ce qui est prescrit à ce qui a été réellement administré dans chaque période."
     },
     "NO_PRESCRIPTIONS": "Aucune prescription enregistrée",
     "ADD_ANALYSE": "Saisir des résultats",

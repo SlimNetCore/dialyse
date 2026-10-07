@@ -14,7 +14,65 @@
               [class]="'anemie-alerte-type-badge ' + (alerte.type === 'RAPPEL_ECHEANCE' ? 'badge-rappel' : 'badge-retard')">
               {{ ('DOSSIER_MEDICAL.ALERTE_OBSERVANCE_TYPE.' + alerte.type) | translate }}
             </span>
-            <span class="anemie-alerte-message">{{ alerte.message }}</span>
+            @if (detaillee(alerte)) {
+              <div class="anemie-alerte-message anemie-alerte-explication" data-testid="alerte-explication">
+                <strong>
+                  {{
+                    ('DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.TITRE.' + alerte.type) | translate: {
+                      traitement: ('DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.TRAITEMENT.' + alerte.typeTraitement) | translate,
+                      debut: (alerte.periodeDebut | date: 'dd/MM/yyyy'),
+                      fin: (alerte.periodeFin | date: 'dd/MM/yyyy')
+                    }
+                  }}
+                </strong>
+                <ul>
+                  <li data-testid="alerte-prescription">
+                    @if (enDose(alerte)) {
+                      {{
+                        'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.PRESCRIPTION_DOSE' | translate: {
+                          dose: alerte.dosePrescrite, unite: alerte.uniteDose, frequence: alerte.frequenceValeur,
+                          periode: ('FREQUENCE_UNITES.' + alerte.frequenceUnite) | translate,
+                          attendu: alerte.dosesAttendues
+                        }
+                      }}
+                    } @else {
+                      {{
+                        'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.PRESCRIPTION_COMPTE' | translate: {
+                          frequence: alerte.frequenceValeur,
+                          periode: ('FREQUENCE_UNITES.' + alerte.frequenceUnite) | translate
+                        }
+                      }}
+                    }
+                  </li>
+                  <li data-testid="alerte-administre">
+                    {{
+                      (enDose(alerte) ? 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.ADMINISTRE_DOSE'
+                        : 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.ADMINISTRE_COMPTE') | translate: {
+                        administre: alerte.dosesAdministrees, unite: alerte.uniteDose
+                      }
+                    }}
+                  </li>
+                  <li data-testid="alerte-manque">
+                    <strong>
+                      {{
+                        (enDose(alerte) ? 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.MANQUE_DOSE'
+                          : 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.MANQUE_COMPTE') | translate: {
+                          manque: manque(alerte), unite: alerte.uniteDose
+                        }
+                      }}
+                    </strong>
+                  </li>
+                </ul>
+                <small data-testid="alerte-que-faire">
+                  {{ ('DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.QUE_FAIRE.' + alerte.type) | translate }}
+                </small>
+                <small class="anemie-alerte-comment">
+                  {{ 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_EXPLICATION.COMMENT' | translate }}
+                </small>
+              </div>
+            } @else {
+              <span class="anemie-alerte-message" data-testid="alerte-message">{{ alerte.message }}</span>
+            }
             <button (click)="resoudreAlerte(alerte.id)" mat-stroked-button type="button">
               {{ 'DOSSIER_MEDICAL.ALERTE_OBSERVANCE_RESOUDRE' | translate }}
             </button>

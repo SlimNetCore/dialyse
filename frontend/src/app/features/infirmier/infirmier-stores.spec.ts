@@ -3,6 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {HttpErrorResponse} from '@angular/common/http';
 import {of, throwError} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {AbsencePatientApiService} from '../../core/api/absence-patient-api.service';
 import {
   AbsenceInfirmier,
   CompteInfirmier,
@@ -58,6 +59,7 @@ const erreurServeur = (code: string) => new HttpErrorResponse({status: 422, erro
 
 describe('stores infirmiers', () => {
   let api: Record<string, ReturnType<typeof vi.fn>>;
+  let absenceApi: { semaine: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     api = {
@@ -88,8 +90,21 @@ describe('stores infirmiers', () => {
       declarerMonAbsence: vi.fn().mockReturnValue(of(absence())),
       annulerMonAbsence: vi.fn().mockReturnValue(of(undefined)),
     };
+    absenceApi = {
+      semaine: vi.fn().mockReturnValue(of({
+        absences: [{
+          absenceId: 'ap1',
+          patientId: 'p1',
+          dateSeance: '2026-09-28',
+          statut: 'JUSTIFIEE',
+          motif: 'MALADIE'
+        }],
+        seancesRealisees: [{patientId: 'p2', dateSeance: '2026-09-28'}],
+      })),
+    };
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), {provide: InfirmierApiService, useValue: api}],
+      providers: [provideZonelessChangeDetection(), {provide: InfirmierApiService, useValue: api},
+        {provide: AbsencePatientApiService, useValue: absenceApi}],
     });
     TestBed.inject(AppShellStore).switchCenter(CENTRE);
   });
@@ -207,6 +222,27 @@ describe('stores infirmiers', () => {
     store.chargerPlanning(null);
     expect(store.nonLie()).toBe(true);
     expect(store.planning()).toBeNull();
+    expect(store.error()).toBeNull();
+  });
+
+  it('MonPlanningStore charge avec ma semaine les absences et séances validées des patients, du même centre', () => {
+    const store = TestBed.inject(MonPlanningStore);
+
+    store.chargerPlanning('2026-09-30');
+
+    expect(absenceApi.semaine).toHaveBeenCalledWith(CENTRE, '2026-09-30');
+    expect(store.absencesPatients().map((a) => a.patientId)).toEqual(['p1']);
+    expect(store.seancesRealisees().map((s) => s.patientId)).toEqual(['p2']);
+  });
+
+  it('MonPlanningStore garde mon planning même si les absences des patients ne se chargent pas', () => {
+    absenceApi.semaine.mockReturnValue(throwError(() => new Error('boom')));
+    const store = TestBed.inject(MonPlanningStore);
+
+    store.chargerPlanning(null);
+
+    expect(store.planning()?.debut).toBe('2026-09-27');
+    expect(store.absencesPatients()).toEqual([]);
     expect(store.error()).toBeNull();
   });
 

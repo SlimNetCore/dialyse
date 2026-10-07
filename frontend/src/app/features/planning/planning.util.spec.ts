@@ -5,6 +5,7 @@ import {
   cellule,
   decalerJours,
   etatCellule,
+  evenementRafraichitPlanning,
   jourFerme,
   jourParDefaut,
   lignesDuJour,
@@ -125,6 +126,23 @@ describe('classeOccupant', () => {
     expect(classeOccupant({aRisque: true}, false, {statut: 'NON_JUSTIFIEE'} as never)).toBe('absent non_justifiee');
     expect(classeOccupant({aRisque: true}, false, undefined)).toBe('risk');
     expect(classeOccupant({aRisque: false}, false, undefined)).toBe('');
+  });
+
+  it('recharge le planning pour les évènements qui le changent (séance, absence, déplacement, placement)', () => {
+    for (const type of ['SEANCE_CREATED', 'SEANCE_VALIDATED', 'SEANCE_SUPPRIMEE', 'SEANCE_MEDICAL_SAVED', 'PATIENT_SCANNED',
+      'PATIENT_UPDATED', 'SEANCES_DEPLACEES', 'GENERATEUR_INDISPONIBLE', 'INFIRMIER_ABSENCE_DECLAREE',
+      'INFIRMIER_ABSENCE_ENREGISTREE', 'ABSENCES_A_QUALIFIER']) {
+      expect(evenementRafraichitPlanning(type), type).toBe(true);
+    }
+    expect(evenementRafraichitPlanning('SAISIE_INFIRMIER', {saisie: 'ABSENCE'})).toBe(true);
+  });
+
+  it('ne recharge pas le planning pour les évènements sans effet sur lui', () => {
+    for (const type of ['STOCK_MOVEMENT_CHANGED', 'PEC_VALIDATED', 'OPTIMISATION_PROPOSITION', 'INFIRMIER_SOUS_EFFECTIF']) {
+      expect(evenementRafraichitPlanning(type), type).toBe(false);
+    }
+    expect(evenementRafraichitPlanning('SAISIE_INFIRMIER', {saisie: 'PARAMEDICAL'})).toBe(false);
+    expect(evenementRafraichitPlanning('SAISIE_INFIRMIER')).toBe(false);
   });
 });
 

@@ -15,9 +15,17 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTableModule} from '@angular/material/table';
 import {TranslateModule} from '@ngx-translate/core';
 import {CreneauPersonnel, TYPES_ABSENCE, TypeAbsence} from '../../core/api/infirmier-api.service';
-import {JOURS_SEMAINE, JourSemaine} from '../../core/api/planning-api.service';
+import {AbsenceSemaine} from '../../core/api/absence-patient-api.service';
+import {JOURS_SEMAINE, JourSemaine, OccupantPlanning} from '../../core/api/planning-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
-import {jourFerme} from '../planning/planning.util';
+import {WebSocketService} from '../../core/ws/websocket.service';
+import {
+  absenceDe,
+  classeOccupant,
+  evenementRafraichitPlanning,
+  jourFerme,
+  seanceRealiseeDe,
+} from '../planning/planning.util';
 import {MonPlanningStore} from './mon-planning.store';
 import {
   classeMaCase,
@@ -102,6 +110,7 @@ export class MonPlanningComponent {
   protected readonly canSave = computed(() =>
     this.absenceForm().valid() && this.periodeValide() && !this.store.saving());
   private readonly shell = inject(AppShellStore);
+  private readonly ws = inject(WebSocketService);
 
   constructor() {
     // Recharge la semaine courante et les absences à l'ouverture et à chaque changement de centre actif.
@@ -111,6 +120,15 @@ export class MonPlanningComponent {
         this.store.chargerPlanning(null);
         this.store.loadAbsences({page: 0, size: this.store.pageSize()});
       });
+    });
+    // Temps réel : une absence de patient déclarée (même le jour J), une séance validée par le scan du QR code ou un
+    // déplacement rechargent la semaine affichée, sans action de l'infirmier.
+    effect(() => {
+      const evenement = this.ws.lastEvent();
+      const centre = this.shell.currentCenterId();
+      if (!evenement || !centre || evenement.centerId !== centre) return;
+      if (!evenementRafraichitPlanning(evenement.type, evenement.payload)) return;
+      untracked(() => this.store.chargerPlanning(this.store.planning()?.debut ?? null));
     });
     effect(() => {
       if (!this.store.successMessage()) return;
@@ -140,6 +158,19 @@ export class MonPlanningComponent {
 
   protected classe(creneau: CreneauPersonnel | undefined, jour: JourSemaine): string {
     return classeMaCase(creneau, this.ferme(jour));
+  }
+
+  /** Couleur d'un patient de ma case : séance validée, absent (barré, selon le statut de l'absence), à risque ou normal. */
+  protected classePatient(o: OccupantPlanning, date: string): string {
+    return classeOccupant(o, this.realisee(o.patientId, date), this.absence(o.patientId, date));
+  }
+
+  protected absence(patientId: string, date: string): AbsenceSemaine | undefined {
+    return absenceDe(this.store.absencesPatients(), patientId, date);
+  }
+
+  protected realisee(patientId: string, date: string): boolean {
+    return !!seanceRealiseeDe(this.store.seancesRealisees(), patientId, date);
   }
 
   protected choisirJour(jour: JourSemaine): void {

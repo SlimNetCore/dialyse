@@ -8,6 +8,15 @@ export function todayIso(now: Date = new Date()): string {
 }
 
 /** Une absence rattrapée ou annulée n'est plus modifiable. */
+/**
+ * Rôles qui peuvent déclarer l'absence d'un patient : administrateur, secrétariat et infirmier. Le médecin consulte
+ * (planning en lecture seule) mais ne déclare pas ; le serveur applique la même règle.
+ */
+export const ROLES_DECLARANT_ABSENCE: readonly string[] = ['ADMIN', 'SECRETAIRE', 'INFIRMIER'];
+
+export const peutDeclarerParRole = (hasRole: (role: string) => boolean): boolean =>
+  ROLES_DECLARANT_ABSENCE.some((role) => hasRole(role));
+
 export const estModifiable = (statut: StatutAbsence): boolean =>
   statut === 'A_QUALIFIER' || statut === 'JUSTIFIEE' || statut === 'NON_JUSTIFIEE';
 
