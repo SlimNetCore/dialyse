@@ -8,6 +8,11 @@
         <small>{{ o.generateurCode }}</small>
       }
     </button>
+    @if (o.aRisque) {
+      <mat-icon [matTooltip]="'PLANNING.SEMAINE.RISQUE' | translate" class="chip-ico" data-testid="week-risque">
+        coronavirus
+      </mat-icon>
+    }
     @if (o.realiseeHorsPlanning) {
       <mat-icon [matTooltip]="'PLANNING.SEMAINE.REALISEE_HORS_PLANNING' | translate" class="chip-ico"
                 data-testid="week-hors-planning">
@@ -158,7 +163,11 @@
           <h4>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENTS' | translate }}</h4>
           <ul class="legend-list">
             <li><span class="swatch chip"></span>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENT_NORMAL' | translate }}</li>
-            <li><span class="swatch chip risk"></span>{{ 'PLANNING.SEMAINE.LEGENDE.PATIENT_RISQUE' | translate }}</li>
+            <li>
+              <span class="swatch chip risk"></span>
+              <mat-icon class="chip-ico">coronavirus</mat-icon>
+              {{ 'PLANNING.SEMAINE.LEGENDE.PATIENT_RISQUE' | translate }}
+            </li>
             <li>
               <span class="swatch chip done"></span>
               <mat-icon class="chip-sun">wb_sunny</mat-icon>

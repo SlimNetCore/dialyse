@@ -26,6 +26,9 @@ const semaine: SemainePlanning = {
   cellules: [{
     salleId: SALLE, creneauId: CRENEAU, jour: 'LUNDI', capacite: 4,
     occupants: [{patientId: 'p1', nom: 'Benali', generateurCode: 'A-G1', aRisque: false}],
+  }, {
+    salleId: SALLE, creneauId: CRENEAU, jour: 'MARDI', capacite: 1,
+    occupants: [{patientId: 'p2', nom: 'Kaci', generateurCode: 'ISO-G1', aRisque: true}],
   }],
   conflits: [], patientsAReplanifier: 0,
 };
@@ -103,6 +106,17 @@ describe('PlanningSemaineComponent', () => {
     expect(infirmiers[1]).toContain('Lila');
     expect(root.querySelector('[data-testid="week-infirmier"].sub')?.textContent).toContain('Lila');
     expect(root.querySelector('[data-testid="week-infirmier-absent"]')?.textContent).toContain('Nadia');
+  });
+
+  it('marque d\'une icône de risque infectieux les seuls patients à risque, comme le planning proposé', async () => {
+    const {root} = await render();
+
+    const patients = Array.from(root.querySelectorAll('[data-testid="week-patient"]'));
+    const avecIcone = patients.filter((p) => p.querySelector('[data-testid="week-risque"]'));
+    expect(patients).toHaveLength(2);
+    expect(avecIcone).toHaveLength(1);
+    expect(avecIcone[0].textContent).toContain('Kaci');
+    expect(avecIcone[0].querySelector('[data-testid="week-risque"]')?.textContent).toContain('coronavirus');
   });
 
   it('signale le manque d\'infirmiers d\'une case en sous-effectif', async () => {
