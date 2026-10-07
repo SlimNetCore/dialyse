@@ -5,6 +5,8 @@ import {AuthStore} from '../state/auth.store';
 import {environment} from '../../../environments/environment';
 
 export interface WsEvent {
+  /** Identifiant d'une alerte durable (journal du centre) ; absent des évènements qui ne valent que sur le moment. */
+  id?: string;
   type: string;
   centerId: string;
   payload: Record<string, string>;

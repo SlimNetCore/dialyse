@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.infirmier.model.AbsenceInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.AffectationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.Absent;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.AlertePresence;
+import com.hemodialyse.backend.domain.infirmier.model.Presence.AlerteSureffectif;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.CasePresence;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.ConflitPresence;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.CreneauPersonnel;
@@ -113,6 +114,28 @@ public final class PresenceInfirmierService {
     }
 
     /**
+     * Cases en sur-effectif entre deux dates (bornes incluses), de la plus proche à la plus lointaine : infirmiers
+     * prévus au-delà de l'effectif requis, y compris dans une salle sans patient. Un jour fermé n'en compte pas.
+     */
+    public static List<AlerteSureffectif> alertesSureffectif(DonneesPresence donnees, LocalDate du, LocalDate au) {
+        Map<UUID, Integer> ordreCreneau = new HashMap<>();
+        for (int i = 0; i < donnees.planning().creneaux().size(); i++) {
+            ordreCreneau.put(donnees.planning().creneaux().get(i).id(), i);
+        }
+        List<AlerteSureffectif> alertes = new ArrayList<>();
+        for (LocalDate debut = PlanningSemaineService.debutSemaine(du); !debut.isAfter(au); debut = debut.plusDays(7)) {
+            for (CasePresence c : construire(donnees, debut).cases()) {
+                if (c.surplus() <= 0 || c.date().isBefore(du) || c.date().isAfter(au)) continue;
+                alertes.add(new AlerteSureffectif(c.date(), c.jour(), c.salleId(), c.creneauId(), c.patients(),
+                        c.requis(), c.surplus()));
+            }
+        }
+        alertes.sort(Comparator.comparing(AlerteSureffectif::date)
+                .thenComparing(a -> ordreCreneau.getOrDefault(a.creneauId(), 0)));
+        return alertes;
+    }
+
+    /**
      * Créneaux d'un infirmier dans une semaine déjà construite : prévu, remplaçant ou absent, dans l'ordre
      * chronologique puis selon l'ordre des créneaux de la journée. Les jours fermés n'apparaissent pas.
      */
@@ -153,7 +176,7 @@ public final class PresenceInfirmierService {
         boolean salleIso = isolement.contains(salleId);
         int nbPatients = patients.getOrDefault(cle(salleId, creneauId, jour), 0);
         if (calendrier.ferme(date)) {
-            return new CasePresence(salleId, creneauId, jour, date, nbPatients, 0, salleIso, StatutCase.FERME, 0,
+            return new CasePresence(salleId, creneauId, jour, date, nbPatients, 0, salleIso, StatutCase.FERME, 0, 0,
                     List.of(), List.of());
         }
 
@@ -188,9 +211,10 @@ public final class PresenceInfirmierService {
         int requis = requis(nbPatients, donnees.patientsParInfirmier());
         int comptes = (int) presents.stream().filter(p -> !salleIso || p.habiliteIsolement()).count();
         int manque = Math.max(0, requis - comptes);
+        int surplus = Math.max(0, comptes - requis);
         StatutCase statut = nbPatients == 0 ? StatutCase.SANS_PATIENT
                 : manque > 0 ? StatutCase.SOUS_EFFECTIF : StatutCase.COUVERT;
-        return new CasePresence(salleId, creneauId, jour, date, nbPatients, requis, salleIso, statut, manque,
+        return new CasePresence(salleId, creneauId, jour, date, nbPatients, requis, salleIso, statut, manque, surplus,
                 presents, absents);
     }
 

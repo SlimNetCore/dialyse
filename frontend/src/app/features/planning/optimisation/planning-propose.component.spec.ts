@@ -114,6 +114,37 @@ describe('PlanningProposeComponent', () => {
     expect(qa('pp-cell').some((c) => c.classList.contains('manque'))).toBe(true);
   });
 
+  it('indique en infobulle la place d\'avant d\'un patient déplacé et la place habituelle d\'une place temporaire', async () => {
+    await render(calendrier());
+    const {placeAvant} = cible.instance as unknown as {
+      placeAvant(p: typeof PATIENT & Record<string, unknown>): string
+    };
+    const avant = (p: Record<string, unknown>) => placeAvant.call(cible.instance, {...PATIENT, ...p} as never);
+
+    expect(avant({})).toBe('');
+    expect(avant({deplace: true, avant: 'Salle B · Matin · B-G2'})).toBe('PLANNING.OPTIM.CALENDRIER.AVANT');
+    expect(avant({deplace: true, avant: null})).toBe('PLANNING.OPTIM.CALENDRIER.AVANT_AUCUNE');
+    expect(avant({temporaire: true, avant: 'Salle A · Matin · A-G1'})).toBe('PLANNING.OPTIM.CALENDRIER.HABITUELLE');
+  });
+
+  it('signale les infirmiers en trop d\'une case, et seulement celles-là', async () => {
+    const avecSurplus = calendrier({
+      cases: [ligne({
+        1: {
+          requis: 1, surplus: 2, patients: [PATIENT], infirmiers: [{nom: 'Sara', situation: 'PREVU'},
+            {nom: 'Lila', situation: 'PREVU'}, {nom: 'Rym', situation: 'NOUVEAU'}]
+        },
+        3: {requis: 1, patients: [PATIENT], infirmiers: [{nom: 'Sara', situation: 'PREVU'}]},
+      })],
+    });
+    await render(avecSurplus);
+
+    const surplus = qa('pp-surplus');
+    expect(surplus).toHaveLength(1);
+    expect(surplus[0].textContent).toContain('PLANNING.OPTIM.CALENDRIER.SURPLUS');
+    expect(q('pp-legend')?.textContent).toContain('PLANNING.OPTIM.CALENDRIER.LEGENDE.SURPLUS');
+  });
+
   it('navigue entre les semaines : émet la semaine voisine et bloque aux extrémités', async () => {
     await render(calendrier());
     const choisies: string[] = [];

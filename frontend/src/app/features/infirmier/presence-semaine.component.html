@@ -109,14 +109,19 @@
                 @for (j of jours; track j) {
                   @let c = cellule(ligne.salle.id, ligne.creneau.id, j);
                   <td (click)="ouvrir(c)" (keydown.enter)="ouvrir(c)" [attr.tabindex]="c && c.statut !== 'FERME' ? 0 : null"
-                      [class.selected]="estSelectionnee(c)" [class]="'cell ' + classe(c?.statut)"
+                      [class.selected]="estSelectionnee(c)"
+                      [class]="'cell ' + classe(c?.statut) + (c?.surplus ? ' surplus' : '')"
                       data-testid="pres-cell">
-                    @if (c && c.statut !== 'FERME' && c.statut !== 'SANS_PATIENT') {
+                    @if (c && c.statut !== 'FERME' && (c.statut !== 'SANS_PATIENT' || c.presents.length > 0)) {
                       <small class="cap">
                         @if (c.statut === 'SOUS_EFFECTIF') {
                           <mat-icon class="cell-add">person_add</mat-icon>
                         }
                         {{ c.presents.length }}/{{ c.requis }}
+                        @if (c.surplus > 0) {
+                          <strong [attr.title]="'INFIRMIER.PRESENCE.SUREFFECTIF_TIP' | translate: {count: c.surplus}"
+                                  class="over-tag" data-testid="pres-surplus">+{{ c.surplus }}</strong>
+                        }
                       </small>
                       @for (p of c.presents; track p.infirmierId) {
                         <span [class.sub]="p.remplacant" class="chip">{{ p.nom }}</span>
@@ -135,6 +140,7 @@
       <p class="pres-legend">
         <span class="dot covered"></span> {{ 'INFIRMIER.PRESENCE.LEGENDE.COUVERT' | translate }}
         <span class="dot under"></span> {{ 'INFIRMIER.PRESENCE.LEGENDE.SOUS_EFFECTIF' | translate }}
+        <span class="dot surplus"></span> {{ 'INFIRMIER.PRESENCE.LEGENDE.SUREFFECTIF' | translate }}
         <span class="dot idle"></span> {{ 'INFIRMIER.PRESENCE.LEGENDE.SANS_PATIENT' | translate }}
         <span class="dot closed"></span> {{ 'PLANNING.SEMAINE.FERME' | translate }}
       </p>

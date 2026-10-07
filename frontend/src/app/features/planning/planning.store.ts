@@ -10,6 +10,7 @@ import {
   SuiviSemaine,
   DeclarationAbsencePayload,
 } from '../../core/api/absence-patient-api.service';
+import {InfirmierApiService, SemainePresence} from '../../core/api/infirmier-api.service';
 import {absencePatientErrorKey} from '../absences/absences-patients.store';
 import {
   PlanningApiService,
@@ -23,6 +24,8 @@ interface PlanningState {
   /** Un jour de la semaine affichée (`yyyy-MM-dd`) ; null = semaine courante. */
   date: string | null;
   semaine: SemainePlanning | null;
+  /** Présence des infirmiers de la semaine affichée (prévus, remplaçants, absents) : null si indisponible. */
+  presence: SemainePresence | null;
   /** Absences non annulées de la semaine affichée (colorent les séances absentes). */
   absences: AbsenceSemaine[];
   /** Séances validées par l'infirmier (patient présent) de la semaine affichée : marquées d'un soleil. */
@@ -39,6 +42,7 @@ interface PlanningState {
 const initialState: PlanningState = {
   date: null,
   semaine: null,
+  presence: null,
   absences: [],
   seancesRealisees: [],
   absenceSaving: false,
@@ -62,7 +66,7 @@ export const PlanningStore = signalStore(
     nbConflits: computed(() => store.semaine()?.conflits.length ?? 0),
   })),
   withMethods((store, api = inject(PlanningApiService), absenceApi = inject(AbsencePatientApiService),
-               shell = inject(AppShellStore)) => {
+               infirmierApi = inject(InfirmierApiService), shell = inject(AppShellStore)) => {
     const centerId = (): string => shell.currentCenterId() ?? '';
 
     const chargerSemaine = rxMethod<string | null>(
@@ -74,9 +78,12 @@ export const PlanningStore = signalStore(
             // Les absences colorent la grille : leur échec ne doit pas empêcher d'afficher le planning.
             suivi: absenceApi.semaine(centerId(), date ?? undefined)
               .pipe(catchError(() => of({absences: [], seancesRealisees: []} as SuiviSemaine))),
+            // Les infirmiers complètent la grille : sans eux, le planning des patients reste affiché.
+            presence: infirmierApi.semaine(centerId(), date ?? undefined)
+              .pipe(catchError(() => of(null as SemainePresence | null))),
           }).pipe(
-            tap(({semaine, suivi}) => patchState(store, {
-              semaine, absences: suivi.absences, seancesRealisees: suivi.seancesRealisees, loading: false,
+            tap(({semaine, suivi, presence}) => patchState(store, {
+              semaine, presence, absences: suivi.absences, seancesRealisees: suivi.seancesRealisees, loading: false,
             })),
             catchError(() => {
               patchState(store, {semaine: null, loading: false, error: 'PLANNING.SEMAINE.ERR.LOAD'});

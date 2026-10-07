@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-07<br>496 règles de gestion · 16 domaines · 375 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-07<br>500 règles de gestion · 16 domaines · 378 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>496</b>règles de gestion</div>
+        <div><b>500</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>8</b>points d'attention</div>
@@ -1229,8 +1229,12 @@ suivante, 30 secondes par phase, au nom de <code>SYSTEME</code>. Un calcul déj�
 pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
 (<code>OPTIMISATION_PROPOSITION</code>) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif
 <code>SOUS_EFFECTIF</code>), séances à déplacer ou sans solution (<code>MAINTENANCE</code>), vacations requises économisées ou patients en
-attente placés (<code>GAIN</code>). Rien n&#39;est appliqué d&#39;office : l&#39;administrateur consulte la proposition dans l&#39;historique et
-l&#39;applique (RG-PLN-091).</p>
+    attente placés (<code>GAIN</code>). La notification est <strong>enregistrée au journal du centre</strong> : l&#39;administrateur
+    la retrouve à sa
+    prochaine connexion, même s&#39;il n&#39;était pas connecté à 02:30 (RG-NOT-005), avec un lien direct vers la
+    proposition. Rien
+    n&#39;est appliqué d&#39;office : l&#39;administrateur consulte la proposition dans l&#39;historique et l&#39;applique
+    (RG-PLN-091).</p>
 </div></div>
     <div class="rule" id="RG-PLN-101">
         <div class="rid">RG-PLN-101</div>
@@ -1245,20 +1249,26 @@ l&#39;applique (RG-PLN-091).</p>
             samedi). Chaque case indique les patients <strong>avec leur générateur</strong> (repères : patient à risque,
             déplacé par la
             proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d&#39;infirmiers
-            requis (ratio
-            de la salle) et le manque éventuel ; un jour fermé est signalé avec son motif. Les infirmiers viennent des
-            vacations de
+            requis
+            (ratio
+            de la salle), le manque éventuel et le <strong>sur-effectif</strong> (infirmiers prévus au-delà de l&#39;effectif
+            requis, y compris dans
+            une salle que la proposition vide, RG-INF-047), à l&#39;écran comme à l&#39;impression ; un jour fermé est
+            signalé avec son
+            motif. Les infirmiers viennent des vacations
+            de
             la proposition quand son périmètre planifie le personnel (<code>ROULEMENT</code>, <code>COUVERTURE</code>,
             <code>COMPLET</code>), sinon du roulement
             actuel. Le calendrier reflète l&#39;état du centre <strong>au lancement</strong> : il ne change pas si le
             centre évolue ensuite. Une
             exécution sans calendrier (calcul antérieur à cette fonction, échec) est refusée par <code>OPTIMISATION_CALENDRIER_ABSENT</code>
             (relancer le calcul) ; l&#39;exécution d&#39;un autre centre est introuvable
-            (<code>OPTIMISATION_INTROUVABLE</code>).
-            <strong>Impression</strong> (<code>GET /api/v1/planning/optimisations/{id}/impression</code>) : modèle de
-            document « Planning proposé par
+            (<code>OPTIMISATION_INTROUVABLE</code>). <strong>Impression</strong>
+            (<code>GET /api/v1/planning/optimisations/{id}/impression</code>) : modèle de document « Planning proposé
+            par
             l&#39;optimisation » (<code>planning_optimise</code>, §11.1 des règles du dépôt), A4 paysage, une page par
-            semaine, identité de la société
+            semaine, identité de la
+            société
             et du centre, indicateurs avant/après en en-tête. <strong>Isolation par centre</strong> : chaque exécution,
             historique, calendrier,
             impression et application est borné au centre de la session ; seul le nombre de calculs en parallèle
@@ -1276,6 +1286,28 @@ l&#39;applique (RG-PLN-091).</p>
             calcul encore en cours est refusé par <code>OPTIMISATION_SUPPRESSION_EN_COURS</code> (l&#39;arrêter d&#39;abord)
             ; l&#39;exécution d&#39;un autre
             centre est introuvable (<code>OPTIMISATION_INTROUVABLE</code>).</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-PLN-103">
+        <div class="rid">RG-PLN-103</div>
+        <div class="rtxt"><p><strong>Infirmiers sur le planning de la semaine et accès du médecin.</strong> Le planning
+            de la semaine (RG-PLN-043)
+            affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les <strong>infirmiers</strong>
+            de la
+            case d&#39;après la présence réelle de la semaine (<code>/api/v1/infirmiers/presence/semaine</code>,
+            RG-INF-044) : prévus au roulement,
+            remplaçants, absents (barrés, avec le type d&#39;absence), l&#39;effectif requis par le ratio de sécurité
+            et, en rouge, le manque
+            ou, au contraire, le sur-effectif (infirmiers en trop, RG-INF-047).
+            La légende explique chaque repère. Si la présence ne peut pas être chargée, le planning des patients reste
+            affiché
+            sans les infirmiers. Le <strong>médecin « seul »</strong> consulte ce planning complet (menu Séances ›
+            Planning de la semaine) : il
+            lit patients, infirmiers et légende comme les autres profils, sans accès aux autres écrans de planification
+            (optimisation, salles et générateurs). Dans le planning proposé par l&#39;optimisation (RG-PLN-101), au
+            survol d&#39;un patient
+            <strong>déplacé</strong> s&#39;affiche sa place d&#39;avant (salle · créneau · générateur), et pour une
+            place temporaire sa place habituelle.</p>
         </div>
     </div>
 </section>
@@ -2156,6 +2188,34 @@ ayant des infirmiers actifs, si au moins un créneau est en sous-effectif dans
 les 14 jours à venir, l&#39;administration et le secrétariat reçoivent une notification temps réel
 (<code>INFIRMIER_SOUS_EFFECTIF</code> : nombre de créneaux et première date). Un centre en erreur
 n&#39;empêche pas les autres.</p>
+</div>
+</div>
+    <div class="rule" id="RG-INF-047">
+        <div class="rid">RG-INF-047</div>
+        <div class="rtxt"><p><strong>Sur-effectif.</strong> Chaque case porte aussi le nombre d&#39;infirmiers <strong>en
+            trop</strong> (<code>surplus</code>) : infirmiers
+            comptés (en salle d&#39;isolement, seuls les habilités comptent) moins l&#39;effectif requis, jamais négatif
+            ; dans une salle
+            sans patient, tous les infirmiers prévus sont en trop. Le sur-effectif n&#39;est <strong>pas</strong> un
+            manque : le statut de la case
+            reste <code>COUVERT</code> (ou <code>SANS_PATIENT</code>), aucune alerte n&#39;est envoyée ; il est signalé
+            en jaune avec « +N » sur le planning de
+            présence et en « N infirmier(s) en trop » sur le planning des séances, pour réaffecter ces ressources aux
+            cases en
+            sous-effectif. C&#39;est toutefois du personnel payé sans activité utile : le <strong>contrôle quotidien de
+                07:15</strong> (RG-INF-046)
+            prévient aussi l&#39;administrateur (<code>INFIRMIER_SUREFFECTIF</code>) dès qu&#39;une case des 14
+            prochains jours est en sur-effectif —
+            <strong>y compris une case avec patients dont les infirmiers dépassent le ratio</strong> (3 infirmiers pour
+            4 patients avec un
+            ratio de 4) — avec le nombre de cases, de vacations en trop et les <strong>heures payées sans activité
+                utile</strong> (vacations en
+            trop × durée d&#39;une vacation des réglages du centre, RG-PLN-098). Ce contrôle est indépendant de celui du
+            sous-effectif : l&#39;échec de l&#39;un n&#39;empêche pas l&#39;autre. À l&#39;<strong>affectation</strong>
+            d&#39;un infirmier à une salle (RG-INF-020), la
+            réponse indique les jours de la semaine en cours où elle crée un sur-effectif ; l&#39;écran affiche un
+            avertissement, sans
+            jamais refuser ni annuler l&#39;affectation (un échec du calcul de cet avertissement est ignoré).</p>
 </div></div>
 <h2>10.6 Remplaçants</h2>
 <div class="rule" id="RG-INF-050"><div class="rid">RG-INF-050</div><div class="rtxt"><p>Pour une case, les candidats <strong>exclus</strong> sont : les infirmiers absents ce jour-là, ceux déjà prévus
@@ -2880,9 +2940,72 @@ un type, le centre, une charge utile et un horodatage ; un évènement peut port
 <div class="rule" id="RG-NOT-002"><div class="rid">RG-NOT-002</div><div class="rtxt"><p>Chaque évènement de centre signale aussi à la direction qu&#39;une donnée a changé (RG-TRV-061,
 RG-DIR-101).</p>
 </div></div>
-<div class="rule" id="RG-NOT-003"><div class="rid">RG-NOT-003</div><div class="rtxt"><p>Les évènements ne sont pas persistés : un utilisateur hors ligne ne les reçoit pas ; les <strong>états</strong> à
-surveiller (alertes de stock, absences à qualifier, alertes d&#39;observance, sous-effectif,
-conflits de planning, alertes de la direction) restent consultables dans leurs écrans.</p>
+    <div class="rule" id="RG-NOT-003">
+        <div class="rid">RG-NOT-003</div>
+        <div class="rtxt"><p>Les évènements <strong>temps réel</strong> ne sont pas persistés : un utilisateur hors
+            ligne ne les reçoit pas
+            (sauf les alertes durables, RG-NOT-005) ; les <strong>états</strong> à surveiller (alertes de stock,
+            absences à qualifier, alertes
+            d&#39;observance, sous-effectif, conflits de planning, alertes de la direction) restent consultables dans
+            leurs écrans.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-NOT-005">
+        <div class="rid">RG-NOT-005</div>
+        <div class="rtxt"><p><strong>Journal durable des alertes.</strong> Les alertes qui demandent une action sont, en
+            plus d&#39;être poussées en
+            temps réel, <strong>enregistrées</strong> dans le journal du centre (<code>INFIRMIER_SOUS_EFFECTIF</code>,
+            <code>INFIRMIER_ABSENCE_DECLAREE</code>,
+            <code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>OPTIMISATION_PROPOSITION</code>, <code>ABSENCES_A_QUALIFIER</code>,
+            <code>SEANCES_A_REGULARISER</code>,
+            <code>PATIENT_REPLACE_ISOLEMENT</code>, <code>ISOLEMENT_IMPOSSIBLE</code>,
+            <code>GENERATEUR_INDISPONIBLE</code>, <code>SEANCES_DEPLACEES</code>,
+            <code>INFIRMIER_SUREFFECTIF</code>) ; les autres
+            évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50
+            alertes
+            récentes (30 derniers jours) <strong>destinées à ses rôles</strong> dans <strong>son centre</strong> (<code>GET
+                /api/v1/notifications</code>, paginé) : une
+            proposition calculée à 02:30 est donc retrouvée même si personne n&#39;était connecté. La <strong>lecture
+                est propre à chaque
+                utilisateur</strong> (<code>POST /api/v1/notifications/lecture</code> et <code>/lecture-tout</code>) ;
+            une alerte d&#39;un autre centre ne peut ni se lire
+            ni se marquer lue. Le journal ne ralentit ni ne fait échouer l&#39;alerte temps réel (une base indisponible
+            est ignorée) ;
+            les alertes de plus de 60 jours sont purgées chaque jour à 03:40 (<code>NotificationPurgeScheduler</code>).
+            <em>Source :</em> <code>NotificationService</code>, <code>NotificationJournalPort</code>, <code>NotificationJournalJdbcAdapter</code>,
+            <code>NotificationRestController</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-NOT-006">
+        <div class="rid">RG-NOT-006</div>
+        <div class="rtxt"><p><strong>Alertes liées à l&#39;exploitation.</strong> Un <strong>générateur de dialyse en
+            service qui devient indisponible</strong>
+            (maintenance, attente de pièce, panne, réforme — par la fiche équipement ou une intervention GMAO) alerte
+            <code>ADMIN</code> et
+            <code>SECRETAIRE</code> (<code>GENERATEUR_INDISPONIBLE</code>) avec le code du générateur, son nouveau
+            statut, le nombre de patients dont c&#39;est
+            la place habituelle et les cinq premiers noms : leurs séances sont à déplacer. Aucune alerte pour un autre
+            équipement,
+            pour un générateur déjà indisponible, ni à la création. Une <strong>absence d&#39;infirmier saisie par le
+                secrétariat</strong> alerte
+            <code>ADMIN</code> (<code>INFIRMIER_ABSENCE_ENREGISTREE</code>) ; saisie par l&#39;administrateur, elle ne
+            le prévient pas. L&#39;<strong>application d&#39;une
+                proposition d&#39;optimisation</strong> qui déplace des patients ou des séances alerte
+            <code>MEDECIN</code> et <code>SECRETAIRE</code>
+            (<code>SEANCES_DEPLACEES</code>). Le contrôle quotidien de sous-effectif (RG-INF-046) prévient aussi <code>MEDECIN</code>
+            ; son contrôle jumeau
+            de <strong>sur-effectif</strong> (<code>INFIRMIER_SUREFFECTIF</code>, RG-INF-047) prévient
+            <code>ADMIN</code> des infirmiers payés au-delà de l&#39;effectif
+            requis, avec les heures concernées. Un échec de ces
+            alertes ne fait jamais échouer l&#39;opération qu&#39;elles accompagnent. Depuis la cloche, un lien mène à l&#39;écran
+            qui traite
+            l&#39;alerte : l&#39;optimisation du bon périmètre (<code>Maintenance</code> pour un générateur, <code>Couverture</code>
+            pour une absence ou un
+            sous-effectif), la proposition elle-même, ou le planning ; ces liens vers l&#39;optimisation ne sont
+            proposés qu&#39;à
+            <code>ADMIN</code> et <code>SECRETAIRE</code>.
+            <em>Source :</em> <code>GenerateurIndisponibleService</code>, <code>AbsenceInfirmierService</code>, <code>OptimisationApplicationService</code>.
+        </p>
 </div></div>
 <div class="rule" id="RG-NOT-004"><div class="rid">RG-NOT-004</div><div class="rtxt"><p><strong>Toute saisie d&#39;un infirmier prévient le médecin du centre</strong> : l&#39;évènement <code>SAISIE_INFIRMIER</code>
 (destinataire <code>MEDECIN</code>) nomme l&#39;auteur, le patient, la date et la nature de la saisie — séance créée ou validée
@@ -2989,8 +3112,33 @@ ignorée). Les évènements de séance historiques ne visent plus le médecin : 
 <tr>
 <td><code>INFIRMIER_SOUS_EFFECTIF</code></td>
 <td>créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)</td>
+    <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code></td>
+    <td>RG-INF-046, RG-NOT-006</td>
+</tr>
+<tr>
+    <td><code>INFIRMIER_SUREFFECTIF</code></td>
+    <td>infirmiers au-delà de l&#39;effectif requis dans les 14 jours, salle sans patient comprise (contrôle de 07:15)
+    </td>
+    <td><code>ADMIN</code></td>
+    <td>RG-INF-047, RG-NOT-006</td>
+</tr>
+<tr>
+    <td><code>INFIRMIER_ABSENCE_ENREGISTREE</code></td>
+    <td>le secrétariat enregistre l&#39;absence d&#39;un infirmier</td>
+    <td><code>ADMIN</code></td>
+    <td>RG-NOT-006</td>
+</tr>
+<tr>
+    <td><code>GENERATEUR_INDISPONIBLE</code></td>
+    <td>un générateur en service passe en maintenance, attente de pièce, panne ou réforme</td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code></td>
-<td>RG-INF-046</td>
+    <td>RG-NOT-006</td>
+</tr>
+<tr>
+    <td><code>SEANCES_DEPLACEES</code></td>
+    <td>une proposition d&#39;optimisation appliquée déplace des patients ou des séances</td>
+    <td><code>MEDECIN</code>, <code>SECRETAIRE</code></td>
+    <td>RG-NOT-006</td>
 </tr>
 <tr>
 <td><code>OPTIMISATION_PROPOSITION</code></td>
@@ -3338,7 +3486,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PlanningSemaineRestController</code></td>
 <td><code>/api/v1/planning/semaine</code></td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code></td>
-<td>RG-PLN-040 à 044</td>
+    <td>RG-PLN-040 à 044, RG-PLN-103</td>
 </tr>
 <tr>
 <td><code>SalleGenerateursRestController</code></td>
@@ -3350,7 +3498,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PlanningOptimisationRestController</code></td>
 <td><code>/api/v1/planning/optimisations</code></td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code> (application : <code>ADMIN</code>)</td>
-    <td>RG-PLN-080 à 096, 101, 102, RG-INF-070</td>
+    <td>RG-PLN-080 à 096, 101, 102, 103, RG-INF-070</td>
 </tr>
 <tr>
 <td><code>PlanningPreferencesRestController</code></td>
@@ -3375,6 +3523,12 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>/api/v1/infirmiers/presence</code></td>
 <td>lecture tous, écriture <code>ADMIN</code>/<code>SECRETAIRE</code></td>
 <td>RG-INF-040 à 060</td>
+</tr>
+<tr>
+    <td><code>NotificationRestController</code></td>
+    <td><code>/api/v1/notifications</code></td>
+    <td>tout profil de centre (alertes destinées à ses rôles)</td>
+    <td>RG-NOT-005</td>
 </tr>
 <tr>
 <td><code>MonPlanningInfirmierRestController</code></td>
@@ -3705,6 +3859,11 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PresenceInfirmierScheduler</code></td>
 <td>07:15 chaque jour</td>
 <td>RG-INF-046</td>
+</tr>
+<tr>
+    <td><code>NotificationPurgeScheduler</code></td>
+    <td>03:40 chaque jour</td>
+    <td>RG-NOT-005</td>
 </tr>
 <tr>
 <td><code>ReplanificationAutomatiqueScheduler</code></td>

@@ -59,8 +59,10 @@ class OptimisationApplicationServiceTest {
     private final AffectationInfirmierRepositoryPort affectations = mock(AffectationInfirmierRepositoryPort.class);
     private final RemplacementInfirmierRepositoryPort remplacements = mock(RemplacementInfirmierRepositoryPort.class);
     private final DeplacementTemporairePort temporaires = mock(DeplacementTemporairePort.class);
+    private final com.hemodialyse.backend.application.notification.NotificationService notifications =
+            mock(com.hemodialyse.backend.application.notification.NotificationService.class);
     private final OptimisationApplicationService service = new OptimisationApplicationService(runs, donnees, placements,
-            affectations, remplacements, temporaires, horloge(T0.plusSeconds(60)));
+            affectations, remplacements, temporaires, notifications, horloge(T0.plusSeconds(60)));
 
     private SalleRef a;
     private CreneauRef matin;
@@ -104,6 +106,17 @@ class OptimisationApplicationServiceTest {
         verify(placements).deplacer(centre, p1.patientId(), a.id(), matin.id(), vers.generateurId());
         assertThat(appliquee.appliqueLe()).isEqualTo(T0.plusSeconds(60));
         assertThat(runs.findById(centre, run.id()).orElseThrow().appliqueLe()).isNotNull();
+        verify(notifications).notifySeancesDeplacees(centre, "PATIENTS", 1, 0);
+    }
+
+    @Test
+    void should_not_alert_the_doctor_when_the_applied_proposal_moves_nobody() {
+        RunOptimisation run = run(PerimetreOptimisation.PATIENTS, resultat(List.of(), List.of()));
+
+        service.appliquer(centre, run.id());
+
+        verify(notifications, never()).notifySeancesDeplacees(any(), any(), org.mockito.ArgumentMatchers.anyInt(),
+                org.mockito.ArgumentMatchers.anyInt());
     }
 
     @Test

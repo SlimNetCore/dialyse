@@ -29,7 +29,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,11 +51,11 @@ public final class CalendrierPropositionService {
                                                   ParametresOptimisation parametres) {
         Map<UUID, Poste> placements = new LinkedHashMap<>(donnees.placementsActuels());
         Map<UUID, Set<JourSemaine>> joursChoisis = new HashMap<>();
-        Set<UUID> deplaces = new HashSet<>();
+        Map<UUID, Poste> deplaces = new HashMap<>();
         for (DeplacementPatient d : resultat.deplacements()) {
             if (d.vers() != null) {
                 placements.put(d.patientId(), d.vers());
-                deplaces.add(d.patientId());
+                deplaces.put(d.patientId(), d.de());
             }
             if (d.jours() != null) joursChoisis.put(d.patientId(), Set.copyOf(d.jours()));
         }
@@ -80,7 +79,7 @@ public final class CalendrierPropositionService {
     private static List<CaseCalendrier> semaine(DonneesOptimisation finales, ResultatOptimisation resultat,
                                                 ParametresOptimisation parametres, SemainePresence presence,
                                                 LocalDate debut, Map<UUID, String> noms,
-                                                Map<UUID, String> generateurs, Set<UUID> deplaces) {
+                                                Map<UUID, String> generateurs, Map<UUID, Poste> deplaces) {
         Map<String, CasePresence> presences = new HashMap<>();
         for (CasePresence c : presence.cases()) presences.put(cle(c.salleId(), c.creneauId(), c.date()), c);
         Map<String, List<PatientCalendrier>> patients = patients(finales, resultat, presence, debut, noms, generateurs,
@@ -101,9 +100,10 @@ public final class CalendrierPropositionService {
                 for (JourSemaine jour : JourSemaine.values()) {
                     LocalDate date = debut.plusDays(jour.ordinal());
                     String cle = cle(salle.id(), creneau.id(), date);
+                    List<VacationPlanifiee> proposees = infirmiersProposes ? vacations.get(cle) : null;
                     jours.add(jour(jour, date, presences.get(cle), presence.jours(),
-                            patients.getOrDefault(cle, List.of()),
-                            infirmiers(presences.get(cle), infirmiersProposes ? vacations.get(cle) : null)));
+                            patients.getOrDefault(cle, List.of()), infirmiers(presences.get(cle), proposees),
+                            proposees != null && !proposees.isEmpty()));
                 }
                 if (jours.stream().anyMatch(j -> !j.vide())) {
                     lignes.add(new CaseCalendrier(debut, salle.id(), salle.nom(), salleOrdre, creneau.id(),
@@ -116,14 +116,17 @@ public final class CalendrierPropositionService {
 
     private static JourCalendrier jour(JourSemaine jour, LocalDate date, CasePresence presence,
                                        List<JourPlanning> jours, List<PatientCalendrier> patients,
-                                       List<InfirmierCalendrier> infirmiers) {
+                                       List<InfirmierCalendrier> infirmiers, boolean infirmiersProposes) {
         JourPlanning jp = jours.stream().filter(j -> j.date().equals(date)).findFirst().orElse(null);
         boolean ferme = jp != null && jp.ferme();
-        if (ferme) return new JourCalendrier(jour, date, true, jp.fermetureMotif(), 0, 0, List.of(), List.of());
+        if (ferme) return new JourCalendrier(jour, date, true, jp.fermetureMotif(), 0, 0, 0, List.of(), List.of());
         int requis = presence == null ? 0 : presence.requis();
         long tenus = infirmiers.stream().filter(i -> i.situation() != SituationInfirmier.ABSENT).count();
         int manque = (int) Math.max(0, requis - tenus);
-        return new JourCalendrier(jour, date, false, null, requis, manque, patients, infirmiers);
+        // roulement actuel : le calcul de présence tient compte de l'habilitation en salle d'isolement ; infirmiers de la
+        // proposition : leur effectif est comparé tel quel à l'effectif requis par les patients de la proposition
+        int surplus = infirmiersProposes ? (int) Math.max(0, tenus - requis) : presence == null ? 0 : presence.surplus();
+        return new JourCalendrier(jour, date, false, null, requis, manque, surplus, patients, infirmiers);
     }
 
     /**
@@ -135,15 +138,19 @@ public final class CalendrierPropositionService {
                                                                  SemainePresence presence, LocalDate debut,
                                                                  Map<UUID, String> noms,
                                                                  Map<UUID, String> generateurs,
-                                                                 Set<UUID> deplaces) {
+                                                                 Map<UUID, Poste> deplaces) {
+        Map<UUID, String> salles = new HashMap<>();
+        finales.planning().salles().forEach(s -> salles.put(s.id(), s.nom()));
+        Map<UUID, String> creneaux = new HashMap<>();
+        finales.planning().creneaux().forEach(c -> creneaux.put(c.id(), c.libelle()));
         Map<String, List<PatientCalendrier>> parCase = new HashMap<>();
         for (JourPlanning jp : presence.jours()) {
             for (Occupation o : finales.planning().occupations()) {
                 if (!occupe(o, jp)) continue;
                 parCase.computeIfAbsent(cle(o.salleId(), o.creneauId(), jp.date()), k -> new ArrayList<>())
                         .add(new PatientCalendrier(o.patientId(), noms.getOrDefault(o.patientId(), "?"),
-                                generateurs.get(o.generateurId()), o.aRisque(), deplaces.contains(o.patientId()),
-                                false));
+                                generateurs.get(o.generateurId()), o.aRisque(), deplaces.containsKey(o.patientId()),
+                                false, lieu(deplaces.get(o.patientId()), salles, creneaux)));
             }
         }
         LocalDate fin = debut.plusDays(6);
@@ -159,11 +166,21 @@ public final class CalendrierPropositionService {
                 parCase.computeIfAbsent(cle(t.vers().salleId(), t.vers().creneauId(), t.date()),
                                 k -> new ArrayList<>())
                         .add(new PatientCalendrier(t.patientId(), noms.getOrDefault(t.patientId(), t.nom()),
-                                t.vers().generateurCode(), risque, false, true));
+                                t.vers().generateurCode(), risque, false, true, lieu(t.de(), salles, creneaux)));
             }
         }
         parCase.values().forEach(l -> l.sort(Comparator.comparing(PatientCalendrier::nom)));
         return parCase;
+    }
+
+    /**
+     * « Salle · créneau · générateur » d'une place ; null sans place (patient qui n'en avait pas).
+     */
+    private static String lieu(Poste poste, Map<UUID, String> salles, Map<UUID, String> creneaux) {
+        if (poste == null || poste.salleId() == null) return null;
+        return String.join(" · ", salles.getOrDefault(poste.salleId(), "?"),
+                creneaux.getOrDefault(poste.creneauId(), "?"),
+                poste.generateurCode() == null ? "—" : poste.generateurCode());
     }
 
     private static boolean occupe(Occupation o, JourPlanning jp) {

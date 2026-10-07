@@ -10,6 +10,14 @@
   @if (store.successMessage()) {
     <p class="inf-feedback success" role="status">{{ store.successMessage()! | translate }}</p>
   }
+  @if (store.joursEnSureffectif().length > 0) {
+    <p class="inf-feedback warn" data-testid="inf-sureffectif" role="status">
+      {{ 'INFIRMIER.AFFECTATION.SUREFFECTIF' | translate }}
+      @for (j of store.joursEnSureffectif(); track j; let last = $last) {
+        {{ ('PATIENT_FORM.' + j) | translate }}{{ last ? '' : ', ' }}
+      }
+    </p>
+  }
   @if (store.loading() || store.saving()) {
     <mat-progress-bar mode="indeterminate"/>
   }

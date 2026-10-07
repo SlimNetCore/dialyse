@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.planning.optimisation;
 
+import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.infirmier.model.AffectationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.InfirmierRef;
 import com.hemodialyse.backend.domain.infirmier.model.RemplacementInfirmier;
@@ -55,6 +56,7 @@ public class OptimisationApplicationService {
     private final AffectationInfirmierRepositoryPort affectations;
     private final RemplacementInfirmierRepositoryPort remplacements;
     private final DeplacementTemporairePort temporaires;
+    private final NotificationService notifications;
     private final Clock horloge;
 
     @Autowired
@@ -62,20 +64,22 @@ public class OptimisationApplicationService {
                                           PlacementPatientPort placements,
                                           AffectationInfirmierRepositoryPort affectations,
                                           RemplacementInfirmierRepositoryPort remplacements,
-                                          DeplacementTemporairePort temporaires) {
-        this(runs, donnees, placements, affectations, remplacements, temporaires, Clock.systemUTC());
+                                          DeplacementTemporairePort temporaires, NotificationService notifications) {
+        this(runs, donnees, placements, affectations, remplacements, temporaires, notifications, Clock.systemUTC());
     }
 
     OptimisationApplicationService(OptimisationRunRepositoryPort runs, OptimisationDonneesPort donnees,
                                    PlacementPatientPort placements, AffectationInfirmierRepositoryPort affectations,
                                    RemplacementInfirmierRepositoryPort remplacements,
-                                   DeplacementTemporairePort temporaires, Clock horloge) {
+                                   DeplacementTemporairePort temporaires, NotificationService notifications,
+                                   Clock horloge) {
         this.runs = runs;
         this.donnees = donnees;
         this.placements = placements;
         this.affectations = affectations;
         this.remplacements = remplacements;
         this.temporaires = temporaires;
+        this.notifications = notifications;
         this.horloge = horloge;
     }
 
@@ -109,7 +113,20 @@ public class OptimisationApplicationService {
         } else if (parametres.perimetre() == PerimetreOptimisation.MAINTENANCE) {
             appliquerTemporaires(centerId, resultat.temporaires());
         }
-        return runs.save(appliquee);
+        RunOptimisation enregistree = runs.save(appliquee);
+        signalerDeplacements(centerId, parametres.perimetre(), resultat);
+        return enregistree;
+    }
+
+    /**
+     * Prévient le médecin et le secrétariat quand l'application a déplacé des patients ou des séances.
+     */
+    private void signalerDeplacements(UUID centerId, PerimetreOptimisation perimetre, ResultatOptimisation resultat) {
+        int patients = perimetre.placePatients() ? resultat.deplacements().size() : 0;
+        int temporairesDeplaces = perimetre == PerimetreOptimisation.MAINTENANCE ? resultat.temporaires().size() : 0;
+        if (patients + temporairesDeplaces > 0) {
+            notifications.notifySeancesDeplacees(centerId, perimetre.name(), patients, temporairesDeplaces);
+        }
     }
 
     private void appliquerDeplacements(UUID centerId, DonneesOptimisation actuelles, List<DeplacementPatient> deplacements) {

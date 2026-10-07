@@ -125,6 +125,16 @@
   background: #fdecea;
 }
 
+/* Infirmiers en trop dans la case : ressource à affecter ailleurs (ni manque, ni alerte) */
+.cell.surplus {
+  background: #fff3d6;
+}
+
+.over-tag {
+  margin-left: 4px;
+  color: #8a5a00;
+}
+
 .cell.selected {
   outline: 2px solid #1b5e20;
   outline-offset: -2px;
@@ -190,6 +200,10 @@ th.closed {
 
 .dot.idle {
   background: #f6f7f9;
+}
+
+.dot.surplus {
+  background: #fff3d6;
 }
 
 .dot.closed {

@@ -325,8 +325,10 @@
   pour la nuit ; un centre en erreur n'empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
   (`OPTIMISATION_PROPOSITION`) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif
   `SOUS_EFFECTIF`), séances à déplacer ou sans solution (`MAINTENANCE`), vacations requises économisées ou patients en
-  attente placés (`GAIN`). Rien n'est appliqué d'office : l'administrateur consulte la proposition dans l'historique et
-  l'applique (RG-PLN-091).
+  attente placés (`GAIN`). La notification est **enregistrée au journal du centre** : l'administrateur la retrouve à sa
+  prochaine connexion, même s'il n'était pas connecté à 02:30 (RG-NOT-005), avec un lien direct vers la proposition.
+  Rien
+  n'est appliqué d'office : l'administrateur consulte la proposition dans l'historique et l'applique (RG-PLN-091).
 - **RG-PLN-101** — **Planning calendaire de la proposition** (`GET /api/v1/planning/optimisations/{id}/calendrier`,
   `ADMIN`, `SECRETAIRE`) : à la fin du calcul, la proposition est **figée** en un calendrier semaine par semaine sur
   l'horizon (`CalendrierPropositionService`, table `planification_calendrier_case`, rattachée au centre et à
@@ -334,7 +336,10 @@
   samedi). Chaque case indique les patients **avec leur générateur** (repères : patient à risque, déplacé par la
   proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d'infirmiers requis
   (ratio
-  de la salle) et le manque éventuel ; un jour fermé est signalé avec son motif. Les infirmiers viennent des vacations
+  de la salle), le manque éventuel et le **sur-effectif** (infirmiers prévus au-delà de l'effectif requis, y compris
+  dans
+  une salle que la proposition vide, RG-INF-047), à l'écran comme à l'impression ; un jour fermé est signalé avec son
+  motif. Les infirmiers viennent des vacations
   de
   la proposition quand son périmètre planifie le personnel (`ROULEMENT`, `COUVERTURE`, `COMPLET`), sinon du roulement
   actuel. Le calendrier reflète l'état du centre **au lancement** : il ne change pas si le centre évolue ensuite. Une
@@ -351,4 +356,18 @@
   calendaire. La suppression n'annule jamais une proposition déjà appliquée (le planning du centre ne change pas). Un
   calcul encore en cours est refusé par `OPTIMISATION_SUPPRESSION_EN_COURS` (l'arrêter d'abord) ; l'exécution d'un autre
   centre est introuvable (`OPTIMISATION_INTROUVABLE`).
+- **RG-PLN-103** — **Infirmiers sur le planning de la semaine et accès du médecin.** Le planning de la semaine
+  (RG-PLN-043)
+  affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les **infirmiers** de la
+  case d'après la présence réelle de la semaine (`/api/v1/infirmiers/presence/semaine`, RG-INF-044) : prévus au
+  roulement,
+  remplaçants, absents (barrés, avec le type d'absence), l'effectif requis par le ratio de sécurité et, en rouge, le
+  manque
+  ou, au contraire, le sur-effectif (infirmiers en trop, RG-INF-047).
+  La légende explique chaque repère. Si la présence ne peut pas être chargée, le planning des patients reste affiché
+  sans les infirmiers. Le **médecin « seul »** consulte ce planning complet (menu Séances › Planning de la semaine) : il
+  lit patients, infirmiers et légende comme les autres profils, sans accès aux autres écrans de planification
+  (optimisation, salles et générateurs). Dans le planning proposé par l'optimisation (RG-PLN-101), au survol d'un
+  patient **déplacé** s'affiche sa place d'avant (salle · créneau · générateur), et pour une place temporaire sa place
+  habituelle.
 

@@ -259,7 +259,7 @@
 /* Légende de lecture */
 .legend-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -381,6 +381,48 @@
     justify-content: center;
     align-items: center;
   }
+}
+
+/* Infirmiers d'une case : prévus, remplaçants (italique), absents (barrés) et manque en rouge */
+.nurses {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px 0 0;
+  border-top: 1px dashed var(--app-border, #c5ccd6);
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.nurses li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+}
+
+.nurses li.sub {
+  font-style: italic;
+}
+
+.nurses li.absent {
+  color: #7a8594;
+  text-decoration: line-through;
+}
+
+.nurses li.under,
+.under-ico {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.nurses li.need {
+  color: var(--app-muted, #5f6b7a);
+}
+
+.nurses li.over,
+.over-ico {
+  color: #8a5a00;
 }
 
 /* Séance validée par l'infirmier (patient présent) : soleil et couleur dédiée */

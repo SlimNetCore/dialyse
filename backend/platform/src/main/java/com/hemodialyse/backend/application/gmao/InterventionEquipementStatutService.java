@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.gmao;
 
+import com.hemodialyse.backend.application.planning.GenerateurIndisponibleService;
 import com.hemodialyse.backend.domain.gmao.model.Equipement;
 import com.hemodialyse.backend.domain.gmao.model.EquipementStatutHistorique;
 import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
@@ -20,12 +21,15 @@ public class InterventionEquipementStatutService {
 
     private final EquipementRepositoryPort equipementRepository;
     private final EquipementStatutHistoriqueRepositoryPort historiqueRepository;
+    private final GenerateurIndisponibleService generateurIndisponible;
 
     public InterventionEquipementStatutService(
             EquipementRepositoryPort equipementRepository,
-            EquipementStatutHistoriqueRepositoryPort historiqueRepository) {
+            EquipementStatutHistoriqueRepositoryPort historiqueRepository,
+            GenerateurIndisponibleService generateurIndisponible) {
         this.equipementRepository = equipementRepository;
         this.historiqueRepository = historiqueRepository;
+        this.generateurIndisponible = generateurIndisponible;
     }
 
     /**
@@ -50,5 +54,6 @@ public class InterventionEquipementStatutService {
         equipementRepository.save(equipement);
         historiqueRepository.save(EquipementStatutHistorique.enregistrer(
                 equipement.getId(), equipement.getCentreId(), precedent, equipement.getStatut(), motif, parUtilisateur));
+        generateurIndisponible.signaler(equipement, precedent);
     }
 }

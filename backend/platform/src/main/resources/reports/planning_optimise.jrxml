@@ -348,7 +348,7 @@
                     <font size="7"/>
                 </textElement>
                 <text>
-                    <![CDATA[Légende : (R) patient à risque infectieux, accueilli en salle d'isolement - (dépl.) patient dont la place change dans cette proposition - (temp.) place temporaire ce jour-là (générateur indisponible) - (rempl.) infirmier remplaçant - (nouveau) infirmier ajouté par la proposition - (absent) infirmier absent ce jour-là. Proposition non appliquée tant qu'elle n'a pas été validée par l'administrateur.]]></text>
+                    <![CDATA[Légende : (R) patient à risque infectieux, accueilli en salle d'isolement - (dépl.) patient dont la place change dans cette proposition - (temp.) place temporaire ce jour-là (générateur indisponible) - (rempl.) infirmier remplaçant - (nouveau) infirmier ajouté par la proposition - (absent) infirmier absent ce jour-là - « inf. en trop » : infirmiers prévus au-delà de l'effectif requis. Proposition non appliquée tant qu'elle n'a pas été validée par l'administrateur.]]></text>
             </staticText>
         </band>
     </summary>

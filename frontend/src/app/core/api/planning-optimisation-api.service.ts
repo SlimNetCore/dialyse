@@ -154,6 +154,11 @@ export interface PatientCalendrier {
   deplace: boolean;
   /** Patient placé ici seulement ce jour-là (générateur indisponible à sa place habituelle). */
   temporaire: boolean;
+  /**
+   * Place avant la proposition (« salle · créneau · générateur ») d'un patient déplacé, ou place habituelle d'une place
+   * temporaire ; absente pour un patient sans place avant ou un calendrier calculé avant cette information.
+   */
+  avant?: string | null;
 }
 
 export interface InfirmierCalendrier {
@@ -169,6 +174,8 @@ export interface JourCalendrier {
   motifFermeture: string | null;
   requis: number;
   manque: number;
+  /** Infirmiers prévus au-delà de l'effectif requis (absent d'un calendrier calculé avant cette information). */
+  surplus?: number;
   patients: PatientCalendrier[];
   infirmiers: InfirmierCalendrier[];
 }

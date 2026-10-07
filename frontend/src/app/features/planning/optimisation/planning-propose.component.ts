@@ -1,13 +1,15 @@
-import {ChangeDetectionStrategy, Component, computed, input, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
 import {DatePipe, NgTemplateOutlet, SlicePipe} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {TranslateModule} from '@ngx-translate/core';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {
   CalendrierProposition,
   JourCalendrier,
+  PatientCalendrier,
 } from '../../../core/api/planning-optimisation-api.service';
 import {
   classeJour,
@@ -31,7 +33,7 @@ export type VuePlanningPropose = 'SEMAINE' | 'JOUR';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe, NgTemplateOutlet, SlicePipe, MatButtonModule, MatButtonToggleModule, MatIconModule,
-    MatProgressBarModule, TranslateModule,
+    MatProgressBarModule, MatTooltipModule, TranslateModule,
   ],
   templateUrl: './planning-propose.component.html',
   styleUrl: './planning-propose.component.css',
@@ -61,6 +63,7 @@ export class PlanningProposeComponent {
   protected readonly suivante = computed(() => semaineVoisine(this.semaines(), this.semaine(), 1));
   protected readonly lignesJour = computed(() => lignesDuJour(this.cases(), this.jourActif()));
   protected readonly classe = classeJour;
+  private readonly translate = inject(TranslateService);
   private readonly jourChoisi = signal<number | null>(null);
   /** Jour de la vue « Jour » : celui choisi, sinon aujourd'hui s'il a de l'activité ou le premier jour actif. */
   protected readonly jourActif = computed(() => this.jourChoisi() ?? jourParDefaut(this.cases(), this.aujourdhui()));
@@ -77,5 +80,13 @@ export class PlanningProposeComponent {
 
   protected jour(ligne: { jours: JourCalendrier[] }, index: number): JourCalendrier | undefined {
     return ligne.jours[index];
+  }
+
+  /** Infobulle d'un patient déplacé ou placé temporairement : où il était avant ; vide pour les autres. */
+  protected placeAvant(p: PatientCalendrier): string {
+    if (!p.deplace && !p.temporaire) return '';
+    const cle = p.temporaire ? 'PLANNING.OPTIM.CALENDRIER.HABITUELLE'
+      : p.avant ? 'PLANNING.OPTIM.CALENDRIER.AVANT' : 'PLANNING.OPTIM.CALENDRIER.AVANT_AUCUNE';
+    return this.translate.instant(cle, {place: p.avant ?? ''});
   }
 }

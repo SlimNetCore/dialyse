@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.application.notification;
 
 import com.hemodialyse.backend.application.direction.DirectionRealtimeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -9,17 +11,34 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Publishes real-time events to WebSocket topics per center.
+ * Publishes real-time events to WebSocket topics per center. Les alertes qui demandent une action
+ * ({@link #DURABLES}) sont aussi enregistrées dans le journal du centre : une personne absente ou déconnectée au moment
+ * de l'événement (replanification de nuit, panne d'un générateur) les retrouve à sa connexion.
  */
 @Service
 public class NotificationService {
 
+    /**
+     * Types d'alerte conservés dans le journal ; les autres évènements (création, mise à jour) ne valent que sur le
+     * moment.
+     */
+    static final java.util.Set<String> DURABLES = java.util.Set.of(
+            "INFIRMIER_SOUS_EFFECTIF", "INFIRMIER_ABSENCE_DECLAREE", "OPTIMISATION_PROPOSITION",
+            "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
+            "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
+            "INFIRMIER_SUREFFECTIF");
+
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
     private final SimpMessagingTemplate messaging;
     private final DirectionRealtimeService directionRealtime;
+    private final NotificationJournalPort journal;
 
-    public NotificationService(SimpMessagingTemplate messaging, DirectionRealtimeService directionRealtime) {
+    public NotificationService(SimpMessagingTemplate messaging, DirectionRealtimeService directionRealtime,
+                               NotificationJournalPort journal) {
         this.messaging = messaging;
         this.directionRealtime = directionRealtime;
+        this.journal = journal;
     }
 
     public void notifyPatientCreated(UUID centerId, UUID patientId, String patientCode, String patientNom, String patientPrenom) {
@@ -201,8 +220,27 @@ public class NotificationService {
         var payload = new java.util.HashMap<String, String>();
         payload.put("nbCreneaux", String.valueOf(nbCreneaux));
         payload.put("premiereDate", premiereDate.toString());
-        payload.put("targetRoles", "ADMIN,SECRETAIRE");
+        payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
         send(centerId, "INFIRMIER_SOUS_EFFECTIF", payload);
+    }
+
+    /**
+     * Des infirmiers sont prévus au-delà de l'effectif requis dans les prochains jours : personnel payé sans activité
+     * utile, à réaffecter (optimisation du roulement).
+     *
+     * @param nbCreneaux  cases (salle, créneau, jour) concernées
+     * @param nbVacations infirmiers en trop, cumulés sur ces cases
+     * @param heures      heures de vacation correspondantes
+     */
+    public void notifyPresenceSureffectif(UUID centerId, int nbCreneaux, int nbVacations, int heures,
+                                          java.time.LocalDate premiereDate) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("nbCreneaux", String.valueOf(nbCreneaux));
+        payload.put("nbVacations", String.valueOf(nbVacations));
+        payload.put("heures", String.valueOf(heures));
+        payload.put("premiereDate", premiereDate.toString());
+        payload.put("targetRoles", "ADMIN");
+        send(centerId, "INFIRMIER_SUREFFECTIF", payload);
     }
 
     /**
@@ -217,6 +255,46 @@ public class NotificationService {
         payload.put("valeur", String.valueOf(valeur));
         payload.put("targetRoles", "ADMIN");
         send(centerId, "OPTIMISATION_PROPOSITION", payload);
+    }
+
+    /**
+     * Un générateur n'est plus disponible (maintenance, attente de pièce, panne, réforme) : les séances de ses patients
+     * sont à déplacer. Les premiers noms sont cités, le total est donné à part.
+     */
+    public void notifyGenerateurIndisponible(UUID centerId, String generateur, String statut, java.util.List<String> patients) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("generateur", generateur);
+        payload.put("statut", statut);
+        payload.put("nbPatients", String.valueOf(patients.size()));
+        payload.put("patients", String.join(", ", patients.stream().limit(5).toList()));
+        payload.put("targetRoles", "ADMIN,SECRETAIRE");
+        send(centerId, "GENERATEUR_INDISPONIBLE", payload);
+    }
+
+    /**
+     * Une proposition d'optimisation appliquée a déplacé des patients ou des séances : le médecin et le secrétariat en
+     * sont prévenus.
+     */
+    public void notifySeancesDeplacees(UUID centerId, String perimetre, int nbPatients, int nbSeancesTemporaires) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("perimetre", perimetre);
+        payload.put("nbPatients", String.valueOf(nbPatients));
+        payload.put("nbSeancesTemporaires", String.valueOf(nbSeancesTemporaires));
+        payload.put("targetRoles", "MEDECIN,SECRETAIRE");
+        send(centerId, "SEANCES_DEPLACEES", payload);
+    }
+
+    /**
+     * Le secrétariat a enregistré l'absence d'un infirmier : l'administrateur en est prévenu pour les remplacements.
+     */
+    public void notifyAbsenceInfirmierEnregistree(UUID centerId, String infirmier, java.time.LocalDate debut,
+                                                  java.time.LocalDate fin) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("infirmier", infirmier);
+        payload.put("debut", debut.toString());
+        payload.put("fin", fin.toString());
+        payload.put("targetRoles", "ADMIN");
+        send(centerId, "INFIRMIER_ABSENCE_ENREGISTREE", payload);
     }
 
     /**
@@ -294,10 +372,21 @@ public class NotificationService {
 
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
         Map<String, Object> event = new java.util.HashMap<>();
+        Instant maintenant = Instant.now();
         event.put("type", eventType);
         event.put("centerId", centerId.toString());
         event.put("payload", payload);
-        event.put("timestamp", Instant.now().toString());
+        event.put("timestamp", maintenant.toString());
+        if (DURABLES.contains(eventType)) {
+            UUID id = UUID.randomUUID();
+            try {
+                journal.enregistrer(id, centerId, eventType, payload, maintenant);
+                event.put("id", id.toString());
+            } catch (RuntimeException e) {
+                // le temps réel reste prioritaire : une base indisponible n'empêche pas d'alerter les connectés
+                log.warn("[NOTIFICATION] Alerte {} non enregistrée pour le centre {}", eventType, centerId, e);
+            }
+        }
         String destination = "/topic/center/" + centerId + "/events";
         messaging.convertAndSend(destination, (Object) event);
         // La direction de la société voit aussi ce changement, sans attendre le prochain balayage.

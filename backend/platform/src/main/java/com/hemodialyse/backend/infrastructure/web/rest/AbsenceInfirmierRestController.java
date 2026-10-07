@@ -4,6 +4,7 @@ import com.hemodialyse.backend.application.infirmier.AbsenceInfirmierService;
 import com.hemodialyse.backend.domain.infirmier.model.AbsenceInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
 import com.hemodialyse.backend.domain.shared.PagedResult;
+import com.hemodialyse.backend.domain.shared.TenantScope;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -59,8 +60,10 @@ public class AbsenceInfirmierRestController {
     public ResponseEntity<AbsenceResponse> declarer(@RequestParam(required = false) UUID centerId,
                                                     @Valid @RequestBody AbsenceRequest r) {
         UUID centre = centerAccessGuard.requireCenter(centerId).value();
+        TenantScope scope = centerAccessGuard.currentScope();
+        boolean parAdministrateur = scope != null && scope.roles().contains("ROLE_ADMIN");
         AbsenceInfirmier a = service.declarer(centre, r.infirmierId(), r.debut(), r.fin(),
-                TypeAbsence.valueOf(r.type()), r.motif());
+                TypeAbsence.valueOf(r.type()), r.motif(), parAdministrateur);
         return ResponseEntity.status(HttpStatus.CREATED).body(AbsenceResponse.de(a));
     }
 

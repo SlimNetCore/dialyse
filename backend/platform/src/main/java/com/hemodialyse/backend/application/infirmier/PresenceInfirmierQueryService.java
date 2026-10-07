@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.application.infirmier;
 
 import com.hemodialyse.backend.domain.infirmier.model.Presence.AlertePresence;
+import com.hemodialyse.backend.domain.infirmier.model.Presence.AlerteSureffectif;
+import com.hemodialyse.backend.domain.infirmier.model.Presence.CasePresence;
+import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.Candidat;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.ChargeInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.ChargeMensuelle;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,6 +64,32 @@ public class PresenceInfirmierQueryService {
         LocalDate debut = PlanningSemaineService.debutSemaine(aujourdhui);
         DonneesPresence d = donnees.charger(centerId, debut, PlanningSemaineService.debutSemaine(au).plusDays(6));
         return PresenceInfirmierService.alertes(d, aujourdhui, au);
+    }
+
+    /**
+     * Cases en sur-effectif des {@code jours} prochains jours à partir de {@code aujourdhui} (infirmiers prévus au-delà de
+     * l'effectif requis, salles sans patient comprises).
+     */
+    public List<AlerteSureffectif> alertesSureffectif(UUID centerId, LocalDate aujourdhui, int jours) {
+        if (jours < 1 || jours > HORIZON_MAX_JOURS) {
+            throw new IllegalArgumentException("L'horizon des alertes doit être compris entre 1 et " + HORIZON_MAX_JOURS + " jours");
+        }
+        LocalDate au = aujourdhui.plusDays(jours - 1L);
+        LocalDate debut = PlanningSemaineService.debutSemaine(aujourdhui);
+        DonneesPresence d = donnees.charger(centerId, debut, PlanningSemaineService.debutSemaine(au).plusDays(6));
+        return PresenceInfirmierService.alertesSureffectif(d, aujourdhui, au);
+    }
+
+    /**
+     * Jours parmi {@code jours} où la case (salle, créneau) de la semaine de {@code date} compte des infirmiers au-delà de
+     * l'effectif requis. À appeler après une affectation pour avertir, sans bloquer, qu'elle crée un sur-effectif.
+     */
+    public List<JourSemaine> joursEnSureffectif(UUID centerId, UUID salleId, UUID creneauId, Collection<JourSemaine> jours,
+                                                LocalDate date) {
+        return semaine(centerId, date).cases().stream()
+                .filter(c -> c.salleId().equals(salleId) && c.creneauId().equals(creneauId) && jours.contains(c.jour())
+                        && c.surplus() > 0)
+                .map(CasePresence::jour).sorted().toList();
     }
 
     public List<Candidat> remplacants(UUID centerId, LocalDate date, UUID salleId, UUID creneauId) {

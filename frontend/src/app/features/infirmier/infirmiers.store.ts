@@ -12,6 +12,7 @@ import {
   InfirmierApiService,
   InfirmierPayload,
 } from '../../core/api/infirmier-api.service';
+import {JourSemaine} from '../../core/api/planning-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {createPagedListState, PagedListState} from '../../core/state/paged-list-state.util';
 
@@ -22,6 +23,8 @@ type InfirmiersState = PagedListState<Infirmier> & {
   saving: boolean;
   successMessage: string | null;
   error: string | null;
+  /** Jours où la dernière affectation enregistrée met des infirmiers en trop (avertissement, jamais un refus). */
+  joursEnSureffectif: JourSemaine[];
   comptesLiables: CompteInfirmier[];
   /** Mot de passe temporaire du dernier compte créé : affiché une fois puis effacé. */
   compteCree: { infirmierId: string; motDePasse: string } | null;
@@ -32,6 +35,7 @@ const initialState: InfirmiersState = {
   saving: false,
   successMessage: null,
   error: null,
+  joursEnSureffectif: [],
   comptesLiables: [],
   compteCree: null,
 };
@@ -108,7 +112,7 @@ export const InfirmiersStore = signalStore(
       );
     }
 
-    const begin = () => patchState(store, {saving: true, error: null, successMessage: null});
+    const begin = () => patchState(store, {saving: true, error: null, successMessage: null, joursEnSureffectif: []});
 
     return {
       loadPage,
@@ -124,7 +128,8 @@ export const InfirmiersStore = signalStore(
         switchMap(({id, actif}) => saveFlow(api.setActif(centerId(), id, actif))))),
 
       addAffectation: rxMethod<{ infirmierId: string; payload: AffectationInfirmierPayload }>(pipe(tap(begin),
-        switchMap(({infirmierId, payload}) => saveFlow(api.addAffectation(centerId(), infirmierId, payload))))),
+        switchMap(({infirmierId, payload}) => saveFlow(api.addAffectation(centerId(), infirmierId, payload),
+          'INFIRMIER.SAVED_OK', (a) => patchState(store, {joursEnSureffectif: a.joursEnSureffectif ?? []}))))),
 
       deleteAffectation: rxMethod<{ infirmierId: string; affectationId: string }>(pipe(tap(begin),
         switchMap(({infirmierId, affectationId}) =>
@@ -153,7 +158,7 @@ export const InfirmiersStore = signalStore(
       },
 
       clearMessages(): void {
-        patchState(store, {error: null, successMessage: null});
+        patchState(store, {error: null, successMessage: null, joursEnSureffectif: []});
       },
     };
   }),

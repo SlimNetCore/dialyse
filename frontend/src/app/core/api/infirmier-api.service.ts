@@ -21,6 +21,8 @@ export interface AffectationInfirmier {
   salleId: string;
   creneauId: string;
   jours: JourSemaine[];
+  /** Jours de la semaine en cours où l'affectation porte la case au-dessus de l'effectif requis (avertissement). */
+  joursEnSureffectif?: JourSemaine[];
 }
 
 export interface AffectationInfirmierPayload {
@@ -157,6 +159,8 @@ export interface CasePresence {
   salleIsolement: boolean;
   statut: StatutCasePresence;
   manque: number;
+  /** Infirmiers comptés au-delà de l'effectif requis (une salle sans patient avec un infirmier : tous en trop). */
+  surplus: number;
   presents: PresentCase[];
   absents: AbsentCase[];
 }

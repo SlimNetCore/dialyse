@@ -45,6 +45,7 @@ public final class CalendrierTexte {
         }
         String effectif = jour.patients().size() + " patient(s), " + jour.requis() + " inf. requis";
         lignes.add(jour.manque() > 0 ? effectif + " - MANQUE " + jour.manque() : effectif);
+        if (jour.surplus() > 0) lignes.add(jour.surplus() + " inf. en trop");
         return String.join("\n", lignes);
     }
 

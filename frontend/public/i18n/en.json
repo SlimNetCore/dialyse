@@ -2226,6 +2226,9 @@
       "JOUR_FERME": "The center does not dialyze on this day.",
       "AUCUN_PATIENT_JOUR": "No patient or generator scheduled on this day.",
       "CASE_VIDE": "No patient placed.",
+      "INFIRMIERS_MANQUE": "{{count}} nurse(s) missing out of {{requis}} required",
+      "INFIRMIERS_REQUIS": "{{requis}} nurse(s) required",
+      "INFIRMIERS_SURPLUS": "{{count}} surplus nurse(s)",
       "CLIC_DETAIL": "Click to see the patient's details",
       "SEANCE_VALIDEE": "Session validated by the nurse: patient present",
       "DECLARER_ABSENCE": "Declare the absence",
@@ -2266,6 +2269,12 @@
         "RATIO": "The \"N/M\" figure at the bottom of a cell = N patients placed / M generators available in the room (capacity). Examples: 2/4 = 2 patients for 4 generators, there is room left; 4/4 = full cell; 40/1 = 40 patients for a single generator, an overload to fix (move patients or add generators).",
         "RATIO_TIP": "{{n}} patient(s) placed for {{m}} available generator(s)",
         "GENERATEUR": "The small code next to a patient's name is the generator (machine) assigned.",
+        "INFIRMIERS": "Nurses",
+        "INFIRMIER_PREVU": "Nurse on the rotation",
+        "INFIRMIER_REMPLACANT": "Replacement nurse (italic)",
+        "INFIRMIER_ABSENT": "Absent nurse (struck through)",
+        "INFIRMIER_MANQUE": "Missing nurse: staffing below the safety ratio",
+        "INFIRMIER_SURPLUS": "Surplus nurses: beyond the required staffing",
         "INTERACTIF": "Click a patient to see their details. The absence icon declares their absence at this session (today or past): the patient is then struck through and the color changes."
       },
       "CONFLIT": {
@@ -2463,6 +2472,9 @@
         "ABSENT": "This proposal has no calendar planning: run the calculation again.",
         "VIDE": "No activity proposed this week.",
         "AUCUN_JOUR": "No activity proposed this day.",
+        "AVANT": "Before the proposal: {{place}}",
+        "AVANT_AUCUNE": "No place before the proposal",
+        "HABITUELLE": "Usual place: {{place}}",
         "DEPLACE": "Moved patient",
         "TEMPORAIRE": "Temporary place",
         "SITUATION": {
@@ -2472,9 +2484,11 @@
         },
         "EFFECTIF": "{{patients}} patient(s), {{requis}} nurse(s) required",
         "MANQUE": "{{count}} missing",
+        "SURPLUS": "{{count}} surplus",
         "LEGENDE": {
           "COUVERT": "Covered cell",
-          "MANQUE": "Missing nurse"
+          "MANQUE": "Missing nurse",
+          "SURPLUS": "Surplus nurses (beyond the required staffing)"
         }
       },
       "OK": {
@@ -2565,6 +2579,9 @@
   },
   "INFIRMIER": {
     "TITLE_SINGULIER": "Nurse",
+    "AFFECTATION": {
+      "SUREFFECTIF": "Assignment saved, but it puts surplus nurses (staff paid without useful activity) this week, on:"
+    },
     "MATRICULE": "Staff number",
     "NOM": "Last name",
     "PRENOM": "First name",
@@ -2680,6 +2697,7 @@
       "ALERTES_HINT": "Understaffing detected in advance: click to see possible replacements.",
       "AUCUNE_ALERTE": "No understaffed slot in the next 14 days.",
       "MANQUE": "{{manque}} nurse(s) missing — {{requis}} required for {{patients}} patient(s)",
+      "SUREFFECTIF_TIP": "{{count}} more nurse(s) than the required staffing: assign elsewhere",
       "ABSENTS": "Absent",
       "BESOIN": "{{patients}} patient(s): {{requis}} nurse(s) required, {{presents}} planned",
       "SALLE_ISOLEMENT": "Isolation room (qualified nurses only)",
@@ -2697,6 +2715,7 @@
       "LEGENDE": {
         "COUVERT": "Covered",
         "SOUS_EFFECTIF": "Understaffed",
+        "SUREFFECTIF": "Surplus nurses",
         "SANS_PATIENT": "No patient"
       },
       "RAISON": {
@@ -3198,6 +3217,17 @@
     "ISOLEMENT_IMPOSSIBLE": "{{nom}} is at infectious risk but no isolation slot is available: to be rescheduled.",
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} slot(s) understaffed in the coming days (from {{date}}): replacements to organize",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} declared an absence from {{debut}} to {{fin}}: replacement to organize",
+    "INFIRMIER_SUREFFECTIF": "Surplus nurses: {{count}} slot(s) affected from {{date}}, {{vacations}} extra shift(s), i.e. {{heures}} h paid without useful activity",
+    "INFIRMIER_ABSENCE_ENREGISTREE": "Absence of {{infirmier}} recorded from {{debut}} to {{fin}}: replacement to organize",
+    "GENERATEUR_INDISPONIBLE": "Generator {{generateur}} unavailable ({{statut}}): {{count}} patient(s) to move {{patients}}",
+    "SEANCES_DEPLACEES": "Planning changed: {{patients}} patient(s) moved, {{temporaires}} session(s) moved temporarily",
+    "ACTION": {
+      "PROPOSITION": "Open the proposal",
+      "MAINTENANCE": "Suggest moves",
+      "COUVERTURE": "Find replacements",
+      "ROULEMENT": "Review the rotation",
+      "PLANNING": "See the planning"
+    },
     "SEANCE_CREATED": "Session created for {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Session validated for {{nom}} ({{date}})",
     "OPTIMISATION_PROPOSITION": {

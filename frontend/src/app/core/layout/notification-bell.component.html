@@ -85,6 +85,12 @@
             <strong>{{ 'NOTIFICATION.DETAIL_DATE' | translate }}:</strong>
             {{ selectedEvent()!.timestamp | date: 'full' }}
           </p>
+          @if (lienFor(selectedEvent()!); as lien) {
+            <a (click)="closePanel()" [queryParams]="lien.queryParams" [routerLink]="lien.commands"
+               class="notif-action" color="primary" data-testid="notif-action" mat-flat-button>
+              {{ lien.label | translate }}
+            </a>
+          }
           <pre>{{ selectedEvent()!.payload | json }}</pre>
         } @else {
           <p class="empty-detail">{{ 'NOTIFICATION.DETAIL_SELECT' | translate }}</p>

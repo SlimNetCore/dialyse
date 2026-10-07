@@ -129,7 +129,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       items: [
         {route: '/seances', label: 'NAV.SEANCES_STATION', icon: 'monitor_heart', nurse: true},
         {route: '/seances/historique', label: 'NAV.SEANCES_HISTORIQUE', icon: 'history', nurse: true},
-        {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week'},
+        {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week', doctor: true},
         {route: '/seances/salles', label: 'NAV.SALLES_GENERATEURS', icon: 'meeting_room'},
         {route: '/seances/optimisation', label: 'NAV.PLANNING_OPTIMISATION', icon: 'auto_fix_high'},
         {

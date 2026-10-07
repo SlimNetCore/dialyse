@@ -29,6 +29,10 @@
   color: #1b7f3b;
 }
 
+.inf-feedback.warn {
+  color: #8a4b00;
+}
+
 .inf-form {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

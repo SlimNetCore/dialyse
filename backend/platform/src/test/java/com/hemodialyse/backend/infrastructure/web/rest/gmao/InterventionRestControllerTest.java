@@ -39,7 +39,8 @@ class InterventionRestControllerTest {
     private final EquipementRepositoryPort equipements = mock(EquipementRepositoryPort.class);
     private final EquipementStatutHistoriqueRepositoryPort historique = mock(EquipementStatutHistoriqueRepositoryPort.class);
     private final InterventionEquipementStatutService statutService =
-            new InterventionEquipementStatutService(equipements, historique);
+            new InterventionEquipementStatutService(equipements, historique,
+                    mock(com.hemodialyse.backend.application.planning.GenerateurIndisponibleService.class));
 
     @AfterEach
     void clearSecurityContext() {

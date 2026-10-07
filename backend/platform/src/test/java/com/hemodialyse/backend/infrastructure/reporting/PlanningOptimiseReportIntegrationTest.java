@@ -70,7 +70,8 @@ class PlanningOptimiseReportIntegrationTest {
             LocalDate date = semaine.plusDays(jour.ordinal());
             jours.add(switch (jour) {
                 case LUNDI -> new JourCalendrier(jour, date, false, null, 1, 0,
-                        List.of(new PatientCalendrier(UUID.randomUUID(), patient, generateur, true, true, false)),
+                        List.of(new PatientCalendrier(UUID.randomUUID(), patient, generateur, true, true, false,
+                                "Salle B · Matin · B-G1")),
                         List.of(new InfirmierCalendrier("Sara Amrani", SituationInfirmier.NOUVEAU)));
                 case MARDI -> new JourCalendrier(jour, date, true, "Jour férié", 0, 0, List.of(), List.of());
                 default -> new JourCalendrier(jour, date, false, null, 0, 0, List.of(), List.of());
@@ -119,6 +120,7 @@ class PlanningOptimiseReportIntegrationTest {
         JourCalendrier lundi = lues.get(0).jours().get(1);
         assertThat(lundi.patients()).extracting("nom").containsExactly("Benali");
         assertThat(lundi.patients().get(0).deplace()).isTrue();
+        assertThat(lundi.patients().get(0).avant()).isEqualTo("Salle B · Matin · B-G1");
         assertThat(lundi.infirmiers().get(0).situation()).isEqualTo(SituationInfirmier.NOUVEAU);
         assertThat(lues.get(0).jours().get(2).ferme()).isTrue();
 

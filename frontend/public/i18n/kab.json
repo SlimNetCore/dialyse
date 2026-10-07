@@ -1866,6 +1866,9 @@
       "JOUR_FERME": "Aseɣwen ur yettasfaḍ ara deg wass-a.",
       "AUCUN_PATIENT_JOUR": "Ulac anelmad neɣ asmal yettwaburjen deg wass-a.",
       "CASE_VIDE": "Ulac anelmad yettwasbedden.",
+      "INFIRMIERS_MANQUE": "Ttqenṣen {{count}} n imsawen seg {{requis}} yettwasran",
+      "INFIRMIERS_REQUIS": "{{requis}} n imsawen yettwasran",
+      "INFIRMIERS_SURPLUS": "{{count}} n imsawen i d-yezwiren",
       "CLIC_DETAIL": "Ssed i wakken ad twaliḍ talqayt n unelmad",
       "SEANCE_VALIDEE": "Aɣimi yettwasentem sɣur uneggaru: anelmad yella",
       "DECLARER_ABSENCE": "Sekned tamettant",
@@ -1906,6 +1909,12 @@
         "RATIO": "Uṭṭun « N/M » ddaw tcehhit = N inelmaden yettwasbedden / M ismalen yellan deg taxxamt (tazmert). Imedya: 2/4 = 2 inelmaden i 4 ismalen, yella umkan; 4/4 = tcehhit teččur; 40/1 = 40 inelmaden i yiwen n usmal, d alqaḍ ilaq ad yettwasenqes.",
         "RATIO_TIP": "{{n}} anelmad(en) yettwasbedden i {{m}} asmal(en) yellan",
         "GENERATEUR": "Tangalt tamecṭuḥt ɣer yisem n unelmad d asmal i s-yettwacnan.",
+        "INFIRMIERS": "Imsawen",
+        "INFIRMIER_PREVU": "Amsaw yettwasbedden deg uzzelmaḍ",
+        "INFIRMIER_REMPLACANT": "Amsaw amsiwel (iṭalik)",
+        "INFIRMIER_ABSENT": "Amsaw ulac-it (yettwakkes)",
+        "INFIRMIER_MANQUE": "Amsaw yenqes: amḍan ddaw n uṭṭiḍ n tħerrest",
+        "INFIRMIER_SURPLUS": "Imsawen i d-yezwiren: ugar n umḍan yettwasran",
         "INTERACTIF": "Ssed ɣef unelmad i wakken ad twaliḍ talqayt-is. Tignit n tmettant tsekned tamettant-is deg uɣimi-a: isem n unelmad yettwakkes yerna ini ad yettbeddel."
       },
       "CONFLIT": {
@@ -2103,6 +2112,9 @@
         "ABSENT": "Asumer-agi ur yesɛi ara aɣawas n useggas: ales aḥseb.",
         "VIDE": "Ulac armud yettwasumren deg ssmana-agi.",
         "AUCUN_JOUR": "Ulac armud yettwasumren deg ass-agi.",
+        "AVANT": "Uqbel n usumer: {{place}}",
+        "AVANT_AUCUNE": "Ulac amkan uqbel n usumer",
+        "HABITUELLE": "Amkan amagnu: {{place}}",
         "DEPLACE": "Anelmad yettwazzuzer",
         "TEMPORAIRE": "Amkan unmir",
         "SITUATION": {
@@ -2112,9 +2124,11 @@
         },
         "EFFECTIF": "{{patients}} n inelmaden, {{requis}} n imsawen yettwasran",
         "MANQUE": "yenqes {{count}}",
+        "SURPLUS": "{{count}} i d-yezwiren",
         "LEGENDE": {
           "COUVERT": "Tanaka tettwaɣṛ",
-          "MANQUE": "Amsaw yenqes"
+          "MANQUE": "Amsaw yenqes",
+          "SURPLUS": "Imsawen i d-yezwiren (ugar n umḍan yettwasran)"
         }
       },
       "OK": {
@@ -2205,6 +2219,9 @@
   },
   "INFIRMIER": {
     "TITLE_SINGULIER": "Anemgal",
+    "AFFECTATION": {
+      "SUREFFECTIF": "Asersi yettwaseklas, maca yesbedd imsawen i d-yezwiren (imseddayen ttwaxellsen war armud iwulhen) deg ssmana-agi, deg:"
+    },
     "MATRICULE": "Uṭṭun n usekles",
     "NOM": "Isem n tmagit",
     "PRENOM": "Isem",
@@ -2320,6 +2337,7 @@
       "ALERTES_HINT": "Tuffɣa n tarbaɛt tettwafren zik: ssit akken ad twaliḍ imbedlen izemren.",
       "AUCUNE_ALERTE": "Ulac asmel ur nelhi ara deg 14 n wussan i d-iteddun.",
       "MANQUE": "Yeɣli {{manque}} n unemgal — {{requis}} i d-yettwasran i {{patients}} n unebdal",
+      "SUREFFECTIF_TIP": "{{count}} n imsawen ugar n umḍan yettwasran: sbedd-iten amkan-nniḍen",
       "ABSENTS": "Ur llin ara",
       "BESOIN": "{{patients}} n unebdal: {{requis}} n unemgal yettwasran, {{presents}} yettwaɣerrez",
       "SALLE_ISOLEMENT": "Taxxamt n usnaw (inemgalen yettwarran kan)",
@@ -2337,6 +2355,7 @@
       "LEGENDE": {
         "COUVERT": "Yettwasekles",
         "SOUS_EFFECTIF": "Tuffɣa n tarbaɛt",
+        "SUREFFECTIF": "Imsawen i d-yezwiren",
         "SANS_PATIENT": "War unebdal"
       },
       "RAISON": {
@@ -2838,6 +2857,17 @@
     "ISOLEMENT_IMPOSSIBLE": "{{nom}} yesɛa uḥrir n tuktit maca ulac amkan deg usuffeɣ: ilaq ad yettwasnulfu tikkelt-nniḍen.",
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} n ismalen ur nelhi ara s inemgalen deg wussan i d-iteddun (seg {{date}}): imbedlen ilaq ad ttwasuddmen",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} icuɛ tamettant seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
+    "INFIRMIER_SUREFFECTIF": "Imsawen i d-yezwiren: {{count}} n ismalen i yettwaǧǧan seg {{date}}, {{vacations}} n tmuɣliwin i d-yezwiren, d {{heures}} n yisragen ttwaxellsen war armud iwulhen",
+    "INFIRMIER_ABSENCE_ENREGISTREE": "Tamettant n {{infirmier}} tettwaseklas seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
+    "GENERATEUR_INDISPONIBLE": "Amsedday {{generateur}} ulac-it ({{statut}}): {{count}} n inelmaden ilaq ad ttwazzuzren {{patients}}",
+    "SEANCES_DEPLACEES": "Aɣawas yettwabeddel: {{patients}} n inelmaden ttwazzuzren, {{temporaires}} n tɣimiyin ttwazzuzren s wakud",
+    "ACTION": {
+      "PROPOSITION": "Ldi asumer",
+      "MAINTENANCE": "Sumer izuzar",
+      "COUVERTURE": "Nadi imsiwlen",
+      "ROULEMENT": "Ɛiwed asenqed n uzelmaḍ",
+      "PLANNING": "Wali aɣawas"
+    },
     "SEANCE_CREATED": "Tamsirt tettwarna i {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Tamsirt tettwaqbel i {{nom}} ({{date}})",
     "OPTIMISATION_PROPOSITION": {

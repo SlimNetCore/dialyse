@@ -3,6 +3,8 @@ import {provideZonelessChangeDetection, signal} from '@angular/core';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {beforeEach, describe, expect, it} from 'vitest';
 import {NotificationBellComponent} from './notification-bell.component';
+import {provideRouter} from '@angular/router';
+import {AuthStore} from '../state/auth.store';
 import {NotificationBellStore} from '../state/notification-bell.store';
 import {WebSocketService, WsEvent} from '../ws/websocket.service';
 
@@ -11,12 +13,16 @@ const event = (type: string, payload: Record<string, string>): WsEvent =>
 
 describe('NotificationBellComponent — textes des évènements', () => {
   let cmp: NotificationBellComponent;
+  let roles: string[];
 
   beforeEach(() => {
+    roles = ['ADMIN'];
     TestBed.configureTestingModule({
       imports: [NotificationBellComponent, TranslateModule.forRoot()],
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([]),
+        {provide: AuthStore, useValue: {hasRole: (r: string) => roles.includes(r)}},
         {provide: WebSocketService, useValue: {connectionStatus: signal('stable'), lastEvent: signal(null)}},
         {
           provide: NotificationBellStore,
@@ -101,6 +107,83 @@ describe('NotificationBellComponent — textes des évènements', () => {
 
     expect(cmp.textFor(evt)).toBe('Séance du 2026-10-05 supprimée');
     expect(cmp.iconFor(evt)).toBe('delete');
+  });
+
+  it('alerte l\'administrateur d\'un générateur indisponible avec ses patients', () => {
+    TestBed.inject(TranslateService).setTranslation('fr', {
+      NOTIFICATION: {GENERATEUR_INDISPONIBLE: '{{generateur}} {{statut}} : {{count}} patient(s) ({{patients}})'},
+      GMAO: {STATUT_EQUIPEMENT: {HORS_SERVICE: 'hors service'}},
+    }, true);
+    const evt = event('GENERATEUR_INDISPONIBLE', {
+      generateur: 'A-G1', statut: 'HORS_SERVICE', nbPatients: '2',
+      patients: 'BENALI Karim, KACI Lila', targetRoles: 'ADMIN,SECRETAIRE'
+    });
+
+    expect(cmp.textFor(evt)).toBe('A-G1 hors service : 2 patient(s) (BENALI Karim, KACI Lila)');
+    expect(cmp.iconFor(evt)).toBe('build_circle');
+    expect(cmp.iconClass(evt)).toBe('warning');
+  });
+
+  it('prévient le médecin que des séances ont été déplacées et que l\'administrateur a une absence à couvrir', () => {
+    TestBed.inject(TranslateService).setTranslation('fr', {
+      NOTIFICATION: {
+        SEANCES_DEPLACEES: '{{patients}} patient(s), {{temporaires}} séance(s) temporaire(s)',
+        INFIRMIER_ABSENCE_ENREGISTREE: '{{infirmier}} absent du {{debut}} au {{fin}}',
+      },
+    }, true);
+
+    const deplacees = event('SEANCES_DEPLACEES', {perimetre: 'PATIENTS', nbPatients: '3', nbSeancesTemporaires: '0'});
+    const absence = event('INFIRMIER_ABSENCE_ENREGISTREE', {
+      infirmier: 'Amrani Sara', debut: '2026-10-08',
+      fin: '2026-10-09', targetRoles: 'ADMIN'
+    });
+
+    expect(cmp.textFor(deplacees)).toBe('3 patient(s), 0 séance(s) temporaire(s)');
+    expect(cmp.iconFor(deplacees)).toBe('swap_horiz');
+    expect(cmp.textFor(absence)).toBe('Amrani Sara absent du 2026-10-08 au 2026-10-09');
+    expect(cmp.iconFor(absence)).toBe('event_busy');
+    expect(cmp.iconClass(absence)).toBe('warning');
+  });
+
+  it('chiffre pour l\'administrateur le sur-effectif d\'infirmiers payés sans activité utile', () => {
+    TestBed.inject(TranslateService).setTranslation('fr', {
+      NOTIFICATION: {INFIRMIER_SUREFFECTIF: '{{count}} créneau(x) dès le {{date}} : {{vacations}} vacation(s), {{heures}} h'},
+    }, true);
+    const evt = event('INFIRMIER_SUREFFECTIF', {
+      nbCreneaux: '2', nbVacations: '3', heures: '15',
+      premiereDate: '2026-10-08', targetRoles: 'ADMIN'
+    });
+
+    expect(cmp.textFor(evt)).toBe('2 créneau(x) dès le 2026-10-08 : 3 vacation(s), 15 h');
+    expect(cmp.iconFor(evt)).toBe('person_off');
+    expect(cmp.iconClass(evt)).toBe('warning');
+    expect(cmp.lienFor(evt)).toMatchObject({
+      commands: ['/seances/optimisation'],
+      queryParams: {perimetre: 'ROULEMENT'}
+    });
+  });
+
+  it('mène chaque alerte à l\'optimisation du bon périmètre ou à la proposition elle-même', () => {
+    const lien = (type: string, payload: Record<string, string> = {}) => cmp.lienFor(event(type, payload));
+
+    expect(lien('OPTIMISATION_PROPOSITION', {runId: 'r1'})).toMatchObject({
+      commands: ['/seances/optimisation'], queryParams: {run: 'r1'},
+    });
+    expect(lien('GENERATEUR_INDISPONIBLE')).toMatchObject({queryParams: {perimetre: 'MAINTENANCE'}});
+    for (const type of ['INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_ABSENCE_DECLAREE', 'INFIRMIER_ABSENCE_ENREGISTREE']) {
+      expect(lien(type), type).toMatchObject({queryParams: {perimetre: 'COUVERTURE'}});
+    }
+    expect(lien('SEANCES_DEPLACEES')).toMatchObject({commands: ['/seances/planning']});
+    expect(lien('SAISIE_INFIRMIER')).toBeNull();
+    expect(lien('OPTIMISATION_PROPOSITION')).toBeNull();
+  });
+
+  it('ne propose pas l\'optimisation à un profil qui ne peut pas la lancer', () => {
+    roles = ['MEDECIN'];
+
+    expect(cmp.lienFor(event('GENERATEUR_INDISPONIBLE', {}))).toBeNull();
+    expect(cmp.lienFor(event('OPTIMISATION_PROPOSITION', {runId: 'r1'}))).toBeNull();
+    expect(cmp.lienFor(event('SEANCES_DEPLACEES', {}))).toMatchObject({commands: ['/seances/planning']});
   });
 
   it('affiche le type brut d\'un évènement inconnu', () => {

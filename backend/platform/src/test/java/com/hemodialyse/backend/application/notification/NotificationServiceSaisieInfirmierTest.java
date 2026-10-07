@@ -28,7 +28,9 @@ import static org.mockito.Mockito.when;
 class NotificationServiceSaisieInfirmierTest {
 
     private final SimpMessagingTemplate messaging = mock(SimpMessagingTemplate.class);
-    private final NotificationService service = new NotificationService(messaging, mock(DirectionRealtimeService.class));
+    private final NotificationJournalPort journal = mock(NotificationJournalPort.class);
+    private final NotificationService service = new NotificationService(messaging, mock(DirectionRealtimeService.class),
+            journal);
     private final UUID centre = UUID.randomUUID();
 
     @SuppressWarnings("unchecked")
@@ -56,6 +58,44 @@ class NotificationServiceSaisieInfirmierTest {
         assertEquals("inf-01", payload.get("auteur"));
         assertEquals("2026-10-04", payload.get("date"));
         assertEquals(patient.toString(), payload.get("patientId"));
+    }
+
+    @Test
+    void a_durable_alert_is_journaled_and_pushed_with_its_identifier() {
+        service.notifySeancesARegulariser(centre, 2, LocalDate.of(2026, 10, 1));
+        service.notifyGenerateurIndisponible(centre, "A-G1", "HORS_SERVICE", java.util.List.of("BENALI Karim"));
+
+        Map<String, Object> evt = publieTous().get(1);
+        assertEquals("GENERATEUR_INDISPONIBLE", evt.get("type"));
+        verify(journal).enregistrer(eq(UUID.fromString((String) evt.get("id"))), eq(centre),
+                eq("GENERATEUR_INDISPONIBLE"), any(), any());
+    }
+
+    @Test
+    void a_transient_event_is_pushed_without_being_journaled() {
+        service.notifyPatientCreated(centre, UUID.randomUUID(), "P1", "Benali", "Karim");
+
+        verify(journal, org.mockito.Mockito.never()).enregistrer(any(), any(), any(), any(), any());
+        assertNull(publieTous().get(0).get("id"));
+    }
+
+    @Test
+    void a_journal_failure_never_blocks_the_real_time_alert() {
+        doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(), any(), any(), any(), any());
+
+        service.notifyGenerateurIndisponible(centre, "A-G1", "HORS_SERVICE", java.util.List.of());
+
+        Map<String, Object> evt = publieTous().get(0);
+        assertEquals("GENERATEUR_INDISPONIBLE", evt.get("type"));
+        assertNull(evt.get("id"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private java.util.List<Map<String, Object>> publieTous() {
+        ArgumentCaptor<Object> events = ArgumentCaptor.forClass(Object.class);
+        verify(messaging, org.mockito.Mockito.atLeastOnce()).convertAndSend(eq("/topic/center/" + centre + "/events"),
+                events.capture());
+        return events.getAllValues().stream().map(o -> (Map<String, Object>) o).toList();
     }
 
     @Test

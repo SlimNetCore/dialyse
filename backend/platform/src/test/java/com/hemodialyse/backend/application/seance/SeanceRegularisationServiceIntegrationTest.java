@@ -111,7 +111,8 @@ class SeanceRegularisationServiceIntegrationTest {
     void the_reminder_targets_the_administrator_only() {
         SimpMessagingTemplate messaging = mock(SimpMessagingTemplate.class);
         NotificationService notifications = new NotificationService(messaging,
-                mock(com.hemodialyse.backend.application.direction.DirectionRealtimeService.class));
+                mock(com.hemodialyse.backend.application.direction.DirectionRealtimeService.class),
+                mock(com.hemodialyse.backend.application.notification.NotificationJournalPort.class));
 
         notifications.notifySeancesARegulariser(CENTER_A, 3, AUJOURDHUI.minusDays(7));
 

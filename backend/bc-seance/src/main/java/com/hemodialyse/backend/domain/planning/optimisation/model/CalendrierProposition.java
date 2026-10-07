@@ -30,9 +30,15 @@ public final class CalendrierProposition {
     /**
      * @param deplace    patient dont la place change dans la proposition
      * @param temporaire patient placé ici seulement ce jour-là (générateur indisponible à sa place habituelle)
+     * @param avant      place qu'il occupait avant la proposition (« salle · créneau · générateur », ou sa place
+     *                   habituelle pour une place temporaire) ; null s'il n'avait pas de place ou s'il n'est pas déplacé
      */
     public record PatientCalendrier(UUID patientId, String nom, String generateurCode, boolean aRisque,
-                                    boolean deplace, boolean temporaire) {
+                                    boolean deplace, boolean temporaire, String avant) {
+        public PatientCalendrier(UUID patientId, String nom, String generateurCode, boolean aRisque,
+                                 boolean deplace, boolean temporaire) {
+            this(patientId, nom, generateurCode, aRisque, deplace, temporaire, null);
+        }
     }
 
     public record InfirmierCalendrier(String nom, SituationInfirmier situation) {
@@ -40,13 +46,20 @@ public final class CalendrierProposition {
 
     /**
      * Un jour d'une case. {@code requis} : infirmiers exigés par le ratio de sécurité pour les patients présents ;
-     * {@code manque} : ce qu'il reste à pourvoir.
+     * {@code manque} : ce qu'il reste à pourvoir ; {@code surplus} : infirmiers prévus au-delà de l'effectif requis
+     * (personnel payé sans activité utile, une salle sans patient comprise).
      */
     public record JourCalendrier(JourSemaine jour, LocalDate date, boolean ferme, String motifFermeture, int requis,
-                                 int manque, List<PatientCalendrier> patients, List<InfirmierCalendrier> infirmiers) {
+                                 int manque, int surplus, List<PatientCalendrier> patients,
+                                 List<InfirmierCalendrier> infirmiers) {
         public JourCalendrier {
             patients = patients == null ? List.of() : List.copyOf(patients);
             infirmiers = infirmiers == null ? List.of() : List.copyOf(infirmiers);
+        }
+
+        public JourCalendrier(JourSemaine jour, LocalDate date, boolean ferme, String motifFermeture, int requis,
+                              int manque, List<PatientCalendrier> patients, List<InfirmierCalendrier> infirmiers) {
+            this(jour, date, ferme, motifFermeture, requis, manque, 0, patients, infirmiers);
         }
 
         public boolean vide() {

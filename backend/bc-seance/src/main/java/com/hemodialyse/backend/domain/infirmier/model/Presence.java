@@ -94,6 +94,11 @@ public final class Presence {
     public record Absent(UUID infirmierId, String nom, TypeAbsence type) {
     }
 
+    /**
+     * @param manque  infirmiers qui manquent pour atteindre l'effectif requis
+     * @param surplus infirmiers comptés au-delà de l'effectif requis (une salle sans patient avec un infirmier : tous
+     *                sont en trop) ; ressources qu'on pourrait affecter ailleurs
+     */
     public record CasePresence(
             UUID salleId,
             UUID creneauId,
@@ -104,6 +109,7 @@ public final class Presence {
             boolean salleIsolement,
             StatutCase statut,
             int manque,
+            int surplus,
             List<Present> presents,
             List<Absent> absents
     ) {
@@ -131,6 +137,13 @@ public final class Presence {
      */
     public record AlertePresence(LocalDate date, JourSemaine jour, UUID salleId, UUID creneauId, int patients,
                                  int requis, int manque, List<String> absents) {
+    }
+
+    /**
+     * Case où des infirmiers sont prévus au-delà de l'effectif requis (personnel payé sans activité utile).
+     */
+    public record AlerteSureffectif(LocalDate date, JourSemaine jour, UUID salleId, UUID creneauId, int patients,
+                                    int requis, int surplus) {
     }
 
     /**

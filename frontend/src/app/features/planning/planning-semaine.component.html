@@ -51,6 +51,41 @@
   </span>
 </ng-template>
 
+<ng-template #infirmiersTpl let-c>
+  <ul class="nurses" data-testid="week-infirmiers">
+    @for (n of c.presents; track n.infirmierId) {
+      <li [class.sub]="n.remplacant" data-testid="week-infirmier">
+        <mat-icon class="chip-ico">medical_services</mat-icon>
+        {{ n.nom }}
+        @if (n.remplacant) {
+          <small>({{ 'INFIRMIER.PRESENCE.REMPLACANT' | translate }})</small>
+        }
+      </li>
+    }
+    @for (a of c.absents; track a.infirmierId) {
+      <li class="absent" data-testid="week-infirmier-absent">
+        <mat-icon class="chip-ico">medical_services</mat-icon>
+        {{ a.nom }}
+        <small>({{ ('INFIRMIER.ABSENCES.TYPES.' + a.type) | translate }})</small>
+      </li>
+    }
+    @if (c.manque > 0) {
+      <li class="under" data-testid="week-manque">
+        <mat-icon class="chip-ico">warning</mat-icon>
+        {{ 'PLANNING.SEMAINE.INFIRMIERS_MANQUE' | translate: {count: c.manque, requis: c.requis} }}
+      </li>
+    } @else if (c.requis > 0) {
+      <li class="need">{{ 'PLANNING.SEMAINE.INFIRMIERS_REQUIS' | translate: {requis: c.requis} }}</li>
+    }
+    @if (c.surplus > 0) {
+      <li class="over" data-testid="week-surplus">
+        <mat-icon class="chip-ico">add_circle</mat-icon>
+        {{ 'PLANNING.SEMAINE.INFIRMIERS_SURPLUS' | translate: {count: c.surplus} }}
+      </li>
+    }
+  </ul>
+</ng-template>
+
 <div class="week-page">
   <header class="week-head">
     <div>
@@ -143,6 +178,29 @@
             </li>
           </ul>
         </section>
+        <section>
+          <h4>{{ 'PLANNING.SEMAINE.LEGENDE.INFIRMIERS' | translate }}</h4>
+          <ul class="legend-list">
+            <li>
+              <mat-icon class="chip-ico">medical_services</mat-icon>
+              {{ 'PLANNING.SEMAINE.LEGENDE.INFIRMIER_PREVU' | translate }}
+            </li>
+            <li>
+              <mat-icon class="chip-ico">medical_services</mat-icon>
+              <em>{{ 'PLANNING.SEMAINE.LEGENDE.INFIRMIER_REMPLACANT' | translate }}</em></li>
+            <li>
+              <mat-icon class="chip-ico">medical_services</mat-icon>
+              <s>{{ 'PLANNING.SEMAINE.LEGENDE.INFIRMIER_ABSENT' | translate }}</s></li>
+            <li>
+              <mat-icon class="chip-ico under-ico">warning</mat-icon>
+              {{ 'PLANNING.SEMAINE.LEGENDE.INFIRMIER_MANQUE' | translate }}
+            </li>
+            <li>
+              <mat-icon class="chip-ico over-ico">add_circle</mat-icon>
+              {{ 'PLANNING.SEMAINE.LEGENDE.INFIRMIER_SURPLUS' | translate }}
+            </li>
+          </ul>
+        </section>
         <section class="legend-explain">
           <h4>{{ 'PLANNING.SEMAINE.LEGENDE.LIRE' | translate }}</h4>
           <p data-testid="week-legend-ratio">{{ 'PLANNING.SEMAINE.LEGENDE.RATIO' | translate }}</p>
@@ -218,6 +276,10 @@
                           class="cap">{{ c.occupants.length }}/{{ c.capacite }}</small>
                       }
                     }
+                    @let pr = presence(ligne.salle.id, ligne.creneau.id, j);
+                    @if (avecInfirmiers(pr)) {
+                      <ng-container [ngTemplateOutletContext]="{$implicit: pr}" [ngTemplateOutlet]="infirmiersTpl"/>
+                    }
                   </td>
                 }
               </tr>
@@ -280,6 +342,10 @@
                       [ngTemplateOutlet]="patientTpl"/>
                   } @empty {
                     <p class="week-sub">{{ 'PLANNING.SEMAINE.CASE_VIDE' | translate }}</p>
+                  }
+                  @let pr = presence(l.salle.id, l.creneau.id, ja);
+                  @if (avecInfirmiers(pr)) {
+                    <ng-container [ngTemplateOutletContext]="{$implicit: pr}" [ngTemplateOutlet]="infirmiersTpl"/>
                   }
                 </mat-card-content>
               </mat-card>

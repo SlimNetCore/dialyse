@@ -7,11 +7,14 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {WebSocketService, WsEvent} from '../ws/websocket.service';
 import {DatePipe, JsonPipe} from '@angular/common';
 import {NotificationBellStore} from '../state/notification-bell.store';
+import {AuthStore} from '../state/auth.store';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
   imports: [
+    RouterLink,
     MatIconModule,
     MatButtonModule,
     MatBadgeModule,
@@ -28,6 +31,7 @@ export class NotificationBellComponent {
   readonly ws = inject(WebSocketService);
   private readonly notifStore = inject(NotificationBellStore);
   private readonly translate = inject(TranslateService);
+  private readonly auth = inject(AuthStore);
 
   readonly open = this.notifStore.open;
   readonly activeTab = this.notifStore.activeTab;
@@ -87,8 +91,15 @@ export class NotificationBellComponent {
       case 'INFIRMIER_SOUS_EFFECTIF':
         return 'groups';
       case 'INFIRMIER_ABSENCE_DECLAREE':
+      case 'INFIRMIER_ABSENCE_ENREGISTREE':
       case 'ABSENCES_A_QUALIFIER':
         return 'event_busy';
+      case 'GENERATEUR_INDISPONIBLE':
+        return 'build_circle';
+      case 'INFIRMIER_SUREFFECTIF':
+        return 'person_off';
+      case 'SEANCES_DEPLACEES':
+        return 'swap_horiz';
       case 'PATIENT_REPLACE_ISOLEMENT':
       case 'ISOLEMENT_IMPOSSIBLE':
         return 'masks';
@@ -116,15 +127,62 @@ export class NotificationBellComponent {
       case 'PEC_CLOSED':
       case 'INFIRMIER_SOUS_EFFECTIF':
       case 'INFIRMIER_ABSENCE_DECLAREE':
+      case 'INFIRMIER_ABSENCE_ENREGISTREE':
       case 'ABSENCES_A_QUALIFIER':
       case 'SEANCES_A_REGULARISER':
       case 'PATIENT_REPLACE_ISOLEMENT':
       case 'ISOLEMENT_IMPOSSIBLE':
+      case 'GENERATEUR_INDISPONIBLE':
+      case 'INFIRMIER_SUREFFECTIF':
         return 'warning';
       case 'OPTIMISATION_PROPOSITION':
         return evt.payload['motif'] === 'GAIN' ? 'pec' : 'warning';
       default:
         return '';
+    }
+  }
+
+  /**
+   * Écran où traiter l'alerte : l'optimisation du bon périmètre (ou la proposition elle-même), ou le planning. Réservé
+   * aux profils qui peuvent lancer l'optimisation ; le médecin n'a que le planning.
+   */
+  lienFor(evt: WsEvent): { label: string; commands: string[]; queryParams: Record<string, string> } | null {
+    const peutOptimiser = this.auth.hasRole('ADMIN') || this.auth.hasRole('SECRETAIRE');
+    switch (evt.type) {
+      case 'OPTIMISATION_PROPOSITION':
+        return peutOptimiser && evt.payload['runId']
+          ? {
+            label: 'NOTIFICATION.ACTION.PROPOSITION', commands: ['/seances/optimisation'],
+            queryParams: {run: evt.payload['runId']}
+          }
+          : null;
+      case 'GENERATEUR_INDISPONIBLE':
+        return peutOptimiser
+          ? {
+            label: 'NOTIFICATION.ACTION.MAINTENANCE', commands: ['/seances/optimisation'],
+            queryParams: {perimetre: 'MAINTENANCE'}
+          }
+          : null;
+      case 'INFIRMIER_SOUS_EFFECTIF':
+      case 'INFIRMIER_ABSENCE_DECLAREE':
+      case 'INFIRMIER_ABSENCE_ENREGISTREE':
+        return peutOptimiser
+          ? {
+            label: 'NOTIFICATION.ACTION.COUVERTURE', commands: ['/seances/optimisation'],
+            queryParams: {perimetre: 'COUVERTURE'}
+          }
+          : null;
+      case 'INFIRMIER_SUREFFECTIF':
+        return peutOptimiser
+          ? {
+            label: 'NOTIFICATION.ACTION.ROULEMENT', commands: ['/seances/optimisation'],
+            queryParams: {perimetre: 'ROULEMENT'}
+          }
+          : null;
+      case 'SEANCES_DEPLACEES':
+        return {label: 'NOTIFICATION.ACTION.PLANNING', commands: ['/seances/planning'], queryParams: {}};
+      default:
+        return null;
     }
   }
 
@@ -147,6 +205,31 @@ export class NotificationBellComponent {
           infirmier: evt.payload['infirmier'] ?? '',
           debut: evt.payload['debut'] ?? '',
           fin: evt.payload['fin'] ?? '',
+        });
+      case 'INFIRMIER_ABSENCE_ENREGISTREE':
+        return this.translate.instant('NOTIFICATION.INFIRMIER_ABSENCE_ENREGISTREE', {
+          infirmier: evt.payload['infirmier'] ?? '',
+          debut: evt.payload['debut'] ?? '',
+          fin: evt.payload['fin'] ?? '',
+        });
+      case 'GENERATEUR_INDISPONIBLE':
+        return this.translate.instant('NOTIFICATION.GENERATEUR_INDISPONIBLE', {
+          generateur: evt.payload['generateur'] ?? '',
+          statut: this.translate.instant(`GMAO.STATUT_EQUIPEMENT.${evt.payload['statut'] ?? ''}`),
+          count: evt.payload['nbPatients'] ?? '0',
+          patients: evt.payload['patients'] ?? '',
+        });
+      case 'INFIRMIER_SUREFFECTIF':
+        return this.translate.instant('NOTIFICATION.INFIRMIER_SUREFFECTIF', {
+          count: evt.payload['nbCreneaux'] ?? '0',
+          date: evt.payload['premiereDate'] ?? '',
+          vacations: evt.payload['nbVacations'] ?? '0',
+          heures: evt.payload['heures'] ?? '0',
+        });
+      case 'SEANCES_DEPLACEES':
+        return this.translate.instant('NOTIFICATION.SEANCES_DEPLACEES', {
+          patients: evt.payload['nbPatients'] ?? '0',
+          temporaires: evt.payload['nbSeancesTemporaires'] ?? '0',
         });
       case 'PATIENT_REPLACE_ISOLEMENT':
         return this.translate.instant('NOTIFICATION.PATIENT_REPLACE_ISOLEMENT', {

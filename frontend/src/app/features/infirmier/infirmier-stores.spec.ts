@@ -119,6 +119,28 @@ describe('stores infirmiers', () => {
     expect(api['list'].mock.calls.length).toBeGreaterThan(3);
   });
 
+  it('InfirmiersStore retient les jours en sur-effectif d\'une affectation enregistrée, sans la refuser', () => {
+    api['addAffectation'].mockReturnValue(of({id: 'af2', joursEnSureffectif: ['MERCREDI']}));
+    const store = TestBed.inject(InfirmiersStore);
+
+    store.addAffectation({infirmierId: 'i1', payload: {salleId: 's', creneauId: 'c', jours: ['LUNDI', 'MERCREDI']}});
+
+    expect(store.successMessage()).toBe('INFIRMIER.SAVED_OK');
+    expect(store.joursEnSureffectif()).toEqual(['MERCREDI']);
+
+    store.deleteAffectation({infirmierId: 'i1', affectationId: 'af2'});
+    expect(store.joursEnSureffectif()).toEqual([]);
+  });
+
+  it('InfirmiersStore ne signale aucun sur-effectif quand le serveur n\'en indique pas', () => {
+    api['addAffectation'].mockReturnValue(of({id: 'af3'}));
+    const store = TestBed.inject(InfirmiersStore);
+
+    store.addAffectation({infirmierId: 'i1', payload: {salleId: 's', creneauId: 'c', jours: ['LUNDI']}});
+
+    expect(store.joursEnSureffectif()).toEqual([]);
+  });
+
   it('InfirmiersStore traduit les erreurs métier du serveur', () => {
     api['create'].mockReturnValue(throwError(() => erreurServeur('INFIRMIER_MATRICULE_EXISTANT')));
     const store = TestBed.inject(InfirmiersStore);

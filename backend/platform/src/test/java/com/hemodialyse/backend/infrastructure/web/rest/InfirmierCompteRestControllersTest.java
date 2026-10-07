@@ -64,7 +64,7 @@ class InfirmierCompteRestControllersTest {
 
     private InfirmierRestController referentiel(CompteInfirmierService comptes) {
         return new InfirmierRestController(mock(InfirmierService.class), mock(AffectationInfirmierService.class), comptes,
-                guard);
+                mock(com.hemodialyse.backend.application.infirmier.PresenceInfirmierQueryService.class), guard);
     }
 
     private Infirmier fiche(UUID userId) {

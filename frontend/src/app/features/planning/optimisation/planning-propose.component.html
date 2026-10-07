@@ -8,7 +8,8 @@
   } @else {
     <ul class="pp-patients">
       @for (p of j.patients; track p.patientId) {
-        <li [class.moved]="p.deplace" [class.risk]="p.aRisque" [class.temp]="p.temporaire" data-testid="pp-patient">
+        <li [class.moved]="p.deplace" [class.risk]="p.aRisque" [class.temp]="p.temporaire"
+            [matTooltip]="placeAvant(p)" data-testid="pp-patient">
           <span class="pp-nom">{{ p.nom }}</span>
           @if (p.generateurCode) {
             <small class="pp-gen">{{ p.generateurCode }}</small>
@@ -45,6 +46,11 @@
         {{ 'PLANNING.OPTIM.CALENDRIER.EFFECTIF' | translate: {patients: j.patients.length, requis: j.requis} }}
         @if (j.manque > 0) {
           <strong class="pp-manque">· {{ 'PLANNING.OPTIM.CALENDRIER.MANQUE' | translate: {count: j.manque} }}</strong>
+        }
+        @if (j.surplus) {
+          <strong class="pp-surplus" data-testid="pp-surplus">
+            · {{ 'PLANNING.OPTIM.CALENDRIER.SURPLUS' | translate: {count: j.surplus} }}
+          </strong>
         }
       </small>
     }
@@ -106,6 +112,7 @@
     <ul class="pp-legend" data-testid="pp-legend">
       <li><span class="sw ok"></span>{{ 'PLANNING.OPTIM.CALENDRIER.LEGENDE.COUVERT' | translate }}</li>
       <li><span class="sw manque"></span>{{ 'PLANNING.OPTIM.CALENDRIER.LEGENDE.MANQUE' | translate }}</li>
+      <li><strong class="pp-surplus">+N</strong>{{ 'PLANNING.OPTIM.CALENDRIER.LEGENDE.SURPLUS' | translate }}</li>
       <li><span class="sw closed"></span>{{ 'PLANNING.SEMAINE.LEGENDE.FERME' | translate }}</li>
       <li>
         <mat-icon class="pp-ico">swap_horiz</mat-icon>

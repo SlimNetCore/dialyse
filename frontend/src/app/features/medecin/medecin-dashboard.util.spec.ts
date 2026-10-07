@@ -24,7 +24,7 @@ const cellule = (salleId: string, creneauId: string, jour: JourSemaine, occupant
 const casePresence = (salleId: string, creneauId: string, jour: JourSemaine, statut: CasePresence['statut'],
                       presents: string[], requis = 1): CasePresence => ({
   salleId, creneauId, jour, date: '2026-09-28', patients: 0, requis, salleIsolement: false, statut, manque: 0,
-  presents: presents.map((nom) => ({
+  surplus: 0, presents: presents.map((nom) => ({
     infirmierId: nom,
     nom,
     habiliteIsolement: false,

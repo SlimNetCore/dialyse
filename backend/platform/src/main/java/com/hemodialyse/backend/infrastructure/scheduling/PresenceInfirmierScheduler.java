@@ -3,6 +3,8 @@ package com.hemodialyse.backend.infrastructure.scheduling;
 import com.hemodialyse.backend.application.infirmier.PresenceInfirmierQueryService;
 import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.infirmier.model.Presence.AlertePresence;
+import com.hemodialyse.backend.domain.infirmier.model.Presence.AlerteSureffectif;
+import com.hemodialyse.backend.domain.planning.optimisation.port.ReglagesOptimisationPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,7 +18,8 @@ import java.util.UUID;
 
 /**
  * Job quotidien : prévient l'administration et le secrétariat de chaque centre dont le planning de présence des
- * infirmiers compte des créneaux en sous-effectif dans les jours à venir, pour organiser les remplacements à l'avance.
+ * infirmiers compte des créneaux en sous-effectif dans les jours à venir, pour organiser les remplacements à l'avance ;
+ * prévient l'administrateur des créneaux en sur-effectif (personnel payé sans activité utile), avec les heures concernées.
  */
 @Component
 public class PresenceInfirmierScheduler {
@@ -26,12 +29,14 @@ public class PresenceInfirmierScheduler {
     private final JdbcTemplate jdbc;
     private final PresenceInfirmierQueryService presence;
     private final NotificationService notificationService;
+    private final ReglagesOptimisationPort reglages;
 
     public PresenceInfirmierScheduler(JdbcTemplate jdbc, PresenceInfirmierQueryService presence,
-                                      NotificationService notificationService) {
+                                      NotificationService notificationService, ReglagesOptimisationPort reglages) {
         this.jdbc = jdbc;
         this.presence = presence;
         this.notificationService = notificationService;
+        this.reglages = reglages;
     }
 
     /**
@@ -47,14 +52,25 @@ public class PresenceInfirmierScheduler {
     }
 
     void controlerCentre(UUID centre, LocalDate aujourdhui) {
+        // les deux contrôles sont indépendants : l'échec de l'un n'empêche ni l'autre ni les autres centres
         try {
             List<AlertePresence> alertes = presence.alertes(centre, aujourdhui, HORIZON_JOURS);
             if (!alertes.isEmpty()) {
                 notificationService.notifyPresenceSousEffectif(centre, alertes.size(), alertes.get(0).date());
             }
         } catch (RuntimeException e) {
-            // un centre en erreur ne doit pas empêcher le contrôle des autres
-            log.warn("[PRESENCE] Contrôle impossible pour le centre {}", centre, e);
+            log.warn("[PRESENCE] Contrôle du sous-effectif impossible pour le centre {}", centre, e);
+        }
+        try {
+            List<AlerteSureffectif> surplus = presence.alertesSureffectif(centre, aujourdhui, HORIZON_JOURS);
+            if (!surplus.isEmpty()) {
+                int vacations = surplus.stream().mapToInt(AlerteSureffectif::surplus).sum();
+                int heures = vacations * reglages.lire(centre).heuresParVacation();
+                notificationService.notifyPresenceSureffectif(centre, surplus.size(), vacations, heures,
+                        surplus.get(0).date());
+            }
+        } catch (RuntimeException e) {
+            log.warn("[PRESENCE] Contrôle du sur-effectif impossible pour le centre {}", centre, e);
         }
     }
 }

@@ -95,6 +95,22 @@
   (`INFIRMIER_SOUS_EFFECTIF` : nombre de créneaux et première date). Un centre en erreur
   n'empêche pas les autres.
 
+- **RG-INF-047** — **Sur-effectif.** Chaque case porte aussi le nombre d'infirmiers **en trop** (`surplus`) : infirmiers
+  comptés (en salle d'isolement, seuls les habilités comptent) moins l'effectif requis, jamais négatif ; dans une salle
+  sans patient, tous les infirmiers prévus sont en trop. Le sur-effectif n'est **pas** un manque : le statut de la case
+  reste `COUVERT` (ou `SANS_PATIENT`), aucune alerte n'est envoyée ; il est signalé en jaune avec « +N » sur le planning
+  de
+  présence et en « N infirmier (s) en trop » sur le planning des séances, pour réaffecter ces ressources aux cases en
+  sous-effectif. C'est toutefois du personnel payé sans activité utile : le **contrôle quotidien de 07:15** (RG-INF-046)
+  prévient aussi l'administrateur (`INFIRMIER_SUREFFECTIF`) dès qu'une case des 14 prochains jours est en sur-effectif —
+  **y compris une case avec patients dont les infirmiers dépassent le ratio** (3 infirmiers pour 4 patients avec un
+  ratio de 4) — avec le nombre de cases, de vacations en trop et les **heures payées sans activité utile** (vacations en
+  trop × durée d'une vacation des réglages du centre, RG-PLN-098). Ce contrôle est indépendant de celui du
+  sous-effectif : l'échec de l'un n'empêche pas l'autre. À l' **affectation** d'un infirmier à une salle (RG-INF-020),
+  la
+  réponse indique les jours de la semaine en cours où elle crée un sur-effectif ; l'écran affiche un avertissement, sans
+  jamais refuser ni annuler l'affectation (un échec du calcul de cet avertissement est ignoré).
+
 ## 10.6 Remplaçants
 
 - **RG-INF-050** — Pour une case, les candidats **exclus** sont : les infirmiers absents ce jour-là, ceux déjà prévus

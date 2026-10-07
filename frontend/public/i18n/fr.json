@@ -2226,6 +2226,9 @@
       "JOUR_FERME": "Le centre ne dialyse pas ce jour.",
       "AUCUN_PATIENT_JOUR": "Aucun patient ni générateur planifié ce jour.",
       "CASE_VIDE": "Aucun patient placé.",
+      "INFIRMIERS_MANQUE": "Manque {{count}} infirmier(s) sur {{requis}} requis",
+      "INFIRMIERS_REQUIS": "{{requis}} infirmier(s) requis",
+      "INFIRMIERS_SURPLUS": "{{count}} infirmier(s) en trop",
       "CLIC_DETAIL": "Cliquer pour voir le détail du patient",
       "SEANCE_VALIDEE": "Séance validée par l'infirmier : patient présent",
       "DECLARER_ABSENCE": "Déclarer l'absence",
@@ -2266,6 +2269,12 @@
         "RATIO": "Le chiffre « N/M » en bas d'une case = N patients placés / M générateurs disponibles dans la salle (capacité). Exemples : 2/4 = 2 patients pour 4 générateurs, il reste de la place ; 4/4 = case complète ; 40/1 = 40 patients pour un seul générateur, c'est une surcharge à corriger (replacer des patients ou ajouter des générateurs).",
         "RATIO_TIP": "{{n}} patient(s) placé(s) pour {{m}} générateur(s) disponible(s)",
         "GENERATEUR": "Le petit code à côté du nom d'un patient est son générateur (machine) attribué.",
+        "INFIRMIERS": "Infirmiers",
+        "INFIRMIER_PREVU": "Infirmier prévu au roulement",
+        "INFIRMIER_REMPLACANT": "Infirmier remplaçant (italique)",
+        "INFIRMIER_ABSENT": "Infirmier absent (barré)",
+        "INFIRMIER_MANQUE": "Infirmier manquant : effectif sous le ratio de sécurité",
+        "INFIRMIER_SURPLUS": "Infirmiers en trop : au-delà de l'effectif requis",
         "INTERACTIF": "Cliquez sur un patient pour voir son détail. L'icône d'absence déclare son absence à cette séance (jour du jour ou passé) : le patient est alors barré et la couleur change."
       },
       "CONFLIT": {
@@ -2463,6 +2472,9 @@
         "ABSENT": "Cette proposition n'a pas de planning calendaire : relancez le calcul.",
         "VIDE": "Aucune activité proposée cette semaine.",
         "AUCUN_JOUR": "Aucune activité proposée ce jour.",
+        "AVANT": "Avant la proposition : {{place}}",
+        "AVANT_AUCUNE": "Sans place avant la proposition",
+        "HABITUELLE": "Place habituelle : {{place}}",
         "DEPLACE": "Patient déplacé",
         "TEMPORAIRE": "Place temporaire",
         "SITUATION": {
@@ -2472,9 +2484,11 @@
         },
         "EFFECTIF": "{{patients}} patient(s), {{requis}} infirmier(s) requis",
         "MANQUE": "manque {{count}}",
+        "SURPLUS": "{{count}} en trop",
         "LEGENDE": {
           "COUVERT": "Case couverte",
-          "MANQUE": "Infirmier manquant"
+          "MANQUE": "Infirmier manquant",
+          "SURPLUS": "Infirmiers en trop (au-delà de l'effectif requis)"
         }
       },
       "OK": {
@@ -2565,6 +2579,9 @@
   },
   "INFIRMIER": {
     "TITLE_SINGULIER": "Infirmier",
+    "AFFECTATION": {
+      "SUREFFECTIF": "Affectation enregistrée, mais elle met des infirmiers en trop (personnel payé sans activité utile) cette semaine, le :"
+    },
     "MATRICULE": "Matricule",
     "NOM": "Nom",
     "PRENOM": "Prénom",
@@ -2680,6 +2697,7 @@
       "ALERTES_HINT": "Sous-effectif détecté à l'avance : cliquez pour voir les remplaçants possibles.",
       "AUCUNE_ALERTE": "Aucun créneau en sous-effectif dans les 14 prochains jours.",
       "MANQUE": "Il manque {{manque}} infirmier(s) — {{requis}} requis pour {{patients}} patient(s)",
+      "SUREFFECTIF_TIP": "{{count}} infirmier(s) de plus que l'effectif requis : à affecter ailleurs",
       "ABSENTS": "Absents",
       "BESOIN": "{{patients}} patient(s) : {{requis}} infirmier(s) requis, {{presents}} prévu(s)",
       "SALLE_ISOLEMENT": "Salle d'isolement (infirmiers habilités uniquement)",
@@ -2697,6 +2715,7 @@
       "LEGENDE": {
         "COUVERT": "Couvert",
         "SOUS_EFFECTIF": "Sous-effectif",
+        "SUREFFECTIF": "Infirmiers en trop",
         "SANS_PATIENT": "Sans patient"
       },
       "RAISON": {
@@ -3198,6 +3217,17 @@
     "ISOLEMENT_IMPOSSIBLE": "{{nom}} est à risque infectieux mais aucune place d'isolement n'est disponible : à replanifier.",
     "INFIRMIER_SOUS_EFFECTIF": "{{count}} créneau(x) en sous-effectif d'infirmiers dans les prochains jours (dès le {{date}}) : remplacements à organiser",
     "INFIRMIER_ABSENCE_DECLAREE": "{{infirmier}} a déclaré une absence du {{debut}} au {{fin}} : remplacement à organiser",
+    "INFIRMIER_SUREFFECTIF": "Sur-effectif d'infirmiers : {{count}} créneau(x) concerné(s) dès le {{date}}, {{vacations}} vacation(s) en trop, soit {{heures}} h payées sans activité utile",
+    "INFIRMIER_ABSENCE_ENREGISTREE": "Absence de {{infirmier}} enregistrée du {{debut}} au {{fin}} : remplacement à organiser",
+    "GENERATEUR_INDISPONIBLE": "Générateur {{generateur}} indisponible ({{statut}}) : {{count}} patient(s) à déplacer {{patients}}",
+    "SEANCES_DEPLACEES": "Planning modifié : {{patients}} patient(s) déplacé(s), {{temporaires}} séance(s) déplacée(s) temporairement",
+    "ACTION": {
+      "PROPOSITION": "Ouvrir la proposition",
+      "MAINTENANCE": "Proposer des déplacements",
+      "COUVERTURE": "Chercher des remplaçants",
+      "ROULEMENT": "Revoir le roulement",
+      "PLANNING": "Voir le planning"
+    },
     "SEANCE_CREATED": "Séance créée pour {{nom}} ({{date}})",
     "SEANCE_VALIDATED": "Séance validée pour {{nom}} ({{date}})",
     "OPTIMISATION_PROPOSITION": {

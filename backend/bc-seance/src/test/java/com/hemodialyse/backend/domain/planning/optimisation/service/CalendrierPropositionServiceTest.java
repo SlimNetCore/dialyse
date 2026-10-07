@@ -88,6 +88,8 @@ class CalendrierPropositionServiceTest {
         assertThat(salleA.patients()).extracting("nom").containsExactly("Amrani", "Benali");
         assertThat(salleA.patients().get(1).deplace()).isTrue();
         assertThat(salleA.patients().get(1).generateurCode()).isEqualTo("A-G2");
+        assertThat(salleA.patients().get(1).avant()).as("place avant la proposition").startsWith("Salle B · Matin · ");
+        assertThat(salleA.patients().get(0).avant()).as("un patient non déplacé n'a pas de place avant").isNull();
         assertThat(cases).as("la salle B n'accueille plus personne : plus de ligne").noneMatch(c -> c.salleId().equals(b.id()));
     }
 
@@ -130,6 +132,7 @@ class CalendrierPropositionServiceTest {
         assertThat(salleB.patients()).extracting("nom").containsExactly("Amrani", "Benali");
         assertThat(salleB.patients().get(1).temporaire()).isTrue();
         assertThat(salleB.patients().get(1).generateurCode()).isEqualTo("B-G2");
+        assertThat(salleB.patients().get(1).avant()).as("place habituelle").startsWith("Salle A · Matin · ");
     }
 
     @Test
@@ -189,6 +192,46 @@ class CalendrierPropositionServiceTest {
                 .extracting("situation").containsExactly(SituationInfirmier.NOUVEAU);
         assertThat(lundi.requis()).as("5 patients, ratio 4").isEqualTo(2);
         assertThat(lundi.manque()).isZero();
+    }
+
+    @Test
+    void should_report_the_surplus_when_the_proposal_plans_more_nurses_than_the_patients_require() {
+        OptimisationFixture f = new OptimisationFixture();
+        SalleRef a = f.salle("Salle A", 4);
+        CreneauRef matin = f.creneau("Matin");
+        for (int i = 0; i < 4; i++) f.patient("P" + i, false, a, matin, f.generateur(a, i), LUNDI);
+
+        List<CaseCalendrier> cases = construire(f, resultat(List.of(), List.of(), List.of(
+                        new VacationPlanifiee(LUNDI_DATE, LUNDI, a.id(), matin.id(), java.util.UUID.randomUUID(), "Sara", true),
+                        new VacationPlanifiee(LUNDI_DATE, LUNDI, a.id(), matin.id(), java.util.UUID.randomUUID(), "Nadia", false),
+                        new VacationPlanifiee(LUNDI_DATE, LUNDI, a.id(), matin.id(), java.util.UUID.randomUUID(), "Rym", false)),
+                List.of()), PerimetreOptimisation.COUVERTURE);
+
+        JourCalendrier lundi = jour(cases, a, matin, LUNDI_DATE);
+        assertThat(lundi.requis()).as("4 patients, ratio 4").isEqualTo(1);
+        assertThat(lundi.manque()).isZero();
+        assertThat(lundi.surplus()).as("3 infirmiers pour 1 requis").isEqualTo(2);
+    }
+
+    @Test
+    void should_report_the_surplus_of_the_current_roster_including_a_room_that_the_proposal_empties() {
+        OptimisationFixture f = new OptimisationFixture();
+        SalleRef a = f.salle("Salle A", 4);
+        SalleRef b = f.salle("Salle B", 4);
+        CreneauRef matin = f.creneau("Matin");
+        var p = f.patient("Benali", false, b, matin, f.generateur(b, 0), LUNDI);
+        f.patient("Amrani", false, a, matin, f.generateur(a, 0), LUNDI);
+        f.affecter(f.infirmier("Paul"), b, matin, LUNDI);
+        f.affecter(f.infirmier("Marie"), a, matin, LUNDI);
+        Poste vers = new Poste(a.id(), matin.id(), f.generateur(a, 1).id(), "A-G2");
+
+        List<CaseCalendrier> cases = construire(f, resultat(
+                List.of(new DeplacementPatient(p.patientId(), "Benali", p.actuelle(), vers)),
+                List.of(), List.of(), List.of()), PerimetreOptimisation.PATIENTS);
+
+        assertThat(jour(cases, a, matin, LUNDI_DATE).surplus()).as("2 patients, 1 infirmier requis, 1 prévu").isZero();
+        assertThat(cases).filteredOn(c -> c.salleId().equals(b.id())).singleElement().satisfies(
+                ligne -> assertThat(ligne.jours().get(1).surplus()).as("Paul reste dans une salle vidée").isEqualTo(1));
     }
 
     @Test

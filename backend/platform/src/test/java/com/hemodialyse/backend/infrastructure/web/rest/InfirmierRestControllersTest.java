@@ -67,7 +67,7 @@ class InfirmierRestControllersTest {
                 EnumSet.of(JourSemaine.MERCREDI, JourSemaine.LUNDI));
         when(infirmiers.lister(centre, 1, 5)).thenReturn(PagedResult.of(List.of(new InfirmierDetail(i, List.of(a))), 6, 1, 5));
         var controller = new InfirmierRestController(infirmiers, mock(AffectationInfirmierService.class),
-                mock(CompteInfirmierService.class), guard);
+                mock(CompteInfirmierService.class), mock(PresenceInfirmierQueryService.class), guard);
 
         PagedResult<InfirmierResponse> page = controller.lister(null, 1, 5).getBody();
 
@@ -84,7 +84,7 @@ class InfirmierRestControllersTest {
         when(infirmiers.creer(eq(centre), eq("M1"), eq("Amrani"), eq("Sara"), eq(null),
                 eq(QualificationInfirmier.INFIRMIER), eq(false))).thenReturn(new InfirmierDetail(i, List.of()));
         var controller = new InfirmierRestController(infirmiers, mock(AffectationInfirmierService.class),
-                mock(CompteInfirmierService.class), guard);
+                mock(CompteInfirmierService.class), mock(PresenceInfirmierQueryService.class), guard);
 
         ResponseEntity<InfirmierResponse> ok = controller.creer(null,
                 new InfirmierRequest("M1", "Amrani", "Sara", null, "INFIRMIER", false));
@@ -103,12 +103,55 @@ class InfirmierRestControllersTest {
         when(affectations.ajouter(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)))
                 .thenReturn(AffectationInfirmier.creer(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)));
         var controller = new InfirmierRestController(mock(InfirmierService.class), affectations,
-                mock(CompteInfirmierService.class), guard);
+                mock(CompteInfirmierService.class), mock(PresenceInfirmierQueryService.class), guard);
 
         var response = controller.ajouterAffectation(null, infirmier, new AffectationRequest(salle, creneau, List.of(JourSemaine.LUNDI)));
 
         assertEquals(201, response.getStatusCode().value());
         assertEquals(salle, response.getBody().salleId());
+        assertEquals(List.of(), response.getBody().joursEnSureffectif());
+    }
+
+    @Test
+    void an_assignment_that_creates_a_surplus_is_saved_and_reports_the_days_without_being_refused() {
+        AffectationInfirmierService affectations = mock(AffectationInfirmierService.class);
+        PresenceInfirmierQueryService presence = mock(PresenceInfirmierQueryService.class);
+        UUID infirmier = UUID.randomUUID();
+        UUID salle = UUID.randomUUID();
+        UUID creneau = UUID.randomUUID();
+        EnumSet<JourSemaine> jours = EnumSet.of(JourSemaine.LUNDI, JourSemaine.MERCREDI);
+        when(affectations.ajouter(centre, infirmier, salle, creneau, jours))
+                .thenReturn(AffectationInfirmier.creer(centre, infirmier, salle, creneau, jours));
+        when(presence.joursEnSureffectif(eq(centre), eq(salle), eq(creneau), eq(jours), any()))
+                .thenReturn(List.of(JourSemaine.MERCREDI));
+        var controller = new InfirmierRestController(mock(InfirmierService.class), affectations,
+                mock(CompteInfirmierService.class), presence, guard);
+
+        var response = controller.ajouterAffectation(null, infirmier,
+                new AffectationRequest(salle, creneau, List.of(JourSemaine.LUNDI, JourSemaine.MERCREDI)));
+
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals(List.of(JourSemaine.MERCREDI), response.getBody().joursEnSureffectif());
+    }
+
+    @Test
+    void a_failure_of_the_surplus_check_never_fails_the_assignment() {
+        AffectationInfirmierService affectations = mock(AffectationInfirmierService.class);
+        PresenceInfirmierQueryService presence = mock(PresenceInfirmierQueryService.class);
+        UUID infirmier = UUID.randomUUID();
+        UUID salle = UUID.randomUUID();
+        UUID creneau = UUID.randomUUID();
+        when(affectations.ajouter(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)))
+                .thenReturn(AffectationInfirmier.creer(centre, infirmier, salle, creneau, EnumSet.of(JourSemaine.LUNDI)));
+        when(presence.joursEnSureffectif(any(), any(), any(), any(), any())).thenThrow(new IllegalStateException("boom"));
+        var controller = new InfirmierRestController(mock(InfirmierService.class), affectations,
+                mock(CompteInfirmierService.class), presence, guard);
+
+        var response = controller.ajouterAffectation(null, infirmier,
+                new AffectationRequest(salle, creneau, List.of(JourSemaine.LUNDI)));
+
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals(List.of(), response.getBody().joursEnSureffectif());
     }
 
     @Test
@@ -118,7 +161,10 @@ class InfirmierRestControllersTest {
         LocalDate debut = LocalDate.of(2026, 10, 5);
         AbsenceInfirmier a = AbsenceInfirmier.creer(centre, infirmier, debut, debut.plusDays(1), TypeAbsence.CONGE, null);
         when(absences.lister(centre, 0, 20)).thenReturn(PagedResult.of(List.of(a), 1, 0, 20));
-        when(absences.declarer(centre, infirmier, debut, debut.plusDays(1), TypeAbsence.CONGE, null)).thenReturn(a);
+        when(absences.declarer(centre, infirmier, debut, debut.plusDays(1), TypeAbsence.CONGE, null, false))
+                .thenReturn(a);
+        when(guard.currentScope()).thenReturn(new com.hemodialyse.backend.domain.shared.TenantScope(centre, "u1",
+                java.util.Set.of("ROLE_SECRETAIRE")));
         var controller = new AbsenceInfirmierRestController(absences, guard);
 
         PagedResult<AbsenceResponse> page = controller.lister(null, 0, 20).getBody();
@@ -130,6 +176,22 @@ class InfirmierRestControllersTest {
                 new AbsenceRequest(infirmier, debut, debut, "VACANCES", null)));
         controller.supprimer(null, a.id());
         verify(absences).supprimer(centre, a.id());
+    }
+
+    @Test
+    void an_absence_entered_by_the_administrator_is_not_reported_back_to_the_administrator() {
+        AbsenceInfirmierService absences = mock(AbsenceInfirmierService.class);
+        UUID infirmier = UUID.randomUUID();
+        LocalDate debut = LocalDate.of(2026, 10, 5);
+        AbsenceInfirmier a = AbsenceInfirmier.creer(centre, infirmier, debut, debut, TypeAbsence.MALADIE, null);
+        when(absences.declarer(centre, infirmier, debut, debut, TypeAbsence.MALADIE, null, true)).thenReturn(a);
+        when(guard.currentScope()).thenReturn(new com.hemodialyse.backend.domain.shared.TenantScope(centre, "u1",
+                java.util.Set.of("ROLE_ADMIN")));
+        var controller = new AbsenceInfirmierRestController(absences, guard);
+
+        controller.declarer(null, new AbsenceRequest(infirmier, debut, debut, "MALADIE", null));
+
+        verify(absences).declarer(centre, infirmier, debut, debut, TypeAbsence.MALADIE, null, true);
     }
 
     @Test

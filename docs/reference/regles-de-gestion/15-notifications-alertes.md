@@ -13,9 +13,42 @@
   (RG-TRV-060). Sans `targetRoles`, il sert surtout à rafraîchir les écrans ouverts.
 - **RG-NOT-002** — Chaque évènement de centre signale aussi à la direction qu'une donnée a changé (RG-TRV-061,
   RG-DIR-101).
-- **RG-NOT-003** — Les évènements ne sont pas persistés : un utilisateur hors ligne ne les reçoit pas ; les **états** à
-  surveiller (alertes de stock, absences à qualifier, alertes d'observance, sous-effectif,
-  conflits de planning, alertes de la direction) restent consultables dans leurs écrans.
+- **RG-NOT-003** — Les évènements **temps réel** ne sont pas persistés : un utilisateur hors ligne ne les reçoit pas
+  (sauf les alertes durables, RG-NOT-005) ; les **états** à surveiller (alertes de stock, absences à qualifier, alertes
+  d'observance, sous-effectif, conflits de planning, alertes de la direction) restent consultables dans leurs écrans.
+- **RG-NOT-005** — **Journal durable des alertes.** Les alertes qui demandent une action sont, en plus d'être poussées
+  en
+  temps réel, **enregistrées** dans le journal du centre (`INFIRMIER_SOUS_EFFECTIF`, `INFIRMIER_ABSENCE_DECLAREE`,
+  `INFIRMIER_ABSENCE_ENREGISTREE`, `OPTIMISATION_PROPOSITION`, `ABSENCES_A_QUALIFIER`, `SEANCES_A_REGULARISER`,
+  `PATIENT_REPLACE_ISOLEMENT`, `ISOLEMENT_IMPOSSIBLE`, `GENERATEUR_INDISPONIBLE`, `SEANCES_DEPLACEES`,
+  `INFIRMIER_SUREFFECTIF`) ; les autres
+  évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50 alertes
+  récentes (30 derniers jours) **destinées à ses rôles** dans **son centre** (`GET /api/v1/notifications`, paginé) : une
+  proposition calculée à 02:30 est donc retrouvée même si personne n'était connecté. La **lecture est propre à chaque
+  utilisateur** (`POST /api/v1/notifications/lecture` et `/lecture-tout`) ; une alerte d'un autre centre ne peut ni se
+  lire
+  ni se marquer lue. Le journal ne ralentit ni ne fait échouer l'alerte temps réel (une base indisponible est ignorée) ;
+  les alertes de plus de 60 jours sont purgées chaque jour à 03:40 (`NotificationPurgeScheduler`). *Source :*
+  `NotificationService`, `NotificationJournalPort`, `NotificationJournalJdbcAdapter`,
+  `NotificationRestController`.
+- **RG-NOT-006** — **Alertes liées à l'exploitation.** Un **générateur de dialyse en service qui devient indisponible**
+  (maintenance, attente de pièce, panne, réforme — par la fiche équipement ou une intervention GMAO) alerte `ADMIN` et
+  `SECRETAIRE` (`GENERATEUR_INDISPONIBLE`) avec le code du générateur, son nouveau statut, le nombre de patients dont
+  c'est
+  la place habituelle et les cinq premiers noms : leurs séances sont à déplacer. Aucune alerte pour un autre équipement,
+  pour un générateur déjà indisponible, ni à la création. Une **absence d'infirmier saisie par le secrétariat** alerte
+  `ADMIN` (`INFIRMIER_ABSENCE_ENREGISTREE`) ; saisie par l'administrateur, elle ne le prévient pas. L' **application
+  d'une
+  proposition d'optimisation** qui déplace des patients ou des séances alerte `MEDECIN` et `SECRETAIRE`
+  (`SEANCES_DEPLACEES`). Le contrôle quotidien de sous-effectif (RG-INF-046) prévient aussi `MEDECIN` ; son contrôle
+  jumeau
+  de **sur-effectif** (`INFIRMIER_SUREFFECTIF`, RG-INF-047) prévient `ADMIN` des infirmiers payés au-delà de l'effectif
+  requis, avec les heures concernées. Un échec de ces
+  alertes ne fait jamais échouer l'opération qu'elles accompagnent. Depuis la cloche, un lien mène à l'écran qui traite
+  l'alerte : l'optimisation du bon périmètre (`Maintenance` pour un générateur, `Couverture` pour une absence ou un
+  sous-effectif), la proposition elle-même, ou le planning ; ces liens vers l'optimisation ne sont proposés qu'à
+  `ADMIN` et `SECRETAIRE`. *Source :* `GenerateurIndisponibleService`, `AbsenceInfirmierService`,
+  `OptimisationApplicationService`.
 
 - **RG-NOT-004** — **Toute saisie d'un infirmier prévient le médecin du centre** : l'évènement `SAISIE_INFIRMIER`
   (destinataire `MEDECIN`) nomme l'auteur, le patient, la date et la nature de la saisie — séance créée ou validée
@@ -27,30 +60,34 @@
 
 ## 15.2 Catalogue des évènements de centre
 
-| Évènement                                    | Déclencheur                                                                               | Destinataires (cloche)                              | Règle                  |
-|----------------------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------------------------|------------------------|
-| `PATIENT_CREATED`, `PATIENT_UPDATED`         | création / modification d'une fiche patient                                               | tous (rafraîchissement)                             | RG-PAT-015             |
-| `ATTESTATION_CREATED`, `ATTESTATION_DELETED` | attestation de droits                                                                     | tous                                                | RG-ATT-004             |
-| `PEC_VALIDATED`, `PEC_CLOSED`, `PEC_DELETED` | cycle de vie d'une PEC                                                                    | tous                                                | RG-PEC-003/004/008     |
-| `SEANCE_CREATED`                             | création / scan d'une séance                                                              | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-013             |
-| `SEANCE_VALIDATED`                           | validation infirmière                                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-020             |
-| `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                                              | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-030             |
-| `SEANCE_MEDICAL_SAVED`                       | volet médical enregistré                                                                  | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-031             |
-| `SEANCE_SUPPRIMEE`                           | séance supprimée par l'administrateur (motif journalisé)                                  | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                  | RG-SEA-050             |
-| `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                                                     | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-022             |
-| `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                                             | `MEDECIN`                                           | RG-NOT-004             |
-| `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30)                          | `MEDECIN`                                           | RG-MED-073             |
-| `ABSENCES_A_QUALIFIER`                       | absences détectées à qualifier (contrôle de 02:30)                                        | `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`       | RG-ABS-044             |
-| `SEANCES_A_REGULARISER`                      | séances des 7 derniers jours jamais validées, pas encore déverrouillées (rappel de 07:00) | `ADMIN`                                             | RG-SEA-046             |
-| `SEANCE_DEVERROUILLEE`                       | l'administrateur déverrouille une séance oubliée pour régularisation                      | `INFIRMIER`                                         | RG-SEA-046             |
-| `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)                           | `ADMIN`, `SECRETAIRE`                               | RG-INF-046             |
-| `OPTIMISATION_PROPOSITION`                   | proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)       | `ADMIN`                                             | RG-PLN-100             |
-| `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                                          | `ADMIN`, `SECRETAIRE`                               | RG-INF-032             |
-| `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                                              | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
-| `ISOLEMENT_IMPOSSIBLE`                       | patient à risque sans place d'isolement                                                   | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
-| `STOCK_MOVEMENT_CHANGED`                     | entrée ou sortie de stock                                                                 | tous (rafraîchissement)                             | RG-STK-021, RG-STK-030 |
-| `STOCK_RECALC_LOCKS_CHANGED`                 | verrous de recalcul de PMP modifiés                                                       | tous                                                | RG-STK-024, RG-STK-041 |
-| `STOCK_INVENTORY_CHANGED`                    | ouverture, clôture ou annulation d'inventaire                                             | rôles du stock (`ADMIN`, `PHARMACIEN`, `INFIRMIER`) | RG-STK-057             |
+| Évènement                                    | Déclencheur                                                                                                | Destinataires (cloche)                              | Règle                  |
+|----------------------------------------------|------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|------------------------|
+| `PATIENT_CREATED`, `PATIENT_UPDATED`         | création / modification d'une fiche patient                                                                | tous (rafraîchissement)                             | RG-PAT-015             |
+| `ATTESTATION_CREATED`, `ATTESTATION_DELETED` | attestation de droits                                                                                      | tous                                                | RG-ATT-004             |
+| `PEC_VALIDATED`, `PEC_CLOSED`, `PEC_DELETED` | cycle de vie d'une PEC                                                                                     | tous                                                | RG-PEC-003/004/008     |
+| `SEANCE_CREATED`                             | création / scan d'une séance                                                                               | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-013             |
+| `SEANCE_VALIDATED`                           | validation infirmière                                                                                      | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-020             |
+| `SEANCE_PARAMEDICAL_SAVED`                   | volet paramédical enregistré                                                                               | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-030             |
+| `SEANCE_MEDICAL_SAVED`                       | volet médical enregistré                                                                                   | `INFIRMIER`, `MEDECIN`, `SECRETAIRE`                | RG-SEA-031             |
+| `SEANCE_SUPPRIMEE`                           | séance supprimée par l'administrateur (motif journalisé)                                                   | `ADMIN`, `INFIRMIER`, `SECRETAIRE`                  | RG-SEA-050             |
+| `SEANCE_CONSOMMABLE_CHANGED`                 | consommable ajouté / modifié / retiré                                                                      | `INFIRMIER`, `SECRETAIRE`                           | RG-SEA-022             |
+| `SAISIE_INFIRMIER`                           | toute saisie d'un infirmier (voir RG-NOT-004)                                                              | `MEDECIN`                                           | RG-NOT-004             |
+| `OBSERVANCE_NON_RESPECTEE`                   | retard constaté ou rappel d'échéance EPO/fer (contrôle de 06:30)                                           | `MEDECIN`                                           | RG-MED-073             |
+| `ABSENCES_A_QUALIFIER`                       | absences détectées à qualifier (contrôle de 02:30)                                                         | `ADMIN`, `SECRETAIRE`, `INFIRMIER`, `MEDECIN`       | RG-ABS-044             |
+| `SEANCES_A_REGULARISER`                      | séances des 7 derniers jours jamais validées, pas encore déverrouillées (rappel de 07:00)                  | `ADMIN`                                             | RG-SEA-046             |
+| `SEANCE_DEVERROUILLEE`                       | l'administrateur déverrouille une séance oubliée pour régularisation                                       | `INFIRMIER`                                         | RG-SEA-046             |
+| `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)                                            | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-INF-046, RG-NOT-006 |
+| `INFIRMIER_SUREFFECTIF`                      | infirmiers au-delà de l'effectif requis dans les 14 jours, salle sans patient comprise (contrôle de 07:15) | `ADMIN`                                             | RG-INF-047, RG-NOT-006 |
+| `INFIRMIER_ABSENCE_ENREGISTREE`              | le secrétariat enregistre l'absence d'un infirmier                                                         | `ADMIN`                                             | RG-NOT-006             |
+| `GENERATEUR_INDISPONIBLE`                    | un générateur en service passe en maintenance, attente de pièce, panne ou réforme                          | `ADMIN`, `SECRETAIRE`                               | RG-NOT-006             |
+| `SEANCES_DEPLACEES`                          | une proposition d'optimisation appliquée déplace des patients ou des séances                               | `MEDECIN`, `SECRETAIRE`                             | RG-NOT-006             |
+| `OPTIMISATION_PROPOSITION`                   | proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)                        | `ADMIN`                                             | RG-PLN-100             |
+| `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                                                           | `ADMIN`, `SECRETAIRE`                               | RG-INF-032             |
+| `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                                                               | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
+| `ISOLEMENT_IMPOSSIBLE`                       | patient à risque sans place d'isolement                                                                    | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
+| `STOCK_MOVEMENT_CHANGED`                     | entrée ou sortie de stock                                                                                  | tous (rafraîchissement)                             | RG-STK-021, RG-STK-030 |
+| `STOCK_RECALC_LOCKS_CHANGED`                 | verrous de recalcul de PMP modifiés                                                                        | tous                                                | RG-STK-024, RG-STK-041 |
+| `STOCK_INVENTORY_CHANGED`                    | ouverture, clôture ou annulation d'inventaire                                                              | rôles du stock (`ADMIN`, `PHARMACIEN`, `INFIRMIER`) | RG-STK-057             |
 
 ## 15.3 États surveillés par le système (consultables dans les écrans)
 

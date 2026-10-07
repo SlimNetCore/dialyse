@@ -1,5 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, untracked} from '@angular/core';
 import {DatePipe} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {ActivatedRoute} from '@angular/router';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, max, min, required} from '@angular/forms/signals';
 import {MatButtonModule} from '@angular/material/button';
@@ -155,6 +157,8 @@ export class PlanningOptimisationComponent {
   private readonly shell = inject(AppShellStore);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly params = toSignal(inject(ActivatedRoute).queryParamMap,
+    {initialValue: inject(ActivatedRoute).snapshot.queryParamMap});
 
   constructor() {
     // Changement de centre : on repart d'un écran vierge et on recharge l'historique du nouveau centre.
@@ -163,6 +167,18 @@ export class PlanningOptimisationComponent {
       untracked(() => {
         this.store.reinitialiser();
         this.store.chargerHistorique({page: 0, size: this.store.pageSize()});
+      });
+    });
+    // Arrivée depuis une alerte : `?run=<id>` ouvre la proposition, `?perimetre=<P>` présélectionne ce qu'on planifie.
+    effect(() => {
+      const params = this.params();
+      const run = params.get('run');
+      const perimetre = params.get('perimetre') as PerimetreOptimisation | null;
+      untracked(() => {
+        if (perimetre && PERIMETRES_OPTIMISATION.includes(perimetre)) {
+          this.formModel.update((m) => ({...m, perimetre}));
+        }
+        if (run) void this.store.ouvrir(run);
       });
     });
     // Proposition terminée affichée : on charge son planning calendaire (une fois par exécution consultée).

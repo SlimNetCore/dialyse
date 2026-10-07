@@ -5,6 +5,7 @@ import com.hemodialyse.backend.application.infirmier.CompteInfirmierService;
 import com.hemodialyse.backend.application.infirmier.CompteInfirmierService.CompteCree;
 import com.hemodialyse.backend.application.infirmier.InfirmierService;
 import com.hemodialyse.backend.application.infirmier.InfirmierService.InfirmierDetail;
+import com.hemodialyse.backend.application.infirmier.PresenceInfirmierQueryService;
 import com.hemodialyse.backend.domain.infirmier.model.AffectationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.model.QualificationInfirmier;
 import com.hemodialyse.backend.domain.infirmier.port.ComptesInfirmierPort.CompteRef;
@@ -47,13 +48,16 @@ public class InfirmierRestController {
     private final InfirmierService infirmiers;
     private final AffectationInfirmierService affectations;
     private final CompteInfirmierService comptes;
+    private final PresenceInfirmierQueryService presence;
     private final CenterAccessGuard centerAccessGuard;
 
     public InfirmierRestController(InfirmierService infirmiers, AffectationInfirmierService affectations,
-                                   CompteInfirmierService comptes, CenterAccessGuard centerAccessGuard) {
+                                   CompteInfirmierService comptes, PresenceInfirmierQueryService presence,
+                                   CenterAccessGuard centerAccessGuard) {
         this.infirmiers = infirmiers;
         this.affectations = affectations;
         this.comptes = comptes;
+        this.presence = presence;
         this.centerAccessGuard = centerAccessGuard;
     }
 
@@ -152,7 +156,20 @@ public class InfirmierRestController {
             @Valid @RequestBody AffectationRequest r) {
         UUID centre = centerAccessGuard.requireCenter(centerId).value();
         AffectationInfirmier a = affectations.ajouter(centre, id, r.salleId(), r.creneauId(), EnumSet.copyOf(r.jours()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(AffectationResponse.de(a));
+        return ResponseEntity.status(HttpStatus.CREATED).body(AffectationResponse.de(a, sureffectif(centre, a)));
+    }
+
+    /**
+     * Jours où l'affectation vient d'enregistrer crée un sur-effectif ; un échec du calcul ne doit jamais faire échouer
+     * l'affectation.
+     */
+    private List<JourSemaine> sureffectif(UUID centre, AffectationInfirmier a) {
+        try {
+            return presence.joursEnSureffectif(centre, a.salleId(), a.creneauId(), a.jours(),
+                    java.time.LocalDate.now(java.time.ZoneOffset.UTC));
+        } catch (RuntimeException e) {
+            return List.of();
+        }
     }
 
     @PutMapping("/{id}/affectations/{affectationId}")
@@ -161,8 +178,9 @@ public class InfirmierRestController {
             @RequestParam(required = false) UUID centerId, @PathVariable UUID id, @PathVariable UUID affectationId,
             @Valid @RequestBody AffectationRequest r) {
         UUID centre = centerAccessGuard.requireCenter(centerId).value();
-        return ResponseEntity.ok(AffectationResponse.de(affectations.modifier(centre, id, affectationId, r.salleId(),
-                r.creneauId(), EnumSet.copyOf(r.jours()))));
+        AffectationInfirmier a = affectations.modifier(centre, id, affectationId, r.salleId(), r.creneauId(),
+                EnumSet.copyOf(r.jours()));
+        return ResponseEntity.ok(AffectationResponse.de(a, sureffectif(centre, a)));
     }
 
     @DeleteMapping("/{id}/affectations/{affectationId}")
@@ -189,9 +207,19 @@ public class InfirmierRestController {
             @NotEmpty List<JourSemaine> jours) {
     }
 
-    public record AffectationResponse(UUID id, UUID salleId, UUID creneauId, List<JourSemaine> jours) {
+    /**
+     * @param joursEnSureffectif jours de la semaine en cours où cette affectation porte la case au-dessus de l'effectif
+     *                           requis (personnel payé sans activité utile) ; avertissement, jamais un refus
+     */
+    public record AffectationResponse(UUID id, UUID salleId, UUID creneauId, List<JourSemaine> jours,
+                                      List<JourSemaine> joursEnSureffectif) {
         static AffectationResponse de(AffectationInfirmier a) {
-            return new AffectationResponse(a.id(), a.salleId(), a.creneauId(), a.jours().stream().sorted().toList());
+            return de(a, List.of());
+        }
+
+        static AffectationResponse de(AffectationInfirmier a, List<JourSemaine> joursEnSureffectif) {
+            return new AffectationResponse(a.id(), a.salleId(), a.creneauId(), a.jours().stream().sorted().toList(),
+                    joursEnSureffectif);
         }
     }
 

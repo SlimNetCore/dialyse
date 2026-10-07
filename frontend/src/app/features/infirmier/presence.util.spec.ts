@@ -6,7 +6,7 @@ import {
 
 const caseDe = (salleId: string, creneauId: string, jour: CasePresence['jour']): CasePresence => ({
   salleId, creneauId, jour, date: '2026-09-28', patients: 0, requis: 0, salleIsolement: false, statut: 'COUVERT',
-  manque: 0, presents: [], absents: [],
+  manque: 0, surplus: 0, presents: [], absents: [],
 });
 
 describe('presence.util', () => {

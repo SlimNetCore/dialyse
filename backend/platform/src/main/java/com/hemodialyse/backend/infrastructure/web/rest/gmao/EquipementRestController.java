@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest.gmao;
 
+import com.hemodialyse.backend.application.planning.GenerateurIndisponibleService;
 import com.hemodialyse.backend.application.planning.SalleGenerateursService;
 import com.hemodialyse.backend.domain.gmao.model.*;
 import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
@@ -38,14 +39,17 @@ public class EquipementRestController {
     private final EquipementStatutHistoriqueRepositoryPort historiqueRepository;
 
     private final SalleGenerateursService salleGenerateurs;
+    private final GenerateurIndisponibleService generateurIndisponible;
 
     public EquipementRestController(
             EquipementRepositoryPort equipementRepository,
             EquipementStatutHistoriqueRepositoryPort historiqueRepository,
-            SalleGenerateursService salleGenerateurs) {
+            SalleGenerateursService salleGenerateurs,
+            GenerateurIndisponibleService generateurIndisponible) {
         this.equipementRepository = equipementRepository;
         this.historiqueRepository = historiqueRepository;
         this.salleGenerateurs = salleGenerateurs;
+        this.generateurIndisponible = generateurIndisponible;
     }
 
     /**
@@ -189,6 +193,7 @@ public class EquipementRestController {
         equipement.marquerHorsService(request.raison(), UUID.fromString(principal.getId()));
         equipementRepository.save(equipement);
         enregistrerHistorique(equipement, statutPrecedent);
+        generateurIndisponible.signaler(equipement, statutPrecedent);
 
         return ResponseEntity.ok(new EquipementResponse(equipement));
     }
@@ -237,6 +242,7 @@ public class EquipementRestController {
         equipement.reformer(request.motif(), UUID.fromString(principal.getId()));
         equipementRepository.save(equipement);
         enregistrerHistorique(equipement, statutPrecedent);
+        generateurIndisponible.signaler(equipement, statutPrecedent);
 
         return ResponseEntity.ok(new EquipementResponse(equipement));
     }

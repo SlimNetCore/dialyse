@@ -5,6 +5,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {PlanningApiService, SemainePlanning} from '../../core/api/planning-api.service';
 import {AbsencePatientApiService} from '../../core/api/absence-patient-api.service';
 import {HttpErrorResponse} from '@angular/common/http';
+import {InfirmierApiService} from '../../core/api/infirmier-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {PlanningStore} from './planning.store';
 
@@ -14,6 +15,11 @@ function semaine(debut: string): SemainePlanning {
   return {debut, fin: debut, jours: [], salles: [], creneaux: [], cellules: [], conflits: [], patientsAReplanifier: 0};
 }
 
+const PRESENCE = {
+  debut: '2026-09-27', fin: '2026-10-03', jours: [], salles: [], creneaux: [], cases: [], conflits: [],
+  patientsParInfirmier: 4, casesSousEffectif: 0,
+};
+
 describe('PlanningStore', () => {
   let api: {
     semaine: ReturnType<typeof vi.fn>;
@@ -22,6 +28,7 @@ describe('PlanningStore', () => {
   };
 
   let absenceApi: { semaine: ReturnType<typeof vi.fn>; declarer: ReturnType<typeof vi.fn> };
+  let infirmierApi: { semaine: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     absenceApi = {
@@ -47,9 +54,11 @@ describe('PlanningStore', () => {
       })),
       enregistrerParametres: vi.fn().mockImplementation((_c: string, p: unknown) => of(p)),
     };
+    infirmierApi = {semaine: vi.fn().mockReturnValue(of(PRESENCE))};
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), {provide: PlanningApiService, useValue: api},
-        {provide: AbsencePatientApiService, useValue: absenceApi}],
+        {provide: AbsencePatientApiService, useValue: absenceApi},
+        {provide: InfirmierApiService, useValue: infirmierApi}],
     });
     TestBed.inject(AppShellStore).switchCenter(CENTRE);
   });
@@ -65,6 +74,26 @@ describe('PlanningStore', () => {
     expect(api.semaine).toHaveBeenLastCalledWith(CENTRE, '2026-10-04');
     store.changerSemaine(-1);
     expect(api.semaine).toHaveBeenLastCalledWith(CENTRE, '2026-09-20');
+  });
+
+  it('charge les infirmiers de la même semaine et du même centre', () => {
+    const store = TestBed.inject(PlanningStore);
+
+    store.chargerSemaine('2026-09-30');
+
+    expect(infirmierApi.semaine).toHaveBeenCalledWith(CENTRE, '2026-09-30');
+    expect(store.presence()?.patientsParInfirmier).toBe(4);
+  });
+
+  it('affiche le planning des patients même si les infirmiers ne se chargent pas', () => {
+    infirmierApi.semaine.mockReturnValue(throwError(() => new Error('boom')));
+    const store = TestBed.inject(PlanningStore);
+
+    store.chargerSemaine(null);
+
+    expect(store.semaine()?.debut).toBe('2026-09-27');
+    expect(store.presence()).toBeNull();
+    expect(store.error()).toBeNull();
   });
 
   it('signale une erreur de chargement de la semaine', () => {

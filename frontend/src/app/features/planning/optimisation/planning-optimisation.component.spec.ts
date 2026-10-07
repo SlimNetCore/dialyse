@@ -1,6 +1,7 @@
 import {computed, provideZonelessChangeDetection, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatDialog} from '@angular/material/dialog';
+import {ActivatedRoute, convertToParamMap} from '@angular/router';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -78,11 +79,17 @@ describe('PlanningOptimisationComponent', () => {
   let admin: boolean;
   let dialogOpen: ReturnType<typeof vi.fn>;
 
-  async function render() {
+  async function render(queryParams: Record<string, string> = {}) {
     await TestBed.configureTestingModule({
       imports: [PlanningOptimisationComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideZonelessChangeDetection(),
+        {
+          provide: ActivatedRoute, useValue: {
+            queryParamMap: of(convertToParamMap(queryParams)),
+            snapshot: {queryParamMap: convertToParamMap(queryParams)},
+          },
+        },
         {provide: OptimisationStore, useValue: store},
         {provide: AuthStore, useValue: {hasRole: (r: string) => admin && r === 'ADMIN'}},
         {provide: MatDialog, useValue: {open: dialogOpen}},
@@ -152,6 +159,24 @@ describe('PlanningOptimisationComponent', () => {
     })]);
     const autre = await render();
     expect(autre.root.querySelector('[data-testid="opt-supprimer"]')).toBeNull();
+  });
+
+  it('ouvre la proposition désignée par une alerte (?run=)', async () => {
+    await render({run: 'run-nuit'});
+
+    expect(store['ouvrir']).toHaveBeenCalledWith('run-nuit');
+  });
+
+  it('présélectionne le périmètre désigné par une alerte (?perimetre=) et ignore un périmètre inconnu', async () => {
+    const perimetre = (f: { componentInstance: unknown }) =>
+      (f.componentInstance as { formModel: () => { perimetre: string } }).formModel().perimetre;
+    const {fixture} = await render({perimetre: 'MAINTENANCE'});
+    expect(store['ouvrir']).not.toHaveBeenCalled();
+    expect(perimetre(fixture)).toBe('MAINTENANCE');
+    TestBed.resetTestingModule();
+
+    const inconnu = await render({perimetre: 'N_IMPORTE_QUOI'});
+    expect(perimetre(inconnu.fixture)).toBe('COMPLET');
   });
 
   it('ne charge pas de calendrier tant que le calcul est en cours', async () => {

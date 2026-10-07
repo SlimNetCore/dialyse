@@ -10,7 +10,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import {AbsenceSemaine} from '../../core/api/absence-patient-api.service';
 import {ConflitPlanning, JOURS_SEMAINE, JourSemaine, OccupantPlanning} from '../../core/api/planning-api.service';
+import {CasePresence} from '../../core/api/infirmier-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {trouverCase} from '../infirmier/presence.util';
 import {todayIso} from '../absences/absences-patients.util';
 import {PlanningPatientDialogComponent, PlanningPatientDialogData} from './planning-patient-dialog.component';
 import {PlanningStore} from './planning.store';
@@ -89,6 +91,17 @@ export class PlanningSemaineComponent {
   protected cellule(salleId: string, creneauId: string, jour: JourSemaine) {
     const s = this.store.semaine();
     return s ? cellule(s, salleId, creneauId, jour) : undefined;
+  }
+
+  /** Infirmiers (prévus, remplaçants, absents) et effectif requis d'une case, si la présence est chargée. */
+  protected presence(salleId: string, creneauId: string, jour: JourSemaine): CasePresence | undefined {
+    const p = this.store.presence();
+    return p ? trouverCase(p, salleId, creneauId, jour) : undefined;
+  }
+
+  /** Une case porte une information d'infirmiers si quelqu'un y est prévu, absent, ou s'il en manque. */
+  protected avecInfirmiers(c: CasePresence | undefined): c is CasePresence {
+    return !!c && c.statut !== 'FERME' && (c.presents.length > 0 || c.absents.length > 0 || c.manque > 0 || c.surplus > 0);
   }
 
   protected salleNom(id: string | null): string {

@@ -62,10 +62,18 @@ export const isDoctorOnly = (roles: readonly string[]): boolean =>
 export const isDoctorOnlyFor = (hasRole: (role: string) => boolean): boolean =>
   hasRole('MEDECIN') && !DOCTOR_EXCLUDING_ROLES.some((role) => hasRole(role));
 
-/** Écrans du médecin seul : tableau de bord, liste des patients et, par patient, fiche, cahier, dossier et statistiques. */
+/** Planning de la semaine (patients et infirmiers de chaque salle et créneau) : consultation ouverte au médecin seul. */
+const PLANNING_SEMAINE = '/seances/planning';
+
+/**
+ * Écrans du médecin seul : tableau de bord, planning de la semaine, liste des patients et, par patient, fiche, cahier,
+ * dossier et statistiques.
+ */
 export const isDoctorArea = (url: string): boolean => {
   const path = url.split('?')[0];
-  if (path === DOCTOR_HOME || path === '/patients' || path === ABSENCES_PATIENTS) return true;
+  if (path === DOCTOR_HOME || path === PLANNING_SEMAINE || path === '/patients' || path === ABSENCES_PATIENTS) {
+    return true;
+  }
   const match = /^\/patients\/([^/]+)(?:\/(?:cahier|stats|dossier-medical)(?:\/.*)?)?$/.exec(path);
   return !!match && !PATIENT_ROUTES_CLOSED_TO_DOCTOR.includes(match[1]);
 };

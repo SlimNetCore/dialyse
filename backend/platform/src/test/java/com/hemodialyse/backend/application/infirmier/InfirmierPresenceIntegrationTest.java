@@ -96,6 +96,23 @@ class InfirmierPresenceIntegrationTest {
     }
 
     @Test
+    void a_nurse_assigned_to_a_room_without_patients_is_reported_as_surplus_for_that_center_only() {
+        UUID amrani = infirmier(CENTRE, "S1", "Amrani", false).infirmier().id();
+        UUID autre = infirmier(AUTRE_CENTRE, "S2", "Etranger", false).infirmier().id();
+        affectations.ajouter(CENTRE, amrani, SALLE, MATIN, EnumSet.of(JourSemaine.LUNDI, JourSemaine.MARDI));
+        affectations.ajouter(AUTRE_CENTRE, autre, SALLE_AUTRE, CRENEAU_AUTRE, EnumSet.of(JourSemaine.LUNDI));
+
+        var alertes = presence.alertesSureffectif(CENTRE, DIMANCHE, 7);
+        List<JourSemaine> jours = presence.joursEnSureffectif(CENTRE, SALLE, MATIN,
+                EnumSet.of(JourSemaine.LUNDI, JourSemaine.MERCREDI), DIMANCHE.plusDays(3));
+
+        assertEquals(2, alertes.size(), "lundi et mardi, la salle n'a aucun patient");
+        assertTrue(alertes.stream().allMatch(a -> a.salleId().equals(SALLE) && a.patients() == 0 && a.surplus() == 1));
+        assertEquals(List.of(JourSemaine.LUNDI), jours, "mercredi : personne n'est prévu");
+        assertEquals(1, presence.alertesSureffectif(AUTRE_CENTRE, DIMANCHE, 7).size(), "chaque centre voit les siens");
+    }
+
+    @Test
     void a_matricule_is_unique_per_center_and_each_center_only_sees_its_nurses() {
         infirmier(CENTRE, "M1", "Amrani", false);
         infirmier(AUTRE_CENTRE, "M1", "Benali", false);

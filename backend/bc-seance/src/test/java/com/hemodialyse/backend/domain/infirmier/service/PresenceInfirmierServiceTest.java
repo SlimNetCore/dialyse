@@ -66,6 +66,77 @@ class PresenceInfirmierServiceTest {
     }
 
     @Test
+    void nurses_beyond_the_required_staff_are_reported_as_surplus() {
+        PresenceTestData t = new PresenceTestData().patients(4, SALLE, MATIN, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Amrani", false), SALLE, MATIN, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Benali", false), SALLE, MATIN, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Cherif", false), SALLE, MATIN, JourSemaine.LUNDI);
+
+        CasePresence c = cas(PresenceInfirmierService.construire(t.build(), DIMANCHE), SALLE, MATIN, JourSemaine.LUNDI);
+
+        assertEquals(1, c.requis(), "4 patients, ratio 4");
+        assertEquals(StatutCase.COUVERT, c.statut(), "le sur-effectif n'est pas un manque");
+        assertEquals(0, c.manque());
+        assertEquals(2, c.surplus());
+    }
+
+    @Test
+    void a_nurse_planned_in_an_empty_slot_is_entirely_surplus_and_a_covered_slot_has_none() {
+        PresenceTestData t = new PresenceTestData().patients(5, SALLE, MATIN, JourSemaine.MARDI);
+        t.affecter(t.infirmier("Amrani", false), SALLE, MATIN, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Benali", false), SALLE, MATIN, JourSemaine.MARDI);
+        t.affecter(t.infirmier("Cherif", false), SALLE, MATIN, JourSemaine.MARDI);
+
+        SemainePresence s = PresenceInfirmierService.construire(t.build(), DIMANCHE);
+
+        assertEquals(1, cas(s, SALLE, MATIN, JourSemaine.LUNDI).surplus(), "salle sans patient");
+        assertEquals(0, cas(s, SALLE, MATIN, JourSemaine.MARDI).surplus(), "5 patients : 2 infirmiers requis");
+        assertEquals(0, cas(s, SALLE, MATIN, JourSemaine.MERCREDI).surplus(), "personne prévu");
+    }
+
+    @Test
+    void in_an_isolation_room_only_qualified_nurses_count_towards_the_surplus() {
+        PresenceTestData t = new PresenceTestData().patients(4, ISO, MATIN, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Amrani", true), ISO, MATIN, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Benali", false), ISO, MATIN, JourSemaine.LUNDI);
+
+        CasePresence c = cas(PresenceInfirmierService.construire(t.build(), DIMANCHE), ISO, MATIN, JourSemaine.LUNDI);
+
+        assertEquals(0, c.surplus(), "l'infirmier non habilité ne compte pas dans l'effectif");
+        assertEquals(StatutCase.COUVERT, c.statut());
+    }
+
+    @Test
+    void surplus_alerts_list_every_case_with_nurses_beyond_the_requirement_in_chronological_order() {
+        PresenceTestData t = new PresenceTestData().patients(4, SALLE, MATIN, JourSemaine.MARDI)
+                .patients(5, SALLE, SOIR, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Amrani", false), SALLE, MATIN, JourSemaine.MARDI);
+        t.affecter(t.infirmier("Benali", false), SALLE, MATIN, JourSemaine.MARDI);   // 4 patients : 1 requis → 1 en trop
+        t.affecter(t.infirmier("Cherif", false), SALLE, MATIN, JourSemaine.LUNDI);   // salle sans patient → 1 en trop
+        t.affecter(t.infirmier("Dahmani", false), SALLE, SOIR, JourSemaine.LUNDI);
+        t.affecter(t.infirmier("Essaid", false), SALLE, SOIR, JourSemaine.LUNDI);    // 5 patients : 2 requis → juste
+
+        var alertes = PresenceInfirmierService.alertesSureffectif(t.build(), DIMANCHE, DIMANCHE.plusDays(6));
+
+        assertEquals(List.of(JourSemaine.LUNDI, JourSemaine.MARDI), alertes.stream().map(a -> a.jour()).toList());
+        assertEquals(List.of(1, 1), alertes.stream().map(a -> a.surplus()).toList());
+        assertEquals(0, alertes.get(0).patients(), "salle sans patient");
+        assertEquals(1, alertes.get(1).requis());
+    }
+
+    @Test
+    void surplus_alerts_stay_within_the_dates_and_ignore_closed_days_and_covered_cases() {
+        PresenceTestData t = new PresenceTestData().fermeture(MARDI);
+        t.affecter(t.infirmier("Amrani", false), SALLE, MATIN, JourSemaine.LUNDI, JourSemaine.MARDI);
+
+        var toute = PresenceInfirmierService.alertesSureffectif(t.build(), DIMANCHE, DIMANCHE.plusDays(6));
+        var apresLundi = PresenceInfirmierService.alertesSureffectif(t.build(), DIMANCHE.plusDays(2), DIMANCHE.plusDays(6));
+
+        assertEquals(List.of(JourSemaine.LUNDI), toute.stream().map(a -> a.jour()).toList(), "mardi est férié");
+        assertTrue(apresLundi.isEmpty());
+    }
+
+    @Test
     void the_ratio_of_the_center_drives_the_requirement() {
         PresenceTestData t = new PresenceTestData().ratio(2).patients(5, SALLE, MATIN, JourSemaine.LUNDI);
 
