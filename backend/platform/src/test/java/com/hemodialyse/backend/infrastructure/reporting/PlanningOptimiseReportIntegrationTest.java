@@ -150,8 +150,8 @@ class PlanningOptimiseReportIntegrationTest {
         assertThat(textes).contains("Salle A", "Matin", "Lun 28/09", "Mar 29/09", "Proposition de test");
         assertThat(textes.stream().filter(t -> t.contains("Benali - A-G1 (R) (dépl.)")).count()).isEqualTo(1);
         assertThat(textes.stream().anyMatch(t -> t.contains("Sara Amrani (nouveau)"))).isTrue();
-        assertThat(textes.stream().anyMatch(t -> t.startsWith("FERMÉ") && t.contains("Jour férié"))).isTrue();
-        assertThat(textes.stream().anyMatch(t -> t.startsWith("Légende"))).isTrue();
+        assertThat(textes.stream().anyMatch(t -> t.strip().startsWith("FERMÉ") && t.contains("Jour férié"))).isTrue();
+        assertThat(textes.stream().anyMatch(t -> t.strip().startsWith("Légende"))).as("légende imprimée").isTrue();
         assertThat(textes).doesNotContain("Etranger");
     }
 
