@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-07<br>502 règles de gestion · 16 domaines · 378 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-07<br>502 règles de gestion · 16 domaines · 379 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -387,8 +387,8 @@ planning du jour, au tableau de bord des séances et au suivi des absences de pa
 <code>facturation</code>, <code>reglements</code>, <code>comptabilite</code> et <code>gmao</code> interdites, sauf la lecture du planning de la semaine
 (<code>/planning/semaine</code>) et de la présence des infirmiers (<code>/infirmiers/presence/semaine</code>). Il consulte patients (fiche
 en
-    lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences et, comme accueil (<code>/medecin</code>),
-    <strong>exactement le planning des séances</strong> (vues semaine et jour, RG-PLN-103).
+    lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences et, comme accueil
+    (<code>/medecin</code>), <strong>exactement le planning des séances</strong> (vues semaine et jour, RG-PLN-103).
 <em>Source :</em> idem.</p>
 </div></div>
 <div class="rule" id="RG-SEC-024"><div class="rid">RG-SEC-024</div><div class="rtxt"><p>Les écrans interdits à un profil restreint le redirigent vers son accueil (<code>/infirmiers/moi</code>,
@@ -1252,7 +1252,8 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
             déplacé par la
             proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d&#39;infirmiers
             <strong>affectés</strong> (absents exclus), le manque éventuel par rapport à l&#39;effectif requis (ratio de
-            la salle) et le <strong>sur-effectif</strong> (infirmiers prévus au-delà de l&#39;effectif requis, y compris
+            la salle) et le
+            <strong>sur-effectif</strong> (infirmiers prévus au-delà de l&#39;effectif requis, y compris
             dans
             une salle que la proposition vide, RG-INF-047), à l&#39;écran comme à l&#39;impression ; un jour fermé est
             signalé avec son
@@ -1300,13 +1301,15 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
             RG-INF-044) : prévus au
             roulement,
             remplaçants, absents (barrés, avec le type d&#39;absence), le nombre d&#39;infirmiers
-            <strong>affectés</strong> (et non le nombre requis, qui n&#39;apparaît que dans le manque) et, en rouge, le
+            <strong>affectés</strong> (et non le nombre requis,
+            qui n&#39;apparaît que dans le manque) et, en rouge, le
             manque
             ou, au contraire, le sur-effectif (infirmiers en trop, RG-INF-047).
             La légende explique chaque repère. Si la présence ne peut pas être chargée, le planning des patients reste
             affiché
             sans les infirmiers. Le <strong>médecin « seul »</strong> a <strong>le même planning</strong> que les autres
-            profils, avec les deux vues semaine et
+            profils, avec les deux vues semaine
+            et
             jour : c&#39;est son accueil (<code>/medecin</code>, menu Planning), le même composant que le planning des
             séances ; il y lit
             patients, générateurs, infirmiers et légende, sans accès aux autres écrans de planification
@@ -1320,7 +1323,8 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
     <div class="rule" id="RG-PLN-104">
         <div class="rid">RG-PLN-104</div>
         <div class="rtxt"><p><strong>Planning en temps réel et lecture seule du médecin.</strong> Le planning de la
-            semaine se <strong>met à jour seul</strong>
+            semaine se <strong>met à jour
+                seul</strong>
             pour tous ceux qui ont le droit de le voir (administrateur, secrétariat, médecin) : le scan du QR code d&#39;un
             patient ou
             la validation d&#39;une séance (<code>SEANCE_VALIDATED</code>, <code>SEANCE_CREATED</code>), la suppression
@@ -1330,8 +1334,8 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
             rechargent la semaine affichée, sans action de l&#39;utilisateur (de même la détection nocturne des
             absences,
             <code>ABSENCES_A_QUALIFIER</code>) ; seuls les évènements du centre actif comptent (RG-NOT-001). <strong>Le
-                planning de l&#39;infirmier
-                (« Mon planning »)</strong> suit la même règle : une absence de patient déclarée, même le jour J, y
+                planning de l&#39;infirmier («
+                Mon planning »)</strong> suit la même règle : une absence de patient déclarée, même le jour J, y
             <strong>barre</strong> aussitôt le
             patient (couleur selon le statut de l&#39;absence) et une séance validée y marque un soleil, comme sur le
             planning des
@@ -1399,9 +1403,11 @@ erreurs affichées dans le formulaire) et depuis le planning de la semaine.</p>
         <div class="rtxt"><p><strong>Qui déclare.</strong> La déclaration d&#39;une absence est réservée à
             <code>ADMIN</code>, <code>SECRETAIRE</code> et <code>INFIRMIER</code>
             (refus d&#39;accès côté serveur pour tout autre profil). <strong>Le médecin ne déclare pas l&#39;absence d&#39;un
-                patient</strong> : son planning
+                patient</strong> : son
+            planning
             est en <strong>lecture seule</strong> (aucun bouton de déclaration, ni sur le planning, ni sur l&#39;écran
-            de suivi des absences, RG-PLN-104) ;
+            de suivi des absences,
+            RG-PLN-104) ;
             il consulte le suivi et garde la correction d&#39;une absence déjà qualifiée (RG-ABS-020).</p>
 </div></div>
 <h2>6.3 Qualification, rattrapage, annulation</h2>
@@ -2471,14 +2477,22 @@ ancrées sur sa date (fenêtre : heure/jour = 1 jour, semaine = 7, mois = 30,
     (attendues =
     fréquence ; administrées = administrations effectives). L&#39;infirmier voit, en séance, ce qu&#39;il reste à
     administrer et
-    l&#39;échéance (même calcul que l&#39;alerte planifiée).</p>
+    l&#39;échéance (même calcul que l&#39;alerte planifiée). Quand le médecin crée, modifie ou supprime une
+    prescription, le
+    poste de l&#39;infirmier qui a ce patient à l&#39;écran se met à jour <strong>en temps réel</strong>, sans
+    rechargement (évènement
+    <code>PRESCRIPTION_CHANGED</code> limité au centre et au patient, absent de la cloche). Il en va de même, pour un
+    médecin qui a
+    ouvert le même dossier, de la liste des prescriptions et de l&#39;onglet Anémie (périodes d&#39;observance et
+    alertes).</p>
 </div></div>
 <div class="rule" id="RG-MED-073"><div class="rid">RG-MED-073</div><div class="rtxt"><p><strong>Contrôle quotidien à 06:30</strong> (<code>ObservancePrescriptionScheduler.controlerObservance</code>), pour chaque
 patient ayant une prescription EPO/fer avec article et fréquence : (1) <strong>retard
         constaté</strong> — la période close compte moins (en quantité, ou en nombre d&#39;administrations sans dose)
     que prescrit :
     alerte <code>RETARD_CONSTATE</code>, qui <strong>explique</strong> le constat (traitement, période, prescription «
-    dose × fréquence », attendu,
+    dose × fréquence »,
+    attendu,
     administré, manque, conduite à tenir ; les champs sont conservés avec l&#39;alerte ; les alertes antérieures gardent
     leur
     texte d&#39;origine), acquittée

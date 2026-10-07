@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -11,6 +11,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule} from '@ngx-translate/core';
 import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
 import {AuthStore} from '../../../core/state/auth.store';
+import {WebSocketService} from '../../../core/ws/websocket.service';
+import {prescriptionChangee} from '../../dossier-medical/prescription-realtime.util';
 import {ArticleStock, StockApiService} from '../../../core/api/stock-api.service';
 import {quantiteStockPourDose} from '../../../shared/article-conversion.util';
 import {
@@ -100,6 +102,7 @@ export class AdministrationAnemieSeanceComponent {
   private readonly api = inject(DossierMedicalApiService);
   private readonly stockApi = inject(StockApiService);
   private readonly auth = inject(AuthStore);
+  private readonly ws = inject(WebSocketService);
   private lastKey: string | null = null;
 
   constructor() {
@@ -111,6 +114,14 @@ export class AdministrationAnemieSeanceComponent {
       if (!patientId || !centerId || !seanceId || key === this.lastKey) return;
       this.lastKey = key;
       this.refresh();
+    });
+    // Temps réel : la prescription de CE patient change (dose relevée, nouvelle fréquence) → prescription, administrations
+    // et reste à administrer sont relus, sans rechargement de la page. Un formulaire ouvert garde sa saisie en cours.
+    effect(() => {
+      const evenement = this.ws.lastEvent();
+      untracked(() => {
+        if (prescriptionChangee(evenement, this.centerId(), this.patientId())) this.refresh();
+      });
     });
   }
 

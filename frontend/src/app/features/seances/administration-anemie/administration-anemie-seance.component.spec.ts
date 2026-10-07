@@ -1,4 +1,4 @@
-import {provideZonelessChangeDetection} from '@angular/core';
+import {provideZonelessChangeDetection, signal, WritableSignal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateModule} from '@ngx-translate/core';
@@ -8,6 +8,7 @@ import {AdministrationAnemieSeanceComponent} from './administration-anemie-seanc
 import {DossierMedicalApiService} from '../../../core/api/dossier-medical-api.service';
 import {StockApiService} from '../../../core/api/stock-api.service';
 import {AuthStore} from '../../../core/state/auth.store';
+import {WebSocketService, WsEvent} from '../../../core/ws/websocket.service';
 
 const CENTRE = 'c1';
 
@@ -20,8 +21,10 @@ const prescription = {
 describe('AdministrationAnemieSeanceComponent — conversion dose → stock', () => {
   let stockApi: Record<string, ReturnType<typeof vi.fn>>;
   let api: Record<string, ReturnType<typeof vi.fn>>;
+  let lastEvent: WritableSignal<WsEvent | null>;
 
   beforeEach(async () => {
+    lastEvent = signal<WsEvent | null>(null);
     stockApi = {
       getArticle: vi.fn().mockReturnValue(of({
         id: 'a-epo', unite: 'seringue', dosageParUnite: 4000, uniteDosage: 'UI',
@@ -40,6 +43,7 @@ describe('AdministrationAnemieSeanceComponent — conversion dose → stock', ()
         {provide: DossierMedicalApiService, useValue: api},
         {provide: StockApiService, useValue: stockApi},
         {provide: AuthStore, useValue: {username: () => 'inf-01'}},
+        {provide: WebSocketService, useValue: {lastEvent}},
       ],
     }).compileComponents();
   });
@@ -149,6 +153,39 @@ describe('AdministrationAnemieSeanceComponent — conversion dose → stock', ()
       component.openCreateForm('EPO');
 
       expect(component.form.value().dose).toBe(4000);
+    });
+
+    describe('temps réel : le médecin relève la prescription pendant que la page est ouverte', () => {
+      const evenement = (centerId: string, patientId: string): WsEvent =>
+        ({type: 'PRESCRIPTION_CHANGED', centerId, payload: {patientId}, timestamp: '2026-10-07T10:00:00Z'}) as WsEvent;
+
+      async function ouvrirPuisRelever(evt: WsEvent) {
+        const {fixture} = await ouvrir();
+        const appelsAvant = api['getActivePrescription'].mock.calls.length;
+        api['getActivePrescription'].mockReturnValue(of({...prescription, epoDoseUi: 12000}));
+        lastEvent.set(evt);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        return {fixture, appelsAvant};
+      }
+
+      it('relit prescription, administrations et reste sans rechargement', async () => {
+        const {fixture, appelsAvant} = await ouvrirPuisRelever(evenement(CENTRE, 'pat'));
+
+        expect(api['getActivePrescription'].mock.calls.length).toBe(appelsAvant + 1);
+        expect((fixture.componentInstance as unknown as {
+          prescription(): { epoDoseUi: number }
+        }).prescription().epoDoseUi)
+          .toBe(12000);
+      });
+
+      it('ignore la prescription d\'un autre patient ou d\'un autre centre', async () => {
+        const autrePatient = await ouvrirPuisRelever(evenement(CENTRE, 'autre'));
+        expect(api['getActivePrescription'].mock.calls.length).toBe(autrePatient.appelsAvant);
+
+        const autreCentre = await ouvrirPuisRelever(evenement('c2', 'pat'));
+        expect(api['getActivePrescription'].mock.calls.length).toBe(autreCentre.appelsAvant);
+      });
     });
 
     it('ne propose plus d\'administration quand la quantité prescrite est atteinte', async () => {

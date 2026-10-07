@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.article.model.Article;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
@@ -30,11 +31,15 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class PrescriptionMedicaleRestControllerTest {
 
     private final CenterAccessGuard centerAccessGuard = new CenterAccessGuard();
     private final ArticleRepositoryPort articleRepository = new FakeArticleRepositoryPort();
+    private final NotificationService notifications = mock(NotificationService.class);
 
     @AfterEach
     void clearSecurityContext() {
@@ -45,7 +50,7 @@ class PrescriptionMedicaleRestControllerTest {
     void list_should_return_paged_items_from_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
 
         UUID patientId = UUID.randomUUID();
         PrescriptionMedicale p = prescription(centerId, patientId);
@@ -65,7 +70,7 @@ class PrescriptionMedicaleRestControllerTest {
     void search_should_honour_pagination_criteria() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
 
         UUID patientId = UUID.randomUUID();
         useCase.paged = PagedResult.of(List.of(prescription(centerId, patientId)), 42, 2, 10);
@@ -89,7 +94,7 @@ class PrescriptionMedicaleRestControllerTest {
     void create_should_delegate_to_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
 
         UUID patientId = UUID.randomUUID();
         UUID medecinId = UUID.randomUUID();
@@ -107,13 +112,26 @@ class PrescriptionMedicaleRestControllerTest {
         assertEquals(patientId, useCase.lastPatientId);
         assertEquals(medecinId, useCase.lastMedecinId);
         assertEquals(new BigDecimal("68.50"), useCase.lastPoidsSec);
+        // le poste de l'infirmier est prévenu, pour le centre de la prescription uniquement
+        verify(notifications).notifyPrescriptionChanged(centerId, patientId);
+    }
+
+    @Test
+    void reads_should_not_notify_the_nurse_station() {
+        UUID centerId = authenticateMedecin();
+        FakeUseCase useCase = new FakeUseCase();
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
+
+        controller.list(UUID.randomUUID(), centerId, null, null, 0, 20);
+
+        verifyNoInteractions(notifications);
     }
 
     @Test
     void delete_should_delegate_to_use_case() {
         UUID centerId = authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
 
         UUID patientId = UUID.randomUUID();
         UUID prescriptionId = UUID.randomUUID();
@@ -124,13 +142,14 @@ class PrescriptionMedicaleRestControllerTest {
         assertEquals(centerId, useCase.lastCenterId.value());
         assertEquals(patientId, useCase.lastPatientId);
         assertEquals(prescriptionId, useCase.lastDeletedId);
+        verify(notifications).notifyPrescriptionChanged(centerId, patientId);
     }
 
     @Test
     void search_should_be_forbidden_when_criteria_target_another_center() {
         authenticateMedecin();
         FakeUseCase useCase = new FakeUseCase();
-        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository);
+        var controller = new PrescriptionMedicaleRestController(useCase, centerAccessGuard, articleRepository, notifications);
 
         var criteria = new PrescriptionMedicaleSearchRequest(
                 UUID.randomUUID(), UUID.randomUUID(), 0, 20, null, null);

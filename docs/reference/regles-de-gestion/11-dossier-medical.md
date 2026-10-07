@@ -151,7 +151,10 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   4000 UI) laisse donc 4000 UI à administrer, soit un **complément** : l'infirmier peut le saisir en séance, la dose
   proposée étant exactement le reste. Sans dose prescrite, repli sur le **nombre d'administrations** (attendues =
   fréquence ; administrées = administrations effectives). L'infirmier voit, en séance, ce qu'il reste à administrer et
-  l'échéance (même calcul que l'alerte planifiée).
+  l'échéance (même calcul que l'alerte planifiée). Quand le médecin crée, modifie ou supprime une prescription, le
+  poste de l'infirmier qui a ce patient à l'écran se met à jour **en temps réel**, sans rechargement (évènement
+  `PRESCRIPTION_CHANGED` limité au centre et au patient, absent de la cloche). Il en va de même, pour un médecin qui a
+  ouvert le même dossier, de la liste des prescriptions et de l'onglet Anémie (périodes d'observance et alertes).
 - **RG-MED-073** — **Contrôle quotidien à 06:30** (`ObservancePrescriptionScheduler.controlerObservance`), pour chaque
   patient ayant une prescription EPO/fer avec article et fréquence : (1) **retard
   constaté** — la période close compte moins (en quantité, ou en nombre d'administrations sans dose) que prescrit :

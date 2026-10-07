@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.application.notification.NotificationService;
 import com.hemodialyse.backend.domain.article.model.Article;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.seance.model.PrescriptionMedicale;
@@ -42,13 +43,16 @@ public class PrescriptionMedicaleRestController {
     private final PrescriptionMedicaleUseCase useCase;
     private final CenterAccessGuard centerAccessGuard;
     private final ArticleRepositoryPort articleRepository;
+    private final NotificationService notifications;
 
     public PrescriptionMedicaleRestController(PrescriptionMedicaleUseCase useCase,
                                               CenterAccessGuard centerAccessGuard,
-                                              ArticleRepositoryPort articleRepository) {
+                                              ArticleRepositoryPort articleRepository,
+                                              NotificationService notifications) {
         this.useCase = useCase;
         this.centerAccessGuard = centerAccessGuard;
         this.articleRepository = articleRepository;
+        this.notifications = notifications;
     }
 
     private PrescriptionMedicaleResponse toResponse(PrescriptionMedicale p, CenterId center) {
@@ -143,6 +147,7 @@ public class PrescriptionMedicaleRestController {
                                        @RequestParam(required = false) UUID centerId) {
         CenterId center = centerAccessGuard.requireCenter(centerId);
         useCase.delete(center, patientId, prescriptionId);
+        notifications.notifyPrescriptionChanged(center.value(), patientId);
         return ResponseEntity.noContent().build();
     }
 
@@ -186,6 +191,7 @@ public class PrescriptionMedicaleRestController {
                 request.ferFrequenceValeur(),
                 request.ferFrequenceUnite()
         );
+        notifications.notifyPrescriptionChanged(center.value(), patientId);
         return new EntityWriteResponse(prescription.getId(), prescription.getPatientId(), prescription.getUpdatedAt());
     }
 }

@@ -65,6 +65,17 @@ describe('NotificationBellStore', () => {
     expect(admin.tous().map((e) => e.id)).toEqual(['a1', 'a2']);
   });
 
+  it('n\'affiche jamais un évènement technique de rafraîchissement comme une notification', async () => {
+    wsEvents.set([{
+      type: 'PRESCRIPTION_CHANGED', centerId: CENTRE, payload: {patientId: 'p1', targetRoles: 'ADMIN'},
+      timestamp: '2026-10-07T10:00:00Z',
+    } as WsEvent]);
+    const s = await store();
+
+    expect(s.tous().map((e) => e.type)).not.toContain('PRESCRIPTION_CHANGED');
+    expect(s.unreadCount()).toBe(1);
+  });
+
   it('montre au médecin celles qui le ciblent', async () => {
     roles = ['MEDECIN'];
 

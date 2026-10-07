@@ -169,6 +169,17 @@ public class NotificationService {
     }
 
     /**
+     * La prescription d'un patient a changé (création, modification, suppression) : le poste de l'infirmier qui a ce
+     * patient à l'écran recalcule ce qu'il reste à administrer, sans rechargement. Évènement technique, absent de la cloche.
+     */
+    public void notifyPrescriptionChanged(UUID centerId, UUID patientId) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("patientId", patientId.toString());
+        payload.put("targetRoles", "INFIRMIER,MEDECIN,ADMIN");
+        send(centerId, "PRESCRIPTION_CHANGED", payload);
+    }
+
+    /**
      * Une séance a été supprimée par l'administrateur (listes, poste infirmier et planning se rafraîchissent).
      */
     public void notifySeanceSupprimee(UUID centerId, UUID seanceId, UUID patientId, java.time.LocalDate dateSeance) {

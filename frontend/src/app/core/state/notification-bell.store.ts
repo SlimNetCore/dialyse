@@ -23,6 +23,9 @@ const initialState: NotificationBellState = {
   persistees: [],
 };
 
+/** Évènements qui ne servent qu'à rafraîchir un écran : jamais présentés comme une notification. */
+const EVENEMENTS_TECHNIQUES = new Set(['PRESCRIPTION_CHANGED']);
+
 /** Identifiant d'une alerte : celui du journal si elle en a un, sinon dérivé de son type et de son horodatage. */
 export const eventId = (evt: WsEvent): string =>
   evt.id ?? `${evt.type}-${evt.timestamp}-${evt.payload['pecId'] ?? evt.payload['patientCode'] ?? ''}`;
@@ -60,7 +63,7 @@ export const NotificationBellStore = signalStore(
       const vus = new Set<string>();
       const reunis: WsEvent[] = [];
       for (const evt of [...ws.events(), ...store.persistees()]) {
-        if (vus.has(eventId(evt))) continue;
+        if (EVENEMENTS_TECHNIQUES.has(evt.type) || vus.has(eventId(evt))) continue;
         vus.add(eventId(evt));
         reunis.push(evt);
       }

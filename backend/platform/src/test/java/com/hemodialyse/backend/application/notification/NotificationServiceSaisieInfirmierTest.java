@@ -80,6 +80,22 @@ class NotificationServiceSaisieInfirmierTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void a_prescription_change_refreshes_the_clinical_roles_of_its_center_without_being_journaled() {
+        UUID patient = UUID.randomUUID();
+
+        service.notifyPrescriptionChanged(centre, patient);
+
+        Map<String, Object> evt = publieTous().get(0);
+        Map<String, String> payload = (Map<String, String>) evt.get("payload");
+        assertEquals("PRESCRIPTION_CHANGED", evt.get("type"));
+        assertEquals(centre.toString(), evt.get("centerId"));
+        assertEquals(patient.toString(), payload.get("patientId"));
+        assertEquals("INFIRMIER,MEDECIN,ADMIN", payload.get("targetRoles"));
+        verify(journal, org.mockito.Mockito.never()).enregistrer(any(), any(), any(), any(), any());
+    }
+
+    @Test
     void a_journal_failure_never_blocks_the_real_time_alert() {
         doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(), any(), any(), any(), any());
 

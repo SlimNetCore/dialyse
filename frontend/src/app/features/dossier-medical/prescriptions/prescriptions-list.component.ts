@@ -1,4 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal, untracked,
+} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
@@ -19,7 +21,9 @@ import {ArticleStock, StockApiService} from '../../../core/api/stock-api.service
 import {quantiteStockPourDose} from '../../../shared/article-conversion.util';
 import {DossierMedicalAccessService} from '../dossier-medical-access.service';
 import {PrescriptionsStore} from '../state/prescriptions.store';
+import {WebSocketService} from '../../../core/ws/websocket.service';
 import {resolvePatientIdFromRoute} from '../dossier-medical-route.util';
+import {prescriptionChangee} from '../prescription-realtime.util';
 
 interface PrescriptionFormModel {
   datePrescription: Date | string | null;
@@ -154,6 +158,17 @@ export class PrescriptionsListComponent implements OnInit {
   protected readonly patientId = resolvePatientIdFromRoute(this.route);
   private readonly appShell = inject(AppShellStore);
   private readonly stockApi = inject(StockApiService);
+  private readonly ws = inject(WebSocketService);
+
+  constructor() {
+    // Temps réel : une prescription créée, modifiée ou supprimée par un autre médecin met la liste à jour.
+    effect(() => {
+      const evenement = this.ws.lastEvent();
+      untracked(() => {
+        if (prescriptionChangee(evenement, this.appShell.currentCenterId(), this.patientId)) this.refresh();
+      });
+    });
+  }
 
   ngOnInit(): void {
     this.refresh();

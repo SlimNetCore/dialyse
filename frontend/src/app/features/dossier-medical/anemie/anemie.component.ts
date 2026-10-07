@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, untracked} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
@@ -15,7 +15,9 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {SuiviAnemieStore} from '../state/suivi-anemie.store';
 import {AdministrationsAnemieStore} from '../state/administrations-anemie.store';
 import {AlertesObservanceStore} from '../state/alertes-observance.store';
+import {WebSocketService} from '../../../core/ws/websocket.service';
 import {resolvePatientIdFromRoute} from '../dossier-medical-route.util';
+import {prescriptionChangee} from '../prescription-realtime.util';
 import {alerteDetaillee, alerteEnDose, manqueAlerte} from './alerte-observance.util';
 
 Chart.register(...registerables);
@@ -66,6 +68,7 @@ export class AnemieComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   protected readonly patientId = resolvePatientIdFromRoute(this.route);
   private readonly appShell = inject(AppShellStore);
+  private readonly ws = inject(WebSocketService);
 
   protected readonly lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -121,6 +124,16 @@ export class AnemieComponent implements OnInit {
   });
 
   protected readonly hasCourbeData = computed(() => (this.suiviStore.suivi()?.courbe ?? []).length > 0);
+
+  constructor() {
+    // Temps réel : une prescription modifiée par un autre médecin change les périodes d'observance et les alertes.
+    effect(() => {
+      const evenement = this.ws.lastEvent();
+      untracked(() => {
+        if (prescriptionChangee(evenement, this.appShell.currentCenterId(), this.patientId)) this.refresh();
+      });
+    });
+  }
 
   ngOnInit(): void {
     this.refresh();
