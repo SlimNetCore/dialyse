@@ -111,6 +111,8 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort, ArticleC
                 ? null : ConditionConservation.valueOf(e.getConditionConservation()));
         article.setProduitDangereux(e.isProduitDangereux());
         article.setDechetDasri(e.isDechetDasri());
+        article.setCompteStock(e.getCompteStock());
+        article.setCompteCharge(e.getCompteCharge());
         return article;
     }
 
@@ -145,6 +147,8 @@ public class ArticleRepositoryAdapter implements ArticleRepositoryPort, ArticleC
                 ? null : a.getConditionConservation().name());
         entity.setProduitDangereux(a.isProduitDangereux());
         entity.setDechetDasri(a.isDechetDasri());
+        entity.setCompteStock(a.getCompteStock());
+        entity.setCompteCharge(a.getCompteCharge());
         return entity;
     }
 }

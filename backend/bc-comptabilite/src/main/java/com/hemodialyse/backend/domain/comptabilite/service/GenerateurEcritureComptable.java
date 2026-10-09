@@ -81,7 +81,7 @@ public class GenerateurEcritureComptable {
         return new EcritureComptable(
                 UUID.randomUUID(),
                 cmd.centerId(),
-                JournalCode.VE,
+                mapping.journalDe(OperationComptable.VENTE),
                 cmd.dateFacture(),
                 cmd.dateFacture(),
                 numeroPiece,
@@ -104,8 +104,10 @@ public class GenerateurEcritureComptable {
 
         TypeTiersPayeur typeTiers = resoudreTypeTiers(cmd.typeTiersPayeur());
         String compteClient = mapping.compteClient(typeTiers);
-        JournalCode journal = "CAISSE".equalsIgnoreCase(cmd.modeReglement()) ? JournalCode.CA : JournalCode.BQ;
-        String compteTreso = journal == JournalCode.CA ? mapping.compteCaisse() : mapping.compteBanque();
+        boolean caisse = "CAISSE".equalsIgnoreCase(cmd.modeReglement());
+        JournalCode journal = mapping.journalDe(
+                caisse ? OperationComptable.REGLEMENT_CAISSE : OperationComptable.REGLEMENT_BANQUE);
+        String compteTreso = caisse ? mapping.compteCaisse() : mapping.compteBanque();
 
         List<AxeAnalytique> axes = List.of(
                 AxeAnalytique.centre(cmd.centerId().toString()),

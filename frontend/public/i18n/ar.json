@@ -802,6 +802,11 @@
       },
       "DANGEREUX": "منتج خطر",
       "DASRI": "ينتج نفايات DASRI (نفايات الرعاية المعدية)",
+      "SECTION_COMPTABILITE": "المحاسبة",
+      "COMPTE_STOCK": "حساب المخزون",
+      "COMPTE_CHARGE": "حساب الاستهلاك",
+      "COMPTE_HINT": "فارغ = حساب المركز",
+      "COMPTE_ERR": "الحساب المحاسبي يتكون من 1 إلى 20 حرفًا أو رقمًا.",
       "NONE": "لا شيء",
       "COL_DOSAGE": "التركيز",
       "COL_STOCK": "المخزون",
@@ -2943,7 +2948,7 @@
   "COMPTABILITE": {
     "EYEBROW": "وحدة المحاسبة",
     "TITLE": "دفتر اليومية المحاسبي SCF",
-    "DESCRIPTION": "قيود محاسبية تُنشأ تلقائياً من الفواتير والمدفوعات وفق النظام المحاسبي المالي (SCF).",
+    "DESCRIPTION": "قيود محاسبية تُنشأ تلقائياً من الفواتير والمدفوعات والمخزون وفق النظام المحاسبي المالي (SCF).",
     "FILTERS": {
       "TITLE": "الفلاتر",
       "YEAR": "السنة",
@@ -2952,10 +2957,76 @@
       "JOURNAL": "اليومية",
       "ALL_JOURNALS": "كل اليوميات"
     },
-    "JOURNAL": {
-      "VE": "المبيعات (VE)",
-      "BQ": "البنك (BQ)",
-      "CA": "الصندوق (CA)"
+    "PARAMETRAGE": {
+      "LIEN": "الإعدادات المحاسبية",
+      "TITRE": "الإعدادات المحاسبية",
+      "DESCRIPTION": "اليوميات، يومية كل عملية وحسابات المركز. تُطبَّق هذه الإعدادات على القيود التي تُنشأ من الآن فصاعدًا؛ القيود المسجلة سابقًا لا تتغير.",
+      "RETOUR_JOURNAL": "اليومية المحاسبية",
+      "JOURNAUX_TITRE": "اليوميات",
+      "JOURNAUX_AIDE": "عرّف يوميات المركز بحرية. اليومية المختارة لعملية ما لا يمكن تعطيلها ولا حذفها؛ واليومية التي تحمل قيودًا يمكن تعطيلها دون حذفها.",
+      "JOURNAL_CODE": "الرمز",
+      "JOURNAL_CODE_AIDE": "من 1 إلى 10 حروف أو أرقام",
+      "JOURNAL_LIBELLE": "التسمية",
+      "JOURNAL_ACTIF": "مفعّلة",
+      "JOURNAL_AJOUTER": "إضافة اليومية",
+      "JOURNAL_UTILISE": "يومية مختارة لعملية",
+      "JOURNAL_ENREGISTRE": "تم حفظ اليومية.",
+      "JOURNAL_SUPPRIME": "تم حذف اليومية.",
+      "SUPPRIMER_TITRE": "حذف اليومية",
+      "SUPPRIMER_MESSAGE": "هل تريد حذف اليومية {{code}}؟ هذا الإجراء نهائي.",
+      "OPERATIONS_TITRE": "يومية كل عملية",
+      "OPERATIONS_AIDE": "اليومية التي يُسجَّل فيها كل نوع من العمليات.",
+      "OPERATION": {
+        "VENTE": "الفواتير (المبيعات)",
+        "REGLEMENT_BANQUE": "التسديدات البنكية",
+        "REGLEMENT_CAISSE": "التسديدات النقدية",
+        "STOCK_RECEPTION": "استلامات المخزون",
+        "STOCK_SORTIE": "إخراجات المخزون",
+        "STOCK_INVENTAIRE": "فروق الجرد"
+      },
+      "OPERATION_SANS_JOURNAL": "اختر يومية مفعّلة",
+      "COMPTES_TITRE": "حسابات المبيعات والزبائن والخزينة",
+      "COMPTES_AIDE": "أرقام الحسابات من مخططك المحاسبي (من 1 إلى 20 حرفًا أو رقمًا).",
+      "COMPTE": {
+        "compteVentes": "مبيعات الخدمات",
+        "compteClientPatient": "زبون — مريض",
+        "compteClientCnas": "زبون — CNAS",
+        "compteClientCasnos": "زبون — CASNOS",
+        "compteClientMutuelle": "زبون — تعاضدية",
+        "compteClientAutre": "زبون — دافع آخر",
+        "compteBanque": "البنك",
+        "compteCaisse": "الصندوق",
+        "compteTVACollectee": "الرسم على القيمة المضافة المحصّل (اختياري)",
+        "compteStock": "المخزون",
+        "compteConsommation": "الاستهلاك (الإخراجات)",
+        "compteFacturesNonParvenues": "فواتير لم تصل بعد",
+        "compteBoniInventaire": "فائض الجرد",
+        "compteMaliInventaire": "عجز الجرد"
+      },
+      "COMPTE_INVALIDE": "حساب إلزامي: من 1 إلى 20 حرفًا أو رقمًا",
+      "STOCK_TITRE": "حسابات المخزون",
+      "STOCK_AIDE": "الاستلام: مدين المخزون، دائن فواتير لم تصل بعد (خارج الرسم). الإخراج: مدين الاستهلاك، دائن المخزون. يمكن لبطاقة المادة أن تحدد حسابي المخزون والاستهلاك الخاصين بها.",
+      "ENREGISTRER": "حفظ اليوميات والحسابات",
+      "COMPTES_ENREGISTRES": "تم حفظ الإعدادات المحاسبية.",
+      "SYNCHRO_TITRE": "ترحيل المخزون إلى المحاسبة",
+      "SYNCHRO_AIDE": "يُرحَّل المخزون كل ليلة على مدى آخر 35 يومًا. شغّله هنا لفترة محددة (سنة على الأكثر): قيد لكل وصل استلام معتمد، قيد يومي للإخراجات، وقيد لكل جرد مغلق. إعادة التشغيل لا تُنشئ تكرارًا.",
+      "SYNCHRO_DU": "من",
+      "SYNCHRO_AU": "إلى",
+      "SYNCHRO_LANCER": "ترحيل",
+      "SYNCHRO_RECEPTIONS": "الاستلامات",
+      "SYNCHRO_SORTIES": "أيام الإخراج",
+      "SYNCHRO_INVENTAIRES": "الجرود",
+      "SYNCHRO_COMPLEMENTS": "قيود تكميلية",
+      "SYNCHRO_IGNOREES": "{{count}} وثيقة لم تُرحَّل: فترتها مغلقة.",
+      "ERR": {
+        "JOURNAL_UTILISE": "هذه اليومية مختارة لعملية: غيّر أولًا يومية تلك العملية.",
+        "JOURNAL_INTROUVABLE": "هذه اليومية لم تعد موجودة.",
+        "JOURNAL_AVEC_ECRITURES": "هذه اليومية تحمل قيودًا: عطّلها بدل حذفها.",
+        "JOURNAL_INCONNU": "يومية مختارة لعملية غير موجودة أو معطّلة.",
+        "SAVE": "تعذّر الحفظ. تحقق من الإدخال ثم أعد المحاولة.",
+        "LOAD": "تعذّر تحميل الإعدادات المحاسبية.",
+        "SYNCHRONISATION": "فشل ترحيل المخزون."
+      }
     },
     "KPI": {
       "TOTAL_ECRITURES": "القيود",
@@ -2994,10 +3065,8 @@
       "EXPORTEE": "مُصدَّر"
     },
     "EXPORT": {
-      "VE": "تصدير يومية المبيعات",
-      "BQ": "تصدير يومية البنك",
-      "VE_TOOLTIP": "تنزيل يومية المبيعات بصيغة Sage 100",
-      "BQ_TOOLTIP": "تنزيل يومية البنك بصيغة Sage 100"
+      "JOURNAL": "تصدير اليومية",
+      "JOURNAL_TOOLTIP": "اختر يومية في عامل التصفية ثم نزّلها بصيغة Sage 100"
     },
     "SUCCESS": {
       "PERIODE_CLOTUREE": "تم إقفال الفترة بنجاح."

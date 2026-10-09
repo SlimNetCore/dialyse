@@ -98,7 +98,26 @@ describe('ArticlesComponent (fiche article)', () => {
     expect(api['createArticle']).toHaveBeenCalledWith(expect.objectContaining({
       centerId: CENTRE, code: 'EPO-2000', unite: 'seringue', dosageParUnite: 2000.5, uniteDosage: 'UI',
       dci: null, coefficientAchat: null, fournisseurId: null, seuilAlerte: 0, stockMax: null,
+      compteStock: null, compteCharge: null,
     }));
+  });
+
+  it('envoie les comptes comptables de l\'article et refuse un compte mal formé', async () => {
+    const {fixture, root} = await render();
+    type(root, 'art-code', 'EPO-2000');
+    type(root, 'art-libelle', 'Époétine 2000 UI');
+    type(root, 'art-unite', 'seringue');
+    type(root, 'art-compte-stock', '32-1');
+    fixture.detectChanges();
+    expect(root.querySelector<HTMLButtonElement>('[data-testid="art-save"]')!.disabled).toBe(true);
+
+    type(root, 'art-compte-stock', ' 321 ');
+    type(root, 'art-compte-charge', '6021');
+    fixture.detectChanges();
+    root.querySelector<HTMLButtonElement>('[data-testid="art-save"]')!.click();
+
+    expect(api['createArticle']).toHaveBeenCalledWith(
+      expect.objectContaining({compteStock: '321', compteCharge: '6021'}));
   });
 
   it('charge la fiche d\'une ligne dans le formulaire puis la modifie', async () => {

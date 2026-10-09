@@ -11,7 +11,7 @@ const CENTER_ID = '11111111-1111-1111-1111-111111111111';
 describe('ComptabiliteStore', () => {
   let apiMock: {
     searchEcritures: ReturnType<typeof vi.fn>;
-    getMapping: ReturnType<typeof vi.fn>;
+    getJournaux: ReturnType<typeof vi.fn>;
     getRegles: ReturnType<typeof vi.fn>;
     exporterJournal: ReturnType<typeof vi.fn>;
     cloturerPeriode: ReturnType<typeof vi.fn>;
@@ -50,7 +50,14 @@ describe('ComptabiliteStore', () => {
         page: 0,
         size: 20,
       })),
-      getMapping: vi.fn().mockReturnValue(of(null)),
+      getJournaux: vi.fn().mockReturnValue(of({
+        items: [{code: 'VE', libelle: 'Ventes', actif: true}, {
+          code: 'OD',
+          libelle: 'Opérations diverses',
+          actif: true
+        }],
+        total: 2, page: 0, size: 100,
+      })),
       getRegles: vi.fn().mockReturnValue(of([])),
       exporterJournal: vi.fn(),
       cloturerPeriode: vi.fn(),
@@ -103,6 +110,26 @@ describe('ComptabiliteStore', () => {
     store.loadEcritures({centerId: CENTER_ID});
 
     expect(store.expandedEcritureIds()).toEqual(['e-1']);
+  });
+
+  it('charge les journaux du centre actif et en déduit les libellés affichés', () => {
+    const store = TestBed.inject(ComptabiliteStore);
+
+    store.loadJournaux({centerId: CENTER_ID});
+
+    expect(apiMock.getJournaux).toHaveBeenCalledWith(CENTER_ID, 0, 100);
+    expect(store.journaux().map((j) => j.code)).toEqual(['VE', 'OD']);
+    expect(store.libellesJournaux()).toEqual({VE: 'Ventes (VE)', OD: 'Opérations diverses (OD)'});
+  });
+
+  it('filtre les écritures sur un journal paramétré par le centre', () => {
+    const store = TestBed.inject(ComptabiliteStore);
+
+    store.setJournalCode('OD');
+    store.loadEcritures({centerId: CENTER_ID});
+
+    expect(apiMock.searchEcritures).toHaveBeenLastCalledWith(
+      expect.objectContaining({centerId: CENTER_ID, journalCode: 'OD', page: 0}));
   });
 });
 

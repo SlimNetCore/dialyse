@@ -802,6 +802,11 @@
       },
       "DANGEREUX": "Aɣbalu iḍuṛṛen",
       "DASRI": "Yernu iẓẓalen DASRI",
+      "SECTION_COMPTABILITE": "Taselɣut",
+      "COMPTE_STOCK": "Amiḍan n sselɛa",
+      "COMPTE_CHARGE": "Amiḍan n useqdec",
+      "COMPTE_HINT": "Ilem = amiḍan n wammas",
+      "COMPTE_ERR": "Amiḍan n tselɣut yesɛa seg 1 ar 20 n yisekkilen neɣ n wuṭṭunen.",
       "NONE": "Ulac",
       "COL_DOSAGE": "Azal",
       "COL_STOCK": "Asekles",
@@ -2717,7 +2722,7 @@
   "COMPTABILITE": {
     "EYEBROW": "Azegrir n tselɣut",
     "TITLE": "Amawal n tselɣut SCF",
-    "DESCRIPTION": "Tiktiwin n tselɣut yettunefken s wudem awurman seg tifaturin d ixelleṣen, yesɛeddal s SCF.",
+    "DESCRIPTION": "Tiktiwin n tselɣut yettunefken s wudem awurman seg tifaturin, ixelleṣen d sselɛa, yesɛeddal s SCF.",
     "FILTERS": {
       "TITLE": "Ifiltaren",
       "YEAR": "Aseggas",
@@ -2726,10 +2731,76 @@
       "JOURNAL": "Amawal",
       "ALL_JOURNALS": "Akk imawalen"
     },
-    "JOURNAL": {
-      "VE": "Ibawen (VE)",
-      "BQ": "Aẓraf (BQ)",
-      "CA": "Akufar (CA)"
+    "PARAMETRAGE": {
+      "LIEN": "Iɣewwaren n tselɣut",
+      "TITRE": "Iɣewwaren n tselɣut",
+      "DESCRIPTION": "Imawalen, amawal n yal tigawt d yimiḍanen n wammas. Iɣewwaren-a ttwasnasen ɣef tira ara d-yettwasnulfun seg tura ; tira yettwarun yakan ur ttbeddilent ara.",
+      "RETOUR_JOURNAL": "Amawal n tselɣut",
+      "JOURNAUX_TITRE": "Imawalen",
+      "JOURNAUX_AIDE": "Sbadu imawalen n wammas akken tebɣiḍ. Amawal yettwafernen i tigawt ur yezmir ad yettwasens wala ad yettwakkes ; amawal yesɛan tira yezmer ad yettwasens maca ur yettwakkes ara.",
+      "JOURNAL_CODE": "Tangalt",
+      "JOURNAL_CODE_AIDE": "Seg 1 ar 10 n yisekkilen neɣ n wuṭṭunen",
+      "JOURNAL_LIBELLE": "Isem",
+      "JOURNAL_ACTIF": "Yermed",
+      "JOURNAL_AJOUTER": "Rnu amawal",
+      "JOURNAL_UTILISE": "Amawal yettwafernen i tigawt",
+      "JOURNAL_ENREGISTRE": "Amawal yettwasekles.",
+      "JOURNAL_SUPPRIME": "Amawal yettwakkes.",
+      "SUPPRIMER_TITRE": "Kkes amawal",
+      "SUPPRIMER_MESSAGE": "Ad tekkseḍ amawal {{code}} ? Tigawt-a d tasemdant.",
+      "OPERATIONS_TITRE": "Amawal n yal tigawt",
+      "OPERATIONS_AIDE": "Amawal ideg tettwaru yal tawsit n tigawt.",
+      "OPERATION": {
+        "VENTE": "Tifaturin (ibawen)",
+        "REGLEMENT_BANQUE": "Ixellaṣen deg uẓraf",
+        "REGLEMENT_CAISSE": "Ixellaṣen deg ukufar",
+        "STOCK_RECEPTION": "Armas n uselkim n sselɛa",
+        "STOCK_SORTIE": "Tuffɣa n sselɛa",
+        "STOCK_INVENTAIRE": "Imgerraden n uḥettem"
+      },
+      "OPERATION_SANS_JOURNAL": "Fren amawal yermed",
+      "COMPTES_TITRE": "Imiḍanen n ibawen, imsaɣen d ukufar",
+      "COMPTES_AIDE": "Uṭṭunen n yimiḍanen seg uɣawas-ik n tselɣut (seg 1 ar 20 n yisekkilen neɣ n wuṭṭunen).",
+      "COMPTE": {
+        "compteVentes": "Ibawen n yimeẓla",
+        "compteClientPatient": "Amsaɣ — amuḍin",
+        "compteClientCnas": "Amsaɣ — CNAS",
+        "compteClientCasnos": "Amsaɣ — CASNOS",
+        "compteClientMutuelle": "Amsaɣ — tadukli",
+        "compteClientAutre": "Amsaɣ — axellaṣ-nniḍen",
+        "compteBanque": "Aẓraf",
+        "compteCaisse": "Akufar",
+        "compteTVACollectee": "TVA yettwajemɛen (d afrayan)",
+        "compteStock": "Sselɛa",
+        "compteConsommation": "Aseqdec (tuffɣa)",
+        "compteFacturesNonParvenues": "Tifaturin ur d-newwiḍ ara",
+        "compteBoniInventaire": "Ayen yernan deg uḥettem",
+        "compteMaliInventaire": "Ayen ixuṣṣen deg uḥettem"
+      },
+      "COMPTE_INVALIDE": "Amiḍan ilaq : seg 1 ar 20 n yisekkilen neɣ n wuṭṭunen",
+      "STOCK_TITRE": "Imiḍanen n sselɛa",
+      "STOCK_AIDE": "Armas : aɣrad n sselɛa, asuddim n tfaturin ur d-newwiḍ ara (war tabzert). Tuffɣa : aɣrad n useqdec, asuddim n sselɛa. Tiferkit n uferdis tezmer ad tesbadu imiḍanen-is n sselɛa d useqdec.",
+      "ENREGISTRER": "Sekles imawalen d yimiḍanen",
+      "COMPTES_ENREGISTRES": "Iɣewwaren n tselɣut ttwaskelsen.",
+      "SYNCHRO_TITRE": "Aru sselɛa deg tselɣut",
+      "SYNCHRO_AIDE": "Sselɛa tettwaru yal iḍ ɣef 35 n wussan ineggura. Sker-it da i tallit yettwasbadun (aseggas ma aṭas) : tira i yal tiferkit n urmas yettwasentmen, yiwet i yal ass i tuffɣa, yiwet i yal aḥettem yemdel. Ma tulseḍ-as, ur d-yettili ara usleg.",
+      "SYNCHRO_DU": "Seg",
+      "SYNCHRO_AU": "Ar",
+      "SYNCHRO_LANCER": "Aru",
+      "SYNCHRO_RECEPTIONS": "Irmasen",
+      "SYNCHRO_SORTIES": "Ussan n tuffɣa",
+      "SYNCHRO_INVENTAIRES": "Iḥettmen",
+      "SYNCHRO_COMPLEMENTS": "Tira n usemmed",
+      "SYNCHRO_IGNOREES": "{{count}} n tɣawsiwin ur ttwarunt ara : tallit-nsent temdel.",
+      "ERR": {
+        "JOURNAL_UTILISE": "Amawal-a yettwafren i tigawt : beddel uqbel amawal n tigawt-nni.",
+        "JOURNAL_INTROUVABLE": "Amawal-a ur yelli ara tura.",
+        "JOURNAL_AVEC_ECRITURES": "Amawal-a yesɛa tira : sens-it deg umḍiq n tukksa-ines.",
+        "JOURNAL_INCONNU": "Amawal yettwafernen i tigawt ulac-it neɣ yensa.",
+        "SAVE": "Asekles ur yeddi ara. Senqed ayen turiḍ syin ɛreḍ tikkelt-nniḍen.",
+        "LOAD": "D awezɣi asali n yiɣewwaren n tselɣut.",
+        "SYNCHRONISATION": "Tira n sselɛa deg tselɣut ur teddi ara."
+      }
     },
     "KPI": {
       "TOTAL_ECRITURES": "Tiktiwin",
@@ -2768,10 +2839,8 @@
       "EXPORTEE": "Yettwasifirew"
     },
     "EXPORT": {
-      "VE": "Sifirew amawal n ibawen",
-      "BQ": "Sifirew amawal n uẓraf",
-      "VE_TOOLTIP": "Aẓreg amawal n ibawen deg uṣeggem Sage 100",
-      "BQ_TOOLTIP": "Aẓreg amawal n uẓraf deg uṣeggem Sage 100"
+      "JOURNAL": "Sifirew amawal",
+      "JOURNAL_TOOLTIP": "Fren amawal deg usizdeg, syin sider-it deg uṣeggem Sage 100"
     },
     "SUCCESS": {
       "PERIODE_CLOTUREE": "Tallit tewqef akken iwata."

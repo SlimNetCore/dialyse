@@ -12,6 +12,8 @@ import java.util.UUID;
  * @param coefficientAchat nombre d'unités de stock dans une unité d'achat (ex. boîte de 10 seringues = 10)
  * @param dosageParUnite   quantité de principe actif contenue dans une unité de stock (ex. 4000 pour 1 seringue)
  * @param uniteDosage      unité de ce dosage (ex. UI, mg) : celle de la prescription du médecin
+ * @param compteStock      compte comptable de stock propre à l'article ; vide = compte de stock du centre
+ * @param compteCharge     compte de consommation propre à l'article ; vide = compte de consommation du centre
  */
 public record ArticleFiche(
         String code,
@@ -35,6 +37,8 @@ public record ArticleFiche(
         ConditionConservation conditionConservation,
         boolean produitDangereux,
         boolean dechetDasri,
-        TypeTraitementAnemie typeTraitementAnemie
+        TypeTraitementAnemie typeTraitementAnemie,
+        String compteStock,
+        String compteCharge
 ) {
 }

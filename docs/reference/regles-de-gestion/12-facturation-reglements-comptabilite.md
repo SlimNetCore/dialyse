@@ -84,12 +84,14 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 
 ## 12.6 Comptabilité (plan SCF)
 
-- **RG-CPT-001** — **Écriture de ventes (journal VE)** par facture : débit du compte client (411xxx), crédit du compte
+- **RG-CPT-001** — **Écriture de ventes** par facture, dans le journal que le centre a choisi pour les ventes (`VE` par
+  défaut, RG-CPT-010) : débit du compte client (411xxx), crédit du compte
   de ventes (706) pour le HT, crédit de la TVA collectée (44571) si la TVA est > 0 (dérivée de TTC − HT si le total de
   TVA manque) ; date de l'écriture = **fin de la période facturée** (jamais la date d'émission) ; axes analytiques
   centre et type de tiers ; statut `VALIDEE`. **Idempotence** : une facture n'a qu'une écriture (recherche par pièce
-  source).
-- **RG-CPT-002** — **Écriture de règlement** : journal banque `BQ` (débit 512) ou caisse `CA` (débit 530, si le mode
+  source, **quel que soit le journal** : changer le journal des ventes ne recrée jamais une écriture déjà passée).
+- **RG-CPT-002** — **Écriture de règlement** : journal choisi pour les règlements en banque (`BQ` par défaut, débit
+    512) ou en caisse (`CA` par défaut, débit 530, si le mode
   est « caisse ») ; crédit du compte client ; montant en valeur absolue ; **une écriture par
   règlement** (idempotence par identifiant de règlement). Le mode par défaut du règlement enregistré est « banque ».
 - **RG-CPT-003** — Toute écriture comporte **au moins deux lignes** et doit être **équilibrée** (total débit = total
@@ -102,13 +104,65 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   (`PERIODE_DEJA_CLOTUREE`) ; aucune écriture ne peut être générée dans une période clôturée (`PERIODE_CLOTUREE`).
   Lorsque la période d'un règlement est clôturée, le règlement reste enregistré mais **aucune écriture n'est générée**
   (avertissement journalisé).
-- **RG-CPT-006** — **Plan de comptes par centre** (`MappingComptable`) : comptes ventes, clients (patient, CNAS, CASNOS,
+- **RG-CPT-006** — **Plan de comptes par centre** (`MappingComptable`), **entièrement paramétrable** depuis l'écran
+  « Paramétrage comptable » (`ADMIN`) : comptes ventes, clients (patient, CNAS, CASNOS,
   mutuelle, autre), banque, caisse — tous obligatoires ; valeurs par défaut :
-  706, 411100, 411200, 411300, 411400, 411500, 512, 530, 44571. **Règles de TVA comptables** versionnées dans le temps
-  (type de prestation, taux ≥ 0, exonération, début de validité obligatoire).
+  706, 411100, 411200, 411300, 411400, 411500, 512, 530, 44571 (TVA collectée, facultative) ; comptes du stock
+  (RG-CPT-011). Un compte comporte 1 à 20 lettres ou chiffres. Le paramétrage ne vaut que pour les écritures générées
+  ensuite : les écritures déjà passées ne sont pas réimputées. **Règles de TVA comptables** versionnées dans le temps
+  (type de prestation, taux ≥ 0, exonération, début de validité obligatoire). *Source :* `MappingComptable`,
+  `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` → `ComptabiliteApiService` →
+  `ComptabiliteRestController` (`/mapping`) → `ComptabiliteUseCase` → `MappingComptablePort`.
 - **RG-CPT-007** — **Reconstruction** (rejeu) des écritures de factures et règlements existants sur une période,
-  réservée à `ADMIN` ; l'idempotence évite tout doublon. Consultation des écritures :
-  `ADMIN`, `SECRETAIRE` (paginée) ; validation, export, mapping, règles TVA, clôture : `ADMIN`.
+  réservée à `ADMIN` ; l'idempotence évite tout doublon. Consultation des écritures et des journaux :
+  `ADMIN`, `SECRETAIRE` (paginée) ; validation, export, paramétrage (comptes, journaux), règles TVA, clôture,
+  comptabilisation du stock : `ADMIN`.
 - **Point d'attention (RG-CPT-008)** — Les écritures sont aujourd'hui générées avec le type de tiers `AUTRE` : toutes
   les créances sont imputées au compte client « autre » (411500) quel que soit le payeur ;
   les comptes CNAS, CASNOS, mutuelle et patient du plan de comptes ne sont pas encore alimentés automatiquement.
+- **RG-CPT-009** — **Journaux paramétrables par centre** : chaque centre définit librement ses journaux (code de 1 à 10
+  lettres majuscules ou chiffres, libellé de 100 caractères au plus, actif ou non). Tant qu'il n'a rien paramétré, il
+  dispose des journaux par défaut `VE` Ventes, `BQ` Banque, `CA` Caisse, `AC` Achats, `ST` Stocks ; ils sont
+  enregistrés comme les siens à sa première modification. Un journal **choisi pour une opération** ne peut être ni
+  désactivé ni supprimé (`JOURNAL_UTILISE`) ; un journal **qui porte des écritures** se désactive mais ne se supprime
+  pas (`JOURNAL_AVEC_ECRITURES`) ; supprimer un journal inconnu est refusé (`JOURNAL_INTROUVABLE`). La liste est
+  paginée. *Source :* `JournauxService`, `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` →
+  `ComptabiliteApiService` → `ComptabiliteRestController` (`/journaux`) → `JournauxUseCase` → `JournalRepositoryPort`.
+- **RG-CPT-010** — **Journal de chaque opération** : le centre choisit le journal des ventes, des règlements en banque,
+  des règlements en caisse, des réceptions de stock, des sorties de stock et des écarts d'inventaire (par défaut `VE`,
+  `BQ`, `CA`, `AC`, `ST`, `ST`). Seul un journal **existant et actif** peut être choisi (`JOURNAL_INCONNU`). Le numéro
+  de pièce reprend le code du journal : `<JOURNAL>-<année>-<n° sur 6 chiffres>`, numéroté par journal et par année.
+- **RG-CPT-011** — **Comptes du stock** (inventaire permanent), paramétrables par centre : stock (322 par défaut),
+  consommation (602), factures non parvenues (408), boni d'inventaire (757), mali d'inventaire (657). La **fiche d'un
+  article** peut préciser son propre compte de stock et son propre compte de consommation (RG-STK-008) ; à défaut, ceux
+  du centre s'appliquent.
+- **RG-CPT-012** — **Écriture de réception** : un bon de réception **validé** donne une écriture, dans le journal des
+  réceptions, à la date de réception : débit du compte de stock (de l'article ou du centre), crédit des **factures non
+  parvenues**, pour la valeur **hors taxe** quantité × prix unitaire. La TVA d'achat et le compte fournisseur se
+  traitent à la facture, **hors application**. Une écriture par bon, jamais doublée.
+- **RG-CPT-013** — **Écriture des sorties** : les sorties de stock d'une journée (consommations de séance, sorties
+  manuelles) sont **centralisées en une écriture par centre et par jour**, dans le journal des sorties : débit du
+  compte de consommation, crédit du compte de stock, valorisés au **prix moyen pondéré appliqué à la sortie** (à
+  défaut le PMP après mouvement, puis le PMP courant de l'article). Une ligne par compte.
+- **RG-CPT-014** — **Écriture des écarts d'inventaire** : un inventaire **clôturé** donne une écriture, dans le journal
+  des inventaires, à la date de l'inventaire : excédent (compté > théorique) = débit stock, crédit boni ; manquant =
+  débit mali, crédit stock ; écarts valorisés au PMP de la ligne d'inventaire. Une ligne non comptée ne produit rien.
+- **RG-CPT-015** — **Comptabilisation du stock rejouable** : elle a lieu **chaque nuit** sur les 35 derniers jours
+  (`ComptabiliteStockScheduler`) et **à la demande** de l'administrateur sur une période d'un an au plus. Seule la
+  **différence** entre ce qui devrait être comptabilisé et ce qui l'est déjà est écrite : la rejouer ne crée aucun
+  doublon. Quand les sorties d'un jour changent après coup (mouvement saisi en retard, PMP recalculé), l'écriture du
+  jour est **mise à jour** tant qu'elle n'est ni exportée ni dans une période clôturée (son numéro de pièce est
+  conservé) ; sinon la différence fait l'objet d'une **écriture de complément** — datée du jour même, ou du jour du
+  traitement si la période d'origine est clôturée (au plus 50 compléments par journée). Une réception ou un inventaire
+  dont la période est **clôturée** n'est pas comptabilisé : il est compté comme « ignoré » et signalé à l'écran. Le
+  stock d'un centre n'est jamais comptabilisé dans un autre. *Source :* `ComptabiliteStockService`,
+  `GenerateurEcritureStock`, `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` →
+  `ComptabiliteApiService` → `ComptabiliteRestController` (`/stock/synchroniser`) → `ComptabiliteStockUseCase` →
+  `OperationsStockPort` (`OperationsStockJdbcAdapter`).
+- **RG-CPT-016** — **Isolement par centre de la comptabilité** : toute requête comptable (écritures, export, clôture,
+  paramétrage, journaux, comptabilisation du stock, reconstruction) est confrontée au centre de la session ; demander
+  un autre centre est refusé (403). *Source :* `ComptabiliteRestController`, `CenterAccessGuard`.
+- **Point d'attention (RG-CPT-017)** — Le stock n'est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
+  demande) : une sortie du jour n'apparaît en comptabilité qu'après le traitement suivant. La TVA déductible sur achats
+  et la dette fournisseur (401) ne sont pas gérées : le compte des factures non parvenues se solde hors application, à
+  la comptabilisation de la facture du fournisseur.

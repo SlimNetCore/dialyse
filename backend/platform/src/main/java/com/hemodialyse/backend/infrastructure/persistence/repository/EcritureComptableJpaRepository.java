@@ -12,8 +12,12 @@ import java.util.UUID;
 
 public interface EcritureComptableJpaRepository extends JpaRepository<EcritureComptableJpaEntity, UUID> {
 
-    Optional<EcritureComptableJpaEntity> findByCenterIdAndJournalCodeAndSourceId(
-            UUID centerId, String journalCode, UUID sourceId);
+    /**
+     * Une pièce source n'est comptabilisée qu'une fois, quel que soit le journal alors paramétré.
+     */
+    Optional<EcritureComptableJpaEntity> findFirstByCenterIdAndSourceIdOrderByCreatedAtAsc(UUID centerId, UUID sourceId);
+
+    boolean existsByCenterIdAndJournalCode(UUID centerId, String journalCode);
 
     Page<EcritureComptableJpaEntity> findByCenterIdAndJournalCodeAndDateEcritureBetween(
             UUID centerId, String journalCode, LocalDate from, LocalDate to, Pageable pageable);
@@ -30,9 +34,6 @@ public interface EcritureComptableJpaRepository extends JpaRepository<EcritureCo
             UUID centerId, String statut, LocalDate from, LocalDate to, Pageable pageable);
 
     List<EcritureComptableJpaEntity> findByCenterIdAndJournalCodeAndDateEcritureBetween(
-            UUID centerId, String journalCode, LocalDate from, LocalDate to);
-
-    long countByCenterIdAndJournalCodeAndDateEcritureBetweenAndNumeroPieceIsNotNull(
             UUID centerId, String journalCode, LocalDate from, LocalDate to);
 
     Optional<EcritureComptableJpaEntity> findTopByCenterIdAndJournalCodeAndNumeroPieceLikeOrderByNumeroPieceDesc(

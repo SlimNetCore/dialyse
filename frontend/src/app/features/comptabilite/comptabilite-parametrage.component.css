@@ -1,0 +1,84 @@
+.cpa-page,
+.cpa-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.cpa-journal-form,
+.cpa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 16px;
+  padding-top: 8px;
+}
+
+.cpa-journal-form {
+  align-items: start;
+}
+
+.cpa-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.cpa-table-wrap {
+  overflow-x: auto;
+}
+
+.cpa-table {
+  width: 100%;
+  min-width: 420px;
+}
+
+.cpa-row-actions {
+  white-space: nowrap;
+  text-align: end;
+}
+
+.cpa-feedback {
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cpa-feedback.success {
+  background: color-mix(in srgb, #2e7d32 12%, transparent);
+  color: #2e7d32;
+}
+
+.cpa-feedback.error,
+.cpa-hint-error {
+  color: #c62828;
+}
+
+.cpa-feedback.error {
+  background: color-mix(in srgb, #c62828 12%, transparent);
+}
+
+.cpa-resultat {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+@media (max-width: 767px) {
+  .cpa-journal-form,
+  .cpa-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cpa-actions {
+    justify-content: stretch;
+  }
+
+  .cpa-actions > button {
+    flex: 1 1 auto;
+  }
+}

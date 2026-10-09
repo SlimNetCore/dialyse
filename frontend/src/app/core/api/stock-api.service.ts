@@ -55,6 +55,10 @@ export interface ArticleStock {
   conditionConservation?: ConditionConservation | null;
   produitDangereux?: boolean;
   dechetDasri?: boolean;
+  /** Compte comptable de stock propre à l'article ; vide = compte de stock du centre. */
+  compteStock?: string | null;
+  /** Compte de consommation propre à l'article ; vide = compte de consommation du centre. */
+  compteCharge?: string | null;
 }
 
 export type ConditionConservation = 'AMBIANT' | 'REFRIGERE' | 'CONGELE';
@@ -84,6 +88,8 @@ export interface ArticleFichePayload {
   produitDangereux: boolean;
   dechetDasri: boolean;
   typeTraitementAnemie?: TypeTraitementAnemie | null;
+  compteStock?: string | null;
+  compteCharge?: string | null;
 }
 
 export interface LigneBonCommande {

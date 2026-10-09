@@ -1,0 +1,230 @@
+<section class="app-page cpa-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'COMPTABILITE.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'COMPTABILITE.PARAMETRAGE.TITRE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'COMPTABILITE.PARAMETRAGE.DESCRIPTION' | translate }}</p>
+    <a mat-stroked-button routerLink="/comptabilite">
+      <mat-icon>menu_book</mat-icon>
+      {{ 'COMPTABILITE.PARAMETRAGE.RETOUR_JOURNAL' | translate }}
+    </a>
+  </div>
+
+  @if (store.loading() || store.saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error()) {
+    <p class="cpa-feedback error" data-testid="cpa-erreur" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.successMessage()) {
+    <p class="cpa-feedback success" data-testid="cpa-succes">{{ store.successMessage()! | translate }}</p>
+  }
+
+  <!-- ─── Journaux ─────────────────────────────────────────────────────── -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAUX_TITRE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAUX_AIDE' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="saveJournal(); $event.preventDefault()" [formRoot]="journalForm" class="cpa-journal-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_CODE' | translate }}</mat-label>
+          <input [formField]="journalForm.code" data-testid="cpa-journal-code" matInput/>
+          <mat-hint>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_CODE_AIDE' | translate }}</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_LIBELLE' | translate }}</mat-label>
+          <input [formField]="journalForm.libelle" data-testid="cpa-journal-libelle" matInput/>
+        </mat-form-field>
+        <div class="cpa-actions">
+          @if (editingCode()) {
+            <button (click)="cancelJournal()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}
+            </button>
+          }
+          <button [disabled]="!canSaveJournal()" color="primary" data-testid="cpa-journal-save" mat-flat-button
+                  type="submit">
+            <mat-icon>{{ editingCode() ? 'save' : 'add' }}</mat-icon>
+            {{ (editingCode() ? 'COMMON.SAVE' : 'COMPTABILITE.PARAMETRAGE.JOURNAL_AJOUTER') | translate }}
+          </button>
+        </div>
+      </form>
+
+      <div class="cpa-table-wrap">
+        <table [dataSource]="store.rows()" class="cpa-table" data-testid="cpa-journaux" mat-table>
+          <ng-container matColumnDef="code">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_CODE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell><strong>{{ row.code }}</strong></td>
+          </ng-container>
+
+          <ng-container matColumnDef="libelle">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_LIBELLE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.libelle }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actif">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_ACTIF' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <mat-slide-toggle (change)="toggleActif(row, $event.checked)" [attr.aria-label]="'COMPTABILITE.PARAMETRAGE.JOURNAL_ACTIF' | translate"
+                                [checked]="row.actif"
+                                [disabled]="store.saving() || (row.actif && utilise(row))"
+                                [matTooltip]="(utilise(row) ? 'COMPTABILITE.PARAMETRAGE.JOURNAL_UTILISE' : '') | translate"/>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let row" class="cpa-row-actions" mat-cell>
+              <button (click)="editJournal(row)" [attr.aria-label]="'COMMON.EDIT' | translate"
+                      [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button type="button">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button (click)="removeJournal(row)" [attr.aria-label]="'COMMON.DELETE' | translate"
+                      [disabled]="store.saving() || utilise(row)"
+                      [matTooltip]="(utilise(row) ? 'COMPTABILITE.PARAMETRAGE.JOURNAL_UTILISE' : 'COMMON.DELETE') | translate"
+                      color="warn" mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr *matHeaderRowDef="columns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: columns" [attr.data-journal]="row.code" mat-row></tr>
+        </table>
+      </div>
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [length]="store.total()"
+        [pageIndex]="store.pageIndex()"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        [pageSize]="store.pageSize()"/>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ─── Journal de chaque opération et comptes ───────────────────────── -->
+  <form (submit)="saveComptes(); $event.preventDefault()" [formRoot]="comptesForm" class="cpa-stack">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'COMPTABILITE.PARAMETRAGE.OPERATIONS_TITRE' | translate }}</mat-card-title>
+        <mat-card-subtitle>{{ 'COMPTABILITE.PARAMETRAGE.OPERATIONS_AIDE' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="cpa-grid">
+          @for (operation of operations; track operation) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.OPERATION.' + operation | translate }}</mat-label>
+              <mat-select (valueChange)="choisir(operation, $event)" [attr.data-testid]="'cpa-operation-' + operation"
+                          [value]="choix()?.[operation] ?? null">
+                @for (j of store.journauxActifs(); track j.code) {
+                  <mat-option [value]="j.code">{{ j.libelle }} ({{ j.code }})</mat-option>
+                }
+              </mat-select>
+              @if (operationEnErreur(operation)) {
+                <mat-hint class="cpa-hint-error">{{ 'COMPTABILITE.PARAMETRAGE.OPERATION_SANS_JOURNAL' | translate }}
+                </mat-hint>
+              }
+            </mat-form-field>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'COMPTABILITE.PARAMETRAGE.COMPTES_TITRE' | translate }}</mat-card-title>
+        <mat-card-subtitle>{{ 'COMPTABILITE.PARAMETRAGE.COMPTES_AIDE' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="cpa-grid">
+          @for (compte of comptesGeneraux; track compte) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.COMPTE.' + compte | translate }}</mat-label>
+              <input [attr.data-testid]="'cpa-' + compte" [formField]="comptesForm[compte]" matInput/>
+              @if (enErreur(compte)) {
+                <mat-hint class="cpa-hint-error">{{ 'COMPTABILITE.PARAMETRAGE.COMPTE_INVALIDE' | translate }}</mat-hint>
+              }
+            </mat-form-field>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ 'COMPTABILITE.PARAMETRAGE.STOCK_TITRE' | translate }}</mat-card-title>
+        <mat-card-subtitle>{{ 'COMPTABILITE.PARAMETRAGE.STOCK_AIDE' | translate }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="cpa-grid">
+          @for (compte of comptesStock; track compte) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.COMPTE.' + compte | translate }}</mat-label>
+              <input [attr.data-testid]="'cpa-' + compte" [formField]="comptesForm[compte]" matInput/>
+              @if (enErreur(compte)) {
+                <mat-hint class="cpa-hint-error">{{ 'COMPTABILITE.PARAMETRAGE.COMPTE_INVALIDE' | translate }}</mat-hint>
+              }
+            </mat-form-field>
+          }
+        </div>
+        <div class="cpa-actions">
+          <button [disabled]="!canSaveComptes()" color="primary" data-testid="cpa-comptes-save" mat-flat-button
+                  type="submit">
+            <mat-icon>save</mat-icon>
+            {{ 'COMPTABILITE.PARAMETRAGE.ENREGISTRER' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </form>
+
+  <!-- ─── Comptabilisation du stock ────────────────────────────────────── -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_TITRE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_AIDE' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="synchroniser(); $event.preventDefault()" [formRoot]="periodeForm" class="cpa-journal-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_DU' | translate }}</mat-label>
+          <input [formField]="periodeForm.from" data-testid="cpa-synchro-du" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_AU' | translate }}</mat-label>
+          <input [formField]="periodeForm.to" data-testid="cpa-synchro-au" matInput type="date"/>
+        </mat-form-field>
+        <div class="cpa-actions">
+          <button [disabled]="!canSynchroniser()" color="primary" data-testid="cpa-synchro" mat-flat-button
+                  type="submit">
+            <mat-icon>sync</mat-icon>
+            {{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_LANCER' | translate }}
+          </button>
+        </div>
+      </form>
+
+      @if (store.synchronisation(); as s) {
+        <div class="cpa-resultat" data-testid="cpa-synchro-resultat">
+          <div class="app-data-pill">
+            <span>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_RECEPTIONS' | translate }}</span>
+            <strong>{{ s.receptions }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_SORTIES' | translate }}</span>
+            <strong>{{ s.joursSorties }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_INVENTAIRES' | translate }}</span>
+            <strong>{{ s.inventaires }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_COMPLEMENTS' | translate }}</span>
+            <strong>{{ s.complements }}</strong>
+          </div>
+        </div>
+        @if (s.ignorees > 0) {
+          <p
+            class="cpa-feedback error">{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_IGNOREES' | translate: {count: s.ignorees} }}</p>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</section>

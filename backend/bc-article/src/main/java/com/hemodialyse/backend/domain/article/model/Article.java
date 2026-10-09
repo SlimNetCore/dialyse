@@ -39,6 +39,14 @@ public class Article {
     private boolean produitDangereux;
     private boolean dechetDasri;
 
+    // --- Comptabilité : comptes propres à l'article (vides = comptes du centre) ---
+    private String compteStock;
+    private String compteCharge;
+
+    private static boolean compteInvalide(String compte) {
+        return !isBlank(compte) && !compte.trim().matches("[0-9A-Za-z]{1,20}");
+    }
+
     private static boolean sameUnit(String a, String b) {
         return a != null && b != null && a.trim().equalsIgnoreCase(b.trim());
     }
@@ -89,6 +97,12 @@ public class Article {
             throw new BusinessException("ARTICLE_STOCK_MAX_INFERIEUR_SEUIL",
                     "Le stock maximum ne peut être inférieur au seuil d'alerte");
         }
+        if (compteInvalide(fiche.compteStock()) || compteInvalide(fiche.compteCharge())) {
+            throw new BusinessException("ARTICLE_COMPTE_INVALIDE",
+                    "Un compte comptable comporte 1 à 20 lettres ou chiffres");
+        }
+        this.compteStock = clean(fiche.compteStock());
+        this.compteCharge = clean(fiche.compteCharge());
         this.code = fiche.code().trim();
         this.libelle = fiche.libelle().trim();
         this.dci = clean(fiche.dci());
@@ -370,6 +384,22 @@ public class Article {
 
     public void setDechetDasri(boolean dechetDasri) {
         this.dechetDasri = dechetDasri;
+    }
+
+    public String getCompteStock() {
+        return compteStock;
+    }
+
+    public void setCompteStock(String compteStock) {
+        this.compteStock = compteStock;
+    }
+
+    public String getCompteCharge() {
+        return compteCharge;
+    }
+
+    public void setCompteCharge(String compteCharge) {
+        this.compteCharge = compteCharge;
     }
 }
 

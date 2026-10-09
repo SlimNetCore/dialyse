@@ -10,6 +10,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatChipsModule} from '@angular/material/chips';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {RouterLink} from '@angular/router';
 import {ComptabiliteStore} from './state/comptabilite.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
@@ -25,7 +26,7 @@ import {ConfigurableListComponent, SharedListColumn} from '../../shared/configur
     MatCardModule, MatButtonModule, MatIconModule,
     MatSelectModule, MatPaginatorModule,
     MatProgressBarModule, MatTooltipModule, MatBadgeModule,
-    MatChipsModule, TranslateModule, ConfigurableListComponent,
+    MatChipsModule, TranslateModule, ConfigurableListComponent, RouterLink,
   ],
   templateUrl: './comptabilite-dashboard.component.html',
   styleUrl: './comptabilite-dashboard.component.css',
@@ -42,12 +43,7 @@ export class ComptabiliteDashboardComponent {
 
   protected readonly years = Array.from({length: 6}, (_, i) => new Date().getFullYear() - i);
   protected readonly months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-  protected readonly journaux: Array<{ code: JournalCode | null; label: string }> = [
-    {code: null, label: 'COMPTABILITE.FILTERS.ALL_JOURNALS'},
-    {code: 'VE', label: 'COMPTABILITE.JOURNAL.VE'},
-    {code: 'BQ', label: 'COMPTABILITE.JOURNAL.BQ'},
-    {code: 'CA', label: 'COMPTABILITE.JOURNAL.CA'},
-  ];
+  protected readonly peutParametrer = computed(() => this.auth.hasRole('ADMIN'));
 
   protected readonly displayedColumns = [
     'expand', 'numeroPiece', 'journalCode', 'dateEcriture', 'libelle', 'totalDebit', 'statut'
@@ -162,9 +158,16 @@ export class ComptabiliteDashboardComponent {
       : 'COMPTABILITE.DETAIL.BALANCE_WARNING';
   }
 
-  protected onExport(journalCode: JournalCode): void {
+  /** Libellé d'un journal du centre ; son code seul s'il a été supprimé depuis. */
+  protected journalLabel(code: JournalCode): string {
+    return this.store.libellesJournaux()[code] ?? code;
+  }
+
+  /** Exporte le journal choisi dans le filtre (les journaux sont ceux du centre, pas une liste figée). */
+  protected onExport(): void {
     const centerId = this.centerId();
-    if (!centerId) return;
+    const journalCode = this.store.journalCode();
+    if (!centerId || !journalCode) return;
     const year = this.store.year();
     const month = this.store.month();
     const from = month ? `${year}-${String(month).padStart(2, '0')}-01` : `${year}-01-01`;

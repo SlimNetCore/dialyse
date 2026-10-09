@@ -88,7 +88,7 @@
 | `TvaTypesRestController`                 | `/api/v1/tva-types`                                                 | `ADMIN` (écriture), `MEDECIN`/`SECRETAIRE` (lecture)                           | RG-FAC-001 à 003                            |
 | `FacturationRestController`              | `/api/v1/facturation`                                               | `ADMIN`, `MEDECIN` (+ `SECRETAIRE` en lecture)                                 | RG-FAC-010 à 032                            |
 | `ReglementRestController`                | `/api/v1/reglements`                                                | `ADMIN`, `SECRETAIRE`                                                          | RG-REG-001 à 004                            |
-| `ComptabiliteRestController`             | `/api/v1/comptabilite`                                              | `ADMIN` (`SECRETAIRE` en lecture des écritures)                                | RG-CPT-001 à 008                            |
+| `ComptabiliteRestController`             | `/api/v1/comptabilite`                                              | `ADMIN` (`SECRETAIRE` en lecture des écritures et des journaux)                | RG-CPT-001 à 017                            |
 | `DirectionDashboardRestController`       | `/api/v1/direction`                                                 | `DIRECTION`                                                                    | RG-DIR-001 à 080, 100 à 102                 |
 | `DirectionSnapshotRestController`        | `/api/v1/direction/snapshots`                                       | `DIRECTION`                                                                    | RG-DIR-090 à 092                            |
 | `ApiExceptionHandler`                    | (contrat d'erreur)                                                  | —                                                                              | RG-TRV-010 à 016                            |
@@ -110,3 +110,4 @@
 | `PresenceInfirmierScheduler`          | 07:15 chaque jour                    | RG-INF-046             |
 | `NotificationPurgeScheduler`          | 03:40 chaque jour                    | RG-NOT-005             |
 | `ReplanificationAutomatiqueScheduler` | 02:30 chaque nuit                    | RG-PLN-100             |
+| `ComptabiliteStockScheduler`          | 03:15 chaque jour                    | RG-CPT-015             |

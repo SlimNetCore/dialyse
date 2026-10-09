@@ -249,7 +249,10 @@ class FacturationRestControllerIntegrationTest {
                         .param("to", "2026-08-31")
                         .param("page", "0")
                         .param("size", "20")
-                        .with(user("admin").roles("ADMIN")))
+                        // la comptabilité confronte le centre demandé à celui de la session
+                        .with(user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(
+                                UUID.randomUUID().toString(), CENTER_ID.toString(), "admin", "",
+                                java.util.List.of("ADMIN"), true))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total").value(1))
                 .andExpect(jsonPath("$.items.length()").value(1))

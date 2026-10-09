@@ -37,7 +37,9 @@ public record CreateArticleRequest(
         String conditionConservation,
         boolean produitDangereux,
         boolean dechetDasri,
-        String typeTraitementAnemie
+        String typeTraitementAnemie,
+        @Size(max = 20) String compteStock,
+        @Size(max = 20) String compteCharge
 ) {
 
     public ArticleFiche toFiche() {
@@ -48,6 +50,7 @@ public record CreateArticleRequest(
                         ? null : ConditionConservation.valueOf(conditionConservation),
                 produitDangereux, dechetDasri,
                 typeTraitementAnemie == null || typeTraitementAnemie.isBlank()
-                        ? null : TypeTraitementAnemie.valueOf(typeTraitementAnemie));
+                        ? null : TypeTraitementAnemie.valueOf(typeTraitementAnemie),
+                compteStock, compteCharge);
     }
 }

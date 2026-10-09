@@ -25,6 +25,10 @@
   (`ARTICLE_STOCK_MAX_INFERIEUR_SEUIL`). Un éventuel **type de traitement de l'anémie** (`EPO` ou `FER_INJECTABLE`,
   vide = article ordinaire) alimente les listes de prescription (voir RG-MED). *Source :* `Article.appliquerFiche`,
   `ArticlesComponent`.
+- **RG-STK-008** — **Comptes comptables de l'article** (facultatifs) : la fiche peut préciser un **compte de stock** et
+  un **compte de consommation** propres à l'article (1 à 20 lettres ou chiffres, sinon `ARTICLE_COMPTE_INVALIDE`).
+  Laissés vides, ce sont les comptes du centre qui s'appliquent à la comptabilisation du stock (RG-CPT-011 à 014).
+  *Source :* `Article.appliquerFiche`, `ArticlesComponent`.
 - **RG-STK-006** — **Dosage par unité de stock** : la fiche peut porter « 1 unité de stock = X UI (ou mg…) »,
   c'est-à-dire
   un dosage (> 0, `ARTICLE_DOSAGE_INVALIDE`) **et** son unité, indissociables (`ARTICLE_DOSAGE_INCOMPLET`). Il relie

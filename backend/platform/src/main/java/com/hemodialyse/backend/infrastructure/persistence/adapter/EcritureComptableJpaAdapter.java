@@ -44,9 +44,13 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
     }
 
     @Override
-    public Optional<EcritureComptable> findBySourceId(UUID sourceId, UUID centerId, JournalCode journalCode) {
-        return repo.findByCenterIdAndJournalCodeAndSourceId(centerId, journalCode.name(), sourceId)
-                .map(this::toDomain);
+    public Optional<EcritureComptable> findBySourceId(UUID sourceId, UUID centerId) {
+        return repo.findFirstByCenterIdAndSourceIdOrderByCreatedAtAsc(centerId, sourceId).map(this::toDomain);
+    }
+
+    @Override
+    public boolean existsByJournal(UUID centerId, JournalCode journalCode) {
+        return repo.existsByCenterIdAndJournalCode(centerId, journalCode.valeur());
     }
 
     @Override
@@ -59,10 +63,10 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
 
         if (journalCode != null && statutStr != null) {
             pageResult = repo.findByCenterIdAndJournalCodeAndStatutAndDateEcritureBetween(
-                    centerId, journalCode.name(), statutStr, from, to, pageable);
+                    centerId, journalCode.valeur(), statutStr, from, to, pageable);
         } else if (journalCode != null) {
             pageResult = repo.findByCenterIdAndJournalCodeAndDateEcritureBetween(
-                    centerId, journalCode.name(), from, to, pageable);
+                    centerId, journalCode.valeur(), from, to, pageable);
         } else if (statutStr != null) {
             pageResult = repo.findByCenterIdAndStatutAndDateEcritureBetween(
                     centerId, statutStr, from, to, pageable);
@@ -75,7 +79,7 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
 
     @Override
     public List<EcritureComptable> findForExport(UUID centerId, LocalDate from, LocalDate to, JournalCode journalCode) {
-        String code = journalCode != null ? journalCode.name() : null;
+        String code = journalCode != null ? journalCode.valeur() : null;
         if (code == null) return List.of();
         return repo.findByCenterIdAndJournalCodeAndDateEcritureBetween(centerId, code, from, to)
                 .stream().map(this::toDomain).toList();
@@ -83,10 +87,10 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
 
     @Override
     public String nextNumeroPiece(UUID centerId, JournalCode journalCode, int year) {
-        String prefix = journalCode.name() + "-" + year + "-";
+        String prefix = journalCode.valeur() + "-" + year + "-";
         Optional<EcritureComptableJpaEntity> last = repo
                 .findTopByCenterIdAndJournalCodeAndNumeroPieceLikeOrderByNumeroPieceDesc(
-                        centerId, journalCode.name(), prefix + "%");
+                        centerId, journalCode.valeur(), prefix + "%");
         int next = 1;
         if (last.isPresent()) {
             String lastNum = last.get().getNumeroPiece();
@@ -105,7 +109,7 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
                 .orElseGet(EcritureComptableJpaEntity::new);
         entity.setId(domain.getId());
         entity.setCenterId(domain.getCenterId());
-        entity.setJournalCode(domain.getJournalCode().name());
+        entity.setJournalCode(domain.getJournalCode().valeur());
         entity.setDateEcriture(domain.getDateEcriture());
         entity.setDatePiece(domain.getDatePiece());
         entity.setNumeroPiece(domain.getNumeroPiece());
@@ -141,7 +145,7 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
         ).toList();
         return new EcritureComptable(
                 entity.getId(), entity.getCenterId(),
-                JournalCode.valueOf(entity.getJournalCode()),
+                JournalCode.de(entity.getJournalCode()),
                 entity.getDateEcriture(), entity.getDatePiece(),
                 entity.getNumeroPiece(), entity.getLibelle(),
                 lignes, StatutEcriture.valueOf(entity.getStatut()),

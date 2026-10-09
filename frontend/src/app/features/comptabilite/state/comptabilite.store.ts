@@ -8,7 +8,7 @@ import {
   ComptabiliteListQuery,
   EcritureComptableItem,
   JournalCode,
-  MappingComptableItem,
+  JournalItem,
   RegleTVAItem,
   StatutEcriture,
 } from '../../../core/api/comptabilite-api.service';
@@ -21,8 +21,8 @@ export type ComptabiliteState = PagedListState<EcritureComptableItem> & {
   month: number | null;
   journalCode: JournalCode | null;
   statut: StatutEcriture | null;
-  mapping: MappingComptableItem | null;
-  mappingLoading: boolean;
+  /** Journaux du centre (paramétrés par lui) : filtre, export et libellés. */
+  journaux: JournalItem[];
   regles: RegleTVAItem[];
   reglesLoading: boolean;
   exporting: boolean;
@@ -31,6 +31,9 @@ export type ComptabiliteState = PagedListState<EcritureComptableItem> & {
   error: string | null;
   successMessage: string | null;
 };
+
+/** Les journaux d'un centre tiennent en une page : c'est la taille maximale servie par l'API. */
+export const JOURNAUX_MAX = 100;
 
 const currentDate = new Date();
 
@@ -41,8 +44,7 @@ const initialState: ComptabiliteState = {
   month: currentDate.getMonth() + 1,
   journalCode: null,
   statut: null,
-  mapping: null,
-  mappingLoading: false,
+  journaux: [],
   regles: [],
   reglesLoading: false,
   exporting: false,
@@ -61,7 +63,10 @@ export const ComptabiliteStore = signalStore(
     totalDebitPeriode: computed(() =>
       store.rows().reduce((sum, e) => sum + Number(e.totalDebit ?? 0), 0)
     ),
-    hasMapping: computed(() => store.mapping() !== null),
+    /** Libellé de chaque journal par code, pour afficher « Ventes (VE) » plutôt que le code seul. */
+    libellesJournaux: computed(() =>
+      Object.fromEntries(store.journaux().map((j) => [j.code, `${j.libelle} (${j.code})`])) as Record<string, string>
+    ),
   })),
   withMethods((store, api = inject(ComptabiliteApiService)) => ({
     setYear(year: number): void {
@@ -146,14 +151,13 @@ export const ComptabiliteStore = signalStore(
       )
     ),
 
-    loadMapping: rxMethod<{ centerId: string }>(
+    loadJournaux: rxMethod<{ centerId: string }>(
       pipe(
-        tap(() => patchState(store, {mappingLoading: true})),
         switchMap(({centerId}) =>
-          api.getMapping(centerId).pipe(
-            tap((mapping) => patchState(store, {mapping, mappingLoading: false})),
+          api.getJournaux(centerId, 0, JOURNAUX_MAX).pipe(
+            tap((page) => patchState(store, {journaux: page.items ?? []})),
             catchError((err: unknown) => {
-              patchState(store, {mappingLoading: false, error: errorMessage(err)});
+              patchState(store, {journaux: [], error: errorMessage(err)});
               return of(null);
             })
           )
@@ -236,7 +240,7 @@ export const ComptabiliteStore = signalStore(
       effect(() => {
         const centerId = appShell.currentCenterId();
         if (!centerId) return;
-        store.loadMapping({centerId});
+        store.loadJournaux({centerId});
         store.loadRegles({centerId});
       });
     },

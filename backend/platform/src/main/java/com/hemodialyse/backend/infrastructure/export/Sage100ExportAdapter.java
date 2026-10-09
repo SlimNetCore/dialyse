@@ -42,7 +42,7 @@ public class Sage100ExportAdapter implements ExportComptablePort {
 
         for (EcritureComptable e : ecritures) {
             for (LigneEcriture l : e.getLignes()) {
-                sb.append(e.getJournalCode().name()).append(SEP)
+                sb.append(e.getJournalCode().valeur()).append(SEP)
                         .append(e.getNumeroPiece()).append(SEP)
                         .append(e.getDatePiece().format(DATE_FMT)).append(SEP)
                         .append(l.getCompteSCF()).append(SEP)

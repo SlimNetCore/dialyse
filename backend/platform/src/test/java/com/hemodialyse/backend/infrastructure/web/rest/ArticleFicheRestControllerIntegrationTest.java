@@ -55,7 +55,8 @@ class ArticleFicheRestControllerIntegrationTest {
                  "formeGalenique":"Solution injectable","unite":"seringue","uniteAchat":"boîte","coefficientAchat":6,
                  "dosageParUnite":%s,"uniteDosage":%s,"prixAchat":2500,"seuilAlerte":10,"stockMax":100,
                  "gereParLot":true,"peremptionObligatoire":true,"conditionConservation":"REFRIGERE",
-                 "produitDangereux":false,"dechetDasri":true,"typeTraitementAnemie":"EPO"}
+                 "produitDangereux":false,"dechetDasri":true,"typeTraitementAnemie":"EPO",
+                 "compteStock":"321","compteCharge":""}
                 """.formatted(center, code, dosage, uniteDosage);
     }
 
@@ -105,6 +106,8 @@ class ArticleFicheRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.uniteDosage").value("UI"))
                 .andExpect(jsonPath("$.conditionConservation").value("REFRIGERE"))
                 .andExpect(jsonPath("$.dechetDasri").value(true))
+                .andExpect(jsonPath("$.compteStock").value("321"))
+                .andExpect(jsonPath("$.compteCharge").doesNotExist())
                 .andExpect(jsonPath("$.stockQuantity").value(0))
                 .andExpect(jsonPath("$.active").value(true));
     }

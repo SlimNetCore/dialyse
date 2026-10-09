@@ -1,10 +1,15 @@
 package com.hemodialyse.backend.domain.comptabilite.valueobject;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Table de correspondance comptes SCF pour un centre donné.
- * Configurable par centerId — jamais codée en dur dans le domaine.
+ * Paramétrage comptable d'un centre : comptes SCF et journal de chaque opération.
+ * Configurable par centerId — jamais codé en dur dans le domaine.
+ *
+ * @param stock    comptes du stock (inventaire permanent)
+ * @param journaux journal de chaque opération ; une opération absente utilise son journal par défaut
  */
 public record MappingComptable(
         UUID centerId,
@@ -16,7 +21,9 @@ public record MappingComptable(
         String compteClientAutre,     // ex. 411500
         String compteBanque,          // ex. 512
         String compteCaisse,          // ex. 530
-        String compteTVACollectee     // ex. 44571 (prévu pour future activation TVA)
+        String compteTVACollectee,    // ex. 44571 (prévu pour future activation TVA)
+        ComptesStock stock,
+        Map<OperationComptable, JournalCode> journaux
 ) {
     public MappingComptable {
         if (centerId == null) throw new IllegalArgumentException("Le centerId est obligatoire");
@@ -36,6 +43,13 @@ public record MappingComptable(
             throw new IllegalArgumentException("Le compte banque est obligatoire");
         if (compteCaisse == null || compteCaisse.isBlank())
             throw new IllegalArgumentException("Le compte caisse est obligatoire");
+        stock = stock == null ? ComptesStock.parDefaut() : stock;
+        Map<OperationComptable, JournalCode> complets = new EnumMap<>(OperationComptable.class);
+        for (OperationComptable operation : OperationComptable.values()) {
+            JournalCode choisi = journaux == null ? null : journaux.get(operation);
+            complets.put(operation, choisi == null ? operation.journalParDefaut() : choisi);
+        }
+        journaux = Map.copyOf(complets);
     }
 
     /**
@@ -44,7 +58,14 @@ public record MappingComptable(
     public static MappingComptable defaultFor(UUID centerId) {
         return new MappingComptable(centerId,
                 "706", "411100", "411200", "411300", "411400", "411500",
-                "512", "530", "44571");
+                "512", "530", "44571", ComptesStock.parDefaut(), Map.of());
+    }
+
+    /**
+     * Journal dans lequel s'écrit une opération.
+     */
+    public JournalCode journalDe(OperationComptable operation) {
+        return journaux.get(operation);
     }
 
     /**
@@ -60,4 +81,3 @@ public record MappingComptable(
         };
     }
 }
-

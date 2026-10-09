@@ -21,25 +21,28 @@ public class ComptabiliteService implements ComptabiliteUseCase {
     private final ParametrageFiscalPort fiscalPort;
     private final PeriodeComptableRepositoryPort periodePort;
     private final ExportComptablePort exportPort;
+    private final JournalRepositoryPort journalPort;
     private final GenerateurEcritureComptable generateur;
 
     public ComptabiliteService(EcritureComptableRepositoryPort ecritureRepository,
                                MappingComptablePort mappingPort,
                                ParametrageFiscalPort fiscalPort,
                                PeriodeComptableRepositoryPort periodePort,
-                               ExportComptablePort exportPort) {
+                               ExportComptablePort exportPort,
+                               JournalRepositoryPort journalPort) {
         this.ecritureRepository = ecritureRepository;
         this.mappingPort = mappingPort;
         this.fiscalPort = fiscalPort;
         this.periodePort = periodePort;
         this.exportPort = exportPort;
+        this.journalPort = journalPort;
         this.generateur = new GenerateurEcritureComptable();
     }
 
     @Override
     public EcritureComptable genererEcritureFacturation(GenererEcritureFacturationCommand cmd) {
         // Idempotence : si l'écriture existe déjà pour cette facture, ne pas recréer
-        var existing = ecritureRepository.findBySourceId(cmd.factureId(), cmd.centerId(), JournalCode.VE);
+        var existing = ecritureRepository.findBySourceId(cmd.factureId(), cmd.centerId());
         if (existing.isPresent()) return existing.get();
 
         // Vérification période non clôturée
@@ -51,7 +54,8 @@ public class ComptabiliteService implements ComptabiliteUseCase {
 
         MappingComptable mapping = mappingPort.findByCenterId(cmd.centerId());
         var regleTVA = fiscalPort.findActiveAt(cmd.centerId(), "HEMODIALYSE", cmd.dateFacture()).orElse(null);
-        String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(), JournalCode.VE, cmd.dateFacture().getYear());
+        String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(),
+                mapping.journalDe(OperationComptable.VENTE), cmd.dateFacture().getYear());
 
         EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping, numeroPiece, regleTVA);
         ecritureRepository.save(ecriture);
@@ -61,8 +65,7 @@ public class ComptabiliteService implements ComptabiliteUseCase {
     @Override
     public EcritureComptable genererEcritureReglement(GenererEcritureReglementCommand cmd) {
         // Idempotence : si l'écriture existe déjà pour ce paiement
-        var journalCible = "CAISSE".equalsIgnoreCase(cmd.modeReglement()) ? JournalCode.CA : JournalCode.BQ;
-        var existing = ecritureRepository.findBySourceId(cmd.paiementId(), cmd.centerId(), journalCible);
+        var existing = ecritureRepository.findBySourceId(cmd.paiementId(), cmd.centerId());
         if (existing.isPresent()) return existing.get();
 
         YearMonth periode = YearMonth.from(cmd.dateReglement());
@@ -72,6 +75,8 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         }
 
         MappingComptable mapping = mappingPort.findByCenterId(cmd.centerId());
+        var journalCible = mapping.journalDe("CAISSE".equalsIgnoreCase(cmd.modeReglement())
+                ? OperationComptable.REGLEMENT_CAISSE : OperationComptable.REGLEMENT_BANQUE);
         String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(), journalCible, cmd.dateReglement().getYear());
 
         EcritureComptable ecriture = generateur.genererEcritureReglement(cmd, mapping, numeroPiece);
@@ -126,6 +131,16 @@ public class ComptabiliteService implements ComptabiliteUseCase {
 
     @Override
     public MappingComptable saveMappingComptable(MappingComptable mapping) {
+        // chaque opération s'écrit dans un journal que le centre a défini et laissé actif
+        List<Journal> connus = journalPort.findByCenter(mapping.centerId());
+        List<Journal> journaux = connus.isEmpty() ? Journal.parDefaut() : connus;
+        mapping.journaux().forEach((operation, code) -> {
+            boolean actif = journaux.stream().anyMatch(j -> j.code().equals(code) && j.actif());
+            if (!actif) {
+                throw new BusinessException("JOURNAL_INCONNU",
+                        "Le journal " + code + " choisi pour " + operation + " n'existe pas ou est désactivé");
+            }
+        });
         mappingPort.save(mapping);
         return mapping;
     }

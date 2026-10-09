@@ -26,8 +26,10 @@ public class ComptabiliteApplicationService implements ComptabiliteUseCase {
                                           MappingComptablePort mappingPort,
                                           ParametrageFiscalPort fiscalPort,
                                           PeriodeComptableRepositoryPort periodePort,
-                                          ExportComptablePort exportPort) {
-        this.delegate = new ComptabiliteService(ecritureRepository, mappingPort, fiscalPort, periodePort, exportPort);
+                                          ExportComptablePort exportPort,
+                                          JournalRepositoryPort journalPort) {
+        this.delegate = new ComptabiliteService(ecritureRepository, mappingPort, fiscalPort, periodePort, exportPort,
+                journalPort);
     }
 
     @Override

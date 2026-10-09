@@ -4,7 +4,30 @@ import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {PagedResponse} from './backend-api.service';
 
-export type JournalCode = 'VE' | 'BQ' | 'CA';
+/** Code d'un journal : les journaux sont paramétrés par chaque centre, ce n'est plus une liste figée. */
+export type JournalCode = string;
+
+export type JournalItem = {
+  code: JournalCode;
+  libelle: string;
+  actif: boolean;
+};
+
+/** Opérations de gestion qui produisent une écriture ; chaque centre choisit le journal de chacune. */
+export const OPERATIONS_COMPTABLES = [
+  'VENTE', 'REGLEMENT_BANQUE', 'REGLEMENT_CAISSE', 'STOCK_RECEPTION', 'STOCK_SORTIE', 'STOCK_INVENTAIRE',
+] as const;
+export type OperationComptable = typeof OPERATIONS_COMPTABLES[number];
+
+/** Résultat d'une comptabilisation du stock : écritures créées ou mises à jour, par nature. */
+export type SynchronisationStock = {
+  receptions: number;
+  joursSorties: number;
+  inventaires: number;
+  complements: number;
+  ignorees: number;
+};
+
 export type StatutEcriture = 'BROUILLON' | 'VALIDEE' | 'EXPORTEE';
 
 export type LigneEcritureItem = {
@@ -39,6 +62,12 @@ export type MappingComptableItem = {
   compteBanque: string;
   compteCaisse: string;
   compteTVACollectee: string;
+  compteStock: string;
+  compteConsommation: string;
+  compteFacturesNonParvenues: string;
+  compteBoniInventaire: string;
+  compteMaliInventaire: string;
+  journaux: Record<OperationComptable, JournalCode>;
 };
 
 export type RegleTVAItem = {
@@ -105,6 +134,26 @@ export class ComptabiliteApiService {
 
   saveMapping(mapping: MappingComptableItem): Observable<MappingComptableItem> {
     return this.http.put<MappingComptableItem>(`${this.base}/mapping`, mapping);
+  }
+
+  getJournaux(centerId: string, page: number, size: number): Observable<PagedResponse<JournalItem>> {
+    const params = new HttpParams().set('centerId', centerId).set('page', String(page)).set('size', String(size));
+    return this.http.get<PagedResponse<JournalItem>>(`${this.base}/journaux`, {params});
+  }
+
+  saveJournal(centerId: string, journal: JournalItem): Observable<JournalItem> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.put<JournalItem>(`${this.base}/journaux/${encodeURIComponent(journal.code)}`,
+      {libelle: journal.libelle, actif: journal.actif}, {params});
+  }
+
+  deleteJournal(centerId: string, code: JournalCode): Observable<void> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.delete<void>(`${this.base}/journaux/${encodeURIComponent(code)}`, {params});
+  }
+
+  synchroniserStock(centerId: string, from: string, to: string): Observable<SynchronisationStock> {
+    return this.http.post<SynchronisationStock>(`${this.base}/stock/synchroniser`, {centerId, from, to});
   }
 
   getRegles(centerId: string): Observable<RegleTVAItem[]> {

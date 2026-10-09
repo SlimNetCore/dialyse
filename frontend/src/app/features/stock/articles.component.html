@@ -159,6 +159,23 @@
           </mat-checkbox>
         </div>
 
+        <h3 class="section-title">{{ 'STOCK.ARTICLES.SECTION_COMPTABILITE' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.COMPTE_STOCK' | translate }}</mat-label>
+            <input [formField]="articleForm.compteStock" data-testid="art-compte-stock" matInput/>
+            <mat-hint>{{ 'STOCK.ARTICLES.COMPTE_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STOCK.ARTICLES.COMPTE_CHARGE' | translate }}</mat-label>
+            <input [formField]="articleForm.compteCharge" data-testid="art-compte-charge" matInput/>
+            <mat-hint>{{ 'STOCK.ARTICLES.COMPTE_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+        </div>
+        @if (!comptesCoherents()) {
+          <p class="field-error" role="alert">{{ 'STOCK.ARTICLES.COMPTE_ERR' | translate }}</p>
+        }
+
         <div class="actions">
           @if (editingId()) {
             <button (click)="cancelEdit()" mat-stroked-button type="button">

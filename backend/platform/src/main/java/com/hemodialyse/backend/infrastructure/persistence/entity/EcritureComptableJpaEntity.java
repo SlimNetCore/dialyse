@@ -10,7 +10,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ecritures_comptables",
-        indexes = @Index(name = "idx_ecriture_center_period", columnList = "center_id, journal_code, date_ecriture"))
+        indexes = {
+                @Index(name = "idx_ecriture_center_period", columnList = "center_id, journal_code, date_ecriture"),
+                @Index(name = "idx_ecriture_center_source", columnList = "center_id, source_id")})
 public class EcritureComptableJpaEntity {
 
     @Id

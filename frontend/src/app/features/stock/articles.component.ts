@@ -45,6 +45,8 @@ interface ArticleFormModel {
   dechetDasri: boolean;
   estTraitementAnemie: boolean;
   typeTraitementAnemie: TypeTraitementAnemie | '';
+  compteStock: string;
+  compteCharge: string;
 }
 
 const emptyForm = (): ArticleFormModel => ({
@@ -52,7 +54,7 @@ const emptyForm = (): ArticleFormModel => ({
   unite: '', uniteAchat: '', coefficientAchat: '', dosageParUnite: '', uniteDosage: '',
   fournisseurId: '', tvaTypeId: '', prixAchat: '', seuilAlerte: '0', stockMax: '',
   gereParLot: true, peremptionObligatoire: false, conditionConservation: '', produitDangereux: false,
-  dechetDasri: false, estTraitementAnemie: false, typeTraitementAnemie: '',
+  dechetDasri: false, estTraitementAnemie: false, typeTraitementAnemie: '', compteStock: '', compteCharge: '',
 });
 
 /** Nombre saisi (virgule ou point) ; vide ou invalide = absent. */
@@ -106,6 +108,11 @@ export class ArticlesComponent {
     const max = toNumber(m.stockMax);
     return max === null || max >= (toNumber(m.seuilAlerte) ?? 0);
   });
+  /** Comptes comptables de l'article : facultatifs, 1 à 20 lettres ou chiffres (même règle que le serveur). */
+  protected readonly comptesCoherents = computed(() => {
+    const m = this.formModel();
+    return [m.compteStock, m.compteCharge].every((c) => !c.trim() || /^[0-9A-Za-z]{1,20}$/.test(c.trim()));
+  });
   /** Aperçu de la conversion : « 1 seringue = 4000 UI ». */
   protected readonly conversionPreview = computed(() => {
     const m = this.formModel();
@@ -116,7 +123,8 @@ export class ArticlesComponent {
   protected readonly canSave = computed(() => {
     const m = this.formModel();
     return this.articleForm().valid() && !!m.code.trim() && !!m.libelle.trim() && !!m.unite.trim()
-      && this.dosageCoherent() && this.stockMaxCoherent() && (!m.estTraitementAnemie || !!m.typeTraitementAnemie)
+      && this.dosageCoherent() && this.stockMaxCoherent() && this.comptesCoherents()
+      && (!m.estTraitementAnemie || !!m.typeTraitementAnemie)
       && !this.store.saving();
   });
   protected readonly filters: ArticleActiveFilter[] = ['active', 'inactive', 'all'];
@@ -180,6 +188,7 @@ export class ArticlesComponent {
       conditionConservation: article.conditionConservation ?? '', produitDangereux: !!article.produitDangereux,
       dechetDasri: !!article.dechetDasri, estTraitementAnemie: !!article.typeTraitementAnemie,
       typeTraitementAnemie: article.typeTraitementAnemie ?? '',
+      compteStock: article.compteStock ?? '', compteCharge: article.compteCharge ?? '',
     });
   }
 
@@ -229,6 +238,8 @@ export class ArticlesComponent {
       produitDangereux: m.produitDangereux,
       dechetDasri: m.dechetDasri,
       typeTraitementAnemie: m.estTraitementAnemie && m.typeTraitementAnemie ? m.typeTraitementAnemie : null,
+      compteStock: toText(m.compteStock),
+      compteCharge: toText(m.compteCharge),
     };
   }
 }

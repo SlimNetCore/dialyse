@@ -17,7 +17,19 @@ class ArticleTest {
         return new ArticleFiche("EPO-4000", "Époétine 4000 UI", " Époétine alfa ", "Solution injectable", " ", null,
                 "seringue", "boîte", new BigDecimal("6"), dosage, uniteDosage, null, null, new BigDecimal("2500"),
                 seuil, stockMax, true, true, ConditionConservation.REFRIGERE, false, true,
-                TypeTraitementAnemie.EPO);
+                TypeTraitementAnemie.EPO, " 321 ", " ");
+    }
+
+    @Test
+    void les_comptes_comptables_de_l_article_sont_facultatifs_et_controles() {
+        Article article = article(null, null);
+        assertEquals("321", article.getCompteStock());
+        assertNull(article.getCompteCharge(), "vide = compte du centre");
+
+        var invalide = new ArticleFiche("A", "B", null, null, null, null, "u", null, null, null, null, null, null,
+                null, null, null, false, false, null, false, false, null, "32-1", null);
+        assertEquals("ARTICLE_COMPTE_INVALIDE",
+                assertThrows(BusinessException.class, () -> new Article().appliquerFiche(invalide)).getCode());
     }
 
     private static Article article(BigDecimal dosage, String uniteDosage) {
@@ -59,7 +71,7 @@ class ArticleTest {
                 () -> new Article().appliquerFiche(
                         fiche(null, null, new BigDecimal("50"), new BigDecimal("10")))).getCode());
         var coefficient = new ArticleFiche("A", "B", null, null, null, null, "u", null, BigDecimal.ZERO, null, null,
-                null, null, null, null, null, false, false, null, false, false, null);
+                null, null, null, null, null, false, false, null, false, false, null, null, null);
         assertEquals("ARTICLE_COEFFICIENT_ACHAT_INVALIDE",
                 assertThrows(BusinessException.class, () -> new Article().appliquerFiche(coefficient)).getCode());
     }
@@ -67,9 +79,9 @@ class ArticleTest {
     @Test
     void exige_code_libelle_et_unite() {
         var sansCode = new ArticleFiche(" ", "B", null, null, null, null, "u", null, null, null, null, null, null,
-                null, null, null, false, false, null, false, false, null);
+                null, null, null, false, false, null, false, false, null, null, null);
         var sansUnite = new ArticleFiche("A", "B", null, null, null, null, "", null, null, null, null, null, null,
-                null, null, null, false, false, null, false, false, null);
+                null, null, null, false, false, null, false, false, null, null, null);
 
         assertEquals("ARTICLE_CODE_REQUIS",
                 assertThrows(BusinessException.class, () -> new Article().appliquerFiche(sansCode)).getCode());

@@ -50,24 +50,27 @@
         <mat-form-field appearance="outline">
           <mat-label>{{ 'COMPTABILITE.FILTERS.JOURNAL' | translate }}</mat-label>
           <mat-select (valueChange)="store.setJournalCode($event)" [value]="store.journalCode()">
-            @for (j of journaux; track j.code) {
-              <mat-option [value]="j.code">{{ j.label | translate }}</mat-option>
+            <mat-option [value]="null">{{ 'COMPTABILITE.FILTERS.ALL_JOURNALS' | translate }}</mat-option>
+            @for (j of store.journaux(); track j.code) {
+              <mat-option [value]="j.code">{{ journalLabel(j.code) }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
       </div>
 
       <div class="app-button-cluster">
-        <button (click)="onExport('VE')" [disabled]="store.exporting()"
-                [matTooltip]="'COMPTABILITE.EXPORT.VE_TOOLTIP' | translate" mat-stroked-button>
+        <button (click)="onExport()" [disabled]="store.exporting() || !store.journalCode()"
+                [matTooltip]="'COMPTABILITE.EXPORT.JOURNAL_TOOLTIP' | translate" data-testid="compta-export"
+                mat-stroked-button>
           <mat-icon>download</mat-icon>
-          <span class="btn-label">{{ 'COMPTABILITE.EXPORT.VE' | translate }}</span>
+          <span class="btn-label">{{ 'COMPTABILITE.EXPORT.JOURNAL' | translate }}</span>
         </button>
-        <button (click)="onExport('BQ')" [disabled]="store.exporting()"
-                [matTooltip]="'COMPTABILITE.EXPORT.BQ_TOOLTIP' | translate" mat-stroked-button>
-          <mat-icon>account_balance</mat-icon>
-          <span class="btn-label">{{ 'COMPTABILITE.EXPORT.BQ' | translate }}</span>
-        </button>
+        @if (peutParametrer()) {
+          <a mat-stroked-button routerLink="/comptabilite/parametrage">
+            <mat-icon>tune</mat-icon>
+            <span class="btn-label">{{ 'COMPTABILITE.PARAMETRAGE.LIEN' | translate }}</span>
+          </a>
+        }
       </div>
 
       @if (store.loading() || store.exporting() || store.cloturant()) {
@@ -130,7 +133,7 @@
       </ng-template>
 
       <ng-template #journalCodeCell let-row>
-        <mat-chip [class]="'journal-' + row.journalCode">{{ row.journalCode }}</mat-chip>
+        <mat-chip [matTooltip]="journalLabel(row.journalCode)">{{ row.journalCode }}</mat-chip>
       </ng-template>
 
       <ng-template #libelleCell let-row>
@@ -184,7 +187,7 @@
                 </span>
               <span class="detail-chip">
                   <mat-icon>book_2</mat-icon>
-                {{ 'COMPTABILITE.JOURNAL.' + row.journalCode | translate }}
+                {{ journalLabel(row.journalCode) }}
                 </span>
             </div>
 

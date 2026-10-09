@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>513 règles de gestion · 16 domaines · 391 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-09<br>523 règles de gestion · 16 domaines · 396 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,10 +30,10 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>513</b>règles de gestion</div>
+        <div><b>523</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
-        <div><b>8</b>points d'attention</div>
+        <div><b>9</b>points d'attention</div>
     </div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
@@ -1971,6 +1971,16 @@ et stock maximum ≥ 0 (<code>ARTICLE_VALEUR_NEGATIVE</code>) et le stock maximu
 vide = article ordinaire) alimente les listes de prescription (voir RG-MED). <em>Source :</em> <code>Article.appliquerFiche</code>,
 <code>ArticlesComponent</code>.</p>
 </div></div>
+    <div class="rule" id="RG-STK-008">
+        <div class="rid">RG-STK-008</div>
+        <div class="rtxt"><p><strong>Comptes comptables de l&#39;article</strong> (facultatifs) : la fiche peut préciser
+            un <strong>compte de stock</strong> et
+            un <strong>compte de consommation</strong> propres à l&#39;article (1 à 20 lettres ou chiffres, sinon <code>ARTICLE_COMPTE_INVALIDE</code>).
+            Laissés vides, ce sont les comptes du centre qui s&#39;appliquent à la comptabilisation du stock (RG-CPT-011
+            à 014).
+            <em>Source :</em> <code>Article.appliquerFiche</code>, <code>ArticlesComponent</code>.</p>
+        </div>
+    </div>
 <div class="rule" id="RG-STK-006"><div class="rid">RG-STK-006</div><div class="rtxt"><p><strong>Dosage par unité de stock</strong> : la fiche peut porter « 1 unité de stock = X UI (ou mg…) »,
 c&#39;est-à-dire
 un dosage (&gt; 0, <code>ARTICLE_DOSAGE_INVALIDE</code>) <strong>et</strong> son unité, indissociables (<code>ARTICLE_DOSAGE_INCOMPLET</code>). Il relie
@@ -2850,13 +2860,22 @@ paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF.</p>
 <div class="rule" id="RG-REG-004"><div class="rid">RG-REG-004</div><div class="rtxt"><p>Chaque règlement enregistré déclenche la génération d&#39;une écriture de trésorerie (RG-CPT-002).</p>
 </div></div>
 <h2>12.6 Comptabilité (plan SCF)</h2>
-<div class="rule" id="RG-CPT-001"><div class="rid">RG-CPT-001</div><div class="rtxt"><p><strong>Écriture de ventes (journal VE)</strong> par facture : débit du compte client (411xxx), crédit du compte
+    <div class="rule" id="RG-CPT-001">
+        <div class="rid">RG-CPT-001</div>
+        <div class="rtxt"><p><strong>Écriture de ventes</strong> par facture, dans le journal que le centre a choisi
+            pour les ventes (<code>VE</code> par
+            défaut, RG-CPT-010) : débit du compte client (411xxx), crédit du compte
 de ventes (706) pour le HT, crédit de la TVA collectée (44571) si la TVA est &gt; 0 (dérivée de TTC − HT si le total de
 TVA manque) ; date de l&#39;écriture = <strong>fin de la période facturée</strong> (jamais la date d&#39;émission) ; axes analytiques
 centre et type de tiers ; statut <code>VALIDEE</code>. <strong>Idempotence</strong> : une facture n&#39;a qu&#39;une écriture (recherche par pièce
-source).</p>
+            source, <strong>quel que soit le journal</strong> : changer le journal des ventes ne recrée jamais une
+            écriture déjà passée).</p>
 </div></div>
-<div class="rule" id="RG-CPT-002"><div class="rid">RG-CPT-002</div><div class="rtxt"><p><strong>Écriture de règlement</strong> : journal banque <code>BQ</code> (débit 512) ou caisse <code>CA</code> (débit 530, si le mode
+    <div class="rule" id="RG-CPT-002">
+        <div class="rid">RG-CPT-002</div>
+        <div class="rtxt"><p><strong>Écriture de règlement</strong> : journal choisi pour les règlements en banque
+            (<code>BQ</code> par défaut, débit
+            512) ou en caisse (<code>CA</code> par défaut, débit 530, si le mode
 est « caisse ») ; crédit du compte client ; montant en valeur absolue ; <strong>une écriture par
 règlement</strong> (idempotence par identifiant de règlement). Le mode par défaut du règlement enregistré est « banque ».</p>
 </div></div>
@@ -2873,19 +2892,154 @@ l&#39;export marque les écritures validées comme exportées. Écriture inconnu
 Lorsque la période d&#39;un règlement est clôturée, le règlement reste enregistré mais <strong>aucune écriture n&#39;est générée</strong>
 (avertissement journalisé).</p>
 </div></div>
-<div class="rule" id="RG-CPT-006"><div class="rid">RG-CPT-006</div><div class="rtxt"><p><strong>Plan de comptes par centre</strong> (<code>MappingComptable</code>) : comptes ventes, clients (patient, CNAS, CASNOS,
+    <div class="rule" id="RG-CPT-006">
+        <div class="rid">RG-CPT-006</div>
+        <div class="rtxt"><p><strong>Plan de comptes par centre</strong> (<code>MappingComptable</code>), <strong>entièrement
+            paramétrable</strong> depuis l&#39;écran
+            « Paramétrage comptable » (<code>ADMIN</code>) : comptes ventes, clients (patient, CNAS, CASNOS,
 mutuelle, autre), banque, caisse — tous obligatoires ; valeurs par défaut :
-706, 411100, 411200, 411300, 411400, 411500, 512, 530, 44571. <strong>Règles de TVA comptables</strong> versionnées dans le temps
-(type de prestation, taux ≥ 0, exonération, début de validité obligatoire).</p>
+            706, 411100, 411200, 411300, 411400, 411500, 512, 530, 44571 (TVA collectée, facultative) ; comptes du stock
+            (RG-CPT-011). Un compte comporte 1 à 20 lettres ou chiffres. Le paramétrage ne vaut que pour les écritures
+            générées
+            ensuite : les écritures déjà passées ne sont pas réimputées. <strong>Règles de TVA comptables</strong>
+            versionnées dans le temps
+            (type de prestation, taux ≥ 0, exonération, début de validité obligatoire). <em>Source :</em> <code>MappingComptable</code>,
+            <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> → <code>ComptabiliteApiService</code>
+            →
+            <code>ComptabiliteRestController</code> (<code>/mapping</code>) → <code>ComptabiliteUseCase</code> → <code>MappingComptablePort</code>.
+        </p>
 </div></div>
 <div class="rule" id="RG-CPT-007"><div class="rid">RG-CPT-007</div><div class="rtxt"><p><strong>Reconstruction</strong> (rejeu) des écritures de factures et règlements existants sur une période,
-réservée à <code>ADMIN</code> ; l&#39;idempotence évite tout doublon. Consultation des écritures :
-<code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; validation, export, mapping, règles TVA, clôture : <code>ADMIN</code>.</p>
+    réservée à <code>ADMIN</code> ; l&#39;idempotence évite tout doublon. Consultation des écritures et des journaux :
+    <code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; validation, export, paramétrage (comptes, journaux), règles
+    TVA, clôture,
+    comptabilisation du stock : <code>ADMIN</code>.</p>
 </div></div>
 <div class="rule attention" id="RG-CPT-008"><div class="rid">RG-CPT-008<small>point d'attention</small></div><div class="rtxt"><p>Les écritures sont aujourd&#39;hui générées avec le type de tiers <code>AUTRE</code> : toutes
 les créances sont imputées au compte client « autre » (411500) quel que soit le payeur ;
 les comptes CNAS, CASNOS, mutuelle et patient du plan de comptes ne sont pas encore alimentés automatiquement.</p>
 </div></div>
+    <div class="rule" id="RG-CPT-009">
+        <div class="rid">RG-CPT-009</div>
+        <div class="rtxt"><p><strong>Journaux paramétrables par centre</strong> : chaque centre définit librement ses
+            journaux (code de 1 à 10
+            lettres majuscules ou chiffres, libellé de 100 caractères au plus, actif ou non). Tant qu&#39;il n&#39;a
+            rien paramétré, il
+            dispose des journaux par défaut <code>VE</code> Ventes, <code>BQ</code> Banque, <code>CA</code> Caisse,
+            <code>AC</code> Achats, <code>ST</code> Stocks ; ils sont
+            enregistrés comme les siens à sa première modification. Un journal <strong>choisi pour une
+                opération</strong> ne peut être ni
+            désactivé ni supprimé (<code>JOURNAL_UTILISE</code>) ; un journal <strong>qui porte des écritures</strong>
+            se désactive mais ne se supprime
+            pas (<code>JOURNAL_AVEC_ECRITURES</code>) ; supprimer un journal inconnu est refusé (<code>JOURNAL_INTROUVABLE</code>).
+            La liste est
+            paginée. <em>Source :</em> <code>JournauxService</code>, <code>ComptabiliteParametrageComponent</code> →
+            <code>ComptabiliteParametrageStore</code> →
+            <code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code> (<code>/journaux</code>) →
+            <code>JournauxUseCase</code> → <code>JournalRepositoryPort</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-010">
+        <div class="rid">RG-CPT-010</div>
+        <div class="rtxt"><p><strong>Journal de chaque opération</strong> : le centre choisit le journal des ventes, des
+            règlements en banque,
+            des règlements en caisse, des réceptions de stock, des sorties de stock et des écarts d&#39;inventaire (par
+            défaut <code>VE</code>,
+            <code>BQ</code>, <code>CA</code>, <code>AC</code>, <code>ST</code>, <code>ST</code>). Seul un journal
+            <strong>existant et actif</strong> peut être choisi (<code>JOURNAL_INCONNU</code>). Le numéro
+            de pièce reprend le code du journal : <code>&lt;JOURNAL&gt;-&lt;année&gt;-&lt;n° sur 6 chiffres&gt;</code>,
+            numéroté par journal et par année.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-011">
+        <div class="rid">RG-CPT-011</div>
+        <div class="rtxt"><p><strong>Comptes du stock</strong> (inventaire permanent), paramétrables par centre : stock
+            (322 par défaut),
+            consommation (602), factures non parvenues (408), boni d&#39;inventaire (757), mali d&#39;inventaire (657).
+            La <strong>fiche d&#39;un
+                article</strong> peut préciser son propre compte de stock et son propre compte de consommation
+            (RG-STK-008) ; à défaut, ceux
+            du centre s&#39;appliquent.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-012">
+        <div class="rid">RG-CPT-012</div>
+        <div class="rtxt"><p><strong>Écriture de réception</strong> : un bon de réception <strong>validé</strong> donne
+            une écriture, dans le journal des
+            réceptions, à la date de réception : débit du compte de stock (de l&#39;article ou du centre), crédit des
+            <strong>factures non
+                parvenues</strong>, pour la valeur <strong>hors taxe</strong> quantité × prix unitaire. La TVA d&#39;achat
+            et le compte fournisseur se
+            traitent à la facture, <strong>hors application</strong>. Une écriture par bon, jamais doublée.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-013">
+        <div class="rid">RG-CPT-013</div>
+        <div class="rtxt"><p><strong>Écriture des sorties</strong> : les sorties de stock d&#39;une journée
+            (consommations de séance, sorties
+            manuelles) sont <strong>centralisées en une écriture par centre et par jour</strong>, dans le journal des
+            sorties : débit du
+            compte de consommation, crédit du compte de stock, valorisés au <strong>prix moyen pondéré appliqué à la
+                sortie</strong> (à
+            défaut le PMP après mouvement, puis le PMP courant de l&#39;article). Une ligne par compte.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-014">
+        <div class="rid">RG-CPT-014</div>
+        <div class="rtxt"><p><strong>Écriture des écarts d&#39;inventaire</strong> : un inventaire
+            <strong>clôturé</strong> donne une écriture, dans le journal
+            des inventaires, à la date de l&#39;inventaire : excédent (compté &gt; théorique) = débit stock, crédit boni
+            ; manquant =
+            débit mali, crédit stock ; écarts valorisés au PMP de la ligne d&#39;inventaire. Une ligne non comptée ne
+            produit rien.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-015">
+        <div class="rid">RG-CPT-015</div>
+        <div class="rtxt"><p><strong>Comptabilisation du stock rejouable</strong> : elle a lieu <strong>chaque
+            nuit</strong> sur les 35 derniers jours
+            (<code>ComptabiliteStockScheduler</code>) et <strong>à la demande</strong> de l&#39;administrateur sur une
+            période d&#39;un an au plus. Seule la
+            <strong>différence</strong> entre ce qui devrait être comptabilisé et ce qui l&#39;est déjà est écrite : la
+            rejouer ne crée aucun
+            doublon. Quand les sorties d&#39;un jour changent après coup (mouvement saisi en retard, PMP recalculé), l&#39;écriture
+            du
+            jour est <strong>mise à jour</strong> tant qu&#39;elle n&#39;est ni exportée ni dans une période clôturée
+            (son numéro de pièce est
+            conservé) ; sinon la différence fait l&#39;objet d&#39;une <strong>écriture de complément</strong> — datée
+            du jour même, ou du jour du
+            traitement si la période d&#39;origine est clôturée (au plus 50 compléments par journée). Une réception ou
+            un inventaire
+            dont la période est <strong>clôturée</strong> n&#39;est pas comptabilisé : il est compté comme « ignoré » et
+            signalé à l&#39;écran. Le
+            stock d&#39;un centre n&#39;est jamais comptabilisé dans un autre. <em>Source :</em> <code>ComptabiliteStockService</code>,
+            <code>GenerateurEcritureStock</code>, <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code>
+            →
+            <code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code>
+            (<code>/stock/synchroniser</code>) → <code>ComptabiliteStockUseCase</code> →
+            <code>OperationsStockPort</code> (<code>OperationsStockJdbcAdapter</code>).</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-016">
+        <div class="rid">RG-CPT-016</div>
+        <div class="rtxt"><p><strong>Isolement par centre de la comptabilité</strong> : toute requête comptable
+            (écritures, export, clôture,
+            paramétrage, journaux, comptabilisation du stock, reconstruction) est confrontée au centre de la session ;
+            demander
+            un autre centre est refusé (403). <em>Source :</em> <code>ComptabiliteRestController</code>, <code>CenterAccessGuard</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule attention" id="RG-CPT-017">
+        <div class="rid">RG-CPT-017<small>point d'attention</small></div>
+        <div class="rtxt"><p>Le stock n&#39;est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
+            demande) : une sortie du jour n&#39;apparaît en comptabilité qu&#39;après le traitement suivant. La TVA
+            déductible sur achats
+            et la dette fournisseur (401) ne sont pas gérées : le compte des factures non parvenues se solde hors
+            application, à
+            la comptabilisation de la facture du fournisseur.</p>
+        </div>
+    </div>
 </section>
 <section class="part" id="p13"><h1><span class="n">Partie 13</span>Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</h1>
 <figure><img src="img/direction-dashboard.png" alt="Tableau de bord de la direction"><figcaption>Tableau de bord de la direction</figcaption></figure>
@@ -4051,8 +4205,8 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <tr>
 <td><code>ComptabiliteRestController</code></td>
 <td><code>/api/v1/comptabilite</code></td>
-<td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture des écritures)</td>
-<td>RG-CPT-001 à 008</td>
+    <td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture des écritures et des journaux)</td>
+    <td>RG-CPT-001 à 017</td>
 </tr>
 <tr>
 <td><code>DirectionDashboardRestController</code></td>
@@ -4148,6 +4302,11 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>02:30 chaque nuit</td>
 <td>RG-PLN-100</td>
 </tr>
+<tr>
+    <td><code>ComptabiliteStockScheduler</code></td>
+    <td>03:15 chaque jour</td>
+    <td>RG-CPT-015</td>
+</tr>
 </tbody></table>
 </section>
 
@@ -4178,5 +4337,14 @@ lots contenant du stock et expirant dans 30 jours sont consignés au
 journal technique. Point d'attention : ce contrôle ne pr…</li>
 <li><a href="#RG-CPT-008"><b>RG-CPT-008</b></a> — Les écritures sont aujourd'hui générées avec le type de tiers AUTRE : toutes
 les créances sont imputées au compte client « autre » (411500) quel que soit le payeur ;
-les comptes CNAS, CASNOS, mutuelle et patient du plan …</li></ul></section>
+    les comptes CNAS, CASNOS, mutuelle et patient du plan …
+</li>
+    <li><a href="#RG-CPT-017"><b>RG-CPT-017</b></a> — Le stock n'est pas comptabilisé à chaque mouvement mais par
+        traitement (nuit ou
+        demande) : une sortie du jour n'apparaît en comptabilité qu'après le traitement suivant. La TVA déductible sur
+        achats
+        et la dette fournisseu…
+    </li>
+</ul>
+</section>
 </div></body></html>

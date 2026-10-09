@@ -96,6 +96,12 @@ public class ArticleJpaEntity {
     @Column(name = "dechet_dasri", nullable = false, columnDefinition = "boolean default false")
     private boolean dechetDasri;
 
+    @Column(name = "compte_stock", length = 20)
+    private String compteStock;
+
+    @Column(name = "compte_charge", length = 20)
+    private String compteCharge;
+
     public UUID getId() {
         return id;
     }
@@ -318,6 +324,22 @@ public class ArticleJpaEntity {
 
     public void setDechetDasri(boolean dechetDasri) {
         this.dechetDasri = dechetDasri;
+    }
+
+    public String getCompteStock() {
+        return compteStock;
+    }
+
+    public void setCompteStock(String compteStock) {
+        this.compteStock = compteStock;
+    }
+
+    public String getCompteCharge() {
+        return compteCharge;
+    }
+
+    public void setCompteCharge(String compteCharge) {
+        this.compteCharge = compteCharge;
     }
 }
 

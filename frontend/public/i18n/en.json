@@ -802,6 +802,11 @@
       },
       "DANGEREUX": "Hazardous product",
       "DASRI": "Produces DASRI (infectious healthcare waste)",
+      "SECTION_COMPTABILITE": "Accounting",
+      "COMPTE_STOCK": "Stock account",
+      "COMPTE_CHARGE": "Consumption account",
+      "COMPTE_HINT": "Empty = account of the centre",
+      "COMPTE_ERR": "An account is 1 to 20 letters or digits.",
       "NONE": "None",
       "COL_DOSAGE": "Strength",
       "COL_STOCK": "Stock",
@@ -3077,7 +3082,7 @@
   "COMPTABILITE": {
     "EYEBROW": "Accounting module",
     "TITLE": "SCF accounting journal",
-    "DESCRIPTION": "Accounting entries automatically generated from invoices and payments, compliant with the Financial Accounting System (SCF).",
+    "DESCRIPTION": "Accounting entries automatically generated from invoices, payments and stock, compliant with the Financial Accounting System (SCF).",
     "FILTERS": {
       "TITLE": "Filters",
       "YEAR": "Year",
@@ -3086,10 +3091,76 @@
       "JOURNAL": "Journal",
       "ALL_JOURNALS": "All journals"
     },
-    "JOURNAL": {
-      "VE": "Sales (VE)",
-      "BQ": "Bank (BQ)",
-      "CA": "Cash (CA)"
+    "PARAMETRAGE": {
+      "LIEN": "Accounting settings",
+      "TITRE": "Accounting settings",
+      "DESCRIPTION": "Journals, the journal of each operation and the accounts of the centre. These settings apply to entries generated from now on; entries already posted do not change.",
+      "RETOUR_JOURNAL": "Accounting journal",
+      "JOURNAUX_TITRE": "Journals",
+      "JOURNAUX_AIDE": "Define the journals of the centre freely. A journal chosen for an operation can be neither deactivated nor deleted; a journal holding entries can be deactivated but not deleted.",
+      "JOURNAL_CODE": "Code",
+      "JOURNAL_CODE_AIDE": "1 to 10 letters or digits",
+      "JOURNAL_LIBELLE": "Label",
+      "JOURNAL_ACTIF": "Active",
+      "JOURNAL_AJOUTER": "Add journal",
+      "JOURNAL_UTILISE": "Journal chosen for an operation",
+      "JOURNAL_ENREGISTRE": "Journal saved.",
+      "JOURNAL_SUPPRIME": "Journal deleted.",
+      "SUPPRIMER_TITRE": "Delete journal",
+      "SUPPRIMER_MESSAGE": "Delete journal {{code}}? This cannot be undone.",
+      "OPERATIONS_TITRE": "Journal of each operation",
+      "OPERATIONS_AIDE": "Journal in which each kind of operation is posted.",
+      "OPERATION": {
+        "VENTE": "Invoices (sales)",
+        "REGLEMENT_BANQUE": "Bank payments",
+        "REGLEMENT_CAISSE": "Cash payments",
+        "STOCK_RECEPTION": "Stock receipts",
+        "STOCK_SORTIE": "Stock issues",
+        "STOCK_INVENTAIRE": "Inventory differences"
+      },
+      "OPERATION_SANS_JOURNAL": "Choose an active journal",
+      "COMPTES_TITRE": "Sales, customer and cash accounts",
+      "COMPTES_AIDE": "Account numbers from your chart of accounts (1 to 20 letters or digits).",
+      "COMPTE": {
+        "compteVentes": "Service sales",
+        "compteClientPatient": "Customer — patient",
+        "compteClientCnas": "Customer — CNAS",
+        "compteClientCasnos": "Customer — CASNOS",
+        "compteClientMutuelle": "Customer — mutual insurer",
+        "compteClientAutre": "Customer — other payer",
+        "compteBanque": "Bank",
+        "compteCaisse": "Cash",
+        "compteTVACollectee": "VAT collected (optional)",
+        "compteStock": "Stock",
+        "compteConsommation": "Consumption (issues)",
+        "compteFacturesNonParvenues": "Invoices not yet received",
+        "compteBoniInventaire": "Inventory surplus",
+        "compteMaliInventaire": "Inventory shortage"
+      },
+      "COMPTE_INVALIDE": "Required account: 1 to 20 letters or digits",
+      "STOCK_TITRE": "Stock accounts",
+      "STOCK_AIDE": "Receipt: debit stock, credit invoices not yet received (excluding tax). Issue: debit consumption, credit stock. An article sheet can set its own stock and consumption accounts.",
+      "ENREGISTRER": "Save journals and accounts",
+      "COMPTES_ENREGISTRES": "Accounting settings saved.",
+      "SYNCHRO_TITRE": "Post stock to accounting",
+      "SYNCHRO_AIDE": "Stock is posted every night over the last 35 days. Run it here for a specific period (one year at most): one entry per validated receipt, one per day for issues, one per closed inventory. Running it again creates no duplicate.",
+      "SYNCHRO_DU": "From",
+      "SYNCHRO_AU": "To",
+      "SYNCHRO_LANCER": "Post",
+      "SYNCHRO_RECEPTIONS": "Receipts",
+      "SYNCHRO_SORTIES": "Days of issues",
+      "SYNCHRO_INVENTAIRES": "Inventories",
+      "SYNCHRO_COMPLEMENTS": "Complement entries",
+      "SYNCHRO_IGNOREES": "{{count}} document(s) not posted: their period is closed.",
+      "ERR": {
+        "JOURNAL_UTILISE": "This journal is chosen for an operation: change the journal of that operation first.",
+        "JOURNAL_INTROUVABLE": "This journal no longer exists.",
+        "JOURNAL_AVEC_ECRITURES": "This journal holds entries: deactivate it instead of deleting it.",
+        "JOURNAL_INCONNU": "A journal chosen for an operation does not exist or is deactivated.",
+        "SAVE": "Could not save. Check your input and try again.",
+        "LOAD": "Could not load the accounting settings.",
+        "SYNCHRONISATION": "Posting the stock failed."
+      }
     },
     "KPI": {
       "TOTAL_ECRITURES": "Entries",
@@ -3128,10 +3199,8 @@
       "EXPORTEE": "Exported"
     },
     "EXPORT": {
-      "VE": "Export sales journal",
-      "BQ": "Export bank journal",
-      "VE_TOOLTIP": "Download sales journal in Sage 100 format",
-      "BQ_TOOLTIP": "Download bank journal in Sage 100 format"
+      "JOURNAL": "Export journal",
+      "JOURNAL_TOOLTIP": "Choose a journal in the filter, then download it in Sage 100 format"
     },
     "SUCCESS": {
       "PERIODE_CLOTUREE": "Period closed successfully."

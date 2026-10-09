@@ -44,6 +44,43 @@ public class MappingComptableJpaEntity {
     @Column(name = "compte_tva_collectee", length = 20)
     private String compteTVACollectee;
 
+    // ─── Stock (inventaire permanent) — vide = compte par défaut ─────────────
+
+    @Column(name = "compte_stock", length = 20)
+    private String compteStock;
+
+    @Column(name = "compte_consommation", length = 20)
+    private String compteConsommation;
+
+    @Column(name = "compte_factures_non_parvenues", length = 20)
+    private String compteFacturesNonParvenues;
+
+    @Column(name = "compte_boni_inventaire", length = 20)
+    private String compteBoniInventaire;
+
+    @Column(name = "compte_mali_inventaire", length = 20)
+    private String compteMaliInventaire;
+
+    // ─── Journal de chaque opération — vide = journal par défaut ─────────────
+
+    @Column(name = "journal_vente", length = 10)
+    private String journalVente;
+
+    @Column(name = "journal_reglement_banque", length = 10)
+    private String journalReglementBanque;
+
+    @Column(name = "journal_reglement_caisse", length = 10)
+    private String journalReglementCaisse;
+
+    @Column(name = "journal_stock_reception", length = 10)
+    private String journalStockReception;
+
+    @Column(name = "journal_stock_sortie", length = 10)
+    private String journalStockSortie;
+
+    @Column(name = "journal_stock_inventaire", length = 10)
+    private String journalStockInventaire;
+
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
@@ -144,6 +181,94 @@ public class MappingComptableJpaEntity {
 
     public void setCompteTVACollectee(String v) {
         this.compteTVACollectee = v;
+    }
+
+    public String getCompteStock() {
+        return compteStock;
+    }
+
+    public void setCompteStock(String v) {
+        this.compteStock = v;
+    }
+
+    public String getCompteConsommation() {
+        return compteConsommation;
+    }
+
+    public void setCompteConsommation(String v) {
+        this.compteConsommation = v;
+    }
+
+    public String getCompteFacturesNonParvenues() {
+        return compteFacturesNonParvenues;
+    }
+
+    public void setCompteFacturesNonParvenues(String v) {
+        this.compteFacturesNonParvenues = v;
+    }
+
+    public String getCompteBoniInventaire() {
+        return compteBoniInventaire;
+    }
+
+    public void setCompteBoniInventaire(String v) {
+        this.compteBoniInventaire = v;
+    }
+
+    public String getCompteMaliInventaire() {
+        return compteMaliInventaire;
+    }
+
+    public void setCompteMaliInventaire(String v) {
+        this.compteMaliInventaire = v;
+    }
+
+    public String getJournalVente() {
+        return journalVente;
+    }
+
+    public void setJournalVente(String v) {
+        this.journalVente = v;
+    }
+
+    public String getJournalReglementBanque() {
+        return journalReglementBanque;
+    }
+
+    public void setJournalReglementBanque(String v) {
+        this.journalReglementBanque = v;
+    }
+
+    public String getJournalReglementCaisse() {
+        return journalReglementCaisse;
+    }
+
+    public void setJournalReglementCaisse(String v) {
+        this.journalReglementCaisse = v;
+    }
+
+    public String getJournalStockReception() {
+        return journalStockReception;
+    }
+
+    public void setJournalStockReception(String v) {
+        this.journalStockReception = v;
+    }
+
+    public String getJournalStockSortie() {
+        return journalStockSortie;
+    }
+
+    public void setJournalStockSortie(String v) {
+        this.journalStockSortie = v;
+    }
+
+    public String getJournalStockInventaire() {
+        return journalStockInventaire;
+    }
+
+    public void setJournalStockInventaire(String v) {
+        this.journalStockInventaire = v;
     }
 
     public OffsetDateTime getUpdatedAt() {

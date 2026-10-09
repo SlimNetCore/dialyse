@@ -802,6 +802,11 @@
       },
       "DANGEREUX": "Produit dangereux",
       "DASRI": "Génère des déchets DASRI",
+      "SECTION_COMPTABILITE": "Comptabilité",
+      "COMPTE_STOCK": "Compte de stock",
+      "COMPTE_CHARGE": "Compte de consommation",
+      "COMPTE_HINT": "Vide = compte du centre",
+      "COMPTE_ERR": "Un compte comptable comporte 1 à 20 lettres ou chiffres.",
       "NONE": "Aucun",
       "COL_DOSAGE": "Dosage",
       "COL_STOCK": "Stock",
@@ -3077,7 +3082,7 @@
   "COMPTABILITE": {
     "EYEBROW": "Module comptabilité",
     "TITLE": "Journal comptable SCF",
-    "DESCRIPTION": "Écritures comptables générées automatiquement depuis les factures et les règlements, conformément au Système Comptable Financier (SCF).",
+    "DESCRIPTION": "Écritures comptables générées automatiquement depuis les factures, les règlements et le stock, conformément au Système Comptable Financier (SCF).",
     "FILTERS": {
       "TITLE": "Filtres",
       "YEAR": "Année",
@@ -3086,10 +3091,76 @@
       "JOURNAL": "Journal",
       "ALL_JOURNALS": "Tous les journaux"
     },
-    "JOURNAL": {
-      "VE": "Ventes (VE)",
-      "BQ": "Banque (BQ)",
-      "CA": "Caisse (CA)"
+    "PARAMETRAGE": {
+      "LIEN": "Paramétrage comptable",
+      "TITRE": "Paramétrage comptable",
+      "DESCRIPTION": "Journaux, journal de chaque opération et comptes du centre. Ces réglages s'appliquent aux écritures générées à partir de maintenant ; les écritures déjà passées ne changent pas.",
+      "RETOUR_JOURNAL": "Journal comptable",
+      "JOURNAUX_TITRE": "Journaux",
+      "JOURNAUX_AIDE": "Définissez librement les journaux du centre. Un journal choisi pour une opération ne peut être ni désactivé ni supprimé ; un journal qui porte des écritures se désactive mais ne se supprime pas.",
+      "JOURNAL_CODE": "Code",
+      "JOURNAL_CODE_AIDE": "1 à 10 lettres ou chiffres",
+      "JOURNAL_LIBELLE": "Libellé",
+      "JOURNAL_ACTIF": "Actif",
+      "JOURNAL_AJOUTER": "Ajouter le journal",
+      "JOURNAL_UTILISE": "Journal choisi pour une opération",
+      "JOURNAL_ENREGISTRE": "Journal enregistré.",
+      "JOURNAL_SUPPRIME": "Journal supprimé.",
+      "SUPPRIMER_TITRE": "Supprimer le journal",
+      "SUPPRIMER_MESSAGE": "Supprimer le journal {{code}} ? Cette action est définitive.",
+      "OPERATIONS_TITRE": "Journal de chaque opération",
+      "OPERATIONS_AIDE": "Journal dans lequel s'écrit chaque type d'opération.",
+      "OPERATION": {
+        "VENTE": "Factures (ventes)",
+        "REGLEMENT_BANQUE": "Règlements en banque",
+        "REGLEMENT_CAISSE": "Règlements en caisse",
+        "STOCK_RECEPTION": "Réceptions de stock",
+        "STOCK_SORTIE": "Sorties de stock",
+        "STOCK_INVENTAIRE": "Écarts d'inventaire"
+      },
+      "OPERATION_SANS_JOURNAL": "Choisissez un journal actif",
+      "COMPTES_TITRE": "Comptes de vente, clients et trésorerie",
+      "COMPTES_AIDE": "Numéros de compte de votre plan comptable (1 à 20 lettres ou chiffres).",
+      "COMPTE": {
+        "compteVentes": "Ventes de prestations",
+        "compteClientPatient": "Client — patient",
+        "compteClientCnas": "Client — CNAS",
+        "compteClientCasnos": "Client — CASNOS",
+        "compteClientMutuelle": "Client — mutuelle",
+        "compteClientAutre": "Client — autre payeur",
+        "compteBanque": "Banque",
+        "compteCaisse": "Caisse",
+        "compteTVACollectee": "TVA collectée (facultatif)",
+        "compteStock": "Stock",
+        "compteConsommation": "Consommation (sorties)",
+        "compteFacturesNonParvenues": "Factures non parvenues",
+        "compteBoniInventaire": "Boni d'inventaire",
+        "compteMaliInventaire": "Mali d'inventaire"
+      },
+      "COMPTE_INVALIDE": "Compte obligatoire : 1 à 20 lettres ou chiffres",
+      "STOCK_TITRE": "Comptes du stock",
+      "STOCK_AIDE": "Réception : débit stock, crédit factures non parvenues (hors taxe). Sortie : débit consommation, crédit stock. La fiche d'un article peut préciser ses propres comptes de stock et de consommation.",
+      "ENREGISTRER": "Enregistrer les journaux et les comptes",
+      "COMPTES_ENREGISTRES": "Paramétrage comptable enregistré.",
+      "SYNCHRO_TITRE": "Comptabiliser le stock",
+      "SYNCHRO_AIDE": "Le stock est comptabilisé chaque nuit sur les 35 derniers jours. Lancez-le ici pour une période précise (un an au plus) : une écriture par bon de réception validé, une par jour pour les sorties, une par inventaire clôturé. Sans doublon si vous relancez.",
+      "SYNCHRO_DU": "Du",
+      "SYNCHRO_AU": "Au",
+      "SYNCHRO_LANCER": "Comptabiliser",
+      "SYNCHRO_RECEPTIONS": "Réceptions",
+      "SYNCHRO_SORTIES": "Journées de sorties",
+      "SYNCHRO_INVENTAIRES": "Inventaires",
+      "SYNCHRO_COMPLEMENTS": "Écritures de complément",
+      "SYNCHRO_IGNOREES": "{{count}} pièce(s) non comptabilisée(s) : leur période est clôturée.",
+      "ERR": {
+        "JOURNAL_UTILISE": "Ce journal est choisi pour une opération : changez d'abord le journal de cette opération.",
+        "JOURNAL_INTROUVABLE": "Ce journal n'existe plus.",
+        "JOURNAL_AVEC_ECRITURES": "Ce journal porte des écritures : désactivez-le au lieu de le supprimer.",
+        "JOURNAL_INCONNU": "Un journal choisi pour une opération n'existe pas ou est désactivé.",
+        "SAVE": "Enregistrement impossible. Vérifiez la saisie puis réessayez.",
+        "LOAD": "Impossible de charger le paramétrage comptable.",
+        "SYNCHRONISATION": "La comptabilisation du stock a échoué."
+      }
     },
     "KPI": {
       "TOTAL_ECRITURES": "Écritures",
@@ -3128,10 +3199,8 @@
       "EXPORTEE": "Exportée"
     },
     "EXPORT": {
-      "VE": "Export journal ventes",
-      "BQ": "Export journal banque",
-      "VE_TOOLTIP": "Télécharger le journal des ventes au format Sage 100",
-      "BQ_TOOLTIP": "Télécharger le journal de banque au format Sage 100"
+      "JOURNAL": "Exporter le journal",
+      "JOURNAL_TOOLTIP": "Choisissez un journal dans le filtre, puis téléchargez-le au format Sage 100"
     },
     "SUCCESS": {
       "PERIODE_CLOTUREE": "Période clôturée avec succès."

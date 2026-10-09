@@ -22,9 +22,15 @@ public interface EcritureComptableRepositoryPort {
     Optional<EcritureComptable> findById(UUID id, UUID centerId);
 
     /**
-     * Recherche par référence source — garantit l'idempotence.
+     * Recherche par référence source — garantit l'idempotence. Indépendante du journal : changer le journal d'une
+     * opération dans le paramétrage ne doit jamais faire générer une seconde écriture pour la même pièce.
      */
-    Optional<EcritureComptable> findBySourceId(UUID sourceId, UUID centerId, JournalCode journalCode);
+    Optional<EcritureComptable> findBySourceId(UUID sourceId, UUID centerId);
+
+    /**
+     * Vrai si le journal porte au moins une écriture dans ce centre (un tel journal ne se supprime pas).
+     */
+    boolean existsByJournal(UUID centerId, JournalCode journalCode);
 
     /**
      * Recherche paginée — {@code journalCode} et {@code statut} sont optionnels (null = pas de filtre).

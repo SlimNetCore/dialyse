@@ -58,7 +58,9 @@ describe('ComptabiliteDashboardComponent', () => {
     successMessage: signal<string | null>(null),
     year: signal(2026),
     month: signal<number | null>(8),
-    journalCode: signal(null),
+    journalCode: signal<string | null>(null),
+    journaux: signal([{code: 'VE', libelle: 'Ventes', actif: true}]),
+    libellesJournaux: signal<Record<string, string>>({VE: 'Ventes (VE)'}),
     expandedEcritureIds: expandedIds,
     setPagination: vi.fn(),
     toggleExpandedRow: vi.fn((id: string) => {
@@ -81,7 +83,7 @@ describe('ComptabiliteDashboardComponent', () => {
         provideZonelessChangeDetection(),
         {provide: ComptabiliteStore, useValue: storeMock},
         {provide: AppShellStore, useValue: {currentCenterId: vi.fn(() => CENTER_ID)}},
-        {provide: AuthStore, useValue: {username: vi.fn(() => 'admin')}},
+        {provide: AuthStore, useValue: {username: vi.fn(() => 'admin'), hasRole: vi.fn(() => true)}},
         {provide: TranslateService, useValue: {instant: vi.fn((key: string) => key)}},
       ]
     });
@@ -113,6 +115,26 @@ describe('ComptabiliteDashboardComponent', () => {
     expect(component['totalCredit'](rows[0])).toBe(1000);
     expect(component['detailBalanceClass'](rows[0])).toBe('detail-balance-ok');
     expect(component['detailBalanceLabel'](rows[0])).toBe('COMPTABILITE.DETAIL.BALANCE_OK');
+  });
+
+  it('affiche le libellé des journaux du centre, ou le code d’un journal supprimé', () => {
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+
+    expect(component['journalLabel']('VE')).toBe('Ventes (VE)');
+    expect(component['journalLabel']('ZZ')).toBe('ZZ');
+  });
+
+  it('exporte le journal choisi dans le filtre, et rien tant qu’aucun n’est choisi', () => {
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+
+    component['onExport']();
+    expect(storeMock.exporterJournal).not.toHaveBeenCalled();
+
+    storeMock.journalCode.set('OD');
+    component['onExport']();
+    expect(storeMock.exporterJournal).toHaveBeenCalledWith(
+      {centerId: CENTER_ID, from: '2026-08-01', to: '2026-08-31', journalCode: 'OD'});
+    storeMock.journalCode.set(null);
   });
 });
 
