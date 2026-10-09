@@ -1,5 +1,6 @@
 <button
   (click)="togglePanel()"
+  [attr.aria-label]="'NOTIFICATION.TITLE' | translate"
   [matBadgeHidden]="unreadCount() === 0"
   [matBadge]="unreadCount()"
   class="notif-btn"
@@ -13,7 +14,7 @@
 
 @if (open()) {
   <div (click)="closePanel()" class="notif-overlay"></div>
-  <section aria-label="Notifications" class="notif-panel" role="dialog">
+  <section [attr.aria-label]="'NOTIFICATION.TITLE' | translate" class="notif-panel" role="dialog">
     <header class="panel-header">
       <div class="title-wrap">
         <mat-icon>notifications_active</mat-icon>
@@ -23,7 +24,7 @@
         <button (click)="markAllRead()" class="mark-read" mat-button>
           {{ 'NOTIFICATION.MARK_READ' | translate }}
         </button>
-        <button (click)="closePanel()" mat-icon-button>
+        <button (click)="closePanel()" [attr.aria-label]="'COMMON.CLOSE' | translate" mat-icon-button>
           <mat-icon>close</mat-icon>
         </button>
       </div>
@@ -52,46 +53,56 @@
           <div class="notif-empty">{{ 'NOTIFICATION.EMPTY' | translate }}</div>
         }
         @for (evt of visibleEvents(); track eventId(evt)) {
-          <button
-            (click)="selectMessage(evt)"
+          @let v = vue(evt);
+          <div
+            [attr.data-type]="evt.type"
             [class.selected]="selectedEventId() === eventId(evt)"
             [class.unread]="!isRead(evt)"
             class="message-item"
+            data-testid="notif-item"
           >
-            <mat-icon [class]="'notif-icon ' + iconClass(evt)">{{ iconFor(evt) }}</mat-icon>
-            <div class="message-main">
-              <div class="message-text">{{ textFor(evt) }}</div>
-              <div class="message-meta">
-                <span>{{ evt.timestamp | date: 'short' }}</span>
-                <span>{{
-                    isRead(evt)
-                      ? ('NOTIFICATION.READ_STATUS' | translate)
-                      : ('NOTIFICATION.UNREAD_STATUS' | translate)
-                  }}</span>
-              </div>
-            </div>
-          </button>
+            <button (click)="selectMessage(evt)" class="message-open" type="button">
+              <mat-icon [class]="'notif-icon ' + v.ton">{{ v.icone }}</mat-icon>
+              <span class="message-main">
+                <span class="message-title">
+                  {{ v.titre }}
+                  @if (v.actionRequise) {
+                    <span class="notif-badge">{{ 'NOTIFICATION.ACTION_REQUISE' | translate }}</span>
+                  }
+                </span>
+                <span class="message-text">{{ v.message }}</span>
+                <span class="message-meta">{{ evt.timestamp | date: 'short' }}</span>
+              </span>
+            </button>
+            <a (click)="ouvrirAction(evt)" [queryParams]="v.action.queryParams" [routerLink]="v.action.commands"
+               class="message-action" data-testid="notif-item-action">
+              {{ v.action.label | translate }}
+              <mat-icon>arrow_forward</mat-icon>
+            </a>
+          </div>
         }
       </div>
 
       <aside class="message-detail">
-        @if (selectedEvent()) {
-          <h4>{{ textFor(selectedEvent()!) }}</h4>
-          <p>
-            <strong>{{ 'NOTIFICATION.DETAIL_TYPE' | translate }}:</strong>
-            {{ selectedEvent()!.type }}
-          </p>
-          <p>
-            <strong>{{ 'NOTIFICATION.DETAIL_DATE' | translate }}:</strong>
-            {{ selectedEvent()!.timestamp | date: 'full' }}
-          </p>
-          @if (lienFor(selectedEvent()!); as lien) {
-            <a (click)="closePanel()" [queryParams]="lien.queryParams" [routerLink]="lien.commands"
-               class="notif-action" color="primary" data-testid="notif-action" mat-flat-button>
-              {{ lien.label | translate }}
-            </a>
+        @if (selectedEvent(); as evt) {
+          @let v = vue(evt);
+          <div class="detail-head">
+            <mat-icon [class]="'notif-icon ' + v.ton">{{ v.icone }}</mat-icon>
+            <h4 data-testid="notif-titre">{{ v.titre }}</h4>
+          </div>
+          @if (v.actionRequise) {
+            <span class="notif-badge">{{ 'NOTIFICATION.ACTION_REQUISE' | translate }}</span>
           }
-          <pre>{{ selectedEvent()!.payload | json }}</pre>
+          <p class="detail-message" data-testid="notif-message">{{ v.message }}</p>
+          <p class="detail-date">
+            <strong>{{ 'NOTIFICATION.DETAIL_DATE' | translate }} :</strong>
+            {{ evt.timestamp | date: 'full' }}
+          </p>
+          <a (click)="ouvrirAction(evt)" [queryParams]="v.action.queryParams" [routerLink]="v.action.commands"
+             class="notif-action" color="primary" data-testid="notif-action" mat-flat-button>
+            <mat-icon>arrow_forward</mat-icon>
+            {{ v.action.label | translate }}
+          </a>
         } @else {
           <p class="empty-detail">{{ 'NOTIFICATION.DETAIL_SELECT' | translate }}</p>
         }
@@ -99,4 +110,3 @@
     </div>
   </section>
 }
-

@@ -24,7 +24,7 @@ const initialState: NotificationBellState = {
 };
 
 /** Évènements qui ne servent qu'à rafraîchir un écran : jamais présentés comme une notification. */
-const EVENEMENTS_TECHNIQUES = new Set(['PRESCRIPTION_CHANGED']);
+const EVENEMENTS_TECHNIQUES = new Set(['PRESCRIPTION_CHANGED', 'STOCK_RECALC_LOCKS_CHANGED']);
 
 /** Identifiant d'une alerte : celui du journal si elle en a un, sinon dérivé de son type et de son horodatage. */
 export const eventId = (evt: WsEvent): string =>

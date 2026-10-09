@@ -45,11 +45,39 @@
   jumeau
   de **sur-effectif** (`INFIRMIER_SUREFFECTIF`, RG-INF-047) prévient `ADMIN` des infirmiers payés au-delà de l'effectif
   requis, avec les heures concernées. Un échec de ces
-  alertes ne fait jamais échouer l'opération qu'elles accompagnent. Depuis la cloche, un lien mène à l'écran qui traite
-  l'alerte : l'optimisation du bon périmètre (`Maintenance` pour un générateur, `Couverture` pour une absence ou un
-  sous-effectif), la proposition elle-même, ou le planning ; ces liens vers l'optimisation ne sont proposés qu'à
-  `ADMIN` et `SECRETAIRE`. *Source :* `GenerateurIndisponibleService`, `AbsenceInfirmierService`,
-  `OptimisationApplicationService`.
+  alertes ne fait jamais échouer l'opération qu'elles accompagnent. Depuis la cloche, chaque alerte porte une action
+  qui mène à l'écran où la traiter (RG-NOT-007). *Source :* `GenerateurIndisponibleService`,
+  `AbsenceInfirmierService`, `OptimisationApplicationService`.
+- **RG-NOT-007** — **Chaque notification a un libellé, un message et une action.** Dans la cloche, une notification
+  n'affiche jamais un code technique : elle porte un **libellé court** (« Absence d'un infirmier à remplacer »,
+  « Générateur indisponible »…), un **message** en phrase complète avec les dates au format jour/mois/année, la
+  mention **« Action requise »** quand l'utilisateur a quelque chose à faire, et **une action** — un bouton qui ouvre
+  l'écran où la traiter ou la consulter. Ouvrir l'action marque la notification comme lue. L'action dépend du
+  profil : elle ne mène jamais vers un écran fermé à l'utilisateur.
+
+  | Notification | Action (administrateur, secrétariat) | Médecin seul | Infirmier seul |
+    |---|---|---|---|
+  | Absence d'un infirmier, sous-effectif | **Chercher des remplaçants** : optimisation « Couverture » sur toute la période de l'absence | planning de la semaine concernée | — |
+  | Sur-effectif d'infirmiers | Revoir le roulement (optimisation « Roulement ») | — | — |
+  | Générateur indisponible | Proposer des déplacements (optimisation « Maintenance ») | — | — |
+  | Proposition de la replanification nocturne | Ouvrir la proposition | — | — |
+  | Planning modifié, patient replacé en isolement | Voir le planning / le nouveau placement | planning du jour | — |
+  | Isolement impossible | Replanifier le patient (optimisation « Patients ») | sérologies du patient | — |
+  | Traitement de l'anémie en retard ou à terminer | suivi de l'anémie du patient | suivi de l'anémie du patient | — |
+  | Saisie d'un infirmier | — | cahier de dialyse du patient ; suivi de l'anémie ; absences de patients, selon la saisie | — |
+  | Absences de patients à qualifier | Qualifier les absences | Qualifier les absences | Qualifier les absences |
+  | Séances à régulariser, séance à valider, séance créée / validée / volets / consommables | Ouvrir le poste infirmier | cahier de dialyse du patient | Ouvrir le poste infirmier |
+  | Séance supprimée | historique des séances | planning du jour | historique des séances |
+  | Nouveau patient, fiche modifiée | fiche du patient | fiche du patient (lecture) | — |
+  | Prise en charge validée / clôturée / supprimée | liste des prises en charge | fiche du patient | — |
+  | Attestation créée / supprimée | liste des attestations | fiche du patient | — |
+  | Mouvement de stock, inventaire ouvert / clôturé / annulé | stock, inventaires | — | — |
+
+  « — » : la notification n'est pas destinée à ce profil ; si elle lui parvenait, l'action ouvrirait son écran
+  d'accueil. Les évènements purement techniques (`PRESCRIPTION_CHANGED`, `STOCK_RECALC_LOCKS_CHANGED`) rafraîchissent
+  les écrans sans apparaître dans la cloche. Sur un téléphone, l'action figure directement sous chaque notification.
+  *Source :* `notification-presentation.util.ts` (`presenterNotification`), `NotificationBellComponent` →
+  `NotificationBellStore` → `NotificationApiService` → `NotificationRestController`.
 
 - **RG-NOT-004** — **Toute saisie d'un infirmier prévient le médecin du centre** : l'évènement `SAISIE_INFIRMIER`
   (destinataire `MEDECIN`) nomme l'auteur, le patient, la date et la nature de la saisie — séance créée ou validée

@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>523 règles de gestion · 16 domaines · 396 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-09<br>524 règles de gestion · 16 domaines · 396 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>523</b>règles de gestion</div>
+        <div><b>524</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>9</b>points d'attention</div>
@@ -3422,16 +3422,140 @@ RG-DIR-101).</p>
             de <strong>sur-effectif</strong> (<code>INFIRMIER_SUREFFECTIF</code>, RG-INF-047) prévient
             <code>ADMIN</code> des infirmiers payés au-delà de l&#39;effectif
             requis, avec les heures concernées. Un échec de ces
-            alertes ne fait jamais échouer l&#39;opération qu&#39;elles accompagnent. Depuis la cloche, un lien mène à l&#39;écran
-            qui traite
-            l&#39;alerte : l&#39;optimisation du bon périmètre (<code>Maintenance</code> pour un générateur, <code>Couverture</code>
-            pour une absence ou un
-            sous-effectif), la proposition elle-même, ou le planning ; ces liens vers l&#39;optimisation ne sont
-            proposés qu&#39;à
-            <code>ADMIN</code> et <code>SECRETAIRE</code>. <em>Source :</em> <code>GenerateurIndisponibleService</code>,
-            <code>AbsenceInfirmierService</code>,
-            <code>OptimisationApplicationService</code>.</p>
+            alertes ne fait jamais échouer l&#39;opération qu&#39;elles accompagnent. Depuis la cloche, chaque alerte
+            porte une action
+            qui mène à l&#39;écran où la traiter (RG-NOT-007). <em>Source :</em>
+            <code>GenerateurIndisponibleService</code>,
+            <code>AbsenceInfirmierService</code>, <code>OptimisationApplicationService</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-NOT-007">
+        <div class="rid">RG-NOT-007</div>
+        <div class="rtxt"><p><strong>Chaque notification a un libellé, un message et une action.</strong> Dans la
+            cloche, une notification
+            n&#39;affiche jamais un code technique : elle porte un <strong>libellé court</strong> (« Absence d&#39;un
+            infirmier à remplacer »,
+            « Générateur indisponible »…), un <strong>message</strong> en phrase complète avec les dates au format
+            jour/mois/année, la
+            mention <strong>« Action requise »</strong> quand l&#39;utilisateur a quelque chose à faire, et <strong>une
+                action</strong> — un bouton qui ouvre
+            l&#39;écran où la traiter ou la consulter. Ouvrir l&#39;action marque la notification comme lue. L&#39;action
+            dépend du
+            profil : elle ne mène jamais vers un écran fermé à l&#39;utilisateur.</p>
 </div></div>
+    <table>
+        <thead>
+        <tr>
+            <th>Notification</th>
+            <th>Action (administrateur, secrétariat)</th>
+            <th>Médecin seul</th>
+            <th>Infirmier seul</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Absence d&#39;un infirmier, sous-effectif</td>
+            <td><strong>Chercher des remplaçants</strong> : optimisation « Couverture » sur toute la période de l&#39;absence
+            </td>
+            <td>planning de la semaine concernée</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Sur-effectif d&#39;infirmiers</td>
+            <td>Revoir le roulement (optimisation « Roulement »)</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Générateur indisponible</td>
+            <td>Proposer des déplacements (optimisation « Maintenance »)</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Proposition de la replanification nocturne</td>
+            <td>Ouvrir la proposition</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Planning modifié, patient replacé en isolement</td>
+            <td>Voir le planning / le nouveau placement</td>
+            <td>planning du jour</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Isolement impossible</td>
+            <td>Replanifier le patient (optimisation « Patients »)</td>
+            <td>sérologies du patient</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Traitement de l&#39;anémie en retard ou à terminer</td>
+            <td>suivi de l&#39;anémie du patient</td>
+            <td>suivi de l&#39;anémie du patient</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Saisie d&#39;un infirmier</td>
+            <td>—</td>
+            <td>cahier de dialyse du patient ; suivi de l&#39;anémie ; absences de patients, selon la saisie</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Absences de patients à qualifier</td>
+            <td>Qualifier les absences</td>
+            <td>Qualifier les absences</td>
+            <td>Qualifier les absences</td>
+        </tr>
+        <tr>
+            <td>Séances à régulariser, séance à valider, séance créée / validée / volets / consommables</td>
+            <td>Ouvrir le poste infirmier</td>
+            <td>cahier de dialyse du patient</td>
+            <td>Ouvrir le poste infirmier</td>
+        </tr>
+        <tr>
+            <td>Séance supprimée</td>
+            <td>historique des séances</td>
+            <td>planning du jour</td>
+            <td>historique des séances</td>
+        </tr>
+        <tr>
+            <td>Nouveau patient, fiche modifiée</td>
+            <td>fiche du patient</td>
+            <td>fiche du patient (lecture)</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Prise en charge validée / clôturée / supprimée</td>
+            <td>liste des prises en charge</td>
+            <td>fiche du patient</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Attestation créée / supprimée</td>
+            <td>liste des attestations</td>
+            <td>fiche du patient</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td>Mouvement de stock, inventaire ouvert / clôturé / annulé</td>
+            <td>stock, inventaires</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+        </tbody>
+    </table>
+    <p> « — » : la notification n&#39;est pas destinée à ce profil ; si elle lui parvenait, l&#39;action ouvrirait son
+        écran
+        d&#39;accueil. Les évènements purement techniques (<code>PRESCRIPTION_CHANGED</code>, <code>STOCK_RECALC_LOCKS_CHANGED</code>)
+        rafraîchissent
+        les écrans sans apparaître dans la cloche. Sur un téléphone, l&#39;action figure directement sous chaque
+        notification.
+        <em>Source :</em> <code>notification-presentation.util.ts</code> (<code>presenterNotification</code>), <code>NotificationBellComponent</code>
+        →
+        <code>NotificationBellStore</code> → <code>NotificationApiService</code> →
+        <code>NotificationRestController</code>.</p>
 <div class="rule" id="RG-NOT-004"><div class="rid">RG-NOT-004</div><div class="rtxt"><p><strong>Toute saisie d&#39;un infirmier prévient le médecin du centre</strong> : l&#39;évènement <code>SAISIE_INFIRMIER</code>
 (destinataire <code>MEDECIN</code>) nomme l&#39;auteur, le patient, la date et la nature de la saisie — séance créée ou validée
 (<code>SEANCE_CREEE</code>, <code>SEANCE_VALIDEE</code>), volet paramédical (<code>PARAMEDICAL</code>), consommable ajouté / modifié / retiré
