@@ -18,6 +18,26 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-hemodialyse}
       POSTGRES_USER: ${POSTGRES_USER:-hemo_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manquant dans .env}
+    # Réglage PostgreSQL (les défauts de l'image : shared_buffers 128 Mo, work_mem 4 Mo, random_page_cost 4, sont ceux
+    # d'un poste de 1990). Valeurs par défaut sûres pour une VM de 1 Go ; à relever dans .env sur une VM Ampere de 6 Go
+    # (ex. PG_SHARED_BUFFERS=1GB, PG_EFFECTIVE_CACHE_SIZE=3GB, PG_WORK_MEM=16MB, PG_MAINTENANCE_WORK_MEM=256MB).
+    # pg_stat_statements : mesure des requêtes les plus coûteuses (extension créée par la migration Flyway V30).
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${PG_SHARED_BUFFERS:-256MB}
+      - -c
+      - effective_cache_size=${PG_EFFECTIVE_CACHE_SIZE:-768MB}
+      - -c
+      - work_mem=${PG_WORK_MEM:-8MB}
+      - -c
+      - maintenance_work_mem=${PG_MAINTENANCE_WORK_MEM:-64MB}
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - pg_stat_statements.track=top
     volumes:
       - postgres_data:/var/lib/postgresql/data
     # Port lié à la VM uniquement (127.0.0.1) : jamais exposé sur Internet. Administration à distance
@@ -68,6 +88,10 @@ services:
         condition: service_completed_successfully
     environment:
       PORT: 8090
+      # Profil de production (application-prod.yml) : Hibernate en validate (Flyway seul maître du schéma), pas de
+      # schema.sql ni de seed, console H2 et Swagger fermés, démarrage refusé avec un secret JWT faible ou une base H2.
+      SPRING_PROFILES_ACTIVE: prod
+      HIBERNATE_DDL_AUTO: ${HIBERNATE_DDL_AUTO:-validate}
       # Heap limité : adapté aux VM à faible RAM (1 Go AMD micro / 6+ Go Ampere)
       JAVA_OPTS: ${JAVA_OPTS:--XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0 -Djava.security.egd=file:/dev/./urandom}
       DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-hemodialyse}
@@ -75,8 +99,6 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_DRIVER: org.postgresql.Driver
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET manquant dans .env}
-      # Le seed par défaut utilise la syntaxe H2 ; la production conserve le schéma sans données de démo.
-      SEED_DATA_LOCATIONS: ${SEED_DATA_LOCATIONS:-classpath:db/seed-production.sql}
       SETUP_TOKEN: ${SETUP_TOKEN:-}
       STOCK_DEMO_DATA: ${STOCK_DEMO_DATA:-false}
       # Front et API partagent la même origine (via Nginx) ; CORS utile seulement si domaine séparé

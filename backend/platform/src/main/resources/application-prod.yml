@@ -1,0 +1,31 @@
+# Profil de PRODUCTION (SPRING_PROFILES_ACTIVE=prod, posé par docker-compose.prod.yml).
+#
+# Le défaut de application.yml reste celui du développement local (H2 en mémoire, seed de démo, outils de dev).
+# Ce profil ferme tout ce qui n'a de sens qu'en développement et verrouille le schéma : en production, SEUL Flyway
+# (backend/platform/src/main/resources/db/migration) crée et modifie les tables.
+spring:
+  jpa:
+    hibernate:
+      # Hibernate vérifie que les entités correspondent au schéma Flyway, sans jamais le modifier.
+      # Repli d'urgence sans reconstruire l'image : HIBERNATE_DDL_AUTO=none dans le .env de la VM.
+      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}
+  sql:
+    init:
+      # Ni schema.sql (DDL idempotent pensé pour H2) ni seed : le schéma vient de Flyway, les données de l'application.
+      mode: never
+  h2:
+    console:
+      enabled: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+app:
+  dev-tools:
+    # Console H2 et Swagger : jamais exposés en production (voir SecurityConfig).
+    enabled: false
+  stock:
+    demo-data: ${STOCK_DEMO_DATA:false}

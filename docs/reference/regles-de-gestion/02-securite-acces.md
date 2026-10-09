@@ -209,8 +209,15 @@
   type MIME
   imposé, politique de référent stricte ; CORS limité aux origines configurées, avec cookies. Routes publiques :
   connexion,
-  déconnexion, rafraîchissement, annuaires de sociétés/centres, installation initiale, ping système, actuator health,
-  documentation d'API et WebSocket ; tout le reste exige une authentification. *Source :* `SecurityConfig`.
+  déconnexion, rafraîchissement, annuaires de sociétés/centres, installation initiale, ping système, actuator health
+  et WebSocket ; tout le reste exige une authentification. La documentation d'API (Swagger) et la console H2 ne sont
+  publiques qu'en développement local (`app.dev-tools.enabled`) : en **production** elles sont fermées (RG-SEC-042).
+  *Source :* `SecurityConfig`.
+- **RG-SEC-042** — **Profil de production** (`prod`). Il verrouille le schéma (Flyway seul, Hibernate en
+  `validate`, pas de `schema.sql` ni de données de démonstration), ferme Swagger et la console H2, et n'exécute jamais
+  l'initialisation des comptes de démonstration. Le démarrage est **refusé** si le secret JWT est absent, égal à la
+  valeur de développement ou de moins de 32 caractères, ou si la base est H2. *Source :* `application-prod.yml`,
+  `ProductionSafetyGuard`, `SeedPasswordInitializer`.
 
 ## 2.12 Journal d'audit (« qui a fait quoi »)
 

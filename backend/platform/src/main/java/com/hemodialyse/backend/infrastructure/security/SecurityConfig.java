@@ -44,6 +44,22 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origin-patterns:}")
     private String allowedOriginPatterns;
 
+    /**
+     * Console H2 et Swagger ouverts sans authentification : développement local seulement (profil prod : fermés).
+     */
+    @Value("${app.dev-tools.enabled:true}")
+    private boolean devToolsEnabled;
+
+    /**
+     * Chemins des outils de développement à laisser publics ; un tableau vide quand ils sont désactivés, auquel cas ces
+     * chemins retombent sur {@code anyRequest().authenticated()}.
+     */
+    String[] devToolsPaths() {
+        return devToolsEnabled
+                ? new String[]{"/h2-console/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml"}
+                : new String[0];
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -56,9 +72,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/v1/auth/setup/superadmin").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/auth/societes", "/api/v1/auth/societes/*/centres").permitAll()
                     .requestMatchers("/api/v1/auth/me").authenticated()
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/swagger-ui.html",
-                    "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
+                    .requestMatchers(devToolsPaths()).permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

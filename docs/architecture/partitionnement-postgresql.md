@@ -1,7 +1,8 @@
 # Étude et plan — Partitionnement PostgreSQL et performance des données
 
 > Statut : **étude + plan d'exécution** (aucun code modifié). Rédigée à partir du schéma, des entités JPA, des
-> requêtes JDBC et du jeu de démonstration RENADIAL. **Aucune base de production n'a été mesurée** : les volumes
+> requêtes JDBC, du jeu de démonstration RENADIAL, du déploiement de production (`docker-compose.prod.yml`, workflows
+> GitHub) et de `infra/dataset/schema_prod.sql`. **Aucune base de production n'a été mesurée** : les volumes
 > ci-dessous sont des estimations à confirmer par la phase 0.
 
 ## 1. Verdict en trois lignes
@@ -18,15 +19,30 @@
 
 ## 2. État des lieux
 
-| Élément                     | Constat                                                                                                                                                                    |
-|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Tables                      | ~100 (62 entités JPA + tables JDBC : audit, notifications, planning, facturation, direction…)                                                                              |
-| Gestion du schéma           | **Flyway n'est pas actif** : `ddl-auto: update` + `db/schema.sql` + `db/seed.sql`. Les scripts `db/migration/V*.sql` sont une référence documentaire (cf. mémoire projet). |
-| Bases                       | H2 (`MODE=PostgreSQL`) en dev/tests, PostgreSQL 16 en production. H2 **ne sait pas partitionner**.                                                                         |
-| Clés étrangères             | 5 seulement dans le schéma de base (liens par UUID, sans FK) : bonne nouvelle, rien ne bloque la partition.                                                                |
-| Multi-centre                | Toute requête filtre `center_id` (règle AGENTS §2) : la sélectivité vient déjà de ce critère.                                                                              |
-| Volumes (RENADIAL, 12 mois) | ~410 patients, ~13 000 séances, ~4 400 factures, ~3 700 règlements, ~3 900 biologies, ~3 600 administrations EPO/fer.                                                      |
-| Rétention existante         | `audit_log` : 365 j (purge `DELETE` quotidienne) ; `notification_evenement` : 30 j (`NotificationPurgeScheduler`).                                                         |
+| Élément                     | Constat                                                                                                               |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Tables                      | ~100 (62 entités JPA + tables JDBC : audit, notifications, planning, facturation, direction…)                         |
+| Gestion du schéma           | **Production : Flyway actif** (voir §2.1). Dev/tests : H2 avec `ddl-auto: update` + `db/schema.sql` + `db/seed.sql`.  |
+| Bases                       | H2 (`MODE=PostgreSQL`) en dev/tests, PostgreSQL 16 en production. H2 **ne sait pas partitionner**.                    |
+| Clés étrangères             | 5 seulement dans le schéma de base (liens par UUID, sans FK) : bonne nouvelle, rien ne bloque la partition.           |
+| Multi-centre                | Toute requête filtre `center_id` (règle AGENTS §2) : la sélectivité vient déjà de ce critère.                         |
+| Volumes (RENADIAL, 12 mois) | ~410 patients, ~13 000 séances, ~4 400 factures, ~3 700 règlements, ~3 900 biologies, ~3 600 administrations EPO/fer. |
+| Rétention existante         | `audit_log` : 365 j (purge `DELETE` quotidienne) ; `notification_evenement` : 30 j (`NotificationPurgeScheduler`).    |
+
+### 2.1 Ce que montrent la production, la CI et `schema_prod.sql`
+
+Sources lues : `docker-compose.prod.yml`, `.github/workflows/{ci,flyway,deploy-vm}.yml`,
+`infra/dataset/schema_prod.sql` (dump `pg_dump --schema-only` de la production, PostgreSQL 16.15), `infra/backup-db.sh`.
+
+| Constat                                                                                                                                                                                                                                                                                                             | Conséquence pour le plan                                                                                                                                                                                                                                             |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Flyway 11 tourne en production** : conteneur one-shot `flyway migrate` avant le backend (`baseline V1`, `validateMigrationNaming`, `clean` désactivé), scripts dans `backend/platform/src/main/resources/db/migration` (V1 à V29).                                                                                | Index et partitions passent par de **nouvelles migrations V31+** (V30 : `pg_stat_statements`). Rien à « activer » (correction de la première version de cette étude).                                                                                                |
+| La CI (`flyway.yml`) rejoue toute la chaîne sur un **vrai PostgreSQL 16**, interdit de modifier une migration publiée, puis démarre le backend en `ddl-auto=validate`.                                                                                                                                              | Une migration de partitionnement est **testée sur PostgreSQL à chaque PR** (applicabilité + compatibilité JPA). Les migrations existantes ne se touchent jamais (règle d'immutabilité).                                                                              |
+| `docker-compose.prod.yml` **ne fixe pas `ddl-auto`** : en production le backend démarre avec la valeur par défaut `update`, donc Hibernate peut encore modifier le schéma après Flyway.                                                                                                                             | Mettre `SPRING_JPA_HIBERNATE_DDL_AUTO: validate` dans le service `backend` : le schéma n'évolue que par Flyway, et un index ou une partition ne peut pas être « réparé » en silence par Hibernate.                                                                   |
+| Le conteneur `postgres:16-alpine` est lancé **sans aucun paramètre** (`shared_buffers` 128 Mo, `work_mem` 4 Mo, `random_page_cost` 4, pas de `pg_stat_statements`), sur une **VM Oracle Always Free** (1 Go ou Ampere 6 Go+).                                                                                       | Le réglage PostgreSQL est un gain rapide indépendant du schéma (§5, phase 1) ; l'extension de mesure s'active avec `command: postgres -c shared_preload_libraries=pg_stat_statements` (redémarrage, contrib inclus dans l'image).                                    |
+| `schema_prod.sql` (77 tables) confirme les index du §3 : `seances` n'a que `idx_seances_center_facture`, `stock_movements` n'a pas d'index sur `center_id`, `lignes_ecriture`/`administrations_anemie`/biologie n'en ont pas. PK simples (`seances_pkey (id)`, `stock_movements_pkey (id)`, `audit_log_pkey (id)`). | Diagnostic validé sur le schéma réel. **Attention : ce dump date de la baseline V1** (il ne contient ni `idx_stock_mvt_center_inventaire`, ni les tables GMAO/planning des migrations suivantes) → refaire un `pg_dump --schema-only` avant d'écrire les migrations. |
+| Sauvegarde : `pg_dump` logique quotidien, compressé, 14 jours, dans `./backups` ; le déploiement vide `/opt/hemodialyse` sauf `.env`.                                                                                                                                                                               | `pg_dump` sait sauvegarder/restaurer des tables partitionnées, rien à changer. **À vérifier : `BACKUP_DIR` doit être hors de `/opt/hemodialyse`**, sinon chaque déploiement efface les sauvegardes.                                                                  |
+| Les tests applicatifs (`ci.yml`, `deploy-vm.yml`) tournent sur **H2** ; seul le job Flyway utilise PostgreSQL.                                                                                                                                                                                                      | Le schéma est validé sur PostgreSQL, pas le comportement des requêtes : l'exclusion de partitions et la purge doivent avoir leurs propres vérifications PostgreSQL (§7).                                                                                             |
 
 ### Projection de volume (hypothèse : 10 × RENADIAL, soit ~170 centres, 5 ans d'historique)
 
@@ -100,7 +116,9 @@ Chaque phase est livrable seule, réversible, et validée par mesure avant la su
 
 ### Phase 0 — Mesurer (1 à 2 jours, aucun changement applicatif)
 
-- Activer `pg_stat_statements` ; relever les 20 requêtes les plus coûteuses (temps total, appels) sur une semaine.
+- Activer `pg_stat_statements` (`command: postgres -c shared_preload_libraries=pg_stat_statements` sur le service
+  `postgres` de `docker-compose.prod.yml`, puis `CREATE EXTENSION` ; redémarrage de la base) ; relever les 20 requêtes
+  les plus coûteuses (temps total, appels) sur une semaine.
 - Relever tailles et lignes : `pg_total_relation_size`, `n_live_tup`, `n_dead_tup`, et `pg_stat_user_indexes` (index
   jamais utilisés / manquants : `seq_scan` élevés sur `seances`, `stock_movements`…).
 - `EXPLAIN (ANALYZE, BUFFERS)` des écrans lents : tableau de bord direction/centre, liste des séances, facturation,
@@ -109,11 +127,21 @@ Chaque phase est livrable seule, réversible, et validée par mesure avant la su
 
 ### Phase 1 — Index et requêtes (≈ 1 semaine)
 
-1. Créer les index du §3 (`CONCURRENTLY`, hors transaction) via un script PostgreSQL `db/postgres/`; déclarer les
-   mêmes index en `@Index` JPA / `schema.sql` pour que H2 et les tests restent alignés (règle AGENTS §10).
-2. **Activer Flyway pour la production** (aujourd'hui inactif) : sans migrations versionnées, ni index ni partitions ne
-   sont reproductibles. Passer `ddl-auto` à `validate` (ou `none`) en profil production : `update` ne sait ni créer ni
-   maintenir une table partitionnée.
+1. Créer les index du §3 dans **une nouvelle migration Flyway `V31__index_performance.sql`** (V30 est prise par
+   `pg_stat_statements`, déjà livrée) (jamais en modifiant une
+   migration publiée : la CI l'interdit). Les tables ayant moins d'un million de lignes, un simple
+   `CREATE INDEX IF NOT EXISTS` (verrou de quelques millisecondes à quelques secondes) suffit et reste dans le style des
+   migrations existantes ; `CONCURRENTLY` n'est utile que si une table dépasse plusieurs millions de lignes (Flyway
+   l'exécute alors hors transaction, dans une migration qui ne contient que ces instructions). Déclarer les mêmes index
+   en `@Index` JPA pour que H2 et les tests restent alignés (règle AGENTS §10).
+2. ✅ **Fait — schéma verrouillé en production** : profil `prod` (`application-prod.yml`, posé par
+   `docker-compose.prod.yml`) avec Hibernate en `validate` et sans `schema.sql`. Voir
+   [environnements-dev-prod.md](environnements-dev-prod.md). Hibernate ne sait ni créer ni maintenir une table
+   partitionnée : prérequis de la phase 2, désormais satisfait.
+   2 bis. ✅ **Fait — PostgreSQL réglé** (service `postgres`, `command: postgres -c …`) : défauts sûrs pour la VM de 1 Go
+   (`shared_buffers=256MB`, `effective_cache_size=768MB`, `work_mem=8MB`, `random_page_cost=1.1`), à relever dans le
+   `.env` sur la VM Ampere 6 Go (`PG_SHARED_BUFFERS=1GB`, `PG_EFFECTIVE_CACHE_SIZE=3GB`, `PG_WORK_MEM=16MB`…) ;
+   `pg_stat_statements` chargé et créé par la migration `V30`.
 3. Corriger les requêtes détectées en phase 0 (tris sans index, `IN (…)` volumineux, `COUNT(*)` exhaustifs pour la
    pagination — remplacer par comptage estimé ou borné quand le total exact n'est pas affiché).
 4. Tableau de bord : le calcul direction agrège en direct ; les mois clos sont déjà figés dans `direction_snapshot`.
@@ -140,9 +168,13 @@ CREATE TABLE audit_log_2026_10 PARTITION OF audit_log_p
     FOR VALUES FROM ('2026-10-01') TO ('2026-11-01');
 ```
 
-Bascule sans coupure longue : créer `audit_log_p` → copier l'historique par lots → dans une courte transaction,
-`ALTER TABLE audit_log RENAME TO audit_log_old; ALTER TABLE audit_log_p RENAME TO audit_log;` → conserver
-`audit_log_old` une semaine puis le supprimer.
+Bascule, en **deux migrations Flyway** pour que la CI la rejoue sur PostgreSQL : `V32__audit_log_partitionne.sql`
+(crée `audit_log_p` et ses partitions, copie l'historique — de l'ordre de la rétention de 365 j, quelques secondes à
+quelques minutes — puis, dans la même transaction, `ALTER TABLE audit_log RENAME TO audit_log_old; ALTER TABLE
+audit_log_p RENAME TO audit_log;`) et, une semaine plus tard, `V33__audit_log_old_drop.sql`. Le conteneur Flyway
+s'exécute avant le backend (`service_completed_successfully`) : pendant la copie, le backend n'écrit pas, la coupure est
+celle de la durée de la migration. Prévoir une fenêtre de déploiement hors heures de séance, et un `pg_dump` préalable
+(`infra/backup-db.sh`). Même schéma pour `notification_evenement` (clé de partition `cree_le`).
 
 Impact applicatif **minimal** : `AuditWriterService`, `AuditQueryService` et `NotificationJournalJdbcAdapter` sont en
 JDBC pur, sans `@Entity` ; leurs requêtes (`INSERT`, filtres par `center_id` et période) ne changent pas. À modifier :
@@ -153,9 +185,11 @@ JDBC pur, sans `@Entity` ; leurs requêtes (`INSERT`, filtres par `center_id` et
 - **Entretien des partitions** : tâche planifiée (comme `AuditScheduler`) qui crée les partitions des 3 prochains mois
   et détache/supprime les périmées ; alerte si une ligne tombe dans la partition `DEFAULT`. Alternative : extension
   `pg_partman` si disponible sur l'hébergement.
-- Les questions de compatibilité : le script de partitionnement est **réservé à PostgreSQL** (dossier `db/postgres/`,
-  jamais exécuté par `schema.sql` ni sur H2). En H2 la table reste simple ; le code n'a aucune branche de plus que le
-  choix « DROP partition si PostgreSQL, DELETE sinon ».
+- Compatibilité H2/PostgreSQL : les migrations `db/migration` ne sont jouées que sur PostgreSQL (Flyway de production
+  et de la CI) ; le dev/tests H2 garde la table simple de `schema.sql`. Le code n'a qu'une branche de plus : « DROP
+  partition si PostgreSQL, DELETE sinon » (détection via `DatabaseMetaData.getDatabaseProductName()`).
+- `pg_partman` n'est pas dans l'image `postgres:16-alpine` : l'entretien des partitions se fait par la tâche
+  planifiée ci-dessus (ou par une fonction SQL appelée par elle).
 - Pagination de l'écran d'audit : le `COUNT(*)` exhaustif (`AuditQueryService`) se limite au centre et à la période
   choisis ; garder le filtre de période obligatoire par défaut (30 j) pour bénéficier de l'exclusion de partitions.
 - **Critère de sortie** : purge mensuelle < 1 s au lieu d'un `DELETE` de plusieurs millions de lignes ; plus de
@@ -192,10 +226,12 @@ centaines de centres ou si un client exige l'isolement physique des données.
 
 - **Base de recette** : générer ×10 à ×50 le jeu RENADIAL sur un PostgreSQL 16 (le script `generate-renadial-seed.cjs`
   accepte déjà des paramètres de volume à étendre) pour comparer avant/après avec `EXPLAIN (ANALYZE, BUFFERS)`.
-- **Tests** (règle AGENTS §7) : le projet n'a pas de Testcontainers, donc **aucun test automatisé ne tourne sur
-  PostgreSQL**. Ajouter `testcontainers` (PostgreSQL 16) dans un profil Maven dédié (`-Ppostgres-it`) pour : créer les
-  partitions, vérifier l'exclusion de partitions (`EXPLAIN` ne liste que le mois demandé), l'isolation par `center_id`,
-  la purge par `DROP`, l'insertion hors partition (→ `DEFAULT`). Les tests H2 existants restent inchangés.
+- **Tests** (règle AGENTS §7) : le job `flyway.yml` rejoue déjà toutes les migrations sur un PostgreSQL 16 et démarre
+  le backend en `ddl-auto=validate` : applicabilité du schéma et compatibilité JPA sont donc contrôlées à chaque PR.
+  Ce qui n'est **pas** couvert : le comportement (les tests applicatifs tournent sur H2). Ajouter à ce job une étape
+  `psql` d'assertions (ou `testcontainers` PostgreSQL 16 dans un profil Maven `-Ppostgres-it`) qui vérifie : création
+  des partitions, exclusion de partitions (`EXPLAIN` ne liste que le mois demandé), isolation par `center_id`, purge
+  par `DROP`, insertion hors partition (→ `DEFAULT`). Les tests H2 existants restent inchangés.
 - **Multi-centre** : aucune de ces opérations ne contourne `center_id` ; l'isolation des données reste portée par le
   filtre applicatif et l'index de tête.
 - **Rollback** : phase 1 = `DROP INDEX CONCURRENTLY` ; phase 2 = renommage inverse (l'ancienne table est conservée une
@@ -205,8 +241,10 @@ centaines de centres ou si un client exige l'isolement physique des données.
 
 ## 8. Recommandation
 
-1. **Maintenant** : phase 0 puis phase 1 (index + activation de Flyway en production + `ddl-auto: validate`). C'est le
-   levier qui améliore tableau de bord, séances, factures, stock, règlements et comptabilité.
+1. **Maintenant** : phase 0 puis phase 1 (migration `V31` d'index ; réglage PostgreSQL et `ddl-auto: validate` en
+   production ; Flyway est déjà en place). C'est le levier qui améliore tableau de bord, séances, factures, stock,
+   règlements et comptabilité. Refaire d'abord un `pg_dump --schema-only` de la production : `schema_prod.sql` date de
+   la baseline V1.
 2. **Ensuite** : phase 2 (`audit_log`, `notification_evenement`) — gain net, risque faible, code JDBC peu impacté.
 3. **Ne pas faire** : partitionner `seances`, `factures`, `patients` ni par centre tant que les seuils du §6 ne sont pas
    franchis ; le coût de complexité (clés composites, contraintes d'unicité, entités JPA) dépasse le bénéfice.

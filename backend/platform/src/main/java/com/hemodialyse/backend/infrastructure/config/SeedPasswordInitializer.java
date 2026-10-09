@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.infrastructure.config;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,8 +10,12 @@ import org.springframework.stereotype.Component;
 /**
  * At startup, ensure seed users have proper BCrypt password hashes.
  * This handles the case where V9 migration inserted placeholder hashes.
+ *
+ * <p>Développement/démo uniquement ({@code !prod}) : les mots de passe ci-dessous sont publics. En production, un
+ * compte réel nommé {@code admin} ou {@code medecin} verrait son mot de passe réinitialisé à chaque démarrage.
  */
 @Component
+@Profile("!prod")
 public class SeedPasswordInitializer implements CommandLineRunner {
 
     private final JdbcTemplate jdbc;
