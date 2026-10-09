@@ -1,0 +1,133 @@
+@if (store.error()) {
+  <p class="cpa-feedback error" data-testid="plan-erreur" role="alert">{{ store.error()! | translate }}</p>
+}
+@if (store.successMessage()) {
+  <p class="cpa-feedback success" data-testid="plan-succes">{{ store.successMessage()! | translate }}</p>
+}
+
+<!-- ─── Plan comptable ───────────────────────────────────────────────── -->
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ 'COMPTABILITE.PLAN.TITRE' | translate }}</mat-card-title>
+    <mat-card-subtitle>{{ 'COMPTABILITE.PLAN.AIDE' | translate }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form (submit)="save(); $event.preventDefault()" [formRoot]="compteForm" class="cpa-journal-form">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'COMPTABILITE.PLAN.NUMERO' | translate }}</mat-label>
+        <input [formField]="compteForm.numero" data-testid="plan-numero" matInput/>
+        <mat-hint>{{ 'COMPTABILITE.PLAN.NUMERO_AIDE' | translate }}</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'COMPTABILITE.PLAN.LIBELLE' | translate }}</mat-label>
+        <input [formField]="compteForm.libelle" data-testid="plan-libelle" matInput/>
+      </mat-form-field>
+      <div class="cpa-actions">
+        @if (editingNumero()) {
+          <button (click)="cancel()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        }
+        <button [disabled]="!canSave()" color="primary" data-testid="plan-save" mat-flat-button type="submit">
+          <mat-icon>{{ editingNumero() ? 'save' : 'add' }}</mat-icon>
+          {{ (editingNumero() ? 'COMMON.SAVE' : 'COMPTABILITE.PLAN.AJOUTER') | translate }}
+        </button>
+      </div>
+    </form>
+
+    <mat-form-field appearance="outline" class="cpa-recherche">
+      <mat-label>{{ 'COMPTABILITE.PLAN.RECHERCHE' | translate }}</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input (input)="onRecherche($any($event.target).value)" [value]="store.recherche()" data-testid="plan-recherche"
+             matInput/>
+    </mat-form-field>
+
+    <div class="cpa-table-wrap">
+      <table [dataSource]="store.rows()" class="cpa-table" data-testid="plan-comptes" mat-table>
+        <ng-container matColumnDef="numero">
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PLAN.NUMERO' | translate }}</th>
+          <td *matCellDef="let row" mat-cell><strong>{{ row.numero }}</strong></td>
+        </ng-container>
+        <ng-container matColumnDef="libelle">
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PLAN.LIBELLE' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>{{ row.libelle }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actif">
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_ACTIF' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            <mat-slide-toggle (change)="toggleActif(row, $event.checked)" [attr.aria-label]="'COMPTABILITE.PARAMETRAGE.JOURNAL_ACTIF' | translate"
+                              [checked]="row.actif"
+                              [disabled]="store.saving()"/>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef mat-header-cell></th>
+          <td *matCellDef="let row" class="cpa-row-actions" mat-cell>
+            <button (click)="edit(row)" [attr.aria-label]="'COMMON.EDIT' | translate"
+                    [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button type="button">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button (click)="remove(row)" [attr.aria-label]="'COMMON.DELETE' | translate" [disabled]="store.saving()"
+                    [matTooltip]="'COMMON.DELETE' | translate" color="warn" mat-icon-button type="button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="columns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: columns" [attr.data-compte]="row.numero" mat-row></tr>
+      </table>
+    </div>
+    <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                   [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
+  </mat-card-content>
+</mat-card>
+
+<!-- ─── Compte client de chaque payeur ───────────────────────────────── -->
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ 'COMPTABILITE.PAYEURS.TITRE' | translate }}</mat-card-title>
+    <mat-card-subtitle>{{ 'COMPTABILITE.PAYEURS.AIDE' | translate }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-form-field appearance="outline" class="cpa-recherche">
+      <mat-label>{{ 'COMPTABILITE.PAYEURS.RECHERCHE' | translate }}</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input (input)="onRecherchePayeurs($any($event.target).value)" [value]="store.payeursRecherche()"
+             data-testid="payeurs-recherche" matInput/>
+    </mat-form-field>
+
+    @if (store.payeursTotal() === 0 && !store.payeursRecherche()) {
+      <p class="cpa-muted">{{ 'COMPTABILITE.PAYEURS.AUCUN' | translate }}</p>
+    }
+    <div class="cpa-table-wrap">
+      <table [dataSource]="store.payeurs()" class="cpa-table" data-testid="payeurs" mat-table>
+        <ng-container matColumnDef="nom">
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PAYEURS.PAYEUR' | translate }}</th>
+          <td *matCellDef="let row" mat-cell>
+            <strong>{{ row.nom }}</strong>
+            @if (row.code) {
+              <small class="cpa-muted">{{ row.code }}</small>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="compte">
+          <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PAYEURS.COMPTE' | translate }}</th>
+          <td *matCellDef="let row" class="cpa-payeur-compte" mat-cell>
+            <app-compte-select (valueChange)="saisir(row, $event)"
+                               [aideVide]="'COMPTABILITE.PAYEURS.PAR_DEFAUT' | translate" [comptes]="store.actifs()"
+                               [facultatif]="true" [label]="'COMPTABILITE.PAYEURS.COMPTE' | translate"
+                               [testId]="'payeur-compte-' + row.payeurId" [value]="compteDe(row)"/>
+            <button (click)="enregistrerPayeur(row)" [attr.data-testid]="'payeur-save-' + row.payeurId"
+                    [disabled]="!peutEnregistrer(row)" color="primary" mat-stroked-button type="button">
+              <mat-icon>save</mat-icon>
+              {{ 'COMMON.SAVE' | translate }}
+            </button>
+          </td>
+        </ng-container>
+        <tr *matHeaderRowDef="payeurColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: payeurColumns" [attr.data-payeur]="row.payeurId" mat-row></tr>
+      </table>
+    </div>
+    <mat-paginator (page)="onPagePayeurs($event)" [length]="store.payeursTotal()"
+                   [pageIndex]="store.payeursPageIndex()" [pageSizeOptions]="[10, 20, 50, 100]"
+                   [pageSize]="store.payeursPageSize()"/>
+  </mat-card-content>
+</mat-card>

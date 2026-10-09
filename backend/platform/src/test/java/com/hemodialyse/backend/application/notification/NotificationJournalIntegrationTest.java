@@ -77,6 +77,18 @@ class NotificationJournalIntegrationTest {
     }
 
     @Test
+    void the_summary_of_the_night_is_kept_for_the_administrator_even_when_nothing_was_proposed() {
+        notifications.notifyReplanificationNocturne(CENTRE, "RIEN", 0, 0);
+
+        PagedResult<Alerte> admin = pour(CENTRE, "admin-1", "ADMIN");
+        assertEquals(1, admin.total(), "retrouvé à la connexion, personne n'étant connecté la nuit");
+        assertEquals("REPLANIFICATION_NOCTURNE", admin.items().get(0).type());
+        assertEquals("RIEN", admin.items().get(0).payload().get("issue"));
+        assertEquals(0, pour(CENTRE, "medecin-1", "MEDECIN").total());
+        assertEquals(0, pour(AUTRE_CENTRE, "admin-2", "ADMIN").total());
+    }
+
+    @Test
     void an_alert_is_only_visible_to_the_targeted_roles_of_its_own_center() {
         notifications.notifyOptimisationProposition(CENTRE, UUID.randomUUID(), "PATIENTS", "GAIN", 2);
 

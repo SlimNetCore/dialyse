@@ -5,9 +5,17 @@ import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {ComptabiliteApiService, JournalItem, MappingComptableItem} from '../../core/api/comptabilite-api.service';
+import {
+  ComptabiliteApiService,
+  CompteItem,
+  JournalItem,
+  MappingComptableItem,
+  PayeurCompteItem,
+} from '../../core/api/comptabilite-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {ComptabiliteParametrageComponent} from './comptabilite-parametrage.component';
+import {ModelesPieceComponent} from './modeles-piece.component';
+import {By} from '@angular/platform-browser';
 
 const CENTRE = '11111111-1111-1111-1111-111111111111';
 
@@ -21,9 +29,8 @@ const journaux: JournalItem[] = [
 ];
 
 const mapping: MappingComptableItem = {
-  centerId: CENTRE, compteVentes: '706', compteClientPatient: '411100', compteClientCnas: '411200',
-  compteClientCasnos: '411300', compteClientMutuelle: '411400', compteClientAutre: '411500', compteBanque: '512',
-  compteCaisse: '530', compteTVACollectee: '44571', compteStock: '322', compteConsommation: '602',
+  centerId: CENTRE, compteVentes: '706', compteClientPatient: '411100', compteClientDefaut: '411500',
+  compteBanque: '512', compteCaisse: '530', compteTVACollectee: '44571', compteStock: '322', compteConsommation: '602',
   compteFacturesNonParvenues: '408', compteBoniInventaire: '757', compteMaliInventaire: '657',
   journaux: {
     VENTE: 'VE', REGLEMENT_BANQUE: 'BQ', REGLEMENT_CAISSE: 'CA', STOCK_RECEPTION: 'AC', STOCK_SORTIE: 'ST',
@@ -31,11 +38,30 @@ const mapping: MappingComptableItem = {
   },
 };
 
+/** Plan comptable du centre : les comptes du paramétrage, et quelques comptes libres. */
+const plan: CompteItem[] = ['706', '411100', '411500', '512', '530', '44571', '322', '602', '408', '757', '657', '32',
+  '613', '401', '411210'].map((numero) => ({numero, libelle: `Compte ${numero}`, actif: true}));
+
+const payeurs: PayeurCompteItem[] = [
+  {payeurId: 'p1', code: 'CNAS-16', nom: 'CNAS Alger', compte: null},
+  {payeurId: 'p2', code: 'MUT-1', nom: 'Mutuelle X', compte: '411500'},
+];
+
 describe('ComptabiliteParametrageComponent', () => {
   let api: Record<string, ReturnType<typeof vi.fn>>;
 
   beforeEach(async () => {
     api = {
+      getComptes: vi.fn().mockImplementation((_centre: string, page: number, size: number) =>
+        of({items: plan.slice(0, size), total: plan.length, page, size})),
+      saveCompte: vi.fn().mockImplementation((_centre: string, c: CompteItem) => of(c)),
+      deleteCompte: vi.fn().mockReturnValue(of(undefined)),
+      getPayeurs: vi.fn().mockImplementation((_centre: string, page: number, size: number) =>
+        of({items: payeurs, total: payeurs.length, page, size})),
+      saveComptePayeur: vi.fn().mockReturnValue(of(payeurs[0])),
+      getModeles: vi.fn().mockImplementation((_centre: string, page: number, size: number) =>
+        of({items: [], total: 0, page, size})),
+      createModele: vi.fn().mockImplementation((_centre: string, m: unknown) => of({id: 'm1', ...(m as object)})),
       getMapping: vi.fn().mockReturnValue(of(mapping)),
       getJournaux: vi.fn().mockImplementation((_centre: string, page: number, size: number) =>
         of({items: journaux, total: journaux.length, page, size})),
@@ -119,16 +145,80 @@ describe('ComptabiliteParametrageComponent', () => {
     }));
   });
 
-  it('bloque l\'enregistrement tant qu\'un compte obligatoire est vide ou mal formé', async () => {
+  it('bloque l\'enregistrement tant qu\'un compte obligatoire est vide ou absent du plan comptable', async () => {
     const {fixture, root} = await render();
     type(root, 'cpa-compteConsommation', '');
     fixture.detectChanges();
     expect(bouton(root, 'cpa-comptes-save').disabled).toBe(true);
 
-    type(root, 'cpa-compteConsommation', '60/2');
+    type(root, 'cpa-compteConsommation', '6029');
     fixture.detectChanges();
     expect(bouton(root, 'cpa-comptes-save').disabled).toBe(true);
     expect(api['saveMapping']).not.toHaveBeenCalled();
+
+    // la TVA collectée, elle, peut rester vide
+    type(root, 'cpa-compteConsommation', '602');
+    type(root, 'cpa-compteTVACollectee', '');
+    fixture.detectChanges();
+    expect(bouton(root, 'cpa-comptes-save').disabled).toBe(false);
+  });
+
+  it('affiche le plan comptable paginé et y ajoute un compte', async () => {
+    const {fixture, root} = await render();
+
+    expect(api['getComptes']).toHaveBeenCalledWith(CENTRE, 0, 10, '');
+    expect(root.querySelectorAll('[data-testid="plan-comptes"] tr[data-compte]')).toHaveLength(10);
+    type(root, 'plan-numero', '41-12');
+    type(root, 'plan-libelle', 'Clients — entreprise Y');
+    fixture.detectChanges();
+    expect(bouton(root, 'plan-save').disabled).toBe(true);
+
+    type(root, 'plan-numero', ' 411220 ');
+    fixture.detectChanges();
+    bouton(root, 'plan-save').click();
+
+    expect(api['saveCompte']).toHaveBeenCalledWith(CENTRE,
+      {numero: '411220', libelle: 'Clients — entreprise Y', actif: true});
+  });
+
+  it('affecte à un payeur un compte du plan, et refuse un compte qui n\'y figure pas', async () => {
+    const {fixture, root} = await render();
+
+    expect(root.querySelectorAll('[data-testid="payeurs"] tr[data-payeur]')).toHaveLength(2);
+    expect(bouton(root, 'payeur-save-p1').disabled).toBe(true);
+    type(root, 'payeur-compte-p1', '411999');
+    fixture.detectChanges();
+    expect(bouton(root, 'payeur-save-p1').disabled).toBe(true);
+
+    type(root, 'payeur-compte-p1', '411210');
+    fixture.detectChanges();
+    bouton(root, 'payeur-save-p1').click();
+
+    expect(api['saveComptePayeur']).toHaveBeenCalledWith(CENTRE, 'p1', '411210');
+    // vider le compte d'un payeur lui rend le compte client par défaut
+    type(root, 'payeur-compte-p2', '');
+    fixture.detectChanges();
+    bouton(root, 'payeur-save-p2').click();
+    expect(api['saveComptePayeur']).toHaveBeenCalledWith(CENTRE, 'p2', '');
+  });
+
+  it('crée un modèle de pièce à partir d\'un journal et de comptes du plan', async () => {
+    const {fixture, root} = await render();
+    const component = fixture.debugElement.query(By.directive(ModelesPieceComponent)).componentInstance;
+    expect(bouton(root, 'modele-save').disabled).toBe(true);
+
+    type(root, 'modele-code', 'loyer');
+    type(root, 'modele-libelle', 'Loyer du centre');
+    component['patch']({journal: 'AC'});
+    type(root, 'modele-compte-0', '613');
+    type(root, 'modele-compte-1', '401');
+    fixture.detectChanges();
+    bouton(root, 'modele-save').click();
+
+    expect(api['createModele']).toHaveBeenCalledWith(CENTRE, {
+      code: 'LOYER', libelle: 'Loyer du centre', journal: 'AC', actif: true,
+      lignes: [{sens: 'DEBIT', compte: '613', libelle: null}, {sens: 'CREDIT', compte: '401', libelle: null}],
+    });
   });
 
   it('comptabilise le stock sur la période saisie et affiche le résultat', async () => {

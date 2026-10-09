@@ -22,8 +22,13 @@ test.describe('Paramétrage comptable', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByTestId('cpa-journaux')).toBeVisible();
-    await expect(page.locator('mat-paginator')).toBeVisible();
+    await expect(page.locator('mat-paginator').first()).toBeVisible();
     await expect(page.locator('tr[data-journal="VE"]')).toBeVisible();
+    // plan comptable, comptes des payeurs et modèles de pièces : chacun sa liste paginée
+    await expect(page.getByTestId('plan-comptes')).toBeVisible();
+    await expect(page.getByTestId('payeurs')).toBeVisible();
+    await expect(page.getByTestId('modele-save')).toBeVisible();
+    expect(await page.locator('mat-paginator').count()).toBeGreaterThanOrEqual(3);
     await expect(page.getByTestId('cpa-compteStock')).not.toHaveValue('');
     await expect(page.getByTestId('cpa-synchro')).toBeEnabled();
   });

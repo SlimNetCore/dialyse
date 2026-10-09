@@ -17,9 +17,8 @@ const journaux: JournalItem[] = [
 ];
 
 const mapping: MappingComptableItem = {
-  centerId: CENTRE, compteVentes: '706', compteClientPatient: '411100', compteClientCnas: '411200',
-  compteClientCasnos: '411300', compteClientMutuelle: '411400', compteClientAutre: '411500', compteBanque: '512',
-  compteCaisse: '530', compteTVACollectee: '44571', compteStock: '322', compteConsommation: '602',
+  centerId: CENTRE, compteVentes: '706', compteClientPatient: '411100', compteClientDefaut: '411500',
+  compteBanque: '512', compteCaisse: '530', compteTVACollectee: '44571', compteStock: '322', compteConsommation: '602',
   compteFacturesNonParvenues: '408', compteBoniInventaire: '757', compteMaliInventaire: '657',
   journaux: {
     VENTE: 'VE', REGLEMENT_BANQUE: 'BQ', REGLEMENT_CAISSE: 'CA', STOCK_RECEPTION: 'AC', STOCK_SORTIE: 'ST',

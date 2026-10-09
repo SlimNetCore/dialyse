@@ -105,10 +105,13 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   Lorsque la période d'un règlement est clôturée, le règlement reste enregistré mais **aucune écriture n'est générée**
   (avertissement journalisé).
 - **RG-CPT-006** — **Plan de comptes par centre** (`MappingComptable`), **entièrement paramétrable** depuis l'écran
-  « Paramétrage comptable » (`ADMIN`) : comptes ventes, clients (patient, CNAS, CASNOS,
-  mutuelle, autre), banque, caisse — tous obligatoires ; valeurs par défaut :
-  706, 411100, 411200, 411300, 411400, 411500, 512, 530, 44571 (TVA collectée, facultative) ; comptes du stock
-  (RG-CPT-011). Un compte comporte 1 à 20 lettres ou chiffres. Le paramétrage ne vaut que pour les écritures générées
+  « Paramétrage comptable » (`ADMIN`) : comptes ventes, client « patient qui paie lui-même », client « payeur sans
+  compte propre », banque, caisse — tous obligatoires ; valeurs par défaut :
+  706, 411100, 411500, 512, 530, 44571 (TVA collectée) ; comptes du stock (RG-CPT-011). Le compte client d'un payeur se
+  règle payeur par payeur (RG-CPT-019) : il n'existe plus de compte
+  figé par type de payeur (CNAS, CASNOS, mutuelle). Chaque compte se **choisit dans le plan comptable du centre**
+  (RG-CPT-018) ; un compte qui n'y figure pas, ou désactivé, est refusé (`COMPTE_INCONNU`). Le paramétrage ne vaut que
+  pour les écritures générées
   ensuite : les écritures déjà passées ne sont pas réimputées. **Règles de TVA comptables** versionnées dans le temps
   (type de prestation, taux ≥ 0, exonération, début de validité obligatoire). *Source :* `MappingComptable`,
   `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` → `ComptabiliteApiService` →
@@ -117,9 +120,11 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   réservée à `ADMIN` ; l'idempotence évite tout doublon. Consultation des écritures et des journaux :
   `ADMIN`, `SECRETAIRE` (paginée) ; validation, export, paramétrage (comptes, journaux), règles TVA, clôture,
   comptabilisation du stock : `ADMIN`.
-- **Point d'attention (RG-CPT-008)** — Les écritures sont aujourd'hui générées avec le type de tiers `AUTRE` : toutes
-  les créances sont imputées au compte client « autre » (411500) quel que soit le payeur ;
-  les comptes CNAS, CASNOS, mutuelle et patient du plan de comptes ne sont pas encore alimentés automatiquement.
+- **RG-CPT-008** — *(point d'attention levé)* Les créances ne sont plus toutes imputées au compte client « autre » :
+  chaque facture débite le compte de **son payeur** (RG-CPT-019), le compte par défaut si le payeur n'en a pas, et le
+  compte « patients » si la facture n'a pas de payeur. Le **règlement** crédite le compte que l'écriture de la facture
+  a débité, même si le compte du payeur a changé entre-temps (à défaut d'écriture de facture, le compte actuel du
+  payeur).
 - **RG-CPT-009** — **Journaux paramétrables par centre** : chaque centre définit librement ses journaux (code de 1 à 10
   lettres majuscules ou chiffres, libellé de 100 caractères au plus, actif ou non). Tant qu'il n'a rien paramétré, il
   dispose des journaux par défaut `VE` Ventes, `BQ` Banque, `CA` Caisse, `AC` Achats, `ST` Stocks ; ils sont
@@ -164,5 +169,51 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   un autre centre est refusé (403). *Source :* `ComptabiliteRestController`, `CenterAccessGuard`.
 - **Point d'attention (RG-CPT-017)** — Le stock n'est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
   demande) : une sortie du jour n'apparaît en comptabilité qu'après le traitement suivant. La TVA déductible sur achats
-  et la dette fournisseur (401) ne sont pas gérées : le compte des factures non parvenues se solde hors application, à
-  la comptabilisation de la facture du fournisseur.
+  et la dette fournisseur (401) ne sont pas gérées automatiquement : le compte des factures non parvenues se solde par
+  une pièce saisie (RG-CPT-021), à la comptabilisation de la facture du fournisseur.
+- **RG-CPT-018** — **Plan comptable par centre** : chaque centre tient la liste de ses comptes (numéro de 1 à 20
+  lettres ou chiffres, libellé de 150 caractères au plus, actif ou non), paginée et recherchable par numéro ou
+  libellé. Tant qu'il n'a rien paramétré, il dispose d'un **plan SCF de départ** (stock, fournisseurs, clients,
+  personnel, TVA, trésorerie, charges, produits), complété des comptes que son paramétrage utilise déjà ; ce plan est
+  enregistré comme le sien à sa première modification. Partout où un compte est demandé (paramétrage, payeur, modèle
+  de pièce), il **se choisit dans ce plan**. Un compte **utilisé** par le paramétrage, un payeur ou un modèle de pièce
+  ne peut être ni désactivé ni supprimé (`COMPTE_UTILISE`) ; un compte **qui porte des écritures** se désactive mais ne
+  se supprime pas (`COMPTE_AVEC_ECRITURES`) ; supprimer un compte inconnu est refusé (`COMPTE_INTROUVABLE`). Ajouter
+  un compte ne demande aucun développement. *Source :* `PlanComptableService`, `PlanComptableComponent` →
+  `PlanComptableStore` → `ComptabiliteApiService` → `ComptabiliteParametrageRestController` (`/comptes`) →
+  `PlanComptableUseCase` → `CompteRepositoryPort`.
+- **RG-CPT-019** — **Compte client de chaque payeur** : chaque payeur du référentiel (caisse, mutuelle, entreprise…)
+  peut porter son propre compte client, choisi dans le plan comptable (`COMPTE_INCONNU` sinon) ; ses factures y sont
+  débitées. Un payeur sans compte propre utilise le compte client par défaut du centre ; vider le compte d'un payeur
+  l'y ramène. Un payeur d'un autre centre est introuvable (`PAYEUR_INTROUVABLE`). **Un nouveau client ne demande aucun
+  développement** : on crée le payeur dans les référentiels, on ajoute son compte au plan, on le lui affecte. La liste
+  des payeurs est paginée et recherchable. *Source :* `ComptesPayeursService`, `PlanComptableComponent` →
+  `PlanComptableStore` → `ComptabiliteApiService` → `ComptabiliteParametrageRestController` (`/payeurs`) →
+  `ComptesPayeursUseCase` → `PayeursPort`, `ComptePayeurRepositoryPort`.
+- **RG-CPT-020** — **Modèles de pièces** : un centre définit ses propres types de pièces (loyer, salaires, facture
+  fournisseur, opération diverse…). Un modèle porte un code unique dans le centre (1 à 20 lettres majuscules,
+  chiffres, tirets ; `MODELE_CODE_EXISTANT`), un libellé, un **journal actif** (`JOURNAL_INCONNU` sinon) et de 2 à 20
+  **lignes** — un sens (débit ou crédit), un compte du plan et un libellé facultatif chacune — dont au moins une au
+  débit et une au crédit (`MODELE_LIGNES_INVALIDES`). Un modèle désactivé ne sert plus à saisir (`MODELE_INACTIF`) ;
+  le supprimer conserve les pièces déjà saisies ; un modèle inconnu est refusé (`MODELE_INTROUVABLE`). Le journal d'un
+  modèle ne peut être ni désactivé ni supprimé (`JOURNAL_UTILISE`). **Un nouveau type de pièce ne demande aucun
+  développement.** Liste paginée ; gestion réservée à `ADMIN`. *Source :* `ModelePiece`, `PiecesComptablesService`,
+  `ModelesPieceComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` →
+  `ComptabiliteParametrageRestController` (`/modeles`) → `PiecesComptablesUseCase` → `ModelePieceRepositoryPort`.
+- **RG-CPT-021** — **Saisie d'une pièce** (`ADMIN`, `SECRETAIRE`) : on choisit un modèle actif, une date, un libellé (à
+  défaut celui du modèle) et **un montant par ligne** ; une ligne à zéro n'est pas écrite. La pièce devient une
+  écriture **validée** dans le journal du modèle, numérotée comme les autres (RG-CPT-010). Elle est refusée si un
+  montant est négatif, s'il n'y a pas un montant par ligne ou s'il reste moins de deux lignes
+  (`PIECE_MONTANTS_INVALIDES`), si elle n'est pas équilibrée (`ECRITURE_DESEQUILIBREE`), si sa période est clôturée
+  (`PERIODE_CLOTUREE`) ou si un de ses comptes a quitté le plan (`COMPTE_INCONNU`). *Source :*
+  `PiecesComptablesService.saisir`, `SaisiePieceComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` →
+  `ComptabiliteParametrageRestController` (`/pieces`) → `PiecesComptablesUseCase` → `EcritureComptableRepositoryPort`.
+- **RG-CPT-022** — **Extourne d'une pièce saisie** (`ADMIN`) : une écriture ne se supprime jamais ; une pièce saisie
+  par erreur s'annule par une **écriture inverse** (débits et crédits échangés), datée du jour, dans le même journal,
+  libellée « Extourne <n° de pièce> ». Une pièce ne s'extourne **qu'une fois** et une extourne ne s'extourne pas
+  (`PIECE_DEJA_EXTOURNEE`) ; une écriture générée par le système (vente, règlement, stock) ne s'extourne pas à la
+  main (`PIECE_NON_SAISIE`) ; la période du jour doit être ouverte (`PERIODE_CLOTUREE`). *Source :*
+  `PiecesComptablesService.extourner`, `ComptabiliteDashboardComponent` → `PiecesComptablesStore` →
+  `ComptabiliteApiService` → `ComptabiliteParametrageRestController` (`/pieces/{id}/extourne`).
+- **Point d'attention (RG-CPT-023)** — Les comptes propres à un article (RG-STK-008) se saisissent encore librement
+  sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.

@@ -21,7 +21,7 @@
   temps réel, **enregistrées** dans le journal du centre (`INFIRMIER_SOUS_EFFECTIF`, `INFIRMIER_ABSENCE_DECLAREE`,
   `INFIRMIER_ABSENCE_ENREGISTREE`, `OPTIMISATION_PROPOSITION`, `ABSENCES_A_QUALIFIER`, `SEANCES_A_REGULARISER`,
   `PATIENT_REPLACE_ISOLEMENT`, `ISOLEMENT_IMPOSSIBLE`, `GENERATEUR_INDISPONIBLE`, `SEANCES_DEPLACEES`,
-  `INFIRMIER_SUREFFECTIF`, `OBSERVANCE_NON_RESPECTEE`) ; les autres
+  `INFIRMIER_SUREFFECTIF`, `OBSERVANCE_NON_RESPECTEE`, `REPLANIFICATION_NOCTURNE`) ; les autres
   évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50 alertes
   récentes (30 derniers jours) **destinées à ses rôles** dans **son centre** (`GET /api/v1/notifications`, paginé) : une
   proposition calculée à 02:30 est donc retrouvée même si personne n'était connecté. La **lecture est propre à chaque
@@ -111,6 +111,7 @@
 | `GENERATEUR_INDISPONIBLE`                    | un générateur en service passe en maintenance, attente de pièce, panne ou réforme                          | `ADMIN`, `SECRETAIRE`                               | RG-NOT-006             |
 | `SEANCES_DEPLACEES`                          | une proposition d'optimisation appliquée déplace des patients ou des séances                               | `MEDECIN`, `SECRETAIRE`                             | RG-NOT-006             |
 | `OPTIMISATION_PROPOSITION`                   | proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)                        | `ADMIN`                                             | RG-PLN-100             |
+| `REPLANIFICATION_NOCTURNE`                   | bilan de chaque replanification nocturne : propositions à examiner, rien à proposer, échec ou report       | `ADMIN`                                             | RG-PLN-100             |
 | `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                                                           | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-INF-032             |
 | `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                                                               | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
 | `ISOLEMENT_IMPOSSIBLE`                       | patient à risque sans place d'isolement                                                                    | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |

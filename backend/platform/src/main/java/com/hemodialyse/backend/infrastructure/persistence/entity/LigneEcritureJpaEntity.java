@@ -6,7 +6,9 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "lignes_ecriture", indexes = @Index(name = "idx_lignes_ecriture_ecriture", columnList = "ecriture_id"))
+@Table(name = "lignes_ecriture", indexes = {
+        @Index(name = "idx_lignes_ecriture_ecriture", columnList = "ecriture_id"),
+        @Index(name = "idx_lignes_ecriture_compte", columnList = "compte_scf")})
 public class LigneEcritureJpaEntity {
 
     @Id

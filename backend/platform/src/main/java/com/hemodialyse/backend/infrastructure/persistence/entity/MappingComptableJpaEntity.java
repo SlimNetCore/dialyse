@@ -23,17 +23,12 @@ public class MappingComptableJpaEntity {
     @Column(name = "compte_client_patient", length = 20, nullable = false)
     private String compteClientPatient;
 
-    @Column(name = "compte_client_cnas", length = 20, nullable = false)
-    private String compteClientCnas;
-
-    @Column(name = "compte_client_casnos", length = 20, nullable = false)
-    private String compteClientCasnos;
-
-    @Column(name = "compte_client_mutuelle", length = 20, nullable = false)
-    private String compteClientMutuelle;
-
+    /**
+     * Compte client des payeurs sans compte propre (colonne historique « client autre » : les comptes par type de
+     * payeur ont laissé place au compte porté par chaque payeur).
+     */
     @Column(name = "compte_client_autre", length = 20, nullable = false)
-    private String compteClientAutre;
+    private String compteClientDefaut;
 
     @Column(name = "compte_banque", length = 20, nullable = false)
     private String compteBanque;
@@ -127,36 +122,12 @@ public class MappingComptableJpaEntity {
         this.compteClientPatient = v;
     }
 
-    public String getCompteClientCnas() {
-        return compteClientCnas;
+    public String getCompteClientDefaut() {
+        return compteClientDefaut;
     }
 
-    public void setCompteClientCnas(String v) {
-        this.compteClientCnas = v;
-    }
-
-    public String getCompteClientCasnos() {
-        return compteClientCasnos;
-    }
-
-    public void setCompteClientCasnos(String v) {
-        this.compteClientCasnos = v;
-    }
-
-    public String getCompteClientMutuelle() {
-        return compteClientMutuelle;
-    }
-
-    public void setCompteClientMutuelle(String v) {
-        this.compteClientMutuelle = v;
-    }
-
-    public String getCompteClientAutre() {
-        return compteClientAutre;
-    }
-
-    public void setCompteClientAutre(String v) {
-        this.compteClientAutre = v;
+    public void setCompteClientDefaut(String v) {
+        this.compteClientDefaut = v;
     }
 
     public String getCompteBanque() {

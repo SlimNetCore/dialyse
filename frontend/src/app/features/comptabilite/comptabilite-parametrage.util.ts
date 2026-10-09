@@ -1,4 +1,5 @@
 import {
+  CompteItem,
   JournalItem,
   MappingComptableItem,
   OperationComptable,
@@ -6,10 +7,12 @@ import {
 } from '../../core/api/comptabilite-api.service';
 import {toLocalIsoDate} from '../../shared/date.util';
 
-/** Comptes saisis sur l'écran, dans l'ordre d'affichage. `obligatoire` : le compte ne peut pas rester vide. */
+/**
+ * Comptes choisis sur l'écran, dans l'ordre d'affichage. Le compte client d'un payeur se règle payeur par payeur ;
+ * ici ne figurent que le compte des patients qui paient eux-mêmes et le compte par défaut des autres payeurs.
+ */
 export const COMPTES_GENERAUX = [
-  'compteVentes', 'compteClientPatient', 'compteClientCnas', 'compteClientCasnos', 'compteClientMutuelle',
-  'compteClientAutre', 'compteBanque', 'compteCaisse', 'compteTVACollectee',
+  'compteVentes', 'compteClientPatient', 'compteClientDefaut', 'compteBanque', 'compteCaisse', 'compteTVACollectee',
 ] as const;
 export const COMPTES_STOCK = [
   'compteStock', 'compteConsommation', 'compteFacturesNonParvenues', 'compteBoniInventaire', 'compteMaliInventaire',
@@ -22,7 +25,6 @@ export type CompteCle = typeof COMPTES_GENERAUX[number] | typeof COMPTES_STOCK[n
 export type ComptesModel = Record<CompteCle, string>;
 export type JournauxParOperation = Record<OperationComptable, string>;
 
-const COMPTE = /^[0-9A-Za-z]{1,20}$/;
 export const CODE_JOURNAL_MAX = 10;
 export const LIBELLE_JOURNAL_MAX = 100;
 const CODE_JOURNAL = new RegExp(`^[A-Z0-9]{1,${CODE_JOURNAL_MAX}}$`);
@@ -36,11 +38,12 @@ export function comptesDe(mapping: MappingComptableItem): ComptesModel {
     [...COMPTES_GENERAUX, ...COMPTES_STOCK].map((c) => [c, mapping[c] ?? ''])) as ComptesModel;
 }
 
-/** Comptes mal saisis : obligatoire laissé vide, ou autre chose que 1 à 20 lettres ou chiffres. */
-export function comptesInvalides(comptes: ComptesModel): CompteCle[] {
+/** Comptes mal choisis : obligatoire laissé vide, ou numéro absent des comptes actifs du plan du centre. */
+export function comptesInvalides(comptes: ComptesModel, plan: readonly CompteItem[]): CompteCle[] {
+  const numeros = new Set(plan.map((c) => c.numero));
   return (Object.keys(comptes) as CompteCle[]).filter((cle) => {
     const valeur = comptes[cle].trim();
-    return valeur ? !COMPTE.test(valeur) : COMPTES_OBLIGATOIRES.includes(cle);
+    return valeur ? !numeros.has(valeur) : COMPTES_OBLIGATOIRES.includes(cle);
   });
 }
 

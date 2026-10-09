@@ -36,6 +36,11 @@ public class EcritureComptable {
      * Identifiant de l'opération source — garantit l'idempotence.
      */
     private final UUID sourceId;
+    /**
+     * Modèle de pièce dont l'écriture est issue ; {@code null} pour une écriture générée par le système (vente,
+     * règlement, stock). Seule une pièce saisie peut être extournée à la main.
+     */
+    private final UUID modeleId;
     private StatutEcriture statut;
 
     public EcritureComptable(UUID id, UUID centerId, JournalCode journalCode,
@@ -43,6 +48,15 @@ public class EcritureComptable {
                              String numeroPiece, String libelle,
                              List<LigneEcriture> lignes, StatutEcriture statut,
                              UUID sourceId) {
+        this(id, centerId, journalCode, dateEcriture, datePiece, numeroPiece, libelle, lignes, statut, sourceId, null);
+    }
+
+    public EcritureComptable(UUID id, UUID centerId, JournalCode journalCode,
+                             LocalDate dateEcriture, LocalDate datePiece,
+                             String numeroPiece, String libelle,
+                             List<LigneEcriture> lignes, StatutEcriture statut,
+                             UUID sourceId, UUID modeleId) {
+        this.modeleId = modeleId;
         if (id == null || centerId == null) {
             throw new IllegalArgumentException("L'identifiant et le centerId sont obligatoires");
         }
@@ -143,6 +157,17 @@ public class EcritureComptable {
 
     public UUID getSourceId() {
         return sourceId;
+    }
+
+    public UUID getModeleId() {
+        return modeleId;
+    }
+
+    /**
+     * Vrai pour une pièce saisie à partir d'un modèle (par opposition à une écriture générée par le système).
+     */
+    public boolean estSaisie() {
+        return modeleId != null;
     }
 }
 

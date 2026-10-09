@@ -19,10 +19,15 @@ import {JournalItem, OperationComptable, OPERATIONS_COMPTABLES} from '../../core
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ComptabiliteParametrageStore} from './state/comptabilite-parametrage.store';
+import {PlanComptableStore} from './state/plan-comptable.store';
+import {CompteSelectComponent} from './compte-select.component';
+import {ModelesPieceComponent} from './modeles-piece.component';
+import {PlanComptableComponent} from './plan-comptable.component';
 import {
   CODE_JOURNAL_MAX,
   CompteCle,
   COMPTES_GENERAUX,
+  COMPTES_OBLIGATOIRES,
   COMPTES_STOCK,
   comptesDe,
   comptesInvalides,
@@ -52,13 +57,15 @@ function journalVide() {
   imports: [
     RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule,
     MatTableModule, MatPaginatorModule, MatProgressBarModule, MatSlideToggleModule, MatTooltipModule,
-    FormRoot, FormField, TranslateModule,
+    FormRoot, FormField, TranslateModule, CompteSelectComponent, PlanComptableComponent, ModelesPieceComponent,
   ],
   templateUrl: './comptabilite-parametrage.component.html',
   styleUrl: './comptabilite-parametrage.component.css',
 })
 export class ComptabiliteParametrageComponent {
   protected readonly store = inject(ComptabiliteParametrageStore);
+  /** Plan comptable du centre : tout compte se choisit dans cette liste. */
+  protected readonly plan = inject(PlanComptableStore);
   protected readonly columns = ['code', 'libelle', 'actif', 'actions'];
   protected readonly operations = OPERATIONS_COMPTABLES;
   protected readonly comptesGeneraux = COMPTES_GENERAUX;
@@ -83,7 +90,7 @@ export class ComptabiliteParametrageComponent {
   protected readonly comptesModel = signal(comptesVides());
   protected readonly comptesForm = compatForm(this.comptesModel);
   protected readonly choix = signal<JournauxParOperation | null>(null);
-  protected readonly comptesEnErreur = computed(() => comptesInvalides(this.comptesModel()));
+  protected readonly comptesEnErreur = computed(() => comptesInvalides(this.comptesModel(), this.plan.actifs()));
   protected readonly operationsEnErreur = computed(() => {
     const choix = this.choix();
     return choix ? operationsSansJournal(choix, this.store.journauxActifs()) : [];
@@ -112,6 +119,7 @@ export class ComptabiliteParametrageComponent {
       untracked(() => {
         this.cancelJournal();
         this.store.load();
+        this.plan.load();
       });
     });
     effect(() => {
@@ -125,8 +133,12 @@ export class ComptabiliteParametrageComponent {
     });
   }
 
-  protected enErreur(compte: CompteCle): boolean {
-    return this.comptesEnErreur().includes(compte);
+  protected compteFacultatif(compte: CompteCle): boolean {
+    return !COMPTES_OBLIGATOIRES.includes(compte);
+  }
+
+  protected setCompte(compte: CompteCle, numero: string): void {
+    this.comptesModel.update((m) => ({...m, [compte]: numero}));
   }
 
   protected operationEnErreur(operation: OperationComptable): boolean {

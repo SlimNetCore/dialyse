@@ -4,7 +4,11 @@ import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
 import com.hemodialyse.backend.domain.comptabilite.entity.LigneEcriture;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.GenererEcritureFacturationCommand;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.GenererEcritureReglementCommand;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.*;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.AxeAnalytique;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.MappingComptable;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.OperationComptable;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.StatutEcriture;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,30 +17,25 @@ import java.util.UUID;
 
 /**
  * Service de génération pur — sans I/O, sans Spring, sans JPA.
- * Reçoit le mapping et la règle TVA résolus par les ports (aucune résolution ici).
+ * Reçoit le mapping et le compte client résolus par l'appelant (aucune résolution ici) : le compte client est celui
+ * du payeur de la facture, paramétré payeur par payeur.
  */
 public class GenerateurEcritureComptable {
 
     /**
-     * Génère l'écriture journal ventes pour une facture émise.
+     * Génère l'écriture du journal des ventes pour une facture émise.
      * <p>
-     * Structure : débit 411xxx (tiers payeur) / crédit 706 (produit prestation).
+     * Structure : débit compte client du payeur / crédit 706 (produit prestation).
      * Si TVA active : crédit 44571 en plus du crédit 706.
      */
     public EcritureComptable genererEcritureFacturation(
             GenererEcritureFacturationCommand cmd,
             MappingComptable mapping,
-            String numeroPiece,
-            RegleTVA regleTVA) {
-
-        TypeTiersPayeur typeTiers = resoudreTypeTiers(cmd.typeTiersPayeur());
-        String compteClient = mapping.compteClient(typeTiers);
+            String compteClient,
+            String numeroPiece) {
 
         List<LigneEcriture> lignes = new ArrayList<>();
-        List<AxeAnalytique> axes = List.of(
-                AxeAnalytique.centre(cmd.centerId().toString()),
-                AxeAnalytique.typeTiers(typeTiers)
-        );
+        List<AxeAnalytique> axes = List.of(AxeAnalytique.centre(cmd.centerId().toString()));
 
         // Débit tiers payeur (créance)
         lignes.add(LigneEcriture.debit(
@@ -66,8 +65,7 @@ public class GenerateurEcritureComptable {
         ));
 
         // Crédit TVA collectée si la facture porte une TVA > 0.
-        // On se base sur le snapshot de la facture (totalTva) pour préserver l'historique,
-        // même si aucune règle TVA active n'est configurée au moment du rejeu.
+        // On se base sur le snapshot de la facture (totalTva) pour préserver l'historique.
         if (montantTva.compareTo(BigDecimal.ZERO) > 0) {
             lignes.add(LigneEcriture.credit(
                     mapping.compteTVACollectee(),
@@ -93,26 +91,22 @@ public class GenerateurEcritureComptable {
     }
 
     /**
-     * Génère l'écriture journal banque/caisse pour un règlement encaissé.
+     * Génère l'écriture du journal de banque ou de caisse pour un règlement encaissé.
      * <p>
-     * Structure : débit 512/530 (trésorerie) / crédit 411xxx (apurement créance).
+     * Structure : débit 512/530 (trésorerie) / crédit compte client (apurement de la créance).
      */
     public EcritureComptable genererEcritureReglement(
             GenererEcritureReglementCommand cmd,
             MappingComptable mapping,
+            String compteClient,
             String numeroPiece) {
 
-        TypeTiersPayeur typeTiers = resoudreTypeTiers(cmd.typeTiersPayeur());
-        String compteClient = mapping.compteClient(typeTiers);
         boolean caisse = "CAISSE".equalsIgnoreCase(cmd.modeReglement());
         JournalCode journal = mapping.journalDe(
                 caisse ? OperationComptable.REGLEMENT_CAISSE : OperationComptable.REGLEMENT_BANQUE);
         String compteTreso = caisse ? mapping.compteCaisse() : mapping.compteBanque();
 
-        List<AxeAnalytique> axes = List.of(
-                AxeAnalytique.centre(cmd.centerId().toString()),
-                AxeAnalytique.typeTiers(typeTiers)
-        );
+        List<AxeAnalytique> axes = List.of(AxeAnalytique.centre(cmd.centerId().toString()));
 
         List<LigneEcriture> lignes = List.of(
                 // Débit trésorerie
@@ -146,18 +140,4 @@ public class GenerateurEcritureComptable {
                 cmd.paiementId()
         );
     }
-
-    // ─── Utilitaire ─────────────────────────────────────────────────────────
-
-    private TypeTiersPayeur resoudreTypeTiers(String typeTiersStr) {
-        if (typeTiersStr == null) return TypeTiersPayeur.AUTRE;
-        try {
-            return TypeTiersPayeur.valueOf(typeTiersStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return TypeTiersPayeur.AUTRE;
-        }
-    }
 }
-
-
-

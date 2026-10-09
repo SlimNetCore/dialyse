@@ -41,6 +41,8 @@ type Profil = 'GESTION' | 'MEDECIN' | 'INFIRMIER';
 const ISO = /^(\d{4})-(\d{2})-(\d{2})/;
 /** États d'un inventaire qui ont leur propre message. */
 const STATUTS_INVENTAIRE = ['EN_COURS', 'CLOTURE', 'ANNULE'];
+/** Issues du bilan de la replanification nocturne. */
+const ISSUES_REPLANIFICATION = ['PROPOSITIONS', 'RIEN', 'ECHEC', 'REPORTEE'];
 
 /** Date ISO (`2026-10-19`) affichée comme on la lit (`19/10/2026`) ; toute autre valeur est rendue telle quelle. */
 export function dateLisible(valeur: string | undefined | null): string {
@@ -220,6 +222,18 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
       const cible = optimisation(profil, p['runId'] ? 'PROPOSITION' : 'OPTIMISATION', p['runId'] ? {run: p['runId']} : {});
       const fiche = {message: `NOTIFICATION.OPTIMISATION_PROPOSITION.${motif}`, parametres: {n: p['valeur'] ?? ''}};
       return motif === 'GAIN' ? succes('auto_fix_high', cible, fiche) : alerte('auto_fix_high', cible, fiche);
+    }
+
+    case 'REPLANIFICATION_NOCTURNE': {
+      // bilan envoyé chaque nuit, même sans proposition : l'administrateur sait que la replanification a tourné
+      const issue = ISSUES_REPLANIFICATION.includes(p['issue'] ?? '') ? p['issue'] : 'RIEN';
+      const cible = optimisation(profil, 'OPTIMISATION', {});
+      const fiche = {
+        message: `NOTIFICATION.REPLANIFICATION_NOCTURNE.${issue}`,
+        parametres: {n: p['propositions'] ?? '0', echecs: p['echecs'] ?? '0'},
+      };
+      if (issue === 'RIEN') return succes('nights_stay', cible, fiche);
+      return issue === 'REPORTEE' ? info('nights_stay', cible, fiche) : alerte('nights_stay', cible, fiche);
     }
 
     case 'GENERATEUR_INDISPONIBLE':

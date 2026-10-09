@@ -100,6 +100,9 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- ─── Plan comptable et compte client de chaque payeur ─────────────── -->
+  <app-plan-comptable class="cpa-stack"/>
+
   <!-- ─── Journal de chaque opération et comptes ───────────────────────── -->
   <form (submit)="saveComptes(); $event.preventDefault()" [formRoot]="comptesForm" class="cpa-stack">
     <mat-card>
@@ -136,13 +139,10 @@
       <mat-card-content>
         <div class="cpa-grid">
           @for (compte of comptesGeneraux; track compte) {
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.COMPTE.' + compte | translate }}</mat-label>
-              <input [attr.data-testid]="'cpa-' + compte" [formField]="comptesForm[compte]" matInput/>
-              @if (enErreur(compte)) {
-                <mat-hint class="cpa-hint-error">{{ 'COMPTABILITE.PARAMETRAGE.COMPTE_INVALIDE' | translate }}</mat-hint>
-              }
-            </mat-form-field>
+            <app-compte-select (valueChange)="setCompte(compte, $event)" [comptes]="plan.actifs()"
+                               [facultatif]="compteFacultatif(compte)"
+                               [label]="'COMPTABILITE.PARAMETRAGE.COMPTE.' + compte | translate"
+                               [testId]="'cpa-' + compte" [value]="comptesModel()[compte]"/>
           }
         </div>
       </mat-card-content>
@@ -156,13 +156,9 @@
       <mat-card-content>
         <div class="cpa-grid">
           @for (compte of comptesStock; track compte) {
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.COMPTE.' + compte | translate }}</mat-label>
-              <input [attr.data-testid]="'cpa-' + compte" [formField]="comptesForm[compte]" matInput/>
-              @if (enErreur(compte)) {
-                <mat-hint class="cpa-hint-error">{{ 'COMPTABILITE.PARAMETRAGE.COMPTE_INVALIDE' | translate }}</mat-hint>
-              }
-            </mat-form-field>
+            <app-compte-select (valueChange)="setCompte(compte, $event)" [comptes]="plan.actifs()"
+                               [label]="'COMPTABILITE.PARAMETRAGE.COMPTE.' + compte | translate"
+                               [testId]="'cpa-' + compte" [value]="comptesModel()[compte]"/>
           }
         </div>
         <div class="cpa-actions">
@@ -175,6 +171,9 @@
       </mat-card-content>
     </mat-card>
   </form>
+
+  <!-- ─── Modèles de pièces ────────────────────────────────────────────── -->
+  <app-modeles-piece [comptes]="plan.actifs()" [journaux]="store.journauxActifs()" class="cpa-stack"/>
 
   <!-- ─── Comptabilisation du stock ────────────────────────────────────── -->
   <mat-card>

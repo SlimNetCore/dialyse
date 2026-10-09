@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.domain.comptabilite.service;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
+import com.hemodialyse.backend.domain.comptabilite.entity.LigneEcriture;
 import com.hemodialyse.backend.domain.comptabilite.port.*;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.*;
 import com.hemodialyse.backend.domain.shared.PagedResult;
@@ -8,6 +9,7 @@ import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -22,6 +24,8 @@ public class ComptabiliteService implements ComptabiliteUseCase {
     private final PeriodeComptableRepositoryPort periodePort;
     private final ExportComptablePort exportPort;
     private final JournalRepositoryPort journalPort;
+    private final ComptePayeurRepositoryPort comptesPayeurs;
+    private final PlanComptableUseCase plan;
     private final GenerateurEcritureComptable generateur;
 
     public ComptabiliteService(EcritureComptableRepositoryPort ecritureRepository,
@@ -29,14 +33,27 @@ public class ComptabiliteService implements ComptabiliteUseCase {
                                ParametrageFiscalPort fiscalPort,
                                PeriodeComptableRepositoryPort periodePort,
                                ExportComptablePort exportPort,
-                               JournalRepositoryPort journalPort) {
+                               JournalRepositoryPort journalPort,
+                               ComptePayeurRepositoryPort comptesPayeurs,
+                               PlanComptableUseCase plan) {
         this.ecritureRepository = ecritureRepository;
         this.mappingPort = mappingPort;
         this.fiscalPort = fiscalPort;
         this.periodePort = periodePort;
         this.exportPort = exportPort;
         this.journalPort = journalPort;
+        this.comptesPayeurs = comptesPayeurs;
+        this.plan = plan;
         this.generateur = new GenerateurEcritureComptable();
+    }
+
+    /**
+     * Compte client d'une facture : celui de son payeur s'il en a un, sinon le compte client par défaut du centre ;
+     * une facture sans payeur (patient qui paie lui-même) relève du compte client des patients.
+     */
+    private String compteClient(UUID centerId, UUID payeurId, MappingComptable mapping) {
+        if (payeurId == null) return mapping.compteClientPatient();
+        return comptesPayeurs.find(centerId, payeurId).orElse(mapping.compteClientDefaut());
     }
 
     @Override
@@ -53,11 +70,11 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         }
 
         MappingComptable mapping = mappingPort.findByCenterId(cmd.centerId());
-        var regleTVA = fiscalPort.findActiveAt(cmd.centerId(), "HEMODIALYSE", cmd.dateFacture()).orElse(null);
         String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(),
                 mapping.journalDe(OperationComptable.VENTE), cmd.dateFacture().getYear());
 
-        EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping, numeroPiece, regleTVA);
+        EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping,
+                compteClient(cmd.centerId(), cmd.tiersPayeurId(), mapping), numeroPiece);
         ecritureRepository.save(ecriture);
         return ecriture;
     }
@@ -79,7 +96,14 @@ public class ComptabiliteService implements ComptabiliteUseCase {
                 ? OperationComptable.REGLEMENT_CAISSE : OperationComptable.REGLEMENT_BANQUE);
         String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(), journalCible, cmd.dateReglement().getYear());
 
-        EcritureComptable ecriture = generateur.genererEcritureReglement(cmd, mapping, numeroPiece);
+        // le règlement solde le compte que la facture a débité, même si le paramétrage a changé entre-temps
+        String compteClient = (cmd.factureId() == null ? Optional.<EcritureComptable>empty()
+                : ecritureRepository.findBySourceId(cmd.factureId(), cmd.centerId()))
+                .flatMap(facture -> facture.getLignes().stream()
+                        .filter(l -> l.getMontantDebit().signum() > 0).map(LigneEcriture::getCompteSCF).findFirst())
+                .orElseGet(() -> compteClient(cmd.centerId(), cmd.tiersPayeurId(), mapping));
+
+        EcritureComptable ecriture = generateur.genererEcritureReglement(cmd, mapping, compteClient, numeroPiece);
         ecritureRepository.save(ecriture);
         return ecriture;
     }
@@ -141,6 +165,8 @@ public class ComptabiliteService implements ComptabiliteUseCase {
                         "Le journal " + code + " choisi pour " + operation + " n'existe pas ou est désactivé");
             }
         });
+        // et sur des comptes du plan comptable du centre
+        plan.exigerActifs(mapping.centerId(), mapping.comptes());
         mappingPort.save(mapping);
         return mapping;
     }

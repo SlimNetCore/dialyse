@@ -26,7 +26,7 @@ public class NotificationService {
             "INFIRMIER_SOUS_EFFECTIF", "INFIRMIER_ABSENCE_DECLAREE", "OPTIMISATION_PROPOSITION",
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
-            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE");
+            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -276,6 +276,24 @@ public class NotificationService {
         payload.put("valeur", String.valueOf(valeur));
         payload.put("targetRoles", "ADMIN");
         send(centerId, "OPTIMISATION_PROPOSITION", payload);
+    }
+
+    /**
+     * Bilan de la replanification automatique nocturne d'un centre, envoyé <b>à chaque exécution</b> : l'administrateur
+     * sait qu'elle a tourné, même quand elle n'a rien à proposer.
+     *
+     * @param issue        {@code PROPOSITIONS} (à examiner), {@code RIEN} (rien à changer), {@code ECHEC} (au moins un
+     *                     calcul n'a pas abouti) ou {@code REPORTEE} (un calcul était déjà en cours dans le centre)
+     * @param propositions propositions à examiner
+     * @param echecs       calculs qui n'ont pas abouti
+     */
+    public void notifyReplanificationNocturne(UUID centerId, String issue, int propositions, int echecs) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("issue", issue);
+        payload.put("propositions", String.valueOf(propositions));
+        payload.put("echecs", String.valueOf(echecs));
+        payload.put("targetRoles", "ADMIN");
+        send(centerId, "REPLANIFICATION_NOCTURNE", payload);
     }
 
     /**

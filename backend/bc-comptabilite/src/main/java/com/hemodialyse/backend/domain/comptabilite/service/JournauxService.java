@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.comptabilite.port.EcritureComptableReposit
 import com.hemodialyse.backend.domain.comptabilite.port.JournalRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.JournauxUseCase;
 import com.hemodialyse.backend.domain.comptabilite.port.MappingComptablePort;
+import com.hemodialyse.backend.domain.comptabilite.port.ModelePieceRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.Journal;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -23,12 +24,14 @@ public class JournauxService implements JournauxUseCase {
     private final JournalRepositoryPort journaux;
     private final MappingComptablePort mappings;
     private final EcritureComptableRepositoryPort ecritures;
+    private final ModelePieceRepositoryPort modeles;
 
     public JournauxService(JournalRepositoryPort journaux, MappingComptablePort mappings,
-                           EcritureComptableRepositoryPort ecritures) {
+                           EcritureComptableRepositoryPort ecritures, ModelePieceRepositoryPort modeles) {
         this.journaux = journaux;
         this.mappings = mappings;
         this.ecritures = ecritures;
+        this.modeles = modeles;
     }
 
     @Override
@@ -66,7 +69,9 @@ public class JournauxService implements JournauxUseCase {
     }
 
     private boolean estUtilise(UUID centerId, JournalCode code) {
-        return mappings.findByCenterId(centerId).journaux().containsValue(code);
+        // choisi pour une opération du paramétrage, ou pour un modèle de pièce
+        return mappings.findByCenterId(centerId).journaux().containsValue(code)
+                || modeles.existsByJournal(centerId, code);
     }
 
     /**

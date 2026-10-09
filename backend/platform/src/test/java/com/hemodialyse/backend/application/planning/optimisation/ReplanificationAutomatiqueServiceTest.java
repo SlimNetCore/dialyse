@@ -148,20 +148,80 @@ class ReplanificationAutomatiqueServiceTest {
         verify(planification, times(3)).lancer(eq(CENTRE), etape.capture(), eq("SYSTEME"), suite.capture());
         assertThat(etape.getValue().perimetre()).isEqualTo(PerimetreOptimisation.PATIENTS);
 
-        // dernière étape : plus rien à lancer
+        // dernière étape : plus rien à lancer, et le bilan de la nuit part vers l'administrateur
+        verify(notifications, never()).notifyReplanificationNocturne(any(), anyString(), anyInt(), anyInt());
         suite.getValue().accept(termine(etape.getValue(), vide));
         verify(planification, times(3)).lancer(any(), any(), anyString(), any(Consumer.class));
+        verify(notifications).notifyReplanificationNocturne(CENTRE, "PROPOSITIONS", 1, 0);
+    }
+
+    /**
+     * Déroule les trois étapes de la nuit en rendant, pour chacune, l'exécution fournie.
+     */
+    @SuppressWarnings("unchecked")
+    private void derouler(java.util.function.Function<ParametresOptimisation, RunOptimisation> fin) {
+        ArgumentCaptor<Consumer<RunOptimisation>> suite = ArgumentCaptor.forClass(Consumer.class);
+        ArgumentCaptor<ParametresOptimisation> etape = ArgumentCaptor.forClass(ParametresOptimisation.class);
+        service.replanifier(CENTRE, MARDI);
+        for (int rang = 1; rang <= 3; rang++) {
+            verify(planification, times(rang)).lancer(eq(CENTRE), etape.capture(), eq("SYSTEME"), suite.capture());
+            suite.getValue().accept(fin.apply(etape.getValue()));
+        }
+    }
+
+    @Test
+    void should_always_tell_the_administrator_that_the_night_ran_even_with_nothing_to_propose() {
+        derouler(p -> termine(p, OptimisationTestSupport.resultatVide()));
+
+        verify(notifications, never()).notifyOptimisationProposition(any(), any(), anyString(), anyString(), anyInt());
+        verify(notifications, times(1)).notifyReplanificationNocturne(CENTRE, "RIEN", 0, 0);
+    }
+
+    @Test
+    void should_report_failed_calculations_in_the_summary_of_the_night() {
+        derouler(p -> RunOptimisation.demarrer(CENTRE, p, "SYSTEME", "x", Instant.EPOCH).echouer("boom", Instant.EPOCH));
+
+        verify(notifications).notifyReplanificationNocturne(CENTRE, "ECHEC", 0, 3);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    void should_skip_the_night_when_a_calculation_is_already_running() {
+    void should_keep_going_and_count_a_failure_when_a_step_cannot_even_start() {
+        ArgumentCaptor<Consumer<RunOptimisation>> suite = ArgumentCaptor.forClass(Consumer.class);
+        ArgumentCaptor<ParametresOptimisation> etape = ArgumentCaptor.forClass(ParametresOptimisation.class);
+        when(planification.lancer(any(), any(), anyString(), any(Consumer.class)))
+                .thenThrow(new IllegalStateException("données illisibles"))
+                .thenReturn(null);
+
+        service.replanifier(CENTRE, MARDI);
+        verify(planification, times(2)).lancer(eq(CENTRE), etape.capture(), eq("SYSTEME"), suite.capture());
+        suite.getValue().accept(termine(etape.getValue(), OptimisationTestSupport.resultatVide()));
+        verify(planification, times(3)).lancer(eq(CENTRE), etape.capture(), eq("SYSTEME"), suite.capture());
+        suite.getValue().accept(termine(etape.getValue(), OptimisationTestSupport.resultatVide()));
+
+        verify(notifications).notifyReplanificationNocturne(CENTRE, "ECHEC", 0, 1);
+    }
+
+    @Test
+    void should_never_break_the_chain_when_a_notification_fails() {
+        org.mockito.Mockito.doThrow(new IllegalStateException("canal indisponible")).when(notifications)
+                .notifyReplanificationNocturne(any(), anyString(), anyInt(), anyInt());
+
+        derouler(p -> termine(p, OptimisationTestSupport.resultatVide()));
+
+        verify(notifications).notifyReplanificationNocturne(CENTRE, "RIEN", 0, 0);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void should_skip_the_night_when_a_calculation_is_already_running_and_say_so() {
         when(planification.lancer(any(), any(), anyString(), any(Consumer.class)))
                 .thenThrow(new BusinessException("OPTIMISATION_DEJA_EN_COURS", "en cours"));
 
         service.replanifier(CENTRE, MARDI);
 
         verify(planification, times(1)).lancer(any(), any(), anyString(), any(Consumer.class));
+        verify(notifications).notifyReplanificationNocturne(CENTRE, "REPORTEE", 0, 0);
     }
 
     @Test

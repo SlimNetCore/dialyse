@@ -172,10 +172,8 @@ public class ComptabiliteRestController {
             req.journaux().forEach((operation, code) -> choix.put(operationDe(operation), JournalCode.de(code)));
         }
         MappingComptable saved = useCase.saveMappingComptable(new MappingComptable(
-                centerId, req.compteVentes(), req.compteClientPatient(),
-                req.compteClientCnas(), req.compteClientCasnos(), req.compteClientMutuelle(),
-                req.compteClientAutre(), req.compteBanque(), req.compteCaisse(), req.compteTVACollectee(),
-                stock, choix));
+                centerId, req.compteVentes(), req.compteClientPatient(), req.compteClientDefaut(),
+                req.compteBanque(), req.compteCaisse(), req.compteTVACollectee(), stock, choix));
         return ResponseEntity.ok(toMappingResponse(saved));
     }
 
@@ -289,7 +287,6 @@ public class ComptabiliteRestController {
                     f.numeroFacture(),
                     f.patientId(),
                     f.centrePayeurId(),
-                    "AUTRE",
                     f.totalHt() != null ? f.totalHt() : BigDecimal.ZERO,
                     f.totalTva() != null ? f.totalTva() : BigDecimal.ZERO,
                     f.totalTtc() != null ? f.totalTtc() : BigDecimal.ZERO,
@@ -329,8 +326,7 @@ public class ComptabiliteRestController {
                     r.dateReglement(),
                     "BANQUE",
                     "Règlement facture",
-                    null,
-                    "AUTRE"
+                    null
             ));
             generatedReglements++;
         }
@@ -346,18 +342,20 @@ public class ComptabiliteRestController {
     // ─── Mappers DTO ─────────────────────────────────────────────────────────
 
     private Map<String, Object> toResponse(EcritureComptable e) {
-        return Map.of(
-                "id", e.getId(),
-                "centerId", e.getCenterId(),
-                "journalCode", e.getJournalCode().valeur(),
-                "dateEcriture", e.getDateEcriture().toString(),
-                "datePiece", e.getDatePiece().toString(),
-                "numeroPiece", e.getNumeroPiece(),
-                "libelle", e.getLibelle(),
-                "statut", e.getStatut().name(),
-                "totalDebit", e.totalDebit(),
-                "lignes", e.getLignes().stream().map(this::toLigneResponse).toList()
-        );
+        Map<String, Object> reponse = new LinkedHashMap<>();
+        reponse.put("id", e.getId());
+        reponse.put("centerId", e.getCenterId());
+        reponse.put("journalCode", e.getJournalCode().valeur());
+        reponse.put("dateEcriture", e.getDateEcriture().toString());
+        reponse.put("datePiece", e.getDatePiece().toString());
+        reponse.put("numeroPiece", e.getNumeroPiece());
+        reponse.put("libelle", e.getLibelle());
+        reponse.put("statut", e.getStatut().name());
+        reponse.put("totalDebit", e.totalDebit());
+        // pièce saisie à partir d'un modèle (elle seule peut être extournée à la main)
+        reponse.put("saisie", e.estSaisie());
+        reponse.put("lignes", e.getLignes().stream().map(this::toLigneResponse).toList());
+        return reponse;
     }
 
     private Map<String, Object> toLigneResponse(LigneEcriture l) {
@@ -375,9 +373,8 @@ public class ComptabiliteRestController {
         for (OperationComptable operation : OperationComptable.values()) {
             choix.put(operation.name(), m.journalDe(operation).valeur());
         }
-        return new MappingResponse(m.centerId(), m.compteVentes(), m.compteClientPatient(), m.compteClientCnas(),
-                m.compteClientCasnos(), m.compteClientMutuelle(), m.compteClientAutre(), m.compteBanque(),
-                m.compteCaisse(), m.compteTVACollectee() != null ? m.compteTVACollectee() : "",
+        return new MappingResponse(m.centerId(), m.compteVentes(), m.compteClientPatient(), m.compteClientDefaut(),
+                m.compteBanque(), m.compteCaisse(), m.compteTVACollectee() != null ? m.compteTVACollectee() : "",
                 m.stock().stock(), m.stock().consommation(), m.stock().facturesNonParvenues(),
                 m.stock().boniInventaire(), m.stock().maliInventaire(), choix);
     }
@@ -408,10 +405,7 @@ public class ComptabiliteRestController {
             UUID centerId,
             @NotBlank @Size(max = 20) String compteVentes,
             @NotBlank @Size(max = 20) String compteClientPatient,
-            @NotBlank @Size(max = 20) String compteClientCnas,
-            @NotBlank @Size(max = 20) String compteClientCasnos,
-            @NotBlank @Size(max = 20) String compteClientMutuelle,
-            @NotBlank @Size(max = 20) String compteClientAutre,
+            @NotBlank @Size(max = 20) String compteClientDefaut,
             @NotBlank @Size(max = 20) String compteBanque,
             @NotBlank @Size(max = 20) String compteCaisse,
             @Size(max = 20) String compteTVACollectee,
@@ -427,10 +421,7 @@ public class ComptabiliteRestController {
             UUID centerId,
             String compteVentes,
             String compteClientPatient,
-            String compteClientCnas,
-            String compteClientCasnos,
-            String compteClientMutuelle,
-            String compteClientAutre,
+            String compteClientDefaut,
             String compteBanque,
             String compteCaisse,
             String compteTVACollectee,

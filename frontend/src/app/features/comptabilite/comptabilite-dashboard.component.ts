@@ -1,4 +1,16 @@
-import {ChangeDetectionStrategy, Component, computed, inject, TemplateRef, viewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  TemplateRef,
+  untracked,
+  viewChild
+} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
+import {PiecesComptablesStore} from './state/pieces-comptables.store';
 import {DecimalPipe} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -34,9 +46,21 @@ import {ConfigurableListComponent, SharedListColumn} from '../../shared/configur
 })
 export class ComptabiliteDashboardComponent {
   protected readonly store = inject(ComptabiliteStore);
+  /** Pièces saisies : l'extourne d'une pièce se lance depuis son détail. */
+  protected readonly pieces = inject(PiecesComptablesStore);
   private readonly appShell = inject(AppShellStore);
   private readonly auth = inject(AuthStore);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+
+  constructor() {
+    this.pieces.clearMessages();
+    // l'extourne crée une écriture : la liste est rechargée pour la montrer
+    effect(() => {
+      const centerId = this.appShell.currentCenterId();
+      if (this.pieces.dernierePiece() && centerId) untracked(() => this.store.loadEcritures({centerId}));
+    });
+  }
 
   protected readonly centerId = computed(() => this.appShell.currentCenterId());
   protected readonly userId = computed(() => this.auth.username() ?? 'system');
@@ -156,6 +180,24 @@ export class ComptabiliteDashboardComponent {
     return this.detailBalanceClass(row) === 'detail-balance-ok'
       ? 'COMPTABILITE.DETAIL.BALANCE_OK'
       : 'COMPTABILITE.DETAIL.BALANCE_WARNING';
+  }
+
+  /** Annule une pièce saisie par une écriture inverse (une écriture ne se supprime jamais), après confirmation. */
+  protected extourner(row: EcritureComptableItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: 'min(96vw, 460px)',
+      data: {
+        title: this.translate.instant('COMPTABILITE.PIECES.EXTOURNER'),
+        message: this.translate.instant('COMPTABILITE.PIECES.EXTOURNER_MESSAGE', {numero: row.numeroPiece}),
+        confirmLabel: this.translate.instant('COMMON.CONFIRM'),
+        cancelLabel: this.translate.instant('COMMON.CANCEL'),
+        color: 'warn',
+        icon: 'undo',
+      },
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) this.pieces.extournerPiece(row.id);
+    });
   }
 
   /** Libellé d'un journal du centre ; son code seul s'il a été supprimé depuis. */

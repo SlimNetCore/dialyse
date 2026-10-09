@@ -46,8 +46,7 @@ public class ReglementEncaisseComptabiliteListener {
                     event.dateReglement(),
                     "BANQUE", // mode par défaut — à enrichir avec un champ dans l'event v2
                     "Règlement facture",
-                    null, // tiersPayeurId — enrichir avec données facture si nécessaire
-                    "AUTRE"
+                    null // payeur : le règlement solde le compte que l'écriture de la facture a débité
             );
             comptabiliteUseCase.genererEcritureReglement(cmd);
         } catch (BusinessException ex) {

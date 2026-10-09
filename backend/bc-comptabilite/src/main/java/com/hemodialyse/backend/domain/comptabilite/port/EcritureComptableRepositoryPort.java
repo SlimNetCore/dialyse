@@ -33,6 +33,11 @@ public interface EcritureComptableRepositoryPort {
     boolean existsByJournal(UUID centerId, JournalCode journalCode);
 
     /**
+     * Vrai si une ligne d'écriture du centre porte ce compte (un tel compte ne se supprime pas).
+     */
+    boolean existsByCompte(UUID centerId, String compte);
+
+    /**
      * Recherche paginée — {@code journalCode} et {@code statut} sont optionnels (null = pas de filtre).
      */
     PagedResult<EcritureComptable> findByCenterAndPeriod(UUID centerId, LocalDate from, LocalDate to,

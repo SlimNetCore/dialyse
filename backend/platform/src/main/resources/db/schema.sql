@@ -1222,3 +1222,124 @@ CREATE TABLE IF NOT EXISTS seance_suppression
 );
 
 CREATE INDEX IF NOT EXISTS idx_seance_suppression_centre ON seance_suppression (center_id, supprime_le);
+
+-- Paramétrage comptable sans développement (voir migration V33) : plan comptable du centre, compte client de chaque
+-- payeur, modèles de pièces et leurs lignes.
+CREATE TABLE IF NOT EXISTS comptes_comptables
+(
+    id
+    UUID
+    NOT
+    NULL
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    numero
+    VARCHAR
+(
+    20
+) NOT NULL,
+    libelle VARCHAR
+(
+    150
+) NOT NULL,
+    actif BOOLEAN NOT NULL,
+    CONSTRAINT uq_compte_comptable_centre_numero UNIQUE
+(
+    center_id,
+    numero
+)
+    );
+
+CREATE TABLE IF NOT EXISTS comptes_payeurs
+(
+    center_id
+    UUID
+    NOT
+    NULL,
+    payeur_id
+    UUID
+    NOT
+    NULL,
+    compte
+    VARCHAR
+(
+    20
+) NOT NULL,
+    CONSTRAINT pk_comptes_payeurs PRIMARY KEY
+(
+    center_id,
+    payeur_id
+)
+    );
+
+CREATE TABLE IF NOT EXISTS modeles_piece
+(
+    id
+    UUID
+    NOT
+    NULL
+    PRIMARY
+    KEY,
+    center_id
+    UUID
+    NOT
+    NULL,
+    code
+    VARCHAR
+(
+    20
+) NOT NULL,
+    libelle VARCHAR
+(
+    100
+) NOT NULL,
+    journal_code VARCHAR
+(
+    10
+) NOT NULL,
+    actif BOOLEAN NOT NULL,
+    CONSTRAINT uq_modele_piece_centre_code UNIQUE
+(
+    center_id,
+    code
+)
+    );
+
+CREATE TABLE IF NOT EXISTS modeles_piece_lignes
+(
+    modele_id
+    UUID
+    NOT
+    NULL,
+    center_id
+    UUID
+    NOT
+    NULL,
+    position_ligne
+    INTEGER
+    NOT
+    NULL,
+    sens
+    VARCHAR
+(
+    6
+) NOT NULL,
+    compte VARCHAR
+(
+    20
+) NOT NULL,
+    libelle VARCHAR
+(
+    100
+),
+    CONSTRAINT pk_modeles_piece_lignes PRIMARY KEY
+(
+    modele_id,
+    position_ligne
+)
+    );
+CREATE INDEX IF NOT EXISTS idx_modeles_piece_lignes_compte ON modeles_piece_lignes (center_id, compte);

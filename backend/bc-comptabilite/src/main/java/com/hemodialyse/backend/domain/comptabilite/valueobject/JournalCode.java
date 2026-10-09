@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.domain.comptabilite.valueobject;
 
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * Code d'un journal comptable. Les journaux sont <b>paramétrables par centre</b> ({@link Journal}) : le code n'est plus
@@ -16,17 +15,22 @@ public record JournalCode(String valeur) {
     public static final JournalCode CA = new JournalCode("CA");
     public static final JournalCode AC = new JournalCode("AC");
     public static final JournalCode ST = new JournalCode("ST");
-    private static final Pattern FORMAT = Pattern.compile("[A-Z0-9]{1," + LONGUEUR_MAX + "}");
 
     public JournalCode {
         if (valeur == null || valeur.isBlank()) {
             throw new IllegalArgumentException("Le code du journal est obligatoire");
         }
         valeur = valeur.trim().toUpperCase(Locale.ROOT);
-        if (!FORMAT.matcher(valeur).matches()) {
+        // contrôle sans champ statique : les constantes ci-dessus sont construites pendant l'initialisation de la
+        // classe, et un motif déclaré après elles (ordre des champs réarrangé par un outil) serait encore nul
+        if (valeur.length() > LONGUEUR_MAX || !valeur.chars().allMatch(JournalCode::lettreOuChiffre)) {
             throw new IllegalArgumentException("Le code du journal comporte 1 à " + LONGUEUR_MAX
                     + " lettres majuscules ou chiffres");
         }
+    }
+
+    private static boolean lettreOuChiffre(int c) {
+        return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
     }
 
     public static JournalCode de(String valeur) {

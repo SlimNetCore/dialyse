@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>524 règles de gestion · 16 domaines · 396 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-09<br>530 règles de gestion · 16 domaines · 408 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>524</b>règles de gestion</div>
+        <div><b>530</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>9</b>points d'attention</div>
@@ -1419,7 +1419,14 @@ pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une propositio
     proposition.
     Rien
     n&#39;est appliqué d&#39;office : l&#39;administrateur consulte la proposition dans l&#39;historique et l&#39;applique
-    (RG-PLN-091).</p>
+    (RG-PLN-091).
+    <strong>Un bilan est envoyé à l&#39;administrateur à chaque exécution</strong>
+    (<code>REPLANIFICATION_NOCTURNE</code>, enregistré au journal),
+    même quand rien n&#39;est proposé : « propositions à examiner » (avec leur nombre), « aucun changement à proposer »,
+    « échec » (nombre de calculs qui n&#39;ont pas abouti ; un calcul impossible à lancer est compté et les suivants
+    sont
+    tout de même tentés) ou « reportée » (un calcul était déjà en cours). Sans ce bilan, une nuit sans proposition ne
+    laissait aucune trace visible. Une notification impossible à envoyer n&#39;interrompt jamais l&#39;enchaînement.</p>
 </div></div>
     <div class="rule" id="RG-PLN-101">
         <div class="rid">RG-PLN-101</div>
@@ -2896,11 +2903,17 @@ Lorsque la période d&#39;un règlement est clôturée, le règlement reste enre
         <div class="rid">RG-CPT-006</div>
         <div class="rtxt"><p><strong>Plan de comptes par centre</strong> (<code>MappingComptable</code>), <strong>entièrement
             paramétrable</strong> depuis l&#39;écran
-            « Paramétrage comptable » (<code>ADMIN</code>) : comptes ventes, clients (patient, CNAS, CASNOS,
-mutuelle, autre), banque, caisse — tous obligatoires ; valeurs par défaut :
-            706, 411100, 411200, 411300, 411400, 411500, 512, 530, 44571 (TVA collectée, facultative) ; comptes du stock
-            (RG-CPT-011). Un compte comporte 1 à 20 lettres ou chiffres. Le paramétrage ne vaut que pour les écritures
-            générées
+            « Paramétrage comptable » (<code>ADMIN</code>) : comptes ventes, client « patient qui paie lui-même »,
+            client « payeur sans
+            compte propre », banque, caisse — tous obligatoires ; valeurs par défaut :
+            706, 411100, 411500, 512, 530, 44571 (TVA collectée) ; comptes du stock
+            (RG-CPT-011). Le compte client d&#39;un payeur se règle payeur par payeur (RG-CPT-019) : il n&#39;existe
+            plus de compte
+            figé par type de payeur (CNAS, CASNOS, mutuelle). Chaque compte se <strong>choisit dans le plan comptable du
+                centre</strong>
+            (RG-CPT-018) ; un compte qui n&#39;y figure pas, ou désactivé, est refusé (<code>COMPTE_INCONNU</code>). Le
+            paramétrage ne vaut que
+            pour les écritures générées
             ensuite : les écritures déjà passées ne sont pas réimputées. <strong>Règles de TVA comptables</strong>
             versionnées dans le temps
             (type de prestation, taux ≥ 0, exonération, début de validité obligatoire). <em>Source :</em> <code>MappingComptable</code>,
@@ -2915,10 +2928,19 @@ mutuelle, autre), banque, caisse — tous obligatoires ; valeurs par défaut :
     TVA, clôture,
     comptabilisation du stock : <code>ADMIN</code>.</p>
 </div></div>
-<div class="rule attention" id="RG-CPT-008"><div class="rid">RG-CPT-008<small>point d'attention</small></div><div class="rtxt"><p>Les écritures sont aujourd&#39;hui générées avec le type de tiers <code>AUTRE</code> : toutes
-les créances sont imputées au compte client « autre » (411500) quel que soit le payeur ;
-les comptes CNAS, CASNOS, mutuelle et patient du plan de comptes ne sont pas encore alimentés automatiquement.</p>
-</div></div>
+    <div class="rule" id="RG-CPT-008">
+        <div class="rid">RG-CPT-008</div>
+        <div class="rtxt"><p><em>(point d&#39;attention levé)</em> Les créances ne sont plus toutes imputées au compte
+            client « autre » :
+            chaque facture débite le compte de <strong>son payeur</strong> (RG-CPT-019), le compte par défaut si le
+            payeur n&#39;en a pas, et le
+            compte « patients » si la facture n&#39;a pas de payeur. Le <strong>règlement</strong> crédite le compte que
+            l&#39;écriture de la facture
+            a débité, même si le compte du payeur a changé entre-temps (à défaut d&#39;écriture de facture, le compte
+            actuel du
+            payeur).</p>
+        </div>
+    </div>
     <div class="rule" id="RG-CPT-009">
         <div class="rid">RG-CPT-009</div>
         <div class="rtxt"><p><strong>Journaux paramétrables par centre</strong> : chaque centre définit librement ses
@@ -2949,8 +2971,7 @@ les comptes CNAS, CASNOS, mutuelle et patient du plan de comptes ne sont pas enc
             <strong>existant et actif</strong> peut être choisi (<code>JOURNAL_INCONNU</code>). Le numéro
             de pièce reprend le code du journal : <code>&lt;JOURNAL&gt;-&lt;année&gt;-&lt;n° sur 6 chiffres&gt;</code>,
             numéroté par journal et par année.</p>
-        </div>
-    </div>
+</div></div>
     <div class="rule" id="RG-CPT-011">
         <div class="rid">RG-CPT-011</div>
         <div class="rtxt"><p><strong>Comptes du stock</strong> (inventaire permanent), paramétrables par centre : stock
@@ -3035,9 +3056,118 @@ les comptes CNAS, CASNOS, mutuelle et patient du plan de comptes ne sont pas enc
         <div class="rtxt"><p>Le stock n&#39;est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
             demande) : une sortie du jour n&#39;apparaît en comptabilité qu&#39;après le traitement suivant. La TVA
             déductible sur achats
-            et la dette fournisseur (401) ne sont pas gérées : le compte des factures non parvenues se solde hors
-            application, à
-            la comptabilisation de la facture du fournisseur.</p>
+            et la dette fournisseur (401) ne sont pas gérées automatiquement : le compte des factures non parvenues se
+            solde par
+            une pièce saisie (RG-CPT-021), à la comptabilisation de la facture du fournisseur.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-018">
+        <div class="rid">RG-CPT-018</div>
+        <div class="rtxt"><p><strong>Plan comptable par centre</strong> : chaque centre tient la liste de ses comptes
+            (numéro de 1 à 20
+            lettres ou chiffres, libellé de 150 caractères au plus, actif ou non), paginée et recherchable par numéro ou
+            libellé. Tant qu&#39;il n&#39;a rien paramétré, il dispose d&#39;un <strong>plan SCF de départ</strong>
+            (stock, fournisseurs, clients,
+            personnel, TVA, trésorerie, charges, produits), complété des comptes que son paramétrage utilise déjà ; ce
+            plan est
+            enregistré comme le sien à sa première modification. Partout où un compte est demandé (paramétrage, payeur,
+            modèle
+            de pièce), il <strong>se choisit dans ce plan</strong>. Un compte <strong>utilisé</strong> par le
+            paramétrage, un payeur ou un modèle de pièce
+            ne peut être ni désactivé ni supprimé (<code>COMPTE_UTILISE</code>) ; un compte <strong>qui porte des
+                écritures</strong> se désactive mais ne
+            se supprime pas (<code>COMPTE_AVEC_ECRITURES</code>) ; supprimer un compte inconnu est refusé (<code>COMPTE_INTROUVABLE</code>).
+            Ajouter
+            un compte ne demande aucun développement. <em>Source :</em> <code>PlanComptableService</code>, <code>PlanComptableComponent</code>
+            →
+            <code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code>
+            (<code>/comptes</code>) →
+            <code>PlanComptableUseCase</code> → <code>CompteRepositoryPort</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-019">
+        <div class="rid">RG-CPT-019</div>
+        <div class="rtxt"><p><strong>Compte client de chaque payeur</strong> : chaque payeur du référentiel (caisse,
+            mutuelle, entreprise…)
+            peut porter son propre compte client, choisi dans le plan comptable (<code>COMPTE_INCONNU</code> sinon) ;
+            ses factures y sont
+            débitées. Un payeur sans compte propre utilise le compte client par défaut du centre ; vider le compte d&#39;un
+            payeur
+            l&#39;y ramène. Un payeur d&#39;un autre centre est introuvable (<code>PAYEUR_INTROUVABLE</code>). <strong>Un
+                nouveau client ne demande aucun
+                développement</strong> : on crée le payeur dans les référentiels, on ajoute son compte au plan, on le
+            lui affecte. La liste
+            des payeurs est paginée et recherchable. <em>Source :</em> <code>ComptesPayeursService</code>, <code>PlanComptableComponent</code>
+            →
+            <code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code>
+            (<code>/payeurs</code>) →
+            <code>ComptesPayeursUseCase</code> → <code>PayeursPort</code>, <code>ComptePayeurRepositoryPort</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-020">
+        <div class="rid">RG-CPT-020</div>
+        <div class="rtxt"><p><strong>Modèles de pièces</strong> : un centre définit ses propres types de pièces (loyer,
+            salaires, facture
+            fournisseur, opération diverse…). Un modèle porte un code unique dans le centre (1 à 20 lettres majuscules,
+            chiffres, tirets ; <code>MODELE_CODE_EXISTANT</code>), un libellé, un <strong>journal actif</strong> (<code>JOURNAL_INCONNU</code>
+            sinon) et de 2 à 20
+            <strong>lignes</strong> — un sens (débit ou crédit), un compte du plan et un libellé facultatif chacune —
+            dont au moins une au
+            débit et une au crédit (<code>MODELE_LIGNES_INVALIDES</code>). Un modèle désactivé ne sert plus à saisir
+            (<code>MODELE_INACTIF</code>) ;
+            le supprimer conserve les pièces déjà saisies ; un modèle inconnu est refusé
+            (<code>MODELE_INTROUVABLE</code>). Le journal d&#39;un
+            modèle ne peut être ni désactivé ni supprimé (<code>JOURNAL_UTILISE</code>). <strong>Un nouveau type de
+                pièce ne demande aucun
+                développement.</strong> Liste paginée ; gestion réservée à <code>ADMIN</code>. <em>Source :</em> <code>ModelePiece</code>,
+            <code>PiecesComptablesService</code>,
+            <code>ModelesPieceComponent</code> → <code>PiecesComptablesStore</code> →
+            <code>ComptabiliteApiService</code> →
+            <code>ComptabiliteParametrageRestController</code> (<code>/modeles</code>) →
+            <code>PiecesComptablesUseCase</code> → <code>ModelePieceRepositoryPort</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-021">
+        <div class="rid">RG-CPT-021</div>
+        <div class="rtxt"><p><strong>Saisie d&#39;une pièce</strong> (<code>ADMIN</code>, <code>SECRETAIRE</code>) : on
+            choisit un modèle actif, une date, un libellé
+            (à défaut celui du modèle) et <strong>un montant par ligne</strong> ; une ligne à zéro n&#39;est pas écrite.
+            La pièce devient une
+            écriture <strong>validée</strong> dans le journal du modèle, numérotée comme les autres (RG-CPT-010). Elle
+            est refusée si un
+            montant est négatif, s&#39;il n&#39;y a pas un montant par ligne ou s&#39;il reste moins de deux lignes
+            (<code>PIECE_MONTANTS_INVALIDES</code>), si elle n&#39;est pas équilibrée
+            (<code>ECRITURE_DESEQUILIBREE</code>), si sa période est clôturée
+            (<code>PERIODE_CLOTUREE</code>) ou si un de ses comptes a quitté le plan (<code>COMPTE_INCONNU</code>). <em>Source
+                :</em>
+            <code>PiecesComptablesService.saisir</code>, <code>SaisiePieceComponent</code> →
+            <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> →
+            <code>ComptabiliteParametrageRestController</code> (<code>/pieces</code>) →
+            <code>PiecesComptablesUseCase</code> → <code>EcritureComptableRepositoryPort</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-CPT-022">
+        <div class="rid">RG-CPT-022</div>
+        <div class="rtxt"><p><strong>Extourne d&#39;une pièce saisie</strong> (<code>ADMIN</code>) : une écriture ne se
+            supprime jamais ; une pièce saisie
+            par erreur s&#39;annule par une <strong>écriture inverse</strong> (débits et crédits échangés), datée du
+            jour, dans le même journal,
+            libellée « Extourne &lt;n° de pièce&gt; ». Une pièce ne s&#39;extourne <strong>qu&#39;une fois</strong> et
+            une extourne ne s&#39;extourne pas
+            (<code>PIECE_DEJA_EXTOURNEE</code>) ; une écriture générée par le système (vente, règlement, stock) ne s&#39;extourne
+            pas à la
+            main (<code>PIECE_NON_SAISIE</code>) ; la période du jour doit être ouverte (<code>PERIODE_CLOTUREE</code>).
+            <em>Source :</em>
+            <code>PiecesComptablesService.extourner</code>, <code>ComptabiliteDashboardComponent</code> → <code>PiecesComptablesStore</code>
+            →
+            <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/pieces/{id}/extourne</code>).
+        </p>
+        </div>
+    </div>
+    <div class="rule attention" id="RG-CPT-023">
+        <div class="rid">RG-CPT-023<small>point d'attention</small></div>
+        <div class="rtxt"><p>Les comptes propres à un article (RG-STK-008) se saisissent encore librement
+            sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.</p>
         </div>
     </div>
 </section>
@@ -3377,7 +3507,8 @@ RG-DIR-101).</p>
             <code>SEANCES_A_REGULARISER</code>,
             <code>PATIENT_REPLACE_ISOLEMENT</code>, <code>ISOLEMENT_IMPOSSIBLE</code>,
             <code>GENERATEUR_INDISPONIBLE</code>, <code>SEANCES_DEPLACEES</code>,
-            <code>INFIRMIER_SUREFFECTIF</code>, <code>OBSERVANCE_NON_RESPECTEE</code>) ; les autres
+            <code>INFIRMIER_SUREFFECTIF</code>, <code>OBSERVANCE_NON_RESPECTEE</code>,
+            <code>REPLANIFICATION_NOCTURNE</code>) ; les autres
             évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50
             alertes
             récentes (30 derniers jours) <strong>destinées à ses rôles</strong> dans <strong>son centre</strong> (<code>GET
@@ -3443,109 +3574,28 @@ RG-DIR-101).</p>
             dépend du
             profil : elle ne mène jamais vers un écran fermé à l&#39;utilisateur.</p>
 </div></div>
-    <table>
-        <thead>
-        <tr>
-            <th>Notification</th>
-            <th>Action (administrateur, secrétariat)</th>
-            <th>Médecin seul</th>
-            <th>Infirmier seul</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>Absence d&#39;un infirmier, sous-effectif</td>
-            <td><strong>Chercher des remplaçants</strong> : optimisation « Couverture » sur toute la période de l&#39;absence
-            </td>
-            <td>planning de la semaine concernée</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Sur-effectif d&#39;infirmiers</td>
-            <td>Revoir le roulement (optimisation « Roulement »)</td>
-            <td>—</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Générateur indisponible</td>
-            <td>Proposer des déplacements (optimisation « Maintenance »)</td>
-            <td>—</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Proposition de la replanification nocturne</td>
-            <td>Ouvrir la proposition</td>
-            <td>—</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Planning modifié, patient replacé en isolement</td>
-            <td>Voir le planning / le nouveau placement</td>
-            <td>planning du jour</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Isolement impossible</td>
-            <td>Replanifier le patient (optimisation « Patients »)</td>
-            <td>sérologies du patient</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Traitement de l&#39;anémie en retard ou à terminer</td>
-            <td>suivi de l&#39;anémie du patient</td>
-            <td>suivi de l&#39;anémie du patient</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Saisie d&#39;un infirmier</td>
-            <td>—</td>
-            <td>cahier de dialyse du patient ; suivi de l&#39;anémie ; absences de patients, selon la saisie</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Absences de patients à qualifier</td>
-            <td>Qualifier les absences</td>
-            <td>Qualifier les absences</td>
-            <td>Qualifier les absences</td>
-        </tr>
-        <tr>
-            <td>Séances à régulariser, séance à valider, séance créée / validée / volets / consommables</td>
-            <td>Ouvrir le poste infirmier</td>
-            <td>cahier de dialyse du patient</td>
-            <td>Ouvrir le poste infirmier</td>
-        </tr>
-        <tr>
-            <td>Séance supprimée</td>
-            <td>historique des séances</td>
-            <td>planning du jour</td>
-            <td>historique des séances</td>
-        </tr>
-        <tr>
-            <td>Nouveau patient, fiche modifiée</td>
-            <td>fiche du patient</td>
-            <td>fiche du patient (lecture)</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Prise en charge validée / clôturée / supprimée</td>
-            <td>liste des prises en charge</td>
-            <td>fiche du patient</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Attestation créée / supprimée</td>
-            <td>liste des attestations</td>
-            <td>fiche du patient</td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td>Mouvement de stock, inventaire ouvert / clôturé / annulé</td>
-            <td>stock, inventaires</td>
-            <td>—</td>
-            <td>—</td>
-        </tr>
-        </tbody>
-    </table>
+    <p>| Notification | Action (administrateur, secrétariat) | Médecin seul | Infirmier seul |
+        |---|---|---|---|
+        | Absence d&#39;un infirmier, sous-effectif | <strong>Chercher des remplaçants</strong> : optimisation «
+        Couverture » sur toute la période de l&#39;absence | planning de la semaine concernée | — |
+        | Sur-effectif d&#39;infirmiers | Revoir le roulement (optimisation « Roulement ») | — | — |
+        | Générateur indisponible | Proposer des déplacements (optimisation « Maintenance ») | — | — |
+        | Proposition de la replanification nocturne | Ouvrir la proposition | — | — |
+        | Planning modifié, patient replacé en isolement | Voir le planning / le nouveau placement | planning du jour |
+        — |
+        | Isolement impossible | Replanifier le patient (optimisation « Patients ») | sérologies du patient | — |
+        | Traitement de l&#39;anémie en retard ou à terminer | suivi de l&#39;anémie du patient | suivi de l&#39;anémie
+        du patient | — |
+        | Saisie d&#39;un infirmier | — | cahier de dialyse du patient ; suivi de l&#39;anémie ; absences de patients,
+        selon la saisie | — |
+        | Absences de patients à qualifier | Qualifier les absences | Qualifier les absences | Qualifier les absences |
+        | Séances à régulariser, séance à valider, séance créée / validée / volets / consommables | Ouvrir le poste
+        infirmier | cahier de dialyse du patient | Ouvrir le poste infirmier |
+        | Séance supprimée | historique des séances | planning du jour | historique des séances |
+        | Nouveau patient, fiche modifiée | fiche du patient | fiche du patient (lecture) | — |
+        | Prise en charge validée / clôturée / supprimée | liste des prises en charge | fiche du patient | — |
+        | Attestation créée / supprimée | liste des attestations | fiche du patient | — |
+        | Mouvement de stock, inventaire ouvert / clôturé / annulé | stock, inventaires | — | — |</p>
     <p> « — » : la notification n&#39;est pas destinée à ce profil ; si elle lui parvenait, l&#39;action ouvrirait son
         écran
         d&#39;accueil. Les évènements purement techniques (<code>PRESCRIPTION_CHANGED</code>, <code>STOCK_RECALC_LOCKS_CHANGED</code>)
@@ -3692,6 +3742,12 @@ ignorée). Les évènements de séance historiques ne visent plus le médecin : 
 <tr>
 <td><code>OPTIMISATION_PROPOSITION</code></td>
 <td>proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)</td>
+    <td><code>ADMIN</code></td>
+    <td>RG-PLN-100</td>
+</tr>
+<tr>
+    <td><code>REPLANIFICATION_NOCTURNE</code></td>
+    <td>bilan de chaque replanification nocturne : propositions à examiner, rien à proposer, échec ou report</td>
 <td><code>ADMIN</code></td>
 <td>RG-PLN-100</td>
 </tr>
@@ -4333,6 +4389,13 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
     <td>RG-CPT-001 à 017</td>
 </tr>
 <tr>
+    <td><code>ComptabiliteParametrageRestController</code></td>
+    <td><code>/api/v1/comptabilite</code> (<code>/comptes</code>, <code>/payeurs</code>, <code>/modeles</code>, <code>/pieces</code>)
+    </td>
+    <td><code>ADMIN</code> (<code>SECRETAIRE</code> : lecture du plan et des modèles, saisie de pièces)</td>
+    <td>RG-CPT-018 à 023</td>
+</tr>
+<tr>
 <td><code>DirectionDashboardRestController</code></td>
 <td><code>/api/v1/direction</code></td>
 <td><code>DIRECTION</code></td>
@@ -4459,15 +4522,15 @@ porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté s
 <li><a href="#RG-STK-061"><b>RG-STK-061</b></a> — Contrôle quotidien à 07:00 (ExpirationAlertScheduler.scanExpirations) : pour chaque centre, les
 lots contenant du stock et expirant dans 30 jours sont consignés au
 journal technique. Point d'attention : ce contrôle ne pr…</li>
-<li><a href="#RG-CPT-008"><b>RG-CPT-008</b></a> — Les écritures sont aujourd'hui générées avec le type de tiers AUTRE : toutes
-les créances sont imputées au compte client « autre » (411500) quel que soit le payeur ;
-    les comptes CNAS, CASNOS, mutuelle et patient du plan …
-</li>
     <li><a href="#RG-CPT-017"><b>RG-CPT-017</b></a> — Le stock n'est pas comptabilisé à chaque mouvement mais par
         traitement (nuit ou
         demande) : une sortie du jour n'apparaît en comptabilité qu'après le traitement suivant. La TVA déductible sur
         achats
         et la dette fournisseu…
+    </li>
+    <li><a href="#RG-CPT-023"><b>RG-CPT-023</b></a> — Les comptes propres à un article (RG-STK-008) se saisissent encore
+        librement
+        sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.…
     </li>
 </ul>
 </section>

@@ -89,8 +89,7 @@ class ComptabiliteStockServiceTest {
 
     @Test
     void the_outputs_of_a_day_are_centralised_in_one_entry_in_the_configured_journal_and_accounts() {
-        mappings.save(new MappingComptable(CENTRE, "706", "411100", "411200", "411300", "411400", "411500", "512", "530",
-                "44571", new ComptesStock("32", "6022", "408", "757", "657"),
+        mappings.save(new MappingComptable(CENTRE, "706", "411100", "411500", "512", "530", "44571", new ComptesStock("32", "6022", "408", "757", "657"),
                 Map.of(OperationComptable.STOCK_SORTIE, JournalCode.de("OD"))));
         stock.sorties.add(new SortiesDuJour(JOUR, List.of(montant(null, null, "80.00"), montant(null, null, "20.00"))));
 

@@ -7,6 +7,9 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {TranslateService} from '@ngx-translate/core';
 import {EcritureComptableItem} from '../../core/api/comptabilite-api.service';
+import {MatDialog} from '@angular/material/dialog';
+import {of} from 'rxjs';
+import {PiecesComptablesStore} from './state/pieces-comptables.store';
 
 const CENTER_ID = '11111111-1111-1111-1111-111111111111';
 
@@ -72,7 +75,17 @@ describe('ComptabiliteDashboardComponent', () => {
     setYear: vi.fn(),
     setMonth: vi.fn(),
     setJournalCode: vi.fn(),
+    loadEcritures: vi.fn(),
   };
+
+  const piecesMock = {
+    error: signal<string | null>(null),
+    saving: signal(false),
+    dernierePiece: signal<{ numeroPiece: string } | null>(null),
+    clearMessages: vi.fn(),
+    extournerPiece: vi.fn(),
+  };
+  let confirme = true;
 
   beforeEach(async () => {
     expandedIds.set([]);
@@ -85,8 +98,33 @@ describe('ComptabiliteDashboardComponent', () => {
         {provide: AppShellStore, useValue: {currentCenterId: vi.fn(() => CENTER_ID)}},
         {provide: AuthStore, useValue: {username: vi.fn(() => 'admin'), hasRole: vi.fn(() => true)}},
         {provide: TranslateService, useValue: {instant: vi.fn((key: string) => key)}},
+        {provide: PiecesComptablesStore, useValue: piecesMock},
+        {provide: MatDialog, useValue: {open: vi.fn(() => ({afterClosed: () => of(confirme)}))}},
       ]
     });
+  });
+
+  it('extourne une pièce saisie après confirmation, puis recharge les écritures pour montrer l’écriture inverse', () => {
+    confirme = true;
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+
+    component['extourner'](rows[0]);
+    expect(piecesMock.extournerPiece).toHaveBeenCalledWith('e-1');
+
+    piecesMock.dernierePiece.set({numeroPiece: 'VE-003'});
+    TestBed.tick();
+    expect(storeMock.loadEcritures).toHaveBeenCalledWith({centerId: CENTER_ID});
+    piecesMock.dernierePiece.set(null);
+  });
+
+  it('n’extourne rien si l’utilisateur annule la confirmation', () => {
+    confirme = false;
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+
+    component['extourner'](rows[0]);
+
+    expect(piecesMock.extournerPiece).not.toHaveBeenCalled();
+    expect(piecesMock.clearMessages).toHaveBeenCalled();
   });
 
   it('ouvre plusieurs détails en parallèle', () => {

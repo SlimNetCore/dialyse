@@ -57,7 +57,6 @@ public interface ComptabiliteUseCase {
             String numeroFacture,
             UUID patientId,
             UUID tiersPayeurId,
-            String typeTiersPayeur,
             BigDecimal totalHt,
             BigDecimal totalTva,
             BigDecimal totalTtc,
@@ -79,8 +78,7 @@ public interface ComptabiliteUseCase {
             LocalDate dateReglement,
             String modeReglement,
             String tiersLibelle,
-            UUID tiersPayeurId,
-            String typeTiersPayeur
+            UUID tiersPayeurId
     ) {
         public GenererEcritureReglementCommand {
             if (centerId == null || paiementId == null) {

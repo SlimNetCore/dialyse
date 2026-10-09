@@ -53,10 +53,7 @@ public class MappingComptableJpaAdapter implements MappingComptablePort {
                 });
         entity.setCompteVentes(mapping.compteVentes());
         entity.setCompteClientPatient(mapping.compteClientPatient());
-        entity.setCompteClientCnas(mapping.compteClientCnas());
-        entity.setCompteClientCasnos(mapping.compteClientCasnos());
-        entity.setCompteClientMutuelle(mapping.compteClientMutuelle());
-        entity.setCompteClientAutre(mapping.compteClientAutre());
+        entity.setCompteClientDefaut(mapping.compteClientDefaut());
         entity.setCompteBanque(mapping.compteBanque());
         entity.setCompteCaisse(mapping.compteCaisse());
         entity.setCompteTVACollectee(mapping.compteTVACollectee());
@@ -91,9 +88,7 @@ public class MappingComptableJpaAdapter implements MappingComptablePort {
         journal(journaux, OperationComptable.STOCK_SORTIE, e.getJournalStockSortie());
         journal(journaux, OperationComptable.STOCK_INVENTAIRE, e.getJournalStockInventaire());
         return new MappingComptable(e.getCenterId(),
-                e.getCompteVentes(), e.getCompteClientPatient(),
-                e.getCompteClientCnas(), e.getCompteClientCasnos(),
-                e.getCompteClientMutuelle(), e.getCompteClientAutre(),
+                e.getCompteVentes(), e.getCompteClientPatient(), e.getCompteClientDefaut(),
                 e.getCompteBanque(), e.getCompteCaisse(),
                 ou(e.getCompteTVACollectee(), "44571"), stock, journaux);
     }

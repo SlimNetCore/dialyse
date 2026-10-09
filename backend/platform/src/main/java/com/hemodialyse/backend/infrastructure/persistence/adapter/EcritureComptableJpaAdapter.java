@@ -54,6 +54,11 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
     }
 
     @Override
+    public boolean existsByCompte(UUID centerId, String compte) {
+        return repo.existsLigneByCompte(centerId, compte);
+    }
+
+    @Override
     public PagedResult<EcritureComptable> findByCenterAndPeriod(UUID centerId, LocalDate from, LocalDate to,
                                                                 JournalCode journalCode, StatutEcriture statut,
                                                                 int page, int size) {
@@ -116,6 +121,7 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
         entity.setLibelle(domain.getLibelle());
         entity.setStatut(domain.getStatut().name());
         entity.setSourceId(domain.getSourceId());
+        entity.setModeleId(domain.getModeleId());
 
         List<LigneEcritureJpaEntity> lignes = domain.getLignes().stream().map(l -> {
             LigneEcritureJpaEntity le = new LigneEcritureJpaEntity();
@@ -149,7 +155,7 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
                 entity.getDateEcriture(), entity.getDatePiece(),
                 entity.getNumeroPiece(), entity.getLibelle(),
                 lignes, StatutEcriture.valueOf(entity.getStatut()),
-                entity.getSourceId()
+                entity.getSourceId(), entity.getModeleId()
         );
     }
 

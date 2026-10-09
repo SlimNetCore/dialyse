@@ -43,6 +43,12 @@ public class EcritureComptableJpaEntity {
     @Column(name = "source_id", columnDefinition = "uuid")
     private UUID sourceId;
 
+    /**
+     * Modèle de pièce d'une écriture saisie ; vide pour une écriture générée par le système.
+     */
+    @Column(name = "modele_id", columnDefinition = "uuid")
+    private UUID modeleId;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -136,6 +142,14 @@ public class EcritureComptableJpaEntity {
 
     public void setSourceId(UUID sourceId) {
         this.sourceId = sourceId;
+    }
+
+    public UUID getModeleId() {
+        return modeleId;
+    }
+
+    public void setModeleId(UUID modeleId) {
+        this.modeleId = modeleId;
     }
 
     public OffsetDateTime getCreatedAt() {

@@ -1,7 +1,13 @@
 package com.hemodialyse.backend.domain.comptabilite.service;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
+import com.hemodialyse.backend.domain.comptabilite.aggregate.ModelePiece;
+import com.hemodialyse.backend.domain.comptabilite.port.ComptePayeurRepositoryPort;
+import com.hemodialyse.backend.domain.comptabilite.port.CompteRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.EcritureComptableRepositoryPort;
+import com.hemodialyse.backend.domain.comptabilite.port.ModelePieceRepositoryPort;
+import com.hemodialyse.backend.domain.comptabilite.port.PayeursPort;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.CompteComptable;
 import com.hemodialyse.backend.domain.comptabilite.port.JournalRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.MappingComptablePort;
 import com.hemodialyse.backend.domain.comptabilite.port.OperationsStockPort;
@@ -63,6 +69,12 @@ final class ComptabiliteFixtures {
         public boolean existsByJournal(UUID centerId, JournalCode journalCode) {
             return parId.values().stream()
                     .anyMatch(e -> e.getCenterId().equals(centerId) && e.getJournalCode().equals(journalCode));
+        }
+
+        @Override
+        public boolean existsByCompte(UUID centerId, String compte) {
+            return du(centerId).stream().flatMap(e -> e.getLignes().stream())
+                    .anyMatch(l -> l.getCompteSCF().equals(compte));
         }
 
         @Override
@@ -186,5 +198,167 @@ final class ComptabiliteFixtures {
         public List<Inventaire> inventaires(UUID centerId, LocalDate du, LocalDate au) {
             return inventaires.stream().filter(i -> !i.date().isBefore(du) && !i.date().isAfter(au)).toList();
         }
+    }
+
+    static final class Comptes implements CompteRepositoryPort {
+        final Map<UUID, Map<String, CompteComptable>> parCentre = new HashMap<>();
+
+        private Map<String, CompteComptable> du(UUID centerId) {
+            return parCentre.computeIfAbsent(centerId, c -> new java.util.TreeMap<>());
+        }
+
+        @Override
+        public long count(UUID centerId) {
+            return du(centerId).size();
+        }
+
+        @Override
+        public PagedResult<CompteComptable> findPaged(UUID centerId, String recherche, boolean actifsSeulement, int page,
+                                                      int size) {
+            String filtre = recherche == null ? "" : recherche.trim().toLowerCase();
+            List<CompteComptable> tous = du(centerId).values().stream()
+                    .filter(c -> !actifsSeulement || c.actif())
+                    .filter(c -> filtre.isEmpty() || c.numero().contains(filtre) || c.libelle().toLowerCase().contains(filtre))
+                    .toList();
+            int debut = Math.min(page * size, tous.size());
+            return PagedResult.of(tous.subList(debut, Math.min(debut + size, tous.size())), tous.size(), page, size);
+        }
+
+        @Override
+        public Optional<CompteComptable> find(UUID centerId, String numero) {
+            return Optional.ofNullable(du(centerId).get(numero));
+        }
+
+        @Override
+        public void save(UUID centerId, CompteComptable compte) {
+            du(centerId).put(compte.numero(), compte);
+        }
+
+        @Override
+        public void delete(UUID centerId, String numero) {
+            du(centerId).remove(numero);
+        }
+    }
+
+    static final class ComptesPayeurs implements ComptePayeurRepositoryPort {
+        final Map<String, String> comptes = new HashMap<>();
+
+        private static String cle(UUID centerId, UUID payeurId) {
+            return centerId + "|" + payeurId;
+        }
+
+        @Override
+        public Optional<String> find(UUID centerId, UUID payeurId) {
+            return Optional.ofNullable(comptes.get(cle(centerId, payeurId)));
+        }
+
+        @Override
+        public Map<UUID, String> findAll(UUID centerId, java.util.Collection<UUID> payeurIds) {
+            Map<UUID, String> trouves = new HashMap<>();
+            payeurIds.forEach(id -> find(centerId, id).ifPresent(c -> trouves.put(id, c)));
+            return trouves;
+        }
+
+        @Override
+        public void save(UUID centerId, UUID payeurId, String compte) {
+            comptes.put(cle(centerId, payeurId), compte);
+        }
+
+        @Override
+        public void delete(UUID centerId, UUID payeurId) {
+            comptes.remove(cle(centerId, payeurId));
+        }
+
+        @Override
+        public boolean existsByCompte(UUID centerId, String compte) {
+            return comptes.entrySet().stream()
+                    .anyMatch(e -> e.getKey().startsWith(centerId + "|") && e.getValue().equals(compte));
+        }
+    }
+
+    static final class Payeurs implements PayeursPort {
+        final Map<UUID, List<Payeur>> parCentre = new HashMap<>();
+
+        void ajouter(UUID centerId, Payeur payeur) {
+            parCentre.computeIfAbsent(centerId, c -> new ArrayList<>()).add(payeur);
+        }
+
+        @Override
+        public PagedResult<Payeur> lister(UUID centerId, String recherche, int page, int size) {
+            List<Payeur> tous = parCentre.getOrDefault(centerId, List.of());
+            int debut = Math.min(page * size, tous.size());
+            return PagedResult.of(tous.subList(debut, Math.min(debut + size, tous.size())), tous.size(), page, size);
+        }
+
+        @Override
+        public Optional<Payeur> trouver(UUID centerId, UUID payeurId) {
+            return parCentre.getOrDefault(centerId, List.of()).stream().filter(p -> p.id().equals(payeurId)).findFirst();
+        }
+    }
+
+    static final class Modeles implements ModelePieceRepositoryPort {
+        final Map<UUID, ModelePiece> parId = new LinkedHashMap<>();
+
+        private java.util.stream.Stream<ModelePiece> du(UUID centerId) {
+            return parId.values().stream().filter(m -> m.centerId().equals(centerId));
+        }
+
+        @Override
+        public PagedResult<ModelePiece> findPaged(UUID centerId, boolean actifsSeulement, int page, int size) {
+            List<ModelePiece> tous = du(centerId).filter(m -> !actifsSeulement || m.actif())
+                    .sorted(Comparator.comparing(ModelePiece::code)).toList();
+            int debut = Math.min(page * size, tous.size());
+            return PagedResult.of(tous.subList(debut, Math.min(debut + size, tous.size())), tous.size(), page, size);
+        }
+
+        @Override
+        public Optional<ModelePiece> findById(UUID centerId, UUID id) {
+            return du(centerId).filter(m -> m.id().equals(id)).findFirst();
+        }
+
+        @Override
+        public Optional<ModelePiece> findByCode(UUID centerId, String code) {
+            return du(centerId).filter(m -> m.code().equals(code)).findFirst();
+        }
+
+        @Override
+        public void save(ModelePiece modele) {
+            parId.put(modele.id(), modele);
+        }
+
+        @Override
+        public void delete(UUID centerId, UUID id) {
+            findById(centerId, id).ifPresent(m -> parId.remove(id));
+        }
+
+        @Override
+        public boolean existsByCompte(UUID centerId, String compte) {
+            return du(centerId).flatMap(m -> m.lignes().stream()).anyMatch(l -> l.compte().equals(compte));
+        }
+
+        @Override
+        public boolean existsByJournal(UUID centerId, JournalCode journal) {
+            return du(centerId).anyMatch(m -> m.journal().equals(journal));
+        }
+    }
+
+    /**
+     * Tous les ports en mémoire et les services du domaine câblés dessus, comme le fait la couche applicative.
+     */
+    static final class Monde {
+        final Ecritures ecritures = new Ecritures();
+        final Mappings mappings = new Mappings();
+        final Periodes periodes = new Periodes();
+        final Journaux journaux = new Journaux();
+        final Comptes comptes = new Comptes();
+        final ComptesPayeurs comptesPayeurs = new ComptesPayeurs();
+        final Payeurs payeurs = new Payeurs();
+        final Modeles modeles = new Modeles();
+        final PlanComptableService plan = new PlanComptableService(comptes, mappings, comptesPayeurs, modeles, ecritures);
+        final JournauxService journauxService = new JournauxService(journaux, mappings, ecritures, modeles);
+        final ComptabiliteService comptabilite = new ComptabiliteService(ecritures, mappings, new Fiscal(), periodes,
+                null, journaux, comptesPayeurs, plan);
+        final ComptesPayeursService comptesPayeursService = new ComptesPayeursService(payeurs, comptesPayeurs, plan);
+        final PiecesComptablesService pieces = new PiecesComptablesService(modeles, ecritures, periodes, journaux, plan);
     }
 }

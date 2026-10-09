@@ -68,7 +68,7 @@ public class ReplanificationAutomatiqueService {
      * Lance l'enchaînement des calculs d'un centre ; chaque calcul démarre quand le précédent se termine.
      */
     public void replanifier(UUID centerId, LocalDate aujourdhui) {
-        enchainer(centerId, etapes(aujourdhui, semainesDeCouverture(centerId, aujourdhui)), 0);
+        enchainer(centerId, etapes(aujourdhui, semainesDeCouverture(centerId, aujourdhui)), 0, new Bilan());
     }
 
     /**
@@ -97,31 +97,84 @@ public class ReplanificationAutomatiqueService {
                 ParametresOptimisation.VACATIONS_JOUR_PAR_DEFAUT, ParametresOptimisation.VACATIONS_SEMAINE_PAR_DEFAUT);
     }
 
-    private void enchainer(UUID centerId, List<ParametresOptimisation> etapes, int rang) {
-        if (rang >= etapes.size()) return;
+    private void enchainer(UUID centerId, List<ParametresOptimisation> etapes, int rang, Bilan bilan) {
+        if (rang >= etapes.size()) {
+            notifierBilan(centerId, bilan.issue(), bilan);
+            return;
+        }
         try {
             planification.lancer(centerId, etapes.get(rang), UTILISATEUR, run -> {
-                signaler(run);
-                enchainer(centerId, etapes, rang + 1);
+                compter(run, bilan);
+                enchainer(centerId, etapes, rang + 1, bilan);
             });
         } catch (BusinessException e) {
             // un calcul lancé à la main est en cours : la nuit suivante reprendra
             log.info("[REPLANIFICATION] Centre {} : {} ({})", centerId, e.getMessage(), e.getCode());
+            notifierBilan(centerId, "REPORTEE", bilan);
+        } catch (RuntimeException e) {
+            // calcul impossible à lancer (données illisibles…) : compté en échec, les étapes suivantes sont tentées
+            log.warn("[REPLANIFICATION] Centre {} : étape {} impossible à lancer", centerId,
+                    etapes.get(rang).perimetre(), e);
+            bilan.echecs++;
+            enchainer(centerId, etapes, rang + 1, bilan);
+        }
+    }
+
+    /**
+     * Range l'exécution terminée dans le bilan de la nuit. Une notification impossible n'interrompt jamais
+     * l'enchaînement des calculs.
+     */
+    private void compter(RunOptimisation run, Bilan bilan) {
+        try {
+            if (run.statut() == StatutRun.ECHEC) {
+                bilan.echecs++;
+            } else if (signaler(run)) {
+                bilan.propositions++;
+            }
+        } catch (RuntimeException e) {
+            log.warn("[REPLANIFICATION] Proposition {} non signalée", run.id(), e);
+        }
+    }
+
+    private void notifierBilan(UUID centerId, String issue, Bilan bilan) {
+        try {
+            notifications.notifyReplanificationNocturne(centerId, issue, bilan.propositions, bilan.echecs);
+        } catch (RuntimeException e) {
+            log.warn("[REPLANIFICATION] Bilan de la nuit non signalé pour le centre {}", centerId, e);
         }
     }
 
     /**
      * Notifie une proposition terminée dont le motif a une valeur (sous-effectif à pourvoir, séances à déplacer, gain).
+     *
+     * @return vrai si la proposition mérite d'être examinée (elle a été notifiée)
      */
-    void signaler(RunOptimisation run) {
-        if (run.statut() != StatutRun.TERMINEE || run.resultat() == null) return;
+    boolean signaler(RunOptimisation run) {
+        if (run.statut() != StatutRun.TERMINEE || run.resultat() == null) return false;
         PerimetreOptimisation perimetre = run.parametres().perimetre();
-        MotifProposition.pour(perimetre).ifPresent(motif -> {
-            int valeur = motif.valeur(run.resultat());
-            if (valeur > 0) {
-                notifications.notifyOptimisationProposition(run.centerId(), run.id(), perimetre.name(), motif.name(),
-                        valeur);
-            }
-        });
+        MotifProposition motif = MotifProposition.pour(perimetre).orElse(null);
+        if (motif == null) return false;
+        int valeur = motif.valeur(run.resultat());
+        if (valeur <= 0) return false;
+        notifications.notifyOptimisationProposition(run.centerId(), run.id(), perimetre.name(), motif.name(), valeur);
+        return true;
+    }
+
+    /**
+     * Ce qu'une nuit a donné pour un centre : l'administrateur en reçoit toujours le bilan, même quand il n'y a rien à
+     * examiner — sans quoi il ne peut pas savoir que la replanification a tourné.
+     */
+    static final class Bilan {
+        private int propositions;
+        private int echecs;
+
+        /**
+         * {@code PROPOSITIONS} : au moins une proposition à examiner ; {@code RIEN} : tout a été calculé, rien à
+         * changer ; {@code ECHEC} : au moins un calcul n'a pas abouti.
+         */
+        String issue() {
+            if (echecs > 0) return "ECHEC";
+            return propositions > 0 ? "PROPOSITIONS" : "RIEN";
+        }
     }
 }

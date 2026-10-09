@@ -12,9 +12,8 @@ import {
 } from './comptabilite-parametrage.util';
 
 const mapping: MappingComptableItem = {
-  centerId: 'c1', compteVentes: '706', compteClientPatient: '411100', compteClientCnas: '411200',
-  compteClientCasnos: '411300', compteClientMutuelle: '411400', compteClientAutre: '411500', compteBanque: '512',
-  compteCaisse: '530', compteTVACollectee: '', compteStock: '322', compteConsommation: '602',
+  centerId: 'c1', compteVentes: '706', compteClientPatient: '411100', compteClientDefaut: '411500',
+  compteBanque: '512', compteCaisse: '530', compteTVACollectee: '', compteStock: '322', compteConsommation: '602',
   compteFacturesNonParvenues: '408', compteBoniInventaire: '757', compteMaliInventaire: '657',
   journaux: {
     VENTE: 'VE', REGLEMENT_BANQUE: 'BQ', REGLEMENT_CAISSE: 'CA', STOCK_RECEPTION: 'AC', STOCK_SORTIE: 'ST',
@@ -23,14 +22,19 @@ const mapping: MappingComptableItem = {
 };
 
 describe('paramétrage comptable (règles de saisie)', () => {
+  /** Plan comptable du centre : tous les comptes du paramétrage, plus un compte désactivé (absent des actifs). */
+  const plan = ['706', '411100', '411500', '512', '530', '44571', '322', '602', '408', '757', '657']
+    .map((numero) => ({numero, libelle: `Compte ${numero}`, actif: true}));
+
   it('accepte le paramétrage du serveur : seule la TVA collectée peut rester vide', () => {
-    expect(comptesInvalides(comptesDe(mapping))).toEqual([]);
+    expect(comptesInvalides(comptesDe(mapping), plan)).toEqual([]);
+    expect(Object.keys(comptesDe(mapping))).toHaveLength(11);
   });
 
-  it('signale un compte obligatoire vide et un compte mal formé', () => {
-    const comptes = {...comptesDe(mapping), compteStock: ' ', compteBanque: '51-2', compteTVACollectee: '4457 1'};
+  it('signale un compte obligatoire vide et un compte absent du plan comptable', () => {
+    const comptes = {...comptesDe(mapping), compteStock: ' ', compteBanque: '5129', compteTVACollectee: '4457'};
 
-    expect(comptesInvalides(comptes).sort()).toEqual(['compteBanque', 'compteStock', 'compteTVACollectee']);
+    expect(comptesInvalides(comptes, plan).sort()).toEqual(['compteBanque', 'compteStock', 'compteTVACollectee']);
   });
 
   it('normalise le code d\'un journal et contrôle code et libellé', () => {

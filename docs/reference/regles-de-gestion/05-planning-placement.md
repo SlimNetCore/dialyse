@@ -351,7 +351,12 @@
   attente placés (`GAIN`). La notification est **enregistrée au journal du centre** : l'administrateur la retrouve à sa
   prochaine connexion, même s'il n'était pas connecté à 02:30 (RG-NOT-005), avec un lien direct vers la proposition.
   Rien
-  n'est appliqué d'office : l'administrateur consulte la proposition dans l'historique et l'applique (RG-PLN-091).
+  n'est appliqué d'office : l'administrateur consulte la proposition dans l'historique et l'applique (RG-PLN-091). **Un
+  bilan est envoyé à l'administrateur à chaque exécution** (`REPLANIFICATION_NOCTURNE`, enregistré au journal),
+  même quand rien n'est proposé : « propositions à examiner » (avec leur nombre), « aucun changement à proposer »,
+  « échec » (nombre de calculs qui n'ont pas abouti ; un calcul impossible à lancer est compté et les suivants sont
+  tout de même tentés) ou « reportée » (un calcul était déjà en cours). Sans ce bilan, une nuit sans proposition ne
+  laissait aucune trace visible. Une notification impossible à envoyer n'interrompt jamais l'enchaînement.
 - **RG-PLN-101** — **Planning calendaire de la proposition** (`GET /api/v1/planning/optimisations/{id}/calendrier`,
   `ADMIN`, `SECRETAIRE`) : à la fin du calcul, la proposition est **figée** en un calendrier semaine par semaine sur
   l'horizon (`CalendrierPropositionService`, table `planification_calendrier_case`, rattachée au centre et à

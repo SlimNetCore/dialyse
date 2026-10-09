@@ -65,6 +65,10 @@
           <mat-icon>download</mat-icon>
           <span class="btn-label">{{ 'COMPTABILITE.EXPORT.JOURNAL' | translate }}</span>
         </button>
+        <a data-testid="compta-saisir" mat-stroked-button routerLink="/comptabilite/pieces">
+          <mat-icon>post_add</mat-icon>
+          <span class="btn-label">{{ 'COMPTABILITE.PIECES.SAISIR' | translate }}</span>
+        </a>
         @if (peutParametrer()) {
           <a mat-stroked-button routerLink="/comptabilite/parametrage">
             <mat-icon>tune</mat-icon>
@@ -72,6 +76,16 @@
           </a>
         }
       </div>
+
+      @if (pieces.error()) {
+        <p class="feedback error" data-testid="compta-extourne-erreur"
+           role="alert">{{ pieces.error()! | translate }}</p>
+      }
+      @if (pieces.dernierePiece(); as extourne) {
+        <p class="feedback success" data-testid="compta-extourne-succes">
+          {{ 'COMPTABILITE.PIECES.EXTOURNE_CONFIRMATION' | translate: {numero: extourne.numeroPiece} }}
+        </p>
+      }
 
       @if (store.loading() || store.exporting() || store.cloturant()) {
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -189,6 +203,20 @@
                   <mat-icon>book_2</mat-icon>
                 {{ journalLabel(row.journalCode) }}
                 </span>
+              @if (row.saisie) {
+                <span class="detail-chip">
+                  <mat-icon>edit_note</mat-icon>
+                  {{ 'COMPTABILITE.PIECES.SAISIE_MANUELLE' | translate }}
+                </span>
+              }
+              @if (row.saisie && peutParametrer()) {
+                <button (click)="extourner(row)" [attr.data-testid]="'compta-extourner-' + row.numeroPiece"
+                        [disabled]="pieces.saving()" [matTooltip]="'COMPTABILITE.PIECES.EXTOURNER_AIDE' | translate"
+                        color="warn" mat-stroked-button type="button">
+                  <mat-icon>undo</mat-icon>
+                  {{ 'COMPTABILITE.PIECES.EXTOURNER' | translate }}
+                </button>
+              }
             </div>
 
             <div class="detail-table-shell">

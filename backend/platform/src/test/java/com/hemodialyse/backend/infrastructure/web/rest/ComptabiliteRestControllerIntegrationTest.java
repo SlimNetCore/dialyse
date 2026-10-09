@@ -63,8 +63,7 @@ class ComptabiliteRestControllerIntegrationTest {
 
     private static String mapping(String compteStock, String journalSortie) {
         return """
-                {"compteVentes":"706","compteClientPatient":"411100","compteClientCnas":"411200",
-                 "compteClientCasnos":"411300","compteClientMutuelle":"411400","compteClientAutre":"411500",
+                {"compteVentes":"706","compteClientPatient":"411100","compteClientDefaut":"411500",
                  "compteBanque":"512","compteCaisse":"530","compteTVACollectee":"44571",
                  "compteStock":"%s","compteConsommation":"6022","compteFacturesNonParvenues":"408",
                  "compteBoniInventaire":"757","compteMaliInventaire":"657",
@@ -209,9 +208,20 @@ class ComptabiliteRestControllerIntegrationTest {
                         .content("{\"libelle\":\"Opérations diverses\",\"actif\":true}").with(admin(CENTER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("OD"));
+        // un compte absent du plan comptable du centre ne peut pas être paramétré : il faut d'abord l'y ajouter
+        mockMvc.perform(put(BASE + "/mapping").contentType(MediaType.APPLICATION_JSON)
+                        .content(mapping("32", "OD")).with(admin(CENTER_ID)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("COMPTE_INCONNU"));
+        for (String compte : List.of("32", "6022")) {
+            mockMvc.perform(put(BASE + "/comptes/" + compte).contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"libelle\":\"Compte " + compte + "\",\"actif\":true}").with(admin(CENTER_ID)))
+                    .andExpect(status().isOk());
+        }
         mockMvc.perform(put(BASE + "/mapping").contentType(MediaType.APPLICATION_JSON)
                         .content(mapping("32", "OD")).with(admin(CENTER_ID)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.compteClientDefaut").value("411500"))
                 .andExpect(jsonPath("$.compteStock").value("32"))
                 .andExpect(jsonPath("$.journaux.STOCK_SORTIE").value("OD"))
                 .andExpect(jsonPath("$.journaux.VENTE").value("VE"));
@@ -282,6 +292,7 @@ class ComptabiliteRestControllerIntegrationTest {
             jdbc.update("DELETE FROM ecritures_comptables WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM journaux_comptables WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM mapping_comptable WHERE center_id = ?", centre);
+            jdbc.update("DELETE FROM comptes_comptables WHERE center_id = ?", centre);
         }
     }
 }

@@ -48,17 +48,70 @@ export type EcritureComptableItem = {
   libelle: string;
   statut: StatutEcriture;
   totalDebit: number;
+  /** Pièce saisie à partir d'un modèle : elle seule peut être extournée à la main. */
+  saisie?: boolean;
   lignes: LigneEcritureItem[];
+};
+
+/** Compte du plan comptable du centre. */
+export type CompteItem = {
+  numero: string;
+  libelle: string;
+  actif: boolean;
+};
+
+/** Payeur du centre et son compte client ; `compte` vide = compte client par défaut du centre. */
+export type PayeurCompteItem = {
+  payeurId: string;
+  code: string | null;
+  nom: string;
+  compte?: string | null;
+};
+
+export type SensEcriture = 'DEBIT' | 'CREDIT';
+
+export type LigneModeleItem = {
+  sens: SensEcriture;
+  compte: string;
+  libelle?: string | null;
+};
+
+/** Modèle de pièce défini par le centre : son journal et ses lignes (sens + compte). */
+export type ModelePieceItem = {
+  id: string;
+  code: string;
+  libelle: string;
+  journal: JournalCode;
+  actif: boolean;
+  lignes: LigneModeleItem[];
+};
+
+export type ModelePiecePayload = Omit<ModelePieceItem, 'id'>;
+
+/** Saisie d'une pièce : un montant par ligne du modèle, dans l'ordre. */
+export type PiecePayload = {
+  modeleId: string;
+  date: string;
+  libelle: string | null;
+  montants: number[];
+};
+
+export type PieceItem = {
+  id: string;
+  numeroPiece: string;
+  journalCode: JournalCode;
+  dateEcriture: string;
+  libelle: string;
+  total: number;
 };
 
 export type MappingComptableItem = {
   centerId: string;
   compteVentes: string;
+  /** Compte client des patients qui paient eux-mêmes. */
   compteClientPatient: string;
-  compteClientCnas: string;
-  compteClientCasnos: string;
-  compteClientMutuelle: string;
-  compteClientAutre: string;
+  /** Compte client des payeurs qui n'ont pas de compte propre. */
+  compteClientDefaut: string;
   compteBanque: string;
   compteCaisse: string;
   compteTVACollectee: string;
@@ -154,6 +207,74 @@ export class ComptabiliteApiService {
 
   synchroniserStock(centerId: string, from: string, to: string): Observable<SynchronisationStock> {
     return this.http.post<SynchronisationStock>(`${this.base}/stock/synchroniser`, {centerId, from, to});
+  }
+
+  // ─── Plan comptable ──────────────────────────────────────────────────────
+
+  getComptes(centerId: string, page: number, size: number, recherche = '', actifs = false):
+    Observable<PagedResponse<CompteItem>> {
+    let params = this.centre(centerId).set('page', String(page)).set('size', String(size));
+    if (recherche.trim()) params = params.set('recherche', recherche.trim());
+    if (actifs) params = params.set('actifs', 'true');
+    return this.http.get<PagedResponse<CompteItem>>(`${this.base}/comptes`, {params});
+  }
+
+  saveCompte(centerId: string, compte: CompteItem): Observable<CompteItem> {
+    return this.http.put<CompteItem>(`${this.base}/comptes/${encodeURIComponent(compte.numero)}`,
+      {libelle: compte.libelle, actif: compte.actif}, {params: this.centre(centerId)});
+  }
+
+  deleteCompte(centerId: string, numero: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/comptes/${encodeURIComponent(numero)}`,
+      {params: this.centre(centerId)});
+  }
+
+  // ─── Compte client de chaque payeur ──────────────────────────────────────
+
+  getPayeurs(centerId: string, page: number, size: number, recherche = ''): Observable<PagedResponse<PayeurCompteItem>> {
+    let params = this.centre(centerId).set('page', String(page)).set('size', String(size));
+    if (recherche.trim()) params = params.set('recherche', recherche.trim());
+    return this.http.get<PagedResponse<PayeurCompteItem>>(`${this.base}/payeurs`, {params});
+  }
+
+  /** Affecte un compte client au payeur ; vide = retour au compte client par défaut du centre. */
+  saveComptePayeur(centerId: string, payeurId: string, compte: string): Observable<PayeurCompteItem> {
+    return this.http.put<PayeurCompteItem>(`${this.base}/payeurs/${payeurId}/compte`, {compte},
+      {params: this.centre(centerId)});
+  }
+
+  // ─── Modèles de pièces et pièces saisies ─────────────────────────────────
+
+  getModeles(centerId: string, page: number, size: number, actifs = false): Observable<PagedResponse<ModelePieceItem>> {
+    let params = this.centre(centerId).set('page', String(page)).set('size', String(size));
+    if (actifs) params = params.set('actifs', 'true');
+    return this.http.get<PagedResponse<ModelePieceItem>>(`${this.base}/modeles`, {params});
+  }
+
+  createModele(centerId: string, modele: ModelePiecePayload): Observable<ModelePieceItem> {
+    return this.http.post<ModelePieceItem>(`${this.base}/modeles`, modele, {params: this.centre(centerId)});
+  }
+
+  updateModele(centerId: string, id: string, modele: ModelePiecePayload): Observable<ModelePieceItem> {
+    return this.http.put<ModelePieceItem>(`${this.base}/modeles/${id}`, modele, {params: this.centre(centerId)});
+  }
+
+  deleteModele(centerId: string, id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/modeles/${id}`, {params: this.centre(centerId)});
+  }
+
+  saisirPiece(centerId: string, piece: PiecePayload): Observable<PieceItem> {
+    return this.http.post<PieceItem>(`${this.base}/pieces`, piece, {params: this.centre(centerId)});
+  }
+
+  /** Annule une pièce saisie par une écriture inverse datée du jour. */
+  extournerPiece(centerId: string, ecritureId: string): Observable<PieceItem> {
+    return this.http.post<PieceItem>(`${this.base}/pieces/${ecritureId}/extourne`, null,
+      {params: this.centre(centerId)});
+  }
+
+  private centre(centerId: string): HttpParams {
+    return new HttpParams().set('centerId', centerId);
   }
 
   getRegles(centerId: string): Observable<RegleTVAItem[]> {

@@ -4,6 +4,7 @@ import com.hemodialyse.backend.domain.comptabilite.port.EcritureComptableReposit
 import com.hemodialyse.backend.domain.comptabilite.port.JournalRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.JournauxUseCase;
 import com.hemodialyse.backend.domain.comptabilite.port.MappingComptablePort;
+import com.hemodialyse.backend.domain.comptabilite.port.ModelePieceRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.service.JournauxService;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.Journal;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
@@ -23,8 +24,8 @@ public class JournauxApplicationService implements JournauxUseCase {
     private final JournauxService delegate;
 
     public JournauxApplicationService(JournalRepositoryPort journaux, MappingComptablePort mappings,
-                                      EcritureComptableRepositoryPort ecritures) {
-        this.delegate = new JournauxService(journaux, mappings, ecritures);
+                                      EcritureComptableRepositoryPort ecritures, ModelePieceRepositoryPort modeles) {
+        this.delegate = new JournauxService(journaux, mappings, ecritures, modeles);
     }
 
     @Override

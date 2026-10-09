@@ -68,10 +68,91 @@
   margin: 12px 0;
 }
 
+.cpa-recherche {
+  width: min(100%, 360px);
+  margin-top: 8px;
+}
+
+.cpa-muted {
+  display: block;
+  margin: 0;
+  font-size: 13px;
+  color: var(--app-muted, #5f6b7a);
+}
+
+.cpa-sous-titre {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+}
+
+.cpa-actions-debut {
+  justify-content: flex-start;
+}
+
+/* compte d'un payeur : le champ et son bouton sur une ligne */
+.cpa-payeur-compte {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 300px;
+  padding-top: 8px;
+}
+
+.cpa-payeur-compte app-compte-select {
+  flex: 1 1 200px;
+}
+
+/* ligne d'un modèle : sens, compte, libellé, retrait */
+.cpa-ligne {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.6fr) minmax(180px, 1.4fr) minmax(160px, 1.4fr) auto;
+  align-items: start;
+  gap: 8px 12px;
+}
+
+.cpa-ligne-piece {
+  grid-template-columns: minmax(200px, 2fr) minmax(140px, 1fr);
+  align-items: center;
+}
+
+.cpa-ligne-compte {
+  display: grid;
+  gap: 2px;
+}
+
+.cpa-sens {
+  justify-self: start;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1565c0;
+  background: color-mix(in srgb, #1565c0 12%, transparent);
+}
+
+.cpa-sens.credit {
+  color: #6a1b9a;
+  background: color-mix(in srgb, #6a1b9a 12%, transparent);
+}
+
+.cpa-ligne-resume {
+  display: inline-block;
+  margin-inline-end: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 @media (max-width: 767px) {
   .cpa-journal-form,
-  .cpa-grid {
+  .cpa-grid,
+  .cpa-ligne,
+  .cpa-ligne-piece {
     grid-template-columns: 1fr;
+  }
+
+  .cpa-payeur-compte {
+    flex-wrap: wrap;
+    min-width: 220px;
   }
 
   .cpa-actions {

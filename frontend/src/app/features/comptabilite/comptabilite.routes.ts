@@ -14,4 +14,9 @@ export const comptabiliteRoutes: Routes = [
     loadComponent: () =>
       import('./comptabilite-parametrage.component').then((m) => m.ComptabiliteParametrageComponent),
   },
+  {
+    // saisie d'une pièce à partir d'un modèle : administrateur et secrétariat (le serveur applique la règle)
+    path: 'pieces',
+    loadComponent: () => import('./saisie-piece.component').then((m) => m.SaisiePieceComponent),
+  },
 ];

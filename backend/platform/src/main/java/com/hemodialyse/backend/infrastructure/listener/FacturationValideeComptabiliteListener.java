@@ -81,7 +81,6 @@ public class FacturationValideeComptabiliteListener {
                         f.numeroFacture,
                         f.patientId,
                         f.centrePayeurId,
-                        "AUTRE",
                         f.totalHt != null ? f.totalHt : BigDecimal.ZERO,
                         f.totalTva != null ? f.totalTva : BigDecimal.ZERO,
                         f.totalTtc != null ? f.totalTtc : BigDecimal.ZERO,

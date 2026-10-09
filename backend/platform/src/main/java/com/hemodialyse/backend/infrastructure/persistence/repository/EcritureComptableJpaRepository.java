@@ -4,6 +4,8 @@ import com.hemodialyse.backend.infrastructure.persistence.entity.EcritureComptab
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +20,13 @@ public interface EcritureComptableJpaRepository extends JpaRepository<EcritureCo
     Optional<EcritureComptableJpaEntity> findFirstByCenterIdAndSourceIdOrderByCreatedAtAsc(UUID centerId, UUID sourceId);
 
     boolean existsByCenterIdAndJournalCode(UUID centerId, String journalCode);
+
+    /**
+     * Vrai si une ligne d'écriture du centre porte ce compte.
+     */
+    @Query("select count(l) > 0 from LigneEcritureJpaEntity l where l.ecriture.centerId = :centerId "
+            + "and l.compteSCF = :compte")
+    boolean existsLigneByCompte(@Param("centerId") UUID centerId, @Param("compte") String compte);
 
     Page<EcritureComptableJpaEntity> findByCenterIdAndJournalCodeAndDateEcritureBetween(
             UUID centerId, String journalCode, LocalDate from, LocalDate to, Pageable pageable);

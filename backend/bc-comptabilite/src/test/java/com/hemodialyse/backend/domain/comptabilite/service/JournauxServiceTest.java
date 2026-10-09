@@ -1,7 +1,9 @@
 package com.hemodialyse.backend.domain.comptabilite.service;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
+import com.hemodialyse.backend.domain.comptabilite.aggregate.ModelePiece;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.SensEcriture;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.ComptesStock;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.Journal;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
@@ -27,17 +29,27 @@ class JournauxServiceTest {
     private static final UUID AUTRE_CENTRE = UUID.randomUUID();
     private static final JournalCode OD = JournalCode.de("OD");
 
-    private final ComptabiliteFixtures.Ecritures ecritures = new ComptabiliteFixtures.Ecritures();
-    private final ComptabiliteFixtures.Mappings mappings = new ComptabiliteFixtures.Mappings();
-    private final ComptabiliteFixtures.Periodes periodes = new ComptabiliteFixtures.Periodes();
-    private final ComptabiliteFixtures.Journaux journaux = new ComptabiliteFixtures.Journaux();
-    private final JournauxService service = new JournauxService(journaux, mappings, ecritures);
-    private final ComptabiliteService comptabilite = new ComptabiliteService(ecritures, mappings,
-            new ComptabiliteFixtures.Fiscal(), periodes, null, journaux);
+    private final ComptabiliteFixtures.Monde monde = new ComptabiliteFixtures.Monde();
+    private final ComptabiliteFixtures.Ecritures ecritures = monde.ecritures;
+    private final ComptabiliteFixtures.Journaux journaux = monde.journaux;
+    private final JournauxService service = monde.journauxService;
+    private final ComptabiliteService comptabilite = monde.comptabilite;
 
     private static MappingComptable mapping(UUID centre, Map<OperationComptable, JournalCode> choix) {
-        return new MappingComptable(centre, "706", "411100", "411200", "411300", "411400", "411500", "512", "530",
-                "44571", ComptesStock.parDefaut(), choix);
+        return new MappingComptable(centre, "706", "411100", "411500", "512", "530", "44571",
+                ComptesStock.parDefaut(), choix);
+    }
+
+    @Test
+    void a_journal_used_by_a_piece_model_cannot_be_deactivated_nor_deleted() {
+        service.enregistrer(CENTRE, new Journal(OD, "Opérations diverses", true));
+        monde.pieces.enregistrerModele(new ModelePiece(UUID.randomUUID(), CENTRE, "LOYER", "Loyer", OD, true, List.of(
+                new ModelePiece.Ligne(SensEcriture.DEBIT, "613", null),
+                new ModelePiece.Ligne(SensEcriture.CREDIT, "512", null))));
+
+        assertEquals("JOURNAL_UTILISE", code(assertThrows(BusinessException.class, () -> service.supprimer(CENTRE, OD))));
+        assertEquals("JOURNAL_UTILISE", code(assertThrows(BusinessException.class,
+                () -> service.enregistrer(CENTRE, new Journal(OD, "Opérations diverses", false)))));
     }
 
     private static String code(BusinessException e) {
@@ -90,7 +102,7 @@ class JournauxServiceTest {
 
         EcritureComptable ecriture = comptabilite.genererEcritureFacturation(
                 new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE, UUID.randomUUID(), "FACT-1",
-                        UUID.randomUUID(), UUID.randomUUID(), "CNAS", new BigDecimal("100.00"), BigDecimal.ZERO,
+                        UUID.randomUUID(), UUID.randomUUID(), new BigDecimal("100.00"), BigDecimal.ZERO,
                         new BigDecimal("100.00"), LocalDate.of(2026, 10, 5), "Séance"));
         assertEquals(OD, ecriture.getJournalCode(), "la vente s'écrit dans le journal choisi");
         assertEquals("OD-2026-000001", ecriture.getNumeroPiece());
@@ -128,7 +140,7 @@ class JournauxServiceTest {
     void changing_the_journal_of_an_operation_never_duplicates_an_entry_already_posted() {
         UUID facture = UUID.randomUUID();
         var commande = new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE, facture, "FACT-2",
-                UUID.randomUUID(), UUID.randomUUID(), "CNAS", new BigDecimal("100.00"), BigDecimal.ZERO,
+                UUID.randomUUID(), UUID.randomUUID(), new BigDecimal("100.00"), BigDecimal.ZERO,
                 new BigDecimal("100.00"), LocalDate.of(2026, 10, 5), "Séance");
         EcritureComptable premiere = comptabilite.genererEcritureFacturation(commande);
 

@@ -22,7 +22,7 @@ const TYPES = [
   'OBSERVANCE_NON_RESPECTEE', 'INFIRMIER_ABSENCE_DECLAREE', 'INFIRMIER_ABSENCE_ENREGISTREE',
   'INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_SUREFFECTIF', 'OPTIMISATION_PROPOSITION', 'GENERATEUR_INDISPONIBLE',
   'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
-  'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED',
+  'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED', 'REPLANIFICATION_NOCTURNE',
 ];
 
 /** Écrans ouverts à l'infirmier seul et au médecin seul (mêmes règles que `role-scope.guard`). */
@@ -96,6 +96,25 @@ describe('présentation des notifications', () => {
       {label: 'NOTIFICATION.ACTION.PLANNING', commands: ['/medecin'], queryParams: {date: '2026-10-19'}});
     expect(vue(event('GENERATEUR_INDISPONIBLE'), 'MEDECIN').action.commands).toEqual(['/medecin']);
     expect(vue(event('OPTIMISATION_PROPOSITION', {runId: 'r1'}), 'MEDECIN').action.commands).toEqual(['/medecin']);
+  });
+
+  it('donne chaque matin le bilan de la replanification nocturne, même quand elle n\'a rien proposé', () => {
+    const bilan = (issue: string, propositions = '0', echecs = '0') =>
+      vue(event('REPLANIFICATION_NOCTURNE', {issue, propositions, echecs}), 'ADMIN');
+
+    expect(bilan('RIEN')).toMatchObject({
+      titre: 'NOTIFICATION.TITRE.REPLANIFICATION_NOCTURNE',
+      message: 'NOTIFICATION.REPLANIFICATION_NOCTURNE.RIEN {"n":"0","echecs":"0"}', ton: 'succes', actionRequise: false,
+      action: {label: 'NOTIFICATION.ACTION.OPTIMISATION', commands: ['/seances/optimisation'], queryParams: {}},
+    });
+    expect(bilan('PROPOSITIONS', '2')).toMatchObject({
+      message: 'NOTIFICATION.REPLANIFICATION_NOCTURNE.PROPOSITIONS {"n":"2","echecs":"0"}', actionRequise: true,
+    });
+    expect(bilan('ECHEC', '1', '2')).toMatchObject({
+      message: 'NOTIFICATION.REPLANIFICATION_NOCTURNE.ECHEC {"n":"1","echecs":"2"}', ton: 'attention',
+    });
+    expect(bilan('REPORTEE')).toMatchObject({ton: 'info', actionRequise: false});
+    expect(bilan('INCONNUE').message).toContain('NOTIFICATION.REPLANIFICATION_NOCTURNE.RIEN');
   });
 
   it('ouvre l\'optimisation du bon périmètre, ou la proposition elle-même', () => {

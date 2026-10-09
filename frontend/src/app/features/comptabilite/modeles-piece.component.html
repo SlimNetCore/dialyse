@@ -1,0 +1,145 @@
+@if (store.error()) {
+  <p class="cpa-feedback error" data-testid="modeles-erreur" role="alert">{{ store.error()! | translate }}</p>
+}
+@if (store.successMessage()) {
+  <p class="cpa-feedback success" data-testid="modeles-succes">{{ store.successMessage()! | translate }}</p>
+}
+
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ 'COMPTABILITE.MODELES.TITRE' | translate }}</mat-card-title>
+    <mat-card-subtitle>{{ 'COMPTABILITE.MODELES.AIDE' | translate }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form (submit)="save(); $event.preventDefault()" [formRoot]="modeleForm" class="cpa-stack">
+      <div class="cpa-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.MODELES.CODE' | translate }}</mat-label>
+          <input [formField]="modeleForm.code" data-testid="modele-code" matInput/>
+          <mat-hint>{{ 'COMPTABILITE.MODELES.CODE_AIDE' | translate }}</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.MODELES.LIBELLE' | translate }}</mat-label>
+          <input [formField]="modeleForm.libelle" data-testid="modele-libelle" matInput/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.MODELES.JOURNAL' | translate }}</mat-label>
+          <mat-select (valueChange)="patch({journal: $event})" [value]="modele().journal" data-testid="modele-journal">
+            @for (j of journaux(); track j.code) {
+              <mat-option [value]="j.code">{{ j.libelle }} ({{ j.code }})</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <h3 class="cpa-sous-titre">{{ 'COMPTABILITE.MODELES.LIGNES' | translate }}</h3>
+      @for (ligne of modele().lignes; track $index) {
+        <div [attr.data-testid]="'modele-ligne-' + $index" class="cpa-ligne">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPTABILITE.MODELES.SENS' | translate }}</mat-label>
+            <mat-select (valueChange)="patchLigne($index, {sens: $event})" [value]="ligne.sens">
+              @for (s of sens; track s) {
+                <mat-option [value]="s">{{ 'COMPTABILITE.MODELES.SENS_VALEUR.' + s | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <app-compte-select (valueChange)="patchLigne($index, {compte: $event})" [comptes]="comptes()"
+                             [label]="'COMPTABILITE.MODELES.COMPTE' | translate"
+                             [testId]="'modele-compte-' + $index" [value]="ligne.compte"/>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPTABILITE.MODELES.LIBELLE_LIGNE' | translate }}</mat-label>
+            <input (input)="patchLigne($index, {libelle: $any($event.target).value})" [value]="ligne.libelle ?? ''"
+                   matInput/>
+          </mat-form-field>
+          <button (click)="retirerLigne($index)" [attr.aria-label]="'COMPTABILITE.MODELES.RETIRER_LIGNE' | translate"
+                  [disabled]="modele().lignes.length <= 2"
+                  [matTooltip]="'COMPTABILITE.MODELES.RETIRER_LIGNE' | translate" color="warn" mat-icon-button
+                  type="button">
+            <mat-icon>remove_circle</mat-icon>
+          </button>
+        </div>
+      }
+      @if (erreurs().includes('SENS')) {
+        <p class="cpa-hint-error" role="alert">{{ 'COMPTABILITE.MODELES.ERR_SENS' | translate }}</p>
+      }
+
+      <div class="cpa-actions">
+        <button (click)="ajouterLigne()" [disabled]="modele().lignes.length >= lignesMax"
+                data-testid="modele-ajouter-ligne"
+                mat-stroked-button type="button">
+          <mat-icon>add</mat-icon>
+          {{ 'COMPTABILITE.MODELES.AJOUTER_LIGNE' | translate }}
+        </button>
+        @if (editingId()) {
+          <button (click)="cancel()" mat-stroked-button type="button">{{ 'COMMON.CANCEL' | translate }}</button>
+        }
+        <button [disabled]="!canSave()" color="primary" data-testid="modele-save" mat-flat-button type="submit">
+          <mat-icon>save</mat-icon>
+          {{ (editingId() ? 'COMMON.SAVE' : 'COMPTABILITE.MODELES.CREER') | translate }}
+        </button>
+      </div>
+    </form>
+
+    @if (!store.loading() && store.isEmpty()) {
+      <p class="cpa-muted">{{ 'COMPTABILITE.MODELES.AUCUN' | translate }}</p>
+    } @else {
+      <div class="cpa-table-wrap">
+        <table [dataSource]="store.rows()" class="cpa-table" data-testid="modeles" mat-table>
+          <ng-container matColumnDef="code">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.MODELES.CODE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell><strong>{{ row.code }}</strong></td>
+          </ng-container>
+          <ng-container matColumnDef="libelle">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.MODELES.LIBELLE' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.libelle }}</td>
+          </ng-container>
+          <ng-container matColumnDef="journal">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.MODELES.JOURNAL' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>{{ row.journal }}</td>
+          </ng-container>
+          <ng-container matColumnDef="lignes">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.MODELES.LIGNES' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              @for (l of row.lignes; track $index) {
+                <span class="cpa-ligne-resume">
+                  {{ 'COMPTABILITE.MODELES.SENS_COURT.' + l.sens | translate }} {{ l.compte }}
+                </span>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actif">
+            <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.JOURNAL_ACTIF' | translate }}</th>
+            <td *matCellDef="let row" mat-cell>
+              <mat-slide-toggle (change)="toggleActif(row, $event.checked)" [attr.aria-label]="'COMPTABILITE.PARAMETRAGE.JOURNAL_ACTIF' | translate"
+                                [checked]="row.actif"
+                                [disabled]="store.saving()"/>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let row" class="cpa-row-actions" mat-cell>
+              <a [attr.aria-label]="'COMPTABILITE.PIECES.SAISIR' | translate" [disabled]="!row.actif"
+                 [matTooltip]="'COMPTABILITE.PIECES.SAISIR' | translate" [queryParams]="{modele: row.id}"
+                 mat-icon-button routerLink="/comptabilite/pieces">
+                <mat-icon>post_add</mat-icon>
+              </a>
+              <button (click)="edit(row)" [attr.aria-label]="'COMMON.EDIT' | translate"
+                      [matTooltip]="'COMMON.EDIT' | translate" mat-icon-button type="button">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button (click)="remove(row)" [attr.aria-label]="'COMMON.DELETE' | translate"
+                      [disabled]="store.saving()" [matTooltip]="'COMMON.DELETE' | translate" color="warn"
+                      mat-icon-button type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="columns" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: columns" [attr.data-modele]="row.code" mat-row></tr>
+        </table>
+      </div>
+      <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
+    }
+  </mat-card-content>
+</mat-card>

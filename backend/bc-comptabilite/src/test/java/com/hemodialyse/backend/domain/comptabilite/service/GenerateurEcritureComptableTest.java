@@ -21,12 +21,12 @@ class GenerateurEcritureComptableTest {
     void ecriture_facturation_doit_etre_equilibree() {
         var cmd = new ComptabiliteUseCase.GenererEcritureFacturationCommand(
                 centerId, UUID.randomUUID(), "FACT-2026-0001",
-                UUID.randomUUID(), UUID.randomUUID(), "CNAS",
+                UUID.randomUUID(), UUID.randomUUID(),
                 new BigDecimal("1000.00"), BigDecimal.ZERO, new BigDecimal("1000.00"),
                 LocalDate.of(2026, 8, 14), "Patient Test CNAS"
         );
-        // Exonéré de TVA
-        EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping, "VE-2026-0001", null);
+        // Exonéré de TVA ; le compte client est celui du payeur, résolu par l'appelant
+        EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping, "411200", "VE-2026-0001");
 
         assertEquals(JournalCode.VE, ecriture.getJournalCode());
         assertEquals(StatutEcriture.VALIDEE, ecriture.getStatut());
@@ -42,14 +42,12 @@ class GenerateurEcritureComptableTest {
     void ecriture_facturation_avec_tva_doit_avoir_3_lignes() {
         var cmd = new ComptabiliteUseCase.GenererEcritureFacturationCommand(
                 centerId, UUID.randomUUID(), "FACT-2026-0002",
-                UUID.randomUUID(), UUID.randomUUID(), "PATIENT_DIRECT",
+                UUID.randomUUID(), null,
                 new BigDecimal("1000.00"), new BigDecimal("90.00"), new BigDecimal("1090.00"),
                 LocalDate.of(2026, 8, 14), "Patient direct avec TVA"
         );
-        RegleTVA regleTVA = new RegleTVA("DIALYSE", new BigDecimal("9.00"), false,
-                LocalDate.of(2026, 1, 1), null, "Art 1 loi finances 2026");
 
-        EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping, "VE-2026-0002", regleTVA);
+        EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping, "411100", "VE-2026-0002");
 
         assertEquals(3, ecriture.getLignes().size());
         // Équilibre : débit 1090 = crédit 1000 + 90
@@ -61,9 +59,12 @@ class GenerateurEcritureComptableTest {
         var cmd = new ComptabiliteUseCase.GenererEcritureReglementCommand(
                 centerId, UUID.randomUUID(), UUID.randomUUID(),
                 new BigDecimal("500.00"), LocalDate.of(2026, 8, 14),
-                "BANQUE", "CNAS Agence Centre", UUID.randomUUID(), "CNAS"
+                "BANQUE", "CNAS Agence Centre", UUID.randomUUID()
         );
-        EcritureComptable ecriture = generateur.genererEcritureReglement(cmd, mapping, "BQ-2026-0001");
+        EcritureComptable ecriture = generateur.genererEcritureReglement(cmd, mapping, "411200", "BQ-2026-0001");
+
+        assertEquals("512", ecriture.getLignes().get(0).getCompteSCF());
+        assertEquals("411200", ecriture.getLignes().get(1).getCompteSCF());
 
         assertEquals(JournalCode.BQ, ecriture.getJournalCode());
         assertEquals(2, ecriture.getLignes().size());

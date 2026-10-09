@@ -1,0 +1,116 @@
+<section class="app-page cpa-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'COMPTABILITE.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'COMPTABILITE.PIECES.TITRE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'COMPTABILITE.PIECES.DESCRIPTION' | translate }}</p>
+    <div class="cpa-actions cpa-actions-debut">
+      <a mat-stroked-button routerLink="/comptabilite">
+        <mat-icon>menu_book</mat-icon>
+        {{ 'COMPTABILITE.PARAMETRAGE.RETOUR_JOURNAL' | translate }}
+      </a>
+      @if (peutParametrer()) {
+        <a mat-stroked-button routerLink="/comptabilite/parametrage">
+          <mat-icon>tune</mat-icon>
+          {{ 'COMPTABILITE.PIECES.GERER_MODELES' | translate }}
+        </a>
+      }
+    </div>
+  </div>
+
+  @if (store.loading() || store.saving()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error()) {
+    <p class="cpa-feedback error" data-testid="piece-erreur" role="alert">{{ store.error()! | translate }}</p>
+  }
+  @if (store.dernierePiece(); as piece) {
+    <p class="cpa-feedback success" data-testid="piece-succes">
+      {{
+        'COMPTABILITE.PIECES.CONFIRMATION' | translate: {
+          numero: piece.numeroPiece,
+          total: (piece.total | number:'1.2-2')
+        }
+      }}
+    </p>
+  }
+
+  <mat-card>
+    <mat-card-content>
+      @if (!store.loading() && store.actifs().length === 0) {
+        <p class="cpa-muted" data-testid="piece-aucun-modele">{{ 'COMPTABILITE.PIECES.AUCUN_MODELE' | translate }}</p>
+      } @else {
+        <form (submit)="save(); $event.preventDefault()" [formRoot]="enteteForm" class="cpa-stack">
+          <div class="cpa-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPTABILITE.PIECES.MODELE' | translate }}</mat-label>
+              <mat-select (valueChange)="choisir($event)" [value]="modeleId()" data-testid="piece-modele">
+                @for (m of store.actifs(); track m.id) {
+                  <mat-option [value]="m.id">{{ m.libelle }} ({{ m.code }})</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPTABILITE.PIECES.DATE' | translate }}</mat-label>
+              <input [formField]="enteteForm.date" data-testid="piece-date" matInput type="date"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPTABILITE.PIECES.LIBELLE' | translate }}</mat-label>
+              <input [formField]="enteteForm.libelle" data-testid="piece-libelle" matInput/>
+              @if (modele(); as m) {
+                <mat-hint>{{ 'COMPTABILITE.PIECES.LIBELLE_AIDE' | translate: {libelle: m.libelle} }}</mat-hint>
+              }
+            </mat-form-field>
+          </div>
+
+          @if (modele(); as m) {
+            <p class="cpa-muted">{{ 'COMPTABILITE.PIECES.JOURNAL' | translate: {journal: m.journal} }}</p>
+            @for (ligne of m.lignes; track $index) {
+              <div class="cpa-ligne cpa-ligne-piece">
+                <div class="cpa-ligne-compte">
+                  <span [class.credit]="ligne.sens === 'CREDIT'" class="cpa-sens">
+                    {{ 'COMPTABILITE.MODELES.SENS_VALEUR.' + ligne.sens | translate }}
+                  </span>
+                  <strong>{{ ligne.compte }}</strong>
+                  <span class="cpa-muted">{{ ligne.libelle || libelleCompte(ligne.compte) }}</span>
+                </div>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'COMPTABILITE.PIECES.MONTANT' | translate }}</mat-label>
+                  <input (input)="saisirMontant($index, $any($event.target).value)"
+                         [attr.data-testid]="'piece-montant-' + $index" [value]="montant($index)"
+                         inputmode="decimal" matInput/>
+                  @if (montantInvalide($index)) {
+                    <mat-hint class="cpa-hint-error">{{ 'COMPTABILITE.PIECES.MONTANT_INVALIDE' | translate }}</mat-hint>
+                  }
+                </mat-form-field>
+              </div>
+            }
+
+            <div class="cpa-resultat" data-testid="piece-totaux">
+              <div class="app-data-pill">
+                <span>{{ 'COMPTABILITE.TABLE.DEBIT' | translate }}</span>
+                <strong>{{ totaux().debit | number:'1.2-2' }}</strong>
+              </div>
+              <div class="app-data-pill">
+                <span>{{ 'COMPTABILITE.TABLE.CREDIT' | translate }}</span>
+                <strong>{{ totaux().credit | number:'1.2-2' }}</strong>
+              </div>
+              <div class="app-data-pill">
+                <span>{{ 'COMPTABILITE.PIECES.EQUILIBRE' | translate }}</span>
+                <strong [class.cpa-hint-error]="!totaux().equilibree">
+                  {{ (totaux().equilibree ? 'COMPTABILITE.DETAIL.BALANCE_OK' : 'COMPTABILITE.DETAIL.BALANCE_WARNING') | translate }}
+                </strong>
+              </div>
+            </div>
+          }
+
+          <div class="cpa-actions">
+            <button [disabled]="!canSave()" color="primary" data-testid="piece-save" mat-flat-button type="submit">
+              <mat-icon>save</mat-icon>
+              {{ 'COMPTABILITE.PIECES.ENREGISTRER' | translate }}
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</section>
