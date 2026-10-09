@@ -144,6 +144,14 @@ jobs:
           echo "$PLAN" | grep -q '"Node Type"' || { echo "::error::plan générique introuvable"; echo "$PLAN"; exit 1; }
           echo "OK : plan générique établi sans exécuter la requête"
 
+      # L'adaptateur Java réel (connexion en lecture seule, plan générique, nettoyage de la session) sur PostgreSQL 16 :
+      # le test est ignoré partout ailleurs (H2 ne sait pas le faire).
+      - name: Adaptateur d'analyse de plan sur PostgreSQL
+        working-directory: backend
+        run: |
+          ./mvnw -B -q -pl bc-seance,platform test -Dtest=PgPlanAdapterPostgresTest -Dsurefire.failIfNoSpecifiedTests=false \
+            -Dpg.test.url="jdbc:postgresql://localhost:5432/$DB_NAME" -Dpg.test.user="$DB_USER" -Dpg.test.password="$DB_PASS"
+
       # ------------------------------------------------------------
       # 3. Cohérence entités JPA <-> schéma migré
       #    (détecte une entité modifiée sans migration associée)

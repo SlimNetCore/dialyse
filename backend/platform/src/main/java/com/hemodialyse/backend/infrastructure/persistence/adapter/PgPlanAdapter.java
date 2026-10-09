@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
 import com.hemodialyse.backend.application.supervision.port.AnalysePlanPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,8 @@ import java.util.regex.Pattern;
 public class PgPlanAdapter implements AnalysePlanPort {
 
     static final int PLAN_TEXTE_MAX = 20_000;
+
+    private static final Logger log = LoggerFactory.getLogger(PgPlanAdapter.class);
 
     private static final Pattern LECTURE = Pattern.compile("^\\s*(select|with)\\b.*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private static final Pattern ECRITURE_DANS_CTE = Pattern.compile("\\b(insert\\s+into|update\\s+\\w|delete\\s+from)\\b",
@@ -112,11 +116,15 @@ public class PgPlanAdapter implements AnalysePlanPort {
             return Optional.of(jdbc.execute((org.springframework.jdbc.core.ConnectionCallback<PlanGenerique>) con ->
                     planDansTransactionLectureSeule(con, sql)));
         } catch (DataAccessException e) {
+            log.warn("[SUPERVISION] Plan générique impossible : {}", e.getMessage());
             return Optional.of(PlanGenerique.indisponible(sql, "PLAN_IMPOSSIBLE"));
         }
     }
 
-    private PlanGenerique planDansTransactionLectureSeule(Connection con, String sql) throws SQLException {
+    /**
+     * Établit le plan sur une connexion donnée et la rend dans son état d'origine (visible pour le test PostgreSQL).
+     */
+    PlanGenerique planDansTransactionLectureSeule(Connection con, String sql) throws SQLException {
         boolean autoCommit = con.getAutoCommit();
         boolean lectureSeule = con.isReadOnly();
         String nom = "sup_" + UUID.randomUUID().toString().replace("-", "");
@@ -131,19 +139,34 @@ public class PgPlanAdapter implements AnalysePlanPort {
             String texte = tronquer(toutesLesLignes(st, "EXPLAIN EXECUTE " + nom + arguments));
             return new PlanGenerique(sql, json, texte, null);
         } catch (SQLException e) {
+            log.warn("[SUPERVISION] Plan générique impossible : {}", e.getMessage());
             return PlanGenerique.indisponible(sql, "PLAN_IMPOSSIBLE");
         } finally {
-            try (Statement st = con.createStatement()) {
-                // la transaction est annulée ; un PREPARE y survit pourtant (il n'est pas transactionnel) et la session
-                // est réutilisée par le pool : on libère notre requête préparée, et elle seule (jamais DEALLOCATE ALL,
-                // qui supprimerait aussi les requêtes préparées par le pilote JDBC)
-                con.rollback();
-                st.execute("DEALLOCATE " + nom);
-            } catch (SQLException ignored) {
-                // déjà libérée (PREPARE refusé) ou connexion cassée, écartée par le pool
-            }
+            nettoyer(con, nom, lectureSeule, autoCommit);
+        }
+    }
+
+    /**
+     * Rend la connexion au pool dans l'état où elle a été prise, sans jamais masquer le plan déjà établi.
+     * <p>
+     * La transaction est annulée, mais un {@code PREPARE} y survit (il n'est pas transactionnel) et la session est
+     * réutilisée : on libère notre requête préparée, et elle seule (jamais {@code DEALLOCATE ALL}, qui supprimerait
+     * aussi les requêtes préparées par le pilote JDBC). Le {@code DEALLOCATE} rouvre une transaction, qu'il faut
+     * terminer <b>avant</b> de rétablir {@code readOnly} (le pilote refuse de le changer en cours de transaction).
+     */
+    private void nettoyer(Connection con, String nom, boolean lectureSeule, boolean autoCommit) {
+        try (Statement st = con.createStatement()) {
+            con.rollback();
+            st.execute("DEALLOCATE " + nom);
+        } catch (SQLException e) {
+            // déjà libérée (PREPARE refusé) ou connexion cassée, écartée par le pool
+        }
+        try {
+            con.rollback();
             con.setReadOnly(lectureSeule);
             con.setAutoCommit(autoCommit);
+        } catch (SQLException e) {
+            log.warn("[SUPERVISION] État de la connexion non rétabli : {}", e.getMessage());
         }
     }
 
