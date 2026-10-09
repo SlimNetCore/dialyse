@@ -1,6 +1,10 @@
 package com.hemodialyse.backend.application.planning.optimisation;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.domain.infirmier.model.AbsenceInfirmier;
+import com.hemodialyse.backend.domain.infirmier.model.Presence.DonneesPresence;
+import com.hemodialyse.backend.domain.infirmier.model.TypeAbsence;
+import com.hemodialyse.backend.domain.infirmier.port.PresenceDonneesPort;
 import com.hemodialyse.backend.domain.planning.model.JourSemaine;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOptimisation;
 import com.hemodialyse.backend.domain.planning.optimisation.model.PerimetreOptimisation;
@@ -38,8 +42,64 @@ class ReplanificationAutomatiqueServiceTest {
     private final OptimisationPlanningService planification = mock(OptimisationPlanningService.class);
     private final ReglagesOptimisationPort reglages = mock(ReglagesOptimisationPort.class);
     private final NotificationService notifications = mock(NotificationService.class);
+    private final PresenceDonneesPort presence = mock(PresenceDonneesPort.class);
     private final ReplanificationAutomatiqueService service =
-            new ReplanificationAutomatiqueService(planification, reglages, notifications);
+            new ReplanificationAutomatiqueService(planification, reglages, notifications, presence);
+
+    private static AbsenceInfirmier absence(LocalDate debut, LocalDate fin) {
+        return AbsenceInfirmier.creer(CENTRE, UUID.randomUUID(), debut, fin, TypeAbsence.CONGE, null);
+    }
+
+    private void absencesAVenir(AbsenceInfirmier... absences) {
+        when(presence.charger(eq(CENTRE), any(), any())).thenReturn(
+                new DonneesPresence(null, 4, List.of(), List.of(), List.of(absences), List.of()));
+    }
+
+    @Test
+    void should_cover_two_weeks_when_no_absence_is_planned() {
+        absencesAVenir();
+
+        assertThat(service.semainesDeCouverture(CENTRE, MARDI)).isEqualTo(2);
+    }
+
+    @Test
+    void should_extend_the_coverage_up_to_the_end_of_a_future_absence() {
+        // absence qui se termine le lundi 2 novembre 2026, soit la 6e semaine à partir du dimanche 27 septembre
+        absencesAVenir(absence(LocalDate.of(2026, 10, 19), LocalDate.of(2026, 11, 2)));
+
+        assertThat(service.semainesDeCouverture(CENTRE, MARDI)).isEqualTo(6);
+    }
+
+    @Test
+    void should_cap_the_coverage_to_the_maximum_horizon_and_ignore_past_absences() {
+        absencesAVenir(absence(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 10)),
+                absence(LocalDate.of(2026, 10, 1), LocalDate.of(2027, 3, 1)));
+
+        assertThat(service.semainesDeCouverture(CENTRE, MARDI)).isEqualTo(ParametresOptimisation.SEMAINES_MAX);
+
+        absencesAVenir(absence(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 10)));
+        assertThat(service.semainesDeCouverture(CENTRE, MARDI)).isEqualTo(2);
+    }
+
+    @Test
+    void should_fall_back_to_two_weeks_when_the_absences_cannot_be_read() {
+        when(presence.charger(any(), any(), any())).thenThrow(new IllegalStateException("base indisponible"));
+
+        assertThat(service.semainesDeCouverture(CENTRE, MARDI)).isEqualTo(2);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void should_launch_the_coverage_over_the_computed_horizon() {
+        absencesAVenir(absence(LocalDate.of(2026, 10, 19), LocalDate.of(2026, 11, 2)));
+        ArgumentCaptor<ParametresOptimisation> etape = ArgumentCaptor.forClass(ParametresOptimisation.class);
+
+        service.replanifier(CENTRE, MARDI);
+
+        verify(planification).lancer(eq(CENTRE), etape.capture(), eq("SYSTEME"), any(Consumer.class));
+        assertThat(etape.getValue().perimetre()).isEqualTo(PerimetreOptimisation.COUVERTURE);
+        assertThat(etape.getValue().nbSemaines()).isEqualTo(6);
+    }
 
     private static RunOptimisation termine(ParametresOptimisation p, ResultatOptimisation resultat) {
         return RunOptimisation.demarrer(CENTRE, p, ReplanificationAutomatiqueService.UTILISATEUR, "x", Instant.EPOCH)

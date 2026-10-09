@@ -39,6 +39,7 @@ import {
   proposeTemporaires,
   vacationsNouvelles,
 } from './optimisation.util';
+import {horizonDepuisParametres} from './horizon-absence.util';
 import {PlanningPreferencesComponent} from './planning-preferences.component';
 import {PlanningProposeComponent} from './planning-propose.component';
 
@@ -169,14 +170,20 @@ export class PlanningOptimisationComponent {
         this.store.chargerHistorique({page: 0, size: this.store.pageSize()});
       });
     });
-    // Arrivée depuis une alerte : `?run=<id>` ouvre la proposition, `?perimetre=<P>` présélectionne ce qu'on planifie.
+    // Arrivée depuis une alerte : `?run=<id>` ouvre la proposition, `?perimetre=<P>` présélectionne ce qu'on planifie,
+    // `?debut=<date>&semaines=<n>` règle la période à planifier.
     effect(() => {
       const params = this.params();
       const run = params.get('run');
       const perimetre = params.get('perimetre') as PerimetreOptimisation | null;
+      const horizon = horizonDepuisParametres(params.get('debut'), params.get('semaines'));
       untracked(() => {
         if (perimetre && PERIMETRES_OPTIMISATION.includes(perimetre)) {
           this.formModel.update((m) => ({...m, perimetre}));
+        }
+        // période de l'absence à pourvoir (`?debut=…&semaines=…`) : le calcul ne se limite pas à la semaine en cours
+        if (horizon) {
+          this.formModel.update((m) => ({...m, debut: horizon.debut, nbSemaines: horizon.semaines}));
         }
         if (run) void this.store.ouvrir(run);
       });

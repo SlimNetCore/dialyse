@@ -1,6 +1,7 @@
 import {provideZonelessChangeDetection, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatDialog} from '@angular/material/dialog';
+import {ActivatedRoute, convertToParamMap} from '@angular/router';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateModule} from '@ngx-translate/core';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -65,12 +66,17 @@ describe('PlanningSemaineComponent', () => {
   let dialogOpen: ReturnType<typeof vi.fn>;
   let dernierEvenement: ReturnType<typeof signal<WsEvent | null>>;
   let roles: string[];
+  let dateDansAdresse: string | null;
 
   async function render() {
     await TestBed.configureTestingModule({
       imports: [PlanningSemaineComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideZonelessChangeDetection(),
+        {
+          provide: ActivatedRoute,
+          useValue: {snapshot: {queryParamMap: convertToParamMap(dateDansAdresse ? {date: dateDansAdresse} : {})}},
+        },
         {provide: MatDialog, useValue: {open: dialogOpen}},
         {provide: WebSocketService, useValue: {lastEvent: dernierEvenement}},
         {provide: AuthStore, useValue: {hasRole: (r: string) => roles.includes(r)}},
@@ -93,6 +99,7 @@ describe('PlanningSemaineComponent', () => {
 
   beforeEach(() => {
     chargerSemaine = vi.fn();
+    dateDansAdresse = null;
     dialogOpen = vi.fn();
     dernierEvenement = signal<WsEvent | null>(null);
     roles = ['ADMIN'];
@@ -105,6 +112,20 @@ describe('PlanningSemaineComponent', () => {
     })]));
   });
   afterEach(() => TestBed.resetTestingModule());
+
+  it('ouvre la semaine demandée par l\'alerte d\'absence d\'un infirmier (?date=…)', async () => {
+    dateDansAdresse = '2026-10-19';
+    await render();
+
+    expect(chargerSemaine).toHaveBeenCalledWith('2026-10-19');
+  });
+
+  it('ignore une date invalide dans l\'adresse', async () => {
+    dateDansAdresse = 'demain';
+    await render();
+
+    expect(chargerSemaine).toHaveBeenCalledWith(null);
+  });
 
   it('affiche dans chaque case les patients avec leur générateur et les infirmiers du créneau', async () => {
     const {root} = await render();

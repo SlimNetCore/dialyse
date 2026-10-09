@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {provideZonelessChangeDetection, signal} from '@angular/core';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {NotificationBellComponent} from './notification-bell.component';
 import {provideRouter} from '@angular/router';
 import {AuthStore} from '../state/auth.store';
@@ -176,6 +176,42 @@ describe('NotificationBellComponent — textes des évènements', () => {
     expect(lien('SEANCES_DEPLACEES')).toMatchObject({commands: ['/seances/planning']});
     expect(lien('SAISIE_INFIRMIER')).toBeNull();
     expect(lien('OPTIMISATION_PROPOSITION')).toBeNull();
+  });
+
+  it('ouvre l\'optimisation sur la période de l\'absence, pas seulement la semaine en cours', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-29T08:00:00Z'));
+    try {
+      const absence = event('INFIRMIER_ABSENCE_ENREGISTREE',
+        {infirmier: 'Amrani Sara', debut: '2026-10-19', fin: '2026-11-02', targetRoles: 'ADMIN,MEDECIN'});
+
+      expect(cmp.lienFor(absence)).toMatchObject({
+        commands: ['/seances/optimisation'],
+        queryParams: {perimetre: 'COUVERTURE', debut: '2026-10-19', semaines: '3'},
+      });
+
+      const enCours = event('INFIRMIER_ABSENCE_DECLAREE', {infirmier: 'X', debut: '2026-09-21', fin: '2026-10-10'});
+      expect(cmp.lienFor(enCours)).toMatchObject({
+        queryParams: {perimetre: 'COUVERTURE', debut: '2026-09-29', semaines: '2'},
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('mène le médecin au planning de la semaine de l\'absence d\'un infirmier', () => {
+    roles = ['MEDECIN'];
+    const absence = event('INFIRMIER_ABSENCE_ENREGISTREE', {
+      infirmier: 'Amrani Sara',
+      debut: '2026-10-19',
+      fin: '2026-11-02'
+    });
+
+    expect(cmp.lienFor(absence)).toMatchObject({
+      label: 'NOTIFICATION.ACTION.PLANNING', commands: ['/medecin'], queryParams: {date: '2026-10-19'},
+    });
+    expect(cmp.lienFor(event('INFIRMIER_SOUS_EFFECTIF', {premiereDate: '2026-10-05', nbCreneaux: '2'})))
+      .toMatchObject({commands: ['/medecin'], queryParams: {date: '2026-10-05'}});
   });
 
   it('ne propose pas l\'optimisation à un profil qui ne peut pas la lancer', () => {

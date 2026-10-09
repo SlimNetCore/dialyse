@@ -198,7 +198,7 @@
   salles ouvertes, vacations d'infirmiers) sans enfreindre les règles de la planification. Cinq **périmètres** :
   `PATIENTS` (replace les patients : salle, créneau, générateur, et choisit les jours de ceux qui le demandent,
   RG-PLN-094), `ROULEMENT` (conçoit le roulement hebdomadaire des infirmiers face aux placements actuels),
-  `COUVERTURE` (comble les cases en sous-effectif sur 1 à 4 semaines avec des remplaçants), `COMPLET` (patients et
+  `COUVERTURE` (comble les cases en sous-effectif sur 1 à 8 semaines avec des remplaçants), `COMPLET` (patients et
   roulement **dans un seul modèle**, RG-PLN-095) et `MAINTENANCE` (déplacements temporaires des séances dont le
   générateur est indisponible, RG-PLN-096). Une proposition **n'est jamais appliquée automatiquement**, y compris
   celles de la replanification nocturne (RG-PLN-100).
@@ -208,7 +208,8 @@
   démarrage du serveur, toute exécution restée en cours passe en échec (« calcul interrompu par l'arrêt du serveur »).
   Nombre de calculs en parallèle : `PLANNING_OPTIMISATION_WORKERS` (défaut 2).
 - **RG-PLN-082** — Paramètres et bornes (sinon refus 400) : début de l'horizon (ramené au dimanche de sa semaine),
-  nombre de semaines 1 à 4 (**uniquement** pour `COUVERTURE` et `MAINTENANCE`, 1 sinon), durée maximale de calcul
+  nombre de semaines 1 à 8 (**uniquement** pour `COUVERTURE` et `MAINTENANCE`, 1 sinon ; huit semaines couvrent une
+  absence déclarée environ deux mois à l'avance), durée maximale de calcul
   **par phase** 2 à 300
   secondes (défaut 20), **stabilité** 0 à 10 (défaut 5 : 0 = tout peut changer, 10 = changer le moins possible),
   objectif des infirmiers `EQUITE` (défaut) ou `ECONOMIE`, vacations maximales par jour 1 à 3 (défaut 2) et par semaine
@@ -291,7 +292,7 @@
   tenue au-delà du besoin de sa case (50), au moins un infirmier qui n'est pas aide-soignant par case servie (200) et
   les compétences demandées par les patients de la case. Le calcul part des places actuelles et du roulement actuel. La
   proposition ne garde que les vacations utiles face aux placements retenus (RG-PLN-091) et signale les manques.
-- **RG-PLN-096** — **Maintenance des générateurs** (`MAINTENANCE`, 1 à 4 semaines datées) : un générateur est
+- **RG-PLN-096** — **Maintenance des générateurs** (`MAINTENANCE`, 1 à 8 semaines datées) : un générateur est
   indisponible pendant une intervention GMAO `PLANIFIEE` ou `EN_COURS` (non supprimée) qui chevauche l'horizon ; sans
   date de fin, une intervention planifiée immobilise son jour de début, une intervention en cours tout l'horizon. Sont
   touchées les séances datées (jours d'ouverture hors fermetures, séjour en cours) dont la place effective — la place
@@ -318,9 +319,17 @@
   travaillé au-delà de `7 − repos minimum` dans une semaine (300), chaque heure au-delà du quota de l'infirmier, les
   vacations comptant la durée réglée (100 par heure, soit 500 pour une vacation de 5 h), chaque compétence demandée par
   un patient d'une case qu'aucun infirmier de la case n'a (250).
+- **RG-PLN-105** — **Couverture d'une absence sur sa période.** L'alerte d'absence d'un infirmier
+  (`INFIRMIER_ABSENCE_ENREGISTREE`, `INFIRMIER_ABSENCE_DECLAREE`) ouvre l'optimisation en `COUVERTURE` avec le **début**
+  (aujourd'hui, ou le début de l'absence si elle est à venir) et le **nombre de semaines** nécessaires pour atteindre
+  sa fin (8 au plus) : le calcul ne se limite plus à la semaine en cours. Le médecin, qui ne lance pas l'optimisation,
+  est conduit au planning de la semaine de l'absence. *Sources :* `ParametresOptimisation.semainesJusqua`,
+  `horizonPourAbsence` (frontend).
 - **RG-PLN-100** — **Replanification automatique nocturne** (`ReplanificationAutomatiqueScheduler`, 02:30 UTC chaque
   nuit), pour les centres qui l'ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
-  semaines), la maintenance (2 semaines) à partir de la semaine en cours, puis le placement des patients de la semaine
+  semaines au moins, **étendue jusqu'à la fin de la dernière absence d'infirmier à venir, 8 semaines au plus** : une
+  absence planifiée dans plusieurs semaines est couverte dès maintenant), la maintenance (2 semaines) à partir de la
+  semaine en cours, puis le placement des patients de la semaine
   suivante, 30 secondes par phase, au nom de `SYSTEME`. Un calcul déjà en cours dans le centre interrompt l'enchaînement
   pour la nuit ; un centre en erreur n'empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
   (`OPTIMISATION_PROPOSITION`) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif

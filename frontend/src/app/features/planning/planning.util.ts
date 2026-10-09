@@ -50,6 +50,11 @@ const EVENEMENTS_PLANNING = new Set([
   'ABSENCES_A_QUALIFIER',
 ]);
 
+/** Jour demandé dans l'adresse (`?date=2026-10-19`), ou {@code null} s'il est absent ou invalide. */
+export function dateDepuisAdresse(valeur: string | null): string | null {
+  return valeur && /^\d{4}-\d{2}-\d{2}$/.test(valeur) && !Number.isNaN(Date.parse(`${valeur}T00:00:00Z`)) ? valeur : null;
+}
+
 /** Vrai si un évènement du serveur doit faire recharger le planning affiché. */
 export function evenementRafraichitPlanning(type: string, payload: Record<string, string> = {}): boolean {
   if (type === 'SAISIE_INFIRMIER') return payload['saisie'] === 'ABSENCE';

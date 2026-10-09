@@ -154,7 +154,7 @@ class NotificationJournalIntegrationTest {
     }
 
     @Test
-    void an_absence_entered_by_the_secretary_is_logged_for_the_administrator_only() {
+    void a_nurse_absence_always_reaches_the_doctor_and_the_administrator_only_when_the_secretary_entered_it() {
         UUID infirmier = infirmiers.creer(CENTRE, "J1", "Amrani", "Sara", null, QualificationInfirmier.INFIRMIER, false)
                 .infirmier().id();
         LocalDate lundi = LocalDate.of(2026, 9, 28);
@@ -167,5 +167,10 @@ class NotificationJournalIntegrationTest {
         assertEquals("INFIRMIER_ABSENCE_ENREGISTREE", admin.items().get(0).type());
         assertTrue(admin.items().get(0).payload().get("infirmier").contains("Amrani"));
         assertEquals(0, pour(CENTRE, "secretaire-1", "SECRETAIRE").total());
+
+        PagedResult<Alerte> medecin = pour(CENTRE, "medecin-1", "MEDECIN");
+        assertEquals(2, medecin.total(), "le médecin est prévenu des deux absences, quel que soit l'auteur de la saisie");
+        assertTrue(medecin.items().stream().allMatch(a -> "INFIRMIER_ABSENCE_ENREGISTREE".equals(a.type())));
+        assertEquals(0, pour(AUTRE_CENTRE, "medecin-2", "MEDECIN").total(), "jamais les alertes d'un autre centre");
     }
 }

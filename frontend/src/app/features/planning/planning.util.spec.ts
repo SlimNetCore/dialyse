@@ -3,6 +3,7 @@ import {CellulePlanning, JourPlanning, SemainePlanning} from '../../core/api/pla
 import {
   absenceDe,
   cellule,
+  dateDepuisAdresse,
   decalerJours,
   etatCellule,
   evenementRafraichitPlanning,
@@ -146,3 +147,12 @@ describe('classeOccupant', () => {
   });
 });
 
+
+describe('dateDepuisAdresse', () => {
+  it('accepte un jour valide et ignore le reste', () => {
+    expect(dateDepuisAdresse('2026-10-19')).toBe('2026-10-19');
+    expect(dateDepuisAdresse('19/10/2026')).toBeNull();
+    expect(dateDepuisAdresse('2026-13-45')).toBeNull();
+    expect(dateDepuisAdresse(null)).toBeNull();
+  });
+});

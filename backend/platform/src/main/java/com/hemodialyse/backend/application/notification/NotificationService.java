@@ -306,15 +306,18 @@ public class NotificationService {
     }
 
     /**
-     * Le secrétariat a enregistré l'absence d'un infirmier : l'administrateur en est prévenu pour les remplacements.
+     * L'absence d'un infirmier a été enregistrée : le médecin en est toujours prévenu (quels soins seront assurés par un
+     * remplaçant), l'administrateur seulement quand la saisie ne vient pas de lui, pour organiser les remplacements.
+     *
+     * @param prevenirAdministrateur la saisie vient du secrétariat
      */
     public void notifyAbsenceInfirmierEnregistree(UUID centerId, String infirmier, java.time.LocalDate debut,
-                                                  java.time.LocalDate fin) {
+                                                  java.time.LocalDate fin, boolean prevenirAdministrateur) {
         var payload = new java.util.HashMap<String, String>();
         payload.put("infirmier", infirmier);
         payload.put("debut", debut.toString());
         payload.put("fin", fin.toString());
-        payload.put("targetRoles", "ADMIN");
+        payload.put("targetRoles", prevenirAdministrateur ? "ADMIN,MEDECIN" : "MEDECIN");
         send(centerId, "INFIRMIER_ABSENCE_ENREGISTREE", payload);
     }
 
@@ -327,7 +330,7 @@ public class NotificationService {
         payload.put("infirmier", infirmier);
         payload.put("debut", debut.toString());
         payload.put("fin", fin.toString());
-        payload.put("targetRoles", "ADMIN,SECRETAIRE");
+        payload.put("targetRoles", "ADMIN,SECRETAIRE,MEDECIN");
         send(centerId, "INFIRMIER_ABSENCE_DECLAREE", payload);
     }
 

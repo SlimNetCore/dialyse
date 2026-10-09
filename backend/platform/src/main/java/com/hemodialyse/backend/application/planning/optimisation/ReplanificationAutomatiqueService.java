@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.application.planning.optimisation;
 
 import com.hemodialyse.backend.application.notification.NotificationService;
+import com.hemodialyse.backend.domain.infirmier.model.AbsenceInfirmier;
+import com.hemodialyse.backend.domain.infirmier.port.PresenceDonneesPort;
 import com.hemodialyse.backend.domain.planning.optimisation.model.MotifProposition;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ObjectifInfirmiers;
 import com.hemodialyse.backend.domain.planning.optimisation.model.ParametresOptimisation;
@@ -19,7 +21,8 @@ import java.util.UUID;
 
 /**
  * Replanification automatique nocturne des centres qui l'ont activée : enchaîne, pour chaque centre, la couverture des
- * deux semaines à venir, les déplacements temporaires liés aux maintenances des générateurs, puis le placement des
+ * absences d'infirmiers à venir (deux semaines au moins, jusqu'à la fin de la dernière absence, huit au plus), les
+ * déplacements temporaires liés aux maintenances des générateurs, puis le placement des
  * patients. Rien n'est appliqué : chaque proposition qui apporte quelque chose est signalée à l'administration, qui
  * la consulte et la valide (ou non) dans l'écran d'optimisation.
  */
@@ -34,30 +37,57 @@ public class ReplanificationAutomatiqueService {
     private final OptimisationPlanningService planification;
     private final ReglagesOptimisationPort reglages;
     private final NotificationService notifications;
+    private final PresenceDonneesPort presence;
 
     public ReplanificationAutomatiqueService(OptimisationPlanningService planification,
-                                             ReglagesOptimisationPort reglages, NotificationService notifications) {
+                                             ReglagesOptimisationPort reglages, NotificationService notifications,
+                                             PresenceDonneesPort presence) {
         this.planification = planification;
         this.reglages = reglages;
         this.notifications = notifications;
+        this.presence = presence;
     }
 
     public List<UUID> centres() {
         return reglages.centresEnReplanificationAuto();
     }
 
+    static List<ParametresOptimisation> etapes(LocalDate aujourdhui) {
+        return etapes(aujourdhui, SEMAINES);
+    }
+
+    static List<ParametresOptimisation> etapes(LocalDate aujourdhui, int semainesCouverture) {
+        return List.of(
+                parametres(PerimetreOptimisation.COUVERTURE, aujourdhui, semainesCouverture),
+                parametres(PerimetreOptimisation.MAINTENANCE, aujourdhui, SEMAINES),
+                parametres(PerimetreOptimisation.PATIENTS, aujourdhui.plusWeeks(1), 1));
+    }
+
     /**
      * Lance l'enchaînement des calculs d'un centre ; chaque calcul démarre quand le précédent se termine.
      */
     public void replanifier(UUID centerId, LocalDate aujourdhui) {
-        enchainer(centerId, etapes(aujourdhui), 0);
+        enchainer(centerId, etapes(aujourdhui, semainesDeCouverture(centerId, aujourdhui)), 0);
     }
 
-    static List<ParametresOptimisation> etapes(LocalDate aujourdhui) {
-        return List.of(
-                parametres(PerimetreOptimisation.COUVERTURE, aujourdhui, SEMAINES),
-                parametres(PerimetreOptimisation.MAINTENANCE, aujourdhui, SEMAINES),
-                parametres(PerimetreOptimisation.PATIENTS, aujourdhui.plusWeeks(1), 1));
+    /**
+     * Les remplaçants se proposent jusqu'à la fin de la dernière absence d'infirmier à venir (au moins deux semaines,
+     * au plus l'horizon maximal) : une absence planifiée dans plusieurs semaines est couverte dès maintenant, pas
+     * seulement la semaine en cours.
+     */
+    int semainesDeCouverture(UUID centerId, LocalDate aujourdhui) {
+        try {
+            LocalDate limite = aujourdhui.plusWeeks(ParametresOptimisation.SEMAINES_MAX);
+            LocalDate derniereFin = presence.charger(centerId, aujourdhui, limite).absences().stream()
+                    .map(AbsenceInfirmier::fin)
+                    .filter(fin -> !fin.isBefore(aujourdhui))
+                    .max(LocalDate::compareTo)
+                    .orElse(aujourdhui);
+            return ParametresOptimisation.semainesJusqua(aujourdhui, derniereFin, SEMAINES);
+        } catch (RuntimeException e) {
+            log.warn("[REPLANIFICATION] Centre {} : absences à venir illisibles, horizon par défaut", centerId, e);
+            return SEMAINES;
+        }
     }
 
     private static ParametresOptimisation parametres(PerimetreOptimisation perimetre, LocalDate debut, int semaines) {

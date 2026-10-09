@@ -7,6 +7,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {ActivatedRoute} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {AbsenceSemaine} from '../../core/api/absence-patient-api.service';
 import {ConflitPlanning, JOURS_SEMAINE, JourSemaine, OccupantPlanning} from '../../core/api/planning-api.service';
@@ -26,6 +27,7 @@ import {
   jourParDefaut,
   lignesDuJour,
   classeOccupant,
+  dateDepuisAdresse,
   evenementRafraichitPlanning,
   peutDeclarerAbsence,
   seanceRealiseeDe,
@@ -77,14 +79,16 @@ export class PlanningSemaineComponent {
   private readonly dialog = inject(MatDialog);
   private readonly ws = inject(WebSocketService);
   private readonly auth = inject(AuthStore);
+  private readonly dateDemandee = dateDepuisAdresse(inject(ActivatedRoute).snapshot.queryParamMap.get('date'));
   /** Le médecin consulte le planning sans pouvoir déclarer l'absence d'un patient (le serveur applique la règle). */
   protected readonly lectureSeule = computed(() => !peutDeclarerParRole((role) => this.auth.hasRole(role)));
 
   constructor() {
     // Recharge la semaine courante à l'ouverture et à chaque changement de centre actif.
+    // Arrivée depuis une alerte d'absence d'infirmier : `?date=<jour>` ouvre la semaine concernée.
     effect(() => {
       this.shell.currentCenterId();
-      untracked(() => this.store.chargerSemaine(null));
+      untracked(() => this.store.chargerSemaine(this.dateDemandee));
     });
     // Temps réel : scan du QR code, validation, absence, déplacement… rechargent la semaine affichée pour tous ceux qui
     // la consultent (l'évènement est diffusé à tout le centre ; seul le centre actif compte).

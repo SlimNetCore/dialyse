@@ -53,6 +53,30 @@ class ParametresOptimisationTest {
     }
 
     @Test
+    void should_accept_a_coverage_horizon_up_to_eight_weeks_and_refuse_beyond() {
+        var huit = new ParametresOptimisation(PerimetreOptimisation.COUVERTURE, MERCREDI, 8, 10, 5, null, 2, 6);
+
+        assertThat(huit.finHorizon()).isEqualTo(huit.debutSemaine().plusDays(8 * 7 - 1));
+        assertThatThrownBy(() -> new ParametresOptimisation(PerimetreOptimisation.COUVERTURE, MERCREDI, 9, 10, 5, null, 2, 6))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("8 semaines");
+    }
+
+    @Test
+    void should_compute_the_weeks_needed_to_reach_a_date() {
+        LocalDate mardi = LocalDate.of(2026, 9, 29); // la semaine commence le dimanche 27 septembre
+        // même semaine → le minimum
+        assertThat(ParametresOptimisation.semainesJusqua(mardi, LocalDate.of(2026, 10, 3), 2)).isEqualTo(2);
+        // samedi 3 octobre = fin de la 1re semaine ; dimanche 4 octobre ouvre la 2e
+        assertThat(ParametresOptimisation.semainesJusqua(mardi, LocalDate.of(2026, 10, 4), 1)).isEqualTo(2);
+        assertThat(ParametresOptimisation.semainesJusqua(mardi, LocalDate.of(2026, 10, 24), 1)).isEqualTo(4);
+        assertThat(ParametresOptimisation.semainesJusqua(mardi, LocalDate.of(2026, 10, 25), 1)).isEqualTo(5);
+        // plafonné, et jamais moins de 1
+        assertThat(ParametresOptimisation.semainesJusqua(mardi, LocalDate.of(2028, 1, 1), 2))
+                .isEqualTo(ParametresOptimisation.SEMAINES_MAX);
+        assertThat(ParametresOptimisation.semainesJusqua(mardi, LocalDate.of(2026, 9, 1), 0)).isEqualTo(1);
+    }
+
+    @Test
     void should_tell_which_stages_each_scope_runs() {
         assertThat(PerimetreOptimisation.PATIENTS.placePatients()).isTrue();
         assertThat(PerimetreOptimisation.PATIENTS.planifieInfirmiers()).isFalse();

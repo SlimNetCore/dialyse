@@ -9,6 +9,8 @@ import {DatePipe, JsonPipe} from '@angular/common';
 import {NotificationBellStore} from '../state/notification-bell.store';
 import {AuthStore} from '../state/auth.store';
 import {RouterLink} from '@angular/router';
+import {horizonPourAbsence} from '../../features/planning/optimisation/horizon-absence.util';
+import {aujourdhui} from '../../features/planning/optimisation/optimisation.util';
 
 @Component({
   selector: 'app-notification-bell',
@@ -168,13 +170,23 @@ export class NotificationBellComponent {
           : null;
       case 'INFIRMIER_SOUS_EFFECTIF':
       case 'INFIRMIER_ABSENCE_DECLAREE':
-      case 'INFIRMIER_ABSENCE_ENREGISTREE':
-        return peutOptimiser
-          ? {
-            label: 'NOTIFICATION.ACTION.COUVERTURE', commands: ['/seances/optimisation'],
-            queryParams: {perimetre: 'COUVERTURE'}
-          }
-          : null;
+      case 'INFIRMIER_ABSENCE_ENREGISTREE': {
+        // période de l'absence : l'optimisation propose des remplaçants jusqu'à sa fin, pas seulement cette semaine
+        const debut = evt.payload['debut'] ?? evt.payload['premiereDate'] ?? null;
+        if (!peutOptimiser) {
+          // le médecin consulte le planning de la semaine concernée (infirmiers absents, remplaçants)
+          return this.auth.hasRole('MEDECIN')
+            ? {label: 'NOTIFICATION.ACTION.PLANNING', commands: ['/medecin'], queryParams: debut ? {date: debut} : {}}
+            : null;
+        }
+        const horizon = horizonPourAbsence(debut, evt.payload['fin'] ?? null, aujourdhui());
+        return {
+          label: 'NOTIFICATION.ACTION.COUVERTURE', commands: ['/seances/optimisation'],
+          queryParams: horizon
+            ? {perimetre: 'COUVERTURE', debut: horizon.debut, semaines: String(horizon.semaines)}
+            : debut ? {perimetre: 'COUVERTURE', debut} : {perimetre: 'COUVERTURE'},
+        };
+      }
       case 'OBSERVANCE_NON_RESPECTEE':
         return evt.payload['patientId'] && (this.auth.hasRole('MEDECIN') || this.auth.hasRole('ADMIN'))
           ? {

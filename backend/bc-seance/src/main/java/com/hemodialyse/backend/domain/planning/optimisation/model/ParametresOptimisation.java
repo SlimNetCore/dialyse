@@ -33,7 +33,11 @@ public record ParametresOptimisation(
         int reposHebdoMin
 ) {
 
-    public static final int SEMAINES_MAX = 4;
+    /**
+     * Huit semaines : couvre une absence déclarée environ deux mois à l'avance, comme l'horizon des alertes de présence
+     * ({@code PresenceInfirmierQueryService.HORIZON_MAX_JOURS} = 60 jours).
+     */
+    public static final int SEMAINES_MAX = 8;
     public static final int DUREE_MIN_SECONDES = 2;
     public static final int DUREE_MAX_SECONDES = 300;
     public static final int DUREE_PAR_DEFAUT = 20;
@@ -99,6 +103,18 @@ public record ParametresOptimisation(
         return new ParametresOptimisation(perimetre, debutSemaine, nbSemaines, dureeMaxSecondes, stabilite, objectif,
                 maxVacationsParJour, maxVacationsParSemaine, reglages.heuresParVacation(),
                 reglages.heuresHebdoTempsPlein(), reglages.reposHebdoMin());
+    }
+
+    /**
+     * Nombre de semaines nécessaires, à partir du début de la semaine de {@code depuis}, pour atteindre {@code jusquAu}
+     * (au moins {@code minimum}, au plus {@link #SEMAINES_MAX}) : l'horizon d'une couverture doit aller jusqu'à la fin
+     * de l'absence à pourvoir, pas seulement jusqu'à la semaine en cours.
+     */
+    public static int semainesJusqua(LocalDate depuis, LocalDate jusquAu, int minimum) {
+        LocalDate debut = PlanningSemaineService.debutSemaine(depuis);
+        long jours = java.time.temporal.ChronoUnit.DAYS.between(debut, jusquAu) + 1;
+        long semaines = jours <= 0 ? 1 : (jours + 6) / 7;
+        return (int) Math.max(1, Math.min(SEMAINES_MAX, Math.max(minimum, semaines)));
     }
 
     /**

@@ -42,8 +42,8 @@ public class AbsenceInfirmierService {
     }
 
     /**
-     * Déclare une absence. Saisie par un autre profil que l'administrateur (secrétariat), elle lui est signalée : il doit
-     * pouvoir organiser les remplacements.
+     * Déclare une absence. Le médecin en est toujours prévenu ; saisie par un autre profil que l'administrateur
+     * (secrétariat), elle est aussi signalée à l'administrateur, qui doit pouvoir organiser les remplacements.
      *
      * @param parAdministrateur la saisie vient de l'administrateur
      */
@@ -52,9 +52,7 @@ public class AbsenceInfirmierService {
         var infirmier = infirmiers.findById(centerId, infirmierId)
                 .orElseThrow(() -> new BusinessException("INFIRMIER_INTROUVABLE", "Infirmier introuvable"));
         AbsenceInfirmier absence = absences.save(AbsenceInfirmier.creer(centerId, infirmierId, debut, fin, type, motif));
-        if (!parAdministrateur) {
-            notifications.notifyAbsenceInfirmierEnregistree(centerId, infirmier.nomComplet(), debut, fin);
-        }
+        notifications.notifyAbsenceInfirmierEnregistree(centerId, infirmier.nomComplet(), debut, fin, !parAdministrateur);
         return absence;
     }
 

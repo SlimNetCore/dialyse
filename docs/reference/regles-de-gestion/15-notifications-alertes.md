@@ -36,8 +36,9 @@
   `SECRETAIRE` (`GENERATEUR_INDISPONIBLE`) avec le code du générateur, son nouveau statut, le nombre de patients dont
   c'est
   la place habituelle et les cinq premiers noms : leurs séances sont à déplacer. Aucune alerte pour un autre équipement,
-  pour un générateur déjà indisponible, ni à la création. Une **absence d'infirmier saisie par le secrétariat** alerte
-  `ADMIN` (`INFIRMIER_ABSENCE_ENREGISTREE`) ; saisie par l'administrateur, elle ne le prévient pas. L' **application
+  pour un générateur déjà indisponible, ni à la création. Une **absence d'infirmier** alerte toujours `MEDECIN`
+  (`INFIRMIER_ABSENCE_ENREGISTREE`, `INFIRMIER_ABSENCE_DECLAREE`), quel que soit l'auteur de la saisie ; saisie par le
+  secrétariat, elle alerte aussi `ADMIN` ; saisie par l'administrateur, elle ne le prévient pas. L' **application
   d'une
   proposition d'optimisation** qui déplace des patients ou des séances alerte `MEDECIN` et `SECRETAIRE`
   (`SEANCES_DEPLACEES`). Le contrôle quotidien de sous-effectif (RG-INF-046) prévient aussi `MEDECIN` ; son contrôle
@@ -78,11 +79,11 @@
 | `SEANCE_DEVERROUILLEE`                       | l'administrateur déverrouille une séance oubliée pour régularisation                                       | `INFIRMIER`                                         | RG-SEA-046             |
 | `INFIRMIER_SOUS_EFFECTIF`                    | créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)                                            | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-INF-046, RG-NOT-006 |
 | `INFIRMIER_SUREFFECTIF`                      | infirmiers au-delà de l'effectif requis dans les 14 jours, salle sans patient comprise (contrôle de 07:15) | `ADMIN`                                             | RG-INF-047, RG-NOT-006 |
-| `INFIRMIER_ABSENCE_ENREGISTREE`              | le secrétariat enregistre l'absence d'un infirmier                                                         | `ADMIN`                                             | RG-NOT-006             |
+| `INFIRMIER_ABSENCE_ENREGISTREE`              | une absence d'infirmier est enregistrée (secrétariat ou administrateur)                                    | `MEDECIN`, + `ADMIN` si saisie par le secrétariat   | RG-NOT-006             |
 | `GENERATEUR_INDISPONIBLE`                    | un générateur en service passe en maintenance, attente de pièce, panne ou réforme                          | `ADMIN`, `SECRETAIRE`                               | RG-NOT-006             |
 | `SEANCES_DEPLACEES`                          | une proposition d'optimisation appliquée déplace des patients ou des séances                               | `MEDECIN`, `SECRETAIRE`                             | RG-NOT-006             |
 | `OPTIMISATION_PROPOSITION`                   | proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)                        | `ADMIN`                                             | RG-PLN-100             |
-| `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                                                           | `ADMIN`, `SECRETAIRE`                               | RG-INF-032             |
+| `INFIRMIER_ABSENCE_DECLAREE`                 | un infirmier déclare une absence                                                                           | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-INF-032             |
 | `PATIENT_REPLACE_ISOLEMENT`                  | patient replacé automatiquement en isolement                                                               | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
 | `ISOLEMENT_IMPOSSIBLE`                       | patient à risque sans place d'isolement                                                                    | `ADMIN`, `SECRETAIRE`, `MEDECIN`                    | RG-PLN-053             |
 | `STOCK_MOVEMENT_CHANGED`                     | entrée ou sortie de stock                                                                                  | tous (rafraîchissement)                             | RG-STK-021, RG-STK-030 |

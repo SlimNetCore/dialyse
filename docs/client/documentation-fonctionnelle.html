@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>507 règles de gestion · 16 domaines · 384 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-09<br>508 règles de gestion · 16 domaines · 384 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>507</b>règles de gestion</div>
+        <div><b>508</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>8</b>points d'attention</div>
@@ -1153,7 +1153,8 @@ patients par poste n&#39;ont pas de sens consolidé (valent 0). La restitution �
 salles ouvertes, vacations d&#39;infirmiers) sans enfreindre les règles de la planification. Cinq <strong>périmètres</strong> :
 <code>PATIENTS</code> (replace les patients : salle, créneau, générateur, et choisit les jours de ceux qui le demandent,
 RG-PLN-094), <code>ROULEMENT</code> (conçoit le roulement hebdomadaire des infirmiers face aux placements actuels),
-<code>COUVERTURE</code> (comble les cases en sous-effectif sur 1 à 4 semaines avec des remplaçants), <code>COMPLET</code> (patients et
+    <code>COUVERTURE</code> (comble les cases en sous-effectif sur 1 à 8 semaines avec des remplaçants),
+    <code>COMPLET</code> (patients et
 roulement <strong>dans un seul modèle</strong>, RG-PLN-095) et <code>MAINTENANCE</code> (déplacements temporaires des séances dont le
 générateur est indisponible, RG-PLN-096). Une proposition <strong>n&#39;est jamais appliquée automatiquement</strong>, y compris
 celles de la replanification nocturne (RG-PLN-100).</p>
@@ -1165,7 +1166,9 @@ démarrage du serveur, toute exécution restée en cours passe en échec (« cal
 Nombre de calculs en parallèle : <code>PLANNING_OPTIMISATION_WORKERS</code> (défaut 2).</p>
 </div></div>
 <div class="rule" id="RG-PLN-082"><div class="rid">RG-PLN-082</div><div class="rtxt"><p>Paramètres et bornes (sinon refus 400) : début de l&#39;horizon (ramené au dimanche de sa semaine),
-nombre de semaines 1 à 4 (<strong>uniquement</strong> pour <code>COUVERTURE</code> et <code>MAINTENANCE</code>, 1 sinon), durée maximale de calcul
+    nombre de semaines 1 à 8 (<strong>uniquement</strong> pour <code>COUVERTURE</code> et <code>MAINTENANCE</code>, 1
+    sinon ; huit semaines couvrent une
+    absence déclarée environ deux mois à l&#39;avance), durée maximale de calcul
 <strong>par phase</strong> 2 à 300
 secondes (défaut 20), <strong>stabilité</strong> 0 à 10 (défaut 5 : 0 = tout peut changer, 10 = changer le moins possible),
 objectif des infirmiers <code>EQUITE</code> (défaut) ou <code>ECONOMIE</code>, vacations maximales par jour 1 à 3 (défaut 2) et par semaine
@@ -1262,7 +1265,10 @@ tenue au-delà du besoin de sa case (50), au moins un infirmier qui n&#39;est pa
 les compétences demandées par les patients de la case. Le calcul part des places actuelles et du roulement actuel. La
 proposition ne garde que les vacations utiles face aux placements retenus (RG-PLN-091) et signale les manques.</p>
 </div></div>
-<div class="rule" id="RG-PLN-096"><div class="rid">RG-PLN-096</div><div class="rtxt"><p><strong>Maintenance des générateurs</strong> (<code>MAINTENANCE</code>, 1 à 4 semaines datées) : un générateur est
+    <div class="rule" id="RG-PLN-096">
+        <div class="rid">RG-PLN-096</div>
+        <div class="rtxt"><p><strong>Maintenance des générateurs</strong> (<code>MAINTENANCE</code>, 1 à 8 semaines
+            datées) : un générateur est
 indisponible pendant une intervention GMAO <code>PLANIFIEE</code> ou <code>EN_COURS</code> (non supprimée) qui chevauche l&#39;horizon ; sans
 date de fin, une intervention planifiée immobilise son jour de début, une intervention en cours tout l&#39;horizon. Sont
 touchées les séances datées (jours d&#39;ouverture hors fermetures, séjour en cours) dont la place effective — la place
@@ -1293,9 +1299,25 @@ travaillé au-delà de <code>7 − repos minimum</code> dans une semaine (300), 
 vacations comptant la durée réglée (100 par heure, soit 500 pour une vacation de 5 h), chaque compétence demandée par
 un patient d&#39;une case qu&#39;aucun infirmier de la case n&#39;a (250).</p>
 </div></div>
+    <div class="rule" id="RG-PLN-105">
+        <div class="rid">RG-PLN-105</div>
+        <div class="rtxt"><p><strong>Couverture d&#39;une absence sur sa période.</strong> L&#39;alerte d&#39;absence d&#39;un
+            infirmier
+            (<code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>INFIRMIER_ABSENCE_DECLAREE</code>) ouvre l&#39;optimisation
+            en <code>COUVERTURE</code> avec le <strong>début</strong>
+            (aujourd&#39;hui, ou le début de l&#39;absence si elle est à venir) et le <strong>nombre de
+                semaines</strong> nécessaires pour atteindre
+            sa fin (8 au plus) : le calcul ne se limite plus à la semaine en cours. Le médecin, qui ne lance pas l&#39;optimisation,
+            est conduit au planning de la semaine de l&#39;absence. <em>Sources :</em> <code>ParametresOptimisation.semainesJusqua</code>,
+            <code>horizonPourAbsence</code> (frontend).</p>
+        </div>
+    </div>
 <div class="rule" id="RG-PLN-100"><div class="rid">RG-PLN-100</div><div class="rtxt"><p><strong>Replanification automatique nocturne</strong> (<code>ReplanificationAutomatiqueScheduler</code>, 02:30 UTC chaque
 nuit), pour les centres qui l&#39;ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
-semaines), la maintenance (2 semaines) à partir de la semaine en cours, puis le placement des patients de la semaine
+    semaines au moins, <strong>étendue jusqu&#39;à la fin de la dernière absence d&#39;infirmier à venir, 8 semaines au
+        plus</strong> : une
+    absence planifiée dans plusieurs semaines est couverte dès maintenant), la maintenance (2 semaines) à partir de la
+    semaine en cours, puis le placement des patients de la semaine
 suivante, 30 secondes par phase, au nom de <code>SYSTEME</code>. Un calcul déjà en cours dans le centre interrompt l&#39;enchaînement
 pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
 (<code>OPTIMISATION_PROPOSITION</code>) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif
@@ -3140,10 +3162,12 @@ RG-DIR-101).</p>
             c&#39;est
             la place habituelle et les cinq premiers noms : leurs séances sont à déplacer. Aucune alerte pour un autre
             équipement,
-            pour un générateur déjà indisponible, ni à la création. Une <strong>absence d&#39;infirmier saisie par le
-                secrétariat</strong> alerte
-            <code>ADMIN</code> (<code>INFIRMIER_ABSENCE_ENREGISTREE</code>) ; saisie par l&#39;administrateur, elle ne
-            le prévient pas. L&#39; <strong>application
+            pour un générateur déjà indisponible, ni à la création. Une <strong>absence d&#39;infirmier</strong> alerte
+            toujours <code>MEDECIN</code>
+            (<code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>INFIRMIER_ABSENCE_DECLAREE</code>), quel que soit l&#39;auteur
+            de la saisie ; saisie par le
+            secrétariat, elle alerte aussi <code>ADMIN</code> ; saisie par l&#39;administrateur, elle ne le prévient
+            pas. L&#39; <strong>application
                 d&#39;une
                 proposition d&#39;optimisation</strong> qui déplace des patients ou des séances alerte
             <code>MEDECIN</code> et <code>SECRETAIRE</code>
@@ -3280,8 +3304,8 @@ ignorée). Les évènements de séance historiques ne visent plus le médecin : 
 </tr>
 <tr>
     <td><code>INFIRMIER_ABSENCE_ENREGISTREE</code></td>
-    <td>le secrétariat enregistre l&#39;absence d&#39;un infirmier</td>
-    <td><code>ADMIN</code></td>
+    <td>une absence d&#39;infirmier est enregistrée (secrétariat ou administrateur)</td>
+    <td><code>MEDECIN</code>, + <code>ADMIN</code> si saisie par le secrétariat</td>
     <td>RG-NOT-006</td>
 </tr>
 <tr>
@@ -3305,7 +3329,7 @@ ignorée). Les évènements de séance historiques ne visent plus le médecin : 
 <tr>
 <td><code>INFIRMIER_ABSENCE_DECLAREE</code></td>
 <td>un infirmier déclare une absence</td>
-<td><code>ADMIN</code>, <code>SECRETAIRE</code></td>
+    <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code></td>
 <td>RG-INF-032</td>
 </tr>
 <tr>
