@@ -332,6 +332,12 @@
   et se parcourt avec les flèches sur toute la période de l'horizon. Une proposition d'une seule semaine l'indique et
   invite à relancer le calcul avec plus de semaines. *Sources :* `CalendrierPropositionService`,
   `PlanningProposeComponent` (frontend).
+- **RG-PLN-107** — **Infirmiers absents dans une proposition « semaine type ».** Un calcul `PATIENTS`, `ROULEMENT` ou
+  `COMPLET` ignore les absences datées. Dans le planning proposé, un infirmier absent un jour donné n'est **jamais
+  présenté comme présent** ce jour-là, dans aucune case : il n'est listé qu'en absent (barré), sa vacation reste
+  « à pourvoir » et le manque d'infirmier est signalé. L'écran le dit et propose **« Chercher des remplaçants »** :
+  la couverture est préremplie sur la période de la proposition (8 semaines au plus) ; c'est elle qui propose les
+  remplaçants (RG-PLN-105). *Sources :* `CalendrierPropositionService.infirmiers`, `PlanningProposeComponent`.
 - **RG-PLN-100** — **Replanification automatique nocturne** (`ReplanificationAutomatiqueScheduler`, 02:30 UTC chaque
   nuit), pour les centres qui l'ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
   semaines au moins, **étendue jusqu'à la fin de la dernière absence d'infirmier à venir, 8 semaines au plus** : une

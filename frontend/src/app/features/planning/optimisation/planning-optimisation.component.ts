@@ -126,7 +126,7 @@ export class PlanningOptimisationComponent {
     const r = this.resultat();
     return r ? lignesIndicateurs(r.avant, r.apres) : [];
   });
-  private readonly perimetreRun = computed(() => this.store.courant()?.parametres.perimetre ?? null);
+  protected readonly perimetreRun = computed(() => this.store.courant()?.parametres.perimetre ?? null);
   protected readonly avecPatients = computed(() => {
     const p = this.perimetreRun();
     return !!p && placePatients(p);
@@ -243,6 +243,19 @@ export class PlanningOptimisationComponent {
 
   protected imprimerCalendrier(): void {
     void this.store.imprimerCalendrier();
+  }
+
+  /**
+   * Prépare la couverture (remplaçants des infirmiers absents) sur la période de la proposition affichée, que le calcul
+   * « semaine type » ne remplace pas : le formulaire est prérempli, l'administrateur n'a plus qu'à lancer.
+   */
+  protected preparerCouverture(horizon: { debut: string; semaines: number }): void {
+    this.formModel.update((m) => ({
+      ...m, perimetre: 'COUVERTURE', debut: horizon.debut,
+      nbSemaines: Math.min(BORNES_OPTIMISATION.semaines.max, Math.max(BORNES_OPTIMISATION.semaines.min, horizon.semaines)),
+    }));
+    queueMicrotask(() => document.querySelector('[data-testid="opt-perimetre"]')
+      ?.scrollIntoView?.({behavior: 'smooth', block: 'center'}));
   }
 
   protected ouvrir(run: RunOptimisation): void {

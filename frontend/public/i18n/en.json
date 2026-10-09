@@ -2603,6 +2603,8 @@
         "SUBTITLE": "Week-by-week calendar: rooms, slots, patients (with generator), nurses and staffing of each cell.",
         "IMPRIMER": "Print the proposed planning",
         "POSITION": "Week {{n}} of {{total}}",
+        "ABSENTS_NON_REMPLACES": "Absent nurses leave shifts to fill: this calculation covers a typical week and ignores dated absences. Run a coverage over this period to get replacements.",
+        "CHERCHER_REMPLACANTS": "Find replacements",
         "UNE_SEMAINE": "This proposal only covers one week. Run the calculation again with a larger number of weeks to browse several weeks.",
         "ABSENT": "This proposal has no calendar planning: run the calculation again.",
         "VIDE": "No activity proposed this week.",

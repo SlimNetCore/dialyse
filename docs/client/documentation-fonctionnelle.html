@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>512 règles de gestion · 16 domaines · 391 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-09<br>513 règles de gestion · 16 domaines · 391 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>512</b>règles de gestion</div>
+        <div><b>513</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>8</b>points d'attention</div>
@@ -1385,6 +1385,22 @@ un patient d&#39;une case qu&#39;aucun infirmier de la case n&#39;a (250).</p>
             <code>PlanningProposeComponent</code> (frontend).</p>
         </div>
     </div>
+    <div class="rule" id="RG-PLN-107">
+        <div class="rid">RG-PLN-107</div>
+        <div class="rtxt"><p><strong>Infirmiers absents dans une proposition « semaine type ».</strong> Un calcul <code>PATIENTS</code>,
+            <code>ROULEMENT</code> ou
+            <code>COMPLET</code> ignore les absences datées. Dans le planning proposé, un infirmier absent un jour donné
+            n&#39;est <strong>jamais
+                présenté comme présent</strong> ce jour-là, dans aucune case : il n&#39;est listé qu&#39;en absent
+            (barré), sa vacation reste
+            « à pourvoir » et le manque d&#39;infirmier est signalé. L&#39;écran le dit et propose <strong>« Chercher
+                des remplaçants »</strong> :
+            la couverture est préremplie sur la période de la proposition (8 semaines au plus) ; c&#39;est elle qui
+            propose les
+            remplaçants (RG-PLN-105). <em>Sources :</em> <code>CalendrierPropositionService.infirmiers</code>, <code>PlanningProposeComponent</code>.
+        </p>
+        </div>
+    </div>
 <div class="rule" id="RG-PLN-100"><div class="rid">RG-PLN-100</div><div class="rtxt"><p><strong>Replanification automatique nocturne</strong> (<code>ReplanificationAutomatiqueScheduler</code>, 02:30 UTC chaque
 nuit), pour les centres qui l&#39;ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
     semaines au moins, <strong>étendue jusqu&#39;à la fin de la dernière absence d&#39;infirmier à venir, 8 semaines au
@@ -1392,7 +1408,8 @@ nuit), pour les centres qui l&#39;ont activée : enchaîne, chacun démarrant à
     absence planifiée dans plusieurs semaines est couverte dès maintenant), la maintenance (2 semaines) à partir de la
     semaine en cours, puis le placement des patients (semaine type, projetée sur les deux semaines à partir de la
     semaine suivante), 30 secondes par phase, au nom de <code>SYSTEME</code>. Un calcul déjà en cours dans le centre
-    interrompt l&#39;enchaînement
+    interrompt
+    l&#39;enchaînement
 pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
 (<code>OPTIMISATION_PROPOSITION</code>) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif
 <code>SOUS_EFFECTIF</code>), séances à déplacer ou sans solution (<code>MAINTENANCE</code>), vacations requises économisées ou patients en

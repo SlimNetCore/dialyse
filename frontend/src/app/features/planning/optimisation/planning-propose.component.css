@@ -47,6 +47,21 @@
   white-space: nowrap;
 }
 
+.pp-absents {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 8px 0 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, #ef6c00 12%, transparent);
+}
+
+.pp-absents span {
+  flex: 1 1 260px;
+}
+
 .pp-une {
   display: flex;
   align-items: center;

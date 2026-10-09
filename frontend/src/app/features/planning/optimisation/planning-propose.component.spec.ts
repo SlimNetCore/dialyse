@@ -180,6 +180,40 @@ describe('PlanningProposeComponent', () => {
     expect(q('pp-une-semaine')).toBeNull();
   });
 
+  describe('infirmiers absents non remplacés par un calcul « semaine type »', () => {
+    const AVEC_ABSENT = () => calendrier({
+      cases: [ligne({
+        1: {
+          requis: 1, manque: 1, patients: [PATIENT],
+          infirmiers: [{nom: 'Sara', situation: 'ABSENT'}],
+        },
+      })],
+    });
+
+    it('signale les vacations laissées à pourvoir et propose la couverture sur la période', async () => {
+      await render(AVEC_ABSENT(), {perimetre: 'PATIENTS'});
+      const demandes: { debut: string; semaines: number }[] = [];
+      cible.instance.chercherRemplacants.subscribe((d) => demandes.push(d));
+
+      expect(q('pp-absents')!.textContent).toContain('PLANNING.OPTIM.CALENDRIER.ABSENTS_NON_REMPLACES');
+      (q('pp-couverture') as HTMLButtonElement).click();
+
+      expect(demandes).toEqual([{debut: '2026-09-27', semaines: 2}]);
+    });
+
+    it('ne le propose pas quand l\'exécution est déjà une couverture ou une maintenance', async () => {
+      await render(AVEC_ABSENT(), {perimetre: 'COUVERTURE'});
+
+      expect(q('pp-absents')).toBeNull();
+    });
+
+    it('ne le propose pas quand aucun infirmier absent ne laisse de manque', async () => {
+      await render(calendrier(), {perimetre: 'PATIENTS'});
+
+      expect(q('pp-absents')).toBeNull();
+    });
+  });
+
   it('explique qu\'une proposition d\'une seule semaine ne se parcourt pas et comment en obtenir plusieurs', async () => {
     await render(calendrier({semaines: ['2026-09-27'], semaine: '2026-09-27'}));
 

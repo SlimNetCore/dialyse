@@ -263,6 +263,25 @@ describe('PlanningOptimisationComponent', () => {
     expect(store.lancer).toHaveBeenLastCalledWith(expect.objectContaining({perimetre: 'PATIENTS', nbSemaines: 3}));
   });
 
+  it('préremplit la couverture sur la période de la proposition quand on cherche des remplaçants', async () => {
+    const {fixture, root} = await render();
+    const composant = fixture.componentInstance as unknown as {
+      preparerCouverture: (h: { debut: string; semaines: number }) => void;
+    };
+
+    composant.preparerCouverture({debut: '2026-10-11', semaines: 20});
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector<HTMLInputElement>('[data-testid="opt-debut"]')!.value).toBe('2026-10-11');
+    expect(root.querySelector<HTMLInputElement>('[data-testid="opt-semaines"]')!.value).toBe('8');
+    (root.querySelector('[data-testid="opt-lancer"]') as HTMLButtonElement).click();
+    expect(store.lancer).toHaveBeenLastCalledWith(expect.objectContaining({
+      perimetre: 'COUVERTURE', debutSemaine: '2026-10-11', nbSemaines: 8,
+    }));
+  });
+
   it('interdit de relancer pendant un calcul et permet de l\'arrêter', async () => {
     courant.set(run({statut: 'EN_COURS', resultat: null, phase: 'PATIENTS', score: '0hard/0medium/-100soft'}));
     const {root} = await render();

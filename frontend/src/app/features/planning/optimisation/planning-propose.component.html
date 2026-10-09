@@ -113,6 +113,16 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
+    @if (absentsNonRemplaces()) {
+      <div class="pp-absents" data-testid="pp-absents">
+        <mat-icon>person_off</mat-icon>
+        <span>{{ 'PLANNING.OPTIM.CALENDRIER.ABSENTS_NON_REMPLACES' | translate }}</span>
+        <button (click)="demanderCouverture()" data-testid="pp-couverture" mat-flat-button type="button">
+          <mat-icon>group_add</mat-icon>
+          {{ 'PLANNING.OPTIM.CALENDRIER.CHERCHER_REMPLACANTS' | translate }}
+        </button>
+      </div>
+    }
     @if (semaines().length === 1) {
       <p class="pp-une" data-testid="pp-une-semaine">
         <mat-icon>info</mat-icon>

@@ -45,8 +45,13 @@ export class PlanningProposeComponent {
   /** Aujourd'hui (AAAA-MM-JJ), pour choisir le jour affiché par défaut ; surchargeable pour les tests. */
   readonly aujourdhui = input(new Date().toISOString().slice(0, 10));
 
+  /** Périmètre de l'exécution affichée : un calcul « semaine type » ne remplace pas les infirmiers absents. */
+  readonly perimetre = input<string | null>(null);
+
   readonly semaineChoisie = output<string>();
   readonly imprimer = output<void>();
+  /** Demande de couverture sur la période de la proposition (début et nombre de semaines). */
+  readonly chercherRemplacants = output<{ debut: string; semaines: number }>();
 
   /** Sur petit écran (mobile), la vue jour est lisible d'emblée ; la grille semaine reste choisissable. */
   protected readonly vue = signal<VuePlanningPropose>(
@@ -61,6 +66,16 @@ export class PlanningProposeComponent {
   protected readonly entetes = computed(() => entetesJours(this.cases()));
   protected readonly precedente = computed(() => semaineVoisine(this.semaines(), this.semaine(), -1));
   protected readonly suivante = computed(() => semaineVoisine(this.semaines(), this.semaine(), 1));
+  /**
+   * Des infirmiers absents laissent une vacation à pourvoir, et l'exécution ne les remplace pas (semaine type : elle
+   * ignore les absences datées) : la couverture est la suite logique.
+   */
+  protected readonly absentsNonRemplaces = computed(() => {
+    const p = this.perimetre();
+    if (!p || p === 'COUVERTURE' || p === 'MAINTENANCE') return false;
+    return this.cases().some((c) => c.jours.some((j) =>
+      !j.ferme && j.manque > 0 && j.infirmiers.some((i) => i.situation === 'ABSENT')));
+  });
   /** Rang (à partir de 1) de la semaine affichée parmi celles de la proposition, pour « Semaine 2 sur 4 ». */
   protected readonly rang = computed(() => this.semaines().indexOf(this.semaine() ?? '') + 1);
   protected readonly lignesJour = computed(() => lignesDuJour(this.cases(), this.jourActif()));
@@ -69,6 +84,11 @@ export class PlanningProposeComponent {
   private readonly jourChoisi = signal<number | null>(null);
   /** Jour de la vue « Jour » : celui choisi, sinon aujourd'hui s'il a de l'activité ou le premier jour actif. */
   protected readonly jourActif = computed(() => this.jourChoisi() ?? jourParDefaut(this.cases(), this.aujourdhui()));
+
+  protected demanderCouverture(): void {
+    const premiere = this.semaines()[0];
+    if (premiere) this.chercherRemplacants.emit({debut: premiere, semaines: this.semaines().length});
+  }
 
   protected choisirJour(index: number): void {
     this.jourChoisi.set(index);

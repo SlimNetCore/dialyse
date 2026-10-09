@@ -399,8 +399,9 @@
       </mat-card>
       <mat-card data-testid="opt-calendrier">
         <mat-card-content>
-          <app-planning-propose (imprimer)="imprimerCalendrier()" (semaineChoisie)="choisirSemaine($event)"
-                                [calendrier]="store.calendrier()" [loading]="store.loadingCalendrier()"
+          <app-planning-propose (chercherRemplacants)="preparerCouverture($event)" (imprimer)="imprimerCalendrier()"
+                                (semaineChoisie)="choisirSemaine($event)" [calendrier]="store.calendrier()"
+                                [loading]="store.loadingCalendrier()" [perimetre]="perimetreRun()"
                                 [printing]="store.printing()"/>
         </mat-card-content>
       </mat-card>

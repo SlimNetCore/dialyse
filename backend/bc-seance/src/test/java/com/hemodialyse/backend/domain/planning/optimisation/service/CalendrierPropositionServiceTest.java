@@ -291,6 +291,40 @@ class CalendrierPropositionServiceTest {
     }
 
     @Test
+    void should_not_show_a_proposed_nurse_as_present_on_the_days_she_is_absent_and_report_the_missing_vacation() {
+        OptimisationFixture f = new OptimisationFixture();
+        SalleRef a = f.salle("Salle A", 4);
+        SalleRef b = f.salle("Salle B", 4);
+        CreneauRef matin = f.creneau("Matin");
+        f.patient("P0", false, a, matin, f.generateur(a, 0), LUNDI);
+        f.patient("P1", false, b, matin, f.generateur(b, 0), LUNDI);
+        InfirmierRef sara = f.infirmier("Sara");
+        f.affecter(sara, a, matin, LUNDI);
+        // absence de Sara le lundi de la 1re semaine seulement
+        f.absence(sara, LUNDI_DATE, LUNDI_DATE);
+        // roulement proposé : Sara tient la salle A le lundi, et aussi la salle B (case où elle n'est pas affectée aujourd'hui)
+        var vacations = List.of(
+                new VacationPlanifiee(LUNDI_DATE, LUNDI, a.id(), matin.id(), sara.id(), "Sara", true),
+                new VacationPlanifiee(LUNDI_DATE, LUNDI, b.id(), matin.id(), sara.id(), "Sara", false));
+
+        List<CaseCalendrier> cases = CalendrierPropositionService.construire(f.build(),
+                resultat(List.of(), List.of(), vacations, List.of()), horizon(PerimetreOptimisation.ROULEMENT, 2));
+
+        JourCalendrier salleA = jour(cases, a, matin, LUNDI_DATE);
+        assertThat(salleA.infirmiers()).extracting("situation").containsExactly(SituationInfirmier.ABSENT);
+        assertThat(salleA.manque()).as("la vacation de Sara est à pourvoir").isEqualTo(1);
+        // la salle B où Sara n'était pas affectée aujourd'hui : absente aussi (jamais présente ce jour-là)
+        JourCalendrier salleB = jour(cases, b, matin, LUNDI_DATE);
+        assertThat(salleB.infirmiers()).extracting("situation").doesNotContain(SituationInfirmier.PREVU,
+                SituationInfirmier.NOUVEAU);
+        assertThat(salleB.manque()).isEqualTo(1);
+        // la semaine suivante, Sara est de retour dans les deux salles
+        assertThat(jour(cases, a, matin, LUNDI_DATE.plusWeeks(1)).infirmiers()).extracting("nom").containsExactly("Sara");
+        assertThat(jour(cases, b, matin, LUNDI_DATE.plusWeeks(1)).infirmiers()).extracting("nom").containsExactly("Sara");
+        assertThat(jour(cases, a, matin, LUNDI_DATE.plusWeeks(1)).manque()).isZero();
+    }
+
+    @Test
     void should_keep_dated_vacations_on_their_own_week_for_the_coverage() {
         OptimisationFixture f = new OptimisationFixture();
         SalleRef a = f.salle("Salle A", 4);

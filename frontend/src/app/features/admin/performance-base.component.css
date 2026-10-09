@@ -28,7 +28,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin: 16px 0 12px;
 }
 
 .spacer {
@@ -55,6 +55,7 @@
 
 .unavailable {
   display: flex;
+  margin-top: 16px;
   gap: 12px;
   padding: 14px 16px;
   border-radius: 8px;

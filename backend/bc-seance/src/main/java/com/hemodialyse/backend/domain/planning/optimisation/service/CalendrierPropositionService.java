@@ -82,6 +82,12 @@ public final class CalendrierPropositionService {
                                                 Map<UUID, String> generateurs, Map<UUID, Poste> deplaces) {
         Map<String, CasePresence> presences = new HashMap<>();
         for (CasePresence c : presence.cases()) presences.put(cle(c.salleId(), c.creneauId(), c.date()), c);
+        Map<LocalDate, Set<UUID>> absentsParDate = new HashMap<>();
+        for (CasePresence c : presence.cases()) {
+            for (Absent a : c.absents()) {
+                absentsParDate.computeIfAbsent(c.date(), k -> new java.util.HashSet<>()).add(a.infirmierId());
+            }
+        }
         Map<String, List<PatientCalendrier>> patients = patients(finales, resultat, presence, debut, noms, generateurs,
                 deplaces);
         boolean infirmiersProposes = parametres.perimetre().planifieInfirmiers() && !resultat.vacations().isEmpty();
@@ -106,7 +112,8 @@ public final class CalendrierPropositionService {
                             : cle(salle.id(), creneau.id(), date.minusWeeks(indexSemaine));
                     List<VacationPlanifiee> proposees = infirmiersProposes ? vacations.get(cleVacation) : null;
                     jours.add(jour(jour, date, presences.get(cle), presence.jours(),
-                            patients.getOrDefault(cle, List.of()), infirmiers(presences.get(cle), proposees),
+                            patients.getOrDefault(cle, List.of()),
+                            infirmiers(presences.get(cle), proposees, absentsParDate.getOrDefault(date, Set.of())),
                             proposees != null && !proposees.isEmpty()));
                 }
                 if (jours.stream().anyMatch(j -> !j.vide())) {
@@ -197,11 +204,18 @@ public final class CalendrierPropositionService {
      * Infirmiers d'une case : ceux de la proposition (quand elle planifie le personnel et couvre cette case), sinon
      * ceux du roulement actuel ; les absents sont toujours signalés.
      */
-    private static List<InfirmierCalendrier> infirmiers(CasePresence presence, List<VacationPlanifiee> proposees) {
+    private static List<InfirmierCalendrier> infirmiers(CasePresence presence, List<VacationPlanifiee> proposees,
+                                                        Set<UUID> absentsDuJour) {
         List<InfirmierCalendrier> liste = new ArrayList<>();
         if (proposees != null && !proposees.isEmpty()) {
-            proposees.stream().sorted(Comparator.comparing(VacationPlanifiee::nom)).forEach(v -> liste.add(
-                    new InfirmierCalendrier(v.nom(), v.existante() ? SituationInfirmier.PREVU : SituationInfirmier.NOUVEAU)));
+            // la semaine type proposée ignore les absences datées : un infirmier absent ce jour-là n'est pas présent
+            // (il n'est listé qu'en absent), sa vacation reste à pourvoir — c'est la couverture qui lui trouve un remplaçant
+            // (absent un jour, un infirmier l'est dans toutes ses cases, pas seulement dans celle de son roulement actuel)
+            Set<UUID> absents = new java.util.HashSet<>(absentsDuJour);
+            if (presence != null) presence.absents().forEach(a -> absents.add(a.infirmierId()));
+            proposees.stream().filter(v -> !absents.contains(v.infirmierId()))
+                    .sorted(Comparator.comparing(VacationPlanifiee::nom)).forEach(v -> liste.add(
+                            new InfirmierCalendrier(v.nom(), v.existante() ? SituationInfirmier.PREVU : SituationInfirmier.NOUVEAU)));
         } else if (presence != null) {
             for (Present p : presence.presents()) {
                 liste.add(new InfirmierCalendrier(p.nom(),
