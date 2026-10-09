@@ -95,6 +95,11 @@
                 [disabled]="!suivante() || loading()" data-testid="pp-next" mat-icon-button type="button">
           <mat-icon>chevron_right</mat-icon>
         </button>
+        @if (semaines().length > 1) {
+          <span class="pp-pos" data-testid="pp-pos">
+            {{ 'PLANNING.OPTIM.CALENDRIER.POSITION' | translate: {n: rang(), total: semaines().length} }}
+          </span>
+        }
       </div>
       <mat-button-toggle-group (change)="vue.set($event.value)" [hideSingleSelectionIndicator]="true"
                                [value]="vue()" class="pp-views" data-testid="pp-views">
@@ -108,6 +113,12 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
     </div>
+    @if (semaines().length === 1) {
+      <p class="pp-une" data-testid="pp-une-semaine">
+        <mat-icon>info</mat-icon>
+        {{ 'PLANNING.OPTIM.CALENDRIER.UNE_SEMAINE' | translate }}
+      </p>
+    }
 
     <ul class="pp-legend" data-testid="pp-legend">
       <li><span class="sw ok"></span>{{ 'PLANNING.OPTIM.CALENDRIER.LEGENDE.COUVERT' | translate }}</li>

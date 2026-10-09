@@ -58,7 +58,7 @@ function parametresParDefaut(): ParametresFormModel {
   return {
     perimetre: 'COMPLET',
     debut: aujourdhui(),
-    nbSemaines: BORNES_OPTIMISATION.semaines.min,
+    nbSemaines: BORNES_OPTIMISATION.semaines.defaut,
     duree: BORNES_OPTIMISATION.duree.defaut,
     stabilite: BORNES_OPTIMISATION.stabilite.defaut,
     objectif: 'EQUITE',
@@ -205,7 +205,7 @@ export class PlanningOptimisationComponent {
     void this.store.lancer({
       perimetre: m.perimetre,
       debutSemaine: m.debut,
-      nbSemaines: horizonLibre(m.perimetre) ? Number(m.nbSemaines) : 1,
+      nbSemaines: Number(m.nbSemaines),
       dureeMaxSecondes: Number(m.duree),
       stabilite: Number(m.stabilite),
       objectif: m.objectif,

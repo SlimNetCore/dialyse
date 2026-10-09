@@ -71,14 +71,14 @@ public final class CalendrierPropositionService {
         for (int semaine = 0; semaine < parametres.nbSemaines(); semaine++) {
             LocalDate debut = parametres.debutSemaine().plusWeeks(semaine);
             SemainePresence presence = PresenceInfirmierService.construire(finales.presence(), debut);
-            cases.addAll(semaine(finales, resultat, parametres, presence, debut, noms, generateurs, deplaces));
+            cases.addAll(semaine(finales, resultat, parametres, presence, debut, semaine, noms, generateurs, deplaces));
         }
         return cases;
     }
 
     private static List<CaseCalendrier> semaine(DonneesOptimisation finales, ResultatOptimisation resultat,
                                                 ParametresOptimisation parametres, SemainePresence presence,
-                                                LocalDate debut, Map<UUID, String> noms,
+                                                LocalDate debut, int indexSemaine, Map<UUID, String> noms,
                                                 Map<UUID, String> generateurs, Map<UUID, Poste> deplaces) {
         Map<String, CasePresence> presences = new HashMap<>();
         for (CasePresence c : presence.cases()) presences.put(cle(c.salleId(), c.creneauId(), c.date()), c);
@@ -100,7 +100,11 @@ public final class CalendrierPropositionService {
                 for (JourSemaine jour : JourSemaine.values()) {
                     LocalDate date = debut.plusDays(jour.ordinal());
                     String cle = cle(salle.id(), creneau.id(), date);
-                    List<VacationPlanifiee> proposees = infirmiersProposes ? vacations.get(cle) : null;
+                    // périmètre non daté : les vacations proposées sont celles de la semaine type (première semaine),
+                    // reconduites à l'identique sur chaque semaine de l'horizon
+                    String cleVacation = parametres.perimetre().datee() ? cle
+                            : cle(salle.id(), creneau.id(), date.minusWeeks(indexSemaine));
+                    List<VacationPlanifiee> proposees = infirmiersProposes ? vacations.get(cleVacation) : null;
                     jours.add(jour(jour, date, presences.get(cle), presence.jours(),
                             patients.getOrDefault(cle, List.of()), infirmiers(presences.get(cle), proposees),
                             proposees != null && !proposees.isEmpty()));

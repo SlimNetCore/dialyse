@@ -169,6 +169,26 @@ describe('PlanningProposeComponent', () => {
     expect(choisies).toEqual(['2026-10-04']);
   });
 
+  it('indique la position de la semaine affichée parmi celles de la proposition (Semaine 3 sur 4)', async () => {
+    await render(calendrier({
+      semaines: ['2026-09-27', '2026-10-04', '2026-10-11', '2026-10-18'], semaine: '2026-10-11',
+    }));
+
+    expect(q('pp-pos')!.textContent).toContain('PLANNING.OPTIM.CALENDRIER.POSITION');
+    expect((q('pp-prev') as HTMLButtonElement).disabled).toBe(false);
+    expect((q('pp-next') as HTMLButtonElement).disabled).toBe(false);
+    expect(q('pp-une-semaine')).toBeNull();
+  });
+
+  it('explique qu\'une proposition d\'une seule semaine ne se parcourt pas et comment en obtenir plusieurs', async () => {
+    await render(calendrier({semaines: ['2026-09-27'], semaine: '2026-09-27'}));
+
+    expect(q('pp-une-semaine')!.textContent).toContain('PLANNING.OPTIM.CALENDRIER.UNE_SEMAINE');
+    expect(q('pp-pos')).toBeNull();
+    expect((q('pp-prev') as HTMLButtonElement).disabled).toBe(true);
+    expect((q('pp-next') as HTMLButtonElement).disabled).toBe(true);
+  });
+
   it('émet la demande d\'impression, sauf pendant l\'impression ou sans ligne', async () => {
     const fixture = await render(calendrier());
     const imprimer = vi.fn();

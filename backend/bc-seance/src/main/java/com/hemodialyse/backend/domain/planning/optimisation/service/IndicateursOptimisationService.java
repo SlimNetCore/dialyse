@@ -122,7 +122,7 @@ public final class IndicateursOptimisationService {
         int manques = 0;
         Map<UUID, Integer> parInfirmier = new HashMap<>();
         Map<String, Integer> parInfirmierEtSemaine = new HashMap<>();
-        for (int semaine = 0; semaine < parametres.nbSemaines(); semaine++) {
+        for (int semaine = 0; semaine < parametres.semainesCalcul(); semaine++) {
             SemainePresence presence = PresenceInfirmierService.construire(donnees.presence(),
                     parametres.debutSemaine().plusWeeks(semaine));
             for (CasePresence c : presence.cases()) {

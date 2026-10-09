@@ -20,7 +20,7 @@ export const OBJECTIFS_INFIRMIERS: readonly ObjectifInfirmiers[] = ['EQUITE', 'E
 
 /** Bornes acceptées par le serveur. */
 export const BORNES_OPTIMISATION = {
-  semaines: {min: 1, max: 8},
+  semaines: {min: 1, max: 8, defaut: 4},
   duree: {min: 2, max: 300, defaut: 20},
   stabilite: {min: 0, max: 10, defaut: 5},
   vacationsJour: {min: 1, max: 3, defaut: 2},

@@ -229,33 +229,38 @@ describe('PlanningOptimisationComponent', () => {
     (root.querySelector('[data-testid="opt-lancer"]') as HTMLButtonElement).click();
 
     expect(store.lancer).toHaveBeenCalledWith({
-      perimetre: 'ROULEMENT', debutSemaine: '2026-09-30', nbSemaines: 1, dureeMaxSecondes: 5, stabilite: 8,
+      perimetre: 'ROULEMENT', debutSemaine: '2026-09-30', nbSemaines: 4, dureeMaxSecondes: 5, stabilite: 8,
       objectif: 'EQUITE', maxVacationsParJour: 2, maxVacationsParSemaine: 6,
     });
   });
 
-  it('ne propose le nombre de semaines que pour la couverture et n\'envoie 1 semaine sinon', async () => {
+  it('propose l\'horizon (4 semaines par défaut) pour tous les périmètres et l\'envoie tel quel', async () => {
     const {fixture, root} = await render();
     const composant = fixture.componentInstance as unknown as {
       formModel: { update: (f: (m: Record<string, unknown>) => Record<string, unknown>) => void }
     };
-    expect(root.querySelector('[data-testid="opt-semaines"]')).toBeNull();
+    const champ = () => root.querySelector<HTMLInputElement>('[data-testid="opt-semaines"]');
+    expect(champ()).not.toBeNull();
+    expect(champ()!.value).toBe('4');
 
     composant.formModel.update((m) => ({...m, perimetre: 'COUVERTURE', nbSemaines: 3}));
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(root.querySelector('[data-testid="opt-semaines"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="opt-semaines-hint"]')!.textContent).toContain('PLANNING.OPTIM.RANGE');
     (root.querySelector('[data-testid="opt-lancer"]') as HTMLButtonElement).click();
     expect(store.lancer).toHaveBeenLastCalledWith(expect.objectContaining({perimetre: 'COUVERTURE', nbSemaines: 3}));
 
+    // placement des patients : semaine type, projetée sur l'horizon choisi (le texte d'aide l'explique)
     composant.formModel.update((m) => ({...m, perimetre: 'PATIENTS', nbSemaines: 3}));
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(root.querySelector('[data-testid="opt-semaines"]')).toBeNull();
+    expect(champ()).not.toBeNull();
+    expect(root.querySelector('[data-testid="opt-semaines-hint"]')!.textContent)
+      .toContain('PLANNING.OPTIM.SEMAINES_TYPE_HINT');
     (root.querySelector('[data-testid="opt-lancer"]') as HTMLButtonElement).click();
-    expect(store.lancer).toHaveBeenLastCalledWith(expect.objectContaining({perimetre: 'PATIENTS', nbSemaines: 1}));
+    expect(store.lancer).toHaveBeenLastCalledWith(expect.objectContaining({perimetre: 'PATIENTS', nbSemaines: 3}));
   });
 
   it('interdit de relancer pendant un calcul et permet de l\'arrêter', async () => {

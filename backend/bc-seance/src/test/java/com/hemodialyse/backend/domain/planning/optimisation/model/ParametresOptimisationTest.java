@@ -31,9 +31,16 @@ class ParametresOptimisationTest {
     }
 
     @Test
-    void should_reject_a_multi_week_horizon_outside_the_coverage() {
-        assertThatThrownBy(() -> new ParametresOptimisation(PerimetreOptimisation.ROULEMENT, MERCREDI, 2, 10, 5, null, 2, 6))
-                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("couverture");
+    void should_accept_a_multi_week_horizon_for_every_scope_but_compute_a_single_type_week_outside_dated_scopes() {
+        for (PerimetreOptimisation perimetre : PerimetreOptimisation.values()) {
+            var p = new ParametresOptimisation(perimetre, MERCREDI, 4, 10, 5, null, 2, 6);
+
+            assertThat(p.nbSemaines()).isEqualTo(4);
+            assertThat(p.finHorizon()).isEqualTo(p.debutSemaine().plusDays(27));
+            // couverture et maintenance calculent chaque semaine ; les autres, la semaine type projetée ensuite
+            assertThat(p.semainesCalcul()).isEqualTo(perimetre.datee() ? 4 : 1);
+            assertThat(p.finCalcul()).isEqualTo(p.debutSemaine().plusDays(perimetre.datee() ? 27 : 6));
+        }
     }
 
     @Test
@@ -46,7 +53,7 @@ class ParametresOptimisationTest {
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("par jour");
         assertThatThrownBy(() -> new ParametresOptimisation(PerimetreOptimisation.PATIENTS, MERCREDI, 1, 10, 5, null, 2, 15))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("par semaine");
-        assertThatThrownBy(() -> new ParametresOptimisation(PerimetreOptimisation.PATIENTS, MERCREDI, 5, 10, 5, null, 2, 6))
+        assertThatThrownBy(() -> new ParametresOptimisation(PerimetreOptimisation.PATIENTS, MERCREDI, 9, 10, 5, null, 2, 6))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new ParametresOptimisation(null, MERCREDI, 1, 10, 5, null, 2, 6))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Périmètre");

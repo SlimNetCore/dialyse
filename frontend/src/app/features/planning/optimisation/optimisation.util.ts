@@ -50,7 +50,10 @@ export const planifieInfirmiers = (p: PerimetreOptimisation): boolean => p !== '
 /** Le périmètre propose-t-il des déplacements temporaires (maintenance des générateurs) ? */
 export const proposeTemporaires = (p: PerimetreOptimisation): boolean => p === 'MAINTENANCE';
 
-/** Couverture et maintenance se planifient sur plusieurs semaines (dates réelles). */
+/**
+ * Couverture et maintenance <b>calculent</b> chaque semaine de l'horizon (dates réelles) ; les autres périmètres calculent
+ * une semaine type que le planning proposé projette sur chaque semaine de l'horizon.
+ */
 export const horizonLibre = (p: PerimetreOptimisation): boolean => p === 'COUVERTURE' || p === 'MAINTENANCE';
 
 /** Corps d'enregistrement d'une préférence : pas de créneau = '' dans le formulaire ; séances seulement si jours à choisir. */

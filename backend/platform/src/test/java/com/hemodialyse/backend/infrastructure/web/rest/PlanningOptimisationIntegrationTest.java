@@ -274,6 +274,35 @@ class PlanningOptimisationIntegrationTest {
     }
 
     @Test
+    void should_browse_the_patient_placement_week_by_week_over_a_multi_week_horizon() throws Exception {
+        // les deux infirmiers sont absents la deuxième semaine seulement : la proposition, calculée sur la semaine type,
+        // est projetée sur les trois semaines de l'horizon avec les absences datées
+        for (UUID infirmier : List.of(marie, paul)) {
+            jdbc.update("INSERT INTO infirmier_absence (id, center_id, infirmier_id, date_debut, date_fin, type) "
+                            + "VALUES (?, ?, ?, ?, ?, 'CONGE')", UUID.randomUUID(), C1, infirmier,
+                    Date.valueOf(DIMANCHE.plusWeeks(1)), Date.valueOf(DIMANCHE.plusWeeks(1).plusDays(6)));
+        }
+
+        RunOptimisation fini = attendre(planification.lancer(C1, new ParametresOptimisation(PerimetreOptimisation.PATIENTS,
+                DIMANCHE, 3, 2, 5, ObjectifInfirmiers.EQUITE, 2, 6), "admin").id());
+
+        assertThat(fini.statut()).isEqualTo(StatutRun.TERMINEE);
+        assertThat(fini.parametres().nbSemaines()).isEqualTo(3);
+        List<LocalDate> semaines = planification.semainesCalendrier(C1, fini.id());
+        assertThat(semaines).containsExactly(DIMANCHE, DIMANCHE.plusWeeks(1), DIMANCHE.plusWeeks(2));
+        assertThat(absentsDe(fini, semaines.get(0))).isZero();
+        assertThat(absentsDe(fini, semaines.get(1))).isPositive();
+        assertThat(absentsDe(fini, semaines.get(2))).isZero();
+    }
+
+    private long absentsDe(RunOptimisation run, LocalDate semaine) {
+        return planification.calendrier(C1, run.id(), semaine).stream()
+                .flatMap(c -> c.jours().stream()).flatMap(j -> j.infirmiers().stream())
+                .filter(i -> i.situation() == com.hemodialyse.backend.domain.planning.optimisation.model.CalendrierProposition.SituationInfirmier.ABSENT)
+                .count();
+    }
+
+    @Test
     void should_fail_the_runs_orphaned_by_a_restart_and_free_the_center() {
         RunOptimisation orpheline = runs.save(RunOptimisation.demarrer(C1, parametres(PerimetreOptimisation.PATIENTS, 5),
                 "admin", "x", java.time.Instant.now()));

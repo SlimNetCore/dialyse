@@ -115,6 +115,9 @@ class ReplanificationAutomatiqueServiceTest {
         assertThat(etapes.get(0).nbSemaines()).isEqualTo(2);
         assertThat(etapes.get(1).nbSemaines()).isEqualTo(2);
         assertThat(etapes.get(2).debutSemaine()).isEqualTo(etapes.get(0).debutSemaine().plusWeeks(1));
+        // le placement des patients (semaine type) se projette lui aussi sur deux semaines parcourables
+        assertThat(etapes.get(2).nbSemaines()).isEqualTo(2);
+        assertThat(etapes.get(2).semainesCalcul()).isEqualTo(1);
     }
 
     @Test

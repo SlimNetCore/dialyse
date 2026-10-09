@@ -61,6 +61,8 @@ export class PlanningProposeComponent {
   protected readonly entetes = computed(() => entetesJours(this.cases()));
   protected readonly precedente = computed(() => semaineVoisine(this.semaines(), this.semaine(), -1));
   protected readonly suivante = computed(() => semaineVoisine(this.semaines(), this.semaine(), 1));
+  /** Rang (à partir de 1) de la semaine affichée parmi celles de la proposition, pour « Semaine 2 sur 4 ». */
+  protected readonly rang = computed(() => this.semaines().indexOf(this.semaine() ?? '') + 1);
   protected readonly lignesJour = computed(() => lignesDuJour(this.cases(), this.jourActif()));
   protected readonly classe = classeJour;
   private readonly translate = inject(TranslateService);

@@ -62,7 +62,7 @@ public final class InfirmiersMapper {
         Map<String, Set<CompetenceInfirmier>> competencesParCase = competencesParCase(donnees, parametres);
         Set<ExigenceCompetence> exigences = new LinkedHashSet<>();
         List<Vacation> vacations = new ArrayList<>();
-        for (int semaine = 0; semaine < parametres.nbSemaines(); semaine++) {
+        for (int semaine = 0; semaine < parametres.semainesCalcul(); semaine++) {
             SemainePresence presence = PresenceInfirmierService.construire(donnees.presence(),
                     parametres.debutSemaine().plusWeeks(semaine));
             Map<String, Set<UUID>> pris = new HashMap<>();
@@ -120,7 +120,7 @@ public final class InfirmiersMapper {
         for (Occupation o : donnees.planning().occupations()) {
             Set<CompetenceInfirmier> competences = parPatient.get(o.patientId());
             if (competences == null) continue;
-            for (LocalDate date = parametres.debutSemaine(); !date.isAfter(parametres.finHorizon());
+            for (LocalDate date = parametres.debutSemaine(); !date.isAfter(parametres.finCalcul());
                  date = date.plusDays(1)) {
                 if (!o.jours().contains(JourSemaine.de(date.getDayOfWeek())) || !o.occupeLe(date)) continue;
                 parCase.computeIfAbsent(o.salleId() + "|" + o.creneauId() + "|" + date,

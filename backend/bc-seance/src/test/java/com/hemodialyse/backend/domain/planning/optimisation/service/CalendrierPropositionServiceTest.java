@@ -249,6 +249,63 @@ class CalendrierPropositionServiceTest {
         assertThat(lundi.manque()).isEqualTo(2);
     }
 
+    private static ParametresOptimisation horizon(PerimetreOptimisation perimetre, int semaines) {
+        return new ParametresOptimisation(perimetre, DIMANCHE, semaines, 20, 5,
+                com.hemodialyse.backend.domain.planning.optimisation.model.ObjectifInfirmiers.EQUITE, 2, 6, 6, 40, 2);
+    }
+
+    @Test
+    void should_project_the_placement_of_a_type_week_on_every_week_of_the_horizon() {
+        OptimisationFixture f = new OptimisationFixture();
+        SalleRef a = f.salle("Salle A", 2);
+        CreneauRef matin = f.creneau("Matin");
+        f.patient("Benali", false, a, matin, f.generateur(a, 0), LUNDI);
+
+        List<CaseCalendrier> cases = CalendrierPropositionService.construire(f.build(),
+                resultat(List.of(), List.of(), List.of(), List.of()), horizon(PerimetreOptimisation.PATIENTS, 3));
+
+        assertThat(cases).extracting(CaseCalendrier::semaineDebut)
+                .containsExactly(DIMANCHE, DIMANCHE.plusWeeks(1), DIMANCHE.plusWeeks(2));
+        for (int semaine = 0; semaine < 3; semaine++) {
+            assertThat(jour(cases, a, matin, LUNDI_DATE.plusWeeks(semaine)).patients()).extracting("nom")
+                    .containsExactly("Benali");
+        }
+    }
+
+    @Test
+    void should_repeat_the_type_week_roster_of_the_proposal_on_every_week_instead_of_the_first_one_only() {
+        OptimisationFixture f = new OptimisationFixture();
+        SalleRef a = f.salle("Salle A", 4);
+        CreneauRef matin = f.creneau("Matin");
+        f.patient("P0", false, a, matin, f.generateur(a, 0), LUNDI);
+        var vacations = List.of(
+                new VacationPlanifiee(LUNDI_DATE, LUNDI, a.id(), matin.id(), java.util.UUID.randomUUID(), "Sara", true));
+
+        List<CaseCalendrier> cases = CalendrierPropositionService.construire(f.build(),
+                resultat(List.of(), List.of(), vacations, List.of()), horizon(PerimetreOptimisation.ROULEMENT, 3));
+
+        for (int semaine = 0; semaine < 3; semaine++) {
+            assertThat(jour(cases, a, matin, LUNDI_DATE.plusWeeks(semaine)).infirmiers()).extracting("nom")
+                    .as("semaine %d", semaine).containsExactly("Sara");
+        }
+    }
+
+    @Test
+    void should_keep_dated_vacations_on_their_own_week_for_the_coverage() {
+        OptimisationFixture f = new OptimisationFixture();
+        SalleRef a = f.salle("Salle A", 4);
+        CreneauRef matin = f.creneau("Matin");
+        f.patient("P0", false, a, matin, f.generateur(a, 0), LUNDI);
+        var vacations = List.of(
+                new VacationPlanifiee(LUNDI_DATE.plusWeeks(1), LUNDI, a.id(), matin.id(), java.util.UUID.randomUUID(), "Sara", false));
+
+        List<CaseCalendrier> cases = CalendrierPropositionService.construire(f.build(),
+                resultat(List.of(), List.of(), vacations, List.of()), horizon(PerimetreOptimisation.COUVERTURE, 2));
+
+        assertThat(jour(cases, a, matin, LUNDI_DATE).infirmiers()).extracting("nom").doesNotContain("Sara");
+        assertThat(jour(cases, a, matin, LUNDI_DATE.plusWeeks(1)).infirmiers()).extracting("nom").contains("Sara");
+    }
+
     @Test
     void should_build_one_block_of_rows_per_week_of_the_horizon() {
         OptimisationFixture f = new OptimisationFixture();

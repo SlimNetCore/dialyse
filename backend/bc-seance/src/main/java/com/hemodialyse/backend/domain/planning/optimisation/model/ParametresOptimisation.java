@@ -9,7 +9,10 @@ import java.time.LocalDate;
  *
  * @param perimetre              ce qui est planifié
  * @param debutSemaine           début de l'horizon (ramené au dimanche de sa semaine)
- * @param nbSemaines             semaines planifiées (1, sauf couverture et maintenance : 1 à {@value #SEMAINES_MAX})
+ * @param nbSemaines             semaines de l'horizon, de 1 à {@value #SEMAINES_MAX}. Couverture et maintenance les
+ *                               <b>calculent</b> une à une (dates réelles) ; les autres périmètres calculent une
+ *                               semaine type que le planning proposé <b>projette</b> sur chaque semaine de l'horizon
+ *                               (fermetures, absences et remplaçants datés), voir {@link #semainesCalcul()}
  * @param dureeMaxSecondes       temps de calcul maximal par phase
  * @param stabilite              de 0 (tout peut changer) à 10 (changer le moins possible les placements et le roulement)
  * @param objectif               arbitrage équité / économie de personnel
@@ -53,9 +56,6 @@ public record ParametresOptimisation(
         if (debutSemaine == null) throw new IllegalArgumentException("Début de l'horizon requis");
         if (nbSemaines < 1 || nbSemaines > SEMAINES_MAX) {
             throw new IllegalArgumentException("L'horizon doit être compris entre 1 et " + SEMAINES_MAX + " semaines");
-        }
-        if (!perimetre.datee() && nbSemaines != 1) {
-            throw new IllegalArgumentException("Seules la couverture et la maintenance se planifient sur plusieurs semaines");
         }
         if (dureeMaxSecondes < DUREE_MIN_SECONDES || dureeMaxSecondes > DUREE_MAX_SECONDES) {
             throw new IllegalArgumentException("La durée de calcul doit être comprise entre " + DUREE_MIN_SECONDES
@@ -115,6 +115,22 @@ public record ParametresOptimisation(
         long jours = java.time.temporal.ChronoUnit.DAYS.between(debut, jusquAu) + 1;
         long semaines = jours <= 0 ? 1 : (jours + 6) / 7;
         return (int) Math.max(1, Math.min(SEMAINES_MAX, Math.max(minimum, semaines)));
+    }
+
+    /**
+     * Semaines réellement soumises au solveur : toutes celles de l'horizon pour un périmètre daté (couverture,
+     * maintenance), une seule — la semaine type — pour les autres, dont la proposition se projette ensuite sur
+     * l'horizon.
+     */
+    public int semainesCalcul() {
+        return perimetre.datee() ? nbSemaines : 1;
+    }
+
+    /**
+     * Dernier jour des semaines soumises au solveur (bornes incluses), voir {@link #semainesCalcul()}.
+     */
+    public LocalDate finCalcul() {
+        return debutSemaine.plusDays(7L * semainesCalcul() - 1);
     }
 
     /**

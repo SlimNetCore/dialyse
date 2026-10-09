@@ -208,8 +208,11 @@
   démarrage du serveur, toute exécution restée en cours passe en échec (« calcul interrompu par l'arrêt du serveur »).
   Nombre de calculs en parallèle : `PLANNING_OPTIMISATION_WORKERS` (défaut 2).
 - **RG-PLN-082** — Paramètres et bornes (sinon refus 400) : début de l'horizon (ramené au dimanche de sa semaine),
-  nombre de semaines 1 à 8 (**uniquement** pour `COUVERTURE` et `MAINTENANCE`, 1 sinon ; huit semaines couvrent une
-  absence déclarée environ deux mois à l'avance), durée maximale de calcul
+  nombre de semaines de l'horizon 1 à 8 (défaut du formulaire : 4 ; huit semaines couvrent une absence déclarée
+  environ deux mois à l'avance), pour **tous** les périmètres : `COUVERTURE` et `MAINTENANCE` **calculent** chaque
+  semaine (dates réelles) ; les autres périmètres (`PATIENTS`, `ROULEMENT`, `COMPLET`) calculent **une semaine type**,
+  que le planning proposé **projette sur chaque semaine de l'horizon** (fermetures, jours fériés, absences et
+  remplaçants datés ; vacations proposées reconduites à l'identique), durée maximale de calcul
   **par phase** 2 à 300
   secondes (défaut 20), **stabilité** 0 à 10 (défaut 5 : 0 = tout peut changer, 10 = changer le moins possible),
   objectif des infirmiers `EQUITE` (défaut) ou `ECONOMIE`, vacations maximales par jour 1 à 3 (défaut 2) et par semaine
@@ -325,12 +328,17 @@
   sa fin (8 au plus) : le calcul ne se limite plus à la semaine en cours. Le médecin, qui ne lance pas l'optimisation,
   est conduit au planning de la semaine de l'absence. *Sources :* `ParametresOptimisation.semainesJusqua`,
   `horizonPourAbsence` (frontend).
+- **RG-PLN-106** — **Parcours d'une proposition semaine par semaine.** Le planning proposé affiche « Semaine n sur N »
+  et se parcourt avec les flèches sur toute la période de l'horizon. Une proposition d'une seule semaine l'indique et
+  invite à relancer le calcul avec plus de semaines. *Sources :* `CalendrierPropositionService`,
+  `PlanningProposeComponent` (frontend).
 - **RG-PLN-100** — **Replanification automatique nocturne** (`ReplanificationAutomatiqueScheduler`, 02:30 UTC chaque
   nuit), pour les centres qui l'ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
   semaines au moins, **étendue jusqu'à la fin de la dernière absence d'infirmier à venir, 8 semaines au plus** : une
   absence planifiée dans plusieurs semaines est couverte dès maintenant), la maintenance (2 semaines) à partir de la
-  semaine en cours, puis le placement des patients de la semaine
-  suivante, 30 secondes par phase, au nom de `SYSTEME`. Un calcul déjà en cours dans le centre interrompt l'enchaînement
+  semaine en cours, puis le placement des patients (semaine type, projetée sur les deux semaines à partir de la
+  semaine suivante), 30 secondes par phase, au nom de `SYSTEME`. Un calcul déjà en cours dans le centre interrompt
+  l'enchaînement
   pour la nuit ; un centre en erreur n'empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
   (`OPTIMISATION_PROPOSITION`) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif
   `SOUS_EFFECTIF`), séances à déplacer ou sans solution (`MAINTENANCE`), vacations requises économisées ou patients en

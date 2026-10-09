@@ -60,7 +60,8 @@ public class ReplanificationAutomatiqueService {
         return List.of(
                 parametres(PerimetreOptimisation.COUVERTURE, aujourdhui, semainesCouverture),
                 parametres(PerimetreOptimisation.MAINTENANCE, aujourdhui, SEMAINES),
-                parametres(PerimetreOptimisation.PATIENTS, aujourdhui.plusWeeks(1), 1));
+                // semaine type projetée sur deux semaines : l'administration parcourt la proposition semaine par semaine
+                parametres(PerimetreOptimisation.PATIENTS, aujourdhui.plusWeeks(1), SEMAINES));
     }
 
     /**
