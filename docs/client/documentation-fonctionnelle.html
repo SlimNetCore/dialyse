@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>508 règles de gestion · 16 domaines · 384 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-09<br>511 règles de gestion · 16 domaines · 391 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>508</b>règles de gestion</div>
+        <div><b>511</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>8</b>points d'attention</div>
@@ -565,6 +565,61 @@ société) et réservée à <code>ADMIN</code> (limité à son centre) et <code>
             (<code>SUPERVISION_INDISPONIBLE</code>) ou si PostgreSQL refuse l&#39;opération faute de droits
             (<code>SUPERVISION_REINITIALISATION_IMPOSSIBLE</code>). <em>Source :</em> <code>SupervisionBaseService.reinitialiser</code>.
         </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-SEC-064">
+        <div class="rid">RG-SEC-064</div>
+        <div class="rtxt"><p><strong>Pistes d&#39;amélioration par requête.</strong> Chaque requête du classement porte
+            des conseils déduits de
+            son texte normalisé et de ses compteurs (ce sont des indices, à confirmer par l&#39;analyse) : trop de
+            lignes par appel
+            sans <code>LIMIT</code> (≥ 1 000), lente avec un filtre mais peu de lignes renvoyées (≥ 50 ms et &lt; 50
+            lignes : lecture complète
+            probable), <code>COUNT(*)</code> lent, tri ou jointure qui déborde sur disque, taux de cache sous 90 %,
+            écriture lente (≥ 50 ms),
+            appels très nombreux et rapides pesant au moins 10 % du total (schéma « N+1 », cache), <code>SELECT *</code>,
+            recherche
+            <code>LIKE</code>/<code>ILIKE</code>, fonction appliquée à la colonne filtrée, longue liste <code>IN</code>,
+            durée maximale très supérieure à la
+            moyenne. Les actions précèdent les informations. <em>Source :</em> <code>ConseilsRequete</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-SEC-065">
+        <div class="rid">RG-SEC-065</div>
+        <div class="rtxt"><p><strong>Analyse du plan d&#39;exécution</strong> (bouton « Analyser »). Le serveur relit le
+            texte de la requête à
+            partir de son identifiant mesuré — <strong>le client ne fournit jamais de SQL</strong> — et établit son plan
+            générique <strong>sans
+                l&#39;exécuter</strong> (<code>PREPARE</code> + <code>EXPLAIN</code> avec plan générique, transaction en
+            lecture seule limitée à 5 s, requête préparée
+            libérée). Seules les lectures à instruction unique sont analysées (sans écriture cachée dans un
+            <code>WITH</code>). Le résultat
+            liste les tables lues en entier et conclut : <code>INDEX_RECOMMANDE</code> (avec un ordre <code>CREATE
+                INDEX</code> à étudier : égalités puis
+            première colonne de plage, trois colonnes au plus), <code>TABLE_PETITE</code> (moins de 1 000 lignes : lire
+            tout est plus rapide),
+            <code>INDEX_PRESENT</code> (un index commence déjà par la première colonne filtrée : le plan générique peut
+            différer du réel) ou
+            <code>SANS_FILTRE</code> (lecture complète voulue). La suggestion est une piste à valider, jamais appliquée
+            automatiquement.
+            Requête absente des mesures : <code>SUPERVISION_REQUETE_INTROUVABLE</code>. <em>Sources :</em> <code>AnalyseurPlan</code>,
+            <code>PgPlanAdapter</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-SEC-066">
+        <div class="rid">RG-SEC-066</div>
+        <div class="rtxt"><p><strong>Santé de la base</strong> (onglet dédié, PostgreSQL uniquement) : taille, part des
+            lectures servies par
+            le cache, connexions utilisées sur le maximum, quinze plus grosses tables (taille, lignes, part de lignes
+            mortes,
+            lectures complètes et par index) et index jamais utilisés. Points d&#39;attention : cache sous 95 %
+            (critique sous 90 %),
+            connexions à 80 % du maximum, lignes mortes au moins 20 %, grande table lue en entier de façon répétée,
+            index
+            inutilisés. Chaque table est positionnée face aux seuils de l&#39;étude de partitionnement :
+            <code>A_ETUDIER</code> à 20 millions de
+            lignes ou 10 Go, <code>A_SURVEILLER</code> à la moitié. <em>Sources :</em> <code>DiagnosticSante</code>,
+            <code>PgSanteBaseAdapter</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p03"><h1><span class="n">Partie 3</span>Organisation : sociétés, centres, comptes d'encadrement</h1>
@@ -3528,7 +3583,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
     <td><code>SupervisionBaseRestController</code></td>
     <td><code>/api/v1/supervision/base-donnees</code></td>
     <td><code>SUPERADMIN</code></td>
-    <td>RG-SEC-060 à 063</td>
+    <td>RG-SEC-060 à 066</td>
 </tr>
 <tr>
 <td><code>SocieteRestController</code></td>

@@ -80,7 +80,8 @@ public class PgStatStatementsAdapter implements StatistiquesRequetesPort {
     public PagedResult<RequeteStatistique> classement(TriRequetes tri, int page, int size) {
         Long total = jdbc.queryForObject("SELECT COUNT(*) FROM pg_stat_statements WHERE " + FILTRE, Long.class);
         List<RequeteStatistique> lignes = jdbc.query(
-                "SELECT queryid, query, calls, total_exec_time, mean_exec_time, max_exec_time, rows "
+                "SELECT queryid, query, calls, total_exec_time, mean_exec_time, max_exec_time, rows, "
+                        + "shared_blks_hit, shared_blks_read, temp_blks_written "
                         + "FROM pg_stat_statements WHERE " + FILTRE
                         + " ORDER BY " + colonneDeTri(tri) + " DESC, queryid LIMIT ? OFFSET ?",
                 (rs, i) -> new RequeteStatistique(
@@ -90,7 +91,10 @@ public class PgStatStatementsAdapter implements StatistiquesRequetesPort {
                         rs.getDouble("total_exec_time"),
                         rs.getDouble("mean_exec_time"),
                         rs.getDouble("max_exec_time"),
-                        rs.getLong("rows")),
+                        rs.getLong("rows"),
+                        rs.getLong("shared_blks_hit"),
+                        rs.getLong("shared_blks_read"),
+                        rs.getLong("temp_blks_written")),
                 size, (long) page * size);
         return PagedResult.of(lignes, total == null ? 0 : total, page, size);
     }

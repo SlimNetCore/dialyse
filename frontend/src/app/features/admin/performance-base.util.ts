@@ -9,6 +9,20 @@ export function formatDuree(ms: number): string {
   return `${minutes} min ${String(reste).padStart(2, '0')} s`;
 }
 
+/** Taille lisible : « 512 o », « 8 Ko », « 12,4 Mo », « 1,2 Go ». */
+export function formatTaille(octets: number): string {
+  if (!Number.isFinite(octets) || octets < 0) return '—';
+  const unites = ['o', 'Ko', 'Mo', 'Go', 'To'];
+  let valeur = octets;
+  let rang = 0;
+  while (valeur >= 1024 && rang < unites.length - 1) {
+    valeur /= 1024;
+    rang++;
+  }
+  const texte = rang === 0 || valeur >= 100 ? String(Math.round(valeur)) : valeur.toFixed(1).replace('.', ',').replace(/,0$/, '');
+  return `${texte} ${unites[rang]}`;
+}
+
 /** Part du temps total : « 12,3 % », « < 0,1 % » pour une part infime mais non nulle. */
 export function formatPart(pct: number): string {
   if (!Number.isFinite(pct) || pct <= 0) return '0 %';

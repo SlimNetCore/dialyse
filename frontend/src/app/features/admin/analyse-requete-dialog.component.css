@@ -1,0 +1,129 @@
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.query {
+  display: block;
+  max-height: 140px;
+  overflow: auto;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  font-family: monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  opacity: 0.7;
+}
+
+.resume {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.error-msg {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-error, #b3261e) 12%, transparent);
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.unavailable {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-primary, #0d5750) 10%, transparent);
+}
+
+.unavailable p {
+  margin: 0;
+}
+
+.bon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2e7d32;
+}
+
+.balayage {
+  margin: 12px 0;
+  padding: 10px 14px;
+  border-inline-start: 4px solid #9e9e9e;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.balayage.index_recommande {
+  border-inline-start-color: var(--mat-sys-error, #b3261e);
+}
+
+.balayage.index_present,
+.balayage.sans_filtre {
+  border-inline-start-color: #ef6c00;
+}
+
+.balayage.table_petite {
+  border-inline-start-color: #2e7d32;
+}
+
+.balayage h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.label {
+  font-weight: 600;
+  margin: 8px 0 4px;
+}
+
+.verdict {
+  font-weight: 600;
+}
+
+code,
+pre {
+  font-family: monospace;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.index-existants {
+  margin: 0;
+  padding-inline-start: 18px;
+}
+
+.suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.suggestion pre {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.plan {
+  margin-top: 12px;
+}
+
+.plan pre {
+  max-height: 320px;
+  overflow: auto;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}

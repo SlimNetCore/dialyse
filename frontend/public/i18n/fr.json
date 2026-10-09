@@ -77,6 +77,90 @@
   },
   "SUPERVISION": {
     "TITLE": "Performance de la base de données",
+    "TAB_REQUETES": "Requêtes",
+    "TAB_SANTE": "Santé de la base",
+    "CONSEIL": {
+      "LIGNES_PAR_APPEL_ELEVE": "Lit en moyenne {{valeur}} lignes par appel sans LIMIT : paginer ou filtrer plus tôt, ne ramener que ce qui est affiché.",
+      "SCAN_PROBABLE": "Lente ({{valeur}} ms en moyenne) alors qu'elle renvoie peu de lignes : PostgreSQL lit probablement toute la table. Cliquez sur « Analyser » pour confirmer et obtenir un index à étudier.",
+      "COMPTAGE_EXHAUSTIF": "Un COUNT(*) de {{valeur}} ms en moyenne parcourt beaucoup de lignes : mettre le total en cache, le borner ou l'estimer plutôt que le recalculer à chaque appel.",
+      "TRI_SUR_DISQUE": "Écrit {{valeur}} blocs temporaires : un tri ou une jointure déborde de la mémoire. Réduire les lignes triées, indexer la colonne triée ou augmenter work_mem.",
+      "CACHE_FAIBLE": "Seulement {{valeur}} % des lectures viennent du cache mémoire : beaucoup de lectures disque. Un index ou plus de mémoire pour PostgreSQL (shared_buffers) aide.",
+      "ECRITURE_LENTE": "Écriture lente ({{valeur}} ms en moyenne) : trop d'index sur la table, déclencheurs ou verrous. Vérifier les index inutilisés dans l'onglet Santé.",
+      "APPELS_TRES_NOMBREUX": "Appelée {{valeur}} fois pour une durée très courte : schéma « N+1 » probable (une requête par ligne). Regrouper en une requête ou mettre en cache (clé avec le centre).",
+      "SELECT_ETOILE": "SELECT * ramène toutes les colonnes : ne demander que celles dont l'écran a besoin.",
+      "RECHERCHE_TEXTE": "Recherche textuelle (LIKE/ILIKE) : un index classique ne sert pas si le motif commence par %. Chercher par préfixe ou utiliser l'extension pg_trgm.",
+      "FONCTION_SUR_COLONNE": "Une fonction est appliquée à la colonne filtrée (lower, date…) : l'index habituel est ignoré. Réécrire le filtre ou indexer l'expression.",
+      "IN_LONG": "Longue liste IN ($1, $2, …) : préférer = ANY($1) avec un tableau, ou une jointure.",
+      "VARIABILITE": "Parfois très lente (jusqu'à {{valeur}} ms) alors que la moyenne est basse : verrous, plan instable ou pics de charge. Relever l'heure de ces pics."
+    },
+    "ANALYSE": {
+      "BOUTON": "Analyser",
+      "TITRE": "Analyse du plan d'exécution",
+      "ERREUR": "Impossible d'établir le plan d'exécution.",
+      "AVERTISSEMENT": "Plan générique établi sans exécuter la requête, valeurs de paramètres inconnues. Confirmez avec EXPLAIN (ANALYZE, BUFFERS) avant de créer un index.",
+      "COUT": "Coût estimé",
+      "INDEX_UTILISES": "Parcours d'index",
+      "AUCUN_BALAYAGE": "Aucune table n'est lue en entier : le plan passe par des index.",
+      "BALAYAGE_TITRE": "{{table}} lue en entier (≈ {{lignes}} lignes)",
+      "FILTRE": "Filtre :",
+      "INDEX_EXISTANTS": "Index déjà présents :",
+      "SUGGESTION": "Index à étudier (migration Flyway + @Index sur l'entité) :",
+      "COPIER_SQL": "Copier l'ordre SQL",
+      "PLAN": "Plan d'exécution complet",
+      "FERMER": "Fermer",
+      "RAISON": {
+        "NON_SELECT": "Seules les requêtes de lecture sont analysées.",
+        "PLAN_IMPOSSIBLE": "PostgreSQL ne peut pas planifier cette requête sans ses paramètres."
+      },
+      "VERDICT": {
+        "INDEX_RECOMMANDE": "Un index sur les colonnes filtrées éviterait cette lecture complète.",
+        "TABLE_PETITE": "Table petite : la lire en entier est le plus rapide, un index n'apporterait rien.",
+        "INDEX_PRESENT": "Un index existe déjà sur la première colonne filtrée : le plan générique ne reflète pas forcément le plan réel. Vérifiez avec EXPLAIN (ANALYZE) et de vraies valeurs, et lancez ANALYZE sur la table si ses statistiques sont anciennes.",
+        "SANS_FILTRE": "Lecture complète sans filtre (agrégat ou export) : un index n'aide pas. Pré-calculer, mettre en cache ou restreindre la période."
+      }
+    },
+    "SANTE": {
+      "HINT": "Indicateurs du moteur PostgreSQL, lus à la demande.",
+      "RAFRAICHIR": "Actualiser",
+      "ERREUR": "Impossible de lire la santé de la base.",
+      "INDISPONIBLE": "La santé de la base n'est disponible que sur PostgreSQL (pas sur la base de développement H2).",
+      "TAILLE": "Taille de la base",
+      "CACHE": "Lectures servies par le cache",
+      "CONNEXIONS": "Connexions",
+      "ALERTES_TITRE": "Points d'attention",
+      "AUCUNE_ALERTE": "Rien à signaler.",
+      "NIVEAU": {
+        "CRITIQUE": "Critique",
+        "ATTENTION": "Attention",
+        "INFO": "Information"
+      },
+      "ALERTE": {
+        "CACHE_FAIBLE": "Seulement {{valeur}} % des lectures viennent du cache : relever shared_buffers ou ajouter des index.",
+        "CONNEXIONS_SATUREES": "{{valeur}} connexions utilisées : proche de la limite du serveur.",
+        "PARTITIONNEMENT_A_ETUDIER": "La table {{cible}} atteint les seuils d'étude du partitionnement ({{valeur}} lignes).",
+        "LIGNES_MORTES": "{{cible}} : {{valeur}} % de lignes mortes, VACUUM en retard ou purge massive.",
+        "TABLE_LUE_EN_ENTIER": "{{cible}} est lue en entier {{valeur}} fois : il manque probablement un index (analysez les requêtes concernées).",
+        "INDEX_INUTILISES": "{{valeur}} index n'ont jamais été utilisés (liste ci-dessous)."
+      },
+      "TABLES_TITRE": "Plus grosses tables",
+      "COL_TABLE": "Table",
+      "COL_TAILLE": "Taille",
+      "COL_LIGNES": "Lignes",
+      "COL_MORTES": "Lignes mortes",
+      "COL_SCANS_COMPLETS": "Lectures complètes",
+      "COL_SCANS_INDEX": "Lectures par index",
+      "COL_PARTITION": "Partitionnement",
+      "COL_INDEX": "Index",
+      "PART": {
+        "OK": "Inutile",
+        "A_SURVEILLER": "À surveiller",
+        "A_ETUDIER": "À étudier"
+      },
+      "INDEX_INUTILISES_TITRE": "Index jamais utilisés",
+      "INDEX_INUTILISES_HINT": "Un index inutilisé ralentit les écritures et occupe de la place. N'en supprimez qu'après plusieurs semaines d'observation",
+      "STATS_DEPUIS": "statistiques depuis le",
+      "AUCUN_INDEX_INUTILE": "Tous les index sont utilisés."
+    },
     "HINT": "Les requêtes qui coûtent le plus à la base, relevées par PostgreSQL. Servez-vous-en pour décider quoi améliorer : index, requête ou cache. Aucune donnée de patient n'apparaît : les valeurs sont remplacées par $1, $2…",
     "SORT_LABEL": "Classer par",
     "SORT": {

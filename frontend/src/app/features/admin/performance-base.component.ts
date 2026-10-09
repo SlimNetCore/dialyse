@@ -7,12 +7,15 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatTabsModule} from '@angular/material/tabs';
 import {MatTableModule} from '@angular/material/table';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {firstValueFrom} from 'rxjs';
-import {TriRequetes} from '../../core/api/supervision-api.service';
+import {RequeteBase, TriRequetes} from '../../core/api/supervision-api.service';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
+import {AnalyseRequeteDialogComponent, AnalyseRequeteDialogData} from './analyse-requete-dialog.component';
+import {SanteBaseComponent} from './sante-base.component';
 import {formatDuree, formatPart} from './performance-base.util';
 import {PerformanceBaseStore} from './state/performance-base.store';
 
@@ -26,7 +29,7 @@ import {PerformanceBaseStore} from './state/performance-base.store';
   standalone: true,
   imports: [
     DatePipe, DecimalPipe, TranslateModule, MatCardModule, MatTableModule, MatPaginatorModule, MatButtonModule,
-    MatButtonToggleModule, MatIconModule, MatProgressBarModule, MatTooltipModule,
+    MatButtonToggleModule, MatIconModule, MatProgressBarModule, MatTooltipModule, MatTabsModule, SanteBaseComponent,
   ],
   templateUrl: './performance-base.component.html',
   styleUrl: './performance-base.component.css',
@@ -56,6 +59,15 @@ export class PerformanceBaseComponent implements OnInit {
   protected onPage(event: PageEvent): void {
     this.store.setPagination(event.pageIndex, event.pageSize);
     void this.store.load();
+  }
+
+  /** Ouvre le plan d'exécution de la requête (établi côté serveur sans l'exécuter). */
+  protected analyser(requete: RequeteBase): void {
+    this.dialog.open<AnalyseRequeteDialogComponent, AnalyseRequeteDialogData>(AnalyseRequeteDialogComponent, {
+      width: 'min(96vw, 860px)',
+      maxHeight: '92vh',
+      data: {id: requete.id, requete: requete.requete},
+    });
   }
 
   protected basculer(id: string): void {

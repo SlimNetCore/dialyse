@@ -77,6 +77,90 @@
   },
   "SUPERVISION": {
     "TITLE": "Aseggem n taffa n isefka",
+    "TAB_REQUETES": "Isuter",
+    "TAB_SANTE": "Tamihawt n taffa n isefka",
+    "CONSEIL": {
+      "LIGNES_PAR_APPEL_ELEVE": "Yeɣra deg umaslu {{valeur}} n izirigen s yal asawal war LIMIT: seqdec isebtar neɣ seggem uzrar uqbel, awi-d kan ayen yettwaskanen.",
+      "SCAN_PROBABLE": "Ẓẓayit ({{valeur}} ms deg umaslu) ɣas akken d-yettarra kra n izirigen: PostgreSQL ad yeɣr akk tafelwit. Sit ɣef « Sleḍ » i usentem d wawwuri n umatar ara tezrewt.",
+      "COMPTAGE_EXHAUSTIF": "COUNT(*) n {{valeur}} ms deg umaslu yettɛedday ɣef izirigen aṭas: ḥrez amatu deg tuffirt, sḥedd-it neɣ kkes-it deg wadda n useḥsab-is deg yal asawal.",
+      "TRI_SUR_DISQUE": "Yaru {{valeur}} n yiḥedren iɣezzfanen: asizwer neɣ tuqqna ittɛedday i tmellalt. Senqes izirigen i yettwasizwren, sbedd amatar neɣ sali work_mem.",
+      "CACHE_FAIBLE": "Kan {{valeur}} % n tɣuri-nsent d-ukkin seg tuffirt n tmellalt: aṭas n tɣuri n uḍebsi. Amatar neɣ tmellalt ugar i PostgreSQL (shared_buffers) ad d-iɛiwen.",
+      "ECRITURE_LENTE": "Tira ẓẓayit ({{valeur}} ms deg umaslu): aṭas n imatar ɣef tfelwit, ineggafen neɣ ukkilen. Wali imatar ur nettwaseqdac ara deg yiccer n Tamihawt.",
+      "APPELS_TRES_NOMBREUX": "Yettwasawel {{valeur}} n tikkal deg tallit meẓẓiyen aṭas: taneɣruft « N+1 » tezmer ad tili (asuter i yal izirig). Smezdi-ten deg yiwen n usuter neɣ ḥrez-iten deg tuffirt (tasarut s uɣbalu).",
+      "SELECT_ETOILE": "SELECT * yettarra akk tigejdit: suter kan ayen yeḥwaǧ ugdil.",
+      "RECHERCHE_TEXTE": "Anadi n uḍris (LIKE/ILIKE): amatar amagnu ur d-yettɛawan ara ma yebda umedya s %. Nadi s uzwir neɣ seqdec asemɣer pg_trgm.",
+      "FONCTION_SUR_COLONNE": "Tamhalt tettwasnes ɣer tgejdit yettwasizwren (lower, date…): amatar amagnu yettwanegzu. Uɣal aru azrar neɣ sbedd amatar ɣef tefyirt.",
+      "IN_LONG": "Tabdart IN ($1, $2, …) ɣezzifen: ɣer = ANY($1) s tebdart neɣ tuqqna.",
+      "VARIABILITE": "Ɣas ẓẓayit aṭas kra n tikkal (alamma {{valeur}} ms) ɣas akken amaslu d ameẓẓyan: ukkilen, afraɣ arussid neɣ tiqqenyiwin n uɛebbi. Aru akud n tqerrubin-a."
+    },
+    "ANALYSE": {
+      "BOUTON": "Sleḍ",
+      "TITRE": "Tasleḍt n useɣwen n uselkem",
+      "ERREUR": "Ur nezmir ara ad yernu aseɣwen n uselkem.",
+      "AVERTISSEMENT": "Aseɣwen amatu yettwarnan war aselkem n usuter, izwal n yimsisen ur nettwasen ara. Sentem s EXPLAIN (ANALYZE, BUFFERS) send ad tesnulfuḍ amatar.",
+      "COUT": "Ssuma i d-yettwabdren",
+      "INDEX_UTILISES": "Tuɣal n imatar",
+      "AUCUN_BALAYAGE": "Ulac tafelwit yettwaɣran s umata: aseɣwen yeseqdac imatar.",
+      "BALAYAGE_TITRE": "{{table}} tettwaɣer s umata (≈ {{lignes}} n izirigen)",
+      "FILTRE": "Azrar:",
+      "INDEX_EXISTANTS": "Imatar yellan yakan:",
+      "SUGGESTION": "Amatar ara yettwazrewen (unugel Flyway + @Index ɣef tmagit):",
+      "COPIER_SQL": "Nɣel taladna SQL",
+      "PLAN": "Aseɣwen ummid n uselkem",
+      "FERMER": "Mdel",
+      "RAISON": {
+        "NON_SELECT": "Kan isuter n tɣuri i yettwasleḍen.",
+        "PLAN_IMPOSSIBLE": "PostgreSQL ur yezmir ara ad yessebded asuter-a war yimsisen-is."
+      },
+      "VERDICT": {
+        "INDEX_RECOMMANDE": "Amatar ɣef tgejdiyin yettwasizwren ad yeǧǧ aɣuri ummid-a.",
+        "TABLE_PETITE": "Tafelwit tamecṭuḥt: tɣuri-ines s umata d tazrigt akk, amatar ur ittarra ara kra.",
+        "INDEX_PRESENT": "Amatar yella yakan ɣef tgejdit tamezwarut yettwasizwren: aseɣwen amatu ur d-yettbin ara yal tikkelt aseɣwen n tidet. Senqed s EXPLAIN (ANALYZE) d yizwal n tidet, sakin selkem ANALYZE ɣef tfelwit ma tisefka-ines d tiqdimin.",
+        "SANS_FILTRE": "Aɣuri ummid war azrar (asemmiḍ neɣ asifeḍ): amatar ur d-yettɛawan ara. Ḥseb uqbel, ḥrez neɣ senqes tawala."
+      }
+    },
+    "SANTE": {
+      "HINT": "Imatar n uḥerrek PostgreSQL, ttwaɣran ticki ttwasutren.",
+      "RAFRAICHIR": "Smiren",
+      "ERREUR": "Ur nezmir ara ad yɣer tamihawt n taffa n isefka.",
+      "INDISPONIBLE": "Tamihawt n taffa n isefka tella kan ɣef PostgreSQL (mačči ɣef taffa n usnerni H2).",
+      "TAILLE": "Tuɣzi n taffa n isefka",
+      "CACHE": "Tɣuri yettwaxedmen seg tuffirt",
+      "CONNEXIONS": "Tuqqniwin",
+      "ALERTES_TITRE": "Tiyugiwin ara yettwaɛassen",
+      "AUCUNE_ALERTE": "Ulac ayen ara yettwabder.",
+      "NIVEAU": {
+        "CRITIQUE": "Ɛzizen",
+        "ATTENTION": "Ɛass",
+        "INFO": "Talɣut"
+      },
+      "ALERTE": {
+        "CACHE_FAIBLE": "Kan {{valeur}} % n tɣuri d-ukkin seg tuffirt: sali shared_buffers neɣ rnu imatar.",
+        "CONNEXIONS_SATUREES": "{{valeur}} n tuqqniwin ttwaseqdacent: qrib i talast n uqeddac.",
+        "PARTITIONNEMENT_A_ETUDIER": "Tafelwit {{cible}} tebla-d iɣallen n leqrar n usefrek ({{valeur}} n izirigen).",
+        "LIGNES_MORTES": "{{cible}}: {{valeur}} % n izirigen immuten, VACUUM yeqqim deffir neɣ tukksa tameqqrant.",
+        "TABLE_LUE_EN_ENTIER": "{{cible}} tettwaɣer s umata {{valeur}} n tikkal: amatar yenqes s tidet (sleḍ isuter yeɛnan).",
+        "INDEX_INUTILISES": "{{valeur}} n imatar ur ttwaseqdacen ara akk (tabdart sdaw)."
+      },
+      "TABLES_TITRE": "Tifelwiyin timeqqranin",
+      "COL_TABLE": "Tafelwit",
+      "COL_TAILLE": "Tuɣzi",
+      "COL_LIGNES": "Izirigen",
+      "COL_MORTES": "Izirigen immuten",
+      "COL_SCANS_COMPLETS": "Tɣuri tummidin",
+      "COL_SCANS_INDEX": "Tɣuri s umatar",
+      "COL_PARTITION": "Asefrek",
+      "COL_INDEX": "Amatar",
+      "PART": {
+        "OK": "Ur yelzem ara",
+        "A_SURVEILLER": "Ad yettwaɛass",
+        "A_ETUDIER": "Ad yettwazrew"
+      },
+      "INDEX_INUTILISES_TITRE": "Imatar ur nettwaseqdac ara akk",
+      "INDEX_INUTILISES_HINT": "Amatar ur nettwaseqdac ara isellek tira yerna yettṭef amkan. Ur t-ikkes ara anagar ticki twalaḍ-it kra n ddiwenin",
+      "STATS_DEPUIS": "tisefka seg",
+      "AUCUN_INDEX_INUTILE": "Imatar akk ttwaseqdacen."
+    },
     "HINT": "Isuter i d-yekkren zdat taffa n isefka, i d-yeslaq PostgreSQL. Seqdec-iten ad tferneḍ ayen ara tesnernuḍ: amatar, asuter neɣ tuffirt. Ulac isefka n yimdanen: azal yettwasenfal s $1, $2…",
     "SORT_LABEL": "Sizzwer s",
     "SORT": {

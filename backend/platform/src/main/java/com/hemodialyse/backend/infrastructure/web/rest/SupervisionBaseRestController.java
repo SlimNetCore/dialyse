@@ -3,12 +3,15 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.supervision.SupervisionBaseService;
 import com.hemodialyse.backend.application.supervision.TriRequetes;
 import com.hemodialyse.backend.infrastructure.web.dto.response.PagedResponse;
+import com.hemodialyse.backend.infrastructure.web.dto.response.SupervisionBaseResponses.Analyse;
 import com.hemodialyse.backend.infrastructure.web.dto.response.SupervisionBaseResponses.Requete;
+import com.hemodialyse.backend.infrastructure.web.dto.response.SupervisionBaseResponses.Sante;
 import com.hemodialyse.backend.infrastructure.web.dto.response.SupervisionBaseResponses.Statut;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,7 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Performance de la base pour le propriétaire de la plateforme (SUPERADMIN uniquement) : requêtes les plus coûteuses
- * relevées par {@code pg_stat_statements}. Données techniques de toute la plateforme, hors périmètre d'un centre.
+ * relevées par {@code pg_stat_statements}, analyse de leur plan d'exécution et santé du moteur. Données techniques de
+ * toute la plateforme, hors périmètre d'un centre.
  */
 @RestController
 @RequestMapping("/api/v1/supervision/base-donnees")
@@ -41,6 +45,20 @@ public class SupervisionBaseRestController {
             @RequestParam(defaultValue = "20") int size) {
         var resultat = supervision.requetes(TriRequetes.depuis(tri), page, size);
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(PagedResponse.from(resultat, Requete::from));
+    }
+
+    /**
+     * Plan d'exécution d'une requête mesurée, établi sans l'exécuter ; le texte SQL est relu côté base à partir de
+     * l'identifiant, le client n'en fournit jamais.
+     */
+    @GetMapping("/requetes/{id}/analyse")
+    public ResponseEntity<Analyse> analyse(@PathVariable String id) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(Analyse.from(supervision.analyse(id)));
+    }
+
+    @GetMapping("/sante")
+    public ResponseEntity<Sante> sante() {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(Sante.from(supervision.sante()));
     }
 
     /**

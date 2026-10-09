@@ -7,7 +7,7 @@ import {
 import {PerformanceBaseStore} from './performance-base.store';
 
 describe('PerformanceBaseStore', () => {
-  let api: Record<'statut' | 'requetes' | 'reinitialiser', ReturnType<typeof vi.fn>>;
+  let api: Record<'statut' | 'requetes' | 'reinitialiser' | 'analyse' | 'sante', ReturnType<typeof vi.fn>>;
   let store: InstanceType<typeof PerformanceBaseStore>;
 
   const disponible: StatutSupervision = {
@@ -15,11 +15,11 @@ describe('PerformanceBaseStore', () => {
   };
   const requete: RequeteBase = {
     id: '1', requete: 'SELECT * FROM seances WHERE center_id = $1', appels: 42, tempsTotalMs: 600, tempsMoyenMs: 14.3,
-    tempsMaxMs: 80, lignes: 900, partTempsTotalPct: 60, niveau: 'ATTENTION',
+    tempsMaxMs: 80, lignes: 900, partTempsTotalPct: 60, niveau: 'ATTENTION', conseils: [],
   };
 
   beforeEach(() => {
-    api = {statut: vi.fn(), requetes: vi.fn(), reinitialiser: vi.fn()};
+    api = {statut: vi.fn(), requetes: vi.fn(), reinitialiser: vi.fn(), analyse: vi.fn(), sante: vi.fn()};
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({providers: [{provide: SupervisionApiService, useValue: api}]});
     store = TestBed.inject(PerformanceBaseStore);
@@ -95,5 +95,56 @@ describe('PerformanceBaseStore', () => {
     expect(ok).toBe(false);
     expect(store.resetError()).toBe(true);
     expect(api.statut).not.toHaveBeenCalled();
+  });
+
+  it('établit le plan d\'une requête par son identifiant puis le libère', async () => {
+    const plan = {
+      disponible: true, raison: null, requete: 'SELECT 1', planTexte: 'Seq Scan', coutTotal: 5, indexUtilises: 0,
+      balayagesComplets: [],
+    };
+    api.analyse.mockReturnValue(of(plan));
+
+    await store.analyser('42');
+
+    expect(api.analyse).toHaveBeenCalledWith('42');
+    expect(store.analyse()).toEqual(plan);
+    expect(store.analyseLoading()).toBe(false);
+
+    store.fermerAnalyse();
+    expect(store.analyse()).toBeNull();
+  });
+
+  it('signale l\'échec de l\'analyse sans garder de plan', async () => {
+    api.analyse.mockReturnValue(throwError(() => new Error('422')));
+
+    await store.analyser('42');
+
+    expect(store.analyseError()).toBe(true);
+    expect(store.analyse()).toBeNull();
+    expect(store.analyseLoading()).toBe(false);
+  });
+
+  it('charge la santé de la base, ou signale l\'erreur', async () => {
+    const sante = {
+      disponible: true,
+      raison: null,
+      tailleOctets: 1,
+      cachePct: 99,
+      connexions: 1,
+      connexionsMax: 100,
+      statsReset: null,
+      tables: [],
+      indexInutilises: [],
+      alertes: [],
+    };
+    api.sante.mockReturnValue(of(sante));
+    await store.chargerSante();
+    expect(store.sante()).toEqual(sante);
+    expect(store.santeError()).toBe(false);
+
+    api.sante.mockReturnValue(throwError(() => new Error('500')));
+    await store.chargerSante();
+    expect(store.sante()).toBeNull();
+    expect(store.santeError()).toBe(true);
   });
 });

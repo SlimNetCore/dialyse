@@ -1,0 +1,79 @@
+<h2 mat-dialog-title>
+  <mat-icon>query_stats</mat-icon>
+  {{ 'SUPERVISION.ANALYSE.TITRE' | translate }}
+</h2>
+<mat-dialog-content data-testid="analyse-dialog">
+  <code class="query" data-testid="analyse-requete">{{ data.requete }}</code>
+
+  @if (store.analyseLoading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.analyseError()) {
+    <div class="error-msg" data-testid="analyse-erreur">{{ 'SUPERVISION.ANALYSE.ERREUR' | translate }}</div>
+  }
+
+  @if (store.analyse(); as analyse) {
+    @if (!analyse.disponible) {
+      <div class="unavailable" data-testid="analyse-indisponible">
+        <mat-icon>info</mat-icon>
+        <p>{{ 'SUPERVISION.ANALYSE.RAISON.' + analyse.raison | translate }}</p>
+      </div>
+    } @else {
+      <p class="muted">{{ 'SUPERVISION.ANALYSE.AVERTISSEMENT' | translate }}</p>
+      <p class="resume">
+        <span>{{ 'SUPERVISION.ANALYSE.COUT' | translate }} : <strong>{{ analyse.coutTotal | number: '1.0-1' }}</strong></span>
+        <span>{{ 'SUPERVISION.ANALYSE.INDEX_UTILISES' | translate }}
+          : <strong>{{ analyse.indexUtilises }}</strong></span>
+      </p>
+
+      @if (analyse.balayagesComplets.length === 0) {
+        <p class="bon" data-testid="analyse-aucun-balayage">
+          <mat-icon>check_circle</mat-icon>
+          {{ 'SUPERVISION.ANALYSE.AUCUN_BALAYAGE' | translate }}
+        </p>
+      }
+      @for (b of analyse.balayagesComplets; track b.table + '|' + b.filtre) {
+        <section [class]="'balayage ' + b.verdict.toLowerCase()" data-testid="analyse-balayage">
+          <h3>{{
+              'SUPERVISION.ANALYSE.BALAYAGE_TITRE' | translate: {
+                table: b.table,
+                lignes: (b.lignesTable | number: '1.0-0')
+              }
+            }}</h3>
+          @if (b.filtre) {
+            <p><span class="label">{{ 'SUPERVISION.ANALYSE.FILTRE' | translate }}</span> <code>{{ b.filtre }}</code></p>
+          }
+          <p class="verdict"
+             data-testid="analyse-verdict">{{ 'SUPERVISION.ANALYSE.VERDICT.' + b.verdict | translate }}</p>
+          @if (b.indexExistants.length > 0) {
+            <p class="label">{{ 'SUPERVISION.ANALYSE.INDEX_EXISTANTS' | translate }}</p>
+            <ul class="index-existants">
+              @for (def of b.indexExistants; track def) {
+                <li><code>{{ def }}</code></li>
+              }
+            </ul>
+          }
+          @if (b.indexSuggere) {
+            <p class="label">{{ 'SUPERVISION.ANALYSE.SUGGESTION' | translate }}</p>
+            <div class="suggestion">
+              <pre data-testid="analyse-suggestion">{{ b.indexSuggere }}</pre>
+              <button (click)="copier(b.indexSuggere)" [attr.aria-label]="'SUPERVISION.ANALYSE.COPIER_SQL' | translate"
+                      [matTooltip]="(copie() === b.indexSuggere ? 'SUPERVISION.COPIED' : 'SUPERVISION.ANALYSE.COPIER_SQL') | translate"
+                      data-testid="analyse-copier" mat-icon-button type="button">
+                <mat-icon>{{ copie() === b.indexSuggere ? 'check' : 'content_copy' }}</mat-icon>
+              </button>
+            </div>
+          }
+        </section>
+      }
+
+      <details class="plan">
+        <summary>{{ 'SUPERVISION.ANALYSE.PLAN' | translate }}</summary>
+        <pre data-testid="analyse-plan">{{ analyse.planTexte }}</pre>
+      </details>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-dialog-close mat-stroked-button type="button">{{ 'SUPERVISION.ANALYSE.FERMER' | translate }}</button>
+</mat-dialog-actions>

@@ -1,5 +1,8 @@
 package com.hemodialyse.backend.application.supervision;
 
+import com.hemodialyse.backend.application.supervision.port.AnalysePlanPort;
+import com.hemodialyse.backend.application.supervision.port.AnalysePlanPort.PlanGenerique;
+import com.hemodialyse.backend.application.supervision.port.SanteBasePort;
 import com.hemodialyse.backend.application.supervision.port.StatistiquesRequetesPort;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -25,14 +28,43 @@ public class SupervisionBaseService {
     private static final Logger log = LoggerFactory.getLogger(SupervisionBaseService.class);
 
     private final StatistiquesRequetesPort statistiques;
+    private final AnalysePlanPort plans;
+    private final SanteBasePort sante;
 
-    public SupervisionBaseService(StatistiquesRequetesPort statistiques) {
+    public SupervisionBaseService(StatistiquesRequetesPort statistiques, AnalysePlanPort plans, SanteBasePort sante) {
         this.statistiques = statistiques;
+        this.plans = plans;
+        this.sante = sante;
     }
 
     static RequeteAnalysee analyser(RequeteStatistique requete, double tempsTotalMs) {
         double part = tempsTotalMs > 0 ? requete.tempsTotalMs() * 100 / tempsTotalMs : 0;
-        return new RequeteAnalysee(requete, part, NiveauRequete.evaluer(requete.tempsMoyenMs(), part));
+        return new RequeteAnalysee(requete, part, NiveauRequete.evaluer(requete.tempsMoyenMs(), part),
+                ConseilsRequete.evaluer(requete, part));
+    }
+
+    /**
+     * Plan d'exécution d'une requête mesurée (sans l'exécuter), avec les tables lues en entier et l'avis sur un index.
+     * Le texte analysé est relu côté base à partir de l'identifiant : le client ne fournit jamais de SQL.
+     */
+    public AnalyseRequete analyse(String queryId) {
+        if (!statistiques.statut().disponible()) {
+            throw new BusinessException("SUPERVISION_INDISPONIBLE",
+                    "La mesure des requêtes n'est pas disponible sur cette base");
+        }
+        PlanGenerique plan = plans.planGenerique(queryId).orElseThrow(() -> new BusinessException(
+                "SUPERVISION_REQUETE_INTROUVABLE", "Cette requête n'est plus dans les mesures (compteurs remis à zéro ?)"));
+        return AnalyseurPlan.analyser(plan, plans::definitionsIndex, plans::lignesEstimees);
+    }
+
+    /**
+     * Santé de la base (taille, cache, connexions, grosses tables) ; indisponible hors PostgreSQL.
+     */
+    public SanteBase sante() {
+        if (!sante.disponible()) {
+            return SanteBase.indisponible("BASE_NON_POSTGRESQL");
+        }
+        return DiagnosticSante.evaluer(sante.generale(), sante.plusGrossesTables(), sante.indexInutilises());
     }
 
     public StatutStatistiques statut() {

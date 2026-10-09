@@ -9,9 +9,9 @@ import {RequeteBase, StatutSupervision} from '../../core/api/supervision-api.ser
 import {PerformanceBaseComponent} from './performance-base.component';
 import {PerformanceBaseStore} from './state/performance-base.store';
 
-const ligne = (id: string, niveau: RequeteBase['niveau']): RequeteBase => ({
+const ligne = (id: string, niveau: RequeteBase['niveau'], conseils: RequeteBase['conseils'] = []): RequeteBase => ({
   id, requete: `SELECT ${id} FROM seances WHERE center_id = $1`, appels: 1200, tempsTotalMs: 61000,
-  tempsMoyenMs: 650, tempsMaxMs: 2100, lignes: 5000, partTempsTotalPct: 42.5, niveau,
+  tempsMoyenMs: 650, tempsMaxMs: 2100, lignes: 5000, partTempsTotalPct: 42.5, niveau, conseils,
 });
 
 describe('PerformanceBaseComponent', () => {
@@ -19,13 +19,19 @@ describe('PerformanceBaseComponent', () => {
   let rows: ReturnType<typeof signal<RequeteBase[]>>;
   let store: Record<string, unknown>;
   let dialogResult: boolean;
+  let dialogOpen: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     statut = signal<StatutSupervision | null>({
       disponible: true, raison: null, reinitialiseLe: '2026-10-01T08:00:00Z', tempsTotalMs: 1000,
     });
-    rows = signal<RequeteBase[]>([ligne('a', 'CRITIQUE'), ligne('b', 'NORMAL')]);
+    rows = signal<RequeteBase[]>([
+      ligne('a', 'CRITIQUE', [{code: 'SCAN_PROBABLE', niveau: 'ACTION', valeur: '650'},
+        {code: 'SELECT_ETOILE', niveau: 'INFO', valeur: ''}]),
+      ligne('b', 'NORMAL'),
+    ]);
     dialogResult = true;
+    dialogOpen = vi.fn(() => ({afterClosed: () => of(dialogResult)}));
     store = {
       statut, rows, total: signal(2), pageIndex: signal(0), pageSize: signal(20), tri: signal('TEMPS_TOTAL'),
       loading: signal(false), error: signal(false), resetError: signal(false),
@@ -38,7 +44,7 @@ describe('PerformanceBaseComponent', () => {
       providers: [
         provideZonelessChangeDetection(),
         {provide: PerformanceBaseStore, useValue: store},
-        {provide: MatDialog, useValue: {open: () => ({afterClosed: () => of(dialogResult)})}},
+        {provide: MatDialog, useValue: {open: dialogOpen}},
       ],
     }).compileComponents();
   });
@@ -59,6 +65,36 @@ describe('PerformanceBaseComponent', () => {
     expect(premiere).toContain('650 ms');
     expect(premiere).toContain('1 min 01 s');
     expect(premiere).toContain('42,5 %');
+  });
+
+  it('affiche sous chaque requête ses pistes d\'amélioration, les actions avant les informations', () => {
+    const {root} = creer();
+
+    const conseils = root.querySelector('[data-testid="perf-conseils"]')!;
+    const lignes = Array.from(conseils.querySelectorAll('li'));
+    expect(lignes).toHaveLength(2);
+    expect(lignes[0].classList.contains('action')).toBe(true);
+    expect(lignes[0].textContent).toContain('SUPERVISION.CONSEIL.SCAN_PROBABLE');
+    expect(lignes[1].classList.contains('info')).toBe(true);
+    // une requête saine n'a pas de bloc de pistes
+    expect(root.querySelectorAll('[data-testid="perf-conseils"]').length).toBe(1);
+  });
+
+  it('ouvre l\'analyse du plan de la requête choisie, en ne transmettant que son identifiant et son texte', () => {
+    const {root} = creer();
+
+    root.querySelector<HTMLButtonElement>('[data-testid="perf-analyser-a"]')!.click();
+
+    expect(dialogOpen).toHaveBeenCalledTimes(1);
+    const [, config] = dialogOpen.mock.calls[0] as unknown as [unknown, { data: { id: string; requete: string } }];
+    expect(config.data).toEqual({id: 'a', requete: 'SELECT a FROM seances WHERE center_id = $1'});
+  });
+
+  it('propose un onglet Santé de la base, chargé seulement quand on l\'ouvre', () => {
+    const {root} = creer();
+
+    expect(root.querySelectorAll('[role="tab"]')).toHaveLength(2);
+    expect(root.querySelector('[data-testid="sante-base"]')).toBeNull();
   });
 
   it('explique pourquoi la mesure est indisponible au lieu d\'afficher un tableau vide', () => {

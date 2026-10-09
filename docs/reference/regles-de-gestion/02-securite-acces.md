@@ -261,3 +261,27 @@
   quelques jours ; tracée au journal d'audit comme toute écriture (RG-SEC-050). Refusée si la mesure est indisponible
   (`SUPERVISION_INDISPONIBLE`) ou si PostgreSQL refuse l'opération faute de droits
   (`SUPERVISION_REINITIALISATION_IMPOSSIBLE`). *Source :* `SupervisionBaseService.reinitialiser`.
+- **RG-SEC-064** — **Pistes d'amélioration par requête.** Chaque requête du classement porte des conseils déduits de
+  son texte normalisé et de ses compteurs (ce sont des indices, à confirmer par l'analyse) : trop de lignes par appel
+  sans `LIMIT` (≥ 1 000), lente avec un filtre mais peu de lignes renvoyées (≥ 50 ms et < 50 lignes : lecture complète
+  probable), `COUNT(*)` lent, tri ou jointure qui déborde sur disque, taux de cache sous 90 %, écriture lente (≥ 50 ms),
+  appels très nombreux et rapides pesant au moins 10 % du total (schéma « N+1 », cache), `SELECT *`, recherche
+  `LIKE`/`ILIKE`, fonction appliquée à la colonne filtrée, longue liste `IN`, durée maximale très supérieure à la
+  moyenne. Les actions précèdent les informations. *Source :* `ConseilsRequete`.
+- **RG-SEC-065** — **Analyse du plan d'exécution** (bouton « Analyser »). Le serveur relit le texte de la requête à
+  partir de son identifiant mesuré — **le client ne fournit jamais de SQL** — et établit son plan générique **sans
+  l'exécuter** (`PREPARE` + `EXPLAIN` avec plan générique, transaction en lecture seule limitée à 5 s, requête préparée
+  libérée). Seules les lectures à instruction unique sont analysées (sans écriture cachée dans un `WITH`). Le résultat
+  liste les tables lues en entier et conclut : `INDEX_RECOMMANDE` (avec un ordre `CREATE INDEX` à étudier : égalités
+  puis
+  première colonne de plage, trois colonnes au plus), `TABLE_PETITE` (moins de 1 000 lignes : lire tout est plus
+  rapide),
+  `INDEX_PRESENT` (un index commence déjà par la première colonne filtrée : le plan générique peut différer du réel) ou
+  `SANS_FILTRE` (lecture complète voulue). La suggestion est une piste à valider, jamais appliquée automatiquement.
+  Requête absente des mesures : `SUPERVISION_REQUETE_INTROUVABLE`. *Sources :* `AnalyseurPlan`, `PgPlanAdapter`.
+- **RG-SEC-066** — **Santé de la base** (onglet dédié, PostgreSQL uniquement) : taille, part des lectures servies par
+  le cache, connexions utilisées sur le maximum, quinze plus grosses tables (taille, lignes, part de lignes mortes,
+  lectures complètes et par index) et index jamais utilisés. Points d'attention : cache sous 95 % (critique sous 90 %),
+  connexions à 80 % du maximum, lignes mortes au moins 20 %, grande table lue en entier de façon répétée, index
+  inutilisés. Chaque table est positionnée face aux seuils de l'étude de partitionnement : `A_ETUDIER` à 20 millions de
+  lignes ou 10 Go, `A_SURVEILLER` à la moitié. *Sources :* `DiagnosticSante`, `PgSanteBaseAdapter`.

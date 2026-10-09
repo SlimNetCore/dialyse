@@ -118,10 +118,31 @@ jobs:
           COLS=$(docker run --rm --network host -e PGPASSWORD="$DB_PASS" postgres:16-alpine \
             psql -h localhost -U "$DB_USER" -d "$DB_NAME" -At -c \
             "SELECT string_agg(column_name, ',' ORDER BY column_name) FROM information_schema.columns WHERE table_name IN ('pg_stat_statements')")
-          for c in dbid queryid query calls total_exec_time mean_exec_time max_exec_time rows; do
+          for c in dbid queryid query calls total_exec_time mean_exec_time max_exec_time rows shared_blks_hit shared_blks_read temp_blks_written; do
             case ",$COLS," in *",$c,"*) ;; *) echo "::error::colonne pg_stat_statements.$c absente"; exit 1;; esac
           done
           echo "OK : colonnes pg_stat_statements présentes"
+
+      # Santé de la base et analyse de plan (écran du propriétaire) : les requêtes SQL de supervision, sans paramètre,
+      # sont rejouées telles quelles sur un PostgreSQL réel ; la technique d'analyse (PREPARE + plan générique +
+      # EXPLAIN EXECUTE) est exécutée de bout en bout sur une vraie table du schéma migré.
+      - name: Requêtes de supervision et analyse de plan sur PostgreSQL
+        run: |
+          SQL_DIR="$GITHUB_WORKSPACE/backend/platform/src/main/resources/db/supervision"
+          for f in sante-generale sante-tables sante-index-inutilises; do
+            docker run --rm --network host -e PGPASSWORD="$DB_PASS" -v "$SQL_DIR:/sql:ro" postgres:16-alpine \
+              psql -v ON_ERROR_STOP=1 -h localhost -U "$DB_USER" -d "$DB_NAME" -q -f "/sql/$f.sql" > /dev/null
+            echo "OK : $f.sql"
+          done
+          PLAN=$(docker run --rm --network host -e PGPASSWORD="$DB_PASS" postgres:16-alpine \
+            psql -v ON_ERROR_STOP=1 -h localhost -U "$DB_USER" -d "$DB_NAME" -At \
+            -c "BEGIN READ ONLY" \
+            -c "SET LOCAL plan_cache_mode = force_generic_plan" \
+            -c "PREPARE sup_ci AS SELECT id FROM seances WHERE center_id = \$1 AND date_seance >= \$2" \
+            -c "EXPLAIN (FORMAT JSON) EXECUTE sup_ci(NULL, NULL)" \
+            -c "ROLLBACK")
+          echo "$PLAN" | grep -q '"Node Type"' || { echo "::error::plan générique introuvable"; echo "$PLAN"; exit 1; }
+          echo "OK : plan générique établi sans exécuter la requête"
 
       # ------------------------------------------------------------
       # 3. Cohérence entités JPA <-> schéma migré

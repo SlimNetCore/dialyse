@@ -1,0 +1,131 @@
+<div class="sante" data-testid="sante-base">
+  <div class="barre">
+    <p class="muted">{{ 'SUPERVISION.SANTE.HINT' | translate }}</p>
+    <button (click)="rafraichir()" data-testid="sante-rafraichir" mat-stroked-button type="button">
+      <mat-icon>refresh</mat-icon>
+      {{ 'SUPERVISION.SANTE.RAFRAICHIR' | translate }}
+    </button>
+  </div>
+
+  @if (store.santeLoading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.santeError()) {
+    <div class="error-msg" data-testid="sante-erreur">{{ 'SUPERVISION.SANTE.ERREUR' | translate }}</div>
+  }
+
+  @if (store.sante(); as sante) {
+    @if (!sante.disponible) {
+      <div class="unavailable" data-testid="sante-indisponible">
+        <mat-icon>info</mat-icon>
+        <p>{{ 'SUPERVISION.SANTE.INDISPONIBLE' | translate }}</p>
+      </div>
+    } @else {
+      <div class="kpis">
+        <div class="kpi" data-testid="sante-taille">
+          <span class="kpi-label">{{ 'SUPERVISION.SANTE.TAILLE' | translate }}</span>
+          <strong>{{ taille(sante.tailleOctets) }}</strong>
+        </div>
+        <div class="kpi" data-testid="sante-cache">
+          <span class="kpi-label">{{ 'SUPERVISION.SANTE.CACHE' | translate }}</span>
+          <strong>{{ sante.cachePct | number: '1.1-1' }} %</strong>
+        </div>
+        <div class="kpi" data-testid="sante-connexions">
+          <span class="kpi-label">{{ 'SUPERVISION.SANTE.CONNEXIONS' | translate }}</span>
+          <strong>{{ sante.connexions }} / {{ sante.connexionsMax }}</strong>
+        </div>
+      </div>
+
+      <h3>{{ 'SUPERVISION.SANTE.ALERTES_TITRE' | translate }}</h3>
+      @if (sante.alertes.length === 0) {
+        <p class="bon" data-testid="sante-aucune-alerte">
+          <mat-icon>check_circle</mat-icon>
+          {{ 'SUPERVISION.SANTE.AUCUNE_ALERTE' | translate }}
+        </p>
+      } @else {
+        <ul class="alertes" data-testid="sante-alertes">
+          @for (a of sante.alertes; track a.code + a.cible) {
+            <li [class]="'alerte ' + a.niveau.toLowerCase()">
+              <span class="niveau">{{ 'SUPERVISION.SANTE.NIVEAU.' + a.niveau | translate }}</span>
+              <span>{{ 'SUPERVISION.SANTE.ALERTE.' + a.code | translate: {cible: a.cible, valeur: a.valeur} }}</span>
+            </li>
+          }
+        </ul>
+      }
+
+      <h3>{{ 'SUPERVISION.SANTE.TABLES_TITRE' | translate }}</h3>
+      <div class="table-scroll">
+        <table [dataSource]="sante.tables" data-testid="sante-tables" mat-table>
+          <ng-container matColumnDef="nom">
+            <th *matHeaderCellDef mat-header-cell>{{ 'SUPERVISION.SANTE.COL_TABLE' | translate }}</th>
+            <td *matCellDef="let t" class="mono" mat-cell>{{ t.nom }}</td>
+          </ng-container>
+          <ng-container matColumnDef="taille">
+            <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.SANTE.COL_TAILLE' | translate }}</th>
+            <td *matCellDef="let t" class="num" mat-cell>{{ taille(t.tailleOctets) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="lignes">
+            <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.SANTE.COL_LIGNES' | translate }}</th>
+            <td *matCellDef="let t" class="num" mat-cell>{{ t.lignes | number: '1.0-0' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="mortes">
+            <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.SANTE.COL_MORTES' | translate }}</th>
+            <td *matCellDef="let t" class="num" mat-cell>{{ t.mortesPct | number: '1.0-1' }} %</td>
+          </ng-container>
+          <ng-container matColumnDef="scansComplets">
+            <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.SANTE.COL_SCANS_COMPLETS' | translate }}
+            </th>
+            <td *matCellDef="let t" class="num" mat-cell>{{ t.scansComplets | number: '1.0-0' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="scansIndex">
+            <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.SANTE.COL_SCANS_INDEX' | translate }}</th>
+            <td *matCellDef="let t" class="num" mat-cell>{{ t.scansIndex | number: '1.0-0' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="partition">
+            <th *matHeaderCellDef mat-header-cell>{{ 'SUPERVISION.SANTE.COL_PARTITION' | translate }}</th>
+            <td *matCellDef="let t" mat-cell>
+              <span [class]="'part ' + t.partitionnement.toLowerCase()">
+                {{ 'SUPERVISION.SANTE.PART.' + t.partitionnement | translate }}
+              </span>
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="colonnesTables" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: colonnesTables" mat-row></tr>
+        </table>
+      </div>
+
+      <h3>{{ 'SUPERVISION.SANTE.INDEX_INUTILISES_TITRE' | translate }}</h3>
+      <p class="muted">
+        {{ 'SUPERVISION.SANTE.INDEX_INUTILISES_HINT' | translate }}
+        @if (sante.statsReset) {
+          ({{ 'SUPERVISION.SANTE.STATS_DEPUIS' | translate }} {{ sante.statsReset | date: 'dd/MM/yyyy HH:mm' }})
+        }
+      </p>
+      @if (sante.indexInutilises.length === 0) {
+        <p class="bon" data-testid="sante-aucun-index-inutile">
+          <mat-icon>check_circle</mat-icon>
+          {{ 'SUPERVISION.SANTE.AUCUN_INDEX_INUTILE' | translate }}
+        </p>
+      } @else {
+        <div class="table-scroll">
+          <table [dataSource]="sante.indexInutilises" data-testid="sante-index-inutilises" mat-table>
+            <ng-container matColumnDef="table">
+              <th *matHeaderCellDef mat-header-cell>{{ 'SUPERVISION.SANTE.COL_TABLE' | translate }}</th>
+              <td *matCellDef="let i" class="mono" mat-cell>{{ i.table }}</td>
+            </ng-container>
+            <ng-container matColumnDef="index">
+              <th *matHeaderCellDef mat-header-cell>{{ 'SUPERVISION.SANTE.COL_INDEX' | translate }}</th>
+              <td *matCellDef="let i" class="mono" mat-cell>{{ i.index }}</td>
+            </ng-container>
+            <ng-container matColumnDef="taille">
+              <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.SANTE.COL_TAILLE' | translate }}</th>
+              <td *matCellDef="let i" class="num" mat-cell>{{ taille(i.tailleOctets) }}</td>
+            </ng-container>
+            <tr *matHeaderRowDef="colonnesIndex" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: colonnesIndex" mat-row></tr>
+          </table>
+        </div>
+      }
+    }
+  }
+</div>

@@ -47,6 +47,21 @@ class SupervisionBaseAccessIntegrationTest {
     }
 
     @Test
+    void the_health_panel_is_unavailable_on_h2_without_failing() throws Exception {
+        mockMvc.perform(get(BASE + "/sante").with(user(principal("SUPERADMIN"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.disponible").value(false))
+                .andExpect(jsonPath("$.raison").value("BASE_NON_POSTGRESQL"))
+                .andExpect(jsonPath("$.tables").isEmpty());
+    }
+
+    @Test
+    void the_plan_analysis_is_refused_when_the_measure_is_unavailable() throws Exception {
+        mockMvc.perform(get(BASE + "/requetes/12345/analyse").with(user(principal("SUPERADMIN"))))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
     void the_owner_sees_that_the_measure_is_unavailable_on_h2() throws Exception {
         mockMvc.perform(get(BASE + "/statut").with(user(principal("SUPERADMIN"))))
                 .andExpect(status().isOk())
@@ -74,6 +89,9 @@ class SupervisionBaseAccessIntegrationTest {
     void every_other_profile_is_refused() throws Exception {
         for (String role : List.of("ADMIN", "MEDECIN", "INFIRMIER", "SECRETAIRE", "DIRECTION")) {
             mockMvc.perform(get(BASE + "/statut").with(user(principal(role))))
+                    .andExpect(status().isForbidden());
+            mockMvc.perform(get(BASE + "/sante").with(user(principal(role)))).andExpect(status().isForbidden());
+            mockMvc.perform(get(BASE + "/requetes/12345/analyse").with(user(principal(role))))
                     .andExpect(status().isForbidden());
             mockMvc.perform(post(BASE + "/reinitialisation").with(user(principal(role))))
                     .andExpect(status().isForbidden());

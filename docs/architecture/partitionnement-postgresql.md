@@ -266,6 +266,12 @@ Traçabilité (AGENTS §18) :
 (`SupervisionBaseRestController`) → `SupervisionBaseService` → port `StatistiquesRequetesPort` →
 `PgStatStatementsAdapter` (vue `pg_stat_statements`, extension créée par la migration `V30`).
 
+L'écran propose aussi, par requête, des **pistes d'amélioration** automatiques (RG-SEC-064), un bouton **Analyser** qui
+établit le plan d'exécution sans exécuter la requête et suggère un index à étudier (RG-SEC-065), et un onglet **Santé
+de la base** qui positionne chaque table face aux seuils de partitionnement de cette étude (RG-SEC-066). Traçabilité
+complémentaire : `GET …/requetes/{id}/analyse` → `AnalyseurPlan` → port `AnalysePlanPort` → `PgPlanAdapter` ;
+`GET …/sante` → `DiagnosticSante` → port `SanteBasePort` → `PgSanteBaseAdapter`.
+
 Usage conseillé : relever le classement par **temps total** avant une optimisation (V31 par exemple), remettre les
 compteurs à zéro, laisser tourner quelques jours, puis comparer. En développement (H2) l'écran indique que la mesure
 n'existe qu'en production.

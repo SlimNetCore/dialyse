@@ -77,6 +77,90 @@
   },
   "SUPERVISION": {
     "TITLE": "Database performance",
+    "TAB_REQUETES": "Queries",
+    "TAB_SANTE": "Database health",
+    "CONSEIL": {
+      "LIGNES_PAR_APPEL_ELEVE": "Reads {{valeur}} rows per call on average with no LIMIT: paginate or filter earlier, fetch only what is displayed.",
+      "SCAN_PROBABLE": "Slow ({{valeur}} ms on average) while returning few rows: PostgreSQL probably reads the whole table. Click \"Analyse\" to confirm and get an index to consider.",
+      "COMPTAGE_EXHAUSTIF": "A COUNT(*) averaging {{valeur}} ms scans many rows: cache the total, bound it or estimate it instead of recomputing it on every call.",
+      "TRI_SUR_DISQUE": "Writes {{valeur}} temporary blocks: a sort or join overflows memory. Reduce the sorted rows, index the sorted column or raise work_mem.",
+      "CACHE_FAIBLE": "Only {{valeur}} % of reads come from the memory cache: many disk reads. An index or more memory for PostgreSQL (shared_buffers) helps.",
+      "ECRITURE_LENTE": "Slow write ({{valeur}} ms on average): too many indexes on the table, triggers or locks. Check unused indexes in the Health tab.",
+      "APPELS_TRES_NOMBREUX": "Called {{valeur}} times for a very short duration: likely an \"N+1\" pattern (one query per row). Merge into a single query or cache it (key including the centre).",
+      "SELECT_ETOILE": "SELECT * returns every column: request only what the screen needs.",
+      "RECHERCHE_TEXTE": "Text search (LIKE/ILIKE): a regular index is useless if the pattern starts with %. Search by prefix or use the pg_trgm extension.",
+      "FONCTION_SUR_COLONNE": "A function is applied to the filtered column (lower, date…): the usual index is ignored. Rewrite the filter or index the expression.",
+      "IN_LONG": "Long IN ($1, $2, …) list: prefer = ANY($1) with an array, or a join.",
+      "VARIABILITE": "Sometimes very slow (up to {{valeur}} ms) although the average is low: locks, unstable plan or load peaks. Note the time of these peaks."
+    },
+    "ANALYSE": {
+      "BOUTON": "Analyse",
+      "TITRE": "Execution plan analysis",
+      "ERREUR": "Unable to build the execution plan.",
+      "AVERTISSEMENT": "Generic plan built without running the query, parameter values unknown. Confirm with EXPLAIN (ANALYZE, BUFFERS) before creating an index.",
+      "COUT": "Estimated cost",
+      "INDEX_UTILISES": "Index scans",
+      "AUCUN_BALAYAGE": "No table is read in full: the plan uses indexes.",
+      "BALAYAGE_TITRE": "{{table}} read in full (≈ {{lignes}} rows)",
+      "FILTRE": "Filter:",
+      "INDEX_EXISTANTS": "Existing indexes:",
+      "SUGGESTION": "Index to consider (Flyway migration + @Index on the entity):",
+      "COPIER_SQL": "Copy the SQL statement",
+      "PLAN": "Full execution plan",
+      "FERMER": "Close",
+      "RAISON": {
+        "NON_SELECT": "Only read queries are analysed.",
+        "PLAN_IMPOSSIBLE": "PostgreSQL cannot plan this query without its parameters."
+      },
+      "VERDICT": {
+        "INDEX_RECOMMANDE": "An index on the filtered columns would avoid this full read.",
+        "TABLE_PETITE": "Small table: reading it in full is fastest, an index would bring nothing.",
+        "INDEX_PRESENT": "An index already exists on the first filtered column: the generic plan does not necessarily reflect the real plan. Check with EXPLAIN (ANALYZE) and real values, and run ANALYZE on the table if its statistics are old.",
+        "SANS_FILTRE": "Full read without a filter (aggregate or export): an index does not help. Precompute, cache or restrict the period."
+      }
+    },
+    "SANTE": {
+      "HINT": "PostgreSQL engine indicators, read on demand.",
+      "RAFRAICHIR": "Refresh",
+      "ERREUR": "Unable to read the database health.",
+      "INDISPONIBLE": "Database health is only available on PostgreSQL (not on the H2 development database).",
+      "TAILLE": "Database size",
+      "CACHE": "Reads served by the cache",
+      "CONNEXIONS": "Connections",
+      "ALERTES_TITRE": "Points of attention",
+      "AUCUNE_ALERTE": "Nothing to report.",
+      "NIVEAU": {
+        "CRITIQUE": "Critical",
+        "ATTENTION": "Warning",
+        "INFO": "Information"
+      },
+      "ALERTE": {
+        "CACHE_FAIBLE": "Only {{valeur}} % of reads come from the cache: raise shared_buffers or add indexes.",
+        "CONNEXIONS_SATUREES": "{{valeur}} connections in use: close to the server limit.",
+        "PARTITIONNEMENT_A_ETUDIER": "Table {{cible}} reaches the partitioning study thresholds ({{valeur}} rows).",
+        "LIGNES_MORTES": "{{cible}}: {{valeur}} % dead rows, VACUUM behind or massive purge.",
+        "TABLE_LUE_EN_ENTIER": "{{cible}} is read in full {{valeur}} times: an index is probably missing (analyse the queries concerned).",
+        "INDEX_INUTILISES": "{{valeur}} indexes have never been used (list below)."
+      },
+      "TABLES_TITRE": "Largest tables",
+      "COL_TABLE": "Table",
+      "COL_TAILLE": "Size",
+      "COL_LIGNES": "Rows",
+      "COL_MORTES": "Dead rows",
+      "COL_SCANS_COMPLETS": "Full reads",
+      "COL_SCANS_INDEX": "Index reads",
+      "COL_PARTITION": "Partitioning",
+      "COL_INDEX": "Index",
+      "PART": {
+        "OK": "Not needed",
+        "A_SURVEILLER": "Watch",
+        "A_ETUDIER": "To study"
+      },
+      "INDEX_INUTILISES_TITRE": "Never-used indexes",
+      "INDEX_INUTILISES_HINT": "An unused index slows writes and takes space. Only drop one after several weeks of observation",
+      "STATS_DEPUIS": "statistics since",
+      "AUCUN_INDEX_INUTILE": "All indexes are used."
+    },
     "HINT": "The queries that cost the database the most, as measured by PostgreSQL. Use them to decide what to improve: index, query or cache. No patient data appears: values are replaced by $1, $2…",
     "SORT_LABEL": "Sort by",
     "SORT": {

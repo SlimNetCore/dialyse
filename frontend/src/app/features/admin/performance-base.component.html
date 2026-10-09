@@ -15,6 +15,8 @@
       <div class="error-msg" data-testid="perf-error">{{ 'SUPERVISION.ERROR' | translate }}</div>
     }
 
+    <mat-tab-group animationDuration="0ms" data-testid="perf-tabs">
+      <mat-tab [label]="'SUPERVISION.TAB_REQUETES' | translate">
     @if (store.statut(); as statut) {
       @if (!statut.disponible) {
         <div class="unavailable" data-testid="perf-unavailable">
@@ -81,6 +83,21 @@
                     <mat-icon>{{ copiee() === r.id ? 'check' : 'content_copy' }}</mat-icon>
                   </button>
                 </span>
+                @if (r.conseils.length > 0) {
+                  <ul class="conseils" data-testid="perf-conseils">
+                    @for (c of r.conseils; track c.code) {
+                      <li [class]="'conseil ' + c.niveau.toLowerCase()">
+                        <mat-icon>{{ c.niveau === 'ACTION' ? 'build' : 'info' }}</mat-icon>
+                        <span>{{ 'SUPERVISION.CONSEIL.' + c.code | translate: {valeur: c.valeur} }}</span>
+                      </li>
+                    }
+                  </ul>
+                }
+                <button (click)="analyser(r)" [attr.data-testid]="'perf-analyser-' + r.id" class="analyser" mat-button
+                        type="button">
+                  <mat-icon>query_stats</mat-icon>
+                  {{ 'SUPERVISION.ANALYSE.BOUTON' | translate }}
+                </button>
               </td>
             </ng-container>
             <ng-container matColumnDef="appels">
@@ -120,5 +137,12 @@
                        [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()" showFirstLastButtons/>
       }
     }
+      </mat-tab>
+      <mat-tab [label]="'SUPERVISION.TAB_SANTE' | translate">
+        <ng-template matTabContent>
+          <app-sante-base/>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
   </mat-card>
 </section>

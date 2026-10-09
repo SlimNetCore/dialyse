@@ -1,5 +1,20 @@
 import {describe, expect, it} from 'vitest';
-import {formatDuree, formatPart} from './performance-base.util';
+import {formatDuree, formatPart, formatTaille} from './performance-base.util';
+
+describe('formatTaille', () => {
+  it('choisit l\'unité lisible', () => {
+    expect(formatTaille(512)).toBe('512 o');
+    expect(formatTaille(8192)).toBe('8 Ko');
+    expect(formatTaille(13 * 1024 * 1024 + 400_000)).toBe('13,4 Mo');
+    expect(formatTaille(1.5 * 1024 ** 3)).toBe('1,5 Go');
+    expect(formatTaille(250 * 1024 ** 2)).toBe('250 Mo');
+  });
+
+  it('refuse une valeur invalide', () => {
+    expect(formatTaille(-5)).toBe('—');
+    expect(formatTaille(Number.NaN)).toBe('—');
+  });
+});
 
 describe('formatDuree', () => {
   it('affiche les millisecondes, les secondes puis les minutes', () => {
