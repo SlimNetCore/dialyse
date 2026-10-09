@@ -127,7 +127,11 @@ Chaque phase est livrable seule, réversible, et validée par mesure avant la su
 
 ### Phase 1 — Index et requêtes (≈ 1 semaine)
 
-1. Créer les index du §3 dans **une nouvelle migration Flyway `V31__index_performance.sql`** (V30 est prise par
+1. ✅ **Fait — index du §3** (8 index sur `seances`, `stock_movements`, `lignes_ecriture`, `administrations_anemie`,
+   `resultats_analyses`, `observations_biologiques`, `prescriptions_medicales`), dans la migration Flyway
+   `V31__index_performance.sql` et en `@Index` sur les entités ; un test vérifie la parité migration/entités.
+   Rappel de la démarche : créer les index du §3 dans **une nouvelle migration Flyway `V31__index_performance.sql`**
+   (V30 est prise par
    `pg_stat_statements`, déjà livrée) (jamais en modifiant une
    migration publiée : la CI l'interdit). Les tables ayant moins d'un million de lignes, un simple
    `CREATE INDEX IF NOT EXISTS` (verrou de quelques millisecondes à quelques secondes) suffit et reste dans le style des
@@ -248,3 +252,20 @@ centaines de centres ou si un client exige l'isolement physique des données.
 2. **Ensuite** : phase 2 (`audit_log`, `notification_evenement`) — gain net, risque faible, code JDBC peu impacté.
 3. **Ne pas faire** : partitionner `seances`, `factures`, `patients` ni par centre tant que les seuils du §6 ne sont pas
    franchis ; le coût de complexité (clés composites, contraintes d'unicité, entités JPA) dépasse le bénéfice.
+
+## 9. Exploitation : écran « Performance de la base » (propriétaire)
+
+Pour décider quoi optimiser sans passer par `psql`, le propriétaire (SUPERADMIN) dispose d'un écran
+`/admin/performance` (menu Administration) qui liste les requêtes les plus coûteuses de `pg_stat_statements`
+(règles RG-SEC-060 à 063).
+
+Traçabilité (AGENTS §18) :
+
+`PerformanceBaseComponent` → `PerformanceBaseStore` → `SupervisionApiService` →
+`GET /api/v1/supervision/base-donnees/{statut,requetes}` et `POST …/reinitialisation`
+(`SupervisionBaseRestController`) → `SupervisionBaseService` → port `StatistiquesRequetesPort` →
+`PgStatStatementsAdapter` (vue `pg_stat_statements`, extension créée par la migration `V30`).
+
+Usage conseillé : relever le classement par **temps total** avant une optimisation (V31 par exemple), remettre les
+compteurs à zéro, laisser tourner quelques jours, puis comparer. En développement (H2) l'écran indique que la mesure
+n'existe qu'en production.

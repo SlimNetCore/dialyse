@@ -3,6 +3,7 @@ package com.hemodialyse.backend.infrastructure.persistence.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
@@ -11,7 +12,8 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "prescriptions_medicales")
+@Table(name = "prescriptions_medicales", indexes = @Index(name = "idx_prescriptions_patient",
+        columnList = "center_id, patient_id, date_prescription"))
 public class PrescriptionMedicaleJpaEntity {
     @Id
     private UUID id;

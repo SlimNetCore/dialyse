@@ -13,7 +13,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "seances", indexes = {
-        @Index(name = "idx_seances_center_facture", columnList = "center_id, facture_id")
+        @Index(name = "idx_seances_center_facture", columnList = "center_id, facture_id"),
+        @Index(name = "idx_seances_center_date", columnList = "center_id, date_seance"),
+        @Index(name = "idx_seances_center_patient", columnList = "center_id, patient_id, date_seance")
 })
 public class SeanceJpaEntity {
     @Id

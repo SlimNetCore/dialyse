@@ -1,0 +1,124 @@
+<section class="perf" data-testid="performance-base">
+  <mat-card class="block">
+    <div class="head">
+      <h2>
+        <mat-icon>speed</mat-icon>
+        {{ 'SUPERVISION.TITLE' | translate }}
+      </h2>
+      <p class="muted">{{ 'SUPERVISION.HINT' | translate }}</p>
+    </div>
+
+    @if (store.loading()) {
+      <mat-progress-bar mode="indeterminate"/>
+    }
+    @if (store.error()) {
+      <div class="error-msg" data-testid="perf-error">{{ 'SUPERVISION.ERROR' | translate }}</div>
+    }
+
+    @if (store.statut(); as statut) {
+      @if (!statut.disponible) {
+        <div class="unavailable" data-testid="perf-unavailable">
+          <mat-icon>info</mat-icon>
+          <div>
+            <strong>{{ 'SUPERVISION.UNAVAILABLE_TITLE' | translate }}</strong>
+            <p>{{ 'SUPERVISION.UNAVAILABLE.' + statut.raison | translate }}</p>
+          </div>
+        </div>
+      } @else {
+        <div class="toolbar">
+          <mat-button-toggle-group (change)="changerTri($event.value)" [attr.aria-label]="'SUPERVISION.SORT_LABEL' | translate"
+                                   [value]="store.tri()" data-testid="perf-tri">
+            @for (tri of tris; track tri) {
+              <mat-button-toggle [attr.data-testid]="'perf-tri-' + tri" [matTooltip]="'SUPERVISION.SORT_HELP.' + tri | translate"
+                                 [value]="tri">
+                {{ 'SUPERVISION.SORT.' + tri | translate }}
+              </mat-button-toggle>
+            }
+          </mat-button-toggle-group>
+          <span class="spacer"></span>
+          @if (statut.reinitialiseLe) {
+            <span class="muted since" data-testid="perf-since">
+              {{ 'SUPERVISION.SINCE' | translate }} {{ statut.reinitialiseLe | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+          }
+          <button (click)="reinitialiser()" data-testid="perf-reset" mat-stroked-button type="button">
+            <mat-icon>restart_alt</mat-icon>
+            {{ 'SUPERVISION.RESET' | translate }}
+          </button>
+        </div>
+        @if (store.resetError()) {
+          <div class="error-msg" data-testid="perf-reset-error">{{ 'SUPERVISION.RESET_ERROR' | translate }}</div>
+        }
+
+        <p class="howto muted">
+          <mat-icon>lightbulb</mat-icon>
+          {{ 'SUPERVISION.HOW_TO' | translate }}
+        </p>
+
+        <div class="table-scroll">
+          <table [dataSource]="store.rows()" data-testid="perf-table" mat-table>
+            <ng-container matColumnDef="niveau">
+              <th *matHeaderCellDef mat-header-cell>{{ 'SUPERVISION.COL_LEVEL' | translate }}</th>
+              <td *matCellDef="let r" mat-cell>
+                <span
+                  [class]="'niveau ' + r.niveau.toLowerCase()">{{ 'SUPERVISION.LEVEL.' + r.niveau | translate }}</span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="requete">
+              <th *matHeaderCellDef mat-header-cell>{{ 'SUPERVISION.COL_QUERY' | translate }}</th>
+              <td *matCellDef="let r" class="query-cell" mat-cell>
+                <code [class.expanded]="depliees().has(r.id)" class="query"
+                      data-testid="perf-query">{{ r.requete }}</code>
+                <span class="query-actions">
+                  <button (click)="basculer(r.id)" [attr.aria-label]="'SUPERVISION.TOGGLE' | translate"
+                          [matTooltip]="'SUPERVISION.TOGGLE' | translate" mat-icon-button type="button">
+                    <mat-icon>{{ depliees().has(r.id) ? 'unfold_less' : 'unfold_more' }}</mat-icon>
+                  </button>
+                  <button (click)="copier(r.id, r.requete)" [attr.aria-label]="'SUPERVISION.COPY' | translate"
+                          [attr.data-testid]="'perf-copy-' + r.id"
+                          [matTooltip]="(copiee() === r.id ? 'SUPERVISION.COPIED' : 'SUPERVISION.COPY') | translate"
+                          mat-icon-button type="button">
+                    <mat-icon>{{ copiee() === r.id ? 'check' : 'content_copy' }}</mat-icon>
+                  </button>
+                </span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="appels">
+              <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.COL_CALLS' | translate }}</th>
+              <td *matCellDef="let r" class="num" mat-cell>{{ r.appels | number: '1.0-0' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="tempsTotal">
+              <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.COL_TOTAL' | translate }}</th>
+              <td *matCellDef="let r" class="num" mat-cell>{{ duree(r.tempsTotalMs) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="part">
+              <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.COL_SHARE' | translate }}</th>
+              <td *matCellDef="let r" class="num" mat-cell>{{ part(r.partTempsTotalPct) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="tempsMoyen">
+              <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.COL_AVG' | translate }}</th>
+              <td *matCellDef="let r" class="num" mat-cell>{{ duree(r.tempsMoyenMs) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="tempsMax">
+              <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.COL_MAX' | translate }}</th>
+              <td *matCellDef="let r" class="num" mat-cell>{{ duree(r.tempsMaxMs) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="lignes">
+              <th *matHeaderCellDef class="num" mat-header-cell>{{ 'SUPERVISION.COL_ROWS' | translate }}</th>
+              <td *matCellDef="let r" class="num" mat-cell>{{ r.lignes | number: '1.0-0' }}</td>
+            </ng-container>
+            <tr *matHeaderRowDef="columns" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: columns" mat-row></tr>
+          </table>
+        </div>
+
+        @if (!store.loading() && store.rows().length === 0) {
+          <p class="muted empty" data-testid="perf-empty">{{ 'SUPERVISION.EMPTY' | translate }}</p>
+        }
+
+        <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
+                       [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()" showFirstLastButtons/>
+      }
+    }
+  </mat-card>
+</section>

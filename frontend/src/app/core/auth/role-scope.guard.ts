@@ -3,7 +3,7 @@ import {CanActivateChildFn, CanActivateFn, Router} from '@angular/router';
 import {AuthStore} from '../state/auth.store';
 
 /** Routes réservées au propriétaire de l'application (SUPERADMIN). */
-const OWNER_AREAS = ['/admin/societes', '/admin/licenses'];
+const OWNER_AREAS = ['/admin/societes', '/admin/licenses', '/admin/audit', '/admin/performance'];
 /** Zone unique de la direction d'une société. */
 const DIRECTION_AREA = '/direction';
 /** Accueil de l'infirmier : son planning du jour. */

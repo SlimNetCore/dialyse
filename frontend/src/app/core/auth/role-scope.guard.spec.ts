@@ -31,6 +31,8 @@ describe('roleScopeGuard', () => {
     expect(isOwnerArea('/admin/societes')).toBe(true);
     expect(isOwnerArea('/admin/societes/abc?x=1')).toBe(true);
     expect(isOwnerArea('/admin/licenses/new')).toBe(true);
+    expect(isOwnerArea('/admin/audit')).toBe(true);
+    expect(isOwnerArea('/admin/performance')).toBe(true);
     expect(isOwnerArea('/admin/users')).toBe(false);
     expect(isOwnerArea('/admin/societesx')).toBe(false);
     expect(isDirectionArea('/direction')).toBe(true);
@@ -41,6 +43,8 @@ describe('roleScopeGuard', () => {
   it('laisse le propriétaire dans ses zones', () => {
     expect(run(['SUPERADMIN'], '/admin/societes')).toBe(true);
     expect(run(['SUPERADMIN'], '/admin/licenses')).toBe(true);
+    expect(run(['SUPERADMIN'], '/admin/audit')).toBe(true);
+    expect(run(['SUPERADMIN'], '/admin/performance')).toBe(true);
   });
 
   it('renvoie le propriétaire vers les sociétés depuis toute autre page', () => {

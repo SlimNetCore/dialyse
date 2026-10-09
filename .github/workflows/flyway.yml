@@ -110,6 +110,19 @@ jobs:
             | jq -r '"Version du schéma : \(.schemaVersion)\n\n| Version | Description | État |\n|---|---|---|", (.migrations[] | "| \(.version) | \(.description) | \(.state) |")' \
             >> "$GITHUB_STEP_SUMMARY" || true
 
+      # L'écran « Performance de la base » du propriétaire lit pg_stat_statements (PgStatStatementsAdapter). Le serveur
+      # de test n'a pas la bibliothèque préchargée (la vue n'est pas lisible), mais sa définition doit exposer les
+      # colonnes utilisées : un changement de version majeure de PostgreSQL qui les renommerait casse la CI ici.
+      - name: Colonnes de pg_stat_statements attendues par l'application
+        run: |
+          COLS=$(docker run --rm --network host -e PGPASSWORD="$DB_PASS" postgres:16-alpine \
+            psql -h localhost -U "$DB_USER" -d "$DB_NAME" -At -c \
+            "SELECT string_agg(column_name, ',' ORDER BY column_name) FROM information_schema.columns WHERE table_name IN ('pg_stat_statements')")
+          for c in dbid queryid query calls total_exec_time mean_exec_time max_exec_time rows; do
+            case ",$COLS," in *",$c,"*) ;; *) echo "::error::colonne pg_stat_statements.$c absente"; exit 1;; esac
+          done
+          echo "OK : colonnes pg_stat_statements présentes"
+
       # ------------------------------------------------------------
       # 3. Cohérence entités JPA <-> schéma migré
       #    (détecte une entité modifiée sans migration associée)

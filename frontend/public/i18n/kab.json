@@ -75,6 +75,52 @@
     "ISSUE_ERROR": "Arnu n turagin ur yeddi ara",
     "SOCIETES_LOAD_ERROR": "Ur yezmir ara usali n tuddsiwin"
   },
+  "SUPERVISION": {
+    "TITLE": "Aseggem n taffa n isefka",
+    "HINT": "Isuter i d-yekkren zdat taffa n isefka, i d-yeslaq PostgreSQL. Seqdec-iten ad tferneḍ ayen ara tesnernuḍ: amatar, asuter neɣ tuffirt. Ulac isefka n yimdanen: azal yettwasenfal s $1, $2…",
+    "SORT_LABEL": "Sizzwer s",
+    "SORT": {
+      "TEMPS_TOTAL": "Akud amatu",
+      "TEMPS_MOYEN": "Akud alemmas",
+      "APPELS": "Isawalen"
+    },
+    "SORT_HELP": {
+      "TEMPS_TOTAL": "Isuter i yesɛan azal ameqqran ɣef taffa: yewhiwen maca ttwaɛawadent aṭas, neɣ ẓẓayit",
+      "TEMPS_MOYEN": "Isuter ẓẓayit deg yal aselkem: isekkilen i yettɣimin",
+      "APPELS": "Isuter i yettwaseqdacen aṭas"
+    },
+    "SINCE": "Imṭaḍen seg",
+    "RESET": "Err ɣer zzero",
+    "RESET_TITLE": "Err imṭaḍen ɣer zzero?",
+    "RESET_MESSAGE": "Aseɣmer yebda seg zzero. Eg-it ssya ɣer deffir n useggem (amatar, asuter) iwakken ad d-teẓreḍ asemdu-ines deg kra n wussan.",
+    "RESET_CONFIRM": "Err ɣer zzero",
+    "RESET_ERROR": "Ur nezmir ara ad yerr ɣer zzero: PostgreSQL yugi tamahalt (izerfan ur kfin ara).",
+    "HOW_TO": "I wakken ad tfhemeḍ asuter ẓẓayit: nɣel-it, ssenfel $1, $2… s yizwal n tideț, sakin selkem EXPLAIN (ANALYZE, BUFFERS) zdat-s. « Seq Scan » ɣef tefrut meqqren yeqqar-d tella tmatart ur nelli ara.",
+    "COL_LEVEL": "Aswir",
+    "COL_QUERY": "Asuter",
+    "COL_CALLS": "Isawalen",
+    "COL_TOTAL": "Akud amatu",
+    "COL_SHARE": "Amur seg umatu",
+    "COL_AVG": "Akud alemmas",
+    "COL_MAX": "Aɣezfan",
+    "COL_ROWS": "Izirigen",
+    "LEVEL": {
+      "NORMAL": "Amagnu",
+      "ATTENTION": "Ad yettwaɛass",
+      "CRITIQUE": "Ilaq ad yettwasnerni"
+    },
+    "TOGGLE": "Sken asuter ummid neɣ senqes-it",
+    "COPY": "Nɣel asuter",
+    "COPIED": "Yettwanɣel",
+    "EMPTY": "Ulac asuter yettwaslaq ar tura. Eǧǧ asnas ad yeddu kra n wussan.",
+    "ERROR": "Ur nezmir ara ad yɣer tisefka n taffa n isefka.",
+    "UNAVAILABLE_TITLE": "Aselqem ulac-it",
+    "UNAVAILABLE": {
+      "BASE_NON_POSTGRESQL": "Tummant-a tseqdac taffa n usnerni H2: aselqem yella kan deg usali, ɣef PostgreSQL.",
+      "EXTENSION_ABSENTE": "Asemɣer pg_stat_statements ur yettwasebded ara. Yettusirwed s unugel Flyway V30 deg usbeddi i d-iteddun.",
+      "PRELOAD_ABSENT": "Asemɣer yettwasebded maca aqeddac PostgreSQL ur yessili ara pg_stat_statements. Rnu-d aɣawas postgres (docker compose up -d) i usnas n usentel."
+    }
+  },
   "OWNER_LOGIN": {
     "EYEBROW": "Anekcum n bab n usnas",
     "TITLE": "Tallunt n bab n usnas",
@@ -2544,6 +2590,7 @@
     }
   },
   "NAV": {
+    "PERFORMANCE_BASE": "Aseggem n taffa n isefka",
     "ADMIN_GROUPES_ARTICLES": "Igrawen n yimsalen",
     "ABSENCES_PATIENTS": "Tamettant n yinelmaden",
     "MOUVEMENTS_PATIENTS": "Tikli n yinelmaden",

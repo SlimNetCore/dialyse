@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "lignes_ecriture")
+@Table(name = "lignes_ecriture", indexes = @Index(name = "idx_lignes_ecriture_ecriture", columnList = "ecriture_id"))
 public class LigneEcritureJpaEntity {
 
     @Id

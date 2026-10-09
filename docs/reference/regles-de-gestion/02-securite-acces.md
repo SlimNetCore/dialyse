@@ -111,8 +111,8 @@
 
 ## 2.5 Périmètres restreints de rôles (appliqués côté serveur et dans les menus)
 
-- **RG-SEC-020** — `SUPERADMIN` : accès limité aux sociétés (`/societes`), licences (`/licenses`) et journal d'audit
-  (`/audit`) ;
+- **RG-SEC-020** — `SUPERADMIN` : accès limité aux sociétés (`/societes`), licences (`/licenses`), journal d'audit
+  (`/audit`) et performance de la base (`/supervision`, RG-SEC-060) ;
   tout autre route `/api/v1/**` répond 403 `ROLE_SCOPE`. *Source :* `RoleScopeFilter`.
 - **RG-SEC-021** — `DIRECTION` : accès limité à `/api/v1/direction/**`, en **lecture seule**, sur des agrégats
   anonymes ; aucune
@@ -240,3 +240,24 @@
   société) et réservée à `ADMIN` (limité à son centre) et `SUPERADMIN` (toute la plateforme) ; jamais à la direction.
   *Sources :*
   `AuditRestController`, `AuditQueryService`.
+
+## 2.13 Performance de la base (propriétaire)
+
+- **RG-SEC-060** — **Écran « Performance de la base »**, réservé au `SUPERADMIN` (menu propriétaire, route
+  `/admin/performance`) : classement paginé des requêtes SQL les plus coûteuses relevées par PostgreSQL
+  (`pg_stat_statements`), triable par **temps total**, **temps moyen** ou **nombre d'appels** (temps total par défaut).
+  Chaque requête affiche son nombre d'appels, son temps total, sa part du temps total de la base, son temps moyen, son
+  temps maximal et le nombre de lignes. Ce sont des données techniques de toute la plateforme, hors périmètre d'un
+  centre : le texte des requêtes est normalisé (les valeurs sont remplacées par `$1`, `$2`…) et ne contient aucune
+  donnée de patient. Aucun autre profil, y compris `ADMIN` et `DIRECTION`, n'y accède. *Sources :*
+  `SupervisionBaseRestController`, `SupervisionBaseService`, `PgStatStatementsAdapter`.
+- **RG-SEC-061** — **Gravité d'une requête** : `CRITIQUE` si sa durée moyenne atteint 500 ms ; `ATTENTION` si elle
+  atteint 100 ms ou si elle pèse au moins 20 % du temps total de la base ; sinon `NORMAL`. *Source :* `NiveauRequete`.
+- **RG-SEC-062** — **Mesure indisponible** : en développement local (base H2), si l'extension n'est pas installée
+  (migration Flyway V30 non appliquée) ou si le serveur PostgreSQL n'a pas chargé `pg_stat_statements`, l'écran
+  l'indique avec la raison (`BASE_NON_POSTGRESQL`, `EXTENSION_ABSENTE`, `PRELOAD_ABSENT`) et ne liste rien. *Source :*
+  `PgStatStatementsAdapter.statut`.
+- **RG-SEC-063** — **Remise à zéro des compteurs**, après confirmation, pour mesurer l'effet d'une optimisation sur
+  quelques jours ; tracée au journal d'audit comme toute écriture (RG-SEC-050). Refusée si la mesure est indisponible
+  (`SUPERVISION_INDISPONIBLE`) ou si PostgreSQL refuse l'opération faute de droits
+  (`SUPERVISION_REINITIALISATION_IMPOSSIBLE`). *Source :* `SupervisionBaseService.reinitialiser`.

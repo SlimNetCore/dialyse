@@ -22,7 +22,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>503 règles de gestion · 16 domaines · 379 codes d'erreur métier</div>
+    <div class="meta">Version 1.0 · 2026-10-09<br>507 règles de gestion · 16 domaines · 384 codes d'erreur métier</div>
 </div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
@@ -30,7 +30,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
     <div class="stat">
-        <div><b>503</b>règles de gestion</div>
+        <div><b>507</b>règles de gestion</div>
         <div><b>16</b>domaines</div>
         <div><b>15</b>surveillances automatiques</div>
         <div><b>8</b>points d'attention</div>
@@ -367,8 +367,11 @@ désactivation exige un
 code valide. <em>Source :</em> <code>MfaService</code>.</p>
 </div></div>
 <h2>2.5 Périmètres restreints de rôles (appliqués côté serveur et dans les menus)</h2>
-<div class="rule" id="RG-SEC-020"><div class="rid">RG-SEC-020</div><div class="rtxt"><p><code>SUPERADMIN</code> : accès limité aux sociétés (<code>/societes</code>), licences (<code>/licenses</code>) et journal d&#39;audit
-(<code>/audit</code>) ;
+    <div class="rule" id="RG-SEC-020">
+        <div class="rid">RG-SEC-020</div>
+        <div class="rtxt"><p><code>SUPERADMIN</code> : accès limité aux sociétés (<code>/societes</code>), licences
+            (<code>/licenses</code>), journal d&#39;audit
+            (<code>/audit</code>) et performance de la base (<code>/supervision</code>, RG-SEC-060) ;
 tout autre route <code>/api/v1/**</code> répond 403 <code>ROLE_SCOPE</code>. <em>Source :</em> <code>RoleScopeFilter</code>.</p>
 </div></div>
 <div class="rule" id="RG-SEC-021"><div class="rid">RG-SEC-021</div><div class="rtxt"><p><code>DIRECTION</code> : accès limité à <code>/api/v1/direction/**</code>, en <strong>lecture seule</strong>, sur des agrégats
@@ -511,6 +514,57 @@ centre,
 société) et réservée à <code>ADMIN</code> (limité à son centre) et <code>SUPERADMIN</code> (toute la plateforme) ; jamais à la direction.
 <em>Sources :</em>
 <code>AuditRestController</code>, <code>AuditQueryService</code>.</p>
+</div>
+</div>
+    <h2>2.13 Performance de la base (propriétaire)</h2>
+    <div class="rule" id="RG-SEC-060">
+        <div class="rid">RG-SEC-060</div>
+        <div class="rtxt"><p><strong>Écran « Performance de la base »</strong>, réservé au <code>SUPERADMIN</code> (menu
+            propriétaire, route
+            <code>/admin/performance</code>) : classement paginé des requêtes SQL les plus coûteuses relevées par
+            PostgreSQL
+            (<code>pg_stat_statements</code>), triable par <strong>temps total</strong>, <strong>temps moyen</strong> ou
+            <strong>nombre d&#39;appels</strong> (temps total par défaut).
+            Chaque requête affiche son nombre d&#39;appels, son temps total, sa part du temps total de la base, son
+            temps moyen, son
+            temps maximal et le nombre de lignes. Ce sont des données techniques de toute la plateforme, hors périmètre
+            d&#39;un
+            centre : le texte des requêtes est normalisé (les valeurs sont remplacées par <code>$1</code>,
+            <code>$2</code>…) et ne contient aucune
+            donnée de patient. Aucun autre profil, y compris <code>ADMIN</code> et <code>DIRECTION</code>, n&#39;y
+            accède. <em>Sources :</em>
+            <code>SupervisionBaseRestController</code>, <code>SupervisionBaseService</code>, <code>PgStatStatementsAdapter</code>.
+        </p>
+        </div>
+    </div>
+    <div class="rule" id="RG-SEC-061">
+        <div class="rid">RG-SEC-061</div>
+        <div class="rtxt"><p><strong>Gravité d&#39;une requête</strong> : <code>CRITIQUE</code> si sa durée moyenne
+            atteint 500 ms ; <code>ATTENTION</code> si elle
+            atteint 100 ms ou si elle pèse au moins 20 % du temps total de la base ; sinon <code>NORMAL</code>. <em>Source
+                :</em> <code>NiveauRequete</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-SEC-062">
+        <div class="rid">RG-SEC-062</div>
+        <div class="rtxt"><p><strong>Mesure indisponible</strong> : en développement local (base H2), si l&#39;extension
+            n&#39;est pas installée
+            (migration Flyway V30 non appliquée) ou si le serveur PostgreSQL n&#39;a pas chargé
+            <code>pg_stat_statements</code>, l&#39;écran
+            l&#39;indique avec la raison (<code>BASE_NON_POSTGRESQL</code>, <code>EXTENSION_ABSENTE</code>, <code>PRELOAD_ABSENT</code>)
+            et ne liste rien. <em>Source :</em>
+            <code>PgStatStatementsAdapter.statut</code>.</p>
+        </div>
+    </div>
+    <div class="rule" id="RG-SEC-063">
+        <div class="rid">RG-SEC-063</div>
+        <div class="rtxt"><p><strong>Remise à zéro des compteurs</strong>, après confirmation, pour mesurer l&#39;effet
+            d&#39;une optimisation sur
+            quelques jours ; tracée au journal d&#39;audit comme toute écriture (RG-SEC-050). Refusée si la mesure est
+            indisponible
+            (<code>SUPERVISION_INDISPONIBLE</code>) ou si PostgreSQL refuse l&#39;opération faute de droits
+            (<code>SUPERVISION_REINITIALISATION_IMPOSSIBLE</code>). <em>Source :</em> <code>SupervisionBaseService.reinitialiser</code>.
+        </p>
 </div></div>
 </section>
 <section class="part" id="p03"><h1><span class="n">Partie 3</span>Organisation : sociétés, centres, comptes d'encadrement</h1>
@@ -3445,6 +3499,12 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>/api/v1/audit</code></td>
 <td><code>ADMIN</code>, <code>SUPERADMIN</code></td>
 <td>RG-SEC-050 à 053</td>
+</tr>
+<tr>
+    <td><code>SupervisionBaseRestController</code></td>
+    <td><code>/api/v1/supervision/base-donnees</code></td>
+    <td><code>SUPERADMIN</code></td>
+    <td>RG-SEC-060 à 063</td>
 </tr>
 <tr>
 <td><code>SocieteRestController</code></td>

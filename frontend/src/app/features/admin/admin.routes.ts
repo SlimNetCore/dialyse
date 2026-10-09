@@ -25,6 +25,11 @@ export const adminRoutes: Routes = [
     canActivate: [superadminGuard],
     loadComponent: () => import('./license-form.component').then(m => m.LicenseFormComponent),
   },
+  {
+    path: 'performance',
+    canActivate: [superadminGuard],
+    loadComponent: () => import('./performance-base.component').then(m => m.PerformanceBaseComponent),
+  },
   {path: 'audit', loadComponent: () => import('./audit-log.component').then(m => m.AuditLogComponent)},
   { path: 'roles', loadComponent: () => import('./role-list.component').then(m => m.RoleListComponent) },
   { path: 'roles/new', loadComponent: () => import('./role-form.component').then(m => m.RoleFormComponent) },

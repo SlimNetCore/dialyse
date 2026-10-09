@@ -75,6 +75,52 @@
     "ISSUE_ERROR": "Échec de l'émission des licences",
     "SOCIETES_LOAD_ERROR": "Impossible de charger les sociétés"
   },
+  "SUPERVISION": {
+    "TITLE": "Performance de la base de données",
+    "HINT": "Les requêtes qui coûtent le plus à la base, relevées par PostgreSQL. Servez-vous-en pour décider quoi améliorer : index, requête ou cache. Aucune donnée de patient n'apparaît : les valeurs sont remplacées par $1, $2…",
+    "SORT_LABEL": "Classer par",
+    "SORT": {
+      "TEMPS_TOTAL": "Temps total",
+      "TEMPS_MOYEN": "Temps moyen",
+      "APPELS": "Appels"
+    },
+    "SORT_HELP": {
+      "TEMPS_TOTAL": "Les requêtes qui pèsent le plus sur la base : rapides mais très fréquentes, ou lentes",
+      "TEMPS_MOYEN": "Les requêtes lentes à chaque exécution : les écrans qui « rament »",
+      "APPELS": "Les requêtes les plus sollicitées"
+    },
+    "SINCE": "Compteurs depuis le",
+    "RESET": "Remettre à zéro",
+    "RESET_TITLE": "Remettre les compteurs à zéro ?",
+    "RESET_MESSAGE": "Le classement repart de zéro. Faites-le juste après une optimisation (index, requête) pour mesurer son effet sur quelques jours.",
+    "RESET_CONFIRM": "Remettre à zéro",
+    "RESET_ERROR": "Remise à zéro impossible : PostgreSQL a refusé l'opération (droits insuffisants).",
+    "HOW_TO": "Pour comprendre une requête lente : copiez-la, remplacez $1, $2… par des valeurs réelles, puis exécutez EXPLAIN (ANALYZE, BUFFERS) devant. Un « Seq Scan » sur une grosse table signale un index manquant.",
+    "COL_LEVEL": "Niveau",
+    "COL_QUERY": "Requête",
+    "COL_CALLS": "Appels",
+    "COL_TOTAL": "Temps total",
+    "COL_SHARE": "Part du total",
+    "COL_AVG": "Temps moyen",
+    "COL_MAX": "Plus long",
+    "COL_ROWS": "Lignes",
+    "LEVEL": {
+      "NORMAL": "Normal",
+      "ATTENTION": "À surveiller",
+      "CRITIQUE": "À améliorer"
+    },
+    "TOGGLE": "Afficher la requête complète ou la réduire",
+    "COPY": "Copier la requête",
+    "COPIED": "Copiée",
+    "EMPTY": "Aucune requête mesurée pour l'instant. Laissez l'application tourner quelques jours.",
+    "ERROR": "Impossible de lire les statistiques de la base.",
+    "UNAVAILABLE_TITLE": "Mesure indisponible",
+    "UNAVAILABLE": {
+      "BASE_NON_POSTGRESQL": "Cette instance utilise la base de développement H2 : la mesure n'existe qu'en production, sur PostgreSQL.",
+      "EXTENSION_ABSENTE": "L'extension pg_stat_statements n'est pas installée. Elle est créée par la migration Flyway V30 au prochain déploiement.",
+      "PRELOAD_ABSENT": "L'extension est installée mais le serveur PostgreSQL n'a pas chargé pg_stat_statements. Recréez le conteneur postgres (docker compose up -d) pour appliquer la configuration."
+    }
+  },
   "OWNER_LOGIN": {
     "EYEBROW": "Accès propriétaire",
     "TITLE": "Espace propriétaire",
@@ -2904,6 +2950,7 @@
     }
   },
   "NAV": {
+    "PERFORMANCE_BASE": "Performance de la base",
     "ADMIN_GROUPES_ARTICLES": "Groupes d'articles",
     "ABSENCES_PATIENTS": "Absences des patients",
     "MOUVEMENTS_PATIENTS": "Mouvements des patients",

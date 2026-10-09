@@ -75,6 +75,52 @@
     "ISSUE_ERROR": "License issuance failed",
     "SOCIETES_LOAD_ERROR": "Unable to load companies"
   },
+  "SUPERVISION": {
+    "TITLE": "Database performance",
+    "HINT": "The queries that cost the database the most, as measured by PostgreSQL. Use them to decide what to improve: index, query or cache. No patient data appears: values are replaced by $1, $2…",
+    "SORT_LABEL": "Sort by",
+    "SORT": {
+      "TEMPS_TOTAL": "Total time",
+      "TEMPS_MOYEN": "Average time",
+      "APPELS": "Calls"
+    },
+    "SORT_HELP": {
+      "TEMPS_TOTAL": "The queries that weigh most on the database: fast but very frequent, or slow",
+      "TEMPS_MOYEN": "Queries that are slow on every run: the screens that feel sluggish",
+      "APPELS": "The most frequently run queries"
+    },
+    "SINCE": "Counters since",
+    "RESET": "Reset",
+    "RESET_TITLE": "Reset the counters?",
+    "RESET_MESSAGE": "The ranking starts again from zero. Do it right after an optimisation (index, query) to measure its effect over a few days.",
+    "RESET_CONFIRM": "Reset",
+    "RESET_ERROR": "Reset impossible: PostgreSQL refused the operation (insufficient rights).",
+    "HOW_TO": "To understand a slow query: copy it, replace $1, $2… with real values, then run EXPLAIN (ANALYZE, BUFFERS) in front of it. A \"Seq Scan\" on a large table points to a missing index.",
+    "COL_LEVEL": "Level",
+    "COL_QUERY": "Query",
+    "COL_CALLS": "Calls",
+    "COL_TOTAL": "Total time",
+    "COL_SHARE": "Share of total",
+    "COL_AVG": "Average time",
+    "COL_MAX": "Longest",
+    "COL_ROWS": "Rows",
+    "LEVEL": {
+      "NORMAL": "Normal",
+      "ATTENTION": "Watch",
+      "CRITIQUE": "To improve"
+    },
+    "TOGGLE": "Show the full query or collapse it",
+    "COPY": "Copy the query",
+    "COPIED": "Copied",
+    "EMPTY": "No query measured yet. Let the application run for a few days.",
+    "ERROR": "Unable to read the database statistics.",
+    "UNAVAILABLE_TITLE": "Measurement unavailable",
+    "UNAVAILABLE": {
+      "BASE_NON_POSTGRESQL": "This instance uses the H2 development database: measurement only exists in production, on PostgreSQL.",
+      "EXTENSION_ABSENTE": "The pg_stat_statements extension is not installed. It is created by Flyway migration V30 on the next deployment.",
+      "PRELOAD_ABSENT": "The extension is installed but the PostgreSQL server has not loaded pg_stat_statements. Recreate the postgres container (docker compose up -d) to apply the configuration."
+    }
+  },
   "OWNER_LOGIN": {
     "EYEBROW": "Owner access",
     "TITLE": "Owner workspace",
@@ -2904,6 +2950,7 @@
     }
   },
   "NAV": {
+    "PERFORMANCE_BASE": "Database performance",
     "ADMIN_GROUPES_ARTICLES": "Article groups",
     "ABSENCES_PATIENTS": "Patient absences",
     "MOUVEMENTS_PATIENTS": "Patient movements",

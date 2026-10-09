@@ -213,6 +213,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         {route: '/admin/societes', label: 'Sociétés', icon: 'apartment', owner: true},
         {route: '/admin/licenses', label: 'Licences', icon: 'verified_user', owner: true},
         {route: '/admin/audit', label: 'Journal d\'audit', icon: 'fact_check', owner: true},
+        {route: '/admin/performance', label: 'NAV.PERFORMANCE_BASE', icon: 'speed', owner: true},
         {route: '/admin/users', label: 'Utilisateurs', icon: 'manage_accounts'},
         {route: '/admin/roles', label: 'Rôles', icon: 'admin_panel_settings'},
         {route: '/admin/audit', label: 'Journal d\'audit', icon: 'fact_check'},

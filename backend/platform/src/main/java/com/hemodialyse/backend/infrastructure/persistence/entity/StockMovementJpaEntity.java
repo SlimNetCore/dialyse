@@ -10,7 +10,8 @@ import java.util.UUID;
 @Table(name = "stock_movements", indexes = {
         @Index(name = "idx_stock_mvt_article_date", columnList = "article_id, created_at"),
         @Index(name = "idx_stock_mvt_lot", columnList = "lot_id"),
-        @Index(name = "idx_stock_mvt_seance", columnList = "seance_id")
+        @Index(name = "idx_stock_mvt_seance", columnList = "seance_id"),
+        @Index(name = "idx_stock_mvt_center_date", columnList = "center_id, created_at")
 })
 public class StockMovementJpaEntity {
     @Id

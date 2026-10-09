@@ -40,7 +40,8 @@ public class RoleScopeFilter extends OncePerRequestFilter {
      * Routes autorisées par rôle restreint.
      */
     private static final Map<String, List<String>> ALLOWED_BY_ROLE = Map.of(
-            "ROLE_SUPERADMIN", List.of("/api/v1/societes", "/api/v1/licenses", "/api/v1/audit"),
+            "ROLE_SUPERADMIN", List.of("/api/v1/societes", "/api/v1/licenses", "/api/v1/audit",
+                    "/api/v1/supervision"),
             "ROLE_DIRECTION", List.of("/api/v1/direction")
     );
 

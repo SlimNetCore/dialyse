@@ -1,0 +1,148 @@
+.perf {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.block {
+  padding: 16px;
+  min-width: 0;
+}
+
+.head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+}
+
+.muted {
+  opacity: 0.7;
+  margin: 0 0 12px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.since {
+  margin: 0;
+}
+
+.howto {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.error-msg {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-error, #b3261e) 12%, transparent);
+  color: var(--mat-sys-error, #b3261e);
+  margin-bottom: 12px;
+}
+
+.unavailable {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-primary, #0d5750) 10%, transparent);
+}
+
+.unavailable p {
+  margin: 4px 0 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.query-cell {
+  min-width: 280px;
+  max-width: 560px;
+}
+
+.query {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.query.expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.query-actions {
+  display: inline-flex;
+  gap: 0;
+}
+
+.niveau {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.niveau.normal {
+  background: color-mix(in srgb, #2e7d32 15%, transparent);
+  color: #2e7d32;
+}
+
+.niveau.attention {
+  background: color-mix(in srgb, #ef6c00 15%, transparent);
+  color: #b45309;
+}
+
+.niveau.critique {
+  background: color-mix(in srgb, var(--mat-sys-error, #b3261e) 15%, transparent);
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.empty {
+  padding: 16px 0;
+}
+
+@media (max-width: 600px) {
+  .perf {
+    padding: 8px;
+  }
+
+  .toolbar mat-button-toggle-group {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
