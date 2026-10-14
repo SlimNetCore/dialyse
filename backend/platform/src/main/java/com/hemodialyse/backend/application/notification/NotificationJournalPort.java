@@ -18,6 +18,12 @@ public interface NotificationJournalPort {
     void enregistrer(UUID id, UUID centerId, String type, Map<String, String> payload, Instant creeLe);
 
     /**
+     * Une alerte portant cet identifiant est-elle déjà enregistrée ? Sert aux alertes à identifiant déterministe, qu'un
+     * événement rejoué ne doit pas dupliquer.
+     */
+    boolean existe(UUID id);
+
+    /**
      * Alertes récentes du centre destinées à l'un des rôles (ou à tous), de la plus récente à la plus ancienne.
      *
      * @param roles rôles de l'utilisateur, sans préfixe {@code ROLE_}

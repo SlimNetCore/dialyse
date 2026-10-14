@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.application.direction;
 
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.GenerateursInstalles;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
 import com.hemodialyse.backend.domain.planning.model.PlanningParametres;
 import com.hemodialyse.backend.domain.planning.service.CapaciteTheoriqueCalculator;
@@ -39,9 +40,6 @@ import java.util.stream.Collectors;
 public class DirectionCapaciteQueryService {
 
     private static final int MAX_YEARS = 5;
-    private static final String GENERATEURS = "SELECT centre_id AS cid, COUNT(*) AS n FROM gmao_equipements "
-            + "WHERE type = 'GENERATEUR_DIALYSE' AND deleted_at IS NULL AND statut NOT IN ('REFORME', 'DESACTIF') "
-            + "AND date_installation < ? AND centre_id IN (%s) GROUP BY centre_id";
     private static final String SERIES = "SELECT center_id AS cid, COUNT(*) AS n FROM position_creneau "
             + "WHERE center_id IN (%s) GROUP BY center_id";
     /**
@@ -56,8 +54,12 @@ public class DirectionCapaciteQueryService {
 
     private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
+    /** Les générateurs de chaque centre viennent de la lecture publiée par le module GMAO. */
+    private final GenerateursInstalles installes;
 
-    public DirectionCapaciteQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard) {
+    public DirectionCapaciteQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
+                                         GenerateursInstalles installes) {
+        this.installes = installes;
         this.jdbc = jdbc;
         this.dashboard = dashboard;
     }
@@ -87,7 +89,7 @@ public class DirectionCapaciteQueryService {
                     ligne(CapaciteTheoriqueCalculator.agreger(List.of())), List.of());
         }
         List<UUID> ids = centres.stream().map(CentreInfo::id).toList();
-        Map<UUID, Long> generateurs = compter(GENERATEURS, ids, end.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC));
+        Map<UUID, Long> generateurs = installes.parCentre(ids, end.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC));
         Map<UUID, Long> series = compter(SERIES, ids);
         Map<UUID, Long> files = compter(FILE_ACTIVE, ids, EffectifSql.presentSur("p", start, end).args().toArray());
         Map<UUID, Long> parametres = compter(PARAMETRES, ids);

@@ -68,6 +68,12 @@ public class NotificationJournalJdbcAdapter implements NotificationJournalPort {
     }
 
     @Override
+    public boolean existe(UUID id) {
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM notification_evenement WHERE id = ?", Integer.class, id);
+        return n != null && n > 0;
+    }
+
+    @Override
     public PagedResult<Alerte> lister(UUID centerId, String userId, Set<String> roles, int page, int size) {
         List<Object> filtre = new ArrayList<>();
         String roleSql = filtreRoles(roles, filtre);

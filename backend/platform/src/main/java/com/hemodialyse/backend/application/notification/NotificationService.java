@@ -26,7 +26,7 @@ public class NotificationService {
             "INFIRMIER_SOUS_EFFECTIF", "INFIRMIER_ABSENCE_DECLAREE", "OPTIMISATION_PROPOSITION",
             "ABSENCES_A_QUALIFIER", "SEANCES_A_REGULARISER", "PATIENT_REPLACE_ISOLEMENT", "ISOLEMENT_IMPOSSIBLE",
             "GENERATEUR_INDISPONIBLE", "SEANCES_DEPLACEES", "INFIRMIER_ABSENCE_ENREGISTREE",
-            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE");
+            "INFIRMIER_SUREFFECTIF", "OBSERVANCE_NON_RESPECTEE", "REPLANIFICATION_NOCTURNE", "REFORME_PROPOSEE");
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -311,6 +311,27 @@ public class NotificationService {
     }
 
     /**
+     * Une intervention a constaté l'état « à réformer » d'un équipement (P2, KB-GMAO-57) : les détenteurs de l'habilitation
+     * {@code GMAO_REFORME} du centre sont prévenus qu'une réforme est à examiner. Jamais de réforme automatique (RG-GMA-063).
+     * L'identifiant de l'alerte se déduit de l'équipement et de l'instant de l'événement : un événement rejoué (livraison au
+     * moins une fois) ne crée pas de doublon. Contrairement aux autres alertes, si l'enregistrement durable échoue l'exception
+     * remonte à l'appelant (l'écouteur d'événement) sans rien envoyer en temps réel : la publication reste incomplète et
+     * l'événement est rejoué.
+     */
+    public void notifyReformeProposee(UUID centerId, UUID equipementId, String code, Instant survenuLe) {
+        var payload = new java.util.HashMap<String, String>();
+        payload.put("equipementId", equipementId.toString());
+        payload.put("code", code);
+        payload.put("statut", "A_REFORMER");
+        payload.put("message", "Équipement " + code + " : état constaté « à réformer » à la clôture d'une intervention. "
+                + "Aucune réforme n'est décidée automatiquement : consultez l'aide à la décision de maintenance.");
+        payload.put("targetRoles", "GMAO_REFORME");
+        UUID id = UUID.nameUUIDFromBytes(("REFORME_PROPOSEE|" + equipementId + "|" + survenuLe)
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        send(centerId, "REFORME_PROPOSEE", payload, id);
+    }
+
+    /**
      * Une proposition d'optimisation appliquée a déplacé des patients ou des séances : le médecin et le secrétariat en
      * sont prévenus.
      */
@@ -413,6 +434,14 @@ public class NotificationService {
     }
 
     private void send(UUID centerId, String eventType, Map<String, String> payload) {
+        send(centerId, eventType, payload, null);
+    }
+
+    /** {@code idImpose} : identifiant déterministe d'une alerte durable ; déjà enregistrée, elle n'est ni renvoyée ni dupliquée. */
+    private void send(UUID centerId, String eventType, Map<String, String> payload, UUID idImpose) {
+        if (idImpose != null && DURABLES.contains(eventType) && journal.existe(idImpose)) {
+            return;
+        }
         Map<String, Object> event = new java.util.HashMap<>();
         Instant maintenant = Instant.now();
         event.put("type", eventType);
@@ -420,11 +449,14 @@ public class NotificationService {
         event.put("payload", payload);
         event.put("timestamp", maintenant.toString());
         if (DURABLES.contains(eventType)) {
-            UUID id = UUID.randomUUID();
+            UUID id = idImpose != null ? idImpose : UUID.randomUUID();
             try {
                 journal.enregistrer(id, centerId, eventType, payload, maintenant);
                 event.put("id", id.toString());
             } catch (RuntimeException e) {
+                // identifiant imposé (alerte portée par un événement rejouable) : l'erreur remonte, rien n'est envoyé en
+                // temps réel, et l'événement rejoué recommencera l'enregistrement puis l'envoi
+                if (idImpose != null) throw e;
                 // le temps réel reste prioritaire : une base indisponible n'empêche pas d'alerter les connectés
                 log.warn("[NOTIFICATION] Alerte {} non enregistrée pour le centre {}", eventType, centerId, e);
             }

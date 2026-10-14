@@ -4,28 +4,18 @@ import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Alert;
 import com.hemodialyse.backend.application.direction.DirectionAlertPolicy.Severity;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
-import com.hemodialyse.backend.domain.gmao.model.Equipement;
-import com.hemodialyse.backend.domain.gmao.model.StatutEquipement;
-import com.hemodialyse.backend.domain.gmao.port.EquipementRepositoryPort;
-import com.hemodialyse.backend.domain.gmao.port.EquipementStatutHistoriqueRepositoryPort;
-import com.hemodialyse.backend.domain.gmao.port.InterventionRepositoryPort;
-import com.hemodialyse.backend.domain.gmao.service.AideDecisionMaintenance;
-import com.hemodialyse.backend.domain.gmao.service.AideDecisionMaintenance.AnalyseCout;
-import com.hemodialyse.backend.domain.gmao.service.IndisponibiliteCalculator;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.SyntheseGmaoDuCentre.Synthese;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,26 +32,18 @@ public class DirectionGmaoQueryService {
 
     private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
-    private final EquipementRepositoryPort equipementRepository;
-    private final InterventionRepositoryPort interventionRepository;
     private static final int TOP_EQUIPEMENTS = 5;
 
-    private final EquipementStatutHistoriqueRepositoryPort historiqueRepository;
-    private final AideDecisionMaintenance aideDecision;
+    /** Les chiffres GMAO de chaque centre viennent de la lecture publiée par le module GMAO. */
+    private final SyntheseGmaoDuCentre syntheses;
 
     public DirectionGmaoQueryService(
             JdbcTemplate jdbc,
             DirectionDashboardQueryService dashboard,
-            EquipementRepositoryPort equipementRepository,
-            InterventionRepositoryPort interventionRepository,
-            EquipementStatutHistoriqueRepositoryPort historiqueRepository,
-            AideDecisionMaintenance aideDecision) {
-        this.aideDecision = aideDecision;
+            SyntheseGmaoDuCentre syntheses) {
         this.jdbc = jdbc;
         this.dashboard = dashboard;
-        this.equipementRepository = equipementRepository;
-        this.interventionRepository = interventionRepository;
-        this.historiqueRepository = historiqueRepository;
+        this.syntheses = syntheses;
     }
 
     public GmaoOverview gmao(UUID societeId, LocalDate from, LocalDate to) {
@@ -91,41 +73,20 @@ public class DirectionGmaoQueryService {
     }
 
     private CentreGmao buildForCentre(UUID centreId, String nom, OffsetDateTime from, OffsetDateTime to) {
-        long nbEquipements = equipementRepository.countByCentreId(centreId);
-        long nbHorsService = equipementRepository.countByCentreIdAndStatut(centreId, StatutEquipement.HORS_SERVICE.name());
-        long nbEnMaintenance = equipementRepository.countByCentreIdAndStatut(centreId, StatutEquipement.EN_MAINTENANCE.name());
-        long nbReformes = equipementRepository.countByCentreIdAndStatut(centreId, StatutEquipement.REFORME.name());
-        long interventionsEnCours = interventionRepository.countByCentreIdAndStatut(centreId, "EN_COURS");
-        BigDecimal coutMaintenancePeriode = interventionRepository.sumCoutByCentreIdAndDateRange(centreId, from, to);
+        Synthese synthese = syntheses.duCentre(centreId, from.toInstant(), to.toInstant());
         long patientsSurEquipementIndisponible = countPatientsSurEquipementIndisponible(centreId);
 
-        List<Equipement> equipements = equipementRepository.findByCentreId(centreId);
-        Map<UUID, BigDecimal> coutsPeriode = interventionRepository.sumCoutParEquipement(centreId, from, to);
-        Map<UUID, BigDecimal> coutsCumules = interventionRepository.sumCoutCumuleParEquipement(centreId);
-        double indisponibiliteHeures = 0;
-        List<EquipementCout> classement = new ArrayList<>();
-        for (Equipement e : equipements) {
-            double heures = indisponibiliteHeures(e, from, to);
-            indisponibiliteHeures += heures;
-            BigDecimal coutPeriode = coutsPeriode.getOrDefault(e.getId(), BigDecimal.ZERO);
-            BigDecimal coutCumule = coutsCumules.getOrDefault(e.getId(), BigDecimal.ZERO);
-            AnalyseCout analyse = aideDecision.analyser(
-                    e.getStatut(), e.getPrixAcquisition(), coutCumule, coutPeriode, heures);
-            classement.add(new EquipementCout(e.getId(), e.getCode(), e.getDesignation(), e.getStatut().name(),
-                    coutPeriode, coutCumule, e.getPrixAcquisition(), analyse.ratioMaintenance(), heures,
-                    analyse.reformeRecommandee()));
-        }
+        List<EquipementCout> classement = synthese.equipements().stream()
+                .map(e -> new EquipementCout(e.id(), e.code(), e.designation(), e.statut(), e.coutDeLaPeriode(),
+                        e.coutCumule(), e.prixAcquisition(), e.ratioMaintenance(), e.indisponibiliteHeures(),
+                        e.reformeRecommandee()))
+                .toList();
         long nbReformeRecommandee = classement.stream().filter(EquipementCout::reformeRecommandee).count();
 
-        return new CentreGmao(centreId, nom, nbEquipements, nbHorsService, nbEnMaintenance, nbReformes,
-                interventionsEnCours, coutMaintenancePeriode, indisponibiliteHeures, patientsSurEquipementIndisponible,
+        return new CentreGmao(centreId, nom, synthese.nombreDEquipements(), synthese.horsService(),
+                synthese.enMaintenance(), synthese.reformes(), synthese.interventionsEnCours(),
+                synthese.coutDeMaintenance(), synthese.indisponibiliteHeures(), patientsSurEquipementIndisponible,
                 nbReformeRecommandee, topEquipements(classement));
-    }
-
-    private double indisponibiliteHeures(Equipement e, OffsetDateTime from, OffsetDateTime to) {
-        Duration d = IndisponibiliteCalculator.calculer(
-                historiqueRepository.findByEquipementIdOrderByChangedAtAsc(e.getId()), e.getStatut(), from, to);
-        return d.toMinutes() / 60.0;
     }
 
     /**

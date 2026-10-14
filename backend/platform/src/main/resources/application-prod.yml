@@ -16,6 +16,12 @@ spring:
   h2:
     console:
       enabled: false
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          # La table event_publication vient de Flyway (V35) : Modulith ne la crée pas en production.
+          enabled: false
 
 springdoc:
   api-docs:
