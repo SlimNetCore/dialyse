@@ -3500,6 +3500,7 @@
       "OPTIMISATION_PROPOSITION": "Planning proposal to review",
       "REPLANIFICATION_NOCTURNE": "Nightly replanning summary",
       "GENERATEUR_INDISPONIBLE": "Machine unavailable",
+      "REFORME_PROPOSEE": "Equipment decommissioning to review",
       "SEANCES_DEPLACEES": "Planning changed",
       "PATIENT_REPLACE_ISOLEMENT": "Patient moved to isolation",
       "ISOLEMENT_IMPOSSIBLE": "Isolation impossible: patient to reschedule",
@@ -3541,6 +3542,7 @@
     "INFIRMIER_SUREFFECTIF": "Surplus nurses: {{count}} slot(s) affected from {{date}}, {{vacations}} extra shift(s), i.e. {{heures}} h paid without useful activity",
     "INFIRMIER_ABSENCE_ENREGISTREE": "Absence of {{infirmier}} recorded from {{debut}} to {{fin}}: replacement to organize",
     "GENERATEUR_INDISPONIBLE": "Generator {{generateur}} unavailable ({{statut}}): {{count}} patient(s) to move {{patients}}",
+    "REFORME_PROPOSEE": "Equipment {{code}}: found \"to be decommissioned\" when an intervention was closed. No decommissioning is decided automatically: see the equipment record.",
     "SEANCES_DEPLACEES": "Planning changed: {{patients}} patient(s) moved, {{temporaires}} session(s) moved temporarily",
     "OBSERVANCE_NON_RESPECTEE": {
       "DOSE_RETARD_CONSTATE": "Delay confirmed on {{traitement}} from {{debut}} to {{fin}}: {{administre}} {{unite}} administered out of {{attendu}} prescribed ({{manque}} {{unite}} missing)",
@@ -3552,6 +3554,7 @@
       "ANEMIE": "See the anemia follow-up",
       "PROPOSITION": "Open the proposal",
       "MAINTENANCE": "Suggest moves",
+      "FICHE_EQUIPEMENT": "Open the equipment record",
       "COUVERTURE": "Find replacements",
       "ROULEMENT": "Review the rotation",
       "OPTIMISATION": "Open the optimisation",
@@ -4432,6 +4435,17 @@
       "MODIFIEE": "Last modification",
       "INCONNU": "Unknown user"
     },
+    "TACHES": {
+      "TITLE": "Tasks",
+      "DESCRIPTION": "Task description",
+      "ADD": "Add task",
+      "NONE": "No task",
+      "START": "Start",
+      "FINISH": "Complete",
+      "STATUT_A_FAIRE": "To do",
+      "STATUT_EN_COURS": "In progress",
+      "STATUT_COMPLETEE": "Completed"
+    },
     "DOCUMENTS": {
       "TITLE": "Attachments",
       "TYPE": "Document type",
@@ -4442,6 +4456,7 @@
       "ADD": "Add a document",
       "HINT": "PDF, PNG or JPEG — 5 MB maximum per file.",
       "NONE": "No attachment",
+      "CLOSED": "Intervention closed: attachments can no longer be added or removed.",
       "DOWNLOAD": "Download",
       "KO": "KB",
       "UPLOAD_ERROR": "Document rejected: format (PDF, PNG, JPEG), size (5 MB) or maximum count exceeded",

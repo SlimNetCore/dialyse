@@ -9,7 +9,7 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {EquipementFiche, GmaoApiService, Intervention} from '../../../../core/api/gmao-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
-import {ROLE_GMAO_REFORME, statutEquipementTone} from '../../gmao-options.util';
+import {peutReformer, statutEquipementTone} from '../../gmao-options.util';
 import {AuthStore} from '../../../../core/state/auth.store';
 
 /**
@@ -41,8 +41,8 @@ export class GmaoFicheEquipementComponent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly auth = inject(AuthStore);
-  /** Seule la personne habilitée (rôle GMAO_REFORME) décide de la réforme ; les autres ne voient pas l'action. */
-  protected readonly canReform = computed(() => this.auth.hasRole(ROLE_GMAO_REFORME));
+  /** Réforme : ADMIN et habilitation GMAO_REFORME (sinon le backend répond 403) ; les autres ne voient pas l'action. */
+  protected readonly canReform = computed(() => peutReformer((r) => this.auth.hasRole(r)));
   private readonly translate = inject(TranslateService);
   private readonly equipementId = this.route.snapshot.paramMap.get('id')!;
 

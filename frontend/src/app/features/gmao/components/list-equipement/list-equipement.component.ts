@@ -14,7 +14,7 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {Equipement} from '../../../../core/api/gmao-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
 import {GmaoEquipementsStore} from '../../state/gmao-equipements.store';
-import {ROLE_GMAO_REFORME, statutEquipementTone, STATUTS_EQUIPEMENT} from '../../gmao-options.util';
+import {peutReformer, statutEquipementTone, STATUTS_EQUIPEMENT} from '../../gmao-options.util';
 import {AuthStore} from '../../../../core/state/auth.store';
 
 /**
@@ -39,7 +39,7 @@ export class GmaoListEquipementComponent {
   private readonly dialog = inject(MatDialog);
   private readonly auth = inject(AuthStore);
   /** Seule la personne habilitée (rôle GMAO_REFORME) décide de la réforme ; les autres ne voient pas l'action. */
-  protected readonly canReform = computed(() => this.auth.hasRole(ROLE_GMAO_REFORME));
+  protected readonly canReform = computed(() => peutReformer((r) => this.auth.hasRole(r)));
   private readonly translate = inject(TranslateService);
 
   constructor() {

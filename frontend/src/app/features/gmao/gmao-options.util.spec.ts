@@ -10,6 +10,12 @@ import {
   utcIsoToLocalDate,
   utcIsoToLocalInput,
   STATUTS_INDISPONIBLES_PATIENT,
+  detailRefus,
+  peutAjouterTache,
+  peutAvancerTache,
+  peutReformer,
+  peutRectifier,
+  piecesJointesModifiables,
   statutEquipementTone,
 } from './gmao-options.util';
 
@@ -66,5 +72,45 @@ describe('valeur datetime-local', () => {
   it('restitue en heure locale l\'instant saisi (aller-retour à la minute)', () => {
     const local = '2026-03-10T08:30';
     expect(utcIsoToLocalInput(localInputToUtcIso(local))).toBe(local);
+  });
+});
+
+describe('habilitations et conditions d\'affichage GMAO', () => {
+  const roles = (...r: string[]) => (role: string) => r.includes(role);
+
+  it('réformer exige ADMIN et GMAO_REFORME', () => {
+    expect(peutReformer(roles('ADMIN', 'GMAO_REFORME'))).toBe(true);
+    expect(peutReformer(roles('GMAO_REFORME'))).toBe(false);
+    expect(peutReformer(roles('ADMIN'))).toBe(false);
+  });
+
+  it('rectifier exige ADMIN et GMAO_RECTIFICATION', () => {
+    expect(peutRectifier(roles('ADMIN', 'GMAO_RECTIFICATION'))).toBe(true);
+    expect(peutRectifier(roles('GMAO_RECTIFICATION'))).toBe(false);
+    expect(peutRectifier(roles('ADMIN', 'GMAO_REFORME'))).toBe(false);
+  });
+
+  it('ajoute une tâche si planifiée ou en cours, la démarre/achève seulement en cours', () => {
+    expect(peutAjouterTache('PLANIFIEE')).toBe(true);
+    expect(peutAjouterTache('EN_COURS')).toBe(true);
+    expect(peutAjouterTache('TERMINEE')).toBe(false);
+    expect(peutAjouterTache(undefined)).toBe(false);
+    expect(peutAvancerTache('EN_COURS')).toBe(true);
+    expect(peutAvancerTache('PLANIFIEE')).toBe(false);
+  });
+
+  it('ferme les pièces jointes d\'une intervention terminée ou annulée', () => {
+    expect(piecesJointesModifiables('PLANIFIEE')).toBe(true);
+    expect(piecesJointesModifiables('EN_COURS')).toBe(true);
+    expect(piecesJointesModifiables('TERMINEE')).toBe(false);
+    expect(piecesJointesModifiables('ANNULEE')).toBe(false);
+  });
+
+  it('restitue le detail du backend pour 400/422 seulement', () => {
+    expect(detailRefus({status: 422, error: {detail: 'Intervention terminée'}})).toBe('Intervention terminée');
+    expect(detailRefus({status: 400, error: {detail: 'Fichier PDF incomplet ou altéré'}})).toBe('Fichier PDF incomplet ou altéré');
+    expect(detailRefus({status: 500, error: {detail: 'boom'}})).toBeNull();
+    expect(detailRefus({status: 422, error: {}})).toBeNull();
+    expect(detailRefus(null)).toBeNull();
   });
 });

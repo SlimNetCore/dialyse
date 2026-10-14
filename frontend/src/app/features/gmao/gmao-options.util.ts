@@ -154,3 +154,37 @@ export function utcIsoToLocalInput(iso: string): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+type HasRole = (role: string) => boolean;
+
+/** Réformer un équipement : ADMIN et habilitation GMAO_REFORME (le backend refuse sinon, KB-GMAO-32). */
+export function peutReformer(hasRole: HasRole): boolean {
+  return hasRole('ADMIN') && hasRole(ROLE_GMAO_REFORME);
+}
+
+/** Rectifier une intervention : ADMIN et habilitation GMAO_RECTIFICATION (KB-GMAO-52). */
+export function peutRectifier(hasRole: HasRole): boolean {
+  return hasRole('ADMIN') && hasRole(ROLE_GMAO_RECTIFICATION);
+}
+
+/** Ajout d'une tâche : intervention planifiée ou en cours (RG-GMA-029). */
+export function peutAjouterTache(statut: StatutIntervention | undefined): boolean {
+  return statut === 'PLANIFIEE' || statut === 'EN_COURS';
+}
+
+/** Démarrer ou achever une tâche : intervention en cours seulement. */
+export function peutAvancerTache(statut: StatutIntervention | undefined): boolean {
+  return statut === 'EN_COURS';
+}
+
+/** Pièces jointes : ni ajout ni retrait sur une intervention terminée ou annulée (le backend répond 422). */
+export function piecesJointesModifiables(statut: StatutIntervention | undefined): boolean {
+  return !!statut && statut !== 'TERMINEE' && statut !== 'ANNULEE';
+}
+
+/** `detail` du backend pour un refus métier (400/422), sinon null : l'appelant garde alors son message générique. */
+export function detailRefus(err: unknown): string | null {
+  const e = err as { status?: number; error?: { detail?: unknown } } | null;
+  const detail = e?.error?.detail;
+  return (e?.status === 400 || e?.status === 422) && typeof detail === 'string' && detail.trim() ? detail : null;
+}

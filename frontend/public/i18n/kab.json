@@ -3140,6 +3140,7 @@
       "OPTIMISATION_PROPOSITION": "Asumer n uɣawas i usenqed",
       "REPLANIFICATION_NOCTURNE": "Agmuḍ n uɛiwed n uɣawas n yiḍ",
       "GENERATEUR_INDISPONIBLE": "Asaraw ulac-it",
+      "REFORME_PROPOSEE": "Tuffɣa n usenfar ara ttwasenqed",
       "SEANCES_DEPLACEES": "Aɣawas yettwabeddel",
       "PATIENT_REPLACE_ISOLEMENT": "Amuḍin yettwarr ɣer uɛzal",
       "ISOLEMENT_IMPOSSIBLE": "Aɛzal d awezɣi : amuḍin ad yettwaɣawes tikkelt-nniḍen",
@@ -3181,6 +3182,7 @@
     "INFIRMIER_SUREFFECTIF": "Imsawen i d-yezwiren: {{count}} n ismalen i yettwaǧǧan seg {{date}}, {{vacations}} n tmuɣliwin i d-yezwiren, d {{heures}} n yisragen ttwaxellsen war armud iwulhen",
     "INFIRMIER_ABSENCE_ENREGISTREE": "Tamettant n {{infirmier}} tettwaseklas seg {{debut}} ɣer {{fin}}: abeddel ilaq ad yettwasuddem",
     "GENERATEUR_INDISPONIBLE": "Amsedday {{generateur}} ulac-it ({{statut}}): {{count}} n inelmaden ilaq ad ttwazzuzren {{patients}}",
+    "REFORME_PROPOSEE": "Asenfar {{code}}: yettwafa \"ilaq ad yettwakkes\" ticki yettwasdukel usenqed. Ulac aɣbalu yettwaɛnen s tikli: wali tafelwit n usenfar.",
     "SEANCES_DEPLACEES": "Aɣawas yettwabeddel: {{patients}} n inelmaden ttwazzuzren, {{temporaires}} n tɣimiyin ttwazzuzren s wakud",
     "OBSERVANCE_NON_RESPECTEE": {
       "DOSE_RETARD_CONSTATE": "Alwexer yettwabaner deg {{traitement}} seg {{debut}} ɣer {{fin}}: {{administre}} {{unite}} yettwasezdeg ɣef {{attendu}} yettwasiwlen (yenqes {{manque}} {{unite}})",
@@ -3192,6 +3194,7 @@
       "ANEMIE": "Wali aḍfar n twaɛɛurt n idammen",
       "PROPOSITION": "Ldi asumer",
       "MAINTENANCE": "Sumer izuzar",
+      "FICHE_EQUIPEMENT": "Ldi tafelwit n usenfar",
       "COUVERTURE": "Nadi imsiwlen",
       "ROULEMENT": "Ɛiwed asenqed n uzelmaḍ",
       "OPTIMISATION": "Ldi asefrer",
@@ -4066,6 +4069,17 @@
       "MODIFIEE": "Beddel aneggaru",
       "INCONNU": "Amseqdac arussin"
     },
+    "TACHES": {
+      "TITLE": "Timahilin",
+      "DESCRIPTION": "Aglam n tmahilt",
+      "ADD": "Rnu tamahilt",
+      "NONE": "Ulac timahilin",
+      "START": "Bdu",
+      "FINISH": "Fak",
+      "STATUT_A_FAIRE": "Ad yettwaxdem",
+      "STATUT_EN_COURS": "Teddu",
+      "STATUT_COMPLETEE": "Tfukk"
+    },
     "DOCUMENTS": {
       "TITLE": "Imedlen yeddan",
       "TYPE": "Anaw n useɣwen",
@@ -4076,6 +4090,7 @@
       "ADD": "Rnu amedlu",
       "HINT": "PDF, PNG neɣ JPEG — 5 Mo afellay i yal afaylu.",
       "NONE": "Ulac imedlen yeddan",
+      "CLOSED": "Asenqed yeṭṭfen: ur izmir ara ad yettwarnu neɣ ad yettwakkes umedlu.",
       "DOWNLOAD": "Sider",
       "KO": "Ko",
       "UPLOAD_ERROR": "Yettwagi umedlu: amasal (PDF, PNG, JPEG), teɣzi (5 Mo) neɣ amḍan afellay",

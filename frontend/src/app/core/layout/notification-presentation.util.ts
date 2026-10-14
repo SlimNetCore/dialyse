@@ -243,6 +243,11 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
           count: p['nbPatients'] ?? '0', patients: p['patients'] ?? '',
         },
       });
+    case 'REFORME_PROPOSEE':
+      // proposition seulement : la décision se prend sur la fiche de l'équipement (jamais de réforme automatique)
+      return alerte('recycling', profil === 'GESTION' && p['equipementId']
+          ? action('FICHE_EQUIPEMENT', ['/gmao/equipements', p['equipementId']]) : accueil(profil),
+        {parametres: {code: p['code'] ?? ''}});
     case 'SEANCES_DEPLACEES':
       return info('swap_horiz', planning(profil),
         {parametres: {patients: p['nbPatients'] ?? '0', temporaires: p['nbSeancesTemporaires'] ?? '0'}});

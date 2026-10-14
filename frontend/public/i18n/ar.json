@@ -3366,6 +3366,7 @@
       "OPTIMISATION_PROPOSITION": "اقتراح جدول للمراجعة",
       "REPLANIFICATION_NOCTURNE": "حصيلة إعادة الجدولة الليلية",
       "GENERATEUR_INDISPONIBLE": "مولّد غير متاح",
+      "REFORME_PROPOSEE": "إخراج جهاز من الخدمة قيد المراجعة",
       "SEANCES_DEPLACEES": "تم تعديل الجدول",
       "PATIENT_REPLACE_ISOLEMENT": "تم نقل المريض إلى العزل",
       "ISOLEMENT_IMPOSSIBLE": "العزل غير ممكن: يجب إعادة جدولة المريض",
@@ -3407,6 +3408,7 @@
     "INFIRMIER_SUREFFECTIF": "فائض في الممرضين: {{count}} فترة(فترات) معنية اعتباراً من {{date}}، {{vacations}} مناوبة(مناوبات) زائدة، أي {{heures}} ساعة مدفوعة دون نشاط مفيد",
     "INFIRMIER_ABSENCE_ENREGISTREE": "تم تسجيل غياب {{infirmier}} من {{debut}} إلى {{fin}}: استبدال يجب تنظيمه",
     "GENERATEUR_INDISPONIBLE": "المولّد {{generateur}} غير متاح ({{statut}}): {{count}} مريض(ا) يجب نقلهم {{patients}}",
+    "REFORME_PROPOSEE": "الجهاز {{code}}: تبيّن عند إغلاق تدخل أنه «للإخراج من الخدمة». لا يتم أي قرار تلقائياً: راجع بطاقة الجهاز.",
     "SEANCES_DEPLACEES": "تم تعديل الجدول: نقل {{patients}} مريض(ا)، و{{temporaires}} حصة(حصص) مؤقتاً",
     "OBSERVANCE_NON_RESPECTEE": {
       "DOSE_RETARD_CONSTATE": "تأخر مؤكَّد في {{traitement}} من {{debut}} إلى {{fin}}: أُعطي {{administre}} {{unite}} من أصل {{attendu}} موصوفة (ينقص {{manque}} {{unite}})",
@@ -3418,6 +3420,7 @@
       "ANEMIE": "عرض متابعة فقر الدم",
       "PROPOSITION": "فتح الاقتراح",
       "MAINTENANCE": "اقتراح عمليات نقل",
+      "FICHE_EQUIPEMENT": "فتح بطاقة الجهاز",
       "COUVERTURE": "البحث عن بدلاء",
       "ROULEMENT": "مراجعة الجدول الدوري",
       "OPTIMISATION": "فتح التحسين",
@@ -4130,6 +4133,17 @@
       "MODIFIEE": "آخر تعديل",
       "INCONNU": "مستخدم غير معروف"
     },
+    "TACHES": {
+      "TITLE": "المهام",
+      "DESCRIPTION": "وصف المهمة",
+      "ADD": "إضافة المهمة",
+      "NONE": "لا توجد مهام",
+      "START": "بدء",
+      "FINISH": "إنهاء",
+      "STATUT_A_FAIRE": "للإنجاز",
+      "STATUT_EN_COURS": "قيد التنفيذ",
+      "STATUT_COMPLETEE": "منجزة"
+    },
     "DOCUMENTS": {
       "TITLE": "المرفقات",
       "TYPE": "نوع الوثيقة",
@@ -4140,6 +4154,7 @@
       "ADD": "إضافة وثيقة",
       "HINT": "PDF أو PNG أو JPEG — 5 ميغابايت كحد أقصى للملف.",
       "NONE": "لا توجد مرفقات",
+      "CLOSED": "التدخل مغلق: لا يمكن إضافة المرفقات أو حذفها.",
       "DOWNLOAD": "تنزيل",
       "KO": "ك.ب",
       "UPLOAD_ERROR": "تم رفض الوثيقة: الصيغة (PDF وPNG وJPEG) أو الحجم (5 ميغابايت) أو العدد الأقصى",

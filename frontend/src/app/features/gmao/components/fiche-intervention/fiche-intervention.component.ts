@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 import {TranslateService} from '@ngx-translate/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {openPdf} from '../../../stock/inventaire/inventaire.util';
@@ -23,6 +24,7 @@ import {
   GmaoApiService,
   Intervention,
   LigneCout,
+  TacheIntervention,
   TypeDocumentIntervention,
   TypeLigneCout,
 } from '../../../../core/api/gmao-api.service';
@@ -31,7 +33,11 @@ import {
   dureeMinutes,
   browserTimeZone,
   prioriteTone,
-  ROLE_GMAO_RECTIFICATION,
+  detailRefus,
+  peutAjouterTache,
+  peutAvancerTache,
+  peutRectifier,
+  piecesJointesModifiables,
   statutEquipementTone,
   statutInterventionTone,
   TYPES_DOCUMENT_INTERVENTION,
@@ -63,7 +69,7 @@ const TYPES_LIGNE: TypeLigneCout[] = ['PIECE', 'MAIN_OEUVRE', 'INTERVENANT', 'AU
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressBarModule, MatTableModule,
-    MatSelectModule, MatFormFieldModule, TranslateModule,
+    MatSelectModule, MatFormFieldModule, MatInputModule, TranslateModule,
   ],
   templateUrl: './fiche-intervention.component.html',
   styleUrls: ['./fiche-intervention.component.css', '../../gmao-shared.css'],
@@ -72,6 +78,8 @@ export class GmaoFicheInterventionComponent {
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
+  /** Message du backend (`detail`) pour un refus métier 400/422 ; prioritaire sur le message générique `error`. */
+  protected readonly errorDetail = signal<string | null>(null);
   protected readonly intervention = signal<Intervention | null>(null);
   protected readonly equipement = signal<Equipement | null>(null);
   protected readonly columns = ['type', 'libelle', 'quantite', 'prixUnitaire', 'montant', 'actions'];
@@ -117,9 +125,18 @@ export class GmaoFicheInterventionComponent {
   protected readonly canSaisirMainOeuvre = computed(() => this.canAddCost() && !this.intervenantExterne());
   private readonly auth = inject(AuthStore);
   private readonly api = inject(GmaoApiService);
-  /** Rectification : réservée au droit particulier GMAO_RECTIFICATION, uniquement sur une intervention terminée. */
+  /** Rectification : ADMIN et droit GMAO_RECTIFICATION (sinon 403), uniquement sur une intervention terminée. */
   protected readonly canRectify = computed(() =>
-    this.intervention()?.statut === 'TERMINEE' && this.auth.hasRole(ROLE_GMAO_RECTIFICATION));
+    this.intervention()?.statut === 'TERMINEE' && peutRectifier((r) => this.auth.hasRole(r)));
+  /** Tâches : commandes réservées aux ADMIN, comme les autres commandes d'intervention. */
+  protected readonly taches = computed(() => this.intervention()?.taches ?? []);
+  protected readonly canAddTache = computed(() =>
+    this.auth.hasRole('ADMIN') && peutAjouterTache(this.intervention()?.statut));
+  protected readonly canAdvanceTache = computed(() =>
+    this.auth.hasRole('ADMIN') && peutAvancerTache(this.intervention()?.statut));
+  protected readonly nouvelleTache = signal('');
+  /** Pièces jointes : ajout et retrait fermés une fois l'intervention terminée ou annulée. */
+  protected readonly canEditDocuments = computed(() => piecesJointesModifiables(this.intervention()?.statut));
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly intervenantsStore = inject(GmaoIntervenantsStore);
@@ -138,7 +155,7 @@ export class GmaoFicheInterventionComponent {
 
   protected reload(): void {
     this.loading.set(true);
-    this.error.set(null);
+    this.resetError();
     this.api.getIntervention(this.interventionId).subscribe({
       next: (intervention) => {
         this.intervention.set(intervention);
@@ -162,16 +179,16 @@ export class GmaoFicheInterventionComponent {
     input.value = '';
     if (!file) return;
     this.uploading.set(true);
-    this.error.set(null);
+    this.resetError();
     this.api.uploadDocumentIntervention(this.interventionId, file, this.typeDocument()).subscribe({
       next: () => {
         this.uploading.set(false);
         this.loadDocuments();
         this.reloadChronologie();
       },
-      error: () => {
+      error: (err) => {
         this.uploading.set(false);
-        this.error.set('GMAO.DOCUMENTS.UPLOAD_ERROR');
+        this.fail(err, 'GMAO.DOCUMENTS.UPLOAD_ERROR');
       },
     });
   }
@@ -204,9 +221,10 @@ export class GmaoFicheInterventionComponent {
     });
     ref.afterClosed().subscribe((confirmed) => {
       if (!confirmed) return;
+      this.resetError();
       this.api.deleteDocumentIntervention(this.interventionId, doc.id).subscribe({
         next: () => this.loadDocuments(),
-        error: () => this.error.set('GMAO.DOCUMENTS.DELETE_ERROR'),
+        error: (err) => this.fail(err, 'GMAO.DOCUMENTS.DELETE_ERROR'),
       });
     });
   }
@@ -277,20 +295,47 @@ export class GmaoFicheInterventionComponent {
   }
 
   /** Exécute une action qui renvoie l'intervention mise à jour, puis rafraîchit le suivi (ligne de temps, indicateurs). */
-  private run(action: Observable<Intervention>): void {
+  private run(action: Observable<Intervention>, afficherDetail = false, apres?: () => void): void {
     this.saving.set(true);
-    this.error.set(null);
+    this.resetError();
     action.subscribe({
       next: (updated) => {
+        apres?.();
         this.intervention.set(updated);
         this.saving.set(false);
         this.loadSuivi();
       },
-      error: () => {
-        this.error.set('GMAO.INTERVENTIONS.SAVE_ERROR');
+      error: (err) => {
+        if (afficherDetail) this.fail(err, 'GMAO.INTERVENTIONS.SAVE_ERROR');
+        else this.error.set('GMAO.INTERVENTIONS.SAVE_ERROR');
         this.saving.set(false);
       },
     });
+  }
+
+  protected ajouterTache(): void {
+    const description = this.nouvelleTache().trim();
+    if (!description) return;
+    this.run(this.api.ajouterTache(this.interventionId, description), true, () => this.nouvelleTache.set(''));
+  }
+
+  protected demarrerTache(tache: TacheIntervention): void {
+    this.run(this.api.demarrerTache(this.interventionId, tache.id), true);
+  }
+
+  protected acheverTache(tache: TacheIntervention): void {
+    this.run(this.api.acheverTache(this.interventionId, tache.id), true);
+  }
+
+  private resetError(): void {
+    this.error.set(null);
+    this.errorDetail.set(null);
+  }
+
+  /** Refus métier (400/422) : le `detail` du backend ; sinon le message générique de repli. */
+  private fail(err: unknown, fallbackKey: string): void {
+    this.error.set(fallbackKey);
+    this.errorDetail.set(detailRefus(err));
   }
 
   protected addLigneCout(data?: LigneCoutDialogData): void {

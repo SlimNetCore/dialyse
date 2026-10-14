@@ -23,6 +23,7 @@ const TYPES = [
   'INFIRMIER_SOUS_EFFECTIF', 'INFIRMIER_SUREFFECTIF', 'OPTIMISATION_PROPOSITION', 'GENERATEUR_INDISPONIBLE',
   'SEANCES_DEPLACEES', 'PATIENT_REPLACE_ISOLEMENT', 'ISOLEMENT_IMPOSSIBLE', 'ABSENCES_A_QUALIFIER',
   'SEANCES_A_REGULARISER', 'STOCK_MOVEMENT_CHANGED', 'STOCK_INVENTORY_CHANGED', 'REPLANIFICATION_NOCTURNE',
+  'REFORME_PROPOSEE',
 ];
 
 /** Écrans ouverts à l'infirmier seul et au médecin seul (mêmes règles que `role-scope.guard`). */
@@ -138,6 +139,13 @@ describe('présentation des notifications', () => {
       icone: 'build_circle', actionRequise: true,
       action: {label: 'NOTIFICATION.ACTION.MAINTENANCE', queryParams: {perimetre: 'MAINTENANCE'}},
     });
+    const reforme = event('REFORME_PROPOSEE', {equipementId: 'e1', code: 'GEN-07', statut: 'A_REFORMER'});
+    expect(vue(reforme, 'ADMIN', 'GMAO_REFORME')).toMatchObject({
+      titre: 'NOTIFICATION.TITRE.REFORME_PROPOSEE', icone: 'recycling', actionRequise: true,
+      message: 'NOTIFICATION.REFORME_PROPOSEE {"code":"GEN-07"}',
+      action: {label: 'NOTIFICATION.ACTION.FICHE_EQUIPEMENT', commands: ['/gmao/equipements', 'e1']},
+    });
+    expect(vue(event('REFORME_PROPOSEE', {code: 'GEN-07'}), 'ADMIN').action.commands).toEqual(['/dashboard']);
     expect(vue(event('INFIRMIER_SUREFFECTIF', {
       nbCreneaux: '2', nbVacations: '3', heures: '15',
       premiereDate: '2026-10-08'

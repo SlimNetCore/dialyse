@@ -55,6 +55,18 @@ export interface LigneCout {
   automatique: boolean;
 }
 
+export type StatutTache = 'A_FAIRE' | 'EN_COURS' | 'COMPLETEE';
+
+/** Tâche d'une intervention (RG-GMA-029) ; jalons absents tant qu'ils n'ont pas eu lieu. */
+export interface TacheIntervention {
+  id: string;
+  description: string;
+  statut: StatutTache;
+  dateCreation: string;
+  dateDemarrage?: string | null;
+  dateAchevement?: string | null;
+}
+
 export interface Intervention {
   id: string;
   equipementId: string;
@@ -82,6 +94,8 @@ export interface Intervention {
   actions: string | null;
   pieceRemplacee: string | null;
   lignesCout: LigneCout[];
+  /** Absent de la réponse quand l'intervention n'a aucune tâche. */
+  taches?: TacheIntervention[];
   coutTotal: number;
   observations: string | null;
   dateCreation: string;
@@ -363,6 +377,18 @@ export class GmaoApiService {
 
   cancelIntervention(id: string, raison: string): Observable<Intervention> {
     return this.http.post<Intervention>(`${this.base}/interventions/${id}/annuler`, {raison});
+  }
+
+  ajouterTache(id: string, description: string): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/taches`, {description});
+  }
+
+  demarrerTache(id: string, tacheId: string): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/taches/${tacheId}/demarrer`, {});
+  }
+
+  acheverTache(id: string, tacheId: string): Observable<Intervention> {
+    return this.http.post<Intervention>(`${this.base}/interventions/${id}/taches/${tacheId}/achever`, {});
   }
 
   ajouterLigneCout(id: string, payload: AjouterLigneCoutPayload): Observable<Intervention> {

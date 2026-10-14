@@ -54,7 +54,7 @@
     <mat-progress-bar mode="indeterminate"/>
   }
   @if (error()) {
-    <p class="gmao-feedback error">{{ error()! | translate }}</p>
+    <p class="gmao-feedback error" data-testid="fiche-error">{{ errorDetail() || (error()! | translate) }}</p>
   }
 
   @if (intervention(); as i) {
@@ -190,8 +190,61 @@
       </ol>
     </div>
 
+    @if (taches().length > 0 || canAddTache()) {
+      <div class="gmao-stat-section" data-testid="fiche-taches">
+        <h2 class="gmao-stat-title">{{ 'GMAO.TACHES.TITLE' | translate }}</h2>
+        @if (canAddTache()) {
+          <div class="gmao-doc-upload">
+            <mat-form-field appearance="outline" class="gmao-doc-type">
+              <mat-label>{{ 'GMAO.TACHES.DESCRIPTION' | translate }}</mat-label>
+              <input #tacheInput (input)="nouvelleTache.set(tacheInput.value)" (keydown.enter)="ajouterTache()"
+                     [value]="nouvelleTache()" data-testid="tache-description" matInput type="text"/>
+            </mat-form-field>
+            <button (click)="ajouterTache()" [disabled]="saving() || !nouvelleTache().trim()" data-testid="tache-add"
+                    mat-stroked-button type="button">
+              <mat-icon>add_task</mat-icon>
+              {{ 'GMAO.TACHES.ADD' | translate }}
+            </button>
+          </div>
+        }
+        @if (taches().length === 0) {
+          <p class="app-muted-note">{{ 'GMAO.TACHES.NONE' | translate }}</p>
+        } @else {
+          <ul class="gmao-doc-list">
+            @for (t of taches(); track t.id) {
+              <li class="gmao-fiche-row" data-testid="tache">
+                <span class="gmao-doc-name">
+                  {{ t.description }}
+                  <span [class]="t.statut === 'COMPLETEE' ? 'gmao-badge success' : t.statut === 'EN_COURS' ? 'gmao-badge info' : 'gmao-badge neutral'">
+                    {{ ('GMAO.TACHES.STATUT_' + t.statut) | translate }}
+                  </span>
+                </span>
+                <span class="gmao-doc-actions">
+                  @if (canAdvanceTache() && t.statut === 'A_FAIRE') {
+                    <button (click)="demarrerTache(t)" [disabled]="saving()" data-testid="tache-start" mat-stroked-button
+                            type="button">
+                      <mat-icon>play_arrow</mat-icon>
+                      {{ 'GMAO.TACHES.START' | translate }}
+                    </button>
+                  }
+                  @if (canAdvanceTache() && t.statut === 'EN_COURS') {
+                    <button (click)="acheverTache(t)" [disabled]="saving()" data-testid="tache-finish" mat-stroked-button
+                            type="button">
+                      <mat-icon>task_alt</mat-icon>
+                      {{ 'GMAO.TACHES.FINISH' | translate }}
+                    </button>
+                  }
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+
     <div class="gmao-stat-section" data-testid="fiche-documents">
       <h2 class="gmao-stat-title">{{ 'GMAO.DOCUMENTS.TITLE' | translate }}</h2>
+      @if (canEditDocuments()) {
       <div class="gmao-doc-upload">
         <mat-form-field appearance="outline" class="gmao-doc-type">
           <mat-label>{{ 'GMAO.DOCUMENTS.TYPE' | translate }}</mat-label>
@@ -209,6 +262,9 @@
         </button>
       </div>
       <p class="app-muted-note">{{ 'GMAO.DOCUMENTS.HINT' | translate }}</p>
+      } @else {
+        <p class="app-muted-note" data-testid="docs-closed">{{ 'GMAO.DOCUMENTS.CLOSED' | translate }}</p>
+      }
       @if (documents().length === 0) {
         <p class="app-muted-note">{{ 'GMAO.DOCUMENTS.NONE' | translate }}</p>
       } @else {
@@ -227,10 +283,12 @@
                         type="button">
                   <mat-icon>download</mat-icon>
                 </button>
-                <button (click)="remove(d)" [attr.aria-label]="'COMMON.DELETE' | translate" color="warn" mat-icon-button
-                        type="button">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                @if (canEditDocuments()) {
+                  <button (click)="remove(d)" [attr.aria-label]="'COMMON.DELETE' | translate" color="warn" mat-icon-button
+                          type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
               </span>
             </li>
           }

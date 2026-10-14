@@ -3500,6 +3500,7 @@
       "OPTIMISATION_PROPOSITION": "Proposition de planning à examiner",
       "REPLANIFICATION_NOCTURNE": "Bilan de la replanification nocturne",
       "GENERATEUR_INDISPONIBLE": "Générateur indisponible",
+      "REFORME_PROPOSEE": "Réforme d'équipement à examiner",
       "SEANCES_DEPLACEES": "Planning modifié",
       "PATIENT_REPLACE_ISOLEMENT": "Patient replacé en isolement",
       "ISOLEMENT_IMPOSSIBLE": "Isolement impossible : patient à replanifier",
@@ -3541,6 +3542,7 @@
     "INFIRMIER_SUREFFECTIF": "Sur-effectif d'infirmiers : {{count}} créneau(x) concerné(s) dès le {{date}}, {{vacations}} vacation(s) en trop, soit {{heures}} h payées sans activité utile",
     "INFIRMIER_ABSENCE_ENREGISTREE": "Absence de {{infirmier}} enregistrée du {{debut}} au {{fin}} : remplacement à organiser",
     "GENERATEUR_INDISPONIBLE": "Générateur {{generateur}} indisponible ({{statut}}) : {{count}} patient(s) à déplacer {{patients}}",
+    "REFORME_PROPOSEE": "Équipement {{code}} : état constaté « à réformer » à la clôture d'une intervention. Aucune réforme n'est décidée automatiquement : consultez la fiche de l'équipement.",
     "SEANCES_DEPLACEES": "Planning modifié : {{patients}} patient(s) déplacé(s), {{temporaires}} séance(s) déplacée(s) temporairement",
     "OBSERVANCE_NON_RESPECTEE": {
       "DOSE_RETARD_CONSTATE": "Retard constaté sur {{traitement}} du {{debut}} au {{fin}} : {{administre}} {{unite}} administrés sur {{attendu}} prescrits (il manque {{manque}} {{unite}})",
@@ -3552,6 +3554,7 @@
       "ANEMIE": "Voir le suivi de l'anémie",
       "PROPOSITION": "Ouvrir la proposition",
       "MAINTENANCE": "Proposer des déplacements",
+      "FICHE_EQUIPEMENT": "Ouvrir la fiche de l'équipement",
       "COUVERTURE": "Chercher des remplaçants",
       "ROULEMENT": "Revoir le roulement",
       "OPTIMISATION": "Ouvrir l'optimisation",
@@ -4432,6 +4435,17 @@
       "MODIFIEE": "Dernière modification",
       "INCONNU": "Utilisateur inconnu"
     },
+    "TACHES": {
+      "TITLE": "Tâches",
+      "DESCRIPTION": "Description de la tâche",
+      "ADD": "Ajouter la tâche",
+      "NONE": "Aucune tâche",
+      "START": "Démarrer",
+      "FINISH": "Achever",
+      "STATUT_A_FAIRE": "À faire",
+      "STATUT_EN_COURS": "En cours",
+      "STATUT_COMPLETEE": "Achevée"
+    },
     "DOCUMENTS": {
       "TITLE": "Pièces jointes",
       "TYPE": "Nature du document",
@@ -4442,6 +4456,7 @@
       "ADD": "Ajouter un document",
       "HINT": "PDF, PNG ou JPEG — 5 Mo maximum par fichier.",
       "NONE": "Aucune pièce jointe",
+      "CLOSED": "Intervention close : les pièces jointes ne peuvent plus être ajoutées ni retirées.",
       "DOWNLOAD": "Télécharger",
       "KO": "Ko",
       "UPLOAD_ERROR": "Document refusé : format (PDF, PNG, JPEG), taille (5 Mo) ou nombre maximal dépassé",
