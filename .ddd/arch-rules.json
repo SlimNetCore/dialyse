@@ -1,0 +1,47 @@
+{
+  "_comment": "Règles hexagonales des nouveaux contextes (backend/contexts). Ordre des couches = priorité de correspondance (première qui matche). Java : 'interface' est un mot réservé => couche 'interfaces' ; 'published-language' => package 'publishedlanguage'. Voir .ddd/architecture/layout.md et ADR 0011-0016. Toute ouverture de règle exige un ADR.",
+  "layers": {
+    "legacy": ["backend/bc-*/**", "backend/platform/**", "backend/shared-kernel/**"],
+    "shared-kernel": ["backend/contexts/shared-kernel/**"],
+    "published-language": ["backend/contexts/**/publishedlanguage/**"],
+    "acl": ["backend/contexts/**/infrastructure/acl/**"],
+    "domain": ["backend/contexts/**/domain/**"],
+    "application": ["backend/contexts/**/application/**"],
+    "infrastructure": ["backend/contexts/**/infrastructure/**"],
+    "interfaces": ["backend/contexts/**/interfaces/**"],
+    "configuration": ["backend/contexts/**/configuration/**"]
+  },
+  "allow": {
+    "shared-kernel": ["shared-kernel"],
+    "published-language": ["published-language"],
+    "domain": ["domain", "shared-kernel"],
+    "application": ["domain", "application", "shared-kernel", "published-language"],
+    "infrastructure": ["domain", "application", "infrastructure", "shared-kernel", "published-language"],
+    "acl": ["domain", "application", "infrastructure", "acl", "shared-kernel", "published-language", "legacy"],
+    "interfaces": ["domain", "application", "interfaces", "shared-kernel", "published-language"],
+    "configuration": ["domain", "application", "infrastructure", "acl", "interfaces", "configuration", "shared-kernel", "published-language"]
+  },
+  "forbiddenExternalInLayer": {
+    "shared-kernel": ["org.springframework", "jakarta", "javax", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok"],
+    "published-language": ["org.springframework", "jakarta.persistence", "javax.persistence", "org.hibernate", "lombok"],
+    "domain": ["org.springframework", "jakarta", "javax", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok", "org.slf4j", "ai.timefold"],
+    "application": ["org.springframework", "jakarta.persistence", "javax.persistence", "jakarta.servlet", "org.hibernate", "tools.jackson", "com.fasterxml.jackson", "lombok"]
+  },
+  "contexts": {
+    "root": "backend/contexts",
+    "publicApi": ["backend/contexts/**/publishedlanguage/**", "backend/contexts/shared-kernel/**"]
+  },
+  "exclude": [
+    "backend/bc-*/**",
+    "backend/platform/**",
+    "backend/shared-kernel/**",
+    "frontend/**",
+    "tools/**",
+    "docs/**",
+    "infra/**",
+    ".claude/**",
+    ".ddd/**",
+    "**/node_modules/**",
+    "**/target/**"
+  ]
+}

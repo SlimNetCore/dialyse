@@ -1,0 +1,68 @@
+---
+status: proposed
+date: 2026-10-12
+slice: gmao-g4-interventions
+sources: [.ddd/migration/slices/gmao-g4-interventions.md (note ADR 0024 : Strangler abandonné, refonte sur place), ADR 0019/0024, gmao-g1-plans-maintenance.md, gmao-g2-intervenants.md, gmao-g3-cycle-vie-equipement.md, .ddd/research/mutation-testing-pit.md]
+---
+# Filet de caractérisation — G4 interventions de maintenance (refonte sur place)
+
+## Périmètre : ce qui est G4, ce qui reste G6
+| Élément | Appartient à | Verrouillé ici ? |
+|---|---|---|
+| `InterventionRestController` (9 routes : POST, GET liste, GET `/{id}`, `/demarrer`, `/terminer`, POST/DELETE `/lignes-cout`, `/rectifier`, `/annuler`) | **G4** | oui (écritures et lectures `/{id}` + liste, qui portent tâches/lignes/rectifications) |
+| `Intervention`, `LigneCoutIntervention`, `RectificationIntervention`, `EvenementIntervention`, `TacheIntervention`/`StatutTache`, statuts/types/priorité, `InterventionRepositoryPort` + adaptateur, entités et dépôts JPA (`gmao_interventions`, `gmao_lignes_cout_intervention`, `gmao_rectifications_intervention`) | **G4** | oui (voir `covered.json`) |
+| Valorisation automatique, lignes manuelles/automatiques, état constaté avant/après via `InterventionEquipementStatutService` → `EtatEquipementPort` (G3), alerte générateur et cache (G3) | **G4** (appelle G3) | oui, observés côté intervention **et** côté équipement |
+| **Tâches (ajouter / démarrer / achever)** | **inexistantes dans le legacy** : aucune route, aucune table, absentes de la réponse (`TacheIntervention` n'est qu'un objet de domaine mort, KB-GMAO-55) | « aucune route » verrouillé par `taches_aucune_route` ; la fonctionnalité de la fiche est une **création**, pas une reproduction |
+| `InterventionSuiviRestController` (`/bon` PDF, `/indicateurs`, `/chronologie`), `InterventionSuiviQueryService`, `IndicateursIntervention`, `BonInterventionReportService`, `InterventionDocumentRestController` (pièces jointes) | **G6** (lectures/rapports) | **non** ; seule la `/chronologie` est lue une fois (trace d'une rectification) et une fois pour une annulée, hors évènement `MODIFIEE` |
+| `EquipementFicheRestController`, `GmaoStatsRestController`, `DirectionGmaoQueryService` (coûts, dashboard direction, clôture mensuelle) | **G6** / direction | **non verrouillés** ; observés seulement comme consommateurs : fiche (`coutMaintenancePeriode` = en cours + terminées, planifiée/annulée exclues) et stats (compteurs par statut, retards) |
+| Notification de proposition de réforme (P2) | n'existe pas (KB-GMAO-57) | absence verrouillée |
+
+## Point d'observation et harnais
+HTTP via MockMvc sur le contexte Spring complet (`@SpringBootTest` MOCK, profil `test`, Spring Security réelle, JPA réel sur **H2**), `/api/v1/gmao/interventions`, plus lectures hors contrôleur : tables `gmao_interventions`, `gmao_lignes_cout_intervention`, `gmao_rectifications_intervention`, `gmao_equipements`, `gmao_equipement_statut_historique`, `notification_evenement` (alerte durable), `CacheManager` (`ref.generateurs`). Harnais G3 réutilisé : `GoldenMaster`, scrubber UUID -> alias, instants -> `<HORLOGE>`, attente Awaitility sur `event_publication` après chaque requête (écouteurs Modulith asynchrones : alerte, cache). Aucun mock du code caractérisé, **aucun seam**, aucun fichier de production modifié. Intervenants et équipements semés par SQL (indépendants des ports legacy).
+- Tests : `backend/platform/src/test/java/com/hemodialyse/backend/characterization/gmao/interventions/` : `InterventionCharacterizationSupport` (harnais), `InterventionCycleDeVieCharacterizationIntegrationTest` (38), `InterventionArgentCharacterizationIntegrationTest` (23), `InterventionAutorisationsCharacterizationIntegrationTest` (7) = **68 tests**.
+- Goldens : `backend/platform/src/test/resources/characterization/gmao/interventions/*.approved.json` (77). Approuver : `-DargLine=-Dcharacterization.approve=true` (revue humaine du diff obligatoire).
+- Pas de Testcontainers : schéma Hibernate (pas Flyway).
+
+## Scénarios (68 tests)
+| Thème | Scénarios |
+|---|---|
+| Planifier (POST) | complète / minimale (priorité NORMALE) ; `enRetard` / `echeanceDepassee` ; champs statut/id/centre du corps ignorés ; date à décalage ; **matrice de validation** (~55 cas : type, description, dates, état avant par statut d'équipement, priorité, échéance, équipement inconnu/autre centre/réformé/supprimé, intervenant inconnu/autre centre/désactivé, corps illisible/absent) ; symptôme rogné/blanc ; description non rognée ; équipement jamais touché |
+| Lire / lister | GET `/{id}` (planifiée, inconnue/autre centre 404, id invalide, supprimé logique) ; liste : centre, tri, supprimés exclus, filtre statut (casse, inconnu, vide), `equipementId` (ignore `statut`, autre centre, non UUID), pagination (hors limites, `size=0`, `page=-1`, `size=abc`, `size=100000`) |
+| Démarrer | état avant posé sur l'équipement + journal + alerte + cache ; même état : rien ; station d'eau : pas d'alerte ; **matrice 7 statuts d'équipement** ; équipement réformé : 422 et intervention reste planifiée ; deux fois, inconnue, autre centre, id invalide |
+| Terminer | nominal (journal, cause rognée, clôture) ; **matrice de validation** (actions, état après x 7 statuts, dates, durée nulle, cause blanche, corps) ; **matrice état avant x état après** (4x4 : statut, journal, alerte) ; proposition de réforme (`A_REFORMER`, pas de notification dédiée) ; équipement réformé entre-temps : 422, rien enregistré |
+| Annuler | planifiée, **en cours (équipement non remis en service)**, déjà annulée (raisons cumulées), terminée 422, raison vide/absente, inconnue, en attente de validation |
+| Transitions | **matrice 5 statuts x 6 commandes** (demarrer, terminer, annuler, ajouter ligne, supprimer ligne, rectifier) |
+| Argent : valorisation | interne (MAIN_OEUVRE) / externe (INTERVENANT) ; **arrondi sur 24 durées** (1 à 6000 min) ; **troncature des secondes** (0 à 3600 s) ; sans intervenant / sans tarif / tarif 0 / négatif en base / autre centre / désactivé / supprimé ; **tarif et nature lus à la clôture** (KB-10, aucun snapshot) ; **pas de double comptage** (7 combinaisons nature x ligne manuelle) |
+| Argent : lignes manuelles | ajout (avec article de stock opaque), cumul, total ; **matrice de validation** (~30 cas : types, libellé 255/256, quantité 0/négative/0,0005/1,2345/10^9/10^10, prix 0/négatif/12,345/10^10, article non UUID/inexistant, corps) ; réponse vs relecture (échelles) ; MAIN_OEUVRE selon l'intervenant ; ajout après clôture ; suppression (ouverte, autre intervention, inconnue, id invalide, terminée, annulée, ligne automatique d'une rouverte) |
+| Rectification | nominal (lignes automatiques retirées, manuelles gardées, clôture annulée tracée en base, équipement intact) ; nouvelle date de début ; re-clôture au tarif courant ; deux rectifications (+ chronologie : numéro de clôture = rectifications + 1) ; main d'oeuvre manuelle après rectification ; autre état après ; **matrice de validation** ; annulation d'une rectifiée |
+| Consommateurs de coûts | fiche équipement (période : en cours + terminées) ; stats GMAO (compteurs, retards) |
+| Retard / chronologie | `enRetard` / `echeanceDepassee` : **matrice 5 statuts x 3 échéances** ; chronologie d'une annulée |
+| Autorisations / centre | 9 routes : non-ADMIN 403, anonyme 403 vide ; **rectifier : ADMIN sans habilitation 403 ; habilitation seule 200 sur le legacy, 403 sur le nouveau code (KB-52, écart décidé le 2026-10-12, golden `rectifier_habilitation_seule_sans_admin_nouveau_code`)**, technicien, anonyme ; isolation de centre sur 10 commandes ; id inconnus/illisibles sur 7 routes ; corps non JSON / XML / tableau / `null` sur 5 routes |
+| Tâches | 4 routes de tâches : 500 (inexistantes) ; réponse sans `taches` ; aucune table de tâches |
+
+## Tests existants non modifiés et ce qu'ils couvrent déjà
+- `bc-gmao/.../InterventionTest` (23) : domaine pur (cycle, états avant/après, valorisation unitaire, idempotence, rectification, suppression de ligne, retard, chronologie) ; `LigneCoutInterventionTest` (4) : montant et validations ; `InterventionCostQueriesIntegrationTest` (7) : requêtes de somme par statut/centre/période, retards, aller-retour de persistance (suivi, rectification, lignes automatiques), documents ; `InterventionRestControllerTest` (15, modifié par G3) : contrôleur avec ports simulés. Ils décrivent l'intention, pas le contrat HTTP : le filet G4 est la référence de parité.
+
+## Non-déterminisme
+`UUID.randomUUID()` -> alias ; `now()` (`dateCreation`, `dateModification`, `at`) -> `<HORLOGE>` ; **la durée valorisée vient des dates du client** (aucune horloge dans l'argent) ; `enRetard` rendu déterministe par des dates fixes (2026-03 / 2099) ; ordre de lecture des lignes de coût non garanti -> tri canonique ; tri de la liste fixé par `date_creation` posée en base ; évènement `MODIFIEE` de la chronologie écarté (KB-GMAO-50) ; ids `99996400-…`. **Aucun seam** (voir `seams.md`).
+
+## Mesures
+- Suite : 68/68 ; **3 exécutions vertes consécutives en ordre aléatoire** (`-Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$Random`, exécutées sur les 68 tests), 0 flaky ; aucun `*.received.json` résiduel.
+- PIT 1.30.0 (+ junit5-plugin 1.2.3, script `backend/scripts/pit-g4-intervention.sh`) sur `Intervention.java` : **121 mutants, 90 tués (74 %)**, force des tests 78 % (90/115 couverts), couverture de lignes 206/220 (94 %), 6 sans couverture. Cible >= 70 % atteinte. Rapport : `backend/platform/target/pit-reports-g4/`. Les 31 non tués sont, par ligne : 74, 203, 243, 541 (surcharges/code mort non appelés par HTTP : `creer` 8 arguments, `terminer` 4 arguments, `ajouterTache`, `getTaches`) ; 101-105, 214, 220, 298, 349 (gardes de nullité/blancs du domaine masquées par Bean Validation en amont) ; 172, 340, 341 (reconstruction depuis la persistance avec liste nulle) ; 273, 274, 277, 280, 282, 286 (`appliquerTarifIntervenant` : valeur de retour booléenne non lue, doubles gardes équivalentes `minutes <= 0` / `heures.signum() <= 0`, garde de statut redondante après `terminer`) ; 417 (évènement `MODIFIEE` de la chronologie, dépend de la résolution de l'horloge, KB-GMAO-50). Aucun survivant ne porte sur une règle d'argent atteignable par HTTP ; ils ne deviennent mutables que par des tests unitaires du domaine (à écrire dans la refonte).
+- Couverture de branches par outil : non mesurée (pas de JaCoCo configuré) ; couverture de lignes PIT sur `Intervention.java` ci-dessus.
+
+## Limites : ce qui N'EST PAS verrouillé
+- **PostgreSQL réel** : échelles NUMERIC (quantité 3, prix 2), longueurs, contraintes, FK, colonnes réellement présentes en prod (`automatique`, colonnes V7/V8 créées par `ddl-auto` ?). Rejeu PG16 non adapté ici.
+- **Atomicité démarrage/clôture** : équipement (+ journal) enregistré avant l'intervention (KB-GMAO-56) ; aucune injection de panne sans seam. Échec de l'alerte (G3).
+- **Concurrence** (deux techniciens sur une intervention : dernier gagnant), performances, en-têtes, ordre JSON hors golden, texte des messages 500 et des messages Spring.
+- **Horodatages absolus** (`clotureLe`, `dateModification`, instants des rectifications) et évènement `MODIFIEE` de la chronologie ; `enRetard` au voisinage exact de `now`.
+- **Lecteurs de `gmao_interventions*` non rejoués** : `DirectionGmaoQueryService` (coûts du dashboard, clôture mensuelle), `OptimisationDonneesJdbcAdapter`, `InterventionSuiviQueryService`/`IndicateursIntervention`, `BonInterventionReportService` (bon PDF), `InterventionDocumentRestController`, `EquipementFicheRestController` (hors coûts), `GmaoStatsRestController` (un seul scénario) : à rejouer par G6 ou un test de lecteurs avant tout changement de schéma. `sumCoutParEquipement` et `sumCoutByCentre…` ne sont rejoués que par `InterventionCostQueriesIntegrationTest`.
+- **Mutants survivants du domaine** (voir mesure) : gardes de nullité masquées par Bean Validation en amont, surcharges non appelées par HTTP (`creer` 8 arguments, `terminer` 4 arguments), `ajouterTache`/`getTaches`/`definirPieceRemplacee` (code mort), valeur de retour booléenne de `appliquerTarifIntervenant` (non lue), doubles gardes équivalentes (`minutes <= 0` / `heures.signum() <= 0`).
+- **`TacheIntervention` et `StatutTache`** sont dans `covered.json` à titre de code mort : le seul scénario qui les concerne est l'absence de route/table (`taches_aucune_route`) ; leur suppression ne change aucun comportement observable.
+- Fichiers non protégés volontairement : `InterventionSuiviRestController`, `InterventionSuiviQueryService`, `IndicateursIntervention`, `BonIntervention*`, `DocumentIntervention*`, `InterventionDocumentRestController` (G6).
+
+## Bugs connus
+`.ddd/safety-net/known-bugs.md`, section G4 : KB-GMAO-42 à KB-GMAO-57 (intervenant non contrôlé, durée tronquée, échelles des montants, lignes manuelles, absence de snapshot KB-10, double comptage, KB-02/03 confirmés, horodatages, rectification, habilitation seule, statuts HTTP, liste, tâches mortes, atomicité, P2 inexistante).
+
+## Lancer
+Depuis `backend/` : `./mvnw -o -pl platform -am test -Dtest='Intervention*CharacterizationIntegrationTest' -Dsurefire.failIfNoSpecifiedTests=false` (ordre aléatoire : ajouter `-DargLine='-Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$Random'`). Mutation : `./mvnw -o -q -pl platform -am test-compile`, `./mvnw -o -q -pl platform -am dependency:build-classpath -Dmdep.outputFile=<fichier>` puis `CPFILE=<fichier> bash backend/scripts/pit-g4-intervention.sh` (le script remplace aussi le jar `contexts-gmao` par `contexts/gmao/target/classes`, nécessaire depuis G3).

@@ -1,0 +1,22 @@
+{
+  "mode": "legacy",
+  "language": "java, typescript",
+  "framework": "Spring Boot 4 (Java 21), Angular 22",
+  "testFramework": "JUnit 5 + Mockito, Vitest + Playwright",
+  "docsLanguage": "fr",
+  "legacyPaths": [
+    "backend/**/src/main/java/**"
+  ],
+  "newCodeRoot": "backend/contexts",
+  "scan": {
+    "depth": 2,
+    "since": "2 years ago",
+    "exclude": [
+      "frontend/**",
+      ".github/**",
+      "tools/**",
+      "docs/**",
+      "infra/**"
+    ]
+  }
+}

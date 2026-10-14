@@ -1,0 +1,30 @@
+{
+  "mode": "legacy",
+  "phases": {
+    "init": "done",
+    "scan": "done",
+    "discover": "done",
+    "strategic": "done",
+    "tactical": "in-progress",
+    "architecture": "done",
+    "plan": "done",
+    "slices": "pending",
+    "verify": "pending"
+  },
+  "gates": {
+    "strategic": "approved",
+    "tactical": "approved",
+    "plan": "approved"
+  },
+  "slices": {
+    "gmao-g1-plans-maintenance": "built",
+    "gmao-g2-intervenants": "built",
+    "gmao-g3-cycle-vie-equipement": "built",
+    "gmao-g4-interventions": "built",
+    "gmao-g5-pieces-jointes": "built",
+    "gmao-g6-consultation-pilotage": "built"
+  },
+  "contexts": {
+    "gmao": "architected"
+  }
+}
