@@ -21,7 +21,7 @@
   temps réel, **enregistrées** dans le journal du centre (`INFIRMIER_SOUS_EFFECTIF`, `INFIRMIER_ABSENCE_DECLAREE`,
   `INFIRMIER_ABSENCE_ENREGISTREE`, `OPTIMISATION_PROPOSITION`, `ABSENCES_A_QUALIFIER`, `SEANCES_A_REGULARISER`,
   `PATIENT_REPLACE_ISOLEMENT`, `ISOLEMENT_IMPOSSIBLE`, `GENERATEUR_INDISPONIBLE`, `SEANCES_DEPLACEES`,
-  `INFIRMIER_SUREFFECTIF`, `OBSERVANCE_NON_RESPECTEE`, `REPLANIFICATION_NOCTURNE`) ; les autres
+  `INFIRMIER_SUREFFECTIF`, `OBSERVANCE_NON_RESPECTEE`, `REPLANIFICATION_NOCTURNE`, `REFORME_PROPOSEE`) ; les autres
   évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50 alertes
   récentes (30 derniers jours) **destinées à ses rôles** dans **son centre** (`GET /api/v1/notifications`, paginé) : une
   proposition calculée à 02:30 est donc retrouvée même si personne n'était connecté. La **lecture est propre à chaque
@@ -109,6 +109,7 @@
 | `INFIRMIER_SUREFFECTIF`                      | infirmiers au-delà de l'effectif requis dans les 14 jours, salle sans patient comprise (contrôle de 07:15) | `ADMIN`                                             | RG-INF-047, RG-NOT-006 |
 | `INFIRMIER_ABSENCE_ENREGISTREE`              | une absence d'infirmier est enregistrée (secrétariat ou administrateur)                                    | `MEDECIN`, + `ADMIN` si saisie par le secrétariat   | RG-NOT-006             |
 | `GENERATEUR_INDISPONIBLE`                    | un générateur en service passe en maintenance, attente de pièce, panne ou réforme                          | `ADMIN`, `SECRETAIRE`                               | RG-NOT-006             |
+| `REFORME_PROPOSEE`                           | un équipement est constaté « à réformer » à la clôture d'une intervention (à valider par le métier)           | détenteurs de `GMAO_REFORME` du centre              | RG-GMA-065             |
 | `SEANCES_DEPLACEES`                          | une proposition d'optimisation appliquée déplace des patients ou des séances                               | `MEDECIN`, `SECRETAIRE`                             | RG-NOT-006             |
 | `OPTIMISATION_PROPOSITION`                   | proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)                        | `ADMIN`                                             | RG-PLN-100             |
 | `REPLANIFICATION_NOCTURNE`                   | bilan de chaque replanification nocturne : propositions à examiner, rien à proposer, échec ou report       | `ADMIN`                                             | RG-PLN-100             |

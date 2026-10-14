@@ -22,19 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-    <div class="meta">Version 1.0 · 2026-10-09<br>530 règles de gestion · 16 domaines · 408 codes d'erreur métier</div>
-</div>
+<div class="meta">Version 1.0 · 2026-10-14<br>533 règles de gestion · 16 domaines · 409 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-    <div class="stat">
-        <div><b>530</b>règles de gestion</div>
-        <div><b>16</b>domaines</div>
-        <div><b>15</b>surveillances automatiques</div>
-        <div><b>9</b>points d'attention</div>
-    </div>
+<div class="stat"><div><b>533</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>9</b>points d'attention</div></div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -367,11 +361,8 @@ désactivation exige un
 code valide. <em>Source :</em> <code>MfaService</code>.</p>
 </div></div>
 <h2>2.5 Périmètres restreints de rôles (appliqués côté serveur et dans les menus)</h2>
-    <div class="rule" id="RG-SEC-020">
-        <div class="rid">RG-SEC-020</div>
-        <div class="rtxt"><p><code>SUPERADMIN</code> : accès limité aux sociétés (<code>/societes</code>), licences
-            (<code>/licenses</code>), journal d&#39;audit
-            (<code>/audit</code>) et performance de la base (<code>/supervision</code>, RG-SEC-060) ;
+<div class="rule" id="RG-SEC-020"><div class="rid">RG-SEC-020</div><div class="rtxt"><p><code>SUPERADMIN</code> : accès limité aux sociétés (<code>/societes</code>), licences (<code>/licenses</code>), journal d&#39;audit
+(<code>/audit</code>) et performance de la base (<code>/supervision</code>, RG-SEC-060) ;
 tout autre route <code>/api/v1/**</code> répond 403 <code>ROLE_SCOPE</code>. <em>Source :</em> <code>RoleScopeFilter</code>.</p>
 </div></div>
 <div class="rule" id="RG-SEC-021"><div class="rid">RG-SEC-021</div><div class="rtxt"><p><code>DIRECTION</code> : accès limité à <code>/api/v1/direction/**</code>, en <strong>lecture seule</strong>, sur des agrégats
@@ -390,8 +381,8 @@ planning du jour, au tableau de bord des séances et au suivi des absences de pa
 <code>facturation</code>, <code>reglements</code>, <code>comptabilite</code> et <code>gmao</code> interdites, sauf la lecture du planning de la semaine
 (<code>/planning/semaine</code>) et de la présence des infirmiers (<code>/infirmiers/presence/semaine</code>). Il consulte patients (fiche
 en
-    lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences et, comme accueil
-    (<code>/medecin</code>), <strong>exactement le planning des séances</strong> (vues semaine et jour, RG-PLN-103).
+lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences et, comme accueil
+(<code>/medecin</code>), <strong>exactement le planning des séances</strong> (vues semaine et jour, RG-PLN-103).
 <em>Source :</em> idem.</p>
 </div></div>
 <div class="rule" id="RG-SEC-024"><div class="rid">RG-SEC-024</div><div class="rtxt"><p>Les écrans interdits à un profil restreint le redirigent vers son accueil (<code>/infirmiers/moi</code>,
@@ -472,24 +463,16 @@ compte <code>DIRECTION</code> rattaché à cette société, revalidé en base. <
 type MIME
 imposé, politique de référent stricte ; CORS limité aux origines configurées, avec cookies. Routes publiques :
 connexion,
-    déconnexion, rafraîchissement, annuaires de sociétés/centres, installation initiale, ping système, actuator health
-    et WebSocket ; tout le reste exige une authentification. La documentation d&#39;API (Swagger) et la console H2 ne
-    sont
-    publiques qu&#39;en développement local (<code>app.dev-tools.enabled</code>) : en <strong>production</strong> elles
-    sont fermées (RG-SEC-042).
-    <em>Source :</em> <code>SecurityConfig</code>.</p>
-</div>
-</div>
-    <div class="rule" id="RG-SEC-042">
-        <div class="rid">RG-SEC-042</div>
-        <div class="rtxt"><p><strong>Profil de production</strong> (<code>prod</code>). Il verrouille le schéma (Flyway
-            seul, Hibernate en
-            <code>validate</code>, pas de <code>schema.sql</code> ni de données de démonstration), ferme Swagger et la
-            console H2, et n&#39;exécute jamais
-            l&#39;initialisation des comptes de démonstration. Le démarrage est <strong>refusé</strong> si le secret JWT
-            est absent, égal à la
-            valeur de développement ou de moins de 32 caractères, ou si la base est H2. <em>Source :</em> <code>application-prod.yml</code>,
-            <code>ProductionSafetyGuard</code>, <code>SeedPasswordInitializer</code>.</p>
+déconnexion, rafraîchissement, annuaires de sociétés/centres, installation initiale, ping système, actuator health
+et WebSocket ; tout le reste exige une authentification. La documentation d&#39;API (Swagger) et la console H2 ne sont
+publiques qu&#39;en développement local (<code>app.dev-tools.enabled</code>) : en <strong>production</strong> elles sont fermées (RG-SEC-042).
+<em>Source :</em> <code>SecurityConfig</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEC-042"><div class="rid">RG-SEC-042</div><div class="rtxt"><p><strong>Profil de production</strong> (<code>prod</code>). Il verrouille le schéma (Flyway seul, Hibernate en
+<code>validate</code>, pas de <code>schema.sql</code> ni de données de démonstration), ferme Swagger et la console H2, et n&#39;exécute jamais
+l&#39;initialisation des comptes de démonstration. Le démarrage est <strong>refusé</strong> si le secret JWT est absent, égal à la
+valeur de développement ou de moins de 32 caractères, ou si la base est H2. <em>Source :</em> <code>application-prod.yml</code>,
+<code>ProductionSafetyGuard</code>, <code>SeedPasswordInitializer</code>.</p>
 </div></div>
 <h2>2.12 Journal d&#39;audit (« qui a fait quoi »)</h2>
 <div class="rule" id="RG-SEC-050"><div class="rid">RG-SEC-050</div><div class="rtxt"><p>Toute écriture (<code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>) sur <code>/api/v1/**</code> est tracée automatiquement
@@ -514,114 +497,56 @@ centre,
 société) et réservée à <code>ADMIN</code> (limité à son centre) et <code>SUPERADMIN</code> (toute la plateforme) ; jamais à la direction.
 <em>Sources :</em>
 <code>AuditRestController</code>, <code>AuditQueryService</code>.</p>
-</div>
-</div>
-    <h2>2.13 Performance de la base (propriétaire)</h2>
-    <div class="rule" id="RG-SEC-060">
-        <div class="rid">RG-SEC-060</div>
-        <div class="rtxt"><p><strong>Écran « Performance de la base »</strong>, réservé au <code>SUPERADMIN</code> (menu
-            propriétaire, route
-            <code>/admin/performance</code>) : classement paginé des requêtes SQL les plus coûteuses relevées par
-            PostgreSQL
-            (<code>pg_stat_statements</code>), triable par <strong>temps total</strong>, <strong>temps moyen</strong> ou
-            <strong>nombre d&#39;appels</strong> (temps total par défaut).
-            Chaque requête affiche son nombre d&#39;appels, son temps total, sa part du temps total de la base, son
-            temps moyen, son
-            temps maximal et le nombre de lignes. Ce sont des données techniques de toute la plateforme, hors périmètre
-            d&#39;un
-            centre : le texte des requêtes est normalisé (les valeurs sont remplacées par <code>$1</code>,
-            <code>$2</code>…) et ne contient aucune
-            donnée de patient. Aucun autre profil, y compris <code>ADMIN</code> et <code>DIRECTION</code>, n&#39;y
-            accède. <em>Sources :</em>
-            <code>SupervisionBaseRestController</code>, <code>SupervisionBaseService</code>, <code>PgStatStatementsAdapter</code>.
-        </p>
-        </div>
-    </div>
-    <div class="rule" id="RG-SEC-061">
-        <div class="rid">RG-SEC-061</div>
-        <div class="rtxt"><p><strong>Gravité d&#39;une requête</strong> : <code>CRITIQUE</code> si sa durée moyenne
-            atteint 500 ms ; <code>ATTENTION</code> si elle
-            atteint 100 ms ou si elle pèse au moins 20 % du temps total de la base ; sinon <code>NORMAL</code>. <em>Source
-                :</em> <code>NiveauRequete</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-SEC-062">
-        <div class="rid">RG-SEC-062</div>
-        <div class="rtxt"><p><strong>Mesure indisponible</strong> : en développement local (base H2), si l&#39;extension
-            n&#39;est pas installée
-            (migration Flyway V30 non appliquée) ou si le serveur PostgreSQL n&#39;a pas chargé
-            <code>pg_stat_statements</code>, l&#39;écran
-            l&#39;indique avec la raison (<code>BASE_NON_POSTGRESQL</code>, <code>EXTENSION_ABSENTE</code>, <code>PRELOAD_ABSENT</code>)
-            et ne liste rien. <em>Source :</em>
-            <code>PgStatStatementsAdapter.statut</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-SEC-063">
-        <div class="rid">RG-SEC-063</div>
-        <div class="rtxt"><p><strong>Remise à zéro des compteurs</strong>, après confirmation, pour mesurer l&#39;effet
-            d&#39;une optimisation sur
-            quelques jours ; tracée au journal d&#39;audit comme toute écriture (RG-SEC-050). Refusée si la mesure est
-            indisponible
-            (<code>SUPERVISION_INDISPONIBLE</code>) ou si PostgreSQL refuse l&#39;opération faute de droits
-            (<code>SUPERVISION_REINITIALISATION_IMPOSSIBLE</code>). <em>Source :</em> <code>SupervisionBaseService.reinitialiser</code>.
-        </p>
-        </div>
-    </div>
-    <div class="rule" id="RG-SEC-064">
-        <div class="rid">RG-SEC-064</div>
-        <div class="rtxt"><p><strong>Pistes d&#39;amélioration par requête.</strong> Chaque requête du classement porte
-            des conseils déduits de
-            son texte normalisé et de ses compteurs (ce sont des indices, à confirmer par l&#39;analyse) : trop de
-            lignes par appel
-            sans <code>LIMIT</code> (≥ 1 000), lente avec un filtre mais peu de lignes renvoyées (≥ 50 ms et &lt; 50
-            lignes : lecture complète
-            probable), <code>COUNT(*)</code> lent, tri ou jointure qui déborde sur disque, taux de cache sous 90 %,
-            écriture lente (≥ 50 ms),
-            appels très nombreux et rapides pesant au moins 10 % du total (schéma « N+1 », cache), <code>SELECT *</code>,
-            recherche
-            <code>LIKE</code>/<code>ILIKE</code>, fonction appliquée à la colonne filtrée, longue liste <code>IN</code>,
-            durée maximale très supérieure à la
-            moyenne. Les actions précèdent les informations. <em>Source :</em> <code>ConseilsRequete</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-SEC-065">
-        <div class="rid">RG-SEC-065</div>
-        <div class="rtxt"><p><strong>Analyse du plan d&#39;exécution</strong> (bouton « Analyser »). Le serveur relit le
-            texte de la requête à
-            partir de son identifiant mesuré — <strong>le client ne fournit jamais de SQL</strong> — et établit son plan
-            générique <strong>sans
-                l&#39;exécuter</strong> (<code>PREPARE</code> + <code>EXPLAIN</code> avec plan générique, transaction en
-            lecture seule limitée à 5 s, requête préparée
-            libérée). Seules les lectures à instruction unique sont analysées (sans écriture cachée dans un
-            <code>WITH</code>). Le résultat
-            liste les tables lues en entier et conclut : <code>INDEX_RECOMMANDE</code> (avec un ordre <code>CREATE
-                INDEX</code> à étudier : égalités
-            puis
-            première colonne de plage, trois colonnes au plus), <code>TABLE_PETITE</code> (moins de 1 000 lignes : lire
-            tout est plus
-            rapide),
-            <code>INDEX_PRESENT</code> (un index commence déjà par la première colonne filtrée : le plan générique peut
-            différer du réel) ou
-            <code>SANS_FILTRE</code> (lecture complète voulue). La suggestion est une piste à valider, jamais appliquée
-            automatiquement.
-            Requête absente des mesures : <code>SUPERVISION_REQUETE_INTROUVABLE</code>. <em>Sources :</em> <code>AnalyseurPlan</code>,
-            <code>PgPlanAdapter</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-SEC-066">
-        <div class="rid">RG-SEC-066</div>
-        <div class="rtxt"><p><strong>Santé de la base</strong> (onglet dédié, PostgreSQL uniquement) : taille, part des
-            lectures servies par
-            le cache, connexions utilisées sur le maximum, quinze plus grosses tables (taille, lignes, part de lignes
-            mortes,
-            lectures complètes et par index) et index jamais utilisés. Points d&#39;attention : cache sous 95 %
-            (critique sous 90 %),
-            connexions à 80 % du maximum, lignes mortes au moins 20 %, grande table lue en entier de façon répétée,
-            index
-            inutilisés. Chaque table est positionnée face aux seuils de l&#39;étude de partitionnement :
-            <code>A_ETUDIER</code> à 20 millions de
-            lignes ou 10 Go, <code>A_SURVEILLER</code> à la moitié. <em>Sources :</em> <code>DiagnosticSante</code>,
-            <code>PgSanteBaseAdapter</code>.</p>
+</div></div>
+<h2>2.13 Performance de la base (propriétaire)</h2>
+<div class="rule" id="RG-SEC-060"><div class="rid">RG-SEC-060</div><div class="rtxt"><p><strong>Écran « Performance de la base »</strong>, réservé au <code>SUPERADMIN</code> (menu propriétaire, route
+<code>/admin/performance</code>) : classement paginé des requêtes SQL les plus coûteuses relevées par PostgreSQL
+(<code>pg_stat_statements</code>), triable par <strong>temps total</strong>, <strong>temps moyen</strong> ou <strong>nombre d&#39;appels</strong> (temps total par défaut).
+Chaque requête affiche son nombre d&#39;appels, son temps total, sa part du temps total de la base, son temps moyen, son
+temps maximal et le nombre de lignes. Ce sont des données techniques de toute la plateforme, hors périmètre d&#39;un
+centre : le texte des requêtes est normalisé (les valeurs sont remplacées par <code>$1</code>, <code>$2</code>…) et ne contient aucune
+donnée de patient. Aucun autre profil, y compris <code>ADMIN</code> et <code>DIRECTION</code>, n&#39;y accède. <em>Sources :</em>
+<code>SupervisionBaseRestController</code>, <code>SupervisionBaseService</code>, <code>PgStatStatementsAdapter</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEC-061"><div class="rid">RG-SEC-061</div><div class="rtxt"><p><strong>Gravité d&#39;une requête</strong> : <code>CRITIQUE</code> si sa durée moyenne atteint 500 ms ; <code>ATTENTION</code> si elle
+atteint 100 ms ou si elle pèse au moins 20 % du temps total de la base ; sinon <code>NORMAL</code>. <em>Source :</em> <code>NiveauRequete</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEC-062"><div class="rid">RG-SEC-062</div><div class="rtxt"><p><strong>Mesure indisponible</strong> : en développement local (base H2), si l&#39;extension n&#39;est pas installée
+(migration Flyway V30 non appliquée) ou si le serveur PostgreSQL n&#39;a pas chargé <code>pg_stat_statements</code>, l&#39;écran
+l&#39;indique avec la raison (<code>BASE_NON_POSTGRESQL</code>, <code>EXTENSION_ABSENTE</code>, <code>PRELOAD_ABSENT</code>) et ne liste rien. <em>Source :</em>
+<code>PgStatStatementsAdapter.statut</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEC-063"><div class="rid">RG-SEC-063</div><div class="rtxt"><p><strong>Remise à zéro des compteurs</strong>, après confirmation, pour mesurer l&#39;effet d&#39;une optimisation sur
+quelques jours ; tracée au journal d&#39;audit comme toute écriture (RG-SEC-050). Refusée si la mesure est indisponible
+(<code>SUPERVISION_INDISPONIBLE</code>) ou si PostgreSQL refuse l&#39;opération faute de droits
+(<code>SUPERVISION_REINITIALISATION_IMPOSSIBLE</code>). <em>Source :</em> <code>SupervisionBaseService.reinitialiser</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEC-064"><div class="rid">RG-SEC-064</div><div class="rtxt"><p><strong>Pistes d&#39;amélioration par requête.</strong> Chaque requête du classement porte des conseils déduits de
+son texte normalisé et de ses compteurs (ce sont des indices, à confirmer par l&#39;analyse) : trop de lignes par appel
+sans <code>LIMIT</code> (≥ 1 000), lente avec un filtre mais peu de lignes renvoyées (≥ 50 ms et &lt; 50 lignes : lecture complète
+probable), <code>COUNT(*)</code> lent, tri ou jointure qui déborde sur disque, taux de cache sous 90 %, écriture lente (≥ 50 ms),
+appels très nombreux et rapides pesant au moins 10 % du total (schéma « N+1 », cache), <code>SELECT *</code>, recherche
+<code>LIKE</code>/<code>ILIKE</code>, fonction appliquée à la colonne filtrée, longue liste <code>IN</code>, durée maximale très supérieure à la
+moyenne. Les actions précèdent les informations. <em>Source :</em> <code>ConseilsRequete</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEC-065"><div class="rid">RG-SEC-065</div><div class="rtxt"><p><strong>Analyse du plan d&#39;exécution</strong> (bouton « Analyser »). Le serveur relit le texte de la requête à
+partir de son identifiant mesuré — <strong>le client ne fournit jamais de SQL</strong> — et établit son plan générique <strong>sans
+l&#39;exécuter</strong> (<code>PREPARE</code> + <code>EXPLAIN</code> avec plan générique, transaction en lecture seule limitée à 5 s, requête préparée
+libérée). Seules les lectures à instruction unique sont analysées (sans écriture cachée dans un <code>WITH</code>). Le résultat
+liste les tables lues en entier et conclut : <code>INDEX_RECOMMANDE</code> (avec un ordre <code>CREATE INDEX</code> à étudier : égalités
+puis
+première colonne de plage, trois colonnes au plus), <code>TABLE_PETITE</code> (moins de 1 000 lignes : lire tout est plus
+rapide),
+<code>INDEX_PRESENT</code> (un index commence déjà par la première colonne filtrée : le plan générique peut différer du réel) ou
+<code>SANS_FILTRE</code> (lecture complète voulue). La suggestion est une piste à valider, jamais appliquée automatiquement.
+Requête absente des mesures : <code>SUPERVISION_REQUETE_INTROUVABLE</code>. <em>Sources :</em> <code>AnalyseurPlan</code>, <code>PgPlanAdapter</code>.</p>
+</div></div>
+<div class="rule" id="RG-SEC-066"><div class="rid">RG-SEC-066</div><div class="rtxt"><p><strong>Santé de la base</strong> (onglet dédié, PostgreSQL uniquement) : taille, part des lectures servies par
+le cache, connexions utilisées sur le maximum, quinze plus grosses tables (taille, lignes, part de lignes mortes,
+lectures complètes et par index) et index jamais utilisés. Points d&#39;attention : cache sous 95 % (critique sous 90 %),
+connexions à 80 % du maximum, lignes mortes au moins 20 %, grande table lue en entier de façon répétée, index
+inutilisés. Chaque table est positionnée face aux seuils de l&#39;étude de partitionnement : <code>A_ETUDIER</code> à 20 millions de
+lignes ou 10 Go, <code>A_SURVEILLER</code> à la moitié. <em>Sources :</em> <code>DiagnosticSante</code>, <code>PgSanteBaseAdapter</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p03"><h1><span class="n">Partie 3</span>Organisation : sociétés, centres, comptes d'encadrement</h1>
@@ -1203,15 +1128,14 @@ patients par poste n&#39;ont pas de sens consolidé (valent 0). La restitution �
 <code>ReplanificationAutomatiqueService</code>, <code>OptimisationDonneesJdbcAdapter</code>, <code>OptimisationRunJdbcAdapter</code>,
 <code>PreferencePatientJdbcAdapter</code>, <code>ProfilInfirmierJdbcAdapter</code>, <code>ReglagesOptimisationJdbcAdapter</code>,
 <code>DeplacementTemporaireJdbcAdapter</code>, <code>OptimisationPlanningRecovery</code>, <code>ReplanificationAutomatiqueScheduler</code>,
-    <code>PlanningOptimisationRestController</code>, <code>PlanningPreferencesRestController</code>, <code>CalendrierPropositionService</code>,
-    <code>CalendrierPropositionJdbcAdapter</code>, <code>PlanningOptimiseReportService</code>.</p>
+<code>PlanningOptimisationRestController</code>, <code>PlanningPreferencesRestController</code>, <code>CalendrierPropositionService</code>,
+<code>CalendrierPropositionJdbcAdapter</code>, <code>PlanningOptimiseReportService</code>.</p>
 </blockquote>
 <div class="rule" id="RG-PLN-080"><div class="rid">RG-PLN-080</div><div class="rtxt"><p>L&#39;optimisation <strong>propose</strong> un planning qui consomme le moins de ressources possible (générateurs,
 salles ouvertes, vacations d&#39;infirmiers) sans enfreindre les règles de la planification. Cinq <strong>périmètres</strong> :
 <code>PATIENTS</code> (replace les patients : salle, créneau, générateur, et choisit les jours de ceux qui le demandent,
 RG-PLN-094), <code>ROULEMENT</code> (conçoit le roulement hebdomadaire des infirmiers face aux placements actuels),
-    <code>COUVERTURE</code> (comble les cases en sous-effectif sur 1 à 8 semaines avec des remplaçants),
-    <code>COMPLET</code> (patients et
+<code>COUVERTURE</code> (comble les cases en sous-effectif sur 1 à 8 semaines avec des remplaçants), <code>COMPLET</code> (patients et
 roulement <strong>dans un seul modèle</strong>, RG-PLN-095) et <code>MAINTENANCE</code> (déplacements temporaires des séances dont le
 générateur est indisponible, RG-PLN-096). Une proposition <strong>n&#39;est jamais appliquée automatiquement</strong>, y compris
 celles de la replanification nocturne (RG-PLN-100).</p>
@@ -1223,14 +1147,11 @@ démarrage du serveur, toute exécution restée en cours passe en échec (« cal
 Nombre de calculs en parallèle : <code>PLANNING_OPTIMISATION_WORKERS</code> (défaut 2).</p>
 </div></div>
 <div class="rule" id="RG-PLN-082"><div class="rid">RG-PLN-082</div><div class="rtxt"><p>Paramètres et bornes (sinon refus 400) : début de l&#39;horizon (ramené au dimanche de sa semaine),
-    nombre de semaines de l&#39;horizon 1 à 8 (défaut du formulaire : 4 ; huit semaines couvrent une absence déclarée
-    environ deux mois à l&#39;avance), pour <strong>tous</strong> les périmètres : <code>COUVERTURE</code> et <code>MAINTENANCE</code>
-    <strong>calculent</strong> chaque
-    semaine (dates réelles) ; les autres périmètres (<code>PATIENTS</code>, <code>ROULEMENT</code>, <code>COMPLET</code>)
-    calculent <strong>une semaine type</strong>,
-    que le planning proposé <strong>projette sur chaque semaine de l&#39;horizon</strong> (fermetures, jours fériés,
-    absences et
-    remplaçants datés ; vacations proposées reconduites à l&#39;identique), durée maximale de calcul
+nombre de semaines de l&#39;horizon 1 à 8 (défaut du formulaire : 4 ; huit semaines couvrent une absence déclarée
+environ deux mois à l&#39;avance), pour <strong>tous</strong> les périmètres : <code>COUVERTURE</code> et <code>MAINTENANCE</code> <strong>calculent</strong> chaque
+semaine (dates réelles) ; les autres périmètres (<code>PATIENTS</code>, <code>ROULEMENT</code>, <code>COMPLET</code>) calculent <strong>une semaine type</strong>,
+que le planning proposé <strong>projette sur chaque semaine de l&#39;horizon</strong> (fermetures, jours fériés, absences et
+remplaçants datés ; vacations proposées reconduites à l&#39;identique), durée maximale de calcul
 <strong>par phase</strong> 2 à 300
 secondes (défaut 20), <strong>stabilité</strong> 0 à 10 (défaut 5 : 0 = tout peut changer, 10 = changer le moins possible),
 objectif des infirmiers <code>EQUITE</code> (défaut) ou <code>ECONOMIE</code>, vacations maximales par jour 1 à 3 (défaut 2) et par semaine
@@ -1327,10 +1248,7 @@ tenue au-delà du besoin de sa case (50), au moins un infirmier qui n&#39;est pa
 les compétences demandées par les patients de la case. Le calcul part des places actuelles et du roulement actuel. La
 proposition ne garde que les vacations utiles face aux placements retenus (RG-PLN-091) et signale les manques.</p>
 </div></div>
-    <div class="rule" id="RG-PLN-096">
-        <div class="rid">RG-PLN-096</div>
-        <div class="rtxt"><p><strong>Maintenance des générateurs</strong> (<code>MAINTENANCE</code>, 1 à 8 semaines
-            datées) : un générateur est
+<div class="rule" id="RG-PLN-096"><div class="rid">RG-PLN-096</div><div class="rtxt"><p><strong>Maintenance des générateurs</strong> (<code>MAINTENANCE</code>, 1 à 8 semaines datées) : un générateur est
 indisponible pendant une intervention GMAO <code>PLANIFIEE</code> ou <code>EN_COURS</code> (non supprimée) qui chevauche l&#39;horizon ; sans
 date de fin, une intervention planifiée immobilise son jour de début, une intervention en cours tout l&#39;horizon. Sont
 touchées les séances datées (jours d&#39;ouverture hors fermetures, séjour en cours) dont la place effective — la place
@@ -1361,182 +1279,105 @@ travaillé au-delà de <code>7 − repos minimum</code> dans une semaine (300), 
 vacations comptant la durée réglée (100 par heure, soit 500 pour une vacation de 5 h), chaque compétence demandée par
 un patient d&#39;une case qu&#39;aucun infirmier de la case n&#39;a (250).</p>
 </div></div>
-    <div class="rule" id="RG-PLN-105">
-        <div class="rid">RG-PLN-105</div>
-        <div class="rtxt"><p><strong>Couverture d&#39;une absence sur sa période.</strong> L&#39;alerte d&#39;absence d&#39;un
-            infirmier
-            (<code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>INFIRMIER_ABSENCE_DECLAREE</code>) ouvre l&#39;optimisation
-            en <code>COUVERTURE</code> avec le <strong>début</strong>
-            (aujourd&#39;hui, ou le début de l&#39;absence si elle est à venir) et le <strong>nombre de
-                semaines</strong> nécessaires pour atteindre
-            sa fin (8 au plus) : le calcul ne se limite plus à la semaine en cours. Le médecin, qui ne lance pas l&#39;optimisation,
-            est conduit au planning de la semaine de l&#39;absence. <em>Sources :</em> <code>ParametresOptimisation.semainesJusqua</code>,
-            <code>horizonPourAbsence</code> (frontend).</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-PLN-106">
-        <div class="rid">RG-PLN-106</div>
-        <div class="rtxt"><p><strong>Parcours d&#39;une proposition semaine par semaine.</strong> Le planning proposé
-            affiche « Semaine n sur N »
-            et se parcourt avec les flèches sur toute la période de l&#39;horizon. Une proposition d&#39;une seule
-            semaine l&#39;indique et
-            invite à relancer le calcul avec plus de semaines. <em>Sources :</em>
-            <code>CalendrierPropositionService</code>,
-            <code>PlanningProposeComponent</code> (frontend).</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-PLN-107">
-        <div class="rid">RG-PLN-107</div>
-        <div class="rtxt"><p><strong>Infirmiers absents dans une proposition « semaine type ».</strong> Un calcul <code>PATIENTS</code>,
-            <code>ROULEMENT</code> ou
-            <code>COMPLET</code> ignore les absences datées. Dans le planning proposé, un infirmier absent un jour donné
-            n&#39;est <strong>jamais
-                présenté comme présent</strong> ce jour-là, dans aucune case : il n&#39;est listé qu&#39;en absent
-            (barré), sa vacation reste
-            « à pourvoir » et le manque d&#39;infirmier est signalé. L&#39;écran le dit et propose <strong>« Chercher
-                des remplaçants »</strong> :
-            la couverture est préremplie sur la période de la proposition (8 semaines au plus) ; c&#39;est elle qui
-            propose les
-            remplaçants (RG-PLN-105). <em>Sources :</em> <code>CalendrierPropositionService.infirmiers</code>, <code>PlanningProposeComponent</code>.
-        </p>
-        </div>
-    </div>
+<div class="rule" id="RG-PLN-105"><div class="rid">RG-PLN-105</div><div class="rtxt"><p><strong>Couverture d&#39;une absence sur sa période.</strong> L&#39;alerte d&#39;absence d&#39;un infirmier
+(<code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>INFIRMIER_ABSENCE_DECLAREE</code>) ouvre l&#39;optimisation en <code>COUVERTURE</code> avec le <strong>début</strong>
+(aujourd&#39;hui, ou le début de l&#39;absence si elle est à venir) et le <strong>nombre de semaines</strong> nécessaires pour atteindre
+sa fin (8 au plus) : le calcul ne se limite plus à la semaine en cours. Le médecin, qui ne lance pas l&#39;optimisation,
+est conduit au planning de la semaine de l&#39;absence. <em>Sources :</em> <code>ParametresOptimisation.semainesJusqua</code>,
+<code>horizonPourAbsence</code> (frontend).</p>
+</div></div>
+<div class="rule" id="RG-PLN-106"><div class="rid">RG-PLN-106</div><div class="rtxt"><p><strong>Parcours d&#39;une proposition semaine par semaine.</strong> Le planning proposé affiche « Semaine n sur N »
+et se parcourt avec les flèches sur toute la période de l&#39;horizon. Une proposition d&#39;une seule semaine l&#39;indique et
+invite à relancer le calcul avec plus de semaines. <em>Sources :</em> <code>CalendrierPropositionService</code>,
+<code>PlanningProposeComponent</code> (frontend).</p>
+</div></div>
+<div class="rule" id="RG-PLN-107"><div class="rid">RG-PLN-107</div><div class="rtxt"><p><strong>Infirmiers absents dans une proposition « semaine type ».</strong> Un calcul <code>PATIENTS</code>, <code>ROULEMENT</code> ou
+<code>COMPLET</code> ignore les absences datées. Dans le planning proposé, un infirmier absent un jour donné n&#39;est <strong>jamais
+présenté comme présent</strong> ce jour-là, dans aucune case : il n&#39;est listé qu&#39;en absent (barré), sa vacation reste
+« à pourvoir » et le manque d&#39;infirmier est signalé. L&#39;écran le dit et propose <strong>« Chercher des remplaçants »</strong> :
+la couverture est préremplie sur la période de la proposition (8 semaines au plus) ; c&#39;est elle qui propose les
+remplaçants (RG-PLN-105). <em>Sources :</em> <code>CalendrierPropositionService.infirmiers</code>, <code>PlanningProposeComponent</code>.</p>
+</div></div>
 <div class="rule" id="RG-PLN-100"><div class="rid">RG-PLN-100</div><div class="rtxt"><p><strong>Replanification automatique nocturne</strong> (<code>ReplanificationAutomatiqueScheduler</code>, 02:30 UTC chaque
 nuit), pour les centres qui l&#39;ont activée : enchaîne, chacun démarrant à la fin du précédent, la couverture (2
-    semaines au moins, <strong>étendue jusqu&#39;à la fin de la dernière absence d&#39;infirmier à venir, 8 semaines au
-        plus</strong> : une
-    absence planifiée dans plusieurs semaines est couverte dès maintenant), la maintenance (2 semaines) à partir de la
-    semaine en cours, puis le placement des patients (semaine type, projetée sur les deux semaines à partir de la
-    semaine suivante), 30 secondes par phase, au nom de <code>SYSTEME</code>. Un calcul déjà en cours dans le centre
-    interrompt
-    l&#39;enchaînement
+semaines au moins, <strong>étendue jusqu&#39;à la fin de la dernière absence d&#39;infirmier à venir, 8 semaines au plus</strong> : une
+absence planifiée dans plusieurs semaines est couverte dès maintenant), la maintenance (2 semaines) à partir de la
+semaine en cours, puis le placement des patients (semaine type, projetée sur les deux semaines à partir de la
+semaine suivante), 30 secondes par phase, au nom de <code>SYSTEME</code>. Un calcul déjà en cours dans le centre interrompt
+l&#39;enchaînement
 pour la nuit ; un centre en erreur n&#39;empêche pas les autres. Une proposition terminée est notifiée aux administrateurs
 (<code>OPTIMISATION_PROPOSITION</code>) si elle apporte quelque chose : vacations à pourvoir ou non pourvues (motif
 <code>SOUS_EFFECTIF</code>), séances à déplacer ou sans solution (<code>MAINTENANCE</code>), vacations requises économisées ou patients en
-    attente placés (<code>GAIN</code>). La notification est <strong>enregistrée au journal du centre</strong> : l&#39;administrateur
-    la retrouve à sa
-    prochaine connexion, même s&#39;il n&#39;était pas connecté à 02:30 (RG-NOT-005), avec un lien direct vers la
-    proposition.
-    Rien
-    n&#39;est appliqué d&#39;office : l&#39;administrateur consulte la proposition dans l&#39;historique et l&#39;applique
-    (RG-PLN-091).
-    <strong>Un bilan est envoyé à l&#39;administrateur à chaque exécution</strong>
-    (<code>REPLANIFICATION_NOCTURNE</code>, enregistré au journal),
-    même quand rien n&#39;est proposé : « propositions à examiner » (avec leur nombre), « aucun changement à proposer »,
-    « échec » (nombre de calculs qui n&#39;ont pas abouti ; un calcul impossible à lancer est compté et les suivants
-    sont
-    tout de même tentés) ou « reportée » (un calcul était déjà en cours). Sans ce bilan, une nuit sans proposition ne
-    laissait aucune trace visible. Une notification impossible à envoyer n&#39;interrompt jamais l&#39;enchaînement.</p>
+attente placés (<code>GAIN</code>). La notification est <strong>enregistrée au journal du centre</strong> : l&#39;administrateur la retrouve à sa
+prochaine connexion, même s&#39;il n&#39;était pas connecté à 02:30 (RG-NOT-005), avec un lien direct vers la proposition.
+Rien
+n&#39;est appliqué d&#39;office : l&#39;administrateur consulte la proposition dans l&#39;historique et l&#39;applique (RG-PLN-091). <strong>Un
+bilan est envoyé à l&#39;administrateur à chaque exécution</strong> (<code>REPLANIFICATION_NOCTURNE</code>, enregistré au journal),
+même quand rien n&#39;est proposé : « propositions à examiner » (avec leur nombre), « aucun changement à proposer »,
+« échec » (nombre de calculs qui n&#39;ont pas abouti ; un calcul impossible à lancer est compté et les suivants sont
+tout de même tentés) ou « reportée » (un calcul était déjà en cours). Sans ce bilan, une nuit sans proposition ne
+laissait aucune trace visible. Une notification impossible à envoyer n&#39;interrompt jamais l&#39;enchaînement.</p>
 </div></div>
-    <div class="rule" id="RG-PLN-101">
-        <div class="rid">RG-PLN-101</div>
-        <div class="rtxt"><p><strong>Planning calendaire de la proposition</strong> (<code>GET
-            /api/v1/planning/optimisations/{id}/calendrier</code>,
-            <code>ADMIN</code>, <code>SECRETAIRE</code>) : à la fin du calcul, la proposition est <strong>figée</strong>
-            en un calendrier semaine par semaine sur
-            l&#39;horizon (<code>CalendrierPropositionService</code>, table <code>planification_calendrier_case</code>,
-            rattachée au centre et à
-            l&#39;exécution, purgée avec elle). Une ligne par salle et créneau ayant de l&#39;activité ; une colonne par
-            jour (dimanche à
-            samedi). Chaque case indique les patients <strong>avec leur générateur</strong> (repères : patient à risque,
-            déplacé par la
-            proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d&#39;infirmiers
-            <strong>affectés</strong> (absents exclus), le manque éventuel par rapport à l&#39;effectif requis (ratio de
-            la salle) et le
-            <strong>sur-effectif</strong> (infirmiers prévus au-delà de l&#39;effectif requis, y compris
-            dans
-            une salle que la proposition vide, RG-INF-047), à l&#39;écran comme à l&#39;impression ; un jour fermé est
-            signalé avec son
-            motif. Les infirmiers viennent des vacations
-            de
-            la proposition quand son périmètre planifie le personnel (<code>ROULEMENT</code>, <code>COUVERTURE</code>,
-            <code>COMPLET</code>), sinon du roulement
-            actuel. Le calendrier reflète l&#39;état du centre <strong>au lancement</strong> : il ne change pas si le
-            centre évolue ensuite. Une
-            exécution sans calendrier (calcul antérieur à cette fonction, échec) est refusée par <code>OPTIMISATION_CALENDRIER_ABSENT</code>
-            (relancer le calcul) ; l&#39;exécution d&#39;un autre centre est introuvable
-            (<code>OPTIMISATION_INTROUVABLE</code>). <strong>Impression</strong>
-            (<code>GET /api/v1/planning/optimisations/{id}/impression</code>) : modèle de document « Planning proposé
-            par
-            l&#39;optimisation » (<code>planning_optimise</code>, §11.1 des règles du dépôt), A4 paysage, une page par
-            semaine, identité de la
-            société
-            et du centre, indicateurs avant/après en en-tête. <strong>Isolation par centre</strong> : chaque exécution,
-            historique, calendrier,
-            impression et application est borné au centre de la session ; seul le nombre de calculs en parallèle
-            (<code>PLANNING_OPTIMISATION_WORKERS</code>) est partagé, jamais les données.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-PLN-102">
-        <div class="rid">RG-PLN-102</div>
-        <div class="rtxt"><p><strong>Suppression d&#39;une exécution</strong> (<code>DELETE
-            /api/v1/planning/optimisations/{id}</code>, <code>ADMIN</code>) : une
-            exécution terminée, en échec ou déjà appliquée peut être supprimée de l&#39;historique du centre, avec son
-            planning
-            calendaire. La suppression n&#39;annule jamais une proposition déjà appliquée (le planning du centre ne
-            change pas). Un
-            calcul encore en cours est refusé par <code>OPTIMISATION_SUPPRESSION_EN_COURS</code> (l&#39;arrêter d&#39;abord)
-            ; l&#39;exécution d&#39;un autre
-            centre est introuvable (<code>OPTIMISATION_INTROUVABLE</code>).</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-PLN-103">
-        <div class="rid">RG-PLN-103</div>
-        <div class="rtxt"><p><strong>Infirmiers sur le planning de la semaine et accès du médecin.</strong> Le planning
-            de la semaine
-            (RG-PLN-043)
-            affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les <strong>infirmiers</strong>
-            de la
-            case d&#39;après la présence réelle de la semaine (<code>/api/v1/infirmiers/presence/semaine</code>,
-            RG-INF-044) : prévus au
-            roulement,
-            remplaçants, absents (barrés, avec le type d&#39;absence), le nombre d&#39;infirmiers
-            <strong>affectés</strong> (et non le nombre requis,
-            qui n&#39;apparaît que dans le manque) et, en rouge, le
-            manque
-            ou, au contraire, le sur-effectif (infirmiers en trop, RG-INF-047).
-            La légende explique chaque repère. Si la présence ne peut pas être chargée, le planning des patients reste
-            affiché
-            sans les infirmiers. Le <strong>médecin « seul »</strong> a <strong>le même planning</strong> que les autres
-            profils, avec les deux vues semaine
-            et
-            jour : c&#39;est son accueil (<code>/medecin</code>, menu Planning), le même composant que le planning des
-            séances ; il y lit
-            patients, générateurs, infirmiers et légende, sans accès aux autres écrans de planification
-            (optimisation, salles et générateurs). Dans le planning proposé par l&#39;optimisation (RG-PLN-101), au
-            survol d&#39;un
-            patient <strong>déplacé</strong> s&#39;affiche sa place d&#39;avant (salle · créneau · générateur), et pour
-            une place temporaire sa place
-            habituelle.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-PLN-104">
-        <div class="rid">RG-PLN-104</div>
-        <div class="rtxt"><p><strong>Planning en temps réel et lecture seule du médecin.</strong> Le planning de la
-            semaine se <strong>met à jour
-                seul</strong>
-            pour tous ceux qui ont le droit de le voir (administrateur, secrétariat, médecin) : le scan du QR code d&#39;un
-            patient ou
-            la validation d&#39;une séance (<code>SEANCE_VALIDATED</code>, <code>SEANCE_CREATED</code>), la suppression
-            d&#39;une séance, l&#39;absence d&#39;un patient
-            ou d&#39;un infirmier, un déplacement de patients ou de séances, un placement modifié ou un générateur
-            devenu indisponible
-            rechargent la semaine affichée, sans action de l&#39;utilisateur (de même la détection nocturne des
-            absences,
-            <code>ABSENCES_A_QUALIFIER</code>) ; seuls les évènements du centre actif comptent (RG-NOT-001). <strong>Le
-                planning de l&#39;infirmier («
-                Mon planning »)</strong> suit la même règle : une absence de patient déclarée, même le jour J, y
-            <strong>barre</strong> aussitôt le
-            patient (couleur selon le statut de l&#39;absence) et une séance validée y marque un soleil, comme sur le
-            planning des
-            séances. Pour le <strong>médecin</strong>, le planning est en <strong>lecture seule</strong> : il ne peut
-            pas déclarer l&#39;absence d&#39;un
-            patient (RG-ABS-015) ; le détail d&#39;un patient reste consultable, avec les liens vers sa fiche et son
-            dossier.
-            <em>Source :</em> <code>PlanningSemaineComponent</code>, <code>evenementRafraichitPlanning</code>, <code>AbsencePatientRestController</code>.
-        </p>
-        </div>
-    </div>
+<div class="rule" id="RG-PLN-101"><div class="rid">RG-PLN-101</div><div class="rtxt"><p><strong>Planning calendaire de la proposition</strong> (<code>GET /api/v1/planning/optimisations/{id}/calendrier</code>,
+<code>ADMIN</code>, <code>SECRETAIRE</code>) : à la fin du calcul, la proposition est <strong>figée</strong> en un calendrier semaine par semaine sur
+l&#39;horizon (<code>CalendrierPropositionService</code>, table <code>planification_calendrier_case</code>, rattachée au centre et à
+l&#39;exécution, purgée avec elle). Une ligne par salle et créneau ayant de l&#39;activité ; une colonne par jour (dimanche à
+samedi). Chaque case indique les patients <strong>avec leur générateur</strong> (repères : patient à risque, déplacé par la
+proposition, place temporaire), les infirmiers (prévu, remplaçant, absent, nouveau), le nombre d&#39;infirmiers
+<strong>affectés</strong> (absents exclus), le manque éventuel par rapport à l&#39;effectif requis (ratio de la salle) et le
+<strong>sur-effectif</strong> (infirmiers prévus au-delà de l&#39;effectif requis, y compris
+dans
+une salle que la proposition vide, RG-INF-047), à l&#39;écran comme à l&#39;impression ; un jour fermé est signalé avec son
+motif. Les infirmiers viennent des vacations
+de
+la proposition quand son périmètre planifie le personnel (<code>ROULEMENT</code>, <code>COUVERTURE</code>, <code>COMPLET</code>), sinon du roulement
+actuel. Le calendrier reflète l&#39;état du centre <strong>au lancement</strong> : il ne change pas si le centre évolue ensuite. Une
+exécution sans calendrier (calcul antérieur à cette fonction, échec) est refusée par <code>OPTIMISATION_CALENDRIER_ABSENT</code>
+(relancer le calcul) ; l&#39;exécution d&#39;un autre centre est introuvable (<code>OPTIMISATION_INTROUVABLE</code>). <strong>Impression</strong>
+(<code>GET /api/v1/planning/optimisations/{id}/impression</code>) : modèle de document « Planning proposé par
+l&#39;optimisation » (<code>planning_optimise</code>, §11.1 des règles du dépôt), A4 paysage, une page par semaine, identité de la
+société
+et du centre, indicateurs avant/après en en-tête. <strong>Isolation par centre</strong> : chaque exécution, historique, calendrier,
+impression et application est borné au centre de la session ; seul le nombre de calculs en parallèle
+(<code>PLANNING_OPTIMISATION_WORKERS</code>) est partagé, jamais les données.</p>
+</div></div>
+<div class="rule" id="RG-PLN-102"><div class="rid">RG-PLN-102</div><div class="rtxt"><p><strong>Suppression d&#39;une exécution</strong> (<code>DELETE /api/v1/planning/optimisations/{id}</code>, <code>ADMIN</code>) : une
+exécution terminée, en échec ou déjà appliquée peut être supprimée de l&#39;historique du centre, avec son planning
+calendaire. La suppression n&#39;annule jamais une proposition déjà appliquée (le planning du centre ne change pas). Un
+calcul encore en cours est refusé par <code>OPTIMISATION_SUPPRESSION_EN_COURS</code> (l&#39;arrêter d&#39;abord) ; l&#39;exécution d&#39;un autre
+centre est introuvable (<code>OPTIMISATION_INTROUVABLE</code>).</p>
+</div></div>
+<div class="rule" id="RG-PLN-103"><div class="rid">RG-PLN-103</div><div class="rtxt"><p><strong>Infirmiers sur le planning de la semaine et accès du médecin.</strong> Le planning de la semaine
+(RG-PLN-043)
+affiche, dans chaque case salle × créneau × jour, en plus des patients et de leur générateur, les <strong>infirmiers</strong> de la
+case d&#39;après la présence réelle de la semaine (<code>/api/v1/infirmiers/presence/semaine</code>, RG-INF-044) : prévus au
+roulement,
+remplaçants, absents (barrés, avec le type d&#39;absence), le nombre d&#39;infirmiers <strong>affectés</strong> (et non le nombre requis,
+qui n&#39;apparaît que dans le manque) et, en rouge, le
+manque
+ou, au contraire, le sur-effectif (infirmiers en trop, RG-INF-047).
+La légende explique chaque repère. Si la présence ne peut pas être chargée, le planning des patients reste affiché
+sans les infirmiers. Le <strong>médecin « seul »</strong> a <strong>le même planning</strong> que les autres profils, avec les deux vues semaine
+et
+jour : c&#39;est son accueil (<code>/medecin</code>, menu Planning), le même composant que le planning des séances ; il y lit
+patients, générateurs, infirmiers et légende, sans accès aux autres écrans de planification
+(optimisation, salles et générateurs). Dans le planning proposé par l&#39;optimisation (RG-PLN-101), au survol d&#39;un
+patient <strong>déplacé</strong> s&#39;affiche sa place d&#39;avant (salle · créneau · générateur), et pour une place temporaire sa place
+habituelle.</p>
+</div></div>
+<div class="rule" id="RG-PLN-104"><div class="rid">RG-PLN-104</div><div class="rtxt"><p><strong>Planning en temps réel et lecture seule du médecin.</strong> Le planning de la semaine se <strong>met à jour
+seul</strong>
+pour tous ceux qui ont le droit de le voir (administrateur, secrétariat, médecin) : le scan du QR code d&#39;un patient ou
+la validation d&#39;une séance (<code>SEANCE_VALIDATED</code>, <code>SEANCE_CREATED</code>), la suppression d&#39;une séance, l&#39;absence d&#39;un patient
+ou d&#39;un infirmier, un déplacement de patients ou de séances, un placement modifié ou un générateur devenu indisponible
+rechargent la semaine affichée, sans action de l&#39;utilisateur (de même la détection nocturne des absences,
+<code>ABSENCES_A_QUALIFIER</code>) ; seuls les évènements du centre actif comptent (RG-NOT-001). <strong>Le planning de l&#39;infirmier («
+Mon planning »)</strong> suit la même règle : une absence de patient déclarée, même le jour J, y <strong>barre</strong> aussitôt le
+patient (couleur selon le statut de l&#39;absence) et une séance validée y marque un soleil, comme sur le planning des
+séances. Pour le <strong>médecin</strong>, le planning est en <strong>lecture seule</strong> : il ne peut pas déclarer l&#39;absence d&#39;un
+patient (RG-ABS-015) ; le détail d&#39;un patient reste consultable, avec les liens vers sa fiche et son dossier.
+<em>Source :</em> <code>PlanningSemaineComponent</code>, <code>evenementRafraichitPlanning</code>, <code>AbsencePatientRestController</code>.</p>
+</div></div>
 </section>
 <section class="part" id="p06"><h1><span class="n">Partie 6</span>Absences des patients</h1>
 <figure><img src="img/absences-patients.png" alt="Suivi des absences des patients"><figcaption>Suivi des absences des patients</figcaption></figure><blockquote>
@@ -1586,19 +1427,13 @@ est réalisée une séance au statut <code>VALIDEE</code>, <code>SIGNEE</code> o
 <div class="rule" id="RG-ABS-014"><div class="rid">RG-ABS-014</div><div class="rtxt"><p>La déclaration est possible depuis l&#39;écran de suivi des absences (choix du patient par saisie
 assistée, motif en ligne,
 erreurs affichées dans le formulaire) et depuis le planning de la semaine.</p>
-</div>
-</div>
-    <div class="rule" id="RG-ABS-015">
-        <div class="rid">RG-ABS-015</div>
-        <div class="rtxt"><p><strong>Qui déclare.</strong> La déclaration d&#39;une absence est réservée à
-            <code>ADMIN</code>, <code>SECRETAIRE</code> et <code>INFIRMIER</code>
-            (refus d&#39;accès côté serveur pour tout autre profil). <strong>Le médecin ne déclare pas l&#39;absence d&#39;un
-                patient</strong> : son
-            planning
-            est en <strong>lecture seule</strong> (aucun bouton de déclaration, ni sur le planning, ni sur l&#39;écran
-            de suivi des absences,
-            RG-PLN-104) ;
-            il consulte le suivi et garde la correction d&#39;une absence déjà qualifiée (RG-ABS-020).</p>
+</div></div>
+<div class="rule" id="RG-ABS-015"><div class="rid">RG-ABS-015</div><div class="rtxt"><p><strong>Qui déclare.</strong> La déclaration d&#39;une absence est réservée à <code>ADMIN</code>, <code>SECRETAIRE</code> et <code>INFIRMIER</code>
+(refus d&#39;accès côté serveur pour tout autre profil). <strong>Le médecin ne déclare pas l&#39;absence d&#39;un patient</strong> : son
+planning
+est en <strong>lecture seule</strong> (aucun bouton de déclaration, ni sur le planning, ni sur l&#39;écran de suivi des absences,
+RG-PLN-104) ;
+il consulte le suivi et garde la correction d&#39;une absence déjà qualifiée (RG-ABS-020).</p>
 </div></div>
 <h2>6.3 Qualification, rattrapage, annulation</h2>
 <div class="rule" id="RG-ABS-020"><div class="rid">RG-ABS-020</div><div class="rtxt"><p>Requalifier une absence déjà qualifiée exige un commentaire (<code>ABSENCE_COMMENTAIRE_REQUIS</code>) <strong>et</strong> un
@@ -1978,16 +1813,11 @@ et stock maximum ≥ 0 (<code>ARTICLE_VALEUR_NEGATIVE</code>) et le stock maximu
 vide = article ordinaire) alimente les listes de prescription (voir RG-MED). <em>Source :</em> <code>Article.appliquerFiche</code>,
 <code>ArticlesComponent</code>.</p>
 </div></div>
-    <div class="rule" id="RG-STK-008">
-        <div class="rid">RG-STK-008</div>
-        <div class="rtxt"><p><strong>Comptes comptables de l&#39;article</strong> (facultatifs) : la fiche peut préciser
-            un <strong>compte de stock</strong> et
-            un <strong>compte de consommation</strong> propres à l&#39;article (1 à 20 lettres ou chiffres, sinon <code>ARTICLE_COMPTE_INVALIDE</code>).
-            Laissés vides, ce sont les comptes du centre qui s&#39;appliquent à la comptabilisation du stock (RG-CPT-011
-            à 014).
-            <em>Source :</em> <code>Article.appliquerFiche</code>, <code>ArticlesComponent</code>.</p>
-        </div>
-    </div>
+<div class="rule" id="RG-STK-008"><div class="rid">RG-STK-008</div><div class="rtxt"><p><strong>Comptes comptables de l&#39;article</strong> (facultatifs) : la fiche peut préciser un <strong>compte de stock</strong> et
+un <strong>compte de consommation</strong> propres à l&#39;article (1 à 20 lettres ou chiffres, sinon <code>ARTICLE_COMPTE_INVALIDE</code>).
+Laissés vides, ce sont les comptes du centre qui s&#39;appliquent à la comptabilisation du stock (RG-CPT-011 à 014).
+<em>Source :</em> <code>Article.appliquerFiche</code>, <code>ArticlesComponent</code>.</p>
+</div></div>
 <div class="rule" id="RG-STK-006"><div class="rid">RG-STK-006</div><div class="rtxt"><p><strong>Dosage par unité de stock</strong> : la fiche peut porter « 1 unité de stock = X UI (ou mg…) »,
 c&#39;est-à-dire
 un dosage (&gt; 0, <code>ARTICLE_DOSAGE_INVALIDE</code>) <strong>et</strong> son unité, indissociables (<code>ARTICLE_DOSAGE_INCOMPLET</code>). Il relie
@@ -2192,16 +2022,17 @@ quand la maintenance cumulée devient excessive, <strong>avertit</strong> quand 
 et <strong>relance</strong> les interventions et plans en retard.
 Le générateur de dialyse du parc est l&#39;équipement GMAO : il n&#39;existe pas de second référentiel de générateurs.
 Sources : <code>Equipement</code>, <code>Intervention</code>,
-<code>PlanMaintenance</code>, <code>Intervenant</code>, <code>LigneCoutIntervention</code>, <code>DocumentIntervention</code>, <code>IndisponibiliteCalculator</code>,
-<code>IndicateursIntervention</code>, <code>AideDecisionMaintenance</code>,
-<code>InterventionEquipementStatutService</code>, contrôleurs <code>web/rest/gmao/*</code>.</p>
+<code>PlanMaintenance</code>, <code>Intervenant</code>, <code>LigneCoutIntervention</code>, <code>PieceJointe</code>, <code>CalculDIndisponibilite</code>,
+<code>IndicateursDIntervention</code>, <code>AnalyseDeDecision</code>,
+<code>ConstaterEtat</code>, <code>SuiviControleur</code>, <code>InterventionControleur</code>, <code>EquipementControleur</code>, <code>IntervenantControleur</code>,
+<code>PlanMaintenanceControleur</code> (contexte <code>contexts/gmao</code>).</p>
 </blockquote>
 <h2>9.1 Accès</h2>
 <div class="rule" id="RG-GMA-001"><div class="rid">RG-GMA-001</div><div class="rtxt"><p>Tous les écrans et API GMAO sont réservés à <code>ADMIN</code> et limités au <strong>centre de la session</strong> : un
 équipement, une intervention, un plan ou un intervenant d&#39;un autre centre est
-« non trouvé ». La <strong>réforme</strong> d&#39;un équipement exige l&#39;habilitation <code>GMAO_REFORME</code>, la <strong>rectification</strong> d&#39;une
-intervention l&#39;habilitation <code>GMAO_RECTIFICATION</code> (droits distincts de
-l&#39;administration GMAO).</p>
+« non trouvé ». La <strong>réforme</strong> d&#39;un équipement exige le rôle <code>ADMIN</code> <strong>et</strong> l&#39;habilitation <code>GMAO_REFORME</code> (l&#39;habilitation seule ne suffit plus, KB-GMAO-32), la <strong>rectification</strong> d&#39;une
+intervention le rôle <code>ADMIN</code> <strong>et</strong> l&#39;habilitation <code>GMAO_RECTIFICATION</code> (l&#39;habilitation seule ne suffit plus, KB-GMAO-52 ;
+droits distincts de l&#39;administration GMAO).</p>
 </div></div>
 <div class="rule" id="RG-GMA-002"><div class="rid">RG-GMA-002</div><div class="rtxt"><p>Toute liste GMAO (équipements, interventions, plans, intervenants) est paginée (RG-TRV-020) ; les
 statistiques du tableau de bord sont des comptages serveur, jamais
@@ -2224,7 +2055,7 @@ rattachement est facultative.</p>
 <code>HORS_SERVICE</code> (jamais depuis <code>REFORME</code>) ; observation obligatoire non vide.</p>
 </div></div>
 <div class="rule" id="RG-GMA-014"><div class="rid">RG-GMA-014</div><div class="rtxt"><p><strong>Réforme</strong> : fin de vie <strong>définitive</strong> (aucun retour en arrière, aucun changement de statut
-ensuite), motif obligatoire ; réservée à <code>GMAO_REFORME</code>. Un équipement
+ensuite), motif obligatoire ; réservée aux administrateurs détenteurs de <code>GMAO_REFORME</code>. Un équipement
 réformé n&#39;est plus compté dans la capacité théorique (RG-PLN-071) ni proposé au placement.</p>
 </div></div>
 <div class="rule" id="RG-GMA-015"><div class="rid">RG-GMA-015</div><div class="rtxt"><p>Chaque changement de statut (création, hors service, réactivation, réforme, état saisi par une
@@ -2278,12 +2109,27 @@ arrondies au centième) × tarif horaire par défaut de l&#39;intervenant ; lign
 absent ou nul, si la durée est nulle, ou si une ligne de même nature existe
 déjà (jamais de double comptage). Pour un intervenant <strong>externe</strong>, saisir manuellement de la main d&#39;œuvre est refusé.</p>
 </div></div>
-<div class="rule" id="RG-GMA-028"><div class="rid">RG-GMA-028</div><div class="rtxt"><p><strong>Pièces jointes</strong> d&#39;une intervention : bon d&#39;intervention, facture, photo ou autre ; PDF, PNG ou
-JPEG <strong>reconnus à leur contenu</strong>, 5 Mo maximum, fichier non vide, 50 documents au
-plus par intervention ; nom nettoyé (sans chemin, 150 caractères maximum).</p>
+<div class="rule" id="RG-GMA-028"><div class="rid">RG-GMA-028</div><div class="rtxt"><p><strong>Pièces jointes</strong> d&#39;une intervention (R22, R23 ; refonte G5, décisions du 2026-10-12) : bon
+d&#39;intervention, facture, photo ou autre ; PDF, PNG ou JPEG <strong>reconnus à leur contenu entier</strong> (PDF : en-tête <code>%PDF-x.y</code> et
+marqueur <code>%%EOF</code> en fin ; PNG : signature, blocs aux sommes de contrôle justes, IHDR cohérent, IEND en dernier ; JPEG : début
+<code>FFD8FF</code> et fin <code>FFD9</code>), jamais d&#39;après le type déclaré par le client ; un nom qui porte une extension (1 à 8 lettres ou
+chiffres) doit avoir celle du format reconnu (<code>pdf</code>, <code>png</code>, <code>jpg</code> ou <code>jpeg</code>) ; 5 Mo maximum (octets exacts), fichier non
+vide, 50 documents au plus par intervention, <strong>tenu même sous envois simultanés</strong> ; nom assaini (sans chemin, sans <code>..</code>,
+sans caractères de contrôle ni de sens d&#39;écriture, 150 caractères maximum sans couper un emoji), assaini de nouveau à la
+lecture ; type servi toujours celui du format reconnu (sinon <code>application/octet-stream</code>), en pièce jointe. <strong>On ne joint ni
+ne retire de pièce</strong> sur une intervention annulée, terminée ou supprimée (422 <code>BUSINESS_RULE_VIOLATION</code>) ; la liste et le
+téléchargement restent permis. Accès <code>ADMIN</code> ; ajout et retrait journalisés, téléchargements non ; suppression physique ;
+événements <code>PieceJointeAjoutee</code> et <code>PieceJointeRetiree</code> (sans octets, sans consommateur).</p>
 </div></div>
-<div class="rule" id="RG-GMA-029"><div class="rid">RG-GMA-029</div><div class="rtxt"><p><strong>Tâches</strong> d&#39;une intervention : <code>A_FAIRE</code> → <code>EN_COURS</code> → <code>COMPLETEE</code> ; description obligatoire ; une
-tâche ne se démarre que « à faire » et ne se complète qu&#39;« en cours ».</p>
+<div class="rule" id="RG-GMA-029"><div class="rid">RG-GMA-029</div><div class="rtxt"><p><strong>Tâches</strong> d&#39;une intervention (fonctionnalité créée le 2026-10-12 à la demande de l&#39;utilisateur,
+KB-GMAO-55 ; <strong>statuts, limite et habilitation à valider par le métier</strong>) : <code>A_FAIRE</code> → <code>EN_COURS</code> → <code>COMPLETEE</code>, sans
+retour ; description obligatoire (rognée) ; <strong>30 tâches au plus</strong> par intervention. Une tâche s&#39;ajoute à une intervention
+planifiée ou en cours ; elle ne se démarre que « à faire » et ne s&#39;achève qu&#39;« en cours », et seulement sur une intervention
+<strong>en cours</strong>. Toute transition refusée renvoie 422 <code>BUSINESS_RULE_VIOLATION</code> sans rien modifier ; intervention ou tâche
+inconnue (ou d&#39;un autre centre) : 400. Rôle <code>ADMIN</code>, centre de la session. Chaque étape (ajoutée, démarrée, achevée) publie
+un événement ; la clôture de l&#39;intervention n&#39;exige pas que les tâches soient achevées. <em>Routes :</em>
+<code>POST /api/v1/gmao/interventions/{id}/taches</code>, <code>.../taches/{tacheId}/demarrer</code>, <code>.../taches/{tacheId}/achever</code>. <em>Source :</em>
+<code>Intervention</code>, <code>Tache</code>, <code>TransitionDeTacheInvalide</code>, <code>LimiteDeTachesAtteinte</code>, <code>InterventionControleur</code>.</p>
 </div></div>
 <div class="rule" id="RG-GMA-030"><div class="rid">RG-GMA-030</div><div class="rtxt"><p>Une intervention est <strong>en retard</strong> (relance) si elle est planifiée avec une date de début passée, ou
 ouverte (planifiée ou en cours) avec une échéance dépassée.</p>
@@ -2291,7 +2137,10 @@ ouverte (planifiée ou en cours) avec une échéance dépassée.</p>
 <div class="rule" id="RG-GMA-031"><div class="rid">RG-GMA-031</div><div class="rtxt"><p><strong>Indicateurs d&#39;une intervention</strong> : délai de prise en charge (création → début), durée (début → fin,
 ou → maintenant si en cours), indisponibilité de l&#39;équipement pendant l&#39;intervention
 et sa <strong>part dans l&#39;indisponibilité des 12 derniers mois</strong> (plafonnée à 100 %, vide s&#39;il n&#39;y a eu aucune
-indisponibilité). Un bon d&#39;intervention imprimable et une chronologie sont disponibles.</p>
+indisponibilité). Un bon d&#39;intervention imprimable et une chronologie sont disponibles ; une intervention supprimée
+logiquement (à la main en base) se lit comme un identifiant inconnu : « Intervention non trouvée » (400, KB-GMAO-69 corrigé).
+<em>Routes :</em> <code>GET /api/v1/gmao/interventions/{id}/bon</code>, <code>.../indicateurs</code>, <code>.../chronologie</code>. <em>Source :</em> <code>ConsulterLesIndicateurs</code>,
+<code>ConsulterLaChronologie</code>, <code>ImprimerLeBon</code>, <code>IndicateursDIntervention</code>, <code>SuiviControleur</code>.</p>
 </div></div>
 <h2>9.4 Intervenants</h2>
 <div class="rule" id="RG-GMA-040"><div class="rid">RG-GMA-040</div><div class="rtxt"><p>Un intervenant porte nom (obligatoire), type <code>INTERNE</code> ou <code>EXTERNE</code> (obligatoire), téléphone, email,
@@ -2317,19 +2166,44 @@ liste des plans en retard et le compteur du tableau de bord servent de relance.<
 </div></div>
 <div class="rule" id="RG-GMA-061"><div class="rid">RG-GMA-061</div><div class="rtxt"><p><strong>Fiche équipement</strong> (12 derniers mois) : nombre d&#39;interventions, indisponibilité en heures, coût de
 maintenance sur la période et cumulé depuis l&#39;installation, dernière intervention,
-prochain plan de maintenance, et analyse de décision.</p>
+prochain plan de maintenance, et analyse de décision. <em>Route :</em> <code>GET /api/v1/gmao/equipements/{id}/fiche</code>. <em>Source :</em>
+<code>ConsulterLaFiche</code>, <code>CalculDIndisponibilite</code>, <code>SuiviControleur</code>.</p>
 </div></div>
 <div class="rule" id="RG-GMA-062"><div class="rid">RG-GMA-062</div><div class="rtxt"><p><strong>Analyse de décision</strong> : coût de possession = prix d&#39;acquisition + maintenance cumulée ; <strong>ratio de
-maintenance</strong> = maintenance cumulée / prix d&#39;acquisition (4 décimales ; vide si le prix
-est inconnu) ; coût par heure d&#39;indisponibilité = coût de la période / heures d&#39;indisponibilité (vide si aucune).</p>
+maintenance</strong> = maintenance cumulée / prix d&#39;acquisition (arrondi à 4 décimales <strong>pour l&#39;affichage seulement</strong> ; vide si
+le prix est inconnu) ; coût par heure d&#39;indisponibilité = coût de la période / heures d&#39;indisponibilité (vide si aucune).</p>
 </div></div>
 <div class="rule" id="RG-GMA-063"><div class="rid">RG-GMA-063</div><div class="rtxt"><p><strong>Réforme recommandée</strong> quand l&#39;équipement est encore actif (ni réformé ni désactivé) et soit au
-statut <code>A_REFORMER</code>, soit son ratio de maintenance atteint ou dépasse le <strong>seuil de
-60 %</strong> (paramètre serveur <code>hemodialyse.gmao.reforme-seuil-ratio</code>, défaut 0,60, strictement positif). La recommandation
-est une aide : la réforme reste une décision humaine d&#39;un détenteur de <code>GMAO_REFORME</code>.</p>
+statut <code>A_REFORMER</code>, soit son ratio de maintenance <strong>exact</strong> (non arrondi) atteint ou dépasse le <strong>seuil de
+60 %</strong> (paramètre serveur <code>hemodialyse.gmao.reforme-seuil-ratio</code>, défaut 0,60, strictement positif ; un seul seuil pour
+toute l&#39;application) : à 59,996 % l&#39;écran affiche 0,6000 mais la réforme n&#39;est pas recommandée (KB-GMAO-72 corrigé, décision
+du 2026-10-12). La recommandation est une aide : la réforme reste une décision humaine d&#39;un détenteur de <code>GMAO_REFORME</code>.
+<em>Source :</em> <code>AnalyseDeDecision</code>.</p>
 </div></div>
 <div class="rule" id="RG-GMA-064"><div class="rid">RG-GMA-064</div><div class="rtxt"><p>Les indicateurs GMAO de la direction (coûts, indisponibilité, réformes recommandées, alertes
-critiques) sont décrits au chapitre direction (RG-DIR).</p>
+critiques) sont décrits au chapitre direction (RG-DIR). Leur source est la <strong>synthèse GMAO du centre</strong> publiée par le
+module GMAO (<code>SyntheseGmaoDuCentre</code>) ; le nombre de générateurs de la capacité théorique vient de <code>GenerateursInstalles</code>
+(installés avant la fin de la période, ni réformés, ni désactivés, ni supprimés).</p>
+</div></div>
+<div class="rule" id="RG-GMA-065"><div class="rid">RG-GMA-065</div><div class="rtxt"><p><strong>Proposition de réforme (P2)</strong> (créée le 2026-10-12 à la demande de l&#39;utilisateur, KB-GMAO-57 ; <strong>texte et
+destinataires à valider par le métier</strong>) : quand la clôture d&#39;une intervention fait constater l&#39;état <code>A_REFORMER</code> d&#39;un
+équipement, les détenteurs de l&#39;habilitation <code>GMAO_REFORME</code> <strong>du centre de l&#39;équipement</strong> reçoivent la notification durable
+<code>REFORME_PROPOSEE</code> (équipement, état constaté, suggestion de consulter l&#39;aide à la décision, RG-GMA-062/063). Aucune
+réforme automatique : la décision reste humaine (RG-GMA-063). Aucune notification pour un autre état constaté, ni quand
+l&#39;équipement était déjà <code>A_REFORMER</code> ; un événement rejoué ne crée pas de doublon. <em>Source :</em> <code>GmaoEvenementsReformeListener</code>,
+<code>NotificationService.notifyReformeProposee</code>.</p>
+</div></div>
+<div class="rule" id="RG-GMA-066"><div class="rid">RG-GMA-066</div><div class="rtxt"><p><strong>Disponibilité d&#39;un équipement pour un patient</strong> : avant d&#39;affecter un patient à un générateur, l&#39;écran
+demande si l&#39;équipement est disponible ; il l&#39;est <strong>seulement s&#39;il est <code>EN_SERVICE</code></strong> (en maintenance, en attente de pièce, hors
+service, à réformer, réformé et <strong>désactivé</strong> ne le sont pas : KB-GMAO-73 corrigé, décision du 2026-10-12). Avertissement non
+bloquant : la décision reste au personnel. Équipement inconnu ou d&#39;un autre centre : « Équipement non trouvé » (400). <em>Route :</em>
+<code>GET /api/v1/gmao/equipements/{id}/disponibilite-patient</code>. <em>Source :</em> <code>VerifierLaDisponibilite</code>,
+<code>StatutEquipement.disponiblePourUnPatient</code>, <code>SuiviControleur</code>.</p>
+</div></div>
+<div class="rule" id="RG-GMA-067"><div class="rid">RG-GMA-067</div><div class="rtxt"><p><strong>Statistiques GMAO du centre</strong> (<code>GET /api/v1/gmao/stats</code>) : totaux d&#39;équipements (tous statuts) et par statut
+(en service, en maintenance, hors service ; les autres statuts ne sont comptés que dans le total, KB-GMAO-77), d&#39;interventions
+(total, en cours, terminées), plans actifs et en retard, interventions à relancer (RG-GMA-030) ; les éléments supprimés
+logiquement ne sont jamais comptés. <em>Source :</em> <code>ConsulterLesStatistiques</code>.</p>
 </div></div>
 </section>
 <section class="part" id="p10"><h1><span class="n">Partie 10</span>Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</h1>
@@ -2438,36 +2312,22 @@ ayant des infirmiers actifs, si au moins un créneau est en sous-effectif dans
 les 14 jours à venir, l&#39;administration et le secrétariat reçoivent une notification temps réel
 (<code>INFIRMIER_SOUS_EFFECTIF</code> : nombre de créneaux et première date). Un centre en erreur
 n&#39;empêche pas les autres.</p>
-</div>
-</div>
-    <div class="rule" id="RG-INF-047">
-        <div class="rid">RG-INF-047</div>
-        <div class="rtxt"><p><strong>Sur-effectif.</strong> Chaque case porte aussi le nombre d&#39;infirmiers <strong>en
-            trop</strong> (<code>surplus</code>) : infirmiers
-            comptés (en salle d&#39;isolement, seuls les habilités comptent) moins l&#39;effectif requis, jamais négatif
-            ; dans une salle
-            sans patient, tous les infirmiers prévus sont en trop. Le sur-effectif n&#39;est <strong>pas</strong> un
-            manque : le statut de la case
-            reste <code>COUVERT</code> (ou <code>SANS_PATIENT</code>), aucune alerte n&#39;est envoyée ; il est signalé
-            en jaune avec « +N » sur le planning
-            de
-            présence et en « N infirmier (s) en trop » sur le planning des séances, pour réaffecter ces ressources aux
-            cases en
-            sous-effectif. C&#39;est toutefois du personnel payé sans activité utile : le <strong>contrôle quotidien de
-                07:15</strong> (RG-INF-046)
-            prévient aussi l&#39;administrateur (<code>INFIRMIER_SUREFFECTIF</code>) dès qu&#39;une case des 14
-            prochains jours est en sur-effectif —
-            <strong>y compris une case avec patients dont les infirmiers dépassent le ratio</strong> (3 infirmiers pour
-            4 patients avec un
-            ratio de 4) — avec le nombre de cases, de vacations en trop et les <strong>heures payées sans activité
-                utile</strong> (vacations en
-            trop × durée d&#39;une vacation des réglages du centre, RG-PLN-098). Ce contrôle est indépendant de celui du
-            sous-effectif : l&#39;échec de l&#39;un n&#39;empêche pas l&#39;autre. À l&#39; <strong>affectation</strong>
-            d&#39;un infirmier à une salle (RG-INF-020),
-            la
-            réponse indique les jours de la semaine en cours où elle crée un sur-effectif ; l&#39;écran affiche un
-            avertissement, sans
-            jamais refuser ni annuler l&#39;affectation (un échec du calcul de cet avertissement est ignoré).</p>
+</div></div>
+<div class="rule" id="RG-INF-047"><div class="rid">RG-INF-047</div><div class="rtxt"><p><strong>Sur-effectif.</strong> Chaque case porte aussi le nombre d&#39;infirmiers <strong>en trop</strong> (<code>surplus</code>) : infirmiers
+comptés (en salle d&#39;isolement, seuls les habilités comptent) moins l&#39;effectif requis, jamais négatif ; dans une salle
+sans patient, tous les infirmiers prévus sont en trop. Le sur-effectif n&#39;est <strong>pas</strong> un manque : le statut de la case
+reste <code>COUVERT</code> (ou <code>SANS_PATIENT</code>), aucune alerte n&#39;est envoyée ; il est signalé en jaune avec « +N » sur le planning
+de
+présence et en « N infirmier (s) en trop » sur le planning des séances, pour réaffecter ces ressources aux cases en
+sous-effectif. C&#39;est toutefois du personnel payé sans activité utile : le <strong>contrôle quotidien de 07:15</strong> (RG-INF-046)
+prévient aussi l&#39;administrateur (<code>INFIRMIER_SUREFFECTIF</code>) dès qu&#39;une case des 14 prochains jours est en sur-effectif —
+<strong>y compris une case avec patients dont les infirmiers dépassent le ratio</strong> (3 infirmiers pour 4 patients avec un
+ratio de 4) — avec le nombre de cases, de vacations en trop et les <strong>heures payées sans activité utile</strong> (vacations en
+trop × durée d&#39;une vacation des réglages du centre, RG-PLN-098). Ce contrôle est indépendant de celui du
+sous-effectif : l&#39;échec de l&#39;un n&#39;empêche pas l&#39;autre. À l&#39; <strong>affectation</strong> d&#39;un infirmier à une salle (RG-INF-020),
+la
+réponse indique les jours de la semaine en cours où elle crée un sur-effectif ; l&#39;écran affiche un avertissement, sans
+jamais refuser ni annuler l&#39;affectation (un échec du calcul de cet avertissement est ignoré).</p>
 </div></div>
 <h2>10.6 Remplaçants</h2>
 <div class="rule" id="RG-INF-050"><div class="rid">RG-INF-050</div><div class="rtxt"><p>Pour une case, les candidats <strong>exclus</strong> sont : les infirmiers absents ce jour-là, ceux déjà prévus
@@ -2664,44 +2524,30 @@ de stock correspondant à la dose saisie. Ainsi unité prescrite et unité de so
 </div></div>
 <div class="rule" id="RG-MED-072"><div class="rid">RG-MED-072</div><div class="rtxt"><p><strong>Périodes d&#39;observance</strong> : la prescription la plus récente découpe le temps en périodes successives
 ancrées sur sa date (fenêtre : heure/jour = 1 jour, semaine = 7, mois = 30,
-    année = 365 jours). Quand la prescription porte une <strong>dose</strong> (UI pour l&#39;EPO, mg pour le fer), le
-    calcul est en
-    <strong>quantités</strong> : <strong>attendu</strong> = dose × fréquence ; <strong>administré</strong> = somme des
-    doses effectivement administrées dans la
-    période, dans la même unité ; <strong>restant</strong> = attendu − administré (≥ 0) ; <strong>doses
-        restantes</strong> = restant ÷ dose, arrondi
-    au supérieur. Une prescription relevée en cours de période (ex. 4000 → 8000 UI après une administration de
-    4000 UI) laisse donc 4000 UI à administrer, soit un <strong>complément</strong> : l&#39;infirmier peut le saisir en
-    séance, la dose
-    proposée étant exactement le reste. Sans dose prescrite, repli sur le <strong>nombre d&#39;administrations</strong>
-    (attendues =
-    fréquence ; administrées = administrations effectives). L&#39;infirmier voit, en séance, ce qu&#39;il reste à
-    administrer et
-    l&#39;échéance (même calcul que l&#39;alerte planifiée). Quand le médecin crée, modifie ou supprime une
-    prescription, le
-    poste de l&#39;infirmier qui a ce patient à l&#39;écran se met à jour <strong>en temps réel</strong>, sans
-    rechargement (évènement
-    <code>PRESCRIPTION_CHANGED</code> limité au centre et au patient, absent de la cloche). Il en va de même, pour un
-    médecin qui a
-    ouvert le même dossier, de la liste des prescriptions et de l&#39;onglet Anémie (périodes d&#39;observance et
-    alertes).</p>
+année = 365 jours). Quand la prescription porte une <strong>dose</strong> (UI pour l&#39;EPO, mg pour le fer), le calcul est en
+<strong>quantités</strong> : <strong>attendu</strong> = dose × fréquence ; <strong>administré</strong> = somme des doses effectivement administrées dans la
+période, dans la même unité ; <strong>restant</strong> = attendu − administré (≥ 0) ; <strong>doses restantes</strong> = restant ÷ dose, arrondi
+au supérieur. Une prescription relevée en cours de période (ex. 4000 → 8000 UI après une administration de
+4000 UI) laisse donc 4000 UI à administrer, soit un <strong>complément</strong> : l&#39;infirmier peut le saisir en séance, la dose
+proposée étant exactement le reste. Sans dose prescrite, repli sur le <strong>nombre d&#39;administrations</strong> (attendues =
+fréquence ; administrées = administrations effectives). L&#39;infirmier voit, en séance, ce qu&#39;il reste à administrer et
+l&#39;échéance (même calcul que l&#39;alerte planifiée). Quand le médecin crée, modifie ou supprime une prescription, le
+poste de l&#39;infirmier qui a ce patient à l&#39;écran se met à jour <strong>en temps réel</strong>, sans rechargement (évènement
+<code>PRESCRIPTION_CHANGED</code> limité au centre et au patient, absent de la cloche). Il en va de même, pour un médecin qui a
+ouvert le même dossier, de la liste des prescriptions et de l&#39;onglet Anémie (périodes d&#39;observance et alertes).</p>
 </div></div>
 <div class="rule" id="RG-MED-073"><div class="rid">RG-MED-073</div><div class="rtxt"><p><strong>Contrôle quotidien à 06:30</strong> (<code>ObservancePrescriptionScheduler.controlerObservance</code>), pour chaque
 patient ayant une prescription EPO/fer avec article et fréquence : (1) <strong>retard
-        constaté</strong> — la période close compte moins (en quantité, ou en nombre d&#39;administrations sans dose)
-    que prescrit :
-    alerte <code>RETARD_CONSTATE</code>, qui <strong>explique</strong> le constat (traitement, période, prescription «
-    dose × fréquence »,
-    attendu,
-    administré, manque, conduite à tenir ; les champs sont conservés avec l&#39;alerte ; les alertes antérieures gardent
-    leur
-    texte d&#39;origine), acquittée
+constaté</strong> — la période close compte moins (en quantité, ou en nombre d&#39;administrations sans dose) que prescrit :
+alerte <code>RETARD_CONSTATE</code>, qui <strong>explique</strong> le constat (traitement, période, prescription « dose × fréquence »,
+attendu,
+administré, manque, conduite à tenir ; les champs sont conservés avec l&#39;alerte ; les alertes antérieures gardent leur
+texte d&#39;origine), acquittée
 <strong>manuellement</strong> par le médecin ; (2) <strong>rappel d&#39;échéance</strong> — il reste des doses et il reste
 au plus ⌊fenêtre / 3⌋ jours (1 jour si fenêtre ≤ 2) : alerte <code>RAPPEL_ECHEANCE</code>, <strong>résolue automatiquement</strong> dès que le
 retard est rattrapé. Une alerte déjà ouverte du même type n&#39;est pas dupliquée ;
-    une notification durable (<code>OBSERVANCE_NON_RESPECTEE</code>, RG-NOT-005) est adressée au rôle
-    <code>MEDECIN</code>, avec un lien vers
-    l&#39;onglet Anémie du patient.</p>
+une notification durable (<code>OBSERVANCE_NON_RESPECTEE</code>, RG-NOT-005) est adressée au rôle <code>MEDECIN</code>, avec un lien vers
+l&#39;onglet Anémie du patient.</p>
 </div></div>
 <div class="rule" id="RG-MED-074"><div class="rid">RG-MED-074</div><div class="rtxt"><p>Alerte inconnue : <code>ALERTE_OBSERVANCE_INTROUVABLE</code>. Consultation et acquittement : <code>MEDECIN</code>, <code>ADMIN</code>.</p>
 </div></div>
@@ -2867,22 +2713,15 @@ paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF.</p>
 <div class="rule" id="RG-REG-004"><div class="rid">RG-REG-004</div><div class="rtxt"><p>Chaque règlement enregistré déclenche la génération d&#39;une écriture de trésorerie (RG-CPT-002).</p>
 </div></div>
 <h2>12.6 Comptabilité (plan SCF)</h2>
-    <div class="rule" id="RG-CPT-001">
-        <div class="rid">RG-CPT-001</div>
-        <div class="rtxt"><p><strong>Écriture de ventes</strong> par facture, dans le journal que le centre a choisi
-            pour les ventes (<code>VE</code> par
-            défaut, RG-CPT-010) : débit du compte client (411xxx), crédit du compte
+<div class="rule" id="RG-CPT-001"><div class="rid">RG-CPT-001</div><div class="rtxt"><p><strong>Écriture de ventes</strong> par facture, dans le journal que le centre a choisi pour les ventes (<code>VE</code> par
+défaut, RG-CPT-010) : débit du compte client (411xxx), crédit du compte
 de ventes (706) pour le HT, crédit de la TVA collectée (44571) si la TVA est &gt; 0 (dérivée de TTC − HT si le total de
 TVA manque) ; date de l&#39;écriture = <strong>fin de la période facturée</strong> (jamais la date d&#39;émission) ; axes analytiques
 centre et type de tiers ; statut <code>VALIDEE</code>. <strong>Idempotence</strong> : une facture n&#39;a qu&#39;une écriture (recherche par pièce
-            source, <strong>quel que soit le journal</strong> : changer le journal des ventes ne recrée jamais une
-            écriture déjà passée).</p>
+source, <strong>quel que soit le journal</strong> : changer le journal des ventes ne recrée jamais une écriture déjà passée).</p>
 </div></div>
-    <div class="rule" id="RG-CPT-002">
-        <div class="rid">RG-CPT-002</div>
-        <div class="rtxt"><p><strong>Écriture de règlement</strong> : journal choisi pour les règlements en banque
-            (<code>BQ</code> par défaut, débit
-            512) ou en caisse (<code>CA</code> par défaut, débit 530, si le mode
+<div class="rule" id="RG-CPT-002"><div class="rid">RG-CPT-002</div><div class="rtxt"><p><strong>Écriture de règlement</strong> : journal choisi pour les règlements en banque (<code>BQ</code> par défaut, débit
+  512) ou en caisse (<code>CA</code> par défaut, débit 530, si le mode
 est « caisse ») ; crédit du compte client ; montant en valeur absolue ; <strong>une écriture par
 règlement</strong> (idempotence par identifiant de règlement). Le mode par défaut du règlement enregistré est « banque ».</p>
 </div></div>
@@ -2899,277 +2738,137 @@ l&#39;export marque les écritures validées comme exportées. Écriture inconnu
 Lorsque la période d&#39;un règlement est clôturée, le règlement reste enregistré mais <strong>aucune écriture n&#39;est générée</strong>
 (avertissement journalisé).</p>
 </div></div>
-    <div class="rule" id="RG-CPT-006">
-        <div class="rid">RG-CPT-006</div>
-        <div class="rtxt"><p><strong>Plan de comptes par centre</strong> (<code>MappingComptable</code>), <strong>entièrement
-            paramétrable</strong> depuis l&#39;écran
-            « Paramétrage comptable » (<code>ADMIN</code>) : comptes ventes, client « patient qui paie lui-même »,
-            client « payeur sans
-            compte propre », banque, caisse — tous obligatoires ; valeurs par défaut :
-            706, 411100, 411500, 512, 530, 44571 (TVA collectée) ; comptes du stock
-            (RG-CPT-011). Le compte client d&#39;un payeur se règle payeur par payeur (RG-CPT-019) : il n&#39;existe
-            plus de compte
-            figé par type de payeur (CNAS, CASNOS, mutuelle). Chaque compte se <strong>choisit dans le plan comptable du
-                centre</strong>
-            (RG-CPT-018) ; un compte qui n&#39;y figure pas, ou désactivé, est refusé (<code>COMPTE_INCONNU</code>). Le
-            paramétrage ne vaut que
-            pour les écritures générées
-            ensuite : les écritures déjà passées ne sont pas réimputées. <strong>Règles de TVA comptables</strong>
-            versionnées dans le temps
-            (type de prestation, taux ≥ 0, exonération, début de validité obligatoire). <em>Source :</em> <code>MappingComptable</code>,
-            <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> → <code>ComptabiliteApiService</code>
-            →
-            <code>ComptabiliteRestController</code> (<code>/mapping</code>) → <code>ComptabiliteUseCase</code> → <code>MappingComptablePort</code>.
-        </p>
+<div class="rule" id="RG-CPT-006"><div class="rid">RG-CPT-006</div><div class="rtxt"><p><strong>Plan de comptes par centre</strong> (<code>MappingComptable</code>), <strong>entièrement paramétrable</strong> depuis l&#39;écran
+« Paramétrage comptable » (<code>ADMIN</code>) : comptes ventes, client « patient qui paie lui-même », client « payeur sans
+compte propre », banque, caisse — tous obligatoires ; valeurs par défaut :
+706, 411100, 411500, 512, 530, 44571 (TVA collectée) ; comptes du stock (RG-CPT-011). Le compte client d&#39;un payeur se
+règle payeur par payeur (RG-CPT-019) : il n&#39;existe plus de compte
+figé par type de payeur (CNAS, CASNOS, mutuelle). Chaque compte se <strong>choisit dans le plan comptable du centre</strong>
+(RG-CPT-018) ; un compte qui n&#39;y figure pas, ou désactivé, est refusé (<code>COMPTE_INCONNU</code>). Le paramétrage ne vaut que
+pour les écritures générées
+ensuite : les écritures déjà passées ne sont pas réimputées. <strong>Règles de TVA comptables</strong> versionnées dans le temps
+(type de prestation, taux ≥ 0, exonération, début de validité obligatoire). <em>Source :</em> <code>MappingComptable</code>,
+<code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> → <code>ComptabiliteApiService</code> →
+<code>ComptabiliteRestController</code> (<code>/mapping</code>) → <code>ComptabiliteUseCase</code> → <code>MappingComptablePort</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-007"><div class="rid">RG-CPT-007</div><div class="rtxt"><p><strong>Reconstruction</strong> (rejeu) des écritures de factures et règlements existants sur une période,
-    réservée à <code>ADMIN</code> ; l&#39;idempotence évite tout doublon. Consultation des écritures et des journaux :
-    <code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; validation, export, paramétrage (comptes, journaux), règles
-    TVA, clôture,
-    comptabilisation du stock : <code>ADMIN</code>.</p>
+réservée à <code>ADMIN</code> ; l&#39;idempotence évite tout doublon. Consultation des écritures et des journaux :
+<code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; validation, export, paramétrage (comptes, journaux), règles TVA, clôture,
+comptabilisation du stock : <code>ADMIN</code>.</p>
 </div></div>
-    <div class="rule" id="RG-CPT-008">
-        <div class="rid">RG-CPT-008</div>
-        <div class="rtxt"><p><em>(point d&#39;attention levé)</em> Les créances ne sont plus toutes imputées au compte
-            client « autre » :
-            chaque facture débite le compte de <strong>son payeur</strong> (RG-CPT-019), le compte par défaut si le
-            payeur n&#39;en a pas, et le
-            compte « patients » si la facture n&#39;a pas de payeur. Le <strong>règlement</strong> crédite le compte que
-            l&#39;écriture de la facture
-            a débité, même si le compte du payeur a changé entre-temps (à défaut d&#39;écriture de facture, le compte
-            actuel du
-            payeur).</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-009">
-        <div class="rid">RG-CPT-009</div>
-        <div class="rtxt"><p><strong>Journaux paramétrables par centre</strong> : chaque centre définit librement ses
-            journaux (code de 1 à 10
-            lettres majuscules ou chiffres, libellé de 100 caractères au plus, actif ou non). Tant qu&#39;il n&#39;a
-            rien paramétré, il
-            dispose des journaux par défaut <code>VE</code> Ventes, <code>BQ</code> Banque, <code>CA</code> Caisse,
-            <code>AC</code> Achats, <code>ST</code> Stocks ; ils sont
-            enregistrés comme les siens à sa première modification. Un journal <strong>choisi pour une
-                opération</strong> ne peut être ni
-            désactivé ni supprimé (<code>JOURNAL_UTILISE</code>) ; un journal <strong>qui porte des écritures</strong>
-            se désactive mais ne se supprime
-            pas (<code>JOURNAL_AVEC_ECRITURES</code>) ; supprimer un journal inconnu est refusé (<code>JOURNAL_INTROUVABLE</code>).
-            La liste est
-            paginée. <em>Source :</em> <code>JournauxService</code>, <code>ComptabiliteParametrageComponent</code> →
-            <code>ComptabiliteParametrageStore</code> →
-            <code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code> (<code>/journaux</code>) →
-            <code>JournauxUseCase</code> → <code>JournalRepositoryPort</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-010">
-        <div class="rid">RG-CPT-010</div>
-        <div class="rtxt"><p><strong>Journal de chaque opération</strong> : le centre choisit le journal des ventes, des
-            règlements en banque,
-            des règlements en caisse, des réceptions de stock, des sorties de stock et des écarts d&#39;inventaire (par
-            défaut <code>VE</code>,
-            <code>BQ</code>, <code>CA</code>, <code>AC</code>, <code>ST</code>, <code>ST</code>). Seul un journal
-            <strong>existant et actif</strong> peut être choisi (<code>JOURNAL_INCONNU</code>). Le numéro
-            de pièce reprend le code du journal : <code>&lt;JOURNAL&gt;-&lt;année&gt;-&lt;n° sur 6 chiffres&gt;</code>,
-            numéroté par journal et par année.</p>
+<div class="rule" id="RG-CPT-008"><div class="rid">RG-CPT-008</div><div class="rtxt"><p><em>(point d&#39;attention levé)</em> Les créances ne sont plus toutes imputées au compte client « autre » :
+chaque facture débite le compte de <strong>son payeur</strong> (RG-CPT-019), le compte par défaut si le payeur n&#39;en a pas, et le
+compte « patients » si la facture n&#39;a pas de payeur. Le <strong>règlement</strong> crédite le compte que l&#39;écriture de la facture
+a débité, même si le compte du payeur a changé entre-temps (à défaut d&#39;écriture de facture, le compte actuel du
+payeur).</p>
 </div></div>
-    <div class="rule" id="RG-CPT-011">
-        <div class="rid">RG-CPT-011</div>
-        <div class="rtxt"><p><strong>Comptes du stock</strong> (inventaire permanent), paramétrables par centre : stock
-            (322 par défaut),
-            consommation (602), factures non parvenues (408), boni d&#39;inventaire (757), mali d&#39;inventaire (657).
-            La <strong>fiche d&#39;un
-                article</strong> peut préciser son propre compte de stock et son propre compte de consommation
-            (RG-STK-008) ; à défaut, ceux
-            du centre s&#39;appliquent.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-012">
-        <div class="rid">RG-CPT-012</div>
-        <div class="rtxt"><p><strong>Écriture de réception</strong> : un bon de réception <strong>validé</strong> donne
-            une écriture, dans le journal des
-            réceptions, à la date de réception : débit du compte de stock (de l&#39;article ou du centre), crédit des
-            <strong>factures non
-                parvenues</strong>, pour la valeur <strong>hors taxe</strong> quantité × prix unitaire. La TVA d&#39;achat
-            et le compte fournisseur se
-            traitent à la facture, <strong>hors application</strong>. Une écriture par bon, jamais doublée.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-013">
-        <div class="rid">RG-CPT-013</div>
-        <div class="rtxt"><p><strong>Écriture des sorties</strong> : les sorties de stock d&#39;une journée
-            (consommations de séance, sorties
-            manuelles) sont <strong>centralisées en une écriture par centre et par jour</strong>, dans le journal des
-            sorties : débit du
-            compte de consommation, crédit du compte de stock, valorisés au <strong>prix moyen pondéré appliqué à la
-                sortie</strong> (à
-            défaut le PMP après mouvement, puis le PMP courant de l&#39;article). Une ligne par compte.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-014">
-        <div class="rid">RG-CPT-014</div>
-        <div class="rtxt"><p><strong>Écriture des écarts d&#39;inventaire</strong> : un inventaire
-            <strong>clôturé</strong> donne une écriture, dans le journal
-            des inventaires, à la date de l&#39;inventaire : excédent (compté &gt; théorique) = débit stock, crédit boni
-            ; manquant =
-            débit mali, crédit stock ; écarts valorisés au PMP de la ligne d&#39;inventaire. Une ligne non comptée ne
-            produit rien.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-015">
-        <div class="rid">RG-CPT-015</div>
-        <div class="rtxt"><p><strong>Comptabilisation du stock rejouable</strong> : elle a lieu <strong>chaque
-            nuit</strong> sur les 35 derniers jours
-            (<code>ComptabiliteStockScheduler</code>) et <strong>à la demande</strong> de l&#39;administrateur sur une
-            période d&#39;un an au plus. Seule la
-            <strong>différence</strong> entre ce qui devrait être comptabilisé et ce qui l&#39;est déjà est écrite : la
-            rejouer ne crée aucun
-            doublon. Quand les sorties d&#39;un jour changent après coup (mouvement saisi en retard, PMP recalculé), l&#39;écriture
-            du
-            jour est <strong>mise à jour</strong> tant qu&#39;elle n&#39;est ni exportée ni dans une période clôturée
-            (son numéro de pièce est
-            conservé) ; sinon la différence fait l&#39;objet d&#39;une <strong>écriture de complément</strong> — datée
-            du jour même, ou du jour du
-            traitement si la période d&#39;origine est clôturée (au plus 50 compléments par journée). Une réception ou
-            un inventaire
-            dont la période est <strong>clôturée</strong> n&#39;est pas comptabilisé : il est compté comme « ignoré » et
-            signalé à l&#39;écran. Le
-            stock d&#39;un centre n&#39;est jamais comptabilisé dans un autre. <em>Source :</em> <code>ComptabiliteStockService</code>,
-            <code>GenerateurEcritureStock</code>, <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code>
-            →
-            <code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code>
-            (<code>/stock/synchroniser</code>) → <code>ComptabiliteStockUseCase</code> →
-            <code>OperationsStockPort</code> (<code>OperationsStockJdbcAdapter</code>).</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-016">
-        <div class="rid">RG-CPT-016</div>
-        <div class="rtxt"><p><strong>Isolement par centre de la comptabilité</strong> : toute requête comptable
-            (écritures, export, clôture,
-            paramétrage, journaux, comptabilisation du stock, reconstruction) est confrontée au centre de la session ;
-            demander
-            un autre centre est refusé (403). <em>Source :</em> <code>ComptabiliteRestController</code>, <code>CenterAccessGuard</code>.
-        </p>
-        </div>
-    </div>
-    <div class="rule attention" id="RG-CPT-017">
-        <div class="rid">RG-CPT-017<small>point d'attention</small></div>
-        <div class="rtxt"><p>Le stock n&#39;est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
-            demande) : une sortie du jour n&#39;apparaît en comptabilité qu&#39;après le traitement suivant. La TVA
-            déductible sur achats
-            et la dette fournisseur (401) ne sont pas gérées automatiquement : le compte des factures non parvenues se
-            solde par
-            une pièce saisie (RG-CPT-021), à la comptabilisation de la facture du fournisseur.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-018">
-        <div class="rid">RG-CPT-018</div>
-        <div class="rtxt"><p><strong>Plan comptable par centre</strong> : chaque centre tient la liste de ses comptes
-            (numéro de 1 à 20
-            lettres ou chiffres, libellé de 150 caractères au plus, actif ou non), paginée et recherchable par numéro ou
-            libellé. Tant qu&#39;il n&#39;a rien paramétré, il dispose d&#39;un <strong>plan SCF de départ</strong>
-            (stock, fournisseurs, clients,
-            personnel, TVA, trésorerie, charges, produits), complété des comptes que son paramétrage utilise déjà ; ce
-            plan est
-            enregistré comme le sien à sa première modification. Partout où un compte est demandé (paramétrage, payeur,
-            modèle
-            de pièce), il <strong>se choisit dans ce plan</strong>. Un compte <strong>utilisé</strong> par le
-            paramétrage, un payeur ou un modèle de pièce
-            ne peut être ni désactivé ni supprimé (<code>COMPTE_UTILISE</code>) ; un compte <strong>qui porte des
-                écritures</strong> se désactive mais ne
-            se supprime pas (<code>COMPTE_AVEC_ECRITURES</code>) ; supprimer un compte inconnu est refusé (<code>COMPTE_INTROUVABLE</code>).
-            Ajouter
-            un compte ne demande aucun développement. <em>Source :</em> <code>PlanComptableService</code>, <code>PlanComptableComponent</code>
-            →
-            <code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code>
-            (<code>/comptes</code>) →
-            <code>PlanComptableUseCase</code> → <code>CompteRepositoryPort</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-019">
-        <div class="rid">RG-CPT-019</div>
-        <div class="rtxt"><p><strong>Compte client de chaque payeur</strong> : chaque payeur du référentiel (caisse,
-            mutuelle, entreprise…)
-            peut porter son propre compte client, choisi dans le plan comptable (<code>COMPTE_INCONNU</code> sinon) ;
-            ses factures y sont
-            débitées. Un payeur sans compte propre utilise le compte client par défaut du centre ; vider le compte d&#39;un
-            payeur
-            l&#39;y ramène. Un payeur d&#39;un autre centre est introuvable (<code>PAYEUR_INTROUVABLE</code>). <strong>Un
-                nouveau client ne demande aucun
-                développement</strong> : on crée le payeur dans les référentiels, on ajoute son compte au plan, on le
-            lui affecte. La liste
-            des payeurs est paginée et recherchable. <em>Source :</em> <code>ComptesPayeursService</code>, <code>PlanComptableComponent</code>
-            →
-            <code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code>
-            (<code>/payeurs</code>) →
-            <code>ComptesPayeursUseCase</code> → <code>PayeursPort</code>, <code>ComptePayeurRepositoryPort</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-020">
-        <div class="rid">RG-CPT-020</div>
-        <div class="rtxt"><p><strong>Modèles de pièces</strong> : un centre définit ses propres types de pièces (loyer,
-            salaires, facture
-            fournisseur, opération diverse…). Un modèle porte un code unique dans le centre (1 à 20 lettres majuscules,
-            chiffres, tirets ; <code>MODELE_CODE_EXISTANT</code>), un libellé, un <strong>journal actif</strong> (<code>JOURNAL_INCONNU</code>
-            sinon) et de 2 à 20
-            <strong>lignes</strong> — un sens (débit ou crédit), un compte du plan et un libellé facultatif chacune —
-            dont au moins une au
-            débit et une au crédit (<code>MODELE_LIGNES_INVALIDES</code>). Un modèle désactivé ne sert plus à saisir
-            (<code>MODELE_INACTIF</code>) ;
-            le supprimer conserve les pièces déjà saisies ; un modèle inconnu est refusé
-            (<code>MODELE_INTROUVABLE</code>). Le journal d&#39;un
-            modèle ne peut être ni désactivé ni supprimé (<code>JOURNAL_UTILISE</code>). <strong>Un nouveau type de
-                pièce ne demande aucun
-                développement.</strong> Liste paginée ; gestion réservée à <code>ADMIN</code>. <em>Source :</em> <code>ModelePiece</code>,
-            <code>PiecesComptablesService</code>,
-            <code>ModelesPieceComponent</code> → <code>PiecesComptablesStore</code> →
-            <code>ComptabiliteApiService</code> →
-            <code>ComptabiliteParametrageRestController</code> (<code>/modeles</code>) →
-            <code>PiecesComptablesUseCase</code> → <code>ModelePieceRepositoryPort</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-021">
-        <div class="rid">RG-CPT-021</div>
-        <div class="rtxt"><p><strong>Saisie d&#39;une pièce</strong> (<code>ADMIN</code>, <code>SECRETAIRE</code>) : on
-            choisit un modèle actif, une date, un libellé
-            (à défaut celui du modèle) et <strong>un montant par ligne</strong> ; une ligne à zéro n&#39;est pas écrite.
-            La pièce devient une
-            écriture <strong>validée</strong> dans le journal du modèle, numérotée comme les autres (RG-CPT-010). Elle
-            est refusée si un
-            montant est négatif, s&#39;il n&#39;y a pas un montant par ligne ou s&#39;il reste moins de deux lignes
-            (<code>PIECE_MONTANTS_INVALIDES</code>), si elle n&#39;est pas équilibrée
-            (<code>ECRITURE_DESEQUILIBREE</code>), si sa période est clôturée
-            (<code>PERIODE_CLOTUREE</code>) ou si un de ses comptes a quitté le plan (<code>COMPTE_INCONNU</code>). <em>Source
-                :</em>
-            <code>PiecesComptablesService.saisir</code>, <code>SaisiePieceComponent</code> →
-            <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> →
-            <code>ComptabiliteParametrageRestController</code> (<code>/pieces</code>) →
-            <code>PiecesComptablesUseCase</code> → <code>EcritureComptableRepositoryPort</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-CPT-022">
-        <div class="rid">RG-CPT-022</div>
-        <div class="rtxt"><p><strong>Extourne d&#39;une pièce saisie</strong> (<code>ADMIN</code>) : une écriture ne se
-            supprime jamais ; une pièce saisie
-            par erreur s&#39;annule par une <strong>écriture inverse</strong> (débits et crédits échangés), datée du
-            jour, dans le même journal,
-            libellée « Extourne &lt;n° de pièce&gt; ». Une pièce ne s&#39;extourne <strong>qu&#39;une fois</strong> et
-            une extourne ne s&#39;extourne pas
-            (<code>PIECE_DEJA_EXTOURNEE</code>) ; une écriture générée par le système (vente, règlement, stock) ne s&#39;extourne
-            pas à la
-            main (<code>PIECE_NON_SAISIE</code>) ; la période du jour doit être ouverte (<code>PERIODE_CLOTUREE</code>).
-            <em>Source :</em>
-            <code>PiecesComptablesService.extourner</code>, <code>ComptabiliteDashboardComponent</code> → <code>PiecesComptablesStore</code>
-            →
-            <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/pieces/{id}/extourne</code>).
-        </p>
-        </div>
-    </div>
-    <div class="rule attention" id="RG-CPT-023">
-        <div class="rid">RG-CPT-023<small>point d'attention</small></div>
-        <div class="rtxt"><p>Les comptes propres à un article (RG-STK-008) se saisissent encore librement
-            sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.</p>
-        </div>
-    </div>
+<div class="rule" id="RG-CPT-009"><div class="rid">RG-CPT-009</div><div class="rtxt"><p><strong>Journaux paramétrables par centre</strong> : chaque centre définit librement ses journaux (code de 1 à 10
+lettres majuscules ou chiffres, libellé de 100 caractères au plus, actif ou non). Tant qu&#39;il n&#39;a rien paramétré, il
+dispose des journaux par défaut <code>VE</code> Ventes, <code>BQ</code> Banque, <code>CA</code> Caisse, <code>AC</code> Achats, <code>ST</code> Stocks ; ils sont
+enregistrés comme les siens à sa première modification. Un journal <strong>choisi pour une opération</strong> ne peut être ni
+désactivé ni supprimé (<code>JOURNAL_UTILISE</code>) ; un journal <strong>qui porte des écritures</strong> se désactive mais ne se supprime
+pas (<code>JOURNAL_AVEC_ECRITURES</code>) ; supprimer un journal inconnu est refusé (<code>JOURNAL_INTROUVABLE</code>). La liste est
+paginée. <em>Source :</em> <code>JournauxService</code>, <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> →
+<code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code> (<code>/journaux</code>) → <code>JournauxUseCase</code> → <code>JournalRepositoryPort</code>.</p>
+</div></div>
+<div class="rule" id="RG-CPT-010"><div class="rid">RG-CPT-010</div><div class="rtxt"><p><strong>Journal de chaque opération</strong> : le centre choisit le journal des ventes, des règlements en banque,
+des règlements en caisse, des réceptions de stock, des sorties de stock et des écarts d&#39;inventaire (par défaut <code>VE</code>,
+<code>BQ</code>, <code>CA</code>, <code>AC</code>, <code>ST</code>, <code>ST</code>). Seul un journal <strong>existant et actif</strong> peut être choisi (<code>JOURNAL_INCONNU</code>). Le numéro
+de pièce reprend le code du journal : <code>&lt;JOURNAL&gt;-&lt;année&gt;-&lt;n° sur 6 chiffres&gt;</code>, numéroté par journal et par année.</p>
+</div></div>
+<div class="rule" id="RG-CPT-011"><div class="rid">RG-CPT-011</div><div class="rtxt"><p><strong>Comptes du stock</strong> (inventaire permanent), paramétrables par centre : stock (322 par défaut),
+consommation (602), factures non parvenues (408), boni d&#39;inventaire (757), mali d&#39;inventaire (657). La <strong>fiche d&#39;un
+article</strong> peut préciser son propre compte de stock et son propre compte de consommation (RG-STK-008) ; à défaut, ceux
+du centre s&#39;appliquent.</p>
+</div></div>
+<div class="rule" id="RG-CPT-012"><div class="rid">RG-CPT-012</div><div class="rtxt"><p><strong>Écriture de réception</strong> : un bon de réception <strong>validé</strong> donne une écriture, dans le journal des
+réceptions, à la date de réception : débit du compte de stock (de l&#39;article ou du centre), crédit des <strong>factures non
+parvenues</strong>, pour la valeur <strong>hors taxe</strong> quantité × prix unitaire. La TVA d&#39;achat et le compte fournisseur se
+traitent à la facture, <strong>hors application</strong>. Une écriture par bon, jamais doublée.</p>
+</div></div>
+<div class="rule" id="RG-CPT-013"><div class="rid">RG-CPT-013</div><div class="rtxt"><p><strong>Écriture des sorties</strong> : les sorties de stock d&#39;une journée (consommations de séance, sorties
+manuelles) sont <strong>centralisées en une écriture par centre et par jour</strong>, dans le journal des sorties : débit du
+compte de consommation, crédit du compte de stock, valorisés au <strong>prix moyen pondéré appliqué à la sortie</strong> (à
+défaut le PMP après mouvement, puis le PMP courant de l&#39;article). Une ligne par compte.</p>
+</div></div>
+<div class="rule" id="RG-CPT-014"><div class="rid">RG-CPT-014</div><div class="rtxt"><p><strong>Écriture des écarts d&#39;inventaire</strong> : un inventaire <strong>clôturé</strong> donne une écriture, dans le journal
+des inventaires, à la date de l&#39;inventaire : excédent (compté &gt; théorique) = débit stock, crédit boni ; manquant =
+débit mali, crédit stock ; écarts valorisés au PMP de la ligne d&#39;inventaire. Une ligne non comptée ne produit rien.</p>
+</div></div>
+<div class="rule" id="RG-CPT-015"><div class="rid">RG-CPT-015</div><div class="rtxt"><p><strong>Comptabilisation du stock rejouable</strong> : elle a lieu <strong>chaque nuit</strong> sur les 35 derniers jours
+(<code>ComptabiliteStockScheduler</code>) et <strong>à la demande</strong> de l&#39;administrateur sur une période d&#39;un an au plus. Seule la
+<strong>différence</strong> entre ce qui devrait être comptabilisé et ce qui l&#39;est déjà est écrite : la rejouer ne crée aucun
+doublon. Quand les sorties d&#39;un jour changent après coup (mouvement saisi en retard, PMP recalculé), l&#39;écriture du
+jour est <strong>mise à jour</strong> tant qu&#39;elle n&#39;est ni exportée ni dans une période clôturée (son numéro de pièce est
+conservé) ; sinon la différence fait l&#39;objet d&#39;une <strong>écriture de complément</strong> — datée du jour même, ou du jour du
+traitement si la période d&#39;origine est clôturée (au plus 50 compléments par journée). Une réception ou un inventaire
+dont la période est <strong>clôturée</strong> n&#39;est pas comptabilisé : il est compté comme « ignoré » et signalé à l&#39;écran. Le
+stock d&#39;un centre n&#39;est jamais comptabilisé dans un autre. <em>Source :</em> <code>ComptabiliteStockService</code>,
+<code>GenerateurEcritureStock</code>, <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> →
+<code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code> (<code>/stock/synchroniser</code>) → <code>ComptabiliteStockUseCase</code> →
+<code>OperationsStockPort</code> (<code>OperationsStockJdbcAdapter</code>).</p>
+</div></div>
+<div class="rule" id="RG-CPT-016"><div class="rid">RG-CPT-016</div><div class="rtxt"><p><strong>Isolement par centre de la comptabilité</strong> : toute requête comptable (écritures, export, clôture,
+paramétrage, journaux, comptabilisation du stock, reconstruction) est confrontée au centre de la session ; demander
+un autre centre est refusé (403). <em>Source :</em> <code>ComptabiliteRestController</code>, <code>CenterAccessGuard</code>.</p>
+</div></div>
+<div class="rule attention" id="RG-CPT-017"><div class="rid">RG-CPT-017<small>point d'attention</small></div><div class="rtxt"><p>Le stock n&#39;est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
+demande) : une sortie du jour n&#39;apparaît en comptabilité qu&#39;après le traitement suivant. La TVA déductible sur achats
+et la dette fournisseur (401) ne sont pas gérées automatiquement : le compte des factures non parvenues se solde par
+une pièce saisie (RG-CPT-021), à la comptabilisation de la facture du fournisseur.</p>
+</div></div>
+<div class="rule" id="RG-CPT-018"><div class="rid">RG-CPT-018</div><div class="rtxt"><p><strong>Plan comptable par centre</strong> : chaque centre tient la liste de ses comptes (numéro de 1 à 20
+lettres ou chiffres, libellé de 150 caractères au plus, actif ou non), paginée et recherchable par numéro ou
+libellé. Tant qu&#39;il n&#39;a rien paramétré, il dispose d&#39;un <strong>plan SCF de départ</strong> (stock, fournisseurs, clients,
+personnel, TVA, trésorerie, charges, produits), complété des comptes que son paramétrage utilise déjà ; ce plan est
+enregistré comme le sien à sa première modification. Partout où un compte est demandé (paramétrage, payeur, modèle
+de pièce), il <strong>se choisit dans ce plan</strong>. Un compte <strong>utilisé</strong> par le paramétrage, un payeur ou un modèle de pièce
+ne peut être ni désactivé ni supprimé (<code>COMPTE_UTILISE</code>) ; un compte <strong>qui porte des écritures</strong> se désactive mais ne
+se supprime pas (<code>COMPTE_AVEC_ECRITURES</code>) ; supprimer un compte inconnu est refusé (<code>COMPTE_INTROUVABLE</code>). Ajouter
+un compte ne demande aucun développement. <em>Source :</em> <code>PlanComptableService</code>, <code>PlanComptableComponent</code> →
+<code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/comptes</code>) →
+<code>PlanComptableUseCase</code> → <code>CompteRepositoryPort</code>.</p>
+</div></div>
+<div class="rule" id="RG-CPT-019"><div class="rid">RG-CPT-019</div><div class="rtxt"><p><strong>Compte client de chaque payeur</strong> : chaque payeur du référentiel (caisse, mutuelle, entreprise…)
+peut porter son propre compte client, choisi dans le plan comptable (<code>COMPTE_INCONNU</code> sinon) ; ses factures y sont
+débitées. Un payeur sans compte propre utilise le compte client par défaut du centre ; vider le compte d&#39;un payeur
+l&#39;y ramène. Un payeur d&#39;un autre centre est introuvable (<code>PAYEUR_INTROUVABLE</code>). <strong>Un nouveau client ne demande aucun
+développement</strong> : on crée le payeur dans les référentiels, on ajoute son compte au plan, on le lui affecte. La liste
+des payeurs est paginée et recherchable. <em>Source :</em> <code>ComptesPayeursService</code>, <code>PlanComptableComponent</code> →
+<code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/payeurs</code>) →
+<code>ComptesPayeursUseCase</code> → <code>PayeursPort</code>, <code>ComptePayeurRepositoryPort</code>.</p>
+</div></div>
+<div class="rule" id="RG-CPT-020"><div class="rid">RG-CPT-020</div><div class="rtxt"><p><strong>Modèles de pièces</strong> : un centre définit ses propres types de pièces (loyer, salaires, facture
+fournisseur, opération diverse…). Un modèle porte un code unique dans le centre (1 à 20 lettres majuscules,
+chiffres, tirets ; <code>MODELE_CODE_EXISTANT</code>), un libellé, un <strong>journal actif</strong> (<code>JOURNAL_INCONNU</code> sinon) et de 2 à 20
+<strong>lignes</strong> — un sens (débit ou crédit), un compte du plan et un libellé facultatif chacune — dont au moins une au
+débit et une au crédit (<code>MODELE_LIGNES_INVALIDES</code>). Un modèle désactivé ne sert plus à saisir (<code>MODELE_INACTIF</code>) ;
+le supprimer conserve les pièces déjà saisies ; un modèle inconnu est refusé (<code>MODELE_INTROUVABLE</code>). Le journal d&#39;un
+modèle ne peut être ni désactivé ni supprimé (<code>JOURNAL_UTILISE</code>). <strong>Un nouveau type de pièce ne demande aucun
+développement.</strong> Liste paginée ; gestion réservée à <code>ADMIN</code>. <em>Source :</em> <code>ModelePiece</code>, <code>PiecesComptablesService</code>,
+<code>ModelesPieceComponent</code> → <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> →
+<code>ComptabiliteParametrageRestController</code> (<code>/modeles</code>) → <code>PiecesComptablesUseCase</code> → <code>ModelePieceRepositoryPort</code>.</p>
+</div></div>
+<div class="rule" id="RG-CPT-021"><div class="rid">RG-CPT-021</div><div class="rtxt"><p><strong>Saisie d&#39;une pièce</strong> (<code>ADMIN</code>, <code>SECRETAIRE</code>) : on choisit un modèle actif, une date, un libellé (à
+défaut celui du modèle) et <strong>un montant par ligne</strong> ; une ligne à zéro n&#39;est pas écrite. La pièce devient une
+écriture <strong>validée</strong> dans le journal du modèle, numérotée comme les autres (RG-CPT-010). Elle est refusée si un
+montant est négatif, s&#39;il n&#39;y a pas un montant par ligne ou s&#39;il reste moins de deux lignes
+(<code>PIECE_MONTANTS_INVALIDES</code>), si elle n&#39;est pas équilibrée (<code>ECRITURE_DESEQUILIBREE</code>), si sa période est clôturée
+(<code>PERIODE_CLOTUREE</code>) ou si un de ses comptes a quitté le plan (<code>COMPTE_INCONNU</code>). <em>Source :</em>
+<code>PiecesComptablesService.saisir</code>, <code>SaisiePieceComponent</code> → <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> →
+<code>ComptabiliteParametrageRestController</code> (<code>/pieces</code>) → <code>PiecesComptablesUseCase</code> → <code>EcritureComptableRepositoryPort</code>.</p>
+</div></div>
+<div class="rule" id="RG-CPT-022"><div class="rid">RG-CPT-022</div><div class="rtxt"><p><strong>Extourne d&#39;une pièce saisie</strong> (<code>ADMIN</code>) : une écriture ne se supprime jamais ; une pièce saisie
+par erreur s&#39;annule par une <strong>écriture inverse</strong> (débits et crédits échangés), datée du jour, dans le même journal,
+libellée « Extourne &lt;n° de pièce&gt; ». Une pièce ne s&#39;extourne <strong>qu&#39;une fois</strong> et une extourne ne s&#39;extourne pas
+(<code>PIECE_DEJA_EXTOURNEE</code>) ; une écriture générée par le système (vente, règlement, stock) ne s&#39;extourne pas à la
+main (<code>PIECE_NON_SAISIE</code>) ; la période du jour doit être ouverte (<code>PERIODE_CLOTUREE</code>). <em>Source :</em>
+<code>PiecesComptablesService.extourner</code>, <code>ComptabiliteDashboardComponent</code> → <code>PiecesComptablesStore</code> →
+<code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/pieces/{id}/extourne</code>).</p>
+</div></div>
+<div class="rule attention" id="RG-CPT-023"><div class="rid">RG-CPT-023<small>point d'attention</small></div><div class="rtxt"><p>Les comptes propres à un article (RG-STK-008) se saisissent encore librement
+sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.</p>
+</div></div>
 </section>
 <section class="part" id="p13"><h1><span class="n">Partie 13</span>Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</h1>
 <figure><img src="img/direction-dashboard.png" alt="Tableau de bord de la direction"><figcaption>Tableau de bord de la direction</figcaption></figure>
@@ -3486,126 +3185,73 @@ un type, le centre, une charge utile et un horodatage ; un évènement peut port
 <div class="rule" id="RG-NOT-002"><div class="rid">RG-NOT-002</div><div class="rtxt"><p>Chaque évènement de centre signale aussi à la direction qu&#39;une donnée a changé (RG-TRV-061,
 RG-DIR-101).</p>
 </div></div>
-    <div class="rule" id="RG-NOT-003">
-        <div class="rid">RG-NOT-003</div>
-        <div class="rtxt"><p>Les évènements <strong>temps réel</strong> ne sont pas persistés : un utilisateur hors
-            ligne ne les reçoit pas
-            (sauf les alertes durables, RG-NOT-005) ; les <strong>états</strong> à surveiller (alertes de stock,
-            absences à qualifier, alertes
-            d&#39;observance, sous-effectif, conflits de planning, alertes de la direction) restent consultables dans
-            leurs écrans.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-NOT-005">
-        <div class="rid">RG-NOT-005</div>
-        <div class="rtxt"><p><strong>Journal durable des alertes.</strong> Les alertes qui demandent une action sont, en
-            plus d&#39;être poussées
-            en
-            temps réel, <strong>enregistrées</strong> dans le journal du centre (<code>INFIRMIER_SOUS_EFFECTIF</code>,
-            <code>INFIRMIER_ABSENCE_DECLAREE</code>,
-            <code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>OPTIMISATION_PROPOSITION</code>, <code>ABSENCES_A_QUALIFIER</code>,
-            <code>SEANCES_A_REGULARISER</code>,
-            <code>PATIENT_REPLACE_ISOLEMENT</code>, <code>ISOLEMENT_IMPOSSIBLE</code>,
-            <code>GENERATEUR_INDISPONIBLE</code>, <code>SEANCES_DEPLACEES</code>,
-            <code>INFIRMIER_SUREFFECTIF</code>, <code>OBSERVANCE_NON_RESPECTEE</code>,
-            <code>REPLANIFICATION_NOCTURNE</code>) ; les autres
-            évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50
-            alertes
-            récentes (30 derniers jours) <strong>destinées à ses rôles</strong> dans <strong>son centre</strong> (<code>GET
-                /api/v1/notifications</code>, paginé) : une
-            proposition calculée à 02:30 est donc retrouvée même si personne n&#39;était connecté. La <strong>lecture
-                est propre à chaque
-                utilisateur</strong> (<code>POST /api/v1/notifications/lecture</code> et <code>/lecture-tout</code>) ;
-            une alerte d&#39;un autre centre ne peut ni se
-            lire
-            ni se marquer lue. Le journal ne ralentit ni ne fait échouer l&#39;alerte temps réel (une base indisponible
-            est ignorée) ;
-            les alertes de plus de 60 jours sont purgées chaque jour à 03:40 (<code>NotificationPurgeScheduler</code>).
-            <em>Source :</em>
-            <code>NotificationService</code>, <code>NotificationJournalPort</code>,
-            <code>NotificationJournalJdbcAdapter</code>,
-            <code>NotificationRestController</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-NOT-006">
-        <div class="rid">RG-NOT-006</div>
-        <div class="rtxt"><p><strong>Alertes liées à l&#39;exploitation.</strong> Un <strong>générateur de dialyse en
-            service qui devient indisponible</strong>
-            (maintenance, attente de pièce, panne, réforme — par la fiche équipement ou une intervention GMAO) alerte
-            <code>ADMIN</code> et
-            <code>SECRETAIRE</code> (<code>GENERATEUR_INDISPONIBLE</code>) avec le code du générateur, son nouveau
-            statut, le nombre de patients dont
-            c&#39;est
-            la place habituelle et les cinq premiers noms : leurs séances sont à déplacer. Aucune alerte pour un autre
-            équipement,
-            pour un générateur déjà indisponible, ni à la création. Une <strong>absence d&#39;infirmier</strong> alerte
-            toujours <code>MEDECIN</code>
-            (<code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>INFIRMIER_ABSENCE_DECLAREE</code>), quel que soit l&#39;auteur
-            de la saisie ; saisie par le
-            secrétariat, elle alerte aussi <code>ADMIN</code> ; saisie par l&#39;administrateur, elle ne le prévient
-            pas. L&#39; <strong>application
-                d&#39;une
-                proposition d&#39;optimisation</strong> qui déplace des patients ou des séances alerte
-            <code>MEDECIN</code> et <code>SECRETAIRE</code>
-            (<code>SEANCES_DEPLACEES</code>). Le contrôle quotidien de sous-effectif (RG-INF-046) prévient aussi <code>MEDECIN</code>
-            ; son contrôle
-            jumeau
-            de <strong>sur-effectif</strong> (<code>INFIRMIER_SUREFFECTIF</code>, RG-INF-047) prévient
-            <code>ADMIN</code> des infirmiers payés au-delà de l&#39;effectif
-            requis, avec les heures concernées. Un échec de ces
-            alertes ne fait jamais échouer l&#39;opération qu&#39;elles accompagnent. Depuis la cloche, chaque alerte
-            porte une action
-            qui mène à l&#39;écran où la traiter (RG-NOT-007). <em>Source :</em>
-            <code>GenerateurIndisponibleService</code>,
-            <code>AbsenceInfirmierService</code>, <code>OptimisationApplicationService</code>.</p>
-        </div>
-    </div>
-    <div class="rule" id="RG-NOT-007">
-        <div class="rid">RG-NOT-007</div>
-        <div class="rtxt"><p><strong>Chaque notification a un libellé, un message et une action.</strong> Dans la
-            cloche, une notification
-            n&#39;affiche jamais un code technique : elle porte un <strong>libellé court</strong> (« Absence d&#39;un
-            infirmier à remplacer »,
-            « Générateur indisponible »…), un <strong>message</strong> en phrase complète avec les dates au format
-            jour/mois/année, la
-            mention <strong>« Action requise »</strong> quand l&#39;utilisateur a quelque chose à faire, et <strong>une
-                action</strong> — un bouton qui ouvre
-            l&#39;écran où la traiter ou la consulter. Ouvrir l&#39;action marque la notification comme lue. L&#39;action
-            dépend du
-            profil : elle ne mène jamais vers un écran fermé à l&#39;utilisateur.</p>
+<div class="rule" id="RG-NOT-003"><div class="rid">RG-NOT-003</div><div class="rtxt"><p>Les évènements <strong>temps réel</strong> ne sont pas persistés : un utilisateur hors ligne ne les reçoit pas
+(sauf les alertes durables, RG-NOT-005) ; les <strong>états</strong> à surveiller (alertes de stock, absences à qualifier, alertes
+d&#39;observance, sous-effectif, conflits de planning, alertes de la direction) restent consultables dans leurs écrans.</p>
 </div></div>
-    <p>| Notification | Action (administrateur, secrétariat) | Médecin seul | Infirmier seul |
-        |---|---|---|---|
-        | Absence d&#39;un infirmier, sous-effectif | <strong>Chercher des remplaçants</strong> : optimisation «
-        Couverture » sur toute la période de l&#39;absence | planning de la semaine concernée | — |
-        | Sur-effectif d&#39;infirmiers | Revoir le roulement (optimisation « Roulement ») | — | — |
-        | Générateur indisponible | Proposer des déplacements (optimisation « Maintenance ») | — | — |
-        | Proposition de la replanification nocturne | Ouvrir la proposition | — | — |
-        | Planning modifié, patient replacé en isolement | Voir le planning / le nouveau placement | planning du jour |
-        — |
-        | Isolement impossible | Replanifier le patient (optimisation « Patients ») | sérologies du patient | — |
-        | Traitement de l&#39;anémie en retard ou à terminer | suivi de l&#39;anémie du patient | suivi de l&#39;anémie
-        du patient | — |
-        | Saisie d&#39;un infirmier | — | cahier de dialyse du patient ; suivi de l&#39;anémie ; absences de patients,
-        selon la saisie | — |
-        | Absences de patients à qualifier | Qualifier les absences | Qualifier les absences | Qualifier les absences |
-        | Séances à régulariser, séance à valider, séance créée / validée / volets / consommables | Ouvrir le poste
-        infirmier | cahier de dialyse du patient | Ouvrir le poste infirmier |
-        | Séance supprimée | historique des séances | planning du jour | historique des séances |
-        | Nouveau patient, fiche modifiée | fiche du patient | fiche du patient (lecture) | — |
-        | Prise en charge validée / clôturée / supprimée | liste des prises en charge | fiche du patient | — |
-        | Attestation créée / supprimée | liste des attestations | fiche du patient | — |
-        | Mouvement de stock, inventaire ouvert / clôturé / annulé | stock, inventaires | — | — |</p>
-    <p> « — » : la notification n&#39;est pas destinée à ce profil ; si elle lui parvenait, l&#39;action ouvrirait son
-        écran
-        d&#39;accueil. Les évènements purement techniques (<code>PRESCRIPTION_CHANGED</code>, <code>STOCK_RECALC_LOCKS_CHANGED</code>)
-        rafraîchissent
-        les écrans sans apparaître dans la cloche. Sur un téléphone, l&#39;action figure directement sous chaque
-        notification.
-        <em>Source :</em> <code>notification-presentation.util.ts</code> (<code>presenterNotification</code>), <code>NotificationBellComponent</code>
-        →
-        <code>NotificationBellStore</code> → <code>NotificationApiService</code> →
-        <code>NotificationRestController</code>.</p>
+<div class="rule" id="RG-NOT-005"><div class="rid">RG-NOT-005</div><div class="rtxt"><p><strong>Journal durable des alertes.</strong> Les alertes qui demandent une action sont, en plus d&#39;être poussées
+en
+temps réel, <strong>enregistrées</strong> dans le journal du centre (<code>INFIRMIER_SOUS_EFFECTIF</code>, <code>INFIRMIER_ABSENCE_DECLAREE</code>,
+<code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>OPTIMISATION_PROPOSITION</code>, <code>ABSENCES_A_QUALIFIER</code>, <code>SEANCES_A_REGULARISER</code>,
+<code>PATIENT_REPLACE_ISOLEMENT</code>, <code>ISOLEMENT_IMPOSSIBLE</code>, <code>GENERATEUR_INDISPONIBLE</code>, <code>SEANCES_DEPLACEES</code>,
+<code>INFIRMIER_SUREFFECTIF</code>, <code>OBSERVANCE_NON_RESPECTEE</code>, <code>REPLANIFICATION_NOCTURNE</code>, <code>REFORME_PROPOSEE</code>) ; les autres
+évènements (création, mise à jour) ne valent que sur le moment. À sa connexion, la cloche relit les 50 alertes
+récentes (30 derniers jours) <strong>destinées à ses rôles</strong> dans <strong>son centre</strong> (<code>GET /api/v1/notifications</code>, paginé) : une
+proposition calculée à 02:30 est donc retrouvée même si personne n&#39;était connecté. La <strong>lecture est propre à chaque
+utilisateur</strong> (<code>POST /api/v1/notifications/lecture</code> et <code>/lecture-tout</code>) ; une alerte d&#39;un autre centre ne peut ni se
+lire
+ni se marquer lue. Le journal ne ralentit ni ne fait échouer l&#39;alerte temps réel (une base indisponible est ignorée) ;
+les alertes de plus de 60 jours sont purgées chaque jour à 03:40 (<code>NotificationPurgeScheduler</code>). <em>Source :</em>
+<code>NotificationService</code>, <code>NotificationJournalPort</code>, <code>NotificationJournalJdbcAdapter</code>,
+<code>NotificationRestController</code>.</p>
+</div></div>
+<div class="rule" id="RG-NOT-006"><div class="rid">RG-NOT-006</div><div class="rtxt"><p><strong>Alertes liées à l&#39;exploitation.</strong> Un <strong>générateur de dialyse en service qui devient indisponible</strong>
+(maintenance, attente de pièce, panne, réforme — par la fiche équipement ou une intervention GMAO) alerte <code>ADMIN</code> et
+<code>SECRETAIRE</code> (<code>GENERATEUR_INDISPONIBLE</code>) avec le code du générateur, son nouveau statut, le nombre de patients dont
+c&#39;est
+la place habituelle et les cinq premiers noms : leurs séances sont à déplacer. Aucune alerte pour un autre équipement,
+pour un générateur déjà indisponible, ni à la création. Une <strong>absence d&#39;infirmier</strong> alerte toujours <code>MEDECIN</code>
+(<code>INFIRMIER_ABSENCE_ENREGISTREE</code>, <code>INFIRMIER_ABSENCE_DECLAREE</code>), quel que soit l&#39;auteur de la saisie ; saisie par le
+secrétariat, elle alerte aussi <code>ADMIN</code> ; saisie par l&#39;administrateur, elle ne le prévient pas. L&#39; <strong>application
+d&#39;une
+proposition d&#39;optimisation</strong> qui déplace des patients ou des séances alerte <code>MEDECIN</code> et <code>SECRETAIRE</code>
+(<code>SEANCES_DEPLACEES</code>). Le contrôle quotidien de sous-effectif (RG-INF-046) prévient aussi <code>MEDECIN</code> ; son contrôle
+jumeau
+de <strong>sur-effectif</strong> (<code>INFIRMIER_SUREFFECTIF</code>, RG-INF-047) prévient <code>ADMIN</code> des infirmiers payés au-delà de l&#39;effectif
+requis, avec les heures concernées. Un échec de ces
+alertes ne fait jamais échouer l&#39;opération qu&#39;elles accompagnent. Depuis la cloche, chaque alerte porte une action
+qui mène à l&#39;écran où la traiter (RG-NOT-007). <em>Source :</em> <code>GenerateurIndisponibleService</code>,
+<code>AbsenceInfirmierService</code>, <code>OptimisationApplicationService</code>.</p>
+</div></div>
+<div class="rule" id="RG-NOT-007"><div class="rid">RG-NOT-007</div><div class="rtxt"><p><strong>Chaque notification a un libellé, un message et une action.</strong> Dans la cloche, une notification
+n&#39;affiche jamais un code technique : elle porte un <strong>libellé court</strong> (« Absence d&#39;un infirmier à remplacer »,
+« Générateur indisponible »…), un <strong>message</strong> en phrase complète avec les dates au format jour/mois/année, la
+mention <strong>« Action requise »</strong> quand l&#39;utilisateur a quelque chose à faire, et <strong>une action</strong> — un bouton qui ouvre
+l&#39;écran où la traiter ou la consulter. Ouvrir l&#39;action marque la notification comme lue. L&#39;action dépend du
+profil : elle ne mène jamais vers un écran fermé à l&#39;utilisateur.</p>
+</div></div>
+<p>| Notification | Action (administrateur, secrétariat) | Médecin seul | Infirmier seul |
+    |---|---|---|---|
+  | Absence d&#39;un infirmier, sous-effectif | <strong>Chercher des remplaçants</strong> : optimisation « Couverture » sur toute la période de l&#39;absence | planning de la semaine concernée | — |
+  | Sur-effectif d&#39;infirmiers | Revoir le roulement (optimisation « Roulement ») | — | — |
+  | Générateur indisponible | Proposer des déplacements (optimisation « Maintenance ») | — | — |
+  | Proposition de la replanification nocturne | Ouvrir la proposition | — | — |
+  | Planning modifié, patient replacé en isolement | Voir le planning / le nouveau placement | planning du jour | — |
+  | Isolement impossible | Replanifier le patient (optimisation « Patients ») | sérologies du patient | — |
+  | Traitement de l&#39;anémie en retard ou à terminer | suivi de l&#39;anémie du patient | suivi de l&#39;anémie du patient | — |
+  | Saisie d&#39;un infirmier | — | cahier de dialyse du patient ; suivi de l&#39;anémie ; absences de patients, selon la saisie | — |
+  | Absences de patients à qualifier | Qualifier les absences | Qualifier les absences | Qualifier les absences |
+  | Séances à régulariser, séance à valider, séance créée / validée / volets / consommables | Ouvrir le poste infirmier | cahier de dialyse du patient | Ouvrir le poste infirmier |
+  | Séance supprimée | historique des séances | planning du jour | historique des séances |
+  | Nouveau patient, fiche modifiée | fiche du patient | fiche du patient (lecture) | — |
+  | Prise en charge validée / clôturée / supprimée | liste des prises en charge | fiche du patient | — |
+  | Attestation créée / supprimée | liste des attestations | fiche du patient | — |
+  | Mouvement de stock, inventaire ouvert / clôturé / annulé | stock, inventaires | — | — |</p>
+<p>  « — » : la notification n&#39;est pas destinée à ce profil ; si elle lui parvenait, l&#39;action ouvrirait son écran
+  d&#39;accueil. Les évènements purement techniques (<code>PRESCRIPTION_CHANGED</code>, <code>STOCK_RECALC_LOCKS_CHANGED</code>) rafraîchissent
+  les écrans sans apparaître dans la cloche. Sur un téléphone, l&#39;action figure directement sous chaque notification.
+  <em>Source :</em> <code>notification-presentation.util.ts</code> (<code>presenterNotification</code>), <code>NotificationBellComponent</code> →
+  <code>NotificationBellStore</code> → <code>NotificationApiService</code> → <code>NotificationRestController</code>.</p>
 <div class="rule" id="RG-NOT-004"><div class="rid">RG-NOT-004</div><div class="rtxt"><p><strong>Toute saisie d&#39;un infirmier prévient le médecin du centre</strong> : l&#39;évènement <code>SAISIE_INFIRMIER</code>
 (destinataire <code>MEDECIN</code>) nomme l&#39;auteur, le patient, la date et la nature de la saisie — séance créée ou validée
 (<code>SEANCE_CREEE</code>, <code>SEANCE_VALIDEE</code>), volet paramédical (<code>PARAMEDICAL</code>), consommable ajouté / modifié / retiré
@@ -3711,50 +3357,55 @@ ignorée). Les évènements de séance historiques ne visent plus le médecin : 
 <tr>
 <td><code>INFIRMIER_SOUS_EFFECTIF</code></td>
 <td>créneaux en sous-effectif dans les 14 jours (contrôle de 07:15)</td>
-    <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code></td>
-    <td>RG-INF-046, RG-NOT-006</td>
+<td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code></td>
+<td>RG-INF-046, RG-NOT-006</td>
 </tr>
 <tr>
-    <td><code>INFIRMIER_SUREFFECTIF</code></td>
-    <td>infirmiers au-delà de l&#39;effectif requis dans les 14 jours, salle sans patient comprise (contrôle de 07:15)
-    </td>
-    <td><code>ADMIN</code></td>
-    <td>RG-INF-047, RG-NOT-006</td>
+<td><code>INFIRMIER_SUREFFECTIF</code></td>
+<td>infirmiers au-delà de l&#39;effectif requis dans les 14 jours, salle sans patient comprise (contrôle de 07:15)</td>
+<td><code>ADMIN</code></td>
+<td>RG-INF-047, RG-NOT-006</td>
 </tr>
 <tr>
-    <td><code>INFIRMIER_ABSENCE_ENREGISTREE</code></td>
-    <td>une absence d&#39;infirmier est enregistrée (secrétariat ou administrateur)</td>
-    <td><code>MEDECIN</code>, + <code>ADMIN</code> si saisie par le secrétariat</td>
-    <td>RG-NOT-006</td>
+<td><code>INFIRMIER_ABSENCE_ENREGISTREE</code></td>
+<td>une absence d&#39;infirmier est enregistrée (secrétariat ou administrateur)</td>
+<td><code>MEDECIN</code>, + <code>ADMIN</code> si saisie par le secrétariat</td>
+<td>RG-NOT-006</td>
 </tr>
 <tr>
-    <td><code>GENERATEUR_INDISPONIBLE</code></td>
-    <td>un générateur en service passe en maintenance, attente de pièce, panne ou réforme</td>
+<td><code>GENERATEUR_INDISPONIBLE</code></td>
+<td>un générateur en service passe en maintenance, attente de pièce, panne ou réforme</td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code></td>
-    <td>RG-NOT-006</td>
+<td>RG-NOT-006</td>
 </tr>
 <tr>
-    <td><code>SEANCES_DEPLACEES</code></td>
-    <td>une proposition d&#39;optimisation appliquée déplace des patients ou des séances</td>
-    <td><code>MEDECIN</code>, <code>SECRETAIRE</code></td>
-    <td>RG-NOT-006</td>
+<td><code>REFORME_PROPOSEE</code></td>
+<td>un équipement est constaté « à réformer » à la clôture d&#39;une intervention (à valider par le métier)</td>
+<td>détenteurs de <code>GMAO_REFORME</code> du centre</td>
+<td>RG-GMA-065</td>
+</tr>
+<tr>
+<td><code>SEANCES_DEPLACEES</code></td>
+<td>une proposition d&#39;optimisation appliquée déplace des patients ou des séances</td>
+<td><code>MEDECIN</code>, <code>SECRETAIRE</code></td>
+<td>RG-NOT-006</td>
 </tr>
 <tr>
 <td><code>OPTIMISATION_PROPOSITION</code></td>
 <td>proposition utile de la replanification nocturne (sous-effectif, maintenance, gain)</td>
-    <td><code>ADMIN</code></td>
-    <td>RG-PLN-100</td>
+<td><code>ADMIN</code></td>
+<td>RG-PLN-100</td>
 </tr>
 <tr>
-    <td><code>REPLANIFICATION_NOCTURNE</code></td>
-    <td>bilan de chaque replanification nocturne : propositions à examiner, rien à proposer, échec ou report</td>
+<td><code>REPLANIFICATION_NOCTURNE</code></td>
+<td>bilan de chaque replanification nocturne : propositions à examiner, rien à proposer, échec ou report</td>
 <td><code>ADMIN</code></td>
 <td>RG-PLN-100</td>
 </tr>
 <tr>
 <td><code>INFIRMIER_ABSENCE_DECLAREE</code></td>
 <td>un infirmier déclare une absence</td>
-    <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code></td>
+<td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code></td>
 <td>RG-INF-032</td>
 </tr>
 <tr>
@@ -3950,10 +3601,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-SEC-050 à 053</td>
 </tr>
 <tr>
-    <td><code>SupervisionBaseRestController</code></td>
-    <td><code>/api/v1/supervision/base-donnees</code></td>
-    <td><code>SUPERADMIN</code></td>
-    <td>RG-SEC-060 à 066</td>
+<td><code>SupervisionBaseRestController</code></td>
+<td><code>/api/v1/supervision/base-donnees</code></td>
+<td><code>SUPERADMIN</code></td>
+<td>RG-SEC-060 à 066</td>
 </tr>
 <tr>
 <td><code>SocieteRestController</code></td>
@@ -4078,8 +3729,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <tr>
 <td><code>AbsencePatientRestController</code></td>
 <td><code>/api/v1/absences-patients</code></td>
-    <td>lecture et suivi tous profils ; déclaration <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code>
-    </td>
+<td>lecture et suivi tous profils ; déclaration <code>ADMIN</code>, <code>SECRETAIRE</code>, <code>INFIRMIER</code></td>
 <td>RG-ABS-001 à 052</td>
 </tr>
 <tr>
@@ -4098,7 +3748,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PlanningSemaineRestController</code></td>
 <td><code>/api/v1/planning/semaine</code></td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code>, <code>MEDECIN</code>, <code>INFIRMIER</code></td>
-    <td>RG-PLN-040 à 044, RG-PLN-103, 104</td>
+<td>RG-PLN-040 à 044, RG-PLN-103, 104</td>
 </tr>
 <tr>
 <td><code>SalleGenerateursRestController</code></td>
@@ -4110,7 +3760,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>PlanningOptimisationRestController</code></td>
 <td><code>/api/v1/planning/optimisations</code></td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code> (application : <code>ADMIN</code>)</td>
-    <td>RG-PLN-080 à 096, 101, 102, 103, RG-INF-070</td>
+<td>RG-PLN-080 à 096, 101, 102, 103, RG-INF-070</td>
 </tr>
 <tr>
 <td><code>PlanningPreferencesRestController</code></td>
@@ -4137,10 +3787,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-INF-040 à 060</td>
 </tr>
 <tr>
-    <td><code>NotificationRestController</code></td>
-    <td><code>/api/v1/notifications</code></td>
-    <td>tout profil de centre (alertes destinées à ses rôles)</td>
-    <td>RG-NOT-005</td>
+<td><code>NotificationRestController</code></td>
+<td><code>/api/v1/notifications</code></td>
+<td>tout profil de centre (alertes destinées à ses rôles)</td>
+<td>RG-NOT-005</td>
 </tr>
 <tr>
 <td><code>MonPlanningInfirmierRestController</code></td>
@@ -4317,31 +3967,25 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-STK-070 à 073</td>
 </tr>
 <tr>
-<td><code>EquipementRestController</code></td>
+<td><code>EquipementControleur</code></td>
 <td><code>/api/v1/gmao/equipements</code></td>
-<td><code>ADMIN</code> (réforme : <code>GMAO_REFORME</code>)</td>
+<td><code>ADMIN</code> (réforme : <code>ADMIN</code> et <code>GMAO_REFORME</code>)</td>
 <td>RG-GMA-010 à 016</td>
 </tr>
 <tr>
-<td><code>EquipementFicheRestController</code></td>
-<td><code>/api/v1/gmao/equipements/{id}</code></td>
-<td><code>ADMIN</code></td>
-<td>RG-GMA-017, 061 à 063</td>
-</tr>
-<tr>
-<td><code>InterventionRestController</code></td>
+<td><code>InterventionControleur</code></td>
 <td><code>/api/v1/gmao/interventions</code></td>
-<td><code>ADMIN</code> (rectification : <code>GMAO_RECTIFICATION</code>)</td>
+<td><code>ADMIN</code> (rectification : <code>ADMIN</code> et <code>GMAO_RECTIFICATION</code>)</td>
 <td>RG-GMA-020 à 027</td>
 </tr>
 <tr>
-<td><code>InterventionSuiviRestController</code></td>
-<td><code>/api/v1/gmao/interventions/{id}</code></td>
+<td><code>SuiviControleur</code></td>
+<td><code>/api/v1/gmao/interventions/{id}</code> (bon, indicateurs, chronologie), <code>/api/v1/gmao/equipements/{id}</code> (fiche, disponibilite-patient), <code>/api/v1/gmao/stats</code></td>
 <td><code>ADMIN</code></td>
-<td>RG-GMA-031</td>
+<td>RG-GMA-002, 017, 030, 031, 052, 061 à 063, 066, 067</td>
 </tr>
 <tr>
-<td><code>InterventionDocumentRestController</code></td>
+<td><code>PieceJointeControleur</code></td>
 <td><code>/api/v1/gmao/interventions/{id}/documents</code></td>
 <td><code>ADMIN</code></td>
 <td>RG-GMA-028</td>
@@ -4357,12 +4001,6 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>/api/v1/gmao/plans-maintenance</code></td>
 <td><code>ADMIN</code></td>
 <td>RG-GMA-050 à 052</td>
-</tr>
-<tr>
-<td><code>GmaoStatsRestController</code></td>
-<td><code>/api/v1/gmao/stats</code></td>
-<td><code>ADMIN</code></td>
-<td>RG-GMA-002, 030, 052</td>
 </tr>
 <tr>
 <td><code>TvaTypesRestController</code></td>
@@ -4385,15 +4023,14 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <tr>
 <td><code>ComptabiliteRestController</code></td>
 <td><code>/api/v1/comptabilite</code></td>
-    <td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture des écritures et des journaux)</td>
-    <td>RG-CPT-001 à 017</td>
+<td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture des écritures et des journaux)</td>
+<td>RG-CPT-001 à 017</td>
 </tr>
 <tr>
-    <td><code>ComptabiliteParametrageRestController</code></td>
-    <td><code>/api/v1/comptabilite</code> (<code>/comptes</code>, <code>/payeurs</code>, <code>/modeles</code>, <code>/pieces</code>)
-    </td>
-    <td><code>ADMIN</code> (<code>SECRETAIRE</code> : lecture du plan et des modèles, saisie de pièces)</td>
-    <td>RG-CPT-018 à 023</td>
+<td><code>ComptabiliteParametrageRestController</code></td>
+<td><code>/api/v1/comptabilite</code> (<code>/comptes</code>, <code>/payeurs</code>, <code>/modeles</code>, <code>/pieces</code>)</td>
+<td><code>ADMIN</code> (<code>SECRETAIRE</code> : lecture du plan et des modèles, saisie de pièces)</td>
+<td>RG-CPT-018 à 023</td>
 </tr>
 <tr>
 <td><code>DirectionDashboardRestController</code></td>
@@ -4480,9 +4117,9 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-INF-046</td>
 </tr>
 <tr>
-    <td><code>NotificationPurgeScheduler</code></td>
-    <td>03:40 chaque jour</td>
-    <td>RG-NOT-005</td>
+<td><code>NotificationPurgeScheduler</code></td>
+<td>03:40 chaque jour</td>
+<td>RG-NOT-005</td>
 </tr>
 <tr>
 <td><code>ReplanificationAutomatiqueScheduler</code></td>
@@ -4490,9 +4127,9 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-PLN-100</td>
 </tr>
 <tr>
-    <td><code>ComptabiliteStockScheduler</code></td>
-    <td>03:15 chaque jour</td>
-    <td>RG-CPT-015</td>
+<td><code>ComptabiliteStockScheduler</code></td>
+<td>03:15 chaque jour</td>
+<td>RG-CPT-015</td>
 </tr>
 </tbody></table>
 </section>
@@ -4522,16 +4159,9 @@ porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté s
 <li><a href="#RG-STK-061"><b>RG-STK-061</b></a> — Contrôle quotidien à 07:00 (ExpirationAlertScheduler.scanExpirations) : pour chaque centre, les
 lots contenant du stock et expirant dans 30 jours sont consignés au
 journal technique. Point d'attention : ce contrôle ne pr…</li>
-    <li><a href="#RG-CPT-017"><b>RG-CPT-017</b></a> — Le stock n'est pas comptabilisé à chaque mouvement mais par
-        traitement (nuit ou
-        demande) : une sortie du jour n'apparaît en comptabilité qu'après le traitement suivant. La TVA déductible sur
-        achats
-        et la dette fournisseu…
-    </li>
-    <li><a href="#RG-CPT-023"><b>RG-CPT-023</b></a> — Les comptes propres à un article (RG-STK-008) se saisissent encore
-        librement
-        sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.…
-    </li>
-</ul>
-</section>
+<li><a href="#RG-CPT-017"><b>RG-CPT-017</b></a> — Le stock n'est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
+demande) : une sortie du jour n'apparaît en comptabilité qu'après le traitement suivant. La TVA déductible sur achats
+et la dette fournisseu…</li>
+<li><a href="#RG-CPT-023"><b>RG-CPT-023</b></a> — Les comptes propres à un article (RG-STK-008) se saisissent encore librement
+sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.…</li></ul></section>
 </div></body></html>

@@ -6,17 +6,18 @@
 > et **relance** les interventions et plans en retard.
 > Le générateur de dialyse du parc est l'équipement GMAO : il n'existe pas de second référentiel de générateurs.
 > Sources : `Equipement`, `Intervention`,
-> `PlanMaintenance`, `Intervenant`, `LigneCoutIntervention`, `DocumentIntervention`, `IndisponibiliteCalculator`,
-> `IndicateursIntervention`, `AideDecisionMaintenance`,
-> `InterventionEquipementStatutService`, contrôleurs `web/rest/gmao/*`.
+> `PlanMaintenance`, `Intervenant`, `LigneCoutIntervention`, `PieceJointe`, `CalculDIndisponibilite`,
+> `IndicateursDIntervention`, `AnalyseDeDecision`,
+> `ConstaterEtat`, `SuiviControleur`, `InterventionControleur`, `EquipementControleur`, `IntervenantControleur`,
+> `PlanMaintenanceControleur` (contexte `contexts/gmao`).
 
 ## 9.1 Accès
 
 - **RG-GMA-001** — Tous les écrans et API GMAO sont réservés à `ADMIN` et limités au **centre de la session** : un
   équipement, une intervention, un plan ou un intervenant d'un autre centre est
-  « non trouvé ». La **réforme** d'un équipement exige l'habilitation `GMAO_REFORME`, la **rectification** d'une
-  intervention l'habilitation `GMAO_RECTIFICATION` (droits distincts de
-  l'administration GMAO).
+  « non trouvé ». La **réforme** d'un équipement exige le rôle `ADMIN` **et** l'habilitation `GMAO_REFORME` (l'habilitation seule ne suffit plus, KB-GMAO-32), la **rectification** d'une
+  intervention le rôle `ADMIN` **et** l'habilitation `GMAO_RECTIFICATION` (l'habilitation seule ne suffit plus, KB-GMAO-52 ;
+  droits distincts de l'administration GMAO).
 - **RG-GMA-002** — Toute liste GMAO (équipements, interventions, plans, intervenants) est paginée (RG-TRV-020) ; les
   statistiques du tableau de bord sont des comptages serveur, jamais
   recalculés côté interface.
@@ -35,7 +36,7 @@
 - **RG-GMA-013** — Mise hors service : refusée si déjà hors service ou réformé ; réactivation : uniquement depuis
   `HORS_SERVICE` (jamais depuis `REFORME`) ; observation obligatoire non vide.
 - **RG-GMA-014** — **Réforme** : fin de vie **définitive** (aucun retour en arrière, aucun changement de statut
-  ensuite), motif obligatoire ; réservée à `GMAO_REFORME`. Un équipement
+  ensuite), motif obligatoire ; réservée aux administrateurs détenteurs de `GMAO_REFORME`. Un équipement
   réformé n'est plus compté dans la capacité théorique (RG-PLN-071) ni proposé au placement.
 - **RG-GMA-015** — Chaque changement de statut (création, hors service, réactivation, réforme, état saisi par une
   intervention) est inscrit dans l' **historique de statuts** (statut précédent,
@@ -79,17 +80,35 @@
   « Honoraires intervenant » pour un prestataire externe, « Main d'œuvre » pour un interne ; sans effet si le tarif est
   absent ou nul, si la durée est nulle, ou si une ligne de même nature existe
   déjà (jamais de double comptage). Pour un intervenant **externe**, saisir manuellement de la main d'œuvre est refusé.
-- **RG-GMA-028** — **Pièces jointes** d'une intervention : bon d'intervention, facture, photo ou autre ; PDF, PNG ou
-  JPEG **reconnus à leur contenu**, 5 Mo maximum, fichier non vide, 50 documents au
-  plus par intervention ; nom nettoyé (sans chemin, 150 caractères maximum).
-- **RG-GMA-029** — **Tâches** d'une intervention : `A_FAIRE` → `EN_COURS` → `COMPLETEE` ; description obligatoire ; une
-  tâche ne se démarre que « à faire » et ne se complète qu'« en cours ».
+- **RG-GMA-028** — **Pièces jointes** d'une intervention (R22, R23 ; refonte G5, décisions du 2026-10-12) : bon
+  d'intervention, facture, photo ou autre ; PDF, PNG ou JPEG **reconnus à leur contenu entier** (PDF : en-tête `%PDF-x.y` et
+  marqueur `%%EOF` en fin ; PNG : signature, blocs aux sommes de contrôle justes, IHDR cohérent, IEND en dernier ; JPEG : début
+  `FFD8FF` et fin `FFD9`), jamais d'après le type déclaré par le client ; un nom qui porte une extension (1 à 8 lettres ou
+  chiffres) doit avoir celle du format reconnu (`pdf`, `png`, `jpg` ou `jpeg`) ; 5 Mo maximum (octets exacts), fichier non
+  vide, 50 documents au plus par intervention, **tenu même sous envois simultanés** ; nom assaini (sans chemin, sans `..`,
+  sans caractères de contrôle ni de sens d'écriture, 150 caractères maximum sans couper un emoji), assaini de nouveau à la
+  lecture ; type servi toujours celui du format reconnu (sinon `application/octet-stream`), en pièce jointe. **On ne joint ni
+  ne retire de pièce** sur une intervention annulée, terminée ou supprimée (422 `BUSINESS_RULE_VIOLATION`) ; la liste et le
+  téléchargement restent permis. Accès `ADMIN` ; ajout et retrait journalisés, téléchargements non ; suppression physique ;
+  événements `PieceJointeAjoutee` et `PieceJointeRetiree` (sans octets, sans consommateur).
+- **RG-GMA-029** — **Tâches** d'une intervention (fonctionnalité créée le 2026-10-12 à la demande de l'utilisateur,
+  KB-GMAO-55 ; **statuts, limite et habilitation à valider par le métier**) : `A_FAIRE` → `EN_COURS` → `COMPLETEE`, sans
+  retour ; description obligatoire (rognée) ; **30 tâches au plus** par intervention. Une tâche s'ajoute à une intervention
+  planifiée ou en cours ; elle ne se démarre que « à faire » et ne s'achève qu'« en cours », et seulement sur une intervention
+  **en cours**. Toute transition refusée renvoie 422 `BUSINESS_RULE_VIOLATION` sans rien modifier ; intervention ou tâche
+  inconnue (ou d'un autre centre) : 400. Rôle `ADMIN`, centre de la session. Chaque étape (ajoutée, démarrée, achevée) publie
+  un événement ; la clôture de l'intervention n'exige pas que les tâches soient achevées. *Routes :*
+  `POST /api/v1/gmao/interventions/{id}/taches`, `.../taches/{tacheId}/demarrer`, `.../taches/{tacheId}/achever`. *Source :*
+  `Intervention`, `Tache`, `TransitionDeTacheInvalide`, `LimiteDeTachesAtteinte`, `InterventionControleur`.
 - **RG-GMA-030** — Une intervention est **en retard** (relance) si elle est planifiée avec une date de début passée, ou
   ouverte (planifiée ou en cours) avec une échéance dépassée.
 - **RG-GMA-031** — **Indicateurs d'une intervention** : délai de prise en charge (création → début), durée (début → fin,
   ou → maintenant si en cours), indisponibilité de l'équipement pendant l'intervention
   et sa **part dans l'indisponibilité des 12 derniers mois** (plafonnée à 100 %, vide s'il n'y a eu aucune
-  indisponibilité). Un bon d'intervention imprimable et une chronologie sont disponibles.
+  indisponibilité). Un bon d'intervention imprimable et une chronologie sont disponibles ; une intervention supprimée
+  logiquement (à la main en base) se lit comme un identifiant inconnu : « Intervention non trouvée » (400, KB-GMAO-69 corrigé).
+  *Routes :* `GET /api/v1/gmao/interventions/{id}/bon`, `.../indicateurs`, `.../chronologie`. *Source :* `ConsulterLesIndicateurs`,
+  `ConsulterLaChronologie`, `ImprimerLeBon`, `IndicateursDIntervention`, `SuiviControleur`.
 
 ## 9.4 Intervenants
 
@@ -115,13 +134,35 @@
   `DESACTIF` et `REFORME` (fin de vie) ne comptent pas.
 - **RG-GMA-061** — **Fiche équipement** (12 derniers mois) : nombre d'interventions, indisponibilité en heures, coût de
   maintenance sur la période et cumulé depuis l'installation, dernière intervention,
-  prochain plan de maintenance, et analyse de décision.
+  prochain plan de maintenance, et analyse de décision. *Route :* `GET /api/v1/gmao/equipements/{id}/fiche`. *Source :*
+  `ConsulterLaFiche`, `CalculDIndisponibilite`, `SuiviControleur`.
 - **RG-GMA-062** — **Analyse de décision** : coût de possession = prix d'acquisition + maintenance cumulée ; **ratio de
-  maintenance** = maintenance cumulée / prix d'acquisition (4 décimales ; vide si le prix
-  est inconnu) ; coût par heure d'indisponibilité = coût de la période / heures d'indisponibilité (vide si aucune).
+  maintenance** = maintenance cumulée / prix d'acquisition (arrondi à 4 décimales **pour l'affichage seulement** ; vide si
+  le prix est inconnu) ; coût par heure d'indisponibilité = coût de la période / heures d'indisponibilité (vide si aucune).
 - **RG-GMA-063** — **Réforme recommandée** quand l'équipement est encore actif (ni réformé ni désactivé) et soit au
-  statut `A_REFORMER`, soit son ratio de maintenance atteint ou dépasse le **seuil de
-  60 %** (paramètre serveur `hemodialyse.gmao.reforme-seuil-ratio`, défaut 0,60, strictement positif). La recommandation
-  est une aide : la réforme reste une décision humaine d'un détenteur de `GMAO_REFORME`.
+  statut `A_REFORMER`, soit son ratio de maintenance **exact** (non arrondi) atteint ou dépasse le **seuil de
+  60 %** (paramètre serveur `hemodialyse.gmao.reforme-seuil-ratio`, défaut 0,60, strictement positif ; un seul seuil pour
+  toute l'application) : à 59,996 % l'écran affiche 0,6000 mais la réforme n'est pas recommandée (KB-GMAO-72 corrigé, décision
+  du 2026-10-12). La recommandation est une aide : la réforme reste une décision humaine d'un détenteur de `GMAO_REFORME`.
+  *Source :* `AnalyseDeDecision`.
 - **RG-GMA-064** — Les indicateurs GMAO de la direction (coûts, indisponibilité, réformes recommandées, alertes
-  critiques) sont décrits au chapitre direction (RG-DIR).
+  critiques) sont décrits au chapitre direction (RG-DIR). Leur source est la **synthèse GMAO du centre** publiée par le
+  module GMAO (`SyntheseGmaoDuCentre`) ; le nombre de générateurs de la capacité théorique vient de `GenerateursInstalles`
+  (installés avant la fin de la période, ni réformés, ni désactivés, ni supprimés).
+- **RG-GMA-065** — **Proposition de réforme (P2)** (créée le 2026-10-12 à la demande de l'utilisateur, KB-GMAO-57 ; **texte et
+  destinataires à valider par le métier**) : quand la clôture d'une intervention fait constater l'état `A_REFORMER` d'un
+  équipement, les détenteurs de l'habilitation `GMAO_REFORME` **du centre de l'équipement** reçoivent la notification durable
+  `REFORME_PROPOSEE` (équipement, état constaté, suggestion de consulter l'aide à la décision, RG-GMA-062/063). Aucune
+  réforme automatique : la décision reste humaine (RG-GMA-063). Aucune notification pour un autre état constaté, ni quand
+  l'équipement était déjà `A_REFORMER` ; un événement rejoué ne crée pas de doublon. *Source :* `GmaoEvenementsReformeListener`,
+  `NotificationService.notifyReformeProposee`.
+- **RG-GMA-066** — **Disponibilité d'un équipement pour un patient** : avant d'affecter un patient à un générateur, l'écran
+  demande si l'équipement est disponible ; il l'est **seulement s'il est `EN_SERVICE`** (en maintenance, en attente de pièce, hors
+  service, à réformer, réformé et **désactivé** ne le sont pas : KB-GMAO-73 corrigé, décision du 2026-10-12). Avertissement non
+  bloquant : la décision reste au personnel. Équipement inconnu ou d'un autre centre : « Équipement non trouvé » (400). *Route :*
+  `GET /api/v1/gmao/equipements/{id}/disponibilite-patient`. *Source :* `VerifierLaDisponibilite`,
+  `StatutEquipement.disponiblePourUnPatient`, `SuiviControleur`.
+- **RG-GMA-067** — **Statistiques GMAO du centre** (`GET /api/v1/gmao/stats`) : totaux d'équipements (tous statuts) et par statut
+  (en service, en maintenance, hors service ; les autres statuts ne sont comptés que dans le total, KB-GMAO-77), d'interventions
+  (total, en cours, terminées), plans actifs et en retard, interventions à relancer (RG-GMA-030) ; les éléments supprimés
+  logiquement ne sont jamais comptés. *Source :* `ConsulterLesStatistiques`.
