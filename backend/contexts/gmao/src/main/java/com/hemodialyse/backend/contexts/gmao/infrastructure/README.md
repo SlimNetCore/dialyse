@@ -1,0 +1,1 @@
+Adapters sortants GMAO : persistence/ (JPA sur les tables historiques gmao_plans_maintenance et gmao_intervenants), evenements/ (publication Modulith + journal), acl/ (equipements, session), systeme/, transaction/.
