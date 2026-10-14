@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "Le modèle de document « Bon d'intervention (GMAO) » est désactivé pour ce centre : réactivez-le dans Modèles de documents.",
+    "instance" : "/api/v1/gmao/interventions/<I_INACTIF>/bon",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "DOCUMENT_MODEL_INACTIVE"
+  }
+}

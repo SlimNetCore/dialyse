@@ -1,0 +1,10 @@
+{
+  "status" : 400,
+  "body" : {
+    "detail" : "Invalid UUID string: pas-un-uuid",
+    "instance" : "/api/v1/gmao/interventions/pas-un-uuid",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

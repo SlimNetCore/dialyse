@@ -1,0 +1,12 @@
+{
+  "status" : 201,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "interventionId" : "<I_PLAN>",
+    "type" : "AUTRE",
+    "nom" : "devis.pdf",
+    "contentType" : "application/pdf",
+    "taille" : 15,
+    "ajouteLe" : "<HORLOGE>"
+  }
+}

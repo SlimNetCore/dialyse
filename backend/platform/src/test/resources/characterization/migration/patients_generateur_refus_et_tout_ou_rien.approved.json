@@ -1,0 +1,52 @@
+{
+  "import" : {
+    "http" : 200,
+    "totalRows" : 5,
+    "created" : 1,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ {
+      "code" : "REFERENCE_NOT_FOUND",
+      "field" : "generateur",
+      "message" : "« G-99 » est introuvable parmi les équipements GMAO (générateurs) de ce centre : créez-le d'abord (GMAO → Équipements).",
+      "params" : {
+        "target" : "gmao/equipements",
+        "value" : "G-99"
+      },
+      "row" : 3
+    }, {
+      "code" : "REFERENCE_NOT_FOUND",
+      "field" : "generateur",
+      "message" : "« G-B1 » est introuvable parmi les équipements GMAO (générateurs) de ce centre : créez-le d'abord (GMAO → Équipements).",
+      "params" : {
+        "target" : "gmao/equipements",
+        "value" : "G-B1"
+      },
+      "row" : 4
+    }, {
+      "code" : "REFERENCE_NOT_FOUND",
+      "field" : "generateur",
+      "message" : "« G-DEL » est introuvable parmi les équipements GMAO (générateurs) de ce centre : créez-le d'abord (GMAO → Équipements).",
+      "params" : {
+        "target" : "gmao/equipements",
+        "value" : "G-DEL"
+      },
+      "row" : 5
+    }, {
+      "code" : "REFERENCE_NOT_FOUND",
+      "field" : "generateur",
+      "message" : "« E-01 » est introuvable parmi les équipements GMAO (générateurs) de ce centre : créez-le d'abord (GMAO → Équipements).",
+      "params" : {
+        "target" : "gmao/equipements",
+        "value" : "E-01"
+      },
+      "row" : 6
+    } ],
+    "warnings" : [ ],
+    "valid" : false,
+    "dryRun" : false,
+    "applied" : false
+  },
+  "patients" : [ ]
+}

@@ -1,0 +1,20 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<EQUIP_1>",
+    "centreId" : "<CENTRE_A>",
+    "designation" : "Cycle complet",
+    "description" : null,
+    "frequence" : "SEMESTRIELLE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "<NOW+6M>",
+    "derniereDateExecution" : "<NOW>",
+    "nombreExecutions" : 2,
+    "tachesAEffectuer" : null,
+    "dateModification" : "<NOW>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>"
+  }
+}

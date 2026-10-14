@@ -1,0 +1,10 @@
+[
+  "ADMIN du centre -> indicateurs 200 ; chronologie 200",
+  "ADMIN d'un autre centre -> indicateurs 400 BAD_REQUEST Intervention non trouvée ; chronologie 400 BAD_REQUEST Intervention non trouvée",
+  "TECHNICIEN -> indicateurs 403 ACCESS_DENIED Access Denied ; chronologie 403 ACCESS_DENIED Access Denied",
+  "MEDECIN -> indicateurs 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource. ; chronologie 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "SUPERADMIN -> indicateurs 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource. ; chronologie 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "DIRECTION -> indicateurs 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource. ; chronologie 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "GMAO_RECTIFICATION sans ADMIN -> indicateurs 403 ACCESS_DENIED Access Denied ; chronologie 403 ACCESS_DENIED Access Denied",
+  "anonyme -> indicateurs 403 (sans corps) ; chronologie 403 (sans corps)"
+]

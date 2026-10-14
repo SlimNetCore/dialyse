@@ -1,0 +1,10 @@
+{
+  "status" : 400,
+  "body" : {
+    "detail" : "No enum constant <TypeEquipement>.TOASTER",
+    "instance" : "/api/v1/gmao/equipements",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

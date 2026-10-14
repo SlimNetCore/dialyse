@@ -1,0 +1,5 @@
+[
+  "après tâche et ligne de coût -> CREEE,DEMARREE,MODIFIEE",
+  "après clôture -> CREEE,DEMARREE,TERMINEE",
+  "après rectification -> CREEE,DEMARREE,TERMINEE,RECTIFIEE"
+]

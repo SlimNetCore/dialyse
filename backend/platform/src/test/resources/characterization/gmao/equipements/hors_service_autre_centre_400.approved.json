@@ -1,0 +1,10 @@
+{
+  "status" : 400,
+  "body" : {
+    "detail" : "Équipement non trouvé",
+    "instance" : "/api/v1/gmao/equipements/<GENERATEUR_AUTRE_CENTRE>/hors-service",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

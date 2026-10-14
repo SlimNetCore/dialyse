@@ -1,0 +1,10 @@
+[
+  "0 min d'indisponibilité, coût de période 100.00 -> heures=0.0 coutParHeure=null",
+  "1 min d'indisponibilité, coût de période 1.00 -> heures=0.016666666666666666 coutParHeure=60.00",
+  "45 min d'indisponibilité, coût de période 100.00 -> heures=0.75 coutParHeure=133.33",
+  "100 min d'indisponibilité, coût de période 100.00 -> heures=1.6666666666666667 coutParHeure=60.00",
+  "180 min d'indisponibilité, coût de période 100.00 -> heures=3.0 coutParHeure=33.33",
+  "7 min d'indisponibilité, coût de période 10.00 -> heures=0.11666666666666667 coutParHeure=85.71",
+  "59 min d'indisponibilité, coût de période 100.00 -> heures=0.9833333333333333 coutParHeure=101.69",
+  "61 min d'indisponibilité, coût de période 100.00 -> heures=1.0166666666666666 coutParHeure=98.36"
+]

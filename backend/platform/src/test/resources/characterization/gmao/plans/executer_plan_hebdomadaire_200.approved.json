@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<PLAN_HEBDO_ACTIF>",
+    "equipementId" : "<EQUIP_1>",
+    "centreId" : "<CENTRE_A>",
+    "designation" : "Controle hebdomadaire osmoseur",
+    "description" : "Description Controle hebdomadaire osmoseur",
+    "frequence" : "HEBDOMADAIRE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "<NOW+1W>",
+    "derniereDateExecution" : "<NOW>",
+    "nombreExecutions" : 1,
+    "tachesAEffectuer" : "Taches Controle hebdomadaire osmoseur",
+    "dateCreation" : "2019-06-01T09:00:00Z",
+    "dateModification" : "<NOW>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>"
+  }
+}

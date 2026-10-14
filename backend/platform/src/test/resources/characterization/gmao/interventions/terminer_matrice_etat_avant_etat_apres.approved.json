@@ -1,0 +1,98 @@
+{
+  "EN_SERVICE_vers_EN_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_SERVICE",
+    "journal" : "",
+    "alertes" : ""
+  },
+  "EN_SERVICE_vers_EN_ATTENTE_PIECE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_ATTENTE_PIECE",
+    "journal" : "EN_SERVICE>EN_ATTENTE_PIECE|Intervention terminée",
+    "alertes" : "G-01/EN_ATTENTE_PIECE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_SERVICE_vers_HORS_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "HORS_SERVICE",
+    "journal" : "EN_SERVICE>HORS_SERVICE|Intervention terminée",
+    "alertes" : "G-01/HORS_SERVICE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_SERVICE_vers_A_REFORMER" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "A_REFORMER",
+    "journal" : "EN_SERVICE>A_REFORMER|Intervention terminée",
+    "alertes" : "G-01/A_REFORMER/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_MAINTENANCE_vers_EN_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_SERVICE",
+    "journal" : "EN_SERVICE>EN_MAINTENANCE|Intervention démarrée ; EN_MAINTENANCE>EN_SERVICE|Intervention terminée",
+    "alertes" : "G-01/EN_MAINTENANCE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_MAINTENANCE_vers_EN_ATTENTE_PIECE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_ATTENTE_PIECE",
+    "journal" : "EN_SERVICE>EN_MAINTENANCE|Intervention démarrée ; EN_MAINTENANCE>EN_ATTENTE_PIECE|Intervention terminée",
+    "alertes" : "G-01/EN_MAINTENANCE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_MAINTENANCE_vers_HORS_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "HORS_SERVICE",
+    "journal" : "EN_SERVICE>EN_MAINTENANCE|Intervention démarrée ; EN_MAINTENANCE>HORS_SERVICE|Intervention terminée",
+    "alertes" : "G-01/EN_MAINTENANCE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_MAINTENANCE_vers_A_REFORMER" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "A_REFORMER",
+    "journal" : "EN_SERVICE>EN_MAINTENANCE|Intervention démarrée ; EN_MAINTENANCE>A_REFORMER|Intervention terminée",
+    "alertes" : "G-01/EN_MAINTENANCE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_ATTENTE_PIECE_vers_EN_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_SERVICE",
+    "journal" : "EN_SERVICE>EN_ATTENTE_PIECE|Intervention démarrée ; EN_ATTENTE_PIECE>EN_SERVICE|Intervention terminée",
+    "alertes" : "G-01/EN_ATTENTE_PIECE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_ATTENTE_PIECE_vers_EN_ATTENTE_PIECE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_ATTENTE_PIECE",
+    "journal" : "EN_SERVICE>EN_ATTENTE_PIECE|Intervention démarrée",
+    "alertes" : "G-01/EN_ATTENTE_PIECE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_ATTENTE_PIECE_vers_HORS_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "HORS_SERVICE",
+    "journal" : "EN_SERVICE>EN_ATTENTE_PIECE|Intervention démarrée ; EN_ATTENTE_PIECE>HORS_SERVICE|Intervention terminée",
+    "alertes" : "G-01/EN_ATTENTE_PIECE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "EN_ATTENTE_PIECE_vers_A_REFORMER" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "A_REFORMER",
+    "journal" : "EN_SERVICE>EN_ATTENTE_PIECE|Intervention démarrée ; EN_ATTENTE_PIECE>A_REFORMER|Intervention terminée",
+    "alertes" : "G-01/EN_ATTENTE_PIECE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "HORS_SERVICE_vers_EN_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_SERVICE",
+    "journal" : "EN_SERVICE>HORS_SERVICE|Intervention démarrée ; HORS_SERVICE>EN_SERVICE|Intervention terminée",
+    "alertes" : "G-01/HORS_SERVICE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "HORS_SERVICE_vers_EN_ATTENTE_PIECE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "EN_ATTENTE_PIECE",
+    "journal" : "EN_SERVICE>HORS_SERVICE|Intervention démarrée ; HORS_SERVICE>EN_ATTENTE_PIECE|Intervention terminée",
+    "alertes" : "G-01/HORS_SERVICE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "HORS_SERVICE_vers_HORS_SERVICE" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "HORS_SERVICE",
+    "journal" : "EN_SERVICE>HORS_SERVICE|Intervention démarrée",
+    "alertes" : "G-01/HORS_SERVICE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "HORS_SERVICE_vers_A_REFORMER" : {
+    "reponse" : "200 statut=TERMINEE",
+    "statutEquipement" : "A_REFORMER",
+    "journal" : "EN_SERVICE>HORS_SERVICE|Intervention démarrée ; HORS_SERVICE>A_REFORMER|Intervention terminée",
+    "alertes" : "G-01/HORS_SERVICE/0//roles,ADMIN,SECRETAIRE,"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "GET_lire" : "404 (sans corps)",
+  "GET_lister_centre_B" : "200 statut=? total=0",
+  "POST_demarrer" : "400 BAD_REQUEST Intervention non trouvée",
+  "POST_terminer" : "400 BAD_REQUEST Intervention non trouvée",
+  "POST_ajouter_ligne" : "400 BAD_REQUEST Intervention non trouvée",
+  "DELETE_supprimer_ligne" : "400 BAD_REQUEST Intervention non trouvée",
+  "POST_annuler" : "400 BAD_REQUEST Intervention non trouvée",
+  "POST_rectifier" : "400 BAD_REQUEST Intervention non trouvée",
+  "POST_creer_sur_equipement_du_centre_A" : "400 BAD_REQUEST Équipement non trouvé",
+  "GET_lister_equipement_du_centre_A" : "400 BAD_REQUEST Équipement non trouvé"
+}

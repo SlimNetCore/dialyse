@@ -1,0 +1,4 @@
+{
+  "evenement" : "EquipementReforme (GENERATEUR_DIALYSE)",
+  "lignes" : [ "EN_SERVICE>REFORME : [G-01/REFORME/0//roles,ADMIN,SECRETAIRE,]", "EN_MAINTENANCE>REFORME : aucune alerte", "EN_ATTENTE_PIECE>REFORME : aucune alerte", "HORS_SERVICE>REFORME : aucune alerte", "DESACTIF>REFORME : aucune alerte", "A_REFORMER>REFORME : aucune alerte", "REFORME>REFORME : aucune alerte" ]
+}

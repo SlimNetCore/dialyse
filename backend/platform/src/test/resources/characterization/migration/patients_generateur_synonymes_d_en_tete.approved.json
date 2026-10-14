@@ -1,0 +1,54 @@
+{
+  "Machine" : {
+    "http" : 200,
+    "totalRows" : 1,
+    "created" : 1,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : true,
+    "applied" : false
+  },
+  "numero generateur" : {
+    "http" : 200,
+    "totalRows" : 1,
+    "created" : 1,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : true,
+    "applied" : false
+  },
+  "Générateur (numéro)" : {
+    "http" : 200,
+    "totalRows" : 1,
+    "created" : 1,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : true,
+    "applied" : false
+  },
+  "Générateur" : {
+    "http" : 200,
+    "totalRows" : 1,
+    "created" : 1,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : true,
+    "applied" : false
+  }
+}

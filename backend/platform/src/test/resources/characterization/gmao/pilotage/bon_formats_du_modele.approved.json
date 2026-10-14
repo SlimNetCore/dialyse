@@ -1,0 +1,9 @@
+[
+  "PDF -> 200 type=application/pdf disposition=inline; filename=\"bon-intervention-<ID8>.pdf\"; filename*=UTF-8''bon-intervention-<ID8>.pdf debut=%PDF",
+  "EXCEL -> 200 type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet disposition=attachment; filename=\"bon-intervention-<ID8>.xlsx\"; filename*=UTF-8''bon-intervention-<ID8>.xlsx debut=PK??",
+  "XLS -> 200 type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet disposition=attachment; filename=\"bon-intervention-<ID8>.xlsx\"; filename*=UTF-8''bon-intervention-<ID8>.xlsx debut=PK??",
+  "XLSX -> 200 type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet disposition=attachment; filename=\"bon-intervention-<ID8>.xlsx\"; filename*=UTF-8''bon-intervention-<ID8>.xlsx debut=PK??",
+  "HTML -> 200 type=text/html disposition=null debut=<htm",
+  "html -> 200 type=text/html disposition=null debut=<htm",
+  "inconnu -> 200 type=application/pdf disposition=inline; filename=\"bon-intervention-<ID8>.pdf\"; filename*=UTF-8''bon-intervention-<ID8>.pdf debut=%PDF"
+]

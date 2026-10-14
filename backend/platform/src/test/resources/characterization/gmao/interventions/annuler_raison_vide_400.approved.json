@@ -1,0 +1,10 @@
+{
+  "status" : 400,
+  "body" : {
+    "detail" : "Invalid request content.",
+    "instance" : "/api/v1/gmao/interventions/<UUID_GENERE_1>/annuler",
+    "status" : 400,
+    "title" : "Validation echouee",
+    "code" : "VALIDATION_ERROR"
+  }
+}

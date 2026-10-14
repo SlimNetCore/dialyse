@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "Seule une intervention planifiée peut être démarrée",
+    "instance" : "/api/v1/gmao/interventions/<UUID_GENERE_1>/demarrer",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "BUSINESS_RULE_VIOLATION"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<INTERVENANT_EXTERNE>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Acme renomme",
+    "type" : "EXTERNE",
+    "telephone" : null,
+    "email" : null,
+    "tarifHoraireDefaut" : null,
+    "actif" : true
+  }
+}

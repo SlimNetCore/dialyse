@@ -1,0 +1,60 @@
+{
+  "typeEquipement" : "GENERATEUR_DIALYSE",
+  "lignes" : [ {
+    "statutInitial" : "EN_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ "EN_SERVICE>EN_MAINTENANCE" ],
+    "alertes" : [ "M-EN_SERVICE/EN_MAINTENANCE/0//roles,ADMIN,SECRETAIRE," ]
+  }, {
+    "statutInitial" : "EN_MAINTENANCE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_ATTENTE_PIECE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ "EN_ATTENTE_PIECE>EN_MAINTENANCE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "HORS_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ "HORS_SERVICE>EN_MAINTENANCE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "DESACTIF",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ "DESACTIF>EN_MAINTENANCE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "A_REFORMER",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ "A_REFORMER>EN_MAINTENANCE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "REFORME",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Un équipement réformé ne peut plus changer de statut",
+    "statutFinal" : "REFORME",
+    "journal" : [ ],
+    "alertes" : [ ]
+  } ]
+}

@@ -1,0 +1,6 @@
+[
+  "POST /api/v1/gmao/interventions/{interventionId}/documents : suivi=true Resolved[actionCode=GMAO_CREATION, entityType=gmao, libelle=Création : gmao/interventions/{interventionId}/documents]",
+  "GET /api/v1/gmao/interventions/{interventionId}/documents : suivi=false",
+  "GET /api/v1/gmao/interventions/{interventionId}/documents/{documentId} : suivi=false",
+  "DELETE /api/v1/gmao/interventions/{interventionId}/documents/{documentId} : suivi=true Resolved[actionCode=GMAO_SUPPRESSION, entityType=gmao, libelle=Suppression : gmao/interventions/{interventionId}/documents/{documentId}]"
+]

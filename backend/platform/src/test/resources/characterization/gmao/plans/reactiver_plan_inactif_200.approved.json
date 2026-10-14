@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<PLAN_ANNUEL_INACTIF>",
+    "equipementId" : "<EQUIP_2>",
+    "centreId" : "<CENTRE_A>",
+    "designation" : "Revision annuelle",
+    "description" : "Description Revision annuelle",
+    "frequence" : "ANNUELLE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "2031-05-01T07:30:00Z",
+    "derniereDateExecution" : "2019-01-01T08:00:00Z",
+    "nombreExecutions" : 1,
+    "tachesAEffectuer" : "Taches Revision annuelle",
+    "dateCreation" : "2019-06-01T09:00:00Z",
+    "dateModification" : "<NOW>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>"
+  }
+}

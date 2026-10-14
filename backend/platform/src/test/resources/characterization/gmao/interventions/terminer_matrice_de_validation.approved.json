@@ -1,0 +1,22 @@
+{
+  "sans_actions" : "400 VALIDATION_ERROR Invalid request content. | EN_COURS",
+  "actions_blanches" : "400 VALIDATION_ERROR Invalid request content. | EN_COURS",
+  "sans_etat_apres" : "400 VALIDATION_ERROR Invalid request content. | EN_COURS",
+  "etat_apres_inconnu" : "400 BAD_REQUEST No enum constant <StatutEquipement>.CASSE | EN_COURS",
+  "etat_apres_minuscules" : "400 BAD_REQUEST No enum constant <StatutEquipement>.en_service | EN_COURS",
+  "sans_date_fin" : "400 VALIDATION_ERROR Invalid request content. | EN_COURS",
+  "date_fin_illisible" : "500 INTERNAL_ERROR <technique> | EN_COURS",
+  "date_fin_avant_le_debut" : "400 BAD_REQUEST La date de fin doit être postérieure à la date de début | EN_COURS",
+  "date_fin_egale_au_debut" : "200 statut=TERMINEE | TERMINEE",
+  "cause_blanche" : "200 statut=TERMINEE | TERMINEE",
+  "etat_apres_EN_SERVICE" : "200 statut=TERMINEE | TERMINEE | equipement EN_SERVICE",
+  "etat_apres_EN_MAINTENANCE" : "400 BAD_REQUEST État de l'équipement après l'intervention invalide | EN_COURS | equipement EN_SERVICE",
+  "etat_apres_EN_ATTENTE_PIECE" : "200 statut=TERMINEE | TERMINEE | equipement EN_ATTENTE_PIECE",
+  "etat_apres_HORS_SERVICE" : "200 statut=TERMINEE | TERMINEE | equipement HORS_SERVICE",
+  "etat_apres_DESACTIF" : "400 BAD_REQUEST État de l'équipement après l'intervention invalide | EN_COURS | equipement EN_SERVICE",
+  "etat_apres_A_REFORMER" : "200 statut=TERMINEE | TERMINEE | equipement A_REFORMER",
+  "etat_apres_REFORME" : "400 BAD_REQUEST État de l'équipement après l'intervention invalide | EN_COURS | equipement EN_SERVICE",
+  "corps_objet_vide" : "400 VALIDATION_ERROR Invalid request content.",
+  "corps_illisible" : "500 INTERNAL_ERROR <technique>",
+  "corps_absent" : "500 INTERNAL_ERROR <technique>"
+}

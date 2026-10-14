@@ -1,0 +1,21 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<EQUIP_1>",
+    "centreId" : "<CENTRE_A>",
+    "designation" : "Plan date passee",
+    "description" : null,
+    "frequence" : "MENSUELLE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "2001-01-01T00:00:00Z",
+    "derniereDateExecution" : null,
+    "nombreExecutions" : 0,
+    "tachesAEffectuer" : null,
+    "dateCreation" : "<NOW>",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null
+  }
+}

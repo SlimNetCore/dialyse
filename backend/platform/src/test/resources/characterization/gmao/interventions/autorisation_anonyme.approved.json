@@ -1,0 +1,11 @@
+{
+  "POST_creer" : "403 (sans corps)",
+  "GET_lister" : "403 (sans corps)",
+  "GET_lire" : "403 (sans corps)",
+  "POST_demarrer" : "403 (sans corps)",
+  "POST_terminer" : "403 (sans corps)",
+  "POST_ajouter_ligne" : "403 (sans corps)",
+  "DELETE_supprimer_ligne" : "403 (sans corps)",
+  "POST_rectifier" : "403 (sans corps)",
+  "POST_annuler" : "403 (sans corps)"
+}

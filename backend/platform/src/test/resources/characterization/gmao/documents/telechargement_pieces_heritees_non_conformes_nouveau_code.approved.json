@@ -1,0 +1,7 @@
+[
+  "<DOC_01> : 200 bodyText=<html>x</html> | status=200 Content-Type=application/octet-stream Content-Disposition=attachment; filename=\"heritage.html\"; filename*=UTF-8''heritage.html X-Content-Type-Options=nosniff Content-Length=14 octets=14 Cache-Control=no-cache, no-store, max-age=0, must-revalidate",
+  "<DOC_02> : 200 bodyText=data | status=200 Content-Type=application/octet-stream Content-Disposition=attachment; filename=\"type-inconnu.bin\"; filename*=UTF-8''type-inconnu.bin X-Content-Type-Options=nosniff Content-Length=4 octets=4 Cache-Control=no-cache, no-store, max-age=0, must-revalidate",
+  "<DOC_03> : 200 bodyText=data | status=200 Content-Type=application/octet-stream Content-Disposition=attachment; filename=\"type-invalide.bin\"; filename*=UTF-8''type-invalide.bin X-Content-Type-Options=nosniff Content-Length=4 octets=4 Cache-Control=no-cache, no-store, max-age=0, must-revalidate",
+  "<DOC_04> : 200 bodyText=%PDF-1.4\\n%%EOF\\n | status=200 Content-Type=application/pdf Content-Disposition=attachment; filename=\"ancien nom quote.pdf\"; filename*=UTF-8''ancien%20nom%20quote.pdf X-Content-Type-Options=nosniff Content-Length=15 octets=15 Cache-Control=no-cache, no-store, max-age=0, must-revalidate",
+  "<DOC_05> : 200 bodyText=%PDF-1.4\\n%%EOF\\n | status=200 Content-Type=application/pdf Content-Disposition=attachment; filename=\"traversal.pdf\"; filename*=UTF-8''traversal.pdf X-Content-Type-Options=nosniff Content-Length=15 octets=15 Cache-Control=no-cache, no-store, max-age=0, must-revalidate"
+]

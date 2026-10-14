@@ -1,0 +1,60 @@
+{
+  "typeEquipement" : "GENERATEUR_DIALYSE",
+  "lignes" : [ {
+    "statutInitial" : "EN_SERVICE",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Seul un équipement hors service peut être réactivé",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_MAINTENANCE",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Seul un équipement hors service peut être réactivé",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_ATTENTE_PIECE",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Seul un équipement hors service peut être réactivé",
+    "statutFinal" : "EN_ATTENTE_PIECE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "HORS_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ "HORS_SERVICE>EN_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "DESACTIF",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Seul un équipement hors service peut être réactivé",
+    "statutFinal" : "DESACTIF",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "A_REFORMER",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Seul un équipement hors service peut être réactivé",
+    "statutFinal" : "A_REFORMER",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "REFORME",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Un équipement réformé ne peut pas être réactivé",
+    "statutFinal" : "REFORME",
+    "journal" : [ ],
+    "alertes" : [ ]
+  } ]
+}

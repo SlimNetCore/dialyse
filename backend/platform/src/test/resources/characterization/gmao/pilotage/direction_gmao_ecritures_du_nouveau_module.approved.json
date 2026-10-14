@@ -1,0 +1,6 @@
+[
+  "départ -> A: équipements=10 horsService=1 enMaintenance=1 réformés=1 enCours=1 coûtPériode=0 patientsSurIndisponible=4 réformeRecommandée=2 alertes=[GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE=4, GMAO_GENERATEURS_HORS_SERVICE=1, GMAO_REFORME_RECOMMANDEE=2]",
+  "intervention démarrée -> A: équipements=10 horsService=1 enMaintenance=1 réformés=1 enCours=2 coûtPériode=0 patientsSurIndisponible=4 réformeRecommandée=2 alertes=[GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE=4, GMAO_GENERATEURS_HORS_SERVICE=1, GMAO_REFORME_RECOMMANDEE=2]",
+  "intervention terminée, équipement hors service -> A: équipements=10 horsService=2 enMaintenance=1 réformés=1 enCours=1 coûtPériode=3105.00000 patientsSurIndisponible=5 réformeRecommandée=3 alertes=[GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE=5, GMAO_GENERATEURS_HORS_SERVICE=2, GMAO_REFORME_RECOMMANDEE=3]",
+  "équipement réformé -> A: équipements=10 horsService=2 enMaintenance=1 réformés=2 enCours=1 coûtPériode=3105.00000 patientsSurIndisponible=5 réformeRecommandée=3 alertes=[GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE=5, GMAO_GENERATEURS_HORS_SERVICE=2, GMAO_REFORME_RECOMMANDEE=3]"
+]

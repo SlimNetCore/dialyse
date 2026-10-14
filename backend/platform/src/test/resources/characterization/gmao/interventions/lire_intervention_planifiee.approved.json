@@ -1,0 +1,32 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<GENERATEUR_G01>",
+    "centreId" : "<CENTRE_A>",
+    "type" : "PREVENTIVE",
+    "statut" : "PLANIFIEE",
+    "dateDebut" : "2026-03-10T08:00:00Z",
+    "dateFin" : null,
+    "intervenantId" : "<INTERVENANT_INTERNE>",
+    "etatEquipementAvant" : "EN_MAINTENANCE",
+    "etatEquipementApres" : null,
+    "priorite" : "HAUTE",
+    "echeance" : "2099-01-01T00:00:00Z",
+    "symptome" : "Bruit anormal",
+    "cause" : null,
+    "enRetard" : true,
+    "echeanceDepassee" : false,
+    "nbRectifications" : 0,
+    "description" : "Revision annuelle",
+    "actions" : null,
+    "pieceRemplacee" : null,
+    "lignesCout" : [ ],
+    "coutTotal" : 0,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Karim Maintenance",
+    "type" : "INTERNE",
+    "telephone" : "0555123456",
+    "email" : "karim@centre.test",
+    "tarifHoraireDefaut" : 42.50,
+    "actif" : true
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<GENERATEUR_G01>",
+    "centreId" : "<CENTRE_A>",
+    "type" : "CURATIVE",
+    "statut" : "TERMINEE",
+    "dateDebut" : "2026-03-10T09:00:00Z",
+    "dateFin" : "2026-03-10T09:20:00Z",
+    "intervenantId" : "<INTERVENANT_INTERNE>",
+    "etatEquipementAvant" : "EN_SERVICE",
+    "etatEquipementApres" : "EN_SERVICE",
+    "priorite" : "NORMALE",
+    "echeance" : null,
+    "symptome" : null,
+    "cause" : null,
+    "enRetard" : false,
+    "echeanceDepassee" : false,
+    "nbRectifications" : 1,
+    "description" : "Panne pompe",
+    "actions" : "Remplacement pompe",
+    "pieceRemplacee" : null,
+    "lignesCout" : [ {
+      "id" : "<UUID_GENERE_2>",
+      "type" : "MAIN_OEUVRE",
+      "libelle" : "Main d'œuvre",
+      "quantite" : 0.330,
+      "prixUnitaire" : 50.00,
+      "montant" : 16.50000,
+      "articleStockId" : null,
+      "automatique" : true
+    } ],
+    "coutTotal" : 16.50000,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : "<HORLOGE>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>"
+  }
+}

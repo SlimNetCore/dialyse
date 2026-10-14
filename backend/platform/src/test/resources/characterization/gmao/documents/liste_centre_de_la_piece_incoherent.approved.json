@@ -1,0 +1,17 @@
+{
+  "status" : 200,
+  "body" : {
+    "items" : [ {
+      "id" : "<DOC_01>",
+      "interventionId" : "<I_PLAN>",
+      "type" : "AUTRE",
+      "nom" : "centre-incoherent.pdf",
+      "contentType" : "application/pdf",
+      "taille" : 15,
+      "ajouteLe" : "<HORLOGE>"
+    } ],
+    "total" : 1,
+    "page" : 0,
+    "size" : 20
+  }
+}

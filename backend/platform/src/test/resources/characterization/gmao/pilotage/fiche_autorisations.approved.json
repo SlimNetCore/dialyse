@@ -1,0 +1,11 @@
+[
+  "ADMIN du centre -> fiche 200 ; disponibilité 200",
+  "ADMIN d'un autre centre -> fiche 400 BAD_REQUEST Équipement non trouvé ; disponibilité 400 BAD_REQUEST Équipement non trouvé",
+  "TECHNICIEN -> fiche 403 ACCESS_DENIED Access Denied ; disponibilité 403 ACCESS_DENIED Access Denied",
+  "MEDECIN -> fiche 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource. ; disponibilité 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "SECRETAIRE -> fiche 403 ACCESS_DENIED Access Denied ; disponibilité 403 ACCESS_DENIED Access Denied",
+  "SUPERADMIN -> fiche 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource. ; disponibilité 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "DIRECTION -> fiche 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource. ; disponibilité 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "GMAO_REFORME sans ADMIN -> fiche 403 ACCESS_DENIED Access Denied ; disponibilité 403 ACCESS_DENIED Access Denied",
+  "anonyme -> fiche 403 (sans corps) ; disponibilité 403 (sans corps)"
+]

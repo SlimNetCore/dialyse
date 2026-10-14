@@ -1,0 +1,27 @@
+{
+  "PLANIFIEE" : {
+    "echeance_passee" : "enRetard=true echeanceDepassee=true",
+    "echeance_future" : "enRetard=true echeanceDepassee=false",
+    "sans_echeance" : "enRetard=true echeanceDepassee=false"
+  },
+  "EN_COURS" : {
+    "echeance_passee" : "enRetard=false echeanceDepassee=true",
+    "echeance_future" : "enRetard=false echeanceDepassee=false",
+    "sans_echeance" : "enRetard=false echeanceDepassee=false"
+  },
+  "TERMINEE" : {
+    "echeance_passee" : "enRetard=false echeanceDepassee=false",
+    "echeance_future" : "enRetard=false echeanceDepassee=false",
+    "sans_echeance" : "enRetard=false echeanceDepassee=false"
+  },
+  "ANNULEE" : {
+    "echeance_passee" : "enRetard=false echeanceDepassee=false",
+    "echeance_future" : "enRetard=false echeanceDepassee=false",
+    "sans_echeance" : "enRetard=false echeanceDepassee=false"
+  },
+  "EN_ATTENTE_VALIDATION" : {
+    "echeance_passee" : "enRetard=false echeanceDepassee=false",
+    "echeance_future" : "enRetard=false echeanceDepassee=false",
+    "sans_echeance" : "enRetard=false echeanceDepassee=false"
+  }
+}

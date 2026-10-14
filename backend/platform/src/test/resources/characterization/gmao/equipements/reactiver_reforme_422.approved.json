@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "Un équipement réformé ne peut pas être réactivé",
+    "instance" : "/api/v1/gmao/equipements/<GENERATEUR_REFORME>/reactiver",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "BUSINESS_RULE_VIOLATION"
+  }
+}

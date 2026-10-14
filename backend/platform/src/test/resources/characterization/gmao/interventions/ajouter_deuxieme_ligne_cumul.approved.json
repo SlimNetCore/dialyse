@@ -1,0 +1,25 @@
+{
+  "status" : 200,
+  "body" : {
+    "lignesCout" : [ {
+      "id" : "<UUID_GENERE_1>",
+      "type" : "AUTRE",
+      "libelle" : "Transport",
+      "quantite" : 1.5,
+      "prixUnitaire" : 0.01,
+      "montant" : 0.015,
+      "articleStockId" : null,
+      "automatique" : false
+    }, {
+      "id" : "<UUID_GENERE_2>",
+      "type" : "PIECE",
+      "libelle" : "Joint torique",
+      "quantite" : 2.000,
+      "prixUnitaire" : 12.50,
+      "montant" : 25.00000,
+      "articleStockId" : "<UUID_GENERE_3>",
+      "automatique" : false
+    } ],
+    "coutTotal" : 25.01500
+  }
+}

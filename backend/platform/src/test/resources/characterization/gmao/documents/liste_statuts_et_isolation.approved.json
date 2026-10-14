@@ -1,0 +1,12 @@
+[
+  "PLANIFIEE : 200 total=1",
+  "EN_COURS : 200 total=1",
+  "TERMINEE : 200 total=1",
+  "ANNULEE : 200 total=1",
+  "EN_ATTENTE_VALIDATION : 200 total=1",
+  "intervention supprimee logiquement : 200 type=? nom=[?] contentType=? taille=?",
+  "intervention inconnue : 400 BAD_REQUEST Intervention non trouvée",
+  "intervention du centre B vue par A : 400 BAD_REQUEST Intervention non trouvée",
+  "intervention du centre B vue par B : 200",
+  "id illisible : 500 INTERNAL_ERROR <technique>"
+]

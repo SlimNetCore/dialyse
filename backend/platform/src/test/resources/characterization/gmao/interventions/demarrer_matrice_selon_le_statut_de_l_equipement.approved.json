@@ -1,0 +1,51 @@
+{
+  "equipement_EN_SERVICE" : {
+    "reponse" : "200 statut=EN_COURS",
+    "statutIntervention" : "EN_COURS",
+    "statutEquipement" : "EN_MAINTENANCE",
+    "journal" : "EN_SERVICE>EN_MAINTENANCE|Intervention démarrée",
+    "alertes" : "G-01/EN_MAINTENANCE/0//roles,ADMIN,SECRETAIRE,"
+  },
+  "equipement_EN_MAINTENANCE" : {
+    "reponse" : "200 statut=EN_COURS",
+    "statutIntervention" : "EN_COURS",
+    "statutEquipement" : "EN_MAINTENANCE",
+    "journal" : "",
+    "alertes" : ""
+  },
+  "equipement_EN_ATTENTE_PIECE" : {
+    "reponse" : "200 statut=EN_COURS",
+    "statutIntervention" : "EN_COURS",
+    "statutEquipement" : "EN_MAINTENANCE",
+    "journal" : "EN_ATTENTE_PIECE>EN_MAINTENANCE|Intervention démarrée",
+    "alertes" : ""
+  },
+  "equipement_HORS_SERVICE" : {
+    "reponse" : "200 statut=EN_COURS",
+    "statutIntervention" : "EN_COURS",
+    "statutEquipement" : "EN_MAINTENANCE",
+    "journal" : "HORS_SERVICE>EN_MAINTENANCE|Intervention démarrée",
+    "alertes" : ""
+  },
+  "equipement_DESACTIF" : {
+    "reponse" : "200 statut=EN_COURS",
+    "statutIntervention" : "EN_COURS",
+    "statutEquipement" : "EN_MAINTENANCE",
+    "journal" : "DESACTIF>EN_MAINTENANCE|Intervention démarrée",
+    "alertes" : ""
+  },
+  "equipement_A_REFORMER" : {
+    "reponse" : "200 statut=EN_COURS",
+    "statutIntervention" : "EN_COURS",
+    "statutEquipement" : "EN_MAINTENANCE",
+    "journal" : "A_REFORMER>EN_MAINTENANCE|Intervention démarrée",
+    "alertes" : ""
+  },
+  "equipement_REFORME" : {
+    "reponse" : "422 BUSINESS_RULE_VIOLATION Un équipement réformé ne peut plus changer de statut",
+    "statutIntervention" : "PLANIFIEE",
+    "statutEquipement" : "REFORME",
+    "journal" : "",
+    "alertes" : ""
+  }
+}

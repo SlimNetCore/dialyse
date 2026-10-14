@@ -1,0 +1,9 @@
+{
+  "interne_avec_main_d_oeuvre_manuelle" : "MAIN_OEUVRE|Saisie manuelle|1.000|10.00|false || MAIN_OEUVRE 1.000x10.00=10.00000; total=10.00000",
+  "interne_avec_ligne_intervenant_manuelle" : "INTERVENANT|Saisie manuelle|1.000|10.00|false ; MAIN_OEUVRE|Main d'œuvre|1.000|35.00|true || INTERVENANT 1.000x10.00=10.00000; MAIN_OEUVRE 1.00x35.00=35.0000; total=45.00000",
+  "interne_avec_piece_manuelle" : "MAIN_OEUVRE|Main d'œuvre|1.000|35.00|true ; PIECE|Saisie manuelle|1.000|10.00|false || MAIN_OEUVRE 1.00x35.00=35.0000; PIECE 1.000x10.00=10.00000; total=45.00000",
+  "interne_avec_autre_manuelle" : "AUTRE|Saisie manuelle|1.000|10.00|false ; MAIN_OEUVRE|Main d'œuvre|1.000|35.00|true || AUTRE 1.000x10.00=10.00000; MAIN_OEUVRE 1.00x35.00=35.0000; total=45.00000",
+  "externe_avec_ligne_intervenant_manuelle" : "INTERVENANT|Saisie manuelle|1.000|10.00|false || INTERVENANT 1.000x10.00=10.00000; total=10.00000",
+  "externe_avec_piece_manuelle" : "INTERVENANT|Honoraires intervenant|1.000|120.50|true ; PIECE|Saisie manuelle|1.000|10.00|false || INTERVENANT 1.00x120.50=120.5000; PIECE 1.000x10.00=10.00000; total=130.50000",
+  "externe_avec_autre_manuelle" : "AUTRE|Saisie manuelle|1.000|10.00|false ; INTERVENANT|Honoraires intervenant|1.000|120.50|true || AUTRE 1.000x10.00=10.00000; INTERVENANT 1.00x120.50=120.5000; total=130.50000"
+}

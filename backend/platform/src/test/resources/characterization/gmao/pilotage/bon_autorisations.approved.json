@@ -1,0 +1,13 @@
+[
+  "ADMIN du centre -> 200 PDF",
+  "ADMIN d'un autre centre -> 400 BAD_REQUEST Intervention non trouvée",
+  "TECHNICIEN -> 403 ACCESS_DENIED Access Denied",
+  "MEDECIN -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "SECRETAIRE -> 403 ACCESS_DENIED Access Denied",
+  "INFIRMIER -> 403 ACCESS_DENIED Access Denied",
+  "SUPERADMIN -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "DIRECTION -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "GMAO_RECTIFICATION sans ADMIN -> 403 ACCESS_DENIED Access Denied",
+  "GMAO_REFORME sans ADMIN -> 403 ACCESS_DENIED Access Denied",
+  "anonyme -> 403 (sans corps)"
+]

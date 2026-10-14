@@ -1,0 +1,9 @@
+[
+  "intervention du centre A -> 200",
+  "intervention inconnue -> 400 BAD_REQUEST Intervention non trouvée",
+  "intervention du centre B vue par A -> 400 BAD_REQUEST Intervention non trouvée",
+  "intervention de A sur l'équipement du centre B -> 400 BAD_REQUEST Équipement non trouvé",
+  "intervention dont l'équipement n'existe pas -> 400 BAD_REQUEST Équipement non trouvé",
+  "id illisible -> 500 INTERNAL_ERROR <technique>",
+  "méthode POST -> 500 INTERNAL_ERROR <technique>"
+]

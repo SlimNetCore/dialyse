@@ -1,0 +1,10 @@
+{
+  "motif_absent" : "400 VALIDATION_ERROR Invalid request content.",
+  "motif_blanc" : "400 VALIDATION_ERROR Invalid request content.",
+  "date_debut_illisible" : "500 INTERNAL_ERROR <technique>",
+  "corps_absent" : "500 INTERNAL_ERROR <technique>",
+  "statut_apres_refus" : "TERMINEE",
+  "intervention_en_cours" : "422 BUSINESS_RULE_VIOLATION Seule une intervention terminée peut être rectifiée",
+  "intervention_planifiee" : "422 BUSINESS_RULE_VIOLATION Seule une intervention terminée peut être rectifiée",
+  "intervention_inconnue" : "400 BAD_REQUEST Intervention non trouvée"
+}

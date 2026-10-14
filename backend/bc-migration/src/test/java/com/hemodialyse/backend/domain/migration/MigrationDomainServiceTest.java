@@ -49,7 +49,7 @@ class MigrationDomainServiceTest {
     private InMemoryMigrationPorts.Assures assures;
     private InMemoryMigrationPorts.Assignments assignments;
     private InMemoryMigrationPorts.Referentials referentials;
-    private InMemoryMigrationPorts.Equipements equipements;
+    private InMemoryMigrationPorts.Generateurs equipements;
     private MigrationDomainService service;
     private UUID salle;
     private UUID generateur;
@@ -78,7 +78,7 @@ class MigrationDomainServiceTest {
         assures = new InMemoryMigrationPorts.Assures();
         assignments = new InMemoryMigrationPorts.Assignments();
         referentials = new InMemoryMigrationPorts.Referentials();
-        equipements = new InMemoryMigrationPorts.Equipements();
+        equipements = new InMemoryMigrationPorts.Generateurs();
         salle = referentials.add(ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
         generateur = equipements.addGenerateur(CENTER, "G01", salle);
         service = new MigrationDomainService(batches, ids, values, rollback, List.of(

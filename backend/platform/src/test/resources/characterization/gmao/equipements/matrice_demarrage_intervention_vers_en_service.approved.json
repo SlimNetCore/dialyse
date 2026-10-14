@@ -1,0 +1,60 @@
+{
+  "typeEquipement" : "GENERATEUR_DIALYSE",
+  "lignes" : [ {
+    "statutInitial" : "EN_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_MAINTENANCE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ "EN_MAINTENANCE>EN_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_ATTENTE_PIECE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ "EN_ATTENTE_PIECE>EN_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "HORS_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ "HORS_SERVICE>EN_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "DESACTIF",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ "DESACTIF>EN_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "A_REFORMER",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ "A_REFORMER>EN_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "REFORME",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Un équipement réformé ne peut plus changer de statut",
+    "statutFinal" : "REFORME",
+    "journal" : [ ],
+    "alertes" : [ ]
+  } ]
+}

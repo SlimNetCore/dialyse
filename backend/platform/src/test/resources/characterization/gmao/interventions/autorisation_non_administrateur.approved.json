@@ -1,0 +1,11 @@
+{
+  "POST_creer" : "403 ACCESS_DENIED Access Denied",
+  "GET_lister" : "403 ACCESS_DENIED Access Denied",
+  "GET_lire" : "403 ACCESS_DENIED Access Denied",
+  "POST_demarrer" : "403 ACCESS_DENIED Access Denied",
+  "POST_terminer" : "403 ACCESS_DENIED Access Denied",
+  "POST_ajouter_ligne" : "403 ACCESS_DENIED Access Denied",
+  "DELETE_supprimer_ligne" : "403 ACCESS_DENIED Access Denied",
+  "POST_rectifier" : "403 ACCESS_DENIED Access Denied",
+  "POST_annuler" : "403 ACCESS_DENIED Access Denied"
+}

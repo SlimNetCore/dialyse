@@ -1,0 +1,53 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<GENERATEUR_G01>",
+    "centreId" : "<CENTRE_A>",
+    "type" : "CURATIVE",
+    "statut" : "EN_COURS",
+    "dateDebut" : "2026-03-10T08:00:00Z",
+    "dateFin" : null,
+    "intervenantId" : null,
+    "etatEquipementAvant" : "EN_SERVICE",
+    "etatEquipementApres" : null,
+    "priorite" : "NORMALE",
+    "echeance" : null,
+    "symptome" : null,
+    "cause" : null,
+    "enRetard" : false,
+    "echeanceDepassee" : false,
+    "nbRectifications" : 0,
+    "description" : "Panne pompe",
+    "actions" : null,
+    "pieceRemplacee" : null,
+    "lignesCout" : [ ],
+    "coutTotal" : 0,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : "<HORLOGE>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>",
+    "taches" : [ {
+      "id" : "<UUID_GENERE_2>",
+      "description" : "Changer le joint",
+      "statut" : "COMPLETEE",
+      "dateCreation" : "<HORLOGE>",
+      "creePar" : "<ADMIN_A>",
+      "dateDemarrage" : "<HORLOGE>",
+      "demarrePar" : "<ADMIN_A>",
+      "dateAchevement" : "<HORLOGE>",
+      "achevePar" : "<ADMIN_A>"
+    }, {
+      "id" : "<UUID_GENERE_3>",
+      "description" : "Tester l'étanchéité",
+      "statut" : "A_FAIRE",
+      "dateCreation" : "<HORLOGE>",
+      "creePar" : "<ADMIN_A>",
+      "dateDemarrage" : null,
+      "demarrePar" : null,
+      "dateAchevement" : null,
+      "achevePar" : null
+    } ]
+  }
+}

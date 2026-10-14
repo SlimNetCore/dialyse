@@ -1,0 +1,26 @@
+{
+  "status" : 200,
+  "body" : {
+    "societeId" : "<SOCIETE_SANS_CENTRE>",
+    "from" : "2026-01-01",
+    "to" : "2026-06-30",
+    "generatedAt" : "<HORLOGE>",
+    "regle" : {
+      "generateursParSecours" : 8,
+      "seuilProchePourcent" : 90
+    },
+    "total" : {
+      "generateurs" : 0,
+      "generateursSecours" : 0,
+      "postesActifs" : 0,
+      "series" : 0,
+      "patientsParPosteEtSerie" : 0,
+      "capacite" : 0,
+      "fileActive" : 0,
+      "tauxOccupation" : null,
+      "niveau" : "SANS_CAPACITE",
+      "atteinte" : false
+    },
+    "centres" : [ ]
+  }
+}

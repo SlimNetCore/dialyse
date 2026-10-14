@@ -1,0 +1,9 @@
+[
+  "liste : total=2 noms=[photo-après.png, devis.pdf]",
+  "telechargement png : status=200 Content-Type=image/png Content-Disposition=attachment; filename=\"photo-apres.png\"; filename*=UTF-8''photo-apr%C3%A8s.png X-Content-Type-Options=nosniff Content-Length=69 octets=69 Cache-Control=no-cache, no-store, max-age=0, must-revalidate",
+  "retrait pdf : 204",
+  "liste apres : total=1 noms=[photo-après.png]",
+  "telechargement pdf retire : 400 BAD_REQUEST Document non trouvé",
+  "retrait png : 204",
+  "liste finale : total=0"
+]

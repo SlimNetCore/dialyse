@@ -1,0 +1,60 @@
+{
+  "typeEquipement" : "GENERATEUR_DIALYSE",
+  "lignes" : [ {
+    "statutInitial" : "EN_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "REFORME",
+    "journal" : [ "EN_SERVICE>REFORME" ],
+    "alertes" : [ "M-EN_SERVICE/REFORME/0//roles,ADMIN,SECRETAIRE," ]
+  }, {
+    "statutInitial" : "EN_MAINTENANCE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "REFORME",
+    "journal" : [ "EN_MAINTENANCE>REFORME" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_ATTENTE_PIECE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "REFORME",
+    "journal" : [ "EN_ATTENTE_PIECE>REFORME" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "HORS_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "REFORME",
+    "journal" : [ "HORS_SERVICE>REFORME" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "DESACTIF",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "REFORME",
+    "journal" : [ "DESACTIF>REFORME" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "A_REFORMER",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "REFORME",
+    "journal" : [ "A_REFORMER>REFORME" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "REFORME",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "L'équipement est déjà réformé",
+    "statutFinal" : "REFORME",
+    "journal" : [ ],
+    "alertes" : [ ]
+  } ]
+}

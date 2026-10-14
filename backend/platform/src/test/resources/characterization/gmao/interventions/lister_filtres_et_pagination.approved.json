@@ -1,0 +1,140 @@
+{
+  "GET ?statut=EN_COURS" : {
+    "resume" : "200 statut=?",
+    "total" : 1,
+    "page" : 0,
+    "size" : 20,
+    "items" : 1,
+    "statuts" : "EN_COURS"
+  },
+  "GET ?statut=TERMINEE" : {
+    "resume" : "200 statut=?",
+    "total" : 1,
+    "page" : 0,
+    "size" : 20,
+    "items" : 1,
+    "statuts" : "TERMINEE"
+  },
+  "GET ?statut=en_cours" : {
+    "resume" : "200 statut=?",
+    "total" : 0,
+    "page" : 0,
+    "size" : 20,
+    "items" : 0,
+    "statuts" : ""
+  },
+  "GET ?statut=INCONNU" : {
+    "resume" : "200 statut=?",
+    "total" : 0,
+    "page" : 0,
+    "size" : 20,
+    "items" : 0,
+    "statuts" : ""
+  },
+  "GET ?statut=" : {
+    "resume" : "200 statut=?",
+    "total" : 5,
+    "page" : 0,
+    "size" : 20,
+    "items" : 5,
+    "statuts" : "PLANIFIEE,ANNULEE,TERMINEE,EN_COURS,PLANIFIEE"
+  },
+  "GET ?statut=EN_ATTENTE_VALIDATION" : {
+    "resume" : "200 statut=?",
+    "total" : 0,
+    "page" : 0,
+    "size" : 20,
+    "items" : 0,
+    "statuts" : ""
+  },
+  "GET ?equipementId=<STATION_EAU>" : {
+    "resume" : "200 statut=?",
+    "total" : 1,
+    "page" : 0,
+    "size" : 20,
+    "items" : 1,
+    "statuts" : "PLANIFIEE"
+  },
+  "GET ?equipementId=<GENERATEUR_G01>" : {
+    "resume" : "200 statut=?",
+    "total" : 4,
+    "page" : 0,
+    "size" : 20,
+    "items" : 4,
+    "statuts" : "ANNULEE,TERMINEE,EN_COURS,PLANIFIEE"
+  },
+  "GET ?equipementId=<GENERATEUR_G01>&statut=TERMINEE" : {
+    "resume" : "200 statut=?",
+    "total" : 4,
+    "page" : 0,
+    "size" : 20,
+    "items" : 4,
+    "statuts" : "ANNULEE,TERMINEE,EN_COURS,PLANIFIEE"
+  },
+  "GET ?equipementId=<GENERATEUR_AUTRE_CENTRE>" : {
+    "resume" : "400 BAD_REQUEST Équipement non trouvé"
+  },
+  "GET ?equipementId=<INCONNU>" : {
+    "resume" : "400 BAD_REQUEST Équipement non trouvé"
+  },
+  "GET ?equipementId=pas-un-uuid" : {
+    "resume" : "500 INTERNAL_ERROR <technique>"
+  },
+  "GET ?size=2&page=0" : {
+    "resume" : "200 statut=?",
+    "total" : 5,
+    "page" : 0,
+    "size" : 2,
+    "items" : 2,
+    "statuts" : "PLANIFIEE,ANNULEE"
+  },
+  "GET ?size=2&page=1" : {
+    "resume" : "200 statut=?",
+    "total" : 5,
+    "page" : 1,
+    "size" : 2,
+    "items" : 2,
+    "statuts" : "TERMINEE,EN_COURS"
+  },
+  "GET ?size=2&page=2" : {
+    "resume" : "200 statut=?",
+    "total" : 5,
+    "page" : 2,
+    "size" : 2,
+    "items" : 1,
+    "statuts" : "PLANIFIEE"
+  },
+  "GET ?size=2&page=99" : {
+    "resume" : "200 statut=?",
+    "total" : 5,
+    "page" : 99,
+    "size" : 2,
+    "items" : 0,
+    "statuts" : ""
+  },
+  "GET ?size=0" : {
+    "resume" : "400 BAD_REQUEST Page size must not be less than one"
+  },
+  "GET ?page=-1" : {
+    "resume" : "400 BAD_REQUEST Page index must not be less than zero"
+  },
+  "GET ?size=abc" : {
+    "resume" : "500 INTERNAL_ERROR <technique>"
+  },
+  "GET ?size=100000" : {
+    "resume" : "200 statut=?",
+    "total" : 5,
+    "page" : 0,
+    "size" : 100000,
+    "items" : 5,
+    "statuts" : "PLANIFIEE,ANNULEE,TERMINEE,EN_COURS,PLANIFIEE"
+  },
+  "GET (sans paramètre)" : {
+    "resume" : "200 statut=?",
+    "total" : 5,
+    "page" : 0,
+    "size" : 20,
+    "items" : 5,
+    "statuts" : "PLANIFIEE,ANNULEE,TERMINEE,EN_COURS,PLANIFIEE"
+  }
+}

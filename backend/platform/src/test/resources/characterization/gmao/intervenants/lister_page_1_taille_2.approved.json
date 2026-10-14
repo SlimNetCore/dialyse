@@ -1,0 +1,28 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "id" : "<INTERVENANT_INTERNE>",
+      "centreId" : "<CENTRE_A>",
+      "nom" : "Bernard Technicien",
+      "type" : "INTERNE",
+      "telephone" : "0555000001",
+      "email" : "bernard@centre.test",
+      "tarifHoraireDefaut" : 35.00,
+      "actif" : true
+    }, {
+      "id" : "<INTERVENANT_SANS_TARIF>",
+      "centreId" : "<CENTRE_A>",
+      "nom" : "Claire Sans Tarif",
+      "type" : "INTERNE",
+      "telephone" : null,
+      "email" : null,
+      "tarifHoraireDefaut" : null,
+      "actif" : true
+    } ],
+    "total" : 4,
+    "page" : 1,
+    "size" : 2
+  }
+}

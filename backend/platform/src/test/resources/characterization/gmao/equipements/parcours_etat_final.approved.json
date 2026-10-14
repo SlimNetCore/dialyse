@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "code" : "PARC-1",
+    "designation" : "Generateur parcours",
+    "type" : "GENERATEUR_DIALYSE",
+    "fabricant" : null,
+    "modele" : null,
+    "numeroSerie" : null,
+    "dateInstallation" : "2024-03-01T08:00:00Z",
+    "statut" : "REFORME",
+    "localisation" : "Salle 1",
+    "observations" : "Hors service: Panne pompe\n<HORLOGE> - Contrôle OK; Réformé: Obsolète",
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : "<HORLOGE>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<REFORMEUR>",
+    "salleId" : null,
+    "prixAcquisition" : null
+  }
+}

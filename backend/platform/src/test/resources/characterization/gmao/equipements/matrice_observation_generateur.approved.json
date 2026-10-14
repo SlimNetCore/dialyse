@@ -1,0 +1,60 @@
+{
+  "typeEquipement" : "GENERATEUR_DIALYSE",
+  "lignes" : [ {
+    "statutInitial" : "EN_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_SERVICE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_MAINTENANCE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_MAINTENANCE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_ATTENTE_PIECE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "EN_ATTENTE_PIECE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "HORS_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "HORS_SERVICE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "DESACTIF",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "DESACTIF",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "A_REFORMER",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "A_REFORMER",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "REFORME",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "REFORME",
+    "journal" : [ ],
+    "alertes" : [ ]
+  } ]
+}

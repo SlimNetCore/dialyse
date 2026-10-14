@@ -1,0 +1,12 @@
+{
+  "status" : 201,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "interventionId" : "<I_PLAN>",
+    "type" : "PHOTO",
+    "nom" : "avant.png",
+    "contentType" : "image/png",
+    "taille" : 69,
+    "ajouteLe" : "<HORLOGE>"
+  }
+}

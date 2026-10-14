@@ -1,0 +1,14 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "  Bernard Technicien  ",
+    "type" : "INTERNE",
+    "telephone" : null,
+    "email" : null,
+    "tarifHoraireDefaut" : null,
+    "actif" : true
+  }
+}

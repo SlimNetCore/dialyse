@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "lignesCout" : [ {
+      "id" : "<UUID_GENERE_1>",
+      "type" : "MAIN_OEUVRE",
+      "libelle" : "Main d'œuvre",
+      "quantite" : 0.92,
+      "prixUnitaire" : 35.00,
+      "montant" : 32.2000,
+      "articleStockId" : null,
+      "automatique" : true
+    } ]
+  }
+}

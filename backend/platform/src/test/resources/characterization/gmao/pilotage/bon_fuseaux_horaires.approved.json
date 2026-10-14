@@ -1,0 +1,15 @@
+[
+  "(absent) -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Z.",
+  "(vide) -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Z.",
+  "(espaces) -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Z.",
+  "Africa/Algiers -> Début : 10/03/2026 09:00 Fin : 10/03/2026 11:00 | 10/03/2026 09:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Africa/Algiers.",
+  "(Africa/Algiers entouré d'espaces) -> Début : 10/03/2026 09:00 Fin : 10/03/2026 11:00 | 10/03/2026 09:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Africa/Algiers.",
+  "Europe/Paris -> Début : 10/03/2026 09:00 Fin : 10/03/2026 11:00 | 10/03/2026 09:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Europe/Paris.",
+  "UTC -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau UTC.",
+  "Z -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Z.",
+  "+01:00 -> Début : 10/03/2026 09:00 Fin : 10/03/2026 11:00 | 10/03/2026 09:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau +01:00.",
+  "America/New_York -> Début : 10/03/2026 04:00 Fin : 10/03/2026 06:00 | 10/03/2026 04:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau America/New_York.",
+  "Mars/Olympus (inconnu) -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Z.",
+  "africa/algiers (casse) -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Z.",
+  "(deux paramètres tz) -> Début : 10/03/2026 08:00 Fin : 10/03/2026 10:00 | 10/03/2026 08:10 — Démarrée par Karim Technicien | Heures exprimées dans le fuseau Z."
+]

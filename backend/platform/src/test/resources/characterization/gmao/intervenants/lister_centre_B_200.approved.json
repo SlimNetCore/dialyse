@@ -1,0 +1,19 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "id" : "<INTERVENANT_AUTRE_CENTRE>",
+      "centreId" : "<CENTRE_B>",
+      "nom" : "Prestataire Autre Centre",
+      "type" : "EXTERNE",
+      "telephone" : null,
+      "email" : null,
+      "tarifHoraireDefaut" : 99.99,
+      "actif" : true
+    } ],
+    "total" : 1,
+    "page" : 0,
+    "size" : 20
+  }
+}

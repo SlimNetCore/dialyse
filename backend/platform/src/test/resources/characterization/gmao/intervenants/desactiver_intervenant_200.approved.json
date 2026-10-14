@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<INTERVENANT_EXTERNE>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Acme Dialyse Services",
+    "type" : "EXTERNE",
+    "telephone" : "0555000002",
+    "email" : "contact@acme.test",
+    "tarifHoraireDefaut" : 120.50,
+    "actif" : false
+  }
+}

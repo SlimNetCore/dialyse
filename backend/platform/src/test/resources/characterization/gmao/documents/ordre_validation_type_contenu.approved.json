@@ -1,0 +1,5 @@
+[
+  "type FOO + fichier vide : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.FOO",
+  "type FOO + faux format : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.FOO",
+  "type valide + fichier vide : 400 BAD_REQUEST Fichier vide"
+]

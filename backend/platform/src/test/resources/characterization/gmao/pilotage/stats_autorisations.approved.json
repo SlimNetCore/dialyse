@@ -1,0 +1,13 @@
+[
+  "ADMIN -> 200",
+  "TECHNICIEN -> 403 ACCESS_DENIED Access Denied",
+  "MEDECIN -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "SECRETAIRE -> 403 ACCESS_DENIED Access Denied",
+  "INFIRMIER -> 403 ACCESS_DENIED Access Denied",
+  "SUPERADMIN -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "DIRECTION -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "GMAO_RECTIFICATION sans ADMIN -> 403 ACCESS_DENIED Access Denied",
+  "anonyme -> 403 (sans corps)",
+  "POST -> 500 INTERNAL_ERROR <technique>",
+  "sous-chemin inconnu -> 500 INTERNAL_ERROR <technique>"
+]

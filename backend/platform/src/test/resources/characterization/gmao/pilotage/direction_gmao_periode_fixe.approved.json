@@ -1,0 +1,146 @@
+{
+  "status" : 200,
+  "body" : {
+    "societeId" : "<SOCIETE_1>",
+    "from" : "2026-01-01",
+    "to" : "2026-06-30",
+    "generatedAt" : "<HORLOGE>",
+    "centres" : [ {
+      "centerId" : "<CENTRE_A>",
+      "nom" : "Centre Pilotage A",
+      "nbEquipements" : 10,
+      "nbHorsService" : 1,
+      "nbEnMaintenance" : 1,
+      "nbReformes" : 1,
+      "interventionsEnCours" : 1,
+      "coutMaintenancePeriode" : 104464.00000,
+      "indisponibiliteHeuresCumulees" : 8691.0,
+      "patientsSurEquipementIndisponible" : 4,
+      "nbReformeRecommandee" : 2,
+      "topEquipements" : [ {
+        "equipementId" : "<DG_E4>",
+        "code" : "P6-DG_E4",
+        "designation" : "Equipement DG_E4",
+        "statut" : "REFORME",
+        "coutPeriode" : 99999.00000,
+        "coutCumule" : 99999.00000,
+        "prixAcquisition" : 5000.00,
+        "ratioMaintenance" : 19.9998,
+        "indisponibiliteHeures" : 0.0,
+        "reformeRecommandee" : false
+      }, {
+        "equipementId" : "<DG_E1>",
+        "code" : "P6-DG_E1",
+        "designation" : "Equipement DG_E1",
+        "statut" : "EN_SERVICE",
+        "coutPeriode" : 3000.00000,
+        "coutCumule" : 3500.00000,
+        "prixAcquisition" : 10000.00,
+        "ratioMaintenance" : 0.3500,
+        "indisponibiliteHeures" : 3.0,
+        "reformeRecommandee" : false
+      }, {
+        "equipementId" : "<DG_E2>",
+        "code" : "P6-DG_E2",
+        "designation" : "Equipement DG_E2",
+        "statut" : "EN_MAINTENANCE",
+        "coutPeriode" : 1400.00000,
+        "coutCumule" : 1400.00000,
+        "prixAcquisition" : 2000.00,
+        "ratioMaintenance" : 0.7000,
+        "indisponibiliteHeures" : 4344.0,
+        "reformeRecommandee" : true
+      }, {
+        "equipementId" : "<DG_E11>",
+        "code" : "P6-DG_E11",
+        "designation" : "Equipement DG_E11",
+        "statut" : "EN_SERVICE",
+        "coutPeriode" : 30.00000,
+        "coutCumule" : 30.00000,
+        "prixAcquisition" : null,
+        "ratioMaintenance" : null,
+        "indisponibiliteHeures" : 0.0,
+        "reformeRecommandee" : false
+      }, {
+        "equipementId" : "<DG_E10>",
+        "code" : "P6-DG_E10",
+        "designation" : "Equipement DG_E10",
+        "statut" : "EN_SERVICE",
+        "coutPeriode" : 20.00000,
+        "coutCumule" : 20.00000,
+        "prixAcquisition" : null,
+        "ratioMaintenance" : null,
+        "indisponibiliteHeures" : 0.0,
+        "reformeRecommandee" : false
+      }, {
+        "equipementId" : "<DG_E3>",
+        "code" : "P6-DG_E3",
+        "designation" : "Equipement DG_E3",
+        "statut" : "A_REFORMER",
+        "coutPeriode" : 0,
+        "coutCumule" : 0,
+        "prixAcquisition" : null,
+        "ratioMaintenance" : null,
+        "indisponibiliteHeures" : 0.0,
+        "reformeRecommandee" : true
+      } ]
+    }, {
+      "centerId" : "<CENTRE_B>",
+      "nom" : "Centre Pilotage B",
+      "nbEquipements" : 1,
+      "nbHorsService" : 0,
+      "nbEnMaintenance" : 0,
+      "nbReformes" : 0,
+      "interventionsEnCours" : 0,
+      "coutMaintenancePeriode" : 6.00000,
+      "indisponibiliteHeuresCumulees" : 0.0,
+      "patientsSurEquipementIndisponible" : 0,
+      "nbReformeRecommandee" : 0,
+      "topEquipements" : [ {
+        "equipementId" : "<DG_EB>",
+        "code" : "P6-DG_EB",
+        "designation" : "Equipement DG_EB",
+        "statut" : "EN_SERVICE",
+        "coutPeriode" : 6.00000,
+        "coutCumule" : 15.00000,
+        "prixAcquisition" : null,
+        "ratioMaintenance" : null,
+        "indisponibiliteHeures" : 0.0,
+        "reformeRecommandee" : false
+      } ]
+    } ],
+    "totaux" : {
+      "centerId" : null,
+      "nom" : null,
+      "nbEquipements" : 11,
+      "nbHorsService" : 1,
+      "nbEnMaintenance" : 1,
+      "nbReformes" : 1,
+      "interventionsEnCours" : 1,
+      "coutMaintenancePeriode" : 104470.00000,
+      "indisponibiliteHeuresCumulees" : 8691.0,
+      "patientsSurEquipementIndisponible" : 4,
+      "nbReformeRecommandee" : 2,
+      "topEquipements" : [ ]
+    },
+    "alertes" : [ {
+      "centerId" : "<CENTRE_A>",
+      "centre" : "Centre Pilotage A",
+      "code" : "GMAO_PATIENT_SUR_EQUIPEMENT_EN_MAINTENANCE",
+      "severity" : "CRITICAL",
+      "valeur" : 4
+    }, {
+      "centerId" : "<CENTRE_A>",
+      "centre" : "Centre Pilotage A",
+      "code" : "GMAO_GENERATEURS_HORS_SERVICE",
+      "severity" : "WARNING",
+      "valeur" : 1
+    }, {
+      "centerId" : "<CENTRE_A>",
+      "centre" : "Centre Pilotage A",
+      "code" : "GMAO_REFORME_RECOMMANDEE",
+      "severity" : "WARNING",
+      "valeur" : 2
+    } ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "0_secondes" : "total=0",
+  "1_secondes" : "total=0",
+  "29_secondes" : "total=0",
+  "59_secondes" : "total=0",
+  "60_secondes" : "MAIN_OEUVRE 0.02x35.00=0.7000; total=0.7000",
+  "61_secondes" : "MAIN_OEUVRE 0.02x35.00=0.7000; total=0.7000",
+  "89_secondes" : "MAIN_OEUVRE 0.02x35.00=0.7000; total=0.7000",
+  "90_secondes" : "MAIN_OEUVRE 0.02x35.00=0.7000; total=0.7000",
+  "119_secondes" : "MAIN_OEUVRE 0.02x35.00=0.7000; total=0.7000",
+  "120_secondes" : "MAIN_OEUVRE 0.03x35.00=1.0500; total=1.0500",
+  "3599_secondes" : "MAIN_OEUVRE 0.98x35.00=34.3000; total=34.3000",
+  "3600_secondes" : "MAIN_OEUVRE 1.00x35.00=35.0000; total=35.0000"
+}

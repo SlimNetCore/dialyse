@@ -1,0 +1,6 @@
+[
+  "fichier vide : 400 BAD_REQUEST Nombre maximal de documents atteint pour cette intervention",
+  "texte : 400 BAD_REQUEST Nombre maximal de documents atteint pour cette intervention",
+  "type invalide : 400 BAD_REQUEST Nombre maximal de documents atteint pour cette intervention",
+  "intervention supprimee, 0 piece, meme fichier vide : 422 BUSINESS_RULE_VIOLATION Les pièces jointes d'une intervention annulée, terminée ou supprimée ne se modifient plus"
+]

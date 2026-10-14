@@ -1,0 +1,8 @@
+[
+  "51e (PDF valide) : 400 BAD_REQUEST Nombre maximal de documents atteint pour cette intervention",
+  "51e (fichier invalide) : 400 BAD_REQUEST Nombre maximal de documents atteint pour cette intervention",
+  "51e (type invalide) : 400 BAD_REQUEST Nombre maximal de documents atteint pour cette intervention",
+  "51e sur une autre intervention du centre : 201 type=AUTRE nom=[ok.pdf] contentType=application/pdf taille=15",
+  "apres retrait d'une piece : 201 type=AUTRE nom=[p52.pdf] contentType=application/pdf taille=15",
+  "de nouveau 50, 51e : 400 BAD_REQUEST Nombre maximal de documents atteint pour cette intervention"
+]

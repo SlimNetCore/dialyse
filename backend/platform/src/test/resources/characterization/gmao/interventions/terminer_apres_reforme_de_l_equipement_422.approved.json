@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "Un équipement réformé ne peut plus changer de statut",
+    "instance" : "/api/v1/gmao/interventions/<UUID_GENERE_1>/terminer",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "BUSINESS_RULE_VIOLATION"
+  }
+}

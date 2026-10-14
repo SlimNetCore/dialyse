@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "body" : [ {
+    "type" : "CREEE",
+    "at" : "<HORLOGE>",
+    "parId" : "<ADMIN_A>",
+    "parNom" : null,
+    "detail" : null
+  }, {
+    "type" : "DEMARREE",
+    "at" : "<HORLOGE>",
+    "parId" : "<ADMIN_A>",
+    "parNom" : null,
+    "detail" : null
+  }, {
+    "type" : "ANNULEE",
+    "at" : "<HORLOGE>",
+    "parId" : "<ADMIN_A>",
+    "parNom" : null,
+    "detail" : null
+  } ]
+}

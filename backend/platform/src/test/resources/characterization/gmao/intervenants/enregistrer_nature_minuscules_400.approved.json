@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "detail" : "No enum constant <TypeIntervenant>.interne",
+    "instance" : "/api/v1/gmao/intervenants",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

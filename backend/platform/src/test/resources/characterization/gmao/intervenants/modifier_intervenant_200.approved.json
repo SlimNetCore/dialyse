@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<INTERVENANT_INTERNE>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Bernard Prestataire",
+    "type" : "EXTERNE",
+    "telephone" : "0666000000",
+    "email" : "b@ext.test",
+    "tarifHoraireDefaut" : 150.75,
+    "actif" : true
+  }
+}

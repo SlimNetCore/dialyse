@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "L'équipement est déjà réformé",
+    "instance" : "/api/v1/gmao/equipements/<GENERATEUR_G01>/reformer",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "BUSINESS_RULE_VIOLATION"
+  }
+}

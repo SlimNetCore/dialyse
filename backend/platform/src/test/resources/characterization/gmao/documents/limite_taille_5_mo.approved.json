@@ -1,0 +1,5 @@
+[
+  "5 Mo exactement : 201 type=AUTRE nom=[limite.pdf] contentType=application/pdf taille=5242880",
+  "5 Mo + 1 octet : 400 BAD_REQUEST Fichier trop volumineux (5 Mo maximum)",
+  "5 Mo - 1 octet : 201 type=AUTRE nom=[presque.pdf] contentType=application/pdf taille=5242879"
+]

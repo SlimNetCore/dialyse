@@ -1,0 +1,13 @@
+[
+  "piece ok : 200",
+  "piece d'une autre intervention du meme centre : 400 BAD_REQUEST Document non trouvé",
+  "piece du centre B via l'intervention A : 400 BAD_REQUEST Document non trouvé",
+  "piece du centre B via l'intervention B par admin A : 400 BAD_REQUEST Intervention non trouvée",
+  "piece du centre B par admin B : 200",
+  "piece inconnue : 400 BAD_REQUEST Document non trouvé",
+  "intervention inconnue : 400 BAD_REQUEST Intervention non trouvée",
+  "intervention supprimee logiquement : 200 bodyText=%PDF-1.4\\u000a%%EOF\\u000a",
+  "id piece illisible : 500 INTERNAL_ERROR <technique>",
+  "id intervention illisible : 500 INTERNAL_ERROR <technique>",
+  "piece avec suffixe de chemin : 500 INTERNAL_ERROR <technique>"
+]

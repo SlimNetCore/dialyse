@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "La salle « Salle 1 » est à sa capacité maximale (1 générateur(s)) : l'affectation est refusée",
+    "instance" : "/api/v1/gmao/equipements/<GENERATEUR_HORS_SERVICE>",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "SALLE_CAPACITE_DEPASSEE"
+  }
+}

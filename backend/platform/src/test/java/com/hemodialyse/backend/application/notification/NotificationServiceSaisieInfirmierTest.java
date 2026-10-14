@@ -106,6 +106,16 @@ class NotificationServiceSaisieInfirmierTest {
         assertNull(evt.get("id"));
     }
 
+    @Test
+    void a_journal_failure_on_a_proposed_reform_is_raised_so_the_event_is_replayed_and_nothing_is_pushed() {
+        doThrow(new IllegalStateException("base inaccessible")).when(journal).enregistrer(any(), any(), any(), any(), any());
+
+        assertThrows(IllegalStateException.class, () -> service.notifyReformeProposee(centre, UUID.randomUUID(), "G-01",
+                java.time.Instant.parse("2026-10-12T08:00:00Z")));
+
+        verify(messaging, org.mockito.Mockito.never()).convertAndSend(any(String.class), any(Object.class));
+    }
+
     @SuppressWarnings("unchecked")
     private java.util.List<Map<String, Object>> publieTous() {
         ArgumentCaptor<Object> events = ArgumentCaptor.forClass(Object.class);

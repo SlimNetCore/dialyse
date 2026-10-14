@@ -1,0 +1,22 @@
+{
+  "POST_creer_text_plain" : "500 INTERNAL_ERROR <technique>",
+  "POST_creer_xml" : "400 VALIDATION_ERROR Invalid request content.",
+  "POST_creer_json_tableau" : "500 INTERNAL_ERROR <technique>",
+  "POST_creer_json_null" : "500 INTERNAL_ERROR <technique>",
+  "POST_terminer_text_plain" : "500 INTERNAL_ERROR <technique>",
+  "POST_terminer_xml" : "400 VALIDATION_ERROR Invalid request content.",
+  "POST_terminer_json_tableau" : "500 INTERNAL_ERROR <technique>",
+  "POST_terminer_json_null" : "500 INTERNAL_ERROR <technique>",
+  "POST_ajouter_ligne_text_plain" : "500 INTERNAL_ERROR <technique>",
+  "POST_ajouter_ligne_xml" : "400 VALIDATION_ERROR Invalid request content.",
+  "POST_ajouter_ligne_json_tableau" : "500 INTERNAL_ERROR <technique>",
+  "POST_ajouter_ligne_json_null" : "500 INTERNAL_ERROR <technique>",
+  "POST_rectifier_text_plain" : "500 INTERNAL_ERROR <technique>",
+  "POST_rectifier_xml" : "400 VALIDATION_ERROR Invalid request content.",
+  "POST_rectifier_json_tableau" : "500 INTERNAL_ERROR <technique>",
+  "POST_rectifier_json_null" : "500 INTERNAL_ERROR <technique>",
+  "POST_annuler_text_plain" : "500 INTERNAL_ERROR <technique>",
+  "POST_annuler_xml" : "400 VALIDATION_ERROR Invalid request content.",
+  "POST_annuler_json_tableau" : "500 INTERNAL_ERROR <technique>",
+  "POST_annuler_json_null" : "500 INTERNAL_ERROR <technique>"
+}

@@ -1,0 +1,46 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "id" : "<INTERVENANT_EXTERNE>",
+      "centreId" : "<CENTRE_A>",
+      "nom" : "Acme Dialyse Services",
+      "type" : "EXTERNE",
+      "telephone" : "0555000002",
+      "email" : "contact@acme.test",
+      "tarifHoraireDefaut" : 120.50,
+      "actif" : true
+    }, {
+      "id" : "<INTERVENANT_DESACTIVE>",
+      "centreId" : "<CENTRE_A>",
+      "nom" : "Ancien Prestataire",
+      "type" : "EXTERNE",
+      "telephone" : "0555000004",
+      "email" : null,
+      "tarifHoraireDefaut" : 80.00,
+      "actif" : false
+    }, {
+      "id" : "<INTERVENANT_INTERNE>",
+      "centreId" : "<CENTRE_A>",
+      "nom" : "Bernard Technicien",
+      "type" : "INTERNE",
+      "telephone" : "0555000001",
+      "email" : "bernard@centre.test",
+      "tarifHoraireDefaut" : 35.00,
+      "actif" : true
+    }, {
+      "id" : "<INTERVENANT_SANS_TARIF>",
+      "centreId" : "<CENTRE_A>",
+      "nom" : "Claire Sans Tarif",
+      "type" : "INTERNE",
+      "telephone" : null,
+      "email" : null,
+      "tarifHoraireDefaut" : null,
+      "actif" : true
+    } ],
+    "total" : 4,
+    "page" : 0,
+    "size" : 20
+  }
+}

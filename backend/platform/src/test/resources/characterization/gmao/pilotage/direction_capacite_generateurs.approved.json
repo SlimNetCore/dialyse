@@ -1,0 +1,58 @@
+{
+  "status" : 200,
+  "body" : {
+    "societeId" : "<SOCIETE_1>",
+    "from" : "2026-01-01",
+    "to" : "2026-06-30",
+    "generatedAt" : "<HORLOGE>",
+    "regle" : {
+      "generateursParSecours" : 8,
+      "seuilProchePourcent" : 90
+    },
+    "total" : {
+      "generateurs" : 9,
+      "generateursSecours" : 2,
+      "postesActifs" : 7,
+      "series" : 0,
+      "patientsParPosteEtSerie" : 0,
+      "capacite" : 42,
+      "fileActive" : 0,
+      "tauxOccupation" : 0.0,
+      "niveau" : "MARGE",
+      "atteinte" : false
+    },
+    "centres" : [ {
+      "centerId" : "<CENTRE_A>",
+      "nom" : "Centre Pilotage A",
+      "actif" : true,
+      "capacite" : {
+        "generateurs" : 8,
+        "generateursSecours" : 1,
+        "postesActifs" : 7,
+        "series" : 2,
+        "patientsParPosteEtSerie" : 3,
+        "capacite" : 42,
+        "fileActive" : 0,
+        "tauxOccupation" : 0.0,
+        "niveau" : "MARGE",
+        "atteinte" : false
+      }
+    }, {
+      "centerId" : "<CENTRE_B>",
+      "nom" : "Centre Pilotage B",
+      "actif" : true,
+      "capacite" : {
+        "generateurs" : 1,
+        "generateursSecours" : 1,
+        "postesActifs" : 0,
+        "series" : 0,
+        "patientsParPosteEtSerie" : 3,
+        "capacite" : 0,
+        "fileActive" : 0,
+        "tauxOccupation" : null,
+        "niveau" : "SANS_CAPACITE",
+        "atteinte" : false
+      }
+    } ]
+  }
+}

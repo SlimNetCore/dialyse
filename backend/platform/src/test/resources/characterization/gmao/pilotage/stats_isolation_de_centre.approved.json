@@ -1,0 +1,4 @@
+[
+  "centre A -> {\"totalEquipements\":10,\"equipementsEnService\":3,\"equipementsEnMaintenance\":2,\"equipementsHorsService\":1,\"totalInterventions\":0,\"interventionsEnCours\":0,\"interventionsTerminees\":0,\"plansMaintenanceActifs\":0,\"plansMaintenanceEnRetard\":0,\"interventionsARelancer\":0}",
+  "centre B -> {\"totalEquipements\":1,\"equipementsEnService\":1,\"equipementsEnMaintenance\":0,\"equipementsHorsService\":0,\"totalInterventions\":1,\"interventionsEnCours\":0,\"interventionsTerminees\":0,\"plansMaintenanceActifs\":1,\"plansMaintenanceEnRetard\":1,\"interventionsARelancer\":1}"
+]

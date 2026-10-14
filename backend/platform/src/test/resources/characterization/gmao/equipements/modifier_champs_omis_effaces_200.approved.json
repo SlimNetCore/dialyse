@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<GENERATEUR_G01>",
+    "code" : "G-01",
+    "designation" : "Seule la designation",
+    "type" : "GENERATEUR_DIALYSE",
+    "fabricant" : null,
+    "modele" : null,
+    "numeroSerie" : null,
+    "dateInstallation" : "2020-01-15T00:00:00Z",
+    "statut" : "EN_SERVICE",
+    "localisation" : null,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : "<HORLOGE>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>",
+    "salleId" : null,
+    "prixAcquisition" : null
+  }
+}

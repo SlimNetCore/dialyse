@@ -1,0 +1,11 @@
+{
+  "status" : 500,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+    "instance" : "/api/v1/gmao/intervenants",
+    "status" : 500,
+    "title" : "Erreur technique",
+    "code" : "DATA_ACCESS_ERROR"
+  }
+}

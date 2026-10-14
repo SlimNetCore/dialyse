@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "body" : {
+    "lignesCout" : [ {
+      "id" : "<UUID_GENERE_1>",
+      "type" : "INTERVENANT",
+      "libelle" : "Honoraires intervenant",
+      "quantite" : 1.00,
+      "prixUnitaire" : 40.10,
+      "montant" : 40.1000,
+      "articleStockId" : null,
+      "automatique" : true
+    } ],
+    "coutTotal" : 40.1000
+  }
+}

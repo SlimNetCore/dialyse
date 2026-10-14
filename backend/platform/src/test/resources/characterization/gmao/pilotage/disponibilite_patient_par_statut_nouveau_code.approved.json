@@ -1,0 +1,9 @@
+[
+  "EN_SERVICE -> 200 {\"disponible\":true,\"statut\":\"EN_SERVICE\"}",
+  "EN_MAINTENANCE -> 200 {\"disponible\":false,\"statut\":\"EN_MAINTENANCE\"}",
+  "EN_ATTENTE_PIECE -> 200 {\"disponible\":false,\"statut\":\"EN_ATTENTE_PIECE\"}",
+  "HORS_SERVICE -> 200 {\"disponible\":false,\"statut\":\"HORS_SERVICE\"}",
+  "DESACTIF -> 200 {\"disponible\":false,\"statut\":\"DESACTIF\"}",
+  "A_REFORMER -> 200 {\"disponible\":false,\"statut\":\"A_REFORMER\"}",
+  "REFORME -> 200 {\"disponible\":false,\"statut\":\"REFORME\"}"
+]

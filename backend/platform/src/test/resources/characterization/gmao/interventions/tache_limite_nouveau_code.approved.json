@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "Une intervention ne peut pas porter plus de 30 tâches",
+    "instance" : "/api/v1/gmao/interventions/<UUID_GENERE_1>/taches",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "BUSINESS_RULE_VIOLATION"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<GENERATEUR_G01>",
+    "centreId" : "<CENTRE_A>",
+    "type" : "CURATIVE",
+    "statut" : "TERMINEE",
+    "dateDebut" : "2026-03-10T08:00:00Z",
+    "dateFin" : "2026-03-10T09:35:00Z",
+    "intervenantId" : null,
+    "etatEquipementAvant" : "EN_MAINTENANCE",
+    "etatEquipementApres" : "EN_SERVICE",
+    "priorite" : "NORMALE",
+    "echeance" : null,
+    "symptome" : null,
+    "cause" : "Joint usé",
+    "enRetard" : false,
+    "echeanceDepassee" : false,
+    "nbRectifications" : 0,
+    "description" : "Panne pompe",
+    "actions" : "Remplacement pompe",
+    "pieceRemplacee" : null,
+    "lignesCout" : [ ],
+    "coutTotal" : 0,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : "<HORLOGE>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>"
+  }
+}

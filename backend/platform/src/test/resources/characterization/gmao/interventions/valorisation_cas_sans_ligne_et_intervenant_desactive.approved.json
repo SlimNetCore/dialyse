@@ -1,0 +1,9 @@
+{
+  "sans_intervenant" : "total=0",
+  "intervenant_sans_tarif" : "total=0",
+  "intervenant_tarif_zero" : "total=0",
+  "intervenant_tarif_negatif_en_base" : "total=0",
+  "intervenant_d_un_autre_centre" : "total=0",
+  "intervenant_desactive_valorise" : "INTERVENANT 1.00x80.00=80.0000; total=80.0000",
+  "intervenant_supprime_de_la_base" : "total=0"
+}

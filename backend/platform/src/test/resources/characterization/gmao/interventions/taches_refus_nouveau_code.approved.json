@@ -1,0 +1,16 @@
+{
+  "description_vide" : "400 VALIDATION_ERROR Invalid request content.",
+  "description_absente" : "400 VALIDATION_ERROR Invalid request content.",
+  "achever_une_tache_a_faire" : "422 BUSINESS_RULE_VIOLATION Seule une tâche en cours peut être achevée (statut actuel : A_FAIRE)",
+  "demarrer_une_tache_en_cours" : "422 BUSINESS_RULE_VIOLATION Seule une tâche à faire peut être démarrée (statut actuel : EN_COURS)",
+  "demarrer_une_tache_completee" : "422 BUSINESS_RULE_VIOLATION Seule une tâche à faire peut être démarrée (statut actuel : COMPLETEE)",
+  "achever_une_tache_completee" : "422 BUSINESS_RULE_VIOLATION Seule une tâche en cours peut être achevée (statut actuel : COMPLETEE)",
+  "tache_inconnue" : "400 BAD_REQUEST Tâche non trouvée",
+  "ajouter_sur_intervention_inconnue" : "400 BAD_REQUEST Intervention non trouvée",
+  "ajouter_sur_intervention_terminee" : "422 BUSINESS_RULE_VIOLATION Une tâche ne s'ajoute qu'à une intervention planifiée ou en cours",
+  "ajouter_sur_intervention_annulee" : "422 BUSINESS_RULE_VIOLATION Une tâche ne s'ajoute qu'à une intervention planifiée ou en cours",
+  "ajouter_sur_intervention_planifiee" : "200 (acceptée)",
+  "demarrer_sur_intervention_planifiee" : "422 BUSINESS_RULE_VIOLATION Une tâche ne se démarre ou ne s'achève que sur une intervention en cours",
+  "tache_id_illisible" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+  "intervention_id_illisible" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid"
+}

@@ -1,0 +1,14 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Tarif 12.345",
+    "type" : "INTERNE",
+    "telephone" : null,
+    "email" : null,
+    "tarifHoraireDefaut" : 12.345,
+    "actif" : true
+  }
+}

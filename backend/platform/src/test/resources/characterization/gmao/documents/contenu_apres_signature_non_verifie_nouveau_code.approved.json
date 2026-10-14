@@ -1,0 +1,8 @@
+[
+  "PDF puis HTML/script : 400 BAD_REQUEST Fichier PDF incomplet ou altéré",
+  "JPEG puis HTML : 400 BAD_REQUEST Fichier JPEG incomplet ou altéré",
+  "PNG puis octets aleatoires : 400 BAD_REQUEST Fichier PNG incomplet ou altéré",
+  "PDF termine puis HTML : 400 BAD_REQUEST Fichier PDF incomplet ou altéré",
+  "PNG tronque avant IEND : 400 BAD_REQUEST Fichier PNG incomplet ou altéré",
+  "JPEG tronque (sans EOI) : 400 BAD_REQUEST Fichier JPEG incomplet ou altéré"
+]

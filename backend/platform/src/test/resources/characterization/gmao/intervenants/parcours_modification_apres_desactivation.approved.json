@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Nadia Ingenieure Senior",
+    "type" : "EXTERNE",
+    "telephone" : null,
+    "email" : null,
+    "tarifHoraireDefaut" : 60,
+    "actif" : false
+  }
+}

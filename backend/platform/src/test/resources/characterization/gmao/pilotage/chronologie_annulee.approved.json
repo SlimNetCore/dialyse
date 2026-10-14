@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "body" : [ {
+    "type" : "CREEE",
+    "at" : "2026-03-10T07:00:00Z",
+    "parId" : "<ADMIN_A>",
+    "parNom" : "Samia Administratrice",
+    "detail" : null
+  }, {
+    "type" : "ANNULEE",
+    "at" : "2026-03-10T11:00:00Z",
+    "parId" : "<ADMIN_A>",
+    "parNom" : "Samia Administratrice",
+    "detail" : null
+  } ]
+}

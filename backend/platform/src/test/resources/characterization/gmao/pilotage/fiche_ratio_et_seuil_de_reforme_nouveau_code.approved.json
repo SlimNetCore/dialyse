@@ -1,0 +1,21 @@
+[
+  "cumul 599,94 sur 1000 (0,59994 -> 0,5999) -> ratio=0.5999 possession=1599.94000 recommandee=false seuil=0.60",
+  "cumul 599,95 sur 1000 (0,59995 -> 0,6000 HALF_UP) -> ratio=0.6000 possession=1599.95000 recommandee=false seuil=0.60",
+  "cumul 599,96 sur 1000 (0,59996 -> 0,6000 affiché : non recommandée car 0,59996 < 0,60) -> ratio=0.6000 possession=1599.96000 recommandee=false seuil=0.60",
+  "cumul 600,00 sur 1000 (= seuil) -> ratio=0.6000 possession=1600.00000 recommandee=true seuil=0.60",
+  "cumul 600,04 sur 1000 -> ratio=0.6000 possession=1600.04000 recommandee=true seuil=0.60",
+  "cumul 1,00 sur 3 (0,3333) -> ratio=0.3333 possession=4.00000 recommandee=false seuil=0.60",
+  "cumul 2,00 sur 3 (0,6667) -> ratio=0.6667 possession=5.00000 recommandee=true seuil=0.60",
+  "cumul 0,01 sur 100000 (0,0000) -> ratio=0.0000 possession=100000.01000 recommandee=false seuil=0.60",
+  "cumul 125 sur 100 (1,2500) -> ratio=1.2500 possession=225.00000 recommandee=true seuil=0.60",
+  "prix 0 : ratio inconnu -> ratio=null possession=999.00000 recommandee=false seuil=0.60",
+  "prix absent : ratio inconnu -> ratio=null possession=999.00000 recommandee=false seuil=0.60",
+  "prix négatif : ratio inconnu -> ratio=null possession=989.00000 recommandee=false seuil=0.60",
+  "À réformer, prix absent : recommandée d'office -> ratio=null possession=0 recommandee=true seuil=0.60",
+  "À réformer, ratio 0,10 : recommandée d'office -> ratio=0.1000 possession=1100.00000 recommandee=true seuil=0.60",
+  "Réformé, ratio 5 : jamais recommandée -> ratio=5.0000 possession=600.00000 recommandee=false seuil=0.60",
+  "Désactivé, ratio 5 : jamais recommandée -> ratio=5.0000 possession=600.00000 recommandee=false seuil=0.60",
+  "En maintenance, ratio 0,70 : recommandée -> ratio=0.7000 possession=1700.00000 recommandee=true seuil=0.60",
+  "En attente de pièce, ratio 0,70 : recommandée -> ratio=0.7000 possession=1700.00000 recommandee=true seuil=0.60",
+  "Hors service, ratio 0,70 : recommandée -> ratio=0.7000 possession=1700.00000 recommandee=true seuil=0.60"
+]

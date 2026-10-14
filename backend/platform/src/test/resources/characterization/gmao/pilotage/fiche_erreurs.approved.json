@@ -1,0 +1,14 @@
+[
+  "fiche : équipement du centre -> 200",
+  "fiche : équipement inconnu -> 400 BAD_REQUEST Équipement non trouvé",
+  "fiche : équipement du centre B vu par A -> 400 BAD_REQUEST Équipement non trouvé",
+  "fiche : équipement supprimé logiquement -> 200",
+  "fiche : id illisible -> 400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+  "fiche : méthode POST -> 500 INTERNAL_ERROR <technique>",
+  "disponibilite-patient : équipement du centre -> 200",
+  "disponibilite-patient : équipement inconnu -> 400 BAD_REQUEST Équipement non trouvé",
+  "disponibilite-patient : équipement du centre B vu par A -> 400 BAD_REQUEST Équipement non trouvé",
+  "disponibilite-patient : équipement supprimé logiquement -> 200",
+  "disponibilite-patient : id illisible -> 400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+  "disponibilite-patient : méthode POST -> 500 INTERNAL_ERROR <technique>"
+]

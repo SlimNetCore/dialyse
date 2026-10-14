@@ -1,0 +1,10 @@
+{
+  "status" : 400,
+  "body" : {
+    "detail" : "Page size must not be less than one",
+    "instance" : "/api/v1/gmao/equipements",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

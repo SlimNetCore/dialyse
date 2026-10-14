@@ -1,0 +1,64 @@
+{
+  "centre_A" : {
+    "http" : 200,
+    "totalRows" : 1,
+    "created" : 1,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : false,
+    "applied" : true
+  },
+  "centre_B" : {
+    "http" : 200,
+    "totalRows" : 2,
+    "created" : 2,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : false,
+    "applied" : true
+  },
+  "centre_B_refuse_un_generateur_du_centre_A" : {
+    "http" : 200,
+    "totalRows" : 1,
+    "created" : 0,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ {
+      "code" : "REFERENCE_NOT_FOUND",
+      "field" : "generateur",
+      "message" : "« G-02 » est introuvable parmi les équipements GMAO (générateurs) de ce centre : créez-le d'abord (GMAO → Équipements).",
+      "params" : {
+        "target" : "gmao/equipements",
+        "value" : "G-02"
+      },
+      "row" : 2
+    } ],
+    "warnings" : [ ],
+    "valid" : false,
+    "dryRun" : true,
+    "applied" : false
+  },
+  "patients_centre_A" : [ {
+    "nom" : "DU-CENTRE-A",
+    "generateur" : "<G-01 centre A>",
+    "salle" : "<S1>"
+  } ],
+  "patients_centre_B" : [ {
+    "nom" : "DU-CENTRE-B",
+    "generateur" : "<G-01 centre B>",
+    "salle" : "<SB>"
+  }, {
+    "nom" : "DU-CENTRE-B-2",
+    "generateur" : "<G-B1>",
+    "salle" : "<aucun>"
+  } ]
+}

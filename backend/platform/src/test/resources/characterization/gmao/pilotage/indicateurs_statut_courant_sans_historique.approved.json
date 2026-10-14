@@ -1,0 +1,9 @@
+[
+  "statut courant REFORME sans historique -> panne 12 mois 0, pendant l'intervention 0",
+  "statut courant DESACTIF sans historique -> panne 12 mois 0, pendant l'intervention 0",
+  "statut courant A_REFORMER sans historique -> panne 12 mois 0, pendant l'intervention 0",
+  "statut courant EN_SERVICE sans historique -> panne 12 mois 0, pendant l'intervention 0",
+  "statut courant EN_MAINTENANCE sans historique -> panne 12 mois toute la fenêtre, pendant l'intervention 120",
+  "statut courant EN_ATTENTE_PIECE sans historique -> panne 12 mois toute la fenêtre, pendant l'intervention 120",
+  "statut courant HORS_SERVICE sans historique -> panne 12 mois toute la fenêtre, pendant l'intervention 120"
+]

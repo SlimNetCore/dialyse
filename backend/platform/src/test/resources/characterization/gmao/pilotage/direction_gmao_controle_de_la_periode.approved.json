@@ -1,0 +1,13 @@
+[
+  "?from=2026-06-30&to=2026-01-01 -> 422 PERIODE_INVALIDE La date de début doit précéder la date de fin",
+  "?from=2026-01-01&to=2026-01-01 -> 200 from=2026-01-01 to=2026-01-01",
+  "?from=2021-01-01&to=2026-01-01 -> 200 from=2021-01-01 to=2026-01-01",
+  "?from=2020-12-31&to=2026-01-01 -> 422 PERIODE_TROP_LONGUE La période ne peut pas dépasser 5 ans",
+  "?from=2020-01-01&to=2025-12-31 -> 422 PERIODE_TROP_LONGUE La période ne peut pas dépasser 5 ans",
+  "?from=2024-02-29&to=2029-02-28 -> 200 from=2024-02-29 to=2029-02-28",
+  "?from=2024-02-29&to=2029-03-01 -> 422 PERIODE_TROP_LONGUE La période ne peut pas dépasser 5 ans",
+  "?from=pas-une-date -> 500 INTERNAL_ERROR <technique>",
+  "?from=2026-13-45 -> 500 INTERNAL_ERROR <technique>",
+  "?from=01/01/2026&to=30/06/2026 -> 500 INTERNAL_ERROR <technique>",
+  "?from=&to= -> 200 from=<1er janvier de l'année> to=<aujourd'hui>"
+]

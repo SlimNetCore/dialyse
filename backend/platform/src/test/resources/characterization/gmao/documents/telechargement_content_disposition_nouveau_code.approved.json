@@ -1,0 +1,14 @@
+[
+  "[simple.pdf] nom stocke=[simple.pdf] : Content-Disposition=attachment; filename=\"simple.pdf\"; filename*=UTF-8''simple.pdf",
+  "[avec espaces.pdf] nom stocke=[avec espaces.pdf] : Content-Disposition=attachment; filename=\"avec espaces.pdf\"; filename*=UTF-8''avec%20espaces.pdf",
+  "[été 2026.pdf] nom stocke=[été 2026.pdf] : Content-Disposition=attachment; filename=\"ete 2026.pdf\"; filename*=UTF-8''%C3%A9t%C3%A9%202026.pdf",
+  "[日本語.pdf] nom stocke=[日本語.pdf] : Content-Disposition=attachment; filename=\"___.pdf\"; filename*=UTF-8''%E6%97%A5%E6%9C%AC%E8%AA%9E.pdf",
+  "[emoji-😀.pdf] nom stocke=[emoji-😀.pdf] : Content-Disposition=attachment; filename=\"emoji-_.pdf\"; filename*=UTF-8''emoji-%F0%9F%98%80.pdf",
+  "[a;b,c.pdf] nom stocke=[a;b,c.pdf] : Content-Disposition=attachment; filename=\"a;b,c.pdf\"; filename*=UTF-8''a%3Bb%2Cc.pdf",
+  "[pourcent%20.pdf] nom stocke=[pourcent%20.pdf] : Content-Disposition=attachment; filename=\"pourcent%20.pdf\"; filename*=UTF-8''pourcent%2520.pdf",
+  "[apostrophe'.pdf] nom stocke=[apostrophe'.pdf] : Content-Disposition=attachment; filename=\"apostrophe'.pdf\"; filename*=UTF-8''apostrophe%27.pdf",
+  "[ligne\\r\\nX-Injecte: 1.pdf] nom stocke=[ligneX-Injecte 1.pdf] : Content-Disposition=attachment; filename=\"ligneX-Injecte 1.pdf\"; filename*=UTF-8''ligneX-Injecte%201.pdf",
+  "[backslash\\\"quote.pdf] nom stocke=[quote.pdf] : Content-Disposition=attachment; filename=\"quote.pdf\"; filename*=UTF-8''quote.pdf",
+  "[..] nom stocke=[document] : Content-Disposition=attachment; filename=\"document\"; filename*=UTF-8''document",
+  "[document] nom stocke=[document] : Content-Disposition=attachment; filename=\"document\"; filename*=UTF-8''document"
+]

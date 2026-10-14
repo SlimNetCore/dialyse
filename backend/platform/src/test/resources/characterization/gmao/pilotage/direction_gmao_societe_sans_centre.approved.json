@@ -1,0 +1,25 @@
+{
+  "status" : 200,
+  "body" : {
+    "societeId" : "<SOCIETE_SANS_CENTRE>",
+    "from" : "2026-01-01",
+    "to" : "2026-06-30",
+    "generatedAt" : "<HORLOGE>",
+    "centres" : [ ],
+    "totaux" : {
+      "centerId" : null,
+      "nom" : null,
+      "nbEquipements" : 0,
+      "nbHorsService" : 0,
+      "nbEnMaintenance" : 0,
+      "nbReformes" : 0,
+      "interventionsEnCours" : 0,
+      "coutMaintenancePeriode" : 0,
+      "indisponibiliteHeuresCumulees" : 0.0,
+      "patientsSurEquipementIndisponible" : 0,
+      "nbReformeRecommandee" : 0,
+      "topEquipements" : [ ]
+    },
+    "alertes" : [ ]
+  }
+}

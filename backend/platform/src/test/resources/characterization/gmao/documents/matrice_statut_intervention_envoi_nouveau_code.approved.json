@@ -1,0 +1,10 @@
+[
+  "PLANIFIEE : 201 type=AUTRE nom=[s.pdf] contentType=application/pdf taille=15",
+  "EN_COURS : 201 type=AUTRE nom=[s.pdf] contentType=application/pdf taille=15",
+  "TERMINEE : 422 BUSINESS_RULE_VIOLATION Les pièces jointes d'une intervention annulée, terminée ou supprimée ne se modifient plus",
+  "ANNULEE : 422 BUSINESS_RULE_VIOLATION Les pièces jointes d'une intervention annulée, terminée ou supprimée ne se modifient plus",
+  "EN_ATTENTE_VALIDATION : 201 type=AUTRE nom=[s.pdf] contentType=application/pdf taille=15",
+  "supprimee logiquement (deleted_at) : 422 BUSINESS_RULE_VIOLATION Les pièces jointes d'une intervention annulée, terminée ou supprimée ne se modifient plus",
+  "intervention du centre B appelee par le centre A : 400 BAD_REQUEST Intervention non trouvée",
+  "intervention inconnue : 400 BAD_REQUEST Intervention non trouvée"
+]

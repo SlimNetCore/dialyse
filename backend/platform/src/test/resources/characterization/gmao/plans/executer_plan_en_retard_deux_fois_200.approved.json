@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<PLAN_MENSUEL_EN_RETARD>",
+    "equipementId" : "<EQUIP_1>",
+    "centreId" : "<CENTRE_A>",
+    "designation" : "Desinfection mensuelle generateur",
+    "description" : "Description Desinfection mensuelle generateur",
+    "frequence" : "MENSUELLE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "<NOW+1M>",
+    "derniereDateExecution" : "<NOW>",
+    "nombreExecutions" : 5,
+    "tachesAEffectuer" : "Taches Desinfection mensuelle generateur",
+    "dateCreation" : "2019-06-01T09:00:00Z",
+    "dateModification" : "<NOW>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "status" : 500,
+  "body" : {
+    "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+    "instance" : "/api/v1/gmao/equipements",
+    "status" : 500,
+    "title" : "Erreur technique",
+    "code" : "DATA_ACCESS_ERROR"
+  }
+}

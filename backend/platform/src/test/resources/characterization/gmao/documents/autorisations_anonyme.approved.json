@@ -1,0 +1,7 @@
+[
+  "POST : 403 (sans corps)",
+  "GET liste : 403 (sans corps)",
+  "GET piece : 403",
+  "DELETE : 403 (sans corps)",
+  "pieces en base apres : 1"
+]

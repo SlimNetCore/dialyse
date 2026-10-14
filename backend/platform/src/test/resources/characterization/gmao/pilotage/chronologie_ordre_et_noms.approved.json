@@ -1,0 +1,9 @@
+[
+  "démarrage avant la création (donnée incohérente) : trié par instant -> 200 DEMARREE@2026-03-10T07:00:00Z par=<TECHNICIEN> nom=Karim Technicien ; CREEE@2026-03-10T08:00:00Z par=<ADMIN_A> nom=Samia Administratrice",
+  "création et démarrage au même instant : ordre d'insertion (CREEE puis DEMARREE) -> 200 CREEE@2026-03-10T08:00:00Z par=<ADMIN_A> nom=Samia Administratrice ; DEMARREE@2026-03-10T08:00:00Z par=<TECHNICIEN> nom=Karim Technicien",
+  "modification égale au dernier événement : pas de MODIFIEE -> 200 CREEE@2026-03-10T07:00:00Z par=<ADMIN_A> nom=Samia Administratrice ; DEMARREE@2026-03-10T09:00:00Z par=<TECHNICIEN> nom=Karim Technicien",
+  "modification antérieure au dernier événement : pas de MODIFIEE -> 200 CREEE@2026-03-10T07:00:00Z par=<ADMIN_A> nom=Samia Administratrice ; DEMARREE@2026-03-10T09:00:00Z par=<TECHNICIEN> nom=Karim Technicien",
+  "modification postérieure : MODIFIEE en dernier, auteur = modifié par -> 200 CREEE@2026-03-10T07:00:00Z par=<ADMIN_A> nom=Samia Administratrice ; DEMARREE@2026-03-10T09:00:00Z par=<TECHNICIEN> nom=Karim Technicien ; MODIFIEE@2026-03-10T13:00:00Z par=<ADMIN_A> nom=Samia Administratrice",
+  "modification sans modifié par : auteur absent -> 200 CREEE@2026-03-10T07:00:00Z par=<ADMIN_A> nom=Samia Administratrice ; MODIFIEE@2026-03-10T13:00:00Z par=- nom=-",
+  "auteur sans nom complet : le nom d'utilisateur; auteur inconnu : sans nom; auteur absent -> 200 CREEE@2026-03-10T07:00:00Z par=<SANS_NOM_COMPLET> nom=zt-p6-sans-nom ; DEMARREE@2026-03-10T09:00:00Z par=<INCONNU> nom=- ; TERMINEE@2026-03-10T10:00:00Z par=- nom=-"
+]

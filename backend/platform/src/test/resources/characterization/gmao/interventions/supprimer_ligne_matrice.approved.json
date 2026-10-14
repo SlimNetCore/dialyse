@@ -1,0 +1,9 @@
+{
+  "ligne_d_une_autre_intervention" : "400 BAD_REQUEST Ligne de coût non trouvée",
+  "ligne_inconnue" : "400 BAD_REQUEST Ligne de coût non trouvée",
+  "identifiant_de_ligne_invalide" : "500 INTERNAL_ERROR <technique>",
+  "intervention_inconnue" : "400 BAD_REQUEST Intervention non trouvée",
+  "ligne_supprimee_en_cours" : "200 statut=EN_COURS | total=0",
+  "lignes_restantes_en_base" : "",
+  "seconde_suppression_de_la_meme_ligne" : "400 BAD_REQUEST Ligne de coût non trouvée"
+}

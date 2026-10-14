@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<INTERVENANT_INTERNE>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Bernard Technicien",
+    "type" : "INTERNE",
+    "telephone" : null,
+    "email" : null,
+    "tarifHoraireDefaut" : 0.00,
+    "actif" : true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "detail" : "Seul un plan actif peut être exécuté",
+    "instance" : "/api/v1/gmao/plans-maintenance/<PLAN_ANNUEL_INACTIF>/executer",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "BUSINESS_RULE_VIOLATION"
+  }
+}

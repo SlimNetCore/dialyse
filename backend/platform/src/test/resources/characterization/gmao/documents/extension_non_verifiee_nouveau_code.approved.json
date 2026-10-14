@@ -1,0 +1,10 @@
+[
+  "400 BAD_REQUEST L'extension « .exe » ne correspond pas au contenu du fichier (PDF)",
+  "201 type=AUTRE nom=[sans-extension] contentType=image/png taille=69",
+  "400 BAD_REQUEST L'extension « .pdf » ne correspond pas au contenu du fichier (JPEG)",
+  "photo.JPG : 201 type=AUTRE nom=[photo.JPG] contentType=image/jpeg taille=10",
+  "scan.jpeg : 201 type=AUTRE nom=[scan.jpeg] contentType=image/jpeg taille=10",
+  "malware.exe.pdf : 201 type=AUTRE nom=[malware.exe.pdf] contentType=application/pdf taille=15",
+  "archive.tar.gz : 400 BAD_REQUEST L'extension « .gz » ne correspond pas au contenu du fichier (PDF)",
+  "Rapport 12.5 final (pas une extension) : 201 type=AUTRE nom=[Rapport 12.5 final] contentType=application/pdf taille=15"
+]

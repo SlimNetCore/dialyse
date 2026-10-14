@@ -1,0 +1,42 @@
+{
+  "PLANIFIEE" : {
+    "demarrer" : "200 statut=EN_COURS | statut final EN_COURS",
+    "terminer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention en cours peut être terminée | statut final PLANIFIEE",
+    "annuler" : "200 statut=ANNULEE | statut final ANNULEE",
+    "ajouter_ligne" : "200 statut=PLANIFIEE | statut final PLANIFIEE",
+    "supprimer_ligne_inconnue" : "400 BAD_REQUEST Ligne de coût non trouvée | statut final PLANIFIEE",
+    "rectifier" : "422 BUSINESS_RULE_VIOLATION Seule une intervention terminée peut être rectifiée | statut final PLANIFIEE"
+  },
+  "EN_COURS" : {
+    "demarrer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention planifiée peut être démarrée | statut final EN_COURS",
+    "terminer" : "200 statut=TERMINEE | statut final TERMINEE",
+    "annuler" : "200 statut=ANNULEE | statut final ANNULEE",
+    "ajouter_ligne" : "200 statut=EN_COURS | statut final EN_COURS",
+    "supprimer_ligne_inconnue" : "400 BAD_REQUEST Ligne de coût non trouvée | statut final EN_COURS",
+    "rectifier" : "422 BUSINESS_RULE_VIOLATION Seule une intervention terminée peut être rectifiée | statut final EN_COURS"
+  },
+  "TERMINEE" : {
+    "demarrer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention planifiée peut être démarrée | statut final TERMINEE",
+    "terminer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention en cours peut être terminée | statut final TERMINEE",
+    "annuler" : "422 BUSINESS_RULE_VIOLATION Une intervention terminée ne peut pas être annulée | statut final TERMINEE",
+    "ajouter_ligne" : "200 statut=TERMINEE | statut final TERMINEE",
+    "supprimer_ligne_inconnue" : "422 BUSINESS_RULE_VIOLATION Les lignes de coût ne se corrigent que sur une intervention ouverte : rectifiez-la d'abord | statut final TERMINEE",
+    "rectifier" : "200 statut=EN_COURS | statut final EN_COURS"
+  },
+  "ANNULEE" : {
+    "demarrer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention planifiée peut être démarrée | statut final ANNULEE",
+    "terminer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention en cours peut être terminée | statut final ANNULEE",
+    "annuler" : "200 statut=ANNULEE | statut final ANNULEE",
+    "ajouter_ligne" : "422 BUSINESS_RULE_VIOLATION Une intervention annulée n'accepte plus de ligne de coût | statut final ANNULEE",
+    "supprimer_ligne_inconnue" : "422 BUSINESS_RULE_VIOLATION Les lignes de coût ne se corrigent que sur une intervention ouverte : rectifiez-la d'abord | statut final ANNULEE",
+    "rectifier" : "422 BUSINESS_RULE_VIOLATION Seule une intervention terminée peut être rectifiée | statut final ANNULEE"
+  },
+  "EN_ATTENTE_VALIDATION" : {
+    "demarrer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention planifiée peut être démarrée | statut final EN_ATTENTE_VALIDATION",
+    "terminer" : "422 BUSINESS_RULE_VIOLATION Seule une intervention en cours peut être terminée | statut final EN_ATTENTE_VALIDATION",
+    "annuler" : "200 statut=ANNULEE | statut final ANNULEE",
+    "ajouter_ligne" : "200 statut=EN_ATTENTE_VALIDATION | statut final EN_ATTENTE_VALIDATION",
+    "supprimer_ligne_inconnue" : "422 BUSINESS_RULE_VIOLATION Les lignes de coût ne se corrigent que sur une intervention ouverte : rectifiez-la d'abord | statut final EN_ATTENTE_VALIDATION",
+    "rectifier" : "422 BUSINESS_RULE_VIOLATION Seule une intervention terminée peut être rectifiée | statut final EN_ATTENTE_VALIDATION"
+  }
+}

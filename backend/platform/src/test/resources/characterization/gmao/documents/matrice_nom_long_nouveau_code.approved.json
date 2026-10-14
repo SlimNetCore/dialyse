@@ -1,0 +1,11 @@
+[
+  "150 car. : 201 type=AUTRE nom=[bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.pdf] contentType=application/pdf taille=15",
+  "149 car. : 201 type=AUTRE nom=[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf] contentType=application/pdf taille=15",
+  "151 car. (debut perdu) : 201 type=AUTRE nom=[bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.pdf] contentType=application/pdf taille=15",
+  "300 car. numerotes : 201 type=AUTRE nom=[8-039-040-041-042-043-044-045-046-047-048-049-050-051-052-053-054-055-056-057-058-059-060-061-062-063-064-065-066-067-068-069-070-071-072-073-074-.pdf] contentType=application/pdf taille=15",
+  "espace en position 151 (le rognage est rejoue apres la troncature : pas d'espace de tete) : 201 type=AUTRE nom=[ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.pdf] contentType=application/pdf taille=15",
+  "5000 car. : 201 longueurNom=150",
+  "150 emoji (300 unites UTF-16) : 201 longueurNom=150",
+  "75 emoji + .pdf = 154 unites : 201 type=AUTRE nom=[😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀.pdf] contentType=application/pdf taille=15",
+  "troncature au milieu d'un emoji : [ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]"
+]

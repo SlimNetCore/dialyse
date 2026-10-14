@@ -1,0 +1,46 @@
+{
+  "status" : 200,
+  "body" : [ {
+    "type" : "CREEE",
+    "at" : "2026-03-10T07:00:00Z",
+    "parId" : "<ADMIN_A>",
+    "parNom" : "Samia Administratrice",
+    "detail" : null
+  }, {
+    "type" : "DEMARREE",
+    "at" : "2026-03-10T08:00:00Z",
+    "parId" : "<TECHNICIEN>",
+    "parNom" : "Karim Technicien",
+    "detail" : null
+  }, {
+    "type" : "TERMINEE",
+    "at" : "2026-03-10T10:00:00Z",
+    "parId" : "<TECHNICIEN>",
+    "parNom" : "Karim Technicien",
+    "detail" : null
+  }, {
+    "type" : "RECTIFIEE",
+    "at" : "2026-03-11T08:00:00Z",
+    "parId" : "<ADMIN_A>",
+    "parNom" : "Samia Administratrice",
+    "detail" : "Date de début erronée"
+  }, {
+    "type" : "TERMINEE",
+    "at" : "2026-03-11T09:00:00Z",
+    "parId" : "<ADMIN_A>",
+    "parNom" : "Samia Administratrice",
+    "detail" : null
+  }, {
+    "type" : "RECTIFIEE",
+    "at" : "2026-03-11T11:00:00Z",
+    "parId" : "<TECHNICIEN>",
+    "parNom" : "Karim Technicien",
+    "detail" : "Seconde correction"
+  }, {
+    "type" : "MODIFIEE",
+    "at" : "2026-03-12T08:00:00Z",
+    "parId" : "<ADMIN_A>",
+    "parNom" : "Samia Administratrice",
+    "detail" : null
+  } ]
+}

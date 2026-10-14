@@ -20,3 +20,6 @@ dist/
 .DS_Store
 Thumbs.db
 
+
+# Golden masters (caracterisation) : fichiers recus non versionnes
+*.received.json

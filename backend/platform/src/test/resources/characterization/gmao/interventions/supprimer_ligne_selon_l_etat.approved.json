@@ -1,0 +1,5 @@
+{
+  "ligne_automatique_d_une_terminee" : "422 BUSINESS_RULE_VIOLATION Les lignes de coût ne se corrigent que sur une intervention ouverte : rectifiez-la d'abord",
+  "ligne_d_une_annulee" : "422 BUSINESS_RULE_VIOLATION Les lignes de coût ne se corrigent que sur une intervention ouverte : rectifiez-la d'abord",
+  "lignes_automatiques_apres_rectification" : ""
+}

@@ -1,0 +1,22 @@
+{
+  "status" : 201,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "code" : "DEC",
+    "designation" : "Decalage",
+    "type" : "AUTRE",
+    "fabricant" : null,
+    "modele" : null,
+    "numeroSerie" : null,
+    "dateInstallation" : "2024-03-01T07:00:00Z",
+    "statut" : "EN_SERVICE",
+    "localisation" : null,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null,
+    "salleId" : null,
+    "prixAcquisition" : null
+  }
+}

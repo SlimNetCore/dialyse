@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "body" : [ {
+    "type" : "CREEE",
+    "at" : "2026-03-10T07:00:00Z",
+    "parId" : "<ADMIN_A>",
+    "parNom" : "Samia Administratrice",
+    "detail" : null
+  }, {
+    "type" : "DEMARREE",
+    "at" : "2026-03-10T08:10:00Z",
+    "parId" : "<TECHNICIEN>",
+    "parNom" : "Karim Technicien",
+    "detail" : null
+  }, {
+    "type" : "TERMINEE",
+    "at" : "2026-03-10T10:05:00Z",
+    "parId" : "<TECHNICIEN>",
+    "parNom" : "Karim Technicien",
+    "detail" : null
+  } ]
+}

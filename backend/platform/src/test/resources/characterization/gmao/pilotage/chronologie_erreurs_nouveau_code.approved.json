@@ -1,0 +1,8 @@
+[
+  "intervention du centre -> 200",
+  "intervention inconnue -> 400 BAD_REQUEST Intervention non trouvée",
+  "intervention du centre B vue par A -> 400 BAD_REQUEST Intervention non trouvée",
+  "intervention supprimée logiquement -> 400",
+  "intervention de A sur un équipement de B (la chronologie ne lit pas l'équipement) -> 200",
+  "id illisible -> 500 INTERNAL_ERROR <technique>"
+]

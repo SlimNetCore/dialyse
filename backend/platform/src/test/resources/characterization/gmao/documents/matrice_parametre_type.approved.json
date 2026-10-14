@@ -1,0 +1,15 @@
+[
+  "type=[BON_INTERVENTION] : 201 type=BON_INTERVENTION nom=[t.pdf] contentType=application/pdf taille=15",
+  "type=[FACTURE] : 201 type=FACTURE nom=[t.pdf] contentType=application/pdf taille=15",
+  "type=[PHOTO] : 201 type=PHOTO nom=[t.pdf] contentType=application/pdf taille=15",
+  "type=[AUTRE] : 201 type=AUTRE nom=[t.pdf] contentType=application/pdf taille=15",
+  "type=[photo] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.photo",
+  "type=[Photo] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.Photo",
+  "type=[FOO] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.FOO",
+  "type=[] : 201 type=AUTRE nom=[t.pdf] contentType=application/pdf taille=15",
+  "type=[ ] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>. ",
+  "type=[PHOTO ] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.PHOTO ",
+  "type=[null] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.null",
+  "type=[RAPPORT] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.RAPPORT",
+  "type=[0] : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.0"
+]

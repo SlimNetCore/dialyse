@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "id" : "<PLAN_AUTRE_CENTRE>",
+    "equipementId" : "<EQUIP_3>",
+    "centreId" : "<CENTRE_B>",
+    "designation" : "Plan autre centre",
+    "description" : "Description Plan autre centre",
+    "frequence" : "BIMENSUELLE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "2020-01-01T08:00:00Z",
+    "derniereDateExecution" : null,
+    "nombreExecutions" : 0,
+    "tachesAEffectuer" : "Taches Plan autre centre",
+    "dateCreation" : "2019-06-01T09:00:00Z",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null
+  } ]
+}

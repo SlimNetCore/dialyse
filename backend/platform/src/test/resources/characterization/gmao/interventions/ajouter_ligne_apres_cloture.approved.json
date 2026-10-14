@@ -1,0 +1,25 @@
+{
+  "status" : 200,
+  "body" : {
+    "lignesCout" : [ {
+      "id" : "<UUID_GENERE_1>",
+      "type" : "MAIN_OEUVRE",
+      "libelle" : "Main d'œuvre",
+      "quantite" : 1.000,
+      "prixUnitaire" : 35.00,
+      "montant" : 35.00000,
+      "articleStockId" : null,
+      "automatique" : true
+    }, {
+      "id" : "<UUID_GENERE_2>",
+      "type" : "PIECE",
+      "libelle" : "Oubli de saisie",
+      "quantite" : 1,
+      "prixUnitaire" : 20.00,
+      "montant" : 20.00,
+      "articleStockId" : null,
+      "automatique" : false
+    } ],
+    "coutTotal" : 55.00000
+  }
+}

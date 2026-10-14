@@ -1,0 +1,15 @@
+[
+  "retrait sur PLANIFIEE : 204 restant=0",
+  "retrait sur EN_COURS : 204 restant=0",
+  "retrait sur TERMINEE : 422 restant=1",
+  "retrait sur ANNULEE : 422 restant=1",
+  "retrait sur EN_ATTENTE_VALIDATION : 204 restant=0",
+  "piece d'une autre intervention du centre : 400 BAD_REQUEST Document non trouvé | restant=1",
+  "piece du centre B via l'intervention A : 400 BAD_REQUEST Document non trouvé | restant=1",
+  "piece du centre B via l'intervention B par admin A : 400 BAD_REQUEST Intervention non trouvée | restant=1",
+  "piece inconnue : 400 BAD_REQUEST Document non trouvé",
+  "intervention inconnue : 400 BAD_REQUEST Intervention non trouvée",
+  "intervention supprimee logiquement : 422 BUSINESS_RULE_VIOLATION Les pièces jointes d'une intervention annulée, terminée ou supprimée ne se modifient plus | restant=1",
+  "id piece illisible : 500 INTERNAL_ERROR <technique>",
+  "retrait de la derniere piece de A par admin B (centre B) : 400 BAD_REQUEST Intervention non trouvée | restant=1"
+]

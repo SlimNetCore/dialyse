@@ -1,0 +1,22 @@
+{
+  "status" : 201,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "code" : "g-01 x",
+    "designation" : "Generateur neuf",
+    "type" : "GENERATEUR_DIALYSE",
+    "fabricant" : null,
+    "modele" : null,
+    "numeroSerie" : null,
+    "dateInstallation" : "2024-03-01T08:00:00Z",
+    "statut" : "EN_SERVICE",
+    "localisation" : null,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null,
+    "salleId" : null,
+    "prixAcquisition" : null
+  }
+}

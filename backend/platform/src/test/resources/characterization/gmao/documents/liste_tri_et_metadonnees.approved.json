@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "body" : {
+    "items" : [ {
+      "id" : "<DOC_03>",
+      "interventionId" : "<I_PLAN>",
+      "type" : "BON_INTERVENTION",
+      "nom" : "recente.jpg",
+      "contentType" : "image/jpeg",
+      "taille" : 10,
+      "ajouteLe" : "<HORLOGE>"
+    }, {
+      "id" : "<DOC_02>",
+      "interventionId" : "<I_PLAN>",
+      "type" : "PHOTO",
+      "nom" : "milieu.png",
+      "contentType" : "image/png",
+      "taille" : 69,
+      "ajouteLe" : "<HORLOGE>"
+    }, {
+      "id" : "<DOC_01>",
+      "interventionId" : "<I_PLAN>",
+      "type" : "FACTURE",
+      "nom" : "ancienne.pdf",
+      "contentType" : "application/pdf",
+      "taille" : 15,
+      "ajouteLe" : "<HORLOGE>"
+    } ],
+    "total" : 3,
+    "page" : 0,
+    "size" : 20
+  }
+}

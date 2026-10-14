@@ -1,0 +1,8 @@
+[
+  "aucune partie : 500 INTERNAL_ERROR <technique>",
+  "partie nommee document : 500 INTERNAL_ERROR <technique>",
+  "partie file vide (0 octet, sans nom) : 400 BAD_REQUEST Fichier vide",
+  "deux parties file (la premiere est retenue ?) : 201 type=AUTRE nom=[premier.pdf] contentType=application/pdf taille=15",
+  "parametre type repete : 400 BAD_REQUEST No enum constant <TypeDocumentIntervention>.PHOTO,FACTURE",
+  "en base : [AUTRE|premier.pdf|application/pdf|15|<CENTRE_A>|<ADMIN_A>]"
+]

@@ -1,0 +1,21 @@
+{
+  "status" : 201,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<EQUIP_1>",
+    "centreId" : "<CENTRE_A>",
+    "designation" : "Verification pompes",
+    "description" : "Pompes a sang",
+    "frequence" : "TRIMESTRIELLE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "2030-03-01T08:00:00Z",
+    "derniereDateExecution" : null,
+    "nombreExecutions" : 0,
+    "tachesAEffectuer" : "Graisser; controler",
+    "dateCreation" : "<NOW>",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null
+  }
+}

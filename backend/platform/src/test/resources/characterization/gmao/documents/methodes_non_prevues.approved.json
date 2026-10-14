@@ -1,0 +1,6 @@
+[
+  "PUT collection : 500 INTERNAL_ERROR <technique>",
+  "DELETE collection : 500 INTERNAL_ERROR <technique>",
+  "POST sur une piece : 500 INTERNAL_ERROR <technique>",
+  "PUT piece : 500 INTERNAL_ERROR <technique>"
+]

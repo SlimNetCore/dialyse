@@ -1,0 +1,27 @@
+{
+  "status" : 200,
+  "body" : {
+    "items" : [ {
+      "id" : "<GENERATEUR_HORS_SERVICE>",
+      "code" : "G-HS",
+      "designation" : "Generateur HS",
+      "type" : "GENERATEUR_DIALYSE",
+      "fabricant" : null,
+      "modele" : null,
+      "numeroSerie" : null,
+      "dateInstallation" : "2020-01-15T00:00:00Z",
+      "statut" : "HORS_SERVICE",
+      "localisation" : null,
+      "observations" : null,
+      "dateCreation" : "<HORLOGE>",
+      "dateModification" : null,
+      "creePar" : "<ADMIN_A>",
+      "modifiePar" : null,
+      "salleId" : "<SALLE_2>",
+      "prixAcquisition" : null
+    } ],
+    "total" : 1,
+    "page" : 0,
+    "size" : 20
+  }
+}

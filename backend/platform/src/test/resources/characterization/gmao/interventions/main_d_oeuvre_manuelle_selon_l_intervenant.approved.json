@@ -1,0 +1,8 @@
+{
+  "<INTERVENANT_EXTERNE>" : "400 BAD_REQUEST Intervenant externe : ses honoraires sont facturés automatiquement, pas de main d'œuvre à saisir",
+  "<INTERVENANT_INTERNE>" : "200 statut=PLANIFIEE",
+  "<INTERVENANT_DESACTIVE>" : "400 BAD_REQUEST Intervenant externe : ses honoraires sont facturés automatiquement, pas de main d'œuvre à saisir",
+  "<INTERVENANT_AUTRE_CENTRE>" : "200 statut=PLANIFIEE",
+  "<INTERVENANT_INCONNU>" : "200 statut=PLANIFIEE",
+  "sans_intervenant" : "200 statut=PLANIFIEE"
+}

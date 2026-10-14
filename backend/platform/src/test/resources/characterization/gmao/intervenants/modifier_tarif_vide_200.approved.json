@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<INTERVENANT_INTERNE>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Bernard Technicien",
+    "type" : "INTERNE",
+    "telephone" : "0555000001",
+    "email" : "bernard@centre.test",
+    "tarifHoraireDefaut" : null,
+    "actif" : true
+  }
+}

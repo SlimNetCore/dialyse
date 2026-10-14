@@ -1,0 +1,6 @@
+[
+  "JSON : 500 INTERNAL_ERROR <technique>",
+  "octet-stream : 500 INTERNAL_ERROR <technique>",
+  "sans content-type : 500 INTERNAL_ERROR <technique>",
+  "multipart declare mais corps texte : 500 INTERNAL_ERROR <technique>"
+]

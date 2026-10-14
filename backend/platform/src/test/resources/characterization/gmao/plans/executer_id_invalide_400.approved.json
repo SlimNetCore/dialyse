@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "detail" : "Invalid UUID string: xyz",
+    "instance" : "/api/v1/gmao/plans-maintenance/xyz/executer",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

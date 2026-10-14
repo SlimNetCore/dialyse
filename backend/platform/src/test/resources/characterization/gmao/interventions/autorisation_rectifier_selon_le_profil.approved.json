@@ -1,0 +1,6 @@
+{
+  "admin_sans_habilitation" : "403 ACCESS_DENIED Access Denied | statut final TERMINEE",
+  "admin_avec_habilitation" : "200 statut=EN_COURS | statut final EN_COURS",
+  "technicien" : "403 ACCESS_DENIED Access Denied | statut final TERMINEE",
+  "anonyme" : "403 (sans corps) | statut final TERMINEE"
+}

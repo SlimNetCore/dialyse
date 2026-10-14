@@ -1,0 +1,4 @@
+{
+  "evenement" : "EquipementMisHorsService EN_SERVICE>HORS_SERVICE puis EquipementReforme EN_SERVICE",
+  "lignes" : [ "GENERATEUR_DIALYSE : 2 alerte(s) [T-0/HORS_SERVICE/0//roles,ADMIN,SECRETAIRE,, T-0/REFORME/0//roles,ADMIN,SECRETAIRE,]", "STATION_TRAITEMENT_EAU : 0 alerte(s) []", "RO_REVERSE_OSMOSIS : 0 alerte(s) []", "ULTRAFILTRE : 0 alerte(s) []", "CHARBON_ACTIF : 0 alerte(s) []", "ADOUCISSEUR : 0 alerte(s) []", "DESINFECTANT_CHIMIQUE : 0 alerte(s) []", "FILTRE_PARTICULES : 0 alerte(s) []", "POMPE_EAU : 0 alerte(s) []", "COMPRESSEUR_AIR : 0 alerte(s) []", "ALARME_SURVEILLANCE : 0 alerte(s) []", "AUTRE : 0 alerte(s) []" ]
+}

@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<INTERVENANT_DESACTIVE>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Ancien Prestataire",
+    "type" : "EXTERNE",
+    "telephone" : "0555000004",
+    "email" : null,
+    "tarifHoraireDefaut" : 80.00,
+    "actif" : false
+  }
+}

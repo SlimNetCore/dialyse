@@ -1,0 +1,58 @@
+{
+  "variantes_reconnues" : {
+    "http" : 200,
+    "totalRows" : 5,
+    "created" : 5,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : false,
+    "applied" : true
+  },
+  "patients" : [ {
+    "nom" : "ENTOURE-D-ESPACES",
+    "generateur" : "<G-01 centre A>",
+    "salle" : "<S1>"
+  }, {
+    "nom" : "ESPACE",
+    "generateur" : "<G-01 centre A>",
+    "salle" : "<S1>"
+  }, {
+    "nom" : "MINUSCULES",
+    "generateur" : "<G-01 centre A>",
+    "salle" : "<S1>"
+  }, {
+    "nom" : "POINT",
+    "generateur" : "<G-01 centre A>",
+    "salle" : "<S1>"
+  }, {
+    "nom" : "TIRETS-MULTIPLES",
+    "generateur" : "<G-02>",
+    "salle" : "<aucun>"
+  } ],
+  "variante_refusee_sans_separateur" : {
+    "http" : 200,
+    "totalRows" : 1,
+    "created" : 0,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ {
+      "code" : "REFERENCE_NOT_FOUND",
+      "field" : "generateur",
+      "message" : "« G01 » est introuvable parmi les équipements GMAO (générateurs) de ce centre : créez-le d'abord (GMAO → Équipements).",
+      "params" : {
+        "target" : "gmao/equipements",
+        "value" : "G01"
+      },
+      "row" : 2
+    } ],
+    "warnings" : [ ],
+    "valid" : false,
+    "dryRun" : true,
+    "applied" : false
+  }
+}

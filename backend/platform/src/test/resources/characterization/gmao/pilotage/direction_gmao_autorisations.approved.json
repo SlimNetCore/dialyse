@@ -1,0 +1,15 @@
+[
+  "DIRECTION de la société -> 200",
+  "ADMIN d'un centre de la société -> 403 ACCESS_DENIED Access Denied",
+  "SUPERADMIN -> 403 ROLE_SCOPE Ce profil n'a pas accès à cette ressource.",
+  "MEDECIN -> 403 ACCESS_DENIED Access Denied",
+  "TECHNICIEN -> 403 ACCESS_DENIED Access Denied",
+  "anonyme -> 403 (sans corps)",
+  "DIRECTION sans société dans le jeton -> 403 ACCESS_DENIED Session sans société",
+  "DIRECTION rattachée à une autre société que celle du jeton -> 403 ACCESS_DENIED Accès à cette société refusé",
+  "DIRECTION avec une société inconnue -> 403 ACCESS_DENIED Accès à cette société refusé",
+  "DIRECTION dont le compte vient d'être désactivé -> 403 ACCESS_DENIED Accès à cette société refusé",
+  "DIRECTION dont la société vient d'être désactivée -> 403 ACCESS_DENIED Accès à cette société refusé",
+  "DIRECTION détachée de sa société -> 403 ACCESS_DENIED Accès à cette société refusé",
+  "méthode POST -> 500 INTERNAL_ERROR <technique>"
+]

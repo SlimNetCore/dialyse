@@ -1,0 +1,41 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "equipementId" : "<GENERATEUR_G01>",
+    "centreId" : "<CENTRE_A>",
+    "type" : "CURATIVE",
+    "statut" : "PLANIFIEE",
+    "dateDebut" : "2026-03-10T08:00:00Z",
+    "dateFin" : null,
+    "intervenantId" : null,
+    "etatEquipementAvant" : "EN_SERVICE",
+    "etatEquipementApres" : null,
+    "priorite" : "NORMALE",
+    "echeance" : null,
+    "symptome" : null,
+    "cause" : null,
+    "enRetard" : true,
+    "echeanceDepassee" : false,
+    "nbRectifications" : 0,
+    "description" : "Panne pompe",
+    "actions" : null,
+    "pieceRemplacee" : null,
+    "lignesCout" : [ {
+      "id" : "<UUID_GENERE_2>",
+      "type" : "PIECE",
+      "libelle" : "Capteur",
+      "quantite" : 3.333,
+      "prixUnitaire" : 10.105,
+      "montant" : 33.679965,
+      "articleStockId" : null,
+      "automatique" : false
+    } ],
+    "coutTotal" : 33.679965,
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : "<HORLOGE>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>"
+  }
+}

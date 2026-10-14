@@ -1,0 +1,66 @@
+{
+  "verification" : {
+    "http" : 200,
+    "totalRows" : 6,
+    "created" : 6,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ {
+      "code" : "GENERATEUR_OTHER_ROOM",
+      "field" : "generateur",
+      "message" : "Le générateur « G-01 » est installé dans une autre salle que « S2 ».",
+      "params" : { },
+      "row" : 4
+    } ],
+    "valid" : true,
+    "dryRun" : true,
+    "applied" : false
+  },
+  "patients_apres_verification" : [ ],
+  "import" : {
+    "http" : 200,
+    "totalRows" : 6,
+    "created" : 6,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ {
+      "code" : "GENERATEUR_OTHER_ROOM",
+      "field" : "generateur",
+      "message" : "Le générateur « G-01 » est installé dans une autre salle que « S2 ».",
+      "params" : { },
+      "row" : 4
+    } ],
+    "valid" : true,
+    "dryRun" : false,
+    "applied" : true
+  },
+  "patients_apres_import" : [ {
+    "nom" : "AUTRE-SALLE",
+    "generateur" : "<G-01 centre A>",
+    "salle" : "<S2>"
+  }, {
+    "nom" : "GENERATEUR-SANS-SALLE",
+    "generateur" : "<G-02>",
+    "salle" : "<S2>"
+  }, {
+    "nom" : "GENERATEUR-SANS-SALLE-NI-SALLE",
+    "generateur" : "<G-02>",
+    "salle" : "<aucun>"
+  }, {
+    "nom" : "NI-SALLE-NI-GENERATEUR",
+    "generateur" : "<aucun>",
+    "salle" : "<aucun>"
+  }, {
+    "nom" : "SANS-GENERATEUR",
+    "generateur" : "<aucun>",
+    "salle" : "<S1>"
+  }, {
+    "nom" : "SANS-SALLE",
+    "generateur" : "<G-01 centre A>",
+    "salle" : "<S1>"
+  } ]
+}

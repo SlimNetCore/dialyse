@@ -1,0 +1,11 @@
+{
+  "ajouter_autre_centre" : "400 BAD_REQUEST Intervention non trouvée",
+  "demarrer_autre_centre" : "400 BAD_REQUEST Intervention non trouvée",
+  "achever_autre_centre" : "400 BAD_REQUEST Intervention non trouvée",
+  "ajouter_non_administrateur" : "403 ACCESS_DENIED Access Denied",
+  "demarrer_non_administrateur" : "403 ACCESS_DENIED Access Denied",
+  "achever_non_administrateur" : "403 ACCESS_DENIED Access Denied",
+  "ajouter_anonyme" : "403 (sans corps)",
+  "demarrer_anonyme" : "403 (sans corps)",
+  "lire_autre_centre" : "404 (sans corps)"
+}

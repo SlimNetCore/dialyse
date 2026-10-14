@@ -1,0 +1,7 @@
+[
+  "POST : 201 type=AUTRE nom=[n.pdf] contentType=application/pdf taille=15",
+  "GET liste : 200 type=? nom=[?] contentType=? taille=?",
+  "GET piece : 200",
+  "DELETE : 204 (sans corps)",
+  "pieces en base apres : 1"
+]

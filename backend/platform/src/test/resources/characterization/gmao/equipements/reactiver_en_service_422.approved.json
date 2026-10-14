@@ -1,0 +1,10 @@
+{
+  "status" : 422,
+  "body" : {
+    "detail" : "Seul un équipement hors service peut être réactivé",
+    "instance" : "/api/v1/gmao/equipements/<GENERATEUR_G01>/reactiver",
+    "status" : 422,
+    "title" : "Regle metier violee",
+    "code" : "BUSINESS_RULE_VIOLATION"
+  }
+}

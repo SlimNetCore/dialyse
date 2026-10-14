@@ -1,0 +1,28 @@
+{
+  "import" : {
+    "http" : 200,
+    "totalRows" : 3,
+    "created" : 3,
+    "updated" : 0,
+    "missingColumns" : [ ],
+    "ignoredColumns" : [ ],
+    "errors" : [ ],
+    "warnings" : [ ],
+    "valid" : true,
+    "dryRun" : false,
+    "applied" : true
+  },
+  "patients" : [ {
+    "nom" : "EN-MAINTENANCE",
+    "generateur" : "<G-MT>",
+    "salle" : "<S1>"
+  }, {
+    "nom" : "HORS-SERVICE",
+    "generateur" : "<G-HS>",
+    "salle" : "<S1>"
+  }, {
+    "nom" : "REFORME",
+    "generateur" : "<G-RF>",
+    "salle" : "<S1>"
+  } ]
+}

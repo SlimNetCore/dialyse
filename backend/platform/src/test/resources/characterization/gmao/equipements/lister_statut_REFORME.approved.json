@@ -1,0 +1,27 @@
+{
+  "status" : 200,
+  "body" : {
+    "items" : [ {
+      "id" : "<GENERATEUR_REFORME>",
+      "code" : "G-RF",
+      "designation" : "Generateur reforme",
+      "type" : "GENERATEUR_DIALYSE",
+      "fabricant" : null,
+      "modele" : null,
+      "numeroSerie" : null,
+      "dateInstallation" : "2020-01-15T00:00:00Z",
+      "statut" : "REFORME",
+      "localisation" : null,
+      "observations" : null,
+      "dateCreation" : "<HORLOGE>",
+      "dateModification" : null,
+      "creePar" : "<ADMIN_A>",
+      "modifiePar" : null,
+      "salleId" : null,
+      "prixAcquisition" : null
+    } ],
+    "total" : 1,
+    "page" : 0,
+    "size" : 20
+  }
+}

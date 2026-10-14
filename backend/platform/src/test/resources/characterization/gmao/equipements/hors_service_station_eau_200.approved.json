@@ -1,0 +1,22 @@
+{
+  "status" : 200,
+  "body" : {
+    "id" : "<STATION_EAU>",
+    "code" : "E-01",
+    "designation" : "Station eau",
+    "type" : "STATION_TRAITEMENT_EAU",
+    "fabricant" : null,
+    "modele" : null,
+    "numeroSerie" : null,
+    "dateInstallation" : "2020-01-15T00:00:00Z",
+    "statut" : "HORS_SERVICE",
+    "localisation" : null,
+    "observations" : "Hors service: Entretien",
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : "<HORLOGE>",
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : "<ADMIN_A>",
+    "salleId" : null,
+    "prixAcquisition" : null
+  }
+}

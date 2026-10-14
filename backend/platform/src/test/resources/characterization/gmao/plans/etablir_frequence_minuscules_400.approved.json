@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "detail" : "No enum constant <FrequenceMaintenance>.mensuelle",
+    "instance" : "/api/v1/gmao/plans-maintenance",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

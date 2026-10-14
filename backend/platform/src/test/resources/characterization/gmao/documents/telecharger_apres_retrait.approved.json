@@ -1,0 +1,10 @@
+{
+  "status" : 400,
+  "body" : {
+    "detail" : "Document non trouvé",
+    "instance" : "/api/v1/gmao/interventions/<I_PLAN>/documents/<UUID_GENERE_1>",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

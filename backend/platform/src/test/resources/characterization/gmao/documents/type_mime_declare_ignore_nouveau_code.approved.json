@@ -1,0 +1,8 @@
+[
+  "PNG declare application/pdf : 400 BAD_REQUEST L'extension « .pdf » ne correspond pas au contenu du fichier (PNG)",
+  "PDF declare text/html : 400 BAD_REQUEST L'extension « .html » ne correspond pas au contenu du fichier (PDF)",
+  "JPEG declare vide : 400 BAD_REQUEST L'extension « .bin » ne correspond pas au contenu du fichier (JPEG)",
+  "PNG declare application/pdf, nom x.png : 201 type=AUTRE nom=[x.png] contentType=image/png taille=69",
+  "PDF declare text/html, nom x.pdf : 201 type=AUTRE nom=[x.pdf] contentType=application/pdf taille=15",
+  "JPEG declare vide, nom x.jpg : 201 type=AUTRE nom=[x.jpg] contentType=image/jpeg taille=10"
+]

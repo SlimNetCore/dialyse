@@ -1,0 +1,22 @@
+{
+  "status" : 201,
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "code" : "G-NEUF",
+    "designation" : "Generateur neuf",
+    "type" : "GENERATEUR_DIALYSE",
+    "fabricant" : "Fresenius",
+    "modele" : "5008S",
+    "numeroSerie" : "SN-123",
+    "dateInstallation" : "2024-03-01T08:00:00Z",
+    "statut" : "EN_SERVICE",
+    "localisation" : "Salle 2",
+    "observations" : null,
+    "dateCreation" : "<HORLOGE>",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null,
+    "salleId" : "<SALLE_2>",
+    "prixAcquisition" : 15000.50
+  }
+}

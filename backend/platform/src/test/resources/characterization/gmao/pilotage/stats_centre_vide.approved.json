@@ -1,0 +1,15 @@
+{
+  "status" : 200,
+  "body" : {
+    "totalEquipements" : 0,
+    "equipementsEnService" : 0,
+    "equipementsEnMaintenance" : 0,
+    "equipementsHorsService" : 0,
+    "totalInterventions" : 0,
+    "interventionsEnCours" : 0,
+    "interventionsTerminees" : 0,
+    "plansMaintenanceActifs" : 0,
+    "plansMaintenanceEnRetard" : 0,
+    "interventionsARelancer" : 0
+  }
+}

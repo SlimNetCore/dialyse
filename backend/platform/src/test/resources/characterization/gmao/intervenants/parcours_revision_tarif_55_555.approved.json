@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<UUID_GENERE_1>",
+    "centreId" : "<CENTRE_A>",
+    "nom" : "Nadia Ingenieure",
+    "type" : "INTERNE",
+    "telephone" : "0777",
+    "email" : "nadia@centre.test",
+    "tarifHoraireDefaut" : 55.555,
+    "actif" : true
+  }
+}

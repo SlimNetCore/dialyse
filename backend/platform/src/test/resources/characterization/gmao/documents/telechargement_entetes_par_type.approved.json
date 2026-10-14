@@ -1,0 +1,5 @@
+[
+  "devis.pdf : status=200 Content-Type=application/pdf Content-Disposition=attachment; filename=\"devis.pdf\"; filename*=UTF-8''devis.pdf X-Content-Type-Options=nosniff Content-Length=15 octets=15 Cache-Control=no-cache, no-store, max-age=0, must-revalidate",
+  "avant.png : status=200 Content-Type=image/png Content-Disposition=attachment; filename=\"avant.png\"; filename*=UTF-8''avant.png X-Content-Type-Options=nosniff Content-Length=69 octets=69 Cache-Control=no-cache, no-store, max-age=0, must-revalidate",
+  "facture.jpg : status=200 Content-Type=image/jpeg Content-Disposition=attachment; filename=\"facture.jpg\"; filename*=UTF-8''facture.jpg X-Content-Type-Options=nosniff Content-Length=10 octets=10 Cache-Control=no-cache, no-store, max-age=0, must-revalidate"
+]

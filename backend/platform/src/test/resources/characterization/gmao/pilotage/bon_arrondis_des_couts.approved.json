@@ -1,0 +1,7 @@
+[
+  "une ligne de 1,005 (0,335 x 3,00) -> [Pièces de rechange : 1,01 DA, COÛT TOTAL : 1,01 DA]",
+  "une ligne de 0,001 -> [Pièces de rechange : 0,00 DA, COÛT TOTAL : 0,00 DA]",
+  "deux lignes de 1,004 (somme 2,008) -> [Pièces de rechange : 2,01 DA, COÛT TOTAL : 2,01 DA]",
+  "deux lignes de 0,005 (somme 0,010) -> [Pièces de rechange : 0,01 DA, COÛT TOTAL : 0,01 DA]",
+  "une ligne de 12 345 678,90 (grand montant) -> [Pièces de rechange : 9 999 999,99 DA, COÛT TOTAL : 9 999 999,99 DA]"
+]

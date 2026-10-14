@@ -1,0 +1,29 @@
+{
+  "uuid_inconnu" : {
+    "GET_lire" : "404 (sans corps)",
+    "POST_demarrer" : "400 BAD_REQUEST Intervention non trouvée",
+    "POST_terminer" : "400 BAD_REQUEST Intervention non trouvée",
+    "POST_ajouter_ligne" : "400 BAD_REQUEST Intervention non trouvée",
+    "DELETE_supprimer_ligne" : "400 BAD_REQUEST Intervention non trouvée",
+    "POST_rectifier" : "400 BAD_REQUEST Intervention non trouvée",
+    "POST_annuler" : "400 BAD_REQUEST Intervention non trouvée"
+  },
+  "pas-un-uuid" : {
+    "GET_lire" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+    "POST_demarrer" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+    "POST_terminer" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+    "POST_ajouter_ligne" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+    "DELETE_supprimer_ligne" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+    "POST_rectifier" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid",
+    "POST_annuler" : "400 BAD_REQUEST Invalid UUID string: pas-un-uuid"
+  },
+  "12345" : {
+    "GET_lire" : "400 BAD_REQUEST Invalid UUID string: 12345",
+    "POST_demarrer" : "400 BAD_REQUEST Invalid UUID string: 12345",
+    "POST_terminer" : "400 BAD_REQUEST Invalid UUID string: 12345",
+    "POST_ajouter_ligne" : "400 BAD_REQUEST Invalid UUID string: 12345",
+    "DELETE_supprimer_ligne" : "400 BAD_REQUEST Invalid UUID string: 12345",
+    "POST_rectifier" : "400 BAD_REQUEST Invalid UUID string: 12345",
+    "POST_annuler" : "400 BAD_REQUEST Invalid UUID string: 12345"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "typeEquipement" : "STATION_TRAITEMENT_EAU",
+  "lignes" : [ {
+    "statutInitial" : "EN_SERVICE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "HORS_SERVICE",
+    "journal" : [ "EN_SERVICE>HORS_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_MAINTENANCE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "HORS_SERVICE",
+    "journal" : [ "EN_MAINTENANCE>HORS_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "EN_ATTENTE_PIECE",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "HORS_SERVICE",
+    "journal" : [ "EN_ATTENTE_PIECE>HORS_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "HORS_SERVICE",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "L'équipement est déjà hors service",
+    "statutFinal" : "HORS_SERVICE",
+    "journal" : [ ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "DESACTIF",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "HORS_SERVICE",
+    "journal" : [ "DESACTIF>HORS_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "A_REFORMER",
+    "http" : 200,
+    "code" : "",
+    "detail" : "",
+    "statutFinal" : "HORS_SERVICE",
+    "journal" : [ "A_REFORMER>HORS_SERVICE" ],
+    "alertes" : [ ]
+  }, {
+    "statutInitial" : "REFORME",
+    "http" : 422,
+    "code" : "BUSINESS_RULE_VIOLATION",
+    "detail" : "Un équipement réformé ne peut plus changer de statut",
+    "statutFinal" : "REFORME",
+    "journal" : [ ],
+    "alertes" : [ ]
+  } ]
+}

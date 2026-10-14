@@ -1,0 +1,7 @@
+[
+  "DIRECTION -> 200",
+  "ADMIN -> 403 ACCESS_DENIED Access Denied",
+  "anonyme -> 403 (sans corps)",
+  "période inversée -> 422 PERIODE_INVALIDE La date de début doit précéder la date de fin",
+  "période de plus de 5 ans -> 422 PERIODE_TROP_LONGUE La période ne peut pas dépasser 5 ans"
+]

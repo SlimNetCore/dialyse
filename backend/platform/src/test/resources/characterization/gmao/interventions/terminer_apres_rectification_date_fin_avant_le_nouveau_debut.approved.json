@@ -1,0 +1,10 @@
+{
+  "status" : 400,
+  "body" : {
+    "detail" : "La date de fin doit être postérieure à la date de début",
+    "instance" : "/api/v1/gmao/interventions/<UUID_GENERE_1>/terminer",
+    "status" : 400,
+    "title" : "Requete invalide",
+    "code" : "BAD_REQUEST"
+  }
+}

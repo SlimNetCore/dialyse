@@ -1,0 +1,21 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "<PLAN_SUPPRIME>",
+    "equipementId" : "<EQUIP_1>",
+    "centreId" : "<CENTRE_A>",
+    "designation" : "Plan supprime",
+    "description" : "Description Plan supprime",
+    "frequence" : "TRIMESTRIELLE",
+    "statut" : "ACTIF",
+    "prochaineDatePrevue" : "2020-01-01T08:00:00Z",
+    "derniereDateExecution" : null,
+    "nombreExecutions" : 0,
+    "tachesAEffectuer" : "Taches Plan supprime",
+    "dateCreation" : "2019-06-01T09:00:00Z",
+    "dateModification" : null,
+    "creePar" : "<ADMIN_A>",
+    "modifiePar" : null
+  }
+}
