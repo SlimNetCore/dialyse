@@ -2,12 +2,8 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
 import com.hemodialyse.backend.domain.comptabilite.aggregate.ModelePiece;
-import com.hemodialyse.backend.domain.comptabilite.port.ComptesPayeursUseCase;
-import com.hemodialyse.backend.domain.comptabilite.port.ComptesPayeursUseCase.PayeurCompte;
 import com.hemodialyse.backend.domain.comptabilite.port.PiecesComptablesUseCase;
 import com.hemodialyse.backend.domain.comptabilite.port.PiecesComptablesUseCase.SaisirPieceCommand;
-import com.hemodialyse.backend.domain.comptabilite.port.PlanComptableUseCase;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.CompteComptable;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.SensEcriture;
 import com.hemodialyse.backend.domain.shared.PagedResult;
@@ -37,25 +33,21 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Paramétrage comptable sans développement : plan comptable du centre, compte client de chaque payeur, modèles de
- * pièces et saisie de pièces. Le centre de chaque requête est confronté à celui de la session.
+ * Paramétrage comptable sans développement : modèles de pièces et saisie de pièces (slice C4). Le plan comptable et le
+ * compte client de chaque payeur (slice C1) sont servis par le contexte {@code contexts/comptabilite}. Le centre de chaque
+ * requête est confronté à celui de la session.
  */
 @RestController
 @RequestMapping("/api/v1/comptabilite")
 public class ComptabiliteParametrageRestController {
 
-    private final PlanComptableUseCase plan;
-    private final ComptesPayeursUseCase comptesPayeurs;
     private final PiecesComptablesUseCase pieces;
     private final CenterAccessGuard centerAccessGuard;
 
-    public ComptabiliteParametrageRestController(PlanComptableUseCase plan, ComptesPayeursUseCase comptesPayeurs,
-                                                 PiecesComptablesUseCase pieces, CenterAccessGuard centerAccessGuard) {
-        this.plan = plan;
-        this.comptesPayeurs = comptesPayeurs;
-        this.pieces = pieces;
-        this.centerAccessGuard = centerAccessGuard;
-    }
+    /**
+     * Longueur maximale du numéro d'un compte (le plan comptable est tenu par le contexte comptabilite).
+     */
+    private static final int NUMERO_COMPTE_MAX = 20;
 
     private static <S, T> PagedResult<T> page(PagedResult<S> source, java.util.function.Function<S, T> vers) {
         return PagedResult.of(source.items().stream().map(vers).toList(), source.total(), source.page(), source.size());
@@ -63,57 +55,6 @@ public class ComptabiliteParametrageRestController {
 
     private UUID centre(UUID demande) {
         return centerAccessGuard.requireCenter(demande).value();
-    }
-
-    // ─── Plan comptable ──────────────────────────────────────────────────────
-
-    @PreAuthorize("hasAnyRole('ADMIN','SECRETAIRE')")
-    @GetMapping("/comptes")
-    public ResponseEntity<PagedResult<CompteResponse>> comptes(@RequestParam(required = false) UUID centerId,
-                                                               @RequestParam(required = false) String recherche,
-                                                               @RequestParam(defaultValue = "false") boolean actifs,
-                                                               @RequestParam(defaultValue = "0") int page,
-                                                               @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(page(plan.lister(centre(centerId), recherche, actifs, page, size), CompteResponse::de));
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @PutMapping("/comptes/{numero}")
-    public ResponseEntity<CompteResponse> enregistrerCompte(@PathVariable String numero,
-                                                            @RequestParam(required = false) UUID centerId,
-                                                            @RequestBody @Valid CompteRequest req) {
-        return ResponseEntity.ok(CompteResponse.de(plan.enregistrer(centre(centerId),
-                new CompteComptable(numero, req.libelle(), req.actif()))));
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/comptes/{numero}")
-    public ResponseEntity<Void> supprimerCompte(@PathVariable String numero,
-                                                @RequestParam(required = false) UUID centerId) {
-        plan.supprimer(centre(centerId), numero);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ─── Compte client de chaque payeur ──────────────────────────────────────
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @GetMapping("/payeurs")
-    public ResponseEntity<PagedResult<PayeurCompte>> payeurs(@RequestParam(required = false) UUID centerId,
-                                                             @RequestParam(required = false) String recherche,
-                                                             @RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(comptesPayeurs.lister(centre(centerId), recherche, page, size));
-    }
-
-    /**
-     * Affecte un compte client au payeur ; un compte vide lui rend le compte client par défaut du centre.
-     */
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @PutMapping("/payeurs/{payeurId}/compte")
-    public ResponseEntity<PayeurCompte> definirComptePayeur(@PathVariable UUID payeurId,
-                                                            @RequestParam(required = false) UUID centerId,
-                                                            @RequestBody @Valid ComptePayeurRequest req) {
-        return ResponseEntity.ok(comptesPayeurs.definir(centre(centerId), payeurId, req.compte()));
     }
 
     // ─── Modèles de pièces ───────────────────────────────────────────────────
@@ -174,19 +115,12 @@ public class ComptabiliteParametrageRestController {
 
     // ─── DTO ─────────────────────────────────────────────────────────────────
 
-    record CompteRequest(@NotBlank @Size(max = CompteComptable.LIBELLE_MAX) String libelle, boolean actif) {
+    public ComptabiliteParametrageRestController(PiecesComptablesUseCase pieces, CenterAccessGuard centerAccessGuard) {
+        this.pieces = pieces;
+        this.centerAccessGuard = centerAccessGuard;
     }
 
-    record CompteResponse(String numero, String libelle, boolean actif) {
-        static CompteResponse de(CompteComptable compte) {
-            return new CompteResponse(compte.numero(), compte.libelle(), compte.actif());
-        }
-    }
-
-    record ComptePayeurRequest(@Size(max = CompteComptable.NUMERO_MAX) String compte) {
-    }
-
-    record LigneModeleDto(@NotBlank String sens, @NotBlank @Size(max = CompteComptable.NUMERO_MAX) String compte,
+    record LigneModeleDto(@NotBlank String sens, @NotBlank @Size(max = NUMERO_COMPTE_MAX) String compte,
                           @Size(max = ModelePiece.LIBELLE_MAX) String libelle) {
     }
 

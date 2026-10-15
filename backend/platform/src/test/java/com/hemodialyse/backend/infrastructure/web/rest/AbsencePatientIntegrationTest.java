@@ -226,7 +226,10 @@ class AbsencePatientIntegrationTest {
     @Test
     void the_week_view_lists_the_non_cancelled_absences_of_the_week_of_the_centre() {
         service.declarer(C1, absent, jour, MotifAbsence.MALADIE, null, USER);
-        var semaine = service.semaine(C1, jour.plusDays(1)).absences();
+        // Un autre jour de la MÊME semaine (dimanche → samedi) : indépendant du jour où le test s'exécute.
+        LocalDate autreJourDeLaSemaine = com.hemodialyse.backend.domain.planning.service.PlanningSemaineService
+                .debutSemaine(jour).plusDays(3);
+        var semaine = service.semaine(C1, autreJourDeLaSemaine).absences();
 
         assertEquals(1, semaine.size());
         assertEquals(absent, semaine.get(0).patientId());

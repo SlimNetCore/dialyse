@@ -5,7 +5,6 @@ import com.hemodialyse.backend.domain.comptabilite.entity.LigneEcriture;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteStockUseCase;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteStockUseCase.Synchronisation;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
-import com.hemodialyse.backend.domain.comptabilite.port.JournauxUseCase;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.*;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
@@ -23,14 +22,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
-import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Comptabilité d'un centre : écritures, export, clôture, paramétrage (comptes, journaux) et comptabilisation du stock.
+ * Comptabilité d'un centre : écritures, export, clôture et comptabilisation du stock (le plan comptable, les journaux, le
+ * compte client des payeurs, le mapping et les règles de TVA sont servis par le contexte {@code contexts/comptabilite},
+ * slices C1 et C2).
  * Le centre de chaque requête est confronté à celui de la session ({@link CenterAccessGuard}) : un administrateur ne
  * lit ni ne paramètre jamais la comptabilité d'un autre centre.
  */
@@ -44,35 +44,18 @@ public class ComptabiliteRestController {
     static final int JOURS_SYNCHRONISATION_MAX = 366;
 
     private final ComptabiliteUseCase useCase;
-    private final JournauxUseCase journaux;
     private final ComptabiliteStockUseCase comptabiliteStock;
     private final CenterAccessGuard centerAccessGuard;
     private final JdbcTemplate jdbcTemplate;
 
     public ComptabiliteRestController(ComptabiliteUseCase useCase,
-                                      JournauxUseCase journaux,
                                       ComptabiliteStockUseCase comptabiliteStock,
                                       CenterAccessGuard centerAccessGuard,
                                       JdbcTemplate jdbcTemplate) {
         this.useCase = useCase;
-        this.journaux = journaux;
         this.comptabiliteStock = comptabiliteStock;
         this.centerAccessGuard = centerAccessGuard;
         this.jdbcTemplate = jdbcTemplate;
-    }
-
-    private static String ou(String valeur, String defaut) {
-        return valeur == null || valeur.isBlank() ? defaut : valeur.trim();
-    }
-
-    // ─── Consultation écritures ───────────────────────────────────────────────
-
-    private static OperationComptable operationDe(String code) {
-        try {
-            return OperationComptable.valueOf(code);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Opération comptable inconnue : " + code);
-        }
     }
 
     // ─── Validation ──────────────────────────────────────────────────────────
@@ -119,7 +102,7 @@ public class ComptabiliteRestController {
         return ResponseEntity.ok(toResponse(ecriture));
     }
 
-    // ─── Paramétrage : comptes et journal de chaque opération ────────────────
+    // ─── Export ──────────────────────────────────────────────────────────────
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping("/ecritures/export")
@@ -149,68 +132,6 @@ public class ComptabiliteRestController {
         return ResponseEntity.ok(Map.of("closed", true, "periode", req.annee() + "-" + req.mois()));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @GetMapping("/mapping")
-    public ResponseEntity<?> getMapping(@RequestParam(required = false) UUID centerId) {
-        return ResponseEntity.ok(toMappingResponse(useCase.getMappingComptable(centre(centerId))));
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @PutMapping("/mapping")
-    public ResponseEntity<?> saveMapping(@RequestBody @Valid UpdateMappingRequest req) {
-        UUID centerId = centre(req.centerId());
-        MappingComptable actuel = useCase.getMappingComptable(centerId);
-        // un client qui ne connaît pas encore le stock ou les journaux ne les remet pas aux valeurs par défaut
-        ComptesStock stock = new ComptesStock(
-                ou(req.compteStock(), actuel.stock().stock()),
-                ou(req.compteConsommation(), actuel.stock().consommation()),
-                ou(req.compteFacturesNonParvenues(), actuel.stock().facturesNonParvenues()),
-                ou(req.compteBoniInventaire(), actuel.stock().boniInventaire()),
-                ou(req.compteMaliInventaire(), actuel.stock().maliInventaire()));
-        Map<OperationComptable, JournalCode> choix = new EnumMap<>(actuel.journaux());
-        if (req.journaux() != null) {
-            req.journaux().forEach((operation, code) -> choix.put(operationDe(operation), JournalCode.de(code)));
-        }
-        MappingComptable saved = useCase.saveMappingComptable(new MappingComptable(
-                centerId, req.compteVentes(), req.compteClientPatient(), req.compteClientDefaut(),
-                req.compteBanque(), req.compteCaisse(), req.compteTVACollectee(), stock, choix));
-        return ResponseEntity.ok(toMappingResponse(saved));
-    }
-
-    // ─── Paramétrage : journaux ──────────────────────────────────────────────
-
-    @PreAuthorize("hasAnyRole('ADMIN','SECRETAIRE')")
-    @GetMapping("/journaux")
-    public ResponseEntity<PagedResult<JournalResponse>> journaux(@RequestParam(required = false) UUID centerId,
-                                                                 @RequestParam(defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "20") int size) {
-        // paramétrage de quelques lignes par centre : la page est découpée ici
-        List<Journal> tous = journaux.lister(centre(centerId));
-        int taille = Math.max(1, Math.min(size, 100));
-        int debut = Math.min(Math.max(0, page) * taille, tous.size());
-        List<JournalResponse> items = tous.subList(debut, Math.min(debut + taille, tous.size())).stream()
-                .map(JournalResponse::de).toList();
-        return ResponseEntity.ok(PagedResult.of(items, tous.size(), Math.max(0, page), taille));
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @PutMapping("/journaux/{code}")
-    public ResponseEntity<JournalResponse> enregistrerJournal(@PathVariable String code,
-                                                              @RequestParam(required = false) UUID centerId,
-                                                              @RequestBody @Valid JournalRequest req) {
-        Journal journal = journaux.enregistrer(centre(centerId),
-                new Journal(JournalCode.de(code), req.libelle(), req.actif()));
-        return ResponseEntity.ok(JournalResponse.de(journal));
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/journaux/{code}")
-    public ResponseEntity<Void> supprimerJournal(@PathVariable String code,
-                                                 @RequestParam(required = false) UUID centerId) {
-        journaux.supprimer(centre(centerId), JournalCode.de(code));
-        return ResponseEntity.noContent().build();
-    }
-
     // ─── Comptabilisation du stock ───────────────────────────────────────────
 
     /**
@@ -225,24 +146,6 @@ public class ComptabiliteRestController {
         }
         return ResponseEntity.ok(comptabiliteStock.synchroniser(centre(req.centerId()), req.from(), req.to(),
                 LocalDate.now(ZoneOffset.UTC)));
-    }
-
-    // ─── Règles TVA ───────────────────────────────────────────────────────────
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @GetMapping("/regles-tva")
-    public ResponseEntity<?> getRegles(@RequestParam(required = false) UUID centerId) {
-        return ResponseEntity.ok(useCase.getReglesTV(centre(centerId)).stream().map(this::toRegleResponse).toList());
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @PostMapping("/regles-tva")
-    public ResponseEntity<?> saveRegle(@RequestParam(required = false) UUID centerId,
-                                       @RequestBody @Valid SaveRegleTVARequest req) {
-        RegleTVA regle = new RegleTVA(req.typePrestation(), req.tauxApplique(), req.exonere(),
-                req.dateDebutValidite(), req.dateFinValidite(), req.texteReference());
-        useCase.saveRegleTVA(centre(centerId), regle);
-        return ResponseEntity.ok(Map.of("saved", true));
     }
 
     // ─── Backfill écritures (factures + règlements déjà existants) ─────────
@@ -368,27 +271,6 @@ public class ComptabiliteRestController {
         );
     }
 
-    private MappingResponse toMappingResponse(MappingComptable m) {
-        Map<String, String> choix = new LinkedHashMap<>();
-        for (OperationComptable operation : OperationComptable.values()) {
-            choix.put(operation.name(), m.journalDe(operation).valeur());
-        }
-        return new MappingResponse(m.centerId(), m.compteVentes(), m.compteClientPatient(), m.compteClientDefaut(),
-                m.compteBanque(), m.compteCaisse(), m.compteTVACollectee() != null ? m.compteTVACollectee() : "",
-                m.stock().stock(), m.stock().consommation(), m.stock().facturesNonParvenues(),
-                m.stock().boniInventaire(), m.stock().maliInventaire(), choix);
-    }
-
-    private Map<String, Object> toRegleResponse(RegleTVA r) {
-        return Map.of(
-                "typePrestation", r.typePrestation(),
-                "tauxApplique", r.tauxApplique(),
-                "exonere", r.exonere(),
-                "dateDebutValidite", r.dateDebutValidite().toString(),
-                "dateFinValidite", r.dateFinValidite() != null ? r.dateFinValidite().toString() : ""
-        );
-    }
-
     // ─── Request records ─────────────────────────────────────────────────────
 
     record CloturerPeriodeRequest(
@@ -396,59 +278,6 @@ public class ComptabiliteRestController {
             @Min(2000) @Max(3000) int annee,
             @Min(1) @Max(12) int mois,
             @NotBlank String userId) {
-    }
-
-    /**
-     * @param journaux journal de chaque opération (clé = {@link OperationComptable}) ; une opération absente garde le sien
-     */
-    record UpdateMappingRequest(
-            UUID centerId,
-            @NotBlank @Size(max = 20) String compteVentes,
-            @NotBlank @Size(max = 20) String compteClientPatient,
-            @NotBlank @Size(max = 20) String compteClientDefaut,
-            @NotBlank @Size(max = 20) String compteBanque,
-            @NotBlank @Size(max = 20) String compteCaisse,
-            @Size(max = 20) String compteTVACollectee,
-            @Size(max = 20) String compteStock,
-            @Size(max = 20) String compteConsommation,
-            @Size(max = 20) String compteFacturesNonParvenues,
-            @Size(max = 20) String compteBoniInventaire,
-            @Size(max = 20) String compteMaliInventaire,
-            Map<String, String> journaux) {
-    }
-
-    record MappingResponse(
-            UUID centerId,
-            String compteVentes,
-            String compteClientPatient,
-            String compteClientDefaut,
-            String compteBanque,
-            String compteCaisse,
-            String compteTVACollectee,
-            String compteStock,
-            String compteConsommation,
-            String compteFacturesNonParvenues,
-            String compteBoniInventaire,
-            String compteMaliInventaire,
-            Map<String, String> journaux) {
-    }
-
-    record JournalRequest(@NotBlank @Size(max = Journal.LIBELLE_MAX) String libelle, boolean actif) {
-    }
-
-    record JournalResponse(String code, String libelle, boolean actif) {
-        static JournalResponse de(Journal journal) {
-            return new JournalResponse(journal.code().valeur(), journal.libelle(), journal.actif());
-        }
-    }
-
-    record SaveRegleTVARequest(
-            @NotBlank String typePrestation,
-            @NotNull @DecimalMin("0.00") BigDecimal tauxApplique,
-            boolean exonere,
-            @NotNull LocalDate dateDebutValidite,
-            LocalDate dateFinValidite,
-            String texteReference) {
     }
 
     record RebuildEcrituresRequest(

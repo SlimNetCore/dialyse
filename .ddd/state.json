@@ -22,9 +22,13 @@
     "gmao-g3-cycle-vie-equipement": "built",
     "gmao-g4-interventions": "built",
     "gmao-g5-pieces-jointes": "built",
-    "gmao-g6-consultation-pilotage": "built"
+    "gmao-g6-consultation-pilotage": "built",
+    "comptabilite-c1-referentiel": "built",
+    "comptabilite-c2-mapping-tva": "built",
+    "comptabilite-c3-ecritures": "characterized"
   },
   "contexts": {
-    "gmao": "architected"
+    "gmao": "architected",
+    "comptabilite": "modeled"
   }
 }

@@ -2746,14 +2746,42 @@ règle payeur par payeur (RG-CPT-019) : il n&#39;existe plus de compte
 figé par type de payeur (CNAS, CASNOS, mutuelle). Chaque compte se <strong>choisit dans le plan comptable du centre</strong>
 (RG-CPT-018) ; un compte qui n&#39;y figure pas, ou désactivé, est refusé (<code>COMPTE_INCONNU</code>). Le paramétrage ne vaut que
 pour les écritures générées
-ensuite : les écritures déjà passées ne sont pas réimputées. <strong>Règles de TVA comptables</strong> versionnées dans le temps
-(type de prestation, taux ≥ 0, exonération, début de validité obligatoire). <em>Source :</em> <code>MappingComptable</code>,
-<code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> → <code>ComptabiliteApiService</code> →
-<code>ComptabiliteRestController</code> (<code>/mapping</code>) → <code>ComptabiliteUseCase</code> → <code>MappingComptablePort</code>.</p>
+    ensuite : les écritures déjà passées ne sont pas réimputées. La <strong>TVA collectée</strong> est facultative à l&#39;enregistrement
+    (vide : la réponse la montre vide, mais toute relecture et toute écriture de ventes lisent <code>44571</code>). Les
+    comptes du stock et
+    les journaux non précisés gardent leur valeur actuelle (aucun retour aux valeurs par défaut hors renvoi explicite) ;
+    <strong>tout
+        le mapping est revalidé à chaque enregistrement</strong>, journaux d&#39;abord (<code>JOURNAL_INCONNU</code>)
+    puis comptes (<code>COMPTE_INCONNU</code>).
+    Un numéro de compte du mapping s&#39;écrit en <strong>majuscules</strong> (un numéro en minuscules est refusé). <em>Source
+        :</em> <code>MappingComptable</code>,
+    <code>ComptesDuStock</code>, <code>ModifierLeMapping</code> (contexte <code>comptabilite</code>), <code>ComptabiliteParametrageComponent</code>
+    →
+    <code>ComptabiliteParametrageStore</code> → <code>ComptabiliteApiService</code> → <code>MappingControleur</code>
+    (<code>/mapping</code>) → <code>MappingComptableRepository</code>.
+    <strong>Règles de TVA comptables</strong> (<code>/regles-tva</code>, <code>ADMIN</code>) versionnées dans le temps :
+    type de prestation (texte brut, 120
+    caractères), taux ≥ 0 (arrondi à deux décimales par la base, 1000 et plus refusé), exonération (obligatoire), début
+    de validité
+    obligatoire, fin facultative, texte de référence. Elles <strong>s&#39;ajoutent seulement</strong> (ni modification
+    ni suppression) ; la liste
+    montre toutes les règles du centre, de la plus récente à la plus ancienne. Un ajout est <strong>refusé
+        (400)</strong> si la date de fin
+    précède la date de début, ou si la règle <strong>chevauche une règle active du même centre et du même type</strong>
+    (périodes
+    [début, fin] bornes incluses, fin absente = période ouverte ; les règles désactivées par la Facturation sont
+    ignorées) ; les
+    règles déjà enregistrées ne sont pas revalidées. Un ajout réussi vide la liste en cache des types de TVA de la
+    Facturation
+    (table <code>tva_types</code> partagée). La règle applicable à une date est la dernière commencée parmi les règles
+    actives du type.
+    <em>Source :</em> <code>RegleTva</code>, <code>EnregistrerUneRegleDeTva</code> → <code>ReglesTvaControleur</code>
+    (<code>/regles-tva</code>) → <code>RegleTvaRepository</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-007"><div class="rid">RG-CPT-007</div><div class="rtxt"><p><strong>Reconstruction</strong> (rejeu) des écritures de factures et règlements existants sur une période,
 réservée à <code>ADMIN</code> ; l&#39;idempotence évite tout doublon. Consultation des écritures et des journaux :
-<code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; validation, export, paramétrage (comptes, journaux), règles TVA, clôture,
+    <code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; validation, export, paramétrage (comptes, journaux,
+    mapping), règles TVA, clôture,
 comptabilisation du stock : <code>ADMIN</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-008"><div class="rid">RG-CPT-008</div><div class="rtxt"><p><em>(point d&#39;attention levé)</em> Les créances ne sont plus toutes imputées au compte client « autre » :
@@ -2768,8 +2796,10 @@ dispose des journaux par défaut <code>VE</code> Ventes, <code>BQ</code> Banque,
 enregistrés comme les siens à sa première modification. Un journal <strong>choisi pour une opération</strong> ne peut être ni
 désactivé ni supprimé (<code>JOURNAL_UTILISE</code>) ; un journal <strong>qui porte des écritures</strong> se désactive mais ne se supprime
 pas (<code>JOURNAL_AVEC_ECRITURES</code>) ; supprimer un journal inconnu est refusé (<code>JOURNAL_INTROUVABLE</code>). La liste est
-paginée. <em>Source :</em> <code>JournauxService</code>, <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> →
-<code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code> (<code>/journaux</code>) → <code>JournauxUseCase</code> → <code>JournalRepositoryPort</code>.</p>
+    paginée ; l&#39;indicateur « actif » est obligatoire (400 sinon). <em>Source :</em> <code>Journal</code>, <code>EnregistrerUnJournal</code>,
+    <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> →
+    <code>ComptabiliteApiService</code> → <code>JournauxControleur</code> (<code>/journaux</code>) → <code>JournalRepository</code>.
+</p>
 </div></div>
 <div class="rule" id="RG-CPT-010"><div class="rid">RG-CPT-010</div><div class="rtxt"><p><strong>Journal de chaque opération</strong> : le centre choisit le journal des ventes, des règlements en banque,
 des règlements en caisse, des réceptions de stock, des sorties de stock et des écarts d&#39;inventaire (par défaut <code>VE</code>,
@@ -2825,18 +2855,23 @@ enregistré comme le sien à sa première modification. Partout où un compte es
 de pièce), il <strong>se choisit dans ce plan</strong>. Un compte <strong>utilisé</strong> par le paramétrage, un payeur ou un modèle de pièce
 ne peut être ni désactivé ni supprimé (<code>COMPTE_UTILISE</code>) ; un compte <strong>qui porte des écritures</strong> se désactive mais ne
 se supprime pas (<code>COMPTE_AVEC_ECRITURES</code>) ; supprimer un compte inconnu est refusé (<code>COMPTE_INTROUVABLE</code>). Ajouter
-un compte ne demande aucun développement. <em>Source :</em> <code>PlanComptableService</code>, <code>PlanComptableComponent</code> →
-<code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/comptes</code>) →
-<code>PlanComptableUseCase</code> → <code>CompteRepositoryPort</code>.</p>
+    un compte ne demande aucun développement. Le numéro est enregistré <strong>en majuscules</strong> ; un compte
+    rattaché à un <strong>article</strong> compte comme utilisé. <em>Source :</em> <code>PlanComptable</code>, <code>EnregistrerUnCompte</code>,
+    <code>PlanComptableComponent</code> →
+    <code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>PlanComptableControleur</code> (<code>/comptes</code>)
+    →
+    <code>CompteRepository</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-019"><div class="rid">RG-CPT-019</div><div class="rtxt"><p><strong>Compte client de chaque payeur</strong> : chaque payeur du référentiel (caisse, mutuelle, entreprise…)
 peut porter son propre compte client, choisi dans le plan comptable (<code>COMPTE_INCONNU</code> sinon) ; ses factures y sont
 débitées. Un payeur sans compte propre utilise le compte client par défaut du centre ; vider le compte d&#39;un payeur
 l&#39;y ramène. Un payeur d&#39;un autre centre est introuvable (<code>PAYEUR_INTROUVABLE</code>). <strong>Un nouveau client ne demande aucun
 développement</strong> : on crée le payeur dans les référentiels, on ajoute son compte au plan, on le lui affecte. La liste
-des payeurs est paginée et recherchable. <em>Source :</em> <code>ComptesPayeursService</code>, <code>PlanComptableComponent</code> →
-<code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/payeurs</code>) →
-<code>ComptesPayeursUseCase</code> → <code>PayeursPort</code>, <code>ComptePayeurRepositoryPort</code>.</p>
+    des payeurs est paginée et recherchable. <em>Source :</em> <code>CompteClientDuPayeur</code>, <code>AffecterUnCompteAuPayeur</code>,
+    <code>PlanComptableComponent</code> →
+    <code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>ComptesPayeursControleur</code>
+    (<code>/payeurs</code>) →
+    <code>CompteClientDuPayeurRepository</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-020"><div class="rid">RG-CPT-020</div><div class="rtxt"><p><strong>Modèles de pièces</strong> : un centre définit ses propres types de pièces (loyer, salaires, facture
 fournisseur, opération diverse…). Un modèle porte un code unique dans le centre (1 à 20 lettres majuscules,
@@ -4022,15 +4057,27 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 </tr>
 <tr>
 <td><code>ComptabiliteRestController</code></td>
-<td><code>/api/v1/comptabilite</code></td>
-<td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture des écritures et des journaux)</td>
-<td>RG-CPT-001 à 017</td>
+    <td><code>/api/v1/comptabilite</code> (écritures, export, clôture, <code>/rebuild</code>, <code>/stock</code>)</td>
+    <td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture des écritures)</td>
+    <td>RG-CPT-001 à 005, 007, 012 à 017</td>
+</tr>
+<tr>
+    <td><code>MappingControleur</code></td>
+    <td><code>/api/v1/comptabilite/mapping</code></td>
+    <td><code>ADMIN</code></td>
+    <td>RG-CPT-006, 010, 011</td>
+</tr>
+<tr>
+    <td><code>ReglesTvaControleur</code></td>
+    <td><code>/api/v1/comptabilite/regles-tva</code></td>
+    <td><code>ADMIN</code></td>
+    <td>RG-CPT-006</td>
 </tr>
 <tr>
 <td><code>ComptabiliteParametrageRestController</code></td>
-<td><code>/api/v1/comptabilite</code> (<code>/comptes</code>, <code>/payeurs</code>, <code>/modeles</code>, <code>/pieces</code>)</td>
-<td><code>ADMIN</code> (<code>SECRETAIRE</code> : lecture du plan et des modèles, saisie de pièces)</td>
-<td>RG-CPT-018 à 023</td>
+    <td><code>/api/v1/comptabilite</code> (<code>/modeles</code>, <code>/pieces</code>)</td>
+    <td><code>ADMIN</code> (<code>SECRETAIRE</code> : lecture des modèles, saisie de pièces)</td>
+    <td>RG-CPT-020 à 023</td>
 </tr>
 <tr>
 <td><code>DirectionDashboardRestController</code></td>

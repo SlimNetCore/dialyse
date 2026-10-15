@@ -22,16 +22,28 @@ Règles : aucun `DROP`/`DELETE`/`TRUNCATE` sur le schéma legacy ; pas de nouvel
 
 L'ordre suit les dépendances : G2 avant G4 (tarif), G3 avant G4 (état de l'équipement), G4 avant G5 et G6.
 
+## 1 bis. Slices Comptabilité (contexte `comptabilite`, module `backend/contexts/comptabilite`, ADR 0025)
+
+| Ordre | Slice                                                                | État                 | Remarque                                                                                                                                                                                                                                                             |
+|-------|----------------------------------------------------------------------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | C1 Référentiel comptable (plan, journaux, compte client des payeurs) | `built` (2026-10-15) | fiche : `slices/comptabilite-c1-referentiel.md` ; écarts décidés KB-CPT-01, 04, 13a                                                                                                                                                                                  |
+| 2     | C2 Mapping et TVA                                                    | `built` (2026-10-15) | fiche : `slices/comptabilite-c2-mapping-tva.md` ; `/mapping`, `/regles-tva` refaites sur place ; tables `mapping_comptable`, `tva_types` (partagée avec la Facturation) ; écarts décidés KB-CPT-21, 16 (400 sur dates inversées et chevauchement), 20 (cache évincé) |
+| 3     | C3 Écritures et périodes                                             | à faire              | écritures, validation, export, clôture                                                                                                                                                                                                                               |
+| 4     | C4 Modèles et pièces                                                 | à faire              | `/modeles`, `/pieces`, extourne                                                                                                                                                                                                                                      |
+| 5     | C5 Ventes et règlements                                              | à faire              | écouteurs de facturation et de règlement, `/rebuild`                                                                                                                                                                                                                 |
+| 6     | C6 Comptabilisation du stock                                         | à faire              | cron 03:15, `/stock/synchroniser`                                                                                                                                                                                                                                    |
+| 7     | C7 Retrait de `bc-comptabilite`                                      | à faire              | re-pointer Absences vers une lecture publiée de la TVA                                                                                                                                                                                                               |
+
 ## 2. Autres contextes (haut niveau, à détailler après `/ddd-tactical <ctx>`)
 
-| Contexte | Remarque |
-|---|---|
-| Comptabilité | argent, aucun test sur les services : filet de caractérisation long ; écritures exportées immuables |
-| Facturation + règlement | dépend de la lecture des séances ; TVA, clôture mensuelle (ADR 0009) |
-| Absences patients | dépend des jours prévus (Planification) et des séances |
-| Stock (+ article) | PMP, FEFO |
-| Planification | consommera les événements GMAO ; débloquera le retrait des lectures SQL de `gmao_equipements` |
-| Patient et couverture, Séance | les plus couplés : en dernier |
+| Contexte                      | Remarque                                                                                                                         |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| Comptabilité                  | **C1 et C2 livrées** (voir 1 bis) ; C3 à C7 à détailler ; argent : filet de caractérisation long ; écritures exportées immuables |
+| Facturation + règlement       | dépend de la lecture des séances ; TVA, clôture mensuelle (ADR 0009)                                                             |
+| Absences patients             | dépend des jours prévus (Planification) et des séances                                                                           |
+| Stock (+ article)             | PMP, FEFO                                                                                                                        |
+| Planification                 | consommera les événements GMAO ; débloquera le retrait des lectures SQL de `gmao_equipements`                                    |
+| Patient et couverture, Séance | les plus couplés : en dernier                                                                                                    |
 
 ## 3. Recette d'une slice
 

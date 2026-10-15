@@ -265,6 +265,52 @@ FROM gmao_documents_intervention;
   réécrites, seulement servies en `application/octet-stream`. Notez l'écart.
 - **Si l'un des comptages est élevé** : dites-le, ce n'est pas bloquant mais le métier peut vouloir les revoir.
 
+## 14. Numéros de compte comptable en minuscules et doublons après normalisation (Comptabilité C1, KB-CPT-04)
+
+Le nouveau code enregistre les numéros de compte **en majuscules** (comme le code d'un journal). **SELECT seulement**,
+comptages :
+
+```sql
+-- (a) numéros contenant au moins une minuscule (seront lus tels quels, mais plus jamais recréés)
+SELECT count(*) AS numeros_avec_minuscules FROM comptes_comptables WHERE numero <> upper(numero);
+-- (b) doublons après normalisation, par centre (ex. abc9 et ABC9 : deux comptes aujourd'hui)
+SELECT count(*) AS groupes_en_double FROM (
+  SELECT center_id, upper(numero) FROM comptes_comptables GROUP BY center_id, upper(numero) HAVING count(*) > 1) d;
+-- (c) comptes de payeurs pointant vers un numéro en minuscules ou hors plan enregistré
+SELECT count(*) AS payeurs_vers_minuscules FROM comptes_payeurs WHERE compte <> upper(compte);
+```
+
+- **Attendu** : 0 partout. Sinon, dites-le : on traite ces lignes à la main avant la livraison (le nouveau code ne les
+  modifie pas).
+
+## 15. Règles de TVA comptables : dates inversées, chevauchements, taux, fonction
+`random_uuid` (Comptabilité C2, KB-CPT-16, 17, 21)
+
+Le nouveau code refuse (400) l' **ajout** d'une règle dont la fin précède le début ou qui chevauche une règle active du
+même centre et du même type ; il **ne modifie ni ne revalide** les règles déjà en base. **SELECT seulement**,
+comptages :
+
+```sql
+-- (a) règles dont la date de fin précède la date de début (inapplicables à jamais)
+SELECT count(*) AS dates_inversees FROM tva_types WHERE date_fin_validite IS NOT NULL AND date_fin_validite < date_debut_validite;
+-- (b) paires de règles ACTIVES du même centre et du même type qui se chevauchent (bornes incluses, fin absente = ouverte)
+SELECT count(*) AS paires_en_chevauchement
+FROM tva_types a JOIN tva_types b
+  ON a.center_id = b.center_id AND a.type_prestation = b.type_prestation AND a.id < b.id
+ AND a.actif AND b.actif
+ AND a.date_debut_validite <= COALESCE(b.date_fin_validite, DATE '9999-12-31')
+ AND b.date_debut_validite <= COALESCE(a.date_fin_validite, DATE '9999-12-31');
+-- (c) règles au taux supérieur à 100 (la Facturation refuse de les lire : GET /tva-types et la préparation de facturation échouent)
+SELECT count(*) AS taux_superieur_a_100 FROM tva_types WHERE taux > 100;
+-- (d) KB-CPT-21 : la fonction random_uuid existe-t-elle en production ? (attendu : aucune ligne ; sinon l'ancien POST fonctionnait)
+SELECT proname FROM pg_proc WHERE proname IN ('random_uuid');
+```
+
+- **Attendu** : (a) 0, (b) 0, (c) 0, (d) aucune ligne. Un chevauchement ou une date inversée existant n'empêche rien
+  (les lecteurs retiennent la règle commencée le plus récemment) mais le centre concerné ne pourra plus ajouter de règle
+  dans les dates concernées : dites-le, on les corrige à la main ou on décide d'un rattrapage. Aucune donnée n'est
+  modifiée par la livraison.
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas G1-G5 en production.

@@ -69,6 +69,25 @@ Les derniers consommateurs de l'état d'un équipement passent par le langage pu
 
 Bugs reproduits à dessein, correction à planifier après retrait (ADR 0019/0024) : KB-GMAO-80 (alerte non dédoublonnée au rejeu), 81 (reprise acceptée sur un générateur hors service), 82 (compte rendu de reprise trompeur sur erreur), 83 (patient sorti sans date ignoré de l'alerte).
 
+## 6 bis. Deuxième contexte : Comptabilité, slice C1 (2026-10-15)
+
+Même méthode, module `backend/contexts/comptabilite` (ADR 0025). Particularité : les contrôleurs de C1 étaient
+**partagés** avec d'autres slices (C2 à C6). C1 en retire seulement ses routes, publie des lectures dans
+`publishedlanguage` (`PlanComptableEnLecture`, `JournauxDuCentre`, `ComptesClientsDesPayeurs`) et le legacy restant les
+lit par trois adaptateurs ACL minimes (`platform/.../infrastructure/acl/comptabilite`). Trois écarts décidés par
+l'utilisateur (goldens `*_nouveau_code`) : `actif` obligatoire (400), numéros de compte en majuscules, compte
+d'article « utilisé ». Fiche : `.ddd/migration/slices/comptabilite-c1-referentiel.md`.
+
+## 6 ter. Comptabilité, slice C2 : mapping et règles de TVA (2026-10-15)
+
+Même module. Particularités : (1) le mapping lit le plan et les journaux de C1 **directement** dans le module (pas d'ACL
+entre deux slices du même contexte) ; (2) `tva_types` est une table **partagée** avec la Facturation : SQL direct
+(`RegleTvaRepositoryJdbc`), la Facturation reste intacte ; (3) le legacy encore en place lit le mapping et la règle de
+TVA par deux langages publiés (`MappingComptableDuCentre`, `ParametrageFiscal`) et deux ACL minimes ; (4) le test de
+contrat PostgreSQL 16 prouve ce que H2 ne peut pas voir (l'ancien `RANDOM_UUID()` n'existe pas sur PostgreSQL :
+identifiant généré en Java). Écarts décidés : KB-CPT-21, 16 (400 sur dates inversées et chevauchement), 20 (cache évincé
+par `@CacheEvict`). Fiche : `.ddd/migration/slices/comptabilite-c2-mapping-tva.md`.
+
 ## 7. Refaire sur un autre projet
 1. Cartographier (scan, glossaire) et choisir une petite slice verticale.
 2. Écrire le filet de caractérisation HTTP et le rendre vert sur l'existant.

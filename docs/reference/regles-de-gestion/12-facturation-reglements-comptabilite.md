@@ -112,13 +112,35 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   figé par type de payeur (CNAS, CASNOS, mutuelle). Chaque compte se **choisit dans le plan comptable du centre**
   (RG-CPT-018) ; un compte qui n'y figure pas, ou désactivé, est refusé (`COMPTE_INCONNU`). Le paramétrage ne vaut que
   pour les écritures générées
-  ensuite : les écritures déjà passées ne sont pas réimputées. **Règles de TVA comptables** versionnées dans le temps
-  (type de prestation, taux ≥ 0, exonération, début de validité obligatoire). *Source :* `MappingComptable`,
-  `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` → `ComptabiliteApiService` →
-  `ComptabiliteRestController` (`/mapping`) → `ComptabiliteUseCase` → `MappingComptablePort`.
+  ensuite : les écritures déjà passées ne sont pas réimputées. La **TVA collectée** est facultative à l'enregistrement
+  (vide : la réponse la montre vide, mais toute relecture et toute écriture de ventes lisent `44571`). Les comptes du
+  stock et
+  les journaux non précisés gardent leur valeur actuelle (aucun retour aux valeurs par défaut hors renvoi explicite) ;
+  **tout
+  le mapping est revalidé à chaque enregistrement**, journaux d'abord (`JOURNAL_INCONNU`) puis comptes
+  (`COMPTE_INCONNU`).
+  Un numéro de compte du mapping s'écrit en **majuscules** (un numéro en minuscules est refusé). *Source :*
+  `MappingComptable`,
+  `ComptesDuStock`, `ModifierLeMapping` (contexte `comptabilite`), `ComptabiliteParametrageComponent` →
+  `ComptabiliteParametrageStore` → `ComptabiliteApiService` → `MappingControleur` (`/mapping`) →
+  `MappingComptableRepository`. **Règles de TVA comptables** (`/regles-tva`, `ADMIN`) versionnées dans le temps : type
+  de prestation (texte brut, 120
+  caractères), taux ≥ 0 (arrondi à deux décimales par la base, 1000 et plus refusé), exonération (obligatoire), début de
+  validité
+  obligatoire, fin facultative, texte de référence. Elles **s'ajoutent seulement** (ni modification ni suppression) ; la
+  liste
+  montre toutes les règles du centre, de la plus récente à la plus ancienne. Un ajout est **refusé (400)** si la date de
+  fin
+  précède la date de début, ou si la règle **chevauche une règle active du même centre et du même type** (périodes
+  [début, fin] bornes incluses, fin absente = période ouverte ; les règles désactivées par la Facturation sont
+  ignorées) ; les
+  règles déjà enregistrées ne sont pas revalidées. Un ajout réussi vide la liste en cache des types de TVA de la
+  Facturation (table `tva_types` partagée). La règle applicable à une date est la dernière commencée parmi les règles
+  actives du type. *Source :* `RegleTva`, `EnregistrerUneRegleDeTva` → `ReglesTvaControleur` (`/regles-tva`) →
+  `RegleTvaRepository`.
 - **RG-CPT-007** — **Reconstruction** (rejeu) des écritures de factures et règlements existants sur une période,
   réservée à `ADMIN` ; l'idempotence évite tout doublon. Consultation des écritures et des journaux :
-  `ADMIN`, `SECRETAIRE` (paginée) ; validation, export, paramétrage (comptes, journaux), règles TVA, clôture,
+  `ADMIN`, `SECRETAIRE` (paginée) ; validation, export, paramétrage (comptes, journaux, mapping), règles TVA, clôture,
   comptabilisation du stock : `ADMIN`.
 - **RG-CPT-008** — *(point d'attention levé)* Les créances ne sont plus toutes imputées au compte client « autre » :
   chaque facture débite le compte de **son payeur** (RG-CPT-019), le compte par défaut si le payeur n'en a pas, et le
@@ -131,8 +153,10 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   enregistrés comme les siens à sa première modification. Un journal **choisi pour une opération** ne peut être ni
   désactivé ni supprimé (`JOURNAL_UTILISE`) ; un journal **qui porte des écritures** se désactive mais ne se supprime
   pas (`JOURNAL_AVEC_ECRITURES`) ; supprimer un journal inconnu est refusé (`JOURNAL_INTROUVABLE`). La liste est
-  paginée. *Source :* `JournauxService`, `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` →
-  `ComptabiliteApiService` → `ComptabiliteRestController` (`/journaux`) → `JournauxUseCase` → `JournalRepositoryPort`.
+  paginée ; l'indicateur « actif » est obligatoire (400 sinon). *Source :* `Journal`, `CodeJournal`,
+  `EnregistrerUnJournal`, `SupprimerUnJournal` (contexte `comptabilite`), `ComptabiliteParametrageComponent` →
+  `ComptabiliteParametrageStore` →
+  `ComptabiliteApiService` → `JournauxControleur` (`/journaux`) → `JournalRepository`.
 - **RG-CPT-010** — **Journal de chaque opération** : le centre choisit le journal des ventes, des règlements en banque,
   des règlements en caisse, des réceptions de stock, des sorties de stock et des écarts d'inventaire (par défaut `VE`,
   `BQ`, `CA`, `AC`, `ST`, `ST`). Seul un journal **existant et actif** peut être choisi (`JOURNAL_INCONNU`). Le numéro
@@ -179,17 +203,21 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   de pièce), il **se choisit dans ce plan**. Un compte **utilisé** par le paramétrage, un payeur ou un modèle de pièce
   ne peut être ni désactivé ni supprimé (`COMPTE_UTILISE`) ; un compte **qui porte des écritures** se désactive mais ne
   se supprime pas (`COMPTE_AVEC_ECRITURES`) ; supprimer un compte inconnu est refusé (`COMPTE_INTROUVABLE`). Ajouter
-  un compte ne demande aucun développement. *Source :* `PlanComptableService`, `PlanComptableComponent` →
-  `PlanComptableStore` → `ComptabiliteApiService` → `ComptabiliteParametrageRestController` (`/comptes`) →
-  `PlanComptableUseCase` → `CompteRepositoryPort`.
+  un compte ne demande aucun développement. Le numéro est enregistré **en majuscules** (comme le code d'un journal) ; un
+  compte
+  rattaché à un **article** compte comme utilisé. *Source :* `PlanComptable`, `CompteComptable`, `EnregistrerUnCompte`,
+  `SupprimerUnCompte`, `PlanComptableComponent` →
+  `PlanComptableStore` → `ComptabiliteApiService` → `PlanComptableControleur` (`/comptes`) →
+  `CompteRepository`.
 - **RG-CPT-019** — **Compte client de chaque payeur** : chaque payeur du référentiel (caisse, mutuelle, entreprise…)
   peut porter son propre compte client, choisi dans le plan comptable (`COMPTE_INCONNU` sinon) ; ses factures y sont
   débitées. Un payeur sans compte propre utilise le compte client par défaut du centre ; vider le compte d'un payeur
   l'y ramène. Un payeur d'un autre centre est introuvable (`PAYEUR_INTROUVABLE`). **Un nouveau client ne demande aucun
   développement** : on crée le payeur dans les référentiels, on ajoute son compte au plan, on le lui affecte. La liste
-  des payeurs est paginée et recherchable. *Source :* `ComptesPayeursService`, `PlanComptableComponent` →
-  `PlanComptableStore` → `ComptabiliteApiService` → `ComptabiliteParametrageRestController` (`/payeurs`) →
-  `ComptesPayeursUseCase` → `PayeursPort`, `ComptePayeurRepositoryPort`.
+  des payeurs est paginée et recherchable. *Source :* `CompteClientDuPayeur`, `AffecterUnCompteAuPayeur`,
+  `PlanComptableComponent` →
+  `PlanComptableStore` → `ComptabiliteApiService` → `ComptesPayeursControleur` (`/payeurs`) →
+  `CompteClientDuPayeurRepository`.
 - **RG-CPT-020** — **Modèles de pièces** : un centre définit ses propres types de pièces (loyer, salaires, facture
   fournisseur, opération diverse…). Un modèle porte un code unique dans le centre (1 à 20 lettres majuscules,
   chiffres, tirets ; `MODELE_CODE_EXISTANT`), un libellé, un **journal actif** (`JOURNAL_INCONNU` sinon) et de 2 à 20

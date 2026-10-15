@@ -3,18 +3,14 @@ package com.hemodialyse.backend.application.comptabilite;
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
 import com.hemodialyse.backend.domain.comptabilite.port.*;
 import com.hemodialyse.backend.domain.comptabilite.service.ComptabiliteService;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.MappingComptable;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.RegleTVA;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
  * Application service comptabilité — wraps le domaine pur avec @Transactional et Spring.
- * Isolation multi-centre garantie par centerId dans chaque commande.
+ * Isolation multi-centre garantie par centerId dans chaque commande. Le mapping et les règles de TVA sont tenus par le
+ * contexte {@code contexts/comptabilite} (slice C2) ; ce service les lit par ses ports (ACL de la plateforme).
  */
 @Service
 @Transactional
@@ -24,14 +20,10 @@ public class ComptabiliteApplicationService implements ComptabiliteUseCase {
 
     public ComptabiliteApplicationService(EcritureComptableRepositoryPort ecritureRepository,
                                           MappingComptablePort mappingPort,
-                                          ParametrageFiscalPort fiscalPort,
                                           PeriodeComptableRepositoryPort periodePort,
                                           ExportComptablePort exportPort,
-                                          JournalRepositoryPort journalPort,
-                                          ComptePayeurRepositoryPort comptesPayeurs,
-                                          PlanComptableUseCase plan) {
-        this.delegate = new ComptabiliteService(ecritureRepository, mappingPort, fiscalPort, periodePort, exportPort,
-                journalPort, comptesPayeurs, plan);
+                                          ComptePayeurRepositoryPort comptesPayeurs) {
+        this.delegate = new ComptabiliteService(ecritureRepository, mappingPort, periodePort, exportPort, comptesPayeurs);
     }
 
     @Override
@@ -64,27 +56,4 @@ public class ComptabiliteApplicationService implements ComptabiliteUseCase {
     public void cloturerPeriode(CloturerPeriodeCommand cmd) {
         delegate.cloturerPeriode(cmd);
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public MappingComptable getMappingComptable(UUID centerId) {
-        return delegate.getMappingComptable(centerId);
-    }
-
-    @Override
-    public MappingComptable saveMappingComptable(MappingComptable mapping) {
-        return delegate.saveMappingComptable(mapping);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<RegleTVA> getReglesTV(UUID centerId) {
-        return delegate.getReglesTV(centerId);
-    }
-
-    @Override
-    public void saveRegleTVA(UUID centerId, RegleTVA regle) {
-        delegate.saveRegleTVA(centerId, regle);
-    }
 }
-

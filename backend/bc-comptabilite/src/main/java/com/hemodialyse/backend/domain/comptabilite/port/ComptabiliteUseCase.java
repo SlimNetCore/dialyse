@@ -2,15 +2,12 @@ package com.hemodialyse.backend.domain.comptabilite.port;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.MappingComptable;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.RegleTVA;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.StatutEcriture;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,15 +36,7 @@ public interface ComptabiliteUseCase {
 
     void cloturerPeriode(CloturerPeriodeCommand cmd);
 
-    // ─── Paramétrage ────────────────────────────────────────────────────────
-
-    MappingComptable getMappingComptable(UUID centerId);
-
-    MappingComptable saveMappingComptable(MappingComptable mapping);
-
-    List<RegleTVA> getReglesTV(UUID centerId);
-
-    void saveRegleTVA(UUID centerId, RegleTVA regle);
+    // Le mapping comptable et les règles de TVA sont tenus par le contexte contexts/comptabilite (slice C2).
 
     // ═══ Commands / Queries ══════════════════════════════════════════════════
 

@@ -20,30 +20,21 @@ public class ComptabiliteService implements ComptabiliteUseCase {
 
     private final EcritureComptableRepositoryPort ecritureRepository;
     private final MappingComptablePort mappingPort;
-    private final ParametrageFiscalPort fiscalPort;
     private final PeriodeComptableRepositoryPort periodePort;
     private final ExportComptablePort exportPort;
-    private final JournalRepositoryPort journalPort;
     private final ComptePayeurRepositoryPort comptesPayeurs;
-    private final PlanComptableUseCase plan;
     private final GenerateurEcritureComptable generateur;
 
     public ComptabiliteService(EcritureComptableRepositoryPort ecritureRepository,
                                MappingComptablePort mappingPort,
-                               ParametrageFiscalPort fiscalPort,
                                PeriodeComptableRepositoryPort periodePort,
                                ExportComptablePort exportPort,
-                               JournalRepositoryPort journalPort,
-                               ComptePayeurRepositoryPort comptesPayeurs,
-                               PlanComptableUseCase plan) {
+                               ComptePayeurRepositoryPort comptesPayeurs) {
         this.ecritureRepository = ecritureRepository;
         this.mappingPort = mappingPort;
-        this.fiscalPort = fiscalPort;
         this.periodePort = periodePort;
         this.exportPort = exportPort;
-        this.journalPort = journalPort;
         this.comptesPayeurs = comptesPayeurs;
-        this.plan = plan;
         this.generateur = new GenerateurEcritureComptable();
     }
 
@@ -148,38 +139,6 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         periodePort.cloturer(cmd.centerId(), cmd.periode(), cmd.userId());
     }
 
-    @Override
-    public MappingComptable getMappingComptable(UUID centerId) {
-        return mappingPort.findByCenterId(centerId);
-    }
-
-    @Override
-    public MappingComptable saveMappingComptable(MappingComptable mapping) {
-        // chaque opération s'écrit dans un journal que le centre a défini et laissé actif
-        List<Journal> connus = journalPort.findByCenter(mapping.centerId());
-        List<Journal> journaux = connus.isEmpty() ? Journal.parDefaut() : connus;
-        mapping.journaux().forEach((operation, code) -> {
-            boolean actif = journaux.stream().anyMatch(j -> j.code().equals(code) && j.actif());
-            if (!actif) {
-                throw new BusinessException("JOURNAL_INCONNU",
-                        "Le journal " + code + " choisi pour " + operation + " n'existe pas ou est désactivé");
-            }
-        });
-        // et sur des comptes du plan comptable du centre
-        plan.exigerActifs(mapping.centerId(), mapping.comptes());
-        mappingPort.save(mapping);
-        return mapping;
-    }
-
-    @Override
-    public List<RegleTVA> getReglesTV(UUID centerId) {
-        return fiscalPort.findAll(centerId);
-    }
-
-    @Override
-    public void saveRegleTVA(UUID centerId, RegleTVA regle) {
-        fiscalPort.save(centerId, regle);
-    }
 }
 
 

@@ -71,6 +71,11 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-comptabilite</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
             <artifactId>bc-migration</artifactId>
         </dependency>
         <dependency>

@@ -3,20 +3,17 @@ package com.hemodialyse.backend.domain.comptabilite.service;
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
 import com.hemodialyse.backend.domain.comptabilite.aggregate.ModelePiece;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptePayeurRepositoryPort;
-import com.hemodialyse.backend.domain.comptabilite.port.CompteRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.EcritureComptableRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.ModelePieceRepositoryPort;
-import com.hemodialyse.backend.domain.comptabilite.port.PayeursPort;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.CompteComptable;
 import com.hemodialyse.backend.domain.comptabilite.port.JournalRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.MappingComptablePort;
 import com.hemodialyse.backend.domain.comptabilite.port.OperationsStockPort;
-import com.hemodialyse.backend.domain.comptabilite.port.ParametrageFiscalPort;
 import com.hemodialyse.backend.domain.comptabilite.port.PeriodeComptableRepositoryPort;
+import com.hemodialyse.backend.domain.comptabilite.port.PlanComptableUseCase;
+import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.Journal;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.MappingComptable;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.RegleTVA;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.StatutEcriture;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 
@@ -109,8 +106,10 @@ final class ComptabiliteFixtures {
             return parCentre.getOrDefault(centerId, MappingComptable.defaultFor(centerId));
         }
 
-        @Override
-        public void save(MappingComptable mapping) {
+        /**
+         * Le mapping est tenu par le contexte comptabilite (C2) : les tests le posent directement.
+         */
+        void save(MappingComptable mapping) {
             parCentre.put(mapping.centerId(), mapping);
         }
     }
@@ -130,46 +129,23 @@ final class ComptabiliteFixtures {
     }
 
     /**
-     * Aucune règle de TVA : les prestations sont exonérées.
+     * Journaux d'un centre tels que le contexte comptabilite les publie : les journaux par défaut tant que le centre n'a rien
+     * enregistré ({@link #definir} les enregistre d'abord, comme à la première modification).
      */
-    static final class Fiscal implements ParametrageFiscalPort {
-        @Override
-        public Optional<RegleTVA> findActiveAt(UUID centerId, String typePrestation, LocalDate date) {
-            return Optional.empty();
-        }
-
-        @Override
-        public List<RegleTVA> findAll(UUID centerId) {
-            return List.of();
-        }
-
-        @Override
-        public void save(UUID centerId, RegleTVA regle) {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     static final class Journaux implements JournalRepositoryPort {
         final Map<UUID, List<Journal>> parCentre = new HashMap<>();
 
         @Override
         public List<Journal> findByCenter(UUID centerId) {
-            return parCentre.getOrDefault(centerId, List.of()).stream()
-                    .sorted(Comparator.comparing(j -> j.code().valeur())).toList();
+            List<Journal> enregistres = parCentre.getOrDefault(centerId, List.of());
+            return enregistres.isEmpty() ? Journal.parDefaut()
+                    : enregistres.stream().sorted(Comparator.comparing(j -> j.code().valeur())).toList();
         }
 
-        @Override
-        public void save(UUID centerId, Journal journal) {
-            List<Journal> liste = new ArrayList<>(parCentre.getOrDefault(centerId, List.of()));
+        void definir(UUID centerId, Journal journal) {
+            List<Journal> liste = new ArrayList<>(parCentre.computeIfAbsent(centerId, c -> new ArrayList<>(Journal.parDefaut())));
             liste.removeIf(j -> j.code().equals(journal.code()));
             liste.add(journal);
-            parCentre.put(centerId, liste);
-        }
-
-        @Override
-        public void delete(UUID centerId, JournalCode code) {
-            List<Journal> liste = new ArrayList<>(parCentre.getOrDefault(centerId, List.of()));
-            liste.removeIf(j -> j.code().equals(code));
             parCentre.put(centerId, liste);
         }
     }
@@ -200,46 +176,53 @@ final class ComptabiliteFixtures {
         }
     }
 
-    static final class Comptes implements CompteRepositoryPort {
-        final Map<UUID, Map<String, CompteComptable>> parCentre = new HashMap<>();
+    /**
+     * Plan comptable tel que le contexte comptabilite le publie : le plan SCF de départ (complété des comptes du mapping)
+     * tant que le centre n'a rien enregistré ; {@link #ajouter} et {@link #desactiver} l'enregistrent d'abord.
+     */
+    static final class Plan implements PlanComptableUseCase {
+        private static final List<String> SCF = List.of("322", "401", "408", "411100", "411500", "421", "431", "4456",
+                "44571", "512", "530", "602", "613", "615", "626", "631", "635", "657", "706", "757");
 
-        private Map<String, CompteComptable> du(UUID centerId) {
-            return parCentre.computeIfAbsent(centerId, c -> new java.util.TreeMap<>());
+        private final Mappings mappings;
+        private final Map<UUID, Map<String, Boolean>> enregistres = new HashMap<>();
+
+        Plan(Mappings mappings) {
+            this.mappings = mappings;
+        }
+
+        private Map<String, Boolean> du(UUID centerId) {
+            return enregistres.computeIfAbsent(centerId, this::depart);
+        }
+
+        void ajouter(UUID centerId, String numero) {
+            du(centerId).put(numero, true);
+        }
+
+        void desactiver(UUID centerId, String numero) {
+            du(centerId).put(numero, false);
         }
 
         @Override
-        public long count(UUID centerId) {
-            return du(centerId).size();
+        public void exigerActifs(UUID centerId, java.util.Collection<String> numeros) {
+            Map<String, Boolean> plan = enregistres.containsKey(centerId) ? du(centerId) : depart(centerId);
+            for (String numero : numeros) {
+                if (numero == null || numero.isBlank()) continue;
+                if (!plan.getOrDefault(numero.trim(), false)) {
+                    throw new BusinessException("COMPTE_INCONNU", "Le compte " + numero.trim() + " est inconnu");
+                }
+            }
         }
 
-        @Override
-        public PagedResult<CompteComptable> findPaged(UUID centerId, String recherche, boolean actifsSeulement, int page,
-                                                      int size) {
-            String filtre = recherche == null ? "" : recherche.trim().toLowerCase();
-            List<CompteComptable> tous = du(centerId).values().stream()
-                    .filter(c -> !actifsSeulement || c.actif())
-                    .filter(c -> filtre.isEmpty() || c.numero().contains(filtre) || c.libelle().toLowerCase().contains(filtre))
-                    .toList();
-            int debut = Math.min(page * size, tous.size());
-            return PagedResult.of(tous.subList(debut, Math.min(debut + size, tous.size())), tous.size(), page, size);
-        }
-
-        @Override
-        public Optional<CompteComptable> find(UUID centerId, String numero) {
-            return Optional.ofNullable(du(centerId).get(numero));
-        }
-
-        @Override
-        public void save(UUID centerId, CompteComptable compte) {
-            du(centerId).put(compte.numero(), compte);
-        }
-
-        @Override
-        public void delete(UUID centerId, String numero) {
-            du(centerId).remove(numero);
+        private Map<String, Boolean> depart(UUID centerId) {
+            Map<String, Boolean> depart = new HashMap<>();
+            SCF.forEach(n -> depart.put(n, true));
+            mappings.findByCenterId(centerId).comptes().forEach(n -> depart.putIfAbsent(n, true));
+            return depart;
         }
     }
 
+    /** Compte client propre à chaque payeur, tel que le contexte comptabilite le publie. */
     static final class ComptesPayeurs implements ComptePayeurRepositoryPort {
         final Map<String, String> comptes = new HashMap<>();
 
@@ -252,47 +235,8 @@ final class ComptabiliteFixtures {
             return Optional.ofNullable(comptes.get(cle(centerId, payeurId)));
         }
 
-        @Override
-        public Map<UUID, String> findAll(UUID centerId, java.util.Collection<UUID> payeurIds) {
-            Map<UUID, String> trouves = new HashMap<>();
-            payeurIds.forEach(id -> find(centerId, id).ifPresent(c -> trouves.put(id, c)));
-            return trouves;
-        }
-
-        @Override
-        public void save(UUID centerId, UUID payeurId, String compte) {
+        void definir(UUID centerId, UUID payeurId, String compte) {
             comptes.put(cle(centerId, payeurId), compte);
-        }
-
-        @Override
-        public void delete(UUID centerId, UUID payeurId) {
-            comptes.remove(cle(centerId, payeurId));
-        }
-
-        @Override
-        public boolean existsByCompte(UUID centerId, String compte) {
-            return comptes.entrySet().stream()
-                    .anyMatch(e -> e.getKey().startsWith(centerId + "|") && e.getValue().equals(compte));
-        }
-    }
-
-    static final class Payeurs implements PayeursPort {
-        final Map<UUID, List<Payeur>> parCentre = new HashMap<>();
-
-        void ajouter(UUID centerId, Payeur payeur) {
-            parCentre.computeIfAbsent(centerId, c -> new ArrayList<>()).add(payeur);
-        }
-
-        @Override
-        public PagedResult<Payeur> lister(UUID centerId, String recherche, int page, int size) {
-            List<Payeur> tous = parCentre.getOrDefault(centerId, List.of());
-            int debut = Math.min(page * size, tous.size());
-            return PagedResult.of(tous.subList(debut, Math.min(debut + size, tous.size())), tous.size(), page, size);
-        }
-
-        @Override
-        public Optional<Payeur> trouver(UUID centerId, UUID payeurId) {
-            return parCentre.getOrDefault(centerId, List.of()).stream().filter(p -> p.id().equals(payeurId)).findFirst();
         }
     }
 
@@ -350,15 +294,10 @@ final class ComptabiliteFixtures {
         final Mappings mappings = new Mappings();
         final Periodes periodes = new Periodes();
         final Journaux journaux = new Journaux();
-        final Comptes comptes = new Comptes();
         final ComptesPayeurs comptesPayeurs = new ComptesPayeurs();
-        final Payeurs payeurs = new Payeurs();
         final Modeles modeles = new Modeles();
-        final PlanComptableService plan = new PlanComptableService(comptes, mappings, comptesPayeurs, modeles, ecritures);
-        final JournauxService journauxService = new JournauxService(journaux, mappings, ecritures, modeles);
-        final ComptabiliteService comptabilite = new ComptabiliteService(ecritures, mappings, new Fiscal(), periodes,
-                null, journaux, comptesPayeurs, plan);
-        final ComptesPayeursService comptesPayeursService = new ComptesPayeursService(payeurs, comptesPayeurs, plan);
+        final Plan plan = new Plan(mappings);
+        final ComptabiliteService comptabilite = new ComptabiliteService(ecritures, mappings, periodes, null, comptesPayeurs);
         final PiecesComptablesService pieces = new PiecesComptablesService(modeles, ecritures, periodes, journaux, plan);
     }
 }

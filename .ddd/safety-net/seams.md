@@ -73,3 +73,53 @@ Aucun seam appliqué ni nécessaire ; `seamAllowed` vide, aucun fichier de produ
 |---|---|---|---|
 | `GmaoEvenementsPlanificationListener.java` (`Equipement.reconstruct` à 18 arguments) | aucun : sera remplacé par des valeurs au retrait (étape 3 du plan) | néant | néant |
 | `GenerateurIndisponibleService.java:44-51` (échec d'alerte avalé) | aucun (voir seam G3) ; couvert par le test unitaire existant `should_never_fail_the_status_change_when_the_alert_cannot_be_built` | — | — |
+
+# Seams — slice comptabilite-c1-referentiel (2026-10-14)
+
+Aucun seam appliqué ni **nécessaire** : `seamAllowed` inchangé (vide), aucun fichier de production modifié. Les routes
+C1 n'écrivent ni horloge ni aléa dans leurs réponses ; `UUID.randomUUID()` n'alimente que des clés techniques de lignes
+(`comptes_comptables.id`, `journaux_comptables.id`) jamais exposées ; les listes sont triées côté SQL
+(`ORDER BY numero`, `code`, `nom, code`) ou dans l'ordre de déclaration (journaux par défaut, plan SCF).
+
+## Seams optionnels (NON appliqués, accord utilisateur requis, non nécessaires)
+
+| Fichier : ligne                                                                                                   | Refactoring mécanique                                                              | Gain                                                                                                                                                 | Risque                                 |
+|-------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
+| `PlanComptableJdbcAdapter.java:38-59`, `ComptePayeurJdbcAdapter.java:37-53` (tri `ORDER BY` collation PostgreSQL) | aucun seam : rejeu sur PostgreSQL 16 (`backend/scripts/gmao-pg16-rejeu.sh` adapté) | verrouiller l'ordre `numero` (alphabétique : `10` < `4456` < `9`) et `nom, code` sous collation PostgreSQL, qui peut différer de H2 (casse, accents) | aucun (test seulement) ; Docker requis |
+
+# Seams — slice comptabilite-c2-mapping-tva (2026-10-15)
+
+Aucun seam appliqué ni **nécessaire** : `seamAllowed` inchangé (vide), aucun fichier de production modifié. Les routes
+`/mapping` et `/regles-tva` n'écrivent ni horloge ni aléa dans leurs réponses ; `UUID.randomUUID()` / `RANDOM_UUID()`
+n'alimentent que les clés techniques de `mapping_comptable` et `tva_types` (jamais exposées, jamais lues). Deux
+non-déterminismes **legacy** sont contrôlés sans seam : (1) `Map.of` des réponses de `/regles-tva` (ordre des clés
+variable d'une JVM à l'autre) : le golden trie les clés ; (2) `Map.copyOf` des journaux du mapping, parcouru par le
+contrôle `JOURNAL_INCONNU` : l'opération citée dans le message n'est vérifiée que par motif quand plusieurs opérations
+sont fautives (KB-CPT-15). Le cache `tva-types-list` de la Facturation (6 h) est vidé au début de chaque test
+(`CacheManager` réel, pas de mock).
+
+## Seams optionnels (NON appliqués, accord utilisateur requis, non nécessaires)
+
+| Fichier : ligne                                                                                                            | Refactoring mécanique                                                                                                                                                                                                                                     | Gain                                                                                           | Risque                                                                          |
+|----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| `ParametrageFiscalJdbcAdapter.java:70` (`RANDOM_UUID()` dans l'INSERT de `POST /regles-tva`)                               | **aucun seam** : le défaut (KB-CPT-21, fonction inexistante sur PostgreSQL) se corrige à la refonte (identifiant généré en Java) ; le filet H2 ne peut pas le verrouiller, le constat PostgreSQL 16 est `backend/scripts/comptabilite-c2-pg16-constat.sh` | prouver le comportement de production sans modifier le legacy                                  | aucun (script jetable, port non standard, 5432 refusé)                          |
+| `ComptabiliteService.java:161` (`mapping.journaux().forEach` sur `Map.copyOf`)                                             | aucun : l'ordre stable (par `OperationComptable.values()`) sera celui du nouveau code                                                                                                                                                                     | message `JOURNAL_INCONNU` déterministe quand plusieurs opérations sont fautives                | modification de legacy hors câblage ; inutile si la refonte remplace ce service |
+| `ParametrageFiscalJdbcAdapter.java:30-47` (`findActiveAt` : `ORDER BY date_debut_validite DESC LIMIT 1`, égalité de début) | aucun : tri total (début, puis `created_at`, `id`) à la refonte                                                                                                                                                                                           | verrouiller le choix entre deux règles de même début (aujourd'hui indéterminé, non verrouillé) | idem                                                                            |
+
+# Seams — slice comptabilite-c3-ecritures (2026-10-15)
+
+Aucun seam appliqué ni **nécessaire** : `seamAllowed` inchangé (vide), aucun fichier de production modifié. Les routes
+d'écritures n'écrivent pas d'horloge dans leurs réponses (`cloturee_at`, `created_at`, `updated_at` ne sont jamais
+exposés : seul « renseigné ou non » est testé) ; les identifiants aléatoires des écritures et lignes générées sont
+normalisés par le golden (alias par ordre d'apparition, lignes triées par compte et montants car `@OrderBy("id")` suit
+des UUID aléatoires) ; les écritures de fixture ont des identifiants fixes (ordre des lignes déterministe) ; «
+aujourd'hui » n'intervient dans aucune fixture (dates fixes mars/avril/septembre 2026, 2025-12-31).
+
+## Seams optionnels (NON appliqués, accord utilisateur requis, non nécessaires)
+
+| Fichier : ligne                                                                                                         | Refactoring mécanique                                                                                                                                                                       | Gain                                                                                                                                  | Risque                                                                                                        |
+|-------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `EcritureComptableJpaAdapter.java:93-108` (`nextNumeroPiece` : lecture du plus grand numéro puis écriture, sans verrou) | aucun seam : le verrou est la correction elle-même (décision 1 du 2026-10-14), à écrire dans le nouveau code ; la course reste observable seulement par un test concurrent non déterministe | verrouiller la course B1/B2 (deux numérotations simultanées)                                                                          | test concurrent instable : non verrouillé, constaté par la lecture du code et l'absence de contrainte en base |
+| `EcritureComptableJpaAdapter.java:85-91` (`findForExport` sans `ORDER BY`)                                              | aucun : tri total (date d'écriture, numéro de pièce, identifiant de ligne) à la refonte                                                                                                     | ordre des écritures du fichier d'export déterministe (aujourd'hui non défini : le golden trie les lignes de fichiers multi-écritures) | modification de legacy hors câblage ; inutile si la refonte remplace l'adaptateur                             |
+| `PeriodeComptableJpaAdapter.java:47` (`OffsetDateTime.now()` de `cloturee_at`)                                          | extraire une `Clock` injectée                                                                                                                                                               | verrouiller la date de clôture exacte                                                                                                 | modification de legacy ; inutile : la colonne n'est jamais exposée par l'API                                  |
+| `ComptabiliteRestController.java:129-132` (auteur = `req.userId()`)                                                     | aucun seam : décision 12 (auteur = utilisateur de la session)                                                                                                                               | —                                                                                                                                     | —                                                                                                             |

@@ -5,12 +5,8 @@ import com.hemodialyse.backend.domain.comptabilite.aggregate.ModelePiece;
 import com.hemodialyse.backend.domain.comptabilite.entity.LigneEcriture;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.GenererEcritureFacturationCommand;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.GenererEcritureReglementCommand;
-import com.hemodialyse.backend.domain.comptabilite.port.PayeursPort.Payeur;
 import com.hemodialyse.backend.domain.comptabilite.port.PiecesComptablesUseCase.SaisirPieceCommand;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.CompteComptable;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.ComptesStock;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.MappingComptable;
 import com.hemodialyse.backend.domain.comptabilite.valueobject.SensEcriture;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.junit.jupiter.api.Test;
@@ -19,7 +15,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,94 +57,14 @@ class ParametrageSoupleTest {
                 new ModelePiece.Ligne(SensEcriture.CREDIT, "401", null)));
     }
 
-    // ─── Plan comptable ──────────────────────────────────────────────────────
+    // ─── Plan comptable et compte client par payeur (tenus par le contexte comptabilite, slice C1) ─────
 
     @Test
-    void a_centre_that_configured_nothing_gets_the_starting_chart_paged_and_searchable() {
-        var page = monde.plan.lister(CENTRE, null, false, 0, 5);
-
-        assertEquals(CompteComptable.parDefaut().size(), page.total());
-        assertEquals(5, page.items().size());
-        assertEquals("322", page.items().get(0).numero());
-        assertEquals(List.of("512"), monde.plan.lister(CENTRE, "banq", true, 0, 20).items().stream()
-                .map(CompteComptable::numero).toList());
-        assertEquals(0, monde.comptes.count(CENTRE), "consulter n'écrit rien");
-    }
-
-    @Test
-    void accounts_already_used_by_the_centre_parametrisation_join_its_starting_chart() {
-        monde.mappings.save(new MappingComptable(CENTRE, "7061", "411100", "411500", "512", "530", "44571",
-                ComptesStock.parDefaut(), Map.of()));
-
-        assertEquals(1, monde.plan.lister(CENTRE, "7061", false, 0, 20).total());
-        monde.plan.exigerActifs(CENTRE, List.of("7061"));
-        assertEquals(0, monde.plan.lister(AUTRE_CENTRE, "7061", false, 0, 20).total());
-    }
-
-    @Test
-    void the_first_change_records_the_chart_and_a_new_account_is_usable_at_once() {
-        monde.plan.enregistrer(CENTRE, new CompteComptable(" 411210 ", "Clients — CNAS", true));
-
-        assertEquals(CompteComptable.parDefaut().size() + 1, monde.comptes.count(CENTRE));
-        monde.plan.exigerActifs(CENTRE, List.of("411210", " ", "512"));
-        assertEquals("COMPTE_INCONNU", refus(() -> monde.plan.exigerActifs(AUTRE_CENTRE, List.of("411210"))));
-        assertThrows(IllegalArgumentException.class, () -> new CompteComptable("41-1", "x", true));
-        assertThrows(IllegalArgumentException.class, () -> new CompteComptable("411", " ", true));
-    }
-
-    @Test
-    void an_account_in_use_cannot_be_deactivated_nor_deleted_and_one_with_entries_is_only_deactivated() {
-        // utilisé par le paramétrage
-        assertEquals("COMPTE_UTILISE", refus(() -> monde.plan.supprimer(CENTRE, "706")));
-        assertEquals("COMPTE_UTILISE", refus(() -> monde.plan.enregistrer(CENTRE,
-                new CompteComptable("512", "Banque", false))));
-        assertEquals("COMPTE_INTROUVABLE", refus(() -> monde.plan.supprimer(CENTRE, "999")));
-
-        // porteur d'écritures : une pièce de loyer passe par 613
-        ModelePiece modele = monde.pieces.enregistrerModele(loyer());
-        assertEquals("COMPTE_UTILISE", refus(() -> monde.plan.supprimer(CENTRE, "613")));
-        monde.pieces.saisir(new SaisirPieceCommand(CENTRE, modele.id(), JOUR, null,
-                List.of(new BigDecimal("100"), BigDecimal.ZERO, new BigDecimal("100"))));
-        monde.pieces.supprimerModele(CENTRE, modele.id());
-        assertEquals("COMPTE_AVEC_ECRITURES", refus(() -> monde.plan.supprimer(CENTRE, "613")));
-        assertFalse(monde.plan.enregistrer(CENTRE, new CompteComptable("613", "Locations", false)).actif());
-
-        // libre : supprimé
-        monde.plan.supprimer(CENTRE, "626");
-        assertEquals("COMPTE_INCONNU", refus(() -> monde.plan.exigerActifs(CENTRE, List.of("626"))));
-        assertEquals("COMPTE_INCONNU", refus(() -> monde.plan.exigerActifs(CENTRE, List.of("613"))), "désactivé");
-    }
-
-    @Test
-    void the_parametrisation_only_accepts_accounts_of_the_chart() {
-        MappingComptable inconnu = new MappingComptable(CENTRE, "7069", "411100", "411500", "512", "530", "44571",
-                ComptesStock.parDefaut(), Map.of());
-
-        assertEquals("COMPTE_INCONNU", refus(() -> monde.comptabilite.saveMappingComptable(inconnu)));
-        monde.plan.enregistrer(CENTRE, new CompteComptable("7069", "Prestations de dialyse", true));
-        assertEquals("7069", monde.comptabilite.saveMappingComptable(inconnu).compteVentes());
-    }
-
-    // ─── Compte client par payeur ────────────────────────────────────────────
-
-    @Test
-    void a_new_client_only_needs_an_account_on_its_payer_no_code() {
+    void an_invoice_is_debited_on_the_payer_account_else_the_default_client_account_else_the_patient_account() {
         UUID cnas = UUID.randomUUID();
         UUID mutuelle = UUID.randomUUID();
-        monde.payeurs.ajouter(CENTRE, new Payeur(cnas, "CNAS-16", "CNAS Alger"));
-        monde.payeurs.ajouter(CENTRE, new Payeur(mutuelle, "MUT-1", "Mutuelle X"));
-        monde.plan.enregistrer(CENTRE, new CompteComptable("411210", "Clients — CNAS", true));
+        monde.comptesPayeurs.definir(CENTRE, cnas, "411210");
 
-        var affecte = monde.comptesPayeursService.definir(CENTRE, cnas, " 411210 ");
-
-        assertEquals("411210", affecte.compte());
-        assertEquals("CNAS Alger", affecte.nom());
-        var liste = monde.comptesPayeursService.lister(CENTRE, null, 0, 20);
-        assertEquals(2, liste.total());
-        assertEquals("411210", liste.items().get(0).compte());
-        assertNull(liste.items().get(1).compte(), "sans compte propre : compte client par défaut");
-
-        // facture du payeur paramétré, d'un payeur sans compte, d'un patient qui paie lui-même
         assertEquals(new BigDecimal("1000.00"),
                 solde(monde.comptabilite.genererEcritureFacturation(facture(UUID.randomUUID(), cnas)), "411210"));
         assertEquals(new BigDecimal("1000.00"),
@@ -159,28 +74,12 @@ class ParametrageSoupleTest {
     }
 
     @Test
-    void a_payer_account_must_exist_in_the_chart_and_the_payer_in_the_centre() {
-        UUID payeur = UUID.randomUUID();
-        monde.payeurs.ajouter(CENTRE, new Payeur(payeur, "P", "Payeur"));
-
-        assertEquals("COMPTE_INCONNU", refus(() -> monde.comptesPayeursService.definir(CENTRE, payeur, "411999")));
-        assertEquals("PAYEUR_INTROUVABLE", refus(() -> monde.comptesPayeursService.definir(AUTRE_CENTRE, payeur, "411500")));
-
-        monde.comptesPayeursService.definir(CENTRE, payeur, "411100");
-        assertEquals("COMPTE_UTILISE", refus(() -> monde.plan.enregistrer(CENTRE,
-                new CompteComptable("411100", "Clients", false))));
-        assertNull(monde.comptesPayeursService.definir(CENTRE, payeur, " ").compte(), "vide = retour au compte par défaut");
-        assertTrue(monde.comptesPayeurs.find(CENTRE, payeur).isEmpty());
-    }
-
-    @Test
     void a_payment_clears_the_account_the_invoice_debited_even_if_the_payer_account_changed_since() {
         UUID payeur = UUID.randomUUID();
         UUID factureId = UUID.randomUUID();
-        monde.payeurs.ajouter(CENTRE, new Payeur(payeur, "P", "Payeur"));
         monde.comptabilite.genererEcritureFacturation(facture(factureId, payeur));
-        monde.plan.enregistrer(CENTRE, new CompteComptable("411210", "Clients — CNAS", true));
-        monde.comptesPayeursService.definir(CENTRE, payeur, "411210");
+        monde.plan.ajouter(CENTRE, "411210");
+        monde.comptesPayeurs.definir(CENTRE, payeur, "411210");
 
         EcritureComptable reglement = monde.comptabilite.genererEcritureReglement(new GenererEcritureReglementCommand(
                 CENTRE, factureId, UUID.randomUUID(), new BigDecimal("400.00"), JOUR, "BANQUE", "Payeur", payeur));
@@ -193,6 +92,13 @@ class ParametrageSoupleTest {
                 CENTRE, UUID.randomUUID(), UUID.randomUUID(), new BigDecimal("50.00"), JOUR, "CAISSE", "Payeur", payeur));
         assertEquals(new BigDecimal("-50.00"), solde(orphelin, "411210"));
         assertEquals(new BigDecimal("50.00"), solde(orphelin, "530"));
+    }
+
+    @Test
+    void a_model_and_a_piece_only_accept_accounts_of_the_chart() {
+        monde.plan.desactiver(CENTRE, "613");
+
+        assertEquals("COMPTE_INCONNU", refus(() -> monde.pieces.enregistrerModele(loyer())));
     }
 
     // ─── Modèles de pièces et pièces saisies ─────────────────────────────────
