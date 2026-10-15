@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "actif obligatoire",
+    "instance": "/api/v1/comptabilite/journaux/J1",
+    "status": 400,
+    "title": "Requete invalide",
+    "code": "BAD_REQUEST"
+  }
+}

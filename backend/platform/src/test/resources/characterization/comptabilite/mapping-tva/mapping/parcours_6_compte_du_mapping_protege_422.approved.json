@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "COMPTE_UTILISE",
+    "detail": "Le compte 7061 est utilisé par le paramétrage, un payeur ou un modèle de pièce : remplacez-le avant de le désactiver",
+    "instance": "/api/v1/comptabilite/comptes/7061",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

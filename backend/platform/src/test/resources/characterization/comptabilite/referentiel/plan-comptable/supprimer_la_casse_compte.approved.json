@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Compte ABC introuvable",
+    "instance": "/api/v1/comptabilite/comptes/ABC",
+    "status": 422,
+    "title": "Regle metier violee",
+    "code": "COMPTE_INTROUVABLE"
+  }
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "date": "2026-02-01",
+    "comptabilite_taux": "19.00",
+    "comptabilite_exonere": "true",
+    "facturation_taux": "19.00",
+    "absences_taux": "0"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "411100",
+        "libelle": "Clients — patients",
+        "actif": true
+      },
+      {
+        "numero": "411210",
+        "libelle": "Clients — CNAS",
+        "actif": true
+      },
+      {
+        "numero": "411500",
+        "libelle": "Clients — organismes payeurs",
+        "actif": true
+      }
+    ],
+    "total": 3,
+    "page": 0,
+    "size": 100
+  }
+}

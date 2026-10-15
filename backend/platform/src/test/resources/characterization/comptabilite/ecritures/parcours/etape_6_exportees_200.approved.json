@@ -1,0 +1,137 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-26",
+        "datePiece": "2026-03-26",
+        "id": "<UUID_GENERE_1>",
+        "journalCode": "CA",
+        "libelle": "Règlement Règlement",
+        "lignes": [
+          {
+            "compteSCF": "411500",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Règlement facture <FACTURE_2>",
+            "montantCredit": 500.00,
+            "montantDebit": 0.00
+          },
+          {
+            "compteSCF": "530",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Règlement Règlement",
+            "montantCredit": 0.00,
+            "montantDebit": 500.00
+          }
+        ],
+        "numeroPiece": "CA-2026-000001",
+        "saisie": false,
+        "statut": "EXPORTEE",
+        "totalDebit": 500.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-25",
+        "datePiece": "2026-03-25",
+        "id": "<UUID_GENERE_2>",
+        "journalCode": "BQ",
+        "libelle": "Règlement Règlement",
+        "lignes": [
+          {
+            "compteSCF": "411500",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Règlement facture <FACTURE_1>",
+            "montantCredit": 1190.00,
+            "montantDebit": 0.00
+          },
+          {
+            "compteSCF": "512",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Règlement Règlement",
+            "montantCredit": 0.00,
+            "montantDebit": 1190.00
+          }
+        ],
+        "numeroPiece": "BQ-2026-000001",
+        "saisie": false,
+        "statut": "EXPORTEE",
+        "totalDebit": 1190.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-20",
+        "datePiece": "2026-03-20",
+        "id": "<UUID_GENERE_3>",
+        "journalCode": "VE",
+        "libelle": "Fact. FACT-2 - Séances",
+        "lignes": [
+          {
+            "compteSCF": "411500",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Facture FACT-2 - Séances",
+            "montantCredit": 0.00,
+            "montantDebit": 2380.00
+          },
+          {
+            "compteSCF": "44571",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "TVA collectée - FACT-2",
+            "montantCredit": 380.00,
+            "montantDebit": 0.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Prestation dialyse - FACT-2",
+            "montantCredit": 2000.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000002",
+        "saisie": false,
+        "statut": "EXPORTEE",
+        "totalDebit": 2380.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-05",
+        "datePiece": "2026-03-05",
+        "id": "<UUID_GENERE_4>",
+        "journalCode": "VE",
+        "libelle": "Fact. FACT-1 - Séances",
+        "lignes": [
+          {
+            "compteSCF": "411500",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Facture FACT-1 - Séances",
+            "montantCredit": 0.00,
+            "montantDebit": 1190.00
+          },
+          {
+            "compteSCF": "44571",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "TVA collectée - FACT-1",
+            "montantCredit": 190.00,
+            "montantDebit": 0.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Prestation dialyse - FACT-1",
+            "montantCredit": 1000.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000001",
+        "saisie": false,
+        "statut": "EXPORTEE",
+        "totalDebit": 1190.00
+      }
+    ],
+    "page": 0,
+    "size": 10,
+    "total": 4
+  }
+}

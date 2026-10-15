@@ -1,0 +1,12 @@
+[
+  {
+    "center_id": "<CENTRE_A>",
+    "numero": "411210",
+    "libelle": "Clients A"
+  },
+  {
+    "center_id": "<CENTRE_B>",
+    "numero": "411210",
+    "libelle": "Clients B"
+  }
+]

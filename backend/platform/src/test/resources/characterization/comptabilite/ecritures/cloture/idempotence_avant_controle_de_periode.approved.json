@@ -1,0 +1,24 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "date_ecriture": "2026-03-20",
+    "date_piece": "2026-03-20",
+    "statut": "VALIDEE",
+    "libelle": "Règlement Règlement",
+    "source_id": "<UUID_GENERE_2>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_3>",
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "date_ecriture": "2026-03-10",
+    "date_piece": "2026-03-10",
+    "statut": "VALIDEE",
+    "libelle": "Fact. F-MARS - Séances",
+    "source_id": "<UUID_GENERE_4>",
+    "modele_id": null
+  }
+]

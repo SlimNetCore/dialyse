@@ -1,0 +1,35 @@
+[
+  {
+    "type_prestation": "EXTREMES",
+    "taux": "19.00",
+    "exonere": "false",
+    "date_debut_validite": "0001-01-03",
+    "date_fin_validite": "9999-12-31",
+    "texte_reference": null,
+    "libelle": "EXTREMES 19%",
+    "actif": "true",
+    "created_by": "comptabilite"
+  },
+  {
+    "type_prestation": "HEMODIALYSE",
+    "taux": "19.00",
+    "exonere": "false",
+    "date_debut_validite": "2026-07-01",
+    "date_fin_validite": "2026-07-01",
+    "texte_reference": null,
+    "libelle": "HEMODIALYSE 19%",
+    "actif": "true",
+    "created_by": "comptabilite"
+  },
+  {
+    "type_prestation": "HEMODIALYSE",
+    "taux": "19.00",
+    "exonere": "false",
+    "date_debut_validite": "2026-08-01",
+    "date_fin_validite": null,
+    "texte_reference": null,
+    "libelle": "HEMODIALYSE 19%",
+    "actif": "true",
+    "created_by": "comptabilite"
+  }
+]

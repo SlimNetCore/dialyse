@@ -1,0 +1,51 @@
+[
+  {
+    "date": "2023-12-31",
+    "comptabilite_taux": "aucune",
+    "comptabilite_exonere": "aucune",
+    "facturation_taux": "aucune",
+    "absences_taux": "0"
+  },
+  {
+    "date": "2024-01-01",
+    "comptabilite_taux": "19.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "19.00",
+    "absences_taux": "19.00"
+  },
+  {
+    "date": "2025-12-31",
+    "comptabilite_taux": "19.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "19.00",
+    "absences_taux": "19.00"
+  },
+  {
+    "date": "2026-01-01",
+    "comptabilite_taux": "9.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "9.00",
+    "absences_taux": "9.00"
+  },
+  {
+    "date": "2026-12-31",
+    "comptabilite_taux": "9.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "9.00",
+    "absences_taux": "9.00"
+  },
+  {
+    "date": "2027-01-01",
+    "comptabilite_taux": "5.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "5.00",
+    "absences_taux": "5.00"
+  },
+  {
+    "date": "2030-06-15",
+    "comptabilite_taux": "5.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "5.00",
+    "absences_taux": "5.00"
+  }
+]

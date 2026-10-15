@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Le taux TVA ne peut pas dépasser 100%",
+    "instance": "/api/v1/tva-types",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

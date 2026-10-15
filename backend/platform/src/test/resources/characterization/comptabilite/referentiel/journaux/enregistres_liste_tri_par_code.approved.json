@@ -1,0 +1,31 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "code": "10",
+        "libelle": "Numérique",
+        "actif": true
+      },
+      {
+        "code": "AA",
+        "libelle": "Premier",
+        "actif": true
+      },
+      {
+        "code": "BQ",
+        "libelle": "Banque principale",
+        "actif": false
+      },
+      {
+        "code": "ZA",
+        "libelle": "Dernier",
+        "actif": true
+      }
+    ],
+    "total": 4,
+    "page": 0,
+    "size": 20
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Le compte 9999 n'existe pas dans le plan comptable du centre ou est désactivé",
+    "instance": "/api/v1/comptabilite/modeles",
+    "status": 422,
+    "title": "Regle metier violee",
+    "code": "COMPTE_INCONNU"
+  }
+}

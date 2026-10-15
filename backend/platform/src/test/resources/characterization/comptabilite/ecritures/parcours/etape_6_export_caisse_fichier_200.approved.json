@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "contentType": "text/csv;charset=UTF-8",
+  "contentDisposition": "attachment; filename=\"journal-CA-2026-03-01.csv\"",
+  "finDeFichierCRLF": true,
+  "octetsUtf8": 228,
+  "lignes": [
+    "Journal;Piece;Date;Compte;Libelle;Debit;Credit;Lettrage",
+    "CA;CA-2026-000001;26032026;411500;Règlement facture <FACTURE_2>;;500,00;99996300",
+    "CA;CA-2026-000001;26032026;530;Règlement Règlement;500,00;;"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "centerId": "<CENTRE_B>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_7>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000001",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_13>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 999.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_14>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 999.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000001",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 999.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 1
+  }
+}

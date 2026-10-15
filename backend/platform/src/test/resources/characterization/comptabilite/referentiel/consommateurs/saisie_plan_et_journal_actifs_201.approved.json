@@ -1,0 +1,12 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "id": "<UUID_GENERE_1>",
+    "numeroPiece": "AC-2026-000001",
+    "journalCode": "AC",
+    "dateEcriture": "2026-10-05",
+    "libelle": "Loyer",
+    "total": 100.00
+  }
+}

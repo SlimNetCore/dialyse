@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "payeurId": "<PAYEUR_CNAS>",
+        "code": "CNAS-16",
+        "nom": "CNAS Alger",
+        "compte": "411500"
+      }
+    ],
+    "total": 1,
+    "page": 0,
+    "size": 20
+  }
+}

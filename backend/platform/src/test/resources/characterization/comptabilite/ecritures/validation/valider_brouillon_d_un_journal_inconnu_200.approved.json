@@ -1,0 +1,32 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "dateEcriture": "2026-03-12",
+    "datePiece": "2026-03-12",
+    "id": "<ECRITURE_3>",
+    "journalCode": "ZZ",
+    "libelle": "Journal non enregistre",
+    "lignes": [
+      {
+        "compteSCF": "411100",
+        "id": "<LIGNE_5>",
+        "libelleLigne": "Débit 411100",
+        "montantCredit": 0.00,
+        "montantDebit": 5.00
+      },
+      {
+        "compteSCF": "706",
+        "id": "<LIGNE_6>",
+        "libelleLigne": "Crédit 706",
+        "montantCredit": 5.00,
+        "montantDebit": 0.00
+      }
+    ],
+    "numeroPiece": "ZZ-2026-000001",
+    "saisie": false,
+    "statut": "VALIDEE",
+    "totalDebit": 5.00
+  }
+}

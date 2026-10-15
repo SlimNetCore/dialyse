@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [],
+    "page": 2,
+    "size": 20,
+    "total": 23
+  }
+}

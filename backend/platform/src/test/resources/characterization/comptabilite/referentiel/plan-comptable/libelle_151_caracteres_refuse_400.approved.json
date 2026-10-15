@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Invalid request content.",
+    "instance": "/api/v1/comptabilite/comptes/903",
+    "status": 400,
+    "title": "Validation echouee",
+    "code": "VALIDATION_ERROR"
+  }
+}

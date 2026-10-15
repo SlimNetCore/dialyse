@@ -1,0 +1,67 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "centerId": "<CENTRE_B>",
+        "dateEcriture": "2026-03-06",
+        "datePiece": "2026-03-06",
+        "id": "<UUID_GENERE_1>",
+        "journalCode": "VE",
+        "libelle": "Fact. FACT-B2 - Séances",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Facture FACT-B2 - Séances",
+            "montantCredit": 0.00,
+            "montantDebit": 300.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Prestation dialyse - FACT-B2",
+            "montantCredit": 300.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000002",
+        "saisie": false,
+        "statut": "EXPORTEE",
+        "totalDebit": 300.00
+      },
+      {
+        "centerId": "<CENTRE_B>",
+        "dateEcriture": "2026-03-05",
+        "datePiece": "2026-03-05",
+        "id": "<UUID_GENERE_2>",
+        "journalCode": "VE",
+        "libelle": "Fact. FACT-B1 - Séances",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Facture FACT-B1 - Séances",
+            "montantCredit": 0.00,
+            "montantDebit": 200.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Prestation dialyse - FACT-B1",
+            "montantCredit": 200.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000001",
+        "saisie": false,
+        "statut": "EXPORTEE",
+        "totalDebit": 200.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 2
+  }
+}

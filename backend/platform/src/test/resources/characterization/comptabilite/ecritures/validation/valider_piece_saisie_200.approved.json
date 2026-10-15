@@ -1,0 +1,32 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "dateEcriture": "2026-03-11",
+    "datePiece": "2026-03-11",
+    "id": "<ECRITURE_1>",
+    "journalCode": "OD",
+    "libelle": "Pièce saisie",
+    "lignes": [
+      {
+        "compteSCF": "4",
+        "id": "<LIGNE_2>",
+        "libelleLigne": "Crédit 4",
+        "montantCredit": 5.00,
+        "montantDebit": 0.00
+      },
+      {
+        "compteSCF": "6",
+        "id": "<LIGNE_1>",
+        "libelleLigne": "Débit 6",
+        "montantCredit": 0.00,
+        "montantDebit": 5.00
+      }
+    ],
+    "numeroPiece": "OD-2026-000001",
+    "saisie": true,
+    "statut": "VALIDEE",
+    "totalDebit": 5.00
+  }
+}

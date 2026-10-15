@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "contentType": "text/csv;charset=UTF-8",
+  "contentDisposition": "attachment; filename=\"journal-VE-2026-03-01.csv\"",
+  "finDeFichierCRLF": true,
+  "octetsUtf8": 279,
+  "lignes": [
+    "Journal;Piece;Date;Compte;Libelle;Debit;Credit;Lettrage",
+    "VE;VE-2026-000001;10032026;411100;Débit 411100;100,00;;",
+    "VE;VE-2026-000001;10032026;706;Crédit 706;;100,00;",
+    "VE;VE-2026-000002;11032026;411100;Débit 411100;100,00;;",
+    "VE;VE-2026-000002;11032026;706;Crédit 706;;100,00;"
+  ]
+}

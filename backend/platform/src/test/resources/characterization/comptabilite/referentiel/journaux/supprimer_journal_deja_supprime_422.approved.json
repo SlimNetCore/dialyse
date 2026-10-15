@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Journal OD introuvable",
+    "instance": "/api/v1/comptabilite/journaux/OD",
+    "status": 422,
+    "title": "Regle metier violee",
+    "code": "JOURNAL_INTROUVABLE"
+  }
+}

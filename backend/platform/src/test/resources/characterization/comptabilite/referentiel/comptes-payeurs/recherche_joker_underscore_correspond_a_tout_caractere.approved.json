@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "payeurId": "<PAYEUR_MUTUELLE>",
+        "code": "MUT-1",
+        "nom": "Mutuelle X",
+        "compte": null
+      }
+    ],
+    "total": 1,
+    "page": 0,
+    "size": 20
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "code": "L2",
+    "libelle": "Rogné",
+    "actif": true
+  }
+}

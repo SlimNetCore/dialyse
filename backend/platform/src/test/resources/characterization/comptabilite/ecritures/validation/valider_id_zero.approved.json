@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ECRITURE_INTROUVABLE",
+    "detail": "Écriture introuvable",
+    "instance": "/api/v1/comptabilite/ecritures/<UUID_GENERE_1>/valider",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Le code du journal comporte 1 à 10 lettres majuscules ou chiffres",
+    "instance": "/api/v1/comptabilite/ecritures/export",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "<ECRITURE_1>",
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "date_ecriture": "2026-03-10",
+    "date_piece": "2026-03-10",
+    "statut": "VALIDEE",
+    "libelle": "Fact. VE-2026-000001",
+    "source_id": null,
+    "modele_id": null
+  },
+  {
+    "id": "<ECRITURE_2>",
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000002",
+    "date_ecriture": "2026-03-11",
+    "date_piece": "2026-03-11",
+    "statut": "VALIDEE",
+    "libelle": "Fact. VE-2026-000002",
+    "source_id": null,
+    "modele_id": null
+  }
+]

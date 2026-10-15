@@ -1,0 +1,46 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "date_ecriture": "2026-03-06",
+    "date_piece": "2026-03-06",
+    "statut": "VALIDEE",
+    "libelle": "Règlement Règlement",
+    "source_id": "<REGLEMENT_1>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_2>",
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000002",
+    "date_ecriture": "2026-03-08",
+    "date_piece": "2026-03-08",
+    "statut": "VALIDEE",
+    "libelle": "Règlement Règlement",
+    "source_id": "<REGLEMENT_3>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_3>",
+    "journal_code": "CA",
+    "numero_piece": "CA-2026-000001",
+    "date_ecriture": "2026-03-07",
+    "date_piece": "2026-03-07",
+    "statut": "VALIDEE",
+    "libelle": "Règlement Règlement",
+    "source_id": "<REGLEMENT_2>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_4>",
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "date_ecriture": "2026-03-05",
+    "date_piece": "2026-03-05",
+    "statut": "VALIDEE",
+    "libelle": "Fact. FACT-1 - Séances",
+    "source_id": "<FACTURE_1>",
+    "modele_id": null
+  }
+]

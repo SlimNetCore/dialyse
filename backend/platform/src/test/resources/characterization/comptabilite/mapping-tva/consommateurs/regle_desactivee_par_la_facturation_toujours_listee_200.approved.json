@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "dateDebutValidite": "2026-01-01",
+      "dateFinValidite": "",
+      "exonere": false,
+      "tauxApplique": 9.00,
+      "typePrestation": "HEMODIALYSE"
+    },
+    {
+      "dateDebutValidite": "2024-01-01",
+      "dateFinValidite": "",
+      "exonere": false,
+      "tauxApplique": 19.00,
+      "typePrestation": "HEMODIALYSE"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "code": "VE",
+        "libelle": "Ventes",
+        "actif": true
+      }
+    ],
+    "total": 5,
+    "page": 0,
+    "size": 1
+  }
+}

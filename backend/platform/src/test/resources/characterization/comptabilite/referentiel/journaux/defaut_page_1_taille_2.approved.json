@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "code": "CA",
+        "libelle": "Caisse",
+        "actif": true
+      },
+      {
+        "code": "AC",
+        "libelle": "Achats",
+        "actif": true
+      }
+    ],
+    "total": 5,
+    "page": 1,
+    "size": 2
+  }
+}

@@ -1,0 +1,79 @@
+[
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "321",
+    "montant_debit": "10000.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "322",
+    "montant_debit": "1000.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "408",
+    "montant_debit": "0.00",
+    "montant_credit": "11000.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "321",
+    "montant_debit": "0.00",
+    "montant_credit": "10.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "322",
+    "montant_debit": "20.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "657",
+    "montant_debit": "10.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "757",
+    "montant_debit": "0.00",
+    "montant_credit": "20.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "321",
+    "montant_debit": "0.00",
+    "montant_credit": "2500.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "322",
+    "montant_debit": "0.00",
+    "montant_credit": "200.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "602",
+    "montant_debit": "200.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "6021",
+    "montant_debit": "2500.00",
+    "montant_credit": "0.00"
+  }
+]

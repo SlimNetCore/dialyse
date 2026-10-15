@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "code": "XJ",
+        "libelle": "Seul journal du centre",
+        "actif": true
+      }
+    ],
+    "total": 1,
+    "page": 0,
+    "size": 20
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "contentType": "text/csv;charset=UTF-8",
+  "contentDisposition": "attachment; filename=\"journal-BQ-2026-03-01.csv\"",
+  "finDeFichierCRLF": true,
+  "octetsUtf8": 230,
+  "lignes": [
+    "Journal;Piece;Date;Compte;Libelle;Debit;Credit;Lettrage",
+    "BQ;BQ-2026-000001;25032026;411500;Règlement facture <FACTURE_1>;;1190,00;99996300",
+    "BQ;BQ-2026-000001;25032026;512;Règlement Règlement;1190,00;;"
+  ]
+}

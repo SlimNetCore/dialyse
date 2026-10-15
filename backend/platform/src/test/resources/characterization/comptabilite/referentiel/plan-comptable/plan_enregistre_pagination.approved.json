@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "5121",
+        "libelle": "Banque CPA",
+        "actif": false
+      },
+      {
+        "numero": "9",
+        "libelle": "Neuf",
+        "actif": true
+      }
+    ],
+    "total": 5,
+    "page": 1,
+    "size": 2
+  }
+}

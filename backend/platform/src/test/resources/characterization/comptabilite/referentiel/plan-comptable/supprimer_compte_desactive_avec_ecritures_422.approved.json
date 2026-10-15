@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Le compte ZZ1 porte des écritures : désactivez-le au lieu de le supprimer",
+    "instance": "/api/v1/comptabilite/comptes/ZZ1",
+    "status": 422,
+    "title": "Regle metier violee",
+    "code": "COMPTE_AVEC_ECRITURES"
+  }
+}

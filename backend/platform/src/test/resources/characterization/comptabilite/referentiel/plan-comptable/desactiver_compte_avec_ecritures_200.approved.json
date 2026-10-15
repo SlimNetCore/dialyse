@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "numero": "ZZ1",
+    "libelle": "Compte avec écritures",
+    "actif": false
+  }
+}

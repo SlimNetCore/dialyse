@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Le journal BQ est choisi pour une opération : changez-la avant de le supprimer",
+    "instance": "/api/v1/comptabilite/journaux/bq",
+    "status": 422,
+    "title": "Regle metier violee",
+    "code": "JOURNAL_UTILISE"
+  }
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "numero": "3101",
+    "libelle": "Stock article",
+    "actif": "true"
+  },
+  {
+    "numero": "6011",
+    "libelle": "Charge article",
+    "actif": "true"
+  }
+]

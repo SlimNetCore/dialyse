@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "numero": "6811",
+    "libelle": "Dotations aux amortissements",
+    "actif": true
+  }
+}

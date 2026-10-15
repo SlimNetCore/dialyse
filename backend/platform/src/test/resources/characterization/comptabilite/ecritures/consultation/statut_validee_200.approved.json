@@ -1,0 +1,123 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-04-01",
+        "datePiece": "2026-03-31",
+        "id": "<ECRITURE_6>",
+        "journalCode": "VE",
+        "libelle": "Date de pièce décalée",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_11>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 80.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_12>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 80.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000004",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 80.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-20",
+        "datePiece": "2026-03-20",
+        "id": "<ECRITURE_4>",
+        "journalCode": "BQ",
+        "libelle": "Règlement",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_8>",
+            "libelleLigne": "Crédit 411100",
+            "montantCredit": 50.00,
+            "montantDebit": 0.00
+          },
+          {
+            "compteSCF": "512",
+            "id": "<LIGNE_7>",
+            "libelleLigne": "Débit 512",
+            "montantCredit": 0.00,
+            "montantDebit": 50.00
+          }
+        ],
+        "numeroPiece": "BQ-2026-000001",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 50.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-15",
+        "datePiece": "2026-03-15",
+        "id": "<ECRITURE_2>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000002",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_3>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 200.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_4>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 200.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000002",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 200.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2025-12-31",
+        "datePiece": "2025-12-31",
+        "id": "<ECRITURE_5>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2025-000007",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_9>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 70.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_10>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 70.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2025-000007",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 70.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 4
+  }
+}

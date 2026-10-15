@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "530",
+        "libelle": "Caisse",
+        "actif": true
+      },
+      {
+        "numero": "602",
+        "libelle": "Achats consommés — autres approvisionnements",
+        "actif": true
+      },
+      {
+        "numero": "613",
+        "libelle": "Locations",
+        "actif": true
+      },
+      {
+        "numero": "615",
+        "libelle": "Entretien, réparations et maintenance",
+        "actif": true
+      },
+      {
+        "numero": "626",
+        "libelle": "Frais postaux et de télécommunications",
+        "actif": true
+      }
+    ],
+    "total": 20,
+    "page": 2,
+    "size": 5
+  }
+}

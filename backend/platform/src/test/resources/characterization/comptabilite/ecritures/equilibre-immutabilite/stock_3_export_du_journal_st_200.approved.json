@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "contentType": "text/csv;charset=UTF-8",
+  "contentDisposition": "attachment; filename=\"journal-ST-2026-09-01.csv\"",
+  "finDeFichierCRLF": true,
+  "octetsUtf8": 201,
+  "lignes": [
+    "Journal;Piece;Date;Compte;Libelle;Debit;Credit;Lettrage",
+    "ST;ST-2026-000001;05092026;322;Sorties de stock du 05/09/2026;;250,00;",
+    "ST;ST-2026-000001;05092026;602;Sorties de stock du 05/09/2026;250,00;;"
+  ]
+}

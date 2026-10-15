@@ -1,0 +1,92 @@
+[
+  {
+    "numero": "322",
+    "libelle": "Fournitures consommables",
+    "actif": "true"
+  },
+  {
+    "numero": "401",
+    "libelle": "Fournisseurs de stocks et services",
+    "actif": "true"
+  },
+  {
+    "numero": "408",
+    "libelle": "Fournisseurs — factures non parvenues",
+    "actif": "true"
+  },
+  {
+    "numero": "411100",
+    "libelle": "Clients — patients",
+    "actif": "true"
+  },
+  {
+    "numero": "411500",
+    "libelle": "Clients — organismes payeurs",
+    "actif": "true"
+  },
+  {
+    "numero": "421",
+    "libelle": "Personnel — rémunérations dues",
+    "actif": "true"
+  },
+  {
+    "numero": "431",
+    "libelle": "Sécurité sociale",
+    "actif": "true"
+  },
+  {
+    "numero": "4456",
+    "libelle": "TVA déductible",
+    "actif": "true"
+  },
+  {
+    "numero": "44571",
+    "libelle": "TVA collectée",
+    "actif": "true"
+  },
+  {
+    "numero": "512",
+    "libelle": "Banque",
+    "actif": "true"
+  },
+  {
+    "numero": "530",
+    "libelle": "Caisse",
+    "actif": "true"
+  },
+  {
+    "numero": "602",
+    "libelle": "Achats consommés — autres approvisionnements",
+    "actif": "true"
+  },
+  {
+    "numero": "613",
+    "libelle": "Locations",
+    "actif": "true"
+  },
+  {
+    "numero": "631",
+    "libelle": "Rémunérations du personnel",
+    "actif": "true"
+  },
+  {
+    "numero": "635",
+    "libelle": "Cotisations aux organismes sociaux",
+    "actif": "true"
+  },
+  {
+    "numero": "657",
+    "libelle": "Charges exceptionnelles de gestion courante",
+    "actif": "true"
+  },
+  {
+    "numero": "706",
+    "libelle": "Prestations de services",
+    "actif": "true"
+  },
+  {
+    "numero": "757",
+    "libelle": "Produits exceptionnels sur opérations de gestion",
+    "actif": "true"
+  }
+]

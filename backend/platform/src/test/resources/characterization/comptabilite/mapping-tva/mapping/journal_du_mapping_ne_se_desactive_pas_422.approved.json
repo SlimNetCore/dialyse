@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "JOURNAL_UTILISE",
+    "detail": "Le journal VE est choisi pour une opération : changez-la avant de le désactiver",
+    "instance": "/api/v1/comptabilite/journaux/VE",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

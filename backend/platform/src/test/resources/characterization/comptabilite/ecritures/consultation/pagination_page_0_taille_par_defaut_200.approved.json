@@ -1,0 +1,571 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_23>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000023",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_45>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_46>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000023",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_22>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000022",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_43>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_44>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000022",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_21>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000021",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_41>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_42>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000021",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_20>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000020",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_39>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_40>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000020",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_19>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000019",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_37>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_38>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000019",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_18>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000018",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_35>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_36>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000018",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_17>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000017",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_33>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_34>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000017",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_16>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000016",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_31>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_32>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000016",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_15>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000015",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_29>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_30>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000015",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_14>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000014",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_27>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_28>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000014",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_13>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000013",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_25>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_26>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000013",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_12>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000012",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_23>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_24>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000012",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_11>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000011",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_21>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_22>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000011",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_10>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000010",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_19>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_20>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000010",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_9>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000009",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_17>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_18>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000009",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_8>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000008",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_15>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_16>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000008",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_7>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000007",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_13>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_14>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000007",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_6>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000006",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_11>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_12>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000006",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_5>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000005",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_9>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_10>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000005",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      },
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-10",
+        "datePiece": "2026-03-10",
+        "id": "<ECRITURE_4>",
+        "journalCode": "VE",
+        "libelle": "Fact. VE-2026-000004",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_7>",
+            "libelleLigne": "Débit 411100",
+            "montantCredit": 0.00,
+            "montantDebit": 10.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_8>",
+            "libelleLigne": "Crédit 706",
+            "montantCredit": 10.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000004",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 10.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 23
+  }
+}

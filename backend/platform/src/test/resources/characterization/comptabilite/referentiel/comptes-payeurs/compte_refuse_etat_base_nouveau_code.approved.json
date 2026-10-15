@@ -1,0 +1,10 @@
+[
+  {
+    "payeur_id": "<PAYEUR_CNAS>",
+    "compte": "ABC"
+  },
+  {
+    "payeur_id": "<PAYEUR_MUTUELLE>",
+    "compte": "ABC"
+  }
+]

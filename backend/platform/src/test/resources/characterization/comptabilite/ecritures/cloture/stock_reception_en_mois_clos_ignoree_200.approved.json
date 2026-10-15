@@ -1,0 +1,11 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "complements": 0,
+    "ignorees": 1,
+    "inventaires": 0,
+    "joursSorties": 0,
+    "receptions": 0
+  }
+}

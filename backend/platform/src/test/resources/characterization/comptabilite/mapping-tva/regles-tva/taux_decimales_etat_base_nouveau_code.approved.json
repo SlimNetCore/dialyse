@@ -1,0 +1,35 @@
+[
+  {
+    "type_prestation": "HEMODIALYSE",
+    "taux": "20.00",
+    "exonere": "false",
+    "date_debut_validite": "2026-01-01",
+    "date_fin_validite": "2026-01-31",
+    "texte_reference": null,
+    "libelle": "HEMODIALYSE 19.999%",
+    "actif": "true",
+    "created_by": "comptabilite"
+  },
+  {
+    "type_prestation": "HEMODIALYSE",
+    "taux": "19.01",
+    "exonere": "false",
+    "date_debut_validite": "2026-02-01",
+    "date_fin_validite": "2026-02-28",
+    "texte_reference": null,
+    "libelle": "HEMODIALYSE 19.005%",
+    "actif": "true",
+    "created_by": "comptabilite"
+  },
+  {
+    "type_prestation": "HEMODIALYSE",
+    "taux": "5.50",
+    "exonere": "false",
+    "date_debut_validite": "2026-03-01",
+    "date_fin_validite": "2026-03-31",
+    "texte_reference": null,
+    "libelle": "HEMODIALYSE 5.5%",
+    "actif": "true",
+    "created_by": "comptabilite"
+  }
+]

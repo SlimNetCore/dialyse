@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-20",
+        "datePiece": "2026-03-20",
+        "id": "<ECRITURE_4>",
+        "journalCode": "BQ",
+        "libelle": "Règlement",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_8>",
+            "libelleLigne": "Crédit 411100",
+            "montantCredit": 50.00,
+            "montantDebit": 0.00
+          },
+          {
+            "compteSCF": "512",
+            "id": "<LIGNE_7>",
+            "libelleLigne": "Débit 512",
+            "montantCredit": 0.00,
+            "montantDebit": 50.00
+          }
+        ],
+        "numeroPiece": "BQ-2026-000001",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 50.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 1
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "annee": "2000",
+    "mois": "1",
+    "cloturee": "true",
+    "cloturee_by": "comptable",
+    "horodatee": "true"
+  },
+  {
+    "annee": "3000",
+    "mois": "12",
+    "cloturee": "true",
+    "cloturee_by": "comptable",
+    "horodatee": "true"
+  }
+]

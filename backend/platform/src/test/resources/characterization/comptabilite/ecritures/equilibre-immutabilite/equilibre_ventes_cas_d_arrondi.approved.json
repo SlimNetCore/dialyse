@@ -1,0 +1,203 @@
+[
+  {
+    "cas": "nominal_19_pour_cent",
+    "ht": "100.00",
+    "tva": "19.00",
+    "ttc": "119.00",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "119.00",
+    "lignes": [
+      "411100 D=119.00 C=0.00",
+      "44571 D=0.00 C=19.00",
+      "706 D=0.00 C=100.00"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "arrondi_par_ligne_avant_somme_995",
+    "ht": "99.995",
+    "tva": "19.00",
+    "ttc": "118.995",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "119.00",
+    "lignes": [
+      "411100 D=119.00 C=0.00",
+      "44571 D=0.00 C=19.00",
+      "706 D=0.00 C=100.00"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "demi_centime_seul",
+    "ht": "0.005",
+    "tva": "0",
+    "ttc": "0.005",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "0.01",
+    "lignes": [
+      "411100 D=0.01 C=0.00",
+      "706 D=0.00 C=0.01"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "ecart_d_un_centime_en_moins",
+    "ht": "100.00",
+    "tva": "19.00",
+    "ttc": "118.99",
+    "resultat": "REFUS_METIER",
+    "code": "ECRITURE_DESEQUILIBREE",
+    "message": "L'écriture est déséquilibrée : débit=118.99 crédit=119.00",
+    "ecrituresEnBase": 0
+  },
+  {
+    "cas": "ecart_d_un_centime_en_plus",
+    "ht": "100.00",
+    "tva": "19.00",
+    "ttc": "119.01",
+    "resultat": "REFUS_METIER",
+    "code": "ECRITURE_DESEQUILIBREE",
+    "message": "L'écriture est déséquilibrée : débit=119.01 crédit=119.00",
+    "ecrituresEnBase": 0
+  },
+  {
+    "cas": "tva_zero_et_ttc_superieur_tva_derivee",
+    "ht": "100.00",
+    "tva": "0",
+    "ttc": "119.00",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "119.00",
+    "lignes": [
+      "411100 D=119.00 C=0.00",
+      "44571 D=0.00 C=19.00",
+      "706 D=0.00 C=100.00"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "tva_negative_et_ttc_superieur_tva_derivee",
+    "ht": "100.00",
+    "tva": "-5.00",
+    "ttc": "119.00",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "119.00",
+    "lignes": [
+      "411100 D=119.00 C=0.00",
+      "44571 D=0.00 C=19.00",
+      "706 D=0.00 C=100.00"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "tva_negative_et_ttc_egal_sans_ligne_de_tva",
+    "ht": "100.00",
+    "tva": "-5.00",
+    "ttc": "100.00",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "100.00",
+    "lignes": [
+      "411100 D=100.00 C=0.00",
+      "706 D=0.00 C=100.00"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "trois_tiers_somme_des_arrondis_differente",
+    "ht": "33.333",
+    "tva": "6.333",
+    "ttc": "39.666",
+    "resultat": "REFUS_METIER",
+    "code": "ECRITURE_DESEQUILIBREE",
+    "message": "L'écriture est déséquilibrée : débit=39.67 crédit=39.66",
+    "ecrituresEnBase": 0
+  },
+  {
+    "cas": "demi_haut_sur_chaque_ligne_equilibre",
+    "ht": "10.005",
+    "tva": "1.90",
+    "ttc": "11.905",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "11.91",
+    "lignes": [
+      "411100 D=11.91 C=0.00",
+      "44571 D=0.00 C=1.90",
+      "706 D=0.00 C=10.01"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "montants_nuls",
+    "ht": "0",
+    "tva": "0",
+    "ttc": "0",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "0.00",
+    "lignes": [
+      "411100 D=0.00 C=0.00",
+      "706 D=0.00 C=0.00"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "avoir_montants_negatifs",
+    "ht": "-100.00",
+    "tva": "0",
+    "ttc": "-100.00",
+    "resultat": "ERREUR_TECHNIQUE",
+    "type": "IllegalArgumentException",
+    "message": "Le débit ne peut pas être négatif",
+    "ecrituresEnBase": 0
+  },
+  {
+    "cas": "ttc_inferieur_au_ht",
+    "ht": "100.00",
+    "tva": "0",
+    "ttc": "90.00",
+    "resultat": "REFUS_METIER",
+    "code": "ECRITURE_DESEQUILIBREE",
+    "message": "L'écriture est déséquilibrée : débit=90.00 crédit=100.00",
+    "ecrituresEnBase": 0
+  },
+  {
+    "cas": "grands_montants",
+    "ht": "123456789.01",
+    "tva": "23456790.11",
+    "ttc": "146913579.12",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "146913579.12",
+    "lignes": [
+      "411100 D=146913579.12 C=0.00",
+      "44571 D=0.00 C=23456790.11",
+      "706 D=0.00 C=123456789.01"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "tva_a_trois_decimales_arrondie_a_19_00",
+    "ht": "100.00",
+    "tva": "19.004",
+    "ttc": "119.004",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "119.00",
+    "lignes": [
+      "411100 D=119.00 C=0.00",
+      "44571 D=0.00 C=19.00",
+      "706 D=0.00 C=100.00"
+    ],
+    "ecrituresEnBase": 1
+  },
+  {
+    "cas": "tva_19_005_arrondie_a_19_01",
+    "ht": "100.00",
+    "tva": "19.005",
+    "ttc": "119.005",
+    "resultat": "ECRITURE_CREEE",
+    "totalDebit": "119.01",
+    "lignes": [
+      "411100 D=119.01 C=0.00",
+      "44571 D=0.00 C=19.01",
+      "706 D=0.00 C=100.00"
+    ],
+    "ecrituresEnBase": 1
+  }
+]

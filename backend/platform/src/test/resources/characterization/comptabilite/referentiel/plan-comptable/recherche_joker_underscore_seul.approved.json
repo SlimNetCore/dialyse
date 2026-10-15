@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "41",
+        "libelle": "Clients",
+        "actif": true
+      },
+      {
+        "numero": "42",
+        "libelle": "Personnel",
+        "actif": true
+      },
+      {
+        "numero": "5A",
+        "libelle": "Autre",
+        "actif": true
+      }
+    ],
+    "total": 3,
+    "page": 0,
+    "size": 20
+  }
+}

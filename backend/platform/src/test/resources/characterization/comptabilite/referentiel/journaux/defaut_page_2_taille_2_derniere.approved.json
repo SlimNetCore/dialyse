@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "code": "ST",
+        "libelle": "Stocks",
+        "actif": true
+      }
+    ],
+    "total": 5,
+    "page": 2,
+    "size": 2
+  }
+}

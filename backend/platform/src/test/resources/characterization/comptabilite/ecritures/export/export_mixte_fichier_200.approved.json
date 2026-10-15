@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "contentType": "text/csv;charset=UTF-8",
+  "contentDisposition": "attachment; filename=\"journal-VE-2026-03-01.csv\"",
+  "finDeFichierCRLF": true,
+  "octetsUtf8": 777,
+  "lignes": [
+    "Journal;Piece;Date;Compte;Libelle;Debit;Credit;Lettrage",
+    "VE;VE-2026-000001;10032026;411500;Facture VE-2026-000001 - Séances;1190,00;;99996300",
+    "VE;VE-2026-000001;10032026;44571;TVA collectée - VE-2026-000001;;190,00;",
+    "VE;VE-2026-000001;10032026;706;Prestation dialyse - VE-2026-000001;;1000,00;",
+    "VE;VE-2026-000002;11032026;411500;Facture VE-2026-000002 - Séances;1190,00;;99996300",
+    "VE;VE-2026-000002;11032026;44571;TVA collectée - VE-2026-000002;;190,00;",
+    "VE;VE-2026-000002;11032026;706;Prestation dialyse - VE-2026-000002;;1000,00;",
+    "VE;VE-2026-000003;12032026;411500;Facture VE-2026-000003 - Séances;1190,00;;99996300",
+    "VE;VE-2026-000003;12032026;44571;TVA collectée - VE-2026-000003;;190,00;",
+    "VE;VE-2026-000003;12032026;706;Prestation dialyse - VE-2026-000003;;1000,00;"
+  ]
+}

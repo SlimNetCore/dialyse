@@ -1,0 +1,79 @@
+[
+  {
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "compte_scf": "321",
+    "montant_debit": "0.00",
+    "montant_credit": "10.00"
+  },
+  {
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "compte_scf": "613",
+    "montant_debit": "20.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "compte_scf": "631",
+    "montant_debit": "0.00",
+    "montant_credit": "20.00"
+  },
+  {
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "compte_scf": "635",
+    "montant_debit": "10.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "CA",
+    "numero_piece": "CA-2026-000001",
+    "compte_scf": "321",
+    "montant_debit": "0.00",
+    "montant_credit": "2500.00"
+  },
+  {
+    "journal_code": "CA",
+    "numero_piece": "CA-2026-000001",
+    "compte_scf": "6021",
+    "montant_debit": "2500.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "CA",
+    "numero_piece": "CA-2026-000001",
+    "compte_scf": "613",
+    "montant_debit": "0.00",
+    "montant_credit": "200.00"
+  },
+  {
+    "journal_code": "CA",
+    "numero_piece": "CA-2026-000001",
+    "compte_scf": "615",
+    "montant_debit": "200.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "OD",
+    "numero_piece": "OD-2026-000001",
+    "compte_scf": "321",
+    "montant_debit": "10000.00",
+    "montant_credit": "0.00"
+  },
+  {
+    "journal_code": "OD",
+    "numero_piece": "OD-2026-000001",
+    "compte_scf": "401",
+    "montant_debit": "0.00",
+    "montant_credit": "11000.00"
+  },
+  {
+    "journal_code": "OD",
+    "numero_piece": "OD-2026-000001",
+    "compte_scf": "613",
+    "montant_debit": "1000.00",
+    "montant_credit": "0.00"
+  }
+]

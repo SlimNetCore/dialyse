@@ -1,0 +1,23 @@
+[
+  {
+    "annee": "2026",
+    "mois": "3",
+    "cloturee": "true",
+    "cloturee_by": "quelqu-un-d-autre",
+    "horodatee": "true"
+  },
+  {
+    "annee": "2026",
+    "mois": "4",
+    "cloturee": "true",
+    "cloturee_by": "  bob  ",
+    "horodatee": "true"
+  },
+  {
+    "annee": "2026",
+    "mois": "5",
+    "cloturee": "true",
+    "cloturee_by": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "horodatee": "true"
+  }
+]

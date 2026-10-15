@@ -1,0 +1,16 @@
+[
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "compte_scf": "706",
+    "montant_debit": "0.00",
+    "montant_credit": "1000.00"
+  },
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "compte_scf": "999999",
+    "montant_debit": "1000.00",
+    "montant_credit": "0.00"
+  }
+]

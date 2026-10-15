@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Opération comptable inconnue : vente",
+    "instance": "/api/v1/comptabilite/mapping",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

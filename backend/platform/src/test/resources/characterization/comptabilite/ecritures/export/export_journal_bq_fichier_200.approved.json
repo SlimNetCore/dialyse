@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "contentType": "text/csv;charset=UTF-8",
+  "contentDisposition": "attachment; filename=\"journal-BQ-2026-03-01.csv\"",
+  "finDeFichierCRLF": true,
+  "octetsUtf8": 166,
+  "lignes": [
+    "Journal;Piece;Date;Compte;Libelle;Debit;Credit;Lettrage",
+    "BQ;BQ-2026-000001;10032026;411100;Crédit 411100;;20,00;",
+    "BQ;BQ-2026-000001;10032026;512;Débit 512;20,00;;"
+  ]
+}

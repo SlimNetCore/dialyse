@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "COMPTE_INCONNU",
+    "detail": "Le compte 7099 n'existe pas dans le plan comptable du centre ou est désactivé",
+    "instance": "/api/v1/comptabilite/mapping",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

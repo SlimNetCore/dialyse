@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "PERIODE_DEJA_CLOTUREE",
+    "detail": "La période 2026-03 est déjà clôturée",
+    "instance": "/api/v1/comptabilite/periodes/cloturer",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

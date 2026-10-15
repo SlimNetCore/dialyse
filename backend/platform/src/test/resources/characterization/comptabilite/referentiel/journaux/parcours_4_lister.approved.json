@@ -1,0 +1,41 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "code": "AC",
+        "libelle": "Achats",
+        "actif": true
+      },
+      {
+        "code": "BQ",
+        "libelle": "Banque",
+        "actif": true
+      },
+      {
+        "code": "CA",
+        "libelle": "Caisse",
+        "actif": true
+      },
+      {
+        "code": "OD",
+        "libelle": "Écritures diverses",
+        "actif": false
+      },
+      {
+        "code": "ST",
+        "libelle": "Stocks",
+        "actif": true
+      },
+      {
+        "code": "VE",
+        "libelle": "Ventes",
+        "actif": true
+      }
+    ],
+    "total": 6,
+    "page": 0,
+    "size": 100
+  }
+}

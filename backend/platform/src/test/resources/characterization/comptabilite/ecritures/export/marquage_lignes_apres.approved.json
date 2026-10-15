@@ -1,0 +1,62 @@
+[
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "compte_scf": "411500",
+    "libelle_ligne": "Facture VE-2026-000001 - Séances",
+    "montant_debit": "1190.00",
+    "montant_credit": "0.00",
+    "tiers_id": "<PAYEUR_CNAS>",
+    "axes_analytiques": null
+  },
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "compte_scf": "44571",
+    "libelle_ligne": "TVA collectée - VE-2026-000001",
+    "montant_debit": "0.00",
+    "montant_credit": "190.00",
+    "tiers_id": null,
+    "axes_analytiques": null
+  },
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "compte_scf": "706",
+    "libelle_ligne": "Prestation dialyse - VE-2026-000001",
+    "montant_debit": "0.00",
+    "montant_credit": "1000.00",
+    "tiers_id": null,
+    "axes_analytiques": null
+  },
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000002",
+    "compte_scf": "411500",
+    "libelle_ligne": "Facture VE-2026-000002 - Séances",
+    "montant_debit": "1190.00",
+    "montant_credit": "0.00",
+    "tiers_id": "<PAYEUR_CNAS>",
+    "axes_analytiques": null
+  },
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000002",
+    "compte_scf": "44571",
+    "libelle_ligne": "TVA collectée - VE-2026-000002",
+    "montant_debit": "0.00",
+    "montant_credit": "190.00",
+    "tiers_id": null,
+    "axes_analytiques": null
+  },
+  {
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000002",
+    "compte_scf": "706",
+    "libelle_ligne": "Prestation dialyse - VE-2026-000002",
+    "montant_debit": "0.00",
+    "montant_credit": "1000.00",
+    "tiers_id": null,
+    "axes_analytiques": null
+  }
+]

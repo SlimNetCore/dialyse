@@ -1,0 +1,13 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "date_ecriture": "2026-09-05",
+    "date_piece": "2026-09-05",
+    "statut": "VALIDEE",
+    "libelle": "Sorties de stock du 05/09/2026",
+    "source_id": "<UUID_GENERE_2>",
+    "modele_id": null
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "411100",
+        "libelle": "Clients — patients",
+        "actif": true
+      },
+      {
+        "numero": "411500",
+        "libelle": "Clients — organismes payeurs",
+        "actif": true
+      }
+    ],
+    "total": 2,
+    "page": 0,
+    "size": 20
+  }
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "code": "12",
+    "libelle": "Numérique",
+    "actif": "true"
+  },
+  {
+    "code": "A0Z9",
+    "libelle": "Bornes",
+    "actif": "true"
+  },
+  {
+    "code": "AB",
+    "libelle": "Espaces",
+    "actif": "true"
+  },
+  {
+    "code": "ABCDEFGHIJ",
+    "libelle": "Dix",
+    "actif": "true"
+  },
+  {
+    "code": "AC",
+    "libelle": "Achats",
+    "actif": "true"
+  },
+  {
+    "code": "BQ",
+    "libelle": "Banque",
+    "actif": "true"
+  },
+  {
+    "code": "CA",
+    "libelle": "Caisse",
+    "actif": "true"
+  },
+  {
+    "code": "OD",
+    "libelle": "Minuscules",
+    "actif": "true"
+  },
+  {
+    "code": "OP2",
+    "libelle": "Mixte",
+    "actif": "true"
+  },
+  {
+    "code": "ST",
+    "libelle": "Stocks",
+    "actif": "true"
+  },
+  {
+    "code": "VE",
+    "libelle": "Ventes",
+    "actif": "true"
+  }
+]

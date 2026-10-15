@@ -1,0 +1,42 @@
+[
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "322",
+    "libelle_ligne": "Sorties de stock du 05/09/2026",
+    "montant_debit": "0.00",
+    "montant_credit": "250.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "602",
+    "libelle_ligne": "Sorties de stock du 05/09/2026",
+    "montant_debit": "250.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "322",
+    "libelle_ligne": "Complément sorties de stock du 05/09/2026",
+    "montant_debit": "0.00",
+    "montant_credit": "30.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "602",
+    "libelle_ligne": "Complément sorties de stock du 05/09/2026",
+    "montant_debit": "30.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  }
+]

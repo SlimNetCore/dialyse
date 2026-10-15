@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "centerId": "<CENTRE_A>",
+        "dateEcriture": "2026-03-05",
+        "datePiece": "2026-03-05",
+        "id": "<UUID_GENERE_1>",
+        "journalCode": "VE",
+        "libelle": "Fact. FACT-A1 - Séances",
+        "lignes": [
+          {
+            "compteSCF": "411100",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Facture FACT-A1 - Séances",
+            "montantCredit": 0.00,
+            "montantDebit": 100.00
+          },
+          {
+            "compteSCF": "706",
+            "id": "<LIGNE_GENEREE>",
+            "libelleLigne": "Prestation dialyse - FACT-A1",
+            "montantCredit": 100.00,
+            "montantDebit": 0.00
+          }
+        ],
+        "numeroPiece": "VE-2026-000001",
+        "saisie": false,
+        "statut": "VALIDEE",
+        "totalDebit": 100.00
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 1
+  }
+}

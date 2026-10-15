@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Payeur introuvable dans ce centre",
+    "instance": "/api/v1/comptabilite/payeurs/<PAYEUR_INCONNU>/compte",
+    "status": 422,
+    "title": "Regle metier violee",
+    "code": "PAYEUR_INTROUVABLE"
+  }
+}

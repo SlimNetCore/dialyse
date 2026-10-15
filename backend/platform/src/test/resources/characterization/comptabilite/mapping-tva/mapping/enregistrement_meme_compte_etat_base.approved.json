@@ -1,0 +1,21 @@
+[
+  {
+    "compte_ventes": "512",
+    "compte_client_patient": "512",
+    "compte_client_autre": "512",
+    "compte_banque": "512",
+    "compte_caisse": "512",
+    "compte_tva_collectee": "512",
+    "compte_stock": "322",
+    "compte_consommation": "602",
+    "compte_factures_non_parvenues": "408",
+    "compte_boni_inventaire": "757",
+    "compte_mali_inventaire": "657",
+    "journal_vente": "VE",
+    "journal_reglement_banque": "BQ",
+    "journal_reglement_caisse": "CA",
+    "journal_stock_reception": "AC",
+    "journal_stock_sortie": "ST",
+    "journal_stock_inventaire": "ST"
+  }
+]

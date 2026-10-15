@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "numero": "7061",
+    "libelle": "Ventes bis",
+    "actif": false
+  }
+}

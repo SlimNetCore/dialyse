@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "Le journal OD n'existe pas ou est désactivé",
+    "instance": "/api/v1/comptabilite/modeles",
+    "status": 422,
+    "title": "Regle metier violee",
+    "code": "JOURNAL_INCONNU"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_B>",
+    "compteBanque": "512",
+    "compteBoniInventaire": "757",
+    "compteCaisse": "530",
+    "compteClientDefaut": "411500",
+    "compteClientPatient": "411100",
+    "compteConsommation": "602",
+    "compteFacturesNonParvenues": "408",
+    "compteMaliInventaire": "657",
+    "compteStock": "322",
+    "compteTVACollectee": "44571",
+    "compteVentes": "7062",
+    "journaux": {
+      "REGLEMENT_BANQUE": "BQ",
+      "REGLEMENT_CAISSE": "CA",
+      "STOCK_INVENTAIRE": "ST",
+      "STOCK_RECEPTION": "AC",
+      "STOCK_SORTIE": "ST",
+      "VENTE": "VE"
+    }
+  }
+}

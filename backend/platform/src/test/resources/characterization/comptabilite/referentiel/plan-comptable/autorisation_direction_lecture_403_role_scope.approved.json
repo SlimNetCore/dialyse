@@ -1,0 +1,9 @@
+{
+  "status": 403,
+  "contentType": "application/json",
+  "body": {
+    "code": "ROLE_SCOPE",
+    "title": "Accès refusé",
+    "detail": "Ce profil n'a pas accès à cette ressource."
+  }
+}

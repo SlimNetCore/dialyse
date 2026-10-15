@@ -1,0 +1,29 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "payeurId": "<PAYEUR_CASNOS>",
+        "code": "CASNOS-16",
+        "nom": "CASNOS Alger",
+        "compte": null
+      },
+      {
+        "payeurId": "<PAYEUR_CNAS>",
+        "code": "CNAS-16",
+        "nom": "CNAS Alger",
+        "compte": "411210"
+      },
+      {
+        "payeurId": "<PAYEUR_MUTUELLE>",
+        "code": "MUT-1",
+        "nom": "Mutuelle X",
+        "compte": null
+      }
+    ],
+    "total": 3,
+    "page": 0,
+    "size": 20
+  }
+}

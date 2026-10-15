@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "4111",
+        "libelle": "Compte 4111",
+        "actif": true
+      },
+      {
+        "numero": "7061",
+        "libelle": "Compte 7061",
+        "actif": true
+      }
+    ],
+    "total": 2,
+    "page": 0,
+    "size": 100
+  }
+}

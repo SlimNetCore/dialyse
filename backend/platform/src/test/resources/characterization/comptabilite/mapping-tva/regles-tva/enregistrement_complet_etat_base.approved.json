@@ -1,0 +1,13 @@
+[
+  {
+    "type_prestation": "HEMODIALYSE",
+    "taux": "9.00",
+    "exonere": "true",
+    "date_debut_validite": "2026-01-01",
+    "date_fin_validite": "2026-12-31",
+    "texte_reference": "Article 13 du code de la TVA",
+    "libelle": "HEMODIALYSE 9.00%",
+    "actif": "true",
+    "created_by": "comptabilite"
+  }
+]

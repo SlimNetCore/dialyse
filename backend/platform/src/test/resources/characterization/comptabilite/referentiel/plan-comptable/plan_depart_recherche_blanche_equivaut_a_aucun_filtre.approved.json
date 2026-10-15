@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "322",
+        "libelle": "Fournitures consommables",
+        "actif": true
+      },
+      {
+        "numero": "401",
+        "libelle": "Fournisseurs de stocks et services",
+        "actif": true
+      },
+      {
+        "numero": "408",
+        "libelle": "Fournisseurs — factures non parvenues",
+        "actif": true
+      }
+    ],
+    "total": 20,
+    "page": 0,
+    "size": 3
+  }
+}

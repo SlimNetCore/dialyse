@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "JOURNAL_INCONNU",
+    "detail": "Le journal ABCDEFGHIJ choisi pour VENTE n'existe pas ou est désactivé",
+    "instance": "/api/v1/comptabilite/mapping",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

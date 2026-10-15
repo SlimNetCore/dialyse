@@ -1,0 +1,30 @@
+[
+  {
+    "date": "2026-02-01",
+    "comptabilite_taux": "9.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "9.00",
+    "absences_taux": "9.00"
+  },
+  {
+    "date": "2026-03-31",
+    "comptabilite_taux": "9.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "9.00",
+    "absences_taux": "9.00"
+  },
+  {
+    "date": "2026-04-01",
+    "comptabilite_taux": "19.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "19.00",
+    "absences_taux": "19.00"
+  },
+  {
+    "date": "2026-12-31",
+    "comptabilite_taux": "19.00",
+    "comptabilite_exonere": "false",
+    "facturation_taux": "19.00",
+    "absences_taux": "19.00"
+  }
+]

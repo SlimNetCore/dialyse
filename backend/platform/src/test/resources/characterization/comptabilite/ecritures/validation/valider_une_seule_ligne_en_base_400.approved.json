@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Une écriture doit contenir au moins 2 lignes",
+    "instance": "/api/v1/comptabilite/ecritures/<ECRITURE_2>/valider",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

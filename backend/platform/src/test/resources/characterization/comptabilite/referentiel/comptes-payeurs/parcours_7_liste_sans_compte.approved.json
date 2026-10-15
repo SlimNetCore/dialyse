@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "payeurId": "<NOUVEAU_PAYEUR>",
+        "code": "ASSUR-1",
+        "nom": "Assurance Z",
+        "compte": null
+      }
+    ],
+    "total": 1,
+    "page": 0,
+    "size": 20
+  }
+}

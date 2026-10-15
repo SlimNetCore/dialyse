@@ -1,0 +1,12 @@
+[
+  {
+    "numero": "ZZ1",
+    "libelle": "Compte avec écritures",
+    "actif": "false"
+  },
+  {
+    "numero": "ZZ2",
+    "libelle": "Autre compte avec écritures",
+    "actif": "true"
+  }
+]

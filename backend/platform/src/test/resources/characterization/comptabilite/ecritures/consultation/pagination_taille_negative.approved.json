@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Page size must not be less than one",
+    "instance": "/api/v1/comptabilite/ecritures",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

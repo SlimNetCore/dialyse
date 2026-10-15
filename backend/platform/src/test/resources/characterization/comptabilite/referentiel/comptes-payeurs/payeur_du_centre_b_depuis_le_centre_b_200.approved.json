@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "payeurId": "<PAYEUR_AUTRE_CENTRE>",
+    "code": "CNAS-31",
+    "nom": "CNAS Oran",
+    "compte": "411500"
+  }
+}

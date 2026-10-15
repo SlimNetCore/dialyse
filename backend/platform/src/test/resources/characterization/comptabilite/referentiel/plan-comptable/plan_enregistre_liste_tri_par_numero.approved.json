@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "10",
+        "libelle": "Capital",
+        "actif": true
+      },
+      {
+        "numero": "512",
+        "libelle": "Banque BNA",
+        "actif": true
+      },
+      {
+        "numero": "5121",
+        "libelle": "Banque CPA",
+        "actif": false
+      },
+      {
+        "numero": "9",
+        "libelle": "Neuf",
+        "actif": true
+      },
+      {
+        "numero": "A1",
+        "libelle": "Alpha",
+        "actif": true
+      }
+    ],
+    "total": 5,
+    "page": 0,
+    "size": 20
+  }
+}

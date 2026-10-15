@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ECRITURE_DESEQUILIBREE",
+    "detail": "L'écriture est déséquilibrée : débit=10.00 crédit=9.99",
+    "instance": "/api/v1/comptabilite/ecritures/<ECRITURE_1>/valider",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

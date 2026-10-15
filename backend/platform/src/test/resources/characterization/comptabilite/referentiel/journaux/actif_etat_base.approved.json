@@ -1,0 +1,32 @@
+[
+  {
+    "code": "AC",
+    "libelle": "Achats",
+    "actif": "true"
+  },
+  {
+    "code": "BQ",
+    "libelle": "Banque",
+    "actif": "true"
+  },
+  {
+    "code": "CA",
+    "libelle": "Caisse",
+    "actif": "true"
+  },
+  {
+    "code": "J4",
+    "libelle": "Code du corps",
+    "actif": "true"
+  },
+  {
+    "code": "ST",
+    "libelle": "Stocks",
+    "actif": "true"
+  },
+  {
+    "code": "VE",
+    "libelle": "Ventes",
+    "actif": "true"
+  }
+]

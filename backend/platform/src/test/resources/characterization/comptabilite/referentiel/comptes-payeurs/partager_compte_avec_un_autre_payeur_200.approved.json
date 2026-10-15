@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "payeurId": "<PAYEUR_MUTUELLE>",
+    "code": "MUT-1",
+    "nom": "Mutuelle X",
+    "compte": "411100"
+  }
+}

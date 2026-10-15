@@ -1,0 +1,34 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "dateDebutValidite": "2026-01-01",
+      "dateFinValidite": "",
+      "exonere": false,
+      "tauxApplique": 9.00,
+      "typePrestation": "HEMODIALYSE"
+    },
+    {
+      "dateDebutValidite": "2025-06-01",
+      "dateFinValidite": "",
+      "exonere": true,
+      "tauxApplique": 0.00,
+      "typePrestation": "MEDICAMENT"
+    },
+    {
+      "dateDebutValidite": "2024-01-01",
+      "dateFinValidite": "2025-12-31",
+      "exonere": false,
+      "tauxApplique": 19.00,
+      "typePrestation": "HEMODIALYSE"
+    },
+    {
+      "dateDebutValidite": "2023-01-01",
+      "dateFinValidite": "2023-12-31",
+      "exonere": false,
+      "tauxApplique": 7.00,
+      "typePrestation": "HEMODIALYSE"
+    }
+  ]
+}

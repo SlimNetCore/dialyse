@@ -1,0 +1,13 @@
+[
+  {
+    "id": "<ECRITURE_1>",
+    "journal_code": "OD",
+    "numero_piece": "OD-2026-000001",
+    "date_ecriture": "2026-03-11",
+    "date_piece": "2026-03-11",
+    "statut": "VALIDEE",
+    "libelle": "Pièce saisie",
+    "source_id": "<ECRITURE_1>",
+    "modele_id": "<MODELE_1>"
+  }
+]

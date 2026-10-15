@@ -1,0 +1,13 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "date_ecriture": "2026-03-06",
+    "date_piece": "2026-03-06",
+    "statut": "VALIDEE",
+    "libelle": "Règlement Règlement",
+    "source_id": "<REGLEMENT_1>",
+    "modele_id": null
+  }
+]

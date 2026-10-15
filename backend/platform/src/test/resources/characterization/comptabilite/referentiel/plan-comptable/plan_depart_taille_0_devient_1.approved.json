@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "numero": "322",
+        "libelle": "Fournitures consommables",
+        "actif": true
+      }
+    ],
+    "total": 20,
+    "page": 0,
+    "size": 1
+  }
+}

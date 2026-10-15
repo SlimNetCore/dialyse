@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "La règle de TVA HEMODIALYSE du 2025-06-01 au 2026-06-30 chevauche la règle existante à partir du 2026-01-01 : les dates de deux règles du même type ne doivent pas se recouvrir",
+    "instance": "/api/v1/comptabilite/regles-tva",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}
