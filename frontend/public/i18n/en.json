@@ -3248,7 +3248,8 @@
       },
       "ECHEC": {
         "PERIODE_CLOTUREE": "the month is closed.",
-        "SANS_VALEUR": "no amount to post.",
+        "SANS_VALEUR_SORTIE": "item(s) issued with no price nor WAC, counted at 0 in the entry: {{articles}}. Set their price (validated receipt or WAC) then run again.",
+        "SANS_VALEUR_RECEPTION": "item(s) received with no price, counted at 0 in the entry: {{articles}}. Fix the price on the receipt then run again.",
         "COMPLEMENTS_MAX": "too many complement entries for this document.",
         "ECRITURE_DESEQUILIBREE": "the entry would be unbalanced.",
         "ERREUR_TECHNIQUE": "technical error, try again or contact support."

@@ -43,21 +43,25 @@ public class PmpEngine {
      * Recompute the full PMP cascade for an article and persist results.
      */
     public PmpCalculator.PmpState recalculerArticle(CenterId centerId, UUID articleId) {
-        // Replay the whole history in chronological order (article_id, created_at, id).
-        List<StockMovement> movements = movementRepo.findByArticleOrdered(centerId, articleId);
+        // Replay the whole history in chronological order; same day: entries before exits (StockMovement.CHRONOLOGIE).
+        List<StockMovement> movements = new ArrayList<>(movementRepo.findByArticleOrdered(centerId, articleId));
+        movements.sort(StockMovement.CHRONOLOGIE);
         List<PmpCalculator.DetailedStep> steps =
                 PmpCalculator.explain(movements, PmpCalculator.PmpState.empty());
 
         // Build a single batched update:
         //  - every movement gets its recomputed pmp_apres
-        //  - each SORTIE is revalued at the PMP recomputed just before it (stateBefore.pmp())
+        //  - each SORTIE is revalued at the PMP recomputed just before it (stateBefore.pmp()), unless the replayed
+        //    history yields no PMP at all (stock not explained by recorded entries): the valuation recorded at exit
+        //    time is then kept rather than overwritten with zero.
         List<StockMovementRepositoryPort.MovementRecalc> updates = new ArrayList<>(steps.size());
         PmpCalculator.PmpState finalState = PmpCalculator.PmpState.empty();
         for (PmpCalculator.DetailedStep step : steps) {
             finalState = step.stateAfter();
             BigDecimal pmpApres = step.stateAfter().pmp();
             BigDecimal valorisation = null;
-            if (step.movement().getMovementType() == StockMovementType.SORTIE) {
+            if (step.movement().getMovementType() == StockMovementType.SORTIE
+                    && step.stateBefore().pmp().signum() > 0) {
                 valorisation = step.stateBefore().pmp();
             }
             updates.add(new StockMovementRepositoryPort.MovementRecalc(

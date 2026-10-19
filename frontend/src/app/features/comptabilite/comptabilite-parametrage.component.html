@@ -327,7 +327,7 @@
         @for (e of echecs; track e.source + e.code) {
           <li>
             <strong>{{ ('COMPTABILITE.PARAMETRAGE.NATURE.' + e.nature) | translate }} {{ e.reference }}</strong> :
-            {{ echecCle(e) ? (echecCle(e)! | translate) : e.message }}
+            {{ echecCle(e) ? (echecCle(e)! | translate: echecParams(e)) : e.message }}
           </li>
         }
       </ul>

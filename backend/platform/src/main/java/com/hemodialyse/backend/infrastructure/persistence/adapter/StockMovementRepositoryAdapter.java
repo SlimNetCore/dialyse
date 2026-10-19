@@ -37,20 +37,27 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
         for (StockMovementJpaEntity e : jpa.findByCenterIdAndArticleIdInOrderByCreatedAtAscIdAsc(centerId.value(), articleIds)) {
             result.computeIfAbsent(e.getArticleId(), k -> new ArrayList<>()).add(toDomain(e));
         }
+        result.values().forEach(l -> l.sort(StockMovement.CHRONOLOGIE));
         return result;
     }
 
     @Override
     public List<StockMovement> findByArticleOrdered(CenterId centerId, UUID articleId) {
-        return jpa.findByCenterIdAndArticleIdAndInventaireIdIsNullOrderByCreatedAtAscIdAsc(centerId.value(), articleId)
-                .stream().map(this::toDomain).toList();
+        List<StockMovement> mouvements = new ArrayList<>(
+                jpa.findByCenterIdAndArticleIdAndInventaireIdIsNullOrderByCreatedAtAscIdAsc(centerId.value(), articleId)
+                        .stream().map(this::toDomain).toList());
+        mouvements.sort(StockMovement.CHRONOLOGIE);
+        return mouvements;
     }
 
     @Override
     public List<StockMovement> findByArticleBefore(CenterId centerId, UUID articleId, OffsetDateTime before) {
-        return jpa.findByCenterIdAndArticleIdAndInventaireIdIsNullAndCreatedAtBeforeOrderByCreatedAtAscIdAsc(
-                        centerId.value(), articleId, before)
-                .stream().map(this::toDomain).toList();
+        List<StockMovement> mouvements = new ArrayList<>(
+                jpa.findByCenterIdAndArticleIdAndInventaireIdIsNullAndCreatedAtBeforeOrderByCreatedAtAscIdAsc(
+                                centerId.value(), articleId, before)
+                        .stream().map(this::toDomain).toList());
+        mouvements.sort(StockMovement.CHRONOLOGIE);
+        return mouvements;
     }
 
     @Override

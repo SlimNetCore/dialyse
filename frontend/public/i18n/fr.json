@@ -3248,7 +3248,8 @@
       },
       "ECHEC": {
         "PERIODE_CLOTUREE": "le mois est clôturé.",
-        "SANS_VALEUR": "aucun montant à comptabiliser.",
+        "SANS_VALEUR_SORTIE": "article(s) sorti(s) sans prix ni PMP, comptés à 0 dans l'écriture : {{articles}}. Renseignez leur prix (réception validée ou PMP) puis relancez.",
+        "SANS_VALEUR_RECEPTION": "article(s) reçu(s) sans prix, comptés à 0 dans l'écriture : {{articles}}. Corrigez le prix sur le bon puis relancez.",
         "COMPLEMENTS_MAX": "trop d'écritures de complément pour cette pièce.",
         "ECRITURE_DESEQUILIBREE": "l'écriture serait déséquilibrée.",
         "ERREUR_TECHNIQUE": "erreur technique, réessayez ou contactez le support."

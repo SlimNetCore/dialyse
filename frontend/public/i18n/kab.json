@@ -2888,7 +2888,8 @@
       },
       "ECHEC": {
         "PERIODE_CLOTUREE": "ayyur yemdel.",
-        "SANS_VALEUR": "ulac azal ara yettwarun.",
+        "SANS_VALEUR_SORTIE": "imagraden yeffɣen war ssuma war PMP, ttwaḥesben s 0 deg tira : {{articles}}. Sbadu ssuma-nsen syin ales.",
+        "SANS_VALEUR_RECEPTION": "imagraden yettwarmasen war ssuma, ttwaḥesben s 0 deg tira : {{articles}}. Seɣti ssuma deg tferkit syin ales.",
         "COMPLEMENTS_MAX": "aṭas n tira n usemmed i tɣawsa-a.",
         "ECRITURE_DESEQUILIBREE": "tira ad tili ur temyezgay ara.",
         "ERREUR_TECHNIQUE": "tuccḍa tatiknikt, ɛreḍ tikkelt nniḍen."

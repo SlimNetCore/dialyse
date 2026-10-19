@@ -255,12 +255,23 @@ export class ComptabiliteParametrageComponent {
 
   /** Clé de traduction de la raison d'un refus ; `null` si inconnue : on affiche alors le message du serveur. */
   protected echecCle(echec: EchecComptabilisation): string | null {
+    if (echec.code === 'SANS_VALEUR') {
+      return echec.nature === 'RECEPTION'
+        ? 'COMPTABILITE.PARAMETRAGE.ECHEC.SANS_VALEUR_RECEPTION'
+        : 'COMPTABILITE.PARAMETRAGE.ECHEC.SANS_VALEUR_SORTIE';
+    }
     return ECHECS_CONNUS.includes(echec.code) ? `COMPTABILITE.PARAMETRAGE.ECHEC.${echec.code}` : null;
+  }
+
+  /** Paramètres de la traduction : les articles concernés, que le serveur liste après « : » dans son message. */
+  protected echecParams(echec: EchecComptabilisation): { articles: string } {
+    const i = echec.message?.indexOf(':') ?? -1;
+    return {articles: i >= 0 ? echec.message.slice(i + 1).trim() : ''};
   }
 }
 
 /** Raisons de refus traduites (clés `COMPTABILITE.PARAMETRAGE.ECHEC.<code>`). */
 const ECHECS_CONNUS = [
-  'PERIODE_CLOTUREE', 'SANS_VALEUR', 'COMPLEMENTS_MAX', 'ECRITURE_DESEQUILIBREE', 'ERREUR_TECHNIQUE',
+  'PERIODE_CLOTUREE', 'COMPLEMENTS_MAX', 'ECRITURE_DESEQUILIBREE', 'ERREUR_TECHNIQUE',
 ];
 

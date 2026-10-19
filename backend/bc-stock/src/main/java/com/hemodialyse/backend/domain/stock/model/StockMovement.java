@@ -7,9 +7,30 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.UUID;
 
 public class StockMovement {
+
+    /**
+     * Ordre de rejeu de l'historique d'un article : par date, puis, à date égale, ce qui fait entrer du stock avant ce
+     * qui en fait sortir. Les pièces étant datées du jour (00:00 UTC), une réception et une sortie du même jour ont la
+     * même date : sans cette règle, la sortie pouvait être rejouée avant la réception et valorisée à un PMP nul.
+     * Tri stable : à rang égal, l'ordre de lecture (date, id) est conservé.
+     */
+    public static final Comparator<StockMovement> CHRONOLOGIE = Comparator
+            .comparing(StockMovement::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder()))
+            .thenComparingInt(StockMovement::rangDansLaJournee);
+
+    private static int rangDansLaJournee(StockMovement m) {
+        if (m.getMovementType() == null) return 1;
+        return switch (m.getMovementType()) {
+            case INVENTAIRE, ENTREE -> 0;
+            case AJUSTEMENT -> m.getPrixUnitaire() != null ? 0 : 1;
+            default -> 1;
+        };
+    }
+
     private UUID id;
     private UUID centerId;
     private UUID articleId;

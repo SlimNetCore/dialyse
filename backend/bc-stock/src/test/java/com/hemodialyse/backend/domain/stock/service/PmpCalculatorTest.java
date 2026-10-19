@@ -49,6 +49,25 @@ class PmpCalculatorTest {
     }
 
     @Test
+    void same_day_reception_is_replayed_before_the_exit_so_the_exit_is_valued_at_its_pmp() {
+        // Pièces datées du jour : réception et sortie du 19/10 ont la même date (00:00 UTC). Lues dans le
+        // « mauvais » ordre (id aléatoire), la sortie était rejouée avant la réception et valorisée à 0.
+        java.time.LocalDate jour = java.time.LocalDate.of(2026, 10, 19);
+        StockMovement sortie = StockMovement.sortieLot(CENTER, ARTICLE, UUID.randomUUID(), UUID.randomUUID(),
+                new BigDecimal("10"), new BigDecimal("383.06"), "test", jour);
+        StockMovement reception = StockMovement.entree(CENTER, ARTICLE, UUID.randomUUID(), new BigDecimal("20"),
+                new BigDecimal("383.06"), "test", jour);
+        List<StockMovement> lus = new java.util.ArrayList<>(List.of(sortie, reception));
+
+        lus.sort(StockMovement.CHRONOLOGIE);
+        var steps = PmpCalculator.explain(lus, PmpCalculator.PmpState.empty());
+
+        assertEquals(StockMovementType.ENTREE, steps.get(0).movement().getMovementType());
+        assertEquals(0, steps.get(1).stateBefore().pmp().compareTo(new BigDecimal("383.06")));
+        assertEquals(0, steps.get(1).stateAfter().quantite().compareTo(new BigDecimal("10")));
+    }
+
+    @Test
     void reception_at_zero_price_dilutes_pmp() {
         // 10 @ 100 then 10 @ 0 => PMP = 1000 / 20 = 50
         var result = PmpCalculator.walk(List.of(entree("10", "100"), entree("10", "0")),
