@@ -76,6 +76,7 @@ describe('ComptabiliteDashboardComponent', () => {
     setMonth: vi.fn(),
     setJournalCode: vi.fn(),
     loadEcritures: vi.fn(),
+    refresh: vi.fn(),
   };
 
   const piecesMock = {
@@ -102,6 +103,12 @@ describe('ComptabiliteDashboardComponent', () => {
         {provide: MatDialog, useValue: {open: vi.fn(() => ({afterClosed: () => of(confirme)}))}},
       ]
     });
+  });
+
+  it('relit les écritures du centre actif à chaque arrivée sur l’écran', () => {
+    TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+
+    expect(storeMock.refresh).toHaveBeenCalledWith(CENTER_ID);
   });
 
   it('extourne une pièce saisie après confirmation, puis recharge les écritures pour montrer l’écriture inverse', () => {

@@ -221,6 +221,18 @@ export const ComptabiliteStore = signalStore(
       )
     ),
   })),
+  withMethods((store) => ({
+    /**
+     * Recharge les écritures et les journaux du centre actif avec les filtres en cours. Appelé à chaque arrivée sur
+     * l'écran : le store survit à la navigation, alors que des écritures ont pu être générées entre-temps (stock,
+     * ventes, règlements, pièces saisies).
+     */
+    refresh(centerId: string | null): void {
+      if (!centerId) return;
+      store.loadEcritures({centerId});
+      store.loadJournaux({centerId});
+    },
+  })),
   withHooks((store, appShell = inject(AppShellStore)) => ({
     onInit() {
       effect(() => {

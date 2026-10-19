@@ -55,6 +55,9 @@ export class ComptabiliteDashboardComponent {
 
   constructor() {
     this.pieces.clearMessages();
+    // le store survit à la navigation : à chaque arrivée sur l'écran, on relit les écritures (de nouvelles ont pu
+    // être générées depuis la dernière visite : stock, ventes, règlements...)
+    this.store.refresh(this.appShell.currentCenterId());
     // l'extourne crée une écriture : la liste est rechargée pour la montrer
     effect(() => {
       const centerId = this.appShell.currentCenterId();

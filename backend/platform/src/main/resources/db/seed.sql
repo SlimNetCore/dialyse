@@ -2155,7 +2155,9 @@ SELECT CAST('7100' || SUBSTRING(CAST(brl.id AS VARCHAR), 1, 4) || '-0000-0000-00
        brl.prix_unitaire,
        brl.prix_unitaire,
        'seed-perf',
-       CURRENT_TIMESTAMP
+       -- date du mouvement = date de la pièce, 00:00 UTC (comme l'application) : sinon toutes les entrées de démo
+       -- tombent le jour du démarrage et faussent PMP, valorisation et comptabilisation du stock de ce jour-là
+       CAST(CAST(br.date_reception AS VARCHAR) || ' 00:00:00+00:00' AS TIMESTAMP WITH TIME ZONE)
 FROM bons_reception_lignes brl
          JOIN bons_reception br ON br.id = brl.bon_reception_id
 WHERE (br.reference LIKE 'BR-ANN-PF-%' OR br.reference LIKE 'BR-SL-PF-%')
@@ -2264,7 +2266,8 @@ SELECT CAST('a101' || LPAD(CAST(z.rn AS VARCHAR), 4, '0') || '-0000-0000-0000-' 
        z.pmp_applique,
        z.pmp_applique,
        'seed-perf',
-       CURRENT_TIMESTAMP
+       -- date du mouvement = date du bon de sortie (jour de la séance), 00:00 UTC, comme l'application
+       CAST(CAST(bs.date_sortie AS VARCHAR) || ' 00:00:00+00:00' AS TIMESTAMP WITH TIME ZONE)
 FROM (SELECT l.id,
              l.bon_sortie_id,
              l.article_id,
