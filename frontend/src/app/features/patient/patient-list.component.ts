@@ -41,6 +41,8 @@ import {
   NgTableCopyEvent,
   NgTableLabels,
   NgTableRemoteQuery,
+  NgTableSelectionAction,
+  NgTableSelectionActionEvent,
   NgTableView,
 } from '@sbourahla/ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
@@ -160,6 +162,36 @@ export class PatientListComponent {
       {value: 'CLOTUREE', label: this.translate.instant('STATUS.CLOTUREE_TITLE')},
     ];
   });
+  /** Actions de la barre de sélection : elles portent sur un seul patient sélectionné. */
+  readonly selectionActions = computed<NgTableSelectionAction<PatientRow>[]>(() => {
+    this.langVersion();
+    const t = (key: string) => this.translate.instant(key);
+    return [
+      {id: 'view', label: t('PATIENT_LIST.BTN_VIEW'), appearance: 'primary', maxRows: 1, otherwise: 'disable'},
+      {id: 'cahier', label: t('CAHIER.TITLE'), maxRows: 1, otherwise: 'disable'},
+      {id: 'stats', label: t('PATIENT_STATS.OPEN'), maxRows: 1, otherwise: 'disable'},
+      {id: 'print', label: t('PATIENT_LIST.BTN_PRINT'), maxRows: 1, otherwise: 'disable'},
+    ];
+  });
+
+  onSelectionAction(event: NgTableSelectionActionEvent<PatientRow>): void {
+    const patient = event.rows[0];
+    if (!patient) return;
+    switch (event.action.id) {
+      case 'view':
+        this.selectPatient.emit(patient);
+        break;
+      case 'cahier':
+        this.openCahier(patient);
+        break;
+      case 'stats':
+        this.viewStats.emit(patient);
+        break;
+      case 'print':
+        this.printFiche(patient);
+        break;
+    }
+  }
   /** Textes de l'UI ng-table (boutons, aria-labels...), résolus via ngx-translate et recalculés à chaque changement de langue. */
   readonly ngTableLabels = computed<Partial<NgTableLabels>>(() => {
     this.langVersion();
