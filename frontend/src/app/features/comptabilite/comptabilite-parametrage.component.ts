@@ -1,4 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
+import {DatePipe, DecimalPipe, NgTemplateOutlet} from '@angular/common';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, maxLength, readonly, required} from '@angular/forms/signals';
 import {RouterLink} from '@angular/router';
@@ -15,7 +16,12 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {JournalItem, OperationComptable, OPERATIONS_COMPTABLES} from '../../core/api/comptabilite-api.service';
+import {
+  EchecComptabilisation,
+  JournalItem,
+  OperationComptable,
+  OPERATIONS_COMPTABLES,
+} from '../../core/api/comptabilite-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {ConfirmDialogComponent} from '../../shared/confirm-dialog.component';
 import {ComptabiliteParametrageStore} from './state/comptabilite-parametrage.store';
@@ -55,7 +61,8 @@ function journalVide() {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule,
+    RouterLink, DatePipe, DecimalPipe, NgTemplateOutlet, MatCardModule, MatFormFieldModule, MatInputModule,
+    MatSelectModule, MatButtonModule, MatIconModule,
     MatTableModule, MatPaginatorModule, MatProgressBarModule, MatSlideToggleModule, MatTooltipModule,
     FormRoot, FormField, TranslateModule, CompteSelectComponent, PlanComptableComponent, ModelesPieceComponent,
   ],
@@ -107,6 +114,16 @@ export class ComptabiliteParametrageComponent {
   });
   protected readonly canSynchroniser = computed(() =>
     periodeValide(this.periodeModel().from, this.periodeModel().to) && !this.store.saving());
+
+  // ─── Ventes et règlements ────────────────────────────────────────────────
+  protected readonly ventesColumns = ['numero', 'dateFacturation', 'finDePeriode', 'totalTtc'];
+  protected readonly ventesPeriodeModel = signal(periodeParDefaut(new Date()));
+  protected readonly ventesPeriodeForm = compatForm(this.ventesPeriodeModel, (form) => {
+    required(form.from);
+    required(form.to);
+  });
+  protected readonly canTraiterVentes = computed(() =>
+    periodeValide(this.ventesPeriodeModel().from, this.ventesPeriodeModel().to) && !this.store.ventesLoading());
 
   private readonly shell = inject(AppShellStore);
   private readonly dialog = inject(MatDialog);
@@ -211,4 +228,39 @@ export class ComptabiliteParametrageComponent {
     if (!this.canSynchroniser()) return;
     this.store.synchroniserStock(this.periodeModel());
   }
+
+  protected chercherVentes(): void {
+    if (!this.canTraiterVentes()) return;
+    this.store.chercherVentesNonComptabilisees(this.ventesPeriodeModel());
+  }
+
+  protected reconstruireVentes(): void {
+    if (!this.canTraiterVentes()) return;
+    const {from, to} = this.ventesPeriodeModel();
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: 'min(96vw, 460px)',
+      data: {
+        title: this.translate.instant('COMPTABILITE.PARAMETRAGE.VENTES_RECONSTRUIRE_TITRE'),
+        message: this.translate.instant('COMPTABILITE.PARAMETRAGE.VENTES_RECONSTRUIRE_MESSAGE', {from, to}),
+        confirmLabel: this.translate.instant('COMMON.CONFIRM'),
+        cancelLabel: this.translate.instant('COMMON.CANCEL'),
+        color: 'primary',
+        icon: 'autorenew',
+      },
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) this.store.reconstruireVentes({from, to});
+    });
+  }
+
+  /** Clé de traduction de la raison d'un refus ; `null` si inconnue : on affiche alors le message du serveur. */
+  protected echecCle(echec: EchecComptabilisation): string | null {
+    return ECHECS_CONNUS.includes(echec.code) ? `COMPTABILITE.PARAMETRAGE.ECHEC.${echec.code}` : null;
+  }
 }
+
+/** Raisons de refus traduites (clés `COMPTABILITE.PARAMETRAGE.ECHEC.<code>`). */
+const ECHECS_CONNUS = [
+  'PERIODE_CLOTUREE', 'SANS_VALEUR', 'COMPLEMENTS_MAX', 'ECRITURE_DESEQUILIBREE', 'ERREUR_TECHNIQUE',
+];
+

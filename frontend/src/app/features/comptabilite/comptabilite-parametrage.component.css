@@ -73,6 +73,19 @@
   margin-top: 8px;
 }
 
+/* pièces refusées et leur raison */
+.cpa-echecs {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.cpa-echecs ul {
+  margin: 0;
+  padding-inline-start: 20px;
+  font-size: 13px;
+}
+
 .cpa-muted {
   display: block;
   margin: 0;

@@ -19,6 +19,21 @@ export const OPERATIONS_COMPTABLES = [
 ] as const;
 export type OperationComptable = typeof OPERATIONS_COMPTABLES[number];
 
+/**
+ * Pièce ou source non comptabilisée et la raison (mois clos, article sans valeur, facture déséquilibrée...) ; renvoyée
+ * dans `echecs` par la comptabilisation du stock et par la régénération des ventes et règlements.
+ */
+export type EchecComptabilisation = {
+  /** RECEPTION, INVENTAIRE, SORTIES, FACTURE ou REGLEMENT. */
+  nature: string;
+  source: string;
+  /** Référence lisible : numéro du bon, de l'inventaire ou de la facture, date de la journée de sorties. */
+  reference: string;
+  /** PERIODE_CLOTUREE, SANS_VALEUR, COMPLEMENTS_MAX, ECRITURE_DESEQUILIBREE, ERREUR_TECHNIQUE... */
+  code: string;
+  message: string;
+};
+
 /** Résultat d'une comptabilisation du stock : écritures créées ou mises à jour, par nature. */
 export type SynchronisationStock = {
   receptions: number;
@@ -26,6 +41,27 @@ export type SynchronisationStock = {
   inventaires: number;
   complements: number;
   ignorees: number;
+  /** Absent quand tout a été comptabilisé. */
+  echecs?: EchecComptabilisation[];
+};
+
+/** Résultat d'une régénération des écritures de ventes et de règlements sur une période. */
+export type ReconstitutionEcritures = {
+  facturesProcessed: number;
+  reglementsProcessed: number;
+  from: string;
+  to: string;
+  /** Absent quand tout a été comptabilisé. */
+  echecs?: EchecComptabilisation[];
+};
+
+/** Facture émise sans écriture de ventes : à régénérer. */
+export type FactureNonComptabilisee = {
+  factureId: string;
+  numero: string;
+  dateFacturation: string;
+  finDePeriode: string | null;
+  totalTtc: number;
 };
 
 export type StatutEcriture = 'BROUILLON' | 'VALIDEE' | 'EXPORTEE';
@@ -209,6 +245,19 @@ export class ComptabiliteApiService {
     return this.http.post<SynchronisationStock>(`${this.base}/stock/synchroniser`, {centerId, from, to});
   }
 
+  // ─── Ventes et règlements ────────────────────────────────────────────────
+
+  /** Factures émises sur la période qui n'ont aucune écriture de ventes. */
+  getVentesNonComptabilisees(centerId: string, from: string, to: string): Observable<FactureNonComptabilisee[]> {
+    const params = this.centre(centerId).set('from', from).set('to', to);
+    return this.http.get<FactureNonComptabilisee[]>(`${this.base}/ventes/non-comptabilisees`, {params});
+  }
+
+  /** Régénère les écritures manquantes des factures et règlements de la période ; rejouable sans doublon. */
+  reconstruireVentes(centerId: string, from: string, to: string): Observable<ReconstitutionEcritures> {
+    return this.http.post<ReconstitutionEcritures>(`${this.base}/rebuild`, {centerId, from, to});
+  }
+
   // ─── Plan comptable ──────────────────────────────────────────────────────
 
   getComptes(centerId: string, page: number, size: number, recherche = '', actifs = false):
@@ -287,4 +336,6 @@ export class ComptabiliteApiService {
     return this.http.post<{ saved: boolean }>(`${this.base}/regles-tva`, regle, {params});
   }
 }
+
+
 

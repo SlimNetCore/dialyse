@@ -223,7 +223,114 @@
           <p
             class="cpa-feedback error">{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_IGNOREES' | translate: {count: s.ignorees} }}</p>
         }
+        @if (s.echecs?.length) {
+          <ng-container *ngTemplateOutlet="listeEchecs; context: {$implicit: s.echecs, testId: 'cpa-synchro-echecs'}"/>
+        }
       }
     </mat-card-content>
   </mat-card>
+
+  <!-- ─── Ventes et règlements ─────────────────────────────────────────── -->
+  <mat-card class="cpa-stack">
+    <mat-card-header>
+      <mat-card-title>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_TITRE' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_AIDE' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form (submit)="chercherVentes(); $event.preventDefault()" [formRoot]="ventesPeriodeForm"
+            class="cpa-journal-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_DU' | translate }}</mat-label>
+          <input [formField]="ventesPeriodeForm.from" data-testid="cpa-ventes-du" matInput type="date"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'COMPTABILITE.PARAMETRAGE.SYNCHRO_AU' | translate }}</mat-label>
+          <input [formField]="ventesPeriodeForm.to" data-testid="cpa-ventes-au" matInput type="date"/>
+        </mat-form-field>
+        <div class="cpa-actions">
+          <button [disabled]="!canTraiterVentes()" data-testid="cpa-ventes-chercher" mat-stroked-button
+                  type="submit">
+            <mat-icon>search</mat-icon>
+            {{ 'COMPTABILITE.PARAMETRAGE.VENTES_CHERCHER' | translate }}
+          </button>
+          <button (click)="reconstruireVentes()" [disabled]="!canTraiterVentes()" color="primary"
+                  data-testid="cpa-ventes-reconstruire" mat-flat-button type="button">
+            <mat-icon>autorenew</mat-icon>
+            {{ 'COMPTABILITE.PARAMETRAGE.VENTES_RECONSTRUIRE' | translate }}
+          </button>
+        </div>
+      </form>
+
+      @if (store.ventesLoading()) {
+        <mat-progress-bar mode="indeterminate"/>
+      }
+
+      @if (store.reconstitution(); as r) {
+        <div class="cpa-resultat" data-testid="cpa-ventes-resultat">
+          <div class="app-data-pill">
+            <span>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_FACTURES' | translate }}</span>
+            <strong>{{ r.facturesProcessed }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_REGLEMENTS' | translate }}</span>
+            <strong>{{ r.reglementsProcessed }}</strong>
+          </div>
+        </div>
+        @if (r.echecs?.length) {
+          <ng-container *ngTemplateOutlet="listeEchecs; context: {$implicit: r.echecs, testId: 'cpa-ventes-echecs'}"/>
+        }
+      }
+
+      @if (store.ventesNonComptabilisees(); as ventes) {
+        @if (ventes.length === 0) {
+          <p class="cpa-feedback success" data-testid="cpa-ventes-aucune">
+            {{ 'COMPTABILITE.PARAMETRAGE.VENTES_AUCUNE' | translate }}</p>
+        } @else {
+          <p class="cpa-feedback error">
+            {{ 'COMPTABILITE.PARAMETRAGE.VENTES_A_REGENERER' | translate: {count: ventes.length} }}</p>
+          <div class="cpa-table-wrap">
+            <table [dataSource]="ventes" class="cpa-table" data-testid="cpa-ventes" mat-table>
+              <ng-container matColumnDef="numero">
+                <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_NUMERO' | translate }}</th>
+                <td *matCellDef="let row" mat-cell><strong>{{ row.numero }}</strong></td>
+              </ng-container>
+              <ng-container matColumnDef="dateFacturation">
+                <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_DATE' | translate }}</th>
+                <td *matCellDef="let row" mat-cell>{{ row.dateFacturation | date: 'dd/MM/yyyy' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="finDePeriode">
+                <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_FIN_PERIODE' | translate }}
+                </th>
+                <td *matCellDef="let row"
+                    mat-cell>{{ row.finDePeriode ? (row.finDePeriode | date: 'dd/MM/yyyy') : '—' }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="totalTtc">
+                <th *matHeaderCellDef mat-header-cell>{{ 'COMPTABILITE.PARAMETRAGE.VENTES_TOTAL' | translate }}</th>
+                <td *matCellDef="let row" mat-cell>{{ row.totalTtc | number: '1.2-2' }}</td>
+              </ng-container>
+              <tr *matHeaderRowDef="ventesColumns" mat-header-row></tr>
+              <tr *matRowDef="let row; columns: ventesColumns" [attr.data-facture]="row.numero" mat-row></tr>
+            </table>
+          </div>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Pièces ou sources refusées et leur raison -->
+  <ng-template #listeEchecs let-echecs let-testId="testId">
+    <div [attr.data-testid]="testId" class="cpa-echecs" role="alert">
+      <p
+        class="cpa-feedback error">{{ 'COMPTABILITE.PARAMETRAGE.ECHECS_TITRE' | translate: {count: echecs.length} }}</p>
+      <ul>
+        @for (e of echecs; track e.source + e.code) {
+          <li>
+            <strong>{{ ('COMPTABILITE.PARAMETRAGE.NATURE.' + e.nature) | translate }} {{ e.reference }}</strong> :
+            {{ echecCle(e) ? (echecCle(e)! | translate) : e.message }}
+          </li>
+        }
+      </ul>
+    </div>
+  </ng-template>
 </section>

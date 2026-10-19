@@ -6,9 +6,11 @@ import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, EMPTY, forkJoin, Observable, pipe, switchMap, tap} from 'rxjs';
 import {
   ComptabiliteApiService,
+  FactureNonComptabilisee,
   JournalCode,
   JournalItem,
   MappingComptableItem,
+  ReconstitutionEcritures,
   SynchronisationStock,
 } from '../../../core/api/comptabilite-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
@@ -21,6 +23,11 @@ type ParametrageState = PagedListState<JournalItem> & {
   mapping: MappingComptableItem | null;
   saving: boolean;
   synchronisation: SynchronisationStock | null;
+  /** Factures de la période sans écriture de ventes ; `null` tant qu'aucune recherche n'a été faite. */
+  ventesNonComptabilisees: FactureNonComptabilisee[] | null;
+  /** Résultat de la dernière régénération des ventes et règlements. */
+  reconstitution: ReconstitutionEcritures | null;
+  ventesLoading: boolean;
   successMessage: string | null;
   error: string | null;
 };
@@ -31,6 +38,9 @@ const initialState: ParametrageState = {
   mapping: null,
   saving: false,
   synchronisation: null,
+  ventesNonComptabilisees: null,
+  reconstitution: null,
+  ventesLoading: false,
   successMessage: null,
   error: null,
 };
@@ -50,8 +60,8 @@ export function parametrageErrorKey(err: unknown): string {
 }
 
 /**
- * Paramétrage comptable du centre actif : journaux, journal de chaque opération, comptes, et comptabilisation du
- * stock à la demande. Toute requête porte le centre courant.
+ * Paramétrage comptable du centre actif : journaux, journal de chaque opération, comptes, comptabilisation du stock à
+ * la demande, factures sans écriture et régénération des ventes et règlements. Toute requête porte le centre courant.
  */
 export const ComptabiliteParametrageStore = signalStore(
   {providedIn: 'root'},
@@ -83,7 +93,9 @@ export const ComptabiliteParametrageStore = signalStore(
     return {
       load: rxMethod<void>(
         pipe(
-          tap(() => patchState(store, {loading: true, error: null, synchronisation: null})),
+          tap(() => patchState(store, {
+            loading: true, error: null, synchronisation: null, ventesNonComptabilisees: null, reconstitution: null,
+          })),
           switchMap(() => {
             if (!centerId()) {
               patchState(store, {loading: false, rows: [], total: 0, journaux: [], mapping: null});
@@ -151,6 +163,39 @@ export const ComptabiliteParametrageStore = signalStore(
             tap((synchronisation) => patchState(store, {synchronisation, saving: false})),
             catchError(() => {
               patchState(store, {saving: false, error: 'COMPTABILITE.PARAMETRAGE.ERR.SYNCHRONISATION'});
+              return EMPTY;
+            }),
+          )),
+        ),
+      ),
+
+      chercherVentesNonComptabilisees: rxMethod<{ from: string; to: string }>(
+        pipe(
+          tap(() => patchState(store, {ventesLoading: true, error: null, successMessage: null})),
+          switchMap(({from, to}) => api.getVentesNonComptabilisees(centerId(), from, to).pipe(
+            tap((ventes) => patchState(store, {ventesNonComptabilisees: ventes ?? [], ventesLoading: false})),
+            catchError(() => {
+              patchState(store, {
+                ventesLoading: false, ventesNonComptabilisees: null, error: 'COMPTABILITE.PARAMETRAGE.ERR.VENTES',
+              });
+              return EMPTY;
+            }),
+          )),
+        ),
+      ),
+
+      /** Régénère les écritures de la période puis relit les factures encore sans écriture. */
+      reconstruireVentes: rxMethod<{ from: string; to: string }>(
+        pipe(
+          tap(() => patchState(store, {ventesLoading: true, error: null, successMessage: null, reconstitution: null})),
+          switchMap(({from, to}) => api.reconstruireVentes(centerId(), from, to).pipe(
+            switchMap((reconstitution) => {
+              patchState(store, {reconstitution});
+              return api.getVentesNonComptabilisees(centerId(), from, to);
+            }),
+            tap((ventes) => patchState(store, {ventesNonComptabilisees: ventes ?? [], ventesLoading: false})),
+            catchError(() => {
+              patchState(store, {ventesLoading: false, error: 'COMPTABILITE.PARAMETRAGE.ERR.RECONSTITUTION'});
               return EMPTY;
             }),
           )),

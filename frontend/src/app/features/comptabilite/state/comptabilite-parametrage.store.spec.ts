@@ -3,7 +3,12 @@ import {TestBed} from '@angular/core/testing';
 import {HttpErrorResponse} from '@angular/common/http';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {of, throwError} from 'rxjs';
-import {ComptabiliteApiService, JournalItem, MappingComptableItem} from '../../../core/api/comptabilite-api.service';
+import {
+  ComptabiliteApiService,
+  FactureNonComptabilisee,
+  JournalItem,
+  MappingComptableItem,
+} from '../../../core/api/comptabilite-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {ComptabiliteParametrageStore, parametrageErrorKey} from './comptabilite-parametrage.store';
 
@@ -30,6 +35,10 @@ function erreurMetier(code: string): HttpErrorResponse {
   return new HttpErrorResponse({status: 422, error: {code}});
 }
 
+const factureSansEcriture: FactureNonComptabilisee = {
+  factureId: 'f-2', numero: 'FAC-002', dateFacturation: '2026-09-30', finDePeriode: '2026-09-30', totalTtc: 1200,
+};
+
 describe('ComptabiliteParametrageStore', () => {
   let api: Record<string, ReturnType<typeof vi.fn>>;
 
@@ -43,6 +52,13 @@ describe('ComptabiliteParametrageStore', () => {
       saveMapping: vi.fn().mockImplementation((m: MappingComptableItem) => of(m)),
       synchroniserStock: vi.fn().mockReturnValue(
         of({receptions: 1, joursSorties: 2, inventaires: 0, complements: 0, ignorees: 1})),
+      getVentesNonComptabilisees: vi.fn().mockReturnValue(of([factureSansEcriture])),
+      reconstruireVentes: vi.fn().mockReturnValue(of({
+        facturesProcessed: 2, reglementsProcessed: 1, from: '2026-09-01', to: '2026-09-30',
+        echecs: [{
+          nature: 'FACTURE', source: 'f-1', reference: 'FAC-001', code: 'PERIODE_CLOTUREE', message: 'clos',
+        }],
+      })),
     };
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), {provide: ComptabiliteApiService, useValue: api}],
@@ -147,6 +163,40 @@ describe('ComptabiliteParametrageStore', () => {
 
     expect(store.synchronisation()).toBeNull();
     expect(store.error()).toBe('COMPTABILITE.PARAMETRAGE.ERR.SYNCHRONISATION');
+  });
+
+  it('liste les factures sans écriture de ventes de la période', () => {
+    const store = TestBed.inject(ComptabiliteParametrageStore);
+
+    store.chercherVentesNonComptabilisees({from: '2026-09-01', to: '2026-09-30'});
+
+    expect(api['getVentesNonComptabilisees']).toHaveBeenCalledWith(CENTRE, '2026-09-01', '2026-09-30');
+    expect(store.ventesNonComptabilisees()).toEqual([factureSansEcriture]);
+    expect(store.ventesLoading()).toBe(false);
+  });
+
+  it('régénère les écritures puis relit les factures encore sans écriture, refus compris', () => {
+    api['getVentesNonComptabilisees'].mockReturnValue(of([]));
+    const store = TestBed.inject(ComptabiliteParametrageStore);
+
+    store.reconstruireVentes({from: '2026-09-01', to: '2026-09-30'});
+
+    expect(api['reconstruireVentes']).toHaveBeenCalledWith(CENTRE, '2026-09-01', '2026-09-30');
+    expect(store.reconstitution()?.facturesProcessed).toBe(2);
+    expect(store.reconstitution()?.echecs?.[0].code).toBe('PERIODE_CLOTUREE');
+    expect(store.ventesNonComptabilisees()).toEqual([]);
+    expect(store.ventesLoading()).toBe(false);
+  });
+
+  it('signale l\'échec de la régénération des ventes', () => {
+    api['reconstruireVentes'].mockReturnValue(throwError(() => new HttpErrorResponse({status: 500})));
+    const store = TestBed.inject(ComptabiliteParametrageStore);
+
+    store.reconstruireVentes({from: '2026-09-01', to: '2026-09-30'});
+
+    expect(store.error()).toBe('COMPTABILITE.PARAMETRAGE.ERR.RECONSTITUTION');
+    expect(store.reconstitution()).toBeNull();
+    expect(store.ventesLoading()).toBe(false);
   });
 
   it('ne traduit que les codes d\'erreur connus', () => {
