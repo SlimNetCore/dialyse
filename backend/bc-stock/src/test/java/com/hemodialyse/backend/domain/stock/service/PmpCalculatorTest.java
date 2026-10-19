@@ -58,6 +58,9 @@ class PmpCalculatorTest {
         StockMovement reception = StockMovement.entree(CENTER, ARTICLE, UUID.randomUUID(), new BigDecimal("20"),
                 new BigDecimal("383.06"), "test", jour);
         List<StockMovement> lus = new java.util.ArrayList<>(List.of(sortie, reception));
+        // mouvements historiques (avant V38) : heure de saisie inconnue
+        sortie.setSaisiLe(null);
+        reception.setSaisiLe(null);
 
         lus.sort(StockMovement.CHRONOLOGIE);
         var steps = PmpCalculator.explain(lus, PmpCalculator.PmpState.empty());
@@ -65,6 +68,30 @@ class PmpCalculatorTest {
         assertEquals(StockMovementType.ENTREE, steps.get(0).movement().getMovementType());
         assertEquals(0, steps.get(1).stateBefore().pmp().compareTo(new BigDecimal("383.06")));
         assertEquals(0, steps.get(1).stateAfter().quantite().compareTo(new BigDecimal("10")));
+    }
+
+    @Test
+    void same_day_movements_are_replayed_in_the_real_order_of_entry() {
+        // KB-STK-01 (décision métier) : à date de pièce égale, l'heure réelle de saisie prime sur le type.
+        java.time.LocalDate jour = java.time.LocalDate.of(2026, 10, 19);
+        java.time.OffsetDateTime matin = java.time.OffsetDateTime.parse("2026-10-19T08:00:00Z");
+        StockMovement stockInitial = StockMovement.entree(CENTER, ARTICLE, UUID.randomUUID(), new BigDecimal("10"),
+                new BigDecimal("100"), "test", jour);
+        StockMovement sortieDuMatin = StockMovement.sortieLot(CENTER, ARTICLE, UUID.randomUUID(), UUID.randomUUID(),
+                new BigDecimal("5"), new BigDecimal("100"), "test", jour);
+        StockMovement receptionDeLApresMidi = StockMovement.entree(CENTER, ARTICLE, UUID.randomUUID(), new BigDecimal("10"),
+                new BigDecimal("200"), "test", jour);
+        stockInitial.setSaisiLe(matin.minusHours(1));
+        sortieDuMatin.setSaisiLe(matin);
+        receptionDeLApresMidi.setSaisiLe(matin.plusHours(6));
+        List<StockMovement> lus = new java.util.ArrayList<>(List.of(receptionDeLApresMidi, sortieDuMatin, stockInitial));
+
+        lus.sort(StockMovement.CHRONOLOGIE);
+        var steps = PmpCalculator.explain(lus, PmpCalculator.PmpState.empty());
+
+        assertEquals(List.of(stockInitial, sortieDuMatin, receptionDeLApresMidi), lus);
+        // la sortie du matin est valorisée au PMP de 08:00 (100), pas à celui de l'après-midi
+        assertEquals(0, steps.get(1).stateBefore().pmp().compareTo(new BigDecimal("100")));
     }
 
     @Test

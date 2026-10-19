@@ -140,7 +140,8 @@ jamais été déployée ; la **V36 actuelle** est une migration différente, `V3
 G4, additive et ré-exécutable), dont la description Flyway est **`gmao taches intervention`**. Même numéro, autre migration.
 - **Vérifie** : la version Flyway courante, qu'aucune migration supprimée du dépôt n'a été appliquée, et l'état de la ligne 36.
 - **Attendu en production** (G4 n'est pas encore déployé) :
-  - **aucune ligne 34, 37, 38** ;
+  - **aucune ligne 34, 38** ; la ligne **37** (unicité des écritures par source, Comptabilité) n'existe qu'après le
+    déploiement qui l'apporte (voir § 17) ;
   - la ligne **35** (registre d'événements `event_publication`) peut exister ou être absente : absente = normal avant le premier
     déploiement, V35 sera appliquée au démarrage ;
   - la ligne **36** est **soit absente** (la V36 actuelle sera appliquée au premier démarrage du nouveau code : cas attendu),
@@ -380,6 +381,29 @@ FROM (
   versions ayant ce code, mais n'effacent pas les doublons historiques et ne remplacent pas le nettoyage préalable.
 - **Si un comptage est positif** : ne pas ajouter de contrainte ; transmettre uniquement les comptages, puis prévoir une
   revue/déduplication métier séparée. Ne pas renvoyer ni copier les identifiants réels dans les tickets.
+
+### Unicité des écritures par source : migration V37 (2026-10-19)
+
+`V37__comptabilite_unicite_ecriture_par_source.sql` crée l'index unique
+`uq_ecriture_center_source (center_id, source_id)`
+**seulement si** `groupes_source_dupliquee` (ci-dessus) vaut 0. Sinon elle n'écrit rien, se termine en succès avec un
+`WARNING` (« V37 : n source (s) portent plusieurs écritures comptables… ») et ne bloque pas le démarrage. Après
+déploiement :
+
+```sql
+SELECT indexname
+FROM pg_indexes
+WHERE schemaname = 'public'
+  AND tablename = 'ecritures_comptables'
+  AND indexname = 'uq_ecriture_center_source';
+```
+
+- **Attendu** : une ligne (index créé).
+- **Si aucune ligne** : des doublons historiques existent ; rapportez le comptage `groupes_source_dupliquee`. Le
+  traitement est
+  une décision métier (extourne de l'écriture en trop, jamais de suppression) ; une migration ultérieure créera alors
+  l'index. En attendant, le verrou applicatif continue d'empêcher tout nouveau doublon.
+- La ligne **37** apparaît désormais dans `flyway_schema_history` après déploiement (le point 8 en tient compte).
 
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),

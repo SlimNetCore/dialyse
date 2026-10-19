@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Service de domaine pur : schémas d'écriture du stock en inventaire permanent, exprimés en <b>soldes par compte</b>
@@ -88,13 +89,16 @@ public final class SoldesDuStock {
 
     /**
      * Lignes d'un jeu de soldes, dans l'ordre des comptes : débit si positif, crédit si négatif.
+     *
+     * @param identifiants fournit l'identifiant de chaque ligne (le domaine n'en tire pas)
      */
-    public static List<LigneEcriture> lignes(Map<String, BigDecimal> soldes, String libelle, CentreId centre) {
+    public static List<LigneEcriture> lignes(Map<String, BigDecimal> soldes, String libelle, CentreId centre,
+                                             Supplier<UUID> identifiants) {
         List<AxeAnalytique> axes = List.of(new AxeAnalytique("CENTRE", "Centre " + centre.valeur()));
         List<LigneEcriture> lignes = new ArrayList<>();
         soldes.forEach((compte, solde) -> lignes.add(solde.signum() > 0
-                ? new LigneEcriture(UUID.randomUUID(), compte, libelle, solde, BigDecimal.ZERO, null, axes)
-                : new LigneEcriture(UUID.randomUUID(), compte, libelle, BigDecimal.ZERO, solde.negate(), null, axes)));
+                ? new LigneEcriture(identifiants.get(), compte, libelle, solde, BigDecimal.ZERO, null, axes)
+                : new LigneEcriture(identifiants.get(), compte, libelle, BigDecimal.ZERO, solde.negate(), null, axes)));
         return lignes;
     }
 
@@ -115,4 +119,6 @@ public final class SoldesDuStock {
         return montant == null ? BigDecimal.ZERO.setScale(2) : montant.setScale(2, RoundingMode.HALF_UP);
     }
 }
+
+
 

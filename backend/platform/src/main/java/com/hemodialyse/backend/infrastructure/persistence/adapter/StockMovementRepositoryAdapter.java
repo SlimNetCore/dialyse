@@ -127,6 +127,7 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
         entity.setPmpApres(m.getPmpApres());
         entity.setCreatedBy(m.getCreatedBy());
         entity.setCreatedAt(m.getCreatedAt());
+        entity.setSaisiLe(m.getSaisiLe());
         entity.setInventaireId(m.getInventaireId());
         return entity;
     }
@@ -144,6 +145,7 @@ public class StockMovementRepositoryAdapter implements StockMovementRepositoryPo
         movement.setPmpApres(e.getPmpApres());
         movement.setCreatedBy(e.getCreatedBy());
         movement.setCreatedAt(e.getCreatedAt());
+        movement.setSaisiLe(e.getSaisiLe());
         movement.setInventaireId(e.getInventaireId());
         return movement;
     }

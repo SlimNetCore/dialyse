@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Service de domaine pur : rédige l'écriture de ventes d'une facture (R17) et l'écriture d'un règlement (R19), sans
@@ -33,13 +34,15 @@ public final class RedactionDesEcritures {
     /**
      * Débit du compte client = TTC ; crédit des ventes = HT ; crédit de la TVA collectée si TVA &gt; 0, la TVA d'une
      * facture ≤ 0 étant dérivée de TTC − HT quand ce reste est positif. Statut VALIDEE ; source = la facture.
+     *
+     * @param identifiants fournit l'identifiant de chaque ligne, puis celui de l'écriture (le domaine n'en tire pas)
      */
     public static EcritureComptable ventes(CentreId centre, MappingComptable mapping, String compteClient,
                                            FactureAComptabiliser facture, LocalDate date, NumeroDePiece numero,
-                                           PeriodeOuverte periode) {
+                                           PeriodeOuverte periode, Supplier<UUID> identifiants) {
         List<AxeAnalytique> axes = axesDuCentre(centre);
         List<LigneEcriture> lignes = new ArrayList<>();
-        lignes.add(new LigneEcriture(UUID.randomUUID(), compteClient,
+        lignes.add(new LigneEcriture(identifiants.get(), compteClient,
                 "Facture " + facture.numero() + " - " + facture.libelle(), facture.totalTtc(), BigDecimal.ZERO,
                 facture.payeur(), axes));
         BigDecimal tva = facture.totalTva() != null ? facture.totalTva() : BigDecimal.ZERO;
@@ -49,33 +52,35 @@ public final class RedactionDesEcritures {
                 tva = derivee;
             }
         }
-        lignes.add(new LigneEcriture(UUID.randomUUID(), mapping.compteVentes(), "Prestation dialyse - " + facture.numero(),
+        lignes.add(new LigneEcriture(identifiants.get(), mapping.compteVentes(), "Prestation dialyse - " + facture.numero(),
                 BigDecimal.ZERO, facture.totalHt(), null, axes));
         if (tva.signum() > 0) {
-            lignes.add(new LigneEcriture(UUID.randomUUID(),
+            lignes.add(new LigneEcriture(identifiants.get(),
                     mapping.compteTvaCollectee().orElse(TVA_COLLECTEE_PAR_DEFAUT), "TVA collectée - " + facture.numero(),
                     BigDecimal.ZERO, tva, null, List.of()));
         }
-        return EcritureComptable.generer(UUID.randomUUID(), centre, mapping.journalDe(OperationComptable.VENTE),
+        return EcritureComptable.generer(identifiants.get(), centre, mapping.journalDe(OperationComptable.VENTE),
                 date, date, numero, "Fact. " + facture.numero() + " - " + facture.libelle(), lignes, facture.id(), periode);
     }
 
     /**
      * Débit de la banque ou de la caisse, crédit du compte client, pour la valeur absolue du montant (B6). Statut
      * VALIDEE ; source = le règlement.
+     *
+     * @param identifiants fournit l'identifiant de chaque ligne, puis celui de l'écriture (le domaine n'en tire pas)
      */
     public static EcritureComptable reglement(CentreId centre, MappingComptable mapping, String compteClient,
                                               ReglementAComptabiliser reglement, NumeroDePiece numero,
-                                              PeriodeOuverte periode) {
+                                              PeriodeOuverte periode, Supplier<UUID> identifiants) {
         List<AxeAnalytique> axes = axesDuCentre(centre);
         BigDecimal montant = reglement.montant().abs();
         String tresorerie = reglement.enCaisse() ? mapping.compteCaisse() : mapping.compteBanque();
         String libelle = "Règlement " + reglement.tiersLibelle();
         List<LigneEcriture> lignes = List.of(
-                new LigneEcriture(UUID.randomUUID(), tresorerie, libelle, montant, BigDecimal.ZERO, null, axes),
-                new LigneEcriture(UUID.randomUUID(), compteClient, "Règlement facture " + reglement.facture(),
+                new LigneEcriture(identifiants.get(), tresorerie, libelle, montant, BigDecimal.ZERO, null, axes),
+                new LigneEcriture(identifiants.get(), compteClient, "Règlement facture " + reglement.facture(),
                         BigDecimal.ZERO, montant, reglement.payeur(), axes));
-        return EcritureComptable.generer(UUID.randomUUID(), centre, journalDuReglement(mapping, reglement),
+        return EcritureComptable.generer(identifiants.get(), centre, journalDuReglement(mapping, reglement),
                 reglement.date(), reglement.date(), numero, libelle, lignes, reglement.id(), periode);
     }
 
@@ -105,6 +110,8 @@ public final class RedactionDesEcritures {
         return List.of(new AxeAnalytique("CENTRE", "Centre " + centre.valeur()));
     }
 }
+
+
 
 
 

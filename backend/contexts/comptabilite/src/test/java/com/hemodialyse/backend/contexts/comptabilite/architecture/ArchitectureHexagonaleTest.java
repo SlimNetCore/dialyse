@@ -28,6 +28,17 @@ class ArchitectureHexagonaleTest {
                     "org.springframework..", "jakarta..", "javax..", "org.hibernate..", "tools.jackson..",
                     "com.fasterxml.jackson..", "lombok..", "org.slf4j..");
 
+    /**
+     * Le domaine est déterministe : identifiants et instants lui sont fournis (revue 2026-10-19, ADR 0028).
+     */
+    @ArchTest
+    static final ArchRule le_domaine_ne_tire_ni_identifiant_ni_heure = noClasses().that().resideInAPackage(RACINE + ".domain..")
+            .should().callMethod(java.util.UUID.class, "randomUUID")
+            .orShould().callMethod(java.time.LocalDate.class, "now")
+            .orShould().callMethod(java.time.LocalDateTime.class, "now")
+            .orShould().callMethod(java.time.OffsetDateTime.class, "now")
+            .orShould().callMethod(java.time.Instant.class, "now");
+
     @ArchTest
     static final ArchRule l_application_ne_depend_ni_des_adapters_ni_de_la_configuration = noClasses()
             .that().resideInAPackage(RACINE + ".application..")

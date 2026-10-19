@@ -89,13 +89,24 @@ public final class ComptabiliserLesVentesEtReglements implements Comptabilisatio
             String compteClient = RedactionDesEcritures.compteClient(mapping, facture.payeur(), compteDuPayeur(centre, facture.payeur()));
             NumeroDePiece numero = prochainNumero(centre, mapping.journalDe(OperationComptable.VENTE), dateEcriture.getYear());
             EcritureComptable ecriture = RedactionDesEcritures.ventes(centre, mapping, compteClient, facture, dateEcriture,
-                    numero, periode);
+                    numero, periode, UUID::randomUUID);
             ecritures.enregistrer(ecriture);
             return ecriture;
         });
     }
 
     // ------------------------------------------------------------------ langage publié (P1, P2)
+
+    @Override
+    public List<SourceNonComptabilisee> facturationValidee(UUID centre, LocalDate debut, LocalDate fin) {
+        return publies(comptabiliserLesVentesValidees(new CentreId(centre), debut, fin));
+    }
+
+    @Override
+    public List<SourceNonComptabilisee> reglementEnregistre(UUID centre, UUID facture, BigDecimal montant, LocalDate date,
+                                                            String auteur) {
+        return publies(comptabiliserLeReglementEnregistre(new CentreId(centre), facture, montant, date, auteur));
+    }
 
     /**
      * Écriture du règlement ; elle crédite le compte que l'écriture de la facture a débité, sinon le compte client résolu
@@ -116,21 +127,10 @@ public final class ComptabiliserLesVentesEtReglements implements Comptabilisatio
                     .orElseGet(() -> RedactionDesEcritures.compteClient(mapping, reglement.payeur(),
                             compteDuPayeur(centre, reglement.payeur())));
             EcritureComptable ecriture = RedactionDesEcritures.reglement(centre, mapping, compteClient, reglement, numero,
-                    periode);
+                    periode, UUID::randomUUID);
             ecritures.enregistrer(ecriture);
             return ecriture;
         });
-    }
-
-    @Override
-    public List<SourceNonComptabilisee> facturationValidee(UUID centre, LocalDate debut, LocalDate fin) {
-        return publies(comptabiliserLesVentesValidees(new CentreId(centre), debut, fin));
-    }
-
-    @Override
-    public List<SourceNonComptabilisee> reglementEnregistre(UUID centre, UUID facture, BigDecimal montant, LocalDate date,
-                                                            String auteur) {
-        return publies(comptabiliserLeReglementEnregistre(new CentreId(centre), facture, montant, date, auteur));
     }
 
     // ------------------------------------------------------------------ politiques et reconstitution
@@ -248,6 +248,10 @@ public final class ComptabiliserLesVentesEtReglements implements Comptabilisatio
         }
     }
 }
+
+
+
+
 
 
 

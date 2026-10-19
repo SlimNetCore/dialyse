@@ -432,4 +432,18 @@ reprendre dans le filet quand la slice Stock sera ouverte.
 | KB-STK-02 | **Jeu de démo daté du démarrage** : `seed.sql` date les mouvements d'entrée et de sortie de démo `CURRENT_TIMESTAMP` au lieu de la date de leur pièce ; ~2 500 sorties par centre tombent le jour du démarrage et gonflent l'écriture de sorties de ce jour (4 063 924,92 pour une sortie réelle de 3 815,30)                                                                                                                         | `db/seed.sql` (mouvements `7100…` et `a101…`)                                        | **Corrigé** : mouvement daté de la pièce, 00:00 UTC explicite (`date_reception`, `date_sortie`)                                                                                                                                                                                                                                         |
 | —         | **Écran** : le refus `SANS_VALEUR` était traduit « aucun montant à comptabiliser » et masquait les articles                                                                                                                                                                                                                                                                                                                           | `comptabilite-parametrage.component`                                                 | **Corrigé** : message par nature (réception / sortie) citant les articles                                                                                                                                                                                                                                                               |
 
+### Décisions KB-STK (2026-10-19, utilisateur) — ADR 0029
 
+| KB        | Décision                                     | Effet                                                                                                                                                                                                                                                                         |
+|-----------|----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| KB-STK-01 | **Validé, ordre par heure réelle de saisie** | rejeu du PMP : date de pièce, puis `saisi_le` (V38), puis entrées avant sorties ; heure de création du bon conservée à la modification ; mouvements antérieurs à V38 : entrées d'abord. Test : `PmpCalculatorTest.same_day_movements_are_replayed_in_the_real_order_of_entry` |
+| KB-STK-02 | **Validé**                                   | jeu de démo daté de ses pièces                                                                                                                                                                                                                                                |
+
+### Unicité des écritures par source (B1/B2, R6) — ADR 0029
+
+Écart décidé : la base refuse une seconde écriture pour une même source d'un centre (`uq_ecriture_center_source`, V37) ;
+le numéro de pièce reste sans contrainte (B1, reproduit). Doublons historiques éventuels : extourne après revue
+comptable. Scénarios
+`la_base_accepte_deux_ecritures_de_meme_numero_mais_refuse_une_seconde_ecriture_de_meme_source_nouveau_code`
+et `la_generation_d_une_source_deja_comptabilisee_ne_cree_rien_de_plus_nouveau_code` (le golden
+`doublons_de_numero_et_de_source_acceptes_par_la_base` n'est plus référencé).

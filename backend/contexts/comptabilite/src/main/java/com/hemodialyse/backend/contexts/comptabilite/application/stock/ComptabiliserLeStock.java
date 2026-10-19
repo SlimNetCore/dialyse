@@ -156,7 +156,8 @@ public final class ComptabiliserLeStock {
                     SoldesDuStock.deja(famille.subList(0, famille.size() - 1)));
             // une écriture ne peut pas être vide : si plus rien ne doit rester, on contre-passe par un complément
             if (modifiable(centre, derniere) && !reste.isEmpty()) {
-                ecritures.enregistrer(derniere.reviserLesSorties(SoldesDuStock.lignes(reste, derniere.libelle(), centre),
+                ecritures.enregistrer(derniere.reviserLesSorties(
+                        SoldesDuStock.lignes(reste, derniere.libelle(), centre, UUID::randomUUID),
                         periodeOuverte(centre, derniere.dateEcriture())));
                 return new Resultat(Issue.SORTIES, null);
             }
@@ -180,7 +181,7 @@ public final class ComptabiliserLeStock {
         NumeroDePiece numero = NumeroDePiece.suivant(journal, dateEcriture.getYear(),
                 numerotation.verrouillerEtLireLesNumeros(centre, journal, dateEcriture.getYear()));
         ecritures.enregistrer(EcritureComptable.generer(UUID.randomUUID(), centre, journal, dateEcriture, datePiece,
-                numero, libelle, SoldesDuStock.lignes(soldes, libelle, centre), source,
+                numero, libelle, SoldesDuStock.lignes(soldes, libelle, centre, UUID::randomUUID), source,
                 periodeOuverte(centre, dateEcriture)));
     }
 
@@ -282,6 +283,8 @@ public final class ComptabiliserLeStock {
         }
     }
 }
+
+
 
 
 

@@ -48,6 +48,20 @@ public class StockMovementJpaEntity {
     private OffsetDateTime createdAt;
 
     /**
+     * Heure réelle de saisie (KB-STK-01, migration V38) ; nulle pour les mouvements antérieurs.
+     */
+    @Column(name = "saisi_le", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime saisiLe;
+
+    public OffsetDateTime getSaisiLe() {
+        return saisiLe;
+    }
+
+    public void setSaisiLe(OffsetDateTime saisiLe) {
+        this.saisiLe = saisiLe;
+    }
+
+    /**
      * Inventaire ayant cloture ce mouvement (null = ouvert, pris en compte par les recalculs).
      */
     @Column(name = "inventaire_id")

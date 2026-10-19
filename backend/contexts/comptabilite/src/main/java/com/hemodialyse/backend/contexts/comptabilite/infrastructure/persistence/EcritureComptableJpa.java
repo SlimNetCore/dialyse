@@ -9,6 +9,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -20,12 +21,16 @@ import java.util.UUID;
  * Description JPA de la table {@code ecritures_comptables}, reprise telle quelle de la plateforme au retrait de
  * {@code bc-comptabilite} (slice C7). Elle ne sert qu'au schéma créé par {@code ddl-auto} (tests H2) ; le contexte lit et
  * écrit les écritures par JDBC ({@link EcritureComptableRepositoryJdbc}). En production, le schéma vient de Flyway.
+ * <p>
+ * R6 : une seule écriture par source et par centre ({@code uq_ecriture_center_source}, migration V37) ; une écriture sans
+ * source n'est pas concernée (les NULL sont distincts).
  */
 @Entity
 @Table(name = "ecritures_comptables",
         indexes = {
                 @Index(name = "idx_ecriture_center_period", columnList = "center_id, journal_code, date_ecriture"),
-                @Index(name = "idx_ecriture_center_source", columnList = "center_id, source_id")})
+                @Index(name = "idx_ecriture_center_source", columnList = "center_id, source_id")},
+        uniqueConstraints = @UniqueConstraint(name = "uq_ecriture_center_source", columnNames = {"center_id", "source_id"}))
 public class EcritureComptableJpa {
 
     @Id
@@ -72,4 +77,6 @@ public class EcritureComptableJpa {
     protected EcritureComptableJpa() {
     }
 }
+
+
 

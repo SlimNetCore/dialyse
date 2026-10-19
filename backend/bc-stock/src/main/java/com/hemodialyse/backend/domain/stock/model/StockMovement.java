@@ -13,13 +13,15 @@ import java.util.UUID;
 public class StockMovement {
 
     /**
-     * Ordre de rejeu de l'historique d'un article : par date, puis, à date égale, ce qui fait entrer du stock avant ce
-     * qui en fait sortir. Les pièces étant datées du jour (00:00 UTC), une réception et une sortie du même jour ont la
-     * même date : sans cette règle, la sortie pouvait être rejouée avant la réception et valorisée à un PMP nul.
-     * Tri stable : à rang égal, l'ordre de lecture (date, id) est conservé.
+     * Ordre de rejeu de l'historique d'un article (KB-STK-01, validé par le métier le 2026-10-19) : par date de la pièce,
+     * puis par heure réelle de saisie, puis, à défaut (mouvements antérieurs à l'enregistrement de cette heure, ou saisis au
+     * même instant), ce qui fait entrer du stock avant ce qui en fait sortir. Les pièces étant datées du jour (00:00 UTC),
+     * une réception et une sortie du même jour ont la même date : sans cette règle, la sortie pouvait être rejouée avant la
+     * réception et valorisée à un PMP nul. Tri stable : à rang égal, l'ordre de lecture (date, id) est conservé.
      */
     public static final Comparator<StockMovement> CHRONOLOGIE = Comparator
             .comparing(StockMovement::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder()))
+            .thenComparing(StockMovement::getSaisiLe, Comparator.nullsFirst(Comparator.naturalOrder()))
             .thenComparingInt(StockMovement::rangDansLaJournee);
 
     private static int rangDansLaJournee(StockMovement m) {
@@ -42,6 +44,11 @@ public class StockMovement {
     private BigDecimal pmpApres;
     private String createdBy;
     private OffsetDateTime createdAt;
+    /**
+     * Heure réelle de la saisie du mouvement (KB-STK-01) ; {@code createdAt} porte la date de la pièce (00:00 UTC). Nulle
+     * pour les mouvements enregistrés avant la migration V38.
+     */
+    private OffsetDateTime saisiLe;
     /**
      * Inventaire ayant cloture ce mouvement ({@code null} = mouvement ouvert, pris en compte par le recalcul).
      */
@@ -69,6 +76,7 @@ public class StockMovement {
         movement.setQuantite(quantite);
         movement.setCreatedBy(createdBy);
         movement.setCreatedAt(createdAt != null ? createdAt : OffsetDateTime.now());
+        movement.setSaisiLe(OffsetDateTime.now());
         return movement;
     }
 
@@ -101,6 +109,7 @@ public class StockMovement {
         movement.setPrixUnitaire(prixUnitaire);
         movement.setCreatedBy(createdBy);
         movement.setCreatedAt(createdAt != null ? createdAt : OffsetDateTime.now());
+        movement.setSaisiLe(OffsetDateTime.now());
         return movement;
     }
 
@@ -147,6 +156,7 @@ public class StockMovement {
         movement.setPrixUnitaire(pmp != null ? pmp : BigDecimal.ZERO);
         movement.setCreatedBy(createdBy);
         movement.setCreatedAt(createdAt);
+        movement.setSaisiLe(OffsetDateTime.now());
         return movement;
     }
 
@@ -159,6 +169,17 @@ public class StockMovement {
 
     public UUID getInventaireId() {
         return inventaireId;
+    }
+
+    public OffsetDateTime getSaisiLe() {
+        return saisiLe;
+    }
+
+    /**
+     * Heure réelle de saisie ; un bon modifié redonne à ses mouvements recréés l'heure de création du bon (KB-STK-01).
+     */
+    public void setSaisiLe(OffsetDateTime saisiLe) {
+        this.saisiLe = saisiLe;
     }
 
     public void setInventaireId(UUID inventaireId) {

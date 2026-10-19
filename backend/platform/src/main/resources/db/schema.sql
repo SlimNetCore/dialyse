@@ -751,6 +751,8 @@ CREATE INDEX IF NOT EXISTS idx_inventaire_lignes_inventaire ON inventaire_lignes
 
 ALTER TABLE IF EXISTS stock_movements ADD COLUMN IF NOT EXISTS inventaire_id UUID;
 CREATE INDEX IF NOT EXISTS idx_stock_mvt_center_inventaire ON stock_movements (center_id, inventaire_id, created_at);
+-- Heure réelle de saisie (KB-STK-01, miroir de la migration V38)
+ALTER TABLE IF EXISTS stock_movements ADD COLUMN IF NOT EXISTS saisi_le TIMESTAMP WITH TIME ZONE;
 
 
 -- ═══ Personnel soignant : infirmiers, roulement, absences et remplacements ═══

@@ -111,29 +111,35 @@ class NumerotationDesPiecesCharacterizationIntegrationTest extends EcrituresChar
                 + "AND numero_piece = 'VE-2026-1000000'", Integer.class, CENTRE_A));
     }
 
-    // ------------------------------------------------------------------ pas de contrainte d'unicité (B1, B2)
+    // ------------------------------------------------------------------ contraintes d'unicité (B1, B2)
+    // Écart décidé le 2026-10-19 (revue DDD, migration V37) : la base refuse désormais une seconde écriture pour une même
+    // source d'un centre (R6) ; le numéro de pièce reste sans contrainte (B1, reproduit). Ces deux scénarios fixaient
+    // l'absence de contrainte (golden « doublons_de_numero_et_de_source_acceptes_par_la_base », legacy).
 
     @Test
-    void la_base_accepte_deux_ecritures_de_meme_numero_et_de_meme_source_aucune_contrainte_d_unicite() throws Exception {
+    void la_base_accepte_deux_ecritures_de_meme_numero_mais_refuse_une_seconde_ecriture_de_meme_source_nouveau_code() throws Exception {
         UUID source = fid(1);
         ecriture(1, CENTRE_A, "VE", "VE-2026-000001", "2026-03-01", "2026-03-01", "VALIDEE", "Première", source, null,
                 L.d("411100", "10.00"), L.c("706", "10.00"));
-        ecriture(2, CENTRE_A, "VE", "VE-2026-000001", "2026-03-01", "2026-03-01", "VALIDEE", "Doublon", source, null,
+        ecriture(2, CENTRE_A, "VE", "VE-2026-000001", "2026-03-01", "2026-03-01", "VALIDEE", "Même numéro", fid(2), null,
                 L.d("411100", "10.00"), L.c("706", "10.00"));
         assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM ecritures_comptables WHERE center_id = ? "
-                + "AND numero_piece = 'VE-2026-000001' AND source_id = ?", Integer.class, CENTRE_A, source));
-        goldenEcritures("doublons_de_numero_et_de_source_acceptes_par_la_base", CENTRE_A);
+                + "AND numero_piece = 'VE-2026-000001'", Integer.class, CENTRE_A));
+
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.dao.DuplicateKeyException.class,
+                () -> ecriture(3, CENTRE_A, "VE", "VE-2026-000002", "2026-03-01", "2026-03-01", "VALIDEE", "Doublon",
+                        source, null, L.d("411100", "10.00"), L.c("706", "10.00")));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM ecritures_comptables WHERE center_id = ? "
+                + "AND source_id = ?", Integer.class, CENTRE_A, source));
     }
 
     @Test
-    void la_generation_d_une_source_deja_comptabilisee_en_double_ne_cree_rien_de_plus() throws Exception {
+    void la_generation_d_une_source_deja_comptabilisee_ne_cree_rien_de_plus_nouveau_code() throws Exception {
         UUID source = fid(1);
         ecriture(1, CENTRE_A, "VE", "VE-2026-000001", "2026-03-01", "2026-03-01", "VALIDEE", "Première", source, null,
                 L.d("411100", "10.00"), L.c("706", "10.00"));
-        ecriture(2, CENTRE_A, "VE", "VE-2026-000001", "2026-03-01", "2026-03-01", "VALIDEE", "Doublon", source, null,
-                L.d("411100", "10.00"), L.c("706", "10.00"));
         genererVente(CENTRE_A, source, "FACT-1", "10.00", "0.00", "10.00", "2026-03-01", null);
-        assertEquals(2, count("ecritures_comptables", CENTRE_A));
+        assertEquals(1, count("ecritures_comptables", CENTRE_A));
     }
 
     // ------------------------------------------------------------------ idempotence par source (R6)
