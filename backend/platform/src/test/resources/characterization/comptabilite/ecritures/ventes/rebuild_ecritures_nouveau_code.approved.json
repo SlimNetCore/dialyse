@@ -1,0 +1,35 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "BQ",
+    "numero_piece": "BQ-2026-000001",
+    "date_ecriture": "2026-02-25",
+    "date_piece": "2026-02-25",
+    "statut": "VALIDEE",
+    "libelle": "Règlement Règlement facture",
+    "source_id": "<REGLEMENT_1>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_2>",
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000001",
+    "date_ecriture": "2026-01-31",
+    "date_piece": "2026-01-31",
+    "statut": "VALIDEE",
+    "libelle": "Fact. F-001 - Patient 1",
+    "source_id": "<FACTURE_1>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_3>",
+    "journal_code": "VE",
+    "numero_piece": "VE-2026-000002",
+    "date_ecriture": "2026-01-31",
+    "date_piece": "2026-01-31",
+    "statut": "VALIDEE",
+    "libelle": "Fact. F-002 - Patient 2",
+    "source_id": "<FACTURE_2>",
+    "modele_id": null
+  }
+]

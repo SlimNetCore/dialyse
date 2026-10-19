@@ -1,0 +1,22 @@
+[
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "401",
+    "libelle_ligne": "Loyer mars",
+    "montant_debit": "0.00",
+    "montant_credit": "100000.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "613",
+    "libelle_ligne": "Loyer",
+    "montant_debit": "100000.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  }
+]

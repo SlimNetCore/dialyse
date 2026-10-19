@@ -1,10 +1,8 @@
 package com.hemodialyse.backend.domain.comptabilite.service;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
-import com.hemodialyse.backend.domain.comptabilite.aggregate.ModelePiece;
 import com.hemodialyse.backend.domain.comptabilite.port.ComptePayeurRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.EcritureComptableRepositoryPort;
-import com.hemodialyse.backend.domain.comptabilite.port.ModelePieceRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.JournalRepositoryPort;
 import com.hemodialyse.backend.domain.comptabilite.port.MappingComptablePort;
 import com.hemodialyse.backend.domain.comptabilite.port.OperationsStockPort;
@@ -240,52 +238,6 @@ final class ComptabiliteFixtures {
         }
     }
 
-    static final class Modeles implements ModelePieceRepositoryPort {
-        final Map<UUID, ModelePiece> parId = new LinkedHashMap<>();
-
-        private java.util.stream.Stream<ModelePiece> du(UUID centerId) {
-            return parId.values().stream().filter(m -> m.centerId().equals(centerId));
-        }
-
-        @Override
-        public PagedResult<ModelePiece> findPaged(UUID centerId, boolean actifsSeulement, int page, int size) {
-            List<ModelePiece> tous = du(centerId).filter(m -> !actifsSeulement || m.actif())
-                    .sorted(Comparator.comparing(ModelePiece::code)).toList();
-            int debut = Math.min(page * size, tous.size());
-            return PagedResult.of(tous.subList(debut, Math.min(debut + size, tous.size())), tous.size(), page, size);
-        }
-
-        @Override
-        public Optional<ModelePiece> findById(UUID centerId, UUID id) {
-            return du(centerId).filter(m -> m.id().equals(id)).findFirst();
-        }
-
-        @Override
-        public Optional<ModelePiece> findByCode(UUID centerId, String code) {
-            return du(centerId).filter(m -> m.code().equals(code)).findFirst();
-        }
-
-        @Override
-        public void save(ModelePiece modele) {
-            parId.put(modele.id(), modele);
-        }
-
-        @Override
-        public void delete(UUID centerId, UUID id) {
-            findById(centerId, id).ifPresent(m -> parId.remove(id));
-        }
-
-        @Override
-        public boolean existsByCompte(UUID centerId, String compte) {
-            return du(centerId).flatMap(m -> m.lignes().stream()).anyMatch(l -> l.compte().equals(compte));
-        }
-
-        @Override
-        public boolean existsByJournal(UUID centerId, JournalCode journal) {
-            return du(centerId).anyMatch(m -> m.journal().equals(journal));
-        }
-    }
-
     /**
      * Tous les ports en mémoire et les services du domaine câblés dessus, comme le fait la couche applicative.
      */
@@ -295,9 +247,7 @@ final class ComptabiliteFixtures {
         final Periodes periodes = new Periodes();
         final Journaux journaux = new Journaux();
         final ComptesPayeurs comptesPayeurs = new ComptesPayeurs();
-        final Modeles modeles = new Modeles();
         final Plan plan = new Plan(mappings);
-        final ComptabiliteService comptabilite = new ComptabiliteService(ecritures, mappings, periodes, null, comptesPayeurs);
-        final PiecesComptablesService pieces = new PiecesComptablesService(modeles, ecritures, periodes, journaux, plan);
+        final ComptabiliteService comptabilite = new ComptabiliteService(ecritures, periodes, null);
     }
 }

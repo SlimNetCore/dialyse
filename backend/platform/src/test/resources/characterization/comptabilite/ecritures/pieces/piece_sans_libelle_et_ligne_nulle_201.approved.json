@@ -1,0 +1,12 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "dateEcriture": "2026-03-10",
+    "id": "<UUID_GENERE_1>",
+    "journalCode": "AC",
+    "libelle": "Loyer du centre",
+    "numeroPiece": "AC-2026-000001",
+    "total": 500.00
+  }
+}

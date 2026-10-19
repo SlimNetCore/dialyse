@@ -5,6 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -16,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public final class GoldenMaster {
 
     private static final Path DIR = Path.of("src", "test", "resources", "characterization", "gmao", "plans");
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private GoldenMaster() {
     }
@@ -26,6 +30,17 @@ public final class GoldenMaster {
 
     /** Variante par slice : même méthode, autre dossier de goldens (réutilisée par G2 intervenants). */
     public static void verify(Path dir, String name, String actual) {
+        verify(dir, name, actual, true);
+    }
+
+    /**
+     * Compare des goldens JSON par structure, sans traiter l'indentation comme un comportement métier.
+     */
+    public static void verifyJson(Path dir, String name, String actual) {
+        verify(dir, name, actual, true);
+    }
+
+    private static void verify(Path dir, String name, String actual, boolean structuralJson) {
         String normalizedActual = normalize(actual);
         Path approved = dir.resolve(name + ".approved.json");
         Path received = dir.resolve(name + ".received.json");
@@ -41,7 +56,8 @@ public final class GoldenMaster {
                 fail("Golden master absent : " + approved + " (valeur reçue écrite dans " + received + ")");
             }
             String expected = normalize(Files.readString(approved, StandardCharsets.UTF_8));
-            if (!expected.equals(normalizedActual)) {
+            boolean matches = structuralJson ? equivalent(expected, normalizedActual) : expected.equals(normalizedActual);
+            if (!matches) {
                 Files.writeString(received, normalizedActual, StandardCharsets.UTF_8);
                 fail("Écart avec " + approved + " ; voir " + received + "\n--- attendu ---\n" + expected
                         + "\n--- reçu ---\n" + normalizedActual);
@@ -52,7 +68,25 @@ public final class GoldenMaster {
         }
     }
 
+    /**
+     * Enregistre un candidat sans l'approuver, pour revue humaine explicite.
+     */
+    public static void recordCandidate(Path dir, String name, String actual) {
+        try {
+            Files.createDirectories(dir);
+            Files.writeString(dir.resolve(name + ".received.json"), normalize(actual), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private static String normalize(String s) {
         return s.replace("\r\n", "\n").stripTrailing() + "\n";
+    }
+
+    private static boolean equivalent(String expected, String actual) throws IOException {
+        JsonNode expectedJson = JSON.readTree(expected);
+        JsonNode actualJson = JSON.readTree(actual);
+        return expectedJson != null && expectedJson.equals(actualJson);
     }
 }

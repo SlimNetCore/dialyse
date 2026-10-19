@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "PIECE_NON_SAISIE",
+    "detail": "Seule une pièce saisie peut être extournée : cette écriture est générée par le système",
+    "instance": "/api/v1/comptabilite/pieces/<ECRITURE_20>/extourne",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "facturesProcessed": 0,
+    "from": "2026-02-28",
+    "reglementsProcessed": 0,
+    "to": "2026-02-01"
+  }
+}

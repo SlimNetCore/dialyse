@@ -13,9 +13,13 @@ import com.hemodialyse.backend.infrastructure.persistence.repository.EcritureCom
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.sql.PreparedStatement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,9 +27,11 @@ import java.util.stream.Collectors;
 public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryPort {
 
     private final EcritureComptableJpaRepository repo;
+    private final JdbcTemplate jdbc;
 
-    public EcritureComptableJpaAdapter(EcritureComptableJpaRepository repo) {
+    public EcritureComptableJpaAdapter(EcritureComptableJpaRepository repo, JdbcTemplate jdbc) {
         this.repo = repo;
+        this.jdbc = jdbc;
     }
 
     @Override
@@ -45,6 +51,9 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
 
     @Override
     public Optional<EcritureComptable> findBySourceId(UUID sourceId, UUID centerId) {
+        if (sourceId != null) {
+            verrouillerSequence(centerId, "SEQ_SOURCE_" + sourceId, "SOURCE-");
+        }
         return repo.findFirstByCenterIdAndSourceIdOrderByCreatedAtAsc(centerId, sourceId).map(this::toDomain);
     }
 
@@ -93,6 +102,7 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
     @Override
     public String nextNumeroPiece(UUID centerId, JournalCode journalCode, int year) {
         String prefix = journalCode.valeur() + "-" + year + "-";
+        verrouillerSequence(centerId, "SEQ_ECRITURE_" + journalCode.valeur() + "_" + year, prefix);
         Optional<EcritureComptableJpaEntity> last = repo
                 .findTopByCenterIdAndJournalCodeAndNumeroPieceLikeOrderByNumeroPieceDesc(
                         centerId, journalCode.valeur(), prefix + "%");
@@ -105,6 +115,32 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
             }
         }
         return prefix + String.format("%06d", next);
+    }
+
+    private void verrouillerSequence(UUID centerId, String cle, String prefixe) {
+        Boolean postgres = jdbc.execute((ConnectionCallback<Boolean>) connection -> "PostgreSQL"
+                .equalsIgnoreCase(connection.getMetaData().getDatabaseProductName()));
+        if (Boolean.TRUE.equals(postgres)) {
+            String cleGlobale = "comptabilite:" + centerId + ":" + cle;
+            jdbc.execute((ConnectionCallback<Void>) connection -> {
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(?, 0))")) {
+                    statement.setString(1, cleGlobale);
+                    statement.execute();
+                }
+                return null;
+            });
+        } else {
+            try {
+                jdbc.update("INSERT INTO app_settings (center_id, cle, prefixe, dernier_compteur) "
+                                + "SELECT ?, ?, ?, 0 WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE center_id = ? AND cle = ?)",
+                        centerId, cle, prefixe, centerId, cle);
+            } catch (DuplicateKeyException concurrente) {
+                // Une transaction concurrente a matérialisé le verrou en premier.
+            }
+        }
+        jdbc.queryForObject("SELECT dernier_compteur FROM app_settings WHERE center_id = ? AND cle = ? FOR UPDATE",
+                Long.class, centerId, cle);
     }
 
     // ─── Mapping ─────────────────────────────────────────────────────────────
@@ -174,5 +210,3 @@ public class EcritureComptableJpaAdapter implements EcritureComptableRepositoryP
                 }).toList();
     }
 }
-
-

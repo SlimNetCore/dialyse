@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "MODELE_INACTIF",
+    "detail": "Le modèle INACTIF est désactivé",
+    "instance": "/api/v1/comptabilite/pieces",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

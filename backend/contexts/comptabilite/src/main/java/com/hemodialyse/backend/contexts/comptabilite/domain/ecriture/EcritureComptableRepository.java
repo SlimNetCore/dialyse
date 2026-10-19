@@ -21,6 +21,12 @@ public interface EcritureComptableRepository {
     Optional<EcritureComptable> parSource(CentreId centre, UUID source);
 
     /**
+     * Liste paginée par date d'écriture, avec filtres facultatifs journal/statut.
+     */
+    PageEcritures rechercher(CentreId centre, LocalDate du, LocalDate au, CodeJournal journal, StatutEcriture statut,
+                             int page, int taille);
+
+    /**
      * Crée l'écriture ou remplace celle qui porte le même identifiant (champs et lignes) ; la date et l'auteur de son export sont conservés.
      */
     void enregistrer(EcritureComptable ecriture);

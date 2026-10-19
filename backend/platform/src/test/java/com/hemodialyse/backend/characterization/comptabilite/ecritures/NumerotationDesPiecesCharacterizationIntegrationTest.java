@@ -85,11 +85,11 @@ class NumerotationDesPiecesCharacterizationIntegrationTest extends EcrituresChar
     // ------------------------------------------------------------------ numéros hors norme
 
     @Test
-    void un_numero_dont_la_fin_n_est_pas_numerique_est_ignore_et_la_sequence_repart_a_000001() throws Exception {
+    void un_numero_dont_la_fin_n_est_pas_numerique_est_ignore_et_la_sequence_continue_sans_doublon() throws Exception {
         vente(1, "VE-2026-ABC", "2026-03-01", "VALIDEE", "10.00");
         genererVente(1, "100.00", "0.00", "100.00", "2026-03-05");
         genererVente(2, "100.00", "0.00", "100.00", "2026-03-06");
-        goldenEcritures("suffixe_non_numerique_repart_a_un", CENTRE_A);
+        goldenEcritures("suffixe_non_numerique_ignore_nouveau_code", CENTRE_A);
     }
 
     @Test
@@ -100,13 +100,14 @@ class NumerotationDesPiecesCharacterizationIntegrationTest extends EcrituresChar
     }
 
     @Test
-    void passe_999999_le_numero_a_sept_chiffres_donne_le_meme_numero_deux_fois_car_le_plus_grand_est_cherche_par_ordre_alphabetique() throws Exception {
+    void passe_999999_le_numero_a_sept_chiffres_continue_sans_doublon_car_le_plus_grand_est_cherche_numeriquement() throws Exception {
         vente(1, "VE-2026-999999", "2026-03-01", "VALIDEE", "10.00");
         genererVente(1, "100.00", "0.00", "100.00", "2026-03-05");
         genererVente(2, "100.00", "0.00", "100.00", "2026-03-06");
         genererVente(3, "100.00", "0.00", "100.00", "2026-03-07");
-        goldenEcritures("passage_a_sept_chiffres_doublons", CENTRE_A);
-        assertEquals(3, jdbc.queryForObject("SELECT COUNT(*) FROM ecritures_comptables WHERE center_id = ? "
+        goldenEcritures("passage_a_sept_chiffres_sans_doublon_nouveau_code", CENTRE_A);
+        // KB-CPT-24 (décision C3/C4, appliquée par C5) : suffixe comparé numériquement, plus de doublon.
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM ecritures_comptables WHERE center_id = ? "
                 + "AND numero_piece = 'VE-2026-1000000'", Integer.class, CENTRE_A));
     }
 

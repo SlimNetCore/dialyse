@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": [
+    {
+      "dateFacturation": "2026-02-03",
+      "factureId": "<FACTURE_2>",
+      "finDePeriode": "2026-01-31",
+      "numero": "F-002",
+      "totalTtc": 120.00
+    }
+  ]
+}

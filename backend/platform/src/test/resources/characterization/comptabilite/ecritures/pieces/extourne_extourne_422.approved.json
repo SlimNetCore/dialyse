@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "PIECE_DEJA_EXTOURNEE",
+    "detail": "Une extourne ne s'extourne pas : saisissez une nouvelle pièce",
+    "instance": "/api/v1/comptabilite/pieces/<UUID_GENERE_1>/extourne",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "PERIODE_CLOTUREE",
+    "detail": "La période 2026-03 est clôturée",
+    "instance": "/api/v1/comptabilite/pieces",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

@@ -311,6 +311,79 @@ SELECT proname FROM pg_proc WHERE proname IN ('random_uuid');
   dans les dates concernées : dites-le, on les corrige à la main ou on décide d'un rattrapage. Aucune donnée n'est
   modifiée par la livraison.
 
+## 16. Écritures comptables C3 : lisibilité et horodatage d'export
+
+À exécuter en lecture seule avant le basculement C3 ; ces requêtes renvoient uniquement des comptages et des
+métadonnées.
+Le nouveau repository refuse la lecture/export d'une écriture touchée qui n'est pas équilibrée, qui a moins de deux
+lignes,
+ou porte un statut inconnu. C3 réutilise `ecritures_comptables.updated_at` comme date de transition vers `EXPORTEE` (ADR
+0026),
+sans migration ; les écritures déjà exportées n'ont pas nécessairement une date d'export historique fiable.
+
+```sql
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'public' AND table_name = 'ecritures_comptables'
+  AND column_name IN ('updated_at', 'center_id', 'statut');
+
+SELECT count(*) AS statuts_inconnus
+FROM ecritures_comptables WHERE statut NOT IN ('BROUILLON', 'VALIDEE', 'EXPORTEE');
+
+SELECT count(*) AS exportees_sans_updated_at
+FROM ecritures_comptables WHERE statut = 'EXPORTEE' AND updated_at IS NULL;
+
+SELECT count(*) AS ecritures_illisibles
+FROM (
+    SELECT e.id
+    FROM ecritures_comptables e LEFT JOIN lignes_ecriture l ON l.ecriture_id = e.id
+    GROUP BY e.id
+    HAVING count(l.id) < 2
+       OR sum(l.montant_debit) IS NULL OR sum(l.montant_credit) IS NULL
+       OR round(sum(l.montant_debit), 2) <> round(sum(l.montant_credit), 2)
+) fautives;
+```
+
+- **Attendu** : colonnes présentes ; `statuts_inconnus` = 0, `ecritures_illisibles` = 0. `exportees_sans_updated_at` est
+  informatif : ces lignes restent exportées et ne seront pas réexportées ; ne pas remplacer leur date historique.
+- **Si différent** : ne pas déployer C3 avant revue des comptages avec la comptabilité ; aucune correction automatique
+  n'est
+  effectuée par la slice.
+
+## 17. Écritures comptables C4 : doublons historiques avant une éventuelle contrainte unique (B1/B2)
+
+C4/C5/C6 prennent maintenant des verrous transactionnels pour les nouvelles attributions de numéros et les nouvelles
+écritures par source. Aucun index unique ni changement de schéma n'est inclus ; ces comptages lecture seule sont à
+vérifier
+avant d'envisager une migration additive ultérieure.
+
+```sql
+SELECT count(*) AS groupes_numero_duplique
+FROM (
+    SELECT center_id, journal_code, numero_piece
+    FROM ecritures_comptables
+    GROUP BY center_id, journal_code, numero_piece
+    HAVING count(*) > 1
+) doublons;
+
+SELECT count(*) AS groupes_source_dupliquee
+FROM (
+    SELECT center_id, source_id
+    FROM ecritures_comptables
+    WHERE source_id IS NOT NULL
+    GROUP BY center_id, source_id
+    HAVING count(*) > 1
+) doublons;
+```
+
+- **Attendu avant toute contrainte unique** : les deux comptages = 0. Les verrous empêchent de nouvelles courses entre
+  versions ayant ce code, mais n'effacent pas les doublons historiques et ne remplacent pas le nettoyage préalable.
+- **Si un comptage est positif** : ne pas ajouter de contrainte ; transmettre uniquement les comptages, puis prévoir une
+  revue/déduplication métier séparée. Ne pas renvoyer ni copier les identifiants réels dans les tickets.
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
-sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas G1-G5 en production.
+sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
+G1-G5
+en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
+toute décision d'ajout de contrainte unique.

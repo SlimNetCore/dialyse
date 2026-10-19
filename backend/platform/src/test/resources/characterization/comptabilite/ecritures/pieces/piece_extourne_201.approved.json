@@ -1,0 +1,12 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "dateEcriture": "<AUJOURDHUI_UTC>",
+    "id": "<UUID_GENERE_1>",
+    "journalCode": "AC",
+    "libelle": "Extourne AC-2026-000001 - Loyer mars",
+    "numeroPiece": "AC-2026-000002",
+    "total": 100.00
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "MODELE_CODE_EXISTANT",
+    "detail": "Un modèle de pièce porte déjà le code LOYER",
+    "instance": "/api/v1/comptabilite/modeles",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

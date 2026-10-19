@@ -1,112 +1,43 @@
 package com.hemodialyse.backend.domain.comptabilite.service;
 
 import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
-import com.hemodialyse.backend.domain.comptabilite.entity.LigneEcriture;
-import com.hemodialyse.backend.domain.comptabilite.port.*;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.*;
+import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.CloturerPeriodeCommand;
+import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.ExporterJournalQuery;
+import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.SearchEcrituresQuery;
+import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.ValiderEcritureCommand;
+import com.hemodialyse.backend.domain.comptabilite.port.EcritureComptableRepositoryPort;
+import com.hemodialyse.backend.domain.comptabilite.port.ExportComptablePort;
+import com.hemodialyse.backend.domain.comptabilite.port.PeriodeComptableRepositoryPort;
+import com.hemodialyse.backend.domain.comptabilite.valueobject.StatutEcriture;
 import com.hemodialyse.backend.domain.shared.PagedResult;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 
-import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
- * Service de domaine pur — implémente ComptabiliteUseCase sans aucune dépendance Spring/JPA.
- * Orchestration métier : résolution mapping + règle TVA + période clôturée + idempotence.
+ * Service de domaine legacy restant : consultation, validation, export et clôture dans l'ancien modèle. La génération des
+ * écritures de ventes et de règlements est passée au contexte {@code comptabilite} (slice C5).
  */
-public class ComptabiliteService implements ComptabiliteUseCase {
+public class ComptabiliteService {
 
     private final EcritureComptableRepositoryPort ecritureRepository;
-    private final MappingComptablePort mappingPort;
     private final PeriodeComptableRepositoryPort periodePort;
     private final ExportComptablePort exportPort;
-    private final ComptePayeurRepositoryPort comptesPayeurs;
-    private final GenerateurEcritureComptable generateur;
 
     public ComptabiliteService(EcritureComptableRepositoryPort ecritureRepository,
-                               MappingComptablePort mappingPort,
                                PeriodeComptableRepositoryPort periodePort,
-                               ExportComptablePort exportPort,
-                               ComptePayeurRepositoryPort comptesPayeurs) {
+                               ExportComptablePort exportPort) {
         this.ecritureRepository = ecritureRepository;
-        this.mappingPort = mappingPort;
         this.periodePort = periodePort;
         this.exportPort = exportPort;
-        this.comptesPayeurs = comptesPayeurs;
-        this.generateur = new GenerateurEcritureComptable();
     }
 
-    /**
-     * Compte client d'une facture : celui de son payeur s'il en a un, sinon le compte client par défaut du centre ;
-     * une facture sans payeur (patient qui paie lui-même) relève du compte client des patients.
-     */
-    private String compteClient(UUID centerId, UUID payeurId, MappingComptable mapping) {
-        if (payeurId == null) return mapping.compteClientPatient();
-        return comptesPayeurs.find(centerId, payeurId).orElse(mapping.compteClientDefaut());
-    }
-
-    @Override
-    public EcritureComptable genererEcritureFacturation(GenererEcritureFacturationCommand cmd) {
-        // Idempotence : si l'écriture existe déjà pour cette facture, ne pas recréer
-        var existing = ecritureRepository.findBySourceId(cmd.factureId(), cmd.centerId());
-        if (existing.isPresent()) return existing.get();
-
-        // Vérification période non clôturée
-        YearMonth periode = YearMonth.from(cmd.dateFacture());
-        if (periodePort.isClotured(cmd.centerId(), periode)) {
-            throw new BusinessException("PERIODE_CLOTUREE",
-                    "La période " + periode + " est clôturée pour le centre " + cmd.centerId());
-        }
-
-        MappingComptable mapping = mappingPort.findByCenterId(cmd.centerId());
-        String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(),
-                mapping.journalDe(OperationComptable.VENTE), cmd.dateFacture().getYear());
-
-        EcritureComptable ecriture = generateur.genererEcritureFacturation(cmd, mapping,
-                compteClient(cmd.centerId(), cmd.tiersPayeurId(), mapping), numeroPiece);
-        ecritureRepository.save(ecriture);
-        return ecriture;
-    }
-
-    @Override
-    public EcritureComptable genererEcritureReglement(GenererEcritureReglementCommand cmd) {
-        // Idempotence : si l'écriture existe déjà pour ce paiement
-        var existing = ecritureRepository.findBySourceId(cmd.paiementId(), cmd.centerId());
-        if (existing.isPresent()) return existing.get();
-
-        YearMonth periode = YearMonth.from(cmd.dateReglement());
-        if (periodePort.isClotured(cmd.centerId(), periode)) {
-            throw new BusinessException("PERIODE_CLOTUREE",
-                    "La période " + periode + " est clôturée pour le centre " + cmd.centerId());
-        }
-
-        MappingComptable mapping = mappingPort.findByCenterId(cmd.centerId());
-        var journalCible = mapping.journalDe("CAISSE".equalsIgnoreCase(cmd.modeReglement())
-                ? OperationComptable.REGLEMENT_CAISSE : OperationComptable.REGLEMENT_BANQUE);
-        String numeroPiece = ecritureRepository.nextNumeroPiece(cmd.centerId(), journalCible, cmd.dateReglement().getYear());
-
-        // le règlement solde le compte que la facture a débité, même si le paramétrage a changé entre-temps
-        String compteClient = (cmd.factureId() == null ? Optional.<EcritureComptable>empty()
-                : ecritureRepository.findBySourceId(cmd.factureId(), cmd.centerId()))
-                .flatMap(facture -> facture.getLignes().stream()
-                        .filter(l -> l.getMontantDebit().signum() > 0).map(LigneEcriture::getCompteSCF).findFirst())
-                .orElseGet(() -> compteClient(cmd.centerId(), cmd.tiersPayeurId(), mapping));
-
-        EcritureComptable ecriture = generateur.genererEcritureReglement(cmd, mapping, compteClient, numeroPiece);
-        ecritureRepository.save(ecriture);
-        return ecriture;
-    }
-
-    @Override
     public PagedResult<EcritureComptable> search(SearchEcrituresQuery query) {
         return ecritureRepository.findByCenterAndPeriod(
                 query.centerId(), query.from(), query.to(),
                 query.journalCode(), query.statut(), query.page(), query.size());
     }
 
-    @Override
     public EcritureComptable valider(ValiderEcritureCommand cmd) {
         EcritureComptable ecriture = ecritureRepository.findById(cmd.ecritureId(), cmd.centerId())
                 .orElseThrow(() -> new BusinessException("ECRITURE_INTROUVABLE", "Écriture introuvable"));
@@ -115,7 +46,6 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         return ecriture;
     }
 
-    @Override
     public byte[] exporter(ExporterJournalQuery query) {
         List<EcritureComptable> ecritures = ecritureRepository.findForExport(
                 query.centerId(), query.from(), query.to(), query.journalCode());
@@ -130,7 +60,6 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         return result;
     }
 
-    @Override
     public void cloturerPeriode(CloturerPeriodeCommand cmd) {
         if (periodePort.isClotured(cmd.centerId(), cmd.periode())) {
             throw new BusinessException("PERIODE_DEJA_CLOTUREE",
@@ -138,8 +67,4 @@ public class ComptabiliteService implements ComptabiliteUseCase {
         }
         periodePort.cloturer(cmd.centerId(), cmd.periode(), cmd.userId());
     }
-
 }
-
-
-

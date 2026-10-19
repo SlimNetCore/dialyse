@@ -1,0 +1,24 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "date_ecriture": "2026-03-10",
+    "date_piece": "2026-03-10",
+    "statut": "VALIDEE",
+    "libelle": "Loyer mars",
+    "source_id": "<UUID_GENERE_1>",
+    "modele_id": "<UUID_GENERE_2>"
+  },
+  {
+    "id": "<UUID_GENERE_3>",
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000002",
+    "date_ecriture": "<AUJOURDHUI_UTC>",
+    "date_piece": "2026-03-10",
+    "statut": "VALIDEE",
+    "libelle": "Extourne AC-2026-000001 - Loyer mars",
+    "source_id": "<UUID_GENERE_4>",
+    "modele_id": "<UUID_GENERE_2>"
+  }
+]

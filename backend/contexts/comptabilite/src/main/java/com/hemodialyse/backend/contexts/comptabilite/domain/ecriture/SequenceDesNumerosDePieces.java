@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Port sortant : la séquence des numéros de pièces d'un journal, pour une année et un centre. Elle se verrouille : tant que la
@@ -16,4 +17,9 @@ public interface SequenceDesNumerosDePieces {
      * dans le journal et l'année (ceux des écritures que cette transaction a écrites compris), tels qu'ils sont en base.
      */
     List<String> verrouillerEtLireLesNumeros(CentreId centre, CodeJournal journal, int annee);
+
+    /**
+     * Verrou stable par source, partagé avec les consommateurs legacy encore actifs.
+     */
+    void verrouillerSource(CentreId centre, UUID source);
 }

@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Sens inconnu : AUTRE (DEBIT ou CREDIT)",
+    "instance": "/api/v1/comptabilite/modeles",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

@@ -315,14 +315,22 @@ abstract class EcrituresCharacterizationSupport {
     }
 
     protected void golden(String name, Resp r) {
-        GoldenMaster.verify(GOLDENS.resolve(theme()), name, new Scrubber(false).render(r));
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, new Scrubber(false).render(r));
+    }
+
+    /**
+     * Extourne : la date du jour UTC est observable mais doit rester stable entre exécutions.
+     */
+    protected void goldenAujourdhui(String name, Resp r) {
+        String actual = new Scrubber(false).render(r).replace(LocalDate.now(ZoneOffset.UTC).toString(), "<AUJOURDHUI_UTC>");
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, actual);
     }
 
     /**
      * Golden qui conserve l'ordre des lignes d'écriture de la réponse (ordre {@code @OrderBy id}, ids de fixture).
      */
     protected void goldenOrdreDesLignes(String name, Resp r) {
-        GoldenMaster.verify(GOLDENS.resolve(theme()), name, new Scrubber(true).render(r));
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, new Scrubber(true).render(r));
     }
 
     // ------------------------------------------------------------------ golden
@@ -331,14 +339,37 @@ abstract class EcrituresCharacterizationSupport {
      * Fichier d'export : une ligne CSV par entrée, ordre des enregistrements conservé.
      */
     protected void goldenCsv(String name, Resp r) {
-        GoldenMaster.verify(GOLDENS.resolve(theme()), name, new Scrubber(false).renderCsv(r, false));
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, new Scrubber(false).renderCsv(r, false));
     }
 
     /**
      * Fichier d'export : en-tête puis lignes triées (l'ordre des écritures du fichier n'a pas d'ORDER BY).
      */
     protected void goldenCsvTrie(String name, Resp r) {
-        GoldenMaster.verify(GOLDENS.resolve(theme()), name, new Scrubber(false).renderCsv(r, true));
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, new Scrubber(false).renderCsv(r, true));
+    }
+
+    /**
+     * Valeur observée du nouveau code pour un écart métier décidé ; à valider humainement avant approbation.
+     */
+    protected void goldenCsvNouveauCode(String name, Resp r) {
+        verifierOuEnregistrerCandidat(name, new Scrubber(false).renderCsv(r, false));
+    }
+
+    /**
+     * Variante triée, utile aux exports qui couvrent plusieurs écritures.
+     */
+    protected void goldenCsvTrieNouveauCode(String name, Resp r) {
+        verifierOuEnregistrerCandidat(name, new Scrubber(false).renderCsv(r, true));
+    }
+
+    private void verifierOuEnregistrerCandidat(String name, String actual) {
+        String nom = name + "_nouveau_code";
+        if (Boolean.getBoolean("characterization.recordNewCode")) {
+            GoldenMaster.recordCandidate(GOLDENS.resolve(theme()), nom, actual);
+        } else {
+            GoldenMaster.verifyJson(GOLDENS.resolve(theme()), nom, actual);
+        }
     }
 
     /**
@@ -353,14 +384,14 @@ abstract class EcrituresCharacterizationSupport {
             row.forEach((k, v) -> o.put(k.toLowerCase(), v == null ? null : s.scrubString(String.valueOf(v))));
             arr.add(o);
         }
-        GoldenMaster.verify(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arr));
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arr));
     }
 
     /**
      * Valeur JSON construite par le test (déjà déterministe) comme golden.
      */
     protected void goldenNode(String name, JsonNode node) {
-        GoldenMaster.verify(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node));
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node));
     }
 
     /**
@@ -370,6 +401,27 @@ abstract class EcrituresCharacterizationSupport {
         goldenSql(name, "SELECT id, journal_code, numero_piece, date_ecriture, date_piece, statut, libelle, source_id, "
                 + "modele_id FROM ecritures_comptables WHERE center_id = '" + centre
                 + "' ORDER BY journal_code, numero_piece, date_ecriture, libelle, statut");
+    }
+
+    protected void goldenEcrituresAvecAujourdhui(String name, UUID centre) {
+        String sql = "SELECT id, journal_code, numero_piece, date_ecriture, date_piece, statut, libelle, source_id, "
+                + "modele_id FROM ecritures_comptables WHERE center_id = '" + centre
+                + "' ORDER BY journal_code, numero_piece, date_ecriture, libelle, statut";
+        List<Map<String, Object>> rows = jdbc.queryForList(sql);
+        ArrayNode arr = mapper.createArrayNode();
+        Scrubber s = new Scrubber(false);
+        for (Map<String, Object> row : rows) {
+            ObjectNode o = mapper.createObjectNode();
+            row.forEach((k, v) -> {
+                String valeur = v == null ? null : s.scrubString(String.valueOf(v));
+                if ("date_ecriture".equalsIgnoreCase(k) && valeur != null) {
+                    valeur = valeur.replace(LocalDate.now(ZoneOffset.UTC).toString(), "<AUJOURDHUI_UTC>");
+                }
+                o.put(k.toLowerCase(), valeur);
+            });
+            arr.add(o);
+        }
+        GoldenMaster.verifyJson(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arr));
     }
 
     /**

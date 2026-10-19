@@ -1,0 +1,11 @@
+{
+  "status": 403,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ACCESS_DENIED",
+    "detail": "Accès refusé : le centre demandé ne correspond pas à la session",
+    "instance": "/api/v1/comptabilite/rebuild",
+    "status": 403,
+    "title": "Acces refuse"
+  }
+}

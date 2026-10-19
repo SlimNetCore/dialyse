@@ -5,7 +5,7 @@
     "scan": "done",
     "discover": "done",
     "strategic": "done",
-    "tactical": "in-progress",
+    "tactical": "done",
     "architecture": "done",
     "plan": "done",
     "slices": "pending",
@@ -25,10 +25,13 @@
     "gmao-g6-consultation-pilotage": "built",
     "comptabilite-c1-referentiel": "built",
     "comptabilite-c2-mapping-tva": "built",
-    "comptabilite-c3-ecritures": "characterized"
+    "comptabilite-c3-ecritures": "built",
+    "comptabilite-c4-modeles-pieces": "built",
+    "comptabilite-c5-ventes-reglements": "built"
   },
   "contexts": {
     "gmao": "architected",
-    "comptabilite": "modeled"
+    "comptabilite": "modeled",
+    "facturation": "modeled"
   }
 }

@@ -1,0 +1,23 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "actif": false,
+    "code": "LOYER",
+    "id": "<UUID_GENERE_1>",
+    "journal": "AC",
+    "libelle": "Loyer du centre",
+    "lignes": [
+      {
+        "compte": "613",
+        "libelle": "Loyer",
+        "sens": "DEBIT"
+      },
+      {
+        "compte": "401",
+        "libelle": null,
+        "sens": "CREDIT"
+      }
+    ]
+  }
+}

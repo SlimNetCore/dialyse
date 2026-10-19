@@ -146,7 +146,15 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/LigneEcritureJpaEntity.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/PeriodeComptableJpaEntity.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/EcritureComptableJpaRepository.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/PeriodeComptableJpaRepository.java"
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/repository/PeriodeComptableJpaRepository.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/aggregate/ModelePiece.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/port/ModelePieceRepositoryPort.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/port/PiecesComptablesUseCase.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/service/PiecesComptablesService.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/comptabilite/ModelePieceJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/listener/FacturationValideeComptabiliteListener.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/listener/ReglementEncaisseComptabiliteListener.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/service/GenerateurEcritureComptable.java"
   ],
   "seamAllowed": []
 }

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "MODELE_INTROUVABLE",
+    "detail": "Modèle de pièce introuvable",
+    "instance": "/api/v1/comptabilite/modeles/<UUID_GENERE_1>",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

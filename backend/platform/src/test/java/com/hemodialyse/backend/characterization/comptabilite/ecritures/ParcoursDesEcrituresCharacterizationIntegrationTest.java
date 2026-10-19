@@ -44,8 +44,8 @@ class ParcoursDesEcrituresCharacterizationIntegrationTest extends EcrituresChara
         goldenCsvTrie("etape_4_export_ventes_fichier_200", doGet("/ecritures/export?" + MARS, adminA()));
         golden("etape_4_statuts_apres_export_ventes_200", doGet("/ecritures?" + MARS + "&size=10", adminA()));
 
-        // 5. un deuxième export des ventes reprend les mêmes écritures déjà exportées
-        goldenCsvTrie("etape_5_reexport_ventes_fichier_identique_200", doGet("/ecritures/export?" + MARS, adminA()));
+        // 5. le deuxième export des ventes ne reprend plus les écritures déjà exportées
+        goldenCsvTrieNouveauCode("etape_5_reexport_ventes_fichier_identique_200", doGet("/ecritures/export?" + MARS, adminA()));
 
         // 6. export des journaux de banque et de caisse
         goldenCsvTrie("etape_6_export_banque_fichier_200", doGet("/ecritures/export?" + MARS + "&journalCode=BQ", adminA()));
@@ -72,7 +72,7 @@ class ParcoursDesEcrituresCharacterizationIntegrationTest extends EcrituresChara
         goldenEcritures("etape_9_apres_cloture_et_nouvelles_ecritures_d_avril", CENTRE_A);
 
         // 10. le mois clos s'exporte encore à l'identique ; avril s'exporte en son propre fichier
-        goldenCsvTrie("etape_10_reexport_du_mois_clos_fichier_200", doGet("/ecritures/export?" + MARS, adminA()));
+        goldenCsvTrieNouveauCode("etape_10_reexport_du_mois_clos_fichier_200", doGet("/ecritures/export?" + MARS, adminA()));
         goldenCsvTrie("etape_10_export_d_avril_fichier_200",
                 doGet("/ecritures/export?from=2026-04-01&to=2026-04-30", adminA()));
         golden("etape_10_etat_final_des_statuts_200", doGet("/ecritures?from=2026-03-01&to=2026-04-30&size=20", adminA()));

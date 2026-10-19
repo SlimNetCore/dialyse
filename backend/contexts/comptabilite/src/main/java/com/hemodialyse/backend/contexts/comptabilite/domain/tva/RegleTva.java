@@ -18,22 +18,13 @@ import java.util.Collection;
 public record RegleTva(CentreId centre, String typePrestation, TauxDeTva taux, boolean exonere, LocalDate debutValidite,
                        LocalDate finValidite, String texteReference, boolean active) {
 
-    private RegleTva(CentreId centre, String typePrestation, BigDecimal taux, boolean exonere, LocalDate debutValidite,
-                     LocalDate finValidite, String texteReference, boolean active) {
+    public RegleTva {
         if (typePrestation == null || typePrestation.isBlank()) {
             throw new IllegalArgumentException("Le type de prestation est obligatoire");
         }
-        this(centre, typePrestation, new TauxDeTva(taux), exonere, debutValidite, finValidite, texteReference, active);
         if (debutValidite == null) {
             throw new IllegalArgumentException("La date de début de validité est obligatoire");
         }
-        this.centre = centre;
-        this.typePrestation = typePrestation;
-        this.exonere = exonere;
-        this.debutValidite = debutValidite;
-        this.finValidite = finValidite;
-        this.texteReference = texteReference;
-        this.active = active;
     }
 
     /**
@@ -41,7 +32,8 @@ public record RegleTva(CentreId centre, String typePrestation, TauxDeTva taux, b
      */
     public static RegleTva definir(CentreId centre, String typePrestation, BigDecimal taux, boolean exonere,
                                    LocalDate debutValidite, LocalDate finValidite, String texteReference) {
-        RegleTva regle = new RegleTva(centre, typePrestation, taux, exonere, debutValidite, finValidite, texteReference, true);
+        RegleTva regle = new RegleTva(centre, typePrestation, new TauxDeTva(taux), exonere, debutValidite, finValidite,
+                texteReference, true);
         if (finValidite != null && finValidite.isBefore(debutValidite)) {
             throw new DatesDeValiditeInversees(debutValidite, finValidite);
         }
@@ -53,7 +45,8 @@ public record RegleTva(CentreId centre, String typePrestation, TauxDeTva taux, b
      */
     public static RegleTva reconstituee(CentreId centre, String typePrestation, BigDecimal taux, boolean exonere,
                                         LocalDate debutValidite, LocalDate finValidite, String texteReference, boolean active) {
-        return new RegleTva(centre, typePrestation, taux, exonere, debutValidite, finValidite, texteReference, active);
+        return new RegleTva(centre, typePrestation, new TauxDeTva(taux), exonere, debutValidite, finValidite,
+                texteReference, active);
     }
 
     /**

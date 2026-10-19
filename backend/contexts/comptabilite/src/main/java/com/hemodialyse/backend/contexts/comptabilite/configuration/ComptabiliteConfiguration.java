@@ -2,6 +2,10 @@ package com.hemodialyse.backend.contexts.comptabilite.configuration;
 
 import com.hemodialyse.backend.contexts.comptabilite.application.SessionCourante;
 import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
+import com.hemodialyse.backend.contexts.comptabilite.application.ecriture.CloturerUnePeriode;
+import com.hemodialyse.backend.contexts.comptabilite.application.ecriture.ExporterUnJournal;
+import com.hemodialyse.backend.contexts.comptabilite.application.ecriture.ListerLesEcritures;
+import com.hemodialyse.backend.contexts.comptabilite.application.ecriture.ValiderUneEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.application.journal.ConsulterLesJournaux;
 import com.hemodialyse.backend.contexts.comptabilite.application.journal.EnregistrerUnJournal;
 import com.hemodialyse.backend.contexts.comptabilite.application.journal.JournauxDuCentreVus;
@@ -11,6 +15,7 @@ import com.hemodialyse.backend.contexts.comptabilite.application.mapping.Consult
 import com.hemodialyse.backend.contexts.comptabilite.application.mapping.ConsulterLeMappingDuCentre;
 import com.hemodialyse.backend.contexts.comptabilite.application.mapping.MappingDuCentreVu;
 import com.hemodialyse.backend.contexts.comptabilite.application.mapping.ModifierLeMapping;
+import com.hemodialyse.backend.contexts.comptabilite.application.piece.GererLesModelesEtPieces;
 import com.hemodialyse.backend.contexts.comptabilite.application.tva.ConsulterLeParametrageFiscal;
 import com.hemodialyse.backend.contexts.comptabilite.application.tva.EnregistrerUneRegleDeTva;
 import com.hemodialyse.backend.contexts.comptabilite.application.tva.ListerLesReglesDeTva;
@@ -23,13 +28,22 @@ import com.hemodialyse.backend.contexts.comptabilite.application.plan.Enregistre
 import com.hemodialyse.backend.contexts.comptabilite.application.plan.ListerLesComptes;
 import com.hemodialyse.backend.contexts.comptabilite.application.plan.SupprimerUnCompte;
 import com.hemodialyse.backend.contexts.comptabilite.domain.UsagesDuParametrage;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptableRepository;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.ExportComptablePort;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.SequenceDesNumerosDePieces;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.JournalRepository;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.MappingComptableRepository;
 import com.hemodialyse.backend.contexts.comptabilite.domain.payeur.CompteClientDuPayeurRepository;
 import com.hemodialyse.backend.contexts.comptabilite.domain.tva.RegleTvaRepository;
+import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeComptableRepository;
+import com.hemodialyse.backend.contexts.comptabilite.domain.piece.ModeleDePieceRepository;
 import com.hemodialyse.backend.contexts.comptabilite.domain.plan.PlanDuCentre;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.CompteClientDuPayeurRepositoryJpa;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.EcritureComptableRepositoryJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.PeriodeComptableRepositoryJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.ModeleDePieceRepositoryJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.SequenceDesNumerosDePiecesJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.CompteComptableSpringData;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.ComptePayeurSpringData;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.CompteRepositoryJpa;
@@ -41,6 +55,7 @@ import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.PayeursDuCentreJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.UsagesDuParametrageJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.transaction.UniteDeTravailSpring;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.export.Sage100ExportAdapter;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptesClientsDesPayeurs;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.JournauxDuCentre;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.MappingComptableDuCentre;
@@ -50,7 +65,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
+import com.hemodialyse.backend.contexts.comptabilite.application.vente.ComptabiliserLesVentesEtReglements;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.FacturesAComptabiliserJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.ReglementsAComptabiliserJdbc;
+
+import java.time.Clock;
 
 /**
  * Composition root du contexte Comptabilité : seul endroit qui connaît toutes les couches. Les cas d'usage et les règles du
@@ -70,6 +91,11 @@ public class ComptabiliteConfiguration {
     @Bean
     UniteDeTravail comptabiliteUniteDeTravail(PlatformTransactionManager transactionManager) {
         return new UniteDeTravailSpring(new TransactionTemplate(transactionManager));
+    }
+
+    @Bean
+    Clock comptabiliteHorloge() {
+        return Clock.systemUTC();
     }
 
     // ------------------------------------------------------------------ adaptateurs sortants
@@ -100,6 +126,43 @@ public class ComptabiliteConfiguration {
     @Bean
     UsagesDuParametrage comptabiliteUsagesDuParametrage(JdbcTemplate jdbc) {
         return new UsagesDuParametrageJdbc(jdbc);
+    }
+
+    @Bean
+    EcritureComptableRepository comptabiliteEcritures(JdbcTemplate jdbc) {
+        return new EcritureComptableRepositoryJdbc(jdbc);
+    }
+
+    @Bean
+    PeriodeComptableRepository comptabilitePeriodes(JdbcTemplate jdbc) {
+        return new PeriodeComptableRepositoryJdbc(jdbc);
+    }
+
+    @Bean
+    ExportComptablePort comptabiliteExportateur() {
+        return new Sage100ExportAdapter();
+    }
+
+    @Bean
+    ListerLesEcritures comptabiliteListerLesEcritures(EcritureComptableRepository ecritures, UniteDeTravail uniteDeTravail) {
+        return new ListerLesEcritures(ecritures, uniteDeTravail);
+    }
+
+    @Bean
+    ValiderUneEcriture comptabiliteValiderUneEcriture(EcritureComptableRepository ecritures, UniteDeTravail uniteDeTravail) {
+        return new ValiderUneEcriture(ecritures, uniteDeTravail);
+    }
+
+    @Bean
+    ExporterUnJournal comptabiliteExporterUnJournal(EcritureComptableRepository ecritures, ExportComptablePort exportateur,
+                                                    UniteDeTravail uniteDeTravail, Clock horloge) {
+        return new ExporterUnJournal(ecritures, exportateur, uniteDeTravail, horloge);
+    }
+
+    @Bean
+    CloturerUnePeriode comptabiliteCloturerUnePeriode(PeriodeComptableRepository periodes,
+                                                      UniteDeTravail uniteDeTravail, Clock horloge) {
+        return new CloturerUnePeriode(periodes, uniteDeTravail, horloge);
     }
 
     // ------------------------------------------------------------------ plan comptable
@@ -203,6 +266,50 @@ public class ComptabiliteConfiguration {
     @Bean
     EnregistrerUneRegleDeTva comptabiliteEnregistrerUneRegleDeTva(RegleTvaRepository regles, UniteDeTravail uniteDeTravail) {
         return new EnregistrerUneRegleDeTva(regles, uniteDeTravail);
+    }
+
+    // ------------------------------------------------------------------ modèles et pièces (C4)
+
+    @Bean
+    ModeleDePieceRepository comptabiliteModelesDePiece(JdbcTemplate jdbc) {
+        return new ModeleDePieceRepositoryJdbc(jdbc);
+    }
+
+    @Bean
+    SequenceDesNumerosDePieces comptabiliteSequenceDesNumerosDePieces(JdbcTemplate jdbc) {
+        return new SequenceDesNumerosDePiecesJdbc(jdbc);
+    }
+
+    @Bean
+    GererLesModelesEtPieces comptabiliteGererLesModelesEtPieces(ModeleDePieceRepository modeles,
+                                                                EcritureComptableRepository ecritures,
+                                                                PeriodeComptableRepository periodes,
+                                                                SequenceDesNumerosDePieces numerotation,
+                                                                PlanComptableEnLecture plan,
+                                                                JournauxDuCentre journaux,
+                                                                UniteDeTravail uniteDeTravail,
+                                                                Clock horloge) {
+        return new GererLesModelesEtPieces(modeles, ecritures, periodes, numerotation, plan, journaux,
+                uniteDeTravail, horloge);
+    }
+
+    // ------------------------------------------------------------------ ventes et règlements (C5)
+
+    /**
+     * Chaque facture ou règlement est comptabilisé dans sa propre transaction (propagation « nouvelle transaction ») : un
+     * refus n'annule jamais la facturation ou le règlement de l'appelant (décision KB-CPT-37). L'unité de travail n'est pas
+     * un bean, pour ne pas concurrencer l'unité de travail ordinaire des autres cas d'usage.
+     */
+    @Bean
+    ComptabiliserLesVentesEtReglements comptabiliteComptabiliserLesVentesEtReglements(
+            EcritureComptableRepository ecritures, PeriodeComptableRepository periodes,
+            SequenceDesNumerosDePieces numerotation, MappingDuCentreVu mappings, ComptesClientsDesPayeurs comptesDesPayeurs,
+            JdbcTemplate jdbc, PlatformTransactionManager transactionManager) {
+        TransactionTemplate nouvelleTransaction = new TransactionTemplate(transactionManager);
+        nouvelleTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        return new ComptabiliserLesVentesEtReglements(ecritures, periodes, numerotation, mappings, comptesDesPayeurs,
+                new FacturesAComptabiliserJdbc(jdbc), new ReglementsAComptabiliserJdbc(jdbc),
+                new UniteDeTravailSpring(nouvelleTransaction));
     }
 
     // ------------------------------------------------------------------ langage publié (lectures pour les autres slices)

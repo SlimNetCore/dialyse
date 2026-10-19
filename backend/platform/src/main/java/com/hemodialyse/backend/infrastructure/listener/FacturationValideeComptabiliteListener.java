@@ -1,116 +1,44 @@
 package com.hemodialyse.backend.infrastructure.listener;
 
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
+import com.hemodialyse.backend.contexts.comptabilite.application.vente.ComptabiliserLesVentesEtReglements;
+import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
 import com.hemodialyse.backend.domain.facturation.event.FacturationValideeEvent;
-import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Génère les écritures VE après une validation de facturation.
+ * Politique P1 (slice C5) : une validation de facturation produit une écriture de ventes par facture de la période,
+ * par le contexte {@code comptabilite}.
  * <p>
- * L'événement métier actuel est global (pas par facture), donc ce listener recharge
- * les factures de la période concernée et laisse l'idempotence domaine éviter les doublons.
- * <p>
- * Le déclenchement est synchrone afin de garantir que les écritures sont visibles
- * immédiatement après la validation de facturation, y compris dans les scénarios
- * d'intégration/test et lors du retour direct vers l'écran comptabilité.
+ * Décision KB-CPT-37 (2026-10-19) : la comptabilisation a lieu <b>après le commit</b> de la facturation, chaque facture
+ * dans sa propre transaction. Une facture refusée (mois clôturé, facture déséquilibrée...) ne fait jamais échouer la
+ * facturation et n'empêche pas les suivantes ; elle est journalisée et reste à régénérer
+ * ({@code GET /api/v1/comptabilite/ventes/non-comptabilisees}, puis {@code POST /api/v1/comptabilite/rebuild}).
+ * Publié hors transaction, l'événement est traité tout de suite.
  */
 @Component
 public class FacturationValideeComptabiliteListener {
 
     private static final Logger log = LoggerFactory.getLogger(FacturationValideeComptabiliteListener.class);
 
-    private final ComptabiliteUseCase comptabiliteUseCase;
-    private final JdbcTemplate jdbcTemplate;
+    private final ComptabiliserLesVentesEtReglements comptabilisation;
 
-    public FacturationValideeComptabiliteListener(ComptabiliteUseCase comptabiliteUseCase,
-                                                  JdbcTemplate jdbcTemplate) {
-        this.comptabiliteUseCase = comptabiliteUseCase;
-        this.jdbcTemplate = jdbcTemplate;
+    public FacturationValideeComptabiliteListener(ComptabiliserLesVentesEtReglements comptabilisation) {
+        this.comptabilisation = comptabilisation;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onFacturationValidee(FacturationValideeEvent event) {
         try {
-            LocalDate start = event.periodStart();
-            LocalDate end = event.periodEnd();
-            List<FactureRow> factures = jdbcTemplate.query(
-                    """
-                            SELECT f.id, f.center_id, f.numero_facture, f.patient_id,
-                                   f.centre_payeur_id_snapshot, f.total_ht, f.total_tva, f.total_ttc,
-                                   f.date_facturation, COALESCE(f.patient_full_name, 'Facture') AS libelle
-                            FROM factures f
-                            WHERE f.center_id = ?
-                              AND f.period_start >= ?
-                              AND f.period_end <= ?
-                            ORDER BY f.date_facturation, f.numero_facture
-                            """,
-                    (rs, rowNum) -> new FactureRow(
-                            rs.getObject("id", UUID.class),
-                            rs.getObject("center_id", UUID.class),
-                            rs.getString("numero_facture"),
-                            rs.getObject("patient_id", UUID.class),
-                            rs.getObject("centre_payeur_id_snapshot", UUID.class),
-                            rs.getBigDecimal("total_ht"),
-                            rs.getBigDecimal("total_tva"),
-                            rs.getBigDecimal("total_ttc"),
-                            rs.getObject("date_facturation", LocalDate.class),
-                            rs.getString("libelle")
-                    ),
-                    event.centerId(), start, end
-            );
-
-            for (FactureRow f : factures) {
-                // La date de l'écriture VE correspond à la fin de la période facturée
-                // (date de réalisation des prestations), pas à la date d'émission de la facture.
-                // Cela garantit que les écritures sont toujours dans la période comptable correspondante
-                // et évite toute dérive quand la facturation est émise un mois après les séances.
-                LocalDate dateEcriture = end;
-                comptabiliteUseCase.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(
-                        f.centerId,
-                        f.factureId,
-                        f.numeroFacture,
-                        f.patientId,
-                        f.centrePayeurId,
-                        f.totalHt != null ? f.totalHt : BigDecimal.ZERO,
-                        f.totalTva != null ? f.totalTva : BigDecimal.ZERO,
-                        f.totalTtc != null ? f.totalTtc : BigDecimal.ZERO,
-                        dateEcriture,
-                        f.libelle
-                ));
-            }
-        } catch (BusinessException ex) {
-            log.warn("Génération écritures facturation ignorée: {}", ex.getMessage());
-        } catch (Exception ex) {
-            log.error("Erreur inattendue pendant la génération comptable facturation", ex);
+            comptabilisation.comptabiliserLesVentesValidees(new CentreId(event.centerId()), event.periodStart(),
+                    event.periodEnd()).echecs().forEach(echec -> log.warn(
+                    "Écriture de ventes non générée pour la facture {} ({}) : {} {}", echec.reference(), echec.source(),
+                    echec.code(), echec.message()));
+        } catch (RuntimeException ex) {
+            log.error("Erreur inattendue pendant la comptabilisation des ventes du centre {}", event.centerId(), ex);
         }
     }
-
-    private record FactureRow(
-            UUID factureId,
-            UUID centerId,
-            String numeroFacture,
-            UUID patientId,
-            UUID centrePayeurId,
-            BigDecimal totalHt,
-            BigDecimal totalTva,
-            BigDecimal totalTtc,
-            LocalDate dateFacturation,
-            String libelle
-    ) {
-    }
 }
-
-
-
-
-

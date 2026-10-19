@@ -1,0 +1,14 @@
+[
+  {
+    "position_ligne": "0",
+    "sens": "DEBIT",
+    "compte": "613",
+    "libelle": "Loyer"
+  },
+  {
+    "position_ligne": "1",
+    "sens": "CREDIT",
+    "compte": "401",
+    "libelle": null
+  }
+]

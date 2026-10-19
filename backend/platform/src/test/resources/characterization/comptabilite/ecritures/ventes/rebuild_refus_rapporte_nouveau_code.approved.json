@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "echecs": [
+      {
+        "code": "PERIODE_CLOTUREE",
+        "message": "La période 2026-01 est clôturée pour le centre <CENTRE_A>",
+        "nature": "FACTURE",
+        "reference": "F-001",
+        "source": "<FACTURE_1>"
+      }
+    ],
+    "facturesProcessed": 1,
+    "from": "2026-02-01",
+    "reglementsProcessed": 1,
+    "to": "2026-02-28"
+  }
+}

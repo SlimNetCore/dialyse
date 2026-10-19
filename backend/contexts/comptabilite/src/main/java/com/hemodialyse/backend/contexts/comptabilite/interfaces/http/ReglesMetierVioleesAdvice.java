@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * Les refus des règles du référentiel comptable : 422 avec le code d'erreur de la règle, au même format que le legacy
- * ({@code Regle metier violee}). Limité aux contrôleurs du référentiel ; les autres erreurs (400 format, 403, 500) suivent
+ * ({@code Regle metier violee}). Limité aux contrôleurs du contexte ; les autres erreurs (400 format, 403, 500) suivent
  * la gestion commune de la plateforme. Passe avant elle (la gestion commune attrape toute {@code Exception}).
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(assignableTypes = {PlanComptableControleur.class, JournauxControleur.class, ComptesPayeursControleur.class,
-        MappingControleur.class})
+        MappingControleur.class, EcrituresControleur.class, ModelesEtPiecesControleur.class})
 class ReglesMetierVioleesAdvice {
 
     @ExceptionHandler(RegleMetierViolee.class)

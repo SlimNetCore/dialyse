@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * Filet de caractérisation C3 — export comptable ({@code GET /api/v1/comptabilite/ecritures/export}) : contenu exact du
@@ -97,7 +98,7 @@ class ExportComptableCharacterizationIntegrationTest extends EcrituresCharacteri
                 L.c("710", "5.00").libelle(""));
         goldenCsv("export_echappements_et_lettrage_fichier_200", exporter(MARS));
         jdbc.update("UPDATE lignes_ecriture SET libelle_ligne = NULL WHERE compte_scf = '710'");
-        goldenCsv("export_libelle_de_ligne_nul_en_base_fichier_200", exporter(MARS));
+        goldenCsvNouveauCode("export_libelle_de_ligne_nul_en_base_fichier_200", exporter(MARS));
     }
 
     @Test
@@ -121,13 +122,14 @@ class ExportComptableCharacterizationIntegrationTest extends EcrituresCharacteri
     }
 
     @Test
-    void un_deuxieme_export_reprend_les_ecritures_deja_exportees_dans_le_fichier_et_ne_change_rien() throws Exception {
+    void un_deuxieme_export_ne_reprend_pas_les_ecritures_deja_exportees() throws Exception {
         factureAvecTva(1, "VE-2026-000001", "2026-03-10", "VALIDEE");
         Resp premier = exporter(MARS);
         Resp second = exporter(MARS);
-        assertEquals(premier.raw(), second.raw());
+        assertNotEquals(premier.raw(), second.raw());
+        assertEquals("Journal;Piece;Date;Compte;Libelle;Debit;Credit;Lettrage\r\n", second.raw());
         goldenCsv("export_premier_fichier_200", premier);
-        goldenCsv("export_deuxieme_fichier_identique_200", second);
+        goldenCsvNouveauCode("export_deuxieme_fichier_identique_200", second);
         goldenEcritures("export_deux_fois_etat_final", CENTRE_A);
     }
 
@@ -136,7 +138,7 @@ class ExportComptableCharacterizationIntegrationTest extends EcrituresCharacteri
         factureAvecTva(1, "VE-2026-000001", "2026-03-10", "BROUILLON");
         factureAvecTva(2, "VE-2026-000002", "2026-03-11", "VALIDEE");
         factureAvecTva(3, "VE-2026-000003", "2026-03-12", "EXPORTEE");
-        goldenCsvTrie("export_mixte_fichier_200", exporter(MARS));
+        goldenCsvTrieNouveauCode("export_mixte_fichier_200", exporter(MARS));
         goldenEcritures("export_mixte_etat_apres", CENTRE_A);
         assertEquals("BROUILLON", statutEnBase(1));
         assertEquals("EXPORTEE", statutEnBase(2));
@@ -208,7 +210,7 @@ class ExportComptableCharacterizationIntegrationTest extends EcrituresCharacteri
         golden_csv_exact("journal_par_defaut_ve_nom_du_fichier_200", exporter(MARS));
         assertEquals("VALIDEE", statutEnBase(2));
         golden_csv_exact("journal_minuscules_normalise_nom_du_fichier_en_majuscules_200", exporter(MARS + "&journalCode=bq"));
-        golden_csv_exact("journal_avec_espaces_rogne_200", exporter(MARS + "&journalCode=%20BQ%20"));
+        goldenCsvNouveauCode("journal_avec_espaces_rogne_200", exporter(MARS + "&journalCode=%20BQ%20"));
     }
 
     @Test
@@ -241,8 +243,14 @@ class ExportComptableCharacterizationIntegrationTest extends EcrituresCharacteri
     void le_parametre_format_est_ignore_et_le_fichier_est_toujours_du_csv_sage_100() throws Exception {
         vente(1, "VE-2026-000001", "2026-03-10", "VALIDEE", "10.00");
         Resp sage = exporter(MARS + "&format=SAGE100");
+        cleanupEcritures();
+        vente(1, "VE-2026-000001", "2026-03-10", "VALIDEE", "10.00");
         Resp inconnu = exporter(MARS + "&format=XML");
+        cleanupEcritures();
+        vente(1, "VE-2026-000001", "2026-03-10", "VALIDEE", "10.00");
         Resp vide = exporter(MARS + "&format=");
+        cleanupEcritures();
+        vente(1, "VE-2026-000001", "2026-03-10", "VALIDEE", "10.00");
         Resp absent = exporter(MARS);
         assertEquals(sage.raw(), inconnu.raw());
         assertEquals(sage.raw(), vide.raw());

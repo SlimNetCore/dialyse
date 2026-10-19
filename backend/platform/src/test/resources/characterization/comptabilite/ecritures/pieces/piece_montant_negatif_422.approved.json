@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "PIECE_MONTANTS_INVALIDES",
+    "detail": "Saisissez un montant positif ou nul pour chaque ligne du modèle",
+    "instance": "/api/v1/comptabilite/pieces",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}
