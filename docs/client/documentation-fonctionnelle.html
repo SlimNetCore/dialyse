@@ -22,13 +22,19 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-10-14<br>533 règles de gestion · 16 domaines · 409 codes d'erreur métier</div></div>
+    <div class="meta">Version 1.0 · 2026-10-19<br>534 règles de gestion · 16 domaines · 412 codes d'erreur métier</div>
+</div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>533</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>9</b>points d'attention</div></div>
+    <div class="stat">
+        <div><b>534</b>règles de gestion</div>
+        <div><b>16</b>domaines</div>
+        <div><b>15</b>surveillances automatiques</div>
+        <div><b>9</b>points d'attention</div>
+    </div>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -1907,7 +1913,10 @@ courant</strong> de l&#39;article.</p>
 </div></div>
 <div class="rule" id="RG-STK-032"><div class="rid">RG-STK-032</div><div class="rtxt"><p>Les sorties liées à une séance sont immuables si la séance est <strong>facturée</strong>
 (<code>SEANCE_BILLED_STOCK_EXIT_IMMUTABLE</code>) et leur date ne peut être changée (<code>SEANCE_STOCK_EXIT_DATE_IMMUTABLE</code>).
-Corriger un bon de sortie restitue d&#39;abord les quantités aux lots d&#39;origine puis recrée les sorties.</p>
+    Corriger un bon de sortie restitue d&#39;abord les quantités aux lots d&#39;origine puis recrée les sorties ; les
+    sorties
+    recréées gardent la <strong>date du bon</strong> et l&#39;<strong>heure de création du bon</strong> comme heure de
+    saisie (RG-STK-041).</p>
 </div></div>
 <div class="rule" id="RG-STK-033"><div class="rid">RG-STK-033</div><div class="rtxt"><p>Accès : <code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>. La liste des lots disponibles d&#39;un article est triée
 FEFO.</p>
@@ -1921,10 +1930,19 @@ comme une sortie. Mouvement d&#39;inventaire : traité comme une entrée.</p>
 </div></div>
 <div class="rule" id="RG-STK-041"><div class="rid">RG-STK-041</div><div class="rtxt"><p>Toute réception ou correction d&#39;une pièce passée déclenche un <strong>recalcul en cascade</strong> de l&#39;historique
 de l&#39;article (ordre chronologique) : le PMP après chaque
-mouvement et la valorisation de chaque sortie sont réécrits, ainsi que le PMP et la quantité courants de l&#39;article. Le
-recalcul massif est un traitement asynchrone suivi par
+    mouvement et la valorisation de chaque sortie sont réécrits, ainsi que le PMP et la quantité courants de l&#39;article.
+    <strong>Ordre chronologique</strong> : par date de la pièce, puis par <strong>heure réelle de saisie</strong> du
+    mouvement, puis, à défaut
+    (mouvements enregistrés avant que cette heure soit conservée, ou saisis au même instant), les entrées avant les
+    sorties. Une sortie saisie avant une réception du même jour est donc valorisée au PMP de son heure de saisie ; une
+    sortie n&#39;est <strong>jamais revalorisée à 0</strong> quand l&#39;historique ne donne aucun PMP (stock non
+    expliqué par les entrées
+    enregistrées) : elle garde la valeur enregistrée à la sortie. Le recalcul massif est un traitement asynchrone suivi
+    par
 un identifiant de tâche et un verrou par article (réservé <code>ADMIN</code>, <code>PHARMACIEN</code> pour le lancer ; consultation +
-<code>INFIRMIER</code>).</p>
+    <code>INFIRMIER</code>). <em>Source :</em> <code>PmpEngine</code>, <code>PmpCalculator</code>, <code>StockMovement.CHRONOLOGIE</code>
+    (colonne <code>saisi_le</code>, migration
+    V38).</p>
 </div></div>
 <div class="rule" id="RG-STK-042"><div class="rid">RG-STK-042</div><div class="rtxt"><p>L&#39;écran « explication du PMP » détaille, mouvement par mouvement, l&#39;état avant/après et la formule
 appliquée.</p>
@@ -2628,34 +2646,85 @@ facturation que des séances validées et couvertes</strong>, <strong>fige</stro
 payeur sur chaque facture, <strong>calcule le solde</strong> de chaque facture et <strong>génère les écritures comptables équilibrées</strong>.
 Sources : <code>FacturationDomainService</code>,
 <code>SeanceEligibleForFacturationSpecification</code>, <code>FactureAggregate</code>, <code>FactureNumberTemplate</code>, <code>TypeTVA</code>,
-<code>TypeTvaDomainService</code>, <code>SeanceFacturationJdbcAdapter</code>, <code>FactureReglementAggregate</code>,
+    <code>RegleTva</code>, <code>GererLesTypesDeTva</code>, <code>ParametresDeFacturation</code>, <code>ModeleDeNumerotation</code>,
+    <code>SeanceFacturationJdbcAdapter</code>, <code>FactureReglementAggregate</code>,
 <code>FactureReglementStatusSpecification</code>, <code>ReglementService</code>, <code>ComptabiliteService</code>, <code>GenerateurEcritureComptable</code>,
 <code>EcritureComptable</code>, <code>MappingComptable</code>, <code>RegleTVA</code>, listeners comptables,
-contrôleurs <code>Facturation*</code>, <code>TvaTypes*</code>, <code>Reglement*</code>, <code>Comptabilite*</code>.</p>
+    contrôleurs <code>Facturation*</code>, <code>TypesTvaControleur</code>, <code>ParametresFacturationControleur</code>,
+    <code>Reglement*</code>, <code>Comptabilite*</code>.</p>
 </blockquote>
 <h2>12.1 Types de TVA</h2>
-<div class="rule" id="RG-FAC-001"><div class="rid">RG-FAC-001</div><div class="rtxt"><p>Un type de TVA est propre à un centre : libellé obligatoire, <strong>taux de 0 à 100 %</strong>, type de
-prestation obligatoire, indicateur d&#39;exonération, <strong>date de début de validité obligatoire</strong>,
-date de fin facultative <strong>strictement postérieure</strong> au début (« La date de fin doit être postérieure à la date de
-début »), texte de référence légale facultatif.</p>
+    <div class="rule" id="RG-FAC-001">
+        <div class="rid">RG-FAC-001</div>
+        <div class="rtxt"><p>Un type (ou règle) de TVA est propre à un centre : libellé obligatoire, <strong>taux de 0 à
+            100 %</strong>
+            (arrondi à deux décimales par la base), type de prestation obligatoire (texte comparé tel que saisi),
+            indicateur
+            d&#39;exonération, <strong>date de début de validité obligatoire</strong>, date de fin facultative <strong>égale
+                ou postérieure</strong> au début,
+            texte de référence légale facultatif. <strong>Deux types actifs du même centre et du même type de prestation
+                ne se
+                chevauchent pas</strong> (périodes [début, fin] bornes incluses, fin absente = période ouverte, types
+            désactivés ignorés).
+            C&#39;est <strong>la même règle</strong> que celle des règles de TVA comptables (RG-CPT-006) : une seule
+            table, dont la Comptabilité
+            est propriétaire (ADR 0030) ; les types déjà enregistrés ne sont pas revalidés. Refus (400) : taux hors
+            bornes, « La
+            date de fin de validité (…) précède la date de début (…) », « La règle de TVA … chevauche la règle existante
+            … ».
+            <em>Source :</em> <code>RegleTva</code>, <code>TauxDeTva</code>, <code>GererLesTypesDeTva</code> (contexte
+            <code>comptabilite</code>) → <code>TypesTvaControleur</code>
+            (<code>/tva-types</code>).</p>
 </div></div>
 <div class="rule" id="RG-FAC-002"><div class="rid">RG-FAC-002</div><div class="rtxt"><p>La TVA applicable à une date est le type <strong>actif</strong> couvrant cette date pour la prestation
-<code>HEMODIALYSE</code> ; <strong>sans type actif, le taux est 0 %</strong>. Le taux est figé sur chaque facture au
-moment de la validation.</p>
+    <code>HEMODIALYSE</code> (le dernier commencé) ; <strong>sans type actif, le taux est 0 %</strong>. Le taux est figé
+    sur chaque facture au
+    moment de la validation. <em>Source :</em> langage publié <code>ParametrageFiscal</code> (contexte <code>comptabilite</code>)
+    ; la simulation et
+    la validation de facturation lisent encore la table par <code>TypeTvaJdbcAdapter</code> jusqu&#39;aux slices F2 et
+    F3.</p>
 </div></div>
-<div class="rule" id="RG-FAC-003"><div class="rid">RG-FAC-003</div><div class="rtxt"><p>Les types de TVA se désactivent (jamais supprimés physiquement) ; création, modification,
-désactivation : <code>ADMIN</code> ; consultation : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> (liste paginée,
-mise en cache par centre, vidée à chaque écriture).</p>
+    <div class="rule" id="RG-FAC-003">
+        <div class="rid">RG-FAC-003</div>
+        <div class="rtxt"><p>Les types de TVA se <strong>désactivent</strong> (jamais supprimés) : la désactivation est
+            idempotente et répond
+            204 même pour un type inconnu du centre. La <strong>modification</strong> remplace libellé, taux, type,
+            exonération, dates et texte
+            selon RG-FAC-001 (le type modifié ne se compare pas à lui-même) ; elle <strong>garde l&#39;état</strong> (un
+            type désactivé le reste)
+            et l&#39;auteur d&#39;origine ; un type inconnu dans le centre répond <strong>404</strong> et rien n&#39;est
+            écrit. Création, modification,
+            désactivation : <code>ADMIN</code> ; consultation : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>
+            (liste paginée, triée par début décroissant
+            puis libellé, relue à chaque appel). Le centre demandé est confronté à celui de la session : un autre centre
+            est
+            refusé (403). <em>Source :</em> <code>GererLesTypesDeTva</code> → <code>TypesTvaControleur</code>.</p>
 </div></div>
 <h2>12.2 Paramètres de facturation du centre</h2>
 <div class="rule" id="RG-FAC-010"><div class="rid">RG-FAC-010</div><div class="rtxt"><p>Chaque centre définit un <strong>modèle de numérotation</strong> des factures (défaut <code>FAC-{YEAR}-{SEQ}</code>) : jetons
-<code>{YYYY}</code>/<code>{YEAR}</code>, <code>{YY}</code>, <code>{CENTER}</code> (8 premiers caractères de l&#39;identifiant du centre),
-<code>{SEQ}</code> ou <code>{SEQn}</code> (séquence sur n chiffres, 4 par défaut). Le modèle est obligatoire ; la séquence est strictement
-positive et propre au centre (et à l&#39;année).</p>
+    <code>{YYYY}</code>/<code>{YEAR}</code>, <code>{YY}</code>, <code>{CENTER}</code> (8 premiers caractères de l&#39;identifiant
+    du centre), <code>{SEQ}</code> ou <code>{SEQn}</code>
+    (séquence sur n chiffres, n de 1 à 99, 4 par défaut). Le modèle est obligatoire, contient <strong>un jeton de
+        séquence</strong> et
+    <strong>aucun jeton inconnu</strong>, et tient en 120 caractères ; sinon il est refusé (400 : « Le modèle de
+    numérotation doit
+    contenir le jeton de séquence {SEQ} ou {SEQn} … », « Jeton inconnu {…} … »). Les modèles déjà enregistrés ne sont
+    pas
+    revalidés. La séquence est strictement positive et propre au centre (et à l&#39;année). <em>Source :</em> <code>ModeleDeNumerotation</code>,
+    <code>ParametresDeFacturation</code>, <code>ConfigurerLaFacturation</code> (contexte <code>facturation</code>) →
+    <code>ParametresFacturationControleur</code>
+    (<code>/facturation/settings</code>) ; numéro calculé par <code>FactureNumberTemplate</code>.</p>
 </div></div>
 <div class="rule" id="RG-FAC-011"><div class="rid">RG-FAC-011</div><div class="rtxt"><p>Option « <strong>regroupement multi-forfait</strong> » (défaut oui) : une facture par patient et par période
-(plusieurs lignes de forfaits) ; sinon une facture par patient <strong>et par forfait</strong>.
-Modification des paramètres : <code>ADMIN</code> ; lecture : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code>.</p>
+    (plusieurs lignes de forfaits) ; sinon une facture par patient <strong>et par forfait</strong>. Un centre qui n&#39;a
+    rien enregistré
+    lit les valeurs par défaut, sans date de mise à jour : <strong>la lecture n&#39;écrit rien</strong>. Modification
+    des paramètres :
+    <code>ADMIN</code> ; lecture : <code>ADMIN</code>, <code>SECRETAIRE</code> (le profil <code>MEDECIN</code>, admis
+    par la route, est refusé par le filtre des
+    profils : 403 <code>ROLE_SCOPE</code>). Le centre demandé est confronté à celui de la session (403 sinon). <em>Source
+        :</em>
+    <code>ConfigurerLaFacturation</code> → <code>ParametresFacturationControleur</code>.</p>
 </div></div>
 <h2>12.3 Séances facturables et simulation</h2>
 <div class="rule" id="RG-FAC-020"><div class="rid">RG-FAC-020</div><div class="rtxt"><p>Est <strong>éligible</strong> une séance du centre, dans la période, au statut <code>VALIDEE</code> ou <code>SIGNEE</code> (la signature
@@ -2718,16 +2787,39 @@ défaut, RG-CPT-010) : débit du compte client (411xxx), crédit du compte
 de ventes (706) pour le HT, crédit de la TVA collectée (44571) si la TVA est &gt; 0 (dérivée de TTC − HT si le total de
 TVA manque) ; date de l&#39;écriture = <strong>fin de la période facturée</strong> (jamais la date d&#39;émission) ; axes analytiques
 centre et type de tiers ; statut <code>VALIDEE</code>. <strong>Idempotence</strong> : une facture n&#39;a qu&#39;une écriture (recherche par pièce
-source, <strong>quel que soit le journal</strong> : changer le journal des ventes ne recrée jamais une écriture déjà passée).</p>
+    source, <strong>quel que soit le journal</strong> : changer le journal des ventes ne recrée jamais une écriture déjà
+    passée) ; la
+    base le garantit aussi : <strong>une seule écriture par source et par centre</strong> (index unique, migration V37 ;
+    le numéro de
+    pièce, lui, n&#39;est pas contraint). L&#39;écriture est générée <strong>après l&#39;enregistrement de la validation
+        de facturation</strong>,
+    facture par facture, chacune indépendamment : un refus (mois clôturé, facture déséquilibrée…) n&#39;annule jamais la
+    facturation, n&#39;empêche pas les factures suivantes, et laisse la facture <strong>à régénérer</strong>
+    (RG-CPT-024). <em>Source :</em>
+    <code>ComptabiliserLesVentesEtReglements</code>, <code>EcritureComptable.generer</code>, <code>RedactionDesEcritures.ventes</code>
+    (contexte
+    <code>comptabilite</code>), écouteur <code>FacturationValideeComptabiliteListener</code> → langage publié
+    <code>ComptabilisationDesVentesEtReglements</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-002"><div class="rid">RG-CPT-002</div><div class="rtxt"><p><strong>Écriture de règlement</strong> : journal choisi pour les règlements en banque (<code>BQ</code> par défaut, débit
   512) ou en caisse (<code>CA</code> par défaut, débit 530, si le mode
 est « caisse ») ; crédit du compte client ; montant en valeur absolue ; <strong>une écriture par
-règlement</strong> (idempotence par identifiant de règlement). Le mode par défaut du règlement enregistré est « banque ».</p>
+        règlement</strong> (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Le mode
+    par défaut
+    du règlement enregistré est « banque ». Comme la vente, l&#39;écriture est générée <strong>après l&#39;enregistrement
+        du
+        règlement</strong>, dans sa propre transaction : un refus n&#39;annule jamais le règlement, qui reste à
+    régénérer (RG-CPT-024).</p>
 </div></div>
 <div class="rule" id="RG-CPT-003"><div class="rid">RG-CPT-003</div><div class="rtxt"><p>Toute écriture comporte <strong>au moins deux lignes</strong> et doit être <strong>équilibrée</strong> (total débit = total
 crédit à deux décimales : <code>ECRITURE_DESEQUILIBREE</code>) ; compte SCF obligatoire, débit et
-crédit non négatifs ; numéro de pièce par journal et par année.</p>
+    crédit non négatifs ; numéro de pièce par journal et par année, qui <strong>suit le plus grand numéro existant
+        comparé
+        numériquement</strong> (après <code>VE-2026-999999</code> vient <code>VE-2026-1000000</code>, un suffixe non
+    numérique est ignoré), attribué sous
+    verrou. Toute écriture naît dans un <strong>mois ouvert</strong> (RG-CPT-005) : la règle est portée par l&#39;écriture
+    elle-même, quel
+    que soit le chemin (vente, règlement, stock, pièce saisie, extourne).</p>
 </div></div>
 <div class="rule" id="RG-CPT-004"><div class="rid">RG-CPT-004</div><div class="rtxt"><p><strong>Statuts</strong> : <code>BROUILLON</code> → <code>VALIDEE</code> → <code>EXPORTEE</code>. Une écriture exportée est <strong>immuable</strong>
 (<code>ECRITURE_EXPORTEE_IMMUABLE</code>) ; seules les écritures validées sont exportables (<code>EXPORT_ECRITURE_NON_VALIDEE</code>) ;
@@ -2735,8 +2827,11 @@ l&#39;export marque les écritures validées comme exportées. Écriture inconnu
 </div></div>
 <div class="rule" id="RG-CPT-005"><div class="rid">RG-CPT-005</div><div class="rtxt"><p><strong>Clôture de période</strong> (mois) : réservée à <code>ADMIN</code> ; une période déjà clôturée ne se reclôt pas
 (<code>PERIODE_DEJA_CLOTUREE</code>) ; aucune écriture ne peut être générée dans une période clôturée (<code>PERIODE_CLOTUREE</code>).
-Lorsque la période d&#39;un règlement est clôturée, le règlement reste enregistré mais <strong>aucune écriture n&#39;est générée</strong>
-(avertissement journalisé).</p>
+    Lorsque la période d&#39;une facture ou d&#39;un règlement est clôturée, la facture ou le règlement reste enregistré
+    mais
+    <strong>aucune écriture n&#39;est générée</strong> : le refus est journalisé et la source figure parmi les factures
+    à régénérer
+    (RG-CPT-024).</p>
 </div></div>
 <div class="rule" id="RG-CPT-006"><div class="rid">RG-CPT-006</div><div class="rtxt"><p><strong>Plan de comptes par centre</strong> (<code>MappingComptable</code>), <strong>entièrement paramétrable</strong> depuis l&#39;écran
 « Paramétrage comptable » (<code>ADMIN</code>) : comptes ventes, client « patient qui paie lui-même », client « payeur sans
@@ -2748,41 +2843,54 @@ figé par type de payeur (CNAS, CASNOS, mutuelle). Chaque compte se <strong>choi
 pour les écritures générées
     ensuite : les écritures déjà passées ne sont pas réimputées. La <strong>TVA collectée</strong> est facultative à l&#39;enregistrement
     (vide : la réponse la montre vide, mais toute relecture et toute écriture de ventes lisent <code>44571</code>). Les
-    comptes du stock et
+    comptes du
+    stock et
     les journaux non précisés gardent leur valeur actuelle (aucun retour aux valeurs par défaut hors renvoi explicite) ;
     <strong>tout
         le mapping est revalidé à chaque enregistrement</strong>, journaux d&#39;abord (<code>JOURNAL_INCONNU</code>)
-    puis comptes (<code>COMPTE_INCONNU</code>).
+    puis comptes
+    (<code>COMPTE_INCONNU</code>).
     Un numéro de compte du mapping s&#39;écrit en <strong>majuscules</strong> (un numéro en minuscules est refusé). <em>Source
-        :</em> <code>MappingComptable</code>,
+        :</em>
+    <code>MappingComptable</code>,
     <code>ComptesDuStock</code>, <code>ModifierLeMapping</code> (contexte <code>comptabilite</code>), <code>ComptabiliteParametrageComponent</code>
     →
     <code>ComptabiliteParametrageStore</code> → <code>ComptabiliteApiService</code> → <code>MappingControleur</code>
-    (<code>/mapping</code>) → <code>MappingComptableRepository</code>.
-    <strong>Règles de TVA comptables</strong> (<code>/regles-tva</code>, <code>ADMIN</code>) versionnées dans le temps :
-    type de prestation (texte brut, 120
-    caractères), taux ≥ 0 (arrondi à deux décimales par la base, 1000 et plus refusé), exonération (obligatoire), début
-    de validité
-    obligatoire, fin facultative, texte de référence. Elles <strong>s&#39;ajoutent seulement</strong> (ni modification
-    ni suppression) ; la liste
-    montre toutes les règles du centre, de la plus récente à la plus ancienne. Un ajout est <strong>refusé
-        (400)</strong> si la date de fin
-    précède la date de début, ou si la règle <strong>chevauche une règle active du même centre et du même type</strong>
-    (périodes
-    [début, fin] bornes incluses, fin absente = période ouverte ; les règles désactivées par la Facturation sont
-    ignorées) ; les
-    règles déjà enregistrées ne sont pas revalidées. Un ajout réussi vide la liste en cache des types de TVA de la
-    Facturation
-    (table <code>tva_types</code> partagée). La règle applicable à une date est la dernière commencée parmi les règles
-    actives du type.
-    <em>Source :</em> <code>RegleTva</code>, <code>EnregistrerUneRegleDeTva</code> → <code>ReglesTvaControleur</code>
-    (<code>/regles-tva</code>) → <code>RegleTvaRepository</code>.</p>
+    (<code>/mapping</code>) →
+    <code>MappingComptableRepository</code>. <strong>Règles de TVA comptables</strong> (<code>/regles-tva</code>, <code>ADMIN</code>)
+    versionnées dans le temps : type
+    de prestation (texte brut, 120 caractères), <strong>taux de 0 à 100 %</strong> (arrondi à deux décimales par la
+    base), exonération
+    (obligatoire), début de validité obligatoire, fin facultative, texte de référence. L&#39;écran comptable les
+    <strong>ajoute</strong> ;
+    la modification et la désactivation passent par l&#39;écran « Types de TVA » (RG-FAC-003). La liste montre toutes
+    les
+    règles du centre, de la plus récente à la plus ancienne. Un ajout est <strong>refusé (400)</strong> si le taux
+    dépasse 100 %, si la
+    date de fin précède la date de début, ou si la règle <strong>chevauche une règle active du même centre et du même
+        type</strong>
+    (périodes [début, fin] bornes incluses, fin absente = période ouverte ; les règles désactivées sont ignorées) : c&#39;est
+    la règle unique de RG-FAC-001 (ADR 0030) ; les règles déjà enregistrées ne sont pas revalidées. Un ajout est visible
+    aussitôt dans les deux écrans (la liste n&#39;est plus mise en cache). La règle applicable à une date est la
+    dernière
+    commencée parmi les règles actives du type. <em>Source :</em> <code>RegleTva</code>,
+    <code>EnregistrerUneRegleDeTva</code> →
+    <code>ReglesTvaControleur</code> (<code>/regles-tva</code>) → <code>RegleTvaRepository</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-007"><div class="rid">RG-CPT-007</div><div class="rtxt"><p><strong>Reconstruction</strong> (rejeu) des écritures de factures et règlements existants sur une période,
-réservée à <code>ADMIN</code> ; l&#39;idempotence évite tout doublon. Consultation des écritures et des journaux :
-    <code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; validation, export, paramétrage (comptes, journaux,
-    mapping), règles TVA, clôture,
-comptabilisation du stock : <code>ADMIN</code>.</p>
+    réservée à <code>ADMIN</code> ; l&#39;idempotence évite tout doublon. Une vente régénérée est datée de la <strong>fin
+        de sa période
+        facturée</strong> (comme RG-CPT-001). Chaque source est traitée indépendamment : un refus (mois clôturé…)
+    <strong>n&#39;arrête pas les
+        suivantes</strong> ; il est rapporté avec sa raison (RG-CPT-024). Consultation des écritures et des journaux :
+    <code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; la liste des écritures est <strong>relue à chaque ouverture
+        de l&#39;écran Comptabilité</strong>
+    (les écritures générées entre-temps — stock, ventes, règlements — apparaissent sans recharger la page) ; validation,
+    export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock :
+    <code>ADMIN</code>.
+    <em>Source :</em> <code>ComptabiliserLesVentesEtReglements.reconstruire</code> →
+    <code>VentesEtReglementsControleur</code> (<code>/rebuild</code>) ;
+    <code>ComptabiliteDashboardComponent</code> → <code>ComptabiliteStore.refresh</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-008"><div class="rid">RG-CPT-008</div><div class="rtxt"><p><em>(point d&#39;attention levé)</em> Les créances ne sont plus toutes imputées au compte client « autre » :
 chaque facture débite le compte de <strong>son payeur</strong> (RG-CPT-019), le compte par défaut si le payeur n&#39;en a pas, et le
@@ -2796,8 +2904,10 @@ dispose des journaux par défaut <code>VE</code> Ventes, <code>BQ</code> Banque,
 enregistrés comme les siens à sa première modification. Un journal <strong>choisi pour une opération</strong> ne peut être ni
 désactivé ni supprimé (<code>JOURNAL_UTILISE</code>) ; un journal <strong>qui porte des écritures</strong> se désactive mais ne se supprime
 pas (<code>JOURNAL_AVEC_ECRITURES</code>) ; supprimer un journal inconnu est refusé (<code>JOURNAL_INTROUVABLE</code>). La liste est
-    paginée ; l&#39;indicateur « actif » est obligatoire (400 sinon). <em>Source :</em> <code>Journal</code>, <code>EnregistrerUnJournal</code>,
-    <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> →
+    paginée ; l&#39;indicateur « actif » est obligatoire (400 sinon). <em>Source :</em> <code>Journal</code>, <code>CodeJournal</code>,
+    <code>EnregistrerUnJournal</code>, <code>SupprimerUnJournal</code> (contexte <code>comptabilite</code>), <code>ComptabiliteParametrageComponent</code>
+    →
+    <code>ComptabiliteParametrageStore</code> →
     <code>ComptabiliteApiService</code> → <code>JournauxControleur</code> (<code>/journaux</code>) → <code>JournalRepository</code>.
 </p>
 </div></div>
@@ -2819,7 +2929,11 @@ traitent à la facture, <strong>hors application</strong>. Une écriture par bon
 <div class="rule" id="RG-CPT-013"><div class="rid">RG-CPT-013</div><div class="rtxt"><p><strong>Écriture des sorties</strong> : les sorties de stock d&#39;une journée (consommations de séance, sorties
 manuelles) sont <strong>centralisées en une écriture par centre et par jour</strong>, dans le journal des sorties : débit du
 compte de consommation, crédit du compte de stock, valorisés au <strong>prix moyen pondéré appliqué à la sortie</strong> (à
-défaut le PMP après mouvement, puis le PMP courant de l&#39;article). Une ligne par compte.</p>
+    défaut le PMP après mouvement, puis le PMP courant de l&#39;article ; ordre de valorisation : RG-STK-041). Une ligne
+    par
+    compte. Un article sorti <strong>sans prix ni PMP</strong> (valeur nulle) ou reçu sans prix n&#39;est pas valorisé :
+    la journée ou le
+    bon est <strong>signalé</strong> avec les articles concernés (<code>SANS_VALEUR</code>, RG-CPT-015).</p>
 </div></div>
 <div class="rule" id="RG-CPT-014"><div class="rid">RG-CPT-014</div><div class="rtxt"><p><strong>Écriture des écarts d&#39;inventaire</strong> : un inventaire <strong>clôturé</strong> donne une écriture, dans le journal
 des inventaires, à la date de l&#39;inventaire : excédent (compté &gt; théorique) = débit stock, crédit boni ; manquant =
@@ -2832,15 +2946,27 @@ doublon. Quand les sorties d&#39;un jour changent après coup (mouvement saisi e
 jour est <strong>mise à jour</strong> tant qu&#39;elle n&#39;est ni exportée ni dans une période clôturée (son numéro de pièce est
 conservé) ; sinon la différence fait l&#39;objet d&#39;une <strong>écriture de complément</strong> — datée du jour même, ou du jour du
 traitement si la période d&#39;origine est clôturée (au plus 50 compléments par journée). Une réception ou un inventaire
-dont la période est <strong>clôturée</strong> n&#39;est pas comptabilisé : il est compté comme « ignoré » et signalé à l&#39;écran. Le
-stock d&#39;un centre n&#39;est jamais comptabilisé dans un autre. <em>Source :</em> <code>ComptabiliteStockService</code>,
-<code>GenerateurEcritureStock</code>, <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> →
-<code>ComptabiliteApiService</code> → <code>ComptabiliteRestController</code> (<code>/stock/synchroniser</code>) → <code>ComptabiliteStockUseCase</code> →
-<code>OperationsStockPort</code> (<code>OperationsStockJdbcAdapter</code>).</p>
+    dont la période est <strong>clôturée</strong> n&#39;est pas comptabilisé : il est compté comme « ignoré ». Le
+    résultat affiché à
+    l&#39;écran détaille <strong>chaque pièce non comptabilisée</strong> — nature (réception, inventaire, journée de
+    sorties), référence
+    (numéro du bon ou de l&#39;inventaire, date de la journée) et raison : mois clôturé (<code>PERIODE_CLOTUREE</code>),
+    articles sans
+    valeur cités par leur code (<code>SANS_VALEUR</code>), plafond de compléments atteint (<code>COMPLEMENTS_MAX</code>)
+    ; la tâche de nuit les
+    journalise. Le stock d&#39;un centre n&#39;est jamais comptabilisé dans un autre. <em>Source :</em> <code>ComptabiliserLeStock</code>,
+    <code>SoldesDuStock</code>, <code>EcritureComptable.generer/reviserLesSorties</code> (contexte
+    <code>comptabilite</code>),
+    <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code> → <code>ComptabiliteApiService</code>
+    →
+    <code>ComptabilisationDuStockControleur</code> (<code>/stock/synchroniser</code>), <code>ComptabilisationDuStockPlanifiee</code>
+    (nuit) →
+    <code>OperationsDeStock</code> (<code>OperationsDeStockJdbc</code>).</p>
 </div></div>
 <div class="rule" id="RG-CPT-016"><div class="rid">RG-CPT-016</div><div class="rtxt"><p><strong>Isolement par centre de la comptabilité</strong> : toute requête comptable (écritures, export, clôture,
 paramétrage, journaux, comptabilisation du stock, reconstruction) est confrontée au centre de la session ; demander
-un autre centre est refusé (403). <em>Source :</em> <code>ComptabiliteRestController</code>, <code>CenterAccessGuard</code>.</p>
+    un autre centre est refusé (403). <em>Source :</em> contrôleurs du contexte <code>comptabilite</code> (annexe 16),
+    <code>SessionCourante</code>.</p>
 </div></div>
 <div class="rule attention" id="RG-CPT-017"><div class="rid">RG-CPT-017<small>point d'attention</small></div><div class="rtxt"><p>Le stock n&#39;est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
 demande) : une sortie du jour n&#39;apparaît en comptabilité qu&#39;après le traitement suivant. La TVA déductible sur achats
@@ -2855,9 +2981,12 @@ enregistré comme le sien à sa première modification. Partout où un compte es
 de pièce), il <strong>se choisit dans ce plan</strong>. Un compte <strong>utilisé</strong> par le paramétrage, un payeur ou un modèle de pièce
 ne peut être ni désactivé ni supprimé (<code>COMPTE_UTILISE</code>) ; un compte <strong>qui porte des écritures</strong> se désactive mais ne
 se supprime pas (<code>COMPTE_AVEC_ECRITURES</code>) ; supprimer un compte inconnu est refusé (<code>COMPTE_INTROUVABLE</code>). Ajouter
-    un compte ne demande aucun développement. Le numéro est enregistré <strong>en majuscules</strong> ; un compte
-    rattaché à un <strong>article</strong> compte comme utilisé. <em>Source :</em> <code>PlanComptable</code>, <code>EnregistrerUnCompte</code>,
-    <code>PlanComptableComponent</code> →
+    un compte ne demande aucun développement. Le numéro est enregistré <strong>en majuscules</strong> (comme le code d&#39;un
+    journal) ; un
+    compte
+    rattaché à un <strong>article</strong> compte comme utilisé. <em>Source :</em> <code>PlanComptable</code>, <code>CompteComptable</code>,
+    <code>EnregistrerUnCompte</code>,
+    <code>SupprimerUnCompte</code>, <code>PlanComptableComponent</code> →
     <code>PlanComptableStore</code> → <code>ComptabiliteApiService</code> → <code>PlanComptableControleur</code> (<code>/comptes</code>)
     →
     <code>CompteRepository</code>.</p>
@@ -2880,9 +3009,10 @@ chiffres, tirets ; <code>MODELE_CODE_EXISTANT</code>), un libellé, un <strong>j
 débit et une au crédit (<code>MODELE_LIGNES_INVALIDES</code>). Un modèle désactivé ne sert plus à saisir (<code>MODELE_INACTIF</code>) ;
 le supprimer conserve les pièces déjà saisies ; un modèle inconnu est refusé (<code>MODELE_INTROUVABLE</code>). Le journal d&#39;un
 modèle ne peut être ni désactivé ni supprimé (<code>JOURNAL_UTILISE</code>). <strong>Un nouveau type de pièce ne demande aucun
-développement.</strong> Liste paginée ; gestion réservée à <code>ADMIN</code>. <em>Source :</em> <code>ModelePiece</code>, <code>PiecesComptablesService</code>,
+        développement.</strong> Liste paginée ; gestion réservée à <code>ADMIN</code>. <em>Source :</em> <code>ModeleDePiece</code>,
+    <code>GererLesModelesEtPieces</code>,
 <code>ModelesPieceComponent</code> → <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> →
-<code>ComptabiliteParametrageRestController</code> (<code>/modeles</code>) → <code>PiecesComptablesUseCase</code> → <code>ModelePieceRepositoryPort</code>.</p>
+    <code>ModelesEtPiecesControleur</code> (<code>/modeles</code>) → <code>ModeleDePieceRepository</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-021"><div class="rid">RG-CPT-021</div><div class="rtxt"><p><strong>Saisie d&#39;une pièce</strong> (<code>ADMIN</code>, <code>SECRETAIRE</code>) : on choisit un modèle actif, une date, un libellé (à
 défaut celui du modèle) et <strong>un montant par ligne</strong> ; une ligne à zéro n&#39;est pas écrite. La pièce devient une
@@ -2890,20 +3020,47 @@ défaut celui du modèle) et <strong>un montant par ligne</strong> ; une ligne �
 montant est négatif, s&#39;il n&#39;y a pas un montant par ligne ou s&#39;il reste moins de deux lignes
 (<code>PIECE_MONTANTS_INVALIDES</code>), si elle n&#39;est pas équilibrée (<code>ECRITURE_DESEQUILIBREE</code>), si sa période est clôturée
 (<code>PERIODE_CLOTUREE</code>) ou si un de ses comptes a quitté le plan (<code>COMPTE_INCONNU</code>). <em>Source :</em>
-<code>PiecesComptablesService.saisir</code>, <code>SaisiePieceComponent</code> → <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> →
-<code>ComptabiliteParametrageRestController</code> (<code>/pieces</code>) → <code>PiecesComptablesUseCase</code> → <code>EcritureComptableRepositoryPort</code>.</p>
+    <code>ModeleDePiece.composerLaPiece</code>, <code>EcritureComptable.saisir</code>, <code>GererLesModelesEtPieces.saisir</code>,
+    <code>SaisiePieceComponent</code> → <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> →
+    <code>ModelesEtPiecesControleur</code>
+    (<code>/pieces</code>) → <code>EcritureComptableRepository</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-022"><div class="rid">RG-CPT-022</div><div class="rtxt"><p><strong>Extourne d&#39;une pièce saisie</strong> (<code>ADMIN</code>) : une écriture ne se supprime jamais ; une pièce saisie
 par erreur s&#39;annule par une <strong>écriture inverse</strong> (débits et crédits échangés), datée du jour, dans le même journal,
 libellée « Extourne &lt;n° de pièce&gt; ». Une pièce ne s&#39;extourne <strong>qu&#39;une fois</strong> et une extourne ne s&#39;extourne pas
 (<code>PIECE_DEJA_EXTOURNEE</code>) ; une écriture générée par le système (vente, règlement, stock) ne s&#39;extourne pas à la
 main (<code>PIECE_NON_SAISIE</code>) ; la période du jour doit être ouverte (<code>PERIODE_CLOTUREE</code>). <em>Source :</em>
-<code>PiecesComptablesService.extourner</code>, <code>ComptabiliteDashboardComponent</code> → <code>PiecesComptablesStore</code> →
-<code>ComptabiliteApiService</code> → <code>ComptabiliteParametrageRestController</code> (<code>/pieces/{id}/extourne</code>).</p>
+    <code>EcritureComptable.exigerExtournable/extourner</code>, <code>GererLesModelesEtPieces.extourner</code>,
+    <code>ComptabiliteDashboardComponent</code> → <code>PiecesComptablesStore</code> →
+    <code>ComptabiliteApiService</code> → <code>ModelesEtPiecesControleur</code>
+    (<code>/pieces/{id}/extourne</code>).</p>
 </div></div>
 <div class="rule attention" id="RG-CPT-023"><div class="rid">RG-CPT-023<small>point d'attention</small></div><div class="rtxt"><p>Les comptes propres à un article (RG-STK-008) se saisissent encore librement
 sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.</p>
 </div></div>
+    <div class="rule" id="RG-CPT-024">
+        <div class="rid">RG-CPT-024</div>
+        <div class="rtxt"><p><strong>Factures sans écriture et régénération</strong> (<code>ADMIN</code>, écran «
+            Paramétrage comptable », carte
+            « Comptabiliser les ventes et les règlements ») : pour une période choisie, l&#39;écran liste les <strong>factures
+                émises qui
+                n&#39;ont aucune écriture de ventes</strong> (numéro, date d&#39;émission, fin de période, total TTC) ;
+            « Régénérer les écritures »
+            demande une confirmation puis crée les écritures manquantes des factures émises et des règlements encaissés
+            de la
+            période (RG-CPT-007), sans jamais modifier une écriture existante ; l&#39;écran affiche alors le nombre de
+            factures et de
+            règlements comptabilisés, <strong>chaque source refusée avec sa raison</strong> (mois clôturé <code>PERIODE_CLOTUREE</code>,
+            facture
+            déséquilibrée <code>ECRITURE_DESEQUILIBREE</code>, <code>ERREUR_TECHNIQUE</code>), puis relit la liste des
+            factures encore sans écriture.
+            Les refus de la comptabilisation du stock (RG-CPT-015) s&#39;affichent de la même façon. <em>Source :</em>
+            <code>ComptabiliserLesVentesEtReglements.facturesSansEcriture/reconstruire</code> → <code>VentesEtReglementsControleur</code>
+            (<code>/ventes/non-comptabilisees</code>, <code>/rebuild</code>) ;
+            <code>ComptabiliteParametrageComponent</code> → <code>ComptabiliteParametrageStore</code>
+            (<code>chercherVentesNonComptabilisees</code>, <code>reconstruireVentes</code>).</p>
+        </div>
+    </div>
 </section>
 <section class="part" id="p13"><h1><span class="n">Partie 13</span>Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</h1>
 <figure><img src="img/direction-dashboard.png" alt="Tableau de bord de la direction"><figcaption>Tableau de bord de la direction</figcaption></figure>
@@ -4026,28 +4183,34 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-GMA-028</td>
 </tr>
 <tr>
-<td><code>IntervenantRestController</code></td>
+    <td><code>IntervenantControleur</code></td>
 <td><code>/api/v1/gmao/intervenants</code></td>
 <td><code>ADMIN</code></td>
 <td>RG-GMA-040</td>
 </tr>
 <tr>
-<td><code>PlanMaintenanceRestController</code></td>
+    <td><code>PlanMaintenanceControleur</code></td>
 <td><code>/api/v1/gmao/plans-maintenance</code></td>
 <td><code>ADMIN</code></td>
 <td>RG-GMA-050 à 052</td>
 </tr>
 <tr>
-<td><code>TvaTypesRestController</code></td>
+    <td><code>TypesTvaControleur</code></td>
 <td><code>/api/v1/tva-types</code></td>
 <td><code>ADMIN</code> (écriture), <code>MEDECIN</code>/<code>SECRETAIRE</code> (lecture)</td>
-<td>RG-FAC-001 à 003</td>
+    <td>RG-FAC-001 à 003, RG-CPT-006</td>
 </tr>
 <tr>
 <td><code>FacturationRestController</code></td>
 <td><code>/api/v1/facturation</code></td>
 <td><code>ADMIN</code>, <code>MEDECIN</code> (+ <code>SECRETAIRE</code> en lecture)</td>
-<td>RG-FAC-010 à 032</td>
+    <td>RG-FAC-020 à 032</td>
+</tr>
+<tr>
+    <td><code>ParametresFacturationControleur</code></td>
+    <td><code>/api/v1/facturation/settings</code></td>
+    <td><code>ADMIN</code> (écriture), <code>SECRETAIRE</code> (lecture)</td>
+    <td>RG-FAC-010, 011</td>
 </tr>
 <tr>
 <td><code>ReglementRestController</code></td>
@@ -4056,10 +4219,42 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-REG-001 à 004</td>
 </tr>
 <tr>
-<td><code>ComptabiliteRestController</code></td>
-    <td><code>/api/v1/comptabilite</code> (écritures, export, clôture, <code>/rebuild</code>, <code>/stock</code>)</td>
+    <td><code>EcrituresControleur</code></td>
+    <td><code>/api/v1/comptabilite</code> (<code>/ecritures</code>, <code>/ecritures/{id}/valider</code>, <code>/ecritures/export</code>,
+        <code>/periodes/cloturer</code>)
+    </td>
     <td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture des écritures)</td>
-    <td>RG-CPT-001 à 005, 007, 012 à 017</td>
+    <td>RG-CPT-003 à 005, 007</td>
+</tr>
+<tr>
+    <td><code>VentesEtReglementsControleur</code></td>
+    <td><code>/api/v1/comptabilite</code> (<code>/rebuild</code>, <code>/ventes/non-comptabilisees</code>)</td>
+    <td><code>ADMIN</code></td>
+    <td>RG-CPT-001, 002, 007, 024</td>
+</tr>
+<tr>
+    <td><code>ComptabilisationDuStockControleur</code></td>
+    <td><code>/api/v1/comptabilite/stock/synchroniser</code></td>
+    <td><code>ADMIN</code></td>
+    <td>RG-CPT-012 à 015, 017</td>
+</tr>
+<tr>
+    <td><code>PlanComptableControleur</code></td>
+    <td><code>/api/v1/comptabilite/comptes</code></td>
+    <td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture)</td>
+    <td>RG-CPT-018</td>
+</tr>
+<tr>
+    <td><code>ComptesPayeursControleur</code></td>
+    <td><code>/api/v1/comptabilite/payeurs</code></td>
+    <td><code>ADMIN</code></td>
+    <td>RG-CPT-019</td>
+</tr>
+<tr>
+    <td><code>JournauxControleur</code></td>
+    <td><code>/api/v1/comptabilite/journaux</code></td>
+    <td><code>ADMIN</code> (<code>SECRETAIRE</code> en lecture)</td>
+    <td>RG-CPT-009</td>
 </tr>
 <tr>
     <td><code>MappingControleur</code></td>
@@ -4074,8 +4269,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
     <td>RG-CPT-006</td>
 </tr>
 <tr>
-<td><code>ComptabiliteParametrageRestController</code></td>
-    <td><code>/api/v1/comptabilite</code> (<code>/modeles</code>, <code>/pieces</code>)</td>
+    <td><code>ModelesEtPiecesControleur</code></td>
+    <td><code>/api/v1/comptabilite</code> (<code>/modeles</code>, <code>/pieces</code>,
+        <code>/pieces/{id}/extourne</code>)
+    </td>
     <td><code>ADMIN</code> (<code>SECRETAIRE</code> : lecture des modèles, saisie de pièces)</td>
     <td>RG-CPT-020 à 023</td>
 </tr>
@@ -4174,7 +4371,7 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-PLN-100</td>
 </tr>
 <tr>
-<td><code>ComptabiliteStockScheduler</code></td>
+    <td><code>ComptabilisationDuStockPlanifiee</code></td>
 <td>03:15 chaque jour</td>
 <td>RG-CPT-015</td>
 </tr>

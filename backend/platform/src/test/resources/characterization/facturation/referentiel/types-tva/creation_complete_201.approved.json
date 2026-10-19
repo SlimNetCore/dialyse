@@ -1,0 +1,18 @@
+{
+  "status": 201,
+  "contentType": "application/json",
+  "body": {
+    "actif": true,
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "admin",
+    "dateDebutValidite": "2026-01-01",
+    "dateFinValidite": "2026-12-31",
+    "exonere": true,
+    "id": "<UUID_GENERE_1>",
+    "libelle": "Exonération",
+    "taux": 0.00,
+    "texteReference": "Loi de finances 2026",
+    "typePrestation": "HEMODIALYSE"
+  }
+}

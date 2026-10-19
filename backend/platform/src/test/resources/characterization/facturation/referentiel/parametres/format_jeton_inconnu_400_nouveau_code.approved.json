@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Jeton inconnu {MOIS} dans le modèle de numérotation : jetons admis {YYYY}, {YEAR}, {YY}, {CENTER}, {SEQ} ou {SEQn}",
+    "instance": "/api/v1/facturation/settings",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

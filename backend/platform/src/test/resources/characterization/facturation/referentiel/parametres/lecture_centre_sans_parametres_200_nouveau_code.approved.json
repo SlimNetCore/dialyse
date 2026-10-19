@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "codeFormat": "FAC-{YEAR}-{SEQ}",
+    "regroupementMultiForfait": true,
+    "updatedAt": null
+  }
+}

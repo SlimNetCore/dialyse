@@ -9,6 +9,12 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 
+/**
+ * Lecture des paramètres de facturation par la simulation et la validation legacy (jusqu'aux slices F2 et F3). Les écrans
+ * passent par le contexte {@code facturation} (slice F1) ; mêmes corrections ici : la lecture d'un centre sans paramètres
+ * rend les valeurs par défaut sans rien écrire (KB-FAC-08) et l'écriture est portable H2/PostgreSQL (KB-FAC-07 : l'ancien
+ * {@code MERGE … KEY} n'existe que sur H2).
+ */
 @Component
 public class FacturationSettingsJdbcAdapter implements FacturationSettingsRepositoryPort {
 
@@ -29,27 +35,23 @@ public class FacturationSettingsJdbcAdapter implements FacturationSettingsReposi
                 ),
                 centerId.value()
         );
-        if (!rows.isEmpty()) {
-            return rows.getFirst();
-        }
-        ParametresFacturation defaults = ParametresFacturation.defaults();
-        return save(centerId, "system", defaults);
+        return rows.isEmpty() ? ParametresFacturation.defaults() : rows.getFirst();
     }
 
     @Override
     public ParametresFacturation save(CenterId centerId, String userId, ParametresFacturation settings) {
-        jdbc.update(
-                """
-                        MERGE INTO facturation_settings (center_id, code_format, regroupement_multi_forfait, updated_at, updated_by)
-                        KEY (center_id)
-                        VALUES (?, ?, ?, ?, ?)
-                        """,
-                centerId.value(),
-                settings.codeFormat(),
-                settings.regroupementMultiForfait(),
-                Timestamp.from(OffsetDateTime.now().toInstant()),
-                userId == null || userId.isBlank() ? "system" : userId
-        );
+        Timestamp now = Timestamp.from(OffsetDateTime.now().toInstant());
+        String author = userId == null || userId.isBlank() ? "system" : userId;
+        int updated = jdbc.update(
+                "UPDATE facturation_settings SET code_format = ?, regroupement_multi_forfait = ?, updated_at = ?, updated_by = ? "
+                        + "WHERE center_id = ?",
+                settings.codeFormat(), settings.regroupementMultiForfait(), now, author, centerId.value());
+        if (updated == 0) {
+            jdbc.update(
+                    "INSERT INTO facturation_settings (center_id, code_format, regroupement_multi_forfait, updated_at, updated_by) "
+                            + "VALUES (?, ?, ?, ?, ?)",
+                    centerId.value(), settings.codeFormat(), settings.regroupementMultiForfait(), now, author);
+        }
         return findByCenterId(centerId);
     }
 }

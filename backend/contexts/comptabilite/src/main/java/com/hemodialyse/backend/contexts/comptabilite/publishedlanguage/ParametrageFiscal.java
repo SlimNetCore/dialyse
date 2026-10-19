@@ -6,8 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Langage publié des règles de TVA comptables (RG-CPT-006) : la règle applicable à une date, en lecture. La table des règles
- * est partagée avec la Facturation, dont le propriétaire est à trancher avec sa modélisation.
+ * Langage publié des règles de TVA (RG-FAC-002, RG-CPT-006) : la règle applicable à une date, en lecture. La Comptabilité
+ * est propriétaire de la table des règles ({@code tva_types}, ADR 0030) ; la Facturation, les Absences et la simulation
+ * lisent le taux par ce contrat.
  */
 public interface ParametrageFiscal {
 

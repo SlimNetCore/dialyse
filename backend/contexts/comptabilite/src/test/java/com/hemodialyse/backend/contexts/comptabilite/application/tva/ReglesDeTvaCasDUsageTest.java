@@ -34,7 +34,7 @@ class ReglesDeTvaCasDUsageTest {
 
     private ReglesTvaEnMemoire enBase(CentreId centre, String type, String taux, boolean exonere, String debut, String fin,
                                       boolean active) {
-        return regles.enBase(RegleTva.reconstituee(centre, type, new BigDecimal(taux), exonere, jour(debut),
+        return regles.enBase(ReglesTvaEnMemoire.regle(centre, type, taux, exonere, jour(debut),
                 fin == null ? null : jour(fin), null, active));
     }
 
@@ -99,6 +99,8 @@ class ReglesDeTvaCasDUsageTest {
     void les_donnees_invalides_sont_refusees_par_le_domaine() {
         assertThatThrownBy(() -> enregistrer.executer(CENTRE, commande("HEMODIALYSE", "-1", "2026-01-01", null)))
                 .hasMessage("Le taux TVA ne peut pas être négatif");
+        assertThatThrownBy(() -> enregistrer.executer(CENTRE, commande("HEMODIALYSE", "150", "2026-01-01", null)))
+                .hasMessage("Le taux TVA ne peut pas dépasser 100%");
         assertThatThrownBy(() -> enregistrer.executer(CENTRE, commande("  ", "19", "2026-01-01", null)))
                 .hasMessage("Le type de prestation est obligatoire");
         assertThat(regles.nombre()).isZero();
@@ -157,7 +159,7 @@ class ReglesDeTvaCasDUsageTest {
 
     @Test
     void une_regle_exoneree_est_publiee_avec_son_taux_saisi_et_toutes_ses_dates() {
-        regles.enBase(RegleTva.reconstituee(CENTRE, "HEMODIALYSE", new BigDecimal("19.00"), true, jour("2026-01-01"),
+        regles.enBase(ReglesTvaEnMemoire.regle(CENTRE, "HEMODIALYSE", "19.00", true, jour("2026-01-01"),
                 jour("2026-12-31"), "Article 13", true));
 
         var publiee = fiscal.regleApplicable(CENTRE.valeur(), "HEMODIALYSE", jour("2026-05-01")).orElseThrow();

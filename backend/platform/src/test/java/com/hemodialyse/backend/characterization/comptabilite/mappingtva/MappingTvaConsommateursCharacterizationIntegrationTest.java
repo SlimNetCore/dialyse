@@ -32,8 +32,6 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
 
     private static final LocalDate DATE = LocalDate.of(2026, 10, 5);
     @Autowired
-    private org.springframework.cache.CacheManager cacheManager;
-    @Autowired
     private GenerationDEcritures comptabilite;
     @Autowired
     private ParametrageFiscal fiscalComptabilite;
@@ -45,14 +43,6 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     @Override
     protected String theme() {
         return "consommateurs";
-    }
-
-    /**
-     * La liste des types de TVA de la Facturation est en cache (6 h) : chaque test repart d'un cache vide.
-     */
-    @org.junit.jupiter.api.BeforeEach
-    void viderLeCacheDesTypesDeTva() {
-        cacheManager.getCache("tva-types-list").clear();
     }
 
     private String mapping(String ventes, String patient, String defaut, String banque, String caisse, String tva,
@@ -329,38 +319,31 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     }
 
     @Test
-    void la_liste_en_cache_des_types_de_tva_de_la_facturation_est_invalidee_par_un_enregistrement_de_la_comptabilite() throws Exception {
-        // écart décidé (KB-CPT-20) : un POST /regles-tva réussi évince le cache de 6 h (même nom que celui de la Facturation)
+    void la_liste_des_types_de_tva_n_est_plus_en_cache_et_voit_toute_ecriture_nouveau_code() throws Exception {
+        // écart décidé (F1, ADR 0030) : /tva-types est servi par le contexte comptabilite, sans cache ; une règle ajoutée par
+        // n'importe quel chemin (SQL, /regles-tva, /tva-types) est visible à la lecture suivante (KB-CPT-20 sans objet)
         String liste = "/api/v1/tva-types?centerId=" + CENTRE_A;
         Resp avant = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(java.net.URI.create(liste)).with(adminA()));
         assertEquals(0, json(avant).path("items").size());
-        Resp encoreEnCache = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(java.net.URI.create(liste)).with(adminA()));
-        assertEquals(0, json(encoreEnCache).path("items").size());
         enBase("MEDICAMENT", "5.00", false, "2026-01-01", null);
-        Resp inchangee = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(java.net.URI.create(liste)).with(adminA()));
-        assertEquals(0, json(inchangee).path("items").size(), "une écriture hors de la route ne vide pas le cache : il sert encore la liste d'avant");
+        Resp apresSql = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(java.net.URI.create(liste)).with(adminA()));
+        assertEquals(1, json(apresSql).path("items").size(), "une écriture hors de la route est lue aussitôt");
         enregistrer("HEMODIALYSE", "19.00", false, "2026-01-01", null);
         Resp apres = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(java.net.URI.create(liste)).with(adminA()));
-        assertEquals(2, json(apres).path("items").size(), "la liste est relue après l'enregistrement, sans attendre l'expiration");
+        assertEquals(2, json(apres).path("items").size());
         assertEquals(2, count("tva_types", CENTRE_A));
     }
 
     @Test
-    void un_enregistrement_refuse_par_la_comptabilite_ne_vide_pas_le_cache_des_types_de_tva() throws Exception {
-        String liste = "/api/v1/tva-types?centerId=" + CENTRE_A;
-        enBase("HEMODIALYSE", "19.00", false, "2026-01-01", null);
-        Resp avant = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(java.net.URI.create(liste)).with(adminA()));
-        assertEquals(1, json(avant).path("items").size());
-        enBase("MEDICAMENT", "5.00", false, "2026-01-01", null);
-        assertEquals(400, doPost("/regles-tva", json("{'typePrestation':'HEMODIALYSE','tauxApplique':9,'exonere':false,"
-                + "'dateDebutValidite':'2026-06-01'}"), adminA()).status());
-        Resp apres = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(java.net.URI.create(liste)).with(adminA()));
-        assertEquals(1, json(apres).path("items").size(), "un refus n'évince rien : la liste en cache est encore servie");
-    }
-
-    @Test
-    void un_taux_superieur_a_100_accepte_par_la_comptabilite_fait_echouer_la_lecture_de_la_facturation_pas_celle_des_absences() throws Exception {
-        enregistrer("HEMODIALYSE", "150.00", false, "2026-01-01", null);
+    void un_taux_superieur_a_100_est_refuse_a_la_saisie_et_une_regle_ancienne_reste_lisible_nouveau_code() throws Exception {
+        // écart décidé (ADR 0030, KB-CPT-17 corrigé) : /regles-tva refuse un taux > 100 comme /tva-types ; une règle déjà en
+        // base n'est pas revalidée : la Comptabilité, les Absences et l'écran « Types de TVA » la lisent encore, la simulation
+        // legacy (TypeTVA, jusqu'à F2) la refuse toujours
+        golden("taux_superieur_a_100_refuse_par_la_comptabilite_400_nouveau_code", doPost("/regles-tva",
+                json("{'typePrestation':'HEMODIALYSE','tauxApplique':150,'exonere':false,'dateDebutValidite':'2026-01-01'}"),
+                adminA()));
+        assertEquals(0, count("tva_types", CENTRE_A));
+        enBase("HEMODIALYSE", "150.00", false, "2026-01-01", null);
         LocalDate jour = LocalDate.of(2026, 2, 1);
         assertEquals(new BigDecimal("150.00"), fiscalComptabilite.regleApplicable(CENTRE_A, "HEMODIALYSE", jour).orElseThrow().taux());
         assertEquals(new BigDecimal("150.00"), forfaitsAbsence.tauxTva(CENTRE_A, jour));
@@ -369,6 +352,8 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
         assertEquals("Le taux TVA ne peut pas dépasser 100%", refus.getMessage());
         Resp liste = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                 .get(java.net.URI.create("/api/v1/tva-types?centerId=" + CENTRE_A)).with(adminA()));
-        golden("taux_superieur_a_100_liste_des_types_de_la_facturation", liste);
+        assertEquals(200, liste.status());
+        assertEquals(1, json(liste).path("items").size());
+        assertEquals(0, new BigDecimal("150.00").compareTo(json(liste).path("items").get(0).path("taux").decimalValue()));
     }
 }

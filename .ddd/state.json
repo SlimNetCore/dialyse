@@ -29,11 +29,18 @@
     "comptabilite-c4-modeles-pieces": "built",
     "comptabilite-c5-ventes-reglements": "built",
     "comptabilite-c6-stock": "built",
-    "comptabilite-c7-retrait-bc-comptabilite": "built"
+    "comptabilite-c7-retrait-bc-comptabilite": "built",
+    "facturation-f1-referentiel": "built",
+    "facturation-f2-simulation": "planned",
+    "facturation-f3-validation-emission": "planned",
+    "facturation-f4-reglements": "planned",
+    "facturation-f5-consultation-pilotage": "planned",
+    "facturation-f6-retrait-bc-facturation": "planned",
+    "facturation-f7-cloture-mensuelle": "planned"
   },
   "contexts": {
     "gmao": "architected",
     "comptabilite": "modeled",
-    "facturation": "modeled"
+    "facturation": "architected"
   }
 }

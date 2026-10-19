@@ -37,6 +37,7 @@
         <module>bc-migration</module>
         <module>contexts/gmao</module>
         <module>contexts/comptabilite</module>
+        <module>contexts/facturation</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

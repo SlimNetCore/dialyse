@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Le modèle de numérotation doit contenir le jeton de séquence {SEQ} ou {SEQn} : sans lui, toutes les factures porteraient le même numéro",
+    "instance": "/api/v1/facturation/settings",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

@@ -34,12 +34,37 @@ L'ordre suit les dépendances : G2 avant G4 (tarif), G3 avant G4 (état de l'éq
 | 6     | C6 Comptabilisation du stock                                         | `built` (2026-10-19) | `/stock/synchroniser` et tâche de 03:15 dans `contexts/comptabilite` ; `echecs` (pièces des mois clos, réceptions et sorties sans valeur : KB-CPT-42/44) ; legacy du stock retiré (dont `ComptabiliteRestController`) ; fiches : `slices/comptabilite-c6-stock.md`, `safety-net/comptabilite-c6-stock.md`                                                                                    |
 | 7     | C7 Retrait de `bc-comptabilite`                                      | `built` (2026-10-19) | module supprimé (21 classes) ; Absences lisent la TVA par le langage publié `ParametrageFiscal` ; ACL C1/C2/C5, adaptateurs et entités legacy retirés (schéma H2 des écritures et périodes décrit par le contexte) ; suites C1 à C6 sur le contexte via `GenerationDEcritures` ; fiche : `slices/comptabilite-c7-retrait-bc-comptabilite.md`                                                 |
 
+## 1 ter. Slices Facturation (contexte `facturation`, module `backend/contexts/facturation`) — **plan approuvé le
+
+2026-10-19 (utilisateur)** ; Q1 tranchée : la Comptabilité reste propriétaire de `tva_types` (ADR 0030)
+
+Modèle tactique : `.ddd/tactical/facturation.md` (approuvé). Même méthode que GMAO et Comptabilité (ADR 0024) : refonte
+sur place, mêmes tables (`tva_types`, `facturation_settings`, `factures`, `facture_lignes`, `facture_sequence`,
+`facture_reglements`, colonnes de facturation de `seances`) et mêmes URLs (`/api/v1/tva-types`, `/api/v1/facturation`,
+`/api/v1/reglements`), filet de caractérisation vert sur le legacy d'abord. Le module `bc-reglement` rejoint le
+contexte `facturation` (agrégat `Règlement` distinct de `Facture`).
+
+| Ordre | Slice                                                                                                                           | Périmètre                                                                                                                                                                                                                                                 | Risque                                                 | Décisions à prendre avant la slice                                                                        |
+|-------|---------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| 1     | `built` (2026-10-19, fiche `slices/facturation-f1-referentiel.md`) **F1 Référentiel de facturation** (types de TVA, paramètres) | `GET/POST/PUT/DELETE /tva-types`, `GET/PUT /facturation/settings` ; RG-FAC-001 à 003, 010, 011 ; langage publié `TauxDeTvaApplicable` (lu par Absences, Comptabilité, simulation)                                                                         | faible (paramétrage, pas d'argent émis)                | **Q1** propriétaire de `tva_types` (aujourd'hui écrit par `/tva-types` **et** `/comptabilite/regles-tva`) |
+| 2     | **F2 Simulation** (aperçu, exclusion, changement de forfait)                                                                    | `POST /facturation/preview`, `/preview/seances/{id}/exclude`, `/preview/seances/{id}/forfait` ; F1-F4, F11 ; ACL Séance (`SeanceFacturationJdbcAdapter`)                                                                                                  | moyen (écrit l'état et le forfait des séances)         | **Q3** exclusion : motif, réinclusion, part de `ABSENT`                                                   |
+| 3     | **F3 Validation et émission**                                                                                                   | `POST /facturation/validate` ; F5-F9, F14-F15 ; numérotation, snapshots, liaison séance → facture, événement `FacturationValidée` (consommé par la Comptabilité via son langage publié)                                                                   | **fort** (argent, preuve, concurrence de numérotation) | **Q6** verrou/contrainte de numérotation et doublons existants ; **Q7** contrat de l'événement            |
+| 4     | **F4 Règlements**                                                                                                               | `/reglements` (enregistrement, paiements d'une facture, recherche, tableau de bord, export) ; F12-F13 ; retrait de `bc-reglement`                                                                                                                         | moyen                                                  | **Q4** agrégat Règlement, total signé, montant négatif                                                    |
+| 5     | **F5 Consultation et pilotage**                                                                                                 | `GET /facturation/dashboard`, `POST /facturation/synthese/print` ; lectures publiées pour la Direction (`DirectionDashboard/Breakdown/AbsencesQueryService`) et le reporting                                                                              | faible                                                 | —                                                                                                         |
+| 6     | **F6 Retrait de `bc-facturation`**                                                                                              | consommateurs passés par le langage publié : Comptabilité (`FacturesAComptabiliserJdbc`, `ReglementsAComptabiliserJdbc`, écouteurs P1/P2), Direction, Stock (`SeanceBillingStatusPort`), Séance, Absences ; garde-fou `FrontieresDesContextesTest` étendu | moyen                                                  | —                                                                                                         |
+| 7     | **F7 Clôture mensuelle de facturation** *(nouvelle fonctionnalité, ADR 0009)*                                                   | `PériodeDeFacturation` (F16) : plus d'émission ni d'exclusion après clôture                                                                                                                                                                               | à évaluer                                              | **Q2** préconditions, ordre avec Absences/Stock/Comptabilité, réouverture                                 |
+
+Ordre : F1 avant F2/F3 (taux de TVA figé à l'émission), F2 avant F3 (même calcul), F3 avant F4 (règlement d'une facture
+émise), F6 en dernier (comme C7 et G6 temps 2). F7 n'est engagée qu'après décision Q2. Chaque slice applique la
+recette du § 3, **y compris la mise à jour du référentiel des règles et la régénération de la documentation
+fonctionnelle**.
+
 ## 2. Autres contextes (haut niveau, à détailler après `/ddd-tactical <ctx>`)
 
 | Contexte                      | Remarque                                                                                                                                                                                                                           |
 |-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Comptabilité                  | **C1 à C7 livrées : `bc-comptabilite` retiré** (voir 1 bis) ; écrans Angular de régénération (C5) et des échecs du stock (C6) livrés le 2026-10-19 ; reste `/ddd-verify comptabilite` et les décisions ouvertes de `known-bugs.md` |
-| Facturation + règlement       | dépend de la lecture des séances ; TVA, clôture mensuelle (ADR 0009)                                                                                                                                                               |
+| Facturation + règlement       | **plan proposé le 2026-10-19 (§ 1 ter, F1 à F7)** ; dépend de la lecture des séances ; TVA, clôture mensuelle (ADR 0009)                                                                                                           |
 | Absences patients             | dépend des jours prévus (Planification) et des séances                                                                                                                                                                             |
 | Stock (+ article)             | PMP, FEFO ; la recette C6 a révélé KB-STK-01/02 (rejeu du PMP à date égale, dates du jeu de démo), corrigés hors slice : à reprendre dans le filet de la slice Stock                                                               |
 | Planification                 | consommera les événements GMAO ; débloquera le retrait des lectures SQL de `gmao_equipements`                                                                                                                                      |
@@ -51,7 +76,13 @@ L'ordre suit les dépendances : G2 avant G4 (tarif), G3 avant G4 (état de l'éq
 2. Domaine pur (TDD), cas d'usage avec fakes, adaptateurs JPA/JDBC directs sur les tables existantes (nommage de colonnes identique, mapping explicite), contrôleurs dans le module.
 3. Suite de caractérisation contre le nouveau code ; chaque écart est soit corrigé (défaut), soit décidé et consigné (ADR 0019) avec un golden `*_nouveau_code`.
 4. Retrait du contrôleur/DTO legacy de la slice ; le reste du legacy (domaine, ports, adaptateurs) reste tant qu'un écran legacy le référence ; la liste est dans la fiche de la slice.
-5. `state.ts set slices.<slice> built`, puis `/ddd-verify`.
+5. **Documentation (obligatoire, décision utilisateur du 2026-10-19)** : toute règle de gestion nouvelle ou modifiée
+   (écart décidé, correction, nouvelle fonctionnalité, nouvel écran) est inscrite dans
+   `docs/reference/regles-de-gestion` (identifiant `RG-XXX-nnn` stable, sources à jour, annexe 16 pour les contrôleurs
+   et tâches), puis la documentation fonctionnelle est régénérée
+   (`docs/client/tools/build-documentation-fonctionnelle.cjs`). `ReglesDeGestionDocumentationTest` vérifie codes,
+   contrôleurs (legacy **et** `backend/contexts`), tâches planifiées et entrées périmées de l'annexe.
+6. `state.ts set slices.<slice> built`, puis `/ddd-verify`.
 
 ## 4. Indicateurs
 

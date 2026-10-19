@@ -7,7 +7,6 @@ import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationPreview
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationPreviewExcludeSeanceRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationPreviewUpdateForfaitRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationSynthesePrintRequest;
-import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationSettingsUpdateRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationValidateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -112,28 +110,7 @@ public class FacturationRestController {
         return ResponseEntity.ok(result);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN','SECRETAIRE')")
-    @GetMapping("/settings")
-    public ResponseEntity<?> settings(@RequestParam UUID centerId) {
-        var settings = useCase.getSettings(new FacturationSettingsQuery(CenterId.of(centerId)));
-        return ResponseEntity.ok(settings);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/settings")
-    public ResponseEntity<?> updateSettings(@RequestBody @Valid FacturationSettingsUpdateRequest request) {
-        var updated = useCase.updateSettings(new FacturationSettingsCommand(
-                CenterId.of(request.centerId()),
-                request.userId(),
-                request.codeFormat(),
-                request.regroupementMultiForfait()
-        ));
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("codeFormat", updated.codeFormat());
-        body.put("regroupementMultiForfait", updated.regroupementMultiForfait());
-        body.put("updatedAt", updated.updatedAt());
-        return ResponseEntity.ok(body);
-    }
+    // GET|PUT /settings : contexte facturation (ParametresFacturationControleur, slice F1)
 
     @PreAuthorize("hasAnyRole('ADMIN','MEDECIN','SECRETAIRE')")
     @PostMapping("/synthese/print")

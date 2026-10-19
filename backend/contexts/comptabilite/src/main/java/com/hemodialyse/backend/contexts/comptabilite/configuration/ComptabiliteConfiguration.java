@@ -18,7 +18,10 @@ import com.hemodialyse.backend.contexts.comptabilite.application.mapping.Modifie
 import com.hemodialyse.backend.contexts.comptabilite.application.piece.GererLesModelesEtPieces;
 import com.hemodialyse.backend.contexts.comptabilite.application.tva.ConsulterLeParametrageFiscal;
 import com.hemodialyse.backend.contexts.comptabilite.application.tva.EnregistrerUneRegleDeTva;
+import com.hemodialyse.backend.contexts.comptabilite.application.tva.GererLesTypesDeTva;
+import com.hemodialyse.backend.contexts.comptabilite.application.tva.LectureDesTypesDeTva;
 import com.hemodialyse.backend.contexts.comptabilite.application.tva.ListerLesReglesDeTva;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.TypesDeTvaJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.AffecterUnCompteAuPayeur;
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.ConsulterLeCompteDuPayeur;
 import com.hemodialyse.backend.contexts.comptabilite.application.payeur.LectureDesPayeurs;
@@ -269,6 +272,19 @@ public class ComptabiliteConfiguration {
     @Bean
     EnregistrerUneRegleDeTva comptabiliteEnregistrerUneRegleDeTva(RegleTvaRepository regles, UniteDeTravail uniteDeTravail) {
         return new EnregistrerUneRegleDeTva(regles, uniteDeTravail);
+    }
+
+    // ------------------------------------------------------------------ écran « Types de TVA » (F1, ADR 0030)
+
+    @Bean
+    LectureDesTypesDeTva comptabiliteLectureDesTypesDeTva(JdbcTemplate jdbc) {
+        return new TypesDeTvaJdbc(jdbc);
+    }
+
+    @Bean
+    GererLesTypesDeTva comptabiliteGererLesTypesDeTva(RegleTvaRepository regles, LectureDesTypesDeTva lecture,
+                                                      UniteDeTravail uniteDeTravail) {
+        return new GererLesTypesDeTva(regles, lecture, uniteDeTravail);
     }
 
     // ------------------------------------------------------------------ modèles et pièces (C4)

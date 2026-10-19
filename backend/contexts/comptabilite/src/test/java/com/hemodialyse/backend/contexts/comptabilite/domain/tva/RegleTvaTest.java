@@ -22,16 +22,24 @@ class RegleTvaTest {
         return LocalDate.parse(date);
     }
 
+    private static RegleTvaId id() {
+        return new RegleTvaId(UUID.randomUUID());
+    }
+
+    private static RegleTva definir(String taux) {
+        return RegleTva.definir(id(), CENTRE, TYPE, taux == null ? null : new BigDecimal(taux), false, jour("2026-01-01"), null,
+                null);
+    }
+
     private static RegleTva regle(String type, String debut, String fin) {
-        return RegleTva.definir(CENTRE, type, new BigDecimal("19.00"), false, jour(debut), fin == null ? null : jour(fin), null);
+        return RegleTva.definir(id(), CENTRE, type, new BigDecimal("19.00"), false, jour(debut), fin == null ? null : jour(fin),
+                null);
     }
 
     private static RegleTva existante(CentreId centre, String type, String debut, String fin, boolean active) {
-        return RegleTva.reconstituee(centre, type, new BigDecimal("19.00"), false, jour(debut), fin == null ? null : jour(fin),
-                null, active);
+        return RegleTva.reconstituee(id(), centre, null, type, new BigDecimal("19.00"), false, jour(debut),
+                fin == null ? null : jour(fin), null, active);
     }
-
-    // ------------------------------------------------------------------ valeurs
 
     private static void accepte(RegleTva nouvelle, RegleTva... existantes) {
         assertThatCode(() -> nouvelle.exigerSansChevauchement(List.of(existantes))).doesNotThrowAnyException();
@@ -42,10 +50,14 @@ class RegleTvaTest {
                 .isInstanceOf(RegleTvaEnChevauchement.class).isInstanceOf(IllegalArgumentException.class);
     }
 
+    // ------------------------------------------------------------------ valeurs
+
     @Test
     void une_regle_a_un_type_un_taux_et_un_debut_et_est_active() {
-        RegleTva r = RegleTva.definir(CENTRE, TYPE, new BigDecimal("9"), true, jour("2026-01-01"), null, "Loi 2026");
+        RegleTvaId id = id();
+        RegleTva r = RegleTva.definir(id, CENTRE, TYPE, new BigDecimal("9"), true, jour("2026-01-01"), null, "Loi 2026");
 
+        assertThat(r.id()).isEqualTo(id);
         assertThat(r.typePrestation()).isEqualTo(TYPE);
         assertThat(r.taux().valeur()).isEqualByComparingTo("9");
         assertThat(r.exonere()).isTrue();
@@ -54,6 +66,24 @@ class RegleTvaTest {
         assertThat(r.texteReference()).isEqualTo("Loi 2026");
         assertThat(r.active()).isTrue();
         assertThat(r.centre()).isEqualTo(CENTRE);
+    }
+
+    @Test
+    void le_libelle_est_celui_saisi_sinon_le_type_et_le_taux() {
+        assertThat(definir("19.00").libelle()).isEqualTo("HEMODIALYSE 19.00%");
+        assertThat(RegleTva.definir(id(), CENTRE, "TVA hémodialyse", TYPE, BigDecimal.TEN, false, jour("2026-01-01"), null, null)
+                .libelle()).isEqualTo("TVA hémodialyse");
+        for (String vide : new String[]{"", "  "}) {
+            assertThatThrownBy(() -> RegleTva.definir(id(), CENTRE, vide, TYPE, BigDecimal.TEN, false, jour("2026-01-01"), null,
+                    null)).isInstanceOf(IllegalArgumentException.class).hasMessage("Le libellé est obligatoire");
+        }
+    }
+
+    @Test
+    void l_identifiant_est_obligatoire() {
+        assertThatThrownBy(() -> RegleTva.definir(null, CENTRE, TYPE, BigDecimal.TEN, false, jour("2026-01-01"), null, null))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new RegleTvaId(null)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -68,25 +98,26 @@ class RegleTvaTest {
     }
 
     @Test
-    void le_taux_est_obligatoire_et_positif_ou_nul_sans_borne_haute() {
-        assertThatThrownBy(() -> RegleTva.definir(CENTRE, TYPE, null, false, jour("2026-01-01"), null, null))
-                .hasMessage("Le taux TVA ne peut pas être négatif");
-        assertThatThrownBy(() -> RegleTva.definir(CENTRE, TYPE, new BigDecimal("-0.01"), false, jour("2026-01-01"), null, null))
-                .hasMessage("Le taux TVA ne peut pas être négatif");
-        assertThat(RegleTva.definir(CENTRE, TYPE, BigDecimal.ZERO, false, jour("2026-01-01"), null, null).taux().valeur())
-                .isEqualByComparingTo("0");
-        assertThat(RegleTva.definir(CENTRE, TYPE, new BigDecimal("999.99"), false, jour("2026-01-01"), null, null).taux().valeur())
-                .isEqualByComparingTo("999.99");
+    void le_taux_saisi_va_de_zero_a_cent_pour_cent() {
+        assertThatThrownBy(() -> definir(null)).hasMessage("Le taux TVA ne peut pas être négatif");
+        assertThatThrownBy(() -> definir("-0.01")).hasMessage("Le taux TVA ne peut pas être négatif");
+        assertThatThrownBy(() -> definir("100.01")).hasMessage("Le taux TVA ne peut pas dépasser 100%");
+        assertThat(definir("0").taux().valeur()).isEqualByComparingTo("0");
+        assertThat(definir("100").taux().valeur()).isEqualByComparingTo("100");
         assertThat(new TauxDeTva(new BigDecimal("19.50")).toString()).isEqualTo("19.50");
     }
 
     @Test
-    void la_date_de_debut_est_obligatoire() {
-        assertThatThrownBy(() -> RegleTva.definir(CENTRE, TYPE, BigDecimal.TEN, false, null, null, null))
-                .hasMessage("La date de début de validité est obligatoire");
+    void un_taux_relu_en_base_n_est_pas_borne_a_cent() {
+        assertThat(RegleTva.reconstituee(id(), CENTRE, null, TYPE, new BigDecimal("150.00"), false, jour("2026-01-01"), null,
+                null, true).taux().valeur()).isEqualByComparingTo("150");
     }
 
-    // ------------------------------------------------------------------ règle applicable
+    @Test
+    void la_date_de_debut_est_obligatoire() {
+        assertThatThrownBy(() -> RegleTva.definir(id(), CENTRE, TYPE, BigDecimal.TEN, false, null, null, null))
+                .hasMessage("La date de début de validité est obligatoire");
+    }
 
     @Test
     void la_fin_avant_le_debut_est_refusee_et_la_fin_egale_au_debut_est_acceptee() {
@@ -105,6 +136,8 @@ class RegleTvaTest {
         assertThat(r.estApplicableLe(jour("2026-03-01"))).isFalse();
     }
 
+    // ------------------------------------------------------------------ règle applicable
+
     @Test
     void une_regle_s_applique_de_son_debut_a_sa_fin_bornes_incluses() {
         RegleTva r = regle(TYPE, "2026-01-01", "2026-06-30");
@@ -114,8 +147,6 @@ class RegleTvaTest {
         assertThat(r.estApplicableLe(jour("2026-06-30"))).isTrue();
         assertThat(r.estApplicableLe(jour("2026-07-01"))).isFalse();
     }
-
-    // ------------------------------------------------------------------ chevauchement
 
     @Test
     void une_regle_sans_fin_est_ouverte() {
@@ -129,6 +160,8 @@ class RegleTvaTest {
     void une_regle_desactivee_ne_s_applique_jamais() {
         assertThat(existante(CENTRE, TYPE, "2026-01-01", null, false).estApplicableLe(jour("2026-02-01"))).isFalse();
     }
+
+    // ------------------------------------------------------------------ chevauchement
 
     @Test
     void une_regle_ne_chevauche_rien_quand_le_centre_n_a_aucune_regle() {
@@ -184,5 +217,68 @@ class RegleTvaTest {
                 .exigerSansChevauchement(List.of(existante(CENTRE, TYPE, "2026-01-01", null, true))))
                 .hasMessage("La règle de TVA HEMODIALYSE du 2026-06-01 au 2027-06-30 chevauche la règle existante à partir du "
                         + "2026-01-01 : les dates de deux règles du même type ne doivent pas se recouvrir");
+    }
+
+    // ------------------------------------------------------------------ modification et désactivation (F1)
+
+    @Test
+    void la_modification_garde_l_identite_le_centre_et_l_etat() {
+        RegleTva desactivee = existante(CENTRE, TYPE, "2023-01-01", "2023-12-31", false);
+
+        RegleTva modifiee = desactivee.modifier("Modifié", "MEDICAMENT", new BigDecimal("9"), true, jour("2024-01-01"), null,
+                "Décret");
+
+        assertThat(modifiee.id()).isEqualTo(desactivee.id());
+        assertThat(modifiee.centre()).isEqualTo(CENTRE);
+        assertThat(modifiee.active()).isFalse();
+        assertThat(modifiee.libelle()).isEqualTo("Modifié");
+        assertThat(modifiee.typePrestation()).isEqualTo("MEDICAMENT");
+        assertThat(modifiee.taux().valeur()).isEqualByComparingTo("9");
+        assertThat(modifiee.exonere()).isTrue();
+        assertThat(modifiee.debutValidite()).isEqualTo(jour("2024-01-01"));
+        assertThat(modifiee.finValidite()).isNull();
+        assertThat(modifiee.texteReference()).isEqualTo("Décret");
+    }
+
+    @Test
+    void la_modification_suit_la_regle_unique_de_saisie() {
+        RegleTva r = existante(CENTRE, TYPE, "2026-01-01", null, true);
+
+        assertThatThrownBy(() -> r.modifier("T", TYPE, new BigDecimal("100.01"), false, jour("2026-01-01"), null, null))
+                .hasMessage("Le taux TVA ne peut pas dépasser 100%");
+        assertThatThrownBy(() -> r.modifier("T", TYPE, BigDecimal.TEN, false, jour("2026-02-01"), jour("2026-01-31"), null))
+                .isInstanceOf(DatesDeValiditeInversees.class);
+        assertThat(r.modifier("T", TYPE, BigDecimal.TEN, false, jour("2026-02-01"), jour("2026-02-01"), null).finValidite())
+                .isEqualTo(jour("2026-02-01"));
+    }
+
+    @Test
+    void une_regle_modifiee_ne_se_chevauche_pas_elle_meme_mais_chevauche_les_autres() {
+        RegleTva r = existante(CENTRE, TYPE, "2026-01-01", null, true);
+        RegleTva voisine = existante(CENTRE, TYPE, "2024-01-01", "2024-12-31", true);
+        RegleTva modifiee = r.modifier(null, TYPE, BigDecimal.TEN, false, jour("2025-01-01"), null, null);
+
+        accepte(modifiee, r);
+        refuse(r.modifier(null, TYPE, BigDecimal.TEN, false, jour("2024-06-01"), null, null), r, voisine);
+    }
+
+    @Test
+    void une_regle_desactivee_n_est_bloquee_par_rien() {
+        RegleTva desactivee = existante(CENTRE, TYPE, "2026-01-01", null, false);
+
+        accepte(desactivee.modifier(null, TYPE, BigDecimal.TEN, false, jour("2026-01-01"), null, null),
+                existante(CENTRE, TYPE, "2026-01-01", null, true));
+    }
+
+    @Test
+    void la_desactivation_garde_tout_le_reste() {
+        RegleTva r = RegleTva.definir(id(), CENTRE, "Libellé", TYPE, BigDecimal.TEN, true, jour("2026-01-01"),
+                jour("2026-12-31"), "Loi");
+
+        RegleTva desactivee = r.desactiver();
+
+        assertThat(desactivee.active()).isFalse();
+        assertThat(desactivee.desactiver()).isEqualTo(desactivee);
+        assertThat(desactivee).usingRecursiveComparison().ignoringFields("active").isEqualTo(r);
     }
 }

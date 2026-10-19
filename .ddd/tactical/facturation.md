@@ -193,8 +193,10 @@ SQL du listener ; aucune modification de contrat n'est incluse dans cette propos
 
 ## Questions ouvertes
 
-1. **Propriétaire définitif de `tva_types`** : Facturation (proposition stratégique) ou Comptabilité ? Qui fournit les
-   lectures de TVA à Absences et Comptabilité avant retrait des adapters JDBC ?
+1. ~~**Propriétaire définitif de `tva_types`**~~ → **tranchée le 2026-10-19 (ADR 0030)** : la **Comptabilité** reste
+   propriétaire ; `/tva-types` devient une façade vers le contexte `comptabilite` ; une seule règle de validation (union
+   des contrôles). `TypeTVA` sort des agrégats de la Facturation, qui lit le taux par le langage publié de la
+   Comptabilité. *(Révision du modèle : la section « Type de TVA » ci-dessus est caduque sur la propriété.)*
 2. **Clôture mensuelle** : définition exacte de la période clôturée, ordre avec Absences/Stock/Comptabilité,
    comportement si une validation est déjà en cours ; clôture irréversible proposée, pas encore caractérisée.
 3. **Exclusion** : motif obligatoire ou absent ? Peut-on réinclure une séance exclue ? Quelle part de l'état `ABSENT`
@@ -210,19 +212,5 @@ SQL du listener ; aucune modification de contrat n'est incluse dans cette propos
 8. **Terms proposed** : `SéanceFacturable`, `ExclusionDeFacturation`, `ForfaitAppliqué`, `PériodeDeFacturation`,
    `Règlement`, `SituationFacture`, `FacturationValidée` et leurs identifiants de code restent à confirmer par les
    experts métier.
-
-````
-This is the description of what the code block changes:
-<changeDescription>
-Nettoyer le caractère d’encodage erroné et expliciter l’ordre métier du forfait appliqué.
-</changeDescription>
-
-This is the code block that represents the suggested code change:
-```markdown
-// Dans la ligne de ConfigurerNumérotation / Regroupement, remplacer le marqueur illisible par `—`.
-// Dans F2, remplacer la priorité ambiguë par : surcharge ; sinon PEC couvrant la date, préférer celle avec forfait effectif puis la plus récente ; choisir le forfait effectif, sinon demandé ; sans forfait, prix nul.
-```
-
-
 
 

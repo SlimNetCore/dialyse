@@ -1,0 +1,67 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "actif": true,
+        "centerId": "<CENTRE_A>",
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "fixture",
+        "dateDebutValidite": "2026-01-01",
+        "dateFinValidite": null,
+        "exonere": false,
+        "id": "<UUID_GENERE_1>",
+        "libelle": "HEMODIALYSE 9.00%",
+        "taux": 9.00,
+        "texteReference": null,
+        "typePrestation": "HEMODIALYSE"
+      },
+      {
+        "actif": true,
+        "centerId": "<CENTRE_A>",
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "fixture",
+        "dateDebutValidite": "2025-06-01",
+        "dateFinValidite": null,
+        "exonere": true,
+        "id": "<UUID_GENERE_2>",
+        "libelle": "MEDICAMENT 0.00%",
+        "taux": 0.00,
+        "texteReference": null,
+        "typePrestation": "MEDICAMENT"
+      },
+      {
+        "actif": true,
+        "centerId": "<CENTRE_A>",
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "fixture",
+        "dateDebutValidite": "2024-01-01",
+        "dateFinValidite": "2025-12-31",
+        "exonere": false,
+        "id": "<UUID_GENERE_3>",
+        "libelle": "HEMODIALYSE 19.00%",
+        "taux": 19.00,
+        "texteReference": null,
+        "typePrestation": "HEMODIALYSE"
+      },
+      {
+        "actif": false,
+        "centerId": "<CENTRE_A>",
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "fixture",
+        "dateDebutValidite": "2023-01-01",
+        "dateFinValidite": "2023-12-31",
+        "exonere": false,
+        "id": "<UUID_GENERE_4>",
+        "libelle": "HEMODIALYSE 7.00%",
+        "taux": 7.00,
+        "texteReference": null,
+        "typePrestation": "HEMODIALYSE"
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 4
+  }
+}

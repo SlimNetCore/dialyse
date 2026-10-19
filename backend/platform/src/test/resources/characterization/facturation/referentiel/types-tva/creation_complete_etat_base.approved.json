@@ -1,0 +1,14 @@
+[
+  {
+    "type_prestation": "HEMODIALYSE",
+    "libelle": "Exonération",
+    "taux": "0.00",
+    "exonere": "true",
+    "date_debut_validite": "2026-01-01",
+    "date_fin_validite": "2026-12-31",
+    "texte_reference": "Loi de finances 2026",
+    "actif": "true",
+    "created_by": "admin",
+    "created_at_nul": "false"
+  }
+]

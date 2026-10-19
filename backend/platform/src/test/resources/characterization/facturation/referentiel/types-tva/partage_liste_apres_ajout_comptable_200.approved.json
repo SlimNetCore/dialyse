@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "items": [
+      {
+        "actif": true,
+        "centerId": "<CENTRE_A>",
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "comptabilite",
+        "dateDebutValidite": "2026-01-01",
+        "dateFinValidite": null,
+        "exonere": true,
+        "id": "<UUID_GENERE_1>",
+        "libelle": "MEDICAMENT 0%",
+        "taux": 0.00,
+        "texteReference": null,
+        "typePrestation": "MEDICAMENT"
+      },
+      {
+        "actif": true,
+        "centerId": "<CENTRE_A>",
+        "createdAt": "<HORODATAGE>",
+        "createdBy": "admin",
+        "dateDebutValidite": "2026-01-01",
+        "dateFinValidite": null,
+        "exonere": false,
+        "id": "<UUID_GENERE_2>",
+        "libelle": "TVA hémodialyse",
+        "taux": 19.00,
+        "texteReference": null,
+        "typePrestation": "HEMODIALYSE"
+      }
+    ],
+    "page": 0,
+    "size": 20,
+    "total": 2
+  }
+}

@@ -66,7 +66,9 @@ class RegleTvaPostgresContractIT extends RegleTvaContrat {
 
     @Test
     void should_reject_a_rate_of_1000_or_more_because_of_the_numeric_5_2_column() {
-        RegleTva trop = RegleTva.definir(CENTRE_A, "HEMODIALYSE", new BigDecimal("1000"), false, LocalDate.parse("2026-01-01"), null, null);
+        // un taux saisi est borné à 100 % (ADR 0030) : la règle est construite comme si elle venait d'ailleurs
+        RegleTva trop = RegleTva.reconstituee(nouvelId(), CENTRE_A, null, "HEMODIALYSE", new BigDecimal("1000"), false,
+                LocalDate.parse("2026-01-01"), null, null, true);
 
         assertThatThrownBy(() -> adaptateur.ajouter(trop)).isInstanceOf(DataAccessException.class);
         assertThat(adaptateur.duCentre(CENTRE_A)).isEmpty();
@@ -74,7 +76,7 @@ class RegleTvaPostgresContractIT extends RegleTvaContrat {
 
     @Test
     void should_write_the_audit_columns_and_the_label_of_the_shared_table() {
-        adaptateur.ajouter(RegleTva.definir(CENTRE_A, "HEMODIALYSE", new BigDecimal("19"), false, LocalDate.parse("2026-01-01"), null, null));
+        adaptateur.ajouter(regle(CENTRE_A, "HEMODIALYSE", "19", "2026-01-01", null));
 
         assertThat(jdbc.queryForObject("SELECT created_by FROM tva_types WHERE center_id = ?", String.class, CENTRE_A.valeur()))
                 .isEqualTo("comptabilite");

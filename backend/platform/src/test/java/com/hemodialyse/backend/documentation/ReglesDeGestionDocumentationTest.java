@@ -64,18 +64,56 @@ class ReglesDeGestionDocumentationTest {
         annexe = Files.readString(docs.resolve("16-annexe-tracabilite.md"), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Codes des refus métier des contextes refaits sur place : sous-classes de {@code RegleMetierViolee}
+     * ({@code super("CODE", …)}) et règles construites par code ({@code regle("CODE", …)}, {@code new ReglePiece("CODE", …)}).
+     */
+    private static final Pattern CONTEXT_RULE_CODE = Pattern.compile(
+            "(?:super|regle|new ReglePiece)\\(\"([A-Z][A-Z0-9]*_[A-Z0-9_]*[A-Z0-9])\"");
+
     private static List<Path> mainSources() throws IOException {
         List<Path> sources = new ArrayList<>();
-        try (Stream<Path> modules = Files.list(backend)) {
-            for (Path module : modules.filter(Files::isDirectory).toList()) {
-                Path main = module.resolve("src/main/java");
-                if (!Files.isDirectory(main)) continue;
+        // modules legacy (backend/<module>) et contextes refaits sur place (backend/contexts/<contexte>)
+        try (Stream<Path> mains = Files.walk(backend, 5)) {
+            for (Path main : mains.filter(p -> p.endsWith(Path.of("src", "main", "java")) && Files.isDirectory(p)
+                    && !p.toString().contains("node_modules") && !p.toString().contains("target")).toList()) {
                 try (Stream<Path> files = Files.walk(main)) {
                     files.filter(p -> p.toString().endsWith(".java")).forEach(sources::add);
                 }
             }
         }
         return sources;
+    }
+
+    @Test
+    void everyContextRuleCodeIsDocumented() throws IOException {
+        Set<String> missing = new TreeSet<>();
+        for (Path source : mainSources()) {
+            if (!source.toString().replace('\\', '/').contains("/contexts/")) continue;
+            String content = Files.readString(source, StandardCharsets.UTF_8);
+            if (!content.contains("RegleMetierViolee") && !content.contains("ReglePiece")
+                    && !content.contains("regle(")) continue;
+            Matcher matcher = CONTEXT_RULE_CODE.matcher(content);
+            while (matcher.find()) {
+                if (!documentation.contains("`" + matcher.group(1) + "`")) missing.add(matcher.group(1));
+            }
+        }
+        assertThat(missing).as("codes de refus des contextes absents de docs/reference/regles-de-gestion").isEmpty();
+    }
+
+    /**
+     * L'annexe ne cite pas de contrôleur ou de tâche disparus du code (une entrée périmée trompe le lecteur).
+     */
+    @Test
+    void theAnnexCitesNoRemovedControllerOrJob() throws IOException {
+        Set<String> existing = new TreeSet<>();
+        for (Path source : mainSources()) existing.add(source.getFileName().toString().replace(".java", ""));
+        Matcher cited = Pattern.compile("^\\| `([A-Z][A-Za-z0-9]+)`", Pattern.MULTILINE).matcher(annexe);
+        Set<String> removed = new TreeSet<>();
+        while (cited.find()) {
+            if (!existing.contains(cited.group(1))) removed.add(cited.group(1));
+        }
+        assertThat(removed).as("entrées de 16-annexe-tracabilite.md sans classe correspondante").isEmpty();
     }
 
     @Test
@@ -97,7 +135,7 @@ class ReglesDeGestionDocumentationTest {
         for (Path source : mainSources()) {
             String content = Files.readString(source, StandardCharsets.UTF_8);
             String name = source.getFileName().toString().replace(".java", "");
-            boolean controller = content.contains("@RestController");
+            boolean controller = content.matches("(?s).*@RestController(?!Advice).*");
             boolean scheduled = content.contains("@Scheduled");
             if ((controller || scheduled) && !annexe.contains("`" + name + "`")) missing.add(name);
         }

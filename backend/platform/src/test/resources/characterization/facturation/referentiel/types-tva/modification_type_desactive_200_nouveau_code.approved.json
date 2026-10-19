@@ -1,0 +1,18 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "actif": false,
+    "centerId": "<CENTRE_A>",
+    "createdAt": "<HORODATAGE>",
+    "createdBy": "fixture",
+    "dateDebutValidite": "2023-01-01",
+    "dateFinValidite": "2023-12-31",
+    "exonere": false,
+    "id": "<UUID_GENERE_1>",
+    "libelle": "Modifié",
+    "taux": 9.00,
+    "texteReference": null,
+    "typePrestation": "HEMODIALYSE"
+  }
+}

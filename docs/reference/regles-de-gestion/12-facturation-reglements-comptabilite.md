@@ -5,33 +5,52 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 > payeur sur chaque facture, **calcule le solde** de chaque facture et **génère les écritures comptables équilibrées**.
 > Sources : `FacturationDomainService`,
 > `SeanceEligibleForFacturationSpecification`, `FactureAggregate`, `FactureNumberTemplate`, `TypeTVA`,
-> `TypeTvaDomainService`, `SeanceFacturationJdbcAdapter`, `FactureReglementAggregate`,
+> `RegleTva`, `GererLesTypesDeTva`, `ParametresDeFacturation`, `ModeleDeNumerotation`, `SeanceFacturationJdbcAdapter`,
+> `FactureReglementAggregate`,
 > `FactureReglementStatusSpecification`, `ReglementService`, `ComptabiliteService`, `GenerateurEcritureComptable`,
 > `EcritureComptable`, `MappingComptable`, `RegleTVA`, listeners comptables,
-> contrôleurs `Facturation*`, `TvaTypes*`, `Reglement*`, `Comptabilite*`.
+> contrôleurs `Facturation*`, `TypesTvaControleur`, `ParametresFacturationControleur`, `Reglement*`, `Comptabilite*`.
 
 ## 12.1 Types de TVA
 
-- **RG-FAC-001** — Un type de TVA est propre à un centre : libellé obligatoire, **taux de 0 à 100 %**, type de
-  prestation obligatoire, indicateur d'exonération, **date de début de validité obligatoire**,
-  date de fin facultative **strictement postérieure** au début (« La date de fin doit être postérieure à la date de
-  début »), texte de référence légale facultatif.
+- **RG-FAC-001** — Un type (ou règle) de TVA est propre à un centre : libellé obligatoire, **taux de 0 à 100 %**
+  (arrondi à deux décimales par la base), type de prestation obligatoire (texte comparé tel que saisi), indicateur
+  d'exonération, **date de début de validité obligatoire**, date de fin facultative **égale ou postérieure** au début,
+  texte de référence légale facultatif. **Deux types actifs du même centre et du même type de prestation ne se
+  chevauchent pas** (périodes [début, fin] bornes incluses, fin absente = période ouverte, types désactivés ignorés).
+  C'est **la même règle** que celle des règles de TVA comptables (RG-CPT-006) : une seule table, dont la Comptabilité
+  est propriétaire (ADR 0030) ; les types déjà enregistrés ne sont pas revalidés. Refus (400) : taux hors bornes, « La
+  date de fin de validité (…) précède la date de début (…) », « La règle de TVA … chevauche la règle existante … ».
+  *Source :* `RegleTva`, `TauxDeTva`, `GererLesTypesDeTva` (contexte `comptabilite`) → `TypesTvaControleur`
+  (`/tva-types`).
 - **RG-FAC-002** — La TVA applicable à une date est le type **actif** couvrant cette date pour la prestation
-  `HEMODIALYSE` ; **sans type actif, le taux est 0 %**. Le taux est figé sur chaque facture au
-  moment de la validation.
-- **RG-FAC-003** — Les types de TVA se désactivent (jamais supprimés physiquement) ; création, modification,
-  désactivation : `ADMIN` ; consultation : `ADMIN`, `MEDECIN`, `SECRETAIRE` (liste paginée,
-  mise en cache par centre, vidée à chaque écriture).
+  `HEMODIALYSE` (le dernier commencé) ; **sans type actif, le taux est 0 %**. Le taux est figé sur chaque facture au
+  moment de la validation. *Source :* langage publié `ParametrageFiscal` (contexte `comptabilite`) ; la simulation et
+  la validation de facturation lisent encore la table par `TypeTvaJdbcAdapter` jusqu'aux slices F2 et F3.
+- **RG-FAC-003** — Les types de TVA se **désactivent** (jamais supprimés) : la désactivation est idempotente et répond
+  204 même pour un type inconnu du centre. La **modification** remplace libellé, taux, type, exonération, dates et texte
+  selon RG-FAC-001 (le type modifié ne se compare pas à lui-même) ; elle **garde l'état** (un type désactivé le reste)
+  et l'auteur d'origine ; un type inconnu dans le centre répond **404** et rien n'est écrit. Création, modification,
+  désactivation : `ADMIN` ; consultation : `ADMIN`, `MEDECIN`, `SECRETAIRE` (liste paginée, triée par début décroissant
+  puis libellé, relue à chaque appel). Le centre demandé est confronté à celui de la session : un autre centre est
+  refusé (403). *Source :* `GererLesTypesDeTva` → `TypesTvaControleur`.
 
 ## 12.2 Paramètres de facturation du centre
 
 - **RG-FAC-010** — Chaque centre définit un **modèle de numérotation** des factures (défaut `FAC-{YEAR}-{SEQ}`) : jetons
-  `{YYYY}`/`{YEAR}`, `{YY}`, `{CENTER}` (8 premiers caractères de l'identifiant du centre),
-  `{SEQ}` ou `{SEQn}` (séquence sur n chiffres, 4 par défaut). Le modèle est obligatoire ; la séquence est strictement
-  positive et propre au centre (et à l'année).
+  `{YYYY}`/`{YEAR}`, `{YY}`, `{CENTER}` (8 premiers caractères de l'identifiant du centre), `{SEQ}` ou `{SEQn}`
+  (séquence sur n chiffres, n de 1 à 99, 4 par défaut). Le modèle est obligatoire, contient **un jeton de séquence** et
+  **aucun jeton inconnu**, et tient en 120 caractères ; sinon il est refusé (400 : « Le modèle de numérotation doit
+  contenir le jeton de séquence {SEQ} ou {SEQn} … », « Jeton inconnu {…} … »). Les modèles déjà enregistrés ne sont pas
+  revalidés. La séquence est strictement positive et propre au centre (et à l'année). *Source :* `ModeleDeNumerotation`,
+  `ParametresDeFacturation`, `ConfigurerLaFacturation` (contexte `facturation`) → `ParametresFacturationControleur`
+  (`/facturation/settings`) ; numéro calculé par `FactureNumberTemplate`.
 - **RG-FAC-011** — Option « **regroupement multi-forfait** » (défaut oui) : une facture par patient et par période
-  (plusieurs lignes de forfaits) ; sinon une facture par patient **et par forfait**.
-  Modification des paramètres : `ADMIN` ; lecture : `ADMIN`, `MEDECIN`, `SECRETAIRE`.
+  (plusieurs lignes de forfaits) ; sinon une facture par patient **et par forfait**. Un centre qui n'a rien enregistré
+  lit les valeurs par défaut, sans date de mise à jour : **la lecture n'écrit rien**. Modification des paramètres :
+  `ADMIN` ; lecture : `ADMIN`, `SECRETAIRE` (le profil `MEDECIN`, admis par la route, est refusé par le filtre des
+  profils : 403 `ROLE_SCOPE`). Le centre demandé est confronté à celui de la session (403 sinon). *Source :*
+  `ConfigurerLaFacturation` → `ParametresFacturationControleur`.
 
 ## 12.3 Séances facturables et simulation
 
@@ -89,21 +108,36 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   de ventes (706) pour le HT, crédit de la TVA collectée (44571) si la TVA est > 0 (dérivée de TTC − HT si le total de
   TVA manque) ; date de l'écriture = **fin de la période facturée** (jamais la date d'émission) ; axes analytiques
   centre et type de tiers ; statut `VALIDEE`. **Idempotence** : une facture n'a qu'une écriture (recherche par pièce
-  source, **quel que soit le journal** : changer le journal des ventes ne recrée jamais une écriture déjà passée).
+  source, **quel que soit le journal** : changer le journal des ventes ne recrée jamais une écriture déjà passée) ; la
+  base le garantit aussi : **une seule écriture par source et par centre** (index unique, migration V37 ; le numéro de
+  pièce, lui, n'est pas contraint). L'écriture est générée **après l'enregistrement de la validation de facturation**,
+  facture par facture, chacune indépendamment : un refus (mois clôturé, facture déséquilibrée…) n'annule jamais la
+  facturation, n'empêche pas les factures suivantes, et laisse la facture **à régénérer** (RG-CPT-024). *Source :*
+  `ComptabiliserLesVentesEtReglements`, `EcritureComptable.generer`, `RedactionDesEcritures.ventes` (contexte
+  `comptabilite`), écouteur `FacturationValideeComptabiliteListener` → langage publié
+  `ComptabilisationDesVentesEtReglements`.
 - **RG-CPT-002** — **Écriture de règlement** : journal choisi pour les règlements en banque (`BQ` par défaut, débit
     512) ou en caisse (`CA` par défaut, débit 530, si le mode
   est « caisse ») ; crédit du compte client ; montant en valeur absolue ; **une écriture par
-  règlement** (idempotence par identifiant de règlement). Le mode par défaut du règlement enregistré est « banque ».
+         règlement** (idempotence par identifiant de règlement, garantie aussi en base comme RG-CPT-001). Le mode par
+         défaut
+         du règlement enregistré est « banque ». Comme la vente, l'écriture est générée **après l'enregistrement du
+         règlement**, dans sa propre transaction : un refus n'annule jamais le règlement, qui reste à régénérer
+         (RG-CPT-024).
 - **RG-CPT-003** — Toute écriture comporte **au moins deux lignes** et doit être **équilibrée** (total débit = total
   crédit à deux décimales : `ECRITURE_DESEQUILIBREE`) ; compte SCF obligatoire, débit et
-  crédit non négatifs ; numéro de pièce par journal et par année.
+  crédit non négatifs ; numéro de pièce par journal et par année, qui **suit le plus grand numéro existant comparé
+  numériquement** (après `VE-2026-999999` vient `VE-2026-1000000`, un suffixe non numérique est ignoré), attribué sous
+  verrou. Toute écriture naît dans un **mois ouvert** (RG-CPT-005) : la règle est portée par l'écriture elle-même, quel
+  que soit le chemin (vente, règlement, stock, pièce saisie, extourne).
 - **RG-CPT-004** — **Statuts** : `BROUILLON` → `VALIDEE` → `EXPORTEE`. Une écriture exportée est **immuable**
   (`ECRITURE_EXPORTEE_IMMUABLE`) ; seules les écritures validées sont exportables (`EXPORT_ECRITURE_NON_VALIDEE`) ;
   l'export marque les écritures validées comme exportées. Écriture inconnue : `ECRITURE_INTROUVABLE`.
 - **RG-CPT-005** — **Clôture de période** (mois) : réservée à `ADMIN` ; une période déjà clôturée ne se reclôt pas
   (`PERIODE_DEJA_CLOTUREE`) ; aucune écriture ne peut être générée dans une période clôturée (`PERIODE_CLOTUREE`).
-  Lorsque la période d'un règlement est clôturée, le règlement reste enregistré mais **aucune écriture n'est générée**
-  (avertissement journalisé).
+  Lorsque la période d'une facture ou d'un règlement est clôturée, la facture ou le règlement reste enregistré mais
+  **aucune écriture n'est générée** : le refus est journalisé et la source figure parmi les factures à régénérer
+  (RG-CPT-024).
 - **RG-CPT-006** — **Plan de comptes par centre** (`MappingComptable`), **entièrement paramétrable** depuis l'écran
   « Paramétrage comptable » (`ADMIN`) : comptes ventes, client « patient qui paie lui-même », client « payeur sans
   compte propre », banque, caisse — tous obligatoires ; valeurs par défaut :
@@ -124,24 +158,25 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   `ComptesDuStock`, `ModifierLeMapping` (contexte `comptabilite`), `ComptabiliteParametrageComponent` →
   `ComptabiliteParametrageStore` → `ComptabiliteApiService` → `MappingControleur` (`/mapping`) →
   `MappingComptableRepository`. **Règles de TVA comptables** (`/regles-tva`, `ADMIN`) versionnées dans le temps : type
-  de prestation (texte brut, 120
-  caractères), taux ≥ 0 (arrondi à deux décimales par la base, 1000 et plus refusé), exonération (obligatoire), début de
-  validité
-  obligatoire, fin facultative, texte de référence. Elles **s'ajoutent seulement** (ni modification ni suppression) ; la
-  liste
-  montre toutes les règles du centre, de la plus récente à la plus ancienne. Un ajout est **refusé (400)** si la date de
-  fin
-  précède la date de début, ou si la règle **chevauche une règle active du même centre et du même type** (périodes
-  [début, fin] bornes incluses, fin absente = période ouverte ; les règles désactivées par la Facturation sont
-  ignorées) ; les
-  règles déjà enregistrées ne sont pas revalidées. Un ajout réussi vide la liste en cache des types de TVA de la
-  Facturation (table `tva_types` partagée). La règle applicable à une date est la dernière commencée parmi les règles
-  actives du type. *Source :* `RegleTva`, `EnregistrerUneRegleDeTva` → `ReglesTvaControleur` (`/regles-tva`) →
-  `RegleTvaRepository`.
+  de prestation (texte brut, 120 caractères), **taux de 0 à 100 %** (arrondi à deux décimales par la base), exonération
+  (obligatoire), début de validité obligatoire, fin facultative, texte de référence. L'écran comptable les **ajoute** ;
+  la modification et la désactivation passent par l'écran « Types de TVA » (RG-FAC-003). La liste montre toutes les
+  règles du centre, de la plus récente à la plus ancienne. Un ajout est **refusé (400)** si le taux dépasse 100 %, si la
+  date de fin précède la date de début, ou si la règle **chevauche une règle active du même centre et du même type**
+  (périodes [début, fin] bornes incluses, fin absente = période ouverte ; les règles désactivées sont ignorées) : c'est
+  la règle unique de RG-FAC-001 (ADR 0030) ; les règles déjà enregistrées ne sont pas revalidées. Un ajout est visible
+  aussitôt dans les deux écrans (la liste n'est plus mise en cache). La règle applicable à une date est la dernière
+  commencée parmi les règles actives du type. *Source :* `RegleTva`, `EnregistrerUneRegleDeTva` →
+  `ReglesTvaControleur` (`/regles-tva`) → `RegleTvaRepository`.
 - **RG-CPT-007** — **Reconstruction** (rejeu) des écritures de factures et règlements existants sur une période,
-  réservée à `ADMIN` ; l'idempotence évite tout doublon. Consultation des écritures et des journaux :
-  `ADMIN`, `SECRETAIRE` (paginée) ; validation, export, paramétrage (comptes, journaux, mapping), règles TVA, clôture,
-  comptabilisation du stock : `ADMIN`.
+  réservée à `ADMIN` ; l'idempotence évite tout doublon. Une vente régénérée est datée de la **fin de sa période
+  facturée** (comme RG-CPT-001). Chaque source est traitée indépendamment : un refus (mois clôturé…) **n'arrête pas les
+  suivantes** ; il est rapporté avec sa raison (RG-CPT-024). Consultation des écritures et des journaux :
+  `ADMIN`, `SECRETAIRE` (paginée) ; la liste des écritures est **relue à chaque ouverture de l'écran Comptabilité**
+  (les écritures générées entre-temps — stock, ventes, règlements — apparaissent sans recharger la page) ; validation,
+  export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock : `ADMIN`. *Source :*
+  `ComptabiliserLesVentesEtReglements.reconstruire` → `VentesEtReglementsControleur` (`/rebuild`) ;
+  `ComptabiliteDashboardComponent` → `ComptabiliteStore.refresh`.
 - **RG-CPT-008** — *(point d'attention levé)* Les créances ne sont plus toutes imputées au compte client « autre » :
   chaque facture débite le compte de **son payeur** (RG-CPT-019), le compte par défaut si le payeur n'en a pas, et le
   compte « patients » si la facture n'a pas de payeur. Le **règlement** crédite le compte que l'écriture de la facture
@@ -172,7 +207,9 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 - **RG-CPT-013** — **Écriture des sorties** : les sorties de stock d'une journée (consommations de séance, sorties
   manuelles) sont **centralisées en une écriture par centre et par jour**, dans le journal des sorties : débit du
   compte de consommation, crédit du compte de stock, valorisés au **prix moyen pondéré appliqué à la sortie** (à
-  défaut le PMP après mouvement, puis le PMP courant de l'article). Une ligne par compte.
+  défaut le PMP après mouvement, puis le PMP courant de l'article ; ordre de valorisation : RG-STK-041). Une ligne par
+  compte. Un article sorti **sans prix ni PMP** (valeur nulle) ou reçu sans prix n'est pas valorisé : la journée ou le
+  bon est **signalé** avec les articles concernés (`SANS_VALEUR`, RG-CPT-015).
 - **RG-CPT-014** — **Écriture des écarts d'inventaire** : un inventaire **clôturé** donne une écriture, dans le journal
   des inventaires, à la date de l'inventaire : excédent (compté > théorique) = débit stock, crédit boni ; manquant =
   débit mali, crédit stock ; écarts valorisés au PMP de la ligne d'inventaire. Une ligne non comptée ne produit rien.
@@ -183,14 +220,18 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   jour est **mise à jour** tant qu'elle n'est ni exportée ni dans une période clôturée (son numéro de pièce est
   conservé) ; sinon la différence fait l'objet d'une **écriture de complément** — datée du jour même, ou du jour du
   traitement si la période d'origine est clôturée (au plus 50 compléments par journée). Une réception ou un inventaire
-  dont la période est **clôturée** n'est pas comptabilisé : il est compté comme « ignoré » et signalé à l'écran. Le
-  stock d'un centre n'est jamais comptabilisé dans un autre. *Source :* `ComptabiliteStockService`,
-  `GenerateurEcritureStock`, `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` →
-  `ComptabiliteApiService` → `ComptabiliteRestController` (`/stock/synchroniser`) → `ComptabiliteStockUseCase` →
-  `OperationsStockPort` (`OperationsStockJdbcAdapter`).
+  dont la période est **clôturée** n'est pas comptabilisé : il est compté comme « ignoré ». Le résultat affiché à
+  l'écran détaille **chaque pièce non comptabilisée** — nature (réception, inventaire, journée de sorties), référence
+  (numéro du bon ou de l'inventaire, date de la journée) et raison : mois clôturé (`PERIODE_CLOTUREE`), articles sans
+  valeur cités par leur code (`SANS_VALEUR`), plafond de compléments atteint (`COMPLEMENTS_MAX`) ; la tâche de nuit les
+  journalise. Le stock d'un centre n'est jamais comptabilisé dans un autre. *Source :* `ComptabiliserLeStock`,
+  `SoldesDuStock`, `EcritureComptable.generer/reviserLesSorties` (contexte `comptabilite`),
+  `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore` → `ComptabiliteApiService` →
+  `ComptabilisationDuStockControleur` (`/stock/synchroniser`), `ComptabilisationDuStockPlanifiee` (nuit) →
+  `OperationsDeStock` (`OperationsDeStockJdbc`).
 - **RG-CPT-016** — **Isolement par centre de la comptabilité** : toute requête comptable (écritures, export, clôture,
   paramétrage, journaux, comptabilisation du stock, reconstruction) est confrontée au centre de la session ; demander
-  un autre centre est refusé (403). *Source :* `ComptabiliteRestController`, `CenterAccessGuard`.
+  un autre centre est refusé (403). *Source :* contrôleurs du contexte `comptabilite` (annexe 16), `SessionCourante`.
 - **Point d'attention (RG-CPT-017)** — Le stock n'est pas comptabilisé à chaque mouvement mais par traitement (nuit ou
   demande) : une sortie du jour n'apparaît en comptabilité qu'après le traitement suivant. La TVA déductible sur achats
   et la dette fournisseur (401) ne sont pas gérées automatiquement : le compte des factures non parvenues se solde par
@@ -225,23 +266,36 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   débit et une au crédit (`MODELE_LIGNES_INVALIDES`). Un modèle désactivé ne sert plus à saisir (`MODELE_INACTIF`) ;
   le supprimer conserve les pièces déjà saisies ; un modèle inconnu est refusé (`MODELE_INTROUVABLE`). Le journal d'un
   modèle ne peut être ni désactivé ni supprimé (`JOURNAL_UTILISE`). **Un nouveau type de pièce ne demande aucun
-  développement.** Liste paginée ; gestion réservée à `ADMIN`. *Source :* `ModelePiece`, `PiecesComptablesService`,
+  développement.** Liste paginée ; gestion réservée à `ADMIN`. *Source :* `ModeleDePiece`, `GererLesModelesEtPieces`,
   `ModelesPieceComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` →
-  `ComptabiliteParametrageRestController` (`/modeles`) → `PiecesComptablesUseCase` → `ModelePieceRepositoryPort`.
+  `ModelesEtPiecesControleur` (`/modeles`) → `ModeleDePieceRepository`.
 - **RG-CPT-021** — **Saisie d'une pièce** (`ADMIN`, `SECRETAIRE`) : on choisit un modèle actif, une date, un libellé (à
   défaut celui du modèle) et **un montant par ligne** ; une ligne à zéro n'est pas écrite. La pièce devient une
   écriture **validée** dans le journal du modèle, numérotée comme les autres (RG-CPT-010). Elle est refusée si un
   montant est négatif, s'il n'y a pas un montant par ligne ou s'il reste moins de deux lignes
   (`PIECE_MONTANTS_INVALIDES`), si elle n'est pas équilibrée (`ECRITURE_DESEQUILIBREE`), si sa période est clôturée
   (`PERIODE_CLOTUREE`) ou si un de ses comptes a quitté le plan (`COMPTE_INCONNU`). *Source :*
-  `PiecesComptablesService.saisir`, `SaisiePieceComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` →
-  `ComptabiliteParametrageRestController` (`/pieces`) → `PiecesComptablesUseCase` → `EcritureComptableRepositoryPort`.
+  `ModeleDePiece.composerLaPiece`, `EcritureComptable.saisir`, `GererLesModelesEtPieces.saisir`,
+  `SaisiePieceComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` → `ModelesEtPiecesControleur`
+  (`/pieces`) → `EcritureComptableRepository`.
 - **RG-CPT-022** — **Extourne d'une pièce saisie** (`ADMIN`) : une écriture ne se supprime jamais ; une pièce saisie
   par erreur s'annule par une **écriture inverse** (débits et crédits échangés), datée du jour, dans le même journal,
   libellée « Extourne <n° de pièce> ». Une pièce ne s'extourne **qu'une fois** et une extourne ne s'extourne pas
   (`PIECE_DEJA_EXTOURNEE`) ; une écriture générée par le système (vente, règlement, stock) ne s'extourne pas à la
   main (`PIECE_NON_SAISIE`) ; la période du jour doit être ouverte (`PERIODE_CLOTUREE`). *Source :*
-  `PiecesComptablesService.extourner`, `ComptabiliteDashboardComponent` → `PiecesComptablesStore` →
-  `ComptabiliteApiService` → `ComptabiliteParametrageRestController` (`/pieces/{id}/extourne`).
+  `EcritureComptable.exigerExtournable/extourner`, `GererLesModelesEtPieces.extourner`,
+  `ComptabiliteDashboardComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` → `ModelesEtPiecesControleur`
+  (`/pieces/{id}/extourne`).
 - **Point d'attention (RG-CPT-023)** — Les comptes propres à un article (RG-STK-008) se saisissent encore librement
   sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.
+- **RG-CPT-024** — **Factures sans écriture et régénération** (`ADMIN`, écran « Paramétrage comptable », carte
+  « Comptabiliser les ventes et les règlements ») : pour une période choisie, l'écran liste les **factures émises qui
+  n'ont aucune écriture de ventes** (numéro, date d'émission, fin de période, total TTC) ; « Régénérer les écritures »
+  demande une confirmation puis crée les écritures manquantes des factures émises et des règlements encaissés de la
+  période (RG-CPT-007), sans jamais modifier une écriture existante ; l'écran affiche alors le nombre de factures et de
+  règlements comptabilisés, **chaque source refusée avec sa raison** (mois clôturé `PERIODE_CLOTUREE`, facture
+  déséquilibrée `ECRITURE_DESEQUILIBREE`, `ERREUR_TECHNIQUE`), puis relit la liste des factures encore sans écriture.
+  Les refus de la comptabilisation du stock (RG-CPT-015) s'affichent de la même façon. *Source :*
+  `ComptabiliserLesVentesEtReglements.facturesSansEcriture/reconstruire` → `VentesEtReglementsControleur`
+  (`/ventes/non-comptabilisees`, `/rebuild`) ; `ComptabiliteParametrageComponent` → `ComptabiliteParametrageStore`
+  (`chercherVentesNonComptabilisees`, `reconstruireVentes`).

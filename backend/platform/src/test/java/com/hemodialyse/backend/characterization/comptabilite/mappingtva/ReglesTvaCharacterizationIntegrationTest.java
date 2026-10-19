@@ -130,10 +130,10 @@ class ReglesTvaCharacterizationIntegrationTest extends MappingTvaCharacterizatio
         golden("taux_negatif_400", doPost("/regles-tva", regle("HEMODIALYSE", "-0.01", "false", "2026-01-01", null, null), adminA()));
         golden("taux_moins_un_400", doPost("/regles-tva", regle("HEMODIALYSE", "-1", "false", "2026-01-01", null, null), adminA()));
         golden("taux_cent_200", doPost("/regles-tva", regle("HEMODIALYSE", "100", "false", "2026-03-01", "2026-03-31", null), adminA()));
-        golden("taux_au_dessus_de_cent_200", doPost("/regles-tva", regle("HEMODIALYSE", "150", "false", "2026-04-01", "2026-04-30", null), adminA()));
-        golden("taux_999_99_200", doPost("/regles-tva", regle("HEMODIALYSE", "999.99", "false", "2026-05-01", "2026-05-31", null), adminA()));
-        golden("taux_1000_depasse_la_colonne", doPost("/regles-tva", regle("HEMODIALYSE", "1000", "false", "2026-06-01", null, null), adminA()));
-        goldenRegles("taux_bornes_etat_base_nouveau_code", CENTRE_A);
+        golden("taux_au_dessus_de_cent_400_nouveau_code", doPost("/regles-tva", regle("HEMODIALYSE", "150", "false", "2026-04-01", "2026-04-30", null), adminA()));
+        golden("taux_999_99_400_nouveau_code", doPost("/regles-tva", regle("HEMODIALYSE", "999.99", "false", "2026-05-01", "2026-05-31", null), adminA()));
+        golden("taux_1000_400_nouveau_code", doPost("/regles-tva", regle("HEMODIALYSE", "1000", "false", "2026-06-01", null, null), adminA()));
+        goldenRegles("taux_bornes_0_a_100_etat_base_nouveau_code", CENTRE_A);
     }
 
     @Test

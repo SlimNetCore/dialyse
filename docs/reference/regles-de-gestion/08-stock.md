@@ -107,7 +107,8 @@
   courant** de l'article.
 - **RG-STK-032** — Les sorties liées à une séance sont immuables si la séance est **facturée**
   (`SEANCE_BILLED_STOCK_EXIT_IMMUTABLE`) et leur date ne peut être changée (`SEANCE_STOCK_EXIT_DATE_IMMUTABLE`).
-  Corriger un bon de sortie restitue d'abord les quantités aux lots d'origine puis recrée les sorties.
+  Corriger un bon de sortie restitue d'abord les quantités aux lots d'origine puis recrée les sorties ; les sorties
+  recréées gardent la **date du bon** et l' **heure de création du bon** comme heure de saisie (RG-STK-041).
 - **RG-STK-033** — Accès : `ADMIN`, `PHARMACIEN`, `INFIRMIER`. La liste des lots disponibles d'un article est triée
   FEFO.
 
@@ -120,10 +121,16 @@
   comme une sortie. Mouvement d'inventaire : traité comme une entrée.
 - **RG-STK-041** — Toute réception ou correction d'une pièce passée déclenche un **recalcul en cascade** de l'historique
   de l'article (ordre chronologique) : le PMP après chaque
-  mouvement et la valorisation de chaque sortie sont réécrits, ainsi que le PMP et la quantité courants de l'article. Le
-  recalcul massif est un traitement asynchrone suivi par
+  mouvement et la valorisation de chaque sortie sont réécrits, ainsi que le PMP et la quantité courants de l'article.
+  **Ordre chronologique** : par date de la pièce, puis par **heure réelle de saisie** du mouvement, puis, à défaut
+  (mouvements enregistrés avant que cette heure soit conservée, ou saisis au même instant), les entrées avant les
+  sorties. Une sortie saisie avant une réception du même jour est donc valorisée au PMP de son heure de saisie ; une
+  sortie n'est **jamais revalorisée à 0** quand l'historique ne donne aucun PMP (stock non expliqué par les entrées
+  enregistrées) : elle garde la valeur enregistrée à la sortie. Le recalcul massif est un traitement asynchrone suivi
+  par
   un identifiant de tâche et un verrou par article (réservé `ADMIN`, `PHARMACIEN` pour le lancer ; consultation +
-  `INFIRMIER`).
+  `INFIRMIER`). *Source :* `PmpEngine`, `PmpCalculator`, `StockMovement.CHRONOLOGIE` (colonne `saisi_le`, migration
+  V38).
 - **RG-STK-042** — L'écran « explication du PMP » détaille, mouvement par mouvement, l'état avant/après et la formule
   appliquée.
 - **RG-STK-043** — **Valorisation historique** d'une période : valeur de début, entrées (valorisées au prix), sorties
