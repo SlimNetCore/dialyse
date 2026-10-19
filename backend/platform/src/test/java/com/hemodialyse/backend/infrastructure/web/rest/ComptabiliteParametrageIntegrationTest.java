@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
+import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +55,7 @@ class ComptabiliteParametrageIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private ComptabiliteUseCase comptabilite;
+    private GenerationDEcritures comptabilite;
     private MockMvc mockMvc;
 
     private static RequestPostProcessor role(UUID centre, String role) {
@@ -176,7 +176,7 @@ class ComptabiliteParametrageIntegrationTest {
 
         // facture du payeur paramétré, d'un payeur sans compte, d'un patient qui paie lui-même
         for (UUID payeur : new UUID[]{CNAS, MUTUELLE, null}) {
-            comptabilite.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE,
+            comptabilite.genererEcritureFacturation(new GenerationDEcritures.Facture(CENTRE,
                     UUID.randomUUID(), "FACT-" + payeur, UUID.randomUUID(), payeur, new BigDecimal("1000.00"),
                     BigDecimal.ZERO, new BigDecimal("1000.00"), LocalDate.of(2026, 10, 5), "Séances"));
         }

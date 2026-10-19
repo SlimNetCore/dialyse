@@ -1,0 +1,11 @@
+{
+  "status": 500,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "INTERNAL_ERROR",
+    "detail": "<message technique Spring/Jackson/SGBD non verrouille>",
+    "instance": "/api/v1/comptabilite/stock/synchroniser",
+    "status": 500,
+    "title": "Erreur interne"
+  }
+}

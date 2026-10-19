@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.characterization.comptabilite.mappingtva;
 
 import com.hemodialyse.backend.domain.absence.port.ForfaitAbsencePort;
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
-import com.hemodialyse.backend.domain.comptabilite.port.ParametrageFiscalPort;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.RegleTVA;
+import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal.RegleTvaApplicable;
 import com.hemodialyse.backend.domain.facturation.aggregate.TypeTVA;
 import com.hemodialyse.backend.domain.facturation.port.TypeTvaRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -34,9 +34,9 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     @Autowired
     private org.springframework.cache.CacheManager cacheManager;
     @Autowired
-    private ComptabiliteUseCase comptabilite;
+    private GenerationDEcritures comptabilite;
     @Autowired
-    private ParametrageFiscalPort fiscalComptabilite;
+    private ParametrageFiscal fiscalComptabilite;
     @Autowired
     private TypeTvaRepositoryPort fiscalFacturation;
     @Autowired
@@ -68,13 +68,13 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     }
 
     private void facture(UUID payeur, String numero, String ht, String tva, String ttc) {
-        comptabilite.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE_A,
+        comptabilite.genererEcritureFacturation(new GenerationDEcritures.Facture(CENTRE_A,
                 UUID.randomUUID(), numero, UUID.randomUUID(), payeur, new BigDecimal(ht), new BigDecimal(tva),
                 new BigDecimal(ttc), DATE, "Séances"));
     }
 
     private void reglement(UUID facture, String mode, UUID payeur, String montant) {
-        comptabilite.genererEcritureReglement(new ComptabiliteUseCase.GenererEcritureReglementCommand(CENTRE_A, facture,
+        comptabilite.genererEcritureReglement(new GenerationDEcritures.Reglement(CENTRE_A, facture,
                 UUID.randomUUID(), new BigDecimal(montant), DATE, mode, "Règlement", payeur));
     }
 
@@ -121,7 +121,7 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     @Test
     void un_changement_de_mapping_ne_touche_pas_les_ecritures_deja_generees_et_ne_regenere_pas_une_facture_connue() throws Exception {
         UUID facture = UUID.randomUUID();
-        ComptabiliteUseCase.GenererEcritureFacturationCommand cmd = new ComptabiliteUseCase.GenererEcritureFacturationCommand(
+        GenerationDEcritures.Facture cmd = new GenerationDEcritures.Facture(
                 CENTRE_A, facture, "FACT-STABLE", UUID.randomUUID(), null, new BigDecimal("500.00"), BigDecimal.ZERO,
                 new BigDecimal("500.00"), DATE, "Séances");
         comptabilite.genererEcritureFacturation(cmd);
@@ -156,7 +156,7 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     void le_reglement_solde_le_compte_que_la_facture_a_debite_meme_si_le_mapping_a_change_depuis() throws Exception {
         assertEquals(200, doPut("/mapping", mapping("706", "411100", "411500", "512", "530", "44571", null), adminA()).status());
         UUID facture = UUID.randomUUID();
-        comptabilite.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE_A, facture,
+        comptabilite.genererEcritureFacturation(new GenerationDEcritures.Facture(CENTRE_A, facture,
                 "FACT-ANCIENNE", UUID.randomUUID(), MUTUELLE, new BigDecimal("1000.00"), BigDecimal.ZERO,
                 new BigDecimal("1000.00"), DATE, "Séances"));
         assertEquals(200, doPut("/mapping", mapping("706", "421", "431", "512", "530", "44571", null), adminA()).status());
@@ -231,8 +231,8 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     private ObjectNode lecture(LocalDate date) {
         ObjectNode n = mapper.createObjectNode();
         n.put("date", date.toString());
-        Optional<RegleTVA> comptabilite = fiscalComptabilite.findActiveAt(CENTRE_A, "HEMODIALYSE", date);
-        n.put("comptabilite_taux", comptabilite.map(r -> r.tauxApplique().toPlainString()).orElse("aucune"));
+        Optional<RegleTvaApplicable> comptabilite = fiscalComptabilite.regleApplicable(CENTRE_A, "HEMODIALYSE", date);
+        n.put("comptabilite_taux", comptabilite.map(r -> r.taux().toPlainString()).orElse("aucune"));
         n.put("comptabilite_exonere", comptabilite.map(r -> String.valueOf(r.exonere())).orElse("aucune"));
         Optional<TypeTVA> facturation = fiscalFacturation.findActiveAt(CENTRE_A, "HEMODIALYSE", date);
         n.put("facturation_taux", facturation.map(r -> r.taux().toPlainString()).orElse("aucune"));
@@ -362,7 +362,7 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     void un_taux_superieur_a_100_accepte_par_la_comptabilite_fait_echouer_la_lecture_de_la_facturation_pas_celle_des_absences() throws Exception {
         enregistrer("HEMODIALYSE", "150.00", false, "2026-01-01", null);
         LocalDate jour = LocalDate.of(2026, 2, 1);
-        assertEquals(new BigDecimal("150.00"), fiscalComptabilite.findActiveAt(CENTRE_A, "HEMODIALYSE", jour).orElseThrow().tauxApplique());
+        assertEquals(new BigDecimal("150.00"), fiscalComptabilite.regleApplicable(CENTRE_A, "HEMODIALYSE", jour).orElseThrow().taux());
         assertEquals(new BigDecimal("150.00"), forfaitsAbsence.tauxTva(CENTRE_A, jour));
         IllegalArgumentException refus = assertThrows(IllegalArgumentException.class,
                 () -> fiscalFacturation.findActiveAt(CENTRE_A, "HEMODIALYSE", jour));

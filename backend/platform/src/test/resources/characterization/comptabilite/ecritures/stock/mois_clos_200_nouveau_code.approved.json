@@ -1,0 +1,41 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "complements": 1,
+    "echecs": [
+      {
+        "code": "SANS_VALEUR",
+        "message": "Article(s) reçu(s) sans prix : GANTS",
+        "nature": "RECEPTION",
+        "reference": "BR-2026-0003",
+        "source": "<UUID_GENERE_1>"
+      },
+      {
+        "code": "PERIODE_CLOTUREE",
+        "message": "La période 2026-09 est clôturée pour le centre <CENTRE_A>",
+        "nature": "RECEPTION",
+        "reference": "BR-2026-0004",
+        "source": "<UUID_GENERE_2>"
+      },
+      {
+        "code": "PERIODE_CLOTUREE",
+        "message": "La période 2026-09 est clôturée pour le centre <CENTRE_A>",
+        "nature": "INVENTAIRE",
+        "reference": "INV-2026-0003",
+        "source": "<UUID_GENERE_3>"
+      },
+      {
+        "code": "SANS_VALEUR",
+        "message": "Article(s) sorti(s) sans prix ni PMP : GANTS",
+        "nature": "SORTIES",
+        "reference": "2026-09-08",
+        "source": "<UUID_GENERE_4>"
+      }
+    ],
+    "ignorees": 2,
+    "inventaires": 0,
+    "joursSorties": 0,
+    "receptions": 0
+  }
+}

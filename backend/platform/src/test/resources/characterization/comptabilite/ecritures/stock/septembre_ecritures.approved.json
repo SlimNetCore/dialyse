@@ -1,0 +1,46 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "date_ecriture": "2026-09-03",
+    "date_piece": "2026-09-03",
+    "statut": "VALIDEE",
+    "libelle": "Réception BR-2026-0001",
+    "source_id": "<UUID_GENERE_2>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_3>",
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "date_ecriture": "2026-09-20",
+    "date_piece": "2026-09-20",
+    "statut": "VALIDEE",
+    "libelle": "Écarts d'inventaire INV-2026-0001",
+    "source_id": "<UUID_GENERE_4>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_5>",
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "date_ecriture": "2026-09-05",
+    "date_piece": "2026-09-05",
+    "statut": "VALIDEE",
+    "libelle": "Sorties de stock du 05/09/2026",
+    "source_id": "<UUID_GENERE_6>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_7>",
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000003",
+    "date_ecriture": "2026-09-06",
+    "date_piece": "2026-09-06",
+    "statut": "VALIDEE",
+    "libelle": "Sorties de stock du 06/09/2026",
+    "source_id": "<UUID_GENERE_8>",
+    "modele_id": null
+  }
+]

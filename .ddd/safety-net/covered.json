@@ -154,7 +154,14 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/comptabilite/ModelePieceJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/listener/FacturationValideeComptabiliteListener.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/listener/ReglementEncaisseComptabiliteListener.java",
-    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/service/GenerateurEcritureComptable.java"
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/service/GenerateurEcritureComptable.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/application/comptabilite/ComptabiliteStockApplicationService.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/service/ComptabiliteStockService.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/service/GenerateurEcritureStock.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/port/ComptabiliteStockUseCase.java",
+    "backend/bc-comptabilite/src/main/java/com/hemodialyse/backend/domain/comptabilite/port/OperationsStockPort.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/OperationsStockJdbcAdapter.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/scheduling/ComptabiliteStockScheduler.java"
   ],
   "seamAllowed": []
 }

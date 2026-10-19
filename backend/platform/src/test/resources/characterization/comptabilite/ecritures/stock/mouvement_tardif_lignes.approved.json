@@ -1,0 +1,132 @@
+[
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "321",
+    "libelle_ligne": "Réception BR-2026-0001",
+    "montant_debit": "10000.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "322",
+    "libelle_ligne": "Réception BR-2026-0001",
+    "montant_debit": "1010.02",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "AC",
+    "numero_piece": "AC-2026-000001",
+    "compte_scf": "408",
+    "libelle_ligne": "Réception BR-2026-0001",
+    "montant_debit": "0.00",
+    "montant_credit": "11010.02",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "321",
+    "libelle_ligne": "Écarts d'inventaire INV-2026-0001",
+    "montant_debit": "0.00",
+    "montant_credit": "2500.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "322",
+    "libelle_ligne": "Écarts d'inventaire INV-2026-0001",
+    "montant_debit": "20.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "657",
+    "libelle_ligne": "Écarts d'inventaire INV-2026-0001",
+    "montant_debit": "2500.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "compte_scf": "757",
+    "libelle_ligne": "Écarts d'inventaire INV-2026-0001",
+    "montant_debit": "0.00",
+    "montant_credit": "20.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "321",
+    "libelle_ligne": "Sorties de stock du 05/09/2026",
+    "montant_debit": "0.00",
+    "montant_credit": "2500.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "322",
+    "libelle_ligne": "Sorties de stock du 05/09/2026",
+    "montant_debit": "0.00",
+    "montant_credit": "250.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "602",
+    "libelle_ligne": "Sorties de stock du 05/09/2026",
+    "montant_debit": "250.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "compte_scf": "6021",
+    "libelle_ligne": "Sorties de stock du 05/09/2026",
+    "montant_debit": "2500.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000003",
+    "compte_scf": "322",
+    "libelle_ligne": "Sorties de stock du 06/09/2026",
+    "montant_debit": "0.00",
+    "montant_credit": "56.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  },
+  {
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000003",
+    "compte_scf": "602",
+    "libelle_ligne": "Sorties de stock du 06/09/2026",
+    "montant_debit": "56.00",
+    "montant_credit": "0.00",
+    "tiers_id": null,
+    "axes_analytiques": "CENTRE:Centre <CENTRE_A>"
+  }
+]

@@ -62,10 +62,6 @@
         </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
-            <artifactId>bc-comptabilite</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hemodialyse</groupId>
             <artifactId>contexts-gmao</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

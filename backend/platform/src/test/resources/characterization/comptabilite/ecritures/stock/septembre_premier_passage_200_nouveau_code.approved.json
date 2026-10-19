@@ -1,0 +1,27 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "complements": 0,
+    "echecs": [
+      {
+        "code": "SANS_VALEUR",
+        "message": "Article(s) reçu(s) sans prix : GANTS",
+        "nature": "RECEPTION",
+        "reference": "BR-2026-0003",
+        "source": "<UUID_GENERE_1>"
+      },
+      {
+        "code": "SANS_VALEUR",
+        "message": "Article(s) sorti(s) sans prix ni PMP : GANTS",
+        "nature": "SORTIES",
+        "reference": "2026-09-08",
+        "source": "<UUID_GENERE_2>"
+      }
+    ],
+    "ignorees": 0,
+    "inventaires": 1,
+    "joursSorties": 2,
+    "receptions": 1
+  }
+}

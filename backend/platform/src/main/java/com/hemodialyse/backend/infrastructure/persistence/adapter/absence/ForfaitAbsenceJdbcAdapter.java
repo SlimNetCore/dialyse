@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.absence;
 
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal.RegleTvaApplicable;
 import com.hemodialyse.backend.domain.absence.port.ForfaitAbsencePort;
-import com.hemodialyse.backend.domain.comptabilite.port.ParametrageFiscalPort;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.RegleTVA;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,8 @@ import java.util.UUID;
 
 /**
  * Forfait (prix HT) de la prise en charge du patient à une date — effectif d'abord, sinon demandé ; à défaut de prise
- * en charge couvrant la date, la plus récente portant un forfait — et taux de TVA du type « HEMODIALYSE » actif.
+ * en charge couvrant la date, la plus récente portant un forfait — et taux de TVA du type « HEMODIALYSE » actif, lu par
+ * le langage publié du contexte {@code comptabilite} (slice C7 : plus de dépendance à {@code bc-comptabilite}).
  */
 @Component
 public class ForfaitAbsenceJdbcAdapter implements ForfaitAbsencePort {
@@ -28,9 +29,9 @@ public class ForfaitAbsenceJdbcAdapter implements ForfaitAbsencePort {
             + "p.created_at DESC LIMIT 1";
 
     private final JdbcTemplate jdbc;
-    private final ParametrageFiscalPort fiscal;
+    private final ParametrageFiscal fiscal;
 
-    public ForfaitAbsenceJdbcAdapter(JdbcTemplate jdbc, ParametrageFiscalPort fiscal) {
+    public ForfaitAbsenceJdbcAdapter(JdbcTemplate jdbc, ParametrageFiscal fiscal) {
         this.jdbc = jdbc;
         this.fiscal = fiscal;
     }
@@ -52,11 +53,14 @@ public class ForfaitAbsenceJdbcAdapter implements ForfaitAbsencePort {
                 centerId, patientId).stream().findFirst();
     }
 
+    /**
+     * Taux de la règle active, 0 si elle est exonérée ou s'il n'y en a pas (KB-CPT-19, reproduit).
+     */
     @Override
     public BigDecimal tauxTva(UUID centerId, LocalDate date) {
-        return fiscal.findActiveAt(centerId, TYPE_PRESTATION, date)
+        return fiscal.regleApplicable(centerId, TYPE_PRESTATION, date)
                 .filter(r -> !r.exonere())
-                .map(RegleTVA::tauxApplique)
+                .map(RegleTvaApplicable::taux)
                 .orElse(BigDecimal.ZERO);
     }
 }

@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.comptabilite.referentiel;
 
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
+import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +22,7 @@ class ReferentielConsommateursCharacterizationIntegrationTest extends Referentie
     private static final String MAPPING_OK = "{'compteVentes':'706','compteClientPatient':'411100',"
             + "'compteClientDefaut':'411500','compteBanque':'512','compteCaisse':'530','compteTVACollectee':'44571'";
     @Autowired
-    private ComptabiliteUseCase comptabilite;
+    private GenerationDEcritures comptabilite;
 
     private static String mapping(String ventes, String journaux) {
         return json("{'compteVentes':'" + ventes + "','compteClientPatient':'411100','compteClientDefaut':'411500',"
@@ -41,7 +41,7 @@ class ReferentielConsommateursCharacterizationIntegrationTest extends Referentie
     }
 
     private void facture(UUID payeur, String numero) {
-        comptabilite.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE_A,
+        comptabilite.genererEcritureFacturation(new GenerationDEcritures.Facture(CENTRE_A,
                 UUID.randomUUID(), numero, UUID.randomUUID(), payeur, new BigDecimal("1000.00"), BigDecimal.ZERO,
                 new BigDecimal("1000.00"), LocalDate.of(2026, 10, 5), "Séances"));
     }

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "<UUID_GENERE_1>",
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000001",
+    "date_ecriture": "2026-09-06",
+    "date_piece": "2026-09-06",
+    "statut": "EXPORTEE",
+    "libelle": "Sorties de stock du 06/09/2026",
+    "source_id": "<UUID_GENERE_2>",
+    "modele_id": null
+  },
+  {
+    "id": "<UUID_GENERE_3>",
+    "journal_code": "ST",
+    "numero_piece": "ST-2026-000002",
+    "date_ecriture": "2026-09-06",
+    "date_piece": "2026-09-06",
+    "statut": "VALIDEE",
+    "libelle": "Complément sorties de stock du 06/09/2026",
+    "source_id": "<UUID_GENERE_4>",
+    "modele_id": null
+  }
+]

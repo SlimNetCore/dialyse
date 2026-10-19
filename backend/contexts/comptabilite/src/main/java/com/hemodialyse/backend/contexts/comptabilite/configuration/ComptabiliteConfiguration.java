@@ -68,6 +68,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import com.hemodialyse.backend.contexts.comptabilite.application.vente.ComptabiliserLesVentesEtReglements;
+import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.OperationsDeStockJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.interfaces.planification.ComptabilisationDuStockPlanifiee;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.FacturesAComptabiliserJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.ReglementsAComptabiliserJdbc;
 
@@ -310,6 +313,27 @@ public class ComptabiliteConfiguration {
         return new ComptabiliserLesVentesEtReglements(ecritures, periodes, numerotation, mappings, comptesDesPayeurs,
                 new FacturesAComptabiliserJdbc(jdbc), new ReglementsAComptabiliserJdbc(jdbc),
                 new UniteDeTravailSpring(nouvelleTransaction));
+    }
+
+    // ------------------------------------------------------------------ comptabilisation du stock (C6)
+
+    /**
+     * Une synchronisation est une transaction par centre (unité de travail ordinaire), comme le legacy.
+     */
+    @Bean
+    ComptabiliserLeStock comptabiliteComptabiliserLeStock(EcritureComptableRepository ecritures,
+                                                          PeriodeComptableRepository periodes,
+                                                          SequenceDesNumerosDePieces numerotation,
+                                                          MappingDuCentreVu mappings, JdbcTemplate jdbc,
+                                                          UniteDeTravail uniteDeTravail) {
+        return new ComptabiliserLeStock(ecritures, periodes, numerotation, mappings, new OperationsDeStockJdbc(jdbc),
+                uniteDeTravail);
+    }
+
+    @Bean
+    ComptabilisationDuStockPlanifiee comptabiliteComptabilisationDuStockPlanifiee(ComptabiliserLeStock comptabilisation,
+                                                                                  Clock horloge) {
+        return new ComptabilisationDuStockPlanifiee(comptabilisation, horloge);
     }
 
     // ------------------------------------------------------------------ langage publié (lectures pour les autres slices)

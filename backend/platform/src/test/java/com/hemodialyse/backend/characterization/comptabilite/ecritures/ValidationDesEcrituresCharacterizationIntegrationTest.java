@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.comptabilite.ecritures;
 
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
+import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -185,10 +185,10 @@ class ValidationDesEcrituresCharacterizationIntegrationTest extends EcrituresCha
     @Test
     void aucune_ecriture_generee_ou_saisie_n_est_creee_en_brouillon_donc_valider_ne_change_rien_en_pratique() throws Exception {
         UUID facture = UUID.randomUUID();
-        comptabilite.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE_A, facture,
+        comptabilite.genererEcritureFacturation(new GenerationDEcritures.Facture(CENTRE_A, facture,
                 "FACT-1", UUID.randomUUID(), CNAS, new BigDecimal("1000.00"), new BigDecimal("190.00"),
                 new BigDecimal("1190.00"), LocalDate.of(2026, 9, 30), "Séances"));
-        comptabilite.genererEcritureReglement(new ComptabiliteUseCase.GenererEcritureReglementCommand(CENTRE_A, facture,
+        comptabilite.genererEcritureReglement(new GenerationDEcritures.Reglement(CENTRE_A, facture,
                 UUID.randomUUID(), new BigDecimal("500.00"), LocalDate.of(2026, 9, 12), "CAISSE", "Règlement", CNAS));
         fixtureStock();
         assertEquals(200, doPost("/stock/synchroniser", json("{'from':'2026-09-01','to':'2026-09-30'}"), adminA()).status());

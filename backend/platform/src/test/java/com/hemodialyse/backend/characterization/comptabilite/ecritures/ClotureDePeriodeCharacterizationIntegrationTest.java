@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.comptabilite.ecritures;
 
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
+import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -194,13 +194,13 @@ class ClotureDePeriodeCharacterizationIntegrationTest extends EcrituresCharacter
 
     // ------------------------------------------------------------------ effet sur les écritures
 
-    private ComptabiliteUseCase.GenererEcritureFacturationCommand facture(UUID id, String numero, String date) {
-        return new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE_A, id, numero, UUID.randomUUID(), null,
+    private GenerationDEcritures.Facture facture(UUID id, String numero, String date) {
+        return new GenerationDEcritures.Facture(CENTRE_A, id, numero, UUID.randomUUID(), null,
                 new BigDecimal("100.00"), BigDecimal.ZERO, new BigDecimal("100.00"), LocalDate.parse(date), "Séances");
     }
 
-    private ComptabiliteUseCase.GenererEcritureReglementCommand reglement(UUID facture, UUID paiement, String date) {
-        return new ComptabiliteUseCase.GenererEcritureReglementCommand(CENTRE_A, facture, paiement,
+    private GenerationDEcritures.Reglement reglement(UUID facture, UUID paiement, String date) {
+        return new GenerationDEcritures.Reglement(CENTRE_A, facture, paiement,
                 new BigDecimal("50.00"), LocalDate.parse(date), "BANQUE", "Règlement", null);
     }
 
@@ -237,7 +237,7 @@ class ClotureDePeriodeCharacterizationIntegrationTest extends EcrituresCharacter
     @Test
     void la_cloture_d_un_centre_n_empeche_pas_un_autre_centre_de_comptabiliser_le_meme_mois() throws Exception {
         assertEquals(200, cloturer(2026, 3).status());
-        comptabilite.genererEcritureFacturation(new ComptabiliteUseCase.GenererEcritureFacturationCommand(CENTRE_B,
+        comptabilite.genererEcritureFacturation(new GenerationDEcritures.Facture(CENTRE_B,
                 UUID.randomUUID(), "F-B", UUID.randomUUID(), null, new BigDecimal("10.00"), BigDecimal.ZERO,
                 new BigDecimal("10.00"), LocalDate.of(2026, 3, 10), "Séances"));
         assertEquals(1, count("ecritures_comptables", CENTRE_B));
@@ -279,7 +279,7 @@ class ClotureDePeriodeCharacterizationIntegrationTest extends EcrituresCharacter
         jdbc.update("INSERT INTO bons_reception_lignes (id, bon_reception_id, article_id, quantite, prix_unitaire) "
                 + "VALUES (?, ?, ?, 100, 10.00)", UUID.randomUUID(), bon, article);
         assertEquals(200, cloturer(2026, 9).status());
-        golden("stock_reception_en_mois_clos_ignoree_200",
+        golden("stock_reception_en_mois_clos_ignoree_200_nouveau_code",
                 doPost("/stock/synchroniser", json("{'from':'2026-09-01','to':'2026-09-30'}"), adminA()));
         assertEquals(0, count("ecritures_comptables", CENTRE_A));
     }

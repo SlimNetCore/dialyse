@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "complements": 0,
+    "echecs": [
+      {
+        "code": "PERIODE_CLOTUREE",
+        "message": "La période 2026-09 est clôturée pour le centre <CENTRE_A>",
+        "nature": "RECEPTION",
+        "reference": "BR-2026-0001",
+        "source": "<UUID_GENERE_1>"
+      }
+    ],
+    "ignorees": 1,
+    "inventaires": 0,
+    "joursSorties": 0,
+    "receptions": 0
+  }
+}

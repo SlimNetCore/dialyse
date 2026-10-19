@@ -1,10 +1,13 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
-import com.hemodialyse.backend.domain.comptabilite.entity.LigneEcriture;
-import com.hemodialyse.backend.domain.comptabilite.port.EcritureComptableRepositoryPort;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.JournalCode;
-import com.hemodialyse.backend.domain.comptabilite.valueobject.StatutEcriture;
+import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptableRepository;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.LigneEcriture;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.NumeroDePiece;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.StatutEcriture;
+import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
+import com.hemodialyse.backend.contexts.comptabilite.application.UniteDeTravail;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +52,9 @@ class ComptabiliteRestControllerIntegrationTest {
     private WebApplicationContext context;
 
     @Autowired
-    private EcritureComptableRepositoryPort ecritureRepository;
+    private EcritureComptableRepository ecritureRepository;
+    @Autowired
+    private UniteDeTravail uniteDeTravail;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -268,22 +273,18 @@ class ComptabiliteRestControllerIntegrationTest {
     }
 
     private void seedEcriture() {
-        EcritureComptable ecriture = new EcritureComptable(
-                UUID.randomUUID(),
-                CENTER_ID,
-                JournalCode.VE,
-                DATE_ECRITURE,
-                DATE_ECRITURE,
-                "VE-2026-000001",
-                "Fact. FACT-2026-000001 - Patient test",
-                List.of(
-                        LigneEcriture.debit("411500", "Client", new BigDecimal("1190.00"), TIERS_ID, List.of()),
-                        LigneEcriture.credit("706", "Prestation", new BigDecimal("1190.00"), null, List.of())
-                ),
-                StatutEcriture.VALIDEE,
-                SOURCE_ID
-        );
-        ecritureRepository.save(ecriture);
+        UUID id = UUID.randomUUID();
+        EcritureComptable ecriture = EcritureComptable.reconstituer(id, new CentreId(CENTER_ID), CodeJournal.de("VE"),
+                DATE_ECRITURE, DATE_ECRITURE, NumeroDePiece.de("VE-2026-000001"), "Fact. FACT-2026-000001 - Patient test",
+                List.of(new LigneEcriture(UUID.randomUUID(), "411500", "Client", new BigDecimal("1190.00"),
+                                BigDecimal.ZERO, TIERS_ID, List.of()),
+                        new LigneEcriture(UUID.randomUUID(), "706", "Prestation", BigDecimal.ZERO,
+                                new BigDecimal("1190.00"), null, List.of())),
+                StatutEcriture.VALIDEE, SOURCE_ID, null, null, null);
+        uniteDeTravail.executer(() -> {
+            ecritureRepository.enregistrer(ecriture);
+            return null;
+        });
     }
 
     private void cleanup() {

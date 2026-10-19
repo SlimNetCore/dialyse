@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.comptabilite.ecritures;
 
-import com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable;
-import com.hemodialyse.backend.domain.comptabilite.entity.LigneEcriture;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.LigneEcriture;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -43,11 +43,11 @@ class EquilibreEtImmutabiliteCharacterizationIntegrationTest extends EcrituresCh
             o.put("resultat", "ECRITURE_CREEE");
             o.put("totalDebit", e.totalDebit().toPlainString());
             ArrayNode lignes = o.putArray("lignes");
-            e.getLignes().stream()
-                    .sorted(Comparator.comparing(LigneEcriture::getCompteSCF)
-                            .thenComparing(LigneEcriture::getMontantDebit).thenComparing(LigneEcriture::getMontantCredit))
-                    .forEach(l -> lignes.add(l.getCompteSCF() + " D=" + l.getMontantDebit().toPlainString()
-                            + " C=" + l.getMontantCredit().toPlainString()));
+            e.lignes().stream()
+                    .sorted(Comparator.comparing(LigneEcriture::compte)
+                            .thenComparing(LigneEcriture::debit).thenComparing(LigneEcriture::credit))
+                    .forEach(l -> lignes.add(l.compte() + " D=" + l.debit().toPlainString()
+                            + " C=" + l.credit().toPlainString()));
         } catch (com.hemodialyse.backend.domain.shared.exception.BusinessException b) {
             o.put("resultat", "REFUS_METIER");
             o.put("code", b.getCode());
@@ -98,8 +98,8 @@ class EquilibreEtImmutabiliteCharacterizationIntegrationTest extends EcrituresCh
             o.put("montant", montant);
             EcritureComptable e = genererReglement(CENTRE_A, fid(1), rid(++i), montant, "2026-03-06", "BANQUE", null);
             ArrayNode lignes = o.putArray("lignes");
-            e.getLignes().stream().sorted(Comparator.comparing(LigneEcriture::getCompteSCF)).forEach(l -> lignes.add(
-                    l.getCompteSCF() + " D=" + l.getMontantDebit().toPlainString() + " C=" + l.getMontantCredit().toPlainString()));
+            e.lignes().stream().sorted(Comparator.comparing(LigneEcriture::compte)).forEach(l -> lignes.add(
+                    l.compte() + " D=" + l.debit().toPlainString() + " C=" + l.credit().toPlainString()));
             tout.add(o);
         }
         goldenNode("equilibre_reglements_valeur_absolue_et_arrondis", tout);

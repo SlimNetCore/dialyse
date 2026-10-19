@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "La période à comptabiliser doit couvrir de 1 à 366 jours",
+    "instance": "/api/v1/comptabilite/stock/synchroniser",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

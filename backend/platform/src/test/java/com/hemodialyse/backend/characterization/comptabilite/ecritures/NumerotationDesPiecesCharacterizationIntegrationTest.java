@@ -154,7 +154,7 @@ class NumerotationDesPiecesCharacterizationIntegrationTest extends EcrituresChar
     void une_facture_deja_comptabilisee_rend_l_ecriture_existante_sans_regarder_les_nouveaux_montants() throws Exception {
         var premiere = genererVente(1, "100.00", "0.00", "100.00", "2026-03-05");
         var seconde = genererVente(1, "999.00", "0.00", "999.00", "2026-03-06");
-        assertEquals(premiere.getId(), seconde.getId());
+        assertEquals(premiere.id(), seconde.id());
         assertEquals(1, count("ecritures_comptables", CENTRE_A));
         goldenLignes("idempotence_montants_inchanges", CENTRE_A);
     }

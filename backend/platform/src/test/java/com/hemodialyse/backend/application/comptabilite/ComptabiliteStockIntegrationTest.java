@@ -1,8 +1,9 @@
 package com.hemodialyse.backend.application.comptabilite;
 
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteStockUseCase;
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteStockUseCase.Synchronisation;
-import com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase;
+import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock;
+import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock.Synchronisation;
+import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +34,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Comptabilisation du stock sur une vraie base : lecture des bons de réception, des sorties et des inventaires,
- * écritures équilibrées par compte, rejeu sans doublon, mise à jour de l'écriture du jour et isolation par centre.
+ * Comptabilisation du stock (contexte comptabilite, slice C6) sur une vraie base : lecture des bons de réception, des
+ * sorties et des inventaires, écritures équilibrées par compte, rejeu sans doublon, mise à jour de l'écriture du jour et
+ * isolation par centre.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
@@ -50,9 +52,9 @@ class ComptabiliteStockIntegrationTest {
     private static final LocalDate AUJOURDHUI = LocalDate.of(2026, 10, 9);
 
     @Autowired
-    private ComptabiliteStockUseCase comptabiliteStock;
+    private ComptabiliserLeStock comptabiliteStock;
     @Autowired
-    private ComptabiliteUseCase comptabilite;
+    private GenerationDEcritures comptabilite;
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
@@ -65,6 +67,14 @@ class ComptabiliteStockIntegrationTest {
     private static RequestPostProcessor admin(UUID centre) {
         return user(UserPrincipal.create(UUID.randomUUID().toString(), centre.toString(), "admin", "",
                 List.of("ADMIN"), true));
+    }
+
+    private static Synchronisation resultat(int receptions, int jours, int inventaires, int complements, int ignorees) {
+        return new Synchronisation(receptions, jours, inventaires, complements, ignorees, List.of());
+    }
+
+    private Synchronisation synchroniser() {
+        return comptabiliteStock.synchroniser(new CentreId(CENTRE), DEBUT, FIN, AUJOURDHUI);
     }
 
     @BeforeEach
@@ -114,9 +124,7 @@ class ComptabiliteStockIntegrationTest {
 
     @Test
     void receptions_outputs_and_inventories_are_posted_with_the_right_accounts() {
-        Synchronisation resultat = comptabiliteStock.synchroniser(CENTRE, DEBUT, FIN, AUJOURDHUI);
-
-        assertEquals(new Synchronisation(1, 2, 1, 0, 0), resultat);
+        assertEquals(resultat(1, 2, 1, 0, 0), synchroniser());
         // réception : stock (322 centre, 321 article) / factures non parvenues
         assertEquals(new BigDecimal("1000.00"), solde("Réception BR-2026-0001", "322"));
         assertEquals(new BigDecimal("10000.00"), solde("Réception BR-2026-0001", "321"));
@@ -145,17 +153,15 @@ class ComptabiliteStockIntegrationTest {
 
     @Test
     void replaying_creates_nothing_and_a_late_movement_updates_the_entry_of_its_day() {
-        comptabiliteStock.synchroniser(CENTRE, DEBUT, FIN, AUJOURDHUI);
+        synchroniser();
         int avant = ecritures(CENTRE);
         String numeroDuJour = numero("Sorties de stock du 06/09/2026");
 
-        assertEquals(new Synchronisation(0, 0, 0, 0, 0), comptabiliteStock.synchroniser(CENTRE, DEBUT, FIN, AUJOURDHUI));
+        assertEquals(resultat(0, 0, 0, 0, 0), synchroniser());
         assertEquals(avant, ecritures(CENTRE));
 
         mouvement(CENTRE, SERINGUE, "SORTIE", "5", "10.00", null, instant(LocalDate.of(2026, 9, 6), 18));
-        Synchronisation apres = comptabiliteStock.synchroniser(CENTRE, DEBUT, FIN, AUJOURDHUI);
-
-        assertEquals(new Synchronisation(0, 1, 0, 0, 0), apres);
+        assertEquals(resultat(0, 1, 0, 0, 0), synchroniser());
         assertEquals(avant, ecritures(CENTRE), "l'écriture du jour est mise à jour, pas doublée");
         assertEquals(new BigDecimal("80.00"), solde("Sorties de stock du 06/09/2026", "602"));
         assertEquals(numeroDuJour, numero("Sorties de stock du 06/09/2026"), "le numéro de pièce est conservé");
@@ -163,13 +169,11 @@ class ComptabiliteStockIntegrationTest {
 
     @Test
     void once_the_period_is_closed_a_late_movement_goes_to_a_complement_dated_today() {
-        comptabiliteStock.synchroniser(CENTRE, DEBUT, FIN, AUJOURDHUI);
-        comptabilite.cloturerPeriode(new ComptabiliteUseCase.CloturerPeriodeCommand(CENTRE, YearMonth.of(2026, 9), "admin"));
+        synchroniser();
+        comptabilite.cloturerPeriode(CENTRE, YearMonth.of(2026, 9), "admin");
 
         mouvement(CENTRE, SERINGUE, "SORTIE", "5", "10.00", null, instant(LocalDate.of(2026, 9, 6), 18));
-        Synchronisation apres = comptabiliteStock.synchroniser(CENTRE, DEBUT, FIN, AUJOURDHUI);
-
-        assertEquals(new Synchronisation(0, 0, 0, 1, 0), apres);
+        assertEquals(resultat(0, 0, 0, 1, 0), synchroniser());
         assertEquals(new BigDecimal("30.00"), solde("Sorties de stock du 06/09/2026", "602"), "écriture clôturée intacte");
         assertEquals(new BigDecimal("50.00"), solde("Complément sorties de stock du 06/09/2026", "602"));
         assertEquals(AUJOURDHUI, jdbc.queryForObject(

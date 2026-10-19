@@ -91,7 +91,7 @@ abstract class EcrituresCharacterizationSupport {
     protected com.hemodialyse.backend.infrastructure.security.RoleScopeFilter roleScopeFilter;
     protected MockMvc mvc;
     @Autowired
-    protected com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase comptabilite;
+    protected com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures comptabilite;
     private int prochaineLigne;
 
     // ------------------------------------------------------------------ identités
@@ -187,15 +187,15 @@ abstract class EcrituresCharacterizationSupport {
     /**
      * Écriture de ventes générée par le cas d'usage de production (C5) : HT, TVA, TTC, date, payeur éventuel.
      */
-    protected com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable genererVente(
+    protected com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable genererVente(
             UUID centre, UUID facture, String numero, String ht, String tva, String ttc, String date, UUID payeur) {
         return comptabilite.genererEcritureFacturation(
-                new com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.GenererEcritureFacturationCommand(
+                new com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures.Facture(
                         centre, facture, numero, UUID.randomUUID(), payeur, new BigDecimal(ht), new BigDecimal(tva),
                         new BigDecimal(ttc), LocalDate.parse(date), "Séances"));
     }
 
-    protected com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable genererVente(
+    protected com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable genererVente(
             int facture, String ht, String tva, String ttc, String date) {
         return genererVente(CENTRE_A, fid(facture), "FACT-" + facture, ht, tva, ttc, date, null);
     }
@@ -203,10 +203,10 @@ abstract class EcrituresCharacterizationSupport {
     /**
      * Écriture de règlement générée par le cas d'usage de production (C5).
      */
-    protected com.hemodialyse.backend.domain.comptabilite.aggregate.EcritureComptable genererReglement(
+    protected com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable genererReglement(
             UUID centre, UUID facture, UUID paiement, String montant, String date, String mode, UUID payeur) {
         return comptabilite.genererEcritureReglement(
-                new com.hemodialyse.backend.domain.comptabilite.port.ComptabiliteUseCase.GenererEcritureReglementCommand(
+                new com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures.Reglement(
                         centre, facture, paiement, new BigDecimal(montant), LocalDate.parse(date), mode, "Règlement",
                         payeur));
     }
