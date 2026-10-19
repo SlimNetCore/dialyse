@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "Forfait introuvable pour ce centre",
+    "instance": "/api/v1/facturation/preview/seances/<S_VALIDEE_02>/forfait",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

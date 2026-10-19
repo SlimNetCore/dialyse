@@ -41,3 +41,8 @@ modèle).
 
 **Rejeu sur le nouveau code (2026-10-19)** : vert ; ecarts decides en goldens `_nouveau_code` (voir `known-bugs.md`,
 Livraison F1).
+
+**KB-FAC-07 clos (2026-10-19)** : rejeu sur PostgreSQL 16 jetable (`backend/scripts/facturation-pg16-rejeu.sh`, schéma
+Flyway V1..Vn) : l'ancien `MERGE INTO … KEY (center_id)` échoue (constaté), l'écriture actuelle (UPDATE puis INSERT)
+passe ; `ParametresPostgresContractIT` 5/5 et `RegleTvaPostgresContractIT` 15/15 verts (ajout, lecture par identifiant,
+remplacement, désactivation).

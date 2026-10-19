@@ -1,0 +1,76 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "generatedAt": "<HORODATAGE>",
+    "invoices": [
+      {
+        "lines": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "lineHt": 14000.0,
+            "seanceCount": 4,
+            "unitPriceHt": 3500.0
+          }
+        ],
+        "numeroFacture": "SIM-0042",
+        "patientCode": "SIM-001",
+        "patientFullName": "Amrani Lina",
+        "patientId": "<P_EFFECTIF>",
+        "patientStatusSnapshot": "PERMANENT",
+        "previewKey": "<P_EFFECTIF>",
+        "seanceIds": [
+          "<S_BORNE_01_08>",
+          "<S_VALIDEE_02>",
+          "<S_SIGNEE_03>",
+          "<S_BORNE_31_08>"
+        ],
+        "seances": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-01",
+            "seanceId": "<S_BORNE_01_08>",
+            "seanceStatus": "VALIDEE"
+          },
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-02",
+            "seanceId": "<S_VALIDEE_02>",
+            "seanceStatus": "VALIDEE"
+          },
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-03",
+            "seanceId": "<S_SIGNEE_03>",
+            "seanceStatus": "SIGNEE"
+          },
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-31",
+            "seanceId": "<S_BORNE_31_08>",
+            "seanceStatus": "VALIDEE"
+          }
+        ],
+        "totalHt": 14000.0,
+        "totalTtc": 15260.0,
+        "totalTva": 1260.0
+      }
+    ],
+    "periodEnd": "2026-08-31",
+    "periodStart": "2026-08-01",
+    "totalFactures": 1,
+    "totalHt": 14000.0,
+    "totalTtc": 15260.0,
+    "totalTva": 1260.0
+  }
+}

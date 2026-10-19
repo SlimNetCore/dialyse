@@ -1,0 +1,24 @@
+[
+  {
+    "id": "<S_FACTUREE_02>",
+    "date_seance": "2026-08-02",
+    "statut": "FACTUREE",
+    "facture_id": null,
+    "forfait_override_id": null,
+    "forfait_override_nom": null,
+    "forfait_override_prix": null,
+    "forfait_override_updated_by": null,
+    "override_date_nulle": "true"
+  },
+  {
+    "id": "<S_BROUILLON_03>",
+    "date_seance": "2026-08-03",
+    "statut": "BROUILLON",
+    "facture_id": null,
+    "forfait_override_id": null,
+    "forfait_override_nom": null,
+    "forfait_override_prix": null,
+    "forfait_override_updated_by": null,
+    "override_date_nulle": "true"
+  }
+]

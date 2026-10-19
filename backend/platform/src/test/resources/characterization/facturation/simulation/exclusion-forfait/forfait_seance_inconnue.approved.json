@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BUSINESS_RULE_VIOLATION",
+    "detail": "Seance introuvable ou non modifiable pour changement forfait",
+    "instance": "/api/v1/facturation/preview/seances/<UUID_GENERE_1>/forfait",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

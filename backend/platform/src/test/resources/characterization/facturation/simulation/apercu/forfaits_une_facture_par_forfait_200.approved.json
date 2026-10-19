@@ -1,0 +1,190 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "generatedAt": "<HORODATAGE>",
+    "invoices": [
+      {
+        "lines": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "lineHt": 7000.0,
+            "seanceCount": 2,
+            "unitPriceHt": 3500.0
+          }
+        ],
+        "numeroFacture": "SIM-0042",
+        "patientCode": "SIM-001",
+        "patientFullName": "Amrani Lina",
+        "patientId": "<P_EFFECTIF>",
+        "patientStatusSnapshot": "PERMANENT",
+        "previewKey": "<P_EFFECTIF>::<FORFAIT_HD>",
+        "seanceIds": [
+          "<S_EFFECTIF_02>",
+          "<S_EFFECTIF_06>"
+        ],
+        "seances": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-02",
+            "seanceId": "<S_EFFECTIF_02>",
+            "seanceStatus": "VALIDEE"
+          },
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-06",
+            "seanceId": "<S_EFFECTIF_06>",
+            "seanceStatus": "VALIDEE"
+          }
+        ],
+        "totalHt": 7000.0,
+        "totalTtc": 7630.0,
+        "totalTva": 630.0
+      },
+      {
+        "lines": [
+          {
+            "forfaitId": "<FORFAIT_PREMIUM>",
+            "forfaitLabel": "Premium (surcharge)",
+            "lineHt": 6000.0,
+            "seanceCount": 1,
+            "unitPriceHt": 6000.0
+          }
+        ],
+        "numeroFacture": "SIM-0043",
+        "patientCode": "SIM-001",
+        "patientFullName": "Amrani Lina",
+        "patientId": "<P_EFFECTIF>",
+        "patientStatusSnapshot": "PERMANENT",
+        "previewKey": "<P_EFFECTIF>::<FORFAIT_PREMIUM>",
+        "seanceIds": [
+          "<S_SURCHARGEE_04>"
+        ],
+        "seances": [
+          {
+            "forfaitId": "<FORFAIT_PREMIUM>",
+            "forfaitLabel": "Premium (surcharge)",
+            "forfaitPrixHt": 6000.0,
+            "seanceDate": "2026-08-04",
+            "seanceId": "<S_SURCHARGEE_04>",
+            "seanceStatus": "VALIDEE"
+          }
+        ],
+        "totalHt": 6000.0,
+        "totalTtc": 6540.0,
+        "totalTva": 540.0
+      },
+      {
+        "lines": [
+          {
+            "forfaitId": "<FORFAIT_PREMIUM>",
+            "forfaitLabel": "Forfait HD Premium",
+            "lineHt": 5200.0,
+            "seanceCount": 1,
+            "unitPriceHt": 5200.0
+          }
+        ],
+        "numeroFacture": "SIM-0044",
+        "patientCode": "SIM-002",
+        "patientFullName": "Belkacem Omar",
+        "patientId": "<P_DEMANDE>",
+        "patientStatusSnapshot": "PERMANENT",
+        "previewKey": "<P_DEMANDE>::<FORFAIT_PREMIUM>",
+        "seanceIds": [
+          "<S_DEMANDE_02>"
+        ],
+        "seances": [
+          {
+            "forfaitId": "<FORFAIT_PREMIUM>",
+            "forfaitLabel": "Forfait HD Premium",
+            "forfaitPrixHt": 5200.0,
+            "seanceDate": "2026-08-02",
+            "seanceId": "<S_DEMANDE_02>",
+            "seanceStatus": "SIGNEE"
+          }
+        ],
+        "totalHt": 5200.0,
+        "totalTtc": 5668.0,
+        "totalTva": 468.0
+      },
+      {
+        "lines": [
+          {
+            "forfaitId": null,
+            "forfaitLabel": "Forfait non defini",
+            "lineHt": 0.0,
+            "seanceCount": 1,
+            "unitPriceHt": 0
+          }
+        ],
+        "numeroFacture": "SIM-0045",
+        "patientCode": "SIM-003",
+        "patientFullName": "Chikhi Nadia",
+        "patientId": "<P_SANS_PEC>",
+        "patientStatusSnapshot": "PERMANENT",
+        "previewKey": "<P_SANS_PEC>::NO_FORFAIT",
+        "seanceIds": [
+          "<S_SANS_PEC_03>"
+        ],
+        "seances": [
+          {
+            "forfaitId": null,
+            "forfaitLabel": "Forfait non defini",
+            "forfaitPrixHt": 0.0,
+            "seanceDate": "2026-08-03",
+            "seanceId": "<S_SANS_PEC_03>",
+            "seanceStatus": "VALIDEE"
+          }
+        ],
+        "totalHt": 0.0,
+        "totalTtc": 0.0,
+        "totalTva": 0.0
+      },
+      {
+        "lines": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "lineHt": 3500.0,
+            "seanceCount": 1,
+            "unitPriceHt": 3500.0
+          }
+        ],
+        "numeroFacture": "SIM-0046",
+        "patientCode": "SIM-004",
+        "patientFullName": "Djebbar Yanis",
+        "patientId": "<P_PEC_ECHUE>",
+        "patientStatusSnapshot": "PERMANENT",
+        "previewKey": "<P_PEC_ECHUE>::<FORFAIT_HD>",
+        "seanceIds": [
+          "<S_PEC_ECHUE_05>"
+        ],
+        "seances": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-05",
+            "seanceId": "<S_PEC_ECHUE_05>",
+            "seanceStatus": "VALIDEE"
+          }
+        ],
+        "totalHt": 3500.0,
+        "totalTtc": 3815.0,
+        "totalTva": 315.0
+      }
+    ],
+    "periodEnd": "2026-08-31",
+    "periodStart": "2026-08-01",
+    "totalFactures": 5,
+    "totalHt": 21700.0,
+    "totalTtc": 23653.0,
+    "totalTva": 1953.0
+  }
+}

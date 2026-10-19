@@ -1,0 +1,13 @@
+[
+  {
+    "id": "<S_SANS_PERIODE_02>",
+    "date_seance": "2026-08-02",
+    "statut": "VALIDEE",
+    "facture_id": null,
+    "forfait_override_id": null,
+    "forfait_override_nom": null,
+    "forfait_override_prix": null,
+    "forfait_override_updated_by": null,
+    "override_date_nulle": "true"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BAD_REQUEST",
+    "detail": "La date de fin ne peut pas etre avant la date de debut",
+    "instance": "/api/v1/facturation/preview",
+    "status": 400,
+    "title": "Requete invalide"
+  }
+}

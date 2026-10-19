@@ -125,3 +125,8 @@ ArchUnit) verts. Contrat PostgreSQL 16 prêt (`ParametresPostgresContractIT`, `-
 
 **Limites connues** : deux saisies simultanées de types du même centre ne sont pas sérialisées (comme C2) ; deux
 premières écritures simultanées des paramètres d'un centre peuvent se heurter sur la clé (500), sans perte de données.
+
+**KB-FAC-07 clos (2026-10-19)** : rejeu sur PostgreSQL 16 jetable (`backend/scripts/facturation-pg16-rejeu.sh`, schéma
+Flyway V1..Vn) : l'ancien `MERGE INTO … KEY (center_id)` échoue (constaté), l'écriture actuelle (UPDATE puis INSERT)
+passe ; `ParametresPostgresContractIT` 5/5 et `RegleTvaPostgresContractIT` 15/15 verts (ajout, lecture par identifiant,
+remplacement, désactivation).

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "<S_A_CHANGER_02>",
+    "date_seance": "2026-08-02",
+    "statut": "VALIDEE",
+    "facture_id": null,
+    "forfait_override_id": "<FORFAIT_PREMIUM>",
+    "forfait_override_nom": "Forfait HD Premium",
+    "forfait_override_prix": "5200.00",
+    "forfait_override_updated_by": "medecin",
+    "override_date_nulle": "false"
+  },
+  {
+    "id": "<S_INCHANGEE_03>",
+    "date_seance": "2026-08-03",
+    "statut": "VALIDEE",
+    "facture_id": null,
+    "forfait_override_id": null,
+    "forfait_override_nom": null,
+    "forfait_override_prix": null,
+    "forfait_override_updated_by": null,
+    "override_date_nulle": "true"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "status": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "VALIDATION_ERROR",
+    "detail": "Invalid request content.",
+    "instance": "/api/v1/facturation/preview",
+    "status": 400,
+    "title": "Validation echouee"
+  }
+}

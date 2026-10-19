@@ -1,0 +1,24 @@
+[
+  {
+    "id": "<S_A_EXCLURE_02>",
+    "date_seance": "2026-08-02",
+    "statut": "ABSENT",
+    "facture_id": null,
+    "forfait_override_id": null,
+    "forfait_override_nom": null,
+    "forfait_override_prix": null,
+    "forfait_override_updated_by": "medecin",
+    "override_date_nulle": "false"
+  },
+  {
+    "id": "<S_GARDEE_03>",
+    "date_seance": "2026-08-03",
+    "statut": "SIGNEE",
+    "facture_id": null,
+    "forfait_override_id": null,
+    "forfait_override_nom": null,
+    "forfait_override_prix": null,
+    "forfait_override_updated_by": null,
+    "override_date_nulle": "true"
+  }
+]

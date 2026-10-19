@@ -1,0 +1,58 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "generatedAt": "<HORODATAGE>",
+    "invoices": [
+      {
+        "lines": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "lineHt": 7000.0,
+            "seanceCount": 2,
+            "unitPriceHt": 3500.0
+          }
+        ],
+        "numeroFacture": "SIM-0042",
+        "patientCode": "SIM-001",
+        "patientFullName": "Amrani Lina",
+        "patientId": "<P_EFFECTIF>",
+        "patientStatusSnapshot": "PERMANENT",
+        "previewKey": "<P_EFFECTIF>",
+        "seanceIds": [
+          "<S_DEBUT_01>",
+          "<S_MILIEU_15>"
+        ],
+        "seances": [
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-01",
+            "seanceId": "<S_DEBUT_01>",
+            "seanceStatus": "VALIDEE"
+          },
+          {
+            "forfaitId": "<FORFAIT_HD>",
+            "forfaitLabel": "Forfait HD",
+            "forfaitPrixHt": 3500.0,
+            "seanceDate": "2026-08-15",
+            "seanceId": "<S_MILIEU_15>",
+            "seanceStatus": "VALIDEE"
+          }
+        ],
+        "totalHt": 7000.0,
+        "totalTtc": 7630.0,
+        "totalTva": 630.0
+      }
+    ],
+    "periodEnd": "2026-08-15",
+    "periodStart": "2026-08-01",
+    "totalFactures": 1,
+    "totalHt": 7000.0,
+    "totalTtc": 7630.0,
+    "totalTva": 630.0
+  }
+}

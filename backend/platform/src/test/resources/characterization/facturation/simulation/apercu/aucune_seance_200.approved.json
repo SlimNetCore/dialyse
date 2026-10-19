@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "contentType": "application/json",
+  "body": {
+    "centerId": "<CENTRE_A>",
+    "generatedAt": "<HORODATAGE>",
+    "invoices": [],
+    "periodEnd": "2026-08-31",
+    "periodStart": "2026-08-01",
+    "totalFactures": 0,
+    "totalHt": 0.0,
+    "totalTtc": 0.0,
+    "totalTva": 0.0
+  }
+}
