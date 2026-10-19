@@ -6,13 +6,13 @@ import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.AxeAnalytique;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptableRepository;
-import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureDesequilibree;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.LigneEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.NumeroDePiece;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.PieceDejaExtournee;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.SequenceDesNumerosDePieces;
-import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.StatutEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeComptableRepository;
+import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeOuverte;
 import com.hemodialyse.backend.contexts.comptabilite.domain.piece.ModeleDePiece;
 import com.hemodialyse.backend.contexts.comptabilite.domain.piece.ModeleDePieceRepository;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.JournauxDuCentre;
@@ -22,12 +22,13 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Cas d’usage C4 : gestion des modèles, saisie et extourne de pièces comptables.
+ * Cas d’usage C4 : gestion des modèles, saisie et extourne de pièces comptables. Les règles de la pièce (composition,
+ * période ouverte, extourne) sont portées par le modèle de pièce et l'écriture ; le cas d'usage orchestre les lectures
+ * (modèle, période, journal, plan comptable) et la numérotation sous verrou.
  */
 public final class GererLesModelesEtPieces {
 
@@ -101,40 +102,19 @@ public final class GererLesModelesEtPieces {
             ModeleDePiece modele = modeles.parId(commande.centre(), commande.modeleId())
                     .orElseThrow(() -> regle("MODELE_INTROUVABLE", "Modèle de pièce introuvable"));
             if (!modele.actif()) throw regle("MODELE_INACTIF", "Le modèle " + modele.code() + " est désactivé");
-            if (commande.montants().size() != modele.lignes().size()
-                    || commande.montants().stream().anyMatch(m -> m.signum() < 0)) {
-                throw regle("PIECE_MONTANTS_INVALIDES", "Saisissez un montant positif ou nul pour chaque ligne du modèle");
-            }
-            exigerPeriodeOuverte(commande.centre(), commande.date());
-            exigerJournalActif(commande.centre(), modele.journal());
-
             String libelle = commande.libelle() == null || commande.libelle().isBlank()
                     ? modele.libelle() : commande.libelle().trim();
             List<AxeAnalytique> axes = List.of(new AxeAnalytique("CENTRE", "Centre " + commande.centre().valeur()));
-            List<LigneEcriture> lignes = new ArrayList<>();
-            for (int i = 0; i < modele.lignes().size(); i++) {
-                ModeleDePiece.Ligne ligne = modele.lignes().get(i);
-                BigDecimal montant = commande.montants().get(i);
-                if (montant.signum() == 0) continue;
-                exigerCompteActif(commande.centre(), ligne.compte());
-                String libelleLigne = ligne.libelle() == null ? libelle : ligne.libelle();
-                lignes.add(new LigneEcriture(UUID.randomUUID(), ligne.compte(), libelleLigne,
-                        ligne.sens() == ModeleDePiece.Sens.DEBIT ? montant : BigDecimal.ZERO,
-                        ligne.sens() == ModeleDePiece.Sens.CREDIT ? montant : BigDecimal.ZERO,
-                        null, axes));
-            }
-            if (lignes.size() < 2) {
-                throw regle("PIECE_MONTANTS_INVALIDES", "Une pièce comporte au moins un montant au débit et un montant au crédit");
-            }
-            UUID id = UUID.randomUUID();
-            EcritureComptable ecriture;
-            try {
-                ecriture = EcritureComptable.reconstituer(id, commande.centre(), modele.journal(), commande.date(),
-                        commande.date(), prochainNumero(commande.centre(), modele.journal(), commande.date().getYear()),
-                        libelle, lignes, StatutEcriture.VALIDEE, id, modele.id(), null, null);
-            } catch (EcritureDesequilibree e) {
-                throw regle("ECRITURE_DESEQUILIBREE", e.getMessage());
-            }
+            List<LigneEcriture> lignes = modele.composerLaPiece(commande.montants(), libelle, axes, UUID::randomUUID);
+            PeriodeOuverte periode = periodes.duMoisOuOuverte(commande.centre(), YearMonth.from(commande.date()))
+                    .exigerOuverteALaSaisie();
+            exigerJournalActif(commande.centre(), modele.journal());
+            lignes.forEach(ligne -> exigerCompteActif(commande.centre(), ligne.compte()));
+
+            EcritureComptable ecriture = EcritureComptable.saisir(UUID.randomUUID(), commande.centre(), modele.journal(),
+                    modele.id(), commande.date(),
+                    prochainNumero(commande.centre(), modele.journal(), commande.date().getYear()),
+                    libelle, lignes, periode);
             ecritures.enregistrer(ecriture);
             return ecriture;
         });
@@ -144,37 +124,25 @@ public final class GererLesModelesEtPieces {
         return uniteDeTravail.executer(() -> {
             EcritureComptable origine = ecritures.parId(centre, id)
                     .orElseThrow(() -> regle("ECRITURE_INTROUVABLE", "Écriture introuvable"));
-            if (!origine.estSaisie()) {
-                throw regle("PIECE_NON_SAISIE", "Seule une pièce saisie peut être extournée : cette écriture est générée par le système");
-            }
-            if (origine.source() != null && !origine.source().equals(origine.id())) {
-                throw regle("PIECE_DEJA_EXTOURNEE", "Une extourne ne s'extourne pas : saisissez une nouvelle pièce");
-            }
+            origine.exigerExtournable();
             LocalDate aujourdhui = LocalDate.now(horloge);
             UUID source = sourceExtourne(id);
             numerotation.verrouillerSource(centre, source);
             if (ecritures.parSource(centre, source).isPresent()) {
-                throw regle("PIECE_DEJA_EXTOURNEE", "La pièce " + origine.numeroDePiece() + " est déjà extournée");
+                throw PieceDejaExtournee.dejaFaite(origine.numeroDePiece());
             }
             List<String> numerosExistants = numerotation.verrouillerEtLireLesNumeros(
                     centre, origine.journal(), aujourdhui.getYear());
-            exigerPeriodeOuverte(centre, aujourdhui);
-            String libelle = "Extourne " + origine.numeroDePiece() + " - " + origine.libelle();
-            List<LigneEcriture> inverses = origine.lignes().stream()
-                    .map(l -> new LigneEcriture(UUID.randomUUID(), l.compte(), libelle, l.credit(), l.debit(), l.tiers(), l.axes()))
-                    .toList();
-            EcritureComptable extourne = EcritureComptable.reconstituer(UUID.randomUUID(), centre, origine.journal(),
-                    aujourdhui, origine.datePiece(), NumeroDePiece.suivant(origine.journal(), aujourdhui.getYear(), numerosExistants),
-                    libelle, inverses, StatutEcriture.VALIDEE, source, origine.modele(), null, null);
+            PeriodeOuverte periodeDuJour = periodes.duMoisOuOuverte(centre, YearMonth.from(aujourdhui))
+                    .exigerOuverteALaSaisie();
+            EcritureComptable extourne = origine.extourner(UUID.randomUUID(), aujourdhui,
+                    NumeroDePiece.suivant(origine.journal(), aujourdhui.getYear(), numerosExistants), source,
+                    UUID::randomUUID, periodeDuJour);
             ecritures.enregistrer(extourne);
             return extourne;
         });
     }
 
-    private void exigerPeriodeOuverte(CentreId centre, LocalDate date) {
-        periodes.duMois(centre, YearMonth.from(date)).filter(p -> p.estCloturee())
-                .ifPresent(p -> throwRegle("PERIODE_CLOTUREE", "La période " + p.mois() + " est clôturée"));
-    }
 
     private NumeroDePiece prochainNumero(CentreId centre, CodeJournal journal, int annee) {
         List<String> existants = numerotation.verrouillerEtLireLesNumeros(centre, journal, annee);

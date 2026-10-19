@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.comptabilite.domain.ecriture;
 
 import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
+import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeOuverte;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,6 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Écriture comptable : une pièce équilibrée au centime, d'au moins deux lignes, dans un journal. Racine d'agrégat (RG-CPT-003,
@@ -54,7 +56,8 @@ public final class EcritureComptable {
 
     /**
      * Reconstitue une écriture connue (lue en base ou reçue d'une slice voisine) en revérifiant ses invariants : une écriture
-     * illisible (une seule ligne, déséquilibrée) est refusée.
+     * illisible (une seule ligne, déséquilibrée) est refusée. <b>Réservée aux adaptateurs</b> : une écriture nouvelle naît par
+     * {@link #generer}, {@link #saisir} ou {@link #extourner}, qui exigent une période ouverte (R7).
      *
      * @param source l'opération qui l'a produite (facture, règlement, journée de stock...) ; nulle si aucune
      * @param modele le modèle de pièce d'une pièce saisie ; nul pour une écriture générée par le système
@@ -82,6 +85,94 @@ public final class EcritureComptable {
         }
         return new EcritureComptable(id, centre, journal, dateEcriture, datePiece, numeroDePiece, libelle, lignes,
                 statut != null ? statut : StatutEcriture.BROUILLON, source, modele, exporteeLe, exporteePar);
+    }
+
+    // ------------------------------------------------------------------ naissance d'une écriture (R7)
+
+    /**
+     * Écriture générée par le système (ventes, règlement, stock) pour sa source, validée d'emblée, dans un mois ouvert.
+     */
+    public static EcritureComptable generer(UUID id, CentreId centre, CodeJournal journal, LocalDate dateEcriture,
+                                            LocalDate datePiece, NumeroDePiece numero, String libelle,
+                                            List<LigneEcriture> lignes, UUID source, PeriodeOuverte periode) {
+        exigerCouverte(periode, centre, dateEcriture);
+        return reconstituer(id, centre, journal, dateEcriture, datePiece, numero, libelle, lignes, StatutEcriture.VALIDEE,
+                source, null, null, null);
+    }
+
+    /**
+     * Pièce saisie à partir d'un modèle (RG-CPT-021) : au moins deux lignes une fois les montants nuls omis, équilibrée,
+     * validée d'emblée, dans un mois ouvert. Sa source est elle-même : une pièce saisie n'est enregistrée qu'une fois.
+     */
+    public static EcritureComptable saisir(UUID id, CentreId centre, CodeJournal journal, UUID modele, LocalDate date,
+                                           NumeroDePiece numero, String libelle, List<LigneEcriture> lignes,
+                                           PeriodeOuverte periode) {
+        if (modele == null) throw new IllegalArgumentException("Une pièce saisie a un modèle");
+        exigerCouverte(periode, centre, date);
+        if (lignes == null || lignes.size() < 2) {
+            throw new PieceIncomplete();
+        }
+        return reconstituer(id, centre, journal, date, date, numero, libelle, lignes, StatutEcriture.VALIDEE, id, modele,
+                null, null);
+    }
+
+    private static void exigerCouverte(PeriodeOuverte periode, CentreId centre, LocalDate date) {
+        if (periode == null || !periode.couvre(centre, date)) {
+            throw new IllegalArgumentException("La période ouverte fournie ne couvre pas le " + date);
+        }
+    }
+
+    /**
+     * Refuse d'extourner ce qui ne s'extourne pas : une écriture générée par le système ({@code PIECE_NON_SAISIE}) ou une
+     * extourne ({@code PIECE_DEJA_EXTOURNEE}). Le cas d'usage l'appelle avant tout autre contrôle (ordre des refus).
+     */
+    public void exigerExtournable() {
+        if (!estSaisie()) {
+            throw new PieceNonSaisie();
+        }
+        if (estUneExtourne()) {
+            throw PieceDejaExtournee.carCestUneExtourne();
+        }
+    }
+
+    /**
+     * Annule cette pièce saisie par une écriture inverse (RG-CPT-022) : même journal, lignes inversées, datée du jour dans un
+     * mois ouvert, date de pièce d'origine ; l'écriture d'origine n'est pas modifiée.
+     *
+     * @param source       la source de l'extourne (une seule extourne par pièce, R6)
+     * @param idsDesLignes fournit l'identifiant de chaque ligne inverse
+     */
+    public EcritureComptable extourner(UUID idExtourne, LocalDate aujourdhui, NumeroDePiece numero, UUID source,
+                                       Supplier<UUID> idsDesLignes, PeriodeOuverte periodeDuJour) {
+        exigerExtournable();
+        exigerCouverte(periodeDuJour, centre, aujourdhui);
+        String libelleExtourne = "Extourne " + numeroDePiece + " - " + libelle;
+        List<LigneEcriture> inverses = lignes.stream()
+                .map(l -> new LigneEcriture(idsDesLignes.get(), l.compte(), libelleExtourne, l.credit(), l.debit(),
+                        l.tiers(), l.axes()))
+                .toList();
+        return reconstituer(idExtourne, centre, journal, aujourdhui, datePiece, numero, libelleExtourne, inverses,
+                StatutEcriture.VALIDEE, source, modele, null, null);
+    }
+
+    /**
+     * Révise en place l'écriture des sorties d'une journée (RG-CPT-013, R21) : mêmes identifiant, numéro, dates, libellé et
+     * statut, nouvelles lignes. Refusé si l'écriture est exportée ; le mois de l'écriture doit être ouvert.
+     */
+    public EcritureComptable reviserLesSorties(List<LigneEcriture> nouvellesLignes, PeriodeOuverte periode) {
+        if (estExportee()) {
+            throw new EcritureExporteeImmuable();
+        }
+        exigerCouverte(periode, centre, dateEcriture);
+        return reconstituer(id, centre, journal, dateEcriture, datePiece, numeroDePiece, libelle, nouvellesLignes, statut,
+                source, modele, exporteeLe, exporteePar);
+    }
+
+    /**
+     * Vrai pour l'extourne d'une pièce : elle porte un modèle mais sa source n'est pas elle-même.
+     */
+    public boolean estUneExtourne() {
+        return modele != null && source != null && !source.equals(id);
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.hemodialyse.backend.infrastructure.listener;
 
-import com.hemodialyse.backend.contexts.comptabilite.application.vente.ComptabiliserLesVentesEtReglements;
-import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptabilisationDesVentesEtReglements;
 import com.hemodialyse.backend.domain.reglement.event.FactureReglementRecordedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Politique P2 (slice C5) : un règlement enregistré produit son écriture de banque, par le contexte {@code comptabilite}.
+ * Traducteur de l'événement legacy vers le langage publié du contexte ({@link ComptabilisationDesVentesEtReglements}) :
+ * aucun import de l'intérieur du contexte.
  * <p>
  * Décision KB-CPT-37 (2026-10-19) : la comptabilisation a lieu <b>après le commit</b> du règlement, dans sa propre
  * transaction. Un refus (mois clôturé...) ne fait jamais échouer l'enregistrement du règlement ; il est journalisé et le
@@ -22,17 +23,17 @@ public class ReglementEncaisseComptabiliteListener {
 
     private static final Logger log = LoggerFactory.getLogger(ReglementEncaisseComptabiliteListener.class);
 
-    private final ComptabiliserLesVentesEtReglements comptabilisation;
+    private final ComptabilisationDesVentesEtReglements comptabilisation;
 
-    public ReglementEncaisseComptabiliteListener(ComptabiliserLesVentesEtReglements comptabilisation) {
+    public ReglementEncaisseComptabiliteListener(ComptabilisationDesVentesEtReglements comptabilisation) {
         this.comptabilisation = comptabilisation;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onReglementEncaisse(FactureReglementRecordedEvent event) {
         try {
-            comptabilisation.comptabiliserLeReglementEnregistre(new CentreId(event.centerId()), event.factureId(),
-                    event.montant(), event.dateReglement(), event.userId()).echecs().forEach(echec -> log.warn(
+            comptabilisation.reglementEnregistre(event.centerId(), event.factureId(), event.montant(),
+                    event.dateReglement(), event.userId()).forEach(echec -> log.warn(
                     "Écriture de règlement non générée pour la facture {} ({}) : {} {}", echec.reference(),
                     echec.source(), echec.code(), echec.message()));
         } catch (RuntimeException ex) {

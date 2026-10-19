@@ -68,6 +68,26 @@ public final class PeriodeComptable {
         return cloturee;
     }
 
+    /**
+     * La preuve que le mois est ouvert, exigée pour y créer une écriture (R7) ; refus {@code PERIODE_CLOTUREE} sinon.
+     */
+    public PeriodeOuverte exigerOuverte() {
+        if (cloturee) {
+            throw new PeriodeCloturee(centre, mois);
+        }
+        return new PeriodeOuverte(centre, mois);
+    }
+
+    /**
+     * Comme {@link #exigerOuverte()}, avec le message que la saisie et l'extourne d'une pièce donnent depuis toujours.
+     */
+    public PeriodeOuverte exigerOuverteALaSaisie() {
+        if (cloturee) {
+            throw PeriodeCloturee.aLaSaisie(mois);
+        }
+        return new PeriodeOuverte(centre, mois);
+    }
+
     public Instant clotureeLe() {
         return clotureeLe;
     }

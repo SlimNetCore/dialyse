@@ -12,12 +12,13 @@ import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.MappingComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.OperationComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeComptableRepository;
-import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeCloturee;
+import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeOuverte;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.FactureAComptabiliser;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.FacturesAComptabiliser;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.RedactionDesEcritures;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.ReglementAComptabiliser;
 import com.hemodialyse.backend.contexts.comptabilite.domain.vente.ReglementsAComptabiliser;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptabilisationDesVentesEtReglements;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptesClientsDesPayeurs;
 
 import java.math.BigDecimal;
@@ -37,8 +38,11 @@ import java.util.function.Supplier;
  * transaction ({@code uniteIsolee}, propagation « nouvelle transaction »). Un refus (mois clôturé, facture déséquilibrée...)
  * n'annule jamais la facture ou le règlement de l'appelant et n'empêche pas de comptabiliser les sources suivantes : il est
  * rapporté dans le {@link Bilan} et la source reste à régénérer ({@link #reconstruire}).
+ * <p>
+ * Les politiques P1 et P2 sont aussi offertes aux autres contextes par le langage publié
+ * {@link ComptabilisationDesVentesEtReglements} (types simples, refus rapportés).
  */
-public final class ComptabiliserLesVentesEtReglements {
+public final class ComptabiliserLesVentesEtReglements implements ComptabilisationDesVentesEtReglements {
 
     private final EcritureComptableRepository ecritures;
     private final PeriodeComptableRepository periodes;
@@ -65,6 +69,12 @@ public final class ComptabiliserLesVentesEtReglements {
 
     // ------------------------------------------------------------------ une source
 
+    private static List<SourceNonComptabilisee> publies(Bilan bilan) {
+        return bilan.echecs().stream()
+                .map(e -> new SourceNonComptabilisee(e.nature(), e.source(), e.reference(), e.code(), e.message()))
+                .toList();
+    }
+
     /**
      * Écriture de ventes de la facture, datée de {@code dateEcriture} ; l'écriture existante si la facture est déjà
      * comptabilisée (R6, contrôlé avant la période). Une transaction à elle seule.
@@ -74,15 +84,18 @@ public final class ComptabiliserLesVentesEtReglements {
             numerotation.verrouillerSource(centre, facture.id());
             Optional<EcritureComptable> existante = ecritures.parSource(centre, facture.id());
             if (existante.isPresent()) return existante.get();
-            exigerPeriodeOuverte(centre, dateEcriture);
+            PeriodeOuverte periode = periodeOuverte(centre, dateEcriture);
             MappingComptable mapping = mappings.effectif(centre);
             String compteClient = RedactionDesEcritures.compteClient(mapping, facture.payeur(), compteDuPayeur(centre, facture.payeur()));
             NumeroDePiece numero = prochainNumero(centre, mapping.journalDe(OperationComptable.VENTE), dateEcriture.getYear());
-            EcritureComptable ecriture = RedactionDesEcritures.ventes(centre, mapping, compteClient, facture, dateEcriture, numero);
+            EcritureComptable ecriture = RedactionDesEcritures.ventes(centre, mapping, compteClient, facture, dateEcriture,
+                    numero, periode);
             ecritures.enregistrer(ecriture);
             return ecriture;
         });
     }
+
+    // ------------------------------------------------------------------ langage publié (P1, P2)
 
     /**
      * Écriture du règlement ; elle crédite le compte que l'écriture de la facture a débité, sinon le compte client résolu
@@ -93,7 +106,7 @@ public final class ComptabiliserLesVentesEtReglements {
             numerotation.verrouillerSource(centre, reglement.id());
             Optional<EcritureComptable> existante = ecritures.parSource(centre, reglement.id());
             if (existante.isPresent()) return existante.get();
-            exigerPeriodeOuverte(centre, reglement.date());
+            PeriodeOuverte periode = periodeOuverte(centre, reglement.date());
             MappingComptable mapping = mappings.effectif(centre);
             CodeJournal journal = RedactionDesEcritures.journalDuReglement(mapping, reglement);
             NumeroDePiece numero = prochainNumero(centre, journal, reglement.date().getYear());
@@ -102,10 +115,22 @@ public final class ComptabiliserLesVentesEtReglements {
                     .flatMap(RedactionDesEcritures::compteDebite)
                     .orElseGet(() -> RedactionDesEcritures.compteClient(mapping, reglement.payeur(),
                             compteDuPayeur(centre, reglement.payeur())));
-            EcritureComptable ecriture = RedactionDesEcritures.reglement(centre, mapping, compteClient, reglement, numero);
+            EcritureComptable ecriture = RedactionDesEcritures.reglement(centre, mapping, compteClient, reglement, numero,
+                    periode);
             ecritures.enregistrer(ecriture);
             return ecriture;
         });
+    }
+
+    @Override
+    public List<SourceNonComptabilisee> facturationValidee(UUID centre, LocalDate debut, LocalDate fin) {
+        return publies(comptabiliserLesVentesValidees(new CentreId(centre), debut, fin));
+    }
+
+    @Override
+    public List<SourceNonComptabilisee> reglementEnregistre(UUID centre, UUID facture, BigDecimal montant, LocalDate date,
+                                                            String auteur) {
+        return publies(comptabiliserLeReglementEnregistre(new CentreId(centre), facture, montant, date, auteur));
     }
 
     // ------------------------------------------------------------------ politiques et reconstitution
@@ -159,11 +184,11 @@ public final class ComptabiliserLesVentesEtReglements {
 
     // ------------------------------------------------------------------ règles communes
 
-    private void exigerPeriodeOuverte(CentreId centre, LocalDate date) {
-        YearMonth mois = YearMonth.from(date);
-        if (periodes.duMois(centre, mois).filter(p -> p.estCloturee()).isPresent()) {
-            throw new PeriodeCloturee(centre, mois);
-        }
+    /**
+     * La preuve que le mois de la date est ouvert (R7, refus {@code PERIODE_CLOTUREE}).
+     */
+    private PeriodeOuverte periodeOuverte(CentreId centre, LocalDate date) {
+        return periodes.duMoisOuOuverte(centre, YearMonth.from(date)).exigerOuverte();
     }
 
     private NumeroDePiece prochainNumero(CentreId centre, CodeJournal journal, int annee) {
@@ -223,4 +248,12 @@ public final class ComptabiliserLesVentesEtReglements {
         }
     }
 }
+
+
+
+
+
+
+
+
 

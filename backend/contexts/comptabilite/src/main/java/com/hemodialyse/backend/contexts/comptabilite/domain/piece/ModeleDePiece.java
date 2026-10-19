@@ -2,11 +2,16 @@ package com.hemodialyse.backend.contexts.comptabilite.domain.piece;
 
 import com.hemodialyse.backend.contexts.comptabilite.domain.CentreId;
 import com.hemodialyse.backend.contexts.comptabilite.domain.RegleMetierViolee;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.AxeAnalytique;
+import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.LigneEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
@@ -46,6 +51,33 @@ public record ModeleDePiece(UUID id, CentreId centre, String code, String libell
         String net = valeur.trim();
         if (net.length() > max) throw new IllegalArgumentException(nom + " dépasse " + max + " caractères");
         return net;
+    }
+
+    /**
+     * Compose les lignes d'une pièce à partir d'un montant par ligne du modèle (RG-CPT-021, R10) : autant de montants que
+     * de lignes, chacun positif ou nul ({@code PIECE_MONTANTS_INVALIDES} sinon) ; une ligne à zéro est omise ; le montant
+     * va au débit ou au crédit selon le sens de la ligne ; une ligne sans libellé prend celui de la pièce. Le nombre de
+     * lignes restantes et l'équilibre sont contrôlés par l'écriture à sa saisie.
+     *
+     * @param idsDesLignes fournit l'identifiant de chaque ligne composée
+     */
+    public List<LigneEcriture> composerLaPiece(List<BigDecimal> montants, String libelleDeLaPiece,
+                                               List<AxeAnalytique> axes, Supplier<UUID> idsDesLignes) {
+        if (montants == null || montants.size() != lignes.size() || montants.stream().anyMatch(m -> m.signum() < 0)) {
+            throw new ReglePiece("PIECE_MONTANTS_INVALIDES", "Saisissez un montant positif ou nul pour chaque ligne du modèle");
+        }
+        List<LigneEcriture> composees = new ArrayList<>();
+        for (int i = 0; i < lignes.size(); i++) {
+            Ligne ligne = lignes.get(i);
+            BigDecimal montant = montants.get(i);
+            if (montant.signum() == 0) continue;
+            String libelleLigne = ligne.libelle() == null ? libelleDeLaPiece : ligne.libelle();
+            composees.add(new LigneEcriture(idsDesLignes.get(), ligne.compte(), libelleLigne,
+                    ligne.sens() == Sens.DEBIT ? montant : BigDecimal.ZERO,
+                    ligne.sens() == Sens.CREDIT ? montant : BigDecimal.ZERO,
+                    null, axes));
+        }
+        return composees;
     }
 
     public enum Sens {DEBIT, CREDIT}

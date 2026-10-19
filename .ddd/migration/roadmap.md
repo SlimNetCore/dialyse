@@ -36,14 +36,14 @@ L'ordre suit les dépendances : G2 avant G4 (tarif), G3 avant G4 (état de l'éq
 
 ## 2. Autres contextes (haut niveau, à détailler après `/ddd-tactical <ctx>`)
 
-| Contexte                      | Remarque                                                                                                                                                                               |
-|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Comptabilité                  | **C1 à C7 livrées : `bc-comptabilite` retiré** (voir 1 bis) ; restent les décisions ouvertes de `known-bugs.md` et les écrans Angular de régénération (C5) et des échecs du stock (C6) |
-| Facturation + règlement       | dépend de la lecture des séances ; TVA, clôture mensuelle (ADR 0009)                                                                                                                   |
-| Absences patients             | dépend des jours prévus (Planification) et des séances                                                                                                                                 |
-| Stock (+ article)             | PMP, FEFO                                                                                                                                                                              |
-| Planification                 | consommera les événements GMAO ; débloquera le retrait des lectures SQL de `gmao_equipements`                                                                                          |
-| Patient et couverture, Séance | les plus couplés : en dernier                                                                                                                                                          |
+| Contexte                      | Remarque                                                                                                                                                                                                                           |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Comptabilité                  | **C1 à C7 livrées : `bc-comptabilite` retiré** (voir 1 bis) ; écrans Angular de régénération (C5) et des échecs du stock (C6) livrés le 2026-10-19 ; reste `/ddd-verify comptabilite` et les décisions ouvertes de `known-bugs.md` |
+| Facturation + règlement       | dépend de la lecture des séances ; TVA, clôture mensuelle (ADR 0009)                                                                                                                                                               |
+| Absences patients             | dépend des jours prévus (Planification) et des séances                                                                                                                                                                             |
+| Stock (+ article)             | PMP, FEFO ; la recette C6 a révélé KB-STK-01/02 (rejeu du PMP à date égale, dates du jeu de démo), corrigés hors slice : à reprendre dans le filet de la slice Stock                                                               |
+| Planification                 | consommera les événements GMAO ; débloquera le retrait des lectures SQL de `gmao_equipements`                                                                                                                                      |
+| Patient et couverture, Séance | les plus couplés : en dernier                                                                                                                                                                                                      |
 
 ## 3. Recette d'une slice
 

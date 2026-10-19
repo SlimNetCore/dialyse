@@ -5,9 +5,9 @@ import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.AxeAnalytiq
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.EcritureComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.LigneEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.NumeroDePiece;
-import com.hemodialyse.backend.contexts.comptabilite.domain.ecriture.StatutEcriture;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.MappingComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.OperationComptable;
+import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeOuverte;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,7 +35,8 @@ public final class RedactionDesEcritures {
      * facture ≤ 0 étant dérivée de TTC − HT quand ce reste est positif. Statut VALIDEE ; source = la facture.
      */
     public static EcritureComptable ventes(CentreId centre, MappingComptable mapping, String compteClient,
-                                           FactureAComptabiliser facture, LocalDate date, NumeroDePiece numero) {
+                                           FactureAComptabiliser facture, LocalDate date, NumeroDePiece numero,
+                                           PeriodeOuverte periode) {
         List<AxeAnalytique> axes = axesDuCentre(centre);
         List<LigneEcriture> lignes = new ArrayList<>();
         lignes.add(new LigneEcriture(UUID.randomUUID(), compteClient,
@@ -55,9 +56,8 @@ public final class RedactionDesEcritures {
                     mapping.compteTvaCollectee().orElse(TVA_COLLECTEE_PAR_DEFAUT), "TVA collectée - " + facture.numero(),
                     BigDecimal.ZERO, tva, null, List.of()));
         }
-        return EcritureComptable.reconstituer(UUID.randomUUID(), centre, mapping.journalDe(OperationComptable.VENTE),
-                date, date, numero, "Fact. " + facture.numero() + " - " + facture.libelle(), lignes, StatutEcriture.VALIDEE,
-                facture.id(), null, null, null);
+        return EcritureComptable.generer(UUID.randomUUID(), centre, mapping.journalDe(OperationComptable.VENTE),
+                date, date, numero, "Fact. " + facture.numero() + " - " + facture.libelle(), lignes, facture.id(), periode);
     }
 
     /**
@@ -65,7 +65,8 @@ public final class RedactionDesEcritures {
      * VALIDEE ; source = le règlement.
      */
     public static EcritureComptable reglement(CentreId centre, MappingComptable mapping, String compteClient,
-                                              ReglementAComptabiliser reglement, NumeroDePiece numero) {
+                                              ReglementAComptabiliser reglement, NumeroDePiece numero,
+                                              PeriodeOuverte periode) {
         List<AxeAnalytique> axes = axesDuCentre(centre);
         BigDecimal montant = reglement.montant().abs();
         String tresorerie = reglement.enCaisse() ? mapping.compteCaisse() : mapping.compteBanque();
@@ -74,9 +75,8 @@ public final class RedactionDesEcritures {
                 new LigneEcriture(UUID.randomUUID(), tresorerie, libelle, montant, BigDecimal.ZERO, null, axes),
                 new LigneEcriture(UUID.randomUUID(), compteClient, "Règlement facture " + reglement.facture(),
                         BigDecimal.ZERO, montant, reglement.payeur(), axes));
-        return EcritureComptable.reconstituer(UUID.randomUUID(), centre, journalDuReglement(mapping, reglement),
-                reglement.date(), reglement.date(), numero, libelle, lignes, StatutEcriture.VALIDEE, reglement.id(), null,
-                null, null);
+        return EcritureComptable.generer(UUID.randomUUID(), centre, journalDuReglement(mapping, reglement),
+                reglement.date(), reglement.date(), numero, libelle, lignes, reglement.id(), periode);
     }
 
     public static com.hemodialyse.backend.contexts.comptabilite.domain.journal.CodeJournal journalDuReglement(
@@ -105,4 +105,9 @@ public final class RedactionDesEcritures {
         return List.of(new AxeAnalytique("CENTRE", "Centre " + centre.valeur()));
     }
 }
+
+
+
+
+
 

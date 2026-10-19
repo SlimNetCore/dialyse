@@ -13,6 +13,7 @@ import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.MappingCompt
 import com.hemodialyse.backend.contexts.comptabilite.domain.mapping.OperationComptable;
 import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeCloturee;
 import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeComptableRepository;
+import com.hemodialyse.backend.contexts.comptabilite.domain.periode.PeriodeOuverte;
 import com.hemodialyse.backend.contexts.comptabilite.domain.stock.OperationsDeStock;
 import com.hemodialyse.backend.contexts.comptabilite.domain.stock.OperationsDeStock.Inventaire;
 import com.hemodialyse.backend.contexts.comptabilite.domain.stock.OperationsDeStock.Montant;
@@ -155,10 +156,8 @@ public final class ComptabiliserLeStock {
                     SoldesDuStock.deja(famille.subList(0, famille.size() - 1)));
             // une écriture ne peut pas être vide : si plus rien ne doit rester, on contre-passe par un complément
             if (modifiable(centre, derniere) && !reste.isEmpty()) {
-                ecritures.enregistrer(EcritureComptable.reconstituer(derniere.id(), centre, derniere.journal(),
-                        derniere.dateEcriture(), derniere.datePiece(), derniere.numeroDePiece(), derniere.libelle(),
-                        SoldesDuStock.lignes(reste, derniere.libelle(), centre), derniere.statut(), derniere.source(),
-                        derniere.modele(), derniere.exporteeLe(), derniere.exporteePar()));
+                ecritures.enregistrer(derniere.reviserLesSorties(SoldesDuStock.lignes(reste, derniere.libelle(), centre),
+                        periodeOuverte(centre, derniere.dateEcriture())));
                 return new Resultat(Issue.SORTIES, null);
             }
         }
@@ -180,9 +179,17 @@ public final class ComptabiliserLeStock {
                        Map<String, BigDecimal> soldes, UUID source) {
         NumeroDePiece numero = NumeroDePiece.suivant(journal, dateEcriture.getYear(),
                 numerotation.verrouillerEtLireLesNumeros(centre, journal, dateEcriture.getYear()));
-        ecritures.enregistrer(EcritureComptable.reconstituer(UUID.randomUUID(), centre, journal, dateEcriture, datePiece,
-                numero, libelle, SoldesDuStock.lignes(soldes, libelle, centre), StatutEcriture.VALIDEE, source, null,
-                null, null));
+        ecritures.enregistrer(EcritureComptable.generer(UUID.randomUUID(), centre, journal, dateEcriture, datePiece,
+                numero, libelle, SoldesDuStock.lignes(soldes, libelle, centre), source,
+                periodeOuverte(centre, dateEcriture)));
+    }
+
+    /**
+     * La preuve que le mois de la date est ouvert ; les appelants ont déjà écarté les mois clos (pièce ignorée et
+     * rapportée), l'écriture le vérifie à nouveau à sa naissance (R7).
+     */
+    private PeriodeOuverte periodeOuverte(CentreId centre, LocalDate date) {
+        return periodes.duMoisOuOuverte(centre, YearMonth.from(date)).exigerOuverte();
     }
 
     /**
@@ -275,4 +282,7 @@ public final class ComptabiliserLeStock {
         }
     }
 }
+
+
+
 
