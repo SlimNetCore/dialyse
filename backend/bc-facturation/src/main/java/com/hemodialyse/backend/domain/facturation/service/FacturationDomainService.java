@@ -40,7 +40,10 @@ public class FacturationDomainService implements FacturationUseCase {
         this.typeTvaRepository = typeTvaRepository;
     }
 
-    @Override
+    /**
+     * Recalcul d'aperçu encore lu par {@link #validate} (F3) : la simulation servie aux utilisateurs est celle du contexte
+     * {@code facturation} (slice F2). Retiré avec F3.
+     */
     public FacturationPreviewResult preview(FacturationPreviewQuery query) {
         FacturationPeriod period = toPeriod(query.month(), query.periodStart(), query.periodEnd());
         List<SeanceFacturationCandidate> candidates = seancePort.findEligibleSeances(query.centerId(), period).stream()
@@ -71,30 +74,6 @@ public class FacturationDomainService implements FacturationUseCase {
                 totalTtc,
                 invoices
         );
-    }
-
-    @Override
-    public FacturationPreviewResult excludeSeance(FacturationExcludeSeanceCommand command) {
-        seancePort.markAsAbsent(command.centerId(), command.seanceId(), command.userId());
-        return preview(new FacturationPreviewQuery(
-                command.centerId(),
-                command.month(),
-                command.periodStart(),
-                command.periodEnd(),
-                command.regroupementMultiForfait()
-        ));
-    }
-
-    @Override
-    public FacturationPreviewResult updateSeanceForfait(FacturationUpdateSeanceForfaitCommand command) {
-        seancePort.overrideForfait(command.centerId(), command.seanceId(), command.forfaitId(), command.userId());
-        return preview(new FacturationPreviewQuery(
-                command.centerId(),
-                command.month(),
-                command.periodStart(),
-                command.periodEnd(),
-                command.regroupementMultiForfait()
-        ));
     }
 
     @Override

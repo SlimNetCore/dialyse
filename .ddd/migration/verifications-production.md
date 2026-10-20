@@ -405,9 +405,64 @@ WHERE schemaname = 'public'
   l'index. En attendant, le verrou applicatif continue d'empêcher tout nouveau doublon.
 - La ligne **37** apparaît désormais dans `flyway_schema_history` après déploiement (le point 8 en tient compte).
 
+## 18. Facturation F2 : exclusion de séance, absence déclarée et migration V39 (2026-10-20)
+
+`V39__facturation_exclusion_de_seance.sql` ajoute deux colonnes **nullables** à `seances` (aucun `DROP`, aucun `DELETE`,
+aucune
+donnée modifiée) : `statut_avant_exclusion` et `exclusion_absence_id` (ADR 0031). Contrôles en lecture seule, après
+déploiement :
+
+```sql
+-- 18.1 les deux colonnes existent et sont nullables
+SELECT column_name, data_type, character_maximum_length, is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'seances'
+  AND column_name IN ('statut_avant_exclusion', 'exclusion_absence_id');
+
+-- 18.2 séances ABSENT (avant la slice : exclusions de la Facturation sans motif, ou absences réelles) : aucune ne porte la mémoire d'exclusion
+SELECT count(*) AS seances_absent, count(statut_avant_exclusion) AS avec_memoire
+FROM seances
+WHERE statut = 'ABSENT';
+
+-- 18.3 séances exclues par la nouvelle version sans absence correspondante (attendu : 0)
+SELECT count(*) AS exclues_sans_absence
+FROM seances s
+WHERE s.statut = 'ABSENT'
+  AND s.statut_avant_exclusion IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM absence_patient a WHERE a.id = s.exclusion_absence_id AND a.center_id = s.center_id);
+
+-- 18.4 mémoire d'exclusion périmée : séance qui n'est plus ABSENT mais garde la mémoire (attendu : 0)
+SELECT count(*) AS memoire_perimee
+FROM seances
+WHERE statut <> 'ABSENT'
+  AND (statut_avant_exclusion IS NOT NULL OR exclusion_absence_id IS NOT NULL);
+
+-- 18.5 séances ABSENT sans absence de patient à la même date (exclusions d'avant la slice ; information, pas une anomalie de la nouvelle version)
+SELECT count(*) AS absent_sans_absence_patient
+FROM seances s
+WHERE s.statut = 'ABSENT'
+  AND NOT EXISTS (SELECT 1 FROM absence_patient a
+                  WHERE a.center_id = s.center_id AND a.patient_id = s.patient_id AND a.date_seance = s.date_seance);
+
+-- 18.6 absences référencées par une exclusion mais annulées ou rattrapées depuis (information)
+SELECT a.statut, count(*) AS n
+FROM seances s
+JOIN absence_patient a ON a.id = s.exclusion_absence_id AND a.center_id = s.center_id
+WHERE s.statut = 'ABSENT'
+GROUP BY a.statut;
+```
+
+- **Attendu** : 18.1 deux lignes `is_nullable = YES` ; 18.2 `avec_memoire = 0` avant la première exclusion de la
+  nouvelle
+  version ; 18.3 et 18.4 = 0 en permanence. 18.5 compte les exclusions d'avant la slice (sans motif ni absence) : elles
+  ne se
+  réincluent pas ; les rapporter pour décider d'une régularisation métier (déclarer l'absence, ou repasser la séance).
+- La ligne **39** apparaît dans `flyway_schema_history` après déploiement (le point 8 en tient compte).
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
 G1-G5
 en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
-toute décision d'ajout de contrainte unique.
+toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18.

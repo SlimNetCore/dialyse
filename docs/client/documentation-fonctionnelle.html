@@ -2679,10 +2679,13 @@ Sources : <code>FacturationDomainService</code>,
 <div class="rule" id="RG-FAC-002"><div class="rid">RG-FAC-002</div><div class="rtxt"><p>La TVA applicable à une date est le type <strong>actif</strong> couvrant cette date pour la prestation
     <code>HEMODIALYSE</code> (le dernier commencé) ; <strong>sans type actif, le taux est 0 %</strong>. Le taux est figé
     sur chaque facture au
-    moment de la validation. <em>Source :</em> langage publié <code>ParametrageFiscal</code> (contexte <code>comptabilite</code>)
-    ; la simulation et
-    la validation de facturation lisent encore la table par <code>TypeTvaJdbcAdapter</code> jusqu&#39;aux slices F2 et
-    F3.</p>
+    moment de la validation. La simulation applique le taux en vigueur <strong>à la fin de la période facturée</strong>
+    (RG-FAC-022).
+    <em>Source :</em> langage publié <code>ParametrageFiscal</code> (contexte <code>comptabilite</code>), lu par la
+    simulation
+    (<code>TauxDeTvaComptabilite</code>, contexte <code>facturation</code>) ; la validation de facturation lit encore la
+    table
+    par <code>TypeTvaJdbcAdapter</code> jusqu&#39;à la slice F3.</p>
 </div></div>
     <div class="rule" id="RG-FAC-003">
         <div class="rid">RG-FAC-003</div>
@@ -2728,22 +2731,72 @@ Sources : <code>FacturationDomainService</code>,
 </div></div>
 <h2>12.3 Séances facturables et simulation</h2>
 <div class="rule" id="RG-FAC-020"><div class="rid">RG-FAC-020</div><div class="rtxt"><p>Est <strong>éligible</strong> une séance du centre, dans la période, au statut <code>VALIDEE</code> ou <code>SIGNEE</code> (la signature
-médecin n&#39;est pas exigée) et <strong>pas déjà facturée</strong>. La période est un mois entier ou
-deux dates (fin non antérieure au début).</p>
+    médecin n&#39;est pas exigée) et <strong>pas déjà facturée</strong>. Le statut se compare en majuscules exactes (une
+    séance
+    « validee » est ignorée). La période est un mois entier (le mois l&#39;emporte sur les dates) ou deux dates (fin non
+    antérieure
+    au début, 400 sinon ; période absente : 400 « La periode de facturation est obligatoire »). <em>Source :</em>
+    <code>SeanceFacturable</code>, <code>PeriodeDeFacturation</code>, <code>SeancesFacturablesJdbc</code> (ACL sur les
+    séances, contexte
+    <code>facturation</code>).</p>
 </div></div>
 <div class="rule" id="RG-FAC-021"><div class="rid">RG-FAC-021</div><div class="rtxt"><p><strong>Forfait appliqué</strong> à une séance : le forfait de surcharge posé sur la séance (RG-SEA-033) ; à
 défaut, le forfait de la prise en charge couvrant la date (effectif sinon demandé,
-de préférence la PEC dotée d&#39;un forfait effectif, puis la plus récente) ; sans forfait, prix 0.</p>
+    de préférence la PEC dotée d&#39;un forfait effectif, puis la plus récente) ; à défaut de PEC qui couvre la date, la
+    PEC la
+    plus récente même échue ; sans forfait, « Forfait non defini » à prix 0. <em>Source :</em> <code>PolitiqueDeForfaitApplique</code>.
+</p>
 </div></div>
-<div class="rule" id="RG-FAC-022"><div class="rid">RG-FAC-022</div><div class="rtxt"><p>La <strong>simulation</strong> (aperçu) construit les factures par groupe patient (ou patient + forfait), regroupe
-les séances par forfait en lignes (prix unitaire HT × nombre de séances),
-calcule <strong>HT, TVA, TTC</strong> (arrondis à deux décimales, TVA = HT × taux) et le numéro prévisionnel. Elle n&#39;enregistre
-rien. Accès : <code>ADMIN</code>, <code>MEDECIN</code>.</p>
+    <div class="rule" id="RG-FAC-022">
+        <div class="rid">RG-FAC-022</div>
+        <div class="rtxt"><p>La <strong>simulation</strong> (aperçu) construit les factures par groupe patient (ou
+            patient + forfait selon le
+            regroupement demandé), regroupe les séances par forfait en lignes (prix unitaire HT × nombre de séances),
+            calcule <strong>HT, TVA, TTC</strong> (arrondis à deux décimales, TVA = HT × taux, <strong>taux en vigueur à
+                la fin de la période
+                facturée</strong>, 0 % sans règle) et le <strong>numéro prévisionnel</strong> : séquence courante du
+            centre pour l&#39;année du jour + 1, + 2…
+            dans l&#39;ordre des factures (patients triés par nom), selon le modèle du centre (RG-FAC-010), sans rien
+            réserver. Elle
+            n&#39;enregistre rien. Accès : <code>ADMIN</code> (le profil <code>MEDECIN</code> est refusé par le filtre
+            des profils, 403
+            <code>ROLE_SCOPE</code>) ; le centre demandé est confronté à celui de la session (403 sinon). <em>Source
+                :</em>
+            <code>Simulation</code>, <code>FactureSimulee</code>, <code>NumerotationPrevisionnelle</code>, <code>TauxDeTva</code>,
+            <code>SimulerLaFacturation</code> → <code>SimulationControleur</code> (<code>POST
+                /facturation/preview</code>).</p>
 </div></div>
-<div class="rule" id="RG-FAC-023"><div class="rid">RG-FAC-023</div><div class="rtxt"><p>Depuis la simulation, on peut <strong>exclure une séance</strong> (statut <code>ABSENT</code>, détachée de toute facture ;
-uniquement une séance validée/signée non facturée) ou <strong>changer son forfait</strong> ;
-la simulation est recalculée. <code>ABSENT</code> est un statut à part entière des séances (RG-SEA-001) : la séance exclue reste
-consultable, n&#39;est plus facturable, n&#39;est plus « réalisée » (RG-ABS-012) et n&#39;accepte pas de volet médical.</p>
+    <div class="rule" id="RG-FAC-023">
+        <div class="rid">RG-FAC-023</div>
+        <div class="rtxt"><p>Depuis la simulation, on peut <strong>exclure une séance</strong>, la
+            <strong>réinclure</strong> ou
+            <strong>changer son forfait</strong> ; la simulation est recalculée à chaque fois, dans la même transaction.
+            <strong>Exclure</strong>
+            (séance validée/signée non facturée uniquement) exige un <strong>motif d&#39;absence</strong> (<code>HOSPITALISATION</code>,
+            <code>MALADIE</code>, <code>VOYAGE</code>, <code>TRANSPORT</code>, <code>FAMILIAL</code>, <code>REFUS_PATIENT</code>,
+            <code>DECES</code>,
+            <code>AUTRE</code>, <code>NON_JUSTIFIEE</code> ; <code>AUTRE</code> exige un commentaire) : la séance passe
+            au statut <code>ABSENT</code>
+            et une <strong>absence de patient</strong> est déclarée avec ce motif, au nom de l&#39;utilisateur de la
+            session, selon les règles des
+            absences (RG-ABS-001, 005, 011, 012 : déclaration au plus 60 jours après la séance, pas de date future,
+            période du patient non
+            encore facturée, une absence par patient et par jour) ; un refus annule l&#39;exclusion (422). Le statut d&#39;avant
+            (validée ou
+            signée) est mémorisé. <strong>Réinclure</strong> (<code>POST
+                /facturation/preview/seances/{id}/include</code>) rend à la séance exclue
+            non facturée son statut d&#39;avant et retire l&#39;absence déclarée par l&#39;exclusion ; une séance <code>ABSENT</code>
+            sans cette mémoire
+            (absence réelle, exclusion antérieure) ne se réinclut pas (422). <strong>Changer le forfait</strong> impose
+            à la séance
+            validée/signée non facturée un forfait du centre (surcharge, RG-FAC-021). Accès et centre : comme
+            RG-FAC-022.
+            <code>ABSENT</code> est un statut à part entière des séances (RG-SEA-001) : la séance exclue reste
+            consultable, n&#39;est plus
+            facturable, n&#39;est plus « réalisée » (RG-ABS-012) et n&#39;accepte pas de volet médical. <em>Source
+                :</em>
+            <code>SeanceDeFacturation</code>, <code>ExclureUneSeance</code>, <code>ReinclureUneSeance</code>, <code>ChangerLeForfaitDUneSeance</code>
+            → <code>SimulationControleur</code> ; ACL <code>AbsencesDesPatientsLegacy</code> (ADR 0031).</p>
 </div></div>
 <div class="rule" id="RG-FAC-024"><div class="rid">RG-FAC-024</div><div class="rtxt"><p>Le tableau de bord de facturation d&#39;un mois présente : chiffre d&#39;affaires HT et TTC, séances
 facturées, patients facturés, factures créées, ventilation par caisse d&#39;assurance et par état
@@ -4202,9 +4255,18 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 </tr>
 <tr>
 <td><code>FacturationRestController</code></td>
-<td><code>/api/v1/facturation</code></td>
+    <td><code>/api/v1/facturation</code> (<code>/validate</code>, <code>/dashboard</code>, <code>/synthese/print</code>)
+    </td>
 <td><code>ADMIN</code>, <code>MEDECIN</code> (+ <code>SECRETAIRE</code> en lecture)</td>
-    <td>RG-FAC-020 à 032</td>
+    <td>RG-FAC-024, 030 à 032</td>
+</tr>
+<tr>
+    <td><code>SimulationControleur</code></td>
+    <td><code>/api/v1/facturation/preview</code> (et <code>/preview/seances/{id}/exclude</code>, <code>/include</code>,
+        <code>/forfait</code>)
+    </td>
+    <td><code>ADMIN</code></td>
+    <td>RG-FAC-020 à 023</td>
 </tr>
 <tr>
     <td><code>ParametresFacturationControleur</code></td>

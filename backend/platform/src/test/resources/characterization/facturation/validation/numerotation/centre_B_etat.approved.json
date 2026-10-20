@@ -1,0 +1,48 @@
+{
+  "factures": [
+    {
+      "agence_id_snapshot": null,
+      "centre_payeur_id_snapshot": null,
+      "created_at_nul": "false",
+      "date_facturation": "<AUJOURD_HUI>",
+      "id": "<FACTURE_1>",
+      "numero_facture": "B-0001",
+      "numero_immatriculation_snapshot": "ASS-SIM-B01",
+      "patient_code": "SIM-B01",
+      "patient_full_name": "Zerrouki Rania",
+      "patient_id": "<P_CENTRE_B>",
+      "patient_status_snapshot": "PERMANENT",
+      "period_end": "2026-01-31",
+      "period_start": "2026-01-01",
+      "total_ht": "1000.00",
+      "total_ttc": "1000.00",
+      "total_tva": "0.00",
+      "tva_rate": "0.00"
+    }
+  ],
+  "lignes": [
+    {
+      "facture_id": "<FACTURE_1>",
+      "forfait_id": "<FORFAIT_B>",
+      "forfait_label": "Forfait du centre B",
+      "line_ht": "1000.00",
+      "seance_count": "1",
+      "unit_price_ht": "1000.00"
+    }
+  ],
+  "sequences": [
+    {
+      "seq_value": "1",
+      "seq_year": "<ANNEE>"
+    }
+  ],
+  "seances": [
+    {
+      "date_seance": "2026-01-05",
+      "facture_id": "<FACTURE_1>",
+      "id": "<S_ZERROUKI_05>",
+      "patient_id": "<P_CENTRE_B>",
+      "statut": "FACTUREE"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "factures": [
+    {
+      "agence_id_snapshot": null,
+      "centre_payeur_id_snapshot": null,
+      "created_at_nul": "false",
+      "date_facturation": "2025-12-31",
+      "id": "<FACTURE_1>",
+      "numero_facture": "FAC-<ANNEE>-0044",
+      "numero_immatriculation_snapshot": null,
+      "patient_code": null,
+      "patient_full_name": "Existante",
+      "patient_id": "<P_CHIKHI>",
+      "patient_status_snapshot": null,
+      "period_end": "2025-12-31",
+      "period_start": "2025-12-01",
+      "total_ht": "100.00",
+      "total_ttc": "109.00",
+      "total_tva": "9.00",
+      "tva_rate": "9.00"
+    }
+  ],
+  "lignes": [],
+  "sequences": [
+    {
+      "seq_value": "41",
+      "seq_year": "<ANNEE>"
+    }
+  ],
+  "seances": [
+    {
+      "date_seance": "2026-01-05",
+      "facture_id": null,
+      "id": "<S_AMRANI_05>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "VALIDEE"
+    },
+    {
+      "date_seance": "2026-01-06",
+      "facture_id": null,
+      "id": "<S_BELKACEM_06>",
+      "patient_id": "<P_BELKACEM>",
+      "statut": "VALIDEE"
+    },
+    {
+      "date_seance": "2026-01-07",
+      "facture_id": null,
+      "id": "<S_CHIKHI_07>",
+      "patient_id": "<P_CHIKHI>",
+      "statut": "VALIDEE"
+    }
+  ]
+}

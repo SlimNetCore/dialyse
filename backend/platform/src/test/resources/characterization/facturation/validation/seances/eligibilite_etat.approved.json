@@ -1,0 +1,137 @@
+{
+  "factures": [
+    {
+      "agence_id_snapshot": null,
+      "centre_payeur_id_snapshot": null,
+      "created_at_nul": "false",
+      "date_facturation": "2026-01-07",
+      "id": "<FACTURE_1>",
+      "numero_facture": "ANCIENNE-0001",
+      "numero_immatriculation_snapshot": null,
+      "patient_code": null,
+      "patient_full_name": "Existante",
+      "patient_id": "<P_AMRANI>",
+      "patient_status_snapshot": null,
+      "period_end": "2026-01-07",
+      "period_start": "2026-01-01",
+      "total_ht": "100.00",
+      "total_ttc": "109.00",
+      "total_tva": "9.00",
+      "tva_rate": "9.00"
+    },
+    {
+      "agence_id_snapshot": "<AGENCE>",
+      "centre_payeur_id_snapshot": "<CNAS>",
+      "created_at_nul": "false",
+      "date_facturation": "<AUJOURD_HUI>",
+      "id": "<FACTURE_2>",
+      "numero_facture": "FAC-<ANNEE>-0042",
+      "numero_immatriculation_snapshot": "ASS-SIM-001",
+      "patient_code": "SIM-001",
+      "patient_full_name": "Amrani Lina",
+      "patient_id": "<P_AMRANI>",
+      "patient_status_snapshot": "PERMANENT",
+      "period_end": "2026-01-31",
+      "period_start": "2026-01-01",
+      "total_ht": "14000.00",
+      "total_ttc": "15260.00",
+      "total_tva": "1260.00",
+      "tva_rate": "9.00"
+    }
+  ],
+  "lignes": [
+    {
+      "facture_id": "<FACTURE_2>",
+      "forfait_id": "<FORFAIT_HD>",
+      "forfait_label": "Forfait HD",
+      "line_ht": "14000.00",
+      "seance_count": "4",
+      "unit_price_ht": "3500.00"
+    }
+  ],
+  "sequences": [
+    {
+      "seq_value": "42",
+      "seq_year": "<ANNEE>"
+    }
+  ],
+  "seances": [
+    {
+      "date_seance": "2025-12-31",
+      "facture_id": null,
+      "id": "<S_VEILLE_31_12>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "VALIDEE"
+    },
+    {
+      "date_seance": "2026-01-01",
+      "facture_id": "<FACTURE_2>",
+      "id": "<S_BORNE_01_01>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-02",
+      "facture_id": "<FACTURE_2>",
+      "id": "<S_VALIDEE_02>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-03",
+      "facture_id": "<FACTURE_2>",
+      "id": "<S_SIGNEE_03>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-04",
+      "facture_id": null,
+      "id": "<S_BROUILLON_04>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "BROUILLON"
+    },
+    {
+      "date_seance": "2026-01-05",
+      "facture_id": null,
+      "id": "<S_ABSENT_05>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "ABSENT"
+    },
+    {
+      "date_seance": "2026-01-06",
+      "facture_id": null,
+      "id": "<S_FACTUREE_06>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-07",
+      "facture_id": null,
+      "id": "<S_VALIDEE_minuscule_07>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "validee"
+    },
+    {
+      "date_seance": "2026-01-08",
+      "facture_id": "<FACTURE_1>",
+      "id": "<S_VALIDEE_LIEE_08>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "VALIDEE"
+    },
+    {
+      "date_seance": "2026-01-31",
+      "facture_id": "<FACTURE_2>",
+      "id": "<S_BORNE_31_01>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-02-01",
+      "facture_id": null,
+      "id": "<S_LENDEMAIN_01_02>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "VALIDEE"
+    }
+  ]
+}

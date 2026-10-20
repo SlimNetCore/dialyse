@@ -25,8 +25,10 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   (`/tva-types`).
 - **RG-FAC-002** — La TVA applicable à une date est le type **actif** couvrant cette date pour la prestation
   `HEMODIALYSE` (le dernier commencé) ; **sans type actif, le taux est 0 %**. Le taux est figé sur chaque facture au
-  moment de la validation. *Source :* langage publié `ParametrageFiscal` (contexte `comptabilite`) ; la simulation et
-  la validation de facturation lisent encore la table par `TypeTvaJdbcAdapter` jusqu'aux slices F2 et F3.
+  moment de la validation. La simulation applique le taux en vigueur **à la fin de la période facturée** (RG-FAC-022).
+  *Source :* langage publié `ParametrageFiscal` (contexte `comptabilite`), lu par la simulation
+  (`TauxDeTvaComptabilite`, contexte `facturation`) ; la validation de facturation lit encore la table par
+  `TypeTvaJdbcAdapter` jusqu'à la slice F3.
 - **RG-FAC-003** — Les types de TVA se **désactivent** (jamais supprimés) : la désactivation est idempotente et répond
   204 même pour un type inconnu du centre. La **modification** remplace libellé, taux, type, exonération, dates et texte
   selon RG-FAC-001 (le type modifié ne se compare pas à lui-même) ; elle **garde l'état** (un type désactivé le reste)
@@ -55,19 +57,45 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 ## 12.3 Séances facturables et simulation
 
 - **RG-FAC-020** — Est **éligible** une séance du centre, dans la période, au statut `VALIDEE` ou `SIGNEE` (la signature
-  médecin n'est pas exigée) et **pas déjà facturée**. La période est un mois entier ou
-  deux dates (fin non antérieure au début).
+  médecin n'est pas exigée) et **pas déjà facturée**. Le statut se compare en majuscules exactes (une séance « validee »
+  est ignorée). La période est un mois entier (le mois l'emporte sur les dates) ou deux dates (fin non antérieure au
+  début, 400 sinon ; période absente : 400 « La periode de facturation est obligatoire »). *Source :*
+  `SeanceFacturable`,
+  `PeriodeDeFacturation`, `SeancesFacturablesJdbc` (ACL sur les séances, contexte `facturation`).
 - **RG-FAC-021** — **Forfait appliqué** à une séance : le forfait de surcharge posé sur la séance (RG-SEA-033) ; à
   défaut, le forfait de la prise en charge couvrant la date (effectif sinon demandé,
-  de préférence la PEC dotée d'un forfait effectif, puis la plus récente) ; sans forfait, prix 0.
-- **RG-FAC-022** — La **simulation** (aperçu) construit les factures par groupe patient (ou patient + forfait), regroupe
-  les séances par forfait en lignes (prix unitaire HT × nombre de séances),
-  calcule **HT, TVA, TTC** (arrondis à deux décimales, TVA = HT × taux) et le numéro prévisionnel. Elle n'enregistre
-  rien. Accès : `ADMIN`, `MEDECIN`.
-- **RG-FAC-023** — Depuis la simulation, on peut **exclure une séance** (statut `ABSENT`, détachée de toute facture ;
-  uniquement une séance validée/signée non facturée) ou **changer son forfait** ;
-  la simulation est recalculée. `ABSENT` est un statut à part entière des séances (RG-SEA-001) : la séance exclue reste
-  consultable, n'est plus facturable, n'est plus « réalisée » (RG-ABS-012) et n'accepte pas de volet médical.
+  de préférence la PEC dotée d'un forfait effectif, puis la plus récente) ; à défaut de PEC qui couvre la date, la PEC
+  la
+  plus récente même échue ; sans forfait, « Forfait non defini » à prix 0. *Source :* `PolitiqueDeForfaitApplique`.
+- **RG-FAC-022** — La **simulation** (aperçu) construit les factures par groupe patient (ou patient + forfait selon le
+  regroupement demandé), regroupe les séances par forfait en lignes (prix unitaire HT × nombre de séances),
+  calcule **HT, TVA, TTC** (arrondis à deux décimales, TVA = HT × taux, **taux en vigueur à la fin de la période
+  facturée**, 0 % sans règle) et le **numéro prévisionnel** : séquence courante du centre pour l'année du jour + 1, + 2…
+  dans l'ordre des factures (patients triés par nom), selon le modèle du centre (RG-FAC-010), sans rien réserver. Elle
+  n'enregistre rien. Accès : `ADMIN` (le profil `MEDECIN` est refusé par le filtre des profils, 403 `ROLE_SCOPE`) ; le
+  centre demandé est confronté à celui de la session (403 sinon). *Source :* `Simulation`, `FactureSimulee`,
+  `NumerotationPrevisionnelle`, `TauxDeTva`, `SimulerLaFacturation` → `SimulationControleur`
+  (`POST /facturation/preview`).
+- **RG-FAC-023** — Depuis la simulation, on peut **exclure une séance**, la **réinclure** ou **changer son forfait** ;
+  la
+  simulation est recalculée à chaque fois, dans la même transaction. **Exclure** (séance validée/signée non facturée
+  uniquement) exige un **motif d'absence** (`HOSPITALISATION`, `MALADIE`, `VOYAGE`, `TRANSPORT`, `FAMILIAL`,
+  `REFUS_PATIENT`, `DECES`, `AUTRE`, `NON_JUSTIFIEE` ; `AUTRE` exige un commentaire) : la séance passe au statut
+  `ABSENT` et une **absence de patient** est déclarée avec ce motif, au nom de l'utilisateur de la session, selon les
+  règles
+  des absences (RG-ABS-001, 005, 011, 012 : déclaration au plus 60 jours après la séance, pas de date future, période du
+  patient non encore facturée, une absence par patient et par jour) ; un refus annule l'exclusion (422). Le statut
+  d'avant (validée ou signée)
+  est mémorisé. **Réinclure** (`POST /facturation/preview/seances/{id}/include`) rend à la séance exclue non facturée
+  son
+  statut d'avant et retire l'absence déclarée par l'exclusion ; une séance `ABSENT` sans cette mémoire (absence réelle,
+  exclusion antérieure) ne se réinclut pas (422). **Changer le forfait** impose à la séance validée/signée non facturée
+  un
+  forfait du centre (surcharge, RG-FAC-021). Accès et centre : comme RG-FAC-022. `ABSENT` est un statut à part entière
+  des
+  séances (RG-SEA-001) : la séance exclue reste consultable, n'est plus facturable, n'est plus « réalisée » (RG-ABS-012)
+  et n'accepte pas de volet médical. *Source :* `SeanceDeFacturation`, `ExclureUneSeance`, `ReinclureUneSeance`,
+  `ChangerLeForfaitDUneSeance` → `SimulationControleur` ; ACL `AbsencesDesPatientsLegacy` (ADR 0031).
 - **RG-FAC-024** — Le tableau de bord de facturation d'un mois présente : chiffre d'affaires HT et TTC, séances
   facturées, patients facturés, factures créées, ventilation par caisse d'assurance et par état
   du patient. Accès : `ADMIN`, `MEDECIN`, `SECRETAIRE`. Une synthèse imprimable est disponible (modèle de document,

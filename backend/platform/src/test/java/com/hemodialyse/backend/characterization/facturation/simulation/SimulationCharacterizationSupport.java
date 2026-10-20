@@ -71,6 +71,10 @@ abstract class SimulationCharacterizationSupport {
             Pattern.compile("\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?([+-]\\d{2}(:?\\d{2})?|Z)?");
     protected final ObjectMapper mapper = JsonMapper.builder().build();
     private final Map<UUID, String> alias = new LinkedHashMap<>();
+    /**
+     * Textes (dates relatives au jour d'exécution, F2 « nouveau code ») remplacés par un alias stable dans les goldens.
+     */
+    private final Map<String, String> textes = new LinkedHashMap<>();
     @Autowired
     protected WebApplicationContext context;
     @Autowired
@@ -85,6 +89,13 @@ abstract class SimulationCharacterizationSupport {
 
     protected static RequestPostProcessor adminA() {
         return as(CENTRE_A, "ADMIN");
+    }
+
+    /**
+     * Administrateur du centre A dont l'identifiant de session est connu (auteur des absences déclarées par une exclusion).
+     */
+    protected static RequestPostProcessor adminA(UUID utilisateur) {
+        return user(UserPrincipal.create(utilisateur.toString(), CENTRE_A.toString(), "u", "", List.of("ADMIN"), true));
     }
 
     protected static String json(String corps) {
@@ -113,6 +124,7 @@ abstract class SimulationCharacterizationSupport {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).addFilters(roleScopeFilter).build();
         cleanupSimulation();
         alias.clear();
+        textes.clear();
         nommer(CENTRE_A, "<CENTRE_A>");
         nommer(CENTRE_B, "<CENTRE_B>");
         nommer(FORFAIT_HD, "<FORFAIT_HD>");
@@ -129,6 +141,7 @@ abstract class SimulationCharacterizationSupport {
     @AfterEach
     void cleanupSimulation() {
         for (UUID centre : List.of(CENTRE_A, CENTRE_B)) {
+            jdbc.update("DELETE FROM absence_patient WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM seances WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM prise_en_charge WHERE center_id = ?", centre);
             jdbc.update("DELETE FROM patients WHERE center_id = ?", centre);
@@ -141,6 +154,13 @@ abstract class SimulationCharacterizationSupport {
 
     protected void nommer(UUID id, String nom) {
         alias.put(id, nom);
+    }
+
+    /**
+     * Remplace ce texte (une date relative au jour d'exécution) par un alias dans les goldens.
+     */
+    protected void nommerTexte(String texte, String nom) {
+        textes.put(texte, nom);
     }
 
     /**
@@ -262,6 +282,42 @@ abstract class SimulationCharacterizationSupport {
         GoldenMaster.verify(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arr));
     }
 
+    /**
+     * Exclusions du centre (F2 « nouveau code », ADR 0031) : statut des séances avec la mémoire de l'exclusion, et absences de
+     * patients déclarées (motif, commentaire, auteur, valeur figée). Une même absence porte le même alias des deux côtés.
+     */
+    protected void goldenExclusions(String name, UUID centre) {
+        Scrubber s = new Scrubber();
+        List<ObjectNode> seances = new ArrayList<>();
+        for (Map<String, Object> row : jdbc.queryForList("SELECT id, date_seance, statut, facture_id, statut_avant_exclusion, "
+                + "exclusion_absence_id, forfait_override_updated_by, (forfait_override_updated_at IS NULL) AS override_date_nulle "
+                + "FROM seances WHERE center_id = ?", centre)) {
+            seances.add(ligne(row, s));
+        }
+        seances.sort(Comparator.comparing((ObjectNode o) -> o.path("date_seance").asString())
+                .thenComparing(o -> o.path("id").asString()));
+        List<ObjectNode> absences = new ArrayList<>();
+        for (Map<String, Object> row : jdbc.queryForList("SELECT id, patient_id, date_seance, source, statut, motif, commentaire, "
+                + "declaree_par, (declaree_le IS NULL) AS declaree_le_nulle, forfait_id, prix_ttc, taux_tva, montant_ht "
+                + "FROM absence_patient WHERE center_id = ?", centre)) {
+            absences.add(ligne(row, s));
+        }
+        absences.sort(Comparator.comparing((ObjectNode o) -> o.path("date_seance").asString())
+                .thenComparing(o -> o.path("id").asString()));
+        ObjectNode racine = mapper.createObjectNode();
+        ArrayNode a = racine.putArray("seances");
+        seances.forEach(a::add);
+        ArrayNode b = racine.putArray("absences");
+        absences.forEach(b::add);
+        GoldenMaster.verify(GOLDENS.resolve(theme()), name, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(racine));
+    }
+
+    private ObjectNode ligne(Map<String, Object> row, Scrubber s) {
+        ObjectNode o = mapper.createObjectNode();
+        row.forEach((k, v) -> o.put(k.toLowerCase(), v == null ? null : s.scrubString(String.valueOf(v))));
+        return o;
+    }
+
     protected record Resp(int status, String contentType, String raw) {
     }
 
@@ -279,6 +335,9 @@ abstract class SimulationCharacterizationSupport {
 
         String scrubString(String raw) {
             String sansHeure = HORODATAGE_RE.matcher(raw).replaceAll("<HORODATAGE>");
+            for (Map.Entry<String, String> texte : textes.entrySet()) {
+                sansHeure = sansHeure.replace(texte.getKey(), texte.getValue());
+            }
             Matcher m = UUID_RE.matcher(sansHeure);
             StringBuilder sb = new StringBuilder();
             while (m.find()) {

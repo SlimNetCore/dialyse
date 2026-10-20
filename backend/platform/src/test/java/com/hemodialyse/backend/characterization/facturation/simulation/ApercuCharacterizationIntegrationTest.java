@@ -82,6 +82,29 @@ class ApercuCharacterizationIntegrationTest extends SimulationCharacterizationSu
         golden("autorisation_secretaire", doPost("/preview", mois(CENTRE_A, "2026-08", true), as(CENTRE_A, "SECRETAIRE")));
         golden("autorisation_infirmier", doPost("/preview", mois(CENTRE_A, "2026-08", true), as(CENTRE_A, "INFIRMIER")));
         golden("autorisation_anonyme", doPostAnonyme("/preview", mois(CENTRE_A, "2026-08", true)));
-        golden("centre_A_par_admin_B", doPost("/preview", mois(CENTRE_A, "2026-08", true), as(CENTRE_B, "ADMIN")));
+        // KB-FAC-14 corrigé : l'aperçu d'un autre centre que celui de la session est refusé (403) ; il était rendu (200)
+        golden("centre_A_par_admin_B_nouveau_code", doPost("/preview", mois(CENTRE_A, "2026-08", true), as(CENTRE_B, "ADMIN")));
+    }
+
+    /**
+     * KB-FAC-16 corrigé : le taux de TVA est celui en vigueur à la fin de la période facturée (il était celui du jour).
+     */
+    @Test
+    void le_taux_de_tva_est_celui_de_la_fin_de_la_periode_nouveau_code() throws Exception {
+        jdbc.update("DELETE FROM tva_types WHERE center_id = ?", CENTRE_A);
+        tvaDu(CENTRE_A, "9.00", "2000-01-01", "2026-08-14");
+        tvaDu(CENTRE_A, "19.00", "2026-08-15", null);
+        tvaDu(CENTRE_A, "30.00", "2026-09-01", null);
+        seance("EFFECTIF_02", P_EFFECTIF, CENTRE_A, "2026-08-02", "VALIDEE");
+        golden("tva_fin_de_mois_19_200_nouveau_code", doPost("/preview", mois(CENTRE_A, "2026-08", true), adminA()));
+        golden("tva_fin_de_periode_9_200_nouveau_code", doPost("/preview", json("{'centerId':'" + CENTRE_A
+                + "','periodStart':'2026-08-01','periodEnd':'2026-08-10','regroupementMultiForfait':true}"), adminA()));
+    }
+
+    private void tvaDu(UUID centre, String taux, String debut, String fin) {
+        jdbc.update("INSERT INTO tva_types (id, center_id, libelle, taux, type_prestation, exonere, date_debut_validite, "
+                        + "date_fin_validite, actif, created_by) VALUES (?, ?, 'TVA', ?, 'HEMODIALYSE', FALSE, ?, ?, TRUE, 'fixture')",
+                UUID.randomUUID(), centre, new java.math.BigDecimal(taux), java.sql.Date.valueOf(debut),
+                fin == null ? null : java.sql.Date.valueOf(fin));
     }
 }

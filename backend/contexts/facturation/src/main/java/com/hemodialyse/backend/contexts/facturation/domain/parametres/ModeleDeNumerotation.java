@@ -1,5 +1,8 @@
 package com.hemodialyse.backend.contexts.facturation.domain.parametres;
 
+import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+
+import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +21,8 @@ public record ModeleDeNumerotation(String valeur) {
 
     static final int LONGUEUR_MAXIMALE = 120;
 
+    private static final Pattern SEQUENCE_A_REMPLACER = Pattern.compile("\\{SEQ(?:(\\d+))?}");
+    private static final int LARGEUR_PAR_DEFAUT = 4;
     private static final Pattern JETON = Pattern.compile("\\{([^{}]*)}");
     private static final Pattern JETON_DE_SEQUENCE = Pattern.compile("SEQ([1-9][0-9]?)?");
     private static final Pattern JETON_ADMIS = Pattern.compile("YYYY|YEAR|YY|CENTER|SEQ([1-9][0-9]?)?");
@@ -52,6 +57,35 @@ public record ModeleDeNumerotation(String valeur) {
                     + "{SEQn} : sans lui, toutes les factures porteraient le même numéro");
         }
         return modele;
+    }
+
+    /**
+     * Le numéro de facture du centre, à cette date de facturation et pour cette séquence (strictement positive) : les jetons
+     * d'année et de centre sont remplacés, puis chaque jeton de séquence est complété de zéros à sa largeur.
+     */
+    public String numero(CentreId centre, LocalDate dateDeFacturation, int sequence) {
+        if (centre == null) {
+            throw new IllegalArgumentException("Le centre est obligatoire");
+        }
+        if (dateDeFacturation == null) {
+            throw new IllegalArgumentException("La date de facturation est obligatoire");
+        }
+        if (sequence <= 0) {
+            throw new IllegalArgumentException("La sequence doit etre strictement positive");
+        }
+        String numero = valeur.trim()
+                .replace("{YYYY}", String.valueOf(dateDeFacturation.getYear()))
+                .replace("{YEAR}", String.valueOf(dateDeFacturation.getYear()))
+                .replace("{YY}", String.format("%02d", dateDeFacturation.getYear() % 100))
+                .replace("{CENTER}", centre.valeur().toString().substring(0, 8).toUpperCase());
+        Matcher jetons = SEQUENCE_A_REMPLACER.matcher(numero);
+        StringBuilder resultat = new StringBuilder();
+        while (jetons.find()) {
+            int largeur = jetons.group(1) == null ? LARGEUR_PAR_DEFAUT : Integer.parseInt(jetons.group(1));
+            jetons.appendReplacement(resultat, Matcher.quoteReplacement(String.format("%0" + largeur + "d", sequence)));
+        }
+        jetons.appendTail(resultat);
+        return resultat.toString();
     }
 
     @Override

@@ -85,3 +85,114 @@ nouvelle
 route de réinclusion, mémorisation du statut d'origine (colonne sur `seances` ou portée par l'absence), passage par le
 langage publié des Absences (ACL vers le module legacy tant qu'il n'est pas un contexte) ; écran Angular de simulation à
 adapter (saisie du motif, bouton de réinclusion). ADR à rédiger à la construction.
+
+## État au 2026-10-20 : `built`
+
+### Réalisation
+
+**Contexte `facturation`** (hexagonal, ArchUnit, `check-arch` 0 violation) :
+
+- domaine `simulation` : `Simulation`, `FactureSimulee`, `LigneSimulee`, `SeanceFacturable`, `PatientFacture`,
+  `ForfaitApplique`,
+  `PolitiqueDeForfaitApplique` (surcharge > PEC couvrant la date > PEC la plus récente même échue > « Forfait non
+  defini » à 0),
+  `PriseEnChargeTarifee`, `Regroupement`, `PeriodeDeFacturation`, `TauxDeTva`, `NumerotationPrevisionnelle` ; ports
+  `SeancesFacturables`, `ForfaitsDuCentre`, `SequenceDeFacturation` ; `ModeleDeNumerotation.numero(…)` (jetons
+  RG-FAC-010) ;
+- domaine `seance` : `SeanceDeFacturation` (décide `exclure`, `reinclure`, changement de forfait), `MotifDAbsence`,
+  `Exclusion`,
+  `Reinclusion`, port `SeancesDeFacturation` ;
+- application `simulation` : `SimulerLaFacturation`, `ExclureUneSeance`, `ReinclureUneSeance`,
+  `ChangerLeForfaitDUneSeance`
+  (écriture et recalcul dans une transaction), ports `TauxDeTvaApplicable`, `AbsencesDesPatients` ;
+  `SessionCourante.utilisateur()` ;
+- ACL dans le module : `infrastructure/acl/legacyseance` (`SeancesFacturablesJdbc`, `SeancesDeFacturationJdbc`,
+  `ForfaitsDuCentreJdbc`), `infrastructure/acl/comptabilite/TauxDeTvaComptabilite` (langage publié `ParametrageFiscal`),
+  `infrastructure/persistence/SequenceDeFacturationJdbc` ; ACL côté `platform` :
+  `infrastructure/acl/facturation/AbsencesDesPatientsLegacy` (service du module Absences) ;
+- interface : `SimulationControleur` (`POST /api/v1/facturation/preview`, `/preview/seances/{id}/exclude`,
+  `/preview/seances/{id}/include` **nouvelle route**, `/preview/seances/{id}/forfait`), réservé à `ADMIN`.
+
+**Migration** `V39__facturation_exclusion_de_seance.sql` (additive : `seances.statut_avant_exclusion`,
+`seances.exclusion_absence_id`, nullables) et `db/schema.sql` ; **ADR 0031** (stockage de l'exclusion, contrat JSON).
+
+**Contrat JSON** : mêmes champs que le legacy ; `…/exclude` ajoute `motif` (obligatoire) et `commentaire` ; `…/include`
+prend
+`centerId`, `month` ou `periodStart`/`periodEnd`, `regroupementMultiForfait` ; réponses inchangées.
+
+**Parité** : filet F2 (13 scénarios, 44 goldens) rejoué sur le nouveau code : 39 goldens inchangés ; 5 goldens caducs
+retirés (`centre_A_par_admin_B`, `exclusion_nominale_200`, `exclusion_nominale_etat_base`,
+`exclusion_seance_A_par_admin_B`,
+`exclusion_seance_A_par_admin_B_etat_base`) et remplacés par des goldens `*_nouveau_code` (33 au total, dont
+réinclusion, motif,
+délai du module Absences, centres, TVA à la fin de période). Retouches de fixture (harnais et tests, sans toucher un
+golden ni
+une assertion conservés) : requête d'exclusion avec `motif` (champ obligatoire du nouveau contrat) ; exclusions réussies
+à
+dates relatives au jour d'exécution avec alias (`nommerTexte`) ; suppression des `absence_patient` du centre au
+nettoyage ;
+`adminA(utilisateur)` ; `goldenExclusions`. Test d'intégration legacy `FacturationRestControllerIntegrationTest` (quatre
+tests de la simulation, assertions inchangées) : session `UserPrincipal` rattachée au centre (le contexte confronte le
+centre
+demandé à la session, KB-FAC-14, un `user("admin")` sans centre répond 403) ; le test d'exclusion date la séance de J-2,
+envoie
+un `motif` et une période relative (délai de 60 jours du module Absences) ; nettoyage des `absence_patient` du centre.
+
+**Tests** : module `facturation` 167 tests verts (domaine, cas d'usage avec doubles en mémoire, contrats mémoire/H2 des
+séances
+et de la séquence, ArchUnit) ; contrats PostgreSQL 16 `SeancesPostgresContractIT` (22) et `SequencePostgresContractIT`
+(3)
+verts sur le schéma Flyway V1..V39 ; ACL Absences (table de traduction des motifs) ; alignement des colonnes lues ou
+écrites
+par la simulation sur le schéma figé (`ModelesDePersistanceAlignesFacturationIntegrationTest`) ; PIT du domaine et de
+l'application du module : 94 % de mutants tués (154/163, force des tests 97 %).
+
+### Écarts décidés (voir `known-bugs.md`, « Décisions F2 réalisées »)
+
+KB-FAC-13 corrigé (motif, absence déclarée, réinclusion) ; KB-FAC-14 corrigé (403) ; KB-FAC-15 reproduit, route
+`ADMIN` ;
+KB-FAC-16 corrigé (TVA à la fin de période) ; KB-FAC-17 à 21 reproduits (« reproduits, correction à la livraison
+suivante »).
+Ordre des contrôles (KB-FAC-21) : l'état de la séance (422) puis le motif (400) sont contrôlés en premier, puis la
+période (400), puis seulement les écritures ; le legacy écrivait d'abord et annulait la transaction à l'échec du
+recalcul. Résultat
+observable identique (400, séance inchangée) ; seule la précédence d'une période absente sur une séance inconnue ne
+change pas.
+
+### Points à valider
+
+1. Une séance de plus de 60 jours ne peut plus être exclue (règle du module Absences appliquée telle quelle, ADR 0031).
+2. La réinclusion **supprime** la ligne d'absence créée par l'exclusion (le module Absences ne sait qu'annuler, état
+   définitif).
+3. Une séance `ABSENT` sans mémoire d'exclusion (absence réelle, exclusion d'avant la slice) ne se réinclut pas.
+4. L'auteur de l'absence est l'utilisateur de la session ; `userId` du corps n'est plus utilisé que pour la surcharge de
+   forfait.
+
+### Reste à retirer avec F3..F6
+
+Legacy conservé car encore lu par la validation (F3) : `FacturationRestController` (`/validate`, `/dashboard`,
+`/synthese/print`), `FacturationDomainService` (`preview` interne à `validate`, `validate`, `dashboard`, réglages),
+`FacturationUseCase` (`validate`, `dashboard`, réglages), `FacturationApplicationService`, `SeanceFacturationPort` /
+`SeanceFacturationJdbcAdapter` (`findEligibleSeances` et le calcul du forfait pour `validate`, `markAsBilled`,
+`loadDashboard`),
+`TypeTvaRepositoryPort` / `TypeTvaJdbcAdapter.findActiveAt`, `FactureRepositoryPort.currentInvoiceSequence` /
+`nextInvoiceNumber`, `FactureNumberTemplate`, `FacturationPreviewQuery/Result/Invoice/Line/Seance` (portés par
+`validate`),
+`SeanceEligibleForFacturationSpecification`. **Retiré en F2** : les trois routes de simulation du contrôleur,
+`FacturationUseCase.preview/excludeSeance/updateSeanceForfait`,
+`FacturationDomainService.excludeSeance/updateSeanceForfait`,
+`SeanceFacturationPort.markAsAbsent/overrideForfait`, les trois requêtes `FacturationPreview*Request`, les deux
+commandes,
+`FacturationRestControllerTest` (son seul test portait sur la route retirée).
+
+### Plan de bascule
+
+Refonte sur place (ADR 0024) : mêmes URL, pas de façade ni de flag ; retour arrière = commit précédent.
+**Déploiement** :
+migration V39 appliquée au démarrage (additive, rejouable) ; contrôles de production : `verifications-production.md`
+point 18. **Frontend à adapter** (non modifié ici) : saisie du motif (liste des motifs d'absence) et du commentaire
+(obligatoire pour
+`AUTRE`) à l'exclusion ; bouton de réinclusion (`POST …/include`) sur les séances exclues ; message 403 si le centre
+demandé
+diffère de la session ; messages 422 de l'exclusion (délai de 60 jours, période facturée) ; TVA calculée à la fin de la
+période ; écran réservé à `ADMIN`.

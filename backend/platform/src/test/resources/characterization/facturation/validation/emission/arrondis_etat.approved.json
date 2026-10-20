@@ -1,0 +1,130 @@
+{
+  "factures": [
+    {
+      "agence_id_snapshot": "<AGENCE>",
+      "centre_payeur_id_snapshot": "<CNAS>",
+      "created_at_nul": "false",
+      "date_facturation": "<AUJOURD_HUI>",
+      "id": "<FACTURE_1>",
+      "numero_facture": "FAC-<ANNEE>-0042",
+      "numero_immatriculation_snapshot": "ASS-SIM-001",
+      "patient_code": "SIM-001",
+      "patient_full_name": "Amrani Lina",
+      "patient_id": "<P_AMRANI>",
+      "patient_status_snapshot": "PERMANENT",
+      "period_end": "2026-01-31",
+      "period_start": "2026-01-01",
+      "total_ht": "99.99",
+      "total_ttc": "118.99",
+      "total_tva": "19.00",
+      "tva_rate": "19.00"
+    },
+    {
+      "agence_id_snapshot": null,
+      "centre_payeur_id_snapshot": null,
+      "created_at_nul": "false",
+      "date_facturation": "<AUJOURD_HUI>",
+      "id": "<FACTURE_2>",
+      "numero_facture": "FAC-<ANNEE>-0043",
+      "numero_immatriculation_snapshot": "ASS-SIM-002",
+      "patient_code": "SIM-002",
+      "patient_full_name": "Belkacem Omar",
+      "patient_id": "<P_BELKACEM>",
+      "patient_status_snapshot": "PERMANENT",
+      "period_end": "2026-01-31",
+      "period_start": "2026-01-01",
+      "total_ht": "33.33",
+      "total_ttc": "39.66",
+      "total_tva": "6.33",
+      "tva_rate": "19.00"
+    },
+    {
+      "agence_id_snapshot": null,
+      "centre_payeur_id_snapshot": null,
+      "created_at_nul": "false",
+      "date_facturation": "<AUJOURD_HUI>",
+      "id": "<FACTURE_3>",
+      "numero_facture": "FAC-<ANNEE>-0044",
+      "numero_immatriculation_snapshot": "ASS-SIM-003",
+      "patient_code": "SIM-003",
+      "patient_full_name": "Chikhi Nadia",
+      "patient_id": "<P_CHIKHI>",
+      "patient_status_snapshot": "PERMANENT",
+      "period_end": "2026-01-31",
+      "period_start": "2026-01-01",
+      "total_ht": "12.50",
+      "total_ttc": "14.88",
+      "total_tva": "2.38",
+      "tva_rate": "19.00"
+    }
+  ],
+  "lignes": [
+    {
+      "facture_id": "<FACTURE_1>",
+      "forfait_id": "<FORFAIT_HD>",
+      "forfait_label": "Forfait HD",
+      "line_ht": "99.99",
+      "seance_count": "3",
+      "unit_price_ht": "33.33"
+    },
+    {
+      "facture_id": "<FACTURE_2>",
+      "forfait_id": "<FORFAIT_HD>",
+      "forfait_label": "Forfait HD",
+      "line_ht": "33.33",
+      "seance_count": "1",
+      "unit_price_ht": "33.33"
+    },
+    {
+      "facture_id": "<FACTURE_3>",
+      "forfait_id": "<FORFAIT_PREMIUM>",
+      "forfait_label": "Forfait HD Premium",
+      "line_ht": "12.50",
+      "seance_count": "1",
+      "unit_price_ht": "12.50"
+    }
+  ],
+  "sequences": [
+    {
+      "seq_value": "44",
+      "seq_year": "<ANNEE>"
+    }
+  ],
+  "seances": [
+    {
+      "date_seance": "2026-01-05",
+      "facture_id": "<FACTURE_1>",
+      "id": "<S_AMRANI_05>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-06",
+      "facture_id": "<FACTURE_2>",
+      "id": "<S_BELKACEM_06>",
+      "patient_id": "<P_BELKACEM>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-07",
+      "facture_id": "<FACTURE_3>",
+      "id": "<S_CHIKHI_07>",
+      "patient_id": "<P_CHIKHI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-12",
+      "facture_id": "<FACTURE_1>",
+      "id": "<S_AMRANI_12>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-19",
+      "facture_id": "<FACTURE_1>",
+      "id": "<S_AMRANI_19>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "FACTUREE"
+    }
+  ]
+}

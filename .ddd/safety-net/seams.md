@@ -123,3 +123,23 @@ aujourd'hui » n'intervient dans aucune fixture (dates fixes mars/avril/septembr
 | `EcritureComptableJpaAdapter.java:85-91` (`findForExport` sans `ORDER BY`)                                              | aucun : tri total (date d'écriture, numéro de pièce, identifiant de ligne) à la refonte                                                                                                     | ordre des écritures du fichier d'export déterministe (aujourd'hui non défini : le golden trie les lignes de fichiers multi-écritures) | modification de legacy hors câblage ; inutile si la refonte remplace l'adaptateur                             |
 | `PeriodeComptableJpaAdapter.java:47` (`OffsetDateTime.now()` de `cloturee_at`)                                          | extraire une `Clock` injectée                                                                                                                                                               | verrouiller la date de clôture exacte                                                                                                 | modification de legacy ; inutile : la colonne n'est jamais exposée par l'API                                  |
 | `ComptabiliteRestController.java:129-132` (auteur = `req.userId()`)                                                     | aucun seam : décision 12 (auteur = utilisateur de la session)                                                                                                                               | —                                                                                                                                     | —                                                                                                             |
+
+# Seams — slice facturation-f3-validation-emission (2026-10-20)
+
+Aucun seam appliqué ni nécessaire : `seamAllowed` inchangé (vide), aucun fichier de production modifié. La validation
+date
+la facture, le taux de TVA et l année de la séquence du jour (`LocalDate.now()`) : maîtrisé sans seam (type de TVA
+ouvert depuis
+2000, séquence posée pour l année en cours, périodes facturées fixes dans le passé, année et jour remplacés par
+`<ANNEE>` /
+`<AUJOURD_HUI>` dans les goldens). Identifiants générés (`UUID.randomUUID()` des factures et lignes) et horodatages
+normalisés ;
+factures nommées `<FACTURE_n>` par ordre de numéro.
+
+## Seams optionnels (NON appliqués, accord utilisateur requis, non nécessaires)
+
+| Fichier : ligne                                                                                                    | Refactoring mécanique                                                                                                                                  | Risque                                                                                                       |
+|--------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| `FacturationDomainService.java:54,93,99,117` (`LocalDate.now()` : date de facture, taux de TVA, année de séquence) | injecter une `Clock`                                                                                                                                   | aucun ; permettrait de rejouer une validation à une date donnée (KB-FAC-22/23) sans fixture relative au jour |
+| `FactureJdbcAdapter.java:89-114` (`nextInvoiceNumber`, lecture puis écriture sans verrou)                          | aucun seam : le verrou est la correction elle-même (KB-FAC-24, Q6) ; la course n est observable que par un test concurrent non déterministe, non écrit | flaky si tenté                                                                                               |
+| `FacturationApplicationService.java:33-48` (période et `OffsetDateTime.now()` de l événement)                      | aucun : correction KB-FAC-28/29                                                                                                                        | —                                                                                                            |

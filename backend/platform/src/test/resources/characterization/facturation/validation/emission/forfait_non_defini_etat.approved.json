@@ -1,0 +1,55 @@
+{
+  "factures": [
+    {
+      "agence_id_snapshot": null,
+      "centre_payeur_id_snapshot": null,
+      "created_at_nul": "false",
+      "date_facturation": "<AUJOURD_HUI>",
+      "id": "<FACTURE_1>",
+      "numero_facture": "FAC-<ANNEE>-0042",
+      "numero_immatriculation_snapshot": "ASS-SIM-003",
+      "patient_code": "SIM-003",
+      "patient_full_name": "Chikhi Nadia",
+      "patient_id": "<P_CHIKHI>",
+      "patient_status_snapshot": "PERMANENT",
+      "period_end": "2026-01-31",
+      "period_start": "2026-01-01",
+      "total_ht": "0.00",
+      "total_ttc": "0.00",
+      "total_tva": "0.00",
+      "tva_rate": "9.00"
+    }
+  ],
+  "lignes": [
+    {
+      "facture_id": "<FACTURE_1>",
+      "forfait_id": null,
+      "forfait_label": "Forfait non defini",
+      "line_ht": "0.00",
+      "seance_count": "2",
+      "unit_price_ht": "0.00"
+    }
+  ],
+  "sequences": [
+    {
+      "seq_value": "42",
+      "seq_year": "<ANNEE>"
+    }
+  ],
+  "seances": [
+    {
+      "date_seance": "2026-01-07",
+      "facture_id": "<FACTURE_1>",
+      "id": "<S_CHIKHI_07>",
+      "patient_id": "<P_CHIKHI>",
+      "statut": "FACTUREE"
+    },
+    {
+      "date_seance": "2026-01-14",
+      "facture_id": "<FACTURE_1>",
+      "id": "<S_CHIKHI_14>",
+      "patient_id": "<P_CHIKHI>",
+      "statut": "FACTUREE"
+    }
+  ]
+}

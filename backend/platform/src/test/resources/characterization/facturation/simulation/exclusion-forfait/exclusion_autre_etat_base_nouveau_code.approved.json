@@ -1,0 +1,31 @@
+{
+  "seances": [
+    {
+      "id": "<S_MOTIF_02>",
+      "date_seance": "<J-3>",
+      "statut": "ABSENT",
+      "facture_id": null,
+      "statut_avant_exclusion": "VALIDEE",
+      "exclusion_absence_id": "<UUID_GENERE_1>",
+      "forfait_override_updated_by": null,
+      "override_date_nulle": "true"
+    }
+  ],
+  "absences": [
+    {
+      "id": "<UUID_GENERE_1>",
+      "patient_id": "<P_EFFECTIF>",
+      "date_seance": "<J-3>",
+      "source": "DECLAREE",
+      "statut": "JUSTIFIEE",
+      "motif": "AUTRE",
+      "commentaire": "déménagement",
+      "declaree_par": "<UTILISATEUR>",
+      "declaree_le_nulle": "false",
+      "forfait_id": "<FORFAIT_HD>",
+      "prix_ttc": "3815.00",
+      "taux_tva": "9.00",
+      "montant_ht": "3500.00"
+    }
+  ]
+}

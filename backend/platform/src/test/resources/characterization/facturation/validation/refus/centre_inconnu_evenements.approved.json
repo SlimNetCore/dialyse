@@ -1,0 +1,11 @@
+[
+  {
+    "billedSeancesCount": 0,
+    "centerId": "<UUID_GENERE_1>",
+    "invoicesCount": 0,
+    "occurredAt": "<HORODATAGE>",
+    "periodEnd": "2026-01-31",
+    "periodStart": "2026-01-01",
+    "totalTtc": "0"
+  }
+]

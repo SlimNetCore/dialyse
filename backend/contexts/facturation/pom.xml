@@ -22,6 +22,12 @@
     </properties>
 
     <dependencies>
+        <!-- Langage publié de la Comptabilité (ParametrageFiscal, ADR 0030) : seul point d'entrée vers ce contexte (ArchUnit) -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-comptabilite</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>

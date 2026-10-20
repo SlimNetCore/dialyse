@@ -1,0 +1,35 @@
+{
+  "seances": [
+    {
+      "id": "<S_FACTUREE_04>",
+      "date_seance": "2026-10-16",
+      "statut": "FACTUREE",
+      "facture_id": null,
+      "statut_avant_exclusion": null,
+      "exclusion_absence_id": null,
+      "forfait_override_updated_by": null,
+      "override_date_nulle": "true"
+    },
+    {
+      "id": "<S_ABSENTE_REELLE_02>",
+      "date_seance": "<J-2>",
+      "statut": "ABSENT",
+      "facture_id": null,
+      "statut_avant_exclusion": null,
+      "exclusion_absence_id": null,
+      "forfait_override_updated_by": null,
+      "override_date_nulle": "true"
+    },
+    {
+      "id": "<S_VALIDEE_03>",
+      "date_seance": "<J-3>",
+      "statut": "VALIDEE",
+      "facture_id": null,
+      "statut_avant_exclusion": null,
+      "exclusion_absence_id": null,
+      "forfait_override_updated_by": null,
+      "override_date_nulle": "true"
+    }
+  ],
+  "absences": []
+}

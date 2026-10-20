@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "ABSENCE_DELAI_DEPASSE",
+    "detail": "Une absence ne peut plus être déclarée au-delà de 60 jours",
+    "instance": "/api/v1/facturation/preview/seances/<S_ANCIENNE_90>/exclude",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

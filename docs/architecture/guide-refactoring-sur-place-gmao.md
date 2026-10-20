@@ -88,6 +88,25 @@ contrat PostgreSQL 16 prouve ce que H2 ne peut pas voir (l'ancien `RANDOM_UUID()
 identifiant généré en Java). Écarts décidés : KB-CPT-21, 16 (400 sur dates inversées et chevauchement), 20 (cache évincé
 par `@CacheEvict`). Fiche : `.ddd/migration/slices/comptabilite-c2-mapping-tva.md`.
 
+## 6 quater. Facturation, slice F2 : simulation, exclusion réversible (2026-10-20)
+
+Même module `contexts/facturation`. Particularités : (1) le domaine du calcul est **pur et sans I/O** (`Simulation`,
+`FactureSimulee`, `PolitiqueDeForfaitApplique`, `NumerotationPrevisionnelle`) ; les lectures des séances, patients,
+forfaits et prises en charge passent par **une ACL JDBC dans le module** (`infrastructure/acl/legacyseance`), sans
+dépendre du module `bc-seance` ; (2) le taux de TVA vient du **langage publié** de la Comptabilité (dépendance Maven
+vers
+`contexts-comptabilite`, ArchUnit : seul `publishedlanguage` est utilisable) ; (3) l'exclusion appelle un autre module
+legacy (Absences) : un **port** de l'application (`AbsencesDesPatients`) et une ACL **côté `platform`**
+(`infrastructure/acl/facturation`), seule à pouvoir appeler le service du module ; (4) une écriture et le recalcul dans
+la **même transaction** (`UniteDeTravail`) : un refus de l'autre module annule tout (testé sur la base) ; (5) la
+migration
+est **additive** (V39, deux colonnes nullables) et vue par le schéma de développement (`schema.sql`) ; (6) le test de
+contrat PostgreSQL 16 (`SeancesPostgresContractIT`) passe sur le schéma Flyway pur. Écarts décidés : KB-FAC-13 (motif,
+absence déclarée, réinclusion, ADR 0031), 14 (403 centre), 15 (route `ADMIN`), 16 (TVA à la fin de période). Piège
+rencontré : un test de caractérisation qui exclut une séance dépend de la date du jour (le module Absences refuse une
+absence de plus de 60 jours) : dates relatives au jour d'exécution, remplacées par des alias dans les goldens.
+Fiche : `.ddd/migration/slices/facturation-f2-simulation.md`.
+
 ## 7. Refaire sur un autre projet
 1. Cartographier (scan, glossaire) et choisir une petite slice verticale.
 2. Écrire le filet de caractérisation HTTP et le rendre vert sur l'existant.

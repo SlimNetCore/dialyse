@@ -1,0 +1,14 @@
+{
+  "factures": [],
+  "lignes": [],
+  "sequences": [],
+  "seances": [
+    {
+      "date_seance": "2026-01-05",
+      "facture_id": null,
+      "id": "<S_ZERROUKI_05>",
+      "patient_id": "<P_CENTRE_B>",
+      "statut": "VALIDEE"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "BUSINESS_RULE_VIOLATION",
+    "detail": "Seance introuvable ou non reinclusable",
+    "instance": "/api/v1/facturation/preview/seances/<S_CENTRE_B_03>/include",
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

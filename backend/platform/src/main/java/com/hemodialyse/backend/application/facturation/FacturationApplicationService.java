@@ -28,22 +28,6 @@ public class FacturationApplicationService implements FacturationUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public FacturationPreviewResult preview(FacturationPreviewQuery query) {
-        return delegate.preview(query);
-    }
-
-    @Override
-    public FacturationPreviewResult excludeSeance(FacturationExcludeSeanceCommand command) {
-        return delegate.excludeSeance(command);
-    }
-
-    @Override
-    public FacturationPreviewResult updateSeanceForfait(FacturationUpdateSeanceForfaitCommand command) {
-        return delegate.updateSeanceForfait(command);
-    }
-
-    @Override
     public FacturationValidationResult validate(FacturationValidateCommand command) {
         FacturationValidationResult result = delegate.validate(command);
         LocalDate periodStart = command.periodStart() != null

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Rejeu de la slice F1 (referentiel de facturation) sur un PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit en
+# Rejeu des slices F1 (referentiel de facturation) et F2 (simulation : migration V39, ACL des seances, sequence) sur un
+# PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit en
 # sortie. Chaine Flyway V1..Vn (psql), constat KB-FAC-07 sur le schema Flyway pur (l'ancien MERGE ... KEY de
 # FacturationSettingsJdbcAdapter, syntaxe H2, doit ECHOUER), puis contrats PostgreSQL : parametres de facturation (contexte
 # facturation, UPDATE puis INSERT) et regles de TVA (contexte comptabilite : ajout, lecture par identifiant, remplacement,
@@ -34,9 +35,18 @@ echo "-- l'ecriture actuelle (UPDATE puis INSERT) passe"
   -c "INSERT INTO facturation_settings (center_id, code_format, regroupement_multi_forfait, updated_at, updated_by) VALUES ('99996700-0000-0000-0000-00000000000c', 'FAC-{SEQ}', true, CURRENT_TIMESTAMP, 'rejeu')" \
   -c "DELETE FROM facturation_settings WHERE center_id = '99996700-0000-0000-0000-00000000000c'" || RC=1
 
+echo "-- F2 (migration V39) : les deux colonnes de memoire de l'exclusion existent et sont nullables"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM information_schema.columns WHERE table_name = 'seances' AND column_name IN ('statut_avant_exclusion', 'exclusion_absence_id') AND is_nullable = 'YES'" | tr -d '\r' | grep -qx 2 \
+  && echo "colonnes presentes (2/2)" || { echo "ATTENDU : 2 colonnes nullables"; RC=1; }
+echo "-- F2 : V39 est idempotente (rejeu sans erreur)"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V39__facturation_exclusion_de_seance.sql" >/dev/null && echo "rejeu V39 ok" || RC=1
+
 cd "$RACINE/backend"
 echo "=== Contrat PostgreSQL des parametres (contexte facturation) ==="
 ./mvnw -o -pl contexts/facturation test -Dtest='ParametresPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
+echo "=== Contrats PostgreSQL de la simulation F2 (seances : exclusion, reinclusion, surcharge ; sequence) ==="
+./mvnw -o -pl contexts/facturation test -Dtest='SeancesPostgresContractIT,SequencePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrat PostgreSQL des regles de TVA (contexte comptabilite) ==="
 ./mvnw -o -pl contexts/comptabilite test -Dtest='RegleTvaPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \

@@ -63,6 +63,7 @@ class FacturationRestControllerIntegrationTest {
 
     @AfterEach
     void cleanup() {
+        jdbc.update("DELETE FROM absence_patient WHERE center_id IN (?, ?)", CENTER_ID, OTHER_CENTER_ID);
         jdbc.update("DELETE FROM lignes_ecriture WHERE ecriture_id IN (SELECT id FROM ecritures_comptables WHERE center_id IN (?, ?))", CENTER_ID, OTHER_CENTER_ID);
         jdbc.update("DELETE FROM ecritures_comptables WHERE center_id IN (?, ?)", CENTER_ID, OTHER_CENTER_ID);
         jdbc.update("DELETE FROM facturation_settings WHERE center_id IN (?, ?)", CENTER_ID, OTHER_CENTER_ID);
@@ -89,7 +90,7 @@ class FacturationRestControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/facturation/preview")
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.centerId").value(CENTER_ID.toString()))
                 .andExpect(jsonPath("$.totalFactures").value(1))
@@ -116,7 +117,7 @@ class FacturationRestControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/facturation/preview")
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.invoices[0].lines[0].forfaitLabel").value("Forfait HD"));
     }
@@ -263,19 +264,25 @@ class FacturationRestControllerIntegrationTest {
 
     @Test
     void preview_exclude_seance_should_mark_seance_absent_and_recalculate() throws Exception {
+        // F2 : l'exclusion déclare une absence de patient (motif obligatoire, délai de 60 jours du module Absences) :
+        // la séance est donc datée de récemment, et la période demandée est relative au jour d'exécution.
+        LocalDate recente = LocalDate.now().minusDays(2);
+        jdbc.update("UPDATE seances SET date_seance = ? WHERE id = ?", Date.valueOf(recente), SEANCE_ID);
         String payload = """
                 {
                   "centerId": "%s",
                   "userId": "admin",
-                  "month": "2026-08",
+                  "motif": "MALADIE",
+                  "periodStart": "%s",
+                  "periodEnd": "%s",
                   "regroupementMultiForfait": true
                 }
-                """.formatted(CENTER_ID);
+                """.formatted(CENTER_ID, LocalDate.now().minusDays(10), LocalDate.now());
 
         mockMvc.perform(post("/api/v1/facturation/preview/seances/{seanceId}/exclude", SEANCE_ID)
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalFactures").value(0));
 
@@ -318,10 +325,19 @@ class FacturationRestControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/facturation/preview/seances/{seanceId}/forfait", SEANCE_ID)
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.invoices[0].lines[0].forfaitId").value(FORFAIT_ALT_ID.toString()))
                 .andExpect(jsonPath("$.invoices[0].lines[0].lineHt").value(5200.00));
+    }
+
+    /**
+     * Administrateur de session rattaché au centre : les routes de simulation (contexte facturation) confrontent le centre demandé
+     * à celui de la session (KB-FAC-14).
+     */
+    private org.springframework.test.web.servlet.request.RequestPostProcessor adminDuCentre() {
+        return user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(UUID.randomUUID().toString(),
+                CENTER_ID.toString(), "admin", "", java.util.List.of("ADMIN"), true));
     }
 
     private void seedData() {

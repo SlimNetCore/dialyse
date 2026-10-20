@@ -495,6 +495,11 @@ ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS forfait_override_updated_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE IF EXISTS seances
     ADD COLUMN IF NOT EXISTS forfait_override_updated_by VARCHAR(100);
+-- Mémoire de l'exclusion d'une séance de la facturation (migration V39, ADR 0031)
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS statut_avant_exclusion VARCHAR (20);
+ALTER TABLE IF EXISTS seances
+    ADD COLUMN IF NOT EXISTS exclusion_absence_id UUID;
 
 -- ••• Reprise des données d'un système existant (voir aussi migration/V3__reprise_donnees.sql) •••
 
