@@ -1144,7 +1144,19 @@
     "PREVIEW": {
       "TITLE": "Aperçu de facturation",
       "NOT_PERSISTED": "Aperçu non enregistré : aucune écriture en base tant que vous ne validez pas.",
-      "EDIT_NOTE": "Vous pouvez affiner cette simulation : retirer une séance (elle passera ABSENT) ou ajuster son forfait avant validation.",
+      "EDIT_NOTE": "Vous pouvez affiner cette simulation : retirer une séance en indiquant le motif de l'absence (elle passera ABSENT) ou ajuster son forfait avant validation. Une séance retirée peut être réincluse tant qu'elle n'est pas facturée.",
+      "TVA_NOTE": "La TVA est calculée au taux en vigueur à la fin de la période facturée.",
+      "EXCLUSION": {
+        "MOTIF": "Motif de l'absence",
+        "COMMENTAIRE": "Commentaire",
+        "COMMENTAIRE_REQUIS": "Un commentaire est obligatoire avec le motif « Autre ».",
+        "CONFIRM": "Retirer la séance"
+      },
+      "EXCLUDED": {
+        "TITLE": "Séances retirées de cette simulation",
+        "HINT": "Elles ne sont pas facturées. Réincluez-les tant que la période n'est pas facturée.",
+        "REINCLUDE": "Réinclure"
+      },
       "SESSION_DETAILS": "Détail des séances de la facture",
       "EXCLUDE_SESSION": "Retirer de la facturation",
       "VALIDATE": "Valider la facturation",
@@ -1203,9 +1215,12 @@
       "VALIDATED": "Facturation validée avec succès.",
       "SETTINGS_SAVED": "Paramètres de facturation enregistrés.",
       "SEANCE_EXCLUDED": "La séance a été retirée de la facturation et marquée absente.",
+      "SEANCE_REINCLUDED": "La séance a été réincluse dans la facturation et la simulation recalculée.",
       "SEANCE_FORFAIT_UPDATED": "Le forfait de la séance a été mis à jour et la simulation recalculée."
     },
     "ERROR": {
+      "NUMERO_DEJA_PRIS": "Le numéro de facture est déjà pris, aucune facture n'a été émise. Relancez la validation ; si le message persiste, contactez l'administrateur : la séquence de numérotation est peut-être en retard.",
+      "SEANCES_SANS_FORFAIT": "Émission impossible : {{count}} séance(s) n'ont pas de forfait. Corrigez la prise en charge du patient, ou imposez un forfait à ces séances dans la simulation, puis validez de nouveau.",
       "NO_PREVIEW": "Aucun aperçu disponible. Lancez d'abord le calcul.",
       "GENERIC": "Erreur lors de l'opération de facturation."
     }

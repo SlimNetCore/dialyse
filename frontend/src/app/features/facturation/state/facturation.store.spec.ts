@@ -1,7 +1,8 @@
 import {provideZonelessChangeDetection} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {of} from 'rxjs';
+import {HttpErrorResponse} from '@angular/common/http';
+import {of, throwError} from 'rxjs';
 import {BackendApiService, FacturationPreviewResponse} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {FacturationStore} from './facturation.store';
@@ -61,6 +62,7 @@ describe('FacturationStore', () => {
   let mockApi: {
     previewFacturation: ReturnType<typeof vi.fn>;
     excludeSeanceFromPreview: ReturnType<typeof vi.fn>;
+    includeSeanceInPreview: ReturnType<typeof vi.fn>;
     updatePreviewSeanceForfait: ReturnType<typeof vi.fn>;
     validateFacturation: ReturnType<typeof vi.fn>;
     getFacturationDashboard: ReturnType<typeof vi.fn>;
@@ -73,6 +75,7 @@ describe('FacturationStore', () => {
     mockApi = {
       previewFacturation: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
       excludeSeanceFromPreview: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
+      includeSeanceInPreview: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
       updatePreviewSeanceForfait: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_B))),
       validateFacturation: vi.fn().mockReturnValue(of({createdInvoices: 1})),
       getFacturationDashboard: vi.fn().mockReturnValue(of({
@@ -129,15 +132,91 @@ describe('FacturationStore', () => {
     store.setActiveCenterId(CENTER_ID);
     store.setMonth('2026-08');
 
-    store.removeSeanceFromPreview({centerId: CENTER_ID, userId: USER_ID, seanceId: SEANCE_ID});
+    store.calculatePreview({centerId: CENTER_ID});
+    store.removeSeanceFromPreview({
+      centerId: CENTER_ID,
+      userId: USER_ID,
+      seanceId: SEANCE_ID,
+      motif: 'AUTRE',
+      commentaire: '  Patient en voyage  ',
+    });
 
     expect(mockApi.excludeSeanceFromPreview).toHaveBeenCalledWith(SEANCE_ID, {
       centerId: CENTER_ID,
       userId: USER_ID,
+      motif: 'AUTRE',
+      commentaire: 'Patient en voyage',
       month: '2026-08',
       regroupementMultiForfait: true,
     });
     expect(store.successMessage()).toBe('FACTURATION.SUCCESS.SEANCE_EXCLUDED');
+    expect(store.excludedSeances()).toEqual([
+      {seanceId: SEANCE_ID, seanceDate: '2026-08-12', patientLabel: 'PAT-001 Patient Test', motif: 'AUTRE'},
+    ]);
+  });
+
+  it('n envoie pas de commentaire vide avec l exclusion', () => {
+    const store = TestBed.inject(FacturationStore);
+    store.setMonth('2026-08');
+
+    store.removeSeanceFromPreview({
+      centerId: CENTER_ID,
+      userId: USER_ID,
+      seanceId: SEANCE_ID,
+      motif: 'MALADIE',
+      commentaire: ' '
+    });
+
+    expect(mockApi.excludeSeanceFromPreview.mock.calls[0][1]).not.toHaveProperty('commentaire');
+  });
+
+  it('reinclut une seance exclue, relance la simulation et la retire de la liste', () => {
+    const store = TestBed.inject(FacturationStore);
+    store.setMonth('2026-08');
+    store.calculatePreview({centerId: CENTER_ID});
+    store.removeSeanceFromPreview({centerId: CENTER_ID, userId: USER_ID, seanceId: SEANCE_ID, motif: 'MALADIE'});
+
+    store.reincludeSeanceInPreview({centerId: CENTER_ID, seanceId: SEANCE_ID});
+
+    expect(mockApi.includeSeanceInPreview).toHaveBeenCalledWith(SEANCE_ID, {
+      centerId: CENTER_ID,
+      month: '2026-08',
+      regroupementMultiForfait: true,
+    });
+    expect(store.excludedSeances()).toEqual([]);
+    expect(store.successMessage()).toBe('FACTURATION.SUCCESS.SEANCE_REINCLUDED');
+  });
+
+  it('affiche le detail du backend quand la reinclusion est refusee (422)', () => {
+    mockApi.includeSeanceInPreview.mockReturnValue(throwError(() => new HttpErrorResponse({
+      status: 422,
+      error: {detail: 'Cette séance n\'a pas été exclue par la facturation'},
+    })));
+    const store = TestBed.inject(FacturationStore);
+
+    store.reincludeSeanceInPreview({centerId: CENTER_ID, seanceId: SEANCE_ID});
+
+    expect(store.error()).toBe('Cette séance n\'a pas été exclue par la facturation');
+    expect(store.seanceActionLoadingId()).toBeNull();
+  });
+
+  it('expose le 409 numero deja pris et le 422 seances sans forfait a la validation', () => {
+    const store = TestBed.inject(FacturationStore);
+    store.calculatePreview({centerId: CENTER_ID});
+
+    mockApi.validateFacturation.mockReturnValueOnce(throwError(() => new HttpErrorResponse({
+      status: 409, error: {code: 'NUMERO_DE_FACTURE_DEJA_PRIS', detail: 'FAC-2026-000001'},
+    })));
+    store.validateFacturation({centerId: CENTER_ID, userId: USER_ID});
+    expect(store.error()).toBe('FACTURATION.ERROR.NUMERO_DEJA_PRIS');
+    expect(store.preview()).not.toBeNull();
+
+    mockApi.validateFacturation.mockReturnValueOnce(throwError(() => new HttpErrorResponse({
+      status: 422, error: {code: 'SEANCES_SANS_FORFAIT', detail: '2 séances', seancesSansForfait: 2},
+    })));
+    store.validateFacturation({centerId: CENTER_ID, userId: USER_ID});
+    expect(store.error()).toBe('FACTURATION.ERROR.SEANCES_SANS_FORFAIT');
+    expect(store.errorParams()).toEqual({count: 2, detail: '2 séances'});
   });
 
   it('met a jour le forfait d une seance dans le preview et recalcule', () => {

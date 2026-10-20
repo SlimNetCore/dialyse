@@ -636,3 +636,24 @@ mat-card {
   width: 18px;
   height: 18px;
 }
+
+.exclusion-form {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.excluded-seances ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.excluded-seances li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}

@@ -1144,7 +1144,19 @@
     "PREVIEW": {
       "TITLE": "Preview n tfaturin",
       "NOT_PERSISTED": "Preview ur yettwaḥraz ara: ulac tira deg uzadur alamma tsentmeḍ.",
-      "EDIT_NOTE": "Tzemreḍ ad tesseɣtiḍ asemsel-agi: kkes tamsirt (ad tuɣal ABSENT) neɣ beddel afurki-ines send asentem.",
+      "EDIT_NOTE": "Tzemreḍ ad tesseɣtiḍ asemsel-agi: kkes tamsirt s wawal n ssebba n userɣu (ad tuɣal ABSENT) neɣ beddel afurki-ines send asentem. Tamsirt yettwakksen tzemred ad tettwarr ɣer ufeter alamma ur tettwafeter ara.",
+      "TVA_NOTE": "TVA tettwasiḍen s uṭerfiw yettwaseqdacen deg taggara n tallit n ufeter.",
+      "EXCLUSION": {
+        "MOTIF": "Ssebba n userɣu",
+        "COMMENTAIRE": "Awennit",
+        "COMMENTAIRE_REQUIS": "Awennit yewjeb ma yella ssebba « Wayeḍ ».",
+        "CONFIRM": "Kkes tamsirt"
+      },
+      "EXCLUDED": {
+        "TITLE": "Timsirin yettwakksen seg usemsel-agi",
+        "HINT": "Ur ttwafetrent ara. Err-itent ɣer ufeter alamma ur tettwafeter ara tallit.",
+        "REINCLUDE": "Err ɣer ufeter"
+      },
       "SESSION_DETAILS": "Talqayt n tmsirin n tfaturt",
       "EXCLUDE_SESSION": "Kkes seg ufeter",
       "VALIDATE": "Sentem afeter",
@@ -1203,9 +1215,12 @@
       "VALIDATED": "Afeter yettusentem akken ilaq.",
       "SETTINGS_SAVED": "Iɣewwaren n ufeter ttwasekelsen.",
       "SEANCE_EXCLUDED": "Tamsirt tettwakkes seg ufeter yerna tettwamerked d ABSENT.",
+      "SEANCE_REINCLUDED": "Tamsirt tuɣal ɣer ufeter yerna asemsel yettwasiḍen tikkelt-nniḍen.",
       "SEANCE_FORFAIT_UPDATED": "Afurki n tmsirt yettwaleqqem yerna asemsel yettwasiḍen tikkelt-nniḍen."
     },
     "ERROR": {
+      "NUMERO_DEJA_PRIS": "Uṭṭun n ufeter yettwaseqdac yakan, ulac afeter i yettwasefken. Ɛreḍ tikkelt-nniḍen asentem; ma yella izen yeqqim, nermes anedbal: ahat amḍan n uṭṭunen yeqqen.",
+      "SEANCES_SANS_FORFAIT": "Asefk ur izmir ara: {{count}} n tmsirin ur sɛint ara afurki. Ṣeḥḥ tuṭṭfa n unelmad neɣ sewḥel afurki i tmsirin-agi deg usemsel, sakin sentem tikkelt-nniḍen.",
       "NO_PREVIEW": "Ulac preview. Ma ulac aḥsab, bdu s usiḍen.",
       "GENERIC": "Ameskar n ufeter ur yeddi ara."
     }

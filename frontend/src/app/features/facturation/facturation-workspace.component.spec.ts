@@ -23,6 +23,8 @@ describe('FacturationWorkspaceComponent', () => {
     loadRevenueTrend: vi.fn(),
     validateFacturation: vi.fn(),
     removeSeanceFromPreview: vi.fn(),
+    reincludeSeanceInPreview: vi.fn(),
+    excludedSeances: vi.fn(() => []),
     updateSeanceForfaitInPreview: vi.fn(),
     setActiveCenterId: vi.fn(),
     loadSettings: vi.fn(),
@@ -94,6 +96,43 @@ describe('FacturationWorkspaceComponent', () => {
       userId: 'billing.user',
     });
     expect(facturationStoreMock.loadDashboard.mock.calls.length).toBe(dashboardRefreshCallsBeforeValidation);
+  });
+
+  it('envoie l exclusion avec le motif et le commentaire saisis, et refuse AUTRE sans commentaire', () => {
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    component['onConfirmExclusion']();
+    expect(facturationStoreMock.removeSeanceFromPreview).not.toHaveBeenCalled();
+
+    component['onOpenExclusion']('seance-1');
+    component['onExclusionMotif']('AUTRE');
+    expect(component['exclusionValid']()).toBe(false);
+    component['onConfirmExclusion']();
+    expect(facturationStoreMock.removeSeanceFromPreview).not.toHaveBeenCalled();
+
+    component['onExclusionCommentaire']('Panne du transport');
+    expect(component['exclusionValid']()).toBe(true);
+    component['onConfirmExclusion']();
+
+    expect(facturationStoreMock.removeSeanceFromPreview).toHaveBeenCalledWith({
+      centerId: '11111111-1111-1111-1111-111111111111',
+      userId: 'billing.user',
+      seanceId: 'seance-1',
+      motif: 'AUTRE',
+      commentaire: 'Panne du transport',
+    });
+    expect(component['exclusionDraft']()).toBeNull();
+  });
+
+  it('reinclut une seance avec le centre de la session', () => {
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    component['onReincludeSeance']('seance-1');
+
+    expect(facturationStoreMock.reincludeSeanceInPreview).toHaveBeenCalledWith({
+      centerId: '11111111-1111-1111-1111-111111111111',
+      seanceId: 'seance-1',
+    });
   });
 
   it('imprime la synthese mensuelle avec centerId et periode du mois actif', () => {

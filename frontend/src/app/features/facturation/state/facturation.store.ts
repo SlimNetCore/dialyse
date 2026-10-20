@@ -11,6 +11,9 @@ import {
   ReferentialForfait,
 } from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
+import {MotifAbsence} from '../../../core/api/absence-patient-api.service';
+import {facturationErrorState} from './facturation-errors';
+import {SeanceExclue} from './facturation-exclusion';
 
 export type FacturationPeriodMode = 'month' | 'custom';
 
@@ -41,7 +44,9 @@ type FacturationState = {
   settingsDraft: FacturationSettings | null;
   forfaits: ReferentialForfait[];
   seanceActionLoadingId: string | null;
+  excludedSeances: SeanceExclue[];
   error: string | null;
+  errorParams: Record<string, unknown> | null;
   successMessage: string | null;
 };
 
@@ -64,7 +69,9 @@ const initialState: FacturationState = {
   settingsDraft: null,
   forfaits: [],
   seanceActionLoadingId: null,
+  excludedSeances: [],
   error: null,
+  errorParams: null,
   successMessage: null,
 };
 
@@ -102,22 +109,22 @@ export const FacturationStore = signalStore(
       patchState(store, {activeCenterId});
     },
     setPeriodMode(periodMode: FacturationPeriodMode): void {
-      patchState(store, {periodMode, preview: null});
+      patchState(store, {periodMode, preview: null, excludedSeances: []});
     },
     setMonth(month: string): void {
-      patchState(store, {month, preview: null});
+      patchState(store, {month, preview: null, excludedSeances: []});
     },
     setStartDate(startDate: string): void {
-      patchState(store, {startDate, preview: null});
+      patchState(store, {startDate, preview: null, excludedSeances: []});
     },
     setEndDate(endDate: string): void {
-      patchState(store, {endDate, preview: null});
+      patchState(store, {endDate, preview: null, excludedSeances: []});
     },
     resetPreviewActions(): void {
       patchState(store, {seanceActionLoadingId: null});
     },
     clearError(): void {
-      patchState(store, {error: null});
+      patchState(store, {error: null, errorParams: null});
     },
     clearSuccess(): void {
       patchState(store, {successMessage: null});
@@ -145,7 +152,7 @@ export const FacturationStore = signalStore(
             catchError((err: unknown) => {
               patchState(store, {
                 settingsLoading: false,
-                error: errorMessage(err),
+                ...facturationErrorState(err),
                 settings: defaultSettings(),
                 settingsDraft: defaultSettings(),
               });
@@ -177,7 +184,7 @@ export const FacturationStore = signalStore(
           api.getFacturationDashboard(centerId, month).pipe(
             tap((dashboard) => patchState(store, {dashboard, dashboardLoading: false})),
             catchError((err: unknown) => {
-              patchState(store, {dashboardLoading: false, dashboard: null, error: errorMessage(err)});
+              patchState(store, {dashboardLoading: false, dashboard: null, ...facturationErrorState(err)});
               return EMPTY;
             })
           )
@@ -224,7 +231,7 @@ export const FacturationStore = signalStore(
           }).pipe(
             tap((preview) => patchState(store, {preview, previewLoading: false})),
             catchError((err: unknown) => {
-              patchState(store, {previewLoading: false, preview: null, error: errorMessage(err)});
+              patchState(store, {previewLoading: false, preview: null, ...facturationErrorState(err)});
               return EMPTY;
             })
           )
@@ -232,18 +239,30 @@ export const FacturationStore = signalStore(
       )
     ),
 
-    removeSeanceFromPreview: rxMethod<{ centerId: string; userId: string; seanceId: string }>(
+    removeSeanceFromPreview: rxMethod<{
+      centerId: string;
+      userId: string;
+      seanceId: string;
+      motif: MotifAbsence;
+      commentaire?: string
+    }>(
       pipe(
         tap(({seanceId}) => patchState(store, {
           previewLoading: true,
           error: null,
+          errorParams: null,
           successMessage: null,
           seanceActionLoadingId: seanceId
         })),
-        switchMap(({centerId, userId, seanceId}) =>
-          api.excludeSeanceFromPreview(seanceId, {
+        switchMap(({centerId, userId, seanceId, motif, commentaire}) => {
+          // la séance disparaît de la simulation renvoyée : on la retient maintenant pour pouvoir la réinclure
+          const exclue = findSeanceInPreview(store.preview(), seanceId);
+          const note = commentaire?.trim();
+          return api.excludeSeanceFromPreview(seanceId, {
             centerId,
             userId,
+            motif,
+            ...(note ? {commentaire: note} : {}),
             ...periodPayload(store.periodMode(), store.month(), store.startDate(), store.endDate()),
             regroupementMultiForfait: store.settingsDraft()?.regroupementMultiForfait ?? true,
           }).pipe(
@@ -251,10 +270,45 @@ export const FacturationStore = signalStore(
               preview,
               previewLoading: false,
               seanceActionLoadingId: null,
+              excludedSeances: [
+                ...store.excludedSeances().filter((item) => item.seanceId !== seanceId),
+                {seanceId, seanceDate: exclue?.seanceDate ?? '', patientLabel: exclue?.patientLabel ?? '', motif},
+              ],
               successMessage: 'FACTURATION.SUCCESS.SEANCE_EXCLUDED',
             })),
             catchError((err: unknown) => {
-              patchState(store, {previewLoading: false, seanceActionLoadingId: null, error: errorMessage(err)});
+              patchState(store, {previewLoading: false, seanceActionLoadingId: null, ...facturationErrorState(err)});
+              return EMPTY;
+            })
+          );
+        })
+      )
+    ),
+
+    reincludeSeanceInPreview: rxMethod<{ centerId: string; seanceId: string }>(
+      pipe(
+        tap(({seanceId}) => patchState(store, {
+          previewLoading: true,
+          error: null,
+          errorParams: null,
+          successMessage: null,
+          seanceActionLoadingId: seanceId
+        })),
+        switchMap(({centerId, seanceId}) =>
+          api.includeSeanceInPreview(seanceId, {
+            centerId,
+            ...periodPayload(store.periodMode(), store.month(), store.startDate(), store.endDate()),
+            regroupementMultiForfait: store.settingsDraft()?.regroupementMultiForfait ?? true,
+          }).pipe(
+            tap((preview) => patchState(store, {
+              preview,
+              previewLoading: false,
+              seanceActionLoadingId: null,
+              excludedSeances: store.excludedSeances().filter((item) => item.seanceId !== seanceId),
+              successMessage: 'FACTURATION.SUCCESS.SEANCE_REINCLUDED',
+            })),
+            catchError((err: unknown) => {
+              patchState(store, {previewLoading: false, seanceActionLoadingId: null, ...facturationErrorState(err)});
               return EMPTY;
             })
           )
@@ -285,7 +339,7 @@ export const FacturationStore = signalStore(
               successMessage: 'FACTURATION.SUCCESS.SEANCE_FORFAIT_UPDATED',
             })),
             catchError((err: unknown) => {
-              patchState(store, {previewLoading: false, seanceActionLoadingId: null, error: errorMessage(err)});
+              patchState(store, {previewLoading: false, seanceActionLoadingId: null, ...facturationErrorState(err)});
               return EMPTY;
             })
           )
@@ -312,10 +366,11 @@ export const FacturationStore = signalStore(
             tap(() => patchState(store, {
               validating: false,
               preview: null,
+              excludedSeances: [],
               successMessage: 'FACTURATION.SUCCESS.VALIDATED',
             })),
             catchError((err: unknown) => {
-              patchState(store, {validating: false, error: errorMessage(err)});
+              patchState(store, {validating: false, ...facturationErrorState(err)});
               return EMPTY;
             })
           );
@@ -341,7 +396,7 @@ export const FacturationStore = signalStore(
               successMessage: 'FACTURATION.SUCCESS.SETTINGS_SAVED',
             })),
             catchError((err: unknown) => {
-              patchState(store, {savingSettings: false, error: errorMessage(err)});
+              patchState(store, {savingSettings: false, ...facturationErrorState(err)});
               return EMPTY;
             })
           );
@@ -404,19 +459,18 @@ function buildMonthSeries(endingMonth: string, months: number): string[] {
   return result;
 }
 
-function errorMessage(err: unknown): string {
-  if (err && typeof err === 'object') {
-    const e = err as Record<string, unknown>;
-    if (typeof e['message'] === 'string') {
-      return e['message'];
-    }
-    if (e['error'] && typeof e['error'] === 'object') {
-      const inner = e['error'] as Record<string, unknown>;
-      if (typeof inner['message'] === 'string') {
-        return inner['message'];
-      }
+/** Retrouve la séance (date, patient) dans la simulation courante, pour la lister une fois exclue. */
+function findSeanceInPreview(preview: FacturationPreviewResponse | null, seanceId: string):
+  { seanceDate: string; patientLabel: string } | null {
+  for (const invoice of preview?.invoices ?? []) {
+    const seance = invoice.seances.find((item) => item.seanceId === seanceId);
+    if (seance) {
+      return {
+        seanceDate: seance.seanceDate,
+        patientLabel: `${invoice.patientCode ?? ''} ${invoice.patientFullName ?? ''}`.trim(),
+      };
     }
   }
-  return 'FACTURATION.ERROR.GENERIC';
+  return null;
 }
 

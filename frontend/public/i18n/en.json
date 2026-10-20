@@ -1144,7 +1144,19 @@
     "PREVIEW": {
       "TITLE": "Billing preview",
       "NOT_PERSISTED": "Unsaved preview: no database write occurs until you validate.",
-      "EDIT_NOTE": "You can refine this simulation: remove a session (it becomes ABSENT) or change its package before validation.",
+      "EDIT_NOTE": "You can refine this simulation: remove a session by giving the absence reason (it becomes ABSENT) or change its package before validation. A removed session can be re-included until it is billed.",
+      "TVA_NOTE": "VAT is computed at the rate in force at the end of the billed period.",
+      "EXCLUSION": {
+        "MOTIF": "Absence reason",
+        "COMMENTAIRE": "Comment",
+        "COMMENTAIRE_REQUIS": "A comment is required with the reason \"Other\".",
+        "CONFIRM": "Remove session"
+      },
+      "EXCLUDED": {
+        "TITLE": "Sessions removed from this simulation",
+        "HINT": "They are not billed. Re-include them until the period is billed.",
+        "REINCLUDE": "Re-include"
+      },
       "SESSION_DETAILS": "Invoice session details",
       "EXCLUDE_SESSION": "Remove from billing",
       "VALIDATE": "Validate billing",
@@ -1203,9 +1215,12 @@
       "VALIDATED": "Billing validated successfully.",
       "SETTINGS_SAVED": "Billing settings saved.",
       "SEANCE_EXCLUDED": "The session was removed from billing and marked absent.",
+      "SEANCE_REINCLUDED": "The session was re-included in billing and the simulation recalculated.",
       "SEANCE_FORFAIT_UPDATED": "Session package updated and simulation recalculated."
     },
     "ERROR": {
+      "NUMERO_DEJA_PRIS": "The invoice number is already taken; no invoice was issued. Run the validation again; if the message persists, contact the administrator: the numbering sequence may be behind.",
+      "SEANCES_SANS_FORFAIT": "Cannot issue invoices: {{count}} session(s) have no package. Fix the patient's coverage, or force a package on these sessions in the simulation, then validate again.",
       "NO_PREVIEW": "No preview available. Run a calculation first.",
       "GENERIC": "Billing operation failed."
     }

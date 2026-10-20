@@ -596,6 +596,18 @@ export type FacturationValidatePayload = {
 export type FacturationPreviewExcludeSeancePayload = {
   centerId: string;
   userId: string;
+  /** Motif d'absence (obligatoire, mêmes valeurs que le module Absences). */
+  motif: string;
+  /** Obligatoire avec le motif AUTRE. */
+  commentaire?: string;
+  month?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  regroupementMultiForfait: boolean;
+};
+
+export type FacturationPreviewIncludeSeancePayload = {
+  centerId: string;
   month?: string;
   periodStart?: string;
   periodEnd?: string;
@@ -1196,6 +1208,10 @@ export class BackendApiService {
 
   excludeSeanceFromPreview(seanceId: string, payload: FacturationPreviewExcludeSeancePayload): Observable<FacturationPreviewResponse> {
     return this.http.post<FacturationPreviewResponse>(`${this.baseUrl}/facturation/preview/seances/${seanceId}/exclude`, payload);
+  }
+
+  includeSeanceInPreview(seanceId: string, payload: FacturationPreviewIncludeSeancePayload): Observable<FacturationPreviewResponse> {
+    return this.http.post<FacturationPreviewResponse>(`${this.baseUrl}/facturation/preview/seances/${seanceId}/include`, payload);
   }
 
   updatePreviewSeanceForfait(seanceId: string, payload: FacturationPreviewUpdateForfaitPayload): Observable<FacturationPreviewResponse> {

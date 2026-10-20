@@ -95,7 +95,7 @@
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       }
       @if (store.error()) {
-        <p class="feedback error">{{ store.error() | translate }}</p>
+        <p class="feedback error">{{ store.error() | translate: (store.errorParams() ?? undefined) }}</p>
       }
       @if (store.successMessage()) {
         <p class="feedback success">{{ store.successMessage() | translate }}</p>
@@ -123,6 +123,31 @@
           <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.TVA' | translate }}</span><strong>{{ preview.totalTva | number:'1.2-2' }}</strong></div>
           <div class="app-data-pill"><span>{{ 'FACTURATION.PREVIEW.KPI.TTC' | translate }}</span><strong>{{ preview.totalTtc | number:'1.2-2' }}</strong></div>
         </div>
+
+        <p class="app-muted-note">{{ 'FACTURATION.PREVIEW.TVA_NOTE' | translate }}</p>
+
+        @if (store.excludedSeances().length > 0) {
+          <div class="excluded-seances">
+            <h4>{{ 'FACTURATION.PREVIEW.EXCLUDED.TITLE' | translate }}</h4>
+            <p class="app-muted-note">{{ 'FACTURATION.PREVIEW.EXCLUDED.HINT' | translate }}</p>
+            <ul>
+              @for (item of store.excludedSeances(); track item.seanceId) {
+                <li>
+                  <span class="code-chip">{{ item.seanceDate }}</span>
+                  <span>{{ item.patientLabel }}</span>
+                  <span
+                    class="seance-status-chip status-pending">{{ 'ABSENCES.MOTIFS.' + item.motif | translate }}</span>
+                  <button (click)="onReincludeSeance(item.seanceId)"
+                          [disabled]="store.previewLoading() || store.seanceActionLoadingId() === item.seanceId"
+                          mat-stroked-button>
+                    <mat-icon>undo</mat-icon>
+                    {{ 'FACTURATION.PREVIEW.EXCLUDED.REINCLUDE' | translate }}
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
 
         @if (invoiceList.expandedDetailCount() > 0) {
           <div class="detail-toolbar">
@@ -233,7 +258,7 @@
                       </td>
                       <td class="actions-cell">
                         <button
-                          (click)="onRemoveSeanceFromPreview(seance.seanceId)"
+                          (click)="onOpenExclusion(seance.seanceId)"
                           [disabled]="store.previewLoading() || store.seanceActionLoadingId() === seance.seanceId"
                           color="warn"
                           mat-stroked-button>
@@ -242,6 +267,43 @@
                         </button>
                       </td>
                     </tr>
+                    @if (exclusionDraft(); as draft) {
+                      @if (draft.seanceId === seance.seanceId) {
+                        <tr class="exclusion-row">
+                          <td colspan="5">
+                            <div class="exclusion-form">
+                              <mat-form-field appearance="outline" class="field-block">
+                                <mat-label>{{ 'FACTURATION.PREVIEW.EXCLUSION.MOTIF' | translate }}</mat-label>
+                                <mat-select (selectionChange)="onExclusionMotif($event.value)" [value]="draft.motif">
+                                  @for (motif of motifs; track motif) {
+                                    <mat-option [value]="motif">{{ 'ABSENCES.MOTIFS.' + motif | translate }}
+                                    </mat-option>
+                                  }
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-form-field appearance="outline" class="field-block">
+                                <mat-label>{{ 'FACTURATION.PREVIEW.EXCLUSION.COMMENTAIRE' | translate }}</mat-label>
+                                <textarea (input)="onExclusionCommentaire($any($event.target).value)"
+                                          [required]="draft.motif === 'AUTRE'" [value]="draft.commentaire" matInput
+                                          rows="2"></textarea>
+                                @if (draft.motif === 'AUTRE') {
+                                  <mat-hint>{{ 'FACTURATION.PREVIEW.EXCLUSION.COMMENTAIRE_REQUIS' | translate }}</mat-hint>
+                                }
+                              </mat-form-field>
+                              <div class="app-button-cluster">
+                                <button (click)="onConfirmExclusion()" [disabled]="!exclusionValid()" color="warn"
+                                        mat-flat-button>
+                                  {{ 'FACTURATION.PREVIEW.EXCLUSION.CONFIRM' | translate }}
+                                </button>
+                                <button (click)="onCancelExclusion()" mat-stroked-button>
+                                  {{ 'COMMON.CANCEL' | translate }}
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    }
                   }
                 </tbody>
               </table>

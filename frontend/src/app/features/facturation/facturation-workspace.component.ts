@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, TemplateRef, viewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  TemplateRef,
+  viewChild
+} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
@@ -18,6 +27,11 @@ import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {BackendApiService, FacturationPreviewInvoice} from '../../core/api/backend-api.service';
 import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
+import {MOTIFS_ABSENCE, MotifAbsence} from '../../core/api/absence-patient-api.service';
+import {exclusionEstValide} from './state/facturation-exclusion';
+
+/** Exclusion en cours de saisie pour une séance de la simulation. */
+type ExclusionDraft = { seanceId: string; motif: MotifAbsence | null; commentaire: string };
 
 Chart.register(...registerables);
 
@@ -53,6 +67,13 @@ export class FacturationWorkspaceComponent {
 
   protected readonly currentCenterId = computed(() => this.appShell.currentCenterId());
   protected readonly currentUsername = computed(() => this.auth.username() ?? 'system');
+
+  protected readonly motifs = MOTIFS_ABSENCE;
+  protected readonly exclusionDraft = signal<ExclusionDraft | null>(null);
+  protected readonly exclusionValid = computed(() => {
+    const draft = this.exclusionDraft();
+    return !!draft && exclusionEstValide(draft.motif, draft.commentaire);
+  });
 
   protected readonly invoiceExpandCellTemplate = viewChild<TemplateRef<any>>('invoiceExpandCell');
   protected readonly invoiceNumeroCellTemplate = viewChild<TemplateRef<any>>('invoiceNumeroCell');
@@ -254,16 +275,45 @@ export class FacturationWorkspaceComponent {
     });
   }
 
-  protected onRemoveSeanceFromPreview(seanceId: string): void {
+  protected onOpenExclusion(seanceId: string): void {
+    this.exclusionDraft.set({seanceId, motif: null, commentaire: ''});
+  }
+
+  protected onCancelExclusion(): void {
+    this.exclusionDraft.set(null);
+  }
+
+  protected onExclusionMotif(motif: MotifAbsence): void {
+    this.exclusionDraft.update((draft) => (draft ? {...draft, motif} : draft));
+  }
+
+  protected onExclusionCommentaire(commentaire: string): void {
+    this.exclusionDraft.update((draft) => (draft ? {...draft, commentaire} : draft));
+  }
+
+  /** Envoie l'exclusion avec son motif (et son commentaire, obligatoire pour AUTRE). */
+  protected onConfirmExclusion(): void {
     const centerId = this.currentCenterId();
-    if (!centerId) {
+    const draft = this.exclusionDraft();
+    if (!centerId || !draft || !draft.motif || !exclusionEstValide(draft.motif, draft.commentaire)) {
       return;
     }
     this.store.removeSeanceFromPreview({
       centerId,
       userId: this.currentUsername(),
-      seanceId,
+      seanceId: draft.seanceId,
+      motif: draft.motif,
+      commentaire: draft.commentaire,
     });
+    this.exclusionDraft.set(null);
+  }
+
+  protected onReincludeSeance(seanceId: string): void {
+    const centerId = this.currentCenterId();
+    if (!centerId) {
+      return;
+    }
+    this.store.reincludeSeanceInPreview({centerId, seanceId});
   }
 
   protected onPreviewSeanceForfaitChange(seanceId: string, forfaitId: string | null): void {
