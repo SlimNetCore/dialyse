@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.listener;
 
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptabilisationDesVentesEtReglements;
-import com.hemodialyse.backend.domain.facturation.event.FacturationValideeEvent;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,6 +18,10 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * facturation et n'empêche pas les suivantes ; elle est journalisée et reste à régénérer
  * ({@code GET /api/v1/comptabilite/ventes/non-comptabilisees}, puis {@code POST /api/v1/comptabilite/rebuild}).
  * Publié hors transaction, l'événement est traité tout de suite.
+ * <p>
+ * Contrat de l'événement depuis la slice F3 (KB-FAC-27/28/29) : il porte la période réellement facturée et décrit les factures
+ * émises (identifiants, montants) ; il n'est jamais publié quand rien n'est émis. Les écritures restent produites par période
+ * (les factures émises ont exactement cette période) : mêmes écritures qu'avant pour les cas nominaux.
  */
 @Component
 public class FacturationValideeComptabiliteListener {
@@ -33,12 +37,12 @@ public class FacturationValideeComptabiliteListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onFacturationValidee(FacturationValideeEvent event) {
         try {
-            comptabilisation.facturationValidee(event.centerId(), event.periodStart(), event.periodEnd())
+            comptabilisation.facturationValidee(event.centre(), event.debut(), event.fin())
                     .forEach(echec -> log.warn(
                     "Écriture de ventes non générée pour la facture {} ({}) : {} {}", echec.reference(), echec.source(),
                     echec.code(), echec.message()));
         } catch (RuntimeException ex) {
-            log.error("Erreur inattendue pendant la comptabilisation des ventes du centre {}", event.centerId(), ex);
+            log.error("Erreur inattendue pendant la comptabilisation des ventes du centre {}", event.centre(), ex);
         }
     }
 }

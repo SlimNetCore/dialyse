@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.facturation.validation;
 
 import com.hemodialyse.backend.characterization.gmao.plans.GoldenMaster;
-import com.hemodialyse.backend.domain.facturation.event.FacturationValideeEvent;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -324,13 +324,22 @@ abstract class ValidationCharacterizationSupport {
         ArrayNode arr = mapper.createArrayNode();
         for (FacturationValideeEvent e : evenements.recus()) {
             ObjectNode o = mapper.createObjectNode();
-            o.put("centerId", e.centerId().toString());
-            o.put("periodStart", String.valueOf(e.periodStart()));
-            o.put("periodEnd", String.valueOf(e.periodEnd()));
-            o.put("invoicesCount", e.invoicesCount());
-            o.put("billedSeancesCount", e.billedSeancesCount());
+            o.put("centre", e.centre().toString());
+            o.put("debut", String.valueOf(e.debut()));
+            o.put("fin", String.valueOf(e.fin()));
+            o.put("seancesFacturees", e.seancesFacturees());
             o.put("totalTtc", String.valueOf(e.totalTtc()));
-            o.put("occurredAt", String.valueOf(e.occurredAt()));
+            ArrayNode factures = o.putArray("factures");
+            for (FacturationValideeEvent.FactureEmise f : e.factures()) {
+                ObjectNode facture = mapper.createObjectNode();
+                facture.put("id", f.id().toString());
+                facture.put("numero", f.numero());
+                facture.put("totalHt", String.valueOf(f.totalHt()));
+                facture.put("totalTva", String.valueOf(f.totalTva()));
+                facture.put("totalTtc", String.valueOf(f.totalTtc()));
+                factures.add(facture);
+            }
+            o.put("survenueLe", String.valueOf(e.survenueLe()));
             arr.add(o);
         }
         goldenNode(name, arr);

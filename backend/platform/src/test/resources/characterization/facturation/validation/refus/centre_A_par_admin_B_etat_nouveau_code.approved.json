@@ -1,0 +1,19 @@
+{
+  "factures": [],
+  "lignes": [],
+  "sequences": [
+    {
+      "seq_value": "41",
+      "seq_year": "<ANNEE>"
+    }
+  ],
+  "seances": [
+    {
+      "date_seance": "2026-01-05",
+      "facture_id": null,
+      "id": "<S_AMRANI_05>",
+      "patient_id": "<P_AMRANI>",
+      "statut": "VALIDEE"
+    }
+  ]
+}

@@ -137,7 +137,7 @@ class FacturationRestControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/facturation/validate")
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.createdInvoices").value(1))
                 .andExpect(jsonPath("$.billedSeances").value(1));
@@ -145,7 +145,7 @@ class FacturationRestControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/facturation/validate")
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                         {
@@ -198,7 +198,7 @@ class FacturationRestControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/facturation/validate")
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.createdInvoices").value(2))
                 .andExpect(jsonPath("$.billedSeances").value(2));
@@ -228,7 +228,7 @@ class FacturationRestControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/facturation/validate")
                         .contentType("application/json")
                         .content(payload)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(adminDuCentre()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.createdInvoices").value(1))
                 .andExpect(jsonPath("$.billedSeances").value(1));
@@ -333,7 +333,7 @@ class FacturationRestControllerIntegrationTest {
 
     /**
      * Administrateur de session rattaché au centre : les routes de simulation (contexte facturation) confrontent le centre demandé
-     * à celui de la session (KB-FAC-14).
+     * à celui de la session (KB-FAC-14, KB-FAC-33).
      */
     private org.springframework.test.web.servlet.request.RequestPostProcessor adminDuCentre() {
         return user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(UUID.randomUUID().toString(),

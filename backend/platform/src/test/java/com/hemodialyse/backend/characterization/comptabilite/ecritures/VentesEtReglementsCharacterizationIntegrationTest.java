@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.comptabilite.ecritures;
 
-import com.hemodialyse.backend.domain.facturation.event.FacturationValideeEvent;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent;
 import com.hemodialyse.backend.domain.reglement.event.FactureReglementRecordedEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,8 +92,8 @@ class VentesEtReglementsCharacterizationIntegrationTest extends EcrituresCharact
     }
 
     private void facturationValidee(UUID centre, String debut, String fin) {
-        evenements.publishEvent(new FacturationValideeEvent(centre, LocalDate.parse(debut), LocalDate.parse(fin), 0, 0,
-                BigDecimal.ZERO, QUAND));
+        evenements.publishEvent(new FacturationValideeEvent(centre, LocalDate.parse(debut), LocalDate.parse(fin), java.util.List.of(), 0,
+                BigDecimal.ZERO, QUAND.toInstant()));
     }
 
     private void reglementEnregistre(int facture, String montant, String date, String userId) {

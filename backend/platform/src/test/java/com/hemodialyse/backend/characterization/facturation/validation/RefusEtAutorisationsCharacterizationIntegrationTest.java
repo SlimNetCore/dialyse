@@ -150,20 +150,22 @@ class RefusEtAutorisationsCharacterizationIntegrationTest extends ValidationChar
 
     @Test
     void un_administrateur_d_un_autre_centre_emet_les_factures_du_centre_designe_dans_le_corps() throws Exception {
+        // Nouveau code F3 (KB-FAC-33 corrigé) : 403 si le centre du corps diffère de celui de la session ; rien n'est émis.
         // KB-FAC-14 (suite) : la validation ne compare pas le centre du corps à celui de la session.
         uneSeance();
 
-        golden("centre_A_par_admin_B", doPost("/validate", mois(CENTRE_A, JANVIER, true), as(CENTRE_B, "ADMIN")));
-        goldenEtat("centre_A_par_admin_B_etat", CENTRE_A);
-        goldenEcritures("centre_A_par_admin_B_ecritures", CENTRE_A);
+        golden("centre_A_par_admin_B_nouveau_code", doPost("/validate", mois(CENTRE_A, JANVIER, true), as(CENTRE_B, "ADMIN")));
+        goldenEtat("centre_A_par_admin_B_etat_nouveau_code", CENTRE_A);
+        goldenEcritures("centre_A_par_admin_B_ecritures_nouveau_code", CENTRE_A);
     }
 
     @Test
     void un_centre_inconnu_donne_une_validation_vide_et_publie_quand_meme_l_evenement() throws Exception {
+        // Nouveau code F3 (KB-FAC-33 corrigé) : un centre qui n'est pas celui de la session répond 403 ; aucun événement.
         UUID inconnu = UUID.fromString("99998000-0000-0000-0000-0000000000ff");
 
         golden("centre_inconnu_200", doPost("/validate", mois(inconnu, JANVIER, true), as(inconnu, "ADMIN")));
-        goldenEvenements("centre_inconnu_evenements");
+        goldenEvenements("centre_inconnu_evenements_nouveau_code");
     }
 
     // ------------------------------------------------------------------ transaction
@@ -183,13 +185,14 @@ class RefusEtAutorisationsCharacterizationIntegrationTest extends ValidationChar
 
     @Test
     void l_echec_d_une_facture_annule_toutes_les_autres_les_seances_et_la_sequence() throws Exception {
+        // Nouveau code F3 (KB-FAC-24/25) : 409 explicite au lieu du 500.
         // KB-FAC-24 (suite) : deux patients sur trois sont émissibles, le troisième heurte un numéro existant.
         factureExistante(CENTRE_A, P_CHIKHI, "FAC-" + anneeCourante() + "-0044", "2025-12-01", "2025-12-31");
         seance("AMRANI_05", P_AMRANI, CENTRE_A, "2026-01-05", "VALIDEE");
         seance("BELKACEM_06", P_BELKACEM, CENTRE_A, "2026-01-06", "VALIDEE");
         seance("CHIKHI_07", P_CHIKHI, CENTRE_A, "2026-01-07", "VALIDEE");
 
-        golden("echec_derniere_facture_500", valider(mois(CENTRE_A, JANVIER, true)));
+        golden("echec_derniere_facture_500_nouveau_code", valider(mois(CENTRE_A, JANVIER, true)));
         goldenEtat("echec_derniere_facture_etat", CENTRE_A);
         assertEquals(0, evenements.recus().size());
         assertEquals(0, compter("ecritures_comptables", CENTRE_A));

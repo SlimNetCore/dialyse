@@ -460,9 +460,92 @@ GROUP BY a.statut;
   réincluent pas ; les rapporter pour décider d'une régularisation métier (déclarer l'absence, ou repasser la séance).
 - La ligne **39** apparaît dans `flyway_schema_history` après déploiement (le point 8 en tient compte).
 
+## 19. Facturation F3 : numérotation, forfaits non définis et auteur de l'émission (migration V40, 2026-10-20)
+
+La validation de facturation du nouveau code réserve la séquence de façon atomique, répond **409** si le numéro réservé
+est
+déjà pris (au lieu de 500), refuse (**422**) d'émettre tant qu'une séance éligible n'a pas de forfait, et enregistre
+l'auteur
+de l'émission (colonne `factures.emise_par`, migration additive V40). Ces requêtes sont des `SELECT` ; aucune ne modifie
+la base.
+Les adapter si le modèle de numérotation d'un centre n'est pas de la forme `...{SEQ}` en fin de numéro.
+
+```sql
+-- 19.1 colonne d'auteur ajoutée par V40 (attendu : une ligne uuid / YES)
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'factures' AND column_name = 'emise_par';
+
+-- 19.2 séquences en retard sur les numéros existants : par centre et année de facturation, la séquence est absente ou plus
+--      petite que le plus grand suffixe numérique des numéros déjà émis (attendu : aucune ligne ; sinon la première validation
+--      de l'année répondra 409 jusqu'à ce que la séquence rattrape les numéros)
+SELECT f.center_id,
+       extract(year FROM f.date_facturation)::int AS annee,
+       count(*) AS factures,
+       max(substring(f.numero_facture FROM '([0-9]+)$')::bigint) AS plus_grand_suffixe,
+       s.seq_value AS sequence_courante
+FROM factures f
+LEFT JOIN facture_sequence s
+       ON s.center_id = f.center_id AND s.seq_year = extract(year FROM f.date_facturation)::int
+WHERE f.numero_facture ~ '[0-9]+$'
+GROUP BY f.center_id, extract(year FROM f.date_facturation), s.seq_value
+HAVING s.seq_value IS NULL OR s.seq_value < max(substring(f.numero_facture FROM '([0-9]+)$')::bigint)
+ORDER BY f.center_id, annee;
+
+-- 19.3 doublons de numéro de facture dans un centre (attendu : aucune ligne ; la contrainte UNIQUE (center_id, numero_facture)
+--      de la migration V1 doit les interdire)
+SELECT center_id, numero_facture, count(*) AS n
+FROM factures
+GROUP BY center_id, numero_facture
+HAVING count(*) > 1;
+
+-- 19.4 contrainte d'unicité du numéro par centre (attendu : factures_center_id_numero_facture_key). Pas de contrainte
+--      supplémentaire à ajouter tant que 19.2 et 19.3 n'ont pas été examinés en production.
+SELECT conname, pg_get_constraintdef(oid) AS definition
+FROM pg_constraint
+WHERE conrelid = 'factures'::regclass AND contype = 'u';
+
+-- 19.5 modèles de numérotation sans jeton de séquence {SEQ} ou {SEQn} (attendu : aucune ligne ; sinon toutes les factures du
+--      centre porteraient le même numéro et la deuxième validation répondrait 409)
+SELECT center_id, code_format
+FROM facturation_settings
+WHERE code_format !~ '\{SEQ[0-9]*\}';
+
+-- 19.6 séances éligibles à la facturation sans forfait (ni surcharge, ni prise en charge avec forfait), par centre : la
+--      validation les refuse (422) tant qu'on ne leur a pas donné de forfait (attendu : 0 ; sinon à régulariser avant la bascule)
+SELECT s.center_id, count(*) AS seances_eligibles_sans_forfait
+FROM seances s
+WHERE s.statut IN ('VALIDEE', 'SIGNEE')
+  AND s.facture_id IS NULL
+  AND s.forfait_override_id IS NULL
+  AND NOT EXISTS (SELECT 1
+                  FROM prise_en_charge p
+                  JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id) AND f.center_id = p.center_id
+                  WHERE p.center_id = s.center_id AND p.patient_id = s.patient_id)
+GROUP BY s.center_id
+ORDER BY seances_eligibles_sans_forfait DESC;
+
+-- 19.7 factures déjà émises à un forfait « Forfait non defini » à zéro (information : l'ancienne version les émettait)
+SELECT center_id, count(*) AS lignes_forfait_non_defini
+FROM facture_lignes
+WHERE forfait_id IS NULL AND forfait_label = 'Forfait non defini'
+GROUP BY center_id;
+
+-- 19.8 après déploiement : factures émises sans auteur (information ; les factures d'avant V40 gardent NULL)
+SELECT count(*) AS factures, count(emise_par) AS avec_auteur
+FROM factures;
+```
+
+- **Attendu** : 19.1 une ligne `uuid / YES` ; 19.2, 19.3 et 19.5 aucune ligne ; 19.4 la contrainte de la migration V1 ;
+  19.6 : rapporter le nombre par centre (une valeur non nulle bloque la validation du mois concerné jusqu'à
+  régularisation).
+  19.7 et 19.8 sont informatifs.
+- La ligne **40** apparaît dans `flyway_schema_history` après déploiement (le point 8 en tient compte).
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
 G1-G5
 en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
-toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18.
+toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18 ; pour F3, les points
+19.1 à 19.6.

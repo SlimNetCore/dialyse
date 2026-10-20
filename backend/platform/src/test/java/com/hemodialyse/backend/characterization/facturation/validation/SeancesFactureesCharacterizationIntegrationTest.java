@@ -70,6 +70,7 @@ class SeancesFactureesCharacterizationIntegrationTest extends ValidationCharacte
 
     @Test
     void revalider_la_meme_periode_ne_cree_rien_de_plus() throws Exception {
+        // Nouveau code F3 (KB-FAC-29 corrigé) : la revalidation n'émet rien et ne publie aucun événement.
         seance("AMRANI_05", P_AMRANI, CENTRE_A, "2026-01-05", "VALIDEE");
         seance("BELKACEM_06", P_BELKACEM, CENTRE_A, "2026-01-06", "VALIDEE");
 
@@ -77,7 +78,7 @@ class SeancesFactureesCharacterizationIntegrationTest extends ValidationCharacte
         goldenEtat("apres_premiere_etat", CENTRE_A);
         golden("seconde_validation_200", valider(mois(CENTRE_A, JANVIER, true)));
         goldenEtat("apres_seconde_identique_etat", CENTRE_A);
-        goldenEvenements("evenements_des_deux_validations");
+        goldenEvenements("evenements_des_deux_validations_nouveau_code");
         goldenEcritures("ecritures_sans_doublon", CENTRE_A);
     }
 

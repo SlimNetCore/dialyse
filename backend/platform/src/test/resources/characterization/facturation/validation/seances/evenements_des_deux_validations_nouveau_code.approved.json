@@ -1,0 +1,26 @@
+[
+  {
+    "centre": "<CENTRE_A>",
+    "debut": "2026-01-01",
+    "factures": [
+      {
+        "id": "<FACTURE_1>",
+        "numero": "FAC-<ANNEE>-0042",
+        "totalHt": "3500.00",
+        "totalTtc": "3815.00",
+        "totalTva": "315.00"
+      },
+      {
+        "id": "<FACTURE_2>",
+        "numero": "FAC-<ANNEE>-0043",
+        "totalHt": "3500.00",
+        "totalTtc": "3815.00",
+        "totalTva": "315.00"
+      }
+    ],
+    "fin": "2026-01-31",
+    "seancesFacturees": 2,
+    "survenueLe": "<HORODATAGE>",
+    "totalTtc": "7630.00"
+  }
+]

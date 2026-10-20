@@ -59,6 +59,16 @@ class NumerotationDesFacturesCharacterizationIntegrationTest extends ValidationC
     }
 
     @Test
+    void le_modele_peut_porter_l_annee_sur_deux_chiffres() throws Exception {
+        parametres(CENTRE_A, "F{YY}-{SEQ}");
+        nommerTexte(String.format("F%02d-", anneeCourante() % 100), "F<AA>-");
+        seance("AMRANI_05", P_AMRANI, CENTRE_A, "2026-01-05", "VALIDEE");
+
+        golden("modele_annee_deux_chiffres_200", valider(mois(CENTRE_A, JANVIER, true)));
+        goldenEtat("modele_annee_deux_chiffres_etat", CENTRE_A);
+    }
+
+    @Test
     void sans_parametres_du_centre_le_modele_par_defaut_s_applique() throws Exception {
         jdbc.update("DELETE FROM facturation_settings WHERE center_id = ?", CENTRE_A);
         troisPatients("2026-01");
@@ -105,38 +115,41 @@ class NumerotationDesFacturesCharacterizationIntegrationTest extends ValidationC
 
     @Test
     void un_numero_deja_pris_par_une_facture_existante_fait_echouer_toute_la_validation_et_restitue_la_sequence() throws Exception {
+        // Nouveau code F3 (KB-FAC-24/25) : 409 explicite au lieu du 500, même retour arrière complet.
         // KB-FAC-24 : la séquence peut être en retard sur les factures ; la contrainte d'unicité (centre, numéro) refuse
         // le doublon, la transaction est annulée (aucune facture, séances intactes, séquence restituée), et chaque nouvelle
         // tentative échoue de la même façon tant que la séquence n'est pas corrigée à la main.
         factureExistante(CENTRE_A, P_CHIKHI, "FAC-" + anneeCourante() + "-0043", "2025-12-01", "2025-12-31");
         troisPatients("2026-01");
 
-        golden("doublon_500", valider(mois(CENTRE_A, JANVIER, true)));
+        golden("doublon_500_nouveau_code", valider(mois(CENTRE_A, JANVIER, true)));
         goldenEtat("doublon_etat", CENTRE_A);
-        golden("doublon_nouvelle_tentative_500", valider(mois(CENTRE_A, JANVIER, true)));
+        golden("doublon_nouvelle_tentative_500_nouveau_code", valider(mois(CENTRE_A, JANVIER, true)));
         assertEquals(0, evenements.recus().size());
         goldenEcritures("doublon_ecritures", CENTRE_A);
     }
 
     @Test
     void un_modele_sans_numero_de_sequence_donne_le_meme_numero_a_deux_factures_et_la_validation_echoue() throws Exception {
+        // Nouveau code F3 (KB-FAC-24/25) : 409 explicite ; la saisie d'un tel modèle est refusée par les réglages (F1, 400).
         // KB-FAC-25 : aucun contrôle du modèle à la saisie des réglages ; le refus ne vient que de la base.
         parametres(CENTRE_A, "FACTURE-UNIQUE");
         seance("AMRANI_05", P_AMRANI, CENTRE_A, "2026-01-05", "VALIDEE");
         seance("BELKACEM_06", P_BELKACEM, CENTRE_A, "2026-01-06", "VALIDEE");
 
-        golden("modele_sans_sequence_deux_factures_500", valider(mois(CENTRE_A, JANVIER, true)));
+        golden("modele_sans_sequence_deux_factures_500_nouveau_code", valider(mois(CENTRE_A, JANVIER, true)));
         goldenEtat("modele_sans_sequence_etat", CENTRE_A);
     }
 
     @Test
     void un_modele_sans_numero_de_sequence_suffit_pour_une_seule_facture() throws Exception {
+        // Nouveau code F3 : une 2e validation avec ce modèle (posé en base, hors saisie) répond 409.
         parametres(CENTRE_A, "FACTURE-UNIQUE");
         seance("AMRANI_05", P_AMRANI, CENTRE_A, "2026-01-05", "VALIDEE");
 
         golden("modele_sans_sequence_une_facture_200", valider(mois(CENTRE_A, JANVIER, true)));
         goldenEtat("modele_sans_sequence_une_facture_etat", CENTRE_A);
-        golden("modele_sans_sequence_seconde_validation_500", validerUnAutrePatient());
+        golden("modele_sans_sequence_seconde_validation_500_nouveau_code", validerUnAutrePatient());
     }
 
     private Resp validerUnAutrePatient() throws Exception {

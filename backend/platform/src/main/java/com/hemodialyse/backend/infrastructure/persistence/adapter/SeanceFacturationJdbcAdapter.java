@@ -1,7 +1,9 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter;
 
-import com.hemodialyse.backend.domain.facturation.port.*;
-import com.hemodialyse.backend.domain.facturation.valueobject.FacturationPeriod;
+import com.hemodialyse.backend.domain.facturation.port.FacturationDashboardBucket;
+import com.hemodialyse.backend.domain.facturation.port.FacturationDashboardResult;
+import com.hemodialyse.backend.domain.facturation.port.FacturationDashboardStatusBucket;
+import com.hemodialyse.backend.domain.facturation.port.SeanceFacturationPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -10,8 +12,13 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
+/**
+ * Reste de l'adaptateur legacy des séances à facturer : le tableau de bord de facturation (slice F5). La lecture des séances
+ * facturables et la liaison séance → facture sont servies par le contexte {@code facturation} (slices F2 et F3).
+ */
 @Component
 public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
 
@@ -19,104 +26,6 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
 
     public SeanceFacturationJdbcAdapter(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
-    }
-
-    @Override
-    public List<SeanceFacturationCandidate> findEligibleSeances(CenterId centerId, FacturationPeriod period) {
-        List<Map<String, Object>> seances = jdbc.queryForList(
-                """
-                SELECT s.id AS seance_id,
-                       s.center_id,
-                       s.patient_id,
-                       s.date_seance,
-                       s.statut,
-                       s.facture_id,
-                               s.forfait_override_id,
-                               s.forfait_override_nom,
-                               s.forfait_override_prix,
-                       p.code_patient,
-                       p.nom,
-                       p.prenom,
-                       p.etat_patient,
-                       p.numero_assurance,
-                       p.centre_payeur_id,
-                       cp.agence_id
-                FROM seances s
-                INNER JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id
-                LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id
-                WHERE s.center_id = ?
-                  AND s.date_seance BETWEEN ? AND ?
-                  AND s.statut IN ('VALIDEE','SIGNEE')
-                ORDER BY p.nom, p.prenom, s.date_seance, s.id
-                """,
-                centerId.value(),
-                Date.valueOf(period.startDate()),
-                Date.valueOf(period.endDate())
-        );
-
-        List<SeanceFacturationCandidate> candidates = new ArrayList<>();
-        for (Map<String, Object> row : seances) {
-            UUID patientId = (UUID) row.get("patient_id");
-            LocalDate date = ((Date) row.get("date_seance")).toLocalDate();
-            ForfaitSnapshot forfait = loadForfaitOverride(row);
-            if (forfait == null) {
-                forfait = loadForfait(centerId.value(), patientId, date);
-            }
-            candidates.add(new SeanceFacturationCandidate(
-                    (UUID) row.get("seance_id"),
-                    (UUID) row.get("center_id"),
-                    patientId,
-                    date,
-                    Objects.toString(row.get("statut"), null),
-                    (UUID) row.get("facture_id"),
-                    Objects.toString(row.get("code_patient"), null),
-                    Objects.toString(row.get("nom"), null),
-                    Objects.toString(row.get("prenom"), null),
-                    Objects.toString(row.get("etat_patient"), null),
-                    Objects.toString(row.get("numero_assurance"), null),
-                    (UUID) row.get("centre_payeur_id"),
-                    (UUID) row.get("agence_id"),
-                    Objects.toString(row.get("numero_assurance"), null),
-                    forfait.forfaitId,
-                    forfait.forfaitLabel,
-                    forfait.forfaitPrix
-            ));
-        }
-        return candidates;
-    }
-
-    private ForfaitSnapshot loadForfaitOverride(Map<String, Object> row) {
-        UUID forfaitId = (UUID) row.get("forfait_override_id");
-        if (forfaitId == null) {
-            return null;
-        }
-        return new ForfaitSnapshot(
-                forfaitId,
-                Objects.toString(row.get("forfait_override_nom"), null),
-                row.get("forfait_override_prix") instanceof BigDecimal price ? price : BigDecimal.ZERO
-        );
-    }
-
-    @Override
-    public void markAsBilled(CenterId centerId, Map<UUID, UUID> seanceToFactureId) {
-        for (Map.Entry<UUID, UUID> entry : seanceToFactureId.entrySet()) {
-            int updated = jdbc.update(
-                    """
-                    UPDATE seances
-                    SET statut = 'FACTUREE', facture_id = ?
-                    WHERE id = ?
-                      AND center_id = ?
-                      AND facture_id IS NULL
-                      AND statut IN ('VALIDEE','SIGNEE')
-                    """,
-                    entry.getValue(),
-                    entry.getKey(),
-                    centerId.value()
-            );
-            if (updated != 1) {
-                throw new IllegalStateException("Une ou plusieurs seances ne sont plus eligibles a la validation");
-            }
-        }
     }
 
     @Override
@@ -225,72 +134,4 @@ public class SeanceFacturationJdbcAdapter implements SeanceFacturationPort {
                 byStatus
         );
     }
-
-    private ForfaitSnapshot loadForfait(UUID centerId, UUID patientId, LocalDate referenceDate) {
-        List<ForfaitSnapshot> activeRows = jdbc.query(
-                """
-                SELECT f.id AS forfait_id,
-                       f.libelle AS forfait_label,
-                       f.prix AS forfait_prix
-                FROM prise_en_charge p
-                INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
-                                     AND f.center_id = p.center_id
-                WHERE p.center_id = ?
-                  AND p.patient_id = ?
-                  AND (
-                        (p.date_debut_effectif IS NOT NULL AND ? >= p.date_debut_effectif AND (? <= p.date_fin_effectif OR p.date_fin_effectif IS NULL))
-                     OR (p.date_debut_demande IS NOT NULL AND ? >= p.date_debut_demande AND (? <= p.date_fin_demande OR p.date_fin_demande IS NULL))
-                  )
-                ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END,
-                         p.created_at DESC
-                FETCH FIRST 1 ROWS ONLY
-                """,
-                (rs, rowNum) -> new ForfaitSnapshot(
-                        rs.getObject("forfait_id", UUID.class),
-                        rs.getString("forfait_label"),
-                        rs.getBigDecimal("forfait_prix") == null ? BigDecimal.ZERO : rs.getBigDecimal("forfait_prix")
-                ),
-                centerId,
-                patientId,
-                Date.valueOf(referenceDate),
-                Date.valueOf(referenceDate),
-                Date.valueOf(referenceDate),
-                Date.valueOf(referenceDate)
-        );
-
-        if (!activeRows.isEmpty()) {
-            return activeRows.getFirst();
-        }
-
-        List<ForfaitSnapshot> fallbackRows = jdbc.query(
-                """
-                SELECT f.id AS forfait_id,
-                       f.libelle AS forfait_label,
-                       f.prix AS forfait_prix
-                FROM prise_en_charge p
-                INNER JOIN forfait f ON f.id = COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
-                                     AND f.center_id = p.center_id
-                WHERE p.center_id = ?
-                  AND p.patient_id = ?
-                  AND COALESCE(p.forfait_effectif_id, p.forfait_demande_id) IS NOT NULL
-                ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END,
-                         p.created_at DESC
-                FETCH FIRST 1 ROWS ONLY
-                """,
-                (rs, rowNum) -> new ForfaitSnapshot(
-                        rs.getObject("forfait_id", UUID.class),
-                        rs.getString("forfait_label"),
-                        rs.getBigDecimal("forfait_prix") == null ? BigDecimal.ZERO : rs.getBigDecimal("forfait_prix")
-                ),
-                centerId,
-                patientId
-        );
-
-        return fallbackRows.isEmpty() ? new ForfaitSnapshot(null, "Forfait non defini", BigDecimal.ZERO) : fallbackRows.getFirst();
-    }
-
-    private record ForfaitSnapshot(UUID forfaitId, String forfaitLabel, BigDecimal forfaitPrix) {
-    }
 }
-
-

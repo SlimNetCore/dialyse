@@ -16,6 +16,14 @@ public record ForfaitApplique(UUID id, String libelle, BigDecimal prixHt) {
     }
 
     /**
+     * Vrai si un forfait a été retenu (surcharge ou prise en charge) ; faux pour {@link #NON_DEFINI}, que la validation refuse
+     * (KB-FAC-32).
+     */
+    public boolean estDefini() {
+        return id != null;
+    }
+
+    /**
      * Clé de regroupement en ligne de facture : même forfait et même libellé.
      */
     String cleDeLigne() {

@@ -81,6 +81,7 @@ class EmissionDesFacturesCharacterizationIntegrationTest extends ValidationChara
 
     @Test
     void le_taux_de_tva_est_celui_du_jour_de_la_validation_et_non_celui_de_la_fin_de_periode() throws Exception {
+        // Nouveau code F3 (KB-FAC-22 corrigé) : la facture fige la TVA en vigueur à la fin de la période facturée (19 %), pas celle du jour (9 %).
         // KB-FAC-22 : 19 % jusqu'au 2026-03-31 (fin de la période facturée : janvier), 9 % ensuite (aujourd'hui).
         jdbc.update("DELETE FROM tva_types WHERE center_id = ?", CENTRE_A);
         tva(CENTRE_A, "19.00", "2000-01-01", "2026-03-31");
@@ -88,7 +89,7 @@ class EmissionDesFacturesCharacterizationIntegrationTest extends ValidationChara
         seance("AMRANI_05", P_AMRANI, CENTRE_A, "2026-01-05", "VALIDEE");
 
         golden("tva_du_jour_200", valider(mois(CENTRE_A, JANVIER, true)));
-        goldenEtat("tva_du_jour_etat", CENTRE_A);
+        goldenEtat("tva_du_jour_etat_nouveau_code", CENTRE_A);
     }
 
     @Test
@@ -105,13 +106,14 @@ class EmissionDesFacturesCharacterizationIntegrationTest extends ValidationChara
 
     @Test
     void un_patient_sans_prise_en_charge_est_facture_a_zero_sur_un_forfait_non_defini() throws Exception {
+        // Nouveau code F3 (KB-FAC-32) : la validation est refusée (422) tant qu'une séance éligible n'a pas de forfait ; rien n'est émis.
         jdbc.update("DELETE FROM prise_en_charge WHERE patient_id = ?", P_CHIKHI);
         seance("CHIKHI_07", P_CHIKHI, CENTRE_A, "2026-01-07", "VALIDEE");
         seance("CHIKHI_14", P_CHIKHI, CENTRE_A, "2026-01-14", "VALIDEE");
 
-        golden("forfait_non_defini_200", valider(mois(CENTRE_A, JANVIER, true)));
-        goldenEtat("forfait_non_defini_etat", CENTRE_A);
-        goldenEcritures("forfait_non_defini_ecritures", CENTRE_A);
+        golden("forfait_non_defini_200_nouveau_code", valider(mois(CENTRE_A, JANVIER, true)));
+        goldenEtat("forfait_non_defini_etat_nouveau_code", CENTRE_A);
+        goldenEcritures("forfait_non_defini_ecritures_nouveau_code", CENTRE_A);
     }
 
     @Test

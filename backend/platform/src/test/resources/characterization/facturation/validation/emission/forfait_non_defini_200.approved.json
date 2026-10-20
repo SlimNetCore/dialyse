@@ -1,8 +1,0 @@
-{
-  "status": 200,
-  "contentType": "application/json",
-  "body": {
-    "billedSeances": 2,
-    "createdInvoices": 1
-  }
-}

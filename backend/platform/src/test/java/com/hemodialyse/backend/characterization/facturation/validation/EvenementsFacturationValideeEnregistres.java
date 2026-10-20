@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.characterization.facturation.validation;
 
-import com.hemodialyse.backend.domain.facturation.event.FacturationValideeEvent;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 

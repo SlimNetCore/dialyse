@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.contrat;
 
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeanceDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;
@@ -44,6 +45,17 @@ public abstract class SeancesContrat {
     protected abstract SeancesFacturables facturables();
 
     protected abstract ForfaitsDuCentre forfaits();
+
+    protected abstract LiaisonDesSeances liaison();
+
+    /**
+     * Donne au patient son centre payeur (et l'agence de celui-ci) ; son numéro d'immatriculation est {@code ASS-<code>}.
+     */
+    protected abstract void payeur(UUID patient, CentreId centre, UUID centrePayeur, UUID agence);
+
+    protected abstract String statutDe(UUID seance);
+
+    protected abstract UUID factureDe(UUID seance);
 
     protected abstract void patient(UUID id, CentreId centre, String code, String nom, String prenom, String etat);
 
@@ -325,6 +337,80 @@ public abstract class SeancesContrat {
         }
         assertThatThrownBy(() -> seances().poserLeForfait(CENTRE_B, validee, premium, "medecin", LE_20))
                 .isInstanceOf(IllegalStateException.class);
+    }
+
+    // ---- payeur du patient
+
+    @Test
+    void should_read_the_registration_number_and_the_payer_of_the_patient() {
+        decor();
+        UUID centrePayeur = UUID.fromString("99996800-0000-0000-0000-000000000c01");
+        UUID agence = UUID.fromString("99996800-0000-0000-0000-000000000a61");
+        payeur(AMRANI, CENTRE_A, centrePayeur, agence);
+        uneSeance(CENTRE_A, AMRANI, "2026-08-02", "VALIDEE", false);
+
+        var patient = facturables().dansLaPeriode(CENTRE_A, AOUT).getFirst().patient();
+
+        assertThat(patient.numeroDImmatriculation()).isEqualTo("ASS-P-001");
+        assertThat(patient.centrePayeur()).isEqualTo(centrePayeur);
+        assertThat(patient.agence()).isEqualTo(agence);
+    }
+
+    @Test
+    void should_read_a_patient_without_payer() {
+        decor();
+        uneSeance(CENTRE_A, BELKACEM, "2026-08-02", "VALIDEE", false);
+
+        var patient = facturables().dansLaPeriode(CENTRE_A, AOUT).getFirst().patient();
+
+        assertThat(patient.centrePayeur()).isNull();
+        assertThat(patient.agence()).isNull();
+    }
+
+    // ---- liaison séance → facture
+
+    @Test
+    void should_link_the_seances_to_the_invoice_and_bill_them() {
+        decor();
+        UUID validee = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "VALIDEE", false);
+        UUID signee = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "SIGNEE", false);
+        UUID autre = uneSeance(CENTRE_A, AMRANI, "2026-08-04", "VALIDEE", false);
+        UUID facture = UUID.randomUUID();
+
+        liaison().lier(CENTRE_A, facture, List.of(validee, signee));
+
+        assertThat(statutDe(validee)).isEqualTo("FACTUREE");
+        assertThat(statutDe(signee)).isEqualTo("FACTUREE");
+        assertThat(factureDe(validee)).isEqualTo(facture);
+        assertThat(factureDe(signee)).isEqualTo(facture);
+        assertThat(statutDe(autre)).isEqualTo("VALIDEE");
+        assertThat(factureDe(autre)).isNull();
+        assertThat(identifiantsFacturables(CENTRE_A)).containsExactly(autre);
+    }
+
+    @Test
+    void should_refuse_to_link_a_seance_that_is_no_longer_eligible() {
+        decor();
+        UUID facturee = uneSeance(CENTRE_A, AMRANI, "2026-08-02", "VALIDEE", true);
+        UUID exclue = uneSeance(CENTRE_A, AMRANI, "2026-08-03", "ABSENT", false);
+        UUID brouillon = uneSeance(CENTRE_A, AMRANI, "2026-08-04", "BROUILLON", false);
+        UUID minuscule = uneSeance(CENTRE_A, AMRANI, "2026-08-05", "validee", false);
+
+        for (UUID refusee : new UUID[]{facturee, exclue, brouillon, minuscule, UUID.randomUUID()}) {
+            assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(refusee)))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Une ou plusieurs seances ne sont plus eligibles a la validation");
+        }
+    }
+
+    @Test
+    void should_refuse_to_link_a_seance_of_another_centre() {
+        decor();
+        UUID duCentreB = uneSeance(CENTRE_B, PATIENT_B, "2026-08-02", "VALIDEE", false);
+
+        assertThatThrownBy(() -> liaison().lier(CENTRE_A, UUID.randomUUID(), List.of(duCentreB)))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(statutDe(duCentreB)).isEqualTo("VALIDEE");
     }
 
     // ---- forfaits du centre

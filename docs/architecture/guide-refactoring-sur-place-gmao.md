@@ -107,6 +107,37 @@ rencontré : un test de caractérisation qui exclut une séance dépend de la da
 absence de plus de 60 jours) : dates relatives au jour d'exécution, remplacées par des alias dans les goldens.
 Fiche : `.ddd/migration/slices/facturation-f2-simulation.md`.
 
+## 6 quinquies. Facturation, slice F3 : validation et émission des factures (2026-10-20)
+
+Même module `contexts/facturation`. Particularités : (1) **le calcul n'est pas dupliqué** : l'émission rejoue la
+simulation de F2 (`Simulation.etablir`, regroupement, politique de forfait) puis `Facture.emettre` fige le groupe
+obtenu ; l'agrégat `Facture` ne
+fait que figer, vérifier ses invariants et déduire ses totaux ; (2) la **numérotation** est la zone sensible :
+réservation
+atomique par `UPDATE ... seq_value + 1` (le verrou de ligne dure jusqu'au commit), sans verrou propre à un SGBD, avec un
+test de
+concurrence **déterministe** (une transaction reste ouverte, la seconde doit attendre) exécuté sur H2 et PostgreSQL 16,
+et dont on
+a vérifié qu'il échoue sans le verrou ; (3) l' **événement d'intégration** devient un contrat versionné du langage
+publié (`publishedlanguage/FacturationValideeEvent`) : il décrit exactement ce qui a été émis et n'existe pas quand rien
+n'est émis ;
+l'écouteur de la Comptabilité (dans `platform`) est le seul consommateur, adapté a minima ; (4) le port de
+**publication** est dans
+l'application, l'adapter (bus d'événements Spring) dans l'infrastructure : l'application reste sans framework ; (5) les
+**refus propres** à l'émission ont chacun une exception de domaine et un code (409, 422) traduits par un
+`@RestControllerAdvice`
+limité au contrôleur ; (6) la migration est **additive** (V40, une colonne nullable) et la contrainte d'unicité qu'on
+croyait à créer
+existait déjà (V1) : toujours lire le schéma figé avant d'ajouter un garde-fou. Écarts décidés : KB-FAC-22, 24, 25, 27 à
+30, 32,
+33 corrigés ; 23, 26, 31, 34, 35, 36 reproduits. Pièges rencontrés : (a) `mvn test` sur un module dont on a supprimé des
+classes
+garde des `.class` périmées (découverte JUnit en erreur, bean Spring fantôme) : `clean` du module après un retrait ; (b)
+les tests de contrat sur H2 doivent poser les colonnes que la lecture ajoute (ici le payeur du patient) ; (c) H2
+n'accepte pas `ON CONFLICT` : la création de la ligne d'une année nouvelle est distinguée par SGBD, le reste du code est
+commun.
+Fiche : `.ddd/migration/slices/facturation-f3-validation-emission.md`, ADR 0032.
+
 ## 7. Refaire sur un autre projet
 1. Cartographier (scan, glossaire) et choisir une petite slice verticale.
 2. Écrire le filet de caractérisation HTTP et le rendre vert sur l'existant.

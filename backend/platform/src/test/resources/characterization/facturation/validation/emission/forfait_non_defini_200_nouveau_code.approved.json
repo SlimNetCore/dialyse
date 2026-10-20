@@ -1,0 +1,12 @@
+{
+  "status": 422,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "SEANCES_SANS_FORFAIT",
+    "detail": "2 seances eligibles n'ont pas de forfait defini : donner un forfait (prise en charge ou changement de forfait) a chacune avant de valider la facturation",
+    "instance": "/api/v1/facturation/validate",
+    "seancesSansForfait": 2,
+    "status": 422,
+    "title": "Regle metier violee"
+  }
+}

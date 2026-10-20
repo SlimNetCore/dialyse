@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.facturation.doubles;
 
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeanceDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;
@@ -28,7 +29,7 @@ import java.util.UUID;
  * l'ACL JDBC (voir {@code SeancesContrat}). Il implémente ensemble la lecture des séances facturables et les écritures, pour que
  * l'exclusion retire bien la séance de la simulation.
  */
-public class SeancesEnMemoire implements SeancesDeFacturation, SeancesFacturables, ForfaitsDuCentre {
+public class SeancesEnMemoire implements SeancesDeFacturation, SeancesFacturables, ForfaitsDuCentre, LiaisonDesSeances {
 
     private final Map<UUID, Ligne> seances = new HashMap<>();
     private final Map<UUID, PatientFacture> patients = new HashMap<>();
@@ -41,6 +42,12 @@ public class SeancesEnMemoire implements SeancesDeFacturation, SeancesFacturable
 
     public void patient(UUID id, CentreId centre, String code, String nom, String prenom, String etat) {
         patients.put(id, new PatientFacture(id, code, nom, prenom, etat));
+        centresDesPatients.put(id, centre.valeur());
+    }
+
+    public void patient(UUID id, CentreId centre, String code, String nom, String prenom, String etat, String immatriculation,
+                        UUID centrePayeur, UUID agence) {
+        patients.put(id, new PatientFacture(id, code, nom, prenom, etat, immatriculation, centrePayeur, agence));
         centresDesPatients.put(id, centre.valeur());
     }
 
@@ -79,6 +86,27 @@ public class SeancesEnMemoire implements SeancesDeFacturation, SeancesFacturable
 
     private List<PriseEnChargeTarifee> prisesEnChargeDe(CentreId centre, UUID patient) {
         return prisesEnCharge.stream().filter(p -> p.patient.equals(patient)).map(p -> p.pec).toList();
+    }
+
+    // ---- liaison séance → facture
+
+    @Override
+    public void lier(CentreId centre, UUID facture, java.util.List<UUID> liees) {
+        for (UUID seance : liees) {
+            Ligne ligne = garde(centre, seance, l -> !l.facturee && ("VALIDEE".equals(l.statut) || "SIGNEE".equals(l.statut)),
+                    "Une ou plusieurs seances ne sont plus eligibles a la validation");
+            ligne.facturee = true;
+            ligne.facture = facture;
+            ligne.statut = "FACTUREE";
+        }
+    }
+
+    public UUID factureDe(UUID seance) {
+        return seances.get(seance).facture;
+    }
+
+    public String statutDe(UUID seance) {
+        return seances.get(seance).statut;
     }
 
     // ---- forfaits
@@ -151,7 +179,8 @@ public class SeancesEnMemoire implements SeancesDeFacturation, SeancesFacturable
         final UUID patient;
         final LocalDate date;
         String statut;
-        final boolean facturee;
+        boolean facturee;
+        UUID facture;
         ForfaitApplique surcharge;
         String auteurDeLaSurcharge;
         String statutAvant;

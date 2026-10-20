@@ -10,6 +10,10 @@ import com.hemodialyse.backend.contexts.facturation.application.simulation.Exclu
 import com.hemodialyse.backend.contexts.facturation.application.simulation.ReinclureUneSeance;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.SimulerLaFacturation;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.TauxDeTvaApplicable;
+import com.hemodialyse.backend.contexts.facturation.application.validation.PublicationDeLaValidation;
+import com.hemodialyse.backend.contexts.facturation.application.validation.ValiderLaFacturation;
+import com.hemodialyse.backend.contexts.facturation.domain.facture.Factures;
+import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;
 import com.hemodialyse.backend.contexts.facturation.domain.parametres.ParametresDeFacturationRepository;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitsDuCentre;
@@ -18,11 +22,15 @@ import com.hemodialyse.backend.contexts.facturation.domain.simulation.SequenceDe
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.TauxDeTvaComptabilite;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.ForfaitsDuCentreJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.LiaisonDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.SeancesDeFacturationJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.SeancesFacturablesJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.messaging.PublicationDeLaValidationSpring;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.FacturesJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.ParametresDeFacturationJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.SequenceDeFacturationJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.transaction.UniteDeTravailSpring;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,10 +38,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
+import java.util.UUID;
 
 /**
  * Composition root du contexte Facturation : seul endroit qui connaît toutes les couches. Slice F1 : paramètres de
- * facturation du centre ; slice F2 : simulation de facturation. Les noms de beans sont préfixés {@code facturation} (un seul
+ * facturation du centre ; slice F2 : simulation de facturation ; slice F3 : validation et émission des factures. Les noms de beans sont préfixés {@code facturation} (un seul
  * contexte Spring avec le legacy et les autres contextes) ; l'horloge n'est pas un bean, pour ne pas concurrencer celle de la
  * Comptabilité. {@link AbsencesDesPatients} est fourni par l'ACL du module Absences (platform).
  */
@@ -109,5 +118,29 @@ public class FacturationContexteConfiguration {
     ChangerLeForfaitDUneSeance facturationChangerLeForfait(SeancesDeFacturation seances, ForfaitsDuCentre forfaits,
                                                            SimulerLaFacturation simulation, UniteDeTravail uniteDeTravail) {
         return new ChangerLeForfaitDUneSeance(seances, forfaits, simulation, uniteDeTravail, Clock.systemUTC());
+    }
+
+    @Bean
+    Factures facturationFactures(JdbcTemplate jdbc) {
+        return new FacturesJdbc(jdbc);
+    }
+
+    @Bean
+    LiaisonDesSeances facturationLiaisonDesSeances(JdbcTemplate jdbc) {
+        return new LiaisonDesSeancesJdbc(jdbc);
+    }
+
+    @Bean
+    PublicationDeLaValidation facturationPublicationDeLaValidation(ApplicationEventPublisher publisher) {
+        return new PublicationDeLaValidationSpring(publisher);
+    }
+
+    @Bean
+    ValiderLaFacturation facturationValiderLaFacturation(SeancesFacturables seances, ParametresDeFacturationRepository parametres,
+                                                         SequenceDeFacturation sequence, TauxDeTvaApplicable tva, Factures factures,
+                                                         LiaisonDesSeances liaison, PublicationDeLaValidation publication,
+                                                         UniteDeTravail uniteDeTravail) {
+        return new ValiderLaFacturation(seances, parametres, sequence, tva, factures, liaison, publication, uniteDeTravail,
+                Clock.systemUTC(), UUID::randomUUID);
     }
 }

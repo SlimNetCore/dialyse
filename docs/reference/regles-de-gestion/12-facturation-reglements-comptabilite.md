@@ -3,8 +3,7 @@
 > Préfixes `RG-FAC` (facturation et TVA), `RG-REG` (règlements), `RG-CPT` (comptabilité). Le système **n'accepte à la
 facturation que des séances validées et couvertes**, **fige** prix, TVA et
 > payeur sur chaque facture, **calcule le solde** de chaque facture et **génère les écritures comptables équilibrées**.
-> Sources : `FacturationDomainService`,
-> `SeanceEligibleForFacturationSpecification`, `FactureAggregate`, `FactureNumberTemplate`, `TypeTVA`,
+> Sources : `FacturationDomainService` (tableau de bord), `Simulation`, `Facture`, `ValiderLaFacturation`, `TypeTVA`,
 > `RegleTva`, `GererLesTypesDeTva`, `ParametresDeFacturation`, `ModeleDeNumerotation`, `SeanceFacturationJdbcAdapter`,
 > `FactureReglementAggregate`,
 > `FactureReglementStatusSpecification`, `ReglementService`, `ComptabiliteService`, `GenerateurEcritureComptable`,
@@ -25,10 +24,9 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   (`/tva-types`).
 - **RG-FAC-002** — La TVA applicable à une date est le type **actif** couvrant cette date pour la prestation
   `HEMODIALYSE` (le dernier commencé) ; **sans type actif, le taux est 0 %**. Le taux est figé sur chaque facture au
-  moment de la validation. La simulation applique le taux en vigueur **à la fin de la période facturée** (RG-FAC-022).
-  *Source :* langage publié `ParametrageFiscal` (contexte `comptabilite`), lu par la simulation
-  (`TauxDeTvaComptabilite`, contexte `facturation`) ; la validation de facturation lit encore la table par
-  `TypeTvaJdbcAdapter` jusqu'à la slice F3.
+  moment de la validation. La simulation et la validation appliquent le taux en vigueur **à la fin de la période
+  facturée** (RG-FAC-022, RG-FAC-030). *Source :* langage publié `ParametrageFiscal` (contexte `comptabilite`), lu par
+  la simulation et la validation (`TauxDeTvaComptabilite`, contexte `facturation`).
 - **RG-FAC-003** — Les types de TVA se **désactivent** (jamais supprimés) : la désactivation est idempotente et répond
   204 même pour un type inconnu du centre. La **modification** remplace libellé, taux, type, exonération, dates et texte
   selon RG-FAC-001 (le type modifié ne se compare pas à lui-même) ; elle **garde l'état** (un type désactivé le reste)
@@ -46,7 +44,8 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   contenir le jeton de séquence {SEQ} ou {SEQn} … », « Jeton inconnu {…} … »). Les modèles déjà enregistrés ne sont pas
   revalidés. La séquence est strictement positive et propre au centre (et à l'année). *Source :* `ModeleDeNumerotation`,
   `ParametresDeFacturation`, `ConfigurerLaFacturation` (contexte `facturation`) → `ParametresFacturationControleur`
-  (`/facturation/settings`) ; numéro calculé par `FactureNumberTemplate`.
+  (`/facturation/settings`) ; numéro calculé par `ModeleDeNumerotation.numero`, séquence réservée par
+  `SequenceDeFacturation` (RG-FAC-030).
 - **RG-FAC-011** — Option « **regroupement multi-forfait** » (défaut oui) : une facture par patient et par période
   (plusieurs lignes de forfaits) ; sinon une facture par patient **et par forfait**. Un centre qui n'a rien enregistré
   lit les valeurs par défaut, sans date de mise à jour : **la lecture n'écrit rien**. Modification des paramètres :
@@ -103,17 +102,37 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 
 ## 12.4 Validation de la facturation
 
-- **RG-FAC-030** — La **validation** recalcule la simulation, puis, de façon atomique : crée **une facture par groupe**
-  avec un numéro réel de séquence, **fige** le patient (code, nom, état, numéro
-  d'immatriculation), le centre payeur et l'agence, la période, la date de facturation (jour de validation) et le taux
-  de TVA ; marque chaque séance `FACTUREE` rattachée à sa facture. Si une
-  séance a changé entre-temps, la validation entière échoue (« Une ou plusieurs seances ne sont plus eligibles »). Sans
-  séance éligible : 0 facture créée. Accès : `ADMIN`, `MEDECIN`.
-- **RG-FAC-031** — Une facture a au moins une ligne ; ligne : prix unitaire HT valide et nombre de séances > 0 ; totaux
-  HT/TVA/TTC arrondis à deux décimales ; période valide.
-- **RG-FAC-032** — Après validation, un évènement « facturation validée » déclenche la génération des écritures de
-  ventes (RG-CPT-001) ; l'existence d'une facture couvrant une date **clôt les absences** du patient à cette date
-  (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-002).
+- **RG-FAC-030** — La **validation** (`POST /api/v1/facturation/validate`, `ADMIN` ; le centre du corps doit être celui
+  de
+  la session, sinon 403) émet de façon **atomique** les factures de la simulation de la période (RG-FAC-022) : une
+  facture par groupe, **regroupement choisi par le corps de la requête** (jamais par les réglages du centre). Chaque
+  facture reçoit le **numéro suivant** de la séquence du centre pour l' **année du jour** (RG-FAC-010) ; la réservation
+  est **atomique** (deux validations simultanées d'un centre se mettent en file : jamais le même numéro). Elle **fige**
+  le
+  patient (code, nom, état, numéro d'immatriculation), le centre payeur et l'agence, la période, la date de facturation
+  (jour de validation), le taux de TVA **en vigueur à la fin de la période facturée**, les forfaits, prix et quantités,
+  et **l'utilisateur qui a validé** ; elle marque chaque séance `FACTUREE` rattachée à sa facture. Refus : **409** si le
+  numéro réservé est déjà celui d'une facture du centre (séquence en retard sur les factures existantes ; rien n'est
+  émis, la séquence est restituée) ; **422** si une séance éligible n'a **aucun forfait** (ni surcharge, ni prise en
+  charge) : « N séances éligibles n'ont pas de forfait défini », aucune facture n'est créée ; **422** si une séance a
+  changé entre-temps (« Une ou plusieurs seances ne sont plus eligibles »). Sans séance éligible : 0 facture, la
+  séquence ne bouge pas. Une deuxième facture pour la même période et le même patient reste possible (séance validée
+  après l'émission). *Source :* `Facture`, `LigneFacture`, `ValiderLaFacturation`, `SequenceDeFacturation`,
+  `SeancesSansForfait`, `NumeroDeFactureDejaPris` (contexte `facturation`, ADR 0032) → `ValidationControleur` ;
+  ACL `LiaisonDesSeancesJdbc`.
+- **RG-FAC-031** — Une facture a au moins une ligne et couvre au moins une séance ; ligne : prix unitaire HT valide
+  (jamais négatif) et nombre de séances > 0 ; totaux : HT = somme des lignes, **TVA arrondie (HALF_UP) sur le total HT
+  de
+  la facture** (pas ligne par ligne), TTC = HT + TVA, à deux décimales ; période valide. Une facture émise ne se modifie
+  plus (le prix, le libellé du forfait, le patient et le taux restent ceux de l'émission). *Source :* `Facture`,
+  `LigneFacture` (contexte `facturation`).
+- **RG-FAC-032** — Après validation, un évènement « facturation validée » (`FacturationValideeEvent`, version 2) décrit
+  exactement ce qui a été émis — centre, **période réellement facturée**, factures émises (identifiant, numéro, HT, TVA,
+  TTC), séances facturées, **total TTC exact** — et déclenche, après le commit, la génération des écritures de ventes
+  (RG-CPT-001). **Aucun évènement** quand aucune facture n'est émise ; la reconstitution des ventes manquantes passe par
+  `POST /api/v1/comptabilite/rebuild`. L'existence d'une facture couvrant une date **clôt les absences** du patient à
+  cette date (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-002). *Source :*
+  `FacturationValideeEvent` (langage publié du contexte `facturation`) → `FacturationValideeComptabiliteListener`.
 
 ## 12.5 Règlements des factures
 

@@ -1350,3 +1350,7 @@ CREATE TABLE IF NOT EXISTS modeles_piece_lignes
 )
     );
 CREATE INDEX IF NOT EXISTS idx_modeles_piece_lignes_compte ON modeles_piece_lignes (center_id, compte);
+
+-- Auteur de l'émission d'une facture (migration V40, slice F3, KB-FAC-30)
+ALTER TABLE IF EXISTS factures
+    ADD COLUMN IF NOT EXISTS emise_par UUID;

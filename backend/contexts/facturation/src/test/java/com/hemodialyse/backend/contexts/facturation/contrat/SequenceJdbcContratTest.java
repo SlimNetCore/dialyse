@@ -28,7 +28,7 @@ class SequenceJdbcContratTest extends SequenceContrat {
     @BeforeEach
     void creerLaTable() {
         jdbc.execute("CREATE TABLE IF NOT EXISTS facture_sequence (center_id UUID NOT NULL, seq_year INTEGER NOT NULL, "
-                + "seq_value INTEGER NOT NULL)");
+                + "seq_value INTEGER NOT NULL, PRIMARY KEY (center_id, seq_year))");
         jdbc.update("DELETE FROM facture_sequence");
     }
 

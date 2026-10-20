@@ -32,7 +32,10 @@ class SeancesJdbcContratTest extends SeancesJdbcContrat {
                 + "statut_avant_exclusion VARCHAR(20), exclusion_absence_id UUID)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS patients (id UUID PRIMARY KEY, center_id UUID NOT NULL, code_patient VARCHAR(255), "
                 + "nom VARCHAR(255) NOT NULL, prenom VARCHAR(255) NOT NULL, sexe VARCHAR(255) NOT NULL, date_admission DATE NOT NULL, "
-                + "numero_assurance VARCHAR(255) NOT NULL, type_patient VARCHAR(255) NOT NULL, etat_patient VARCHAR(255))");
+                + "numero_assurance VARCHAR(255) NOT NULL, type_patient VARCHAR(255) NOT NULL, etat_patient VARCHAR(255), "
+                + "centre_payeur_id UUID)");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, agence_id UUID, "
+                + "code VARCHAR(255) NOT NULL, nom VARCHAR(255) NOT NULL)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS forfait (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50) NOT NULL, "
                 + "libelle VARCHAR(255) NOT NULL, prix NUMERIC(10, 2))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS prise_en_charge (id UUID PRIMARY KEY, center_id UUID NOT NULL, "

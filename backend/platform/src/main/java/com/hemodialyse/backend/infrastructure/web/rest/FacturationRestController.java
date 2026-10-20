@@ -4,7 +4,6 @@ import com.hemodialyse.backend.domain.facturation.port.*;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
 import com.hemodialyse.backend.infrastructure.reporting.FacturationSyntheseMensuelleReportService;
 import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationSynthesePrintRequest;
-import com.hemodialyse.backend.infrastructure.web.dto.request.FacturationValidateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -35,23 +33,7 @@ public class FacturationRestController {
 
     // POST /preview, /preview/seances/{id}/exclude|include|forfait : contexte facturation (SimulationControleur, slice F2)
 
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN')")
-    @PostMapping("/validate")
-    public ResponseEntity<?> validate(@RequestBody @Valid FacturationValidateRequest request) {
-        FacturationValidationResult result = useCase.validate(new FacturationValidateCommand(
-                CenterId.of(request.centerId()),
-                request.userId(),
-                parseMonth(request.month()),
-                request.periodStart(),
-                request.periodEnd(),
-                request.regroupementMultiForfait(),
-                request.previewGeneratedAt()
-        ));
-        return ResponseEntity.ok(Map.of(
-                "createdInvoices", result.createdInvoices(),
-                "billedSeances", result.billedSeances()
-        ));
-    }
+    // POST /validate : contexte facturation (ValidationControleur, slice F3)
 
     @PreAuthorize("hasAnyRole('ADMIN','MEDECIN','SECRETAIRE')")
     @GetMapping("/dashboard")

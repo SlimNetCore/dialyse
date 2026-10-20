@@ -24,7 +24,8 @@ import java.util.UUID;
 /**
  * ACL de lecture sur les séances, les patients et les prises en charge (modules Séance, Patient et Prise en charge) : les
  * séances facturables du centre (RG-FAC-020 : statut {@code VALIDEE} ou {@code SIGNEE}, comparé en majuscules exactes en SQL,
- * KB-FAC-17 ; non facturée ; date dans la période) et leur forfait appliqué (RG-FAC-021). Les prises en charge d'un patient ne sont
+ * KB-FAC-17 ; non facturée ; date dans la période), le payeur de leur patient (instantané de la facture) et leur forfait appliqué
+ * (RG-FAC-021). Les prises en charge d'un patient ne sont
  * lues qu'une fois par simulation.
  */
 public class SeancesFacturablesJdbc implements SeancesFacturables {
@@ -40,9 +41,11 @@ public class SeancesFacturablesJdbc implements SeancesFacturables {
         List<LigneDeSeance> lignes = jdbc.query("""
                         SELECT s.id AS seance_id, s.patient_id, s.date_seance, s.statut,
                                s.forfait_override_id, s.forfait_override_nom, s.forfait_override_prix,
-                               p.code_patient, p.nom, p.prenom, p.etat_patient
+                               p.code_patient, p.nom, p.prenom, p.etat_patient,
+                               p.numero_assurance, p.centre_payeur_id, cp.agence_id
                         FROM seances s
                         INNER JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id
+                        LEFT JOIN centre_payeur cp ON cp.id = p.centre_payeur_id AND cp.center_id = p.center_id
                         WHERE s.center_id = ?
                           AND s.date_seance BETWEEN ? AND ?
                           AND s.statut IN ('VALIDEE', 'SIGNEE')
@@ -55,7 +58,9 @@ public class SeancesFacturablesJdbc implements SeancesFacturables {
                                 : Optional.of(new ForfaitApplique(rs.getObject("forfait_override_id", UUID.class),
                                 rs.getString("forfait_override_nom"), rs.getBigDecimal("forfait_override_prix"))),
                         new PatientFacture(rs.getObject("patient_id", UUID.class), rs.getString("code_patient"),
-                                rs.getString("nom"), rs.getString("prenom"), rs.getString("etat_patient"))),
+                                rs.getString("nom"), rs.getString("prenom"), rs.getString("etat_patient"),
+                                rs.getString("numero_assurance"), rs.getObject("centre_payeur_id", UUID.class),
+                                rs.getObject("agence_id", UUID.class))),
                 centre.valeur(), Date.valueOf(periode.debut()), Date.valueOf(periode.fin()));
 
         Map<UUID, List<PriseEnChargeTarifee>> prisesEnChargeParPatient = new HashMap<>();

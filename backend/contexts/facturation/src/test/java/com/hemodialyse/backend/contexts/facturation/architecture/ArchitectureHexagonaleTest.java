@@ -40,6 +40,16 @@ class ArchitectureHexagonaleTest {
             .orShould().callMethod(java.time.OffsetDateTime.class, "now")
             .orShould().callMethod(java.time.Instant.class, "now");
 
+    /**
+     * Le langage publié (événement d'intégration {@code FacturationValideeEvent}) est un contrat : il ne dépend ni du modèle
+     * interne du contexte, ni d'un framework.
+     */
+    @ArchTest
+    static final ArchRule le_langage_publie_ne_depend_que_de_lui_meme = noClasses().that().resideInAPackage(RACINE + ".publishedlanguage..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    RACINE + ".domain..", RACINE + ".application..", RACINE + ".infrastructure..", RACINE + ".interfaces..",
+                    RACINE + ".configuration..", "org.springframework..", "jakarta..", "org.hibernate..", "lombok..");
+
     @ArchTest
     static final ArchRule l_application_ne_depend_ni_des_adapters_ni_de_la_configuration = noClasses()
             .that().resideInAPackage(RACINE + ".application..")

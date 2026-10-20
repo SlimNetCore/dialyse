@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.facturation.contrat;
 
 import com.hemodialyse.backend.contexts.facturation.doubles.SeancesEnMemoire;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitsDuCentre;
@@ -32,6 +33,26 @@ class SeancesEnMemoireContratTest extends SeancesContrat {
     @Override
     protected ForfaitsDuCentre forfaits() {
         return memoire;
+    }
+
+    @Override
+    protected LiaisonDesSeances liaison() {
+        return memoire;
+    }
+
+    @Override
+    protected void payeur(UUID patient, CentreId centre, UUID centrePayeur, UUID agence) {
+        memoire.patient(patient, centre, "P-001", "Amrani", "Lina", "PERMANENT", "ASS-P-001", centrePayeur, agence);
+    }
+
+    @Override
+    protected String statutDe(UUID seance) {
+        return memoire.statutDe(seance);
+    }
+
+    @Override
+    protected UUID factureDe(UUID seance) {
+        return memoire.factureDe(seance);
     }
 
     @Override

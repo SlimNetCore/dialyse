@@ -1,5 +1,6 @@
 #!/bin/bash
-# Rejeu des slices F1 (referentiel de facturation) et F2 (simulation : migration V39, ACL des seances, sequence) sur un
+# Rejeu des slices F1 (referentiel de facturation), F2 (simulation : migration V39, ACL des seances, sequence) et F3 (validation :
+# migration V40, factures, reservation atomique de la sequence sous concurrence) sur un
 # PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit en
 # sortie. Chaine Flyway V1..Vn (psql), constat KB-FAC-07 sur le schema Flyway pur (l'ancien MERGE ... KEY de
 # FacturationSettingsJdbcAdapter, syntaxe H2, doit ECHOUER), puis contrats PostgreSQL : parametres de facturation (contexte
@@ -41,12 +42,21 @@ echo "-- F2 (migration V39) : les deux colonnes de memoire de l'exclusion existe
 echo "-- F2 : V39 est idempotente (rejeu sans erreur)"
 "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V39__facturation_exclusion_de_seance.sql" >/dev/null && echo "rejeu V39 ok" || RC=1
 
+echo "-- F3 (migration V40) : la colonne d'auteur de l'emission existe et est nullable"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM information_schema.columns WHERE table_name = 'factures' AND column_name = 'emise_par' AND data_type = 'uuid' AND is_nullable = 'YES'" | tr -d '\r' | grep -qx 1 \
+  && echo "colonne presente (1/1)" || { echo "ATTENDU : emise_par uuid nullable"; RC=1; }
+echo "-- F3 : V40 est idempotente (rejeu sans erreur)"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V40__facturation_auteur_de_l_emission.sql" >/dev/null && echo "rejeu V40 ok" || RC=1
+
 cd "$RACINE/backend"
 echo "=== Contrat PostgreSQL des parametres (contexte facturation) ==="
 ./mvnw -o -pl contexts/facturation test -Dtest='ParametresPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrats PostgreSQL de la simulation F2 (seances : exclusion, reinclusion, surcharge ; sequence) ==="
 ./mvnw -o -pl contexts/facturation test -Dtest='SeancesPostgresContractIT,SequencePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
+echo "=== Contrats PostgreSQL de la validation F3 (factures, numero unique par centre, auteur ; reservation atomique de la sequence sous concurrence) ==="
+./mvnw -o -pl contexts/facturation test -Dtest='FacturesPostgresContractIT,SequenceConcurrentePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrat PostgreSQL des regles de TVA (contexte comptabilite) ==="
 ./mvnw -o -pl contexts/comptabilite test -Dtest='RegleTvaPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \

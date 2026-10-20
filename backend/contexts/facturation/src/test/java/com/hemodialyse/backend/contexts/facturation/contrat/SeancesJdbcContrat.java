@@ -1,12 +1,14 @@
 package com.hemodialyse.backend.contexts.facturation.contrat;
 
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.facturation.domain.facture.LiaisonDesSeances;
 import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitApplique;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.PriseEnChargeTarifee;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SeancesFacturables;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.ForfaitsDuCentreJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.LiaisonDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.SeancesDeFacturationJdbc;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyseance.SeancesFacturablesJdbc;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,7 +31,7 @@ public abstract class SeancesJdbcContrat extends SeancesContrat {
      * Supprime les lignes de test des deux centres du contrat.
      */
     protected void viderLesLignesDeTest() {
-        for (String table : new String[]{"seances", "prise_en_charge", "patients", "forfait"}) {
+        for (String table : new String[]{"seances", "prise_en_charge", "patients", "centre_payeur", "forfait"}) {
             jdbc().update("DELETE FROM " + table + " WHERE center_id IN (?, ?)", CENTRE_A.valeur(), CENTRE_B.valeur());
         }
     }
@@ -47,6 +49,28 @@ public abstract class SeancesJdbcContrat extends SeancesContrat {
     @Override
     protected ForfaitsDuCentre forfaits() {
         return new ForfaitsDuCentreJdbc(jdbc());
+    }
+
+    @Override
+    protected LiaisonDesSeances liaison() {
+        return new LiaisonDesSeancesJdbc(jdbc());
+    }
+
+    @Override
+    protected void payeur(UUID patient, CentreId centre, UUID centrePayeur, UUID agence) {
+        jdbc().update("INSERT INTO centre_payeur (id, center_id, agence_id, code, nom) VALUES (?, ?, ?, ?, 'CNAS Alger')", centrePayeur,
+                centre.valeur(), agence, "CP-" + centrePayeur.toString().substring(30));
+        jdbc().update("UPDATE patients SET centre_payeur_id = ? WHERE id = ?", centrePayeur, patient);
+    }
+
+    @Override
+    protected String statutDe(UUID seance) {
+        return jdbc().queryForObject("SELECT statut FROM seances WHERE id = ?", String.class, seance);
+    }
+
+    @Override
+    protected UUID factureDe(UUID seance) {
+        return jdbc().queryForObject("SELECT facture_id FROM seances WHERE id = ?", UUID.class, seance);
     }
 
     @Override

@@ -1,0 +1,11 @@
+{
+  "status": 409,
+  "contentType": "application/problem+json",
+  "body": {
+    "code": "NUMERO_DE_FACTURE_DEJA_PRIS",
+    "detail": "Le numero de facture FACTURE-UNIQUE est deja pris : la sequence de numerotation du centre est en retard sur les factures existantes",
+    "instance": "/api/v1/facturation/validate",
+    "status": 409,
+    "title": "Numero de facture deja pris"
+  }
+}

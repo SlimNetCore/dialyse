@@ -1,0 +1,33 @@
+[
+  {
+    "centre": "<CENTRE_A>",
+    "debut": "2026-01-01",
+    "factures": [
+      {
+        "id": "<UUID_GENERE_1>",
+        "numero": "FAC-<ANNEE>-0042",
+        "totalHt": "7000.00",
+        "totalTtc": "7630.00",
+        "totalTva": "630.00"
+      },
+      {
+        "id": "<UUID_GENERE_2>",
+        "numero": "FAC-<ANNEE>-0043",
+        "totalHt": "3500.00",
+        "totalTtc": "3815.00",
+        "totalTva": "315.00"
+      },
+      {
+        "id": "<UUID_GENERE_3>",
+        "numero": "FAC-<ANNEE>-0044",
+        "totalHt": "5200.00",
+        "totalTtc": "5668.00",
+        "totalTva": "468.00"
+      }
+    ],
+    "fin": "2026-01-31",
+    "seancesFacturees": 4,
+    "survenueLe": "<HORODATAGE>",
+    "totalTtc": "17113.00"
+  }
+]

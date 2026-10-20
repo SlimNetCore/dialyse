@@ -18,7 +18,12 @@ public class SequenceEnMemoire implements SequenceDeFacturation {
     }
 
     @Override
-    public int courante(CentreId centre, int annee) {
+    public synchronized int courante(CentreId centre, int annee) {
         return valeurs.getOrDefault(centre.valeur() + "/" + annee, 0);
+    }
+
+    @Override
+    public synchronized int reserverLaSuivante(CentreId centre, int annee) {
+        return valeurs.merge(centre.valeur() + "/" + annee, 1, Integer::sum);
     }
 }
