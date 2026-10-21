@@ -107,11 +107,10 @@ classDiagram
   Absences/Comptabilité. La page comptable `/regles-tva` reste une façade de compatibilité le temps du retrait legacy
   (C7 Comptabilité).
 
-### Période de facturation (racine `PériodeDeFacturation`) — proposé
+### Mois de facturation (racine `MoisDeFacturation`, ex-`PériodeDeFacturation`) — réalisé en F7 (ADR 0037)
 
-- Identité `CentreId + Mois`; état ouvert/clos; `cloturer(auteur, instant)` irréversible à confirmer. La clôture refuse
-  toute validation ou exclusion ultérieure du mois ; un mois sans ligne est ouvert.
-- La règle proposée ne suppose pas encore un ordre de clôture avec Absences, Stock et Comptabilité.
+- Identité `CentreId + Mois`; état ouvert/clos; `cloturer(instant, auteur, séances éligibles restantes)` sans précondition, `rouvrir(instant, auteur, motif)` avec motif obligatoire, refusée si la période comptable du mois est close (lue par `PeriodesComptables`). Un mois clos refuse validation, exclusion, réinclusion et changement de forfait (`GardeDesMoisClos`, verrou de ligne). Un mois sans ligne est ouvert. Nom `MoisDeFacturation` car `PeriodeDeFacturation` est l'intervalle de dates d'une simulation.
+- Pas d'ordre imposé avec Absences et Stock : ils consommeront les évènements `PeriodeDeFacturationCloturee` / `PeriodeDeFacturationRouverte` plus tard.
 
 ## 4. Value Objects
 
@@ -150,7 +149,7 @@ classes Spring actuelles sont synchrones et ne sont pas le contrat cible.
 |--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
 | `FacturationValidée`           | Facturation → Comptabilité (écritures de vente), Séance (verrou), Absences (couverture/clôture), Stock (verrou des sorties), Pilotage | v3 (ADR 0036) : `centre`, `debut`, `fin`, `nombreDeFactures`, `seancesFacturees`, `totalTtc`, `survenueLe` (les factures ne sont plus listées : les consommateurs les relisent en base) | Outbox, livraison au moins une fois, idempotence par `eventId` et/ou `factureId`; ne pas exposer les lignes cliniques |
 | `RèglementEnregistré`          | Facturation → Comptabilité                                                                                                            | `eventId`, `reglementId`, `factureId`, `centreId`, `montantSigné`, `dateReglement`, `auteur`                                                                                        | Outbox, idempotence par `reglementId`                                                                                 |
-| `PériodeDeFacturationClôturée` | Facturation → Absences, Pilotage, éventuellement Comptabilité                                                                         | `eventId`, `centreId`, `mois`, `clotureePar`, `clotureeLe`                                                                                                                          | candidat ADR 0009 ; consommation idempotente                                                                          |
+| `PeriodeDeFacturationCloturee` / `PeriodeDeFacturationRouverte` (F7, ADR 0037) | Facturation → Absences, Pilotage, éventuellement Comptabilité                                                                         | `centre`, `mois`, `cloturePar`, `cloturee`, `seancesEligiblesRestantes` ; réouverture : `centre`, `mois`, `rouvertPar`, `rouverte`, `motif`                                                                                                                          | ADR 0037 ; aucun consommateur ; idempotence par (centre, mois, instant)                                                                          |
 | `SéanceExclueDeFacturation`    | Facturation → Pilotage, éventuellement Séance                                                                                         | `eventId`, `centreId`, `seanceId`, `motif?`, `acteur`, `date`                                                                                                                       | à définir avec l'owner de la décision et le statut legacy                                                             |
 
 Compatibilité actuelle :
@@ -197,8 +196,7 @@ SQL du listener ; aucune modification de contrat n'est incluse dans cette propos
    propriétaire ; `/tva-types` devient une façade vers le contexte `comptabilite` ; une seule règle de validation (union
    des contrôles). `TypeTVA` sort des agrégats de la Facturation, qui lit le taux par le langage publié de la
    Comptabilité. *(Révision du modèle : la section « Type de TVA » ci-dessus est caduque sur la propriété.)*
-2. **Clôture mensuelle** : définition exacte de la période clôturée, ordre avec Absences/Stock/Comptabilité,
-   comportement si une validation est déjà en cours ; clôture irréversible proposée, pas encore caractérisée.
+2. **Clôture mensuelle** *(tranchée le 2026-10-21, ADR 0037)* : un mois par centre, aucune précondition, avertissement chiffré, réouverture avec motif refusée si la comptabilité du mois est close, validation et clôture sérialisées par verrou de ligne.
 3. **Exclusion** : motif obligatoire ou absent ? Peut-on réinclure une séance exclue ? Quelle part de l'état `ABSENT`
    legacy doit être persistée par Facturation vs traduite dans Séance ?
 4. **Règlement** : confirmer l'agrégat Règlement indépendant (collection de paiements non bornée) et la règle de total

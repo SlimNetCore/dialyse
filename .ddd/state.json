@@ -36,7 +36,7 @@
     "facturation-f4-reglements": "built",
     "facturation-f5-consultation-pilotage": "built",
     "facturation-f6-retrait-bc-facturation": "built",
-    "facturation-f7-cloture-mensuelle": "planned"
+    "facturation-f7-cloture-mensuelle": "built"
   },
   "contexts": {
     "gmao": "architected",

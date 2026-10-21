@@ -86,7 +86,7 @@ ces cas ne se produisent plus ; le frontend ne référençait pas `SEANCE_BILLED
 
 ## État final
 
-`backend/bc-facturation` supprimé. Facturation hors F7 terminée. Reste : F7 (clôture mensuelle, nouvelle fonctionnalité, ADR 0009).
+`backend/bc-facturation` supprimé. Facturation hors F7 terminée. F7 (clôture mensuelle, nouvelle fonctionnalité, ADR 0009 et 0037) livrée ensuite : voir `facturation-f7-cloture-mensuelle.md`.
 
 ### Corrections de la revue F5/F6 (2026-10-21)
 

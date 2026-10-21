@@ -749,6 +749,40 @@ ORDER BY f.center_id, f.date_facturation;
 - Aucune migration : rien à voir dans `flyway_schema_history`.
 - Vérifier avant l'exécution les noms de colonnes (`journal_code`, `numero_piece`, `statut`, `updated_at` : date d'export d'une écriture exportée, ADR 0026, `source_id`) sur le schéma de production.
 
+## 23. Facturation F7 : clôture mensuelle de facturation (migration V42, 2026-10-21)
+
+V42 crée deux tables vides, sans toucher aucune donnée existante. **SELECT seulement.**
+
+```sql
+-- 23.1 les deux tables existent (attendu : 2 lignes)
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public' AND table_name IN ('periodes_facturation', 'periodes_facturation_journal')
+ORDER BY table_name;
+
+-- 23.2 colonnes de periodes_facturation (attendu : center_id, annee, mois, statut, cloturee_par, cloturee_le, rouverte_par, rouverte_le, motif_reouverture)
+SELECT column_name, data_type, is_nullable FROM information_schema.columns
+WHERE table_schema = 'public' AND table_name = 'periodes_facturation' ORDER BY ordinal_position;
+
+-- 23.3 au départ, AUCUN mois n'est clos et le journal est vide (attendu : 0 et 0)
+SELECT (SELECT COUNT(*) FROM periodes_facturation WHERE statut = 'CLOTURE') AS mois_clos,
+       (SELECT COUNT(*) FROM periodes_facturation_journal) AS lignes_de_journal;
+
+-- 23.4 unicité (centre, année, mois) et contraintes CHECK présentes (attendu : une clé primaire de 3 colonnes, 2 contraintes CHECK sur periodes_facturation)
+SELECT conname, contype FROM pg_constraint WHERE conrelid = 'periodes_facturation'::regclass ORDER BY conname;
+```
+
+- **Après quelques clôtures** (contrôle de cohérence, attendu : 0 ligne) : un mois clos dont le journal ne contient pas de clôture, ou un mois
+  clos sans auteur.
+  ```sql
+  SELECT p.center_id, p.annee, p.mois FROM periodes_facturation p
+  WHERE p.statut = 'CLOTURE'
+    AND (p.cloturee_par IS NULL OR NOT EXISTS (SELECT 1 FROM periodes_facturation_journal j
+         WHERE j.center_id = p.center_id AND j.annee = p.annee AND j.mois = p.mois AND j.type_acte = 'CLOTURE'));
+  ```
+- Rappel de la règle de réouverture : refusée si la période comptable du même mois et du même centre est clôturée
+  (`SELECT center_id, annee, mois FROM periodes_comptables WHERE cloturee` pour les repérer).
+- Annoncer aux administrateurs que clôturer est **immédiat et sans précondition** : lire l'avertissement chiffré avant de confirmer.
+
 ## Que nous rapporter
 Un message court : le résultat de chaque point (OK, ou la valeur observée : colonnes présentes, nom des contraintes, comptages),
 sans données de patients ni identifiants. Tant que les points 2, 4, 8, 10 et 11 ne sont pas confirmés, ne déployez pas
@@ -756,4 +790,4 @@ G1-G5
 en production. Pour la bascule Comptabilité C3, confirmez également le point 16 ; pour C4, examinez le point 17 avant
 toute décision d'ajout de contrainte unique. Pour la bascule Facturation F2, confirmez le point 18 ; pour F3, les points
 19.1 à 19.6 ; pour F4, les points 20.1 à 20.5 et 20.10 (V41, remboursements et écritures de remboursement historiques) ; pour F5, le point 21.2
-(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable).
+(écart des chiffres de la synthèse) à faire valider par la direction et la comptabilité ; pour F6, le point 22 (écritures déjà générées pour des factures de reprise, extourne à décider avec le comptable) ; pour F7, le point 23 (V42 : tables créées, aucun mois clos au départ).
