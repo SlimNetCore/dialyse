@@ -23,11 +23,11 @@ describe('refus SEANCE_FACTUREE_NON_MODIFIABLE', () => {
     expect(isSeanceFactureeNonModifiable({status: 422})).toBe(false);
   });
 
-  it('affiche le detail du backend s\'il est présent', () => {
-    expect(seanceFactureeNonModifiableMessage(refus('Séance facturée.'))).toBe('Séance facturée.');
+  it('préfère la clé i18n au detail français du backend', () => {
+    expect(seanceFactureeNonModifiableMessage(refus('Séance facturée.'))).toBe(CLE_SEANCE_FACTUREE_NON_MODIFIABLE);
   });
 
-  it('retombe sur la clé i18n sans detail, et ignore les autres erreurs', () => {
+  it('donne la clé i18n sans detail, et ignore les autres erreurs', () => {
     expect(seanceFactureeNonModifiableMessage(refus())).toBe(CLE_SEANCE_FACTUREE_NON_MODIFIABLE);
     expect(seanceFactureeNonModifiableMessage({status: 500, error: {detail: 'x'}})).toBeNull();
   });

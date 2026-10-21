@@ -29,7 +29,7 @@ export function httpErrorStatus(err: unknown): number | null {
 
 /** Code unique du refus (HTTP 422) de toute modification d'une séance facturée (F6, ADR 0035). */
 export const CODE_SEANCE_FACTUREE_NON_MODIFIABLE = 'SEANCE_FACTUREE_NON_MODIFIABLE';
-/** Clé i18n du message de repli quand le backend ne fournit pas de `detail`. */
+/** Clé i18n du message affiché pour ce refus (quatre langues). */
 export const CLE_SEANCE_FACTUREE_NON_MODIFIABLE = 'SEANCES.FACTUREE_NON_MODIFIABLE';
 
 /** Vrai si l'erreur HTTP est le refus 422 `SEANCE_FACTUREE_NON_MODIFIABLE` (corps JSON déjà parsé). */
@@ -40,13 +40,12 @@ export function isSeanceFactureeNonModifiable(err: unknown): boolean {
 }
 
 /**
- * Message à afficher pour le refus « séance facturée » : le `detail` du backend s'il est présent, sinon la clé i18n
- * de repli (à passer par `translate`). Retourne null pour toute autre erreur (elle garde son traitement habituel).
+ * Message à afficher pour le refus « séance facturée » : la clé i18n du code stable (à passer par `translate`), traduite
+ * dans les quatre langues ; le `detail` du backend est en français et n'est donc plus affiché. Retourne null pour toute
+ * autre erreur (elle garde son traitement habituel).
  */
 export function seanceFactureeNonModifiableMessage(err: unknown): string | null {
-  if (!isSeanceFactureeNonModifiable(err)) return null;
-  const detail = ((err as Record<string, unknown>)['error'] as Record<string, unknown>)['detail'];
-  return typeof detail === 'string' && detail.trim() ? detail : CLE_SEANCE_FACTUREE_NON_MODIFIABLE;
+  return isSeanceFactureeNonModifiable(err) ? CLE_SEANCE_FACTUREE_NON_MODIFIABLE : null;
 }
 
 /** Profils autorisés à imprimer la synthèse mensuelle de facturation (le backend refuse les autres en 403). */
