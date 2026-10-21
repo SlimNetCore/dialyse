@@ -33,6 +33,30 @@ describe('facturationErrorState', () => {
     expect(facturationErrorState(http(403, {})).error).toBe('FACTURATION.ERROR.FORBIDDEN');
   });
 
+  it('422 mois clos : message avec le mois (propriété mois), repli sur le detail puis sur un message générique', () => {
+    expect(facturationErrorState(http(422, {code: 'PERIODE_DE_FACTURATION_CLOTUREE', mois: '2026-08', detail: 'd'})))
+      .toEqual({error: 'FACTURATION.ERROR.PERIODE_CLOTUREE', errorParams: {mois: '2026-08'}});
+    expect(facturationErrorState(http(422, {code: 'PERIODE_DE_FACTURATION_CLOTUREE', detail: 'La periode 2026-08 est cloturee'})))
+      .toEqual({error: 'La periode 2026-08 est cloturee', errorParams: null});
+    expect(facturationErrorState(http(422, {code: 'PERIODE_DE_FACTURATION_CLOTUREE'})).error)
+      .toBe('FACTURATION.ERROR.PERIODE_CLOTUREE_SANS_MOIS');
+  });
+
+  it('clôture mensuelle : 409, 422 comptable et 400 ont un message dédié', () => {
+    const cas: Array<[number, string, string]> = [
+      [409, 'PERIODE_DEJA_CLOTUREE', 'PERIODE_DEJA_CLOTUREE'],
+      [409, 'PERIODE_NON_CLOTUREE', 'PERIODE_NON_CLOTUREE'],
+      [422, 'PERIODE_COMPTABLE_CLOTUREE', 'PERIODE_COMPTABLE_CLOTUREE'],
+      [400, 'MOTIF_DE_REOUVERTURE_OBLIGATOIRE', 'MOTIF_OBLIGATOIRE'],
+      [400, 'MOIS_INVALIDE', 'MOIS_INVALIDE'],
+      [400, 'ANNEE_INVALIDE', 'ANNEE_INVALIDE'],
+    ];
+    for (const [status, code, cle] of cas) {
+      expect(facturationErrorState(http(status, {code, detail: 'texte du backend'})))
+        .toEqual({error: `FACTURATION.ERROR.${cle}`, errorParams: null});
+    }
+  });
+
   it('sans detail, repli sur le message existant puis sur le message générique', () => {
     expect(facturationErrorState(http(500, {})).error).toContain('500');
     expect(facturationErrorState({}).error).toBe('FACTURATION.ERROR.GENERIC');

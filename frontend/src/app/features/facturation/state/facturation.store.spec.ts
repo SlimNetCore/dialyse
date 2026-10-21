@@ -69,10 +69,31 @@ describe('FacturationStore', () => {
     getFacturationSettings: ReturnType<typeof vi.fn>;
     updateFacturationSettings: ReturnType<typeof vi.fn>;
     listForfaitsReferential: ReturnType<typeof vi.fn>;
+    getFacturationPeriodes: ReturnType<typeof vi.fn>;
+    cloturerMoisFacturation: ReturnType<typeof vi.fn>;
+    rouvrirMoisFacturation: ReturnType<typeof vi.fn>;
   };
+
+  const mois = (m: string, statut: 'OUVERT' | 'CLOTURE', extra: object = {}) => ({
+    mois: m, statut, cloturePar: null, clotureLe: null, rouvertPar: null, rouvertLe: null, motifDeReouverture: null, ...extra,
+  });
+  const annee2026 = (clos: string[] = []) => ({
+    centerId: CENTER_ID,
+    annee: 2026,
+    periodes: Array.from({length: 12}, (_, i) => {
+      const m = `2026-${String(i + 1).padStart(2, '0')}`;
+      return mois(m, clos.includes(m) ? 'CLOTURE' : 'OUVERT');
+    }),
+  });
 
   beforeEach(() => {
     mockApi = {
+      getFacturationPeriodes: vi.fn().mockReturnValue(of(annee2026(['2026-08']))),
+      cloturerMoisFacturation: vi.fn().mockReturnValue(of({
+        centerId: CENTER_ID, mois: '2026-07', statut: 'CLOTURE', cloturePar: USER_ID, clotureLe: '2026-09-01T08:00:00Z',
+        seancesEligiblesRestantes: 3,
+      })),
+      rouvrirMoisFacturation: vi.fn().mockReturnValue(of({centerId: CENTER_ID, mois: '2026-08', statut: 'OUVERT'})),
       previewFacturation: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
       excludeSeanceFromPreview: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
       includeSeanceInPreview: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
@@ -240,6 +261,104 @@ describe('FacturationStore', () => {
     });
     expect(store.preview()?.invoices[0]?.seances[0]?.forfaitId).toBe(FORFAIT_B);
     expect(store.successMessage()).toBe('FACTURATION.SUCCESS.SEANCE_FORFAIT_UPDATED');
+  });
+
+  describe('clôture mensuelle', () => {
+    it('charge les mois de l année et les cumule', () => {
+      const store = TestBed.inject(FacturationStore);
+
+      store.loadPeriodes({centerId: CENTER_ID, annee: 2026});
+
+      expect(mockApi.getFacturationPeriodes).toHaveBeenCalledWith(CENTER_ID, 2026);
+      expect(store.anneesChargees()).toEqual([2026]);
+      expect(store.moisEstClos('2026-08')).toBe(true);
+      expect(store.moisEstClos('2026-07')).toBe(false);
+      expect(store.moisDeLAnnee().length).toBe(12);
+    });
+
+    it('désactivation : tout mois couvert par la période personnalisée, ou le mois choisi, clos', () => {
+      const store = TestBed.inject(FacturationStore);
+      store.loadPeriodes({centerId: CENTER_ID, annee: 2026});
+
+      store.setPeriodMode('custom');
+      store.setStartDate('2026-07-20');
+      store.setEndDate('2026-08-05');
+      expect(store.moisVises()).toEqual(['2026-07', '2026-08']);
+      expect(store.moisClosVises()).toEqual(['2026-08']);
+
+      store.setEndDate('2026-07-31');
+      expect(store.moisClosVises()).toEqual([]);
+
+      store.setPeriodMode('month');
+      store.setMonth('2026-08');
+      expect(store.moisClosVises()).toEqual(['2026-08']);
+    });
+
+    it('clôture un mois : avertissement chiffré, message de succès, mois rechargé', () => {
+      mockApi.getFacturationPeriodes.mockReturnValue(of(annee2026(['2026-07', '2026-08'])));
+      const store = TestBed.inject(FacturationStore);
+
+      store.cloturerMois({centerId: CENTER_ID, mois: '2026-07'});
+
+      expect(mockApi.cloturerMoisFacturation).toHaveBeenCalledWith('2026-07', CENTER_ID);
+      expect(store.clotureAvertissement()).toEqual({mois: '2026-07', seancesRestantes: 3});
+      expect(store.successMessage()).toBe('FACTURATION.SUCCESS.MOIS_CLOTURE');
+      expect(store.moisEstClos('2026-07')).toBe(true);
+      expect(store.periodeActionMois()).toBeNull();
+    });
+
+    it('clôture refusée en 409 : message dédié, aucun avertissement', () => {
+      mockApi.cloturerMoisFacturation.mockReturnValue(throwError(() =>
+        new HttpErrorResponse({status: 409, error: {code: 'PERIODE_DEJA_CLOTUREE', detail: 'd'}})));
+      const store = TestBed.inject(FacturationStore);
+
+      store.cloturerMois({centerId: CENTER_ID, mois: '2026-08'});
+
+      expect(store.error()).toBe('FACTURATION.ERROR.PERIODE_DEJA_CLOTUREE');
+      expect(store.clotureAvertissement()).toBeNull();
+      expect(store.periodeActionMois()).toBeNull();
+    });
+
+    it('rouvre un mois avec son motif puis recharge l année', () => {
+      const store = TestBed.inject(FacturationStore);
+      store.loadPeriodes({centerId: CENTER_ID, annee: 2026});
+      mockApi.getFacturationPeriodes.mockReturnValue(of({
+        ...annee2026(),
+        periodes: annee2026().periodes.map((p) => p.mois === '2026-08'
+          ? mois('2026-08', 'OUVERT', {rouvertPar: USER_ID, rouvertLe: '2026-09-02T08:00:00Z', motifDeReouverture: 'oubli'})
+          : p),
+      }));
+
+      store.rouvrirMois({centerId: CENTER_ID, mois: '2026-08', motif: 'oubli'});
+
+      expect(mockApi.rouvrirMoisFacturation).toHaveBeenCalledWith('2026-08', {centerId: CENTER_ID, motif: 'oubli'});
+      expect(store.moisEstClos('2026-08')).toBe(false);
+      expect(store.periodes()['2026-08'].motifDeReouverture).toBe('oubli');
+      expect(store.successMessage()).toBe('FACTURATION.SUCCESS.MOIS_ROUVERT');
+    });
+
+    it('réouverture refusée par la comptabilité (422) : message clair', () => {
+      mockApi.rouvrirMoisFacturation.mockReturnValue(throwError(() =>
+        new HttpErrorResponse({status: 422, error: {code: 'PERIODE_COMPTABLE_CLOTUREE'}})));
+      const store = TestBed.inject(FacturationStore);
+
+      store.rouvrirMois({centerId: CENTER_ID, mois: '2026-08', motif: 'oubli'});
+
+      expect(store.error()).toBe('FACTURATION.ERROR.PERIODE_COMPTABLE_CLOTUREE');
+    });
+
+    it('validation sur un mois clos (422) : message avec le mois', () => {
+      mockApi.validateFacturation.mockReturnValue(throwError(() =>
+        new HttpErrorResponse({status: 422, error: {code: 'PERIODE_DE_FACTURATION_CLOTUREE', mois: '2026-08', detail: 'd'}})));
+      const store = TestBed.inject(FacturationStore);
+      store.setMonth('2026-08');
+      store.calculatePreview({centerId: CENTER_ID});
+
+      store.validateFacturation({centerId: CENTER_ID, userId: USER_ID});
+
+      expect(store.error()).toBe('FACTURATION.ERROR.PERIODE_CLOTUREE');
+      expect(store.errorParams()).toEqual({mois: '2026-08'});
+    });
   });
 });
 

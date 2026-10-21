@@ -33,6 +33,15 @@ describe('FacturationWorkspaceComponent', () => {
     forfaits: vi.fn(() => []),
     previewLoading: vi.fn(() => false),
     seanceActionLoadingId: vi.fn(() => null),
+    anneePeriodes: vi.fn(() => 2026),
+    anneesChargees: vi.fn(() => [2026]),
+    moisVises: vi.fn(() => ['2026-08']),
+    moisClosVises: vi.fn(() => [] as string[]),
+    moisEstClos: vi.fn((mois: string) => mois === '2026-08'),
+    loadPeriodes: vi.fn(),
+    cloturerMois: vi.fn(),
+    rouvrirMois: vi.fn(),
+    setAnneePeriodes: vi.fn(),
   };
 
   const appShellMock = {
@@ -135,6 +144,56 @@ describe('FacturationWorkspaceComponent', () => {
       centerId: '11111111-1111-1111-1111-111111111111',
       seanceId: 'seance-1',
     });
+  });
+
+  it('clôture un mois seulement après confirmation', () => {
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    component['onConfirmerCloture']();
+    expect(facturationStoreMock.cloturerMois).not.toHaveBeenCalled();
+
+    component['onDemanderCloture']('2026-07');
+    expect(facturationStoreMock.cloturerMois).not.toHaveBeenCalled();
+    component['onConfirmerCloture']();
+
+    expect(facturationStoreMock.cloturerMois).toHaveBeenCalledWith({
+      centerId: '11111111-1111-1111-1111-111111111111',
+      mois: '2026-07',
+    });
+    expect(component['clotureAConfirmer']()).toBeNull();
+  });
+
+  it('rouvre un mois avec un motif obligatoire, nettoyé et borné à 500 caractères', () => {
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    component['onOuvrirReouverture']('2026-08');
+    expect(component['reouvertureValide']()).toBe(false);
+    component['onMotifReouverture']('   ');
+    expect(component['reouvertureValide']()).toBe(false);
+    component['onConfirmerReouverture']();
+    expect(facturationStoreMock.rouvrirMois).not.toHaveBeenCalled();
+
+    component['onMotifReouverture']('x'.repeat(501));
+    expect(component['reouvertureValide']()).toBe(false);
+
+    component['onMotifReouverture']('  séances oubliées  ');
+    expect(component['reouvertureValide']()).toBe(true);
+    component['onConfirmerReouverture']();
+
+    expect(facturationStoreMock.rouvrirMois).toHaveBeenCalledWith({
+      centerId: '11111111-1111-1111-1111-111111111111',
+      mois: '2026-08',
+      motif: 'séances oubliées',
+    });
+    expect(component['reouvertureDraft']()).toBeNull();
+  });
+
+  it('bloque les actions d une séance dont le mois est clos (mois de la date de la séance)', () => {
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+
+    expect(component['moisDeSeanceClos']('2026-08-12')).toBe(true);
+    expect(component['moisDeSeanceClos']('2026-07-31')).toBe(false);
+    expect(component['moisDeSeanceClos'](null)).toBe(false);
   });
 
   it('imprime la synthese mensuelle avec centerId et periode du mois actif', () => {

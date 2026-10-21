@@ -1216,7 +1216,31 @@
       "SETTINGS_SAVED": "Iɣewwaren n ufeter ttwasekelsen.",
       "SEANCE_EXCLUDED": "Tamsirt tettwakkes seg ufeter yerna tettwamerked d ABSENT.",
       "SEANCE_REINCLUDED": "Tamsirt tuɣal ɣer ufeter yerna asemsel yettwasiḍen tikkelt-nniḍen.",
-      "SEANCE_FORFAIT_UPDATED": "Afurki n tmsirt yettwaleqqem yerna asemsel yettwasiḍen tikkelt-nniḍen."
+      "SEANCE_FORFAIT_UPDATED": "Afurki n tmsirt yettwaleqqem yerna asemsel yettwasiḍen tikkelt-nniḍen.",
+      "MOIS_CLOTURE": "Aggur n usiggez yettwagdel.",
+      "MOIS_ROUVERT": "Aggur n usiggez yettwaldi daɣen."
+    },
+    "PERIODES": {
+      "TITLE": "Agdal ageggur n usiggez",
+      "HINT": "Aggur yettwagdlen ur yeqbil ara asentem, asefsex, tuγalin d usenfel n ufurki; asemsel yezdi. Asnulfu-d daɣen yesra acuɣer.",
+      "YEAR": "Aseggas",
+      "MONTH": "Aggur",
+      "CLOSED": "Agdal",
+      "REOPENED": "Asnulfu aneggaru",
+      "STATUS_OPEN": "Yeldi",
+      "STATUS_CLOSED": "Yettwagdel",
+      "CLOSED_BY": "sɣur {{par}} deg {{le}}",
+      "REOPENED_BY": "sɣur {{par}} deg {{le}}",
+      "REASON": "Acuɣer",
+      "CLOSE": "Agdal",
+      "REOPEN": "Ales taldi",
+      "CONFIRM_CLOSE": "Ad tgdleḍ aggur {{mois}}? Ulac tafaturt ara d-yettwasuffɣen deg-s, tisimlin-is ur ttwasnifelent ara armi yettwaldi daɣen.",
+      "CONFIRM_CLOSE_BUTTON": "Sentem agdal",
+      "MOTIF": "Acuɣer n tulya (ilaq)",
+      "CONFIRM_REOPEN_BUTTON": "Ales taldi n uggur",
+      "AVERTISSEMENT": "{{count}} n tsimlin yettwafernen ur nettwafaturen ara qqimen i uggur {{mois}}.",
+      "BLOQUE_VALIDATION": "Asentem ur yezmir ara: aggur {{mois}} yettwagdel. Ales taldi-ines neɣ fren tamzizdig-nniḍen (asemsel yezdi).",
+      "BLOQUE_SEANCE": "Tigawt ur tezmir ara: aggur {{mois}} n tsimlit-a yettwagdel."
     },
     "ERROR": {
       "NUMERO_DEJA_PRIS": "Uṭṭun n ufeter yettwaseqdac yakan, ulac afeter i yettwasefken. Ɛreḍ tikkelt-nniḍen asentem; ma yella izen yeqqim, nermes anedbal: ahat amḍan n uṭṭunen yeqqen.",
@@ -1224,7 +1248,15 @@
       "NO_PREVIEW": "Ulac preview. Ma ulac aḥsab, bdu s usiḍen.",
       "GENERIC": "Ameskar n ufeter ur yeddi ara.",
       "FORBIDDEN": "Anekcum yettwagdel: tamkarḍit i d-yettwasuter yemgarad d tin n tɣimit-ik, neɣ amaɣnu-inek ur yeǧǧi ara ameskar-a.",
-      "SYNTHESE_FORBIDDEN": "Asiggez yettwagdel: tasemlest n ufeter d tamezwarut i yimaɣnuten ADMIN d SECRÉTAIRE kan, d tamkarḍit n tɣimit-ik."
+      "SYNTHESE_FORBIDDEN": "Asiggez yettwagdel: tasemlest n ufeter d tamezwarut i yimaɣnuten ADMIN d SECRÉTAIRE kan, d tamkarḍit n tɣimit-ik.",
+      "PERIODE_CLOTUREE": "Aggur n usiggez {{mois}} yettwagdel: tigawt tegdel. Ales taldi n uggur (s wacuɣer) ma yelaq.",
+      "PERIODE_CLOTUREE_SANS_MOIS": "Aggur n usiggez yettwagdel: tigawt tegdel.",
+      "PERIODE_DEJA_CLOTUREE": "Aggur-a yettwagdel yakan.",
+      "PERIODE_NON_CLOTUREE": "Aggur-a ur yettwagdel ara: ulac ayen ara talseḍ ad teldiḍ.",
+      "PERIODE_COMPTABLE_CLOTUREE": "Tamzizdig n uṭṭubbu n uggur-a tettwagdel: asiggez ur yezmir ara ad yettwaldi daɣen.",
+      "MOTIF_OBLIGATOIRE": "Acuɣer n tulya yelaq (500 n yisekkilen ugar).",
+      "MOIS_INVALIDE": "Aggur arameɣtu (amsal: AAAA-MM).",
+      "ANNEE_INVALIDE": "Aseggas arameɣtu."
     },
     "SYNTHESE": {
       "INFO": "Cfawat n tsemlest rzant ɣer ussemma i yettwaseklen deg ifatar.",

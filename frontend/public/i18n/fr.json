@@ -1216,7 +1216,31 @@
       "SETTINGS_SAVED": "Paramètres de facturation enregistrés.",
       "SEANCE_EXCLUDED": "La séance a été retirée de la facturation et marquée absente.",
       "SEANCE_REINCLUDED": "La séance a été réincluse dans la facturation et la simulation recalculée.",
-      "SEANCE_FORFAIT_UPDATED": "Le forfait de la séance a été mis à jour et la simulation recalculée."
+      "SEANCE_FORFAIT_UPDATED": "Le forfait de la séance a été mis à jour et la simulation recalculée.",
+      "MOIS_CLOTURE": "Mois de facturation clôturé.",
+      "MOIS_ROUVERT": "Mois de facturation rouvert."
+    },
+    "PERIODES": {
+      "TITLE": "Clôture mensuelle de la facturation",
+      "HINT": "Un mois clôturé n'accepte plus de validation, d'exclusion, de réinclusion ni de changement de forfait ; la simulation reste possible. La réouverture exige un motif.",
+      "YEAR": "Année",
+      "MONTH": "Mois",
+      "CLOSED": "Clôture",
+      "REOPENED": "Dernière réouverture",
+      "STATUS_OPEN": "Ouvert",
+      "STATUS_CLOSED": "Clôturé",
+      "CLOSED_BY": "par {{par}} le {{le}}",
+      "REOPENED_BY": "par {{par}} le {{le}}",
+      "REASON": "Motif",
+      "CLOSE": "Clôturer",
+      "REOPEN": "Rouvrir",
+      "CONFIRM_CLOSE": "Clôturer le mois {{mois}} ? Plus aucune facture ne pourra y être émise et ses séances ne seront plus modifiables, jusqu'à une réouverture.",
+      "CONFIRM_CLOSE_BUTTON": "Confirmer la clôture",
+      "MOTIF": "Motif de réouverture (obligatoire)",
+      "CONFIRM_REOPEN_BUTTON": "Rouvrir le mois",
+      "AVERTISSEMENT": "{{count}} séance(s) éligible(s) non facturée(s) restent pour le mois {{mois}}.",
+      "BLOQUE_VALIDATION": "Validation impossible : le mois {{mois}} est clôturé. Rouvrez-le ou choisissez une autre période (la simulation reste possible).",
+      "BLOQUE_SEANCE": "Action impossible : le mois {{mois}} de cette séance est clôturé."
     },
     "ERROR": {
       "NUMERO_DEJA_PRIS": "Le numéro de facture est déjà pris, aucune facture n'a été émise. Relancez la validation ; si le message persiste, contactez l'administrateur : la séquence de numérotation est peut-être en retard.",
@@ -1224,7 +1248,15 @@
       "NO_PREVIEW": "Aucun aperçu disponible. Lancez d'abord le calcul.",
       "GENERIC": "Erreur lors de l'opération de facturation.",
       "FORBIDDEN": "Accès refusé : le centre demandé diffère de celui de votre session, ou votre profil ne permet pas cette action.",
-      "SYNTHESE_FORBIDDEN": "Impression refusée : la synthèse de facturation est réservée aux profils ADMIN et SECRÉTAIRE, et au centre de votre session."
+      "SYNTHESE_FORBIDDEN": "Impression refusée : la synthèse de facturation est réservée aux profils ADMIN et SECRÉTAIRE, et au centre de votre session.",
+      "PERIODE_CLOTUREE": "Le mois de facturation {{mois}} est clôturé : opération refusée. Rouvrez le mois (avec un motif) si nécessaire.",
+      "PERIODE_CLOTUREE_SANS_MOIS": "Le mois de facturation est clôturé : opération refusée.",
+      "PERIODE_DEJA_CLOTUREE": "Ce mois est déjà clôturé.",
+      "PERIODE_NON_CLOTUREE": "Ce mois n'est pas clôturé : il n'y a rien à rouvrir.",
+      "PERIODE_COMPTABLE_CLOTUREE": "La période comptable de ce mois est clôturée : la réouverture de la facturation est impossible.",
+      "MOTIF_OBLIGATOIRE": "Le motif de réouverture est obligatoire (500 caractères au plus).",
+      "MOIS_INVALIDE": "Mois invalide (format attendu : AAAA-MM).",
+      "ANNEE_INVALIDE": "Année invalide."
     },
     "SYNTHESE": {
       "INFO": "Les montants de la synthèse reprennent les totaux enregistrés sur les factures.",

@@ -23,6 +23,17 @@ export type FacturationErrorState = {
 
 const CODE_NUMERO_DEJA_PRIS = 'NUMERO_DE_FACTURE_DEJA_PRIS';
 const CODE_SEANCES_SANS_FORFAIT = 'SEANCES_SANS_FORFAIT';
+const CODE_PERIODE_CLOTUREE = 'PERIODE_DE_FACTURATION_CLOTUREE';
+
+/** Refus de la clôture mensuelle (F7) : « statut code » -> clé i18n. */
+const CLES_CLOTURE: Record<string, string> = {
+  '409 PERIODE_DEJA_CLOTUREE': 'FACTURATION.ERROR.PERIODE_DEJA_CLOTUREE',
+  '409 PERIODE_NON_CLOTUREE': 'FACTURATION.ERROR.PERIODE_NON_CLOTUREE',
+  '422 PERIODE_COMPTABLE_CLOTUREE': 'FACTURATION.ERROR.PERIODE_COMPTABLE_CLOTUREE',
+  '400 MOTIF_DE_REOUVERTURE_OBLIGATOIRE': 'FACTURATION.ERROR.MOTIF_OBLIGATOIRE',
+  '400 MOIS_INVALIDE': 'FACTURATION.ERROR.MOIS_INVALIDE',
+  '400 ANNEE_INVALIDE': 'FACTURATION.ERROR.ANNEE_INVALIDE',
+};
 
 /**
  * Traduit une erreur HTTP de la facturation (ProblemDetail du backend) :
@@ -45,6 +56,17 @@ export function facturationErrorState(err: unknown): FacturationErrorState {
     const raw = body?.['seancesSansForfait'];
     const count = Array.isArray(raw) ? raw.length : Number(raw ?? 0);
     return {error: 'FACTURATION.ERROR.SEANCES_SANS_FORFAIT', errorParams: {count, detail: detail ?? ''}};
+  }
+  if (status === 422 && code === CODE_PERIODE_CLOTUREE) {
+    const mois = typeof body?.['mois'] === 'string' ? body['mois'] : null;
+    if (mois) {
+      return {error: 'FACTURATION.ERROR.PERIODE_CLOTUREE', errorParams: {mois}};
+    }
+    return detail ? {error: detail, errorParams: null} : {error: 'FACTURATION.ERROR.PERIODE_CLOTUREE_SANS_MOIS', errorParams: null};
+  }
+  const cle = status !== null ? CLES_CLOTURE[`${status} ${code}`] : undefined;
+  if (cle) {
+    return {error: cle, errorParams: null};
   }
   if ((status === 400 || status === 403 || status === 422) && detail) {
     return {error: detail, errorParams: null};

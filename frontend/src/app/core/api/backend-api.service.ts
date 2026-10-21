@@ -638,6 +638,38 @@ export type FacturationSynthesePrintPayload = {
   format?: 'PDF' | 'XLSX' | 'HTML';
 };
 
+/** Un mois de facturation (GET /facturation/periodes) ; `cloturePar`/`rouvertPar` sont des identifiants d'utilisateur. */
+export type MoisDeFacturationReponse = {
+  mois: string;
+  statut: 'OUVERT' | 'CLOTURE';
+  cloturePar: string | null;
+  clotureLe: string | null;
+  rouvertPar: string | null;
+  rouvertLe: string | null;
+  motifDeReouverture: string | null;
+};
+
+export type PeriodesDeFacturationReponse = {
+  centerId: string;
+  annee: number;
+  periodes: MoisDeFacturationReponse[];
+};
+
+export type ClotureDuMoisReponse = {
+  centerId: string;
+  mois: string;
+  statut: 'CLOTURE';
+  cloturePar: string | null;
+  clotureLe: string | null;
+  seancesEligiblesRestantes: number;
+};
+
+export type ReouvertureDuMoisReponse = {
+  centerId: string;
+  mois: string;
+  statut: 'OUVERT';
+};
+
 export type ReferentialForfait = {
   id: string;
   nom: string;
@@ -1244,6 +1276,19 @@ export class BackendApiService {
 
   updateFacturationSettings(payload: FacturationSettingsPayload): Observable<FacturationSettings> {
     return this.http.put<FacturationSettings>(`${this.baseUrl}/facturation/settings`, payload);
+  }
+
+  getFacturationPeriodes(centerId: string, annee: number): Observable<PeriodesDeFacturationReponse> {
+    const params = new HttpParams().set('centerId', centerId).set('annee', String(annee));
+    return this.http.get<PeriodesDeFacturationReponse>(`${this.baseUrl}/facturation/periodes`, {params});
+  }
+
+  cloturerMoisFacturation(mois: string, centerId: string): Observable<ClotureDuMoisReponse> {
+    return this.http.post<ClotureDuMoisReponse>(`${this.baseUrl}/facturation/periodes/${mois}/cloturer`, {centerId});
+  }
+
+  rouvrirMoisFacturation(mois: string, payload: { centerId: string; motif: string }): Observable<ReouvertureDuMoisReponse> {
+    return this.http.post<ReouvertureDuMoisReponse>(`${this.baseUrl}/facturation/periodes/${mois}/rouvrir`, payload);
   }
 
   printFacturationSynthese(payload: FacturationSynthesePrintPayload): Observable<Blob> {

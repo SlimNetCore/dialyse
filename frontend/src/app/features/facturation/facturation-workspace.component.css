@@ -106,6 +106,21 @@ mat-card-content {
   color: #1b5e20;
 }
 
+.feedback.cloture-warning {
+  color: #8a5300;
+}
+
+.periodes-table {
+  width: 100%;
+}
+
+.periodes-table td,
+.periodes-table th {
+  text-align: start;
+  vertical-align: top;
+  padding: 6px 8px;
+}
+
 .preview-banner {
   display: inline-flex;
   align-items: center;

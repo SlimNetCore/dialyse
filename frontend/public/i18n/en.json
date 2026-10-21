@@ -1216,7 +1216,31 @@
       "SETTINGS_SAVED": "Billing settings saved.",
       "SEANCE_EXCLUDED": "The session was removed from billing and marked absent.",
       "SEANCE_REINCLUDED": "The session was re-included in billing and the simulation recalculated.",
-      "SEANCE_FORFAIT_UPDATED": "Session package updated and simulation recalculated."
+      "SEANCE_FORFAIT_UPDATED": "Session package updated and simulation recalculated.",
+      "MOIS_CLOTURE": "Billing month closed.",
+      "MOIS_ROUVERT": "Billing month reopened."
+    },
+    "PERIODES": {
+      "TITLE": "Monthly billing closing",
+      "HINT": "A closed month no longer accepts validation, exclusion, re-inclusion or package changes; simulation remains possible. Reopening requires a reason.",
+      "YEAR": "Year",
+      "MONTH": "Month",
+      "CLOSED": "Closing",
+      "REOPENED": "Last reopening",
+      "STATUS_OPEN": "Open",
+      "STATUS_CLOSED": "Closed",
+      "CLOSED_BY": "by {{par}} on {{le}}",
+      "REOPENED_BY": "by {{par}} on {{le}}",
+      "REASON": "Reason",
+      "CLOSE": "Close",
+      "REOPEN": "Reopen",
+      "CONFIRM_CLOSE": "Close month {{mois}}? No invoice can be issued for it and its sessions can no longer be modified until it is reopened.",
+      "CONFIRM_CLOSE_BUTTON": "Confirm closing",
+      "MOTIF": "Reopening reason (required)",
+      "CONFIRM_REOPEN_BUTTON": "Reopen the month",
+      "AVERTISSEMENT": "{{count}} eligible session(s) not yet invoiced remain for month {{mois}}.",
+      "BLOQUE_VALIDATION": "Validation impossible: month {{mois}} is closed. Reopen it or choose another period (simulation remains possible).",
+      "BLOQUE_SEANCE": "Action impossible: this session's month {{mois}} is closed."
     },
     "ERROR": {
       "NUMERO_DEJA_PRIS": "The invoice number is already taken; no invoice was issued. Run the validation again; if the message persists, contact the administrator: the numbering sequence may be behind.",
@@ -1224,7 +1248,15 @@
       "NO_PREVIEW": "No preview available. Run a calculation first.",
       "GENERIC": "Billing operation failed.",
       "FORBIDDEN": "Access denied: the requested center differs from your session's center, or your profile does not allow this action.",
-      "SYNTHESE_FORBIDDEN": "Printing denied: the billing summary is restricted to ADMIN and SECRETARY profiles, and to your session's center."
+      "SYNTHESE_FORBIDDEN": "Printing denied: the billing summary is restricted to ADMIN and SECRETARY profiles, and to your session's center.",
+      "PERIODE_CLOTUREE": "Billing month {{mois}} is closed: operation refused. Reopen the month (with a reason) if needed.",
+      "PERIODE_CLOTUREE_SANS_MOIS": "The billing month is closed: operation refused.",
+      "PERIODE_DEJA_CLOTUREE": "This month is already closed.",
+      "PERIODE_NON_CLOTUREE": "This month is not closed: there is nothing to reopen.",
+      "PERIODE_COMPTABLE_CLOTUREE": "The accounting period of this month is closed: billing cannot be reopened.",
+      "MOTIF_OBLIGATOIRE": "The reopening reason is required (500 characters at most).",
+      "MOIS_INVALIDE": "Invalid month (expected format: YYYY-MM).",
+      "ANNEE_INVALIDE": "Invalid year."
     },
     "SYNTHESE": {
       "INFO": "The summary amounts reflect the totals recorded on the invoices.",

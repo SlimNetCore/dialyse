@@ -8,7 +8,7 @@ import {
   TemplateRef,
   viewChild
 } from '@angular/core';
-import {DecimalPipe} from '@angular/common';
+import {DatePipe, DecimalPipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -30,6 +30,7 @@ import {ConfigurableListComponent, SharedListColumn} from '../../shared/configur
 import {MOTIFS_ABSENCE, MotifAbsence} from '../../core/api/absence-patient-api.service';
 import {exclusionEstValide} from './state/facturation-exclusion';
 import {synthesePrintError} from './state/facturation-errors';
+import {anneesDesMois, MOTIF_REOUVERTURE_MAX, motifDeReouvertureValide} from './state/facturation-periodes';
 import {ROLES_SYNTHESE_FACTURATION} from '../../core/api/http-error-detail';
 
 /** Exclusion en cours de saisie pour une séance de la simulation. */
@@ -53,6 +54,7 @@ Chart.register(...registerables);
     BaseChartDirective,
     TranslateModule,
     DecimalPipe,
+    DatePipe,
     ConfigurableListComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -78,6 +80,22 @@ export class FacturationWorkspaceComponent {
   protected readonly exclusionValid = computed(() => {
     const draft = this.exclusionDraft();
     return !!draft && exclusionEstValide(draft.motif, draft.commentaire);
+  });
+
+  /** Clôture / réouverture mensuelle (F7) : confirmation de clôture et saisie du motif de réouverture. */
+  protected readonly clotureAConfirmer = signal<string | null>(null);
+  protected readonly reouvertureDraft = signal<{ mois: string; motif: string } | null>(null);
+  protected readonly reouvertureValide = computed(() => {
+    const draft = this.reouvertureDraft();
+    return !!draft && motifDeReouvertureValide(draft.motif) !== '';
+  });
+  protected readonly motifMax = MOTIF_REOUVERTURE_MAX;
+  protected readonly anneeOptions = computed(() => {
+    const courante = new Date().getUTCFullYear();
+    const choisie = this.store.anneePeriodes();
+    const debut = Math.min(courante - 4, choisie);
+    const fin = Math.max(courante + 1, choisie);
+    return Array.from({length: fin - debut + 1}, (_, i) => debut + i);
   });
 
   protected readonly invoiceExpandCellTemplate = viewChild<TemplateRef<any>>('invoiceExpandCell');
@@ -229,6 +247,21 @@ export class FacturationWorkspaceComponent {
       this.store.loadRevenueTrend({centerId, endingMonth: this.store.month(), months: 6});
     });
 
+    // Charge les mois de l'année affichée et de toute année visée par la période choisie (une fois par année).
+    effect(() => {
+      const centerId = this.currentCenterId();
+      if (!centerId) {
+        return;
+      }
+      const chargees = this.store.anneesChargees();
+      const voulues = new Set([this.store.anneePeriodes(), ...anneesDesMois(this.store.moisVises())]);
+      for (const annee of voulues) {
+        if (!chargees.includes(annee)) {
+          this.store.loadPeriodes({centerId, annee});
+        }
+      }
+    });
+
     effect(() => {
       const centerId = this.currentCenterId();
       const success = this.store.successMessage();
@@ -332,6 +365,68 @@ export class FacturationWorkspaceComponent {
       seanceId,
       forfaitId,
     });
+  }
+
+  /** Valider est bloqué si un mois couvert par la période choisie est clos. */
+  protected readonly validationBloquee = computed(() => this.store.moisClosVises().length > 0);
+
+  /** Mois de la date d'une séance (AAAA-MM) clos : exclusion, réinclusion et changement de forfait sont refusés. */
+  protected moisDeSeanceClos(seanceDate: string | null | undefined): boolean {
+    return !!seanceDate && this.store.moisEstClos(seanceDate.slice(0, 7));
+  }
+
+  protected onAnneePeriodes(annee: number): void {
+    this.store.setAnneePeriodes(annee);
+  }
+
+  protected onRafraichirPeriodes(): void {
+    const centerId = this.currentCenterId();
+    if (centerId) {
+      this.store.loadPeriodes({centerId, annee: this.store.anneePeriodes()});
+    }
+  }
+
+  protected onDemanderCloture(mois: string): void {
+    this.reouvertureDraft.set(null);
+    this.clotureAConfirmer.set(mois);
+  }
+
+  protected onAnnulerCloture(): void {
+    this.clotureAConfirmer.set(null);
+  }
+
+  protected onConfirmerCloture(): void {
+    const centerId = this.currentCenterId();
+    const mois = this.clotureAConfirmer();
+    if (!centerId || !mois) {
+      return;
+    }
+    this.store.cloturerMois({centerId, mois});
+    this.clotureAConfirmer.set(null);
+  }
+
+  protected onOuvrirReouverture(mois: string): void {
+    this.clotureAConfirmer.set(null);
+    this.reouvertureDraft.set({mois, motif: ''});
+  }
+
+  protected onAnnulerReouverture(): void {
+    this.reouvertureDraft.set(null);
+  }
+
+  protected onMotifReouverture(motif: string): void {
+    this.reouvertureDraft.update((draft) => (draft ? {...draft, motif} : draft));
+  }
+
+  protected onConfirmerReouverture(): void {
+    const centerId = this.currentCenterId();
+    const draft = this.reouvertureDraft();
+    const motif = draft ? motifDeReouvertureValide(draft.motif) : '';
+    if (!centerId || !draft || !motif) {
+      return;
+    }
+    this.store.rouvrirMois({centerId, mois: draft.mois, motif});
+    this.reouvertureDraft.set(null);
   }
 
   protected seanceStatusClass(status: string | null | undefined): string {
