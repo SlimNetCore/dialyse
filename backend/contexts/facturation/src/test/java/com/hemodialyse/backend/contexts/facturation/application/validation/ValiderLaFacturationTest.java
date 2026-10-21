@@ -211,13 +211,12 @@ class ValiderLaFacturationTest {
         assertThat(evenement.fin()).isEqualTo(LocalDate.of(2026, 8, 31));
         assertThat(evenement.seancesFacturees()).isEqualTo(3);
         assertThat(evenement.survenueLe()).isEqualTo(MAINTENANT);
-        assertThat(evenement.factures()).extracting(FacturationValideeEvent.FactureEmise::id)
-                .containsExactlyElementsOf(factures.emises().stream().map(Facture::id).toList());
-        assertThat(evenement.factures()).extracting(FacturationValideeEvent.FactureEmise::numero)
-                .containsExactly("FAC-2026-0042", "FAC-2026-0043");
-        assertThat(evenement.factures().getFirst().totalHt()).isEqualByComparingTo("7000.00");
-        assertThat(evenement.factures().getFirst().totalTva()).isEqualByComparingTo("630.00");
-        assertThat(evenement.factures().getFirst().totalTtc()).isEqualByComparingTo("7630.00");
+        // Événement v3 : le détail des factures n'est plus dans l'événement ; mêmes assertions sur les factures émises.
+        assertThat(evenement.nombreDeFactures()).isEqualTo(factures.emises().size()).isEqualTo(2);
+        assertThat(factures.emises()).extracting(Facture::numero).containsExactly("FAC-2026-0042", "FAC-2026-0043");
+        assertThat(factures.emises().getFirst().totalHt()).isEqualByComparingTo("7000.00");
+        assertThat(factures.emises().getFirst().totalTva()).isEqualByComparingTo("630.00");
+        assertThat(factures.emises().getFirst().totalTtc()).isEqualByComparingTo("7630.00");
         assertThat(evenement.totalTtc()).isEqualByComparingTo("11445.00");
     }
 

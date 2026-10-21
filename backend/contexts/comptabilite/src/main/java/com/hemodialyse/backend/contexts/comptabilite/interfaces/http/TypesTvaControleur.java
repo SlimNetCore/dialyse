@@ -49,7 +49,10 @@ public class TypesTvaControleur {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<TypeTvaReponse> creer(@RequestBody @Valid TypeTvaRequete requete) {
-        var cree = types.creer(session.centre(requete.centerId()), requete.saisie(), requete.userId());
+        // L'auteur est l'utilisateur de la session ; le champ userId du corps est accepté mais ignoré (KB-FAC-R01).
+        UUID utilisateur = session.utilisateur();
+        var cree = types.creer(session.centre(requete.centerId()), requete.saisie(),
+                utilisateur != null ? utilisateur.toString() : "system");
         return ResponseEntity.status(HttpStatus.CREATED).body(TypeTvaReponse.depuis(cree));
     }
 

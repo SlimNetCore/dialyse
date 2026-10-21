@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Port sortant : les factures du centre, lues chez la Facturation (aucune écriture), triées par date de facturation puis numéro.
+ * Port sortant : les factures du centre, lues chez la Facturation par son langage publié (aucune écriture), triées par date de facturation puis numéro.
  */
 public interface FacturesAComptabiliser {
 
@@ -20,9 +20,5 @@ public interface FacturesAComptabiliser {
      */
     List<FactureAComptabiliser> factureesEntre(CentreId centre, LocalDate du, LocalDate au);
 
-    /**
-     * Factures émises dans [du, au] qui n'ont aucune écriture comptable (source).
-     */
-    List<FactureAComptabiliser> sansEcritureEntre(CentreId centre, LocalDate du, LocalDate au);
-}
 
+}

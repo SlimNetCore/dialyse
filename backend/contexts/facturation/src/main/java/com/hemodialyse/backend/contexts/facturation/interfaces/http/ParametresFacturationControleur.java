@@ -42,7 +42,10 @@ public class ParametresFacturationControleur {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/settings")
     public ResponseEntity<ParametresFacturationReponse> modifier(@RequestBody @Valid ParametresFacturationRequete requete) {
+        // L'auteur est l'utilisateur de la session ; le champ userId du corps est accepté mais ignoré (KB-FAC-R01).
+        UUID utilisateur = session.utilisateur();
         return ResponseEntity.ok(ParametresFacturationReponse.depuis(
-                configurer.modifier(session.centre(requete.centerId()), requete.commande(), requete.userId())));
+                configurer.modifier(session.centre(requete.centerId()), requete.commande(),
+                        utilisateur != null ? utilisateur.toString() : "system")));
     }
 }

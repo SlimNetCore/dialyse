@@ -64,8 +64,9 @@ public final class RedactionDesEcritures {
     }
 
     /**
-     * Débit de la banque ou de la caisse, crédit du compte client, pour la valeur absolue du montant (B6). Statut
-     * VALIDEE ; source = le règlement.
+     * Encaissement : débit de la banque ou de la caisse, crédit du compte client. <b>Remboursement</b> (montant négatif,
+     * KB-FAC-47 corrigé, décision du 2026-10-21) : l'écriture de sens inverse, crédit de la banque ou de la caisse, débit du
+     * compte client, pour la valeur absolue du montant. Statut VALIDEE ; source = le règlement.
      *
      * @param identifiants fournit l'identifiant de chaque ligne, puis celui de l'écriture (le domaine n'en tire pas)
      */
@@ -75,11 +76,14 @@ public final class RedactionDesEcritures {
         List<AxeAnalytique> axes = axesDuCentre(centre);
         BigDecimal montant = reglement.montant().abs();
         String tresorerie = reglement.enCaisse() ? mapping.compteCaisse() : mapping.compteBanque();
-        String libelle = "Règlement " + reglement.tiersLibelle();
+        boolean rembourse = reglement.estUnRemboursement();
+        String libelle = (rembourse ? "Remboursement " : "Règlement ") + reglement.tiersLibelle();
+        String libelleClient = (rembourse ? "Remboursement facture " : "Règlement facture ") + reglement.facture();
         List<LigneEcriture> lignes = List.of(
-                new LigneEcriture(identifiants.get(), tresorerie, libelle, montant, BigDecimal.ZERO, null, axes),
-                new LigneEcriture(identifiants.get(), compteClient, "Règlement facture " + reglement.facture(),
-                        BigDecimal.ZERO, montant, reglement.payeur(), axes));
+                new LigneEcriture(identifiants.get(), tresorerie, libelle, rembourse ? BigDecimal.ZERO : montant,
+                        rembourse ? montant : BigDecimal.ZERO, null, axes),
+                new LigneEcriture(identifiants.get(), compteClient, libelleClient, rembourse ? montant : BigDecimal.ZERO,
+                        rembourse ? BigDecimal.ZERO : montant, reglement.payeur(), axes));
         return EcritureComptable.generer(identifiants.get(), centre, journalDuReglement(mapping, reglement),
                 reglement.date(), reglement.date(), numero, libelle, lignes, reglement.id(), periode);
     }

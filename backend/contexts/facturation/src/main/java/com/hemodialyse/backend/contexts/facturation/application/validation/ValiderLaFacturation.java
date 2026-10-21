@@ -21,7 +21,6 @@ import com.hemodialyse.backend.contexts.facturation.domain.simulation.SequenceDe
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.Simulation;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.TauxDeTva;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent;
-import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent.FactureEmise;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -39,7 +38,7 @@ import java.util.function.Supplier;
  * <p>
  * La validation est refusée, sans rien émettre, si une séance éligible n'a pas de forfait (KB-FAC-32) ou si un numéro réservé est
  * déjà pris (KB-FAC-24/25). Sans séance éligible, rien n'est émis, la séquence ne bouge pas et aucun événement n'est publié
- * (KB-FAC-27/29 corrigés). Sinon l'événement {@link FacturationValideeEvent} décrit exactement les factures émises.
+ * (KB-FAC-27/29 corrigés). Sinon l'événement {@link FacturationValideeEvent} annonce l'émission (période, nombre de factures, total).
  */
 public final class ValiderLaFacturation {
 
@@ -101,8 +100,7 @@ public final class ValiderLaFacturation {
 
             int seancesFacturees = emises.stream().mapToInt(facture -> facture.seances().size()).sum();
             publication.facturationValidee(new FacturationValideeEvent(centre.valeur(), periode.debut(), periode.fin(),
-                    emises.stream().map(f -> new FactureEmise(f.id(), f.numero(), f.totalHt(), f.totalTva(), f.totalTtc())).toList(),
-                    seancesFacturees, emises.stream().map(Facture::totalTtc).reduce(BigDecimal.ZERO, BigDecimal::add),
+                    emises.size(), seancesFacturees, emises.stream().map(Facture::totalTtc).reduce(BigDecimal.ZERO, BigDecimal::add),
                     horloge.instant()));
             return new ResultatDeLaValidation(emises.size(), seancesFacturees);
         });

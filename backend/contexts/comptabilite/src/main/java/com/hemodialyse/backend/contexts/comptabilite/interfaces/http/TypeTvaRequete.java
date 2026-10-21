@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Corps de {@code POST /tva-types} et {@code PUT /tva-types/{id}} : mêmes champs et mêmes contrôles de format que le legacy
  * ({@code TvaTypeRequest}). {@code exonere} est un booléen primitif : absent, c'est une erreur interne (500, KB-FAC-10
- * reproduit). {@code userId} est l'auteur enregistré à la création.
+ * reproduit). {@code userId} reste exigé (contrat d'entrée) mais est ignoré : l'auteur est l'utilisateur de la session (KB-FAC-R01).
  */
 public record TypeTvaRequete(
         @NotNull UUID centerId,

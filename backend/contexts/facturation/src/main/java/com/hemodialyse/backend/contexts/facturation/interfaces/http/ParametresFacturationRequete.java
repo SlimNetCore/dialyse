@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Corps de {@code PUT /facturation/settings} : mêmes champs et mêmes contrôles de format que le legacy
  * ({@code FacturationSettingsUpdateRequest}). {@code regroupementMultiForfait} est un booléen primitif : absent, c'est une
- * erreur interne (500, KB-FAC-10 reproduit). {@code userId} est l'auteur enregistré.
+ * erreur interne (500, KB-FAC-10 reproduit). {@code userId} reste exigé (contrat d'entrée) mais est ignoré : l'auteur est l'utilisateur de la session (KB-FAC-R01).
  */
 public record ParametresFacturationRequete(
         @NotNull UUID centerId,

@@ -1,9 +1,39 @@
 package com.hemodialyse.backend.contexts.facturation.configuration;
 
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.FacturesEmises;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ReglementsEncaisses;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.FacturesEmisesJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.ReglementsEncaissesJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.FacturationDuPatientJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.RepriseDesSoldesJdbc;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationDuPatient;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.DeclarationDesAbsences;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.absences.AbsencesDesPatientsPubliees;
+import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.application.UniteDeTravail;
 import com.hemodialyse.backend.contexts.facturation.application.parametres.ConfigurerLaFacturation;
+import com.hemodialyse.backend.contexts.facturation.application.pilotage.ConsulterLaSynthese;
+import com.hemodialyse.backend.contexts.facturation.application.pilotage.ConsulterLeTableauDeBord;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ImpressionDeLaSynthese;
+import com.hemodialyse.backend.contexts.facturation.application.pilotage.ImprimerLaSynthese;
+import com.hemodialyse.backend.contexts.facturation.application.pilotage.LectureDeLaSynthese;
+import com.hemodialyse.backend.contexts.facturation.application.pilotage.LectureDuTableauDeBord;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.ConsulterLesReglements;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.EnregistrerUnReglement;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.PublicationDesReglements;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.SituationsDesFactures;
+import com.hemodialyse.backend.contexts.facturation.domain.reglement.Reglements;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.messaging.PublicationDesReglementsSpring;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.LectureDeLaSyntheseJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.LectureDuTableauDeBordJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.ReglementsJdbc;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.SyntheseFinanciereDesCentresJdbc;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.SituationsDesFacturesJdbc;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.AbsencesDesPatients;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.ChangerLeForfaitDUneSeance;
 import com.hemodialyse.backend.contexts.facturation.application.simulation.ExclureUneSeance;
@@ -44,7 +74,7 @@ import java.util.UUID;
  * Composition root du contexte Facturation : seul endroit qui connaît toutes les couches. Slice F1 : paramètres de
  * facturation du centre ; slice F2 : simulation de facturation ; slice F3 : validation et émission des factures. Les noms de beans sont préfixés {@code facturation} (un seul
  * contexte Spring avec le legacy et les autres contextes) ; l'horloge n'est pas un bean, pour ne pas concurrencer celle de la
- * Comptabilité. {@link AbsencesDesPatients} est fourni par l'ACL du module Absences (platform).
+ * Comptabilité. {@link AbsencesDesPatients} passe par le langage publié {@link DeclarationDesAbsences}, fourni par le module Absences (platform).
  */
 @Configuration(proxyBeanMethods = false)
 public class FacturationContexteConfiguration {
@@ -133,6 +163,97 @@ public class FacturationContexteConfiguration {
     @Bean
     PublicationDeLaValidation facturationPublicationDeLaValidation(ApplicationEventPublisher publisher) {
         return new PublicationDeLaValidationSpring(publisher);
+    }
+
+    @Bean
+    Reglements facturationReglements(JdbcTemplate jdbc) {
+        return new ReglementsJdbc(jdbc);
+    }
+
+    @Bean
+    SituationsDesFactures facturationSituationsDesFactures(JdbcTemplate jdbc) {
+        return new SituationsDesFacturesJdbc(jdbc);
+    }
+
+    @Bean
+    PublicationDesReglements facturationPublicationDesReglements(ApplicationEventPublisher publisher) {
+        return new PublicationDesReglementsSpring(publisher);
+    }
+
+    @Bean
+    EnregistrerUnReglement facturationEnregistrerUnReglement(Reglements reglements, SituationsDesFactures situations,
+                                                             PublicationDesReglements publication, UniteDeTravail uniteDeTravail) {
+        return new EnregistrerUnReglement(reglements, situations, publication, uniteDeTravail, Clock.systemDefaultZone(),
+                UUID::randomUUID);
+    }
+
+    @Bean
+    ConsulterLesReglements facturationConsulterLesReglements(SituationsDesFactures situations, Reglements reglements) {
+        return new ConsulterLesReglements(situations, reglements);
+    }
+
+    @Bean
+    LectureDuTableauDeBord facturationLectureDuTableauDeBord(JdbcTemplate jdbc) {
+        return new LectureDuTableauDeBordJdbc(jdbc);
+    }
+
+    @Bean
+    ConsulterLeTableauDeBord facturationConsulterLeTableauDeBord(LectureDuTableauDeBord lecture) {
+        return new ConsulterLeTableauDeBord(lecture);
+    }
+
+    @Bean
+    LectureDeLaSynthese facturationLectureDeLaSynthese(JdbcTemplate jdbc) {
+        return new LectureDeLaSyntheseJdbc(jdbc);
+    }
+
+    /** {@code impression} est l'adaptateur de la plateforme (moteur Jasper, gabarits). */
+    @Bean
+    ImprimerLaSynthese facturationImprimerLaSynthese(LectureDeLaSynthese lecture, ImpressionDeLaSynthese impression) {
+        return new ImprimerLaSynthese(lecture, impression);
+    }
+
+    @Bean
+    ConsulterLaSynthese facturationConsulterLaSynthese(LectureDeLaSynthese lecture) {
+        return new ConsulterLaSynthese(lecture);
+    }
+
+    /** Lecture publiée consommée par le pilotage de la Direction (slice F5). */
+    @Bean
+    SyntheseFinanciereDesCentres facturationSyntheseFinanciere(JdbcTemplate jdbc) {
+        return new SyntheseFinanciereDesCentresJdbc(jdbc);
+    }
+
+    @Bean
+    AbsencesDesPatients facturationAbsencesDesPatients(DeclarationDesAbsences absences) {
+        return new AbsencesDesPatientsPubliees(absences);
+    }
+
+    @Bean
+    SyntheseDeFacturation facturationSyntheseDeFacturation(ConsulterLaSynthese synthese) {
+        return (centre, debut, fin) -> synthese.executer(new CentreId(centre), debut, fin);
+    }
+
+    /** Lectures publiées de la Facturation consommées par les autres contextes (slice F6). */
+    @Bean
+    FacturationDuPatient facturationDuPatient(JdbcTemplate jdbc) {
+        return new FacturationDuPatientJdbc(jdbc);
+    }
+
+    @Bean
+    RepriseDesSoldes facturationRepriseDesSoldes(JdbcTemplate jdbc) {
+        return new RepriseDesSoldesJdbc(jdbc);
+    }
+
+    /** Fournis à la Comptabilité, qui publie les ports dont elle a besoin (la Facturation la connaît, pas l'inverse). */
+    @Bean
+    FacturesEmises facturationFacturesEmises(JdbcTemplate jdbc) {
+        return new FacturesEmisesJdbc(jdbc);
+    }
+
+    @Bean
+    ReglementsEncaisses facturationReglementsEncaisses(JdbcTemplate jdbc) {
+        return new ReglementsEncaissesJdbc(jdbc);
     }
 
     @Bean

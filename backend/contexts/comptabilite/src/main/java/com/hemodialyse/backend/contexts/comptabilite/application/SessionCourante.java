@@ -15,4 +15,10 @@ public interface SessionCourante {
      * n'est pas le sien ; {@code null} signifie « celui de ma session ».
      */
     CentreId centre(UUID centreDemande);
+
+    /**
+     * L'utilisateur authentifié, auteur de ce qu'il enregistre ; {@code null} si la session ne le donne pas sous forme
+     * d'identifiant.
+     */
+    UUID utilisateur();
 }

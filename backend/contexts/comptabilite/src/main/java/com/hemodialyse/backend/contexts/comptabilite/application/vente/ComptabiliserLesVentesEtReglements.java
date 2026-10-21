@@ -103,9 +103,13 @@ public final class ComptabiliserLesVentesEtReglements implements Comptabilisatio
     }
 
     @Override
-    public List<SourceNonComptabilisee> reglementEnregistre(UUID centre, UUID facture, BigDecimal montant, LocalDate date,
-                                                            String auteur) {
-        return publies(comptabiliserLeReglementEnregistre(new CentreId(centre), facture, montant, date, auteur));
+    public List<SourceNonComptabilisee> reglementEnregistre(UUID centre, UUID reglement, UUID facture, BigDecimal montant,
+                                                            LocalDate date, String mode) {
+        ReglementAComptabiliser aComptabiliser = new ReglementAComptabiliser(reglement, facture, montant, date,
+                mode == null ? "BANQUE" : mode, "Règlement facture", null);
+        Bilan bilan = new Bilan();
+        bilan.reglement(aComptabiliser, () -> comptabiliserUnReglement(new CentreId(centre), aComptabiliser));
+        return publies(bilan);
     }
 
     /**
@@ -147,20 +151,6 @@ public final class ComptabiliserLesVentesEtReglements implements Comptabilisatio
     }
 
     /**
-     * P2 : retrouve l'identifiant du règlement enregistré (B13) et le comptabilise en banque ; le règlement solde le compte
-     * que la facture a débité.
-     */
-    public Bilan comptabiliserLeReglementEnregistre(CentreId centre, UUID facture, BigDecimal montant, LocalDate date,
-                                                    String auteur) {
-        UUID id = uniteIsolee.executer(() -> reglements.identifiantDuReglement(centre, facture, montant, date, auteur));
-        ReglementAComptabiliser reglement = new ReglementAComptabiliser(id, facture, montant, date, "BANQUE",
-                "Règlement facture", null);
-        Bilan bilan = new Bilan();
-        bilan.reglement(reglement, () -> comptabiliserUnReglement(centre, reglement));
-        return bilan;
-    }
-
-    /**
      * Régénère les écritures manquantes des factures émises et des règlements encaissés entre {@code du} et {@code au}
      * (rejouable, sans doublon). Une vente est datée de la fin de sa période facturée, comme par P1 ; une source refusée
      * n'arrête pas les autres et figure dans le bilan.
@@ -179,7 +169,8 @@ public final class ComptabiliserLesVentesEtReglements implements Comptabilisatio
      * Factures émises entre {@code du} et {@code au} sans écriture de ventes : celles à régénérer.
      */
     public List<FactureAComptabiliser> facturesSansEcriture(CentreId centre, LocalDate du, LocalDate au) {
-        return uniteIsolee.executer(() -> factures.sansEcritureEntre(centre, du, au));
+        return uniteIsolee.executer(() -> factures.factureesEntre(centre, du, au).stream()
+                .filter(f -> ecritures.parSource(centre, f.id()).isEmpty()).toList());
     }
 
     // ------------------------------------------------------------------ règles communes

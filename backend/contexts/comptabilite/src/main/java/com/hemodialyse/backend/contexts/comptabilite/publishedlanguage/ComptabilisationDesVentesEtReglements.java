@@ -22,12 +22,17 @@ public interface ComptabilisationDesVentesEtReglements {
     List<SourceNonComptabilisee> facturationValidee(UUID centre, LocalDate debut, LocalDate fin);
 
     /**
-     * P2 : un règlement de facture a été enregistré ; son écriture de banque.
+     * P2 depuis la slice F4 : un règlement de facture a été enregistré, identifié ; son écriture de trésorerie. Un montant
+     * <b>négatif</b> est un remboursement : écriture de sens inverse (KB-FAC-47 corrigé). Le mode choisit la trésorerie :
+     * {@code CAISSE} et {@code ESPECES} vont au journal de caisse, {@code BANQUE}, {@code CHEQUE} ou l'absence de mode au journal
+     * {@code BQ} (à valider par le métier). Idempotent par identifiant de règlement.
      *
+     * @param reglement identifiant du règlement enregistré (source de l'écriture)
+     * @param mode      mode de règlement ; {@code null} : banque
      * @return le règlement non comptabilisé et la raison ; vide s'il est comptabilisé
      */
-    List<SourceNonComptabilisee> reglementEnregistre(UUID centre, UUID facture, BigDecimal montant, LocalDate date,
-                                                     String auteur);
+    List<SourceNonComptabilisee> reglementEnregistre(UUID centre, UUID reglement, UUID facture, BigDecimal montant, LocalDate date,
+                                                     String mode);
 
     /**
      * Une source non comptabilisée.

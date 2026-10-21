@@ -74,8 +74,10 @@ import com.hemodialyse.backend.contexts.comptabilite.application.vente.Comptabil
 import com.hemodialyse.backend.contexts.comptabilite.application.stock.ComptabiliserLeStock;
 import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.OperationsDeStockJdbc;
 import com.hemodialyse.backend.contexts.comptabilite.interfaces.planification.ComptabilisationDuStockPlanifiee;
-import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.FacturesAComptabiliserJdbc;
-import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.ReglementsAComptabiliserJdbc;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.facturation.FacturesAComptabiliserDepuisLaFacturation;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.FacturesEmises;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.facturation.ReglementsAComptabiliserDepuisLaFacturation;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ReglementsEncaisses;
 
 import java.time.Clock;
 
@@ -323,11 +325,12 @@ public class ComptabiliteConfiguration {
     ComptabiliserLesVentesEtReglements comptabiliteComptabiliserLesVentesEtReglements(
             EcritureComptableRepository ecritures, PeriodeComptableRepository periodes,
             SequenceDesNumerosDePieces numerotation, MappingDuCentreVu mappings, ComptesClientsDesPayeurs comptesDesPayeurs,
-            JdbcTemplate jdbc, PlatformTransactionManager transactionManager) {
+            FacturesEmises facturesEmises, ReglementsEncaisses reglementsEncaisses,
+            PlatformTransactionManager transactionManager) {
         TransactionTemplate nouvelleTransaction = new TransactionTemplate(transactionManager);
         nouvelleTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         return new ComptabiliserLesVentesEtReglements(ecritures, periodes, numerotation, mappings, comptesDesPayeurs,
-                new FacturesAComptabiliserJdbc(jdbc), new ReglementsAComptabiliserJdbc(jdbc),
+                new FacturesAComptabiliserDepuisLaFacturation(facturesEmises), new ReglementsAComptabiliserDepuisLaFacturation(reglementsEncaisses),
                 new UniteDeTravailSpring(nouvelleTransaction));
     }
 
