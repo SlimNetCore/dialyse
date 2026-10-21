@@ -1,0 +1,19 @@
+{
+  "/absences ADMIN" : 403,
+  "/absences DIRECTION" : 200,
+  "/absences SECRETAIRE" : 403,
+  "/absences SUPERADMIN" : 403,
+  "/absences anonyme" : 403,
+  "/breakdown ADMIN" : 403,
+  "/breakdown DIRECTION" : 200,
+  "/breakdown SECRETAIRE" : 403,
+  "/breakdown SUPERADMIN" : 403,
+  "/breakdown anonyme" : 403,
+  "/overview ADMIN" : 403,
+  "/overview DIRECTION" : 200,
+  "/overview DIRECTION detache de sa societe" : 403,
+  "/overview DIRECTION sans societe dans le jeton" : 403,
+  "/overview SECRETAIRE" : 403,
+  "/overview SUPERADMIN" : 403,
+  "/overview anonyme" : 403
+}

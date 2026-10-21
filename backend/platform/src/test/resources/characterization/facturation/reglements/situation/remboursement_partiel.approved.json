@@ -1,0 +1,21 @@
+[ {
+  "etat" : "REGLEE",
+  "montant" : "1000.00",
+  "montantFacture" : 1000.0,
+  "montantRegle" : 1000.0,
+  "paymentCount" : 1,
+  "reste" : 0.0,
+  "soldeType" : "REGLE",
+  "status" : 200,
+  "tropPercu" : 0.0
+}, {
+  "etat" : "PARTIELLEMENT_REGLEE",
+  "montant" : "-250.00",
+  "montantFacture" : 1000.0,
+  "montantRegle" : 750.0,
+  "paymentCount" : 2,
+  "reste" : 250.0,
+  "soldeType" : "RESTE",
+  "status" : 200,
+  "tropPercu" : 0.0
+} ]

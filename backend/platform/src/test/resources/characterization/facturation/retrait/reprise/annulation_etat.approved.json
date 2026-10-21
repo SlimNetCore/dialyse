@@ -1,0 +1,28 @@
+{
+  "factures" : [ {
+    "agence_id_snapshot" : null,
+    "centre_payeur_id_snapshot" : null,
+    "date_facturation" : "2026-02-28",
+    "numero_facture" : "FAC-0001",
+    "numero_immatriculation_snapshot" : "ASS-SNAP",
+    "patient_code" : "PAT",
+    "patient_full_name" : "Snapshot FAC-0001",
+    "patient_status_snapshot" : null,
+    "period_end" : "2026-02-28",
+    "period_start" : "2026-02-01",
+    "total_ht" : "3500.00",
+    "total_ttc" : "3500.00",
+    "total_tva" : "0.00",
+    "tva_rate" : "0.00"
+  } ],
+  "lignes" : [ ],
+  "reglements" : [ {
+    "code_reglement" : "<CODE_REGLEMENT>",
+    "date_reglement" : "2026-03-01",
+    "mode_reglement" : null,
+    "montant" : "100.00",
+    "numero_facture" : "FAC-0001",
+    "saisi_par" : "caissier"
+  } ],
+  "sequences" : 0
+}

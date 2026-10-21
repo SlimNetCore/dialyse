@@ -102,7 +102,9 @@ class EquilibreEtImmutabiliteCharacterizationIntegrationTest extends EcrituresCh
                     l.compte() + " D=" + l.debit().toPlainString() + " C=" + l.credit().toPlainString()));
             tout.add(o);
         }
-        goldenNode("equilibre_reglements_valeur_absolue_et_arrondis", tout);
+        // Nouveau code F4 (KB-FAC-47 corrigé, B6) : un montant négatif (remboursement) est l'écriture de sens inverse (débit du
+        // compte client, crédit de la banque), non plus un encaissement en valeur absolue ; les montants positifs sont inchangés.
+        goldenNode("equilibre_reglements_valeur_absolue_et_arrondis_nouveau_code", tout);
     }
 
     private List<Map<String, Object>> etat() {

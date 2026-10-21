@@ -1,0 +1,52 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "agence" : "Non renseignee",
+      "agenceId" : null,
+      "caisse" : "Non renseignee",
+      "caisseId" : null,
+      "centrePayeur" : "Non renseigne",
+      "centrePayeurId" : null,
+      "dateFacturation" : "2026-03-15",
+      "etat" : "NON_REGLEE",
+      "factureId" : "<FACTURE_REPRISE-F2026-03>",
+      "latestCodeReglement" : null,
+      "montantFacture" : 12000.0,
+      "montantRegle" : 0.0,
+      "numeroAssurance" : "ZH111",
+      "numeroFacture" : "REPRISE-F2026-03",
+      "patientNom" : "BENALI",
+      "patientPrenom" : "Karim",
+      "paymentCount" : 0,
+      "reste" : 12000.0,
+      "soldeType" : "RESTE",
+      "tropPercu" : 0.0
+    }, {
+      "agence" : "Non renseignee",
+      "agenceId" : null,
+      "caisse" : "Non renseignee",
+      "caisseId" : null,
+      "centrePayeur" : "Non renseigne",
+      "centrePayeurId" : null,
+      "dateFacturation" : "2026-01-31",
+      "etat" : "PARTIELLEMENT_REGLEE",
+      "factureId" : "<FACTURE_REPRISE-F2026-01>",
+      "latestCodeReglement" : "<CODE_REGLEMENT>",
+      "montantFacture" : 67200.0,
+      "montantRegle" : 20000.0,
+      "numeroAssurance" : "ZH111",
+      "numeroFacture" : "REPRISE-F2026-01",
+      "patientNom" : "BENALI",
+      "patientPrenom" : "Karim",
+      "paymentCount" : 1,
+      "reste" : 47200.0,
+      "soldeType" : "RESTE",
+      "tropPercu" : 0.0
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}

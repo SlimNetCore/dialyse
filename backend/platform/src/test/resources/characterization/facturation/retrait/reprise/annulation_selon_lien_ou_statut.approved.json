@@ -1,0 +1,38 @@
+{
+  "annulationAvecStatutSeul" : {
+    "closedAt" : "<HORODATAGE>",
+    "createdAt" : "<HORODATAGE>",
+    "createdBy" : "u",
+    "dateDebutReprise" : "2023-09-30",
+    "id" : "<LOT_REPRISE>",
+    "libelle" : "Reprise historique",
+    "sourceSystem" : null,
+    "status" : "ANNULE"
+  },
+  "annulationBloqueeParLeLien" : {
+    "code" : "MIGRATION_CANCEL_BLOCKED",
+    "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — séance « P1|2026-01-07 » (facturée dans la plateforme)",
+    "instance" : "/api/v1/admin/migration/batches/<LOT_REPRISE>/cancel",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "apresImport" : [ {
+    "date_seance" : "2026-01-05",
+    "facture_id" : null,
+    "statut" : "FACTUREE"
+  }, {
+    "date_seance" : "2026-01-07",
+    "facture_id" : null,
+    "statut" : "SIGNEE"
+  } ],
+  "seancesApres" : [ {
+    "date_seance" : "2026-01-05",
+    "facture_id" : null,
+    "statut" : "FACTUREE"
+  }, {
+    "date_seance" : "2026-01-07",
+    "facture_id" : "<FACTURE_1>",
+    "statut" : "SIGNEE"
+  } ],
+  "seancesRestantes" : 0
+}

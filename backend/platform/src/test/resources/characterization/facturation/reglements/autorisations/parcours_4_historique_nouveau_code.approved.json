@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "codeReglement" : "<CODE_REGLEMENT>",
+    "dateReglement" : "2026-02-20",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<UUID_GENERE_1>",
+    "montant" : -100.0,
+    "saisiPar" : "<UUID_GENERE_2>"
+  }, {
+    "codeReglement" : "<CODE_REGLEMENT>",
+    "dateReglement" : "2026-02-15",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<UUID_GENERE_3>",
+    "montant" : 100.0,
+    "saisiPar" : "<UUID_GENERE_4>"
+  }, {
+    "codeReglement" : "<CODE_REGLEMENT>",
+    "dateReglement" : "2026-02-12",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<UUID_GENERE_5>",
+    "montant" : 600.0,
+    "saisiPar" : "<UUID_GENERE_6>"
+  }, {
+    "codeReglement" : "<CODE_REGLEMENT>",
+    "dateReglement" : "2026-02-10",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<UUID_GENERE_7>",
+    "montant" : 400.0,
+    "saisiPar" : "<UUID_GENERE_8>"
+  } ]
+}

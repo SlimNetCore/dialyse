@@ -1,0 +1,7 @@
+[ {
+  "centerId" : "<CENTRE_A>",
+  "dateReglement" : "2026-02-10",
+  "factureId" : "<FACTURE_1>",
+  "montant" : "500.005",
+  "userId" : "<UUID_GENERE_1>"
+} ]

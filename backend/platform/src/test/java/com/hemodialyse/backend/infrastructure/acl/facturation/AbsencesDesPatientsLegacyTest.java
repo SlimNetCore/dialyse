@@ -20,7 +20,7 @@ class AbsencesDesPatientsLegacyTest {
     @ParameterizedTest
     @EnumSource(MotifDAbsence.class)
     void should_translate_each_reason_to_the_absences_module_reason_of_the_same_name(MotifDAbsence motif) {
-        MotifAbsence traduit = AbsencesDesPatientsLegacy.motifDuModuleAbsences(motif);
+        MotifAbsence traduit = AbsencesDesPatientsLegacy.motifDuModuleAbsences(motif.name());
 
         assertThat(traduit.name()).isEqualTo(motif.name());
         assertThat(traduit.commentaireRequis()).isEqualTo(motif.commentaireRequis());

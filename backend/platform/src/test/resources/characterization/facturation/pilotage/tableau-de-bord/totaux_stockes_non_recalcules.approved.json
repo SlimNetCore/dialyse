@@ -1,0 +1,29 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "billedPatients" : 3,
+    "billedSeances" : 0,
+    "byInsurance" : [ {
+      "code" : "CASNOS",
+      "label" : "CASNOS Centre 1",
+      "patientsCount" : 2,
+      "seancesCount" : 0
+    }, {
+      "code" : "CNAS",
+      "label" : "CNAS Centre 1",
+      "patientsCount" : 1,
+      "seancesCount" : 0
+    } ],
+    "byPatientStatus" : [ {
+      "code" : "PERMANENT",
+      "label" : "PERMANENT",
+      "seancesCount" : 0
+    } ],
+    "centerId" : "<CENTRE_A>",
+    "createdInvoices" : 3,
+    "month" : "2026-06",
+    "revenueHt" : 200.01,
+    "revenueTtc" : 674.56
+  }
+}

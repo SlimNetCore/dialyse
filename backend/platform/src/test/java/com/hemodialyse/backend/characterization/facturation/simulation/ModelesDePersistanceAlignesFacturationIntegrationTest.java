@@ -168,4 +168,26 @@ class ModelesDePersistanceAlignesFacturationIntegrationTest {
                         "agence_id[longueur=null, precision=null, echelle=null, nullable=YES]"),
                 colonnes("centre_payeur", "id", "center_id", "agence_id"), "colonnes de centre_payeur");
     }
+
+    /**
+     * Slice F4 : les règlements, lus et écrits en SQL direct par le contexte facturation (ReglementsJdbc), comparés à la
+     * description figée du schéma de production (V1 et migration V41 : mode, référence de paiement, clé d'idempotence).
+     */
+    @Test
+    void reglements_ecrits_par_la_slice_f4() {
+        assertEquals(attendues(
+                        "id[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "facture_id[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "center_id[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "montant[longueur=null, precision=14, echelle=2, nullable=NO]",
+                        "date_reglement[longueur=null, precision=null, echelle=null, nullable=NO]",
+                        "saisi_par[longueur=120, precision=null, echelle=null, nullable=YES]",
+                        "code_reglement[longueur=30, precision=null, echelle=null, nullable=YES]",
+                        "mode_reglement[longueur=20, precision=null, echelle=null, nullable=YES]",
+                        "reference_paiement[longueur=120, precision=null, echelle=null, nullable=YES]",
+                        "cle_idempotence[longueur=120, precision=null, echelle=null, nullable=YES]"),
+                colonnes("facture_reglements", "id", "facture_id", "center_id", "montant", "date_reglement", "saisi_par",
+                        "code_reglement", "mode_reglement", "reference_paiement", "cle_idempotence"),
+                "colonnes de facture_reglements");
+    }
 }

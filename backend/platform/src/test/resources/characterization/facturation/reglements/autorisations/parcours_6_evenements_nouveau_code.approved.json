@@ -1,0 +1,25 @@
+[ {
+  "centerId" : "<CENTRE_A>",
+  "dateReglement" : "2026-02-10",
+  "factureId" : "<FACTURE_1>",
+  "montant" : "400.00",
+  "userId" : "<UUID_GENERE_1>"
+}, {
+  "centerId" : "<CENTRE_A>",
+  "dateReglement" : "2026-02-12",
+  "factureId" : "<FACTURE_1>",
+  "montant" : "600.00",
+  "userId" : "<UUID_GENERE_2>"
+}, {
+  "centerId" : "<CENTRE_A>",
+  "dateReglement" : "2026-02-15",
+  "factureId" : "<FACTURE_1>",
+  "montant" : "100.00",
+  "userId" : "<UUID_GENERE_3>"
+}, {
+  "centerId" : "<CENTRE_A>",
+  "dateReglement" : "2026-02-20",
+  "factureId" : "<FACTURE_1>",
+  "montant" : "-100.00",
+  "userId" : "<UUID_GENERE_4>"
+} ]

@@ -1,0 +1,89 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centres" : [ {
+      "actif" : true,
+      "caHt" : 333.33,
+      "caTtc" : 333.33,
+      "centerId" : "<CENTRE_A>",
+      "encaisse" : 0.01,
+      "factures" : 1,
+      "nom" : "Centre Alpha",
+      "patients" : null,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 333.32,
+      "seances" : 0,
+      "tauxEncaissement" : 0.0
+    }, {
+      "actif" : true,
+      "caHt" : 10.00,
+      "caTtc" : 10.00,
+      "centerId" : "<CENTRE_B>",
+      "encaisse" : 12.50,
+      "factures" : 1,
+      "nom" : "Centre Beta",
+      "patients" : null,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0,
+      "seances" : 0,
+      "tauxEncaissement" : 125.0
+    }, {
+      "actif" : true,
+      "caHt" : 0.00,
+      "caTtc" : 0.00,
+      "centerId" : "<CENTRE_VIDE>",
+      "encaisse" : 0.00,
+      "factures" : 0,
+      "nom" : "Centre Vide",
+      "patients" : 0,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0.00,
+      "seances" : 0,
+      "tauxEncaissement" : null
+    } ],
+    "from" : "2026-06-01",
+    "generatedAt" : "<HORODATAGE>",
+    "mensuel" : [ {
+      "caHt" : 10.00,
+      "caTtc" : 10.00,
+      "centerId" : "<CENTRE_B>",
+      "mois" : "2026-06",
+      "seances" : 0
+    }, {
+      "caHt" : 333.33,
+      "caTtc" : 333.33,
+      "centerId" : "<CENTRE_A>",
+      "mois" : "2026-06",
+      "seances" : 0
+    } ],
+    "periodePrecedente" : {
+      "caHt" : 0,
+      "caTtc" : 0,
+      "encaisse" : 0,
+      "from" : "2026-05-02",
+      "resteARecouvrer" : 0,
+      "seances" : 0,
+      "tauxEncaissement" : null,
+      "to" : "2026-05-31"
+    },
+    "seuilAnonymat" : 5,
+    "societeId" : "<SOCIETE_1>",
+    "societeNom" : "Société Pilotage Un",
+    "to" : "2026-06-30",
+    "totaux" : {
+      "actif" : true,
+      "caHt" : 343.33,
+      "caTtc" : 343.33,
+      "centerId" : null,
+      "encaisse" : 12.51,
+      "factures" : 2,
+      "nom" : null,
+      "patients" : null,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 330.82,
+      "seances" : 0,
+      "tauxEncaissement" : 3.6
+    }
+  }
+}

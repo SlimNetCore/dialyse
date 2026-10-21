@@ -1,0 +1,26 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "applied" : true,
+    "created" : 2,
+    "dryRun" : false,
+    "entity" : "soldes-ouverture",
+    "errors" : [ ],
+    "executedAt" : "<HORODATAGE>",
+    "executedBy" : "u",
+    "fileName" : "import.csv",
+    "ignoredColumns" : [ ],
+    "missingColumns" : [ ],
+    "totalRows" : 3,
+    "updated" : 0,
+    "valid" : true,
+    "warnings" : [ {
+      "code" : "FULLY_PAID",
+      "field" : "montantRegle",
+      "message" : "Facture entièrement réglée dans l'ancien logiciel : rien à reprendre, ligne ignorée.",
+      "params" : { },
+      "row" : 3
+    } ]
+  }
+}

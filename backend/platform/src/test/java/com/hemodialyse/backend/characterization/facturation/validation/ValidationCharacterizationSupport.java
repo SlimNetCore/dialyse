@@ -327,18 +327,9 @@ abstract class ValidationCharacterizationSupport {
             o.put("centre", e.centre().toString());
             o.put("debut", String.valueOf(e.debut()));
             o.put("fin", String.valueOf(e.fin()));
+            o.put("nombreDeFactures", e.nombreDeFactures());
             o.put("seancesFacturees", e.seancesFacturees());
             o.put("totalTtc", String.valueOf(e.totalTtc()));
-            ArrayNode factures = o.putArray("factures");
-            for (FacturationValideeEvent.FactureEmise f : e.factures()) {
-                ObjectNode facture = mapper.createObjectNode();
-                facture.put("id", f.id().toString());
-                facture.put("numero", f.numero());
-                facture.put("totalHt", String.valueOf(f.totalHt()));
-                facture.put("totalTva", String.valueOf(f.totalTva()));
-                facture.put("totalTtc", String.valueOf(f.totalTtc()));
-                factures.add(facture);
-            }
             o.put("survenueLe", String.valueOf(e.survenueLe()));
             arr.add(o);
         }

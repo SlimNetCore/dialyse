@@ -1,0 +1,29 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "billedPatients" : 3,
+    "billedSeances" : 5,
+    "byInsurance" : [ {
+      "code" : "INCONNU",
+      "label" : "Inconnu",
+      "patientsCount" : 2,
+      "seancesCount" : 2
+    }, {
+      "code" : "CNAS",
+      "label" : "CNAS Centre 1",
+      "patientsCount" : 1,
+      "seancesCount" : 3
+    } ],
+    "byPatientStatus" : [ {
+      "code" : "PERMANENT",
+      "label" : "PERMANENT",
+      "seancesCount" : 5
+    } ],
+    "centerId" : "<CENTRE_A>",
+    "createdInvoices" : 3,
+    "month" : "2026-01",
+    "revenueHt" : 145.82,
+    "revenueTtc" : 173.53
+  }
+}

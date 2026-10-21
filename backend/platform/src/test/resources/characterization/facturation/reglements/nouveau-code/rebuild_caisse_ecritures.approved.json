@@ -1,0 +1,43 @@
+[ {
+  "date_ecriture" : "2026-02-10",
+  "date_piece" : "2026-02-10",
+  "journal_code" : "CA",
+  "libelle" : "Règlement Règlement facture",
+  "numero_piece" : "CA-2026-000001",
+  "source_id" : "<PAIEMENT_1>",
+  "statut" : "VALIDEE",
+  "lignes" : [ {
+    "compte_scf" : "411100",
+    "libelle_ligne" : "Règlement facture <FACTURE_1>",
+    "montant_credit" : "400.00",
+    "montant_debit" : "0.00",
+    "tiers_id" : null
+  }, {
+    "compte_scf" : "530",
+    "libelle_ligne" : "Règlement Règlement facture",
+    "montant_credit" : "0.00",
+    "montant_debit" : "400.00",
+    "tiers_id" : null
+  } ]
+}, {
+  "date_ecriture" : "2026-02-11",
+  "date_piece" : "2026-02-11",
+  "journal_code" : "CA",
+  "libelle" : "Remboursement Règlement facture",
+  "numero_piece" : "CA-2026-000002",
+  "source_id" : "<PAIEMENT_2>",
+  "statut" : "VALIDEE",
+  "lignes" : [ {
+    "compte_scf" : "411100",
+    "libelle_ligne" : "Remboursement facture <FACTURE_1>",
+    "montant_credit" : "0.00",
+    "montant_debit" : "150.00",
+    "tiers_id" : null
+  }, {
+    "compte_scf" : "530",
+    "libelle_ligne" : "Remboursement Règlement facture",
+    "montant_credit" : "150.00",
+    "montant_debit" : "0.00",
+    "tiers_id" : null
+  } ]
+} ]

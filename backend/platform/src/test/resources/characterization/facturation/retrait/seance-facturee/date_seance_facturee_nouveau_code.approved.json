@@ -1,0 +1,31 @@
+{
+  "body" : {
+    "code" : "SEANCE_FACTUREE_NON_MODIFIABLE",
+    "detail" : "La seance facturee ne peut plus etre modifiee",
+    "instance" : "/api/v1/seances/<SEANCE_FACTUREE>",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  },
+  "etatApres" : {
+    "bonsDeSortie" : 0,
+    "lot" : [ {
+      "quantite_restante" : "10.00"
+    } ],
+    "mouvementsDeStock" : 0,
+    "seances" : [ {
+      "date_seance" : "2026-02-10",
+      "facture_id" : "<FACTURE_1>",
+      "id" : "<SEANCE_FACTUREE>",
+      "statut" : "FACTUREE"
+    }, {
+      "date_seance" : "2026-02-11",
+      "facture_id" : null,
+      "id" : "<SEANCE_VALIDEE>",
+      "statut" : "VALIDEE"
+    } ],
+    "voletsMedicaux" : 0,
+    "voletsParamedicaux" : 0
+  },
+  "etatInchange" : true,
+  "status" : 422
+}

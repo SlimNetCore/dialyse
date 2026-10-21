@@ -1,0 +1,11 @@
+[ {
+  "etat" : null,
+  "montant" : "-100.00",
+  "montantFacture" : null,
+  "montantRegle" : null,
+  "paymentCount" : null,
+  "reste" : null,
+  "soldeType" : null,
+  "status" : 422,
+  "tropPercu" : null
+} ]

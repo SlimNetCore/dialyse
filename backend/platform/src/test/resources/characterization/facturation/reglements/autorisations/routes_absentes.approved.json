@@ -1,0 +1,6 @@
+{
+  "annuler" : 500,
+  "delete" : 500,
+  "get_une_facture" : 500,
+  "put" : 500
+}

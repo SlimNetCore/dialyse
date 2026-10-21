@@ -1,0 +1,4 @@
+{
+  "entetes" : "200 | text/csv",
+  "contenu" : "N° Facture;N° Assurance;Nom;Prénom;Caisse;Agence;Centre payeur;Date facturation;Montant facturé;Montant réglé;Reste / trop-perçu;Solde type;État\n"
+}

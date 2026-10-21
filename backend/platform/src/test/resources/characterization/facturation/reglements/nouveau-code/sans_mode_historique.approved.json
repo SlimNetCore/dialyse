@@ -1,0 +1,12 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "codeReglement" : "<CODE_REGLEMENT>",
+    "dateReglement" : "2026-02-10",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<UUID_GENERE_1>",
+    "montant" : 400.0,
+    "saisiPar" : "<UUID_GENERE_2>"
+  } ]
+}

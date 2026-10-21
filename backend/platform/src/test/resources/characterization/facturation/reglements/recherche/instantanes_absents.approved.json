@@ -1,0 +1,52 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "agence" : "Agence Alger",
+      "agenceId" : "<AGENCE_1>",
+      "caisse" : "CNAS Centre 1",
+      "caisseId" : "<CAISSE_1>",
+      "centrePayeur" : "Centre payeur Alger",
+      "centrePayeurId" : "<PAYEUR_1>",
+      "dateFacturation" : "2026-03-15",
+      "etat" : "NON_REGLEE",
+      "factureId" : "<FACTURE_7>",
+      "latestCodeReglement" : null,
+      "montantFacture" : 250.0,
+      "montantRegle" : 0.0,
+      "numeroAssurance" : "ASS-REG-002",
+      "numeroFacture" : "FAC-0007",
+      "patientNom" : "Belkacem",
+      "patientPrenom" : "Omar",
+      "paymentCount" : 0,
+      "reste" : 250.0,
+      "soldeType" : "RESTE",
+      "tropPercu" : 0.0
+    }, {
+      "agence" : "Agence Oran",
+      "agenceId" : "<AGENCE_2>",
+      "caisse" : "CASNOS Centre 1",
+      "caisseId" : "<CAISSE_2>",
+      "centrePayeur" : "Centre payeur Oran",
+      "centrePayeurId" : "<PAYEUR_2>",
+      "dateFacturation" : "2026-03-15",
+      "etat" : "NON_REGLEE",
+      "factureId" : "<FACTURE_6>",
+      "latestCodeReglement" : null,
+      "montantFacture" : 100.0,
+      "montantRegle" : 0.0,
+      "numeroAssurance" : "ASS-REG-002",
+      "numeroFacture" : "FAC-0006",
+      "patientNom" : "Belkacem",
+      "patientPrenom" : "Omar",
+      "paymentCount" : 0,
+      "reste" : 100.0,
+      "soldeType" : "RESTE",
+      "tropPercu" : 0.0
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 2
+  }
+}

@@ -4,8 +4,9 @@ import com.hemodialyse.backend.domain.absence.port.ForfaitAbsencePort;
 import com.hemodialyse.backend.characterization.comptabilite.GenerationDEcritures;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal;
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ParametrageFiscal.RegleTvaApplicable;
-import com.hemodialyse.backend.domain.facturation.aggregate.TypeTVA;
-import com.hemodialyse.backend.domain.facturation.port.TypeTvaRepositoryPort;
+import com.hemodialyse.backend.contexts.facturation.application.simulation.TauxDeTvaApplicable;
+import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
+import com.hemodialyse.backend.contexts.facturation.domain.simulation.TauxDeTva;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.node.ArrayNode;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * Filet de caractérisation C2 — consommateurs du mapping et des règles de TVA : écritures de ventes et de règlements
  * (C5), comptabilisation du stock (C6) qui lisent le mapping, et lecteurs de {@code tva_types} hors Comptabilité
- * (Facturation : {@code TypeTvaRepositoryPort} ; Absences : {@code ForfaitAbsencePort}). Seul l'effet observable est
+ * (Facturation : {@code TauxDeTvaApplicable} ; Absences : {@code ForfaitAbsencePort}). Seul l'effet observable est
  * verrouillé : l'écriture générée change quand le mapping change ; la règle applicable à une date est lue par les trois
  * lecteurs. Le comportement propre des écritures (C5) et du stock (C6) relève de leurs filets.
  */
@@ -36,7 +37,7 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     @Autowired
     private ParametrageFiscal fiscalComptabilite;
     @Autowired
-    private TypeTvaRepositoryPort fiscalFacturation;
+    private TauxDeTvaApplicable fiscalFacturation;
     @Autowired
     private ForfaitAbsencePort forfaitsAbsence;
 
@@ -224,8 +225,9 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
         Optional<RegleTvaApplicable> comptabilite = fiscalComptabilite.regleApplicable(CENTRE_A, "HEMODIALYSE", date);
         n.put("comptabilite_taux", comptabilite.map(r -> r.taux().toPlainString()).orElse("aucune"));
         n.put("comptabilite_exonere", comptabilite.map(r -> String.valueOf(r.exonere())).orElse("aucune"));
-        Optional<TypeTVA> facturation = fiscalFacturation.findActiveAt(CENTRE_A, "HEMODIALYSE", date);
-        n.put("facturation_taux", facturation.map(r -> r.taux().toPlainString()).orElse("aucune"));
+        // Lecteur de la Facturation (depuis F3) : sans règle applicable, le taux est TauxDeTva.AUCUN
+        TauxDeTva facturation = fiscalFacturation.aLaDate(new CentreId(CENTRE_A), date);
+        n.put("facturation_taux", TauxDeTva.AUCUN.equals(facturation) ? "aucune" : facturation.pourcentage().toPlainString());
         n.put("absences_taux", forfaitsAbsence.tauxTva(CENTRE_A, date).toPlainString());
         return n;
     }
@@ -337,8 +339,7 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
     @Test
     void un_taux_superieur_a_100_est_refuse_a_la_saisie_et_une_regle_ancienne_reste_lisible_nouveau_code() throws Exception {
         // écart décidé (ADR 0030, KB-CPT-17 corrigé) : /regles-tva refuse un taux > 100 comme /tva-types ; une règle déjà en
-        // base n'est pas revalidée : la Comptabilité, les Absences et l'écran « Types de TVA » la lisent encore, la simulation
-        // legacy (TypeTVA, jusqu'à F2) la refuse toujours
+        // base n'est pas revalidée : la Comptabilité, les Absences, la Facturation et l'écran « Types de TVA » la lisent encore
         golden("taux_superieur_a_100_refuse_par_la_comptabilite_400_nouveau_code", doPost("/regles-tva",
                 json("{'typePrestation':'HEMODIALYSE','tauxApplique':150,'exonere':false,'dateDebutValidite':'2026-01-01'}"),
                 adminA()));
@@ -347,9 +348,8 @@ class MappingTvaConsommateursCharacterizationIntegrationTest extends MappingTvaC
         LocalDate jour = LocalDate.of(2026, 2, 1);
         assertEquals(new BigDecimal("150.00"), fiscalComptabilite.regleApplicable(CENTRE_A, "HEMODIALYSE", jour).orElseThrow().taux());
         assertEquals(new BigDecimal("150.00"), forfaitsAbsence.tauxTva(CENTRE_A, jour));
-        IllegalArgumentException refus = assertThrows(IllegalArgumentException.class,
-                () -> fiscalFacturation.findActiveAt(CENTRE_A, "HEMODIALYSE", jour));
-        assertEquals("Le taux TVA ne peut pas dépasser 100%", refus.getMessage());
+        // la Facturation lit la règle ancienne telle quelle (l'ancien lecteur TypeTVA la refusait ; il est retiré)
+        assertEquals(0, new BigDecimal("150.00").compareTo(fiscalFacturation.aLaDate(new CentreId(CENTRE_A), jour).pourcentage()));
         Resp liste = send(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                 .get(java.net.URI.create("/api/v1/tva-types?centerId=" + CENTRE_A)).with(adminA()));
         assertEquals(200, liste.status());

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Filet de caractérisation F3 — événement {@code FacturationValideeEvent} publié par la validation et écritures de ventes
@@ -132,6 +133,25 @@ class EvenementEtComptabiliteCharacterizationIntegrationTest extends ValidationC
 
         goldenEcritures("rejeu_ecritures", CENTRE_A);
         goldenEvenements("rejeu_evenements_nouveau_code");
+    }
+
+    @Test
+    void la_validation_de_trois_cents_factures_reussit_et_l_evenement_reste_de_taille_bornee() throws Exception {
+        // KB-FAC-72 : l'ancien événement (une ligne par facture) dépassait VARCHAR(4000) de event_publication en H2.
+        for (int i = 0; i < 300; i++) {
+            UUID patient = UUID.randomUUID();
+            patient(patient, CENTRE_A, "GRD-" + i, "Patient" + i, "Test", null);
+            pec(patient, CENTRE_A, FORFAIT_HD);
+            seance("GRD_" + i, patient, CENTRE_A, "2026-01-05", "VALIDEE");
+        }
+
+        assertEquals(200, valider(mois(CENTRE_A, JANVIER, true)).status());
+
+        assertEquals(300, compter("factures", CENTRE_A));
+        assertEquals(1, evenements.recus().size());
+        assertEquals(300, evenements.recus().getFirst().nombreDeFactures());
+        assertEquals(300, compter("ecritures_comptables", CENTRE_A));
+
     }
 
     private void goldenLignesEcritures(String name, UUID centre) {

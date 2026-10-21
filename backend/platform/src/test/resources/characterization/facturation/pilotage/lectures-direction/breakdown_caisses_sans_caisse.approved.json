@@ -1,0 +1,26 @@
+{
+  "caisseTotaux" : [ {
+    "caHt" : 55.55,
+    "caisse" : null,
+    "caisseCode" : "",
+    "patients" : null,
+    "seances" : 1
+  } ],
+  "caisses" : [ {
+    "caHt" : 55.55,
+    "caisse" : null,
+    "caisseCode" : "",
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre Alpha",
+    "patients" : null,
+    "seances" : 1
+  }, {
+    "caHt" : 0.00,
+    "caisse" : null,
+    "caisseCode" : "",
+    "centerId" : "<CENTRE_B>",
+    "centre" : "Centre Beta",
+    "patients" : null,
+    "seances" : 0
+  } ]
+}

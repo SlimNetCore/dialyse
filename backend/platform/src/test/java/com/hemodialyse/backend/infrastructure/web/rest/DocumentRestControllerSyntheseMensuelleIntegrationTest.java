@@ -78,7 +78,7 @@ class DocumentRestControllerSyntheseMensuelleIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/documents/print")
-                        .with(user("admin").roles("ADMIN"))
+                        .with(avecCentre("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isOk())
@@ -100,10 +100,18 @@ class DocumentRestControllerSyntheseMensuelleIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/documents/print")
-                        .with(user("admin").roles("ADMIN"))
+                        .with(avecCentre("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Utilisateur de test portant son centre : la garde de centre (F5, KB-FAC-52) refuse un utilisateur Spring sans centre.
+     */
+    private static org.springframework.test.web.servlet.request.RequestPostProcessor avecCentre(String... roles) {
+        return user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(UUID.randomUUID().toString(),
+                CENTER_ID.toString(), "u", "", java.util.List.of(roles), true));
     }
 
     private void seedData() {

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.characterization.comptabilite.ecritures;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent;
-import com.hemodialyse.backend.domain.reglement.event.FactureReglementRecordedEvent;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FactureReglementRecordedEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,13 +92,14 @@ class VentesEtReglementsCharacterizationIntegrationTest extends EcrituresCharact
     }
 
     private void facturationValidee(UUID centre, String debut, String fin) {
-        evenements.publishEvent(new FacturationValideeEvent(centre, LocalDate.parse(debut), LocalDate.parse(fin), java.util.List.of(), 0,
+        evenements.publishEvent(new FacturationValideeEvent(centre, LocalDate.parse(debut), LocalDate.parse(fin), 0, 0,
                 BigDecimal.ZERO, QUAND.toInstant()));
     }
 
     private void reglementEnregistre(int facture, String montant, String date, String userId) {
-        evenements.publishEvent(new FactureReglementRecordedEvent(fid(facture), CENTRE_A, new BigDecimal(montant),
-                LocalDate.parse(date), userId));
+        // Événement v2 : le règlement porte son identifiant (rid(facture)), sans mode (banque).
+        evenements.publishEvent(new FactureReglementRecordedEvent(rid(facture), fid(facture), CENTRE_A,
+                new BigDecimal(montant), LocalDate.parse(date), userId, null));
     }
 
     private Resp rebuild(String corps, org.springframework.test.web.servlet.request.RequestPostProcessor who)
@@ -195,7 +196,7 @@ class VentesEtReglementsCharacterizationIntegrationTest extends EcrituresCharact
     // ------------------------------------------------------------------ P2 : écritures de règlement
 
     @Test
-    void p2_credite_le_compte_debite_par_la_vente_avec_l_id_du_reglement_retrouve_en_base() {
+    void p2_credite_le_compte_debite_par_la_vente_avec_l_id_du_reglement_de_l_evenement() {
         comptePayeur(CNAS, "411210");
         genererVente(CENTRE_A, fid(1), "F-001", "1000.00", "0.00", "1000.00", "2026-01-31", CNAS);
         comptePayeur(CNAS, "411299");
@@ -209,15 +210,17 @@ class VentesEtReglementsCharacterizationIntegrationTest extends EcrituresCharact
     }
 
     @Test
-    void p2_sans_reglement_en_base_derive_un_id_rejouable_et_prend_la_valeur_absolue() {
+    void p2_sans_reglement_en_base_est_rejouable_par_l_id_de_l_evenement_et_inverse_le_sens() {
         assertDoesNotThrow(() -> reglementEnregistre(2, "-150.00", "2026-02-11", "u-2"));
         reglementEnregistre(2, "-150.00", "2026-02-11", "u-2");
 
         assertEquals(1, count("ecritures_comptables", CENTRE_A));
-        UUID derive = UUID.nameUUIDFromBytes((CENTRE_A + "|" + fid(2) + "|2026-02-11|-150.00|u-2").getBytes());
-        assertEquals(derive, jdbc.queryForObject("SELECT source_id FROM ecritures_comptables WHERE center_id = ?",
+        // L'écriture a pour source le règlement de l'événement (l'identifiant dérivé d'avant F4 n'existe plus).
+        assertEquals(rid(2), jdbc.queryForObject("SELECT source_id FROM ecritures_comptables WHERE center_id = ?",
                 UUID.class, CENTRE_A));
-        goldenLignes("p2_derive_negatif_lignes", CENTRE_A);
+        // Nouveau code F4 (KB-FAC-47 corrigé, B6) : un règlement négatif est un remboursement, écrit en sens inverse
+        // (débit du compte client, crédit de la banque) ; l'idempotence est inchangée.
+        goldenLignes("p2_derive_negatif_lignes_nouveau_code", CENTRE_A);
     }
 
     @Test

@@ -1,0 +1,64 @@
+{
+  "factures" : [ {
+    "agence_id_snapshot" : null,
+    "centre_payeur_id_snapshot" : null,
+    "date_facturation" : "2026-01-31",
+    "numero_facture" : "REPRISE-F2026-01",
+    "numero_immatriculation_snapshot" : "ZH111",
+    "patient_code" : "<CODE_PATIENT>",
+    "patient_full_name" : "BENALI Karim",
+    "patient_status_snapshot" : "PERMANENT",
+    "period_end" : "2026-01-31",
+    "period_start" : "2026-01-31",
+    "total_ht" : "67200.00",
+    "total_ttc" : "67200.00",
+    "total_tva" : "0.00",
+    "tva_rate" : "0.00"
+  }, {
+    "agence_id_snapshot" : null,
+    "centre_payeur_id_snapshot" : null,
+    "date_facturation" : "2026-03-15",
+    "numero_facture" : "REPRISE-F2026-03",
+    "numero_immatriculation_snapshot" : "ZH111",
+    "patient_code" : "<CODE_PATIENT>",
+    "patient_full_name" : "BENALI Karim",
+    "patient_status_snapshot" : "PERMANENT",
+    "period_end" : "2026-03-15",
+    "period_start" : "2026-03-15",
+    "total_ht" : "12000.00",
+    "total_ttc" : "12000.00",
+    "total_tva" : "0.00",
+    "tva_rate" : "0.00"
+  } ],
+  "lignes" : [ {
+    "forfait_id" : null,
+    "forfait_label" : "Solde d'ouverture — reprise F2026-01",
+    "line_ht" : "67200.00",
+    "numero_facture" : "REPRISE-F2026-01",
+    "seance_count" : "1",
+    "unit_price_ht" : "67200.00"
+  }, {
+    "forfait_id" : null,
+    "forfait_label" : "Solde d'ouverture — reprise F2026-03",
+    "line_ht" : "12000.00",
+    "numero_facture" : "REPRISE-F2026-03",
+    "seance_count" : "1",
+    "unit_price_ht" : "12000.00"
+  } ],
+  "reglements" : [ {
+    "code_reglement" : "<CODE_REGLEMENT>",
+    "date_reglement" : "2026-01-31",
+    "mode_reglement" : null,
+    "montant" : "20000.00",
+    "numero_facture" : "REPRISE-F2026-01",
+    "saisi_par" : "REPRISE"
+  }, {
+    "code_reglement" : "<CODE_REGLEMENT>",
+    "date_reglement" : "2026-04-01",
+    "mode_reglement" : null,
+    "montant" : "1000.00",
+    "numero_facture" : "REPRISE-F2026-01",
+    "saisi_par" : "<CAISSIER>"
+  } ],
+  "sequences" : 0
+}

@@ -1,0 +1,85 @@
+[ {
+  "date_ecriture" : "2026-02-10",
+  "date_piece" : "2026-02-10",
+  "journal_code" : "BQ",
+  "libelle" : "Règlement Règlement facture",
+  "numero_piece" : "BQ-2026-000001",
+  "source_id" : "<UUID_GENERE_1>",
+  "statut" : "VALIDEE",
+  "lignes" : [ {
+    "compte_scf" : "411100",
+    "libelle_ligne" : "Règlement facture <FACTURE_1>",
+    "montant_credit" : "400.00",
+    "montant_debit" : "0.00",
+    "tiers_id" : null
+  }, {
+    "compte_scf" : "512",
+    "libelle_ligne" : "Règlement Règlement facture",
+    "montant_credit" : "0.00",
+    "montant_debit" : "400.00",
+    "tiers_id" : null
+  } ]
+}, {
+  "date_ecriture" : "2026-02-12",
+  "date_piece" : "2026-02-12",
+  "journal_code" : "BQ",
+  "libelle" : "Règlement Règlement facture",
+  "numero_piece" : "BQ-2026-000002",
+  "source_id" : "<UUID_GENERE_2>",
+  "statut" : "VALIDEE",
+  "lignes" : [ {
+    "compte_scf" : "411100",
+    "libelle_ligne" : "Règlement facture <FACTURE_1>",
+    "montant_credit" : "600.00",
+    "montant_debit" : "0.00",
+    "tiers_id" : null
+  }, {
+    "compte_scf" : "512",
+    "libelle_ligne" : "Règlement Règlement facture",
+    "montant_credit" : "0.00",
+    "montant_debit" : "600.00",
+    "tiers_id" : null
+  } ]
+}, {
+  "date_ecriture" : "2026-02-15",
+  "date_piece" : "2026-02-15",
+  "journal_code" : "BQ",
+  "libelle" : "Règlement Règlement facture",
+  "numero_piece" : "BQ-2026-000003",
+  "source_id" : "<UUID_GENERE_3>",
+  "statut" : "VALIDEE",
+  "lignes" : [ {
+    "compte_scf" : "411100",
+    "libelle_ligne" : "Règlement facture <FACTURE_1>",
+    "montant_credit" : "100.00",
+    "montant_debit" : "0.00",
+    "tiers_id" : null
+  }, {
+    "compte_scf" : "512",
+    "libelle_ligne" : "Règlement Règlement facture",
+    "montant_credit" : "0.00",
+    "montant_debit" : "100.00",
+    "tiers_id" : null
+  } ]
+}, {
+  "date_ecriture" : "2026-02-20",
+  "date_piece" : "2026-02-20",
+  "journal_code" : "BQ",
+  "libelle" : "Remboursement Règlement facture",
+  "numero_piece" : "BQ-2026-000004",
+  "source_id" : "<UUID_GENERE_4>",
+  "statut" : "VALIDEE",
+  "lignes" : [ {
+    "compte_scf" : "411100",
+    "libelle_ligne" : "Remboursement facture <FACTURE_1>",
+    "montant_credit" : "0.00",
+    "montant_debit" : "100.00",
+    "tiers_id" : null
+  }, {
+    "compte_scf" : "512",
+    "libelle_ligne" : "Remboursement Règlement facture",
+    "montant_credit" : "100.00",
+    "montant_debit" : "0.00",
+    "tiers_id" : null
+  } ]
+} ]

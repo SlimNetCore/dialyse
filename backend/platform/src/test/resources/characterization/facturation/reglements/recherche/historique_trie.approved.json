@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "codeReglement" : "REG-SEED-B",
+    "dateReglement" : "2026-02-20",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<PAIEMENT_2>",
+    "montant" : 200.0,
+    "saisiPar" : "u2"
+  }, {
+    "codeReglement" : "REG-SEED-C",
+    "dateReglement" : "2026-02-10",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<PAIEMENT_3>",
+    "montant" : -50.0,
+    "saisiPar" : "u3"
+  }, {
+    "codeReglement" : "REG-SEED-A",
+    "dateReglement" : "2026-02-10",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<PAIEMENT_1>",
+    "montant" : 100.0,
+    "saisiPar" : "u1"
+  }, {
+    "codeReglement" : null,
+    "dateReglement" : "2026-01-05",
+    "factureId" : "<FACTURE_1>",
+    "id" : "<PAIEMENT_4>",
+    "montant" : 300.0,
+    "saisiPar" : "u4"
+  } ]
+}

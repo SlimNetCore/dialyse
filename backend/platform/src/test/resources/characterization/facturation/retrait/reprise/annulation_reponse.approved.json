@@ -1,0 +1,14 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "closedAt" : "<HORODATAGE>",
+    "createdAt" : "<HORODATAGE>",
+    "createdBy" : "u",
+    "dateDebutReprise" : "2023-09-30",
+    "id" : "<LOT_REPRISE>",
+    "libelle" : "Reprise historique",
+    "sourceSystem" : null,
+    "status" : "ANNULE"
+  }
+}

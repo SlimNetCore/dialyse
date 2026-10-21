@@ -1,0 +1,7 @@
+{
+  "lignes" : [ "FAC-0007 | 2026-03-15 | NON_REGLEE/RESTE | facture 250.0 | regle 0.0 | payeur Centre payeur Alger | agence Agence Alger | caisse CNAS Centre 1", "FAC-0006 | 2026-03-15 | NON_REGLEE/RESTE | facture 100.0 | regle 0.0 | payeur Centre payeur Oran | agence Agence Oran | caisse CASNOS Centre 1", "FAC-0004 | 2026-02-28 | REGLEE/TROP_PERCU | facture 1200.5 | regle 1300.0 | payeur Centre payeur Alger | agence Agence Alger | caisse CNAS Centre 1", "FAC-0003 | 2026-02-01 | NON_REGLEE/RESTE | facture 800.0 | regle 0.0 | payeur Non renseigne | agence Non renseignee | caisse Non renseignee", "FAC-0002 | 2026-02-01 | REGLEE/REGLE | facture 500.0 | regle 500.0 | payeur Centre payeur Oran | agence Agence Oran | caisse CASNOS Centre 1", "FAC-0001 | 2026-01-31 | PARTIELLEMENT_REGLEE/RESTE | facture 1000.0 | regle 400.0 | payeur Centre payeur Alger | agence Agence Alger | caisse CNAS Centre 1" ],
+  "page" : 0,
+  "size" : 20,
+  "status" : 200,
+  "total" : 6
+}

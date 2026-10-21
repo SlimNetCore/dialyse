@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Le montant facture doit etre positif",
+    "instance" : "/api/v1/reglements/<FACTURE_1>/paiements",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

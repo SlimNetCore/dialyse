@@ -1,0 +1,4 @@
+{
+  "entetes" : "text/csv",
+  "contenu" : "N° Facture;N° Assurance;Nom;Prénom;Caisse;Agence;Centre payeur;Date facturation;Montant facturé;Montant réglé;Reste / trop-perçu;Solde type;État\nFAC-0005;ASS-REG-002;Belkacem;Omar;CASNOS Centre 1;Agence Oran;Centre payeur Oran;28/02/2026;200.00;200.00;0.00;REGLE;REGLEE\nFAC-0002;ASS-REG-002;Belkacem;Omar;CASNOS Centre 1;Agence Oran;Centre payeur Oran;10/02/2026;500.00;200.00;300.00;RESTE;PARTIELLEMENT_REGLEE\n"
+}

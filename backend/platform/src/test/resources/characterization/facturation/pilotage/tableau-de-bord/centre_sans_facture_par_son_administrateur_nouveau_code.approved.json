@@ -1,0 +1,15 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "billedPatients" : 0,
+    "billedSeances" : 0,
+    "byInsurance" : [ ],
+    "byPatientStatus" : [ ],
+    "centerId" : "<CENTRE_VIDE>",
+    "createdInvoices" : 0,
+    "month" : "2026-02",
+    "revenueHt" : 0,
+    "revenueTtc" : 0
+  }
+}

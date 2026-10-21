@@ -1,0 +1,8 @@
+{
+  "aucun parametre" : "500 INTERNAL_ERROR",
+  "centre absent" : "500 INTERNAL_ERROR",
+  "centre illisible" : "500 INTERNAL_ERROR",
+  "centre repete" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session",
+  "centre vide" : "500 INTERNAL_ERROR",
+  "parametre supplementaire ignore" : "403 ACCESS_DENIED : Accès refusé : le centre demandé ne correspond pas à la session"
+}

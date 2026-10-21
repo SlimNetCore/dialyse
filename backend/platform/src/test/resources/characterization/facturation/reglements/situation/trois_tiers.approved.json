@@ -1,0 +1,41 @@
+[ {
+  "etat" : "PARTIELLEMENT_REGLEE",
+  "montant" : "333.33",
+  "montantFacture" : 1000.0,
+  "montantRegle" : 333.33,
+  "paymentCount" : 1,
+  "reste" : 666.67,
+  "soldeType" : "RESTE",
+  "status" : 200,
+  "tropPercu" : 0.0
+}, {
+  "etat" : "PARTIELLEMENT_REGLEE",
+  "montant" : "333.33",
+  "montantFacture" : 1000.0,
+  "montantRegle" : 666.66,
+  "paymentCount" : 2,
+  "reste" : 333.34,
+  "soldeType" : "RESTE",
+  "status" : 200,
+  "tropPercu" : 0.0
+}, {
+  "etat" : "PARTIELLEMENT_REGLEE",
+  "montant" : "333.33",
+  "montantFacture" : 1000.0,
+  "montantRegle" : 999.99,
+  "paymentCount" : 3,
+  "reste" : 0.01,
+  "soldeType" : "RESTE",
+  "status" : 200,
+  "tropPercu" : 0.0
+}, {
+  "etat" : "REGLEE",
+  "montant" : "0.01",
+  "montantFacture" : 1000.0,
+  "montantRegle" : 1000.0,
+  "paymentCount" : 4,
+  "reste" : 0.0,
+  "soldeType" : "REGLE",
+  "status" : 200,
+  "tropPercu" : 0.0
+} ]

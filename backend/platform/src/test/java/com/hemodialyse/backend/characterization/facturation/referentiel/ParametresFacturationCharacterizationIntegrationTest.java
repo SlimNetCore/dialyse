@@ -40,7 +40,7 @@ class ParametresFacturationCharacterizationIntegrationTest extends ReferentielFa
     void la_modification_remplace_les_parametres_et_se_relit() throws Exception {
         golden("modification_nominale_200", doPut("/facturation/settings",
                 parametres(CENTRE_A, "admin", "F{YY}-{CENTER}-{SEQ6}", "false"), adminA()));
-        goldenParametres("modification_nominale_etat_base", CENTRE_A);
+        goldenParametres("modification_nominale_etat_base_nouveau_code", CENTRE_A); // KB-FAC-R01 : auteur = session
         golden("modification_nominale_relue_200", doGet("/facturation/settings?centerId=" + CENTRE_A, adminA()));
     }
 

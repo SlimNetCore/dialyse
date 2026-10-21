@@ -1,0 +1,46 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "billedPatients" : 3,
+    "billedSeances" : 7,
+    "byInsurance" : [ {
+      "code" : "CASNOS",
+      "label" : "CASNOS Centre 1",
+      "patientsCount" : 1,
+      "seancesCount" : 2
+    }, {
+      "code" : "CNAS",
+      "label" : "CNAS Centre 1",
+      "patientsCount" : 1,
+      "seancesCount" : 5
+    }, {
+      "code" : "INCONNU",
+      "label" : "Inconnu",
+      "patientsCount" : 1,
+      "seancesCount" : 2
+    } ],
+    "byPatientStatus" : [ {
+      "code" : "PERMANENT",
+      "label" : "PERMANENT",
+      "seancesCount" : 5
+    }, {
+      "code" : "VACANCIER",
+      "label" : "VACANCIER",
+      "seancesCount" : 2
+    }, {
+      "code" : "  ",
+      "label" : "  ",
+      "seancesCount" : 1
+    }, {
+      "code" : "INCONNU",
+      "label" : "Inconnu",
+      "seancesCount" : 1
+    } ],
+    "centerId" : "<CENTRE_A>",
+    "createdInvoices" : 5,
+    "month" : "2026-02",
+    "revenueHt" : 2700.50,
+    "revenueTtc" : 3012.50
+  }
+}

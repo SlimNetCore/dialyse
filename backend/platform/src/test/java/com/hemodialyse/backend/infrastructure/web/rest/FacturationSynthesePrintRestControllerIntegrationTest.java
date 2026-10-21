@@ -80,7 +80,7 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/facturation/synthese/print")
-                        .with(user("secretary").roles("SECRETAIRE"))
+                        .with(avecCentre("SECRETAIRE"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isOk())
@@ -100,7 +100,7 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/facturation/synthese/print")
-                        .with(user("medecin").roles("MEDECIN"))
+                        .with(avecCentre("MEDECIN", "SECRETAIRE"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isBadRequest());
@@ -118,12 +118,20 @@ class FacturationSynthesePrintRestControllerIntegrationTest {
                 """.formatted(CENTER_ID);
 
         mockMvc.perform(post("/api/v1/facturation/synthese/print")
-                        .with(user("secretary").roles("SECRETAIRE"))
+                        .with(avecCentre("SECRETAIRE"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString(MediaType.TEXT_HTML_VALUE)))
                 .andExpect(content().string(containsString("data:application/pdf;base64,")));
+    }
+
+    /**
+     * Utilisateur de test portant son centre : la garde de centre (F5, KB-FAC-52) refuse un utilisateur Spring sans centre.
+     */
+    private static org.springframework.test.web.servlet.request.RequestPostProcessor avecCentre(String... roles) {
+        return user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(UUID.randomUUID().toString(),
+                CENTER_ID.toString(), "u", "", java.util.List.of(roles), true));
     }
 
     private void seedData() {

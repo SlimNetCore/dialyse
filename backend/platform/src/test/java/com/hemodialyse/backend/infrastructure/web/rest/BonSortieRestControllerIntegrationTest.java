@@ -67,7 +67,7 @@ class BonSortieRestControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updatePayload(SEANCE_BILLED_ID, LocalDate.of(2026, 8, 2))))
                 .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("SEANCE_BILLED_STOCK_EXIT_IMMUTABLE"));
+                .andExpect(jsonPath("$.code").value("SEANCE_FACTUREE_NON_MODIFIABLE"));
     }
 
     @Test

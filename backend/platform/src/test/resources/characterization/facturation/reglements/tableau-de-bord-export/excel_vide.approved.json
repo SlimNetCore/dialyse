@@ -1,0 +1,6 @@
+{
+  "feuilles" : [ {
+    "lignes" : [ [ "S:N° Facture", "S:N° Assurance", "S:Nom", "S:Prénom", "S:Caisse", "S:Agence", "S:Centre payeur", "S:Date facturation", "S:Montant facturé", "S:Montant réglé", "S:Reste / trop-perçu", "S:Solde type", "S:État" ] ],
+    "nom" : "Règlements"
+  } ]
+}

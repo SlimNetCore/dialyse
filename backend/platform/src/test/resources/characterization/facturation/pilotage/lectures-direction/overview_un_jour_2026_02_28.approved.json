@@ -1,0 +1,83 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centres" : [ {
+      "actif" : true,
+      "caHt" : 500.00,
+      "caTtc" : 595.00,
+      "centerId" : "<CENTRE_A>",
+      "encaisse" : 200.00,
+      "factures" : 1,
+      "nom" : "Centre Alpha",
+      "patients" : null,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 395.00,
+      "seances" : 0,
+      "tauxEncaissement" : 33.6
+    }, {
+      "actif" : true,
+      "caHt" : 0.00,
+      "caTtc" : 0.00,
+      "centerId" : "<CENTRE_B>",
+      "encaisse" : 0.00,
+      "factures" : 0,
+      "nom" : "Centre Beta",
+      "patients" : null,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0.00,
+      "seances" : 0,
+      "tauxEncaissement" : null
+    }, {
+      "actif" : true,
+      "caHt" : 0.00,
+      "caTtc" : 0.00,
+      "centerId" : "<CENTRE_VIDE>",
+      "encaisse" : 0.00,
+      "factures" : 0,
+      "nom" : "Centre Vide",
+      "patients" : 0,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0.00,
+      "seances" : 0,
+      "tauxEncaissement" : null
+    } ],
+    "from" : "2026-02-28",
+    "generatedAt" : "<HORODATAGE>",
+    "mensuel" : [ {
+      "caHt" : 500.00,
+      "caTtc" : 595.00,
+      "centerId" : "<CENTRE_A>",
+      "mois" : "2026-02",
+      "seances" : 0
+    } ],
+    "periodePrecedente" : {
+      "caHt" : 0,
+      "caTtc" : 0,
+      "encaisse" : 0,
+      "from" : "2026-02-27",
+      "resteARecouvrer" : 0,
+      "seances" : 0,
+      "tauxEncaissement" : null,
+      "to" : "2026-02-27"
+    },
+    "seuilAnonymat" : 5,
+    "societeId" : "<SOCIETE_1>",
+    "societeNom" : "Société Pilotage Un",
+    "to" : "2026-02-28",
+    "totaux" : {
+      "actif" : true,
+      "caHt" : 500.00,
+      "caTtc" : 595.00,
+      "centerId" : null,
+      "encaisse" : 200.00,
+      "factures" : 1,
+      "nom" : null,
+      "patients" : null,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 395.00,
+      "seances" : 0,
+      "tauxEncaissement" : 33.6
+    }
+  }
+}

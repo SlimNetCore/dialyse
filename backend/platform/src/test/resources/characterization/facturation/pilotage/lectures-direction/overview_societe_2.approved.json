@@ -1,0 +1,57 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centres" : [ {
+      "actif" : true,
+      "caHt" : 9999.00,
+      "caTtc" : 9999.00,
+      "centerId" : "<CENTRE_AUTRE_SOCIETE>",
+      "encaisse" : 0.00,
+      "factures" : 1,
+      "nom" : "Centre Autre Société",
+      "patients" : 0,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 9999.00,
+      "seances" : 0,
+      "tauxEncaissement" : 0.0
+    } ],
+    "from" : "2026-02-01",
+    "generatedAt" : "<HORODATAGE>",
+    "mensuel" : [ {
+      "caHt" : 9999.00,
+      "caTtc" : 9999.00,
+      "centerId" : "<CENTRE_AUTRE_SOCIETE>",
+      "mois" : "2026-02",
+      "seances" : 0
+    } ],
+    "periodePrecedente" : {
+      "caHt" : 0,
+      "caTtc" : 0,
+      "encaisse" : 0,
+      "from" : "2026-01-04",
+      "resteARecouvrer" : 0,
+      "seances" : 0,
+      "tauxEncaissement" : null,
+      "to" : "2026-01-31"
+    },
+    "seuilAnonymat" : 5,
+    "societeId" : "<SOCIETE_2>",
+    "societeNom" : "Société Pilotage Deux",
+    "to" : "2026-02-28",
+    "totaux" : {
+      "actif" : true,
+      "caHt" : 9999.00,
+      "caTtc" : 9999.00,
+      "centerId" : null,
+      "encaisse" : 0.00,
+      "factures" : 1,
+      "nom" : null,
+      "patients" : 0,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 9999.00,
+      "seances" : 0,
+      "tauxEncaissement" : 0.0
+    }
+  }
+}

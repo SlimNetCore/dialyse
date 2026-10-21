@@ -1,0 +1,42 @@
+{
+  "janvier" : {
+    "billedPatients" : 1,
+    "billedSeances" : 2,
+    "byInsurance" : [ {
+      "code" : "CNAS",
+      "label" : "CNAS Centre 1",
+      "patientsCount" : 1,
+      "seancesCount" : 1
+    } ],
+    "byPatientStatus" : [ {
+      "code" : "PERMANENT",
+      "label" : "PERMANENT",
+      "seancesCount" : 1
+    } ],
+    "centerId" : "<CENTRE_A>",
+    "createdInvoices" : 1,
+    "month" : "2026-01",
+    "revenueHt" : 7000.00,
+    "revenueTtc" : 7000.00
+  },
+  "mars" : {
+    "billedPatients" : 1,
+    "billedSeances" : 1,
+    "byInsurance" : [ {
+      "code" : "CNAS",
+      "label" : "CNAS Centre 1",
+      "patientsCount" : 1,
+      "seancesCount" : 1
+    } ],
+    "byPatientStatus" : [ {
+      "code" : "PERMANENT",
+      "label" : "PERMANENT",
+      "seancesCount" : 1
+    } ],
+    "centerId" : "<CENTRE_A>",
+    "createdInvoices" : 1,
+    "month" : "2026-03",
+    "revenueHt" : 6000.00,
+    "revenueTtc" : 6000.00
+  }
+}

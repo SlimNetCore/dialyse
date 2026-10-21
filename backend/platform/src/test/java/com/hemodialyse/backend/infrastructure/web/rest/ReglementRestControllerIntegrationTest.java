@@ -50,6 +50,15 @@ class ReglementRestControllerIntegrationTest {
 
     private MockMvc mockMvc;
 
+    /**
+     * Retouche de fixture (slice F4) : depuis F4 la route confronte le centre demandé à celui de la session (KB-FAC-37 corrigé) ;
+     * l'utilisateur de test doit donc porter son centre (un {@code User} Spring sans centre est refusé en 403).
+     */
+    private static org.springframework.test.web.servlet.request.RequestPostProcessor secretaire() {
+        return user(com.hemodialyse.backend.infrastructure.security.UserPrincipal.create(UUID.randomUUID().toString(),
+                CENTER_ID.toString(), "secretaire", "", java.util.List.of("SECRETAIRE"), true));
+    }
+
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
@@ -76,7 +85,7 @@ class ReglementRestControllerIntegrationTest {
                         .param("month", "8")
                         .param("page", "0")
                         .param("size", "20")
-                        .with(user("secretaire").roles("SECRETAIRE")))
+                        .with(secretaire()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total").value(2))
                 .andExpect(jsonPath("$.items[?(@.factureId=='%s' && @.etat=='REGLEE' && @.soldeType=='REGLE')]".formatted(FACTURE_ID)).isNotEmpty())
@@ -96,7 +105,7 @@ class ReglementRestControllerIntegrationTest {
                                   "userId": "sec-02"
                                 }
                                 """.formatted(CENTER_ID))
-                        .with(user("secretaire").roles("SECRETAIRE")))
+                        .with(secretaire()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.factureId").value(FACTURE_ID_2.toString()))
                 .andExpect(jsonPath("$.montantRegle").value(1200.0))
@@ -114,7 +123,7 @@ class ReglementRestControllerIntegrationTest {
                         .param("centerId", CENTER_ID.toString())
                         .param("year", "2026")
                         .param("month", "8")
-                        .with(user("secretaire").roles("SECRETAIRE")))
+                        .with(secretaire()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalFactures").value(2))
                 .andExpect(jsonPath("$.nonReglees").value(0))

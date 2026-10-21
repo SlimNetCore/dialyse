@@ -1,0 +1,31 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "items" : [ {
+      "agence" : "Agence 1",
+      "agenceId" : "<AGENCE_1>",
+      "caisse" : "CNAS",
+      "caisseId" : "<CAISSE_1>",
+      "centrePayeur" : "Payeur 1",
+      "centrePayeurId" : "<PAYEUR_1>",
+      "dateFacturation" : "2026-01-31",
+      "etat" : "PARTIELLEMENT_REGLEE",
+      "factureId" : "<FACTURE_REPRISE-F2026-01>",
+      "latestCodeReglement" : "<CODE_REGLEMENT>",
+      "montantFacture" : 67200.0,
+      "montantRegle" : 20000.0,
+      "numeroAssurance" : "ZH111",
+      "numeroFacture" : "REPRISE-F2026-01",
+      "patientNom" : "BENALI",
+      "patientPrenom" : "Karim",
+      "paymentCount" : 1,
+      "reste" : 47200.0,
+      "soldeType" : "RESTE",
+      "tropPercu" : 0.0
+    } ],
+    "page" : 0,
+    "size" : 20,
+    "total" : 1
+  }
+}

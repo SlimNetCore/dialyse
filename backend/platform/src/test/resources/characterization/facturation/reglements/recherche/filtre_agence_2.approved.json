@@ -1,0 +1,7 @@
+{
+  "lignes" : [ "FAC-0006 | 2026-03-15 | NON_REGLEE/RESTE | facture 100.0 | regle 0.0 | payeur Centre payeur Oran | agence Agence Oran | caisse CASNOS Centre 1", "FAC-0002 | 2026-02-01 | REGLEE/REGLE | facture 500.0 | regle 500.0 | payeur Centre payeur Oran | agence Agence Oran | caisse CASNOS Centre 1" ],
+  "page" : 0,
+  "size" : 20,
+  "status" : 200,
+  "total" : 2
+}

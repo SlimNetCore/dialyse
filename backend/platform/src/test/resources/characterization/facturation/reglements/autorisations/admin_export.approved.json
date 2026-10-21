@@ -1,0 +1,5 @@
+{
+  "status" : 200,
+  "contentType" : "text/csv",
+  "bodyText" : "N° Facture;N° Assurance;Nom;Prénom;Caisse;Agence;Centre payeur;Date facturation;Montant facturé;Montant réglé;Reste / trop-perçu;Solde type;État\nFAC-0001;ASS-REG-001;Amrani;Lina;CNAS Centre 1;Agence Alger;Centre payeur Alger;31/01/2026;1000.00;0.00;1000.00;RESTE;NON_REGLEE\n"
+}

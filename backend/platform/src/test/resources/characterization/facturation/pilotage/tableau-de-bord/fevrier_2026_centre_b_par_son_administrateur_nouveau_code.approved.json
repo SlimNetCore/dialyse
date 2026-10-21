@@ -1,0 +1,24 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "billedPatients" : 1,
+    "billedSeances" : 1,
+    "byInsurance" : [ {
+      "code" : "CNAS-B",
+      "label" : "CNAS du centre B",
+      "patientsCount" : 1,
+      "seancesCount" : 0
+    } ],
+    "byPatientStatus" : [ {
+      "code" : "PERMANENT",
+      "label" : "PERMANENT",
+      "seancesCount" : 0
+    } ],
+    "centerId" : "<CENTRE_B>",
+    "createdInvoices" : 1,
+    "month" : "2026-02",
+    "revenueHt" : 9999.00,
+    "revenueTtc" : 9999.00
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "detail" : "La facturation de cette période est validée : l'absence est clôturée",
+    "instance" : "/api/v1/absences-patients",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

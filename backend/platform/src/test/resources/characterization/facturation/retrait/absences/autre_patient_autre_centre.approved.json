@@ -1,0 +1,14 @@
+{
+  "absences" : [ {
+    "date_seance" : "<J_MOINS_15>",
+    "patient_id" : "<PATIENT_1>",
+    "statut" : "JUSTIFIEE"
+  } ],
+  "patient1_jour10" : {
+    "status" : 201
+  },
+  "patient2_jour10" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  }
+}

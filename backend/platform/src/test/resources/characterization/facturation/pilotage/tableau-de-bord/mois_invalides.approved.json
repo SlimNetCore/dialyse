@@ -1,0 +1,16 @@
+{
+  "2026-00" : "500 INTERNAL_ERROR",
+  "2026-02 entoure d'espaces" : "200 centre=<CENTRE_A> mois=2026-02",
+  "2026-02-15" : "500 INTERNAL_ERROR",
+  "2026-13" : "500 INTERNAL_ERROR",
+  "2026-2" : "500 INTERNAL_ERROR",
+  "202602" : "500 INTERNAL_ERROR",
+  "26-02" : "500 INTERNAL_ERROR",
+  "absent" : "500 INTERNAL_ERROR",
+  "annee 0001" : "200 centre=<CENTRE_A> mois=0001-02",
+  "annee 5 chiffres" : "500 INTERNAL_ERROR",
+  "avec signe plus" : "500 INTERNAL_ERROR",
+  "espaces" : "400 BAD_REQUEST : Le mois est obligatoire",
+  "texte" : "500 INTERNAL_ERROR",
+  "vide" : "400 BAD_REQUEST : Le mois est obligatoire"
+}

@@ -1,0 +1,22 @@
+[ {
+  "code_reglement" : "<CODE_REGLEMENT>",
+  "created_at_nul" : "false",
+  "date_reglement" : "2026-02-01",
+  "facture_id" : "<FACTURE_1>",
+  "montant" : "500.01",
+  "saisi_par" : "<UUID_GENERE_1>"
+}, {
+  "code_reglement" : "<CODE_REGLEMENT>",
+  "created_at_nul" : "false",
+  "date_reglement" : "2026-02-02",
+  "facture_id" : "<FACTURE_1>",
+  "montant" : "100.00",
+  "saisi_par" : "<UUID_GENERE_2>"
+}, {
+  "code_reglement" : "<CODE_REGLEMENT>",
+  "created_at_nul" : "false",
+  "date_reglement" : "2026-02-03",
+  "facture_id" : "<FACTURE_1>",
+  "montant" : "-0.01",
+  "saisi_par" : "<UUID_GENERE_3>"
+} ]

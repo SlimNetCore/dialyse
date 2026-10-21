@@ -1,0 +1,70 @@
+{
+  "caisseTotaux" : [ {
+    "caHt" : 1500.00,
+    "caisse" : "CNAS Centre 1",
+    "caisseCode" : "CNAS",
+    "patients" : 0,
+    "seances" : 0
+  }, {
+    "caHt" : 800.00,
+    "caisse" : "CASNOS Centre 1",
+    "caisseCode" : "CASNOS",
+    "patients" : 0,
+    "seances" : 0
+  }, {
+    "caHt" : 400.00,
+    "caisse" : "CNAS du centre B",
+    "caisseCode" : "CNAS-B",
+    "patients" : 0,
+    "seances" : 0
+  }, {
+    "caHt" : 100.50,
+    "caisse" : null,
+    "caisseCode" : "",
+    "patients" : null,
+    "seances" : 4
+  } ],
+  "caisses" : [ {
+    "caHt" : 1500.00,
+    "caisse" : "CNAS Centre 1",
+    "caisseCode" : "CNAS",
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre Alpha",
+    "patients" : 0,
+    "seances" : 0
+  }, {
+    "caHt" : 800.00,
+    "caisse" : "CASNOS Centre 1",
+    "caisseCode" : "CASNOS",
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre Alpha",
+    "patients" : 0,
+    "seances" : 0
+  }, {
+    "caHt" : 100.50,
+    "caisse" : null,
+    "caisseCode" : "",
+    "centerId" : "<CENTRE_A>",
+    "centre" : "Centre Alpha",
+    "patients" : null,
+    "seances" : 3
+  }, {
+    "caHt" : 400.00,
+    "caisse" : "CNAS du centre B",
+    "caisseCode" : "CNAS-B",
+    "centerId" : "<CENTRE_B>",
+    "centre" : "Centre Beta",
+    "patients" : 0,
+    "seances" : 0
+  }, {
+    "caHt" : 0.00,
+    "caisse" : null,
+    "caisseCode" : "",
+    "centerId" : "<CENTRE_B>",
+    "centre" : "Centre Beta",
+    "patients" : null,
+    "seances" : 1
+  } ],
+  "from" : "2026-02-01",
+  "to" : "2026-02-28"
+}

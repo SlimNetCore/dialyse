@@ -1,0 +1,11 @@
+{
+  "status" : 422,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "MIGRATION_CANCEL_BLOCKED",
+    "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — facture « F2026-01 » (encaissée dans la plateforme)",
+    "instance" : "/api/v1/admin/migration/batches/<LOT_REPRISE>/cancel",
+    "status" : 422,
+    "title" : "Regle metier violee"
+  }
+}

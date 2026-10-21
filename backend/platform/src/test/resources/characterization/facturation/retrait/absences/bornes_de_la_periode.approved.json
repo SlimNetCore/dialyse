@@ -1,0 +1,25 @@
+{
+  "absences" : [ {
+    "date_seance" : "<J_MOINS_21>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE"
+  }, {
+    "date_seance" : "<J_MOINS_9>",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE"
+  } ],
+  "dernier_jour" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  },
+  "lendemain_de_la_fin" : {
+    "status" : 201
+  },
+  "premier_jour" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  },
+  "veille_du_debut" : {
+    "status" : 201
+  }
+}

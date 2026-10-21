@@ -1,0 +1,4 @@
+{
+  "entetes" : "200 | text/csv | attachment; filename=\"reglements-2026.csv\"",
+  "contenu" : "N° Facture;N° Assurance;Nom;Prénom;Caisse;Agence;Centre payeur;Date facturation;Montant facturé;Montant réglé;Reste / trop-perçu;Solde type;État\nFAC-0005;ASS-REG-002;Belkacem;Omar;CASNOS Centre 1;Agence Oran;Centre payeur Oran;28/02/2026;200.00;200.00;0.00;REGLE;REGLEE\nFAC-0004;'@cmd;'-2+3;'+cmd;CNAS Centre 1;Agence Alger;Centre payeur Alger;20/02/2026;300.00;350.00;-50.00;TROP_PERCU;REGLEE\nFAC-0003;ASS-REG-003;Chikhi;Nadia;Non renseignee;Non renseignee;Non renseigne;15/02/2026;800.00;800.00;0.00;REGLE;REGLEE\nFAC-0002;ASS-REG-002;Belkacem;Omar;CASNOS Centre 1;Agence Oran;Centre payeur Oran;10/02/2026;500.00;200.00;300.00;RESTE;PARTIELLEMENT_REGLEE\n'=1+1;'@cmd;'-2+3;'+cmd;CNAS Centre 1;Agence Alger;Centre payeur Alger;03/02/2026;1000.00;0.00;1000.00;RESTE;NON_REGLEE\n"
+}

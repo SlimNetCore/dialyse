@@ -1,0 +1,12 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : [ {
+    "codeReglement" : "<CODE_REGLEMENT>",
+    "dateReglement" : "2026-01-31",
+    "factureId" : "<FACTURE_REPRISE-F2026-01>",
+    "id" : "<REGLEMENT_REPRISE-F2026-01_2>",
+    "montant" : 20000.0,
+    "saisiPar" : "REPRISE"
+  } ]
+}

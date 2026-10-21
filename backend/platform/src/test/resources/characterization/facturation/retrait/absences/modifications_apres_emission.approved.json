@@ -1,0 +1,20 @@
+{
+  "absenceInchangee" : [ {
+    "date_seance" : "<J_MOINS_15>",
+    "motif" : "MALADIE",
+    "source" : "DECLAREE",
+    "statut" : "JUSTIFIEE"
+  } ],
+  "annulation" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  },
+  "qualification" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  },
+  "rattrapage" : {
+    "code" : "ABSENCE_PERIODE_FACTUREE",
+    "status" : 422
+  }
+}

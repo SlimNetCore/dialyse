@@ -1,0 +1,16 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "ages" : [ ],
+    "anemie" : [ ],
+    "caisseTotaux" : [ ],
+    "caisses" : [ ],
+    "from" : "2026-02-01",
+    "generatedAt" : "<HORODATAGE>",
+    "seuilAnonymat" : 5,
+    "sexe" : [ ],
+    "societeId" : "<SOCIETE_SANS_CENTRE>",
+    "to" : "2026-02-28"
+  }
+}

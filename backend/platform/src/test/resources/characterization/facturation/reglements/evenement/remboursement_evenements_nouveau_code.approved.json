@@ -1,0 +1,13 @@
+[ {
+  "centerId" : "<CENTRE_A>",
+  "dateReglement" : "2026-02-10",
+  "factureId" : "<FACTURE_1>",
+  "montant" : "600.00",
+  "userId" : "<UUID_GENERE_1>"
+}, {
+  "centerId" : "<CENTRE_A>",
+  "dateReglement" : "2026-02-11",
+  "factureId" : "<FACTURE_1>",
+  "montant" : "-150.00",
+  "userId" : "<UUID_GENERE_2>"
+} ]

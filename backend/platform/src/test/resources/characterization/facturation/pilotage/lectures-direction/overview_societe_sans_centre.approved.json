@@ -1,0 +1,29 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centres" : [ ],
+    "from" : "2026-02-01",
+    "generatedAt" : "<HORODATAGE>",
+    "mensuel" : [ ],
+    "periodePrecedente" : null,
+    "seuilAnonymat" : 5,
+    "societeId" : "<SOCIETE_SANS_CENTRE>",
+    "societeNom" : "Société sans centre",
+    "to" : "2026-02-28",
+    "totaux" : {
+      "actif" : true,
+      "caHt" : 0.00,
+      "caTtc" : 0.00,
+      "centerId" : null,
+      "encaisse" : 0.00,
+      "factures" : 0,
+      "nom" : null,
+      "patients" : 0,
+      "patientsSousKt" : 0,
+      "resteARecouvrer" : 0.00,
+      "seances" : 0,
+      "tauxEncaissement" : null
+    }
+  }
+}

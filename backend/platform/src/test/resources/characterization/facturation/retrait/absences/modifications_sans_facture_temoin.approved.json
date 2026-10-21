@@ -1,0 +1,14 @@
+{
+  "absence" : [ {
+    "date_seance" : "<J_MOINS_15>",
+    "motif" : "HOSPITALISATION",
+    "source" : "DECLAREE",
+    "statut" : "ANNULEE"
+  } ],
+  "annulation" : {
+    "status" : 200
+  },
+  "qualification" : {
+    "status" : 200
+  }
+}

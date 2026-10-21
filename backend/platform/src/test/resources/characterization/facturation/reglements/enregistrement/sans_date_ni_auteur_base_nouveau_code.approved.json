@@ -1,0 +1,8 @@
+[ {
+  "code_reglement" : "<CODE_REGLEMENT>",
+  "created_at_nul" : "false",
+  "date_reglement" : "<AUJOURD_HUI>",
+  "facture_id" : "<FACTURE_1>",
+  "montant" : "100.00",
+  "saisi_par" : "<UUID_GENERE_1>"
+} ]

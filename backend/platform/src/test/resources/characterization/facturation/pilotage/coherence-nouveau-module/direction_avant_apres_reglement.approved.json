@@ -1,0 +1,25 @@
+{
+  "apresReglement" : {
+    "caHt" : 145.82,
+    "caTtc" : 173.53,
+    "encaisse" : 50.00,
+    "factures" : 3,
+    "resteARecouvrer" : 123.53,
+    "tauxEncaissement" : 28.8
+  },
+  "avantReglement" : {
+    "caHt" : 145.82,
+    "caTtc" : 173.53,
+    "encaisse" : 0.00,
+    "factures" : 3,
+    "resteARecouvrer" : 173.53,
+    "tauxEncaissement" : 0.0
+  },
+  "tableauDeBordApresReglement" : {
+    "billedSeances" : 5,
+    "createdInvoices" : 3,
+    "revenueHt" : 145.82,
+    "revenueTtc" : 173.53
+  },
+  "ttcFactureAmrani" : "118.99"
+}

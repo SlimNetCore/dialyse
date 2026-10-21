@@ -57,6 +57,7 @@ class ExclusionEtForfaitCharacterizationIntegrationTest extends SimulationCharac
 
     private void nommerLesJours() {
         nommerTexte(jour(10), "<J-10>");
+        nommerTexte(jour(4), "<J-4>");
         nommerTexte(jour(3), "<J-3>");
         nommerTexte(jour(2), "<J-2>");
         nommerTexte(jour(0), "<AUJOURDHUI>");

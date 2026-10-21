@@ -1,0 +1,7 @@
+{
+  "lignes" : [ "FAC-0004 | 2026-02-28 | REGLEE/TROP_PERCU | facture 1200.5 | regle 1300.0 | payeur Centre payeur Alger | agence Agence Alger | caisse CNAS Centre 1", "FAC-0003 | 2026-02-01 | NON_REGLEE/RESTE | facture 800.0 | regle 0.0 | payeur Non renseigne | agence Non renseignee | caisse Non renseignee" ],
+  "page" : 1,
+  "size" : 2,
+  "status" : 200,
+  "total" : 6
+}

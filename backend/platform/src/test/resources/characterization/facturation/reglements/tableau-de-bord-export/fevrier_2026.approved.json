@@ -1,0 +1,39 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "month" : 2,
+    "nonReglees" : 1,
+    "partiellementReglees" : 1,
+    "reglees" : 3,
+    "statusBreakdown" : [ {
+      "amount" : 1000.0,
+      "code" : "NON_REGLEE",
+      "count" : 1,
+      "label" : "Non reglee"
+    }, {
+      "amount" : 500.0,
+      "code" : "PARTIELLEMENT_REGLEE",
+      "count" : 1,
+      "label" : "Partiellement reglee"
+    }, {
+      "amount" : 1000.0,
+      "code" : "REGLE",
+      "count" : 2,
+      "label" : "Reglee"
+    }, {
+      "amount" : 50.0,
+      "code" : "TROP_PERCU",
+      "count" : 1,
+      "label" : "Trop percu"
+    } ],
+    "totalFacture" : 2800.0,
+    "totalFactures" : 5,
+    "totalRegle" : 1550.0,
+    "totalReste" : 1300.0,
+    "totalTropPercu" : 50.0,
+    "tropPercus" : 1,
+    "year" : 2026
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "agence" : "Agence Alger",
+    "agenceId" : "<AGENCE_1>",
+    "caisse" : "CNAS Centre 1",
+    "caisseId" : "<CAISSE_1>",
+    "centrePayeur" : "Centre payeur Alger",
+    "centrePayeurId" : "<PAYEUR_1>",
+    "dateFacturation" : "2026-01-31",
+    "etat" : "PARTIELLEMENT_REGLEE",
+    "factureId" : "<FACTURE_1>",
+    "latestCodeReglement" : "<CODE_REGLEMENT>",
+    "montantFacture" : 1000.0,
+    "montantRegle" : 500.01,
+    "numeroAssurance" : "ASS-REG-001",
+    "numeroFacture" : "FAC-0001",
+    "patientNom" : "Amrani",
+    "patientPrenom" : "Lina",
+    "paymentCount" : 1,
+    "reste" : 499.99,
+    "soldeType" : "RESTE",
+    "tropPercu" : 0.0
+  }
+}

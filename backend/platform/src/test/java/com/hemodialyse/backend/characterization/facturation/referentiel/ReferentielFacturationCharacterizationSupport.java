@@ -56,6 +56,7 @@ abstract class ReferentielFacturationCharacterizationSupport {
 
     protected static final String BASE = "/api/v1";
     protected static final UUID CENTRE_A = UUID.fromString("99996400-0000-0000-0000-00000000000a");
+    protected static final UUID UTILISATEUR_A = UUID.fromString("99996400-0000-0000-0000-0000000000a1");
     protected static final UUID CENTRE_B = UUID.fromString("99996400-0000-0000-0000-00000000000b");
     private static final Path GOLDENS = Path.of("src", "test", "resources", "characterization", "facturation",
             "referentiel");
@@ -80,8 +81,12 @@ abstract class ReferentielFacturationCharacterizationSupport {
                 List.of(roles), true));
     }
 
+    /**
+     * Administrateur du centre A, dont l'identifiant de session est connu : il est l'auteur enregistré (KB-FAC-R01), le champ
+     * {@code userId} du corps étant ignoré. Alias {@code <UTILISATEUR_A>} dans les goldens.
+     */
     protected static RequestPostProcessor adminA() {
-        return as(CENTRE_A, "ADMIN");
+        return user(UserPrincipal.create(UTILISATEUR_A.toString(), CENTRE_A.toString(), "u", "", List.of("ADMIN"), true));
     }
 
     protected static RequestPostProcessor adminB() {
@@ -214,6 +219,7 @@ abstract class ReferentielFacturationCharacterizationSupport {
         Scrubber() {
             aliases.put(CENTRE_A.toString(), "<CENTRE_A>");
             aliases.put(CENTRE_B.toString(), "<CENTRE_B>");
+            aliases.put(UTILISATEUR_A.toString(), "<UTILISATEUR_A>");
         }
 
         String scrubString(String raw) {

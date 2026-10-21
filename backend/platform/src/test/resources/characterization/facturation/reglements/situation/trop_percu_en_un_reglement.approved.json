@@ -1,0 +1,11 @@
+[ {
+  "etat" : "REGLEE",
+  "montant" : "1200.00",
+  "montantFacture" : 1000.0,
+  "montantRegle" : 1200.0,
+  "paymentCount" : 1,
+  "reste" : 0.0,
+  "soldeType" : "TROP_PERCU",
+  "status" : 200,
+  "tropPercu" : 200.0
+} ]

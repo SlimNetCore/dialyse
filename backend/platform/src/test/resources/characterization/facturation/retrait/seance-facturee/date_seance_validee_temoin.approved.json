@@ -1,0 +1,29 @@
+{
+  "body" : {
+    "dateSeance" : "2026-02-12",
+    "id" : "<SEANCE_VALIDEE>",
+    "status" : "VALIDEE"
+  },
+  "etatApres" : {
+    "bonsDeSortie" : 0,
+    "lot" : [ {
+      "quantite_restante" : "10.00"
+    } ],
+    "mouvementsDeStock" : 0,
+    "seances" : [ {
+      "date_seance" : "2026-02-10",
+      "facture_id" : "<FACTURE_1>",
+      "id" : "<SEANCE_FACTUREE>",
+      "statut" : "FACTUREE"
+    }, {
+      "date_seance" : "2026-02-12",
+      "facture_id" : null,
+      "id" : "<SEANCE_VALIDEE>",
+      "statut" : "VALIDEE"
+    } ],
+    "voletsMedicaux" : 0,
+    "voletsParamedicaux" : 0
+  },
+  "etatInchange" : false,
+  "status" : 200
+}

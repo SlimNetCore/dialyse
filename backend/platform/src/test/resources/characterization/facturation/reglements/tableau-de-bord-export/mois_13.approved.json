@@ -1,0 +1,11 @@
+{
+  "status" : 400,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "BAD_REQUEST",
+    "detail" : "Le mois doit etre compris entre 1 et 12",
+    "instance" : "/api/v1/reglements/dashboard",
+    "status" : 400,
+    "title" : "Requete invalide"
+  }
+}

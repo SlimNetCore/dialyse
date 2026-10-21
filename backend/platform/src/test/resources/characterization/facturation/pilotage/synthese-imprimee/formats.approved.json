@@ -1,0 +1,82 @@
+{
+  "[ Pdf ]" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+    "pages" : 1,
+    "status" : 200
+  },
+  "[CSV]" : {
+    "contentType" : "text/plain",
+    "corps" : "format non supporte: CSV",
+    "disposition" : null,
+    "status" : 400
+  },
+  "[EXCEL]" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=synthese-facturation-mensuelle.xlsx",
+    "signatureZip" : true,
+    "status" : 200
+  },
+  "[HTML]" : {
+    "contentType" : "text/html",
+    "debutHtml" : "<html><head><meta charset='UTF-8'><title",
+    "disposition" : null,
+    "pdfEmbarque" : true,
+    "status" : 200
+  },
+  "[PDF]" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+    "pages" : 1,
+    "status" : 200
+  },
+  "[WORD]" : {
+    "contentType" : "text/plain",
+    "corps" : "format non supporte: WORD",
+    "disposition" : null,
+    "status" : 400
+  },
+  "[XLSX]" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=synthese-facturation-mensuelle.xlsx",
+    "signatureZip" : true,
+    "status" : 200
+  },
+  "[XLS]" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=synthese-facturation-mensuelle.xlsx",
+    "signatureZip" : true,
+    "status" : 200
+  },
+  "[]" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+    "pages" : 1,
+    "status" : 200
+  },
+  "[docx]" : {
+    "contentType" : "text/plain",
+    "corps" : "format non supporte: DOCX",
+    "disposition" : null,
+    "status" : 400
+  },
+  "[html]" : {
+    "contentType" : "text/html",
+    "debutHtml" : "<html><head><meta charset='UTF-8'><title",
+    "disposition" : null,
+    "pdfEmbarque" : true,
+    "status" : 200
+  },
+  "[pdf]" : {
+    "contentType" : "application/pdf",
+    "disposition" : "inline; filename=synthese-facturation-mensuelle.pdf",
+    "pages" : 1,
+    "status" : 200
+  },
+  "[xlsx]" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "disposition" : "attachment; filename=synthese-facturation-mensuelle.xlsx",
+    "signatureZip" : true,
+    "status" : 200
+  }
+}

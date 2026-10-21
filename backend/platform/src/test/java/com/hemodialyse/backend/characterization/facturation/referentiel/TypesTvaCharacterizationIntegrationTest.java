@@ -83,15 +83,15 @@ class TypesTvaCharacterizationIntegrationTest extends ReferentielFacturationChar
 
     @Test
     void la_creation_nominale_repond_201_avec_le_type_cree_actif() throws Exception {
-        golden("creation_nominale_201", doPost("/tva-types", nominal(CENTRE_A), adminA()));
-        goldenTypes("creation_nominale_etat_base", CENTRE_A);
+        golden("creation_nominale_201_nouveau_code",doPost("/tva-types", nominal(CENTRE_A), adminA()));
+        goldenTypes("creation_nominale_etat_base_nouveau_code",CENTRE_A);
     }
 
     @Test
     void la_creation_complete_porte_la_fin_le_texte_et_l_exoneration() throws Exception {
-        golden("creation_complete_201", doPost("/tva-types", type(CENTRE_A, "Exonération", "0.00", "HEMODIALYSE",
+        golden("creation_complete_201_nouveau_code",doPost("/tva-types", type(CENTRE_A, "Exonération", "0.00", "HEMODIALYSE",
                 "true", "2026-01-01", "2026-12-31", "Loi de finances 2026", "admin"), adminA()));
-        goldenTypes("creation_complete_etat_base", CENTRE_A);
+        goldenTypes("creation_complete_etat_base_nouveau_code",CENTRE_A);
     }
 
     @Test
@@ -119,7 +119,7 @@ class TypesTvaCharacterizationIntegrationTest extends ReferentielFacturationChar
     @Test
     void deux_types_actifs_du_meme_centre_et_du_meme_type_ne_peuvent_plus_se_chevaucher_nouveau_code() throws Exception {
         // KB-FAC-04 corrigé (ADR 0030) : le second type est refusé (400), rien n'est écrit
-        golden("chevauchement_1_201", doPost("/tva-types", avecDates("2026-01-01", null), adminA()));
+        golden("chevauchement_1_201_nouveau_code",doPost("/tva-types", avecDates("2026-01-01", null), adminA()));
         golden("chevauchement_2_400_nouveau_code", doPost("/tva-types", avecDates("2026-06-01", "2026-12-31"), adminA()));
         goldenTypes("chevauchement_etat_base_nouveau_code", CENTRE_A);
     }
@@ -216,6 +216,6 @@ class TypesTvaCharacterizationIntegrationTest extends ReferentielFacturationChar
         golden("partage_regles_tva_comptables_apres_creation", doGet("/comptabilite/regles-tva", adminA()));
         assertEquals(200, doPost("/comptabilite/regles-tva", json("{'typePrestation':'MEDICAMENT','tauxApplique':0,"
                 + "'exonere':true,'dateDebutValidite':'2026-01-01'}"), adminA()).status());
-        golden("partage_liste_apres_ajout_comptable_200", doGet("/tva-types?centerId=" + CENTRE_A, adminA()));
+        golden("partage_liste_apres_ajout_comptable_200_nouveau_code",doGet("/tva-types?centerId=" + CENTRE_A, adminA()));
     }
 }

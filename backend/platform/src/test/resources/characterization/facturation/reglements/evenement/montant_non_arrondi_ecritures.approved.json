@@ -1,0 +1,22 @@
+[ {
+  "date_ecriture" : "2026-02-10",
+  "date_piece" : "2026-02-10",
+  "journal_code" : "BQ",
+  "libelle" : "Règlement Règlement facture",
+  "numero_piece" : "BQ-2026-000001",
+  "source_id" : "<UUID_GENERE_1>",
+  "statut" : "VALIDEE",
+  "lignes" : [ {
+    "compte_scf" : "411100",
+    "libelle_ligne" : "Règlement facture <FACTURE_1>",
+    "montant_credit" : "500.01",
+    "montant_debit" : "0.00",
+    "tiers_id" : null
+  }, {
+    "compte_scf" : "512",
+    "libelle_ligne" : "Règlement Règlement facture",
+    "montant_credit" : "0.00",
+    "montant_debit" : "500.01",
+    "tiers_id" : null
+  } ]
+} ]

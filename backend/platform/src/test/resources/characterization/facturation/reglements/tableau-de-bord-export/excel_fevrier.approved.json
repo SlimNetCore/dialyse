@@ -1,0 +1,6 @@
+{
+  "feuilles" : [ {
+    "lignes" : [ [ "S:N° Facture", "S:N° Assurance", "S:Nom", "S:Prénom", "S:Caisse", "S:Agence", "S:Centre payeur", "S:Date facturation", "S:Montant facturé", "S:Montant réglé", "S:Reste / trop-perçu", "S:Solde type", "S:État" ], [ "S:FAC-0005", "S:ASS-REG-002", "S:Belkacem", "S:Omar", "S:CASNOS Centre 1", "S:Agence Oran", "S:Centre payeur Oran", "S:28/02/2026", "N:200.0", "N:200.0", "N:0.0", "S:REGLE", "S:REGLEE" ], [ "S:FAC-0004", "S:ASS-REG-001", "S:Amrani", "S:Lina", "S:CNAS Centre 1", "S:Agence Alger", "S:Centre payeur Alger", "S:20/02/2026", "N:300.0", "N:350.0", "N:-50.0", "S:TROP_PERCU", "S:REGLEE" ], [ "S:FAC-0003", "S:ASS-REG-003", "S:Chikhi", "S:Nadia", "S:Non renseignee", "S:Non renseignee", "S:Non renseigne", "S:15/02/2026", "N:800.0", "N:800.0", "N:0.0", "S:REGLE", "S:REGLEE" ], [ "S:FAC-0002", "S:ASS-REG-002", "S:Belkacem", "S:Omar", "S:CASNOS Centre 1", "S:Agence Oran", "S:Centre payeur Oran", "S:10/02/2026", "N:500.0", "N:200.0", "N:300.0", "S:RESTE", "S:PARTIELLEMENT_REGLEE" ], [ "S:FAC-0001", "S:ASS-REG-001", "S:Amrani", "S:Lina", "S:CNAS Centre 1", "S:Agence Alger", "S:Centre payeur Alger", "S:03/02/2026", "N:1000.0", "N:0.0", "N:1000.0", "S:RESTE", "S:NON_REGLEE" ] ],
+    "nom" : "Règlements"
+  } ]
+}

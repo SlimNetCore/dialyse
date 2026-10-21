@@ -24,5 +24,30 @@ class FrontieresDesContextesTest {
                     COMPTABILITE + ".domain..", COMPTABILITE + ".application..", COMPTABILITE + ".infrastructure..",
                     COMPTABILITE + ".interfaces..", COMPTABILITE + ".configuration..")
             .because("la Comptabilité ne s'utilise que par son langage publié (ADR 0025)");
+
+    private static final String FACTURATION = "com.hemodialyse.backend.contexts.facturation";
+
+    /**
+     * Slice F6 : le module Maven {@code bc-facturation} ne contient plus de classe ; aucune classe du dépôt ne doit
+     * réintroduire le paquet legacy {@code com.hemodialyse.backend.domain.facturation} (ports, agrégat TypeTVA, services).
+     */
+    @ArchTest
+    static final ArchRule plus_aucune_classe_ne_depend_du_paquet_legacy_de_facturation = noClasses()
+            .should().dependOnClassesThat().resideInAnyPackage("com.hemodialyse.backend.domain.facturation..")
+            .allowEmptyShould(true)
+            .because("bc-facturation est vide depuis F5 et retiré par F6 : la Facturation vit dans contexts/facturation");
+
+    /**
+     * Slice F6 : le legacy n'utilise la Facturation que par son langage publié, sans aucune exemption (la dette des trois
+     * classes {@code AbsencesDesPatientsLegacy}, {@code FacturationSyntheseMensuelleReportService} et
+     * {@code DocumentRestController} est soldée).
+     */
+    @ArchTest
+    static final ArchRule le_legacy_n_utilise_la_facturation_que_par_son_langage_publie = noClasses()
+            .that().resideOutsideOfPackage(FACTURATION + "..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    FACTURATION + ".domain..", FACTURATION + ".application..", FACTURATION + ".infrastructure..",
+                    FACTURATION + ".interfaces..", FACTURATION + ".configuration..")
+            .because("la Facturation ne s'utilise que par son langage publié (ADR 0030..0034)");
 }
 

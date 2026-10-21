@@ -1,0 +1,14 @@
+{
+  "ADMIN" : 200,
+  "COMPTABLE" : 403,
+  "DIRECTION" : 403,
+  "INFIRMIER + ADMIN" : 200,
+  "INFIRMIER seul" : 403,
+  "MEDECIN + SECRETAIRE" : 200,
+  "MEDECIN seul" : 403,
+  "POST ADMIN" : 500,
+  "SECRETAIRE" : 200,
+  "SUPERADMIN" : 403,
+  "anonyme" : 403,
+  "aucun role" : 403
+}
