@@ -2647,8 +2647,7 @@ payeur sur chaque facture, <strong>calcule le solde</strong> de chaque facture e
 Sources : <code>FacturationDomainService</code>,
 <code>SeanceEligibleForFacturationSpecification</code>, <code>FactureAggregate</code>, <code>FactureNumberTemplate</code>, <code>TypeTVA</code>,
     <code>RegleTva</code>, <code>GererLesTypesDeTva</code>, <code>ParametresDeFacturation</code>, <code>ModeleDeNumerotation</code>,
-    <code>SeanceFacturationJdbcAdapter</code>, <code>FactureReglementAggregate</code>,
-<code>FactureReglementStatusSpecification</code>, <code>ReglementService</code>, <code>ComptabiliteService</code>, <code>GenerateurEcritureComptable</code>,
+    <code>Facture</code>, <code>Reglement</code> (contexte <code>facturation</code>), <code>ComptabiliteService</code>, <code>GenerateurEcritureComptable</code>,
 <code>EcritureComptable</code>, <code>MappingComptable</code>, <code>RegleTVA</code>, listeners comptables,
     contrôleurs <code>Facturation*</code>, <code>TypesTvaControleur</code>, <code>ParametresFacturationControleur</code>,
     <code>Reglement*</code>, <code>Comptabilite*</code>.</p>
@@ -4324,10 +4323,10 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
     <td>RG-FAC-001 à 003, RG-CPT-006</td>
 </tr>
 <tr>
-<td><code>FacturationRestController</code></td>
+<td><code>ValidationControleur</code>, <code>TableauDeBordControleur</code>, <code>SyntheseControleur</code></td>
     <td><code>/api/v1/facturation</code> (<code>/validate</code>, <code>/dashboard</code>, <code>/synthese/print</code>)
     </td>
-<td><code>ADMIN</code>, <code>MEDECIN</code> (+ <code>SECRETAIRE</code> en lecture)</td>
+<td><code>/validate</code> : <code>ADMIN</code> ; <code>/synthese/print</code> : <code>ADMIN</code> ou <code>SECRETAIRE</code> (même règle que l&#39;impression par modèle de document, y compris pour un compte à plusieurs rôles) ; <code>/dashboard</code> : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code></td>
     <td>RG-FAC-024, 030 à 032</td>
 </tr>
 <tr>

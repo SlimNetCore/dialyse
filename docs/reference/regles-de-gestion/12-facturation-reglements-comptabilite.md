@@ -143,10 +143,11 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   la facture** (pas ligne par ligne), TTC = HT + TVA, à deux décimales ; période valide. Une facture émise ne se modifie
   plus (le prix, le libellé du forfait, le patient et le taux restent ceux de l'émission). *Source :* `Facture`,
   `LigneFacture` (contexte `facturation`).
-- **RG-FAC-032** — Après validation, un évènement « facturation validée » (`FacturationValideeEvent`, version 2) décrit
-  exactement ce qui a été émis — centre, **période réellement facturée**, factures émises (identifiant, numéro, HT, TVA,
-  TTC), séances facturées, **total TTC exact** — et déclenche, après le commit, la génération des écritures de ventes
-  (RG-CPT-001). **Aucun évènement** quand aucune facture n'est émise ; la reconstitution des ventes manquantes passe par
+- **RG-FAC-032** — Après validation, un évènement « facturation validée » (`FacturationValideeEvent`, version 3, ADR 0036) annonce
+  ce qui a été émis — centre, **période réellement facturée**, **nombre de factures émises**, nombre de séances
+  facturées, **total TTC exact**, instant de la validation ; il ne liste plus les factures (taille bornée) — et
+  déclenche, après le commit, la génération des écritures de ventes (RG-CPT-001), qui relit en base les factures de la
+  période encore sans écriture (idempotent). **Aucun évènement** quand aucune facture n'est émise ; la reconstitution des ventes manquantes passe par
   `POST /api/v1/comptabilite/rebuild`. L'existence d'une facture couvrant une date **clôt les absences** du patient à
   cette date (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-002). *Source :*
   `FacturationValideeEvent` (langage publié du contexte `facturation`) → `FacturationValideeComptabiliteListener`.
