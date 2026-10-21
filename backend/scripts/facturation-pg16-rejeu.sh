@@ -1,6 +1,9 @@
 #!/bin/bash
-# Rejeu des slices F1 (referentiel de facturation), F2 (simulation : migration V39, ACL des seances, sequence) et F3 (validation :
-# migration V40, factures, reservation atomique de la sequence sous concurrence) sur un
+# Rejeu des slices F1 (referentiel de facturation), F2 (simulation : migration V39, ACL des seances, sequence), F3 (validation :
+# migration V40, factures, reservation atomique de la sequence sous concurrence) F4 (reglements : migration V41 mode / reference /
+# cle d'idempotence, index unique, lecture des situations, enregistrements simultanes) et F5 (lectures de pilotage : tableau de bord,
+# synthese, synthese financiere publiee pour la Direction : sommes, extraction annee/mois, comptages distincts, ordre) et F6 (ports
+# publies : periode facturee, factures emises et reglements encaisses hors reprise, reprise des soldes) sur un
 # PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit en
 # sortie. Chaine Flyway V1..Vn (psql), constat KB-FAC-07 sur le schema Flyway pur (l'ancien MERGE ... KEY de
 # FacturationSettingsJdbcAdapter, syntaxe H2, doit ECHOUER), puis contrats PostgreSQL : parametres de facturation (contexte
@@ -48,6 +51,15 @@ echo "-- F3 (migration V40) : la colonne d'auteur de l'emission existe et est nu
 echo "-- F3 : V40 est idempotente (rejeu sans erreur)"
 "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V40__facturation_auteur_de_l_emission.sql" >/dev/null && echo "rejeu V40 ok" || RC=1
 
+echo "-- F4 (migration V41) : mode, reference et cle d'idempotence des reglements existent et sont nullables"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM information_schema.columns WHERE table_name = 'facture_reglements' AND column_name IN ('mode_reglement', 'reference_paiement', 'cle_idempotence') AND is_nullable = 'YES'" | tr -d '\r' | grep -qx 3 \
+  && echo "colonnes presentes (3/3)" || { echo "ATTENDU : 3 colonnes nullables"; RC=1; }
+echo "-- F4 : l'index unique de la cle d'idempotence existe"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM pg_indexes WHERE indexname = 'ux_facture_reglements_cle_idempotence'" | tr -d '\r' | grep -qx 1 \
+  && echo "index present" || { echo "ATTENDU : index unique"; RC=1; }
+echo "-- F4 : V41 est idempotente (rejeu sans erreur)"
+"${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$MIG/V41__facturation_mode_reference_et_cle_des_reglements.sql" >/dev/null && echo "rejeu V41 ok" || RC=1
+
 cd "$RACINE/backend"
 echo "=== Contrat PostgreSQL des parametres (contexte facturation) ==="
 ./mvnw -o -pl contexts/facturation test -Dtest='ParametresPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
@@ -57,6 +69,15 @@ echo "=== Contrats PostgreSQL de la simulation F2 (seances : exclusion, reinclus
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrats PostgreSQL de la validation F3 (factures, numero unique par centre, auteur ; reservation atomique de la sequence sous concurrence) ==="
 ./mvnw -o -pl contexts/facturation test -Dtest='FacturesPostgresContractIT,SequenceConcurrentePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
+echo "=== Contrats PostgreSQL des reglements F4 (colonnes V41, index unique, lecture des situations ; idempotence et remboursement sous concurrence) ==="
+./mvnw -o -pl contexts/facturation test -Dtest='ReglementsPostgresContractIT,ReglementsConcurrentsPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
+echo "=== Contrats PostgreSQL des lectures de pilotage F5 (totaux stockes, annee/mois, comptages, ordre) ==="
+./mvnw -o -pl contexts/facturation test -Dtest='PilotagePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
+echo "=== Contrats PostgreSQL des ports publies F6 (periode facturee, factures emises et reglements encaisses hors reprise ; reprise des soldes) ==="
+./mvnw -o -pl contexts/facturation -am test -Dtest='LecturesPubliquesPostgresContractIT,RepriseDesSoldesPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrat PostgreSQL des regles de TVA (contexte comptabilite) ==="
 ./mvnw -o -pl contexts/comptabilite test -Dtest='RegleTvaPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \

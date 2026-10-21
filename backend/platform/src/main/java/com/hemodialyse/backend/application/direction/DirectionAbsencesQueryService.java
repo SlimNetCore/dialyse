@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,11 @@ public class DirectionAbsencesQueryService {
     private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
 
-    public DirectionAbsencesQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard) {
+    private final SyntheseFinanciereDesCentres finance;
+
+    public DirectionAbsencesQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
+                                         SyntheseFinanciereDesCentres finance) {
+        this.finance = finance;
         this.jdbc = jdbc;
         this.dashboard = dashboard;
     }
@@ -100,11 +106,7 @@ public class DirectionAbsencesQueryService {
                     seances.put(rs.getObject("center_id", UUID.class), rs.getLong("n"));
                 }, params);
         Map<UUID, BigDecimal> ca = new HashMap<>();
-        jdbc.query("SELECT center_id, COALESCE(SUM(total_ht),0) AS ht FROM factures WHERE center_id IN (" + in
-                        + ") AND date_facturation BETWEEN ? AND ? GROUP BY center_id",
-                rs -> {
-                    ca.put(rs.getObject("center_id", UUID.class), rs.getBigDecimal("ht"));
-                }, params);
+        finance.chiffresParCentre(ids, start, end).forEach((centre, chiffres) -> ca.put(centre, chiffres.chiffreDAffairesHt()));
 
         Map<UUID, Cumul> parCentre = new HashMap<>();
         Map<UUID, Map<String, Cumul>> motifsParCentre = new HashMap<>();

@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.CentreInfo;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
 import com.hemodialyse.backend.application.direction.DirectionDashboardQueryService.SocieteInfo;
 import com.hemodialyse.backend.application.query.EffectifSql;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
@@ -43,7 +44,11 @@ public class DirectionBreakdownQueryService {
     private final JdbcTemplate jdbc;
     private final DirectionDashboardQueryService dashboard;
 
-    public DirectionBreakdownQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard) {
+    private final SyntheseFinanciereDesCentres finance;
+
+    public DirectionBreakdownQueryService(JdbcTemplate jdbc, DirectionDashboardQueryService dashboard,
+                                          SyntheseFinanciereDesCentres finance) {
+        this.finance = finance;
         this.jdbc = jdbc;
         this.dashboard = dashboard;
     }
@@ -196,18 +201,10 @@ public class DirectionBreakdownQueryService {
      * CA HT des factures de la période, par caisse (agence figée sur la facture au moment de sa création).
      */
     private void loadCaisseCa(String in, List<UUID> ids, Date from, Date to, Map<String, Agg> cells) {
-        List<Object> args = new ArrayList<>(ids);
-        args.addAll(List.of(from, to));
-        jdbc.query("SELECT f.center_id, COALESCE(ca.code, '') AS code, MAX(ca.nom) AS nom, "
-                        + "COALESCE(SUM(f.total_ht), 0) AS ht FROM factures f "
-                        + "LEFT JOIN agence ag ON ag.id = f.agence_id_snapshot "
-                        + "LEFT JOIN caisse_assurance ca ON ca.id = ag.caisse_id "
-                        + "WHERE f.center_id IN (" + in + ") AND f.date_facturation BETWEEN ? AND ? "
-                        + "GROUP BY f.center_id, COALESCE(ca.code, '')",
-                rs -> {
-                    Agg a = cell(cells, rs.getObject("center_id", UUID.class), rs.getString("code"), rs.getString("nom"));
-                    a.caHt = a.caHt.add(rs.getBigDecimal("ht"));
-                }, args.toArray());
+        for (var caisse : finance.chiffreDAffairesParCaisse(ids, from.toLocalDate(), to.toLocalDate())) {
+            Agg a = cell(cells, caisse.centre(), caisse.codeCaisse(), caisse.nomCaisse());
+            a.caHt = a.caHt.add(caisse.chiffreDAffairesHt());
+        }
     }
 
     // ───────────────────────────── Chargement ─────────────────────────────

@@ -1,128 +1,79 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.BarresDeRepartition;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FormatDImpression;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ImpressionDeLaSynthese;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
+/**
+ * Impression de la synthèse mensuelle de facturation : adaptateur du port {@link ImpressionDeLaSynthese} du module Facturation
+ * (slice F5). Le module lit les données (caisses, indicateurs, répartitions, totaux enregistrés des factures) ; ce service
+ * construit à la volée le gabarit Jasper (une colonne HT et TTC par caisse), le compile dans un fichier temporaire et le rend.
+ * Le tableau forfait x caisse est lu par le gabarit lui-même ; le TTC d'une ligne est sa part du TTC enregistré de la facture
+ * (ADR 0034), les montants globaux sont les totaux enregistrés passés en paramètres.
+ */
 @Service
-public class FacturationSyntheseMensuelleReportService {
+public class FacturationSyntheseMensuelleReportService implements ImpressionDeLaSynthese {
 
-    private static final Set<String> ALLOWED_FORMATS = Set.of("PDF", "EXCEL", "XLS", "XLSX", "HTML");
-
-    private final JdbcTemplate jdbc;
     private final JasperReportService jasperReportService;
 
-    public FacturationSyntheseMensuelleReportService(JdbcTemplate jdbc, JasperReportService jasperReportService) {
-        this.jdbc = jdbc;
+    public FacturationSyntheseMensuelleReportService(JasperReportService jasperReportService) {
         this.jasperReportService = jasperReportService;
     }
 
-    public byte[] generate(UUID centerId, LocalDate periodStart, LocalDate periodEnd, String format) throws Exception {
-        if (centerId == null) {
-            throw new IllegalArgumentException("centerId est obligatoire");
+    @Override
+    public byte[] imprimer(SyntheseMensuelle synthese, FormatDImpression format) {
+        List<CaisseColumn> caisses = new ArrayList<>();
+        for (SyntheseMensuelle.Caisse caisse : synthese.colonnes()) {
+            caisses.add(new CaisseColumn(caisse.code(), caisse.libelle(), "HT_" + caisses.size(), "TTC_" + caisses.size()));
         }
-        if (periodStart == null || periodEnd == null) {
-            throw new IllegalArgumentException("periodStart et periodEnd sont obligatoires");
-        }
-        if (periodStart.isAfter(periodEnd)) {
-            throw new IllegalArgumentException("periodStart doit etre inferieure ou egale a periodEnd");
-        }
-
-        String normalizedFormat = normalizeFormat(format);
-        List<CaisseColumn> caisses = loadCaisses(centerId, periodStart, periodEnd);
-        List<DistributionRow> byInsuranceRows = loadByInsuranceDistributionRows(centerId, periodStart, periodEnd);
-        List<DistributionRow> byStatusRows = loadByPatientStatusDistributionRows(centerId, periodStart, periodEnd);
-        String byInsuranceGraph = buildDistributionGraphText(byInsuranceRows);
-        String byStatusGraph = buildDistributionGraphText(byStatusRows);
-        SyntheseKpi kpi = loadKpi(centerId, periodStart, periodEnd);
         String jrxml = buildDynamicTemplate(caisses);
 
-        Path tempJrxml = Files.createTempFile("synthese-facturation-", ".jrxml");
-        Files.writeString(tempJrxml, jrxml, StandardCharsets.UTF_8);
-
+        Path tempJrxml = null;
         try {
-            try {
-                Map<String, Object> params = new HashMap<>();
-                params.put("CENTER_ID", centerId.toString());
-                params.put("PERIOD_START", periodStart.toString());
-                params.put("PERIOD_END", periodEnd.toString());
-                params.put("DISTRIBUTION_BY_CAISSE_TEXT", byInsuranceGraph);
-                params.put("DISTRIBUTION_BY_STATUS_TEXT", byStatusGraph);
-                params.put("TOTAL_PATIENTS", kpi.totalPatients());
-                params.put("TOTAL_SEANCES", kpi.totalSeances());
-                params.put("TOTAL_FACTURES", kpi.totalFactures());
-                return jasperReportService.generateReport(
-                        tempJrxml.toString(),
-                        params,
-                        normalizedFormat
-                );
-            } catch (Exception e) {
-                throw new IllegalStateException(
-                        "Echec generation synthese dynamique: " + e.getClass().getSimpleName() + " - " + e.getMessage(),
-                        e
-                );
-            }
+            tempJrxml = Files.createTempFile("synthese-facturation-", ".jrxml");
+            Files.writeString(tempJrxml, jrxml, StandardCharsets.UTF_8);
+            Map<String, Object> params = new HashMap<>();
+            params.put("CENTER_ID", synthese.centre().toString());
+            params.put("PERIOD_START", synthese.debut().toString());
+            params.put("PERIOD_END", synthese.fin().toString());
+            params.put("DISTRIBUTION_BY_CAISSE_TEXT", BarresDeRepartition.texte(synthese.parCaisse()));
+            params.put("DISTRIBUTION_BY_STATUS_TEXT", BarresDeRepartition.texte(synthese.parSituation()));
+            params.put("TOTAL_PATIENTS", synthese.patients());
+            params.put("TOTAL_SEANCES", synthese.seances());
+            params.put("TOTAL_FACTURES", synthese.factures());
+            params.put("TOTAL_HT_FACTURES", synthese.totalHt());
+            params.put("TOTAL_TVA_FACTURES", synthese.totalTva());
+            params.put("TOTAL_TTC_FACTURES", synthese.totalTtc());
+            return jasperReportService.generateReport(tempJrxml.toString(), params, format.name());
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Echec generation synthese dynamique: " + e.getClass().getSimpleName() + " - " + e.getMessage(), e);
         } finally {
-            Path tempJasper = tempJrxml.resolveSibling(tempJrxml.getFileName().toString().replace(".jrxml", ".jasper"));
+            supprimer(tempJrxml);
+        }
+    }
+
+    private static void supprimer(Path tempJrxml) {
+        if (tempJrxml == null) {
+            return;
+        }
+        try {
             Files.deleteIfExists(tempJrxml);
-            Files.deleteIfExists(tempJasper);
+            Files.deleteIfExists(tempJrxml.resolveSibling(tempJrxml.getFileName().toString().replace(".jrxml", ".jasper")));
+        } catch (IOException ignored) {
+            // fichier temporaire : sans conséquence
         }
-    }
-
-    private String normalizeFormat(String format) {
-        String normalized = (format == null || format.isBlank()) ? "PDF" : format.trim().toUpperCase(Locale.ROOT);
-        if (!ALLOWED_FORMATS.contains(normalized)) {
-            throw new IllegalArgumentException("format non supporte: " + normalized);
-        }
-        return normalized;
-    }
-
-    private List<CaisseColumn> loadCaisses(UUID centerId, LocalDate periodStart, LocalDate periodEnd) {
-        List<Map<String, Object>> rows = jdbc.queryForList(
-                """
-                        SELECT DISTINCT
-                               COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU') AS caisse_code,
-                               COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu') AS caisse_label
-                        FROM factures f
-                        LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id
-                        LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id AND ca.center_id = f.center_id
-                        WHERE f.center_id = ?
-                          AND f.date_facturation BETWEEN ? AND ?
-                        ORDER BY caisse_label ASC
-                        """,
-                centerId,
-                Date.valueOf(periodStart),
-                Date.valueOf(periodEnd)
-        );
-
-        List<CaisseColumn> result = new ArrayList<>();
-        Set<String> uniqueCodes = new LinkedHashSet<>();
-        for (Map<String, Object> row : rows) {
-            String code = String.valueOf(row.get("CAISSE_CODE"));
-            String label = String.valueOf(row.get("CAISSE_LABEL"));
-            if (!uniqueCodes.add(code)) {
-                continue;
-            }
-            result.add(new CaisseColumn(code, label, "HT_" + result.size(), "TTC_" + result.size()));
-        }
-
-        if (result.isEmpty()) {
-            result.add(new CaisseColumn("INCONNU", "Inconnu", "HT_0", "TTC_0"));
-        }
-        return result;
     }
 
     private String buildDynamicTemplate(List<CaisseColumn> caisses) {
@@ -156,7 +107,7 @@ public class FacturationSyntheseMensuelleReportService {
                 .append("    SELECT fl.forfait_label,\n")
                 .append("           COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU') AS caisse_code,\n")
                 .append("           fl.line_ht AS line_ht,\n")
-                .append("           (fl.line_ht * (1 + (f.tva_rate / 100))) AS line_ttc\n")
+                .append("           (CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END) AS line_ttc\n")
                 .append("    FROM facture_lignes fl\n")
                 .append("    INNER JOIN factures f ON f.id = fl.facture_id AND f.center_id = fl.center_id\n")
                 .append("    LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id\n")
@@ -181,7 +132,10 @@ public class FacturationSyntheseMensuelleReportService {
                 .append("    <parameter name=\"DISTRIBUTION_BY_STATUS_TEXT\" class=\"java.lang.String\"/>\n")
                 .append("    <parameter name=\"TOTAL_PATIENTS\" class=\"java.lang.Long\"/>\n")
                 .append("    <parameter name=\"TOTAL_SEANCES\" class=\"java.lang.Long\"/>\n")
-                .append("    <parameter name=\"TOTAL_FACTURES\" class=\"java.lang.Long\"/>\n\n")
+                .append("    <parameter name=\"TOTAL_FACTURES\" class=\"java.lang.Long\"/>\n")
+                .append("    <parameter name=\"TOTAL_HT_FACTURES\" class=\"java.math.BigDecimal\"/>\n")
+                .append("    <parameter name=\"TOTAL_TVA_FACTURES\" class=\"java.math.BigDecimal\"/>\n")
+                .append("    <parameter name=\"TOTAL_TTC_FACTURES\" class=\"java.math.BigDecimal\"/>\n\n")
                 .append("    <queryString>\n")
                 .append("        <![CDATA[\n")
                 .append(queryBuilder)
@@ -276,7 +230,7 @@ public class FacturationSyntheseMensuelleReportService {
                 .append("            <textField pattern=\"#,##0.00\">\n")
                 .append("                <reportElement x=\"6\" y=\"42\" width=\"128\" height=\"20\"/>\n")
                 .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
-                .append("                <textFieldExpression><![CDATA[$V{GLOBAL_TOTAL_HT}]]></textFieldExpression>\n")
+                .append("                <textFieldExpression><![CDATA[$P{TOTAL_HT_FACTURES}]]></textFieldExpression>\n")
                 .append("            </textField>\n")
                 .append("            <rectangle>\n")
                 .append("                <reportElement x=\"150\" y=\"24\" width=\"140\" height=\"44\" backcolor=\"#E3F2FD\" mode=\"Opaque\"/>\n")
@@ -289,7 +243,20 @@ public class FacturationSyntheseMensuelleReportService {
                 .append("            <textField pattern=\"#,##0.00\">\n")
                 .append("                <reportElement x=\"156\" y=\"42\" width=\"128\" height=\"20\"/>\n")
                 .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
-                .append("                <textFieldExpression><![CDATA[$V{GLOBAL_TOTAL_TTC}]]></textFieldExpression>\n")
+                .append("                <textFieldExpression><![CDATA[$P{TOTAL_TTC_FACTURES}]]></textFieldExpression>\n")
+                .append("            </textField>\n")
+                .append("            <rectangle>\n")
+                .append("                <reportElement x=\"690\" y=\"24\" width=\"110\" height=\"44\" backcolor=\"#FFEBEE\" mode=\"Opaque\"/>\n")
+                .append("            </rectangle>\n")
+                .append("            <staticText>\n")
+                .append("                <reportElement x=\"696\" y=\"28\" width=\"98\" height=\"12\"/>\n")
+                .append("                <textElement><font size=\"8\" isBold=\"true\"/></textElement>\n")
+                .append("                <text><![CDATA[Montant TVA]]></text>\n")
+                .append("            </staticText>\n")
+                .append("            <textField pattern=\"#,##0.00\">\n")
+                .append("                <reportElement x=\"696\" y=\"42\" width=\"98\" height=\"20\"/>\n")
+                .append("                <textElement><font size=\"12\" isBold=\"true\"/></textElement>\n")
+                .append("                <textFieldExpression><![CDATA[$P{TOTAL_TVA_FACTURES}]]></textFieldExpression>\n")
                 .append("            </textField>\n")
                 .append("            <rectangle>\n")
                 .append("                <reportElement x=\"300\" y=\"24\" width=\"120\" height=\"44\" backcolor=\"#FFF8E1\" mode=\"Opaque\"/>\n")
@@ -394,134 +361,6 @@ public class FacturationSyntheseMensuelleReportService {
         return value == null ? "" : value.replace("]]>", "] ]>");
     }
 
-    private List<DistributionRow> loadByInsuranceDistributionRows(UUID centerId, LocalDate periodStart, LocalDate periodEnd) {
-        return jdbc.query(
-                """
-                        SELECT COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU') AS bucket_code,
-                               COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu') AS bucket_label,
-                               COUNT(DISTINCT f.patient_id) AS patients_count,
-                               COUNT(DISTINCT s.id) AS seances_count
-                        FROM factures f
-                        LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id
-                        LEFT JOIN caisse_assurance ca ON ca.id = a.caisse_id AND ca.center_id = f.center_id
-                        LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
-                        WHERE f.center_id = ?
-                          AND f.date_facturation BETWEEN ? AND ?
-                        GROUP BY COALESCE(NULLIF(TRIM(ca.code), ''), 'INCONNU'),
-                                 COALESCE(NULLIF(TRIM(ca.nom), ''), 'Inconnu')
-                        ORDER BY patients_count DESC, seances_count DESC, bucket_code ASC
-                        """,
-                (rs, rowNum) -> new DistributionRow(
-                        rs.getString("bucket_code"),
-                        rs.getString("bucket_label"),
-                        rs.getLong("patients_count"),
-                        rs.getLong("seances_count")
-                ),
-                centerId,
-                Date.valueOf(periodStart),
-                Date.valueOf(periodEnd)
-        );
-    }
-
-    private List<DistributionRow> loadByPatientStatusDistributionRows(UUID centerId, LocalDate periodStart, LocalDate periodEnd) {
-        return jdbc.query(
-                """
-                        SELECT COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'INCONNU') AS bucket_code,
-                               COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'Inconnu') AS bucket_label,
-                               COUNT(DISTINCT f.patient_id) AS patients_count,
-                               COUNT(DISTINCT s.id) AS seances_count
-                        FROM factures f
-                        LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
-                        WHERE f.center_id = ?
-                          AND f.date_facturation BETWEEN ? AND ?
-                        GROUP BY COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'INCONNU'),
-                                 COALESCE(NULLIF(TRIM(f.patient_status_snapshot), ''), 'Inconnu')
-                        ORDER BY patients_count DESC, seances_count DESC, bucket_code ASC
-                        """,
-                (rs, rowNum) -> new DistributionRow(
-                        rs.getString("bucket_code"),
-                        rs.getString("bucket_label"),
-                        rs.getLong("patients_count"),
-                        rs.getLong("seances_count")
-                ),
-                centerId,
-                Date.valueOf(periodStart),
-                Date.valueOf(periodEnd)
-        );
-    }
-
-    private SyntheseKpi loadKpi(UUID centerId, LocalDate periodStart, LocalDate periodEnd) {
-        return jdbc.queryForObject(
-                """
-                        SELECT COUNT(DISTINCT f.id) AS total_factures,
-                               COUNT(DISTINCT f.patient_id) AS total_patients,
-                               COUNT(DISTINCT s.id) AS total_seances
-                        FROM factures f
-                        LEFT JOIN seances s ON s.facture_id = f.id AND s.center_id = f.center_id
-                        WHERE f.center_id = ?
-                          AND f.date_facturation BETWEEN ? AND ?
-                        """,
-                (rs, rowNum) -> new SyntheseKpi(
-                        rs.getLong("total_factures"),
-                        rs.getLong("total_patients"),
-                        rs.getLong("total_seances")
-                ),
-                centerId,
-                Date.valueOf(periodStart),
-                Date.valueOf(periodEnd)
-        );
-    }
-
-    private String buildDistributionGraphText(List<DistributionRow> rows) {
-        if (rows.isEmpty()) {
-            return "Aucune donnee pour la periode.";
-        }
-        long maxPatients = rows.stream().mapToLong(DistributionRow::patientsCount).max().orElse(1L);
-        long maxSeances = rows.stream().mapToLong(DistributionRow::seancesCount).max().orElse(1L);
-        StringBuilder builder = new StringBuilder();
-        for (DistributionRow row : rows) {
-            if (!builder.isEmpty()) {
-                builder.append("\n");
-            }
-            String patientsBar = bar(row.patientsCount(), maxPatients, 10);
-            String seancesBar = bar(row.seancesCount(), maxSeances, 10);
-            builder.append(row.label())
-                    .append("\nP ")
-                    .append(patientsBar)
-                    .append(" ")
-                    .append(row.patientsCount())
-                    .append(" | S ")
-                    .append(seancesBar)
-                    .append(" ")
-                    .append(row.seancesCount());
-        }
-        return builder.toString();
-    }
-
-    private String bar(long value, long max, int width) {
-        if (max <= 0) {
-            return "-".repeat(width);
-        }
-        int fill = (int) Math.round((double) value * width / (double) max);
-        fill = Math.max(0, Math.min(width, fill));
-        return "#".repeat(fill) + "-".repeat(width - fill);
-    }
-
     private record CaisseColumn(String code, String label, String htField, String ttcField) {
     }
-
-    private record SyntheseKpi(long totalFactures, long totalPatients, long totalSeances) {
-    }
-
-    private record DistributionRow(String code, String label, long patientsCount, long seancesCount) {
-    }
 }
-
-
-
-
-
-
-
-
-

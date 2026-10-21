@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes;
 import com.hemodialyse.backend.domain.migration.model.IdMapping;
 import com.hemodialyse.backend.domain.migration.model.MigrationEntity;
 import com.hemodialyse.backend.domain.migration.port.MigrationRollbackPort;
@@ -39,8 +40,10 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
             "demandes_examen", "administrations_anemie", "bons_sortie", "bilans_pre_greffe");
 
     private final JdbcTemplate jdbc;
+    private final RepriseDesSoldes reprise;
 
-    public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc) {
+    public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise) {
+        this.reprise = reprise;
         this.jdbc = jdbc;
     }
 
@@ -75,8 +78,10 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                     UUID patientId = UUID.fromString(m.targetId());
                     for (String table : PATIENT_DATA) {
                         Set<String> ownRows = createdByTable.getOrDefault(table, Set.of());
-                        boolean usedElsewhere = ids("SELECT CAST(id AS VARCHAR(36)) FROM " + table + " WHERE patient_id = ?", patientId)
-                                .stream().anyMatch(id -> !ownRows.contains(id));
+                        // les factures sont celles de la Facturation : lues par son langage publié
+                        List<String> rows = "factures".equals(table) ? reprise.facturesDuPatient(patientId)
+                                : ids("SELECT CAST(id AS VARCHAR(36)) FROM " + table + " WHERE patient_id = ?", patientId);
+                        boolean usedElsewhere = rows.stream().anyMatch(id -> !ownRows.contains(id));
                         if (usedElsewhere) {
                             blockers.add("patient « " + m.legacyId() + " » (" + table + ")");
                             break;
@@ -107,10 +112,8 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                     }
                 }
                 case SOLDES_OUVERTURE -> {
-                    Long payments = jdbc.queryForObject("SELECT COUNT(*) FROM facture_reglements WHERE facture_id = ? "
-                                    + "AND (saisi_par IS NULL OR saisi_par <> ?)", Long.class,
-                            UUID.fromString(m.targetId()), OpeningBalancePort.MIGRATION_AUTHOR);
-                    if (payments != null && payments > 0) {
+                    long payments = reprise.reglementsHorsReprise(centerId.value(), UUID.fromString(m.targetId()));
+                    if (payments > 0) {
                         blockers.add("facture « " + m.legacyId() + " » (encaissée dans la plateforme)");
                     }
                 }
@@ -136,12 +139,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 }
                 case ASSURES ->
                         jdbc.update("DELETE FROM assure WHERE numero_assurance = ? AND center_id = ?", m.targetId(), center);
-                case SOLDES_OUVERTURE -> {
-                    UUID factureId = UUID.fromString(m.targetId());
-                    jdbc.update("DELETE FROM facture_reglements WHERE facture_id = ? AND center_id = ?", factureId, center);
-                    jdbc.update("DELETE FROM facture_lignes WHERE facture_id = ? AND center_id = ?", factureId, center);
-                    jdbc.update("DELETE FROM factures WHERE id = ? AND center_id = ?", factureId, center);
-                }
+                case SOLDES_OUVERTURE -> reprise.supprimer(center, UUID.fromString(m.targetId()));
                 default -> jdbc.update("DELETE FROM " + HistoricalRecordJdbcAdapter.table(m.entity()).name()
                         + " WHERE id = ? AND center_id = ?", UUID.fromString(m.targetId()), center);
             }

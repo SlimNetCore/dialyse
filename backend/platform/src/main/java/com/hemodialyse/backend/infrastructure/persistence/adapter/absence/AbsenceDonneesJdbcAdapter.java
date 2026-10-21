@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.absence;
 
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationDuPatient;
 import com.hemodialyse.backend.domain.absence.port.AbsenceDonneesPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -20,8 +21,10 @@ public class AbsenceDonneesJdbcAdapter implements AbsenceDonneesPort {
     private static final String SEANCE_REALISEE = "s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE')";
 
     private final JdbcTemplate jdbc;
+    private final FacturationDuPatient facturation;
 
-    public AbsenceDonneesJdbcAdapter(JdbcTemplate jdbc) {
+    public AbsenceDonneesJdbcAdapter(JdbcTemplate jdbc, FacturationDuPatient facturation) {
+        this.facturation = facturation;
         this.jdbc = jdbc;
     }
 
@@ -86,10 +89,7 @@ public class AbsenceDonneesJdbcAdapter implements AbsenceDonneesPort {
 
     @Override
     public boolean periodeFacturee(UUID centerId, UUID patientId, LocalDate date) {
-        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM factures WHERE center_id = ? AND patient_id = ? "
-                        + "AND period_start <= ? AND period_end >= ?", Integer.class, centerId, patientId, Date.valueOf(date),
-                Date.valueOf(date));
-        return n != null && n > 0;
+        return facturation.periodeFacturee(centerId, patientId, date);
     }
 
     @Override

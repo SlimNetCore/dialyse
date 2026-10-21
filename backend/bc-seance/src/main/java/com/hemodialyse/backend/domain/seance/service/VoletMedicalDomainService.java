@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.seance.service;
 
+import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
 import com.hemodialyse.backend.domain.seance.model.SeanceStatus;
 import com.hemodialyse.backend.domain.seance.model.VoletMedical;
 import com.hemodialyse.backend.domain.seance.port.SeanceRepositoryPort;
@@ -46,7 +47,7 @@ public class VoletMedicalDomainService implements VoletMedicalUseCase {
             throw new IllegalStateException("Le volet medical n'est accessible qu'apres validation infirmiere");
         }
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+            throw new SeanceFactureeNonModifiableException();
         }
 
         VoletMedical volet = voletRepository.findBySeanceId(seanceId, centerId).orElseGet(VoletMedical::new);

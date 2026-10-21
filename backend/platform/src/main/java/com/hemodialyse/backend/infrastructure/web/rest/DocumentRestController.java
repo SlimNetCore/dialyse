@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
 import com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler;
 import com.hemodialyse.backend.infrastructure.reporting.DocumentIdentityProvider;
 import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,13 +56,15 @@ public class DocumentRestController {
     private final CenterAccessGuard centerAccessGuard;
     private final DocumentIdentityProvider identityProvider;
     private final ModeleDocumentPrinter printer;
+    private final SyntheseDeFacturation syntheseDeFacturation;
 
     public DocumentRestController(JdbcTemplate jdbc, JasperReportService jasperService,
                                   ModeleDocumentTemplateService templateService,
                                   CustomTemplateCompiler customTemplateCompiler,
                                   CenterAccessGuard centerAccessGuard,
                                   DocumentIdentityProvider identityProvider,
-                                  ModeleDocumentPrinter printer) {
+                                  ModeleDocumentPrinter printer,
+                                  SyntheseDeFacturation syntheseDeFacturation) {
         this.jdbc = jdbc;
         this.jasperService = jasperService;
         this.templateService = templateService;
@@ -67,6 +72,7 @@ public class DocumentRestController {
         this.centerAccessGuard = centerAccessGuard;
         this.identityProvider = identityProvider;
         this.printer = printer;
+        this.syntheseDeFacturation = syntheseDeFacturation;
     }
 
     private static void requireSafeTemplatePath(String path) {
@@ -190,6 +196,9 @@ public class DocumentRestController {
      */
     @PostMapping("/print")
     public ResponseEntity<byte[]> print(@RequestBody PrintRequest req) {
+        if (estLaSyntheseDeFacturation(req)) {
+            garderLaSyntheseDeFacturation(req);
+        }
         try {
             validatePrintRequest(req, true);
             String normalizedType = req.typeDocument().trim().toUpperCase(Locale.ROOT);
@@ -223,6 +232,9 @@ public class DocumentRestController {
             DocumentIdentityProvider.stripReservedParams(normalizeParams(req.params())).forEach(jasperParams::put);
             // Identité société + centre (en-tête et pied de page) : posée par le serveur, jamais par le client.
             jasperParams.putAll(identityProvider.paramsFor(req.centerId()));
+            if (estLaSyntheseDeFacturation(req)) {
+                poserLesTotauxDeLaSynthese(req, jasperParams);
+            }
 
             // 3) Générer le rapport
             log.info("Impression: type={}, centre={}, jrxml={}, format={}",
@@ -315,6 +327,49 @@ public class DocumentRestController {
     private byte[] render(UUID modeleId, UUID centerId, String cheminJrxml, Map<String, Object> params, String format)
             throws Exception {
         return printer.render(modeleId, centerId, cheminJrxml, params, format);
+    }
+
+    private static final String SYNTHESE_FACTURATION = "SYNTHESE_FACTURATION_MENSUELLE";
+
+    private static boolean estLaSyntheseDeFacturation(PrintRequest req) {
+        return req != null && req.typeDocument() != null
+                && SYNTHESE_FACTURATION.equals(req.typeDocument().trim().toUpperCase(Locale.ROOT));
+    }
+
+    /**
+     * La synthèse de facturation par modèle de document exige le même profil et le même contrôle de centre que
+     * {@code POST /facturation/synthese/print} (administrateur ou secrétaire ; le médecin seul est refusé) : 403 sinon
+     * (KB-FAC-52 et KB-FAC-60 corrigés). Les autres types de document ne changent pas.
+     */
+    private void garderLaSyntheseDeFacturation(PrintRequest req) {
+        var roles = centerAccessGuard.currentScope().roles();
+        if (!roles.contains("ROLE_ADMIN") && !roles.contains("ROLE_SECRETAIRE")) {
+            throw new AccessDeniedException("Profil insuffisant pour la synthèse de facturation");
+        }
+        centerAccessGuard.requireCenter(req.centerId());
+    }
+
+    /**
+     * Les montants globaux sont les totaux enregistrés des factures de la période (ADR 0034), posés par le serveur : un
+     * paramètre du même nom envoyé par le client est écarté. Période illisible ou inversée : rien n'est posé et le gabarit
+     * retombe sur la somme des lignes, comme avant.
+     */
+    private void poserLesTotauxDeLaSynthese(PrintRequest req, Map<String, Object> jasperParams) {
+        jasperParams.keySet().removeAll(List.of("TOTAL_HT_FACTURES", "TOTAL_TVA_FACTURES", "TOTAL_TTC_FACTURES"));
+        try {
+            Map<String, String> params = normalizeParams(req.params());
+            java.time.LocalDate debut = java.time.LocalDate.parse(params.get("PERIOD_START"));
+            java.time.LocalDate fin = java.time.LocalDate.parse(params.get("PERIOD_END"));
+            if (debut.isAfter(fin)) {
+                return;
+            }
+            SyntheseMensuelle synthese = syntheseDeFacturation.de(req.centerId(), debut, fin);
+            jasperParams.put("TOTAL_HT_FACTURES", synthese.totalHt());
+            jasperParams.put("TOTAL_TVA_FACTURES", synthese.totalTva());
+            jasperParams.put("TOTAL_TTC_FACTURES", synthese.totalTtc());
+        } catch (java.time.DateTimeException | NullPointerException e) {
+            // période absente ou illisible : refusée par la suite comme avant
+        }
     }
 
     private void validatePrintRequest(PrintRequest req, boolean requireTypeDocument) {

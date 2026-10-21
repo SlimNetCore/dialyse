@@ -20,12 +20,11 @@ COPY bc-stock/pom.xml ./bc-stock/pom.xml
 COPY bc-pec/pom.xml ./bc-pec/pom.xml
 COPY bc-seance/pom.xml ./bc-seance/pom.xml
 COPY bc-medical/pom.xml ./bc-medical/pom.xml
-COPY bc-facturation/pom.xml ./bc-facturation/pom.xml
-COPY bc-reglement/pom.xml ./bc-reglement/pom.xml
 COPY bc-migration/pom.xml ./bc-migration/pom.xml
 # Contextes refaits sur place (ADR 0024/0025) : un module Maven par contexte, déclaré dans le pom racine
 COPY contexts/gmao/pom.xml ./contexts/gmao/pom.xml
 COPY contexts/comptabilite/pom.xml ./contexts/comptabilite/pom.xml
+COPY contexts/facturation/pom.xml ./contexts/facturation/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
 RUN mvn -B -q -DskipTests dependency:go-offline

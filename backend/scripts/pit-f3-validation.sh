@@ -1,6 +1,6 @@
 #!/bin/bash
 # Mutation PIT 1.30.0 (+ junit5-plugin 1.2.3) en ligne de commande sur la validation et l'emission des factures (F3 :
-# POST /api/v1/facturation/validate ; legacy bc-facturation + platform, refonte sur place), testees par les 5 classes de
+# POST /api/v1/facturation/validate ; legacy platform, refonte sur place), testees par les 5 classes de
 # caracterisation HTTP (Spring complet, H2) de com.hemodialyse.backend.characterization.facturation.validation.
 # Lent (contexte Spring dans chaque JVM de mutation) : a lancer en arriere-plan, journal puis tail.
 # Prerequis : tests compiles (./mvnw -o -q -pl platform -am test-compile) et classpath ecrit par
@@ -13,7 +13,7 @@ CPFILE=${CPFILE:-/c/Users/TS-CON~1/AppData/Local/Temp/f3-cp.txt}
 DEPS=$(cat "$CPFILE" | tr -d '\r\n' | tr '\' '/')
 # les jars des modules du projet (.m2) peuvent etre perimes : on prend leurs target/classes
 for MOD in shared-kernel bc-article bc-insurance bc-referential bc-patient bc-assure bc-stock bc-pec bc-seance bc-medical \
-           bc-facturation bc-reglement bc-comptabilite bc-migration; do
+           bc-comptabilite bc-migration; do
   DEPS=$(echo "$DEPS" | sed "s|C:/Users/TS-CONSULT/.m2/repository/com/hemodialyse/$MOD/0.0.1-SNAPSHOT/$MOD-0.0.1-SNAPSHOT.jar|$B/$MOD/target/classes|")
 done
 for CTX in gmao comptabilite facturation; do
@@ -30,7 +30,7 @@ java -cp "$PITCP" org.pitest.mutationtest.commandline.MutationCoverageReport \
   --targetClasses "$D.service.FacturationDomainService,$D.aggregate.FactureAggregate,$D.entity.LigneFacture,$D.valueobject.FactureNumberTemplate,$D.valueobject.FacturationPeriod,$D.specification.SeanceEligibleForFacturationSpecification,$I.persistence.adapter.FactureJdbcAdapter,$I.persistence.adapter.SeanceFacturationJdbcAdapter,com.hemodialyse.backend.application.facturation.FacturationApplicationService,$I.web.rest.FacturationRestController" \
   --excludedMethods "dashboard,getSettings,updateSettings,loadDashboard,printSynthese,buildPrintResponse,lambda\$dashboard*,lambda\$loadDashboard*,lambda\$printSynthese*" \
   --targetTests "com.hemodialyse.backend.characterization.facturation.validation.*" \
-  --sourceDirs "$B/platform/src/main/java,$B/bc-facturation/src/main/java" \
+  --sourceDirs "$B/platform/src/main/java" \
   --classPath "$CP" \
   --threads 2 --timeoutConst 120000 --timeoutFactor 4 --outputFormats XML,HTML \
   --mutators DEFAULTS $PIT_EXTRA

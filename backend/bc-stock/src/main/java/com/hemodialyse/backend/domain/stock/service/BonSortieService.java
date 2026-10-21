@@ -3,7 +3,7 @@ package com.hemodialyse.backend.domain.stock.service;
 import com.hemodialyse.backend.domain.article.model.Article;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.shared.vo.CenterId;
-import com.hemodialyse.backend.domain.stock.exception.SeanceBilledStockModificationException;
+import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
 import com.hemodialyse.backend.domain.stock.exception.SeanceStockExitDateImmutableException;
 import com.hemodialyse.backend.domain.stock.model.*;
 import com.hemodialyse.backend.domain.stock.port.*;
@@ -141,7 +141,7 @@ public class BonSortieService implements BonSortieUseCase {
     @Override
     public void annulerSortiesSeance(CenterId centerId, UUID seanceId, String userId) {
         if (seanceBillingStatusPort.isBilled(centerId, seanceId)) {
-            throw new SeanceBilledStockModificationException();
+            throw new SeanceFactureeNonModifiableException();
         }
         List<BonSortie> bons = repo.findBySeance(seanceId, centerId);
         if (bons.isEmpty()) return;
@@ -196,7 +196,7 @@ public class BonSortieService implements BonSortieUseCase {
             throw new IllegalArgumentException("Une seance est requise pour ce bon de sortie");
         }
         if (seanceBillingStatusPort.isBilled(centerId, seanceId)) {
-            throw new SeanceBilledStockModificationException();
+            throw new SeanceFactureeNonModifiableException();
         }
         String by = userId != null ? userId : "system";
         BonSortie existing = repo.findBySeance(seanceId, centerId).stream()
@@ -283,7 +283,7 @@ public class BonSortieService implements BonSortieUseCase {
         UUID effectiveSeanceId = seanceId != null ? seanceId : existing.getSeanceId();
 
         if (isLinkedToSeance(effectiveSeanceId) && seanceBillingStatusPort.isBilled(centerId, effectiveSeanceId)) {
-            throw new SeanceBilledStockModificationException();
+            throw new SeanceFactureeNonModifiableException();
         }
         if (isLinkedToSeance(effectiveSeanceId)
                 && dateSortie != null
@@ -390,7 +390,7 @@ public class BonSortieService implements BonSortieUseCase {
     public BonSortie createViaFefo(CenterId centerId, UUID seanceId, UUID patientId, String poste,
                                    LocalDate dateSortie, UUID articleId, BigDecimal quantite, String userId) {
         if (isLinkedToSeance(seanceId) && seanceBillingStatusPort.isBilled(centerId, seanceId)) {
-            throw new SeanceBilledStockModificationException();
+            throw new SeanceFactureeNonModifiableException();
         }
         Article article = articleRepo.findById(articleId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Article introuvable: " + articleId));

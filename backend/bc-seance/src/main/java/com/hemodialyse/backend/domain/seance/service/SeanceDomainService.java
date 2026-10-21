@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.seance.service;
 
+import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
 import com.hemodialyse.backend.domain.article.port.ArticleRepositoryPort;
 import com.hemodialyse.backend.domain.patient.port.PatientRepositoryPort;
 import com.hemodialyse.backend.domain.patient.vo.PatientId;
@@ -181,7 +182,7 @@ public class SeanceDomainService implements SeanceUseCase {
         Seance seance = seanceRepo.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+            throw new SeanceFactureeNonModifiableException();
         }
         if (seance.getStatus() != SeanceStatus.VALIDEE && seance.getStatus() != SeanceStatus.SIGNEE) {
             throw new IllegalStateException("La seance doit etre validee avant d'ajouter un consommable");
@@ -231,7 +232,7 @@ public class SeanceDomainService implements SeanceUseCase {
         Seance seance = seanceRepo.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+            throw new SeanceFactureeNonModifiableException();
         }
         seance.setDateSeance(dateSeance != null ? dateSeance : LocalDate.now());
         return seanceRepo.save(seance);
@@ -331,7 +332,7 @@ public class SeanceDomainService implements SeanceUseCase {
         Seance seance = seanceRepo.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+            throw new SeanceFactureeNonModifiableException();
         }
         bonSortieUseCase.setSeanceConsommation(centerId, seanceId, seance.getPatientId(), seance.getDateSeance(),
                 articleId, BigDecimal.ZERO, userId);
@@ -346,7 +347,7 @@ public class SeanceDomainService implements SeanceUseCase {
         Seance seance = seanceRepo.findById(seanceId, centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Seance introuvable"));
         if (seance.getStatus() == SeanceStatus.FACTUREE) {
-            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+            throw new SeanceFactureeNonModifiableException();
         }
         // Le bon de sortie unique de la séance est mis à jour avec la nouvelle quantité de l'article
         bonSortieUseCase.setSeanceConsommation(centerId, seanceId, seance.getPatientId(),

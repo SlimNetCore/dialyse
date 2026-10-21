@@ -19,8 +19,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * ({@code GET /api/v1/comptabilite/ventes/non-comptabilisees}, puis {@code POST /api/v1/comptabilite/rebuild}).
  * Publié hors transaction, l'événement est traité tout de suite.
  * <p>
- * Contrat de l'événement depuis la slice F3 (KB-FAC-27/28/29) : il porte la période réellement facturée et décrit les factures
- * émises (identifiants, montants) ; il n'est jamais publié quand rien n'est émis. Les écritures restent produites par période
+ * Contrat de l'événement (v3, ADR 0035) : de taille bornée, il porte la période réellement facturée et le nombre de factures
+ * émises ; il n'est jamais publié quand rien n'est émis. Les factures sont relues en base : les écritures sont produites par période
  * (les factures émises ont exactement cette période) : mêmes écritures qu'avant pour les cas nominaux.
  */
 @Component

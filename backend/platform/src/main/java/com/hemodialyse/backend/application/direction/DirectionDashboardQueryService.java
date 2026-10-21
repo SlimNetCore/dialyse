@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.query.EffectifSql;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseFinanciereDesCentres.ChiffresDuCentre;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -34,9 +36,14 @@ public class DirectionDashboardQueryService {
      */
     static final int MAX_YEARS = 5;
     private final JdbcTemplate jdbc;
+    /**
+     * Part financière (CA, encaissé) : lecture publiée du module Facturation (slice F5).
+     */
+    private final SyntheseFinanciereDesCentres finance;
 
-    public DirectionDashboardQueryService(JdbcTemplate jdbc) {
+    public DirectionDashboardQueryService(JdbcTemplate jdbc, SyntheseFinanciereDesCentres finance) {
         this.jdbc = jdbc;
+        this.finance = finance;
     }
 
     /**
@@ -117,22 +124,8 @@ public class DirectionDashboardQueryService {
                     seances.put(rs.getObject("center_id", UUID.class), rs.getLong("n"));
                 }, params(ids, sqlFrom, sqlTo));
 
-        Map<UUID, BigDecimal[]> factures = new HashMap<>(); // [count, ht, ttc]
-        jdbc.query("SELECT center_id, COUNT(*) AS n, COALESCE(SUM(total_ht),0) AS ht, COALESCE(SUM(total_ttc),0) AS ttc "
-                        + "FROM factures WHERE center_id IN (" + in + ") AND date_facturation BETWEEN ? AND ? GROUP BY center_id",
-                rs -> {
-                    factures.put(rs.getObject("center_id", UUID.class), new BigDecimal[]{
-                            BigDecimal.valueOf(rs.getLong("n")), rs.getBigDecimal("ht"), rs.getBigDecimal("ttc")});
-                }, params(ids, sqlFrom, sqlTo));
-
-        // Règlements des factures émises sur la période (encaissé à ce jour) : reste à recouvrer cohérent avec le CA.
-        Map<UUID, BigDecimal> encaisse = new HashMap<>();
-        jdbc.query("SELECT f.center_id, COALESCE(SUM(r.montant),0) AS encaisse FROM facture_reglements r "
-                        + "INNER JOIN factures f ON f.id = r.facture_id AND f.center_id = r.center_id "
-                        + "WHERE f.center_id IN (" + in + ") AND f.date_facturation BETWEEN ? AND ? GROUP BY f.center_id",
-                rs -> {
-                    encaisse.put(rs.getObject("center_id", UUID.class), rs.getBigDecimal("encaisse"));
-                }, params(ids, sqlFrom, sqlTo));
+        // Factures émises sur la période et leurs règlements (encaissé à ce jour) : reste à recouvrer cohérent avec le CA.
+        Map<UUID, ChiffresDuCentre> finances = finance.chiffresParCentre(ids, start, end);
 
         List<CentreStats> perCentre = new ArrayList<>();
         long totPatients = 0, totKt = 0, totSeances = 0, totFactures = 0;
@@ -140,15 +133,16 @@ public class DirectionDashboardQueryService {
         for (CentreInfo c : societe.centres()) {
             long[] p = patients.getOrDefault(c.id(), new long[]{0, 0});
             long s = seances.getOrDefault(c.id(), 0L);
-            BigDecimal[] f = factures.getOrDefault(c.id(), new BigDecimal[]{BigDecimal.ZERO, zero(), zero()});
-            BigDecimal e = encaisse.getOrDefault(c.id(), zero());
-            perCentre.add(stats(c.id(), c.nom(), c.actif(), p[0], p[1], s, f[0].longValue(), f[1], f[2], e));
+            ChiffresDuCentre f = finances.getOrDefault(c.id(), new ChiffresDuCentre(0, zero(), zero(), zero()));
+            BigDecimal e = f.encaisse().signum() == 0 ? zero() : f.encaisse();
+            perCentre.add(stats(c.id(), c.nom(), c.actif(), p[0], p[1], s, f.factures(), f.chiffreDAffairesHt(),
+                    f.chiffreDAffairesTtc(), e));
             totPatients += p[0];
             totKt += p[1];
             totSeances += s;
-            totFactures += f[0].longValue();
-            totHt = totHt.add(f[1]);
-            totTtc = totTtc.add(f[2]);
+            totFactures += f.factures();
+            totHt = totHt.add(f.chiffreDAffairesHt());
+            totTtc = totTtc.add(f.chiffreDAffairesTtc());
             totEnc = totEnc.add(e);
         }
         CentreStats totaux = stats(null, null, true, totPatients, totKt, totSeances, totFactures, totHt, totTtc, totEnc);
@@ -173,15 +167,10 @@ public class DirectionDashboardQueryService {
         Long seances = jdbc.queryForObject("SELECT COUNT(*) FROM seances WHERE center_id IN (" + in + ") "
                         + "AND date_seance BETWEEN ? AND ? AND statut IN ('VALIDEE','SIGNEE','FACTUREE')",
                 Long.class, params(ids, sqlFrom, sqlTo));
-        Map<String, Object> factures = jdbc.queryForMap("SELECT COALESCE(SUM(total_ht),0) AS ht, "
-                + "COALESCE(SUM(total_ttc),0) AS ttc FROM factures WHERE center_id IN (" + in + ") "
-                + "AND date_facturation BETWEEN ? AND ?", params(ids, sqlFrom, sqlTo));
-        BigDecimal caHt = (BigDecimal) factures.get("ht");
-        BigDecimal caTtc = (BigDecimal) factures.get("ttc");
-        BigDecimal encaisse = jdbc.queryForObject("SELECT COALESCE(SUM(r.montant),0) FROM facture_reglements r "
-                        + "INNER JOIN factures f ON f.id = r.facture_id AND f.center_id = r.center_id "
-                        + "WHERE f.center_id IN (" + in + ") AND f.date_facturation BETWEEN ? AND ?",
-                BigDecimal.class, params(ids, sqlFrom, sqlTo));
+        ChiffresDuCentre cumul = finance.chiffresCumules(ids, prevFrom, prevTo);
+        BigDecimal caHt = cumul.chiffreDAffairesHt();
+        BigDecimal caTtc = cumul.chiffreDAffairesTtc();
+        BigDecimal encaisse = cumul.encaisse();
         BigDecimal reste = caTtc.subtract(encaisse).max(BigDecimal.ZERO);
         BigDecimal taux = caTtc.signum() == 0 ? null
                 : encaisse.multiply(BigDecimal.valueOf(100)).divide(caTtc, 1, RoundingMode.HALF_UP);
@@ -199,14 +188,10 @@ public class DirectionDashboardQueryService {
                             new long[]{rs.getLong("n")});
                 }, params(ids, from, to));
         Map<String, BigDecimal[]> caByKey = new HashMap<>();
-        jdbc.query("SELECT center_id, EXTRACT(YEAR FROM date_facturation) AS y, EXTRACT(MONTH FROM date_facturation) AS m, "
-                        + "COALESCE(SUM(total_ht),0) AS ht, COALESCE(SUM(total_ttc),0) AS ttc "
-                        + "FROM factures WHERE center_id IN (" + in + ") AND date_facturation BETWEEN ? AND ? "
-                        + "GROUP BY center_id, y, m",
-                rs -> {
-                    caByKey.put(key(rs.getObject("center_id", UUID.class), rs.getInt("y"), rs.getInt("m")),
-                            new BigDecimal[]{rs.getBigDecimal("ht"), rs.getBigDecimal("ttc")});
-                }, params(ids, from, to));
+        for (var mois : finance.chiffresParMois(ids, from.toLocalDate(), to.toLocalDate())) {
+            caByKey.put(key(mois.centre(), mois.annee(), mois.mois()),
+                    new BigDecimal[]{mois.chiffreDAffairesHt(), mois.chiffreDAffairesTtc()});
+        }
         java.util.Set<String> keys = new java.util.TreeSet<>();
         keys.addAll(seancesByKey.keySet());
         keys.addAll(caByKey.keySet());

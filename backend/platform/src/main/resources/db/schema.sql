@@ -1354,3 +1354,30 @@ CREATE INDEX IF NOT EXISTS idx_modeles_piece_lignes_compte ON modeles_piece_lign
 -- Auteur de l'émission d'une facture (migration V40, slice F3, KB-FAC-30)
 ALTER TABLE IF EXISTS factures
     ADD COLUMN IF NOT EXISTS emise_par UUID;
+
+-- Mode, référence de paiement et clé d'idempotence d'un règlement (migration V41, slice F4, KB-FAC-39/40)
+ALTER TABLE IF EXISTS facture_reglements
+    ADD COLUMN IF NOT EXISTS mode_reglement VARCHAR(20);
+ALTER TABLE IF EXISTS facture_reglements
+    ADD COLUMN IF NOT EXISTS reference_paiement VARCHAR(120);
+ALTER TABLE IF EXISTS facture_reglements
+    ADD COLUMN IF NOT EXISTS cle_idempotence VARCHAR(120);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_facture_reglements_cle_idempotence
+    ON facture_reglements (center_id, facture_id, cle_idempotence);
+
+-- Registre de publication d'evenements Spring Modulith (outbox, ADR 0013, ADR 0035), cree ici pour H2 : le DDL officiel de
+-- Modulith limite serialized_event a VARCHAR(4000), trop court pour un evenement d'integration. En production, c'est V35 (TEXT).
+CREATE TABLE IF NOT EXISTS event_publication
+(
+    id                     UUID                     NOT NULL,
+    listener_id            VARCHAR(512)             NOT NULL,
+    event_type             VARCHAR(512)             NOT NULL,
+    serialized_event       VARCHAR(1000000)         NOT NULL,
+    publication_date       TIMESTAMP WITH TIME ZONE NOT NULL,
+    completion_date        TIMESTAMP WITH TIME ZONE,
+    status                 VARCHAR(20),
+    completion_attempts    INT,
+    last_resubmission_date TIMESTAMP WITH TIME ZONE,
+    PRIMARY KEY (id)
+);
+CREATE INDEX IF NOT EXISTS event_publication_by_completion_date_idx ON event_publication (completion_date);

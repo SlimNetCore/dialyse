@@ -28,6 +28,12 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          # La table event_publication vient de db/schema.sql en H2 (serialized_event sans limite de 4000 caractères) et de Flyway (V35) en production.
+          enabled: false
   jackson:
     time-zone: UTC
   cache:

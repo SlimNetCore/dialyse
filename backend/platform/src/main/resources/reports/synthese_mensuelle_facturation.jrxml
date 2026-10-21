@@ -8,16 +8,20 @@
     <parameter name="CENTER_ID" class="java.lang.String"/>
     <parameter name="PERIOD_START" class="java.lang.String"/>
     <parameter name="PERIOD_END" class="java.lang.String"/>
+    <!-- Totaux enregistrés des factures de la période (posés par le serveur, ADR 0034) ; absents : somme des lignes -->
+    <parameter name="TOTAL_HT_FACTURES" class="java.math.BigDecimal"/>
+    <parameter name="TOTAL_TVA_FACTURES" class="java.math.BigDecimal"/>
+    <parameter name="TOTAL_TTC_FACTURES" class="java.math.BigDecimal"/>
 
     <queryString>
         <![CDATA[
         SELECT fl.forfait_label AS forfait_label,
                SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CNAS%' THEN fl.line_ht ELSE 0 END) AS cnas_ht,
-               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CNAS%' THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS cnas_ttc,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CNAS%' THEN ((CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END)) ELSE 0 END) AS cnas_ttc,
                SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CASNOS%' THEN fl.line_ht ELSE 0 END) AS casnos_ht,
-               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CASNOS%' THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS casnos_ttc,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CASNOS%' THEN ((CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END)) ELSE 0 END) AS casnos_ttc,
                SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CAMSSP%' THEN fl.line_ht ELSE 0 END) AS camssp_ht,
-               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CAMSSP%' THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS camssp_ttc,
+               SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) LIKE 'CAMSSP%' THEN ((CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END)) ELSE 0 END) AS camssp_ttc,
                SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) NOT LIKE 'CNAS%'
                          AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CASNOS%'
                          AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CAMSSP%'
@@ -25,9 +29,9 @@
                SUM(CASE WHEN UPPER(COALESCE(ca.code, '')) NOT LIKE 'CNAS%'
                          AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CASNOS%'
                          AND UPPER(COALESCE(ca.code, '')) NOT LIKE 'CAMSSP%'
-                    THEN (fl.line_ht * (1 + (f.tva_rate / 100))) ELSE 0 END) AS autres_ttc,
+                    THEN ((CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END)) ELSE 0 END) AS autres_ttc,
                SUM(fl.line_ht) AS total_ht,
-               SUM(fl.line_ht * (1 + (f.tva_rate / 100))) AS total_ttc
+               SUM((CASE WHEN f.total_ht = 0 THEN 0 ELSE fl.line_ht * f.total_ttc / f.total_ht END)) AS total_ttc
         FROM facture_lignes fl
         INNER JOIN factures f ON f.id = fl.facture_id AND f.center_id = fl.center_id
         LEFT JOIN agence a ON a.id = f.agence_id_snapshot AND a.center_id = f.center_id
@@ -277,14 +281,21 @@
                 <textElement>
                     <font size="9"/>
                 </textElement>
-                <textFieldExpression><![CDATA["Montant HT: " + $V{GLOBAL_TOTAL_HT}]]></textFieldExpression>
+                <textFieldExpression><![CDATA["Montant HT: " + ($P{TOTAL_HT_FACTURES} != null ? $P{TOTAL_HT_FACTURES} : $V{GLOBAL_TOTAL_HT})]]></textFieldExpression>
             </textField>
             <textField pattern="#,##0.00">
                 <reportElement x="0" y="40" width="250" height="16"/>
                 <textElement>
                     <font size="9"/>
                 </textElement>
-                <textFieldExpression><![CDATA["Montant TTC: " + $V{GLOBAL_TOTAL_TTC}]]></textFieldExpression>
+                <textFieldExpression><![CDATA["Montant TTC: " + ($P{TOTAL_TTC_FACTURES} != null ? $P{TOTAL_TTC_FACTURES} : $V{GLOBAL_TOTAL_TTC})]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement x="0" y="60" width="250" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Montant TVA: " + ($P{TOTAL_TVA_FACTURES} != null ? $P{TOTAL_TVA_FACTURES} : "")]]></textFieldExpression>
             </textField>
 
             <barChart>

@@ -1,7 +1,7 @@
 package com.hemodialyse.backend.infrastructure.listener;
 
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptabilisationDesVentesEtReglements;
-import com.hemodialyse.backend.domain.reglement.event.FactureReglementRecordedEvent;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FactureReglementRecordedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,8 +32,11 @@ public class ReglementEncaisseComptabiliteListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onReglementEncaisse(FactureReglementRecordedEvent event) {
         try {
-            comptabilisation.reglementEnregistre(event.centerId(), event.factureId(), event.montant(),
-                    event.dateReglement(), event.userId()).forEach(echec -> log.warn(
+            // L'écriture a pour source le règlement lui-même, avec son mode et son signe (un montant négatif est un
+            // remboursement).
+            var echecs = comptabilisation.reglementEnregistre(event.centerId(), event.reglementId(), event.factureId(),
+                    event.montant(), event.dateReglement(), event.mode());
+            echecs.forEach(echec -> log.warn(
                     "Écriture de règlement non générée pour la facture {} ({}) : {} {}", echec.reference(),
                     echec.source(), echec.code(), echec.message()));
         } catch (RuntimeException ex) {

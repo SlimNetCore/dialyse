@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.domain.seance.model;
 
+import com.hemodialyse.backend.domain.shared.exception.SeanceFactureeNonModifiableException;
 import com.hemodialyse.backend.domain.shared.exception.BusinessException;
 
 import java.math.BigDecimal;
@@ -89,7 +90,7 @@ public class Seance {
 
     public void validerParInfirmier(String userId) {
         if (status == SeanceStatus.FACTUREE) {
-            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+            throw new SeanceFactureeNonModifiableException();
         }
         if (status == SeanceStatus.VALIDEE || status == SeanceStatus.SIGNEE) {
             return;
@@ -140,6 +141,9 @@ public class Seance {
      * librement) ou qui n'est plus « créée ».
      */
     public void deverrouillerPourRegularisation(String userId, LocalDate aujourdhui) {
+        if (status == SeanceStatus.FACTUREE) {
+            throw new SeanceFactureeNonModifiableException();
+        }
         if (status != SeanceStatus.CREE) {
             throw new BusinessException("SEANCE_DEVERROUILLAGE_INVALIDE",
                     "Seule une séance restée « créée » peut être déverrouillée pour régularisation");
@@ -176,6 +180,9 @@ public class Seance {
     }
 
     public void signerParMedecin(String userId) {
+        if (status == SeanceStatus.FACTUREE) {
+            throw new SeanceFactureeNonModifiableException();
+        }
         if (status != SeanceStatus.VALIDEE) {
             throw new IllegalStateException("La signature medecin est autorisee uniquement apres validation infirmiere");
         }
@@ -189,7 +196,7 @@ public class Seance {
 
     public void modifierForfait(UUID forfaitId, String forfaitCode, String forfaitNom, BigDecimal forfaitPrix, String userId) {
         if (status == SeanceStatus.FACTUREE) {
-            throw new IllegalStateException("La seance facturee ne peut plus etre modifiee");
+            throw new SeanceFactureeNonModifiableException();
         }
         if (forfaitId == null) {
             throw new IllegalArgumentException("Le forfait est obligatoire");
