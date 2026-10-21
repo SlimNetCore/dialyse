@@ -32,6 +32,24 @@ class ModeleDeNumerotationTest {
                 .hasMessageStartingWith("Jeton inconnu {");
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"REPRISE-{SEQ}", "reprise-{YEAR}-{SEQ}", "  Reprise-{SEQ4}"})
+    void un_modele_commencant_par_le_prefixe_des_factures_de_reprise_est_refuse(String modele) {
+        assertThatThrownBy(() -> ModeleDeNumerotation.saisi(modele)).isInstanceOf(ModeleDeNumerotationInvalide.class)
+                .hasMessageStartingWith("Le modèle de numérotation ne peut pas commencer par REPRISE-");
+    }
+
+    @Test
+    void le_prefixe_reserve_est_celui_des_factures_de_reprise() {
+        assertThat(ModeleDeNumerotation.PREFIXE_RESERVE_A_LA_REPRISE)
+                .isEqualTo(com.hemodialyse.backend.contexts.facturation.publishedlanguage.RepriseDesSoldes.PREFIXE_DES_NUMEROS);
+    }
+
+    @Test
+    void un_modele_contenant_reprise_ailleurs_qu_au_debut_est_accepte() {
+        assertThat(ModeleDeNumerotation.saisi("FAC-REPRISE-{SEQ}").valeur()).isEqualTo("FAC-REPRISE-{SEQ}");
+    }
+
     @Test
     void le_jeton_inconnu_est_cite() {
         assertThatThrownBy(() -> ModeleDeNumerotation.saisi("FAC-{MOIS}-{SEQ}"))

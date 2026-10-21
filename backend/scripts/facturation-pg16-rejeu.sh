@@ -3,7 +3,8 @@
 # migration V40, factures, reservation atomique de la sequence sous concurrence) F4 (reglements : migration V41 mode / reference /
 # cle d'idempotence, index unique, lecture des situations, enregistrements simultanes) et F5 (lectures de pilotage : tableau de bord,
 # synthese, synthese financiere publiee pour la Direction : sommes, extraction annee/mois, comptages distincts, ordre) et F6 (ports
-# publies : periode facturee, factures emises et reglements encaisses hors reprise, reprise des soldes) sur un
+# publies : periode facturee, factures emises et reglements encaisses hors reprise, reprise des soldes ; deux requetes SQL de la
+# synthese mensuelle lues dans platform : part de TTC par ligne, comparees a H2) sur un
 # PostgreSQL 16 REEL et JETABLE : cluster temporaire detruit en
 # sortie. Chaine Flyway V1..Vn (psql), constat KB-FAC-07 sur le schema Flyway pur (l'ancien MERGE ... KEY de
 # FacturationSettingsJdbcAdapter, syntaxe H2, doit ECHOUER), puis contrats PostgreSQL : parametres de facturation (contexte
@@ -62,22 +63,25 @@ echo "-- F4 : V41 est idempotente (rejeu sans erreur)"
 
 cd "$RACINE/backend"
 echo "=== Contrat PostgreSQL des parametres (contexte facturation) ==="
-./mvnw -o -pl contexts/facturation test -Dtest='ParametresPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+./mvnw -o -pl contexts/facturation -am test -Dtest='ParametresPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrats PostgreSQL de la simulation F2 (seances : exclusion, reinclusion, surcharge ; sequence) ==="
-./mvnw -o -pl contexts/facturation test -Dtest='SeancesPostgresContractIT,SequencePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+./mvnw -o -pl contexts/facturation -am test -Dtest='SeancesPostgresContractIT,SequencePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrats PostgreSQL de la validation F3 (factures, numero unique par centre, auteur ; reservation atomique de la sequence sous concurrence) ==="
-./mvnw -o -pl contexts/facturation test -Dtest='FacturesPostgresContractIT,SequenceConcurrentePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+./mvnw -o -pl contexts/facturation -am test -Dtest='FacturesPostgresContractIT,SequenceConcurrentePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrats PostgreSQL des reglements F4 (colonnes V41, index unique, lecture des situations ; idempotence et remboursement sous concurrence) ==="
-./mvnw -o -pl contexts/facturation test -Dtest='ReglementsPostgresContractIT,ReglementsConcurrentsPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+./mvnw -o -pl contexts/facturation -am test -Dtest='ReglementsPostgresContractIT,ReglementsConcurrentsPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrats PostgreSQL des lectures de pilotage F5 (totaux stockes, annee/mois, comptages, ordre) ==="
-./mvnw -o -pl contexts/facturation test -Dtest='PilotagePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+./mvnw -o -pl contexts/facturation -am test -Dtest='PilotagePostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrats PostgreSQL des ports publies F6 (periode facturee, factures emises et reglements encaisses hors reprise ; reprise des soldes) ==="
 ./mvnw -o -pl contexts/facturation -am test -Dtest='LecturesPubliquesPostgresContractIT,RepriseDesSoldesPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
+echo "=== Contrat PostgreSQL des deux requetes de la synthese mensuelle lues dans platform (part de TTC par ligne : gabarit dynamique et gabarit statique, compares a H2) ==="
+./mvnw -o -pl platform -am test -Dtest='SyntheseMensuelleSqlPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \
   -Dfacturation.pg16.url="$URL" -Dfacturation.pg16.user=facturation_test -Dfacturation.pg16.password="$PW" || RC=1
 echo "=== Contrat PostgreSQL des regles de TVA (contexte comptabilite) ==="
 ./mvnw -o -pl contexts/comptabilite test -Dtest='RegleTvaPostgresContractIT' -Dsurefire.failIfNoSpecifiedTests=false \

@@ -1,0 +1,22 @@
+{
+  "INFIRMIER+ADMIN" : {
+    "documents/print" : 200,
+    "documents/print/{modeleId}" : 200,
+    "facturation/synthese/print" : 200
+  },
+  "MEDECIN seul" : {
+    "documents/print" : 403,
+    "documents/print/{modeleId}" : 403,
+    "facturation/synthese/print" : 403
+  },
+  "MEDECIN+INFIRMIER" : {
+    "documents/print" : 403,
+    "documents/print/{modeleId}" : 403,
+    "facturation/synthese/print" : 403
+  },
+  "MEDECIN+SECRETAIRE" : {
+    "documents/print" : 200,
+    "documents/print/{modeleId}" : 200,
+    "facturation/synthese/print" : 200
+  }
+}

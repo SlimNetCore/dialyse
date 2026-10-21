@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.characterization.facturation.validation;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
@@ -135,6 +136,32 @@ class EvenementEtComptabiliteCharacterizationIntegrationTest extends ValidationC
         goldenEvenements("rejeu_evenements_nouveau_code");
     }
 
+    @Autowired
+    private tools.jackson.databind.ObjectMapper mapperDeLApplication;
+
+    @Autowired
+    private com.hemodialyse.backend.infrastructure.listener.FacturationValideeComptabiliteListener consommateur;
+
+    @Test
+    void une_publication_v2_enregistree_avant_la_v3_se_relit_et_le_consommateur_la_traite_sans_erreur() throws Exception {
+        troisPatients();
+        valider(mois(CENTRE_A, JANVIER, true));
+        var ecritures = compter("ecritures_comptables", CENTRE_A);
+        // Publication v2 telle qu'enregistrée avant ADR 0036 : champs v3 absents sauf ceux de la v2, liste « factures » en plus.
+        String v2 = "{\"centre\":\"" + CENTRE_A + "\",\"debut\":\"2026-01-01\",\"fin\":\"2026-01-31\",\"seancesFacturees\":4,"
+                + "\"totalTtc\":100.00,\"survenueLe\":\"2026-01-31T10:00:00Z\","
+                + "\"factures\":[{\"factureId\":\"" + UUID.randomUUID() + "\",\"numero\":\"FAC-1\",\"montantHt\":1,\"montantTva\":0,\"montantTtc\":1}]}";
+
+        var evenement = mapperDeLApplication.readValue(v2,
+                com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent.class);
+
+        assertEquals(0, evenement.nombreDeFactures().intValue());
+        assertEquals(CENTRE_A, evenement.centre());
+        assertEquals(4, evenement.seancesFacturees());
+        consommateur.onFacturationValidee(evenement);
+        assertEquals(ecritures, compter("ecritures_comptables", CENTRE_A));
+    }
+
     @Test
     void la_validation_de_trois_cents_factures_reussit_et_l_evenement_reste_de_taille_bornee() throws Exception {
         // KB-FAC-72 : l'ancien événement (une ligne par facture) dépassait VARCHAR(4000) de event_publication en H2.
@@ -149,7 +176,7 @@ class EvenementEtComptabiliteCharacterizationIntegrationTest extends ValidationC
 
         assertEquals(300, compter("factures", CENTRE_A));
         assertEquals(1, evenements.recus().size());
-        assertEquals(300, evenements.recus().getFirst().nombreDeFactures());
+        assertEquals(300, evenements.recus().getFirst().nombreDeFactures().intValue());
         assertEquals(300, compter("ecritures_comptables", CENTRE_A));
 
     }

@@ -118,10 +118,14 @@ class LecturesFinancieresDirectionCharacterizationIntegrationTest extends Pilota
     void sans_parametre_la_periode_va_du_1er_janvier_de_l_annee_a_aujourd_hui() throws Exception {
         jeuDeLaSociete();
 
+        LocalDate avant = LocalDate.now();
         JsonNode o = json(doGet(DIRECTION + "/overview", direction()));
+        LocalDate apres = LocalDate.now();
 
-        assertEquals(LocalDate.now().getYear() + "-01-01", o.path("from").asString());
-        assertEquals(LocalDate.now().toString(), o.path("to").asString());
+        // Tolère un passage à minuit entre l'appel et la lecture de l'horloge
+        LocalDate fin = LocalDate.parse(o.path("to").asString());
+        org.junit.jupiter.api.Assertions.assertTrue(fin.equals(avant) || fin.equals(apres), "to = " + fin);
+        assertEquals(fin.getYear() + "-01-01", o.path("from").asString());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
 import com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler;
@@ -270,6 +271,11 @@ public class DocumentRestController {
     @PostMapping("/print/{modeleId}")
     public ResponseEntity<byte[]> printById(@PathVariable UUID modeleId,
                                             @RequestBody PrintRequest req) {
+        // Le type du modèle chargé (jamais un paramètre du client) décide de la garde de la synthèse de facturation.
+        boolean synthese = estUnModeleDeSynthese(modeleId);
+        if (synthese) {
+            garderLaSyntheseDeFacturation(req);
+        }
         try {
             validatePrintRequest(req, false);
             Map<String, Object> modele = jdbc.queryForMap(
@@ -294,6 +300,9 @@ public class DocumentRestController {
             DocumentIdentityProvider.stripReservedParams(normalizeParams(req.params())).forEach(jasperParams::put);
             // Identité société + centre (en-tête et pied de page) : posée par le serveur, jamais par le client.
             jasperParams.putAll(identityProvider.paramsFor(req.centerId()));
+            if (synthese) {
+                poserLesTotauxDeLaSynthese(req, jasperParams);
+            }
 
             byte[] data = render(modeleId, req.centerId(), cheminJrxml, jasperParams, format);
             return buildResponse(data, format, typeDoc);
@@ -336,14 +345,19 @@ public class DocumentRestController {
                 && SYNTHESE_FACTURATION.equals(req.typeDocument().trim().toUpperCase(Locale.ROOT));
     }
 
+    private boolean estUnModeleDeSynthese(UUID modeleId) {
+        var types = jdbc.queryForList("SELECT type_document FROM modele_document WHERE id = ?", String.class, modeleId);
+        return !types.isEmpty() && types.get(0) != null
+                && SYNTHESE_FACTURATION.equals(types.get(0).trim().toUpperCase(Locale.ROOT));
+    }
+
     /**
      * La synthèse de facturation par modèle de document exige le même profil et le même contrôle de centre que
      * {@code POST /facturation/synthese/print} (administrateur ou secrétaire ; le médecin seul est refusé) : 403 sinon
      * (KB-FAC-52 et KB-FAC-60 corrigés). Les autres types de document ne changent pas.
      */
     private void garderLaSyntheseDeFacturation(PrintRequest req) {
-        var roles = centerAccessGuard.currentScope().roles();
-        if (!roles.contains("ROLE_ADMIN") && !roles.contains("ROLE_SECRETAIRE")) {
+        if (!ProfilDeLaSynthese.autorise(centerAccessGuard.currentScope().roles())) {
             throw new AccessDeniedException("Profil insuffisant pour la synthèse de facturation");
         }
         centerAccessGuard.requireCenter(req.centerId());

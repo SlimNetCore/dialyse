@@ -1365,7 +1365,7 @@ ALTER TABLE IF EXISTS facture_reglements
 CREATE UNIQUE INDEX IF NOT EXISTS ux_facture_reglements_cle_idempotence
     ON facture_reglements (center_id, facture_id, cle_idempotence);
 
--- Registre de publication d'evenements Spring Modulith (outbox, ADR 0013, ADR 0035), cree ici pour H2 : le DDL officiel de
+-- Registre de publication d'evenements Spring Modulith (outbox, ADR 0013, ADR 0036), cree ici pour H2 : le DDL officiel de
 -- Modulith limite serialized_event a VARCHAR(4000), trop court pour un evenement d'integration. En production, c'est V35 (TEXT).
 CREATE TABLE IF NOT EXISTS event_publication
 (

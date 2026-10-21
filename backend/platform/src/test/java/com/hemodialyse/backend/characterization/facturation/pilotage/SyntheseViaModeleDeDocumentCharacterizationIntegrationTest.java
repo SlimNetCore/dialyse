@@ -137,6 +137,55 @@ class SyntheseViaModeleDeDocumentCharacterizationIntegrationTest extends Pilotag
         goldenNode("profils_nouveau_code", mapper.valueToTree(cas));
     }
 
+    private Resp imprimerParModele(UUID centre, UUID modeleCentre, org.springframework.test.web.servlet.request.RequestPostProcessor who) throws Exception {
+        UUID id = UUID.nameUUIDFromBytes(("f5:modele:" + modeleCentre).getBytes());
+        return doPost("/api/v1/documents/print/" + id, corps(centre, "2026-02-01", "2026-02-28", "PDF"), who);
+    }
+
+    @Test
+    void l_impression_par_identifiant_de_modele_pose_les_totaux_enregistres_comme_l_autre_voie() throws Exception {
+        modele(CENTRE_A, true);
+        jeuDeFevrier();
+
+        // Nouveau code F5 (M1) : mêmes montants que POST /documents/print (totaux enregistrés), et non la somme des lignes
+        goldenPdf("par_identifiant_de_modele_admin_totaux_enregistres_nouveau_code",
+                imprimerParModele(CENTRE_A, CENTRE_A, adminA()));
+    }
+
+    @Test
+    void l_impression_par_identifiant_de_modele_refuse_un_profil_insuffisant_en_403() throws Exception {
+        modele(CENTRE_A, true);
+        jeuDeFevrier();
+
+        golden("par_identifiant_de_modele_infirmier_seul_nouveau_code", imprimerParModele(CENTRE_A, CENTRE_A, as(CENTRE_A, "INFIRMIER")));
+    }
+
+    @Test
+    void l_impression_par_identifiant_de_modele_refuse_un_centre_different_de_la_session_en_403() throws Exception {
+        modele(CENTRE_B, true);
+        jeuDeFevrier();
+
+        golden("par_identifiant_de_modele_centre_different_nouveau_code", imprimerParModele(CENTRE_B, CENTRE_B, adminA()));
+    }
+
+    @Test
+    void les_deux_voies_appliquent_la_meme_regle_de_profil_y_compris_pour_un_compte_multi_roles() throws Exception {
+        modele(CENTRE_A, true);
+        jeuDeFevrier();
+        Map<String, Object> cas = new LinkedHashMap<>();
+        String[][] profils = {{"MEDECIN+INFIRMIER", "MEDECIN", "INFIRMIER"}, {"MEDECIN+SECRETAIRE", "MEDECIN", "SECRETAIRE"},
+                {"INFIRMIER+ADMIN", "INFIRMIER", "ADMIN"}, {"MEDECIN seul", "MEDECIN"}};
+        for (String[] p : profils) {
+            String[] roles = java.util.Arrays.copyOfRange(p, 1, p.length);
+            Map<String, Object> voies = new LinkedHashMap<>();
+            voies.put("documents/print", imprimer(CENTRE_A, "2026-02-01", "2026-02-28", "PDF", as(CENTRE_A, roles)).status());
+            voies.put("documents/print/{modeleId}", imprimerParModele(CENTRE_A, CENTRE_A, as(CENTRE_A, roles)).status());
+            voies.put("facturation/synthese/print", synthese(CENTRE_A, "2026-02-01", "2026-02-28", "PDF", as(CENTRE_A, roles)).status());
+            cas.put(p[0], voies);
+        }
+        goldenNode("profils_multi_roles_trois_voies_nouveau_code", mapper.valueToTree(cas));
+    }
+
     private ObjectNode resume(Resp r) {
         ObjectNode o = mapper.createObjectNode();
         o.put("status", r.status());

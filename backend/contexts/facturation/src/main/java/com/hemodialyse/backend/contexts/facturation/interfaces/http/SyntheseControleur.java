@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.facturation.interfaces.http;
 
 import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FormatDImpression;
+import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.application.pilotage.ImprimerLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 import jakarta.validation.Valid;
@@ -32,7 +33,7 @@ public class SyntheseControleur {
         this.imprimer = imprimer;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','MEDECIN','SECRETAIRE')")
+    @PreAuthorize(ProfilDeLaSynthese.EXPRESSION)
     @PostMapping("/synthese/print")
     public ResponseEntity<byte[]> imprimer(@RequestBody @Valid SyntheseRequete requete) {
         CentreId centre = session.centre(requete.centerId());

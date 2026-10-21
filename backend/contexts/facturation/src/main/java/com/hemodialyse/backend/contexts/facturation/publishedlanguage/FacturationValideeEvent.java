@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Événement d'intégration publié après la validation d'une facturation (RG-FAC-032, F14), version 3 (ADR 0035) : de taille bornée,
+ * Événement d'intégration publié après la validation d'une facturation (RG-FAC-032, F14), version 3 (ADR 0036) : de taille bornée,
  * il annonce qu'une émission a eu lieu sur une période d'un centre, sans lister les factures (les consommateurs les relisent en
  * base : la Comptabilité écrit les ventes des factures de la période encore sans écriture, de façon idempotente). Il n'est jamais publié
  * quand aucune facture n'est émise. Publié dans la transaction de la validation, enregistré dans le registre d'événements et
@@ -21,6 +21,11 @@ import java.util.UUID;
  * @param totalTtc          somme exacte du TTC des factures émises
  * @param survenueLe        l'instant de la validation
  */
-public record FacturationValideeEvent(UUID centre, LocalDate debut, LocalDate fin, int nombreDeFactures,
+public record FacturationValideeEvent(UUID centre, LocalDate debut, LocalDate fin, Integer nombreDeFactures,
                                       int seancesFacturees, BigDecimal totalTtc, Instant survenueLe) {
+
+    /** Une publication v2 relue n'a pas ce champ : zéro par défaut (compatibilité, ADR 0036). */
+    public FacturationValideeEvent {
+        nombreDeFactures = nombreDeFactures == null ? 0 : nombreDeFactures;
+    }
 }

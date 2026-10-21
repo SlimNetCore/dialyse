@@ -1,0 +1,11 @@
+{
+  "status" : 403,
+  "contentType" : "application/problem+json",
+  "body" : {
+    "code" : "ACCESS_DENIED",
+    "detail" : "Profil insuffisant pour la synthèse de facturation",
+    "instance" : "/api/v1/documents/print/<MODELE_A>",
+    "status" : 403,
+    "title" : "Acces refuse"
+  }
+}

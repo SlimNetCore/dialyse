@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.facturation.domain.parametres;
 import com.hemodialyse.backend.contexts.facturation.domain.CentreId;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +13,8 @@ import java.util.regex.Pattern;
  * de l'identifiant du centre), {@code {SEQ}} ou {@code {SEQn}} (séquence sur n chiffres, 4 par défaut, n de 1 à 99).
  * <p>
  * Un modèle <b>saisi</b> ({@link #saisi}) doit contenir un jeton de séquence et aucun jeton inconnu (KB-FAC-09 corrigé : sans
- * séquence, toutes les factures porteraient le même numéro) et tenir dans la colonne (120 caractères). Un modèle relu en base
+ * séquence, toutes les factures porteraient le même numéro), tenir dans la colonne (120 caractères) et ne pas commencer par
+ * {@code REPRISE-}, insensible à la casse (préfixe des factures de reprise, exclues sans bruit de la comptabilité). Un modèle relu en base
  * n'est pas revalidé.
  */
 public record ModeleDeNumerotation(String valeur) {
@@ -20,6 +22,9 @@ public record ModeleDeNumerotation(String valeur) {
     public static final ModeleDeNumerotation PAR_DEFAUT = new ModeleDeNumerotation("FAC-{YEAR}-{SEQ}");
 
     static final int LONGUEUR_MAXIMALE = 120;
+
+    /** Le préfixe des numéros des factures de reprise ({@code RepriseDesSoldes.PREFIXE_DES_NUMEROS}, vérifié par un test). */
+    static final String PREFIXE_RESERVE_A_LA_REPRISE = "REPRISE-";
 
     private static final Pattern SEQUENCE_A_REMPLACER = Pattern.compile("\\{SEQ(?:(\\d+))?}");
     private static final int LARGEUR_PAR_DEFAUT = 4;
@@ -41,6 +46,11 @@ public record ModeleDeNumerotation(String valeur) {
         if (valeur.length() > LONGUEUR_MAXIMALE) {
             throw new ModeleDeNumerotationInvalide("Le modèle de numérotation ne doit pas dépasser " + LONGUEUR_MAXIMALE
                     + " caractères");
+        }
+        if (valeur.trim().toUpperCase(Locale.ROOT).startsWith(PREFIXE_RESERVE_A_LA_REPRISE)) {
+            throw new ModeleDeNumerotationInvalide("Le modèle de numérotation ne peut pas commencer par "
+                    + PREFIXE_RESERVE_A_LA_REPRISE + " : ce préfixe est réservé aux factures de reprise des soldes, "
+                    + "exclues de la comptabilité");
         }
         boolean sequence = false;
         Matcher jetons = JETON.matcher(valeur);
